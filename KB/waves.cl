@@ -786,12 +786,13 @@
 		  ;; BvdS:  this is 180 deg off from phi in my notes
    (variable ?phi (at (dir (relative-position 
 			    ?source ?observer)) ?t))
-   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t) ?sdir))
-   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t) ?odir))
+   ;; vectors defined in 
+   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-interval) ?sdir))
+   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-interval) ?odir))
    (bind ?sterm (if (eq ?sdir 'zero) ?vw 
-		   `(+ ,?vw ((* ,?vs (cos (- ,?phi ,?sdir)))))))
+		  `(+ ,?vw (* ,?vs (cos (- ,?phi ,?sdir))))))
    (bind ?oterm (if (eq ?odir 'zero) ?vw 
-		   `(+ ,?vw (* ,?vo (cos (- ,?phi ,?odir))))))
+		  `(+ ,?vw (* ,?vo (cos (- ,?phi ,?odir))))))
    )
   :effects (
 	    (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
