@@ -252,11 +252,10 @@ LEAF	T=1/f	period-of-wave
 LEAF	vw=$l*f              Speed of a wave	speed-of-wave	
 LEAF	vw1=vw2              All waves in a system have same speed	wave-speeds-equal	
 LEAF	vw1=vw2              Speed of pulse is wave speed	speed-equals-wave-speed	
-LEAF	c=2.998E8 m/s is speed of light	wave-speed-light	
 LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
 LEAF	vmax=A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
 LEAF	amax=A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
 LEAF	T=2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
 LEAF	T=2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
 LEAF	fo=fs*(1+vo/vw)/(1-vs/vw))   Frequency shift from doppler effect	doppler-frequency	
-END-GROUP			
+END_GROUP			
