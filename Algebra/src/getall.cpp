@@ -25,7 +25,7 @@ int getavarwu(const string bufst,const bool varNew,    // moved to getavar.cpp
 bool makenn(const string bufst);
 bool makepos(const string bufst);
 bool makenz(const string bufst);
-bool makepar(const string bufst);
+bool makepar(const string bufst,const bool keep_algebraic);
 //  bool setacc(const string bufst);   on hold, wait for decent err treatment
 numvalexp * parseunit(stack<string> *toklist); 		// in getaneqn.cpp
 
@@ -72,9 +72,9 @@ bool getall(const string bufst)
   if (startwith(bufst,"(nonzero") )
     {makenz(bufst); return(true); }
   if (startwith(bufst,"(parameter"))
-    {makepar(bufst); return(true); }
-  // if (startwith(bufst,"(relerr"))        // on hold - wait for decent
-  //    {setacc(bufst); return(true); }     // treatment of errors
+    {makepar(bufst,false); return(true); }
+  if (startwith(bufst,"(keepalgebraic"))
+    {makepar(bufst,true); return(true); }
   if (bufst.substr(0,1) == "<") return(true);
   if (bufst.substr(0,1) == " ") return(true);
   if (bufst.substr(0,1) == "\t") return(true);
@@ -221,7 +221,7 @@ bool setacc(const string bufst)
  *	The value it is set to (if found) is e/pi for the first		*
  *	  parameter, and e^n/pi for the n'th one specified		*
  ************************************************************************/
-bool makepar(const string bufst)
+bool makepar(const string bufst, bool keep_algebraic)
 {
   int k;
   extern int numparams;
@@ -230,9 +230,14 @@ bool makepar(const string bufst)
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
       {
-	(*canonvars)[k]->isparam = true;
+	if(keep_algebraic)
+	  (*canonvars)[k]->keepalgebraic = true;
+	else
+	  (*canonvars)[k]->isparam = true;
+        
+	// in both cases, we assign dummy values to the variables.
 	numparams++;
-	binopexp * eq = new binopexp(&equals,new physvarptr(k),
+	binopexp *eq = new binopexp(&equals,new physvarptr(k),
 				     new numvalexp(pow(M_E,numparams)/M_PI));
 	paramasgn->push_back(eq);
 	DBG ( cout << "variable |" << newvar << "| set param, no. "

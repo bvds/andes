@@ -121,17 +121,18 @@ class physvar
   dimens MKS;
   bool isnonneg;
   bool isnonzero;
-  bool isparam;
+  bool isparam;   // solutions are independant of the value of this variable.
+  bool keepalgebraic;  // There is no numerical value for this variable.
   bool isused;
 
   physvar() :
     clipsname("unknown"), shortname("?"),type(unspecified),
-    value(HUGE_VAL), abserr(-1.), prefUnit(""),
-    isnonneg(false), isnonzero(false), isparam(false), isused(false) { }
+    value(HUGE_VAL), abserr(-1.), prefUnit(""), isnonneg(false), 
+    isnonzero(false), isparam(false), keepalgebraic(false), isused(false) { }
   physvar(string clp) :
     clipsname(clp), shortname("?"),type(unspecified),
-    value(HUGE_VAL), abserr(-1.), prefUnit(""),
-    isnonneg(false), isnonzero(false), isparam(false), isused(false) { }
+    value(HUGE_VAL), abserr(-1.), prefUnit(""), isnonneg(false), 
+    isnonzero(false), isparam(false), keepalgebraic(false),isused(false) { }
   ~physvar();
   void putclipsname(string);
   void putshortname(string);

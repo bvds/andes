@@ -81,14 +81,25 @@ string powersolve(const int howstrong, const varindx sought,
   // get a list of vars appearing in those equations
   for (q = 0; q < eqn->size(); q++)
     numunknowns((*eqn)[q],*vars,false);
-    DBG( cout << "and variable list with " << vars->size() << " variables: "
-       << endl;
-       cout << "          ";
+  DBG( cout << "and variable list with " << vars->size() << " variables: ";
+       cout<< endl << "          ";
        for (q = 0; q < vars->size();q++) 
        cout << (*canonvars)[(*vars)[q]]->clipsname << ", ";
        cout << endl);
-    // start the solution process. This will repeat if doagain winds up
-    // positive
+
+  // Add dummy values for all variables that are marked as parameters
+  // I use random numbers in [0,1]
+  for(q=0; q< vars->size(); q++)
+    if( (*canonvars)[(*vars)[q]]->isparam ){
+      eqn->push_back((binopexp *) 
+		     new binopexp(&equals, new physvarptr((*vars)[q]),
+				  new numvalexp((double) rand()/RAND_MAX)));
+      DBG(cout << "add eqn for parameter " << 
+	  (*canonvars)[(*vars)[q]]->clipsname<< endl);
+    }
+      
+  // start the solution process. This will repeat if doagain winds up
+  // positive
   vector<binopexp *> * partsols; // partially solved vars in purelin
   vector<binopexp *> * soleqs = new vector<binopexp *>;
   binopexp * ansexpr;		// will hold answer
@@ -109,10 +120,10 @@ string powersolve(const int howstrong, const varindx sought,
       partsols = dopurelin(eqn,vars,soleqs,doagain);
       if (checkifdone(sought, ansexpr, soleqs)) goto success;
       DBG(cout << "After dopurelin, soleqs =" << endl;
-	for (q = 0; q < soleqs->size();q++) 
+	  for (q = 0; q < soleqs->size();q++) 
 	  cout << "          " << (*soleqs)[q]->getLisp(false) << endl;
-	cout << "          and partsols =" << endl;
-	for (q = 0; q < partsols->size(); q++) 
+	  cout << "          and partsols =" << endl;
+	  for (q = 0; q < partsols->size(); q++) 
 	  cout << "          " << (*partsols)[q]->getLisp(false) << endl);
     }
     else {

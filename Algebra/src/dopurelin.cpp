@@ -131,10 +131,12 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn,
 		    <<", isparam: " <<
 	         (((*canonvars)[(*linvars)[q]]->isparam) ? "true" : "false")
 		    << endl; } );
-      // now put parameters (always nonnegative, I hope) after others
+      // now put parameters and algebraic givens
+      // (always nonnegative, I hope) after others
       if (!((*canonvars)[(*linvars)[k]])->isnonneg) k++;
       for (q=((int)linvars->size())-1;k<q;)	// k is first one not examined
-	if ((*canonvars)[(*linvars)[k]]->isparam)
+	if ( (*canonvars)[(*linvars)[k]]->isparam ||
+	    (*canonvars)[(*linvars)[k]]->keepalgebraic )
 	  {
 	    DTL( cout << "linvars "<<k<<" isparam, exchanging with "<< q
 		 << endl; );

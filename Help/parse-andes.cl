@@ -888,10 +888,10 @@
    (t (append (bad-vars-in (first parse) lhs)
 	      (bad-vars-in (rest parse) lhs)))))
 
-; check for use of disallowed variables (non-answer-vars) in answer expr
-; arguments: "valid" = list of valid parses of answer value expression
-; returns: NIL if found an OK parse, 
-;          a list of bad-vars if didn't 
+;; check for use of disallowed variables (non-answer-vars) in answer expr
+;; arguments: "valid" = list of valid parses of answer value expression
+;; returns: NIL if found an OK parse, 
+;;          a list of bad-vars if didn't 
 (defun bad-vars-in-answer (valid)
   (let ((FoundOK NIL) (badvars NIL)) ;;(tmp nil) (result nil)
     (if (/= (length valid) 0)
