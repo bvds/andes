@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Executable2.cl
 ;; Kurt Vanlehn and Collin Lynch
 ;; 10/24/2000
@@ -41,22 +41,11 @@
 ;;                                                 that unify with form and store the result in exp.
 ;;
 ;; Modifications:  
-;;   10/16/2000 <Collin Lynch> Modified execute bind to fail if func returns nil. 
+;;   10/16/2000 <Collin Lynch> Modified execute bind to fail if 
+;;                             func returns nil. 
 ;;
-|#
 
-
-#|(defconstant *split* 'split
-  "Marks a non-deterministic split in the solution path")
-  (defconstant *next* 'next
-  "Marks a end of one parallel branch and the beginning of another")
-  (defconstant *join* 'join
-  "Marks the end of a set of parallel branches")
-  (defconstant *choose* 'choose
-  "Marks a choice among alternative paths")
-|#
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; is-executable
 ;; Returns true iff the specified expression is an executable goal.
 
