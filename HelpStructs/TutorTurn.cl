@@ -108,7 +108,6 @@
 (defconstant **Color-Red** 'Color-Red)
 (defconstant **Color-Green** 'Color-Green)
 (defconstant **no-op-Turn** 'No-Op-Turn)
-(defconstant **Delete-Entry** 'Delete-Entry)
 
 (defconstant **Dialog-Turn** 'Dialog-Turn)
 (defconstant **Minil-turn** 'Minil-Turn)

@@ -8,7 +8,6 @@
 (in-package :user)
 (in-package :asdf)
 
-
 (defsystem :andes-help
   :name "Andes help"
   :description "Andes physics tutor system: helpsystem"
@@ -17,7 +16,8 @@
 	       (:module "HelpStructs"
 			;; PSMgraph and SystemEntry are defined in "andes"
 			:components ((:file "StudentEntry")
-				     (:file "TutorTurn")
+				     (:file "TutorTurn"
+					    :depends-on ("CMD"))
 				     (:file "Error-Interp")
 				     (:file "StudentAction"
 					    :depends-on ("TutorTurn"))
@@ -97,13 +97,5 @@
 
 ;;;  make source file extension "cl"  See asdf manual
 
-(defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes-help))))
-   "cl")
-
-;;;;
-;;;;  install command
-;;;;
-
-(defun rhelp ()
-  "Reset the lists in KB and reload all files using asdf"
-  (asdf:operate 'asdf:load-op 'andes-help))
+(defmethod source-file-type ((c cl-source-file) 
+			     (s (eql (find-system :andes-help)))) "cl")

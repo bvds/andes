@@ -22,15 +22,12 @@
 ;;;;   Load the source file, without compiling
 ;;;;   asdf:load-op reloads all files, whether they have been
 ;;;;   changed or not.
-(defclass load-only-andes-source-file (source-file) ())
-(defmethod output-files ((o compile-op) (s load-only-andes-source-file))
-  (list (component-pathname s)))
-(defmethod perform ((o compile-op) (s load-only-andes-source-file))
+
+(defclass no-compile-file (asdf:cl-source-file) ())
+(defmethod asdf:perform ((o asdf:compile-op) (s no-compile-file))
   nil)
-(defmethod perform ((o load-op) (s load-only-andes-source-file))
-  (load (component-pathname s)))
-(defmethod source-file-type ((s load-only-andes-source-file) y)
-  "cl")
+(defmethod asdf:output-files ((o asdf:compile-op) (s no-compile-file))
+  (list (component-pathname s)))
 
 
 (defsystem :andes
@@ -63,37 +60,40 @@
 				     ;; also depends on HelpStructs
 					    :depends-on ("qvar" "eqn"))  
 				     (:file "ErrorClass")  
-				     (:file "Ontology")  
+				     ;; NLG not defined
+				     (:no-compile-file "Ontology")  
 				     (:file "Problem") ;depends on HelpStructs
 				     (:file "Solution")))	       
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
-			;; These are not compiled
-			:default-component-class load-only-andes-source-file
 			:depends-on ("Knowledge" "Base" "SGG")
-			:serial t  ;real dependancies would be better...
-			:components ((:file "reset-KB")
-				     (:file "Physics-Funcs")
-				     (:file "Ontology" )        
+			:serial t  ;real dependancies would be better
+			:components ((:file "Physics-Funcs")
+				     ;; TELL and NLG not defined
+				     (:no-compile-file "Ontology" )
 				     (:file "circuit-ontology")  
-				     (:file "Newtons2")        
+				     ;; AXES-DRAWNP not defined
+				     (:no-compile-file "Newtons2") 
 				     (:file "NewtonsNogoods")  
-				     (:file "Problems")
-				     (:file "impulse-problems") 
+				     (:no-compile-file "Problems")
+				     (:no-compile-file "impulse-problems") 
 				     (:file "waves")
-				     (:file "waves-problems")
-				     (:file "oscillations-problems") 
-				     ;;      ^ depends on "waves"
-				     (:file "errors")
-				     (:file "force-problems")  
+				     (:no-compile-file "waves-problems")
+				     ;; depends on "waves":
+				     (:no-compile-file "oscillations-problems")
+				     ;; lots of outside dependencies:
+				     (:no-compile-file "errors")
+				     (:no-compile-file "force-problems")  
 ;;; Hey, these are the wrong mountains
 				     ;; (:file "PyreneesProblems")
 				     (:file "forces")          
 				     (:file "optics")          
 				     (:file "vectors")
 				     (:file "makeprob")        
-				     (:file "vectors-problems")
-				     (:file "circuits")
+				     (:no-compile-file "vectors-problems")
+				     ;; there is some ugly code here
+				     (:no-compile-file "circuits")
+				     (:no-compile-file "reset-KB")
 				     ))
 	       (:module "SGG"
 ;;;			:description "Solution Graph Generator" 
@@ -103,20 +103,13 @@
 					    :depends-on ("Qsolver"))
 				     (:file "Macros")         
 				     (:file "SolutionPoint")
-				     (:file "GraphGenerator") 
+				     (:file "GraphGenerator")
 				     (:file "ProblemSolver")
 				     (:file "SolutionSets")))
 ))
 
-;;;  make source file extension "cl"  See asdf manual
+;;;  make lisp source file extension "cl"  See asdf manual
 
 (defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes))))
    "cl")
 
-;;;;
-;;;;  install command
-;;;;
-
-(defun rkb ()
-  "Reset the lists in KB and reload all files using asdf"
-  (asdf:operate 'asdf:load-op 'andes))
