@@ -712,7 +712,7 @@
 (defoperator doppler-frequency-contains (?sought)
   :preconditions 
   (
-   (doppler-system ?source ?wave ?observer) ;connect source, wave, observer
+   (doppler-system ?source ?wave ?observer) ;so the ?wave is identified
    (time ?t)
    (time ?t-interval)
    (test (time-intervalp ?t-interval))
@@ -732,7 +732,7 @@
    (object ?source)
    (object ?observer)
    (sinusoidal ?source)
-   (not (light wave))  ;light uses a different formula
+   (not (light ?wave))  ;light uses a different formula
    )
   :effects (
 	    (eqn-contains (doppler-frequency ?source ?wave ?observer 
