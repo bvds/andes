@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Introduction</TITLE>
+<META NAME="keywords" CONTENT="api">
+<META NAME="description" CONTENT="Introduction">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Template" CONTENT="C:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+<!-- Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others --><LINK REL="STYLESHEET" HREF="api.css"><LINK REL="next" HREF="node2.html"><LINK REL="previous" HREF="api.html"><LINK REL="up" HREF="api.html"><LINK REL="next" HREF="node2.html"></HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<P><!doctype html public "-//w3c//dtd html 4.0 transitional//en">&nbsp; </P>
+<H1>Introduction</H1>
+<P>This document describes the API by which the ANDES workbench process communicates with the ANDES help system process. </P>
+<P>For most interactions, the workbench effectively does a remote procedure call (RPC) to call a function implemented in the help system process, waits, and receives a string as a return value from the function call.  </P>
+<P>In earlier released versions of ANDES, the ability to achieve the effect of a remote procedure call was implemented by sending command strings using the Windows Dynamic Data Exchange (DDE) message protocol. For that reason, these RPC exchanges are referred to as "DDE" operations in the log files and in several places in the documentation.</P>
+<P>However, in recent experimental versions and future released versions, the DDE protocol is no longer used. Rather, the RPC layer is now implemented using a TCP connection between the processes. We have defined a very simple protocol for packaging up command strings and string-valued results into messages to be written to and read from a TCP byte stream, the <A HREF="CommandStringProtocol.html">Andes Command String Protocol</A>.</P>
+<P>The command string protocol layer should be transparent to the bulk of the workbench and help system code. With this layer in place, the main part of the code can be written on the assumption that the workbench can somehow send a Lisp functional S-expression to the help system which can be read and evaluated by the lisp interpreter,  and can get a string-valued result back if needed.  The functions called in this way by the workbench comprise the help system API.</P>
+<P>The functions in the API are documented here as follows: </P>
+<B><DL>
+<DT>Function definition</DT>
+</B><DD>Name and list of arguments. the arguments are in italics.</DD>
+<B><DT>Description</DT>
+</B><DD>A couple of sentences describing what the function does.</DD>
+<B><DT>Example</DT>
+</B><DD>An example of a DDE message that the workbench might send to the help system to call the function.</DD>
+<B><DT>Returns</DT>
+</B><DD>The function return values.</DD>
+<B><DT>Arguments</DT>
+</B><DD>The arguments the function is called with.</DD>
+<B><DT>Side Effects</DT>
+</B><DD>Any important changes to the state of the system that are caused by the function.</DD>
+</DL>
+<P><HR></P>
+<P><BR>
+<I>kvl 3/2/0</I> </P></BODY>
+</HTML>

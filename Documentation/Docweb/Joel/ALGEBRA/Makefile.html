@@ -1,0 +1,512 @@
+<html> <head>
+<title>Makefile for the Andes2 algebra system
+</title>
+</head>
+
+<body>Makefile for the Andes2 algebra system
+<h1>
+</h1>
+
+The Makefile is set up assuming the there are three sister directories,
+src, gpp and run, each daughter of the same directory, which in Joel's
+project is c:/joel/math/algebra. The programs which use files themselves
+assume the input equation files are in c:/joel/math/data/eqs.wur. 
+<p>
+The Makefile assumes all the source code is in src, the Makefile and the
+.o files are to reside in gpp, and the executable programs are to be 
+placed in run.
+
+The Makefile below has long historical roots, with obsolete programs included.
+It is only the two programs, colander and allprog, which are given by
+<tt>make</tt> without arguments, that are still being used and maintained.
+The Solver.dll cannot be made with this Makefile, but needs to be made with
+VisualC++. 
+
+
+
+<pre>
+CC=		g++
+
+##  Choose real degrees or fake degrees below. Whenever changed, make sure
+##  to  make changedegs  before anything else
+#  for version with angles measured sometimes in degrees
+#  SDR=		../srcdeg/
+#  CFLAGS=		-g -DWITHDBG -DUNITENABLE -DFAKEDEG
+
+#  otherwise, if all angle numvals are in radians
+SDR=		../src/
+CFLAGS=		-g -DWITHDBG -DUNITENABLE -DNO_DLL
+
+SCS=		../src/
+
+#  Note on sources: everyone needs B. 
+#	list2 needs B and C and D and F and 
+#  	checksol needs B and E
+#	colander needs B and C and D and F and colget and justsolve and G
+#	colchksol needs B and G and chkcol, checksol getnewsols
+#	indy needs B and G and indymain, indyset, valander, 
+#	indysgg needs are spelled out explicitly below
+
+#   all *.cpp and *.h files are in ${SCS}
+
+BHEADS=		${SCS}decl.h ${SCS}expr.h ${SCS}dimens.h
+
+BSRCS=		decl.h dimens.h expr.h  extoper.h \
+		dimens.cpp expr.cpp exprp.cpp copyexpr.cpp geteqs.cpp \
+		getaline.cpp lookslikeint.cpp makevarl.cpp parse.cpp \
+		parseclipseq.cpp utils.cpp physvar.cpp
+
+BOBJS=		dimens.o expr.o exprp.o copyexpr.o geteqs.o getaline.o \
+		lookslikeint.o makevarl.o parse.o parseclipseq.o utils.o \
+		physvar.o
+
+BPSRCS=		decl.h dimens.h expr.h extoper.h unitabr.h \
+		dimens.cpp expr.cpp copyexpr.cpp geteqs.cpp getaline.cpp \
+		lookslikeint.cpp parse.cpp parseeqwunits.cpp \
+		unitabr.cpp physconsts.cpp dimenchk.cpp exprp.cpp utils.cpp \
+		physvar.cpp
+
+BPOBJS=		dimens.o expr.o copyexpr.o geteqs.o getaline.o \
+		lookslikeint.o parse.o parseeqwunits.o unitabr.o \
+		physconsts.o dimenchk.o exprp.o utils.o physvar.o
+
+CSRCS=		checkeqs.cpp cleanup.cpp desperate.cpp despquad.cpp \
+		despquadb.cpp distfrac.cpp dofactor.cpp donlsolv.cpp \
+		dopurelin.cpp dotrig.cpp eqnumsimp.cpp equaleqs.cpp \
+		factorout.cpp fixupforpls.cpp flatten.cpp interact.cpp \
+		ispos.cpp justonev.cpp moreexpr.cpp multsort.cpp nlsolvov.cpp \
+		normexpr.cpp numfactorsof.cpp numunknowns.cpp ordinvars.cpp \
+		ordunknowns.cpp plussort.cpp polysolve.cpp powonev.cpp \
+		purelin.cpp qsrtexpr.cpp rationalize.cpp recassign.cpp \
+		slvlinonev.cpp solveknownvar.cpp solvetrig.cpp solvetrigb.cpp \
+		subexpin.cpp substin.cpp treechk.cpp trigsimp.cpp
+
+COBJS=		checkeqs.o cleanup.o desperate.o despquad.o \
+		despquadb.o distfrac.o dofactor.o donlsolv.o \
+		dopurelin.o dotrig.o eqnumsimp.o equaleqs.o \
+		factorout.o fixupforpls.o flatten.o interact.o \
+		ispos.o justonev.o moreexpr.o multsort.o nlsolvov.o \
+		normexpr.o numfactorsof.o numunknowns.o ordinvars.o \
+		ordunknowns.o plussort.o polysolve.o powonev.o \
+		purelin.o qsrtexpr.o rationalize.o recassign.o \
+		slvlinonev.o solveknownvar.o solvetrig.o solvetrigb.o \
+		subexpin.o substin.o treechk.o trigsimp.o
+
+ESRCS=		mainchksol.cpp checksol.cpp
+
+EOBJS=		mainchksol.o checksol.o	
+
+GSRCS=		getall.cpp getallfile.cpp getavar.cpp getaneqwu.cpp \
+			parseunit.cpp
+
+GOBJS=		getall.o getallfile.o getavar.o getaneqwu.o parseunit.o
+
+ISRCS=		indyset.cpp indysgg.cpp indysgg2.cpp indysgg3.cpp \
+		valander.cpp \
+		indyset.h indysgg.h valander.h \
+
+IOBJS=		indyset.o indysgg.o indysgg2.o indysgg3.o valander.o
+
+RSRCS=		unitabr.h forparse.h dimenchk.cpp forparse.cpp \
+		getclipsols.cpp ioprobwy.cpp setvardimens.cpp \
+		studdefs.cpp studlogwy.cpp unitabr.cpp \
+		mylex.l logparse.y 
+
+ROBJS=		dimenchk.o forparse.o getclipsols.o \
+		ioprobwy.o setvardimens.o studdefs.o studlogwy.o unitabr.o \
+		mylex.o logparse.o
+
+RMAYBE=		cleanup.cpp eqnumsimp.cpp equaleqs.cpp \
+		flatten.cpp getsols.cpp ispos.cpp moreexpr.cpp normexpr.cpp 
+
+ALLSRCS=	${BSRCS} ${CSRCS} ${DSRCS}  ${ESRCS} ${FSRCS} ${MSRCS}
+
+ALLOBJS=	${BOBJS} ${COBJS} ${EOBJS} ${MOBJS}
+
+NEWTARGS=	../run/colander ../run/allprog
+
+ALLTARGS=	../run/list2 ../run/checksol ${NEWTARGS} ../run/readlogs \
+		 ../run/colchksol ../run/indy ../run/indysgg
+
+all:		${NEWTARGS}
+
+changedegs:	
+		rm trigsimp.o unitabr.o solvetrig.o checksol.o chkcol.o \
+		colander.o eqnumsimp.o expr.o valander.o
+
+../run/list2:		list2.o ${BOBJS} ${COBJS}
+		${CC} ${CFLAGS} -o ../run/list2 list2.o ${BOBJS} ${COBJS} 
+
+../run/checksol:	${EOBJS} ${BOBJS}
+		${CC} ${CFLAGS} -o ../run/checksol ${EOBJS} ${BOBJS}
+
+../run/colander:	colget.o ${GOBJS} ${BPOBJS} ${COBJS} justsolve.o \
+			checksol.o dimchkeqf.o
+		${CC} ${CFLAGS} -o ../run/colander colget.o justsolve.o \
+			checksol.o dimchkeqf.o ${GOBJS} ${BPOBJS} ${COBJS} 
+
+../run/colchksol:	chkcol.o ${GOBJS} checksol.o \
+			getnewsols.o ${BPOBJS} parseclipseq.o dimchkeqf.o
+		${CC} ${CFLAGS} -o ../run/colchksol chkcol.o ${GOBJS} \
+			checksol.o getnewsols.o ${BPOBJS} parseclipseq.o \
+			dimchkeqf.o
+
+../run/indysgg:	linnmain3.o checksol.o getall.o getaneqwu.o getavar.o \
+			${BPOBJS} ${IOBJS} parseunit.o
+		${CC} ${CFLAGS} -o ../run/indysgg linnmain3.o checksol.o \
+			getall.o getaneqwu.o getavar.o parseunit.o\
+			${BPOBJS} ${IOBJS}
+
+../run/allprogold:	main.o checksol.o ${GOBJS} ${BPOBJS} ${IOBJS} ${COBJS} \
+			justsolve.o Solver.o coldriver.o dimchkeqf.o
+		${CC} ${CFLAGS} -o ../run/allprog main.o  coldriver.o \
+			${BPOBJS} ${IOBJS} ${COBJS} ${GOBJS} justsolve.o \
+			checksol.o Solver.o dimchkeqf.o
+
+../run/allprog:	main.o checksol.o ${GOBJS} ${BPOBJS} ${IOBJS} ${COBJS} \
+			justsolve.o Solver.o coldriver.o dimchkeqf.o \
+			newindy.o solvetool.o
+		${CC} ${CFLAGS} -o ../run/allprog main.o  coldriver.o \
+			${BPOBJS} ${IOBJS} ${COBJS} ${GOBJS} justsolve.o \
+			checksol.o Solver.o dimchkeqf.o newindy.o solvetool.o
+
+../run/readlogs:	${BOBJS} ${ROBJS}
+		${CC} ${CFLAGS} -o ../run/readlogs ${BOBJS} ${ROBJS} -lfl -lm
+
+colander.o:	${SCS}colander.cpp ${BHEADS} ${SCS}dbg.h \
+			${SCS}extstruct.h
+		${CC} ${CFLAGS} -c ${SCS}colander.cpp
+
+chkcol.o:	${SCS}chkcol.cpp ${BHEADS} ${SCS}dbg.h \
+			${SDR}unitabr.h ${SCS}extstruct.h
+		${CC} ${CFLAGS} -c ${SCS}chkcol.cpp
+
+linnmain3.o:	${SCS}linnmain3.cpp ${BHEADS} ${SCS}dbg.h \
+			${SCS}indyset.h ${SCS}extstruct.h
+		${CC} ${CFLAGS} -c ${SCS}linnmain3.cpp
+
+mainchksol.o:	${SCS}mainchksol.cpp ${BHEADS} \
+			${SCS}dbg.h ${SCS}extstruct.h
+		${CC} ${CFLAGS} -c ${SCS}mainchksol.cpp
+
+list2.o:	${SCS}list2.cpp ${BHEADS} ${SCS}dbg.h  \
+			 ${SCS}extstruct.h
+		${CC} ${CFLAGS} -c ${SCS}list2.cpp
+
+checkeqs.o:	${SCS}checkeqs.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}checkeqs.cpp
+
+checkx.o:	${SCS}checkx.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}checkx.cpp
+
+checksol.o:	${SCS}checksol.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}checksol.cpp
+
+cleanup.o:	${SCS}cleanup.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}cleanup.cpp
+
+coldriver.o:	${SCS}coldriver.cpp ${SCS}extstruct.h ${BHEADS} \
+			${SCS}unitabr.h
+		${CC} ${CFLAGS} -c ${SCS}coldriver.cpp
+
+colget.o:	${SCS}colget.cpp ${BHEADS} ${SCS}dbg.h \
+			 ${SCS}extstruct.h ${SCS}unitabr.h
+		${CC} ${CFLAGS} -c ${SCS}colget.cpp
+
+convert.o:	${SCS}convert.cpp ${BHEADS} \
+			${SCS}extstruct.h ${SCS}unitabr.h ${SCS}indysgg.h
+		${CC} ${CFLAGS} -c ${SCS}convert.cpp
+
+copyexpr.o:	${SCS}copyexpr.cpp ${SCS}expr.h
+		${CC} ${CFLAGS} -c ${SCS}copyexpr.cpp
+
+desperate.o:	${SCS}desperate.cpp ${BHEADS} \
+			${SCS}extoper.h
+		${CC} ${CFLAGS} -c ${SCS}desperate.cpp
+
+despquad.o:	${SCS}despquad.cpp ${BHEADS} \
+			${SCS}extoper.h
+		${CC} ${CFLAGS} -c ${SCS}despquad.cpp
+
+despquadb.o:	${SCS}despquadb.cpp ${BHEADS} \
+			${SCS}extoper.h
+		${CC} ${CFLAGS} -c ${SCS}despquadb.cpp
+
+dimchkeqf.o:	${SCS}dimchkeqf.cpp ${BHEADS} \
+			${SCS}extoper.h ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}dimchkeqf.cpp
+
+dimenchk.o:	${SCS}dimenchk.cpp ${BHEADS} ${SCS}extoper.h ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}dimenchk.cpp
+
+dimens.o:	${SCS}dimens.cpp ${SCS}dimens.h
+		${CC} ${CFLAGS} -c ${SCS}dimens.cpp
+
+distfrac.o:	${SCS}distfrac.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}distfrac.cpp
+
+donlsolv.o:	${SCS}donlsolv.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}donlsolv.cpp
+
+dopurelin.o:	${SCS}dopurelin.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}dopurelin.cpp
+
+dofactor.o:	${SCS}dofactor.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}dofactor.cpp
+
+dotrig.o:	${SCS}dotrig.cpp ${BHEADS} ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}dotrig.cpp
+
+eqnumsimp.o:	${SCS}eqnumsimp.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}eqnumsimp.cpp
+
+equaleqs.o:	${SCS}equaleqs.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}equaleqs.cpp
+
+expr.o:		${SCS}expr.cpp ${SCS}expr.h ${SCS}dimens.h
+		${CC} ${CFLAGS} -c ${SCS}expr.cpp
+
+exprp.o:	${SCS}exprp.cpp ${SCS}expr.h ${SCS}dimens.h
+		${CC} ${CFLAGS} -c ${SCS}exprp.cpp
+ 
+factorout.o:	${SCS}factorout.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}factorout.cpp
+
+fixknowns.o:	${SCS}fixknowns.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}fixknowns.cpp
+
+fixupforpls.o:	${SCS}fixupforpls.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}fixupforpls.cpp
+
+flatten.o:	${SCS}flatten.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}flatten.cpp
+
+forparse.o:	${SCS}forparse.cpp ${SCS}expr.h ${SCS}forparse.h \
+			${SCS}extstruct.h 
+		${CC} ${CFLAGS} -c ${SCS}forparse.cpp
+
+getaline.o:	${SCS}getaline.cpp
+		${CC} ${CFLAGS} -c ${SCS}getaline.cpp
+
+getall.o:	${SCS}getall.cpp ${BHEADS} ${SCS}extoper.h ${SCS}extstruct.h 
+		${CC} ${CFLAGS} -c ${SCS}getall.cpp
+
+getallfile.o:	${SCS}getallfile.cpp 
+		${CC} ${CFLAGS} -c ${SCS}getallfile.cpp
+
+getaneqn.o:	${SCS}getaneqn.cpp 
+		${CC} ${CFLAGS} -c ${SCS}getaneqn.cpp
+
+getaneqwu.o:	${SCS}getaneqwu.cpp ${SCS}unitabr.h ${SCS}expr.h
+		${CC} ${CFLAGS} -c ${SCS}getaneqwu.cpp
+
+getavar.o:	${SCS}getavar.cpp ${SCS}unitabr.h ${SCS}expr.h 
+		${CC} ${CFLAGS} -c ${SCS}getavar.cpp
+
+geteqs.o:	${SCS}geteqs.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}geteqs.cpp
+
+getclipsols.o:	${SCS}getclipsols.cpp ${BHEADS}${SCS}extoper.h \
+			${SCS}extstruct.h ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}getclipsols.cpp
+
+getnewsols.o:	${SCS}getnewsols.cpp ${BHEADS}${SCS}extoper.h \
+			${SCS}extstruct.h ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}getnewsols.cpp
+
+indymain.o:	${SCS}indymain.cpp ${BHEADS} \
+			${SCS}extstruct.h  ${SCS}indyset.h
+		${CC} ${CFLAGS} -c ${SCS}indymain.cpp
+
+indyset.o:	${SCS}indyset.cpp ${BHEADS} ${SCS}indyset.h
+		${CC} ${CFLAGS} -c ${SCS}indyset.cpp
+
+indysgg.o:	${SCS}indysgg.cpp ${BHEADS} ${SCS}indyset.h ${SCS}backdoor.cpp
+		${CC} ${CFLAGS} -c ${SCS}indysgg.cpp
+
+indysgg2.o:	${SCS}indysgg2.cpp ${BHEADS} ${SCS}indyset.h
+		${CC} ${CFLAGS} -c ${SCS}indysgg2.cpp
+
+indysgg3.o:	${SCS}indysgg3.cpp ${BHEADS} ${SCS}indyset.h
+		${CC} ${CFLAGS} -c ${SCS}indysgg3.cpp
+
+interact.o:	${SCS}interact.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}interact.cpp
+
+ioprobwy.o:	${SCS}ioprobwy.cpp ${BHEADS}${SCS}dbg.h \
+			${SCS}extstruct.h
+		${CC} ${CFLAGS} -c ${SCS}ioprobwy.cpp
+
+ispos.o:	${SCS}ispos.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}ispos.cpp
+
+justsolve.o:	${SCS}justsolve.cpp ${BHEADS} \
+			${SCS}extstruct.h ${SCS}unitabr.h
+		${CC} ${CFLAGS} -c ${SCS}justsolve.cpp
+
+justonev.o:	${SCS}justonev.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}justonev.cpp
+
+lists.o:	${SCS}lists.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}lists.cpp
+
+lookslikeint.o:	${SCS}lookslikeint.cpp
+		${CC} ${CFLAGS} -c ${SCS}lookslikeint.cpp
+
+main.o:		${SCS}main.cpp ${BHEADS} ${SCS}Solver.log
+		${CC} ${CFLAGS} -c ${SCS}main.cpp
+
+makevarl.o:	${SCS}makevarl.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}makevarl.cpp
+
+moreexpr.o:	${SCS}moreexpr.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}moreexpr.cpp
+
+multsort.o:	${SCS}multsort.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}multsort.cpp
+
+newcheck.o:	${SCS}newcheck.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}newcheck.cpp
+
+newindy.o:	${SCS}newindy.cpp ${SCS}valander.h ${SCS}indyset.h ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}newindy.cpp
+
+nlsolvov.o:	${SCS}nlsolvov.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}nlsolvov.cpp
+
+normexpr.o:	${SCS}normexpr.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}normexpr.cpp
+
+numfactorsof.o:	${SCS}numfactorsof.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}numfactorsof.cpp
+
+numunknowns.o:	${SCS}numunknowns.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}numunknowns.cpp
+
+ordinvars.o:	${SCS}ordinvars.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}ordinvars.cpp
+
+ordunknowns.o:	${SCS}ordunknowns.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}ordunknowns.cpp
+
+parse.o:	${SCS}parse.cpp
+		${CC} ${CFLAGS} -c ${SCS}parse.cpp
+
+parseclipseq.o:	${SCS}parseclipseq.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}parseclipseq.cpp
+
+parseunit.o:	${SCS}parseunit.cpp ${BHEADS} ${SCS}unitabr.h
+		${CC} ${CFLAGS} -c ${SCS}parseunit.cpp
+
+parseeqwunits.o:	${SCS}parseeqwunits.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}parseeqwunits.cpp
+
+physconsts.o:	${SCS}physconsts.cpp ${SCS}dimens.h ${SCS}expr.h ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}physconsts.cpp
+
+physvar.o:	${SCS}physvar.cpp ${SCS}expr.h ${SCS}dimens.h
+		${CC} ${CFLAGS} -c ${SCS}physvar.cpp
+
+plussort.o:	${SCS}plussort.cpp ${BHEADS} ${SCS}extoper.h ${SCS}dbg.h
+		${CC} ${CFLAGS} -c ${SCS}plussort.cpp
+
+polysolve.o:	${SCS}polysolve.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}polysolve.cpp
+
+powonev.o:	${SCS}powonev.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}powonev.cpp
+
+purelin.o:	${SCS}purelin.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}purelin.cpp
+
+recassign.o:	${SCS}recassign.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}recassign.cpp
+
+qsrtexpr.o:	${SCS}qsrtexpr.cpp ${BHEADS} ${SCS}extoper.h
+		${CC} ${CFLAGS} -c ${SCS}qsrtexpr.cpp
+
+rationalize.o:	${SCS}rationalize.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}rationalize.cpp
+
+setknownvar.o:	${SCS}setknownvar.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}setknownvar.cpp
+
+setvardimens.o:	${SCS}setvardimens.cpp ${BHEADS}${SCS}dbg.h \
+			${SCS}expr.h
+		${CC} ${CFLAGS} -c ${SCS}setvardimens.cpp
+
+slvlinonev.o:	${SCS}slvlinonev.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}slvlinonev.cpp
+
+solveknownvar.o:	${SCS}solveknownvar.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}solveknownvar.cpp
+
+Solver.o:	${SDR}Solver.cpp ${BHEADS} ${SCS}Solver.h
+		${CC} ${CFLAGS} -c ${SDR}Solver.cpp
+
+solvetool.o:	${SDR}solvetool.cpp ${BHEADS} ${SCS}extstruct.h
+		${CC} ${CFLAGS} -c ${SDR}solvetool.cpp
+
+solvetrig.o:	${SDR}solvetrig.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SDR}solvetrig.cpp
+
+solvetrigb.o:	${SCS}solvetrigb.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}solvetrigb.cpp
+
+subexpin.o:	${SCS}subexpin.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}subexpin.cpp
+
+substin.o:	${SCS}substin.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}substin.cpp
+
+studdefs.o:	${SCS}studdefs.cpp ${BHEADS} ${SCS}dbg.h \
+			${SCS}extstruct.h ${SCS}extoper.h
+		${CC} ${CFLAGS} -c ${SCS}studdefs.cpp
+
+studlogwy.o:	${SCS}studlogwy.cpp ${BHEADS} ${SCS}dbg.h \
+			${SCS}extstruct.h mylex.o logparse.o
+		${CC} ${CFLAGS} -c ${SCS}studlogwy.cpp
+
+treechk.o:	${SCS}treechk.cpp ${BHEADS}
+		${CC} ${CFLAGS} -c ${SCS}treechk.cpp
+
+trigsimp.o:	${SDR}trigsimp.cpp ${BHEADS} ${SCS}extoper.h
+		${CC} ${CFLAGS} -c ${SDR}trigsimp.cpp
+
+unitabr.o:	${SDR}unitabr.cpp ${SCS}unitabr.h ${SCS}dimens.h ${SCS}expr.h
+		${CC} ${CFLAGS} -c ${SDR}unitabr.cpp
+
+utils.o:	${SCS}utils.cpp 
+		${CC} ${CFLAGS} -c ${SCS}utils.cpp
+
+valander.o:	${SCS}valander.cpp ${SCS}valander.h ${SCS}expr.h 
+		${CC} ${CFLAGS} -c ${SCS}valander.cpp
+
+logparse.c:	${SCS}logparse.y
+		bison -d ${SCS}logparse.y
+		mv ${SCS}logparse.tab.c logparse.c
+		mv ${SCS}logparse.tab.h ${SCS}logparse.h
+
+mylex.o:	${SCS}mylex.l logparse.c
+		flex ${SCSA}mylex.l
+		${CC} ${CFLAGS} -c -o mylex.o lex.yy.c
+		rm lex.yy.c
+
+
+tar:		${ALLSRCS} Makefile
+		cd ../src
+		tar cvf srcs.tar ${ALLSRCS} ../gpp/Makefile 
+
+clean:
+		rm ${ALLOBJS} ALLTARGS *~
+</pre>
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a>
+<a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a>
+<a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a>
+</address>
+<!-- hhmts start -->
+Last modified: Jun 26 16:28 2001
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,115 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes2 Algebra Manipulation Module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Algebra manipulation</h2></center>
+
+<center>(as of 3/20/01 by <b>Joel Shapiro</b>)</center>
+
+<p>The algebra package is responsible for handling questions which involve
+algebraic manipulation for the Andes system. At various times, it receives
+information from the rest of the system. This includes
+<ul>
+<li>
+The list of canonical variables (those used in the problem generation)
+together with attributes of these variables</li>
+
+<ul>
+<li>
+nonzero - variable can never be zero (e. g. mass of massive object)</li>
+
+<li>
+nonnegative - variable is intrinsically non-negative (e. g. magnitude of
+a vector)</li>
+
+<li>
+parameter - variable's value cannot be determined from the information
+given, but is not needed for the solution, or the solution may be expressed
+in terms of this variable.</li>
+</ul>
+Here are <a href="Joel/varspec.html">details of the variable specification
+API .</a>
+<li>
+The list of equations needed to solve the problem. This may be redundant,
+and includes equations which specify numerical values for variables whose
+values are given in the problem statement. Here are <a href="Joel/eqnspec.html">details
+of the equation specification API .</a></li>
+
+<li>
+The equations entered by a student while she is solving the problem. These
+are first translated by the help system (? or the workbench?) into the
+canonical variables before presentation to the algebra package.</li>
+</ul>
+At various times, the algebra system is called upon to perform different
+functions for the help system.
+<ul>
+<li>
+At problem generation time, the first use of the algebra system is to solve
+the canonical equations. The help system first sends the algebra system
+the declaration of variables and the list of equations, and when this is
+complete, the algebra system returns the solution, that is, a list of values
+for each variable. Parameters are assigned random positive values, because
+color-by-number equation checking and equation independence requires explicit
+numerical solutions for all the variables.</li>
+
+<li>
+The solver does not check its solution, but there is a solution-checker
+which does plug the numerical solution into each of the canonical equations
+and report if there are descrepancies. This should be run once every time
+the set of canonical equations is changed, as a check that everything is
+all right.</li>
+
+<li>
+The bubble graph algorithm for finding solution paths requires walks through
+the skeleton of equations and variables. For each variable sought for inclusion
+into the bubble, it needs to add an equation which is independent of those
+equations inside the bubble. The algebra system can be told to maintain
+sets of independent equations (those within some bubble) and asked for
+each candidate equation whether it is independent of those in a given set.
+If so, it can be added. If not, the subset of equations within the set
+from which it can be derived is available from the algebra system.</li>
+
+<br>This is not complete ...</ul>
+
+<h3>
+Data structures</h3>
+
+<ul>
+<li>
+<a NAME="Solution list"></a>Solution List -- all known solutions to the
+problem, where a solution is a set of independent equations.</li>
+</ul>
+
+<h3>
+<a NAME="Check student equation"></a>Processing an equation entry (called
+from the Entry Interpreter).</h3>
+Check units.&nbsp; If the units don't check, then return Incorrect plus
+a null set of interpretations.&nbsp; If units are okay, then plugs in numbers
+for the variables (i.e., color by numbers).
+<p>If the equation doesn't balance, then we searches the compatible buggy
+solutions in Solution List.&nbsp; For each solution, we see if the students
+equation is dependent on the solution's equations, and if so, it determines
+the minimal set of equations in the solution required to derive the student's
+equation.&nbsp; Such a minimal set is called an "interpretation" of the
+student's equation.&nbsp; The algebra module returns to the help system
+the flag Incorrect plus a possibly null set of all possible interpretations.
+<p>On the other hand, if color-by-numbers indicates that the student's
+equation is correct, then the algebra module determines which compatible
+non-buggy solutions in Solution List are consistent with the equation.&nbsp;
+For each such solution, it determines an interpretation for the student's
+equation--the minimal set of equation entries required to derive the student's
+equation.&nbsp; The algebra module returns the flag Correct plus a list
+of these minimal sets of equation entries.&nbsp; If the student's entry
+is unambiguous (the easy case), then the list will have just one member.&nbsp;
+Otherwise, the equation has multiple interpretations.
+<br>&nbsp;
+</body>
+</html>

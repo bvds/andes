@@ -1,0 +1,26 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes2 Natural Language Generation module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Natural Language Generation</h2></center>
+
+<center>(as of 3/16/01)</center>
+
+<p>This module allows the hint-formulating modules to more easily generate
+text strings that refer to objects.&nbsp; The basic idea is to pass in
+an operator, proposition or term from the KB, and an atom describing what
+kind of phrase is needed (e.g., gerund, definite noun-phrase, indefinite
+noun-phrase, etc.), and this module returns the appropriate text.
+<p>The KB has macros of the form (defexpr &lt;expr> ...) where &lt;expr>
+unifies with the kinds of expressions passed into this module.&nbsp; The
+remainder of the macro specifies the kinds of English required.
+</body>
+</html>

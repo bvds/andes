@@ -1,0 +1,86 @@
+<html> <head>
+<title>Description of global objects used by the Andes algebra system
+</title>
+</head>
+
+<body>
+<h1>Description of global objects used by the Andes algebra system
+</h1>
+
+There are a number of global objects defined by the algebra system. Most,
+but not all, are defined in extstruct.h and instantiated in whichever
+.cpp file declares itself  IAmMain. The global objects are
+
+<TABLE>
+<TR><TD>vector&lt;physvar *&gt;&nbsp;* canonvars</TD><TD>list of the canonical 
+variables</TD><TD></TD></TR>
+<TR><TD>vector&lt;binopexp *&gt;&nbsp;* canoneqf</TD><TD>list of the canonical
+ equations</TD><TD></TD></TR>
+<TR><TD>vector&lt;binopexp *&gt;&nbsp;* paramasgn</TD><TD>list of parameter 
+assignment statements</TD><TD></TD></TR>
+<TR><TD>vector&lt;binopexp *&gt;&nbsp; studeqf</TD><TD>list of the student 
+equations, by slot</TD><TD></TD></TR>
+<TR><TD>vector&lt;string *&gt;&nbsp; studeqsorig</TD><TD>list of the student 
+equations as presented. Not very useful if the algebra system doesn't get the
+ originals.</TD><TD></TD></TR>
+<TR><TD>vector&lt;double&gt; * numsols</TD><TD>The numerical value (in SI 
+units) of the canonical variables in the solution.</TD><TD></TD></TR>
+<TR><TD>vector&lt;string&gt; * constnames</TD><TD>list of physical constants, 
+including Pi</TD><TD></TD></TR>
+<TR><TD>vector&lt;numvalexp *&gt;&nbsp;* constnumvals &nbsp;
+</TD><TD>list of the
+ values of the physical constants.</TD><TD></TD></TR>
+<TR><TD>vector&lt;valander *&gt;&nbsp;* canongrads;</TD><TD>gradients of the 
+canonical equations</TD><TD></TD></TR>
+<TR><TD>vector&lt;valander *&gt;&nbsp; studgrads</TD><TD>gradients of the 
+student equations</TD><TD></TD></TR>
+<TR><TD>vector&lt;indyset> * listofsets;</TD><TD>list of independence 
+sets</TD><TD></TD></TR>
+<TR><TD>vector&lt;vector&lt;int> > * listsetrefs;</TD><TD>list of lists, one
+ for each independence set, of the indices in canoneqf of the equations in 
+the set.</TD><TD></TD></TR>
+<TR><TD>vector&lt;int> * lasttriedeq;</TD><TD>index in canoneqf of the last 
+equation isindiy'd for this set</TD><TD></TD></TR>
+<TR><TD>int numindysets;</TD><TD>The number of independence sets currently.
+</TD><TD></TD></TR>
+<TR><TD>int numvars;</TD><TD>The number of variables for this problem.
+</TD><TD></TD></TR>
+
+<TR><TD>bool setupdone</TD><TD>true once initial setup is done. Never
+ falsified.</TD><TD></TD></TR>
+<TR><TD>numparams</TD><TD>The number of parameters in this problem.
+</TD><TD></TD></TR>
+<TR><TD>bool gotthevars</TD><TD>set by indyDoneAddVariables when all variables
+have been declared</TD><TD></TD></TR>
+<TR><TD>unittable</TD><TD>table of unit abbreviations and prefixes. Once made
+during setup it remains unchanged.</TD><TD></TD></TR>
+</table>
+
+<P>
+The structures below are declared in extstruct.h but are never used. 
+They were intended to
+hold the student variables before the decision was made to have the 
+help system do the parsing of student equations and translation to canonical
+variables.
+<TABLE>
+<TR><TD>vector&lt;string*&gt;&nbsp; studvars </TD><TD>list of declared student 
+variables</TD><TD></TD></TR>
+<TR><TD>vector&lt;expr*&gt;&nbsp; studvarvals</TD><TD>list of the values of 
+those variables in the solution</TD><TD></TD></TR>
+<TR><TD>vector&lt;physvar*&gt;&nbsp; studvarcanon &nbsp;
+</TD><TD>expression in 
+canonical variables for the student variable.</TD><TD></TD></TR>
+<TR><TD>vector&lt;binopexp*&gt;&nbsp;* solsexpr</TD><TD>list of the solutions 
+as symbolic assignment statements</TD><TD></TD></TR>
+</TABLE>
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a>
+<a href="mailto:shapiro@physics.rutgers.edu">
+&lt;shapiro@physics.rutgers.edu&gt;</a>
+<a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a>
+</address>
+<!-- hhmts start -->
+Last modified: Wed Jun 27 22:24:48 2001
+<!-- hhmts end -->
+</body> </html>

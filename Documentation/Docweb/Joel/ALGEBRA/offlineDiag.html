@@ -1,0 +1,50 @@
+<html> <head>
+<title>Off line diagnosis of the algebra system.
+</title>
+</head>
+
+<body>
+<h1 align=CENTER>Off line diagnosis of the algebra system.
+</h1>
+
+This page describes how to run the off-line version of the algebra
+system to help diagnose a problem found with the interactive system.
+<P>
+It assumes you have access to the full system so as to reproduce the
+error and extract the Solver.log file generated. It assumes you have
+a unix-clone environment with make and g++, in which you have three
+directories all subdirectories of the same parent, named src, gpp, and run.
+It assumes you have all the source code in src, and the Makefile in gpp.
+Finally, it assumes you have an editor capable of handling and searching
+large files.
+<P>
+The steps in producing a diagnostic output are:
+<UL><LI>Find the source directory for the Andes2 executable. This
+directory should contain Andes2.exe, Andes2.dxl, fbd-tcp.exe, and a 
+subdirectory Solver_Release containing Andes2.dll. If it also contains
+a file Solver.log, delete that.
+<LI>Run Andes2 on the problem that needs debugging, and reproduce the error.
+<LI>Shut down Andes2.
+<LI>copy or move the Solver.log file produced in the Andes2 directory to the
+src directory.
+<LI>cd to the gpp directory and execute make. At least main will be recompiled.
+<LI>cd to the run directory and execute <br>
+<center><tt>./allprog &nbsp; <i>hexflags</i> &nbsp;&gt; allpr.out </TT>
+</center>
+The value of hexflags, given in hexadecimal, determines which diagnostics
+you want turned on, as described in the file dbg.h and the individual 
+source files. Except for the 1's bit, the flag is just the logical or
+of the diagnostics you want. The 1's bit produces more details of the
+categories turned on by the other bits. If you want everything, use
+<center><tt>./allprog &nbsp;  7fffffff &nbsp;&gt; allpr.out</tt></center>
+<LI>You better have a good editor to help you search through the allpr.out
+file.
+</UL>
+<P>
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Jun 27 16:15 2001
+<!-- hhmts end -->
+</body> </html>
+

@@ -1,0 +1,53 @@
+<html> <head>
+<title>Mathematical method of determining independence
+</title>
+</head>
+
+<body>
+<h1>Mathematical method of determining independence
+</h1>
+
+The independence checking is done primarily by examining the independence
+of the linearized equations which emerge by expanding the equations to first
+order in the deviation of the variables from the solution point. For this 
+reason, it can be done only after a solution point has been determined.
+<p>
+Linear equations are independent if the normal vectors to their solution
+hyperplanes are independent. The normal vector of the solution plane of the
+linearized equation is given by the gradient of f when the equation is
+expressed in the form f(v<sub>j</sub>) = 0. So the independence checking
+algorithm attemps to expand the gradient of the equation to be tested
+in terms of the gradients of the equations in the set.
+<p>
+To speed up checking of many test equations, the equations entered into the
+set are not each represented seperately by their gradient, but by what is
+left after this procedure: Each new equation is assigned a variable it is
+responsible for. When a new equation (and gradient) is to be added to the set,
+its component in each direction already assigned is removed by subtracting
+off multiples of the assigned gradient for that variable. The largest
+component (in magnitude) in what is left decides the variable assigned to
+the new equation, and what is left is entered in place of the full gradient
+for this equation. This permits a linear expansion of any proposed new 
+gradient by successively subtracting off the assigned variables.
+<p>
+The details of the method as implemented in <tt>indyset</tt>
+<A HREF=indydetail2.pdf>are given here</A>.
+<P>
+Note that a linear dependence among the linearized equations may, in
+exceptional cases, not guarantee the independence of the full equations.
+This may arise if the solution point, about which the linear expansion is
+taken, is a critical point of one of the equations. If one of the functions
+f(v<sub>j</sub>), which is 0 at the solution point, also happens to have
+zero derivative at that point, it will appear in linear approximation not
+to depend on v<sub>j</sub> at all. To avoid concluding that when it is 
+not true of the full function, we have added to the <tt>valander</tt> 
+structure information on whether there is any dependence on each variable.
+We now have <A HREF=indy2.html#BeyondLin>new methods</A> to deal 
+with this situation.
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: June 28, 2001 at 12:13 by Joel Shapiro
+<!-- hhmts end -->
+</body> </html>

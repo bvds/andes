@@ -1,0 +1,128 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ErrorsEqnTrig</title>
+</head>
+<body>
+
+<center>
+<h2>
+Diagnosing errors by swapping trig functions</h2></center>
+
+<center>(as of 3/21/01)</center>
+
+<p>These errors are detected by replacing one trig function by another.
+<h3>
+krista Eq-USNA 3-18</h3>
+In the problem where a lit firecracker is thrown into the air, the student
+draws initial velocity, a vertical displacement, and axes with X upward.&nbsp;
+The student then enters givens and “v_x=v*cos60” The target equation has
+sin(60) instead of cos(60).
+<ul>
+<li>
+IH notices a trigonometry error in the student’s work and focuses on definition
+of trig. functions physically.</li>
+
+<li>
+RO also notices trig. error and uses similar method to assist student.</li>
+
+<li>
+Andes give the trig. substitution away.</li>
+
+<li>
+KVL:</li>
+</ul>
+When Andes substitutes sin for cos, the equation becomes correct according
+to color-by-numbers.&nbsp; Indy analysis indicates that the students equation
+is primitive.&nbsp; The solution graph indicates that it is premature,
+because the vertical kinematics equation has not been written.&nbsp; (This
+is maybe not ideal, because the compo equation doesn't really have to be
+written before the projection equations, but that is the way the KB reads
+right now.)&nbsp; Andes gives the usual error message, but leaves the red
+equation on the screen.
+<p>Suppose the student enters the appropriate compo equation then asks
+again what's wrong with this equation.&nbsp; Andes retrieves the interpretation,
+notes that the primitive equation is no longer premature.&nbsp; Nothing
+suggests that his is a slip, so Andes decides to tutor the equation.&nbsp;
+It fetches the hint sequence from the operator application, and gives the
+first hint.&nbsp; The sequence points/teaches/states that&nbsp; “An easy
+way to project a vector onto the x-axis is to first find the angle as you
+move counterclockwise from the horizontal to the vector (call that q),
+then find the angle as you move counterclockwise from horizontal to the
+axis (call that a),&nbsp; then put their difference (q-a) inside a cosine.”
+<h3>
+<a NAME="dirtyB 07-28"></a>DirtyB Eq-USNA 07-28</h3>
+In the problem where a lit firecracker is thrown into the air, the student
+draws an initial velocity v, enters some equations, then enters “v=20*cos(60)”
+The target equations are v_y=v*sin(60) or&nbsp; v_x=v*cos(60) where v=20.
+The first is on a solution path, but the v_x equation is on a dead-path
+even though it matches most closely.
+<ul>
+<li>
+IH refreshes student about sin/cos properties and ask, “were you trying
+to express the magnitude of the initial velocity or one of its components?”</li>
+
+<li>
+RO notices mix up between v_x &amp; v and notes that “v=20” and questions
+student as to which variable was intended.</li>
+
+<li>
+Andes says, “Do you want to use ‘v_x’ rather than ‘v’?”</li>
+
+<li>
+KVL:</li>
+</ul>
+The solution graph does not contain v_x=v*cos(60), because it is not needed
+for solving the problem.&nbsp; Thus, Andes cannot find that interpretation
+of the student's equation.&nbsp; It does find that substituting v_y for
+v and sin for cos yields v_y=20*sin(60), which is correct according to
+color-by-numbers.&nbsp; Indy analysis indicates that it is a compound of
+v_y=v*sin(60) and v=20.&nbsp; SG analysis indicates that the student has
+substituted in a given value prematurely.&nbsp; Andes gives the appropriate
+prematurity message and encourages the student to ask for help again after
+fixing the equation.
+<p>Suppose the student changes the equation to v=v*cos(60).&nbsp;&nbsp;&nbsp;
+This probably looks funny to the student, so when they get red, they change
+it to v_y=v*cos(60).&nbsp; Still red!&nbsp; They ask what is wrong.&nbsp;
+Andes substitutes sine for cosine, and gets a correct, primitive equation
+that is not premature.&nbsp; It sees no reason to treat it as a slip, so
+it gives the usual hint sequence for projection.
+<h3>
+022496 Eq-USNA 2-20-21</h3>
+In the problem where the race car is going around an inclined track, the
+student defines variables, draws a FBD without the acceleration (the axes
+are not aligned with the sought variable, but the solution is more efficient
+this way), enters givens, then enters "mcar * G = cos(70)*mcar*(v^2)/r"
+The closest matching correct equation is mcar*G*cos(70)= sin(70)*mcar*(v^2)/r,
+which is N2L applied to the x-axis with the definition of centripetal acceleration
+substituted in for a.&nbsp; How the student got such an advanced equation
+is a mystery.&nbsp; The student has left out cos(70) on the left side,
+and has replaced sin(70) with cos(70) on the right.&nbsp; Alternatively,
+the student could have intended tan(70) on the left instead of sin(70).
+<ul>
+<li>
+IH incorrectly thinks the closest matching equation is mcar*G*cos(70)=
+mcar*(v^2)/r, so she gives a refresher on the trig. identities.</li>
+
+<li>
+RO incorrectly thinks the closest matching equation is mcar*G*cos(70)=
+mcar*(v^2)/r, then coaches student to project weight onto the x-axis, then
+apply N2L along the x-axis.</li>
+
+<li>
+Andes suggests student uses tan(70) instead of cos(70).</li>
+
+<li>
+KVL: Andes should say, “You’ve probably made a careless error by skipping
+too many steps.&nbsp; I assume you are applying N2L to the car along a
+20 degree axis.&nbsp; If so, you should finish drawing vectors.”&nbsp;
+The next hint is to draw the acceleration, followed by a teaching hint
+on circular acceleration, followed by a bottom-out hint.</li>
+</ul>
+Andes can diagnosis this equation by substituting tan for cos.&nbsp; The
+resulting equation is correct but quite compound and vastly premature.
+</body>
+</html>

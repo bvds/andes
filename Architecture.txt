@@ -1,0 +1,330 @@
+Architecture.txt
+
+This document describes the overall architecture for the Andes2 Help system as I have envisioned it.  The elements are grouped by functionality.
+
+Note subdirectories that are labled with (AM) are Andes2 lisp modules and will contain an AMFile.cl file that defines andes module information  but will not be listed here.
+
+c:\Andes2
+ 
+Architecture.txt    This file
+  
+AndesModules.cl     Lisp file defining the Andes2 Module system.  
+		    This system is used for dependencies among the Lisp code.
+  
+Base/	            General Lisp files for use by the other Andes2 Help system modules. 
+
+Knowledge/          These files define the datastructures and access code for the
+		    Knowledge base and are located here because of their use by other mods.
+
+KB/                 Physics Knowledge (May change file extensions.)
+
+sgg/                Solution Graph Generator.
+
+Algebra/            The Algebra subsystem.
+
+Help/               The help system.
+
+
+
+
+# Base/ #
+
+Authors: Collin Lynch, Kurt Vanlehn and Halliday.
+
+The Base system is an Andes2 Module that provides unification code and other support functions to the Andes2 Lisp modules
+
+Functions: 1. Provide Unification code.
+	   2. Proviude general lisp functions such as force-to-list.
+
+Files:	   AMFile.cl      -- Andes2 Module file.     
+	   Unification.cl -- Unification code for ?vars.
+	   Utility.cl     -- General utility files.
+
+
+
+# Knowledge/ #
+
+Authors: Collin Lynch, Anders Weinstein and Kurt Vanlehn.
+
+This system provides datastructures, storage and other io functions 
+for the Andes2 Knowledge itself.  This is used by several of the 
+other elements.
+
+Functions: 1. Provide for KB storage.
+	   2. Provide for KB access.
+	   3. Provide for Viewing/output of KB elements.
+
+Maintains: 1. Problem registry.
+	   2. Nogoods Listing.
+	   3. Operator Database.
+
+Requires: Base Andes2 Module.
+
+Files:	   AMFile.cl       -- Andes2 Module file.
+	   Problem.cl	   -- Definition of Problem struct, and access.
+	   ProblemFile.cl  -- Problem storage and file structure. 
+	   BubbleGraph.cl  -- Definition of the Bubblegraph structs and 
+			      storage elements.
+	   Operator.cl	   -- Operator definition and storage.
+	   Nogood.cl	   -- Nogood struct and storage.
+
+
+# KB/ #
+
+Authors: Anders Weinstein and Kurt Vanlehn.
+
+The KB files define the Andes2 Help system knowledge base.  This 
+module defines the Problems, Operators, Nogoods, and other elements 
+used by the Andes2 system.  The files in this system may change and, 
+in the future be split into several submodules by content.
+
+Functions: 1. Defines all Physics Knowledge for Andes2
+	   2. Defines Physics problems for Andes2.
+
+Maintains: Implicitly these files maintain the Knowledge base.
+
+Requires: Base Andes2 module.
+	  Knowledge Andes2 module.
+
+Files:	 AMFile.cl	   -- Andes2 Module file for the KB module.
+	 Newtons2.c	   -- Physics Operators.
+	 NewtonsNogoods.cl -- Nogood definitions for use with Newtons2.
+	 PhysicsFuncs.cl   -- Utility functions for use with Newtons2.
+	 Problems.cl       -- Physics problems for use with Newtons2.
+
+
+# Sgg/ #
+
+Authors: Collin Lynch and Kurt Vanlehn.
+
+The Solution Graph Generator is the problem solving subsystem of 
+Andes2.  This module is designed to take a problem from the KB and 
+generate a BubbleGraph solution based upon the operators encoded in 
+the KB.  This result will then be stored for output use by the Knowledge 
+system using the ProblemFile functions.
+
+This module can also be loaded for use interactively within lisp via 
+its loader.cl file for use in the generation and debugging of problems.  
+In future forms a non-interactive form of the module may also be specified.
+
+Functions: 1. Generation of BubbleGraphs and Equation sets from Problems.
+	   2. Interactive functions for problem loading and debugging.
+	   3. Calling of the appropriate Algebra module(s) math solutions.
+	  
+Requires: Base Module.
+	  Knowledge Module.
+	  KB Module.
+	  Algebra Independence DLL.
+
+Files:	  AMFile.cl	    -- Interactive Andes2 Module file.
+	  Readme.doc	    -- Howto file for interactive use.
+	  Psudocode.txt	    -- Psudocode for some of the main algorithms.
+	  Loader.cl	    -- Loading file for interactive use.
+	  Interface.cl	    -- Interactive use functions.
+	  GraphGenerator.cl -- Bubblegraph generation code for problems.
+	  Traversal.cl      -- Equation set collection file.
+	  Qsolver.cl	    -- Main interface file.
+	  Ops.cl	    -- Additional operator code.
+	  Exec.cl	    -- Executable code for preconditions.
+	  Macro.cl	    -- Macro facilities.
+ 
+
+# Algebra/ #
+
+Authors: Joel Shapiro and Linwood Taylor.
+
+This directory contains the Algebra subsystem(s) of the Andes2 Help 
+system The subsystems in this file define independence testing, 
+color-by-numbers, and other equation checking forms as well as problem 
+solutions.
+
+Functions: 1. Obtaining of mathematical solutions for problem vars.
+	   2. Provision of Independence checking for equation sets.
+	   3. Provision of Algebra parsing for student equations.
+	   4. Provision of color-by-numbers for student entry chacking.
+
+Maintains: Possibly an internal symbol table.
+
+Files ?
+
+
+
+# Help/ #
+
+Authors: Collin Lynch and Linwood Taylor.
+
+This is the runtime help system for the Andes2 System.  
+It consists of several interrelated Andes2 modules that are located
+in separate subdirectories and which provide the various functions.
+
+Functions: Runtime help and algebra support for Andes2.
+
+Requires: Base Module.
+	  Algebra DLL.
+	  Knowledge Module.
+	  KB Module.
+	  
+
+Subelements: Overview.txt  -- The overall description.
+	     Manager/	   -- Help control system.	     
+	     OpDB/	   -- Operator help database.
+	     State/	   -- Current State storage.
+	     Student/	   -- Student model storage.
+	     Next/	   -- What's next help.
+	     Wrong/	   -- What's wrong help.
+
+
+
+
+## Manager/ ##
+
+Author: Linwood Taylor
+
+The help manager is the central controller for the Help system its 
+function is to centralize all input and output to and from the tcp/ip 
+stream with the workbench.  Typically the incoming commenas will simply 
+be routed by this system to the appropriate modules (Algebra, What's Next, 
+State, What's Wrong, and Student Model).  The system will then raout the 
+responses back to the workbench via the tcp/ip connection as well as 
+copying the request and result to the problem history for storage. 
+
+When a new problem or student is loaded the system will then load the 
+appropriate files setting up the initial state and other information 
+and report back to the workbench. 
+
+This system is also responsible for splitting all commands that must be 
+split.  For example a delete command if it contains an equation must be 
+sent to both the Algebra system and the State.
+
+When the student is in the middle of a series of help dialogs this system 
+is responsible for directing the appropriate dialogs to the appropriate 
+module for its use.  Thus this system maintains a record of the current 
+dialog that is active if any and if it receives a dialog-response command 
+transmits it to the appropriate mnodule.  If it receives a kill dialog 
+command it informs the appropriate module.  If it receives a dialog-done 
+response from a module for the workbench then it clears the appropriate 
+state info.  
+
+Functions: 1. Initialization of Help system.
+	   2. Reading from/writing to tcp/ip stream with workbench.
+	   3. Routing commands from the stream to the help modules.
+	   4. Echoing Commands and responses to the history.
+	   5. Opening and closing Problem files.
+	   6. Opening and closing student files.
+
+Maintance: 1. Current Problem name.
+	   2. Current Student id.
+	   3. In dialog: t/f
+	   3. Current dialog type: next/wrong.
+
+
+
+## State/ ##
+
+Author: Collin Lynch
+
+Prose:  As the student makes entries into the system they will define 
+variable names, perofrm set solution actions and other things.  all of 
+this data is maintained by the state module that stores the work that has 
+been done indexing it by type and by state so that it can be efficiently 
+searched by the other help modules and maintained by the state module 
+itself.  This module also stores the logging information used and 
+maintained by the system for later use.
+
+This module will need to access the bubblegraph code and will therefore 
+probably necessitate my moving the bubblegraph datastructures to the KB 
+module and moving the traversal code into something else like solver main.  
+(to be considered.)
+
+Functions: 1. Maintenance of History logs.
+	   2. Provision of History information.
+	   3. Maintanance of symbol table.
+	   4. Provision of translation functions.
+	   5. Recording of student actions.
+	   6. Determination of correctness for non-equation inputs.
+	   7. Provision of state information for srearching and retreival.
+	   8. Loading of initial state information from bubblegraph.
+
+Maintains: 1. Symbol table.
+	   2. Search state as a modified bubblegraph with markable nodes.
+	   3. History log of actions in this search. 
+	      first as a cache file then for dumping to output.
+	      (all then some retreival).
+
+
+
+## Student/ ##
+
+Unknown.
+
+The student model system is tasked with storage and provision of student 
+information for whatever system may need it. At present what this entails 
+is not completely defined so this model is left undefined for now.
+
+
+
+## OpDB/ ##
+
+Author: Collin Lynch
+
+The operator Database loads help information for each operator from the 
+knowledge base and makes it availible for request by operator name with 
+substitutions of argument variables.  For example the draw-mass might have 
+the list ("Try drawing the mass of ?body" "why haven't you drawn the mass 
+of ?body") which can be obtained with an argument for body and returned.  
+These halp sequences will be returned by the what's next help as the final 
+element of its hint-teach apply sequence for the user once it has walked 
+them through the preamble.  This operation is conducted by the 
+what's-next-help module.
+
+Note some of this code depends upon the structure of the Knowledge database 
+code and may necessitate its being broken out into a separate module from 
+the bubblegraph system.
+
+Functions: 1. Indexing of help from knowldedge base by operator name.
+	   2. Provision of help as requested by name.
+	   3. Clearing of index as necessary.
+
+Maintains: 1. Index of operator help sequences by name.
+
+
+## Next/ ##
+
+Author: Collin Lynch
+
+Prose: When the student is stuck they can ask the system 'What's Next?' The 
+What's next system will then begin a series of dialogs starting with 'What 
+Quantity is the problem seeking?' It then passes to 'What method should be 
+used to find it?' to slecting a step or goal that the student should perform
+ and providing a hint teach apply sequence for specific operators if the 
+student wants them.  This is a recursive process as the systems chain down 
+in layers.  
+
+This system may have a state as it interacts with the student.  it is up to 
+the Help Manager to direct dialog rsponses as appropriate in that situation.  
+
+Provides: 1. What's Next help dialogs as requested by the student.
+
+Maintains: 2. Record of the current help dialog that the student is in as 
+	      they continue to ask for help. This may become nil.
+
+
+## Wrong/ ##
+
+Author: Linwood Taylor 
+
+Prose: When the student enters an equation or object that is summarily marked 
+red by the state and/or Algebra modules they will typically ask 'What's wrong?'  
+This module will analize the entry to determine that and return to the student 
+an error dialog or sequence to explain that to them.
+
+Like the next step help this system can maintain a temporary state for dialog 
+purposes which the manager will be aware of.
+
+Provides: 1. What's wrong help information.
+
+Maintains: 2. Ongoing record of help dialog if one is in progress.
+
+
+
+

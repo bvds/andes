@@ -1,0 +1,169 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes 2 Entry interpreter module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Entry Interpreter</h2></center>
+
+<center>(as of 4/3/01)</center>
+
+<h3>
+Parsing and interpreting an equation.</h3>
+1.&nbsp; Create a <a href="Base.html#Student entry">student entry</a> struct
+and put the string typed by the student into its Verbatim slot.&nbsp; Call
+the <a href="EquationParser.html">Equation Parser</a>.&nbsp; If the student's
+string contains undefined variables, numbers without units or illegal syntax,
+then the parser returns an error message.&nbsp; The entry interpreter wraps
+this in a <a href="Base.html#Tutor turn">tutor turn</a> that instructs
+the workbench to turn the equation red, to print the error message in the
+dialog window, and to display the "Hide" menu button.
+<p>2.&nbsp; If the parsed equation has legal syntax, then send it to the
+<a href="AlgebraManipulation.html#Check student equation">algebra
+module</a> for interpretation.&nbsp; The algebra module returns a possibly
+null set of interpretations, where each interpretation is set of <a href="Base.html#System entry">system
+entry identifiers</a>.&nbsp; The interpretations are stored in the entries
+Correct-interpretations field.&nbsp; Because we have decided that buggy
+operators will not be necessary (see <a href="DesignDiscussion/AreBuggyOpsNeeded.html">discussion</a>),
+a student equation is correct if and only if has at least one interpretation.&nbsp;
+If the set of interpretations is null, then set the entry's Correctness
+to Incorrect, and return a tutor turn struct that turns the equation red.&nbsp;
+Otherwise, go on to the next step.
+<p>3.&nbsp; If there are multiple interpretations, then determine the most
+probable one as follows.&nbsp; (This is a simple procedure.&nbsp; We need
+to test it with log file data by seeing if it selects the same interpretations
+as we do.&nbsp; If not, then we can make it more complex.)&nbsp; We compute
+the Cognitive Load of an interpretation (which is a positive floating point
+number) by summing the cognitive loads of each of the equation system entries
+that have not yet been entered.&nbsp; A system entry contains a field for
+the operator that generated it, from which we can look up the definition
+of the <a href="Base.html#Operator">operator</a>.&nbsp; The operator definition
+has a slot for cognitive loads.&nbsp; The interpretation with the lowest
+total cognitive load is selected as the most probable interpretation of
+the student's entry, with ties broken arbitrarily.&nbsp; At this point,
+we have a single interpretation, which is stored in the Interpretation's
+slot.&nbsp; We go to interpretation of recognized entries, below.
+<h3>
+Parsing and interpreting a non-equation entry</h3>
+1.&nbsp; First we create a <a href="Base.html#Student entry">student entry
+</a>struct
+to represent the student's action.&nbsp; This is not as easy as it sounds.
+The Workbench's call (see the
+<a href="api.html">API spec</a>) specifies
+a student entry plus its arguments, but that information has to be translated
+into an <a href="Base.html#System entry">Entry Proposition</a>.&nbsp; This
+requires a domain-specific translation procedure.&nbsp; If the author changes
+the KB in such a way that more entry propositions are created or the syntax
+of existing entry propositions changes, then this translation function
+must change as well.&nbsp; The list of current entry propositions is <a href="EntryPropositions.html">here</a>.
+<p>2.&nbsp; Call the <a href="SolutionGraph.html#Search for match to entry">Solution
+Graph</a> module to find a <a href="Base.html#System entry">system entry</a>
+that matches this one.&nbsp; If it is not found, then the module returns
+NIL so set the entry's Correctness to Incorrect and return a tutor turn
+that colors the entry red.&nbsp;&nbsp; If one is found, then we get back
+an interpretation consisting of a singleton set that holds a system entry
+that correspond to the student's entry.&nbsp; Store this in Correct-interpretations
+and store its only member, an interpretation, in Interpretations, and go
+on to interpretation of recognized entries, below.
+<h3>
+Interpretation of recognized entries</h3>
+At this point,&nbsp; the student's entry has been recognized.&nbsp; That
+is, there is a non-null set of system entries in its Interpretation field.&nbsp;
+However, the student's entry could be any of Forbidden, dead-path or two
+kinds of premature.
+<p>1.&nbsp; If any of the system entries in the interpretation are Forbidden,
+set the student entry's Correctness field to Forbidden and return a tutor
+turn struct that says, "That is part of a correct solution to the problem,
+but it is a solution that you should not use (see the problem statement).&nbsp;
+Andes will delete it.&nbsp; Try to find a different way to solve the problem."&nbsp;
+The menu has Explain-more and Hide.&nbsp; Explain-more says, "Some physics
+problems have two or more solution strategies.&nbsp; For instance, when
+a rock falls from a known height starting at rest, one can find its final
+velocity either via Conservation of Energy or via a combinations of translational
+kinematics and Newton's second law.&nbsp; Sometimes instructors would like
+you to use a newly taught method rather than one taught earlier.&nbsp;
+If so, they will mark one of the solutions strategies in such a way that
+Andes will forbid you from using it.&nbsp; That is what is occuring here.&nbsp;
+You have tried to enter something that is a part of a forbidden solution
+strategy but is not a part of one of the strategies that the instructors
+would like you to use.&nbsp;&nbsp; Thus, Andes will delete it.&nbsp; You
+should try to solve this problem another way. (Hint: Think about methods
+that you were taught recently.)"
+<p>2. If any of the system entries in the Interpretation are dead-path,
+then set the entry's Correctness to Dead-path and return a tutor turn struct
+that says, "Although that is a reasonable way to solve the problem, it
+will not lead to a solution.&nbsp;&nbsp; Andes can only recognize successful
+derivations, so it is coloring this one 'incorrect'.&nbsp; Try a different
+approach.&nbsp; Ask for What's Next help if you would like a hint on finding
+one."&nbsp; The menu has Explain-more and OK.&nbsp; The Explain-more button
+says, "Sometimes a problem seems solvable with a certain method, but it
+is not.&nbsp; For instance, if a problem wants you to calculate the duration
+of an object's trip, it might seem that you could use the definition of
+speed as distance divided by duration.&nbsp; However, if the problem does
+not provide the information required to calculate the objects speed and
+the distance that it has travelled, then this method won't work.&nbsp;
+Andes only knows about correct, complete solutions to the problems, so
+if someone tried to define a speed variable for this problem, Andes would
+know that it is not part of a successful solution and would mark it incorrect.&nbsp;
+That is what has happened in this case.&nbsp; You have entered a step is
+a reasonable approach to solving the problem, but it doesn't happen to
+work.&nbsp; Andes only knows about derivations that correctly solve the
+problem, and it colors everything else 'incorrect.'&nbsp; Thus, you should
+try to find a different approach to solving this problem.&nbsp; Don't be
+shy about asking for What's Next help if you want some."&nbsp;&nbsp; For
+a discussion of why Andes recognizes dead-paths, see <a href="DesignDiscussion/DeadPaths.html">here</a>.
+<p>3.&nbsp; Call the Solution Graph module to check for the student <a href="SolutionGraph.html#Checking prerequisites">skipping
+prerequisite steps</a>.&nbsp; The module returns T if there is a prerequisite
+violation and NIL otherwise.&nbsp; If there is a prerequisite violation,
+then return a tutor turn that says, "Before you can do that, you need to
+at least one other step first.&nbsp; I'll leave your entry black so that
+you can easily re-enter it when you've finished."&nbsp; The menu contains
+"OK" which closes the dialog and turns the entry black, and "Explain more"
+which says, "Certain steps in problem solving, such as drawing a coordinate
+system or writing and equation first in terms of component variables, are
+often skipped by students and this causes them to make careless mistakes
+that can be difficult detect and fix.&nbsp; One of the goals of Andes is
+to make sure that you know what these critical steps are and when to do
+them, and to try to convince you to always do them.&nbsp; Once you have
+demonstrated mastery of the steps, Andes will let you skip them if you
+want, but it will continue to encourage you not to.&nbsp; In this case,
+you have skipped at least one prerequisite step.&nbsp; If you can't immediately
+see what the missing prerequisites are, use the light-bulb button to ask
+Andes "what should I do next?"&nbsp; After you have done all the prerequisites,
+you can reenter this step.&nbsp; Equations can be re-entered by just putting
+the cursor in them and pressing the Enter key.&nbsp; Non-equations can
+be re-entered by clicking on them with the right mouse button, which causes
+a dialog box to appear, then then clicking on the OK button in the dialog
+box."&nbsp; This response to the prequisite violation is more easily implemented
+than the optimal response (see <a href="DesignDiscussion/EntryPropositionAmbiguity.html#eq entry propositions have eq pre-reqs">discussion</a>
+and <a href="DesignDiscussion/ShouldAxesFilterInterpretations.html">discussion</a>).
+<p>4.&nbsp; If the entry is an equation, then ask the solution graph module
+if the interpretation has <a href="SolutionGraph.html#Premature numbers">premature
+substitution of numbers</a>.&nbsp; If so, then return a tutor turn struct
+that has the workbench say, "You have not yet reached the end of the solution,
+but you have substituted values for some of the variables.&nbsp; This practice
+is discouraged because it can lead to errors, and because it makes it harder
+to understand the physical interpretation of the equations.&nbsp; Thus,
+Andes is going to delete this equation.&nbsp; You should retype it without
+the given values."&nbsp; The menu has an Explain Futher button that says,
+"For instance, if the problem says that the mass of a block is 5 kg, and
+you define mb as the variable for the blocks' mass, then you should always
+use mb in your equations and not 5 kg.&nbsp; The exception is in the penultimate
+equation of the solution, where you substitute all the given values at
+once.&nbsp; You can solve this equation arithmetically to obtain the problem's
+answer."&nbsp; When the student OKs either of these messages, Andes should
+delete the equation.
+<p>5.&nbsp; Otherwise, the entry is acceptable.&nbsp; Return a tutor turn
+struct that tells the workbench to color it green, and tell the so<a href="SolutionGraph.html#Entering">lution
+graph module to enter the entry</a>&nbsp; and the&nbsp; <a href="EquationParser.html">Equation
+Parser</a> to update the symbol table.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

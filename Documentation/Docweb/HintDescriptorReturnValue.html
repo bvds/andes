@@ -1,0 +1,121 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="Author" content="Kurt VanLehn">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>HintDescriptorReturnValue</title>
+</head>
+
+<body>
+
+<h2>Hint Descriptor return value</h2>
+
+<p>Help System API functions that respond to help requests
+including &#147;what&#146;s wrong&#148; requests should return
+Hint Descriptors. Hint Descriptors are also used as arguments to
+the show-hint command that can be piggy-backed on an <a
+href="EntryStatusReturnValue.html">entry status return value</a>
+to show unsolicited help messages. However, because help requests
+themselves are made for the express purpose of soliciting hints,
+they don&#146;t have to piggy-back a show-hint command string on
+their return value, but rather simply return the hint descriptor
+itself. The context of the call ensures this will be interpreted
+as a hint descriptor to be shown as by show-hint. </p>
+
+<p>A hint descriptor consists of up to two parts: </p>
+
+<blockquote>
+    <p>HintSpec -&gt; &lt;message body&gt;[~flags] <br>
+    Flags -&gt; flag | flags flag <br>
+    flag -&gt; w | e | h | ? | &lt;empty&gt;</p>
+</blockquote>
+
+<p>The first part is the hint message text. The second part is a
+string of single-character flags coding the set of possible
+continuations (&quot;followups&quot;) to be offered to the
+student. These flags are as follows: </p>
+
+<blockquote>
+    <p><tt>&nbsp;h&nbsp;&nbsp;&nbsp; how do I do
+    that?&nbsp;&nbsp;&nbsp;&nbsp; (hint-next-substep)</tt> <br>
+    <tt>&nbsp;e&nbsp;&nbsp;&nbsp; explain
+    further&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (explain)</tt> <br>
+    <tt>&nbsp;w&nbsp;&nbsp;&nbsp;
+    why&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    (why)</tt> <br>
+    <tt>&nbsp;?&nbsp;&nbsp;&nbsp; &lt;free text
+    response&gt;&nbsp; (get-dialog-response str)</tt></p>
+</blockquote>
+
+<p><br>
+The rightmost column above indicates the <a href="api.html">help
+system API</a> that will be called if that followup is selected.
+Get-dialog-response has only been used in Atlas which uses
+natural language text, but may be used in the future with
+Andes.&nbsp; We expect that this facility will have to be
+extended to meet the specifications for the Andes2 help system,
+for example, to code menu choices. </p>
+
+<p>When the student issues a help request, the workbench goes
+into a special <em>dialog mode</em>, in which further problem
+solving actions are disabled while the tutor interacts with the
+student. Any hint with followups specified continues this dialog
+mode. If no possible student followups are provided, then the
+message must be a <em>terminal hint</em> in the current sequence.
+Receipt of a terminal hint signals the workbench to end the
+dialog mode, or to enable a means for the student to dismiss it,
+such as clicking an &quot;OK&quot; or &quot;Hide&quot; button in
+the window.</p>
+
+<h3>Hypertext in hint messages</h3>
+
+<p>There is a rudimentary hypertext facility that can be used in
+hint messages. A hyperlink to a popup definition may be embedded
+in a hint message by using the following form: </p>
+
+<blockquote>
+    <p><tt>{\d link-text}{\v glossary-id}</tt></p>
+</blockquote>
+
+<p>This is an RTF-like notation that tags the link-text as a
+definition. The \v tag in RTF means hidden text; in this case,
+further link information is appended in invisible text next to
+the definition. <br>
+&nbsp; <br>
+The only thing that will be visible will be the link text in
+hyperlink format. If the student clicks the link text, the
+workbench will look up the definition under link-id in the Andes
+glossary and display it in a popup window. An exmple hint-spec
+including a hyperlink is: </p>
+
+<p>Try using conservation of {\d energy}{\v energy} to find the
+magnitude of the {\d instantaneous velocity}{\v inst-velocity} of
+the car at {\d time}{\v time} 'T1'.~wh </p>
+
+<p>In Andes1 the glossary is found in the Andes installation
+directory in Pdata/glossary.txt. The help system uses a function
+to run through every hint string it generates and change certain
+keywords into hyperlinks. </p>
+
+<p>For extensibility, we also allow the following form of
+hyperlinks: </p>
+
+<blockquote>
+    <p><tt>{\h link-text}{\v helpsys-function-name}</tt></p>
+</blockquote>
+
+<p>In this case, clicking on the link will trigger a call back to
+the help system function of the given name, without any
+parameters. The call will be expected to return a hint string
+like any other help request. However, this facility is not
+currently used in Andes 1. </p>
+
+<p>Greek letters may be coded in hint text is coded by the
+two-character sequence dollar-sign char. This will display the
+corresponding char using the Symbol font. For example, $a will
+display as a Greek alpha.<br>
+&nbsp; </p>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>
+What Should the Solve Tool Do?, Part 4
+</title>
+</head>
+<body>
+
+<center>
+<h2>
+What Should the Solve Tool Do?, Part 4
+</h2>
+<h3>Joel's recollections of discussion with Don at the USNA on June 12</h3>
+<h3>and some phone calls shortly before that</h3>
+<P>
+</center>
+<P>
+On May 24'th, in the spirit that we needed to get something working and
+should put aside all optional features, Joel announced:
+<UL><LI>   In that spirit I will also start working on implementing
+a solvetool which only tries to give a numerical answer for
+a requested variable (dumb genie). I will then try to allow
+parameters in the answers. This is what I called the genie.
+The explicative genie will have to wait.
+The superevaluator is the first part of the dumb genie,
+so I could easily make this available separately.</UL>
+</P><P>
+The solve-tool invoked by a right mouse click in an equation box
+was implemented to provide dumb genie support, but in fact also
+solves problems with parameters in the answer, such as Exs4a.
+</P><P>
+In our meeting on June 12, Don asked that the alternate solve tool
+"for engineers" be implemented. This tool enables the student to select 
+an equation and 
+a variable within it, and solve for that variable, and then select 
+other equations and have that solution substituted in (and simplified).
+The algebra system now has this capability as
+two separate calls, but there are not yet hooks in the workbench to
+trigger them.
+</P><P>
+Also at that meeting, Don and Joel discussed the "calculate" or
+simplify equation tool. We decided to plug all numerical assignment 
+statements from elsewhere, recursively, into the selected equation, and
+simplify. This has now been implemented.
+<HR>
+Last modified June 21 at 11:49 by Joel Shapiro
+</body>
+</html>

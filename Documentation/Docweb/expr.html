@@ -1,0 +1,128 @@
+<html> <head>
+<title>Expressions in the Algebra System
+</title>
+</head>
+
+<body>
+<h1>Expressions in the Algebra System
+</h1>
+
+This page discusses the internal representation of expressions in the
+algebra system.
+<p>
+In the Andes2 algebra system, expressions are represented internally
+by <TT> class expr</TT>, which is defined in file <TT>expr.h</TT>. This is
+an abstract class, from which are inherited subclasses which get
+instantiated, in this fashion:
+<UL><LI><TT>expr</TT> (an abstract class only)
+    <UL><LI><TT>primexpr</TT> (also an abstract class - an expr with no
+	 children)
+	<UL><LI><TT>fakeexpr</TT> - instantiated only as a placeholder for
+	     stack
+	    <LI><TT>numvalexp</TT> - a numerical value together with physical
+		 units
+	    <LI><TT>physvarptr</TT> - a physical variable, or more accurately,
+		 a pointer to a <A HREF=physvar.html><TT>physvar</TT></A>.
+	</UL><LI><TT>binopexp</TT> - a binary operator with two child
+	     expr's<br>
+	         These are of the following types:<br>
+	         divided-by, to-power, equals, greater-than, greater-or-equal.
+	      (The last two are not currently used.)
+        <LI><TT>functexp</TT> - a function of one argument, a child expr. <br>
+		  The system knows about the following functions:<br>
+		  sin, cos, tan, exp, ln, log<sub>10</sub>, sqrt, abs.
+	<LI><TT>n_opexp</TT> - a n-ary operator with a variable number of
+		  children. There are only two n-ary operators used, plus
+		  and multiply.
+</UL></UL>
+All expr have the member fields
+<UL>
+  <LI><TT>bool known</TT> - this is not fully implemented - in the early code 
+       we tried to treat `known' variables differently than undetermined ones,
+       even if we did not have a specific numerical value for them. But this
+       was not carried through in the code.
+  <LI><TT>exprtype etype</TT> - one of: unknown, numval, physvart, binop, n_op,
+       function, or fake.
+  <LI><TT>dimens MKS</TT> - the <A HREF=dimens.html>physical units</A>
+       of this expression.
+</UL>
+In addition to these data fields, which the subexpr inherit, the different
+subclasses have additional fields:
+<UL>
+  <LI><TT>int varindex</TT> (physvarptr only). The index of the physical
+       variable in the list of `canonical' physical variables
+       <TT>canonvars</TT>.
+  <LI><TT>double value</TT> (numvalexp only).  The SI units value for this
+       physical quantity. In the versions since April 7, 2001, numvals
+       representing all angles are given in radians.
+  <LI><TT>oper *op</TT> and <TT>oper *f</TT>: (binopexp and n_opexp for op,
+       functexp for f).
+       An <TT>oper</TT> is a class which tells which kind of
+       operator or function we have. The internal enum names are:<br>
+       <TT>pluse, multe, divbye, topowe, equalse, grte, gree, sine, cose, tane,
+       expe, lne, log10e, sqrte, abse</TT> .<br>
+       The <TT>oper</TT> also contains the printable name, such as '^'
+       or '<tt>sin</tt>'.
+  <LI><TT>expr *arg</TT> (functexp only)<br>
+       <TT>expr *lhs, *rhs</TT> (binopexp only)<br>
+       <TT>vector<expr *> *args</TT> (n_opexp only) - pointers to the children.
+</UL>
+Member functions: (Some that shouldn't be used are not listed)
+<UL><LI>constructors (and an adjuster)
+    <UL><LI> for <TT>expr</TT>
+	<UL><LI> <TT>expr()</TT>
+            <LI> <TT>expr(exprtype)</TT>
+	    <LI> <TT>expr(expr &)</TT></UL>
+	<LI> for <TT>numvalexp</TT>
+	<UL><LI> <TT>numvalexp(int value)</TT>
+	    <LI> <TT>numvalexp(float value)</TT>  [don't use this -
+		 values need precision]
+	    <LI> <TT>numvalexp(double value)</TT>
+	    <LI> <TT>numvalexp(string value)</TT></UL>
+	<LI> for <TT>physvarptr</TT>
+	<UL><LI> <TT>physvarptr(int k)</TT>  [k is index in canonvars]</UL>
+	<LI> for <TT>binopexp</TT>
+	<UL><LI> <TT>binopexp(oper *op, expr *lhs, expr *rhs)</TT>
+	<LI> for <TT>functexp</TT>
+	<UL><LI> <TT>functexp(oper *f, expr *arg)</TT>
+	<LI> for <TT>n_opexp</TT>
+	<UL><LI> <TT>n_opexp(oper *op)</TT>
+	    <LI> <TT>void addarg(expr *arg)</TT></UL>
+    <LI>information extractors (and one inserter)
+    <UL><LI> <TT>bool expr::isknown()</TT>  [never used]
+	<LI> <TT>bool expr::setknown()</TT>  [never used]
+	<LI> <TT>string getInfix()</TT> returns a fully parenthesized infix
+	     form of the expression
+	<LI> <TT>void pretty(int indent)</TT> prints an indented tree-like
+	     form of the expression. Not much used - I think it omits units.
+	<LI> <TT>void dbgprint(int indent)</TT> prints an indented tree-like
+	     form of the expression with markers for the kind of expr, and
+	     units given as powers of m, kg, s, C, K for each expr.
+        <LI> <TT>string solprint()</TT> (binopexp only) Prints an equation
+	     which is
+	     an assignment (ie. it is physvar = numval) in the form required
+	     for the solution file (for the solution checker and independence
+	     checker).
+	<LI> <TT>double getlength()</TT>, <TT>getmassd()</TT>,
+	     <TT>gettimed()</TT>, <TT>getcharged()</TT>, and
+	     <TT>gettempd()</TT> - returns the exponent
+	     to which m, kg, s, C, K are
+	     raised in the physical dimensions of this expr.   </UL>
+    <LI> destructor
+    <UL><LI> <TT>expr::destroy()</TT> - removes all children as well as
+	 the expr itself.
+	 It is standard procedure to regard all children as belonging to the
+	 expression - children should not be shared. But they may be
+	 transferred from an expression about to be deleted, not destroy()ed.
+	 
+</UL>
+The functions for class expr are contained in <TT>expr.cpp</TT> and
+<TT>exprp.cpp</TT>, the latter containing the printing and string output
+functions. There are also functions in <TT>copyexpr.cpp</TT> and
+<TT>moreexpr.cpp</TT> which should probably be made member functions.
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr  8 16:06:45 2001
+<!-- hhmts end -->
+</body> </html>

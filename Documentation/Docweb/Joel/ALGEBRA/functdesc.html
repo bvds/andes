@@ -1,0 +1,1997 @@
+<html> <head>
+<title>Description of Functions in the Algebra System
+</title>
+</head>
+
+<body>
+<h1>Description of Functions in the Algebra System</h1>
+
+This page attempts to give a short description of each of the
+functions used by the algebra system.
+The most reliably up-to-date descriptions, and the most detailed,
+are in the source code, in the .cpp files rather than the .h files
+except for Solver.h.
+
+The functions may be roughly classified into
+<UL><LI><A HREF=#intfacef>
+Interface functions for the help system</A>
+    <LI><A HREF=#drivers>
+Driving functions for using the algebra system offline</A>
+    <LI><A HREF=#listmaint>
+Functions for maintaining lists of equations, variables, sets, etc.</A>
+    <LI><A HREF=#solvef>
+Functions to solve a system of equations</A>
+    <LI><A HREF=#indyf>
+Functions to investigate independence of equations</A>
+    <LI><A HREF=#algmanip>
+Functions to to algebraic and arithmetic manipulation</A>
+    <LI><A HREF=#printf>
+Functions for printing algebraic expressions</A>
+    <LI><A HREF=#classmethods>
+Functions which are class methods</A>
+    <LI><A HREF=#utils>
+Functions which are general utilities</A>
+    </UL>
+<P>
+
+<A NAME=intfacef><H3>
+Interface functions for the help system</H3></A>
+<H4>Calls made to the interface, normal</H4>
+<UL>
+<LI>Reset the algebra system for a new problem
+<UL><LI>
+<A NAME=c_indyEmpty><B>c_indyEmpty</B></A>()
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=indyEmpty><B>indyEmpty</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: indysgg.cpp &nbsp;
+     <A HREF=srccode/indysgg><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: tells the algebra system to erase all information it has
+     on the current problem. It must be called before resubmitting canonical
+     variables and equations.
+</UL>
+
+
+<LI>Clear the solver
+<UL><LI><A NAME=solveClear><B>solveClear</B></A>()
+<UL><LI>Returns: RETURN_ CSTRING 
+<LI>In file: Solver.cpp &nbsp;
+<A HREF=srccode/Solver><IMG SRC=codelink.gif></A></UL>
+<LI><A NAME=clearTheProblem><B>clearTheProblem</B></A>()
+<UL><LI>Returns: bool 
+<LI>In file: coldriver.cpp &nbsp;<A HREF=srccode/coldriver><IMG SRC=codelink.gif></A></UL>
+<LI> Function: set up the structures of the algebra system on startup.
+</UL>
+
+<LI><A NAME=doinitinit><B>doinitinit</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: coldriver.cpp &nbsp;<A HREF=srccode/coldriver><IMG SRC=codelink.gif></A>
+<LI>Function: make sure solveClear and the initial indyEmpty are in sync.<br>
+    This ought to be simplified - or at least clarified.
+</UL>
+
+<LI><A NAME=closeupshop><B>closeupshop</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: indysgg.cpp &nbsp;
+<A HREF=srccode/indysgg><IMG SRC=codelink.gif></A>
+<LI>Function:   deletes all the structures created by indyEmpty, to
+   be used when closing down the system (not between problems).
+</UL>
+
+<LI>Solve a problem from an input file
+<UL><LI><A NAME=solveBubbleFile><B>solveBubbleFile</B></A>(const char* const src, const char* const dst)
+<UL><LI>Returns: RETURN_ CSTRING 
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A></UL>
+<LI>
+<A NAME=doColAnderMain><B>doColAnderMain</B></A>(const char* const src, const char* const dst)
+<UL><LI>Returns: char* &nbsp; (error message, or "So far so good")
+<LI>In file: coldriver.cpp &nbsp;
+<A HREF=srccode/coldriver><IMG SRC=codelink.gif></A></UL>
+<LI>Function: Reads in the problem specification file (*.eqf) and solves
+the problem, writing out the solutions, and checking them. This is not used
+if the problem is fed interactively by the help system.
+</UL>
+
+<LI>Feed information to algebra package at problem solving time.
+<UL><LI><A NAME=solveAdd><B>solveAdd</B></A>(const char* const lispExpression)
+<UL><LI>Returns: RETURN_ CSTRING 
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+</UL>
+<LI>
+<A NAME=handleInput><B>handleInput </B></A>(string& aLine)
+<UL><LI>Returns: bool 
+<LI>In file: coldriver.cpp &nbsp;<A HREF=srccode/coldriver><IMG SRC=codelink.gif></A></UL>
+<LI>Function: feeds information about the problem to the algebra system, one
+line at a time. The forms are  [Note: first word is case-insensitive]</UL>
+<table width=80% align=RIGHT>
+<TR><TD> (= ... </TD><TD> a lisp form equation, to be entered in list</TD></TR>
+ <TR><TD> (Variable varname)</TD><TD> OBSOLETE enter varname in list </TD></TR>
+ <TR><TD> (SVAR varname unitstring)</TD><TD> Enter variable in list, and
+give its preferred units </TD></TR>
+<TR> <TD> (nonnegative varname) </TD><TD> declare varname nonnegative
+ <TR><TD> (positive varname) </TD><TD> declare varname positive </TD></TR>
+ <TR><TD> (nonzero varname) </TD><TD>declare varname nonzero </TD></TR>
+ <TR><TD>(parameter varname)  </TD><TD> declare varname to be a parameter
+ </TD></TR>
+ <TR><TD> starts with <, space, or tab   </TD><TD> - line is ignored </TD></TR>
+</table>
+<br CLEAR=ALL>
+
+<LI>Solve the problem, being fed by the help system
+<UL><LI><A NAME=solveBubble><B>solveBubble</B></A>()
+<UL><LI>Returns: RETURN_ CSTRING 
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A></UL>
+<LI><A NAME=solveTheProblem><B>solveTheProblem</B></A>()
+<UL><LI>Returns: char* 
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+</UL>
+<LI>Function: start the solving process with the first line of output
+
+<LI><A NAME=solveMoreBubble><B>solveMoreBubble</B></A>()
+<UL><LI>Returns: RETURN_ CSTRING 
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A></UL>
+<LI><A NAME=solveMoreOfTheProblem><B>solveMoreOfTheProblem</B></A>()
+<UL><LI>Returns: char* 
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+</UL>
+<LI>Function: continue the solving process for each subsequent line of output.
+</UL>
+</UL>
+
+<LI>Declare a variable, give its name, value, and preferred units.
+<UL><LI>
+<A NAME=c_indyAddVariable><B>c_indyAddVariable</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;
+     <A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=indyAddVar><B>indyAddVar</B></A>(const&nbsp;char*&nbsp;const&nbsp;name,
+     double&nbsp;value, const&nbsp;char*&nbsp;const&nbsp;unitstr)
+<UL><LI>Returns: void 
+<LI>In file: indysgg.cpp &nbsp;
+     <A HREF=srccode/indysgg><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: enters a variable with name, value, and units onto the list
+     of canonical variables. This is only used after problem solution time,
+     as the help system must already know the value of each variable.
+     [At problem solution time, variables are declared with 
+     SolveAdd/handleInput/getall.]
+     Variables must be entered on list before they
+     are referred to in equations or given attributes. 
+</UL>
+
+<LI>Declare that all variables have been declared.
+<UL><LI>
+<A NAME=c_indyDoneAddVariable><B>c_indyDoneAddVariable</B></A>()
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=indyDoneAddVar><B>indyDoneAddVar</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: indysgg.cpp &nbsp;<A HREF=srccode/indysgg><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: must be called after all variables have been Added, and before
+     any equations are added to canonical sets, and before any student
+     equations are submitted.
+     </UL>
+
+
+
+
+<LI>Add an equation to the list of canonical equations
+<UL><LI>
+<A NAME=c_indyAddEquation><B>c_indyAddEquation</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;
+     <A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI><A NAME=indyAddCanonEq><B>indyAddCanonEq</B></A>
+(int eqnID, const char* const equation)
+<UL><LI>Returns: void 
+<LI>In file: indysgg.cpp &nbsp;<A HREF=srccode/indysgg><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: adds the equation represented in Lisp form in canonical
+     variables by the string <tt>equation</tt>, as the index=eqnID element in
+     the list. By agreement, this will always be the next available number.
+     </UL>
+
+
+<LI>Add a canonical equation to a set of independent functions
+<UL><LI>
+<A NAME=c_indyAddEq2Set><B>c_indyAddEq2Set</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING 
+<LI>In file: Solver.cpp &nbsp;
+     <A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI><A NAME=indyAddEq2CanSet><B>indyAddEq2CanSet</B></A>(int setID, int eqnID)
+<UL><LI>Returns: void 
+<LI>In file: <A HR<TD>indysgg.cpp &nbsp;<A HREF=srccode/<A><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: adds the canonical equation already in the list with index eqnID
+     to the set number setID, if it is independent of those already therein.
+     </UL>
+
+<LI>Partially or totally empty an independence set
+<UL><LI>
+<A NAME=c_indyKeepNOfSet><B>c_indyKeepNOfSet</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=indyKeepN><B>indyKeepN</B></A>(int setID, int numberToKeep)
+<UL><LI>Returns: void 
+<LI>In file: indysgg.cpp &nbsp;<A HREF=srccode/indysgg><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: removes all but the first numberToKeep equations in the set
+     setID. This could be used in backtracking at bubble generation time, but
+     I believe it is currently used with numberToKeep = 0 only to empty sets.
+     </UL>
+
+<LI>Test if an equation is independent of those in a set.
+<UL><LI>
+<A NAME=c_indyCanonHowIndy><B>c_indyCanonHowIndy</B></A>
+     (const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;
+     <A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=indyCanonHowIndy><B>indyCanonHowIndy</B></A>(int&nbsp;setID,
+     int&nbsp;eqnID, vector&lt;int&gt;*&&nbsp;linexpand,
+     vector&lt;int&gt;*&&nbsp;mightdepend)
+<UL><LI>Returns: int 
+<LI>In file: <A HR<TD>newindy.cpp &nbsp;<A HREF=srccode/<A><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI>Function: See below indyHowIndy. In this case, the equation tested is
+     the canonical equation
+     with index eqnID is of the equations already in the set setID. 
+<LI>
+<A NAME=c_indyStudHowIndy><B>c_indyStudHowIndy</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;
+     <A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI><A NAME=indyStudHowIndy><B>indyStudHowIndy</B></A>(int&nbsp;setID,
+     int&nbsp;eqnID, vector&lt;int&gt;*&&nbsp;linexpand,
+     vector&lt;int&gt;*&&nbsp;mightdepend)
+<UL><LI>Returns: int 
+<LI>In file: newindy.cpp &nbsp;
+     <A HREF=srccode/newindy><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI>Function: See below indyHowIndy. In this case, the equation tested is
+     the student equation in slot eqnID.
+<LI><A NAME=indyHowIndy><B>indyHowIndy</B></A>
+(int&nbsp;setID, expr&nbsp;*&nbsp;eq, valander&nbsp;*&nbsp;val, 
+vector&lt;int&gt;&nbsp;*&nbsp;&&nbsp;linexpand, 
+vector&lt;int&gt;&nbsp;*&nbsp;&&nbsp;mightdepend )
+<UL><LI>Returns: int 
+<LI>In file: newindy.cpp &nbsp;<A HREF=srccode/newindy><IMG SRC=codelink.gif></A></UL>
+<LI>Function: Asks for information about how independent the equation
+     to be tested is of the equations already in the set setID. 
+     The integer return value is
+     <UL><LI> 0: equation eqnID is definitely independent of those in set
+     <LI> 1: in linear approximation it appears to depend on the equations
+            given in list1, but the full equation appears likely to depend
+            on those in list2 as well, and appears to depend on more as
+            well, so may well be independent of equations in set.
+<LI> 2: in linear approximation it appears to depend on the equations
+            given in list1, but the full equation appears likely to depend
+            on those in list2 as well. It is probably only dependent on
+            the union of the two lists.
+<LI> 3: The equation appears to be dependent only on the equations in
+            list 1.
+<LI> 4: The equation is dependent on the equations in list 1.
+</UL>
+Up to two lists may be returned, depending on the integer return value. 
+They are<UL>
+<LI>   list1: a list of integers, the index in canoneqf of the equations
+	      upon which eqnID depends.
+<LI>     list2: a list of integers, indices in canoneqf of equations on which
+            eqnID may also depend.
+</UL>
+</UL>
+
+<LI>Test the correctness of a student equation, and possibly add to slot
+<UL><LI>
+<A NAME=c_indyIsStudentEquationOkay><B>c_indyIsStudentEquationOkay</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=indyIsStudEqnOkay><B>indyIsStudEqnOkay</B></A>(const&nbsp;char&nbsp;*&nbsp;const&nbsp;equation)
+<UL><LI>Returns: int 
+<LI>In file: indysgg3.cpp &nbsp;<A HREF=srccode/indysgg3><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: Checks the student equation, but does not add it to the student
+   slot.
+<LI>
+<A NAME=c_indyStudentAddEquationOkay><B>c_indyStudentAddEquationOkay</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI><A NAME=indyAddStudEq><B>indyAddStudEq</B></A>(int slot, const char* const equation)
+<UL><LI>Returns: int 
+<LI>In file: <A<TD>indysgg.cpp &nbsp;<A HREF=srccode/<A><IMG SRC=codelink.gif></A></UL>
+<LI> Function: Checks the student equation, and adds it to the student slot.
+    Also finds the gradient at the solution point for later independence 
+    checking
+<LI>All of these take an equation presented as a Lisp string in
+     canonical variables, to see if it is correct. The return values are:
+  <UL><LI>0:   OKAY: &nbsp;  student equation is correct    
+    <LI>1:   NOSUCH: &nbsp;        no such student equation slot [Add only]
+    <LI>2:   NOPARSE: &nbsp;      could not be parsed
+    <LI>3:   NOTANEQ: &nbsp;      parsed but not an equation
+    <LI>4:   SINGULAR: &nbsp;     added but not diferentiable at solution point
+    <LI>5:   UNITSNG: &nbsp;      equation has inconsistant units
+    <LI>6:   WRONG: &nbsp;        equation is consistent but is wrong
+    <LI>7:   INACCUR: &nbsp;      consistant to default student accuracy (1%),
+     but not to high accuracy (100 times RELERR). 
+     Probably premature plugging in of numbers, unless final answer.
+    <LI>8:   SLOTEMPTIED: &nbsp;  emptied as asked [Add only], 
+    or was equation was empty.
+  </UL>
+</UL>
+
+<LI>Solve tool, genie version
+<UL><LI>
+<A NAME=c_powersolve><B>c_powersolve</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=powersolve><B>powersolve</B></A>(const int howstrong, const string varname, const int destslot)
+<UL><LI>Returns: string 
+<LI>In file: solvetool.cpp &nbsp;<A HREF=srccode/solvetool><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: When the student asks for it, attempt to solve all of the
+     <b>student</b> equations, including automatic ones, for the variable
+     requested, and put the best answer in the slot <tt>destslot</tt>.
+     Currently only the strongest mode, with howstrong = 31, is being used.
+     </UL>
+     
+<LI>Simplify tool (calculate button)
+<UL><LI>
+<A NAME=c_simplifyEqn><B>c_simplifyEqn</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=simplifyEqn><B>simplifyEqn</B></A>(const int sourceSlot, const int destSlot)
+<UL><LI>Returns: string 
+<LI>In file: indysgg2.cpp &nbsp;<A HREF=srccode/indysgg2><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: At the student's request, try to simplify the equation in slot
+     <tt>sourceSlot</tt> by using all other assignment statements, together
+     with numerical simplification, and if any simplification is achieved,
+     place the answer in slot destslot. [The algebra system fills its own
+     version of destslot, but passes a Lisp string in canonical variables
+     back to the help system to let it and the workbench enter the result
+     in destslot.]
+     </UL>
+     
+<LI>Engineer's solve tool, part one.
+<UL><LI>
+<A NAME=c_solveOneEqn><B>c_solveOneEqn</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;
+     <A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=solveOneEqn><B>solveOneEqn</B></A>(const char * const varName,
+     const int sourceSlot, const int destSlot)
+<UL><LI>Returns: string 
+<LI>In file: indysgg3.cpp &nbsp;
+     <A HREF=srccode/indysgg3><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: At the student's request, try to solve the equation in
+     <tt>sourceslot</tt> for the variable <tt>varName</tt>, and if
+     successful, enter the result in <tt>destslot</tt>, and return a 
+     string of the form (= varName Lisp-expr). In this form, it can be
+     used by subInOneEqn.
+     </UL>
+
+<LI>Engineer's solve tool, part two.
+<UL><LI>
+<A NAME=c_subInOneEqn><B>c_subInOneEqn</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING<TD>Solver
+<LI>In file: Solver.cpp &nbsp;
+<A HREF=srccode/Solver><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<A NAME=subInOneEqn><B>subInOneEqn</B></A>(int&nbsp;sourceSlot, const&nbsp;int&nbsp;targetSlot, const&nbsp;int&nbsp;destSlot)
+<UL><LI>Returns:  string
+<LI>In file: indysgg3.cpp &nbsp;<A HREF=srccode/indysgg3><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI> Function: <tt>sourceSlot</tt> must be an equation of the form
+     v<sub>i</sub> = expression not involving v<sub>i</sub>. This solution for
+     v<sub>i</sub> is substituted everywhere it occurs in the equation in
+     slot <tt>targetSlot</tt>, and the result entered in <tt>destSlot</tt>
+     and returned as a lisp expression in canonical variables.
+</UL>
+
+
+<H4>Special back-door calls</H4>
+<UL>
+<LI><A NAME=backdoor><B>backdoor</B></A>(const char * const fakeeqn)
+<UL><LI>Returns: bool 
+<LI>In file: backdoor.cpp &nbsp;<A HREF=srccode/backdoor><IMG SRC=codelink.gif></A>
+<LI>Function: provides a back door to test functions implemented in the
+algebra system but not yet on the interface. Works by inputting in student
+slot 11 (on workbench - 10 internally) an equation of the form<br>
+var = function-to-test^2+first_arg^3+second_arg^4+...<br>
+This should go away, of course, once it is no longer needed.
+</UL>
+<LI>functions used by the back door
+<UL>
+<LI><A NAME=getargs><B>getargs</B></A>(expr * & e)
+<UL><LI>Returns: bool 
+<LI>In file: backdoor.cpp &nbsp;<A HREF=srccode/backdoor><IMG SRC=codelink.gif></A></UL>
+<LI><A NAME=getintfromtrap><B>getintfromtrap</B></A>(int argnum)
+<UL><LI>Returns: int 
+<LI>In file: backdoor.cpp &nbsp;<A HREF=srccode/backdoor><IMG SRC=codelink.gif></A></UL>
+<LI><A NAME=getvarfromtrap><B>getvarfromtrap</B></A>(int argnum)
+<UL><LI>Returns: const char * 
+<LI>In file: backdoor.cpp &nbsp;<A HREF=srccode/backdoor><IMG SRC=codelink.gif></A></UL></UL>
+</UL>
+<H4>Calls in the interface but not of concern to the help system.</H4>
+<UL> 
+<LI>
+<A NAME=DllMain><B>DllMain</B></A>(HANDLE module, DWORD reasonCalled,
+     LPVOID reserved)<UL>
+<LI>Returns: BOOL APIENTRY
+<LI>In file: DllMain.cpp &nbsp;<A HREF=srccode/DllMain>
+     <IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: Magical Microsoft Mumble-jumble needed to make a DLL. Ask Linn.
+</UL>
+
+<LI><A NAME=copyToResult><B>copyToResult</B></A>(const&nbsp;char*&nbsp;const&nbsp;d, int&nbsp;s, int&nbsp;e, int&nbsp;sp)
+<UL><LI>Returns: static void
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+<LI>Function: used to copy a portion of data to the result buffer,
+ for mangling before handing off to calls
+</UL>
+
+<LI><A NAME=findChar><B>findChar</B></A>(char&nbsp;toFind, const&nbsp;char*&nbsp;const&nbsp;data, int&nbsp;beginAt)
+<UL><LI>Returns: static int
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+<LI>Function: find where first occurrence of a char is in a string
+</UL>
+
+<LI><A NAME=makeError><B>makeError</B></A>(const&nbsp;char*&nbsp;const&nbsp;m, const&nbsp;char*&nbsp;const&nbsp;r, const&nbsp;char*&nbsp;const&nbsp;a)
+<UL><LI>Returns: static void
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+<LI>Function: used to form errors to return to lisp
+</UL>
+
+<LI><A NAME=remove0A0Ds><B>remove0A0Ds</B></A>(const char* const str)
+<UL><LI>Returns: char* 
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+<LI>Function: removes carriage returns and line feeds from the interchanges 
+    from the help system to the algebra system. This is necessary 
+    so that the Solver.log file can be compiled.
+</UL>
+
+<LI><A NAME=setResult><B>setResult</B></A>(const char* const message)
+<UL><LI>Returns: static void
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+<LI>Function: used to copy a message to the result buffer
+</UL>
+</UL>
+<H4>Obsolete interface calls</H4>
+<UL>
+<LI><A NAME=c_indyExpandInSet><B>c_indyExpandInSet</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+</UL>
+
+<LI><A NAME=c_indyIsIndependent><B>c_indyIsIndependent</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+</UL>
+
+<LI><A NAME=c_indyStudentExpandInSet><B>c_indyStudentExpandInSet</B></A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+</UL>
+
+<LI><A NAME=c_indyStudentIsIndependent><B>c_indyStudentIsIndependent</B>
+</A>(const char* const data)
+<UL><LI>Returns: RETURN_ CSTRING
+<LI>In file: Solver.cpp &nbsp;<A HREF=srccode/Solver><IMG SRC=codelink.gif></A>
+</UL>
+
+
+<LI><A NAME=indyExpSetCanEq><B>indyExpSetCanEq</B></A>(int setID, int eqnID)
+<UL><LI>Returns: string 
+<LI>In file: indysgg.cpp &nbsp;<A HREF=srccode/indysgg><IMG SRC=codelink.gif></A>
+</UL>
+
+<LI><A NAME=indyExpSetStudEq><B>indyExpSetStudEq</B></A>(int setID, int slot)
+<UL><LI>Returns: string 
+<LI>In file: indysgg.cpp &nbsp;<A HREF=srccode/indysgg><IMG SRC=codelink.gif></A>
+</UL>
+
+<LI><A NAME=indyIsCanonIndy><B>indyIsCanonIndy</B></A>(int setID, int eqnID)
+<UL><LI>Returns: bool 
+<LI>In file: indysgg.cpp &nbsp;<A HREF=srccode/indysgg><IMG SRC=codelink.gif></A>
+</UL>
+
+<LI><A NAME=indyIsStudIndy><B>indyIsStudIndy</B></A>(int setID, int eqnID)
+<UL><LI>Returns: bool 
+<LI>In file: indysgg.cpp &nbsp;<A HREF=srccode/indysgg><IMG SRC=codelink.gif></A>
+</UL>
+
+</UL>
+
+<A NAME=drivers><H3>
+Driving functions for using the algebra system offline</H3></A>
+<UL>
+<LI>
+<A NAME=colander:main><B>[colander]main</B></A>(int argc, char *argv[])
+<UL><LI>Returns: int
+     <LI>Function: Reads a file containing variable and equation
+	  specifications, which is an algebraic restatement of the problem,
+	  and outputs a file with the numerical values for all the variables,
+	  and, on standard output, a summary of the success and checks.
+    <LI>In file: colander.cpp &nbsp;
+     <A HREF=srccode/colander><IMG SRC=codelink.gif ALIGN=top></A></UL>
+<LI>
+<A NAME=getallfile><B>getallfile</B></A>(ifstream & infile )
+<UL><LI>Returns: bool . True unless read error on file.
+<LI>Function: Reads from an istream the contents of the input file of
+     variable specifications and equations. Calls <tt>getall</tt> for each
+     line.
+<LI>In file: getallfile.cpp &nbsp;<A HREF=srccode/getallfile><IMG SRC=codelink.gif ALIGN=top></A></UL>
+
+<LI><A NAME=geteqsfromeqsfile><B>geteqsfromeqsfile</B></A>(istream & infile )
+<UL><LI>Returns: vector &lt;string&gt;*
+<LI>In file: geteqs.cpp &nbsp;<A HREF=srccode/geteqs><IMG SRC=codelink.gif></A>
+<LI>Function: reads in a line at a time (with getaline) from the input
+    stream (which has likely been set to an input file), and adds it to
+    a vector of input strings. This used to be used to read the equation
+    files in Andes1, but is now used only to read the solution file (*.jsol)
+</UL>
+
+
+<LI><A NAME=main><B>main</B></A>(int argc, char *argv[])
+<UL><LI>Returns: int 
+<LI>In file: colander.cpp &nbsp;<A HREF=srccode/colander><IMG SRC=codelink.gif></A>
+<LI>Function: Reads input information from a *.eqf file, solves the problem,
+writes out a solution file *.jsol, and checks it, and reports its findings.
+</UL>
+
+</UL>
+<H4>Functions used by <tt>interact</tt> for debugging problem solutions</H4>
+The early problem solver, if it failed to solve a problem, went into 
+interactive mode, in which the user could perform various operations on
+the equations, to see what more was needed. It is not clear if this is
+used anywhere in the current programs, so these functions can probably be
+considered obsolete:
+<UL>
+<LI><A NAME=gointeract><B>gointeract</B></A>(vector&lt;binopexp *&gt; * & eqn, vector&lt;varindx&gt; * & vars)
+<UL><LI>Returns: void 
+<LI>In file: interact.cpp &nbsp;<A HREF=srccode/interact><IMG SRC=codelink.gif></A>
+<LI>Function: go into interactive mode
+</UL>
+
+<LI><A NAME=listcoms><B>listcoms</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: interact.cpp &nbsp;<A HREF=srccode/interact><IMG SRC=codelink.gif></A>
+<LI>Function: type out (cout and cerr) the list of commands, no explanation.
+</UL>
+<LI><A NAME=printcoms><B>printcoms</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: interact.cpp &nbsp;<A HREF=srccode/interact><IMG SRC=codelink.gif></A>
+<LI>Function: type out (cerr) the names of commands with short explanation
+</UL>
+</UL>
+
+<A NAME=listmaint><H3>
+Functions for maintaining lists of equations, variables, sets, etc.</H3></A>
+<UL>
+ <LI><A NAME=constsfill><B>constsfill</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: physconsts.cpp &nbsp;<A HREF=srccode/physconsts><IMG SRC=codelink.gif></A>
+<LI>Function: Fills the constnames and constnumvals tables from the file
+pconsts.h
+</UL>
+
+<!-- <LI><A NAME=delminus><B>delminus </B></A>(string * p)
+<UL><LI>Returns: void 
+<LI>In file: parseclipseq.cpp &nbsp;<A HREF=srccode/parseclipseq><IMG SRC=codelink.gif></A>
+<LI>Function: replaces minus signs by 0 and $ by N in variable names.
+</UL>
+-->
+
+ <LI><A NAME=unitabrs><B>unitabrs::fill</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: unitabrs.cpp &nbsp;<A HREF=srccode/unitabrs><IMG SRC=codelink.gif></A>
+<LI>Function: fills a unitabrs table with information from units.h and 
+prefixes.h, giving the allowed units as well as some preferred methods of
+writing combinations of units.
+</UL>
+
+ <LI><A NAME=geta2line><B>geta2line</B></A>(istream &instr)
+<UL><LI>Returns: string 
+<LI>In file: getaline.cpp &nbsp;<A HREF=srccode/getaline><IMG SRC=codelink.gif></A>
+<LI>Function: returns one line (separated by ^J and/or ^M) from an input 
+stream. This is my version, which doesn't work in Visual C++ (but does
+in g++). It should be more efficient than getaline, but that is what we are
+using.
+</UL>
+
+ <LI><A NAME=getaline><B>getaline</B></A>(istream &instr)
+<UL><LI>Returns: string 
+<LI>In file: getaline.cpp &nbsp;
+<A HREF=srccode/getaline><IMG SRC=codelink.gif></A>
+<LI>Function: returns one line (separated by ^J and/or ^M) from an input 
+stream. 
+</UL>
+
+ <LI><A NAME=getall><B>getall</B></A>(const string oneline)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: The function called for each line of input information at
+problem-solving time. For the form of the input, see
+<A HREF=#handleInput>handleInput</A>.
+</UL>
+
+ <LI><A NAME=getavar><B>getavar</B></A>(const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: The function called by getall for an input line beginning
+with "(variable", which is now obsolete.
+</UL>
+
+ <LI><A NAME=getavarwu><B>getavarwu</B></A>(const&nbsp;string&nbsp;bufst, const&nbsp;bool&nbsp;varNew, const&nbsp;bool&nbsp;valToo, double&nbsp;&&nbsp;SIvalue)
+<UL><LI>Returns: int 
+<LI>In file: getavar.cpp &nbsp;<A HREF=srccode/getavar><IMG SRC=codelink.gif></A>
+<LI>Function: called by getall on an input line (SVAR varname unitstr) 
+declaring a variable at problem-solution time.
+</UL>
+
+ <LI><A NAME=getAnEqn><B>getAnEqn</B></A>(const string bufst, bool tight)
+<UL><LI>Returns: binopexp *
+<LI>In file: getaneqnwu.cpp &nbsp;<A HREF=srccode/getaneqnwu><IMG SRC=codelink.gif></A>
+<LI>Function: parses a lisp form of an equation (in canonical variables) and
+returns a expr. generic form of getCanonEqn and getStudEqn. It is also called
+directly by indyIsStudEqnOkay
+</UL>
+
+ <LI><A NAME=getCanonEqn><B>getCanonEqn</B></A>(const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getaneqnwu.cpp &nbsp;<A HREF=srccode/getaneqnwu><IMG SRC=codelink.gif></A>
+<LI>Function: Called by getall on an equation presented at problem generation
+time, and by indyAddCanonEq at SGG/help time. Calls getAnEqn.
+</UL>
+
+<LI><A NAME=getStudEqn><B>getStudEqn</B></A>(int slot, const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getaneqwu.cpp &nbsp;<A HREF=srccode/getaneqwu><IMG SRC=codelink.gif></A>
+<LI>Function: Called by indyAddStudEq to enter new student equation in slot.
+</UL>
+
+
+ <LI><A NAME=getclipsvar><B>getclipsvar</B></A>(string token, int start)
+<UL><LI>Returns: int 
+<LI>In file: parse.cpp &nbsp;<A HREF=srccode/parse><IMG SRC=codelink.gif></A>
+<LI>Function: extract a variable name from a string. Despite its name, which
+dates from when we were still dealing with CLIPS equations and variables, it
+is still used to parse equations.
+</UL>
+
+ <LI><A NAME=geterr><B>geterr</B></A>(const string value)
+<UL><LI>Returns: double 
+<LI>In file: parseunit.cpp &nbsp;<A HREF=srccode/parseunit><IMG SRC=codelink.gif></A>
+<LI>Function:    returns an absolute error to be associated with the value 
+given. If value appears to be an integer (no decimal point), the error is 0.
+    If it has a decimal point, the error is +- half the last digit
+    specified.							
+</UL>
+
+
+<LI><A NAME=unitabrs><B>unitabrs::unitget</B></A>(const string & unitname)
+<UL><LI>Returns: numvalexp *
+<LI>In file: unitabrs.cpp &nbsp;<A HREF=srccode/unitabrs><IMG SRC=codelink.gif></A>
+<LI>Function: Given a string which appears in the unittable, returns a 
+numvalexp equal to one such unit. Does not handle composites not found in
+table, for which you need getfromunits.
+</UL>
+
+ <LI><A NAME=getfromunits><B>getfromunits</B></A>(const string & unitstr)
+<UL><LI>Returns: numvalexp *
+<LI>In file: unitabr.cpp &nbsp;<A HREF=srccode/unitabr><IMG SRC=codelink.gif></A>
+<LI>Function: given a string representing units, returns a numvalexp equal
+to one such unit. getfromunits can handle composites of units in the unittable,
+while unitget cannot.
+</UL>
+
+ <LI><A NAME=getsols><B>getsols</B></A>(ifstream & solfile)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: getnewsols.cpp &nbsp;<A HREF=srccode/getnewsols><IMG SRC=codelink.gif></A>
+<LI>Function:  reads a solution file generated by colander, and returns
+a vector of doubles holding the values of the variables	in STANDARD MKS 
+UNITS, not in the given units.		
+</UL>
+
+ <LI><A NAME=isanum><B>isanum</B></A>(string token)
+<UL><LI>Returns: bool 
+<LI>In file: parse.cpp &nbsp;<A HREF=srccode/parse><IMG SRC=codelink.gif></A>
+<LI>Function: returns true if the token represents a number, according to
+parseanum.
+</UL>
+
+ <LI><A NAME=makenn><B>makenn</B></A>(const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: declares the variable to be nonnegative
+</UL>
+
+ <LI><A NAME=makenz><B>makenz</B></A>(const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: declares the variable to be nonzero
+</UL>
+
+ <LI><A NAME=makepar><B>makepar</B></A>(const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: declares the variable to be a parameter. Parameters are 
+given arbitrary positive values for problem solution, and they are pushed to
+lowest priority to be solved for in purelinsolv.
+</UL>
+
+ <LI><A NAME=makepos><B>makepos</B></A>(const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: declares the variable to be positive, ie both nonnegative and
+nonzero.
+</UL>
+
+<LI><A NAME=unitabrs><B>unitabrs::match</B></A>(const dimens dim)
+<UL><LI>Returns: string 
+<LI>In file: unitabrs.cpp &nbsp;<A HREF=srccode/unitabrs><IMG SRC=codelink.gif></A>
+<LI>Function: If the units given by dim correspond exactly to one entry in the
+units abbreviation table, without prefix, it returns the entry in the table.
+Otherwise it returns "None".
+</UL>
+
+ <LI><A NAME=parseEqWUnits><B>parseEqWUnits</B></A>(const string & lispeq)
+<UL><LI>Returns: stack&lt;string&gt;*
+<LI>In file: <A<TD>parseeqwunits.cpp &nbsp;<A HREF=srccode/<A><IMG SRC=codelink.gif></A>
+<LI>Function: tokenizes a lisp expression which should be an equation, 
+returning a stack of tokens. Used by getaneqwu and unitabr.
+</UL>
+
+ <LI><A NAME=parseanum><B>parseanum</B></A>(string token, int start)
+<UL><LI>Returns: int 
+<LI>In file: parse.cpp &nbsp;<A HREF=srccode/parse><IMG SRC=codelink.gif></A>
+<LI>Function: interpret as much as possible of string as a number.
+Takes as much of token[start,stop] as possible to have a integer or 
+floating point number, including possible exponent with e. <BR>
+ Returns stop+1, so if start=stop, no number was found.
+</UL>
+
+<!--
+ <LI><A NAME=parseclipseq><B>parseclipseq</B></A>(const string & lispeq)
+<UL><LI>Returns: stack&lt;string&gt;*
+<LI>In file: parseclipseq.cpp &nbsp;<A HREF=srccode/parseclipseq><IMG SRC=codelink.gif></A>
+<LI>Function: Obsolete - used in list2 and checksol, which are no longer used.
+</UL>
+-->
+
+ <LI><A NAME=parseunit><B>parseunit</B></A>(stack&lt;string&gt; *toklist)
+<UL><LI>Returns: numvalexp *
+<LI>In file: parseunit.cpp &nbsp;<A HREF=srccode/parseunit><IMG SRC=codelink.gif></A>
+<LI>Function: Extracts a numvalexp from a DNUM on the stack in getaneqwu.
+</UL>
+
+ <LI><A NAME=setacc><B>setacc</B></A>(const string bufst)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: Not used. It was written to do better treatment of allowable
+accuracy, but was set aside when the 1% expediency rule was implemented.
+</UL>
+
+ <LI><A NAME=startwith><B>startwith</B></A>(const string buf, const string compstr)
+<UL><LI>Returns: bool 
+<LI>In file: getall.cpp &nbsp;<A HREF=srccode/getall><IMG SRC=codelink.gif></A>
+<LI>Function: compares the beginning of buf case-insensitively to compstr, 
+returns true if they match. Used by getall to parse solveAdds.
+</UL>
+
+</UL>
+
+</UL>
+<A NAME=solvef><H3>
+Functions to solve a system of equations</H3></A>
+<UL>
+ <LI><A NAME=checkeqs><B>checkeqs</B></A>(
+vector&lt;binopexp&nbsp;*&gt;&nbsp;*&nbsp;&&nbsp;eqn,
+vector&lt;varindx&gt;&nbsp;*&nbsp;&nbsp;vars,
+ostream&nbsp;&&nbsp;solfile)
+<UL><LI>Returns: bool 
+<LI>In file: checkeqs.cpp &nbsp;
+<A HREF=srccode/checkeqs><IMG SRC=codelink.gif></A>
+<LI>Function: Guides the solver through the task of solving the equations.
+See extensive comments in the code, checkeqs.cpp.
+</UL>
+
+ <LI><A NAME=checkifdone><B>checkifdone</B></A>(const&nbsp;varindx&nbsp;sought, binopexp&nbsp;*&nbsp;&&nbsp;ansexpr, const&nbsp;vector&lt;binopexp&nbsp;*&gt;&nbsp;*&nbsp;const&nbsp;soleqs)
+<UL><LI>Returns: bool 
+<LI>In file: solvetool.cpp &nbsp;<A HREF=srccode/solvetool><IMG SRC=codelink.gif></A>
+<LI>Function: Looks to see if the sought variable of the solve tool has been
+solved for yet.
+</UL>
+
+ <LI><A NAME=checksol><B>checksol</B></A>(const&nbsp;binopexp&nbsp;*&nbsp;const&nbsp;eqn, const&nbsp;vector&lt;double&gt;&nbsp;*&nbsp;const&nbsp;sols, const&nbsp;double&nbsp;reltverr)
+<UL><LI>Returns: int 
+<LI>In file: checksol.cpp &nbsp;<A HREF=srccode/checksol><IMG SRC=codelink.gif></A>
+<LI>Function: Checks to see if the equation eqn is satisfied by plugging in the
+solution given by sols. Numbers in the equation are assumed to have relative
+errors given by reltverr. Returns
+<UL><LI>  0 if seems within error bars 
+<LI>   1 if within 100 * error bars 
+<LI>   2 if not within 100 * error bars </UL>
+  NOTE: currently the error bar calculation has faults 
+</UL>
+
+ <LI><A NAME=desperate><B>desperate</B></A>(vector&lt;binopexp *&gt; * & eqn, vector&lt;varindx&gt; * & vars)
+<UL><LI>Returns: bool 
+<LI>In file: desperate.cpp &nbsp;<A HREF=srccode/desperate><IMG SRC=codelink.gif></A>
+<LI>Function: Called in the problem solution process after simpler
+procedures have been tried. Looks for an equation linear in one variable
+which can be solved and substituted in another without too much ugliness.
+Also looks for pairs of equations quadratic in two unknowns, and if they
+are independent, solves them.
+</UL>
+
+<LI><A NAME=dimchkeqf><B>dimchkeqf</B></A>(ostream & outstr)
+<UL><LI>Returns: void
+<LI>In file: dimchkeqf.cpp &nbsp;<A HREF=srccode/dimchkeqf><IMG SRC=codelink.gif></A>
+<LI>Function: Reports if any of the equations in the solution file has
+dimensional inconsistencies.
+</UL>
+
+ <LI><A NAME=dofactor><B>dofactor</B></A>(vector&lt;binopexp *&gt; * & eqn, vector&lt;varindx&gt; * & vars)
+<UL><LI>Returns: bool 
+<LI>In file: dofactor.cpp &nbsp;<A HREF=srccode/dofactor><IMG SRC=codelink.gif></A>
+<LI>Function: Tries to simplify the as yet unsolved equations by factoring
+out terms which are simple variables or powers thereof.
+</UL>
+
+ <LI><A NAME=donlsolv><B>donlsolv</B></A>(vector&lt;binopexp *&gt; * & eqn)
+<UL><LI>Returns: bool 
+<LI>In file: donlsolv.cpp &nbsp;<A HREF=srccode/donlsolv><IMG SRC=codelink.gif></A>
+<LI>Function: Attempts to solve each of the equations in eqn as 
+a nonlinear nonpolynomial equation in a single variable, using nlsolvov
+</UL>
+
+ <LI><A NAME=dopurelin><B>dopurelin</B></A>(vector&lt;binopexp&nbsp;*&gt;&nbsp;*&nbsp;&&nbsp;eqn, vector&lt;varindx&gt;&nbsp;*&nbsp;&&nbsp;vars, vector&lt;binopexp&nbsp;*&gt;&nbsp;*&nbsp;soleqs, int&nbsp;&&nbsp;doagain)
+<UL><LI>Returns:vector &lt;binopexp*&gt;*
+<LI>In file: dopurelin.cpp &nbsp;<A HREF=srccode/dopurelin><IMG SRC=codelink.gif></A>
+<LI>Function: extracts all linear equations from the list of as yet unsolved
+equations, and solves as many as possible.
+</UL>
+
+ <LI><A NAME=doterm><B>doterm</B></A>(const&nbsp;expr&nbsp;*&nbsp;term, double&nbsp;*&nbsp;A, const&nbsp;vector&lt;varindx&gt;&nbsp;*&nbsp;vars)
+<UL><LI>Returns: bool 
+<LI>In file: purelin.cpp &nbsp;<A HREF=srccode/purelin><IMG SRC=codelink.gif></A>
+<LI>Function: used for each term in each equation being worked on by
+purelinsolv, in building the matrix. 
+</UL>
+
+ <LI><A NAME=dotrig><B>dotrig</B></A>(vector&lt;binopexp *&gt; * & eqn)
+<UL><LI>Returns: bool 
+<LI>In file: dotrig.cpp &nbsp;<A HREF=srccode/dotrig><IMG SRC=codelink.gif></A>
+<LI>Function: calls solvetrig and, if unsuccessful, undotrigvars.
+</UL>
+
+ <LI><A NAME=findallroots><B>findallroots</B></A>(vector&lt;double&gt; *poly)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function: finds all real roots of a polynomial in one variable, in
+ascending order.
+</UL>
+
+ <LI><A NAME=findroot><B>findroot</B></A>(const&nbsp;vector&lt;double&gt;&nbsp;*&nbsp;poly, const&nbsp;vector&lt;double&gt;&nbsp;*&nbsp;polyderiv, const&nbsp;double&nbsp;low, const&nbsp;double&nbsp;high)
+<UL><LI>Returns: double 
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function: tracks down the root of poly between low and high, using the
+derivative polynomial polyderiv.
+</UL>
+
+ <LI><A NAME=findtrigvars><B>findtrigvars</B></A>(expr&nbsp;*&nbsp;&&nbsp;ex, vector&lt;expr&nbsp;*&gt;&nbsp;*&nbsp;&trigvars)
+<UL><LI>Returns: void 
+<LI>In file: solvetrig.cpp &nbsp;<A HREF=srccode/solvetrig><IMG SRC=codelink.gif></A>
+<LI>Function: looks for trig functions in ex, and adds their arguments to
+trigvars.
+</UL>
+
+ <LI><A NAME=findwhichvar><B>findwhichvar</B></A>(expr const * v, const vector&lt;varindx&gt; * vars)
+<UL><LI>Returns: int 
+<LI>In file: purelin.cpp &nbsp;<A HREF=srccode/purelin><IMG SRC=codelink.gif></A>
+<LI>Function: looks on the list vars for the variable v. If there, returns 
+its index, else returns -1.
+</UL>
+
+ <LI><A NAME=fixupforpls><B>fixupforpls</B></A>(binopexp * & bineq)
+<UL><LI>Returns: bool 
+<LI>In file: fixupforpls.cpp &nbsp;<A HREF=srccode/fixupforpls><IMG SRC=codelink.gif></A>
+<LI>Function: If the equation eq is linear with constant coefficients, it
+is put in a form suitable for purelinsolv, and fixupforpls returns true.
+</UL>
+
+ <LI><A NAME=fixupterm><B>fixupterm</B></A>(expr * & ex)
+<UL><LI>Returns: bool 
+<LI>In file: fixupforpls.cpp &nbsp;<A HREF=srccode/fixupforpls><IMG SRC=codelink.gif></A>
+<LI>Function: Used by fixupforpls on each term of equation.
+</UL>
+
+ <LI><A NAME=hasjustonevar><B>hasjustonevar</B></A>(const expr * e, varindx & pv)
+<UL><LI>Returns: bool 
+<LI>In file: justonev.cpp &nbsp;<A HREF=srccode/justonev><IMG SRC=codelink.gif></A>
+<LI>Function: returns true if the expression e contains at most one variable, 
+and it is pv. If pv is initially < 0, it sets pv to the first variable found.
+</UL>
+
+ <LI><A NAME=isnonneg><B>isnonneg</B></A>(const expr * e)
+<UL><LI>Returns: bool 
+<LI>In file: ispos.cpp &nbsp;<A HREF=srccode/ispos><IMG SRC=codelink.gif></A>
+<LI>Function: Returns true if the expression e can be determined to be 
+nonnegative
+</UL>
+
+ <LI><A NAME=isnonneg><B>isnonneg</B></A>(string name)
+<UL><LI>Returns: bool 
+<LI>In file: ispos.cpp &nbsp;<A HREF=srccode/ispos><IMG SRC=codelink.gif></A>
+<LI>Function: Returns true if the physvar with name name can be determined to 
+be nonnegative
+</UL>
+
+ <LI><A NAME=ispositive><B>ispositive</B></A>(const expr * e)
+<UL><LI>Returns: bool 
+<LI>In file: ispos.cpp &nbsp;<A HREF=srccode/ispos><IMG SRC=codelink.gif></A>
+<LI>Function: Returns true if the expression e can be determined to be 
+positive
+</UL>
+
+ <LI><A NAME=ispositive><B>ispositive</B></A>(string name)
+<UL><LI>Returns: bool 
+<LI>In file: ispos.cpp &nbsp;<A HREF=srccode/ispos><IMG SRC=codelink.gif></A>
+<LI>Function: Returns true if the physvar with name name can be determined to 
+be positive
+</UL>
+
+ <LI><A NAME=linvarcoefs><B>linvarcoefs</B></A>(const&nbsp;expr&nbsp;*&nbsp;ex, const&nbsp;varindx&nbsp;var, expr&nbsp;*&nbsp;&&nbsp;coef, expr&nbsp;*&nbsp;&&nbsp;numer)
+<UL><LI>Returns: bool 
+<LI>In file: slvlinonev.cpp &nbsp;<A HREF=srccode/slvlinonev><IMG SRC=codelink.gif></A>
+<LI>Function: returns true if ex is linear in var (with coef and constant term 
+	possibly expressions in other variables) and it implies 
+	var = numer/coef.
+	numer and coef 	should be a null pointers on call.
+  All functions, binops (other than a top level =), 
+	or topow to positive int, if they contain var, will return false.
+</UL>
+
+ <LI><A NAME=maketrigvars><B>maketrigvars</B></A>(vector&lt;binopexp *&gt; * eqexpr, vector&lt;expr *&gt; * & trigvars)
+<UL><LI>Returns: void 
+<LI>In file: solvetrig.cpp &nbsp;<A HREF=srccode/solvetrig><IMG SRC=codelink.gif></A>
+<LI>Function: adds all arguments of trig functions found in the list eqexpr
+to makevars, using findtrig.
+</UL>
+
+ <LI><A NAME=nlsolvov><B>nlsolvov</B></A>(binopexp * & bineq)
+<UL><LI>Returns bool
+<LI>In file: nlsolvov.cpp &nbsp;
+<A HREF=srccode/nlsolvov><IMG SRC=codelink.gif></A>
+<LI>Function: Attempts to solve a nonlinear nonpolynomial equation in a single
+variable.
+</UL>
+
+ <LI><A NAME=purelinsolv><B>purelinsolv</B></A>(vector&lt;binopexp *&gt; const * eqs, vector&lt;varindx&gt; const * vars, vector&lt;binopexp *&gt; * & sols)
+<UL><LI>Returns: bool 
+<LI>In file: purelin.cpp &nbsp;<A HREF=srccode/purelin><IMG SRC=codelink.gif></A>
+<LI>Function: solves a system of simultaneous linear equations. These should
+be set up by fixupforpls first.
+</UL>
+
+ <LI><A NAME=recassign><B>recassign</B></A>(vector&lt;binopexp *&gt; * & eqn, vector&lt;varindx&gt; * & vars, vector&lt;binopexp *&gt; * soleqs)
+<UL><LI>Returns: void 
+<LI>In file: recassign.cpp &nbsp;<A HREF=srccode/recassign><IMG SRC=codelink.gif></A>
+<LI>Function: Solves as much as possible by recursively plugging in 
+numerical assignment statements in the set of equations.
+</UL>
+
+ <LI><A NAME=slvlinonev><B>slvlinonev</B></A>(binopexp * & eq, 
+const varindx var)
+<UL><LI>Returns: bool 
+<LI>In file: slvlinonev.cpp &nbsp;<A HREF=srccode/slvlinonev><IMG SRC=codelink.gif></A>
+<LI>Function: checks if eq is a linear equation with constant coef in that 
+variable (though the constant term may be an arbitrary 		
+expression in other variables). If so, it rewrites the eq	
+as an assignment and returns true. Otherwise eq unchanged.	
+</UL>
+
+<LI><A NAME=slvpolyexpr><B>slvpolyexpr</B></A>(const expr * eq, varindx var)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function: expects eq is a polynomial in one variable var, 
+with numerical coeficients. It returns a vector of real solutions.
+</UL>
+
+<LI><A NAME=solveeqs><B>solveeqs</B></A>(ofstream & outfile)
+<UL><LI>Returns: bool 
+<LI>In file: justsolve.cpp &nbsp;<A HREF=srccode/justsolve><IMG SRC=codelink.gif></A>
+<LI>Function:  solves the equations in canoneqf 			
+	in the variables canonvars, writing the answers in outfile, and
+also entering their values in numsols,
+which must be created and sized before calling solveeqs.
+It also now makes a working copy of canoneqf,	
+	to present to checkeqs, which will destroy it, so as to		
+	preserve the original for checksol.<br>
+   After giving all the solutions, it lists, if any, 
+<UL><LI><PARTSLVV> followed by linear equations not solved numerically. 
+<LI>	<UNSLVEQS> followed by equations not solved and not linear	
+<LI>	<UNSLVVARS> followed by variables used in equations but not	
+		solved for						
+<LI>	<UNUSEDVARS> followed by variables not used in any equation	
+		(and therefore not solved for)				
+<LI>   returns true if there are no UNSLVEQS or UNSLVVARSQ		
+</UL>
+</UL>
+
+ <LI><A NAME=solveknownvar><B>solveknownvar</B></A>(expr * & eq)
+<UL><LI>Returns: bool 
+<LI>In file: <A<TD>solveknownvar.cpp &nbsp;<A HREF=srccode/<A><IMG SRC=codelink.gif></A>
+<LI>Function: returns true and reforms eq to form  v = num, if possible.
+It is only to be called on an equation which contains only one 
+	variable, and known to be linear, and has been eqnumsimped. So is at 
+	worst a*v+b = c*v+d<BR>
+	returns false if not done, for example if 0*v = something 
+</UL>
+
+ <LI><A NAME=solvetrigvar><B>solvetrigvar</B></A>(const expr * const var, vector&lt;binopexp *&gt; * & eqn)
+<UL><LI>Returns: bool 
+<LI>In file: solvetrig.cpp &nbsp;<A HREF=srccode/solvetrig><IMG SRC=codelink.gif></A>
+<LI>Function: looks for two equations of the form <BR>
+		cs*fact1 + ks * fact2 sin(arg) = 0 <BR>	
+	and 	cc*fact1 + kc * fact2 cos(arg) = 0 <BR>
+ 	with fact1 and fact2 known positive (actually nonnegative!?!)<BR>
+  if found, replaces one with arg = numval and other with 		
+ (cs^2+cc^2)*fact1^2 = (ks^2+kc^2)* fact2^2		
+</UL>
+
+ <LI><A NAME=solvetwoquads><B>solvetwoquads</B></A>(binopexp * & eq1,  binopexp * & eq2, const varindx v1, const varindx v2)
+<UL><LI>Returns: int 
+<LI>In file: <A<TD>despquad.cpp &nbsp;<A HREF=srccode/<A><IMG SRC=codelink.gif></A>
+<LI>Function: Solves two equations each quadratic in the same pair of unknowns,
+with no other variables.
+</UL>
+
+ <LI><A NAME=trigsearch><B>trigsearch</B></A>(const expr * const arg, expr *& coef, const expr * const ex, bool & iscos, expr * & oside)
+<UL><LI>Returns: bool 
+<LI>In file: solvetrig.cpp &nbsp;<A HREF=srccode/solvetrig><IMG SRC=codelink.gif></A>
+<LI>Function: 
+	when called on an equation, which must have rhs = 0,   
+ 	tries to write ex as oside + coef * cos(arg) = 0,	
+	[or oside + coef * sin(arg) = 0] and returns coef, oside,
+	iscos and true if successful, with iscos = true if cos and
+	false if sin.<BR>
+	iscos is meaningless if coef is numval 0<BR>
+	returns false if any other function of arg found<BR>
+   But trigsearch calls itself with expr inside the equation too. Then
+	if the expression is of the form<BR>
+		coef * (cos | sin) (arg) + oside<BR>
+	(coef can be zero), it returns coef, oside, and true, and iscos
+	true if cosine, false if sine (otherwise unset?)
+</UL>
+
+ <LI><A NAME=twoonevareqs><B>twoonevareqs</B></A>(binopexp * & eq1,  binopexp * & eq2, const varindx v)
+<UL><LI>Returns: int 
+<LI>In file: despquad.cpp &nbsp;<A HREF=srccode/despquad><IMG SRC=codelink.gif></A>
+<LI>Function: This should never get called. If it does, it writes a message
+to bug the maintainer to write the function.
+</UL>
+
+ <LI><A NAME=twoqcfex><B>twoqcfex</B></A>(expr *ex, const varindx v1, const varindx v2)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: despquadb.cpp &nbsp;<A HREF=srccode/despquadb><IMG SRC=codelink.gif></A>
+<LI>Function: Used by twoquadcoef recursively.
+</UL>
+
+ <LI><A NAME=twoquadcoef><B>twoquadcoef</B></A>(const binopexp *eq, const varindx v1, const varindx v2)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: despquadb.cpp &nbsp;<A HREF=srccode/despquadb><IMG SRC=codelink.gif></A>
+<LI>Function: Called on an equation quadratic in two variables, v1 and v2,
+returns a vector of length 6, with the
+numerical coefficients c_i so that the equation is equivalent to
+c_0 v1^2 + c_1 v1 v2 + c_2 v2^2 + c_3 v1 + c_4 v2 + c_5 = 0.
+</UL>
+
+ <LI><A NAME=undotrigvar><B>undotrigvar</B></A>(const expr * const arg, vector&lt;binopexp *&gt; * & eqn)
+<UL><LI>Returns: bool 
+<LI>In file: solvetrigb.cpp &nbsp;<A HREF=srccode/solvetrigb><IMG SRC=codelink.gif></A>
+<LI>Function:  	looks for two equations of the form<BR>
+		fact1 + coef sin(arg) = 0	(or with sin <-> cos)<BR>
+	and 	fact2 + k2 * coef cos(arg) = 0<BR>
+ 	without worrying about signs or commensurability of fact1 & fact2.
+  If found, adds the equation
+	fact1^2 + k2^2 fact2^2 = k2^2 coef^2			
+</UL>
+
+</UL>
+
+
+
+
+
+<A NAME=indyf><H3>
+Functions to investigate independence of equations</H3></A>
+<UL>
+ <LI><A NAME=indyset><B>indyset::expandlast</B></A>()
+<UL><LI>Returns: vector &lt;double&gt; 
+<LI>In file: indyset.cpp &nbsp;<A HREF=srccode/indyset><IMG SRC=codelink.gif></A>
+<LI>Function:  returns the vector of coefficients by which the last
+	isindy'd equation can be expanded in terms of the equations
+	already entered in the set. Must be first call following the 
+	isindy call.<BR>
+  Note that this is not the list of equations it depends on, which is supplied
+by indyHowIndy.
+</UL>
+
+ <LI><A NAME=getvnd><B>getvnd</B></A>(const&nbsp;expr&nbsp;*&nbsp;ex, const&nbsp;vector&lt;physvar&nbsp;*&gt;&nbsp;*&nbsp;vars, const&nbsp;vector&lt;double&gt;&nbsp;*&nbsp;sols)
+<UL><LI>Returns: valander *
+<LI>In file: valander.cpp &nbsp;<A HREF=srccode/valander><IMG SRC=codelink.gif></A>
+<LI>Function: getvnd takes a function (not an equation, but what is expected 
+to be
+      the lhs of an equation whose rhs is 0) in the variables in the
+      variable list vars, and expands it to first order around the
+      point sols, returning the value and gradient of the function
+      in a valander ("value and derivative").<BR>
+    This version also contains a hasvar vector<bool> which tells if
+      the function has any dependence on the variable.
+    Note if presented an equation, it interprets it as a function
+      eq->lhs - eq->rhs.
+</UL>
+
+<LI>indyset::isindy<UL>
+ <LI><A NAME=isindy><B>indyset::isindy</B></A>(const expr * const candex)
+ <LI><A NAME=isindy><B>indyset::isindy</B></A>(const valander * const candval)
+
+<LI>Returns: bool 
+<LI>In file: indyset.cpp &nbsp;<A HREF=srccode/indyset><IMG SRC=codelink.gif></A>
+<LI>Function: checks whether its argument, 
+either an expression viewed as the lhs of an equation = 0,
+or the gradient (valander) thereof,
+	is independent of the previous entries in the set.
+      (If called on an equation, treats it as lhs - rhs = 0).
+   It leaves around info for a subsequent command to (if indy) add
+	the equation to the set, or if not, to give its expansion in
+ 	terms of the previous equation expressions.<BR>
+  Note that this check is only on the linearized forms of the equations.
+</UL>
+
+ <LI><A NAME=indyset><B>indyset::keepn</B></A>(int n)
+<UL><LI>Returns: bool 
+<LI>In file: indyset.cpp &nbsp;<A HREF=srccode/indyset><IMG SRC=codelink.gif></A>
+<LI>Function: Removes all but the first n equations from the indyset.
+</UL>
+
+ <LI><A NAME=indyset><B>indyset::placelast</B></A>()
+<UL><LI>Returns: bool 
+<LI>In file: indyset.cpp &nbsp;<A HREF=srccode/indyset><IMG SRC=codelink.gif></A>
+<LI>Function: adds the last equation isindy'd to the set, provided it was
+declared independent.
+</UL>
+
+</UL>
+
+
+<A NAME=algmanip><H3>
+Functions to do algebraic and arithmetic manipulation</H3></A>
+<UL>
+ <LI><A NAME=addnum><B>addnum</B></A>(double a, double b)
+<UL><LI>Returns: double 
+<LI>In file: solveknownvar.cpp &nbsp;<A HREF=srccode/solveknownvar><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: returns a+b, but returns 0 if |answer| < RELERR * (|a| + |b|)
+</UL>
+
+<LI>
+<A NAME=apluskb><B>apluskb</B></A>(expr&nbsp;*&nbsp;&&nbsp;a1, const&nbsp;expr&nbsp;*&nbsp;const&nbsp;a2, const&nbsp;double&nbsp;coef)
+<UL><LI>Returns: void 
+<LI>In file: moreexpr.cpp &nbsp;<A HREF=srccode/moreexpr><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: a1 is replaced by a1 + coef * a2. coef MUST BE DIMENSIONLESS! 
+ a1 is left as an n_op of type plus containing the answer.
+ It may have less than two args, but is still returned as a plus
+ n_op. If it was a plus n_op, its location will not have changed.
+ No attempt is made to simplify, and result should be flattened
+ and eqnumsimped after return.
+</UL>
+<LI>
+<A NAME=apluskb><B>apluskb</B></A>(expr&nbsp;*&nbsp;&&nbsp;a1, const&nbsp;expr&nbsp;*&nbsp;const&nbsp;a2, numvalexp&nbsp;*nv)
+<UL><LI>Returns: void 
+<LI>In file: moreexpr.cpp &nbsp;<A HREF=srccode/moreexpr><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: a1 is replaced by a1 + nv * a2. Unlike the form with coef
+  a double, the coefficient nv may have dimensions.<BR>
+  Consumes the numvalexp *nv.	
+</UL>
+
+<LI><A NAME=cleanup><B>cleanup</B></A>(n_opexp * & a)
+<UL><LI>Returns: int 
+<LI>In file: cleanup.cpp &nbsp;<A HREF=srccode/cleanup><IMG SRC=codelink.gif></A>
+<LI>Function: does some cleaning up of the form of an n_op, making sure that
+a plus does not have a plus as one of its terms, or a mult a mult, and 
+combining numerical terms/factors into one and, if one exists, placing it
+first among the terms/factors.
+</UL>
+
+<LI><A NAME=copyexpr><B>copyexpr</B></A>(const expr * old )
+ <UL><LI>Returns: expr *
+ <LI>In file: copyexpr.cpp &nbsp;<A HREF=srccode/copyexpr><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: returns a deep copy of the expression old.
+</UL>
+<LI>
+<A NAME=dimenchk><B>dimenchk</B></A>(const bool fix, expr * & ex)
+<UL><LI>Returns: expr *
+<LI>In file: dimenchk.cpp &nbsp;<A HREF=srccode/dimenchk><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: returns a pointer to the first dimensionally inconsistent part 
+ found, or NULL if everything checks out.
+ if fix == true, it repairs unknown expressions when possible, and
+ returns non-null only if these cannot be made consistent or if
+ doing so is not unique.<br>
+   NOTE: a null return does not guarantee that top level has known dimensions. 
+</UL>
+
+<LI>
+<A NAME=distfrac><B>distfrac</B></A>(expr * & ex)
+<UL><LI>Returns: bool 
+<LI>In file: distfrac.cpp &nbsp;<A HREF=srccode/distfrac><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: ex must be a plus n_op whose terms should have already been
+ flattened (so that none of them are plus n_ops).
+ If any of the terms are ratios (divby binops), the entire
+ expression is written as one ratio, with the
+ (hopefully) least common denominator of all the terms as the
+ denominator.<BR>
+ Returns true if a change has been made.
+</UL>
+
+<LI><A NAME=doesnthave><B>doesnthave</B></A>(const expr * ex, const varindx var)
+<UL><LI>Returns: bool
+<LI>In file: slvlinonev.cpp &nbsp;
+<A HREF=srccode/slvlinonev><IMG SRC=codelink.gif></A>
+<LI>Function: Checks that the variable var does not appear in the expression 
+ex. This should probably be combined with exprcontains, which does just the
+opposite.
+</UL>
+
+<LI><A NAME=eqnumsimp><B>eqnumsimp</B></A>(expr * & e, const bool flok)
+<UL><LI>Returns: void 
+<LI>In file: eqnumsimp.cpp &nbsp;<A HREF=srccode/eqnumsimp><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: recursively evaluates n_ops, binops and functions of numbers,
+ modifying expr e. 
+ In plus and mult expressions, it combines pure numbers but not like
+ terms, eg. 2 + 5 -> 7 but 2*x + 5*x is unchanged.
+ If sum of numbers is less than 10<sup>-11</sup> * sum of abs, sets result 
+  to zero.
+ if <tt>flok</tt> is false, will not evaluate functions which change an
+ integer to a real.
+</UL>
+
+<LI><A NAME=equaleqs><B>equaleqs</B></A>(const expr * exp1, const expr * exp2)
+<UL><LI>Returns: bool 
+<LI>In file: equaleqs.cpp &nbsp;<A HREF=srccode/equaleqs><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: Returns true if two expressions are the same (though not the 
+same locations). Does not recognize A+B=B+A.
+</UL>
+
+<LI><A NAME=evalexpr><B>evalexpr</B></A>(const&nbsp;expr*&nbsp;const&nbsp;ex, 
+const&nbsp;vector&lt;double&gt;*&nbsp;const&nbsp;sols, 
+const&nbsp;double&nbsp;reltverr)
+<UL><LI>Returns: answitherr* 
+<LI>In file: checksol.cpp &nbsp;
+<A HREF=srccode/checksol><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function:  plugs the solution values in sols into the equation eqn, 
+ and compares the descrepancy with expection using relative err reltverr.
+ The return values are <UL>
+<LI> 0 if seems within error bars
+<LI> 1 if within 100 * error bars
+<LI> 2 if not within 100 * error bars
+</UL> NOTE: currently the error bar calculation has faults.
+</UL>
+
+<LI><A NAME=evalpoly><B>evalpoly</B></A>(const vector&lt;double&gt; * poly, 
+const double x)
+<UL><LI>Returns: double 
+<LI>In file: polysolve.cpp &nbsp;
+<A HREF=srccode/polysolve><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: returns the value of numerical polynomial poly(x)
+</UL>
+
+<LI>
+<A NAME=exprcontains><B>exprcontains</B></A>(expr * e, int var)
+<UL><LI>Returns: bool 
+<LI>In file: subexpin.cpp &nbsp;
+<A HREF=srccode/subexpin><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: returns true if the expr e contains the variable var. Should
+be combined with doesnthave, which does just the opposite.
+</UL>
+
+<LI><A NAME=factorout><B>factorout</B></A>(const&nbsp;expr&nbsp;*&nbsp;factor, 
+int&nbsp;n, expr&nbsp;*&nbsp;&&nbsp;expression)
+<UL><LI>Returns: bool 
+<LI>In file: factorout.cpp &nbsp;
+<A HREF=srccode/factorout><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: removes factor ^(n/2) from expression.
+ Factorout should be used only after finding n from numfactorsof.
+ Right now only works for factors which are physvar.
+</UL>
+
+<LI><A NAME=flatten><B>flatten</B></A>(expr * & e)
+<UL><LI>Returns: bool 
+<LI>In file: flatten.cpp &nbsp;<A HREF=srccode/flatten><IMG SRC=codelink.gif></A>
+<LI>Function: Does many simplifications on an expression. See comments at
+the beginning of <tt>flatten.cpp</tt>.
+</UL>
+
+<LI><A NAME=isclean><B>isclean</B></A>(const n_opexp * a)
+<UL><LI>Returns: bool 
+<LI>In file: cleanup.cpp &nbsp;<A HREF=srccode/cleanup><IMG SRC=codelink.gif></A>
+<LI>Function: returns true if cleanup would have left <tt>a</tt> unchanged, 
+otherwise returns false.
+</UL>
+
+<LI>Multiply an expression by a constant
+<UL><LI><A NAME=kmult><B>kmult</B></A>(expr * & ex, const double k)
+<UL><LI>Returns: void 
+<LI>In file: normexpr.cpp &nbsp;<A HREF=srccode/normexpr><IMG SRC=codelink.gif></A>
+<LI>Function: multiplies expression ex by dimensionless k. The
+ answer is eqnumsimped and flattened, if it had been before.
+</UL>
+<LI><A NAME=kmult><B>kmult</B></A>(expr * & ex, numvalexp * nv)
+<UL><LI>Returns: void 
+<LI>In file: normexpr.cpp &nbsp;<A HREF=srccode/normexpr><IMG SRC=codelink.gif></A>
+<LI>Function: multiplies expression ex by numval nv, and destroys nv. The
+ answer is eqnumsimped and flattened, if it had been before.
+</UL>
+</UL>
+
+<LI><A NAME=listchk><B>listchk</B></A>(vector&lt;int&gt; * vchk)
+<UL><LI>Returns: bool 
+<LI>In file: treechk.cpp &nbsp;<A HREF=srccode/treechk><IMG SRC=codelink.gif></A>
+<LI>Function: part of treechk, a debugging tool probably no longer needed.
+</UL>
+
+<LI><A NAME=lookslikeint><B>lookslikeint</B></A>(double v, int &q)
+<UL><LI>Returns: bool 
+<LI>In file: lookslikeint.cpp &nbsp;<A HREF=srccode/lookslikeint><IMG SRC=codelink.gif></A>
+<LI>Function: If v is closer than RELERR to an integer, returns that 
+integer in q.
+</UL>
+
+<LI><A NAME=minuseq><B>minuseq</B></A>(expr * & a1, const expr * const a2)
+<UL><LI>Returns: void 
+<LI>In file: moreexpr.cpp &nbsp;<A HREF=srccode/moreexpr><IMG SRC=codelink.gif></A>
+<LI>Function: subtracts expr a2 from a1.
+</UL>
+
+<LI><A NAME=multsort><B>multsort</B></A>(expr * & ex)
+<UL><LI>Returns: bool 
+<LI>In file: multsort.cpp &nbsp;
+<A HREF=srccode/multsort><IMG SRC=codelink.gif></A>
+<LI>Function: sorts the terms in a mult
+</UL>
+
+<LI><A NAME=normexpr><B>normexpr</B></A>(expr * & ex)
+<UL><LI>Returns: numvalexp *
+<LI>In file: normexpr.cpp &nbsp;<A HREF=srccode/normexpr><IMG SRC=codelink.gif></A>
+<LI>Function: returns a new numval factor which multiples the returned
+ normalized ex so that the product is the original ex. For what it takes
+ to call an expression normalized, see the comments preceeding normexpr's
+definition in normexpr.cpp.
+</UL>
+
+<LI><A NAME=numfactorsof><B>numfactorsof</B></A>(const&nbsp;expr&nbsp;*&nbsp;factor, const&nbsp;expr&nbsp;*&nbsp;expression)
+<UL><LI>Returns: int 
+<LI>In file: numfactorsof.cpp &nbsp;<A HREF=srccode/numfactorsof><IMG SRC=codelink.gif></A>
+<LI>Function: returns TWICE the power to which factor occurs as factor of
+ expression. If the power is not half integral, returns -1. For details of
+ what constitutes a factor, see comments at the beginning of numfactorsof.cpp.
+</UL>
+
+<LI><A NAME=numunknowns><B>numunknowns</B></A>(expr&nbsp;*&nbsp;eq, vector&lt;varindx&gt;&nbsp;&&nbsp;varl, const&nbsp;bool&nbsp;chkknown)
+<UL><LI>Returns: int 
+<LI>In file: numunknowns.cpp &nbsp;<A HREF=srccode/numunknowns><IMG SRC=codelink.gif></A>
+<LI>Function: returns the number of unknown vars in the expression eq, 
+and adds any unknowns found to list varl (which is list on indices). 
+Variables are considered unknown unless both chkknown is true and the 
+physvarptr claims to be known, which hasn't been thoroughly implemented.
+</UL>
+
+<LI><A NAME=ordinvars><B>ordinvars</B></A>(const&nbsp;expr&nbsp;*&nbsp;ex, const&nbsp;vector&lt;varindx&gt;&nbsp;*&nbsp;vars, vector&lt;int&gt;&nbsp;*&nbsp;&&nbsp;orders)
+<UL><LI>Returns: bool 
+<LI>In file: ordinvars.cpp &nbsp;<A HREF=srccode/ordinvars><IMG SRC=codelink.gif></A>
+<LI>Function: 
+	returns true if <TT>ex</TT> is a multi-variate polynomial, and gives
+	the order to which each variable appears in <TT>orders</TT>, which
+	should be a null pointer on call.
+  All functions, and all binops other than a top level = 
+	or a topow to positive int, will return false.
+</UL>
+
+<LI><A NAME=ordunknowns><B>ordunknowns</B></A>(const expr * eq, const bool chkknown)
+<UL><LI>Returns: int 
+<LI>In file: ordunknowns.cpp &nbsp;<A HREF=srccode/ordunknowns><IMG SRC=codelink.gif></A>
+<LI>Function:   returns an integer expressive of the
+ order of the equations in the unknowns, conservatively
+ estimated and truncated at 3 [should we up this? cubic
+ equations are not so bad.]<BR>
+ if chkknown = false, all physvarptrs are considered unknown,
+ regardless of their known fields. Except for numvalexp's,
+ the value of expr->known is ignored. This emulates how
+ everything worked before 6/01.<BR>
+ if chkknown = true, assumes expr marked known are, but doesn't
+ trust those not known except for physvarptrs.
+</UL>
+
+<LI><A NAME=outoforder><B>outoforder</B></A>(const expr * ex1, const expr * ex2)
+<UL><LI>Returns: bool 
+<LI>In file: qsrtexpr.cpp &nbsp;<A HREF=srccode/qsrtexpr><IMG SRC=codelink.gif></A>
+<LI>Function: In order to put n_ops in a definite order, this function 
+  defines what it means to be out of order. According to the order below, 
+  outoforder returns true if ex1 must come after ex2. The ordering is:
+  <UL> <LI>    1) by etype
+ <LI>    2) for same etype, if binop, n_op by op, or if function, by f
+ <LI>    3) if physvart, by varindex
+ <LI>    3) by first non-numerical arg (if two factors differ only by
+	having different or nonexistent numerical args, their
+	orders are considered equal, and they should be combined.)
+ <LI>    4) and by subsequent args in order
+   a nonexistent arg precedes existent ones.
+  </UL>
+</UL>
+
+<LI><A NAME=pivotpart><B>pivotpart</B></A>(vector&lt;expr *&gt; *Vptr, int low, int high)
+<UL><LI>Returns: int 
+<LI>In file: qsrtexpr.cpp &nbsp;<A HREF=srccode/qsrtexpr><IMG SRC=codelink.gif></A>
+<LI>Function: in the qsrtexpr process, pivotpart returns the index of the
+   entry placed in correct place. qsrtexpr still needs
+	to sort, separately, the stuff below and the stuff above	
+</UL>
+
+<LI><A NAME=plussort><B>plussort</B></A>(expr * & ex)
+<UL><LI>Returns: bool 
+<LI>In file: plussort.cpp &nbsp;<A HREF=srccode/plussort><IMG SRC=codelink.gif></A>
+<LI>Function: Sorts the addends in a sum, and combines terms when possible.
+ On entry ex must be a plus n_op, but it might be changed on exit.
+ Returns true if a change was made beyond reordering.
+</UL>
+
+<LI><A NAME=polyadd><B>polyadd</B></A>(const&nbsp;vector&lt;double&gt;&nbsp;*&nbsp;poly1, const&nbsp;vector&lt;double&gt;&nbsp;*&nbsp;poly2)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function: returns, as a vector, the polynomial given by
+ the sum of the polynomials represented by the vectors
+ poly1 and poly2.
+</UL>
+
+<LI><A NAME=polyexpand><B>polyexpand</B></A>(const&nbsp;expr&nbsp;*&nbsp;ex, varindx&nbsp;var, vector&lt;double&gt;&nbsp;*&nbsp;&&nbsp;coefs)
+<UL><LI>Returns: bool 
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function: ex should be a polynomial in the physvar var with numerical 
+ coefs.
+ These are returned in a vector coefs[k] = coefficient of var^k.
+ returns false if ex not of this form. ex must not be an equation.
+ coefs should not be pointing at anything on call, and will not be on
+ exit if return is false.
+</UL>
+
+<LI><A NAME=polymult><B>polymult</B></A>(const vector &lt;double&gt;*&nbsp;poly1, const&nbsp;vector&lt;double&gt;&nbsp;*&nbsp;poly2)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function:  returns, as a vector, the polynomial given by
+ the product of the polynomials represented by the vectors
+ poly1 and poly2.
+</UL>
+
+<LI><A NAME=polysolve><B>polysolve</B></A>(vector&lt;binopexp *&gt; * eqn, const vector&lt;varindx&gt; *vars)
+<UL><LI>Returns: bool 
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function: looks through the list of equations in eqn for ones which
+ involve only one variable and are polynomials in that variable.
+ It solves each equation and checks to see if exactly one
+ solution satisfies constraints - if so, it replaces the
+ equation by an assignment statement.
+ polysolve returns true if successful on any equation (though it tries all,
+ not stopping after a success.)
+</UL>
+
+<LI><A NAME=polytopow><B>polytopow</B></A>(const vector &lt;double&gt;* poly, const int pow)
+<UL><LI>Returns: vector &lt;double&gt;*
+<LI>In file: polysolve.cpp &nbsp;<A HREF=srccode/polysolve><IMG SRC=codelink.gif></A>
+<LI>Function:   The first arg is a polynomial represented by a vector, 
+ the second a positive integer.
+ Returns the first arg raised to the power given by the second arg,
+ as a polynomial retpresented by a vector.
+  The method used is not efficient if the power is big.
+</UL>
+
+<LI><A NAME=powonev><B>powonev</B></A>(const expr * eq, const varindx var)
+<UL><LI>Returns: int 
+<LI>In file: powonev.cpp &nbsp;<A HREF=srccode/powonev><IMG SRC=codelink.gif></A>
+<LI>Function: returns an integer expressive of the order of the equation in
+ the one variable var, conservatively estimated and truncated
+ at 3. If the variable occurs as something other than a positive integer power,
+ powonev returns 3.
+</UL>
+
+<LI><A NAME=qsortpc><B>qsortpc</B></A>(vector&lt;expr *&gt; *Vptr, int low, int high)
+<UL><LI>Returns: void 
+<LI>In file: qsrtexpr.cpp &nbsp;<A HREF=srccode/qsrtexpr><IMG SRC=codelink.gif></A>
+<LI>Function: recursive part of qsrtexpr.
+</UL>
+
+<LI><A NAME=qsrtexpr><B>qsrtexpr</B></A>(vector&lt;expr *&gt; *Vptr)
+<UL><LI>Returns: void 
+<LI>In file: qsrtexpr.cpp &nbsp;<A HREF=srccode/qsrtexpr><IMG SRC=codelink.gif></A>
+<LI>Function:  sorts a vector of expressions, as might occur in an n_op
+ in a somewhat arbitrary but nearly definite order
+ (terms which differ by numerical factors are not
+ deterministically ordered, unless one is an n_op and one isn't)
+ (for details of ordering, see <A HREF=#outoforder>outoforder</A>.
+</UL>
+
+<LI><A NAME=rationalize><B>rationalize</B></A>(binopexp * & bineq)
+<UL><LI>Returns: bool 
+<LI>In file: rationalize.cpp &nbsp;<A HREF=srccode/rationalize><IMG SRC=codelink.gif></A>
+<LI>Function: rationalize the equation. <TT>eq</TT> should be an equation 
+ which can be brought into the form
+ (sum of products of numvals, physvars, and powers of physvars) = 0
+ by multiplying through by common denominators. Rationalize attempts to
+ keep denominator minimal.
+</UL>
+
+<LI><A NAME=signisknown><B>signisknown</B></A>(const expr * const ex)
+<UL><LI>Returns: bool 
+<LI>In file: solvetrig.cpp &nbsp;<A HREF=srccode/solvetrig><IMG SRC=codelink.gif></A>
+<LI>Function:    NAME IS MISLEADING. used by solvetrig to determine angle.
+ signisknown returns true if either ex is known to be nonneg or known to be
+ nonpositive. In principle we should require nonzero as well,
+ but this will cripple it, and if it is zero the angle is meaningless.
+</UL>
+
+<LI><A NAME=subexpin><B>subexpin</B></A>(expr * & target, const binopexp * assign)
+<UL><LI>Returns: bool 
+<LI>In file: subexpin.cpp &nbsp;<A HREF=srccode/subexpin><IMG SRC=codelink.gif></A>
+<LI>Function: Substitutes an assignment statement assign into the target.
+ <TT>assign</TT> is an equation of the form physvar v = expr .
+ every occurence of v in <TT>target</TT> is replaced by numval.
+ subexpin does not simplify the result, so 
+ eqnumsimp should be called on the result of top level call.
+ returns true if no problem was encountered, and target was changed.
+ Aborts if lhs of assign is not a physvar v, or if v occurs on rhs of assign.
+</UL>
+
+<LI><A NAME=substin><B>substin</B></A>
+(expr * & target, const binopexp * assign)
+<UL><LI>Returns: bool 
+<LI>In file: substin.cpp &nbsp;
+<A HREF=srccode/substin><IMG SRC=codelink.gif></A>
+<LI>Function: Substitutes a numerical assignment statement assign into the 
+target. <TT>assign</TT> is an equation of the form physvar v = numval.
+ Every occurence of v in <TT>target</TT> is replaced by numval.
+ eqnumsimp should be called on result of top level call if true.
+ Returns true if change made to target.
+</UL>
+
+<LI><A NAME=swap><B>swap</B></A>(vector &lt;expr *&gt; * Vptr, int i, int j)
+<UL><LI>Returns: void 
+<LI>In file: qsrtexpr.cpp &nbsp;<A HREF=srccode/qsrtexpr><IMG SRC=codelink.gif></A>
+<LI>Function: interchanges the i'th and j'th elements of the vector *Vptr
+</UL>
+
+<LI><A NAME=treechk><B>treechk</B></A>(const expr * const ex, vector&lt;int&gt; * vchk)
+<UL><LI>Returns: bool 
+<LI>In file: treechk.cpp &nbsp;<A HREF=srccode/treechk><IMG SRC=codelink.gif></A>
+<LI>Function: A tool used in debugging pointers in expressions. See treechk.cpp
+if needed.
+</UL>
+
+<LI><A NAME=trigsimp><B>trigsimp</B></A>(expr * & ex)
+<UL><LI>Returns: void 
+<LI>In file: trigsimp.cpp &nbsp;<A HREF=srccode/trigsimp><IMG SRC=codelink.gif></A>
+<LI>Function: trigsimp should be called only on a functexp of type sin, cos 
+ or tan, 
+ If the arg is of form +-(number + theta), the function is
+ rewritten to be of arg: theta + b, where 0<= b < 90.
+ What is returned may be a mult, -1 * trigf(theta+b).
+</UL>
+
+<LI><A NAME=unnop><B>unnop</B></A>(expr * & e)
+<UL><LI>Returns: void 
+<LI>In file: flatten.cpp &nbsp;<A HREF=srccode/flatten><IMG SRC=codelink.gif></A>
+<LI>Function: To be called on an n_op with fewer than two arguments, to return
+a simpler expression.
+</UL>
+
+<LI><A NAME=uptonum><B>uptonum</B></A>(const expr * const ans, const expr * const term, numvalexp * & coef)
+<UL><LI>Returns: bool 
+<LI>In file: normexpr.cpp &nbsp;<A HREF=srccode/normexpr><IMG SRC=codelink.gif></A>
+<LI>Function: Asks whether ans and term are the same up to a numerical factor.
+ If ans and term are the same up to a numerical coefficient, uptonum
+ sets coef so that ans = coef * term and returns true.
+ if uptonum returns false, not sure what is in coef
+ coef should be NULL on entry, as it will be set to new numvalexp
+if uptonum returns true.
+</UL>
+</UL>
+
+
+<A NAME=printf><H3>
+Functions for printing algebraic expressions</H3></A>
+<UL>
+<LI><A NAME=binopexp><B>dbgprint</B></A>(int indent)
+<UL><UL>
+<LI><B>binopexp::dbgprint</B>(int indent)
+<LI><B>functexp::dbgprint</B>(int indent)
+<LI><B>n_opexp::dbgprint</B>(int indent)
+<LI><B>numvalexp::dbgprint</B>(int indent)
+<LI><B>physvarptr::dbgprint</B>(int indent)
+</UL><LI>Returns: void 
+<LI>In file: exprp.cpp &nbsp;<A HREF=srccode/exprp><IMG SRC=codelink.gif></A>
+<LI>Function: outputs a pretty-printed version of the expression tree, 
+complete with the name of the expression operator and the units on each
+subexpression. indent is the initial number of blanks to the left of the
+printing.
+</UL>
+
+<LI><A NAME=getInfix><B>GetInfix</B></A>()
+<UL><UL>
+<LI><B>binopexp::getInfix</B>()
+<LI><B>functexp::getInfix</B>()
+<LI><B>n_opexp::getInfix</B>()
+<LI><B>numvalexp::getInfix</B>()
+<LI><B>physvarptr::getInfix</B>()
+</UL><LI>Returns: string 
+<LI>In file: exprp.cpp &nbsp;<A HREF=srccode/exprp><IMG SRC=codelink.gif></A>
+<LI>Function: returns a string of the expression in infix form, fully 
+parenthesized.
+</UL>
+
+<LI><A NAME=getLisp><B>getLisp</B></A>(bool withbarp)
+<UL><UL>
+<LI><B>binopexp::getLisp</B>(bool withbarp)
+<LI><B>functexp::getLisp</B>(bool withbarp)
+<LI><B>n_opexp::getLisp</B>(bool withbarp)
+<LI><B>numvalexp::getLisp</B>(bool withbarp)
+<LI><B>physvarptr::getLisp</B>(bool withbarp)
+</UL><LI>Returns: const string 
+<LI>In file: exprp.cpp &nbsp;<A HREF=srccode/exprp><IMG SRC=codelink.gif></A>
+<LI>Function: returns a string giving the equation in Lisp - prefix form.
+If the argument withbarp is true, it puts vertical bars around variable 
+names and units so Lisp won't up-case them.
+</UL>
+
+<LI><A NAME=pretty><B>pretty</B></A>(int indent)
+<UL><UL>
+<LI><B>binopexp::pretty</B>(int indent)
+<LI><B>functexp::pretty</B>(int indent)
+<LI><B>n_opexp::pretty</B>(int indent)
+<LI><B>physvarptr::pretty</B>(int indent)
+</UL><LI>Returns: void 
+<LI>In file: exprp.cpp &nbsp;<A HREF=srccode/exprp><IMG SRC=codelink.gif></A>
+<LI>Function: returns a pretty-printed version of the expression tree, but
+without the extra information (explicit name and units of subexpressions) that
+dbgprint does. indent is the initial number of blanks to the left of the
+printing.
+</UL>
+
+<LI><A NAME=dimens><B>dimens::print</B></A>()
+<UL><LI>Returns: string 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: produces a crude form of the dimensions in the dimen, for
+diagnostics.
+</UL>
+
+<LI><A NAME=printdv><B>printdv</B></A>(const vector&lt;double&gt; & vec)
+<UL><LI>Returns: void 
+<LI>In file: utils.cpp &nbsp;<A HREF=srccode/utils><IMG SRC=codelink.gif></A>
+<LI>Function: outputs to cout a crude printing of a vector.
+</UL>
+
+<LI><A NAME=binopexp><B>binopexp::solprint</B></A>(bool forhelp)
+<UL><LI>Returns: const string 
+<LI>In file: exprp.cpp &nbsp;<A HREF=srccode/exprp><IMG SRC=codelink.gif></A>
+<LI>Function: solprint of an assignment statement (ie. physvar = numval) 
+ returns a
+ string suitable for passing to the help system, in the form<BR>
+ (SVAR physvarname number units ) &nbsp;&nbsp; if   forhelp = false<BR>
+ or &nbsp;&nbsp; (= |physvarname| (DNUM number |units|)) &nbsp;&nbsp; 
+ if  forhelp = true<BR>
+ If the physvar has prefUnit and it is consistent with numval's
+ the value is converted to the prefUnit and output as number.
+ If the physvar does not have preferred units, the value is in SI units
+ and <TT>units</TT> is taken from first matching element in units.h
+ If the prefUnit and the numval are inconsistent, it throws an exception.
+ Since 4/14/01, solprint also enters the SI value in numsols, which better
+ already exist and be big enough!
+</UL>
+
+<LI><A NAME=ustrp><B>ustrp</B></A>(double dpow)
+<UL><LI>Returns: string 
+<LI>In file: exprp.cpp &nbsp;<A HREF=srccode/exprp><IMG SRC=codelink.gif></A>
+<LI>Function: used to print powers of units when no preferred expression for
+them is found.
+</UL>
+
+<LI><A NAME=valander><B>valander::print</B></A>()
+<UL><LI>Returns: string 
+<LI>In file: valander.cpp &nbsp;<A HREF=srccode/valander><IMG SRC=codelink.gif></A>
+<LI>Function:  gives an ugly printout of a valander.
+</UL>
+
+</UL>
+
+
+<A NAME=classmethods><H3>Class methods</H3></A>     
+<UL>
+<LI><A NAME=addarg><B>n_opexp::addarg</B></A>(expr * arg)
+<UL><LI>Returns: void<TD>expr
+<LI>In file: expr.cpp  &nbsp;
+<A HREF=srccode/expr><IMG SRC=codelink.gif ALIGN=top></A>
+<LI>Function: Adds an term or factor to an n_op plus or mult.
+  In addition to pushing the arg on the
+ this->args list, it does the following units fixing:<BR>
+ For a mult:  if the previous dimensions of the product and the
+ dimensions of the new arg are known, the product's dimensions
+ are incremented by those of the new arg.<BR>
+ For a plus:  if the sum has unknp and the arg has known, or
+ vice-versa, sets the unkn one to the known.
+ If both known, if inconsistent makes the sum's dimens "incons".
+</UL>
+
+<LI><A NAME=addem><B>dimens::addem</B>
+<UL><LI> Returns: DIMEXP
+<LI>Function: Adds the dimensions of the args, checking for unknowns.
+<LI>In file: dimens.cpp &nbsp;
+<A HREF=srccode/dimens><IMG SRC=codelink.gif ALIGN=top></A>
+</UL>
+
+<LI><A NAME=dimens><B>dimens::adjust</B></A>(const dimens & dim)
+<UL><LI>Returns: bool 
+<LI>In file: dimens.cpp &nbsp;
+<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function:  If "this" dimens is UNKNDIM or MAYBZ, set it to
+ <TT>dim</TT>, except don't change MAYBZ to UNKNDIM.
+ Returns true if "this" is modified.
+</UL>
+
+<LI><A NAME=binopexp><B>binopexp::binopexp</B></A>(oper *op, expr *lhs, expr *rhs)
+<UL><LI>Returns: constructor
+<LI>In file: expr.cpp &nbsp;<A HREF=srccode/expr><IMG SRC=codelink.gif></A>
+<LI>Function: fully specified constructor for a binopexp.
+</UL>
+
+<LI><A NAME=expr><B>expr::destroy</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: expr.cpp &nbsp;<A HREF=srccode/expr><IMG SRC=codelink.gif></A>
+<LI>Function: recursively destroy all of the expr
+</UL>
+
+<LI><A NAME=dimens><B>dimens::dimens</B></A>()
+<UL><LI>Returns:   constructor 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: constructs a dimens with all units UNKNDIM.
+</UL>
+
+<LI><A NAME=dimens><B>dimens::dimens</B></A>(double lengthd, double massd, double timed, double charged, double tempd)
+<LI><A NAME=dimens><B>dimens::dimens</B></A>(int lengthd, int massd, int timed, int charged, int tempd)
+<UL><LI>Returns: constructors
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: constructs a dimens with the powers of the fundamental units 
+given.
+</UL>
+
+<LI><A NAME=dimens><B>dimens::operator*</B></A>(const double km)
+<UL><LI>Returns: const dimens 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: returns a dimens in which each exponent of the unit in 
+<tt>this</tt> is multiplied by km, as suitable for
+a quantity raised to the km power. 
+</UL>
+
+<LI><A NAME=dimens><B>dimens::operator*=</B></A>(const double km)
+<UL><LI>Returns: dimens &
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: multiplies the exponents of each unit by km, as suitable for
+a quantity raised to the km power. 
+</UL>
+
+<LI><A NAME=dimens><B>dimens::operator+</B></A>(const dimens b)
+<UL><LI>Returns: const dimens 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: returns units for the product of the quantities whose units 
+are <tt>this</tt> and <tt>b</tt>
+</UL>
+
+<LI><A NAME=dimens><B>dimens::operator+=</B></A>(const dimens a)
+<UL><LI>Returns: dimens& 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: adds the exponents of the units of <tt>a</tt> to <tt>this</tt>,
+a suitable for multiplying the quantity whose units are <tt>this</tt> by the
+quantity whose units are <tt>a</tt>.
+</UL>
+
+<LI><A NAME=functexp><B>functexp</B></A>(oper *f, expr * arg)
+<UL><LI>Returns:   constructor
+<LI>In file: expr.cpp &nbsp;<A HREF=srccode/expr><IMG SRC=codelink.gif></A>
+<LI>Function: constructs a fully qualified functexp
+</UL>
+
+<LI><A NAME=dimens><B>dimens::getcharged</B></A>()
+<LI><A NAME=expr><B>expr::getcharged</B></A>()
+<LI><A NAME=physvar><B>physvar::getcharged</B></A>()
+<UL><LI>Returns:   double 
+<LI>In file: dimens.cpp expr.cpp or physvar.cpp
+<LI>Function: get the power of coulombs in the dimens, expr, or physvar
+ <tt>this</tt>.
+</UL>
+
+<LI><A NAME=dimens><B>dimens::getlengthd</B></A>()
+<LI><A NAME=expr><B>expr::getlengthd</B></A>()
+<LI><A NAME=physvar><B>physvar::getlengthd</B></A>()
+<UL><LI>Returns:   double 
+<LI>In file: dimens.cpp expr.cpp or physvar.cpp
+<LI>Function: get the power of meters in the dimens, expr, or physvar
+ <tt>this</tt>.
+</UL>
+
+
+<LI><A NAME=expr><B>expr::getmassd</B></A>()
+<LI><A NAME=dimens><B>dimens::getmassd</B></A>()
+<LI><A NAME=physvar><B>physvar::getmassd</B></A>()
+<UL><LI>Returns:   double 
+<LI>In file: dimens.cpp expr.cpp or physvar.cpp
+<LI>Function: get the power of kilograms in the dimens, expr, or physvar
+ <tt>this</tt>.
+</UL>
+
+
+<LI><A NAME=dimens><B>dimens::gettempd</B></A>()
+<LI><A NAME=expr><B>expr::gettempd</B></A>()
+<LI><A NAME=physvar><B>physvar::gettempd</B></A>()
+<UL><LI>Returns:   double 
+<LI>In file: dimens.cpp expr.cpp or physvar.cpp
+<LI>Function: get the power of degrees Kelvin in the dimens, expr, or physvar
+ <tt>this</tt>.
+</UL>
+
+
+<LI><A NAME=dimens><B>dimens::gettimed</B></A>()
+<LI><A NAME=expr><B>expr::gettimed</B></A>()
+<LI><A NAME=physvar><B>physvar::gettimed</B></A>()
+<UL><LI>Returns:   double 
+<LI>In file: dimens.cpp expr.cpp or physvar.cpp
+<LI>Function: get the power of seconds in the dimens, expr, or physvar
+ <tt>this</tt>.
+</UL>
+
+
+<LI><A NAME=dimens><B>dimens::incons</B></A>()
+<UL><LI>Returns: bool 
+<LI>In file: dimens.cpp &nbsp;
+<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: returns true if any unit in dimens is marked inconsistent.
+</UL>
+
+<LI><A NAME=indyset><B>indyset::indyset</B></A>(int numvars)
+<UL><LI>Returns:     constructor
+<LI>In file: indyset.cpp &nbsp;
+<A HREF=srccode/indyset><IMG SRC=codelink.gif></A>
+<LI>Function: Creates an empty indyset suitable for a world with 
+<tt>numvars</tt> variables.
+</UL>
+
+<LI><B>indyset::isIndy</B> &nbsp; see
+<A HREF=#isindy>under functions to invesigate independence</A>
+
+<LI><A NAME=expr><B>expr::isknown</B></A>()
+<UL><LI>Returns: bool 
+<LI>In file: expr.cpp &nbsp;
+<A HREF=srccode/expr><IMG SRC=codelink.gif></A>
+<LI>Function: returns whether the expression is known, but that is not
+really implemented.
+</UL>
+
+<LI><A NAME=n_opexp><B>n_opexp::n_opexp</B></A>(oper *op)
+<UL><LI>Returns:     constructor
+<LI>In file: expr.cpp <A HREF=srccode/expr><IMG SRC=codelink.gif></A>
+<LI>Function: Creates an n_op plus or mult with no arguments. addargs can
+add arguments.
+</UL>
+
+<LI><A NAME=dimens><B>dimens::operator==</B></A>(const dimens b)
+<UL><LI>Returns: const bool 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: returns true if the units of b are the same as this. Must 
+be exactly the same, doesn't deal cleverly with UNKNDIM or MAYBZ.
+</UL>
+
+<LI><A NAME=physvar><B>physvar::~physvar</B></A>()
+<UL><LI>Returns:    destructor
+<LI>In file: physvar.cpp &nbsp;
+<A HREF=srccode/physvar><IMG SRC=codelink.gif></A>
+<LI>Function: nothing special. Don't remember why I needed it.
+</UL>
+
+<LI><A NAME=physvarptr><B>physvarptr</B></A>(int k)
+<UL><LI>Returns:    constructor
+<LI>In file: expr.cpp &nbsp;
+<A HREF=srccode/expr><IMG SRC=codelink.gif></A>
+<LI>Function: k is the index of the variable in canonvars.
+</UL>
+
+<LI><A NAME=dimens><B>dimens::put</B></A>(double lengthd, double massd, double timed, double charged, double tempd)
+<LI><A NAME=dimens><B>dimens::put</B></A>(int lengthd, int massd, int timed, int charged, int tempd)
+<UL><LI>Returns: void 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: set the dimens
+</UL>
+
+<LI><A NAME=physvar><B>physvar::putclipsname</B></A>(string newname)
+<UL><LI>Returns: void 
+<LI>In file: physvar.cpp &nbsp;<A HREF=srccode/physvar><IMG SRC=codelink.gif></A>
+<LI>Function: set the clipsname of the physvar. Not used.
+</UL>
+
+<LI><A NAME=physvar><B>physvar::putdimens</B></A>(double lengthd, double massd, double timed, double charged, double tempd)
+<LI><A NAME=physvar><B>physvar::putdimens</B></A>(int lengthd, int massd, int timed, int charged, int tempd)
+<UL><LI>Returns:void 
+<LI>In file: physvar.cpp &nbsp;<A HREF=srccode/physvar><IMG SRC=codelink.gif></A>
+<LI>Function: set the dimens of the physvar
+</UL>
+
+<LI><A NAME=physvar><B>physvar::putshortname</B></A>(string newname)
+<UL><LI>Returns: void 
+<LI>In file: physvar.cpp &nbsp;<A HREF=srccode/physvar><IMG SRC=codelink.gif></A>
+<LI>Function: set the clipsname of the physvar. Neither the function nor
+the datum is used.
+</UL>
+
+<LI><A NAME=physvar><B>physvar::putvartype</B></A>(vartype type)
+<UL><LI>Returns: void 
+<LI>In file: physvar.cpp &nbsp;<A HREF=srccode/physvar><IMG SRC=codelink.gif></A>
+<LI>Function: set the vartype of the physvar. Neither the function nor
+the datum is used.
+</UL>
+
+<LI><A NAME=expr><B>expr::setknown</B></A>()
+<UL><LI>Returns: void 
+<LI>In file: expr.cpp &nbsp;<A HREF=srccode/expr><IMG SRC=codelink.gif></A>
+<LI>Function: set the known attribute of the expr. Not used
+</UL>
+
+<LI><A NAME=dimens><B>dimens::unknp</B></A>()
+<UL><LI>Returns: bool 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: Returns true if all the powers of the units are UNKNDIM. Not
+clear whether it should not do so if any are UNKNDIM, but so far they are 
+all known or unknown together.
+</UL>
+
+<LI><A NAME=dimens><B>dimens::zerop</B></A>()
+<UL><LI>Returns: bool 
+<LI>In file: dimens.cpp &nbsp;<A HREF=srccode/dimens><IMG SRC=codelink.gif></A>
+<LI>Function: returns true if the dimens is dimensionless - ie all powers 
+are 0.
+</UL>
+     </UL>
+
+<A NAME=classmethods><H3>Class methods</H3></A>     
+<UL>
+<LI><A NAME=dtostr><B>dtostr</B></A>(double val)
+<UL><LI>Returns: string 
+<LI>In file: utils.cpp &nbsp;<A HREF=srccode/utils><IMG SRC=codelink.gif></A>
+<LI>Function: converts a double to a string
+</UL>
+
+<LI><A NAME=itostr><B>itostr</B></A>(int val)
+<UL><LI>Returns: string 
+<LI>In file: utils.cpp &nbsp;<A HREF=srccode/utils><IMG SRC=codelink.gif></A>
+<LI>Function: converts an int to a string
+</UL>
+
+<LI><A NAME=maxmin><B>max</B></A>(int a, int b)
+<UL><LI>Returns: inline int 
+<LI>In file: decl.h.cpp &nbsp;<A HREF=srccode/decl><IMG SRC=codelink.gif></A>
+<LI>Function: returns the maximum of a and b. Needed because of something
+screwy in VisualC++.
+</UL>
+
+<LI><A NAME=maxmin><B>min</B></A>(int a, int b)
+<UL><LI>Returns: inline int 
+<LI>In file: decl.h.cpp &nbsp;<A HREF=srccode/decl><IMG SRC=codelink.gif></A>
+<LI>Function: returns the minimum of a and b. Needed because of something
+screwy in VisualC++.
+</UL>
+
+</UL>	 
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a>
+<a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a>
+<a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a>
+</address>
+<!-- hhmts start -->
+Last modified: Jun 26 16:28 2001
+<!-- hhmts end -->
+</body> </html>

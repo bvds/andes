@@ -1,0 +1,134 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ShouldAxesFilterInterpretations</title>
+</head>
+<body>
+
+<center>
+<h2>
+Should interpretations be filtered by axes?</h2></center>
+
+<center>(as of 5/2/01)</center>
+
+<h3>
+Collin (5/2/01):</h3>
+Reasessment of the Nogoods issue <a href="NoGoods.html">here</a> has caused
+us to reasess the need for axis filtering.&nbsp; It is now apparent that
+the system that we have outlined below is no longer valid.&nbsp; Therefore
+when student entries are made the system will keep track of their assumptions
+and use them to filter out those solution sets that use conflicting axis
+rotations.&nbsp; This will prevent the students from being as flexible
+as they may like.&nbsp; However it serves a useful pedagogical function
+by forcing the students to select an axis and then 'stick with it'.&nbsp;
+Joel has asserted that this is what physics professors desire to see in
+their students.&nbsp; It also has the benefit of reducing the workload
+of the runtime help system.
+<h3>
+</h3>
+
+<h3>
+Kurt (4/30/01):</h3>
+For instance, suppose that you had the classic block sliding down a frictionless
+30 degree inclined plane.&nbsp; Consider two ways to derive N=-W*sin(240).
+<ul>
+<li>
+If one draws axes tilted 30 degrees, then this equation can be easily derived
+by Newton's first law, N_y+W_y=0 and N_y=N and W_y=W*sin(270-30), so N=W*sin(240).&nbsp;
+The cognitive load of this derivation is 6, assuming 2 points per primitive
+equation.</li>
+
+<li>
+On the other hand, if you draw unrotated axes, then you can derive the
+same equation in a more complex fashion: N_y+W_y=m*a_y and N_y=N*sin(120),
+W_y=-W and a_y= a*sin(210).&nbsp; Thus, N= (m*a*sin(210) +W)/sin(120).&nbsp;&nbsp;
+By applying NSL along the x-axis, solving it for a, and substituting into
+this equation, we get N = (m*[(N*cos(120))/(m*cos(210))]*sin(210) +W)/sin(120).&nbsp;
+This simplifies to N=W*sin(240).&nbsp; The cognitive load of this derivation
+is 14, assuming 2 points per primitive equation.&nbsp; This is of course
+a gross underestimate, because the simplification step is quite difficult
+but contributes nothing to the cognitive load calculation.</li>
+</ul>
+Now, suppose that a novice student (i.e., one who still is required to
+enter pre-requisites) drew unrotated axes, wrote N_y+W_y=m*a_y and N_x+W_x=m*a_x,
+and then wrote N=-W*sin(240).&nbsp; What interpretation should Andes assign
+it?
+<ul>
+<li>
+If we believe the student is using the axis rotation that she drew, then
+she has done a great deal of work in her head, but the equation is correct
+and not premature (because she entered both compo equations, and the 5
+projection equations don't have to be written).&nbsp; Thus, Andes will
+just turn N=-W*sin(240) green.</li>
+
+<li>
+On the other hand, if the student has mentally envisioned a rotated coordinate
+system, then N=-W*sin(240) can be derived simply but it is premature.&nbsp;
+If Andes accepts this interpretation, then it will tell the student that
+the equation is premature and the student must draw the appropriate coordinate
+axes first.&nbsp; Then the workbench then leaves N=-W*sin(240) black.&nbsp;
+When the student tries to enter the rotated coordinate system, Andes will
+refuse to do it until the existing coordinate system is deleted.&nbsp;
+Deleting the existing coordinate system causes N_y+W_y=m*a_y and N_x+W_x=m*a_x
+to go red, since they are defined in terms of the undefined variables.&nbsp;
+Defining a new rotated coordinate system causes the two equations to go
+black, since they now have their variables defined.&nbsp;&nbsp; (Instead
+of deleting and redrawing the axes, the student could also modify the existing
+axes using the right mouse button, which would cause the two equations
+to become black when the dialog box is closed.)</li>
+</ul>
+In short, Andes gives very different responses depending on which interpretation
+is accepted.&nbsp; If the entry interpreter always prefers intertations
+with minimal cognitive load, then it will prefer the rotated axes interpretation
+because its load is 6 whereas the load of the unrotated axes interpretation
+is 10.
+<p>Thus, the design alternatives are:
+<ul>
+<li>
+always accept the interpretation with the lowest cognitive load.</li>
+
+<li>
+when axes are entered, filter out interpretations that are not consistent
+with those axes.</li>
+
+<li>
+usually prefer interpretations with lowest cognitive load, except when
+they use axes that conflict with axes that the student has written.&nbsp;
+In this case, Andes asks the student, "That equation is simpler to derive
+if you use a coordinate system that is rotated by &lt;degrees> degrees.&nbsp;
+But your coordinate system has a different rotation.&nbsp; Which one did
+you use to derive this equation?" and gives the student a menu with two
+choices: (a) The coordinate system I drew, which is rotated ~a degrees.
+(b) The coordinate system that I have not drawn, which is rotated ~a degrees.&nbsp;
+If the student picks (a), then the dialog ends, the equation turns green
+and the Entry Interpreter chooses the higher-load interpretation.&nbsp;
+If the student picks (b), then she is told, "You should modify the coordinate
+system (click on it with the right mouse button) so that it is rotated
+~a degrees.&nbsp; On an exam, if you don't show the coordinate system that
+you are actually using, then you may not get full credit for your work,
+because graders won't be able to tell how you derived your equations."
+When the student closes this dialog, the equation (e.g., N=-W*sin(240))
+stays black, and the Entry interpreter does not count it as entered.&nbsp;
+If the student tries to re-enter the equation, then exactly the same thing
+happens.&nbsp; The only way the student can get the equation to become
+green is to either pick option (a) or to redraw the axes as recommended.</li>
+</ul>
+Joel and I like the third alternative, even though it is the most complex
+to implement and it only handles a rather rare case.&nbsp; However, given
+that the same entry propositions can have different prerequisite, it becomes
+very difficult to determine what system entry is the violated prerequisite
+(see <a href="EntryPropositionAmbiguity.html#eq entry propositions have eq pre-reqs">discussion</a>).&nbsp;
+Thus, the solution graph module currently only determines if a prerequisite
+violation exists and not what the prerequisite is (see <a href="../SolutionGraph.html#Checking prerequisites">solution
+graph module</a>).&nbsp; As a consequence, we can't implement the behavior
+that Joel and I like.&nbsp; What will happen in this odd cases is that
+the system will find that there is at least one way to derive the equation
+without violating any prerequisite (namely, using the unrotated axes),
+so it will turn the student's entry green.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

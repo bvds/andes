@@ -1,0 +1,373 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="ProgId" content="Word.Document">
+   <meta name="Generator" content="Microsoft Word 9">
+   <meta name="Originator" content="Microsoft Word 9">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Solution Graph Data Structure</title>
+<link rel=File-List
+href="./Solution%20Graph%20Data%20Structure_files/filelist.xml">
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Valued Gateway Client</o:Author>
+  <o:LastAuthor>Valued Gateway Client</o:LastAuthor>
+  <o:Revision>5</o:Revision>
+  <o:TotalTime>257</o:TotalTime>
+  <o:Created>2001-04-03T16:20:00Z</o:Created>
+  <o:LastSaved>2001-04-03T21:11:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>45</o:Words>
+  <o:Characters>258</o:Characters>
+  <o:Lines>2</o:Lines>
+  <o:Paragraphs>1</o:Paragraphs>
+  <o:CharactersWithSpaces>316</o:CharactersWithSpaces>
+  <o:Version>9.2720</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+h1
+	{mso-style-next:Normal;
+	margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:.25in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:14.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-font-kerning:0pt;}
+h2
+	{margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:2;
+	font-size:18.0pt;
+	font-family:"Times New Roman";}
+h3
+	{margin-right:0in;
+	mso-margin-top-alt:auto;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	mso-outline-level:3;
+	font-size:13.5pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+@list l0
+	{mso-list-id:1194804953;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-2010725572 -2135930016 77116316 -731210206 -395126310 -69567318 -320862170 137536882 -1850940098 193365116;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:1783458550;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1721486070 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-start-at:0;
+	mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;
+	mso-fareast-font-family:"Times New Roman";
+	mso-bidi-font-family:"Times New Roman";}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+</head>
+<body link="#0000FF" vlink="#800080" lang="EN-US" style="tab-interval:.5in">
+
+<div class=Section1>
+<center>
+<h2 style="text-align:center">
+The solution graph data structure</h2></center>
+
+<center>(as of 4/3/01)</center>
+
+
+<p style="margin-left:0in">A Solution Graph consists of a Bubblegraph coupled
+with its associated PSM graphs. This solution graph is build by the SGG
+and used by the <a href="NextStepHelp.html">What's Next help module</a>
+during runtime to generate the preamble that leads up to a hint.&nbsp;
+When the SG is loaded at runtime, an <a href="SolutionGraph.html#Entry index">Entry
+Index</a> is created from it that is used by the <a href="SolutionGraph.html">SG
+module</a> to interpret student entries.&nbsp; As the student enters stuff,
+the fields of the system entries in the Entry index change, but the solution
+graph does not.&nbsp;&nbsp;&nbsp; The SG module does not itself read the
+SG after it has been loaded, nor does it change it.&nbsp; Only the What's
+Next help module reads the solution graph, and it does not change it.&nbsp;
+Thus, once the SG is loaded, it never changes.
+<h3 style="margin-left:0in">
+<a NAME="bubble graph"></a>Bubble graph</h3>
+
+<div class="MsoNormal">A Bubblegraph is an undirected graph composed of
+two types of Nodes Quantities and PSMs/Equations.This graph comprises the
+set of possible problem solutions.It is indexed by the set of solutions
+and traversed to provide what’s next and what’s wrong help.</div>
+
+<h3>
+<a NAME="Quantity"></a>Quantity:</h3>
+
+<div class="MsoNormal">Quantities are structures consisting of:</div>
+
+<ul style='margin-top:0in' type=disc>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Expression -- A physics kb expression that is used within the knowledge
+base and problem definition.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Variable -- A lisp symbol that is unique to the quantity and appears within
+the canonical equations.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Value -- A numerical value for this quantity used by the algebra system.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Equations/PSMs -- A list of Equation/PSM nodes in which this quantity appears.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Tree -- A (possibly Null) <a href="#PSM_graph">PSM graph</a> that defines
+the operations necessary to obtain this quantity.&nbsp; This will only
+appear in given quantity nodes.</li>
+</ul>
+
+<h3>
+<a NAME="PSM"></a>PSM:</h3>
+
+<div class="MsoNormal">PSM nodes define specific PSM applications used
+to solve for one of the included quantities.</div>
+
+<ul style='margin-top:0in' type=disc>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Expression -- A physics expression defining the PSM.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Algebra -- An algebraic equation form defining this equation used by the
+Algebra system.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Quantities -- A list of quantity nodes present in this Equation.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Path -- A <a href="#PSM_graph">PSM graph</a> defining the set of operations
+necessary to obtain this PSM.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+State -- one of the atoms correct, incorrect (not currently used), forbidden,
+dead-path or inefficient Used only by the help system.</li>
+</ul>
+
+<h3>
+<a NAME="PSM_graph"></a>PSM graph</h3>
+
+<div class="MsoNormal">A PSM graph consists of a tree of atoms and cognitive
+step nodes that define the sequence of steps used to obtain the PSM.</div>
+
+<div class="MsoNormal">Tree contains:</div>
+
+<ul style='margin-top:0in' type=disc>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+SPLIT -- Atom representing the start of a set of unordered elements.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+NEXT -- Atom representing the next element in an unordered set of elements.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+JOIN -- Atom representing the conclusion of an unordered set of elements.</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+CHOOSE -- A list of alternate PSM graphs that achieve the same effect(s).</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+a cognitive step (see <a href="#cognitive step">below</a>)</li>
+</ul>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">If
+there are no CHOOSE nodes, then the PSM graph is a flat list.&nbsp; The
+CHOOSE nodes create branches in the tree.&nbsp; For example, the following
+contrived example</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b&nbsp; SPLIT NEXT c d NEXT e (CHOOSE (f1 NEXT g h JOIN i) (f2 NEXT g h
+JOIN i)))</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">represents
+the following paths</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b c d e f1 g h i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b c d e f2 g h i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b c d g h e f1 i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b c d g h e f2 i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b e f1 g h c d i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b e f2 g h c d i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b e f1 c d g h i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b e f2 c d g h i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b g h c d e f1 i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b g h c d e f2 i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b g h e f1 c d i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">(a
+b g h e f2 c d i)</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">where
+the lower case letters stand for cognitive steps.&nbsp; The walk-psm-graph
+code in the What's-next help module has to worry about covering all these
+cases, but no other module cares.</div>
+
+<h3 class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+<a NAME="cognitive step"></a>Cognitive step</h3>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">This
+represents the results of one interpretation cycle of the problem solver.&nbsp;
+If you take the solver to be a literal model of cognition, then this represents
+one primitive cognitive step.&nbsp; There are four types, and the type
+field (which is the car of the list representing the struct) differentiates
+them: [Collin: Could you check that these are correct? -- Kurt]</div>
+
+<ul>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+WM -- represents the unification of a goal with an element in memory.</li>
+
+<ul>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Goal: The proposition (with arguments bound) that unified with working
+memory</li>
+</ul>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+OP -- Represents the addition of an operator to the stack to acheive a
+stated goal.&nbsp; The goal is located above the operator in the list.</li>
+
+<ul>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Op-app: an operator application (the name of the operator cons'ed onto
+a list of the values of all its variables; see discussion below).</li>
+</ul>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+SG -- Represents selection of an operator’s precondition as a goal.</li>
+
+<ul>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Op-name: The name of the operator that this goal is a part of..</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Goal: a proposition, with arguments bound or unbound</li>
+</ul>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+DO -- The application of an operator.</li>
+
+<ul>
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Op-app -- an operator application (the name of the operator cons'ed onto
+a list of the values of all its variables; see discussion below).</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Entry-- NIL or a <a href="Base.html#System entry">system entry</a>&nbsp;
+(see discussion below)</li>
+
+<li class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">
+Effects -- a list of propositions produced by application.</li>
+</ul>
+</ul>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">Inside
+the solver, operator applications are defined with limited argument lists
+so that the solver can use an equality test to check if an operator has
+been done already.&nbsp; Sometimes operators contain variables that get
+bound during the execution of an operator but we don't want to count them
+when checking to see if an operator has been done already (e.g., a gensym
+or index gets generated and assigned to a variable; or, a variable that
+is bound just for the sake of giving a hint).&nbsp; Thus, the argument
+list <i>inside</i> the solver may not include all the variables used in
+the operator.&nbsp; However, the Help system needs to know the values of
+all the variables because the hints associated with an operator can contain
+arbitrary variables.&nbsp; Thus, when any cognitive step node is build,
+its operator application has to include values for <i>all</i> the variables.</div>
+
+<div class="MsoNormal" style="mso-list:l1 level1 lfo2;tab-stops:list .5in">If
+the effects field of a DO step contains an <a href="Base.html#Entry proposition">Entry
+Proposition</a>, then the cognitive step represents entering an equation,
+drawing a vector or doing some other Workbench GUI action.&nbsp; When the
+<a href="SolutionGraph.html#Entry index">Entry
+index</a> is built, which occurs in both the <a href="SolutionGraphGenerator.html">SG
+generator </a>and the <a href="SolutionGraph.html#Load solution graph">SG
+loader</a>, the system entry field&nbsp; of the step is filled in with
+the system entry that corresponds to this cognitive step.</div>
+</div>
+
+</body>
+</html>

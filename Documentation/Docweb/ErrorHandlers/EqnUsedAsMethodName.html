@@ -1,0 +1,97 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>EqnUsedAsMethodName</title>
+</head>
+<body>
+
+<center>
+<h2>
+Equations used as method names</h2></center>
+
+<center>(as of 3/27/01)</center>
+
+<p>Students sometimes use equations such as F=ma, W=mg, U=mgh, etc. as
+names for methods.&nbsp; Usually this just causes undefined variable or
+illegal syntax errors (implicit multiplication is illegal, so F=ma won't
+parse right but F=m*a will).&nbsp; However, sometimes the student has all
+the variables defined, in which case we need a bug to detect what the student
+is trying to do.&nbsp; Basically, we need one bug per equation, but we
+can add them as we see them.&nbsp; Here's the bug for F=m*a:
+<p>If the student entry is an equation
+<ul>
+<li>
+that has the form &lt;force> = &lt;mass>*&lt;acceleration> or &lt;mass>*&lt;acceleration>=&lt;force>
+where the vector quantities are either magnitudes or components, and &lt;force>
+can be either the net force or any individual force,</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+a trainning card hint: "Are you writing F=m*a just to show that you intend
+to apply Newton's law?&nbsp; Newton's law is indeed the right approach
+to solving this problem.&nbsp; However, Andes interprets all your equations
+as specific statements about the problem.&nbsp; In particular, it interprets
+"f=m*a" in terms of the variables f, m and a that you have defined for
+this problem.&nbsp; In this case, the definitions of at least one of those
+variables makes this equation inappropriate for the problem.&nbsp;&nbsp;<br>
+<br>
+If you just want to provide an explanation to the reader, then put a semi-colon
+(;) before it.&nbsp; Andes ignores everything in the box after the semi-colon.&nbsp;&nbsp;
+For instance, if you want to say that you were going to apply Newton's
+law, then you could just but "; F=ma" in the equation box (without the
+double quotes, of course.).&nbsp; This will stay black instead of turning
+red or green, because Andes doesn't read anything after the semi-colon.&nbsp;
+However, whoever reads the printed copy of your work will see it and know
+that your subsequent equations will be an application of Newton's law."</li>
+</ul>
+A KCD version of this would treat the first question "Are you writing F=m*a
+just to show that you intend to apply Newton's law?" as a real question.
+<h3>
+minivan Eq-USNA 28-29</h3>
+If a person of known mass is hanging from a bridge by a bungee cord, what
+is the tension in the cord?&nbsp; The student defined f, m and a variables
+(no FBD, though) then entered “f=m*a” as the first equation, where f is
+defined as the <i>tension</i> force, not the net force.
+<ul>
+<li>
+IH first points out the discrepancy between tension force and net force,
+then asks if a has any particular value in this problem.</li>
+
+<li>
+RO doesn’t identify a correct equation but questions ‘f’ and asks for a
+FBD.</li>
+
+<li>
+Andes1 says, “Maybe you should multiply by ‘G’ rather than by ‘a’ in the
+right side of the equation.”</li>
+
+<li>
+KVL: Since this is a first-law problem, the &lt;net-force>=m*a equation
+is not needed, and it is unlikely that she solved the whole problem in
+her head and was trying the write f=m*g, which is the answer. The student
+is probably using "f=m*a" as a name for Newton's law, rather than a real
+equation.&nbsp; Students are often taught to provide such comments as part
+of their homework solutions.&nbsp; The best advice is probably to address
+this misunderstanding of how to use equations in the equation window.</li>
+</ul>
+Andes could find analyses for this equation by substituting the net force
+for f or by substituting g for a.&nbsp; That would lead to advice similar
+to IH/RO and Andes1.&nbsp; However, let's use this error handler: "If the
+student's entry is literally 'f=m*a' or 'm*a=f', and the solution uses
+Newton's first or second law, then say, 'Are you writing F=m*a just to
+show that you intend to apply Newton's law?&nbsp; Newton's law is indeed
+the right approach to solving this problem.&nbsp; However, Andes interprets
+all your equations as specific statements about the problem.&nbsp; In particular,
+it interprets "f=m*a" in terms of the variables f, m and a that you have
+defined for this problem.&nbsp; In this case, the definitions of at least
+one of those variables makes this equation inappropriate for the problem.&nbsp;
+If you just want to provide an explanation to the reader, then put a semi-colon
+(;) before it.&nbsp; Andes ignores everything in the box after the semi-colon."&nbsp;
+This should be conveyed with a training card instead of a hint.
+<br>&nbsp;
+</body>
+</html>

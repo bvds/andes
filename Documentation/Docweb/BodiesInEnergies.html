@@ -1,0 +1,205 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Discussion of whether to include non-bodies in energies</title>
+</head>
+<body>
+
+<center>
+<h2>
+Should Andes require bodies only in energy quantities?</h2></center>
+
+<center>(as of 3/21/01)</center>
+
+<h3>
+Kurt:</h3>
+020342 at 5-13 &amp; 82vette at 9-45
+<br>A block is launched from a spring at T0, flies off the spring at T1
+and
+<br>reaches the apex of its trajectory at T2.&nbsp; The student tries to
+define the
+<br>potential energy of the spring at T2, and Andes marks it wrong.
+<br>One general policy for forces and energies that are due to contacts
+is that
+<br>when there is no contact, there is no force or energy.&nbsp; An alternative
+<br>policy is to assume that the force and energy exist but are zero.
+<br>Different professors may use different policies.&nbsp; The student
+probably just
+<br>doesn't know what policy Andes is using. (I actually don't know what
+the
+<br>Andes 2 KB uses, but I'll bet it is the first policy.)
+<h3>
+Anders:</h3>
+Andes2 basically uses the *second* policy since it puts out an equation
+<br>saying the spring PE = 0 at that time. In fact Andes 1, at least version
+<br>5.0.6 from Fall 2000, uses this second policy as well. I'm not sure
+about
+<br>the Fall 99 version but I expect it is the same -- see below for an
+<br>alternate diagnosis of the error.
+<p>I think this is almost certainly the right policy. I believe energy
+is
+<br>properly spoken of as a property of the total system (Earth+spring+block)
+<br>and its configuration. I think any instructor would want it to be
+<br>permissible -- though not required -- to state that the elastic potential
+<br>energy in the system, i.e.,&nbsp; the potential energy stored in the
+spring, is
+<br>zero at that particular time. This especially if you have to mention
+the
+<br>non-zero potential energy stored in the spring at any other time.
+<p>I expect the error stemmed from a quirk in the Andes dialog box for
+defining
+<br>potential energy. We don't anywhere explicitly mention the total system
+and
+<br>its components and so don't speak of energy in the *system* at all;
+rather,
+<br>all our quantities are sort of forced to hang onto a principal body,
+<br>although some, like distance or forces, may involve relations to a
+second
+<br>body. In order to specify energy quantities using the existing slots
+in our
+<br>dialog box and other structures, you currently have to define them
+in Andes
+<br>1 as one of:
+<ul>
+<li>
+Total Mechanical Energy&nbsp; OF the block AT TIME ...</li>
+
+<li>
+Kinetic energy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OF the block AT TIME ...</li>
+
+<li>
+Potential energy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OF the block DUE TO the Earth&nbsp; AT TIME ...(=grav PE)</li>
+
+<li>
+Potential energy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+OF the block DUE TO the spring AT TIME ...(=elastic PE)</li>
+</ul>
+This involves&nbsp; an odd, not to say incorrect, representational convention
+for
+<br>specifying the elastic potential energy. It derives in part from the
+<br>representations chosen to fit these quantity into&nbsp; the CLIPS scalar
+quantity
+<br>template:
+<br>&nbsp;&nbsp;&nbsp; (scalar (kind energy) (body block) (body2 spring)
+(type se) ...
+<br>BTW the CLIPS also uses a counterpart of "total mechanical energy of
+the
+<br>block" rather than "total mechanical energy of the block-earth-spring
+<br>system".
+<p>Anyway, the student probably just didn't know this convention.
+<p>As Joel can tell you there are several instances where the representational
+<br>conventions required&nbsp; by the Andes interface are not intuitively
+apparent
+<br>even to someone who is expert in physics! This one in particular may
+merit a
+<br>change, since one does normally say the elastic pe is stored in the
+spring.
+<h3>
+Joel:</h3>
+YES!&nbsp; This is in fact the first problem I tried after I decided to
+come
+<br>here, and it made me give up in despair (on using Andes right then,
+not
+<br>quite on coming here), probably for this reason.
+<p>&nbsp; Properly speaking, energy is of interest when it is conserved
+or when
+<br>its changes can be quantitatively accounted for. It is conserved, at
+best,
+<br>only for an ISOLATED system, not for an individual body unless that
+body
+<br>has no forces acting on it (more accurately, no forces that can do
+work on
+<br>it - static magnetic fields do no work)
+<p>&nbsp; The energy is a sum of pieces. Kinetic energy for each body,
+and
+<br>potential energy for each conservative interaction. [Not for each force!
+<br>Action and reaction are sharing the same potential energy, and you
+would
+<br>be double-counting to attribute it to each of the bodies]. And the
+<br>potential energy of an unstretched spring does exist, it is zero, and
+this
+<br>is not a choice, because to say it is undefined means energy cannot
+be
+<br>compared.
+<p>&nbsp; The notion that potential energy belongs to one body is an misconception
+<br>inspired by too many simple problems in which one of the interactive
+<br>bodies is so massive that the interactions have no effect on its kinetic
+<br>energy. Recall that the rate at which a force does work on a body is
+F.v,
+<br>so if the body is unmovable there is no work done on it, and any work
+the
+<br>potential energy does must be done on the other object. But consider
+a
+<br>spring with k = 10000 N/m and initial compression 4 cm, so the potential
+<br>energy is 8 J. If a single ball of mass 1 kg is on one end of this
+spring
+<br>and the other is nailed to the earth, the ball will fly off at 4 m/s.
+<br>But if two balls of mass 1 kg each are at the ends, at rest, when the
+<br>clamp is released, they will each fly off at sqrt(8) m/s, with 4 J
+each
+<br>of kinetic energy. (Interesting, because the initial force is the same
+<br>in both cases!)
+<br>&nbsp;
+<h3>
+Kurt:</h3>
+Your discussion suggests the following changes:
+<ul>
+<li>
+Create a new System tool whose dialog box looks exactly like the dialog
+box for the current Body tool.&nbsp; The user selects a subset of the objects
+defined in a problem, selects a beginning and ending time point, and types
+in a name.&nbsp; The name appears in subsequent menus (see below).</li>
+
+<li>
+The dialog boxes for energy quantities are modified as follows:</li>
+
+<ul>
+<li>
+Total Mechanical Energy&nbsp; OF the system AT TIME ...</li>
+
+<li>
+Kinetic energy OF the system DUE TO the block AT TIME ...</li>
+
+<li>
+Potential energy OF the system DUE TO the Earth&nbsp; AT TIME ...(=grav
+PE)</li>
+
+<li>
+Potential energy OF the system DUE TO the spring AT TIME ...(=elastic PE)</li>
+</ul>
+I'm not certain whether we need a second argument for kinetic entergy.&nbsp;
+If a system consists of bolo (two balls connected by a string and rotating
+about their center of mass), then I suppose we would want the kinetic energy
+of each ball to be a distinct quantity.
+<li>
+If the student tries to specify a system that lacks some of the appropriate
+objects, it is an error.</li>
+
+<li>
+If the student tries to use an object in the first slot of an energy quantity
+that is only a part of the system, then it is an error.</li>
+</ul>
+Actually, the only difference between the System tool and the Body tool
+is that the Body tool creates a dot on the screen and defines a mass variable.&nbsp;
+If we have the system tool, we really don't need the Body tool anymore.&nbsp;
+If students want a mass variable, then they can define it from the variable
+menu.&nbsp; Forces, velocities, etc. for a single object can be defined
+without first defining that object as a body.&nbsp; Compound bodies can
+be defined using the System tool.
+<p>The main advantage of the Body tool is that it reifies a planning step,
+namely, deciding on what bodies/system to analyze for kinematics and Newton's
+law.&nbsp; However, Andes has never required that student's use the Body
+tool, so many of them may not be getting any benefit from it.&nbsp; Even
+those who do use it might think of it as "drawing a dot" rather than committing
+to analyzing the motion of a system.&nbsp; In Andes 2, students will often
+see a preamble (what's your sought? what's&nbsp; your method?) that reifies
+the plan in a much more direct way.&nbsp; Maybe we no longer need the Body
+tool.
+<br>&nbsp;
+</body>
+</html>

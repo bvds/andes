@@ -1,0 +1,89 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>SignError</title>
+</head>
+<body>
+
+<center>
+<h2>
+Generic Sign Error</h2></center>
+
+<center>(as of 5/19/01)</center>
+
+<p>If the student's entry is an equation
+<ul>
+<li>
+that contains a term ?term</li>
+
+<li>
+and ?term is not inside a product (i.e., we want to transform T+m*g=0 to
+T-m*g and not to either T+(-m)*g=0 or T+m*(-g)=0.)</li>
+
+<li>
+and replacing ?term by (- ?term) makes the equation correct</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+(hint string (point) "Check your signs.")</li>
+
+<li>
+(hint string (bottom-out) ...)</li>
+</ul>
+Clearly, this bug has to be tested after more specific sign errors have
+been tested.
+<h3>
+<a NAME="M030072 12-50"></a>M030072 Eq-USNA 12-50</h3>
+In the problem with the jumping kangaroo, which seeks the initial velocity
+of the kangaroo given the height of the jump, after defining variables
+and drawing a FBD, the student entered d_y=2.5, a_y=-9.8, vfinal_y=0 and
+then the incorrect equation “vinit_y^2=2*a_y*d_y – vfinal^2”&nbsp; The
+closest matching correct equation is a combination of&nbsp; vfinal_y^2
+= vinit_y^2 + 2*a_y*d_y and vfinal_y=vfinal, neither of which have been
+entered.&nbsp; The student probably meant to enter -vinit_y^2 = 2*a_y*d_y-vfinal^2,
+but dropped the minus sign on the left side of the equation when she moved
+terms across the equal sign in order to isolate the sought variable.&nbsp;
+Thus, the most likely diagnosis is that this is an algebraic manipulation
+error; its unlikely that she believes the kinematics equation is vfinal_y^2=
+-vinit_y^2 + 2*a_y*d_y.
+<ul>
+<li>
+&middot; IH notices algebra manipulation error and through critique tries
+to get student to figure out error on their own.</li>
+
+<li>
+&middot; RO notices same problem (sign error) but tells student there is
+a sign error.</li>
+
+<li>
+&middot; Both IH and RO address v_f^2=v_o^2 + 2*a_y*d_y</li>
+
+<li>
+&middot; Andes suggests swapping variables instead of noticing the sign
+problem.</li>
+
+<li>
+KVL: The student's intended entry is premature.&nbsp; Students should write
+a compo version of kinematics before trying to substitute anything in.&nbsp;
+Thus, Andes should say, "Although the equation you've written is incorrect,
+the closest matching correct equation would be premature.&nbsp; It combines
+two or more primitive equations.&nbsp; Try writing your equations in textbook
+form without doing any substitutions.&nbsp; Then combine them.&nbsp; Although
+this takes longer, you probably will not make the error that you've made
+here."&nbsp; The bottom out hint would be: "Write vfinal_y^2 = vinit_y^2
++ 2*a_y*d_y."</li>
+</ul>
+Since the only magnitude is vfinal and it is zero, the <a href="MissingNegOnVectorMag.html">MissingNegSignOnVectorMag</a>
+error handler will not yield a correct equation.&nbsp; Thus, only this
+generic sign error handler will apply. It can put a negation on vinit_y^2
+or on 2*a_y*d_y.&nbsp; Also, because vfinal is zero, it could put a negative
+sign on the whole right side of the equation.&nbsp; Thus, there are 3 possible
+applications of this error handler to the equation.&nbsp; Which application
+we choose doesn't matter because they all end up with the "premature equation"
+tutorial turn.
+</body>
+</html>

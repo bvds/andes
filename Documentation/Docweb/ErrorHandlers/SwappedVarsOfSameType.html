@@ -1,0 +1,67 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>SwappedVarsOfSameType</title>
+</head>
+<body>
+
+<center>
+<h2>
+Swapped variables of the same type</h2></center>
+
+<center>(as of 5/18/01)</center>
+
+<p>There are more specific bugs that should be tested before this one.&nbsp;
+The version below is written specifically for the magnitudes of forces,
+but a more general version is needed.
+<p>If the student's entry is an equation
+<ul>
+<li>
+that contains (mag (force ?body ?agent ?type-student))</li>
+
+<li>
+and substituting (mag (force ?body ?agent ?type-correct)) for it creates
+a correct equation</li>
+</ul>
+then give the hint sequence
+<ul>
+<li>
+(hint string (point) "Did you really mean to use ~a here?" student's-variable-name)</li>
+
+<li>
+(hint string (bottom-out) "Your variable ~a is defined to be ~a, but you
+should use a variable for ~a here instead." student-var-name student's-quantity
+correct-quantity)</li>
+</ul>
+
+<h3>
+brody Eq-USNA 49-11</h3>
+If a 100 kg person slides down a rope that will support only 500N, what
+is his minimal acceleration? The student defined variables, drew a correct
+FBD, entered several equations, then entered “F_y=500” where F is the net
+force on the person.&nbsp;&nbsp; The closest matching equation is Ff_y
+= 500, where Ff is the student's variable for friction force. This equation
+has not been written before.
+<ul>
+<li>
+IH asks what’s the relation between the tension in the rope and the friction
+force. She is trying to get the student to infer that Ff_y = 500.</li>
+
+<li>
+RO asks for the definition of F_y and of the 500 N.</li>
+
+<li>
+Andes says, “Do you want to use ‘F’ rather than the value of ‘Ff’?”</li>
+
+<li>
+KVL: Andes should say something like, “F is the net force.&nbsp; What is
+500 N?”</li>
+</ul>
+Andes substitutes various force quantities for F_y until it finds that
+Ff_y makes the equation correct.&nbsp; Indy analysis shows that Ff_y=500
+is primitive, and SG analysis finds that it is not premature.
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Anders">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>From Joel Re: Form of unit expressions in communications with 
+   algebra module</title>
+</head>
+<body>
+
+<center>
+<h2>
+From Joel Re: Form of unit expressions in communications with algebra module
+</h2>
+<h3>March 19 at 14:42</h3>
+</center>
+<pre>
+
+Anders,
+   Of course it would be very easy for me to get units from you by
+exact string match to a preexisting list of units, and maybe, if this
+is what is going to hold us up, that is how we should proceed for now.
+But as a real solution I think it is a bad idea, because it means that
+every new problem has a chance of breaking the system because it uses
+a set of units not previously encountered. It also requires the
+maintenance of a symbol table accessible both to your code and to the
+algebra system, a table which may have frequent modifications.
+   In addition, we need a parser for units anyway, to input the student
+code. This is what will be the real headache - if you can parse student
+ill-formed units you can surely parse well formed units from the help
+system and SGG generator.
+   Now as for how units should be presented, lisp style prefix was your
+idea, not mine, and I can handle any sensible, well defined grammar, I
+think. So I think you should continue to use m/s^2, which is well formed,
+but not m/s2, which is not.
+   By the way, what I see in CONSTS.LSP has ony 23 combinations, including
+English ones, and many duplicates, not only not including the units for
+viscosity and electric field but not even Watts. And while it has Nm it
+doesn't have mN or kg.m^2/s^2, which are equivalent ways even a professor
+might define things. (by the way, kg*m^2*rad/s is not a "correct"
+expression. 1 m * 1 rad/s = 1 m/s --- sorry, but velocity is not measured
+in m rad/s even though v = omega r.)
+
+If we are going to go with a table, temporarily or not, may I suggest we
+work with well formed acceptable ones. The list I gave Linn did not
+include the fundamental ones
+   m  kg  s  g
+It had
+   A  C  N  J  K  V  T  Wb  ohm  Hz  Pa  F  H  W  m/s  m/s^2  N.m  J.s
+   kg.m^2  N/m  N.s/m^2  N/m^2
+I hadn't intended to include all combinations, so if we do need such a
+list we need to add at least
+   kg*m^2/s
+We haven't agreed to allow in English units and how to do so, and I think
+doing so should be postponed. (Are there any quantitative problems used at
+usna in English units?).  deg and rad are a serious ontological problem
+which will need to be resolved somehow, but for the time being, lets
+accept both deg and rad but recall that when either of these are
+multiplied by m there are special rules:
+	1 m  x  1 rad/s  = 1 m/s
+	1 m  x  1 deg/s  =  0.01745329251994329 m/s
+
+		Joel
+
+</pre>
+Re : <A HREF="unitsA1.html">from Anders</a>
+
+<br>&nbsp;
+</body>
+</html>
+
+</pre>
+Re : <A HREF="unitsA1.html">from Anders</a>
+
+<br>&nbsp;
+</body>
+</html>

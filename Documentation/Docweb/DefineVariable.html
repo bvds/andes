@@ -1,0 +1,171 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="define-variable">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>define-variable</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node12.html">
+<link REL="previous" HREF="node10.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node12.html">
+</head>
+<body>
+
+<h2>
+define-variable</h2>
+define-variable <i>var type quant body time agent id &amp;optional directionp</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Define a variable to stand for a certain quantity. This is called when
+the student uses the "variable" menu, but not when variables are defined
+by other tools such as the force drawing tool or the body tool.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>"(define-variable \"N\" 'Normal 'Force 'Blk '$|$T0 to T1$|$ 'Str 'var-1)"
+"(define-variable \"V0\" 'instantaneous 'velocity 'car 'T0 nil 'var-2)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+An <a href="EntryStatusReturnValue.html">Entry Status Return Value</a>.</dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>var:</b></dt>
+
+<dd>
+the variable assigned to the object, a string</dd>
+
+<dt>
+<b>type:</b></dt>
+
+<dd>
+Depends on the value of quant (below):</dd>
+
+<ul>
+<li>
+if quant is ``force,'' the type of force.</li>
+
+<li>
+if quant is ``energy,'' the type of energy. One of 'total, 'spring, 'potential,
+'kinetic.</li>
+
+<li>
+if quant is velocity, acceleration, or speed, either 'average or 'instantaneous.</li>
+
+<li>
+otherwise NIL</li>
+</ul>
+
+<dt>
+<b>quant:</b></dt>
+
+<dd>
+the type of quantity. One of the following:</dd>
+
+<ul>
+<li>
+velocity</li>
+
+<li>
+acceleration</li>
+
+<li>
+force</li>
+
+<li>
+displacement</li>
+
+<li>
+distance between</li>
+
+<li>
+distance travelled</li>
+
+<li>
+gravitational acceleration</li>
+
+<li>
+duration</li>
+
+<li>
+speed</li>
+
+<li>
+radius</li>
+
+<li>
+spring-const</li>
+
+<li>
+comp-dist</li>
+
+<li>
+energy</li>
+
+<li>
+mass</li>
+</ul>
+
+<dt>
+<b>body:</b></dt>
+
+<dd>
+the body the quantity is a property of</dd>
+
+<dt>
+<b>time:</b></dt>
+
+<dd>
+the time during which the quantity exists.</dd>
+
+<dt>
+<b>agent:</b></dt>
+
+<dd>
+the agent of the force, if it is a force, NIL otherwise</dd>
+
+<dt>
+<b>id:</b></dt>
+
+<dd>
+the id assigned to the variable by workbench</dd>
+
+<dt>
+<b>directionp:</b></dt>
+
+<dd>
+T if the quantity is a direction, nil otherwise.</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+If the variable definition is correct, marks the corresponding system entry
+as "entered" and enters the student's variable name into the symbol table,
+paired with the corresponding system variable.</dd>
+</dl>
+
+<hr>kvl 3/2/01
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Canonical Equation Solving</title>
+</head>
+<body>
+
+<center>
+<h2>
+Canonical Equation Solving</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+<center>
+<H3>[Also, Collin and Anders should correct my statements<br>
+about their side of this discussion]</H3></center>
+<p>
+The first use of the algebra system in the process of making an 
+Andes problem comes about after the Solution Graph Generator has created
+a complete skeleton of relevant rules and the PSMs for the problem.
+These nodes include the definition of physical quantities and their
+associated variables, the constraints on those variables, and equations
+relating the variables. This set of information is the input the algebra
+system will need in order to
+<UL><LI>Solve the problem - that is, find numerical values (with units) for
+        all of the physical variables
+    <LI>Act as an oracle to the Bubble Graph Generator, telling it if an
+        equation proposed for inclusion in the bubble is independent of 
+	prior equations.
+    <LI>At student help time, to provide checking of student equations.
+    <LI>To provide equation dependence information to the help system to
+        try to determine from her equations what the student knows.
+    </UL>
+
+The first step, finding an explicit numerical solution to the problem,
+is required for the other steps. The student equations, for example, are
+first checked for being well formed equations,
+for using only defined variables, and for having correct units. 
+But the crucial step in determining whether the 
+equation is correct or not is plugging in the true solution and seeing if the
+equation balances.
+<p>
+The numerical solution is also needed for our method of checking
+independence of equations. Were the equations all linear, it would be 
+straightforward to check for linear independence without knowing the solution,
+but even at the very start of a physics course, we meet equations which are
+both quadratic in one variable and also contain products of
+variables. Thus they are not linear in the variables. In
+addition, there are trigonometric functions from the beginning, 
+and by the second month there are also exponentials.
+<P>
+A simple way of checking for dependence among nonlinear equations is to
+expand them linearly about the solution point. This involves only evaluating
+their gradient, or first derivative, at the solution point. Linear dependence
+among those linearized equations is simply determined by matrix techniques,
+and if their linearized form is independent, they must be as well. Thus 
+knowledge of the solution point enables us to judge independence of equations.
+
+[The fact that it is possible for equations independent in general to be 
+dependent to first order about a point is a complication which somewhat
+weakens this method. We have found that this problem does arise more
+frequently than one might expect, as it does not occur at a generic
+point in the space of the variables. However the situations in which
+it seems to arise is when a given variable is at a point of extremum in
+some of the equations, and we have added tests to deal with this situation
+successfully.]
+
+<h3 ALIGN=CENTER> What about non-numerical solutions? </H3>
+
+Although most problems given to students in introductory courses ask
+for quantities which can be solved for as numerical values, there are
+problems in which parameters occur, which are not given explicit values.
+These can occur in two distinct ways
+<UL>
+<LI> parameters which do not affect the quantity asked for
+<LI> parameters which may appear algebraically in the answer
+</UL>
+In the Andes problems currently, there are very few problems
+with parameters of the second kind, and in these, the dependence is a simple
+proportionality.
+As examples of the first kind, consider problems involving the
+velocities of billiard balls before and after a collision. The solution
+of the problem requires using momentum conservation, which involves the
+(common) mass of the balls, but the mass cancels out of the equations,
+so if the requested property is the velocity of one of the balls, it can
+be determined, numerically, without knowing the value of the mass.
+<P>
+Because it is far easier to program for arithmetic than for algebra,
+it is much easier to check the equations and the independence of the equations
+if these parameters are assigned arbitrary values. As long as the value
+is not one that might occur by mistake, the probability that a student's
+formulas will check for precisely that value and not for others is, 
+effectively, zero. So the solver handles problems with variables
+declared to be parameters with undetermined values by arbitrarily assigning
+a value to it. The resultant solution can only be used for checking, it would
+be meaningless to tell the student the value is such-and-such if it depends
+on this arbitrary value. But that is all we need for red/green assignment
+and independence checking.
+
+<h3 ALIGN=CENTER> Obtaining of mathematical solutions for problem </H3>
+
+Our first attempt to make an equation solver was to use Maple, but I 
+found that there were simple sets of equations and constraints that Maple
+seemed mysteriously unable to solve, and even technical support was stymied.
+For example, given the equations
+<center>
+vx = -vm, vx<sup>2</sup>=10, vm=sqrt(vx<sup>2</sup>), and vm > 0
+</center>
+Maple was unable to find the obvious solution vm = 3.16.., vx = -3.16... .
+So we embarked on our own algebra system. There are also two added
+benefits of having our own. One is that it can handle physical units. 
+The second is that we are not faced with licensing limitations.
+<p>
+The solver uses a sequence of procedures to try to solve the equations.
+All involve trying to find a unique numerical value for a variable or for
+a set of variables, and plugging these values back in all the equations, and
+eliminating the solved variables from the list of unknowns. The steps taken
+are:
+<UL><LI>Substitution of assignment statements. Andes problems come with a 
+large set of equations, many of which are straightforward assignment 
+statements, of the form x = 0 or m = 8 kg. These are applied to the variables,
+substituted into other equations, which are then algebraically simplified if
+possible. In the process, equations which had not been assignment statements
+may become such, so this process is applied recursively until it fails to make
+progress.
+    <LI> During the substitutions in the previous steps, some of the 
+equations may become devoid of variables. These are discarded, as they should
+be tautologies if the original equations are consistent. [I don't bother to
+check them here, because all equations will be checked as 
+<A HREF=solcheck.html>a separate process</A>.
+    <LI> If there remain unsolved variables,
+we now separate all remaining equations which are purely linear -
+that is, they involve a sum of terms each of which is at worst a numerical
+constant times a single variable. The variables involved in this subset
+of equations are arranged in a preferred order of solution, and as many
+variables as possible in this list are solved for, using standard
+techniques for simultaneous linear equations. The solved variables may
+emerge as determined either numerically or
+as linear expressions in terms of the remaining variables. These solutions
+are plugged into the remaining equations, and the variables solved for
+are either discarded (if solved for numerically) or marked "partially solved".
+    <LI> We look at the remaining equations and see if we can factor out
+powers of the physical variables. For example, this might remove a
+factor of mass from a momentum conservation problem, or a
+gravitational potential energy problem, resulting in an equation which 
+might be solvable by the other techniques.
+    <LI> If an equation is nonlinear but involves only one variable,
+it is checked to see if it can be solved by undoing the nonlinear operators. 
+For example, exp v = 3 is solved by taking ln of both sides, 
+yielding v = 1.099... 
+    <LI> If the equation is a polynomial in one variable, 
+all of its roots are found.
+If precisely one satisfies the inequality constraints, it is the
+solution, and the polynomial equation is replaced by an assignment statement.
+    <LI> Next, we search for a pair of equations, one involving the
+sine of an angle and one the cosine, of the form
+<center>
+c<sub>1</sub> f = k<sub>1</sub> g sin(phi)<br>
+c<sub>2</sub> f = k<sub>2</sub> g cos(phi)
+</center>
+where the c's and k's are known numbers, but the f and g may be
+arbitrary expressions. Dividing one equation by the other gives an
+expression for tan(phi), which is then solved if the signs
+of f and g are known. (Our algebra system has not been designed to 
+work with sets of possible solutions, so without the sign information,
+the angle phi cannot be determined because of a 180<sup>o</sup>
+ambiguity.) 
+<p>
+Note: Andes1 tended to give equations in the form above, 
+while Andes2 expresses all projections in terms of cosines. For the
+purpose of identifying pairs as above, all trig functions of an
+unknown plus a known angle are transformed into functions of the same
+form, but with the coefficient of the unknown positive and the known
+phase restricted to [0,pi/2).
+<LI>
+If the above steps have done something to imply that doing it again
+would make further progress, the process described so far is repeated.
+Otherwise, we proceed to less straightforward methods:
+<P>
+Two equations like the above trig equations, but without the
+restriction that the f and g are the same in both equations, or have 
+known signs, cannot be solved for phi but the two equations can be 
+squared and added together with suitable weights to give an equation
+without phi. This equation is added to the list of equations to be
+solved.
+<LI>The equations left are reexamined to see if any are now purely linear. If
+so, we repeat all of the above. If not, we look for one linear in one
+variable even if other variables are involved. We tentatively plug its
+solution into each of the other equations. If after rationalization
+the resulting equation is a polynomial in one variable, and if that
+equation has a unique solution satisfying the constraints, it is
+replaced by the assignment statement. Any success restarts the solving
+proceedure.
+<LI> Next, we search for two equations 
+each quadratic in the same pair of variables. These are either reduced 
+(if they are in fact dependent) or solved for the two variables.
+<P> Once again, if there is reason to hope that reapplying the
+procedure maigh have further success, it is redone. Otherwise the solver
+writes out a flag indicating the failure to solve all equations and 
+which variables remained unsolved.
+</UL>
+<p>
+Originally the solver was a separate program, called 
+<A HREF=algebra/colander.html>colander</a>, which
+read the problem information from a file and wrote the solutions to a
+file, without checking them. The check was done by a separate program
+called checksol, but that has been descarded and its function incorporated
+into colander. However recent use has concentrated on a version which
+has all the functions of the algebra package unified, which is called
+<tt>allprog</tt> in the stand-alone version, but is meant to be used
+by the help system interactively, with the module <tt>Solver.dll</tt>.
+<p>
+	 
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Jun 28 10:01 2001
+<!-- hhmts end -->
+</body> </html>

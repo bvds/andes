@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+           
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <title>Loop Rule</title>
+</head>
+  <body>
+   <b>Loop Rule</b>:&nbsp; The sum of the <b>potential changes</b> around 
+any closed path of a circuit must be zero.<br>
+   &nbsp;<br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +/-V1
++/-  V2 +/- V3 +/- &#8230; = 0&nbsp;&nbsp; &nbsp;<br>
+   &nbsp;<br>
+ In Andes the symbol for the potential change across a circuit element, like 
+a resistor , a capacitor or a battery, is Vi.&nbsp; Vi for each type of element 
+is given by<br>
+ <br>
+ &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Resistor :&nbsp; Vi = Ii*Ri&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+where Ii is the current through Ri<br>
+ &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Capacitor: Vi = qi/Ci&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+where qi is the charge on Ci<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Battery:&nbsp;&nbsp;&nbsp;&nbsp; Vi 
+   = Vbi&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; where Vbi is the emf of 
+   the battery.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Inductor:&nbsp;&nbsp; Vi = -L*dI/dt&nbsp; (Note: In Andes dI/dt, the time rate of change of the current through the 
+   inductor, is written as dIdt.) 
+   <p>
+ <br>
+ <b>NOTE:&nbsp; When the sum for use in the loop rule is constructed, the 
+sign in front of each Vi term is determined by the "direction", which determines 
+the sign of the changes in potential.&nbsp; </b>The convention for each circuit 
+element is<br>
+ (1) Potential change across a resistor is&nbsp;&nbsp; -Vi , <b>if the current 
+is in the direction of sum</b>, because this represents going from high to 
+lower potential. It is +Vi otherwise.<br>
+ (2)&nbsp; Potential change across a capacitor&nbsp; is -Vi,<b> if the direction 
+of the sum is from positive plate to negative plate,</b>&nbsp; because this 
+represents going from high to lower potential.&nbsp; It is +Vi otherwise.<br>
+ (3)&nbsp;&nbsp;Potential change across a battery is +Vi,<b> if the 
+direction of the sum is from negative plate to positive plate</b>, because 
+this represents going from low to higher potential.&nbsp; It is -Vi otherwise.<br>
+   (4) Potential across an inductor is +Vi, <b>if the current is in the 
+   direction of the sum</b>. It is -Vi otherwise. This differs from the 
+ treatment of resistors because the equation for voltage across an inductor is 
+   conventionally written with a negative sign in it (see above). </p>
+   <p><br>
+ In each of these cases the <b>direction of the sum</b> is the direction
+that one is going around the closed loop to construct the loop rule sum.&nbsp; 
+See the examples below.<br>
+ &nbsp;<br>
+   <b>Capacitors example</b>:&nbsp; In the figure below, take the loop abcdefga 
+ and get<br>
+   &nbsp;<br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vb1 - V1
+-  V2 - V3 = 0 &nbsp;and use V1 = q1/C1, V2 = q2/C2 and V3 = q3/C3<br>
+   &nbsp;<br>
+   <img src="KirchhoffC.gif" alt="Capacitor circuit" width="396" height="279">
+   <br>
+   &nbsp;<br>
+   <b>Resistors example</b>: In the figure below, take the loop abcd and
+apply  Kirchhoff's loop rule to get<br>
+   &nbsp;<br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -V2 -V3 - 
+Vb2 + Vb1 = 0 and use V2 = I3*R2 , V3 = I1*R3<br>
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; <br>
+   <img src="KirchhoffR.gif" alt="Resistor circuit diagram" width="307" height="183">
+   <br>
+   <br>
+     
+   </p>
+     
+</body>
+</html>

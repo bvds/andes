@@ -1,0 +1,155 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>WrongGivenValue</title>
+</head>
+<body>
+
+<center>
+<h2>
+Errors where a given quantity was assigned the wrong value</h2></center>
+
+<center>(as of 3/22/01)</center>
+
+<p>Students sometimes enter the wrong values for given variables.&nbsp;
+Thus, when a student equation has the form &lt;variable>=&lt;value> and
+the &lt;variable> is a given quantity, and the correct equation for it
+has not yet been entered, then we have a case of this type of error.&nbsp;
+This are always slips, because the target equation results from just writing
+a given quantity down, and there is no hint sequence associated with that
+operator.
+<p>If the student's entry is an equation
+<ul>
+<li>
+that has the form ?var = ?value where ?value is a number and ?var is a
+variable,</li>
+
+<li>
+and ?var stands for a given quantity in the problem</li>
+</ul>
+then give the hint sequence
+<ul>
+<li>
+(hint string (point) "~a is a given quantity, but ~a is not the value it
+is given by the problem statement." ?var ?value)</li>
+
+<li>
+(hint string (bottom-out) "You should equate ~a with ~a." definition-of-?var
+correct-value-for-?var)</li>
+</ul>
+
+<h3>
+022598 Eq-USNA 37-11</h3>
+If a trooper jumps from a plane at T0, falls 400m to hit the snow at 20
+m/s at T1, and plows to a stop at T2 at the bottom of a 1 m crater, then
+what is the net force on the trooper?&nbsp; After defining variables and
+drawing a FBD, the student entered “d = 400m”&nbsp; where d is defined
+as that displacement from T1 to T2, but 400m is the displacement from T0
+to T1.&nbsp; The variable is required for solution, but 400m is not.
+<ul>
+<li>
+IH identifies problem as wrong use of ‘d’ and questions definition of d
+and explains it as the height of the snow in the crater.</li>
+
+<li>
+RO also sees problem with ‘d’ and uses similar explanation.</li>
+
+<li>
+Andes says, “Did you really mean to use 400 for ‘d’ (the magnitude of the
+displacement of the trooper during the time period from ‘T1’ to ‘T2’)?”</li>
+
+<li>
+KVL:&nbsp; It would be silly of Andes to help the student write the equation
+that has 400m in it, as that equation is not needed for the solution of
+the problem.&nbsp; So Andes should select the other interpretation and
+say something like, "Check your time periods." then hint about changing
+the value.</li>
+</ul>
+Two bugs trigger on this error: this one and <a href="VarHasWrongTimeSpecifier.html">VarHasWrongTimeSpecifier.</a>&nbsp;
+This bug should have priority.
+<h3>
+bee Eq-USNA 7-57</h3>
+If a block is projected up a 40 degree inclined plane with an initial KE
+of 16J, and it travels 0.6 m before compressing a 200 N/m spring 0.2 m,
+what is its KE? The student defines variables, draws a body and axes, enters
+givens, then writes "d=.2m."&nbsp; However, d is defined as the displacement
+from T0 to T1, which is .8 m.&nbsp; On the other hand, 0.2m = d1, where
+d1 is the student's variable for the compression of the spring at T0.
+<ul>
+<li>
+IH sees only "d1 = 0.2m" as the closest matching equation.&nbsp; She asks,
+"What is 0.2m?" then asks what variable corresponds to that quantity.</li>
+
+<li>
+RO sees only d=.8m, so he asks "what is d again?" then points out that
+the displacement must be at least 0.6.</li>
+
+<li>
+Andes also addresses definition of variables and agrees with RO on student's
+intended equation ("d = 0.8m")</li>
+
+<li>
+KVL: Both the d=.8 and d1=.2 interpretations are plausible, and both equations
+are part of the solution.&nbsp; It doesn't matter which one Andes gives
+hints on.</li>
+</ul>
+If the value of d is given in the problem representation instead of computed
+by adding, then this bug can analyze the error.&nbsp; I'm not sure how
+to find the other interpretation, because it is not a simple time specifier
+confusion despite the names that the student gave the varibles.&nbsp; At
+any rate, this bug should remedy the student's slip.
+<h3>
+<a NAME="Kiesel 18-55"></a>Kiesel Eq-USNA 18-55 first equation</h3>
+In the problem where a hailstone is falling to the ground from the sky,
+the student defines variables, draws a body and standard axes, then enters
+“d_y=9000m,” some other givens and “d=0+v0_y*t+(1/2)a_y*t^2.”&nbsp; Both
+equations are red.&nbsp; The first one should be d_y=-9000m (the student
+dropped the negative sign), but that is discussed elsewhere.&nbsp; The
+second one should have d_y instead of d on the left side, or alternatively,
+should have a minus sign on the left.&nbsp; Either way, the resulting equation
+is an inefficient one to use for this problem.&nbsp; The tutors gave advice
+on the second equation, but Andes gave advice on the first equation.
+<ul>
+<li>
+IH didn’t notice the error.&nbsp; Instead, she wants the student to use
+“v1_y^2 = v0_y^2 + 2*a_y*d_y”&nbsp; She points out that the question asks
+the student to find ‘v’ not ‘d’ and questions the student’s method for
+finding ‘v’ with the equation entered.</li>
+
+<li>
+RO notes “d_y = 0 + v0_y*t + 0.5*a_y*t^2” as student’s intended equation
+and addresses the sign (direction) of motion.</li>
+
+<li>
+Andes says, “Make sure you are using the correct signs in this equation.”</li>
+
+<li>
+KVL: In Andes2, the displacement vector would have to be drawn before the
+equation can be written, so this equation is not premature.&nbsp; Unfortunately,
+the problem specification to the KB treats d_y=-9000m as a given rather
+than the result of a projection operation.&nbsp; Thus, there is no hint
+sequence on the operator application.&nbsp; Thus, Andes must treat this
+error as a slip.</li>
+
+<li>
+KVL: For help on the second equation (assuming all variables are defined
+by drawing vectors) Andes should say, “Your equation is similar to one
+I know, but it is not part of an efficient solution to the problem.&nbsp;
+You may click here for help on fixing your equation or here for help on
+finding a more efficient solution.”&nbsp; If the student wants help on
+fixing the equation, then Andes ought to say, “Although most of your components
+are expressed as variables, one is not.&nbsp; Try rewriting the equation
+will all the components expressed as variables.”</li>
+</ul>
+
+<li>
+The bug yields a correct, primitive, non-premature equation.&nbsp;&nbsp;
+The slip-based analysis is not ideal here, but one that checks for projection
+problems is too much work.&nbsp; If the student is confused about projections,
+it will also come out in other contexts.</li>
+
+</body>
+</html>

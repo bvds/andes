@@ -1,0 +1,222 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes 2 Utilities module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Knowledge</h2></center>
+
+<center>(as of 4/5/01)</center>
+
+<p>Authors: Collin Lynch
+<p>The Knowledge defines datastructures such as Problem, Entry Proposition,
+etc that are loaded and used by the Solution Graph Generator and the Help
+system.
+<br>Ultimately this file will link to those files but at present only a
+few files are connected.
+<h3>
+Files:</h3>
+
+<ul>
+<li>
+AMFile.cl -- Andes Module file for the Knowledge database.</li>
+
+<li>
+<a href="SolutionGraphDataStructure.html">Bubblegraph.cl</a> -- Defines
+the Bubblegraph, Qnode Enode and other structures.</li>
+
+<li>
+Nogood.cl -- Nogood definitions.</li>
+
+<li>
+Ontology.cl -- Definition of expression objects.</li>
+
+<li>
+OpApp -- Operator application structure.</li>
+
+<li>
+Operator.cl -- Definition of an operator struct.</li>
+
+<li>
+Problem.cl -- Definition of a problem struct.</li>
+</ul>
+
+<h3>
+Small data structures:</h3>
+
+<ul>
+<li>
+<a NAME="Entry proposition"></a><b>Entry proposition</b> -- This is a proposition
+in the KB that happens to represent a entry.&nbsp; For instance,</li>
+
+<br><tt>(vector puck (at (force puck earth weight) (during 1 2)) 270)</tt>
+<br>represents a weight vector.&nbsp; The KB operators create these, and
+they get stored in the PSM nodes.&nbsp; Then they get extracted and put
+into System entries (see below).&nbsp; The Student entries have them as
+well, but they are created by domain-specific code in the Entry interpreter
+that knows how to translate information from the Workbench into entry propositions
+with the correct syntax.&nbsp; The list of current entry propositions is
+<a href="EntryPropositions.html">here</a>.
+<li>
+<a NAME="Student entry"></a><b>Student entry</b> -- represents a workbench
+action where the student made a problem solving entry, such as writing
+an equation or drawing a vector.&nbsp; Fields are</li>
+
+<ul>
+<li>
+Identifier -- atom assigned by the workbench.&nbsp; When the workbench
+says something is deleted, this is the ID that it uses.</li>
+
+<li>
+Proposition -- an entry proposition built by the Entry interpreter.</li>
+
+<li>
+Correctness -- whether the entry is correct, inefficient, dead-path, forbidden
+or incorrect</li>
+
+<li>
+Interpretation -- If the entry is correct, this is a set of system entries,
+this is the set of the system entries that correspond to it.&nbsp; Its
+a set because a compound student equation corresponds to a set of primitive
+equations.&nbsp; If the entry is incorrect, this is NIL or an error interpretation
+produced by an error handler.</li>
+
+<li>
+Correct-interpretations -- If the entry is correct, all logically possible
+interpretations are stored here.&nbsp; One of these is selected by the
+cognitive load procedure and put into the Interpretation slot by the Entry
+Interpreter.</li>
+
+<li>
+Error-interpretations -- If the entry is incorrect, all interpretations
+produced by the error handlers are stored here.&nbsp; One of these is selected
+by What's wrong help and put in the the Interpretation slot.</li>
+
+<li>
+Verbatim -- If the entry is an equation, this records the student's string
+exactly as they typed it before it was parsed.&nbsp; This is useful for
+some error handlers, such as <a href="ErrorHandlers/EqnUsedAsMethodName.html">Equation-used-as-method-nam</a>e.</li>
+</ul>
+
+<li>
+<a NAME="System entry"></a><b>System entry </b>-- represents a entry made
+by the problem solver.&nbsp; The same entry may be made by different operator
+applications.&nbsp; However, we assume that when this occurs, <a href="DesignDiscussions/EntryPropositionAmbiguity.html#eq entry prop implies eq op app">the
+operator applications are equalp</a> and <a href="DesignDiscussions/EntryPropositionAmbiguity.html#eq entry propositions have eq pre-reqs">their
+prerequisites are equalp</a>.&nbsp; Thus, the help generated from each
+operator application is the same, so we don't need to disambiguate them.</li>
+
+<ul>
+<li>
+Index -- the entry's position in the Entry array.&nbsp; This number is
+used for communication with the algebra module.</li>
+
+<li>
+Proposition -- an entry proposition that is contained in all the PSM nodes.</li>
+
+<li>
+Sources -- a set of <a href="SolutionGraphDataStructure.html#cognitive step">Cognitive
+steps</a> that represent the operator applications that produced this entry.</li>
+
+<li>
+Op-app -- an operator application, which is the atomic name of the operator
+cons'ed to the values of all its variables.&nbsp; The order is determined
+by the order of variables in the Vars field of the operator (see below).&nbsp;
+The value of this field should equal the values of all the op-app fields
+of the sources.&nbsp; It is repeated here just in case a certain guarantee
+fails (i.e., that equal entry propositions imply equal operator applications;
+see <a href="DesignDiscussions/EntryPropositionAmbiguity.html#eq entry prop implies eq op app">discussion</a>)
+and we have to work around it.</li>
+
+<li>
+Correctness -- one of correct, inefficient, incorrect, dead-path or forbidden.&nbsp;
+This is how to treat the system entry as a whole.&nbsp; It may differ from
+the Correctness fields of the sources, as described <a href="DesignDiscussions/EntryPropositionAmbiguity.html#correctness order">here</a>.</li>
+
+<li>
+Prereqs -- a set of system entries.&nbsp; This possibly-empty set is the
+system entries that must be entered before the student is allowed to enter
+this system entry.&nbsp; An operator application X requires an op app Y
+if they are in the same PSM, and X precedes Y in the Path representation
+of the partially order of steps.&nbsp; However, the pre-reqs of a system
+entry are other system entries, not nodes in the PSM graph, because we
+assume that if two operator applications produce the same entry proposition,
+then their pre-requisites are also equivalent (i.e., produce the same entry
+propositions, and thus correspond to the same system entry).&nbsp; See
+<a href="DesignDiscussions/EntryPropositionAmbiguity.html#eq entry propositions have eq pre-reqs">discussion</a>.</li>
+</ul>
+
+<li>
+<a NAME="Tutor turn"></a><b>Tutor turn&nbsp;</b> -- represents the tutor's
+turn in the dialog.&nbsp; Returned by many modules to the Manager, which
+then forwards on the appropriate info to the Workbench, while remembering
+the tutor turn so that it can interpret the next student turn in the dialog.&nbsp;
+Fields are:</li>
+
+<ul>
+<li>
+type -- one of dialog, play-minilesson, color-red, color-green, delete,
+end-dialog</li>
+
+<li>
+text -- a string.&nbsp; If this is a dialog or delete type, then will play
+this string.&nbsp; If it is a minilesson, then this is the file name.</li>
+
+<li>
+menu -- the name of a workbench menu or edit control</li>
+
+<li>
+responder -- a one-argument function that is applied to the student's turn
+in order to respond to it.</li>
+</ul>
+
+<li>
+<a NAME="Operator"></a><b>Operator</b> -- represents a primitive piece
+of physics knowledge.&nbsp; Used extensively in the KB but referenced by
+other modules as well.&nbsp; Fields are</li>
+
+<ul>
+<li>
+name -- an atom</li>
+
+<li>
+vars -- a list of all the variables used in the operator [Collin: I think
+you need to add this. -- KVL, 4/3/01]</li>
+
+<li>
+args -- list of ? variables.&nbsp; These are used inside the solver to
+prevent repetition of operator applications.&nbsp; Args is a subset of
+Vars, as discussed <a href="SolutionGraphDataStructure.html#cognitive step">here</a>.</li>
+
+<li>
+preconditions -- list of propositions and executable preconditions</li>
+
+<li>
+effects -- list of propositions</li>
+
+<li>
+hints -- list of hints</li>
+
+<li>
+features -- possibly empty list that could include Unordered,...</li>
+
+<li>
+cognitive load -- an integer.&nbsp; Can be missing, in which case the cognitive
+load defaults to 2.</li>
+</ul>
+
+<li>
+<a NAME="Hint"></a><b>Hint</b> -- represents a hint to be given to the
+student.&nbsp; Written by authors and included as part of an operator.&nbsp;
+Passed around by the what's next and other modules that plan how to give
+hints. <a href="HintDataStructure.html">Details&nbsp; here</a>.</li>
+</ul>
+
+</body>
+</html>

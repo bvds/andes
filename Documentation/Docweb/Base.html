@@ -1,0 +1,292 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes 2 Utilities module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Datastructures</h2></center>
+
+<center>(as of 5/29/01)</center>
+
+<h3>
+Files:</h3>
+
+<blockquote>PsmGraph.cl
+<br>SystemEntry.cl
+<br>StudentEntry.cl
+<br>TutorTurn.cl</blockquote>
+
+<h3>
+Small data structures:</h3>
+
+<ul>
+<li>
+<a NAME="Entry proposition"></a><b>Entry proposition</b> -- The represents
+the content of a student or system entry.&nbsp; For instance,</li>
+
+<br><tt>(vector (at (force puck earth weight) (during 1 2)) 270)</tt>
+<br>represents drawing a weight vector with the force tool.&nbsp; A better
+name for this data structure would probably be "entry content."&nbsp; Operationally,
+a student entry and a system entry are equivalent if their Proposition
+fields are Lisp Equalp.&nbsp; When the solution graph is built, Entry Propositions
+get stored in the system entries inside certain cognitive step nodes (see
+the <a href="SolutionGraphDataStructure.html#cognitive step">description
+of the solution graph</a>).&nbsp; The Student Entries have them as well,
+but they are created by domain-specific code in the Entry interpreter (not
+documented yet, but Anders calls it the entry adapter)&nbsp; that knows
+how to translate information from the Workbench into entry propositions
+with the correct syntax.&nbsp; The list of current entry propositions is
+<a href="EntryPropositions.html">here</a>.
+<li>
+<a NAME="Student entry"></a><b>Student entry</b> -- represents a workbench
+action where the student made a problem solving entry, such as writing
+an equation or drawing a vector.&nbsp; Fields are</li>
+
+<ul>
+<li>
+Identifier -- atom assigned by the workbench.&nbsp; When the workbench
+says something is deleted, this is the ID that it uses.</li>
+
+<li>
+Proposition -- an <a href="#Entry proposition">Entry Proposition</a> built
+by the Entry interpreter.</li>
+
+<li>
+State -- whether the entry is correct, inefficient, dead-path, forbidden
+or incorrect.</li>
+
+<li>
+Correct-Interpretation -- If the entry is correct, this is a set of system
+entries, this is the set of the system entries that correspond to it.&nbsp;
+Its a set because a compound student equation corresponds to a set of primitive
+equations.&nbsp; If the entry is incorrect, this is NIL or an error interpretation
+produced by an error handler.</li>
+
+<li>
+Possible-Correct-interpretations -- If the entry is correct, all logically
+possible interpretations are stored here.&nbsp; One of these is selected
+by the cognitive load procedure and put into the Correct-Interpretation
+slot by the Entry Interpreter.</li>
+
+<li>
+Error-interpretation -- If the entry is incorrect, all interpretations
+produced by the error handlers are stored here for later use when the student
+calls 'What's Wrong.'</li>
+
+<li>
+Verbatim -- If the entry is an equation, this records the student's string
+exactly as they typed it before it was parsed.&nbsp; This is useful for
+some error handlers, such as <a href="ErrorHandlers/EqnUsedAsMethodName.html">Equation-used-as-method-nam</a>e.</li>
+</ul>
+
+<li>
+<a NAME="System entry"></a><b>System entry </b>-- represents a entry made
+by the problem solver.&nbsp;&nbsp;</li>
+
+<ul>
+<li>
+Index -- the entry's position in the Entry array.&nbsp; This number is
+used for communication with the algebra module.</li>
+
+<li>
+Sources -- a set of <a href="SolutionGraphDataStructure.html#cognitive step">Cognitive
+steps</a> that that produced this entry.&nbsp; If this slot has multiple
+members, we say that the system entry is "ambiguous."</li>
+
+<li>
+Proposition -- an <a href="#Entry proposition">Entry Proposition</a>.&nbsp;
+All the Sources contain exactly this Entry Proposition.&nbsp; It is duplicated
+here for convenience.</li>
+
+<li>
+State -- one of correct, inefficient, incorrect, dead-path or forbidden.&nbsp;
+This is how to treat the system entry as a whole.&nbsp; It may differ from
+the Correctness fields of the sources, as described <a href="DesignDiscussion/EntryPropositionAmbiguity.html#correctness order">here</a>.</li>
+
+<li>
+Prereqs -- a set of System Entries.&nbsp; This possibly-empty set is the
+system entries that must be entered before the student is allowed to enter
+this system entry.&nbsp; An cognitive step X requires an cognitive step
+Y if they are in the same PSM, and X precedes Y in the Path representation
+of the partially order of steps.&nbsp; However, the pre-reqs of a system
+entry are other system entries, not cognitive steps.&nbsp; Thus, the Prereqs
+field is a list of lists of System Entries.&nbsp; That is, ((E1 E2)(E3
+E4 E5)) means that prerequisites are satisfied if either E1 and E2 are
+done, or E3, E4 andE5 are done.&nbsp;&nbsp; See
+<a href="DesignDiscussion/EntryPropositionAmbiguity.html#eq entry propositions have eq pre-reqs">discussion</a>.</li>
+
+<li>
+Entered -- A list of S<a href="#Student entry">tudent Entries</a> that
+enter this System entry. If nil this system entry has not been made.</li>
+</ul>
+
+<li>
+<a NAME="Tutor turn"></a><b>Tutor turn&nbsp;</b> -- represents the tutor's
+turn in the dialog.&nbsp; Returned by many modules to the Manager, which
+then forwards on the appropriate info to the Workbench, while remembering
+the tutor turn so that it can interpret the next student turn in the dialog.&nbsp;
+Fields are:</li>
+
+<ul>
+<li>
+type -- one of dialog, play-minilesson, color-red, color-green, delete,
+end-dialog</li>
+
+<li>
+text -- a string.&nbsp; If this is a dialog or delete type, then will play
+this string.&nbsp; If it is a minilesson, then this is the file name.</li>
+
+<li>
+menu -- atomic dialog box name (e.g., Force_tool) or a Lisp tree indicating
+a menu hierarchy (see below).</li>
+
+<li>
+responder -- a one-argument function that is applied to the student's turn
+in order to respond to it.</li>
+</ul>
+
+<li>
+<a NAME="Menu Hierarchy"></a><b>Menu Hierarchy </b>-- A Menu Hierarchy
+represents a menu that will be included in a tutor turn for workbench execution.</li>
+
+<ul>
+<li>
+&lt;Menu_id> ::= atom</li>
+
+<li>
+&lt;Menu_id> ::= (&lt;Menu_item> ...)</li>
+
+<li>
+&lt;Menu_item> ::= String</li>
+
+<li>
+&lt;Menu_item> ::= (String . &lt;Menu_id>)</li>
+</ul>
+
+<li>
+<a NAME="Operator"></a><b>Operator</b> -- represents a primitive piece
+of physics knowledge.&nbsp; Used extensively in the KB but referenced by
+other modules as well.&nbsp; Fields are</li>
+
+<ul>
+<li>
+name -- an atom</li>
+
+<li>
+vars -- a list of <i>all</i> the&nbsp; ?variables used in the operator
+[Collin: I think you need to add this. -- KVL, 4/3/01]</li>
+
+<li>
+args -- list of ?variables.&nbsp; These are used inside the solver to prevent
+repetition of operator applications.&nbsp; Args is a subset of Vars, as
+discussed <a href="SolutionGraphDataStructure.html#cognitive step">here</a>.</li>
+
+<li>
+preconditions -- list of propositions and executable preconditions</li>
+
+<li>
+effects -- list of propositions</li>
+
+<li>
+hints -- list of hints</li>
+
+<li>
+features -- possibly empty list that could include Unordered,...</li>
+
+<li>
+cognitive load -- an integer.&nbsp; Can be missing, in which case the cognitive
+load defaults to 2.</li>
+</ul>
+
+<li>
+<a NAME="Operator Application"></a><b>Operator Application</b> -- This
+consists of&nbsp; the atomic name of the operator cons'ed to the values
+of <i>all</i> its variables.&nbsp; That is, it is a Lisp list and not a
+defstruct.&nbsp; The argument order is determined by the order of variables
+in the Vars field of the operator (see above).&nbsp; It represents the
+content of applying an operator to its arguments.&nbsp; Two different cognitive
+steps will have the same operator application if the same operator is applied
+twice with the same arguments.&nbsp; Note that all operator applications
+inside the Help system use as their arguments the values of <i>all</i>
+the variables of the operator (i.e., the Vars field).&nbsp; All the operator
+applications inside the solver use as arguments only the variables required
+for the solver's redundancy check (i.e., the Args field).</li>
+
+<li>
+<a NAME="Hint"></a><b>Hint</b> -- represents a hint to be given to the
+student.&nbsp; Written by authors and included as part of an operator.&nbsp;
+Passed around by the what's next and other modules that plan how to give
+hints. <a href="HintDataStructure.html">Details&nbsp; here</a>.</li>
+</ul>
+
+<h3>
+Why are there so many different representations of the same "entry-like"
+thing?</h3>
+There are 5 data types that seem to all represent entries: Entry Propostion,
+Student Entry, System Entry, Operator Application and Cognitive Step.&nbsp;
+How are they different, and why can't they be combined?
+<p>A <b>Student Entry</b> represents a workbench action that actually occurred,
+whereas a <b>System Entry</b> represents an entry that was made by the
+solver and could potentially be made by the student.&nbsp; When the Help
+system determines that a student entry corresponds to a system entry, then
+the Interpretations field of the student entry points to the system entry
+and the Entered field of the system entry points to the student entry.&nbsp;
+Thus, we need to have distinct data types for student and system entries.
+<p>The <b>Entry Proposition</b> represents the content of an entry without
+representing when it was made or by whom.&nbsp; Both the Student Entry
+and the System Entry have fields that contain Entry Propositions.&nbsp;
+The Entry Proposition is what the Entry Interpreter uses when it looks
+up a student's entry in the index of system entries.&nbsp; In particular,
+when the Entry Interpreter is trying to find an interpretation for a non-equation
+entries, it looks for a System Entry whose Entry Proposition is equalp
+to the Entry Proposition in the Student Entry.&nbsp; For equation entries,
+a Student Entry corresponds to a set of System Entries if the equation
+in the student's Entry Proposition is an algebraic combination of the equations
+in the system entries' Entry Propositions.
+<p>A <b>Cognitive Step</b> appears only in the solution graph.&nbsp; Of
+the 4 types of cognitive step, only one type (DO) represents applying an
+operator.&nbsp; Moreover, some of those operators are unobservable, mental
+things such as an operator that decomposes a goal into subgoals.&nbsp;
+Only a few of the DO cognitive steps correspond to operator applications
+that represent workbench actions.&nbsp; Those cognitive steps have a non-null
+Entry field, which points to the corresonding system entry.
+<p>An <b>Operator Application</b> holds information from the solver that
+is useful for generating hints.&nbsp; Although the Entry Proposition contains
+most of the relevant information for generating hints, it is possible for
+the author of a hint to use values from operator variables that are not
+included in the Entry Proposition of that operator.&nbsp; For instance,
+suppose the author of the operator net-force-definition wants to refer
+to the set of forces in the hint.&nbsp; The Entry Proposition is just an
+equation of the form &lt;net force component> = &lt;sum of force components>,
+so it does not contain the set of forces.&nbsp; However, the operator itself
+does have a variable, ?forces, that is bound to the set of forces.&nbsp;
+Its value will appear in the Operator Application, which allows the Help
+system to pass it into the hint construction routines.&nbsp; The name should
+have probably been something like "Hint Generator" to reflect its purpose.
+<p>There is a 1-to-many correspondence between System Entries and cognitive
+steps.&nbsp; The same system entry can correspond to multiple cognitive
+steps.&nbsp; For instance, the same acceleration vector can occur in PSM
+graphs for several different applications of kinematics and in a PSM graph
+for NSL.&nbsp; Yet, when the student draws the acceleration vector, we
+can't tell which PSM they are following.&nbsp; That is, their action is
+ambiguous, so we assign that action a System Entry that has multiple cognitive
+steps as its Sources.&nbsp; This preserves the ambiguity, which is dealt
+with later as necessary (see <a href="DesignDiscussion/EntryPropositionAmbiguity.html">discussion</a>).
+<p>Although there can be multiple cognitive steps that correspond to the
+same system entry, we want a 1-to-1 correspondence between System Entries
+and the Entry Propositions produced by the solver.&nbsp; That is, if two
+System Entries are different, then they have different Entry Propositions.&nbsp;
+If we allowed two different System Entries to have the same Entry Proposition,
+then when the Entry Interpreter was looking up the system entry for a given
+student entry, and the student's Entry Proposition was equal to the Entry
+Proposition shared by the two different System Entries, then we wouldn't
+know which one to associates with the student's entry.
+<br>&nbsp;
+</body>
+</html>

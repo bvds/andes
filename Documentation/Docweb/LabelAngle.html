@@ -1,0 +1,97 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="label-angle">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>label-angle</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node13.html">
+<link REL="previous" HREF="node11.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node13.html">
+</head>
+<body>
+
+<h2>
+label-angle</h2>
+label-angle <i>label degrees id-vector1 id-vector2 id-angle &amp;optional
+axis</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Assigns the given label to the angle between two objects with given degrees
+size.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp;&nbsp;&nbsp;
+"(label-angle \"$$q\" 60 'Force-21 'Axis-32 'Angle-44 'posy)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+An <a href="EntryStatusReturnValue.html">Entry Status Return Value</a>.</dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>label</b></dt>
+
+<dd>
+The label given the angle by the student, a string</dd>
+
+<dt>
+<b>degrees</b></dt>
+
+<dd>
+the size of the angle</dd>
+
+<dt>
+<b>id-vector1,id-vector2</b></dt>
+
+<dd>
+the ids of the two vectors (or vector and axis) forming the angle. Either
+(but not both) of the ids may refer to an axis.</dd>
+
+<dt>
+<b>id-angle</b></dt>
+
+<dd>
+the id of the new angle object</dd>
+</dl>
+
+<dd>
+<b>axis</b></dd>
+
+<dl>
+<dd>
+the part of the coordinate system that is used (posx, negx, posy, negy)</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+Adds angle label to the list of variables.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

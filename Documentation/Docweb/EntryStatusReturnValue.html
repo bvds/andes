@@ -1,0 +1,158 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="Author" content="Kurt VanLehn">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>EntryStatusReturnValue</title>
+</head>
+
+<body>
+
+<h2>Entry Status Return Values</h2>
+
+<p>Any help system API call that has the purpose of checking a
+student entry should return a status return value string. A
+status return value consists of up to three components: a status
+(correct or incorrect), an optional list of error slots, and an
+optional piggybacked command string to execute. The format is
+described by the following BNF grammar </p>
+
+<blockquote>
+    <p>StatusReturn -&gt; StatusCode&nbsp; [; ErrorList ] [!
+    CommandString ] <br>
+    StatusCode -&gt; T | NIL | &lt;empty&gt; <br>
+    ErrorList -&gt; SlotName | SlotName ; ErrorList |
+    &lt;empty&gt; <br>
+    CommandString -&gt; WorkbenchCommandString | &lt;empty&gt;</p>
+</blockquote>
+
+<p>Examples: </p>
+
+<blockquote>
+    <p><tt>T</tt> <br>
+    <tt>NIL</tt> <br>
+    <tt>NIL!show-hint Undefined variable: Vx</tt> <br>
+    <tt>NIL;body</tt> <br>
+    <tt>NIL;body;time</tt> <br>
+    <tt>NIL;body!show-lesson how-to-choose-body.htm</tt></p>
+</blockquote>
+
+<h3>Status codes</h3>
+
+<p>The major status of an entry is coded by the following
+strings: </p>
+
+<blockquote>
+    <p><tt>T&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    correct, color green</tt> <br>
+    <tt>&lt;empty string&gt;&nbsp;&nbsp; no status available,
+    leave black<br>
+    NIL|&lt;anything else&gt;&nbsp; error, color red</tt> </p>
+</blockquote>
+
+<p>Normally, NIL should be used to indicate an error. The
+&quot;anything else&quot; case was defined to allow for the
+possibility of returning more specific error codes by particular
+API calls. However, currently, no such additional error codes are
+actually interpreted by the workbench. It should be harmless for
+the help system to return them.</p>
+
+<blockquote>
+    <p>&nbsp;</p>
+</blockquote>
+
+<h3>Error Slots</h3>
+
+<p>It is possible for the help system to flag one or more
+particular slots in an object&#146;s definition as erroneous. If
+possible, the workbench will color only those slots red in the
+definition dialog box and leave the dialog box open for the
+student to correct. The available slot names are defined by the
+workbench and are listed below: </p>
+
+<blockquote>
+    <p>Common to several dialogs: <br>
+    <tt>name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Student's
+    label</tt> <br>
+    <tt>body&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Principal
+    body</tt> <br>
+    <tt>time&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time on
+    which defined</tt> <br>
+    <tt>type&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qualifier
+    where required:</tt> <br>
+    <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Force -- force type</tt> <br>
+    <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Vector -- Average or instantaneous</tt> <br>
+    <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Energy -- total, kinetic, grav-potential, spring</tt> <br>
+    <tt>agent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Second body
+    where required:</tt> <br>
+    <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Force -- force agent</tt> <br>
+    <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Variable &#150; second body in some defs, e.g. distance
+    between</tt> <br>
+    <tt>dir&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Vector -- direction</tt> <br>
+    <tt>zdir&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vector --
+    z-axis direction (only used in rotational problems)</tt> <br>
+    <tt>ang&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Vector -- angular or linear (only used in rotational
+    problems)</tt> </p>
+    <p>Angle dialog <br>
+    <tt>side1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; first argument</tt> <br>
+    <tt>side2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; second side argument</tt>
+    </p>
+    <p>System Dialog <br>
+    <tt>bodies&nbsp;&nbsp;&nbsp;&nbsp; list of bodies included in
+    system</tt></p>
+</blockquote>
+
+<h3>Command strings</h3>
+
+<p>This may be any string in the workbench <a
+href="WorkbenchCommandStringsGeneral.html">command-string API</a>.
+All characters after the exclamation point delimiter to the end
+of the returned string will be taken as the command. </p>
+
+<h3>Empty/Missing fields</h3>
+
+<p>For convenience to the process that constructs the strings,
+the syntax is liberal with respect to missing fields: any field
+may be omitted either by being left out entirely or by being
+written with its delimiter character only but empty content. Thus
+in addition to the empty string, the following would all be legal
+ways to code a string with missing fields: </p>
+
+<blockquote>
+    <p><tt>;!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    no fields</tt> <br>
+    <tt>!show-hint hello&nbsp;&nbsp;&nbsp;&nbsp; no status or
+    errors, only command</tt> <br>
+    <tt>T!show-hint hello&nbsp;&nbsp;&nbsp; no error list</tt> <br>
+    <tt>T;!show-hint hello&nbsp;&nbsp; no error list</tt> <br>
+    <tt>NIL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    no errors or command</tt> <br>
+    <tt>NIL;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    no errors or command</tt> <br>
+    <tt>NIL;!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    no errors or command</tt> <br>
+    <tt>NIL;body;time!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; no
+    command</tt> <br>
+    <tt>NIL;body;time;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; no
+    command</tt> <br>
+    <tt>NIL;body;time;!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; no command</tt>
+    <br>
+    <tt>NIL;body;;;time;;;&nbsp;&nbsp; some empty error slots</tt></p>
+</blockquote>
+
+<p><br>
+However, although syntactically legal, it would not usually make
+sense to include an error list if the total status of the entry
+were not also marked NIL. <br>
+&nbsp; </p>
+</body>
+</html>

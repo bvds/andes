@@ -1,0 +1,300 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Discussion of different spatial measures</title>
+</head>
+<body>
+
+<center>
+<h2>
+Different measures of space</h2></center>
+
+<center>(as of 3/20/01)</center>
+
+<h3>
+Kurt:</h3>
+<i>Comments by Joel in italics</i>
+<br>The Andes interface currently uses many different measures of space:
+<ul>
+<li>
+vectors</li>
+
+<ul>
+<li>
+displacement =change in position of a body over time</li>
+
+<li>
+relative position of different bodies at the same same time</li>
+</ul>
+
+<li>
+scalars</li>
+
+<ul>
+<li>
+height = position of a body at a time with respect to a zero point</li>
+
+<li>
+distance travelled by a body over time (i.e., path length)</li>
+
+<li>
+distance between two bodies</li>
+
+<li>
+radius of revolution</li>
+
+<li>
+width of a rectangle</li>
+
+<li>
+height of a rectangle</li>
+</ul>
+</ul>
+Different principles use different quantities, of course.&nbsp; For instance,
+gravitational potential energy uses height but kinematics uses displacement.&nbsp;
+However, there are situations where some of these quantities are equal.&nbsp;
+For instance, the magnitude of the relative position of a body with respect
+to the ground <i>directly beneath it</i> at T0 is the same as the height
+of the body at T0 given that the ground is the zero point.&nbsp; Andes2
+does not currently have rules to assert equations for all such cases (neither
+did Andes 1).&nbsp; This means that when a student enters one of the equivalent
+quantities that is not the one that the rules use, it will be marked wrong.&nbsp;
+For instance, if they draw a displacement vector when Andes is expecting
+height, it will be colored red.
+<p>There are three ways to handle this.&nbsp; One is to teach the students
+Andes' conventions for which quantity to use with which principle.&nbsp;
+For instance, when a student tries to draw a displacement on a problem
+where the solution involves gravitational potential energy, Andes gets
+them to agree that they should use PE then tells them that Andes wants
+them to use height instead of displacement whenever they use the PE principle.&nbsp;
+Clearly, student have enough to learn without learning Andes' conventions,
+so this option is not the best.
+<p>The second is to write rules in the KB that assert equations that equate
+the different quantities whenever necessary.&nbsp; These equations generate
+choices in the PSM paths.&nbsp; For instance, one choice is to define the
+height using the height tool, and the other is to define it using the displacement
+tool and by writing the equation that displacement is equal to height.&nbsp;
+That equation would have to be marked as optional so that the student wouldn't
+be forced to define a height variable and write it.&nbsp; This approach
+also means that different paths for the PSM generate different sets of
+primitive equations, which can cause combinatorial problems when generating
+all sets of independent equations.&nbsp; Another problems occurs when one
+of these kinds of quantities appears as a given or a sought.&nbsp; For
+instance, if the problem states that the height is given and only height
+appears in the equation for gravitational potential energy, then the equation
+between displacement and height can be eliminated without effecting the
+solvability of the equations.&nbsp; In general, if the student thinks that
+quantity X appears in both the givens and the principles, but actually
+it is an equivalent quantity Y, then I'm afraid that we will run into combinatorial
+trouble or worse things.
+<p>A third way to handle this is to reduce the number of definable quantities
+to the minimal set, and create new dialog boxes for each.&nbsp; Here is
+a minimal set:
+<ul>
+<li>
+<b>relative position: From: &lt;body1, time-point1> To: &lt;body2, time-point2></b>.&nbsp;
+This would be a vector drawing tool, like velocity or force.&nbsp; It covers
+both displacement (where body1=body2) and the current version of relative
+position (where timepoint1=timepoint2). Its magnitude covers height, if
+we always define problems so that the zero point is occupied by a body,
+<i>[
+might we create a superclass of body, which is an abstract object with
+a position and mass and capable of movement, to abstract just the position
+attribute? Then a point can be referred to if anything is special about
+it whether there is a body there or not. This concept might be useful in
+referring to the ground, or the endpoint of a spring, as well, although
+you seem to imply those are already bodies.]</i> such as the ground or
+the top of a spring, at the appropriate time.&nbsp; It does not cover distance
+travelled, but it does cover distance between two bodies.&nbsp; It covers
+radius of revolution as long as we let the center of revolution be a body.
+It covers the width and height of a rectangle only if we let the sides
+be bodies.</li>
+
+<li>
+<b>path length: &lt;body> &lt;time-interval></b>.&nbsp; This covers the
+old distance travelled.</li>
+</ul>
+This does not completely eliminate the problem, but it drastically reduces
+it.&nbsp; For instance, if the problem required gravitational PE, then
+the student could either draw the height or, if there happened to be an
+object that moved in a straight line over the correct distance, then the
+student could also use path-length as a second option..&nbsp; However,
+in the current workbench, they can do both of those (using the relative
+position tool and the distance-travelled tool) plus define a height variable
+and maybe a variable for distance between two bodies.
+<p>Indeed, if we eliminate the path-length tool and the problems that require
+it, then there is only one way to for the user to specify the spatial measurements
+on every problem. We would also use just one quantity inside the KB.
+<i>In
+addition to the unknown direction problem below, this would also force
+the first-week student who is doing one-dimensional problems to draw vectors.
+That is not necessarily a bad thing, as it makes more connected that material
+and the later 2-D stuff, but it might present an added load on his learning
+right at the start.</i>
+<p>There is a small problem with the single-tool idea.&nbsp; On some problems,
+the relative orientations of the begining and ending points are not specified.&nbsp;
+Thus, the student can't know what direction to draw the vector.&nbsp; However,
+this is currently true of the velocity tool as well.&nbsp; For instance,
+on the problem where a firecracker is tossed in the air, the student must
+draw a final velocity vector, but isn't given enough information to calculate
+its direction.&nbsp; Thus, Andes accepts any direction as correct.&nbsp;
+Similarly, when the problem doesn't specify enough information to easily
+calculate the direction of the relative position, then Andes should accept
+any direction as correct.
+<i>It is not just the unknown direction, but
+the arbitrary direction, which might be a problem. For example, the radius
+could be defined as the magnitude of the relative position from the center
+to ANY point on the rim, as well as vice-versa. Will we be having Andes
+say Ok to one of these but not another?</i>
+<p>This tool would allow students to solve the submarine and ship problem:&nbsp;
+"A sub is 3000 m South of a ship which is moving in a known direction at
+a known speed.&nbsp; The speed of the sub's torpedo's is known.&nbsp; What
+angle should it shoot the torpedo and how long will it take to reach the
+ship?"&nbsp; This problem requires defining the relative position of the
+ship vs. the sub at T0, the ship at T0 vs. T1, and the torpedo at T0 vs.
+T1.&nbsp; The orientations of the latter two vectors are not easily calculated,
+so Andes should accept anything for them.
+<p>One drawback of going to the single-tool approach (besides the implementation
+effort, which is considerable) is that it forces students to use one tool
+for many conceptually distinct quantities.&nbsp; A radius is really not
+displacement, but one uses the same tool for both.&nbsp; Students have
+to understand the spatial concepts well enough to map them into the relative
+position tool, and that includes learning the conventions for referring
+to zero points and centers when wishing to define a height or a radius.
+<p>On the other hand, as we extend Andes to cover more physics, we might
+run into principles that are typically expressed in a spatial measurement
+concept that we don't have in the system yet.&nbsp; If we use the multiple-tool
+approach, where height, displacement, etc. each has its own tool, then
+we'd have to define a new tool for this new concept, and students would
+have to learn how to use it.&nbsp; On the other hand, if we use the single-tool
+approach, we don't need to change anything on the user interface and the
+student's don't have to learn much new.
+<p>The bottom line is that we can either use one tool for all spatial measurement
+concepts and let students deal with mapping the concepts onto the tool,
+or we can use many tools (one per concept) and deal internally with the
+technical difficulties that equivalences create.&nbsp; We need the input
+of experienced instructors on this design decision.
+<br>&nbsp;
+<i>It is my feeling that unifying displacement and relative
+position is definitely a good idea, and that unification with lengths more
+generally may be a good idea but I am not sure. - Joel</i>
+<br>&nbsp;
+<h3>
+Anders:</h3>
+Another possibility that occurred to me would be to keep multiple equivalent
+<br>ways of referring to the same spatial quantity in some cases where
+it seems
+<br>appropriate, but treat the equalities specially so they don't actually
+<br>multiply the solution paths we find.&nbsp;&nbsp; This would be similar
+to the method
+<br>we used for eliminating equalities from the equation hash tables. We
+pick a
+<br>'canonical" quantity to use in the solutions, and use the equalities
+only to
+<br>allow us to map from the student's choice of quantity to the 'canonical"
+one
+<br>before checking their entries or equations.
+<p>An example is how to define the radius for use in the equation v = omega
+* r
+<br>for determining the linear velocity of a point on a rotating object.
+This
+<br>quantity could equally well be specified as:
+<br>&nbsp;&nbsp;&nbsp; -the scalar radius of circular motion of the point.
+(Axis is implicit in
+<br>this!)
+<br>&nbsp;&nbsp;&nbsp; -the scalar distance between the point and the axis
+<br>&nbsp;&nbsp;&nbsp; -the magnitude of the relative position vector to
+the point from the
+<br>axis
+<br>&nbsp;&nbsp;&nbsp; -the magnitude of the relative position vector to
+the axis from the
+<br>point
+<br>&nbsp;
+<p>Currently, the preferred one on the interface is "radius", I believe.
+<br>&nbsp;
+<p>The suggestion in this case would be to use one of these, say "radius",
+as
+<br>the 'canonical" quantity in the main section of the solution graph,
+but also
+<br>keep a segregated set of nodes containing the equivalences and the
+steps
+<br>that would be needed to generate them. Traversals to enumerate solution
+<br>paths would ignore the segregated equivalence nodes.&nbsp; Checking
+a variable or
+<br>vector definition could look in both sections so that drawing a relative
+<br>position vector would be allowed. Checking an equation would require
+<br>replacing instances of "non-canonical" variables such as magnitude
+of
+<br>relative position with the equivalent "canonical" ones such as radius
+before
+<br>checking. One would have to map back in any message to the student
+on the
+<br>equation as well.
+<p>Although there is a little bit of complexity in this approach, it might
+give
+<br>us the best of both worlds. Even though a radius is just a particular
+sort
+<br>of distance, I really think we want to keep this (or something like
+it)
+<br>since all the relevant formulas you see will be given in terms of a
+radius
+<br>"r" and we want to use standard terminology and notation where possible.
+But
+<br>use of the others should not be wrong, and it certainly strikes me
+as highly
+<br>desirable to reduce the number of little "gotchas" that result solely
+from
+<br>failure to recognize certain arbitrary conventions imposed by Andes
+in the
+<br>form of a solution.
+<p>By the way, I don't think we would want *all* equivalences between
+<br>quantities to be treated this way. In particular those equivalences
+between
+<br>force magnitudes that result from Newton's Third Law seem to involve
+special
+<br>physics knowledge on which we might have to tutor and so constitute
+steps
+<br>that we would expect to be explicitly written. There might be others
+like
+<br>this.
+<p>We might use special rules with distinguishable output forms to handle
+cases
+<br>where we deem the equivalence to result from an arbitrary choice of
+<br>equivalent quantities, so that the thing that builds the equality table
+can
+<br>distinguish them.
+<br>&nbsp;
+<h3>
+Kurt:</h3>
+Anders, thanks for the suggestion about how to implement the multiple-tools
+approach.&nbsp; The key issue, though, is whether it is better for students
+to see one general-purpose spatial measurement tool, or many special purpose
+tools?&nbsp; You seem to be leaning toward the multiple-tool side, on the
+grounds that students are taught to use special symbols like "r" and concepts
+like "radius."&nbsp; Note that they can still use special symbols for the
+variable names.&nbsp; The only difference is whether they see alot of different
+names (e.g., Radius, Compression distance, Displacement, etc.) in the variables
+menu or a single name (e.g., Spatial measure).
+<p>By the way, I was planning on using your technique to handle the cases
+where the student defines a variable for "the height of the hill" when
+Andes wants "the height of the roller coaster."&nbsp; The current system
+gives them an error message.&nbsp; Andes 2 should instead mark the student's
+variable definition as correct, but map it internally to the preferred
+quantity.&nbsp; This trick is independent of the single-tool vs. multiple-tool
+issue; it can be used with either one.
+<h3>
+Don &amp; Bob:</h3>
+In an email and a later phone call (4/5/01), they would prefer that Andes
+use the spatial measurement tools that it has now.&nbsp; The main reason
+is that the students will be quite confused and lost if they open up the
+tools and don't see Distance, Displacement, and the other terms that their
+textbook uses.&nbsp; Even when they are confronted with multiple ways to
+measure the same thing (e.g,. height of car vs. height of hill vs. distance
+from ground to hill), they would prefer that the student just pick one
+and get green (not red) feedback.&nbsp; So we will have to implement Anders'
+equivalence classes.
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="lookup-component">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>lookup-component</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node11.html">
+<link REL="previous" HREF="node9.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node11.html">
+</head>
+<body>
+
+<h2>
+lookup-component</h2>
+lookup-component <i>label compo-of axis mag &amp;optional dir id</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Check a student drawn vector component.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp; "(lookup-component \"f1x\" 'f1 'x nil 90 'vector-1)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+An <a href="EntryStatusReturnValue.html">Entry Status Return Value.</a></dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>label:</b></dt>
+
+<dd>
+the label of this component (should be the vector label w/ subscript of
+axis label), a string</dd>
+
+<dt>
+<b>compo-of:</b></dt>
+
+<dd>
+the label given to the vector this is a component of (this means that a
+component can't be drawn before its vector)</dd>
+
+<dt>
+<b>axis:</b></dt>
+
+<dd>
+the label of the axis of the projection ('x or 'y)</dd>
+
+<dt>
+<b>id:</b></dt>
+
+<dd>
+id assigned by the workbench</dd>
+
+<dt>
+<b>dir:</b></dt>
+
+<dd>
+direction (degrees from horizontal right) in which the vector is pointing</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+If the component is correct, marks the corresponding system entry as "entered,"
+figures out which algebraic function of the system's component variable
+corresponds to this variable given the student's axis rotation, and enters
+into the symbol table a pairing consisting of that expression and the student's
+variable's name.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

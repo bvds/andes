@@ -1,0 +1,66 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ScenarioHintSeqWithKCDs</title>
+</head>
+<body>
+
+<center>
+<h2>
+An example of hint sequences that contain KCDs</h2></center>
+
+<center>(as of 3/16/01)</center>
+
+<p>We want to run experiments contrasting KCDS to non-interactive hints,
+namely string and minilesson hints.&nbsp; Thus, we need the Hints slot
+to contain both KCDS, minilessons and string hints that cover the same
+topic, and we need to have Andes 2 ignore some of these depending on the
+settings of a switch.&nbsp; The basic ideas is that if two members of a
+hint sequence have the same function, then they are interchangeable.&nbsp;
+Thus, if there is a String hint and a KCD hint whose functions fields have
+the same set of atoms in them, then depending on how a switch is set, either
+one or the other will be ignored.
+<p>Also, if two hints in the same hint sequence have the same function,
+then only one will be shown per dialog.&nbsp; The code should prefer hints
+that have not yet been presented.&nbsp; If there are ties, it uses the
+order in the hint sequence to break them.
+<p>For instance, suppose the hint sequence is
+<p>(string (point) "Think about the direction of ~a." (?force))
+<br>(kcd (teach) "Normal-force-direction-via-atomic-level" NIL)
+<br>(kcd (teach) "Normal-force-direction-via-third-law" NIL)
+<br>(minilesson (teach) "NormalForceDir.html" NIL)
+<br>(string (teach) "The normal force is always directed perpendicular
+to the surface." NIL)
+<br>(string (bottom-out) "~a it should be perpendicular to ~a, namely,
+~a."
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?force
+?surface ?direction))
+<p>This is a hint sequence for the bug where normal forces that are drawn
+straight up instead of perpendicular to the surface.&nbsp; Now the usual
+sequence for hints is goal, point, teach and bottom-out.&nbsp; This hint
+lacks a goal hint, which is typical of hint sequences associated with bugs.&nbsp;
+The first time that the student exhibits this bug, and the switch allows
+showing both KCDs and non-KCDs, then the student will get the first get
+"Think about the direction of the normal force on the car."&nbsp; If the
+student clicks on Explain-more, then they student will get the KCD called
+normal-force-direction-via-atomic-level.&nbsp; When that KCD ends, if the
+student again clicks on Explain more, the workbench shows the bottom-out
+hint, "The normal force on the car should be perpendicular to the driveway,
+namely, 125 degrees."&nbsp;&nbsp; That's the end of this dialog.&nbsp;
+If the student exhibits the bug again, then the same thing happens except
+that the other KCD is played instead.&nbsp; On the third occurence of the
+bug, the student gets the minilesson.&nbsp; On the fourth occurence, the
+student gets the string hint, "The normal force is always directed perpendicular
+to the surface."&nbsp;&nbsp; On subsequent occurrences, all four teaching
+hints are tied, so Andes repeatedly selects the first one.&nbsp; If the
+switch is set to avoid KCDs, then on the first occurrence of the bug, the
+minilesson will be shown as the teaching hint.&nbsp; The string will be
+shown on the second occurrence, and the minilesson will be shown on subsequent
+occurrences.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes 2 mastery module</title>
+</head>
+<body>
+
+<center>
+<h2>
+The Mastery module</h2></center>
+
+<center>(as of 3/30/01)</center>
+
+<p>This module keeps track of which <a href="#competency">competencies</a>
+the student has mastered, where a competency is something like "can solve
+statics problems" or "can solve translational kinematics problems".&nbsp;
+This assessment of <a href="#Masteries">mastery</a> will not be reliable
+enough to be used for high-stakes decision making (e.g., course grades),
+because we never really know who is clustered around the keyboard operating
+Andes.&nbsp; Thus, we use the assessment only for low-stakes decision making.&nbsp;
+In particular, we use it for these purposes:
+<ul>
+<li>
+Advising the student on what problem to solve next.&nbsp; When the student
+closes a problem, the Manager calls Mastery to get suggestions for what
+problems to try next.</li>
+
+<li>
+Advising the student on whether they have mastered the current competency.&nbsp;&nbsp;
+When the student closes a problem, the Manager reports a histogram of levels
+of mastery on each of the competencies.&nbsp; This allows students to decide
+whether to do more problems.</li>
+
+<li>
+Adapting the dialog.&nbsp; The modules that formulate tutor dialog turns
+may sometimes asks the mastery module whether the student has mastered
+a particular operator or competency.&nbsp; This can affect whether it generates
+a brief explanation or a longer one.</li>
+</ul>
+In order to preserve information on a student between sessions, the Mastery
+module must save a file called the <b>student model</b>.&nbsp; It contains
+a profile of mastery (one number per operator) and a list of the problems
+the student has attempted, whether they were solved, and with how much
+help.
+<h3>
+<a NAME="competency"></a>Competencies</h3>
+A competency is a topic that the domain authors would like students to
+master.&nbsp; A competency is defined by a set of operators, and a function
+that computes the mastery of the competency given the masteries of the
+operators in the set.&nbsp; An operator can be assigned to zero or one
+competency, but it can't be assigned to multiple competencies.
+<p>Competencies are related by pre-requisite relationships.&nbsp; If A
+is a pre-requisite of B, then problems that require B should not be assigned
+to students until A has been mastered.&nbsp; Moreover, when Andes shows
+a histogram of mastery, if A has not been mastered, then the mastery of
+B is not displayed.
+<h3>
+<a NAME="Masteries"></a>Masteries</h3>
+In order to predict grades and other measures of success, it is convenient
+to have, for each competence, an estimate of the probability that the student
+will correctly answer a problem that involves just that competence.&nbsp;
+That is, we assume that there is some underlying, true level of mastery
+such that if we gave the student an infinite number of problems that used
+just that competence (and the student's learning/memory was turned off),
+then the student would answer P of them correctly, where P is a proportion.&nbsp;
+One component of mastery is an estimate of P, which we call the estimated
+probability of success.&nbsp;&nbsp; If a problem requires several competencies,
+then we can estimate the probability of solving the whole problem correctly
+by simply assuming conditional independence and taking the product of the
+estimated probabilities of success of each of the competencies required
+by the problem.
+<p>Mastery is an estimate based on a finite sample of the student's behavior.&nbsp;
+The best estimate for the real probability of succees, P, is simply S/N,
+where S is the number of problems solved succesfully and N is the size
+of the sample, i.e., the number of problems total that the student tried
+to solve.
+<p>Because mastery is an estimate, we need to keep track of how tight an
+estimate it is.&nbsp; For that, we use the standard error of the proportion
+statistic (Spiegel, pg. 144).&nbsp; That is, if the student has had S success
+in N attempts, then the standard error is sqrt([S(N-S)]/N^3).&nbsp; This
+only holds for N>30.&nbsp; I am still trying to find the formula for standard
+error of the estimated probability when N&lt;30.&nbsp; When Andes displays
+a histogram competencies, the estimated probability of success is displayed
+by as a point with "whiskers" representing the standard error.
+<p>At any rate, for the data structure that represents mastery, it should
+suffice to have just two fields: f the number of successes (S) and the
+number of attempts (N).&nbsp;&nbsp; The estimates can be compute from them.
+<h3>
+<a NAME="Mastery bar chart"></a>Get the mastery levels for units</h3>
+Returns a list of pairs.&nbsp; Each pair has the name of a competency and
+its mastery.
+<h3>
+<a NAME="Recommend problem"></a>Recommend problems</h3>
+Given a unit, recommends a problem from that unit. Returns ordered list
+of&nbsp; problem file names.
+<h3>
+<a NAME="Get mastery of operator"></a>Get operator mastery</h3>
+Given an operator name, gets the mastery for that operator.
+<h3>
+<a NAME="Open"></a>Open student model</h3>
+Opens the student model file and reads it in.
+<h3>
+<a NAME="Save"></a>Save student model</h3>
+Dumps the current student model to the file in case the system doesn't
+close normally.
+<h3>
+<a NAME="Close"></a>Close student model</h3>
+Updates the student model file.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

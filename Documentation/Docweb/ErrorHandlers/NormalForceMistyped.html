@@ -1,0 +1,75 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>NormalForceMistyped</title>
+</head>
+<body>
+
+<center>
+<h2>
+Normal force mistyped</h2></center>
+
+<center>(as of 3/27/01)</center>
+
+<p>Students sometimes get normal force and&nbsp; friction force confused.&nbsp;
+This is partly the fault of a tradition in physics.&nbsp; Although there
+is only one contact force between the ground and the cart and it is at
+a diagonal, physicists always treat it as two forces: one perpendicular
+to the surface (called the normal force or reaction force) and the other
+parallel to the surface (called the friction force).&nbsp; It may be that
+the students know that there is a vertical force here and that it is related
+to the friction force, but they don't't realize that it is called "normal
+force."&nbsp; They may call it a static friction force or a contact force,
+etc.
+<p>If the student's entry is a force
+<ul>
+<li>
+that has type ?non-normal</li>
+
+<li>
+and changing the type to Normal makes it a correct entry</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+to hint/teach/state that "If there is a friction force on ?body at ?time
+due to ?surface, then point/teach/state that whenever a surface interacts
+with an object, there is both a normal force and a friction force on the
+object.&nbsp; The friction force will be zero if the contact is assumed
+to be frictionless, and thus can be ignored.&nbsp; Otherwise, it will either
+be a static friction if the object is not moving relative to the surface,
+or a dynamic friction force if the object is moving relative to the surface.&nbsp;
+That is, there are always 2 forces: the normal force, and a friction force
+that is either zero, static or dynamic."</li>
+</ul>
+
+<h3>
+David-Johnson at 13-47</h3>
+A person pushes a 10 kg shopping cart at constant speed with a force of
+100 N acting down at 45 degrees.&nbsp; What is the value [sic] of the friction
+force acting horizontally on the cart?&nbsp; What is the normal force exerted
+by the ground on the cart?&nbsp; The student has entered correct answers
+for both sought quantities.&nbsp; He has also drawn a correct applied force
+and defined correct variables for the weight, normal and kinetic friction
+force.&nbsp; His calculations for the normal force direction are done correctly,
+but the calculations for the normal force magnitude are syntactically ill-formed
+(he probably did the calculations on paper).&nbsp; The student has also
+drawn a static friction force on the cart due to the ground that points
+straight up.&nbsp; There is no such force, and the student is asking why
+it is wrong.
+<p>One possibility, which we could check by examining the log files, is
+that the student tried to draw the normal force, and Andes wouldn't let
+him because it was defined already (and named F3), so he tried to draw
+it as a static friction force instead (named F4).&nbsp; This can't happen
+with the Andes 2 user interface, because students must draw the vector;
+they can no longer define variables for them.&nbsp; So let us assume that
+the student is not intending to draw a normal force, but actually intended
+to draw the force that he did draw, and build an error handler for that
+case, which may someday occur.
+<p>The normal force operator application is efficient and not premature,
+so the bug applies.
+</body>
+</html>

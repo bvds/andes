@@ -1,0 +1,89 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>
+What Should the Solve Tool Do?, Part 2
+</title>
+</head>
+<body>
+
+<center>
+<h2>
+What Should the Solve Tool Do?, Part 2
+</h2>
+<h3>Mail from Kurt VanLehn, 5/16/01 to Joel</h3>
+</center>
+<P>
+For equation manipulation tools:
+<P>
+1.  Calculate answers arithmetically.  This tool checks that the student 
+has correctly entered all the equations necessary to calculate all the 
+answers.  If so, then it just enters the answers in the appropriate answer 
+boxes.  If not, then it says, "You have not yet entered enough equations to 
+calculate all the answer.  You can ask for 'what's next' help (the light 
+bulb button) to get a suggestion for what to do next."
+<P>
+
+2. Transform & Substitute & DoArithmetic.  This design has a suite of 3 tools:
+<P>
+A.  Transform applies only when a correct equation is selected.  It asks 
+the student to select a variable in the equation (from a menu it offers), 
+then transforms the equation to the form &lt;selected variable&gt; = 
+&lt;expression&gt;.    Thus, Transform(a1) on T1-m1*g = m1*a1 causes andes to 
+write a1 = (T1-m1*g)/m1 in the next open box of the equation window.
+<P>
+B.  Substitute applies only when a correct equation is selected and it has 
+the form &lt;variable&gt;=&lt;expression&gt;.  For each variable X in the &lt;expression&gt; 
+such that there exists a correct equation in the student's window of the 
+form X=&lt;expr&gt;, it replaces X with the &lt;expr&gt;.  This is done 
+recursively.  Thus, the equation will be left in the form 
+&lt;variable&gt;=&lt;expression&gt; where &lt;expression&gt; either has no variables X that 
+have equations of the form X=&lt;expression&gt; except for &lt;variable&gt;.  More 
+specifically, suppose the student selects a1=(T1-m1*g)/m1 when the other 
+equations are T2-m2*g=-m2*a2, T1=T2 and a2=a1.  Substitute pops up a dialog 
+box saying "no substitutions can be made.  You need to convert some 
+equations to the form &lt;variable&gt;=&lt;expression&gt; using the Transform 
+tool."  Suppose the student now applys Transform(T2) to  T2-m2*g=-m2*a2 and 
+gets T2 =  -m2*a2-m2*g.  The student next applys Substitute to 
+a1=(T1-m1*g)/m1 and gets a1 = ((-m2*a1-m2*g)-m1*g)/m1.  The student next 
+applies Transform(a1) to this and gets a1 = (-m2*g-m1*g)/(m1+m2).
+<P>
+C.  DoArithmetic applies only when a correct equation of the form 
+&lt;variable&gt;=&lt;expression&gt; is selected.  It does any arithmetic possible in 
+the &lt;expression&gt;, including calling trig functions.
+<P>
+
+3.  Solve via substitution.  This tool applies only when the student has 
+selected a correct equation.  It asks the student to select a variable in 
+the equation (from a menu it offers), then applies the tools described 
+above in the following sequence: Transform(X), Substitute, Transform(X), 
+DoArithmetic, where X is the variable that the student selected.  This will 
+transform the equation to the form X=&lt;expression&gt; where &lt;expression&gt; is as 
+simple as possible, given that substitutions can only be done when the 
+student has an equation of the form &lt;variable&gt;=&lt;expression&gt; already.
+<P>
+
+4. Solve via substitution and transformation.  This tool applies only when 
+the student has selected a correct equation.  It asks the student to select 
+a variable in the equation (from a menu it offers), then applies 
+Transform(X), Substitute and Transform(X) to the equation, where X is the 
+variable that the student selected.  This transforms the equation to the 
+form X=&lt;expression&gt; where &lt;expression&gt; has no variables that have equations 
+of the form &lt;variable&gt;=&lt;expr&gt; written in the equation window.  However, 
+&lt;expression&gt; may have variables in it that appear in equations in the 
+window but those equations don't have the variable on the left side.  If 
+&lt;expression&gt; has such variables, it Transforms their equations and repeats 
+the Transform(X), Substitute, and Transform(X) process.  Again, we get an 
+&lt;expression&gt; that might have variables that are contained in equations that 
+need to be transformed.  So the cycle repeats until there are no such 
+variables in the resulting &lt;expression&gt;.  When it is all done, it applies 
+DoArithmetic.  This is approximately what Andes1 did.  It cannot solve some 
+systems of equations.   The algebraic equation solver that Andes2 uses is 
+considerably more powerful.
+<P>
+
+</body>
+</html>

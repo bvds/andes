@@ -1,0 +1,76 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="calculate-equation-string">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>calculate-equation-string</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node5.html">
+<link REL="previous" HREF="node3.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node5.html">
+</head>
+<body>
+
+<h2>
+calculate-equation-string</h2>
+calculate-equation-string <i>string new-id</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Takes an equation, substitutes all known values that have been entered
+by the student into it and then simplifies the result. Returns the simplified
+string. Lookup-eqn-string will be called on the original equation before
+calling this function to update the correct/incorrect status. Substitutions
+will only be done for *correct* values that the student has entered. Therefore
+the correct/incorrect status of the resulting equation will be the same
+as the original equation (ie. if the equation being substituted into is
+correct, the result will be correct as well.</dd>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+The string representing the simplified equation if it could be simplified,
+otherwise nil</dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>string:</b></dt>
+
+<dd>
+the equation string to be substituted into</dd>
+
+<dt>
+<b>new-id:</b></dt>
+
+<dd>
+the id of the new equation to be entered</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+Creates a new equation entry representing the newly simplified equation.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

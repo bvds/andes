@@ -1,0 +1,65 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="cancel-help-request">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>cancel-help-request</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="previous" HREF="node18.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node20.html">
+</head>
+<body>
+
+<h2>
+cancel-help-request</h2>
+cancel-help-request
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Tells the help system that the user has cancelled the latest pending help
+request.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp; "(cancel-help-request)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+T (ignored by the workbench)</dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dd>
+None.</dd>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+Sets global variable *command-cancelled* to true, which causes some loops
+in the help system to exit immediately.</dd>
+</dl>
+
+<p><br>
+<hr>
+<address>
+<i>kvl 3/2/01</i></address>
+
+</body>
+</html>

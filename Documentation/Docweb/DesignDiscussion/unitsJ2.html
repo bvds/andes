@@ -1,0 +1,89 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Anders">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>units for quantities</title>
+</head>
+<body>
+
+<center>
+<h2>
+units for quantities
+</h2>
+<h3>Joel, Dec 7 at 14:07, to all andes folk</h3>
+</center>
+<pre>
+
+We have, I believe, agreed that the new version of Andes should
+treat units seriously, so I am beginning to try to incorporate them
+in the parsing. I have looked at the log files which Anders has
+cleaned up for me, and examined the first 112 equations which involved
+or should have involved units, and classified them as follows
+								num/112
+A: assignment statements with correct units, eg G=9.8 m/s^2	59
+B: assignment statements with correct units even though 0	 3
+C: units included where they should not have been, eg		 1
+	ag=(vp_y-vj_y)/(t1-t0)m/s^2
+D: assignment statements with units missing, eg Fw_y = -98	34
+E: units omitted when number plugged into equation		10
+	eg.   -29.4 + Ft_y = 3 * ag_y
+F: units left off when quantity is 0				 5
+
+I propose we accept A, B and F, and clearly we want to not accept
+C and D (C comes from a misconception that the variables are numbers
+associated with the physical quantities rather than the quantities
+themselves, including units). The one situation which is not completely
+clear is E - it is wrong, but we all do it in the course of doing our
+algebra, hopefully restoring the units at the end. But I think we might
+do well to be strict here, because
+	1) it will be hard for novices to remember when they are
+		using shorthand by dropping the units and when they
+		really aren't there
+	2) the extra pain of writing units when plugging values into
+		an equation will encourage them not to do that, which
+		we want to do anyway.
+	3) it will be hard to check units in equations if they are left
+		off.
+	4) we should be reluctant to mark correct things which are not
+		really correct.
+
+So, I propose we accept A, B, F and mark C,D, and E wrong. (Accepting
+F makes my life harder, but no physicist would object to v=0 as a legitimate
+statement).
+
+Grammar:
+	A quantity involving units should begin with a number,
+followed without an initial * by a composite of the symbols
+	m, kg, s, N, J, K, C, mol, V, A, T, ohm, Wb, Hz, Pa, F, H, W
+	eV, MeV, c, u
+	and prefixes a f p n mu m c  k M G T P E
+	( I left out d, h da, which are almost never used except for dl,
+	which we would write as 10^{-4} m^3. c is used only with cm, as
+	we shouldn't accept cc's anyway (cc = 10^{-6}m^3)
+   what about general non-SI:
+  	  Angstrom, atm, f (=fm), barn, cal, ^oC, lightyear, liter
+	English and other archiac units
+	  Btu,  ^oF, ft, in, hr, min, hp, lb, day, yr, yd, mi, gal, oz,
+	  slug,
+	CGS: G (gauss), g gram, dyne, erg, bar, Kwh
+These symbols can be combined with or without *, with / and ^, but we
+	need to know the rules: J/K mol = J/(K * mol), right?
+
+I am not sure what the parsing rules should be. In assignment statements,
+like I = 8 mA, it is easy, because once you hit a number followed by a
+symbol without an intervening operator you can permanantly switch to
+unit gathering. But if we allow quantities in equations, how do I know
+	P = 8 V * mA is 8 mW rather than 8 volts times the mass of A?
+
+Comments?
+
+	Joel
+
+
+</pre>
+
+<br>&nbsp;
+</body>
+</html>

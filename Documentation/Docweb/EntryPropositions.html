@@ -1,0 +1,137 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>EntryPropositions</title>
+</head>
+<body>
+
+<center>
+<h2>
+Entry propositions</h2></center>
+
+<center>(as of 4/27/01)</center>
+
+<p>The following lists the "entry propositions" in the kb, those propositions
+asserted into working memory that should represent the effect of a student
+interface action, and so correspond to entry submissions reported by the
+workbench to the help system.
+<p>In some cases the form of the entry proposition is modified from the
+original KB form asserted in working memory by deleting unneeded arguments.
+The translation from the entry proposition form used by the problem solver
+at solution generation time to the form needed by the help system at tutoring
+time is defined in the table in KB/ontology.cl. Here we give the run-time
+help system form, with notes where that results from a translation of an
+original KB form.
+<h3>
+Drawn Bodies:</h3>
+&nbsp;&nbsp;&nbsp; (body ?body ?time)
+<p>?body is either an atom or (compound &lt;atom> &lt;atom> ...).
+<br>?time is either a positive integer or (during &lt;pos integer> &lt;pos
+integer>).
+<h3>
+Drawn Vectors:</h3>
+(vector ?quantity ?direction)
+<br>&nbsp; e.g.
+<br>(vector&nbsp; (at (accel block) 1) zero)
+<br>(vector&nbsp; (at (force block plane normal) 2) (dnum 0 deg))
+<br>(vector (at (net-force block) (during 1 2)) (dnum 37 deg))
+<br>(vector (at (ang-velocity rod) (during 1 2)) into)
+<blockquote>
+<li>
+?quantity is any vector quantity expression, see kb/ontology.cl for a list
+of these with indications of their arguments</li>
+
+<li>
+?direction is usually a dnum for vectors in the x-y plane, but may also
+be one of the following special atoms:</li>
+
+<blockquote>
+<li>
+'zero&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for zero length vectors</li>
+
+<li>
+'unknown&nbsp;&nbsp; for vectors of "unknown" direction at the time of
+drawing that lie in the xy plane</li>
+
+<li>
+'into&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+z-axis into the plane of the screen</li>
+
+<li>
+'out-of&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; z-axis out of the plane
+of the screen</li>
+
+<li>
+'z-unknown&nbsp; unspecified but known to lie along the z-axis.</li>
+</blockquote>
+</blockquote>
+To match entries from the <a href="api.html">workbench API</a> to these
+forms may require massaging the parameters sent by the workbench to build
+an expression of the form used in the kb. For example, the force type identifiers
+are not exactly the same.
+<p>Note: the original KB form has an additional parameter:
+<br>(vector ?body ?quantity ?direction)
+<h3>
+Drawn Axes:</h3>
+(draw-axes ?x-axis-direction)
+<p>?x-axis-direction is as above but so far is always a known numerical
+direction.
+<p>The workbench axes-drawing tool always draws orthogonal x and y axis,
+and the workbench reports the direction of the positive x axis only. The
+workbench currently does not associate bodies or times with axes at all,
+so always sends NIL in the body parameter of the <a href="AssertXAxis.html">assert-x-axis</a>
+API. We expect that may be changed soon to include a body. If more than
+one axis is drawn the workbench API currently reports different labels
+for each, e.g. x, y, z on the first; x1, y1, z1 on the second.
+<p>Note: the original KB form is (draw-axes ?body ?time ?x-axis-direction).
+<h3>
+Drawn revolution radius*</h3>
+&nbsp;&nbsp;&nbsp; (radius ?body ?time)
+<h3>
+Labelled Angles*:</h3>
+In the case of&nbsp; the angle between two vectors
+<br>&nbsp;&nbsp;&nbsp; (angle ?vec1 ?vec2)
+<p>The ?vec1 and ?vec2 specify vector quantities at times, e.g
+<br>&nbsp;&nbsp;&nbsp; (angle (at (displacement block) (during 1 2))
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(at (force block man applied) (during 1 2)))
+<br>The workbench API call will identify the vectors by the student variable
+names, however.
+<p>The workbench angle labelling tool can be used to introduce a label
+for the angle between vectors or for an angle between a vector and an axis
+(of which the angle made with the positive x axis is usually the one of
+interest). This labelling step need not correspond to any step in the solution
+graph -- it is a stipulative step, so always correct; the help system needs
+to know about it only because the labels can be used in equations. However,
+the angle between vectors is explicitly introduced in the solution graph
+when computing work and torque, so could be matched to a solution action.
+<p>* Optional, the relevant quantities can also be defined as variables
+without having to be drawn.
+<h3>
+Variable Definitions:</h3>
+&nbsp;&nbsp;&nbsp; (define-var ?quantity)
+<p>Again you have to look in kb/ontology.cl for a list of non-vector quantities
+and may have to map from workbench quantity specs to the appropriate forms
+in the kb to match student entries to kb propositions.
+<h3>
+<a NAME="equations"></a>Equations</h3>
+(eqn ?equation)
+<p>Note: the original KB eqn propositions have two forms which have additional
+parameters:
+<br>(eqn ?equation ?eqn-id)
+<br>(given-eqn ?equation ?quantity) -- an equation for a given
+<p>The API only sends the equation itself, and not the ?eqn-id or ?quantity
+(third args of the above).&nbsp; Thus, when it builds an Entry proposition,
+it can only build the ?equation argument.&nbsp; However, we want to use
+an equality test in the SG module <a href="SolutionGraph.html#Search for match to entry">to
+find the system entry that matches the student's entry</a>, so when the
+SG module <a href="SolutionGraph.html#Load solution graph">builds the Entry
+list as it loads the SG</a>, it must delete the third argument of these
+propositions. It also maps them to a common form.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

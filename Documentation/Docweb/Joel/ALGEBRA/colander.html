@@ -1,0 +1,75 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Problem solver for Andes2
+</title>
+</head>
+<body>
+
+<center>
+<h2>Problem solver for Andes2
+</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+The beginning of the use of the algebra system in the history of a physics
+problem is to solve the &#147;canonical&#148; equations. This can be done
+by the stand-alone program <tt>colander</tt>, which gets its input from a
+<i>probname</I><TT>.eqf</tt> file, or from the help system
+<A HREF=allprog.html#solvprob>with the Solver.dll</a>. The general
+procedure in either case is outlined in 
+<A HREF=../solver.html>&#147;Canonical Equation Solving&#148;</A>. Here we 
+describe the functions involved in <tt>colander</tt>.
+<P>
+The program is called with possible debug flags, and if debugging is
+used it will produce a lot of output, so output should be redirected to
+a file. Thus the calls might be
+<center><Table WIDTH=70%>
+<TR><TD><tt>./colander</tt></TD><TD>if not debugging</TD></TR>
+<TR><TD><tt>./colander</tt> <i>hexflags</i> &nbsp; &gt; &nbsp; <i>outfile</i>
+</TD><TD>if debugging</TD></TR></TABLE></center>
+where <i>hexflags</i> is a hex number giving the  <A HREF=offlineDiag.html>
+diagnostic level</A>, also described in <tt>dbg.h</tt>.
+<P>
+The <tt>main</tt> of the <tt>colander</tt> program is in the file
+<tt>colget.cpp</tt>. It sets up the path for finding the input file,
+which it currently expects to find in the directory
+<tt>C:/joel/math/data/eqs.wur/</tt>. It prompts for the name of the 
+problem, <i>probname</i>, which must be given (case-sensitively ?) without 
+extension. Colander tacks on <tt>.eqf</tt>, and reads the file from the 
+above directory. It will write the solutions in a file in the <b>current</b>
+directory, called <i>probname</i><tt>.jsol</tt>.
+<P>
+Colget initializes the table of unit abbreviations, calls 
+<A HREF=functdesc.html#getallfile>getallfile</a>
+to read in the input information, sets an ofstream to the output file,
+and calls 
+<A HREF=functdesc.html#solveeqs>solveeqs</a>
+If solveeqs finds no problems, it then calls 
+<A HREF=functdesc.html#checksol>checksol</a>
+on each equation and reports any discrepancies in the evaluation. Then it calls
+<A HREF=functdesc.html#dimchkeqf>dimchkeqf</a>
+to check for discrepancies in the units.
+<P>
+<A HREF=functdesc.html#solveeqs>solveeqs</a>
+makes a copy of all the input equations, 
+does elementary simplifications and dimensional analysis checking, adds
+the assignment statements for parameters, and then calls checkeqs to 
+actually solve the system of equations. If checkeqs fails to use up all
+equations or solve for all variables, this is then reported in the output file.
+<P>
+Most of the work is done in 
+<A HREF=functdesc.html#checkeqs>checkeqs</a>
+The file <tt>checkeqs.cpp</tt> has extensive comments at the beginning 
+describing its approach, though much of this described in
+<A HREF=../solver.html>Canonical Equation Solving</A>.
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Jun 28 10:48 2001
+<!-- hhmts end -->
+</body> </html>

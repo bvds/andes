@@ -1,0 +1,138 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Units in Andes2 Design</title>
+</head>
+<body>
+
+<center>
+<h2>
+Units in Andes2 Design</h2></center>
+
+<center>
+<h3>
+Joel</h3></center>
+This is a list of questions relevant to the treatment of physical units
+in the Andes2 system.
+<p>It is generally agreed that proper treatment of units in Andes lies
+somewhere between desirable and essential. The algebra system has been
+designed to be able to carry unit checking, and work is in progress on
+transferring the necessary information. Some of the issues are
+<ul>
+<li>
+Do we need to incorporate units nontrivially in Andes?</li>
+
+<br>Physical quantities generally have <b>dimensions</b> --- a speed can
+be 8 m/s or 8 miles/hr but it is meaningless to say the speed is 8. Such
+language lost a Martial probe costing hundreds of millions of dollars.
+Andes1 had the dimensions of quantities in the knowledge base but made
+no use of them other than knowing what to ignore in a student's answer.
+I believe we are now agreed that Andes2 should require correct units. Here
+is some of the discussion that led to that (just what I could dig up -
+there are undoubtedly many missing pieces)
+<ul>
+<li>
+<a href="needunits1.html">Early discussion (August 2000)</a></li>
+
+<li>
+<a href="needunits2.html">December 2000)</a></li>
+</ul>
+
+<li>
+How should units be represented in the knowledge base?</li>
+
+<ul>
+<li>
+Should units in the KB look like m/s^2 or (/ (^ s 2) m)?</li>
+
+<ul>
+<li>
+<a href="unitsA1.html">Anders asks</a></li>
+
+<li>
+<a href="unitsK1.html">Kurt's response</a></li>
+
+<li>
+<a href="unitsJ3.html">Joel's response</a></li>
+</ul>
+I believe the upshot of this discussion is that units should be expressed
+in book (or canonical) form&nbsp;<t>kg.m/s^2</t> in a defprob and in any
+subsequent expressions that a physicist might need to examine, but that
+it be converted to a lisp form (* kg (/ m (^ s 2))) before being presented
+to the algebra system. <b>[Actually the last comment has been reconsidered,
+and we are now planning to store all units in "book form", eg. kg.m/s^2]</b>
+[Note: this probably means that the probname.Eqn file has lisp form, even
+though a physicist might examine it.]</ul>
+
+<li>
+How units are represented internally in the algebra system</li>
+
+<br>The algebra system is designed to express all quantities in SI units
+with given powers of meters [m], kilograms [kg], seconds [s], Coulombs
+[C], and degrees Kelvin [K]. However, there are unresolved issues which
+will need subtle consideration:
+<ul>
+<li>
+How are angles expressed? Currently all angles (without units) are interpreted
+as in degrees, even though this is highly non-standard. Angular velocities
+and accelerations, however, are expressed in rad/sec, which will certainly
+give problems once we consider waves and want to evaluate cos(omega t).
+Furthermore, the rules for dropping rad are irreversible - while it is
+easy to recognize that in v = omega r if omega = 10 rad/s and r = 2 m,
+v is 20 m/s and not 20 m rad/s, it is less easy to rcognize that, given
+v and r, omega is not 10/s.</li>
+
+<li>
+What non-standard units are accepted, and do we simply convert on input
+and give all answers in MKS, or convert at output as well, or not convert.
+See Exkt1a, Exkt9a.</li>
+
+<li>
+Even the standard units have many abbreviations - they are not always expressed
+in terms of the fundamental units. Here is a list of SI units (not necessarily
+complete)</li>
+
+<br>m, kg, s, N, J, K, C, V, A, T, ohm, Wb, Hz, Pa, F, H, W
+<li>
+and there are standard prefix modifiers, of which we should recognize</li>
+
+<br>a, f, p, n, mu, m, c, k or K, M, G, T, P, E , from which I have dropped
+the little used d, h, da
+<li>
+There are a set of nearly essential alternates to SI:</li>
+
+<br>eV, MeV, c, u, Angstrom, atm, f (fermi), barn, cal, ^oC, lightyear,
+liter,
+<br>and also English and other archaic units:
+<br>Btu, ^oF, ft, in, hr, min, hp, lb, day, yr, yd, mi, gal, oz, slug,
+bar, Kwh
+<br>and of course physicists sometimes slip into cgs units:
+<br>CGS: G (gauss), g gram, dyne, erg</ul>
+
+<li>
+What are acceptible units?</li>
+
+<ul>
+<li>
+What are the rules to impose on students in expressing units? This has
+had some discussion:</li>
+
+<ul>
+<li>
+<a href="unitsJ2.html">Joel to all Andes folk, 12/7</a></li>
+</ul>
+
+<li>
+What is the grammar for expressing units when the help or workbench are
+conveying them to the algebra system?</li>
+
+<br>These systems are presenting units in the same form as the students,
+but the algebra system should be able to rely on their being presented
+more cleanly, with a tighter grammar. We need some notes giving the specs.</ul>
+</ul>
+
+</body>
+</html>

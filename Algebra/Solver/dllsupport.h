@@ -1,0 +1,36 @@
+#ifndef _H_DLLSUPPORT_H_
+#define _H_DLLSUPPORT_H_
+//////////////////////////////////////////////////////////////////////////////
+// dllsupport.h -- definitions/macros to support dll routines
+// Copyright (C) 2001 by ????????????????????????????? -- All Rights Reserved.
+// Author(s): Linwood H. Taylor <lht@lzri.com>
+// Modified:
+//			31 January 2001 - lht -- created
+//			19 February 2001 - lht -- modified for additional functionality
+//			13 March 2001 - lht -- added and cleaned up code to support indepen-
+//				dence code and new projects to help J.
+//////////////////////////////////////////////////////////////////////////////
+#include "lrdcstd.h"
+
+//////////////////////////////////////////////////////////////////////////////
+// prototypes for functions defined in colander.cpp -- kludge/quick fix>
+//////////////////////////////////////////////////////////////////////////////
+char* solveTheProblem();
+char* solveMoreOfTheProblem();
+bool clearTheProblem();
+
+//////////////////////////////////////////////////////////////////////////////
+// prototype colander.cpp
+char* doColAnderMain(const char* const src, const char* const dst);
+
+//////////////////////////////////////////////////////////////////////////////
+// prototype (getall.cpp)
+bool handleInput(std::string& aLine);
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+// end of file dllsupport.h
+// Copyright (C) 2001 by ????????????????????????????? -- All Rights Reserved.
+//////////////////////////////////////////////////////////////////////////////
+#endif // ndef _H_DLLSUPPORT_H_

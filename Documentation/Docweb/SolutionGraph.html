@@ -1,0 +1,168 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes2 Solution Graph module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Solution Graph</h2></center>
+
+<center>(as of 6/28/01)</center>
+Author: Collin Lynch
+<h3>
+Big data structures</h3>
+
+<ul>
+<li>
+<b><a href="SolutionGraphDataStructure.html">Solution graph</a></b> --
+comprises the bubble graph and a psm graph for each psm node in the bubble
+graph.&nbsp; After this has been loaded, the only module that reads it
+is the What's next help module.</li>
+
+<li>
+<a NAME="Entry index"></a><b>Entry index</b> -- this is an array containing
+the <a href="Base.html#System entry">system entries</a> for the whole solution
+graph.&nbsp; It is used in delivering all the services of this module.&nbsp;
+It is sorted so that the equation entries come first.&nbsp; Thus, the indices
+into this index correspond to the indices used in the algebra module to
+refer to equations.</li>
+
+<li>
+<a NAME="Solution index"></a><b>Solution index</b> -- This is a list of
+all solution sets, where a solution set is a list of system entry indices
+for equations.&nbsp; The equations in a solution set are guaranteed (by
+the solution graph generator) to be sufficient for solving the problem
+and algebraically independent.&nbsp; This module loads the solution index
+when it loads the solution grah, then it tells them to the algebra module.&nbsp;
+After that, the solution sets are never accessed again by the Lisp code.</li>
+</ul>
+
+<h3>
+Setup</h3>
+When a problem is loaded into the help system it is necessary to load it
+into the solutiongraph as well.&nbsp; This consists of two separate tasks.
+<p>Firslty the problem's bubblegraph is searched for all instances of csdos
+with systementry proposition within their effects.&nbsp; For each of these
+a distinct systementry struct will be created or a preexisting identical
+struct will be updated to include the entry.&nbsp; These entries will be
+used later to reflect the state of the solution and to check for the correctness
+of student entries.
+<p>The second part of the process consists of setting up the solutions
+themselves.&nbsp; This consists of sending the sets of base equations for
+each solution to the algebra subsystem.&nbsp; These will be used later
+to decompose student equations into their respective parts.
+<h3>
+</h3>
+
+<h3>
+<a NAME="Search for match to entry"></a>Searching for a match to a student
+entry</h3>
+(Called from the Entry Interpreter.)&nbsp; Given a studententry struct
+which can match either an equation or a non-equation entry find the system
+entry/Entries that match it and return them along with their state.&nbsp;
+Initially it was assumed that the functions for matching equation and non-equation
+entries would be two separate calls.&nbsp; However it was found that, for
+programmatic reasons the it was cleaner to lump the two together into a
+single sg-match-studententry function.
+<p>When called this function is passed a student entry struct.&nbsp; Before
+the struct is passed to this function it must have its id and proposition
+set.&nbsp; Additionally if the entry is an equation it must be passed to
+the Algebra system for parsing.&nbsp; This is the responsibility of Lynnwood
+Taylor's code.&nbsp; If the necessary prerequisites have been done then
+the system will go ahead and obtain the interpretation(s) of the entry.&nbsp;
+Once these have been obtained the system will then mark each interpretation
+with its state and place them into the SystemEntry Possible-Cinterps field.
+<h4>
+Finding the Interpretation(s)</h4>
+Non Equation entries are matched using a simple proposition lookup.&nbsp;
+When the student makes an entry such as drawing a pair of axes or a vector
+then the studententry will contain a proposition form for that action such
+as '(draw-axes x 0 y 90).&nbsp; The solutiongraph then searches for a matching
+systementry for the specified entry.&nbsp; If one is found then it will
+return an interpretation consisting of that entry plus its state.&nbsp;
+If none is found then a nil interpretation is returned signalling an error.
+<p>Equations by contrast cannot be directly compared to systementries.&nbsp;
+Therefore when an equation is entered it must be decomposed into the component
+equations.&nbsp; This is handles by the algebra module.&nbsp; For each
+of the solution sets that have been stored the algebra system provides
+the set of base equations that can be used to build the student equation.&nbsp;
+If the equation is completely independent of the set then it will return
+nil.&nbsp; Each of these base equations will be matched with their corresponding
+systementries.&nbsp; The resulting sets will be returned as the interpretations
+with their states set.
+<h3>
+</h3>
+
+<h3>
+Checking the State:</h3>
+In checking the state of an interpretation there are several distinct possibilities
+that must be accounted for.&nbsp; Some of the states such as 'Dead-Path'
+or 'Forbidden' are handled by the systementry states.&nbsp; Issues such
+as the substitution of numbers and prerequisites are handled here.&nbsp;
+An interpretation's state is first checked using the systementries->state
+function located in the SystemEntry.cl file.&nbsp; If the result is anything
+other than correct that will be the state of the interpretation.&nbsp;
+If the state is correct then the system will test for prematurity if the
+**Test-For-Prematurity** flag is set to t.&nbsp; Similarly if the **Test-For-Premature-Subst**
+flag is set to t then the system will test for premature substitution in
+equations.
+<h4>
+<a NAME="Checking prerequisites"></a>Prematurity.</h4>
+Before any given systementry can be entered there is typically one or more
+entries (such as variable definitions) that must be made.&nbsp; These are
+defined as the set of systementries that preceed the entry within a psm
+graph.&nbsp; Because a given entry may appear in several graphs there are
+several alternate sets of prerequisites for each systementry.&nbsp; In
+order for an entry to be premature it all of these entries must contain
+at least one uncompleted step.&nbsp; This is a charitable interpretation
+of prematurity but it is the one that works best in the system.&nbsp; Thus
+we can maintain a single systementry for each unique draw body but not
+require that they complete all paths for a problem.
+<h4>
+<a NAME="Premature numbers"></a>Checking whether the entry has numbers
+substituted into it prematurely</h4>
+Returns true if the given student entry's interpretation represents an
+equation that has given numbers subsituted into it and yet this equation
+is not yet the final answer to the problem.&nbsp; To do so, the SG module
+checks whether any of the system entries in the interpretation are givens,
+and if so, whether there are any non-given system entries that are required
+for a complete solution to the problem and have not yet been entered.
+<h3>
+</h3>
+
+<h3>
+<a NAME="Entering"></a>Entering a new entry</h3>
+(called from the Entry Interpreter).&nbsp; Given a student entry, this
+modifies its the system entries in its interpretation to indicate that
+a correct entry has been made.&nbsp; That is, for each system entry in
+the interpretation, it pushes this student entry onto the Entered-by field.&nbsp;
+It also tells each of the sources of that system entry to up-date their
+entered-by fields.
+<p>Additionally the assumptions made by the entry are added to the list
+of currently active assumptions.&nbsp; This list is then used to filter
+out solution sets for equation interpretation.&nbsp; At one time it was
+thought that this would be unnecessary.&nbsp; However recent discussions
+<a href="DesignDiscussion/ShouldAxesFilterInterpretations.html">here</a>
+and <a href="DesignDiscussion/NoNoGoods.html">here</a> have reintroduced
+this system.
+<h3>
+<a NAME="Deleting"></a>Deleting an entry</h3>
+(called from the Deletion module).&nbsp; Given a student entry, removes
+that entry from the entered-by fields of the system entries in the Interpretation
+field of the student entry's interpretation.
+<h3>
+<a NAME="Load solution graph"></a>Load solution graph</h3>
+(called from the manager.). Reads the SG file, which contains solution
+graph and the list of solutions sets.&nbsp; It sends the solution sets
+to the Algebra Module.&nbsp; It re-creates the Entry index, from the solution
+graph so that the sources (cognitive steps) of the system entries of this
+list are EQ to the cognitive steps s in the solution graph.&nbsp; While
+loading, it should trim the third argument from EQN entry propositions,
+as described <a href="EntryPropositions.html#equations">here</a>.
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>OverallObjectives</title>
+</head>
+<body>
+
+<center>
+<h2>
+Overall Objectives of Andes 2</h2></center>
+
+<center>(as of 4/5//01; new material is underlined)</center>
+
+<h2>
+Introduction</h2>
+The first complete version of Andes was evaluated in fall 1999 at the USNA.&nbsp;
+In analyses during the early spring of 2000, we discovered that many of
+the hints given to students were inadequate.&nbsp; This sparked a redesign
+effort that lasted until May 2000.&nbsp; At that point, the Andes team
+split into a group that was developing a new version of Andes with better
+hints (Andes 2) and a group&nbsp; that was extending the old version of
+Andes to cover more problems and more chapters (Andes 1).&nbsp; Andes 1
+is being evaluated at the USNA during fall 2000, with the expectation that
+the enhanced coverage will cause larger learning gains.&nbsp; When the
+evaluation is completed, Andes 1 will be retired.&nbsp; Our goal is to
+have Andes 2 ready soon afterwards for pilot evaluations in spring 2001
+at the USNA.&nbsp; It must be ready for a full evaluation by fall 2001.&nbsp;
+The expectation is that it will have broader coverage than Andes 1 and
+better hints, so it should cause much larger learning gains.
+<p>More specifically, the primary goals for the fall 2001 are:
+<ul>
+<li>
+Extend coverage</li>
+
+<ul>
+<li>
+A few chapters of electricity and magnetism</li>
+
+<li>
+More qualitative mechanics problems</li>
+</ul>
+
+<li>
+Improve learning</li>
+
+<ul>
+<li>
+More procedural constraints</li>
+
+<li>
+Better hints &amp; more minilessons</li>
+
+<li>
+Fading</li>
+
+<li>
+Skillometer and suggesting extra problems</li>
+</ul>
+
+<li>
+Sustainability</li>
+
+<ul>
+<li>
+Computational algebra subsystem (CAS)</li>
+
+<li>
+Rewrite physics KB in Andes script</li>
+
+<li>
+Rewrite help system</li>
+</ul>
+
+<li>
+Empirical studies</li>
+
+<ul>
+<li>
+Formative: Snapshot critiques; log file regressions</li>
+
+<li>
+Summative: Andes vs. controls (no tutor, human tutors)</li>
+
+<li>
+Value added: Andes vs. Andes without X</li>
+</ul>
+</ul>
+These goals are discussed in more detail in the proposal.&nbsp; This document
+concentrates the changes to the software necessary for their implementation.
+<h2>
+Changes between Andes 1 and Andes 2</h2>
+This section lists the main changes between Andes 1 and 2 in more detail.
+<h3>
+Changes to the Workbench</h3>
+
+<p><br>1. New drawing tools may be necessary for electricity and magnetism.&nbsp;
+More on this later, when we have selected some problems.
+<p>2. Basic idea: Students can do extra problems, suggested by Andes, in
+order to raise their projected exam scores.&nbsp; Why: Mastery learning
+can raise scores by 1.0 standard deviation, but we can’t mandate it because
+students will object.&nbsp; Thus, we make it voluntary.&nbsp; How:
+<br>2.1. Each problem set includes a set of instructional objectives, such
+as “Newton’s second law”, “Force laws” and other fairly large grained objectives.
+<br>2.2. When the student is finished with a problem, Andes displays a
+bar chart with one bar per objective.&nbsp; The length of the bar is an
+estimate of the student’s level of mastery.&nbsp; In text below it, Andes
+says, “On the basis of these estimates, Andes predicts that your exam score
+on this unit would be between &lt;letter grade> and &lt;letter grade>.&nbsp;
+If you would like to improve your score, Andes suggests doing problem &lt;problem
+name>.”&nbsp; Initially, students should do all the assigned problems and
+ignore Andes advice.&nbsp; After that, they can do more problems if they
+want.
+<br>2.3. Andes has to have an assessor, but it does not have to be as fine-grained
+as the Bayesian network version of Andes 1.
+<br>2.4. The assessor’s predictions must be calibrated with exam scores.&nbsp;
+This can be done using the log file data from the Fall 2000 evaluation
+and the student’s exam scores.
+<p>3. Basic idea: All numbers have units.&nbsp; Why: Students need to learn
+to use units, and units make it easier for Andes to check the correctness
+of answers.&nbsp; How:&nbsp; Whenever students enter a number, it must
+be followed by units (except dimensionless numbers, of course).&nbsp;&nbsp;
+If the student leaves off units or uses the wrong units, they get unsolicited
+help and the entry turns red but is not deleted.&nbsp; Wrong units are
+sometimes signs of conceptual difficulties, so the help is a hint sequence
+and not just a one-liner.
+<p>4. Basic idea: All the hints in the help window should always be visible.&nbsp;
+Why: Students may need to refer to them as they work.&nbsp; Also, it is
+sometimes helpful to read an earlier hint in order to understand a follow-up
+hint.&nbsp; How:
+<br>4.1. The help window should always be visible.&nbsp; When a hint appears,
+the rest of the screen becomes gray and inoperative, just as it does in
+Andes 1.&nbsp; When the student clicks on “OK” (which used to labeled “hide”),
+the gray disappears and the diagram, variable and equation windows become
+operational again, but the help window does not disappear, as it does in
+Andes 1.
+<br>4.2. The help window scrolls.
+<p>5. Basic idea: Students don’t get any choices about follow-up hints.&nbsp;
+Why: Deciding whether to ask “Why” or “How” is probably not something that
+students are competent to decide (see recent studies on help seeking behavior
+by Woods et al. and Aleven et al.).&nbsp; How:&nbsp; The help window usually
+has just two buttons in it: “Explain further” and “OK.”&nbsp; Explain further
+gives the next hint in the sequence, and OK returns the student to problem
+solving, as described in 4.
+<p>6. Basic idea: We prohibit the use of numbers in the equations, except
+those that occur as coefficients or exponents in principles.&nbsp; Why:
+because the numbers make the students lose track of what the equations
+mean, and thus make it harder for them to learn.&nbsp;&nbsp; How:
+<br>6.1. Although numbers are prohibited in most equations, students still
+need to assign numbers to variables somehow.&nbsp; Why:&nbsp; They sometimes
+get the assignments wrong and need help on them.&nbsp; How:&nbsp; Students
+can enter equations with numbers as long as the equation has the form &lt;variable>
+= &lt;number, with a unit if necessary>.&nbsp; When the solve tool is used,
+it also produces equations of this form.
+<br>6.2. If the student enters an equation that is correct except that
+some of its variables been replaced by numbers, then Andes will give unsolicited
+help saying so.&nbsp; When the student OKs the help message, the equation
+is deleted.
+<p>7. Basic idea: Andes forces students to enter the steps of a method
+in a recommended order.&nbsp; For instance, NSL’s order is: Enter a body,
+Draw vectors, Draw coordinate axes, Write NSL with components expressed
+as variables, then Write NSL with components expressed as expressions.&nbsp;
+Why: This procedural constraint helps them clarify their understanding
+of the problem before getting bogged down in the algebra, gives them a
+more conceptual view of the problem, prevents errors (e.g., sign errors
+and trig errors), gives them practice at a healthy habit, and provides
+an appropriate context for help in case they ask for help later.&nbsp;
+How:&nbsp; If the student enters a correct step that is premature according
+to the ordering contained in the method, then an unsolicited help message
+will tell them that their step is correct but premature.&nbsp; When they
+OK the message, the step is <u>turned black but not deleted.&nbsp; The
+only way that they can get the entry to turn green is by entering the prerequisite
+step, then re-entering the black step.&nbsp; Re-entering an equation is
+done by putting the cursor in its box and pressing the enter key.&nbsp;
+Re-entering a non-equation is done by clicking on it with the right mouse
+button, which causes a dialog box to be displayed, then clicking on the
+OK button in the dialog box.</u>
+<p>8. Basic idea:&nbsp; Some of the constraints enforced by the workbench
+are removed (faded) when the student has mastered them.&nbsp; Why:&nbsp;
+When the constraints are removed, students will probably violate them,
+make errors, and discover that it is better to obey the constraints.&nbsp;
+If they don’t go through this process on Andes, then they’ll do it on the
+exams.&nbsp; How:
+<br>8.1. One of the property sheets on Andes lists the constraints that
+the Workbench enforces, with a check box for each.&nbsp; Initially, all
+the constraints are enforced (their boxes are checked).
+<br>8.2. When the student has not mastered the skills that the constraint
+forces them to use, the check box is gray and cannot be change.
+<br>8.3. When a skill has been mastered (according to the assessor), the
+student gets an unsolicited help message saying so and telling them that
+they are free to turn the constraint off if they want.
+<br>8.4. The constraints are:&nbsp; excluding numbers from equations (see
+6.2) and doing steps in order (see 7)
+<p>9. Basic idea: Bottom-out hints are reported in the hardcopy printout
+of the solution.&nbsp; Why: Students often copy the bottom-out hints as
+a way to do their homework.&nbsp; How:
+<br>9.1. When the Help system gives a bottom out hint that mentions an
+equation (probably don’t need to worry about the other bottom out hints),
+it is reported in a special section of the hardcopy.&nbsp;&nbsp;&nbsp;
+Even if they don’t enter the equation from the hint, the hint is reported.
+<br>9.2. This reporting is not foolproof.&nbsp; Students can print their
+solution, then start the problem over and copy equations from the printout.
+<br>&nbsp;
+<h3>
+Changes to the Solve tool</h3>
+
+<p><br>10. Basic idea:&nbsp; The Solve tool determines what unknowns are
+left.&nbsp; Why:&nbsp; With this capability, students do not have to do
+any algebraic manipulation in order to solve problems.&nbsp;&nbsp; This
+would allow them to concentrate on learning the physics.&nbsp; How:&nbsp;
+When the student uses the Solve tool and the equations can’t be solved,
+it prints “; &lt;list of variables> are still unknown” instead of an equation
+in the equation window.&nbsp; The semi-colon marks it as a comment.
+<p>11. Basic idea:&nbsp; The Solve tool can output algebraic expressions
+involving variables.&nbsp; Why: This allows problems to use symbolic constants
+as givens.&nbsp; How:
+<br>11.1. The problem statement must say, “Solve in terms of m1, m2 and
+q.” or in some other fashion convey to the student which variables are
+allowed in the answer.
+<br>11.2. This same list must be included in the problem representation
+because the Solve tool needs it.
+<p>12. Basic idea:&nbsp; Solve tool usage is indicated on the hardcopy
+of the problem solution.&nbsp; Why: Some instructors may not want students
+to use the Solve tool.&nbsp; How:
+<br>12.1. When the Solve tool produces a numerical or algebraic value for
+a variable, that usage is reported in a special section of the hardcopy.&nbsp;
+Even if the student deletes the number or the equation produced by Solve
+tool, the printout still reports the tool’s usage.
+<br>12.2. Using the Solve tool to figure out which variables are unknown
+is not reported on the hardcopy.&nbsp; However, the output is written in
+the equation window, so unless the student deletes it, it will appear on
+the hardcopy.
+<h3>
+Changes to the feedback (red/green) markings</h3>
+13. Basic idea: Inefficient solutions are allowed.&nbsp; Why: Marking a
+kinematics equation red because it is not the most efficient kinematics
+equation for the problem will confuse students who are just learning kinematics.&nbsp;
+How:
+<br>13.1. If the student enters something from an inefficient solution,
+it is marked green not red.
+<br>13.2. The solution graphs should contain all solutions, including both
+efficient and inefficient ones.&nbsp; However, a step is included in an
+inefficient solution only if it actually participates in solving the problem.&nbsp;
+For instance, if the problem can be solved by resolving force on one body,
+then resolving forces on a different body does not make those steps part
+of an inefficient solution.
+<br>13.3. Efficient solution are marked as such so that when the help system
+has free choice of which solution to suggest, it suggests an efficient
+solution.
+<p>14. Basic idea:&nbsp; Some solutions are forbidden.&nbsp; Why:&nbsp;
+Sometimes instructors want students to use newly introduced knowledge,
+e.g., energy, so the older approaches should be forbidden.&nbsp; How:
+<br>14.1. Problems with forbidden solutions have that fact announced in
+their text e.g., “Do not use Newton’s second law or kinematics on this
+problem.”&nbsp; One could also use the more traditional statement, “Use
+Conservation of Energy to solve this problem,” but that tends to give away
+something that students should figure out.
+<br>14.2. The problem representation indicates which solutions are forbidden.&nbsp;
+The solution graph most contain forbidden solution, but they are marked
+them as forbidden.
+<br>14.3. When a student enters an equation or vector that is part of a
+forbidden solution, an unsolicited help message appears indicating that
+it is part of a forbidden solution.&nbsp; When the student says “OK” to
+the help message, the entry is deleted.
+<h3>
+Changes in the “what’s next” help</h3>
+15. Basic idea: When the student asks “what’s next?” the hints help them
+identify the main method(s) for solving the problem and why those methods
+should be used here.&nbsp; Why: Students often fail to learn this key knowledge.&nbsp;
+How:
+<br>15.1.&nbsp; The “what’s next” hints have a preamble where Andes asks
+the following two questions (giving feedback until it gets an acceptable
+answer): “What quantity are you seeking?” and “What method should be used
+to find it?”
+<br>15.2. The solution graph contains the appropriate goals and method
+application nodes for this preamble.
+<p>16. Basic idea: When the student asks “what’s next?” the hints should
+target a step that is the next recommended step, even if the student has
+skipped that step and has done ones that come after it.&nbsp; Why:&nbsp;
+The student can skip steps only when the procedural constraints (see 7)
+are faded (see 8).&nbsp;&nbsp; Hopefully, such skipping will cause errors,
+which will convince the student that they should do the steps in the recommend
+order without skipping any.&nbsp; The hints should say that.&nbsp; How:&nbsp;
+The solution graph records the recommended order of steps, and the&nbsp;
+“what’s next?” hint generator uses this knowledge to choose an appropriate
+target step.
+<p>17. Basic idea:&nbsp; When Andes gives “what’s next” hints on a target
+step, it should focus more on teaching physics than on getting the problem
+solving moving again.&nbsp; How:
+<br>17.1. After the preamble (see 15), the first hint should state the
+goal of the target step.&nbsp; e.g., “You should draw forces.”
+<br>17.2. The second hint should prompt the operator used to achieve that
+goal. e.g., “Is the surface interacting with the car?&nbsp; If so, shouldn’t
+you draw a force?”
+<br>17.3. The third hint should teach the operator used to produce the
+target step.&nbsp; e.g., “Whenever a surface supports a body, it exerts
+a normal force on the body that is perpendicular to the surface.”&nbsp;
+This hint should be a minilesson if one exists for this operator and if
+the student has not seen it yet.
+<br>17.4. The fourth (bottom-out) hint should restate the operator, substituting
+in information specific to this problem.&nbsp;&nbsp; e.g., “Because the
+driveway supports the car, there is a normal force on the car due to the
+driveway.&nbsp; Because the driveway is inclined at 25 degrees, and the
+normal force is perpendicular to it, the normal force’s orientation is
+115 degrees.”
+<br>17.5. If the target step is an equation, the bottom out hint should
+present the equation in textbook form.&nbsp; It should not substitute in
+any numbers or other expressions, but just use the variables from the problem.&nbsp;
+If an appropriate variable is not yet defined, then it will invent a name
+for it and add, “... assuming you have defined &lt;variable> to stand for
+&lt;quantity>.”
+<h3>
+Changes in the “what’s wrong?” help</h3>
+18. Basic idea:&nbsp; If the student asks “what’s wrong?” with a step,
+and Andes can’t tell what correct step matches the student’s step, then
+it tells them so and suggests that they use “what’s next?” help.&nbsp;
+Why: Even if the student knows about “what’s next?” help, they might not
+remember to use it in this context.&nbsp; How: trivial to implement.
+<p>19. Basic idea: If the student asks “what’s wrong?” with a step, and
+Andes has identified the correct step that the student is probably trying
+to enter, and the correct step is inappropriate, then it says so.&nbsp;
+Why: It would be silly of Andes to help them enter a step that they shouldn’t
+be entering.&nbsp; How:
+<br>19.1. If the correct step is forbidden (see 14), Andes says so and
+suggests they use next-step help.
+<br>19.2. If the correct step is inefficient (see 13), the help system
+says something like, “The step you are trying to enter is not the most
+efficient way to solve this problem but it will work.&nbsp; Click here
+for help on finding a better solution.&nbsp; Click here for help on continuing
+your current approach.”
+<br>19.3. If the correct step is premature (see 7), then Andes tells the
+student what step(s) to do first.&nbsp; This occurs even if the ordering
+constraints are turned off in the fading control (see 8).
+<br>19.4. If the correct step has some of its variables replaced by numbers
+(see 6), Andes first hint is, “Your equation appears to have multiple errors
+in it.&nbsp; It will be easier to discover them if you don’t substitute
+numerical values for variables.”&nbsp;&nbsp;&nbsp; This occurs even if
+the constraint is turned off in the fading control (see 8).
+<p>20. Basic idea: When the student asks “what’s wrong?” with a step, and
+Andes has identified the correct step that the student probably intended
+to make, and the correct step is appropriate to make at this time, then
+the hints should focus on remedying the cause of the error rather than
+the error itself.&nbsp; How:
+<br>20.1. The Help system needs to be able to recognize common errors and
+have hints specially for them.&nbsp; It is not clear yet which errors need
+to be represented by buggy operators in the problem solver and which can
+be recognized from the surface form of the incorrect step.
+<br>If the Help system does not have help that is specific for the student’s
+error, then it hints the target step, as described above (see 17).&nbsp;
+However, the wording of those hints may need to be changed in order to
+make them appropriate in this context.
+<br>&nbsp;
+</body>
+</html>

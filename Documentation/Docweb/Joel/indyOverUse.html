@@ -1,0 +1,84 @@
+<html> <head>
+<title>Overview of the use of equation independence checking
+</title>
+</head>
+
+<body>
+<h1>Overview of the use of equation independence checking
+</h1>
+<p>
+The help system asks the algebra system if a new equation is independent
+of a set of other equations. If it is not independent, it asks what subset
+of equations the tested equation depends upon. It asks this question in
+two contexts, 
+<UL><LI><A HREF=#SGGindy>Bubble growing in generating solution paths</A>
+<LI><A HREF=#HELPindy>Diagnosing which canonical equations the student has 
+used</A></UL>
+<P>
+<A NAME=SGGindy>
+<H4> Bubble growing in generating solution paths</H4>
+The <A HREF="../SolutionGraphGenerator.html">Solution Graph Generator</a> (SGG)
+has the responsibility for reading a problem description and generating all
+solution paths which a student might use to solve a problem. It 
+goes about this by first generating all relevant equations by starting with
+the sought quantities, and for each sought quantity, 
+using the information in the
+problem description and the physics knowledge database to find all equations
+involving the variable. Each equation will usually involve other quantities
+as well, and these variables become additional soughts if they are not 
+already on the list. When all possible equations have been added for all 
+quantities sought, this has generated a "skeleton graph" 
+(also called a "constraint network", Kenneth D. Forbus and Johan de Kleer,
+"Building Problem Solvers", ch. 15). The skeleton graph
+consists of equation nodes and variable nodes, with each variable node 
+connected to the node for each equation in which that variable occurs.
+<P>
+Once the skeleton graph is known, the SGG generates all solution paths
+which proceed by starting with a sought variable. Each solution path
+is a history of expanding bubbles. At each point in the solution the 
+sought variables are on the boundary of the bubble, and there may be 
+"solved for" variables and used-up equations inside the bubble. The bubble
+starts with just the sought quantities. At each stage an equation not currently
+in the bubble, but connected to a sought, is considered for inclusion in the
+bubble. If it is independent of the equations already in the bubble, it
+may be used to "solve for" the sought variable, although the solution may
+be in terms of other variables. The variable and the equation are then
+tentatively 
+moved inside the bubble. The variables occurring in the equation may be
+inside or outside the bubble before the inclusion of the equation. 
+The variables inside the bubble are considered
+already known, so nothing needs to be done with them, 
+but any other variables in the equation must be added to the
+list of soughts.
+<P>
+If the new equation is not independent of the equations already inside the
+bubble, it is providing no additional information, and we would not be able
+to use it to solve for the sought. Thus it is crucial in bubble-growing to
+know whether the selected equation is independent of the ones already inside
+the bubble. Determining this is the first task of the independence checking 
+capacity of the algebra package.
+ <P>
+
+<A NAME=HELPindy>
+<H4> Diagnosing which canonical equations the student has used</H4>
+<p>
+The help system tries to maintain a model of what the student knows about
+the solution to the problem being worked on.
+When a student enters a correct equation, the help system needs to add to
+its estimate of the student's knowledge, primarily by judging that she is
+aware of some subset of the canonical equations for the problem. Often the
+student's equation is not directly translatable into a single canonical 
+equation, but depends on some set of them. From a set of independent canonical
+equations, one can ask which ones a given student equation depends upon.
+Because in general the canonical equations are not all independent, there
+may be different complete sets of independent equations, usually corresponding
+to a choice of approach. The help system
+can ask for each set which equations are needed to derive the student equation,
+and if one answer is much simpler than the others, conclude that the student
+is using the approach corresponding to that set.
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Fri Jun 22 12:48 2001
+<!-- hhmts end -->
+</body> </html>

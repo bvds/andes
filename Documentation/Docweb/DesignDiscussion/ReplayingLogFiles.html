@@ -1,0 +1,79 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ReplayingLogFiles</title>
+</head>
+<body>
+
+<center>
+<h2>
+Replaying a log file in order to resume a problem and restore state after
+a crash</h2></center>
+
+<center>(as of 3/30/01)</center>
+
+<h3>
+Resuming a problem</h3>
+When a student opens a problem that has been partially solved, the workbench
+does all of the work in restoring the state.&nbsp; It runs through its
+log file and sends <i>all</i> student actions to the Manager.&nbsp; This
+means that the Help system does not have to worry about saving and restoring
+state itself.&nbsp; In particular, because the Manager is sending help
+requests and student dialog turns to the Help system, the dialog history
+will be rebuilt properly.
+<p>If the student quits before the problem is done, the current state of
+the help system is just abandonned, except for the student model, which
+is saved to disk.&nbsp; If the student resumes that problem, then the workbench
+replays the log file through the help system, which causes it to rebuild
+its state exactly as before (we need this capability anyway for debugging
+and for analyzing the log files).
+<p>This policy creates some inaccuracies in the student model.&nbsp; If
+a student stops solving a problem, then resumes it again later, the replay
+will start by loading the student model that was current at the time the
+student closed the problem.&nbsp; Then the replay will reenter all the
+entries, which will modify the student model.&nbsp; Thus, the entries made
+on this problem up to this point will be counted twice by the student model--once
+when the student entered them and once when the replay entered them.&nbsp;
+However, it is not worth trying to fix this, for the following reasons.&nbsp;
+Suppose the student quits solving a problem and never comes back to it.&nbsp;
+The student's entries during this partial solution have to be reflected
+in the student model, which implies that the student model must be saved
+on disk at the end of a problem even if the problem isn't completely solved.&nbsp;
+Suppose the student quits problem A&nbsp; in the middle, solve problem
+B,&nbsp; then resumes problem A.&nbsp; We clearly want the ultimate student
+model to reflect both problem's solutiosn, which implies that when the
+replay occurs, it begins with the student model that is current after problem
+B finished.&nbsp; Thus, the replay must initialize the student model to
+whatever is current when the preceding problem stopped.&nbsp; In short,
+a partially solved problem must dump its student model to disk as THE student
+model, and a replay must start by reading THE student model in from disk.&nbsp;
+Hence, double counting is almost inevitable.&nbsp; We could code around
+this by saving extra information inside the student model, but it is probably
+not worth it given that only low stakes decision are made with the student
+model.
+<h3>
+Crash protection</h3>
+If the Help system crashes in the middle of a session, then the crash will
+be detected by the workbench because it doesn't get a response back in
+a timely fashion.&nbsp; In that case, the workbench ask the student if
+s/he wants to continue without the help system.&nbsp; If the student says
+yes, then it does as it does with Andes1 and just doesn't send any more
+calls to the Help system.&nbsp; If the student wants to continue with the
+help system, then the workbench asks the student if she wants to (a) replay
+this problem but skip the last command, because it was responsible for
+crashing the Help system, or (b) abandon this problem and start another
+one.&nbsp; If the student picks (a), then the workbench kills Lisp, restarts
+a fresh Help system, reopens the student, reopens the problem,&nbsp; and
+replays the log file, but skips the last command in the log file, as that
+is apparently an unsafe command.&nbsp; If the student picks (b), then the
+Workbench kills Lisp, restarts a fresh Help system, reopens the student,
+and prompts the student for a new problem.
+<p>As a general principle, people will tolerate a buggy system if restarting
+after a crash is very fast--less than 30 seconds.&nbsp; This method of
+crash recovery is clearly not fast enough.&nbsp; Over the summer of 2001,
+we should both remove bugs and improve the time to recover from a crash.
+</body>
+</html>

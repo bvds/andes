@@ -1,0 +1,121 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="lookup-vector">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>lookup-vector</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node10.html">
+<link REL="previous" HREF="node8.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node10.html">
+</head>
+<body>
+
+<h2>
+lookup-vector</h2>
+lookup-vector <i>label avg-inst type system dir mag &amp;optional time
+id</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Check correctness of a vector drawn by the student. May be any vector type
+except force.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp; "(lookup-vector \"a1\" 'average 'acceleration 'b1 270 nil '$|$T1 to T2$|$ nil 'vector-1)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+An <a href="EntryStatusReturnValue.html">Entry Status Return Value.</a></dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>label:</b></dt>
+
+<dd>
+the vector label, a string</dd>
+
+<dt>
+<b>avg-inst:</b></dt>
+
+<dd>
+is the vector an average or instantaneous quantity? Value is either 'average
+or 'instantaneous.</dd>
+
+<dt>
+<b>type:</b></dt>
+
+<dd>
+the type of vector: velocity, acceleration, displacement, etc.</dd>
+
+<dt>
+<b>system:</b></dt>
+
+<dd>
+the body that is moving. May be system label (student defined) or body
+name (given).</dd>
+
+<dt>
+<b>dir:</b></dt>
+
+<dd>
+angle of the motion vector from horizontal: 0<img SRC="img1.gif" ALT="$<=$" BORDER=0 height=27 width=29 align=CENTER>dir<img SRC="img2.gif" ALT="$<$" BORDER=0 height=27 width=16 align=CENTER>360
+or a negative number coding a z-axis direction as follows</dd>
+
+<dd>
+-1 => out of the plane; -2 => into the page; -3 =>unknown but along the
+z axis.</dd>
+
+<dt>
+<b>mag:</b></dt>
+
+<dd>
+magnitude of the vector or NIL if unspecified</dd>
+
+<dt>
+<b>time:</b></dt>
+
+<dd>
+the time period during which the vector is constant. If nil, and system
+is a student-defined system, the time will be taken from the system definition.</dd>
+
+<dt>
+<b>id:</b></dt>
+
+<dd>
+id assigned to vector by workbench</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+If the vector is correct, the help system marks the corresponding system
+entry as "entered," defines the magnitude and direction variables, and
+enters the variables in the symbol table.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

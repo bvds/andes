@@ -1,0 +1,75 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="delete-object">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>delete-object</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node16.html">
+<link REL="previous" HREF="node14.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node16.html">
+</head>
+<body>
+
+<h2>
+delete-object</h2>
+delete-object <i>label &amp;optional id</i>
+<dl>
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp; "(delete-object \"F\" 'vector-1)"</pre>
+
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Delete the student defined object with the given label and/or id from the
+student-entries list.</dd>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+The new student-entries list. Return value is ignored by the workbench.</dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>label:</b></dt>
+
+<dd>
+the label given to the object by the student</dd>
+
+<dt>
+<b>id:</b></dt>
+
+<dd>
+the unique id assigned to the object by the workbench</dd>
+</dl>
+
+<dt>
+<b>Side effects</b></dt>
+
+<dd>
+Marks the corresponding system entries as "unentered."&nbsp; If the object
+involves a variable, then removes that variable from the symbol table.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

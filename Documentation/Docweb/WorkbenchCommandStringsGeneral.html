@@ -1,0 +1,68 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="Author" content="Kurt VanLehn">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>WorkbenchCommandStringsGeneral</title>
+</head>
+
+<body>
+
+<h2>Workbench Command Strings: General</h2>
+
+<p>The workbench exposes a command string interface to other
+programs. The ANDES log player uses this interface when it
+replays the session log: an ANDES log file contains a sequence of
+commands sufficient to recreate all the student actions on the
+interface. The Workbench command string interface also supplies
+the means by which the help system can send commands to display
+help messages on the workbench interface. </p>
+
+<p>A workbench command string consists of the command identifier
+followed by a space followed by a command-specific list of
+arguments. In most cases the arguments are alphanumeric tokens
+delimited by white space. However, some commands like
+&#147;show-hint&#148; make use of &#147;trailing string&#148;
+arguments, in which everything from the start of the argument
+position to the end of the string is taken as the argument.
+Trailing string arguments can therefore include spaces. </p>
+
+<p>The Workbench commands that are primarily intended for use by
+the help system are: </p>
+
+<blockquote>
+    <p><tt>show-hint </tt><a
+    href="HintDescriptorReturnValue.html"><tt>&lt;hint
+    descriptor&gt;</tt></a><tt>&nbsp;&nbsp;&nbsp;&nbsp; show a
+    hint in the tutor msg pane</tt> <br>
+    <tt>show-lesson lesson-file-name&nbsp;&nbsp;&nbsp; show an
+    ANDES mini-lesson</tt> <br>
+    <tt>open-browser
+    URL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    open lesson viewer on any URL</tt> <br>
+    <tt>close-browser&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    close lesson viewer if open</tt> <br>
+    <tt>msg &lt;message
+    text&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    show text in a dialog box</tt> <br>
+    <tt>training-card
+    card-id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    pop up a training card</tt> <br>
+    <tt>show-demo
+    demo-file-name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; play
+    a log file as a demo script</tt></p>
+</blockquote>
+
+<p>These commands are most often sent &quot;piggy-backed&quot;
+onto the return value of a help system API call. </p>
+
+<p>It is also possible for the help system to send a command to
+the workbench asynchronously at any time. However, this facility
+is deprecated for the purpose of giving help since it involves
+unsolicited interruptions of the user&#146;s work that could be
+annoying to the student. <br>
+&nbsp; </p>
+</body>
+</html>

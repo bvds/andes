@@ -1,0 +1,238 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>UnanalyzableEqnErrors</title>
+</head>
+<body>
+
+<center>
+<h2>
+Unanalyzable equation errors</h2></center>
+
+<center>(as of 3/21/01)</center>
+
+<p>The main issue here is whether to ask students to describe in English
+or menus what equation they were trying to enter.&nbsp; The data below
+suggests that this is not necessary.&nbsp; If Andes just gives next-step
+help when it can't interpret an equation, the advice seems to be pertinent
+and pedagogically useful.
+<h3>
+wacker Eq-USNA 5-46-37</h3>
+In the problem with the model airplane hanging from two strings, the student
+defines variables, draws a correct FBD,&nbsp; then enters “1.414Ft1+.5Ft2=-Fw”
+as the first equation.&nbsp; The target equation is sin(135)*Ft1+sin(60)*Ft2=-Fw.&nbsp;
+The student has written (1/sin(135))*Ft1 + cos(60)*Ft2 = -Fw.&nbsp; That
+is, the student has used 1/sin(135) instead of sin(135) and cos(60) instead
+of sin(60).
+<ul>
+<li>
+IH notices that there is a trigonometry error with the student’s equation
+and points out sine/cosine properties to student using a triangle.</li>
+
+<li>
+RO also notices trig error, and also refreshes student on trig.</li>
+
+<li>
+Andes fails to recognize the equation the student was trying to enter.</li>
+
+<li>
+KVL: The student should first write N1L with components.</li>
+</ul>
+Andes could interpret the error if the student hadn't inverted the sin(135).&nbsp;
+But I think the search would generate too many false positives if we included
+arbitrary inversions among the equation perturbations.&nbsp; So let's assume
+that Andes2 cannot interpret this equation.&nbsp; It thus must give next-step
+help.&nbsp; Andes asks for the sought (a string tension), the method (Newtons'
+law applied to the plane), and then looks to see what goals the student
+has accomplished already.&nbsp; It finds that the FBD has been done, so
+it says, "You have already drawn the FBD, which is good, so your next step
+should be to write Newton's law in terms of the force component variables."&nbsp;
+This is just what Andes would have suggested even if we had been able to
+interpret the error.
+<h3>
+Exscientia Eq-USNA 17-28</h3>
+If a roller coaster car goes through a loop-de-loop which has a radius
+of 20.0 m, and the normal force is equal to the weight at thetop of the
+loop, how fast is the car travelling?&nbsp; The student defines accleration,
+velocity and radius variables, draws a correct FBD with forces only, enters
+many equations (many seem to be copies of Andes’ help), then enters “v=v_y/20”
+where 20 is the radius of the loop.
+<ul>
+<li>
+IH thnks that “v=v_y” is intended equation, so she addresses dimensionality
+and suggests using the student’s equations 4 &amp; 5 (“a_y * mcar – Fn_y
+– Fw_y =0” &amp; “v^2 = r*a” respectively) to yield ‘a’ &amp; ‘v’.</li>
+
+<li>
+RO questions where the incorrect equation comes from questioning the previously
+entered equation number 8 (‘a = v^2/20”)</li>
+
+<li>
+Andes gives a different equation (“20 = 0.05102 * v^2) and explains that
+Andes does not have a value for ‘v_y’</li>
+
+<li>
+KVL:&nbsp;&nbsp; I can’t figure out what the target equation is.&nbsp;
+I’d give this person “what next” help.</li>
+</ul>
+Andes2 shuldn't be able to interpret this error, so it will give next step
+help.&nbsp; It asks for the sought (velocity), the method (a=v/r^2), and
+notes that this PSM has been applied already (student's equation 5).&nbsp;
+It asks for the next sought (acceleration), the method (Newton's law),
+and notes that it is only partially complete (compo eqn is eqn 4 and 5;
+acceleration projection is contained in eqn 6; no projection equations
+yet for normal force and weight).&nbsp; It suggests, "You have finished
+the FBD and written NSL in terms of component variables (your equations
+4 and 5).&nbsp; The next step is to write projection equations for each
+of the vector components.&nbsp; You've done one (acceleration).&nbsp; You
+need to do the others.&nbsp; For instance, you need to write the projection
+equations for normal force."&nbsp; This is actually pretty good advice
+under the circumstances.
+<h3>
+m021788 Eq-USNA 22-59</h3>
+In the problem where the aircraft carrier plows into the pier, after defining
+variables and drawing a FBD, the subject entered “Ff = 1.386E9*t*30”
+<ul>
+<li>
+IH notices that student does not apply Newton’s 3rd Law correctly and the
+critique focuses on action-reaction</li>
+
+<li>
+RO seems to follow the same method as IH</li>
+
+<li>
+Andes fails to recognize the equation the student was trying to enter.</li>
+
+<li>
+KVL: Andes should give next-step help.</li>
+</ul>
+Andes2 won't be able to interpret this error, so it will give next step
+help.&nbsp; It asks for the sought (contact force on the pier due to the
+carrier) then method (Newton's third law).&nbsp; The student has drawn
+the net force on the pier and the net force on the carrier.&nbsp; Now the
+third law cannot be applied to net forces, but the student has not drawn
+the appropriate contact forces.&nbsp; Thus, the first step in the NTL procedure
+is to draw those forces.&nbsp; Andes says, "The first step in applying
+Newton's third law is to draw the pair of forces that are involved.&nbsp;
+Try that."&nbsp; If the student clicks on explain-further, Andes should
+say, "Try drawing the force that the pier exerts on the carrier."&nbsp;
+This seems like pretty good advice under the circumstances.
+<h3>
+m021788 Eq-USNA 23-59</h3>
+The student replaced the equation written a minute ago (see above) with&nbsp;
+“F=1.386E9” where F is the net force on the aircraft carrier.&nbsp; The
+target equation is the one written immediately before this one, F=4.630E7.&nbsp;
+The ratio of these two values is 51.5.
+<ul>
+<li>
+IH notices that student does not apply Newton’s 3rd Law correctly and the
+critique focuses on units to show the subject why the equation is wrong.</li>
+
+<li>
+RO agrees that the student does not apply Newton’s 3rd Law correctly, but
+in the critique focuses more on action-reaction to explain what’s wrong
+with the student’s equation.</li>
+
+<li>
+Andes fails to recognize the equation the student was trying to enter.</li>
+
+<li>
+KVL: The student is probably trying to figure out the sought, which is
+the “average force it would exert in the process.”&nbsp; The student might
+be picking up on the word “average” and trying to divide or multiply by
+the duration (30) but somehow got the arithmetic wrong.&nbsp; It's just
+not clear.&nbsp;&nbsp; Andes should give next-step help here.</li>
+</ul>
+Andes2 will treat this error just like the one above.
+<h3>
+juicemasta Eq-USNA 23-20</h3>
+In the problem where the aircraft carrier plows into the pier, after defining
+variables and drawing a FBD, the student entered "F=v*t" where v is the
+initial velocity and t is the duration.
+<ul>
+<li>
+IH thinks student is lost.&nbsp; Has student check dimensions of F=v*t,
+then asks for N2L.</li>
+
+<li>
+RO thinks student is lost.&nbsp; Has student check dimensions of F=v*t,
+then asks for N3L, then acceleration, then final equation.</li>
+
+<li>
+Andes suggests an unknown equation with no explanation for suggestion.</li>
+
+<li>
+KVL:&nbsp; Andes should give next step help.</li>
+</ul>
+Andes2 won't be able to interpret this equation, so it will give next step
+help. It asks for the sought (contact force on the pier due to the carrier)
+and the method (Newton's third law).&nbsp; It notes that neither contact
+force is drawn and suggests drawing them. This seems like pretty good advice
+under the circumstances.
+<h3>
+freebird Eq-USNA 1-44-15</h3>
+In the problem where the model airplane is hanging from two strings, the
+student defines variables, draws a correct FBD, enters givens, then enters
+“Ft1 / cos(45) = Fw.” as the first non-trivial equation.&nbsp; The target
+equation is Ft1*sin(45) + Ft2*sin(60) = Fw.&nbsp; The student has left
+a force component out and has projected Ft1 incorrectly.
+<ul>
+<li>
+IH notes that student does not include all of the forces and that there
+is a trig. error, then gives a trig. refresher.</li>
+
+<li>
+RO also notes that student does not include all of the forces and notes
+“Fw = Ft1*sin(45) + Ft2*sin(60)”</li>
+
+<li>
+Andes comes up with a different equation “Fw = 1.932*Ft1” with no explanation.</li>
+
+<li>
+KVL: Andes should say, "Skipping steps has caused some errors here.&nbsp;
+I assume you are applying N1L to the airplane.&nbsp; If so, your next step
+should be to write N1L in component form.”</li>
+</ul>
+This is probably too hard for Andes2 to diagnose.&nbsp; It should just
+give next-step help.
+<h3>
+minivan Eq-USNA 32-21</h3>
+In the problem of a car accelerating from 13.4 m/s to 17.9 m/s, the student
+defines variables, draws no FBD, enters givens, then enters “a = (v3)/t1”
+The closest matching equation is a = (v3-v)/(t1-t0).&nbsp;&nbsp;&nbsp;
+The student has both used a time point t1 as a variable and has treated
+the initial velocity, v, as zero.
+<ul>
+<li>
+IH notes that student overlooks the fact that the car does not begin at
+rest (at T2) and addresses defining/clarifying velocities and time points.</li>
+
+<li>
+RO asks for the definition of acceleration as a= (vf –vi)/(tf-ti) then
+works toward the student’s equation.</li>
+
+<li>
+Andes addresses the two definitions of ‘a’ (student had also entered “a
+= 2.732”) and also notes that T1 was marked as incorrect earlier (although
+it doesn’t show up in the snapshot) and suggests “-a * DURATION8 = v -
+v3”.</li>
+
+<li>
+KVL: Andes should tell the student to draw the diagram before entering
+equations.</li>
+</ul>
+Andes2 won't be able to interpret this error, so it will given next-step
+help.&nbsp; It will asks for the sought (duration from T2 to T3) and the
+method (kinematics from T2 to T3).&nbsp; It will note that the FBD has
+not been drawn, and ask the student to do that.&nbsp; Suppose the student
+does so then asks for help again on the same equation.&nbsp; Now Andes
+again can't find an interpretation, so it again gives next-step help.&nbsp;
+This time, it notes that the kinematics diagram for T2 to T3 is drawn,
+so it suggest writing the equation in terms of vector components.&nbsp;
+This is actually good advice under the circumstances, as that was the equation
+that the student was trying to write, I think.
+</body>
+</html>

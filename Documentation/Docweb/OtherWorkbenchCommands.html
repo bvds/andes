@@ -1,0 +1,158 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>OtherWorkbenchCommands</title>
+</head>
+<body>
+
+<h2>
+Other Workbench commands</h2>
+The following list from the workbench source code lists other commands
+in the workbench command string interface. These commands are used when
+replaying log files and are not primarily intended for use by the help
+system. However, they could in principle be used to construct complex scripts
+used while giving help. A rudimentary demo playing facility was implemented
+in the workbench to construct demonstrations using a moving pointer on
+the screen by annotating Andes log files to insert the demo messages, for
+example. However, this facility was not used in ANDES since we lacked the
+resources to actually develop good demos.
+<p>Detailed documentation of the commands and their parameters is only
+available in the workbench source code. This list is just included to give
+an idea of what’s available. If you see something you’re interested in,
+just ask. The workbench uses a table-driven command dispatcher so further
+commands can easily be added to meet the needs of the help system.
+<p>// Generic dialog box operations:
+<br><tt>F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+set focus to control</tt>
+<br><tt>C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+change edit control text</tt>
+<br><tt>c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+change rich edit control text</tt>
+<br><tt>DRP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+drop combo box’s drop-down list</tt>
+<br><tt>SEL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+select from combo box</tt>
+<br><tt>CLOSE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+close combo box’s drop-down list</tt>
+<br><tt>SEL-LIST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+select from list box</tt>
+<br><tt>BTN-CLICK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+click button</tt>
+<br><tt>Mv-dlg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+move the whole dialog box</tt>
+<p>// Equation View operations
+<br><tt>EQ-F&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set focus to an equation</tt>
+<br><tt>K&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Kill focus on an equation</tt>
+<br><tt>E&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+change equation text</tt>
+<br><tt>EQ-SUBMIT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+submit equation to help system</tt>
+<br><tt>EQ-DELETE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+“delete” equation, i.e. change to blank</tt>
+<br><tt>EQ-Whatswrong&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ask what’s
+wrong on an equation</tt>
+<br><tt>EQ-Calculate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ask
+to calculate an equation</tt>
+<br><tt>EQ-RESULT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Receive checking result</tt>
+<br><tt>EQ-SolveFor&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ask to solve for a variable</tt>
+<p>// Diagram view operations
+<br><tt>L&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Press left mouse button</tt>
+<br><tt>M&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Drag mouse to new position while pressed</tt>
+<br><tt>Up&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Release mouse button</tt>
+<br><tt>Select-tool&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Select a drawing tool</tt>
+<br><tt>Begin-draw&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Begin drawing an object</tt>
+<br><tt>Begin-vector&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Begin
+drawing a vector</tt>
+<br><tt>Begin-Resize&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Begin
+resizing an object</tt>
+<br><tt>Begin-move&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Begin moving an object</tt>
+<br><tt>Click-bg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Click background to clear selection</tt>
+<br><tt>Select&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Selected an object</tt>
+<br><tt>Deselect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Deselected an object</tt>
+<br><tt>Delete&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Delete an object</tt>
+<br><tt>Dup&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Duplicate an object</tt>
+<br><tt>Menu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Popped up context menu</tt>
+<br><tt>Mark&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Marked a vector resolved</tt>
+<br><tt>Edit-props&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Open object’s dialog box</tt>
+<br><tt>Zdir&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set Z-Axis direction</tt>
+<p>// for answer boxes:
+<br><tt>Ans-enter&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Set focus to answer box</tt>
+<br><tt>Ans-exit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Focus left answer box</tt>
+<br><tt>Ans&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Changed answer box text</tt>
+<br><tt>Ans-submit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Submit answer box to helpsys</tt>
+<p>// Help
+<br><tt>FBD-Whatswrong&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Asked what’s
+wrong on a drawn object</tt>
+<p>// Training card input messages
+<br><tt>Tcard&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Pop up training card</tt>
+<p>// Variable view operations
+<br><tt>Select-Variable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select given variable</tt>
+<br><tt>New-Variable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Start
+defining new variable</tt>
+<br><tt>Modify-Variable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Edit existing variable</tt>
+<br><tt>Delete-Variable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Delete a variable</tt>
+<br><tt>Variable-Whatswrong&nbsp; Ask what’s wrong on a variable</tt>
+<p>// Application Operations
+<br><tt>Open-Problem&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Open a problem</tt>
+<br><tt>Open-Example&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Open an
+example</tt>
+<br><tt>Close&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Close problem</tt>
+<br><tt>CLOSE-APP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Close whole application</tt>
+<p>// App Help request commands:
+<br><tt>Help-Hint&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ask for a hint</tt>
+<br><tt>Help-Explain&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ask for
+next hint</tt>
+<br><tt>Help-How&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ask for next substep</tt>
+<br><tt>Help-Why&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ask why</tt>
+<br><tt>Textbook&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Open physics textbook (experimental)</tt>
+<br><tt>Comment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Submit a comment</tt>
+<p>// Hint pane operations
+<br><tt>Hint-Hide&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Hide the pane</tt>
+<br><tt>Hint-PopupDef&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Show a pop-up definition</tt>
+<br><tt>Kill-Popup&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hide
+any pop-up definition</tt>
+<br><tt>Discourse&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Atlas)
+type free text response</tt>
+<p>// for manipulating demo pointer agent in demo scripts:
+<br><tt>Point-to&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Move pointer to an object</tt>
+<br><tt>Demo-msg&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Show a message near the pointer</tt>
+<br>&nbsp;
+</body>
+</html>

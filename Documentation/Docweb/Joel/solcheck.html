@@ -1,0 +1,44 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Checking the canonical equation solutions</title>
+</head>
+<body>
+
+<center>
+<h2>Checking the canonical equation solutions</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+<p>
+If the solver has worked correctly and has found numerical values for
+all the variables, all the equations should become tautologies. But
+checking would be a good idea. So a program called <tt>solcheck</tt> was
+written to read the same file used
+by the solver, together with the file the solver output with the solutions,
+and check each equation. This functionality has since been incorporated
+into the solver itself, so it is no longer necessary to use solcheck, and
+it is not being maintained. But the method described below is still the
+one being used.
+<P>
+This evaluation is very straightforward, except for the problem that we
+are using real variables with finite precision. In fact, all our calculations
+are done in double precision. But what constitutes agreement between the
+two sides of an equation?  If the right hand side is zero and the left
+is 10<sup>-15</sup>, is this agreement?  Not if the left hand side
+involves elementary particle masses in kilograms! The function checksol
+attempts to evaluate both the expressions and the possible uncertainty in
+the calculation of that expression, and complains only if the observed
+error is 100 the calculated expected error.
+<P>
+This may seem very lax, but considering that the expected relative error in
+double precision arithmetic is about 10<sup>-15</sup>, it tends to complain
+too much, not too little. But the algorithm is not solidly thought out.
+<p>
+<br>&nbsp;&nbsp;&nbsp; Joel A. Shapiro, last modified June 17, 2001
+<br>&nbsp;
+</body>
+</html>

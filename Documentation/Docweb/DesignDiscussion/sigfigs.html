@@ -1,0 +1,112 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>
+Accuracy in numerical values of quantities
+</title>
+</head>
+<body>
+
+<center>
+<h2>
+Accuracy in numerical values of quantities
+</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+Physical quantities generally are not given or known exactly -- there
+are errors in every measurement, and we are generally satisfied with
+finding approximate values for physical values, not exact numbers.
+<p>
+The propagation of errors in forming an algebraic expression is well
+understood but can lead to surprizing results under some circumstances.
+For example, if the determinant involved in a set of linear equations
+is small, the answers found for the variables may have much larger
+relative or absolute errors than the input numbers. Errors in a small
+determinant can also confuse the situation with that where the determinant
+is zero, which changes qualitatively the nature of the solution.
+<P>
+For this reason, it is important for the algebra system to use high 
+accuracy in its internal evaluations, and to have givens in a problem
+consistent to high accuracy. However, we do not want to ask students
+to specify numerical quantities to 15 places, nor to calculate to that
+accuracy. Therefore there needs to be another standard for numerical 
+values in student answers and in student equations.
+<P>
+It is somewhat traditional to ask that values be specified to three
+significant figures, probably because that is the best you could ask
+for from your slide rule. That would probably be a reasonable criterion
+for final answers in general, though I suspect there will be exceptions
+where this seems artificial. There are, however, <em>definitely</em> 
+situations for which this is inadequate for intermediate numerical 
+specifications. For example, in Serway, Principles of Physics, Example
+30.5, in calculating the disintegration energy of Radium,
+the masses of <sup>226</sup>Ra and <sup>222</sup>Rn are given to
+nine significant figures. Had the values been rounded to three 
+significant figures one would conclude that Radon was stable rather
+than finding that 4.87 MeV is given off in the decay.
+So if a student looks up the mass of Radium in table A.3 and enters
+M<sub>Ra</sub> = 226 u rather than M<sub>Ra</sub> = 226.025402 u, we
+need to turn that entry red.
+<p>
+One way to deal with this problem is to associate an accuracy with each given 
+and each variable, especially each sought variable.
+Givens could be assumed exact if given as 
+integers and as having an accuracy of +- 1 in the last place given.
+When calculating the problem solution the numbers would be considered
+nearly exact, but when evaluating student numerical input, the specified
+accuracy would be used. The problem with this is that in cases with
+redundant givens (which I think we should be able to handle) such as
+Exdr5a, a given needs to be specified to very high accuracy for consistency
+in the problem solution stage, without implying that accuracy in the 
+checking stage. Some new declaration would be required, say
+(Sigfigs variable_name 3)
+to show that the equation (= v (DNUM 5.18895738185 m/s)) should not
+be interpreted to mean 12 significant figures are required in the 
+student calculation. The same form could be used to specify the accuracy
+required for each variable which is not a given. For them, we might use
+3 significant figures as a default.
+<p>
+This would handle the issue of judging student equations of the form
+var = numerical value (with units), but it doesn't handle other equations,
+such as Bob's example where a student has plugging in a = 2.61 m/s^2 to
+get &nbsp;
+V2_x^2=v1_x^2+2*2.61m/s^2*d_x 
+<br>
+We have no direct way of knowing that 2.61 m/s is a substitution for
+a_x, and whether that is a suitable value based on however he calculated
+a_x.
+<P>
+   Now we could look at this expression and say 2.61 means 2.61 +- .01,
+and see if the equation checks within the error bars.
+The checker does not currently have this ability, but it would be easy
+to add.  But if we do this, the equation will check with 2.61 or with
+2.6 or with 2. .  How do we
+know 2.61 is acceptible but the same equation with 2. isn't?
+<P>
+Even worse, if we declare this equation correct, the help system will
+ask which equations it is based on. The dependence checker works on
+linear independence of gradients, and the gradient here will have a
+d_x component of 5.22 rather than the exact value of 2a_x. When the
+exact equation's gradient is subtracted, we will be left with a small
+number in the d_x component and zeroes for all others - will we know
+enough to treat this as zero? This seems very problematic to me, as
+we may well be dealing with a thousand components, so treating as zero
+all numbers less than 0.01 will surely lead to spurious conclusions
+of dependency. 
+<P>
+Perhaps this is enough to show that dealing with such equations will
+require quite a bit of further work. In view of the fact that
+we are trying in any case to discourage plugging in imprecise numbers
+until the final evaluation anyway, we may then ask
+whether we might not just leave it as is, with it
+virtually impossible for the student to enter such equations, because
+they need to enter numbers to roughly 11 digit accuracy!
+<hr>
+<br>&nbsp;Joel Shapiro, May 16, 2001
+</body>
+</html>
+

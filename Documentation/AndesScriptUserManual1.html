@@ -1,0 +1,1427 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes Script User Manual</title>
+</head>
+<body>
+
+<center>
+<h1>
+Andes Script:&nbsp;<br>
+A user manual for knowledge engineers</h1></center>
+
+<center>May 25, 2001</center>
+
+<p><br>
+<h2>
+Table of Contents</h2>
+<a href="#Overview">Overview</a>
+<br><a href="#KRL">The knowledge representation language</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#Propositions">Propositions</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#Propositions">Problem definitions</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#Ops">Operator definitions</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#example">A long example of how the problem
+solver really works</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#executables">Executable preconditions</a>
+<br><a href="#envir">The programming environment</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#started">Getting started</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#solving">Solving a problem</a>
+<br>&nbsp;&nbsp;&nbsp; <a href="#examing">Examining the results</a>
+<br>&nbsp;
+<h2>
+<a NAME="Overview"></a>Overview</h2>
+Many problems assigned to students in science and engineering courses require
+them to analyze physical situations.&nbsp; For instance, a simple physics
+problem, which will be used through out this document for illustration,
+is, "If a 50 kg sled slides down a 20 degree frictionless inclined plane
+for 2 seconds starting from rest, what is its final velocity?"&nbsp; The
+analysis consists of a set of primitive equations that can be combined
+algebraically to produced a value for one or more sought quantities.&nbsp;
+Each equation is either justified by a physical principle (e.g., W=m*g,
+where m is the mass of the sled and W is the magnitude of its weight) or
+given by the problem (e.g., m=50 kg),&nbsp;&nbsp; Although the analysis
+of some problems consists of just one set of primitive equations, other
+problems can be solved with any of several sets of equations.&nbsp; For
+instance, in the sled problem, there are several different solution sets
+depending on which kinematics equation one uses and which rotations of
+the coordinate axes one uses.
+<p>Andes Script is designed to produce a data structure that represents
+all possible solutions to a given problem.&nbsp; The data structure is
+called a solution graph, and its central component is a particular kind
+of constraint network [Forbus &amp; de Kleer, 19??, pg. ??] called a bubble
+graph.&nbsp;&nbsp; The bubble graph consists of nodes that represent equations
+and nodes that represent quantities.&nbsp; If a quantity appears in an
+equation, then the two nodes are interlinked.&nbsp; For instance, the simple
+problem "If what is the mass of a 50 kg block on the moon, where the acceleration
+due to gravity is 2.78 m/s^2?" has the following nodes in its bubble graph:
+<blockquote>1. the mass of the block, m.
+<br>2. the magnitude of the weight of the block, W.
+<br>3. the accelerational due to gravity on the moon, gm.
+<br>4. m=50 kg, the given mass of the block.
+<br>5. gm = 2.78 m/s^2, the given acceleration due to gravity on the moon
+<br>6. W=m*gm, the weight law, applied to this problem</blockquote>
+The links in the graph connect the quantity nodes (1, 2 and 3) with the
+equation nodes (4, 5, and 6).&nbsp; In particular, there are links connecting
+the following pairs of nodes: (4, 1), (5,3), (6,1), (6,2), and (6,3).&nbsp;
+Constraint networks such as the bubble graph are a traditional data structure
+that simplifies a variety of algorithms for processing a system of equations.
+<p>Each equation in the solution of a problem must be either given in the
+problem statement or produced by applying a principle.&nbsp; To record
+the justification of equations, each node in the bubble graph has a problem
+solving method (PSM) graph that represents how the equation was derived.&nbsp;
+A solution graph consists of a bubble graph plus a PSM graph for each equation
+node.
+<p>Just as students must know both physics and algebra in order to solve
+physics problems, the Andes problem solver must have both kinds of knowledge
+as well.&nbsp; Its algebraic knowledge is "hard coded," that is, represented
+in Lisp and not easily changed.&nbsp; The physics knowledge is "soft coded,"
+that is, represented in a specialized programming language called Andes
+Script that is designed to make it easy to express such knowledge.
+<p>The algebraic code is responsible for constructing the bubble graph,
+but since it doesn't know anything about which equations are justifiable
+in this task domain, it calls the physics code to generate equations for
+it.&nbsp; In particular, it calls the physics code with the goal, "generate
+equations that contains &lt;quantity>" where &lt;quantity> is some specific
+quantity.&nbsp; For instance, when solving the sled problem, the first
+call that is made is "generate equations that contain the magnitude of
+the weight of the sled."&nbsp; The Andes Script code returns not just one
+equation, but all equations it can generate that contain the sought quantity.&nbsp;
+As the Andes Script code is executed, the interpreter keeps track of its
+activity and builds a PSM graph to record it.&nbsp; Thus, what the algebra
+code actually receives is a set of equation nodes, each containing an equation
+and a PSM graph representing its justification.
+<p>The old Andes problem solver represented its knowledge as if-then rules
+called "productions", and it used forward chaining to reason.&nbsp; This
+meant that goals had to be represented explicitly in the conditions and
+conclusions of the rules, and the working memory contained propositions
+representing the goals.&nbsp; Because the rules could manipulate goals
+in any fashion they wanted, it was possible to create non-hierarchical
+goal structures in the solution graphs.&nbsp; In contrast, Andes Script
+represents its knowledge as if-then rules called Strips operators [Russell
+&amp; Norvig, 19??, chapter ??] and it uses backwards chaining to reason.
+Goals are not explicitly represented in Strips operators, nor do they appear
+in working memory.&nbsp; Instead, the interpreter maintains a goal stack.&nbsp;
+This means that no matter what code the author writes, the resulting PSM
+is guaranteed to have a hierarchical goal structure.
+<p>Because the operators do not need to manipulate goals, the overall code
+is somewhat simpler.&nbsp; This is best appreciated with an illustration,
+which also helps introduce the coding style.&nbsp; Consider what the student
+must do to write a simple scalar equations, such as &lt;speed>=&lt;distance>/&lt;duration>.&nbsp;
+The student must define 3 variables then write the equation.&nbsp; One
+way to express this reasoning using production rules is to write:
+<ol>
+<li>
+If the goal is to apply the speed-distance-duration equation to ?body from
+time ?t0 to time ?t1,</li>
+
+<br>then create the goal of defining a variable for the speed of ?body
+during ?t0 to ?t1,
+<br>create the goal of defining a variable for distance travelled by ?body
+during ?t0 to ?t1,
+<br>create the goal of defining a variable for duration of ?t0 to ?t1,
+<br>and create the goal of writing the speed-distance-duration equation
+for ?body from time ?t0 to ?t1.
+<li>
+If the goal is to write the speed-distance-duration equation for ?body
+from ?t0 to ?t1,</li>
+
+<br>and ?speed is a variable for the speed of ?body during ?t0 to ?t1,
+<br>and ?distance is a variable for the distance traveled by ?body during
+?t0 to ?t1,
+<br>and ?duration is a variable for the duration of ?t0 to ?t1,
+<br>then write ?speed = ?distance / ?duration.
+<li>
+If the goal is to define a variable for ?quantity,</li>
+
+<br>and no variable for ?quantity exists in working memory,
+<br>then let ?var be a new variable name appropriate for ?quantity,
+<br>and assert that ?var is a variable for ?quantity.</ol>
+Production 1 executes, producing 4 subgoals.&nbsp; Production 3 executes
+3 times, defining variable for each of speed, distance and duration.&nbsp;
+Then production 2 executes, producing the desired equation.&nbsp; If variables
+were defined for some or all of the quantities earlier, then production
+3 doesn't have to fire as many times.&nbsp; Production 2 is happy to use
+variables defined earlier or newly created variables.&nbsp; Now to achieve
+exactly the same effect with the same goal structure, one can write the
+following Strips operators:
+<ol>
+<li>
+If ?speed is a variable for the speed of ?body during ?t0 to ?t1,</li>
+
+<br>and ?distance is a variable for the distance travelled by ?body during
+?t0 to ?t1,
+<br>and ?duration is a variable for the duration of ?t0 to ?t1,
+<br>then write ?speed = ?distance / ?duration,
+<br>which is the speed-distance-duration equation applied to ?body from
+time ?t0 to ?t1.
+<li>
+If no variable for ?quantity exists in working memory,</li>
+
+<br>then let ?var be a new variable name appropriate for ?quantity,
+<br>and assert that ?var is a variable for ?quantity.</ol>
+Although these are nearly identical to productions 2 and 3, they are interpreted
+differently.&nbsp; Basically, every operator is processed twice, once to
+produce subgoals (this is called "subgoaling on the operator") and once
+to produce results (this is called "executing the operator").&nbsp; Suppose
+the goal stack initially contains just the goal, "write ?equation, which
+is the speed-distance-duration equation applied to Nimitz from time 1 to
+time 2."&nbsp;&nbsp; The interpreter removes the goal from the stack, finds
+that operator 1's conclusion matches the goal, and it puts all the operator's
+conditions on the goal stack followed by a note to itself to apply the
+operator.&nbsp; The goal stack is now:
+<ul>
+<li>
+?speed is a variable for the speed of Nimitz during 1 to 2.</li>
+
+<li>
+?distance is a variable for the distance travelled by Nimitz during 1 to
+2</li>
+
+<li>
+?duration is a variable for the duration of 1 to 2</li>
+
+<li>
+apply operator 1 using ?speed, ?distance, ?duration, Nimitz, 1 and 2 as
+bindings.</li>
+</ul>
+In other words, operator 1 has been "processed" once to reduce a goal to
+subgoals (hence the phrase, "subgoaling on the operator"). Later, when
+all the subgoals have been achieved, the stack will be just
+<ul>
+<li>
+apply operator 1 using speed-var1, distance-var1, duration-var2, Nimitz,
+1 and 2 as bindings</li>
+</ul>
+When the interpeter removes the top item from the stack, it sees that it
+is a note to apply an operator rather than a goal, so puts&nbsp; the operator's
+conclusion, namely the speed-distance-duration equation in this case, into
+working memory.&nbsp; This is like a second "processing" of the operator
+(called "executing the operator").&nbsp;&nbsp;&nbsp; It produces results
+(additions to working memory) whereas the first "processing" just produced
+subgoals (addions to the goal stack).&nbsp; All backchaining reasoners
+work this way.
+<p>Although Prolog is the most widely used commercial backchainer, but
+we prefer our own version so that we can include some special features.&nbsp;
+In particular, an Andes Script operator can have more than just a slot
+for its conditions and a slot for its conclusions.&nbsp; It can also have
+a slot for a hint sequence.&nbsp; When the help system decides that the
+student show apply a particular operator, it give the first hint in its
+hint sequence.&nbsp; If the student presses the "explain more" button,
+it will present the next hint in the sequence, and so on.&nbsp; Thus, the
+author controls not only what the operators by writing their conditions
+and conclusions, but how the help system hints about them to the student.
+<p>Andes operators also provide a "features" slot, which contains a set
+of atomic features.&nbsp; One feature that is particularly important is
+the "unordered" feature.&nbsp; When an operator has this feature, then
+it doesn't matter what order the operators conditions are achieved in.&nbsp;
+For instance, operator 1 above should have the "unordered" feature because
+it doesn't matter which order the student defines variables in.&nbsp; However,
+for many operators, order does matter.&nbsp; For instance, the general
+procedure for writing a vector equation has the following conditions, which
+the student achieve in the given order:
+<ul>
+<li>
+draw a vector diagram</li>
+
+<li>
+write the compo equation, that is, the equation expressing component quantities
+as variables (e.g,. W_y)</li>
+
+<li>
+write the compo-free, that is, the equation expressing component quantities
+as functions of magnitudes (e.g., W*cos(30)).</li>
+</ul>
+If the student enters a compo-free equation before entering a compo equation,
+then Andes will mark it red and tell the student that the equation is correct
+but premature.&nbsp; Although the unordered feature doesn't matter much
+to the Andes Script interpreter, it controls how the help system interprets
+the resulting solution graphs.
+<p>This illustrates one of the design objectives for Andes Script.&nbsp;
+All knowledge about physics should be expressed in Andes Script.&nbsp;
+It should not be necessary to modify the Andes interpreter nor the help
+system in order to extend the task domain or to replace physics knowledge
+with other domain knowledge.&nbsp; Part of the knowledge of physics is
+what steps to do in which order, so that ordering knowledge has to be encoded
+in Andes Script.&nbsp; Similarly, the hints depend on the knowledge, so
+they must be represented in Andes Script.
+<p>In order to construct hints and other messages to the student, the help
+system must refer to quantities and other entities.&nbsp; Inside the operators,
+quantities and other entities are represented formally, as logical terms.&nbsp;
+For instance, the mass of the Nimitz is represented as (mass Nimitz) and
+the magnitude of the weight force on it due to the earth is represented
+as (mag (force Nimitz earth weight)).&nbsp; Clearly, we do not want to
+print such expressions in our messages to the student, but converting them
+into text requires knowledge that is peculiar to physics.&nbsp; Thus, it
+must be represented in Andes Script.&nbsp; Thus, Andes Script has a construction
+(<font color="#FF0000">defexpr??</font>) that indicates how to translate
+a logical term into English.&nbsp; It also has a construction (defqexpr)
+for defining units and constructions for defining other miscelaneous information.&nbsp;
+These extra pieces of physics knowledge are called the "ontology."
+<p>In addition to operators and defexprs, Andes Script allows authors to
+define problems.&nbsp; Thus, the main constructions that the knowledge
+engineer must write are:
+<ul>
+<li>
+defoperator -- defines an operator</li>
+
+<li>
+defproblem -- defines a problem</li>
+
+<li>
+defexpr, defqexpr, def-entprop, etc. -- defines the translation from a
+logical term to English, units and other "ontological" knowledge</li>
+</ul>
+Eventually, we will also let authors define error handlers that can recognize
+specific errors and handle them in pedagogically appropriate ways.&nbsp;
+However, that physics-specific knowledge is currently hard-coded in Lisp.&nbsp;
+Realistically speaking, we will probably never be able to completely eliminate
+domain knowledge from the Lisp and C++ code, but we are trying to minimize
+it.
+<h2>
+<a NAME="KRL"></a>Knowledge representation language</h2>
+Andes Script currently provides ways to define operators, problems and
+English translations of logical terms.&nbsp; This section presents the
+syntax and semantics of problems and operators; the ontology isn't developed
+enough yet to warrant documentation.
+<p>Andes Script is based on several Lisp macros, named defoperator, defproblem,
+etc.&nbsp; The files they appear in are regular Lisp code files, which
+are loaded by the usual Lisp code loading facilities.&nbsp; In particular,
+if em1.cl is the name of your Andes Script file, then saying (load "em1")
+to the top level of Lisp will cause the file to be loaded, which will cause
+the defoperator, defproblem and defexpr macros to be run, thus causing
+operators, problems and expressions to be defined.&nbsp; Like any Lisp
+file, single line comments are indicated by a semi-colon--the text from
+there to the end of the line is ignored by the loader.&nbsp; Multi-line
+comments begin with #| and end with |#. Emacs, VI and other editors have
+modes that know about Lisp syntax.&nbsp; They will balance parentheses
+for you and color-code the text (e.g., comments are in red, executable
+code is in black, etc.).
+<p>Although one could easily mix defoperators, defproblems and other Andes
+Script macros in the same file, and one could also define regular Lisp
+functions in the same file, it is convenient to put all the defoperators
+in one file, all the defproblems in a second, and all the ontological macros
+in a third file.&nbsp; Internally, the macros simply define a Lisp struct
+(a record instance; like an object with no methods) and add it to a list.&nbsp;
+If you execute the same defoperator macro twice, then two copies of the
+same operator will end up in the list.&nbsp; Thus, one should put (clear-ops)
+at the begining of the file that contains the defoperators.&nbsp; This
+Lisp function just sets the list of operators to NIL.&nbsp; Similarly,
+the file with the problems in it should have (clear-problem-registry) at
+its beginning and the file with the ontological definitions in it should
+have (clear-ontology) at its front.
+<br>&nbsp;
+<h3>
+<a NAME="Propositions"></a>Propositions</h3>
+Andes uses first order logic to represent facts and goals.&nbsp; Here's
+a quick review of the essential nomenclature of first order logic.
+<p>An atomic statement consists of a predicate followed by its arguments.&nbsp;
+For instance, (massless sled) is a statement that the sled is massless.&nbsp;
+"Massless" is the predicate, and "sled" is a constant that denotes a particular
+sled.&nbsp; Predicate names and constants are just Lisp atoms.
+<p>The arguments of a predicate can also be a variable.&nbsp; Unfortunately,
+Lisp also uses the term "variable" to mean something different, so we use
+"unification variable" to mean the kinds of variables that appear in logical
+statements.&nbsp; Unification variables always begin with a question mark.&nbsp;
+For instance,&nbsp; the proposition (tied-to ?string ?body) could be used
+as a goal that means "find out if something is tied to something."
+<p>The arguments of a predicate can also be a function, where a function
+consists of a function name and its arguments.&nbsp; For instance, the
+proposition <tt>(given (duration (during 1 2)) (dnum 13656 |s|))</tt> says
+that the duration from time 1 to time 2 is 13656 seconds.&nbsp; The function
+(during 1 2) denotes a time interval.&nbsp; The function (duration (during
+1 2)) denotes a quantity, namely the duration of that time interval.&nbsp;
+The function (dnum 13656 |s|) denotes a dimensional number.&nbsp; 13656
+is a constant that denotes a number.&nbsp; |s| is a constant that denotes
+a unit, namely seconds.&nbsp; The vertical bars here are necessary to make
+this atom be spelled in lower case.&nbsp; Lisp automatically puts atoms
+that are not surrounded by vertical bars into upper case.
+<p>There is much more to first order logic, but it isn't used in Andes.&nbsp;
+In particular, the knowledge base does not use quantifiers, conjunctions,
+disjunctions, negations, implications, etc.
+<h3>
+<a NAME="problems"></a>Problem definitions</h3>
+A problem is defined with the defproblem macro, which has the following
+syntax:
+<blockquote><tt>(defproblem &lt;name></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; :statement &lt;list of strings></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; :features &lt;list of Lisp forms></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; :givens &lt;list of propositions></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; :soughts &lt;list of propositions>)</tt></blockquote>
+Here is an example of a problem definition
+<blockquote><tt>(defproblem Exkt1a</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; :statement (</tt>
+<br>"The SR-71 strategic reconnaissance aircraft, the Blackbird, set a
+world speed"
+<br>"record by flying from London to Los Angeles (8.79x10^6 m) in 3 hours
+47 minutes"
+<br>"and 36 seconds. Compute the average speed in m/s."<tt> )</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; :features (working clips kinematics)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; :givens</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ((object aircraft)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (time (during 1 2))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (given (duration (during
+1 2)) (dnum 13656 |s|))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (given (at (distance
+aircraft) (during 1 2)) (dnum 8790000 |m|)))</tt>
+<br><tt>&nbsp;&nbsp; :soughts ( (answer (at (speed aircraft) (during 1
+2))) ))</tt></blockquote>
+The &lt;name> is just a Lisp atom that names the problem.&nbsp; The rest
+of the macro is a set of fields, each preceeded by a label (which always
+starts with colon).&nbsp; Because the fields are labelled, they may appear
+in any order.
+<p>The statement field contains a list of strings.&nbsp; It should contain
+the exact wording form the Andes screen, but it doesn't matter how it is
+broken up into strings.&nbsp; Currently, the system pays no attention to
+the contents of this field, because the wording that is painted on the
+Andes screen comes from other files.&nbsp; However, that should eventually
+change, and the Workbench will display the contents of this field.
+<p>The features field contains a list of Lisp atoms.&nbsp; These are conveniences
+for the author.&nbsp; For instance, the author can run a tool that collects
+all problems that have the "working" feature and submits them to the problem
+solver.&nbsp; This allows an author to rapidly check that a change to the
+KB has not introduced any bugs into previously working problems.
+<p>The givens field is a list of propositions that represent the information
+given in the problem statement. The propositions are ground atomic statements
+in first order logic.&nbsp; That is, they have no variables, no quantifiers
+and no logical connectives (e.g., conjunction, disjunction or negation).
+<p>The soughts field is a list of propositions that need to be derived.&nbsp;&nbsp;
+In the current problems, this is just a list of the quantities sought by
+the problem, each one inclosed in an (answer ...) predicate.
+<h3>
+<a NAME="Ops"></a>Operator definitions</h3>
+An operator is defined with the defoperator macro, which has the following
+syntax:
+<blockquote><tt>(defoperator &lt;name> &lt;arguments></tt>
+<br><tt>&nbsp;&nbsp; :specifications &lt;string></tt>
+<br><tt>&nbsp;&nbsp; :features &lt;list of features></tt>
+<br><tt>&nbsp;&nbsp; :preconditions &lt;list of conditions></tt>
+<br><tt>&nbsp;&nbsp; :effects &lt;list of effects></tt>
+<br><tt>&nbsp;&nbsp; :hint &lt;list of hints>)</tt></blockquote>
+For example, here is an operator that draws a weight vector:
+<blockquote><tt>(defoperator draw-weight (?b ?t ?planet)</tt>
+<br><tt>&nbsp; :specifications "</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; If ?b is not massless, and</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; it is near a ?planet,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; then draw a weight vector for it pointing straight
+down,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; define a magnitude variable
+and an direction variable for it."</tt>
+<br><tt>&nbsp; :preconditions</tt>
+<br><tt>&nbsp;&nbsp; ((force ?b ?planet weight ?t ?dir action)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (not (vector ?b (at (force ?b ?planet weight)
+?t) ?dont-care))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (bind ?mag-var (format-sym "Fw_~A_~A_~A" (body-name
+?b) ?planet</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(time-abbrev ?t)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (bind ?dir-var (format-sym "O~A" ?mag-var))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (debug "~&amp;Drawing weight of ~a at ~a.~%"
+?b ?t))</tt>
+<br><tt>&nbsp; :effects</tt>
+<br><tt>&nbsp;&nbsp; ((vector ?b (at (force ?b ?planet weight) ?t) ?dir)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (variable ?mag-var (at (mag (force ?b ?planet
+weight)) ?t))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (variable ?dir-var (at (dir (force ?b ?planet
+weight)) ?t))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (given (at (dir (force ?b ?planet weight)) ?t)
+?dir))</tt>
+<br><tt>&nbsp; :features ()</tt>
+<br><tt>&nbsp; :hint</tt>
+<br><tt>&nbsp;&nbsp; ((hint "Notice that ~a is near ~a." ?b ?planet)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (hint "When an object is near a planet, the
+planet exerts a</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; weight
+force on the object.")</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (hint "Because ~a is near the planet ~a, the
+planet exerts a weight</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; force
+on it, so use the force drawing tool to draw a force on</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ~a
+due to ~a of type weight during time ~a." ?b ?planet ?b ?planet ?t)))</tt></blockquote>
+The &lt;name> field is a Lisp atom, such as draw-weight.&nbsp; The &lt;arguments>
+field is a list of unification variables, where a unification variable
+is a Lisp atom that starts with a question mark.&nbsp; Unification variables
+are used in many places in Andes Script.&nbsp; Unification is a kind of
+pattern matching.&nbsp; When a form containing a unification variable,
+such as <tt>(mass ?body),</tt> is unified (matched) to another form, such
+as <tt>(mass sled)</tt>, the unification variables are bound to the corresponding
+pieces, so <tt>?body</tt> is bound to <tt>sled</tt>.
+<p>The arguments of an operator are used to prevent redundant computation.&nbsp;
+Whenever an operator is applied, its name and the bindings of its arguments
+are stored, and the interpreter will not apply an operator if it has already
+been applied with the same argument bindings.&nbsp; Thus, the author should
+include in the argument list enough variables to insure uniqueness.&nbsp;
+For instance, if ?t were left out the argument list of draw-weight, then
+the interpreter would refuse to draw the weight of the Nimitz (?b=Nimitz)
+due to the earth (?planet=earth) for time point 1&nbsp; (?t=1) if it had
+already drawn the weight of the Nimitz due to earth for time point 2.
+<p>Although the &lt;name> and &lt;arguments> fields are required, the rest
+of the operator's fields are not.&nbsp; Thus, we need to label them in
+order to tell which ones are present and which have been left out.&nbsp;
+The labels for the fields begin with a colon.&nbsp; These fields can appear
+in any order, since the labels suffice to distinguish them.
+<p>The specifications field is a string used only for documentation.&nbsp;
+So far, we haven't had much use for it.&nbsp; It usually takes a couple
+of paragraphs to explain an operator, so authors have been putting those
+explanations in Lisp comments.
+<p>The preconditions field is an ordered list of conditions.&nbsp;&nbsp;
+A condition can be either an atomic statement or an executable.&nbsp; An
+executable is a piece of lisp code; the list of valid executables will
+be discussed later.&nbsp; A atomic statement is a first-order logic statement,
+written in Lisp syntax, with no quantifiers and no logical connectives.&nbsp;
+That is, it consists simply of a predicate and arguments, where each argument
+is a logical term.&nbsp; A logical term is either a unification variable
+(e.g., ?planet), a constant (e.g., earth) or a logical function.&nbsp;
+A logical function is a function name with a list of arguments.&nbsp;&nbsp;
+For instance, (force ?b ?planet weight) is a logical function, and (vector
+?b (at (force ?b ?planet weight) ?t) ?dir) is an atomic statement.&nbsp;
+Logical functions and atomic statements look exactly the same, syntactically.&nbsp;
+However, they appear in different places.&nbsp; Atomic statements appear
+as conditions and effects.&nbsp; Functions appear in the argument positions
+of atomic statements or other functions.&nbsp; This is just the standard
+conventions of first order logic.&nbsp;&nbsp; When an atomic statement
+appears in the preconditions field of an operator, it is used both to unify
+with working memory and as a subgoal.&nbsp; This was illustrated earlier
+when the differences between productions and Stripts operators was discussed.
+<p>The effects field is an unordered list of atomic statements.&nbsp; These
+will eventually be added to working memory when the operator is finally
+executed.
+<p>The features field contains a list of Lisp forms.&nbsp; Currently, the
+only feature is <tt>unordered.&nbsp; </tt>When an operator has the unordered
+feature, it means that the preconditions of the operator can be achieved
+by the student in any order.&nbsp; The interpreter will continue to achieve
+them in order, so the unordered feature has no affect on the solution graph
+generator.
+<p>The hint field contains a list of hints to be given to the student.&nbsp;
+This field's contents are not yet used by the help system, so it won't
+be documented any further.&nbsp; We might end up having to change the syntax
+of hints as the implementation of the help system proceeds.
+<p>The fields of operators have been described, except that we delayed
+discussion of the executables that appear in the preconditions slot.&nbsp;
+They are needed in order to escape from the ordinary interpretation of
+operators.&nbsp; Thus, we need to describe more precisely what the interpreter
+does before describing the executables.
+<h3>
+<a NAME="example"></a>A long example of how the problem solver really works</h3>
+When the bubble graph generator wants to receive all possible equations
+that contain a specific sought quantity, it calls the interpreter and passes
+in the sought quantity.&nbsp; Suppose, for instance, that it wants to find
+equations that contain the mass of the sled, so it passes in (mass sled).&nbsp;
+The interpreter initializes working memory with propositions from the problem
+definition and it initializes the goal stack with the goal
+<ul>
+<li>
+(psm-applied (mass sled) ?eqn-id ?eqn-algebra)</li>
+</ul>
+This is not actually what happens, but it is pretty close (see the operator
+find-by-psm in Newtons2.cl for the real truth).&nbsp; At any rate, the
+key idea is that problem solving starts with a non-empty working memory
+and a goal stack that has just one goal on it.
+<p>However, the bubble graph should receive not just one equation, but
+all possible equations that contain the sought quantity.&nbsp; This is
+achieved by making the interpreter non-deterministic.&nbsp; That is, the
+whole state of the interpreter is recorded in a data structure called the
+State.&nbsp; In particular, the State contains the working memory, the
+goal stack, and the bindings of any unification variables.&nbsp; The interpreter's
+has a workhorse function, called Successors, that inputs a State and outputs
+all possible successor states.&nbsp; If any of those States has an empty
+goal stack, then the State represents a solution to the problem so it is
+put aside.&nbsp; Otherwise, the remaining States are placed in a queue.&nbsp;
+The interpreter repeatedly pulls a State off the queue, calls Successors
+to generates all its successors, puts aside the completed states, and enqueues
+the rest.&nbsp; When the queue is finally empty, the interpreter has generated
+all possible solutions.&nbsp; It extracts the equations from them, and
+returns them to the bubble graph generator.
+<p>Successors inputs one State and outputs a possibly empty set of States.&nbsp;
+The basic steps are:
+<ol>
+<li>
+Remove the top item from the goal stack of the input State.</li>
+
+<li>
+If the top item is an operator, then execute it.&nbsp; That is, create
+a new state that is a copy of the input State, then add the operator's
+effects to its working memory, after first replacing any unification variables
+that appear in the effects with their current bindings.&nbsp; Return a
+singleton set containing the new State.</li>
+
+<li>
+If the top item is a executable, then create a new state that is a copy
+of the input State, execute the executable in the new state, and and return
+a singleton set constaining the new state.</li>
+
+<li>
+Otherwise, the top item must be an atomic statement (i.e., a goal).&nbsp;
+Do the next two steps in order to process it.&nbsp; They will produce zero
+or more new states.&nbsp; Return a set containing the new states.</li>
+
+<ol>
+<li>
+For each proposition in working memory that unifies with the goal, create
+a new state with the bindings produced by the unification.&nbsp; In other
+words, the goal was already true in working memory, so we don't have to
+do anything, except remember what bindings were produced by matching the
+goal to working memory.</li>
+
+<li>
+For each operator in the knowledge base that has an effect that unifies
+with the goal, create a new State by subgoaling on the operator.&nbsp;
+That is, push the operator onto the new State's goal stack, then push all
+the preconditions onto the goal stack.</li>
+</ol>
+</ol>
+This will probably be clearer if we work through an example.&nbsp; Suppose
+the initial State has the sled problem's description in its working memory
+and has (psm-applied (mass sled) ?eqn-id ?eqn-algebra) as the only item
+on its goal stack.&nbsp; Successors inputs the initial State, and removes
+(psm-applied (mass sled) ?eqn-id ?eqn-algebra) from the stack.&nbsp; This
+is an atomic statement, so step 4 applies.&nbsp; First Successors tries
+to unify it with propositions in working memory, but no propositions match.&nbsp;
+Next Successors tries to unify the goal with each operator's effects, and
+unification succeeds with the following operator:
+<p>;<tt>;; =================== applying a scalar equation=================</tt>
+<br><tt>;;; This operator is a problem solving method (PSM) that finds
+a</tt>
+<br><tt>;;; scalar equation containing the sought quantity then writes
+the</tt>
+<br><tt>;;; equation.&nbsp; Whenever an author wants to define a new scalar</tt>
+<br><tt>;;; equation, such as speed=distance/duration, the author must
+define</tt>
+<br><tt>;;; operators for both the eqn-contains goal, which indicate which</tt>
+<br><tt>;;; quantities are contained in the equation, and the eqn goal,
+which</tt>
+<br><tt>;;; represents writing the equation on the Andes user interface.</tt>
+<p><tt>(defoperator apply-scalar-psm (?sought ?eqn-id)</tt>
+<br><tt>&nbsp;&nbsp; :features (PSM)</tt>
+<br><tt>&nbsp;&nbsp; :specifications "If the goal is to apply a psm to
+find a quantity,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; and there is a scalar equation&nbsp;
+that contains that quantity,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; then generate the equation."</tt>
+<br><tt>&nbsp;&nbsp; :preconditions (</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (eqn-contains ?eqn-id ?sought)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (not (eqn ?dont-care ?eqn-id))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (eqn ?eqn-algebra ?eqn-id)</tt>
+<br><tt>&nbsp;&nbsp; )</tt>
+<br><tt>&nbsp;&nbsp; :effects</tt>
+<br><tt>&nbsp;&nbsp; ((psm-applied ?sought ?eqn-id ?eqn-algebra)))</tt>
+<p>Successors subgoals on this operator and creates a new State with the
+following goal stack
+<ul>
+<li>
+(eqn-contains ?eqn-id (mass sled))</li>
+
+<li>
+(not (eqn ?dont-care ?eqn-id))</li>
+
+<li>
+(eqn ?eqn-algebra ?eqn-id)</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) ?eqn-id)</li>
+</ul>
+No other operator has an effect that unifies with the goal, so step 4 of
+Successors finishes up having created just one State.&nbsp; The State is
+returned, enqued, immediately dequeued, and given back to Successors.&nbsp;
+Successors pops the stack, and identifies (eqn-contains ?eqn-id (mass sled))
+as an atomic statement and hence a goal.&nbsp; There are no matching propositions
+for it in the working memory.&nbsp;&nbsp; Several operators have effects
+that unify with the goal.&nbsp; Let's look first at this one:
+<p><tt>(defoperator wt-law-contains (?b ?t ?planet)</tt>
+<br><tt>&nbsp; :specifications "</tt>
+<br><tt>&nbsp;&nbsp; If a body is near a planet,</tt>
+<br><tt>&nbsp;&nbsp; then the weight law for the body potentially contains</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; the magnitude of the weight force,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; the mass of the body, and</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; the gravitational constant for the planet."</tt>
+<br><tt>&nbsp; :preconditions</tt>
+<br><tt>&nbsp; ((time ?t)</tt>
+<br><tt>&nbsp;&nbsp; (near-planet ?planet)</tt>
+<br><tt>&nbsp;&nbsp; (not (massless ?b)))</tt>
+<br><tt>&nbsp; :effects</tt>
+<br><tt>&nbsp; ((eqn-contains (wt-law ?b ?t) (mass ?b))</tt>
+<br><tt>&nbsp;&nbsp; (eqn-contains (wt-law ?b ?t) (at (mag (force ?b ?planet
+weight)) ?t))</tt>
+<br><tt>&nbsp;&nbsp; (eqn-contains (wt-law ?b ?t) (gravitational-acceleration
+?planet)))</tt>
+<br><tt>&nbsp; :hint</tt>
+<br><tt>&nbsp; ((hint "The weight law could potentially contain the sought
+quantity.")))</tt>
+<p>The first effect unifies with the goal, and binds ?eqn-id to (wt-law
+sled ?t) as a side effect.&nbsp; Successors creates a new State and puts
+this operator's conditions, etc. onto its goal stack, which contains:
+<ul>
+<li>
+(time ?t)</li>
+
+<li>
+(near-planet ?planet)</li>
+
+<li>
+(not (massless sled))</li>
+
+<li>
+execute (wt-law-contains sled ?t ?planet)</li>
+
+<li>
+(not (eqn ?dont-care (wt-law sled ?t)))</li>
+
+<li>
+(eqn ?eqn-algebra (wt-law sled ?t))</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) (wt-law sled ?t))</li>
+</ul>
+Note that these little pictures of the goal stack show the bindings of
+unification variables.&nbsp; Thus, instead of (eqn ?eqn-algebra ?eqn-id),
+we see (eqn ?eqn-algebra (wt-law sled ?t)) because ?eqn-id has been bound
+to (wt-law sled ?t) .&nbsp; At any rate, this State is one of the states
+returned by Successors.&nbsp; However, there are other operators with an
+effect that unifies with the goal.&nbsp; Here is one:
+<p><tt>(defoperator mass-compound-contains (?b-sought ?bodies)</tt>
+<br><tt>&nbsp; :preconditions (</tt>
+<br><tt>&nbsp;&nbsp; ; compound body must exist</tt>
+<br><tt>&nbsp;&nbsp; (object (compound . ?bodies))</tt>
+<br><tt>&nbsp;&nbsp; ; applies if sought is mass of compound or one of
+its parts</tt>
+<br><tt>&nbsp;&nbsp; (test (or (member ?b-sought ?bodies)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(equal ?b-sought `(compound ,@?bodies))))</tt>
+<br><tt>&nbsp; )</tt>
+<br><tt>&nbsp; :effects (</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (eqn-contains (mass-compound ?bodies) (mass
+?b-sought))</tt>
+<br><tt>&nbsp; ))</tt>
+<p>Subgoaling on this operator produces a state that has the following
+goal stack:
+<ul>
+<li>
+(object (compound . ?bodies))</li>
+
+<li>
+(test (or (member 'sled ?bodies) (equal 'sled `(compound ,@?bodies))))</li>
+
+<li>
+apply (mass-compound-contains sled ?bodies)</li>
+
+<li>
+(not (eqn ?dont-care (mass-compound ?bodies)))</li>
+
+<li>
+(eqn ?eqn-algebra (mass-compound ?bodies))</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) (mass-compound ?bodies))</li>
+</ul>
+Successors returns a set of States that includes this state, the State
+generate by back chaining on the weight law, and other States generated
+by back chaining on conservation of kinetic energy and a variety of moment
+of inertia equations.&nbsp; In other words, the procedure returns a set
+of States, one for each scalar equation in the knowledge base that contains
+mass.&nbsp; Each state has a goal stack that contains conditions that need
+to be tested in order to determine whether the equation applies.
+<p>All these States are placed in the queue.&nbsp; Each will be followed
+out to see if eventually it eventually leads to an equation.&nbsp; Let's
+first consider the fate of the State for the weight law.&nbsp; The top
+item on its goal stack is (time ?t).&nbsp; At step 4 of Successors, we
+find that (time ?t) unifies with the proposition (time (during 1 2)) in
+working memory.&nbsp; A new State is created with ?t bound to (during 1
+2) and the following goal stack:
+<ul>
+<li>
+(near-planet ?planet)</li>
+
+<li>
+(not (massless sled))</li>
+
+<li>
+execute (wt-law-contains sled (during 1 2) ?planet)</li>
+
+<li>
+(not (eqn ?dont-care (wt-law sled (during 1 2))))</li>
+
+<li>
+(eqn ?eqn-algebra (wt-law sled (during 1 2))</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) (wt-law sled (during 1 2)))</li>
+</ul>
+Note how all the ?t variables in the goal stack have changed to (during
+1 2).&nbsp; Successors next searches for an operator with an effect that
+unifies with (time ?t), but fails to find any, so it returns only the one
+State.&nbsp; Let's suppose that this state is enqueued, immediately dequeued
+and send back to Successors.&nbsp; Now the top item on the goal stack is
+(near-planet ?planet).&nbsp; This unifies with the proposition (near-planet
+earth) in working memory, and a new State is produced with a shorter goal
+stack and ?planet bound to earth:
+<ul>
+<li>
+(not (massless sled))</li>
+
+<li>
+execute (wt-law-contains sled (during 1 2) earth)</li>
+
+<li>
+(not (eqn ?dont-care (wt-law sled (during 1 2))))</li>
+
+<li>
+(eqn ?eqn-algebra (wt-law sled (during 1 2))</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) (wt-law sled (during 1 2)))</li>
+</ul>
+No operators have near-planet propostions in their effects, so this is
+the only State produced.&nbsp; Let us again suppose that it is enqueued
+and immediately dequeued.&nbsp; Now the top item on the stack is (not (massless
+sled)).&nbsp; This is an executable, so Successors follows its third step
+and calls the Lisp code associated with the executable.&nbsp; The code
+checks whether (massless sled) appears in working memory.&nbsp; It does
+not, so (not (massless sled)) succeeds.&nbsp; A new State is created with
+the following goal stack:
+<ul>
+<li>
+execute (wt-law-contains sled (during 1 2) earth)</li>
+
+<li>
+(not (eqn ?dont-care (wt-law sled (during 1 2))))</li>
+
+<li>
+(eqn ?eqn-algebra (wt-law sled (during 1 2))</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) (wt-law sled (during 1 2)))</li>
+</ul>
+Suppose this State is enqueued, immediately dequeued, and sent back to
+Successors.&nbsp; Successors recognizes the top item on the goal stack
+as an operator application, so it executes the operator.&nbsp; That is,
+it creates a new State and addes the operators effects to the state's working
+memory.&nbsp; The working memory becomes:
+<ul>
+<li>
+(eqn-contains (wt-law sled (during 1 2)) (mass sled))</li>
+
+<li>
+(eqn-contains (wt-law sled (during 1 2)) (at (mag (force sled earth weight))
+(during 1 2))</li>
+
+<li>
+(eqn-contains (wt-law sled (during 1 2)) (gravitational-acceleration earth))</li>
+
+<li>
+(object sled)</li>
+
+<li>
+(near-planet earth)</li>
+
+<li>
+(time (during 1 2))</li>
+
+<li>
+(time 1)</li>
+
+<li>
+(time 2)</li>
+
+<li>
+(motion sled 1 momentarily-at-rest)</li>
+
+<li>
+(motion sled (during 1 2) (straight speed-up (dnum 200 |deg|)))</li>
+
+<li>
+(motion sled 2&nbsp; (straight NIL (dnum 200 |deg|))))</li>
+
+<li>
+(supports plane sled (during 1 2) (dnum 20 |deg|))</li>
+
+<li>
+(constant (accel sled) (during 1 2))</li>
+
+<li>
+(given (mass sled) (dnum 50 |kg|))</li>
+
+<li>
+(given (duration (during 1 2)) (dnum 2 |s|))</li>
+</ul>
+The first three propositions were just added; the others are given in the
+statement of the problem, "What is the final velocity of a 50 kg sled that
+starts at rest and slides down a 20 degree frictionless inclined plane
+for 2 seconds?"&nbsp; The goal stack of the new State is:
+<ul>
+<li>
+(not (eqn ?dont-care (wt-law sled (during 1 2))))</li>
+
+<li>
+(eqn ?eqn-algebra (wt-law sled (during 1 2))</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) (wt-law sled (during 1 2)))</li>
+</ul>
+At this point, let's speed up time and get to the end of this long example.&nbsp;
+The top goal is an executable that checks where this equation has been
+written already, and it hasn't.&nbsp; The next goal is to generate the
+wt-law equation for the sled over the given time interval.&nbsp; This is
+accomplished by first subgoaling on the operator:
+<p><tt>(defoperator wt-law (?b ?t)</tt>
+<br><tt>&nbsp; :features (unordered)</tt>
+<br><tt>&nbsp; :specifications "</tt>
+<br><tt>&nbsp;&nbsp; If a body is near a planet,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; and it is not massless,</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; and you can find the appropriate variables,</tt>
+<br><tt>&nbsp;&nbsp; then write W=m*g where W is the magnitude of the weight
+force</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; on the body, m is the body's mass and
+g is the gravitational</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; acceleration of the planet."</tt>
+<br><tt>&nbsp; :preconditions</tt>
+<br><tt>&nbsp;&nbsp; ((near-planet ?planet)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (not (massless ?b))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (variable ?m-var (mass ?b))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (variable ?w-var (at (mag (force ?b ?planet
+weight)) ?t))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (variable ?g-var (gravitational-acceleration
+?planet))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; )</tt>
+<br><tt>&nbsp; :effects</tt>
+<br><tt>&nbsp;&nbsp; ((eqn (= ?w-var (* ?m-var ?g-var)) (wt-law ?b ?t)))</tt>
+<br><tt>&nbsp; :hint</tt>
+<br><tt>&nbsp;&nbsp; ((hint "You should try applying the weight law.")</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (hint "The weight law for a body is W=m*g, where
+W is the magnitude of the</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; weight
+force acting on the body, m is the body's mass and g is the</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gravitational
+acceleration of earth or whatever planet is nearby.")</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (hint "Write ~a=~a*~a" ?w-var ?m-var ?g-var)))</tt>
+<p>In order to satisfy the third and fourth preconditions, operators are
+applied that draw the body and the weight.&nbsp; Another operator is applied
+to represent the fact that "g" is predefined as the variable for gravitational
+acceleration.&nbsp; When all 3 variables are defined, the wt-law operator
+is executed and writes an equation into working memory.&nbsp; This allows
+apply-scalar-psm to execute, thus creating a State with an empty goal stack.&nbsp;
+The interpreter puts this State aside as one solution to the problem.&nbsp;
+It dequeues the State generated by subgoaling on the mass-compound-contains
+operator.&nbsp; The State has this goal stack:
+<ul>
+<li>
+(object (compound . ?bodies))</li>
+
+<li>
+(test (or (member 'sled ?bodies) (equal 'sled `(compound ,@?bodies))))</li>
+
+<li>
+apply (mass-compound-contains sled ?bodies)</li>
+
+<li>
+(not (eqn ?dont-care (mass-compound ?bodies)))</li>
+
+<li>
+(eqn ?eqn-algebra (mass-compound ?bodies))</li>
+
+<li>
+execute (apply-scalar-psm (mass sled) (mass-compound ?bodies))</li>
+</ul>
+The top goal cannot be achieved, so Successors eventually returns a null
+set.&nbsp; Now the only states left on the queue were created by subgoaling
+on conservation of kinetic energy and by various moment of inertial operators.&nbsp;
+Their preconditions can't be achieved either, so eventually Successors
+returns null sets for them as well.&nbsp; Thus, the queue eventually becomes
+empty, and the interpreter stops.&nbsp; Only one successful State has been
+created, namely the one for the weight law, so just that equation is returned
+to the bubble graph generator.&nbsp; However, attached to it is a PSM graph,
+which looks roughly like:
+<ul>
+<li>
+To achieve (psm-applied (mass sled) ?eqn-id ?eqn-algebra), subgoal on apply-scalar-psm</li>
+
+<li>
+To achieve (eqn-contains ?eqn-id (mass sled)), subgoal on wt-law-contains</li>
+
+<li>
+To achieve (time ?t), match (time (during 1 2)) in working memory</li>
+
+<li>
+To achieve (near-planet ?planet), match (near-planet earth) in working
+memory</li>
+
+<li>
+To achieve (not (massless sled)), call Lisp</li>
+
+<li>
+Execute (wt-law-contains sled (during 1 2) earth)</li>
+
+<li>
+To achieve (not (eqn ?dont-care (wt-law sled (during 1 2)))), call Lisp</li>
+
+<li>
+To achieve (eqn (wt-law sled (during 1 2)) ?eqn-algebra), subgoal on wt-law</li>
+
+<li>
+To achieve (time (during 1 2)), match (time (during 1 2)) in working memory</li>
+
+<li>
+To achieve (near-planet earth), match (near-planet earth) in working memory</li>
+
+<li>
+To achieve (variable ?m-var (mass sled)), subgoal on ....</li>
+
+<li>
+</li>
+</ul>
+This illustrates that the PSM graph is basically just the sequence of reasoning
+steps taken by Successors.&nbsp; Although an author could read the PSM
+graph in order find bugs in the KB, it is easier to use tracing tools instead.&nbsp;
+Thus, the PSM graphs will not be explained any further here.
+<h3>
+<a NAME="executables"></a>Executable preconditions</h3>
+THis section documents the executables that can occur in the preconditions
+field of operator definitions.&nbsp; Whenever it says "the &lt;Lisp form>
+is executed," it means that bindings for unification variables are first
+substituted into the form and then it is executed.&nbsp; Thus, unification
+variables act like Lisp variables in this context.
+<p><b>(bind &lt;unification variable> &lt;Lisp form>)&nbsp;</b> This causes
+the &lt;Lisp form> to be executed.&nbsp; The value it returns is bound
+to the &lt;unification variable>.&nbsp; If the &lt;unification variable>
+is already bound, then its binding must equalp the value returned by Lisp.&nbsp;&nbsp;
+That is, this executable is like an assignment statement in a programming
+language.&nbsp; For instance,&nbsp; <tt>(bind ?dir-var (format-sym "O~A"
+?mag-var))</tt> calls the Lisp function format-sym and passes in both the
+string "O~A" and the value of a unification variable (which that happens
+to be the variable for the magnitude of a vector).&nbsp; The format-sym
+function, which acts like a Lisp format statement except that it creates
+symbols instead of printing to an output stream, returns a symbol that
+has "O" on the front of the magnitude variable's symbol.&nbsp; The unification
+variable ?dir-var is bound to this newly created symbol.
+<p><b>(test &lt;Lisp form>)</b> This causes the &lt;Lisp form> to be executed.&nbsp;
+If it returns NIL, the precondition fails.&nbsp; If it returns anything
+else, the precondition succeeds.&nbsp; For instance, <tt>(test (non-zero-projectionp
+?rot ?dir))</tt> calls a Lisp function that checks whether projecting a
+vector with direction ?dir onto an axis with rotation ?rot will result
+in a non-zero component.
+<p><b>(not &lt;atomic statement>)&nbsp;</b> If any proposition in working
+memory unifies with the given atomic statement, this precondition fails.&nbsp;
+It succeeds only if there is no proposition in working memory that so unifies
+with the given statement.&nbsp; For instance, <tt>(not (vector ?b (at (force
+?b ?planet weight) ?t) ?dont-care))</tt> succeeds only if there is no weight
+vector in working memory for the given body, planet and time.
+<p><b>(not &lt;atomic statement> &lt;Lisp form>)</b> This fails there is
+a proposition in working memory that unifies with the given atomic statement
+and the Lisp form returns non-NIL when executed.&nbsp; For instance, <tt>(not
+(axis-for ?sys ?t ?dontcare1 ?dontcare2) (part-of-sys ?b ?sys))</tt> fails
+if an axis has been drawn for a system ?sys and the body ?b is a part of
+?sys.&nbsp; Part-of-sys is a Lisp function.
+<p><b>(in-wm &lt;atomic statement>)</b>&nbsp; For each proposition in working
+memory that unifies with the given atomic statement, this precondition
+succeeds and Successors returns a State.&nbsp; Moreover,&nbsp; the bindings
+made during unification are kept in that State.&nbsp; This is just like
+putting the atomic statement into the precondition except that Successors
+will not try to unify it with the effects of operators.&nbsp; That is,
+it will match the statement to working memory but it will not try to find
+an operator that will achieve it.&nbsp; If there are no propositions in
+working memory that unify with the atomic statement, then Successors returns
+no States.&nbsp; That is, the precondition fails.
+<p><b>(count &lt;unification variable> &lt;atomic statement>)</b>&nbsp;
+This counts the number of propositions in working memory that unify the
+with the given atomic statement, and binds the given unification variable
+to that integer.
+<p><b>(add-to-wm &lt;atomic statement>)</b>&nbsp; This just adds the given
+&lt;atomic statement> to working memory, after first substituting bindings
+for any variables that occur in the statement.&nbsp; Thus, if ?b is sled,
+then (add-to-wm (teleport ?b)) would add (teleport sled) to working memory.
+<p><b>(any-member &lt;unification variable> &lt;list of terms>)</b>&nbsp;
+After values are substituted for any unification variables, &lt;set of
+terms> must be a possibly empty list (it is an error if it does not).&nbsp;
+For each unification of the unification variable with a member of this
+list, a new state is created and returned by Successors.&nbsp; For instance,
+<tt>(any-member
+?x-rotation ?min-dirs)</tt> is used inside the axis rotation operator draw-rotate-axes.&nbsp;
+The variable ?min-dirs is bound to a list of directions.&nbsp;&nbsp; This
+precondition causes Successors to returns one state for each direction,
+with the variable ?x-rotation is bound to the selected direction.
+<p><b>(debug &lt;string> . &lt;list of terms>)</b>&nbsp; This is like a
+Lisp format statement.&nbsp; The string is printed except that special
+format characters, such as ~a, are replaced by values from the list of
+terms.&nbsp; For instance, (debug "angle between ~A and ~A = ~A~%" ?v1-var
+?v2-var ?angle) prints out the angle between two quantities.&nbsp; The
+~% causes a line break to be printed.&nbsp; This printing can be suppressed
+by setting the global Lisp variable *debug* to NIL.
+<p><b>(setof&nbsp; &lt;goal> &lt;term> &lt;unification variables>)&nbsp;</b>
+This is best explained with an example:
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; (setof (vector ?b (at (force ?b ?agent
+?type) ?dir)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(force ?b ?agent ?type)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+?forces)</tt>
+<br>This executable starts by finding all possible derivations of &lt;goal>,
+namely (vector ?b ...?dir).&nbsp; That is, Successors is called repeatedly
+with the &lt;goal> on the top of the stack until no new States are produced.&nbsp;
+In this case, that derives all forces acting on the given body ?b, because
+the other variables are unbound at the time this precondition is executed.&nbsp;
+Once all the States have been collected, the &lt;goal> is unified with
+either of their working memories in order to get bindings for its variables.&nbsp;
+These bindings are applied to the &lt;term>, creating a different term
+for each state.&nbsp; That set of terms is bound to the given &lt;unification
+variable>&nbsp; For instance, if since there are two forces on the sled,
+two States are produced.&nbsp; One has derived (vector sled (t (force sled
+earth weight) (dnum 270 |deg|)) and the other has derived (vector sled
+(force sled plane normal) (dnum 20 |deg|)).&nbsp; From these two States,
+the force terms are extracted, and ?forces is bound to ((force sled earth
+weight)(force sled plane normal)).
+<p><b>(foreach &lt;unification variable> &lt;Lisp form> &lt;atomic statement>)&nbsp;</b>
+This executable is actually a macro.&nbsp; It expands into a list of preconditions
+that replace it.&nbsp; For instance, suppose that
+<br><tt>&nbsp;&nbsp;&nbsp; (foreach ?b ?bodies (vector ?b (at (velocity
+?b) ?t1) ?dir1))</tt>
+<br>is executed when ?bodies is bound to (ball bat) and ?t1 is bound to
+2.&nbsp; Execution causes this precondition to be replaced by two preconditions:
+<br><tt>&nbsp;&nbsp;&nbsp; (vector ball (at (velocity ball) 2) ?g007181)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (vector ball (at (velocity bat) 2) ?g007182)</tt>
+<br>In general, the &lt;Lisp form> should return a list of terms when it
+is executed.&nbsp; For each member of this set, the &lt;unification variable>
+is bound to the member, and a copy of the &lt;atomic statement> is turned
+into a precondition.&nbsp; Any variables in the &lt;atomic statement> that
+are unbound when this occurred are turned into variables that are guaranteed
+to be unique.
+<p><b>(map &lt;unification variable> &lt;Lisp form> &lt;atomic statement>
+&lt;unification variable> &lt;unification variable>)&nbsp;</b> This is
+also a macro and expands into a list of preconditions that replace it.&nbsp;
+For instance, suppose we execute:
+<br><tt>&nbsp;&nbsp; (map ?v</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (vars-in-eqn ?eqn-algebra)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (in-wm (variable ?v
+?q))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ?q</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ?quantities-in-eqn)</tt>
+<br>when ?eqn-algebra is bound to (= w (* m a)).&nbsp; It expands into
+<br><tt>&nbsp;&nbsp;&nbsp; (in-wm (variable w ?q1))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (in-wm (variable m ?q2))1</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (in-wm (variable a ?q3))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (bind ?quantities-in-eqn '(q1 q2 q3))</tt>
+<br>That is, the interpreter calls the &lt;Lisp form> and expects to receive
+a list back.&nbsp; In this case, it calls vars-in-eqn which extracts variables
+from (= w (* m a)) and returns the list (w m a).&nbsp; For each member
+of this list, the first &lt;unification variable>, ?v in this case, is
+bound to the member and a copy of &lt;goal>,&nbsp; (in-wm (variable ?v
+?q)) in this case, is entered as a precondition.&nbsp; The the unbound
+variables (only ?q in this case) are renamed to make them unique.&nbsp;
+Lastly, the renamed variables that correspond to the second &lt;unification
+variable>, ?q in this case, are gathered together into a list and included
+in a bind executable that binds them to the third &lt;unification variable>,
+?quantities-in-eqn in this case.
+<h2>
+<a NAME="envir"></a>The Andes Script programming environment</h2>
+This section describes how to load and use the current system.&nbsp; If
+you just want to read the code, here are the relevant files:
+<ul>
+<li>
+C:/Andes2/KB/Newtons2.cl&nbsp; -- this is all the operator definitions</li>
+
+<li>
+C:/Andes2/KB/Problems.cl -- all the problem definitions</li>
+</ul>
+The ontology.cl file isn't ready yet.&nbsp; It only has a few uninteresting
+definitions in it.
+<h3>
+<a NAME="started"></a>Getting started</h3>
+These instructions assume you have stored the files into C:/Andes2/.&nbsp;
+To do this from the zip utility, extract the files into C:/ and be sure
+to check the option to user folder names.&nbsp; This will create C:/Andes2
+and its subdirectories.
+<p>Start Lisp in your favorite working envirnoment.&nbsp; If you are using
+the IDE that comes with Lisp, start by executing (in-package :user).&nbsp;
+If you are using Emacs or the Lisp console interface, this is unnecessary.
+<p>Set the working directory to the one that contains the Andes2 files
+by executing :cd C:/Andes2
+<p>Next load the system loader file by executing :ld sgg/loader. You could
+also do (load "sgg/loader").
+<p>Next, recompile and reload all the files (for speed) by executing (rca).
+<br>&nbsp;
+<h3>
+<a NAME="solving"></a>Solving a problem</h3>
+To prevent being overwhelmed with output, turn off some of the tracing
+by executing (setq *debug* NIL) and (setq *S-print-steps* NIL).&nbsp; Check
+that you got the switches turned off by executing (sw), which prints a
+table of switches and their current settings.
+<p>Next, try solving a problem, such as exkt1a by executing (s exkt1a).&nbsp;
+Here's the call and the output, with annotations in variable width font
+explaining what the output means.
+<p><tt>USER(22): (s exkt1a)</tt>
+<br><tt>1 1111111111111111 1&nbsp; Generating Bubblegraph: EXKT1A&nbsp;
+1 1111111111111111 1</tt>
+<br><tt>WARNING: PSM Subevars differ;</tt>
+<br><tt>&nbsp;((VARIABLE m_AIRCRAFT (MASS AIRCRAFT)))</tt>
+<br><tt>&nbsp;NIL</tt>
+<br><tt>2 2222222222222222 2&nbsp; Generating Equation Index: EXKT1A&nbsp;
+2 2222222222222222 2</tt>
+<br><tt>3 3333333333333333 3&nbsp; Generating Var Index: EXKT1A&nbsp; 3
+3333333333333333 3</tt>
+<br><tt>4 444444444444444444 4&nbsp; Generating Solution Point: EXKT1A&nbsp;
+4 444444444444444444 4</tt>
+<br><tt>Complete Solution Point Returned.</tt>
+<br><tt>5 555555555555555555 5&nbsp; Generating Solution Bubbles: EXKT1A&nbsp;
+5 555555555555555555 5</tt>
+<br><tt>6 666666666666666666 6&nbsp; Marking Problem Graph: EXKT1A&nbsp;
+6 666666666666666666 6</tt>
+<br><tt>NIL</tt>
+<br><tt>[2] USER(23):</tt>
+<p>The (s...) function creates the whole solution graph in 6 stages.&nbsp;
+It first stage creates the bubble graph.&nbsp; This is where the KB code
+is executed.&nbsp; A warning message was generated here (you can ignore
+this).&nbsp;&nbsp; Next it generates two indices needed by the help system.&nbsp;
+The fourth stage is to submit the equations to the algebraic equation solver
+and make sure that they are solvable.&nbsp; In this case, one solution
+point was generated, which indicates success.&nbsp; Next it calculates
+all possible paths through the bubble graph.&nbsp; Each path corresponds
+to a solution path that the student could take, so these are sometimes
+interesting to look at in order to debug the KB code.&nbsp; In the sixth
+stage, some bookkeeping is done that involves marking parts of the solution
+graph for the sake of the help system.
+<p>When working on extremely simple problems, it is sometimes useful to
+trace the reasoning of the problem solver as it occurs.&nbsp; Executing
+(setq *actions* T) will cause a complete trace of the reasoning to be printed.&nbsp;
+Executing (setq *debug* T) will cause the trace statements in the Debug
+executables to be printed.
+<h3>
+<a NAME="examing"></a>Examining the solution graph</h3>
+At this point, the solution graph is stored in Lisp's memory and can still
+be examined in various ways.&nbsp; There are many functions for doing this.&nbsp;
+Executing (pg) shows a short form of the bubble graph:
+<p><tt>===== Quantity nodes: =====</tt>
+<br><tt>&lt;Quantity-Node: 0 2 (AT (SPEED AIRCRAFT) (DURING 1 2))</tt>
+<br><tt>&nbsp; Variable: sp_AIRCRAFT_12</tt>
+<br><tt>&nbsp; Equations: (&lt;Eq: (SDD AIRCRAFT (DURING 1 2))>)</tt>
+<br><tt>&nbsp; Marks: (SOUGHT)</tt>
+<br><tt>&nbsp; Path: NIL></tt>
+<p><tt>&lt;Quantity-Node: 1 1 (AT (DISTANCE AIRCRAFT) (DURING 1 2))</tt>
+<br><tt>&nbsp; Variable: dist_AIRCRAFT_12</tt>
+<br><tt>&nbsp; Equations: (&lt;Eq: (SDD AIRCRAFT (DURING 1 2))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Eq: (GIVEN (AT (DISTANCE AIRCRAFT) (DURING 1 2))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(DNUM 8790000 m))>)</tt>
+<br><tt>&nbsp; Marks: (GIVEN)</tt>
+<br><tt>&nbsp; Path: NIL></tt>
+<p><tt>&lt;Quantity-Node: 2 0 (DURATION (DURING 1 2))</tt>
+<br><tt>&nbsp; Variable: t_12</tt>
+<br><tt>&nbsp; Equations: (&lt;Eq: (SDD AIRCRAFT (DURING 1 2))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Eq: (GIVEN (DURATION (DURING 1 2)) (DNUM 13656 s))>)</tt>
+<br><tt>&nbsp; Marks: (GIVEN)</tt>
+<br><tt>&nbsp; Path: NIL></tt>
+<br>&nbsp;
+<p><tt>===== Equation nodes: =====</tt>
+<br><tt>&lt;Equation-Node: 3 2 (SDD AIRCRAFT (DURING 1 2))</tt>
+<br><tt>&nbsp; Algebra: (= sp_AIRCRAFT_12 (/ dist_AIRCRAFT_12 t_12))</tt>
+<br><tt>&nbsp; Quantities: (&lt;Q: (AT (SPEED AIRCRAFT) (DURING 1 2))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Q: (AT (DISTANCE AIRCRAFT) (DURING 1 2))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Q: (DURATION (DURING 1 2))>)</tt>
+<br><tt>&nbsp; Marks: NIL</tt>
+<p><tt>&lt;Equation-Node: 4 1 (GIVEN (AT (DISTANCE AIRCRAFT) (DURING 1
+2))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(DNUM 8790000 m))</tt>
+<br><tt>&nbsp; Algebra: (= dist_AIRCRAFT_12 (DNUM 8790000 m))</tt>
+<br><tt>&nbsp; Quantities: (&lt;Q: (AT (DISTANCE AIRCRAFT) (DURING 1 2))>)</tt>
+<br><tt>&nbsp; Marks: (GIVEN)</tt>
+<p><tt>&lt;Equation-Node: 5 0 (GIVEN (DURATION (DURING 1 2)) (DNUM 13656
+s))</tt>
+<br><tt>&nbsp; Algebra: (= t_12 (DNUM 13656 s))</tt>
+<br><tt>&nbsp; Quantities: (&lt;Q: (DURATION (DURING 1 2))>)</tt>
+<br><tt>&nbsp; Marks: (GIVEN)</tt>
+<p>The Path fields and the marks can be ignored here.&nbsp; If you want
+to see the PSM graph associated with a node, execute (pgn &lt;node number>)
+where the node number is the number immediately following the ...-Node:
+above.&nbsp; For instance, (pgn 5) prints the details about the last node
+listed above:
+<p><tt>USER(27): (pgn 5)</tt>
+<br><tt>&lt;Equation-Node: 5 0 (GIVEN (DURATION (DURING 1 2)) (DNUM 13656
+s))</tt>
+<br><tt>&nbsp; Algebra: (= t_12 (DNUM 13656 s))</tt>
+<br><tt>&nbsp; Path: ((SG DUMMY (GIVEN-EQN ?EQN (DURATION (DURING 1 2))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (OP (WRITE-KNOWN-VALUE-EQN
+(DURATION (DURING 1 2))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SG WRITE-KNOWN-VALUE-EQN</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (IN-WM (GIVEN
+(DURATION (DURING 1 2)) ?VALUE-EXPR40340)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SG WRITE-KNOWN-VALUE-EQN</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (TEST (OR
+(NUMBERP (DNUM 13656 s)) (LISTP (DNUM 13656 s)))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SG WRITE-KNOWN-VALUE-EQN</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (VARIABLE
+?VAR-NAME40339 (DURATION (DURING 1 2))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (OP (DEFINE-DURATION
+(DURING 1 2)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SG DEFINE-DURATION
+(TIME (DURING 1 2))) (WM (TIME (DURING 1 2)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SG DEFINE-DURATION
+(TEST (TIME-INTERVALP (DURING 1 2))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SG DEFINE-DURATION</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (NOT (VARIABLE
+?DONT-CARE40343 (DURATION (DURING 1 2)))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (SG DEFINE-DURATION</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (BIND ?VAR40344
+(FORMAT-SYM t_~A (TIME-ABBREV (DURING 1 2)))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (DO (DEFINE-DURATION
+(DURING 1 2))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+((DEFINE-VAR (DURATION (DURING 1 2)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(VARIABLE t_12 (DURATION (DURING 1 2))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?DONT-CARE40343
+t_12 (DURING 1 2)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (DO (WRITE-KNOWN-VALUE-EQN
+(DURATION (DURING 1 2)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+((GIVEN-EQN (= t_12 (DNUM 13656 s)) (DURATION (DURING 1 2))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (t_12
+(DNUM 13656 s) (DURATION (DURING 1 2))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (DO (DUMMY) ()&nbsp;
+NIL))</tt>
+<br><tt>&nbsp; Assumptions: NIL</tt>
+<br><tt>&nbsp; Quantities: (&lt;Q: (DURATION (DURING 1 2))>)</tt>
+<br><tt>&nbsp; Marks: (GIVEN)</tt>
+<br><tt>&nbsp; State: NIL</tt>
+<br><tt>&nbsp; Subeqns: ((EQN 0 GIVEN-EQN (= t_12 (DNUM 13656 s)) (DURATION
+(DURING 1 2))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(&lt;Eq: (GIVEN (DURATION (DURING 1 2)) (DNUM 13656 s))>) T))</tt>
+<br><tt>&nbsp; Subvars: NIL</tt>
+<br><tt>&nbsp; Entries: NIL></tt>
+<p>The Path field shows all the reasoning steps the problem solver went
+through to generate this equation node.&nbsp; This is often too much information
+to be helpful.
+<p>A more helpful printout is (pe), which prints all possible paths through
+the solution graph.&nbsp; These are the path that the student must actually
+go through, so sometime it is useful to study them.&nbsp; In this case
+there is just one path:
+<p><tt>USER(28): (pe)</tt>
+<br><tt>Equation sets for problem: EXKT1A</tt>
+<br><tt>0: (&lt;Eq: (GIVEN (DURATION (DURING 1 2)) (DNUM 13656 s))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; &lt;Eq: (GIVEN (AT (DISTANCE AIRCRAFT) (DURING
+1 2)) (DNUM 8790000 m))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; &lt;Eq: (SDD AIRCRAFT (DURING 1 2))>)</tt>
+<br><tt>&nbsp;(&lt;Eq: (GIVEN (DURATION (DURING 1 2)) (DNUM 13656 s))></tt>
+<br><tt>&nbsp; &lt;Q: (DURATION (DURING 1 2))></tt>
+<br><tt>&nbsp; &lt;Eq: (GIVEN (AT (DISTANCE AIRCRAFT) (DURING 1 2)) (DNUM
+8790000 m))></tt>
+<br><tt>&nbsp; &lt;Q: (AT (DISTANCE AIRCRAFT) (DURING 1 2))> &lt;Eq: (SDD
+AIRCRAFT (DURING 1 2))></tt>
+<br><tt>&nbsp; &lt;Q: (AT (SPEED AIRCRAFT) (DURING 1 2))>)</tt>
+<br><tt>&nbsp;NIL</tt>
+<p>To see the details about one path, execute (pep &lt;path number>), so
+(pep 0) gives:
+<p><tt>USER(29): (pep 0)</tt>
+<br><tt>0: (&lt;Eq: (GIVEN (DURATION (DURING 1 2)) (DNUM 13656 s))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; &lt;Eq: (GIVEN (AT (DISTANCE AIRCRAFT) (DURING
+1 2)) (DNUM 8790000 m))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp; &lt;Eq: (SDD AIRCRAFT (DURING 1 2))>)</tt>
+<br><tt>&nbsp;(&lt;Eq: (GIVEN (DURATION (DURING 1 2)) (DNUM 13656 s))></tt>
+<br><tt>&nbsp; &lt;Q: (DURATION (DURING 1 2))></tt>
+<br><tt>&nbsp; &lt;Eq: (GIVEN (AT (DISTANCE AIRCRAFT) (DURING 1 2)) (DNUM
+8790000 m))></tt>
+<br><tt>&nbsp; &lt;Q: (AT (DISTANCE AIRCRAFT) (DURING 1 2))> &lt;Eq: (SDD
+AIRCRAFT (DURING 1 2))></tt>
+<br><tt>&nbsp; &lt;Q: (AT (SPEED AIRCRAFT) (DURING 1 2))>)</tt>
+<br><tt>&nbsp;NIL</tt>
+<p><tt>&lt;B: Knowns:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (&lt;Eq: (GIVEN (DURATION
+(DURING 1 2)) (DNUM 13656 s))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Q: (DURATION (DURING 1 2))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Eq: (GIVEN (AT (DISTANCE AIRCRAFT) (DURING 1 2))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+(DNUM 8790000 m))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Q: (AT (DISTANCE AIRCRAFT) (DURING 1 2))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Eq: (SDD AIRCRAFT (DURING 1 2))></tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;Q: (AT (SPEED AIRCRAFT) (DURING 1 2))>)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; NIL</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; Soughts:&nbsp;&nbsp;&nbsp; NIL></tt>
+<p>This prints the path in increasing detail: first the equations nodes
+in this path, then all nodes in this path and finally the path itself.&nbsp;
+To print out the list of variables, execute (pgv).
+<p><tt>USER(34): (pgv)</tt>
+<p><tt>((QVAR 0 t_12 (DURATION (DURING 1 2)) 13656 s (POSITIVE)</tt>
+<br><tt>&nbsp; (&lt;Q: (DURATION (DURING 1 2))>))</tt>
+<br><tt>&nbsp;(QVAR 1 dist_AIRCRAFT_12 (AT (DISTANCE AIRCRAFT) (DURING
+1 2)) 8790000 m NIL</tt>
+<br><tt>&nbsp; (&lt;Q: (AT (DISTANCE AIRCRAFT) (DURING 1 2))>))</tt>
+<br><tt>&nbsp;(QVAR 2 sp_AIRCRAFT_12 (AT (SPEED AIRCRAFT) (DURING 1 2))
+643.67311072056 m/s</tt>
+<br><tt>&nbsp; NIL (&lt;Q: (AT (SPEED AIRCRAFT) (DURING 1 2))>)))</tt>
+<p>This is a list of 3 descriptors.&nbsp; Each one has the following items:
+<ul>
+<li>
+QVAR</li>
+
+<li>
+index</li>
+
+<li>
+the algebraic variable.&nbsp; We try to generate meaningful names.</li>
+
+<li>
+the quantity expression denoted by the variable.</li>
+
+<li>
+the numerical value if any</li>
+
+<li>
+the units if any</li>
+
+<li>
+flags (ignore these)</li>
+
+<li>
+the bubble graph nodes they are mentioned in.</li>
+</ul>
+To view the equations, execute (pge):
+<p><tt>USER(35): (pge)</tt>
+<p><tt>((EQN 0 GIVEN-EQN (= t_12 (DNUM 13656 s)) (DURATION (DURING 1 2))</tt>
+<br><tt>&nbsp; (&lt;Eq: (GIVEN (DURATION (DURING 1 2)) (DNUM 13656 s))>)
+T)</tt>
+<br><tt>&nbsp;(EQN 1 GIVEN-EQN (= dist_AIRCRAFT_12 (DNUM 8790000 m))</tt>
+<br><tt>&nbsp; (AT (DISTANCE AIRCRAFT) (DURING 1 2))</tt>
+<br><tt>&nbsp; (&lt;Eq: (GIVEN (AT (DISTANCE AIRCRAFT) (DURING 1 2)) (DNUM
+8790000 m))>) T)</tt>
+<br><tt>&nbsp;(EQN 2 EQN (= sp_AIRCRAFT_12 (/ dist_AIRCRAFT_12 t_12))</tt>
+<br><tt>&nbsp; (SDD AIRCRAFT (DURING 1 2)) (&lt;Eq: (SDD AIRCRAFT (DURING
+1 2))>) T))</tt>
+<p>This is also a list of 3 descriptors.&nbsp; Each has the following format:
+<ul>
+<li>
+EQN</li>
+
+<li>
+index</li>
+
+<li>
+type: one of given equation, equation or derived equation</li>
+
+<li>
+the algebraic form of the equation</li>
+
+<li>
+equation's identifier, or the quantity if it is a given equation</li>
+
+<li>
+the bubble graph nodes that the equation appears in</li>
+
+<li>
+if T then the equation is solved algebraically; NIL if the algebra module
+could not solve it.</li>
+</ul>
+There are many other ways to print the solution graph.&nbsp; Just ask if
+there is one you want that is not listed here.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>MissingNegOnProjectionExpr</title>
+</head>
+<body>
+
+<center>
+<h2>
+Missing negation in a projection expression</h2></center>
+
+<center>(as of 3/26/01)</center>
+
+<p>If the student entry is an equation
+<ul>
+<li>
+that contains (mag ?vector)</li>
+
+<li>
+and (= (compo ?vector ?axis) (* (mag ?vector)(?trig ?arg))) is a correct
+equation</li>
+
+<li>
+and replacing (mag ?vector) with (- (mag ?vector)) in the student's equation
+makes it correct,</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+(hint string (point) "Check your projection of ~a onto ~a." ?vector ?axis)</li>
+
+<li>
+(hint string (point) "To avoid errors, you should apply the procedure for
+calculating projections that involves taking the difference between the
+vector’s rotation and the axis’ rotation.")</li>
+
+<li>
+if ?axis is an x-axix, then</li>
+
+<ul>
+<li>
+(hint string (teach) "In order to avoid errors when projecting a vector
+onto the x axis, it is best to use a simple formula:&nbsp; Q_x = Q*cos(Q_orientation
+- Coordinate_system_orientation) where Q_x is the component of quantity
+Q along the x-axis, Q is the magnitude of the quantity, Q_orientation is
+the direction of Q with respect to the picture (i.e., the number that appears
+in the Andes form that you used to defined the vector), and Coordinate-system_orientation
+is the rotation of the coordinate system.&nbsp; In this case, your equation
+would be ~a." (= (compo ?vector ?axis) (* (mag ?vector) (?trig ?arg))))</li>
+
+<li>
+&lt;same thing with y instead of x and sin instead of cosine></li>
+</ul>
+
+<li>
+(hint string (bottom-out) ...)</li>
+</ul>
+
+<h3>
+<a NAME="dsb2121 1-10-08"></a>dsb2121 Eq-USNA 1-10-08</h3>
+In the problem where the model airplane is hanging from two strings, the
+student define variables, draws a correct FBD, enters several projection
+equations and enters “Ft1_x = Ft1*sin45.”&nbsp; The right side should have
+a minus sign.
+<ul>
+<li>
+IH notes that there is a sign error and addresses the sign of the forces.</li>
+
+<li>
+RO also notes sign error and also addresses the sign of the forces, specifically
+sign of “Ft1_x”.</li>
+
+<li>
+Andes1 says to check signs.</li>
+
+<li>
+KVL:&nbsp; The student has not entered NFL in component form yet, so Ande's'
+first response should be to treat this as an error where the closest matching
+equation is premature.&nbsp; However, entering the component equation will
+probably not prevent the sign error nor help the student detect it.&nbsp;&nbsp;
+Thus, Andes should direct the student to fill in the skipped step then
+ask about this equation again.&nbsp; If they do, then Andes should hint
+about how to apply the projection procedure.</li>
+</ul>
+The bug substitutes -Ft1 for Ft1, which makes the equation correct.&nbsp;
+Indy analysis equations reveals that the correct equation is primitive,
+namely,&nbsp; Ft1_x= -Ft1*sin45.&nbsp; SG analysis indicates that the compo
+form of NSL needs to be done first, so Andes first hints "You skipped the
+step of entering Newton's law in terms of component variables.&nbsp; Why
+don't you enter that equation, then ask again about why this equation is
+wrong.&nbsp; In general, its easier to remedy errors when no earlier steps
+have been skipped." then teaches the compo equation, then gives a bottom
+out hint for the compo equation.
+<p>Suppose the student enters the compo equation and then asks again why
+the Ft1_x=Ft1*sin45 equation is red.&nbsp; Andes looks up the interpretation
+of the equation and finds {Ft1_x=-Ft1*sin45} again.&nbsp; Checking the
+solution graph reveals that it is not premature, so the bug's hint sequence
+is given.
+</body>
+</html>

@@ -1,0 +1,225 @@
+<html> <head>
+<title>Implementation Details on linearized equation independence checking
+</title>
+</head>
+
+<body>
+<h1>Implementation Details on linearized equation independence checking
+</h1>
+
+indyset.h	a class for independent sets of equations as functions<br>
+ Maintains a list of independent functions (representing eqn->lhs = 0)
+ in the form of their gradients at the solution point.
+<p>
+indyset.cpp:  member functions of class indyset
+<UL><LI><A HREF=#isindy>indyset::isindy</A> - is new equation independent of
+those already in set?
+    <LI><A HREF=#placelast>indyset::placelast</A> place equation just found
+to be independent in the set.
+    <LI><A HREF=#expandlast>indyset::expandlast</A> expand the last equation,
+just found to be dependent, in terms of equations in set.
+</UL>
+<P>
+indysgg.cpp (and indysgg.h) higher level functions
+<UL><LI><A HREF=#indyEmpty>indyEmpty</A> clear for new problem
+    <LI><A HREF=#indyAddVar>indyAddVar</A> declare a new canonical variable
+    <LI><A HREF=#indyAddCanonEq>indyAddCanonEq</A> declare canonical equation,
+	 add to list
+    <LI><A HREF=#indyAddStudEq>indyAddStudEq</A> enter new student equation in
+	 slot
+    <LI><A HREF=#indyDoneAddVar>indyDoneAddVar</A>
+	 declare finished declaring variables. 
+    <LI><A HREF=#indyAddEq2CanSet>indyAddEq2CanSet</A> add previously declared
+	canonical equation to a set
+    <LI><A HREF=#indyKeepN>indyKeepN</A> remove equations from set
+    <LI><A HREF=#indyIsCanonIndy>indyIsCanonIndy</A> is previously declared
+	canonical equation independent of those in set?
+    <LI><A HREF=#indyIsStudIndy>indyIsStudIndy</A>  is previously entered
+	 student equation independent of those in set?
+    <LI><A HREF=#indyExpSetCanEq>indyExpSetCanEq</A> expand canonical
+	 dependent equation in terms of those in set
+    <LI><A HREF=#indyExpSetStudEq>indyExpSetStudEq</A> expand student
+	 dependent equation in terms of those in set
+    <LI><A HREF=#closeupshop>closeupshop</A> prepare to terminate program.
+</UL>
+<P>
+
+<h4><A NAME=isindy>isindy</A></h4>
+isindy is a member function of indyset
+<UL><LI>it checks whether its argument,
+an expression viewed as the lhs of an equation = 0,
+is independent of the previous entries in the set.
+(If called on an equation, treats it as lhs - rhs = 0).
+<LI>It leaves around info for a subsequent command to (if indy) add
+the equation to the set, or if not, to give its expansion in
+terms of the previous equation expressions
+</UL>
+Note that this routine is called by the "higher level" routines
+indyIsCanonIndy and indyIsStudIndy.<br>
+Also Note: The dependence checking is actually on the linear approximations
+to all equations. If the solution point happens to be at a critical point
+in some direction,
+it is possible to get a spurious dependence on equations which do not determine
+the value of that direction.<p>
+
+Calls:<UL><LI>bool indyset::isindy(const expr * const candex)
+<LI>bool indyset::isindy(const valander * const candval)
+</UL>
+Description:
+  candleft is set to the gradient to be tested, and then the
+    appropriate multiple (candexpand[k]) of basis[k] is subtracted so that
+    the entry in column ordervar[k] will be zero. When done, we have
+    the original gradient = \sum candexpand[k] * basis[k] + candleft.
+If candleft is left all 0, the tested gradient is dependent. If it
+is independent, it can be added to the set by calling <tt>placelast</tt>. This
+makes candleft the next basis vector. Thus the expansion candexpand
+is not being done in terms of the original equations but in terms of
+progressively projected ones. So that expandlast will answer in terms
+of the original equations, the matrix baseexpand is maintained for the
+conversion.
+<p>
+The details of how this is done is <A HREF=indydetail2.pdf>in here.</a>
+<p>
+<h4><A NAME=placelast>placelast</A><br></h4>
+<tt>placelast()</tt> adds the previously isindy'd equation (which must have
+ been declared independent) to the set.
+This must be first call following the isindy call.<br>
+bool indyset::placelast()
+<p>
+
+<H4><A NAME=expandlast>expandlast</A><br></H4>
+<tt>expandlast</tt> returns the vector of coefficients by which the last
+	isindy'd equation can be expanded in terms of the equations
+	already entered in the set. Must be first call following the 
+	isindy call.
+<br>
+vector<double> indyset::expandlast()
+<p>
+<H4><A NAME=keepn>keepn</A></H4>
+<tt>keepn(int n)</tt> removes all the equations from the set except the
+first n.<br>
+ Fails (and returns false) if n > size or n < 0
+<br>
+bool indyset::keepn(int n)
+<p>
+<h3>functions in indysgg</h3>
+<H4><A NAME=indyEmpty>indyEmpty</A></H4>
+<tt>void indyEmpty()</tt>	initializes everything to begin a new problem.
+Needs to be called
+before any work on a problem is begun. See the source code in indysgg.cpp
+for a complete list of structures created or emptied.
+<P>
+<H4><A NAME=indyAddVar>indyAddVar</A></H4>
+indyAddVar( name,  value, unitstr) 
+<UL><LI>	name is the canonical name of the variable 
+<LI>	value is the value in whichever units are given by unitstr 
+<LI>	unitstr is the preferred units for expressing this variable
+</UL>
+indyAddVar throws an exception if the variable has already been defined.
+See <A HREF="Joel/varspec.html">Details of the variable specificationz</A>
+for the implications.
+void indyAddVar(const char* const name, double value,
+		const char* const unitstr)
+<P>
+<H4><A NAME=indyDoneAddVar>indyDoneAddVar</A></H4>
+<tt>void indyDoneAddVar()</tt>:
+	call this function after all variables have been declared and
+	before dealing with any sets of independent equations or asking the
+system to solve the problem. These tasks require an unchanging list of
+variables.
+<P>
+<H4><A NAME=indyAddCanonEq>indyAddCanonEq</A></H4>
+<tt>void indyAddCanonEq(int eqnID, const char* const equation)</tt>
+	enters the equation, given in lisp form, as the next equation
+	in <tt>canoneqf</tt>, which better be the eqnID'th, or an
+exception will be thrown. It also calculates the <tt>valander</tt> for
+the new equation and places it in canongrads.
+
+<P>
+<H4><A NAME=indyAddStudEq>indyAddStudEq</A></H4>
+<tt>int indyAddStudEq(int slot, const char* const equation)</tt>
+	enters the equation, given in lisp form, as the student's equation
+	in slot <tt>slot</tt>. If the slot is emptied, this should be
+	called with ???  (getStudEqn in getaneqwu needs to check for
+whatever we agree on here.)
+<P>
+<H4><A NAME=indyIsCanonIndy>indyIsCanonIndy</A></H4>
+<tt>bool indyIsCanonIndy(int setID, int eqnID)</tt>
+	asks if the canonical equation which is the <tt>eqnID</tt>'th in 
+	<tt>canoneqf</tt> is independent of the equations already in
+	set <tt>setID</tt><br>
+Note that as of April 21, this actually only checked if the linear
+approximations to the equations around the solution point were independent.
+It is possible for the linear approximations to be dependent while the
+full equations are independent if the solution point is at a stationary
+point in a direction orthogonal to the gradients considered.
+<br>
+Some improvement along this line may appear here. While isindy will still
+only provide information about the linear approximation, we may also ask
+of a proposed linear dependence whether any of the equations depend on a
+variable v<sub>j</sub> for which they all have vanishing derivative.
+If so, it is possible
+that the equation is not independent of some equation determining this
+variable. If the tested equation S = sum c<sub>i</sub>f<sub>i</sub> in
+linear approximation, we could try it for a value of  v<sub>j</sub> other
+than the solution point. This is not definitive, however, as the dependence
+might not be linear, and even if the above relation were exact, the
+c<sub>i</sub> could depend on v<sub>j</sub> in an unknowable way.
+<P>
+<H4><A NAME=indyIsStudIndy>indyIsStudIndy</A></H4>
+<tt>bool indyIsStudIndy(int setID, int eqnID)</tt>
+	asks if the student's equation in slot <tt>eqnID</tt> is independent
+	of the equations in set <tt>setID</tt>
+<BR>
+As for indyIsCanonIndy (see comments above), this actually checks dependence
+of the linear expansions of the equations around the solution point. 
+<P>
+<H4><A NAME=indyAddEq2CanSet>indyAddEq2CanSet</A></H4>
+<tt>void indyAddEq2CanSet(int setID, int eqnID)</tt>
+	adds the <tt>eqnID</tt>'th canonical equation to the set
+	<tt>setID</tt>. It should be checked for independence first, or
+	else it will throw an exception.<br>
+Note even if we find a way to tell that the new equation is independent
+even though its linear expansion is not, we have no way of adding it
+meaningfully to the indyset.
+<P>
+<H4><A NAME=indyKeepN>indyKeepN</A></H4>
+<tt>void indyKeepN(int setID, int numberToKeep)</tt>
+	discards all but the first <tt>numberToKeep</tt> equations
+	from the set <tt>setID</tt>. This could be used in the bubble
+generation procedure during backtracking, but is currently being used
+only to empty the set entirely as part of indyEmpty.
+<P>
+<H4><A NAME=indyExpSetCanEq>indyExpSetCanEq</A></H4>
+<tt>string indyExpSetCanEq(int setID, int eqnID)</tt>
+	gives the expansion of the <tt>eqnID</tt>'th equation in the
+	<tt>canoneqf</tt> list in terms of the equations in set <tt>setID</tt>.
+	This should only be done with equations known to not be independent.
+<BR>
+Note that the expansion is actually of the linear approximations to the
+equations about the solution point. see indyExpSetStudEq.
+<P>
+<H4><A NAME=indyExpSetStudEq>indyExpSetStudEq</A></H4>
+<tt>string indyExpSetStudEq(int setID, int slot)</tt>
+	gives the expansion of the student's equation in slot<tt>slot</tt>
+	in terms of the equations in set <tt>setID</tt>.
+	This should only be done with equations known to not be independent.
+<BR>
+Note that the expansion is actually of the linear approximations to the
+equations about the solution point. see indyExpSetStudEq.
+In particular, if F cos theta = ma
+and theta = 0 are in the set, and the student equation is F=ma, it will
+report only  F cos theta = ma in the expansion, as they differ only to
+quadratic order in theta about theta = 0.
+<P>
+<H4><A NAME=closeupshop>closeupshop </A></H4>
+<tt>void closeupshop()</tt>
+	just cleans up before the program exits.
+
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr 22 14:03:25 2001
+<!-- hhmts end -->
+</body> </html>

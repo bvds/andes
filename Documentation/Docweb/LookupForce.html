@@ -1,0 +1,120 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="lookup-force">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>lookup-force</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node9.html">
+<link REL="previous" HREF="node7.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node9.html">
+</head>
+<body>
+
+<h2>
+lookup-force</h2>
+lookup-force <i>label type system agent dir mag &amp;optional time id</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Check correctness of a force vector drawn by the student.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp; "(lookup-force \"f1\" 'grav 'b1 'earth 270 nil 'vector-1)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+<a href="EntryStatusReturnValue.html">An Entry status return value</a>.</dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>label:</b></dt>
+
+<dd>
+the force label, a string</dd>
+
+<dt>
+<b>type:</b></dt>
+
+<dd>
+[tension or grav or spring or normal or friction...]&nbsp; A net force
+is indicate by putting NET here [I think--kvl].</dd>
+
+<dt>
+<b>system:</b></dt>
+
+<dd>
+the label given to the body the force is acting on. May be either system
+label or body name.</dd>
+
+<dt>
+<b>agent:</b></dt>
+
+<dd>
+the label given to the body the force is exerted by.&nbsp; NIL if this
+is a net force.</dd>
+
+<dt>
+<b>dir:</b></dt>
+
+<dd>
+angle of the force vector from horizontal: 0<img SRC="img1.gif" ALT="$<=$" BORDER=0 height=27 width=29 align=CENTER>dir<img SRC="img2.gif" ALT="$<$" BORDER=0 height=27 width=16 align=CENTER>360
+or a negative number coding a z-axis direction as follows</dd>
+
+<dd>
+-1 => out of the plane; -2 => into the page; -3 =>unknown but along the
+z axis.</dd>
+
+<dt>
+<b>mag:</b></dt>
+
+<dd>
+magnitude of the force (zero vs. non-zero) or NIL if unspecified</dd>
+
+<dt>
+<b>time:</b></dt>
+
+<dd>
+the time period during which the force is constant. If nil, and system
+is a student-defined system, the time will be taken from the system definition.</dd>
+
+<dt>
+<b>id:</b></dt>
+
+<dd>
+id assigned to the force vector by the workbench</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+If the force is correct, then the help system marks the corresponding system
+entry as "entered."&nbsp; It also defines magnitude and direction variables
+for the force, and enters them into the symbol table.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<html> <head>
+<title>Physical Dimensions in the Algebra System
+</title>
+</head>
+
+<body>
+<h1>Physical Dimensions in the Algebra System
+</h1>
+
+This page discusses the internal representation of physical dimensions in the
+algebra system.
+<p>
+Physical quantities are, in general, not numbers, but may be described
+numerically by giving a number and a unit, or combination of units. A variable
+that represents one of those quantities ought also be more than a number.
+Hundreds of
+millions of dollars were lost on a mission to Mars because some engineer
+specified a force as a number without specifying that that was in pounds, not
+Newtons. The algebra system treats all variables has having a real number and
+a set of units. Each <A HREF=expr.html>expression</a> also knows what its
+units should be, even if it doesn't know its numerical value. Expressions
+which do represent explicit values have their numerical value represented in
+SI units, built from the meter, kilogram, second, coulomb, and degree Kelvin.
+<p>
+In addition to the units all physical expressions have, <a HREF=physvar.html>
+<TT>physvar</TT></A>s have a preferred unit, which may differ from the
+SI units.
+For example, a force may be specified as <tt>8 lb</tt>, but it will be
+treated internally as <tt>35.584 N</TT>. More importantly, angles may be
+specified in <TT>deg</TT> and angular velocities in <TT>rad/s</TT> without
+inconsistencies. [This is only true since April, 2001].
+<P>
+The units of an <TT>expr</TT> are given in its <TT>MKS</TT> member,
+which is of
+class <TT>dimens</TT>. Here we describe that class.
+
+<h3 align=center>Class <TT>dimens</TT></h3>
+
+The class <TT>dimens</TT> is defined in <TT>dimens.h</TT>, and most of its
+member functions and overloaded operators are in <TT>dimens.cpp</TT>. Its
+member data are simply five <TT>DIMEXP</TT>, which are byte-sized signed
+values representing the power to which each of the fundamental units is
+raised. I have assumed fractional powers are never worse than twelfths, and
+that the power is always in the range [-10,10], so for example, newtons
+are m.kg/s^2, with exponents 1, 1, -2, 0, 0, and 
+MKS = { 12, 12, -24, 0, 0}. In addition, the values -127 for unknown,
+-126 for inconsistent, 125 for might-be-zero, and 121, -121 for overflow,
+are set aside. These DIMEXP are hidden, never used in anything public.
+(The actual data values are private).
+<P>
+Member functions:
+<UL><LI>Constructors
+    <UL><LI><TT>dimens()</TT>
+        <LI><TT>dimens(int,int,int,int,int)</TT>
+        <LI><TT>dimens(double,double,double,double,double)</TT>
+    </UL>
+    <LI>functions
+    <UL><LI><TT>void put(int lengthd, int massd, int timed)</TT>
+        <LI><TT>void put(int lengthd, int massd, int timed, int charged,
+	     int tempd)</TT>
+        <LI><TT>void put(double lengthd, double massd, double timed)</TT>
+        <LI><TT>void put(double lengthd, double massd, double timed,
+	     double charged, double tempd)</TT>
+        <LI><TT>double getlengthd()</TT>
+        <LI><TT>double getmassd()</TT>
+        <LI><TT>double gettimed()</TT>
+        <LI><TT>double getcharged()</TT>
+        <LI><TT>double gettempd()</TT>
+        <LI><TT>string print()</TT>
+        <LI><TT>bool zerop()</TT> Are all dimensions zero (ie dimensionless)
+        <LI><TT>bool unknp()</TT> are all unknown. If any are, they all ought
+	     to be.
+        <LI><TT>bool incons()</TT> Is the expression dimensionally
+	     inconsistent.
+        <LI><TT>bool adjust(dimens dim)</TT> If <TT>this</TT> has unknown
+	     or may-be-zero dimensions, and <TT>dim</TT> is consistent but
+	     better defined, change the dimensions of <TT>this</TT> to those
+	     of <TT>dim</TT>.
+    </UL>
+    <LI>Overloaded operators: If <TT>dima</TT> and <TT>dimb</TT> are
+	 <TT>dimens</TT>, and <TT>k</TT> is a double, the following operators
+	 have their obvious meanings
+        <LI><TT>dima += dimb</TT> Used in multiplying quantities
+        <LI><TT>dima *= k</TT> Used for powers of quantities and, with k = -1.,
+	     for dividing
+        <LI><TT>dima == dimb</TT> Check if dimensions are equal
+        <LI><TT>dima + dimb</TT>
+        <LI><TT>dima * k</TT>
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr  8 17:55:18 2001
+<!-- hhmts end -->
+</body> </html>

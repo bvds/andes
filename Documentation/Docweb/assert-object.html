@@ -1,0 +1,90 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="assert-object, assert-compound-object">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>assert-object, assert-compound-object</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node7.html">
+<link REL="previous" HREF="node5.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node7.html">
+</head>
+<body>
+
+<h2>
+assert-object, assert-compound-object</h2>
+assert-object <i>label name &amp;optional time id</i>
+<br>assert-compound-object
+<i>label names &amp;optional time id</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Checks correctness of a student defined single or compound body.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp; "(assert-object \"b1\" 'blk nil 'system-1)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+<a href="EntryStatusReturnValue.html">Entry status return value</a></dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>label:</b></dt>
+
+<dd>
+the label of the body, a string</dd>
+
+<dt>
+<b>name(s):</b></dt>
+
+<dd>
+the name the body(s) was given in the problem description</dd>
+
+<dt>
+<b>time:</b></dt>
+
+<dd>
+the time period specified for the system</dd>
+
+<dt>
+<b>id:</b></dt>
+
+<dd>
+id assigned to this object by the workbench</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+Marks the corresponding system entry as "entered."&nbsp; Defines a mass
+variable whose name has "m" concatentated to the given label.&nbsp; Enters
+into the symbol table this name paired with the system's name for the same
+quantity.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

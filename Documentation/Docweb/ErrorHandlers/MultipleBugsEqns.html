@@ -1,0 +1,82 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>MultipleBugsEqns</title>
+</head>
+<body>
+
+<center>
+<h2>
+Equations with multiple bugs</h2></center>
+
+<center>(as of 5/18/01)</center>
+
+<p>This page contains examples of equation entries that have two or more
+bugs in them.
+<h3>
+<a NAME="Ingpole 28-31"></a>Ingpole Eq-USNA 28-31</h3>
+In the problem where the car is rolling down the driveway towards the garage,
+the student defines variables, draws a correct FBD including both forces
+and all kinematics vectors, applies NSL in one line to get a value for
+acceleration, then enters “vf_x^2=-2*a(d).”&nbsp; The target equation is
+vf_x^2=-2*a(-d).&nbsp; The student has dropped the negative sign on d.&nbsp;
+Unfortunately, the student has also defined vf as the average velocity
+from T0 to T1 instead of the velocity at T1.&nbsp; The tutors and the student
+didn’t notice this mistake because Andes marked the variable definition
+green, which is what it should do, because average velocity can be used
+in some kinematics solution to the problem.&nbsp; Thus, there are two errors:
+a missing negation and a variable confusion.
+<ul>
+<li>
+IH first asks how the student relates a to a_x, then asks how the student
+relates d to d_x.</li>
+
+<li>
+RO asks what the direction of d is (despite the fact that d is drawn),
+then points out the correct equation.</li>
+
+<li>
+Andes1 says that vf_x is not a relevant quantity.</li>
+
+<li>
+KVL: The first thing to remedy is to get the student to rewrite the equation
+in component form.&nbsp; Assuming she does that, Andes should say, “vf_x
+stands for the average velocity from T0 to T1.&nbsp; Is that what you want
+here?”</li>
+</ul>
+Andes2 should find that substituting the final velocity's x-component for
+vf_x and negating the right side of the equation produces a correct equation.&nbsp;
+Indy analysis finds that it is a compound of vf_x^2 = vi_x^2 + 2*a_x*d_x,&nbsp;&nbsp;
+vi_x=0,&nbsp;&nbsp; a_x=-a,&nbsp;&nbsp; and&nbsp; d_x=-d.&nbsp; SG analysis
+shows that the student's equation is premature, and the equation should
+be written first in component form without the substitutions.
+<p>Suppose Andes says to do that, and the student changes the equation
+to vf_x^2 = vi_x^2 + 2*a_x*d_x. This equation will be marked red, so suppose
+the student asks what's wrong with it.&nbsp; Andes finds that substituting
+the final velocity's x-component for vf_x produces a correct equation.&nbsp;
+Indy analysis finds that it is primitive.&nbsp; SG analysis finds that
+it is not premature.&nbsp; Now Andes must decide whether the student intended
+to put the average velocity in the equation, and thus needs to be taught
+a correct version of the equation, or whether the student intended to define
+the final velocity and put it in the equation, but slipped.&nbsp; Even
+without knowing this student, it seems likely that the student slipped,
+because the student chose vf as the variable's name.&nbsp; I think it would
+be worth including some typical names in the Defexprs for quantities so
+that Andes can be as smart as humans.&nbsp; Given this info, Andes would
+decide that the student slipped, and thus give hint sequence based on the
+substitution: "Check your definition of vf." then "You have used vf as
+if it were the velocity of the car at T1, but you defined it as the average
+velocity of the car from T0 to T1." then "Redefine vf by clicking on it
+with the right moust button.&nbsp; Change it to be the velocity of the
+car at T1."
+<p><a href="MissingForces.html#2 forces missing">Two forces missing from
+a sum of forces</a>.&nbsp; This should be handled inside the missing-forces
+error handler.
+<p>Convert Fp_x=F_x to Fp_x= -Ff_x via negative sign insertion and substitution
+of Ff_x for F_x.&nbsp; See <a href="MissingForces.html#2 errors">here</a>.
+<br>&nbsp;
+</body>
+</html>

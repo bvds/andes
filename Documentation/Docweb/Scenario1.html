@@ -1,0 +1,124 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Scenario1</title>
+</head>
+<body>
+
+<center>
+<h2>
+Scenario of 2/28/01</h2></center>
+
+<p><br>This scenario illustrates how axis choice interacts with equation
+interpretation.
+<p>Suppose the problem is the one we were discussing on friday, where there
+is a 5 kg block sliding down a 37 degree frictionless inclined plane and
+the acceleration of the block is sought.&nbsp; Suppose the student has
+entered the body, the weight force, the normal force, the acceleration
+and the equation W=m*g.&nbsp; The student has not drawn axes yet.&nbsp;
+Suppose the student enters a=g*sin(theta) where theta is the 37 degree
+angle of the inclined plane.
+<p>The <a href="Manager.html">Manager</a> calls the <a href="EntryInterpreter.html">Entry
+Interpreter</a>, which then calls the <a href="EquationParser.html">Equation
+parser,</a> which parses the equation and replaces the student's variables
+with system variables and gets something like (= a_b_t1_t1 (* g_earth (sin
+theta_plane))).&nbsp; It sends this to the <a href="AlgebraManipulation.html">algebra
+module</a>, which does color by numbers on it, and finds that it is correct.&nbsp;
+The algebra module then searches its version of the Solution Index and
+finds that there are two interpretations for the student's equation.&nbsp;&nbsp;
+One for the rotated axis is
+<br>[2] W_x1 + N_x1 = m*a_x1
+<br>[4] W_x1 = w* sin(theta)
+<br>[1] N_x1 = 0
+<br>[1] a_x1 = 0
+<p>The numbers in brackets are the cognitive loads.&nbsp; Although the
+algebra module doesn't know anything about them, I'm writing them here
+for easy reference later.&nbsp; Also, I'm using short variable names instead
+of the long ones that the KB generates.&nbsp; The other interpretation
+is:
+<br>[2] W_x2 + N_x2 = m*a_x2
+<br>[1] W_x2 = 0
+<br>[4] N_x2 = N sin (theta)
+<br>[4] a_x2 = a cos(theta)
+<br>[2] W_y2 + N_y2 = m*a_y2
+<br>[1] W_y2 = -W
+<br>[4] N_y2 = N* cos(theta)
+<br>[4] a_y2 = a*sin(theta)
+<p>These two interpretations are returned by the algebra module to the
+entry interpreter.&nbsp; The entry interpreter's version of the <a href="SolutionGraph.html#OpApp Index">OpApp
+index</a>&nbsp; has cognitive loads for the equations, so it just adds
+them up and determines that the interpretation for the rotated axis is
+more probable.&nbsp; The Entry Interpreter sets this interpretation into
+the student entry, and marks it correct.
+<p>The Entry interpreter next calls the solution graph module to check
+for missing prerequisites.&nbsp; The SG module finds that all four equations
+have the same prequisite, namely drawing a rotated axis.&nbsp; Thus, it
+returns a singleton set containig the rotated axis operator application.&nbsp;
+The Entry Interpreter looks up the operator for the rotated axis step,
+and gets some text intended to refer to the operator without giving it
+away.&nbsp; The text is "drawing coordinate axes."&nbsp; It concatenates
+the string, "Although your entry is correct, you've forgotten about drawing
+coordinate axes."&nbsp;&nbsp; This message is passed to the Manager and
+hence the workbench via a tutor turn struct along with a command to delete
+the student's entry when the student has "OK'd" the message.
+<p>Suppose the student now enters an unrotated axis.&nbsp; The solution
+graph module looks this entry up in <a href="SolutionGraph.html#OpApp Index">OpAppIndex</a>.
+It is flagged as Correct.&nbsp; That flag and a singleton interpretation
+consisting of just the axis-drawing system entry are passed back to the
+entry interpreter.
+<p>The entry interpreter asks the solution graph module if this entry violate
+prerequisites.&nbsp; The SG manager finds that this entry appears in two
+PSM paths, namely, the application of Newton's second law to both the x-
+and y-axes.&nbsp; However, in neither path are there any unentered prerequisite
+entries, so the SG manager returns a null set.&nbsp; The entry interpreter
+tells the Manager/workbench to make the student's entry green, then tells
+the SG manager to update the solution graph.&nbsp;&nbsp; The SG manager
+marks the unrotated axis entry as entered, then notes that it is incompatible
+with another entry, namely the one for rotated axis.&nbsp; It marks the
+solutions in <a href="SolutionGraph.html#Solution index">Solution Index</a>
+that contain rotated axes as Incompatible, and tells the algebra manager
+to do that as well.
+<p>Suppose the student now enters "a=g*sin(37)"&nbsp; This equation has
+a number without units, so the entry interpreter tells the workbench to
+say, "The number 37 needs to have units." and turns the equation red.
+<p>Suppose the student changes the equation to "a=g*sin(theta)."&nbsp;
+The equation parser parses this successfully, and the entry interpreter
+sends it to the algebra module.&nbsp; Color-by-numbers indicates that the
+equation is correct, so correct compatible solutions in Solution List are
+searched.&nbsp; Because incompatible solutions are ignored, the algebra
+module finds only one interpretation, namely the longer one listed above.&nbsp;
+This is returned to the entry interpreter.
+<p>The entry interpreter asks the solution graph module if there are any
+unentered prerequisites of the interpretation.&nbsp; It searches the SG
+and finds that the student should have entered both the x- and y-axis component
+equations, namely W_x+N_x=m*a_x and W_y+N_y=m*a_y.&nbsp; It returns both
+these operator applications to the entry interpreter.&nbsp; The&nbsp; entry
+interpreter decides to tell the student about both entries.&nbsp; It tells
+the workbench to say, "Although your equation is correct, you need to do
+the following steps first: (1) Write an equation for Newton's law applied
+to the x-axis that expresses all vector components as subscripted variables,
+and (2) write an equation for Newton's law applied to the y-axis that expresses
+all vector components as subscripted variables." then delete the student's
+equation.
+<p>Suppose the student now enters "W_x+N_x=m*a_x."&nbsp; This sails right
+through an gets colored green.
+<p>Suppose the student next enters "N_x = N*sin(37 degrees)."&nbsp; This
+is parsed successfully, and there is only one interpretation.&nbsp; There
+are no unentered prerequisite steps.&nbsp; However, when the entry interpreter
+calls the SG module to determine if the student has substituted numbers
+prematurely, the SG manager finds that the interpretation contains the
+equation "theta = 37 degrees" and does not contain all the equations necessary
+to solve the problem.&nbsp; In fact, the only other equation in the interpretation
+is "N_x = N*sin(theta)."&nbsp; Thus, the SG manager reports that the student
+has substituted numbers prematurely.&nbsp; The entry interpreter has the
+workbench tell the student, "That equation is correct, but you have replaced
+theta with 37 degrees.&nbsp; Such substitutions should be delayed until
+the end of the problem."&nbsp; When the student has okayed the message,
+it deletes the student's equation.
+<p>The students pulls out an Uzi and sprays the computer with 9 mm hollow
+point bullets, so that's the end of this example.
+</body>
+</html>

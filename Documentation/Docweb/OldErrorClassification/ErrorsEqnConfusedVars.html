@@ -1,0 +1,426 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ErrorsEqnConfusedVars</title>
+</head>
+<body>
+
+<center>
+<h2>
+Errors where student confused one variable for another</h2></center>
+
+<center>(as of 3/22/01)</center>
+
+<p>These errors can be uncovered by substituting a correct quantity for
+a similar student quantity.&nbsp; These errors are often caused by slips,
+rather than by ignorance of the target equation.&nbsp; Thus, Andes must
+decide, based on apparently trivial features such as the names of the variables,
+whether to give a hint based on the slip hypothesis or the ignorance hypothesis.
+<h3>
+<a NAME="Ingpole 28-31"></a>Ingpole Eq-USNA 28-31</h3>
+In the problem where the car is rolling down the driveway towards the garage,
+the student defines variables, draws a correct FBD including both forces
+and all kinematics vectors, applies NSL in one line to get a value for
+acceleration, then enters “vf_x^2=-2*a(d).”&nbsp; The target equation is
+vf_x^2=-2*a(-d).&nbsp; The student has dropped the negative sign on d.&nbsp;
+Unfortunately, the student has also defined vf as the average velocity
+from T0 to T1 instead of the velocity at T1.&nbsp; The tutors and the student
+didn’t notice this mistake because Andes marked the variable definition
+green, which is what it should do, because average velocity can be used
+in some kinematics solution to the problem.&nbsp; Thus, there are two errors:
+a missing negation and a variable confusion.
+<ul>
+<li>
+IH first asks how the student relates a to a_x, then asks how the student
+relates d to d_x.</li>
+
+<li>
+RO asks what the direction of d is (despite the fact that d is drawn),
+then points out the correct equation.</li>
+
+<li>
+Andes1 says that vf_x is not a relevant quantity.</li>
+
+<li>
+KVL: The first thing to remedy is to get the student to rewrite the equation
+in component form.&nbsp; Assuming she does that, Andes should say, “vf_x
+stands for the average velocity from T0 to T1.&nbsp; Is that what you want
+here?”</li>
+</ul>
+Andes2 should find that substituting the final velocity's x-component for
+vf_x and negating the right side of the equation produces a correct equation.&nbsp;
+Indy analysis finds that it is a compound of vf_x^2 = vi_x^2 + 2*a_x*d_x,&nbsp;&nbsp;
+vi_x=0,&nbsp;&nbsp; a_x=-a,&nbsp;&nbsp; and&nbsp; d_x=-d.&nbsp; SG analysis
+shows that the student's equation is premature, and the equation should
+be written first in component form without the substitutions.
+<p>Suppose Andes says to do that, and the student changes the equation
+to vf_x^2 = vi_x^2 + 2*a_x*d_x. This equation will be marked red, so suppose
+the student asks what's wrong with it.&nbsp; Andes finds that substituting
+the final velocity's x-component for vf_x produces a correct equation.&nbsp;
+Indy analysis finds that it is primitive.&nbsp; SG analysis finds that
+it is not premature.&nbsp; Now Andes must decide whether the student intended
+to put the average velocity in the equation, and thus needs to be taught
+a correct version of the equation, or whether the student intended to define
+the final velocity and put it in the equation, but slipped.&nbsp; Even
+without knowing this student, it seems likely that the student slipped,
+because the student chose vf as the variable's name.&nbsp; I think it would
+be worth including some typical names in the Defexprs for quantities so
+that Andes can be as smart as humans.&nbsp; Given this info, Andes would
+decide that the student slipped, and thus give hint sequence based on the
+substitution: "Check your definition of vf." then "You have used vf as
+if it were the velocity of the car at T1, but you defined it as the average
+velocity of the car from T0 to T1." then "Redefine vf by clicking on it
+with the right moust button.&nbsp; Change it to be the velocity of the
+car at T1."
+<h3>
+<a NAME="seth 8-13"></a>seth Eq-USNA 8-13</h3>
+If a 100 kg person slides down a rope that will hold only 500N, what is
+his minimum acceleration? The student defined variables, drew a body and
+axes with +X straight up, and entered “F_y = 500” where F is the friction
+force.&nbsp; The closest matching equation is F_x=500.
+<ul>
+<li>
+IH notes “F_x = 500 N” as student’s intended equation and points out definition
+of axes to student.</li>
+
+<li>
+RO notes “F_y = 0N” as student’s intended equation and also points out
+definition of axes to student.</li>
+
+<li>
+Andes gives no equation and explains that F_y is an unknown value for Andes
+and thus will be marked incorrect anywhere.</li>
+
+<li>
+KVL: Andes should first ask the student to draw forces, then say, “F_y
+is the y-component of the friction force.&nbsp; Is that really what you
+want here?”</li>
+</ul>
+Andes substitutes all forces for F_y and finds that using F_x makes the
+equation correct.&nbsp; Indy analysis finds that it is a cmpound of F_x=F
+and F=500 (this assumes that the problem statement is interpreted to make
+the friction force be 500; that's the whole trick with this problem, and
+we don't have an easy way to represent it in the KB).&nbsp; SG analysis
+finds that the student needs to draw forces first, so Andes says to do
+that.
+<p>Suppose the student draws the fbd then asks again why F_y=500 is wrong.&nbsp;
+Andes retrieves the interpretation, and SG analysis says that it has a
+given value substituted into it prematurely, so Andes says that.
+<p>Suppose the student changes the equation to F_y=F and&nbsp; again asks
+what's wrong.&nbsp; Andes retrieves the interpretation, and now SG analysis
+is happy.&nbsp; Now Andes must decide whether to tutor the student on the
+projection equation for the vertical axis, or whether the student slipped
+and used the wrong variable.&nbsp; Even without knowing anything about
+the student, it is clear to the human tutors that the student slipped.&nbsp;
+This is because the student used a non-standard rotation for the axes,
+and because F_y would be the right name for the variable is the axes were
+in their standard orientation.&nbsp; The error handler should be: "If substituting
+one component variable for another component variable of the same vector
+makes the equation correct, but the student's variable would be correct
+if the axes were in their standard rotation, then say, "Your axes are not
+in the standard orientation.&nbsp; Is &lt;student's variable> what you
+want here?" then say "Because your axes are rotated, you need to use &lt;correct
+variable> instead of &lt;student variable>."
+<h3>
+<a NAME="a5 48-43"></a>a5 Eq-Pitt 48-43</h3>
+On the ring pulled by 3 forces, the student has drawn a FBD without acceleration,
+entered givens, entered projection equations for all 3 forces, and written
+"FS3=Ft1_x+Ft2_x+Ft3_x."&nbsp; This would be correct if (a) FS3 were defined
+as the net force and (b) its x-component were used here instead of its
+magnitude.
+<ul>
+<li>
+T1 asks what is the sum of forces.</li>
+
+<li>
+T2 asks the student to define a variable for the net force, then to use
+its x-component in this equation.</li>
+
+<li>
+Andes says that the FS3 is not defined.</li>
+
+<li>
+KVL: Andes should first say that FS3 is not defined, then it should tutor
+the student on the sum-of-forces principle.</li>
+</ul>
+Andes first gives an undefined variable message, so let's assume that the
+student defines FS as the net force, reenters the equation, gets red, and
+asks for help.&nbsp; Andes substitutes various force-related quantities
+for FS until it finds that FS_x=Ft1_x+Ft2_x+Ft3_x is correct.&nbsp; Indy
+analysis indicates that it is a primitive equation.&nbsp; The equation
+is not premature nor inefficient.&nbsp; Now Andes has to decide whether
+the student needs tutoring on the equation or the substitution.&nbsp; There
+are no heuristics suggesting that the slip is likely, so Andes should decide
+to tutor on the operator application that generated the correct equation.&nbsp;&nbsp;
+Andes uses the hint sequence that it retrieves from the operator.&nbsp;
+It starts with the goal assumption, "I assume you are writing Newton's
+second law in component form."&nbsp; and gives the pointing hint, "It mentions
+the x-components of the net force and all the individual forces."&nbsp;
+The teaching hint and the bottom-out hint follow.
+<h3>
+023300 Eq-USNA 22-52</h3>
+In the problem where a bullet is fired and hits a gong, the student defined
+variables, drew a body and axes, defined t as the duration from T1 to T2,
+then entered "t = 0.731" where 0.731 is the given value for the duration
+from T0 to T2.&nbsp; The student has not defined a variable for the duration
+from T0 to T2.
+<ul>
+<li>
+IH asks for definition of t, then points out that 0.731 is for a different
+time interval.</li>
+
+<li>
+RO asks for definition of t, then points out that 0.731 is for a different
+time interval.</li>
+
+<li>
+Andes1 just questions value of 't' that the student entered. The correct
+equation that Andes identifies is 't = 0.606s", which is the correct value
+for t, but it would take lots of calculation to derive it.</li>
+
+<li>
+KVL: The problem says, "...and hears the sound .731 seconds later" which
+is linguistically ambigous between T0 to T2 and T1 to T2.&nbsp; However,
+thinking about how the shooter would measure the elapsed time suggests
+that he would find it more convenient to start the timer when he fires
+the gun rather than when he sees the little tiny bullet strike the target
+a long ways away.&nbsp; Thus, "experimenters' common sense" suggests the
+T0 to T2 interpretation.&nbsp; None of this reasoning is particularly relevant
+to physics, so the problem should be changed to remove this ambiguity (msg
+sent to Anders 3/22/01).&nbsp; In the meantime, we can treat this as a
+slip, because there is certainly no reason to teach the operator applicatino
+that writes this given.</li>
+</ul>
+Andes tries substituting various correct durations for t until it finds
+that t02 makes the equation correct.&nbsp; Indy analysis finds that t02=0.731
+is primitive, and SG analysis says that it is not premature.&nbsp; The
+operator application for writing the given has no hint sequence, so Andes
+must treat this as a slip.&nbsp; The hint sequence is, "Check the times
+used in the definition of t." then "You defined t to be the duration of
+T1 to T2, but your equation should have the duration of T0 to T2."&nbsp;
+then "Redefine t to be the duration of T0 to T2."
+<h3>
+brody Eq-USNA 49-11</h3>
+If a 100 kg person slides down a rope that will support only 500N, what
+is his minimal acceleration? The student defined variables, drew a correct
+FBD, entered several equations, then entered “F_y=500” where F is the net
+force on the person.&nbsp;&nbsp; The closest matching equation is Ff_y
+= 500, where Ff is the student's variable for friction force. This equation
+has not been written before.
+<ul>
+<li>
+IH asks what’s the relation between the tension in the rope and the friction
+force. She is trying to get the student to infer that Ff_y = 500.</li>
+
+<li>
+RO asks for the definition of F_y and of the 500 N.</li>
+
+<li>
+Andes says, “Do you want to use ‘F’ rather than the value of ‘Ff’?”</li>
+
+<li>
+KVL: Andes should say something like, “F is the net force.&nbsp; What is
+500 N?”</li>
+</ul>
+Andes substitutes various force quantities for F_y until it finds that
+Ff_y makes the equation correct.&nbsp; Indy analysis shows that Ff_y=500
+is primitive, and SG analysis finds that it is not premature. There is
+no hint sequence for the operator application that writes the given equation
+Ff_y=500, so Andes must treat it as a slip.&nbsp; The hint sequence is,
+"Check your definition of F_y."&nbsp; then "You have defined F_y to be
+the y-component of the net force on the person, but your equation should
+have the y-component of the friction force on the person instead." then
+"Use Ff_y instead of F_y."
+<h3>
+Chris Eq-USNA 43-39</h3>
+In the problem of a block on a spring, the student defines variables, draws
+a body, and enters "U0 = mbgh."&nbsp; The target equations are U0=mb*g*(-d)
+where d is compression of the spring, or U2 = mb*g*h where h is the height
+of the block at its apex.&nbsp; U0 and U2 are the PE at times T0 and T2,
+respectively.&nbsp; Thus, the student has either used U0 instead of U2
+or has use h instead of –d.
+<ul>
+<li>
+IH complains about the use of implicit multiplication, then points out
+that at T0, the block will be lower than the zero point of gravitational
+PE.</li>
+
+<li>
+RO says, "U0 is the PE at T0.&nbsp; h is the height of the block at T2."</li>
+
+<li>
+Andes suggests using PE at T2 rather than PE at T0.</li>
+
+<li>
+KVL: The justifications for these two equations are nearly the same—only
+the time points differ.&nbsp; Thus, asking for a justification may not
+disambiguate these two.</li>
+</ul>
+Andes can find the second interpretation by replacing the students U0 with
+U2, which yields a correct, primitive, non-premature equation that Andes
+should hint.&nbsp; It can't find the other interpretation, but even if
+it could, it would reject it because it is a compound equation, and thus
+less likely.
+<h3>
+ronjon21 Eq-USNA 31-18</h3>
+In the problem where the aircraft carrier plows into a pier, the student
+defined variables, drew a FBD without acceleration, then entered "vf_x
+= v_x + a*t" as the first equation.&nbsp; The target equation has -a instead
+of a or a_x instead of a.
+<ul>
+<li>
+IH notes a sign error and questions the direction of 'a_x' and has student
+explain what is happening physically with the equation the student entered.</li>
+
+<li>
+RO asks, "what is the direction of a_x?"</li>
+
+<li>
+Andes suggestions checking signs.</li>
+
+<li>
+KVL:&nbsp; Andes should say, “You can prevent errors like this by always
+drawing acceleration and other relevant vectors on the FBD.”&nbsp;&nbsp;
+If the student asks it to explain further, it can say, “Please draw the
+acceleration.”</li>
+</ul>
+Substituting a_x for a creates a correct, primitive equation and is thus
+preferred.&nbsp; Inserting the negative sign creates a correct, compound
+equation.
+<h3>
+bee Eq-USNA 8-29</h3>
+In the problem where a person is hanging onto a rope over a cliff, the
+student defines variables, draws axes and a body but no forces or acceleration,
+then enters "Fw_y = F + Fn" where Fw is weight, F is friction and Fn is
+the net force.&nbsp; The target equation has -Fn or Fn_y for Fn.
+<ul>
+<li>
+IH has student draw forces, then write projections, then rewrite the target
+equation.</li>
+
+<li>
+RO has student draw forces including the net force, then asks about direction
+of Fn, then rewrite the target equation.</li>
+
+<li>
+Andes says to check signs.</li>
+
+<li>
+KVL: (The student appears to be putting the downward vector on the left
+side of the equation and the upward vectors on the right side.&nbsp; That
+works for N1L but not for N2L, and it only works for N1L if you use magnitudes
+and not a mix of components and magnitudes.&nbsp; That’s why we don’t want
+students using this trick.)&nbsp; Andes says, “You should draw forces before
+entering equations.”</li>
+</ul>
+The substitution and negation diagnoses both yield correct, compound equations,
+but the substitution interpretation has less cognitive load.&nbsp; Both
+are premature, so it doesn't matter.&nbsp; Andes tells the student to draw
+forces.&nbsp; Assuming the student does and asks for help again, s/he gets
+another nudge to enter the component equation.&nbsp; That probably takes
+care of the sign error.
+<h3>
+LoseBerry Eq-USNA 9-24</h3>
+In the problem where a car is rolling down a driveway towards a garage
+door, the student defines variables, draws an FBD without weight, enters
+equations, then enters “vf^2 = vi^2 + 2*ag_x*(dc).”&nbsp; The closest matching
+equation has –dc instead of dc.
+<ul>
+<li>
+IH notes a sign error and questions definition of dc(_x) and notes equation:
+“vf_x^2 = vi_x^2 + 2*a*g_x*dc_x”.</li>
+
+<li>
+RO also notes sign error and also questions definition of dc_x and points
+out same equation that IH pointed out.</li>
+
+<li>
+Andes also notes sign error.</li>
+
+<li>
+KVL: Since dc is drawn, Andes should say, “Try writing the equation in
+textbook, component form (i.e., no magnitudes; use only variables for components
+instead).”</li>
+</ul>
+Andes can diagnosis via substitution or negation insertion.&nbsp; Both
+yield compound equations, but the substituion interpretation has lower
+cognitive load and is preferred.
+<h3>
+lewiston Eq-USNA 10-23</h3>
+In the problem of the supertanker, the student defines variables, draws
+a body and axes, then enters “d=(vti*t)+(.5*a*t^2).”&nbsp; The target equation
+has –a instead of a.
+<ul>
+<li>
+IH asks the student to draw the acceleration.</li>
+
+<li>
+RO asks for the direction of ‘a’.</li>
+
+<li>
+Andes also notes the sign error</li>
+
+<li>
+KVL: Andes should ask the student to draw the acceleration.</li>
+</ul>
+The usual competition between negation insertion and substitution.
+<h3>
+Shrike Eq-USNA 5-52</h3>
+In the problem where a bullet is fired and hits a gong, after defining
+variables (no FBD), the student entered "2s=(vb*T1)+(vs*T2)" as the first
+equation.&nbsp; The target equation has s1 instead of s (s is undefined),
+T1-T0 instead of T1 and T2-T1 instead of T2.
+<ul>
+<li>
+IH points out that student meant s1 instead of s.&nbsp; Then IH asks student
+to express "t" (presumably, the length of time between the firing the bullet
+and hearing the sound) in terms of T0, T1 and T2.</li>
+
+<li>
+RO says, "you don't know T1 and T2.&nbsp; You only know the differences
+between time points, such as T2-T0=0.731."</li>
+
+<li>
+Andes points out that there are no values for T1 and T2 and thus any equation
+with these variables will be marked as incorrect.</li>
+
+<li>
+KVL: Since this is a speed-distance-duration problem and not kinematics,
+the student doesn't have to draw vectors and axes first.&nbsp; Thus, Andes
+should just teach the use of time points.</li>
+</ul>
+Let's assume the student has corrected the undefined variable and asked
+what's wrong again.&nbsp; Andes notes that the equation has time points
+in it, so it tries substituting durations for the time points until it
+finds that 2*s=(vb*t01)+(vs*t12) is a correct equation.&nbsp; Indy analysis
+finds that it is a compound of s1=vb*t01 and s1=vs*t12.&nbsp; SG analysis
+indicates that they are not premature.&nbsp; Andes thus has to decide between
+teaching the target equations or a slip interpretation.&nbsp; The use of
+time points instead of intervals is marked as a highly likely slip, and
+it comes with a training card hint (e.g,.&nbsp; “Time points stand for
+specific clock times, such as January 1, 2000, 9:34 am.&nbsp; To express
+the duration of a time interval, you should define a duration variable.
+Although you can also express a duration by subtracting two time points
+(e.g., T1-T0), this can lead to messier equations.”), so Andes gives that.
+<h3>
+More examples:</h3>
+
+<ul>
+<li>
+<a href="ErrorsEqnTrig.html#dirtyB 07-28">Substitution of variables combined
+with trig substitution</a></li>
+
+<li>
+<a href="ErrorsEqnSign.html#Kiesel 18-55">Substitution competes with negation
+insertion and wins</a></li>
+
+<li>
+<a href="ErrorsEqnSign.html#rat 49-48">Substituion creates a tautology,
+so that interpretation should be ruled out</a></li>
+</ul>
+
+</body>
+</html>

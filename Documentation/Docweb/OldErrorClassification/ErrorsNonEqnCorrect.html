@@ -1,0 +1,107 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Cases of Non-eqn errors that should be correct</title>
+</head>
+<body>
+
+<center>
+<h2>
+Cases of non-equations Andes 1 errors that Andes 2 should mark as correct</h2></center>
+
+<center>(as of 3/20/01)</center>
+
+<h3>
+AMM at 5-47</h3>
+A car can go from rest to 22.4 m/s in 8.20 seconds.&nbsp; Assuming the
+acceleration is constant, how long will it take to speed up from 13.4 m/s
+to 18.9 m/s?&nbsp; The student has solved the problem correctly and efficiently,
+and entered the answer correctly.&nbsp; The student has also drawn the
+displacement of the car from T0 to T1, and Andes 1 marks it wrong.&nbsp;
+Andes2 should mark it correct, because it is part of a less efficient solution.
+<h3>
+bryan at 20-14</h3>
+A block is launched from a spring at T0, flies off the spring at T1 and
+reaches the apex of its trajectory at T2.&nbsp; The sought quantity is
+the height, but the student's first action is to draw the displacement
+of the block from T0 to T2.&nbsp; The student should have defined a variable
+for the height of the block at T2 instead.&nbsp; This is a rather arbitrary
+convention of Andes that should just be told to the student (see <a href="../DesignDiscussion/SpatialMeasures.html">discussion</a>).
+<p>The error handler is: The student defines a displacement of ?body from
+?t0 to ?t1, and that quantity is not used in the problem, but the height
+of ?body at time ?t1 is used, then point/teach/state that for problems
+where gravitational potential energy is used, Andes expresses it in terms
+of a height quantity rather than a displacement.
+<p>This hint sequence gives away the fact that the relevant PSM is conservation
+of energy.&nbsp; We could do better, but if we change the workbench as
+per the discussion, then this error can't occur anymore.
+<h3>
+bush2000 at 17-12</h3>
+A bullet leaves the gun at T0, hits the gong&nbsp; at T1 and the sound
+reaches the shooter at T2.&nbsp; The student defines a variable for the
+magnitude of the displacement of the sound from T1 to T2.&nbsp; This is
+almost correct, but Andes wants the student to define a distance instead
+of a displacement.&nbsp; Same <a href="../DesignDiscussion/SpatialMeasures.html">discussion</a>
+as before: maybe one spatial measurement tool should be used instead of
+several.&nbsp; Otherwise, we need to trap this error and give a hint sequence
+that teaches when to use which tool.
+<h3>
+Ingpole at 8-35</h3>
+If a roller coaster tops a 20 m hill moving at a speed of 3 m/s, then what
+is its speed at the bottom of the hill?&nbsp; The student has defined a
+variable for the height of the hill when it should be the height of the
+coaster.
+<p>This is a non-obvious convention of Andes: Even when the problem specifies
+a spatial measurement for a hill, inclined plane or some other object that
+is not a body, the principles use spatial measures that involve only the
+bodies.&nbsp; Although we could ask authors not to include non-body objects
+in the menus for spatial measures, that would be an easy request to overlook.&nbsp;
+We could also teach the convention to students, but they have enough to
+learn without that.&nbsp; Thus, it is better to catch this "error" and
+handle it by mapping the student's quantity into the equivalent correct
+quantity.&nbsp; To do that, we need some new propositions in the problem
+representation, namely, same-position(object1, time1, object2, time2).&nbsp;
+These propositions are used only by this error handler.
+<p>The error handler is: "If the student has drawn a spatial measure from
+?body1 at ?time1 to ?body2 at ?time2, and that spatial measure is not used
+in the solution, but there is a spatial measure in the solution from ?bodyA
+at ?timeA to ?bodyB at ?timeB, and
+<br><tt>(or (and (equal ?body1 ?bodyA)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (equal ?time1
+?timeA))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (and (same-position ?body1, ?time-includes1,
+?bodyA, time-includesA)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (tinside ?time1
+?time-includes1)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (tinside ?timeA
+?time-includesA)))</tt>
+<br><tt>and</tt>
+<br><tt>(or (and (equal ?body2 ?bodyB)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (equal ?time2
+?timeB))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (and (same-position ?body2, ?time-includes2,
+?bodyB, time-includesB)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (tinside ?time2
+?time-includes2)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (tinside ?timeB
+?time-includesB)),</tt>
+<br>then put an entry in the symbol table that maps the student's spatial
+measure onto the solution's spatial measure."
+<h3>
+020342 at 5-13 &amp; 82vette at 9-45</h3>
+A block is launched from a spring at T0, flies off the spring at T1 and
+reaches the apex of its trajectory at T2.&nbsp; The student defines the
+potential energy of the spring at T2, but it should be the potential energy
+of the block.&nbsp; This is a peculiar convention of Andes.&nbsp; Whereas
+physicists normally talk about the energy of a system, which would include
+both the block and the spring in this case, Andes wants students to put
+only the block in the "of" slot of the dialog box.&nbsp; As is clear from
+<p>Error handler: If the student has entered a potential energy of ?object,
+and there is an potential ?energy on ?body due to ?object, then put an
+entry in the symbol table that maps the student's entry on to the correct
+op application.
+</body>
+</html>

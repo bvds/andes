@@ -1,0 +1,70 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Details of the variable specification</title>
+</head>
+<body>
+
+<center>
+<h2>Details of the variable specification</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+<p>
+Physical variables are given `canonical' names by the SGG system,
+which also determines
+the physical units in which to express this variable. This information is sent
+to the algebra system in a declaration, or SVAR statement. At problem-solving
+time, the form of the statement to the algebra system is 
+<center>
+<TT>(SVAR </TT><i>varname unitstring</i> <TT>)</TT>
+</center>
+After the problem has been solved, the algebra package returns the solution
+for each variable with a statement
+<center>
+<TT>(SVAR </TT><i>varname number unitstring</i> <TT>)</TT>
+</center>
+The variable name <i>varname</i> is composed of (case-sensitive) letters,
+numbers, _, and $, beginning with a letter or $. It must not have spaces,
+-, ., or anything else.
+<p>
+The number is an integer, floating point expression, or $P, which represents
+pi. The floating point expression may have an exponent in usual C/Fortran
+form.
+<p>
+The unitstring is composed of units listed in <tt>units.h</tt>, possibly
+coupled with prefix modifiers as described in <TT>prefixes.h</TT>, and
+combined with . for multiplication, / for division, and ^<i>number</i>
+for powers. No parentheses are allowed.
+<P>
+When the help system wants the algebra system to help in bubble growing or
+for tutoring help, the form it uses to declare the variables is  
+<center>
+<TT>(indyAddVar </TT><i>varname number unitstring</i><TT>)</TT>
+</center>
+<H3 ALIGN=CENTER>Variable attributes</H3>
+The solver needs to know if there are conditions on the values of the
+variables to be solved. The help system specifies these conditions with
+these statements:
+<UL><LI><tt>(nonnegative</tt> <i>varname</i><tt>)</tt> &nbsp; The variable
+     cannot take a negative value
+<LI><tt>(positive</tt> <i>varname</i><tt>)</tt> &nbsp; The variable can
+     only have values larger than zero
+<LI><tt>(nonzero</tt> <i>varname</i><tt>)</tt> &nbsp; The variable cannot
+     have a zero value
+<LI><tt>(parameter</tt> <i>varname</i><tt>)</tt> &nbsp; The variable's value
+     cannot be determined from the equations. The solution to the problem is
+     supposed to work for any positive value of the variable, with values
+     of other variables possibly expressed algebraically in terms of the
+     parameters.
+</UL>
+	 
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Wed Jun 27 20:49:31 2001
+<!-- hhmts end -->
+</body> </html>

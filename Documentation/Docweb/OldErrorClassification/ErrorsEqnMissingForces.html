@@ -1,0 +1,188 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ErrorsEqnMissingForces</title>
+</head>
+<body>
+
+<center>
+<h2>
+Restoring omitted forces in a sum of forces</h2></center>
+
+<center>(as of 2/23/01)</center>
+
+<p>This perturbation of the equation is a bit tricky.&nbsp; Andes should
+search the equation for sums containing either force magnitudes, force
+components, or muliplications that contain a force magnitude and a trig
+function.&nbsp; It is OK for the sum to contain addends that are not such
+force terms (e.g., Fn_x+m*a_x=0 is okay).&nbsp;&nbsp; As a special case,
+it should also consider an equation whose left or right side consists of
+a single force magnitude, force component or multiplication of a force
+magnitude and a trig function.&nbsp; It will treat this special case as
+a "singleton sum."&nbsp; I don't think it is necessary to search for "singleton
+sums" inside multiplications or other algebraic expressions.
+<p>Having found a candidate sum, Andes tries putting force components into
+the sum and checking the equation via color-by-numbers.&nbsp; It should
+probably also try putting negated force components into the sum.&nbsp;
+I think we need not try other force-denoting expressions (e.g., magnitudes
+or projection expressions) if we try both positive and negative force components.
+<h3>
+molson Eq-USNA 51-03</h3>
+If a car is racing around a 400 m radius circular track that is banked
+at 20 degrees, what velocity should it travel so that there is no friction?&nbsp;
+The student draws axes rotated 200 degrees, both weight and normal forces,
+but no acceleration.&nbsp; The student defines a variable for acceleration
+instead.&nbsp; Then the student enters a_x=a*cos(20) which is correct and
+suggests that the student didn't need to draw the acceleration in order
+to understand its direction.&nbsp; The student then enters “Fn_x=mcar*a_x”
+which is incorrect because the student has dropped Fw_x, which is nonzero,
+from the sum of forces on the left side of the equation.
+<ul>
+<li>
+IH notices that the student is not including all forces and directs student
+to notice the missing force and then has student all the forces.</li>
+
+<li>
+RO also notices student is missing a force and uses “Fw_x + Fn_x = m*a_x”
+and “a_x=v^2/r” to assist the student.</li>
+
+<li>
+Andes fails to identify the equation the student was trying to enter. It
+identified “Fw_total” instead of “Fn_x”</li>
+
+<li>
+KVL: You’ve left a force out.</li>
+</ul>
+Andes can diagnose the error by adding force components to create a sum
+of forces on the left side.&nbsp; When it adds in Fw_x, it gets a correct,
+primitive equation that is premature because acceleration has not been
+drawn.&nbsp; Andes thus says, "You need to add acceleration&nbsp; to your
+diagram before writting equations."&nbsp; Suppose the student does that
+then asks again why this equation is red.&nbsp; Now Andes finds that the
+equation is not premature, and it decides that the student probably knowns
+NSL, so it adopts the slip hypothesis.&nbsp; It says, "You left a force
+out of the sum of forces." then "You should add Fw_x, the weight of the
+car, into your sum of forces."
+<h3>
+<a NAME="a5 3-43"></a>a5 Eq-Pitt 3-43</h3>
+On the shopping cart problem, the student draws a complete FBD, enters
+givens, a=0, all projections of forces on the x-axis, then S_x=Fn_x+Fw_x+Fp_x,
+where S is an undefined variable.&nbsp; The closest matching equation is
+0=Fn_x+Fw_x+Fp_x+Fk_x, which includes Fk_x, the x-component of the kinetic
+friction force, and excludes S_x, which is undefined.
+<ul>
+<li>
+T1 thinks S_x denotes net force, and that the student should have left
+out the normal and weight forces.&nbsp; Although the student has drawn
+the normal and weight forces correctly, and the student has written Fn_x=0
+and Fw_x=0, T1 still asks the student what their directions are.</li>
+
+<li>
+T2 says to put components of all forces in the equation.</li>
+
+<li>
+Andes says, "You have not defined the variable S."</li>
+
+<li>
+KVL: Maybe S_x denotes the friction force, as that is the only force on
+the left side of the body, and students sometimes use &lt;left forces>
+= &lt;right forces> for N1L.&nbsp; Andes should first complain about the
+undefined variable, then react to the revised equation.</li>
+</ul>
+If the student changes the S_x to Fk_x, gets red, and asks for help, then
+we have a sign error, which is discussed <a href="ErrorsEqnSign.html#a5 3-43">elsewhere</a>.&nbsp;
+On the other hand, if the student defines S as the net force, then we have
+a missing force.&nbsp; To diagnosis it, Andes needs to insert force components
+into the sum on the right side of the equation until the equation becomes
+correct.&nbsp; This yields a correct, primitive, non-premature equation.&nbsp;
+Because the omitted force has been drawn (the equation would be premature
+otherwise),&nbsp; this is most likely a slip, so Andes just says, "You
+left a force out of the sum of forces." then "You left Ff_x, the kinetic
+friction force on the cart, out of the sum of forces."
+<h3>
+Midn-N-Smith Eq-USNA 34-16</h3>
+In the shopping cart problem, there are 4 forces: weight, normal, pushing
+and kinetic friction.&nbsp; The student draws two of these forces, pushing
+and weight, but leaves out the normal and friction forces.&nbsp; The student
+defines a variable Fn for the net force, and writes “Fn_y = Fw_y + Fp_y”
+which is also missing the normal and friction force.&nbsp; The student
+had earlier written several projection equations as well.
+<ul>
+<li>
+IH has the student to predict the acceleration given the drawn forces,
+points out the contradiction, and suggests that forces are missing from
+the diagram.</li>
+
+<li>
+RO also notes the missing forces and also asks student to reconsider forces
+acting on cart.</li>
+
+<li>
+Andes says, “Maybe you should also include a term for the magnitude of
+the normal force on the cart due to the ground in this equation.”</li>
+
+<li>
+KVL: You need to complete your fbd before entering equations.</li>
+</ul>
+When the student writes the projection equations, Andes would complain
+that the FBD was not complete.&nbsp; But suppose that the student hasn't
+written the projections first, but wrote the sum-of-forces equation first.&nbsp;
+Then Andes would need to plug in two forces into the sum before discovering
+that the underlying equation was primitive and premature.&nbsp; This would
+allow it to say, "You should finish drawing forces before entering any
+equations."
+<h3>
+<a NAME="ambiguous inter"></a>022396 Eq-USNA 19-04</h3>
+In the problem where there is a person is pushing a shopping cart, the
+student defines variables, draws a correct FBD, enters many equations,
+then enters “Fp_x=F_x” where Fp is the pushing force and F is the net force.&nbsp;
+The closest matching equation is either Fp_x+Ff_x = F_x (which was written
+correctly earlier as equation 17) or Fp_x=-Ff_x, where Ff is the friction
+force.&nbsp;&nbsp; The immediately preceding equation (20) is F_x=0.
+<ul>
+<li>
+IH thinks the correct equation as “Fp_x + Ff_x = F_x” and asks the student
+to reconcile it with equations 17 and 20.</li>
+
+<li>
+RO thinks the correct equation is Fp_x=-Ff_x, so treats it as an algebraic
+slip.</li>
+
+<li>
+Andes identifies correct equation as a form of the one IH noted and says,
+“Maybe you should also include a term for ‘Ff_x’ in this equation.”</li>
+
+<li>
+KVL:&nbsp;&nbsp;&nbsp; I find RO’s interpretation more likely.&nbsp; The
+student combined F_x=0 with Fp_x+Ff_x=F_x, then dropped the negative sign
+and the “f” from -Ff_x.&nbsp; The closest matching equation according to
+Andes will probably be equation 17, which has been entered already.&nbsp;
+In such a case, Andes should infer that the student has probably tried
+to do an algebraic manipulation and blown it.&nbsp; Simply telling the
+student, “You appear to have made an algebraic manipulation error.” is
+probably not helpful enough, but it would be easy to implement.&nbsp; A
+better solution is to ask the student, via a justification, what equations
+were combined algebraically to generate this one.&nbsp; In this case, the
+student should enter 17 and 20.&nbsp; Andes would then say, “They combine
+to form Fp_x+Ff_x=0.”</li>
+</ul>
+Andes2 can find two interpretations of this error.&nbsp; It can put forces
+into the sum until it discovers the Fp_x+Ff_x = F_x interpretation, which
+is compound (it uses Fp_x+Ff_x+Fn_x+Fw_x= F_x,&nbsp;&nbsp;&nbsp; Fn_x=0&nbsp;&nbsp;&nbsp;
+and&nbsp;&nbsp; Fw_x=0) and not premature.&nbsp; It can combine a negative
+sign insertion with substituting Ff_x for F_x, and thus discover the Fp_x=-Ff_x
+interpretation, which is also compound (it uses the same equations as the
+other interpretation and F_x=0)&nbsp; and not premature.&nbsp; All the
+primitive components of both interpretations have been entered already.&nbsp;
+Thus, no matter what interpretation Andes2 picks, the first hint is the
+same: "Check your algebraic manipulations."&nbsp; The bottom-out hint would
+be different.&nbsp; Probably doesn't matter much bottom-out hint is given.&nbsp;
+Thus, it wouldn't hurt if Andes merely guessed one of the two interpretations
+in this case.&nbsp; Since the first interpretation has one perturbation
+(adding Ff_x) whereas the other has two (sign; subst), Andes should probably
+choose the first interpretation.
+</body>
+</html>

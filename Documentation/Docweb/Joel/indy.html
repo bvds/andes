@@ -1,0 +1,52 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>
+Checking independence of equations
+</title>
+</head>
+<body>
+
+<center>
+<h2>
+Checking independence of equations
+</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+<p>
+The independence checking has now been incorporated into a composite
+program which does everything the algebra system can do.
+There is an interface to call the functions as a DLL, but there is also a 
+self-contained program <TT>allprog</TT> for testing independent of the
+help system.
+<P>
+The independence checking originally only checked independence of the
+linear expansions of the equations about the solution point.
+While is was always understood
+that this could find spurious dependency if the solution point happened
+to be a critical point of the equations, it was not realized how commonly
+this arises due to the prevalence of angles which are a multiple of 
+Pi/2 at the solution point. Methods for dealing with these common exceptional
+situations have now been implemented.
+<P>
+The basic functionality of the linearized independence checking
+is implemented in <tt>isindy</tt>,
+<TT>placelast</TT>, and <TT>expandlast</TT>. These are called upon
+by functions one level up. The improvements to go beyond linear independence
+are in <tt>newindy.cpp</tt>.
+<p>
+<UL><LI><A HREF=indyOverUse.html>Overview of use of independence</A>
+    <LI><A HREF=indyMathMeth.html>Mathematical method</A>
+    <LI><A HREF=indy2.html>implementation</A>
+</UL>	 
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Jun 28 13:05 2001
+<!-- hhmts end -->
+</body> </html>

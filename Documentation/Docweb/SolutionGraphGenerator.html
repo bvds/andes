@@ -1,0 +1,104 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes2 Solution Graph Generator Module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Solution graph generator</h2></center>
+
+<center>(as of 3/14/01)</center>
+
+<p><tt>Authors: Collin Lynch</tt>
+<p><tt>The Solution Graph Generator is the problem solving subsystem of</tt>
+<br><tt>Andes2.&nbsp; This module is designed to take a problem from the
+KB and</tt>
+<br><tt>generate a BubbleGraph solution based upon the operators encoded
+in</tt>
+<br><tt>the KB.&nbsp; This result will then be stored for output use by
+the Knowledge</tt>
+<br><tt>system using the ProblemFile functions.</tt>
+<p><tt>This module can also be loaded for use interactively within lisp
+via</tt>
+<br><tt>its loader.cl file for use in the generation and debugging of problems.</tt>
+<br><tt>In future forms a non-interactive form of the module may also be
+specified.</tt>
+<p><tt>Functions:</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 1. Generation of BubbleGraphs and Equation sets
+from Problems.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 2. Interactive functions for problem loading
+and debugging.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 3. Calling of the appropriate Algebra module(s)
+math solutions.</tt>
+<p><tt>Requires:</tt>
+<br><tt>&nbsp;&nbsp; Base Module.</tt>
+<br><tt>&nbsp;&nbsp; Knowledge Module.</tt>
+<br><tt>&nbsp;&nbsp; KB Module.</tt>
+<br><tt>&nbsp;&nbsp; Algebra Independence DLL.</tt>
+<p><tt>Files:</tt>
+<br><tt>&nbsp;&nbsp; AMFile.cl&nbsp;&nbsp;&nbsp;&nbsp; -- Interactive Andes2
+Module file.</tt>
+<br><tt>&nbsp;&nbsp; Readme.doc&nbsp;&nbsp;&nbsp;&nbsp; -- Howto file for
+interactive use.</tt>
+<br><tt>&nbsp;&nbsp; Psudocode.txt&nbsp;&nbsp;&nbsp;&nbsp; -- Psudocode
+for some of the main algorithms.</tt>
+<br><tt>&nbsp;&nbsp; Loader.cl&nbsp;&nbsp;&nbsp;&nbsp; -- Loading file
+for interactive use.</tt>
+<br><tt>&nbsp;&nbsp; Interface.cl&nbsp;&nbsp;&nbsp;&nbsp; -- Interactive
+use functions.</tt>
+<br><tt>&nbsp;&nbsp; GraphGenerator.cl -- Bubblegraph generation code for
+problems.</tt>
+<br><tt>&nbsp;&nbsp; Traversal.cl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -- Equation
+set collection file.</tt>
+<br><tt>&nbsp;&nbsp; Qsolver.cl&nbsp;&nbsp;&nbsp;&nbsp; -- Main interface
+file.</tt>
+<br><tt>&nbsp;&nbsp; Ops.cl&nbsp;&nbsp;&nbsp;&nbsp; -- Additional operator
+code.</tt>
+<br><tt>&nbsp;&nbsp; Exec.cl&nbsp;&nbsp;&nbsp;&nbsp; -- Executable code
+for preconditions.</tt>
+<br><tt>&nbsp;&nbsp; Macro.cl&nbsp;&nbsp;&nbsp;&nbsp; -- Macro facilities.</tt>
+<br><tt>&nbsp;&nbsp; SolutionPoint.cl&nbsp; -- solving the equations and
+getting the solution point</tt>
+<br><tt>&nbsp;&nbsp; SolutionSet.cl&nbsp; -- extract sets of independent
+equations</tt>
+<br>&nbsp;
+<h3>
+Data Structures for the sgg</h3>
+<tt>Authors: Collin Lynch and Anders Weinstein</tt>
+<p><tt>This system provides datastructures, storage and other io functions</tt>
+<br><tt>for the Andes2 Knowledge itself.&nbsp; This is used by several
+of the</tt>
+<br><tt>other elements.</tt>
+<p><tt>Functions:</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 1. Provide for KB storage.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 2. Provide for KB access.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 3. Provide for Viewing/output of KB elements.</tt>
+<p><tt>Maintains:</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 1. Problem registry.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 2. Nogoods Listing.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; 3. Operator Database.</tt>
+<p><tt>Requires:</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; Base Andes2 Module.</tt>
+<p><tt>Files:</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; AMFile.cl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-- Andes2 Module file.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; Problem.cl&nbsp;&nbsp;&nbsp; -- Definition of
+Problem struct, and access.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; ProblemFile.cl&nbsp; -- Problem storage and
+file structure.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; BubbleGraph.cl&nbsp; -- Definition of the Bubblegraph
+structs and storage elements.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; Operator.cl&nbsp;&nbsp;&nbsp; -- Operator definition
+and storage.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; Nogood.cl&nbsp;&nbsp;&nbsp; -- Nogood struct
+and storage.</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; Ontology.cl -- defexpr stuff for telling NLG
+how to translate terms to text</tt>
+<br>&nbsp;
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>MappingKRtoStudentEntries</title>
+</head>
+<body>
+
+<center>
+<h2>
+What in the KR corresponds to the student's entries?</h2></center>
+
+<center>(as of 4/3/01)</center>
+
+<h3>
+Kurt:</h3>
+The KR currently has two kinds of instantiated objects: propositions and
+operator applications.&nbsp; Some of these represent non-equation student
+entries, but there is currently no uniform convention for the mapping.&nbsp;
+There are essentially three options:
+<p><i>Propositions</i>:
+<br>We let certain propositions represent student entries.&nbsp; That is,
+we design a simple mapping between these types of propositions and the
+dialog boxes that are used to enter non-equations.&nbsp; For instance,
+there are 7 controls in the Force dialog box:
+<ul>
+<li>
+net force vs. individual force</li>
+
+<li>
+body</li>
+
+<li>
+agent</li>
+
+<li>
+type</li>
+
+<li>
+time</li>
+
+<li>
+variable name</li>
+
+<li>
+theta</li>
+</ul>
+In addition, the vector can be drawn as zero-length or non-zero length.&nbsp;
+The <a href="../LookupForce.html">student entry info passed in from the
+workbench h</a>as all these slots, except the first one because the net
+force is treated as a type of force.&nbsp; No proposition in the KR currently
+contains all this information, so we would have to invent one.&nbsp; We
+can leave out the variable name, because forces don't have names in the
+KR.&nbsp; Also, it is slightly cleaner to define one proposition for net
+force and one proposition for normal force:
+<ul>
+<li>
+(Net-force &lt;body> &lt;time> &lt;theta> &lt;zero/nonzero>)</li>
+
+<li>
+(Force &lt;body> &lt;agent> &lt;type> &lt;time> &lt;theta> &lt;zero/nonzero>)</li>
+</ul>
+In a similar fashion, we define propositions for every dialog box in the
+GUI.&nbsp; In most cases, there is is just one proposition type per dialog
+box type.&nbsp; The point is to keep the mapping as simple and natural
+as possible.&nbsp; Let us call these propositions Entry Propositions.&nbsp;
+There is also a general purpose equation Entry Proposition of the form
+(EQN &lt;equation>).
+<p>Entry propositions function just like regular propositions in the KB.&nbsp;
+They can appear in preconditions or conclusions.&nbsp; Many operators might
+produce Entry Propositions of the same type: e.g., Draw-Weight and Draw-Normal
+might both produce Force propositions, but the value of the Type arguments
+will be different.&nbsp; The hint sequences of these operators teach everything
+the student needs to know in order to draw that force.
+<p>Inside the Help system, Entry Propositions appear in 3 places:&nbsp;
+the student entry structure, the system entry structure and the PSM path
+nodes.&nbsp; When the entry interpreter is trying to figure out what a
+student entry is, it tests for equality between the Entry Proposition in
+the student entry struct and the Entry Proposition in various system entry
+structs.
+<p>This requires the KB author (Anders) to gather together information
+into one proposition is currently spread among multiple propositions.&nbsp;
+However, having to do that could arguably be code higene, as it forces
+the KB to allign more closely with the GUI.&nbsp; Moreover, there is something
+satisfyingly semantical about having a single proposition represent a single
+object on the screen.
+<p><i>Operators</i>:
+<br>We let certain operators represent the action of drawing the non-equation
+entry.&nbsp; For the force dialog box, there is just one operator that
+actually draws a force, but it is fed information by many operators such
+as Notice-Weight and Notice-Normal.&nbsp; These feeder operators contain
+the hint sequences that the what's-next help will present.&nbsp; The Force
+drawing operator itself has no hint sequence.&nbsp; However, it has arguments
+that provide all the information needed for matching a student entry.&nbsp;
+In particular, the force operator's arguments would be:
+<ul>
+<li>
+(Force &lt;body> &lt;agent> &lt;type> &lt;time> &lt;theta> &lt;zero/nonzero>)</li>
+</ul>
+When the values of the arguments are filled in, we have an operator instance.&nbsp;
+We could call these things Entry Op Instances.
+<p>Entry Op Instances appear in 3 places: the student enty structure, the
+system entry structure and the PSM path nodes.&nbsp; When the entry interpreter
+is trying to figure out what a student entry is, it tests for equality
+between the Entry Op Instance in the student entry struct and the Entry
+Op Instance in various system entry structs.
+<p>This requires the KB author to modify lots of operators.&nbsp; It is
+arguably the most semantically clean formulation because filling out a
+dialog box is an action and so is an operator application.&nbsp; Indeed,
+if carried a couple of steps further, we end up making operators that correspond
+to actuating each control in the dialog box.&nbsp; That is a really, really
+semantically clean formulation that is discussed and discarded <a href="GranularityOfPrimitiveStudentActions.html">here</a>.
+<p><i>Hetrogeneous</i>:
+<br>This is what we do now, so no modifications of the KB are required.&nbsp;
+The information required to match a student entry can appear in multiple
+places: the arguments of an operator instance and the propositions produced
+when it fires, and maybe some other propositions produced by earlier operator
+applications.&nbsp; This means that we have to invent some data structure
+(let's call it an Entry Instance) that compactly represents all the required
+info.&nbsp; For the force dialog box, the Entry Instance would be:
+<ul>
+<li>
+(Force &lt;body> &lt;agent> &lt;type> &lt;time> &lt;theta> &lt;zero/nonzero>)</li>
+</ul>
+Like the Entry Propositions and Entry Op Instances, it appears in the student
+enty structure and the system entry structure, and when the entry interpreter
+is trying to figure out what a student entry is, it tests for equality
+between the Entry Instance in the student entry struct and the Entry Instance
+in various system entry structs.
+<p>However, Entry Instances do not appear in the PSM path nodes.&nbsp;
+Instead, we have an ad hoc Lisp function that inputs a PSM path that leads
+up to a particular node, and it outputs an Entry Instance or NIL.&nbsp;
+We need the path leading up to the node as well as the node itself because
+sometimes the required information was produced by earlier operator applications,
+so this function has to go looking for it.&nbsp; Ugh.
+<p>The hints for an Entry Instance reside on the operator that produced
+the PSM path node that the Entry Instance was derived from.
+<p><i>Conclusion</i>:
+<br>The proposition solution is closer to the way the KB works now, and
+more elegant than the other two.
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ErrorsEqnSign</title>
+</head>
+<body>
+
+<center>
+<h2>
+Diagnosing equation errors by substituting negative signs into them</h2></center>
+
+<center>(as of 3/21/01)</center>
+
+<h3>
+<a NAME="dsb2121 1-10-08"></a>dsb2121 Eq-USNA 1-10-08</h3>
+In the problem where the model airplane is hanging from two strings, the
+student define variables, draws a correct FBD, enters several projection
+equations and enters “Ft1_x = Ft1*sin45.”&nbsp; The right side should have
+a minus sign.
+<ul>
+<li>
+IH notes that there is a sign error and addresses the sign of the forces.</li>
+
+<li>
+RO also notes sign error and also addresses the sign of the forces, specifically
+sign of “Ft1_x”.</li>
+
+<li>
+Andes1 says to check signs.</li>
+
+<li>
+KVL:&nbsp; The student has not entered NFL in component form yet, so Ande's'
+first response would be to treat this as an error where the closest matching
+equation is premature.&nbsp; However, entering the component equation will
+probably not prevent the sign error nor help the student detect it.&nbsp;&nbsp;
+Thus, Andes direct the student to fill in the skipped step then ask about
+this equation again.&nbsp; If they do, then Andes should hint about how
+to apply the projection procedure.</li>
+</ul>
+Andes finds that adding a minus sign to either the right side or the left
+side of the equation (or any of the factors in the mulitplication on the
+right side) creates a correct equation according to color-by-numbers.&nbsp;
+Indy analysis equations reveals that the correct equation is primitive,
+namely,&nbsp; Ft1_x= -Ft1*sin45.&nbsp; SG analysis indicates that the compo
+form of NSL needs to be done first, so Andes first hints "You skipped the
+step of entering Newton's law in terms of component variables.&nbsp; Why
+don't you enter that equation, then ask again about why this equation is
+wrong.&nbsp; In general, its easier to remedy errors when no earlier steps
+have been skipped." then teaches the compo equation, then gives a bottom
+out hint for the compo equation.
+<p>Suppose the student now asks again why the Ft1_x=Ft1*sin45 equation
+is red.&nbsp; Andes looks up the interpretation of the equation and finds
+{Ft1_x=-Ft1*sin45} again.&nbsp; Checking the solution graph reveals that
+it is not premature.&nbsp; No slip heuristics fire, so Andes decides to
+hint the equation.&nbsp; It retrieves the hint sequence from the operator
+application that wrote the correct equation.&nbsp; The hint sequence starts
+with a goal assumption ("I assume you are trying to write a projection
+equation for Ft1_x.") followed by a pointing hint ("To avoid errors, you
+should apply the procedure for calculating projections that involves taking
+the difference between the vector’s rotation and the axis’ rotation").&nbsp;
+The teaching hint reviews the procedure for generating projection equations,
+either via a minilesson or a KCD.&nbsp; The bottom out hint states the
+correct equation to write and why.
+<h3>
+<a NAME="Paul-Oyler 55-17"></a>Paul-Oyler Eq-USNA 55-17</h3>
+In the problem of the jumping kangaroo, the student draws a diagram with
+initial velocity and acceleration, defines variables, and enters “d = v0(t)
++ 1/2(a)t^2” as the first equation.&nbsp; The closest matching equation
+has –a instead of a.&nbsp; This equation is both premature (vectors and
+the component equation should be entered first) and inefficient.
+<ul>
+<li>
+IH fails to notice the sign error.&nbsp; She coaches the student through
+solving the problem with the student’s equation, the points out that&nbsp;
+“v1_y^2 = v0_y^2 - 2*a*d = 0” is more efficient.</li>
+
+<li>
+RO sees the sign error, and asks the student for the direction of acceleration.</li>
+
+<li>
+Andes says to check signs.</li>
+</ul>
+Andes tries inserting negations into "d", "v0*t" and "0.5*a*t^2."&nbsp;
+The last one works, and it finds that the equation is correct according
+to color by numbers. (Substituting a_y for a would also work.)&nbsp; Indy
+analysis finds that it corresponds to d_y=v0_y*t+0.5*a_y*t^2,&nbsp; d_y=d,&nbsp;
+v0_y=v0,&nbsp; a_y=–a.&nbsp; SG analysis shows that it is premature, since
+the displacement vector needs to be written first.&nbsp; It also discovers
+that this path is less efficient than one that uses vf_y^2=vi_y^2 + 2*a_y*d_y.&nbsp;
+But that equation is also premature, as it requires the displacement vector
+to be drawn.&nbsp; Thus, Andes decides to suggest drawing that vector,
+as it would be the right thing to say in either case.
+<p>Suppose the student draws the displacement vector then asks again why
+their equation is red.&nbsp; The error diagnosis and Indy analysis are
+the same, but the SG analysis indicates that hinting the target equation
+will take the student down an inefficient path.&nbsp; Andes should say,
+“Your equation is similar to one I know, but it is not part of an efficient
+solution to the problem.&nbsp; You may click here for help on fixing your
+equation or here for help on finding a more efficient solution.”&nbsp;
+If the student wants help on fixing the equation, then since acceleration
+is drawn, the student should first enter the equation in component form.
+<p>Suppose the student now enters their kinematics equation in component
+form, d_y = v0_y(t) + 1/2(a_y)t^2.&nbsp; This is correct, so the student
+reenters the original equation, which turns red, and the student asks for
+help again.&nbsp; The student has drawn the acceleration vector pointing
+down and the +Y axis pointing up, so this is a classic sign error due to
+not writing the projection equation. Although writing the equation first
+in component form is required, writing the projection equations is not
+required, and would be especially silly when the equation is just a_y=-a.&nbsp;
+???
+<h3>
+<a NAME="Kiesel 18-55"></a>Kiesel Eq-USNA 18-55 second equation</h3>
+In the problem where a hailstone is falling to the ground from the sky,
+the student defines variables, draws a body and standard axes, then enters
+“d_y=9000m,” some other givens and “d=0+v0_y*t+(1/2)a_y*t^2.”&nbsp; Both
+equations are red.&nbsp; The first one should be d_y=-9000m (the student
+dropped the negative sign), but that is discussed elsewhere.&nbsp; The
+second one should have d_y instead of d on the left side, or alternatively,
+should have a minus sign on the left.&nbsp; Either way, the resulting equation
+is an inefficient one to use for this problem.&nbsp; The tutors gave advice
+on the second equation, but Andes gave advice on the first equation.
+<ul>
+<li>
+IH didn’t notice the error.&nbsp; Instead, she wants the student to use
+“v1_y^2 = v0_y^2 + 2*a_y*d_y”&nbsp; She points out that the question asks
+the student to find ‘v’ not ‘d’ and questions the student’s method for
+finding ‘v’ with the equation entered.</li>
+
+<li>
+RO notes “d_y = 0 + v0_y*t + 0.5*a_y*t^2” as student’s intended equation
+and addresses the sign (direction) of motion.</li>
+
+<li>
+Andes says, “Make sure you are using the correct signs in this equation.”</li>
+
+<li>
+KVL: In Andes2, the displacement vector would have to be drawn before the
+equation can be written, so this equation is not premature.&nbsp; Unfortunately,
+the problem specification to the KB treats d_y=-9000m as a given rather
+than the result of a projection operation.&nbsp; Thus, there is no hint
+sequence on the operator application.&nbsp; Thus, Andes must treat this
+error as a slip.</li>
+
+<li>
+KVL: For help on the second equation (assuming all variables are defined
+by drawing vectors) Andes should say, “Your equation is similar to one
+I know, but it is not part of an efficient solution to the problem.&nbsp;
+You may click here for help on fixing your equation or here for help on
+finding a more efficient solution.”&nbsp; If the student wants help on
+fixing the equation, then Andes ought to say, “Although most of your components
+are expressed as variables, one is not.&nbsp; Try rewriting the equation
+will all the components expressed as variables.”</li>
+</ul>
+The first equation can be diagnosed by inserting a negative sign or by
+<a href="ErrorsEqnGivens.html">replacing
+the student's value for the given quantity (d_y) by the correct value</a>.&nbsp;
+Either way, we get a correct, primitive, non-premature equation.&nbsp;
+The operator application has no hint sequence, so Andes gives a slip-based
+hint sequence, such as "Check your signs."&nbsp; This hint would have to
+be generated by comparing the student's value to the correct value and
+noticing that one is the negation of the other.
+<p>For the second equation, Andes inserts a negative sign on the left,
+and gets a correct but compound equation.&nbsp; Substituting d_y for d
+yeilds a correct and primitive equation.&nbsp; Andes prefers the latter
+interpretation.&nbsp; SG analysis discovers that it is inefficient, so
+Andes gives the advice quoted above.
+<h3>
+<a NAME="rat 49-48"></a>rat Eq-USNA 49-48</h3>
+In the problem where the aircraft carrier plows into a pier, the student
+defines variables, draws a body, an axis and the initial velocity, enters
+some equations, then enters “a = a_x.”&nbsp; The target equation has –a
+for a..
+<ul>
+<li>
+IH asks what would happen to the final velocity if a_x>0.</li>
+
+<li>
+RO asks “what is the direction of a?”.</li>
+
+<li>
+Andes also notes sign error.</li>
+
+<li>
+KVL: Andes should ask the student to draw the acceleration vector.</li>
+</ul>
+Substituting a_x for a yields a correct equation, a_x=a_x.&nbsp; This needs
+to be ruled out as an interpretation. Negation insertion does create a
+correct, primitive but premature interpretation.&nbsp; Suppose the student
+draws vectors and gets the acceleration direction right (perhaps with some
+coaching), then asks again why this equation is wrong.&nbsp; Same interpretation.&nbsp;
+There is no sign of slips.&nbsp; Thus, it give the hint sequence for the
+projection-along-an-axis operator.
+<h3>
+M030072 Eq-USNA 12-50</h3>
+In the problem with the jumping kangaroo, after defining variables and
+drawing a FBD, the student entered “vinit_y^2=2*a_y*d_y – vfinal^2” Target
+equation has a negative sign on the left side of the equation.
+<br>&middot; IH notices algebra manipulation error and through critique
+tries to get student to figure out error on their own.
+<br>&middot; RO notices same problem (sign error) but tells student there
+is a sign error.
+<br>&middot; Both IH and RO address v_f^2=v_o^2 + 2*a_y*d_y
+<br>&middot; Andes suggests swapping variables instead of noticing the
+sign problem.
+<br>&middot; KVL:&nbsp; The equation should be rewritten in component form
+(the vfinal needs to be vfinal_y).
+<h3>
+<a NAME="a5 3-43"></a>a5 Eq-Pitt 3-43</h3>
+On the shopping cart problem, the student draws a complete FBD, enters
+givens, a=0, all projections of forces on the x-axis, then S_x=Fn_x+Fw_x+Fp_x,
+where S is an undefined variable.&nbsp; The closest matching equation is
+0=Fn_x+Fw_x+Fp_x+Fk_x, which includes Fk_x, the x-component of the kinetic
+friction force, and excludes S_x, which is undefined.
+<ul>
+<li>
+T1 thinks S_x denotes net force, and that the student should have left
+out the normal and weight forces.&nbsp; Although the student has drawn
+the normal and weight forces correctly, and the student has written Fn_x=0
+and Fw_x=0, T1 still asks the student what their directions are.</li>
+
+<li>
+T2 says to put components of all forces in the equation.</li>
+
+<li>
+Andes says, "You have not defined the variable S."</li>
+
+<li>
+KVL: Maybe S_x denotes the friction force, as that is the only force on
+the left side of the body, and students sometimes use &lt;left forces>
+= &lt;right forces> for N1L.&nbsp; Andes should first complain about the
+undefined variable, then react to the revised equation.</li>
+</ul>
+If the student defines S as the net force, then we have a missing force,
+which is discussed <a href="ErrorsEqnMissingForces.html#a5 3-43">elsewhere</a>.
+On the other hand, if the student changes the S_x to Fk_x, gets red, and
+asks for help, then we have a sign error.&nbsp; Andes can detect it by
+inserting a negation on the left side, which produces a correct, primitive,
+non-premature equation.&nbsp; However, this particular sign error should
+trigger special purpose error handler hung on the N1L operator:
+<blockquote><a NAME="left forces = right forces"></a>If the student wrote
+an equation of the form &lt;sum of left force components> = &lt;sum of
+right force components> when N1L would be correct instead, then teach/state
+that, "What writing Newton's first law, it is best to put the sum of the
+force components on one side of the equation, like this: 0=Fn_x+Fw_x+Fp_x+Fk_x.&nbsp;
+All the force components have positive signs.&nbsp; If you put some on
+the other side of the equation, they they would have to have negative signs.&nbsp;
+Many students forget the negative signs because they are thinking of a
+special case, wherein all the forces are parallel to the axis, say the
+horizontal axis, but some point left and some point right.&nbsp; For instance,
+if FL1 and FL2 point left and FR1 and FR2 point right, then students often
+write FL1+FL2=FR1+FR2.&nbsp; This equation is correct, but notice that
+it has <i>magnitudes</i> in it instead of <i>components</i>.&nbsp; If it
+is rewritten in terms of components, it would have to be -FL1_x-FL2_x=FR1_x+FR2_x.&nbsp;
+Most students forget the negative signs when they do this.&nbsp; If they
+had followed the advice above, then they would write FL1_x+FL2_x+FR1_x+FR2_x=0
+and gotten the signs right.&nbsp; Thus, if you want to get the signs right,
+it is best to always write the sum of forces (a) in terms of components
+and (b) all on one side of the equation."</blockquote>
+
+<h3>
+Other examples of negative sign insertion:</h3>
+<a href="ErrorsEqnConfusedVars.html#Ingpole 28-31">A sign error combined
+with variable confusion</a>
+<br>&nbsp;
+</body>
+</html>

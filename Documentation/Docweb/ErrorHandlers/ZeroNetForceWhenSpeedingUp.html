@@ -1,0 +1,70 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ZeroNetForceWhenSpeedingUp</title>
+</head>
+<body>
+
+<center>
+<h2>
+Zero net force when speeding up</h2></center>
+
+<center>(as of 3/27/01)</center>
+
+<p>If the student entry is a net force
+<ul>
+<li>
+that has zero magnitude</li>
+
+<li>
+and the body's motion is straight and speeding up in direction ?dir</li>
+
+<li>
+and making the net force non-zero in direction ?dir yields a correct vector</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+(hint string (point) "Is the net force zero even though the body is moving
+in a straight line and speeding up?")</li>
+
+<li>
+(hint string (teach) "Whenever a body is moving in a straight line and
+speeding up, it is accelerating.&nbsp; Whenever a body is accelerating,
+there is a net force acting on it in the same direction as the acceleration.&nbsp;
+This follows directly from Newton's second law, F=m*a.")</li>
+
+<li>
+(hint string (bottom-out) "Because the body is speeding up in direction
+~a, it is accelerating in direction ~a, so you should change the net force
+so that it is non-zero and in direction ~a." ?dir ?dir ?dir)</li>
+</ul>
+The hints must be worded so that they make sense even if the student has
+drawn the acceleration correctly or incorrectly.
+<p>A KCD version of the teaching hint would go like this one:&nbsp; "Is
+?body moving in a straight line and speeding up at ?time?" (Ideal Student
+Answer: Yes) "Does ?body have a non-zero acceleration? (Ideal Student Answer:
+Yes)&nbsp; "If a body has a non-zero acceleration, is the net force on
+it zero or non-zero?"&nbsp; (Ideal student answer: zero) "But you have
+drawn a zero-length net force vector.&nbsp; You should change that."
+<p>Clearly, we need similar bugs for the the slowing down case and for
+the circular motion case.&nbsp; We also need similar handlers for errors
+where the student has drawn a zero <i>acceleration</i> in for an object
+that is speeding up, slowing down or moving in a circle.
+<h3>
+<a NAME="Karlton-Holston 35-57"></a>Karlton-Holston at 35-57</h3>
+A car starts from rest at T0 and rolls down a frictionless 20 m driveway,
+smashing into the garage door at T1.&nbsp; The student draws a zero-length
+net force on the car, but the actual net force is non-zero.&nbsp; Andes2
+interprets the error as an attempt to draw the non-zero net force (one
+mismatch: magnitude).&nbsp; SG analysis indicates that the operator application
+is not premature and not efficient.&nbsp; However, it is not an inefficiency
+that Andes should point out (see <a href="../DesignDiscussion/IntermediateTerms.html">discussion</a>),
+basically because it is more important to get the physics right than to
+learn the most efficient procedure.
+<br>&nbsp;
+</body>
+</html>

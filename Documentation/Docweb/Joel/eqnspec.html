@@ -1,0 +1,70 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Details of the equation specification</title>
+</head>
+<body>
+
+<center>
+<h2>Details of the equation specification</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+<p>
+Equations are input to the algebra system in a Lisp format prefix 
+style. Each equation must begin with "(= ". Equations may use the
+binary operators / (divide), ^ (raise to power), - (subtraction),
+ and the leading =. There is also a unary -.
+Adding and multiplying, + and *, are n_ary operators. There are also
+functions of a single operator. The known functions are:<br>
+<TT>sin</TT>, <TT>cos</TT>, <TT>tan</TT>, <TT>log10</TT>, <TT>ln</TT>, 
+<TT>exp</TT>, <TT>sqrt</TT>, <TT>abs</TT><BR>
+The trig functions assume their arguments in radians (but see the
+<A HREF=dnumspec.html>specification of units</A> for a discussion of
+variables expressed in degrees).
+<p>
+The objects on which the operators and functions act are either 
+primitive expressions or parenthesized composite expressions. The
+primitive expressions are either "numvalexp"s, which are physical
+quantities with given numerical value and given set of units, or
+"physvar"s, variables representing physical quantities. 
+<p>
+Numerical quantities, unless dimensionless, are specified using
+a "dnum". For example, the gravitational acceleration near the Earth's
+surface might be given by the equation
+<center>
+(= g_Earth (DNUM 9.8 m/s^2))
+</center>
+<p>
+The specifications are given for numerical values below, and
+elsewhere for <A HREF=varspec.html>variables names</A> 
+and <A HREF=dnumspec.html>DNUMs</A>.
+<p>
+Numerical values are expressed in standard C/Fortran form, and may be
+either integers or floating point expressions, with possible leading
+minus sign, possible exponent in E form, with no spaces or commas. For 
+example, the electron charge could be given as
+<center>
+(= q_electron (DNUM -1.602R-19 C))
+</center>
+<P>
+A Note on accuracy:<br>
+The help system requires detailed numerical comparisons to determine
+not only the correctness of student input, but also to analyse dependence
+of equations. Thus internal calculations are done to high precision - 
+16 decimal digits of accuracy, and terms are considered unequal if they
+differ by more than one part in 10<sup>11</sup>. For this reason, it
+is essential that all numerically given values be consistent to very high
+accuracy. For example, in Exdr5A, an object is swinging in a circle 
+suspended by string at 20<sup>o</sup>, and the student is told the velocity is 
+5.19 m/2. While that should cause the no trouble for the student, the
+algebra system regards this as inconsistent with g=9.8 m/s^2, and in the
+defprob, the velocity needs to be specified as 5.188957381849970 m/s.
+<br>
+<br>&nbsp; Joel A. Shapiro, April 10, 2001
+</body>
+</html>
+

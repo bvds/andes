@@ -1,0 +1,111 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>VarHasWrongTimeSpecifier</title>
+</head>
+<body>
+
+<center>
+<h2>
+Variable has wrong time specifier</h2></center>
+
+<center>(as of 3/26/01)</center>
+
+<p>If the student entry is an equation
+<ul>
+<li>
+that contains a quantity with a time specifier ?time-student</li>
+
+<li>
+and replacing it with ?time-correct makes the equation correct</li>
+</ul>
+then run the hint sequence
+<ul>
+<li>
+(hint string (point) "Check the times used in the definition of ~a." student's
+var that contains ?time-student)</li>
+
+<li>
+(hint string (bottom-out) "You defined t to be the duration of T1 to T2,
+but your equation should have the duration of T0 to T2."&nbsp; then "Redefine
+t to be the duration of T0 to T2.") This is instantiated for the error
+below just ot make it easier to read.</li>
+</ul>
+
+<h3>
+023300 Eq-USNA 22-52</h3>
+In the problem where a bullet is fired and hits a gong, the student defined
+variables, drew a body and axes, defined t as the duration from T1 to T2,
+then entered "t = 0.731" where 0.731 is the given value for the duration
+from T0 to T2.&nbsp; The student has not defined a variable for the duration
+from T0 to T2.
+<ul>
+<li>
+IH asks for definition of t, then points out that 0.731 is for a different
+time interval.</li>
+
+<li>
+RO asks for definition of t, then points out that 0.731 is for a different
+time interval.</li>
+
+<li>
+Andes1 just questions value of 't' that the student entered. The correct
+equation that Andes identifies is 't = 0.606s", which is the correct value
+for t, but it would take lots of calculation to derive it.</li>
+
+<li>
+KVL: The problem says, "...and hears the sound .731 seconds later" which
+is linguistically ambigous between T0 to T2 and T1 to T2.&nbsp; However,
+thinking about how the shooter would measure the elapsed time suggests
+that he would find it more convenient to start the timer when he fires
+the gun rather than when he sees the little tiny bullet strike the target
+a long ways away.&nbsp; Thus, "experimenters' common sense" suggests the
+T0 to T2 interpretation.&nbsp; None of this reasoning is particularly relevant
+to physics, so the problem should be changed to remove this ambiguity (msg
+sent to Anders 3/22/01).&nbsp; In the meantime, we can treat this as a
+slip, because there is certainly no reason to teach the operator applicatino
+that writes this given.</li>
+</ul>
+Andes tries substituting various correct durations for t until it finds
+that t02 makes the equation correct.&nbsp; Indy analysis finds that t02=0.731
+is primitive, and SG analysis says that it is not premature.&nbsp; The
+operator application for writing the given has no hint sequence, so Andes
+must treat this as a slip.&nbsp; The hint sequence is, "Check the times
+used in the definition of t." then "You defined t to be the duration of
+T1 to T2, but your equation should have the duration of T0 to T2."&nbsp;
+then "Redefine t to be the duration of T0 to T2."
+<h3>
+<a NAME="chris 43-39"></a>Chris Eq-USNA 43-39</h3>
+In the problem of a block on a spring, the student defines variables, draws
+a body, and enters "U0 = mbgh."&nbsp; The target equations are U0=mb*g*(-d)
+where d is compression of the spring, or U2 = mb*g*h where h is the height
+of the block at its apex.&nbsp; U0 and U2 are the PE at times T0 and T2,
+respectively.&nbsp; Thus, the student has either used U0 instead of U2
+or has use h instead of –d.
+<ul>
+<li>
+IH complains about the use of implicit multiplication, then points out
+that at T0, the block will be lower than the zero point of gravitational
+PE.</li>
+
+<li>
+RO says, "U0 is the PE at T0.&nbsp; h is the height of the block at T2."</li>
+
+<li>
+Andes suggests using PE at T2 rather than PE at T0.</li>
+
+<li>
+KVL: The justifications for these two equations are nearly the same—only
+the time points differ.&nbsp; Thus, asking for a justification may not
+disambiguate these two.</li>
+</ul>
+Andes can find the second interpretation by replacing the students U0 with
+U2, which yields a correct, primitive, non-premature equation that Andes
+should hint.&nbsp; It can't find the other interpretation, but even if
+it could, it would reject it because it is a compound equation, and thus
+less likely.
+</body>
+</html>

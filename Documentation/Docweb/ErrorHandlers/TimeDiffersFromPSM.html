@@ -1,0 +1,116 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>TimeDiffersFromPSM</title>
+</head>
+<body>
+
+<center>
+<h2>
+Time differs from PSM</h2></center>
+
+<center>(3/27/01)</center>
+If the student's entry is not an equation
+<ul>
+<li>
+and it contains a time specifier ?student-time</li>
+
+<li>
+and replacing the time specifier with another value ?correct-time makes
+it correct</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+walk the bubble graph in order to agree on the PSM, including its time
+specifier, that includes this entry.&nbsp; If the student ends up at a
+different PSM, then abort this hint sequence and continue with next step
+help.</li>
+
+<li>
+(hint string (point) "Now check your time specifier on ~a." the student's
+entry)</li>
+
+<li>
+(hint string (teach) "When you have decided to apply ~a over a certain
+time interval, then you need to define ~a to be consistent with that choice."
+the-principle-of-the-PSM, the quantity)</li>
+
+<li>
+(hint string (bottom-out) ...)</li>
+</ul>
+
+<h3>
+Juicemasta at 4-47</h3>
+At time T0, a firecracker is hurled with given initial velocity at a 60
+degree angle.&nbsp; How high is it when it explodes 2 seconds later?&nbsp;
+The student drew a body and initial velocity, then defined a variable for
+the acceleration at time T0.&nbsp; The problem actually involves the average
+acceleration over T0 to T1, which is the same as a_y which is the same
+as g.
+<p>Andes matches the student entry to acceleration over the T0 to T1 (one
+mismatch: time).&nbsp;&nbsp; The operator application is efficient and
+not premature.&nbsp; Andes runs the preamble up to the projectile PSM then
+hints/teaches/states that "When apply the projectile motion method, the
+acceleration should be defined over the same time interval as the method."
+<h3>
+krista18 at 7-34</h3>
+On the bullet-gong problem, the student defined the bullet as the body
+at time T0. It should be defined over the time interval T0 to T1.&nbsp;
+This is best handled with a preamble, because the student has to see that
+the plan is to apply kinematics over the time interval, and that is why
+the body is defined over the time interval. (That would also take care
+of a second problem that this student has, which is that she has defined
+a variable for the speed of sound over T0 to T1, and that variable is unnecessary.
+I don't know why Andes 1 marked that variable correct.)
+<p>Andes matches the student's entry to the op ap that draws a body over
+the time interval T0 to T1 (one mismatch: time).&nbsp; The op ap is efficient
+and not premature.&nbsp; The hint associated with it runs the preamble,
+which is a bit lengthy, namely:&nbsp; Andes asks for the sought (distance
+to target) and the method (speed-distance-duration).&nbsp; However, when
+Andes asks for the body and time of the method, the student can go either
+for bullet during T0 to T1 or sound during T1 to T2.&nbsp; Hopefully, the
+student chooses the bullet, because then Andes can fire the hint sequence
+above about drawing the body for the whole time interval.&nbsp; If the
+student chooses the sound instead, then that hint sequence will never get
+a chance to apply, because the student will have to draw the other body
+first.&nbsp; Thus, the hint sequence in this case should just say to run
+next-step help, period.
+<h3>
+82vette at 41-24</h3>
+A 90 kg parachutist jumps from a plane at T0, hits the snow at 20 m/s at
+T1, and comes to rest at T2 at the bottom of a 1 m crater.&nbsp; What average
+net force acted on him as he made the crater?&nbsp; The student's first
+action is to define a variable for the duration from T0 to T1.&nbsp; This
+is not needed, as kinematics can be applied to T1 to T2 directly, because
+the velocity at T1 is given.&nbsp; The right pedagogy is to give Next-step
+help up to the point where kinematics over T1 to T2 is selected as the
+PSM, then point out that the duration should defined to have the same time
+interval.
+<h3>
+Ingpole at 6-43</h3>
+A 90 kg parachutist jumps from a plane at T0, hits the snow at T1 at 20
+m/s and stops at the bottom of a 1 m deep crater at T2.&nbsp; What is the
+average net force that acted on him as he plowed into the snow?&nbsp; The
+student drew a correct acceleration for T1 to T2, initial velocity at T1,
+and a downward non-zero net force vector for time T2.&nbsp; The net force
+is non-zero and upward before T2 and zero afterwards, but it is not clear
+what it is right at T2.&nbsp; However, the student doesn't need the net
+force at this time point. If they need it at all, it is during the time
+intervale T1 to T2.
+<h3>
+Cougar at 42-31</h3>
+How long did it take the Blackbird to cover 1000 km at an average speed
+of 935 m/s?&nbsp; The student solved the problem correctly, but drew a
+body for T0, the starting time instead of the time interval&nbsp; T0 to
+T1 (one mismatch: time).
+<p>Normally, selecting a wrong time for a body would be handled by giving
+the preamble, but the student has already completed the PSM in this case
+so giving the preamble first doesn't make sense.&nbsp; This student apparently
+thinks of the body tool as just drawing a dot, and doesn't realize that
+it should also match the time interval for the PSM.
+</body>
+</html>

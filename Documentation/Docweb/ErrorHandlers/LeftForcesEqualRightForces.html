@@ -1,0 +1,96 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>LeftForcesEqualRightForces</title>
+</head>
+<body>
+
+<center>
+<h2>
+Left forces equal right forces</h2></center>
+
+<center>(as of 3/26/01)</center>
+
+<p>Students often write Newton's first law as &lt;sum of left forces> =
+&lt;sum of right forces>.&nbsp; There is nothing wrong with this, as long
+as the sum is composed of magnitudes.&nbsp; If it is composed of components,
+then one of the sums needs to be wrapped in a minus sign.
+<p>If the student's entry is an equation
+<ul>
+<li>
+of the form ?lhs = ?rhs</li>
+
+<li>
+where ?lhs is (compo ?force1 ?axis) or a sum of force components, and</li>
+
+<li>
+where ?rhs is (compo ?force2 ?axis) or a sumof force components,</li>
+</ul>
+then give the hint sequence
+<ul>
+<li>
+preamble(Newton's first law)</li>
+
+<li>
+(hint string (teach) "In order to avoid sign errors, you should first write
+Newton's first law in terms of the component variables, then rewrite if
+you want replacing the component variables with expressions.")</li>
+
+<li>
+(hint string (teach) "When writing Newton's first law, it is best to put
+the sum of the force components on one side of the equation, like this:
+0=Fn_x+Fw_x+Fp_x+Fk_x.&nbsp; All the force components have positive signs.&nbsp;
+If you put some on the other side of the equation, they they would have
+to have negative signs.&nbsp; Many students forget the negative signs because
+they are thinking of a special case, wherein all the forces are parallel
+to the axis, say the horizontal axis, but some point left and some point
+right.&nbsp; For instance, if FL1 and FL2 point left and FR1 and FR2 point
+right, then students often write FL1+FL2=FR1+FR2.&nbsp; This equation is
+correct, but notice that it has <i>magnitudes</i> in it instead of <i>components</i>.&nbsp;
+If it is rewritten in terms of components, it would have to be -FL1_x-FL2_x=FR1_x+FR2_x.&nbsp;
+Most students forget the negative signs when they do this.&nbsp; If they
+had followed the advice above, then they would write FL1_x+FL2_x+FR1_x+FR2_x=0
+and gotten the signs right.&nbsp; Thus, if you want to get the signs right,
+it is best to always write the sum of forces (a) in terms of components
+and (b) all on one side of the equation.")</li>
+
+<li>
+(hint string (bottom-out) "In this case, you should write ....")</li>
+</ul>
+It feels right to give a preamble here in order to ascertain that the student
+realizes that it is Newtons' first law that he is writing.
+<h3>
+<a NAME="a5 3-43"></a>a5 Eq-Pitt 3-43</h3>
+On the shopping cart problem, the student draws a complete FBD, enters
+givens, a=0, all projections of forces on the x-axis, then S_x=Fn_x+Fw_x+Fp_x,
+where S is an undefined variable.&nbsp; The closest matching equation is
+0=Fn_x+Fw_x+Fp_x+Fk_x, which includes Fk_x, the x-component of the kinetic
+friction force, and excludes S_x, which is undefined.
+<ul>
+<li>
+T1 thinks S_x denotes net force, and that the student should have left
+out the normal and weight forces.&nbsp; Although the student has drawn
+the normal and weight forces correctly, and the student has written Fn_x=0
+and Fw_x=0, T1 still asks the student what their directions are.</li>
+
+<li>
+T2 says to put components of all forces in the equation.</li>
+
+<li>
+Andes says, "You have not defined the variable S."</li>
+
+<li>
+KVL: Maybe S_x denotes the friction force, as that is the only force on
+the left side of the body, and students sometimes use &lt;left forces>
+= &lt;right forces> for N1L.&nbsp; Andes should first complain about the
+undefined variable, then react to the revised equation.</li>
+</ul>
+If the student defines S as the net force, then we have a missing force,
+which is discussed <a href="MissingForces.html#a5 3-43">elsewhere</a>.
+On the other hand, if the student changes the S_x to Fk_x, gets red, and
+asks for help, then this bug is triggered.
+</body>
+</html>

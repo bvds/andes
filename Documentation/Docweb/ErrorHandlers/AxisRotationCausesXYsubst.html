@@ -1,0 +1,83 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>AxisRotationCausesXYsubst</title>
+</head>
+<body>
+
+<center>
+<h2>
+Axis rotation causes xy substitution</h2></center>
+
+<center>(as of 3/26/01)</center>
+
+<p>If the student's entry is an equation
+<ul>
+<li>
+that contains (compo ?vector ?axis)</li>
+
+<li>
+and the student has rotated axes by 90, 180 or 270 degrees</li>
+
+<li>
+and substituting (compo ?vector ?other-axis)&nbsp; makes the equation correct</li>
+</ul>
+then
+<ul>
+<li>
+(hint string (point) "Your axes are not in the standard orientation.&nbsp;
+Is &lt;student's variable> what you want here?" )</li>
+
+<li>
+(hint string (bottom-out) "Because your axes are rotated, you need to use
+&lt;correct variable> instead of &lt;student variable>."</li>
+</ul>
+
+<h3>
+<a NAME="seth 8-13"></a>seth Eq-USNA 8-13</h3>
+If a 100 kg person slides down a rope that will hold only 500N, what is
+his minimum acceleration? The student defined variables, drew a body and
+axes with +X straight up, and entered “F_y = 500” where F is the friction
+force.&nbsp; The closest matching equation is F_x=500.
+<ul>
+<li>
+IH notes “F_x = 500 N” as student’s intended equation and points out definition
+of axes to student.</li>
+
+<li>
+RO notes “F_y = 0N” as student’s intended equation and also points out
+definition of axes to student.</li>
+
+<li>
+Andes gives no equation and explains that F_y is an unknown value for Andes
+and thus will be marked incorrect anywhere.</li>
+
+<li>
+KVL: Andes should first ask the student to draw forces, then say, “F_y
+is the y-component of the friction force.&nbsp; Is that really what you
+want here?”</li>
+</ul>
+Andes substitutes all forces for F_y and finds that using F_x makes the
+equation correct.&nbsp; Indy analysis finds that it is a cmpound of F_x=F
+and F=500 (this assumes that the problem statement is interpreted to make
+the friction force be 500; that's the whole trick with this problem, and
+we don't have an easy way to represent it in the KB).&nbsp; SG analysis
+finds that the student needs to draw forces first, so Andes says to do
+that.
+<p>Suppose the student draws the fbd then asks again why F_y=500 is wrong.&nbsp;
+Andes retrieves the interpretation, and SG analysis says that it has a
+given value substituted into it prematurely, so Andes says that.
+<p>Suppose the student changes the equation to F_y=F and&nbsp; again asks
+what's wrong.&nbsp; Andes retrieves the interpretation, and now SG analysis
+is happy.&nbsp; Now Andes must decide whether to tutor the student on the
+projection equation for the horizontal (y) axis (not this error handler),
+or whether the student slipped and used the wrong variable (this error
+handler).&nbsp; Even without knowing anything about the student, it is
+clear to the human tutors that the student slipped.&nbsp; This is because
+the student used a non-standard rotation for the axes and switching the
+variable names makes the equation right.
+</body>
+</html>

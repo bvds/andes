@@ -1,0 +1,210 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Discussion in December on the need for units</title>
+</head>
+<body>
+   <h2 align=center>Discussion in December on the need for units</h2>
+   <h3 align=center>Joel</h3>
+
+On Dec. 12, 2000, I sent to all the Andes folk, at Pitt and usna,
+a message on my observations on the use of units in the Andes1 log files.
+It is given here with comments Kurt made in reply interspersed in italics:
+<p>
+Notes on units in variables/equations in Andes
+<p>
+We have, I believe, agreed that the new version of Andes should
+treat units seriously, so I am beginning to try to incorporate them
+in the parsing. I have looked at the log files which Anders has
+cleaned up for me, and examined the first 112 equations which involved
+or should have involved units, and classified them as follows
+ 
+<center><table><tr><TD></TD><TD></TD><TD> num/112 </TD></TR> 
+<TR><TD>A:</TD><TD> assignment statements with correct units, 
+eg G=9.8 m/s^2 </TD>
+<TD> 59</TD></TR>
+<TR><TD>B:</TD><TD> assignment statements with correct units even though 0</TD>
+<TD> 3</TD></TR>
+<TR><TD>C:</TD><TD> units included where they should not have been, eg </TD>
+<TD> 1</TD></TR>
+<TR><TD> </TD><TD> ag=(vp_y-vj_y)/(t1-t0)m/s^2</TD>
+<TD> </TD></TR>
+<TR><TD>D:</TD><TD> assignment statements with units missing,
+ eg Fw_y = -98 </TD>
+<TD> 34</TD></TR>
+<TR><TD>E:</TD><TD> units omitted when number plugged into equation </TD>
+<TD> 10</TD></TR>
+<TR><TD> </TD><TD>        eg.   -29.4 + Ft_y = 3 * ag_y </TD>
+<TD> </TD></TR>
+<TR><TD>F:</TD><TD> units left off when quantity is 0 </TD>
+<TD> 5</TD></TR></table></center>
+<p>
+I propose we accept A, B and F, and clearly we want to not accept
+C and D (C comes from a misconception that the variables are numbers
+associated with the physical quantities rather than the quantities
+themselves, including units). The one situation which is not completely
+clear is E - it is wrong, but we all do it in the course of doing our
+algebra, hopefully restoring the units at the end. But I think we might
+do well to be strict here, because
+<UL><LI>         1) it will be hard for novices to remember when they are
+                 using shorthand by dropping the units and when they
+                 really aren't there   </LI>
+<LI>         2) the extra pain of writing units when plugging values into
+                 an equation will encourage them not to do that, which
+                 we want to do anyway.</li>
+
+<i>This is a strong point, in my opinion. </i>
+
+<LI>         3) it will be hard to check units in equations if they are left
+                 off.</LI>
+<LI>         4) we should be reluctant to mark correct things which are not
+                 really correct.</LI></UL>
+<p>
+So, I propose we accept A, B, F and mark C,D, and E wrong. (Accepting
+F makes my life harder, but no physicist would object to v=0 as a legitimate
+statement).
+<p>
+Grammar:
+<p>
+         A quantity involving units should begin with a number,
+followed without an initial * by a composite of the symbols<br>
+         m, kg, s, N, J, K, C, mol, V, A, T, ohm, Wb, Hz, Pa, F, H, W
+         eV, MeV, c, u<br>
+         and prefixes a f p n mu m c  k M G T P E<br>
+         ( I left out d, h da, which are almost never used except for dl,
+         which we would write as 10^{-4} m^3. c is used only with cm, as
+         we shouldn't accept cc's anyway (cc = 10^{-6}m^3)<br>
+    what about general non-SI:<br>
+           Angstrom, atm, f (=fm), barn, cal, ^oC, lightyear, liter<br>
+         English and other archiac units<br>
+           Btu,  ^oF, ft, in, hr, min, hp, lb, day, yr, yd, mi, gal, oz,
+           slug,<br>
+         CGS: G (gauss), g gram, dyne, erg, bar, Kwh<br>
+These symbols can be combined with or without *, with / and ^, but we
+         need to know the rules: J/K mol = J/(K * mol), right?
+<p>
+I am not sure what the parsing rules should be. In assignment statements,
+like I = 8 mA, it is easy, because once you hit a number followed by a
+symbol without an intervening operator you can permanantly switch to
+unit gathering. But if we allow quantities in equations, how do I know<br>
+         P = 8 V * mA is 8 mW rather than 8 volts times the mass of A?
+<p><i>
+As I recall, Joel Martin's parser tried to parse units that appeared in the 
+middle of equations, and as a consequence had to report multiple parses for 
+some equations.  That would be very difficult to deal with.  However, we 
+have several parsing experts in the NLT group, so we could whip up a simple 
+parser pretty easily and test it on your corpus of student equations.
+</i>
+<p>
+Comments?
+<p>
+         Joel
+
+<h3> Bob Shelby's response:</h3>
+
+On Dec 19, Bob sent to me, Treacy, and Mary, this note
+<p>
+Subject: Re: units for quantities
+<p>
+Joel,
+<p>
+We agree with almost everything that you have suggested.  Certainly there is no
+need to
+discuss your choice of marking A, B and F as correct.  We would prefer that
+quantities that
+have a zero value be allowed to have no units assigned.  We also agree that C
+and D responses
+should be marked as incorrect.
+<p>
+Our discussion of D led to a suggestion by Don that we would like to have you
+consider.
+Don's suggestion was motivated by the fact that the units on the two sides of
+any physical
+equation should match.  So, perhaps we should have a block on the right hand
+side of each
+line in the equation pane where the appropriate units for this equation line
+are entered.  the
+exception to this would be symbolic equations.
+<p>
+While we agree that it is often good practice for students to put units into
+every term in
+an equation, the reality is that when one has an equation like<br>
+<center>
+    V1_x^2 = V1_x^2 + 2*a_x*d_y
+</center><br>
+putting in complete units into each term becomes cumbersome.  We would settle
+for having the
+students designate the correct units for each side of the equation and in the
+answer.  We also feel
+that having unit checks in the equation pane is one requirement that could be
+removed as the
+student progresses.
+<p>
+We really do like the idea of adding unit checks!
+<p>
+These are our thoughts after a quick look during our final exam preparation.
+More later.
+<p>
+Bob
+
+<h3> Some misunderstandings about the above</h3>
+I apparently misunderstood what Bob said, thinking he wanted units 
+attached to variables in equations, not just numbers, but that is not
+what he meant. For completeness, here is the followup, but it just resolves
+that mixup on my part.
+<p>
+"Joel A. Shapiro" wrote:
+<p>
+Actually, I think we disagree on units more than you think. My
+understanding of units is such that the equation<center>
+     V1_x^2 = V1_x^2 + 2*a_x*d_y</center>
+is correctly written as is - all the units are there in V1 and a
+and d. It would be superfluous to add units to either side. That is
+why I stated that<br><br>
+> > C: units included where they should not have been, eg  <br>
+> >         ag=(vp_y-vj_y)/(t1-t0)m/s^2<br>
+was wrong (which you agree with)
+<p>
+While it might be useful to have the student specify the units of
+his equation, so that if he wrote<br>
+        F = m v   [kg m/s^2]   we would ask him to check the rhs,<br>
+but     F = m v   [kg m/s]  we would ask how a force can have such units,<br>
+I doubt that it is worth the effort for the student. More importantly,
+I don't think that should relieve the student of the responsibility
+of giving units in the right place in<br><center>
+        v = 8.0 m/s</center><br>
+It is important that the student realize that v is not equal to 8,
+even if that is what you punch into your calculator.    If it is placed
+in a box like a comment to be checked (perhaps) later, this essential
+coupling of the number with units is lost.
+<p>
+Bob replied, Dec 19 11:06:43 
+<p>
+I probably didn't express myself very clearly.  We only suggested that units be
+required in equations where values had been inserted.  If a student wrote
+<center>
+    F = m*v
+</center>
+his would be a purely symbolic equation where units would not be required.
+However, we certainly think that the entry
+<center>
+    V = 8.00
+</center>
+should include proper units.  Our comments about the "V^2" equation referred to
+a situation where numerical values had been put in for all of the known terms 
+in the equation.  Here our suggestion might result in
+<center>
+    4^2 = 2^2 + 2*a_x*10     [m^2/s^2].
+</center>
+If fact we would prefer that the students jump directly from the symbolic 
+equations plus given inputs(with correct units) to the final result.
+<p>
+Of course, what we have suggested might not work!
+<p>
+Bob
+
+</body>
+</html>

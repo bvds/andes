@@ -1,0 +1,86 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>HintDataStructure</title>
+</head>
+<body>
+
+<center>
+<h2>
+The Hint data structure</h2></center>
+
+<center>(as of 3/16/01)</center>
+
+<p>In Andes 2, physics knowledge is represented by operators.&nbsp; Each
+operator has a Hints slot, which contains an ordered list of hints, where
+a hint is an instance of the following structure
+<p>(defstruct hint
+<br>&nbsp;&nbsp;&nbsp; format
+<br>&nbsp;&nbsp;&nbsp; functions
+<br>&nbsp;&nbsp;&nbsp; string
+<br>&nbsp;&nbsp;&nbsp; args)
+<p>The format of the&nbsp; hint is either STRING, MINILESSON or KCD.&nbsp;
+The functions field contains a set of atoms:
+<br>&nbsp;
+<ul>
+<li>
+teach -- this hint attempts to teach the relevant operator or concept.
+For instance, a string hint that teaches the normal force direction would
+be "The direction of the normal force is always perpendicular to the surface
+that exerts it.&nbsp; This is because ...."</li>
+
+<li>
+point -- a "pointing" hint in the style of those identified by Hume et
+al.&nbsp; It gives some information away in the hopes that this will trigger
+the student to recall or reconstruct the rest.&nbsp; For instance, "Think
+about the direction of the normal force."</li>
+
+<li>
+goal -- Prompts the students by mentioning the goal of this operator.,
+e.g., "You need to draw a force due to the surface."</li>
+
+<li>
+bottom-out -- Tells the student exactly what to do.</li>
+</ul>
+We can add more functions later.&nbsp; For instance, Recap might be a hint
+that is presented after a problem is over, and Remind could be a teaching
+hint that is presented only if the student has already seen a teaching
+hint on this topic.&nbsp; The&nbsp; functions field is a *set* of functions
+because the same hint might be useful for multiple purposes.&nbsp; For
+instance, a Remind hint and a Recap hint might be the same.
+<p>The string field is the string to be printed if this is a STRING hint.
+If the hint is a MINILESSON or KCD hint, then the string field contains
+an string that names the file containing the minilesson--this file is loaded
+by the workbench inorder to play the minilesson.&nbsp; If the hint is a
+KCD hint, then the string is names the KCD.&nbsp; This could be a file
+name or an index into some in-core list of KCDs.
+<p>The args field represents the arguments of the hint.&nbsp; The form
+of the arguments depends on whether the hint is in the Hints slot of an
+operator, or whether it is being passed around in the dialog system.&nbsp;
+When it is in the Hints slot of an operator, the args slot contains set
+of FOL terms that include variables.&nbsp; For instance, the following
+is a string hint as it appears in the Hints field of an operator:
+<p>(string (point) "Think about the forces acting on ~a ~a." (?body ?time))
+<p>The terms ?body and ?time are not bound yet, but will be bound when
+the operator is applied.&nbsp; When dialog system wants to find out what
+hints are available for a particular path-node in the PSM graph, it calls
+a function that not only returns the hints, but replaces the variables
+in the args field with their bindings.&nbsp; Thus, the same hint when the
+dialog system first gets ahold of it would be
+<p>(string (point) "Think about the forces acting on ~a ~a." (Car1 (during
+1 2)))
+<p>When the hint is eventually generated, these terms are converted into
+text, and the text replaces the ~a codes in the string.&nbsp; Thus, the
+eventual hint shown by the workbench would be "Think about the forces acting
+on the car during time 1 to time 2."
+<p>Currently, KCDs&nbsp; do not accept arguments.&nbsp; Minilessons may,
+but I'm not sure because I don't know how well the old template-based minilessons
+that Anders implemented would fit in our new system.&nbsp; Someone needs
+to resurrect that code.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

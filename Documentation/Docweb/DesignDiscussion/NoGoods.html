@@ -1,0 +1,107 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Discussion of No Goods</title>
+</head>
+<body>
+
+<center>
+<h2>
+No-goods</h2></center>
+
+<center>(as of 5/2/01)</center>
+
+<h3>
+Collin (5/2/01):</h3>
+After connecting the Algebra system and the workbench to the help system
+we have rediscovered the need for Nogoods.&nbsp; It is now apparent that
+a small number of nogoods will be necessary to address situations specific
+to the Workbench and to address Combinatorial explosion.&nbsp; Accordingly
+we have reinroduced nogoods into the solution graph generatior and into
+the runtime help system.&nbsp; Given the existence of the Algebra system
+the Nogoods now serve a much smaller purpose.&nbsp; The goal of the nogoods
+is to account for possible entries and solutions that are algebraically
+possible but are prevented by the workbench.&nbsp; At solution graph generation
+time the nogoods are used to further prune the possible solution paths.&nbsp;
+At Andes2 Runtime they are used to prune off the algebraic solution sets
+that are used to identify equations.&nbsp; The student should never see
+them nor even knw that they exist as they are rendered invisible by the
+workbench.
+<p>At present we hasve introduced two nogoods:
+<h5>
+Conflicting Axes:</h5>
+
+<blockquote>In solving any physics problem it is algebraically leal for
+the student to use as many axes as they might wish.&nbsp; Therefore they
+can select several axes for a single body and write each equation on that
+body using one or more of those axes.&nbsp; The Andes2 Knowledge base implicity
+prevents the use of more that two axes for any given body.&nbsp; However
+within this limitation it is still algebraically plausible for the student
+to write equations on a given body using both axes.&nbsp; This results
+in a combinatorial explosion of undesireable (pedagogically and computationally)
+solution paths.</blockquote>
+
+<h5>
+Non-Orthagonal Axes:</h5>
+
+<blockquote>Again, it is algebraically valid to select x and y axes that
+are non-orthagonal.&nbsp; In some problems this might even reduce the number
+of steps necessary to produce a solution.&nbsp; However it is not possible
+to enter non-orthagonal axes in the Andes Workbench, nor have the physicists
+evidiced a desire to permit the students to do so.&nbsp; Therefore we have
+edded a nogood to block these solutions from being produced in the SGG.</blockquote>
+
+<br>&nbsp;
+<br>&nbsp;
+<h3>
+Kurt (3/16/01):</h3>
+After thinking it through with Anders and Joel, it now appears that no-goods
+will not be necessary.&nbsp; This message says why, mostly so I won't forget
+when it comes time to write papers on Andes2.
+<p>I used to think that associating text with a no-good, such as "It is
+a never necessary to use a third kinematics equation," would allow us to
+give better help messages in two circumstances.
+<p>First, if the student has entered several equations and then enters
+one that is "no-good," I thought that Andes should give the no-good message
+then color the equation red.&nbsp; However, Joel and Anders pointed out
+that the current design (as of 3/14/01), doesn't give such messages.&nbsp;
+We thought and thought, but couldn't devise a scenario where such a help
+message would be appropriate.&nbsp; For instance, suppose a student had
+written two primitive kinematics equations down and now writes a third.&nbsp;
+Andes shouldn't mark it red and give the help message above, because the
+student might simply be doing an algebraic combination of the two earlier
+kinematics equations, or might be switching to a better solution, or might
+be rederiving the third equation instead of trying to recall it.&nbsp;
+All of these are good practices that we don't want to discourage.&nbsp;
+Thus, we should simply mark that third kinematics equation green.&nbsp;
+Similar attempts with axis rotation, forces-vs-energies and other no-goods
+yielded similar results.&nbsp; So there is no reason to have text associated
+with no-good for the sake of help messages.
+<p>The second place where no-good messages would be necessary, I thought,
+was when&nbsp; What's-next help is generating a preamble, and it has just
+gotten a sought quantity from the student, so it asks "What method should
+you use to find it?" and gives a hierarchical menu.&nbsp; If the student's
+menu selection is a PSM that, according to the no-good, is dependent on
+the equations inside the students bubble (i.e., the equations that the
+student and tutor have mentioned so far in the preamble), then the no-good's
+message would be printed and the student would be asked to make another
+menu selection.&nbsp; Joel has convinced me that it would be pedagogically
+better to give the student a general message instead, such as "That method
+will generate an equation that provides no new information, because it
+can be algebraically derived from your equations &lt;number> and &lt;number>"&nbsp;
+This general message can be computed by calling Joel's independence checker
+after the student has made the menu selection.&nbsp; If it reports that
+the student's proposed equation is dependent on ones in the student's bubble,
+then it can also report which equations in the bubble the student's proposed
+equtaion is dependent on, and those are the ones mentioned in the message.
+<p>Thus, we no longer need no-goods, and that code can be flushed from
+both the knowledge base (Anders) and the solution graph generator (Collin).&nbsp;
+Instead, the SGG will call Joel's independence checker while tracing all
+possible paths through the bubble graph.&nbsp; Also, the What's-next help
+will call Joel's independence checker as described above.
+<br>&nbsp;
+</body>
+</html>

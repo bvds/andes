@@ -1,0 +1,79 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="description" content="solve-for-var">
+   <meta name="keywords" content="api">
+   <meta name="resource-type" content="document">
+   <meta name="distribution" content="global">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>solve-for-var</title>
+<!--Converted with LaTeX2HTML 97.1 (release) (July 13th, 1997)
+ by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippman, Marek Rouchal, Martin Wilck and others -->
+<link REL="STYLESHEET" HREF="api.css">
+<link REL="next" HREF="node6.html">
+<link REL="previous" HREF="node4.html">
+<link REL="up" HREF="node2.html">
+<link REL="next" HREF="node6.html">
+</head>
+<body>
+
+<h2>
+solve-for-var</h2>
+solve-for-var <i>var new-id</i>
+<dl>
+<dt>
+<b>Description</b></dt>
+
+<dd>
+Solve for the given var using the equations the student has entered so
+far. Only uses correct equations, so the result must also be correct.</dd>
+
+<dt>
+<b>Example</b></dt>
+
+<pre>&nbsp; "(solve-for-var \"vi\" 2)"</pre>
+
+<dt>
+<b>Returns</b></dt>
+
+<dd>
+a string containing the equation to be put in the new-id slot and optionally
+a message to be displayed in the hint window. The equation gives the value
+of the var if possible, otherwise it gives an equation with all other known
+values substituted in.</dd>
+
+<dt>
+<b>Arguments</b></dt>
+
+<dl>
+<dt>
+<b>var</b></dt>
+
+<dd>
+The variable to solve for, a string.</dd>
+
+<dt>
+<b>new-id</b></dt>
+
+<dd>
+The id number of the equation window in which to put the new simplified
+equation.</dd>
+</dl>
+
+<dt>
+<b>Side Effects</b></dt>
+
+<dd>
+Adds the new equation to the list of entered equations, and the value of
+the var, if found, to the value of the corresponding scalar/magnitude.</dd>
+</dl>
+
+<p><br>
+<hr>
+<br><i>kvl 3/2/01</i>
+</body>
+</html>

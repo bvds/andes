@@ -1,0 +1,98 @@
+<html> <head>
+<title>Physics Variables in the Algebra System
+</title>
+</head>
+
+<body>
+<h1>Physics Variables in the Algebra System
+</h1>
+
+This page discusses the internal representation of physical variables in the
+algebra system.
+<p>
+The class <TT>physvar</TT> is instantiated for each `canonical' variable,
+that is, those defined by the SGG, and in terms of which the `canonical'
+equations are written. A list of these objects is kept in <tt>canonvars</tt>.
+The equations do not actually contain these variables as objects, but instead
+have <tt>physvarptr</TT>s which point to them.
+<P>
+The class is defined in <TT>expr.h</TT>, but its member functions have been
+moved to <tt>physvar.cpp</tt>.
+<P>
+The member data fields are:
+<UL><LI><TT>double value</TT> The numerical value of this variable, expressed
+     in terms of the units given in prefUnit (not necessarily UI). This is
+     almost not used, as in the solver, as soon as the value of a variable is
+     known, the value is substituted in place of the variable in all the
+     equations and, after writing out the value, the variable is discarded.
+     But it may be used in future interactions with the help system.
+    <LI><TT>string prefUnit</TT> A string representing the units in which
+	 this variable is to be expressed. These may be nonstandard units.
+	 Right now (4/01) the only nonstandard units used are degrees, so
+	 a right angle may be represented with value = <TT>90</TT>,
+	 prefUnit = <TT>deg</TT>, or as value = <TT>1.57079632679490</TT>,
+	 prefUnif = <TT>rad</TT>.
+    <LI><TT>string clipsname</TT> The canonical name of the variable. [The
+	 name has obsolete historical significance.]
+    <LI><TT>string shortname</TT> Not used. Would be nice, though, if we
+	 really need to look at equation files, especially if these were in
+	 MathML.
+    <LI><TT>string studname</TT> Not currently used, as the help system does
+	 not currently inform the algebra system what name the student has
+	 given to the variable in question. If we change our minds, we need
+	 to introduce another bit, because sometimes the student variable
+	 refers to <i>minus</i> the canonical variable.
+    <LI><TT>vartype type</TT> Not used. Was intended to have things like
+	 mass, force, <i>etc</i>. An enum is defined in 
+	 <TT>expr.h</TT>, but it hasn't been used.
+    <LI><TT>dimens MKS</TT> The physical dimensions of this quantity.
+	 Here are the specifications for <A HREF=dimens.html>class dimens</a>,
+	 which contains the exponents of the basic units needed for this
+	 quantity.
+    <LI><TT>bool isnonneg</TT> If the quantity cannot be negative, this is
+	 true. False may mean unknown, not that the quantity <b>is</b>
+	 negative.
+    <LI><TT>bool isnonzero</TT> If the quantity cannot be zero, this is
+	 true. False may mean unknown, not that the quantity <b>is</b> zero.
+	 Mass variables are taken nonzero by a convention that we will not
+	 assign mass variables for massless knots, etc, which
+	 are <i>a priori</i> known to be massless
+    <LI><TT>bool isparam</TT> Parameters are variables which cannot be solved
+	 for, but which enter in the expressions for some relevant quantities,
+	 although not necessarily in the answer. The solver, checker, and
+	 independence checker assigns these arbitrary positive values, for
+	 their own purposes. 
+    <LI><TT>bool isused</TT> If a variable is declared but never used in any
+	 canonical equation, it is marked unused and ignored. But these
+	 variables must be removed before proceeding to the checker or
+	 independence system.
+</UL>	 
+Member functions of the class physvar:
+<UL>
+    <LI><TT>physvar()</TT> No point, really, creating one without a name
+    <LI><TT>physvar(string clipsname)</TT> The standard constructor
+    <LI><TT>~physvar()</TT> Destructor (usually I used delete instead)
+    <LI><TT>void putclipsname(string)</TT> not used, as the fields are public
+    <LI><TT>void putshortname(string)</TT> not used at all
+    <LI><TT>void putvartype(vartype)</TT> not used at all
+    <LI><TT>bool checkifknown()</TT> not used at all
+    <LI><TT>double getlenghtd()</TT> it's easier to use member functions
+	 of <A HREF=dimens.html><tt>dimens</tt></A>.
+    <LI><TT>double getmassd()</TT>
+    <LI><TT>double gettimed()</TT>
+    <LI><TT>double getcharged()</TT>
+    <LI><TT>double gettempd()</TT>
+    <LI><TT>void putdimens(int,int,int,int,int)</TT> not used, but should be.
+    <LI><TT>void putdimens(double,double,double,double,double)</TT>
+    <LI><TT>string getInfix()</TT> can also just access clipsname, which is
+	 what would be printed. In fact, I can't find the definition!
+    <LI><TT>void pretty()</TT> In fact, I can't find the definition!
+    <LI><TT>void dbgprint()</TT> In fact, I can't find the definition!
+</UL>
+	 
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Sun Apr  8 16:59:14 2001
+<!-- hhmts end -->
+</body> </html>

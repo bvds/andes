@@ -1,0 +1,252 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>MissingNegOnVectorMag</title>
+</head>
+<body>
+
+<center>
+<h2>
+Missing negation on a vector magnitude</h2></center>
+
+<center>(as of 3/26/01)</center>
+
+<p>If the student entry is an equation
+<ul>
+<li>
+that contains (mag ?vector)</li>
+
+<li>
+and (= (compo ?vector ?axis) (- (mag ?vector))) is a correct equation</li>
+
+<li>
+and replacing (mag ?vector) with (- (mag ?vector)) in the student's equation
+makes it correct,</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+(hint string (point) "Think about the direction of ~a." ?vector)</li>
+
+<li>
+(hint string (teach) "You seem to be confusing the magnitude of ~a with
+its component along the ~a.&nbsp; Because ~a is anti-parallel to ~a, the
+projection equation is ~a." ?vector ?axis (= (compo ?vector ?axis) (- (mag
+?vector)))")</li>
+
+<li>
+(hint string (bottom-out) "Because ~a is anti-parallel to ?a, replace the
+magnitude of ~a with its negation." ?vector ?axis ?vector))</li>
+</ul>
+
+<h3>
+<a NAME="Paul-Oyler 55-17"></a>Paul-Oyler Eq-USNA 55-17</h3>
+In the problem of the jumping kangaroo, the student draws a diagram with
+initial velocity and acceleration, defines variables, and enters “d = v0(t)
++ 1/2(a)t^2” as the first equation.&nbsp; The closest matching equation
+has –a instead of a.&nbsp; This equation is both premature (vectors and
+the component equation should be entered first) and inefficient.
+<ul>
+<li>
+IH fails to notice the sign error.&nbsp; She coaches the student through
+solving the problem with the student’s equation, the points out that&nbsp;
+“v1_y^2 = v0_y^2 - 2*a*d = 0” is more efficient.</li>
+
+<li>
+RO sees the sign error, and asks the student for the direction of acceleration.</li>
+
+<li>
+Andes says to check signs.</li>
+</ul>
+The bug by itself suffices to make the equation correct.&nbsp; Indy analysis
+finds that the correct equation corresponds to d_y=v0_y*t+0.5*a_y*t^2,&nbsp;
+d_y=d,&nbsp; v0_y=v0,&nbsp; a_y=–a.&nbsp; SG analysis shows that it is
+premature, since the displacement vector needs to be written first.&nbsp;
+It also discovers that this path is less efficient than one that uses vf_y^2=vi_y^2
++ 2*a_y*d_y.&nbsp; But that equation is also premature, as it requires
+the displacement vector to be drawn.&nbsp; Thus, Andes decides to suggest
+drawing that vector, as it would be the right thing to say in either case.
+<p>Suppose the student draws the displacement vector then asks again why
+their equation is red.&nbsp; The error diagnosis and Indy analysis are
+the same, but the SG analysis indicates that hinting the target equation
+will take the student down an inefficient path.&nbsp; Andes should say,
+“Your equation is similar to one I know, but it is not part of an efficient
+solution to the problem.&nbsp; You may click here for help on fixing your
+equation or here for help on finding a more efficient solution.”&nbsp;
+If the student wants help on fixing the equation, then since acceleration
+is drawn, the student should first enter the equation in component form.
+<p>Suppose the student now enters their kinematics equation in component
+form, d_y = v0_y(t) + 1/2(a_y)t^2.&nbsp; This is correct, so the student
+reenters the original equation, which turns red, and the student asks for
+help again.&nbsp; The equation is no longer premature, so Andes gives the
+bug's hint sequence.
+<br>&nbsp;
+<h3>
+<a NAME="Kiesel 18-55"></a>Kiesel Eq-USNA 18-55 second equation</h3>
+In the problem where a hailstone is falling to the ground from the sky,
+the student defines variables, draws a body and standard axes, then enters
+“d_y=9000m,” some other givens and “d=0+v0_y*t+(1/2)a_y*t^2.”&nbsp; Both
+equations are red.&nbsp; The first one should be d_y=-9000m (the student
+dropped the negative sign), but that is discussed elsewhere.&nbsp; The
+second one should have d_y instead of d on the left side, or alternatively,
+should have a minus sign on the left.&nbsp; Either way, the resulting equation
+is an inefficient one to use for this problem.&nbsp; The tutors gave advice
+on the second equation, but Andes gave advice on the first equation.
+<ul>
+<li>
+IH didn’t notice the error.&nbsp; Instead, she wants the student to use
+“v1_y^2 = v0_y^2 + 2*a_y*d_y”&nbsp; She points out that the question asks
+the student to find ‘v’ not ‘d’ and questions the student’s method for
+finding ‘v’ with the equation entered.</li>
+
+<li>
+RO notes “d_y = 0 + v0_y*t + 0.5*a_y*t^2” as student’s intended equation
+and addresses the sign (direction) of motion.</li>
+
+<li>
+Andes says, “Make sure you are using the correct signs in this equation.”</li>
+
+<li>
+KVL: In Andes2, the displacement vector would have to be drawn before the
+equation can be written, so this equation is not premature.&nbsp; Unfortunately,
+the problem specification to the KB treats d_y=-9000m as a given rather
+than the result of a projection operation.&nbsp; Thus, there is no hint
+sequence on the operator application.&nbsp; Thus, Andes must treat this
+error as a slip.</li>
+
+<li>
+KVL: For help on the second equation (assuming all variables are defined
+by drawing vectors) Andes should say, “Your equation is similar to one
+I know, but it is not part of an efficient solution to the problem.&nbsp;
+You may click here for help on fixing your equation or here for help on
+finding a more efficient solution.”&nbsp; If the student wants help on
+fixing the equation, then Andes ought to say, “Although most of your components
+are expressed as variables, one is not.&nbsp; Try rewriting the equation
+will all the components expressed as variables.”</li>
+</ul>
+For the second equation, the bug yields a correct, primitive, non-premature
+but inefficient equation.&nbsp; Andes asks the fix-or-replace question.&nbsp;
+If the student elects to fix this equation, the bug's hint sequence applies.
+<h3>
+<a NAME="rat 49-48"></a>rat Eq-USNA 49-48</h3>
+In the problem where the aircraft carrier plows into a pier, the student
+defines variables, draws a body, an axis and the initial velocity, enters
+some equations, then enters “a = a_x.”&nbsp; The target equation has –a
+for a..
+<ul>
+<li>
+IH asks what would happen to the final velocity if a_x>0.</li>
+
+<li>
+RO asks “what is the direction of a?”.</li>
+
+<li>
+Andes also notes sign error.</li>
+
+<li>
+KVL: Andes should ask the student to draw the acceleration vector.</li>
+</ul>
+The bug yields a correct, primitive but premature equation.&nbsp; Suppose
+the student draws vectors and gets the acceleration direction right (perhaps
+with some coaching), then asks again why this equation is wrong.&nbsp;
+Same interpretation.&nbsp; Bug's hint sequence is given.&nbsp; The teaching
+hint is not great here, because it starts out by claiming the student is
+confusing the magnitude with the component.&nbsp; This is not true in this
+case, as the student has just entered the projection equation.&nbsp; Could
+have a separate bug for this case if it comes up enough.
+<h3>
+ronjon21 Eq-USNA 31-18</h3>
+In the problem where the aircraft carrier plows into a pier, the student
+defined variables, drew a FBD without acceleration, then entered "vf_x
+= v_x + a*t" as the first equation.&nbsp; The target equation has -a instead
+of a or a_x instead of a.
+<ul>
+<li>
+IH notes a sign error and questions the direction of 'a_x' and has student
+explain what is happening physically with the equation the student entered.</li>
+
+<li>
+RO asks, "what is the direction of a_x?"</li>
+
+<li>
+Andes suggestions checking signs.</li>
+
+<li>
+KVL:&nbsp; Andes should say, “You can prevent errors like this by always
+drawing acceleration and other relevant vectors on the FBD.”&nbsp;&nbsp;
+If the student asks it to explain further, it can say, “Please draw the
+acceleration.”</li>
+</ul>
+Substituting a_x for a creates a correct, primitive equation that is premature.&nbsp;
+Andes should ask the student to draw the acceleration.&nbsp; If the student
+asks for what's wrong help again, Andes will suggest writing the compo
+version of kinematics.&nbsp; If that doesn't cause the student to fix the
+equation, then it runs the bug's hint sequence.
+<h3>
+bee Eq-USNA 8-29</h3>
+In the problem where a person is hanging onto a rope over a cliff, the
+student defines variables, draws axes and a body but no forces or acceleration,
+then enters "Fw_y = F + Fn" where Fw is weight, F is friction and Fn is
+the net force.&nbsp; The target equation has -Fn for Fn.
+<ul>
+<li>
+IH has student draw forces, then write projections, then rewrite the target
+equation.</li>
+
+<li>
+RO has student draw forces including the net force, then asks about direction
+of Fn, then rewrite the target equation.</li>
+
+<li>
+Andes says to check signs.</li>
+</ul>
+This demonstrates that the bug should apply with net forces as well a individual
+forces.&nbsp; In this case, the bug yields a compound, premature equation,
+so Andes says to draw a fbd first.
+<h3>
+LoseBerry Eq-USNA 9-24</h3>
+In the problem where a car is rolling down a driveway towards a garage
+door, the student defines variables, draws an FBD without weight, enters
+equations, then enters “vf^2 = vi^2 + 2*ag_x*(dc).”&nbsp; The closest matching
+equation has –dc instead of dc.
+<ul>
+<li>
+IH notes a sign error and questions definition of dc(_x) and notes equation:
+“vf_x^2 = vi_x^2 + 2*a*g_x*dc_x”.</li>
+
+<li>
+RO also notes sign error and also questions definition of dc_x and points
+out same equation that IH pointed out.</li>
+
+<li>
+Andes also notes sign error.</li>
+
+<li>
+KVL: Since dc is drawn, Andes should say, “Try writing the equation in
+textbook, component form (i.e., no magnitudes; use only variables for components
+instead).”</li>
+</ul>
+The bug yields an equation that is compound and premature, so Andes says
+to finish drawing the fbd first, then it suggests writing the equation
+in component form.
+<h3>
+lewiston Eq-USNA 10-23</h3>
+In the problem of the supertanker, the student defines variables, draws
+a body and axes, then enters “d=(vti*t)+(.5*a*t^2).”&nbsp; The target equation
+has –a instead of a.
+<ul>
+<li>
+IH asks the student to draw the acceleration.</li>
+
+<li>
+RO asks for the direction of ‘a’.</li>
+
+<li>
+Andes also notes the sign error</li>
+</ul>
+Andes should ask the student to draw the acceleration.
+</body>
+</html>

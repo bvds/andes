@@ -1,0 +1,60 @@
+<html> <head>
+<title>indyset class
+</title>
+</head>
+
+<body>
+<h1>The <tt>indyset</tt> class </h1>
+
+An indyset maintains a list of independent functions
+(representing an equation in the form eqn->lhs = 0)
+in the form of their <tt>valander</tt>'s, which consist of their values and
+gradients at the solution point, together with flags that describe which
+variables they depend upon. It is principally used to determine the
+dependence of the linear expansion of functions around the solution point,
+which determines the dependence of the equations.
+See <A HREF=../indyMathMeth.html>Mathematical method of determining
+independence</A>.
+<P>
+The basis vectors are generated sequentially from the presented	
+gradients by projecting out previous equations so as to 	
+keep the matrix a column permutation of a row-echelon form matrix.
+The permutation required is kept in ordervar (viz.)
+<P>
+The data in an indyset is:
+<TABLE>
+<TR><TD>vector&lt;vector&lt;double&gt; &gt; basis
+</TD><TD>basis vectors for gradients already in
+the set of independent equations.</TD></TR>
+<TR><TD>  int numvars</TD><TD>The number of variables in the problem</TD></TR>
+<TR><TD>  int numinset</TD><TD>The number of equations already
+in the set</TD></TR>
+<TR><TD>  vector&lt;int&gt; ordervar</TD><TD>order of variables to eliminate. 
+		basis[i][ordervar[j]] is 0 for i &gt; j</TD></TR>
+<TR><TD>  vector&lt;vector&lt;double&gt; &gt; basexpand &nbsp; </TD><TD>
+  basis[i] is basexpand[i][j] *grad expr[j], where expr[j] is 
+  the j'th expression presented.</TD></TR>
+<TR><TD>  bool lastisvalid</TD><TD> set when candidate is expanded, to enable
+    placelast or expandlast</TD></TR>
+<TR><TD>  vector&lt;double&gt; candexpand</TD><TD>expansion of candidate gradient
+   in terms of basis (not expr - this is done on request)</TD></TR>
+<TR><TD>  vector&lt;double&gt; candleft</TD><TD> gradient of candidate minus
+stuff from candexpand</TD></TR>
+</TABLE>
+The functions belonging to the class are described under
+<A HREF=functdesc.html#indyf>functions for investigating
+independence</A>.
+
+<H3><A NAME=valander>The <tt>valander</tt> class</A></H3>
+
+Class valander contains the value and the gradient of a function	
+at the solution point. The new version also includes a vector of bools,
+hasvar[k], telling whether the function has any dependence on the variable k .
+
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Wed Jun 27 22:22:58 2001
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,93 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>CommandStringProtocol</title>
+</head>
+<body>
+
+<h2>
+ANDES Command String Protocol</h2>
+<tt>Because TCP is a stream protocol, there is no built-in provision for
+delimiting message boundaries in the byte stream. Thus there is a need
+for some method of coding these and for enabling the reliable matching
+of replies to requests.</tt><tt></tt>
+<p><tt>This describes the simple protocol used by the ANDES system for
+coding command strings to send to some command server process over a TCP
+connection, and for returning the results as strings. This protocol itself
+is an application-independent layer.</tt><tt></tt>
+<p><tt>All messages in our simple protocol are ASCII character strings
+beginning with at least one header character and terminated by a single
+new-line char. The initial character of the message is an op-code that
+indicates the message type.</tt><tt></tt>
+<p><tt>The actual content of the command or result string payload is entirely
+application-dependent, and not defined by this protocol, beyond the following
+constraints: new-lines are not allowed in the message body. NUL characters
+should never be included either, to facilitate processing by routines that
+manipulate C-style NUL-terminated strings.</tt><tt></tt>
+<p><tt>We define the following message types:</tt><tt></tt>
+<p><tt>EXEC For commands requiring a result, client sends message of form</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+?ID:command-text\n</tt>
+<br><tt>where ID is a numeric command id. The body text is an application
+defined command string to be executed by the remote server.</tt>
+<br><tt>Ex. The following illustrates a complete EXEC message:</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+?23:(read-problem-info P5-1 1)\n</tt>
+<br><tt>The "\n" at the end of the example represents a single NL character.</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>REPLY returns successful command execution result from server as</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;ID:result-text\n</tt>
+<br><tt>where the command id from the EXEC is included in the header. We
+don't interpret the result text in any way at this level. It is possible
+the result text is empty -- caller will receive an empty string in this
+case.</tt><tt></tt>
+<p><tt>NACK In case command execution failed, server may return</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+*ID:optional-error-msg-text\n</tt>
+<br><tt>with command id. If included, error message should be suitable
+for display to the user.</tt><tt></tt>
+<p><tt>NOTIFY For commands where no result is needed client sends</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+!command-text\n</tt>
+<br><tt>i.e. no command id or colon. No reply should be returned for these.</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>CMD Client may also accept unsolicited commands from server of
+form</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+!command-text\n</tt>
+<br><tt>Again, the relevant command strings are application-defined.</tt><tt></tt>
+<p><tt>The protocol is asymmetrical in that clients don't accept commands</tt>
+<br><tt>which return result data to the server. This could easily be changed,
+but we currently have no need for it.</tt><tt></tt>
+<p><tt>At the lowest level the protocol allows asynchronous interaction
+in that the client need not wait for a reply to a command before proceeding
+with other work. Thus it is permissible for multiple messages to be pumped
+to the server before a reply to the first has been received.</tt><tt></tt>
+<p><tt>However, replies must be returned in the order the commands were
+received to ensure correct state results after a sequence of interactions.</tt><tt></tt>
+<p><tt>Higher-level code may choose to implement synchronous (blocking)
+calls on behalf of the application on top of this underlying message layer.
+Thus the underlying protocol leaves the client code free to use either
+synchronous or asynchronous interactions as appropriate.</tt><tt></tt>
+<p><tt>C-Style Summary of message-type prefixes (opcodes):</tt><tt></tt>
+<p><tt>#define chEXEC&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '?'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// client -> server, want result</tt>
+<br><tt>#define chREPLY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '&lt;'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// client &lt;- server EXEC reply</tt>
+<br><tt>#define chNACK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'*'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // client &lt;- server EXEC
+failure reply</tt>
+<br><tt>#define chNOTIFY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '!'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+// client -> server, no result</tt>
+<br><tt>#define chCMD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+'!'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // client &lt;- server, no
+result (same as NOTIFY)</tt>
+<br><tt></tt>&nbsp;
+<br><tt></tt>&nbsp;
+<br><tt></tt>&nbsp;
+<br><tt></tt>&nbsp;
+</body>
+</html>

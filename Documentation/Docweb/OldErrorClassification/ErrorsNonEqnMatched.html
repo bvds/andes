@@ -1,0 +1,290 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ErrorsNonEqnMatched</title>
+</head>
+<body>
+
+<center>
+<h2>
+Non-equation errors that can be interpreted by matching</h2></center>
+
+<center>(as of 3/23/01)</center>
+
+<h3>
+<a NAME="Karlton-Holston 35-57"></a>Karlton-Holston at 35-57</h3>
+A car starts from rest at T0 and rolls down a frictionless 20 m driveway,
+smashing into the garage door at T1.&nbsp; The student draws a zero-length
+net force on the car, but the actual net force is non-zero.&nbsp; Andes2
+interprets the error as an attempt to draw the non-zero net force (one
+mismatch: magnitude).&nbsp; SG analysis indicates that the operator application
+is not premature and not efficient.&nbsp; However, it is not an inefficiency
+that Andes should point out (see <a href="../ErrorHandlers/ZeroNetForceWhenSpeedingUp.html#Karlton-Holston 35-57">discussion</a>),
+basically because it is more important to get the physics right than to
+learn the most efficient procedure.
+<p>The operator that produces the correct net force is: "If ?body is accelerating
+at time ?time in direction ?dir, then there is a net force on ?body during
+?time in direction ?dir."&nbsp; Although we could just use it as the basis
+for the remediation, it may be that the student is weak on this operator:&nbsp;
+"If ?body is moving at time ?time in a straight line in direction ?dir
+and speeding up, then it is accelerating at time ?time in direction ?dir."&nbsp;
+In general, when one operator requires a proposition, and there is no evidence
+that the student has applied the operator that generates the proposition,
+then we need a hint sequence that covers both operator applications.
+<p>Thus, the net force operator needs the following error handler is: "If
+the student has drawn a zero net force on ?body at ?time, and the student
+has not drawn an acceleration for ?body, but ?body is moving in a straight
+line and speeding up, then hint/teach/state that when a body is moving
+in a straight line and speeding up, then the body is accelerating, so there
+must be a net force on the body."
+<p>A KCD version of the teaching hint would go like this one:&nbsp; "Is
+?body moving in a straight line and speeding up at ?time?" (Ideal Student
+Answer: Yes) "Does ?body have a non-zero acceleration? (Ideal Student Answer:
+Yes)&nbsp; "If a body has a non-zero acceleration, is the net force on
+it zero or non-zero?"&nbsp; (Ideal student answer: zero) "But you have
+drawn a zero-length net force vector.&nbsp; You should change that."
+<p>Clearly, we need similar error handlers for the straight-line and the
+slowing down cases, and for the circular motion case.&nbsp; We also need
+similar handlers for errors where the student has drawn a zero <i>acceleration</i>
+in for an object that is speeding up, slowing down or moving in a circle.
+<h3>
+808 at 4-40 &amp; Chris-stephens at 18-48 &amp; Katina at 3-55-53 &amp;
+LoseBerry at 19-41</h3>
+A hailstone falls 9000 meters.&nbsp; What speed does it strike the ground,
+ignoring air friction?&nbsp; The student draws a non-zero vector for initial
+velocity, when the vector should have zero length.&nbsp; (The Katina &amp;
+LoseBerry errors occur on different problelms, but the analysis is the
+same)&nbsp; The interpretation is the initial-velocity operator application
+(one mismatch: magnitude), and it is not premature and on an efficient
+solution path.&nbsp; So Andes must decide whether the error is due to a
+slip, user interface ignorance or weak physics knowledge.&nbsp; As discussed
+above, slips are unlikely for zero/non-zero vector errors, but the student
+could easily be lacking user interface knowledge.
+<p>Suppose the student has already drawn zero-length vectors several times,
+which suggests that they are not a victim of user interface ignorance.&nbsp;
+Now Andes must tutor the physics.&nbsp; The operator is, "If a ?object
+is at rest at ?time, then its velocity at ?time is zero."&nbsp;&nbsp; Most
+students have mastered this operator, so that is unlikely to be the cause
+of the error. However, it depends on the proposition that the object is
+at rest.&nbsp; The Andes KB is told that, but the actually problem statement
+does not say that the hailstone was initially at rest, nor does it give
+an initial velocity.&nbsp; The student has probably failed to infer that
+the hailstone is initially at rest.
+<p>We don't have operators for interpreting vague problem statements (and
+they would be very hard to write!), but we can tutor the basic idea anyway.&nbsp;
+We want students to learn that under certain circumstances, it is proper
+to assume that the object starts at rest.&nbsp; Thus, an error handler
+associated with the at-rest-velocity operator should be "If the student
+draws non-zero velocity vector on ?body at ?time, and ?body is at rest
+at ?time, and the problem does not say that the inital velocity is at rest,
+then hint/teach/state that whenever a problem doesn't state a velocity
+at a certain time, but it is reasonable to assume that the object is at
+rest, then assume that it is at rest.&nbsp; This error classifier requires
+that the problem description contain a new proposition, not-stated-explicitly(&lt;proposition>)
+that can be used by this error handler and others.
+<p>If the student has not drawn zero-length vectors several times, then
+we need to ask if the initial velocity of the hailstone is zero or not.&nbsp;
+If the student says it is zero, then we launch the training card on how
+to draw zero-length vectors.&nbsp; If the student says anything else (e.g,.
+non-zero, I dont' know, etc.) then we treat it as above.
+<h3>
+kcmae at 10-43</h3>
+A soap box derby car starts with initial velocity of 1.00 m/s and accelerates
+to 15.0 m/s over 62.0 seconds.&nbsp; What is its average acceleration?&nbsp;
+The student draws a zero-length initial velocity; it should be non-zero.&nbsp;
+Andes interprets this as an failed attempt to apply the given-velocity
+operator (one mismatch: magnitude), which is efficient and not premature.&nbsp;
+Slips are unlikely with zero/non-zero vector errors, and user interface
+misunderstandings are unlikely with zero-length vectors.&nbsp; So it must
+be weak physics knowledge that caused the error.
+<p>Since the operator is another trivial one, the failure probably lies
+in the interpretation of the problem statement, which supplies the proposition
+that is simply given to the Andes KB as part of the problem description.&nbsp;
+Thus, we need an error handler for the operator that says: "If the student
+draws a zero velocity for ?body at ?time, then the first hint is 'Is ?body
+at rest at ?time?'" followed by "Reread the problem statement.&nbsp; It
+gives a velocity for ?body at ?time." followed by "You need to draw a non-zero
+vector for the velocity of ?body at ?time."
+<p>In this case, the KCD version of the teaching hint should say something
+like, "Is ?body at rest at ?time?" (Ideal expected answer is No but if
+the answer is Yes, then suggest that the student reread the problem statement)&nbsp;
+"If the body is not at rest, then is its velocity zero or no zero?"&nbsp;
+(Ideal expected answer: Zero).&nbsp; "But you have drawn a zero-length
+vector for ?velocity.&nbsp; You should change it."
+<h3>
+Cougar at 42-31</h3>
+How long did it take the Blackbird to cover 1000 km at an average speed
+of 935 m/s?&nbsp; The student solved the problem correctly, but drew a
+body for T0, the starting time.&nbsp; Andes choose the operator application
+that draws a body for the time interval&nbsp; T0 to T1 (one mismatch: time).
+<p>Normally, selecting a wrong time for a body would be handled by next-step
+help, but the student has already completed the PSM in this case so giving
+next-step help doesn't make sense.&nbsp; This student apparently thinks
+of the body tool as just drawing a dot, and doesn't realize that it should
+also define the time interval for the PSM.&nbsp; Thus, we need an error
+handler on the draw-body operator that checks if the PSM is completed:
+"If this PSM is completed, then just to teach/state that the body should
+be defined for the time interval over which the PSM was or will be applied."
+<h3>
+Dougiefresh at 5-55</h3>
+A bullet leaves the gun at T0, hits the gong at T1 and the sound reaches
+the shooter at T2.&nbsp; The student defines a variables named "vsound"
+for the average speed of the <i>target</i> from T1 to T2.&nbsp; Clearly
+just a slip.
+<p>Andes should choose the op app that draws the velocity of the sound
+from T1 to T2 (one mismatche: body).&nbsp; It should have an error handler
+that detects a slip: "If the student's choice of body is ?object, and ?object
+is not moving, then point/state that ?object is not moving."
+<p>The same slip handler is needed on many operators.&nbsp; It would be
+nice if it could be inherited, but that would require a major restructing
+of the KB.
+<h3>
+David-Johnson at 13-47</h3>
+A person pushes a 10 kg shopping cart at constant speed with a force of
+100 N acting down at 45 degrees.&nbsp; What is the value [sic] of the friction
+force acting horizontally on the cart?&nbsp; What is the normal force exerted
+by the ground on the cart?&nbsp; The student has entered correct answers
+for both sought quantities.&nbsp; He has also drawn a correct applied force
+and defined correct variables for the weight, normal and kinetic friction
+force.&nbsp; His calculations for the normal force direction are done correctly,
+but the calculations for the normal force magnitude are syntactically ill-formed
+(he probably did the calculations on paper).&nbsp; The student has also
+drawn a static friction force on the cart due to the ground that points
+straight up.&nbsp; There is no such force, and the student is asking why
+it is wrong.
+<p>One possibility, which we could check by examining the log files, is
+that the student tried to draw the normal force, and Andes wouldn't let
+him because it was defined already (and named F3), so he tried to draw
+it as a static friction force instead (named F4).&nbsp; This can't happen
+with the Andes 2 user interface, because students must draw the vector;
+they can no longer define variables for them.&nbsp; So let us assume that
+the student is not intending to draw a normal force, but actually intended
+to draw the force that he did draw, and build an error handler for that
+case, which may someday occur.
+<p>The student has probably gotten normal force and static friction confused.&nbsp;
+Although there is only one force between the ground and the cart and it
+is at a diagonal, physicists always treat it as two forces: one perpendicular
+to the surface (called the normal force or reaction force) and the other
+parallel to the surface (called the friction force).&nbsp; It may be that
+the student knows that there is a vertical force here and that it is related
+to the friction force, but doesn't realize that it is called "normal force."
+He thinks it is called "static friction force."
+<p>Andes2 needs to interpret the static friction force drawn straight up.&nbsp;
+It's candidates via syntactic matching are a kinetic friction force that
+is horizontal (two mismatches: static/kinetic and vertical/horizontal)
+and a normal force (one mismatch: static friction/ normal).&nbsp; The kinetic
+friction force is already drawn, so that candidate is eliminated.&nbsp;
+Thus, Andes chooses the normal force as its interpretation of the student's
+error.&nbsp; The normal force operator application is efficient and not
+premature.&nbsp; No slip or user interface heuristics interfere with the
+conclusion that the student is weak on this operator.&nbsp; The normal
+force operator definition contains the error handler: "If there is a friction
+force on ?body at ?time due to ?surface, then point/teach/state that whenever
+a surface interacts with an object, there is both a normal force and a
+friction force on the object.&nbsp; The friction force will be zero if
+the contact is assumed to be frictionless, and thus can be ignored.&nbsp;
+Otherwise, it will either be a static friction if the object is not moving
+relative to the surface, or a dynamic friction force if the object is moving
+relative to the surface.&nbsp; That is, there are always 2 forces: the
+normal force, and a friction force that is either zero, static or dynamic."
+<h3>
+Ingpole at 6-43</h3>
+A 90 kg parachutist jumps from a plane at T0, hits the snow at T1 at 20
+m/s and stops at the bottom of a 1 m deep crater at T2.&nbsp; What is the
+average net force that acted on him as he plowed into the snow?&nbsp; The
+student drew a correct acceleration for T1 to T2, initial velocity at T1,
+and a downward non-zero net force vector for time T2.&nbsp; The net force
+is non-zero before T2 and zero afterwards, but it is not clear what it
+is right at T2.&nbsp; Moreover, the problem does not require this net force
+in order to be solved.&nbsp; However, the problem does require the net
+force from T1 to T2.&nbsp; That's the sought quantity in fact.&nbsp; One
+remediation is just to give next-step help.&nbsp; That will simply ask
+the person what quantity is sought, and coach him/her until&nbsp; he/she
+selects the right net force.&nbsp; Another is to treat this as a slip on
+the time specification and a confusion about which direction the net force
+points.
+<p>Andes matches the student entry to the net force from T1 to T2 (mismatches:
+time, direction).&nbsp; If the match is good enough (according to some
+threshold to be determined), it accepts the interpretation (otherwise the
+student get's next step help).&nbsp; The op app is efficient and not premature.&nbsp;
+It has an error handler for the direction, but not for the time specifier.&nbsp;
+Since it can't talk about the direction until the time specifier is correct
+(need a way to represent that in the KB), it decides to give a hint on
+the time specifier error as a slip: "Check the time."&nbsp; If the student
+fixes the time specification, and asks what's wrong again, then Andes will
+find the error handler for net-force direction: "If the acceleration of
+?body has been drawn, then hint/teach/state that the net force is in the
+same direction as the acceleration."
+<h3>
+Cougar at 5-39</h3>
+How high does a firecracker go when it is hurled at a speed of 20 m/s at
+an angle of 60 degrees?&nbsp; The student defined variables for initial
+velocity, duration and displacement, then drew coordinate axes tilted 60
+degrees.&nbsp; The student's basic approach should be to apply kinematics
+along the vertical axis, not a tilted one.&nbsp; Andes should go through
+the preamble up to the point where the PSM has been completely identified,
+then give a hint sequence.
+<p>Andes matches the student's entry to the standard axes (one mismatch:
+rotation).&nbsp; The op ap is efficient and not premature (here I'm assuming
+that the student draws the velocity and displacement instead of defining
+variables for them).&nbsp; It's not likely to be a slip or user interface
+ignorance.&nbsp; Andes consults the error handlers for the axis drawing
+operator that handles the projectile motion PSM.&nbsp; The error handler
+says to do the preamble, then hint/teach/state that whenever one is applying
+the projectile motion method, the axes should be in standard orientation.
+<h3>
+Juicemasta at 4-47</h3>
+At time T0, a firecracker is hurled with given initial velocity at a 60
+degree angle.&nbsp; How high is it when it explodes 2 seconds later?&nbsp;
+The student drew a body and initial velocity, then defined a variable for
+the acceleration at time T0.&nbsp; The problem actually involves the average
+acceleration over T0 to T1, which is the same as a_y which is the same
+as g.
+<p>Andes matches the student entry to acceleration over the T0 to T1 (one
+mismatch: time).&nbsp;&nbsp; The operator application is efficient and
+not premature.&nbsp; The error doesn't seem to be a slip or user interface
+ignorance.&nbsp; Thus, Andes consults the operator that draws acceleration,
+which has this error handler: "If the student has drawn an acceleration
+with a different time specifier, then play the preamble up to the point
+where the current PSM is selected (this establishes the appropriate time),
+then teach/state that for &lt;name of PSM> methods, the acceleration's
+time specifier should be the same as the whole method."
+<h3>
+krista18 at 7-34</h3>
+On the bullet-gong problem, the student defined the bullet as the body
+at time T0. It should be defined over the time interval T0 to T1.&nbsp;
+This is best handled with a preamble, because the student has to see that
+the plan is to apply kinematics over the time interval, and that is why
+the body is defined over the time interval. (That would also take care
+of a second problem that this student has, which is that she has defined
+a variable for the speed of sound over T0 to T1, and that variable is unnecessary.
+I don't know why Andes 1 marked that variable correct.)
+<p>Andes matches the student's entry to the op ap that draws a body over
+the time interval T0 to T1 (one mismatch: time).&nbsp; The op ap is efficient
+and not premature.&nbsp; The hint associated with it runs the preamble,
+which is a bit lengthy.&nbsp; Andes asks for the sought (distance to target)
+and the method (speed-distance-duration).&nbsp; However, when Andes asks
+for the body and time of the method, the student can go either for bullet
+during T0 to T1 or sound during T1 to T2.&nbsp; Hopefully, the student
+chooses the bullet, because then Andes can fire its hint about drawing
+the body for the whole time interval.&nbsp; If the student chooses the
+sound instead, then that hint sequence will never get a chance to apply,
+because the student will have to draw the other body first.&nbsp; Thus,
+the error handler in this case should just say to run next-step help, period.
+<h3>
+82vette at 41-24</h3>
+A 90 kg parachutist jumps from a plane at T0, hits the snow at 20 m/s at
+T1, and comes to rest at T2 at the bottom on a 1 m crater.&nbsp; What average
+net force acted on him as he made the crater?&nbsp; The student's first
+action is to define a variable for the duration from T0 to T1.&nbsp; This
+is not needed, as kinematics can be applied to T1 to T2 directly, because
+the velocity at T1 is given.&nbsp; The right pedagogy is to give Next-step
+help.
+<p>Andes matches this to the op application that defines a duration for
+T1 to T2 (one mismatch: time).&nbsp; The op is efficient and not premature.&nbsp;
+The error handler says to run next-step help.
+</body>
+</html>

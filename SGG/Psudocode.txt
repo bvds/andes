@@ -1,0 +1,124 @@
+Bubble Generation Psudocode
+Collin Lynch
+12/8/2000
+
+##########################  DataStructures  #######################
+
+Quantity Node  -- Representation of a quantity such as 
+                  (at (accel Blk 1) 1)
+
+   Exp:   Lisp Expression representing this quantites' value.
+   Marks:  List of marks such as 'invalid_path' for help.
+
+   Equations: A list of equation nodes containing 
+	      this quantity.
+
+   (possible)
+   Tree:  A reversal and union of the paths for indexing 
+          by the help system.
+
+
+Equation Node  -- Represntation of inidividual equations.
+
+   ID:   Equation ID supplied by the solver.
+
+   Path: The solution path used to build the equation.
+
+   Quantities:  A list of quantity nodes in this eq.
+
+   Marks: Markers such as 'invalid_path' for the HelpSys.
+
+   Assumptions:  Assumptions made for this equation such 
+                 as rotation of axes and other potential 
+                 conflicts tested by the defnogood system.
+
+
+######################## Bubble Generation ########################
+
+1. Initialize the list of Soughts with the sought elements in the
+   problem struct.
+
+2. Initialize the set of Knowns with each quantifiable given in
+   the problem struct.
+
+3. While soughts != {}
+
+   4. Pop the top element of soughts into S.
+
+   6. Call the turkey solver on S with the problem givens.
+
+      The solver will return a a set of tuples of the form: 
+	(<EqID> <Qs> <Path> <Assumpt>)
+	Where:  EqID an equation ID for the result equation.
+                Qs a set of quantities refrenced by equation.
+	        Path a list of path nodes that defines the 
+                     interface steps necessary to produce EqID.
+		Assumpt is the set of assumptions made in Path.
+
+   7. For each tuple T 
+
+      8. If no corresponding equation node already exists.
+
+         9. Then for each quatity Q in T (excluding the sought)
+
+            10. If a preexisting quantity node Q' for Q does
+ 		not exists.
+
+	       14. Generate a quantity node Q' for Q.
+
+	       15. Add Q' to the list of Soughts.
+
+
+	    15. Add Q' to the list of quantities in E.
+
+	    16. Add E to the list of equations in Q'.
+
+			
+
+
+###################### Help System ##############################################
+
+This psudocode describes the overall help system operation.
+It is assumed that the student is operating along the lines of the 
+
+
+Memory: Soughts: A set of sought quantities.
+	Determined: The quantities that have been defined.
+
+	Results: The resulting set of equations.
+
+	Sq: Sought quantity.
+
+	Se: Sought equation.
+
+Code:
+
+1. Place the initial problem sought value(s) into the set of Soughts.
+
+2. Place the initial problem givens into Determined.
+
+3. Initialize the set Results to {}
+
+4. While Soughts != {}
+
+	4. Pop the sought quantity into Sq. (needs to be fixed)
+	
+	5. Wait for student input.
+
+		6. If the next input is premature. 
+
+			7. Then inform the student of it and suggest
+			   deletion.
+
+
+		
+
+	
+
+	
+
+
+
+
+
+

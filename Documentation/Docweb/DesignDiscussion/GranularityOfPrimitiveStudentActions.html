@@ -1,0 +1,190 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>GranularityOfPrimitiveStudentActions</title>
+</head>
+<body>
+
+<center>
+<h2>
+Granularity of Primitive Student Actions.</h2></center>
+
+<center>(as of 4/3/01)</center>
+
+<h3>
+Kurt:</h3>
+Andes1 defined a primitive student action to consiste of entering a whole
+dialog box worth of information or filling in an equation.&nbsp; Let us
+call this the "dialog box" grain size.
+<p>However, we could define a primitive student action to be actuating
+one of the controls in the dialog box.&nbsp; Andes dialog boxes use 4 types
+of controls: drop down menus, fill-in-the-blank, radio buttons, and push
+buttons.&nbsp; As soon as the user enters a new setting for one of the
+controls, the Workbench could notify the Help system.&nbsp; Let us call
+this the "control" grain size.
+<p><i>Differences from the student's point of view</i>
+<p>Andes gives flag feedback on primitive student actions.&nbsp; If the
+control grain size is used, then every time the student actuates a control,
+it turns red or green.&nbsp; If the dialog box grain size is used, then
+the student fills out the whole dialog box and closes it before getting
+any feedback.&nbsp; (In Andes1, flag feedback on a dialog box was given
+by turning one of its controls red, which makes it look like it is using
+a control grain size even though it is not.)
+<p>Students can only ask for help in between primitive actions.&nbsp; In
+particular, if the dialog box grain size is used, then the students must
+fill out the whole thing before they can ask for what's next help.
+<p>Andes can give long help dialogs in between primitive actions.&nbsp;
+With control grain size, there could be a partially filled out dialog box
+is still on the screen during the dialog.&nbsp; It must be movable because
+the student might want to see underneath it while talking to the tutor.
+<p><i>Some pedagogical considerations:</i>
+<p>If students get stuck while filling out part of a dialog box, then it
+would be nice for them to be able to ask for what's-next help right then.&nbsp;
+This could be easily done with the control grain size, but with the dialog
+box grain size, students would probably cancel the dialog box in order
+to ask for help.&nbsp; This would make it impossible for Andes to tell
+what part of the dialog box the student wanted help on.&nbsp; In fact,
+wouldn't even know what kind of dialog box the student wanted help on filling
+out.&nbsp; Andes would have to walk the whole bubble graph and PSM in order
+to find out what to give help on.&nbsp; This will discourage the students
+from asking for help.
+<p>Moreover, the hint in this case would have to cover everything the student
+needs to know in order to fill in the dialog box.&nbsp; For instance, students
+often make errors in filling out the time specifiers, but Andes hints rarely
+mention them.&nbsp; Every control in the dialog box requires some knowledge
+to fill it out, but a hint that mentioned all that knowledge would be so
+long that few students would read it.&nbsp;&nbsp; In the control grain
+size, Andes would know which controls have already been filled in correctly,
+so it could limit its hints to those that are not yet filled in.&nbsp;
+This would make them shorter and more likely to be attended to.
+<p>However, giving control grain size help has some problems of its own.&nbsp;
+First, if more than one control were unfilled when the student asked for
+whats-next help, Andes would not know which control they are stuck on,
+so it might have to ask or guess.&nbsp; Second, the student might ask for
+help before any controls are filled out because they get stuck on the first
+one that they try.&nbsp; Andes would have little idea of their intention
+is for the whole dialog box, so it might have to ask or guess.&nbsp; In
+short, although control grain size has the capability of giving more pointed
+hints than dialog grain, it still requires good guesses or questions to
+deliver exactly the right hint.
+<p>If control grain size is used and a control has only a small number
+of choices (e.g., the radio button for net force vs. individual force,
+or the choice between average and instantaneous velocity), then student
+who get red feedback on their first choice are very likely to just change
+it without thinking.&nbsp; That's really bad for their learning.&nbsp;&nbsp;
+In fact, our plan is to turn off that aspect of flag feedback from Andes1.&nbsp;
+If we did use control grain size, then we'd have to make the flag feedback
+smarter so that it would only occur some of the time.&nbsp; That is, controls
+would sometimes stay black instead of turning colors.&nbsp; When enough
+controls are actuated, then the flag feedback coloring occurs.
+<p>If control grain size is used, and then the sequence in which controls
+are actuated can have an overly strong influence on how the student's actions
+are interpreted.&nbsp; For instance, when the force dialog box is opened,
+the rotation control is filled in already.&nbsp; This pretty much determines
+what force ought to go into the box.&nbsp; Suppose for instance, that the
+student draws a force straight down on a problem where there is a weight
+force and a normal force, and the normal force is at 30 degrees.&nbsp;
+Since there exists just one force that is straight down (weight), the theta
+control is green and Andes will think that the student is going to fill
+in the rest of the box to make a weight force.&nbsp; But suppose the student
+STRING as the agent of the force and gets red.&nbsp; The student ignores
+that and enters TENSION as the type of the force.&nbsp; Suppose that that
+also turns red.&nbsp; Now the student asks what's wrong.&nbsp; Andes will
+give what's wrong advice on the type, and suggest that it should be weight.&nbsp;
+This could be confusing to the student, who is clearly trying to enter
+a normal force and has the angle wrong.&nbsp; This is another reason for
+making flag feedback smarter, and sometime leaving control black until
+other controls are entered.
+<p>If control grain size is used, then Andes may have to give help when
+it is not yet clear what the student's intentions are.&nbsp; For instance,
+if the student draws a force at a 90 degree angle, and there is no 90 degree
+force on any body at any time, then the angle control will turn red. If
+the student asks what's wrong, then Andes will have no clue what force
+the student is trying to enter.&nbsp; The best it can do is to say, "There
+is no relevant force in this problem with that angle.&nbsp; I'm not sure
+what force you were trying to enter.&nbsp; Please fill in some more of
+the dialog box then ask for help again."&nbsp; This is not such a bad thing.<i></i>
+<p><i>Differences to the knowledge representation</i>
+<p>With the control grain size, there would be many more operators needed
+in the KB but there would also be a direct correspondence between operators
+and the GUI.&nbsp; For each type of dialog box, there would be one operator.&nbsp;
+For each of the controls in the dialog box, there would be one precondition
+in the dialog box operator.&nbsp; Each precondition correspond directly
+to the goal of actuating that control.&nbsp; For each such goal, there
+is at least one operator that fills out that control.&nbsp; Hints for filling
+out a control are located directly on those operators.&nbsp; Hints for
+deciding whether to open a dialog box are located on the dialog-box operator.
+<p>With the dialog box grain size, there should be one goal for each type
+of dialog box, and for each type of goal, there would be at least one operator
+that achieves it.&nbsp; These operators represent filling out the whole
+dialog box.&nbsp; The hints sequence on such operators explain how to fill
+out all the controls in the dialog box.
+<p>For an example, consider the force dialog box, which has controls for
+net vs. individual force, body, agent, type, time and direction.&nbsp;
+In the dialog box grain size, there is one operator for each variety of
+force.&nbsp; For instance, there would be one operator for weight, and
+it would "fill in" all the controls.&nbsp; It's hint sequence should explain
+all the properties of weight forces (a) its an individual force (b) the
+body is the object that we are applying the PSM to, (c) the agent is the
+earth, (d) the type is Weight, not gravity, (e) the time is the time of
+whole PSM and (f) the direction is straight down.&nbsp; Now our current
+hints do not cover all these points.&nbsp; None of them, for instance,
+mention points (b) and (e), yet students sometimes make exactly those errors,
+so we really do need longer hints that cover all 6 points.&nbsp; However,
+if Andes printed such a long hint, students might not read it because it
+was so long.&nbsp; Ideally, Andes should only print the part of the hint
+that corresponds to the controls that are not set correctly.&nbsp; This
+suggests using the control grain size.
+<p>In the control grain size representation, we'd need on operator to represent
+the whole force dialog box, and it would have 6 preconditions (one for
+each control).&nbsp; There would be at least one operator per control.&nbsp;
+Because students can fill in the controls in any order, we want hints for
+controls to make sense regardless of what order the controls are actuated.&nbsp;
+This means that there must be several operators per control.&nbsp; For
+the Type control, one operator fires if the agent control is not actuated.&nbsp;
+It chooses a type corresponding to a force that it knows exists in this
+problem.&nbsp; A second operator fires if the Agent control has been actuated.&nbsp;
+It chooses a type that is appropraite only for that agent in the context
+of this problem.&nbsp; The two operators have different hint sequences,
+of course.&nbsp;&nbsp; This allows Andes to give hints that depend on the
+particular context--namely, what controls have been set so far.
+<p>In the control grain size KR, there will be many choices in the PSM
+graphs, because there will be many different orders in which the controls
+can be filled out.&nbsp; We would have to invent some new kind of fancy
+data structure to encode this, or a small combinatorial explosition.
+<p>Either knowledge representation, it is sometimes economical to have
+separate operators to figure out the values of some controls than others.&nbsp;
+For instance, one operator might figure out that a normal force exists
+and fill out the controls for time, body, agent and type.&nbsp; Another
+operator would figure out the angle of the normal force, and fill out the
+theta control.&nbsp; This is economical because there is generally only
+one operator for defining the existance of an object, but there can be
+several operators for determining certain "properties" such as directions.&nbsp;
+This happens naturally in the control grain size KR.&nbsp; However, it
+can't be used in the dialog box KR.&nbsp; The dialog box KR needs to have
+all the right hints right there on the operator that filled out the dialog
+box.&nbsp; This means that there has to be different operators for each
+combination of properties.
+<p>Currently, error handlers are not associated with the operators because
+they are at the control grain size and the operators are at the dialog
+grain size.&nbsp; Error handlers for non-equation entries typically locates
+a closest matching correct operator that differs from the student's entry
+by one or two controls.&nbsp; The hint sequence attached to such an error
+handler talks about only those controls.&nbsp; So the error handlers are
+really at the control grain size.&nbsp; If the whole KR had a control grain
+size, then perhaps the error handlers could be more integrated with the
+operators.
+<p><i>Conclusions</i>
+<p>The main advantage of the control grain size is that it allows hints
+to be more narrowly focused, which would tend to make them more pertinent
+and hence more appreciated.&nbsp; It also adds a certain elegance to the
+KR and perhaps the rest of the system.&nbsp; However, many parts of the
+Help system would have to become more complex in order to take advantage
+of this new power and to avoid abusing it (e.g., given flag feedback that
+encourages guessing).&nbsp; On the whole, we can't afford to lower the
+grain size right now.
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html> <head>
+<title>Checking independence of equations, implementation
+</title>
+</head>
+
+<body>
+<h1>Checking independence of equations, implementation
+</h1>
+
+The independence checker is supposed to keep information about a set
+of independent equations (say <i>f<sub>i</sub>(v<sub>j</sub>) = 0</i>),
+and answer whether a new equation <i>g(v<sub>j</sub>) = 0</i>
+is independent of the ones in the set. If g is not independent in the
+linear approximation, 
+one can ask for an expansion of g in terms of the f<sub>i</sub>.
+If g is linearly independent, it can be added to the set. 
+The relevant functions are 
+<UL><LI><tt>int 
+<A HREF=algebra/functdesc.html#indyStudHowIndy>indyStudHowIndy</A>
+(setID,eqnID,deplist,maybelist)</tt>:
+           How clearly is the student's equation in 
+           slot <tt>eqnID</tt> independent of the equations already 
+	   entered in set <tt>setID</tt>. Gives the equations it
+	   depends on if it does.
+    <LI><tt>int <A HREF=algebra/functdesc.html#indyCanonHowIndy>
+indyCanonHowIndy</A>(setID,eqnID,deplist,maybelist)</tt>: 
+           As for indyStudHowIndy, except with canonical equation 
+	   <tt>eqnID</tt> rather than with a student's equation
+    <LI><tt>
+<A HREF=algebra/functdesc.html#indyAddEq2CanSet>indyAddEq2CanSet</A>
+(setID,eqnID)</tt>: Checks that the canonical
+           equation with index <tt>eqnID</tt> is independent of the equations
+	   already entered in set <tt>setID</tt>, and if so, adds the equation
+	   to the set. If it is not independent, an exception is thrown.
+</UL>
+The system mantains lists of the student equations and the canonical
+equations and variables, with functions which are described 
+<A HREF=algebra/functdesc.html#listmaint>elsewhere</A>.
+<P>
+<H3> The Linear Approximation</H3>
+Prior to 4/20/01, independence determination was done entirely by looking 
+at the linear expansion
+of the functions about the solution point. This means that we only looked
+at the gradients of the
+<i>f<sub>i</sub></i>
+and <i>g</i>, and asked
+if the last is a linear superposition of the others. The functions 
+<i>f<sub>i</sub></i> are entered, one at a time, either as an expression
+or as a <tt>valander</tt> (a composite of the value and the gradient at the
+solution point). The new gradient is checked for independence of those
+already there by <tt>isindy</tt>.
+If it is independent, it can be entered into the set by an
+immediate subsequent call to <tt>placelast</tt>. 
+If it is not, the coefficients of its expansion in terms of the gradients
+of the equations entered into the set can be obtained by an immediate
+subsequent call to <tt>expandlast</tt>.
+<P> Here is where to find the messy <A href=indydet1.html>implementation
+details</A>.
+
+<A NAME=BeyondLin><H3> Doing better than the Linear Approximation </H3></a>
+Unfortunately it is possible for the linear expansions of a set of 
+equations about a solution point to be dependent even when the full equations
+are not. For example, W_y = mg sin(theta) is independent of W_y = -mg, 
+depending also on the equation theta=270 deg. But expanding to terms linear
+in (theta-270) cannot destinguish these two equations, as to this approximation
+sin theta is -1. For this reason we have now replaced
+<tt><A HREF=algebra/functdesc.html#indyIsStudIndy>
+indyIsStudIndy</A>(setID,eqnID)</tt>,
+ <tt><A HREF=algebra/functdesc.html#indyIsCanonIndy>
+indyIsCanonIndy</A>(setID,eqnID)</tt>,
+<tt><A HREF=algebra/functdesc.html#indyExpSetCanEq>
+indyExpSetCanEq</A>(setID,eqnID)</tt>, and
+    <tt><A HREF=algebra/functdesc.html#indyExpSetStudEq>
+indyExpSetStudEq</A>(setID,eqnID)</tt>, which operate only on the 
+linear expansions of the relevant equations, with 
+<tt>int <A HREF=algebra/functdesc.html#indyStudHowIndy>
+indyStudHowIndy</A>(setID,eqnID,deplist,maybelist)</tt> and 
+    <tt>int <A HREF=algebra/functdesc.html#indyCanonHowIndy>
+indyCanonHowIndy</A>(setID,eqnID,deplist,maybelist)</tt>, 
+which make some effort to explore dependence on variables beyond the linear
+approximation. In particular, in the process of finding the gradient of
+each equation, it marks whether there is any dependence on each variable.
+If there is a proposed dependency among equations all of which have zero
+partial derivatives in a given variable, but some of which are known to
+be dependent on that variable, then we report that their might be another
+equation, with nonzero derivative in that variable at the solution point.
+If only one of the equations in the proposed dependency has a dependence on
+that variable, we are sure the proposed dependency is wrong. If there is 
+an assignment statement for that variable, it is added to the definite
+dependency list <tt>deplist</tt> or the possible additions <tt>maybelist</tt>.
+The return values from indy*HowIndy are
+<UL><LI>0: definitely independent
+    <LI>1: linear approximation shows dependence on equations linexpand
+           but there are indications that that dependence might not
+	   extend to independence of the full equation. equations in
+	   mightdepend may also be used, as well as others
+    <LI>2: linear approximation shows dependence on equations linexpand
+	   but there are indications that that dependence might not
+	   extend to independence of the full equation, but probably
+	   only on the equations in mightdepend	
+    <LI>3: appears to be dependent only on equations in linexpand
+    <LI>4: definitely dependent only on equations in linexpand
+</UL>
+<hr>
+<address>Joel A. Shapiro</a><a href="mailto:jshapiro+@pitt.edu">
+ &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: June 28 13:20 2001
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,77 @@
+<html> <head>
+<title>More details of expr in the algebra system
+</title>
+</head>
+
+<body>
+<h1>More details of expr in the algebra system</h1>
+
+The most detailed descriptions are in the code itself, generally in the
+.cpp, not the .h, files.
+<p>
+
+<A NOTE=#ADDARG>
+<TT>void n_opexp::addarg(expr * arg) </TT>
+<UL><LI>addarg to a n_op expr.  In addition to pushing the arg on the
+     this->args list, it does the following units fixing:
+    <UL><LI> For a mult:  if the previous dimensions of the product and the
+	 dimensions of the new arg are known, the product's dimensions
+  	are incremented by those of the new arg. 			
+    <LI>For a plus:  if the sum has unknp and the arg has known, or 	
+	 vice-versa, sets the unkn one to the known.			
+	 If both known, if inconsistent makes sum dimens incons		
+</UL></UL>
+<P>
+<A NOTE=#GETINFIX>
+<TT>string expr::getInfix()</TT>
+<UL><LI>returns a string representing an expr in fully
+ 	parenthesized infix format 
+</UL>
+<P>
+<A NOTE=#SOLPRINT>
+<TT>string binopexp::solprint(bool forhelp) const</TT> 
+<UL><LI>solprint of an assignment statement (ie. physvar = numval) returns a 
+    string suitable for passing to the help system, in the form<BR>
+&nbsp;&nbsp;&nbsp; (SVAR physvarname number units)
+     &nbsp;&nbsp; forhelp = false<BR>
+&nbsp; or	(= |physvarname| number |units|) &nbsp;&nbsp; forhelp = true
+<LI>  If the physvar has prefUnit and it is consistent with numval's 
+	the value is converted to the prefUnit and output as number 
+<LI>  If the physvar does not have preferred units, value is in SI units 
+	and units is taken from first matching element in units.h 
+<LI>  If the prefUnit and the numval are inconsistent, throws exception 
+<LI>  Since 4/14/01, also enters SI value in numsols, which better 
+already exist and be big enough! 
+</UL>
+<P>
+<A NOTE=#SOLPRINT>
+<TT>void expr::pretty(int indent)</TT>
+<UL><LI> void pretty(indent) 
+	prints out (on stdout) a tree structure of expression, with indent 
+	spaces from left margin. Not used. Differs from dbgprint in that the
+	latter names the kind of node, and spells out the units for
+	each node
+</UL>
+<P>
+<A NOTE=#DBGPRINT>
+<TT>void expr::dbgprint(int indent)</TT>
+ <UL><LI>prints out tree structure of expression, with indent spaces
+      from left margin. Differs from pretty in that dbgprint prints
+      out the  names the kind of node, and spells out the units for
+      each node.</UL>
+<P>
+<A NOTE=#GETLISP>
+<TT>string expr::getLisp(bool withbarp) const</tt>
+<UL><LI>      outputs expression in lisp form,                   
+	prefix form inside parentheses 
+<UL><LI> if withbarp, places vertical bars before and after variable names 
+      and units 
+</UL>
+</UL>
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Fri Jun 15 20:31:25 2001
+<!-- hhmts end -->
+</body> </html>

@@ -1,0 +1,114 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Overview of the algebra module</title>
+</head>
+<body>
+
+<center>
+<h2>Overview of the algebra module</h2>
+<h3>Joel Shapiro</h3>
+</center>
+
+<p>
+The algebra package is responsible for handling questions which involve
+algebraic manipulation for the Andes system. At various times, it receives
+information from the rest of the system. This includes
+<ul>
+<li> The list of canonical variables (those used in the problem generation)
+together with attributes of these variables
+<ul><li> nonzero - variable can never be zero (e. g. mass of massive object)
+	</li>
+    <li> nonnegative - variable is intrinsically non-negative 
+    (e. g. magnitude of a vector) </li>
+    <li> parameter - variable's value cannot be determined from the information
+    given, but is not needed for the solution, or the solution may be expressed
+    in terms of this variable.</li>
+</ul>
+Here are <A HREF="varspec.html">details of the variable specification API .</a>
+</li>
+<li> The list of equations needed to solve the problem. These may be redundant,
+    and the list includes equations which specify numerical values for
+    variables whose values are given in the problem statement.
+Here are <A HREF="eqnspec.html">details of the equation specification API .</a>
+</li>
+<li> The equations entered by a student while she is solving the problem. 
+These are first translated by the help system into
+the canonical variables before presentation to the algebra package.</li>
+</ul>
+
+At various times, the algebra system is called upon to perform different 
+functions for the help system. The various items described here were originally
+addressed by separate programs, but we have now combined them into one.
+<ul><li> At problem generation time, the first use of the algebra system
+is to <A HREF="solver.html">solve the canonical equations</a>. 
+The help system first sends the
+algebra system the declaration of variables and the list of equations, 
+and when this is complete, the algebra system returns the solution, that is,
+a list of values for each variable. Parameters are assigned random positive
+values, because color-by-number equation checking and equation independence
+requires explicit numerical solutions for all the variables.</li>
+<li> The solver procedure does not check its solution, but after the
+solution has been generated, there is a 
+<A HREF=solcheck.html>solution-checker</A>
+which does plug the numerical solution into each of the canonical equations
+and report if there are descrepancies. This used to be a separate program,
+<tt>solcheck</tt>, but as this has now been built into the solver, the
+solcheck program is no longer being maintained.</li>
+<li> The bubble graph algorithm for finding solution paths requires
+walks through the skeleton of equations and variables. For each variable
+sought for inclusion into the bubble, it needs to add an equation which is
+independent of those equations inside the bubble. The algebra system can
+be told to maintain sets of independent equations (those within some bubble)
+and asked for each candidate equation whether it is independent of those in
+a given set. If so, it can be added. If not, the subset of equations within the
+set from which it can be derived is available from the algebra system.
+This task is performed by the <A HREF=indy.html>independence-checker</A>.
+</li>
+<LI> During student use of Andes, the help system asks the algebra system 
+to review the correctness of student equations, and to judge whether and
+how those equations might be derived from various subsets of the canonical 
+equations, in an attempt to understand which parts of the problem the 
+student has already understood and used. This is also done by the 
+<A HREF=indy.html>independence-checker</A>.</LI>
+</UL>
+The use by the help system of the algebra system has evolved over time,
+and could change in the future. In particular, there are other ways
+independence checking might be used for student modelling, but these are
+not currently under development.
+<P>
+Originally the solver and the checker were independent programs interacting
+with files for input and output. A third program, designed to be interactive
+with the help system, was added for independence checking at solution graph
+generating time. It was then decided that these three tasks, together with
+incorporating interaction with the help system, should be incorporated into
+a single program. The useful programs that are left are
+<UL><LI><a HREF =algebra/colander.html><tt>colander</tt></a>, 
+which solves and checks the
+problem, taking input from a file, and writing out the solution to a file.
+<LI><a HREF =algebra/allprog.html#Solver><tt>Solver.dll</tt></A>, 
+which is loaded as
+functions by the Andes program, and is called interactively by the help system.
+The interactive functions that the help system calls are described in this
+link. 
+The communication from the help system to the algebra system is currently
+being logged in 
+a log file, <tt>Solver.log</tt>, but this could be turned off by undefining
+<TT><SMALL>SOLVER_IS_DEBUGGING</SMALL></TT>.
+<LI><a HREF =algebra/allprog.html#allprog><tt>allprog</tt></A>, 
+which is designed to do
+off-line testing of the code. It is used primarily after a problem has 
+been discovered interactively and the <tt>Solver.log</tt> file saved for
+the problem situation. The <tt>allprog</tt> program is recompiled with this
+Solver.log, and then run with various 
+<A HREF="algebra/offlineDiag.html">diagnostic flags</a> enabled.
+<P>
+For documentation of the code itself, 
+see <A HREF=algebra/algcode.html>Documentation for the Algebra Package</a>.
+<hr>
+ Joel A. Shapiro, last modified: June 28, 2001 at 9:00
+</body>
+</html>

@@ -1,0 +1,203 @@
+<html> <head>
+<title>Combined algebra package
+</title>
+</head>
+
+<body>
+<h1 align=CENTER>Combined Algebra Package
+</h1>
+
+<A NAME=Solver></a>
+The interactive algebra module, Solver.dll, is controlled by calls from
+the help system. The main tasks it can perform are
+<UL><LI>
+     <A HREF=#solvprob>Solving the problem</A> - that is,
+     finding the value for all of the
+     variables which satisfy all of the equations and constraints.
+     <LI>Helping the SGG system in bubble-growing by informing it whether
+	  suggested equations to add to the bubble provide new information
+	  about the unknowns (are independent of the equations in the bubble)
+	  or not. This calls for <A HREF=#indyhelp>independence checking</a>
+	  of the canonical equations.
+     <LI>Providing the help system with information about the
+	  <A HREF=#redgreen>correctness of equations</A> the students enter,
+	  and on which canonical equations they might have used to derive
+	  the one they stated. This can be investigated by <A HREF=#indystud>
+	  asking about dependence</a>
+	  of the student's equation on the canonical
+	  ones. The algebra package also performs
+	  algebraic tasks connected with testing alternatives to the student
+	  equation and providing <A HREF=#solvetool>several solve-tools</A>.
+</UL>
+The first two steps can take place, once for each problem, before they
+  are ever presented to the students. The last item is performed
+  as part of the tutoring session.
+  It cannot be done, however, without the information achieved in the
+  first two parts.
+<P>
+<A NAME=solvprob><H3>Solving the problem</H3></A>
+When the help system wants to solve a problem it is developing for the
+first time, it asks the algebra system to solve the problem - that is,
+find the values of the variables which satisfy all the equations and
+constraints. To do this, it must
+<UL><LI>  1: Clear the algebra system with solveClear.
+     <LI> 2: Send definitions of the variables, their attributes, and the
+	  canonical equations for the problem. This is done with
+	  <a HREF=functdesc.html#solveAdd>solveAdd</A>.
+     <LI> 3: Call <a HREF=functdesc.html#c_indyDoneAddVariable>
+     c_indyDoneAddVariable</A> to tell the system you have declared
+	  all the variables.
+     <LI> 4: initiate the solution of the problem with a call to
+      <A HREF=functdesc.html#solveBubble>solveBubble</A>, 
+          which returns the first line of the solution.
+     <LI> 5: pick up the rest of the lines of the problem one at a time
+	  with calls to 
+	  <A HREF=functdesc.html#solveMoreBubble>solveMoreBubble</A>, 
+	  until a NIL is returned, indicating
+	  the solution has been transmitted.
+	  <P>
+	  If the solution was completely successful, there will be no
+	  lines returned in angle brackets. If there were unused variables,
+	  variables which could not be solved for, equations which could
+	  not be used to solve for variables, or descrepancies in the
+	  equations at the solution point, these will follow messages
+	  as described in <A HREF=functdesc.html#solveeqs>solveeqs</a>.
+	  <P>
+	  If it is desired to do more with this problem (such as growing
+	  the bubbles or using the problem to tutor), the problem must
+	  first be cleaned up of extraneous variables and equations, so
+	  that redoing the above proceedure produces a completely successful
+	  solution. The lines returned by the algebra system will need to
+	  be sent back to it for independence checking. These will be
+	  called "the solution" below.
+  </UL>
+There is an alternate method of solving the problem, using files. The 
+information that the help system sends in step 1 above can also be sent
+to a file, such as those in T:\VanLehn\Andes2\Equation Files, with 
+name <i>probname</i><tt>.eqf</tt>. Then the process of steps 1-5 can
+be done by a call to 
+<A HREF=functdesc.html#solveBubbleFile>solveBubbleFile</A>. 
+In this case, the results are
+stored in a file <i>probname</i><tt>.jsol</tt>. 
+
+<A NAME=indyhelp><H3>Independence checking for SGG</H3></A>
+   If the help wishes to proceed with generating solution paths by
+   growing bubbles on the constraint diagram, it needs independence information
+   from the algebra package. Even though the package may just have solved
+   the package, it needs to have all memory erased and the information
+   fed back to it in a slightly different form. The steps are:
+   <UL><LI> 1: clear with a call to 
+   <A HREF=functdesc.html#indyEmpty>indyEmpty()</A>.
+   <LI> 2: Declare variables and give their <b>values</b> with 
+   <A HREF=functdesc.html#c_indyAddVariable>c_indyAddVariable</A>, 
+   and again give their attributes with 
+   <A HREF=functdesc.html#solveAdd>solveAdd</A>.
+   <LI> 3: Declare that all variables have been declared with a call to 
+   <A HREF=functdesc.html#c_indyDoneAddVariable>c_indyDoneAddVariable</A>
+   <LI> 4: Present the equations with index numbers, starting with 0
+   in order without skipping, with <A HREF=functdesc.html#c_indyAddEquation>
+   c_indyAddEquation</A>. These canonical
+   equations will subsequently be referenced by their index number.
+   <LI> 5: Sets of independent equations may now be set up by
+   calls to <A HREF=functdesc.html#c_indyAddEq2Set>c_indyAddEq2Set</A>, 
+   giving the equation to be added and the
+   number of the set to add it to. Sets can only be referred to if they
+   already exist or if there number is the next unused one. Equations
+   will only be added if their linearizations about the solution point
+   are independent of those already in the set. In bubble growing, the
+   equations already in the bubble are in the set.
+   <LI> 6: New equations being considered for inclusion into the set 
+   should be first tested with <A HREF=functdesc.html#c_indyCanonHowIndy>
+   c_indyCanonHowIndy</A>. If it is independent, the equation can be added
+   to the bubble and to the set with 
+   <A HREF=functdesc.html#c_indyAddEq2Set>c_indyAddEq2Set</A>.
+   <LI> 7: Sets can be cleared with 
+   <A HREF=functdesc.html#c_indyKeepNOfSet>c_indyKeepNOfSet</A>(setID,0),
+   or it can be cleared of all but the first n entries with
+   c_indyKeepNOfSet</A>(setID,n). This latter feature was designed for
+   backtracking but is apparently not being used.
+</UL>
+<A NAME=redgreen><H3>Equation checking</H3></A>
+   The system can be used by the help system for validating student equations
+   and modelling their knowledge. The system is ready to do so after step
+   4 of the last section. The call to ask if an equation is correct is
+   <A HREF=functdesc.html#c_indyIsStudentEquationOkay>
+   c_indyIsStudentEquationOkay</A>. This question can also be asked together
+   with a request to add the equation to a sutdent equation slot with the
+   command
+   <A HREF=functdesc.html#c_indyStudentAddEquationOkay>
+   c_indyStudentAddEquationOkay</A>.
+ Note that if the <tt>Is</tt> command 
+   is used
+   and the workbench then enters the equation as correct in the student
+   slot, it should be added to the algebra systems tables with the <tt>Add</tt>
+   form of the command. Conversely, if the <tt>Add</tt> form was used and
+   the help system decides to mark the equation non-green, the equation should
+   be removed from the slot by calling    
+   <A HREF=functdesc.html#c_indyStudentAddEquationOkay>
+   c_indyStudentAddEquationOkay</A> with a zero-length string as the equation,
+   which is the way to erase a slot in the algebra database.
+
+<A NAME=indystud><H3>Independence checking for student modelling</H3></A>
+   The help system wants to determine, from the student entries, what
+   part of the solution process the student understands, and which of 
+   possible alternate paths she is taking. An important source of this
+   information is the set of correct equations she has entered. Student
+   equations are unlikely to be direct translations of canonical ones - more
+   commonly, they are based on some subset of the canonical equations, and
+   the help system wants to know which subset of the canonical equations
+   the student has used, and therefore presumably understands. Or, quite
+   often, what are the possible subsets of equations upon which the student
+   may have based her equation. This information can be based on asking
+   the algebra system whether the student equation is dependent on an
+   independent subset of the canonical equations, and if so, which equations
+   it depends on. The call to get this information is
+   <A HREF=functdesc.html#c_indyStudHowIndy>c_indyStudHowIndy</A>.
+   <P>
+   Currently the way the help system uses this capability is to define
+   separate complete independent subsets of the canonical equations, so that
+   any correct equation can be expanded in any one of them, and it chooses
+   among the possibilities the set with the simplest expansion of the 
+   student equation. There are possibilities for improving this method
+   of using the independence capability in the future.
+<A NAME=solvetool><H3>Solve Tools</H3></A>
+   The workbench provides several tools the student may use to help with
+   the algebra of the problem. They are
+   <UL><LI><A HREF=functdesc.html#c_powersolve>c_powersolve</A> This tool
+   asks which equation to solve for, and then does its best to solve for 
+   that variable. This we call the <B>genie</B> tool, because the answer
+   appears with no explanation.
+   <LI><A HREF=functdesc.html#c_simplifyEqn>c_simplifyEqn</A> This tool, used
+   on the equation in a slot specified by the student, first looks at all the
+   student equations for numerical assignment statements which can be used to 
+   simplify the specified equation, and then simplifies the equation.
+   <LI><A HREF=functdesc.html#c_solveOneEqn>c_solveOneEqn</A> This tool asks
+   the student to specify an equation and a variable within it for which it can
+   be solved. It writes an equation of the form with that variable on the left
+   and an expression not containing that variable on the right. [Call that
+   form a algebraic assignment statement].
+   <LI><A HREF=functdesc.html#c_subInOneEqn>c_subInOneEqn</A> Asks the 
+   student to select an algebraic assignment statement and a target equation
+   from among her equations. It then substitutes the assignment statement in
+   the target equation and simplifies the result.
+
+<H2><A NAME=allprog><tt>allprog</tt></a>, an offline version of the combined 
+program.</H2>
+There is a version of the algebra system which can be used independently
+of the help system. It does not have any convenient methods for entering
+commands, and is intended to be used for debugging when a problem has
+been found with the interactive version. The interactive system makes a 
+log file, called <tt>Solver.log</tt>, of all the commands made to the
+algebra package. This file can be included in an independent <tt>main</tt>
+program and compiled, and then run with various diagnostic flags, 
+resulting in an output file which can be examined to see what went wrong. 
+Precise instructions for using this are in 
+<A HREF=offlineDiag.html>Using the offline algebra system</A>.
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a><a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Jun 27 9:56 2001
+<!-- hhmts end -->
+</body> </html>
+

@@ -1,0 +1,57 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joel Shapiro">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Details of the variable specification</title>
+</head>
+<body>
+
+<center>
+<h2>
+Details of the dnum specification</h2></center>
+<center>
+<h3>
+Joel Shapiro</h3></center>
+
+Physical quantities with units need to have their units specified whenever
+they are given a numerical value. In equations, this is done with a DNUM,
+in the form 
+<center>
+<TT>(= <I>varname</I> (DNUM <I>number unitstring</I>)</TT>
+</center>
+where <I>varname</I> is <A HREF=varspec.html>the name of the variable</A>, 
+<I>number</I> is a <A HREF=eqnspec.html#number>numerical value</A>, and
+<I>unitstring</I> describes the units as <A HREF=#unitstr>specified below</A>. 
+<P>
+When a variable is declared, its units are given in the form of a string
+of "preferred units", which may be standard SI units or other known units,
+in the form
+<center>
+<TT>(SVAR <I>varname</I> <I>unitstring</I>)</TT>
+</center>
+<P>
+<H3><A NAME=unitstr>The Unit String</A></H3>
+
+The <I>unitstring</I> is composed of units, possibly multiplied together
+with . (preferred) or * (non-standard), divided with /, and raised to
+explicit numerical value with ^ num. No parentheses are allowed.
+The units consist of a base unit and possibly a modifiying prefix. 
+The base units are given in the file <TT>units.h</tt>, and include
+all SI units,
+<TT>m, kg, s, C, K, g, N, J, V, A, T, Wb, ohm, Hz, Pa, F, H, W</TT>,
+ and a number of nonstandard ones, including
+<tt> deg, rad, rev, lb, day, hr </TT> or <TT>h, min, yr, liter, ft, in, mi, eV,
+dyne, erg, cal</TT>. Note that none include a period, as we cannot destinguish
+one from the center-dot which is the standard symbol for multiplying units.
+<br> The prefixes
+are most of the SI ones, including <TT>a, f, p, n, mu</TT> (or <TT>$m</TT>),
+<TT> m, c, d, k</TT> (or <TT>K</TT>), <TT>M, G, T, P</TT>, and <TT>E</TT>.
+<p>
+More information about how the preferred units interact with the standard
+units is in <A HREF=varspec.html>the variable specification</A>.
+<P>
+Joel A. Shapiro, April 10, 2001
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>EntryPropositionAmbiguity</title>
+</head>
+<body>
+
+<center>
+<h2>
+Entry Proposition Ambiguity</h2></center>
+
+<center>(as of 5/29/01)</center>
+
+<p>What if the same entry proposition, such as (axis 37), is produced by
+two different cognitive steps in the solution graph?&nbsp; When the student
+enters such an object, do we have to disambiguate, that is, to find out
+which cognitive step corresponds to the student's entry?&nbsp; This is
+the plan recognition problem--a known hard problem in AI.&nbsp; Hopefully
+we can work around it rather than implement a solution for it.
+<p>There are two cases to worry about.&nbsp; Suppose cognitive steps S1
+and S2 have the same Entry Proposition.
+<ul>
+<li>
+The cognitive step's operator applications are equalp but not eq.&nbsp;
+That is, if you cons the operator name onto the operator argument values,
+then use Lisp Equalp to test for equality, they are equal.&nbsp; That is,
+S1 and S2 came from the same operator applied to the same arguments.&nbsp;
+They appear in different places in the solution graph (i.e., they are not
+eq).&nbsp; This can occur, for instance, when a kinematics PSM and a NSL
+PSM both draw the acceleration of a body.</li>
+
+<li>
+The operator applications are not equalp.&nbsp; Thus, either they came
+from application of different operators, or they came from application
+of the same operator to different arguments.&nbsp; This can occur when
+the same coordinate axes is drawn to allign with sought vectors on two
+different bodies.</li>
+</ul>
+When a student makes an entry that is ambiguous (i.e., two or more cognitive
+steps correspond to the student's Entry Proposition), then our basic approach
+is to not try to decide which cognitive step was intended by the student.&nbsp;
+This is the major reason for having two different data structures: Cognitive
+Steps represent actions in their problem solving context, whereas System
+Entries represent actions without their context.&nbsp; Thus, a System Entry
+can point to two or more Cognitive Steps.&nbsp; The student's entry is
+assigned a System Entry as its intepretation rather than a Cognitive Step.&nbsp;
+Thus, we preserve the ambiguity and handle it later.&nbsp; There are multiple
+places where ambiguity must be handled, and the rest of this page discusses
+them.&nbsp; For convenience, suppose that a System Entry corresponds to
+two cognitive steps, S1 and S2.
+<p>If the student's entry corresponds to that System Entry (i.e., the student's
+action is correct), then both S1 and S2 <a href="../SolutionGraph.html#Entering">get
+marked as done by the Solution Graph module</a>.&nbsp; Thus, when What's
+Next&nbsp; help is <a href="../NextStepHelp.html">walking the graph in
+order to find a target step</a>, it will not pick an cognitive step that
+has already been done even if it was done "for another purpose."&nbsp;
+This is exactly the right thing to do in the cases mentioned above (e.g.,
+same vector drawn for two different PSMs; same axes drawn for different
+soughts).&nbsp; When Next Step help is deciding which branch of an unordered
+And the student is working on, and S1 is one of the branches, then it will
+interpret that branch as done or in progress, rather than "not started."
+<p>If the student deletes a correct entry, then both S1 and S2 will be
+<a href="../SolutionGraph.html#Deleting">unmarked as done by the Solution
+Graph module</a>.&nbsp; This is exactly the right thing to do in the cases
+mentioned above.
+<p>In <a href="../NextStepHelp.html">Next Step help module</a>, the preamble
+walks the solution graph with the student in order to arrive at a cognitive
+step that the student should do.&nbsp; This disambiguates everything relevant
+to that walk.&nbsp; When it arrives at the cognitive step, it generates
+the hint sequence for it from the operator application stored in the cognitive
+step.&nbsp; This is exactly the right thing to do.&nbsp; So far, we have
+lost no capabilities by avoiding disambiguation.&nbsp; The remaining case
+cause trouble.
+<p>In What's Wrong help, <a href="../WhatsWrongHelp.html#Ambiguous bottom out hints">bottom
+out hints</a> need to be generated specially when an intended student entry
+is ambiguous.&nbsp; This is not a big deal, and it should rarely occur.
+<p><a NAME="eq entry propositions have eq pre-reqs"></a>It is possible
+for S1 and S2 to have different prerequisites. For instance, in a translational
+kinematics problems, there are usually multiple kinematics PSMs that can
+be applied, and the same quantities occur in muliple PSM, so the same projection
+equations appear in multiple PSMs.&nbsp; The physicists want students to
+write the compo equation for the PSM before writing any of its projection
+equation.&nbsp; Thus, the same projection equation will have different
+prerequisites depending on which PSM its in.&nbsp; For instance, the projection
+equation for acceleration along the x-axis appears in both the vf^2=vi^2+2*a*s
+PSM and in the s=vi*t+0.5*a*t^2 PSM.&nbsp; One projection will have vf_x^2=vi_x^2+2*a_x*s_x
+as a prerequisite and the other will&nbsp; have s_x=vi_x*t+0.5*a_x*t^2
+as its prerequisite.&nbsp; This means that the <a href="../EntryInterpreter.html">Entry
+Interpreter cannot give specific advice when students have violated a prerequisite</a>.&nbsp;
+It can only advise them to seek next-step help.&nbsp; For instance, if
+the student has not yet written either vf_x^2=vi_x^2+2*a_x*s_x or s_x=vi_x*t+0.5*a_x*t^2
+or any other compo version of a kinematics equation, then Andes should
+tell the student that the projection equation is premature but it should
+not tell the student which one to write.&nbsp; That is a strategic choice
+that the student should make, perhaps with the aid of next-step help.&nbsp;
+In order to do this, the Prerequisites field of the system entry is a list
+of lists of system entries.&nbsp; That is, ((E1 E2)(E3 E4 E5)) means that
+prerequisites are satisfied if either E1 and E2 are done, or E3, E4 andE5
+are done.&nbsp; This is really not correct, because prerequisites might
+be satisified for one cognitive step (say, the one that requires E1 and
+E2) whereas the student's intention is to write the other cognitive step
+(which has E3, E4 and E5 as prerequisites) and its prerequisites might
+not be satisfied yet.&nbsp; However, in this rather odd case, the student
+will be allowed to continue unmolested.&nbsp; Not a terrible consequence.
+<p><a NAME="correctness order"></a>S1 and S2 may not have the same correctness.&nbsp;
+In this case, the Entry Interpreter should react to the "most correct"
+of the operator applications.&nbsp; The correctness order is: Correct >
+inefficient > incorrect > dead-path > forbidden.&nbsp; When the <a href="../SolutionGraphGenerator.html">solution
+graph generator is building the system entry index</a>, it computes the
+correctnes of the system entry from the correctness of the cognitive steps
+that correspond to it.&nbsp; Here are some examples:
+<ul>
+<li>
+If S1 is forbidden and S2 is correct, then the student should have their
+entry treated as a correct entry.&nbsp; On the other hand, if all op apps
+are forbidden, then the student has gone down a forbidden path, so they
+get warned and the entry is deleted.</li>
+
+<li>
+If S1 is on a dead-path and S2 is correct, then the student should have
+their entry treated as a correct entry.&nbsp; In the scenario just mentioned,
+if the student draws a weight vector, then even though it is ambiguous,
+it should be colored green.&nbsp; If all the op aps are all on dead-paths,
+then the student had clearly ventured down a dead path.&nbsp; Feedback
+doesn't tell the student about dead-path entries, but What's wrong help
+and next-step help does.</li>
+
+<li>
+If S1 is correct but on an inefficient path and S2 is correct and efficient,
+then the student's entry should be treated as if it were correct and efficient.&nbsp;
+Feedback doesn't tell the student about inefficient entries, but What's
+wrong help and next-step help do.</li>
+</ul>
+
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

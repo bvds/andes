@@ -1,0 +1,112 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ShouldBugsBeUsedForAllErrors</title>
+</head>
+<body>
+
+<center>
+<h2>
+How much physics knowledge should be involved in modification-base error
+analysis?</h2></center>
+
+<center>(as of 3/27/01)</center>
+
+<h3>
+Kurt:</h3>
+Many errors can be interpreted by modifying the student's entry until it
+is correct.&nbsp; The issue discussed here is whether Andes should searhc
+through all syntactically legal modifications or whether it should only
+make knowledge-based modifications, namely, ones that have some kind of
+knowable hint associated with them.
+<p>Andes1 explored all syntactically legal modifications of the student
+entries that created correct entries.&nbsp; Unfortunately,&nbsp; it would
+often have no help associated with a modification after it had found it.&nbsp;
+This caused it to give strange advice that ended up in a bottom out hint
+that made no sense but yielded a correct action.&nbsp; Students probably
+learned little from following this advice.
+<p>The first redesign was to specify a more limited range of modifications
+that could be applied to entries.&nbsp; For non-equations, it was simply
+changing an incorrect value for a slot into a correct value.&nbsp; For
+instance, if the student entered a net force that had zero magnitude and
+was for time T0, then the modification would be to change its time specifier
+to during(T0,T1), its magnitude to non-zero and its direction to the correct
+direction. For student equations, the modifications were inserting negative
+signs, swapping one variable for an other of similar type, restoring missing
+forces in a sum of forces, etc.&nbsp; An analysis of errors based on this
+scheme is found <a href="../OldErrorClassification/Errors.html">here</a>.
+<p>The advantage of this scheme is that it would identify an interpretation
+(a set of correct operator applications corresponding to the student's
+entry) in a wide variety of cases.&nbsp; Even if the modification was unfamiliar
+to Andes, it could still give what's-wrong help based on the interpretation.&nbsp;
+This was particularly useful for non-equation entries, because they often
+had just one op ap as their interpretation, so there was no uncertainty
+about which op ap to hint.&nbsp; Whever we could identify a singleton interpretation
+for an error, we can use the next-step hint sequences that already exist
+on the operator to give whats-wrong hints.
+<p>However, it turned out that just giving the next-step hints associated
+with an op ap produced confusing whats-wrong hints.&nbsp; The next-step
+hint sequences try to get a student to notice the conditions needed to
+apply the op, then teach the op.&nbsp; The what-wrong hint sequence should
+assume that student already did the op and needs help correcting one of
+its slots.&nbsp; Because the goals and context of the hint sequences were
+different, different hint sequences were necessary.&nbsp; In fact, for
+each different modification required to match the student's entry to the
+op ap, a different hint sequence was needed because it would mention the
+slot that was wrong.
+<p>Then it was noticed that the same hint sequences would appear for the
+same modification (e.g,. the time specifier slot) but different op aps
+(e.g., velocities vs. durations).&nbsp; For instance, the hint "The time
+specifier of &lt;quantity> should be the same as the time specifier of
+&lt;method>" was the same for many quanitites and many PSMs.&nbsp; Clearly,
+duplication could be avoided by associating the what's wrong hint sequences
+with the type of modification, rather than the op ap.&nbsp; That is essentially
+what error handlers do.
+<p>That is, an error handler recognizes errors by maodifying the students
+entry in a particular way and seeing if that modification makes the entry
+correct.&nbsp; Error handlers can be very general (e.g., any sign error
+in an equation) or very specific (e.g., a sign error due to not drawing
+a decelerating object's acceleration vector).&nbsp; The error handlers
+must be ordered so that specific error handlers get a chance to apply before
+general ones.&nbsp; Clearly, we do not lose any coverage compared to the
+other scheme, because we can add some very general error handlers that
+have the same coverage as the general modifications used in the first redesign.&nbsp;
+Whether we have anything smart to say in such cases is an open issue.&nbsp;
+If we don't, then it is best to say nothing and let the default whats-wrong
+help (= next-step help) respond.
+<p>The main disadvantage of error handlers is that they include much of
+the same knowledge as appears in the operators, but they are not associated
+with the operators in the same nice way that next-step hints are.&nbsp;
+When a domain author changes the operators, the error handlers should be
+changed too, but it is easy to forget to update the them if they are in
+a different place.&nbsp; This suggests that the error handlers should be
+added only after the operator KB is mature and unlikely to change.&nbsp;
+Maybe someday we can link the two KBs.
+<p>In short, we have gone from one extreme to the other in two hops:
+<ul>
+<li>
+The Andes1 design was almost knowledge free.&nbsp; It's syntactic modifications
+were often not associated with physics pedagogical knowledge, and they
+were not generated from the op aps that were the interpretations of the
+errors.</li>
+
+<li>
+The redesign has some knowledge.&nbsp; It still used syntatic modifications
+to modify the student entries into correct entries.&nbsp; It tried to use
+the next-step hints on the operators as its pedagogical knowledge, supplemented
+with "a few" special cases for different modifications.&nbsp; But most
+of the hint sequences turned out to be based on the modifications more
+than the operators.</li>
+
+<li>
+The error handler design uses knowledge to both make the modifications
+to the student equation and to generated the hint sequence.&nbsp; Unfortunately,
+the knowledge is decoupled from the operator KB, so care must be taken
+synchonize them.</li>
+</ul>
+
+</body>
+</html>

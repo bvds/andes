@@ -1,0 +1,62 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>ProjectionEquations</title>
+</head>
+<body>
+Projection equations are equations that indicate the
+relationship between the magnitude of a vector and its component along
+an axis.&nbsp; For isntance, given the vector and coordinate system shown
+below:
+<br><img SRC="imageSHU.JPG" height=163 width=160>
+<br>The projection equations are:
+<ul>
+<li>
+V_x = V * cos(135 deg)</li>
+
+<li>
+V_y = V * sin(135 deg)</li>
+</ul>
+where V is the magnitude of the vector, and V_x and V_y are its x- and
+y-components.&nbsp; The orientation angle of this vecrtor is 135 degrees
+in a CCW direction with respect to the (right pointing) horizontal .
+<p>Here are general projection equations that apply even when the axes
+are rotated:
+<ul>
+<li>
+V_x = V * cos (<font face="Symbol">q</font>V - <font face="Symbol">q</font>x)</li>
+
+<li>
+V_y = V * sin (<font face="Symbol">q</font>V - <font face="Symbol">q</font>x)</li>
+</ul>
+where <font face="Symbol">q</font>V is the angle of V counterclockwise
+with respect to the horizontal, and <font face="Symbol">q</font>x is the
+angle of rotation of the x-axis with respect to the horizontal.&nbsp; For
+instance, suppose that V is&nbsp; 220 degrees from the horizontal and the
+x-axis is 27 degrees from the horizontal:
+<br><img SRC="imageJDN.JPG" height=163 width=264>
+<br>The projection equations are
+<ul>
+<li>
+V_x = V * cos(220 deg - 27 deg)</li>
+
+<li>
+V_y = V * sin(220 deg - 27 deg)</li>
+</ul>
+Although there are many simplifications of these equations that apply in
+special situations (e.g., when the axes are not rotated), if you always
+use these general versions then you will seldom make sign errors or trig
+errors.&nbsp; On Andes, it is particularly easy to use these equations
+because the orientation angles for vectors and rotation angles for coordinate
+coordinate axes appear in the variable display and in the property dialog
+boxes, which can be viewed by double clicking on the vector or axis.&nbsp;
+The value of the orientation angle for vectors are known by Andes and never
+need to be typed in as numbers.&nbsp;<b><i> TIP:</i></b> You can hold the
+ALT key while typing a q to enter a Greek letter theta in an equation box,
+so typing ALT-q followed by V is the keyboard method of entering the orientation
+angle <font face="Symbol">q</font>V symbolically in an equation.
+</body>
+</html>

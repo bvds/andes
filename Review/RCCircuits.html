@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <title>RC Circuits</title>
+</head>
+<body>
+<b>RC CIRCUIT: CHARGING</b><br>
+In the circuit shown below the switch S1 is closed at t = 0 and it is assumed
+that the initial charge on the capacitor is zero.&nbsp; The charge, q, on
+the capacitor at time t is given by<br>
+<br>
+&nbsp;&nbsp; &nbsp;q = Vb*C1*(1 - exp(-t/(R1*C1)))<br>
+<br>
+where Vb is the battery voltage.&nbsp; Note the use of parentheses in the
+exponent to clearly establish that the product (R1*C1) is in the denominator
+of the exponent.&nbsp; Also note, when t &gt;&gt; R1*C1,&nbsp; q = Vb*C1.<br>
+<br>
+Under the conditions stated above, the current through resistor R1 at time
+t is given by<br>
+<br>
+&nbsp;&nbsp; &nbsp;I = (Vb/R1)*exp(-t/(R1*C1))<br>
+<br>
+If one desires to find the time required for the charge on the capacitor
+to build up to some percent of its value for very long times, Vb*C1, one
+can let <br>
+<br>
+&nbsp;&nbsp; &nbsp;q = (fraction)*(Vb*C1)<br>
+<br>
+where "fraction" is a number between 0 and 1 to represent some percent of
+the final value of&nbsp; charge for very long charging times.&nbsp; For example,
+for charging to 30% of Vb*C1, "fraction"=0.3.<br>
+<br>
+<img src="rc1a.gif" alt="RC Circuit Diagram" width="295" height="237">
+<br>
+</body>
+</html>

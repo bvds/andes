@@ -1,0 +1,88 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>UnnecessaryUnitsConversion</title>
+</head>
+<body>
+
+<center>
+<h2>
+Unnecessary units conversions</h2></center>
+
+<center>(as of 3/27/01)</center>
+
+<p>Some problems express given quantities in non-standard units, but Andes
+variables are always in terms of MKS units.&nbsp; The student should thus
+convert the values when entering the equation that assigns a value to that
+variable (e.g., if the problem says that the distance is 29 km, then the
+student should write d=29000 m to assign a value to the distance variable
+d.)&nbsp; However, students sometimes assume that the variable are in terms
+of the given units, and thus put the conversion factors into the equations.&nbsp;
+Detecting these kinds of bugs means that the existance of non-MKS units
+in the problem statment must be included in the problem description in
+the KB.
+<p>If the student entry is an equation
+<ul>
+<li>
+and the problem givens include non-MKS units for ?quantity</li>
+
+<li>
+and the conversion factor for ?quantity to put it into MKS units is ?conversion</li>
+
+<li>
+and ?conversion appears in the student's equation anywhere</li>
+
+<li>
+and removing it creates a correct equation</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+a training card that says, "It seems that you put a units conversion factor
+in your equation because &lt;quantity> was specified in &lt;problem units>
+but the MKS units are &lt;equivalent units>.&nbsp; However, Andes assumes
+that variables are defined in terms of MKS units.&nbsp; Thus, you should
+do the conversion when assigning a value to the variable, but leave the
+conversion factors out of all the other equations that use that variable.&nbsp;
+For instance, suppose the problem says that a certain distance is 29 km.&nbsp;
+You define the variable D for it.&nbsp; Then you should write "D = 29000
+m."&nbsp; If you later use D in an equation, such as the speed-distance-duration
+equation, then you would use it without the conversion factor e.g., S=D/T.&nbsp;&nbsp;
+Do NOT put S=(D*1000)/T. "</li>
+</ul>
+
+<h3>
+M024446 Eq-USNA 14-53</h3>
+In the problem where the Blackbird plane sets a speed record, after defining
+variables (FBD has a mass but no forces), the student entered “t=(s/v)*1000”
+The target equation is t=(s/v). In this problem, the distance s=1000 km
+= 1,000,000 m.&nbsp; The student may be assuming s is in km and thus be
+putting in the 1000 as a conversion factor.&nbsp;&nbsp; Andes assumes s
+is in meters.
+<ul>
+<li>
+IH wants the student to delay substituting numbers in until the problem
+is solved with variables only.</li>
+
+<li>
+RO says, “your equation looks like t=(s/v)*s” then checks dimensionality.</li>
+
+<li>
+Andes says, “Are you sure you want to multiply by 1000 on the right side
+of the equation?”</li>
+</ul>
+If the bug were not implemented, then Andes would give next-step help.&nbsp;
+This isn't great.&nbsp; It&nbsp; would ask for the sought (duration) and
+the method (speed-distance-duration) then ask the student to write the
+equation without substitutions.&nbsp; That should prompt the student to
+write t=s/v or v=s/v, which would be correct.&nbsp; If the student reenters
+t=(s/v)*1000, then Andes will again mark it red.&nbsp; If the student ask's
+what's wrong, Andes will call next-step help, which will give the teaching
+hint for s-d-d.&nbsp; If the student asks for help again, the bottom out
+hint will tell the student to write v=s/t.&nbsp; The student would probably
+never realize what was wrong.
+</body>
+</html>

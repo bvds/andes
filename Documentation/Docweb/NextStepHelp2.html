@@ -1,0 +1,999 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="profile">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>NextStepHelp2</title>
+</head>
+<body>
+<tt>;;; This file (NextStepHelp2.cl) is pseudo code to test
+a proposed</tt>
+<br><tt>;;; mechanism for controling the tutorial dialog in Andes2.&nbsp;
+It is</tt>
+<br><tt>;;; only concerned with the next step help, because it generates
+the</tt>
+<br><tt>;;; most complex dialog.&nbsp; The basic idea is that when the
+student</tt>
+<br><tt>;;; clicks on the next-step help button, the workbench sends a
+message</tt>
+<br><tt>;;; to the help system (lisp).&nbsp; The message is deciphered
+by Linn's</tt>
+<br><tt>;;; dialog manager (not included in this file).&nbsp; Since it
+turns out to</tt>
+<br><tt>;;; be a request for next step help, Linn's code calls the function</tt>
+<br><tt>;;; next-step-help, which appears below.&nbsp; It returns a tutor
+turn</tt>
+<br><tt>;;; struct.&nbsp; This struct has a type, which defaults to dialog
+(the</tt>
+<br><tt>;;; other types are play-minilesson, color-red and color-green).&nbsp;
+When</tt>
+<br><tt>;;; the struct has type dialog, then the text field is a string
+to be</tt>
+<br><tt>;;; printed in the dialog window.&nbsp; The menu field is the name
+of a</tt>
+<br><tt>;;; menu that is predefined in the workbench.&nbsp; The responder
+field is</tt>
+<br><tt>;;; a one-argument function for handling the student's response.</tt><tt></tt>
+<p><tt>(defstruct tutor-turn</tt>
+<br><tt>&nbsp; (type 'dialog)&nbsp;&nbsp; ;an atom: defaults to DIALOG</tt>
+<br><tt>&nbsp; text&nbsp;&nbsp;&nbsp;&nbsp; ; a string (or atom for some
+types)</tt>
+<br><tt>&nbsp; menu&nbsp;&nbsp;&nbsp;&nbsp; ; the name of a workbench menu</tt>
+<br><tt>&nbsp; responder&nbsp;&nbsp;&nbsp; ; a one argument function</tt>
+<br><tt>&nbsp; )</tt><tt></tt>
+<p><tt>;;; When Linn's code gets a tutor-turn struct back from calling</tt>
+<br><tt>;;; next-step help, if the type is dialog, then it puts the workbench</tt>
+<br><tt>;;; into dialog mode if it is not in that mode already.&nbsp; It
+then has</tt>
+<br><tt>;;; the workbench display the text in the dialog window and put
+up the</tt>
+<br><tt>;;; menu.&nbsp; Then it waits for the student.&nbsp; When the student's
+response</tt>
+<br><tt>;;; arrives from the workbench, it will usually be a response off
+the</tt>
+<br><tt>;;; menu.&nbsp; However, it might be some kind of escape (e.g.,
+QUIT).&nbsp; We</tt>
+<br><tt>;;; haven't figured out yet what all of them will be, but we will
+at</tt>
+<br><tt>;;; least need some way for the student to stop Andes from running</tt>
+<br><tt>;;; even if the student is in the middle of a dialog.&nbsp; If
+the student</tt>
+<br><tt>;;; action is an escape, then Linn's code handles it itself.&nbsp;
+On the</tt>
+<br><tt>;;; other hand, if the student action is not an escape of some
+kind</tt>
+<br><tt>;;; but instead is a response, then Linnn's code calls the</tt>
+<br><tt>;;; one-argument function of the tutor turn struct on that response.</tt>
+<br><tt>;;; That function returns either another tutor tutor struct or
+the</tt>
+<br><tt>;;; atom HIDE, which indicates that the dialog is over.&nbsp; Linn's
+code</tt>
+<br><tt>;;; handles this tutor turn struct just as described before.&nbsp;
+The atom</tt>
+<br><tt>;;; HIDE causes Linn's code to tell the workbench to end Dialog
+mode</tt>
+<br><tt>;;; and resume problem solving mode.</tt><tt></tt>
+<p><tt>;;; If Linn's code ever gets a play-minilesson tutor turn struct,</tt>
+<br><tt>;;; here's what it does.&nbsp; It tells the workbench to play the</tt>
+<br><tt>;;; minilesson, and passes it the file name, which is in the text</tt>
+<br><tt>;;; field of the struct.&nbsp; When the workbench reports that
+the</tt>
+<br><tt>;;; minilesson has finished playing, Linn's code puts the workbench
+in</tt>
+<br><tt>;;; dialog mode if it is not in dialog mode already.&nbsp; It displays
+the</tt>
+<br><tt>;;; message "You can either get another hint or resume problem</tt>
+<br><tt>;;; solving" then puts up the menu in the menu field of the tutor
+turn</tt>
+<br><tt>;;; struct.&nbsp; The response to this menu is handled by the function
+in</tt>
+<br><tt>;;; the responder field of the tutor turn struct.</tt><tt></tt>
+<p><tt>;;; I won't bother to describe how Linn's code handles other types
+of</tt>
+<br><tt>;;; tutor turn structs, since they are not used by this code.</tt><tt></tt>
+<p><tt>;;; The one-argument functions that occupy the responder fields
+of the</tt>
+<br><tt>;;; tutor turn struct are closures. That is, they refer to data
+(e.g.,</tt>
+<br><tt>;;; the state of the dialog) that was present at the time the tutor</tt>
+<br><tt>;;; turn struct was created.&nbsp; The alternative is to keep the</tt>
+<br><tt>;;; appropriate dialog state in global variables.&nbsp; However,
+the</tt>
+<br><tt>;;; closure-based design seems more flexible.&nbsp; To add a new
+dialog,</tt>
+<br><tt>;;; the coder can create arbitrary dialog state in the arguments
+of</tt>
+<br><tt>;;; his functions, referring to it with closures, and not have
+to</tt>
+<br><tt>;;; change any of the other dialog code.</tt><tt></tt>
+<p><tt>;;; However, when the dialog is over, all this dialog state vanishes.</tt>
+<br><tt>;;; That's a good thing, since we don't need it anymore.&nbsp;
+However,</tt>
+<br><tt>;;; some aspects of the dialog need to be remembered across dialogs</tt>
+<br><tt>;;; (but not across different sessions).&nbsp; For these, the global</tt>
+<br><tt>;;; variable *dialog-history* is used.&nbsp; Currently, it contains
+only a</tt>
+<br><tt>;;; list of hints that have been given.&nbsp; They are needed so
+that if</tt>
+<br><tt>;;; there are two or more hints with the same function, then Andes</tt>
+<br><tt>;;; will choose one that has not yet been given. In the future,
+we may</tt>
+<br><tt>;;; want to use the dialog history in order to avoid repeating
+hints</tt>
+<br><tt>;;; or preamble questions that have been used before.&nbsp; This
+would make</tt>
+<br><tt>;;; the conversation shorter and that might make students more
+willing</tt>
+<br><tt>;;; to ask for help, but it risks generating misunderstandings.&nbsp;
+It</tt>
+<br><tt>;;; assumes that the student actually read the hint or preamble</tt>
+<br><tt>;;; questions when it was given earlier, and that the student</tt>
+<br><tt>;;; remembers it.&nbsp; We need data from pilot subjects before
+we can know</tt>
+<br><tt>;;; how much repetition to avoid, if any.</tt><tt></tt>
+<p><tt>(defvar *dialog-history* NIL)</tt><tt></tt>
+<p><tt>(defun remember-hint-used (hint)</tt>
+<br><tt>&nbsp; (push hint *dialog-history))</tt><tt></tt>
+<p><tt>(defun hint-used (hint)</tt>
+<br><tt>&nbsp; (member hint *dialog-history* '#equalp))</tt><tt></tt>
+<p><tt>;;; ---------------------- top level --------------------------------</tt><tt></tt>
+<p><tt>;;; This handles the proc-help command from the workbench.&nbsp;
+Returns a</tt>
+<br><tt>;;; tutor-turn struct, which contains a one-argument function that</tt>
+<br><tt>;;; will be called when the workbench has gotten a response from
+the</tt>
+<br><tt>;;; student to its query.</tt>
+<br><tt>(defun next-step-help ()</tt>
+<br><tt>&nbsp; (walk-bubble-graph "" NIL))</tt><tt></tt>
+<p><tt>;;; To give help, we walk the bubble graph until we find find a
+psm</tt>
+<br><tt>;;; that is not yet completed, then we walk that psm's graph until
+we</tt>
+<br><tt>;;; find an entry that has not yet been made, then we give hints
+on</tt>
+<br><tt>;;; that entry.&nbsp; The only tricky part is that closures are
+used</tt>
+<br><tt>;;; to continue the walk after asking the student a question.&nbsp;
+If the</tt>
+<br><tt>;;; student's response is correct, the closure calls either</tt>
+<br><tt>;;; walk-bubble-graph in order to continue the bubble graph walk,
+or</tt>
+<br><tt>;;; walk-psm-graph to continue the psm-graph walk.&nbsp; On the
+other hand,</tt>
+<br><tt>;;; if the student's response is incorrect, the closure gives</tt>
+<br><tt>;;; negative feedback and repeats the question.</tt>
+<br><tt>;;;</tt>
+<br><tt>;;; Arguments: The prefix is a string to be printed as part of
+the</tt>
+<br><tt>;;; next tutor turn.&nbsp; For instance, it may contain some positive</tt>
+<br><tt>;;; feedback to the student's preceding turn, if there was a preceding</tt>
+<br><tt>;;; turn.&nbsp; The path is a list of quantity nodes and psm nodes
+that the</tt>
+<br><tt>;;; student and tutor have agreed to already.&nbsp; Returns a tutor
+turn.</tt>
+<br><tt>(defun walk-bubble-graph (prefix path)</tt>
+<br><tt>&nbsp; (cond ((null path)</tt>
+<br><tt>&nbsp; (ask-for-sought prefix path 0))</tt>
+<br><tt>&nbsp;((quantity-nodep (car path))</tt>
+<br><tt>&nbsp; (ask-for-psm prefix path 0))</tt>
+<br><tt>&nbsp;((not (psm-nodep (car path)))</tt>
+<br><tt>&nbsp; (error "Car of path is neither a quantity nor a psm"))</tt>
+<br><tt>&nbsp;((psm-completed (car path))</tt>
+<br><tt>&nbsp; (ask-for-sought (string-concat</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; prefix</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; "And that method has been applied already.&nbsp;
+")</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; path 0))</tt>
+<br><tt>&nbsp;(T (walk-psm-graph prefix (car psm)))))</tt><tt></tt>
+<p><tt>;;; --------------- ask-for-sought ---------------------------</tt><tt></tt>
+<p><tt>;;; Returns a tutor turn that asks the student which sought they
+want,</tt>
+<br><tt>;;; and prepares a closure to process the response.&nbsp; The prefix</tt>
+<br><tt>;;; is a string that is appended to the front of the query.&nbsp;
+The count</tt>
+<br><tt>;;; is a positive integer counting the number of times the tutor
+has</tt>
+<br><tt>;;; asked this question.</tt>
+<br><tt>(defun ask-for-sought (prefix path count)</tt>
+<br><tt>&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;text (string-concat prefix "What quantity are you seeking?")</tt>
+<br><tt>&nbsp;menu 'all-quantities</tt>
+<br><tt>&nbsp;responder #'(lambda (response)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (check-sought-response
+response path count))))</tt><tt></tt>
+<p><tt>;;; Checks the students selection of a quantity.&nbsp; Returns a
+tutor</tt>
+<br><tt>;;; turn.</tt>
+<br><tt>(defun check-sought-response (response path count)</tt>
+<br><tt>&nbsp; (let ((sought (convert-response-to-quantity response)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (cond ((enteredp sought)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (wrong-sought "That quantity has been found
+already." path count))</tt>
+<br><tt>&nbsp;&nbsp; ((null path)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (if (member sought (top-level-soughts) #'quantity-equalp)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (walk-bubble-graph (cons
+sought path))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (wrong-sought</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "That quantity is not sought
+by the problem statement"</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path count)))</tt>
+<br><tt>&nbsp;&nbsp; ((member sought path #'quantity-equalp)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (wrong-sought "You in the process of seeking
+that quantity already."</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; path count))</tt>
+<br><tt>&nbsp;&nbsp; ((member sought (psm-quantities (car path)) #'quantity-equalp)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (walk-bubble-graph "Good!&nbsp; " (cons sought
+path)))</tt>
+<br><tt>&nbsp;&nbsp; (T (wrong-sought</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "That quantity is not mentioned
+by the method you choose."</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path count)))))</tt><tt></tt>
+<p><tt>;;; If student has guessed too many times, then just tell them a</tt>
+<br><tt>;;; sought quantity, otherwise let them guess again.&nbsp; Returns
+a tutor</tt>
+<br><tt>;;; turn.</tt>
+<br><tt>(defun wrong-sought (msg path count)</tt>
+<br><tt>&nbsp; (if (&lt; count *number-of-preamble-tries*)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (ask-for-sought (string-concat msg
+"&nbsp; Please try again.")</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; path (+ count 1))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (tell-sought msg (pick-sought path) path)))</tt><tt></tt>
+<p><tt>;;; Picks the first quantity it finds that could be sought here.&nbsp;
+Does</tt>
+<br><tt>;;; not worry about finding one that is most likely to be one that
+the</tt>
+<br><tt>;;; student is trying to find, since the student is clearly confused</tt>
+<br><tt>;;; at this point.&nbsp; Returns a quantity.</tt>
+<br><tt>(defun pick-sought (path)</tt>
+<br><tt>&nbsp; (or (loop for quantity in (possible-soughts path)</tt>
+<br><tt>&nbsp;&nbsp; do (return quantity)</tt>
+<br><tt>&nbsp;&nbsp; when (and (not (enteredp quantity))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (not (member quantity path #'quantity-equalp))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (error "Couldn't find sought")))</tt><tt></tt>
+<p><tt>;;; returns the set of possible sought quantities at this point
+in the</tt>
+<br><tt>;;; path.&nbsp; These are either the top level soughts if the path
+is empty</tt>
+<br><tt>;;; or the quantities mentioned by the most recently added psm
+to the</tt>
+<br><tt>;;; path.</tt>
+<br><tt>(defun possible-soughts (path)</tt>
+<br><tt>&nbsp; (cond ((null path)</tt>
+<br><tt>&nbsp; (car (top-level-soughts)))</tt>
+<br><tt>&nbsp;(t (psm-quantities (car path)))))</tt><tt></tt>
+<p><tt>;;; Tells the student what sought to pick, then moves on in the</tt>
+<br><tt>;;; dialog.</tt>
+<br><tt>(defun tell-sought (error-msg sought path)</tt>
+<br><tt>&nbsp; (walk-bubble-graph</tt>
+<br><tt>&nbsp;&nbsp; (string-concat</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; error-msg</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; "Let's just assume that you are seeking "</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (nlg-defnp sought)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; ".&nbsp; ")</tt>
+<br><tt>&nbsp;&nbsp; (cons sought path)))</tt><tt></tt>
+<p><tt>;;;------------------- ask-for-psm ----------------------------</tt><tt></tt>
+<p><tt>;;; This returns a tutor turn that asks the student which psm s/he</tt>
+<br><tt>;;; wants to apply.</tt>
+<br><tt>(defun ask-for-psm (prefix path count)</tt>
+<br><tt>&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;text (string-concat prefix "Which method should you use to
+find it?")</tt>
+<br><tt>&nbsp;menu 'psm</tt>
+<br><tt>&nbsp;responder #'(lambda (response)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (check-psm-response response
+path count))))</tt>
+<br><tt></tt>&nbsp;<tt></tt>
+<p><tt>;;; checks whether the student's response to the "which method?"
+query</tt>
+<br><tt>;;; makes sense.&nbsp; Returns a tutor turn.</tt>
+<br><tt>(defun check-psm-response (response path count)</tt>
+<br><tt>&nbsp; (let ((psm (convert-response-to-psm response))</tt>
+<br><tt>&nbsp;(sought (car path)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (cond ((not (member sought (psm-quantities psm)
+#'quantity-equalp))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (wrong-psm "That method doesn't mention the
+quantity you're seeking.&nbsp; "</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path count))</tt>
+<br><tt>&nbsp;&nbsp; ((psm-forbiddenp psm)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (wrong-psm "That method is okay but won't lead
+you to a solution to this problem.&nbsp; "</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path count))</tt>
+<br><tt>&nbsp;&nbsp; (T (walk-bubble-graph "Good!&nbsp; "</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (cons psm path))))))</tt><tt></tt>
+<p><tt>;;; If the student hasn't guessed enough, this gives negative feedback</tt>
+<br><tt>;;; and asks the student to try again.&nbsp; Otherwise, it just
+picks a psm</tt>
+<br><tt>;;; and tells it to the student.</tt>
+<br><tt>(defun wrong-psm (error-msg path count)</tt>
+<br><tt>&nbsp; (if (&lt; count *number-of-preamble-tries*)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (ask-for-psm (string-concat error-msg
+"Please try again.&nbsp; ")</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; path (+ 1 count))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (tell-psm error-msg (pick-psm path) path)))</tt><tt></tt>
+<p><tt>;;; This picks a psm to tell the student when the student seems
+to be</tt>
+<br><tt>;;; lost.&nbsp; If the student has already finished an applicable
+psm, then</tt>
+<br><tt>;;; it chooses that one.&nbsp; Otherwise, it chooses a psm that
+is</tt>
+<br><tt>;;; partially completed.&nbsp; Otherwise, it chooses an optimal
+psm.&nbsp; Ties</tt>
+<br><tt>;;; are broken arbitarily, because they will probably be rare.
+Returns</tt>
+<br><tt>;;; a psm</tt>
+<br><tt>(defun pick-psm (path)</tt>
+<br><tt>&nbsp; (or (find (quantity-psms (car path)) #'psm-completedp)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (find (quantity-psms (car path))
+#'psm-startedp)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (find (quantity-psms (car path))
+#'psm-optimalp)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (error "No optimal psm found for
+~a" (car path))))</tt><tt></tt>
+<p><tt>;;; Tells the student what psm to select and continues the preamble.</tt>
+<br><tt>(defun tell-psm (error-msg psm path)</tt>
+<br><tt>&nbsp; (walk-bubble-graph</tt>
+<br><tt>&nbsp;&nbsp; (string-concat</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; error-msg</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; "Let's just assume you will use "</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (nlg psm)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; ".&nbsp; ")</tt>
+<br><tt>&nbsp;&nbsp; (cons psm path)))</tt><tt></tt>
+<p><tt>;;; ------------------ walk-psm-graph -------------</tt><tt></tt>
+<p><tt>;;; The basic idea is to walk the given psm's graph until we find
+an</tt>
+<br><tt>;;; entry that has not yet been done.&nbsp; As we walk, we accumulate
+a</tt>
+<br><tt>;;; push-down stack of unsatisifed goals.&nbsp; These are menioned
+to the</tt>
+<br><tt>;;; student before hinting the entry itself.</tt>
+<br><tt>(defun walk-psm-graph (prefix psm)</tt>
+<br><tt>&nbsp; (walk-psm-path prefix (psm-path psm) NIL))</tt><tt></tt>
+<p><tt>;;; Paths have the format generated by the SGG.&nbsp; Sometimes
+one sees</tt>
+<br><tt>;;; ...SPLIT NEXT &lt;branch1> NEXT &lt;branch2> NEXT &lt;branch3>
+JOIN.. which</tt>
+<br><tt>;;; means that there are 3 parallel branches that all must be done
+but</tt>
+<br><tt>;;; the order in which they are done doesn't matter.&nbsp; This
+are handled</tt>
+<br><tt>;;; by walk-split.&nbsp; Sometimes one sees ...CHOICE (&lt;branch1>
+&lt;branch2></tt>
+<br><tt>;;; &lt;branch3>) which means that there are 3 mutually exclusive</tt>
+<br><tt>;;; branches, and the student only has to do one of them.&nbsp;
+This case</tt>
+<br><tt>;;; is handled by walk-choice.&nbsp; The other menbers of the path
+are</tt>
+<br><tt>;;; steps, which are handled by walk-step.</tt>
+<br><tt>(defun walk-psm-path (prefix path stack)</tt>
+<br><tt>&nbsp; (cond ((null path)</tt>
+<br><tt>&nbsp; (error "Reached end of psm path before finding target entry"))</tt>
+<br><tt>&nbsp;((path-stepp (car path))</tt>
+<br><tt>&nbsp; (walk-step prefix path stack))</tt>
+<br><tt>&nbsp;((eq 'SPLIT (car path))</tt>
+<br><tt>&nbsp; (walk-split prefix (cdr path) stack))</tt>
+<br><tt>&nbsp;((eq 'CHOOSE (car path))</tt>
+<br><tt>&nbsp; (walk-choice prefix (cdr path) stack))</tt>
+<br><tt>&nbsp;(T (Error "Car of path has illegal syntax"))))</tt><tt></tt>
+<p><tt>;;; Steps are generated by the SGG to represent what happens at
+each</tt>
+<br><tt>;;; cycle of interpretation during problem solving.&nbsp; There
+are 4 types</tt>
+<br><tt>;;; of steps (WM, OP, SG and DO), which are described in the comments</tt>
+<br><tt>;;; below.</tt>
+<br><tt>(defun walk-step (prefix path stack)</tt>
+<br><tt>&nbsp; (cond ((eq 'WM (path-node-type (car path)))</tt>
+<br><tt>&nbsp; ;; an operator's precond was true by unifying with a wm</tt>
+<br><tt>&nbsp; ;; element.&nbsp; We don't need to mention this to the student.</tt>
+<br><tt>&nbsp; (walk-psm-path prefix (cdr path) stack))</tt>
+<br><tt>&nbsp;((eq 'OP (path-node-type (car path)))</tt>
+<br><tt>&nbsp; ;; an operator was selected to satisfy the current goal.&nbsp;
+We</tt>
+<br><tt>&nbsp; ;; don't need to mention this to the student.P</tt>
+<br><tt>&nbsp; (walk-psm-path prefix (cdr path) stack))</tt>
+<br><tt>&nbsp;((eq 'SG (path-node-type (car path)))</tt>
+<br><tt>&nbsp; ;; An operator's precond was treated as a goal.&nbsp; We
+push the</tt>
+<br><tt>&nbsp; ;; goal on to the stack in order mention it to the student</tt>
+<br><tt>&nbsp; ;; later if necessary.</tt>
+<br><tt>&nbsp; (walk-psm-path prefix (cdr path)</tt>
+<br><tt>&nbsp;&nbsp; (cons (path-node-goal-of-sg (car path)) stack)))</tt>
+<br><tt>&nbsp;((not (eq 'DO (path-node-type (car path))))</tt>
+<br><tt>&nbsp; (error "Unknown path node type"))</tt>
+<br><tt>&nbsp;((path-node-enteredp (car path))</tt>
+<br><tt>&nbsp; ;; An operator was executed, and the student has executed
+it</tt>
+<br><tt>&nbsp; ;; as well.&nbsp; We don't need to mention the goal that
+this</tt>
+<br><tt>&nbsp; ;; operator satified to the student, so we can pop it off
+the</tt>
+<br><tt>&nbsp; ;; stack.&nbsp; We are trusting the path to keep its sg
+and do</tt>
+<br><tt>&nbsp; ;; nodes synchonized, so we don't check to see that the
+goal</tt>
+<br><tt>&nbsp; ;; being popped matches the operator inside the DO.</tt>
+<br><tt>&nbsp; (walk-psm-path prefix (cdr path) (cdr stack)))</tt>
+<br><tt>&nbsp;(T</tt>
+<br><tt>&nbsp; ;; An operator was executed, but the student hasn't executed</tt>
+<br><tt>&nbsp; ;; it yet.&nbsp; We've finally found the target!</tt>
+<br><tt>&nbsp; (hint-target-entry prefix (car path) stack))))</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>;;; The path has reached a choice point, so the remainder of it
+is a</tt>
+<br><tt>;;; set of disjunctive branches, each of which goes all the way
+to the</tt>
+<br><tt>;;; end.&nbsp; We need to choose one to walk.&nbsp; We prefer a
+branch that that</tt>
+<br><tt>;;; student has already partially completed.&nbsp; Otherwise, any
+branch</tt>
+<br><tt>;;; will do, so we take the first one.</tt>
+<br><tt>(defun walk-choice (prefix path stack)</tt>
+<br><tt>&nbsp; (walk-psm-path</tt>
+<br><tt>&nbsp;&nbsp; prefix</tt>
+<br><tt>&nbsp;&nbsp; (or (find path #'partially-entered-branchp)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (car path))</tt>
+<br><tt>&nbsp;&nbsp; stack))</tt><tt></tt>
+<p><tt>;;; A partially entered branch is a path that has at least one entered</tt>
+<br><tt>;;; DO node and an at least one unentered DO node.</tt>
+<br><tt>(defun partially-entered-branchp (branch)</tt>
+<br><tt>&nbsp; (loop for node in branch bind entered-flag bind unentered-flag</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; do (if (and (path-stepp node)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (eq 'DO (path-node-type node)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (if (path-node-enteredp node)</tt>
+<br><tt>&nbsp;&nbsp; (setq entered-flag T)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (setq unentered-flag
+T)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; finally (return (and entered-flag
+unentered-flag))))</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>;;; The path has just split, so we need to select a branch to walk.</tt>
+<br><tt>;;; We prefer to select a branch that has been partially completed
+by</tt>
+<br><tt>;;; the student.&nbsp; If there are none, then we prefer a branch
+that his</tt>
+<br><tt>;;; not been started at all.&nbsp; If there are none of either
+kind, then</tt>
+<br><tt>;;; all the branches are completed, so we continue walking along
+the</tt>
+<br><tt>;;; path that starts with the JOIN that terminates this set of</tt>
+<br><tt>;;; parallel branches.&nbsp; The special variable remaining-path
+is used to</tt>
+<br><tt>;;; point to the path that has not been examined yet by the</tt>
+<br><tt>;;; gather-branches code, so when that code gets done, it points
+to</tt>
+<br><tt>;;; the path the follows this set of parallel branches.</tt>
+<br><tt>(defun walk-split (prefix path stack)</tt>
+<br><tt>&nbsp; (let ((branches (gather-branches path NIL))</tt>
+<br><tt>&nbsp;(remaining-path))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (declare (special remaining-path))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (walk-psm-path</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; prefix</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; (or (find branches #'partially-entered-branchp)</tt>
+<br><tt>&nbsp; (find branches #'unentered-branchp)</tt>
+<br><tt>&nbsp; remaining-path)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; stack)))</tt><tt></tt>
+<p><tt>;;; An unentered branch has no entered DO nodes.</tt>
+<br><tt>(defun unentered-branchp (branch)</tt>
+<br><tt>&nbsp; (loop for node in branch</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; never (and (path-stepp node)</tt>
+<br><tt>&nbsp;&nbsp; (eq 'DO (path-node-type node))</tt>
+<br><tt>&nbsp;&nbsp; (path-node-enteredp node))))</tt><tt></tt>
+<p><tt>;;; Given a path that starts with the first branch of a set of</tt>
+<br><tt>;;; parallel branches, return a list of parallel branches.&nbsp;
+As a side</tt>
+<br><tt>;;; effect, this resets the special variable remaining-paths to
+the</tt>
+<br><tt>;;; portion of the path that follows the join that terminates this
+set</tt>
+<br><tt>;;; of parallel branches.&nbsp; This works by calling gather-branch,
+which</tt>
+<br><tt>;;; collects one branch and resets remaining-branches to the path
+that</tt>
+<br><tt>;;; follows that branch.&nbsp; If that starts with JOIN, then we're
+done</tt>
+<br><tt>;;; and can return the set of branches.&nbsp; If that starts with
+NEXT,</tt>
+<br><tt>;;; then we need to collect another branch and repeat.</tt>
+<br><tt>(defun gather-branches (path branches)</tt>
+<br><tt>&nbsp; (declare (special remaining-path))</tt>
+<br><tt>&nbsp; (cond ((eq 'NEXT (car path))</tt>
+<br><tt>&nbsp; (push branches (gather-branch (cdr path) 0))</tt>
+<br><tt>&nbsp; (gather-branches remaining-path branches))</tt>
+<br><tt>&nbsp;((eq 'JOIN (car path))</tt>
+<br><tt>&nbsp; (setq remaining-path (cdr path))</tt>
+<br><tt>&nbsp; branches)</tt>
+<br><tt>&nbsp;(T (Error "Expected NEXT or JOIN as car of path"))))</tt><tt></tt>
+<p><tt>;;; Returns one branch of a set of parallel branches, and resets</tt>
+<br><tt>;;; remaining-path to the path starting with the NEXT or JOIN that</tt>
+<br><tt>;;; terminated this branch.&nbsp; Since we want to preserve the
+order of</tt>
+<br><tt>;;; nodes along the path, we postpone consing until the function
+is</tt>
+<br><tt>;;; returning a value.&nbsp; We needs distinguish the NEXTs and
+JOINs that</tt>
+<br><tt>;;; terminate this branch from those that terminate SPLITs that
+start</tt>
+<br><tt>;;; somewhere inside this branch.&nbsp; Thus, it counts the numbers
+of</tt>
+<br><tt>;;; splits and subtracts the numbers of joins.&nbsp; When this
+counter</tt>
+<br><tt>;;; returns to its starting value of zero, any NEXT or JOIN we
+see</tt>
+<br><tt>;;; terminates our branch.&nbsp; When a CHOICE is encountered,
+things get</tt>
+<br><tt>;;; complicated.</tt>
+<br><tt>(defun gather-branch (path split-count)</tt>
+<br><tt>&nbsp; (declare (special remaining-path))</tt>
+<br><tt>&nbsp; (cond ((eq 'SPLIT (car path))</tt>
+<br><tt>&nbsp; (cons (car path)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (gather-branch (cdr
+path) (1+ split-count))))</tt>
+<br><tt>&nbsp;((eq 'CHOICE (car path))</tt>
+<br><tt>&nbsp; (gather-branch-after-choice (cdr path) split-count))</tt>
+<br><tt>&nbsp;((zerop split-count)</tt>
+<br><tt>&nbsp; (cond ((or (eq 'NEXT (car path))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (eq 'JOIN (car path)))</tt>
+<br><tt>&nbsp; (setq remaining-path path)</tt>
+<br><tt>&nbsp; NIL)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (T (cons (car path)</tt>
+<br><tt>&nbsp;&nbsp; (gather-path (cdr path) split-count)))))</tt>
+<br><tt>&nbsp;((eq 'JOIN (car path))</tt>
+<br><tt>&nbsp; (cons (car path)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (gather-branch (cdr
+path) (1- split-count))))</tt>
+<br><tt>&nbsp;(T (cons (car path)</tt>
+<br><tt>&nbsp;&nbsp; (gather-branch (cdr path) split-count)))))</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>;;; We want to return just one of the choices, finishing out the</tt>
+<br><tt>;;; branch with it.&nbsp; We prefer a choice that is completed,
+because</tt>
+<br><tt>;;; that might make the whole branch completed, which in turn might</tt>
+<br><tt>;;; make the whole set of parallel branches something that we can
+skip</tt>
+<br><tt>;;; over.&nbsp; If we can't find a choice that is completed, then
+we prefer</tt>
+<br><tt>;;; a partially completed choice.&nbsp; If we can't find any of
+those, then</tt>
+<br><tt>;;; we pick a choice arbitarily.</tt>
+<br><tt>(defun gather-branch-after-choice (pathes split-count)</tt>
+<br><tt>&nbsp; (loop for path in pathes</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bind branch</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bind best-branch</tt>
+<br><tt>&nbsp;bind best-remaining-path</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; do (Setq branch (gather-branch path
+split-count))</tt>
+<br><tt>&nbsp; (when (or (null best-branch)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; (completely-enteredp-branchp branch)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; (and (partially-entered-branchp branch)</tt>
+<br><tt>&nbsp;&nbsp; (not (completed-branchp best-branch))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (setq best-branch branch)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (setq best-remaining-path remaining-path))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; finally</tt>
+<br><tt>&nbsp;(if best-remaining-path</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; (setq remaining-path best-remaining-path))</tt>
+<br><tt>&nbsp;(return (or best-branch branch))))</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>;;; True if all the DO steps in a path are entered</tt>
+<br><tt>(defun completely-entered-branchp (path)</tt>
+<br><tt>&nbsp; (loop for node in path</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; never (and (path-stepp node)</tt>
+<br><tt>&nbsp;&nbsp; (eq 'DO (path-node-type node))</tt>
+<br><tt>&nbsp;&nbsp; (not (path-node-enteredp node)))))</tt><tt></tt>
+<p><tt>;;; -------------------- hint-target-entry ---------------</tt><tt></tt>
+<p><tt>;;; This generates a sequence of hints leading up to the target
+entry</tt>
+<br><tt>;;; itself.&nbsp; The first few hints come from the stack of goals
+leading</tt>
+<br><tt>;;; to the entry.&nbsp; The remaining hints try to get the student
+to do</tt>
+<br><tt>;;; the entry itself.&nbsp; The prefix is a string generated earlier
+in</tt>
+<br><tt>;;; response to the student's action but not yet presented to the</tt>
+<br><tt>;;; student.&nbsp; The step is a DO path-node for the target step.&nbsp;
+The</tt>
+<br><tt>;;; stack is a list of SG path-node for the goals that have not
+yet</tt>
+<br><tt>;;; been achieve, with top goal last.&nbsp; Returns a tutor turn.</tt>
+<br><tt>(defun hint-target-entry (prefix step stack)</tt>
+<br><tt>&nbsp; (suggest-goals prefix (reverse shint-steptack) step))</tt><tt></tt>
+<p><tt>;;; Returns a tutor turn that prints something like "You should
+be</tt>
+<br><tt>;;; drawing forces," and then puts up a menu with two choices,
+either</tt>
+<br><tt>;;; to get more explanation or to hide the hint window and resuming</tt>
+<br><tt>;;; working on the problem.&nbsp; If the student selects "hide"
+then the</tt>
+<br><tt>;;; responder returns the atom hide, which terminates the tutorial</tt>
+<br><tt>;;; dialog.&nbsp; If the student selects "explain more," then the
+responder</tt>
+<br><tt>;;; returns the next hint as a tutor turn struct.</tt>
+<br><tt>(defun suggest-goals (prefix sg-steps step)</tt>
+<br><tt>&nbsp; (if sg-steps</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; text (string-concat</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; prefix</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; "You should be "</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (nlg-gerund (sg-step-goal (car sg-steps))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; responder #'(lambda (response)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; (if (eq response 'hide)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'hide</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (suggest-goals "" (cdr sg-steps
+step)))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (next-hint prefix</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (plan-hint-sequence
+(hints-from-step step)))))</tt><tt></tt>
+<p><tt>;;; ------------------------- hint sequences ----------------------</tt>
+<br><tt>;;; This code plans a sequence of hints, and provides the closures
+for</tt>
+<br><tt>;;; walking along it.&nbsp; Hint sequences are used both for steps
+and for</tt>
+<br><tt>;;; bugs, so this code is called from two places.&nbsp; It passes
+around</tt>
+<br><tt>;;; hints, where a hint is defined by the following struct:</tt><tt></tt>
+<p><tt>(defstruct hint</tt>
+<br><tt>&nbsp; format&nbsp;&nbsp;&nbsp; ; either STRING, KCD or MINILESSON</tt>
+<br><tt>&nbsp; functions&nbsp;&nbsp;&nbsp; ; set of atoms (see below)</tt>
+<br><tt>&nbsp; string&nbsp;&nbsp;&nbsp; ; a string or file name</tt>
+<br><tt>&nbsp; args&nbsp;&nbsp;&nbsp;&nbsp; ; a list of terms from the
+KB</tt>
+<br><tt>&nbsp; )</tt><tt></tt>
+<p><tt>;;; In order to test which format for hints is best, the switch
+below</tt>
+<br><tt>;;; is set to KCD if KCDs are to be used instead of strings or</tt>
+<br><tt>;;; minilessons whenever possible, NO-KCD if strings and minilessons</tt>
+<br><tt>;;; are to be used instead of KCDs whenever possible, and NIL if
+we</tt>
+<br><tt>;;; don't care.</tt><tt></tt>
+<p><tt>(defparameter *HINT-FORMAT* NIL)</tt><tt></tt>
+<p><tt>;;; This converts a set of hints into a sequence.&nbsp; The set
+of hints is</tt>
+<br><tt>;;; generated by either hints-for-step or hints-for-bug.&nbsp;
+In the</tt>
+<br><tt>;;; future, hints might be generarted for other purposes as well.</tt>
+<br><tt>;;; This function returns an ordered listed of hints after first</tt>
+<br><tt>;;; filtering them to remove inappropriate ones.</tt><tt></tt>
+<p><tt>(defun plan-hint-sequence (hints)</tt>
+<br><tt>&nbsp; (order-hints (filter-hints hints)))</tt><tt></tt>
+<p><tt>;;; Returns the subset of the given hints that are allowed to be
+used.</tt>
+<br><tt>(defun filter-hints (hints)</tt>
+<br><tt>&nbsp; (loop for h in hints collect h</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unless (better-format-hint-exists
+h hints)))</tt><tt></tt>
+<p><tt>;;; if the *hint-format* switch is set to KCDs, and this hint is
+a</tt>
+<br><tt>;;; non-KCD but a KCD hint exists with the same function, then
+return</tt>
+<br><tt>;;; it.&nbsp; If the *hint-format* switch is set to no-KCDs, and
+this hint</tt>
+<br><tt>;;; is a KCD but a non-KCD hint exists with the saem function,
+then</tt>
+<br><tt>;;; return it.&nbsp; Otherwise, return NIL.</tt>
+<br><tt>(defun better-format-hint-exists (h hints)</tt>
+<br><tt>&nbsp; (or (and (eq 'KCD *hint-format*)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (neq 'kcd (hint-format h))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (loop for h2 in hints</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; thereis</tt>
+<br><tt>&nbsp;&nbsp; (and (neq h h2)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (eq 'kcd (hint-format
+h2))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (equal-sets (hint-function
+h)(hint-function h2)))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (and (eq 'NO-KCD *hint-format*)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (eq 'kcd (hint-format h))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (loop for h2 in hints</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; thereis</tt>
+<br><tt>&nbsp;&nbsp; (and (neq h h2)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (neq 'kcd (hint-format
+h))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (equal-sets (hint-function
+h)(hint-function )))))))</tt><tt></tt>
+<p><tt>;;; A hint sequence consists of a goal hint, a pointing hint, a</tt>
+<br><tt>;;; teaching hint and a bottom-out hint.&nbsp; These are the only
+currently</tt>
+<br><tt>;;; recognized functions.&nbsp; We might need more later.&nbsp;
+However, hints</tt>
+<br><tt>;;; for some of these functions might be missing.&nbsp; Thus, the
+hint-for</tt>
+<br><tt>;;; function returns lists that are either NIL or a singleton.&nbsp;
+This</tt>
+<br><tt>;;; function just puts them together into a flat list of zero to
+4</tt>
+<br><tt>;;; hints.</tt>
+<br><tt>(defun order-hints (hints)</tt>
+<br><tt>&nbsp; (append</tt>
+<br><tt>&nbsp;&nbsp; (hint-for 'goal hints)</tt>
+<br><tt>&nbsp;&nbsp; (hint-for 'point hints)</tt>
+<br><tt>&nbsp;&nbsp; (hint-for 'teach hints)</tt>
+<br><tt>&nbsp;&nbsp; (hint-for 'bottom-out hints)))</tt><tt></tt>
+<p><tt>;;; Returns a hint (inside a list) for the given function if one</tt>
+<br><tt>;;; exists in the given list of hints.</tt>
+<br><tt>(defun hint-for (func hints)</tt>
+<br><tt>&nbsp; (or (first-unused-hint-for func hints)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (first-hint-for func hints)))</tt><tt></tt>
+<p><tt>;;; We prefer to give hints that have not been given before.&nbsp;
+The hints are ordered, so prefer the first one you find.</tt>
+<br><tt>(defun first-unused-hint-for (func hints)</tt>
+<br><tt>&nbsp; (loop for h in hints</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; do (if (and (member func (hint-functions
+h))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (not (hint-used h)))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (return (list h)))))</tt><tt></tt>
+<p><tt>;;; However, if there are not unused hints, then return the first
+hint</tt>
+<br><tt>;;; for this function.</tt>
+<br><tt>(defun first-hint-for (func hints)</tt>
+<br><tt>&nbsp; (loop for h in hints</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; do (if (member func (hint-functions
+h))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (return (list h)))))</tt><tt></tt>
+<p><tt>;;; This is called when the goal hints run out.&nbsp; Hints is an
+ordered</tt>
+<br><tt>;;; list of hint structs that has been created to hint a particular</tt>
+<br><tt>;;; step or bug. This presents the first one.&nbsp; It returns
+a tutor turn</tt>
+<br><tt>;;; struct.</tt>
+<br><tt>(defun next-hint (prefix hints)</tt>
+<br><tt>&nbsp; (cond ((eq 'string (hint-format (car hints)))</tt>
+<br><tt>&nbsp; (string-hint prefix hints))</tt>
+<br><tt>&nbsp;((eq 'minilesson (hint-format (car hints)))</tt>
+<br><tt>&nbsp; (minilesson-hint prefix hints))</tt>
+<br><tt>&nbsp;((eq 'KCD (hint-format (car hints)))</tt>
+<br><tt>&nbsp; (KCD-start prefix hints))</tt>
+<br><tt>&nbsp;(t (error "Unknown hint format"))))</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>;;; This wraps a string hint inside a tutor turn struct.&nbsp;
+The response</tt>
+<br><tt>;;; is a menu that allows the student to ask for the next hint
+or to</tt>
+<br><tt>;;; resume working on the problem again.&nbsp; The response processor</tt>
+<br><tt>;;; either returns HIDE to the dialog manager in order to end the</tt>
+<br><tt>;;; dialog, or calls next-hint in order to generate a tutor turn</tt>
+<br><tt>;;; struct for the next hint.&nbsp; When this reaches the last
+hint, it</tt>
+<br><tt>;;; keeps giving it again and again. The prefix is a string that
+acts</tt>
+<br><tt>;;; as a response (usually positive feedback) to the preceding
+student</tt>
+<br><tt>;;; turn.&nbsp; It is just concatenated on the front of the string
+hint.</tt>
+<br><tt>(defun string-hint (prefix hints)</tt>
+<br><tt>&nbsp; (remember-hint-used (car hints))</tt>
+<br><tt>&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;text (string-concat prefix (hint-string-from-hint (car hints)))</tt>
+<br><tt>&nbsp;menu 'explain-more-or-hide</tt>
+<br><tt>&nbsp;responder #'(lambda (response)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (if (eq response 'hide)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; 'hide</tt>
+<br><tt>&nbsp;&nbsp; (next-hint ""</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (if (cdr hints)(cdr hints)
+hints))))))</tt>
+<br><tt>&nbsp;</tt>
+<br><tt>;;; This returns a tutor turn struct that plays a minilesson.&nbsp;
+It</tt>
+<br><tt>;;; ignores the prefix string, because currently I don't know where
+to</tt>
+<br><tt>;;; display it. When the minilesson is over, the student gets the
+same</tt>
+<br><tt>;;; menu/responder as with a string hint.&nbsp; This also checks
+that the</tt>
+<br><tt>;;; mini-lesson file is ready to be opened, and skips to the next
+hint</tt>
+<br><tt>;;; if it is not.</tt>
+<br><tt>(defun minilesson-hint (prefix hints)</tt>
+<br><tt>&nbsp; (cond ((not (file-ready-to-openp (hint-string (car hints))))</tt>
+<br><tt>&nbsp; (next-hint prefix (cdr hints)))</tt>
+<br><tt>&nbsp;(T</tt>
+<br><tt>&nbsp; (remember-hint-used (car hints))</tt>
+<br><tt>&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type 'Play-minilesson</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; text (hint-string (car
+hints))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; menu 'explain-more-or-hide</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; responder #'(lambda
+(response)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (if (eq response 'hide)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; 'hide</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (next-hint
+""</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (if (cdr hints)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (cdr
+hints)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hint))))))))</tt><tt></tt>
+<p><tt>;;; ----------------------------- KCDs -------------------------------</tt>
+<br><tt>;;; A KCD is a list of turn-pairs.&nbsp; A turn pair consists of
+a string</tt>
+<br><tt>;;; for the tutor's question, and a set of student response handlers.</tt>
+<br><tt>;;; A response handler consists of a characterization of the student's</tt>
+<br><tt>;;; response (documented elsewhere) and tutorial feedback on that</tt>
+<br><tt>;;; response.&nbsp; The feedback consists of either a string or
+another</tt>
+<br><tt>;;; KCD, which is denoted by an atom.</tt><tt></tt>
+<p><tt>(defstruct turn-pair</tt>
+<br><tt>&nbsp; tutor&nbsp;&nbsp;&nbsp;&nbsp; ;A string for the tutor's
+question</tt>
+<br><tt>&nbsp; student&nbsp;&nbsp;&nbsp; ;A list of kcd-response-handlers</tt>
+<br><tt>&nbsp; )</tt><tt></tt>
+<p><tt>;;;&nbsp; This struct is not used in this code.&nbsp; Instead, a
+set of them is</tt>
+<br><tt>;;;&nbsp; passed into parse-kcd-response along with the student's
+response</tt>
+<br><tt>;;;&nbsp; from the workbench.&nbsp; That function (which is part
+of Carolyn's</tt>
+<br><tt>;;;&nbsp; parsing code) returns the feedback field of one member
+of the</tt>
+<br><tt>;;;&nbsp; set.&nbsp; Thus, this code only knows that the student
+field of the</tt>
+<br><tt>;;;&nbsp; turn-pair struct contains a set of these, and it doesn't
+care</tt>
+<br><tt>;;;&nbsp; what the fields of this struct are.&nbsp; Thus, this
+struct can be</tt>
+<br><tt>;;;&nbsp; reconfigured as needed by the parser code, and should
+be defined</tt>
+<br><tt>;;;&nbsp; there instead of here.</tt>
+<br><tt>(defstruct kcd-response-handler</tt>
+<br><tt>&nbsp; response-recognizer&nbsp;&nbsp; ;See parser code</tt>
+<br><tt>&nbsp; feedback&nbsp;&nbsp;&nbsp; ;The tutor's reply: a string
+or KCD</tt>
+<br><tt>&nbsp; )</tt><tt></tt>
+<p><tt>;;; KCDs are named by atoms and stored in a global association list</tt>
+<br><tt>(defun get-KCD (name)</tt>
+<br><tt>&nbsp; (or (cdr (assoc name *KCDs*))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (error "No KCD for given name" name)))</tt><tt></tt>
+<p><tt>;;; This starts a kcd hint by returning a tutor turn struct that</tt>
+<br><tt>;;; prints the first tutor query of the KCD.&nbsp; The NIL in the
+menu</tt>
+<br><tt>;;; field means that the workbench should display an edit form,
+that</tt>
+<br><tt>;;; is, a box that the user can fill in by typing.&nbsp; The responder</tt>
+<br><tt>;;; finishes presenting the kcd then resumes walking down the hints.</tt>
+<br><tt>(defun KCD-start (prefix hints)</tt>
+<br><tt>&nbsp; (let ((KCD (get-KCD (hint-string (car hints)))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (remember-hint-used (car hints))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;&nbsp; text (concat-string prefix (turn-pair-tutor (car KCD)))</tt>
+<br><tt>&nbsp;&nbsp; menu NIL</tt>
+<br><tt>&nbsp;&nbsp; responder #'(lambda (response)</tt>
+<br><tt>&nbsp;&nbsp; (handle-kcd-response response KCD hints)))))</tt><tt></tt>
+<p><tt>;;; This first parses the student's response (Carolyn's code) and
+gets</tt>
+<br><tt>;;; back the feedback part of one of the kcd-response-handlers.&nbsp;
+If it</tt>
+<br><tt>;;; is a string, then we just return a tutor turn that prints that</tt>
+<br><tt>;;; feedback and goes on to the next turn-pair in the kcd.&nbsp;
+If the</tt>
+<br><tt>;;; feedback is an atom, then it denotes a KCD that should be called.</tt>
+<br><tt>;;; This is done by simply appending the KCD, which is a list of
+tutor</tt>
+<br><tt>;;; turns, to the front of the pending tutor turns.&nbsp; Either
+way,</tt>
+<br><tt>;;; next-turn-pair is called to generate the actual tutor turn
+struct</tt>
+<br><tt>;;; that is returned.</tt>
+<br><tt>(defun handle-kcd-response (response KCD hints)</tt>
+<br><tt>&nbsp; (let ((feedback (parse-kcd-response response (turn-pair-student
+(car KCD)))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (cond ((stringp feedback)&nbsp; ; The tutor's
+feedback is just a string</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (next-turn-pair feedback (cdr kcd) hints))</tt>
+<br><tt>&nbsp;&nbsp; ((atom feedback)&nbsp; ; The tutor's feedback is a
+kcd</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (next-turn-pair ""</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (hint append (get-KCD feedback)
+(cdr kcd))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hints))</tt>
+<br><tt>&nbsp;&nbsp; (T (error "unrecognized feedback from parser")))))</tt><tt></tt>
+<p><tt>;;; Usually, this returns a tutor turn struct for the next turn-pair</tt>
+<br><tt>;;; in the kcd.&nbsp; However, if the kcd has finished up (i.e.,
+kcd is</tt>
+<br><tt>;;; null), then the tutor turn struct concatenates the feedback</tt>
+<br><tt>;;; message (usually null) to a prompt that so that the student
+can</tt>
+<br><tt>;;; either return to problem solving or get the next hint in the</tt>
+<br><tt>;;; sequence.&nbsp; On the other hand, if the kcd has not finished
+up, this</tt>
+<br><tt>;;; concatenates the possibly-empty feedback to the student response</tt>
+<br><tt>;;; to the tutor's question, indicates that a type-in-box should
+be</tt>
+<br><tt>;;; used instead of a menu, and provides the usual kcd response
+handler.</tt>
+<br><tt>(defun next-turn-pair (feedback kcd hints)</tt>
+<br><tt>&nbsp; (if (Null kcd)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; text (concat-string</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; feedback</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; "You can resume problem solving or get more
+explanation")</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; menu 'explain-more-or-hide</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; responder #'(lambda (response)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp; (if (eq response 'hide)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'hide</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (next-hint "" hints))))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp; (make tutor-turn</tt>
+<br><tt>&nbsp;&nbsp; text (concat-string</tt>
+<br><tt>&nbsp; feedback</tt>
+<br><tt>&nbsp; (tutor-turn-tutor (car kcd)))</tt>
+<br><tt>&nbsp;&nbsp; menu NIL</tt>
+<br><tt>&nbsp;&nbsp; responder #'(lambda (response)</tt>
+<br><tt>&nbsp;&nbsp; (handle-kcd-response response kcd hints)))))</tt>
+<br><tt></tt>&nbsp;<tt></tt>
+<p><tt>;;; --------------- calls to other modules -------------------------</tt><tt></tt>
+<p><tt>;;; BUBBLE GRAPH</tt><tt></tt>
+<p><tt>;;; quantity-nodep (X) -- true if X is a quantity node</tt><tt></tt>
+<p><tt>;;; psm-nodep(X) -- true if X is a psm node</tt><tt></tt>
+<p><tt>;;; top-level-soughts() -- returns a list of the quantities that
+are</tt>
+<br><tt>;;; sought by the problem statement.</tt><tt></tt>
+<p><tt>;;; psm-quantities(X) -- assuming X is a bubble graph node for a
+psm,</tt>
+<br><tt>;;; this reutnrs the set of quantities mentioned by that psm (i.e.,</tt>
+<br><tt>;;; the quanitities represented by the quantity nodes attached
+to X in</tt>
+<br><tt>;;; the graph.</tt><tt></tt>
+<p><tt>;;; psm-forbiddenp(X) -- assuming X is a buggle graph node for a
+psm,</tt>
+<br><tt>;;; this is true if the psm is forbidden</tt><tt></tt>
+<p><tt>;;; psm-completedp(X) -- assuming X is a bubble graph node for a
+psm,</tt>
+<br><tt>;;; this is true if the student has entered everything for the
+psm,</tt>
+<br><tt>;;; thus completing it.</tt><tt></tt>
+<p><tt>;;; psm-startedp(X) -- assuming X is a bubble graph node for a psm,</tt>
+<br><tt>;;; this is true if the student has entered at least one step of
+the</tt>
+<br><tt>;;; psm, but may or may not have completed it.</tt><tt></tt>
+<p><tt>;;; psm-optimalp(X) -- assuming X is a bubble graph node for a psm,</tt>
+<br><tt>;;; this is true if it lies along a shortest solution path.</tt>
+<br><tt></tt>&nbsp;<tt></tt>
+<p><tt>;;; MISC??</tt><tt></tt>
+<p><tt>;;; enteredp(Quantity) -- true if the qiven quantity has been entered</tt>
+<br><tt>;;; by the student.</tt><tt></tt>
+<p><tt>;;; quantity-equalp(X Y) -- true if the two quanitites are equal.</tt>
+<br><tt></tt>&nbsp;<tt></tt>
+<p><tt>;;; PSM GRAPH/PATHS</tt><tt></tt>
+<p><tt>;;; path-stepp(X) -- true if X is a path member that denotes a step.</tt>
+<br><tt>;;; That is, it is not SPLIT, JOIN, NEXT or CHOICE.</tt><tt></tt>
+<p><tt>;;; path-node-type(X) -- assuming X is a step node, this returns</tt>
+<br><tt>;;; either SG, DO, WM or OP.It calls</tt>
+<br><tt>;;; hint-sequenct on the DO step to obtain a list of strings to
+print.</tt><tt></tt>
+<p><tt>;;; path-node-enteredp(X) -- true is the entry denoted by the DO
+node</tt>
+<br><tt>;;; X is has been entered by the student.</tt><tt></tt>
+<p><tt>;;; hints-from-step(X) -- assuming X is a DO step, this</tt>
+<br><tt>;;; gets the operator instance from it, fetches the operator</tt>
+<br><tt>;;; definitionConcatenates the possibly-empty feedback to the student</tt>
+<br><tt>;;; response to the tutor's question, indicates that a type-in-box</tt>
+<br><tt>;;; should be used instead of a menu, and provides the usual response</tt>
+<br><tt>;;; handler. , and adds the appropriate FOL terms for the arguments</tt>
+<br><tt>;;; of the hint.&nbsp; For instance, if the hint in the operator
+is (string</tt>
+<br><tt>;;; pointing "What forces act on ~a during ~a?" ?b ?t) and the
+binding</tt>
+<br><tt>;;; list for the operator instance says that ?b is BLOCK1 and ?t
+is</tt>
+<br><tt>;;; (DURING 1 2), then the instantiated hint is (string pointing
+"What</tt>
+<br><tt>;;; forces act on ~a during ~a?" BLOCK1 (DURING 1 2))</tt>
+<br><tt></tt>&nbsp;<tt></tt>
+<p><tt>;;; NATURAL LANGUAGE GENERATION (nlg)</tt><tt></tt>
+<p><tt>;;; nlg-defnp(X) return a string with the syntax of a definite noun</tt>
+<br><tt>;;; phrase that describes X</tt><tt></tt>
+<p><tt>;;; nlg-gerund(X) returns a string with the syntax of a gerund that</tt>
+<br><tt>;;; describes X</tt><tt></tt>
+<p><tt>;;; NATURAL LANGUAGE UNDERSTANDING (nlu)</tt><tt></tt>
+<p><tt>;;; parse-kcd-response(response S) where S is a set of</tt>
+<br><tt>;;; kcd-response-handers.&nbsp; Decides which kcd-response-handler
+best</tt>
+<br><tt>;;; approximates the students response, and returns the feedback
+field</tt>
+<br><tt>;;; of that handler.&nbsp; The feedback is either a string or an
+atom,</tt>
+<br><tt>;;; where the atom denotes a KCD that should be called.</tt>
+<br><tt></tt>&nbsp;
+<br><tt></tt>&nbsp;<tt></tt>
+<p><tt>&nbsp;</tt>
+<br><tt>&nbsp;</tt>
+<br><tt></tt>&nbsp;
+</body>
+</html>

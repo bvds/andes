@@ -1,0 +1,13 @@
+Andes2 Overall Rchitecture.
+
+The Andes2 architecture is built into a set of interrelated project nodes.
+Each project node is designed to be used independently as necessary loaded by the user for its particular use.
+
+Due to the interconnections in the codebase the system is designed to use the Andes2 modules system with its embedded provide/require calls to load the systems.  the architecture is:
+
+Help: The help system with its associated subsystems.
+KB: The knowledge base containing problem definitions, operators, etc.
+Knowledge: The knowledge structures such as problems, operators, etc and their storage/access mechanisms.
+Sgg: The solution and solution graph generator system. 
+
+Algebra: Joe's algebra code which will be setup later.

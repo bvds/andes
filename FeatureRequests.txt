@@ -1,0 +1,54 @@
+Feature Requests
+========================================================================
+This file is intended to serve as an archive of feature requests, ideas, 
+additions,e tc for the Andes system.  It is a basic text database and 
+contains features in the following form:
+
+Title:	  <Feature title/name>
+Author:	  <Author of this assertion>
+Desc:	  <Feature Description>
+Priority: <Feature Priority>
+Status:	  <Feature Status>
+
+========================================================================
+
+---------------------------------------------------------------------
+Title:	Prompt To define sought Var.
+Author:	Collin Lynch.
+Desc:	When NSH asks the student to identity the sought variable we
+	Prompt them to then define a variable for the sought immediately.
+	Following that we will then continue NSH as normal by prompting 
+	them to identify the first principle.
+Priority: Low, very low.
+Status:	  On Hold.
+
+---------------------------------------------------------------------
+Title:	Alter NSH to deal with hybrid problems.
+Author:	Collin Lynch.
+Desc:	Up until now we have assumed (when defining NSH) that there were 
+	three (formerly two) distinct problem types: 
+	 no-quant: where the students must complete a series of steps to 
+	  satisfy some internal non-quantity goal such as defining 
+	  A free body diagram.
+	 MC-only: where the students must select from a multiple-choice 
+	  answer and does not need to make any other entries.
+	 Quant: All the other typical problems.
+
+	In the future however we may be adding more hybrid questions wherin
+	the students might calculate the magnitude of a vector and then 
+	answer a multiple choice question about its value for example.
+	
+	If these are added it will be necessary to modify NSH to deal 
+	smoothly with such problems.
+Priority: Low.
+Status: On Hold.
+
+
+----------------------------------------------------------------------
+Title: Problem Specific Constraints
+Author: Collin Lynch
+Desc:  Add a variableMarks field to the problem struct so that constraints
+       such as positivie can be defined for a specific problem in addition
+       to the general quantities that are defined for all problems.
+Priority: High
+Status:	  Done

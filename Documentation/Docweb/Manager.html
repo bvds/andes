@@ -1,0 +1,106 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes 2 Manager module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Manager</h2></center>
+
+<center>(as of 3/30/01)</center>
+
+<p>Author: Linwood Taylor
+<p>The&nbsp; manager is the central controller for the Help system.&nbsp;
+Its function is to centralize all input and output to and from the tcp/ip
+stream with the workbench.&nbsp; Typically the commands from the workbench
+will simply be passed to the appropriate modules, and the module's response
+will be sent back to the workbench via the tcp/ip connection.&nbsp; More
+specifically:
+<ul>
+<li>
+Open Student:&nbsp; Calls <a href="Mastery.html#Open">The Mastery module
+to open</a> the student model</li>
+
+<li>
+Close a student.&nbsp; Calls <a href="Mastery.html#Close">Mastery module
+to close
+</a>the student model.</li>
+
+<li>
+Open a problem.&nbsp; Calls the <a href="SolutionGraph.html#Load solution graph">SG
+module to load the solution graph</a>.</li>
+
+<li>
+Close a problem.&nbsp; Calls <a href="Mastery.html#Save">Mastery to save
+the student model</a> then calls <a href="Mastery.html#Mastery bar chart">Mastery
+to find out the student's levels of mastery</a> and <a href="Mastery.html#Recommend problem">what
+problems it recommends</a>.&nbsp; Tells the workbench to present this information
+to the student.</li>
+
+<li>
+Entry of an equation, vector, variable, axis, angle, etc.&nbsp; Sends the
+entry to <a href="EntryInterpreter.html">Entry Interpreter</a>, and gets
+back a <a href="Base.html#Tutor turn">tutor-turn</a> struct, which is processed
+as described below. .</li>
+
+<li>
+Student turn in a dialog.&nbsp; Calls the function in the saved tutor-turn
+struct, and gets back a new tutor-turn struct.</li>
+
+<li>
+Deletion of an entry.&nbsp; Sends to <a href="DeleteObject.html">Deletion</a>.</li>
+
+<li>
+What's next help request.&nbsp; Sends to <a href="NextStepHelp.html">Next
+step help</a>, and gets back a tutor-turn struct.</li>
+
+<li>
+What's wrong help request.&nbsp; Sends to <a href="WhatsWrongHelp.html">What's
+wrong help</a>, and gets back a tutor-turn struct.</li>
+
+<li>
+Use of the solve tool.&nbsp; Sends to <a href="SolveTool.html">Solve Tool</a>,
+and gets back something to be passed to the workbench.</li>
+</ul>
+Maintance:
+<br>&nbsp;&nbsp;&nbsp; 1. Current Problem name.
+<br>&nbsp;&nbsp;&nbsp; 2. Current Student id.
+<br>&nbsp;&nbsp;&nbsp; 3. Most recent tutor turn struct
+<br>&nbsp;&nbsp;&nbsp; 4. Whether workbench is in dialog mode or problem
+solving mode.
+<p>The manager does not (currently) need to do anything at all about saving/restoring
+state for the sake of resuming problems or recovering from crashes (see
+<a href="DesignDiscussions/ReplayingLogFiles.html">discussion</a>).
+<h3>
+Processing a <a href="Base.html#Tutor turn">tutor turn</a> received from
+a subordinate module:</h3>
+
+<ul>
+<li>
+If the tutor turn struct has type end-dialog, then the manager tells the
+workbench to go to problem solving mode.&nbsp; Also, it sets its mode variable
+to problem-solving-mode.</li>
+
+<li>
+If the tutor turn struct has type Play-minilesson, then the manager gets
+the file name of the minilesson from the text field and tells the workbench
+to play that files as a minilesson.&nbsp;&nbsp; The workbench automatically
+goes to dialog mode when it is done and prints the message "What would
+me to do next?" followed by the Explain-more vs. Hide menu choices.</li>
+
+<li>
+If the tutor turn struct has type Dialog, then the manager puts the workbench
+in dialog mode if it is not in dialog mode already.&nbsp; It then sends
+the text field of the tutor tutor struct to the workbench, along with the
+name of the menu to be displayed.</li>
+</ul>
+In all cases, the manager saves the tutor turn struct, because it is used
+to process the student's turn in the dialog if the student mades one.
+<br>&nbsp;
+</body>
+</html>

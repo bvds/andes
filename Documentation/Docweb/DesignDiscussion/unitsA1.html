@@ -1,0 +1,76 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Anders">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Form of unit expressions in communications with algebra module
+</title>
+</head>
+<body>
+
+<center>
+<h2>Form of unit expressions in communications with algebra module</h2>
+<h3>Mail from Anders, March 15 at 22:42</h3>
+</center>
+<pre>
+In the givens in our problem statements we have been writing the units
+expressions as unstructured symbols drawn from a short list. For example:
+
+     (given (at (mag (accel crate)) 1) (dnum 1.25 m/s^2))
+
+If we include the units in the equations, this would most naturally give
+rise to the same notation in solution equations sent to your code:
+
+    (= a_Crate_1 (dnum 1.25 m/s^2))
+
+I think this is a highly natural and readable form for a problem author to
+use. I'm wondering if this will pose any difficulty for the algebra module.
+To handle these the algebra checker would have to map unit specifications in
+this form, e.g. the string of characters "kg*m^2/s", into whatever
+structured thingy it uses internally to represent units.
+
+This may look like a string parsing problem but it really isn't. The strings
+filling the units position may appear to have structure but in fact they are
+just Lisp symbols -- Lisp is more liberal than most programming languages
+about the characters allowed in identifiers.  That means one couldn't use
+parentheses for grouping inside these identifiers. And I'm not sure if the
+usual precedence rules for arithmetic operators are observed inside them;
+there may just be conventional parsings associated.
+
+Since there's a finite list of the things to match, and you can know -- at
+least when getting a well-formed equation from *us* -- where in the
+expression the unit string part begins and ends, it really only requires a
+table lookup.
+
+Of course someone will have a unit parsing problem in the strings the
+student sends us. I expect we want to allow the student to enter unit names
+in a very similar form. So Linwood's parse, at least will ultimately have to
+handle input like this. As you know, the Andes1 parser just used a list of
+accepted unit names -- it can be viewed in
+
+    T:\\Vanlehn\Andes\lisp\Equation\consts.lsp (search for *units*).
+
+When we last spoke you were suggesting that when sending you the units for
+variables, we pass you an easy-to-parse Lisp-expression-y representation of
+units like
+    (/  (* kg m) (^ s 2))
+I started to put them into our table in this fashion. But it occurs to me
+now we ought to use the same form of unit expression in the givens and
+equations as for the variables.
+
+If it is more convenient for communicating with your code, then we could
+always just continue to use the unit name strings as they exist in the
+problem statements and just do the mapping from unit symbols to unit
+expression trees on the Lisp side before sending the equations to you. Such
+a substitution would require only an alist and one function call in Lisp.
+Though it would reduce the readability of the equation file a bit to have
+these structured units in them.
+
+Anyway, please think about this and then we can discuss the options.
+</pre>
+
+
+<br>&nbsp;
+</body>
+</html>

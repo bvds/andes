@@ -1,0 +1,94 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>Andes2 Next Step Help module</title>
+</head>
+<body>
+
+<center>
+<h2>
+Next step help module</h2></center>
+
+<center>(as of 3/16/01)</center>
+
+<p>This module teaches a strategy for solving the problem by walking the
+student through a line of reasoning that eventuates in productive next
+step for them to do, then hinting the step.&nbsp; The dialog has three
+phases:
+<ul>
+<li>
+From a top level goal (i.e., a quantity node in the bubble graph) to a
+target PSM.&nbsp; This is called "walking the bubble graph."&nbsp; It results
+in an alternating sequence of questions of the form "what quantity are
+you seeking?" and "what method should be applied to find it?"&nbsp; This
+is sometimes referred to as the "preamble."&nbsp; (Sometimes the preamble
+alone is given <a href="WhatsWrongHelp.html#preamble in error handlers">as
+part of what's wrong help</a>)</li>
+
+<li>
+From the top level goal of PSM to a target operator application.&nbsp;
+This is called "walking the PSM graph."&nbsp; It results in a sequence
+of assertions of the form "You should be doing such-and-such goal."&nbsp;
+Only the unachieved goals are mentioned.</li>
+
+<li>
+A hint sequence for the target step.&nbsp; After each hint, the student
+is asked whether they want another hint or they want to go back to problem
+solving.</li>
+</ul>
+For instance, suppose the problem has the good old block on a frictionless
+inclined plane, and it asks for the time it takes the block to slide a
+certain distance after starting at rest.&nbsp; The walk starts in the bubble
+graph with the duration quantity, which is the sought.&nbsp; Andes says,
+"What quantity are you seeking?"&nbsp; The student picks from the quantities
+menu (which is nearly identical to the one used to define variables) the
+duration quantity.&nbsp; Andes then asks, "What principle should you apply
+to determine it?"&nbsp; The student picks from a PSM menu and its associated
+dialog boxes something that denotes the application of translational kinematics
+to the block during time 1 to time 2.&nbsp; Andes sees that this PSM has
+been completed already by the student (lets' say), so it says, "Right.
+And that principle has been applied already. Now what quantity should you
+seek?"&nbsp; Again the student hits the quantity menu, this time selecting
+acceleration of the block.&nbsp; Andes then asks for a PSM, and the student
+selects Newton's second law applied to the block.&nbsp; Since the student
+has only partially finished applying this PSM, it is the target PSM.&nbsp;
+This concludes the phase of walking the bubble graph.
+<p>Now Andes walks the PSM graph.&nbsp; Actually, it does a fancy search
+in the PSM graph to figure out what the target step is most likely to be.&nbsp;
+During this search, it also calculates the goal stack of unachieved goals
+that leads up to that target step.&nbsp; When it finally finds the target
+step, it goes through a loop that announces the goals leading down to the
+target step. Let's suppose the student has drawn rotated axes, all the
+forces and the accelration, the compo equation and most of the projection
+equations.&nbsp; The only projecting equation left is the one for weight,
+which is the hardest one as it requires some trig.&nbsp; Thus, the loop
+through the goal stack generates, "I assume you are rewriting Newton's
+law so that it has only vector magnitudes.&nbsp; You should be writing
+a projection equation for the weight of the block."&nbsp; Andes puts up
+the usual menu that aks the student whether she wants another hint or to
+go back to problem solving.&nbsp; This ends the PSM walking phase.&nbsp;
+Someday it would be better to make this phase more interactive--ask more,
+tell less.
+<p>If the student wants a hint, then Andes will give one, which is generated
+from the hint sequence stored on the operator.&nbsp; Since the goal has
+already been mention, Andes skips the operator's goal hint and starts by
+giving a pointing hint.&nbsp; The first pointing hint is "The projection
+equation will involve either sine or cosine, and its argument is the difference
+between the orientations of the weight vector and the axis."&nbsp; If the
+student wants yet another hint, then Andes looks for a teaching hint, and
+finds a minilesson.&nbsp; It plays the minilesson, then asks if the student
+wants yet another hint. This time it picks a bottom out hint, and tells
+the student exactly what equation to enter.
+<p>Pseudo code for the next-step help module is <a href="NextStepHelp2.html">here</a>.
+<p>Some examples of what-next help are included among the <a href="WhatsWrongHelp.html#error interpretation">errors</a>
+analyzed for what's wrong help.&nbsp; They demonstrate taht when students
+do not make correct selections during the preamble, their errors must be
+handled intelligently, because they are golden learning opportunities.&nbsp;
+Physics-specific knowledge will be needed to do that.&nbsp; It will probably
+have to be hung off the PSM definitions, but that has not yet been worked
+out yet.
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Kurt VanLehn">
+   <meta name="GENERATOR" content="Mozilla/4.74 [en] (Win98; U) [Netscape]">
+   <title>MagInsteadOfComponent</title>
+</head>
+<body>
+
+<center>
+<h2>
+Using the magnitude instead of the component of a vector</h2></center>
+
+<center>(as of 3/26/01)</center>
+
+<p>This has to be tested after more specific bugs, including <a href="MissingNegOnVectorMag.html">MissingNegOnVectorMag</a>.
+<p>If the student's entry is an equation
+<ul>
+<li>
+that contains (mag ?vector)</li>
+
+<li>
+and ?axis is an axis that ?vector can be projected along</li>
+
+<li>
+and replacing (mag ?vector) with (compo ?vector ?axis) makes the student's
+equation correct</li>
+</ul>
+then the hint sequence is
+<ul>
+<li>
+preamble</li>
+
+<li>
+(hint string (point) "~a is best stated with all the quantities expressed
+in component form." law for the psm)</li>
+
+<li>
+(hint string (point) "Have you used the magnitude of a vector where you
+should use the vector's component along an axis?")</li>
+
+<li>
+(hint string (bottom-out) ...)</li>
+</ul>
+
+<h3>
+<a NAME="a5 48-43"></a>a5 Eq-Pitt 48-43</h3>
+On the ring pulled by 3 forces, the student has drawn a FBD without acceleration,
+entered givens, entered projection equations for all 3 forces, and written
+"FS3=Ft1_x+Ft2_x+Ft3_x."&nbsp; This would be correct if (a) FS3 were defined
+as the net force and (b) its x-component were used here instead of its
+magnitude.&nbsp; Let's assume for the sake of argument that the acceleration
+and the net force are non-zero, and that they are not along the x-axis.
+<ul>
+<li>
+T1 asks what is the sum of forces.</li>
+
+<li>
+T2 asks the student to define a variable for the net force, then to use
+its x-component in this equation.</li>
+
+<li>
+Andes says that the FS3 is not defined.</li>
+
+<li>
+KVL: Andes should first say that FS3 is not defined, then it should tutor
+the student on the sum-of-forces principle.</li>
+</ul>
+Andes first gives an undefined variable message, so let's assume that the
+student defines FS as the net force, reenters the equation, gets red, and
+asks for help.&nbsp; Because FS is non-zero and FS_x is not equal to FS,
+the equation is incorrect.&nbsp; The intended equation is FS_x=Ft1_x+Ft2_x+Ft3_x,
+which is primitive and non-premature, so the error handler gives the hint
+sequence above.
+</body>
+</html>

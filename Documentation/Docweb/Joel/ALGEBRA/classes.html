@@ -1,0 +1,66 @@
+<html> <head>
+<title>Classes defined in the Andes2 algebra system
+</title>
+</head>
+
+<body>
+<h1>Classes defined in the Andes2 algebra system
+</h1>
+
+The classes defined in the system are
+<UL><LI><A HREF=dimens.html>dimens</A>The SI physical units
+     for a variable or expression.
+<LI><A HREF=expr.html>expr
+</A>An algebraic expression, possibly an equation. This is a virtual class
+     with subclasses
+     <UL><LI>primexpr
+	  a virtual subclass with numvalexp and physvarptr and fakeexpr as
+	  subclasses
+     <LI>fakeexpr
+	 A subterfuge of use only during parsing
+     <LI>numvalexp
+	 A numerical value, with physical units, such as 2.5 m/s
+     <LI>physvarptr
+	 A variable, represented by a pointer to a
+	  <A HREF=physvar.html>physvar</A>
+     <LI>binopexp
+	 A binary operator between expr's. The available operators are
+	  divided-by, raised-to-power, equals, and the unimplemented
+	  greater-or-equal and greater-than.
+     <LI>functexp
+	 A known function of a single argument. The available functions
+	  are sin, cos, tan, exp, ln, log10, sqrt, abs
+     <LI>n_opexp
+	 An n-ary operator among expr's. The available operators are
+	  plus and mult.
+    </UL>
+<LI><A HREF=physvar.html>physvar</A>A physical variable. It contains
+     information on attributes, units, names, etc.
+<LI><A HREF=indyset.html>indyset
+</A>A set of independent functions and methods for determining whether
+     the linear expansion of a new function is independent of those in
+     the set, and if not, giving its expansion.
+<LI><A HREF=indyset.html#valander>valander
+</A>A combination of the value and gradient of a function at the solution
+     point of the problem, and information about whether the function
+     depends on each variable.
+<LI>answitherr:
+     A combination of the numerical value and absolute error in a numerical
+     expression.
+<LI>unitabrs: 
+  A list of abbreviations for units, unit prefixes, and preferred ways
+     of expressing combinations of units.
+<LI>oper:
+  a class with a fixed set of instantiations, one for each function type
+     for a functexp or each operator for a binopexp or n_opexp.
+     </UL>
+
+<hr>
+<address><A HREF="http://www.physics.rutgers.edu/~shapiro/">Joel A. Shapiro</a>
+<a href="mailto:shapiro@physics.rutgers.edu"> &lt;shapiro@physics.rutgers.edu&gt;</a>
+<a href="mailto:jshapiro@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a>
+</address>
+<!-- hhmts start -->
+Last modified: Wed Jun 27 21:39:39 2001
+<!-- hhmts end -->
+</body> </html>

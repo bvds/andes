@@ -1,0 +1,378 @@
+<html> <head>
+<title>Functions in the algebra package
+</title>
+</head>
+
+<body>
+<CENTER>
+<h1>Functions in the algebra package
+</h1>
+<H2>Alphabetical list</H2></CENTER>
+<TABLE CELLPADDING=3 Width=100%><THEAD>
+<TR><TH ALIGN=LEFT><B>function</B></TH>
+    <TH WIDTH=55% ALIGN=LEFT>args</TH>
+    <TH ALIGN=LEFT>returns</TH>
+    <TH ALIGN=LEFT>found in file *.cpp</TH>
+</TR></THEAD>
+<TR>
+<TD><B>addnum</B></TD>
+    <TD>(double a, double b)</TD>
+    <TD>double</TD>
+    <TD>solveknownvar</TD>
+<TD><A HREF=functdesc.html#addnum><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>apluskb</B></TD><TD>(expr * & a1, const expr * const a2,
+	     double const coef)</TD><TD>
+ void </TD><TD>
+ moreexpr</TD>
+<TD><A HREF=functdesc.html#apluskb><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>apluskb</B></TD><TD>
+(expr * & a1, const expr * const a2,
+	     numvalexp * nv)</TD><TD>void 
+</TD><TD> moreexpr</TD>
+</TR><TR>
+<TD><B>checkeqs</B></TD><TD>( vector&lt;binopexp *&gt; * & , vector&lt;varindx&gt; * &,
+ostream &)
+</TD><TD> void 	</TD><TD>  checkeqs</TD>
+<TD><A HREF=functdesc.html#checkeqs><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>cleanup</B></TD><TD>(n_opexp * &)</TD><TD>int </TD><TD>
+cleanup</TD>
+<TD><A HREF=functdesc.html#cleanup><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>copyexpr</B></TD><TD>(const expr *)</TD><TD>expr * 
+ </TD><TD> copyexpr</TD>
+<TD><A HREF=functdesc.html#copyexpr><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>desperate</B></TD><TD>(vector&lt;binopexp *&gt; * & eqn,
+vector&lt;varindx&gt; * & vars)</TD><TD>bool 
+</TD><TD> desperate</TD>
+<TD><A HREF=functdesc.html#desperate><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>dimenchk</B></TD><TD>(const bool fix, expr * & ex)</TD><TD>
+expr * </TD><TD> dimenchk</TD>
+<TD><A HREF=functdesc.html#dimenchk><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>doesnthave</B></TD><TD>(const expr * ex, const varindx var)</TD><TD>
+bool </TD><TD> slvlinonev</TD>
+<TD><A HREF=functdesc.html#doesnthave><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>dtostr</B></TD><TD>(double val)</TD><TD>string</TD><TD> utils</TD>
+<TD><A HREF=functdesc.html#dtostr><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>eqnumsimp</B></TD><TD>(expr * &, const bool)</TD><TD>
+void </TD><TD> eqnumsimp</TD>
+<TD><A HREF=functdesc.html#eqnumsimp><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>equaleqs</B></TD><TD>(const expr * exp1, const expr * exp2)</TD>
+<TD>bool</TD><TD> equaleqs</TD>
+<TD><A HREF=functdesc.html#equaleqs><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>evalpoly</B></TD><TD>(const vector&lt;double&gt; * poly, const double x)</TD><TD>double 
+</TD><TD> polysolve</TD>
+<TD><A HREF=functdesc.html#evalpoly><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>exprcontains</B></TD><TD>(expr * e,varindx var)</TD><TD>bool 
+ </TD><TD> subexpin</TD>
+<TD><A HREF=functdesc.html#exprcontains><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>factorout</B></TD><TD>(const expr * factor,int n,
+expr * & expression)</TD><TD>bool 
+</TD><TD> factorout</TD>
+<TD><A HREF=functdesc.html#factorout><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>findallroots</B></TD><TD>(vector&lt;double&gt; *poly)</TD><TD>vector&lt;double&gt; *
+</TD><TD> polysolve</TD>
+<TD><A HREF=functdesc.html#findallroots><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>findroot</B></TD><TD>(const vector&lt;double&gt; * poly,
+const vector&lt;double&gt; * polyderiv, 
+		const double low, const double high)</TD><TD>
+double </TD><TD> polysolve</TD>
+<TD><A HREF=functdesc.html#findroot><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>findtrigvars</B></TD><TD>(expr * & ex, vector&lt;expr *&gt; * &trigvars)</TD>
+<TD>void 	</TD><TD> solvetrig</TD>
+<TD><A HREF=functdesc.html#findtrigvars><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>fixupforpls</B></TD><TD>(binopexp * & eq)</TD><TD>bool 
+ </TD><TD> fixupforpls</TD>
+<TD><A HREF=functdesc.html#fixupforpls><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>flatten</B></TD><TD>(expr * &)</TD><TD>bool 
+ </TD><TD> flatten</TD>
+<TD><A HREF=functdesc.html#flatten><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>getaline</B></TD><TD>(istream &instr)</TD><TD>string 
+ </TD><TD> getaline</TD>
+<TD><A HREF=functdesc.html#getaline><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>getall</B></TD><TD>(string bufst)</TD><TD>bool 
+ </TD><TD> getall</TD>
+<TD><A HREF=functdesc.html#getall><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>getallfile</B></TD><TD>(ifstream &)</TD><TD>bool 
+ </TD><TD> getallfile</TD>
+<TD><A HREF=functdesc.html#getallfile><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>getclipsvar</B></TD><TD>(string token,int start)</TD><TD>int 
+ </TD><TD> parse</TD>
+<TD><A HREF=functdesc.html#getclipsvar><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>geteqsfromeqsfile</B></TD><TD>(istream &)</TD><TD>vector&lt;string> *
+ </TD><TD> geteqs</TD>
+<TD><A HREF=functdesc.html#geteqsfromeqsfile><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>getsols</B></TD><TD>(ifstream & solfile)</TD><TD>vector&lt;double&gt; *
+ </TD><TD> getnewsols</TD>
+<TD><A HREF=functdesc.html#getsols><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>gointeract</B></TD><TD>(vector&lt;binopexp *&gt; * & eqexpr,
+vector&lt;varindx&gt; * & vars)</TD><TD>void 
+ </TD><TD> interact</TD>
+<TD><A HREF=functdesc.html#gointeract><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>hasjustonevar</B></TD><TD>(const expr * e, varindx & pv)</TD><TD>bool 
+ </TD><TD> justonev</TD>
+<TD><A HREF=functdesc.html#hasjustonevar><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>isanum</B></TD><TD>(string token)</TD><TD>bool </TD><TD> parse</TD>
+<TD><A HREF=functdesc.html#isanum><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>isclean</B></TD><TD>( n_opexp *)</TD><TD>bool </TD><TD> cleanup</TD>
+<TD><A HREF=functdesc.html#isclean><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>isnonneg</B></TD><TD>(string name)</TD><TD>
+bool </TD><TD> ispos</TD>
+<TD><A HREF=functdesc.html#isnonneg><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>isnonneg</B></TD><TD>(const expr *)</TD><TD>bool 
+</TD><TD> ispos</TD>
+<TD><A HREF=functdesc.html#isnonneg><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>ispositive</B></TD><TD>(string name)</TD><TD>bool 
+</TD><TD> ispos</TD>
+<TD><A HREF=functdesc.html#ispositive><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B> ispositive</B></TD><TD>(const expr *)</TD><TD>bool 
+</TD><TD> ispos</TD>
+<TD><A HREF=functdesc.html#ispositive><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>itostr</B></TD><TD>(int val)</TD><TD>string 
+</TD><TD> utils</TD>
+<TD><A HREF=functdesc.html#itostr><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>kmult</B></TD><TD>(expr * & ex, const double k)</TD><TD>void 
+</TD><TD>normexpr</TD>
+<TD><A HREF=functdesc.html#kmult><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>kmult</B></TD><TD>(expr * & ex, numvalexp * nv)</TD><TD>void 
+</TD><TD>normexpr</TD>
+<TD><A HREF=functdesc.html#kmult><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>linvarcoefs</B></TD><TD>(const expr * ex, const varindx var,
+expr * & coef, expr * & numer)</TD><TD>
+bool</TD><TD> slvlinonev</TD>
+<TD><A HREF=functdesc.html#linvarcoefs><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>listchk</B></TD><TD>(vector&lt;int&gt; * vchk)</TD><TD>bool
+ </TD><TD> treechk</TD>
+<TD><A HREF=functdesc.html#listchk><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>lookslikeint</B></TD><TD>(double, int &)</TD><TD>bool
+</TD><TD> lookslikeint</TD>
+<TD><A HREF=functdesc.html#lookslikeint&gt;<IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>maketrigvars</B></TD><TD>(vector&lt;binopexp *&gt; * eqexpr, vector&lt;expr *&gt; * & trigvars)</TD><TD>void </TD><TD> solvetrig</TD>
+<TD><A HREF=functdesc.html#maketrigvars><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+max</B></TD><TD>(int a, int b)</TD><TD>
+inline int</TD><TD> decl.h</TD>
+<TD><A HREF=functdesc.html#max><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+min</B></TD><TD>(int a, int b)</TD><TD>inline int
+</TD><TD>decl.h</TD>
+
+<TD><A HREF=functdesc.html#min><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>minuseq</B></TD><TD>(expr * & a1, const expr * const a2)</TD><TD>void 
+    </TD><TD>  moreexpr</TD>
+<TD><A HREF=functdesc.html#minuseq><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>nlsolvov</B></TD><TD>(binopexp * & bineq)</TD><TD>bool
+</TD><TD> nlsolvov</TD>
+<TD><A HREF=functdesc.html#nlsolvov><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>normexpr</B></TD><TD>(expr * & ex)</TD><TD>numvalexp *  
+</TD><TD> normexpr</TD>
+<TD><A HREF=functdesc.html#normexpr><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>numfactorsof</B></TD><TD>(const expr * factor,const expr * expression)</TD><TD>int
+ </TD><TD> numfactorsof</TD>
+<TD><A HREF=functdesc.html#numfactorsof><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+<TD><B>numunknowns</B></TD><TD>(expr * eq, vector&lt;varindx&gt; & varl,
+const bool chkknown)</TD><TD>int
+</TD><TD> numunknowns</TD>
+<TD><A HREF=functdesc.html#numunknowns><IMG SRC="test.gif"></a></TD>
+</TR><TR>
+
+<TD><B>ordinvars</B></TD><TD>(const expr * ex, const vector&lt;varindx&gt; * vars,
+vector&lt;int&gt; * & orders)</TD><TD>
+bool</TD><TD> ordinvars</TD>
+	
+<TD><A HREF=functdesc.html#ordinvars><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+ordunknowns</B></TD><TD>(const expr * eq, const bool chkknown)</TD><TD>
+int</TD><TD> ordunknowns</TD>
+<TD><A HREF=functdesc.html#ordunknowns><IMG SRC="test.gif"></a></TD>
+</TR>
+<TR><TD><B>
+parseanum</B></TD><TD>(string token,int start)</TD><TD>int
+</TD><TD> parse</TD>
+<TD><A HREF=functdesc.html#parseanum><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+parseEqWUnits</B></TD><TD>(const string &)</TD><TD>stack<string>*
+</TD><TD> parseeqwunits</TD>
+<TD><A HREF=functdesc.html#parseEqWUnits><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+plussort</B></TD><TD>(expr * & ex)</TD><TD>bool
+</TD><TD> plussort</TD>
+<TD><A HREF=functdesc.html#plussort><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+polyadd</B></TD><TD>(const vector&lt;double&gt; * poly1,
+const vector&lt;double&gt; * poly2)</TD><TD>
+vector&lt;double&gt; *</TD><TD> polysolve</TD>
+		
+<TD><A HREF=functdesc.html#polyadd><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+polyexpand</B></TD><TD>(const expr * ex,varindx var,
+ vector&lt;double&gt; * & coefs)</TD><TD>
+bool</TD><TD> polysolve</TD>
+<TD><A HREF=functdesc.html#polyexpand><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+polymult</B></TD><TD>(const vector&lt;double&gt; * poly1,
+const vector&lt;double&gt; * poly2)</TD><TD> 
+vector&lt;double&gt; *</TD><TD> polysolve</TD>
+
+<TD><A HREF=functdesc.html#polymult><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+polysolve</B></TD><TD>(vector&lt;binopexp *&gt; * eqn,
+ const vector&lt;varindx&gt; *vars)</TD><TD>
+bool</TD><TD> polyslv</TD>
+
+<TD><A HREF=functdesc.html#polysolve><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+polytopow</B></TD><TD>(const vector&lt;double&gt; * poly,
+const int pow)</TD><TD>
+vector&lt;double&gt; *</TD><TD> polysolve</TD>
+ 
+<TD><A HREF=functdesc.html#polytopow><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+powonev</B></TD><TD>(const expr * eq, const varindx var)</TD><TD>
+int</TD><TD> powonev</TD>
+<TD><A HREF=functdesc.html#powonev><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+printdv</B></TD><TD>(const vector&lt;double&gt; & vec)</TD><TD>void
+</TD><TD> utils</TD>
+<TD><A HREF=functdesc.html#printdv><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+purelinsolv</B></TD><TD>(const vector&lt;binopexp *&gt; * const eqs,
+	const vector&lt;varindx&gt; * const vars, 
+	vector&lt;binopexp *&gt; * & sols)</TD><TD>
+bool</TD><TD> purelin</TD>
+<TD><A HREF=functdesc.html#purelinsolv><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+qsrtexpr</B></TD><TD>(vector&lt;expr *&gt; *Vptr)</TD><TD>
+void </TD><TD> qsrtexpr</TD>
+<TD><A HREF=functdesc.html#qsrtexpr><IMG SRC="test.gif"></a></TD>
+</TR>
+<TR><TD><B>
+rationalize</B></TD><TD>(binopexp * & eq)</TD><TD>
+bool</TD><TD> rationalize</TD>
+<TD><A HREF=functdesc.html#rationalize><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+signisknown</B></TD><TD>(const expr * const ex)</TD><TD>
+bool</TD><TD> solvetrig</TD>
+<TD><A HREF=functdesc.html#signisknown><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+slvlinonev</B></TD><TD>(binopexp * & eq, const varindx var)</TD><TD>
+bool</TD><TD> slvlinonev</TD>
+<TD><A HREF=functdesc.html#slvlinonev><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+slvlinovar</B></TD><TD>(const expr * ex, const varindx var,
+ expr * & numer, expr * & denom)</TD><TD>
+bool</TD><TD> slvlinvar</TD>
+<TD><A HREF=functdesc.html#slvlinovar><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+
+slvpolyexpr</B></TD><TD>(const expr * eq, varindx var)</TD><TD>
+vector&lt;double&gt; *</TD><TD> polysolve</TD>
+<TD><A HREF=functdesc.html#slvpolyexpr><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+solveknownvar</B></TD><TD>(expr * & eq)</TD><TD>
+bool</TD><TD> solveknownvar</TD>
+<TD><A HREF=functdesc.html#solveknownvar><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+solvetrigvar</B></TD><TD>(const expr * const var,
+ vector&lt;binopexp *&gt; * & eqn)</TD><TD>
+bool</TD><TD> solvetrig</TD>
+<TD><A HREF=functdesc.html#solvetrigvar><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+
+solvetwoquads</B></TD><TD>(binopexp * & ,  binopexp * & ,
+ const varindx , const varindx )</TD><TD>
+int</TD><TD> despquad</TD>
+<TD><A HREF=functdesc.html#solvetwoquads><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+subexpin</B></TD><TD>(expr * & , const binopexp *)</TD><TD>
+bool</TD><TD> subexpin</TD>
+<TD><A HREF=functdesc.html#subexpin><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+substin</B></TD><TD>(expr * & target, const binopexp * assign)</TD><TD>
+bool</TD><TD> substin</TD>
+<TD><A HREF=functdesc.html#substin><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+treechk</B></TD><TD>(const expr * const ex, vector&lt;int&gt; * vchk)</TD><TD>
+bool</TD><TD> treechk</TD>
+<TD><A HREF=functdesc.html#treechk><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+trigsearch</B></TD><TD>(const expr * const arg, expr *& coef,
+		const expr * const ex, bool & iscos,
+		expr * & oside)</TD><TD>	  
+bool</TD><TD> solvetrig</TD>
+<TD><A HREF=functdesc.html#trigsearch><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+unnop</B></TD><TD>(expr * & e)</TD><TD>
+void </TD><TD> flatten</TD>
+<TD><A HREF=functdesc.html#unnop><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+undotrigvar</B></TD><TD>(const expr * const arg,
+ vector&lt;binopexp *&gt; * & eqn)</TD><TD>bool</TD><TD>solvetrigb.cpp</TD>
+<TD><A HREF=functdesc.html#undotrigvar><IMG SRC="test.gif"></a></TD>
+</TR><TR><TD><B>
+uptonum</B></TD><TD>(const expr * const ans, const expr * const term,
+numvalexp * & coef)</TD><TD>bool
+</TD><TD> normexpr</TD>
+<TD><A HREF=functdesc.html#uptonum><IMG SRC="test.gif"></a></TD>
+
+</TR></TABLE>
+<hr>
+<address>Joel A. Shapiro</a><a href="mailto:jshapiro+@pitt.edu"> &lt;jshapiro@pitt.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Jun 27 14:19 2001
+<!-- hhmts end -->
+</body> </html>
