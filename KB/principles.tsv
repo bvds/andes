@@ -208,6 +208,9 @@ LEAF	Ue = q*V               electric potential energy	electric-energy	Electric P
 LEAF	h2 - h1 = d12_y        change in height	height-dy	Height and Displacement
 LEAF	Pavg = W/t             average power defined	power	Power
 LEAF	Pnet = Wnet/t          avg. net power defined	net-power	Power
+LEAF	P = I*4*$p*r^2         relation of power and intensity	intensity	Intensity
+LEAF	IdB = 10*log10(I/I0)   decibels	db-intensity	Intensity
+LEAF	Inet = $S Ii           Net intensity	net-intensity	Intensity
 END_GROUP			
 GROUP	Impulse Momentum		
 GROUP	Translational		

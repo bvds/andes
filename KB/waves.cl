@@ -86,8 +86,9 @@
 ;;;
 
 (defoperator define-frequency-time (?wave ?t)
-  :preconditions((bind ?freq-var (format-sym "freq_~A_~A" 
-					     (body-name ?wave) ?t)))
+  :preconditions
+  ((bind ?freq-var (format-sym "freq_~A_~A" 
+			       (body-name ?wave) (time-abbrev ?t))))
   :effects ((variable ?freq-var (at (frequency ?wave) ?t))
 	    (define-var (at (frequency ?wave) ?t)))
   :hint ((bottom-out 
@@ -809,36 +810,102 @@
 					    (+ ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
 	 ))
 
-;;;
-;;;   Decibels and intensity
-;;;   In principle, these quantities can be functions of time,
-;;;   but none of the problems so far require it.
-;;;
-(def-qexp intensity (intensity ?wave)
+;;;;
+;;;;   Decibels and intensity
+;;;;   These quantities can be functions of time,
+;;;;   but none of the problems so far require it.
+;;;;
+(def-qexp intensity (intensity ?wave ?agent)
   :units |W/m^2|
-  :restrictions positive  
-  :english ("the intensity of ~A" (nlg ?wave))
+  :restrictions positive
+  :english ("the intensity supplied to ~A due to ~A" (nlg ?wave) (nlg ?agent))
   :fromworkbench `(intensity ,body))
 
-(defoperator define-intensity (?wave ?t)
-  :preconditions((bind ?intense-var (format-sym "int_~A_~A" 
-					       (body-name ?wave) ?t)))
-  :effects ((variable ?intense-var (at (intensity ?wave) ?t))
-	    (define-var (at (intensity ?wave) ?t)))
+(defoperator define-intensity (?wave ?agent ?t)
+  :preconditions
+  ((bind ?intense-var (format-sym "int_~A_~A_~A" 
+				 (body-name ?wave) (body-name ?agent)
+				 (time-abbrev ?t))))
+  :effects ((variable ?intense-var (at (intensity ?wave ?agent) ?t))
+	    (define-var (at (intensity ?wave ?agent) ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the intensity of ~A by using the Add Variable command on the Variable menu and selecting intensity."  ?wave))))
+	  (string "Define a variable for the intensity of ~A due to ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+		  ?wave ?agent))))
 
-(def-qexp db-intensity (db-intensity ?wave)
+;;;
+;;; Net intensity is sum of all power acting on object.
+;;;
+(def-qexp net-intensity (net-intensity ?wave)
+  :units |W/m^2|
+  :restrictions positive  
+  :english ("the net intensity supplied to ~A" (nlg ?wave))
+  :fromworkbench `(intensity ,body))
+
+;; based on define-net-work
+(defoperator define-net-intensity (?wave ?t)
+  :preconditions
+  ((bind ?intense-var (format-sym "netint_~A_~A" 
+				  (body-name ?wave) (time-abbrev ?t))))
+  :effects ((variable ?intense-var (at (net-intensity ?wave) ?t))
+	    (define-var (at (net-intensity ?wave) ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the net-intensity of ~A due to ~A by using the Add Variable command on the Variable menu and selecting net-intensity."  
+		  ?wave ?agent))))
+
+;; based on net-work-contains
+(defoperator net-intensity-contains (?sought)
+  :preconditions 
+  ((any-member ?sought  ((at (net-intensity ?b) ?t) 
+	                 (at (power ?b ?agent) ?t)))
+   ;; make sure we can determine all agents providing power
+   (not (unknown-intensity-agents)))
+  :effects 
+  ((eqn-contains (net-intensity ?b ?t) ?sought)))
+
+;;;  
+;;;  Add up all intensities acting on ?b
+;;;
+;; based on apply-net-work
+(defoperator write-net-intensity (?b ?t)
+  :preconditions 
+  (;; introduce net-intensity variable
+   (variable ?net-intensity-var (at (net-intensity ?b) ?t))
+   ;; introduce variables for power from each source. 
+   ;; need to collect list of power *agents* to use in quantities.
+   (setof (in-wm (power-source ?source ?b)) ?source ?sources)
+   (map ?source ?sources
+	(variable ?intensity-var (at (intensity ?b ?source) ?t))
+	?intensity-var ?intensity-vars) 
+   )
+  :effects (
+	    (eqn (= ?net-intensity-var (+ . ?intensity-vars)) 
+		 (net-intensity ?b ?t))
+	    )
+  :hint (
+	 (teach (string "The net power acting on ~A is the sum of the various individual powers." ?b))
+	 (bottom-out (string "Write the equation ~A" ((= ?net-intensity-var (+ . ?intensity-vars)) algebra)))
+	 ))
+;;;
+;;;  Intensity in decibels.
+;;;
+;;;
+
+(def-qexp db-intensity (db-intensity ?wave ?agent)
   :units |dB|
-  :english ("the db-intensity of ~A" (nlg ?wave))
+  :english ("the intensity supplied to ~A due to ~A in decibels" 
+	       (nlg ?wave) (nlg ?agent))
   :fromworkbench `(db-intensity ,body))
 
-(defoperator define-db-intensity (?wave ?t)
-  :preconditions((bind ?dbi-var (format-sym "dbint_~A_~A" (body-name ?wave) ?t)))
-  :effects ((variable ?dbi-var (at (db-intensity ?wave) ?t))
-	    (define-var (at (db-intensity ?wave) ?t)))
+(defoperator define-db-intensity (?wave ?agent ?t)
+  :preconditions
+  ((bind ?dbi-var (format-sym "dbint_~A_~A_~A" 
+			      (body-name ?wave) (body-name ?agent) 
+			      (time-abbrev ?t))))
+  :effects ((variable ?dbi-var (at (db-intensity ?wave ?agent) ?t))
+	    (define-var (at (db-intensity ?wave ?agent) ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the intensity of ~A in decibels by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
+	  (string "Define a variable for the intensity of ~A in decibels 
+due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave ?agent))))
 
 ;;;
 ;;;  Reference intensity, predefined constant
@@ -866,6 +933,8 @@
 (defoperator define-iref ()
  :effects ( (variable |Iref| (db-intensity-zero)) ))
 
+
+
 ;;;
 ;;; Relate intensity to intensity in decibels
 ;;; 
@@ -879,32 +948,31 @@
  (defoperator intensity-to-decibels-contains (?sought)
    :preconditions (
 		   (time ?t)
-		   (any-member ?sought ((at (intensity ?wave) ?t)
-					(at (db-intensity ?wave) ?t))))
+		   (any-member ?sought ((at (intensity ?wave ?agent) ?t)
+					(at (db-intensity ?wave ?agent) ?t))))
    :effects (
-     (eqn-contains (intensity-to-decibels ?wave ?t) ?sought)))
+     (eqn-contains (intensity-to-decibels ?wave ?agent ?t) ?sought)))
 
 
-(defoperator write-intensity-to-decibels (?wave ?t)
+(defoperator write-intensity-to-decibels (?wave ?agent ?t)
    :preconditions (
-       (variable  ?int  (at (intensity ?wave) ?t))
-       (variable  ?intdb  (at (db-intensity ?wave) ?t))
-       (variable  ?int0  (db-intensity-zero))
+       (variable  ?int  (at (intensity ?wave ?agent) ?t))
+       (variable  ?intdb  (at (db-intensity ?wave ?agent) ?t))
+       (variable  ?intref  (db-intensity-zero))
    )
    :effects 
-   ;; this is not the lisp (log x 10)
-   ((eqn  (= ?intdb (* 10 (log10 (/ ?int ?int0) )))
-	  (intensity-to-decibels ?wave ?t)))
+   ;; this is not the lisp (log ... 10)
+   ((eqn  (= ?intdb (* 10 (log10 (/ ?int ?intref) )))
+	  (intensity-to-decibels ?wave ?agent ?t)))
    :hint (
       (point (string "You can express intensity in decibels"))
       (bottom-out (string "Write the equation ~A" 
-			  ((= ?intdb (* 10 (log10 (/ ?int ?int0) 
+			  ((= ?intdb (* 10 (log10 (/ ?int ?intref) 
 						))) algebra) ))
       ))
 
-;; Solve[{100==10 Log[10,iii/10^-12],pwr==iii*4.*Pi*4^2},pwr,iii]
 ;;; 
-;;; Relate intensity to total power output in a spherical geometry.  
+;;; Relate intensity to net power output in a spherical geometry.  
 ;;;
 (def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t)
   :complexity major  ;must explicitly use
@@ -917,8 +985,8 @@
   :preconditions (
 		  (spherical-emitting ?wave ?source) ;need spherical symmetry
 		  (time ?t)
-		  (any-member ?sought ((at (intensity ?wave) ?t)
-				       (at (power ?wave ?source) ?t)
+		  (any-member ?sought ((at (intensity ?wave ?source) ?t)
+				       (at (net-power ?source) ?t)
 				       (at (mag (relative-position ?wave ?source)) ?t)))
 		  )
   :effects (
@@ -926,8 +994,8 @@
 
 (defoperator write-intensity-to-power (?wave ?source ?t)
   :preconditions (
-		  (variable  ?int  (at (intensity ?wave) ?t))
-		  (variable  ?power  (at (power ?wave ?source) ?t))
+		  (variable  ?int  (at (intensity ?wave ?source) ?t))
+		  (variable  ?power  (at (net-power ?source) ?t))
 		  (variable  ?r (at (mag (relative-position ?wave ?source)) ?t))
 		  )
   :effects (

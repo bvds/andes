@@ -6908,7 +6908,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 (work-energy ?b (during ?t1 ?t2))))
 )
 
-; Write work = delta ke without writing out values for the ke terms.
+;;; Write work = delta ke without writing out values for the ke terms.
 (defoperator write-work-delta-ke (?b ?t1 ?t2)
   :preconditions 
    ((variable ?Wnet-var (at (net-work ?b) (during ?t1 ?t2)))
@@ -9336,11 +9336,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (eqn (= ?tau_z (* ?I ?alpha_z)) 
                  (compo-eqn z 0 (NL-rot ?b ?axis ?t)))
      (eqn-compos (compo-eqn z 0 (NL-rot ?b ?axis ?t)) (?tau_z ?alpha_z))
-; Don't do this because it can pre-empt projection if it is in fact used
-; on a component-form problem for magnitude (Extor5a)
-     ; for algebraic completeness: put out equation for mag ang-accel
-     ; in terms of component, so gets determined from alpha_z if dir is unknown
-     ; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (at (mag (ang-accel ?b)) ?t))
+     ;; Don't do this because it can pre-empt projection if it is in fact used
+     ;; on a component-form problem for magnitude (Extor5a)
+     ;; for algebraic completeness: put out equation for mag ang-accel
+     ;; in terms of component, so gets determined from alpha_z if dir is unknown
+     ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (at (mag (ang-accel ?b)) ?t))
    )
    :hint (
     (point (string "Can you relate the z components of net torque and angular acceleration?"))
