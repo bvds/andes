@@ -30,17 +30,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; just so .lsp works like .cl ... so I'm lazy and subject to habits
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq system:*load-search-list*
-  '(:first
-    #.(make-pathname :type "efasl")
-    #.(make-pathname :type "fasl")
-    #.(make-pathname :type "cl")
-    #.(make-pathname :type "lisp")
-    #.(make-pathname :type "lsp")))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (eval-when (compile load eval) (require :socket))
 
 
@@ -135,6 +124,7 @@
 ;; Note: In the Lisp IDE, hitting return to get a top-loop prompt for debugging
 ;; unwinds out of the event handler. Can call "run" again to restart loop.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun andes-run ()
   "Executes delayed tasks and listens for new events on the stream to process."
   (format *debug-io* "~&Running server event processing loop~%")
@@ -148,7 +138,7 @@
 	    ;; execution of delayed tasks from task queue with polling and 
 	    ;; dispatching of ready input events from the command stream.
 	    (loop until (null *task-list*)
-		do (execute-task) ;; Usually has tasks that have side-effects
+		do (eval (pop *task-list*)) ;tasks can have side-effects
 		   ;; handle input events while draining the task queue.
 		   (process-stream-event :blocking nil))
 	    ;; 2: no work to do right now

@@ -703,7 +703,7 @@
   "Make a new runtime-test-score class with the specified val."
   (if (not (htime-p Val))
       (error "Non htime supplied to rt-htime-score constructor: ~a" Val)
-    (make-instance 'rt-htime-score :Value (copy-striucture Val))))
+    (make-instance 'rt-htime-score :Value (copy-structure Val))))
 
 
 

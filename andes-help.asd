@@ -44,7 +44,8 @@
 					     :depends-on ("tell"))
 				     (:file "State")
 				     (:file "clips-vars")
-				     (:file "Entry-API")
+				     (:file "Entry-API"
+					    :depends-on ("HelpMessages"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "grammar"
@@ -88,7 +89,9 @@
 				     (:file "EntryPair")
 				     (:file "ProcDepth")
 				     (:file "UtilFuncs")
-				     (:file "Tests")
+				     ;; file must be loaded before compile
+				     (:file "Tests"
+					    :in-order-to ((compile-op (load-source-op "Tests"))))
 				     ))
 	       ))
 

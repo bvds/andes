@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TutorTurn.cl
 ;; Collin Lynch
 ;; 04/05/2001
@@ -14,6 +14,9 @@
 ;; it will not be compiled.  For now that task and ensuring that it 
 ;; doesn't mess with other code will have to wait. 
 ;; 
+#-kcd (defun next-turn (dummy) nil)
+#-kcd (defun start-local-kcd (dummy) nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Changelog
 ;;
@@ -26,7 +29,7 @@
 ;;
 ;; 6/3/2003 Collin -- fixed typo in the make-kcd-end-ophseq def.
 ;; 7/29/03  Collin -- Added commands field to tutor turn.
-|#
+;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -429,7 +432,7 @@
 ;;; When a kcd response is received then the response
 ;;; will be fed to the (Atlas:next-turn) call and the
 ;;; result will be passed to the make-kcd-result-turn.
-(defun kcd-responder-func (Response Rest &optional (Assoc nil))
+ (defun kcd-responder-func (Response Rest &optional (Assoc nil))
   (make-kcd-turn (next-turn Response) Rest Assoc))
    
 

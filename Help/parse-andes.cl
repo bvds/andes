@@ -282,11 +282,6 @@
          (< (length (pre2in parse1))
             (length (pre2in parse2))))))
 
-;; Following didn't work since it was getting passed a candidate turn-entry pair, not a 
-;; parse tree as list. Replacement below is simpler -- AW
-;; (defun count-unknown (lst)
-;;   (length (remove-if #'(lambda (x) (not (equal 'unknown x))) (splatten lst))))
-
 ;; return number of unknown vars in an unknown or unused var turn-entry pair
 (defun te-unknowns (te-pair)
   (if (or (eq (te-error-tag te-pair) 'undefined-variables)

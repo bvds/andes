@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utility.lisp
 ;; Author: Collin Lynch
 ;; 1/25/2000
@@ -15,7 +15,7 @@
 ;; Changelog:
 ;;  6/5/2003:  Removed duplicate copy of get-current-time-component and
 ;;    commented out the unused function print-flat-by-size.
-|#
+
 
 ;;========================================================================
 ;; Code from Peter Norvig's Paradigms of Artificial Intelligence 
@@ -35,16 +35,19 @@
   "If x is a list return it, otherwise return the list of x"
   (if (listp x) x (list x)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; flatten - gets rid of embedded lists -- completely
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun flatten (x)
+  (cond
+   ((null x) x)
+   ((atom x) x)
+   ((atom (car x)) (cons (car x) (flatten (rest x))))
+   (t (append (flatten (car x)) (flatten (rest x))))))
 
-(defun flatten (exp)
+(defun flatten1 (exp)
   "Get rid of embedded lists (to one level only)."
   (mappend #'mklist exp))
-
-(defun flatten-all (exp)
-  (cond 
-   ((null exp) ())
-   ((not (listp (car Exp))) (cons (car Exp) (flatten-all (cdr Exp))))
-   (t (append (flatten-all (car Exp)) (flatten-all (cdr Exp))))))
 	       
 (defun remove-duplicates-order-preserve (lst &optional (elts ()))
   (cond ((null lst) Elts)

@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; parse.cl --
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;; Author(s):
@@ -8,17 +8,17 @@
 ;;  12 March 2001 - (lht) -- this file created for Andes 2
 ;;  17 April 2001 - (lht) -- added packaging for integrating with Andes2
 ;;  15 May 2001 - (lht) -- mdofied to support new parsing grammar
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; tree is an alist with a Left-Hand Side (lhs) and a Right-Hand Side (rhs)
 (defun new-tree (cat rhs) (cons cat rhs))
 (defun tree-lhs (tree) (first tree))
 (defun tree-rhs (tree) (rest tree))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; parse is a statement of a parse condition:
 ;;  a tree with the current state of the parse and
 ;;  a remainder; the string of characters that reamin to be parsed
@@ -129,7 +129,7 @@
 					 (if (characterp x)
 					     x
 					   #\Space))
-			     (splatten (rest parse))))))
+			     (flatten (rest parse))))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -142,7 +142,7 @@
 						      (if (characterp x)
 							  x
 							#\Space))
-					  (splatten (rest parse)))) "|")))
+					  (flatten (rest parse)))) "|")))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -168,7 +168,7 @@
 					   (if (characterp x)
 					       x
 					     #\Space))
-			       (splatten (rest parse))))))))
+			       (flatten (rest parse))))))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -258,7 +258,7 @@
 ;;
 (defun parse-collapse (parse)
   (let ((tmp ""))
-    (dolist (x (splatten parse))
+    (dolist (x (flatten parse))
       (if (stringp x)
 	  (setf tmp (concatenate 'string tmp " " x))))
     (string-trim " " tmp)))

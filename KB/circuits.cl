@@ -85,27 +85,6 @@
            (setf np (append (list (nth c p)) np)))
           (t (setf np np)))))
 
-
-; Called by comp-name
-;This so every is at the same level
-;; BvdS  this appears to be redundant with the definition
-;; in Base/Utility.cl
-#|
-(defun flatten (x)
-  (cond ((null x) x)
-	((atom (car x)) (cons (car x) (flatten (cdr x))))
-	(t (append (flatten (car x)) (flatten (cdr x))))))
-|#
-
-;Called by find-parallel-resistors
-;This flattens out one level only
-(defun flatten1 (x)
-  (cond ((null x) x)
-        ((atom (car x))(cons (car x) (flatten1 (cdr x))))
-        ((= 1 (length (car x))) (append (car x) (flatten1 (cdr x))))
-        (t (append (list (car x)) (flatten1 (cdr x))))))
-
-
 ;Called by same-elements
 (defun check-list (x y)
   (cond ((null y) t)

@@ -5134,7 +5134,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
          (setof (force-on-body ?b ?agent ?type ?t . ?dont-care)
 	         ?b ?body-set)
 	?body-set ?body-sets)
-     (bind ?parts-affected (remove NIL (flatten ?body-sets)))
+     (bind ?parts-affected (remove NIL (flatten1 ?body-sets)))
      (debug "write-force-compound: parts contributing: ~A~%" ?parts-affected)
      ; define variables for each of the force parts making up the net
      ; unfortunately this can only be done by drawing them, although we
@@ -6253,7 +6253,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ; convert list of quantities to list of equation ids, using transform
    ; (at (energy-type ?arg1 ...) ?t) ==> (energy-type ?arg1 ...  ?t)
    ; NB: requires that pe-quant-name and pe-equation id must be the same!
-   (bind ?energy-eqn-ids (mapcar #'(lambda(q) (cdr (flatten q)))
+   (bind ?energy-eqn-ids (mapcar #'(lambda(q) (cdr (flatten1 q)))
                                  ?energy-quants))
    ; generate equation for each constituent quantity, saving rhs exprs
    (map ?eqn-id ?energy-eqn-ids
@@ -8906,7 +8906,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (map ?b ?bodies
        (eqn-compos (compo-eqn z 0 (ang-momentum ?b ?t2)) ?compos)
        ?compos ?t2-compo-sets)	; result is list of lists
-  (bind ?all-compos (flatten (append ?t2-compo-sets ?t1-compo-sets)))
+  (bind ?all-compos (flatten1 (append ?t2-compo-sets ?t1-compo-sets)))
   )
   :effects (
   (eqn (= (+ . ?Iw_z1-terms) (+ . ?Iw_z2-terms))
@@ -8945,7 +8945,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (map ?b ?bodies2
        (eqn-compos (compo-eqn z 0 (ang-momentum ?b ?t2)) ?compos)
        ?compos ?t2-compo-sets)	; result is list of lists
-  (bind ?all-compos (flatten (append ?t2-compo-sets ?t1-compo-sets)))
+  (bind ?all-compos (flatten1 (append ?t2-compo-sets ?t1-compo-sets)))
   )
   :effects (
   (eqn (= (+ . ?Iw_z1-terms) ?Icw_z)
