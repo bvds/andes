@@ -277,7 +277,7 @@
 	 (point (string "You can use equation for the speed of a wave"))
 	 ;;(teach (string "The equation-of-speed-of-wave states that the speed of a wave is wavelength*frequency"))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v (* ?lambda ?freq)) algebra) ))
+			     ((= ?v (* ?lam ?freq)) algebra) ))
 	 ))
 
 ;; wave speeds of two things are identical
