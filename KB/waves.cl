@@ -186,6 +186,50 @@
 	 ))
 
 ;;;
+;;;  Hamonics of standing waves
+;;;  The allows one to do things in terms of either frequency or wavelength
+;;;
+
+
+(def-psmclass harmonic-of (harmonic-of ?wave1 ?mult ?quant)
+  :complexity minor
+  :english ("harmonic of a standing wave")
+  :eqnFormat ("fn = (n+1)*f0 or $ln = $l0/(n+1)"))
+
+(defoperator harmonic-of-contains (?sought)
+  :preconditions (
+		  (harmonic-of ?wave1 ?mult ?wave0)
+		  (any-member ?sought (
+				       (wavelength ?wave1)
+				       (frequency ?wave1)
+				      (wavelength ?wave0)
+				      (frequency ?wave0)))
+		  (bind ?form (first ?sought)) ;form is wavelength or frequency
+		  )
+  :effects ( (eqn-contains (harmonic-of ?wave1 ?wave0  ?form) ?sought)
+	     ))
+
+
+(defoperator write-harmonic-of (?wave1 ?wave0 ?quant)
+  :preconditions (
+		  (harmonic-of ?wave1 ?mult ?wave0) ;get ?mult		  
+		  (variable ?v1 (?quant ?wave1))
+		  (variable ?v2 (?quant ?wave0))
+		  (bind ?factor (if (eq ?quant 'frequency) 
+				    (+ 1 ?mult) `(/ 1 ,(+ 1 ?mult))))
+		  )
+   :effects ( (eqn (= ?v1 (* ?factor ?v2)) (harmonic-of ?wave1 ?wave0 ?quant)))
+   :hint (
+	  (point (string "~a is the ~:R harmonic of ~a"  ;prints as ordinal
+			 ?wave1 ?mult ?wave0)) 
+	  (teach (string "You can determine ~a of ~a from the ~a of ~a" 
+			 ?quant ?wave1 ?quant ?wave0)) 
+	  (bottom-out (string "Write the equation ~A" 
+			      ((= ?v1 (* ?factor ?v2)) algebra)))
+	  ))
+
+
+;;;
 ;;;   Wave speed, this is |phase velocity|
 ;;;
 
@@ -575,6 +619,13 @@
 			     ((= ?t (* 2 $p (sqrt (/ ?m ?k)))) algebra) ))
 	 ))
 
+;;; mass and spring have same period
+(defoperator oscillator-periods-equal-contains (?block ?rod)
+  :preconditions (
+		  (spring-contact ?block ?rod . ?dontcare)
+		  )
+  :effects ((equals (period ?block) (period ?rod))))
+
 ;;;  Frequency for simple pendulum
 ;;;  This is kind of lousy:  
 ;;;  Since it is not done as a true F=ma problem, it does not
@@ -618,6 +669,13 @@
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
 	 ))
+
+;;; Period of parts of pendulum are equal
+(defoperator pendulum-periods-equal-contains (?block ?rod)
+  :preconditions (
+		  (pendulum ?block ?rod)
+		  )
+  :effects ((equals (period ?block) (period ?rod))))
 
 ;;;
 ;;;  Doppler shift in one dimension.
@@ -693,5 +751,4 @@
 				  (* ?fs (/ (- ?vw (* ?vo (cos (- ?phi ?thetao)))) 
 					    (- ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
 	 ))
-
 

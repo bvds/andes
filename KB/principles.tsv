@@ -128,6 +128,21 @@ LEAF	do2 = d12 - di1         Combination of Lenses	lens-combo	Combined Lenses
 LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnification
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
 END_GROUP			
+GROUP	Waves and Oscillations		
+LEAF	k= 2*$p/$l	wavenumber-lambda-wave	
+LEAF	f=$w/(2*$p)	frequency-of-wave	
+LEAF	T=1/f	period-of-wave	
+LEAF	vw=$l*f              Speed of a wave	speed-of-wave	
+LEAF	vw1=vw2              All waves in a system have same speed	wave-speeds-equal	
+LEAF	vw1=vw2              Speed of pulse is wave speed	speed-equals-wave-speed	
+LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
+LEAF	vmax=A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
+LEAF	amax=A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
+LEAF	T=2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
+LEAF	T=2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
+LEAF	fo=fs*(1+vo/vw)/(1-vs/vw))   Frequency shift from doppler effect	doppler-frequency	
+LEAF	fn=(n+1)*f0 or $ln=$l0/(n+1) n-th harmonic	harmonic-of	
+END_GROUP			
 END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
@@ -244,18 +259,4 @@ LEAF	r = sqrt(r_x^2 + r_y^2) Position mag from components	rmag-pyth	Pythagorean 
 LEAF	r21_x = x2 - x1      Relative Position from coordinates	(rdiff ((axis . ?x)))	
 LEAF	r21_y = y2 - y1      Relative Position from coordinates	(rdiff ((axis . ?y)))	
 LEAF	A = $p*r^2           Area of a circle	area-of-circle	
-END_GROUP			
-GROUP	Waves and Oscillations		
-LEAF	k= 2*$p/$l	wavenumber-lambda-wave	
-LEAF	f=$w/(2*$p)	frequency-of-wave	
-LEAF	T=1/f	period-of-wave	
-LEAF	vw=$l*f              Speed of a wave	speed-of-wave	
-LEAF	vw1=vw2              All waves in a system have same speed	wave-speeds-equal	
-LEAF	vw1=vw2              Speed of pulse is wave speed	speed-equals-wave-speed	
-LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
-LEAF	vmax=A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
-LEAF	amax=A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
-LEAF	T=2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
-LEAF	T=2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo=fs*(1+vo/vw)/(1-vs/vw))   Frequency shift from doppler effect	doppler-frequency	
 END_GROUP			
