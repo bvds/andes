@@ -1421,25 +1421,27 @@
 
 (defoperator given-fraction-contains (?sought)
   :preconditions (
-   (in-wm (fraction-of ?q1 ?fraction ?q2))
-   (any-member ?sought (?q1 ?q2))
-  )
+		  ;; typically, this means fraction-of must be in
+		  ;; the givens when defining a problem
+		  (in-wm (fraction-of ?q1 ?fraction ?q2))
+		  (any-member ?sought (?q1 ?q2))
+		  )
   :effects ( (eqn-contains (given-fraction ?q1 ?q2) ?sought)
-  ))
+	     ))
 
 (defoperator given-fraction (?q1 ?q2)
-   :preconditions (
-   (in-wm (fraction-of ?q1 ?fraction ?q2))
-   (variable ?v1 ?q1)
-   (variable ?v2 ?q2)
-   (bind ?fracmult (if (> ?fraction 1) "multiple" "fraction"))
-   )
+  :preconditions (
+		  (in-wm (fraction-of ?q1 ?fraction ?q2))
+		  (variable ?v1 ?q1)
+		  (variable ?v2 ?q2)
+		  (bind ?fracmult (if (> ?fraction 1) "multiple" "fraction"))
+		  )
    :effects ( (eqn (= ?v1 (* ?fraction ?v2)) (given-fraction ?q1 ?q2)) )
    :hint (
-     (point (string "You can determine ~a as a ~a of ~a from the problem statement" ?q1 (?fracmult 'adj) ?q2)) ;declare as adjective in nlg.
-     (bottom-out (string "Write the equation ~A" 
-			 ((= ?v1 (* fraction ?v2)) algebra)))
-   ))
+	  (point (string "You can determine ~a as a ~a of ~a from the problem statement" ?q1 (?fracmult 'adj) ?q2)) ;declare as adjective in nlg.
+	  (bottom-out (string "Write the equation ~A" 
+			      ((= ?v1 (* fraction ?v2)) algebra)))
+	  ))
 
 ;;
 ;; Summing of time intervals: 

@@ -97,6 +97,8 @@
 				     (:file "Problems")
 				     (:file "waves")
 				     (:file "waves-problems")
+				     (:file "oscillations-problems") 
+				     ;;      ^ depends on "waves"
 ;;;;
 ;;;; The remaining files are just needed for the help system???
 ;;;;

@@ -42,7 +42,7 @@
 
  (defoperator wavenumber-lambda-wave-contains (?sought)
    :preconditions (
-		   (wave ?wave)
+		   (sinusoidal ?sought)
 		   (any-member ?sought ((wavelength ?wave)
 					(wavenumber ?wave))))
    :effects (
@@ -117,7 +117,9 @@
   :EqnFormat ("frequency = angular-frequency/(2*$p)")) 
 
 (defoperator frequency-of-wave-contains (?sought)
-  :preconditions ((any-member ?sought ( 
+  :preconditions (
+		  (sinusoidal ?sought)
+		  (any-member ?sought ( 
 				       (angular-frequency ?object)
 				       (frequency ?object))))
   :effects ((eqn-contains (frequency-of-wave ?object) ?sought)))
@@ -146,6 +148,7 @@
 
 (defoperator period-of-wave-contains (?sought)
   :preconditions (
+		  (sinusoidal ?sought)
 		  (any-member ?sought ( 
 				       (wave-period ?object)
 				       (frequency ?object))))
@@ -183,7 +186,8 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the |velocity| of ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?wave))))
 
-;;equation of the speed of the wave, speed = freq* wavelength
+;;; equation of the speed of the wave, speed = freq* wavelength
+;;; Only for sinusoidal waves (where freq & wavelength are well-defined)
 (def-psmclass speed-of-wave (speed-of-wave ?body)
   :complexity major ; must use explicitly 
   :english ("the equation of the speed of a wave")
@@ -192,6 +196,7 @@
 
 (defoperator speed-of-wave-contains (?sought)
   :preconditions (
+		  (sinusoidal ?object)
 		  (any-member ?sought ( 
 				       (wave-speed ?object)
 				       (wavelength ?object)
@@ -214,35 +219,41 @@
 	 (bottom-out (string "Write the equation ~A" 
 			     (= ?v (* ?lambda ?freq)) algebra) )))
 
-;; relate speed of wave to speed of wave during a time interval.
-(def-psmclass speed-of-wave-constant (speed-of-wave-constant ?body)
+;; relate wave speed to wave speed during a time interval.
+(def-psmclass wave-speeds-equal (wave-speeds-equal ?body)
   :complexity minor ; used implicitly 
-  :english ("of a wave is the same at any time")
-  :ExpFormat ("The speed of a wave is constant")
+  :english ("The speed of any wave is the same")
+  :ExpFormat ("The speed of any wave is the same")
   ) 
 
-(defoperator speed-of-wave-constant-contains (?sought)
+(defoperator wave-speeds-equal-contains (?sought)
   :preconditions (
+		  ;; only if defined this way in the problem
+		  (in-wm (same-wave-speed ?object ?rope))
 		  (any-member ?sought ( 
-				       (wave-speed ?object)
+				       (wave-speed ?rope)
 				       (at (speed ?object) ?t)
 				       (duration ?t)))
-		  (wave ?object)
 		  (time ?t))
   :effects (
-	    (eqn-contains (speed-of-wave-constant ?object ?t) 
+	    (eqn-contains (wave-speeds-equal-constant ?object ?t) 
 			  ?sought)))
 
-(defoperator speed-of-wave-constant (?object ?t)
+(defoperator wave-speeds-equal (?object ?t)
   :preconditions (
-		  (variable  ?v1  (wave-speed ?object))
+		  (in-wm (same-wave-speed ?object ?rope)) 
+		  (variable  ?v1  (wave-speed ?rope))
 		  (variable  ?v2  (at (speed ?object) ?t)))
   :effects (
 	    (eqn  (= ?v1 ?v2) 
-		  (speed-of-wave-constant ?object ?t) ))
-  ;; We shouldn't need any hints for this. 
-  ;; This rule should be invisible to the student.
+		  (wave-speeds-equal ?object ?t) ))
+     :hint (
+      (point (string "The velocity of any wave on a given string, rope, et cetera is the same."))
+      (point (string "If there are two waves on a string, then they have equal speeds."))
+      (bottom-out (string "Write the equation ~A" 
+                     ((= ?v1 ?v2) algebra) )))
   )
+
 
 ;;;;
 ;;;;  Wave speed for various objects   
@@ -286,7 +297,6 @@
 		  (light ?wave)
 		  (any-member ?sought ((wave-speed ?wave))))
   :effects (
-	    (wave ?wave)
 	    (eqn-contains (wave-speed-light ?wave) ?sought)))
 
 (defoperator wave-speed-light (?wave)
@@ -304,7 +314,7 @@
 
 ;;;
 ;;; Speed of transverse wave on a string
-;;; First, define the mass per length
+;;; First, define the mass per length and string tension (scalar)
 ;;;
 
 (def-qexp mass-per-length (mass-per-length ?rope)
@@ -321,22 +331,57 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the mass per unit length of ~A by using the Add Variable command on the Variable menu and selecting mass-per-length."  ?rope))))
 
+;; length of a string is constant
+(def-psmclass string-length-constant (string-length-constant ?body)
+  :complexity minor ; used implicitly 
+  :english ("The length of a string is constant")
+  :ExpFormat ("The length of a string is constant")
+  ) 
+
+(defoperator string-length-constant-contains (?sought)
+  :preconditions (
+		  (string ?rope)
+		  (object ?rope)
+		  (any-member ?sought ( 
+				       (length ?rope)
+				       (at (length ?rope) ?t)
+				       (duration ?t)))
+		  (time ?t))
+  :effects (
+	    (eqn-contains (string-length-constant ?rope ?t) 
+			  ?sought)))
+
+(defoperator string-length-constant (?rope ?t)
+  :preconditions (
+		  (variable  ?v1  (length ?rope))
+		  (variable  ?v2  (at (length ?rope) ?t)))
+  :effects (
+	    (eqn  (= ?v1 ?v2) 
+		  (string-length-constant ?rope ?t) ))
+     :hint (
+      (point (string "The length of a string is constant"))
+      (bottom-out (string "Write the equation ~A" 
+                     ((= ?v1 ?v2) algebra) )))
+  )
+
+
+
 ;;; mass per length = mass /length
 
-(def-psmclass mass-per-length-eqn (mass-per-length-eqn ?body ?)
+(def-psmclass mass-per-length-eqn (mass-per-length-eqn ?body)
   :complexity major
   :doc "mass per length = mass/length"
   :english ("mass per length = mass/length")
-  :expFormat ((strcat "applying mass per lenght = mass/length")
-              (nlg ?body) (nlg ?time))
+  :expFormat ("applying mass per length = mass/length")
   :EqnFormat ("mu = m/l"))
 
 (defoperator mass-per-length-eqn-contains (?quantity)
-  :preconditions
-  ((any-member ?quantity
-               ((mass-per-length ?b)
-                (distance ?b)
-                (mass ?b))))
+  :preconditions (
+		  (object ?b)
+		  (any-member ?quantity
+			      ((mass-per-length ?b)
+			       (distance ?b)
+			       (mass ?b))))
   :effects
   ((eqn-contains (mass-per-length-equation ?b) ?quantity)))
 
@@ -344,7 +389,7 @@
   :preconditions (
 		  (variable ?m (mass ?b))
 		  (variable ?l (distance ?b))
-		  (variable ?mu (duration ?t)))
+		  (variable ?mu (mass-per-length ?b)))
   :effects
   ((eqn (= ?mu (/ ?m ?l)) (mass-per-length-equation ?b)))
   :hint
@@ -353,43 +398,171 @@
    (bottom-out (string "Because ~a is mass per length, write ~a=~a/~a"
 		       ?mu ?mu ?m ?l))
    ))
-                                                                               
-;;; transverse wave speed for a string
+
+;;; tension of a rope.
+;;; In principle, this should be set to be equivalent to the
+;;; tension force applied to an object...
+
+(def-qexp string-tension (string-tension ?rope)
+  :units |kg/m|
+  :restrictions nonnegative 
+  :english ("the string-tension of ~A" (nlg ?rope))
+  :fromworkbench `(string-tension ,body))
+
+(defoperator define-string-tension (?rope)
+  :preconditions((bind ?lambda-var (format-sym "mu_~A" (body-name ?rope))))
+  :effects (
+	    (variable ?lambda-var (string-tension ?rope))
+	    (define-var (string-tension ?rope)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the mass per unit length of ~A by using the Add Variable command on the Variable menu and selecting string tension."  ?rope))))
+
+;;; speed of transverse waves on a string
 (def-psmclass wave-string-velocity (wave-string-velocity ?body)
-  :complexity major  ; must explicitly use
+  :complexity major			; must explicitly use
   :english ("relation between wavelength and wavenumber")
   :ExpFormat ("Applying the equation relating wavenumber and wavelength")
   :EqnFormat ("wavenumber*wavelength = 2*pi")) 
 
 
- (defoperator wave-string-velocity-contains (?sought)
-   :preconditions (
-		   (string ?wave)
-		   (any-member ?sought ((mass-per-length ?wave)
-					(mag (force ?wave tension))
-					(wave-speed ?wave)))
-   :effects (
-     (eqn-contains (wave-string-velocity ?wave ) ?sought))))
-
+(defoperator wave-string-velocity-contains (?sought)
+  :preconditions (
+		  (string ?wave)
+		  (any-member ?sought ((mass-per-length ?wave)
+				       (string-tension ?wave)
+				       (wave-speed ?wave)))
+		  :effects (
+			    (eqn-contains (wave-string-velocity ?wave ) ?sought))))
 
 (defoperator wave-string-velocity (?string)
+  :preconditions (
+		  (variable  ?mu  (mass-per-length ?string))
+		  (variable  ?v  (wave-speed ?string))
+		  (variable ?tension (mag(force ?string tension)))
+		  )
+  :effects (
+	    (eqn  (= (* ?v ?v)(/ ?tension ?mu))
+		  (wave-string-velocity ?string))
+	    )
+  :hint (
+	 (point (string "In your textbook, find a formula for transverse waves on a string."))
+	 ;;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?v (sqrt(/ ?tension ?mu)) 
+				 algebra))))))
+
+;;;; 
+;;;;   The amplitude of a wave and associated quantities
+;;;;   (usually, the amplitude is just given in a problem
+;;;;    and the student must identify the quantity.
+;;;;
+
+(def-qexp amplitude (amplitude ?wave)
+  :units |m|
+  :restrictions nonnegative 
+  :english ("the amplitude of ~A" (nlg ?wave))
+  :fromworkbench `(amplitude ,body))
+
+(defoperator define-amplitude (?wave)
+  :preconditions((bind ?lambda-var (format-sym "amp_~A" (body-name ?wave))))
+  :effects ((variable ?lambda-var (amplitude ?wave))
+	    (define-var (amplitude ?wave)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the amplitude of ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?wave))))
+
+;;; define maximum speed of transverse motion
+(def-qexp amplitude-max-speed (amplitude-max-speed ?wave)
+  :units |m|
+  :restrictions nonnegative 
+  :english ("the maximum speed of ~A" (nlg ?wave))
+  :fromworkbench `(amplitude-max-speed ,body))
+
+(defoperator define-amplitude-max-speed (?wave)
+  :preconditions((bind ?lambda-var (format-sym "amp_~A" (body-name ?wave))))
+  :effects ((variable ?lambda-var (amplitude-max-speed ?wave))
+	    (define-var (amplitude-max-speed ?wave)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the maximum speed of ~A by using the Add Variable command on the Variable menu and selecting maximum speed."  ?wave))))
+;;; Yuck!  In the real world, one would derive this...
+(def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?body)
+  :complexity major  ; must explicitly use
+  :english ("Formula for maximum speed of an oscillation")
+  :ExpFormat ("Applying formula for maximum speed of an oscillation")
+  :EqnFormat ("v_max=A $w")) 
+
+
+ (defoperator max-transverse-speed-wave-contains (?sought)
    :preconditions (
-       (variable  ?mu  (mass-per-length ?string))
-       (variable  ?v  (wave-speed ?string))
-       (variable ?tension (mag(force ?string tension)))
+		   (sinusoidal ?wave)
+		   (any-member ?sought ((amplitude-max-speed ?wave)
+					(amplitude ?wave)
+					(angular-frequency ?wave))))
+   :effects (
+     (eqn-contains (max-transverse-speed-wave ?wave ) ?sought)))
+
+
+(defoperator max-transverse-speed-wave (?wave)
+   :preconditions (
+       (variable  ?vmax  (amplitude-max-speed ?wave))
+       (variable  ?a  (amplitude ?wave))
+       (variable  ?w  (angular-frequency ?wave))
    )
    :effects (
-    (eqn  (= (* ?v ?v)(/ ?tension ?mu))
-                (wave-string-velocity ?string))
+    (eqn  (= ?vmax (* ?a ?w))  
+                (max-transverse-speed-wave ?wave))
    )
    :hint (
-      (point (string "In your textbook, find a formula for transverse waves on a string."))
+      (point (string "In your textbook, find a formula for the maximum speed of an oscillation"))
       ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?v (sqrt(/ ?tension ?mu)) 
-                       algebra))))))
+                     (= ?vmax (* ?a ?w)) 
+                       algebra))))
 
 
-;;;
-;;;  Harmonics of string
-;;;
+;;; define |maximum transverse accleration|
+(def-qexp amplitude-max-abs-acceleration (amplitude-max-abs-acceleration ?wave)
+  :units |m|
+  :restrictions nonnegative 
+  :english ("the |maximum acceleration of ~A|" (nlg ?wave))
+  :fromworkbench `(amplitude-max-abs-acceleration ,body))
+
+(defoperator define-amplitude-max-abs-acceleration (?wave)
+  :preconditions((bind ?lambda-var (format-sym "amp_~A" (body-name ?wave))))
+  :effects ((variable ?lambda-var (amplitude-max-abs-acceleration ?wave))
+	    (define-var (amplitude-max-abs-acceleration ?wave)))
+  :hint ((bottom-out 
+	  (string "Define a variable for |maximum acceleration of ~A| by using the Add Variable command on the Variable menu and selecting |maximum acceleration|."  ?wave))))
+
+;;; Yuck!  In the real world, one would derive this...
+(def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?body)
+  :complexity major  ; must explicitly use
+  :english ("Formula for |maximum acceleration| of an oscillation")
+  :ExpFormat ("Applying formula for |maximum acceleration| of an oscillation")
+  :EqnFormat ("v_max=A $w")) 
+
+ (defoperator max-transverse-abs-acceleration-wave-contains (?sought)
+   :preconditions (
+		   (sinusoidal ?wave)
+		   (any-member ?sought ((amplitude-max-abs-acceleration ?wave)
+					(amplitude ?wave)
+					(angular-frequency ?wave))))
+   :effects (
+     (eqn-contains (max-transverse-abs-acceleration-wave ?wave ) ?sought)))
+
+
+(defoperator max-transverse-abs-acceleration-wave (?wave)
+   :preconditions (
+       (variable  ?amax  (amplitude-max-abs-acceleration ?wave))
+       (variable  ?a  (amplitude ?wave))
+       (variable  ?w  (angular-frequency ?wave))
+   )
+   :effects (
+    (eqn  (= ?amax (* ?a ?w ?w))  
+                (max-transverse-abs-acceleration-wave ?wave))
+   )
+   :hint (
+      (point (string "In your textbook, find a formula for the maximum acceleration of an oscillation"))
+      ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
+      (bottom-out (string "Write the equation ~A" 
+                     (= ?amax (* ?a ?w ?w)) 
+                       algebra))))
