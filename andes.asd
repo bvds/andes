@@ -153,3 +153,11 @@
 
 (defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes))))
    "cl")
+
+;;;;
+;;;;  install command
+;;;;
+
+(defun rkb ()
+  "Reset the lists in KB and reload all files using asdf"
+  (asdf:operate 'asdf:load-op 'andes))
