@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; commands.lsp/cl -- Lisp functions handling API commands sent by the Andes 
 ;;  Workbench to the Help System.
 ;;
@@ -7,7 +7,7 @@
 ;; by delegating to worker functions in the relevant modules. This module 
 ;; also maintains the record of the current dialog state if any for use in 
 ;; responding to subsequent student input.
-;; Copyright (C) 2001 by ??????????????????????????????? -- All Rights Reserved.
+;; Copyright (C) 2001 by ?????????????????????????????? -- All Rights Reserved.
 ;; Author(s):
 ;;  unknown -- originators of code from Andes team
 ;;  Linwood H. Taylor (lht) <lht@lzri.com>
@@ -194,12 +194,11 @@
 ;; Help requests and generic entry management stuff is separated.
 ;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-object -- checks the correctness of a student defined single body
 ;; argument(s):
 ;;  label:  the label of the body
 ;;  name(s): the name the body(s) was assigned in the problem description
-;;  time: the time period specified for the system
 ;;  id: is assigned to this object by the work-bench
 ;; returns:
 ;;  entry status return value -- see end of code for description of this
@@ -207,17 +206,16 @@
 ;;  marks the corresponding system entry as "entered". defines a mass variable
 ;;  whose name has "m" concatenated to the given label. Enters into the symbol
 ;;  table this name paired with the system's name for the same quantity.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-object (label name &optional time id)
-  (handle-non-eq (on-assert-object label name time id)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun assert-object (label name &optional id)
+  (handle-non-eq (on-assert-object label name id)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
 ;;  pound body
 ;; argument(s):
 ;;  label: the label of the body
 ;;  name(s): the name the body(s) was assigned in the problem description
-;;  time: the time period specified for the system
 ;;  id: is assigned to this object by the work-bench
 ;; returns:
 ;;  entry status return value -- see end of code for description of this
@@ -225,11 +223,11 @@
 ;;  marks the corresponding system entry as "entered". defines a mass variable
 ;;  whose name has "m" concatenateded to the given label. Enters into the sym-
 ;;  bol table this name paired with the system's name for the same quantity.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-compound-object (label names &optional time id)
-  (handle-non-eq (on-assert-compound-object label names time id)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun assert-compound-object (label names &optional id)
+  (handle-non-eq (on-assert-compound-object label names id)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-vector -- check the correctness of a vector drawn by the student. May
 ;;  be any vector type except force
 ;; argument(s):
@@ -243,9 +241,9 @@
 ;;    tive number coding a z-axiz direction as follows (-1->out of plane; -2
 ;;    is into plane; -3 unknown but along z axis
 ;;  mag: magnitude of the vector or nil if unspecified
-;;  time: the time period during which the vector is constant. if nil and system
-;;    is a student defined system, the time will be taken from the system
-;;    definition
+;;  time: the time period during which the vector is constant. if nil and 
+;;    system is a student defined system, the time will be taken from 
+;;     the system definition
 ;;  id: id assigned to vector by the workbench
 ;; returns:
 ;;  entry status return value -- see end of code for description of this

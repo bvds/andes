@@ -450,7 +450,7 @@
 ;; effects, e.g. by calling symbols-delete-dependents to remove symbol
 ;; table entries dependent on the earlier entry contents.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-object -- checks the correctness of a student defined single body
 ;; argument(s):
 ;;  label:  the label of the body
@@ -458,52 +458,49 @@
 ;;  id: is assigned to this object by the work-bench
 ;; returns: StudentEntry
 ;; note(s):
-;;  Defines a mass variable whose name has "m" concatenated to the given label. 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-object (label name &optional time id)
+;;  Defines a mass variable whose name has "m" concatenated to the given label.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun on-assert-object (label name &optional id)
   (let* ((body-term (arg-to-body name))
 	 (action   `(body ,body-term))
 	 (entry     (make-StudentEntry :id id :prop action))
-	 ; this entry automatically defines a mass variable named m+label
-	 ; we build an implicit entry for this to mark it done as well.
+	 ;; this entry automatically defines a mass variable named m+label
+	 ;; we build an implicit entry for this to mark it done as well.
          (mass-label  (concatenate 'string "m" label))
 	 (mass-term `(mass ,body-term))
 	 (mass-var-entry (make-StudentEntry :id id 
 	                                    :prop `(define-var ,mass-term))))
 
-  ; associate implicit entry
+  ;; associate implicit entry
   (setf (StudentEntry-ImplicitEqn entry) mass-var-entry)
 
-  ; remove existing info and update
-  (add-entry entry)
+  (add-entry entry)   ;remove existing info and update
   (symbols-enter mass-label mass-term id)
-  ; for compound bodies, enter body label so it can be recognized when
-  ; referenced in subsequent quantity definitions for compound's attributes.
+  ;; for compound bodies, enter body label so it can be recognized when
+  ;; referenced in subsequent quantity definitions for compound's attributes.
   (when (compound-bodyp body-term)
   	(symbols-enter label body-term id))
+  entry))  ;finally return entry 
 
-  ; finally return entry 
-  entry))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
 ;;  pound body
 ;; argument(s):
 ;;  label: the label of the body
 ;;  name(s): list of names as symbols of simple bodies making up the compound. 
 ;; Each is KB name for that body.
-;;  time: the time period specified for the system
 ;;  id: is assigned to this object by the work-bench
 ;; returns: Studententry 
 ;; note(s):
-;;  Defines a mass variable whose name has "m" concatenated to the given label. 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-compound-object (label names &optional time id)
-      ; can just pass along to assert-object. arg-to-body knows how to make
-      ; compound body term out of list argument.
-      (on-assert-object label names time id))
+;;  Defines a mass variable whose name has "m" concatenated to the given label.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun on-assert-compound-object (label names &optional id)
+      ;; can just pass along to assert-object. arg-to-body knows how to make
+      ;; compound body term out of list argument.
+      (on-assert-object label names id))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-vector -- check the correctness of a vector drawn by the student. May
 ;;  be any vector type except force
 ;; argument(s):
@@ -517,36 +514,37 @@
 ;;    tive number coding a z-axiz direction as follows (-1->out of plane; -2
 ;;    is into plane; -3 unknown but along z axis
 ;;  mag: magnitude of the vector or nil if unspecified
-;;  time: the time period during which the vector is constant. if nil and system
-;;    is a student defined system, the time will be taken from the system
-;;    definition
+;;  time: the time period during which the vector is constant. 
+;;    if nil and system is a student defined system, the time will be 
+;;    taken from the system definition
 ;;  id: id assigned to vector by the workbench
 ;; returns: StudentEntry
 ;; note(s):
 ;;  if the vector is correct, the help system marks the corresponding system
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-lookup-vector (label avg-inst type system dir mag &optional time id)
  (let* ((vtype        (arg-to-id **vector-types** type))
         (body-term    (arg-to-body system))
         (time-term    (arg-to-time time))
-        ; avg-inst choice is redundant with time -- WB ensures consistency
-        ; However, for vector types with two arguments, arg carries the second body argument 
-	; also, field quant forms are odd in that it includes field type slot
+        ;; avg-inst choice is redundant with time -- WB ensures consistency
+	;; However, for vector types with two arguments, arg carries 
+	;; the second body argument 
+	;; also, field quant forms are odd in that it includes field type slot
         (vquant-term (cond 
 	               ((equal vtype 'E-field) 
-			    (if (null avg-inst) ; null agent => net-field
+			    (if (null avg-inst) ;null agent => net-field
 			          `(net-field ,body-term electric)
 		             `(field ,body-term electric ,(arg-to-body avg-inst))))
                         ((equal vtype 'B-field) 
-			    (if (null avg-inst) ; null agent => net-field
+			    (if (null avg-inst) ;null agent => net-field
 			          `(net-field ,body-term magnetic)
 		             `(field ,body-term magnetic ,(arg-to-body avg-inst))))
-	                 ; a two-body vector type:
+	                 ;; a two-body vector type:
 	                ((or (equal vtype 'relative-position) (equal vtype 'relative-vel))
 		           `(,vtype ,body-term ,(arg-to-body avg-inst)))
-		        ; else single body vector: 
+		        ;; else single body vector: 
 	                (T `(,vtype ,body-term))))
 	(dir-term     (arg-to-dir dir mag)))
 
