@@ -20,9 +20,11 @@
 ;			:description "Common Utilities"
 			:components ((:file "Htime")
 				     (:file "Unification")
-				     (:file "Utility")))	       
+				     (:file "Utility")))
+	       (:module "Solver_Release"
+			:components ((:file "solver")))
 	       (:module "Knowledge"
-			:depends-on ("Base")
+			:depends-on ("Base" "Solver_Release")
 			:components ((:file "eqn")         
 				     (:file "Nogood")    
 				     (:file "Operators")  
@@ -66,7 +68,49 @@
 				     (:file "SolutionPoint")
 				     (:file "GraphGenerator") 
 				     (:file "ProblemSolver")
-				     (:file "SolutionSets")))))
+				     (:file "SolutionSets")))
+#|	       	       (:module "Help"
+			:components ((:file "utilities")
+				     (:file "lrdc-errors")
+				     (:file "History")
+				     (:file "StudentFile")
+				     (:file "tell") ; tracing tool
+				     
+				     ;; Solution graph
+				     (:file "SolutionGraph")
+				     
+				     ;; Entry Intepreter: generic + non-eq
+				     (:file "symbols")
+				     (:file "State")
+				     (:file "clips-vars")
+				     (:file "Entry-API")
+				     
+				     ;; Equation parser/interpreter
+				     (:file "grammar")
+				     (:file "physics-algebra-rules")
+				     (:file "parse")
+				     (:file "pre2in")
+				     (:file "in2pre")
+				     (:file "parse-andes")
+				     (:file "interpret-equation")
+				     
+				     ;;  Help
+				     (:file "HelpMessages")
+				     (:file "whatswrong")
+				     (:file "NextStepHelp")
+				     (:file "IEA")
+				     (:file "nlg") ; Natural language.
+				     
+				     ;; Automatic statistics code.
+				     (:file "Statistics")
+				     
+				     ;; Top-level manager
+				     (:file "Interface") ; The interface api.
+				     (:file "Commands")
+				     (:file "API")
+				     (:file "Andes2-Main")))
+|#
+	       ))
 ;;;;
 ;;;;  make source file extension "cl"  See asdf manual
 ;;;;

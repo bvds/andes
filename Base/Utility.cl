@@ -323,14 +323,10 @@ consed on if lists or as list otherwize."
   (or (set-difference S1 S2 :test test)
       (set-difference S2 S1 :test test)))
 
-
-(defun subset (Object Sequence &key (test #'equal) (key #'nil))
+(defun subset (Object Sequence &key (test #'equal) key)
   "Like remove if not with an object test."
-    (if Key
-	(remove-if-not #'(lambda (x) (funcall test Object x)) Sequence :key key)
-      (remove-if-not #'(lambda (x) (funcall test Object x)) Sequence)))
-
-
+  (remove-if-not #'(lambda (x) (funcall test Object x)) Sequence :key key))
+  
 (defun set-split (filter set)
   "Split the set by filter."
   (let ((y) (n))

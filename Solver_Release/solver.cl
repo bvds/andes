@@ -164,20 +164,25 @@
 	  equation-redp
 	  ))
 |#
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defparameter *DLL-NAME* "Solver.dll") ; change this to alter name of dll
 
-(defun solver-initialize (&optional (filename nil))
-  (let ((path (if filename filename (andes-path *DLL-NAME*))))
+
+;; Set the path by os type.
+#+MSWINDOWS (defparameter *andes-path* "C:/Andes2/" "The base path for this system.")
+#+LINUX (defparameter *andes-path* "~/Andes2" "The base path for this system.")
+
+#+MSWINDOWS (defparameter *DLL-NAME* "Solver.dll") ;name of library
+#+LINUX (defparameter *DLL-NAME* "Solver.a")
+
+(defun solver-initialize ()
+  (let ((path (merge-pathnames *andes-path* *DLL-NAME*)))
     (unless (member *DLL-NAME* (ff:list-all-foreign-libraries) 
 		  :key #'file-namestring :test #'string-equal)
       (format T "~&Loading solver from ~A~%" path)
       (load path))))
 
-(defun solver-shutdown (&optional (filename nil))
-  (let ((path (if filename filename (andes-path *DLL-NAME*))))
+(defun solver-shutdown ()
+  (let ((path (merge-pathnames *andes-path* *DLL-NAME*)))
     (when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
 		  :key #'file-namestring :test #'string-equal)
        (format T "~&UnLoading solver from ~A~%" path)
@@ -507,7 +512,3 @@
 	 solver-studentIsIndependent
 	 solver-studentAddOkay))
 
-#|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-  end of file solver.cl
-  Copyright (C) 2001 by ????????????????????????????????? - All Rights Reserved.
-|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#
