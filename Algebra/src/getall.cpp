@@ -240,7 +240,7 @@ bool makepar(const string bufst, bool keep_algebraic)
 	  {
 	    numparams++;
 	    binopexp *eq = new binopexp(&equals,new physvarptr(k),
-					new numvalexp(pow(M_E,numparams)/M_PI));
+					new numvalexp(exp((double) numparams)/M_PI));
 	    paramasgn->push_back(eq);
 	    DBG ( cout << "variable |" << newvar << "| set param, no. "
 		  << numparams << endl
