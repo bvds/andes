@@ -11,7 +11,16 @@ CPPFLAGS += -DAW_POW_FIX -DAW_EXP -DSOLVER_EXPORTS -DUNITENABLE
 #
 CPPFLAGS += -DWITHDBG -DTRACE_OUTPUT
 #
+#  For OS X, do things a bit differently:
 #
+ifeq ($(shell uname),Darwin)
+SO	= dylib
+SHARED	= -dynamiclib
+else
+# standard case
+SO      = so
+SHARED  = -shared
+endif
 
 src_objects = Solver.o   \
                      equaleqs.o     justsolve.o      plussort.o \
@@ -41,9 +50,9 @@ src_objects = Solver.o   \
 algebra: $(src_objects) main.o
 	$(CXX) $(CPPFLAGS) -o algebra $(src_objects) main.o
 
-libSolver.so: $(src_objects) Makefile
-	$(CXX) -shared $(src_objects) -o libSolver.so && \
-	mv -f libSolver.so ../../ 
+libSolver.so libSolver: $(src_objects) Makefile
+	$(CXX) $(SHARED) $(src_objects) -o libSolver.$(SO) && \
+	mv -f libSolver.$(SO) ../../ 
 
 clean:
 	rm *.o

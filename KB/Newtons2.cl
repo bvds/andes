@@ -2726,20 +2726,19 @@
    (bottom-out (string "Because ~a is moving in a circle of radius ~a with velocity ~a, its acceleration is ~a = ~a^2/~a."  ?b (?radius-var algebra) (?vel-var algebra) (?accel-var algebra) (?vel-var algebra) (?radius-var algebra)))
    ))
 
-; define a variable for the revolution radius = radius of uniform circular
-; motion. Note no time on this quantity in the workbench; OK, all our
-; problems use the default time instant.
+;; define a variable for the revolution radius = radius of uniform circular
+;; motion. Note no time on this quantity in the workbench; OK, all our
+;; problems use the default time instant.
 (defoperator define-revolution-radius (?b ?t)
-  :preconditions (
-  	(object ?b)
-  	(time ?t)
-	(bind ?radius-var (format-sym "r_~A_~A" ?b (time-abbrev ?t)))
-  ) :effects (
-  	(variable ?radius-var (at (revolution-radius ?b) ?t))
-  	(define-var (at (revolution-radius ?b) ?t))
-  ) : hint (
-    (bottom-out (string "Use the Add Variable command to define a radius variable for ~A" ?b))
-  ))
+  :preconditions 
+  ((object ?b)
+   (time ?t)
+   (bind ?radius-var (format-sym "r_~A_~A" ?b (time-abbrev ?t)))) 
+  :effects 
+  ((variable ?radius-var (at (revolution-radius ?b) ?t))
+   (define-var (at (revolution-radius ?b) ?t))) 
+  :hint 
+  ((bottom-out (string "Use the Add Variable command to define a radius variable for ~A" ?b))))
 
 ; Can optionally introduce variable for revolution radius by using a tool
 ; to put a radius graphic on the diagram. This is a special purpose tool, 
