@@ -10,35 +10,12 @@
 //			13 March 2001 - lht -- adding independance functionality
 //////////////////////////////////////////////////////////////////////////////
 #ifdef WIN32
-  #ifndef _CONSOLE
-    #define WIN32_LEAN_AND_MEAN		// Exclude rare-used stuff from Windows headers
-    #include <windows.h> // Windows Header Files:
-  #endif // ndef _CONSOLE
+#include <windows.h> // Windows Header Files:
 #endif // def WIN32
 //////////////////////////////////////////////////////////////////////////////
 typedef unsigned char byte; // assumes 8 bits
 typedef unsigned short word; // assumes 16 bits
 typedef unsigned int uint; // assumes 32 bits
-
-//////////////////////////////////////////////////////////////////////////////
-#ifdef LRDC_DBG
-  #include <iostream>
-	using namespace std;
-	#define dLog(s) Log(s)
-	#define dLogn(s) Logn(s)
-  #define Log(s) std::cout << s
-  #define Logn(s) std::cout << s << std::endl
-#else // ifndef LRDC_DBG
-	#define dLog(s) s
-	#define dLogn(s) s
-  #define Log(s)
-  #define Logn(s)
-#endif // ndef LRDC_DBG
-
-#define odLog(s) s
-#define odLogn(s) s
-#define oLog(s)
-#define oLogn(s)
 
 //////////////////////////////////////////////////////////////////////////////
 // support for global declaration and definition -- LRDC_MAIN should be
