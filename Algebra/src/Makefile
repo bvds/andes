@@ -1,9 +1,11 @@
 #
 #  Make algebra routines and algebra lib
 #
+#  -fPIC is needed to make DLL to be used by Allegro
 CPPFLAGS = -Wall -fPIC
 #            * remove these *****
-CPPFLAGS += -DAW_POW_FIX -DAW_EXP -DSOLVER_EXPORTS -DUNITENABLE -DNO_DLL
+CPPFLAGS += -DAW_POW_FIX -DAW_EXP -DSOLVER_EXPORTS -DUNITENABLE 
+#                                                                -DNO_DLL
 #
 #  debug version flags
 #
@@ -11,7 +13,8 @@ CPPFLAGS += -DWITHDBG -DTRACE_OUTPUT
 #
 #
 
-src_objects =        equaleqs.o     justsolve.o      plussort.o \
+src_objects =  ../Solver/Solver.o   \
+                     equaleqs.o     justsolve.o      plussort.o \
 	checkeqs.o   expr.o                          polysolve.o \
 	checksol.o   exprp.o                         powonev.o \
 	             factorout.o                     purelin.o \
@@ -32,18 +35,18 @@ src_objects =        equaleqs.o     justsolve.o      plussort.o \
 	dopurelin.o  indysgg.o      parseeqwunits.o  valander.o \
 	dotrig.o     interact.o     parseunit.o\
 	eqnokay.o    ispos.o        physconsts.o \
-	eqnumsimp.o  justonev.o     physvar.o  ../Solver/Solver.o
+	eqnumsimp.o  justonev.o     physvar.o 
 
 
 algebra: $(src_objects) main.o
 	$(CXX) $(CFLAGS) -o algebra $(src_objects) main.o
 
 libSolver.so: $(src_objects) Makefile
-	$(CC) -shared $(CFLAGS) $(src_objects) -lc -o libSolver.so && \
+	$(CXX) -shared $(src_objects) -o libSolver.so && \
 	mv -f libSolver.so ../../ 
 
 clean:
-	rm *.o
+	rm *.o ../Solver/*.o
 #
 # The following was generated from:  gcc -MM -MG *.cpp
 #
@@ -174,3 +177,5 @@ eqnumsimp.o: eqnumsimp.cpp decl.h expr.h dimens.h extoper.h dbg.h \
   standard.h mconst.h
 justonev.o: justonev.cpp decl.h expr.h dimens.h
 physvar.o: physvar.cpp decl.h expr.h dimens.h dbg.h standard.h
+../Solver/Solver.o: ../Solver/Solver.cpp ../Solver/Solver.h \
+  ../Solver/lrdcstd.h ../src/indysgg.h ../src/dbg.h ../src/standard.h

@@ -44,8 +44,8 @@ int main(int argc, char* argv[]) {
 // BvdS: what is this???
 //#include "XSolver.log"
 // 
- LOGn("<only thing left is to closeupshop>");
- // closeupshop();
- LOGn("< closed up shop>");
+  LOGn("<only thing left is to closeupshop>");
+  closeupshop();
+  LOGn("< closed up shop>");
   return 0;
 }

@@ -9,29 +9,27 @@
 //        19 February 2001 - lht -- modified for additional functionality
 //    26 April 2001 - JaS -- replaced isIndependent and Expand functions
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#ifndef NO_DLL
-  #ifdef SOLVER_EXPORTS
-          #ifdef __cplusplus
-                  #define SOLVER_API extern "C" __declspec(dllexport)
-          #else // ifndef __cplusplus
-                  #define SOLVER_API __declspec(dllexport)
-          #endif // ndef __cplusplus
-  #else
-          #ifdef __cplusplus
-                  #define SOLVER_API extern "C" __declspec(dllimport)
-          #else // ifndef __cplusplus
-                  #define SOLVER_API __declspec(dllimport)
-          #endif // ndef __cplusplus
-  #endif
-#else // def NO_DLL
-  #define SOLVER_API
-#endif // def NO_DLL
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef _WINDOWS
+#ifdef SOLVER_EXPORTS
+#define DECLSPEC_DLL __declspec(dllexport)
+#else
+#define DECLSPEC_DLL __declspec(dllimport)
+#endif
+#else  // non-windows case
+#define DECLSPEC_DLL
+#endif
+
+#ifdef __cplusplus
+#define SOLVER_API extern "C"
+#else 
+#define SOLVER_API
+#endif 
+
 // defines that just make code easier to read
-/////////////////////////////////////////////////////////////////////////////////////////////////
-#define RETURN_INT SOLVER_API int
-#define RETURN_CSTRING SOLVER_API char*
+
+#define RETURN_INT SOLVER_API DECLSPEC_DLL int
+#define RETURN_CSTRING SOLVER_API DECLSPEC_DLL char*
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // following pragma disable MSVC++ warning about truncating long var in debug
