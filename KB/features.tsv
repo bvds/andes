@@ -3,7 +3,7 @@ statics	mass;angle;coef-friction;duration;
 dynamics	mass;angle;coef-friction;duration;
 circular	mass;radius;period;duration;angle
 energy	mass;duration;work;power;energy;compression;spring-constant;height;
-work	work;power;duration;
+work	work;power;duration
 linmom	energy;duration;
 rotkin	mass;radius;period;duration;angle;moment-of-inertia;length;width;
 angmom	mass;radius;period;duration;angle;moment-of-inertia;length;width;
@@ -12,5 +12,5 @@ circuits	electric-power;current;voltage;resistance;capacitance;charge;stored-ene
 E&M	charge;potential;duration;
 optics	object-distance;image-distance;focal-length;magnification;radius-of-curvature;lens-distance;
 fluids	mass;duration;height;mass-density;pressure;area-at;area;radius-of-circle;volume;
-waves	distance;speed;duration;mass;length;mass-per-length;wavelength;wavenumber;period;frequency;angular-frequency;wave-speed;speed-of-light;string-tension
+waves	distance;speed;duration;mass;length;mass-per-length;wavelength;wavenumber;period;frequency;angular-frequency;wave-speed;speed-of-light;string-tension;intensity;db-intensity;power
 oscillations	mass;length;spring-constant;wavelength;wavenumber;period;frequency;angular-frequency;amplitude;amplitude-max-speed;amplitude-max-abs-acceleration
