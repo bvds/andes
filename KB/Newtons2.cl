@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Newtons2 -- Andes2 Physics problem solving operators
 ;;
@@ -6376,42 +6376,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write ~a" ((= ?PE-var (* ?m-var ?g-var ?h-var)) algebra)))
    ))
 
-#| ; want to give this versoin a different equation id from the mgh version
-   ; so that it is a different choice on the equation menu.
-   ; But also need it to function as a way of writing equation
-   ; for grav-energy in large-scale gravitation case. Need to change
-   ; the way write-total-energy gets from set of energy-quants to
-   ; writing sub-equations for those quants. This would not be an issue
-   ; if we broke out 
-(defoperator write-grav-energy-large (?body ?planet ?t)
-  :preconditions (
-  (gravity ?body ?planet)
-  (variable ?UG (at (grav-energy ?body ?planet) ?t))
-  (variable ?m1  (mass ?body))
-  (variable ?m2  (mass ?planet))
-  (center-of ?body ?c1)
-  (center-of ?planet ?c2)
-  (variable ?r  (at (mag (relative-position ?c1 ?c2)) ?t))
-  (variable ?G  (grav-constant))
-  )
-  :effects (
-      (eqn (= ?UG (/ (* ?G ?m1 ?m2) r)) (grav-energy ?body ?planet ?t))
-  )
-  :hint (
-   (point (string "Try writing an equation for gravitational potential energy of ~a ~a" (?body def-np) (?t pp)))
-   (teach (string "The gravitational potential energy of a body at a large distance from a planet is G*m1*m2/r, the product of the the gravitational constant, the mass of the body and the mass of the planet, divided by the body's distance from the center of the planet."))
-   (bottom-out (string "Write the equation ~a" ((= ?UG (/ (* ?G ?m1 ?m2) r)) algebra)))
-   ))
-|#
 
-; equation PE_spring = 1/2 * k * d^2 
-; where k = spring const, d = compression distance.
-; This only applies if spring in contact with object with non-zero compression, as
-; given in the spring-contact statement. We allow spring-contact to be asserted 
-; even when spring is uncompressed so that the general equation for spring PE is
-; used even when d=0 -- but could have special case to just write Us=0 in this case.
-; !!! PE-var should include slot for the spring in definition, but this
-; would block use in write-null-spring-energy below.
+;;; equation PE_spring = 1/2 * k * d^2 
+;;; where k = spring const, d = compression distance.
+;;; This only applies if spring in contact with object with non-zero compression, as
+;;; given in the spring-contact statement. We allow spring-contact to be asserted 
+;;; even when spring is uncompressed so that the general equation for spring PE is
+;;; used even when d=0 -- but could have special case to just write Us=0 in this case.
+;;; !!! PE-var should include slot for the spring in definition, but this
+;;; would block use in write-null-spring-energy below.
 (defoperator write-spring-energy (?body ?spring ?t)
   :preconditions (
   (spring-contact ?body ?spring ?t-contact ?sforce-dir)
@@ -6430,238 +6403,241 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bottom-out (string "Write ~a" ((= ?PE-var (* 0.5 ?k-var (^ ?d-var 2))) algebra)))
   ))
 	 
-; equation PE_spring = 0 for case where spring in problem but not in contact 
-; !!! PE-var should include slot for spring, but then quantity can't be 
-; introduced and stated to be zero if no spring exists or body not in contact 
-; with a spring. In fact this is true in Andes interface.
+;;; equation PE_spring = 0 for case where spring in problem but not in contact 
+;;; !!! PE-var should include slot for spring, but then quantity can't be 
+;;; introduced and stated to be zero if no spring exists or body not in contact
+;;; with a spring. In fact this is true in Andes interface.
 (defoperator write-null-spring-energy (?b ?spring ?t)
- :preconditions (
- ; must be spring-contact at some time in problem:
-  (spring-contact ?body ?spring ?sometime ?dontcare)
- ; but must NOT be spring-contact at time we are called for
-  (not (spring-contact ?body ?spring ?t-contact ?s-force-dir) 
-       (tinsidep ?t ?t-contact))
-  (variable ?PE-var (at (spring-energy ?body ?spring) ?t))
-  )
+  :preconditions (
+		  ;; must be spring-contact at some time in problem:
+		  (spring-contact ?body ?spring ?sometime ?dontcare)
+		  ;; but must NOT be spring-contact at time we are called for
+		  (not (spring-contact ?body ?spring ?t-contact ?s-force-dir) 
+		       (tinsidep ?t ?t-contact))
+		  (variable ?PE-var (at (spring-energy ?body ?spring) ?t))
+		  )
   :effects (
-  (eqn (= ?PE-var 0) (spring-energy ?b ?spring ?t))
-  )
+	    (eqn (= ?PE-var 0) (spring-energy ?b ?spring ?t))
+	    )
   :hint (
-  (point (string "Notice that ~A is not in contact with a spring ~A 
+	 (point (string "Notice that ~A is not in contact with a spring ~A 
 that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
-  (bottom-out (string "Write ~A" ((= ?PE-var 0) algebra)))
-  ))
+	 (bottom-out (string "Write ~A" ((= ?PE-var 0) algebra)))
+	 ))
 
-; ops to define variables for energy quantities:
+;;; ops to define variables for energy quantities:
 (defoperator define-total-energy (?b ?t)
- :preconditions (
- (object ?b)
- (bind ?TE-var (format-sym "TE_~A_~A" ?b (time-abbrev ?t)))
- ) 
- :effects ( 
-  (define-var (at (total-energy ?b) ?t))
-  (variable ?TE-var (at (total-energy ?b) ?t))
-  )
- :hint (
-  (bottom-out (string "Define a variable for total mechanical energy by using the Add Variable command on the Variable menu and selecting Energy."))
-  ))
+  :preconditions (
+		  (object ?b)
+		  (bind ?TE-var (format-sym "TE_~A_~A" ?b (time-abbrev ?t)))
+		  ) 
+  :effects ( 
+	    (define-var (at (total-energy ?b) ?t))
+	       (variable ?TE-var (at (total-energy ?b) ?t))
+	       )
+  :hint (
+	 (bottom-out (string "Define a variable for total mechanical energy by using the Add Variable command on the Variable menu and selecting Energy."))
+	 ))
 (defoperator define-kinetic-energy (?b ?t)
- :preconditions (
- (object ?b)
- (bind ?ke-var (format-sym "KE_~A_~A" ?b (time-abbrev ?t)))
- ) 
- :effects ( 
-  (define-var (at (kinetic-energy ?b) ?t))
-  (variable ?ke-var (at (kinetic-energy ?b) ?t))
-  )
- :hint (
-	(bottom-out (string "Define a variable for kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
-	))
+  :preconditions (
+		  (object ?b)
+		  (bind ?ke-var (format-sym "KE_~A_~A" ?b (time-abbrev ?t)))
+		  ) 
+  :effects ( 
+	    (define-var (at (kinetic-energy ?b) ?t))
+	       (variable ?ke-var (at (kinetic-energy ?b) ?t))
+	       )
+  :hint (
+	 (bottom-out (string "Define a variable for kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
+	 ))
+
 (defoperator define-grav-energy (?b ?planet ?t)
  :preconditions (
- (object ?b)
- (bind ?ge-var (format-sym "Ug_~A_~A" ?b (time-abbrev ?t)))
- ) 
+		 (object ?b)
+		 (bind ?ge-var (format-sym "Ug_~A_~A" ?b (time-abbrev ?t)))
+		 ) 
  :effects ( 
- (define-var (at (grav-energy ?b ?planet) ?t)) 
- (variable ?ge-var (at (grav-energy ?b ?planet) ?t)) 
-  )
+	   (define-var (at (grav-energy ?b ?planet) ?t)) 
+	      (variable ?ge-var (at (grav-energy ?b ?planet) ?t)) 
+	      )
  :hint (
-	 (bottom-out (string "Define a variable for gravitational potential energy by selecting Energy from the Variables menu on the top menu bar."))
-       ))
+	(bottom-out (string "Define a variable for gravitational potential energy by selecting Energy from the Variables menu on the top menu bar."))
+	))
+
 (defoperator define-spring-energy (?b ?spring ?t)
- :preconditions ( 
-   (object ?b)
-   (bind ?se-var (format-sym "Us_~A_~A" ?b (time-abbrev ?t)))
- ) 
- :effects ( 
-   (define-var (at (spring-energy ?b ?spring) ?t))
-   (variable ?se-var (at (spring-energy ?b ?spring) ?t))
-   )
- :hint (
-	(bottom-out (string "Define a variable for elastic potential energy by selecting Energy from the Variables menu on the top menu bar."))
-	))
+  :preconditions ( 
+		  (object ?b)
+		  (bind ?se-var (format-sym "Us_~A_~A" ?b (time-abbrev ?t)))
+		  ) 
+  :effects ( 
+	    (define-var (at (spring-energy ?b ?spring) ?t))
+	       (variable ?se-var (at (spring-energy ?b ?spring) ?t))
+	       )
+  :hint (
+	 (bottom-out (string "Define a variable for elastic potential energy by selecting Energy from the Variables menu on the top menu bar."))
+	 ))
 (defoperator define-height (?b ?t)
- :preconditions ( 
-   (object ?b)
-   (bind ?h-var (format-sym "h_~A_~A" ?b (time-abbrev ?t)))
- ) 
- :effects ( 
-  (define-var (at (height ?b) ?t))
-  (variable ?h-var  (at (height ?b) ?t))
-   )
- :hint (
-	(bottom-out (string "Define a height variable using the Variables menu on the top menu bar."))
-	))
+  :preconditions ( 
+		  (object ?b)
+		  (bind ?h-var (format-sym "h_~A_~A" ?b (time-abbrev ?t)))
+		  ) 
+  :effects ( 
+	    (define-var (at (height ?b) ?t))
+	       (variable ?h-var  (at (height ?b) ?t))
+	       )
+  :hint (
+	 (bottom-out (string "Define a height variable using the Variables menu on the top menu bar."))
+	 ))
+
 (defoperator define-spring-constant (?spring)
- :preconditions ( 
-   (bind ?k-var (format-sym "k_~A" ?spring))
- ) 
- :effects ( 
-  (define-var (spring-constant ?spring))
-  (variable ?k-var  (spring-constant ?spring))
-  )
- :hint (
+  :preconditions ( 
+		  (bind ?k-var (format-sym "k_~A" ?spring))
+		  ) 
+  :effects ( 
+	    (define-var (spring-constant ?spring))
+	       (variable ?k-var  (spring-constant ?spring))
+	       )
+  :hint (
 	 (bottom-out (string "Define a spring constant variable using the Variables menu on the top menu bar."))
-	))
+	 ))
+
 (defoperator define-compression (?spring ?t)
- :preconditions ( 
-   (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t)))
- ) 
- :effects (
-  (define-var (at (compression ?spring) ?t))
-  (variable ?d-var  (at (compression ?spring) ?t))
-  )
- :hint (
-	(bottom-out (string "Define a variable for the compression of the spring using the Variables menu on the top menu bar."))
-	))
+  :preconditions ( 
+		  (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t)))
+		  ) 
+  :effects (
+	    (define-var (at (compression ?spring) ?t))
+	       (variable ?d-var  (at (compression ?spring) ?t))
+	       )
+  :hint (
+	 (bottom-out (string "Define a variable for the compression of the spring using the Variables menu on the top menu bar."))
+	 ))
 
 
 (defoperator define-extension (?spring ?t)
- :preconditions ( 
-   (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t)))
- ) 
- :effects (
-  (define-var (at (extension ?spring) ?t))
-  (variable ?d-var  (at (extension ?spring) ?t))
-  )
+  :preconditions ( 
+		  (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t)))
+		  ) 
+  :effects (
+	    (define-var (at (extension ?spring) ?t))
+	       (variable ?d-var  (at (extension ?spring) ?t))
+	       )
  :hint (
 	(bottom-out (string "Define a variable for the extension of the spring using the Variables menu on the top menu bar."))
 	))
 
-; Change in height is y component of displacement 
-; We code this as a vector equation so that the projection equation will 
-; automatically be packed into the method. However, it is not really true
-; that it is a vector equation which could be projected along x or y axes.
-;
-; Also, the generic code that chooses axis to apply along (e.g. 
-; select-compo-eqn-for-scalar) would prevent this from ever being used to get 
-; that change in height is zero in case of horizontal displacement. The reason 
-; is that that code will not select a vector equation along the y axis if the 
-; vector points along the x axis, to prevent writing degenerate equations that 
-; can't be used to solve for the scalar when zero projections are used. 
-;
-; For those reasons we post a compo-eqn-selected result -- see below.
+;;; Change in height is y component of displacement 
+;;; We code this as a vector equation so that the projection equation will 
+;;; automatically be packed into the method. However, it is not really true
+;;; that it is a vector equation which could be projected along x or y axes.
+;;;
+;;; Also, the generic code that chooses axis to apply along (e.g. 
+;;; select-compo-eqn-for-scalar) would prevent this from ever being used to get 
+;;; that change in height is zero in case of horizontal displacement. The reason 
+;;; is that that code will not select a vector equation along the y axis if the 
+;;; vector points along the x axis, to prevent writing degenerate equations that 
+;;; can't be used to solve for the scalar when zero projections are used. 
+;;;
+;;; For those reasons we post a compo-eqn-selected result -- see below.
 (defoperator height-dy-contains (?quantity)
-   :preconditions (
-   (any-member ?quantity (
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
-		 (at (height ?b) ?t1)
-		 (at (height ?b) ?t2)
-		 ))
-   (time ?t1)
+  :preconditions (
+		  (any-member ?quantity (
+					 (at (mag (displacement ?b)) (during ?t1 ?t2))
+					 (at (dir (displacement ?b)) (during ?t1 ?t2))
+					 (at (height ?b) ?t1)
+					 (at (height ?b) ?t2)
+					 ))
+		  (time ?t1)
    (time ?t2)
    )
-   :effects (
-    (vector-psm-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
-    ; since we know which compo-eqn we'll be using, we can select
-    ; it now, rather than requiring further operators to do so
-    ; We also select the axis, normally done by select-compo-eqn* ops
-    (compo-eqn-selected (height-dy ?b (during ?t1 ?t2)) ?quantity 
-        (compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))))
-    ; post this to make sure we will use standard axes
-    (use-energy-axes)
-   ))
+  :effects (
+	    (vector-psm-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
+	    ;; since we know which compo-eqn we'll be using, we can select
+	    ;; it now, rather than requiring further operators to do so
+	    ;; We also select the axis, normally done by select-compo-eqn* ops
+	    (compo-eqn-selected (height-dy ?b (during ?t1 ?t2)) ?quantity 
+				(compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))))
+	    ;; post this to make sure we will use standard axes
+	    (use-energy-axes)
+	    ))
 
 (defoperator draw-height-dy-diagram (?b ?t)
   :preconditions (
-   (body ?b ?t)
-   (vector ?b (at (displacement ?b) ?t) ?dir)
-   ; Must use standard axes for this. We put this before drawing displacement
-   ; so don't get vector-aligned axes from existing operators.  !!! OP Hint is
-   ; bad, though, doesn't explain why need standard axes in this case.
-   (energy-axes ?b ?t)
-  )
+		  (body ?b ?t)
+		  (vector ?b (at (displacement ?b) ?t) ?dir)
+		  ;; Must use standard axes for this. We put this before drawing displacement
+		  ;; so don't get vector-aligned axes from existing operators.  !!! OP Hint is
+		  ;; bad, though, doesn't explain why need standard axes in this case.
+		  (energy-axes ?b ?t)
+		  )
   :effects (
-   (vector-diagram (height-dy ?b ?t))
-  ))
+	    (vector-diagram (height-dy ?b ?t))
+	    ))
 
 (defoperator draw-energy-axes ()
   :preconditions ( 
-	; only use this if have chosen energy method
-  	(in-wm (use-energy-axes)) 
-  )
+		  ;; only use this if have chosen energy method
+		  (in-wm (use-energy-axes)) 
+		  )
   :effects (
-   (draw-axes ?b ?t 0) ; action proposition for help system gives x dir
-   (axis-for ?b ?t x 0)
-   (axis-for ?b ?t y 90)
-   (assume axis-for ?b ?t x 0)
-   (assume axis-for ?b ?t y 90)
-   (energy-axes ?b ?t)
-  )
+	    (draw-axes ?b ?t 0)		; action proposition for help system gives x dir
+	    (axis-for ?b ?t x 0)
+	    (axis-for ?b ?t y 90)
+	    (assume axis-for ?b ?t x 0)
+	    (assume axis-for ?b ?t y 90)
+	    (energy-axes ?b ?t)
+	    )
   :hint (
-   (point (string "Can you think of a good direction to set the coordinate axes?"))
-   (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because that is the vertical component of the displacement, you should use standard horizontal-vertical coordinate axes."))
-   (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
-  ))
+	 (point (string "Can you think of a good direction to set the coordinate axes?"))
+	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because that is the vertical component of the displacement, you should use standard horizontal-vertical coordinate axes."))
+	 (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
+	 ))
 
 (defoperator write-height-dy-compo (?b ?t1 ?t2)
   :preconditions (
-    (variable ?h2 (at (height ?b) ?t2))
-    (variable ?h1 (at (height ?b) ?t1))
-    (variable ?d12_y  (at (compo y 90 (displacement ?b)) (during ?t1 ?t2)))
-  )
+		  (variable ?h2 (at (height ?b) ?t2))
+		  (variable ?h1 (at (height ?b) ?t1))
+		  (variable ?d12_y  (at (compo y 90 (displacement ?b)) (during ?t1 ?t2)))
+		  )
   :effects (
-    (eqn (= (- ?h2 ?h1) ?d12_y)
-	        (compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))) 
-                (?d12_y))
-  )
+	    (eqn (= (- ?h2 ?h1) ?d12_y)
+		 (compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))))
+	    (eqn-compos (compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))) 
+			(?d12_y))
+	    )
   :hint (
-    (point (string "You should relate the change in height of ~A ~A to the displacement during that period." 
-                   ?b ((during ?t1 ?t2) pp)))
-    (teach (string "The change in height will be equal to the vertical component of the displacement."))
-    (bottom-out (string "Write the equation ~A" ((= (- ?h2 ?h1) ?d12_y) algebra)))
-  ))
+	 (point (string "You should relate the change in height of ~A ~A to the displacement during that period." 
+			?b ((during ?t1 ?t2) pp)))
+	 (teach (string "The change in height will be equal to the vertical component of the displacement."))
+	 (bottom-out (string "Write the equation ~A" ((= (- ?h2 ?h1) ?d12_y) algebra)))
+	 ))
 
-;;=============================================================================
-;; Work
-;;
-;; Note (use-work) is required in problem statement to enable work and
-;; work-energy principles to be applied. This is to suppress generating 
-;; these entries on earlier problems. 
-;; This should be replaced by use of a more general facility to specify which
-;; principles may be used when it is implemented at the bubble graph level
-;;=============================================================================
+;;;============================================================================
+;;; Work
+;;;
+;;; Note (use-work) is required in problem statement to enable work and
+;;; work-energy principles to be applied. This is to suppress generating 
+;;; these entries on earlier problems. 
+;;; This should be replaced by use of a more general facility to specify which
+;;; principles may be used when it is implemented at the bubble graph level
+;;;============================================================================
+;;; Work is defined in terms of a force, but following the idiom used in verbal
+;;; problem descriptions, our quantity specifies work done by *agent* of force.
+;;; Note: this requires there to be a unique force done by a given agent, so 
+;;; couldn't handle work done by friction and normal force from floor
 
-; Work is defined in terms of a force, but following the idiom used in verbal
-; problem descriptions, our quantity specifies work done by *agent* of force.
-; Note: this requires there to be a unique force done by a given agent, so 
-; couldn't handle work done by friction and normal force from floor
-
-; The "work" scalar equation psm computes work done by a single force over 
-; a time interval as F * d * cos(theta) where theta is angle between F and d.
-; We use a variant operator to write work = 0 for forces known to be orthogonal
-; to the displacement. 
-;
-; Note: if coordinate axes are drawn this quantity can also be computed 
-; component-wise as F_x * d_x + F_y * d_y. We will have to define another psm 
-; to calculate the work done by a single force in this way.
-;
-; ! This only applies if the force is constant over the interval. That is
-; true of almost all forces in Andes problems except the force from a
-; compressed spring. But we don't test against that here.
+;;; The "work" scalar equation psm computes work done by a single force over 
+;;; a time interval as F * d * cos(theta) where theta is angle between F and d.
+;;; We use a variant operator to write work = 0 for forces known to be 
+;;; orthogonal to the displacement. 
+;;;
+;;; Note: if coordinate axes are drawn this quantity can also be computed 
+;;; component-wise as F_x * d_x + F_y * d_y. We will have to define another 
+;;; psm to calculate the work done by a single force in this way.
+;;;
+;;; ! This only applies if the force is constant over the interval. That is
+;;; true of almost all forces in Andes problems except the force from a
+;;; compressed spring. But we don't test against that here.
 (defoperator work-contains (?sought)
  :preconditions (
     (in-wm (use-work))
@@ -6670,19 +6646,19 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                   (at (mag (force ?b ?agent ?type)) ?t)
 		  (angle-between (at (displacement ?b) ?t)
 		                 (at (force ?b ?agent ?type) ?t))
-		  ; For now, can't use this to seek displacement, since this
-		  ; quantity doesn't bind force agent.  Could pick any one, 
-		  ; but can't use (object ?agent) since agents need only be
-		  ; implicitly declared (may change). Would have to look at 
-		  ; all force-determining interaction descriptions to choose. 
-		  ; Rare anyway to be given work and force and asked to compute 
-		  ; displacement, though could be done.
-                  ; (at (mag (displacement ?b)) ?t)
+		  ;; For now, can't use this to seek displacement, since this
+		  ;; quantity doesn't bind force agent.  Could pick any one, 
+		  ;; but can't use (object ?agent) since agents need only be
+		  ;; implicitly declared (may change). Would have to look at 
+		  ;; all force-determining interaction descriptions to choose. 
+		  ;; Rare anyway to be given work and force and asked to compute 
+		  ;; displacement, though could be done.
+                  ;; (at (mag (displacement ?b)) ?t)
     			))
     (object ?b)
     (time ?t)
     (test (time-intervalp ?t))
-    ; will require that ?agent exerts force on ?body when writing equation
+    ;; will require that ?agent exerts force on ?body when writing equation
  )
  :effects (
     (eqn-contains (work ?b ?agent ?t) ?sought)
