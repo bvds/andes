@@ -552,34 +552,7 @@
 	 (format nil "Define ~a for ~a instead of ~a."
 		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))
 
-
-#| ; Workbench+Entry-API handler no longer form PE quants so this happens:
-
-;;; If the student defines a potential energy and one of the bodies is
-;;; a planet, then the workbench put the non-planet body in as the
-;;; argument of (at (grav-energy <body>) <time).  Else if one of the
-;;; bodies is a spring, it puts the non-spring in the argument of (at
-;;; (spring-energy <body>) <time>).  When neither is a planet nor a
-;;; spring, then it puts (at (grav-energy (<body1> <body2>)) <time>)
-;;; in the entry prop.  Currently, the only planet the workbench knows
-;;; about is earth, which suffices for the energy problems.
-(def-error-class potential-energy-without-planet-or-spring (?sbody1 ?sbody2)
-  ((student (define-var (at (grav-energy (?sbody1 ?sbody2)) ?stime)))))
-
-(defun potential-energy-without-planet-or-spring (sbody1 sbody2)
-  (make-hint-seq
-   (list (format nil (strcat "Neither ~a nor ~a are planets, so "
-			     "there will be neglible gravitational "
-			     "potential energy due to their interaction.  "
-			     "Neither of them are springs, so there will "
-			     "be no spring potential energy due to their "
-			     "interaction.  You probably meant to choose "
-			     "a different pair of objects.")
-		 (nlg sbody1 'def-np) (nlg sbody2 'def-np)))))
-
-|# ; end comment-out potential-energy-without-planet-or-spring
-
-; if they get the order of body and agent wrong, according to Andes convention.
+;; if the order of the body and agent wrong, according to Andes convention.
 (def-error-class wrong-order-potential-energy (?energy-type ?sbody ?sagent)
   ((student (define-var (at (?energy-type ?sbody ?sagent) ?stime)))
    (test (member ?energy-type '(grav-energy spring-energy 'electric-energy)))
