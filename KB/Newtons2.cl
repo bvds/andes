@@ -4858,9 +4858,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; some attribute, e.g. velocity, of a compound in the problem statement.
 ;;
 
-; #| this had been commented out to suppress compound body solutions to 
-;    Exdt2a, Exdt14a, Exdt15a which lead to too many solution paths
-; Now change to selectively enable with (allow-compound) in givens
+;;  selectively enable with (allow-compound) in givens
 (defoperator form-compound-moving (?bodies)
   :preconditions (
     (allow-compound)
@@ -4884,7 +4882,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
       (string "When two bodies move together you can often simplify your solution by treating the two of them as a single body. This is called a compound body."))
    (bottom-out (string "Use the body drawing tool and select a list of bodies to introduce the compound body consisting of ~a ~A." (?bodies conjoined-defnp) (?t-coupled pp)))
   ))
-;|# ; end formerly commented out
 
 ;; if two bodies are in contact and both are at rest they may be treated
 ;; as a compound. 
