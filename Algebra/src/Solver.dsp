@@ -235,10 +235,6 @@ SOURCE=getavar.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=geteqs.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=indyset.cpp
 # End Source File
 # Begin Source File

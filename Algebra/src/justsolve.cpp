@@ -1,7 +1,6 @@
 // solveeqs.cpp
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
 
-using namespace std;
 #include "justsolve.h"
 #include "decl.h"
 #include "dbg.h"

@@ -58,7 +58,7 @@ char* solveTheProblem() {
   try {
     // reset the buffer to be empty
     resultBuffer.str(string());
-    if(resultBuffer) {
+    if(resultBuffer.good()) {
       numsols->assign(canonvars->size(),HUGE_VAL);
       if (solveeqs(resultBuffer)) {
 	// should we do checking of solution here?
