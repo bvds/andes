@@ -817,7 +817,9 @@
   :units |W/m^2|
   :restrictions positive
   :english ("the intensity supplied to ~A due to ~A" (nlg ?wave) (nlg ?agent))
-  :fromworkbench `(intensity ,body))
+   :fromWorkbench (if (string-equal body2 '|all sources|)
+                     `(at (net-intensity ,body) ,time)
+                  `(at (intensity ,body ,body2) ,time)))
 
 (defoperator define-intensity (?wave ?agent ?t)
   :preconditions
@@ -836,8 +838,7 @@
 (def-qexp net-intensity (net-intensity ?wave)
   :units |W/m^2|
   :restrictions positive  
-  :english ("the net intensity supplied to ~A" (nlg ?wave))
-  :fromworkbench `(intensity ,body))
+  :english ("the net intensity supplied to ~A" (nlg ?wave)))
 
 ;; based on define-net-work
 (defoperator define-net-intensity (?wave ?t)
@@ -847,8 +848,8 @@
   :effects ((variable ?intense-var (at (net-intensity ?wave) ?t))
 	    (define-var (at (net-intensity ?wave) ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the net-intensity of ~A due to ~A by using the Add Variable command on the Variable menu and selecting net-intensity."  
-		  ?wave ?agent))))
+	  (string "Define a variable for the total intensity of ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+		  ?wave))))
 
 ;; based on net-work-contains
 (defoperator net-intensity-contains (?sought)
@@ -892,7 +893,9 @@
   :units |dB|
   :english ("the intensity supplied to ~A due to ~A in decibels" 
 	       (nlg ?wave) (nlg ?agent))
-  :fromworkbench `(db-intensity ,body))
+  :fromWorkbench (if (string-equal body2 '|all sources|)
+                     `(at (net-db-intensity ,body) ,time)
+                  `(at (db-intensity ,body ,body2) ,time)))
 
 (defoperator define-db-intensity (?wave ?agent ?t)
   :preconditions
@@ -904,6 +907,26 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the intensity of ~A in decibels 
 due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave ?agent))))
+
+;;;
+;;;  net decibel intensity is not used anywhere
+;;;
+
+(def-qexp net-db-intensity (net-db-intensity ?wave)
+  :units |dB|
+  :english ("the total intensity supplied to ~A, in decibels" 
+	       (nlg ?wave)))
+
+(defoperator define-net-db-intensity (?wave ?t)
+  :preconditions
+  ((bind ?dbi-var (format-sym "dbint_~A_~A" 
+			      (body-name ?wave) 
+			      (time-abbrev ?t))))
+  :effects ((variable ?net-dbi-var (at (net-db-intensity ?wave) ?t))
+	    (define-var (at (net-db-intensity ?wave) ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the total intensity of ~A in decibels 
+using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
 
 ;;;
 ;;;  Reference intensity, predefined constant
