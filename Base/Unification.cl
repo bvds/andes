@@ -24,13 +24,10 @@
 
 (defconstant fail nil "Indicates pat-match failure")
 
-#+sbcl   ;sbcl doesn't like defconstant, see "sbcl idiosyncracies"
-(eval-when (:compile-toplevel)
-(defconstant no-bindings '((t . t))
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(eval-when (or #-sbcl :compile-toplevel)
+  (defconstant no-bindings '((t . t))
   "Indicates pat-match success, with no variables."))
-#-sbcl
-(defconstant no-bindings '((t . t))
-  "Indicates pat-match success, with no variables.")
 
 (defvar *occurs-check* t "Should we do the occurs check?")
 

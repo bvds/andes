@@ -73,7 +73,7 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      // second equation reads
 	      // k2 * coef * sin arg + fact2 = 0 (if firstiscos),
 	      // and therefore we know k2^2 fact1^2 + fact2^2= k2^2 coef^2
-	      n_opexp * eqlhs = new n_opexp(&plus);
+	      n_opexp * eqlhs = new n_opexp(&myplus);
 	      n_opexp * tempnop = new n_opexp(&mult);
 //	      tempnop->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
 

@@ -76,7 +76,7 @@ bool distfrac(expr * & ex)
     {
       DBG( cout << "finished making lcd of + / ..., it is = "
 	   << lcd->getInfix() << endl );
-      n_opexp *plsnumer =  new n_opexp(&plus);
+      n_opexp *plsnumer =  new n_opexp(&myplus);
       n_opexp * temp4;		// numerator of current term
       for (k=0; k < enop->args->size(); k++)
 	{

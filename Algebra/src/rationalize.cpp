@@ -40,7 +40,7 @@ bool rationalize(binopexp * & bineq)
   if ((((binopexp *)eqcpy)->lhs->etype != n_op) ||
       ((n_opexp *)(((binopexp *)eqcpy)->lhs))->op->opty != pluse)
     {
-      ourf = new n_opexp(&plus);
+      ourf = new n_opexp(&myplus);
       ourf->addarg(((binopexp *)eqcpy)->lhs);
     }						// top level expr now sum
   else ourf = (n_opexp *)((binopexp *)eqcpy)->lhs; 

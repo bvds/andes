@@ -134,7 +134,7 @@ char* solveTheProblem() {
   // solution, in solveMoreOfTheProblem ?
   try {
     inFile.open(TEMP_FILE, std::ios::in);// | std::ios::binary);
-    inFile.clear(0);
+    inFile.clear();
     inFile.seekg(0);
     int tk;
     try { tk = inFile.eof(); } 

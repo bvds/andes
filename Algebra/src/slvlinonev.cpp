@@ -456,9 +456,9 @@ bool linvarcoefs(const expr * ex, const varindx var,
 
 	if (thnop->op->opty == pluse)
 
-	  cf = new n_opexp(&plus);
+	  cf = new n_opexp(&myplus);
 
-	  ov = new n_opexp(&plus);
+	  ov = new n_opexp(&myplus);
 
 	  for (k=0; k < thnop->args->size(); k++)
 

@@ -5,12 +5,13 @@
 // Modified: by joel to fit in jsolver
 //			14 March 2001 - lht -- created
 //////////////////////////////////////////////////////////////////////////////
-#include "decl.h"
-#include "extstruct.h"
+#include <iostream>
+#include "../src/decl.h"
+#include "../src/extstruct.h"
 #include "Solver.h"
-#include "indysgg.h"
-#include "indyset.h"
-#include "dbg.h"
+#include "../src/indysgg.h"
+#include "../src/indyset.h"
+#include "../src/dbg.h"
 // #include "../linwood/lzmem.h"
 // #include "../linwood/lzstd.h"
 using namespace std;
@@ -40,10 +41,11 @@ int main(int argc, char* argv[]) {
   if (argc == 2) dbglevel = (unsigned int) strtol(argv[1],0,16);
   doinitinit();
 //////////////////////////////////////////////////////////////////////////////
-#include "XSolver.log"
+// BvdS: what is this???
+//#include "XSolver.log"
 // 
  LOGn("<only thing left is to closeupshop>");
- closeupshop();
+ // closeupshop();
  LOGn("< closed up shop>");
   return 0;
 }

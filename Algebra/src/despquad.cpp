@@ -111,7 +111,7 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
       temp1->addarg(new numvalexp((*cfn)[2]));
       temp1->addarg(new binopexp(&topow,new physvarptr(v2),
 	  new numvalexp(2)));
-      n_opexp * eq1lhsn = new n_opexp(&plus);
+      n_opexp * eq1lhsn = new n_opexp(&myplus);
       eq1lhsn->addarg(temp1);
       temp1 = new n_opexp(&mult);
       temp1->addarg(new numvalexp((*cfn)[4]));
@@ -148,7 +148,7 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 		       +(*cfd)[2]*(*cfn)[1]*(*cfn)[1]));
       temp1->addarg(new binopexp(&topow,new physvarptr(v2),
 				    new numvalexp(4)));
-      n_opexp *ex = new n_opexp(&plus);
+      n_opexp *ex = new n_opexp(&myplus);
       ex->addarg(temp1);
       temp1 = new n_opexp(&mult);
 //	temp1->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 

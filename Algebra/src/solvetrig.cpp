@@ -212,7 +212,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      if (ktry < 0 ) ktry += 2*M_PI;
 	      if (ktry >= 2*M_PI) ktry -= 2*M_PI;
 	      // trigsearch will crash if eq doesn't have zero rhs, so
-	      n_opexp *eqlhs = new n_opexp(&plus);
+	      n_opexp *eqlhs = new n_opexp(&myplus);
 //	      eqlhs->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
 	      DBG(  cout << "Diag1: " << arg->getInfix() << endl;  );
 	      eqlhs->addarg(copyexpr(arg));
@@ -233,7 +233,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      tempnv->MKS.put(0,0,0,0,0);
 	      tempnop->addarg(tempnv);
 	      tempnop->addarg(fact1);
-	      eqlhs = new n_opexp(&plus);
+	      eqlhs = new n_opexp(&myplus);
 	      eqlhs->addarg(tempnop);
 	      eqlhs->addarg(fact2);
 	      (*eqn)[k]->destroy();
@@ -452,8 +452,8 @@ bool trigsearch(const expr * const arg, expr *& coef,
       else			// its a plus n_op
 	{
 	  DBG( cout << "Entering trigsearch on plus"<< endl; );
-	  cf = new n_opexp(&plus);
-	  ov = new n_opexp(&plus);
+	  cf = new n_opexp(&myplus);
+	  ov = new n_opexp(&myplus);
 	  bool iscosthis;
 	  for (k = 0; k < ((n_opexp *)ex)->args->size(); k++)
 	    {

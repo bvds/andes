@@ -50,7 +50,7 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
   if ((a2->etype == numval) && (((numvalexp *)a2)->value == 0))    return;
   if ((a1->etype != n_op) || ((n_opexp *)a1)->op->opty != pluse)
     {				// force a1 into form of pluse
-      answer = new n_opexp(&plus);
+      answer = new n_opexp(&myplus);
       answer->addarg(a1);
       a1 = answer;
       if (a1 == (*((n_opexp *)a1)->args)[0]) 

@@ -175,7 +175,7 @@ void n_opexp::addarg(expr * arg)
  *    oper's are not created or destroyed with the expression, and 	*
  *    is one static oper for each type					*
  ************************************************************************/
-oper plus(pluse,"+");
+oper myplus(pluse,"+");
 oper mult(multe,"*");
 oper divby(divbye,"/");
 oper topow(topowe,"^");

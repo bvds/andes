@@ -240,7 +240,7 @@ bool purelinsolv(vector<binopexp *> const * eqs,
 		     << q << " column " << k << ", value=" << A[q][k] << endl;
 		throw(string("found non-1 as pivot in result in purelin"));
 	      }
-	    thisterm = new n_opexp(&plus);
+	    thisterm = new n_opexp(&myplus);
 	    // we have lost track of units in solving these equations - 
 	    // cheat and set units correctly for variable k
 	    dimens dim = (*canonvars)[(*vars)[k]]->MKS;

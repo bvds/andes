@@ -460,7 +460,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  if (ebin->rhs->etype != numval) break;  
 		  if (!lookslikeint(((numvalexp *)ebin->rhs)->value,q)
 		      || (q != 2))  break;
-		  n_opexp * temp = new n_opexp(&plus);
+		  n_opexp * temp = new n_opexp(&myplus);
 		  for (k=0; k < elhs->args->size(); k++)
 		    {
 		      temp->addarg(new binopexp(&topow,
@@ -650,7 +650,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		    if (!found)
 		      {
 			found = true;
-			repla = new n_opexp(&plus);
+			repla = new n_opexp(&myplus);
 		      }
 		    n_opexp * plusfact = (n_opexp *)(*enop->args)[k];
 		    for (q=0; q < plusfact->args->size(); q++)

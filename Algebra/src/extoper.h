@@ -1,7 +1,7 @@
 // extoper.h	declares the operators as externs.
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
 
-extern oper plus;
+extern oper myplus;
 extern oper mult;
 extern oper divby;
 extern oper topow;

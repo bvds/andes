@@ -120,7 +120,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
 	break;
       case tane:
 	retval->value = tan(DEG2RAD * argval->value);
-	retval->abserr = fabs((1. + pow(retval->value,2)) 
+	retval->abserr = fabs((1.0 + pow(retval->value,2)) 
 			      * DEG2RAD * (argval->abserr));
 	break;
       case expe:
@@ -133,12 +133,12 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
 	break;
       case log10e:
 	retval->value = log10(argval->value);
-	retval->abserr = fabs(argval->abserr / (retval->value * log(10)));
+	retval->abserr = fabs(argval->abserr / (retval->value * log(10.0)));
 	break;
       case sqrte:
 	retval->value = sqrt(argval->value);
 	if (retval->value > reltverr) {
-	  retval->abserr = (argval->abserr / (2 * retval->value));
+	  retval->abserr = (argval->abserr / (2.0 * retval->value));
 	} else {
 	  retval->abserr = sqrt(argval->abserr);
 	}

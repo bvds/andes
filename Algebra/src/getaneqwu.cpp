@@ -124,7 +124,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
       continue;
     }
     if (token.compare("+")==0) {
-      n_opexp *thisguy = new n_opexp(&plus);
+      n_opexp *thisguy = new n_opexp(&myplus);
       while ((!exprstack.empty()) && (exprstack.top()->etype != fake)) {
         thisguy->addarg(exprstack.top());
         exprstack.pop();
@@ -150,7 +150,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
         nvtemp->MKS.put(0,0,0,0,0);
         temp->addarg(nvtemp);
         temp->addarg(rhs);
-        n_opexp *temp2 = new n_opexp(&plus);
+        n_opexp *temp2 = new n_opexp(&myplus);
         temp2->addarg(lhs);
         temp2->addarg(temp);
         exprstack.push(temp2);

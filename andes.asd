@@ -1,10 +1,14 @@
 ;;;; -*- Lisp -*-
 ;;;; above sets emacs major mode to Lisp
 ;;;;
-;;;;  Use this to compile:
+;;;; Use this to compile:
 ;;;;  (asdf:operate 'asdf:load-op 'andes)
+;;;; We shouldn't have to do the following:
+;;;;  (load "/home/bvds/Andes2/KB/Problems.cl")
+;;;;  (load "/home/bvds/Andes2/KB/Ontology.cl")
+;;;;  (load "/home/bvds/Andes2/KB/Newtons2.cl")
+;;;;  #+LINUX (defparameter *Root-Path* "/home/bvds/Andes2")
 ;;;;
-
 ;;;; This was stolen from maxima.asd
 #+(or sbcl openmcl)
 (or (find-package "USER")
@@ -23,6 +27,19 @@
 				     (:file "Utility")))
 	       (:module "Solver_Release"
 			:components ((:file "solver")))
+	       (:module "HelpStructs"
+			:depends-on ("Base")
+			:components ((:file "PsmGraph")
+#|				     (:file "SystemEntry")
+				     (:file "StudentEntry")
+				     (:file "TutorTurn")
+				     (:file "Error-Interp")
+				     (:file "StudentAction")
+				     (:file "CMD")
+				     (:file "RuntimeTestScore")
+				     (:file "RuntimeTest")
+				     |#
+))
 	       (:module "Knowledge"
 			:depends-on ("Base" "Solver_Release")
 			:components ((:file "eqn")         
@@ -36,24 +53,22 @@
 				     (:file "Solution")))	       
 	       (:module "KB"
 ;			:description "Knowledge Base"
-			:depends-on ("Knowledge" "Base")
-			:components ((:file "Physics-Funcs")
+			:depends-on ("Knowledge" "Base" "SGG")
+			:components ((:file "Ontology")        
+				     (:file "NewtonsNogoods")  
+				     (:file "Physics-Funcs")
+				     (:file "circuit-ontology")  
 				     (:file "Newtons2")        
 				     (:file "Problems")   
 ;;;;
 ;;;; The remaining files are just needed for the help system???
 ;;;;
 #|				     (:file "errors")
-				     (:file "NewtonsNogoods")  
-				     (:file "psm-list")
 				     (:file "force-problems")  
-				     (:file "Ontology")        
 				     (:file "PyreneesProblems")
-				     (:file "circuit-ontology")  
 				     (:file "forces")          
 				     (:file "optics")          
 				     (:file "vectors")
-				     (:file "circuit-problems")  
 				     (:file "makeprob")        
 				     (:file "vectors-problems")
 				     (:file "circuits")

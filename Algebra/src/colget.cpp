@@ -13,6 +13,8 @@ using namespace std;
 #include "../src/dbg.h"
 #include "../src/extstruct.h"
 #include "../src/unitabr.h"
+#include "mconst.h"  // define DEGTORAD
+#define DEG2RAD DEGTORAD
 
 #define DBG(A) DBGF(FILEGET,A)
 
