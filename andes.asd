@@ -86,7 +86,8 @@
 				     ;;      ^ depends on "waves"
 				     (:file "errors")
 				     (:file "force-problems")  
-				     (:file "PyreneesProblems")
+;;; Hey, these are the wrong mountains
+				     ;; (:file "PyreneesProblems")
 				     (:file "forces")          
 				     (:file "optics")          
 				     (:file "vectors")
@@ -107,82 +108,9 @@
 				     (:file "SolutionSets")))
 ))
 
-(defsystem :andes-help
-  :name "Andes help"
-  :description "Andes physics tutor system: helpsystem"
-  :depends-on (andes)
-  :components (
-	       (:module "HelpStructs"
-			;; PSMgraph and SystemEntry are defined in "andes"
-			:components ((:file "StudentEntry")
-				     (:file "TutorTurn")
-				     (:file "Error-Interp")
-				     (:file "StudentAction"
-					    :depends-on ("TutorTurn"))
-				     (:file "CMD")
-				     (:file "RuntimeTestScore")
-				     (:file "RuntimeTest")
-				     ))
-	       (:module "Help"
-			:depends-on ("HelpStructs")
-			:components (
- 				     ;; Solution graph
-	 			     (:file "SolutionGraph")
-				     
-                                     (:file "utilities")
-				     (:file "lrdc-errors")
-				     (:file "History")
-				     (:file "StudentFile")
-				     (:file "tell") ; tracing tool
-				     				     
-				     ;; Entry Intepreter: generic + non-eq
-				     (:file "symbols")
-				     (:file "State")
-				     (:file "clips-vars")
-				     (:file "Entry-API")
-				     
-				     ;; Equation parser/interpreter
-				     (:file "grammar")
-				     (:file "physics-algebra-rules")
-				     (:file "parse")
-				     (:file "pre2in")
-				     (:file "in2pre")
-				     (:file "parse-andes")
-				     (:file "interpret-equation")
-				     
-				     ;;  Help
-				     (:file "HelpMessages")
-				     (:file "whatswrong")
-				     (:file "NextStepHelp")
-				     (:file "IEA")
-				     (:file "nlg") ; Natural language.
-				     
-				     ;; Automatic statistics code.
-				     (:file "Statistics")
-				     
-				     ;; Top-level manager
-		 		     (:file "Interface") ; The interface api.
-	 			     (:file "Commands")
- 				     (:file "API")
-				     (:file "Andes2-Main")))
-	       (:module "Testcode"
-			:depends-on ("Help" "HelpStructs")
-			:components (
-				     (:file "StackProcessing")
-				     (:file "CMDTests")
-				     (:file "StackTests")
-				     (:file "EntryPair")
-				     (:file "ProcDepth")
-				     (:file "UtilFuncs")
-				     (:file "Tests")
-				     ))
-	       ))
-
 ;;;  make source file extension "cl"  See asdf manual
 
 (defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes))))
-   "cl")
-(defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes-help))))
    "cl")
 
 ;;;;
