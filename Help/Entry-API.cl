@@ -455,12 +455,13 @@
 ;; argument(s):
 ;;  label:  the label of the body
 ;;  name(s): the name the body(s) was assigned in the problem description
+;;  time:  for backward compatability
 ;;  id: is assigned to this object by the work-bench
 ;; returns: StudentEntry
 ;; note(s):
 ;;  Defines a mass variable whose name has "m" concatenated to the given label.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-object (label name &optional id)
+(defun on-assert-object (label name &optional time id)
   (let* ((body-term (arg-to-body name))
 	 (action   `(body ,body-term))
 	 (entry     (make-StudentEntry :id id :prop action))
@@ -490,15 +491,16 @@
 ;;  label: the label of the body
 ;;  name(s): list of names as symbols of simple bodies making up the compound. 
 ;; Each is KB name for that body.
+;;  time:  for backward compatability
 ;;  id: is assigned to this object by the work-bench
 ;; returns: Studententry 
 ;; note(s):
 ;;  Defines a mass variable whose name has "m" concatenated to the given label.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-compound-object (label names &optional id)
+(defun on-assert-compound-object (label names &optional time id)
       ;; can just pass along to assert-object. arg-to-body knows how to make
       ;; compound body term out of list argument.
-      (on-assert-object label names id))
+      (on-assert-object label names time id))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-vector -- check the correctness of a vector drawn by the student. May

@@ -199,6 +199,7 @@
 ;; argument(s):
 ;;  label:  the label of the body
 ;;  name(s): the name the body(s) was assigned in the problem description
+;;  time:  retained for backward compatability
 ;;  id: is assigned to this object by the work-bench
 ;; returns:
 ;;  entry status return value -- see end of code for description of this
@@ -207,8 +208,8 @@
 ;;  whose name has "m" concatenated to the given label. Enters into the symbol
 ;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-object (label name &optional id)
-  (handle-non-eq (on-assert-object label name id)))
+(defun assert-object (label name &optional time id)
+  (handle-non-eq (on-assert-object label name time id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
@@ -216,6 +217,7 @@
 ;; argument(s):
 ;;  label: the label of the body
 ;;  name(s): the name the body(s) was assigned in the problem description
+;;  time:  retained for backward compatability
 ;;  id: is assigned to this object by the work-bench
 ;; returns:
 ;;  entry status return value -- see end of code for description of this
@@ -224,8 +226,8 @@
 ;;  whose name has "m" concatenateded to the given label. Enters into the sym-
 ;;  bol table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-compound-object (label names &optional id)
-  (handle-non-eq (on-assert-compound-object label names id)))
+(defun assert-compound-object (label names &optional time id)
+  (handle-non-eq (on-assert-compound-object label names time id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-vector -- check the correctness of a vector drawn by the student. May
