@@ -4,6 +4,7 @@ dynamics	mass;angle;coef-friction;duration;
 circular	mass;radius;period;duration;angle;
 energy	mass;duration;work;power;energy;compression;spring-constant;height;
 work	work;power;duration;angle;intensity;db-intensity;db-intensity-zero;
+work-quants	work;power;duration;angle;intensity;db-intensity;db-intensity-zero;
 linmom	energy;duration;
 rotkin	mass;radius;period;duration;angle;moment-of-inertia;length;width;
 angmom	mass;radius;period;duration;angle;moment-of-inertia;length;width;
