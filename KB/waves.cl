@@ -81,6 +81,18 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
 
+;;;
+;;;  For doppler problems, we have to introduce a frequency at a time.
+;;;
+
+(defoperator define-frequency-time (?wave ?t)
+  :preconditions((bind ?freq-var (format-sym "freq_~A_~A" 
+					     (body-name ?wave) ?t)))
+  :effects ((variable ?freq-var (at (frequency ?wave) ?t))
+	    (define-var (at (frequency ?wave) ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
+
 ;;
 ;; period is used in some circular motion rules:
 ;;
@@ -690,7 +702,8 @@
 ;;;  found in much of Andes
 ;;;
 
-(def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer ?t)
+(def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer 
+						   ?t ?t-interval)
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift (frequency)")
   :ExpFormat ("using formula for doppler frequency shift (frequency)")
@@ -699,54 +712,59 @@
 (defoperator doppler-frequency-contains (?sought)
   :preconditions 
   (
-   (doppler-system ?source ?wave ?observer)
+   (doppler-system ?source ?wave ?observer) ;connect source, wave, observer
+   (time ?t)
+   (time ?t-interval)
+   (test (time-intervalp ?t-interval))
+   (test (tinsidep-include-second-endpoint ?t ?t-interval))
    (any-member ?sought ((frequency ?source)
-			   ;;  (at (frequency ?observer) ?t)
-			   (wave-speed ?wave)
-			   (frequency ?observer)
-			   ;; constant velocity (no time specified)
-			   (at (mag (velocity ?source)) ?t) ;wrong!
-			   (at (mag (velocity ?observer)) ?t)
-			   ;; (dir (velocity ?source)) 
-			   ;; (dir (velocity ?observer)) 
-			   ))
-      (object ?source)
-      (object ?observer)
-      ;;(test (not (equal ?source ?observer)))
-      ;; (sinusoidal ?source)
-      ;; (sinusoidal ?observer)
-      (time ?t)
-      ;;  (not (light ?wave))	;light is a differenct formula
-      ;; we neet to specify a time for this
-      ;; It would be difficult to solve for this angle
-      ;; (at (dir (relative-position 
-      ;;	    ?source ?observer)) ?t)
-      )
+			(wave-speed ?wave)
+			(at (frequency ?observer) ?t)
+			;;(frequency ?observer)
+			;; should be constant velocity 
+			;; we *assume* the interval is big enough
+			(at (mag (relative-vel ?source ?wave)) ?t-interval) 
+			(at (mag (relative-vel ?observer ?wave)) ?t-interval)
+			(at (dir (relative-vel ?source ?wave)) ?t-interval) 
+			(at (dir (relative-vel ?observer ?wave)) ?t-interval)
+			(at (dir (relative-position ?source ?observer)) ?t)
+			))
+   (object ?source)
+   (object ?observer)
+   (sinusoidal ?source)
+   (not (light wave))  ;light uses a different formula
+   )
   :effects (
-	    (eqn-contains (doppler-frequency ?source ?wave ?observer ?t
-					     ) ?sought)))
+	    (eqn-contains (doppler-frequency ?source ?wave ?observer 
+					     ?t ?t-interval) ?sought)))
 
-(defoperator make-doppler-frequency (?source ?wave ?observer ?t)
+(defoperator make-doppler-frequency (?source ?wave ?observer ?t ?t-interval)
   :preconditions (
-		  ;; (variable ?phi (at (dir (relative-position 
-		  ;;				?source ?observer)) ?t))
-		  ;; (variable  ?thetas (dir (velocity ?source)))
-		  ;; (variable  ?thetao(dir (velocity ?observer)))
-		  (variable ?vs (at (mag (velocity ?source)) ?t))
-		  (variable ?vo (at (mag (velocity ?observer)) ?t))
+		  (variable ?phi (at (dir (relative-position 
+					   ?source ?observer)) ?t))
+		  (variable  ?thetas (at (dir (relative-vel ?source ?wave)) 
+					 ?t-inverval))
+		  (variable  ?thetao (at (dir (relative-vel ?observer ?wave))
+					 ?t-interval))
+		  (variable ?vs (at (mag (relative-vel ?source ?wave)) 
+				    ?t-interval))
+		  (variable ?vo (at (mag (relative-vel ?observer ?wave)) 
+				    ?t-interval))
 		  (variable ?vw (wave-speed ?wave))		  
 		  (variable ?fs (frequency ?source))		  
-		  ;;(variable ?fo (at (frequency ?observer) ?t))
-		  (variable ?fo (frequency ?observer))
+		  (variable ?fo (at (frequency ?observer) ?t))
+		  ;; 	     
+		  ;; for help
+		  ;(bind ?coss (cos (- ?phi ?thetas)))
 		  )
   :effects (
 	    (eqn  (= (* ?fo (- ?vw 
-			       ?vs	;(* ?vs (cos (- ?phi ?thetas)))
+			       (* ?vs (cos (- ?phi ?thetas)))
 			       ))
 		     (* ?fs (- ?vw 
-			       ?vo	;(* ?vo (cos (- ?phi ?thetao)))
+			       (* ?vo (cos (- ?phi ?thetao)))
 			       )))
-		  (doppler-frequency ?source ?wave ?observer ?t))
+		  (doppler-frequency ?source ?wave ?observer ?t ?t-interval))
 	    )
   :hint (
 	 (point (string "In your textbook, find a formula for doppler frequency shift."))

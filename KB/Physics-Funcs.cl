@@ -1,16 +1,14 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Physics-Funcs.cl
-;; Kurt VanLehn
-;; 10/20/2000
-;;
-;; This file defines functions that support the code in Newtons2.cl
-;; but can be safely compiled for use in the solutions.
-;;
-|#
-;;(in-package :user)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Physics-Funcs.cl
+;;; Kurt VanLehn
+;;; 10/20/2000
+;;;
+;;; This file defines functions that support the code in Newtons2.cl
+;;; but can be safely compiled for use in the solutions.
+;;;
 
 
-;;; ================================= Time point and intervals =======
+;;; ====================== Time point and intervals =================
 ;;; Assumes that time intervals are represented by (During <start>
 ;;; <finish>) where <start> and <finish> are time points.  Assumes
 ;;; that time points are represented by integers that are
@@ -86,6 +84,13 @@
 	   (time-pointp t1)
 	   (or (equal t1 (second t2))
 	       (equal t1 (third t2))))))
+
+(defun tinsidep-include-second-endpoint (t1 t2)
+  "non-null if the first time is inside the second time, the second time is a half-open interval"
+  (or (tinsidep t1 t2)
+      (and (time-intervalp t2)
+	   (time-pointp t1)
+	   (equal t1 (third t2)))))
 
 (defun tbeforep (t1 t2)
    "non-null if t1 and t2 are both time points and t1 is before t2"

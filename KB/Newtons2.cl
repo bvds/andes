@@ -2313,47 +2313,9 @@
 			((= ?v12_x (/ ?d12_x ?t12)) algebra)))
   ))
 
-#|
-;; Magnitude of avg velocity: |V_avg| = |s| / t
-;; This is a scalar equation for the magnitude only; however, writing
-;; it will still require drawing the vectors in the right directions to define 
-;; the variables.  We could make it a vector equation if we ever needed to 
-;; solve by component equations vavg_x = d_x/t, vavg_y = d_y /t but we 
-;; currently have no need of that. If we were linking to component equations 
-;; for the displacement we're probably using linear kinematics anyway.
-;; !!! should still allow students to use components here
 
-(defoperator avg-velocity-contains (?sought)
-   :preconditions 
-    ((any-member ?sought  
-                ((at (mag (displacement ?b)) (during ?t1 ?t2))
-	         (at (mag (velocity ?b)) (during ?t1 ?t2))
-	         (duration (during ?t1 ?t2)) ))
-      (object ?b))
-   :effects
-    ((eqn-contains (avg-velocity ?b (during ?t1 ?t2)) ?sought)))
-
-(defoperator write-avg-velocity (?b ?t1 ?t2)
-   
-   :preconditions (
-     (optional (body ?b (during ?t1 ?t2)))
-     (variable ?d-var (at (mag (displacement ?b)) (during ?t1 ?t2)))
-     (variable ?v-var (at (mag (velocity ?b)) (during ?t1 ?t2)))
-     (variable ?t-var (duration (during ?t1 ?t2)))
-   )
-   :effects ( 
-	     (eqn (= ?v-var (/ ?d-var ?t-var)) (avg-velocity ?b (during ?t1 ?t2))))
-   :hint
-   ((point (string "Can you think of an equation that relates average velocity, displacement and duration?"))
-    (teach (kcd "write_average_velocity_eqn")
-	   (string "The average velocity is equal to the displacement divided by the duration."))
-    (bottom-out (string "Write the equation ~a=~a/~a"
-			(?v-var algebra) (?d-var algebra) (?t-var algebra)))
-   ))
-|#
-
-;;; ============================ acceleration ====================================
-;;; This section contains operators for determining whether acceleration is zero
+;;; ============================ acceleration =================================
+;;; This section contains operators that determine whether acceleration is zero
 ;;; or non-zero, and what direction the non-zero accelerations are.
 
 ;; This operator draws a zero acceleration vector for a body that is
@@ -2546,10 +2508,11 @@
     ))
 
 
-;; This operator draws an non-zero acceleration vector for a body that is moving
-;; in a straight line and slowing down.  The motion descriptor's third argument is
-;; the direction of the object's velocity.  We reverse it here because the object
-;; acceleration is in the opposite direction from its motion.
+;;; This operator draws an non-zero acceleration vector for a body that is 
+;;; moving in a straight line and slowing down.  The motion descriptor's third 
+;;; argument is the direction of the object's velocity.  We reverse it here 
+;;; because the object acceleration is in the opposite direction from its 
+;;; motion.
 
 ;; Note: we write out structured direction term in effects and to prevent
 ;; effect from unifying with NTL precond (vector ?b (at (accel ?b) ?t) zero). 
@@ -3634,13 +3597,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 |#; end experimental block 
 
-; Following draws a relative position vector of ?b1 from ?b2 at ?t
-; using a direction given in the problem statement. 
-;
-; taking ?b2 as "origin" we tag this as a vector property of b1. This
-; association is used only by axis-drawing and component writing operators,
-; when looking for vectors on an object, but shouldn't matter for rotational
-; problems.
+;;; Following draws a relative position vector of ?b1 from ?b2 at ?t
+;;; using a direction given in the problem statement. 
+;;;
+;;; taking ?b2 as "origin" we tag this as a vector property of b1. This
+;;; association is used only by axis-drawing and component writing operators,
+;;; when looking for vectors on an object, but shouldn't matter for rotational
+;;; problems.
+
 (defoperator draw-relative-position (?b1 ?b2 ?t)
   :specifications 
   "if you are given that one body is at a certain direction with respect to another,
@@ -3649,7 +3613,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (given (at (dir (relative-position ?b1 ?b2)) ?t-given) ?dir-expr)
     (test (not (equal ?dir-expr 'unknown)))
     (time ?t)
-    (test (tinsidep ?t ?t-given))
+    (test (tinsidep-include-endpoints ?t ?t-given))
     ; make sure this vector not already drawn
     (not (vector ?b2 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))

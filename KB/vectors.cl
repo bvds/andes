@@ -48,7 +48,6 @@
              :preconditions (
                              (rdebug "Using draw-rel-vel-vector-unknown ~%")
                              (time ?t)
-                             (test (time-intervalp ?t))
                              (body ?b1 ?t)
                              (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare1))
                              (not (given (at (dir (relative-vel ?b1 ?b2)) ?t) ?dontcare))
@@ -74,7 +73,6 @@
              :preconditions (
                              (rdebug "Using draw-rel-vel-vector-unknown-no-body ~%")
                              (time ?t)
-                             (test (time-intervalp ?t))
                              (reference-object ?b2)
                              (body ?b3 ?t)
                              (not (vector ?b3 (at (relative-vel ?b1 ?b2) ?t) ?dontcare1))
@@ -102,7 +100,6 @@
                               then draw it."
              :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
                              (time ?t)
-                             (test (time-intervalp ?t))
                              (body ?b1 ?t)
                              (given (at (dir(relative-vel ?b1 ?b2)) ?t1) ?dir)
                              (test (numberp (second ?dir)))
@@ -131,13 +128,16 @@
 
              :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir-body-not-in-rel-vel ~%")
                              (time ?t)
-                             (test (time-intervalp ?t))
                              (body ?b1 ?t)
-                             (given (at (dir(relative-vel ?b2 ?b3)) ?t) ?dir)                         
-                             (test (not (equal ?b2 ?b3)))                             
-                             (test (numberp (second ?dir)))                         
-                             (not (vector ?b (at (relative-vel ?b2 ?b3) ?t) ?dir))
-                             (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b2) (body-name ?b3)(time-abbrev ?t)))
+                             (given (at (dir(relative-vel ?b2 ?b3)) ?t) ?dir)
+                             (test (not (equal ?b2 ?b3))) 
+                             (test (numberp (second ?dir)))                  
+                             (not (vector ?b (at (relative-vel ?b2 ?b3) ?t) 
+					  ?dir))
+                             (bind ?mag-var (format-sym "V_~A_~A_~A" 
+							(body-name ?b2) 
+							(body-name ?b3)
+							(time-abbrev ?t)))
                              (bind ?dir-var (format-sym "O~A" ?mag-var))
                              (rdebug "fired draw-rel-vel-vector-given-dir-body-not-in-rel-vel  ~%")
                              )
@@ -183,51 +183,13 @@
                        (vector-psm-contains (relative-vel ?b1 ?b3 ?b2 ?t) ?sought)
                        (compo-eqn-contains (relative-vel ?b1 ?b3 ?b2 ?t) relvel ?sought)))
 
-(defoperator relative-vel-contains-body-not-in-sought (?sought)
-             :specifications "The reference object is involved in the sought and
-                             the body is not and the reference obj is the last body 
-                             passed in the effects."
-             :preconditions ((any-member ?sought((at (mag (relative-vel ?b3 ?b2)) ?t)
-                                                 (at (dir (relative-vel ?b3 ?b2)) ?t)                                                                           
-                                                 ))
-                             (rdebug "Using relative-vel-contains-no-body  ~%")
-                             (reference-object ?b2)
-                             (object ?b1)
-                             (given (at (mag (relative-vel ?b1 ?b3)) ?t) ?dontcare)
-                             (given (at (dir (relative-vel ?b1 ?b3)) ?t) ?dontcare2)
-                             (test (not (equal ?b2 ?b3)))
-                             (rdebug "Firing relative-vel-contains-no-body  ~%")
-                             )
-             :effects (
-                       (vector-psm-contains (relative-vel ?b1 ?b3 ?b2 ?t) ?sought)
-                       (compo-eqn-contains (relative-vel ?b1 ?b3 ?b2 ?t) relvel ?sought)))
+;;;
+;;;  Apply the relative velocity rule for 3 bodies
+;;;
 
-
-(defoperator write-relative-vel-compo (?b1 ?b2 ?b3 ?t ?xy ?rot)
-  :features (unordered)
-             :preconditions ((rdebug "Using write-relative-vel-compo ~%")
-                             (variable ?v12  (at (compo ?xy ?rot (relative-vel ?b1 ?b2)) ?t))
-                             (variable ?v23  (at (compo ?xy ?rot (relative-vel ?b2 ?b3)) ?t))
-                             (variable ?v13  (at (compo ?xy ?rot (relative-vel ?b1 ?b3)) ?t))
-                             (rdebug "fired write-relative-vel-compo  ~%")
-                  )
-  :effects (
-            (eqn (= ?v13 (+ ?v12 ?v23))
-                 (compo-eqn relvel ?xy ?rot (relative-vel ?b1 ?b2 ?b3 ?t)))
-            (eqn-compos (compo-eqn relvel ?xy ?rot (relative-vel ?b1 ?b2 ?b3 ?t))
-                        (?v12 ?v23 ?v13))
-            )
-             :hint (
-		  (point (string 
-	"Can you relate the following 3 vectors: the relative velocity of ~A wrt ~A, the relative velocity of ~a wrt ~a, and the relative velocity of ~a wrt ~A?"
-	          ?b1 ?b3  ?b1 ?b2  ?b2 ?b3))
-		  (teach (string "The relative velocity of a wrt c is equal to the vector sum of the relative velocity of a wrt b plus the relative velocity of b wrt c. In terms of components:\\n   Vac_x = Vab_x + Vbc_x\\n   Vac_y = Vab_y + Vbc_y."))
-	          (bottom-out (string "Write the equation ~A"
-		                       ((= ?v13 (+ ?v12 ?v23)) algebra)))
-                    ))
-
-; need var named ?body* for nsh to recognize this arg as a principle's important body (to prompt to draw first).
-(def-psmclass relative-vel (?eq-type relvel ?xy ?rot (relative-vel ?body1 ?b2 ?b3 ?t))
+;;; need var named ?body* for nsh to recognize this arg as a principle's important body (to prompt to draw first).
+(def-psmclass relative-vel (?eq-type relvel ?xy ?rot 
+				     (relative-vel ?body1 ?b2 ?b3 ?t))
   :complexity major
   :english ("relative velocity equation")
   :expformat ((strcat "applying the relative velocity equation to ~a "
@@ -235,3 +197,45 @@
               (nlg ?body1) (nlg ?b2) (nlg ?b3))
   :EqnFormat ("Vac_~a = Vab_~a + Vbc_~a" 
              (nlg ?axis 'adj)(nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+
+(defoperator relative-vel-contains-body-not-in-sought (?sought)
+  :specifications "The reference object is involved in the sought and the body is not and the reference obj is the last body passed in the effects."
+  :preconditions ((any-member ?sought((at (mag (relative-vel ?b3 ?b2)) ?t)
+				      (at (dir (relative-vel ?b3 ?b2)) ?t) 
+				      ))
+		  (rdebug "Using relative-vel-contains-no-body  ~%")
+		  (reference-object ?b2)
+		  (object ?b1)
+		  (given (at (mag (relative-vel ?b1 ?b3)) ?t) ?dontcare)
+		  (given (at (dir (relative-vel ?b1 ?b3)) ?t) ?dontcare2)
+		  (test (not (equal ?b2 ?b3)))
+		  (rdebug "Firing relative-vel-contains-no-body  ~%")
+		  )
+  :effects (
+	    (vector-psm-contains (relative-vel ?b1 ?b3 ?b2 ?t) ?sought)
+	    (compo-eqn-contains (relative-vel ?b1 ?b3 ?b2 ?t) relvel ?sought)))
+
+(defoperator write-relative-vel-compo (?b1 ?b2 ?b3 ?t ?xy ?rot)
+  :features (unordered)
+  :preconditions ((rdebug "Using write-relative-vel-compo ~%")
+		  (variable ?v12  (at (compo ?xy ?rot (relative-vel ?b1 ?b2)) ?t))
+		  (variable ?v23  (at (compo ?xy ?rot (relative-vel ?b2 ?b3)) ?t))
+		  (variable ?v13  (at (compo ?xy ?rot (relative-vel ?b1 ?b3)) ?t))
+		  (rdebug "fired write-relative-vel-compo  ~%")
+                  )
+  :effects (
+            (eqn (= ?v13 (+ ?v12 ?v23))
+                 (compo-eqn relvel ?xy ?rot (relative-vel ?b1 ?b2 ?b3 ?t)))
+            (eqn-compos (compo-eqn relvel ?xy ?rot 
+				   (relative-vel ?b1 ?b2 ?b3 ?t))
+                        (?v12 ?v23 ?v13)) )
+  :hint (
+	 (point (string 
+		 "Can you relate the following 3 vectors: the relative velocity of ~A wrt ~A, the relative velocity of ~a wrt ~a, and the relative velocity of ~a wrt ~A?"
+		 ?b1 ?b3  ?b1 ?b2  ?b2 ?b3))
+	 (teach (string "The relative velocity of a wrt c is equal to the vector sum of the relative velocity of a wrt b plus the relative velocity of b wrt c. In terms of components:\\n   Vac_x = Vab_x + Vbc_x\\n   Vac_y = Vab_y + Vbc_y."))
+	 (bottom-out (string "Write the equation ~A"
+			     ((= ?v13 (+ ?v12 ?v23)) algebra)))
+	 ))
+
