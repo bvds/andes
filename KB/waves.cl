@@ -821,21 +821,21 @@
   :fromworkbench `(intensity ,body))
 
 (defoperator define-intensity (?wave ?t)
-  :preconditions((bind ?lambda-var (format-sym "I_~A~A" (body-name ?wave) ?t)))
-  :effects ((variable ?lambda-var (at (intensity ?wave) ?t))
+  :preconditions((bind ?intense-var (format-sym "int_~A_~A" 
+					       (body-name ?wave) ?t)))
+  :effects ((variable ?intense-var (at (intensity ?wave) ?t))
 	    (define-var (at (intensity ?wave) ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the intensity of ~A by using the Add Variable command on the Variable menu and selecting intensity."  ?wave))))
 
 (def-qexp db-intensity (db-intensity ?wave)
   :units |dB|
-  :restrictions positive  
   :english ("the db-intensity of ~A" (nlg ?wave))
   :fromworkbench `(db-intensity ,body))
 
 (defoperator define-db-intensity (?wave ?t)
-  :preconditions((bind ?lambda-var (format-sym "I_~A~A" (body-name ?wave) ?t)))
-  :effects ((variable ?lambda-var (at (db-intensity ?wave) ?t))
+  :preconditions((bind ?dbi-var (format-sym "dbint_~A_~A" (body-name ?wave) ?t)))
+  :effects ((variable ?dbi-var (at (db-intensity ?wave) ?t))
 	    (define-var (at (db-intensity ?wave) ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the intensity of ~A in decibels by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
@@ -845,6 +845,7 @@
 ;;;
 (def-qexp db-intensity-zero (db-intensity-zero)
   :units |W/m^2|
+  :restrictions positive
   :english ("reference intensity for defining decibels"))
 
 (defoperator iref-contains()
@@ -854,7 +855,7 @@
   :preconditions 
     ( (variable ?iref-var (db-intensity-zero)) )
   :effects ( 
-    (eqn (= ?iref-var (dnum 1.0E-12 |W/m^2|)) (std-constant db-intensity-zero)) 
+    (eqn (= ?iref-var (dnum 1.0E-12 |W/m^2|)) (std-constant db-intensity-zero))
    )
   :hint
   ((point (string "You can find the reference intensity Iref in your textbook."))
@@ -868,7 +869,7 @@
 ;;;
 ;;; Relate intensity to intensity in decibels
 ;;; 
-(def-psmclass intensity-to-decibels (intensity-to-decibels ?wave)
+(def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?t)
   :complexity major  ;must explicitly use
   :english ("express intensity in decibels")
   :ExpFormat ("Expressing the intensity in decibels")
@@ -877,6 +878,7 @@
 
  (defoperator intensity-to-decibels-contains (?sought)
    :preconditions (
+		   (time ?t)
 		   (any-member ?sought ((at (intensity ?wave) ?t)
 					(at (db-intensity ?wave) ?t))))
    :effects (
@@ -887,16 +889,17 @@
    :preconditions (
        (variable  ?int  (at (intensity ?wave) ?t))
        (variable  ?intdb  (at (db-intensity ?wave) ?t))
+       (variable  ?int0  (db-intensity-zero))
    )
-   :effects (
-    (eqn  (= ?intdb (* 10 (log (/ ?int (db-intensity-zero)) 10)))
-                (intensity-to-decibels ?wave ?t))
-   )
+   :effects 
+   ;; this is not the lisp (log x 10)
+   ((eqn  (= ?intdb (* 10 (log10 (/ ?int ?int0) )))
+	  (intensity-to-decibels ?wave ?t)))
    :hint (
       (point (string "You can express intensity in decibels"))
       (bottom-out (string "Write the equation ~A" 
-			  ((= ?intdb (* 10 (log (/ ?int (db-intensity-zero)) 
-						10))) algebra) ))
+			  ((= ?intdb (* 10 (log10 (/ ?int ?int0) 
+						))) algebra) ))
       ))
 
 ;;; 
@@ -915,7 +918,7 @@
 		  (time ?t)
 		  (any-member ?sought ((at (intensity ?wave) ?t)
 				       (at (power ?wave ?source) ?t)
-				       (at (mag (displacement ?wave ?source)) ?t)))
+				       (at (mag (relative-position ?wave ?source)) ?t)))
 		  )
   :effects (
 	    (eqn-contains (intensity-to-power ?wave ?source ?t) ?sought)))
@@ -924,7 +927,7 @@
   :preconditions (
 		  (variable  ?int  (at (intensity ?wave) ?t))
 		  (variable  ?power  (at (power ?wave ?source) ?t))
-		  (variable  ?r (at (mag (displacement ?wave ?source)) ?t))
+		  (variable  ?r (at (mag (relative-position ?wave ?source)) ?t))
 		  )
   :effects (
 	    (eqn  (= ?power (* 4 $p ?r ?r ?int))

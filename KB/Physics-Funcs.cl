@@ -439,12 +439,19 @@
          ((not (listp eqn))
           (error "~&Non-eqn ~a" eqn))
          (T (union (vars-in-eqn (car eqn)) (vars-in-eqn (cdr eqn))))))
+;;;
+;;;  Yuck!  This should match the operators independently re-defined in:
+;;;  Help/parse-andes.cl
+;;;  Help/pre2in.cl
+;;;  ReportGenerators/SolcompRep.cl
+;;;  ReportGenerators/SolutionComponents.cl
+;;;
+(defparameter *algebraic-operators* 
+    '(= + - * / ^ sin cos tan abs ln log10 sqrt exp))
 
-(defparameter *algebraic-operators* '(= + - * / ^ sin cos tan sqrt abs exp ln))
-
-; Symbols for certain constants are understood by the solver. These have
-; to be removed from the list of variables in an equation in some contexts
-; we don't change vars-in-eqn since might need all symbols in other contexts.
+;;; Symbols for certain constants are understood by the solver. These have
+;;; to be removed from the list of variables in an equation in some contexts
+;;; we don't change vars-in-eqn since might need all symbols in other contexts.
 (defparameter *phys-constants* '(|$p| |$P| |kCoulumb|))
 (defun physconstp (exp) (member exp *phys-constants*))
 
