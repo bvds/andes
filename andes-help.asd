@@ -8,6 +8,17 @@
 (in-package :user)
 (in-package :asdf)
 
+;;;;   Load the source file, without compiling
+;;;;   asdf:load-op reloads all files, whether they have been
+;;;;   changed or not.
+
+(defclass no-compile-file (asdf:cl-source-file) ())
+(defmethod asdf:perform ((o asdf:compile-op) (s no-compile-file))
+  nil)
+(defmethod asdf:output-files ((o asdf:compile-op) (s no-compile-file))
+  (list (component-pathname s)))
+
+
 (defsystem :andes-help
   :name "Andes help"
   :description "Andes physics tutor system: helpsystem"
@@ -90,8 +101,9 @@
 				     (:file "ProcDepth")
 				     (:file "UtilFuncs")
 				     ;; file must be loaded before compile
-				     (:file "Tests"
-					    :in-order-to ((compile-op (load-source-op "Tests"))))
+				     (:no-compile-file "Tests"
+						       ;;    :in-order-to ((compile-op (load-source-op "Tests")))
+						       )
 				     ))
 	       ))
 
