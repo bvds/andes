@@ -94,7 +94,6 @@
 				     (:file "optics")          
 				     (:file "vectors")
 				     (:file "makeprob")        
-				     (:file "vectors-problems")
 				     ;; there is some ugly code here
 				     (:file "circuits")
 				     ))
