@@ -82,17 +82,26 @@
 	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
 
 ;;;
-;;;  For doppler problems, we have to introduce a frequency at a time.
+;;;  For doppler problems, we have to introduce a frequency as
+;;;  observed by someone
 ;;;
 
-(defoperator define-frequency-time (?wave ?t)
+(def-qexp observed-frequency (observed-frequency ?wave ?me)
+  :units |Hz|
+  :restrictions nonnegative 
+  :english ("the frequency of ~A as observed by ~A" 
+	       (nlg ?wave) (nlg ?me))
+  :fromworkbench `(at (observed-frequency ,body) ,time))
+
+(defoperator define-observed-frequency (?wave ?me ?t)
   :preconditions
-  ((bind ?freq-var (format-sym "freq_~A_~A" 
-			       (body-name ?wave) (time-abbrev ?t))))
-  :effects ((variable ?freq-var (at (frequency ?wave) ?t))
-	    (define-var (at (frequency ?wave) ?t)))
+  ((bind ?freq-var (format-sym "freq_~A_~A_~A" 
+			       (body-name ?wave) (body-name ?me) 
+			       (time-abbrev ?t))))
+  :effects ((variable ?freq-var (at (observed-frequency ?wave ?me) ?t))
+	    (define-var (at (observed-frequency ?wave ?me) ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
+	  (string "Define a variable for the frequency of ~A as observed by ~A by using the Add Variable command on the Variable menu and selecting observed frequency."  ?wave ?me))))
 
 ;;
 ;; period is used in some circular motion rules:
@@ -739,8 +748,8 @@
 (def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer 
 						   ?t ?t-interval)
   :complexity major			; must explicitly use
-  :english ("Formula for doppler frequency shift (frequency)")
-  :ExpFormat ("using formula for doppler frequency shift (frequency)")
+  :english ("Formula for doppler frequency shift")
+  :ExpFormat ("using formula for doppler frequency")
   :EqnFormat ("fo=fs*(1+vo/vw)/(1-vs/vw))")) 
 
 ;;; velocities should be constant over a large enough
@@ -756,7 +765,7 @@
    (test (tinsidep-include-second-endpoint ?t ?t-interval))
    (any-member ?sought ((frequency ?source)
 			(wave-speed ?wave)
-			(at (frequency ?observer) ?t)
+			(at (observed-frequency ?source ?observer) ?t)
 			;; we *assume* the interval is big enough
 			(at (mag (relative-vel ?source ?wave)) ?t-interval) 
 			(at (mag (relative-vel ?observer ?wave)) ?t-interval)
@@ -781,7 +790,7 @@
 				    ?t-interval))
    (variable ?vw (wave-speed ?wave))		  
    (variable ?fs (frequency ?source))		  
-   (variable ?fo (at (frequency ?observer) ?t))
+   (variable ?fo (at (observed-frequency ?source ?observer) ?t))
    ;; vector from observer to source
 		  ;; BvdS:  this is 180 deg off from phi in my notes
    (variable ?phi (at (dir (relative-position 
