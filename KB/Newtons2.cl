@@ -1688,7 +1688,7 @@
        (at (mag(relative-position ?b ?o)) ?t2) 
        (at (mag(displacement ?b)) (during ?t1 ?t2))
                          ))
-     ; angle r1 must be given, and must be able to determine angle d12
+     ;; angle r1 must be given, and must be able to determine angle d12
      (given (at (dir(relative-position ?b ?o)) ?t1) ?dir-r1)
      (displacement-dir ?b (during ?t1 ?t2) ?dir-d12)
      (test (perpendicularp ?dir-r1 ?dir-d12))
@@ -1776,15 +1776,18 @@
 ;;; the body and time.  Thus, most frequently, ?b and ?t will be bound at the
 ;;; conditions are subgoalled on. 
 ;;; 
-;;; Because Andes won't let students define two variables for the same quantity,
-;;; this operator checks to make sure that a mass variable has not already been defined
-;;; for this body, either by the body tool or the variable definition tool. 
+;;; Because Andes won't let students define two variables for the same 
+;;; quantity, this operator checks to make sure that a mass variable has not 
+;;; already been defined for this body, either by the body tool or the 
+;;; variable definition tool. 
 
-;; This assumes you can draw a body at *any* defined time, something which might be done to achieve
-;; the goal of defining a (timeless) mass variable for a body. But this is not right for compound
-;; bodies in momentum problems with splits or joins, in which the compound doesn't really exist
-;; at all times in the problem. So we have a separate operator to draw compound bodies that checks
-;; to make sure the time is not ruled out by specificiation of a split or join collision (see linmom).
+;;; This assumes you can draw a body at *any* defined time, something which 
+;;; might be done to achieve the goal of defining a (timeless) mass variable 
+;;; for a body. But this is not right for compound bodies in momentum problems 
+;;; with splits or joins, in which the compound doesn't really exist
+;;; at all times in the problem. So we have a separate operator to draw 
+;;; compound bodies that checks to make sure the time is not ruled out by 
+;;; specificiation of a split or join collision (see linmom).
 
 (defoperator draw-body (?b ?t)
    :specifications " 
@@ -1810,15 +1813,16 @@
 
 (defoperator draw-compound-body (?b ?t)
  :preconditions
-    ((bind ?b `(compound ,@?bodies)) ; shorthand
+    ((bind ?b `(compound ,@?bodies)) ;shorthand
      (object ?b)
      (time ?t)
-     ; make sure body time not invalidated by split or join collision. We take compound's existence
-     ; to include the appropriate endpoint of the collision open interval but not inside.
+     ;; make sure body time not invalidated by split or join collision. 
+     ;; We take compound's existence to include the appropriate endpoint 
+     ;; of the collision open interval but not inside.
      (not (collision ?bodies (during ?t1 ?t2) ?type) 
-          ; such that either:
+          ;; such that either:
           (or (and (eq ?type 'split) 
-	           (not (tearlierp ?t `(during ,?t1 ,?t2)))) ; t is inside or after split
+	           (not (tearlierp ?t `(during ,?t1 ,?t2)))) ;t is inside or after split
 	      (and (eq ?type 'inelastic)
 	           (tearlierp ?t ?t2)))) ; t is before or inside join 
      (not (variable ?dont-care (mass ?b)))
@@ -5129,7 +5133,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
  
-;;; =============================  nl fbd  =============================================
+;;; =============================  nl fbd  ====================================
 
 ;;; This operator represents the procedure for drawing all forces on a
 ;;; given body.  The procedure is simply to draw each of them.  Duh.
@@ -5257,10 +5261,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
 
 
-;; following draws a standard free-body-diagram, for qualititative problems that ask for 
-;; fbd's only.  This shows a body and all forces on it. It differs from the "NL" vector diagram 
-;; preparatory to applying Newton's Laws in that NL diagram also includes acceleration and axes.
-;; we make axes optional here.
+;;; The following draws a standard free-body-diagram, for qualititative 
+;;; problems that ask for fbd's only.  This shows a body and all forces on it.
+;;; It differs from the "NL" vector diagram preparatory to applying 
+;;; Newton's Laws in that NL diagram also includes acceleration and axes.
+;;; we make axes optional here.
 (defoperator draw-standard-fbd (?b ?t)
    :preconditions 
            ((body ?b ?t)
@@ -6025,53 +6030,54 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write ~a" ((= ?v1-var ?v2-var) algebra)))))
 
 
-;================ Conservation of Energy ===============
-
-; This method applies conservation of mechanical energy to a single body 
-; at different times to find the sought quantity. It writes the top-level 
-; equality of ; total mechanical energy, writes equations for all the 
-; constituent terms (kinetic and potential) making up total mechanical energy 
-; at each time, and plugs in the terms to get the final equation. 
-;
-; We look for gravitational potential energy due to nearby planet and 
-; elastic potential energy stored in a compressed massless spring in contact 
-; with the body at some time.  Properly speaking, the total energy is a 
-; property of the body-planet-spring system, but that is implicit here. 
-; For the future we should generalize this method to choose a system of objects 
-; and sum the energies of all its constitutents, but this simple method 
-; suffices to solve for the energy problems in Andes 1.
-;
-; Note: Many problems could in principle be solved either by kinematics or
-; conservation of energy or a combination. However, our energy solution 
-; requires use of the "height" quantity for gravitational pe, which specifies
-; the height of the body with respect to a zero-level stipulated in the 
-; problem givens.  Since the "height" of the body at various times is only 
-; explicitly specified in the givens when we want energy methods to be used, 
-; this functions to restrict the problems in which energy solutions will be found.  
-; We don't have fully general rules that relate "height" to any other quantities 
-; such as displacement, distance travelled, or distance between points, even 
-; though change in height is in fact related to these. (Also, even if we could
-; get the *change* in height from these, we still wouldn't know which height 
-; was the zero-level.) 
-; Moreover, if we *don't* specify displacement and time then kinematics solutions 
-; cannot be found. 
-; Specify both height and the kinematics quantities in the givens if you want 
-; both kinematics and energy solutions to be found.
-;
-; These problems also rely on the expedient used in the CLIPS solutions of 
-; simply stipulating the reference-point used as the zero of gravitational pe,
-; so that height is a one-argument quantity.  This should probably be changed 
-; in the future. The ANDES interface could change to provide some way for the 
-; student to choose the zero level, and their equations would have to be translated.
-
-; Note we need time parameters in the operator because one of the times is
-; going to be chosen, and might be chosen multiple ways. For example, if our
-; sought is height at 3 (as in Exe1a) we want different op-apps for 
-; cons-energy 2 3 and cons-energy 1 3 because these are different equations
-; in the solution graph.
+;;;================ Conservation of Energy ===============
+;;;
+;;; This method applies conservation of mechanical energy to a single body 
+;;; at different times to find the sought quantity. It writes the top-level 
+;;; equality of ; total mechanical energy, writes equations for all the 
+;;; constituent terms (kinetic and potential) making up total mechanical 
+;;; energy at each time, and plugs in the terms to get the final equation. 
+;;;
+;;; We look for gravitational potential energy due to nearby planet and 
+;;; elastic potential energy stored in a compressed massless spring in contact 
+;;; with the body at some time.  Properly speaking, the total energy is a 
+;;; property of the body-planet-spring system, but that is implicit here. 
+;;; For the future we should generalize this method to choose a system of 
+;;; objects and sum the energies of all its constitutents, but this simple 
+;;; method suffices to solve for the energy problems in Andes 1.
+;;;
+;;; Note: Many problems could in principle be solved either by kinematics or
+;;; conservation of energy or a combination. However, our energy solution 
+;;; requires use of the "height" quantity for gravitational pe, which specifies
+;;; the height of the body with respect to a zero-level stipulated in the 
+;;; problem givens.  Since the "height" of the body at various times is only 
+;;; explicitly specified in the givens when we want energy methods to be used, 
+;;; this functions to restrict the problems in which energy solutions will be 
+;;; found.  We don't have fully general rules that relate "height" to any 
+;;; other quantities such as displacement, distance travelled, or distance 
+;;; between points, even though change in height is in fact related to these. 
+;;; (Also, even if we could get the *change* in height from these, we still 
+;;; wouldn't know which height was the zero-level.) 
+;;; Moreover, if we *don't* specify displacement and time then kinematics 
+;;; solutions cannot be found. 
+;;; Specify both height and the kinematics quantities in the givens if you 
+;;; want both kinematics and energy solutions to be found.
+;;;
+;;; These problems also rely on the expedient used in the CLIPS solutions of 
+;;; simply stipulating the reference-point used as the zero of gravitational 
+;;; pe, so that height is a one-argument quantity.  This should probably be
+;;; changed in the future. The ANDES interface could change to provide some 
+;;; way for the student to choose the zero level, and their equations would 
+;;; have to be translated.
+;;;
+;;; Note we need time parameters in the operator because one of the times is
+;;; going to be chosen, and might be chosen multiple ways. For example, if our
+;;; sought is height at 3 (as in Exe1a) we want different op-apps for 
+;;; cons-energy 2 3 and cons-energy 1 3 because these are different equations
+;;; in the solution graph.
 (defoperator cons-energy-contains (?sought)
  :preconditions (
-  ; check sought is one of cons-energy quants at timepoint t
+  ;; check sought is one of cons-energy quants at timepoint t
   (any-member ?sought 
               ((at (mag (velocity ?b)) ?t)
 	       (mass ?b) 
@@ -6080,11 +6086,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	       (at (compression ?s) ?t)
 	       (gravitational-acceleration ?planet)
 	      ))
-  ; Sought mass doesn't bind t; sought spring property doesn't bind b. 
-  ; Following ensures we choose one. If it isn't appropriate e.g. chosen 
-  ; body doesn't contact spring whose spring-constant is sought at times,
-  ; this psm will still be applied but the resulting equation will fail to 
-  ; contain the sought, so it will be rejected further on.
+  ;; Sought mass doesn't bind t; sought spring property doesn't bind b. 
+  ;; Following ensures we choose one. If it isn't appropriate e.g. chosen 
+  ;; body doesn't contact spring whose spring-constant is sought at times,
+  ;; this psm will still be applied but the resulting equation will fail to 
+  ;; contain the sought, so it will be rejected further on.
   (object ?b)   
   (time ?t)   
   (test (time-pointp ?t))
@@ -6095,10 +6101,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
    	     (not (equal ?other-t ?t))))
   (bind ?t1 (min ?t ?other-t))
   (bind ?t2 (max ?t ?other-t))
-  ; need to ensure all forces conservative so energy is in fact conserved.
-  ; Cheap way would be to assert it in problem statement. For now, test no 
-  ; friction or drag, external applied or tension force on body. We test
-  ; by testing for the situation descriptions that entail these forces.
+  ;; need to ensure all forces conservative so energy is in fact conserved.
+  ;; Cheap way would be to assert it in problem statement. For now, test no 
+  ;; friction or drag, external applied or tension force on body. We test
+  ;; by testing for the situation descriptions that entail these forces.
   (not (given (at (dir (force ?b ?agent1 applied)) ?t-applied) ?dir1)
        (tinsidep ?t-applied `(during ,?t1 ,?t2)))
   (not (tied-to ?string1 ?b                        ?t-tension ?dir2)
@@ -6107,41 +6113,41 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (tinsidep ?t-friction `(during ,?t1 ,?t2)))
   (not (drag    ?b ?medium                         ?t-drag)
        (tinsidep ?t-drag `(during ,?t1 ,?t2)))
-  ; Also not conserved if an external work source is given (may not
-  ; be able to find force in this case, but still told it is doing work).
+  ;; Also not conserved if an external work source is given (may not
+  ;; be able to find force in this case, but still told it is doing work).
   (not (does-work-on ?agent ?b ?t-work)
        (tinsidep ?t-drag `(during ,?t1 ,?t2)))
-  ; make sure we can determine all forces:
+  ;; make sure we can determine all forces:
   (not (unknown-forces))
   )
  :effects (
     (derived-eqn-contains (cons-energy ?b ?t1 ?t2) ?sought)
-    ; set flag to choose standard axes because energy problem
+    ;; set flag to choose standard axes because energy problem
     (use-energy-axes)
  ))
 
 (defoperator apply-energy-cons (?b ?t1 ?t2)
  :preconditions (
-  ; Draw the boda planet y
+  ;; Draw the boda planet y
   (body ?b (during ?t1 ?t2))
   (energy-axes ?b (during ?t1 ?t2))
-  ; write equation ME_i = ME_f 
+  ;; write equation ME_i = ME_f 
   (eqn ?te12eqn (total-energy-cons ?b ?t1 ?t2))
-  ; write equation ME_i = K_i + Ug_i [+ Us_i]
-  ; plus sub-eqns for all terms on the rhs, getting combined result
+  ;; write equation ME_i = K_i + Ug_i [+ Us_i]
+  ;; plus sub-eqns for all terms on the rhs, getting combined result
   (derived-eqn (= ?te1 ?te1-exp) (total-energy ?b ?t1))
-  ; write equation ME_f = K_f + Ug_f [+ Us_f]
-  ; plus sub-eqns for terms on the rhs, getting combined result
+  ;; write equation ME_f = K_f + Ug_f [+ Us_f]
+  ;; plus sub-eqns for terms on the rhs, getting combined result
   (derived-eqn (= ?te2 ?te2-exp) (total-energy ?b ?t2))
-  ; write total mech. energy equivalence with all energy terms plugged in
+  ;; write total mech. energy equivalence with all energy terms plugged in
   (bind ?eqn-algebra `(= ,?te1-exp ,?te2-exp))
   (debug "final cons-energy eq: ~A~%" ?eqn-algebra)
  )
  :effects (
   (derived-eqn ?eqn-algebra (cons-energy ?b ?t1 ?t2))
  )
- ; no hints here because effect is summary derived-equation -- students write
- ; only the subsidiary equations, so only ops for those have hints
+ ;; no hints here because effect is summary derived-equation -- students write
+ ;; only the subsidiary equations, so only ops for those have hints
 )
 
 ; generate equation TME_1 = TME_2
@@ -6163,23 +6169,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bottom-out (string "Write ~a" ((= ?te1-var ?te2-var) algebra)))
   ))
 
-; Following writes an equation for total mechanical energy and also fills in
-; expressions for all of the constituent terms that occur in it, returning
-; the appropriate combination as a derived equation.  Ex:
-;       TME = K + Ug + Us                       (total-energy-top)
-;         K = 1/2 m*v^2
-;        Ug = m*g*h
-;        Us = 1/2 k*x^2 
-;       ------------------------------------
-;       TME = 1/2 m*v^2 + m*g*h [+ 1/2*k*x^2]    (total-energy)
-; The spring term is omitted for problems without a spring. Other forms of
-; potential energy (e.g. electrical) might be added in the future.
-;
-; This operation similar to writing a component equation then plugging in 
-; projections for all of the components in it.  Rather than use the technique
-; used for projections, we rely on a naming convention for the equations for 
-; the constituent terms, s.t. an expression for (at (energy-type ?b) ?t) can 
-; be obtained by writing the equation named (energy-type ?b ?t)
+;;; Following writes an equation for total mechanical energy and also fills in
+;;; expressions for all of the constituent terms that occur in it, returning
+;;; the appropriate combination as a derived equation.  Ex:
+;;;       TME = K + Ug + Us                       (total-energy-top)
+;;;         K = 1/2 m*v^2
+;;;        Ug = m*g*h
+;;;        Us = 1/2 k*x^2 
+;;;       ------------------------------------
+;;;       TME = 1/2 m*v^2 + m*g*h [+ 1/2*k*x^2]    (total-energy)
+;;; The spring term is omitted for problems without a spring. Other forms of
+;;; potential energy (e.g. electrical) might be added in the future.
+;;;
+;;; This operation similar to writing a component equation then plugging in 
+;;; projections for all of the components in it.  Rather than use the technique
+;;; used for projections, we rely on a naming convention for the equations for 
+;;; the constituent terms, s.t. an expression for (at (energy-type ?b) ?t) can 
+;;; be obtained by writing the equation named (energy-type ?b ?t)
 (defoperator write-total-energy (?b ?t)
  :preconditions (
    ; first get top-level equation summing constituents of total energy
@@ -6202,8 +6208,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (derived-eqn (= ?te-var (+ . ?energy-exprs)) (total-energy ?b ?t))
  ))
 
-; equation TME = Kinetic Energy + Grav PE + Spring PE
-; !!! spring PE term could just be omitted if spring not extended at t
+;;; equation TME = Kinetic Energy + Grav PE + Spring PE
+;;; !!! spring PE term could just be omitted if spring not extended at t
 (defoperator write-total-energy-top (?b ?t)
   :preconditions (
    (variable ?te-var (at (total-energy ?b) ?t))
@@ -6222,8 +6228,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write ~a" ((= ?te-var (+ ?ke-var . ?pe-vars)) algebra)))
    ))
 
-; these operators achieve (pe-var ?b ?t ?var) by defining a variable needed for 
-; applicable constituents of the potential energy of body at t in this problem
+;;; these operators achieve (pe-var ?b ?t ?var) by defining a variable needed 
+;;; for applicable constituents of the potential energy of body at t in this 
+;;; problem
 (defoperator define-grav-pe-var (?b ?t)
     :preconditions (
 	  ; use this for gravity near surface of a planet only
@@ -6234,19 +6241,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator define-spring-pe (?b ?t)
     :preconditions (
-       ; use this form if spring contact present anywhere in problem -- 
-       ; spring pe may be zero at some times but still use a term for it.
+       ;; use this form if spring contact present anywhere in problem -- 
+       ;; spring pe may be zero at some times but still use a term for it.
        (in-wm (spring-contact ?b ?spring . ?dontcare))
        (variable ?var (at (spring-energy ?b ?spring) ?t))
     )
     :effects ( (pe-var ?b ?t ?var) ))
 
 
-;;
-;; equations for constituents of total energy:
-;;
+;;;
+;;; equations for constituents of total energy:
+;;;
 
-; equation KE = 1/2 * m * v^2
+;; equation KE = 1/2 * m * v^2
 
 #| ; would be needed if a psm, but currently used as subsidiary eqn only
 (defoperator kinetic-energy-contains (?sought)
@@ -6276,8 +6283,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
 
-; equation PE_grav = m * g * h
-; Note relies on problem statement stipulating zero level. 
+;; equation PE_grav = m * g * h
+;; Note relies on problem statement stipulating zero level. 
 (defoperator write-grav-energy (?body ?planet ?t)
   :preconditions (
   (near-planet ?planet)
@@ -6298,10 +6305,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;;; equation PE_spring = 1/2 * k * d^2 
 ;;; where k = spring const, d = compression distance.
-;;; This only applies if spring in contact with object with non-zero compression, as
-;;; given in the spring-contact statement. We allow spring-contact to be asserted 
-;;; even when spring is uncompressed so that the general equation for spring PE is
-;;; used even when d=0 -- but could have special case to just write Us=0 in this case.
+;;; This only applies if spring in contact with object with non-zero 
+;;; compression, as given in the spring-contact statement. We allow 
+;;; spring-contact to be asserted even when spring is uncompressed so that 
+;;; the general equation for spring PE is used even when d=0 -- but could have 
+;;; special case to just write Us=0 in this case.
 ;;; !!! PE-var should include slot for the spring in definition, but this
 ;;; would block use in write-null-spring-energy below.
 (defoperator write-spring-energy (?body ?spring ?t)
@@ -6451,11 +6459,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; that it is a vector equation which could be projected along x or y axes.
 ;;;
 ;;; Also, the generic code that chooses axis to apply along (e.g. 
-;;; select-compo-eqn-for-scalar) would prevent this from ever being used to get 
-;;; that change in height is zero in case of horizontal displacement. The reason 
-;;; is that that code will not select a vector equation along the y axis if the 
-;;; vector points along the x axis, to prevent writing degenerate equations that 
-;;; can't be used to solve for the scalar when zero projections are used. 
+;;; select-compo-eqn-for-scalar) would prevent this from ever being used to 
+;;; get that change in height is zero in case of horizontal displacement. 
+;;; The reason is that that code will not select a vector equation along 
+;;; the y axis if the vector points along the x axis, to prevent writing 
+;;; degenerate equations that can't be used to solve for the scalar when zero 
+;;; projections are used. 
 ;;;
 ;;; For those reasons we post a compo-eqn-selected result -- see below.
 (defoperator height-dy-contains (?quantity)
@@ -6484,9 +6493,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
 		  (body ?b ?t)
 		  (vector ?b (at (displacement ?b) ?t) ?dir)
-		  ;; Must use standard axes for this. We put this before drawing displacement
-		  ;; so don't get vector-aligned axes from existing operators.  !!! OP Hint is
-		  ;; bad, though, doesn't explain why need standard axes in this case.
+		  ;; Must use standard axes for this. We put this before 
+		  ;; drawing displacement so don't get vector-aligned axes 
+		  ;; from existing operators.  !!! OP Hint is bad, though, 
+		  ;; doesn't explain why need standard axes in this case.
 		  (energy-axes ?b ?t)
 		  )
   :effects (
@@ -6586,27 +6596,27 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-work (?b ?agent ?t)
  
  :preconditions (
-    ; !!! could be more than one force from agent, e.g. normal and friction
-    ; from floor.  This should be fixed by adding type slot to work argument.
-    ; Until then, just ignore normal force if there's more than one, since
-    ; it does not contribute to the work done by this agent. Leave it if it's
-    ; the only one in frictionless problems so we can write Wa = 0.
+    ;; !!! could be more than one force from agent, e.g. normal and friction
+    ;; from floor.  This should be fixed by adding type slot to work argument.
+    ;; Until then, just ignore normal force if there's more than one, since
+    ;; it does not contribute to the work done by this agent. Leave it if it's
+    ;; the only one in frictionless problems so we can write Wa = 0.
     (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
 	   ?type1 ?agent-force-types)
     (debug "write-work: agent ~a exerts forces of type ~A~%" ?agent ?agent-force-types)
     (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
                            (remove 'Normal ?agent-force-types))))
     (debug "write-work: choosing force of type ~A for work by ~A~%" ?type ?agent)
-    ; don't apply this to spring force which varies over interval
+    ;; don't apply this to spring force which varies over interval
     (test (not (eq ?type 'spring)))
-    ; must draw body, force and displacement vectors
+    ;; must draw body, force and displacement vectors
     (body ?b ?t)
-    ; make sure standard axis is allowed, even if unused
+    ;; make sure standard axis is allowed, even if unused
     (axis-for ?b ?t x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (displacement ?b) ?t) ?dir-d)
-    ; make sure they are not perpendicular. If so, variant write-zero-work 
-    ; operator will write workF = 0
+    ;; make sure they are not perpendicular. If so, variant write-zero-work 
+    ;; operator will write workF = 0
     (test (not (perpendicularp ?dir-f ?dir-d)))
     (in-wm (variable ?F-var (at (mag (force ?b ?agent ?type)) ?t)))
     (in-wm (variable ?d-var (at (mag (displacement ?b)) ?t)))
@@ -6625,11 +6635,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?work-var (* ?F-var ?d-var (cos ?theta-var))) algebra)))
  ))
 
-; Following operator writes work = 0 for work done by forces known to be 
-; orthogonal to the displacement.
-; When work done by an individual force, one or the other of 
-; work or zero-work equations should apply
-; !!! If agent exerts more than one force this should not apply.
+;;; Following operator writes work = 0 for work done by forces known to be 
+;;; orthogonal to the displacement.
+;;; When work done by an individual force, one or the other of 
+;;; work or zero-work equations should apply
+;;; !!! If agent exerts more than one force this should not apply.
 (defoperator zero-work-contains (?sought)
  :preconditions 
     ((in-wm (use-work))
@@ -6641,12 +6651,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-zero-work (?b ?agent ?t)
  
  :preconditions 
-    ; must draw force and displacement vectors
-    ; to make sure they are perpendicular. 
+    ;; must draw force and displacement vectors
+    ;; to make sure they are perpendicular. 
    (
-    ; !!! could be more than one force from agent, e.g. normal and friction
-    ; from floor.  This should be fixed by adding type slot to work argument.
-    ; Until then, only apply this rule if there is a unique force. 
+    ;; !!! could be more than one force from agent, e.g. normal and friction
+    ;; from floor.  This should be fixed by adding type slot to work argument.
+    ;; Until then, only apply this rule if there is a unique force. 
     (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
 	   ?type1 ?agent-force-types)
     (test (not (cdr ?agent-force-types)))
@@ -6661,38 +6671,39 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (bottom-out (string "Write the equation ~A" ((= ?work-var 0) algebra)))
  ))
 
-; Following defines a variable for the angle between two vectors
-; for the case where the angle of the two vectors is known.
-; The angle between is always defined as the smaller of two possible angles.
-; In this case a side-effect of the definition is to make the 
-; angle-between known as well so it won't be sought further.
-; Vector quantities are identified in this quant by expressions of the form 
-; 	(at (vec ?b ...) ?t)  
-; which include the times of each of the two vectors. These could in principle
-; be different if you were defining the angle between a vector at one time
-; and the same vector at another.
-;
-; So that angle between v1 and v2 gets the same representation as angle between v2 and v1,
-; we require the vector expressions in any angle-between expression to be sorted. Any goal 
-; to be achieved by this operator will know the major type of the vectors needed, so can 
-; sort the vector expressions in the goal to be achieved.
-;
-; On the ANDES interface an angle can also be introduced on the diagram 
-; by labelling the angle between the drawn vectors using the angle label tool.
-; A separate operator should handle that.
+;;; Following defines a variable for the angle between two vectors
+;;; for the case where the angle of the two vectors is known.
+;;; The angle between is always defined as the smaller of two possible angles.
+;;; In this case a side-effect of the definition is to make the 
+;;; angle-between known as well so it won't be sought further.
+;;; Vector quantities are identified in this quant by expressions of the form 
+;;; 	(at (vec ?b ...) ?t)  
+;;; which include the times of each of the two vectors. These could in 
+;;; principle be different if you were defining the angle between a vector at 
+;;; one time and the same vector at another.
+;;;
+;;; So that angle between v1 and v2 gets the same representation as angle 
+;;; between v2 and v1, we require the vector expressions in any angle-between 
+;;; expression to be sorted. Any goal to be achieved by this operator will 
+;;; know the major type of the vectors needed, so can sort the vector 
+;;; expressions in the goal to be achieved.
+;;;
+;;; On the ANDES interface an angle can also be introduced on the diagram by 
+;;; labelling the angle between the drawn vectors using the angle label tool.
+;;; A separate operator should handle that.
 (defoperator define-angle-between-known (?vec1 ?vec2)
  :preconditions (
- ; vectors must be drawn first, with known angles
- ; note vector's axis owner bodies need not be the same
+ ;; vectors must be drawn first, with known angles
+ ;; note vector's axis owner bodies need not be the same
  (vector ?b1 ?vec1 (dnum ?v1-dir |deg|))
  (vector ?b2 ?vec2 (dnum ?v2-dir |deg|))
- ; fetch vector mag vars for forming angle variable name only
+ ;; fetch vector mag vars for forming angle variable name only
  (bind ?v1-mag-exp (vector-mag ?vec1))
  (bind ?v2-mag-exp (vector-mag ?vec2))
  (in-wm (variable ?v1-var ?v1-mag-exp))
  (in-wm (variable ?v2-var ?v2-mag-exp))
  (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
- ; compute angle between vectors to make it known as side-effect.
+ ;; compute angle between vectors to make it known as side-effect.
  (bind ?angle (min (mod (- ?v1-dir ?v2-dir) 360)
                    (mod (- ?v2-dir ?v1-dir) 360)))
  (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
@@ -6741,9 +6752,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
    (?v1-var algebra) (?v2-var algebra)))
  ))
-;
-; Following defines a variable for the work done by a force agent
-; over a time interval.
+;;;
+;;; Following defines a variable for the work done by a force agent
+;;; over a time interval.
 (defoperator define-work (?b ?agent ?t)
  :preconditions (
  (object ?b)
@@ -6813,7 +6824,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; CLIPS solutions and we avoid that for now since we are discouraging 
 ;; introduction of net force terms where not needed.
 
-;#|; begin chaining net-work method
+;; begin chaining net-work method
 
 (defoperator net-work-contains (?sought)
   :preconditions 
@@ -6860,7 +6871,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Write the equation ~A" ((= ?net-work-var (+ . ?work-vars)) algebra)))
   ))
 
-;|#; end chaining version of net-work method
+;; end chaining version of net-work method
 
 (defoperator draw-net-work-diagram (?b ?t)
   :specifications "choose body and draw all forces on it"
@@ -6872,71 +6883,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     )
    :effects ( (net-work-diagram ?b ?t) ))
 
-;(defoperator draw-optional-axes (?b ?t)
-;  :effects       ((opt-axis-drawn ?b ?t))
-;  :preconditions ((axis-for ?b ?t x ?rot)))
-
-#|;begin all-in-one net-work
-
-(defoperator net-work-contains (?sought)
-  :preconditions 
-  ((in-wm (use-work))
-   (any-member ?sought ( 
-             (at (net-work ?b) ?t) 
-	     (at (work ?b ?agent) ?t)
-	     	      ))
-  (test (time-intervalp ?t)))
-  :effects  ; note this version issues in derived-eqn
-  ((derived-eqn-contains (net-work ?b ?t) ?sought)))
-
-(defoperator apply-net-work (?b ?t)
-  :preconditions (
-   ; draw free-body diagram showing all forces on object
-   ; and extract list of force *agents* to use in work quantities
-   (body ?b ?t)
-   (forces ?b ?t ?forces)
-   (bind ?agents (mapcar #'third ?forces))
-   ; write subsidiary equations for work done by each force agent
-   ; achieving each of these will introduce the relevant variable
-   (map ?agent ?agents
-      (eqn (= ?work-var ?work-exp) (work ?b ?agent ?t))
-      ?work-var ?work-vars) 
-   (debug "net work components: ~A~%" ?work-vars)
-   ; write subsidiary equation for net work as sum of individual works
-   (variable ?net-work-var (at (net-work ?b) ?t))
-   (eqn (= ?net-work-var (+ . ?work-vars)) (net-work-compos ?b ?t))
-   ; collect all work exprs from individual work equations written
-   ; NB: don't collect ?exprs with setof since that will collapse duplicates.
-   (setof (in-wm (eqn (= ?var ?expr) (work ?b ?agent1 ?t)))
-          (= ?var ?expr) ?work-eqns)
-   (bind ?work-exprs (mapcar #'third ?work-eqns))
-   (debug "net work values: ~A~%" ?work-exprs)
-  )
-  :effects (
-   (derived-eqn (= ?net-work-var (+ . ?work-exprs)) (net-work ?b ?t))
-  )
-)
-
-; following writes net-work = work_agent1 + work_agent2 + ... work_agentn
-; Degenerate case of an operator -- eqn-algebra is bound coming in since we 
-; form it easily in caller above. But we need it in effects of something.
-(defoperator write-net-work-compos (?b ?t)
-  :effects 
-    ((eqn (= ?net-work-var ?stuff) (net-work-compos ?b ?t)))
-  ; :hint
-  )
-
-|#; end all-in-one net-work psm code
-
-;;
-;; work-energy psm -- net-work = change in kinetic energy
-;;
-;; In almost all Andes problems where net work can be computed the forces are
-;; constant so an equivalent solution using Newton's Law + constant acceleration
-;; kinematics can also be found.  This principle will also apply in cases where 
-;; conservation of mechanical energy can be used, although it is intended for 
-;; use when a non-conservative force is doing work.
-;;
+;;;
+;;; work-energy psm -- net-work = change in kinetic energy
+;;;
+;;; In almost all Andes problems where net work can be computed the forces are
+;;; constant so an equivalent solution using Newton's Law + constant 
+;;; acceleration kinematics can also be found.  This principle will also 
+;;; apply in cases where conservation of mechanical energy can be used, 
+;;; although it is intended for use with a non-conservative force.
+;;;
 (defoperator work-energy-contains (?sought)
  :preconditions 
   ((in-wm (use-work))
@@ -7034,8 +6989,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  )
 )
 
-; following writes the top-level change in ME equation,
-;       Wnc = ME2 - ME1
+;;; following writes the top-level change in ME equation,
+;;;       Wnc = ME2 - ME1
 (defoperator write-change-ME-top (?b ?t1 ?t2)
   :preconditions (
      (variable ?Wnc (at (work-nc ?b) (during ?t1 ?t2)))
@@ -7052,16 +7007,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                        ((= ?Wnc (- ?ME2 ?ME1)) algebra)))
   ))
 
-;;
-;; Wnc = Wf1 + Wf2 + ... where f1, f2, ... are non-conservative
-;;
+;;;
+;;; Wnc = Wf1 + Wf2 + ... where f1, f2, ... are non-conservative
+;;;
 (defoperator Wnc-contains (?sought)
  :preconditions(
   (in-wm (use-work))
   (any-member ?sought ( (at (work ?body ?agent) ?t)
                         (at (work-nc ?body) ?t) ))
-  ; Need to make sure agent exerts non-conservative force on body
-  ; We do this when writing the equation below.
+  ;; Need to make sure agent exerts non-conservative force on body
+  ;; We do this when writing the equation below.
  )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
@@ -7069,22 +7024,22 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-Wnc (?body ?t)
   :preconditions (
-    ; draw body and standard axes for principle
+    ;; draw body and standard axes for principle
     (body ?body ?t)
     (axis-for ?body ?t x 0)
     (variable ?Wnc (at (work-nc ?body) ?t))
-   ; introduce variables for work done by each non-conservative work source. 
-   ; need to collect list of force *agents* to use in work quantities
-   ; agent can be one we know exerts a force on body, but it can also be
-   ; a power-source we are told is transferring energy to the body, where
-   ; we might not have detailed information about the mechanism so can not
-   ; find or draw a force.
+   ;; introduce variables for work done by each non-conservative work source. 
+   ;; need to collect list of force *agents* to use in work quantities
+   ;; agent can be one we know exerts a force on body, but it can also be
+   ;; a power-source we are told is transferring energy to the body, where
+   ;; we might not have detailed information about the mechanism so can not
+   ;; find or draw a force.
    (setof (nc-work-agent ?work-agent ?b ?t)
           ?work-agent ?agents)
-   ; this would actually work if no nc work agents, since algebra module
-   ; accepts (= Wnc (+)) interpreting n-ary sum of zero terms as zero.
-   ; But is there a problem giving help based on this form?
-   ; (test (not (null ?agents)))	
+   ;; this would actually work if no nc work agents, since algebra module
+   ;; accepts (= Wnc (+)) interpreting n-ary sum of zero terms as zero.
+   ;; But is there a problem giving help based on this form?
+   ;; (test (not (null ?agents)))	
    (map ?agent ?agents
       (variable ?work-var (at (work ?b ?agent) ?t))
       ?work-var ?work-vars) 
@@ -7099,10 +7054,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (string "Write the equation ~A" ( (= ?Wnc (+ . ?work-vars)) algebra)))
   ))
 
-; following returns an agent of a non-conservative force on b during t
-; via the nc-work-agent proposition. Note that an agent like the floor 
-; may exert both normal and friction forces on object; we need to ignore
-; the normal force and use the friction force. 
+;;; following returns an agent of a non-conservative force on b during t
+;;; via the nc-work-agent proposition. Note that an agent like the floor 
+;;; may exert both normal and friction forces on object; we need to ignore
+;;; the normal force and use the friction force. 
 (defoperator get-nc-force-agent (?b ?t)
   :preconditions (
       (force ?b ?agent ?type ?t ?dir1 ?action)
@@ -7112,8 +7067,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (nc-work-agent ?agent ?b ?t)
   ))
 
-; if an entity is declared as a power source transmitting energy to ?b,
-; without details of the force, then it is also an agent of Wnc
+;;; if an entity is declared as a power source transmitting energy to ?b,
+;;; without details of the force, then it is also an agent of Wnc
 (defoperator get-nc-force-agent2 (?b ?t)
   :preconditions (
      (in-wm (does-work-on ?agent ?b ?t))
@@ -7134,19 +7089,19 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting work, then defining work done by all non-conservative forces." ((at (work-nc ?b) ?t) def-np)))
 ))
 
-;;
-;; average power = work/time
-;;
-;; Power is the rate of work done by some agent on some body
-;; We can consider instantaneous power at a time point or average power over
-;; a time interval.
-;; We might also need net-power to correspond to net-work, though in all our
-;; power problems there is a single power source, so we don't have much
-;; need to sum up several.
-;; Note in some cases we may be given that the agent is a source of energy 
-;; transfer without being told the details of the mechanism, so we could not
-;; draw the force and compute the work done by the force, but might do it
-;; from the given power output.
+;;;
+;;; average power = work/time
+;;;
+;;; Power is the rate of work done by some agent on some body
+;;; We can consider instantaneous power at a time point or average power over
+;;; a time interval.
+;;; We might also need net-power to correspond to net-work, though in all our
+;;; power problems there is a single power source, so we don't have much
+;;; need to sum up several.
+;;; Note in some cases we may be given that the agent is a source of energy 
+;;; transfer without being told the details of the mechanism, so we could not
+;;; draw the force and compute the work done by the force, but might do it
+;;; from the given power output.
 (defoperator power-contains (?sought)
   :preconditions (
     (any-member ?sought ( (at (work ?b ?agent) ?t)
@@ -7190,15 +7145,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power" ((at (power ?b ?agent) ?t) def-np) ))
  ))
 
-;
-; same as above for net-power = Wnet/t
-;
+;;;
+;;; same as above for net-power = Wnet/t
+;;;
 (defoperator net-power-contains (?sought)
   :preconditions (
     (any-member ?sought ( (at (net-power ?b) ?t)
                           (at (net-work ?b) ?t)
-			  ; for now don't use to find duration:
-			  ; (duration ?t)
+			  ;; for now don't use to find duration:
+			  ;; (duration ?t)
 			  ))
   )
   :effects (
@@ -7234,11 +7189,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting power, and defining power supplied by all forces" ((at (net-power ?b) ?t) def-np) ))
  ))
 
-;
-; instantaneous power = F dot v = F*v*cos(theta)
-;
-; This operator exactly parallels work, with velocity instead of displacement.
-;
+;;;
+;;; instantaneous power = F dot v = F*v*cos(theta)
+;;;
+;;; This operator exactly parallels work, with velocity instead of 
+;;; displacement.
+;;;
 (defoperator inst-power-contains (?sought)
  :preconditions (
     (in-wm (use-work))
@@ -7246,15 +7202,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (at (power ?b ?agent) ?t)
                   (at (mag (force ?b ?agent ?type)) ?t)
 		  (at (mag (velocity ?b)) ?t)
-		  ; NB: vector terms must be in sorted order:
+		  ;; NB: vector terms must be in sorted order:
 		  (angle-between (at (force ?b ?agent ?type) ?t))
 		                 (at (velocity ?b) ?t)
     			))
     (test (time-pointp ?t))
-    ; get list of force agents we can use
+    ;; get list of force agents we can use
     (setof (force ?b ?agent1 ?type1 ?t ?dir1 ?action) 
 	   ?agent1 ?force-agents)
-    ; select a force agent in case sought is velocity, else verify agent
+    ;; select a force agent in case sought is velocity, else verify agent
     (any-member ?agent ?force-agents)
  )
  :effects (
@@ -7264,18 +7220,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-inst-power (?b ?agent ?t)
  
  :preconditions (
-    ; !!! could be more than one force from agent, e.g. normal and friction
-    ; from floor.  This should be fixed by adding type slot to work argument.
-    ; Until then, just ignore normal force if there's more than one, since
-    ; it does not contribute to the work done by this agent. Leave it if it's
-    ; the only one in frictionless problems so we can write Wa = 0.
+    ;; !!! could be more than one force from agent, e.g. normal and friction
+    ;; from floor.  This should be fixed by adding type slot to work argument.
+    ;; Until then, just ignore normal force if there's more than one, since
+    ;; it does not contribute to the work done by this agent. Leave it if it's
+    ;; the only one in frictionless problems so we can write Wa = 0.
     (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
 	   ?type1 ?agent-force-types)
     (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
                            (remove 'Normal ?agent-force-types))))
-    ; must draw body, force and velocity vectors
+    ;; must draw body, force and velocity vectors
     (body ?b ?t)
-    ; make sure standard axis is allowed, even if unused
+    ;; make sure standard axis is allowed, even if unused
     (axis-for ?b ?t x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (velocity ?b) ?t) ?dir-d)
@@ -7295,9 +7251,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?P-var (* ?F-var ?v-var (cos ?theta-var))) algebra)))
  ))
 
-;;=============================================================================
-;; Conservation of Linear Momentum
-;;=============================================================================
+;;;============================================================================
+;;; Conservation of Linear Momentum
+;;;============================================================================
     
 (defoperator linmom-vector-contains (?sought)
   :preconditions (
@@ -7319,37 +7275,39 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   )
   :effects (
   (vector-psm-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
+  ;; since only one compo-eqn under this vector psm, we can just
+  ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (cons-linmom ?bodies (during ?t1 ?t2)) lm-compo ?sought)
   ))
 
 (defoperator draw-linmom-diagram (?bodies ?t1 ?t2)
   :preconditions (
    (not (vector-diagram (cons-linmom ?bodies (during ?t1 ?t2))))
-   ; how much to draw? a lot of vectors at issue:
-   ; total system momentum before, total system momentum after
-   ; constituent momenta (normally 2 initial, 2 final)
-   ; and constituent velocities. 
-   ; Ideally would allow but not require both momenta and velocities. 
-   ; For now we include both so that both get defined.
+   ;; how much to draw? a lot of vectors at issue:
+   ;; total system momentum before, total system momentum after
+   ;; constituent momenta (normally 2 initial, 2 final)
+   ;; and constituent velocities. 
+   ;; Ideally would allow but not require both momenta and velocities. 
+   ;; For now we include both so that both get defined.
 
-   ; For when we provide tool to allow drawing of many-body systems:
-          ; draw system
-	  ;(body (system ?b1 ?b2) (during ?t1 ?t2))
-   ; draw initial constituent velocity and momentum
+   ;; For when we provide tool to allow drawing of many-body systems:
+   ;;     draw system
+   ;;     (body (system ?b1 ?b2) (during ?t1 ?t2))
+   ;; draw initial constituent velocity and momentum
    (initial-momentum-drawn ?bodies ?t1)
-   ; draw final constitutent velocity and momentum
+   ;; draw final constitutent velocity and momentum
    (final-momentum-drawn ?bodies ?t2)
-   ; draw axis to use for many-body system. 
-   ; ! Because no vectors have been drawn on the system object, will always get
-   ; standard horizontal-vertical axes since nothing to align with
+   ;; draw axis to use for many-body system. 
+   ;; ! Because no vectors have been drawn on the system object, will always 
+   ;; get standard horizontal-vertical axes since nothing to align with
    (axis-for (system . ?bodies) (during ?t1 ?t2) ?xyz ?rot)
-   ; must also record axes to use for vectors on system's constituent bodies so they can be 
-   ; picked up from working wm by compo-eqn choosing operators. Use-system-axis should apply 
-   ; to inherit from the main system axis. Could also try to do this when drawing axis for 
-   ; many-body system, if we had a special operator for that case. Note this doesn't register
-   ; an axis for compound bodies that are constituents of the system in case of split/join.
+   ;; must also record axes to use for vectors on system's constituent bodies 
+   ;; so they can be picked up from working wm by compo-eqn choosing operators.
+   ;; Use-system-axis should apply to inherit from the main system axis. 
+   ;; Could also try to do this when drawing axis for many-body system, if we 
+   ;; had a special operator for that case. Note this doesn't register
+   ;; an axis for compound bodies that are constituents of the system in case 
+   ;; of split/join.
    (foreach ?b ?bodies
       (axis-for ?b (during ?t1 ?t2) ?xyz ?rot))
   )
@@ -7359,11 +7317,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-initial-momentum (?bodies ?t1)
   :preconditions (
-     ; use this if bodies don't split from initial compound
-     ; !!! code assumes there's only one collision in problem
+     ;; use this if bodies don't split from initial compound
+     ;; !!! code assumes there's only one collision in problem
      (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
      (test (not (equal ?type 'split)))
-     ; (foreach ?b ?bodies (body ?b ?t1)) ; drawing body unnecessary
+     ;; (foreach ?b ?bodies (body ?b ?t1)) ; drawing body unnecessary
      (foreach ?b ?bodies
    	(vector ?b (at (velocity ?b) ?t1) ?dir1))
      (foreach ?b ?bodies
@@ -7384,10 +7342,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-final-momentum (?bodies ?t2)
   :preconditions (
-     ; use this if bodies don't join into compound after collision
+     ;; use this if bodies don't join into compound after collision
      (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
      (test (not (equal ?type 'inelastic)))
-    ; (foreach ?b ?bodies (body ?b ?t2)) ; drawing body unnecessary
+    ;; (foreach ?b ?bodies (body ?b ?t2)) ; drawing body unnecessary
      (foreach ?b ?bodies
    	(vector ?b (at (velocity ?b) ?t2) ?dir1))
      (foreach ?b ?bodies
@@ -7397,7 +7355,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-final-momentum-join (?bodies ?t2)
   :preconditions (
-     ; use this if collision involves join = completely inelastic collision
+     ;; use this if collision involves join = completely inelastic collision
      (in-wm (collision ?colliding-bodies (during ?t1 ?t2) inelastic))
      (bind ?c `(compound ,@?bodies)) ; for shorthand
      (body ?c ?t2)
@@ -7407,8 +7365,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects ( (final-momentum-drawn ?bodies ?t2) ))
 
 
-; operators for drawing momentum vectors on simple bodies
-; these exactly parallel the velocity drawing operators
+;; operators for drawing momentum vectors on simple bodies
+;; these exactly parallel the velocity drawing operators
 
 (defoperator draw-momentum-at-rest (?b ?t)
   :specifications 
@@ -7427,12 +7385,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint
    ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
     (teach (string "When an object is at rest, its velocity is zero. Since the momentum vector is defined as mass times the velocity vector, the momentum is also zero at that time."))
-    ; too simple for a kcd
+    ;; too simple for a kcd
     (bottom-out (string "Because ~a is at rest ~a, use the momentum tool to draw a zero-length momentum vector for it." ?b (?t pp)))))
 
-; we could get momentum direction from velocity direction, but these operators
-; get it from straight-line motion spec, so that it is not required that 
-; velocity be drawn first.
+;; we could get momentum direction from velocity direction, but these operators
+;; get it from straight-line motion spec, so that it is not required that 
+;; velocity be drawn first.
 (defoperator draw-momentum-straight (?b ?t)
   :specifications 
    "If an object is moving in a straight line at a certain time,
@@ -7469,16 +7427,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (not (vector ?b (at (momentum ?b) ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    ; following is for implicit eqn -- assumes we know how velocity vars are named
+    ;; following is for implicit eqn -- assumes we know how velocity vars are named
     (bind ?dir-vel (format-sym "Ov_~A_~A" (body-name ?b) (time-abbrev ?t)))
     )
   :effects
    ((vector ?b (at (momentum ?b) ?t) unknown)
     (variable ?mag-var (at (mag (momentum ?b)) ?t))
     (variable ?dir-var (at (dir (momentum ?b)) ?t))
-    ; following is "optional equation" put out so solver will be able to 
-    ; determine a value for 0p in case student happens to use it. It isn't
-    ; needed for m*v form solution we teach, so student doesn't have to enter it
+    ;; following is "optional equation" put out so solver will be able to 
+    ;; determine a value for 0p in case student happens to use it. It isn't
+    ;; needed for m*v form solution we teach, so student doesn't have to enter it
     (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
     )
   :hint
@@ -7487,37 +7445,38 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	   (kcd "draw_nonzero_momentum"))
     (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
 
-; Might want rule that momentum direction = velocity direction for case where
-; direction is unknown to write equation dirP = dirV. But dirP does not occur in
-; any equation at the bubble graph level since we write p_x = m * v_x so
-; only need projection of v, not of p.
-; (defoperator momentum_dir_from_vdir)
+;;; Might want rule that momentum direction = velocity direction for case where
+;;; direction is unknown to write equation dirP = dirV. But dirP does not occur
+;;; in any equation at the bubble graph level since we write p_x = m * v_x so
+;;;  only need projection of v, not of p.
+;;; (defoperator momentum_dir_from_vdir)
 
-; following still restricted to two-body collisions, and
-; doesn't use compound bodies before split or after join
+;; following still restricted to two-body collisions, and
+;; doesn't use compound bodies before split or after join
 (defoperator write-cons-linmom-compo (?b1 ?b2 ?t1 ?t2 ?xyz ?rot)
   :preconditions (
-  ; use these steps if no split or join
+  ;; use these steps if no split or join
   (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
   (test (not (member ?type '(split inelastic))))
-  ; write subsidiary equations for all needed momenta components along ?xyz
-
-  ; Using mass variable goal inflates file with at least 16 different possibilities -- 
-  ; draw body at any of 3 times + defined variable = 4 ways to get each mass variable.
-  ; Instead just require drawing bodies first, which will suffice to get mass variables.
-  ; Note this will require the time choice on drawn bodies to be the interval, nothing else.
-  ; (variable ?m1 (mass ?b1))
-  ; (variable ?m2 (mass ?b2))
+  ;; write subsidiary equations for all needed momenta components along ?xyz
+  ;; Using mass variable goal inflates file with at least 16 different 
+  ;; possibilities -- draw body at any of 3 times + defined variable = 4 ways 
+  ;; to get each mass variable.
+  ;; Instead just require drawing bodies first, which will suffice to get 
+  ;; mass variables.  Note this will require the time choice on drawn bodies 
+  ;; to be the interval, nothing else.
+  ;;   (variable ?m1 (mass ?b1))
+  ;;   (variable ?m2 (mass ?b2))
   (body ?b1 (during ?t1 ?t2))
   (body ?b2 (during ?t1 ?t2))
-  ; retrieve mass variables
+  ;; retrieve mass variables
   (in-wm (variable ?m1 (mass ?b1)))
   (in-wm (variable ?m2 (mass ?b2)))
-  ; p1i
+  ;; p1i
   (variable ?v1i_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t1))
   (variable ?p1i_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t1))
   (eqn (= ?p1i_compo (* ?m1 ?v1i_compo)) (momentum-compo ?b1 ?t1 ?xyz ?rot))
-  ; p2i
+  ;; p2i
   (variable ?v2i_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t1))
   (variable ?p2i_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t1))
   (eqn (= ?p2i_compo (* ?m2 ?v2i_compo)) (momentum-compo ?b2 ?t1 ?xyz ?rot))
@@ -7525,17 +7484,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (variable ?v1f_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t2))
   (variable ?p1f_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t2))
   (eqn (= ?p1f_compo (* ?m1 ?v1f_compo)) (momentum-compo ?b1 ?t2 ?xyz ?rot))
-  ; p2f
+  ;; p2f
   (variable ?v2f_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t2))
   (variable ?p2f_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t2))
   (eqn (= ?p2f_compo (* ?m2 ?v2f_compo)) (momentum-compo ?b2 ?t2 ?xyz ?rot))
-  ; and combine into final equation using velocities so cons-linmom can find them
+  ;; and combine into final equation using velocities so cons-linmom can find 
+  ;; them
   )
   :effects (
   (eqn (= (+ (* ?m1 ?v1i_compo) (* ?m2 ?v2i_compo))
           (+ (* ?m1 ?v1f_compo) (* ?m2 ?v2f_compo)))
        (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2))))
-  ; need to collect compos of all terms and list in eqn-compos
+  ;; need to collect compos of all terms and list in eqn-compos
   (eqn-compos 
        (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2)))
        (?v1i_compo ?v2i_compo ?v1f_compo ?v2f_compo) )
@@ -7550,10 +7510,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                             (+ (* ?m1 ?v1f_compo) (* ?m2 ?v2f_compo))) algebra)))
   ))
 
-; Following writes p_x = m * vt_x for a single body and time
-; body may be a compound body in case of splits or joins.
-; this intermediate step is unnecessary since the term p_x is not used in the 
-; final eqn, only m*v_x, but it does serve to illustrate where the term comes from.
+;;; Following writes p_x = m * vt_x for a single body and time
+;;; body may be a compound body in case of splits or joins.
+;;; this intermediate step is unnecessary since the term p_x is not used in 
+;;; the final eqn, only m*v_x, but it does serve to illustrate where the term 
+;;; comes from.
 (defoperator write-momentum-compo (?b ?t ?xyz ?rot)
   :preconditions (
     ; for now, all these preconds satisfied from above
