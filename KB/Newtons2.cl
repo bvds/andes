@@ -1798,30 +1798,13 @@
        define a mass variable for ?b at time ?t."
   :preconditions
     ((object ?b)
-     (test (atom ?b))			; don't apply to compound bodies.
-     ;; This doesn't quite make sense.  only want to apply conditional
-     ;; to defining the mass.
+     ;; This doesn't quite make sense.  
+     ;; I only want to apply this conditional to defining the mass.
      (not (variable ?dont-care (mass ?b)))
      (bind ?var (format-sym "m_~A" (body-name ?b))))
   :effects
    ((variable ?var (mass ?b))
     (body ?b)) 	
-  :hint
-  ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
-   (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
-   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
-   ))
-
-;; can this be merged with the above?
-(defoperator draw-compound-body (?b)
- :preconditions
-    ((bind ?b `(compound ,@?bodies)) ;shorthand
-     (object ?b)
-     (not (variable ?dont-care (mass ?b)))
-     (bind ?var (format-sym "m_~A" (body-name ?b))))
-  :effects
-   ((variable ?var (mass (compound . ?bodies)))
-    (body (compound . ?bodies))) 	
   :hint
   ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
@@ -4680,22 +4663,22 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, a ~A force on ~A due to ~A at ~A" (?type adjective) ?b1 ?b2 (?type adjective) ?b2 ?b1 ?dir))
     ))
 
-; In theory NTL should apply to any force at all. However, we don't declare
-; every force agent an "object" (particle with kinematic properties), E.g. 
-; planes or ground or Earth are not usually declared objects, so can't 
-; actually use introduce reaction forces on these. This may have to change
-; but then it will multiply solutions since then could draw them and write 
-; NSL in terms of reaction force magnitudes. That would be odd though correct.
+;;; In theory NTL should apply to any force at all. However, we don't declare
+;;; every force agent an "object" (particle with kinematic properties), E.g. 
+;;; planes or ground or Earth are not usually declared objects, so can't 
+;;; actually use introduce reaction forces on these. This may have to change
+;;; but then it will multiply solutions since then could draw them and write 
+;;; NSL in terms of reaction force magnitudes. That would be odd but correct.
 (defoperator NTL-contains (?quantity)
   :preconditions (
   (any-member ?quantity (
   		(at (mag (force ?b1 ?b2 ?type)) ?t)
-  		; (at (mag (force ?b2 ?b1 ?type)) ?t)
+  		;; (at (mag (force ?b2 ?b1 ?type)) ?t)
                         ))
-  ; no need to test if action/reaction pair definable; fail later if not
-  ; (force ?b1 ?b2 ?type ?t ?dir1 action) 
-  ; (force ?b2 ?b1 ?type ?t ?dir2 reaction) 
-  ; sort body names in id so NTL(b1, b2) gets same id as NTL(b2, b1)
+  ;; no need to test if action/reaction pair definable; fail later if not
+  ;; (force ?b1 ?b2 ?type ?t ?dir1 action) 
+  ;; (force ?b2 ?b1 ?type ?t ?dir2 reaction) 
+  ;; sort body names in id so NTL(b1, b2) gets same id as NTL(b2, b1)
   (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
   )
   :effects ( 
@@ -6940,7 +6923,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator change-ME-contains (?sought)
   :preconditions (
      (in-wm (use-work))
-     (any-member ?sought ( ; need all ME quantities
+     (any-member ?sought ( ;need all ME quantities
 			   (at (mag (velocity ?b)) ?t)
 	                   (mass ?b) 
 	                   (at (height ?b) ?t)
@@ -6948,9 +6931,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	                   (at (compression ?s) ?t)
 	                   (gravitational-acceleration ?planet)
                            (at (work-nc ?b) (during ?t1 ?t2)) ))
-     (time ?t1)
-     (time ?t2)
-     (test (and (time-pointp ?t1) (time-pointp ?t2) (< ?t1 ?t2)))
+     ;; BvdS this behavior changed after removing time from bodies?
+     ;;(time ?t1)
+     ;;(time ?t2)
+     ;;(test (and (time-pointp ?t1) (time-pointp ?t2) (< ?t1 ?t2)))
+     (time (during ?t1 ?t2))
   )
   :effects (
     (derived-eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
@@ -6960,19 +6945,19 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator apply-change-ME (?b ?t1 ?t2)
  :preconditions (
-  ; Draw the body and standard axes for principle
+  ;; Draw the body and standard axes for principle
   (body ?b)
   (axis-for ?b (during ?t1 ?t2) x 0)  
 
-  ; write equation Wnc = ME2 - ME1
+  ;; write equation Wnc = ME2 - ME1
   (eqn (= ?Wnc (- ?te2 ?te1))  (change-ME-top ?b ?t1 ?t2))
-  ; write equation ME2 = K2 + Ug2 [+ Us2]
-  ; plus sub-eqns for terms on the rhs, getting combined result
+  ;; write equation ME2 = K2 + Ug2 [+ Us2]
+  ;; plus sub-eqns for terms on the rhs, getting combined result
   (derived-eqn (= ?te2 ?te2-exp) (total-energy ?b ?t2))
-  ; write equation ME1 = K1 + Ug1 [+ Us1]
-  ; plus sub-eqns for all terms on the rhs, getting combined result
+  ;; write equation ME1 = K1 + Ug1 [+ Us1]
+  ;; plus sub-eqns for all terms on the rhs, getting combined result
   (derived-eqn (= ?te1 ?te1-exp) (total-energy ?b ?t1))
-  ; write total mech. energy equivalence with all energy terms plugged in
+  ;; write total mech. energy equivalence with all energy terms plugged in
   (bind ?eqn-algebra `(= ,?Wnc (- ,?te2-exp ,?te1-exp)))
   (debug "final change-ME eq: ~A~%" ?eqn-algebra)
  )
