@@ -223,17 +223,6 @@
   (my-read-answer (solve-start-log (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(ff:def-foreign-call (c-solve-bubble-file "solveBubbleFile")
-    ((string1 (* :char))
-     (string2 (* :char)))
-  :returning :int  :strings-convert t) 
-(defun solve-bubble-file (a b)
-  (excl:native-to-string (c-solve-bubble-file a b)))
-(defun solver-solve-problem-file (src dst)
-  (my-read-answer (solve-bubble-file src dst)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-bubble "solveBubble")
     (:void)
   :returning :int  :strings-convert t)
