@@ -8395,25 +8395,23 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A" ?b (?t pp)))
   ))
 
-; Shape variables: We define special scalar variables for the appropriate
-; dimensions characterizing certain rigid bodies.
+;; Shape variables: We define special scalar variables for the appropriate
+;; dimensions characterizing certain rigid bodies.
 
-; length: defines a variable for the length of a rigid body that has a 
-; dimension normally described as a length, i.e. rod or rectangular plate
+;; length: defines a variable for the length of a rigid body that has a 
+;; dimension normally described as a length, i.e. rod or rectangular plate
+;; or a string
 (defoperator define-shape-length (?b)
   :preconditions (
-     (object ?b)
-     (shape ?b ?shape ?dontcare)
-     (any-member ?shape (rod rectangle))
-     (bind ?l-var (format-sym "length_~A" (body-name ?b)))
-  )
+		  (bind ?l-var (format-sym "length_~A" (body-name ?b)))
+		  )
   :effects (
-    (define-var (length ?b))
-    (variable ?l-var (length ?b))
-  )
+	    (define-var (length ?b))
+	       (variable ?l-var (length ?b))
+	       )
   :hint (
-    (bottom-out (string "Use the Add Variable command to define a variable for the length of ~A"  ?b))
-  ))
+	 (bottom-out (string "Use the Add Variable command to define a variable for the length of ~A"  ?b))
+	 ))
 
 
 ;;; mass per length
@@ -8423,16 +8421,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :english ("the mass-per-length of ~A" (nlg ?rope))
   :fromworkbench `(mass-per-length ,body))
 
-(defoperator define-mass-per-length (?rope)
+(defoperator mass-per-length (?rope)
   :preconditions(
-		 (object ?rope)
-		 (shape ?rope rod ?dontcare)
-		 (bind ?lambda-var (format-sym "mu_~A" (body-name ?rope))))
+		 (bind ?mu-var (format-sym "mu_~A" (body-name ?rope))))
   :effects (
-	    (variable ?lambda-var (mass-per-length ?rope))
+	    (variable ?mu-var (mass-per-length ?rope))
 	    (define-var (mass-per-length ?rope)))
   :hint ((bottom-out 
-	  (string "Define a variable for the mass per unit length of ~A by using the Add Variable command on the Variable menu and selecting mass-per-length."  ?rope))))
+	  (string "Define a variable for the mass per unit length of ~A by using the Add Variable command on the Variable menu and selecting mass per length."  ?rope))))
 
 ;;; mass per length = mass /length of a rod
 
@@ -8445,8 +8441,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator mass-per-length-eqn-contains (?quantity)
   :preconditions (
-		  (object ?b)
-		  (shape ?b rod ?dontcare) ;; make sure it has right shape
 		  (any-member ?quantity
 			      ((mass-per-length ?b)
 			       (length ?b)

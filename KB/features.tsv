@@ -12,3 +12,4 @@ circuits	electric-power;current;voltage;resistance;capacitance;charge;stored-ene
 E&M	charge;potential;duration;
 optics	object-distance;image-distance;focal-length;magnification;radius-of-curvature;lens-distance;
 fluids	mass;duration;height;mass-density;pressure;area-at;area;radius-of-circle;volume;
+waves	wavelength;wavenumber;period;frequency;angular-frequency;wave-speed;speed-of-light;string-tension;amplitude;amplitude-max-speed;amplitude-max-abs-acceleration
