@@ -1,0 +1,124 @@
+(************** Content-type: application/mathematica **************
+                     CreatedBy='Mathematica 5.1'
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used with any Mathematica-compatible
+application, such as Mathematica, MathReader or Publicon. The data
+for the notebook starts with the line containing stars above.
+
+To get the notebook into a Mathematica-compatible application, do
+one of the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the
+  application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing
+the word CacheID, otherwise Mathematica-compatible applications may
+try to use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+*******************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      2559,         79]*)
+(*NotebookOutlinePosition[      3210,        102]*)
+(*  CellTagsIndexPosition[      3166,         98]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[" Problem 6 from Robert Shelby,set 3", "Text"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(pp = 
+      Plot[{0.5\ Sin[x]}, {x, 0, 4\ Pi}, AspectRatio \[Rule] Automatic, 
+        Axes \[Rule] False, PlotStyle \[Rule] {{Thickness[0.02], Hue[0]}}, 
+        PlotRange -> {{\(-0.1\), 4\ Pi + 0.1}, {\(-1\), 1}}, 
+        Prolog \[Rule] {Thickness[0.01], Line[{{0, 0}, {4\ Pi, 0}}], 
+            Line[{{0, \(-1\)}, {0, 1}}], 
+            Line[{{4\ Pi, \(-1\)}, {4\ Pi, 1}}]}]\)], "Input"],
+
+Cell[BoxData[
+    TagBox[\(\[SkeletonIndicator]  Graphics  \[SkeletonIndicator]\),
+      False,
+      Editable->False]], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Export["\<../Problems/wave6.gif\>", pp]\)], "Input"],
+
+Cell[BoxData[
+    \("../Problems/wave6.gif"\)], "Output"]
+}, Open  ]]
+},
+FrontEndVersion->"5.1 for X",
+ScreenRectangle->{{0, 1024}, {0, 768}},
+WindowSize->{520, 600},
+WindowMargins->{{150, Automatic}, {Automatic, 52}},
+ShowSelection->True
+]
+
+(*******************************************************************
+Cached data follows.  If you edit this Notebook file directly, not
+using Mathematica, you must remove the line containing CacheID at
+the top of  the file.  The cache data will then be recreated when
+you save this file from within Mathematica.
+*******************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1754, 51, 51, 0, 32, "Text"],
+
+Cell[CellGroupData[{
+Cell[1830, 55, 411, 7, 91, "Input"],
+Cell[2244, 64, 130, 3, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2411, 72, 72, 1, 27, "Input"],
+Cell[2486, 75, 57, 1, 27, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+
+
+(*******************************************************************
+End of Mathematica Notebook file.
+*******************************************************************)
+

@@ -1,5 +1,5 @@
 ;;;;
-;;;; Waves
+;;;;                   Waves and oscillations
 ;;;;
 
 ;;;;
@@ -61,8 +61,8 @@
       (point (string "You can use equation for the wavenumber of a wave"))
       ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
       (bottom-out (string "Write the equation ~A" 
-                     ((= (* ?kwave   ?lamb) (*2 $p)) 
-                       algebra)))))
+			  ((= (* ?kwave   ?lamb) (*2 $p)) algebra) ))
+      ))
 
 ;;;
 ;;; The frequency, period, and angular frequency of a wave
@@ -134,8 +134,8 @@
 	 (point (string "You can use equation for the frequency of a wave"))
 	 ;;(teach (string "The equation-of-frequency-of-wave states that the frequency of a wave is angular-frequency/(2*pi)"))
 	 (bottom-out (string "Write the equation ~A" 
-			     (= ?omega (*2 $p ?freq)) 
-			     algebra) )))
+			     ((= ?omega (*2 $p ?freq))  algebra) ))
+	 ))
 
 ;;equation of the period of the wave, period = 1/frequency
 (def-psmclass period-of-wave (period-of-wave ?body)
@@ -163,8 +163,8 @@
 	 (point (string "You can use equation for the period of a wave"))
 	 ;;(teach (string "The equation-of-period-of-wave states that the frequency of a wave is 1/period"))
 	 (bottom-out (string "Write the equation ~A" 
-			     (= ?freq (/ 1 ?wave-period)) 
-			     algebra) )))
+			     ((= ?freq (/ 1 ?wave-period))  algebra) ))
+	 ))
 
 ;;;
 ;;;   Wave speed, this is |phase velocity|
@@ -214,8 +214,8 @@
 	 (point (string "You can use equation for the speed of a wave"))
 	 ;;(teach (string "The equation-of-speed-of-wave states that the speed of a wave is wavelength*frequency"))
 	 (bottom-out (string "Write the equation ~A" 
-			     (= ?v (* ?lambda ?freq)) algebra) )))
-
+			     ((= ?v (* ?lambda ?freq)) algebra) ))
+	 ))
 
 ;; wave speeds of two things are identical
 (def-psmclass wave-speeds-equal (wave-speeds-equal ?body)
@@ -248,8 +248,8 @@
 	 (point (string "The velocity of any wave on a given string, rope, et cetera is the same."))
       (point (string "If there are two waves on a string, then they have equal speeds."))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?v1 ?v2) algebra) )))
-  )
+			  ((= ?v1 ?v2) algebra) ))
+      ))
 
 ;; speed of object is wave speed
 (def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?body)
@@ -282,8 +282,8 @@
 	 (point (string "The velocity of any wave on a given string, rope, et cetera is the same."))
 	 (point (string "If there are two waves on a string, then they have equal speeds."))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v1 ?v2) algebra) )))
-  )
+			     ((= ?v1 ?v2) algebra) ))
+	 ))
 
 ;;;;
 ;;;;  Wave speed for various objects   
@@ -309,7 +309,8 @@
   :hint
   ((point (string "You can find the value of the speed of light c in your textbook.  Use four significant digits."))
    (teach (string "You can use 2.998E8 N.m/kg^2 as the value of c."))
-   (bottom-out (string "Write the equation ~A" ((= ?c-var (dnum 2.998E8 |m/s|)) algebra)))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?c-var (dnum 2.998E8 |m/s|)) algebra) ))
     ))
 
 (defoperator define-c ()
@@ -340,7 +341,8 @@
 	 (point (string "Light waves and radio waves have a special speed"))
 	 (teach (string "What is the speed of light?"))
 	 (bottom-out (string "Write the equation ~A" 
-			     (= ?v ?c)  algebra) )))
+			     ((= ?v ?c)  algebra) ))
+	 ))
 
 ;;;
 ;;; Speed of transverse wave on a string
@@ -397,8 +399,8 @@
   :hint (
 	 (point (string "In your textbook, find a formula for the speed of transverse waves on a string."))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v (sqrt(/ ?tension ?mu)) 
-				 algebra))))))
+			     ((= ?v (sqrt (/ ?tension ?mu))) algebra) ))
+	 ))
 
 ;;;; 
 ;;;;   The amplitude of a wave and associated quantities
@@ -464,8 +466,8 @@
       (point (string "In your textbook, find a formula for the maximum speed of an oscillation"))
       ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
       (bottom-out (string "Write the equation ~A" 
-                     (= ?vmax (* ?a ?w)) 
-                       algebra))))
+                     ((= ?vmax (* ?a ?w)) algebra) ))
+      ))
 
 
 ;;; define |maximum transverse accleration|
@@ -513,5 +515,42 @@
       (point (string "In your textbook, find a formula for the maximum acceleration of an oscillation"))
       ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
       (bottom-out (string "Write the equation ~A" 
-                     (= ?amax (* ?a ?w ?w)) 
-                       algebra))))
+                     ((= ?amax (* ?a ?w ?w)) algebra) ))
+      ))
+
+;;;  Frequency for mass and spring.
+;;;  This is kind of lousy:  only works for one spring acting
+;;;  on a block and does not check any other forces that
+;;;  might be acting on the block.
+(def-psmclass spring-mass-oscillation (spring-mass-oscillation ?body)
+  :complexity major			; must explicitly use
+  :english ("Formula for period of mass and spring")
+  :ExpFormat ("using formula for period of mass and spring")
+  :EqnFormat ("T = 2 ?p sqrt(m/k)")) 
+
+
+(defoperator spring-mass-oscillation-contains (?sought)
+  :preconditions (
+		  (sinusoidal ?block)
+		  (spring-contact ?block ?spring . ?dontcare)
+		  (any-member ?sought ((wave-period ?block)
+				       (mass ?block)
+				       (spring-constant ?spring))))
+  :effects (
+	    (eqn-contains (spring-mass-oscillation ?block ?spring) ?sought)))
+
+(defoperator spring-mass-oscillation (?block ?spring)
+  :preconditions (
+		  (variable  ?t (wave-period ?block))
+		  (variable  ?m  (mass ?block))
+		  (variable ?k (spring-constant ?spring))
+		  )
+  :effects (
+	    (eqn  (= ?t (* 2 $p (sqrt (/ ?m ?k)))) ;must use $p for pi
+		  (spring-mass-oscillation ?spring))
+	    )
+  :hint (
+	 (point (string "In your textbook, find a formula for the period of oscillation of a mass and spring"))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?t (* 2 $p (sqrt (/ ?m ?k)))) algebra) ))
+	 ))
