@@ -225,20 +225,21 @@
   :preconditions (
 		  (any-member ?sought ( 
 				       (wave-speed ?object)
-				       (at (speed ?object) (during ?t1 ?t2))))
-		  (time (during ?t1 ?t2))) ;make sure t1 and t2 are bound
+				       (at (speed ?object) ?t)
+				       (duration ?t)))
+		  (wave ?object)
+		  (time ?t))
   :effects (
-	    (eqn-contains (speed-of-wave-constant ?object (during ?t1 ?t2)) 
+	    (eqn-contains (speed-of-wave-constant ?object ?t) 
 			  ?sought)))
 
-(defoperator speed-of-wave-constant (?object)
+(defoperator speed-of-wave-constant (?object ?t)
   :preconditions (
 		  (variable  ?v1  (wave-speed ?object))
-		  (variable  ?v2  (at (speed ?object) (during ?t1 ?t2)))
-		  )
+		  (variable  ?v2  (at (speed ?object) ?t)))
   :effects (
 	    (eqn  (= ?v1 ?v2) 
-		  (speed-of-wave-constant ?object (during ?t1 ?t2)) ))
+		  (speed-of-wave-constant ?object ?t) ))
   ;; We shouldn't need any hints for this. 
   ;; This rule should be invisible to the student.
   )
@@ -265,7 +266,7 @@
     (eqn (= ?c-var (dnum 2.998E8 |m/s|)) (std-constant speed-of-light)) 
    )
   :hint
-  ((point (string "You can find the value of the speed of light c in your textbook."))
+  ((point (string "You can find the value of the speed of light c in your textbook.  Use four significant digits."))
    (teach (string "You can use 2.998E8 N.m/kg^2 as the value of c."))
    (bottom-out (string "Write the equation ~A" ((= ?c-var (dnum 2.998E8 |m/s|)) algebra)))
     ))
@@ -314,11 +315,45 @@
 
 (defoperator define-mass-per-length (?rope)
   :preconditions((bind ?lambda-var (format-sym "mu_~A" (body-name ?rope))))
-  :effects ((variable ?lambda-var (mass-per-length ?rope))
+  :effects (
+	    (variable ?lambda-var (mass-per-length ?rope))
 	    (define-var (mass-per-length ?rope)))
   :hint ((bottom-out 
 	  (string "Define a variable for the mass per unit length of ~A by using the Add Variable command on the Variable menu and selecting mass-per-length."  ?rope))))
 
+;;; mass per length = mass /length
+
+(def-psmclass mass-per-length-eqn (mass-per-length-eqn ?body ?)
+  :complexity major
+  :doc "mass per length = mass/length"
+  :english ("mass per length = mass/length")
+  :expFormat ((strcat "applying mass per lenght = mass/length")
+              (nlg ?body) (nlg ?time))
+  :EqnFormat ("mu = m/l"))
+
+(defoperator mass-per-length-eqn-contains (?quantity)
+  :preconditions
+  ((any-member ?quantity
+               ((mass-per-length ?b)
+                (distance ?b)
+                (mass ?b))))
+  :effects
+  ((eqn-contains (mass-per-length-equation ?b) ?quantity)))
+
+(defoperator mass-per-length-equation (?b)
+  :preconditions (
+		  (variable ?m (mass ?b))
+		  (variable ?l (distance ?b))
+		  (variable ?mu (duration ?t)))
+  :effects
+  ((eqn (= ?mu (/ ?m ?l)) (mass-per-length-equation ?b)))
+  :hint
+  ((point (string "Find the mass per unit length."))
+   (teach (string "The mass per unit length is the total mass of ~a divided by the length of ~a" ?b ?b))
+   (bottom-out (string "Because ~a is mass per length, write ~a=~a/~a"
+		       ?mu ?mu ?m ?l))
+   ))
+                                                                               
 ;;; transverse wave speed for a string
 (def-psmclass wave-string-velocity (wave-string-velocity ?body)
   :complexity major  ; must explicitly use
@@ -331,7 +366,7 @@
    :preconditions (
 		   (string ?wave)
 		   (any-member ?sought ((mass-per-length ?wave)
-					(mag (force ?b1 ?b2 tension))
+					(mag (force ?wave tension))
 					(wave-speed ?wave)))
    :effects (
      (eqn-contains (wave-string-velocity ?wave ) ?sought))))
@@ -341,10 +376,10 @@
    :preconditions (
        (variable  ?mu  (mass-per-length ?string))
        (variable  ?v  (wave-speed ?string))
-       (variable ?tension (mag(force ?b1 ?b2 tension)))
+       (variable ?tension (mag(force ?string tension)))
    )
    :effects (
-    (eqn  (= (*?v ?v)(/ ?tension ?mu))
+    (eqn  (= (* ?v ?v)(/ ?tension ?mu))
                 (wave-string-velocity ?string))
    )
    :hint (
@@ -354,3 +389,7 @@
                      ((= ?v (sqrt(/ ?tension ?mu)) 
                        algebra))))))
 
+
+;;;
+;;;  Harmonics of string
+;;;
