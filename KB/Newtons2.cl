@@ -1490,8 +1490,10 @@
 ;;; some point inside the interval, this rule won't help.  We do this 
 ;;; to reduce the number of possible equalities to search for.
 ;;; Note also that endpoints are not included because intervals are open.
-;;; Although the operator is generic, it is mainly to be used for acceleration, 
-;;; over a time, which is the only thing we currently assert to be constant.
+;;;
+;;; For example, this can be used for acceleration,
+;;; which we currently assert to be constant.
+
 (defoperator inherit-constant-value (?quant ?t-constant ?t1)
   :preconditions (
     (constant ?quant ?t-constant)
@@ -1500,7 +1502,8 @@
                (tinsidep ?t1 ?t-constant)))
   )
   :effects (
-     (equals (at ?quant ?t1) (at ?quant ?t-constant))
+	    (equals (at ?quant ?t1) (at ?quant ?t-constant))
+	    (constant ?quant ?t1)
      )
   :hint
   ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
@@ -1510,8 +1513,9 @@
 		       ?quant ?t-constant (?t1 pp) ((at ?quant ?t-constant)) ((at ?quant ?t1))))
    ))
 
-; this variant allows us to include endpoints in the interval over which the value is declared constant
-; Specify (constant ?quant ?time inclusive) in givens for this form.
+;;; this variant allows us to include endpoints in the interval over 
+;;; which the value is declared constant
+;;; Specify (constant ?quant ?time inclusive) in givens for this form.
 (defoperator inherit-constant-value2 (?quant ?t-constant ?t1)
   :preconditions (
     (in-wm (constant ?quant ?t-constant inclusive))
