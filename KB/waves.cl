@@ -743,7 +743,7 @@
 		  (variable ?phi (at (dir (relative-position 
 					   ?source ?observer)) ?t))
 		  (variable  ?thetas (at (dir (relative-vel ?source ?wave)) 
-					 ?t-inverval))
+					 ?t-interval))
 		  (variable  ?thetao (at (dir (relative-vel ?observer ?wave))
 					 ?t-interval))
 		  (variable ?vs (at (mag (relative-vel ?source ?wave)) 

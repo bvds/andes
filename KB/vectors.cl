@@ -69,7 +69,6 @@
                    something else is needed & the direction is given, 
                    then draw it at the given direction"
   :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
-		  (time ?t)
 		  (given (at (dir(relative-vel ?b1 ?b2)) ?t) ?dir)
 		  (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir))
 		  (bind ?mag-var (format-sym "V_~A_~A_~A" 
@@ -100,7 +99,6 @@
                    then draw it with an unknown direction"
   :preconditions (
 		  (rdebug "Using draw-rel-vel-vector-unknown ~%")
-		  (time ?t)
 		  (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare1))
 		  (not (given (at (dir (relative-vel ?b1 ?b2)) ?t) ?dontcare))
 		  (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1) (body-name ?b2)(time-abbrev ?t)))
