@@ -1432,11 +1432,13 @@
    (in-wm (fraction-of ?q1 ?fraction ?q2))
    (variable ?v1 ?q1)
    (variable ?v2 ?q2)
+   (bind ?fracmult (if (> ?fraction 1) "multiple" "fraction"))
    )
    :effects ( (eqn (= ?v1 (* ?fraction ?v2)) (given-fraction ?q1 ?q2)) )
    :hint (
-     (point (string "You can determine ~a as a fraction of ~a from the problem statement" ?q1 ?q2))
-     (bottom-out (string "Write the equation ~A" ((= ?v1 (* fraction ?v2)) algebra)))
+     (point (string "You can determine ~a as a ~a of ~a from the problem statement" ?q1 (?fracmult 'adj) ?q2)) ;declare as adjective in nlg.
+     (bottom-out (string "Write the equation ~A" 
+			 ((= ?v1 (* fraction ?v2)) algebra)))
    ))
 
 ;;
@@ -2626,8 +2628,8 @@
   the body's acceleration and the gravitational acceleration for the planet"
   :preconditions
   ((any-member ?quantity
-	        ((at (mag (accel ?b)) ?t)
-		 (gravitational-acceleration ?planet)))
+	       ((at (mag (accel ?b)) ?t)
+		(gravitational-acceleration ?planet)))
    (free-fall ?b ?t)
    (near-planet ?planet))
   :effects
