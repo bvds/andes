@@ -37,7 +37,7 @@
 
 
 (defun flatten (exp)
-  "Get rid of imbedded lists (to one level only)."
+  "Get rid of embedded lists (to one level only)."
   (mappend #'mklist exp))
 
 (defun flatten-all (exp)

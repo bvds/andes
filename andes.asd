@@ -38,36 +38,20 @@
   :description "Andes physics tutor system"
   :components (
 ;;;    this should eventually be removed
-	       (:module "andes-Path"	:pathname ""
-			:components((:file "andes-path")))
+	       (:file "andes-path")
 	       (:module "Base"
 ;;;			:description "Common Utilities"
 			:components ((:file "Htime")
 				     (:file "Unification")
 				     (:file "Utility")))
 	       (:module "Solver_Release"
-			:depends-on ("andes-Path")
+			:depends-on ("andes-path")
 			:components ((:file "solver")))
-;;;	       Had to define this to get *cp* properly defined
-	       #|
-	       (:module "PsmGraph" :pathname "HelpStructs/"
-			:depends-on ("Base")
-		 	:components ((:file "PsmGraph")))
-|#
 	       (:module "HelpStructs"
 			:depends-on ("Base")
 			:components ((:file "PsmGraph")
 				     (:file "SystemEntry"
 					    :depends-on ("PsmGraph"))
-				     #|
-				     (:file "StudentEntry")
-				     (:file "TutorTurn")
-				     (:file "Error-Interp")
-				     (:file "StudentAction")
-				     (:file "CMD")
-				     (:file "RuntimeTestScore")
-				     (:file "RuntimeTest")
-				     |#
 				     ))
 	       (:module "Knowledge"
 			:depends-on ("Base" "Solver_Release" "HelpStructs")
@@ -100,22 +84,16 @@
 				     (:file "waves-problems")
 				     (:file "oscillations-problems") 
 				     ;;      ^ depends on "waves"
-;;;;
-;;;; The remaining files are just needed for the help system???
-;;;;
-#|				     (:file "errors")
+				     (:file "errors")
 				     (:file "force-problems")  
 				     (:file "PyreneesProblems")
 				     (:file "forces")          
-				     (:file "optics")
-				     (:file "optics-problems"
-				             :depends-on "optics")
+				     (:file "optics")          
 				     (:file "vectors")
 				     (:file "makeprob")        
 				     (:file "vectors-problems")
 				     (:file "circuits")
-|#
-))
+				     ))
 	       (:module "SGG"
 ;;;			:description "Solution Graph Generator" 
 			:depends-on ("Base" "Knowledge" "HelpStructs")
@@ -127,12 +105,30 @@
 				     (:file "GraphGenerator") 
 				     (:file "ProblemSolver")
 				     (:file "SolutionSets")))
-#|
-	       (:module "Help"
-			:components (
-				     ;; Solution graph
-				     (:file "SolutionGraph")
+))
 
+(defsystem :andes-help
+  :name "Andes help"
+  :description "Andes physics tutor system: helpsystem"
+  :depends-on (andes)
+  :components (
+	       (:module "HelpStructs"
+			;; PSMgraph and SystemEntry are defined in "andes"
+			:components ((:file "StudentEntry")
+				     (:file "TutorTurn")
+				     (:file "Error-Interp")
+				     (:file "StudentAction"
+					    :depends-on ("TutorTurn"))
+				     (:file "CMD")
+				     (:file "RuntimeTestScore")
+				     (:file "RuntimeTest")
+				     ))
+	       (:module "Help"
+			:depends-on ("HelpStructs")
+			:components (
+ 				     ;; Solution graph
+	 			     (:file "SolutionGraph")
+				     
                                      (:file "utilities")
 				     (:file "lrdc-errors")
 				     (:file "History")
@@ -165,16 +161,28 @@
 				     (:file "Statistics")
 				     
 				     ;; Top-level manager
-				     (:file "Interface") ; The interface api.
-				     (:file "Commands")
-				     (:file "API")
+		 		     (:file "Interface") ; The interface api.
+	 			     (:file "Commands")
+ 				     (:file "API")
 				     (:file "Andes2-Main")))
-|#
-))
+	       (:module "Testcode"
+			:depends-on ("Help" "HelpStructs")
+			:components (
+				     (:file "StackProcessing")
+				     (:file "CMDTests")
+				     (:file "StackTests")
+				     (:file "EntryPair")
+				     (:file "ProcDepth")
+				     (:file "UtilFuncs")
+				     (:file "Tests")
+				     ))
+	       ))
 
 ;;;  make source file extension "cl"  See asdf manual
 
 (defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes))))
+   "cl")
+(defmethod source-file-type ((c cl-source-file) (s (eql (find-system :andes-help))))
    "cl")
 
 ;;;;

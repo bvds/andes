@@ -88,10 +88,14 @@
 
 ; Called by comp-name
 ;This so every is at the same level
+;; BvdS  this appears to be redundant with the definition
+;; in Base/Utility.cl
+#|
 (defun flatten (x)
-   (cond ((null x) x)
-         ((atom (car x)) (cons (car x) (flatten (cdr x))))
-         (t (append (flatten (car x)) (flatten (cdr x))))))
+  (cond ((null x) x)
+	((atom (car x)) (cons (car x) (flatten (cdr x))))
+	(t (append (flatten (car x)) (flatten (cdr x))))))
+|#
 
 ;Called by find-parallel-resistors
 ;This flattens out one level only

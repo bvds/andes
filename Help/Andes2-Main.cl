@@ -53,9 +53,6 @@
 ;; In the runtime image this will be set on startup to the working directory of the
 ;; Lisp process -- see top of andes-start. The workbench sets process working 
 ;; directory when it launches the help system.
-(defvar *andes-path* 
-  #-allegro-cl-runtime (pathname "C:\\Andes2\\") ; hardcoded developer location
-"Directory in which to find Andes files")
 
 (defun andes-path (relative-path)
 "merge relative path with *andes-dir* returning new pathname"

@@ -590,6 +590,7 @@
 
 (defun mergefunc-pick-newest (Old New)
   "Return the Newest value."
+  (list Old)
   New)
 
 
