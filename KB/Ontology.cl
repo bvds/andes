@@ -56,7 +56,9 @@
       (|lbs| . "pounds")
       (|ozW| . "ounces")
       (|ozVUS| . "ounces")
-      (|knot| . "knots")))
+      (|knot| . "knots")
+      (|dB| . "decibels")
+      ))
 
 ;;;             Quantity Terms:
 
