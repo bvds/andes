@@ -811,10 +811,16 @@
    (variable ?fo (at (observed-frequency ?source ?observer) ?t))
    ;; vector from observer to source
    ;; BvdS:  this is 180 deg off from phi in my notes
+   ;; BvdS:  maybe want to specify that this is a given so
+   ;; that students don't have to draw the vector
+   ;; alternatively, figure out how to make r_ab = -r_ba work.
    (variable ?phi (at (dir (relative-position 
-			    ?source ?observer)) ?t))
-   ;; use vector statements so that zero velocity can be handled 
-   ;; correctly.  This might prevent relative-vel from being the sought.
+   			    ?source ?observer)) ?t))
+   ;;(given (at (dir (relative-position 
+   ;;			    ?source ?observer)) ?t) (dnum ?phi |deg|))
+
+   ;; use vector statements so that zero velocity can be handled correctly.  
+   ;; This might prevent relative-vel from being the sought.
    (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-interval) ?sdir))
    (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-interval) ?odir))
    (bind ?sterm (if (eq ?sdir 'zero) ?vw 
