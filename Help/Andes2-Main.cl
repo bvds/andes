@@ -15,27 +15,20 @@
 ;;   23 April 2001 - (lht) - renamed from tcp-wb.lsp to Andes-Main.cl
 ;;                           adding some polishing to support final code
 ;;    5 June 2001 - (lht) - editied to load/initialize new parseing/etc.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :user)
 
 (defun rshs ()
   (load "Andes2-Main")
   (andes-start))
 
-(defun rld () ;; can be removed without upsetting functionality (just to save typing
-  (load "/Andes2/Help/Andes2-Main.cl"))
-(defun lng () ;; can be removed without upsetting functionality (just to save typing
-  (load "/Andes2/Help/Andes2-Main.cl")
-  (andes-start))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (eval-when (compile load eval) (require :socket))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; *andes-path* -- pathname of directory in which Andes files are installed
 ;;                 as logical pathname object
@@ -47,9 +40,9 @@
 "merge relative path with *andes-dir* returning new pathname"
     (merge-pathnames relative-path *andes-path*))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables -- TCP socket and stream variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *andes-socket* nil
 "The TCP/IP socket that this application sets up to service help requests.")
 
@@ -67,14 +60,14 @@
 (defparameter &cmd& #\!) ;; client <- server, no result (same as NOTIFY)
 
 ;; used by event loop:
-(defvar *task-list* nil)	  ; queue of background tasks -- unused in Andes2
-(defvar *andes-stop* nil	  ; exit flag to shut down event loop
-"startAll will loop main-event-loop until this is true")
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar *task-list* nil)		;queue of background tasks -- unused in Andes2
+(defvar *andes-stop* nil		;exit flag to shut down event loop
+  "startAll will loop main-event-loop until this is true")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function Definitions
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; initiate-server -- To setup the help server.  Use in system initialization.
 ;; argument(s):
 ;;   NONE
@@ -84,7 +77,7 @@
 ;;   creates passive socket on &andes-port& port on machine running on.
 ;;   a dynamic port would be better but there is no easy way to tell WB
 ;;     what port is
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun initiate-server ()
   "Sets-up the TCP socket on the local machine at the &andes-port& port."
   (setq *andes-stop* nil) ;; so it doesn't immediately shutdown
@@ -96,24 +89,24 @@
 			    :local-port &andes-port&)))
   (format *debug-io* "~&Opened socket: ~S~%" *andes-socket*) t)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; terminate-server -- closes the open stream and socket to the workbench
 ;;    as gracefully as we can.
 ;; argument(s):
 ;;   NONE
 ;; returns: nil
 ;; note(s): Closes *andes-stream* and *andes-socket*.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun terminate-server ()
   "Closes *andes-stream* and *andes-socket* gracefully."
   (when (and *andes-stream* (open-stream-p *andes-stream*))
     (finish-output *andes-stream*)
     (close *andes-stream*))
   (setq *andes-stream* nil)
-  (if *andes-socket* (close *andes-socket*)) ;; Close the socket.
-  (setq *andes-socket* nil)) ;; leaves *andes-stop* true
+  (if *andes-socket* (close *andes-socket*)) ;Close the socket.
+  (setq *andes-socket* nil))		;leaves *andes-stop* true
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; run - runs main event handling loop for the server process
 ;; argument(s): nil
 ;; returns: Garbage
@@ -123,18 +116,18 @@
 ;; handler sets the *andes-stop* termination flag
 ;; Note: In the Lisp IDE, hitting return to get a top-loop prompt for debugging
 ;; unwinds out of the event handler. Can call "run" again to restart loop.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun andes-run ()
   "Executes delayed tasks and listens for new events on the stream to process."
   (format *debug-io* "~&Running server event processing loop~%")
   (unwind-protect
-      ;; outer loop just repeats forever until server termination flag gets set 
-      ;; or connection no longer exists.
+      ;; outer loop just repeats forever until server termination flag gets 
+      ;; set or connection no longer exists.
       (loop until (or *andes-stop* 
                       (not (connection-running)))
 	  do
-	    ;; 1: loop to drain all pending work from our queue by interleaving 
+	    ;; 1: loop to drain all pending work from our queue by interleaving
 	    ;; execution of delayed tasks from task queue with polling and 
 	    ;; dispatching of ready input events from the command stream.
 	    (loop until (null *task-list*)
@@ -146,26 +139,27 @@
 	    ;; nate the system's resources busy-waiting when no work to do.
 	    (process-stream-event :blocking t))
 
-    ; protected post-loop cleanup: Note could have unwound out of loop to here after error.
-    ; In runtime image, always just terminate
+    ;; protected post-loop cleanup: Note could have unwound out of loop to here
+    ;; after error.  In runtime image, always just terminate
     #+allegro-cl-runtime (andes-terminate)
-    ;; Otherwise make sure session was normally ended before we terminate server instance.
-    ;; In interactive Lisp can restart loop after throwing out of error to continue.
+    ;; Otherwise make sure session was normally ended before we terminate 
+    ;; server instance.  In interactive Lisp can restart loop after throwing 
+    ;; out of error to continue.
     #-allegro-cl-runtime 
     (if (not *andes-stop*)
        (format *debug-io* 
               "~&Exited server event loop! Call \"andes-run\" to resume event processing~%")
      (andes-terminate)))) 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; process-stream-event - Listens for message on *andes-stream* and then exe-
 ;;    cutes it as a command.
 ;; argument(s):
 ;;    &key :blocking : if true, function will wait for an event. default nil.
 ;; returns: Garbage
-;; note(s): If there is an error on the stream, it tries to handle it. It starts
-;;    the process of executing the command on the stream.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; note(s): If there is an error on the stream, it tries to handle it. 
+;;          It starts the process of executing the command on the stream.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun process-stream-event (&key blocking)
   "Listens for a message on *andes-stream* and then executes it as a command."
   (let ((fbd-message nil))
@@ -196,7 +190,7 @@
       (when fbd-message
         (execute-stream-event fbd-message)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: execute-stream-event
 ;; Parameters: str: a string containing the message from the workbench
 ;; Purpose: This function determines what to do with a command message string 
@@ -207,7 +201,7 @@
 ;;               If it is a execute command, it will execute it and return the
 ;;               results to *andes-stream*.  Gives an error message on unknown
 ;;               command types.  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun execute-stream-event (str)
   "Determines from the 1st char of string how to handle the message"
   (history-log str)
@@ -218,7 +212,7 @@
 	(t (error-message
 	    (format nil "unrecognized command: ~A" str)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: dispatch-stream-event
 ;; Parameters: command-string: a string containing a lisp function call
 ;;             dde:  t/nil indicating whether this is a dde (needs reply
@@ -232,7 +226,7 @@
 ;;               records.
 ;;
 ;;               The dde argument value will be passed into 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun dispatch-stream-event (command-string &key (dde Nil))
   "Reads the string and tries to execute it, returns the result of the execution while also performing some bookkeeping."
   (let ((cmd-obj nil) (command nil) (arguments nil)
@@ -264,10 +258,10 @@
 
 
      
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; For runtime dist, trap all Lisp errors and return special :error value
 ;; instead. When debugging, just use apply to debug on errors.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #+allegro-cl-runtime 
 (defvar *ignore-errors* T)	; T => trap LISP errors in command execution
 #-allegro-cl-runtime 
@@ -289,7 +283,7 @@
 	(declare (ignore c))
     	result)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: dispatch-and-return-stream-event
 ;; Parameters: command-string: a string containing a lisp function call
 ;; Purpose: To execute the command and return the results on *andes-stream*
@@ -298,7 +292,7 @@
 ;;               of the command, makes sure that the stream is not being
 ;;               buffered, and writes the results of the execution onto the
 ;;               stream with the message id and type identifier.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun dispatch-and-return-stream-event (command-string)
   "Dissects a command string to pull out the message id, executes the command, and prints the results with id to *andes-stream*"
   (let* ((id (subseq command-string 0 (position #\: command-string)))
@@ -316,7 +310,7 @@
     ;; push the text onto the stream to prevent buffering
     (force-output *andes-stream*)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: send-fbd-command
 ;; Parameters: command: a string containing a command that the workbench
 ;;                      understands.
@@ -329,14 +323,14 @@
 ;; dialog box) if it is waiting for a return result from the 
 ;; help system. This will result in losing the help system's return
 ;; value. 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun send-fbd-command (command)
   "Sends a command to the workbench using *andes-stream*."
   (format *debug-io* "Sending: ~A~A~%" &cmd& command)
   (format *andes-stream* "~A~A~%" &cmd& command)
   (finish-output *andes-stream*))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; connection-started -- checks to see if *andes-socket* has a connection
 ;;  request and, optionally, waits until a connection is established.
 ;; argument(s):
@@ -347,7 +341,7 @@
 ;;  nil -- if no connection was established
 ;; note(s):
 ;;  Sets *andes-stream* if a connection to *andes-socket* was established.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun connection-started (&key wait)
   "Checks to see if *andes-socket* has a connection request. Optionally waits until a connection is established."
   (cond
@@ -361,19 +355,19 @@
     t) 
    (t nil)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: connection-running
 ;; Parameters: nil
 ;; Purpose: To check *andes-stream* to see if the connection is still open.
 ;; returns: t: if stream is still open.
 ;;          nil: if the stream is nil or closed.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun connection-running ()
   "Checks to see if *andes-stream* is still open."
   (and *andes-stream* (open-stream-p *andes-stream*)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun quote-special-characters (string)
   (loop for i from 0 to (1- (length string))
       with special = '(#\, #\\)
@@ -384,9 +378,9 @@
       into newstring
       finally (return (concatenate 'string newstring))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dummy 'main' or begin function
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun andes-start ()
   "initialize the andes help system server state"
   (andes-init)
@@ -397,45 +391,47 @@
   ; necessary, but shouldn't hurt to be safe just in case
   #+allegro-cl-runtime (exit 0))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Andes-init (CL)
 ;; Initialize Andes for execution but do not start the tcp server.  This is 
 ;; called directly only when using the HelpDriver to execute Andes within the
 ;; same lisp process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun andes-init ()
   "initialize the andes help system server state"
   ;; Set the base help system time
   (setq **base-Htime** (universal-time->htime (get-universal-time)))
-
+  
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
-        (make-pathname :host (pathname-host *default-pathname-defaults*)
-		       :device (pathname-device *default-pathname-defaults*)
-		       :directory (pathname-directory *default-pathname-defaults*)
-		       :name nil :type nil))
-  ; We also fix up the AndesModule system's compiled-in base-name var (set when 
-  ; helpsys was built) so runtime use loads from the runtime Andes directory.
+			 (make-pathname :host (pathname-host *default-pathname-defaults*)
+					:device (pathname-device *default-pathname-defaults*)
+					:directory (pathname-directory *default-pathname-defaults*)
+					:name nil :type nil))
+  ;; We also fix up the AndesModule system's compiled-in base-name var 
+  ;; (set when helpsys was built) so runtime use loads from the runtime 
+  ;; Andes directory.
   (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
   (enable-debug) ;; this is in tell.cl so i can edit without further changes to this file
   (solver-initialize)
-  ; Dynamically load kb on startup. Might want to move to load on each problem,
-  ; so that don't have to restart helpsys to test kb changes.
+  ;; Dynamically load kb on startup. Might want to move to load on each 
+  ;; problem, so that don't have to restart helpsys to test kb changes.
   (load-kb)
   (doSafety :in2pre)
   #-allegro-cl-runtime (history-new "Log/Andes")
   (enable-errors)
   (physics-algebra-rules-initialize)
   (parse-initialize)
-  (symbols-reset))
- 
-  ;;(initiate-server)
-  ;;(connection-started :wait t)
-  ;;(andes-run)
-  ; andes-run should always call andes-terminate when done so following shouldn't be 
-  ; necessary, but shouldn't hurt to be safe just in case
-  ;;#+allegro-cl-runtime (exit 0))
+  (symbols-reset)
+  )
+
+;; (initiate-server)
+;; (connection-started :wait t)
+;; (andes-run)
+;; andes-run should always call andes-terminate when done so following 
+;; shouldn't be necessary, but shouldn't hurt to be safe just in case
+;; #+allegro-cl-runtime (exit 0))
 
 
 
@@ -467,7 +463,7 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of file Andes-Main.lsp/cl
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> - All Rights Reserved.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

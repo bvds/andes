@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; State.cl
 ;; Collin Lynch (CL) <CollinL@pitt.edu>
 ;; Anders Weinstein (AW) <AndersW@pitt.edu>
@@ -13,7 +13,6 @@
 ;;  collect-useful-nodes as they were unused.
 ;; 8/11/2003 - (CL) -- Added in Done flag to close-problem.
 ;;
-|#
 
 ;;========================================================
 ;; Storage elements.
@@ -200,23 +199,24 @@
 ;; argument(s): student name
 ;; returns: NIL for failure, non-NIL for success
 ;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-read-student-info (name &optional (ConcHelp Nil))
   (declare (ignore ConcHelp))
   (set-student-name name)
   (StudentFile-load name)
-  (Load-Config-File)   ;; Should be in a general startup script but none exists.
-  (make-green-turn))   ;; Return a color-green result.
+  (Load-Config-File)			;Should be in a general startup script 
+					; but none exists
+  (make-green-turn))			;Return a color-green result.
 
 
-;;==============================================================================
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Problem Control info.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; read-problem-info open a new problem
 ;; argument(s): problem id
 ;; returns: NIL for failure, non-NIL for success
 ;; note(s):
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-read-problem-info (name &optional kb-type (bn-alg 0))
   (declare (ignore kb-type bn-alg))
   ; reset run-time data structures for new problem:
@@ -231,7 +231,7 @@
   (setq *studentactions* nil) 
   
   ;; Load the current problem and set into global *cp* defined in sgg
-  (setf *cp* (read-problem-file name :path (andes-path "Problems\\")))
+  (setf *cp* (read-problem-file name :path (andes-path "Problems/")))
   ;; If the problem failed to load then we will submit a color-red turn
   ;; to the workbench in order to make the case known.  If not then the 
   ;; code will set up the problem for use and then return a color-green
@@ -282,6 +282,9 @@
   ;; by a proposition beginning with 'gravity in the givens
   (when (find 'gravity (problem-givens *cp*) :key #'first)
     (symbols-enter "G" '(grav-constant) NIL))
+  
+  ;; Speed of light is "c"
+  (symbols-enter "c" '(speed-of-light) NIL)
   
   ;; algebra system understands $P (upper-case only) as symbol for pi in
   ;; systemese equations.  We still need to predefine a student label for
