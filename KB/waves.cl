@@ -999,8 +999,6 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (defoperator define-iref ()
  :effects ( (variable |Iref| (db-intensity-zero)) ))
 
-
-
 ;;;
 ;;; Relate intensity to intensity in decibels
 ;;; 

@@ -133,8 +133,9 @@ LEAF	k= 2*$p/$l	wavenumber-lambda-wave
 LEAF	f=$w/(2*$p)	frequency-of-wave	
 LEAF	T=1/f	period-of-wave	
 LEAF	vw=$l*f              Speed of a wave	speed-of-wave	
+LEAF	c=2.998E8 m/s       Speed of light	speed-of-light	
 LEAF	vw1=vw2              All waves in a system have same speed	wave-speeds-equal	
-LEAF	vw1=vw2              Speed of pulse is wave speed	speed-equals-wave-speed	
+LEAF	vp=vw               Speed of pulse is wave speed	speed-equals-wave-speed	
 LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
 LEAF	vmax=A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
 LEAF	amax=A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
@@ -209,7 +210,8 @@ LEAF	h2 - h1 = d12_y        change in height	height-dy	Height and Displacement
 LEAF	Pavg = W/t             average power defined	power	Power
 LEAF	Pnet = Wnet/t          avg. net power defined	net-power	Power
 LEAF	P = I*4*$p*r^2         relation of power and intensity (spherical emitter)	intensity	Intensity
-LEAF	IdB = 10*log10(I/I0)   decibels	db-intensity	Intensity
+LEAF	IdB = 10*log10(I/Iref)   decibels	db-intensity	Intensity
+LEAF	Iref = 1.0E-12 W/m^2   reference intensity for decibels	db-intensity-zero	Intensity
 LEAF	Inet = $S Ii           Net intensity	net-intensity	Intensity
 END_GROUP			
 GROUP	Impulse Momentum		
