@@ -7,7 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////
 #include "decl.h"
 #include "extstruct.h"
-#include "Solver.h"
+#include "../Solver/Solver.h"
 #include "indysgg.h"
 #include "indyset.h"
 #include "dbg.h"
@@ -40,7 +40,8 @@ int main(int argc, char* argv[]) {
   if (argc == 2) dbglevel = (unsigned int) strtol(argv[1],0,16);
   doinitinit();
 //////////////////////////////////////////////////////////////////////////////
-#include "XSolver.log"
+// BvdS I have no idea what this is...
+//#include "XSolver.log"
 // 
  LOGn("<only thing left is to closeupshop>");
  closeupshop();

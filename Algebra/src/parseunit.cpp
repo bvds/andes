@@ -182,6 +182,6 @@ double geterr(const string value)
 	  + value + ", couldn't interpret character " + itostr(j+1));
   }
   if (j == value.size()) return(retval);	// no exponent in float
-  retval *= pow(10,atoi(value.substr(j+1).c_str()));
+  retval *= pow(10.0,atoi(value.substr(j+1).c_str()));
   return(retval);
 }

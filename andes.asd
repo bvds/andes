@@ -7,7 +7,7 @@
 ;;;;  (load "/home/bvds/Andes2/KB/Problems.cl")
 ;;;;  (load "/home/bvds/Andes2/KB/Ontology.cl")
 ;;;;  (load "/home/bvds/Andes2/KB/Newtons2.cl")
-;;;;  #+LINUX (defparameter *Root-Path* "/home/bvds/Andes2")
+;;;;  #+LINUX (defparameter *Root-Path* "/home/bvds/Andes2/")
 ;;;;
 ;;;; This was stolen from maxima.asd
 #+(or sbcl openmcl)

@@ -176,7 +176,7 @@
 #+LINUX (defparameter *andes-path* "~/Andes2" "The base path for this system.")
 
 #+MSWINDOWS (defparameter *DLL-NAME* "Solver.dll") ;name of library
-#+LINUX (defparameter *DLL-NAME* "Solver.a")
+#+LINUX (defparameter *DLL-NAME* "libSolver.so")
 
 ;;;; This is silly
 
