@@ -774,42 +774,39 @@
 					     ?t ?t-interval) ?sought)))
 
 (defoperator make-doppler-frequency (?source ?wave ?observer ?t ?t-interval)
-  :preconditions (
-		  ;; vector from observer to source
+  :preconditions 
+  ((variable ?vs (at (mag (relative-vel ?source ?wave)) 
+		     ?t-interval))
+   (variable ?vo (at (mag (relative-vel ?observer ?wave)) 
+				    ?t-interval))
+   (variable ?vw (wave-speed ?wave))		  
+   (variable ?fs (frequency ?source))		  
+   (variable ?fo (at (frequency ?observer) ?t))
+   ;; vector from observer to source
 		  ;; BvdS:  this is 180 deg off from phi in my notes
-		  (variable ?phi (at (dir (relative-position 
-					   ?source ?observer)) ?t))
-		  (variable  ?thetas (at (dir (relative-vel ?source ?wave)) 
-					 ?t-interval))
-		  (variable  ?thetao (at (dir (relative-vel ?observer ?wave))
-					 ?t-interval))
-		  (variable ?vs (at (mag (relative-vel ?source ?wave)) 
-				    ?t-interval))
-		  (variable ?vo (at (mag (relative-vel ?observer ?wave)) 
-				    ?t-interval))
-		  (variable ?vw (wave-speed ?wave))		  
-		  (variable ?fs (frequency ?source))		  
-		  (variable ?fo (at (frequency ?observer) ?t))
-		  ;; for help, don't want angle explicit, just +/-
-		  ;; (I couldn't get this to work, though)
-		  (bind ?coso (if (and (numberp ?phi) (numberp ?thetao)) 
-				  (cos (- ?phi ?thetao))
-				`(cos (- ,?phi ,?thetao))))
-		  ;(bind ?coss (cos (- ?phi ?thetas)))
-		  )
+   (variable ?phi (at (dir (relative-position 
+			    ?source ?observer)) ?t))
+   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t) ?sdir))
+   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t) ?odir))
+   (bind ?sterm (if (eq ?sdir 'zero) ?vw 
+		   `(+ ,?vw ((* ,?vs (cos (- ,?phi ,?sdir)))))))
+   (bind ?oterm (if (eq ?odir 'zero) ?vw 
+		   `(+ ,?vw (* ,?vo (cos (- ,?phi ,?odir))))))
+   )
   :effects (
-	    (eqn  (= (* ?fo (+ ?vw (* ?vs (cos (- ?phi ?thetas)))))
-		     (* ?fs (+ ?vw (* ?vo (cos (- ?phi ?thetao))))))
+	    (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
 		  (doppler-frequency ?source ?wave ?observer ?t ?t-interval))
 	    )
   :hint (
 	 (point (string "Use the formula for doppler frequency shift."))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((=  ?fo 
-				  (* ?fs (/ (+ ?vw (* ?vo ?coso)) 
-					    (+ ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
+				  (* ?fs (/  ?oterm ?sterm))) algebra) ))
 	 ))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;   Decibels and intensity
 ;;;;   These quantities can be functions of time,

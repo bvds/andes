@@ -102,6 +102,7 @@
 		  (rdebug "Using draw-rel-vel-vector-unknown ~%")
 		  (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare1))
 		  (not (given (at (dir (relative-vel ?b1 ?b2)) ?t) ?dontcare))
+		  (not (given (at (mag (relative-vel ?b1 ?b2)) ?t) (dnum 0 ?units)))
 		  (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1) (body-name ?b2)(time-abbrev ?t)))
 		  (bind ?dir-var (format-sym "O~A" ?mag-var))
 		  (rdebug "fired draw-rel-vel-vector-unknown  ~%")
@@ -145,13 +146,21 @@
 ;;; This is from draw-zero-displacement.
 (defoperator draw-zero-relative-vel (?b1 ?b2 ?t)
   :preconditions
-   ((in-wm (given (at (mag(relative-vel ?b1 ?b2)) ?t) (dnum 0 ?units)))
-    (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare))
-    (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1)
-			       (body-name ?b2) (time-abbrev ?t))))
+  ((in-wm (given (at (mag(relative-vel ?b1 ?b2)) ?t) (dnum 0 ?units)))
+   (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare))
+   (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1)
+			      (body-name ?b2) (time-abbrev ?t)))
+   )
   :effects
-   ((vector ?b1 (at (relative-vel ?b1 ?b2) ?t) zero)
-    (variable ?mag-var (at (mag (relative-vel ?b1 ?b2)) ?t)))
-   :hint
-   ((bottom-out (string "Since the problem specifies that the velocity of ~a relative to ~A is zero, just draw a zero-length vector for it." ?b1 ?b2))
-    ))
+  ((vector ?b1 (at (relative-vel ?b1 ?b2) ?t) zero)
+   (variable ?mag-var (at (mag (relative-vel ?b1 ?b2)) ?t))
+   ;; Because mag is problem given, find-by-psm won't ensure 
+   ;; implicit eqn gets written.  Given value may not be used 
+   ;; elsewhere so ensure it here.
+   ;; see draw-rel-vel-vector-given-dir
+   (implicit-eqn (= ?mag-var (dnum 0 ?units)) 
+   		 (at (mag (relative-vel ?b1 ?b2)) ?t))
+   )
+  :hint
+  ((bottom-out (string "Since the problem specifies that the velocity of ~a relative to ~A is zero, just draw a zero-length vector for it." ?b1 ?b2))
+   ))
