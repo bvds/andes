@@ -75,7 +75,7 @@
 			   :wm (st-wm State)))))))
     
     (cond ((> (Length R) 1)
-	   (error "Multiple Constant Results for ~A~%  ~A~%" Sought R))
+	   (error "Multiple Constant Results for ~A~%" Givens))
 	  (t (car R)))))
 
 

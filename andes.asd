@@ -7,7 +7,7 @@
 ;;;;  #+LINUX (defparameter *Root-Path* "/home/bvds/Andes2/")
 ;;;;  :cd /home/bvds/Andes2/ 
 ;;;;   ; needed for temp file andes241.tlz
-
+;;;;(solve-do-log "t") ; for solver logging on...
 
 ;;;; The following was stolen from maxima.asd
 ;;;; See http://www.math.utexas.edu/pipermail/maxima/2003/005630.html
@@ -62,7 +62,7 @@
 				     (:file "Operators")  
 				     (:file "qvar")
 				     (:file "BubbleGraph" 
-					    :depends-on ("qvar"))  
+					    :depends-on ("qvar" "eqn"))  
 				     (:file "ErrorClass")  
 				     (:file "Ontology")  
 				     (:file "Problem")    

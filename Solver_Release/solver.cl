@@ -207,7 +207,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-do-log "solverDoLog")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun solve-do-log (a)
   (excl:native-to-string (c-solve-do-log a)))
 (defun solver-logging-on (x)
@@ -216,7 +216,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-start-log "solverStartLog")
     ((string (* :char)))
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun solve-start-log (a)
   (excl:native-to-string (c-solve-start-log a)))
 (defun solver-log-new-name (x)
@@ -227,7 +227,7 @@
 (ff:def-foreign-call (c-solve-bubble-file "solveBubbleFile")
     ((string1 (* :char))
      (string2 (* :char)))
-  :returning :int) ;; need to check use of :strings-convert t; or nil
+  :returning :int  :strings-convert t) 
 (defun solve-bubble-file (a b)
   (excl:native-to-string (c-solve-bubble-file a b)))
 (defun solver-solve-problem-file (src dst)
@@ -236,7 +236,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-bubble "solveBubble")
     (:void)
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun solve-bubble ()
   (excl:native-to-string (c-solve-bubble)))
 (defun solver-solve-problem ()
@@ -245,7 +245,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-more-bubble "solveMoreBubble")
     (:void)
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun solve-more-bubble ()
   (excl:native-to-string (c-solve-more-bubble)))
 (defun solver-solve-more-problem ()
@@ -254,7 +254,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-add "solveAdd")
     ((string (* :char)))
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun solve-add (a)
   (excl:native-to-string (c-solve-add a)))
 (defun solver-send-problem-statement (x)
@@ -263,7 +263,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-clear "solveClear")
     (:void)
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun solve-clear ()
   (excl:native-to-string (c-solve-clear)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -273,7 +273,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-indy-is-independent "c_indyCanonHowIndy")
     ((string (* :char)))
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun indy-is-independent (arg)
   (excl:native-to-string (c-indy-is-independent arg)))
 (defun solver-isIndependent (setID equationID)
@@ -282,7 +282,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-indy-add-variable "c_indyAddVariable")
     ((string (* :char)))
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun indy-add-variable (arg)
   (excl:native-to-string (c-indy-add-variable arg)))
 (defun solver-indyAddVar (arg)
@@ -291,7 +291,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-indy-done-add-variable "c_indyDoneAddVariable")
     (:void)
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun indy-done-add-variable ()
   (excl:native-to-string (c-indy-done-add-variable)))
 (defun solver-indyDoneAddVar ()
@@ -300,7 +300,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-indy-add-equation "c_indyAddEquation")
     ((string (* :char)))
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun indy-add-equation (arg)
   (excl:native-to-string (c-indy-add-equation arg)))
 (defun solver-indyAddEquation (equationID equation)
@@ -309,7 +309,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-indy-empty "c_indyEmpty")
     (:void)
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun indy-empty ()
   (excl:native-to-string (c-indy-empty)))
 (defun solver-indyEmpty ()
@@ -318,7 +318,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-indy-add-eq-to-set "c_indyAddEq2Set")
     ((string (* :char)))
-  :returning :int)
+  :returning :int  :strings-convert t)
 (defun indy-add-eq-to-set (arg)
   (excl:native-to-string (c-indy-add-eq-to-set arg)))
 (defun solver-indyAddEq2Set (setID equationID)
@@ -327,7 +327,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-indy-keep-n-of-set "c_indyKeepNOfSet")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun indy-keep-n-of-set (arg)
   (excl:native-to-string (c-indy-keep-n-of-set arg)))
 (defun solver-indyKeepN (setID numberToKeep)
@@ -336,7 +336,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-student-is-independent "c_indyStudHowIndy")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun student-is-independent (arg)
   (excl:native-to-string (c-student-is-independent arg)))
 (defun solver-studentIsIndependent (setID equationID)
@@ -345,7 +345,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-student-is-add-okay "c_indyStudentAddEquationOkay")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun student-is-add-okay (arg)
   (excl:native-to-string (c-student-is-add-okay arg)))
 (defun solver-studentAddOkay (equationID equation)
@@ -356,7 +356,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-student-is-okay "c_indyIsStudentEquationOkay")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun student-is-okay (arg)
   (excl:native-to-string (c-student-is-okay arg)))
 (defun solver-studentIsOkay (equation)
@@ -365,7 +365,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-sub-in-one-eqn "c_subInOneEqn")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun sub-in-one-eqn (arg)
   (excl:native-to-string (c-sub-in-one-eqn arg)))
 (defun solver-eqn-subst-var (assignmentID eqnID destID)
@@ -374,7 +374,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-power-solve "c_powersolve")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun solve-power-solve (arg)
   (excl:native-to-string (c-power-solve arg)))
 (defun solver-power-solve (strength varName slot)
@@ -383,7 +383,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-solve-one-eqn "c_solveOneEqn")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun solve-one-eqn (arg)
   (excl:native-to-string (c-solve-one-eqn arg)))
 (defun solver-eqn-solve (name equationSlot destinationSlot)
@@ -392,7 +392,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ff:def-foreign-call (c-simplify-eqn "c_simplifyEqn")
     ((string (* :char)))
-  :returning :int)
+  :returning :int :strings-convert t)
 (defun simplify-eqn (arg)
   (excl:native-to-string (c-simplify-eqn arg)))
 (defun solver-eqn-simplify (equationSlot destinationSlot)
