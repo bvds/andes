@@ -741,6 +741,7 @@
 
 (defoperator make-doppler-frequency (?source ?wave ?observer ?t ?t-interval)
   :preconditions (
+		  ;; vector from observer to source:
 		  (variable ?phi (at (dir (relative-position 
 					   ?source ?observer)) ?t))
 		  (variable  ?thetas (at (dir (relative-vel ?source ?wave)) 
@@ -760,18 +761,14 @@
 		  ;(bind ?coss (cos (- ?phi ?thetas)))
 		  )
   :effects (
-	    (eqn  (= (* ?fo (- ?vw 
-			       (* ?vs (cos (- ?phi ?thetas)))
-			       ))
-		     (* ?fs (- ?vw 
-			       (* ?vo (cos (- ?phi ?thetao)))
-			       )))
+	    (eqn  (= (* ?fo (+ ?vw (* ?vs (cos (- ?phi ?thetas)))))
+		     (* ?fs (+ ?vw (* ?vo (cos (- ?phi ?thetao))))))
 		  (doppler-frequency ?source ?wave ?observer ?t ?t-interval))
 	    )
   :hint (
 	 (point (string "In your textbook, find a formula for doppler frequency shift."))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((=  ?fo 
-				  (* ?fs (/ (- ?vw (* ?vo (cos (- ?phi ?thetao)))) 
-					    (- ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
+				  (* ?fs (/ (+ ?vw (* ?vo (cos (- ?phi ?thetao)))) 
+					    (+ ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
 	 ))
