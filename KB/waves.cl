@@ -528,14 +528,14 @@
   :ExpFormat ("using formula for period of mass and spring")
   :EqnFormat ("T = 2 ?p sqrt(m/k)")) 
 
-
 (defoperator spring-mass-oscillation-contains (?sought)
   :preconditions (
 		  (sinusoidal ?block)
 		  (spring-contact ?block ?spring . ?dontcare)
 		  (any-member ?sought ((wave-period ?block)
 				       (mass ?block)
-				       (spring-constant ?spring))))
+				       (spring-constant ?spring)))
+		  )
   :effects (
 	    (eqn-contains (spring-mass-oscillation ?block ?spring) ?sought)))
 
@@ -546,11 +546,52 @@
 		  (variable ?k (spring-constant ?spring))
 		  )
   :effects (
-	    (eqn  (= ?t (* 2 $p (sqrt (/ ?m ?k)))) ;must use $p for pi
-		  (spring-mass-oscillation ?spring))
+	    ;; BvdS:  No solution found if this is in sqrt form.
+	    (eqn (= (* ?t ?t ?k) (* 4 $p $p ?m)) ;must use $p for pi
+		 (spring-mass-oscillation ?block ?spring))
 	    )
   :hint (
 	 (point (string "In your textbook, find a formula for the period of oscillation of a mass and spring"))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?t (* 2 $p (sqrt (/ ?m ?k)))) algebra) ))
 	 ))
+
+;;;  Frequency for simple pendulum
+;;;  This is kind of lousy:  
+;;;  Since it is not done as a true F=ma problem, it does not
+;;;  properly check for other forces on the mass.
+(def-psmclass pendulum-oscillation (pendulum-oscillation ?body)
+  :complexity major			; must explicitly use
+  :english ("Formula for period of mass and spring")
+  :ExpFormat ("using formula for period of mass and spring")
+  :EqnFormat ("T = 2 ?p sqrt(l/g)")) 
+
+(defoperator pendulum-oscillation-contains (?sought)
+  :preconditions (
+		  (sinusoidal ?block)
+		  (pendulum ?block ?spring . ?dontcare)
+		  (any-member ?sought ((wave-period ?block)
+				       (mass ?block)
+				       (spring-constant ?spring)))
+		  )
+  :effects (
+	    (eqn-contains (pendulum-oscillation ?block ?spring) ?sought)))
+
+(defoperator pendulum-oscillation (?block ?spring)
+  :preconditions (
+		  (variable  ?t (wave-period ?block))
+		  (variable  ?m  (mass ?block))
+		  (variable ?k (spring-constant ?spring))
+		  )
+  :effects (
+	    ;; BvdS:  I couldn't get this to work in sqrt form.
+	    (eqn  (= (* ?t ?t ?k) (* 4 $p $p ?m)) ;must use $p for pi
+	    ;;(eqn (= ?t (* 2 $p (sqrt (/ ?m ?k))))
+	    (pendulum-oscillation ?block ?spring))
+	    )
+  :hint (
+	 (point (string "In your textbook, find a formula for the period of oscillation of a mass and spring"))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?t (* 2 $p (sqrt (/ ?m ?k)))) algebra) ))
+	 ))
+
