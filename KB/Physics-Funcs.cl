@@ -61,6 +61,11 @@
          (error "~a has illegal time interval syntax." x))
       x))
 
+(defun time-consecutivep (x)
+  "Assuming times are labeled by consecutive integers, true if times in interval x are consecutive"
+  (and (time-intervalp x)
+       (= (- (third x) (second x)) 1)))
+
 (defun time-pointp (x)
    "Non-null if the argument is a time-point."
    (and (integerp x) (not (minusp x))))

@@ -1354,7 +1354,7 @@
    :effects ( (draw-vectors ?vector-list) ))
 
 
-;;; =================== Generic: Multiple choice answer =============================
+;;; =================== Generic: Multiple choice answer ======================
 ;;;
 ;;; This is just a hack to enable simple multiple choice questions within our 
 ;;; problem/solution graph format. Multiple choice questions coded this way
@@ -1370,7 +1370,7 @@
   :effects ((choose-answer ?question-id ?correct-choice)))
 
 ;; ===== Generic knowledge about times and constant values ========
-
+;;;
 ;; Equal quantities: this is a generic operator that writes the
 ;; equality between scalar quantities in cases where it can be determined
 ;; that two differently-defined quantities are equal. In some problems
@@ -1811,7 +1811,7 @@
    (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
    ))
 
-;;; ================================= Displacement =========
+;;; ================================= Displacement ==========================
 
 ;; The operator draws displacement in the case where the object is
 ;; moving in a straight line during a time that includes the desired
@@ -1882,8 +1882,8 @@
 		 "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified." ?b (?t pp)))
     ))
 
-; Might want rule to put out equation thetaD = thetaV for unknown 
-; directions  if needed.
+;; Might want rule to put out equation thetaD = thetaV for unknown 
+;; directions  if needed.
 
 ;; This operator draws a zero-length displacement vector for an object
 ;; that is at rest over an interval.  This would seldom be useful in practice.
@@ -2010,7 +2010,7 @@
    ))
 
 
-;;; ================================= Velocity ===================
+;;; ================================= Velocity ================================
 ;;; These operators translate the motion of the object, which is given
 ;;; in the problem statement, into a velocity vector.
 
@@ -3280,15 +3280,14 @@
 
 (defoperator use-const-vx (?b ?t1 ?t2 ?t-lk)
   :specifications "Writes the component equation v1_x = v2_x when a_x = 0"
-  
-  :preconditions
-   (; if time is inside lk time, then vector may not have been drawn on the lk 
-    ; diagram. Can give hairy problems defining compo vars -- define-compo 
-    ; only works if vector and axes both drawn.  Define-compo2 was added to
-    ; work in other cases, but can fail if it has has already been applied 
-    ; once to draw axes for body at different time!
-    ; Ensuring vector is drawn allows define-compo to work, since axes have
-    ; been drawn on the body in the containing lk application.  
+  ;; if time is inside lk time, then vector may not have been drawn on the lk 
+  ;; diagram. Can give hairy problems defining compo vars -- define-compo 
+  ;; only works if vector and axes both drawn.  Define-compo2 was added to
+  ;; work in other cases, but can fail if it has has already been applied 
+  ;; once to draw axes for body at different time!
+  ;; Ensuring vector is drawn allows define-compo to work, since axes have
+  ;; been drawn on the body in the containing lk application.  
+  :preconditions (
     (vector ?b (at (velocity ?b) ?t1) ?dir1)
     (vector ?b (at (velocity ?b) ?t2) ?dir2)
     (variable ?v1-compo (at (compo x 0 (velocity ?b)) ?t1))
@@ -3406,6 +3405,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (at (dir (accel ?b)) (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
+   (time (during ?t1 ?t2))
    )
   :effects
    ((compo-eqn-contains (avg-accel ?b (during ?t1 ?t2)) lk-no-s ?quantity)))
@@ -5697,19 +5697,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (time ?t)
    (debug "problem~%.")
    (not (unknown-forces))
-   ; Can't apply over interval if variable forces during interval.
-   ; if time is an interval, make sure endpoints are consecutive,
-   ; else forces might be different between sub-segments
-   (test (not (and (time-intervalp ?t)
-                   (> (- (third ?t) (second ?t)) 1))))
-   ; Force from expanding spring will be variable.  NSL would still apply over
-   ; interval for average spring force, though we have no way to compute that if
-   ; it isn't given. For now we just rule out Newton's Law if there's any spring 
-   ; contact during time of application.  This would have to change if we wanted to 
-   ; handle spring forces at an instant as for objects in static equilibrium.
- ;  (not (spring-contact ?b ?spring ?t-contact (dnum ?sforce-dir |deg|)) 
- ;       (tintersect2 ?t-contact ?t))
-   ; accel would have been drawn when drew NL fbd. Make sure it's non-zero
+   ;; Can't apply over interval if variable forces during interval.
+   ;; if time is an interval, make sure endpoints are consecutive,
+   ;; else forces might be different between sub-segments
+   (test (or (time-pointp ?t) (time-consecutivep ?t)))
+   ;; Force from expanding spring will be variable.  NSL would still apply 
+   ;; over interval for average spring force, though we have no way to 
+   ;; compute that if it isn't given. For now we just rule out Newton's Law 
+   ;; if there's any spring contact during time of application.  This would 
+   ;; have to change if we wanted to handle spring forces at an instant as 
+   ;; for objects in static equilibrium.
+ ;;  (not (spring-contact ?b ?spring ?t-contact (dnum ?sforce-dir |deg|)) 
+ ;;       (tintersect2 ?t-contact ?t))
+   ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
    (not (vector ?b (at (accel ?b) ?t-accel) zero)
         (tinsidep ?t ?t-accel))
    (not (massless ?b)))
@@ -6450,9 +6450,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 					 (at (height ?b) ?t1)
 					 (at (height ?b) ?t2)
 					 ))
-		  (time ?t1)
-   (time ?t2)
-   )
+		  (time ?t1) (time ?t2)
+		  (time (during ?t1 ?t2))
+		  )
   :effects (
 	    (vector-psm-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
 	    ;; since we know which compo-eqn we'll be using, we can select
@@ -6569,7 +6569,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  ))
 
 (defoperator write-work (?b ?agent ?t)
- 
  :preconditions (
     ;; !!! could be more than one force from agent, e.g. normal and friction
     ;; from floor.  This should be fixed by adding type slot to work argument.
@@ -6807,7 +6806,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	                 (at (work ?b ?agent) ?t)))
   ; make sure we can determine all agents doing work
   (not (unknown-work-agents))
-  (test (time-intervalp ?t)))
+  (test (time-consecutivep ?t)))  ;only apply to consecutive times
   :effects 
   ((eqn-contains (net-work ?b ?t) ?sought)))
 
@@ -6931,11 +6930,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	                   (at (compression ?s) ?t)
 	                   (gravitational-acceleration ?planet)
                            (at (work-nc ?b) (during ?t1 ?t2)) ))
-     ;; BvdS this behavior changed after removing time from bodies?
-     ;;(time ?t1)
-     ;;(time ?t2)
-     ;;(test (and (time-pointp ?t1) (time-pointp ?t2) (< ?t1 ?t2)))
-     (time (during ?t1 ?t2))
+     (time ?t)
+     (time ?t1)
+     (time ?t2)
+     (test (and (time-pointp ?t1) (time-pointp ?t2) (< ?t1 ?t2)))
+     (test (or (eql ?t ?t1) (eql ?t ?t2)))
   )
   :effects (
     (derived-eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
@@ -6994,6 +6993,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                         (at (work-nc ?body) ?t) ))
   ;; Need to make sure agent exerts non-conservative force on body
   ;; We do this when writing the equation below.
+  (test (time-consecutivep ?t)) ;only apply to consecutive times
  )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
