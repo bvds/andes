@@ -380,9 +380,10 @@
 ;; !!! Must handle errors loading kb, which is fatal to helpsys
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun load-kb ()
-   (format T "Loading Andes knowledge base")
-   (load (andes-path "kb\\AMFile-helpsys.cl"))
-   (load-named-Andes-module 'Physics-kb)
+  (format T "Loading Andes knowledge base")
+  #+asdf (asdf:operate 'asdf:load-op 'andes)
+  #-asdf (load (*Andes-path* "KB\\AMFile-helpsys.cl"))
+  #-asdf (load-named-Andes-module 'Physics-kb)
 )
 
 
