@@ -71,8 +71,8 @@ bool solveeqs(ostream & outfile){
       isokay = false;
       // report status
       outfile << "<UNSLVEQS>" << endl;
-      cout << "REMAINING EQUATIONS: " << eqn->size()
-	   << " in " << vars->size() << " VARIABLES" << endl;
+      DBG(cout << "REMAINING EQUATIONS: " << eqn->size()
+	  << " in " << vars->size() << " VARIABLES" << endl;);
       for (k=0; k < eqn->size(); k++)
 	{
 	  outfile << (*eqn)[k]->getInfix() << endl;
@@ -90,7 +90,7 @@ bool solveeqs(ostream & outfile){
     {
       isokay = false;
       outfile << "<UNSLVVARS>" << endl;
-      cout << "unsolved VARIABLES:" << endl;
+      DBG(cout << "unsolved VARIABLES:" << endl;);
       for (k=0; k < vars->size(); k++) 
 	outfile << "(" << (*canonvars)[(*vars)[k]]->clipsname 
 	      << " NIL)" << endl;

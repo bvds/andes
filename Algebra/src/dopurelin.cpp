@@ -271,11 +271,11 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn,
 		     "eqnumsimp gives a non-binop equation!"));
 	    (*eqn)[k] = (binopexp *)eqexpr;
 	  }
-	cout << "After purelinsolv and substitution and purging," << endl;
-	cout << "We have left " << vars->size()
+	DBGEQ(cout << "After purelinsolv and substitution and purging," << endl
+	      << "We have left " << vars->size()
 	     << " unsolved variables, " << partsols->size()
 	     << " partially solved variables, and " << eqn->size()
-	     << " unused equations, and doagain = "<< doagain << endl;
+	      << " unused equations, and doagain = "<< doagain << endl;);
       } // end of if eqn->size > 0
       delete linvars;
     } // end of if trylineqs->size() > 0
