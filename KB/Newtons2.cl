@@ -1385,7 +1385,9 @@
 ;; Although most hints for equations are hung off the operator whose
 ;; effects include (eqn...), in this case, the hints are hung off the operator
 ;; whose effects include (equals ...).
-
+;;;
+;;; See frequency-at-time, which could be generalized to any quantity.
+;;;
 (defoperator equality-contains (?quant)
   :preconditions 
    ((equals ?quant1 ?quant2)

@@ -93,6 +93,23 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
 
+;;;
+;;; If frequency is constant (timeless), then it has that
+;;; value at any time.  This could be promoted to a general
+;;; property of all quantities.
+;;;
+
+;; BvdS: ask Anders why this doesn't work
+(defoperator frequency-at-time (?sought)
+  :preconditions(
+		 (time ?t)
+		 (frequency ?wave)
+		 (any-member ?sought ((at (frequency ?wave) ?t)))
+		 )
+  :effects ((eqn-contains (equals (frequency ?wave) 
+				  (at (frequency ?wave) ?t) ?sought)))
+  )
+
 ;;
 ;; period is used in some circular motion rules:
 ;;
@@ -166,6 +183,39 @@
 	 ;;(teach (string "The equation-of-frequency-of-wave states that the frequency of a wave is angular-frequency/(2*pi)"))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?omega (*2 $p ?freq))  algebra) ))
+	 ))
+
+;;equation beat frequency for two waves
+(def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2)
+  :complexity major 
+  :english ("the beat frequency of two waves")
+  :ExpFormat ("finding the beat frequency of two waves")
+  :EqnFormat ("fbeat = (f1-f2)/2")) 
+
+(defoperator beat-frequency-contains (?sought)
+  :preconditions (
+		  (beat-frequency ?wbeat ?w1 ?w2)
+		  (any-member ?sought ((frequency ?wbeat) 
+				       (frequency ?w1)
+				       (frequency ?w2)))
+		  )
+  
+  :effects (
+	    (eqn-contains (beat-frequency ?wbeat ?w1 ?w2) ?sought)))
+
+(defoperator write-beat-frequency (?wbeat ?w1 ?w2)
+  :preconditions ((variable  ?f1 (frequency ?w1))
+		  (variable  ?f2 (frequency ?w2))
+		  (variable  ?fbeat (frequency ?wbeat)))
+  :effects (
+	    (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
+		  (beat-frequency ?wbeat ?w1 ?w2))
+	    )
+  :hint (
+	 (point (string "You can use equation for the beat frequency"))
+	 (teach (string "The beat frequency for two waves is one half the difference in frequency."))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?fbeat (* 0.5 (abs (- ?f1 ?f2))))  algebra) ))
 	 ))
 
 ;;equation of the period of the wave, period = 1/frequency
@@ -741,7 +791,8 @@
 
 (defoperator make-doppler-frequency (?source ?wave ?observer ?t ?t-interval)
   :preconditions (
-		  ;; vector from observer to source:
+		  ;; vector from observer to source
+		  ;; BvdS:  this is 180 deg off from phi in my notes
 		  (variable ?phi (at (dir (relative-position 
 					   ?source ?observer)) ?t))
 		  (variable  ?thetas (at (dir (relative-vel ?source ?wave)) 
@@ -757,7 +808,9 @@
 		  (variable ?fo (at (frequency ?observer) ?t))
 		  ;; for help, don't want angle explicit, just +/-
 		  ;; (I couldn't get this to work, though)
-		  ;(bind ?coso (cos (- ?phi ?thetao)))
+		  (bind ?coso (if (and (numberp ?phi) (numberp ?thetao)) 
+				  (cos (- ?phi ?thetao))
+				`(cos (- ,?phi ,?thetao))))
 		  ;(bind ?coss (cos (- ?phi ?thetas)))
 		  )
   :effects (
@@ -766,9 +819,9 @@
 		  (doppler-frequency ?source ?wave ?observer ?t ?t-interval))
 	    )
   :hint (
-	 (point (string "In your textbook, find a formula for doppler frequency shift."))
+	 (point (string "Use the formula for doppler frequency shift."))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((=  ?fo 
-				  (* ?fs (/ (+ ?vw (* ?vo (cos (- ?phi ?thetao)))) 
+				  (* ?fs (/ (+ ?vw (* ?vo ?coso)) 
 					    (+ ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
 	 ))
