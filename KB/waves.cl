@@ -179,7 +179,7 @@
 	 ))
 
 ;;equation beat frequency for two waves
-(def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2)
+(def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)
   :complexity major 
   :english ("the beat frequency of two waves")
   :ExpFormat ("finding the beat frequency of two waves")
@@ -187,22 +187,26 @@
 
 (defoperator beat-frequency-contains (?sought)
   :preconditions (
+		  (sinusoidal ?w1)  ;only valid for sine waves
+		  (sinusoidal ?w2)
 		  (beat-frequency ?wbeat ?w1 ?w2)
-		  (any-member ?sought ((frequency ?wbeat) 
-				       (frequency ?w1)
-				       (frequency ?w2)))
+		  (any-member ?sought ((at (observed-frequency ?wbeat ?me) ?t) 
+				       (at (observed-frequency ?w1 ?me) ?t)
+				       (at (observed-frequency ?w2 ?me) ?t)
+				       ))
+		  (time ?t)
 		  )
   
   :effects (
-	    (eqn-contains (beat-frequency ?wbeat ?w1 ?w2) ?sought)))
+	    (eqn-contains (beat-frequency ?wbeat ?w1 ?w2 ?me ?t) ?sought)))
 
-(defoperator write-beat-frequency (?wbeat ?w1 ?w2)
-  :preconditions ((variable  ?f1 (frequency ?w1))
-		  (variable  ?f2 (frequency ?w2))
-		  (variable  ?fbeat (frequency ?wbeat)))
+(defoperator write-beat-frequency (?wbeat ?w1 ?w2 ?me ?t)
+  :preconditions ((variable  ?f1 (at (observed-frequency ?w1 ?me) ?t))
+		  (variable  ?f2 (at (observed-frequency ?w2 ?me) ?t))
+		  (variable  ?fbeat (at (observed-frequency ?wbeat ?me) ?t)))
   :effects (
 	    (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
-		  (beat-frequency ?wbeat ?w1 ?w2))
+		  (beat-frequency ?wbeat ?w1 ?w2 ?me ?t))
 	    )
   :hint (
 	 (point (string "You can use equation for the beat frequency"))
@@ -750,7 +754,7 @@
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift")
   :ExpFormat ("using formula for doppler frequency")
-  :EqnFormat ("fo=fs*(1+vo/vw)/(1-vs/vw))")) 
+  :EqnFormat ("fo=fs*(vw±vo)/(vw∓vs))")) 
 
 ;;; velocities should be constant over a large enough
 ;;; interval.  We could demand (constant ?quant ?t-interval) but
@@ -792,10 +796,11 @@
    (variable ?fs (frequency ?source))		  
    (variable ?fo (at (observed-frequency ?source ?observer) ?t))
    ;; vector from observer to source
-		  ;; BvdS:  this is 180 deg off from phi in my notes
+   ;; BvdS:  this is 180 deg off from phi in my notes
    (variable ?phi (at (dir (relative-position 
 			    ?source ?observer)) ?t))
-   ;; vectors defined in 
+   ;; use vector statements so that zero velocity can be handled 
+   ;; correctly.  This might prevent relative-vel from being the sought.
    (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-interval) ?sdir))
    (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-interval) ?odir))
    (bind ?sterm (if (eq ?sdir 'zero) ?vw 

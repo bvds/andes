@@ -65,11 +65,12 @@
 	    (vector-diagram (relative-vel ?b1 ?b2 ?b3 ?t))
 	    ))
 
-(defoperator draw-rel-vel-vector-given-dir (?b1 ?b2 ?t)
+(defoperator draw-relative-vel-given-dir (?b1 ?b2 ?t)
   :specifications "If the relative velocity vector of a body wrt to
                    something else is needed & the direction is given, 
                    then draw it at the given direction"
   :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
+		  ;; this means sub-intervals must be given explicitly
 		  (given (at (dir(relative-vel ?b1 ?b2)) ?t) ?dir)
 		  (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir))
 		  (bind ?mag-var (format-sym "V_~A_~A_~A" 
@@ -146,6 +147,7 @@
 ;;; This is from draw-zero-displacement.
 (defoperator draw-zero-relative-vel (?b1 ?b2 ?t)
   :preconditions
+  ;; this means sub-intervals must be given explicitly
   ((in-wm (given (at (mag(relative-vel ?b1 ?b2)) ?t) (dnum 0 ?units)))
    (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare))
    (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1)
