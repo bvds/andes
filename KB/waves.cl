@@ -79,7 +79,7 @@
   :units |Hz|
   :restrictions nonnegative 
   :english ("the frequency of ~A" (nlg ?wave))
-  :fromworkbench `(frequency ,body))
+  :fromWorkbench `(frequency ,body))
 
 (defoperator define-frequency (?wave)
   :preconditions((bind ?freq-var (format-sym "freq_~A" (body-name ?wave))))
@@ -98,7 +98,7 @@
   :restrictions nonnegative 
   :english ("the frequency of ~A as observed by ~A" 
 	       (nlg ?wave) (nlg ?me))
-  :fromworkbench `(at (observed-frequency ,body) ,time))
+  :fromWorkbench `(at (observed-frequency ,body ,body2) ,time))
 
 (defoperator define-observed-frequency (?wave ?me ?t)
   :preconditions
@@ -354,11 +354,11 @@
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
 ;;; Only for sinusoidal waves (where freq & wavelength are well-defined)
-(def-psmclass speed-of-wave (speed-of-wave ?object)
+(def-psmclass speed-of-wave (speed-of-wave ?object ?medium)
   :complexity major ; must use explicitly 
   :english ("the equation of the speed of a wave")
-  :ExpFormat ("applying the equation for the speed of a wave to ~A"
-	      (nlg ?object))
+  :ExpFormat ("relating wavelength and frequency to the speed of wave ~A moving in ~A"
+	      (nlg ?object) (nlg ?medium))
   :EqnFormat ("v = lambda*freq")) 
 
 (defoperator speed-of-wave-contains (?sought)
