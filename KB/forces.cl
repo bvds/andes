@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Electric/Magnetic Forces and Fields
 ;;; 
 
@@ -492,7 +492,7 @@
 		  ; need source of field
                   (vector ?dontcare (at (field ?loc electric ?source) ?t) ?dir1) 
                   (vector ?b (at (force ?b ?source electric) ?t) ?dir2)
-                  (axis-for ?b ?t x ?rot)
+                  (axis-for ?b x ?rot)
                   (rdebug "Fired draw-charge-force-Efield-diagram ~%")
                   )
   :effects (
@@ -564,7 +564,7 @@
 		  ;; must draw body in diagram for this psm
 		  (body ?b)
 		  ; even though this is scalar equation, want axes to be allowed
-		  (axis-for ?b ?t x ?rot)
+		  (axis-for ?b x ?rot)
                   (variable ?magE (at (mag (field ?loc electric ?source)) ?t))
                   (variable ?magF (at (mag (force ?b ?source electric)) ?t))
                   (variable ?q (at (charge-on ?b) ?t))
@@ -694,7 +694,7 @@
 		  ; do we need this?
                   ;(at-place ?b ?loc2 ?t)
                   (vector ?dontcare (at (field ?loc electric ?b) ?t) ?dir1) 
-                  (axis-for ?b ?t x ?rot)
+                  (axis-for ?b x ?rot)
                   (rdebug "Fired draw-point-charge-Efield-diagram ~%")
                   )
   :effects (
@@ -774,7 +774,7 @@
 		  ;; ?b is point-charge source of field
 		  (body ?b)
 		  ;; need to allow axes for this scalar psm. 
-		  (axis-for ?b ?t x 0) ; use standard axes only
+		  (axis-for ?b x 0) ; use standard axes only
                   (variable ?magE (at (mag (field ?loc electric ?b)) ?t))
                   (variable ?q (at (charge-on ?b) ?t))
 		  (variable ?r (at (mag (relative-position ?loc ?b)) ?t))
@@ -912,10 +912,9 @@
 (defoperator write-rmag-pyth (?b ?o ?t)
   :preconditions (
     (variable ?r (at (mag(relative-position ?b ?o)) ?t))
-    ; need this if this is to work in non-component-form problems
-    ; because define-compo requires pre-drawn axes (while define-compo2 
-    ; only works for component-form).
-    ; (axis-for ?b ?t ?x 0) 
+    ;; need this if this is to work in non-component-form problems
+    ;; because define-compo requires pre-drawn axes (while define-compo2 
+    ;; only works for component-form).
     (variable ?r_x (at (compo x 0  (relative-position ?b ?o)) ?t)) 
     (variable ?r_y (at (compo y 90 (relative-position ?b ?o)) ?t)) 
   )
@@ -974,10 +973,10 @@
 (defoperator draw-rdiff-diagram (?p1 ?p2 ?t)
   :preconditions 
   ((not (vector-diagram (rdiff ?p1 ?p2 ?t)))
-   ; do we draw a body for this? What body do we call this
+   ;; do we draw a body for this? What body do we call this
    (vector ?p2 (at (relative-position ?p2 ?p1) ?t) ?dir1)
-   ; have to make sure we have an axis for this vector
-   (axis-for ?p2 ?t x 0))
+   ;; have to make sure we have an axis for this vector
+   (axis-for ?p2 x 0))
   :effects 
   ((vector-diagram (rdiff ?p1 ?p2 ?t))))
 
@@ -1149,7 +1148,7 @@
     (foreach ?source ?sources
        (vector ?b (at (field ?loc electric ?source) ?t) ?dir)) 
     ; which body should own the axis to use for these vectors
-    (axis-for ?loc ?t ?xy ?rot)
+    (axis-for ?loc ?xy ?rot)
  )
  :effects (
     (vector-diagram (net-Efield ?loc ?t))
@@ -1755,7 +1754,7 @@
                   (vector ?dontcare (at (field ?loc magnetic ?source) ?t) ?dir1) 
                   (vector ?b (at (force ?b ?source magnetic) ?t) ?dir2)
                   (vector ?b (at (velocity ?b) ?t) ?dir3)
-                  (axis-for ?b ?t x ?rot)
+                  (axis-for ?b x ?rot)
                   (debug "Fired draw-charge-force-Bfield-diagram ~%")
                   )
   :effects (
@@ -2011,16 +2010,3 @@
 
 |#
 
-#| ; obsolete attempt
-(defoperator use-std-axes-for-compos(?b ?t)
-  :preconditions ((rdebug "Using use-std-axes-for-compos ~%")
-                  ; verify standard axes drawn
-                  (in-wm (draw-axes ?dontcare1 ?t 0))
-                  (rdebug "fired use-std-axes-for-compos  ~%")
-                  )
-  :effects (
-            (axis-for ?b ?t x 0)
-            (axis-for ?b ?t y 90)
-            (register-axes ?b ?t)
-            ))
-|#

@@ -819,6 +819,8 @@
 		  `(+ ,?vw (* ,?vs (cos (- ,?phi ,?sdir))))))
    (bind ?oterm (if (eq ?odir 'zero) ?vw 
 		  `(+ ,?vw (* ,?vo (cos (- ,?phi ,?odir))))))
+   (body ?source) (body ?observer)	;draw source and observers  
+   (axis-for ?source x ?dontcare)	;axes in direction of displacement
    )
   :effects (
 	    (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))

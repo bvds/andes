@@ -69,16 +69,16 @@
 ; the axis tool to allow setting one axis direction only.
 
 (defnogood multiple-coords-for-body
-    ((axis-for ?b ?t x ?rot1)
-     (axis-for ?b ?t x ?rot2)
+    ((axis-for ?b x ?rot1)
+     (axis-for ?b x ?rot2)
      (test (not (equal ?rot1 ?rot2))))
   :specs ("prevent use of multiple coordinate systems for same body and time")
-  :message ("Multiple inequivalent coordinate systems for ?b at ?t with x at ?rot1 and ?rot2"))
+  :message ("Multiple inequivalent coordinate systems for ?b with x at ?rot1 and ?rot2"))
 
 
 (defnogood non-orthogonal-axes
-    ((axis-for ?b ?t x ?x-rot)
-     (axis-for ?b ?t y ?y-rot)
+    ((axis-for ?b x ?x-rot)
+     (axis-for ?b y ?y-rot)
      (test (not (= ?y-rot (+ ?x-rot 90)))))
   :Specs ("Prevent use of non-orthogonal xy axes pairs for same body and time")
   :message (Non-orthogonal axes for body ?b at ?t x ?x-rot y ?y-rot))
@@ -87,8 +87,8 @@
 ; and individual bodies can be used: must use same axes on all of them
 ; It represents the simple rule of picking the same axes for the whole solution
 (defnogood diff-axes-compound-part
-    ((axis-for (compound . ?bodies) ?t1 x ?rot1)
-     (axis-for ?b ?t2 x ?rot2)
+    ((axis-for (compound . ?bodies) x ?rot1)
+     (axis-for ?b x ?rot2)
      (test (member ?b ?bodies :test #'equal))
      (test (not (equal ?rot1 ?rot2))))
    :Specs ("Prevent use of different axes for compound and for part in same solution")

@@ -1162,9 +1162,9 @@
 ;;; is best, then bottom out.
 
   (def-error-class axis-tilted-for-projectile-psm (?correct ?body)
-  ((student (draw-axis ?rotation))
+  ((student (draw-axes ?rotation))
   (test (not (equal ?rotation (dnum 0 degrees))))
-  (correct (draw-axis (dnum 0 degrees)))
+  (correct (draw-axes (dnum 0 degrees)))
   (psm (projectile-motion ?body)))
   :utility 100)
   

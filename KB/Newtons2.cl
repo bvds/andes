@@ -423,8 +423,7 @@
    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (at (mag ?vector) ?t))
    (debug "KAY~%")
    (vector ?b (at ?vector ?t) ?dir)
-   (axis-for ?b ?t-axis ?xyz ?rot)
-   ;;(test (tinsidep ?t ?t-axis))   needs to be a closed interval
+   (axis-for ?b ?xyz ?rot)
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
    ;;(debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
@@ -445,8 +444,7 @@
   :preconditions
     ((vector ?b (at ?vector ?t) ?dir)
      (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (at (dir ?vector) ?t))
-     (axis-for ?b ?t-axis ?xyz ?rot)
-     ;;(test (tinsidep ?t ?t-axis))   needs to be a closed interval
+     (axis-for ?b ?xyz ?rot)
      (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
      (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
      ;;(debug "Selecting ~a rot ~a for direction ~a time ~a~%."  ?xyz ?rot ?vector ?t)
@@ -484,8 +482,7 @@
     ; NB: this requires that main vector eqn ids contain just these args!!
     (compo-eqn-contains (?psm-id ?b ?t) ?compo-eqn-name ?quantity)
     (debug "choosing compo to apply ~A to find scalar ~A~%"   ?compo-eqn-name ?quantity) 
-    (axis-for ?b ?t ?xyz ?rot)
-    ;;(debug "select-compo: trying axis ~A rot ~A for ~A at ~A~%" ?xyz ?rot ?b ?t)
+    (axis-for ?b ?xyz ?rot)
     (in-wm (vector ?b (at ?vector ?t) ?dir))
     ;;(debug "select-compo: trying vector ~A at ~A~%" ?vector ?dir)
     (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
@@ -1011,22 +1008,19 @@
   :specifications 
    "If  there are no vectors with numerical directions,
    then draw unrotated coordinate axes"
-  :preconditions (
-    (not (component-form))
-    ; don't draw axis for system part if system axis already chosen
-    ; use-system-axes will choose axes in this case.
-    (not (axis-for ?sys ?t ?dontcare1 ?dontcare2)
-         (part-of-sys ?b ?sys))
-    (not (vector ?b (at ?v ?t-vec) (dnum ?dir |deg|))
-         (tinsidep ?t-vec ?t))
-    )
+   :preconditions 
+   ( (not (component-form))
+     ;; don't draw axis for system part if system axis already chosen
+     ;; use-system-axes will choose axes in this case.
+     (not (axis-for ?sys ?dontcare1 ?dontcare2)
+	  (part-of-sys ?b ?sys))
+     (not (vector ?b (at ?v ?t-vec) (dnum ?dir |deg|))) )
   :effects (
-   (draw-axes ?b ?t 0) ; action proposition for help system gives x dir
-   (axis-for ?b ?t x 0)
-   (axis-for ?b ?t y 90)
-   ; (axis-for ?b ?t z 0) ; makes available z compos if needed, see rotkin 
-   (assume axis-for ?b ?t x 0)
-   (assume axis-for ?b ?t y 90)
+   (draw-axes ?b 0) ; action proposition for help system gives x dir
+   (axis-for ?b x 0)
+   (axis-for ?b y 90)
+   (assume axis-for ?b x 0)
+   (assume axis-for ?b y 90)
   )
   :hint
   (;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
@@ -1043,7 +1037,7 @@
 ;;
 ;; !!! Following not done yet, causes problems with multiple choices:
 ;; Include body and time parameters so can be applied as often as needed to
-;; achieve axis-for any body and time. This means there will be multiple
+;; achieve axis-for any body. This means there will be multiple
 ;; draw-axes entries -- perhaps within a single operator! -- but they 
 ;; will all be marked done by the same entry since body and time are removed 
 ;; in forming entry propositions for use at help time.
@@ -1055,16 +1049,17 @@
     (component-form)
     ; don't draw new axis for system part if system axis already chosen
     ; use-system-axes will choose axes in this case.
-    (not (axis-for ?sys ?t ?dontcare1 ?dontcare2)
+    (not (axis-for ?sys ?dontcare1 ?dontcare2)
          (part-of-sys ?b ?sys))
     )
   :effects (
-   (draw-axes ?b ?t 0) ; action proposition for help system gives x dir
-   (axis-for ?b ?t x 0) (axis-for ?b ?t y 90) 
-   (assume axis-for ?b ?t x 0) (assume axis-for ?b ?t y 90)
-   ; added March 2004: also register z axis. Consequences of this for other problems
-   ; unclear, may apply in same case as draw-unrotated-axes-for-zcomps
-   (axis-for ?b ?t z 0)
+   (draw-axes ?b 0) ; action proposition for help system gives x dir
+   (axis-for ?b x 0) (axis-for ?b y 90) 
+   (assume axis-for ?b x 0) (assume axis-for ?b y 90)
+   ;; added March 2004: also register z axis. 
+   ;; Consequences of this for other problems
+   ;; unclear, may apply in same case as draw-unrotated-axes-for-zcomps
+   (axis-for ?b z 0)
   )
   :hint
   ((point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, since this problem is seeking horizontal or vertical vector components, you should use a standard horizontal-vertical coordinate system."))
@@ -1078,43 +1073,39 @@
 ; to draw the axes.  This is needed in at least one case where we give the
 ; equality between components of two vectors on different bodies, and need
 ; to define compo vars for each via draw-compo2, hence need an axis for each.
-(defoperator reuse-compo-form-axes (?b ?t)
+(defoperator reuse-compo-form-axes (?b)
 :effects (
-   (axis-for ?b ?t x 0) (axis-for ?b ?t y 90)
+   (axis-for ?b x 0) (axis-for ?b y 90)
 )
 :preconditions (
    (component-form)
-   (in-wm (draw-axes ?drawn-axes-body ?drawn-axes-time 0))
-   ; don't need this in addition if already registered an axis for 
-   ; vectors on ?b at ?t 
-   (not (axis-for ?b ?t))
-   ; don't return axis for system part if system axis already chosen
-   ; use-system-axes will return axes in this case.
-   (not (axis-for ?sys ?t ?dontcare1 ?dontcare2)
+   (in-wm (draw-axes ?drawn-axes-body 0))
+   ;; don't need this in addition if already registered an axis for 
+   ;; vectors on ?b 
+   (not (axis-for ?b ?dontcare3 ?dontcare4))
+   ;; don't return axis for system part if system axis already chosen
+   ;; use-system-axes will return axes in this case.
+   (not (axis-for ?sys ?dontcare1 ?dontcare2)
         (part-of-sys ?b ?sys))
-   ; select-compo-eqn-for-magnitude/direction can call this with t unbound,
-   ; so we must select a time to register the new axis in this case.
-   (bind ?t (if (variable-p ?t) ?drawn-axis-time 
-              ?t))
 ))
 
 ;; following applies for same purpose when not component-form
-(defoperator reuse-other-body-axes (?b ?t)
+(defoperator reuse-other-body-axes (?b)
 :preconditions (
    (not (component-form))
-   (in-wm (draw-axes ?drawn-axes-body ?drawn-axes-time ?x-rot))
-   ; don't need this in addition if already registered an axis for 
-   ; vectors on ?b at ?t 
-   (not (axis-for ?b ?t))
-   ; don't return axis for system part if system axis already chosen
-   ; use-system-axes will return axes in this case.
-   (not (axis-for ?sys ?t ?dontcare1 ?dontcare2)
+   (in-wm (draw-axes ?drawn-axes-body ?x-rot))
+   ;; don't need this in addition if already registered an axis for 
+   ;; vectors on ?b 
+   (not (axis-for ?b ?dontcare3 ?dontcare4))
+   ;; don't return axis for system part if system axis already chosen
+   ;; use-system-axes will return axes in this case.
+   (not (axis-for ?sys ?dontcare1 ?dontcare2)
         (part-of-sys ?b ?sys))
    (bind ?y-rot (+ ?x-rot 90))
 )
 :effects (
-   (axis-for ?b ?t x ?x-rot) 
-   (axis-for ?b ?t y ?y-rot)
+   (axis-for ?b x ?x-rot) 
+   (axis-for ?b y ?y-rot)
 ))
 
 
@@ -1131,14 +1122,12 @@
     (not (component-form))
     ; don't draw axis for system part if system axis already chosen
     ; use-system-axes will choose axes in this case.
-    (not (axis-for ?sys ?t ?dontcare1 ?dontcare2)
+    (not (axis-for ?sys ?dontcare1 ?dontcare2)
          (part-of-sys ?b ?sys))
-    ; possible time is unbound coming in, pick any
-    (time ?t)
     )
   :effects (
-   (draw-axes ?b ?t 0) ; action proposition for help system gives x dir
-   (axis-for ?b ?t z 0) 
+   (draw-axes ?b 0) ; action proposition for help system gives x dir
+   (axis-for ?b z 0) 
   )
   :hint (
    (point (string "You need to draw coordinate axes in order for component variables to be defined."))
@@ -1187,7 +1176,7 @@
    (not (component-form))
    ; don't draw axis for system part if system axis already chosen
    ; use-system-axes will choose axes in this case.
-   (not (axis-for ?sys ?t ?dontcare1 ?dontcare2)
+   (not (axis-for ?sys ?dontcare1 ?dontcare2)
         (part-of-sys ?b ?sys))
    ; (test (atom ?b))	; only for atomic bodies
    (setof (in-wm (vector ?b (at ?vector ?t) ?dir)) ?dir ?dirs)
@@ -1195,14 +1184,15 @@
    (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
    (any-member ?x-rotation ?min-dirs)
    (bind ?y-rotation (+ ?x-rotation 90))
-   (debug "Setting axes for ~a at ~a: x=~a, y=~a~%" ?b ?t ?x-rotation ?y-rotation)
+   (debug "Setting axes for ~a: x=~a, y=~a~%" 
+	  ?b ?x-rotation ?y-rotation)
    )
   :effects (
-   (draw-axes ?b ?t ?x-rotation) ; action proposition for helpsys gives x dir
-   (axis-for ?b ?t x ?x-rotation)
-   (axis-for ?b ?t y ?y-rotation)
-   (assume axis-for ?b ?t x ?x-rotation)
-   (assume axis-for ?b ?t y ?y-rotation)
+   (draw-axes ?b ?x-rotation) ; action proposition for helpsys gives x dir
+   (axis-for ?b x ?x-rotation)
+   (axis-for ?b y ?y-rotation)
+   (assume axis-for ?b x ?x-rotation)
+   (assume axis-for ?b y ?y-rotation)
   )
   :hint
   ((point (string "Can you think of a good direction to set the coordinate axes?"))
@@ -1223,16 +1213,16 @@
    axis for a many-body system containing b, then use the system's axis
    as the axis for b."
   :preconditions (
-    (in-wm (axis-for (system . ?bodies) ?t x ?x-rotation))
+    (in-wm (axis-for (system . ?bodies) x ?x-rotation))
     (test (part-of-sys ?b `(system ,@?bodies)))
-    (in-wm (axis-for (system . ?bodies) ?t y ?y-rotation))
+    (in-wm (axis-for (system . ?bodies) y ?y-rotation))
   )
   :effects (
-    (axis-for ?b ?t x ?x-rotation)
-    (assume axis-for ?b ?t x ?x-rotation)
-    (axis-for ?b ?t y ?y-rotation)
-    (assume axis-for ?b ?t y ?y-rotation)
-    (axis-for ?b ?t z 0)  ; z axis always has zero tilt (really = out-of).
+    (axis-for ?b x ?x-rotation)
+    (assume axis-for ?b x ?x-rotation)
+    (axis-for ?b y ?y-rotation)
+    (assume axis-for ?b y ?y-rotation)
+    (axis-for ?b z 0)			;z-axis always has zero tilt (really = out-of).
   )
   ; no point to hints since no entry made by this operator
   ; :hint
@@ -1276,7 +1266,7 @@
    then define a component variable for the vector along the axis"
   :preconditions
   ((in-wm (vector ?b (at ?vector ?t) ?dir))
-   (in-wm (axis-for ?b ?t-axis ?xyz ?rot)) ;; NB: may have different time than vector
+   (in-wm (axis-for ?b ?xyz ?rot)) 
    (not (variable ?dont-care (at (compo ?xyz ?rot ?vector) ?t)))
    ; fetch vector's mag var for building compo var name only. 
    (in-wm (variable ?v-var (at (mag ?vector) ?t)))  
@@ -1305,7 +1295,7 @@
    ; draw the vector
    (vector ?b (at ?vector ?t) ?dir)
    ; get axes to use for vector's body and time, most likely by drawing them
-   (axis-for ?b ?t ?xyz ?rot)
+   (axis-for ?b ?xyz ?rot)
    ; fetch vector's mag var for building compo var name only. 
    (in-wm (variable ?v-var (at (mag ?vector) ?t)))  
    (bind ?var (format-sym "~Ac_~A_~A" ?xyz ?v-var ?rot))
@@ -1673,7 +1663,7 @@
    ;; little point making these 'optional' any more. 
    ;; At end so psm graph branches at end only.
    (optional (body ?b))
-   (optional (axis-for ?b ?t x 0))
+   (optional (axis-for ?b x 0))
    )
   :effects
   ((eqn (= ?s-var (/ ?d-var ?t-var)) (sdd ?b ?t)))
@@ -2280,7 +2270,7 @@
    (body ?b)
    (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
    (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir1)
-   (axis-for ?b (during ?t1 ?t2) x ?rot))
+   (axis-for ?b x ?rot))
   :effects 
   ((vector-diagram (avg-velocity ?b (during ?t1 ?t2)))))
 
@@ -2935,8 +2925,7 @@
    (vector ?b (at (velocity ?b) ?t2) ?dir2)
    (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
    (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
-   ;; (variable ?t-var (duration (during ?t1 ?t2)))
-   (axis-for ?b (during ?t1 ?t2) x ?rot))
+   (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (lk ?b (during ?t1 ?t2))))
 )
@@ -3393,7 +3382,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (at (velocity ?b) ?t1) ?dir1)
    (vector ?b (at (velocity ?b) ?t2) ?dir2)
    (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   (axis-for ?b (during ?t1 ?t2) x ?rot))
+   (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (avg-accel ?b (during ?t1 ?t2)))))
 
@@ -3480,7 +3469,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (body ?b)
    (vector ?b (at (velocity ?b) ?t1) ?dir1)
    (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
-   (axis-for ?b (during ?t1 ?t2) x ?rot))
+   (axis-for ?b x ?rot))
   :effects 
   ((vector-diagram (const-vel ?b (during ?t1 ?t2)))))
 
@@ -3549,7 +3538,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (at (relative-position ?b ?o) ?t1) ?dir1)
    (vector ?b (at (relative-position ?b ?o) ?t2) ?dir2)
    (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir3)
-   (axis-for ?b (during ?t1 ?t2) x ?rot))
+   (axis-for ?b x ?rot))
   :effects 
   ((vector-diagram (displacement ?b (during ?t1 ?t2)))))
 
@@ -3714,21 +3703,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bind ?intervals (successive-intervals ?t1 ?t2))
    (foreach ?interval ?intervals
       (vector ?b (at (displacement ?b) ?interval) ?dir-di))
-   ; then draw the net displacement
+   ;; then draw the net displacement
    (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir-dnet)
-   ; !!! Following is a hack to work around the following problem: 
-   ; If dnet is sought, there may be no vectors drawn with known dir on b for the time 
-   ; during ti tf -- the known constituent displacements will all be for different 
-   ; times: (ti t1) (t1 t2) ... (tn tf). So only possibility is to draw default 
-   ; axes via draw-unrotated-axes.  That would be fine, but this operator also 
-   ; defines the z-axis, since it is also applied to draw axes for rotational problems.  
-   ; But then it comes out looking as if z-axis can be chosen as a possible component direction 
-   ; along which to apply our principle. 
-   ; Until we implement a proper fix for this problem, we just choose axis for body 
-   ; at first interval. It doesn't matter which we choose, since rules require
-   ; standard axis whenever component-form flag is set in the problem.
-   (bind ?t1+ (1+ ?t1))
-   (axis-for ?b (during ?t1 ?t1+) x ?rot))
+   (axis-for ?b x ?rot))
   :effects 
   ((vector-diagram (sum-disp ?b (during ?t1 ?t2)))))
 
@@ -3782,19 +3759,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (at (force ?b ?b2 applied) ?t1) ?dir-b2)
    ; then draw the net displacement
    (vector ?b (at (net-force ?b) ?t1) ?dir-nfnet)
-   ; !!! Following is a hack to work around the following problem: 
-   ; If dnet is sought, there may be no vectors drawn with known dir on b for the time 
-   ; during ti tf -- the known constituent displacements will all be for different 
-   ; times: (ti t1) (t1 t2) ... (tn tf). So only possibility is to draw default 
-   ; axes via draw-unrotated-axes.  That would be fine, but this operator also 
-   ; defines the z-axis, since it is also applied to draw axes for rotational problems.  
-   ; But then it comes out looking as if z-axis can be chosen as a possible component direction 
-   ; along which to apply our principle. 
-   ; Until we implement a proper fix for this problem, we just choose axis for body 
-   ; at first interval. It doesn't matter which we choose, since rules require
-   ; standard axis whenever component-form flag is set in the problem.
-   ;(bind ?t1+ (1+ ?t1))
-   (axis-for ?b ?t1  x ?rot))
+   (axis-for ?b  x ?rot))
   :effects 
   ((vector-diagram (sum-net-force ?b ?t1 ))))
 
@@ -4735,18 +4700,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-NTL-vector-diagram (?b1 ?b2 ?type ?t)
   :preconditions (
-    ; Draw both bodies. 
+    ;; Draw both bodies. 
     (body ?b1)
     (body ?b2)
     (vector ?b1 (at (force ?b1 ?b2 ?type) ?t) ?dir1)
     (vector ?b2 (at (force ?b2 ?b1 ?type) ?t) ?dir2)
-    ; we need axis-for each body, since component defining operators will 
-    ; lookup axis-for principal body of each vector. Our operators that
-    ; draw axes only apply once, so there is no danger of drawing two
-    ; axes. In order to reuse the axes drawn for body1 as axes used
-    ; for vectors on body2, we added reuse-other-body-axis in axes section.
-    (axis-for ?b1 ?t x ?x-rot)
-    (axis-for ?b2 ?t y ?y-rot)
+    ;; we need axis-for each body, since component defining operators will 
+    ;; lookup axis-for principal body of each vector. Our operators that
+    ;; draw axes only apply once, so there is no danger of drawing two
+    ;; axes. In order to reuse the axes drawn for body1 as axes used
+    ;; for vectors on body2, we added reuse-other-body-axis in axes section.
+    (axis-for ?b1 x ?x-rot)
+    (axis-for ?b2 y ?y-rot)
   )
   :effects (
     (vector-diagram (NTL-vector (?b1 ?b2) ?type ?t))
@@ -5217,7 +5182,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
    (vector ?b (at (accel ?b) ?t) ?accel-dir)
-   (axis-for ?b ?t x ?rot))
+   (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (nl ?b ?t)))
   :hint
@@ -5239,7 +5204,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ; we draw accel first so it's known at time of drawing net force
    (vector ?b (at (accel ?b) ?t) ?accel-dir)
    (vector ?b (at (net-force ?b) ?t) ?force-dir) 
-   (axis-for ?b ?t x ?rot))
+   (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (nl ?b ?t)))
   :hint
@@ -5255,7 +5220,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions 
            ((body ?b)
 	    (forces ?b ?t ?forces)
-	    (optional (axis-for ?b ?t x 0)))
+	    (optional (axis-for ?b x 0)))
    :effects ((fbd ?b ?t)))
 
 ;;; ==================== The gravitational force ==============================
@@ -6115,7 +6080,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
  :preconditions (
   ;; Draw the boda planet y
   (body ?b)
-  (energy-axes ?b (during ?t1 ?t2))
+  (energy-axes ?b)
   ;; write equation ME_i = ME_f 
   (eqn ?te12eqn (total-energy-cons ?b ?t1 ?t2))
   ;; write equation ME_i = K_i + Ug_i [+ Us_i]
@@ -6482,7 +6447,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  ;; drawing displacement so don't get vector-aligned axes 
 		  ;; from existing operators.  !!! OP Hint is bad, though, 
 		  ;; doesn't explain why need standard axes in this case.
-		  (energy-axes ?b ?t)
+		  (energy-axes ?b)
 		  )
   :effects (
 	    (vector-diagram (height-dy ?b ?t))
@@ -6494,12 +6459,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (in-wm (use-energy-axes)) 
 		  )
   :effects (
-	    (draw-axes ?b ?t 0)		; action proposition for help system gives x dir
-	    (axis-for ?b ?t x 0)
-	    (axis-for ?b ?t y 90)
-	    (assume axis-for ?b ?t x 0)
-	    (assume axis-for ?b ?t y 90)
-	    (energy-axes ?b ?t)
+	    (draw-axes ?b 0)		; action proposition for help system gives x dir
+	    (axis-for ?b x 0)
+	    (axis-for ?b y 90)
+	    (assume axis-for ?b x 0)
+	    (assume axis-for ?b y 90)
+	    (energy-axes ?b)
 	    )
   :hint (
 	 (point (string "Can you think of a good direction to set the coordinate axes?"))
@@ -6596,7 +6561,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; must draw body, force and displacement vectors
     (body ?b)
     ;; make sure standard axis is allowed, even if unused
-    (axis-for ?b ?t x 0) 
+    (axis-for ?b x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (displacement ?b) ?t) ?dir-d)
     ;; make sure they are not perpendicular. If so, variant write-zero-work 
@@ -6862,7 +6827,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
    ((body ?b)
     ; make sure axis is allowed, even if unused
-    (axis-for ?b ?t x 0) 
+    (axis-for ?b x 0) 
     (forces ?b ?t ?forces)
     )
    :effects ( (net-work-diagram ?b ?t) ))
@@ -6893,7 +6858,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions (
     ; draw body and standard axes for principle
     (body ?b)
-    (axis-for ?b (during ?t1 ?t2) x 0)
+    (axis-for ?b x 0)
 
     ; write fundamental principle Wnet = ke2 - ke1
     (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-delta-ke ?b ?t1 ?t2))
@@ -6956,7 +6921,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions (
   ;; Draw the body and standard axes for principle
   (body ?b)
-  (axis-for ?b (during ?t1 ?t2) x 0)  
+  (axis-for ?b x 0)  
 
   ;; write equation Wnc = ME2 - ME1
   (eqn (= ?Wnc (- ?te2 ?te1))  (change-ME-top ?b ?t1 ?t2))
@@ -7013,7 +6978,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
     ;; draw body and standard axes for principle
     (body ?body)
-    (axis-for ?body ?t x 0)
+    (axis-for ?body x 0)
     (variable ?Wnc (at (work-nc ?body) ?t))
    ;; introduce variables for work done by each non-conservative work source. 
    ;; need to collect list of force *agents* to use in work quantities
@@ -7105,7 +7070,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-power (?agent ?b ?t)
   :preconditions (
      (body ?b)
-     (axis-for ?b ?t x 0)
+     (axis-for ?b x 0)
      (variable ?P-var  (at (power ?b ?agent) ?t))
      (variable ?W-var  (at (work ?b ?agent) ?t))
      (variable ?t-var  (duration ?t))
@@ -7150,7 +7115,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-net-power (?b ?t)
   :preconditions (
      (body ?b)
-     (axis-for ?b ?t x 0)
+     (axis-for ?b x 0)
      (variable ?P-var  (at (net-power ?b) ?t))
      (variable ?W-var  (at (net-work ?b) ?t))
      (variable ?t-var  (duration ?t))
@@ -7219,7 +7184,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; must draw body, force and velocity vectors
     (body ?b)
     ;; make sure standard axis is allowed, even if unused
-    (axis-for ?b ?t x 0) 
+    (axis-for ?b x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (velocity ?b) ?t) ?dir-d)
     (in-wm (variable ?F-var (at (mag (force ?b ?agent ?type)) ?t)))
@@ -7287,7 +7252,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; draw axis to use for many-body system. 
    ;; ! Because no vectors have been drawn on the system object, will always 
    ;; get standard horizontal-vertical axes since nothing to align with
-   (axis-for (system . ?bodies) (during ?t1 ?t2) ?xyz ?rot)
+   (axis-for (system . ?bodies) ?xyz ?rot)
    ;; must also record axes to use for vectors on system's constituent bodies 
    ;; so they can be picked up from working wm by compo-eqn choosing operators.
    ;; Use-system-axis should apply to inherit from the main system axis. 
@@ -7296,7 +7261,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; an axis for compound bodies that are constituents of the system in case 
    ;; of split/join.
    (foreach ?b ?bodies
-      (axis-for ?b (during ?t1 ?t2) ?xyz ?rot))
+      (axis-for ?b ?xyz ?rot))
   )
   :effects (
    (vector-diagram (cons-linmom ?bodies (during ?t1 ?t2)))
@@ -7535,7 +7500,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (body ?c) 
   (in-wm (variable ?mc (mass ?c)))
   ;; we need to choose an axis to use for the compound since nothing
-  (axis-for ?c (during ?t1 ?t2) ?xyz-c ?rot-t)
+  (axis-for ?c ?xyz-c ?rot-t)
   (variable ?vc_compo (at (compo ?xyz ?rot (velocity ?c)) ?t1))
   (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t1))
   (eqn (= ?pc_compo (* ?mc ?vc_compo)) (momentum-compo ?c ?t1 ?xyz ?rot))
@@ -7957,7 +7922,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (vector ?b (at (ang-velocity ?b) (during ?t1 ?t2)) ?dir-v)
    (vector ?b (at (ang-displacement ?b) (during ?t1 ?t2)) ?dir-d)
    (variable ?var (duration (during ?t1 ?t2)))
-   (axis-for ?b (during ?t1 ?t2) z 0)
+   (axis-for ?b z 0)
   )
   :effects (
     (vector-diagram (ang-sdd ?b (during ?t1 ?t2)))
@@ -8007,7 +7972,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-d)
    (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
    (variable ?var (duration (during ?t1 ?t2)))
-   (axis-for ?b (during ?t1 ?t2) z 0)
+   (axis-for ?b z 0)
   )
   :effects ( (vector-diagram (rk-no-s ?b (during ?t1 ?t2))) )
 )
@@ -8060,7 +8025,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-a)
    (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
    (variable ?var (duration (during ?t1 ?t2)))
-   (axis-for ?b (during ?t1 ?t2) z 0)
+   (axis-for ?b z 0)
   )
   :effects ( (vector-diagram (rk-no-vf ?b (during ?t1 ?t2))) )
 )
@@ -8117,7 +8082,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
    (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-a)
    (vector ?b (at (ang-displacement ?b) (during ?t1 ?t2)) ?dir-d)
-   (axis-for ?b (during ?t1 ?t2) z 0)
+   (axis-for ?b z 0)
   )
   :effects ( (vector-diagram (rk-no-t ?b (during ?t1 ?t2))) )
 )
@@ -8638,7 +8603,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
      ( (not (vector-diagram (ang-momentum ?b ?t))) 
        (vector ?b (at (ang-momentum ?b) ?t) ?dir) 
-       (axis-for ?b ?t z 0) )
+       (axis-for ?b z 0) )
   :effects 
      ( (vector-diagram (ang-momentum ?b ?t)) ))
 
@@ -8711,12 +8676,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (foreach ?b ?bodies
    	(vector ?b (at (ang-momentum ?b) ?t2) ?dir2))
    ; need to draw an axis so components can be defined
-   (axis-for (system . ?bodies) (during ?t1 ?t2) z 0)
+   (axis-for (system . ?bodies) z 0)
    ; must also assert axes to use for constituent bodies so it can be 
    ; found by compo-var defining operator.  Could also do this when 
    ; drawing axis for compound system.
    (foreach ?b ?bodies
-      (add-to-wm (axis-for ?b (during ?t1 ?t2) z 0)))
+      (add-to-wm (axis-for ?b z 0)))
   )
   :effects (
    (vector-diagram (cons-angmom ?bodies (during ?t1 ?t2)))
@@ -8742,13 +8707,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; draw final angular momentum of compound
    (vector ?c (at (ang-momentum ?c) ?t2) ?dir-c)
    ; need to draw an axis so components can be defined
-   (axis-for (system . ?bodies) (during ?t1 ?t2) z 0)
+   (axis-for (system . ?bodies) z 0)
    ; must also assert axes to use for constituent bodies so it can be 
    ; found by compo-var defining operator.  Could also do this when 
    ; drawing axis for compound system.
    (foreach ?b ?bodies
-      (add-to-wm (axis-for ?b ?t1 z 0)))
-   (add-to-wm (axis-for ?c ?t2 z 0))
+      (add-to-wm (axis-for ?b z 0)))
+   (add-to-wm (axis-for ?c z 0))
   )
   :effects (
    (vector-diagram (cons-angmom ?bodies (during ?t1 ?t2)))
@@ -9054,7 +9019,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (torques ?b ?axis ?t ?torques)
    ; draw net torque on object 
    (vector ?b (at (net-torque ?b ?axis) ?t) ?dir)
-   (axis-for ?b ?t z 0)
+   (axis-for ?b z 0)
    ; define for zc form only:
    ; (variable ?tnet_z (at (compo z 0 (net-torque ?b ?axis)) ?t)) 
   )
@@ -9070,7 +9035,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions 
            ((body ?b)
 	    (torques ?b ?axis ?t ?forces)
-	    (optional (axis-for ?b ?t z 0)))
+	    (optional (axis-for ?b z 0)))
    :effects ((torque-fbd ?b ?axis ?t)))
 
 ; generate equation for net torque:
@@ -9316,7 +9281,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (torques ?b ?axis ?t ?torques)
       (vector ?b (at (net-torque ?b ?axis) ?t) ?dir)
       (vector ?b (at (ang-accel ?b) ?t) ?dir-accel)
-      (axis-for ?b ?t z 0)
+      (axis-for ?b z 0)
     )
     :effects (
       (vector-diagram (NL-rot ?b ?axis ?t))

@@ -58,7 +58,7 @@
 		  (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir1)    
 		  (vector ?b1 (at (relative-vel ?b1 ?b3) ?t) ?dir3)   
 		  (vector ?dontcare (at (relative-vel ?b2 ?b3) ?t) ?dir2)
-		  (axis-for ?b1 ?t x ?rot)
+		  (axis-for ?b1 x ?rot)
 		  (rdebug "Fired draw-rel-vel-diagram-no-axes-problem ~%")
 		  )
   :effects (

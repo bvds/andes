@@ -315,13 +315,13 @@
 
 
 ;; Note: Fie on my inabilty to funcall special forms Fie I Say!
-(def-entryprop draw-axes (draw-axes ?body ?axis-time ?x-direction)
+(def-entryprop draw-axes (draw-axes ?body ?x-direction)
   ;; until workbench associates bodies and times w/axes, just
   ;; leave them out of the entry proposition for axes
   :helpform (draw-axes ?x-direction)
   :Doc "The Axes drawing tool."
-  :English ("a pair of axes on ~a ~a rotated to ~a" 
-	    ?body  (nlg ?axis-time 'pp) (nlg ?x-direction)))
+  :English ("a pair of axes on ~a rotated to ~a" 
+	    ?body  (nlg ?x-direction)))
   
   
 ; no longer used - AW
@@ -431,8 +431,9 @@
    :english ("choosing a particular kinematic equation containing ~A" 
              (nlg ?quantity)))
 
-(def-goalprop axes-chosen (axis-for ?body ?time x ?rotation)
-   ; !! this goal can be achieved in some cases without drawing by re-using existing axes.
+(def-goalprop axes-chosen (axis-for ?body x ?rotation)
+  ;; !! this goal can be achieved in some cases without drawing 
+  ;; by re-using existing axes.
    :english ("setting coordinate axes"))
 
 (def-goalprop write-projections
