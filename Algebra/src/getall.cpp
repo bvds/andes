@@ -234,13 +234,10 @@ bool makepar(const string bufst, bool keep_algebraic)
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
       {
-	if(keep_algebraic)
-	  (*canonvars)[k]->keepalgebraic = true;
-	else
-	  {	
-	    (*canonvars)[k]->isparam = true;
-	    
-	    // The SGG defines and "keepalgebraic" to be also "isparam"
+	// The SGG assigns "parameter" to any "answer-var"
+	// So we only do this once.
+	if(!(*canonvars)[k]->keepalgebraic && !(*canonvars)[k]->isparam)
+	  {
 	    numparams++;
 	    binopexp *eq = new binopexp(&equals,new physvarptr(k),
 					new numvalexp(pow(M_E,numparams)/M_PI));
@@ -249,6 +246,17 @@ bool makepar(const string bufst, bool keep_algebraic)
 		  << numparams << endl
 		  << "And equation for it " << eq->getInfix()<< endl; );
 	  }
+
+	// set the appropriate flag.
+	if(keep_algebraic)
+	  (*canonvars)[k]->keepalgebraic = true;
+	else  
+	  (*canonvars)[k]->isparam = true;
+	
+	// in the solver, however, isparam and keepalgebraic are disjoint
+	if((*canonvars)[k]->keepalgebraic && (*canonvars)[k]->isparam)
+	  (*canonvars)[k]->isparam = false;
+
 	return(true);
       }
   cerr << "didn't set variable |" << newvar << "| param, as nonexistent"
