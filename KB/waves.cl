@@ -6,61 +6,67 @@
 ;;;;  The wavelength and wavenumber of a wave
 ;;;;
 
-(def-qexp wavelength (wavelength ?wave)
+(def-qexp wavelength (wavelength ?wave ?medium)
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
-  :english ("the wavelength of ~A" (nlg ?wave))
-  :fromworkbench `(wavelength ,body))
+  :english ("the wavelength of ~A in ~A" (nlg ?wave) (nlg ?medium))
+  :fromworkbench `(wavelength ,body ,body2))
 
-(defoperator define-wavelength (?wave)
-  :preconditions((bind ?lambda-var (format-sym "lamb_~A" (body-name ?wave))))
-  :effects ((variable ?lambda-var (wavelength ?wave))
-	    (define-var (wavelength ?wave)))
-  :hint ((bottom-out 
-	  (string "Define a variable for the wavelength of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))))
+(defoperator define-wavelength (?wave ?medium)
+  :preconditions
+  ((bind ?lambda-var (format-sym "lamb_~A_~A" 
+				 (body-name ?wave)
+				 (body-name ?medium))))
+  :effects ((variable ?lambda-var (wavelength ?wave ?medium))
+	    (define-var (wavelength ?wave ?medium)))
+  :hint 
+  ((bottom-out (string "Define a variable for the wavelength of ~A moving in ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave ?medium))))
 
-(def-qexp wavenumber (wavenumber ?wave)
+(def-qexp wavenumber (wavenumber ?wave ?medium)
   :units |rad/m|
   :restrictions nonnegative  
-  :english ("the wavenumber of ~A" (nlg ?wave))
-   :fromWorkbench `(wavenumber ,body))
+  :english ("the wavenumber of ~A in ~A" (nlg ?wave) (nlg ?medium))
+   :fromWorkbench `(wavenumber ,body ,body2))
 
-(defoperator define-wavenumber (?wave)
-  :preconditions ( (bind ?wn-var (format-sym "kwave_~A" (body-name ?wave))) )
-  :effects ( (variable ?wn-var (wavenumber ?wave))
-             (define-var (wavenumber ?wave)))
-  :hint ((bottom-out 
-	  (string "Define a variable for the wave number of the ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave))))
+(defoperator define-wavenumber (?wave ?medium)
+  :preconditions 
+  ( (bind ?wn-var (format-sym "kwave_~A_~A" 
+			      (body-name ?wave)
+			      (body-name ?medium))) )
+  :effects ( (variable ?wn-var (wavenumber ?wave ?medium))
+             (define-var (wavenumber ?wave ?medium)))
+  :hint 
+  ((bottom-out (string "Define a variable for the wave number of the ~A moving in ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave ?medium))))
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
-(def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave)
+(def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave ?medium)
   :complexity major  ; must explicitly use
   :english ("relation between wavelength and wavenumber")
-  :ExpFormat ("applying the equation relating wavenumber and wavelength to ~A"
-	      (nlg ?wave))
+  :ExpFormat 
+  ("applying the equation relating wavenumber and wavelength of ~A in ~A"
+	      (nlg ?wave) (nlg ?medium))
   :EqnFormat ("wavenumber*wavelength = 2*pi")) 
 
 
  (defoperator wavenumber-lambda-wave-contains (?sought)
    :preconditions (
-		   (any-member ?sought ((wavelength ?wave)
-					(wavenumber ?wave))))
+		   (any-member ?sought ((wavelength ?wave ?medium)
+					(wavenumber ?wave ?medium))))
    :effects (
-     (eqn-contains (wavenumber-lambda-wave ?wave ) ?sought)))
+     (eqn-contains (wavenumber-lambda-wave ?wave ?medium) ?sought)))
 
 
-(defoperator wavenumber-lambda-wave (?wave)
+(defoperator wavenumber-lambda-wave (?wave ?medium)
    :preconditions (
-       (variable  ?lamb  (wavelength ?wave))
-       (variable  ?kwave  (wavenumber ?wave))
+       (variable  ?lamb  (wavelength ?wave ?medium))
+       (variable  ?kwave  (wavenumber ?wave ?medium))
    )
    :effects (
     (eqn  (= (* ?lamb ?kwave) (* 2 $p))  ;For pi, must use $p
-                (wavenumber-lambda-wave ?wave))
+                (wavenumber-lambda-wave ?wave ?medium))
    )
    :hint (
-      (point (string "You can use equation for the wavenumber of a wave"))
-      ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
+      (point (string "You can use the definition of wavenumber."))
       (bottom-out (string "Write the equation ~A" 
 			  ((= (* ?kwave   ?lamb) (*2 $p)) algebra) ))
       ))
@@ -291,29 +297,32 @@
   :eqnFormat ("fn = (n+1)*f0 or $ln = $l0/(n+1)"))
 
 (defoperator harmonic-of-contains (?sought)
-  :preconditions (
-		  (harmonic-of ?wave1 ?mult ?wave0)
-		  (any-member ?sought (
-				       (wavelength ?wave1)
-				       (frequency ?wave1)
-				       (wavelength ?wave0)
-				       (frequency ?wave0)))
-		  (bind ?form (first ?sought)) ;form is wavelength or frequency
-		  )
-  :effects ( (eqn-contains (harmonic-of ?wave1 ?wave0  ?form) ?sought)
+  :preconditions 
+  ( (harmonic-of ?wave1 ?mult ?wave0)
+    (any-member ?sought (
+			 (wavelength ?wave1 ?medium)
+			 (frequency ?wave1)
+			 (wavelength ?wave0 ?medium)
+			 (frequency ?wave0)))
+    ;;?form is nil for frequency and ?medium for wavelength
+    (bind ?form (if (eq (first ?sought) 'wavelength) ?medium))
+    )
+  :effects ( (eqn-contains (harmonic-of ?wave1 ?wave0 ?form) ?sought)
 	     ))
 
-
-(defoperator write-harmonic-of (?wave1 ?wave0 ?quant)
-  :preconditions (
-		  (harmonic-of ?wave1 ?mult ?wave0) ;get ?mult		  
-		  (variable ?v1 (?quant ?wave1))
-		  (variable ?v2 (?quant ?wave0))
-		  ;; write factor as a rational number
-		  (bind ?fact (if (eq ?quant 'frequency) 
-				    (+ 1 ?mult) `(/ 1 ,(+ 1 ?mult))))
-		  )
-  :effects ( (eqn (= ?v1 (* ?fact ?v2)) (harmonic-of ?wave1 ?wave0 ?quant)))
+(defoperator write-harmonic-of (?wave1 ?wave0 ?form)
+  :preconditions 
+  ((harmonic-of ?wave1 ?mult ?wave0)	;get ?mult
+   (bind ?q1 (if ?form  (list 'wavelength ?wave0 ?form) 
+       (list 'frequency ?wave0)))
+   (bind ?q2 (if ?form  (list 'wavelength ?wave1 ?form) 
+       (list 'frequency ?wave1)))
+   ;; BvdS:  ask Anders why I need this:
+   (variable ?v1 ?q1)
+   (variable ?v2 ?q2)
+   (bind ?fact (if ?form `(/ 1 ,(+ 1 ?mult)) (+ 1 ?mult) )) )
+  :effects ( (eqn (= ?v1 (* ?fact ?v2)) 
+		  (harmonic-of ?wave1 ?wave0 ?form)))
   :hint (
 	 (point (string "~A is the ~:R harmonic of ~A" ;prints as ordinal
 			?wave1 (?mult 'identity) ;so nlg just returns ?mult  
@@ -329,18 +338,20 @@
 ;;;   Wave speed, this is |phase velocity|
 ;;;
 
-(def-qexp wave-speed (wave-speed ?wave)
+(def-qexp wave-speed (wave-speed ?medium)
   :units |m/s|
   :restrictions nonnegative 
-  :english ("|the wave velocity of ~A|" (nlg ?wave))
+  :english ("the speed of waves in ~A" (nlg ?medium))
   :fromworkbench `(wave-speed ,body))
 
-(defoperator define-wave-speed (?wave)
-  :preconditions((bind ?wv-var (format-sym "wv_~A" (body-name ?wave))))
-  :effects ((variable ?wv-var (wave-speed ?wave))
-	    (define-var (wave-speed ?wave)))
+(defoperator define-wave-speed (?medium)
+  :preconditions
+  ( (wave-medium ?medium) ;must be object waves can move through
+    (bind ?wv-var (format-sym "wv_~A" (body-name ?medium))))
+  :effects ((variable ?wv-var (wave-speed ?medium))
+	    (define-var (wave-speed ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for the |velocity| of ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?wave))))
+	  (string "Define a variable for the speed of waves in ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?medium))))
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
 ;;; Only for sinusoidal waves (where freq & wavelength are well-defined)
@@ -352,63 +363,31 @@
   :EqnFormat ("v = lambda*freq")) 
 
 (defoperator speed-of-wave-contains (?sought)
-  :preconditions (
-		  (sinusoidal ?object)
-		  (any-member ?sought ( 
-				       (wave-speed ?object)
-				       (wavelength ?object)
-				       (frequency ?object)))  )
-  :effects (
-	    (eqn-contains (speed-of-wave ?object) ?sought)))
+  :preconditions 
+  ( (sinusoidal ?object)		;so wavelength is defined
+    (wave-medium ?medium)		;object waves can move through
+    (any-member ?sought ( 
+			 (wave-speed ?medium)
+			 (wavelength ?object ?medium)
+			 (frequency ?object)))  )
+  :effects 
+  ( (eqn-contains (speed-of-wave ?object ?medium) ?sought)))
 
 (defoperator speed-of-wave (?object)
   :preconditions (
-		  (variable  ?v  (wave-speed ?object))
-		  (variable  ?lam  (wavelength ?object))
+		  (variable  ?v  (wave-speed ?medium))
+		  (variable  ?lam  (wavelength ?object ?medium))
 		  (variable  ?freq  (frequency ?object))
 		  )
   :effects 
-  ((eqn  (= ?v (* ?lam ?freq)) (speed-of-wave ?object)))
+  ((eqn  (= ?v (* ?lam ?freq)) (speed-of-wave ?object ?medium)))
   :hint 
-  ( (point (string "You can apply the equation for the speed of a wave to ~A" 
-		   ?object))
+  ( (point (string "You can apply the equation for the speed of a wave." 
+		   ?medium))
+     (teach (string "~A moves in ~A at a constant speed." 
+		   ?object ?medium))
     (bottom-out (string "Write the equation ~A" 
 			((= ?v (* ?lam ?freq)) algebra) )) ))
-
-;; wave speeds of two things are identical
-(def-psmclass wave-speeds-equal (wave-speeds-equal . ?quants)
-  :complexity minor ; used implicitly 
-  :english ("The speed of any wave is the same")
-  :ExpFormat ("using the fact that the waves ~A have the same speed"
-	      (nlg ?quants 'conjoined-defnp) ;print list of waves with "and"
-	      )) 
-
-(defoperator wave-speeds-equal-contains (?sought)
-  :preconditions (
-		  ;; only if defined this way in the problem
-		  (in-wm (wave-speeds-equal ?wave1 ?wave2))
-		  (any-member ?sought ( 
-				       (wave-speed ?wave1)
-				       (wave-speed ?wave2)))
-		  ;; sort quants in id so A=B and B=A get same id.
-		  (bind ?quants (sort (list ?wave1 ?wave2) #'expr<)))
-  :effects (
-	    (eqn-contains (wave-speeds-equal . ?quants) 
-			  ?sought)))
-
-(defoperator wave-speeds-equal (?wave1 ?wave2)
-  :preconditions (
-		  (variable  ?v1  (wave-speed ?wave1))
-		  (variable  ?v2  (wave-speed ?wave2)))
-  :effects (
-	    (eqn  (= ?v1 ?v2) 
-		  (wave-speeds-equal ?wave1 ?wave2) ))
-  :hint (
-	 (point (string "The velocity of any wave for a given medium (air, water, a string, a rope, et cetera) is the same."))
-      (point (string "If there are two waves in a given medium, then they have equal wave speeds."))
-      (bottom-out (string "Write the equation ~A" 
-			  ((= ?v1 ?v2) algebra) ))
-      ))
 
 ;; speed of object is wave speed
 (def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?object ?rope ?t)
@@ -475,27 +454,27 @@
 (defoperator define-c ()
  :effects ( (variable |c| (speed-of-light)) ))
 
-;;; If object is "light" then set its wave-speed to c
-(def-psmclass wave-speed-light (wave-speed-light ?wave)
+;;; If medium is "light" then set its wave-speed to c
+(def-psmclass wave-speed-light (wave-speed-light ?medium)
   :complexity minor
   :english ("the speed of a light or radio wave")
   :ExpFormat("setting wave speed to c")
-  :EqnFormat("v=c"))
+  :EqnFormat("vw=c"))
 
 (defoperator wave-speed-light-contains (?sought)
   :preconditions (
-		  (light ?wave)
-		  (any-member ?sought ((wave-speed ?wave))))
+		  (light ?medium)
+		  (any-member ?sought ((wave-speed ?medium))))
   :effects (
-	    (eqn-contains (wave-speed-light ?wave) ?sought)))
+	    (eqn-contains (wave-speed-light ?medium) ?sought)))
 
-(defoperator wave-speed-light (?wave)
+(defoperator wave-speed-light (?medium)
   :preconditions (
-		  (variable  ?v (wave-speed ?wave))
+		  (variable  ?v (wave-speed ?medium))
 		  (variable ?c (speed-of-light)))
   :effects (
 	    (eqn  (= ?v ?c) 
-		  (wave-speed-light ?wave)))
+		  (wave-speed-light ?medium)))
   :hint (
 	 (point (string "Light waves and radio waves have a special speed"))
 	 (teach (string "What is the speed of light?"))
@@ -623,7 +602,6 @@
    )
    :hint (
       (point (string "In your textbook, find a formula for the maximum speed of an oscillation"))
-      ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?vmax (* ?a ?w)) algebra) ))
       ))
@@ -672,7 +650,6 @@
    )
    :hint (
       (point (string "In your textbook, find a formula for the maximum acceleration of an oscillation"))
-      ;(teach (string "The equation-of-wavenumber-of-wave states that the wavenumber of a wave is (2*pi)/wavelength"))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?amax (* ?a ?w ?w)) algebra) ))
       ))
