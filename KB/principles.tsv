@@ -141,7 +141,7 @@ LEAF	vmax=A*$w                        Maximum speed of oscillation	max-transvers
 LEAF	amax=A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
 LEAF	T=2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
 LEAF	T=2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo=fs*(vwÂ±vo)/(vwâˆ“vs))   Frequency shift from doppler effect	doppler-frequency	
+LEAF	fo=fs*(vw±vo)/(vw±vs))   Frequency shift from doppler effect	doppler-frequency	
 LEAF	fn=(n+1)*f0 or $ln=$l0/(n+1) n-th harmonic	harmonic-of	
 LEAF	fbeats=|f1-f2|/2	beat-frequency	
 END_GROUP			
