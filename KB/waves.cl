@@ -578,10 +578,10 @@
 				       ))
 		  )
   :effects (
-	    (eqn-contains (pendulum-oscillation ?block ?rod
+	    (eqn-contains (pendulum-oscillation ?block ?rod ?planet
 						) ?sought)))
 
-(defoperator pendulum-oscillation (?block ;?rod
+(defoperator pendulum-oscillation (?block ?rod ?planet
 				   )
   :preconditions (
 		  (near-planet ?planet)
@@ -599,4 +599,68 @@
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
 	 ))
+
+;;;
+;;;  Doppler shift in one dimension.
+;;;  This assumes all velocities are defined with respect to the wave medium
+;;;  Since this involves the positions of various bodies, 
+;;;  we find the shift at a particular time, which is an exception
+;;;  to the general strategy .
+;;;
+;;;  This also depends crucially on the two-dimensional notation
+;;;  found in much of Andes
+;;;
+
+(def-psmclass doppler-frequency (doppler-frequency ?body)
+  :complexity major			; must explicitly use
+  :english ("Formula for doppler frequency shift (frequency)")
+  :ExpFormat ("using formula for doppler frequency shift (frequency)")
+  :EqnFormat ("fr=ft*(1+vr/vw)/(1-vt/vw))")) 
+
+(defoperator doppler-frequency-contains (?sought)
+  :preconditions (
+		  (object ?source)
+		  (object ?observer)
+		  (sinusoidal ?source)
+		  (time ?t)
+		  (not (light ?wave)) ;light is a differenct formula
+		  (any-member ?sought ((frequency ?source)
+				       (frequency ?observer)
+				       (wave-speed ?wave)
+				       ;; constant velocity (no time specified)
+				       (mag (velocity ?source)) 
+				       (dir (velocity ?source)) 
+				       (mag (velocity ?observer))
+				       (dir (velocity ?observer)) 
+				       ;; we neet to specify a time for this
+				       (at (dir (relative-position 
+						 ?source ?observer)) ?t)
+				       ))
+		  )
+  :effects (
+	    (eqn-contains (doppler-frequency ?source ?observer ?t
+						) ?sought)))
+
+(defoperator doppler-frequency (?source ?observer ?t
+				   )
+  :preconditions (
+		  (variable ?dirangle (at (dir (relative-position 
+						?source ?observer)) ?t))
+		  (variable  ?dirsource (dir (velocity ?source)))
+		  (variable  ?dirobserver (dir (velocity ?observer)))
+		  (variable ?vsource (mag (velocity ?source)))
+		  (variable ?vobserver (mag (velocity ?observer)))
+		  (variable ?vwave (wave-speed ?wave))		  
+		  )
+  :effects (
+	    ;; BvdS:  I couldn't get this to work in sqrt form.
+	    (eqn  (= (* ?t ?t ?g-var) (* 4 $p $p ?l)) ;must use $p for pi
+		  (doppler-frequency ?block ?rod))
+	    )
+  :hint (
+	 (point (string "In your textbook, find a formula for the period of oscillation of a pendulum"))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
+	 ))
+
 
