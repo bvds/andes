@@ -1543,23 +1543,6 @@
 		       ?quant ?t-constant (?t1 pp) ((at ?quant ?t-constant)) ((at ?quant ?t1))))
    ))
 
-;;;
-;;; If a quantity is constant (timeless), then it has that
-;;; value at any time.
-;;;
-;;; this follows equality-contains
-(defoperator timeless-to-time (?sought)
-  :preconditions(
-		 ;; need to know timeless value can actually be found
-		 ;; for instance, one can check that it is given:
-		 ;; but this is not very general
-		 (in-wm (given ?quant ?dontcare))
-		 (time ?t)
-		 (any-member ?sought ((at ?quant ?t)))
-		 )
-  :effects ((eqn-contains (equals ?quant 
-				  (at ?quant ?t)) ?sought)))
-
 ;; Following expands (constant (accel ?b) ?t) to derive constancy of 
 ;; magnitude and direction attributes. This rule functions a bit like a macro 
 ;; expansion, it exists to let us write more concise statements in terms of 
