@@ -1,13 +1,16 @@
 #
 #  Make Solver test program
 #
-CPPFLAGS= -Wall -I../src
- 
+CPPFLAGS = -Wall -I../src -DWITHDBG
+
 #solve_lib = -L../../ -lSolver
 solve_lib = ../../libSolver.so
 
-solver: ../../libSolver.so main.o
-	$(CXX) $(CFLAGS) -o solver $(solve_lib) main.o
+solver: main.o $(solve_lib)
+	$(CXX) $(CPPFLAGS) -o solver $(solve_lib) main.o
 
-str:   ../../libSolver.so str.o
-	$(CXX) $(CFLAGS) -o str $(solve_lib) str.o
+str:   $(solve_lib) str.o
+	$(CXX) $(CPPFLAGS) -o str $(solve_lib) str.o
+
+main.o: ../../Solver.log main.cpp
+	$(CXX) $(CPPFLAGS) -c main.cpp

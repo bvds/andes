@@ -6,7 +6,7 @@
 //			14 March 2001 - lht -- created
 //////////////////////////////////////////////////////////////////////////////
 #include <iostream>
-#include "decl.h"
+#include "../src/decl.h"
 #include "../src/extstruct.h"
 #include "../src/Solver.h"
 RETURN_CSTRING solverDoLog(const char* const src);
@@ -31,13 +31,10 @@ void doinitinit();
 
 //////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[]) {
-  int k;
-  for (int i=0; i<argc; i++) {
-    LOGn(argv[i]);
-  }
+
   if (argc > 2) { cerr << "Usage: " << argv[0] << " [dbgmask]" << endl; 
 		  exit(1) ; }
-  if (argc == 2) dbglevel = (unsigned int) strtol(argv[1],0,16);
+  if (argc == 2) dbglevel = strtoul(argv[1],0,0);
   doinitinit();
   solverDoLog("t");  // make log file
 //////////////////////////////////////////////////////////////////////////////

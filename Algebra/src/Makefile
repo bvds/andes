@@ -2,7 +2,7 @@
 #  Make algebra routines and algebra lib
 #
 #  -fPIC is needed to make DLL to be used by Allegro
-CPPFLAGS = -Wall -fPIC
+CPPFLAGS = -Wall -fPIC -g
 #            * remove these *****
 CPPFLAGS += -DAW_POW_FIX -DAW_EXP -DSOLVER_EXPORTS -DUNITENABLE 
 #                                                                -DNO_DLL
@@ -39,7 +39,7 @@ src_objects = Solver.o   \
 
 
 algebra: $(src_objects) main.o
-	$(CXX) $(CFLAGS) -o algebra $(src_objects) main.o
+	$(CXX) $(CPPFLAGS) -o algebra $(src_objects) main.o
 
 libSolver.so: $(src_objects) Makefile
 	$(CXX) -shared $(src_objects) -o libSolver.so && \
