@@ -5327,7 +5327,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	    (optional (axis-for ?b ?t x 0)))
    :effects ((fbd ?b ?t)))
 
-;;; =========================== W=m*g  =======================================
+;;; ==================== The gravitational force ==============================
 
 ;;; This operator and the next represent writing W=m*g.  Because
 ;;; weight is treated as a magnitude in this equation, it is a scalar
@@ -5343,7 +5343,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; to be in the equation, but things are not so certain for other equations.  At any rate,
 ;;; the second operator does the actual process of preparing to write the equation then
 ;;; writing it.
- 
+
 (defoperator wt-law-contains (?quantity)
   :specifications "
    If a body is near a planet,
@@ -5524,7 +5524,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
 
 ;;; gravitational acceleration
-;;; This represents entering the known constant value 9/8 m/s^2 for the 
+;;; This represents entering the known constant value 9.807 m/s^2 for the 
 ;;; gravitational acceleration near the surface of the Earth.
 ;;; g is not expected to be known for other planets so will have to be 
 ;;; given in the problem statement or treated as a parameter.
@@ -5538,7 +5538,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ( (any-member ?quantity ((gravitational-acceleration earth))) )
   :effects
     ( (eqn-contains (std-constant g) ?quantity) )
-)
+    )
+
 (defoperator write-g-on-earth ()
   :preconditions 
     ( (variable ?g-var (gravitational-acceleration earth)) )

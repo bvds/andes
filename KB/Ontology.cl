@@ -57,7 +57,8 @@
       (|ozW| . "ounces")
       (|ozVUS| . "ounces")
       (|knot| . "knots")))
-; Quantity Terms:
+
+;;;             Quantity Terms:
 
 (defun translate-units (x)
   (let ((result (assoc x unit-english)))

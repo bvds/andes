@@ -125,7 +125,6 @@
       <c_indyStudentAddEquationOkay>  
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||#
 
-
 ;;;;
 ;;;;    Set the path of the solver by os type.
 ;;;;
@@ -147,6 +146,10 @@
 		  :key #'file-namestring :test #'string-equal)
        (format T "~&UnLoading solver from ~A~%" path)
        (ff::unload-foreign-library path))))
+
+; Ensure Lisp will read given values into double-precision floating points.
+; Thus constants will have the format expected by the solver.
+(setf *read-default-float-format* 'double-float)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eq slot range defined in DLL. NB: must stay in sync w/DLL!

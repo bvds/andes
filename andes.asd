@@ -104,7 +104,9 @@
 				     (:file "force-problems")  
 				     (:file "PyreneesProblems")
 				     (:file "forces")          
-				     (:file "optics")          
+				     (:file "optics")
+				     (:file "optics-problems"
+				             :depends-on "optics")
 				     (:file "vectors")
 				     (:file "makeprob")        
 				     (:file "vectors-problems")

@@ -21,6 +21,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Public constants
 ;; **Dead-Path**      -- Marking for dead path nodes.
+;;                       Defined in HelpStructs/SystemEntry.cl
 ;; **Optimal-Path**   -- Marking for the optimal path nodes.
 ;; **Parameter**      -- Marking for the param nodes.
 ;; **Answer-Var**     -- Marking for answer-var params.
@@ -389,13 +390,11 @@
 ;;; These definitions might be replicated in other locations but the purpose
 ;;; of them here is to centralize code location.  The system is intended to 
 ;;; answer questions about the graph and these definitions facilitate that.
-(defconstant **Dead-Path** 'Dead-Path "Dead-Path markings.")
 (defconstant **Optimal-Path** 'Optimal-Path "Optimal markings.")
 (defconstant **Parameter** 'Parameter "The specified qnode is a parameter.")
 (defconstant **Sought** 'Sought "Sought quantity marking.")
 (defconstant **Answer-Var** 'Answer-Var "Sought qnode is an answer var.")
 (defconstant **Cancelling-Var** 'Cancelling-Var "Sought qnode is a cancelling-var.")
-(defconstant **Forbidden** 'Forbidden "Specified Enode is forbidden.") 
 (defconstant **Nogood** 'Nogood "Specified nodes are nogood (depreciated).")
 (defconstant **Given** 'Given "The specified node is Given in the problem.")
 
