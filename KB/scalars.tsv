@@ -4,7 +4,7 @@ radius	r
 distance	s	distance traveled	by [body:bodies] at time [time:times]
 distance-between	d	distance	between [body:bodies] and [body2:bodies] at [time:times]
 speed	v		
-duration	t	duration of time	from [time:times] to [time2:times]
+duration	t	duration of time	from [body:times] to [time2:times]
 angle			
 coef-friction	$m	coef. of friction	between [body:bodies] and [body2:bodies]
 work	W	work	done on [body:bodies] by [body2:bodies] at time [time:times]
