@@ -4,7 +4,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; clear out the old operators on load so that the new ones can be defined.
-(clear-ops)  
+(clear-ops)
 
 ;; ============== Top-level search support ===================
   

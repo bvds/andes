@@ -403,7 +403,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-read-answer (x)
   "If '(Error: <' is start return string else lisp-read."
-  (if (equal "Error: <" (subseq x 1 9))
+  (if (and (>= (length x) 9)
+	   (equal "Error: <" (subseq x 1 9)))
       x
     (if (= 0 (length x))
 	nil

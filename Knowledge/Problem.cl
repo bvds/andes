@@ -406,6 +406,7 @@
 
 (defun clear-Problem-Registry ()
   "Clear out the problem registry."
+  (format t "clearing *problem-registry*")
   (clrhash *Problem-Registry*))
 
 

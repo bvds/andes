@@ -8,8 +8,11 @@
 ;;;;  (load "/home/bvds/Andes2/KB/Ontology.cl")
 ;;;;  (load "/home/bvds/Andes2/KB/Newtons2.cl")
 ;;;;  #+LINUX (defparameter *Root-Path* "/home/bvds/Andes2/")
-;;;;
+;;;;  :cd "/home/bvds/Andes2"  ; needed for temp file andes241.tlz
+
+
 ;;;; This was stolen from maxima.asd
+
 #+(or sbcl openmcl)
 (or (find-package "USER")
     (rename-package "COMMON-LISP-USER" "COMMON-LISP-USER" '("USER")))
@@ -54,7 +57,7 @@
 	       (:module "KB"
 ;			:description "Knowledge Base"
 			:depends-on ("Knowledge" "Base" "SGG")
-			:components ((:file "Ontology")        
+			:components ((:file "Ontology" )        
 				     (:file "NewtonsNogoods")  
 				     (:file "Physics-Funcs")
 				     (:file "circuit-ontology")  
