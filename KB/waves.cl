@@ -773,4 +773,3 @@
 				  (* ?fs (/ (- ?vw (* ?vo (cos (- ?phi ?thetao)))) 
 					    (- ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
 	 ))
-

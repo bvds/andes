@@ -1493,7 +1493,16 @@
 ;;;
 ;;; For example, this can be used for acceleration,
 ;;; which we currently assert to be constant.
-
+;;;
+;;; BvdS:  In this convention, the generic case for a quantitity
+;;; set to a constant over an interval is an average value.  
+;;; This is different from standard notation where 
+;;;           f(x)=c, x \in {a,b} 
+;;; implies f(x) constant.  Also, if one extends to calculus, one would
+;;; want average value defined in terms of an integral.
+;;; Also, there is nothing in the user interface corresponding
+;;; to setting a quantity to something constant.
+;;;
 (defoperator inherit-constant-value (?quant ?t-constant ?t1)
   :preconditions (
     (constant ?quant ?t-constant)
@@ -1503,7 +1512,6 @@
   )
   :effects (
 	    (equals (at ?quant ?t1) (at ?quant ?t-constant))
-	    (constant ?quant ?t1)
      )
   :hint
   ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
