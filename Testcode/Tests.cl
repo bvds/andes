@@ -590,9 +590,7 @@
 
 (defun mergefunc-pick-newest (Old New)
   "Return the Newest value."
-  (list Old)
   New)
-
 
 ;;; Sum the two values together.
 (defun mergefunc-sum-values (Old New)

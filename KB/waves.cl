@@ -621,21 +621,23 @@
   :preconditions (
 		  (object ?source)
 		  (object ?observer)
-		  (sinusoidal ?source)
+;;		  (sinusoidal ?source)
+;;		  (sinusoidal ?observer)
 		  (time ?t)
-		  (not (light ?wave)) ;light is a differenct formula
+		;;  (not (light ?wave))	;light is a differenct formula
 		  (any-member ?sought ((frequency ?source)
-				       (frequency ?observer)
+				       (at (frequency ?observer) ?t)
 				       (wave-speed ?wave)
 				       ;; constant velocity (no time specified)
 				       (mag (velocity ?source)) 
-				       (dir (velocity ?source)) 
 				       (mag (velocity ?observer))
-				       (dir (velocity ?observer)) 
-				       ;; we neet to specify a time for this
-				       (at (dir (relative-position 
-						 ?source ?observer)) ?t)
+				     ;;  (dir (velocity ?source)) 
+				     ;;  (dir (velocity ?observer)) 
 				       ))
+		  ;; we neet to specify a time for this
+		  ;; It would be difficult to solve for this angle
+		 ;; (at (dir (relative-position 
+		;;	    ?source ?observer)) ?t)
 		  )
   :effects (
 	    (eqn-contains (doppler-frequency ?source ?observer ?t
@@ -644,23 +646,31 @@
 (defoperator doppler-frequency (?source ?observer ?t
 				   )
   :preconditions (
-		  (variable ?dirangle (at (dir (relative-position 
-						?source ?observer)) ?t))
-		  (variable  ?dirsource (dir (velocity ?source)))
-		  (variable  ?dirobserver (dir (velocity ?observer)))
-		  (variable ?vsource (mag (velocity ?source)))
-		  (variable ?vobserver (mag (velocity ?observer)))
-		  (variable ?vwave (wave-speed ?wave))		  
+		 ;; (variable ?phi (at (dir (relative-position 
+		;;				?source ?observer)) ?t))
+		 ;; (variable  ?thetas (dir (velocity ?source)))
+		 ;; (variable  ?thetao(dir (velocity ?observer)))
+		  (variable ?vs (mag (velocity ?source)))
+		  (variable ?vo (mag (velocity ?observer)))
+		  (variable ?vw (wave-speed ?wave))		  
+		  (variable ?fs (frequency ?source))		  
+		  (variable ?fo (at (frequency ?observer) ?t))
 		  )
   :effects (
-	    ;; BvdS:  I couldn't get this to work in sqrt form.
-	    (eqn  (= (* ?t ?t ?g-var) (* 4 $p $p ?l)) ;must use $p for pi
-		  (doppler-frequency ?block ?rod))
+	    (eqn  (= (* ?fo (- ?vw 
+			       ?vs	;(* ?vs (cos (- ?phi ?thetas)))
+			       ))
+		     (* ?fs (- ?vw 
+			       ?vo	;(* ?vo (cos (- ?phi ?thetao)))
+			       )))
+		  (doppler-frequency ?source ?observer ?t))
 	    )
   :hint (
-	 (point (string "In your textbook, find a formula for the period of oscillation of a pendulum"))
+	 (point (string "In your textbook, find a formula for doppler frequency shift."))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
+			     ((=  ?fo 
+				  (* ?fs (/ (- ?vw (* ?vo (cos (- ?phi ?thetao)))) 
+					    (- ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
 	 ))
 
 
