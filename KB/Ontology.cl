@@ -255,9 +255,9 @@
 
 ;;====================================================
 ;; Entry Propositions.
-(def-entryprop body (body ?body ?time)
+(def-entryprop body (body ?body)
   :Doc "The body tool."
-  :English ("the body for the ~a ~a" ?body (nlg ?time 'pp))) 
+  :English ("the body for the ~a" ?body)) 
 
 
 ;;; Nlging the vector is complex.  The dir term can be an angle

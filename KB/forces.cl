@@ -486,8 +486,8 @@
   :preconditions (
                   (debug "Using draw-charge-force-Efield-diagram ~%")
                   (not (vector-diagram (charge-force-Efield ?b ?source ?t)))
-                  ; ?b is "test charge" feeling force at ?loc 
-                  (body ?b ?t)
+                  ;; ?b is "test charge" feeling force at ?loc 
+                  (body ?b)
                   (at-place ?b ?loc ?t)
 		  ; need source of field
                   (vector ?dontcare (at (field ?loc electric ?source) ?t) ?dir1) 
@@ -561,8 +561,8 @@
 (defoperator write-charge-force-Efield-mag (?b ?t)
   :preconditions ((debug "Using write-charge-force-Efield-mag ~%")
                   (at-place ?b ?loc ?t)
-		  ; must draw body in diagram for this psm
-		  (body ?b ?t)
+		  ;; must draw body in diagram for this psm
+		  (body ?b)
 		  ; even though this is scalar equation, want axes to be allowed
 		  (axis-for ?b ?t x ?rot)
                   (variable ?magE (at (mag (field ?loc electric ?source)) ?t))
@@ -689,8 +689,8 @@
   :preconditions (
                   (rdebug "Using draw-point-charge-Efield-diagram ~%")
                   (not (vector-diagram (point-charge-Efield ?b ?loc ?t)))
-                  ; ?b is point charge source of field at ?loc
-                  (body ?b ?t)
+                  ;; ?b is point charge source of field at ?loc
+                  (body ?b)
 		  ; do we need this?
                   ;(at-place ?b ?loc2 ?t)
                   (vector ?dontcare (at (field ?loc electric ?b) ?t) ?dir1) 
@@ -769,11 +769,11 @@
 
 (defoperator write-point-charge-Efield-mag (?b ?loc ?t)
   :preconditions ((debug "Using write-point-charge-Efield-mag ~%")
-                  ;(at-place ?b ?loc-source ?t)
-		  ; need to draw body for this psm. 
-		  ; ?b is point-charge source of field
-		  (body ?b ?t)
-		  ; need to allow axes for this scalar psm. 
+                  ;;(at-place ?b ?loc-source ?t)
+		  ;; need to draw body for this psm. 
+		  ;; ?b is point-charge source of field
+		  (body ?b)
+		  ;; need to allow axes for this scalar psm. 
 		  (axis-for ?b ?t x 0) ; use standard axes only
                   (variable ?magE (at (mag (field ?loc electric ?b)) ?t))
                   (variable ?q (at (charge-on ?b) ?t))
@@ -1228,8 +1228,8 @@
 
 (defoperator write-point-charge-potential (?body ?loc ?t)
   :preconditions (
-     ; this psm draws source charge as body:
-     (body ?body ?t)
+     ;; this psm draws source charge as body:
+     (body ?body)
      (variable ?V (at (potential ?loc ?body) ?t))
      (charge-var ?q (at (charge-on ?body) ?t))
      (variable ?r (at (mag (relative-position ?loc ?body)) ?t))
@@ -1347,7 +1347,7 @@
      ; this psm may be the only one to draw body 
      ; NB: this goal fails if part of cons-energy psm, since
      ; body already drawn and body-drawing op tests for that.
-     (optional (body ?body ?t))
+     (optional (body ?body))
   )
   :effects (
     (eqn (= ?Ue (* ?q ?Vnet)) (electric-energy ?body ?source ?t))
@@ -1690,9 +1690,9 @@
 (defoperator write-charge-force-Bfield-mag (?b ?t)
   :preconditions ((debug "Using write-charge-force-Bfield-mag ~%")
                   (at-place ?b ?loc ?t)
-		  ; draw body for this psm
-                  (body ?b ?t)
-		  ; draw the vectors B, v, and F.
+		  ;; draw body for this psm
+                  (body ?b)
+		  ;; draw the vectors B, v, and F.
                   (vector ?dontcare1 (at (field ?loc magnetic ?source) ?t) ?B-dir)
                   (vector ?dontcare2 (at (velocity ?b) ?t) ?V-dir)
 		  (vector ?dontcare3 (at (force ?b ?source magnetic) ?t) ?F-dir)
@@ -1750,7 +1750,7 @@
   :preconditions (
                   (debug "Using draw-charge-force-Bfield-diagram ~%")
                   (not (vector-diagram (charge-force-Bfield ?b ?t)))
-                  (body ?b ?t)
+                  (body ?b)
                   (at-place ?b ?loc ?t)
                   (vector ?dontcare (at (field ?loc magnetic ?source) ?t) ?dir1) 
                   (vector ?b (at (force ?b ?source magnetic) ?t) ?dir2)
@@ -1921,8 +1921,8 @@
                   (any-member ?sought ((at (dir (force ?b ?source magnetic)) ?t)
                                        (at (dir (field ?loc magnetic ?source) ?t))
                                        (at (charge-on ?b) ?t)))
-                  ;(not (component-form))
-                  (body ?b ?t)
+                  ;;(not (component-form))
+                  (body ?b)
                   (rdebug "Firing write-charge-force-Bfield-dir-contains ~%")
                   )
   :effects(

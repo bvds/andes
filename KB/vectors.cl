@@ -1,5 +1,6 @@
 
-; following attaches a hint to the subgoal of drawing this diagram, see ontology.cl for examples
+;; following attaches a hint to the subgoal of drawing this diagram, 
+;; see ontology.cl for examples
 (def-goalprop avg-vel-fbd (vector-diagram (relative-vel ?b1 ?b2 ?b3 ?t))
    :english ("drawing a diagram showing all of the needed relative velocity vectors and coordinate axes" ))
    
@@ -8,7 +9,7 @@
              :preconditions (
                              (rdebug "Using draw-rel-vel-diagram ~%")
                              (not (vector-diagram (relative-vel ?b1 ?b2 ?t)))
-                             (body ?b1 ?t)
+                             (body ?b1)
                              (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir1)    
                              (vector ?b1 (at (relative-vel ?b1 ?b3) ?t) ?dir3)   
                              (reference-object ?b3)
@@ -28,7 +29,7 @@
              :preconditions (
                              (rdebug "Using draw-rel-vel-diagram-no-axes-problem ~%")
                              (not (vector-diagram (relative-vel ?b1 ?b2 ?t)))
-                             (body ?b1 ?t)
+                             (body ?b1)
                              (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir1)    
                              (vector ?b1 (at (relative-vel ?b1 ?b3) ?t) ?dir3)   
                              (reference-object ?b3)
@@ -48,7 +49,7 @@
              :preconditions (
                              (rdebug "Using draw-rel-vel-vector-unknown ~%")
                              (time ?t)
-                             (body ?b1 ?t)
+                             (body ?b1)
                              (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare1))
                              (not (given (at (dir (relative-vel ?b1 ?b2)) ?t) ?dontcare))
                              (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1) (body-name ?b2)(time-abbrev ?t)))
@@ -74,7 +75,7 @@
                              (rdebug "Using draw-rel-vel-vector-unknown-no-body ~%")
                              (time ?t)
                              (reference-object ?b2)
-                             (body ?b3 ?t)
+                             (body ?b3)
                              (not (vector ?b3 (at (relative-vel ?b1 ?b2) ?t) ?dontcare1))
                              (not (given (at (dir (relative-vel ?b1 ?b2)) ?t) ?dontcare))
                              (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1) (body-name ?b2)(time-abbrev ?t)))
@@ -100,7 +101,7 @@
                               then draw it."
              :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
                              (time ?t)
-                             (body ?b1 ?t)
+                             (body ?b1)
                              (given (at (dir(relative-vel ?b1 ?b2)) ?t1) ?dir)
                              (test (numberp (second ?dir)))
                              (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir))
@@ -128,7 +129,7 @@
 
              :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir-body-not-in-rel-vel ~%")
                              (time ?t)
-                             (body ?b1 ?t)
+                             (body ?b1)
                              (given (at (dir(relative-vel ?b2 ?b3)) ?t) ?dir)
                              (test (not (equal ?b2 ?b3))) 
                              (test (numberp (second ?dir)))                  

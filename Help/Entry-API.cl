@@ -455,16 +455,14 @@
 ;; argument(s):
 ;;  label:  the label of the body
 ;;  name(s): the name the body(s) was assigned in the problem description
-;;  time: the time period specified for the system
 ;;  id: is assigned to this object by the work-bench
 ;; returns: StudentEntry
 ;; note(s):
 ;;  Defines a mass variable whose name has "m" concatenated to the given label. 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-assert-object (label name &optional time id)
-  (let* ((time-term (arg-to-time time))
-         (body-term (arg-to-body name))
-	 (action   `(body ,body-term ,time-term))
+  (let* ((body-term (arg-to-body name))
+	 (action   `(body ,body-term))
 	 (entry     (make-StudentEntry :id id :prop action))
 	 ; this entry automatically defines a mass variable named m+label
 	 ; we build an implicit entry for this to mark it done as well.

@@ -330,7 +330,7 @@
 ;;; body tool.
 (def-error-class irrelevant-mass (?wrong-body)
   ((student (define-var (mass ?wrong-body)))
-   (no-correct (body ?wrong-body ?time))))
+   (no-correct (body ?wrong-body))))
 
 (defun irrelevant-mass (wrong-body)
   (setq wrong-body (nlg wrong-body 'def-np))
@@ -453,6 +453,7 @@
   (+ 0.1
      (if (equal ?sbody ?cbody) 0.2 0.0)
      (if (equal ?stime ?ctime) 0.3 0.0)))
+
 (defun velocity-not-speed (body time)
   (make-hint-seq
    (list "On this problem, you should use velocity instead of speed."
@@ -1032,11 +1033,10 @@
 ;;; high utility gives this error class priority over the others when
 ;;; it applies.
 (def-error-class body-tool-multiple-correct ()
-  ((student (body ?wrong-body ?wrong-time))
-   (correct (body ?body1 ?time1))
-   (correct (body ?body2 ?time2))
-   (test (not (and (equal ?body1 ?body2) 
-		   (equal ?time1 ?time2)))))
+  ((student (body ?wrong-body))
+   (correct (body ?body1))
+   (correct (body ?body2))
+   (test (not (equal ?body1 ?body2))))
   :utility 100)
 
 (defun body-tool-multiple-correct ()
@@ -1054,10 +1054,10 @@
 ;;; less specific error classes for bodies.  Currently, there is no
 ;;; problem where a massless object is the only correct body, so this
 ;;; error handler has not been tested.
-(def-error-class massless-body (?correct-body ?ctime ?wrong-body)
-  ((student (body ?wrong-body ?time))
-   (no-correct (body ?wrong-body ?time2))
-   (correct (body ?correct-body ?ctime))
+(def-error-class massless-body (?correct-body ?wrong-body)
+  ((student (body ?wrong-body))
+   (no-correct (body ?wrong-body))
+   (correct (body ?correct-body))
    (problem (massless ?correct-body))
    (problem (given (mass ?wrong-body) ?dontcare)))
   :Utility 50)
@@ -1075,72 +1075,28 @@
 			     "for the body.  Analyze the motion of ~a "
 			     "instead.") wrong-body correct-body))))
 
-
-;;; If the object is correct but the time is wrong, and there is just
-;;; one correct time, then okay to suggest it.
-(def-error-class wrong-time-for-body-tool (?body ?wrong-time ?correct-time)
-  ((student (body ?body ?wrong-time))
-   (correct (body ?body ?correct-time))
-   (test (not (equal ?wrong-time ?correct)))))
-
-(defun wrong-time-for-body-tool (body wrong-time correct-time)
-  (setf body (nlg body 'def-np))
-  (setf wrong-time (nlg wrong-time 'pp))
-  (setf correct-time (nlg correct-time 'pp))
-  (make-hint-seq
-   (list (format nil (strcat "Analyzing the motion of ~a is fine, but "
-			     "you should choose a different time.")  body)
-	 (strcat "In general, you should analyze the motion of a body over "
-		 "the whole time period of its motion.  Click on the light "
-		 "bulb for suggestions about this particular case if you "
-		 "want.")
-	 (format nil "Analyze the motion of ~a ~a instead of ~a."
-		 body correct-time wrong-time))))
-
-;;; the student draws a body with the right time but the wrong object
-(def-error-class wrong-object-for-body-tool (?correct-body ?time ?wrong-body)
-  ((student (body ?wrong-body ?time))
-   (correct (body ?correct-body ?time))
+;;; the student draws a body for the wrong object
+(def-error-class wrong-object-for-body-tool (?correct-body ?wrong-body)
+  ((student (body ?wrong-body))
+   (correct (body ?correct-body ))
    (test (not (equal ?wrong-body ?correct-body)))))
 
-(defun wrong-object-for-body-tool (correct-body time wrong-body)
+(defun wrong-object-for-body-tool (correct-body wrong-body)
   (setf correct-body (nlg correct-body 'def-np))
   (setf wrong-body (nlg wrong-body 'def-np))
-  (setf time (nlg time 'pp))
   (make-hint-seq
-   (list (strcat "Although you chose the right time period, you chose "
-		 "the wrong object as the body.")
+   (list (strcat "You chose the wrong object as the body.")
 	 (format nil (strcat "You probably meant to use ~a as the body "
 			     "instead of  ~a.") correct-body wrong-body)
-	 (format nil "Choose ~a as the body ~a." correct-body time))))
-
-;;; If there is just one body but the student's body choice matches
-;;; neither the object nor the time, then they are so lost that it is
-;;; better to just give next-step help, but we'll bottom out anyway.
-(def-error-class all-wrong-for-body-tool (?body ?student-time)
-  ((student (body ?student-body ?student-time))
-   (correct (body ?body ?time))
-   (test (and (not (equal ?student-body ?body))
-	      (not (equal ?student-time ?time))))
-   (no-correct (body ?student-body ?time2))
-   (no-correct (body ?body2 ?student-time))))
-
-(defun all-wrong-for-body-tool (body time)
-  (setf body (nlg body 'def-np))
-  (setf time (nlg time 'pp))
-  (make-hint-seq
-   (list (strcat "Click on the light bulb for help on selecting an "
-		 "appropriate body for this problem.")
-	 *dyi*
-	 (format nil "Select ~a ~a as your body." body time))))
+	 (format nil "Choose ~a as the body." correct-body))))
 
 ;;; I suppose it might someday be possible to have a solution that
 ;;; doesn't include a body, such as a W=mg problem, but I think none
 ;;; exist right now.  If so, this error class handles the case of
 ;;; drawing a body when none are needed.
 (def-error-class non-existent-body ()
-  ((student (body ?sbody ?stime))
-   (no-correct ?cbody ?ctime))
+  ((student (body ?sbody))
+   (no-correct ?cbody))
   :probability 0.01)
 
 (defun non-existent-body ()

@@ -971,8 +971,8 @@
 (defoperator write-projection-with-body (?vector ?t ?xy ?rot)
   :preconditions (
     ; alt body-drawing version of write-projection, enabled by stmt in problem
-    (in-wm (projection-body ?problem-body ?problem-time)) 
-    (body ?problem-body ?problem-time)
+    (in-wm (projection-body ?problem-body ?dont-care)) 
+    (body ?problem-body)
     (variable ?compo-var (at (compo ?xy ?rot ?vector) ?t))
     (eqn (= ?compo-var ?proj) (projection (at (compo ?xy ?rot ?vector) ?t)))
   ) :effects (
@@ -1659,7 +1659,7 @@
    ;; nsh now requires body and axes if you ask for help, so there's 
    ;; little point making these 'optional' any more. 
    ;; At end so psm graph branches at end only.
-   (optional (body ?b ?t))
+   (optional (body ?b))
    (optional (axis-for ?b ?t x 0))
    )
   :effects
@@ -1772,8 +1772,8 @@
 ;;; for the body's mass, which is represented by the "variable" predicate.
 ;;; The operator can be validly applied to any object and time, so those are
 ;;; specified in the conditions.  However, it will usually be called by
-;;; unifying the (body ?b ?t) effect with a goal that provides bindings for
-;;; the body and time.  Thus, most frequently, ?b and ?t will be bound at the
+;;; unifying the (body ?b) effect with a goal that provides bindings for
+;;; the body and time.  Thus, most frequently, ?b will be bound at the
 ;;; conditions are subgoalled on. 
 ;;; 
 ;;; Because Andes won't let students define two variables for the same 
@@ -1789,7 +1789,7 @@
 ;;; compound bodies that checks to make sure the time is not ruled out by 
 ;;; specificiation of a split or join collision (see linmom).
 
-(defoperator draw-body (?b ?t)
+(defoperator draw-body (?b)
    :specifications " 
     If ?b is an object, 
        ?t is a time, 
@@ -1798,42 +1798,34 @@
        define a mass variable for ?b at time ?t."
   :preconditions
     ((object ?b)
-     (test (atom ?b)) ; don't apply this to draw compound bodies.
-     (time ?t)
+     (test (atom ?b))			; don't apply to compound bodies.
+     ;; This doesn't quite make sense.  only want to apply conditional
+     ;; to defining the mass.
      (not (variable ?dont-care (mass ?b)))
      (bind ?var (format-sym "m_~A" (body-name ?b))))
   :effects
    ((variable ?var (mass ?b))
-    (body ?b ?t)) 	
+    (body ?b)) 	
   :hint
   ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
-   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body and ~a as the time." ?b (?t moment)))
+   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
    ))
 
-(defoperator draw-compound-body (?b ?t)
+;; can this be merged with the above?
+(defoperator draw-compound-body (?b)
  :preconditions
     ((bind ?b `(compound ,@?bodies)) ;shorthand
      (object ?b)
-     (time ?t)
-     ;; make sure body time not invalidated by split or join collision. 
-     ;; We take compound's existence to include the appropriate endpoint 
-     ;; of the collision open interval but not inside.
-     (not (collision ?bodies (during ?t1 ?t2) ?type) 
-          ;; such that either:
-          (or (and (eq ?type 'split) 
-	           (not (tearlierp ?t `(during ,?t1 ,?t2)))) ;t is inside or after split
-	      (and (eq ?type 'inelastic)
-	           (tearlierp ?t ?t2)))) ; t is before or inside join 
      (not (variable ?dont-care (mass ?b)))
      (bind ?var (format-sym "m_~A" (body-name ?b))))
   :effects
    ((variable ?var (mass (compound . ?bodies)))
-    (body (compound . ?bodies) ?t)) 	
+    (body (compound . ?bodies))) 	
   :hint
   ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
-   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body and ~a as the time." ?b (?t moment)))
+   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
    ))
 
 ;;; ================================= Displacement =========
@@ -1843,12 +1835,12 @@
 ;; time.  The desired time, ?t, is passed in via unification with the
 ;; effects.  It must be a time interval. 
 ;; 
-;; As per the email discussion during the week of 10/16/2000, all vector drawing
-;; tools will write an equation setting the direction variable to the value 
-;; given in the box on the vector drawing tool.  This value should be either a 
-;; number of degrees, a parameter or the constant unknown.  That constant 
-;; unknown stands for the case where the student erases the number in the 
-;; vector drawing dialog box and leaves it blank.
+;; As per the email discussion during the week of 10/16/2000, all vector 
+;; drawing tools will write an equation setting the direction variable to 
+;; the value given in the box on the vector drawing tool.  This value 
+;; should be either a number of degrees, a parameter or the constant unknown.  
+;; That constant unknown stands for the case where the student erases 
+;; the number in the vector drawing dialog box and leaves it blank.
 ;; 
 ;; Because this should only write the direction variable equation when the 
 ;; value is not unknown, we'd need either two versions of this operator or 
@@ -2290,7 +2282,7 @@
   
   :preconditions 
   ((not (vector-diagram (avg-velocity ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
    (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir1)
    (axis-for ?b (during ?t1 ?t2) x ?rot))
@@ -2791,7 +2783,7 @@
 (defoperator write-period-circular (?b ?t)
    :preconditions (
       ; make sure body is drawn if it hasn't been drawn for something else
-      (body ?b ?t)   ; time to choose is unclear, but probably only one
+      (body ?b) 
       (variable ?T-var    (period ?b))
       (variable ?r    (at (revolution-radius ?b) ?t))
       (variable	?v    (at (mag (velocity ?b)) ?t))
@@ -2944,7 +2936,7 @@
       the acceleration, the displacement and axes"
   :preconditions
   ((not (vector-diagram (lk ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (velocity ?b) ?t1) ?dir1)
    (vector ?b (at (velocity ?b) ?t2) ?dir2)
    (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
@@ -3404,7 +3396,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
       the acceleration and axes"
   :preconditions
   ((not (vector-diagram (avg-accel ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (velocity ?b) ?t1) ?dir1)
    (vector ?b (at (velocity ?b) ?t2) ?dir2)
    (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
@@ -3491,7 +3483,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   
   :preconditions 
   ((not (vector-diagram (const-vel ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (velocity ?b) ?t1) ?dir1)
    (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
    (axis-for ?b (during ?t1 ?t2) x ?rot))
@@ -3558,7 +3550,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   
   :preconditions 
   ((not (vector-diagram (displacement ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (origin ?o)
    (vector ?b (at (relative-position ?b ?o) ?t1) ?dir1)
    (vector ?b (at (relative-position ?b ?o) ?t2) ?dir2)
@@ -3721,7 +3713,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ((not (vector-diagram (displacement ?b (during ?t1 ?t2))))
    ; 1. draw body.
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    ; 2. draw each constituent displacement. Note we want to do this before
    ; drawing the net displacement, so have some cue to drawing an accurate
    ; net displacment.
@@ -3783,7 +3775,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ((not (vector-diagram (net-force ?b ?t1)))
    ; 1. draw body.
-   (body ?b ?t1)
+   (body ?b)
    (object ?b1)
    (object ?b2)
    (test (not (equal ?b1 ?b2)))
@@ -4451,7 +4443,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator write-ug (?b1 ?t ?b2) 
   :preconditions (
-      (body ?b1 ?t)
+      (body ?b1)
       (variable ?m1 (mass ?b1))
       (variable ?m2 (mass ?b2))
       ; force is on b1 due to b2, so want relative position of center of
@@ -4500,7 +4492,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator write-ug-circular (?b1 ?t ?b2) 
   :preconditions (
-      (body ?b1 ?t)
+      (body ?b1)
       (variable ?m1 (mass ?b1))
       (variable ?m2 (mass ?b2))
       ; force is on b1 due to b2, so want relative position of center of
@@ -4750,8 +4742,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-NTL-vector-diagram (?b1 ?b2 ?type ?t)
   :preconditions (
     ; Draw both bodies. 
-    (body ?b1 ?t)
-    (body ?b2 ?t)
+    (body ?b1)
+    (body ?b2)
     (vector ?b1 (at (force ?b1 ?b2 ?type) ?t) ?dir1)
     (vector ?b2 (at (force ?b2 ?b1 ?type) ?t) ?dir2)
     ; we need axis-for each body, since component defining operators will 
@@ -4841,7 +4833,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects (
      (object (compound . ?bodies))
      (motion (compound . ?bodies) ?t-coupled ?motion-spec)
-     (body (compound . ?bodies) ?t-coupled)
+     (body (compound . ?bodies))
   )
   :hint
   ((point (string "Notice that ~A move together as a unit ~A."
@@ -4868,7 +4860,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects (
     (object (compound . ?bodies))
     (motion (compound . ?bodies) ?t at-rest)
-    (body (compound . ?bodies) ?t)
+    (body (compound . ?bodies))
   )
   :hint
   ((point (string "Notice that ~A stay together as a unit ~A." 
@@ -5153,7 +5145,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      then make them the set of forces on ?body at ?time"
    :preconditions
    ((time ?t)
-    (body ?b ?t)
+    (body ?b)
     (setof (vector ?b (at (force ?b ?agent1 ?type1) ?t) ?dir1) 
 	   (force ?b ?agent1 ?type1) 
 	   ?forces1)
@@ -5228,7 +5220,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((not (vector-diagram (nl ?b ?t)))
    (not (use-net-force))
-   (body ?b ?t)
+   (body ?b)
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
    (vector ?b (at (accel ?b) ?t) ?accel-dir)
@@ -5250,7 +5242,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((not (vector-diagram (nl ?b ?t)))
    (in-wm (use-net-force))
-   (body ?b ?t)
+   (body ?b)
    ; we draw accel first so it's known at time of drawing net force
    (vector ?b (at (accel ?b) ?t) ?accel-dir)
    (vector ?b (at (net-force ?b) ?t) ?force-dir) 
@@ -5268,7 +5260,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; we make axes optional here.
 (defoperator draw-standard-fbd (?b ?t)
    :preconditions 
-           ((body ?b ?t)
+           ((body ?b)
 	    (forces ?b ?t ?forces)
 	    (optional (axis-for ?b ?t x 0)))
    :effects ((fbd ?b ?t)))
@@ -6129,7 +6121,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator apply-energy-cons (?b ?t1 ?t2)
  :preconditions (
   ;; Draw the boda planet y
-  (body ?b (during ?t1 ?t2))
+  (body ?b)
   (energy-axes ?b (during ?t1 ?t2))
   ;; write equation ME_i = ME_f 
   (eqn ?te12eqn (total-energy-cons ?b ?t1 ?t2))
@@ -6491,7 +6483,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-height-dy-diagram (?b ?t)
   :preconditions (
-		  (body ?b ?t)
+		  (body ?b)
 		  (vector ?b (at (displacement ?b) ?t) ?dir)
 		  ;; Must use standard axes for this. We put this before 
 		  ;; drawing displacement so don't get vector-aligned axes 
@@ -6610,7 +6602,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; don't apply this to spring force which varies over interval
     (test (not (eq ?type 'spring)))
     ;; must draw body, force and displacement vectors
-    (body ?b ?t)
+    (body ?b)
     ;; make sure standard axis is allowed, even if unused
     (axis-for ?b ?t x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
@@ -6876,7 +6868,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-net-work-diagram (?b ?t)
   :specifications "choose body and draw all forces on it"
   :preconditions 
-   ((body ?b ?t)
+   ((body ?b)
     ; make sure axis is allowed, even if unused
     (axis-for ?b ?t x 0) 
     (forces ?b ?t ?forces)
@@ -6908,7 +6900,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-work-energy (?b ?t1 ?t2)
  :preconditions (
     ; draw body and standard axes for principle
-    (body ?b (during ?t1 ?t2))
+    (body ?b)
     (axis-for ?b (during ?t1 ?t2) x 0)
 
     ; write fundamental principle Wnet = ke2 - ke1
@@ -6969,7 +6961,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator apply-change-ME (?b ?t1 ?t2)
  :preconditions (
   ; Draw the body and standard axes for principle
-  (body ?b (during ?t1 ?t2))
+  (body ?b)
   (axis-for ?b (during ?t1 ?t2) x 0)  
 
   ; write equation Wnc = ME2 - ME1
@@ -7025,7 +7017,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-Wnc (?body ?t)
   :preconditions (
     ;; draw body and standard axes for principle
-    (body ?body ?t)
+    (body ?body)
     (axis-for ?body ?t x 0)
     (variable ?Wnc (at (work-nc ?body) ?t))
    ;; introduce variables for work done by each non-conservative work source. 
@@ -7117,7 +7109,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-power (?agent ?b ?t)
   :preconditions (
-     (body ?b ?t)
+     (body ?b)
      (axis-for ?b ?t x 0)
      (variable ?P-var  (at (power ?b ?agent) ?t))
      (variable ?W-var  (at (work ?b ?agent) ?t))
@@ -7162,7 +7154,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-net-power (?b ?t)
   :preconditions (
-     (body ?b ?t)
+     (body ?b)
      (axis-for ?b ?t x 0)
      (variable ?P-var  (at (net-power ?b) ?t))
      (variable ?W-var  (at (net-work ?b) ?t))
@@ -7230,7 +7222,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
                            (remove 'Normal ?agent-force-types))))
     ;; must draw body, force and velocity vectors
-    (body ?b ?t)
+    (body ?b)
     ;; make sure standard axis is allowed, even if unused
     (axis-for ?b ?t x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
@@ -7292,7 +7284,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
    ;; For when we provide tool to allow drawing of many-body systems:
    ;;     draw system
-   ;;     (body (system ?b1 ?b2) (during ?t1 ?t2))
+   ;;     (body (system ?b1 ?b2))
    ;; draw initial constituent velocity and momentum
    (initial-momentum-drawn ?bodies ?t1)
    ;; draw final constitutent velocity and momentum
@@ -7321,7 +7313,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; !!! code assumes there's only one collision in problem
      (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
      (test (not (equal ?type 'split)))
-     ;; (foreach ?b ?bodies (body ?b ?t1)) ; drawing body unnecessary
+     ;; (foreach ?b ?bodies (body ?b)) ; drawing body unnecessary
      (foreach ?b ?bodies
    	(vector ?b (at (velocity ?b) ?t1) ?dir1))
      (foreach ?b ?bodies
@@ -7334,7 +7326,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ; use this if collision involves split
      (in-wm (collision ?colliding-bodies (during ?t1 ?t2) split))
      (bind ?c `(compound ,@?bodies)) ; for shorthand
-     (body ?c ?t1)
+     (body ?c)
      (vector ?c (at (velocity ?c) ?t1) ?dir1)
      (vector ?c (at (momentum ?c) ?t1) ?dir1)
   )
@@ -7345,7 +7337,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; use this if bodies don't join into compound after collision
      (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
      (test (not (equal ?type 'inelastic)))
-    ;; (foreach ?b ?bodies (body ?b ?t2)) ; drawing body unnecessary
+    ;; (foreach ?b ?bodies (body ?b)) ; drawing body unnecessary
      (foreach ?b ?bodies
    	(vector ?b (at (velocity ?b) ?t2) ?dir1))
      (foreach ?b ?bodies
@@ -7358,7 +7350,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; use this if collision involves join = completely inelastic collision
      (in-wm (collision ?colliding-bodies (during ?t1 ?t2) inelastic))
      (bind ?c `(compound ,@?bodies)) ; for shorthand
-     (body ?c ?t2)
+     (body ?c)
      (vector ?c (at (velocity ?c) ?t2) ?dir1)
      (vector ?c (at (momentum ?c) ?t2) ?dir1)
   )
@@ -7467,8 +7459,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ;; to be the interval, nothing else.
   ;;   (variable ?m1 (mass ?b1))
   ;;   (variable ?m2 (mass ?b2))
-  (body ?b1 (during ?t1 ?t2))
-  (body ?b2 (during ?t1 ?t2))
+  (body ?b1)
+  (body ?b2)
   ;; retrieve mass variables
   (in-wm (variable ?m1 (mass ?b1)))
   (in-wm (variable ?m2 (mass ?b2)))
@@ -7540,28 +7532,28 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-cons-linmom-compo-split (?b1 ?b2 ?t1 ?t2 ?xyz ?rot)
   :preconditions (
-  ; use these steps if collision involves split 
+  ;; use these steps if collision involves split 
   (in-wm (collision ?colliding-bodies (during ?t1 ?t2) split))
-  ; write subsidiary equations for all needed momenta components along ?xyz
-  ; p_initial = pc
+  ;; write subsidiary equations for all needed momenta components along ?xyz
+  ;; p_initial = pc
   (bind ?c (combine-bodies ?b1 ?b2))
-  (body ?c ?t1) 
+  (body ?c) 
   (in-wm (variable ?mc (mass ?c)))
-  ; we need to choose an axis to use for the compound since nothing
+  ;; we need to choose an axis to use for the compound since nothing
   (axis-for ?c (during ?t1 ?t2) ?xyz-c ?rot-t)
   (variable ?vc_compo (at (compo ?xyz ?rot (velocity ?c)) ?t1))
   (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t1))
   (eqn (= ?pc_compo (* ?mc ?vc_compo)) (momentum-compo ?c ?t1 ?xyz ?rot))
-  ; p1f
-  ;(variable ?m1 (mass ?b1))
-  (body ?b1 ?t2)
+  ;; p1f
+  ;; (variable ?m1 (mass ?b1))
+  (body ?b1)
   (in-wm (variable ?m1 (mass ?b1)))
   (variable ?v1f_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t2))
   (variable ?p1f_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t2))
   (eqn (= ?p1f_compo (* ?m1 ?v1f_compo)) (momentum-compo ?b1 ?t2 ?xyz ?rot))
-  ; p2f
-  ;(variable ?m2 (mass ?b2))
-  (body ?b2 ?t2)
+  ;; p2f
+  ;; (variable ?m2 (mass ?b2))
+  (body ?b2)
   (in-wm (variable ?m2 (mass ?b2)))
   (variable ?v2f_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t2))
   (variable ?p2f_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t2))
@@ -7589,26 +7581,26 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-cons-linmom-compo-join (?b1 ?b2 ?t1 ?t2 ?xyz ?rot)
   :preconditions (
-  ; use these steps if join in inelastic collision
+  ;; use these steps if join in inelastic collision
   (in-wm (collision ?colliding-bodies (during ?t1 ?t2) inelastic))
-  ; write subsidiary equations for all needed momenta components along ?xyz
-  ; p1i
-  ;(variable ?m1 (mass ?b1))
-  (body ?b1 ?t1)
+  ;; write subsidiary equations for all needed momenta components along ?xyz
+  ;; p1i
+  ;; (variable ?m1 (mass ?b1))
+  (body ?b1)
   (in-wm (variable ?m1 (mass ?b1)))
   (variable ?v1i_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t1))
   (variable ?p1i_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t1))
   (eqn (= ?p1i_compo (* ?m1 ?v1i_compo)) (momentum-compo ?b1 ?t1 ?xyz ?rot))
-  ; p2i
-  ;(variable ?m2 (mass ?b2))
-  (body ?b2 ?t1)
+  ;; p2i
+  ;; (variable ?m2 (mass ?b2))
+  (body ?b2)
   (in-wm (variable ?m2 (mass ?b2)))
   (variable ?v2i_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t1))
   (variable ?p2i_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t1))
   (eqn (= ?p2i_compo (* ?m2 ?v2i_compo)) (momentum-compo ?b2 ?t1 ?xyz ?rot)) 
-   ; p_final = pc
+  ;; p_final = pc
   (bind ?c (combine-bodies ?b1 ?b2))
-  (body ?c ?t2)
+  (body ?c)
   (in-wm (variable ?mc (mass ?c)))
   (variable ?vc_compo (at (compo ?xyz ?rot (velocity ?c)) ?t2))
   (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t2))
@@ -7966,7 +7958,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-sdd-vectors (?b ?t1 ?t2)
   :preconditions (
    (not (vector-diagram (ang-sdd ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (ang-velocity ?b) (during ?t1 ?t2)) ?dir-v)
    (vector ?b (at (ang-displacement ?b) (during ?t1 ?t2)) ?dir-d)
    (variable ?var (duration (during ?t1 ?t2)))
@@ -8015,7 +8007,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-rk-no-s-vectors (?b ?t1 ?t2)
   :preconditions  (
    (not (vector-diagram (rk-no-s ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (ang-velocity ?b) ?t2) ?dir-v2)
    (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-d)
    (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
@@ -8068,7 +8060,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-rk-no-vf-vectors (?b ?t1 ?t2)
   :preconditions  (
    (not (vector-diagram (rk-no-vf ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (ang-displacement ?b) (during ?t1 ?t2)) ?dir-d)
    (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-a)
    (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
@@ -8125,7 +8117,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-rk-no-t-vectors (?b ?t1 ?t2)
   :preconditions  (
    (not (vector-diagram (rk-no-t ?b (during ?t1 ?t2))))
-   (body ?b (during ?t1 ?t2))
+   (body ?b)
    (vector ?b (at (ang-velocity ?b) ?t2) ?dir-v2)
    (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
    (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-a)
@@ -8241,7 +8233,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       ; Problems that use only this rule should draw a body for
       ; consistency.  We choose the whole rotating object as our 
       ; body, as suggested by Bob 
-      (body ?whole-body ?t)
+      (body ?whole-body)
       (variable ?v-var (at (mag (velocity ?pt)) ?t))
       (variable ?omega-var (at (mag (ang-velocity ?whole-body)) ?t))
       (variable ?r-var (at (mag (relative-position ?pt ?axis)) ?t))
@@ -8580,12 +8572,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ))
 
 (defoperator write-I-compound (?bodies ?t)
-   :preconditions (
-      ; make sure compound body is drawn. This is the only place the compound occurs
-      ; as a "principle body" in a cons ang-mom problem, for next-step-help to prompt
-      ; to draw it at the beginning. (This isn't needed for counterpart mass-compound,
-      ; since compound is drawn as one way of defining mass variable.)
-      (body (compound . ?bodies) ?t)
+  :preconditions (
+		  ;; make sure compound body is drawn. This is the only place 
+		  ;; the compound occurs as a "principle body" in a cons 
+		  ;; ang-mom problem, for next-step-help to prompt
+		  ;; to draw it at the beginning. 
+		  ;; (This isn't needed for counterpart mass-compound,
+      ;; since compound is drawn as one way of defining mass variable.)
+      (body (compound . ?bodies))
       (variable ?I-var (at (moment-of-inertia (compound . ?bodies)) ?t))
       (map ?body ?bodies
          (variable ?Ipart-var (at (moment-of-inertia ?body) ?t))
@@ -8712,10 +8706,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; what to draw here? Issues same as conservation of linmom.
    ; draw system
 	  ; until we sort out drawing of many-body systems
-	  ;(body (system ?b1 ?b2) (during ?t1 ?t2))
+	  ;(body (system ?b1 ?b2))
    ; since no join/split, draw bodies over whole interval:
-   (foreach ?b ?bodies 
-        (body ?b (during ?t1 ?t2)))
+   (foreach ?b ?bodies (body ?b))
    ; draw each body's initial angular momentum (will draw vel in process)
    (foreach ?b ?bodies
    	(vector ?b (at (ang-momentum ?b) ?t1) ?dir1))
@@ -8742,16 +8735,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; what to draw here? Issues same as conservation of linmom.
    ; draw system
 	  ; until we sort out drawing of many-body systems
-	  ;(body (system ?b1 ?b2) (during ?t1 ?t2))
+	  ;(body (system ?b1 ?b2))
    ; draw each body at initial time
-   (foreach ?b ?bodies 
-        (body ?b ?t1))
+   (foreach ?b ?bodies (body ?b))
    ; draw each body's initial angular momentum (will draw vel in process)
    (foreach ?b ?bodies
    	(vector ?b (at (ang-momentum ?b) ?t1) ?dir1))
    ; draw compound body for final angular momentum 
    (bind ?c `(compound ,@?bodies)) ; for shorthand
-   (body ?c ?t2)
+   (body ?c)
    ; draw final angular momentum of compound
    (vector ?c (at (ang-momentum ?c) ?t2) ?dir-c)
    ; need to draw an axis so components can be defined
@@ -9053,7 +9045,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     "If there are any torques on ?body at ?time,
      then make them the set of torques on ?body at ?time"
    :preconditions
-   ((body ?b ?t)
+   ((body ?b)
     ; draw all individual torques we can find
     (setof (vector ?b (at (torque ?b ?axis ?force) ?t) ?dir) 
 	   (torque ?b ?axis ?force) 
@@ -9081,7 +9073,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; We make axes optional here. Counterpart to draw-standard-fbd
 (defoperator draw-torque-fbd (?b ?axis ?t)
    :preconditions 
-           ((body ?b ?t)
+           ((body ?b)
 	    (torques ?b ?axis ?t ?forces)
 	    (optional (axis-for ?b ?t z 0)))
    :effects ((torque-fbd ?b ?axis ?t)))
@@ -9325,7 +9317,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-NL-rot-diagram (?b ?axis ?t)
     :preconditions (
       (not (vector-diagram (NL-rot ?b ?axis ?t)))
-      ;(body ?b ?t)
+      ;; (body ?b)
       (torques ?b ?axis ?t ?torques)
       (vector ?b (at (net-torque ?b ?axis) ?t) ?dir)
       (vector ?b (at (ang-accel ?b) ?t) ?dir-accel)

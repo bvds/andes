@@ -535,7 +535,7 @@
   :preconditions(
     (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
     (test (tinsidep ?t ?t-pressure))
-    (body ?body ?t)
+    (body ?body)
     (variable ?Fp (at (mag (force ?body ?fluid pressure)) ?t))
     (variable ?P  (at (pressure ?point) ?t))
     (variable ?A  (at (area ?surface) ?t))
