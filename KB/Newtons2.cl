@@ -9338,3 +9338,4 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))
 
+
