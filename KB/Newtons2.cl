@@ -3881,12 +3881,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects 
    ((eqn (= ?dnet_xy (+ . ?di_compos))
                (compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1)))
-   (eqn-compos (compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1))
-          (?dnet_xy . ?di_compos)))
+    (eqn-compos (compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1))
+		(?dnet_xy . ?di_compos)))
    :hint
    ())
 
 |#
+
 ;;; ========================== mass  ======================
 
 ;;; Andes has mass on the variables menu even though mass is also
@@ -3900,19 +3901,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; problem so carries no time.  
 
 (defoperator define-mass (?b)
-  :specifications "
-   If ?b is an object, then you can define a mass for ?b"
+  :specifications "If ?b is an object, then you can define a mass for ?b"
   :preconditions
-   ((object ?b)
-    (not (variable ?dont-care (mass ?b)))
-    (bind ?var (format-sym "m_~A" (body-name ?b))))
+  ((object ?b)
+   (not (variable ?dont-care (mass ?b)))
+   (bind ?var (format-sym "m_~A" (body-name ?b))))
   :effects
-   ((variable ?var (mass ?b))
-    (define-var (mass ?b)))
+  ((variable ?var (mass ?b))
+   (define-var (mass ?b)))
   :hint
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
-
 
 ;;; ========================== forces =====================================
 
@@ -8468,37 +8467,88 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ; length: defines a variable for the length of a rigid body that has a 
 ; dimension normally described as a length, i.e. rod or rectangular plate
-(defoperator define-shape-length (?b ?t)
+(defoperator define-shape-length (?b)
   :preconditions (
      (object ?b)
-     (time ?t)
      (shape ?b ?shape ?dontcare)
      (any-member ?shape (rod rectangle))
-     (bind ?l-var (format-sym "length_~A_~A" (body-name ?b) (time-abbrev ?t)))
+     (bind ?l-var (format-sym "length_~A" (body-name ?b)))
   )
   :effects (
-    (define-var (at (length ?b) ?t))
-    (variable ?l-var (at (length ?b) ?t))
+    (define-var (length ?b))
+    (variable ?l-var (length ?b))
   )
   :hint (
     (bottom-out (string "Use the Add Variable command to define a variable for the length of ~A"  ?b))
   ))
+
+
+;;; mass per length
+(def-qexp mass-per-length (mass-per-length ?rope)
+  :units |kg/m|
+  :restrictions nonnegative 
+  :english ("the mass-per-length of ~A" (nlg ?rope))
+  :fromworkbench `(mass-per-length ,body))
+
+(defoperator define-mass-per-length (?rope)
+  :preconditions(
+		 (object ?rope)
+		 (shape ?rope rod ?dontcare)
+		 (bind ?lambda-var (format-sym "mu_~A" (body-name ?rope))))
+  :effects (
+	    (variable ?lambda-var (mass-per-length ?rope))
+	    (define-var (mass-per-length ?rope)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the mass per unit length of ~A by using the Add Variable command on the Variable menu and selecting mass-per-length."  ?rope))))
+
+;;; mass per length = mass /length of a rod
+
+(def-psmclass mass-per-length-eqn (mass-per-length-eqn ?body)
+  :complexity major
+  :doc "mass per length = mass/length"
+  :english ("mass per length = mass/length")
+  :expFormat ("applying mass per length = mass/length")
+  :EqnFormat ("mu = m/l"))
+
+(defoperator mass-per-length-eqn-contains (?quantity)
+  :preconditions (
+		  (object ?b)
+		  (shape ?b rod ?dontcare) ;; make sure it has right shape
+		  (any-member ?quantity
+			      ((mass-per-length ?b)
+			       (length ?b)
+			       (mass ?b))))
+  :effects
+  ((eqn-contains (mass-per-length-equation ?b) ?quantity)))
+
+(defoperator mass-per-length-equation (?b)
+  :preconditions (
+		  (variable ?m (mass ?b))
+		  (variable ?l (length ?b))
+		  (variable ?mu (mass-per-length ?b)))
+  :effects
+  ((eqn (= ?mu (/ ?m ?l)) (mass-per-length-equation ?b)))
+  :hint
+  ((point (string "Find the mass per unit length."))
+   (teach (string "The mass per unit length is the total mass of ~a divided by the length of ~a" ?b ?b))
+   (bottom-out (string "Because ~a is mass per length, write ~a=~a/~a"
+		       ?mu ?mu ?m ?l))
+   ))
 
 ; defines a variable for the "width" of a rigid body that has a dimension
 ; normally described as a width, i.e. second dimension of rectangle.
 ; Body dimensions are typically given; which one counts as "length" and 
 ; which one as "width" would have to be specified in the verbal problem 
 ; statement of the given dimensions. 
-(defoperator define-width (?b ?t)
+(defoperator define-width (?b)
   :preconditions (
      (object ?b)
-     (time ?t)
      (shape ?b rectangle ?dontcare)
-     (bind ?l-var (format-sym "width_~A_~A" (body-name ?b) (time-abbrev ?t)))
+     (bind ?l-var (format-sym "width_~A" (body-name ?b)))
   )
   :effects (
-    (define-var (at (width ?b) ?t))
-    (variable ?l-var (at (width ?b) ?t))
+    (define-var (width ?b))
+    (variable ?l-var (width ?b))
   )
   :hint (
     (bottom-out (string "Use the Add Variable command to define a variable for the width of ~A" ?b))
@@ -8533,7 +8583,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((shape ?b rod cm)
   (any-member ?sought ( (at (moment-of-inertia ?b) ?t)
 		        (mass ?b)
-		        (at (length ?b) ?t) ))
+		        (length ?b) ))
   (time ?t))
   :effects ( (eqn-contains (I-rod-cm ?b ?t) ?sought)))
 
@@ -8541,7 +8591,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
     (variable ?I-var (at (moment-of-inertia ?b) ?t))
     (variable ?m-var (mass ?b))
-    (variable ?l-var (at (length ?b) ?t)))
+    (variable ?l-var (length ?b) ))
   :effects 
     ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b ?t)))
    :hint
@@ -8558,7 +8608,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((shape ?b rod end)
   (any-member ?sought ( (at (moment-of-inertia ?b) ?t)
 		        (mass ?b)
-		        (at (length ?b) ?t) ))
+		        (length ?b) ))
   (time ?t))
   :effects ( (eqn-contains (I-rod-end ?b ?t) ?sought)))
 
@@ -8566,7 +8616,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
     (variable ?I-var (at (moment-of-inertia ?b) ?t))
     (variable ?m-var (mass ?b))
-    (variable ?l-var (at (length ?b) ?t)))
+    (variable ?l-var (length ?b) ))
   :effects 
     ((eqn (= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) (I-rod-end ?b ?t)))
   :hint
@@ -8637,8 +8687,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((shape ?b rectangle cm)
   (any-member ?sought ( (at (moment-of-inertia ?b) ?t)
 		        (mass ?b)
-		        (at (length ?b) ?t) 
-		        (at (width ?b) ?t) ))
+		        (length ?b) 
+		        (width ?b) ))
   (time ?t))
   :effects ( (eqn-contains (I-rect-cm ?b ?t) ?sought)))
 
@@ -8646,8 +8696,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
    ((variable ?I-var (at (moment-of-inertia ?b) ?t))
     (variable ?m-var (mass ?b))
-    (variable ?l-var (at (length ?b) ?t)) 
-    (variable ?w-var (at (width ?b) ?t)))
+    (variable ?l-var (length ?b)) 
+    (variable ?w-var (width ?b)))
   :effects 
     ((eqn (= ?I-var (* (/ 1 12) ?m-var (+ (^ ?l-var 2) 
                                           (^ ?w-var 2)))) 

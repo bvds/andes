@@ -229,11 +229,11 @@
 ;; for dimensions of certain rigid bodies:
 (def-qexp length (length ?body)
   :units |m|
-  :fromWorkbench `(at (length ,body) ,time)
+  :fromWorkbench `(length ,body)
   :english ("the length of ~A" (nlg ?body)))
 (def-qexp width  (width ?body)
   :units |m|
-  :fromWorkbench `(at (width ,body) ,time)
+  :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))
 (def-qexp radius (radius ?body)
   :units |m|
