@@ -31,6 +31,7 @@
 #include "dbg.h"
 #include "extstruct.h"
 #include <math.h>
+#include <float.h>
 using namespace std;
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
@@ -213,7 +214,24 @@ string powersolve(const int howstrong, const varindx sought,
   
  partsuccess:
   ansexpr = new binopexp(&equals,new physvarptr(sought),numer);
- success:
+ success: 
+
+  // If the answer depends on a parameter, then the numerical
+  // will not match the canonical numerical value.
+  // Thus, we remove solutions whose numerical value does not
+  // match the canonical numerical value.
+  // in principle, this would use the equaleqs.cpp function.
+  if(ansexpr->rhs->etype==numval){
+    numvalexp *vallexp=(numvalexp *) ansexpr->rhs;
+    if(fabs(vallexp->value-(*canonvars)[sought]->value)>
+       100* DBL_EPSILON * (fabs(vallexp->value)+((*canonvars)[sought]->value)))
+      {
+	DBG(cout << "numerical value  != canonical value " << endl);
+	DBG(cout << "Assuming this indicates dependence on a parameter"<<endl);
+	answer = string(""); goto cleanup;
+      }
+  }
+  
   indyAddStudEq(destslot,ansexpr->getLisp(false).c_str());
   if (ansexpr->rhs->etype==numval) {
       answer = ansexpr->solprint(true);
@@ -249,7 +267,7 @@ bool checkifdone(const varindx sought, binopexp * & ansexpr,
     thisvp = ((physvarptr *)(*soleqs)[k]->lhs)->varindex;
     if (sought == thisvp) { 
       ansexpr = (*soleqs)[k]; 
-      DBG(cout << "checkifdone success, returning " 
+     DBG(cout << "checkifdone success, returning " 
 	  << ansexpr->getInfix() << endl;);
       return(true); }
   }
@@ -268,7 +286,7 @@ string powersolve(const int howstrong, const string varname,
 {
   for (int k = 0; k < canonvars->size(); k++)
     if ((*canonvars)[k]->clipsname == varname)
-      return(powersolve(howstrong,k,destslot));
+	return(powersolve(howstrong,k,destslot));
   return string("");
 }
 
