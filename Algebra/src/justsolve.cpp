@@ -1,11 +1,12 @@
 // solveeqs.cpp
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
 
-#include "../src/decl.h"
 using namespace std;
-#include "../src/dbg.h"
-#include "../src/extstruct.h"
-#include "../src/unitabr.h"
+#include "justsolve.h"
+#include "decl.h"
+#include "dbg.h"
+#include "extstruct.h"
+#include "unitabr.h"
 
 #define DBG(A) DBGF(FILEGET,A)
 
@@ -26,7 +27,7 @@ using namespace std;
  *		(and therefore not solved for)				*
  *   returns true if there are no UNSLVEQS or UNSLVVARSQ		*
  ************************************************************************/
-bool solveeqs(ofstream & outfile){
+bool solveeqs(ostream & outfile){
   int k;
   bool isokay = true;
   vector<varindx> *vars = new vector<varindx>;

@@ -12,7 +12,7 @@ bool getall(string bufst);
 string getaline(istream &instr);
 
 int numparams;
-bool getallfile(ifstream & infile )
+bool getallfile(istream & infile )
 {
   string bufst;
   numparams = 0;

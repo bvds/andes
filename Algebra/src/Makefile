@@ -26,7 +26,7 @@ src_objects = Solver.o   \
 	desperate.o  getaneqwu.o    newindy.o        solvetool.o \
 	despquadb.o  getavar.o      nlsolvov.o       solvetrigb.o \
         despquad.o                  normexpr.o       solvetrig.o \
-        dimchkeqf.o  geteqs.o       numfactorsof.o   subexpin.o \
+        dimchkeqf.o  		    numfactorsof.o   subexpin.o \
         dimenchk.o                  numunknowns.o    substin.o \
         dimens.o                    ordinvars.o      treechk.o \
 	distfrac.o   indyset.o      ordunknowns.o    trigsimp.o \
@@ -52,7 +52,7 @@ clean:
 #
 equaleqs.o: equaleqs.cpp decl.h expr.h dimens.h dbg.h standard.h
 justsolve.o: justsolve.cpp decl.h expr.h dimens.h \
-  dbg.h standard.h extstruct.h unitabr.h
+  dbg.h standard.h extstruct.h unitabr.h justsolve.h
 plussort.o: plussort.cpp decl.h expr.h dimens.h extoper.h dbg.h \
   standard.h
 checkeqs.o: checkeqs.cpp decl.h expr.h dimens.h extoper.h dbg.h \
@@ -77,7 +77,7 @@ flatten.o: flatten.cpp decl.h expr.h dimens.h extoper.h dbg.h standard.h
 rationalize.o: rationalize.cpp decl.h expr.h dimens.h extoper.h dbg.h \
   standard.h
 coldriver.o: coldriver.cpp extstruct.h standard.h expr.h dimens.h decl.h \
-  unitabr.h indyset.h expr.h valander.h indysgg.h dbg.h
+  unitabr.h indyset.h expr.h valander.h indysgg.h dbg.h justsolve.h
 getaline.o: getaline.cpp
 recassign.o: recassign.cpp decl.h expr.h dimens.h extoper.h dbg.h \
   standard.h extstruct.h

@@ -43,9 +43,8 @@ bool fixupforpls(binopexp * & eq);				// fixupforpls
 bool flatten(expr * &);						// flatten
 string getaline(istream &instr);				// getaline
 bool getall(string bufst);					// getall
-bool getallfile(ifstream &);					// getallfile
+bool getallfile(istream &);			  	        // getallfile
 int getclipsvar(string token,int start);			// parse
-vector<string> *geteqsfromeqsfile(istream &);			// geteqs
 vector<double> *getsols(ifstream & solfile);			// getnewsols
 
 void gointeract(vector<binopexp *> * & eqexpr, 			// interact

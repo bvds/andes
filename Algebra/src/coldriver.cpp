@@ -12,10 +12,11 @@
 #include "indyset.h"
 #include "indysgg.h"
 #include "dbg.h"
-#include <fstream>
+#include <iostream>
+#include <sstream>
+#include "justsolve.h"
 // int dbgnum;
 bool handleInput(std::string& aLine);
-bool solveeqs(ofstream & outfile); // in justsolve.cpp
 void doinitinit();
 int checksol(const binopexp * const eqexpr, const vector<double> * const sols,
 	     const double reltverr);
@@ -35,7 +36,8 @@ static char* error[] = {
 };
 char lzbfr[4096]; // major kludge but this needs to be rewritten once
 // it's in working anyway
-std::ifstream inFile;
+std::istringstream inFile;
+std::string ss;
 
 void constsfill();
 extern unitabrs unittable;
@@ -50,12 +52,13 @@ char* doColAnderMain(const char* const src, const char* const dst) {
   int k;
   char* result = error[0];
   if (isFirst) doinitinit();
-  ifstream inFile1(src, ios::in | ios::binary);
+  istringstream inFile1(ss);
   if (inFile) {
     bool isOkay = true;
     if (! getallfile(inFile1))
       throw(string("couldn't finish reading input"));
-    inFile1.close();
+    // can't close a string
+    // inFile1.close();
     indyDoneAddVar();
     if (isOkay) {
       ofstream outFile(dst, ios::out);
@@ -90,7 +93,6 @@ char* doColAnderMain(const char* const src, const char* const dst) {
   return result;
 }
 
-#define TEMP_FILE "andes241.tlz"
 /************************************************************************
  * solveTheProblem							*
  *	Assumes the equations and variables have already been entered	*
@@ -105,7 +107,7 @@ char* solveTheProblem() {
 
   if (isFirst) throw string("solveTheProblem called before initialization");
   try {
-    ofstream outFile(TEMP_FILE, ios::out);
+    ostringstream outFile(ss);
     if (outFile) {
       numsols->assign(canonvars->size(),HUGE_VAL);
       if (solveeqs(outFile)) {
@@ -123,7 +125,8 @@ char* solveTheProblem() {
 	dimchkeqf(outFile);
 	// end of "should we do checking of solution here?"
       }
-      outFile.close();
+      // not for strings
+      // outFile.close();
     } 
     else throw string("unable to create solution buffer");
   } 
@@ -133,7 +136,8 @@ char* solveTheProblem() {
   // this would be a good place to insert checksol ? or after returning
   // solution, in solveMoreOfTheProblem ?
   try {
-    inFile.open(TEMP_FILE, std::ios::in);// | std::ios::binary);
+    // not for strings
+    //    inFile.open(ss);// | std::ios::binary);
     inFile.clear();
     inFile.seekg(0);
     int tk;
@@ -167,8 +171,9 @@ char* solveMoreOfTheProblem() {
     if (! inFile.eof()) {
       string t = getaline(inFile);
       if (t.size() == 0) {
-	inFile.clear();
-	inFile.close();
+        inFile.clear();
+	// not for strings...
+	// inFile.close();
 	return error[4];	// if checksol after returning sol, here+below
       } // end of if line empty, which closes and returns
       else sprintf(lzbfr, "%s", t.c_str());
@@ -176,16 +181,19 @@ char* solveMoreOfTheProblem() {
     } // end of not eof. 
     else {
       inFile.clear();
-      inFile.close();
+      // can't close a string
+      // inFile.close();
       return error[4];	// if checksol after returning sol, here and above
     }
   } catch (string message) {
     inFile.clear();
-    inFile.close();
+    // can't close a string
+    // inFile.close();
     throw message;
   } catch (...) {
     inFile.clear();
-    inFile.close();
+    // can't close a string
+    // inFile.close();
     throw string("More went bad!!");
   }
   return error[3];
