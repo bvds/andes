@@ -6,9 +6,9 @@
 //			14 March 2001 - lht -- created
 //////////////////////////////////////////////////////////////////////////////
 #include <iostream>
-#include "../src/decl.h"
+#include "decl.h"
 #include "../src/extstruct.h"
-#include "Solver.h"
+#include "../src/Solver.h"
 #include "../src/indysgg.h"
 #include "../src/indyset.h"
 #include "../src/dbg.h"

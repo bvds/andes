@@ -1,24 +1,13 @@
 #
-#  Make Solver routines and solver lib
+#  Make Solver test program
 #
-CPPFLAGS= -Wall -DNO_DLL
-# path to look for files
-VPATH=../src
+CPPFLAGS= -Wall -I../src
  
-solve_objects = colander.o dllsupport.o  Solver.o indysgg3.o
+#solve_lib = -L../../ -lSolver
+solve_lib = ../../libSolver.so
 
-solver: $(solve_objects) main.o
-	$(CXX) $(CFLAGS) -o solver $(solve_objects) main.o
+solver: ../../libSolver.so main.o
+	$(CXX) $(CFLAGS) -o solver $(solve_lib) main.o
 
-#
-# The following was generated from:  gcc -MM -MG *.cpp
-#
-
-colander.o: colander.cpp lrdcstd.h ../src/extstruct.h ../src/standard.h \
-  ../src/expr.h ../src/dimens.h ../src/unitabr.h
-dllsupport.o: dllsupport.cpp lrdcstd.h ../src/extstruct.h \
-  ../src/standard.h ../src/expr.h ../src/dimens.h ../src/unitabr.h
-main.o: main.cpp ../src/decl.h ../src/extstruct.h Solver.h lrdcstd.h ..\
-  ../src/indysgg.h ../src/indyset.h ../src/dbg.h
-Solver.o: Solver.cpp Solver.h lrdcstd.h ../src/indysgg.h ../src/dbg.h \
-  ../src/standard.h
+str:   ../../libSolver.so str.o
+	$(CXX) $(CFLAGS) -o str $(solve_lib) str.o
