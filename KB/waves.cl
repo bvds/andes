@@ -4,15 +4,14 @@
 
 
 ;;;;
-;;;;     Waves Variables
+;;;;  The wavelength and wavenumber of a wave
 ;;;;
 
-;;;   The wavelength of a wave
 (def-qexp wavelength (wavelength ?wave)
   :units |m|
   :restrictions nonnegative 
   :english ("the wavelength of ~A" (nlg ?wave))
-  :fromworkbench (wavelength ,body))
+  :fromworkbench `(wavelength ,body))
 
 (defoperator define-wavelength (?wave)
   :preconditions((bind ?lamda-var (format-sym "lamda_~A" (body-name ?wave))))
@@ -34,72 +33,6 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the wave number of the ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave))))
 
-;;; The frequency (linear frequency) of a wave
-(def-qexp frequency (frequency ?wave)
-  :units |Hz|
-  :restrictions nonnegative 
-  :english ("the frequency of ~A" (nlg ?wave))
-     :fromworkbench (frequency ,body))
-
-(defoperator define-frequency (?wave)
-     :preconditions((bind ?freq-var (format-sym "freq_~A" (body-name ?wave))))
-     :effects ((variable ?freq-var (at (frequency ?wave) ?time))
-               (define-var (frequency ?wave)))
-     :hint ((bottom-out 
-	     (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))))
-
-
-;;; The angular frequency of a wave
-(def-qexp angular-frequency (angular-frequency ?wave)
-  :units |rad/s|
-  :restrictions nonnegative 
-  :english ("the angular-frequency of ~A" (nlg ?wave))
-  :fromworkbench `(angular-frequency ,wave))
-
-(defoperator define-angular-frequency (?wave)
-     :preconditions((bind ?omega-var (format-sym "omega_~A" (body-name ?wave))))
-     :effects ((variable ?omega-var (angular-frequency ?wave))
-               (define-var (angular-frequency ?wave)))
-     :hint (
-          (bottom-out (string "Define a variable for the angular-frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))
-          ))
-
-;;The period of a wave
-(def-qexp wave-period (wave-period ?wave)
-     :units |s|
-     :restrictions nonnegative 
-     :english ("the period of ~A" (nlg ?wave))
-     :fromworkbench `(wave-period ,body)
-   )
-
-(defoperator define-wave-period (?wave)
-     :preconditions((bind ?wave-period-var (format-sym "wave-period_~A" (body-name ?wave))))
-     :effects ((variable ?wave-period-var (wave-period ?wave))
-               (define-var (wave-period ?wave)))
-     :hint (
-          (bottom-out (string "Define a variable for the period of ~A by using the Add Variable command on the Variable menu and selecting wave-period."  ?wave))
-          ))
-
-;;The amplitude of a wave
-(def-qexp amplitude (amplitude ?wave)
-     :units |m|
-     :restrictions nonnegative 
-     :english ("the amplitude of ~A" (nlg ?wave))
-     :fromworkbench `(amplitude ,wave)
-   )
-
-(defoperator define-amplitude (?wave)
-     :preconditions((bind ?Am-var (format-sym "Amp_~A" (body-name ?wave))))
-     :effects ((variable ?Am-var (amplitude ?wave))
-               (define-var (amplitude ?wave)))
-     :hint ((bottom-out 
-	     (string "Define a variable for the amplitude of ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?wave))))
-
-
-;;;;
-;;;;    Wave Equations
-;;;;
-
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
 (def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?body)
   :complexity major  ; must explicitly use
@@ -117,14 +50,14 @@
      (eqn-contains (wavenumber-lambda-wave ?body ) ?sought)))
 
 
-(defoperator wavenumber-lambda-wave (?object ?time)
+(defoperator wavenumber-lambda-wave (?object)
    :preconditions (
-       (variable  ?lamda  (at (wavelength ?object) ?time))
-       (variable  ?kwave  (at (wavenumber ?object) ?time))
+       (variable  ?lamda  (wavelength ?object))
+       (variable  ?kwave  (wavenumber ?object))
    )
    :effects (
     (eqn  (= (* ?lambda ?kwave) (* 2 pi)) 
-                (wavenumber-of-wave ?object ?time))
+                (wavenumber-of-wave ?object))
    )
    :hint (
       (point (string "You can use equation for the wavenumber of a wave"))
@@ -132,6 +65,86 @@
       (bottom-out (string "Write the equation ~A" 
                      ((= (* ?wavenumber   ?wavelength) (*2 $p)) 
                        algebra)))))
+
+;;;
+;;; The frequency, period, and angular frequency of a wave
+;;;
+
+(def-qexp frequency (frequency ?wave)
+  :units |Hz|
+  :restrictions nonnegative 
+  :english ("the frequency of ~A" (nlg ?wave))
+     :fromworkbench `(frequency ,body))
+
+(defoperator define-frequency (?wave)
+     :preconditions((bind ?freq-var (format-sym "freq_~A" (body-name ?wave))))
+     :effects ((variable ?freq-var (at (frequency ?wave) ?time))
+               (define-var (frequency ?wave)))
+     :hint ((bottom-out 
+	     (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))))
+
+(def-qexp angular-frequency (angular-frequency ?wave)
+  :units |rad/s|
+  :restrictions nonnegative 
+  :english ("the angular-frequency of ~A" (nlg ?wave))
+  :fromworkbench `(angular-frequency ,wave))
+
+(defoperator define-angular-frequency (?wave)
+     :preconditions((bind ?omega-var (format-sym "omega_~A" (body-name ?wave))))
+     :effects ((variable ?omega-var (angular-frequency ?wave))
+               (define-var (angular-frequency ?wave)))
+     :hint (
+          (bottom-out (string "Define a variable for the angular-frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))
+          ))
+
+(def-qexp wave-period (wave-period ?wave)
+     :units |s|
+     :restrictions nonnegative 
+     :english ("the period of ~A" (nlg ?wave))
+     :fromworkbench `(wave-period ,body)
+   )
+
+(defoperator define-wave-period (?wave)
+     :preconditions((bind ?wave-period-var (format-sym "wave-period_~A" (body-name ?wave))))
+     :effects ((variable ?wave-period-var (wave-period ?wave))
+               (define-var (wave-period ?wave)))
+     :hint (
+          (bottom-out (string "Define a variable for the period of ~A by using the Add Variable command on the Variable menu and selecting wave-period."  ?wave))
+          ))
+
+;;;   The amplitude of a wave
+(def-qexp amplitude (amplitude ?wave)
+     :units |m|
+     :restrictions nonnegative 
+     :english ("the amplitude of ~A" (nlg ?wave))
+     :fromworkbench `(amplitude ,wave)
+   )
+
+(defoperator define-amplitude (?wave)
+     :preconditions((bind ?Am-var (format-sym "Amp_~A" (body-name ?wave))))
+     :effects ((variable ?Am-var (amplitude ?wave))
+               (define-var (amplitude ?wave)))
+     :hint ((bottom-out 
+	     (string "Define a variable for the amplitude of ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?wave))))
+
+;;;   Wave velocity
+(def-qexp wave-velocity (wave-velocity ?wave)
+     :units |m/s|
+     :restrictions nonnegative 
+     :english ("the wave velocity of ~A" (nlg ?wave))
+     :fromworkbench `(wave-velocity ,wave)
+   )
+
+(defoperator define-wave-velocity (?wave)
+     :preconditions((bind ?Am-var (format-sym "Amp_~A" (body-name ?wave))))
+     :effects ((variable ?Am-var (wave-velocity ?wave))
+               (define-var (wave-velocity ?wave)))
+     :hint ((bottom-out 
+	     (string "Define a variable for the wave velocity of ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?wave))))
+
+;;;;
+;;;;    Wave Equations
+;;;;
 
 
 ;;equation of the speed of the wave, speed = freq* wavelength
@@ -248,6 +261,3 @@
                      (= ?freq (/ 1 ?wave-period)) 
                        algebra) ))
    )
-
-
-

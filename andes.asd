@@ -48,10 +48,18 @@
 	       (:module "Solver_Release"
 			:depends-on ("andes-Path")
 			:components ((:file "solver")))
+;;;	       Had to define this to get *cp* properly defined
+	       #|
+	       (:module "PsmGraph" :pathname "HelpStructs/"
+			:depends-on ("Base")
+		 	:components ((:file "PsmGraph")))
+|#
 	       (:module "HelpStructs"
 			:depends-on ("Base")
 			:components ((:file "PsmGraph")
-#|				     (:file "SystemEntry")
+				     (:file "SystemEntry"
+					    :depends-on ("PsmGraph"))
+				     #|
 				     (:file "StudentEntry")
 				     (:file "TutorTurn")
 				     (:file "Error-Interp")
@@ -60,25 +68,26 @@
 				     (:file "RuntimeTestScore")
 				     (:file "RuntimeTest")
 				     |#
-))
+				     ))
 	       (:module "Knowledge"
-			:depends-on ("Base" "Solver_Release")
+			:depends-on ("Base" "Solver_Release" "HelpStructs")
 			:components ((:file "eqn")         
 				     (:file "Nogood")    
 				     (:file "Operators")  
 				     (:file "qvar")
 				     (:file "BubbleGraph" 
+				     ;; also depends on HelpStructs
 					    :depends-on ("qvar" "eqn"))  
 				     (:file "ErrorClass")  
 				     (:file "Ontology")  
-				     (:file "Problem")    
+				     (:file "Problem") ;depends on HelpStructs
 				     (:file "Solution")))	       
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
 			;; These are not compiled
 			:default-component-class load-only-andes-source-file
 			:depends-on ("Knowledge" "Base" "SGG")
-			;; the order of these files is important
+			:serial t  ;real dependancies would be better...
 			:components ((:file "reset-KB")
 				     (:file "Physics-Funcs")
 				     (:file "Ontology" )        
@@ -86,6 +95,8 @@
 				     (:file "Newtons2")        
 				     (:file "NewtonsNogoods")  
 				     (:file "Problems")
+				     (:file "waves")
+				     (:file "waves-problems")
 ;;;;
 ;;;; The remaining files are just needed for the help system???
 ;;;;
@@ -101,9 +112,9 @@
 |#
 ))
 	       (:module "SGG"
-;;;			:description "Solution Graph Generator"
-			:depends-on ("Base" "Knowledge")
-			:components ((:file "Qsolver")
+;;;			:description "Solution Graph Generator" 
+			:depends-on ("Base" "Knowledge" "HelpStructs")
+			:components ((:file "Qsolver") ;depends on HelpStructs
 				     (:file "Exec" 
 					    :depends-on ("Qsolver"))
 				     (:file "Macros")         
