@@ -119,251 +119,251 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\src\checkeqs.cpp
+SOURCE=checkeqs.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\checksol.cpp
+SOURCE=checksol.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\cleanup.cpp
+SOURCE=cleanup.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\coldriver.cpp
+SOURCE=coldriver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\copyexpr.cpp
+SOURCE=copyexpr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\desperate.cpp
+SOURCE=desperate.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\despquad.cpp
+SOURCE=despquad.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\despquadb.cpp
+SOURCE=despquadb.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\dimchkeqf.cpp
+SOURCE=dimchkeqf.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\dimenchk.cpp
+SOURCE=dimenchk.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\dimens.cpp
+SOURCE=dimens.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\distfrac.cpp
+SOURCE=distfrac.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\dofactor.cpp
+SOURCE=dofactor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\donlsolv.cpp
+SOURCE=donlsolv.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\dopurelin.cpp
+SOURCE=dopurelin.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\dotrig.cpp
+SOURCE=dotrig.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\eqnokay.cpp
+SOURCE=eqnokay.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\eqnumsimp.cpp
+SOURCE=eqnumsimp.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\equaleqs.cpp
+SOURCE=equaleqs.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\expr.cpp
+SOURCE=expr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\exprp.cpp
+SOURCE=exprp.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\factorout.cpp
+SOURCE=factorout.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\fixupforpls.cpp
+SOURCE=fixupforpls.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\flatten.cpp
+SOURCE=flatten.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\getaline.cpp
+SOURCE=getaline.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\getall.cpp
+SOURCE=getall.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\getallfile.cpp
+SOURCE=getallfile.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\getaneqwu.cpp
+SOURCE=getaneqwu.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\getavar.cpp
+SOURCE=getavar.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\geteqs.cpp
+SOURCE=geteqs.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\indyset.cpp
+SOURCE=indyset.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\indysgg.cpp
+SOURCE=indysgg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\indysgg2.cpp
+SOURCE=indysgg2.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\indysgg3.cpp
+SOURCE=indysgg3.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\interact.cpp
+SOURCE=interact.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\ispos.cpp
+SOURCE=ispos.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\justonev.cpp
+SOURCE=justonev.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\justsolve.cpp
+SOURCE=justsolve.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\lookslikeint.cpp
+SOURCE=lookslikeint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\moreexpr.cpp
+SOURCE=moreexpr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\multsort.cpp
+SOURCE=multsort.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\newindy.cpp
+SOURCE=newindy.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\nlsolvov.cpp
+SOURCE=nlsolvov.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\normexpr.cpp
+SOURCE=normexpr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\numfactorsof.cpp
+SOURCE=numfactorsof.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\numunknowns.cpp
+SOURCE=numunknowns.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\ordinvars.cpp
+SOURCE=ordinvars.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\ordunknowns.cpp
+SOURCE=ordunknowns.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\parse.cpp
+SOURCE=parse.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\parseeqwunits.cpp
+SOURCE=parseeqwunits.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\parseunit.cpp
+SOURCE=parseunit.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\physconsts.cpp
+SOURCE=physconsts.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\physvar.cpp
+SOURCE=physvar.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\plussort.cpp
+SOURCE=plussort.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\polysolve.cpp
+SOURCE=polysolve.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\powonev.cpp
+SOURCE=powonev.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\purelin.cpp
+SOURCE=purelin.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\qsrtexpr.cpp
+SOURCE=qsrtexpr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\rationalize.cpp
+SOURCE=rationalize.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\recassign.cpp
+SOURCE=recassign.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\slvlinonev.cpp
+SOURCE=slvlinonev.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\solveknownvar.cpp
+SOURCE=solveknownvar.cpp
 # End Source File
 # Begin Source File
 
@@ -371,43 +371,43 @@ SOURCE=.\Solver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\solvetool.cpp
+SOURCE=solvetool.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\solvetrig.cpp
+SOURCE=solvetrig.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\solvetrigb.cpp
+SOURCE=solvetrigb.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\subexpin.cpp
+SOURCE=subexpin.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\substin.cpp
+SOURCE=substin.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\treechk.cpp
+SOURCE=treechk.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\trigsimp.cpp
+SOURCE=trigsimp.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\unitabr.cpp
+SOURCE=unitabr.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\utils.cpp
+SOURCE=utils.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\valander.cpp
+SOURCE=valander.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -419,7 +419,7 @@ SOURCE=.\dllsupport.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\indysgg.h
+SOURCE=indysgg.h
 # End Source File
 # Begin Source File
 
@@ -427,11 +427,11 @@ SOURCE=.\lrdcstd.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\pconsts.h
+SOURCE=pconsts.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\prefixes.h
+SOURCE=prefixes.h
 # End Source File
 # Begin Source File
 
@@ -439,7 +439,7 @@ SOURCE=.\Solver.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\units.h
+SOURCE=units.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
