@@ -222,7 +222,7 @@
   :effects ( (eqn (= ?v1 (* ?fact ?v2)) (harmonic-of ?wave1 ?wave0 ?quant)))
   :hint (
 	 (point (string "~A is the ~:R harmonic of ~A" ;prints as ordinal
-			?wave1 (?mult nil) ;nil means skip nlg... 
+			?wave1 (?mult 'identity) ;so nlg just returns ?mult  
 			?wave0)) 
 	 (teach (string "You can determine ~A of ~A from ~A of ~A" 
 			 ?quant ?wave1 ?quant ?wave0)) 

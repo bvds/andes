@@ -13,11 +13,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun nlg (x &optional (type 'def-np) &rest args)
   (if (null type)
-    ;;  (error "uses nil in nlg")
-    ;; (if (consp x)
-    ;;	  (format nil "~(~A~)" x)
-    ;;	(format nil "~(~A~)" x))
-    x ;; type=nil means skip nlg
+     (if (consp x)
+      (format nil "~(~A~)" x)
+    	(format nil "~(~A~)" x))
     (if (variable-p x)
 	(format nil "~@[~*at ~]some ~(~A~)" (eq type 'pp) (var-rootname x))
       (if args
