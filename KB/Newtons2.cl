@@ -2804,20 +2804,7 @@
 ;; We would also need a rule that avg speed = mag velocity at any time for 
 ;; an object in circular motion.
 ;;
-;; Note "period" quantity may also be used with respect to other sorts 
-;; of periodic functions.  For waves, period = 1/f. 
-;;
-;; We don't have time on a period. The definition in terms of velocity 
-;; allows it to be an instantaneous quantity -- time it *would* take object to 
-;; make a complete revolution at its instantaneous speed at t. So period 
-;; could change over time as speed does and object never needs to actually 
-;; make a complete revolution in its period at a time.  In uniform circular
-;; motion velocity is constant, so period could be defined for the interval 
-;; of uniform circular motion.  However, in our circular motion problems we 
-;; usually represent this constant state by analyzing a representative instant 
-;; which is usually the only instant in the problem.  So we just assume that 
-;; and leave out time.
-;;
+
 (defoperator period-circular-contains (?sought)
   :preconditions (
      (motion ?b ?t-circular (curved circular ?dontcare))
@@ -2851,17 +2838,6 @@
    )
 )
 
-(defoperator define-period-var (?b)
-  :preconditions ( 
-        (bind ?T-var (format-sym "T_~a" (body-name ?b)))
-  )
-  :effects (
-      (variable ?T-var (period ?b))
-      (define-var (period ?b))
-   )
- :hint
-  ((bottom-out (string "Use the Add Variable command located under 'variable' on the top menu bar and select Period to define a variable for the period of the motion of ~A." ?b))
-   ))
 
 ;;; =========== For Simple Vector Arithmetic problems ==========================
 ;;;

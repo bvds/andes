@@ -174,11 +174,6 @@
   :restrictions positive
   :fromWorkbench `(at (revolution-radius ,body) ,time)
   :english ("the radius of the circular motion of ~A" (nlg ?body)))
-(def-qexp period (period ?body)
-   :units |s|
-   :restrictions positive
-   :fromWorkbench `(period ,body)
-   :english ("the period of the motion of ~A" (nlg ?body)))
 (def-qexp work (work ?b ?agent)
   :units J
   :english ("the work done on ~A by ~A" (nlg ?b) (nlg ?agent)))

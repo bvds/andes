@@ -1,57 +1,52 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Solution.cl
-;; Collin Lynch
-;; 3/14/2001
-;; 
-
-;;;; Note the terminology issues with eqnsets and solutions will need
-;;;; to be resolved at a later date.
-
-;; This file defines the Equation set collection code for Solutiongraphs
-;; its function is to collect up the set of distinct equation and
-;; quantity sets that can be used to solve for a sought quantity in a
-;; Solutiongraph.  These sets are returned for use.
-;;
-
-The algorithm proceeds in two stages.  
-
-Stage1 is a black solution which is defined as a solution that contains
-a red solution and an unsolved-for quantity.
-
-A Red solution consists of a set of quantities and the equations that 
-solve for them.  A graph is complete when you have a red solution with
-no hanging quantities.
-
-
-To build a red/black traversal of a given solutiongraph do the following.
-
-1. Slect a quantity.
-2.   If the quantity is known move on.
-3.   Otherwize select an euation containing that quantity and solve it.
-4.   
-
-1. Place the sought quantitie(s) into a black solution.
-2. Select a quantity from the pool.
-3. Select an equation attatched to the quantity.
-4. If the equation is already in the solution.
-5.    Then the quantity is known, repeat.
-6. If the equation is not in the solution 
-7.    Then add each of its quantities to the pool and repeat.
-8. When the pool is empty the solution is complete.
-
-
-
-#####################################################
-Solutions are stored for help time use as a list of 
-the form (<IDS> <EqnSet> <Assumptions>) this set is 
-then used to setup the solutions for later use. 
-These ids are a list of bgnode gindicies.
-the eqnset is a list of eqn indicies.
-The Assumptions are a list of assumptions.
-
-
-|#
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Solution.cl
+;;;;; Collin Lynch
+;;;;; 3/14/2001
+;;;;; 
+;;;
+;;;;;;; Note the terminology issues with eqnsets and solutions will need
+;;;;;;; to be resolved at a later date.
+;;;
+;;;;; This file defines the Equation set collection code for Solutiongraphs
+;;;;; its function is to collect up the set of distinct equation and
+;;;;; quantity sets that can be used to solve for a sought quantity in a
+;;;;; Solutiongraph.  These sets are returned for use.
+;;;;;
+;;;
+;;;The algorithm proceeds in two stages.  
+;;;
+;;;Stage1 is a black solution which is defined as a solution that contains
+;;;a red solution and an unsolved-for quantity.
+;;;
+;;;A Red solution consists of a set of quantities and the equations that 
+;;;solve for them.  A graph is complete when you have a red solution with
+;;;no hanging quantities.
+;;;
+;;;
+;;;To build a red/black traversal of a given solutiongraph do the following.
+;;;
+;;;1. Slect a quantity.
+;;;2.   If the quantity is known move on.
+;;;3.   Otherwize select an euation containing that quantity and solve it.
+;;;4.   
+;;;
+;;;1. Place the sought quantitie(s) into a black solution.
+;;;2. Select a quantity from the pool.
+;;;3. Select an equation attatched to the quantity.
+;;;4. If the equation is already in the solution.
+;;;5.    Then the quantity is known, repeat.
+;;;6. If the equation is not in the solution 
+;;;7.    Then add each of its quantities to the pool and repeat.
+;;;8. When the pool is empty the solution is complete.
+;;;
+;;;
+;;;
+;;;Solutions are stored for help time use as a list of 
+;;;the form (<IDS> <EqnSet> <Assumptions>) this set is 
+;;;then used to setup the solutions for later use. 
+;;;These ids are a list of bgnode gindicies.
+;;;the eqnset is a list of eqn indicies.
+;;;The Assumptions are a list of assumptions.
 
 
 

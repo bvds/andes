@@ -79,7 +79,40 @@
   :effects ((variable ?freq-var (frequency ?wave))
 	    (define-var (frequency ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))))
+	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
+
+;;
+;; period is used in some circular motion rules:
+;;
+;; We don't have time on a period. The definition in terms of velocity 
+;; allows it to be an instantaneous quantity -- time it *would* take object to 
+;; make a complete revolution at its instantaneous speed at t. So period 
+;; could change over time as speed does and object never needs to actually 
+;; make a complete revolution in its period at a time.  In uniform circular
+;; motion velocity is constant, so period could be defined for the interval 
+;; of uniform circular motion.  However, in our circular motion problems we 
+;; usually represent this constant state by analyzing a representative instant 
+;; which is usually the only instant in the problem.  So we just assume that 
+;; and leave out time.
+;;
+
+(def-qexp period (period ?body)
+   :units |s|
+   :restrictions positive
+   :fromWorkbench `(period ,body)
+   :english ("the period of the motion of ~A" (nlg ?body)))
+
+(defoperator define-period-var (?b)
+  :preconditions ( 
+        (bind ?T-var (format-sym "T_~a" (body-name ?b)))
+  )
+  :effects (
+      (variable ?T-var (period ?b))
+      (define-var (period ?b))
+   )
+ :hint
+  ((bottom-out (string "Use the Add Variable command located under 'variable' on the top menu bar and select Period to define a variable for the period of the motion of ~A." ?b))
+   ))
 
 (def-qexp angular-frequency (angular-frequency ?wave)
   :units |rad/s|
@@ -93,20 +126,6 @@
 	    (define-var (angular-frequency ?wave)))
   :hint (
 	 (bottom-out (string "Define a variable for the angular-frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))))
-
-(def-qexp wave-period (wave-period ?wave)
-  :units |s|
-  :restrictions positive
-  :english ("the period of ~A" (nlg ?wave))
-  :fromworkbench `(wave-period ,body))
-
-(defoperator define-wave-period (?wave)
-  :preconditions((bind ?wave-period-var (format-sym "wave-period_~A" (body-name ?wave))))
-  :effects ((variable ?wave-period-var (wave-period ?wave))
-	    (define-var (wave-period ?wave)))
-  :hint (
-	 (bottom-out (string "Define a variable for the period of ~A by using the Add Variable command on the Variable menu and selecting wave-period."  ?wave))
-	 ))
 
 ;;equation of the frequency of the wave, frequency = angular-frequency/2*pi
 (def-psmclass frequency-of-wave (frequency-of-wave ?body)
@@ -147,23 +166,23 @@
 (defoperator period-of-wave-contains (?sought)
   :preconditions (
 		  (any-member ?sought ( 
-				       (wave-period ?object)
+				       (period ?object)
 				       (frequency ?object))))
   :effects (
 	    (eqn-contains (period-of-wave ?object) ?sought)))
 
 (defoperator period-of-wave (?object)
   :preconditions (
-		  (variable  ?wave-period (wave-period ?object))
+		  (variable  ?period (period ?object))
 		  (variable  ?freq  (frequency ?object)))
   :effects (
-	    (eqn  (= (* ?freq ?wave-period) 1) 
+	    (eqn  (= (* ?freq ?period) 1) 
 		  (period-of-wave ?object)))
   :hint (
 	 (point (string "You can use equation for the period of a wave"))
 	 ;;(teach (string "The equation-of-period-of-wave states that the frequency of a wave is 1/period"))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?freq (/ 1 ?wave-period))  algebra) ))
+			     ((= ?freq (/ 1 ?period))  algebra) ))
 	 ))
 
 ;;;
@@ -377,29 +396,29 @@
   :EqnFormat ("v_wave = sqrt(F_T/mu)")) 
 
 
-(defoperator wave-string-velocity-contains (?sought)
+(defoperator wave-speed-string-contains (?sought)
   :preconditions (
 		  (string ?wave)
 		  (any-member ?sought ((mass-per-length ?wave)
 				       (string-tension ?wave)
 				       (wave-speed ?wave))))
   :effects (
-	    (eqn-contains (wave-string-velocity ?wave ) ?sought)))
+	    (eqn-contains (wave-speed-string ?wave ) ?sought)))
 
-(defoperator wave-string-velocity (?string)
+(defoperator wave-speed-string (?string)
   :preconditions (
-		  (variable  ?mu  (mass-per-length ?string))
-		  (variable  ?v  (wave-speed ?string))
+		  (variable  ?mu-var  (mass-per-length ?string))
+		  (variable  ?vw  (wave-speed ?string))
 		  (variable ?tension (string-tension ?string))
 		  )
   :effects (
-	    (eqn  (= (* ?v ?v)(/ ?tension ?mu))
-		  (wave-string-velocity ?string))
+	    (eqn  (= (* ?vw ?vw) (/ ?mu-var ?tension))
+		  (wave-speed-string ?string))
 	    )
   :hint (
 	 (point (string "In your textbook, find a formula for the speed of transverse waves on a string."))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v (sqrt (/ ?tension ?mu))) algebra) ))
+			     ((= ?vw (sqrt (/ ?tension ?mu-var))) algebra) ))
 	 ))
 
 ;;;; 
@@ -532,7 +551,7 @@
   :preconditions (
 		  (sinusoidal ?block)
 		  (spring-contact ?block ?spring . ?dontcare)
-		  (any-member ?sought ((wave-period ?block)
+		  (any-member ?sought ((period ?block)
 				       (mass ?block)
 				       (spring-constant ?spring)))
 		  )
@@ -541,7 +560,7 @@
 
 (defoperator spring-mass-oscillation (?block ?spring)
   :preconditions (
-		  (variable  ?t (wave-period ?block))
+		  (variable  ?t (period ?block))
 		  (variable  ?m  (mass ?block))
 		  (variable ?k (spring-constant ?spring))
 		  )
@@ -572,7 +591,7 @@
 		  (massless ?rod)
 		  (pendulum ?block ?rod)
 		  (near-planet ?planet)
-		  (any-member ?sought ((wave-period ?block)
+		  (any-member ?sought ((period ?block)
 				       (length ?rod)
 				       (gravitational-acceleration ?planet)
 				       ))
@@ -585,14 +604,14 @@
 				   )
   :preconditions (
 		  (near-planet ?planet)
-		  (variable  ?t (wave-period ?block))
+		  (variable  ?t (period ?block))
 		  (variable  ?g-var (gravitational-acceleration ?planet))
 		  (variable ?l (length ?rod))
 		  )
   :effects (
 	    ;; BvdS:  I couldn't get this to work in sqrt form.
 	    (eqn  (= (* ?t ?t ?g-var) (* 4 $p $p ?l)) ;must use $p for pi
-		  (pendulum-oscillation ?block ?rod))
+		  (pendulum-oscillation ?block ?rod ?planet))
 	    )
   :hint (
 	 (point (string "In your textbook, find a formula for the period of oscillation of a pendulum"))
@@ -615,43 +634,43 @@
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift (frequency)")
   :ExpFormat ("using formula for doppler frequency shift (frequency)")
-  :EqnFormat ("fr=ft*(1+vr/vw)/(1-vt/vw))")) 
+  :EqnFormat ("fo=fs*(1+vo/vw)/(1-vs/vw))")) 
 
 (defoperator doppler-frequency-contains (?sought)
   :preconditions (
-		  (object ?source)
-		  (object ?observer)
-;;		  (sinusoidal ?source)
-;;		  (sinusoidal ?observer)
-		  (time ?t)
-		;;  (not (light ?wave))	;light is a differenct formula
 		  (any-member ?sought ((frequency ?source)
 				       (at (frequency ?observer) ?t)
 				       (wave-speed ?wave)
 				       ;; constant velocity (no time specified)
-				       (mag (velocity ?source)) 
-				       (mag (velocity ?observer))
-				     ;;  (dir (velocity ?source)) 
-				     ;;  (dir (velocity ?observer)) 
+				       (at (mag (velocity ?source)) ?t) ;wrong!
+				       (at (mag (velocity ?observer)) ?t)
+				       ;; (dir (velocity ?source)) 
+				       ;; (dir (velocity ?observer)) 
 				       ))
+		  (object ?source)
+		  (object ?observer)
+		  (test (not (equal ?source ?observer)))
+		  (sinusoidal ?source)
+		   ;; (sinusoidal ?observer)
+		  (time ?t)
+		  ;;  (not (light ?wave))	;light is a differenct formula
 		  ;; we neet to specify a time for this
 		  ;; It would be difficult to solve for this angle
-		 ;; (at (dir (relative-position 
-		;;	    ?source ?observer)) ?t)
+		  ;; (at (dir (relative-position 
+		  ;;	    ?source ?observer)) ?t)
 		  )
   :effects (
 	    (eqn-contains (doppler-frequency ?source ?observer ?t
 						) ?sought)))
 
-(defoperator doppler-frequency (?source ?observer ?t
-				   )
+(defoperator doppler-frequency (?source ?observer ?t)
   :preconditions (
 		 ;; (variable ?phi (at (dir (relative-position 
 		;;				?source ?observer)) ?t))
 		 ;; (variable  ?thetas (dir (velocity ?source)))
 		 ;; (variable  ?thetao(dir (velocity ?observer)))
-		  (variable ?vs (mag (velocity ?source)))
-		  (variable ?vo (mag (velocity ?observer)))
+		  (variable ?vs (at (mag (velocity ?source)) ?t))
+		  (variable ?vo (at (mag (velocity ?observer)) ?t))
 		  (variable ?vw (wave-speed ?wave))		  
 		  (variable ?fs (frequency ?source))		  
 		  (variable ?fo (at (frequency ?observer) ?t))

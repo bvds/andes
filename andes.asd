@@ -67,33 +67,35 @@
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
 			:depends-on ("Knowledge" "Base" "SGG")
+			:default-component-class no-compile-file
 			:serial t  ;real dependancies would be better
-			:components ((:file "Physics-Funcs")
+			:components (
+				     (:file "reset-KB")
+				     (:file "Physics-Funcs")
 				     ;; TELL and NLG not defined
-				     (:no-compile-file "Ontology" )
+				     (:file "Ontology" )
 				     (:file "circuit-ontology")  
 				     ;; AXES-DRAWNP not defined
-				     (:no-compile-file "Newtons2") 
+				     (:file "Newtons2") 
 				     (:file "NewtonsNogoods")  
-				     (:no-compile-file "Problems")
-				     (:no-compile-file "impulse-problems") 
+				     (:file "Problems")
+				     (:file "impulse-problems") 
 				     (:file "waves")
-				     (:no-compile-file "waves-problems")
+				     (:file "waves-problems")
 				     ;; depends on "waves":
-				     (:no-compile-file "oscillations-problems")
+				     (:file "oscillations-problems")
 				     ;; lots of outside dependencies:
-				     (:no-compile-file "errors")
-				     (:no-compile-file "force-problems")  
+				     (:file "errors")
+				     (:file "force-problems")  
 ;;; Hey, these are the wrong mountains
 				     ;; (:file "PyreneesProblems")
 				     (:file "forces")          
 				     (:file "optics")          
 				     (:file "vectors")
 				     (:file "makeprob")        
-				     (:no-compile-file "vectors-problems")
+				     (:file "vectors-problems")
 				     ;; there is some ugly code here
-				     (:no-compile-file "circuits")
-				     (:no-compile-file "reset-KB")
+				     (:file "circuits")
 				     ))
 	       (:module "SGG"
 ;;;			:description "Solution Graph Generator" 
