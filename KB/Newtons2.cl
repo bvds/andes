@@ -9337,5 +9337,3 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))
-
-
