@@ -18,10 +18,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :user)
 
-(defun rshs ()
-  (load "Andes2-Main")
-  (andes-start))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (eval-when (compile load eval) (require :socket))
 
@@ -347,11 +343,11 @@
   (cond
    ((setq *andes-stream* (socket:accept-connection *andes-socket* :wait wait))
     (format *debug-io* "~&Opened stream: ~S~%" *andes-stream*) 
-    ; try to close the listening socket immediately, since we only handle one 
-    ; connection -- you have to start-andes again to run another session
+    ;; try to close the listening socket immediately, since we only handle one 
+    ;; connection -- you have to start-andes again to run another session
     (close *andes-socket*)
     (setq *andes-socket* NIL)
-    ; return success:
+    ;; return success:
     t) 
    (t nil)))
 
@@ -381,14 +377,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dummy 'main' or begin function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-start ()
+(defun andes-start (&key solver-logging)
   "initialize the andes help system server state"
   (andes-init)
+  (solver-logging-on solver-logging)
   (initiate-server)
   (connection-started :wait t)
   (andes-run)
-  ; andes-run should always call andes-terminate when done so following shouldn't be 
-  ; necessary, but shouldn't hurt to be safe just in case
+  ;; andes-run should always call andes-terminate when done so following shouldn't be 
+  ;; necessary, but shouldn't hurt to be safe just in case
   #+allegro-cl-runtime (exit 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -426,15 +423,6 @@
   (symbols-reset)
   )
 
-;; (initiate-server)
-;; (connection-started :wait t)
-;; (andes-run)
-;; andes-run should always call andes-terminate when done so following 
-;; shouldn't be necessary, but shouldn't hurt to be safe just in case
-;; #+allegro-cl-runtime (exit 0))
-
-
-
 (defun andes-stop ()
 "set the exit flag to cause the server to exit event loop"
   (setq *andes-stop* t))
@@ -442,26 +430,10 @@
 (defun andes-terminate ()
 "terminate this instance of the help server on session end"
   (terminate-server)
-  (andes-uninit)
+  (solver-shutdown)
   (format *debug-io* "~&Andes session finished!~%")
   ; in runtime version only: exit Lisp when session is done
   #+allegro-cl-runtime (exit 0))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Andes uninit.
-;; This is a dummy function primarily for use by the HelpDriver.  It is
-;; used to clear out relevant memory from the Help-system at runtime but
-;; not to kill the server (which won't be running in any case.
-;; At the moment all that it does is unload the DLL.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-uninit ()
-  (solver-shutdown))
-
-
-
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of file Andes-Main.lsp/cl
