@@ -36,7 +36,8 @@
 (def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("relation between wavelength and wavenumber")
-  :ExpFormat ("Applying the equation relating wavenumber and wavelength")
+  :ExpFormat ("applying the equation relating wavenumber and wavelength to ~A"
+	      (nlg ?wave))
   :EqnFormat ("wavenumber*wavelength = 2*pi")) 
 
 
@@ -153,7 +154,8 @@
 (def-psmclass frequency-of-wave (frequency-of-wave ?object)
   :complexity minor  
   :english ("the equation for the frequency of a wave")
-  :ExpFormat ("Applying the equation for the frequency of a wave")
+  :ExpFormat ("applying the definition angular frequency to ~A"
+	      (nlg ?object))
   :EqnFormat ("frequency = angular-frequency/(2*$p)")) 
 
 (defoperator frequency-of-wave-contains (?sought)
@@ -187,7 +189,8 @@
 (def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)
   :complexity major 
   :english ("the beat frequency of two waves")
-  :ExpFormat ("finding the beat frequency of two waves")
+  :ExpFormat ("finding the beat frequency of waves ~A and ~A"
+	      (nlg ?w1) (nlg ?w2))
   :EqnFormat ("fbeat = (f1-f2)/2")) 
 
 (defoperator beat-frequency-contains (?sought)
@@ -250,8 +253,9 @@
 ;;equation of the period of the wave, period = 1/frequency
 (def-psmclass period-of-wave (period-of-wave ?object)
   :complexity major 
-  :english ("the equation for the period of a wave")
-  :ExpFormat ("Applying the equation for the period of a wave")
+  :english ("the equation for the period")
+  :ExpFormat ("applying the definition of period to ~A"
+	      (nlg ?object))
   :EqnFormat ("period = 1/frequency")) 
 
 (defoperator period-of-wave-contains (?sought)
@@ -343,7 +347,8 @@
 (def-psmclass speed-of-wave (speed-of-wave ?object)
   :complexity major ; must use explicitly 
   :english ("the equation of the speed of a wave")
-  :ExpFormat ("Applying the equation of the speed of a wave")
+  :ExpFormat ("applying the equation for the speed of a wave to ~A"
+	      (nlg ?object))
   :EqnFormat ("v = lambda*freq")) 
 
 (defoperator speed-of-wave-contains (?sought)
@@ -362,27 +367,26 @@
 		  (variable  ?lam  (wavelength ?object))
 		  (variable  ?freq  (frequency ?object))
 		  )
-  :effects (
-	    (eqn  (= ?v (* ?lam ?freq)) 
-		  (speed-of-wave ?object)))
-  :hint (
-	 (point (string "You can use equation for the speed of a wave"))
-	 ;;(teach (string "The equation-of-speed-of-wave states that the speed of a wave is wavelength*frequency"))
-	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v (* ?lam ?freq)) algebra) ))
-	 ))
+  :effects 
+  ((eqn  (= ?v (* ?lam ?freq)) (speed-of-wave ?object)))
+  :hint 
+  ( (point (string "You can apply the equation for the speed of a wave to ~A" 
+		   ?object))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?v (* ?lam ?freq)) algebra) )) ))
 
 ;; wave speeds of two things are identical
 (def-psmclass wave-speeds-equal (wave-speeds-equal . ?quants)
   :complexity minor ; used implicitly 
   :english ("The speed of any wave is the same")
-  :ExpFormat ("using the fact that the waves have the same speed")
-  ) 
+  :ExpFormat ("using the fact that the waves ~A have the same speed"
+	      (nlg ?quants 'conjoined-defnp) ;print list of waves with "and"
+	      )) 
 
 (defoperator wave-speeds-equal-contains (?sought)
   :preconditions (
 		  ;; only if defined this way in the problem
-		  (in-wm (same-wave-speed ?wave1 ?wave2))
+		  (in-wm (wave-speeds-equal ?wave1 ?wave2))
 		  (any-member ?sought ( 
 				       (wave-speed ?wave1)
 				       (wave-speed ?wave2)))
@@ -400,8 +404,8 @@
 	    (eqn  (= ?v1 ?v2) 
 		  (wave-speeds-equal ?wave1 ?wave2) ))
   :hint (
-	 (point (string "The velocity of any wave on a given string, rope, et cetera is the same."))
-      (point (string "If there are two waves on a string, then they have equal speeds."))
+	 (point (string "The velocity of any wave for a given medium (air, water, a string, a rope, et cetera) is the same."))
+      (point (string "If there are two waves in a given medium, then they have equal wave speeds."))
       (bottom-out (string "Write the equation ~A" 
 			  ((= ?v1 ?v2) algebra) ))
       ))
@@ -409,14 +413,15 @@
 ;; speed of object is wave speed
 (def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?object ?rope ?t)
   :complexity minor ; used implicitly 
-  :english ("The speed of any wave is the same")
-  :ExpFormat ("applying the speed of any wave is the same")
+  :english ("the speed of any wave is the same")
+  :ExpFormat ("noting the speed of ~A is the same as the wave speed of ~A"
+	      (nlg ?object) (nlg ?rope))
   ) 
 
 (defoperator speed-equals-wave-speed-contains (?sought)
   :preconditions (
 		  ;; only if defined this way in the problem
-		  (in-wm (same-wave-speed ?object ?rope))
+		  (in-wm (wave-speeds-equal ?object ?rope))
 		  (any-member ?sought ( 
 				       (wave-speed ?rope)
 				       (at (speed ?object) ?t)
@@ -433,12 +438,11 @@
   :effects (
 	    (eqn  (= ?v1 ?v2) 
 		  (speed-equals-wave-speed ?object ?rope ?t) ))
-  :hint (
-	 (point (string "The velocity of any wave on a given string, rope, et cetera is the same."))
-	 (point (string "If there are two waves on a string, then they have equal speeds."))
-	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v1 ?v2) algebra) ))
-	 ))
+  :hint 
+  ( (point (string "The velocity of any wave on a given string, rope, et cetera is the same."))
+    (point (string "If there are two waves on a string, then they have equal speeds."))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?v1 ?v2) algebra) )) ))
 
 ;;;;
 ;;;;  Wave speed for various objects   
@@ -593,7 +597,7 @@
 (def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("Formula for maximum speed of an oscillation")
-  :ExpFormat ("Applying formula for maximum speed of an oscillation")
+  :ExpFormat ("applying the formula for maximum speed of an oscillation")
   :EqnFormat ("v_max=A $w")) 
 
 
@@ -643,7 +647,7 @@
 (def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("Formula for |maximum acceleration| of an oscillation")
-  :ExpFormat ("Applying formula for |maximum acceleration| of an oscillation")
+  :ExpFormat ("applying the formula for |maximum acceleration| of an oscillation")
   :EqnFormat ("v_max=A $w")) 
 
  (defoperator max-transverse-abs-acceleration-wave-contains (?sought)
@@ -1002,10 +1006,10 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 ;;;
 ;;; Relate intensity to intensity in decibels
 ;;; 
-(def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?t)
+(def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?agent ?t)
   :complexity major  ;must explicitly use
   :english ("express intensity in decibels")
-  :ExpFormat ("Expressing the intensity in decibels")
+  :ExpFormat ("expressing the intensity in decibels")
   :EqnFormat ("I(db) = 10*log10(I/Iref)")) 
 
 
@@ -1041,7 +1045,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t)
   :complexity major  ;must explicitly use
   :english ("relate intensity to power in a spherical geometry")
-  :ExpFormat ("Relatinve the intensity to power (spherical geometry)")
+  :ExpFormat ("relating the intensity to power (spherical geometry)")
   :EqnFormat ("P = 4*$p*r^2")) 
 
 
@@ -1062,13 +1066,14 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 		  (variable  ?power  (at (net-power ?source) ?t))
 		  (variable  ?r (at (mag (relative-position ?wave ?source)) ?t))
 		  )
-  :effects (
-	    (eqn  (= ?power (* 4 $p ?r ?r ?int))
-		  (intensity-to-power ?wave ?source ?t))
-	    )
-  :hint (
-	 (point (string "If the power goes out in all directions, the intensity is the power divided by the area of the sphere."))
-	 (teach (string "Imagine a sphere centered at the ~A of radius ~A; all of the power goes out through that sphere." ?source ?r))
-	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?power (* 4 $p ?r ?r ?int)) algebra) ))
+  :effects 
+  ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))
+		  (intensity-to-power ?wave ?source ?t)) )
+  :hint 
+  ( (point (string "If the power goes out in all directions, the intensity ~A is the power divided by the surface area of the sphere." 
+		   (?wave pp)))
+    (teach (string "Imagine a sphere centered at ~A and extending to ~A; all of the power goes out through that sphere." 
+		   (?source def-np) (?wave def-np)))
+    (bottom-out (string "Write the equation ~A" 
+			     ((= ?power (* 4 $p (^ ?r 2) ?int)) algebra) ))
 	 ))
