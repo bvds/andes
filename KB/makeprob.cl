@@ -30,7 +30,7 @@
 				          (intersection topics 
 				                    (problem-features p)))))
 		(listprobs)))
-	; for minimum of output, clear all trace/debug flags:
+	;; for minimum of output, clear all trace/debug flags:
 	(*s-print-steps* NIL)    ; intermediate results of top-level steps
 	(*debug-gg* NIL)	 ; graph building process steps
 	(*debug-sp* NIL)	 ; solution point generation detail
@@ -77,42 +77,43 @@
    (format T "Errors:~%")
    (pprint Errs)))
 
-; for dealing with problem sets:
-; For each ANDES problem set, there should be some distinguished feature set that can 
-; pick out all and only the problems in that set. Easiest way is to use some tag for
-; that problem set only.  But possibly more than one feature required for things like 
-;   (dynamics circular)
-; if other problem use feature like circular. 
-; Following maps friendly problem set names to distinguishing feature sets
-;
-(defconstant *problem-sets* '(
-; Mechanics
-  ("Vectors"  vectors)
-  ("Translational Kinematics"  kinematics)
-  ("Free Body Diagrams"  fbd)
-  ("Statics"  statics)   			; also in some fbd-only!
-  ("Translational Dynamics"  dynamics) 		; also in some fbd-only
-  ("Circular Motion"  circular)
-  ; !! work-only problem now in Work-Energy set
-  ("Work"  work)    ; (and (not energy))
-  ("Energy"  energy)
-  ("Linear Momentum" linmom)
-  ("Rotational Kinematics"  rotkin)
-  ("Angular Momentum"  angmom)
-  ("Rotational Dynamics"  torque)
-; Electricity and Magnetism
-  ("Electric Field" E-field)
-  ("Electric Potential" potential)
-  ("Capacitance" cap)
-  ("Resistance" res)
-  ;("DC Circuits"  (or kir rc)
-     ("Kirchoff's Laws" kir)
-     ("RC Circuits" rc)
-  ("Magnetic Field" mag)
-  ("Faraday's Law" fara)
-  ("Inductance" inductance)
-  ("Optics" optics)
-))
+;;; for dealing with problem sets:
+;;; For each ANDES problem set, there should be some distinguished feature set 
+;;; that can pick out all and only the problems in that set. Easiest way is to 
+;;; use some tag for that problem set only.  But possibly more than one 
+;;; feature required for things like (dynamics circular)
+;;; if other problem use feature like circular. 
+;;; Following maps friendly problem set names to distinguishing feature sets
+;;;
+(defconstant *problem-sets* 
+    '(
+      ;; Mechanics
+      ("Vectors"  vectors)
+      ("Translational Kinematics"  kinematics)
+      ("Free Body Diagrams"  fbd)
+      ("Statics"  statics)		; also in some fbd-only!
+      ("Translational Dynamics"  dynamics) ; also in some fbd-only
+      ("Circular Motion"  circular)
+      ;; !! work-only problem now in Work-Energy set
+      ("Work"  work)			; (and (not energy))
+      ("Energy"  energy)
+      ("Linear Momentum" linmom)
+      ("Rotational Kinematics"  rotkin)
+      ("Angular Momentum"  angmom)
+      ("Rotational Dynamics"  torque)
+      ;; Electricity and Magnetism
+      ("Electric Field" E-field)
+      ("Electric Potential" potential)
+      ("Capacitance" cap)
+      ("Resistance" res)
+      ;; ("DC Circuits"  (or kir rc)
+      ("Kirchoff's Laws" kir)
+      ("RC Circuits" rc)
+      ("Magnetic Field" mag)
+      ("Faraday's Law" fara)
+      ("Inductance" inductance)
+      ("Optics" optics)
+      ))
 
 ; List problem statements for given sets (for OLI)
 ; topic should be feature unique to this set

@@ -1,0 +1,31 @@
+The "canonical" form of problem IDs (FOR2B, MIRROR1, etc) is all upper
+case, because that is what standard Lisp will produce when reading and
+writing the ID as a symbol.
+
+The canonical name for the .prb file is then also
+    UPPERCASEID.prb
+because that is the way Lisp will generate them. The extension is still
+lower case, though.
+
+On the other hand, problem graphic files currently use *lower* case.
+Thus, for example:
+    for1.gif
+Why? Lisp reads the graphic file name as a string, so preserves its
+case. Since most of our existing graphics files were named this way, we
+just kept to this convention when putting them on OLI.
+
+(In the future, we could make do without any special convention for
+graphic file name case. The only thing that should matter is that the
+filename string specified in the .prb file matches the exact case of the
+graphic file in the filesystem. However, because this was not
+consistently done in the past, the current OLI workbench lowercases all
+graphic filename strings it reads from the .prb files before fetching
+them from OLI. If we made the case in .prb files consistent, we wouldn't
+need any convention in future releases.)
+
+[The following should not affect you for new problems. But if a .fbd
+workbench problem file is used, the convention is also that it is
+*lower* case:
+    lowercaseid.fbd
+Again, this is simply because that was the way the existing .fbd files
+were named.]

@@ -639,7 +639,8 @@
 (defoperator doppler-frequency-contains (?sought)
   :preconditions (
 		  (any-member ?sought ((frequency ?source)
-				       (at (frequency ?observer) ?t)
+				       ;;  (at (frequency ?observer) ?t)
+				        (frequency ?observer)
 				       (wave-speed ?wave)
 				       ;; constant velocity (no time specified)
 				       (at (mag (velocity ?source)) ?t) ;wrong!
@@ -673,7 +674,8 @@
 		  (variable ?vo (at (mag (velocity ?observer)) ?t))
 		  (variable ?vw (wave-speed ?wave))		  
 		  (variable ?fs (frequency ?source))		  
-		  (variable ?fo (at (frequency ?observer) ?t))
+		  ;;(variable ?fo (at (frequency ?observer) ?t))
+		  (variable ?fo (frequency ?observer))
 		  )
   :effects (
 	    (eqn  (= (* ?fo (- ?vw 

@@ -16,7 +16,8 @@
 ;; Parameters
 
 (defparameter *Default-ProblemFile-Path* 
-    (merge-pathnames "Problems" *Andes-Path*))
+    ;; trailing / makes it a directory
+    (merge-pathnames  "Problems/" *Andes-Path*))
 
 (defparameter *Number-Of-Problems* 0 
   "The number of problems registered to the system.")
@@ -264,7 +265,8 @@
 (defmacro mpf-readret (S)
   `(read ,S "Error: invalid problem file."))
 
-(defun read-problem-file (Name &key (Path *Default-ProblemFile-Path*) (Read-old-format nil))
+(defun read-problem-file (Name &key (Path *Default-ProblemFile-Path*) 
+				    (Read-old-format nil))
   "Read the specified problem file into a new Problem Struct."
   (declare (ignore read-old-format))
   (let ((Filename (problem-filename Name Path)) (Problem (make-Problem)))
@@ -274,8 +276,8 @@
 		       :direction :input
 		       :if-does-not-exist :error)
 	 
-	(mpf-read File '<Andes2Problem>)                    ;; Read the file ID tag.
-	(read-pfile-contents File Problem)                  ;; Read the contents until the close tag is found.
+	(mpf-read File '<Andes2Problem>) ;Read the file ID tag.
+	(read-pfile-contents File Problem) ;Read the contents until the close tag is found.
 	
 	(when (problem-varindex Problem)                      ;; When the files are stored numerical indicies 
 	  (regen-bg-vindex-links (Problem-Graph Problem)      ;; are used for qvars in the BGNODES.  This call
