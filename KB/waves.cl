@@ -902,6 +902,7 @@
 						))) algebra) ))
       ))
 
+;; Solve[{100==10 Log[10,iii/10^-12],pwr==iii*4.*Pi*4^2},pwr,iii]
 ;;; 
 ;;; Relate intensity to total power output in a spherical geometry.  
 ;;;
