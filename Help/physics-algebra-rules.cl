@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; physics-algebra-rules.cl -- sets up the grammar for physics algebra
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;; Author(s):
@@ -8,18 +8,18 @@
 ;;   3 April 2001 - (lht) -- created from previous work on ANDES2 parsing
 ;;   8 April 2001 - (lht) -- version finalized and source cleaned
 ;;  10 April 2001 - (lht) -- added cull to end of file (helps time issues)
-;;  15 May 2001 - (lht) -- reworked for new dnum treatment and scinum definition
+;;  15 May 2001 - (lht) -- new dnum treatment and scinum definition
 ;;  12 June 2003 - (cl) -- Added declarations to handle compiler warning
 ;;   about Physics-Algebra-Rules-Initialize.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; initialize rules for andes physics equations grammar
 (defun physics-algebra-rules-initialize ()
   (declare (special **Identifier-Grammar**))
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
   ;; first make grammar for identifier terminals
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
   (grammar-initialize '**identifier-grammar**)
 
   ;; now add the terminal rules for digits
@@ -104,17 +104,17 @@
   ;; 'minus already exists as the rule 'dash
 	      
   (Tell :physics-algebra-rules-initialize "We have initialized **identifier-grammar**")
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
   ;; creation and initialization of the base andes physics grammar
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
   (grammar-initialize '**grammar**)
 
   ;; now copy rules for identifier terminals
   (grammar-add-grammar '**grammar** **identifier-grammar**)
 
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
   ;; add some more terminals
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
 
   ;; white space characters
   (grammar-add-terminal '**grammar** 'space '(#\Space #\Return #\NewLine #\Page #\Tab))
@@ -126,9 +126,9 @@
   ;; equality
   (grammar-add-terminal '**grammar** 'equals #\=)
 
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; now that the lexical terminals are defined let's define the non-terminal parses
-  ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
+  ;; after lexical terminals are defined let's define the non-terminal parses
+  ;;
 
   ;; group the 'unary operators
   (grammar-add-nonterminal '**grammar** 'unary-op '((plus) (dash)))
@@ -144,7 +144,8 @@
 						 (digit5) (digit6) (digit7) (digit8) (digit9)
 						 ))
 
-  ;; 'e lhs's for case insensitive parses ... like sin == Sin == SIN == SIn ..etc
+  ;; 'e lhs's for case insensitive parses ... 
+  ;; like sin == Sin == SIN == SIn ..etc
   (grammar-add-nonterminal '**grammar** 'ea '((la) (uA)))
   (grammar-add-nonterminal '**grammar** 'eb '((lb) (uB)))
   (grammar-add-nonterminal '**grammar** 'ec '((lc) (uC)))
@@ -250,6 +251,7 @@
   (grammar-add-special '**grammar** 'unit-name "F" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-name "H" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-name "W" nil **identifier-grammar**)
+  (grammar-add-special '**grammar** 'unit-name "dB" nil **identifier-grammar**)
   ;;(grammar-add-special '**grammar** 'unit-rname "m/s" nil **identifier-grammar**)
   ;;(grammar-add-special '**grammar** 'unit-rname "m/s^2" nil **identifier-grammar**)
   ;;(grammar-add-special '**grammar** 'unit-rname "N.m" nil **identifier-grammar**)
@@ -377,9 +379,9 @@
   (grammar-add-nonterminal '**grammar** 'unknown
 			   (expand-wild-symbols '(dollars letter ?rest-of-unknown)))
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
   ;; rules are juggled to avoid forward references
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;
   
   ;; define number
   (grammar-add-nonterminal '**grammar** 'number '((integer)
@@ -446,10 +448,3 @@
 			   (expand-wild-symbols '(expression ?wspace equals ?wspace expression)))
 
   (Tell :physics-algebra-rules-initialize "Finished with 'physics-algebra-rules-initialize"))
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; end of physics-algebra-rules.cl
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
