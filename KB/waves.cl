@@ -93,23 +93,6 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
 
-;;;
-;;; If frequency is constant (timeless), then it has that
-;;; value at any time.  This could be promoted to a general
-;;; property of all quantities.
-;;;
-
-;; BvdS: ask Anders why this doesn't work
-(defoperator frequency-at-time (?sought)
-  :preconditions(
-		 (time ?t)
-		 (frequency ?wave)
-		 (any-member ?sought ((at (frequency ?wave) ?t)))
-		 )
-  :effects ((eqn-contains (equals (frequency ?wave) 
-				  (at (frequency ?wave) ?t) ?sought)))
-  )
-
 ;;
 ;; period is used in some circular motion rules:
 ;;
@@ -919,7 +902,7 @@
 ;;; 
 ;;; Relate intensity to total power output in a spherical geometry.  
 ;;;
-(def-psmclass intensity-to-power (intensity-to-power ?wave)
+(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t)
   :complexity major  ;must explicitly use
   :english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("Relatinve the intensity to power (spherical geometry)")
@@ -928,9 +911,10 @@
 
 (defoperator intensity-to-power-contains (?sought)
   :preconditions (
-		  (spherical-emitter ?source ?wave) ;need spherical symmetry
+		  (spherical-emitting ?wave ?source) ;need spherical symmetry
+		  (time ?t)
 		  (any-member ?sought ((at (intensity ?wave) ?t)
-				       (at (power ?source) ?t)
+				       (at (power ?wave ?source) ?t)
 				       (at (mag (displacement ?wave ?source)) ?t)))
 		  )
   :effects (
@@ -939,7 +923,7 @@
 (defoperator write-intensity-to-power (?wave ?source ?t)
   :preconditions (
 		  (variable  ?int  (at (intensity ?wave) ?t))
-		  (variable  ?power  (at (power ?source) ?t))
+		  (variable  ?power  (at (power ?wave ?source) ?t))
 		  (variable  ?r (at (mag (displacement ?wave ?source)) ?t))
 		  )
   :effects (

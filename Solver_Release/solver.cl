@@ -1,4 +1,3 @@
-
 ;;;|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ;;;  solver.cl - package to provide interface to c/c++ functions for andes 
 ;;;  equation solving.
@@ -135,14 +134,22 @@
 (defun solver-initialize (&optional filename)
   (let ((path (if filename filename 
 		(merge-pathnames *DLL-NAME* *Andes-Path*))))
-    (unless (member *DLL-NAME* (ff:list-all-foreign-libraries)
+    #-uffi(unless (member *DLL-NAME* (ff:list-all-foreign-libraries)
 		    :key #'file-namestring :test #'string-equal)
       (format T "~&Loading solver from ~A~%" path)
-      (load path))))
+      (load path))
+    #+uffi(load-foreign-library path
+				;; The libraries which are needed.
+				;; Only needed for Python-based Lisps like 
+				;; CMUCL, SBCL, or SCL?
+				:supporting-libraries '("c" "m")
+				:force-load t ;since unload not defined
+				)
+    ))
  
 (defun solver-shutdown ()
   (let ((path (merge-pathnames *DLL-NAME* *Andes-Path*)))
-    (when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
+    #-uffi(when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
 		  :key #'file-namestring :test #'string-equal)
        (format T "~&UnLoading solver from ~A~%" path)
        (ff::unload-foreign-library path))))

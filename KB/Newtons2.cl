@@ -1386,7 +1386,6 @@
 ;; effects include (eqn...), in this case, the hints are hung off the operator
 ;; whose effects include (equals ...).
 ;;;
-;;; See frequency-at-time, which could be generalized to any quantity.
 ;;;
 (defoperator equality-contains (?quant)
   :preconditions 
@@ -1543,6 +1542,23 @@
    (bottom-out (string "Since ~a is constant ~a, and ~a is inside ~a, write the equation ~a=~a" 
 		       ?quant ?t-constant (?t1 pp) ((at ?quant ?t-constant)) ((at ?quant ?t1))))
    ))
+
+;;;
+;;; If a quantity is constant (timeless), then it has that
+;;; value at any time.
+;;;
+;;; this follows equality-contains
+(defoperator timeless-to-time (?sought)
+  :preconditions(
+		 ;; need to know timeless value can actually be found
+		 ;; for instance, one can check that it is given:
+		 ;; but this is not very general
+		 (in-wm (given ?quant ?dontcare))
+		 (time ?t)
+		 (any-member ?sought ((at ?quant ?t)))
+		 )
+  :effects ((eqn-contains (equals ?quant 
+				  (at ?quant ?t)) ?sought)))
 
 ;; Following expands (constant (accel ?b) ?t) to derive constancy of 
 ;; magnitude and direction attributes. This rule functions a bit like a macro 
@@ -1826,7 +1842,6 @@
    ))
 
 ;;; ================================= Displacement ==========================
-
 ;; The operator draws displacement in the case where the object is
 ;; moving in a straight line during a time that includes the desired
 ;; time.  The desired time, ?t, is passed in via unification with the
@@ -1853,7 +1868,7 @@
    ((time ?t)
     (test (time-intervalp ?t))
     (motion ?b ?t-motion (straight ?dontcare ?dir))
-    (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
+    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t)))

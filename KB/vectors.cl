@@ -141,3 +141,17 @@
 	 (bottom-out (string "Write the equation ~A"
 			     ((= ?v13 (+ ?v12 ?v23)) algebra)))
 	 ))
+
+;;; This is from draw-zero-displacement.
+(defoperator draw-zero-relative-vel (?b1 ?b2 ?t)
+  :preconditions
+   ((in-wm (given (at (mag(relative-vel ?b1 ?b2)) ?t) (dnum 0 ?units)))
+    (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare))
+    (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1)
+			       (body-name ?b2) (time-abbrev ?t))))
+  :effects
+   ((vector ?b1 (at (relative-vel ?b1 ?b2) ?t) zero)
+    (variable ?mag-var (at (mag (relative-vel ?b1 ?b2)) ?t)))
+   :hint
+   ((bottom-out (string "Since the problem specifies that the velocity of ~a relative to ~A is zero, just draw a zero-length vector for it." ?b1 ?b2))
+    ))
