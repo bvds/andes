@@ -319,11 +319,12 @@ double evalpoly(const vector<double> * poly, const double x)
  ************************************************************************/
 double findroot(const vector<double> * poly, 
 		const vector<double> * polyderiv, 
-		const double low, const double high)
+		double low, double high)
 {
   double delx;
   double x = 0.5 * (low + high);
-  double xscale = fabs(low) + fabs(high);
+  // Actually, tol=0 would probably work OK
+  double tol = 10. * DBL_EPSILON *(fabs(low) + fabs(high));
   do {
     delx = - evalpoly(poly,x)/evalpoly(polyderiv,x);
     // assume poly is monotonic on [low,high]
@@ -331,8 +332,8 @@ double findroot(const vector<double> * poly,
     x += delx;
     // use bisection if new point is out of range
     if (x < low || x > high) x=0.5*(low+high);
-  } while (fabs(high-low) > 10. * DBL_EPSILON * xscale)
-    return (x);
+  } while (x-low > tol && high-x > tol);
+    return(x);
 }
 
 /************************************************************************

@@ -2,7 +2,7 @@
 #  Make algebra routines and algebra lib
 #
 #  -fPIC is needed to make DLL to be used by Allegro
-CPPFLAGS = -g -Wall -fPIC
+CPPFLAGS = -Wall -fPIC
 #            * remove these *****
 CPPFLAGS += -DAW_POW_FIX -DAW_EXP -DSOLVER_EXPORTS -DUNITENABLE 
 #                                                                -DNO_DLL
