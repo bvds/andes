@@ -1044,8 +1044,9 @@ state actions Is set to be traced."
 		 (member (cadar (st-actions State)) **QS-Trace-Ops**))
 	    (and (eq 'op (caar (st-actions State)))
 		 (member (caadar (st-actions State)) **Qs-Trace-Ops**))
-	    (and (st-predecessor State)
-		 (qs-debug-printp (St-Predecessor State)))))))
+	   ;; (and (st-predecessor State)
+		;; (qs-debug-printp (St-Predecessor State)))
+	    ))))
   
 (defun qs-debug-print-success (state)
   "Prints a trace indicating that this state is a final state"
