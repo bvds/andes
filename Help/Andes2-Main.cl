@@ -414,7 +414,7 @@
   (solver-initialize)
   ;; Dynamically load kb on startup. Might want to move to load on each 
   ;; problem, so that don't have to restart helpsys to test kb changes.
-  (load-kb)
+  ;(load-kb)
   (doSafety :in2pre)
   #-allegro-cl-runtime (history-new "Log/Andes")
   (enable-errors)
