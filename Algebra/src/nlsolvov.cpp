@@ -93,7 +93,7 @@ bool nlsolvov(binopexp * & bineq)
 		binrhs->value = exp(binrhs->value);
 		break;
 	      case log10e:
-		binrhs->value = exp(binrhs->value) * M_LOG10E;
+		binrhs->value = pow(10.0,binrhs->value);
 		break;
 	      case sqrte:
 		binrhs->value *= binrhs->value;

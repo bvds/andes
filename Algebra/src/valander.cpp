@@ -98,8 +98,8 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
       else throw(string("valander tried to take log of nonpositive"));
     case log10e:
       if (argvnd->value > 0.) {
-        ret->value = log(argvnd->value) * M_LOG10E;
-        tempval = M_LOG10E/argvnd->value;
+        ret->value = log10(argvnd->value);
+        tempval = 1.0/(argvnd->value*log(10.0));
         goto functfin; }
       else throw(string("valander tried to take log of nonpositive"));
     case sqrte:
