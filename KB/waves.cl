@@ -294,6 +294,8 @@
 (def-psmclass harmonic-of (harmonic-of ?wave1 ?wave0 ?form)
   :complexity minor
   :english ("harmonic of a standing wave")
+  :ExpFormat ("noticing that ~A is a harmonic of ~A"
+	      (nlg ?wave1) (?nlg wave0))
   :eqnFormat ("fn = (n+1)*f0 or $ln = $l0/(n+1)"))
 
 (defoperator harmonic-of-contains (?sought)

@@ -3574,8 +3574,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ; in motion dir if know it moved from origin.
 
 
-|#; end experimental block 
-
+|#   ; end experimental block 
+ 
 ;;; Following draws a relative position vector of ?b1 from ?b2 at ?t
 ;;; using a direction given in the problem statement. 
 ;;;
