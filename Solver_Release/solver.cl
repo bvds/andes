@@ -181,7 +181,7 @@
 ;;;; This is silly
 
 (defun solver-initialize (&optional (filename nil))
-  (let ((path (if filename filename (andes-path *DLL-NAME*))))
+  (let ((path (if filename filename (*andes-path* *DLL-NAME*))))
     (unless (member *DLL-NAME* (ff:list-all-foreign-libraries)
                   :key #'file-namestring :test #'string-equal)
       (format T "~&Loading solver from ~A~%" path)

@@ -60,6 +60,15 @@
 
 (defun rkb ()
   "Reload the Knowledge base code."
+  ;; loading this file resets the problem database:
+  (clear-problem-registry)
+  ;; clear out the old operators on load so that the new ones can be defined.
+  (clear-ops)
+  ;; Reset ontology database on each load of this file.
+  (clear-ontology)
+  ;; reset list for NewtonsNogoods
+  (clear-nogoods)		
+
   (compile-named-andes-module 'Physics-KB)
   (load-named-andes-module 'Physics-KB))
 

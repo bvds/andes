@@ -2,9 +2,7 @@
 ;;
 ;; Newtons2 -- Andes2 Physics problem solving operators
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; clear out the old operators on load so that the new ones can be defined.
-(clear-ops)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; ============== Top-level search support ===================
   

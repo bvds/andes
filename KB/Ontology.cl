@@ -3,8 +3,6 @@
 ;; KB/ontology: defines the expressions used in the Andes Knowledge Base
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Reset ontology database on each load of this file.
-(clear-ontology)
 
 (defparameter unit-english
     '(

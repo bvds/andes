@@ -5,7 +5,6 @@
 ;;
 ;; This file defines nogoods for the Newtons2.cl physics code.
 ;;
-(clear-nogoods)		;; reset list on loading this file
 
 #| independence checking should handle this
 (defnogood lk-max
