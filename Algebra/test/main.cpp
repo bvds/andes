@@ -12,8 +12,6 @@
 #include "../src/indysgg.h"
 #include "../src/indyset.h"
 #include "../src/dbg.h"
-// #include "../linwood/lzmem.h"
-// #include "../linwood/lzstd.h"
 using namespace std;
 
 #define LOGn(s) cout << s << endl
@@ -40,10 +38,14 @@ int main(int argc, char* argv[]) {
 		  exit(1) ; }
   if (argc == 2) dbglevel = (unsigned int) strtol(argv[1],0,16);
   doinitinit();
+  solverDoLog("t");  // make log file
 //////////////////////////////////////////////////////////////////////////////
-// BvdS: what is this???
-//#include "XSolver.log"
-// 
+// include the contents of a log file
+// made by turning on (solve-do-log "t") in lisp
+// or solverDoLog("t"); in c++
+//
+#include "../../Solver.log"
+ 
   LOGn("<only thing left is to closeupshop>");
   closeupshop();
   LOGn("< closed up shop>");

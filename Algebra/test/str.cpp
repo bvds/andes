@@ -5,26 +5,25 @@
 #include <iostream>
 #include <sstream>
 using namespace std;
-#include "../src/decl.h"
 
-std::istringstream inFile;
+stringstream inFile;
+//ostringstream outFile;
 
-void pri(void){
-  std::ostream outFile2 (inFile.rdbuf ()); 
-  outFile2 << "and this" << endl;
+void prim(void){
+  // outFile << "output this" << endl;
+  inFile << "output this" << endl;
+  cout << "inFile.str:  "<<inFile.str();
+  cout << "position:  "<<inFile.tellg()<<endl;
+}  
+
+void seco(void){
+  cout << "position:  "<<inFile.tellg()<<endl;
+  cout << inFile.str()<<endl;
 }  
 
 int main(int argc, char* argv[]) {
-  std::istringstream inFile (std::ios::in | std::ios::out);
-  std::ostream outFile (inFile.rdbuf ()); 
-  //   ostringstream outFile(ss);
-   outFile << "input this" << endl;
-   pri();
-  //    inFile.open(std::ios::in);// | std::ios::binary);
-   //    inFile.clear();
-   //  inFile.seekg(0);
-  //   cout << "ss is now" << ss << endl;
-   // istringstream inFile1(ss);
- cout << "hi" <<endl;
- cout << getaline(inFile)<<endl;
+  prim();
+  cout << "MinFile.str:  "<<inFile.str();
+  cout << "Mposition:  "<<inFile.tellg()<<endl;
+  seco();
 }

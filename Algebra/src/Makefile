@@ -77,7 +77,7 @@ flatten.o: flatten.cpp decl.h expr.h dimens.h extoper.h dbg.h standard.h
 rationalize.o: rationalize.cpp decl.h expr.h dimens.h extoper.h dbg.h \
   standard.h
 coldriver.o: coldriver.cpp extstruct.h standard.h expr.h dimens.h decl.h \
-  unitabr.h indyset.h expr.h valander.h indysgg.h dbg.h justsolve.h
+  unitabr.h indyset.h expr.h valander.h indysgg.h dbg.h justsolve.h coldriver.h
 getaline.o: getaline.cpp
 recassign.o: recassign.cpp decl.h expr.h dimens.h extoper.h dbg.h \
   standard.h extstruct.h
@@ -178,4 +178,4 @@ eqnumsimp.o: eqnumsimp.cpp decl.h expr.h dimens.h extoper.h dbg.h \
 justonev.o: justonev.cpp decl.h expr.h dimens.h
 physvar.o: physvar.cpp decl.h expr.h dimens.h dbg.h standard.h
 Solver.o: Solver.cpp Solver.h \
-  lrdcstd.h indysgg.h dbg.h standard.h
+  lrdcstd.h indysgg.h dbg.h standard.h coldriver.h

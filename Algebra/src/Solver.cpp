@@ -7,11 +7,12 @@
 //      19 February 2001 - lht -- modified for additional functionality
 //////////////////////////////////////////////////////////////////////////////
 #include "Solver.h"
+#include "coldriver.h"
 #include <string>
 #include <vector>
 #include <cstdio>
-#include "../src/indysgg.h"
-#include "../src/dbg.h"
+#include "indysgg.h"
+#include "dbg.h"
 
 
 
@@ -51,35 +52,11 @@ double myTan(double x) {
   }
   return tan(x); // otherwise it is okay
 }
-//double myTan(double x) {
-//  int sf = (int)floor((x/1.57096)-0.0001); // get closest integer to multiple of 90deg minus allowance
-//  int ef = (int)floor((x/1.57096)+0.0001); // get closest integer to multiple of 90deg plus allowance
-//  /*
-//  SLog("Tan called with " << x << ", " << sf << ", " << ef);
-//  if (sf == ef) {
-//    SLog("Equal");
-//  } else {
-//    SLog("Not Equal")
-//  }
-//  if (sf % 2 != 0) {
-//    SLog("Odd");
-//  } else {
-//    SLog("Even");
-//  }
-//  */
-// if ((sf == ef) && (sf % 2 == 0)) { // if the same integer and it's a multiple of (2n+1)90 then
-//    throw(std::string("Illegal Argument to trig function")); // throw the eexception
-//  }
-//  return tan(x); // otherwise it is okay
-//}
 
 //////////////////////////////////////////////////////////////////////////////
 // catch all for code in coldriver.cpp (should enter in .h)
 int indyCanonHowIndy(int setID, int eqnID, std::vector<int>*& linexpand, std::vector<int>*& mightdepend);
 int indyStudHowIndy(int setID, int eqnID, std::vector<int>*& linexpand, std::vector<int>*& mightdepend);
-char* doColAnderMain(const char* const src, const char* const dst);
-char* solveTheProblem();
-char* solveMoreOfTheProblem();
 std::string powersolve(const int howstrong, const std::string varname, 
 		       const int destslot);
 bool handleInput(std::string& aLine);
@@ -209,20 +186,6 @@ RETURN_CSTRING solverDoLog(const char* const src) {
 // solver routines
 //////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////
-RETURN_CSTRING solveBubbleFile(const char* const src, const char* const dst) {
-  try {
-    setResult(doColAnderMain(src, dst));
-  } catch(std::string message) {
-    makeError(message.c_str(), "solveBubbleFile", src);
-  } catch(...) {
-    makeError("unexpected and unhandled exception", "solveBubbleFile", src);
-  }
-  //reportMemory();
-  return result;
-}
-
-//////////////////////////////////////////////////////////////////////////////
 RETURN_CSTRING solveBubble() {
   SLog("solveBubble()");
   try {
