@@ -95,6 +95,7 @@
 				     (:file "Newtons2")        
 				     (:file "NewtonsNogoods")  
 				     (:file "Problems")
+				     (:file "impulse-problems") 
 				     (:file "waves")
 				     (:file "waves-problems")
 				     (:file "oscillations-problems") 

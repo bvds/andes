@@ -569,29 +569,34 @@
 (defoperator pendulum-oscillation-contains (?sought)
   :preconditions (
 		  (sinusoidal ?block)
-		  (pendulum ?block ?spring . ?dontcare)
+		  (massless ?rod)
+		  (pendulum ?block ?rod)
+		  (near-planet ?planet)
 		  (any-member ?sought ((wave-period ?block)
-				       (mass ?block)
-				       (spring-constant ?spring)))
+				       (length ?rod)
+				       (gravitational-acceleration ?planet)
+				       ))
 		  )
   :effects (
-	    (eqn-contains (pendulum-oscillation ?block ?spring) ?sought)))
+	    (eqn-contains (pendulum-oscillation ?block ?rod
+						) ?sought)))
 
-(defoperator pendulum-oscillation (?block ?spring)
+(defoperator pendulum-oscillation (?block ;?rod
+				   )
   :preconditions (
+		  (near-planet ?planet)
 		  (variable  ?t (wave-period ?block))
-		  (variable  ?m  (mass ?block))
-		  (variable ?k (spring-constant ?spring))
+		  (variable  ?g-var (gravitational-acceleration ?planet))
+		  (variable ?l (length ?rod))
 		  )
   :effects (
 	    ;; BvdS:  I couldn't get this to work in sqrt form.
-	    (eqn  (= (* ?t ?t ?k) (* 4 $p $p ?m)) ;must use $p for pi
-	    ;;(eqn (= ?t (* 2 $p (sqrt (/ ?m ?k))))
-	    (pendulum-oscillation ?block ?spring))
+	    (eqn  (= (* ?t ?t ?g-var) (* 4 $p $p ?l)) ;must use $p for pi
+		  (pendulum-oscillation ?block ?rod))
 	    )
   :hint (
-	 (point (string "In your textbook, find a formula for the period of oscillation of a mass and spring"))
+	 (point (string "In your textbook, find a formula for the period of oscillation of a pendulum"))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?t (* 2 $p (sqrt (/ ?m ?k)))) algebra) ))
+			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
 	 ))
 

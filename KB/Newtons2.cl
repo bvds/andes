@@ -5461,6 +5461,33 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :expformat ("applying Hooke's Law to ~a " (nlg ?body))
   :EqnFormat ("Fs = k*d" ))
 
+
+;;; variant applies weight to a rigid body. In this case the quantity is
+;;; specified as a force acting on the cm, not on the whole body.
+(defoperator spring-law-contains (?quantity)
+  :specifications "
+   If a rigid body then the spring law for the body potentially contains
+     the magnitude of the spring force,the spring constant, and
+     the compression/extension."
+  :preconditions (
+		  (any-member ?quantity 
+			      ((at (mag (force ?b ?spring spring)) ?t)
+			       (spring-constant ?spring)
+			       (at (compression ?spring) ?t)
+			       ))
+		  ;; make sure this is case where ?b is cm of rigid body. 
+		  ;; (in-wm (part-of ?b ?rigid-body))
+		  (time ?t)
+  		  (uses-k-and-d)	;Forces rule to fire only if k and d 
+					; are needed to solve problem	
+		  (variable ?var (mass ?b))
+		  (near-planet ?planet)
+		  ;; (not (massless ?rigid-body))
+		  ) 
+  :effects (
+	    (eqn-contains (spring-law ?b ?t) ?quantity))
+  )
+
 (defoperator spring-law-compression (?b ?t)
   
   :specifications "
@@ -5478,52 +5505,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
                  )
   :effects (
             (eqn (= ?s-var (* ?k-var ?d-var)) (spring-law ?b ?t)))
-)
-
-#|
-(defoperator spring-law-extension (?b ?t)
-  
-  :specifications "
-   If a body is near a planet,
-     and it is not massless,
-     and you can find the appropriate variables,
-     then write Fs=k*d where Fs is the magnitude of the spring force
-     on the body, k is the spring constant and d is the compression or
-     extension distance of the spring."
-  :preconditions(
-                 (near-planet ?planet)
-                 (variable ?s-var (at (mag (force ?b ?spring spring)) ?t))
-                 (variable ?k-var (spring-constant ?spring))
-                 (variable ?d-var (at (extension ?spring) ?t))
-                 )
-  :effects (
-            (eqn (= ?s-var (* ?k-var ?d-var)) (spring-law ?b ?t)))
-)
-|#
-  ;; variant applies weight to a rigid body. In this case the quantity is
-;; specified as a force acting on the cm, not on the whole body.
-(defoperator spring-law-contains (?quantity)
-  :specifications "
-   If a rigid body then the spring law for the body potentially contains
-     the magnitude of the spring force,the spring constant, and
-     the compression/extension."
-  :preconditions (
-                  (any-member ?quantity (
-                                         (at (mag (force ?b ?spring spring)) ?t)
-                                         (at (spring-constant ?s) ?t)
-                                         (at (compression ?s) ?t)
-                                         )
-                              )
-                  ; make sure this is case where ?b is cm of rigid body. 
-               ;   (in-wm (part-of ?b ?rigid-body))
-                  (time ?t)
-                  (uses-k-and-d) ;Forces rule to fire only if k and d are needed to solve problem
-                  (variable ?var (mass ?b))
-                  (near-planet ?planet)
-               ;   (not (massless ?rigid-body))
-                  ) 
-  :effects (
-            (eqn-contains (spring-law ?b ?t) ?quantity))
   )
 
 ;;; gravitational acceleration
