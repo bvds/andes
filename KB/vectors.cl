@@ -20,6 +20,7 @@
 
 ;;; Note: need var named ?body* for nsh to recognize this arg as 
 ;;; a principle's important body (to prompt to draw first).
+
 (def-psmclass relative-vel (?eq-type relvel ?xy ?rot (relative-vel ?body1 ?b2 ?b3 ?t))
   :complexity major
   :english ("relative velocity equation")

@@ -709,6 +709,9 @@
   :ExpFormat ("using formula for doppler frequency shift (frequency)")
   :EqnFormat ("fo=fs*(1+vo/vw)/(1-vs/vw))")) 
 
+;;; velocities should be constant over a large enough
+;;; interval.  We could demand (constant ?quant ?t-interval) but
+;;; hopefully that construct will be replaced.
 (defoperator doppler-frequency-contains (?sought)
   :preconditions 
   (
@@ -720,8 +723,6 @@
    (any-member ?sought ((frequency ?source)
 			(wave-speed ?wave)
 			(at (frequency ?observer) ?t)
-			;;(frequency ?observer)
-			;; should be constant velocity 
 			;; we *assume* the interval is big enough
 			(at (mag (relative-vel ?source ?wave)) ?t-interval) 
 			(at (mag (relative-vel ?observer ?wave)) ?t-interval)
@@ -753,8 +754,9 @@
 		  (variable ?vw (wave-speed ?wave))		  
 		  (variable ?fs (frequency ?source))		  
 		  (variable ?fo (at (frequency ?observer) ?t))
-		  ;; 	     
-		  ;; for help
+		  ;; for help, don't want angle explicit, just +/-
+		  ;; (I couldn't get this to work, though)
+		  ;(bind ?coso (cos (- ?phi ?thetao)))
 		  ;(bind ?coss (cos (- ?phi ?thetas)))
 		  )
   :effects (

@@ -4897,7 +4897,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
 (defoperator write-mass-compound (?bodies)
-  
   :preconditions (
     (variable ?mwhole-var (mass (compound . ?bodies)))
     (map ?body ?bodies
@@ -9277,9 +9276,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :effects 
    ( (variable ?n-var (at (num-torques ?b ?axis) ?t)) ))
 
-; following lets us avoid declaring parts of rigid bodies as objects.
-; we define forces as acting on parts.
-; parts must be objects to be used in force drawing rules.
+;;; following lets us avoid declaring parts of rigid bodies as objects.
+;;; we define forces as acting on parts.
+;;; parts must be objects to be used in force drawing rules.
 (defoperator use-part-as-object (?part ?whole)
    :preconditions 
     ((in-wm (part-of ?part ?whole))
