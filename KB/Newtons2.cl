@@ -1408,14 +1408,14 @@
    (bottom-out (string "You can write the equation ~A = ~A." (?v1 algebra) (?v2 algebra)))
   ))
 
-; generic principle when given one quantity as a fraction of another
-; Totally generic (like equals), can be used for any quantities
-; Problem givens should specify
-;     (fraction-of ?quant1 ?fraction ?quant2) 
-; to mean quant1 = fraction*quant2
+;;; generic principle when given one quantity as a fraction of another
+;;; Totally generic (like equals), can be used for any quantities
+;;; Problem givens should specify
+;;;     (fraction-of ?quant1 ?fraction ?quant2) 
+;;; to mean quant1 = fraction*quant2
 
 (def-psmclass given-fraction (given-fraction ?q1 ?q2)
-  :complexity minor
+  :complexity major
   :english ("one quantity as given fraction of another")
   :eqnFormat ("val1 = fraction*val2"))
 
@@ -1438,9 +1438,9 @@
 		  )
    :effects ( (eqn (= ?v1 (* ?fraction ?v2)) (given-fraction ?q1 ?q2)) )
    :hint (
-	  (point (string "You can determine ~a as a ~a of ~a from the problem statement" ?q1 (?fracmult 'adj) ?q2)) ;declare as adjective in nlg.
+	  (point (string "You can determine ~A as a ~A of ~A from the problem statement" ?q1 (?fracmult adj) ?q2)) ;declare as adjective in nlg.
 	  (bottom-out (string "Write the equation ~A" 
-			      ((= ?v1 (* fraction ?v2)) algebra)))
+			      ((= ?v1 (* ?fraction ?v2)) algebra)))
 	  ))
 
 ;;
@@ -1656,8 +1656,9 @@
   ((variable ?s-var (at (speed ?b) ?t))
    (variable ?d-var (at (distance ?b) ?t))
    (variable ?t-var (duration ?t))
-   ; nsh now requires body and axes if you ask for help, so there's little point
-   ; making these 'optional' any more. At end so psm graph branches at end only.
+   ;; nsh now requires body and axes if you ask for help, so there's 
+   ;; little point making these 'optional' any more. 
+   ;; At end so psm graph branches at end only.
    (optional (body ?b ?t))
    (optional (axis-for ?b ?t x 0))
    )

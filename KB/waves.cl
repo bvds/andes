@@ -8,7 +8,7 @@
 
 (def-qexp wavelength (wavelength ?wave)
   :units |m|
-  :restrictions nonnegative 
+  :restrictions positive  ;needed for harmonics problems to work
   :english ("the wavelength of ~A" (nlg ?wave))
   :fromworkbench `(wavelength ,body))
 
@@ -21,7 +21,7 @@
 
 (def-qexp wavenumber (wavenumber ?wave)
   :units |rad/m|
-  :restrictions positive 
+  :restrictions nonnegative  
   :english ("the wavenumber of ~A" (nlg ?wave))
    :fromWorkbench `(wavenumber ,body))
 
@@ -33,7 +33,7 @@
 	  (string "Define a variable for the wave number of the ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave))))
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
-(def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?body)
+(def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("relation between wavelength and wavenumber")
   :ExpFormat ("Applying the equation relating wavenumber and wavelength")
@@ -104,7 +104,7 @@
 
 (defoperator define-period-var (?b)
   :preconditions ( 
-        (bind ?T-var (format-sym "T_~a" (body-name ?b)))
+        (bind ?T-var (format-sym "T_~A" (body-name ?b)))
   )
   :effects (
       (variable ?T-var (period ?b))
@@ -128,7 +128,7 @@
 	 (bottom-out (string "Define a variable for the angular-frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))))
 
 ;;equation of the frequency of the wave, frequency = angular-frequency/2*pi
-(def-psmclass frequency-of-wave (frequency-of-wave ?body)
+(def-psmclass frequency-of-wave (frequency-of-wave ?object)
   :complexity minor  
   :english ("the equation for the frequency of a wave")
   :ExpFormat ("Applying the equation for the frequency of a wave")
@@ -157,7 +157,7 @@
 	 ))
 
 ;;equation of the period of the wave, period = 1/frequency
-(def-psmclass period-of-wave (period-of-wave ?body)
+(def-psmclass period-of-wave (period-of-wave ?object)
   :complexity major 
   :english ("the equation for the period of a wave")
   :ExpFormat ("Applying the equation for the period of a wave")
@@ -191,7 +191,7 @@
 ;;;
 
 
-(def-psmclass harmonic-of (harmonic-of ?wave1 ?mult ?quant)
+(def-psmclass harmonic-of (harmonic-of ?wave1 ?wave0 ?form)
   :complexity minor
   :english ("harmonic of a standing wave")
   :eqnFormat ("fn = (n+1)*f0 or $ln = $l0/(n+1)"))
@@ -202,8 +202,8 @@
 		  (any-member ?sought (
 				       (wavelength ?wave1)
 				       (frequency ?wave1)
-				      (wavelength ?wave0)
-				      (frequency ?wave0)))
+				       (wavelength ?wave0)
+				       (frequency ?wave0)))
 		  (bind ?form (first ?sought)) ;form is wavelength or frequency
 		  )
   :effects ( (eqn-contains (harmonic-of ?wave1 ?wave0  ?form) ?sought)
@@ -215,17 +215,19 @@
 		  (harmonic-of ?wave1 ?mult ?wave0) ;get ?mult		  
 		  (variable ?v1 (?quant ?wave1))
 		  (variable ?v2 (?quant ?wave0))
-		  (bind ?factor (if (eq ?quant 'frequency) 
+		  ;; write factor as a rational number
+		  (bind ?fact (if (eq ?quant 'frequency) 
 				    (+ 1 ?mult) `(/ 1 ,(+ 1 ?mult))))
 		  )
-   :effects ( (eqn (= ?v1 (* ?factor ?v2)) (harmonic-of ?wave1 ?wave0 ?quant)))
-   :hint (
-	  (point (string "~a is the ~:R harmonic of ~a"  ;prints as ordinal
-			 ?wave1 ?mult ?wave0)) 
-	  (teach (string "You can determine ~a of ~a from the ~a of ~a" 
+  :effects ( (eqn (= ?v1 (* ?fact ?v2)) (harmonic-of ?wave1 ?wave0 ?quant)))
+  :hint (
+	 (point (string "~A is the ~:R harmonic of ~A" ;prints as ordinal
+			?wave1 (?mult nil) ;nil means skip nlg... 
+			?wave0)) 
+	 (teach (string "You can determine ~A of ~A from ~A of ~A" 
 			 ?quant ?wave1 ?quant ?wave0)) 
-	  (bottom-out (string "Write the equation ~A" 
-			      ((= ?v1 (* ?factor ?v2)) algebra)))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?v1 (* ?fact ?v2)) algebra)))
 	  ))
 
 
@@ -248,7 +250,7 @@
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
 ;;; Only for sinusoidal waves (where freq & wavelength are well-defined)
-(def-psmclass speed-of-wave (speed-of-wave ?body)
+(def-psmclass speed-of-wave (speed-of-wave ?object)
   :complexity major ; must use explicitly 
   :english ("the equation of the speed of a wave")
   :ExpFormat ("Applying the equation of the speed of a wave")
@@ -281,7 +283,7 @@
 	 ))
 
 ;; wave speeds of two things are identical
-(def-psmclass wave-speeds-equal (wave-speeds-equal ?body)
+(def-psmclass wave-speeds-equal (wave-speeds-equal . ?quants)
   :complexity minor ; used implicitly 
   :english ("The speed of any wave is the same")
   :ExpFormat ("using the fact that the waves have the same speed")
@@ -315,7 +317,7 @@
       ))
 
 ;; speed of object is wave speed
-(def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?body)
+(def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?object ?rope ?t)
   :complexity minor ; used implicitly 
   :english ("The speed of any wave is the same")
   :ExpFormat ("applying the speed of any wave is the same")
@@ -433,7 +435,7 @@
 	  (string "Define a variable for the tension of ~A by using the Add Variable command on the Variable menu and selecting tension."  ?rope))))
 
 ;;; speed of transverse waves on a string
-(def-psmclass wave-string-velocity (wave-string-velocity ?body)
+(def-psmclass wave-speed-string (wave-speed-string ?wave)
   :complexity major			; must explicitly use
   :english ("Transverse wave velocity of a string")
   :ExpFormat ("using formula for transverse wave speed on a string")
@@ -498,7 +500,7 @@
   :hint ((bottom-out 
 	  (string "Define a variable for the maximum speed of ~A by using the Add Variable command on the Variable menu and selecting maximum speed."  ?wave))))
 ;;; Yuck!  In the real world, one would derive this...
-(def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?body)
+(def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("Applying formula for maximum speed of an oscillation")
@@ -548,7 +550,7 @@
 	  (string "Define a variable for |maximum acceleration of ~A| by using the Add Variable command on the Variable menu and selecting |maximum acceleration|."  ?wave))))
 
 ;;; Yuck!  In the real world, one would derive this...
-(def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?body)
+(def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("Formula for |maximum acceleration| of an oscillation")
   :ExpFormat ("Applying formula for |maximum acceleration| of an oscillation")
@@ -585,7 +587,7 @@
 ;;;  This is kind of lousy:  only works for one spring acting
 ;;;  on a block and does not check any other forces that
 ;;;  might be acting on the block.
-(def-psmclass spring-mass-oscillation (spring-mass-oscillation ?body)
+(def-psmclass spring-mass-oscillation (spring-mass-oscillation ?block ?spring)
   :complexity major			; must explicitly use
   :english ("Formula for period of mass and spring")
   :ExpFormat ("using formula for period of mass and spring")
@@ -630,7 +632,7 @@
 ;;;  This is kind of lousy:  
 ;;;  Since it is not done as a true F=ma problem, it does not
 ;;;  properly check for other forces on the mass.
-(def-psmclass pendulum-oscillation (pendulum-oscillation ?body)
+(def-psmclass pendulum-oscillation (pendulum-oscillation ?block ?rod ?planet)
   :complexity major			; must explicitly use
   :english ("Formula for period of mass and spring")
   :ExpFormat ("using formula for period of mass and spring")
@@ -688,46 +690,48 @@
 ;;;  found in much of Andes
 ;;;
 
-(def-psmclass doppler-frequency (doppler-frequency ?body)
+(def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer ?t)
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift (frequency)")
   :ExpFormat ("using formula for doppler frequency shift (frequency)")
   :EqnFormat ("fo=fs*(1+vo/vw)/(1-vs/vw))")) 
 
 (defoperator doppler-frequency-contains (?sought)
-  :preconditions (
-		  (any-member ?sought ((frequency ?source)
-				       ;;  (at (frequency ?observer) ?t)
-				        (frequency ?observer)
-				       (wave-speed ?wave)
-				       ;; constant velocity (no time specified)
-				       (at (mag (velocity ?source)) ?t) ;wrong!
-				       (at (mag (velocity ?observer)) ?t)
-				       ;; (dir (velocity ?source)) 
-				       ;; (dir (velocity ?observer)) 
-				       ))
-		  (object ?source)
-		  (object ?observer)
-		  (test (not (equal ?source ?observer)))
-		  (sinusoidal ?source)
-		   ;; (sinusoidal ?observer)
-		  (time ?t)
-		  ;;  (not (light ?wave))	;light is a differenct formula
-		  ;; we neet to specify a time for this
-		  ;; It would be difficult to solve for this angle
-		  ;; (at (dir (relative-position 
-		  ;;	    ?source ?observer)) ?t)
-		  )
+  :preconditions 
+  (
+   (doppler-system ?source ?wave ?observer)
+   (any-member ?sought ((frequency ?source)
+			   ;;  (at (frequency ?observer) ?t)
+			   (wave-speed ?wave)
+			   (frequency ?observer)
+			   ;; constant velocity (no time specified)
+			   (at (mag (velocity ?source)) ?t) ;wrong!
+			   (at (mag (velocity ?observer)) ?t)
+			   ;; (dir (velocity ?source)) 
+			   ;; (dir (velocity ?observer)) 
+			   ))
+      (object ?source)
+      (object ?observer)
+      ;;(test (not (equal ?source ?observer)))
+      ;; (sinusoidal ?source)
+      ;; (sinusoidal ?observer)
+      (time ?t)
+      ;;  (not (light ?wave))	;light is a differenct formula
+      ;; we neet to specify a time for this
+      ;; It would be difficult to solve for this angle
+      ;; (at (dir (relative-position 
+      ;;	    ?source ?observer)) ?t)
+      )
   :effects (
-	    (eqn-contains (doppler-frequency ?source ?observer ?t
-						) ?sought)))
+	    (eqn-contains (doppler-frequency ?source ?wave ?observer ?t
+					     ) ?sought)))
 
-(defoperator doppler-frequency (?source ?observer ?t)
+(defoperator make-doppler-frequency (?source ?wave ?observer ?t)
   :preconditions (
-		 ;; (variable ?phi (at (dir (relative-position 
-		;;				?source ?observer)) ?t))
-		 ;; (variable  ?thetas (dir (velocity ?source)))
-		 ;; (variable  ?thetao(dir (velocity ?observer)))
+		  ;; (variable ?phi (at (dir (relative-position 
+		  ;;				?source ?observer)) ?t))
+		  ;; (variable  ?thetas (dir (velocity ?source)))
+		  ;; (variable  ?thetao(dir (velocity ?observer)))
 		  (variable ?vs (at (mag (velocity ?source)) ?t))
 		  (variable ?vo (at (mag (velocity ?observer)) ?t))
 		  (variable ?vw (wave-speed ?wave))		  
@@ -742,7 +746,7 @@
 		     (* ?fs (- ?vw 
 			       ?vo	;(* ?vo (cos (- ?phi ?thetao)))
 			       )))
-		  (doppler-frequency ?source ?observer ?t))
+		  (doppler-frequency ?source ?wave ?observer ?t))
 	    )
   :hint (
 	 (point (string "In your textbook, find a formula for doppler frequency shift."))
