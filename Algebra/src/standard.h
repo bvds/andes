@@ -8,12 +8,9 @@
 //			31 January 2001 - lht -- created
 //			19 February 2001 - lht -- modified for additional functionality
 //////////////////////////////////////////////////////////////////////////////
-#define WIN32_LEAN_AND_MEAN		// Exclude rare-used stuff from Windows headers
-#ifdef __CYGWIN__
-#else
-#ifdef _WINDOWS
+
+#if !defined(__CYGWIN__) && defined(_WINDOWS)
 #include <windows.h> // Windows Header Files:
-#endif
 #endif
 
 typedef unsigned char byte; // assumes 8 bit chars
@@ -35,19 +32,6 @@ typedef unsigned short word; // assumes 16 bit shorts
 		extern fstream lzLog;
 	#endif
 #endif // ndef IAmMain
-
-#define LZ_SAFE_DELETE(p) if (p) delete p; p = 0L
-
-#ifdef LZDBG
-#define Log(s) if (lzLog) lzLog << s;
-#define Logn(s) if (lzLog) lzLog << s << std::endl;
-#else // ifndef LZDBG
-#define Log(s)
-#define Logn(s)
-#endif // ndef LZDBG
-
-#define oLog(s)
-#define oLogn(s)
 
 //////////////////////////////////////////////////////////////////////////////
 // End of file standard.h
