@@ -178,6 +178,11 @@
 			     ((= ?omega (*2 $p ?freq))  algebra) ))
 	 ))
 
+;;; There are two versions for beat frequency: one for
+;;; the "timeless" intrinsic frequency and the other for
+;;; observed-frequency.  As much as possible, these should 
+;;; appear to the user as the same equation.
+
 ;;equation beat frequency for two waves
 (def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)
   :complexity major 
@@ -186,35 +191,62 @@
   :EqnFormat ("fbeat = (f1-f2)/2")) 
 
 (defoperator beat-frequency-contains (?sought)
-  :preconditions (
-		  (sinusoidal ?w1)  ;only valid for sine waves
-		  (sinusoidal ?w2)
-		  (beat-frequency ?wbeat ?w1 ?w2)
-		  (any-member ?sought ((at (observed-frequency ?wbeat ?me) ?t) 
-				       (at (observed-frequency ?w1 ?me) ?t)
-				       (at (observed-frequency ?w2 ?me) ?t)
-				       ))
-		  (time ?t)
-		  )
-  
-  :effects (
-	    (eqn-contains (beat-frequency ?wbeat ?w1 ?w2 ?me ?t) ?sought)))
+  :preconditions 
+  ( (sinusoidal ?w1)			;only valid for sine waves
+    (sinusoidal ?w2)
+    (beat-frequency ?wbeat ?w1 ?w2)
+    (any-member ?sought ((at (observed-frequency ?wbeat ?me) ?t) 
+			 (at (observed-frequency ?w1 ?me) ?t)
+			 (at (observed-frequency ?w2 ?me) ?t)
+			 ))
+    (time ?t) )
+  :effects 
+  ( (eqn-contains (beat-frequency ?wbeat ?w1 ?w2 ?me ?t) ?sought) ))
+
+(defoperator timeless-beat-frequency-contains (?sought)
+  :preconditions 
+  ( (sinusoidal ?w1)  ;only valid for sine waves
+    (sinusoidal ?w2)
+    (beat-frequency ?wbeat ?w1 ?w2)
+    (any-member ?sought ((frequency ?wbeat) 
+			 (frequency ?w1)
+			 (frequency ?w2))) )
+  :effects 
+  ( (eqn-contains (beat-frequency ?wbeat ?w1 ?w2 nil nil) ?sought) ))
 
 (defoperator write-beat-frequency (?wbeat ?w1 ?w2 ?me ?t)
-  :preconditions ((variable  ?f1 (at (observed-frequency ?w1 ?me) ?t))
-		  (variable  ?f2 (at (observed-frequency ?w2 ?me) ?t))
-		  (variable  ?fbeat (at (observed-frequency ?wbeat ?me) ?t)))
-  :effects (
-	    (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
-		  (beat-frequency ?wbeat ?w1 ?w2 ?me ?t))
-	    )
-  :hint (
-	 (point (string "You can use equation for the beat frequency"))
-	 (teach (string "The beat frequency for two waves is one half the difference in frequency."))
-	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?fbeat (* 0.5 (abs (- ?f1 ?f2))))  algebra) ))
-	 ))
+  :preconditions 
+  ( (variable  ?f1 (at (observed-frequency ?w1 ?me) ?t))
+    (variable  ?f2 (at (observed-frequency ?w2 ?me) ?t))
+    (variable  ?fbeat (at (observed-frequency ?wbeat ?me) ?t)) )
+  :effects 
+  ( (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
+	  (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)) )
+  :hint 
+  ( (point (string "You can use equation for the beat frequency"))
+    (teach (string "The beat frequency for two waves is one half the difference in frequency."))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?fbeat (* 0.5 (abs (- ?f1 ?f2))))  algebra) )) ))
 
+;; it would be nice to somehow combine this with the above rule...
+(defoperator write-timeless-beat-frequency (?wbeat ?w1 ?w2 ?me ?t)
+  :preconditions 
+  ( (test (and (equal ?me 'nil) (equal ?t 'nil)))
+    (variable  ?f1 (frequency ?w1))
+    (variable  ?f2 (frequency ?w2))
+    (variable  ?fbeat (frequency ?wbeat)) )
+  :effects 
+  ( (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
+	  (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)) )
+  :hint 
+  ( (point (string "You can use equation for the beat frequency"))
+    (teach (string "The beat frequency for two waves is one half the difference in frequency."))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?fbeat (* 0.5 (abs (- ?f1 ?f2))))  algebra) )) ))
+
+;;;
+;;;  Relate frequency and period of a wave
+;;;
 ;;equation of the period of the wave, period = 1/frequency
 (def-psmclass period-of-wave (period-of-wave ?object)
   :complexity major 
@@ -248,7 +280,6 @@
 ;;;  Hamonics of standing waves
 ;;;  The allows one to do things in terms of either frequency or wavelength
 ;;;
-
 
 (def-psmclass harmonic-of (harmonic-of ?wave1 ?wave0 ?form)
   :complexity minor
