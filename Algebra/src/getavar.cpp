@@ -116,10 +116,6 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
   }
   else {
     newpv = new physvar(newvar);
-    //    newpv->isnonneg = false;    new (6/5/01) constructor does this
-    //    newpv->isnonzero = false;
-    //    newpv->isparam = false;
-    //    newpv->isused = false;
     temp = getfromunits(unitstr);
     newpv->MKS = temp->MKS;
     newpv->prefUnit = unitstr;

@@ -175,10 +175,10 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	  (*eqn)[k] = (binopexp *)eqexpr;
 	}
     }
-  DBG( { cout << "At end of loop to eliminate equations, equations "
-	      << numsolved << " through " << eqn->size()-1 << " are" << endl;
-	 for (k=numsolved; k < eqn->size(); k++)
-	   cout << (*eqn)[k]->getInfix() << endl; } );
+  DBG(cout << "At end of loop to eliminate equations, equations "
+      << numsolved << " through " << eqn->size()-1 << " are" << endl;
+      for (k=numsolved; k < eqn->size(); k++)
+      cout << "          " << (*eqn)[k]->getInfix() << endl);
 
   //Finished discarding tautologies (and possible inconsistencies).
   // Now discard all used-up equations (which are replaced by 

@@ -3,20 +3,23 @@
 #include "standard.h"
 
 #ifdef WITHDBG
-#define EQNUM          0x04	/* print entry expr in eqnumsimp */
-#define FILEGET        0x08	/* getting the input file troubles in maple2 */
-#define SOLVKV         0x10	/* in solveknownvar */
-#define LEAKCHK        0x10	/* in ioprobwy */
-#define READLOGS       0x20	/* in ioprobwy */
-#define GETEQS         0x20 /* in getall, could be in geteqs if needed */
-#define INTFL          0x40 /*show eqs @ intermediate points in flatten */
-#define ENTFLP         0x80	/* announce entry to flatten */
+// Start with the high-level stuff and work our way down:
+#define NEWCKEQSOUT     0x1     /*check delete no-var eqs in newcheck */ 
+#define CHKEQS          0x2	/* check delete no-var eqs in newcheck */
+#define QSRT            0x4	/* in qsrtexpr */
+#define SETVAR          0x4	/* in setvardimens */
+#define SUBST           0x8	/* in substin and also subexpin    */
+#define MORE           0x10	/* in more detail */
+#define DOEQCHK        0x20 /* do checking of expr and vector<expr*> args*/
+#define EQNUM          0x40	/* print entry expr in eqnumsimp */
+#define FILEGET        0x80	/* getting the input file troubles in maple2 */
+#define SOLVKV        0x100	/* in solveknownvar */
+#define LEAKCHK       0x100	/* in ioprobwy */
+#define READLOGS      0x200	/* in ioprobwy */
+#define GETEQS        0x200 /* in getall, could be in geteqs if needed */
+#define INTFL         0x400 /*show eqs @ intermediate points in flatten */
+#define ENTFLP        0x800	/* announce entry to flatten */
 			/* if MORE,  show equation on entry/exit to flatten */
-#define NEWCKEQSOUT   0x100 /*check delete no-var eqs in newcheck */
-#define CHKEQS        0x200	/* check delete no-var eqs in newcheck */
-#define QSRT          0x400	/* in qsrtexpr */
-#define SETVAR        0x400	/* in setvardimens */
-#define SUBST         0x800	/* in substin and also subexpin    */
 #define FUFPLS       0x1000	/* in fixupforpls */
 #define INDY         0x1000	/* in indyset */
 #define INDYEMP      0x2000	/* in indysgg */
@@ -44,8 +47,6 @@
 #define LINONEV  0x20000000	/* in powonev and slvlinonev */
 #define POLY     0x40000000	/* in polysolve */
 #define RATEQ      0x800000	/* in rationalize NOTE same as SLVTRIG!*/ 
-#define MORE           0x01	/* in more detail */
-#define DOEQCHK        0x02 /* do checking of expr and vector<expr*> args*/
 
 
 #define DBGF(FLAG,A) {if ((dbglevel & FLAG) != 0) \

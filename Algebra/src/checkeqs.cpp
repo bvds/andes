@@ -163,7 +163,6 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 
 
   // Now try to extract factors of physvars from the equations.
-    //   Note: no check is done to make sure factors are not zero
     // should the following only occur if there are equations left? 
   DBG( { cout << "About to try to factor equations." << endl;
 	 for (k = 0; k < eqn->size(); k++) 

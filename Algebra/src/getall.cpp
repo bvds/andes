@@ -106,10 +106,6 @@ bool getavar(const string bufst)
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname) return(false);
   physvar * newpv = new physvar(newvar);
-  //  newpv->isnonneg = false;       new (6/5/01) constructor does this now
-  //  newpv->isnonzero = false;
-  //  newpv->isparam = false;
-  //  newpv->isused = false;
   canonvars->push_back(newpv);
   return(true);
 }

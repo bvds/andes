@@ -120,17 +120,12 @@ int dotrig(vector<binopexp *> * & eqn)
 
     }
 
-  DBG( { cout << "After calling solvetrig we have" << endl;
-
-  cout << eqn->size() << " equations left, namely" << endl;
-
-  for (k = 0; k < eqn->size(); k++) 
-
-    cout << (*eqn)[k]->getInfix() << endl; } );
-
-  DBG( cout << "After solvetrig gotsomething  = " << 
-
-       ((answer==2) ? "true" : "false") << endl; );
+  DBG(cout << "After calling solvetrig we have" << endl;
+      cout << eqn->size() << " equations left:" << endl;
+      for (k = 0; k < eqn->size(); k++) 
+      cout << "          " << (*eqn)[k]->getInfix() << endl);
+  DBG( cout << "gotsomething  = " << 
+       ((answer==2) ? "true" : "false") << endl);
 
   VEQCHK(eqn);
 
@@ -166,15 +161,10 @@ int dotrig(vector<binopexp *> * & eqn)
 
     }
 
-  DBG( { cout << "After undotrigvar returns " << answer
-
-	      << ", we have" << endl;
-
-	 cout << eqn->size() << " equations left, namely" << endl;
-
-  for (k = 0; k < eqn->size(); k++) 
-
-    cout << (*eqn)[k]->getInfix() << endl;  } );
+  DBG(cout << "After undotrigvar = " << answer << ", we have" << endl;
+      cout << eqn->size() << " equations left:" << endl;
+      for (k = 0; k < eqn->size(); k++) 
+      cout << "          " << (*eqn)[k]->getInfix() << endl);
 
   VEQCHK(eqn);
 
