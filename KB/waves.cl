@@ -713,7 +713,7 @@
   :preconditions 
   (
    (doppler-system ?source ?wave ?observer) ;so the ?wave is identified
-   (time ?t)
+   (time ?t) (test (time-pointp ?t))
    (time ?t-interval)
    (test (time-intervalp ?t-interval))
    (test (tinsidep-include-second-endpoint ?t ?t-interval))

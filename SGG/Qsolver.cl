@@ -232,34 +232,48 @@
       do (when (or (sets-not-equalp (qsolres-subeqns P) (qsolres-subeqns P2)) 
                    (sets-not-equalp (qsolres-subvars P) (qsolres-subvars P2)) 
                    (sets-not-equalp (qsolres-assumpts P) (qsolres-assumpts P2)))
-	   ;; If paths differ in eqns, vars, or assumptions, it may indicate 
-	   ;; coding error (perhaps only one path was intended) or it may be 
-	   ;; OK (most common case: where axes and body w/mass var are 
-	   ;; optional) give warning trying to explain what the differences 
-	   ;; are here. Note: third path or higher will
-	   ;; almost always differ from the merge of 1 and 2. Maybe we ought 
-	   ;; to warn only when new path element is not *subset* of existing 
-	   ;; path for paths beyond the 2nd to be merged (though we don't 
-	   ;; keep count)
-	   (format t "WARNING: two ways of generating ~A:~%" 
-		   (qsolres-id P))
-	   (when (sets-not-equalp (qsolres-subeqns P) (qsolres-subeqns P2))   
-	     (format t "  subequations: ~A~%" (qsolres-subeqns P))          
-	     (format t "          from: ~A~%" (qsolres-subeqns P2)))
-	   (if (set-difference (qsolres-subvars P) (qsolres-subvars P2))
-	     (format t "  variables only in first:  ~A~%" 
-		     (set-difference (qsolres-subvars P) (qsolres-subvars P2) 
-				     :test #'equalp)))
-	    (if (set-difference (qsolres-subvars P2) (qsolres-subvars P))
-	     (format t "  variables only in second:  ~A~%" 
-		     (set-difference (qsolres-subvars P2) (qsolres-subvars P) 
-				     :test #'equalp)))
-	   (when (sets-not-equalp (qsolres-assumpts P) (qsolres-assumpts P2))  
-	     (format t "  assumptions:  ~A~%" (qsolres-assumpts P))  
-	     (format t "         from:  ~A~%" (qsolres-assumpts p2))) )
-	 
+	   (let ((diff))
+	     ;; If paths differ in eqns, vars, or assumptions, it may indicate 
+	     ;; coding error (perhaps only one path was intended) or it may be 
+	     ;; OK (most common case: where axes and body w/mass var are 
+	     ;; optional) give warning trying to explain what the differences 
+	     ;; are here. Note: third path or higher will
+	     ;; almost always differ from the merge of 1 and 2. Maybe we ought 
+	     ;; to warn only when new path element is not *subset* of existing 
+	     ;; path for paths beyond the 2nd to be merged (though we don't 
+	     ;; keep count)
+	     (format t "WARNING: two ways of generating ~A:~%" 
+		     (qsolres-id P))
+	   
+	     (when (setq diff (set-difference (qsolres-subeqns P) 
+					      (qsolres-subeqns P2)
+					      :test #'equalp))
+	       (format t "  equations only in first:  ~A~%" diff))
+	     (when (setq diff (set-difference (qsolres-subeqns P2) 
+					      (qsolres-subeqns P)
+					      :test #'equalp))
+	       (format t "  equations only in second:  ~A~%" diff))
+	     
+	     (when (setq diff (set-difference (qsolres-subvars P) 
+					      (qsolres-subvars P2)
+					      :test #'equalp))
+	       (format t "  variables only in first:  ~A~%" diff))
+	     (when (setq diff (set-difference (qsolres-subvars P2) 
+					      (qsolres-subvars P)
+					      :test #'equalp))
+	       (format t "  variables only in second:  ~A~%" diff))
+	     
+	     (when (setq diff (set-difference (qsolres-assumpts P) 
+					      (qsolres-assumpts P2)
+					      :test #'equalp))
+	       (format t "  assumptions only in first:  ~A~%" diff))
+	     (when (setq diff (set-difference (qsolres-assumpts P2) 
+					      (qsolres-assumpts P)
+					      :test #'equalp))
+	       (format t "  assumptions only in second:  ~A~%" diff))))
+	     
 	 (setf (qsolres-path P2) 
-	   (merge-paths (qsolres-path P2) (qsolres-path P))) ;merge the 2 paths
+	   (merge-paths (qsolres-path P2) (qsolres-path P))) ;merge the paths
 	 (setf (qsolres-subeqns P2) 
 	   (union (qsolres-subeqns P) (qsolres-subeqns P2))) ;Subeqns
 	 (setf (qsolres-subvars P2) 
@@ -274,12 +288,12 @@
 
 (defun merge-duplicate-givens (Givens)
   "Given a list of equal givens merge those that can be merged."
-  (let ((R (car Givens)))		;The initial list of results.
+  (let ((R (car Givens)))	;The initial list of results.
     (dolist (G (cdr Givens))		;For each G in the rest of givens.
       ;; Ensure that they match in subeqns, subvars, assumpts:
-      ;;Signalling a cerror if they do not.
+      ;; Signalling a cerror if they do not.
       (if (sets-not-equalp (qsolres-subeqns R) (qsolres-subeqns G))
-	  (cerror "Continue and merge." 
+	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subeqns only in first: ~A~%    subeqns only in second: ~A~%" 
 		  (set-difference (qsolres-subeqns R) (qsolres-subeqns G) 
 				  :test #'equalp)
@@ -287,7 +301,7 @@
 				  :test #'equalp) ))
 
       (if (sets-not-equalp (qsolres-subvars R) (qsolres-subvars G))
-	  (cerror "Continue and merge." 
+	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subvars only in first: ~A~%    subvars only in second: ~A~%" 
 		  (set-difference (qsolres-subvars R) (qsolres-subvars G) 
 				  :test #'equalp)
@@ -295,13 +309,12 @@
 				  :test #'equalp) ))
       
       (if (sets-not-equalp (qsolres-assumpts R) (qsolres-assumpts G))
-	  (cerror "Continue and merge." 
+	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    assumpts only in first: ~A~%    assumpts only in second: ~A~%" 
 		  (set-difference (qsolres-assumpts R) (qsolres-assumpts G) 
 				  :test #'equalp)
 		  (set-difference (qsolres-assumpts G) (qsolres-assumpts R) 
 				  :test #'equalp) ))
-      
       ;; do merge
       (setf (qsolres-path R) 
 	(merge-paths (qsolres-path R) 
