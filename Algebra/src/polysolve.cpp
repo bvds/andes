@@ -324,12 +324,13 @@ double findroot(const vector<double> * poly,
   double delx;
   double x = 0.5 * (low + high);
   double xscale = fabs(low) + fabs(high);
-  do {
-    delx = - evalpoly(poly,x)/evalpoly(polyderiv,x);
-    if (x + delx < low) return (findroot(poly, polyderiv,low,x));
-    if (x + delx > high) return (findroot(poly, polyderiv,x,high));
-    x += delx;
-  } while (fabs(delx) > 10. * DBL_EPSILON * xscale);
+  while (fabs(high-low) > 10. * DBL_EPSILON * xscale)
+    {
+      delx = - evalpoly(poly,x)/evalpoly(polyderiv,x);
+      if (x + delx < low) return (findroot(poly, polyderiv,low,x));
+      if (x + delx > high) return (findroot(poly, polyderiv,x,high));
+      x += delx;
+    }
   return(x);
 }
 
