@@ -825,3 +825,130 @@
 				  (* ?fs (/ (+ ?vw (* ?vo ?coso)) 
 					    (+ ?vw (* ?vs (cos (- ?phi ?thetas))))))) algebra) ))
 	 ))
+
+;;;
+;;;   Decibels and intensity
+;;;   In principle, these quantities can be functions of time,
+;;;   but none of the problems so far require it.
+;;;
+(def-qexp intensity (intensity ?wave)
+  :units |W/m^2|
+  :restrictions positive  
+  :english ("the intensity of ~A" (nlg ?wave))
+  :fromworkbench `(intensity ,body))
+
+(defoperator define-intensity (?wave ?t)
+  :preconditions((bind ?lambda-var (format-sym "I_~A~A" (body-name ?wave) ?t)))
+  :effects ((variable ?lambda-var (at (intensity ?wave) ?t))
+	    (define-var (at (intensity ?wave) ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the intensity of ~A by using the Add Variable command on the Variable menu and selecting intensity."  ?wave))))
+
+(def-qexp db-intensity (db-intensity ?wave)
+  :units |dB|
+  :restrictions positive  
+  :english ("the db-intensity of ~A" (nlg ?wave))
+  :fromworkbench `(db-intensity ,body))
+
+(defoperator define-db-intensity (?wave ?t)
+  :preconditions((bind ?lambda-var (format-sym "I_~A~A" (body-name ?wave) ?t)))
+  :effects ((variable ?lambda-var (at (db-intensity ?wave) ?t))
+	    (define-var (at (db-intensity ?wave) ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the intensity of ~A in decibels by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
+
+;;;
+;;;  Reference intensity, predefined constant
+;;;
+(def-qexp db-intensity-zero (db-intensity-zero)
+  :units |W/m^2|
+  :english ("reference intensity for defining decibels"))
+
+(defoperator iref-contains()
+  :effects ( (eqn-contains (std-constant db-intensity-zero) (db-intensity-zero)) ))
+
+(defoperator write-value-of-iref ()
+  :preconditions 
+    ( (variable ?iref-var (db-intensity-zero)) )
+  :effects ( 
+    (eqn (= ?iref-var (dnum 1.0E-12 |W/m^2|)) (std-constant db-intensity-zero)) 
+   )
+  :hint
+  ((point (string "You can find the reference intensity Iref in your textbook."))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?iref-var (dnum 1.0E-12 |W/m^2|)) algebra) ))
+    ))
+
+(defoperator define-iref ()
+ :effects ( (variable |Iref| (db-intensity-zero)) ))
+
+;;;
+;;; Relate intensity to intensity in decibels
+;;; 
+(def-psmclass intensity-to-decibels (intensity-to-decibels ?wave)
+  :complexity major  ;must explicitly use
+  :english ("express intensity in decibels")
+  :ExpFormat ("Expressing the intensity in decibels")
+  :EqnFormat ("I(db) = 10*log10(I/Iref)")) 
+
+
+ (defoperator intensity-to-decibels-contains (?sought)
+   :preconditions (
+		   (any-member ?sought ((at (intensity ?wave) ?t)
+					(at (db-intensity ?wave) ?t))))
+   :effects (
+     (eqn-contains (intensity-to-decibels ?wave ?t) ?sought)))
+
+
+(defoperator write-intensity-to-decibels (?wave ?t)
+   :preconditions (
+       (variable  ?int  (at (intensity ?wave) ?t))
+       (variable  ?intdb  (at (db-intensity ?wave) ?t))
+   )
+   :effects (
+    (eqn  (= ?intdb (* 10 (log (/ ?int (db-intensity-zero)) 10)))
+                (intensity-to-decibels ?wave ?t))
+   )
+   :hint (
+      (point (string "You can express intensity in decibels"))
+      (bottom-out (string "Write the equation ~A" 
+			  ((= ?intdb (* 10 (log (/ ?int (db-intensity-zero)) 
+						10))) algebra) ))
+      ))
+
+;;; 
+;;; Relate intensity to total power output in a spherical geometry.  
+;;;
+(def-psmclass intensity-to-power (intensity-to-power ?wave)
+  :complexity major  ;must explicitly use
+  :english ("relate intensity to power in a spherical geometry")
+  :ExpFormat ("Relatinve the intensity to power (spherical geometry)")
+  :EqnFormat ("P = 4*$p*r^2")) 
+
+
+(defoperator intensity-to-power-contains (?sought)
+  :preconditions (
+		  (spherical-emitter ?source ?wave) ;need spherical symmetry
+		  (any-member ?sought ((at (intensity ?wave) ?t)
+				       (at (power ?source) ?t)
+				       (at (mag (displacement ?wave ?source)) ?t)))
+		  )
+  :effects (
+	    (eqn-contains (intensity-to-power ?wave ?source ?t) ?sought)))
+
+(defoperator write-intensity-to-power (?wave ?source ?t)
+  :preconditions (
+		  (variable  ?int  (at (intensity ?wave) ?t))
+		  (variable  ?power  (at (power ?source) ?t))
+		  (variable  ?r (at (mag (displacement ?wave ?source)) ?t))
+		  )
+  :effects (
+	    (eqn  (= ?power (* 4 $p ?r ?r ?int))
+		  (intensity-to-power ?wave ?source ?t))
+	    )
+  :hint (
+	 (point (string "If the power goes out in all directions, the intensity is the power divided by the area of the sphere."))
+	 (teach (string "Imagine a sphere centered at the ~A of radius ~A; all of the power goes out through that sphere." ?source ?r))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?power (* 4 $p ?r ?r ?int)) algebra) ))
+	 ))
