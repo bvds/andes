@@ -12,7 +12,7 @@
 
 #define DBG(A) DBGF(DIMCHK,A)
 
-void dimchkeqf(ostream & outstr)
+void dimchkeqf(iostream & outstr)
 {
   int k;
   expr * trouble = (expr *) NULL;

@@ -9,10 +9,11 @@
 #include "decl.h"
 #include "../src/extstruct.h"
 #include "../src/Solver.h"
+RETURN_CSTRING solverDoLog(const char* const src);
 #include "../src/indysgg.h"
 #include "../src/indyset.h"
 #include "../src/dbg.h"
-using namespace std;
+using namespace std; 
 
 #define LOGn(s) cout << s << endl
 extern vector<indyset> *listofsets;
@@ -45,9 +46,6 @@ int main(int argc, char* argv[]) {
 // or solverDoLog("t"); in c++
 //
 #include "../../Solver.log"
- 
-  LOGn("<only thing left is to closeupshop>");
   closeupshop();
-  LOGn("< closed up shop>");
   return 0;
 }
