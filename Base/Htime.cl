@@ -122,9 +122,7 @@
   "Convert the Htime to a raw number of Minutes."
   (+ (* 60 (Htime-Hour Htime))
      (Htime-Min Htime)
-     (if (Htime-Sec Htime)
-	 (/ (Htime-Sec Htime) 60))))
-
+     (/ (Htime-Sec Htime))))
 
 ;;; Subtract one time from the next.
 (defun sub-htimes (&rest htimes)

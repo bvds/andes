@@ -15,7 +15,9 @@
 ;;=================================================================
 ;; Parameters
 
-(defparameter *Default-ProblemFile-Path* (pathname "c:\\andes2\\Problems\\"))
+;; shouldn't need hard coded paths
+;(defparameter *Default-ProblemFile-Path* (pathname "c:\\andes2\\Problems\\"))
+
 (defparameter *Number-Of-Problems* 0 "The number of problems registered to the system.")
 (defparameter *Problem-Registry* (make-hash-table) "A list of all the currently known problem structs.")
 (defparameter **read-old-problemfile-header** nil "Read in oldstyle file headers. (sans forbidden and ignore).")

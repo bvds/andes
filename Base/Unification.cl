@@ -24,6 +24,11 @@
 
 (defconstant fail nil "Indicates pat-match failure")
 
+#+sbcl   ;sbcl doesn't like defconstant, see "sbcl idiosyncracies"
+(eval-when (:compile-toplevel)
+(defconstant no-bindings '((t . t))
+  "Indicates pat-match success, with no variables."))
+#-sbcl
 (defconstant no-bindings '((t . t))
   "Indicates pat-match success, with no variables.")
 
