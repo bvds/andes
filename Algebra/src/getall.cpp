@@ -73,7 +73,7 @@ bool getall(const string bufst)
     {makenz(bufst); return(true); }
   if (startwith(bufst,"(parameter"))
     {makepar(bufst,false); return(true); }
-  if (startwith(bufst,"(keepalgebraic"))
+  if (startwith(bufst,"(answer-var"))
     {makepar(bufst,true); return(true); }
   if (bufst.substr(0,1) == "<") return(true);
   if (bufst.substr(0,1) == " ") return(true);
@@ -223,9 +223,13 @@ bool setacc(const string bufst)
  ************************************************************************/
 bool makepar(const string bufst, bool keep_algebraic)
 {
-  int k;
+  int k,taglength;
   extern int numparams;
-  string newvar = bufst.substr(11,bufst.size() - 12);
+  if(keep_algebraic)
+    taglength=13;
+  else
+    taglength=12;
+  string newvar = bufst.substr(taglength-1,bufst.size() - taglength);
   DBG ( cout << "variable |" << newvar << "| set param?" << endl; );
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
@@ -233,16 +237,18 @@ bool makepar(const string bufst, bool keep_algebraic)
 	if(keep_algebraic)
 	  (*canonvars)[k]->keepalgebraic = true;
 	else
-	  (*canonvars)[k]->isparam = true;
-        
-	// in both cases, we assign dummy values to the variables.
-	numparams++;
-	binopexp *eq = new binopexp(&equals,new physvarptr(k),
-				     new numvalexp(pow(M_E,numparams)/M_PI));
-	paramasgn->push_back(eq);
-	DBG ( cout << "variable |" << newvar << "| set param, no. "
-	      << numparams << endl
-	      << "And equation for it " << eq->getInfix()<< endl; );
+	  {	
+	    (*canonvars)[k]->isparam = true;
+	    
+	    // The SGG defines and "keepalgebraic" to be also "isparam"
+	    numparams++;
+	    binopexp *eq = new binopexp(&equals,new physvarptr(k),
+					new numvalexp(pow(M_E,numparams)/M_PI));
+	    paramasgn->push_back(eq);
+	    DBG ( cout << "variable |" << newvar << "| set param, no. "
+		  << numparams << endl
+		  << "And equation for it " << eq->getInfix()<< endl; );
+	  }
 	return(true);
       }
   cerr << "didn't set variable |" << newvar << "| param, as nonexistent"
