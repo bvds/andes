@@ -70,7 +70,7 @@
                    then draw it at the given direction"
   :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
 		  (time ?t)
-		  (given (at (dir(relative-vel ?b1 ?b2)) ?t1) ?dir)
+		  (given (at (dir(relative-vel ?b1 ?b2)) ?t) ?dir)
 		  (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir))
 		  (bind ?mag-var (format-sym "V_~A_~A_~A" 
 					     (body-name ?b1) 
