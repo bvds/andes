@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SolutionGraph.cl
 ;; Collin Lynch
 ;; 04/19/2001
@@ -61,7 +61,7 @@
 ;; The system merges the system entries by comparing their props and then 
 ;; later updates them in the master index. It would be better to remove this 
 ;; excess step by building the links correctly the first time around.
-|#
+
 
 (in-package :user)
 

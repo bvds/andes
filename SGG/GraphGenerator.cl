@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; GraphGnerator.cl
 ;; Collin Lynch
 ;; 2/7/2000
@@ -12,75 +12,73 @@
 ;;
 ;; What is below is psudocode.
 
-##########################  DataStructures  #######################
-
-Quantity Node  -- Representation of a quantity such as 
-                  (at (accel Blk 1) 1)
-
-   Exp:   Lisp Expression representing this quantites' value.
-   Marks:  List of marks such as 'invalid_path' for help.
-
-   Equations: A list of equation nodes containing 
-	      this quantity.
-
-   (possible)
-   Tree:  A reversal and union of the paths for indexing 
-          by the help system.
-
-
-Equation Node  -- Represntation of inidividual equations.
-
-   ID:   Equation ID supplied by the solver.
-
-   Path: The solution path used to build the equation.
-
-   Quantities:  A list of quantity nodes in this eq.
-
-   Marks: Markers such as 'invalid_path' for the HelpSys.
-
-######################## Bubble Generation ########################
-
-1. Initialize the list of Soughts with the sought elements in the
-   problem struct.
-
-2. Initialize the set of Knowns with each quantifiable given in
-   the problem struct.
-
-3. While soughts != {}
-
-   4. Pop the top element of soughts into S.
-
-   6. Call the turkey solver on S with the problem givens.
-
-      The solver will return a a set of tuples of the form: 
-	(<EqID> <Qs> <Path> <Assumpt>)
-	Where:  EqID an equation ID for the result equation.
-                Qs a set of quantities refrenced by equation.
-	        Path a list of path nodes that defines the 
-                     interface steps necessary to produce EqID.
-		Assumpt is the set of assumptions made in Path.
-
-   7. For each tuple T 
-
-      8. If no corresponding equation node already exists.
-
-         9. Then for each quatity Q in T (excluding the sought)
-
-            10. If a preexisting quantity node Q' for Q does
- 		not exists.
-
-	       14. Generate a quantity node Q' for Q.
-
-	       15. Add Q' to the list of Soughts.
-
-
-	    15. Add Q' to the list of quantities in E.
-
-	    16. Add E to the list of equations in Q'.
-
-	    |#
-
-
+;;;##########################  DataStructures  #######################
+;;;
+;;;Quantity Node  -- Representation of a quantity such as 
+;;;                  (at (accel Blk 1) 1)
+;;;
+;;;   Exp:   Lisp Expression representing this quantites' value.
+;;;   Marks:  List of marks such as 'invalid_path' for help.
+;;;
+;;;   Equations: A list of equation nodes containing 
+;;;	      this quantity.
+;;;
+;;;   (possible)
+;;;   Tree:  A reversal and union of the paths for indexing 
+;;;          by the help system.
+;;;
+;;;
+;;;Equation Node  -- Represntation of inidividual equations.
+;;;
+;;;   ID:   Equation ID supplied by the solver.
+;;;
+;;;   Path: The solution path used to build the equation.
+;;;
+;;;   Quantities:  A list of quantity nodes in this eq.
+;;;
+;;;   Marks: Markers such as 'invalid_path' for the HelpSys.
+;;;
+;;;######################## Bubble Generation ########################
+;;;
+;;;1. Initialize the list of Soughts with the sought elements in the
+;;;   problem struct.
+;;;
+;;;2. Initialize the set of Knowns with each quantifiable given in
+;;;   the problem struct.
+;;;
+;;;3. While soughts != {}
+;;;
+;;;   4. Pop the top element of soughts into S.
+;;;
+;;;   6. Call the turkey solver on S with the problem givens.
+;;;
+;;;      The solver will return a a set of tuples of the form: 
+;;;	(<EqID> <Qs> <Path> <Assumpt>)
+;;;	Where:  EqID an equation ID for the result equation.
+;;;                Qs a set of quantities refrenced by equation.
+;;;	        Path a list of path nodes that defines the 
+;;;                     interface steps necessary to produce EqID.
+;;;		Assumpt is the set of assumptions made in Path.
+;;;
+;;;   7. For each tuple T 
+;;;
+;;;      8. If no corresponding equation node already exists.
+;;;
+;;;         9. Then for each quatity Q in T (excluding the sought)
+;;;
+;;;            10. If a preexisting quantity node Q' for Q does
+;;; 		not exists.
+;;;
+;;;	       14. Generate a quantity node Q' for Q.
+;;;
+;;;	       15. Add Q' to the list of Soughts.
+;;;
+;;;
+;;;	    15. Add Q' to the list of quantities in E.
+;;;
+;;;	    16. Add E to the list of equations in Q'.
+;;;
+;;;
 ;;========================================================================
 ;; Parameters.
 ;;
@@ -88,13 +86,7 @@ Equation Node  -- Represntation of inidividual equations.
 (defparameter *Debug-gg* t
   "Print runtime debugging output for the Graph Generation process.")
 
-;;(defparameter *Equation-Solver* #'solve-for 
-;;"Should be initialized to a function that will solve for a goal quantity gvien a value.")
-
-;;(defparameter *S-Print-Graph* ()
-;;"If t a long form of the Graph will be pretty-printed at the end of a call to solve-problem.")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; generate-bubblegraph
 ;;; Arguments:
 ;;;   Soughts : A list of kb-form sought quantities.
@@ -105,21 +97,22 @@ Equation Node  -- Represntation of inidividual equations.
 ;;; Returns:  A Bubblegraph comprising the solution(s).
 ;;;
 ;;;
-;;; Bubblegraph generation follows a basic recursive model that is supprisingly 
+;;; Bubblegraph generation follows a basic recursive model that is suprisingly 
 ;;; difficult to implement.  The search starts with a list of sought quantities
-;;; each of these will be transformed into nodes and then searched for recursively.
-;;; The recusrsive search will then identify the type of the sought and take the
-;;; appropriate action based upon it.
+;;; each of these will be transformed into nodes and then searched for 
+;;; recursively.  The recusrsive search will then identify the type of the 
+;;; sought and take the appropriate action based upon it.
 ;;;
 ;;; If the sought quantity is already a member of the graph then that node will
-;;; be marked as sought and the search will move on.  If the node is a parameter
-;;; then it will be marked as such and returned.  If it is A given then it will 
+;;; be marked as sought and the search will move on.  If the node is a 
+;;; parameter then it will be marked as such and returned.  
+;;; If it is A given then it will 
 ;;; be marked as such and its supporting given psm node will be added to the 
 ;;; graph and the resulting graph will be returned.
 ;;;
-;;; Lastly and most likely if the node is a complex sought I.E. Requiring a series
-;;; of psms to solve then that recursive solution process will occur and the 
-;;; resulting graph will be returned.  
+;;; Lastly and most likely if the node is a complex sought I.E. Requiring a 
+;;; series of psms to solve then that recursive solution process will occur 
+;;; and the resulting graph will be returned.  
 
 (defun generate-bubblegraph (Soughts Givens &key (IgnorePSMS nil))
   (let ((graph) (Q))
@@ -151,7 +144,7 @@ Equation Node  -- Represntation of inidividual equations.
 ;;; If the sought is already presnet in the graph then that qnode will
 ;;; be returned along with the unchanged graph.
 ;;;
-;;; If the sought is a parameter then that parametewr will be solved for 
+;;; If the sought is a parameter then that parameter will be solved for 
 ;;; and the resulting qnode will be returned as well as the supplied graph
 ;;; with that qnode added.
 ;;;
@@ -423,7 +416,7 @@ Equation Node  -- Represntation of inidividual equations.
 ;;      (setf (Qvar-Nodes Q) (list E)))
     E))
 
-;;;=============================================================================
+;;;============================================================================
 ;;; Debug code.
 
 (defun gg-debug-separator (sep count)
@@ -453,356 +446,4 @@ Equation Node  -- Represntation of inidividual equations.
 	 gg-solve-complex-psm
 	 gg-collect-psm-qnodes
 	 gg-collect-next-psm-qnode))
-
-
-
-#|
-
-  ;;;=========================================================================
-  ;;; Solution functions
-  ;;; The functions in this section are used to solve for the sought quants
-  ;;; and interface with the qsolver in that respect.  
-  
-  ;;; gg-solve-param-soughtq
-  ;;; Givena a sought quantity attempt to solve for it as a parameter.  
-  ;;; If it is a parameter solve for it and return the resulting graph after
-  ;;; adding the qnode to it.  If it is not a param then return nil.
-  (defun gg-solve-param-soughtq (Q Givens Graph)
-  "Solve for a parameter soughtq if possible."
-  (let ((P (find-if #'(lambda (G) (and (eq (car G) 'Parameter)
-  (equalp (cadr G) (qnode-exp Q))))
-  Givens)))
-  (when P 
-  (if (caddr P)
-  (add-named-param-qnode Q P Graph)
-  (add-unnamed-param-qnode Q P Graph)))))
-  
-  ;;; If the qnode is a named parameter then simply add the param info
-  ;;; to the qnode and add it to the graph.
-  (defun add-named-param-qnode (Q P Graph)
-  "If the qnode is named then update and add it."
-  (setf (Qnode-var Q) (caddr P))
-  (pushnew 'Parameter (Qnode-marks Q))
-  (add-qnode-to-bubblegraph Q))
-  
-  
-  ;;; If the Qnode is an unnamed parameter then the system will need
-  ;;; to solve for it using the solve-for-param-var code in the qsolver.
-  ;;; This information will then be added to the qnode and it will be 
-  ;;; added to the 
-  
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; get-unnamed-parameter-nodes
-  ;; Get the parameter qnodes for each unnamed parameter node in the givens.
-  ;;
-  ;; Arguments: Givens: A list of given s-expressions.
-  ;;
-  ;; Returns: A list of parameter Qnodes.
-
-  
-  
-  ;;=========================================================================
-  ;; Public Solve functions.
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Generate-bubblegraph
-  ;; Given a sought quantity and a set of given values Solve generates a bubblegraph
-  ;; solution for the sought quantity with givens.
-  ;;
-  ;; Arguments: Soughts: A list of S-expressions representing the sought quantities.
-  ;;            Givens:  A list of S-expressions reprenting the given problem values.
-  ;;
-  ;; Returns: The resulting bubblegraph solution for Soughts
-  
-  (defun Generate-Bubblegraph (Soughts Givens)
-  "Solve for the sought quantities given the specified values."
-  (let ((SoughtQ (Get-Qnodes Soughts '(Sought)))                  ;;Initialize the soughts list with sought nodes. 
-  (S) (Qnodes) (Enodes) (R) (wm))
-  
-  (when *Debug* 
-  (format t "######### Generating Graph for ~A~%" Soughts)
-  (format t "######### Given: ~A~%" Givens))
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Error checking 
-  (if (not SoughtQ) (error "No sought quantities specified."))    ;;Test for errors.
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Set initial values.
-  (multiple-value-setq (wm Qnodes Enodes)                         ;;Get the initial given qnodes and Enodes.  
-  (get-predefined-nodes Givens))  
-  (setq Qnodes (append SoughtQ Qnodes))                           ;;Set the Qnodes List.
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Main Loop.
-  (loop until (null SoughtQ)                                         ;; While Soughts != {}
-  do (setq S (pop SoughtQ))                                      ;; Pop the car of Soughts into S.
-  (when *Debug* (format t "~2%############### Solving for ~A #############~%" S))
-  (setq R (generate-constant-nodes S Givens))                 ;; Determine if the node is given.
-  (setq wm (union wm (cadr R) :test #'equalp))                ;; Set the wm if it is.
-  (setq R (car R))                                            ;; And set the constant to the car.
-  (cond (R (pushnew R Enodes)                                      ;; if so add it to the equation nodes.
-  (pushnew R (Qnode-Eqns S))                              ;; Add it to the sought Qnode.
-  (when *Debug*
-  (format t "########### ~A is constant ~A~%" S R)))
-  (t (setq R (generate-PSM-Nodes S Givens Qnodes Enodes)) ;; Then generate the PSM nodes for it.
-  (setq SoughtQ (append (nth 0 R) SoughtQ))            ;; Modify the nodes as necessary.
-  (setq Qnodes (nth 1 R))
-  (setq Enodes (nth 2 R))
-  (setq wm (union wm (nth 3 R) :test #'equalp)))))
-  
-  (when *Debug* 
-  (format t "########### Done Generating Graph:~%")
-  (format t "  ~A Qnodes~%" (length Qnodes))
-  (format t "  ~A Enodes~%" (length Enodes)))
-  (list (index-bubblegraph (list Qnodes Enodes)) wm)))                           ;; Return the graph.
-  
-  
-  
-  
-  
-  ;;-------------------------------------------------------------------------
-  ;; private solve functions
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; get-predefined-nodes
-  ;; Get the Enodes and Qnodes that are predefined by the givens
-  ;; this includes given node values and the parameters.
-  ;;
-  ;; Arguments: Givens: The given or predefined values.
-  ;;
-  ;; Returns: The resulting set of Qnodes and enodes in a list.
-  
-  (defun get-predefined-nodes (Givens)
-  "Get the given nodes and parameter nodes."
-  (let ((nodes) (wm) (R))                
-  (setq R (get-given-nodes Givens))                   ;; Get the given qnodes.
-  (setq nodes (car R))                                ;; Set the nodes list to them.
-  (setq wm (cadr R))                                  ;; Store the wm for use.
-  
-  (setq R (get-named-parameter-nodes Givens))         ;; Get the parameter nodes.
-  (setf (nth 0 nodes) (append (nth 0 nodes) (car R))) ;; add them to the qnodes. 
-  (setq wm (union wm (cadr R) :test #'equalp))        ;; Store the wm.
-  
-  (setq R (get-unnamed-parameter-nodes Givens))       ;; Get the unnamed params.
-  (setf (nth 0 nodes) (append (nth 0 nodes) (car R))) ;; add them to the qnodes. 
-  (setq wm (union wm (cadr R) :test #'equalp))        ;; Store them in the wm.
-  
-  (when *Debug*
-  (format t "####### Generated ~A predefined equations: ~% ~A~%"
-  (length (cadr nodes)) (cadr nodes))
-  (format t "####### Generated ~A predefined quantity nodes:~% ~A~%"
-  (length (car nodes)) (car nodes)))
-  
-  (values-list (cons wm nodes))))
-  
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; get-given-nodes
-  ;; The Bubblegraph begins life with the set of given quantities defined
-  ;; ofr it as well as their equations.  This function defines the nodes
-  ;; and returns them using values.
-  
-  (defun get-given-nodes (Givens)
-  "Get the Quantity and Equation nodes from Givens."
-  (let ((R) (wm) (nodes (list nil nil)))
-  (loop for Exp in Givens
-  when (equalp (car Exp) 'Given)
-  do (setq R (solve-for-given-eqn (cadr Exp) Givens))
-  
-  (pushnew (make-Qnode :exp (cadr Exp) 
-  :var (nth 1 (qsolres-nodes R))
-  :marks '(Given))
-  (nth 0 nodes))
-  
-  (pushnew (make-Enode :ID Exp 
-  :Algebra (Qsolres-ID R)
-  :path (Qsolres-Path R)
-  :marks '(Given)
-  :Qnodes (list (car (nth 0 nodes)))
-  :subeqns (qsolres-subeqns R)
-  :subvars (qsolres-subvars R)
-  :assumptions (qsolres-Assumpts R))
-  (nth 1 nodes))
-  (pushnew (car (nth 1 nodes)) (Qnode-Eqns (car (nth 0 nodes))))
-  (setq wm (union wm (qsolres-wm R) :test #'equalp)))
-  (list nodes wm)))
-			   
-
-
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; get-names-parameter-nodes
-  ;; Get qnodes for each prenamed parameter in the Givens.
-  ;;
-  ;; Arguments: Givens: A list of given s-expressions.
-  ;;
-  ;; Returns: A list of parameter Qnodes.
-  
-  (defun get-named-parameter-nodes (Givens)
-  "Get a list of parameter nodes for each given value."
-  (loop for N in Givens
-  when (and (equalp (car N) 'Parameter)
-  (caddr N))
-  
-  collect (make-qnode :exp (cadr N)
-  :var (caddr N)
-  :marks '(Parameter))))
-  
-  
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; get-unnamed-parameter-nodes
-  ;; Get the parameter qnodes for each unnamed parameter node in the givens.
-  ;;
-  ;; Arguments: Givens: A list of given s-expressions.
-  ;;
-  ;; Returns: A list of parameter Qnodes.
-  
-  (defun get-unnamed-parameter-nodes (Givens)
-  "Get a list of parameter nodes for each given value."
-  (let ((Wm) (nodes) (R))
-  (dolist (N Givens)
-  (when (and (equalp (car N) 'Parameter)
-  (not (caddr N)))
-  
-  (setq R (solve-for-param-var (cadr N) Givens))
-  (pushnew (make-qnode :exp (cadr N)
-  :var (qsolres-id R)
-  :path (qsolres-path R)
-  :marks '(Parameter))
-  Nodes)
-  (setq wm (union wm (qsolres-wm R) :test #'equalp))))
-  (list nodes wm)))
-  
-  
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; generate-constant-nodes
-  ;; Given a quantity attempts to solve for the specified quantity as a 
-  ;; constant equation using the PSM overhead.  If that fails it returns nil.
-  ;;
-  ;; Arguments: S: The quantity bring sought.
-  ;;            G: The givens.
-  ;;
-  ;; Returns: (<New Enodes>) 
-  ;;          or nil if this is not a constant.
-  
-  (defun generate-constant-nodes (Sought Givens)
-  "Attempt to generate Constant nodes for Sought node S given G."
-  (let ((R (solve-for-constant-Quantity (Qnode-Exp Sought) Givens)))
-  
-  (cond ((> (Length R) 1)
-  (error "Multiple Constant Results for ~A~%  ~A~%" Sought R))
-  
-  ((and (= (length R) 1)
-  (car R))
-  (list (make-enode :ID (qsolres-id (car R))                  ;;Generate a new equation node.
-  :Algebra (qsolres-algebra (car R))           
-  :Path (qsolres-path (car R))
-  :Qnodes (list Sought)
-  :subeqns (qsolres-subeqns (car R))
-  :subvars (qsolres-subvars (car R))
-  :assumptions (qsolres-assumpts (car R)))
-  (qsolres-wm (car R)))))))
-  
-  
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; generate-PSM-Nodes
-  ;; Givena a quantity attempt to generate PSM node solutions for it using
-  ;; solve-for-quantity, return the updates.
-  ;;
-  ;; Arguments: S: The quantity bring sought.
-  ;;            G: The givens.
-  ;;            Q: The preexisting Qnodes
-  ;;            E: The preexisting Enodes.
-  ;;
-  ;; Returns: (<New Soughts> <New Qnodes> <New Enodes>) 
-  ;;          or nil if this is not a constant.
-  
-  (defun generate-PSM-nodes (Sought Givens Qnodes Enodes)
-  "Given a sought generate new Qnodes and Enodes for it if possible."
-  (let ((SR) (QR Qnodes) (ER Enodes) (Qp) (E) (EP) (wm))
-  (loop for R in (solve-for-PSM-quantity (Qnode-Exp Sought) Givens)   ;;for each result R from solve-for
-  do (when (not (find-matching-enode (Qsolres-id R) ER))          ;;If no preexisting Equation matches it.
-  
-  (setq wm (union wm (qsolres-wm R) :test #'equalp))          ;; Store the wm.
-  
-  (setq E (make-enode :ID (qsolres-id R)                        ;;Generate a new equation node.
-  :Algebra (qsolres-algebra R)           
-  :Path (qsolres-path R)
-  :subeqns (qsolres-subeqns R)
-  :subvars (qsolres-subvars R)
-  :assumptions (qsolres-assumpts R)))
-  (pushnew E ER)                                            ;;Add E to the equation nodes.
-  (pushnew E EP)
-  
-  (loop for Q in (qsolres-nodes R)
-  do (setq Qp (find-matching-Qnode (cadr Q) QR)) ;;Set the local Qp value.
-  
-  (cond ((null Qp)                                ;;If no prexisting Qnode exists for Q
-  (setq Qp (make-qnode :exp (cadr Q)       ;;generate a new one
-  :var (car Q)))       
-  (pushnew Qp SR)                             ;;Add it to the list of soughts.
-  (pushnew Qp QR))                            ;;And add it to the list of Qnodes.
-  
-  (t (when (null (Qnode-var Qp))            ;;Otherwize check to see if Qp's var  
-  (setf (Qnode-var Qp) (car Q)))))     ;;has been set and if not do so.
-  
-  (pushnew Qp (Enode-Qnodes E))                ;;Add the Qnode (found or generated) to E's quantities.
-  (pushnew E (Qnode-Eqns Qp)))))               ;;Add E to Qp's equations.  This completes the loop.
-  
-  (when *debug*
-  (format t "###### Solved for ~A~%" Sought)      
-  (format t "###### Generated ~A equations:~% ~A~%" (length EP) EP)
-  ;;(format t "###### Generated ~A quantities:~% ~A~%" (length (nth 1 R)) (nth 1 R))
-  (format t "###### Adding ~A soughts:~% ~A~%" (length SR) SR))
-  
-  (list SR QR ER wm)))
-  
-  
-  
-  (defun find-matching-qnode (Exp Nodes)
-  "Find the Qnode that matches Exp in Nodes."
-  (find Exp Nodes
-  :key #'Qnode-Exp
-  :test #'equalp))
-  
-  
-  
-  (defun find-matching-Enode (EqID Nodes)
-  "Find the Enode whode ID matches EQID in Nodes."
-  (find EqID Nodes 
-  :key #'Enode-ID
-  :test #'equalp))
-  
-  
-  
-  (defun get-qnodes (Exps &optional (Marks nil))
-  "Generate and return a set of quantity nodes for each quantity in EXPS."
-  (loop for Exp in (remove-if-not #'exp-Quantity-p Exps)
-  collect (make-qnode :Exp Exp
-  :marks Marks)))
-  
-
-
-
-  ;;=====================================================================
-  ;; Debugging functions.
-  
-  (defun trace-GraphGenerator ()
-  (dolist (Func '(generate-bubblegraph
-  get-qnodes
-  find-matching-enode
-  find-matching-qnode
-  solve-problem
-  make-qnode
-  make-enode
-  print-problem-bubblegraph
-  get-given-nodes))
-  
-  (eval `(trace ,Func))))
-
-
-  |#
-
-
-
 

@@ -601,7 +601,7 @@
   "Mark the qnode as a Parameter."
   (mark-qnode Q **Parameter**))
    
-;;; (Qnode-Parameterp <Qnode>) Return t iff the qnode is marked as **Parameter**.
+;;; (Qnode-Parameterp <Qnode>) Return t iff the qnode is marked **Parameter**.
 (defun qnode-parameterp (Q)
   "Is the Qnode a parameter?"
   (qnode-has-mark? Q **Parameter**))

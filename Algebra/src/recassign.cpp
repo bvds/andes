@@ -78,27 +78,15 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		if (thiseq->etype != binop) throw(string(
 			 "solveknownvar returned a non-binop equation!"));
 		expr *troub = dimenchk(true,thiseq);
-		DBG( if (troub != (expr *) NULL) 
-		        cout << "Dimenchk before write-out had trouble with "
-		     << troub->getInfix() << endl;);
+		if (troub != (expr *) NULL) 
+		  DBG(cout << "Dimenchk before write-out had trouble with "
+		      << troub->getInfix() << endl);
 		(*eqn)[numsolved]=(binopexp *) thiseq;
 		DBG(cout << "About to push onto soleqs " 
 		    << (*eqn)[numsolved]->getInfix() << endl; );
 		// was	solfile << (*eqn)[numsolved]->solprint()  << endl;
 		soleqs->push_back((binopexp *)copyexpr((*eqn)[numsolved]));
 
-/*  this is not implemented now
- *	        physvar * thisvar = (physvar *)
- *		  ((binopexp *)(*eqn)[numsolved])->lhs;
- *	        for (q=0; q < vars->size(); q++)
- *		  if (thisvar == (*vars)[q])
- *		    { 
- *		      // not implemented yet	    thisvar->known = true;
- *		      break;
- *		    } 
- *	        if (q >= vars->size())
- *		  throw(string("solved for unfindable var in newcheck"));
- */
 		numsolved++;
 		DTL( { cout << "After solving the " << numsolved << 
 		    " equation, before substitutions, remaining equations are "
