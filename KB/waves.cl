@@ -317,7 +317,6 @@
        (list 'frequency ?wave0)))
    (bind ?q2 (if ?form  (list 'wavelength ?wave1 ?form) 
        (list 'frequency ?wave1)))
-   ;; BvdS:  ask Anders why I need this:
    (variable ?v1 ?q1)
    (variable ?v2 ?q2)
    (bind ?fact (if ?form `(/ 1 ,(+ 1 ?mult)) (+ 1 ?mult) )) )
@@ -430,6 +429,7 @@
 ;;;
 ;;; speed of light "c", see notes for "grav-constant"
 ;;;
+;; see Help/State.cl, function enter-predefs
 (def-qexp speed-of-light (speed-of-light)
   :units |m/s|
   :restrictions positive
@@ -957,6 +957,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 ;;;
 ;;;  Reference intensity, predefined constant
 ;;;
+;; see Help/State.cl, function enter-predefs
 (def-qexp db-intensity-zero (db-intensity-zero)
   :units |W/m^2|
   :restrictions positive

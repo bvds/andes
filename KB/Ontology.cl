@@ -160,11 +160,15 @@
   :units NIL ;; dimensionless
   :english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) (nlg ?body2))) 
+
+;; see Help/State.cl, function enter-predefs
 (def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
   :units |m/s^2|
   :restrictions positive
   :fromWorkbench `(gravitational-acceleration ,body)
   :english ("the gravitational acceleration due to ~A" (nlg ?planet nil)))
+
+;; see Help/State.cl, function enter-predefs
 (def-qexp grav-constant (grav-constant)
   :units |N.m^2/kg^2|
   :restrictions positive

@@ -79,9 +79,13 @@
        ))
 
 
-;;Define the pressure of a standard atmosphere.  The symbol for atmospheric pressure at 
-;;standard conditions is Pr0.  We should remember to label the points in our drawings
-;;for problems in the workbench starting with 1 vice 0.  The value of Pr0 is 1.013E5 Pa.  
+;; Define the pressure of a standard atmosphere.  
+;; The symbol for atmospheric pressure at standard conditions is Pr0.  
+;; We should remember to label the points in our drawings
+;;  for problems in the workbench starting with 1 vice 0.  
+;; The value of Pr0 is 1.013E5 Pa.  
+;; See Help/State.cl, function enter-predefs
+
 (def-qexp atmosphere (atmosphere)
    :units |Pa|
    :english ("the pressure of one standard atmosphere")

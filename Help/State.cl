@@ -286,6 +286,9 @@
   ;; Speed of light is "c"
   (symbols-enter "c" '(speed-of-light) NIL)
   
+  ;; Iref for defining decibels
+  (symbols-enter "Iref" '(db-intensity-zero) NIL)
+  
   ;; algebra system understands $P (upper-case only) as symbol for pi in
   ;; systemese equations.  We still need to predefine a student label for
   ;; pi in symbol table so student equations using it can get through
