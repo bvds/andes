@@ -193,38 +193,38 @@
 ;;
 
 (defmacro defoperator (Name Arguments 
-		       &key (Preconditions ()) (Effects ()) 
-			    (Hint ()) (Specifications ()) (Features ())
-			    (Load ()))
+		       &key Preconditions Effects 
+			    Hint Specifications Features
+			    Load)
   
   "Define a new operator with the specified values and add it to *operators*."
   
-  (let ((Op (eval `(make-operator                        ;;Produce the operator struct.
+  (let ((Op (eval `(make-operator	;Produce the operator struct.
 		    :Name ',Name 
 		    :Arguments ',Arguments 
 		    :Preconditions ',Preconditions 
 		    :Effects ',Effects
-		    :Hint ',(subst-nlgs-hints Hint)       ;; Substitute the NLG functions into the system.
+		    :Hint ',(subst-nlgs-hints Hint) ;Substitute the NLG functions into the system.
 		    :Specifications ',Specifications
 		    :CogLoad ',(if Load 
 				   Load
 				 1)))))
     
-    (if (not (list-of-atoms-p Features))                            ;;Ensure that the features list is valid.
-	(error "The specified Features list for ~A is invalid ~A."  ;;if not signal an error. 
+    (if (not (list-of-atoms-p Features)) ;Ensure that the features list is valid.
+	(error "The specified Features list for ~A is invalid ~A." ;if not signal an error. 
 	       Name Features) 
-      (setf (Operator-Features Op) Features))                       ;;otherwize set the features.
+      (setf (Operator-Features Op) Features)) ;otherwize set the features.
 	
                                                                  
-    (setf (Operator-Variables Op)                         ;;Set the variables list.
+    (setf (Operator-Variables Op)	;Set the variables list.
       (get-operator-variables Op))
 
-    (setf (Operator-hintVars Op)                         ;;Set the hintvars list.
+    (setf (Operator-hintVars Op)	;Set the hintvars list.
       (get-operator-hintvars Op))
 
-    (Register-operator Op)                                ;;Store the operator struct.
+    (Register-operator Op)		;Store the operator struct.
     
-    Op))                                                  ;;and return it.
+    Op))				;and return it.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

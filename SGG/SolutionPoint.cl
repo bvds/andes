@@ -78,6 +78,7 @@ The solver,
   "Send the list of elements to the solver checking for errors."
   (let ((R))
     (dolist (E Elts)
+      (format t "send-solution-elements ~A~%" E)
       (setq R (Solver-send-problem-statement E))
       (error-test R (list 'send-statement E)))))
 
