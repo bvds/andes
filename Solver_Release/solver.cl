@@ -1,6 +1,3 @@
-	     ;; Set the path by os type.
-#+MSWINDOWS (defparameter *Base-Andes-Module-Path* "C:/andes2/" "The base path for this system.")
-#+LINUX (defparameter *Base-Andes-Module-Path* "./" "The base path for this system.")
 
 #|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
   solver.cl - package to provide interface to c/c++ functions for andes equa-
@@ -169,26 +166,23 @@
 	  ))
 |#
 
-
-
-;; Set the path by os type.
-#+MSWINDOWS (defparameter *andes-path* "C:/Andes2/" "The base path for this system.")
-#+LINUX (defparameter *andes-path* "~/Andes2" "The base path for this system.")
+;;;;
+;;;;    Set the path of the solver by os type.
+;;;;
 
 #+MSWINDOWS (defparameter *DLL-NAME* "Solver.dll") ;name of library
 #+LINUX (defparameter *DLL-NAME* "libSolver.so")
 
-;;;; This is silly
-
-(defun solver-initialize (&optional (filename nil))
-  (let ((path (if filename filename (*andes-path* *DLL-NAME*))))
+(defun solver-initialize (&optional filename)
+  (let ((path (if filename filename 
+		(merge-pathnames *DLL-NAME* *Andes-Path*))))
     (unless (member *DLL-NAME* (ff:list-all-foreign-libraries)
                   :key #'file-namestring :test #'string-equal)
       (format T "~&Loading solver from ~A~%" path)
       (load path))))
  
 (defun solver-shutdown ()
-  (let ((path (merge-pathnames *andes-path* *DLL-NAME*)))
+  (let ((path (merge-pathnames *DLL-NAME* *Andes-Path*)))
     (when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
 		  :key #'file-namestring :test #'string-equal)
        (format T "~&UnLoading solver from ~A~%" path)

@@ -3,11 +3,13 @@
 ;;;;
 ;;;; Use this to compile:
 ;;;;  (asdf:operate 'asdf:load-op 'andes)
-;;;; We shouldn't have to do the following:
-;;;;  #+LINUX (defparameter *Root-Path* "/home/bvds/Andes2/")
-;;;;  :cd /home/bvds/Andes2/ 
-;;;;   ; needed for temp file andes241.tlz
-;;;;(solve-do-log "t") ; for solver logging on...
+;;;; or use command (rkb) if it is defined.
+;;;  To turn on solver logging:
+#|
+:cd /home/bvds/Andes2/ 
+(solve-do-log "t") 
+|#
+
 
 ;;;; The following was stolen from maxima.asd
 ;;;; See http://www.math.utexas.edu/pipermail/maxima/2003/005630.html
@@ -35,12 +37,16 @@
   :name "Andes"
   :description "Andes physics tutor system"
   :components (
+;;;    this should eventually be removed
+	       (:module "andes-Path"	:pathname ""
+			:components((:file "andes-path")))
 	       (:module "Base"
-;			:description "Common Utilities"
+;;;			:description "Common Utilities"
 			:components ((:file "Htime")
 				     (:file "Unification")
 				     (:file "Utility")))
 	       (:module "Solver_Release"
+			:depends-on ("andes-Path")
 			:components ((:file "solver")))
 	       (:module "HelpStructs"
 			:depends-on ("Base")
@@ -68,16 +74,17 @@
 				     (:file "Problem")    
 				     (:file "Solution")))	       
 	       (:module "KB"
-;			:description "Knowledge Base"
+;;;	    	:description "Knowledge Base"
 			;; These are not compiled
 			:default-component-class load-only-andes-source-file
 			:depends-on ("Knowledge" "Base" "SGG")
+			;; the order of these files is important
 			:components ((:file "reset-KB")
-				     (:file "Ontology" )        
-				     (:file "NewtonsNogoods")  
 				     (:file "Physics-Funcs")
+				     (:file "Ontology" )        
 				     (:file "circuit-ontology")  
 				     (:file "Newtons2")        
+				     (:file "NewtonsNogoods")  
 				     (:file "Problems")
 ;;;;
 ;;;; The remaining files are just needed for the help system???
@@ -94,7 +101,7 @@
 |#
 ))
 	       (:module "SGG"
-;			:description "Solution Graph Generator"
+;;;			:description "Solution Graph Generator"
 			:depends-on ("Base" "Knowledge")
 			:components ((:file "Qsolver")
 				     (:file "Exec" 
