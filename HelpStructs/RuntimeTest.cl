@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; RuntimeTest.cl
 ;;; Collin Lynch
 ;;; 8/11/2003
@@ -14,7 +14,7 @@
 ;;; The tests themselves will be loaded and executed at runtime.
 ;;; When stored they will be loaded by means of a custom reader 
 ;;; defined below.  
-|#
+
 
 ;;;; ========================================================================
 ;;;; Parameters.  
@@ -177,34 +177,7 @@
 	 (push Test *Runtime-Score-Testset*))
      (push Test *Runtime-Testset*)
      Test))
-
-#|(defmacro add-runtime-test (name &key PrintStr ValType (Func #'(lambda (X) X)) 
-				      InitFunc InitVal 
-				      (Weight 0) (CreditType ''Credit)
-				      (ActiveCond t) (Loadable t))
-  "Generate a runtime test and add it to the set."
-   (let ((Test (eval `(make-runtime-test 
-		      :Name ',name
-		      :PrintStr ,PrintStr
-		      :ValType ,ValType
-		      :Func ,Func
-		      :InitFunc ,InitFunc
-		      :InitVal ,InitVal
-		      :Weight ,Weight
-		      :CreditType ,CreditType
-		      :Activecond ,ActiveCond
-		      :Loadable ,Loadable))))
-    
-    ;; Test to ensure that an appropriate value type has been supplied.
-    (pprint 'foo)
-    (when (not (rt-val-p (apply #'make-instance ValType)))
-      (error "Improper runtime test val type \"~a\" supplied."))
-    
-    (push Test *Runtime-Testset*)
-    (if (not (= 0 (runtime-test-Weight Test)))
-	(push Test *Runtime-Score-Testset*))
-    Test))
-|#
+ 
 
 
 ;;; Clear the list of stored tests by setting the 
