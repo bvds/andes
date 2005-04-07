@@ -291,48 +291,49 @@
 ;;;  The allows one to do things in terms of either frequency or wavelength
 ;;;
 
-(def-psmclass harmonic-of (harmonic-of ?wave1 ?wave0 ?form)
+(def-psmclass harmonic-of (harmonic-of ?wave1 ?wave1 ?form)
   :complexity minor
   :english ("harmonic of a standing wave")
   :ExpFormat ("noticing that ~A is a harmonic of ~A"
-	      (nlg ?wave1) (?nlg wave0))
+	      (nlg ?wave1) (?nlg wave1))
   :eqnFormat ("fn = (n+1)*f0 or $ln = $l0/(n+1)"))
 
 (defoperator harmonic-of-contains (?sought)
   :preconditions 
-  ( (harmonic-of ?wave1 ?mult ?wave0)
+  ( (harmonic-of ?waven ?mult ?wave1)
     (any-member ?sought (
+			 (wavelength ?waven ?medium)
+			 (frequency ?waven)
 			 (wavelength ?wave1 ?medium)
-			 (frequency ?wave1)
-			 (wavelength ?wave0 ?medium)
-			 (frequency ?wave0)))
-    ;;?form is nil for frequency and ?medium for wavelength
+			 (frequency ?wave1)))
+    ;; ?form is nil for frequency and ?medium for wavelength
     (bind ?form (if (eq (first ?sought) 'wavelength) ?medium))
     )
-  :effects ( (eqn-contains (harmonic-of ?wave1 ?wave0 ?form) ?sought)
+  :effects ( (eqn-contains (harmonic-of ?waven ?wave1 ?form) ?sought)
 	     ))
 
-(defoperator write-harmonic-of (?wave1 ?wave0 ?form)
+(defoperator write-harmonic-of (?waven ?wave1 ?form)
   :preconditions 
-  ((harmonic-of ?wave1 ?mult ?wave0)	;get ?mult
-   (bind ?q1 (if ?form  (list 'wavelength ?wave0 ?form) 
-       (list 'frequency ?wave0)))
-   (bind ?q2 (if ?form  (list 'wavelength ?wave1 ?form) 
-       (list 'frequency ?wave1)))
+  ((harmonic-of ?waven ?mult ?wave1)	;get ?mult
+   (bind ?quant (if ?form 'wavelength 'frequency))
+   (bind ?q1 (if ?form  (list 'wavelength ?wave1 ?form) 
+	       (list 'frequency ?wave1)))
+   (bind ?qn (if ?form  (list 'wavelength ?waven ?form) 
+	       (list 'frequency ?waven)))
    (variable ?v1 ?q1)
-   (variable ?v2 ?q2)
+   (variable ?vn ?qn)
    (bind ?fact (if ?form `(/ 1 ,(+ 1 ?mult)) (+ 1 ?mult) )) )
-  :effects ( (eqn (= ?v1 (* ?fact ?v2)) 
-		  (harmonic-of ?wave1 ?wave0 ?form)))
+  :effects ( (eqn (= ?vn (* ?fact ?v1)) 
+		  (harmonic-of ?waven ?wave1 ?form)))
   :hint (
 	 (point (string "~A is the ~:R harmonic of ~A" ;prints as ordinal
-			?wave1 (?mult 'identity) ;so nlg just returns ?mult  
-			?wave0)) 
+			?waven (?mult 'identity) ;so nlg just returns ?mult  
+			?wave1)) 
 	 (teach (string "You can determine ~A of ~A from ~A of ~A" 
-			 ?quant ?wave1 ?quant ?wave0)) 
+			?quant ?waven ?quant ?wave1)) 
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v1 (* ?fact ?v2)) algebra)))
-	  ))
+			     ((= ?vn (* ?fact ?v1)) algebra)))
+	 ))
 
 
 ;;;
