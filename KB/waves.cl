@@ -850,8 +850,10 @@
 	  (doppler-frequency ?source ?wave ?observer ?t ?t-interval)) )
   :hint 
   ( (point (string "Use the formula for doppler frequency shift."))
-    (teach (string "Note that the source ~A is ~?" ?source ?stea ?observer))
-    (teach (string "Note that the observer ~A is ~?" ?observer ?otea ?source))
+    (teach (string "Note that the source ~A is ~?" 
+		   ?source (?stea 'identity) ?observer))
+    (teach (string "Note that the observer ~A is ~?" 
+			  ?observer (?otea 'identity) ?source))
     (bottom-out (string "Write the equation ~A" 
 			((=  ?fo (* ?fs (/  ?oterm ?sterm))) algebra) ))
     ))

@@ -315,11 +315,13 @@
  "return nearest integral direction degrees given vector components"
   (round (mod (rad-to-deg (atan yc xc)) 360)))
 
-; In following, a a "dir" is either a plain number representing xy angle in degrees
-; or one of the special atoms: unknown, zero, into, out-of, z-unknown.
-; a "dir-term" may be a dnum term in degrees.  Following is to convert dir-terms
-; to dirs for internal calculations and back again to return.
-; !!! this doesn't handle parameter terms (little used)
+;;; In following, a a "dir" is either a plain number representing xy angle 
+;;; in degrees or one of the special atoms: unknown, zero, into, out-of, 
+;;; z-unknown.
+;;; a "dir-term" may be a dnum term in degrees.  
+;;; Following is to convert dir-terms to dirs for internal calculations 
+;;; and back again to return.
+;; !!! this doesn't handle parameter terms (little used)
 (defun term-to-dir (dir-term) ; term may be dnum or 'into 'out-of 'zero
 "extract number of degrees from dnum, otherwise just return arg uncharged"
   (if (degree-specifierp dir-term) (second dir-term) 
