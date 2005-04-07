@@ -322,8 +322,8 @@
 	       (list 'frequency ?waven)))
    (variable ?v1 ?q1)
    (variable ?vn ?qn)
-   (bind ?fact (if ?form `(/ 1 ,?mult) ?mult )) )
-  :effects ( (eqn (= ?vn (* ?fact ?v1)) 
+   (bind ?rhs (if ?form `(/ ,?v1 ,?mult) `(* ,?v1 ,?mult) )) )
+  :effects ( (eqn (= ?vn ?rhs) 
 		  (harmonic-of ?waven ?wave1 ?form)))
   :hint (
 	 (point (string "~A is the ~:R harmonic of ~A" ;prints as ordinal
@@ -332,7 +332,7 @@
 	 (teach (string "You can determine ~A of ~A from ~A of ~A" 
 			?quant ?waven ?quant ?wave1)) 
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?vn (* ?fact ?v1)) algebra)))
+			     ((= ?vn ?rhs) algebra)))
 	 ))
 
 
@@ -755,14 +755,14 @@
   :effects ((equals (period ?block) (period ?rod))))
 
 ;;;
-;;;  Doppler shift in one dimension.
+;;;  Doppler shift in two dimensions.  (The two-dimensional nature
+;;;  should be transparent to the student since all the problems
+;;;  are one-dimensional.)
+;;;
 ;;;  This assumes all velocities are defined with respect to the wave medium
 ;;;  Since this involves the positions of various bodies, 
 ;;;  we find the shift at a particular time, which is an exception
-;;;  to the general strategy .
-;;;
-;;;  This also depends crucially on the two-dimensional notation
-;;;  found in much of Andes
+;;;  to the general strategy of frequency being timeless.
 ;;;
 
 (def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer 
@@ -770,11 +770,11 @@
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift")
   :ExpFormat ("using formula for doppler frequency")
-  :EqnFormat ("fo=fs*(vw±vo)/(vw∓vs))")) 
+  :EqnFormat ("fo=fs*(vw±vo)/(vw±vs))")) 
 
 ;;; velocities should be constant over a large enough
-;;; interval.  We could demand (constant ?quant ?t-interval) but
-;;; hopefully that construct will be replaced.
+;;; interval.  We should demand (constant ?quant ?t-interval) but
+;;; hopefully that construct will eventually be replaced.
 (defoperator doppler-frequency-contains (?sought)
   :preconditions 
   (
@@ -816,32 +816,45 @@
    ;; BvdS:  maybe want to specify that this is a given so
    ;; that students don't have to draw the vector
    ;; alternatively, figure out how to make r_ab = -r_ba work.
-   (variable ?phi (at (dir (relative-position 
-   			    ?source ?observer)) ?t))
-   ;;(given (at (dir (relative-position 
-   ;;			    ?source ?observer)) ?t) (dnum ?phi |deg|))
-
+   ;;
+   ;; (variable ?phi (at (dir (relative-position ?source ?observer)) ?t))
+   (given (at (dir (relative-position ?source ?observer)) ?t) ?phi)
+   ;; Doesn't work:
+   ;; (vector ?observer (at (relative-position ?source ?observer) ?t) ?phi)
+   
    ;; use vector statements so that zero velocity can be handled correctly.  
    ;; This might prevent relative-vel from being the sought.
-   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-interval) ?sdir))
-   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-interval) ?odir))
-   (bind ?sterm (if (eq ?sdir 'zero) ?vw 
-		  `(+ ,?vw (* ,?vs (cos (- ,?phi ,?sdir))))))
-   (bind ?oterm (if (eq ?odir 'zero) ?vw 
-		  `(+ ,?vw (* ,?vo (cos (- ,?phi ,?odir))))))
+   ;; This is in working memory, because the magnitudes were found above.
+   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-interval) 
+		  ?sdir))
+   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-interval) 
+		  ?odir))
+   (bind ?scos (cos (* (get-angle-between ?phi ?sdir) 
+		       (/ pi 180))))	;degrees to radians
+   (bind ?ocos (cos (* (get-angle-between ?phi ?odir) 
+		       (/ pi 180))))	;degrees to radian
+   (bind ?sterm (if (eq ?sdir 'zero) ?vw `(+ ,?vw (* ,?scos ,?vs))))
+   (bind ?oterm (if (eq ?odir 'zero) ?vw `(+ ,?vw (* ,?ocos ,?vo)))) 
    (body ?source) (body ?observer)	;draw source and observers  
    (axis-for ?source x ?dontcare)	;axes in direction of displacement
+   ;; motion descriptions for fancy hints:
+   (bind ?stea (if (eq ?sdir 'zero) "not moving~*"
+		 (if (< ?scos 0)  "moving towards the observer ~A" 
+		   "moving away from the observer ~A")))
+   (bind ?otea (if (eq ?sdir 'zero) "not moving~*"
+		 (if (> ?ocos 0) "moving towards the source ~A"
+		   "moving away from the source ~A")))
    )
-  :effects (
-	    (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
-		  (doppler-frequency ?source ?wave ?observer ?t ?t-interval))
-	    )
-  :hint (
-	 (point (string "Use the formula for doppler frequency shift."))
-	 (bottom-out (string "Write the equation ~A" 
-			     ((=  ?fo 
-				  (* ?fs (/  ?oterm ?sterm))) algebra) ))
-	 ))
+  :effects 
+  ( (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
+	  (doppler-frequency ?source ?wave ?observer ?t ?t-interval)) )
+  :hint 
+  ( (point (string "Use the formula for doppler frequency shift."))
+    (teach (string "Note that the source ~A is ~?" ?source ?stea ?observer))
+    (teach (string "Note that the observer ~A is ~?" ?observer ?otea ?source))
+    (bottom-out (string "Write the equation ~A" 
+			((=  ?fo (* ?fs (/  ?oterm ?sterm))) algebra) ))
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
