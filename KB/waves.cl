@@ -296,7 +296,7 @@
   :english ("harmonic of a standing wave")
   :ExpFormat ("noting that ~A is a harmonic of ~A"
 	      (nlg ?waven) (?nlg wave1))
-  :eqnFormat ("fn = (n+1)*f0 or $ln = $l0/(n+1)"))
+  :eqnFormat ("fn = n*f1 or $ln = $l1/n)"))
 
 (defoperator harmonic-of-contains (?sought)
   :preconditions 
@@ -322,7 +322,7 @@
 	       (list 'frequency ?waven)))
    (variable ?v1 ?q1)
    (variable ?vn ?qn)
-   (bind ?fact (if ?form `(/ 1 ,(+ 1 ?mult)) (+ 1 ?mult) )) )
+   (bind ?fact (if ?form `(/ 1 ,?mult) ?mult )) )
   :effects ( (eqn (= ?vn (* ?fact ?v1)) 
 		  (harmonic-of ?waven ?wave1 ?form)))
   :hint (
