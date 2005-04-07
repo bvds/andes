@@ -291,11 +291,11 @@
 ;;;  The allows one to do things in terms of either frequency or wavelength
 ;;;
 
-(def-psmclass harmonic-of (harmonic-of ?wave1 ?wave1 ?form)
+(def-psmclass harmonic-of (harmonic-of ?waven ?wave1 ?form)
   :complexity minor
   :english ("harmonic of a standing wave")
-  :ExpFormat ("noticing that ~A is a harmonic of ~A"
-	      (nlg ?wave1) (?nlg wave1))
+  :ExpFormat ("noting that ~A is a harmonic of ~A"
+	      (nlg ?waven) (?nlg wave1))
   :eqnFormat ("fn = (n+1)*f0 or $ln = $l0/(n+1)"))
 
 (defoperator harmonic-of-contains (?sought)
@@ -344,6 +344,7 @@
   :units |m/s|
   :restrictions nonnegative 
   :english ("the speed of waves in ~A" (nlg ?medium))
+
   :fromworkbench `(wave-speed ,body))
 
 (defoperator define-wave-speed (?medium)
@@ -360,8 +361,8 @@
 (def-psmclass speed-of-wave (speed-of-wave ?object ?medium)
   :complexity major ; must use explicitly 
   :english ("the equation of the speed of a wave")
-  :ExpFormat ("relating wavelength and frequency to the speed of wave ~A moving in ~A"
-	      (nlg ?object) (nlg ?medium))
+  :ExpFormat ("relating wavelength and frequency to the speed of wave ~A"
+	      (nlg ?object))
   :EqnFormat ("v = lambda*freq")) 
 
 (defoperator speed-of-wave-contains (?sought)
@@ -664,7 +665,7 @@
 (def-psmclass spring-mass-oscillation (spring-mass-oscillation ?block ?spring)
   :complexity major			; must explicitly use
   :english ("Formula for period of mass and spring")
-  :ExpFormat ("using formula for period of mass and spring")
+  :ExpFormat ("using formula for period of oscillations of a mass and spring")
   :EqnFormat ("T = 2 ?p sqrt(m/k)")) 
 
 (defoperator spring-mass-oscillation-contains (?sought)
@@ -709,7 +710,7 @@
 (def-psmclass pendulum-oscillation (pendulum-oscillation ?block ?rod ?planet)
   :complexity major			; must explicitly use
   :english ("Formula for period of mass and spring")
-  :ExpFormat ("using formula for period of mass and spring")
+  :ExpFormat ("using formula for period of a pendulum")
   :EqnFormat ("T = 2 ?p sqrt(l/g)")) 
 
 (defoperator pendulum-oscillation-contains (?sought)
