@@ -925,6 +925,9 @@
 (defun enode-givenp (E)
   (enode-has-mark? E **Given**))
 
+(defun enode-non-quantp (E)
+  (enode-has-mark? E 'non-quant))
+
 ;;;=============================================================================
 ;;; BubbleGraph Nodes
 ;;; Allthough Qnodes and enodes are employed at distinct times it is sometimes
@@ -1545,8 +1548,10 @@
   (dolist (Q (bubblegraph-qnodes Graph))
     (when (not (member Q UsedNodes))
       (push **Dead-Path** (Qnode-Marks Q))))
-
-  (dolist (E (bubblegraph-enodes Graph))
+  
+  ; AW: for hybrid quant/non-quant problems: don't mark pseudo-enodes generated for 
+  ; qualitative problem parts as dead-paths.
+  (dolist (E (remove-if #'enode-non-quantp (bubblegraph-enodes Graph)))
     (when (not (member E UsedNodes))
       (push **Dead-Path** (Enode-Marks E))))
   
