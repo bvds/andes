@@ -69,22 +69,31 @@
 		 (or (digit-char-p c) (char= c #\?)))
 	     (string var)))
 
+
 ;;; Most of our body names are common nouns like "car", "block", "man", 
 ;;; which require an article, so that is default in def-np, But some problems 
 ;;; use "block1", "charge2", etc. which are proper names that shouldn't have 
-;;; an article. In absence of a lexicon, we here use a simple heuristic to 
-;;; distinguish proper names by testing whether name ends in a number. 
+;;; an article. For items not in *proper-name-lexicon*, 
+;;; we use a simple heuristic to distinguish proper names by testing 
+;;; whether the name ends in a number. 
 ;;; We also treat single-character nouns as proper names, e.g. A, B, C, D for 
 ;;; points.
 ;;; This will give wrong answer for the very few common nouns we might use 
 ;;; such as "F-14" that end in a number, but that's preferable to being wrong 
 ;;; on all the block1's etc.
 
+;;;
+;;;  List of proper names
+;;;
+(defparameter *proper-name-lexicon*
+ '(|me| |4_loops| F_14))
+
 (defun proper-namep (x)
 "true if given symbol is probably a proper name"
   (and (symbolp x) 
        (or (equal (length (string x)) 1) ; single-character noun
-	   ; ends with digit:
+	   (member x *proper-name-lexicon*) ;list of proper names
+	   ;; ends with digit:
            (numberp (read-from-string (subseq (string x) 
 	                                      (1- (length (string x)))))))))
 
