@@ -115,10 +115,17 @@
 ;;; and the resulting graph will be returned.  
 
 (defun generate-bubblegraph (Soughts Givens &key (IgnorePSMS nil))
-  (let ((graph) (Q))
+  (let ((graph) (Q) (qualpart-graph))
     (dolist (S Soughts)
       (cond ((not (quantity-expression-p S))
-	     (format t "WARNING: Non quantity ~A listed as sought is being ignored." S))
+	     (format t "WARNING: Non quantity ~A being treated as qualitative part.~%" S)
+	     ; generate a bubblegraph as if this part were a non-quant problem. Such a graph
+	     ; contains one pseudo enode per sought goal,  distinguished by mark 'non-quant. 
+	     ; Then insert the (single) special enode for the current sought from that result graph into the 
+	     ; nodelist for the main graph. Note we must take make sure these special enodes are not pruned 
+	     ; from the graph later when dead-path equations are marked and removed
+             (setq qualpart-graph (generate-no-quant-problem-graph (list S) Givens))
+	     (setq Graph (add-nodes-to-bubblegraph Graph (first (second qualpart-graph)))))
 	    
 	    ((setq Q (match-exp->qnode S Graph))
 	     (push 'Sought (Qnode-Marks Q)))
