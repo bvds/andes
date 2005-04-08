@@ -832,25 +832,27 @@
 		       (/ pi 180))))	;degrees to radians
    (bind ?ocos (cos (* (get-angle-between ?phi ?odir) 
 		       (/ pi 180))))	;degrees to radians
-   ;; If we had a real smp doing algebraic simplifications, this nonsense
-   ;; would not be needed:
-   (bind ?sterm (case ?scos (0.0 ?vw)
-		      (1.0 `(+ ,?vw ,?vs))
-		      (-1.0 `(- ,?vw ,?vs))
-		      (otherwise `(+ ,?vw (* ,?scos ,?vs)))))
-   (bind ?oterm (case ?ocos (0.0 ?vw)
-		      (1.0 `(+ ,?vw ,?vo))
-		      (-1.0 `(- ,?vw ,?vo))
-		      (otherwise `(+ ,?vw (* ,?ocos ,?vo)))))
+   ;; If we had a real smp doing the algebraic simplifications, 
+   ;; this nonsense would not be needed:
+   (bind ?sterm (cond 
+		 ((eql ?sdir 'zero) ?vw)
+		 ((equal ?scos 1.0) `(+ ,?vw ,?vs))
+		 ((equal ?scos -1.0) `(- ,?vw ,?vs))
+		 (t `(+ ,?vw (* ,?scos ,?vs)))))
+   (bind ?oterm (cond 
+		 ((eql ?odir 'zero) ?vw)
+		 ((equal ?ocos 1.0) `(+ ,?vw ,?vo))
+		 ((equal ?ocos -1.0) `(- ,?vw ,?vo))
+		 (t `(+ ,?vw (* ,?ocos ,?vo)))))
    (optional (body ?source))		;allow draw source and observers  
    (optional (body ?observer))		
    (axis-for ?source x ?dontcare) ;must draw axes 
    ;; motion descriptions for fancy hints:
-   (bind ?stea (if (eql ?scos 0.0) "not moving~*"
-		 (if (< ?scos 0.0)  "moving towards ~A" 
+   (bind ?stea (if (eql ?sdir 'zero) "not moving~*"
+		 (if (< ?scos 0)  "moving towards ~A" 
 		   "moving away from ~A")))
-   (bind ?otea (if (eql ?ocos 0.0) "not moving~*"
-		 (if (> ?ocos 0.0) "moving towards ~A"
+   (bind ?otea (if (eql ?odir 'zero) "not moving~*"
+		 (if (> ?ocos 0) "moving towards ~A"
 		   "moving away from ~A")))
    )
   :effects 
