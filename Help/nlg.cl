@@ -86,10 +86,10 @@
 ;;;  List of proper names
 ;;;
 (defparameter *proper-name-lexicon*
- '(|me| |4_loops| F_14))
+ '(me 4_loops F_14))
 
 (defun proper-namep (x)
-"true if given symbol is probably a proper name"
+  "true if given symbol is probably a proper name"
   (and (symbolp x) 
        (or (equal (length (string x)) 1) ; single-character noun
 	   (member x *proper-name-lexicon*) ;list of proper names
@@ -99,11 +99,14 @@
 
 ;;; Our circuit elements are named R1, C1, etc. For these we want to suppress 
 ;;; the default lower-casing of names done by def-np.  Similarly for 
-;;; single-character names A, B, C.  For now, we just apply this to any 
-;;; "proper names" of 1 or 2 characters.
+;;; single-character names A, B, C.  
 (defun upper-case-namep (x)
-"true if name symbol is probably best left all upper case"
-   (and (proper-namep x) (<= (length (string x)) 2)))
+  "true if name symbol is probably best left all upper case"
+  (or (equal (length (string x)) 1)
+      (and (numberp (read-from-string (subseq (string x) 
+					      (1- (length (string x))))))
+	   (<= (length (string x)) 2))
+      ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
