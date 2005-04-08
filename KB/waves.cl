@@ -846,7 +846,7 @@
 		 (t `(+ ,?vw (* ,?ocos ,?vo)))))
    (optional (body ?source))		;allow draw source and observers  
    (optional (body ?observer))		
-   (axis-for ?source x ?dontcare) ;must draw axes 
+   (optional (axis-for ?source x 0)) ;allow draw axes 
    ;; motion descriptions for fancy hints:
    (bind ?stea (if (eql ?sdir 'zero) "not moving~*"
 		 (if (< ?scos 0)  "moving towards ~A" 
@@ -1076,11 +1076,14 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 	    (eqn-contains (intensity-to-power ?wave ?source ?t) ?sought)))
 
 (defoperator write-intensity-to-power (?wave ?source ?t)
-  :preconditions (
-		  (variable  ?int  (at (intensity ?wave ?source) ?t))
-		  (variable  ?power  (at (net-power-out ?source) ?t))
-		  (variable  ?r (at (mag (relative-position ?wave ?source)) ?t))
-		  )
+  :preconditions 
+  ( (variable  ?int  (at (intensity ?wave ?source) ?t))
+    (variable  ?power  (at (net-power-out ?source) ?t))
+    (variable  ?r (at (mag (relative-position ?wave ?source)) ?t))
+    (optional (body ?source)) ;allow draw bodies
+    (optional (body ?wave))
+    (optional (axes-for ?source x 0)) ;allow draw axes
+    )
   :effects 
   ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))
 		  (intensity-to-power ?wave ?source ?t)) )
