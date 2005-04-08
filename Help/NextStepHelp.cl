@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; NextStepHelp.cl
 ;; Collin Lynch (Cl) <CollinL@pitt.edu>
 ;; Kurt VanLehn (Kvl) <VnaLehn@cs.pitt.edu>
@@ -15,7 +15,6 @@
 ;;      nsh-collect-principle-bodyents and added note to the effect on 
 ;;      todo list.
 ;;
-|#
 
 ;;; This file provides next-step-help for the andes2 system.  It 
 ;;; was based initially on psudocode wroitten by Kurt VanLehn and 
@@ -344,7 +343,7 @@
 ;;; and will be dependent upon the <FuncName> in question.
 
 
-#|;;;=====================================================================
+;;;=====================================================================
 ;;; NSH changes.  12/13/2001
 ;;; In order to upodate NSH several changes are being made to the system:
 ;;;
@@ -377,10 +376,12 @@
 ;;;    three variables, time, state change, and Bottoming out.
 ;;;   
 
-There are four variable metrics that we can use to deal with the nsh sorting.  These are polled everytime that NSH is called.
+;;; There are four variable metrics that we can use to deal with the nsh 
+;;; sorting.  These are polled everytime that NSH is called.
 
-CorrectEntry:  Did the students make the desired entry the between the last time that they called NSH and now?
-State Change:  Did the students change the state in any way (made entry/deleted entry) 
+;;; CorrectEntry:  Did the students make the desired entry the between the 
+;;; last time that they called NSH and now?  State Change:  Did the students 
+;;; change the state in any way (made entry/deleted entry) 
 
 
 
@@ -421,7 +422,6 @@ State Change:  Did the students change the state in any way (made entry/deleted 
 ;;; On Walk(<Location>):
 ;;;    Hint location
 ;;;       
-|#
 
 
 ;;;; ==========================================================================
@@ -486,9 +486,6 @@ State Change:  Did the students change the state in any way (made entry/deleted 
 
 ;; Removable 
 (defparameter *nsh-nodes* () "The nodes that can be hinted.")
-
-
-
 
 
 
@@ -593,6 +590,7 @@ State Change:  Did the students change the state in any way (made entry/deleted 
 ;;; nodes with entries, principles and quantities such as
 ;;; parameters.  These latter will fall in with the minor
 ;;; principles at the end of the solution hinting.
+
 (defun nsh-reset-quant ()
   "Setup the appropriate settings for the quant problem."
   (setq *nsh-problem-type* 'quant)

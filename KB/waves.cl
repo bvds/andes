@@ -294,8 +294,8 @@
 (def-psmclass harmonic-of (harmonic-of ?waven ?wave1 ?form)
   :complexity minor
   :english ("harmonic of a standing wave")
-  :ExpFormat ("noting that ~A is a harmonic of ~A"
-	      (nlg ?waven) (?nlg wave1))
+  :ExpFormat ("using the fact that ~A is a harmonic of ~A"
+	      (nlg ?waven) (nlg ?wave1))
   :eqnFormat ("fn = n*f1 or $ln = $l1/n)"))
 
 (defoperator harmonic-of-contains (?sought)
@@ -315,7 +315,7 @@
 (defoperator write-harmonic-of (?waven ?wave1 ?form)
   :preconditions 
   ((harmonic-of ?waven ?mult ?wave1)	;get ?mult
-   (bind ?quant (if ?form 'wavelength 'frequency))
+   (bind ?quantw (if ?form 'wavelength 'frequency))
    (bind ?q1 (if ?form  (list 'wavelength ?wave1 ?form) 
 	       (list 'frequency ?wave1)))
    (bind ?qn (if ?form  (list 'wavelength ?waven ?form) 
@@ -327,10 +327,10 @@
 		  (harmonic-of ?waven ?wave1 ?form)))
   :hint (
 	 (point (string "~A is the ~:R harmonic of ~A" ;prints as ordinal
-			?waven (?mult 'identity) ;so nlg just returns ?mult  
+			?waven (?mult identity) ;so nlg just returns ?mult  
 			?wave1)) 
 	 (teach (string "You can determine ~A of ~A from ~A of ~A" 
-			?quant ?waven ?quant ?wave1)) 
+			?quantw ?waven ?quantw ?wave1)) 
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?vn ?rhs) algebra)))
 	 ))
@@ -841,20 +841,19 @@
    (bind ?stea (if (eq ?sdir 'zero) "not moving~*"
 		 (if (< ?scos 0)  "moving towards ~A" 
 		   "moving away from ~A")))
-   (bind ?otea (if (eq ?sdir 'zero) "not moving~*"
+   (bind ?otea (if (eq ?odir 'zero) "not moving~*"
 		 (if (> ?ocos 0) "moving towards ~A"
 		   "moving away from ~A")))
-  ;; (bind ?junk (format t "Note that ~A is ~?" $stea))
    )
   :effects 
   ( (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
 	  (doppler-frequency ?source ?wave ?observer ?t ?t-interval)) )
   :hint 
   ( (point (string "Use the formula for doppler frequency shift."))
-    (teach (string "Note that ~A is ~?" 
-		   ?source (?stea 'identity) ?observer)) ;no nlg for ?stea
-    (teach (string "Note that ~A is ~?" 
-		   ?observer (?otea 'identity) ?source)) ;no nlg for ?otea
+    (teach (string "Note that ~A is ~@?" 
+		   ?source (?stea identity) ?observer)) ;no nlg for ?stea
+    (teach (string "Note that ~A is ~@?" 
+		   ?observer (?otea identity) ?source)) ;no nlg for ?otea
     (bottom-out (string "Write the equation ~A" 
 			((=  ?fo (/  (* ?fs ?oterm) ?sterm)) algebra) ))
     ))
