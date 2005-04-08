@@ -323,7 +323,16 @@
   :English ("a pair of axes on ~a rotated to ~a" 
 	    ?body  (nlg ?x-direction)))
   
-  
+; TEMPORARY: enables loading .prb files with old form axes prop
+; can be removed when all .prbs are regenerated axes prop
+(def-entryprop draw-axes-old (draw-axes ?body ?time ?x-direction)
+  ;; until workbench associates bodies and times w/axes, just
+  ;; leave them out of the entry proposition for axes
+  :helpform (draw-axes ?x-direction)
+  :Doc "The Axes drawing tool."
+  :English ("a pair of axes on ~a rotated to ~a" 
+	    ?body  (nlg ?x-direction)))  
+
 ; no longer used - AW
 ;(def-entryprop radius (radius ?body ?time))
 
