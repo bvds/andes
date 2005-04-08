@@ -780,8 +780,7 @@
   (
    (doppler-system ?source ?wave ?observer) ;so the ?wave is identified
    (time ?t) (test (time-pointp ?t))
-   (time ?t-interval)
-   (test (time-intervalp ?t-interval))
+   (time ?t-interval) (test (time-intervalp ?t-interval))
    (test (tinsidep-include-second-endpoint ?t ?t-interval))
    (any-member ?sought ((frequency ?source)
 			(wave-speed ?wave)
@@ -832,30 +831,32 @@
    (bind ?scos (cos (* (get-angle-between ?phi ?sdir) 
 		       (/ pi 180))))	;degrees to radians
    (bind ?ocos (cos (* (get-angle-between ?phi ?odir) 
-		       (/ pi 180))))	;degrees to radian
+		       (/ pi 180))))	;degrees to radians
    (bind ?sterm (if (eq ?sdir 'zero) ?vw `(+ ,?vw (* ,?scos ,?vs))))
    (bind ?oterm (if (eq ?odir 'zero) ?vw `(+ ,?vw (* ,?ocos ,?vo)))) 
-   (body ?source) (body ?observer)	;draw source and observers  
-   (axis-for ?source x ?dontcare)	;axes in direction of displacement
+   (optional (body ?source))		;allow draw source and observers  
+   (optional (body ?observer))		
+   (axis-for ?source x ?dontcare) ;must draw axes 
    ;; motion descriptions for fancy hints:
    (bind ?stea (if (eq ?sdir 'zero) "not moving~*"
-		 (if (< ?scos 0)  "moving towards the observer ~A" 
-		   "moving away from the observer ~A")))
+		 (if (< ?scos 0)  "moving towards ~A" 
+		   "moving away from ~A")))
    (bind ?otea (if (eq ?sdir 'zero) "not moving~*"
-		 (if (> ?ocos 0) "moving towards the source ~A"
-		   "moving away from the source ~A")))
+		 (if (> ?ocos 0) "moving towards ~A"
+		   "moving away from ~A")))
+  ;; (bind ?junk (format t "Note that ~A is ~?" $stea))
    )
   :effects 
   ( (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
 	  (doppler-frequency ?source ?wave ?observer ?t ?t-interval)) )
   :hint 
   ( (point (string "Use the formula for doppler frequency shift."))
-    (teach (string "Note that the source ~A is ~?" 
-		   ?source (?stea 'identity) ?observer))
-    (teach (string "Note that the observer ~A is ~?" 
-			  ?observer (?otea 'identity) ?source))
+    (teach (string "Note that ~A is ~?" 
+		   ?source (?stea 'identity) ?observer)) ;no nlg for ?stea
+    (teach (string "Note that ~A is ~?" 
+		   ?observer (?otea 'identity) ?source)) ;no nlg for ?otea
     (bottom-out (string "Write the equation ~A" 
-			((=  ?fo (* ?fs (/  ?oterm ?sterm))) algebra) ))
+			((=  ?fo (/  (* ?fs ?oterm) ?sterm)) algebra) ))
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1077,7 +1078,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
   :hint 
   ( (point (string "If the power goes out in all directions, the intensity ~A is the power divided by the surface area of the sphere." 
 		   (?wave pp)))
-    (teach (string "Imagine a sphere centered at ~A and extending to ~A; all of the power goes out through that sphere." 
+    (teach (string "Imagine a sphere centered at ~A and extending to ~A; all of the power goes out through this sphere." 
 		   (?source def-np) (?wave def-np)))
     (bottom-out (string "Write the equation ~A" 
 			     ((= ?power (* 4 $p (^ ?r 2) ?int)) algebra) ))
