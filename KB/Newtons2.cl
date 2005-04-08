@@ -7139,7 +7139,27 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  )
  :hint (
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting power, and defining power supplied by all forces" ((at (net-power ?b) ?t) def-np) ))
- ))
+   ))
+
+;;;
+;;;  Net power produced by some source
+;;;
+
+(def-qexp net-power-out (net-power-out ?source )
+  :units |W|
+  :english ("the total power produced by ~A" 
+	       (nlg ?source))
+  :fromWorkbench `(at (net-power-out ,body) ,time))
+
+(defoperator define-net-power-out (?source  ?t)
+  :preconditions
+  ((bind ?p-var (format-sym "power_~A_~A" 
+			      (body-name ?source) 
+			      (time-abbrev ?t))))
+  :effects ((variable ?p-var (at (net-power-out ?source ) ?t))
+	    (define-var (at (net-power-out ?source) ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the total power produced by ~A by using the Add Variable command on the Variable menu and selecting power."  ?source))))
 
 ;;;
 ;;; instantaneous power = F dot v = F*v*cos(theta)

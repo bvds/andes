@@ -1069,7 +1069,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 		  (spherical-emitting ?wave ?source) ;need spherical symmetry
 		  (time ?t)
 		  (any-member ?sought ((at (intensity ?wave ?source) ?t)
-				       (at (net-power ?source) ?t)
+				       (at (net-power-out ?source) ?t)
 				       (at (mag (relative-position ?wave ?source)) ?t)))
 		  )
   :effects (
@@ -1078,7 +1078,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (defoperator write-intensity-to-power (?wave ?source ?t)
   :preconditions (
 		  (variable  ?int  (at (intensity ?wave ?source) ?t))
-		  (variable  ?power  (at (net-power ?source) ?t))
+		  (variable  ?power  (at (net-power-out ?source) ?t))
 		  (variable  ?r (at (mag (relative-position ?wave ?source)) ?t))
 		  )
   :effects 

@@ -9,6 +9,7 @@ angle
 coef-friction	$m	coef. of friction		between [body:bodies] and [body2:bodies]
 work	W	work		done on [body:bodies] by [body2:bodies] at time [time:times]
 power	P	power		supplied to [body:bodies] by [body2:bodies] at time [time:times]
+net-power-out	P	power		produced by [body:bodies] at time [time:times]
 intensity	I	intensity		supplied to [body:bodies] by [body2:bodies] at time [time:times]
 db-intensity	dB	decibels		supplied to [body:bodies] by [body2:bodies] at time [time:times]
 electric-power	P	electric power		transferred through [body:bodies] at time [time:times]

@@ -73,52 +73,49 @@
 ;;; Most of our body names are common nouns like "car", "block", "man", 
 ;;; which require an article, so that is default in def-np, But some problems 
 ;;; use "block1", "charge2", etc. which are proper names that shouldn't have 
-;;; an article. For items not in *proper-name-lexicon*, 
-;;; we use a simple heuristic to distinguish proper names by testing 
-;;; whether the name ends in a number. 
-;;; We also treat single-character nouns as proper names, e.g. A, B, C, D for 
-;;; points.
+;;; an article.  We use a simple heuristic to distinguish proper names 
+;;; by testing whether the name ends in a number. 
 ;;; This will give wrong answer for the very few common nouns we might use 
 ;;; such as "F-14" that end in a number, but that's preferable to being wrong 
 ;;; on all the block1's etc.
 
-;;;
-;;;  List of proper names
-;;;
-(defparameter *proper-name-lexicon*
- '(me 4_loops F_14))
-
 (defun proper-namep (x)
   "true if given symbol is probably a proper name"
   (and (symbolp x) 
-       (or (equal (length (string x)) 1) ; single-character noun
-	   (member x *proper-name-lexicon*) ;list of proper names
-	   ;; ends with digit:
-           (numberp (read-from-string (subseq (string x) 
-	                                      (1- (length (string x)))))))))
+       ;; ends with digit:
+       (numberp (read-from-string (subseq (string x) 
+					  (1- (length (string x))))))))
 
 ;;; Our circuit elements are named R1, C1, etc. For these we want to suppress 
 ;;; the default lower-casing of names done by def-np.  Similarly for 
 ;;; single-character names A, B, C.  
+;;; These are treated as proper names (no "the").
 (defun upper-case-namep (x)
   "true if name symbol is probably best left all upper case"
-  (or (equal (length (string x)) 1)
+  (or (member x '(YP))			; list of explicit names
+      (equal (length (string x)) 1)
       (and (numberp (read-from-string (subseq (string x) 
 					      (1- (length (string x))))))
 	   (<= (length (string x)) 2))
       ))
+;;
+;;  list of pronouns
+;;
+(defun pronounp (x)
+  (member x '(me)))			;add to list as needed
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun def-np (x &rest args)
   (if (atom x)
-     (cond ((numberp x)      (format nil "~A" x))
-	   ((upper-case-namep x) (format nil "~A" x))
-           ((proper-namep x) (format nil "~(~A~)" x))
-           ; else assuming x is a common noun
-           (T                (format nil "the ~(~A~)" x)))
-   ; else non-atom:
-   (nlg-list-default x args)))
+      (cond ((numberp x)      (format nil "~A" x))
+	    ((pronounp x) (format nil "~(~A~)" x))
+	    ((upper-case-namep x) (format nil "~A" x))
+	    ((proper-namep x) (format nil "~(~A~)" x))
+	    ;; else assuming x is a common noun
+	    (T                (format nil "the ~(~A~)" x)))
+    ;; else non-atom:
+    (nlg-list-default x args)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun indef-np	(x &rest args)
