@@ -1268,13 +1268,12 @@
 ;; not completed all of the steps necessary." Please call NSH.
 
 (defun do-check-mc-no-quant-done-answer (ID Value)
-  (cond ((seeks-quantities-P *cp*) 
-	 (make-bad-problem-turn
-	  :Error (format nil "MC-Answer in seeks-quant problem ~a ~a" ID Value)))
-	((not (numberp Value))
+  (cond ((not (numberp Value))
 	    (error "Value not numberp in do-check-mc-answer: ~A" Value))
-        ; if not asserting done, just leave the control black	
-	((= 0 Value) (make-black-turn))
+        ; if cleared done button, delete any prior entry for this button
+	; and leave control black. 
+	((= 0 Value) (remove-entry ID)
+	             (make-black-turn))
 	; Treat any non-zero value as T, just in case other non-zero comes from C 
 	(T (check-mc-no-quant-done-answer-sought ID))))
 
@@ -1282,12 +1281,13 @@
 ;; that look up the corresponding PSM and determine if the PSM has been completed
 ;; if so then the value is green if not then don't. 
 (defun check-mc-no-quant-done-answer-sought (ID)
-  (let ((PSM (match-exp->enode (get-answer-quant ID) (problem-graph *cp*))))
+  (let ((PSM (match-exp->enode (get-answer-quant ID) (problem-graph *cp*)))
+        (Entry (make-StudentEntry :ID ID :prop `(lookup-mc-answer ,ID))))
     (cond 
      ;; If the PSM is not found then we need to throw an error saying that.
      ((null PSM) 
       (make-bad-problem-turn 
-       :error (format nil "No matching psm found for: ~a" ID)))
+       :error (format nil "No problem step found for button labelled ~a" ID)))
      
      ;; If this is not a non-quant psm then we also need to thro an error 
      ;; asserting that fact. 
@@ -1296,9 +1296,13 @@
        :Error (format nil "Unmarked enode matching non-quant IDNum ~a ~a" PSM ID)))
      
      ;; Otherwize test to see if it present and behave appropriately.
-     (t (if (psmg-path-enteredp (enode-path PSM))
-	    (make-green-turn)
-	  (make-red-turn))))))
+     (t    (add-entry Entry)  ; save the entry
+	   (cond ((psmg-path-enteredp (enode-path PSM))
+		          (setf (StudentEntry-state entry) **CORRECT**)
+		          (make-green-turn))
+	         (T (setf (StudentEntry-state entry) **INCORRECT**)
+		    (make-red-turn)))))))
+
 
 
 ;; If this is a true multiple-choice answer problem then we will be passed an
