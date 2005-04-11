@@ -90,6 +90,10 @@ BOOL CProgressDlg::MyCopyFile(CString strFileName, CString strSourcePath, CStrin
 	}
 	if (theApp.FileExists(strDestFile))
 	{
+		// timestamp check not reliable across time-zone changes. since Winzip sets a timezone-relative
+		// timestamp on files. For now, just omit this check (so always replace files). Can enable
+		// the check while testing an installer to check for errors.
+#if 0   
 		if (theApp.ExistingFileNewer(strSourceFile, strDestFile))
 		{
 			if (theApp.m_bSkipNewer)//if we are to skip files where existing newer
@@ -111,6 +115,7 @@ BOOL CProgressDlg::MyCopyFile(CString strFileName, CString strSourcePath, CStrin
 				return TRUE;	//go to next file
 				//if user chose replace anyway, we are continuing on
 		}
+#endif 0
 
 		if ( !CopyFile(strSourceFile, strDestFile, FALSE) )
 		{

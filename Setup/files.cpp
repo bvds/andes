@@ -156,6 +156,9 @@ static const char * s_files[] =
 	"Problems\\Inductance.aps",
 	"Problems\\Optics.aps",
 	"Problems\\Fluids.aps",
+	"Problems\\Oscillations.aps",
+	"Problems\\Waves.aps",
+	"Problems\\Work_Energy.aps",
 
 	// Problems that use the new system (prb and maybe gif, but no .fbd)
 	// are specified here. Problems that still use .fbd files listed below.
@@ -171,6 +174,12 @@ static const char * s_files[] =
 	"Problems\\lens*.gif",
 	"Problems\\fluids*.prb",
 	"Problems\\fluids*.gif",
+	"Problems\\OSC*.prb",
+	"Problems\\OSC*.gif",
+	"Problems\\WAVE*.prb",
+	"Problems\\WAVE*.gif",
+	"Problems\\WE*.prb",
+	"Problems\\WE*.gif",
 
 	// Other recently added batches of problems, not enumerated below.
 	"Problems\\kgraph*.prb",
@@ -215,6 +224,7 @@ static const char * s_files[] =
 	"Review\\*.htm",
 	"Review\\*.jpg",
 	"Review\\*.gif",
+	"Review\\*.png",
 	// Minilesson graphics subdirectory
 	"Review\\Graphics\\*.gif",
 	"Review\\Graphics\\*.jpg",

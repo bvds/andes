@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <direct.h>    // for _getcwd
 #include "Setup.h"
 #include "Files.h"
 
@@ -18,6 +19,7 @@
 #include "RegDlg.h"
 #include "ProgressDlg.h"
 #include "FinishPg.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -301,6 +303,9 @@ BOOL CSetupApp::CopyTheFiles()
 			dlg->DestroyWindow();
 			return FALSE;
 		}
+
+		// Ensure codec is installed if need be
+		InstallCodec();
 	}
 #endif
 
@@ -851,45 +856,27 @@ BOOL CSetupApp::HasCurrentDLL(CString newDLL, CString oldDLL)
 	return FALSE;
 }
 
-BOOL CSetupApp::ExistingFileNewer(CString newFile, CString oldFile)
+// Fill FILETIME ft with modification time for named file
+// returns TRUE for success, else FALSE
+BOOL GetFileWriteTime(LPCTSTR szFileName, FILETIME& ft)
 {
-	CFileStatus statusNew;
-	CFileStatus statusOld;
-	CString msg;
-	try{
-			CFile fnew( newFile, CFile::modeRead);
-			if( fnew.GetStatus( statusNew ) )    // virtual member function    
-			{
-				#ifdef _DEBUG
-					afxDump << "New File Modified date = " << statusNew.m_mtime << "\n";   
-				#endif
-			}
-		}
-	catch (CFileException* e) {
-		msg.Format(IDS_ERROR_OPEN, newFile);
-		AfxMessageBox(msg);
-		e->Delete();
-	}
-	try{
-			CFile fold( oldFile, CFile::modeRead);
-			if( fold.GetStatus( statusOld ) )   // static function    
-			{
-			 #ifdef _DEBUG
-			        afxDump << "Old File Modified date " << statusOld.m_mtime << "\n";
-		     #endif   
-			}
-		}
-		//make sure catch is correct, only giving one message box failure
-		//does it quit when this is finished??
-	catch (CFileException* e) {
-		msg.Format(IDS_ERROR_OPEN, oldFile);
-		AfxMessageBox(msg);
-		e->Delete();
-	}
-	if (statusNew.m_mtime < statusOld.m_mtime)
-		return TRUE;
+	CFile file;
+	if (file.Open(szFileName, CFile::modeRead))
+		return ::GetFileTime((HANDLE)file.m_hFile, NULL, NULL, &ft);
+
 	return FALSE;
 }
+
+BOOL CSetupApp::ExistingFileNewer(CString newFile, CString oldFile)
+{
+	FILETIME ftOld, ftNew;
+	//: only return TRUE if we can get both file times
+	return (GetFileWriteTime(newFile, ftNew) &&
+		    GetFileWriteTime(oldFile, ftOld) &&
+			(::CompareFileTime(&ftNew, &ftOld) < 0));  // ftNew earlier than ftOld
+}
+
+
 
 BOOL CSetupApp::CheckDLL(CString strNewFile, CString strOldFile)
 {
@@ -1193,4 +1180,96 @@ BOOL RunningAsPowerUser ( VOID)
  return ( fAdmin);
 }
 /* eof - RunningAsAdministrator */
+
+
+// Helper to launch application given command line
+// RETURNS process handle, NULL on failure
+// Arg is passed as command line to StartProcess: Best if program name has 
+// quoted full path in case path has spaces, e.g as follows: 
+//		"C:\Program Files\Andes.exe"
+extern HANDLE StartProcess(LPCTSTR pszCmdLine, LPCTSTR pszWorkingDir=NULL)
+{
+	STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+	ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+
+	// CmdLineArg is in-out parameter so need modifiable copy:
+	LPTSTR pszCmdLineArg = _tcsdup(pszCmdLine);
+    
+	// Start the child process.
+	BOOL bSuccess = ::CreateProcess( NULL, // Module name  
+        pszCmdLineArg,		// Command line (in-out) 
+        NULL,				// Process handle not inheritable. 
+        NULL,				// Thread handle not inheritable. 
+        FALSE,				// Set handle inheritance to FALSE. 
+        0,					// No creation flags. 
+        NULL,				// Use parent's environment block. 
+		pszWorkingDir,		// if NULL, uses parent's working dir
+        &si,				// Pointer to STARTUPINFO structure.
+        &pi );				// Pointer to PROCESS_INFORMATION structure.
+
+	free(pszCmdLineArg);
+
+	if (!bSuccess)
+		return NULL;
+	// else succeeded:
+
+	// We don't need thread handle so close it
+	CloseHandle( pi.hThread );
+
+    // return the process handle. Should be closed when finished.
+    return ( pi.hProcess );
+}
+
+// Install ACELP audio codec used in our videos if needed.
+// We do this by checking if file already exists; if not, we launch the INF
+// file with the appropriate command (depends on Win98 vs NT). 
+// Don't know how to check if this succeeds.
+void CSetupApp::InstallCodec()
+{
+	const CString strCodecName = "sl_anet.acm";
+	const CString strInfName = "acelpacm.inf";
+	
+	// check for codec file in system dir. This is a weak test, since file could
+	// exist but codec not be registered (this will happen if you uninstall the codec),
+	// but we assume that is unlikely. More reliable test would use audio compression
+	// manager interface.
+	char szSysDir[MAX_PATH];
+	::GetSystemDirectory(szSysDir, MAX_PATH);
+	CString strCodecPath = CString(szSysDir) + "\\" + strCodecName;
+	if (FileExists(strCodecPath)) {
+		// AfxMessageBox("Codec appears to be installed");
+		return;
+	}
+
+	// else build command to launch the inf file
+	CString strCmdLine;
+	if (m_dwOS == VER_PLATFORM_WIN32_NT) 
+		strCmdLine = "Rundll32.exe setupapi.dll,InstallHinfSection DefaultInstall 132 ";
+	else // Win9x
+		strCmdLine = "Rundll.exe setupx.dll,InstallHinfSection DefaultInstall 132 ";
+	// Get full path to the INF file in our current working directory.
+	char szWorkingDir[MAX_PATH];
+	if (_getcwd(szWorkingDir, MAX_PATH) == NULL)
+		AfxMessageBox("GetCwd failed while launching audio codec installer!");
+	CString strInfPath = CString(szWorkingDir) + "\\" + strInfName;
+	
+	strCmdLine += strInfPath;
+
+	// OK, now run this command line
+	// AfxMessageBox("Trying to install codec");
+	HANDLE hProcess = StartProcess(strCmdLine);
+	if (hProcess == NULL) {
+		CString strMsg;
+		strMsg.Format("Failed to launch audio codec installer. Error code = %d", ::GetLastError());
+		AfxMessageBox(strMsg);
+	}
+
+	// We could wait for RunDll process to finish and query its exit status to try to tell
+	// if it succeeded. For now, just leave it running -- should be quick if it succeeds.
+	::CloseHandle(hProcess);
+}
+
 

@@ -25,6 +25,7 @@ class CMySheet;
 class CSetupApp : public CWinApp
 {
 public:
+	void InstallCodec();
 	BOOL AcceptLicense();
 	CSetupApp();
 

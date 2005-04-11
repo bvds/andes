@@ -82,16 +82,17 @@ BOOL CInstDirPg::OnSetActive()
 	//2nd page, both back and next button enabled
 	pSht->SetWizardButtons(PSWIZB_NEXT|PSWIZB_BACK);
 	//Set default install directory
-	if (m_strInstDir.IsEmpty())
+	if (m_strInstDir.IsEmpty()) {
 #ifdef OLI
 		m_strInstDir = "C:\\AndesOLI";
 #else 
 #if USNA_EVAL
 		m_strInstDir = "C:\\Program Files\\Andes";
-else // some public version
+#else // some public version
 		m_strInstDir = "C:\\AndesDemo";        // "C:\\Program Files\\Andes"; 
-#endif
+#endif 
 #endif  
+    }
 	m_ctrlInstDir.SetWindowText(m_strInstDir);
 
 	return CPropertyPage::OnSetActive();
