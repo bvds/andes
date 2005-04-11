@@ -51,8 +51,9 @@ typedef struct
 	CString strTypeId;		// quantity typeid w/o spaces. Used in logging cmd and entry and helpsys API
 	CString strPrefix;		// variable name prefix
 	// following optional, only used if needed to build a dialog box:
-	CString strValue;		// human-readable quantity type name (may contain spaces).
-	CString strSpec;		// dialog spec
+	CString strValue;		// human-readable quantity type name -- may contain spaces.
+	CString strDlgValue;    // quantity type prefix to show in dialog, if different from strValue.
+	CString strSpec;		// dialog field spec
 } QuantInfo;
 	
 typedef CTypedPtrArray<CPtrArray, QuantInfo*> CQuantpArray;
@@ -93,7 +94,7 @@ static int LookupStaticId(CString& strTypeId)
 // VarView dispatches all commands in range ID_VARIABLE_ADDFIRST to ID_VARIABLE_ADDLAST, even though not
 // all ids in the range will be used.
 void CVarView::AddQuant(int nID, CString strTypeId, CString strPrefix, CString strValue, 
-						CString strSpec)
+						CString strDlgValue, CString strSpec)
 {
 	static int idCounter = ID_VARIABLE_MAX_STATIC;
 
@@ -106,7 +107,11 @@ void CVarView::AddQuant(int nID, CString strTypeId, CString strPrefix, CString s
 		// no friendly name specified, just use TypeId, changing -'s to spaces
 		pQuant->strValue = strTypeId;
 		pQuant->strValue.Replace("-", " ");
-	} 
+	}
+	if (! strDlgValue.IsEmpty())
+		pQuant->strDlgValue = strDlgValue;
+	else // no alternate dialog quant name specified, just use strValue.
+		pQuant->strDlgValue = pQuant->strValue;
 	pQuant->strSpec = strSpec;
 	if (nID >= ID_VARIABLE_ADDFIRST && nID <= ID_VARIABLE_MAX_STATIC) {
 		pQuant->id = nID;
@@ -129,12 +134,12 @@ void CVarView::LoadQuantInfo(LPCSTR pszPathName)
 {
 	CStdioFile fileSrc(pszPathName, CFile::modeRead);
 	CString strLine;
-	CStringArray strFields;
 	while (fileSrc.ReadString(strLine)) {
 		if (strLine.IsEmpty()) continue;
+		CStringArray strFields;
 		int nFields = split(strLine, "\t", strFields);
-		ASSERT(nFields >= 4);
-		AddQuant(-1, strFields[0], strFields[1], strFields[2], strFields[3]);
+		ASSERT(nFields >= 5);
+		AddQuant(-1, strFields[0], strFields[1], strFields[2], strFields[3], strFields[4]);
 	}
 }
 
@@ -147,6 +152,7 @@ typedef struct
 	char* szPrefix;		// variable name prefix
 	// following optional, only used if needed to build a dialog box:
 	char* szValue;      // human-readable quantity type name (may contain spaces), lower case
+	char* szDlgValue;   // value prefix shown in dialog, if different from szValue
 	char* szSpec;		// dialog spec
 } QuantTblEntry;
 
@@ -173,7 +179,7 @@ static QuantTblEntry vectorQuants[] =
 { ID_VARIABLE_ADDANGVELOCITY,	 "ang-velocity",	 "$w", },
 { ID_VARIABLE_ADDANGDISPLACEMENT,"ang-displacement", "$q", },
 { ID_VARIABLE_ADDANGMOMENTUM,	 "ang-momentum",	 "L", },
-{ ID_VARIABLE_ADDRELPOS,         "relative-pos",	"r",  },
+{ ID_VARIABLE_ADDRELPOS,         "position",		"r",  },
 { ID_VARIABLE_ADDRELVEL,         "relative-vel",	"v", },
 { ID_VARIABLE_ADDTORQUE,         "torque",			"$t", },
 { ID_VARIABLE_ADDEFIELD,         "E-field",			"E", },
@@ -190,7 +196,7 @@ void CVarView::InitQuantTable()
 	// first init vectors from static table
 	for (int i = 0;  i < numVectors; ++i) {
 		QuantTblEntry* pEnt = &vectorQuants[i];
-		AddQuant(pEnt->id, pEnt->szTypeId, pEnt->szPrefix, pEnt->szValue, pEnt->szSpec);
+		AddQuant(pEnt->id, pEnt->szTypeId, pEnt->szPrefix, pEnt->szValue, pEnt->szDlgValue, pEnt->szSpec);
 	}
 	// then add scalars dynamically from external file
 	try {
@@ -271,6 +277,17 @@ CString CVarView::LookupStrValue(int nID)
 	for (int i = 0; i < m_quants.GetSize(); i++) {
 		if (m_quants[i]->id == nID)
 			return m_quants[i]->strValue;
+	}
+
+	return str;
+}
+
+CString CVarView::LookupDlgValue(int nID)
+{
+	CString str;
+	for (int i = 0; i < m_quants.GetSize(); i++) {
+		if (m_quants[i]->id == nID)
+			return m_quants[i]->strDlgValue;
 	}
 
 	return str;

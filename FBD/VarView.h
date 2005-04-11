@@ -72,6 +72,7 @@ public:
 	static int ValueToId(CString strValue);
 	static CString LookupPrefix(int nID);
 	static CString LookupSpec(int nID);
+	static CString LookupDlgValue(int nID);
 	// initializer
 	static void InitQuantTable();
 	// for building menu of add variable commands
@@ -82,7 +83,7 @@ public:
 private:
 	// quantity table implementation
 	static void AddQuant(int nID, CString strName, CString strPrefix, CString strValue, 
-		                 CString strSpec);
+		                 CString strDlgPrefix, CString strSpec);
 	static void LoadQuantInfo(LPCSTR pszPathName);
 	// for loading feature-set abbreviations
 	static void AddFeatureSet(CString strName, CString strFeatureList);

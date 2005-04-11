@@ -432,38 +432,64 @@ void CVector::DrawLabel(CDC* pDC)
 	// The label is the main visible representation of a zero-length vector.
 	if (IsZeroMag())
 		strLabel += "=0";
-    
-// Recalc label position from vector position, caching bounding box in member var 
-// for use in hit testing. Need to update even if empty. Note this member not valid 
-// until vector is drawn.
-    	
-	// Quick and dirty label placement computations:
-	// Formerly: placed label slight offset from vector midpoint
- 	// Now, place near arrowhead. Offset y towards horizontal, x away from endpoint
-	int xMid = m_position.left + m_position.Width() /* /2 */ ;
-	int yMid = m_position.top + m_position.Height() /* /2 */ ;
-	int xsign = (m_position.Width() >= 0) ? 1 : -1;
-	int ysign = (m_position.Height() >= 0) ? 1 : - 1;
-	CSize extText = pDC->GetTextExtent(strLabel);	// may contain Greek tags !!!
-  	const int delta = 6;			// offset from point on vector line.
-    	
-	if (xsign == 1 && ysign == -1) { 
-		m_posLabel = CRect( CPoint(xMid + delta,  
-			                       yMid + delta), extText);
-	} 
-	else if (xsign == 1 && ysign == 1) {
-		m_posLabel = CRect( CPoint(xMid + delta,  
-			                       yMid - (delta + extText.cy)), extText);
-	} 
-	else if (xsign == -1 && ysign == 1) {
-		m_posLabel = CRect( CPoint(xMid - (delta + extText.cx),  
-    			                       yMid - (delta + extText.cy)), extText);
-	} 
-   	else if (xsign == -1 && ysign == -1) {
-   		m_posLabel = CRect( CPoint(xMid - (delta + extText.cx),  
-   			                       yMid + delta), extText);
-   	}
 
+	// Recalc label position from vector position, caching bounding box in member var 
+	// for use in hit testing. Need to update even if empty. Note this member not valid 
+	// until vector is drawn.
+	
+	// don't draw anything if no label assigned yet
+	if (strLabel.IsEmpty()) {
+		m_posLabel.SetRectEmpty(); 
+		return;
+	}
+
+	// else have non-empty label:
+	CSize extText = pDC->GetTextExtent(strLabel);	// may contain Greek tags !!!
+
+	// For special z-axis or zero-length vector symbols:
+	// just use old code so no change. !!!Simpler code should be possible. 
+	// This makes label offset depend on orientation of bounding box, which is somewhat
+	// arbitrary for zero-length. 
+	if (IsZeroMag() || IsZAxisVector()) 
+	{
+		// Quick and dirty label placement computations:
+		// Formerly: placed label slight offset from vector midpoint
+ 		// Now, place near arrowhead. Offset y towards horizontal, x away from endpoint
+		int xMid = m_position.left + m_position.Width() /* /2 */ ;
+		int yMid = m_position.top + m_position.Height() /* /2 */ ;
+		int xsign = (m_position.Width() >= 0) ? 1 : -1;
+		int ysign = (m_position.Height() >= 0) ? 1 : - 1;
+		const int delta = 6;			// offset from point on vector line.
+		if (xsign == 1 && ysign == -1) { 
+			m_posLabel = CRect( CPoint(xMid + delta,  
+									   yMid + delta), extText);
+		} 
+		else if (xsign == 1 && ysign == 1) {
+			m_posLabel = CRect( CPoint(xMid + delta,  
+									   yMid - (delta + extText.cy)), extText);
+		} 
+		else if (xsign == -1 && ysign == 1) {
+			m_posLabel = CRect( CPoint(xMid - (delta + extText.cx),  
+    									   yMid - (delta + extText.cy)), extText);
+		} 
+   		else if (xsign == -1 && ysign == -1) {
+   			m_posLabel = CRect( CPoint(xMid - (delta + extText.cx),  
+   									   yMid + delta), extText);
+   		}
+		
+	} 
+	else // normal vector with an arrow
+	{
+		// new: center text on vector midpoint. Note text bounding box can include a lot
+		// of space on top, if chars don't ascend much, so can appear off center.
+		// !!! should make sure there is enough room for label -- very small arrow can
+		// get completely obscured!
+		int xMid = m_position.left + m_position.Width()/2 ;
+		int yMid = m_position.top + m_position.Height()/2 ;
+		m_posLabel = CRect(CPoint(xMid - extText.cx/2, yMid - extText.cy/2),
+			               extText);
+	}
+ 
 #if 0 // seems fewer overlaps if offset from vector line some.
 	// position using Axis label placement method. 
  	CPoint ptText = CAxes::GetLabelPos(CPoint(xMid, yMid), 
@@ -481,17 +507,20 @@ void CVector::DrawLabel(CDC* pDC)
    	if (! strLabel.IsEmpty()) 
    	{
    		COLORREF oldColor;
-		// Draw NULL vector labels in color to provide feedback.
+		// Draw NULL vector labels in color to provide feedback. Otherwise,
+		// draw label in black and show status by shaft color only, for legibility.
 		if (IsZeroMag()) oldColor = pDC->SetTextColor(StatusColor()); 
-		int oldMode = pDC->SetBkMode(TRANSPARENT);
+
+		// change to draw opaque for legibility over vector shaft
+		//int oldMode = pDC->SetBkMode(TRANSPARENT);
 
 		// Need special function if it contains greek letters
 		if (strLabel.Find('$') != -1) {
 			CGreekText::DrawText(pDC, m_posLabel, strLabel);
 		} else
 			pDC->TextOut(m_posLabel.left, m_posLabel.top, strLabel);
-		
-		pDC->SetBkMode(oldMode); 
+	
+		//pDC->SetBkMode(oldMode); 
 		if (IsZeroMag()) pDC->SetTextColor(oldColor); 
 	}
 }

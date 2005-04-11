@@ -45,6 +45,7 @@ extern const PROBLEM_CONCEPT concepts[] =
     ID_PROB_RELVEL,     "Relative velocity",
 	ID_PROB_CIRCUITS,	"Circuits",
 	ID_PROB_EM,         "Electricity & Magnetism",
+	ID_PROB_FLUIDS,     "Fluids",
 };
 
 const int nConcepts ARRAY_SIZE(concepts);

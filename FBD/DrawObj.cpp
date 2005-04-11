@@ -18,6 +18,7 @@
 #include "HintView.h"
 #include "ChatView.h"
 #include "VarView.h"
+#include "GreekOpts.h"
 
 // Property dialogs
 #include "LabelDlg.h"
@@ -1533,10 +1534,14 @@ void CLabel::Draw(CDC* pDC)
 			// it encompasses text. Shouldn't be needed if RecalcExtent is
 			// correctly used on any change, but can't hurt to be safe.
 			CFont* pOldFont = pDC->SelectObject(&m_font);
-    		pDC->DrawText(m_strName, m_position, DT_CALCRECT);
+    		pDC->DrawText(m_strName, m_position, DT_CALCRECT | DT_EXPANDTABS);
     		// Draw text in transparent mode
     		int oldBkMode = pDC->SetBkMode(TRANSPARENT);
-    		pDC->DrawText(m_strName, m_position, DT_LEFT);
+    		
+			// Draw using Greek Renderer, in case $-coded symbols in text
+			// pDC->DrawText(m_strName, m_position, DT_LEFT);	
+			CGreekText::DrawText(pDC, m_position, m_strName);
+
     		pDC->SetBkMode(oldBkMode);
 			pDC->SelectObject(pOldFont);	
     	}
@@ -1678,7 +1683,7 @@ void CLabel::RecalcExtent()
 	CClientDC dc(NULL);
 	CFBDDoc::SetLogicalUnits(&dc);
 	CFont* pOldFont = dc.SelectObject(&m_font);
-	(void) dc.DrawText(m_strName, m_position, DT_CALCRECT); 
+	(void) dc.DrawText(m_strName, m_position, DT_CALCRECT|DT_EXPANDTABS); 
 	dc.SelectObject(pOldFont);
 }
 

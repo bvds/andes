@@ -1,7 +1,7 @@
 // 
 // LogEdit.h : definition file for our log-aware control classes
 // 
-// $Id: LOGEDIT.H,v 1.1 2005/01/24 16:28:10 bvds Exp $
+// $Id: LOGEDIT.H,v 1.2 2005/04/11 18:53:54 anders Exp $
 //
 // We use MFC subclassed control classes which are instrumented to log significant
 // events to the app's log file by catching reflected control notifications.

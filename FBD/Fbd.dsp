@@ -389,12 +389,12 @@ PostBuild_Cmds=copy $(OutDir)\fbd-lite.exe C:\Andes2
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 6
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "FBD___Win32_OLI_Release"
-# PROP Intermediate_Dir "FBD___Win32_OLI_Release"
+# PROP Output_Dir "OLI_Release"
+# PROP Intermediate_Dir "OLI_Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /D "OLI" /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
@@ -405,13 +405,13 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-tcp.exe"
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-tcp.exe"
+# ADD LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\OLI_Release/Fbd-tcp.exe"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
-OutDir=.\FBD___Win32_OLI_Release
+OutDir=.\OLI_Release
 SOURCE="$(InputPath)"
-PostBuild_Desc=copying into C:\Andes2
-PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe C:\Andes2
+PostBuild_Desc=copying into C:\AndesOLI
+PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe C:\AndesOLI
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
@@ -424,13 +424,13 @@ PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe C:\Andes2
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 6
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "FBD___Win32_OLI_Debug"
-# PROP Intermediate_Dir "FBD___Win32_OLI_Debug"
+# PROP Output_Dir "OLI_Debug"
+# PROP Intermediate_Dir "OLI_Debug"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
 # SUBTRACT BASE CPP /Fr
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /D "OLI" /Yu"stdafx.h" /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -442,7 +442,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 winmm.lib version.lib wininet.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Debug/Fbd-tcp.exe"
 # SUBTRACT BASE LINK32 /profile
-# ADD LINK32 winmm.lib version.lib wininet.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Debug/Fbd-tcp.exe"
+# ADD LINK32 winmm.lib version.lib wininet.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\OLI_Debug/Fbd-tcp.exe"
 # SUBTRACT LINK32 /profile
 
 !ENDIF 
@@ -639,13 +639,11 @@ SOURCE=.\Base64Coder.cpp
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
 
 # SUBTRACT BASE CPP /YX /Yc /Yu
-# ADD CPP /D "OLI"
 # SUBTRACT CPP /YX /Yc /Yu
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
 
 # SUBTRACT BASE CPP /YX /Yc /Yu
-# ADD CPP /D "OLI"
 # SUBTRACT CPP /YX /Yc /Yu
 
 !ENDIF 
@@ -952,6 +950,10 @@ SOURCE=.\MyMenu.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\OliView.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PicCtrl.cpp
 # End Source File
 # Begin Source File
@@ -1175,6 +1177,10 @@ SOURCE=.\VecDlg.cpp
 # Begin Source File
 
 SOURCE=.\VecPosDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\VideoDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -1458,6 +1464,10 @@ SOURCE=.\MyMenu.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\OliView.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\PicCtrl.h
 # End Source File
 # Begin Source File
@@ -1623,6 +1633,10 @@ SOURCE=.\Vecdlg.h
 # Begin Source File
 
 SOURCE=.\VecPosDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\VideoDlg.h
 # End Source File
 # Begin Source File
 

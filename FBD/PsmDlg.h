@@ -28,7 +28,7 @@ public:
 	CPsmDlg(CWnd* pParent = NULL);   // standard constructor
 
 	static void LoadPsmInfo(LPCSTR pszPathName);
-	static void AddInfo(CString strType, CString strText, CString strHelpID, CString strName);
+	static void AddInfo(CString strType, CString strText, CString strHelpID, CString strName, int nLine);
 	static void InitPsmInfo();
 	/* void DumpTable();*/
 

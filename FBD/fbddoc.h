@@ -115,13 +115,14 @@ public:
 #define ID_PROB_MOMENTUM		0x00000080
 #define ID_PROB_GRAVITATION		0x00000100
 #define ID_PROB_RELVEL          0x00000200
+#define ID_PROB_FLUIDS          0x00000400
 // E&M topics:
 #define ID_PROB_CIRCUITS		0x00010000
 #define ID_PROB_EM              0x00020000
 #define ID_PROB_OPTICS          0x00040000
 
 	CStringList m_strFeatures;		// list of feature strings, from .prb file
-	void SetFeatureList();			// for old-style docs, sets feature list from concepts
+	void AddConceptsToFeatures();	// for old-style docs, sets feature list from concepts
 
 	// whether to present choices for Z Axis vectors:
 	BOOL	UseZAxis() { return m_wConcept & (ID_PROB_ROTKINEMATICS | ID_PROB_CIRCMOTION | ID_PROB_EM); }

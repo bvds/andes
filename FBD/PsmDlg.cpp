@@ -421,11 +421,22 @@ typedef struct
 typedef CTypedPtrArray<CPtrArray, ItemInfo*> CInfoArray;
 static CInfoArray m_items;
 
-void CPsmDlg::AddInfo(CString strType, CString strText, CString strHelpID, CString strName)
+void CPsmDlg::AddInfo(CString strType, CString strText, CString strHelpID, CString strName, int nLine)
 {
-	int nType = LEAF;	// default
-	if (strType.CompareNoCase("GROUP") == 0) nType = GROUP;
+	if (strType.IsEmpty() && strText.IsEmpty() && strHelpID.IsEmpty() && strName.IsEmpty()) {
+		TRACE("Ignoring blank line %d in principles.tsv\n", nLine);
+		return;
+	}
+
+	int nType = LEAF;	// to barge on with if unparseable type
+	if (strType.CompareNoCase("LEAF") == 0) nType = LEAF;
+	else if (strType.CompareNoCase("GROUP") == 0) nType = GROUP;
 	else if (strType.CompareNoCase("END_GROUP") == 0) nType = END_GROUP;
+	else { 
+		CString strMsg;
+		strMsg.Format("Warning: Bad item type string at principles.tsv line %d: |%s|", nLine, strType);
+		AfxMessageBox(strMsg);
+	}
 	ItemInfo* pItem = new ItemInfo();
 	pItem->nType = nType;
 	pItem->strText = strText;
@@ -442,11 +453,13 @@ void CPsmDlg::LoadPsmInfo(LPCSTR pszPathName)
 	CStdioFile fileSrc(pszPathName, CFile::modeRead);
 	CString strLine;
 	CStringArray strFields;
+	int nLine = 0;
 	while (fileSrc.ReadString(strLine)) {
+		++nLine;
 		if (strLine.IsEmpty()) continue;
 		int nFields = split(strLine, "\t", strFields);
 		ASSERT(nFields >= 4);
-		AddInfo(strFields[0], strFields[1], strFields[2], strFields[3]);
+		AddInfo(strFields[0], strFields[1], strFields[2], strFields[3], nLine);
 	}
 }
 
@@ -517,10 +530,11 @@ void CPsmDlg::PopulateTree()
 //   if i is a group, i on exit is on the END_GROUP item.
 void CPsmDlg::AddSubtree(int& i, HTREEITEM hParent /* =TVI_ROOT */)
 {
+	static int iDepth = 1;
 	ASSERT(i >= 0 && i < m_items.GetSize());
 	ASSERT(m_items[i]->nType == LEAF || m_items[i]->nType == GROUP); // shouldn't be called on END_GROUP markers
 
-	TRACE("AddSubtree %d = %s\n", i, m_items[i]->strText);
+	TRACE("[%d] AddSubtree i= %d: %s\n", iDepth, i, m_items[i]->strText);
 
 	// insert it, associating index as item data
 	HTREEITEM hItem = m_tree.InsertItem(RemoveDollars(m_items[i]->strText), 0, 0, hParent, TVI_LAST);
@@ -537,11 +551,13 @@ void CPsmDlg::AddSubtree(int& i, HTREEITEM hParent /* =TVI_ROOT */)
 		CString strThis = m_items[i]->strText;
 		TRACE("'%s' Is Group heading, recursing to add subitems\n", strThis);
 		while (m_items[++i]->nType != END_GROUP) {
+			++iDepth;
 			AddSubtree(i, hItem); // recurse to save current parent on stack
-			TRACE("Popped out of one subtree of %s, i now = %d\n", strThis, i);
+			--iDepth;
+			TRACE("[%d] Finished a subtree under %s, i now = %d\n", iDepth, strThis, i);
 		}
 
-		TRACE("Found end of section %s subitems, i now = %d\n", strThis, i);
+		TRACE("[%d] Hit end of group %s, i now = %d\n", iDepth, strThis, i);
 	} 
 }
 

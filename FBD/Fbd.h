@@ -1,6 +1,6 @@
 // FBD.h : main header file for the FBD application
 // 
-// $Id: Fbd.h,v 1.1 2005/01/24 16:28:09 bvds Exp $
+// $Id: Fbd.h,v 1.2 2005/04/11 18:53:54 anders Exp $
 
 #ifndef __AFXWIN_H__
 	#error include 'stdafx.h' before including this file for PCH
@@ -207,6 +207,7 @@ protected:
 	BOOL EnsureUserInit();		// Ensure completed init for interactive use
 
 public:
+	void DoInitialTaskSelect();
 	CString m_strSessionId;
 	BOOL m_bTerminated;			// flag that final cleanup has been performed.
 	void DoFinalCleanup();

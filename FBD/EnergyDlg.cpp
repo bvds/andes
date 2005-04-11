@@ -100,12 +100,8 @@ BOOL CEnergyDlg::OnInitDialog()
 		}
 		UpdatePlanStrings(&m_cboBody);
 	}
-
-/*
-	m_cboEnergyType.SetItemData(0, ID_NRGPOTENTIAL);
-	m_cboEnergyType.SetItemData(1, ID_NRGKINETIC);
-	m_cboEnergyType.SetItemData(2, ID_NRGTOTAL);
-*/
+	
+	// Adjust for appropriate type
 	OnSelchangeNrgType();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -199,35 +195,27 @@ void CEnergyDlg::UpdateTempVariable()
 
 void CEnergyDlg::OnSelchangeNrgType() 
 {
-/*  // changed to use energy type, and no agent
-	int Sel = m_cboEnergyType.GetCurSel();
-	int nData = m_cboEnergyType.GetItemData(nSel);
-	
-	// KE and Total Mechanical have one body, 
-	// For poential energy we have two bodies:
-	// Energy of type [Potential] "due to interaction" 
-	// "of body" _____ "and" _______
-	m_stcPE.ShowWindow(nData == ID_NRGPOTENTIAL ? SW_SHOW : SW_HIDE);
-	m_stcAgent.EnableWindow(nData == ID_NRGPOTENTIAL);
-	EnableComboBox(&m_cboAgent, (nData == ID_NRGPOTENTIAL));
-
-	// set appropriate prefix
-	if (nData == ID_NRGPOTENTIAL)
-		m_editName.SetPrefix("U");
-	else if (nData == ID_NRGKINETIC)
-		m_editName.SetPrefix("K");
-	else if (nData == ID_NRGTOTAL)
-		m_editName.SetPrefix("ME");
-*/
+	// Set appropriate prefix based on type, flagging if it's
+	// a type of potential energy:
 	EnergyType type = (EnergyType) m_cboEnergyType.GetCurSel();
-
+	BOOL bPotential = FALSE;
 	if (type == TotalMechanical)
 		m_editName.SetPrefix("ME");
 	else if (type == Kinetic)
 		m_editName.SetPrefix("K");
 	else if (type == Gravitational || type == Elastic 
-		   || type == Electric)
+		|| type == Electric) {
 		m_editName.SetPrefix("U");
+		bPotential = TRUE;
+	}
+
+	// KE and Total Mechanical have one body, 
+	// For poential energy we have two bodies:
+	// Energy of type [Potential] "due to interaction" 
+	// "of body" _____ "and" _______
+	m_stcPE.ShowWindow(bPotential ? SW_SHOW : SW_HIDE);
+	m_stcAgent.ShowWindow(bPotential ? SW_SHOW : SW_HIDE);
+	EnableComboBox(&m_cboAgent, bPotential);
 }
 
 CLabelRichEdit* CEnergyDlg::GetLabelCtrl()

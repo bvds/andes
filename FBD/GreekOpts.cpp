@@ -91,8 +91,8 @@ CRect CGreekText::DrawPart(CDC* pDC, CString str, CRect rcText, TEXTTYPE nType)
 	ASSERT(!str.IsEmpty());
 
 	// First call calcs bounding rect, second does the drawing.
-	pDC->DrawText(str, -1, rcText, DT_CALCRECT|DT_WORDBREAK  );
-	pDC->DrawText(str, -1, rcText, /*DT_NOPREFIX|*/DT_WORDBREAK   /*|DT_NOCLIP*/);
+	pDC->DrawText(str, -1, rcText, DT_CALCRECT|DT_WORDBREAK|DT_EXPANDTABS  );
+	pDC->DrawText(str, -1, rcText, /*DT_NOPREFIX|*/DT_WORDBREAK|DT_EXPANDTABS   /*|DT_NOCLIP*/);
 
 	if (pOldFont != NULL)
 		pDC->SelectObject(pOldFont);

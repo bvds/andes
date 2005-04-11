@@ -250,6 +250,8 @@
 #define IDC_DRAWEFIELD                  388
 #define IDC_DRAWBFIELD                  389
 #define IDR_ONR_LOGO                    390
+#define IDD_VIDEO                       390
+#define IDD_OLIVIEW                     391
 #define IDC_SINGLE_BODY                 1000
 #define IDC_STATUS_MSG                  1000
 #define IDC_MULTIPLE_BODIES             1001
@@ -615,6 +617,8 @@
 #define IDC_ACROSS_LABEL                1411
 #define IDC_ANDES_URL                   1412
 #define IDC_ANDES_EMAIL                 1413
+#define IDC_STATUS                      1414
+#define IDC_TASK_NAME                   1415
 #define IDC_EQ1                         4000
 #define IDC_EQ2                         4001
 #define IDI_WINHELP                     4001
@@ -1050,9 +1054,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        390
+#define _APS_NEXT_RESOURCE_VALUE        391
 #define _APS_NEXT_COMMAND_VALUE         33224
-#define _APS_NEXT_CONTROL_VALUE         1414
+#define _APS_NEXT_CONTROL_VALUE         1416
 #define _APS_NEXT_SYMED_VALUE           119
 #endif
 #endif

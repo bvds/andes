@@ -1657,14 +1657,16 @@ void CFBDView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 
 	CFont* pOldFont = pDC->SelectObject(&fontText);
 
-	// Header has document name plus creator name. Note it may be unset yet, but
-	// will be set if this is saved in student mode.
+	// Header has document name plus creator name. Note creator
+	// may be unset yet, but will be set if this is saved in student mode.
 	CString strHeader = GetDocument()->GetTitle();
 	CString strName= GetDocument()->m_strCreator;
 	if (strName.IsEmpty())
 		strName = theApp.m_strUserName;
 
 	strHeader += " -- " + strName;
+	// add time of printing to header info:
+	strHeader += "    " + (CTime::GetCurrentTime()).Format("%c");
 
 /* 	// We also "code" some unlabelled statistics, currently problem time.
 	CString strStats;

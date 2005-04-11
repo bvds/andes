@@ -196,7 +196,7 @@ void CPinkMenu::ChangeMenuItem(UINT nID, LPCTSTR lpz)
 // Table data for initializing quantity menu
 typedef struct {
 	char* str;			// quantity name in menu
-    char* strId;		// quantity type ID = command to add var of this type
+    char* strId;		// quantity type ID 
 	DWORD concept;		// bitmask of problem types in which this item should be used
 } PROBLEM_MENUITEMS; 
 
@@ -206,16 +206,16 @@ static const PROBLEM_MENUITEMS menuitems[] =
 // variable definition menu so student is forced to draw all vectors
 
 "Force", "force",
-			(ID_PROB_FORCE|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS), // for torque 			
+			(ID_PROB_FORCE|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS|ID_PROB_FLUIDS|ID_PROB_EM), 			
 "Acceleration",	"acceleration",    
 			(ID_PROB_VECTOR|ID_PROB_FORCE|ID_PROB_KINEMATICS|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS),
 "Velocity",   "velocity",		  
-			(ID_PROB_VECTOR|ID_PROB_KINEMATICS|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS|ID_PROB_ENERGY),	
+			(ID_PROB_VECTOR|ID_PROB_KINEMATICS|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS|ID_PROB_ENERGY|ID_PROB_FLUIDS),	
 "Displacement",	"displacement",    			                   
 			(ID_PROB_VECTOR|ID_PROB_KINEMATICS|ID_PROB_ROTKINEMATICS|ID_PROB_ENERGY),					
 "Momentum", "momentum",
 			(ID_PROB_MOMENTUM|ID_PROB_ROTKINEMATICS),
-"Relative Position", "relative-pos",
+"Relative Position", "position",
 			(ID_PROB_ROTKINEMATICS|ID_PROB_KINEMATICS),
 "Torque",	"torque", (ID_PROB_ROTKINEMATICS | ID_PROB_EM),
 "Relative Velocity", "relative-vel", ID_PROB_RELVEL,
@@ -227,7 +227,11 @@ static const PROBLEM_MENUITEMS menuitems[] =
 "",		"MF_SEPARATOR",	0xFFFF,	// include for all concept flags
 
 #define FIRST_SCALAR_INDEX  11  // index of first scalar quantity in this table, which follows:
-
+//
+// !!! Following scalar portion of the table now unused. 
+// Now scalar quants added to menu from quantity table in CVarView::AddScalarVars, 
+// based on feature sets loaded from features.tsv
+//
 "Mass",		"mass",							
 	(ID_PROB_FORCE|ID_PROB_ENERGY|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS), // for mom inertia
 "Radius",	"radius",		  

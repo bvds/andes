@@ -1,6 +1,6 @@
 // MainFrm.h : interface of the CMainFrame class
 // 
-// $Id: Mainfrm.h,v 1.1 2005/01/24 16:28:09 bvds Exp $
+// $Id: Mainfrm.h,v 1.2 2005/04/11 18:53:54 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 #ifndef MAINFRAME_INCLUDED
 #define MAINFRAME_INCLUDED 1

@@ -63,6 +63,9 @@ protected:
 
 	CString LookupCtrlName(int nID);
 
+	CRect SizeToFit(CWnd& wnd);
+	CRect MoveToRightOf(CRect posLeftWnd, CWnd& wnd, int nMargin=5);
+
 
 	// Generated message map functions
 	//{{AFX_MSG(CVariableDlg)

@@ -153,7 +153,7 @@ int CSplashWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CenterWindow();
 
 	// Set a timer to destroy the splash screen.
-	SetTimer(1, 2000, NULL);
+	SetTimer(1, 1000, NULL);
 	return 0;
 }
 
@@ -214,14 +214,16 @@ void CSplashWnd::OnPaint()
     font.CreateFont(15,0,0,0,FW_DONTCARE,0,0,0,ANSI_CHARSET,0,0,0,
     		VARIABLE_PITCH|FF_DONTCARE,"Times New Roman");
     CFont* pOldFont = dc.SelectObject(&font);
-	dc.SetBkColor(RGB(192,192,192)); // more robust to draw transparently!
+	dc.SetBkColor(RGB(192,192,192)); // matches bg, but more robust to draw transparently!
 
-	CRect rect = CRect(0,0,0,0);
-	dc.DrawText(theApp.m_strAndesVersion, rect, DT_CALCRECT);
-	rect.OffsetRect(140, 265);
-	dc.DrawText(theApp.m_strAndesVersion, rect, DT_LEFT);
+	CString strVersion = theApp.m_strAndesVersion;
+#ifdef OLI // append text to show this is OLI version.
+	strVersion += " for OLI";
+#endif
+
+	dc.TextOut(140, 265, strVersion);
 	dc.SelectObject(pOldFont);
-#endif 
+#endif // new CPicture-based code
 }
 
 void CSplashWnd::OnTimer(UINT nIDEvent)

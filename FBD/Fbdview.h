@@ -1,6 +1,6 @@
 // FBDView.h : interface of the CFBDView class
 // 
-// $Id: Fbdview.h,v 1.1 2005/01/24 16:28:09 bvds Exp $
+// $Id: Fbdview.h,v 1.2 2005/04/11 18:53:54 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 
 // forward references, so don't need to worry about including 

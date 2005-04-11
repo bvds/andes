@@ -41,6 +41,8 @@
 #include "TransferDlg.h"
 #endif
 #include "PictCtrl.h"
+#include "VideoDlg.h"
+#include "OliView.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -332,7 +334,7 @@ BOOL CFBDApp::InitInstance()
 	AddDocTemplate(pTmpl);
 	m_ptmplProbSet = pTmpl;		
 
-#if OLI
+#ifdef OLI
 	// pseudo-type for task descriptor documents sent from OLI version.
 	// These are a variant of problem set docs.
 	// We won't really be using Doc/View on these, they're only included here 
@@ -341,7 +343,7 @@ BOOL CFBDApp::InitInstance()
 		IDR_TASK_TYPE, 
 		RUNTIME_CLASS(CProblemSet),
 		RUNTIME_CLASS(CMDIFixedSizeFrame),
-		RUNTIME_CLASS(CProbSetView));
+		RUNTIME_CLASS(COliView));
 	AddDocTemplate(pTmpl);
 	m_ptmplProbSet = pTmpl;		
 #endif OLI
@@ -446,12 +448,62 @@ BOOL CFBDApp::InitInstance()
    	// If no commands were specified on command line, we open the Task dialog
    	// to prompt the user to select something to work on. 
    	if (cmdInfo.m_nShellCommand == CCommandLineInfo::FileNothing) {
-   		DoTaskSelect();
+   		DoInitialTaskSelect();
    	}
     	
    	return bSucceeded;
 }
-        
+
+// This does the initial task selection if there is no task specified.
+// In the past, we deferred initializing the help system until a problem was
+// selected. However, now we must do that first so we can query the history
+// file to see if this is a new user.
+void CFBDApp::DoInitialTaskSelect()
+{
+	// Need helpsys to query history file
+	if (!EnsureHelpSysInit()) {
+		DoTaskSelect();
+		return;
+	}
+	// else have helpsys.
+
+#if 0 // to include video prompt in or out
+
+	// query helpsys to see if this is a new user
+	LPCSTR pszResult = HelpSystemExecf("(history-get Video)");
+	if (pszResult && (strcmp(pszResult, "1") != 0))
+	{
+		// hasn't seen the video. Run the video prompt dialog.
+		CVideoDlg dlg;
+		// choices are: 0 View now; 1: Later; 2: Been there, done that.
+		dlg.m_nChoice = 0;     
+		int nChoice;
+tryagain:
+		nChoice = (dlg.DoModal() == IDOK) ? dlg.m_nChoice : 1; // Cancel => later
+		if (nChoice == 0) {
+			ShowVideoPage("Intro_to_Andes.html");
+			goto tryagain;
+		}
+		else if (nChoice == 1) {
+			// close the application. Should give a warning message.
+			// if (AfxMessageBox("Exit Andes Now?", MB_YESNO) == IDYES) {
+				::PostMessage(theApp.GetMainFrame()->m_hWnd, WM_CLOSE, 0, 0);
+				return;
+			//} 
+			// else goto tryagain;
+		}
+		else if (nChoice == 2) {
+			// record that they've seen it
+			HelpSystemExecf("(history-set Video 1)");
+			// fall through to normal task select
+		}
+	}
+#endif
+
+	// else failed to get info, do normal task select.
+	DoTaskSelect();
+}
+       
 // 
 // LoadAndesSettings: set Andes options from values in the system registry.
 //
@@ -784,7 +836,7 @@ BOOL CFBDApp::EnsureHelpSysInit()
 	// no initialization to do if running without help system
 	if (m_bNoHelp) return m_bHelpSysInit = TRUE;
 
-	// only call this after student is logged in
+	// only call this after student  is logged in
 	if (! EnsureUserInit())
 		return FALSE;
 	
@@ -1734,11 +1786,14 @@ void CFBDApp::StartPlaybackMode(LPCTSTR pszPathName, IPlayerUI* pUI)
 // Note return value is generic CDocument pointer.
 CDocument* CFBDApp::GetActiveDoc()
 {
-	CMDIFrameWnd* pMDIFrame =(CMDIFrameWnd*)AfxGetMainWnd();
+	CWnd* pMainWnd = AfxGetMainWnd();
+	if (!pMainWnd || !pMainWnd->IsKindOf(RUNTIME_CLASS(CMDIFrameWnd)))
+		return NULL;
+	CMDIFrameWnd* pMDIFrame =(CMDIFrameWnd*)pMainWnd;
 	if (! pMDIFrame)
 		return NULL;
    	CMDIChildWnd * pChild = pMDIFrame->MDIGetActive();
-   	if ( !pChild )
+   	if ( !pChild)
    		return NULL;
 	CDocument * pDoc = pChild->GetActiveDocument();
    	return (pDoc);
@@ -2163,6 +2218,7 @@ void CFBDApp::CallTCardHelp(CWnd* pWnd, DWORD dwID, UINT nCmd /*= HELP_CONTEXT *
 		dwID += 0x00010000;
 	::WinHelp(pWnd->GetSafeHwnd(), strPath, HELP_TCARD | nCmd, dwID);
 }
+
 
 
 

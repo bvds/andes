@@ -57,6 +57,7 @@ BEGIN_MESSAGE_MAP(CProbSetView, CFormView)
 	ON_BN_CLICKED(ID_DELETE_SOLUTION, OnDeleteSolution)
 	ON_UPDATE_COMMAND_UI(ID_OPEN_PROBLEM, OnUpdateOpenProblem)
 	ON_UPDATE_COMMAND_UI(ID_DELETE_SOLUTION, OnUpdateDeleteSolution)
+	ON_LBN_DBLCLK(IDC_PROBLEM_LIST, OnOpenProblem)
 	//}}AFX_MSG_MAP
 	
 END_MESSAGE_MAP()
@@ -408,3 +409,4 @@ void CProbSetView::ShowVideo(CTask *pTask)
 
 	
 }
+

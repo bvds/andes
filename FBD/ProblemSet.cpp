@@ -293,13 +293,10 @@ BOOL CProblemSet::OnOpenDocument(LPCTSTR lpszPathName)
 			TRACE("User id not found in atd!\n");	// SHOULDN'T HAPPEN
 			return FALSE;
 		}
-		// set student id in Andes -- note might have to adjust helpsys read-student-info, or 
-		// logfilename or session id after this, depending on state. If it occurs before user 
-		// initialization, it will be OK.
+		// set global student id in Andes. Note might also have to adjust helpsys read-student-info, 
+		// or logfilename or session id after this, depending on application state when it occurs.
+		// If this occurs before user initialization, as when opening an OLI .atd, should be OK.
 		theApp.m_strUserName = strUserId;
-
-		// Fetch the student history file before opening problem
-		GetHistory();
 	}
 	
 	return TRUE;
@@ -371,17 +368,25 @@ CString CProblemSet::GetStudentSolnDir()
 	return g_strAndesDir + g_szProblemDir + "\\"  + g_szSolutionDir + "\\" + strStudent;
 }
 
+//-------------------------------------------------------------------------------------
+// Support for OLI operations on opening special oli problem set document (.atd file)
+//-------------------------------------------------------------------------------------
+
+// Http* functions are generic routines to make HTTPS calls via WinInet functions:
+
 // This calls an OLI function via a URL, with only success/failure expected back.
 // though may get an error page on failure.
-void CallURL(LPCTSTR szURL, LPCTSTR szCallId) // CallId used to name error page file
+int HttpCallURL(LPCTSTR szURL, LPCTSTR szCallId) // CallId used to name error page file
 {
+	int result = 1;
 	CInternetSession session("ANDES Session");
 	CHttpFile* pFile = NULL;
 	try
 	{
 		TRACE("Trying %s\n", szURL);
 		// MFC Wrapper parses https: and sets secure flag in underlying WinInet call 
-		pFile = (CHttpFile*) session.OpenURL(szURL, 1, INTERNET_FLAG_TRANSFER_ASCII); 
+		pFile = (CHttpFile*) session.OpenURL(szURL, 1, 
+			      INTERNET_FLAG_TRANSFER_ASCII | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID); 
 		if (pFile) {
 			DWORD dwRet;
 			pFile->QueryInfoStatusCode(dwRet);	
@@ -394,20 +399,25 @@ void CallURL(LPCTSTR szURL, LPCTSTR szCallId) // CallId used to name error page 
 				UINT nRead ;
 				while ((nRead = pFile->Read(szBuff, 1024)) > 0) 
 					out.Write(szBuff, nRead);
+				result = 0;
 			}
 		}
 		delete pFile;
+		// ::Sleep(1000);  // simulate delay
 	}
 	catch (CInternetException* pEx)		//catch errors from WinInet
 	{ 
 		TCHAR   szCause[255];
-        CString strFormatted;
+        CString strMsg;
 
         pEx->GetErrorMessage(szCause, 255);
 		TRACE("HTTP request failed, error: %s\n", szCause);
-
+		strMsg.Format("%s HTTP request failed: %s\n", szCallId, szCause);
+		AfxMessageBox(strMsg);
+		result = 0;
 	}
 	session.Close();
+	return result;
 }
 
 // 
@@ -428,7 +438,8 @@ int HttpGetFile(LPCTSTR szURL, LPCTSTR szPathName, LPCTSTR szCallId)
 	try
 	{
 		TRACE("Trying %s\n", szURL);
-		pFile = (CHttpFile*) session.OpenURL(szURL, 1, INTERNET_FLAG_TRANSFER_ASCII ); 
+		pFile = (CHttpFile*) session.OpenURL(szURL, 1, INTERNET_FLAG_TRANSFER_ASCII
+			                  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
 		if (pFile) {
 			DWORD dwRet;
 			pFile->QueryInfoStatusCode(dwRet);
@@ -464,118 +475,27 @@ int HttpGetFile(LPCTSTR szURL, LPCTSTR szPathName, LPCTSTR szCallId)
 				CFile out(strPath, CFile::modeCreate  |CFile::modeWrite);
 				char szBuff[BUFSIZ];
 				UINT nRead ;
-				while ((nRead = pFile->Read(szBuff, 1024)) > 0) 
+				while ((nRead = pFile->Read(szBuff, BUFSIZ)) > 0) 
 					out.Write(szBuff, nRead);
 				result = -1;
 			}
+			// ::Sleep(1000);
 		}
 		delete pFile;
 	}
 	catch (CInternetException* pEx)		//catch errors from WinInet
 	{ 
 		TCHAR   szCause[255];
-        CString strFormatted;
+        CString strMsg;
 
         pEx->GetErrorMessage(szCause, 255);
 		TRACE("HTTP request failed, error: %s\n", szCause);
+		strMsg.Format("%s HTTP request failed: %s\n", szCallId, szCause);
+		AfxMessageBox(strMsg);
 		result = -1;
 	}
 	session.Close();
 	return result;
-}
-
-int CProblemSet::GetHistory()			// Get the history file for current student
-{
-	theApp.GetMainFrame()->SetAngleText("Downloading student history file...");
-
-	CString strBaseUrl, strActivity, strToken, strCmd;
-	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
-		    m_opts.Lookup("authtoken", strToken)))
-	        {
-		TRACE("Couldn't find OLI arameters to get history!\n");
-		return -1;
-	}
-	// token may contain ampersands and equals signs
-	strToken.Replace("&", "%26");
-	strToken.Replace("=", "%3D");
-
-    strCmd = strBaseUrl + "/getHistory" +
-		             "?user=" + theApp.m_strUserName + 
-					 "&token=" + strToken;
-	CString strPathName = g_strAndesDir + "Log/" + theApp.m_strUserName + ".dat";
-	int result = HttpGetFile(strCmd, strPathName, "getHistory");
-
-	theApp.GetMainFrame()->SetAngleText("");
-	return result;
-}
-
-// download all components of the problem
-int CProblemSet::GetProblemFiles(CString strProblemId)
-{
-	theApp.GetMainFrame()->SetAngleText("Downloading problem files...");
-	CString strProblemUrl, strUrl;
-	if (! (m_opts.Lookup("problemurl", strProblemUrl))) return -1;
-
-	// download the .prb file in all cases. Fetch is case-sensitive,
-	// relies on fact that problemid we get is all upper-case and 
-	// prb name is all upper-case as well.
-	CString strBaseName = strProblemId + ".prb";
-	CString strProblemDir = g_strAndesDir + "Problems/";
-	if (HttpGetFile(strProblemUrl + strBaseName, 
-		strProblemDir + strBaseName, "getPrb") <= 0) {
-		theApp.GetMainFrame()->SetAngleText("Failed to download .prb file");
-		return -1;
-    }
-	// see if a solution .fbd or a master .fbd exists. solution filenames will
-	// be upper case, while by convention .fbd filenames are lower-case. 
-	strBaseName = strProblemId + ".fbd";	// upper-case
-
-	// set flag to create solution dir in case student never worked locally before
-	CTask* pTask = FindTask(strProblemId);
-	CString strSolnPath = pTask->GetSolutionPath(TRUE);	
-	if (GetSolution(strSolnPath) == 0
-		&& ! m_bViewSolution)				// = 0 => file doesn't exist
-	{
-		// no solution file: look for .fbd file
-		CString strProblemIdLC = strProblemId;	// lower-case
-		strProblemIdLC.MakeLower();
-		strBaseName = strProblemIdLC + ".fbd";
-        
-		if (HttpGetFile(strProblemUrl + strBaseName, 
-		            strProblemDir + strBaseName, "getFbd") == 0) 
-		{
-			// no solution and no fbd => new style problem. See if graphic file exists
-			// for now, assume graphic has same base name as problem (not true where
-			// multiple problems share same graphic, but could be made true.)
-	     /* for now, do this when importing graphic
-			strBaseName = strProblemIdLC + ".gif";
-			(void) HttpGetFile(strProblemUrl + strBaseName, 
-				               strProblemDir + strBaseName, "getGif");
-			*/
-		}
-	}
-	theApp.GetMainFrame()->SetAngleText("");
-	return 0;
-}
-
-int CProblemSet::GetProblemGraphic(CString strFileName)
-{
-	CString strProblemUrl;
-	if (! (m_opts.Lookup("problemurl", strProblemUrl))) return -1;
-	strFileName.MakeLower();	// gif filenames all lower-case
-	CString strProblemDir = g_strAndesDir + "Problems/";
-	return HttpGetFile(strProblemUrl + strFileName, 
-				       strProblemDir + strFileName, "getGif");
-}
-
-// get server part out of a URL, leaving object part in strObject
-CString getServer(LPCSTR pszURL, CString& strObject)
-{
-	DWORD dwServiceType;
-	CString strServer;
-	INTERNET_PORT nPort;
-	AfxParseURL(pszURL, dwServiceType, strServer, strObject, nPort );
-	return strServer;
 }
 
 // Helpers for URL encoding text files:
@@ -623,12 +543,23 @@ CString URLEncode(CString& sIn)
     return sOut;
 }
 
+// get server part out of a URL, leaving object part in strObject
+CString getServer(LPCSTR pszURL, CString& strObject)
+{
+	DWORD dwServiceType;
+	CString strServer;
+	INTERNET_PORT nPort;
+	AfxParseURL(pszURL, dwServiceType, strServer, strObject, nPort );
+	return strServer;
+}
+
 // build POST and append file text file contents, URL encoded. 
 // returns 1 for success, 0 for failure
 int HttpPostTextFile(LPCSTR pszURL, CString strStart, LPCSTR szPathName, LPCSTR szCallId)
 {
 	int result;
 	TCHAR   szCause[255];
+	CString strMsg;
 	CString strObject;
 	CString strServer = getServer(pszURL, strObject);
 	CInternetSession session("ANDES Session");
@@ -676,7 +607,8 @@ int HttpPostTextFile(LPCSTR pszURL, CString strStart, LPCSTR szPathName, LPCSTR 
 			                   CHttpConnection::HTTP_VERB_POST, strObject,
                               /*referrer:*/ NULL, /*context:*/ 1, /*accept type:*/ NULL, 
 							  /*version*/ NULL, /*flags:*/
-							  INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT); 
+							  INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT
+							  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
 		BOOL result = pFile->SendRequest(strHeaders,
 						(LPVOID)(LPCTSTR)strFormData, strFormData.GetLength());
 		// TRACE("SendRequest success = %d\n", result);
@@ -697,71 +629,25 @@ int HttpPostTextFile(LPCSTR pszURL, CString strStart, LPCSTR szPathName, LPCSTR 
 		} else { 
 			result = 1;
 		}
+		// ::Sleep(1000);
 	}
 	catch (CFileException* pEx)
 	{
         pEx->GetErrorMessage(szCause, 255);
 		TRACE("File operation error: %s\n", szCause);
+		strMsg.Format("%s File operation error: %s\n", szCallId, szCause);
+		AfxMessageBox(strMsg);
 		result = 0;
 	}
 	catch (CInternetException* pEx)		//catch errors from WinInet
 	{ 
         pEx->GetErrorMessage(szCause, 255);
 		TRACE("HTTP request failed, error: %s\n", szCause);
+		strMsg.Format("%s HTTP request failed: %s\n", szCallId, szCause);
+		AfxMessageBox(strMsg);
 		result = 0;
 	}
 	session.Close();
-	return result;
-}
-
-int CProblemSet::PutHistory(CString strPathName)
-{
-	theApp.GetMainFrame()->SetAngleText("Uploading student history file...");
-	CString strBaseUrl, strUserId, strActivity, strToken, strCmd;
-	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
-		    m_opts.Lookup("authtoken", strToken) &&
-			m_opts.Lookup("activity", strActivity) ))
-	        {
-		TRACE("Couldn't find OLI parameters to get history!\n");
-		return -1;
-	}
-	// token may contain ampersands and equals signs
-	strToken.Replace("&", "%26");
-	strToken.Replace("=", "%3D");
-
-    strCmd = strBaseUrl + "/putHistory"; 
-	CString strStart ="user=" + theApp.m_strUserName + 
-					 "&token=" + strToken +
-					 "&actGuid=" + strActivity +
-					 "&history=";
-	int result = HttpPostTextFile(strCmd, strStart, strPathName, "putHistory");
-	theApp.GetMainFrame()->SetAngleText("");
-	return result;
-}
-
-// returns 1 for success, 0 for failure
-int CProblemSet::PutLog(CString strPathName)
-{
-	theApp.GetMainFrame()->SetAngleText("Uploading session log...");
-	CString strBaseUrl, strActivity, strToken, strSession, strCmd;
-	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
-		    m_opts.Lookup("authtoken", strToken) &&
-			m_opts.Lookup("jsessionid", strSession) ))
-	        {
-		TRACE("Couldn't find OLI parameters to put log!\n");
-		return 0;
-	}
-	// token may contain ampersands and equals signs
-	strToken.Replace("&", "%26");
-	strToken.Replace("=", "%3D");
-
-    strCmd = strBaseUrl + "/storeLog"; 
-	CString strStart ="user=" + theApp.m_strUserName + 
-					 "&token=" + strToken +
-					 "&session=" + strSession +
-					 "&log=";
-	int result = HttpPostTextFile(strCmd, strStart, strPathName, "storeLog");
-	theApp.GetMainFrame()->SetAngleText("");
 	return result;
 }
 
@@ -773,6 +659,7 @@ int HttpPostBinaryFile(LPCSTR pszURL, LPCTSTR strStart, LPCSTR szPathName, LPCST
 {
 	int result;
 	TCHAR   szCause[255];
+	CString strMsg;
 	CString strObject;
 	CString strServer = getServer(pszURL, strObject);
 	CInternetSession session("ANDES Session");
@@ -821,7 +708,8 @@ int HttpPostBinaryFile(LPCSTR pszURL, LPCTSTR strStart, LPCSTR szPathName, LPCST
 			                   CHttpConnection::HTTP_VERB_POST, strObject,
                               /*referrer:*/ NULL, /*context:*/ 1, /*accept type:*/ NULL, 
 							  /*version*/ NULL, /*flags:*/
-							  INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT); 
+							  INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT
+							  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
 		BOOL result = pFile->SendRequest(strHeaders,
 						(LPVOID)(LPCTSTR)strFormData, strFormData.GetLength());
 		// look for error page on failure. Result just indicates request was sent.
@@ -832,21 +720,26 @@ int HttpPostBinaryFile(LPCSTR pszURL, LPCTSTR strStart, LPCSTR szPathName, LPCST
 			CString strPath = g_strAndesDir + "/" + szCallId + "-result.html";
 			CFile out(strPath, CFile::modeCreate  |CFile::modeWrite);
 			char szBuff[BUFSIZ]; UINT nRead ;
-			while ((nRead = pFile->Read(szBuff, 1024)) > 0) 
+			while ((nRead = pFile->Read(szBuff, BUFSIZ)) > 0) 
 				out.Write(szBuff, nRead);
 			result = 0;
 		} else  result = 1;		// success! 
+		// ::Sleep(1000);
 	}
 	catch (CFileException* pEx)
 	{
         pEx->GetErrorMessage(szCause, 255);
 		TRACE("File operation error: %s\n", szCause);
+		strMsg.Format("%s File operation error: %s\n", szCallId, szCause);
+		AfxMessageBox(strMsg);
 		result = 0;
 	}
 	catch (CInternetException* pEx)		//catch errors from WinInet
 	{ 
         pEx->GetErrorMessage(szCause, 255);
 		TRACE("HTTP request failed, error: %s\n", szCause);
+		strMsg.Format("%s HTTP request failed: %s\n", szCallId, szCause);
+		AfxMessageBox(strMsg);
 		result = 0;
 	}
 	session.Close();
@@ -862,7 +755,8 @@ int HttpGetFileBinary(LPCTSTR szURL, LPCTSTR szPathName, LPCTSTR szCallId)
 	try
 	{
 		TRACE("Trying %s\n", szURL);
-		pFile = (CHttpFile*) session.OpenURL(szURL, 1, INTERNET_FLAG_TRANSFER_ASCII ); 
+		pFile = (CHttpFile*) session.OpenURL(szURL, 1, INTERNET_FLAG_TRANSFER_ASCII
+			                     |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
 		if (pFile) {
 			DWORD dwRet;
 			pFile->QueryInfoStatusCode(dwRet);
@@ -915,27 +809,167 @@ int HttpGetFileBinary(LPCTSTR szURL, LPCTSTR szPathName, LPCTSTR szCallId)
 				CFile out(strPath, CFile::modeCreate  |CFile::modeWrite);
 				char szBuff[BUFSIZ];
 				UINT nRead ;
-				while ((nRead = pFile->Read(szBuff, 1024)) > 0) 
+				while ((nRead = pFile->Read(szBuff, BUFSIZ)) > 0) 
 					out.Write(szBuff, nRead);
 				result = -1;
 			}
 
 		}
 		delete pFile;
+		// ::Sleep(1000);
 	}
 	catch (CInternetException* pEx)		//catch errors from WinInet
 	{ 
 		TCHAR   szCause[255];
-        CString strFormatted;
+        CString strMsg;
 
         pEx->GetErrorMessage(szCause, 255);
 		TRACE("HTTP request failed, error: %s\n", szCause);
+		strMsg.Format("%s HTTP request failed: %s\n", szCallId, szCause);
+		AfxMessageBox(strMsg);
 		result = -1;
 	}
 	session.Close();
 	return result;
 }
 
+//-------------------------------------------------------
+// ANDES-specific OLI transactions in CProblemSet methods:
+//-------------------------------------------------------
+
+int CProblemSet::GetHistory()			// Get the history file for current student
+{
+	SetStatusMsg("Downloading student history file...");
+	CString strBaseUrl, strActivity, strToken, strCmd;
+	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
+		    m_opts.Lookup("authtoken", strToken)))
+	        {
+		TRACE("Couldn't find OLI arameters to get history!\n");
+		return -1;
+	}
+	// token may contain ampersands and equals signs
+	strToken.Replace("&", "%26");
+	strToken.Replace("=", "%3D");
+
+    strCmd = strBaseUrl + "/getHistory" +
+		             "?user=" + theApp.m_strUserName + 
+					 "&token=" + strToken;
+	CString strPathName = g_strAndesDir + "Log/" + theApp.m_strUserName + ".dat";
+	int result = HttpGetFile(strCmd, strPathName, "getHistory");
+
+	SetStatusMsg("");
+	return result;
+}
+
+// download all components of the problem
+int CProblemSet::GetProblemFiles(CString strProblemId)
+{
+	SetStatusMsg("Downloading problem files...");
+	CString strProblemUrl, strUrl;
+	if (! (m_opts.Lookup("problemurl", strProblemUrl))) return -1;
+
+	// download the .prb file in all cases. Fetch is case-sensitive,
+	// relies on fact that problemid we get is all upper-case and 
+	// prb name is all upper-case as well.
+	CString strBaseName = strProblemId + ".prb";
+	CString strProblemDir = g_strAndesDir + "Problems/";
+	if (HttpGetFile(strProblemUrl + strBaseName, 
+		            strProblemDir + strBaseName, "getPrb") <= 0) {
+		SetStatusMsg("Failed to download .prb file!");
+		return -1;
+    }
+	// see if a solution .fbd or a master .fbd exists. solution filenames will
+	// be upper case, while by convention .fbd filenames are lower-case. 
+	strBaseName = strProblemId + ".fbd";	// upper-case
+
+	// set flag to create solution dir in case student never worked locally before
+	CTask* pTask = FindTask(strProblemId);
+	CString strSolnPath = pTask->GetSolutionPath(TRUE);	
+	if (GetSolution(strSolnPath) == 0
+		&& ! m_bViewSolution)				// = 0 => file doesn't exist
+	{
+		// no solution file: look for .fbd file
+		CString strProblemIdLC = strProblemId;	// lower-case
+		strProblemIdLC.MakeLower();
+		strBaseName = strProblemIdLC + ".fbd";
+        
+		if (HttpGetFile(strProblemUrl + strBaseName, 
+		            strProblemDir + strBaseName, "getFbd") == 0) 
+		{
+			// no solution and no fbd => new style problem. See if graphic file exists
+			// for now, assume graphic has same base name as problem (not true where
+			// multiple problems share same graphic, but could be made true.)
+	     /* for now, do this when importing graphic
+			strBaseName = strProblemIdLC + ".gif";
+			(void) HttpGetFile(strProblemUrl + strBaseName, 
+				               strProblemDir + strBaseName, "getGif");
+			*/
+		}
+	}
+	SetStatusMsg("");
+	return 0;
+}
+
+int CProblemSet::GetProblemGraphic(CString strFileName)
+{
+	CString strProblemUrl;
+	if (! (m_opts.Lookup("problemurl", strProblemUrl))) return -1;
+	strFileName.MakeLower();	// gif filenames all lower-case
+	CString strProblemDir = g_strAndesDir + "Problems/";
+	return HttpGetFile(strProblemUrl + strFileName, 
+				       strProblemDir + strFileName, "getGif");
+}
+
+int CProblemSet::PutHistory(CString strPathName)
+{
+	SetStatusMsg("Uploading student history file...");
+	CString strBaseUrl, strUserId, strActivity, strToken, strCmd;
+	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
+		    m_opts.Lookup("authtoken", strToken) &&
+			m_opts.Lookup("activity", strActivity) ))
+	        {
+		TRACE("Couldn't find OLI parameters to get history!\n");
+		return -1;
+	}
+	// token may contain ampersands and equals signs
+	strToken.Replace("&", "%26");
+	strToken.Replace("=", "%3D");
+
+    strCmd = strBaseUrl + "/putHistory"; 
+	CString strStart ="user=" + theApp.m_strUserName + 
+					 "&token=" + strToken +
+					 "&actGuid=" + strActivity +
+					 "&history=";
+	int result = HttpPostTextFile(strCmd, strStart, strPathName, "putHistory");
+	SetStatusMsg("");
+	return result;
+}
+
+// returns 1 for success, 0 for failure
+int CProblemSet::PutLog(CString strPathName)
+{
+	SetStatusMsg("Uploading session log...");
+	CString strBaseUrl, strActivity, strToken, strSession, strCmd;
+	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
+		    m_opts.Lookup("authtoken", strToken) &&
+			m_opts.Lookup("jsessionid", strSession) ))
+	        {
+		TRACE("Couldn't find OLI parameters to put log!\n");
+		return 0;
+	}
+	// token may contain ampersands and equals signs
+	strToken.Replace("&", "%26");
+	strToken.Replace("=", "%3D");
+
+    strCmd = strBaseUrl + "/storeLog"; 
+	CString strStart ="user=" + theApp.m_strUserName + 
+					 "&token=" + strToken +
+					 "&session=" + strSession +
+					 "&log=";
+	int result = HttpPostTextFile(strCmd, strStart, strPathName, "storeLog");
+	SetStatusMsg("");
+	return result;
+}
 
 int CProblemSet::GetSolution(CString strPathName)
 {
@@ -944,7 +978,7 @@ int CProblemSet::GetSolution(CString strPathName)
 		    m_opts.Lookup("authtoken", strToken) &&
 			m_opts.Lookup("activity", strActivity)))
 	        {
-		TRACE("Couldn't find OLI arameters to get history!\n");
+		TRACE("Couldn't find OLI parameters to get history!\n");
 		return -1;
 	}
 	// token may contain ampersands and equals signs
@@ -960,6 +994,7 @@ int CProblemSet::GetSolution(CString strPathName)
 
 int CProblemSet::PutSolution(CString strPathName)
 {
+	SetStatusMsg("Uploading solution file ...");
 	CString strBaseUrl, strActivity, strToken, strCmd;
 	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
 		    m_opts.Lookup("authtoken", strToken) &&
@@ -977,10 +1012,44 @@ int CProblemSet::PutSolution(CString strPathName)
 					 "&token=" + strToken +
 					 "&actGuid=" + strActivity +
 					 "&solution=";
-	return HttpPostBinaryFile(strCmd, strStart, strPathName, "putWork");
+	int result = HttpPostBinaryFile(strCmd, strStart, strPathName, "putWork");
+	SetStatusMsg("");
+	return result;
 }
 
+int CProblemSet::SetScore(CFBDDoc* pDoc)
+{
+	int result;
+	SetStatusMsg("Recording problem score...");
+	CString strBaseUrl, strActivity, strToken, strCmd;
+	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
+		    m_opts.Lookup("authtoken", strToken) &&
+	        m_opts.Lookup("activity", strActivity)
+			)) {
+		TRACE("Couldn't find OLI parameters to set score!\n");
+		return 0;
+	}
+	// token may contain ampersands and equals signs
+	strToken.Replace("&", "%26");
+	strToken.Replace("=", "%3D");
+	// for safety, make sure score we send is not empty string:
+	CString strScore = pDoc->m_strScore;
+	if (strScore.IsEmpty()) strScore = "0";
 
+	CString strCmdBase = strBaseUrl + "/score" +
+		             "?user=" + theApp.m_strUserName + 
+					 "&token=" + strToken + 
+		             "&activity=" + strActivity;
+	CString strCmdScore = strCmdBase +  "&scoreId=score" + 
+		                        "&scoreValue=" + strScore;
+	CString strCmdStatus = strCmdBase + "&scoreId=status" + 
+		                        "&scoreValue=" + pDoc->GetWorkStateStr();
+	// status score is less important than score score
+	result = HttpCallURL(strCmdScore, "setScore")
+	         && HttpCallURL(strCmdStatus, "setStatus");
+	SetStatusMsg("");
+	return result;
+}
 
 //
 // Update on close of problem. Should be fired from problem's OnCloseDocument
@@ -1001,35 +1070,10 @@ void CProblemSet::PreCloseProblem(CFBDDoc* pDoc)
 
 	// If only instructor viewing solution, nothing to do here
 	if (m_bViewSolution) return;
-
+#if 0 // move to post	
 	// Else do Oli post problem stuff:
 	// set the score variables
-	CString strBaseUrl, strActivity, strToken, strCmd;
-	if (! ( m_opts.Lookup("baseurl", strBaseUrl) && 
-		    m_opts.Lookup("authtoken", strToken) &&
-	        m_opts.Lookup("activity", strActivity)
-			)) {
-		TRACE("Couldn't find OLI parameters to set score!\n");
-		return;
-	}
-	// token may contain ampersands and equals signs
-	strToken.Replace("&", "%26");
-	strToken.Replace("=", "%3D");
-	// for safety, makesure score is not empty:
-	CString strScore = pDoc->m_strScore;
-	if (strScore.IsEmpty()) strScore = "0";
-
-	CString strCmdBase = strBaseUrl + "/score" +
-		             "?user=" + theApp.m_strUserName + 
-					 "&token=" + strToken + 
-		             "&activity=" + strActivity;
-	CString strCmdScore = strCmdBase +  "&scoreId=score" + 
-		                        "&scoreValue=" + pDoc->m_strScore;
-	CString strCmdStatus = strCmdBase + "&scoreId=status" + 
-		                        "&scoreValue=" + pDoc->GetWorkStateStr();
-
-	CallURL(strCmdStatus, "setStatus");
-	CallURL(strCmdScore, "setScore");
+	SetScore(pDoc);
 
 	// Upload solution, if it exists: 
 	// OLI version now saves solution always on close, so its OK.
@@ -1039,19 +1083,38 @@ void CProblemSet::PreCloseProblem(CFBDDoc* pDoc)
 	if (CFile::GetStatus(strSolnPath, statSoln)) {
 		PutSolution(strSolnPath);
 	}
+#endif 0
 }
 
+
 // Following has to happen *after* DDE call to help system to close problem,
-// so WM_CLOSE message isn't pumped inside the DDE wait state, and also after
-// student history file is written out by helpsys.
-void CProblemSet::PostCloseProblem(CString strProblemId)
+// so WM_CLOSE message isn't pumped inside the DDE wait state, and also so
+// it occurs AFTER student history file is written out by helpsys.
+void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 {
 	// If not running under OLI, nothing to do here
 	if (! m_bOli) return;
 
-	// if only viewing solutions, don't upload solution or log.
+	// Else finished an OLI problem set
+
+	// if only viewing solutions, don't upload info at end
 	if (! m_bViewSolution)
 	{
+		// Else do Oli post problem stuff:
+		AfxGetApp()->BeginWaitCursor();
+		
+		// Upload the score variables
+		SetScore(pDoc);
+
+		// Upload solution, if it exists: 
+		// OLI version workbench now saves solution always on close, so its OK.
+		CTask* pTask = FindTask(pDoc->m_strProblemId);
+		CString strSolnPath = pTask->GetSolutionPath();
+		CFileStatus statSoln;
+		if (CFile::GetStatus(strSolnPath, statSoln)) {
+			PutSolution(strSolnPath);
+		}
+
 		// Upload the student history file. Must do it after helpsys writes
 		// out most recent grades on close of problem
 		PutHistory(g_strAndesDir + "Log/" + theApp.m_strUserName + ".dat");
@@ -1059,6 +1122,20 @@ void CProblemSet::PostCloseProblem(CString strProblemId)
 		// Finish log file and upload it. 
 		HistoryFileEnd();
 		PutLog(HistoryFileGetPath());
+
+		AfxGetApp()->EndWaitCursor();
+	}
+	else // just viewed a saved solution
+	{
+		// following lets us repair a bad history file. Have to start Andes with repaired
+		// file first, then view student's work 
+		if (AfxMessageBox("Update student's history file from this session?", MB_YESNO)
+			== IDYES) {
+			AfxGetApp()->BeginWaitCursor();
+			PutHistory(g_strAndesDir + "Log/" + theApp.m_strUserName + ".dat");
+			AfxGetApp()->EndWaitCursor();
+
+		}
 	}
 
 	// Post message to close the whole application if not already closing. 
@@ -1095,4 +1172,14 @@ CTask* CProblemSet::GetFirstIncompleteTask()
 BOOLEAN CTask::IsVideo()
 {
 	return m_strExt.CompareNoCase("wmv") == 0;
+}
+
+// Set the status message for this problem set
+void CProblemSet::SetStatusMsg(LPCTSTR pszText)
+{
+	// put it on app's status bar.
+	theApp.GetMainFrame()->SetAngleText(pszText);
+
+	// also forward it to the view
+	UpdateAllViews(NULL, HINT_UPDATE_STATUS_MSG, (CObject*) pszText);
 }

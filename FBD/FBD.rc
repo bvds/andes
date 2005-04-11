@@ -1470,7 +1470,7 @@ IDD_VECTOR_FORCE DIALOGEX 0, 0, 223, 140
 STYLE DS_MODALFRAME | DS_CONTEXTHELP | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "Force Definition"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "Force on &Body",IDC_LABEL_BODY,6,6,44,8,0,0,
                     HIDC_LABEL_BODY
@@ -1486,7 +1486,7 @@ BEGIN
                     WS_GROUP | WS_TABSTOP,0,HIDC_AGENT
     LTEXT           "of &Type",IDC_LAGENT,120,42,23,8,0,0,HIDC_LAGENT
     COMBOBOX        IDC_FORCE_TYPE,146,41,69,106,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP,0,HIDC_BODY_TEXT2
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_FORCE_TYPE
     GROUPBOX        "",IDC_BOX_TIMEDIR,6,56,211,26,NOT WS_VISIBLE
     LTEXT           "&Orientation:",IDC_L2ANGLE,7,66,33,8,NOT WS_VISIBLE,0,
                     HIDC_L2ANGLE
@@ -2106,15 +2106,15 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Declare Variable"
 FONT 10, "MS Sans Serif"
 BEGIN
-    LTEXT           "Variable",IDC_STATIC_VALUE,7,9,60,8
+    LTEXT           "",IDC_STATIC_VALUE,7,9,60,8
     LTEXT           "of &Body",IDC_STATIC_BODY,68,9,26,8
     COMBOBOX        IDC_BODY,95,7,70,103,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     GROUPBOX        "",IDC_BOX_TIME,7,24,215,19,NOT WS_VISIBLE
     LTEXT           "at &Time",IDC_STATIC_TIME,7,31,24,8
-    COMBOBOX        IDC_TIME,36,29,76,96,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_TIME,36,29,53,96,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "and",IDC_STATIC_DUETO,120,31,24,8,NOT WS_VISIBLE
+    LTEXT           "due to",IDC_STATIC_DUETO,120,31,24,8,NOT WS_VISIBLE
     COMBOBOX        IDC_FORCEAGENT,146,30,76,96,CBS_DROPDOWNLIST | CBS_SORT | 
                     NOT WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
     GROUPBOX        "",IDC_BOX_LABEL,7,44,215,22,NOT WS_VISIBLE
@@ -2356,26 +2356,23 @@ BEGIN
     GROUPBOX        "Options",IDC_STATIC,3,42,246,106
 END
 
-IDD_ENERGY DIALOGEX 0, 0, 197, 121
+IDD_ENERGY DIALOGEX 0, 0, 202, 121
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Declare Energy Variable"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "Energy",IDC_STATIC_VALUE,7,7,23,8
     LTEXT           "of &Type",IDC_STC_TYPE,33,7,24,8
     COMBOBOX        IDC_NRG_TYPE,61,7,83,62,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "due to interaction",IDC_PE_LABEL,143,8,52,8,NOT 
-                    WS_VISIBLE | WS_DISABLED
+    LTEXT           "due to interaction",IDC_PE_LABEL,145,8,52,8
     LTEXT           "of &Body",IDC_LABEL_NRGBODY,7,32,23,8,0,0,
                     HIDC_LABEL_NRGBODY
     COMBOBOX        IDC_NRGBODY,38,32,61,53,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP,0,HIDC_NRGBODY
-    LTEXT           "a&nd",IDC_AGENT_LABEL,107,32,13,8,NOT WS_VISIBLE | 
-                    WS_DISABLED
-    COMBOBOX        IDC_NRG_AGENT,130,32,61,55,CBS_DROPDOWNLIST | NOT 
-                    WS_VISIBLE | WS_DISABLED | WS_VSCROLL | WS_TABSTOP,0,
-                    HIDC_NRG_AGENT
+    LTEXT           "a&nd",IDC_AGENT_LABEL,107,32,13,8
+    COMBOBOX        IDC_NRG_AGENT,130,32,67,55,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_NRG_AGENT
     LTEXT           "&At time",IDC_TIME_LABEL,8,54,23,8,0,0,HIDC_TIME_LABEL
     COMBOBOX        IDC_TIME,38,54,47,62,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP,0,HIDC_TIME
@@ -2748,6 +2745,32 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,94,90,50,14
 END
 
+IDD_VIDEO DIALOG DISCARDABLE  0, 0, 277, 134
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Welcome"
+FONT 10, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,111,112,50,14,WS_GROUP
+    CTEXT           "Welcome to Andes",IDC_STATIC,109,9,58,8
+    LTEXT           "In order to to understand how to use Andes, it is essential to watch an introductory training video. The video takes about 20 minutes. Do you want to view it now?",
+                    IDC_STATIC,21,30,240,21
+    CONTROL         "Yes, watch it now.",IDC_RADIO1,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,76,55,68,10
+    CONTROL         "Not now.  Exit Andes and ask again next time.",
+                    IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,76,69,146,10
+    CONTROL         "I've seen it already. Please don't ask me again.",
+                    IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,76,83,168,10
+END
+
+IDD_OLIVIEW DIALOG DISCARDABLE  0, 0, 222, 93
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Status: ",IDC_STATUS,9,33,198,21,SS_SUNKEN
+    LTEXT           "OLI Task:",IDC_STATIC,9,6,32,8
+    LTEXT           "???",IDC_TASK_NAME,53,6,123,13
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -2756,8 +2779,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 9,0,0,0
- PRODUCTVERSION 9,0,0,0
+ FILEVERSION 9,1,3,1
+ PRODUCTVERSION 9,1,3,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -2775,14 +2798,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "9, 0, 0, 0\0"
+            VALUE "FileVersion", "9, 1, 3, 1\0"
             VALUE "InternalName", "FBD\0"
-            VALUE "LegalCopyright", "Copyright © 1996-2003\0"
+            VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "9, 0, 0, 0\0"
+            VALUE "ProductVersion", "9, 1, 3, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3291,7 +3314,7 @@ BEGIN
     IDD_ENERGY, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 191
+        RIGHTMARGIN, 196
         TOPMARGIN, 7
         BOTTOMMARGIN, 114
     END
@@ -3407,6 +3430,22 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 101
     END
+
+    IDD_VIDEO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 270
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 127
+    END
+
+    IDD_OLIVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -3480,6 +3519,8 @@ BEGIN
 0x7041, 0x6c70, 0x6569, 0x0064, 
     IDC_FORCE_TYPE, 0x403, 8, 0
 0x7542, 0x796f, 0x6e61, 0x0074, 
+    IDC_FORCE_TYPE, 0x403, 9, 0
+0x7250, 0x7365, 0x7573, 0x6572, "\000" 
     0
 END
 

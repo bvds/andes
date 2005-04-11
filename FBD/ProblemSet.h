@@ -65,13 +65,15 @@ public:
 
 	CString GetStudentSolnDir();
 
+	BOOL m_bOli;				// true if this is an OLI .atd problem set doc
+
 // Operations
 public:
 	void AddTask(LPCTSTR pszName, LPCTSTR pszExt = ".fbd");
 	void RemoveTask(LPCTSTR pszName);
 	CTask* FindTask(LPCTSTR pszName);
 	void PreCloseProblem(CFBDDoc* pDoc);
-	void PostCloseProblem(CString strProblemId);
+	void PostCloseProblem(CFBDDoc* pDoc);
 	
 	// For OLI interface
 	int GetHistory();
@@ -81,6 +83,7 @@ public:
 	int PutLog(CString strPathName);
 	int GetProblemFiles(CString strProblemId);
 	int GetProblemGraphic(CString strFileName);
+	int SetScore(CFBDDoc* pDoc);
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -96,9 +99,9 @@ public:
 
 // Implementation
 public:
-	BOOL m_bOli;
 	BOOL m_bViewSolution;
 	CTask* GetFirstIncompleteTask();
+
 	virtual ~CProblemSet();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
@@ -107,6 +110,7 @@ public:
 protected:
 	void GetName(CString strPath);
 	void UpdateSolutionState();
+	void SetStatusMsg(LPCTSTR pszText);
 	
 	// Generated message map functions
 protected:
@@ -115,6 +119,8 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
+
+#define HINT_UPDATE_STATUS_MSG 1
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

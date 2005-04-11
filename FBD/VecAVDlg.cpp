@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.1 2005/01/24 16:28:09 bvds Exp $
+//$Id: VecAVDlg.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"

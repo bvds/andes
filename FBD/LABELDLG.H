@@ -1,6 +1,6 @@
 // LabelDlg.h : header file
 // 
-// $Id: LABELDLG.H,v 1.1 2005/01/24 16:28:09 bvds Exp $
+// $Id: LABELDLG.H,v 1.2 2005/04/11 18:53:54 anders Exp $
 #include "LogEdit.h"
 #include "LgDialog.h"
 /////////////////////////////////////////////////////////////////////////////

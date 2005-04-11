@@ -1,6 +1,6 @@
 // VecCpDlg.h : header file
 //
-//$Id: VecCpDlg.h,v 1.1 2005/01/24 16:28:10 bvds Exp $
+//$Id: VecCpDlg.h,v 1.2 2005/04/11 18:53:54 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 // CVectorCompDlg dialog
 

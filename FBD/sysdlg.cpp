@@ -1,6 +1,6 @@
 // SystemDlg.cpp : implementation file
 // 
-// $Id: sysdlg.cpp,v 1.1 2005/01/24 16:28:09 bvds Exp $
+// $Id: sysdlg.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -73,8 +73,12 @@ BOOL CSystemDlg::OnInitDialog()
 
 	if (!m_pDocument)	return TRUE;
 
+#if OLI  // keep old behavior in OLI version, for now
 	// Hide time choice if no time list in problem
 	if (m_pDocument->m_strTimes.IsEmpty() || m_bInPlan) {
+#else // new: ALWAYS disable time on bodies
+	if (TRUE) {
+#endif 
 		m_cboTimeList.ShowWindow(SW_HIDE);
 		m_stcTimeList.ShowWindow(SW_HIDE);
 		//remove space taken by these hidden controls

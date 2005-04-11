@@ -241,7 +241,7 @@ void CFBDDoc::Serialize(CArchive& ar)
 			ar >> m_strGraphicFile;
 		}
 		if (m_strFeatures.IsEmpty()) 
-			SetFeatureList();	// init from m_wConcept
+			AddConceptsToFeatures();	// init from m_wConcept
 		
 		if (m_nVersion < 17)	// old version stored in delimited strings
 		{
@@ -862,6 +862,10 @@ void CFBDDoc::OnCloseDocument()
 	// MessageBeep(MB_ICONEXCLAMATION);
 
 	// Now notify help system of problem close: //
+	// Note: helpsys close call will reset score to zero. Save actual problem score
+	// over this set, so score is available post-close for OLI updating. (Could also
+	// set flag to suppress helpsys setscore handler from updating this doc).
+	CString strScore = m_strScore; // save score over automatic reset on close
 
 	// Make sure help system had problem open for feedback. Whether read-problem-info 
 	// succeeded is recorded in the state of the m_bFeedback flag.
@@ -878,13 +882,16 @@ void CFBDDoc::OnCloseDocument()
 		// result of this call is unused, but must block till RPC returns:
 	}
 
-	// now we are really finished with the document so free it.
-	delete this;	// suicide. Don't access methods or data beyond this point!
+	m_strScore = strScore;  //restore score so PostClose handler has it
 
 	// if this is in a problem set, notify it after problem close completed.
 	if (pTask) { 
-		pSet->PostCloseProblem(strProblemId);
+		pSet->PostCloseProblem(this);
 	}
+
+	// now we are really finished with the document so free it.
+	// !!! Don't access methods or data beyond this point!!!
+	delete this;	// suicide. 
 
 	// Done close of this problem, have to decide what app should do next:
 	// For students, we popup the task selection dialog again.
@@ -1063,7 +1070,7 @@ void CFBDDoc::CheckInitEntries()
 		if (pObj->IsKindOf(RUNTIME_CLASS(CDrawRect)) && ((CDrawRect*)pObj)->IsAnswerBox() ) {
 			CString strAnswer = pObj->m_strName;
 			strAnswer.TrimLeft();  // strip leading whitespace, process if anything left
-			// since old files (CDrawRect<v1) didn't serialize answer status but relied
+			// since old files (CDrawRect<v2) didn't serialize answer status but relied
 			// on always resubmitting to recreate answer status, we always recheck.
 			if (! strAnswer.IsEmpty() /*&& pObj->m_status != statusUnknown */)
 			{	
@@ -2304,6 +2311,8 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 		}
 
 		// else process line containing one or more answer boxes:
+		CGroup* pGroup = NULL;
+		int nGroups = 0;
 		
 		//  skip a line to accomodate box height, unless preceding line is already blank:
 		if (! (i>0 && strLines[i-1].IsEmpty())) // !!could have spaces, should test for printing char
@@ -2315,10 +2324,23 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 		while ((iAnsStart=strRemain.Find("[")) != -1
 			   && (iAnsEnd=strRemain.Find("]", iAnsStart)) != -1)
 		{
-			CString strPrefix = strRemain.Left(iAnsStart - 1);
+			CString strPrefix = strRemain.Left(iAnsStart);
 			// Extract answer box marker text string. Its size will determine size of box
 			CString strAnswerSize = strRemain.Mid(iAnsStart, iAnsEnd-iAnsStart);
 				
+			// if see a "{" before answer box, we start a choice group -- note can span multiple lines
+			if (strPrefix.Find("{") != -1) {
+				pGroup = new CGroup();
+				pGroup->m_strId.Format("MC-%d", ++nGroups); 
+				Add(pGroup, FALSE); pGroup->m_flag = TEACHER_OBJECT;
+				strPrefix.Delete(strPrefix.Find("{"));
+			}
+			// if see a "}" before answer box, finish current choice group, if there is one
+			if (pGroup && strPrefix.Find("}") != -1) {
+				pGroup = NULL;
+				strPrefix.Delete(strPrefix.Find("}"));
+			}
+
 			// Create text piece for prefix. We use Stmt-N id so we can find and
 			// remove autolayout items if author edits statement spec later
 			CLabel *pText = new CLabel(CPoint(xPos, yPos), strPrefix);
@@ -2343,8 +2365,10 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 				CChoice* pChoice = new CChoice(rcAnswer);
 				strAnswerSize.Replace("[__", "");
 				pChoice->m_strName = strAnswerSize;
-				pChoice->m_strId.Format("Answer-%d", ++nAnswers);		
-				Add(pChoice, /*bGenId*/ FALSE); pChoice->m_flag = TEACHER_OBJECT;
+				pChoice->m_strId.Format("Answer-%d", ++nAnswers);
+				// add it to group, if any
+				if (pGroup) pGroup->AddObj(pChoice);
+				else Add(pChoice, /*bGenId*/ FALSE); pChoice->m_flag = TEACHER_OBJECT;
 				pChoice->Invalidate();
 				xPos+= pChoice->m_position.Width();
 			} else { // create an answer box rectangle
@@ -2361,9 +2385,16 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 				strRemain = strRemain.Mid(iAnsEnd + 1);
 			else strRemain.Empty();
 		}
-			
+		
 		// no more answer boxes left on this line:
 		// but may be remaining text piece after last answer box
+
+		// trailing text may just close a group
+		if (pGroup && strRemain.Find("}") != -1) {
+				pGroup = NULL;
+				strRemain.Delete(strRemain.Find("}"));
+		}
+		// add any trailing text piece
 		if (!strRemain.IsEmpty()) {
 			CLabel* pText = new CLabel(CPoint(xPos, yPos), strRemain);
 			pText->m_strId.Format("Stmt-%d", ++nText);
@@ -2518,6 +2549,13 @@ void CFBDDoc::OnEditProperties()
 	// spec info for new problem wizard
 	m_strStatement =	pageStatement.m_strStatement;
 	m_strGraphicFile = pageStatement.m_strGraphicFile;
+	// Need to sync features list with possibly-updated concept flags
+	// set while editing document. A pain because might have some feature-sets from an initial
+	// .prb import that aren't in the set shown on property page, so we shouldn't just reset
+	// the list to zero and add. Following routine only adds features, doesn't take them out if
+	// they've been removed. Should change everything to use a single set representation throughout
+	// to clean this up.
+	AddConceptsToFeatures();
 
 	// re-layout problem from spec
 	LayoutProblem(); 
@@ -2575,18 +2613,28 @@ featureMap[] =
 	"rotkin",     ID_PROB_ROTKINEMATICS,
 	"angmom",     ID_PROB_ROTKINEMATICS,
 	"torque",     ID_PROB_ROTKINEMATICS,
+	"fluids",     ID_PROB_FLUIDS,
 	"circuits",   ID_PROB_CIRCUITS,
 	"E&M",        ID_PROB_EM,
 	"optics",     ID_PROB_OPTICS,
+	"relvel",     ID_PROB_RELVEL,
 };
 const int nFeatures ARRAY_SIZE(featureMap);
 
-void CFBDDoc::SetFeatureList()
+// Add features from (old) wConcepts feature bit vector to (new) feature stringlist
+// To be used on old-style fbd-based problems where bit vector was set in 
+// property dialog. Need to also set new stringlist representation (used for .prb-based
+// problems) since variable menu construction code now uses string-list sets.
+// NB: feature bit vector continues to be used, and is also set from .prb files.
+void CFBDDoc::AddConceptsToFeatures()
 {
 	int wConcepts = m_wConcept; // temp copy
 	for (int i = 0; i < nFeatures; i++) {
 		if (wConcepts & featureMap[i].wConcepts) {
-			m_strFeatures.AddTail(featureMap[i].szName);
+			// only add string if it's not already there. (Might it be there
+			// with a different case, say from .prb import?)
+			if (! m_strFeatures.Find(featureMap[i].szName))
+				m_strFeatures.AddTail(featureMap[i].szName);
 			// remove this flag so don't add a second string for it
 			wConcepts &= ~(featureMap[i].wConcepts);
 		}
@@ -2642,11 +2690,16 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 		}
 		else if (strTag.CompareNoCase("Times") == 0) 
 		{
+			// check for NONE => no times
+			if (pValue->IsAtom() && ! ((CLispReader::Atom*)pValue)->m_strValue.CompareNoCase("NONE")) 
+				continue;
+
 			// check for NIL => single default time
 			if (pValue->IsAtom() && ! ((CLispReader::Atom*)pValue)->m_strValue.CompareNoCase("NIL")) {
 				m_strTimes.AddHead("T0 = the instant depicted");
 				continue;
 			}
+			
 			// else expect a list of form 
 			// ((1 "elevator at 10 m/s") (2 "elevator at a stop") (during 1 2))
 			if (! pValue->IsList()) return FALSE;
@@ -2721,7 +2774,7 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 					// add it to the choice we need
 					if (strFirst.CompareNoCase("Bodies") == 0) {
 						// undo LISP print's upper casing. But not for R1, C1, etc.
-						if (strChoice.GetLength() > 2) // cheap heuristic
+						if (! (strChoice.GetLength() == 2 && isdigit(strChoice[1]))) // cheap heuristic
 							strChoice.MakeLower();
 						m_strObjects.AddTail(strChoice);
 					}

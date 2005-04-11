@@ -38,7 +38,7 @@ static char THIS_FILE[] = __FILE__;
 
 CString CVariableDlg::LookupCtrlName(int nID)
 {
-	CString str = CVarView::LookupStrValue(nID);
+	CString str = CVarView::LookupDlgValue(nID);
 	if (! str.IsEmpty())
 		str.SetAt(0, toupper(str[0]));
 
@@ -117,11 +117,17 @@ void CVariableDlg::DoDataExchange(CDataExchange* pDX)
 	if (((CVariable*)m_pTempObj)->m_nType == ID_VARIABLE_ADDTIME)
 		DDX_FillList(pDX, IDC_BODY, &m_pDocument->m_strTimes);
 	else {
-		// get choice list name from dialog spec
-	    CString strListName = GetSlotChoices(GetSpec(), "body");
-		DDX_FillList(pDX, IDC_BODY, m_pDocument->GetChoiceList(strListName));
-		if (strListName.CompareNoCase("bodies") == 0)
-			DDX_AddCompoundBodies(pDX, IDC_BODY, &m_pDocument->m_objects);
+		// get choice list spec from dialog spec. 
+	    CString strListSpec = GetSlotChoices(GetSpec(), "body");
+		// Allow for union of lists as list1+list2+list3
+		CStringArray strLists;
+		split(strListSpec, "+", strLists);
+		for (int i = 0; i < strLists.GetSize(); i++) {
+			CString strListName = strLists[i];
+			DDX_FillList(pDX, IDC_BODY, m_pDocument->GetChoiceList(strListName));
+			if (strListName.CompareNoCase("bodies") == 0)
+				DDX_AddCompoundBodies(pDX, IDC_BODY, &m_pDocument->m_objects);
+		}
 	}
 	// fill "agent" slot with appropriate choices (may wind up hidden)
 	DDX_FillList(pDX, IDC_FORCEAGENT, &m_pDocument->m_strObjects);
@@ -160,8 +166,6 @@ END_MESSAGE_MAP()
 
 BOOL CVariableDlg::OnInitDialog() 
 {
-	CString strCtrlName;		// Label to display for quantity type name
-
 	CDrawObjDlg::OnInitDialog();
 	LogEventf(EV_VAR_DLG, "");
 	
@@ -183,16 +187,17 @@ BOOL CVariableDlg::OnInitDialog()
 			UpdatePlanStrings(&m_cboBody);
 		}
 	}
-	
-	// Set main quantity type label. 
-	strCtrlName = LookupCtrlName(nType);	
-	m_stcValue.SetWindowText(strCtrlName);
-	
+		
 	// Adjust controls and labels based on main quantity type
+	CString strTypeId = CVarView::LookupTypeId(nType);
+	CString strDlgValue = LookupCtrlName(nType);
 	CString strSpec = GetSpec();
 
-	// time is special case:
-	if (strCtrlName.CompareNoCase("duration of time") == 0) // defining time duration
+	// set initial type label:
+	m_stcValue.SetWindowText(strDlgValue);
+
+	// duration dialog has special case argument layout
+	if (strTypeId.CompareNoCase("duration") == 0) // defining time duration
 	{
 		//remove time intervals from choices
 		RemoveTimePeriods(&m_cboBody);
@@ -217,6 +222,7 @@ BOOL CVariableDlg::OnInitDialog()
 			SWP_NOSIZE | SWP_NOZORDER );
 	}
 
+		
 	// If no times in problem or time unused by quant, hide time window, 
 	if (m_pDocument->m_strTimes.IsEmpty() || ! UsesSlot(strSpec, "time"))
 	{
@@ -229,8 +235,12 @@ BOOL CVariableDlg::OnInitDialog()
 	}
     
 	// set body label
-	if (UsesSlot(strSpec, "body"))
+	if (UsesSlot(strSpec, "body")) 
 		m_stcBody.SetWindowText(GetSlotLabel(strSpec, "body"));
+	else { // hide unused body choice
+		m_cboBody.ShowWindow(SW_HIDE);
+		m_stcBody.ShowWindow(SW_HIDE);
+	}
 
 	// show second body controls if body2 slot is used.
 	if (UsesSlot(strSpec, "body2")) {
@@ -241,7 +251,7 @@ BOOL CVariableDlg::OnInitDialog()
 	}
 
 	// UGH insert special choices for certain quantities. Should be in spec somehow
-	if (strCtrlName.CompareNoCase("work") == 0) 
+	if (strTypeId.CompareNoCase("work") == 0) 
 	{
 		// add special case agent choice for Net work and Wnc
 		m_cboAgent.InsertString(0, CVariable::c_szAllForces);
@@ -251,7 +261,7 @@ BOOL CVariableDlg::OnInitDialog()
 		// may have failed. So do it again now that all choices are there.
 		m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent);
 	}
-	else if (strCtrlName.CompareNoCase("power") == 0) 
+	else if (strTypeId.CompareNoCase("power") == 0) 
 	{
 		// add special case agent choice for Net power
 		m_cboAgent.InsertString(0, CVariable::c_szAllForces);
@@ -260,7 +270,7 @@ BOOL CVariableDlg::OnInitDialog()
 		// may have failed. So do it again now that all choices are there.
 		m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent);
 	}
-	else if (strCtrlName.CompareNoCase("potential") == 0) 
+	else if (strTypeId.CompareNoCase("potential") == 0) 
 	{
 		// add special case agent choice for Net potential
 		// only enable if there is more than one body OR energy is involved (since Vnet
@@ -272,39 +282,76 @@ BOOL CVariableDlg::OnInitDialog()
 		// to initialize value in InitVariableDlg called from CDrawObj::OnInitDialog above
 		// may have failed. So do it again now that all choices are there.
 		m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent);
+	} 
+	else if (strTypeId.CompareNoCase("intensity") == 0 ||
+		     strTypeId.CompareNoCase("db-intensity") == 0) {
+		m_cboAgent.InsertString(0, CVector::c_szAllSources);
+		// Since the AllForces choice wasn't in the list earlier, the first attempt to
+		// to initialize value in InitVariableDlg called from CDrawObj::OnInitDialog above
+		// may have failed. So do it again now that all choices are there.
+		m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent);
 	}
 
 	// Move top-line static and combo box controls so that they line up nicely without
-	// all that empty space between controls.  Will make more elegant later
-	if (strCtrlName.CompareNoCase("duration of time")) // time layout customized above
+	// all that empty space between controls.  
+	if (strTypeId.CompareNoCase("duration") != 0) // time layout was customized above
 	{
-		CClientDC dc(NULL);
-		CSize size = dc.GetTextExtent(strCtrlName);
-		CRect pos, posBdyStc, posBdyCbo;
-		// resize m_stcValue to fit its text:
-		m_stcValue.GetWindowRect(&pos);
-		m_stcValue.SetWindowPos(0, 0, 0, size.cx, pos.Height(), SWP_NOMOVE|SWP_NOZORDER);
-		// fetch its revised client coords:
-		m_stcValue.GetWindowRect(&pos); ScreenToClient(&pos);
-		// Size body label static to fit its text
-		CString strBodyLabel;
-		m_stcBody.GetWindowText(strBodyLabel);
-		size = dc.GetTextExtent(strBodyLabel);
-		m_stcBody.GetWindowRect(&posBdyStc);
-		m_stcBody.SetWindowPos(0, 0, 0, size.cx, posBdyStc.Height(), SWP_NOMOVE|SWP_NOZORDER);
-		// fetch its revised client coords
-		m_stcBody.GetWindowRect(&posBdyStc); ScreenToClient(&posBdyStc);
-		// move body label just right of end of m_stcValue
-		m_stcBody.SetWindowPos(0, pos.right+5, posBdyStc.top, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
-		// fetch its revised client coords
-		m_stcBody.GetWindowRect(&posBdyStc); ScreenToClient(&posBdyStc);
-		// move body combo just right of end of body label
-		m_cboBody.GetWindowRect(&posBdyCbo); ScreenToClient(&posBdyCbo);
-		m_cboBody.SetWindowPos(0, posBdyStc.right+5, posBdyCbo.top, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+		// Place body label just right of end of sized-to-fit m_stcValue Label
+		(void) MoveToRightOf(SizeToFit(m_stcValue), m_stcBody);
+		// Place body combo just right of end of sized to fit body label
+		(void) MoveToRightOf(SizeToFit(m_stcBody), m_cboBody);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
+}
+
+// helpers for control layout. Return new client area position
+CRect CVariableDlg::SizeToFit(CWnd& wnd)  // adjusts width only
+{
+	CRect posWnd;
+	wnd.GetWindowRect(&posWnd);
+	CClientDC dc(NULL);
+	CString strText;
+	wnd.GetWindowText(strText);
+	CSize size = dc.GetTextExtent(strText);
+	wnd.SetWindowPos(0, 0, 0, size.cx, posWnd.Height(), SWP_NOMOVE|SWP_NOZORDER);
+	// return its revised position in client area coords
+	wnd.GetWindowRect(&posWnd); 
+	ScreenToClient(&posWnd);
+	return posWnd;
+}
+
+CRect CVariableDlg::MoveToRightOf(CRect posWndLeft, CWnd& wnd, int nMargin/*=5*/)
+{
+	CRect posWnd;
+	wnd.GetWindowRect(&posWnd); ScreenToClient(&posWnd);
+	wnd.SetWindowPos(0, posWndLeft.right+nMargin, posWnd.top, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+	// return its revised position in client area coords
+	wnd.GetWindowRect(&posWnd); 
+	ScreenToClient(&posWnd);
+	return posWnd;
+}
+
+// Switch time and agent slot positions.
+// Second line in default template has "At time [time] due to [agent]", so agent slot can just
+// be hidden if not used. But if agent *is* used we want agent slot to come first, so we swap 
+// the default positions, putting agent first and time second. We now also lay out 
+// controls based on size of text, so they line up nicely, as we do for top-line controls above.
+void CVariableDlg::SwitchTimeAgent()
+{
+	// get initial top left of "At Time" label
+	CRect rectAt;
+	m_stcTime.GetWindowRect(&rectAt);
+	ScreenToClient(&rectAt);
+	// Position "Due To?" label at top-left of At-Time label
+	m_stcDueTo.SetWindowPos(NULL, rectAt.left, rectAt.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
+	// place Agent combo after sized-to-fit "Due To" Label
+	CRect rectAgent = MoveToRightOf(SizeToFit(m_stcDueTo), m_cboAgent);
+	// place At Time label after agent combo
+	(void) MoveToRightOf(rectAgent, m_stcTime);
+	// place Time combo box after sized to fit "At Time" Label
+	(void) MoveToRightOf(SizeToFit(m_stcTime), m_cboTime);
 }
 
 void CVariableDlg::InitVariableDlg()
@@ -387,27 +434,6 @@ void CVariableDlg::OnOK()
 }
 
 
-// Switch time and agent slot positions.
-// Second line in template has time then agent [=body2]. If agent not used we just 
-// hide it.But if agent *is* used we want agent slot to come first, so we swap 
-// the default positions, putting agent first and time second.
-void CVariableDlg::SwitchTimeAgent()
-{
-	CRect rectTime, rectAt, rectAgent, rectDueTo;
-	m_cboTime.GetWindowRect(&rectTime);
-	m_stcTime.GetWindowRect(&rectAt);
-	m_cboAgent.GetWindowRect(&rectAgent);
-	m_stcDueTo.GetWindowRect(&rectDueTo);
-	ScreenToClient(&rectTime);
-	ScreenToClient(&rectAgent);
-	ScreenToClient(&rectDueTo);
-	ScreenToClient(&rectAt);
-	m_cboAgent.SetWindowPos(NULL, rectTime.left, rectTime.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
-	m_stcDueTo.SetWindowPos(NULL, rectAt.left, rectAt.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
-	m_cboTime.SetWindowPos(NULL, rectAgent.left, rectAgent.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
-	m_stcTime.SetWindowPos(NULL, rectDueTo.left, rectDueTo.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE);
-}
-
 // builds variable definition string and sets into m_strDef in the var.
 void CVariableDlg::BuildVariable()
 {
@@ -417,8 +443,8 @@ void CVariableDlg::BuildVariable()
 	// Following code extracts prepositions to use in variable definition string
 	// from static labels currently set in dialog. 
 	// !!! Ugh, should be better way to do this
-	CString strBodyPrep, strAgentPrep, strTimePrep;
-
+	CString strDlgValue, strBodyPrep, strAgentPrep, strTimePrep;
+	
 	// Get body label if non-empty
 	if (m_stcBody.IsWindowVisible())
 		m_stcBody.GetWindowText(strBodyPrep);
@@ -447,16 +473,22 @@ void CVariableDlg::BuildVariable()
 	}
 
 	// set variable's quantity type name ("value") from type code
-	// Note this is internal name, not friendly display name
+	// Note for historical reasons, this is the human-readable name which may contain spaces, 
+	// not the atomic quantTypeId symbol used helpsys communications and logs.
+	// !!! Might be better to use the Id to store in file, since that really functions
+	// as a type code in our system. As it stands, this requires human-readable names to be 
+	// unique and persistent across versions, since they function as type codes when
+	// deserializing a variable (since integer type codes are now not persistent).
 	m_pTempVar->m_strValue = CVarView::LookupStrValue(m_pTempVar->m_nType);
 
-	// build the definition string. (Unused slots will be empty strings).
-	m_pTempVar->m_strDef = m_pTempVar->m_strValue + 
+	// build the definition string displayed in var window and printout. Note this
+	// shows language as it reads in dialog box, which may have different "Value"
+	// for readability. (We fetch it again without the initial upper-casing done by
+	// LookupCtrlName
+	m_pTempVar->m_strDef = CVarView::LookupDlgValue(m_pTempVar->m_nType) +  
 						   strBodyPrep + m_pTempVar->m_strObject + 
 						   strAgentPrep + m_pTempVar->m_strAgent +
 						   strTimePrep + m_pTempVar->m_strTime;
-						   
-
 }
 
 
