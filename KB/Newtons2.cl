@@ -3433,148 +3433,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
     ))
 
-#|; following experimental for 2D vector kinematics using relative positions
-
-;;; ======================= Constant Velocity =========================
-;;;
-;;; This defines the vector relation sb01 = Vb0 * t01 where Vb constant.
-;;; The parent vector psm is called constvel, the equation sdd-constvel.
-;;; sdd-constvel can also occur for the x-component under lk.
-;;; !!! We also need rule to use the constancy of V to get it at any time 
-;; we need.
-
-(defoperator const-vel-vector-contains (?sought)
-  :preconditions 
-    ((any-member ?sought
-	        ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
-		 (duration (during ?t1 ?t2))))
-    (object ?b)
-    (time (during ?t1 ?t2))
-    ; must be given straight-line constant v motion interval we are using
-    (in-wm (motion ?b ?t-constant (straight constant ?dir)))
-    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant)))
-  :effects 
-  ((vector-psm-contains (const-vel ?b (during ?t1 ?t2)) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (const-vel ?b (during ?t1 ?t2)) sdd-const-vel ?sought)))
-
-(defoperator draw-const-vel-diagram (?b ?t1 ?t2)
-  
-  :preconditions 
-  ((not (vector-diagram (const-vel ?b (during ?t1 ?t2))))
-   (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
-   (axis-for ?b x ?rot))
-  :effects 
-  ((vector-diagram (const-vel ?b (during ?t1 ?t2)))))
-
-(defoperator write-sdd-const-vel-compo (?b ?t1 ?t2 ?xy ?rot)
-  
-  :preconditions 
-   ((variable ?d12_x  (at (compo ?xy ?rot (displacement ?b)) (during ?t1 ?t2)))
-    (variable ?v1_x   (at (compo ?xy ?rot (velocity ?b)) ?t1))
-    (variable ?t12    (duration (during ?t1 ?t2))))
-  :effects (
-   (eqn (= ?d12_x (* ?v1_x ?t12))
-            (compo-eqn sdd-const-vel ?xy ?rot (const-vel ?b (?during ?t1 ?t2))))
-   (eqn-compos 
-            (compo-eqn sdd-const-vel ?xy ?rot (const-vel ?b (?during ?t1 ?t2)))
-             (?d12_x ?v1_x))))
-
-;;; To make use of position vectors:
-
-;;; ================= Position and displacement =====================
-;;;
-;;; This defines the vector relation sb01 = rbo2 - rbo1 where o is "origin",
-;;; which is the definition of displacement.
-;;; This will relate displacements of a body over time to relative positions 
-;;; with respect to some specified origin. We don't use relative positions
-;;; in most problems however, just displacements. Without some constraints 
-;;; this rule could generate the equation for every possible origin any time
-;;; the displacement of a body is mentioned, and then recurse to generate
-;;; displacements of other bodies that don't move during problem. We
-;;; require an origin to be defined with (origin ?body) in the problem
-;;; statement to use this rule. 
-;;;
-;;; Note relative positions are used in other problems without specifying a
-;;; distinguished origin. This is mainly for use in torque problems in 
-;;; giving the location of a force wrt axis. It is also used in giving some
-;;; spatial layout information for other problems, used by pythagorean
-;;; theorem rules and also for giving distance of rotating point from center.
-;;; We could have two types, positions wrt implicit origin and 
-;;; relative-positions but using a single type is simpler for now.
-
-(defoperator displacement-vector-contains (?sought)
-  :preconditions (
-    ; requires an origin to have been declared in the problem. 
-    ; Note this lets us avoid including a second body in the psm id.
-     (origin ?o)
-     (any-member ?sought (
-		 (at (mag (relative-position ?b ?o)) ?t1)
-		 (at (dir (relative-position ?b ?o)) ?t1)
-		 (at (mag (relative-position ?b ?o)) ?t2)
-		 (at (dir (relative-position ?b ?o)) ?t2)
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))))
-    (object ?b)
-    (time (during ?t1 ?t2)))
-  :effects 
-  ((vector-psm-contains (displacement ?b (during ?t1 ?t2)) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (displacement ?b (during ?t1 ?t2)) displacement ?sought)))
-
-(defoperator draw-displacement-diagram (?b ?t1 ?t2)
-  
-  :preconditions 
-  ((not (vector-diagram (displacement ?b (during ?t1 ?t2))))
-   (body ?b)
-   (origin ?o)
-   (vector ?b (at (relative-position ?b ?o) ?t1) ?dir1)
-   (vector ?b (at (relative-position ?b ?o) ?t2) ?dir2)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir3)
-   (axis-for ?b x ?rot))
-  :effects 
-  ((vector-diagram (displacement ?b (during ?t1 ?t2)))))
-
-(defoperator write-displacement-compo (?b ?t1 ?t2 ?xy ?rot)
-  
-  :preconditions 
-   ((origin ?o)
-    (variable ?r1_xy (at (compo ?xy ?rot (relative-position ?b ?o)) ?t1))
-    (variable ?r2_xy (at (compo ?xy ?rot (relative-position ?b ?o)) ?t2))
-    (variable ?d12_xy (at (compo ?xy ?rot (displacement ?b)) (during ?t1 ?t2))))
-  :effects (
-   (eqn (= ?d12_xy (- ?r2_xy ?r1_xy))
-         (compo-eqn displacement ?xy ?rot (displacement ?b (?during ?t1 ?t2))))
-   (eqn-compos 
-         (compo-eqn displacement ?xy ?rot (displacement ?b (?during ?t1 ?t2)))
-          (?d12_xy ?r2_xy ?r1_xy))))
-
-; to draw relative positions:
-
-(defoperator draw-zero-position-at-origin (?b ?t)
-  :preconditions
-  ((at-origin ?b ?t)
-   (origin ?o)
-   (not (vector ?b (at (relative-position ?b ?o) ?t) ?dont-care))
-   (bind ?mag-var (format-sym "r_~A_~A_~A" ?b ?o (time-abbrev ?t)))
-   (debug "~&Drawing zero-length relative position of ~a wrt ~a at ~a.~%" ?b ?o ?t))
-  :effects 
-    ((vector ?b (at (relative-position ?b ?o) ?t) zero)
-    (variable ?mag-var (at (mag (relative-position ?b ?o)) ?t))
-    (given (at (mag (relative-position ?b ?o)) ?t) (dnum 0 |m|))))
-
-; we could also use special rules to draw relative position 
-; in motion dir if know it moved from origin.
-
-
-|#   ; end experimental block 
  
 ;;; Following draws a relative position vector of ?b1 from ?b2 at ?t
 ;;; using a direction given in the problem statement. 
@@ -3613,38 +3471,39 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	  ?b2 ?b1 (?t pp) ?dir-expr))
   ))
 
-#| ; might use this someday. must modify draw-relative-position-unknown if include this
-(defoperator draw-opp-relative-position (?b1 ?b2 ?t)
-  :specifications 
-  "if you are given that body b1 is at a certain direction with respect to b2,
-  then draw the relative position vector of b2 wrt b1 in the opposite direction"
-  :preconditions ( 
-    ; make sure can't use plain draw-relative-position:
-    (not (given (at (dir (relative-position ?b1 ?b2)) ?t-given) ?dont-care))
-    ; but opposite dir is given
-    (given (at (dir (relative-position ?b2 ?b1)) ?t-given) ?dir-expr)
-    (test (not (equal ?dir-expr 'unknown)))
-    (time ?t)
-    (test (tinsidep ?t ?t-given))
-    (bind ?opp-dir (opposite ?dir-expr))
-    ; make sure this vector not already drawn
-    (not (vector ?b1 (at (relative-position ?b2 ?b1) ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A_~A" ?b2 ?b1 (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b2 ?b1 ?t)
-    )
-  :effects (
-    (vector ?b1 (at (relative-position ?b2 ?b1) ?t) ?opp-dir)
-    (variable ?mag-var (at (mag (relative-position ?b2 ?b1)) ?t))
-    (variable ?dir-var (at (dir (relative-position ?b2 ?b1)) ?t))
-    (given (at (dir (relative-position ?b2 ?b1)) ?t) ?opp-dir)
-   )
-  :hint (
-    (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b2 ?b1))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a at ~a."
-	  ?b1 ?b2 (?t pp) ?dir-expr))
+(def-psmclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
+  :complexity minor
+  :english ("relative position equality")
+  :ExpFormat ("applying relative position equality to ~a and ~a ~a"
+	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
+  :EqnFormat ("R12 = R21"))
+
+(defoperator opposite-relative-position-contains (?quantity)
+  :preconditions (
+  (any-member ?quantity (
+  		(at (mag (relative-position ?b1 ?b2)) ?t)
+                        ))
+  ;; sort body names in id so opposite-relative-position(b1, b2) 
+  ;; gets same id as opposite-relative-position(b2, b1)
+  (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
+  )
+  :effects ( 
+  	(eqn-contains (opposite-relative-position ?body-pair ?t) ?quantity) 
   ))
-|#
+
+(defoperator opposite-relative-position (?b1 ?b2 ?t)
+  :preconditions (
+  (variable ?mag1-var (at (mag (relative-position ?b1 ?b2)) ?t))
+  (variable ?mag2-var (at (mag (relative-position ?b2 ?b1)) ?t))
+  )
+  :effects (
+    	(eqn (= ?mag1-var ?mag2-var) (opposite-relative-position (?b2 ?b1) ?t)) 
+  )
+  :hint
+  ((point (string "Note that ~A and ~A are equal" (?mag1-var algebra) (?mag2-var algebra)))
+   (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
+  ))
+
 
 (defoperator draw-relative-position-unknown (?b1 ?b2 ?t)
   :specifications 
@@ -3653,9 +3512,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions ( 
     (not (at-origin ?b1 ?t))
     (not (given (at (dir (relative-position ?b1 ?b2)) ?t) (dnum ?dir |deg|)))
-    ; uncomment this if we enable draw-opp-relative-position
-    ; (not (given (at (dir (relative-position ?b2 ?b1)) ?t) (dnum ?dir |deg|)))
-    ; make sure this vector not already drawn
+    ;; make sure this vector not already drawn
     (not (vector ?b2 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))

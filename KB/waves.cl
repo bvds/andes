@@ -649,13 +649,13 @@
        (variable  ?w  (angular-frequency ?wave))
    )
    :effects (
-    (eqn  (= ?amax (* ?a ?w ?w))  
+    (eqn  (= ?amax (* ?a (^ ?w 2)))  
                 (max-transverse-abs-acceleration-wave ?wave))
    )
    :hint (
       (point (string "In your textbook, find a formula for the maximum acceleration of an oscillation"))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?amax (* ?a ?w ?w)) algebra) ))
+                     ((= ?amax (* ?a (^ ?w 2))) algebra) ))
       ))
 
 ;;;  Frequency for mass and spring.

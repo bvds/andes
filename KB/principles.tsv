@@ -53,9 +53,9 @@ LEAF	Wnc = ME2 - ME1        change in mechanical energy	change-me	Conservation o
 LEAF	Pavg = W/t             average power defined	power	Power
 LEAF	Pnet = Wnet/t          average net power defined	net-power	Power
 LEAF	P = F*v*cos($q)         instantaneous power	inst-power	Power
-LEAF	P = I*4*$p*r^2         relation of power and intensity (spherical emitter)	intensity	Intensity
-LEAF	IdB = 10*log10(I/Iref)   decibels	db-intensity	Intensity
-LEAF	Iref = 1.0E-12 W/m^2   reference intensity for decibels	db-intensity-zero	Intensity
+LEAF	P = I*4*$p*r^2         relation of power and intensity (spherical emitter)	intensity-to-power	Intensity
+LEAF	IdB = 10*log10(I/Iref)   decibels	intensity-to-decibels	Intensity
+LEAF	Iref = 1.0E-12 W/m^2   reference intensity for decibels	define-db-intensity-zero	Intensity
 LEAF	Inet = $S Ii           Net intensity	net-intensity	Intensity
 END_GROUP			
 GROUP	Impulse Momentum		
