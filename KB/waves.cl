@@ -998,7 +998,17 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (def-qexp db-intensity-zero (db-intensity-zero)
   :units |W/m^2|
   :restrictions positive
-  :english ("reference intensity for defining decibels"))
+  :english ("reference intensity for defining decibels")
+  
+  )
+
+;;; needed for help hint to write an equatio for the reference 
+;;; intensity
+(def-psmclass define-db-intensity-zero (std-constant db-intensity-zero)
+  :complexity minor
+  :english ("the reference intensity")
+  :ExpFormat("using the reference intensity")
+  :EqnFormat("Iref=1.0E-12  W/m^2"))
 
 (defoperator iref-contains()
   :effects ( (eqn-contains (std-constant db-intensity-zero) (db-intensity-zero)) ))
@@ -1010,7 +1020,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
     (eqn (= ?iref-var (dnum 1.0E-12 |W/m^2|)) (std-constant db-intensity-zero))
    )
   :hint
-  ((point (string "You can find the reference intensity Iref in your textbook."))
+  ((point (string "For converting intensity to decibels, you need to define a value for the reference intensity Iref."))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?iref-var (dnum 1.0E-12 |W/m^2|)) algebra) ))
     ))
