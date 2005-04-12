@@ -1,6 +1,10 @@
 ;;;;
-;;;;  Set the default path for finding Andes2
+;;;;  Set the default path for finding Andes2 files
 ;;;;  (This should eventually not be needed)
-;;;;
-#+MSWINDOWS (defparameter *Andes-Path* "C:/andes2/")
-#+LINUX (defparameter *Andes-Path* "~/Andes2/")
+
+(defparameter *andes-path*
+    (make-pathname :host (pathname-host *load-pathname*)
+		   :device (pathname-device *load-pathname*)
+		   :directory (pathname-directory *load-pathname*)
+		   :name nil
+		   :type nil))
