@@ -15,7 +15,7 @@
 ;;=================================================================
 ;; Parameters
 
-(defparameter *Default-ProblemFile-Path* 
+(defun Default-ProblemFile-Path ()
     ;; trailing / makes it a directory
     (merge-pathnames  "Problems/" *Andes-Path*))
 
@@ -161,7 +161,7 @@
 ;; fields such as the graph are written using specialized functions.  In all cases
 ;; the overall format is unchanged.  
 
-(defun write-problem-file (Problem &key (Name nil) (Path *Default-Problemfile-Path*)) 
+(defun write-problem-file (Problem &key (Name nil) (Path (Default-Problemfile-Path))) 
   "Store the solved problem file and indicies to a file."
   (let ((Filename 
 	 (if Name 
@@ -265,7 +265,7 @@
 (defmacro mpf-readret (S)
   `(read ,S "Error: invalid problem file."))
 
-(defun read-problem-file (Name &key (Path *Default-ProblemFile-Path*) 
+(defun read-problem-file (Name &key (Path (Default-ProblemFile-Path)) 
 				    (Read-old-format nil))
   "Read the specified problem file into a new Problem Struct."
   (declare (ignore read-old-format))
@@ -323,7 +323,7 @@
 
 
 
-(defun problem-file-exists (Name &optional (Path *Default-ProblemFile-Path*))
+(defun problem-file-exists (Name &optional (Path (Default-ProblemFile-Path)))
   (probe-file (namestring (problem-filename (format nil "~A" Name) Path))))
 
 
