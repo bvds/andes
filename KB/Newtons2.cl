@@ -5077,8 +5077,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions 
            ((body ?b)
 	    (forces ?b ?t ?forces)
-	    (optional (axis-for ?b x 0)))
+	    ; axes are optional, but still want to allow any valid rotation
+	    ; Our 'optional' statement requires a fully bound goal forms, for
+	    ; case where step is skipped and goal is just posted to wm.
+	    ; So we can't use unbound axis rotation inside optional; instead, 
+	    ; have to break out call to another operator.
+	    (optional (fbd-axes-drawn ?b)))
    :effects ((fbd ?b ?t)))
+
+(defoperator choose-axes-for-fbd (?b)
+    :effects ( (fbd-axes-drawn ?b) )
+    ; choose any legal rotation:
+    :preconditions ( (axis-for ?b x ?x-rot) ))
 
 ;;; ==================== The gravitational force ==============================
 
