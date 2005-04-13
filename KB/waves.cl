@@ -1067,7 +1067,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 ;;; 
 ;;; Relate intensity to net power output in a spherical geometry.  
 ;;;
-(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t)
+(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?flag)
   :complexity major  ;must explicitly use
   :english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("relating the intensity to power (spherical geometry)")
@@ -1075,28 +1075,43 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 
 
 (defoperator intensity-to-power-contains (?sought)
-  :preconditions (
-		  (spherical-emitting ?wave ?source) ;need spherical symmetry
-		  (time ?t)
-		  (any-member ?sought ((at (intensity ?wave ?source) ?t)
-				       (at (net-power-out ?source) ?t)
-				       (at (mag (relative-position ?wave ?source)) ?t)))
-		  )
+  :preconditions 
+  ( (spherical-emitting ?wave ?source) ;need spherical symmetry
+    (time ?t)
+        (any-member ?sought ((at (intensity ?wave ?source) ?t)
+			 (at (net-power-out ?source) ?t)
+			 (at (mag (relative-position ?source ?wave)) ?t)
+			 ))) 
   :effects (
-	    (eqn-contains (intensity-to-power ?wave ?source ?t) ?sought)))
+	    (eqn-contains (intensity-to-power ?wave ?source ?t forward) ?sought)))
+  (defoperator intensity-to-power-contains2 (?sought)
+  :preconditions 
+  ( (spherical-emitting ?wave ?source) ;need spherical symmetry
+    (time ?t)
+    
+    (any-member ?sought ((at (intensity ?wave ?source) ?t)
+			 (at (net-power-out ?source) ?t)
+			 (at (mag (relative-position ?source ?wave)) ?t)
+			 (at (mag (relative-position ?wave ?source)) ?t)))
+    )
+  
+  :effects (
+	    (eqn-contains (intensity-to-power ?wave ?source ?t backward) ?sought)))
 
-(defoperator write-intensity-to-power (?wave ?source ?t)
+(defoperator write-intensity-to-power (?wave ?source ?t ?flag)
   :preconditions 
   ( (variable  ?int  (at (intensity ?wave ?source) ?t))
     (variable  ?power  (at (net-power-out ?source) ?t))
-    (variable  ?r (at (mag (relative-position ?wave ?source)) ?t))
+    (bind ?b1 (if (eq ?flag 'forward) ?wave ?source))
+    (bind ?b2 (if (eq ?flag 'forward) ?source ?wave))
+    (variable  ?r (at (mag (relative-position ?b1 ?b2)) ?t))
     (optional (body ?source)) ;allow draw bodies
     (optional (body ?wave))
     (optional (axes-for ?source x 0)) ;allow draw axes
     )
   :effects 
   ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))
-		  (intensity-to-power ?wave ?source ?t)) )
+		  (intensity-to-power ?wave ?source ?t ?flag)) )
   :hint 
   ( (point (string "If the power goes out in all directions, the intensity ~A is the power divided by the surface area of the sphere." 
 		   (?wave pp)))
