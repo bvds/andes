@@ -2871,6 +2871,8 @@
 
 ;;; ===================== linear kinematics ===================
 
+#| ; now choose the component equation first, to avoid defining unneeded quantities
+
 (defoperator LK-vector-contains (?quantity)
   :specifications 
    "The lk equation potentially contains the duration and the
@@ -2896,39 +2898,9 @@
   :effects
    ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)))
 
+|#
 
 
-;;; ===================== linear kinematics fbd ================
-
-;;; This unordered-and operator gets all/5 quantities needed for
-;;; linear kinematics (lk) defined.  Even though only 4 of the 5
-;;; quantities are usually needed for solving the problem, all 5 are
-;;; defined anyway.  It's good practice for the student.  Since the
-;;; drawing actions can be done in any order, they all have to be in
-;;; the same condition.  However, the axis drawing condition has to be
-;;; last because the code can only define component variables in the
-;;; axis-drawing operator, and not in the vector drawing operators
-;;; (Andes will define component variables with either tool, whichever
-;;; comes second).  Moreover, we only request an x-axis since the
-;;; other axes are drawn at the same time.
-
-(defoperator draw-lk-fbd (?b ?t1 ?t2 ?rot)
-  
-  :specifications "
-   If the goal is to draw a lk fbd,
-   then draw the body, the initial and final velocity, 
-      the acceleration, the displacement and axes"
-  :preconditions
-  ((not (vector-diagram (lk ?b (during ?t1 ?t2))))
-   (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   (vector ?b (at (velocity ?b) ?t2) ?dir2)
-   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
-   (axis-for ?b x ?rot))
-  :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
-)
 
 ;;; =============== linear kinematics compo equations ==============
 ;;; The physicist do not want Andes to hint s=vf*t-0.5*a*t^2 (leaves
@@ -2969,7 +2941,16 @@
   :specifications 
    "Lists the quantities contained in vf = vi + a * t"
   :preconditions
-  ((any-member ?quantity 
+  (; This should apply at first step of apply-vector-psm where it calls for a vector-psm 
+   ; (eqn family). It will ALSO post the compo-eqn-contains to choose the particular equation.
+   ; At second step, where apply-vector-psm where calls for a compo-eqn-contains, the goal
+   ; will be satisfied by the WM element. However, solver will also try to achieve goal via
+   ; operators. This operator won't be applied again with the same parameters, but those
+   ; for OTHER lk family equations might be.  So: prevent any of them from applying when 
+   ; the compo-eqn-contains is already in wm. !!! Should simplify apply-vector-psm to avoid
+   ; this whole two-level scheme of choosing eqn-family then choosing compo-eqn. 
+   (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
 	       ((at (mag (velocity ?b)) ?t1)
 		 (at (dir (velocity ?b)) ?t1)
 		 (at (mag (velocity ?b)) ?t2)
@@ -2987,12 +2968,29 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((compo-eqn-contains (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity)))
+   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity)))
+
+(defoperator draw-lk-no-s-fbd (?b ?t1 ?t2 ?rot)
+  :specifications "
+   If the goal is to draw a lk fbd for lk-no-s
+   then draw the body, the initial and final velocity, 
+      the acceleration, and axes"
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity))
+   (body ?b)
+   (vector ?b (at (velocity ?b) ?t1) ?dir1)
+   (vector ?b (at (velocity ?b) ?t2) ?dir2)
+   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
+   ;(vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+)
 
 (defoperator write-lk-no-s-compo (?b ?t1 ?t2 ?xyz ?rot)
   :specifications "
    writes vf=vi+a*t.  That is, it leaves out displacement (s)."
-  
   :preconditions
    (; for 2D case, make sure accel compo doesn't vanish
     (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
@@ -3022,7 +3020,8 @@
   :specifications "
    Lists the quantities contained in vf^2 = vi^2+2*a*s"
   :preconditions
-  ((any-member ?quantity 
+  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
 	       ((at (mag (velocity ?b)) ?t1)
 		 (at (dir (velocity ?b)) ?t1)
 		 (at (mag (velocity ?b)) ?t2)
@@ -3040,7 +3039,25 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((compo-eqn-contains (lk ?b (during ?t1 ?t2)) lk-no-t ?quantity)))
+   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-t ?quantity)))
+
+(defoperator draw-lk-no-t-fbd (?b ?t1 ?t2 ?rot)
+  :specifications "
+   If the goal is to draw a lk fbd for lk-no-s
+   then draw the body, the initial and final velocity, 
+      the acceleration, and axes"
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-t ?quantity))
+   (body ?b)
+   (vector ?b (at (velocity ?b) ?t1) ?dir1)
+   (vector ?b (at (velocity ?b) ?t2) ?dir2)
+   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
+   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+)
 
 (defoperator write-lk-no-t-compo (?b ?t1 ?t2 ?xyz ?rot)
   :specifications "
@@ -3070,7 +3087,8 @@
   :specifications "
    Lists the quantities contained in s = vi*t + 0.5*a*t^2"
   :preconditions
-  ((any-member ?quantity 
+  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
 	        ((at (mag (velocity ?b)) ?t1)
 		 (at (dir (velocity ?b)) ?t1)
 		 ;;(at (mag (velocity ?b)) ?t2)
@@ -3088,17 +3106,33 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((compo-eqn-contains (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity)))
+   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity)))
+
+(defoperator draw-lk-no-vf-fbd (?b ?t1 ?t2 ?rot)
+  :specifications "
+   If the goal is to draw a lk fbd for lk-no-s
+   then draw the body, the initial and final velocity, 
+      the acceleration, and axes"
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity))
+   (body ?b)
+   (vector ?b (at (velocity ?b) ?t1) ?dir1)
+   ;(vector ?b (at (velocity ?b) ?t2) ?dir2)
+   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
+   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+)
 
 (defoperator write-lk-no-vf-compo (?b ?t1 ?t2 ?xyz ?rot)
   :specifications 
   "Writes the equation s = vi*t + 0.5*a*t^2, which lacks vf"
-  
   :preconditions
    (; for 2D case, make sure accel compo doesn't vanish
     (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-   
     (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
     (variable ?a-compo  (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2)))
     (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2)))
@@ -3124,7 +3158,8 @@
   :specifications "
    Lists the quantities contained in s = 0.5*(vi + vf)*t, which lacks a"
   :preconditions
-  ((any-member ?quantity 
+  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
 	        ((at (mag (velocity ?b)) ?t1)
 		 (at (dir (velocity ?b)) ?t1)
 		 (at (mag (velocity ?b)) ?t2)
@@ -3142,17 +3177,31 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((compo-eqn-contains (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity)))
+   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity)))
+
+(defoperator draw-lk-no-a-fbd (?b ?t1 ?t2 ?rot)
+  :specifications "
+   If the goal is to draw a lk fbd for lk-no-s
+   then draw the body, the initial and final velocity, 
+      the acceleration, and axes"
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity))
+   (body ?b)
+   (vector ?b (at (velocity ?b) ?t1) ?dir1)
+   (vector ?b (at (velocity ?b) ?t2) ?dir2)
+   ;(vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
+   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+)
 
 (defoperator write-lk-no-a-compo (?b ?t1 ?t2 ?xyz ?rot)
   :specifications "
    Writes the equation s = 0.5*(vi + vf)*t, which lacks a"
-  
   :preconditions
-   (; for 2D case, make sure accel compo doesn't vanish
-    (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
-    (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (variable ?vf-compo (at (compo ?xyz ?rot (velocity ?b)) ?t2))
+   ((variable ?vf-compo (at (compo ?xyz ?rot (velocity ?b)) ?t2))
     (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
     (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2)))
     (variable ?t-var    (duration (during ?t1 ?t2))))
@@ -3201,7 +3250,8 @@
   :specifications 
    "Lists the quantities contained in s_x = v0_x*t when a_x = 0" 
   :preconditions
-  ((any-member ?quantity 
+  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
 	        ((at (mag (velocity ?b)) ?t1)
 		 (at (dir (velocity ?b)) ?t1)
 		 (at (mag (displacement ?b)) (during ?t1 ?t2))
@@ -3215,12 +3265,25 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((compo-eqn-contains (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity)))
+   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity)))
+
+(defoperator draw-sdd-constvel-fbd (?b ?t1 ?t2 ?rot)
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity))
+   (body ?b)
+   (vector ?b (at (velocity ?b) ?t1) ?dir1)
+   ;(vector ?b (at (velocity ?b) ?t2) ?dir2)
+   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
+   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+)
 
 (defoperator sdd-constvel-compo (?b ?t1 ?t2 ?xyz ?rot)
   :specifications 
   "Writes the component equation s_x = vi_x*t when a_x = 0"
-  
   :preconditions
    (; make sure accel compo vanishes
     (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
@@ -3259,6 +3322,7 @@
  :specifications 
    "Lists the quantities contained in v1_x = v2_x when a_x = 0"
   :preconditions (
+   (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
 	        ((at (mag (velocity ?b)) ?t1)
 		 (at (dir (velocity ?b)) ?t1)
@@ -3275,8 +3339,22 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-free-fall))
    )
    :effects (
-    (compo-eqn-contains (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity)
+    (vector-psm-contains (lk ?b ?t-free-fall) ?quantity)
+    (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity)
    ))
+
+(defoperator draw-const-vx-fbd (?b ?t1 ?t2 ?rot)
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity))
+   (body ?b)
+   (vector ?b (at (velocity ?b) ?t1) ?dir1)
+   (vector ?b (at (velocity ?b) ?t2) ?dir2)
+   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
+   ;(vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b ?t-free-fall)))
+)
 
 (defoperator use-const-vx (?b ?t1 ?t2 ?t-lk)
   :specifications "Writes the component equation v1_x = v2_x when a_x = 0"
@@ -3371,7 +3449,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((vector-psm-contains (avg-accel ?b (during ?t1 ?t2)) ?quantity)))
 
 (defoperator draw-avg-accel-diagram (?b ?t1 ?t2 ?rot)
-  
   :specifications 
    "If the goal is to draw vectors for average acceleration,
    then draw the body, the initial and final velocity, 
@@ -3412,7 +3489,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator write-avg-accel-compo (?b ?t1 ?t2 ?xyz ?rot)
   :specifications " writes vf=vi+a*t where accel not constant"
-  
   :preconditions
    (; for 2D case, make sure accel compo not known to vanish
     (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
@@ -4846,15 +4922,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions ( (force ?b ?agent ?type ?t ?dir ?dontcare) )
    :effects (   (force-on-body ?b ?agent ?type ?t ?dir) ))  
 
-#|
-; if a pressure force is defined on the surface, list this as a force on a body
-; !!! Compound body solutions cannot handle two forces on a compound body 
-; with the same type and same agent -- as could happen w/pressure force on two surfaces.
-(defoperator pressure-force-on-body-exists (?b ?fluid ?t)
-    :preconditions ( (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
-                     (test (tinsidep ?t ?t-pressure)) )
-    :effects ( (force-on-body ?b ?fluid pressure ?t ?dir) ))
-|#
 
 (defoperator force-compound-contains (?sought)
    :preconditions (
@@ -4975,7 +5042,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	  ?pressure-forces)
     ;(debug "Adding pressure forces:  ~A~%" ?pressure-forces)
     ;(debug "To other forces: ~A~%" ?forces1)
-    ; Note: two sets can overal if problem overloads object name as surface name as well 
+    ; Note: two sets can overlap if problem overloads object name as surface name as well 
     ; (which can be convenient, for piston, say, to avoid introducing surfaces)
     (bind ?forces (union ?forces1 ?pressure-forces :test #'equal)) 
     )
@@ -5367,19 +5434,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((vector-psm-contains (NL ?b ?t) ?quantity)))
 
-#|
-; URGH, hack for pressure forces. Our force quantity doesn't contain a slot for
-; place of application, so pressure forces are defined as acting on surfaces. 
-; But we have to know that Newton's Law applied to a body can find one of these
-; forces on a body's surface.
-(defoperator NL-vector-contains-pressure (?surface ?fluid ?t)
-  :preconditions 
-   ((in-wm (fluid-contact ?b ?surface ?fluid ?point ?t-pressure ?dir))
-   (test (tinsidep ?t ?t-pressure))
-   (not (unknown-forces))) 
-   :effects
-   ((vector-psm-contains (NL ?b ?t) (at (mag(force ?surface ?fluid pressure)) ?t) )))
-|#
 
 ;;; We have to define a special NL-net variant psm to use net force rather 
 ;;; than sum F1 + F2 ...  for those few problems that work in terms of net 
@@ -5456,18 +5510,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((compo-eqn-contains (NL ?b ?t) nfl ?quantity))
 )
 
-#|
-;; Urgh, hack for pressure forces, see above
-(defoperator NFL-zero-accel-for-pressure (surface ?fluid ?t)
-  :preconditions 
-   ((in-wm (fluid-contact ?b ?surface ?fluid ?point ?t-pressure ?dir))
-   (test (tinsidep ?t ?t-pressure))
-   (not (unknown-forces))
-   (vector ?b (at (accel ?b) ?t-accel) zero)
-   (test (tinsidep ?t ?t-accel))) 
-   :effects
-   ((compo-eqn-contains (NL ?b ?t) nfl (at (mag(force ?surface ?fluid pressure)) ?t) )))
-|#
 
 ;;; I've never seen a problem where NL is applied to a massless object
 ;;; but it could occur, so here is an operator to select NFL for that
