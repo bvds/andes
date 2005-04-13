@@ -5210,10 +5210,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 
 ;;; This operator models writing the Fs = k * compression/extension equation.  
-;;;The variable for
-;;; the relevant quantities will be either defined either via
-;;; subgoaling or recalled if they have already been defined.
-;;; 
+;;; Selectively enabled by (uses-k-and-d) in the problem statement. ??? Unnecessary ? -AW
 	       
 (def-psmclass spring-law (spring-law ?body ?time)
   :complexity minor
@@ -5221,12 +5218,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :expformat ("applying Hooke's Law to ~a " (nlg ?body))
   :EqnFormat ("Fs = k*d" ))
 
-
-;;; variant applies weight to a rigid body. In this case the quantity is
-;;; specified as a force acting on the cm, not on the whole body.
 (defoperator spring-law-contains (?quantity)
   :specifications "
-   If a rigid body then the spring law for the body potentially contains
+   the spring law for the body potentially contains
      the magnitude of the spring force,the spring constant, and
      the compression/extension."
   :preconditions (
@@ -5235,30 +5229,22 @@ the magnitude and direction of the initial and final velocity and acceleration."
 			       (spring-constant ?spring)
 			       (at (compression ?spring) ?t)
 			       ))
-		  ;; make sure this is case where ?b is cm of rigid body. 
-		  ;; (in-wm (part-of ?b ?rigid-body))
+		  (object ?b)
 		  (time ?t)
   		  (uses-k-and-d)	;Forces rule to fire only if k and d 
 					; are needed to solve problem	
-		  (variable ?var (mass ?b))
-		  (near-planet ?planet)
-		  ;; (not (massless ?rigid-body))
 		  ) 
   :effects (
 	    (eqn-contains (spring-law ?b ?t) ?quantity))
   )
 
 (defoperator spring-law-compression (?b ?t)
-  
   :specifications "
-   If a body is near a planet,
-     and it is not massless,
      and you can find the appropriate variables,
      then write Fs=k*d where Fs is the magnitude of the spring force
      on the body, k is the spring constant and d is the compression or
      extension distance of the spring."
   :preconditions(
-                 (near-planet ?planet)
                  (variable ?s-var (at (mag (force ?b ?spring spring)) ?t))
                  (variable ?k-var (spring-constant ?spring))
                  (variable ?d-var (at (compression ?spring) ?t))
@@ -5268,7 +5254,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
 
 ;;; gravitational acceleration
-;;; This represents entering the known constant value 9.807 m/s^2 for the 
+;;; This represents entering the known constant value 9.8 m/s^2 for the 
 ;;; gravitational acceleration near the surface of the Earth.
 ;;; g is not expected to be known for other planets so will have to be 
 ;;; given in the problem statement or treated as a parameter.
