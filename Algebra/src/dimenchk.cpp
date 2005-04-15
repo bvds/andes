@@ -172,38 +172,16 @@ expr * dimenchk(const bool fix, expr * & ex)
 	    }
 	  case topowe:		// NO We forgot to dimenchk parts
 	    if (binex->rhs->MKS.unknp()) binex->rhs->MKS.put(0,0,0,0,0);
-	    eqnumsimp(binex->rhs,true);	// 7/9/01
+	    // BvdS:  I don't see why one wants to demand "tight" units here:
+	    eqnumsimp(binex->rhs,true);	// put in binop form, tight units
 	    if (trouble == (expr *) NULL) trouble = dimenchk(fix,binex->rhs);
 	    else dimenchk(fix,binex->rhs);
 	    if (!binex->rhs->MKS.zerop()) {
-		DBG( cout << "power units error " << binex->getInfix()
-		   << " from call " << thisdbg << endl);
-		return(binex);
+	      DBG( cout << "error:  exponent must be dimensionless " 
+		   << binex->getInfix() << " from call " << thisdbg << endl);
+	      return(binex);
 	    }
-	    if (binex->rhs->etype != numval) {
-	      if (binex->lhs->MKS.unknp()) binex->lhs->MKS.put(0,0,0,0,0);
-	      if (!binex->lhs->MKS.zerop()) {
-		DBG( cout << "power units error " << binex->getInfix()
-		   << " from call " << thisdbg << endl);
-		return(binex);
-	      }
-	      if (trouble == (expr *) NULL) trouble = dimenchk(fix,binex->lhs);
-	      else dimenchk(fix,binex->lhs);
-	      if (binex->MKS.unknp()) binex->MKS.put(0,0,0,0,0);
-	      if ((!binex->MKS.zerop()) || (!binex->lhs->MKS.zerop()) || 
-		  (!binex->rhs->MKS.zerop())) {
-		DBG( cout << "power units error " << binex->getInfix()
-		     << " from call " << thisdbg << endl);
-		return(binex); 
-	      }
-	      else {
-		DBG( if (trouble == (expr *) NULL) cout << "Returning NULL";
-		     else cout <<"power units error "<<trouble->getInfix();
-		     cout << " from call " << thisdbg << endl);
-		return(trouble); 
-	      }	      
-	    }
-	    // remaining case is rhs=numval without dimensions
+	    // exponent is a special number that we like
 	    if (lookslikeint(12. *((numvalexp *)binex->rhs)->value, q)) {
 	      if ((binex->MKS.unknp()) && !binex->lhs->MKS.unknp())
 		binex->MKS = 
@@ -215,19 +193,29 @@ expr * dimenchk(const bool fix, expr * & ex)
 	      else dimenchk(fix,binex->lhs);
 	      if ((!binex->lhs->MKS.unknp()) && !binex->MKS.unknp())
 		if (!( binex->lhs->MKS * ((numvalexp *)binex->rhs)->value  ==
-		      binex->MKS)) {
-		  DBG( cout << "power units error " << binex->getInfix()
+		       binex->MKS)) {
+		  DBG( cout << "power units inconsistent " << binex->getInfix()
 		       << " from call " << thisdbg << endl);
 		  return(binex); 
 		}
-	      DBG( if (trouble == (expr *) NULL) cout << "Returning NULL";
-	      else cout << "power units error "<< trouble->getInfix();
-		   cout << " from call " << thisdbg << endl);
-	      return(trouble);
 	    }
-	    DBG( cout << "power units error " << binex->getInfix()
-		 << " from call " << thisdbg << endl);
-	    return(binex);
+	    // exponent is algebraic or a number we don't like
+	    else {
+	      if (binex->lhs->MKS.unknp()) binex->lhs->MKS.put(0,0,0,0,0);
+	      if (trouble == (expr *) NULL) trouble = dimenchk(fix,binex->lhs);
+	      else dimenchk(fix,binex->lhs);
+	      if (binex->MKS.unknp()) binex->MKS.put(0,0,0,0,0);
+	      if ((!binex->MKS.zerop()) || (!binex->lhs->MKS.zerop())) {
+		DBG( cout << "error:  mantissa must be dimensionless for "
+		     "this exponent " << binex->getInfix()
+		     << " from call " << thisdbg << endl);
+		return(binex); 
+	      }
+	    }
+	    DBG( if (trouble == (expr *) NULL) cout << "Returning NULL";
+		 else cout <<"power units error "<<trouble->getInfix();
+		 cout << " from call " << thisdbg << endl);
+	    return(trouble); 
 	  case equalse:
 	  case grte:
 	  case gree:
