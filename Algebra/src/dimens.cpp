@@ -210,7 +210,12 @@ dimens& dimens::operator+=(const dimens a)
 string dimens::print() 
 {
   char dimsstr[25];
-  sprintf(dimsstr,"(%4.1lf,%4.1lf,%4.1lf,%4.1lf,%4.1lf)",
-	  getlengthd(),getmassd(),gettimed(),getcharged(),gettempd());
+  if(unknp())
+    sprintf(dimsstr,"(unknown)");
+  else if(inconsp())
+    sprintf(dimsstr,"(inconsistent");
+  else
+    sprintf(dimsstr,"(%4.1lf,%4.1lf,%4.1lf,%4.1lf,%4.1lf)",
+	    getlengthd(),getmassd(),gettimed(),getcharged(),gettempd());
   return(string(dimsstr));
 }
