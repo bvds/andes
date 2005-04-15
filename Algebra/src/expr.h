@@ -67,7 +67,6 @@ class fakeexpr	: public primexpr	/* just to stick on stack as marker */
 
 /************************************************************************
  * numvalexp   numerical value with units, and eventually with errors	*
- * NOTE  right now constructors leave dimens UNKNOWN!			*
  ************************************************************************/
 class numvalexp	: public primexpr
 {

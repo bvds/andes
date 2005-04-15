@@ -27,6 +27,8 @@ class dimens
   dimens();
   dimens(int,int,int,int,int);
   dimens(double,double,double,double,double);
+  void set_incons();  // make into an inconsistant
+  void set_unkn();  // make into an unknown
   void put(int lengthd, int massd, int timed);
   void put(int lengthd, int massd, int timed, int charged, int tempd);
   void put(double lengthd, double massd, double timed);
@@ -40,7 +42,7 @@ class dimens
   string print();
   bool zerop();
   bool unknp();
-  bool incons();
+  bool inconsp();
   dimens& operator+=(const dimens a);
   dimens& operator*=(const double);
   bool adjust(const dimens & a);

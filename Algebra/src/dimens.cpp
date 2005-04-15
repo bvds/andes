@@ -10,8 +10,7 @@ using namespace std;
 
 bool lookslikeint(double, int &);
 
-dimens::dimens() { 
-  for (int k = 0; k < 5; k++) dims[k] = UNKNDIM;}
+dimens::dimens() { set_unkn(); } // constrictor sets to unknown
 
 dimens::dimens(int lengthd, int massd, int timed, int charged, int tempd)
 { 
@@ -31,6 +30,12 @@ dimens::dimens(double lengthd, double massd, double timed, double charged,
   dims[3] = (DIMEXP)  ( MULTP * charged );
   dims[4] = (DIMEXP)  ( MULTP * tempd );
 }
+
+void dimens::set_incons(){
+  for (int k = 0; k < 5; k++) dims[k] = INCONS;}
+
+void dimens::set_unkn(){
+  for (int k = 0; k < 5; k++) dims[k] = UNKNDIM;}
 
 void dimens::put(int lengthd, int massd, int timed, int charged, int tempd)
 { 
@@ -59,11 +64,11 @@ double dimens::gettempd()   const { return  (dims[4] * 1.0 / MULTP); }
 
 bool dimens::unknp()		// are all dims unknown? Is that what we want?
 {				//  prob better are any dims unknown!
-  for (int k = 0; k < 5; k++) if (dims[k] !=  UNKNDIM) return(false);
+  for (int k = 0; k < 5; k++) if (dims[k] ==  UNKNDIM) return(false);
   return(true);
 }
 
-bool dimens::incons()		// are dimens inconsistent. Keep all the 
+bool dimens::inconsp()		// are dimens inconsistent. Keep all the 
 {				//  same, but say yes if any is
   for (int k = 0; k < 5; k++) if (dims[k] ==  INCONS) return(true);
   return(false);

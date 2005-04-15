@@ -43,19 +43,19 @@ binopexp::binopexp(oper *op, expr *lhs, expr *rhs) :
     case gree:
     case equalse:
       {
-      if (lhs->MKS.incons() || rhs->MKS.incons()) {
-	for (int k = 0; k < 5; k++) MKS.dims[k] = INCONS;
+      if (lhs->MKS.inconsp() || rhs->MKS.inconsp()) {
+	MKS.incons();
 	return; }
       if (lhs->MKS.unknp()) { MKS = rhs->MKS; lhs->MKS = rhs->MKS; return; }
       if (rhs->MKS.unknp()) { MKS = lhs->MKS; rhs->MKS = lhs->MKS; return; }
       if (lhs->MKS == rhs->MKS) { MKS = rhs->MKS; return; }
-      for (int k = 0; k < 5; k++) MKS.dims[k] = INCONS;
+      MKS.incons();
       return;
       }
     case topowe:
       {				
       if (!(rhs->MKS.zerop() || rhs->MKS.unknp())) {          // rhs must be 
-	for (int k = 0; k < 5; k++) MKS.dims[k] = INCONS;     // dimensionless
+	MKS.incons();      // dimensionless
 	return;  }
       double expval;
       if (lhs->MKS.zerop()) expval = 1.; // doesn't matter what 0 mult by
@@ -66,8 +66,8 @@ binopexp::binopexp(oper *op, expr *lhs, expr *rhs) :
 	  eqnumsimp(temp,true);
 	  if (temp->etype == numval) expval = ((numvalexp *)temp)->value;
 	  else {
-	    for (int k = 0; k < 5; k++) MKS.dims[k] = INCONS;   // can't deter-
-	    temp->destroy();					// mine d
+	    MKS.incons();   // can't determined
+	    temp->destroy();			
 	    return; }
 	  temp->destroy(); }
       }
@@ -77,11 +77,11 @@ binopexp::binopexp(oper *op, expr *lhs, expr *rhs) :
       }
     case divbye:
       {
-      if (lhs->MKS.incons() || rhs->MKS.incons()) {
-	for (int k = 0; k < 5; k++) MKS.dims[k] = INCONS;
+      if (lhs->MKS.inconsp() || rhs->MKS.inconsp()) {
+	MKS.incons();
 	return; }
-      if (lhs->MKS.unknp() || rhs->MKS.unknp()) {
-	for (int k = 0; k < 5; k++) MKS.dims[k] = UNKNDIM;
+      if (lhs->MKS.unknp() || rhs->MKS.unknp()){
+	MKS.dimens();
 	return; }
       MKS = rhs->MKS;
       MKS *= -1.;
@@ -96,7 +96,7 @@ binopexp::binopexp(oper *op, expr *lhs, expr *rhs) :
 functexp::functexp(oper *f,expr * arg) : 
     f(f), arg(arg) {
   etype=function; 
-  if (arg->MKS.incons()) { MKS = arg->MKS; return; }
+  if (arg->MKS.inconsp()) { MKS = arg->MKS; return; }
   switch (f->opty)
   {
   case sqrte:
@@ -152,7 +152,7 @@ void n_opexp::addarg(expr * arg)
     }
   DBG(cout << "Adding arg " << arg->getInfix() << " to plus" << endl;
       dbgprint(4); );
-  if (MKS.incons()) return;		// must be plus
+  if (MKS.inconsp()) return;		// must be plus
   if (MKS.unknp()) { 
     MKS = arg->MKS; 
     DBG(cout << "Added arg ";
