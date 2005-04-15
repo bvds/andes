@@ -23,7 +23,7 @@ class dimens
   static const DIMEXP MAXP;
   static const DIMEXP MAYBZ;
   static const DIMEXP OVERFL;
-  DIMEXP addem(const int a, const int b);
+  DIMEXP addem(const int a, const int b) const;
  public:
   dimens();
   dimens(int,int,int,int,int);
@@ -41,9 +41,9 @@ class dimens
   double getcharged() const;
   double gettempd() const;
   string print();
-  bool zerop();
-  bool unknp();
-  bool inconsp();
+  bool zerop() const;
+  bool unknp() const;
+  bool inconsp() const;
   dimens& operator+=(const dimens a);
   dimens& operator*=(const double);
   bool adjust(const dimens & a);

@@ -70,19 +70,19 @@ double dimens::gettimed()   const { return  (dims[2] * 1.0 / MULTP); }
 double dimens::getcharged() const { return  (dims[3] * 1.0 / MULTP); }
 double dimens::gettempd()   const { return  (dims[4] * 1.0 / MULTP); }
 
-bool dimens::unknp()		// are all dims unknown? Is that what we want?
+bool dimens::unknp() const	// are all dims unknown? Is that what we want?
 {				//  prob better are any dims unknown!
   for (int k = 0; k < 5; k++) if (dims[k] !=  UNKNDIM) return(false);
   return(true);
 }
 
-bool dimens::inconsp()		// are dimens inconsistent. Keep all the 
+bool dimens::inconsp() const	// are dimens inconsistent. Keep all the 
 {				//  same, but say yes if any is
   for (int k = 0; k < 5; k++) if (dims[k] ==  INCONS) return(true);
   return(false);
 }
 
-bool dimens::zerop()		// is this quantity dimensionless
+bool dimens::zerop() const	// is this quantity dimensionless
 {
   for (int k = 0; k < 5; k++) if (dims[k] !=  0) return(false);
   return(true);
@@ -175,7 +175,7 @@ dimens & dimens::operator*=(const double km)
 }
 
 // add dimens entry checking for unknown
-DIMEXP dimens::addem(const int a, const int b)   
+DIMEXP dimens::addem(const int a, const int b) const  
 {
   if ((a == INCONS) || (b == INCONS)) return INCONS;
   if ((a == UNKNDIM) || (b == UNKNDIM)) return UNKNDIM;

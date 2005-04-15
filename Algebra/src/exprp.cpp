@@ -44,23 +44,41 @@ string unitprint(const dimens dim)
   string unitstr = unittable.match(dim);
   if (unitstr.compare("None") == 0) {
     unitstr.erase();
-    string unitden;
-    if (dim.getlengthd() > 0) unitstr.append("m" +ustrp(dim.getlengthd())+".");
-    if (dim.getlengthd() < 0) unitden.append("m" +ustrp(dim.getlengthd())+"/");
-    if (dim.getmassd() > 0) unitstr.append("kg" + ustrp(dim.getmassd())+".");
-    if (dim.getmassd() < 0) unitden.append("kg" + ustrp(dim.getmassd())+"/");
-    if (dim.gettimed() > 0) unitstr.append("s"	+ ustrp(dim.gettimed())+".");
-    if (dim.gettimed() < 0) unitden.append("s"	+ ustrp(dim.gettimed())+"/");
-    if (dim.getcharged() > 0) unitstr.append("C"+ustrp(dim.getcharged())+".");
-    if (dim.getcharged() < 0) unitden.append("C"+ustrp(dim.getcharged())+"/");
-    if (dim.gettempd() > 0) unitstr.append("K"	+ ustrp(dim.gettempd())+".");
-    if (dim.gettempd() < 0) unitden.append("K"	+ ustrp(dim.gettempd())+"/");
-    int usl = unitstr.length();
-    if ((usl > 0) && (unitstr[usl-1] == '.')) unitstr.erase(usl-1,1);
-    usl = unitden.length();
-    if ((usl > 0) && (unitden[usl-1] == '/')) unitden.erase(usl-1,1);
-    if (unitden.length()>0) { unitstr.append("/"); unitstr.append(unitden); }
+    if(dim.unknp()) 
+      unitstr.append("unknown_units");
+    else if(dim.inconsp()) 
+      unitstr.append("inconsistent_units");
+    else {
+      string unitden;
+      if (dim.getlengthd() > 0) 
+	unitstr.append("m" + ustrp(dim.getlengthd())+".");
+      else if (dim.getlengthd() < 0) 
+	unitden.append("m" + ustrp(dim.getlengthd())+"/");
+      if (dim.getmassd() > 0) 
+	unitstr.append("kg" + ustrp(dim.getmassd())+".");
+      else if (dim.getmassd() < 0) 
+	unitden.append("kg" + ustrp(dim.getmassd())+"/");
+      if (dim.gettimed() > 0) 
+	unitstr.append("s" + ustrp(dim.gettimed())+".");
+      else if (dim.gettimed() < 0) 
+	unitden.append("s" + ustrp(dim.gettimed())+"/");
+      if (dim.getcharged() > 0) 
+	unitstr.append("C" + ustrp(dim.getcharged())+".");
+      else if (dim.getcharged() < 0) 
+	unitden.append("C" + ustrp(dim.getcharged())+"/");
+      if (dim.gettempd() > 0) 
+	unitstr.append("K" + ustrp(dim.gettempd())+".");
+      else if (dim.gettempd() < 0) 
+	unitden.append("K" + ustrp(dim.gettempd())+"/");
+      int usl = unitstr.length();
+      if ((usl > 0) && (unitstr[usl-1] == '.')) unitstr.erase(usl-1,1);
+      usl = unitden.length();
+      if ((usl > 0) && (unitden[usl-1] == '/')) unitden.erase(usl-1,1);
+      if (unitden.length()>0) { 
+	unitstr.append("/"); unitstr.append(unitden);
+      }
     }
+  }
   return(unitstr);
 }
 
