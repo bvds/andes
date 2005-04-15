@@ -1796,12 +1796,12 @@
 
 (defparameter **NSH-AFP-Single-String**
     (strcat "Hint: this principle application will usually be one that mentions "
-	    "the sought quantity explicity.  Therefore it's equation may contain "
+	    "the sought quantity explicity.  Therefore its equation may contain "
 	    "the sought quantity that the problem seeks."))
 
 (defparameter **NSH-AFP-Multi-String**
     (strcat "Hint: usually this principle application will usually mention one "
-	    "of the sought quantities explicity.  That is, it's equation may "
+	    "of the sought quantities explicity.  That is, its equation may "
 	    "contain one of the sought quantities that the problem seeks."))
 
 (defparameter  **NSH-AFPC-DIRECT-String**
