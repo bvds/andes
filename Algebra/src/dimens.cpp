@@ -10,6 +10,14 @@ using namespace std;
 
 bool lookslikeint(double, int &);
 
+const DIMEXP dimens::UNKNDIM=-127;
+const DIMEXP dimens::INCONS=-126;
+const DIMEXP dimens::MULTP=12;
+const DIMEXP dimens::MAXP=10;
+const DIMEXP dimens::MAYBZ=125;
+const DIMEXP dimens::OVERFL=121;
+
+
 dimens::dimens() { set_unkn(); } // constrictor sets to unknown
 
 dimens::dimens(int lengthd, int massd, int timed, int charged, int tempd)
@@ -64,7 +72,7 @@ double dimens::gettempd()   const { return  (dims[4] * 1.0 / MULTP); }
 
 bool dimens::unknp()		// are all dims unknown? Is that what we want?
 {				//  prob better are any dims unknown!
-  for (int k = 0; k < 5; k++) if (dims[k] ==  UNKNDIM) return(false);
+  for (int k = 0; k < 5; k++) if (dims[k] !=  UNKNDIM) return(false);
   return(true);
 }
 
@@ -166,7 +174,8 @@ dimens & dimens::operator*=(const double km)
   return (*this);
 }
 
-DIMEXP addem(int a, int b)	// add dimens entry checking for unknown
+// add dimens entry checking for unknown
+DIMEXP dimens::addem(const int a, const int b)   
 {
   if ((a == INCONS) || (b == INCONS)) return INCONS;
   if ((a == UNKNDIM) || (b == UNKNDIM)) return UNKNDIM;
@@ -187,7 +196,7 @@ dimens dimens::operator+(const dimens b) const
 {
   dimens retdim;
   for (int k = 0; k < 5; k++)
-    retdim.dims[k] = addem(dims[k],b.dims[k]);
+    retdim.dims[k] = retdim.addem(dims[k],b.dims[k]);
   return(retdim);
 }
 

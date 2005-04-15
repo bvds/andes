@@ -21,9 +21,7 @@ string ustrp(double dpow)	// moved dots from here to unitprint, 7/26
 {				// and gives absolute value of power
   int q;
   char buf[8];
-  if(dpow==UNKNDIM)  // dimension not determined
-    sprintf(buf,"^???");
-  else if (lookslikeint(dpow,q))
+  if (lookslikeint(dpow,q))
     {
       q = abs(q);
       if (q==1) return (string(""));

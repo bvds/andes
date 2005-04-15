@@ -6,12 +6,6 @@
 #include <string>
 using namespace std;
 
-#define MULTP 12
-#define MAXP 10
-#define UNKNDIM -127
-#define INCONS -126
-#define MAYBZ 125
-#define OVERFL 121
 typedef signed char DIMEXP;	// dimensions are stored as
 		// signed DIMEXPs of MULTP times the real
 		// dimension, and have max abs value MAXP
@@ -21,8 +15,15 @@ typedef signed char DIMEXP;	// dimensions are stored as
 class dimens
 {
  private:
+  //  lengthdim,  massdim,  timedim, chargedim, tempdim, in that order;
   DIMEXP dims[5];
-    //  lengthdim,  massdim,  timedim, chargedim, tempdim, in that order;
+  static const DIMEXP UNKNDIM;
+  static const DIMEXP INCONS;
+  static const DIMEXP MULTP;
+  static const DIMEXP MAXP;
+  static const DIMEXP MAYBZ;
+  static const DIMEXP OVERFL;
+  DIMEXP addem(const int a, const int b);
  public:
   dimens();
   dimens(int,int,int,int,int);
@@ -49,12 +50,6 @@ class dimens
   bool operator==(const dimens b) const;
   dimens operator*(const double k) const;
   dimens operator+(const dimens b) const;
-
-  friend class physvar;
-  friend class expr;
-  friend class binopexp;
-  friend class functexp;
-  friend class n_opexp;
 };
 
 #endif

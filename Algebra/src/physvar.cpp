@@ -40,8 +40,3 @@ void physvar::putdimens(double lengthd, double massd, double timed,
   MKS.put(lengthd, massd, timed, charged, tempd);
 }
 
-double physvar::getlengthd() const { return  (MKS.dims[0] * 1.0 / MULTP); }
-double physvar::getmassd() const { return  (MKS.dims[1] * 1.0 / MULTP); }
-double physvar::gettimed() const { return  (MKS.dims[2] * 1.0 / MULTP); }
-double physvar::getcharged() const { return  (MKS.dims[3] * 1.0 / MULTP); }
-double physvar::gettempd() const { return  (MKS.dims[4] * 1.0 / MULTP); }

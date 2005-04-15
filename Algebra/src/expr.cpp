@@ -18,13 +18,6 @@ string itostr(int);					// in utils.cpp
 bool expr::isknown() { return(known); }
 void expr::setknown() { this->known = true; }
 
-
-double expr::getlengthd() const { return  (MKS.dims[0] * 1.0 / MULTP); }
-double expr::getmassd() const { return  (MKS.dims[1] * 1.0 / MULTP); }
-double expr::gettimed() const { return  (MKS.dims[2] * 1.0 / MULTP); }
-double expr::getcharged() const { return  (MKS.dims[3] * 1.0 / MULTP); }
-double expr::gettempd() const { return  (MKS.dims[4] * 1.0 / MULTP); }
-
 physvarptr::physvarptr(int k) : varindex(k)
   {etype = physvart; MKS =(*canonvars)[k]->MKS; }
 
@@ -44,18 +37,18 @@ binopexp::binopexp(oper *op, expr *lhs, expr *rhs) :
     case equalse:
       {
       if (lhs->MKS.inconsp() || rhs->MKS.inconsp()) {
-	MKS.incons();
+	MKS.set_incons();
 	return; }
       if (lhs->MKS.unknp()) { MKS = rhs->MKS; lhs->MKS = rhs->MKS; return; }
       if (rhs->MKS.unknp()) { MKS = lhs->MKS; rhs->MKS = lhs->MKS; return; }
       if (lhs->MKS == rhs->MKS) { MKS = rhs->MKS; return; }
-      MKS.incons();
+      MKS.set_incons();
       return;
       }
     case topowe:
       {				
       if (!(rhs->MKS.zerop() || rhs->MKS.unknp())) {          // rhs must be 
-	MKS.incons();      // dimensionless
+	MKS.set_incons();      // dimensionless
 	return;  }
       double expval;
       if (lhs->MKS.zerop()) expval = 1.; // doesn't matter what 0 mult by
@@ -66,7 +59,7 @@ binopexp::binopexp(oper *op, expr *lhs, expr *rhs) :
 	  eqnumsimp(temp,true);
 	  if (temp->etype == numval) expval = ((numvalexp *)temp)->value;
 	  else {
-	    MKS.incons();   // can't determined
+	    MKS.set_incons();   // can't determined
 	    temp->destroy();			
 	    return; }
 	  temp->destroy(); }
@@ -78,10 +71,10 @@ binopexp::binopexp(oper *op, expr *lhs, expr *rhs) :
     case divbye:
       {
       if (lhs->MKS.inconsp() || rhs->MKS.inconsp()) {
-	MKS.incons();
+	MKS.set_incons();
 	return; }
-      if (lhs->MKS.unknp() || rhs->MKS.unknp()){
-	MKS.dimens();
+      if (lhs->MKS.unknp() || rhs->MKS.unknp()) {
+	MKS.set_unkn();
 	return; }
       MKS = rhs->MKS;
       MKS *= -1.;
@@ -116,7 +109,7 @@ functexp::functexp(oper *f,expr * arg) :
       MKS.put(0,0,0,0,0);
       return; 
     }
-    for (int k = 0; k < 5; k++) MKS.dims[k] = UNKNDIM;
+    MKS.set_unkn();
     return; 
   } // end of switch
 }
