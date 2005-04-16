@@ -897,6 +897,7 @@
 
 ;;;
 ;;; Net intensity is sum of all power acting on object.
+;;; BvdS:  Maybe combine with intensity, with ?agent set to nil
 ;;;
 (def-qexp net-intensity (net-intensity ?wave)
   :units |W/m^2|
@@ -950,7 +951,6 @@
 ;;;
 ;;;  Intensity in decibels.
 ;;;
-;;;
 
 (def-qexp db-intensity (db-intensity ?wave ?agent)
   :units |dB|
@@ -972,9 +972,11 @@
 due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave ?agent))))
 
 ;;;
-;;;  net decibel intensity is not used anywhere
+;;; net version of db-intensity
+;;; BvdS:  Maybe we should combine this with db-intensity, with
+;;; nil specified as the ?agent
 ;;;
-
+;; see def-qexp for db-intensity
 (def-qexp net-db-intensity (net-db-intensity ?wave)
   :units |dB|
   :english ("the total intensity supplied to ~A, in decibels" 
@@ -982,7 +984,7 @@ due to ~A by using the Add Variable command on the Variable menu and selecting d
 
 (defoperator define-net-db-intensity (?wave ?t)
   :preconditions
-  ((bind ?dbi-var (format-sym "dbint_~A_~A" 
+  ((bind ?net-dbi-var (format-sym "dbint_~A_~A" 
 			      (body-name ?wave) 
 			      (time-abbrev ?t))))
   :effects ((variable ?net-dbi-var (at (net-db-intensity ?wave) ?t))
@@ -998,9 +1000,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (def-qexp db-intensity-zero (db-intensity-zero)
   :units |W/m^2|
   :restrictions positive
-  :english ("reference intensity for defining decibels")
-  
-  )
+  :english ("reference intensity for defining decibels"))
 
 ;;; needed for help hint to write an equatio for the reference 
 ;;; intensity
@@ -1010,7 +1010,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
   :ExpFormat("using the reference intensity")
   :EqnFormat("Iref=1.0E-12  W/m^2"))
 
-(defoperator iref-contains()
+(defoperator iref-contains ()
   :effects ( (eqn-contains (std-constant db-intensity-zero) (db-intensity-zero)) ))
 
 (defoperator write-value-of-iref ()
@@ -1030,47 +1030,58 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 
 ;;;
 ;;; Relate intensity to intensity in decibels
-;;; 
+;;; ?agent=nil marks net-intensity and net-db-intensity
+
 (def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?agent ?t)
-  :complexity major  ;must explicitly use
+  :complexity major			;must explicitly use
   :english ("express intensity in decibels")
   :ExpFormat ("expressing the intensity in decibels")
-  :EqnFormat ("I(db) = 10*log10(I/Iref)")) 
+  :EqnFormat ("$b = 10*log10(I/Iref) or I=Iref*10^($b/10)")) 
 
+(defoperator intensity-to-decibels-contains (?sought)
+  :preconditions 
+  ( (time ?t)
+    (any-member ?sought ((at (intensity ?wave ?agent) ?t)
+			 (at (db-intensity ?wave ?agent) ?t))))
+  :effects ( (eqn-contains (intensity-to-decibels ?wave ?agent ?t) ?sought) ))
 
- (defoperator intensity-to-decibels-contains (?sought)
-   :preconditions (
+(defoperator net-intensity-to-decibels-contains (?sought)
+  :preconditions (
 		   (time ?t)
-		   (any-member ?sought ((at (intensity ?wave ?agent) ?t)
-					(at (db-intensity ?wave ?agent) ?t))))
-   :effects (
-     (eqn-contains (intensity-to-decibels ?wave ?agent ?t) ?sought)))
-
+		   (any-member ?sought ((at (net-intensity ?wave) ?t)
+					(at (net-db-intensity ?wave) ?t))))
+   :effects ( (eqn-contains (intensity-to-decibels ?wave nil ?t) ?sought)))
 
 (defoperator write-intensity-to-decibels (?wave ?agent ?t)
-   :preconditions (
-       (variable  ?int  (at (intensity ?wave ?agent) ?t))
-       (variable  ?intdb  (at (db-intensity ?wave ?agent) ?t))
-       (variable  ?intref  (db-intensity-zero))
-   )
-   :effects 
-   ;; this is not the lisp (log ... 10)
-   ((eqn  (= ?intdb (* 10 (log10 (/ ?int ?intref) )))
-	  (intensity-to-decibels ?wave ?agent ?t)))
-   :hint (
-      (point (string "You can express intensity in decibels"))
-      (bottom-out (string "Write the equation ~A" 
-			  ((= ?intdb (* 10 (log10 (/ ?int ?intref) 
-						))) algebra) ))
-      ))
+  :preconditions 				
+  ;; switch between net and ordinary intensity.
+  ( (bind ?int1 (if ?agent `(at (intensity ,?wave ,?agent) ,?t) 
+		  `(at (net-intensity ,?wave) ,?t)))
+    (bind ?intdb1 (if ?agent `(at (db-intensity ,?wave ,?agent) ,?t) 
+		    `(at (net-db-intensity ,?wave) ,?t)))
+    (variable  ?int  ?int1)
+    (variable  ?intdb ?intdb1)
+    (variable  ?intref  (db-intensity-zero)) )
+  :effects 
+  ;; this is not the lisp function (log ... 10)
+  ((eqn  (= ?intdb (* 10 (log10 (/ ?int ?intref) )))
+	 (intensity-to-decibels ?wave ?agent ?t)))
+  :hint 
+  ( (point (string "You can express intensity in decibels"))
+    (bottom-out (string "Write the equation ~A or ~A" 
+			((= ?intdb (* 10 (log10 (/ ?int ?intref) 
+						))) algebra)
+			((= ?int (* ?intref (^ 10 (/ ?intdb 10)))) algebra) ))
+    ))
 
 ;;; 
 ;;; Relate intensity to net power output in a spherical geometry.  
 ;;;
+
 (def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?flag)
   :complexity major  ;must explicitly use
   :english ("relate intensity to power in a spherical geometry")
-  :ExpFormat ("relating the intensity to power (spherical geometry)")
+  :ExpFormat ("relating the intensity to power (spherical symmetry)")
   :EqnFormat ("P = 4*$p*r^2")) 
 
 
@@ -1082,26 +1093,28 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 			 (at (net-power-out ?source) ?t)
 			 (at (mag (relative-position ?source ?wave)) ?t)
 			 ))) 
-  :effects (
-	    (eqn-contains (intensity-to-power ?wave ?source ?t forward) ?sought)))
-  (defoperator intensity-to-power-contains2 (?sought)
+  :effects 
+  ( (eqn-contains (intensity-to-power ?wave ?source ?t forward) ?sought)))
+
+;; allow the other direction for the relative-position 
+;; since we only need the magnitude anyway
+(defoperator intensity-to-power-contains2 (?sought)
   :preconditions 
   ( (spherical-emitting ?wave ?source) ;need spherical symmetry
     (time ?t)
-    
     (any-member ?sought ((at (intensity ?wave ?source) ?t)
 			 (at (net-power-out ?source) ?t)
 			 (at (mag (relative-position ?source ?wave)) ?t)
 			 (at (mag (relative-position ?wave ?source)) ?t)))
     )
-  
-  :effects (
-	    (eqn-contains (intensity-to-power ?wave ?source ?t backward) ?sought)))
+  :effects 
+  ( (eqn-contains (intensity-to-power ?wave ?source ?t backward) ?sought)))
 
 (defoperator write-intensity-to-power (?wave ?source ?t ?flag)
   :preconditions 
   ( (variable  ?int  (at (intensity ?wave ?source) ?t))
     (variable  ?power  (at (net-power-out ?source) ?t))
+    ;; pick out right direction for relative-position
     (bind ?b1 (if (eq ?flag 'forward) ?wave ?source))
     (bind ?b2 (if (eq ?flag 'forward) ?source ?wave))
     (variable  ?r (at (mag (relative-position ?b1 ?b2)) ?t))
