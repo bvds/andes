@@ -1039,7 +1039,8 @@
 ;;; using car and cadr so it must, for now remain defined as a list as well.
 ;;; 
 
-(defstruct (bubblegraph (:type list))
+(defstruct (bubblegraph (:type list) 
+	    (:constructor nil))		;make-bubblegraph defined below
   qnodes
   enodes)
 
@@ -1181,7 +1182,7 @@
 (defun make-bubblegraph (&optional bgnodes)
   "Generate a new Bubblegraph with the specified BGNodes."
   (if (null BGNodes) (list nil nil)
-    (apply #'add-nodes-to-bubblegraph (list Nil Nil) bgnodes)))
+    (apply #'add-nodes-to-bubblegraph (list nil nil) bgnodes)))
 
 ;;; Given one or more bgnodes add them to the specified graph
 ;;; and return the resulting graph.  Note that this does not
