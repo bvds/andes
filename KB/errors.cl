@@ -2923,8 +2923,15 @@
      ; ?compo-rot may be an x or y axis angle.  ?rot is x axis rotation
      (bind ?rot (if (eq ?xyz 'y) (- ?compo-dir 90) ?compo-dir))
      (test (not (= ?rot 0))) 
+     ; This can conflict with sin/cos error (wrong-trig-function).
+     ; Don't apply if trig-fn arg already appears to subtract axis tilt
+     (test (not (expr-subtracts-tilt ?arg ?rot)))
      (fix-eqn-by-replacing ?wrong-loc (?trig-fn (- ?arg (dnum ?rot |deg|)))))
 )
+
+(defun expr-subtracts-tilt (expr rot)
+"true if expr (presumably trig fn arg) subtracts axis tilt value rot"
+    (unify expr `(- ?something (dnum ,rot |deg|)))) 
 
 (defun missing-axis-tilt (trig-fn arg xyz rot)
   (declare (ignore xyz))
