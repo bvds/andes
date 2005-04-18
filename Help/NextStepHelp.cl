@@ -1023,8 +1023,9 @@
 
 (defun nsh-prompt-next ()
   (cond	
-   ((nsh-mc-only-done?) (nsh-mc-only-prompt-done))
-   ((equal *nsh-problem-type* 'mc-only) (nsh-mc-only-prompt))
+   ((equal *nsh-problem-type* 'mc-only) 
+            (if (nsh-mc-only-done?) (nsh-mc-only-prompt-done)
+               (nsh-mc-only-prompt)))
    ((nsh-prompt-bodies?) (nsh-prompt-bodies))
    ((nsh-prompt-axis?) (nsh-prompt-axis))
    ((nsh-prompt-givens?) (nsh-prompt-givens))
