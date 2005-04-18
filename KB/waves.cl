@@ -358,39 +358,59 @@
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
 ;;; Only for sinusoidal waves (where freq & wavelength are well-defined)
-(def-psmclass speed-of-wave (speed-of-wave ?object ?medium)
+(def-psmclass speed-of-wave (speed-of-wave ?object ?medium ?form)
   :complexity major ; must use explicitly 
   :english ("the equation of the speed of a wave")
   :ExpFormat ("relating wavelength and frequency to the speed of wave ~A"
 	      (nlg ?object))
-  :EqnFormat ("v = lambda*freq")) 
+  :EqnFormat ("v = $l*f = $w/k")) 
 
+;; usual form in terms of wavelength and frequency
 (defoperator speed-of-wave-contains (?sought)
   :preconditions 
   ( (sinusoidal ?object)		;so wavelength is defined
     (wave-medium ?medium)		;object waves can move through
     (any-member ?sought ( 
 			 (wave-speed ?medium)
+			 (frequency ?object)
 			 (wavelength ?object ?medium)
-			 (frequency ?object)))  )
+			 ))  )
   :effects 
-  ( (eqn-contains (speed-of-wave ?object ?medium) ?sought)))
+  ( (eqn-contains (speed-of-wave ?object ?medium t) ?sought)))
 
-(defoperator speed-of-wave (?object)
-  :preconditions (
-		  (variable  ?v  (wave-speed ?medium))
-		  (variable  ?lam  (wavelength ?object ?medium))
-		  (variable  ?freq  (frequency ?object))
-		  )
+;; alternative form in terms of wavenumber and omega
+#|(defoperator speed-of-wave-contains-angular (?sought)
+  :preconditions 
+  ( (sinusoidal ?object)		;so wavelength is defined
+    (wave-medium ?medium)		;object waves can move through
+    (any-member ?sought ( 
+			 (wave-speed ?medium)
+			 (angular-frequency ?object)
+			 (wavenumber ?object ?medium)
+			 ))  )
   :effects 
-  ((eqn  (= ?v (* ?lam ?freq)) (speed-of-wave ?object ?medium)))
+  ( (eqn-contains (speed-of-wave ?object ?medium nil) ?sought)))
+  |#
+
+(defoperator write-speed-of-wave (?object ?medium ?form)
+  :preconditions 
+  ( (variable  ?vw  (wave-speed ?medium))
+    (bind ?x1 `(,(if ?form 'frequency 'angular-frequency) ,?object))
+    (bind ?x2 `(,(if ?form 'wavelength 'wavenumber) ,?object ,?medium))
+    (variable  ?v1 ?x1)
+    (variable  ?v2 ?x2)
+    ;; right hand side of equation: lambda*f or omega/k
+    (?bind ?rhs (if ?form `(* ,?v1 ,?v2) `(/ ,?v1 ,?v2)))
+    )
+  :effects 
+  ((eqn  (= ?vw ?rhs) (speed-of-wave ?object ?medium ?form)))
   :hint 
   ( (point (string "You can apply the equation for the speed of a wave." 
 		   ?medium))
      (teach (string "~A moves in ~A at a constant speed." 
 		   ?object ?medium))
     (bottom-out (string "Write the equation ~A" 
-			((= ?v (* ?lam ?freq)) algebra) )) ))
+			((= ?vw ?rhs) algebra) )) ))
 
 ;; speed of object is wave speed
 (def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?object ?rope ?t)
