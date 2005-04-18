@@ -4054,7 +4054,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (motion ?b ?t-motion (straight ?dont-care32 (dnum ?motion-dir |deg|)))
     (bind ?friction-dir (mod (+ 180 ?motion-dir) 360))
    )
-  : effects (
+  :effects (
     (force ?b ?surface kinetic-friction ?t (dnum ?friction-dir |deg|) action)
   ))
 
@@ -4214,7 +4214,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (motion ?b ?t-motion (straight ?dont-care32 (dnum ?motion-dir |deg|)))
     (bind ?drag-dir (mod (+ 180 ?motion-dir) 360))
    )
-  : effects (
+  :effects (
     (force ?b ?medium drag ?t (dnum ?drag-dir |deg|) action)
   ))
 
@@ -4800,10 +4800,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
          (variable ?mpart-var (mass ?body)) 
 	 ?mpart-var ?mpart-vars) 
   )
-  : effects (
+  :effects (
      (eqn (= ?mwhole-var (+ . ?mpart-vars)) (mass-compound ?bodies))
   )
-  : hint
+  :hint
   ((point (string "How does the mass of a compound body relate to the masses of its parts?"))
    (teach (string "The mass of a compound body is equal to the sum of the masses of its parts."))
    (bottom-out (string "Write the equation ~A" ((= ?mwhole-var (+ . ?mpart-vars)) algebra)))

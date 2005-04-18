@@ -4,11 +4,7 @@
 ;;;; Use this to compile:
 ;;;;  (asdf:operate 'asdf:load-op 'andes)
 ;;;; or use command (rkb) if it is defined.
-;;;  To turn on solver logging:
-#|
-:cd /home/bvds/Andes2/ 
-(solve-do-log "t") 
-|#
+;;;  To turn on solver logging:  :cd ~/Andes2/ 
 
 
 ;;;; The following was stolen from maxima.asd

@@ -149,6 +149,7 @@
  
 (defun solver-shutdown ()
   (let ((path (merge-pathnames *DLL-NAME* *Andes-Path*)))
+    ;; uffi doesn't have an unload command, so we are stuck with reloading.
     #-uffi(when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
 		  :key #'file-namestring :test #'string-equal)
        (format T "~&UnLoading solver from ~A~%" path)
@@ -167,11 +168,18 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(ff:def-foreign-call (c-solve-do-log "solverDoLog")
-    ((string (* :char)))
-  :returning :int)
-(defun solve-do-log (a)
-  (excl:native-to-string (c-solve-do-log a)))
+#-uffi (ff:def-foreign-call (c-solve-do-log "solverDoLog")
+			    ((string (* :char)))
+			    :returning :int) ;BvdS:  but it returns a string...
+#+uffi  (uffi:def-function ("solverDoLog" c-solve-do-log )
+			   ((string :cstring))
+			   :returning :cstring)
+#-uffi (defun solve-do-log (a)
+	 (excl:native-to-string (C-solve-do-log a)))
+#+uffi (defun solve-do-log (a)
+	 (check-type a string)
+	 (uffi:with-cstring (a-native a)
+	  (uffi:convert-from-cstring (c-solve-do-log a-native))))
 (defun solver-logging-on (x)
   (my-read-answer (solve-do-log (format nil "~A" x))))
 

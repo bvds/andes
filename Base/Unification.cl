@@ -25,7 +25,7 @@
 (defconstant fail nil "Indicates pat-match failure")
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(eval-when (:compile-toplevel :load-toplevel)
   (defconstant no-bindings '((t . t))
   "Indicates pat-match success, with no variables."))
 
