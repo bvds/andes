@@ -137,7 +137,7 @@ GROUP	Waves and Oscillations
 LEAF	k = 2*$p/$l	wavenumber-lambda-wave	
 LEAF	f = $w/(2*$p)	frequency-of-wave	
 LEAF	T = 1/f	period-of-wave	
-LEAF	vw = $l*f              Speed of a wave	speed-of-wave	
+LEAF	vw = $l*f = k*$w      Speed of a wave	speed-of-wave	
 LEAF	c = 2.998E8 m/s       Speed of light	speed-of-light	
 LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
 LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
