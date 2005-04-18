@@ -23,10 +23,17 @@ using namespace std;
 #define OKAY 0
 #define NOTANEQ 32
 #define UNITSNG 8
-#define NOT1PC 4
+#define NOTANSOK 4	// not within looser answer value error bars, see ANSERR
 #define IMPREC 1
 #define VERYNG 1
 // note VERYNG is only added if IMPREC has already been
+
+// Relative error used for answer values in Andes: Since +/- ANSERR*value is
+// applied to BOTH sides of an answer giving equation, the effective range for
+// answers winds up +/- 2*ANSERR*value.  Now want answer within 0.5% of calculated 
+// value, to be closer to a 3-significant figures criterion. Perhaps better to
+// provide way for caller to adjust this parameter, but for now define it here.
+static const double ANSERR = 0.0025;
 
 // return values from indyAddStudEq
 #define ADDEDEQN 0
@@ -75,7 +82,7 @@ int indyIsStudEqnOkay(const char * const equation) {
              << endl;);
     retval += UNITSNG;
   }
-  if (checksol((binopexp*)eqexpr, numsols, .01) > 0) retval += NOT1PC;
+  if (checksol((binopexp*)eqexpr, numsols, ANSERR) > 0) retval += NOTANSOK;
   if (checksol((binopexp*)eqexpr, numsols, RELERR) > 1) retval += IMPREC;
   if (checksol((binopexp*)eqexpr, numsols, 100 * RELERR) > 1) retval += VERYNG;
 
