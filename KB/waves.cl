@@ -312,7 +312,7 @@
   :effects ( (eqn-contains (harmonic-of ?waven ?wave1 ?form) ?sought)
 	     ))
 
-(defoperator write-harmonic-of (?waven ?wave1 ?form)
+(defoperator write-harmonic-of (?waven ?wave1)
   :preconditions 
   ((harmonic-of ?waven ?mult ?wave1)	;get ?mult
    (bind ?quantw (if ?form 'wavelength 'frequency))
@@ -324,7 +324,8 @@
    (variable ?vn ?qn)
    (bind ?rhs (if ?form `(/ ,?v1 ,?mult) `(* ,?v1 ,?mult) )) )
   :effects ( (eqn (= ?vn ?rhs) 
-		  (harmonic-of ?waven ?wave1 ?form)))
+		  (harmonic-of ?waven ?wave1 ?form))
+	    (assume use-harmonic-of ?wave1 ?form) )
   :hint (
 	 (point (string "~A is the ~:R harmonic of ~A" ;prints as ordinal
 			?waven (?mult identity) ;so nlg just returns ?mult  
@@ -335,6 +336,14 @@
 			     ((= ?vn ?rhs) algebra)))
 	 ))
 
+;; only allow one form of the harmonic equation to be
+;; used on a given system.
+(defnogood harmonic-of-strategy
+    ((use-harmonic-of ?wave1 ?form1)
+     (use-harmonic-of ?wave1 ?form2)
+     (test (not (equal ?form1 ?form2))))
+  :Specs ("Prevent one from using both forms of the harmonic equation a given system.")
+  :message (Should only use one form of harmonic equation for a given system.))
 
 ;;;
 ;;;   Wave speed, this is |phase velocity|
@@ -363,45 +372,44 @@
   :english ("the equation of the speed of a wave")
   :ExpFormat ("relating wavelength and frequency to the speed of wave ~A"
 	      (nlg ?object))
-  :EqnFormat ("v = $l*f = $w/k")) 
+  :EqnFormat ("v = $l*f or v = $w/k")) 
 
 ;; usual form in terms of wavelength and frequency
 (defoperator speed-of-wave-contains (?sought)
   :preconditions 
   ( (sinusoidal ?object)		;so wavelength is defined
     (wave-medium ?medium)		;object waves can move through
-    (any-member ?sought ( 
-			 (wave-speed ?medium)
+    (any-member ?sought ((wave-speed ?medium)
 			 (frequency ?object)
-			 (wavelength ?object ?medium)
-			 ))  )
+			 (wavelength ?object ?medium)))  )
   :effects 
   ( (eqn-contains (speed-of-wave ?object ?medium t) ?sought)))
 
 ;; alternative form in terms of wavenumber and omega
-#|(defoperator speed-of-wave-contains-angular (?sought)
+(defoperator alternative-speed-of-wave-contains (?sought)
   :preconditions 
-  ( (sinusoidal ?object)		;so wavelength is defined
+  ( (not (suppress-alternative-speed-of-wave))
+    (sinusoidal ?object)		;so wavelength is defined
     (wave-medium ?medium)		;object waves can move through
-    (any-member ?sought ( 
-			 (wave-speed ?medium)
+    (any-member ?sought ((wave-speed ?medium)
 			 (angular-frequency ?object)
-			 (wavenumber ?object ?medium)
-			 ))  )
+			 (wavenumber ?object ?medium)))  )
   :effects 
   ( (eqn-contains (speed-of-wave ?object ?medium nil) ?sought)))
-  |#
 
-(defoperator write-speed-of-wave (?object ?medium ?form)
+;; this follows the approach used in harmonic-of
+(defoperator write-speed-of-wave (?object ?medium)
   :preconditions 
   ( (variable  ?vw  (wave-speed ?medium))
-    (bind ?x1 `(,(if ?form 'frequency 'angular-frequency) ,?object))
-    (bind ?x2 `(,(if ?form 'wavelength 'wavenumber) ,?object ,?medium))
-    (variable  ?v1 ?x1)
-    (variable  ?v2 ?x2)
+    (bind ?x1 (if ?form (list 'frequency ?object) 
+		(list 'angular-frequency ?object)))
+    (bind ?x2 (if ?form (list 'wavelength ?object ?medium)
+		(list 'wavenumber ?object ?medium)))
+    (variable  ?y1 ?x1)
+    (variable  ?y2 ?x2)
     ;; right hand side of equation: lambda*f or omega/k
-    (?bind ?rhs (if ?form `(* ,?v1 ,?v2) `(/ ,?v1 ,?v2)))
-    )
+    (bind ?rhs (if ?form `(* ,?y1 ,?y2) `(/ ,?y1 ,?y2)))
+  )
   :effects 
   ((eqn  (= ?vw ?rhs) (speed-of-wave ?object ?medium ?form)))
   :hint 
