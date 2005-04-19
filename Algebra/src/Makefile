@@ -15,9 +15,8 @@ CPPFLAGS += -DWITHDBG -DTRACE_OUTPUT
 #
 ifeq ($(shell uname),Darwin)
 SO	= dylib
-SHARED	= -dynamiclib
-else
-# standard case
+SHARED	= -dynamiclib -install_name $(shell pwd)/../../libSolver.dylib
+else   # standard case
 SO      = so
 SHARED  = -shared
 endif

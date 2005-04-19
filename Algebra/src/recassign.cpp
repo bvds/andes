@@ -104,9 +104,9 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		      eqnumsimp(eqexpr,true);
 		      DTL( cout<< "Eqnumsimp returns " << eqexpr->getInfix()
 			   << endl;);
-		      while(flatten(eqexpr)); // added 2/11. Hope no hangs
-		      DTL(cout<< "Flatten returns "
-			  << eqexpr->getInfix()<< endl;);
+		      while(flatten(eqexpr)) // added 2/11. Hope no hangs
+			DTL(cout<< "Flatten returns "
+			    << eqexpr->getInfix()<< endl;);
 		      if (eqexpr->etype != binop) throw(string(
 		     "substin/eqnumsimp/flatten gives a non-binop equation!"));
 		      (*eqn)[q]=(binopexp *)eqexpr;
