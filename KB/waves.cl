@@ -563,7 +563,7 @@
 		  (variable ?tension (string-tension ?string))
 		  )
   :effects (
-	    (eqn  (= (* ?vw ?vw) (/ ?tension ?mu-var))
+	    (eqn  (= (^ ?vw 2) (/ ?tension ?mu-var))
 		  (wave-speed-string ?string))
 	    )
   :hint (
