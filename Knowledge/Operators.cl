@@ -481,7 +481,10 @@
 ;;    fuincalled to produce a hint-sequecne.  Any hints after this
 ;;    in the list will be ignored.  
 
-(defconstant **HintSpec-Types** '(String KCD MiniLesson Eval Function))
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+	**HintSpec-Types** '(String KCD MiniLesson Eval Function)
+	#+sbcl #'equalp)
 
 (defun HintSpec-Type (Spec)
   "Get the hintspec's class" 

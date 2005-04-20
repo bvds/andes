@@ -1,5 +1,5 @@
 ;;;; -*- Mode: Lisp; Syntax: Common-Lisp -*-
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Unification.cl
 ;; This file contains the pattern matching code and unification code
 ;; for the Andes2 project and provides the "Unification" package when
@@ -13,7 +13,7 @@
 ;;
 ;; It has since been modified by Collin Lynch to include the
 ;; variable-boundp function.
-|#
+
 
 ;;(load "c:/SolutionGraph/Utility.cl")
 
@@ -25,9 +25,10 @@
 (defconstant fail nil "Indicates pat-match failure")
 
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
-(eval-when (:compile-toplevel :load-toplevel)
-  (defconstant no-bindings '((t . t))
-  "Indicates pat-match success, with no variables."))
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+	no-bindings '((t . t))
+	#-sbcl "Indicates pat-match success, with no variables."
+	#+sbcl #'equalp)
 
 (defvar *occurs-check* t "Should we do the occurs check?")
 

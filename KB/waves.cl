@@ -798,7 +798,7 @@
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift")
   :ExpFormat ("using formula for doppler frequency")
-  :EqnFormat ("fo=fs*(vw±vo)/(vw±vs))")) 
+  :EqnFormat ("fo=fs*(vwvo)/(vwvs))")) 
 
 ;;; velocities should be constant over a large enough
 ;;; interval.  We should demand (constant ?quant ?t-interval) but
