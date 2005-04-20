@@ -8222,12 +8222,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;;; mass per length = mass /length of a rod
 
-(def-psmclass mass-per-length-eqn (mass-per-length-eqn ?body)
-  :complexity major
+(def-psmclass mass-per-length-eqn (mass-per-length-equation ?b)
+  :complexity minor  ;same as the moment of inertia formulas
   :doc "mass per length = mass/length"
   :english ("mass per length = mass/length")
-  :expFormat ("applying mass per length = mass/length")
-  :EqnFormat ("mu = m/l"))
+  :expFormat ("using the mass per length of ~A" (nlg ?b))
+  :EqnFormat ("$m = m/l"))
 
 (defoperator mass-per-length-eqn-contains (?quantity)
   :preconditions (
@@ -8246,7 +8246,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects
   ((eqn (= ?mu (/ ?m ?l)) (mass-per-length-equation ?b)))
   :hint
-  ((point (string "Find the mass per unit length."))
+  ((point (string "Use the mass per unit length of ~A." ?b))
    (teach (string "The mass per unit length is the total mass of ~a divided by the length of ~a" ?b ?b))
    (bottom-out (string "Because ~a is mass per length, write ~a=~a/~a"
 		       ?mu ?mu ?m ?l))
