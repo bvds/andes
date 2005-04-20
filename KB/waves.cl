@@ -724,13 +724,6 @@
 			     ((= ?t (* 2 $p (sqrt (/ ?m ?k)))) algebra) ))
 	 ))
 
-;;; mass and spring have same period
-(defoperator oscillator-periods-equal-contains (?block ?rod)
-  :preconditions (
-		  (spring-contact ?block ?rod . ?dontcare)
-		  )
-  :effects ((equals (period ?block) (period ?rod))))
-
 ;;;  Frequency for simple pendulum
 ;;;  This is kind of lousy:  
 ;;;  Since it is not done as a true F=ma problem, it does not
