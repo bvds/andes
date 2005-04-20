@@ -170,7 +170,7 @@
   (or (gg-solve-preexisting-sought Sought Graph)
     (progn
       (gg-debug-incdepth)
-      (gg-debug-separator "#" 80)
+      (gg-debug-separator "#" 78)
       (gg-debug "Finding eqns for ~A~%" Sought)
       (let ((R (or ; (gg-solve-preexisting-sought Sought Graph)
 	           (gg-solve-param-sought Sought Givens Graph)
@@ -178,7 +178,7 @@
 	           (gg-solve-constant-sought Sought Givens Graph)
 	           (gg-solve-complex-sought Sought Givens Graph))))
       ;(gg-debug "Done finding eqns for: ~A ~%" Sought)
-      ;(gg-debug-separator "#" 80)
+      ;(gg-debug-separator "#" 78)
       (gg-debug-decdepth)
       (when (null R)
           (error "No equations returned for ~A~%" Sought))
@@ -206,7 +206,7 @@
   "Generate the infor for an unnamed parameter."
   (let* ((Q) (P (find-sought-param Sought Givens)))
     (when (and P (setq Q (solve-for-param-var Sought Givens)))
-      (gg-debug "Sought is the parameter: ~A" (Qsolres-id Q))
+      (gg-debug "Sought is the parameter: ~A~%" (Qsolres-id Q))
       (setq Q (make-qnode :exp Sought
 			  :var (qsolres-id Q)
 			  :path (qsolres-path Q)
@@ -334,7 +334,7 @@
     (dolist (P PSMs)
       ; AW -- changed to suppress output in case psm expanded already
       ;(gg-debug-incdepth)
-      ;(gg-debug-separator "=" 80)
+      ;(gg-debug-separator "=" 78)
       ;(gg-debug "Processing quantities from PSM: ~A  ~%" (Qsolres-id P))
       (cond ((setq PSM (match-exp->enode (Qsolres-id P) Graph))
 	     ;(gg-debug "PSM already processed.~%")
@@ -343,17 +343,17 @@
 	     ;; might want switch to turn it on.
 	     T
                ;-;(gg-debug-incdepth)
-               ;-;(gg-debug-separator "=" 80)
+               ;-;(gg-debug-separator "=" 78)
                ;-;(gg-debug "Processing quantities from ~A:~%" (Qsolres-id P))
 	     (setq PSM (gg-solve-complex-psm P Givens NewGraph))
 	     (pushnew (car PSM) (Qnode-Eqns Qnode))
 	     (setq NewGraph (cdr PSM))
                ;-;(gg-debug "Done processing quantities from ~A~%" (Qsolres-id P))
-               ;-;(gg-debug-separator "=" 80)
+               ;-;(gg-debug-separator "=" 78)
                ;-;(gg-debug-decdepth)
 	     )))
       ;(gg-debug "Done processing quantities from ~A~%" (Qsolres-id P))
-      ;(gg-debug-separator "=" 80)
+      ;(gg-debug-separator "=" 78)
       ;(gg-debug-decdepth)
     (cons Qnode NewGraph)))
 

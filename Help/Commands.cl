@@ -635,13 +635,13 @@
 	 (result (if tmp (solver-power-solve 31 (student-to-canonical var) new-id) nil))
 	 (action (log-studentaction **last-api-call**)))
     
-	 (cond ((and result (listp result)) (solve-for-var-success new-id result action))
-	       ((stringp result) 
-		(solve-for-var-error 
-		 (format NIL "Unable to solve for ~A: ~A" var result) action))
-	       (t (solve-for-var-error
-		   (format NIL "Unable to solve for ~A, or multiple solutions were found." var)
-		   action)))))
+    (cond ((and result (listp result)) (solve-for-var-success new-id result action))
+	  ((stringp result) 
+	   (solve-for-var-error 
+	    (format NIL "Unable to solve for ~A: ~A" var result) action))
+	  (t (solve-for-var-error
+	      (format NIL "Unable to solve for ~A, or multiple solutions were found." var)
+	      action)))))
 
 
 (defun solve-for-var-success (new-id result action)
