@@ -92,7 +92,7 @@
 ;;; These are treated as proper names (no "the").
 (defun upper-case-namep (x)
   "true if name symbol is probably best left all upper case"
-  (or (member x '(YP))			; list of explicit names
+  (or (member x '(YP M1 M2))		; list of explicit names to lower case
       (equal (length (string x)) 1)
       (and (numberp (read-from-string (subseq (string x) 
 					      (1- (length (string x))))))

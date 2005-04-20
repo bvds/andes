@@ -768,13 +768,6 @@
 			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
 	 ))
 
-;;; Period of parts of pendulum are equal
-(defoperator pendulum-periods-equal-contains (?block ?rod)
-  :preconditions (
-		  (pendulum ?block ?rod)
-		  )
-  :effects ((equals (period ?block) (period ?rod))))
-
 ;;;
 ;;;  Doppler shift in two dimensions.  (The two-dimensional nature
 ;;;  should be transparent to the student since all the problems
