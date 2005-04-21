@@ -461,7 +461,22 @@
 			     "velocity vector for ~a ~a.") 
 		 (nlg body 'def-np) (nlg time 'pp)))))
 
-;;; ======================= durations ==============================
+;;
+;; On problems where wave-speed is defined...
+;;
+(def-error-class wave-speed-not-speed (?medium)
+  ((student (define-var (at (speed ?sbody) ?stime)))
+   (correct (define-var (wave-speed ?medium))))
+  :utility 100
+  :probability 0.3			;the body choice doesn't matter much
+  )
+
+(defun wave-speed-not-speed (medium)
+  (make-hint-seq
+   (list (format nil "To define the speed of waves moving in ~A, use \"Speed of wave\" instead of \"speed.\""
+	 (nlg medium 'def-np)))))
+
+;;; ============================== durations ==================================
 ;;; The duration tool has two slot: both for time points.  There are 2
 ;;; default case, namely that (a) the times don't match a useful
 ;;; duration and (b) duration is not needed at all.  There is a

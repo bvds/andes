@@ -351,9 +351,8 @@
 
 (def-qexp wave-speed (wave-speed ?medium)
   :units |m/s|
-  :restrictions nonnegative 
-  :english ("the speed of waves in ~A" (nlg ?medium))
-
+  :restrictions nonnegative
+  :english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
   :fromworkbench `(wave-speed ,body))
 
 (defoperator define-wave-speed (?medium)
