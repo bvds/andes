@@ -148,11 +148,11 @@ string powersolve(const int howstrong, const varindx sought,
       else if (dotriggave == 1) if (polysolve(eqn,vars)) doagain = 1; //8/9/02
       for (q = 0; q < eqn->size(); q++)
 	if (fixupforpls((*eqn)[q])) {doagain = 1; break;}
-      DBG(cout << "after dotrig, doagain is " << doagain << endl;);
+      DBG(cout << "after dotrig, doagain is " << doagain << endl);
     }
     if ((doagain <= 0) && (howstrong & 16)) {
       if (desperate(eqn,vars)) doagain = 1;
-      DBG(cout << "after desperate, doagain is " << doagain << endl;);
+      DBG(cout << "after desperate, doagain is " << doagain << endl);
     }
     // now, if we are going to try over, put partsols back into eqn list.
     if (doagain > 0) {
@@ -160,7 +160,7 @@ string powersolve(const int howstrong, const varindx sought,
       while (partsols->size() > 0) partsols->pop_back();
     }
     // remove duplicate or proportional equations:
-    DBG(cout << "solvetool about to remove duplicate equations" << endl;);
+    DBG(cout << "solvetool about to remove duplicate equations" << endl);
     numvalexp * factd;
     for (q = 0; q < eqn->size(); q++)
       {
@@ -184,13 +184,13 @@ string powersolve(const int howstrong, const varindx sought,
   } // end of while doagain > 0
   // check partsols for solution to student variable
   DBG(cout << "solvetool exited while doagain loop, checking partsols" 
-      << endl;);
+      << endl);
   if (partsols->size() > 0) 
     {
       for (q = 0; q < partsols->size(); q++)
 	if (exprcontains((*partsols)[q],sought)) break;
       if (q == partsols->size()) { // failed to solve for variable at all
-	DBG(cout << "powersolve failed" << endl;);
+	DBG(cout << "powersolve failed" << endl);
 	return(string(""));
       }
       // partsols are only made by purelin, so must be linear
@@ -235,7 +235,7 @@ string powersolve(const int howstrong, const varindx sought,
   indyAddStudEq(destslot,ansexpr->getLisp(false).c_str());
   if (ansexpr->rhs->etype==numval) {
       answer = ansexpr->solprint(true);
-      DBG(cout << "solvetool returning assignment string " << answer<< endl;);
+      DBG(cout << "solvetool returning assignment string " << answer<< endl);
     }
   else answer = ansexpr->getLisp(true);
  cleanup:

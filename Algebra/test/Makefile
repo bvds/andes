@@ -22,3 +22,6 @@ str:   $(solve_lib) str.o
 
 main.o: ../../Solver.log main.cpp
 	$(CXX) $(CPPFLAGS) -c main.cpp
+
+clean:
+	rm *.o

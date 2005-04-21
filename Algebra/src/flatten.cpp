@@ -270,8 +270,8 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 
       switch(ebin->op->opty){
       case equalse:
-      DBG(cout << "flatten " << thisdbg  << ": case equalse:  " 
-	  << e->getInfix() << endl);
+	DBG(cout << "flatten " << thisdbg  << ": case equalse:  " 
+	    << e->getInfix() << endl);
 	if (ebin->lhs->etype != binop) {	//   what about a = sqrt b ? 
 	  if ((ebin->rhs->etype != binop) || 
 	      (((binopexp *)ebin->rhs)->op->opty != divbye)) 
