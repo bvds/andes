@@ -161,18 +161,13 @@
   :english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) (nlg ?body2))) 
 
-;; see Help/State.cl, function enter-predefs
+;; see constants.cl, function enter-predefs
 (def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
   :units |m/s^2|
   :restrictions positive
   :fromWorkbench `(gravitational-acceleration ,body)
   :english ("the gravitational acceleration due to ~A" (nlg ?planet nil)))
 
-;; see Help/State.cl, function enter-predefs
-(def-qexp grav-constant (grav-constant)
-  :units |N.m^2/kg^2|
-  :restrictions positive
-  :english ("the gravitational constant G"))
 (def-qexp num-forces (num-forces ?body)
   :english ("the number of forces on ~A" (nlg ?body)))
 (def-qexp revolution-radius (revolution-radius ?body)
@@ -857,12 +852,6 @@
   :english ("Newton's Law of Universal Gravitation")
   :expformat ("applying Newton's Law of Universal Gravitation for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
   :EqnFormat ("Fg = G*m1*m2/r^2"))
-
-(def-psmclass grav-constant (std-constant grav-constant)
-  :complexity simple 
-  :english ("the value of the gravitational constant G")
-  :expformat ("entering the value of the gravitational constant G")
-  :EqnFormat ("G = 6.67 E-11 N*m^2/kg^2"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; CONNECTED BODIES

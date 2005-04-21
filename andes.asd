@@ -68,6 +68,7 @@
 			:components (
 				     (:file "reset-KB")
 				     (:file "Physics-Funcs")
+				     (:file "constants")
 				     ;; TELL and NLG not defined
 				     (:file "Ontology" )
 				     (:file "circuit-ontology")  

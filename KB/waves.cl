@@ -457,34 +457,6 @@
 ;;;;  Wave speed for various objects   
 ;;;;
 
-;;;
-;;; speed of light "c", see notes for "grav-constant"
-;;;
-;; see Help/State.cl, function enter-predefs
-(def-qexp speed-of-light (speed-of-light)
-  :units |m/s|
-  :restrictions positive
-  :english ("the speed of light in a vacuum"))
-
-(defoperator c-contains()
-  :effects ( (eqn-contains (std-constant speed-of-light) (speed-of-light)) ))
-
-(defoperator write-value-of-c ()
-  :preconditions 
-    ( (variable ?c-var (speed-of-light)) )
-  :effects ( 
-    (eqn (= ?c-var (dnum 2.998E8 |m/s|)) (std-constant speed-of-light)) 
-   )
-  :hint
-  ((point (string "You can enter the value of the speed of light c.  Use four significant digits."))
-   (teach (string "You can use 2.998E8 N.m/kg^2 as the value of c."))
-   (bottom-out (string "Write the equation ~A" 
-		       ((= ?c-var (dnum 2.998E8 |m/s|)) algebra) ))
-    ))
-
-(defoperator define-c ()
- :effects ( (variable |c| (speed-of-light)) ))
-
 ;;; If medium is "light" then set its wave-speed to c
 (def-psmclass wave-speed-light (wave-speed-light ?medium)
   :complexity minor
@@ -499,18 +471,16 @@
   :effects (
 	    (eqn-contains (wave-speed-light ?medium) ?sought)))
 
-(defoperator wave-speed-light (?medium)
-  :preconditions (
-		  (variable  ?v (wave-speed ?medium))
-		  (variable ?c (speed-of-light)))
-  :effects (
-	    (eqn  (= ?v ?c) 
-		  (wave-speed-light ?medium)))
+(defoperator write-wave-speed-light (?medium)
+  :preconditions ((variable  ?v (wave-speed ?medium)))
+  :effects
+  ;; c is predefined, see file constants.cl
+  ( (eqn  (= ?v |c|) (wave-speed-light ?medium)) )
   :hint (
 	 (point (string "Light waves and radio waves have a special speed"))
 	 (teach (string "What is the speed of light?"))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?v ?c)  algebra) ))
+			     ((= ?v |c|)  algebra) ))
 	 ))
 
 ;;;
@@ -1007,41 +977,6 @@ due to ~A by using the Add Variable command on the Variable menu and selecting d
 using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
 
 ;;;
-;;;  Reference intensity, predefined constant
-;;;
-;; see Help/State.cl, function enter-predefs
-(def-qexp db-intensity-zero (db-intensity-zero)
-  :units |W/m^2|
-  :restrictions positive
-  :english ("reference intensity for defining decibels"))
-
-;;; needed for help hint to write an equatio for the reference 
-;;; intensity
-(def-psmclass define-db-intensity-zero (std-constant db-intensity-zero)
-  :complexity minor
-  :english ("the reference intensity")
-  :ExpFormat("using the reference intensity")
-  :EqnFormat("Iref=1.0E-12  W/m^2"))
-
-(defoperator iref-contains ()
-  :effects ( (eqn-contains (std-constant db-intensity-zero) (db-intensity-zero)) ))
-
-(defoperator write-value-of-iref ()
-  :preconditions 
-    ( (variable ?iref-var (db-intensity-zero)) )
-  :effects ( 
-    (eqn (= ?iref-var (dnum 1.0E-12 |W/m^2|)) (std-constant db-intensity-zero))
-   )
-  :hint
-  ((point (string "For converting intensity to decibels, you need to define a value for the reference intensity Iref."))
-   (bottom-out (string "Write the equation ~A" 
-		       ((= ?iref-var (dnum 1.0E-12 |W/m^2|)) algebra) ))
-    ))
-
-(defoperator define-iref ()
- :effects ( (variable |Iref| (db-intensity-zero)) ))
-
-;;;
 ;;; Relate intensity to intensity in decibels
 ;;; ?agent=nil marks net-intensity and net-db-intensity
 
@@ -1073,18 +1008,18 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
     (bind ?intdb1 (if ?agent `(at (db-intensity ,?wave ,?agent) ,?t) 
 		    `(at (net-db-intensity ,?wave) ,?t)))
     (variable  ?int  ?int1)
-    (variable  ?intdb ?intdb1)
-    (variable  ?intref  (db-intensity-zero)) )
+    (variable  ?intdb ?intdb1) )
   :effects 
-  ;; this is not the lisp function (log ... 10)
-  ((eqn  (= ?intdb (* 10 (log10 (/ ?int ?intref) )))
+  ;; this is not the lisp function (log x 10)
+  ;; Iref is predefined, see file constants.cl
+  ((eqn  (= ?intdb (* 10 (log10 (/ ?int |Iref|) )))
 	 (intensity-to-decibels ?wave ?agent ?t)))
   :hint 
   ( (point (string "You can express intensity in decibels"))
     (bottom-out (string "Write the equation ~A or ~A" 
-			((= ?intdb (* 10 (log10 (/ ?int ?intref) 
+			((= ?intdb (* 10 (log10 (/ ?int |Iref|) 
 						))) algebra)
-			((= ?int (* ?intref (^ 10 (/ ?intdb 10)))) algebra) ))
+			((= ?int (* |Iref| (^ 10 (/ ?intdb 10)))) algebra) ))
     ))
 
 ;;; 

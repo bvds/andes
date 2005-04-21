@@ -451,12 +451,6 @@
 (defparameter *algebraic-operators* 
     '(= + - * / ^ sin cos tan abs ln log10 sqrt exp))
 
-;;; Symbols for certain constants are understood by the solver. These have
-;;; to be removed from the list of variables in an equation in some contexts
-;;; we don't change vars-in-eqn since might need all symbols in other contexts.
-(defparameter *phys-constants* '(|$p| |$P| |kCoulumb|))
-(defun physconstp (exp) (member exp *phys-constants*))
-
 (defun dimensioned-numberp (x)
   "Non-null if the argument has the form (dnum <number> <symbol>)"
       (and (consp x)

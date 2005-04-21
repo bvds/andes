@@ -262,57 +262,7 @@
   ;; return T for success. 
   (make-green-turn))  ;; Return a color green result.
 
-;; enter-predefs -- enter predefined symbols for *cp* into symbol table
-;; 
-;; Which symbols need to be predefined can depend on features of the problem.
-;; Adding new predefs requires adding rule-like statements to this routine.
-;; These rules really ought to go somewhere else: in the problem description
-;; or in the knowledge base somehow. But we don't currently have another
-;; place to put them.
-(defun enter-predefs ()
-  ;; if prob has near-planet, predefine g for relevant planet 
-  (let* ((planet-props (filter-expressions '(near-planet ?p) 
-					   (problem-givens *cp*)))
-	 (planet   (when (= (length planet-props) 1) 
-		     (second (first planet-props)))))
-    (when planet
-      (symbols-enter "g" `(gravitational-acceleration ,planet) NIL)))
-  
-  ;; If prob involves universal gravitation, predefine G. This is marked
-  ;; by a proposition beginning with 'gravity in the givens
-  (when (find 'gravity (problem-givens *cp*) :key #'first)
-    (symbols-enter "G" '(grav-constant) NIL))
-  
-  ;; Speed of light is "c"
-  (symbols-enter "c" '(speed-of-light) NIL)
-  
-  ;; Iref for defining decibels
-  (symbols-enter "Iref" '(db-intensity-zero) NIL)
-  
-  ;; algebra system understands $P (upper-case only) as symbol for pi in
-  ;; systemese equations.  We still need to predefine a student label for
-  ;; pi in symbol table so student equations using it can get through
-  ;; the student-to-system translation without appearing to have an undefined
-  ;; variable. We install lower-case pi to be mapped to system's upper-case.
-  (symbols-enter "$p" 'pi NIL '$P) 
-  
-  ;; If prob involves E&M, predefine k_e and epsilon_0, mapping to special
-  ;; constants predefined in the solver dll (see pconsts.h for table.)
-  (when (member 'E&M (problem-features *cp*))
-     ; args are label, quantity, owning-entry, sysvar-translation
-     ; NB: need some dummy quantity to prevent inverse match to NIL quantity
-     (symbols-enter "kelec" '(physconst |kCoulumb|) NIL '|kCoulumb|)
-     (symbols-enter "kmag" '(physconst |mu0|) NIL '|mu0|)
-     (symbols-enter "$e_0" '(physconst |eps0|) NIL '|eps0|))
-
-  ; for fluids problems, predefine atmospheric pressure constant
-  (when (member 'fluids (problem-features *cp*))
-      (symbols-enter "Pr0" '(atmosphere) NIL))
-
-  ;; add conditions for further predefs here:
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 
 ;; argument(s): 
 ;;  Name:  The problem id
@@ -320,7 +270,7 @@
 ;;    we should give them a message dealing with their scores.
 ;; returns: unused
 ;; note(s): should be current problem
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-close-problem (name Done)
    (declare (ignore name)) 
    ;; for now, leave this state around for debugging
@@ -346,13 +296,14 @@
        (make-green-turn)
      (make-green-turn)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; exit-andes -- end the Andes session
 ;; argument(s):
 ;; returns: unused
 ;; note(s): This sets flag to terminate event processing, which leads to
 ;; server shutdown when event loop runs.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun do-exit-andes ()
   ;; Clear the record of the student's actions.
   ;; This may change later.

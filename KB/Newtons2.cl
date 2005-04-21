@@ -4344,11 +4344,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
       (center-of ?b2 ?c2)
       (variable ?r  (at (mag (relative-position ?c1 ?c2)) ?t))
       (variable ?F  (at (mag (force ?b1 ?b2 gravitational)) ?t))
-      (variable ?G  (grav-constant))
   )
-  :effects (
-      (eqn (= ?F (/ (* ?G ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t rel-pos))
-  )
+  :effects 
+  ;; G is predefined, see file constants.cl
+  ( (eqn (= ?F (/ (* |G| ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t rel-pos)) )
   :hint (
      (teach (string "Newton's Law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
@@ -4391,10 +4390,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
       ; b1 wrt center of b2. Implicit for now that positions are wrt centers.
       (variable ?r  (at (revolution-radius ?b1) ?t))
       (variable ?F  (at (mag (force ?b1 ?b2 gravitational)) ?t))
-      (variable ?G  (grav-constant))
   )
   :effects (
-      (eqn (= ?F (/ (* ?G ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t radius))
+      (eqn (= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t radius))
   )
   :hint (
      (teach (string "Newton's Law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
@@ -5369,33 +5367,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
  	( (bind ?g-var (format-sym "g_~A" ?planet)) )
  :effects 
  	( (variable ?g-var (gravitational-acceleration ?planet)) ))
-
-;;
-;; Following handles the gravitational constant G (upper-case!).
-;; Currently the rules for this work the same way as for little g.
-;; What students have to do on the interface wrt constants doesn't really 
-;; depend on the rules here but on the help system per-problem initialization. 
-;; If students don't have to enter G then the help system should predefine 
-;; the variable G. If students don't have to enter the value
-;; then it should pre-enter the equation giving its value.
-;;
-(defoperator G-contains()
-  :effects ( (eqn-contains (std-constant grav-constant) (grav-constant)) ))
-
-(defoperator write-value-of-G ()
-  :preconditions 
-    ( (variable ?G-var (grav-constant)) )
-  :effects ( 
-    (eqn (= ?G-var (dnum 6.67E-11 |N.m^2/kg^2|)) (std-constant grav-constant)) 
-   )
-  :hint
-  ((point (string "You can find the value of the gravitational constant G in your textbook. The value to three significant figures should be used in Andes problems."))
-   (teach (string "You can use 6.67E-11 N.m/kg^2 as the value of G."))
-   (bottom-out (string "Write the equation ~A" ((= ?G-var (dnum 6.67E-11 |N.m^2/kg^2|)) algebra)))
-    ))
-
-(defoperator define-G ()
- :effects ( (variable |G| (grav-constant)) ))
 
 ;;; ========================== Newton's law ================================ 
 
