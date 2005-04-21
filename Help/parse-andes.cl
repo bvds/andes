@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; parse-andes.cl -- andes specific parse and grammar routines
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;; Author(s):
@@ -13,9 +13,9 @@
 ;;   ignored some instances of unused variables to suppress warnings.
 ;;   declared used of **Grammar** and **No-Corresponding-Correct-Entry** special
 ;;   commented out setting of Result and Tmp in Bad-Vars-In-Answer as they were unused.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; This is called when the equation to be looked up appeared in the
 ;; answer box.  The only real difference between this and
 ;; do-lookup-equation-string is the special case kludge covered above.
@@ -24,10 +24,9 @@
   (format t "Before {~A} After {~A}~%" eq (trim-eqn (fix-quotes eq)))
   (do-lookup-equation-string (trim-eqn (fix-quotes eq)) id 'answer))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Notes that the equation was located in the equation window instead of the answer box.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Notes that the equation was located in the equation window instead of the answer box.
 ;; Called Entry-API, Commands and gr-pa-spprt
 
 ;;; Given an equation string fix quotes within it returning 
@@ -41,12 +40,12 @@
 (defun do-lookup-eqn-string(eq id)
   (do-lookup-equation-string (fix-quotes (trim-eqn eq)) id 'equation))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun do-lookup-equation-string (eq id location)
-  (declare (special **Grammar**)) ;; The compiler was assuming special, this suppresses the warning.
+  (declare (special **Grammar**)) ;suppresses the warning.
   (let ((equation eq) (tmp nil))
     (if (= 0 (length (remove #\Space equation)))
 	(setf tmp (handle-empty-equation id))
@@ -65,12 +64,12 @@
     ;;(format t "at end is ~A~%" tmp)
     tmp))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun test-parse (eq)
-  (declare (special **Grammar**)) ;; The compiler was assuming special, this suppresses the warning.
+  (declare (special **Grammar**)) ;suppresses the warning.
   (let ((equation eq))
     (if (= 0 (length (remove #\Space equation)))
 	(format nil "Empty Equation <~W>~%" eq)
@@ -87,17 +86,16 @@
 	 (t ;; as it stands now this won't happen
 	  (format nil "Good parse <~W>~%~W" equation valid)))))))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun handle-empty-equation (id)
   (remove-entry id)
   (make-noop-turn)) ; no coloring on empty eqn -- noop leaves "black"
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 
 (defun handle-bad-syntax-equation (equation id parses)
@@ -116,26 +114,34 @@
 
 (defun bad-syntax-error-interp (equation)
   "Given a syntactically ill-formed equation, returns an error interpretation for it."
-  (declare (special **no-corresponding-correct-entry**)) ;; suppressing warning.
-  (let (rem) ; remediation hint seq to be assigned
-    (cond ; cheap tests for a few common sources of errors
-      ((not (position #\= equation))
-        (setf rem (make-hint-seq (list
-		   (format nil "Syntax error in ~a" equation)
-		   "The entry needs an = sign to be an equation."))))
-      ((search "sec" equation)
-         (setf rem (make-hint-seq (list
-		   (format nil "Syntax error in ~a" equation)
-		   "If you are giving a value in seconds, the correct SI symbol is just s, not sec."))))
-      ((or (search "_ " equation) (search " _" equation))
-        (setf rem (make-hint-seq (list
-		   (format nil "Syntax error in ~a" equation)
-		   "There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name."))))
-      (T (setf rem (make-hint-seq
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  (let (rem)				; remediation hint seq to be assigned
+    ;; cheap tests for a few common sources of errors
+    (cond				
+     ((not (position #\= equation))
+      (setf rem (make-hint-seq (list
+				(format nil "Syntax error in ~a" equation)
+				"The entry needs an = sign to be an equation."))))
+     ((search "sec" equation)
+      (setf rem (make-hint-seq (list
+				(format nil "Syntax error in ~a" equation)
+				"If you are giving a value in seconds, the correct SI symbol is just s, not sec."))))
+     ;; BvdS:  There should be a handler for "unknown functions"
+     ;; analogous to the handler for "unknown variables"
+     ;; This is a work-around.
+     ((and (search "log" equation) (not (search "log10" equation)))
+      (setf rem (make-hint-seq (list
+				;; (format nil "Syntax error in ~a" equation)
+				"Use ln(x) for natural logarithms and log10(x) for logarithms base 10."))))
+     ((or (search "_ " equation) (search " _" equation))
+      (setf rem (make-hint-seq (list
+				(format nil "Syntax error in ~a" equation)
+				"There is a space next to an underscore in this equation. If you are using a component variable, make sure you type it as a single word without any spaces between the underscore and the rest of the variable name."))))
+     (T (setf rem (make-hint-seq
 		   (list
 		    (format nil "Syntax error in ~a" equation)
-		   "The equation or the {\\l units}{\\v units.html} in it are not in a recognizable form."
-		   "Though I can't tell exactly what the mistake is, a few common sources of errors are: (a) {\\l Unit symbols}{\\v units.html} are case sensitive. (b) Multiplication always requires an explicit multiplication sign: W=m*g, NOT W=mg. (c) Units attach only to numbers, not to variables or expressions.")))))
+		    "The equation or the {\\l units}{\\v units.html} in it are not in a recognizable form."
+		    "Though I can't tell exactly what the mistake is, a few common sources of errors are: (a) {\\l Unit symbols}{\\v units.html} are case sensitive. (b) Multiplication always requires an explicit multiplication sign: W=m*g, NOT W=mg. (c) Units attach only to numbers, not to variables or expressions.")))))
     (setf (turn-coloring rem) **color-red**)
     (make-error-interp
      :diagnosis '(Syntax-error-in-eqn)
@@ -146,8 +152,7 @@
      :remediation rem)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-ambiguous-equation (equation id parses location)
   (Tell :handle-ambiguous-equation "~W" parses)
   ;(prl parses)
@@ -199,9 +204,9 @@
     ;;(format t "*(*(*( ~A~%" tmp)
     tmp))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ; choose-ambiguous-bad-turn: Select which of several incorrect parses to return.
 ; PARAMETER: list of candidate (turn entry) pairs collected above
@@ -236,34 +241,34 @@
     ;; big OR falls through cases in order till non-NIL:
     (setf choice 
      (or  ;;; inaccurate isn't used anymore, see parse-handler.
-          ; look for any wrong -- at least OK syntax, vars, units
-          ; Try to prefer simpler one, to make life simpler for WWH diagnosis
-          ; by avoiding including unnecessary DNUM mangled forms.
+          ;; look for any wrong -- at least OK syntax, vars, units
+          ;; Try to prefer simpler one, to make life simpler for WWH diagnosis
+          ;; by avoiding including unnecessary DNUM mangled forms.
           (first (sort wrong #'simpler-parse))
-	  ; look for units error:
-          ; Some ambiguous equations now get both inconsistent and missing units parses:
-	  ; one parse dnum-mangles rhs of "t=-5m/s" to (* (- 5) (DNUM 1 |m/s|))  
-	  ; So always prefer the less committal "inconsistent" if any parse has it.
+	  ;; look for units error:
+          ;; Some ambiguous equations now get both inconsistent and missing units parses:
+	  ;; one parse dnum-mangles rhs of "t=-5m/s" to (* (- 5) (DNUM 1 |m/s|))  
+	  ;; So always prefer the less committal "inconsistent" if any parse has it.
           (first uni)		; inconsistent units
           (first mis) 		; missing units 
-          ; variable errors: unused vars is better than undefined
+          ;; variable errors: unused vars is better than undefined
           (first unused)	; unused vars
-     	  ; look for unknown vars, preferring parse w/smallest number
+     	  ;; look for unknown vars, preferring parse w/smallest number
           (first (sort unk #'(lambda (te1 te2)
 		                     (< (te-unknowns te1) (te-unknowns te2)))))
-          ; else just pick the first one given (exception?) -- shouldn't happen
+          ;; else just pick the first one given (exception?) -- shouldn't happen
 	  (first badlist)))
 
-    ; Set state on chosen entry:
+    ;; Set state on chosen entry:
     (setf (StudentEntry-State (second choice)) **Incorrect**)
-    ; The chosen entry is the one saved on the list:
+    ;; The chosen entry is the one saved on the list:
     (add-entry (second choice))
     ;;(format t "Entry is ~W~%Turn is ~W~%" (second choice) (first choice))
-    ; return value is chosen *turn*
+    ;; return value is chosen *turn*
     (first choice)))
 
-; find tag identifying error for a given bad candidate (turn, entry) pair
-; that's first element of diagnosis form in entry's errinterp.
+;;; find tag identifying error for a given bad candidate (turn, entry) pair
+;;; that's first element of diagnosis form in entry's errinterp.
 (defun te-error-tag (te-pair)
    (when (StudentEntry-ErrInterp (second te-pair))
      (car (Error-Interp-diagnosis (StudentEntry-ErrInterp (second te-pair))))))
@@ -271,28 +276,28 @@
 (defun simpler-parse (cand1 cand2)
   (let ((parse1 (StudentEntry-parsedEqn (second cand1)))
         (parse2 (StudentEntry-parsedEqn (second cand2))))
-    ; WARNING: parsedEqn may contain a parse tree struct, not a prefix form list, if
-    ; candidate didn't make it all the way through parse-handler (e.g undefined vars)
-    ; This routine is supposed to be called on parseable eqs only, but best to be safe:
-    ; There was a crash in Andes7.0.0 whenver got unused vars among multiple var parses 
-    ; since these weren't filtered out of "wrongs" above.
+    ;; WARNING: parsedEqn may contain a parse tree struct, not a prefix form list, if
+    ;; candidate didn't make it all the way through parse-handler (e.g undefined vars)
+    ;; This routine is supposed to be called on parseable eqs only, but best to be safe:
+    ;; There was a crash in Andes7.0.0 whenver got unused vars among multiple var parses 
+    ;; since these weren't filtered out of "wrongs" above.
     (and (listp parse1) (listp parse2)
-         ; cheap test: compare length of infix forms (top level only). 
-	 ; Works for "v = -N units" case we need.
+         ;; cheap test: compare length of infix forms (top level only). 
+	 ;; Works for "v = -N units" case we need.
          (< (length (pre2in parse1))
             (length (pre2in parse2))))))
 
-;; return number of unknown vars in an unknown or unused var turn-entry pair
+;;; return number of unknown vars in an unknown or unused var turn-entry pair
 (defun te-unknowns (te-pair)
   (if (or (eq (te-error-tag te-pair) 'undefined-variables)
           (eq (te-error-tag te-pair) 'unused-variables))
-      ; error diagnosis should hold (undefined-variables v1 v2 v3...)
+      ;; error diagnosis should hold (undefined-variables v1 v2 v3...)
       (length (cdr (Error-Interp-diagnosis (studentEntry-ErrInterp (second te-pair)))))
     0))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun contains-strings (eq)
   (cond
@@ -302,9 +307,9 @@
     (append (contains-strings (car eq)) (contains-strings (cdr eq))))
    (t nil)))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun parse-handler (se location)
   "Given a student entry and whether it was located in the answer box or the equation window, 
@@ -330,12 +335,12 @@
       (setf answer (parse-surround-lhs "(DNUM" ")" 'dnum answer))
       (setf answer (parse-collapse answer))
       (Tell :parse-handler "collapse~%~W" answer)
-      (if (stringp answer) ;; collapse makes it a string
+      (if (stringp answer)		;collapse makes it a string
 	  (setf answer (andes-in2pre answer)))
       (Tell :parse-handler "in2prefixed~%~W" answer)
-      (cond ((stringp answer) ;; in2pre makes a list
+      (cond ((stringp answer)		;in2pre makes a list
 	     (make-red-turn "Should not see this error: (2) Notify Instructor"))
-	    (t	;; use equation-redp so candidate is tested but not added to slot
+	    (t				;use equation-redp so candidate is tested but not added to slot
 	     (setf (StudentEntry-ParsedEqn se) answer)
 	     (case (solver-equation-redp answer location)
 	       (forgot-units
@@ -343,15 +348,15 @@
 	       (wrong-units
 		(wrong-units-error-interp se))
 	       (inaccurate
-		;; not currently used because What's wrong checks for inaccuracy
-		;; but only after checking for other error classes
+		;; not currently used because What's wrong checks for 
+		;; inaccuracy but only after checking for other error classes
 		(make-red-turn))
 	       (wrong
 		(make-red-turn))
-	       ; Following mainly occurs for parses giving rise to bad syntax
-	       ; equations. Usually when this happens another parse will
-	       ; produce legal equation so its not a problem. But we
-	       ; need to record this status to prefer other parses if eqn wrong.
+	       ;; Following mainly occurs for parses giving rise to bad syntax
+	       ;; equations. Usually when this happens another parse will
+	       ;; produce legal equation so its not a problem. But we need 
+	       ;; to record this status to prefer other parses if eqn wrong.
 	       (solver-exception 
 		(solver-exception-interp se))
 	       (otherwise
@@ -362,7 +367,7 @@
    the student forgot to put units on at least one number.
    Also create an error interpreation in case the student asks a follow-up question, and
    put it in the student entry's err interp field."
-  (declare (special **no-corresponding-correct-entry**)) ;; suppressing warning.
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      '("Forgot to put units on a number."
 		"This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units.  It looks like one of the numbers you've used is lacking the units."))))
@@ -381,7 +386,7 @@
    the student put the wrong units on at least one number.
    Also create an error interpreation in case the student asks a follow-up question, and
    put it in the student entry's err interp field."
-  (declare (special **no-corresponding-correct-entry**)) ;; suppressing warning.
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      '("Units are inconsistent."))))
     (setf (studentEntry-ErrInterp se)
@@ -394,8 +399,8 @@
     rem))
 
 (defun solver-exception-interp (se)
-  (declare (special **no-corresponding-correct-entry**)) ;; suppressing warning.
-  ; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
   (let ((rem (make-hint-seq '("Internal error: could not process equation."))))
     (setf (turn-coloring rem) **color-red**)
      (setf (studentEntry-ErrInterp se)
@@ -407,9 +412,9 @@
     rem))
 
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun handle-undefined-variables-equation (se strings)
   "Given a student entry and a list of strings, return a tutor turn and set the err-interp field of the student entry"
@@ -434,14 +439,14 @@
 
 (defun near-miss-var (var)
 "given a symbol return defined variables with similar names"
-  ; for now, just look for case errors, and just return first one found
+  ;; for now, just look for case errors, and just return first one found
   (let ((sym (find var *variables* :key #'sym-label :test #'string-equal)))
      (when sym (sym-label sym))))
 
 
 (defun undef-variables-error-interp (undef-vars)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
-  (declare (special **no-corresponding-correct-entry**)) ;; suppressing warning.
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let* ((is-comp-var (has-comp-vars-p undef-vars))
 	 (tmp-msg "Variables must be defined before being used in an equation.  Vectors are defined by the drawing tools (the buttons along the left edge of the window) and scalars are defined by the clicking on the 'Variable' button at the top of the window.\\n  If all variables have been defined, the problem may be incorrect unit symbols, including case errors.  For example, 'N', not 'n', is the symbol for Newtons.")
 	 (near-misses (mapcar #'near-miss-var undef-vars))	; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
@@ -454,7 +459,7 @@
 		; check for near misses: currently case errors. Could try to find spelling errors later.
 		(if i-first-miss 	; report the first one to fix only. Can get others next time if not fixed.
 	           (format nil "Case matters in variable names: \"g\" means something different than \"G\".  You probably meant ~A instead of ~A." (nth i-first-miss near-misses) (nth i-first-miss undef-vars))
-		  ; else not near-miss: give advice if used compo notation:
+		  ;; else not near-miss: give advice if used compo notation:
 		  (if is-comp-var
 		      (if (cdr is-comp-var)
 			  (format nil "The variables: ~a may be defined by drawing coordinate axes" is-comp-var)
@@ -471,7 +476,7 @@
 
 (defun unused-variables-error-interp (undef-vars)
   "Given a list of unused vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
-  (declare (special **no-corresponding-correct-entry**)) ;; suppressing warning.
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 		 (list
 		  (if (null (cdr undef-vars))
@@ -492,9 +497,9 @@
 
 
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun find-all-in (eq expr &optional (p nil))
   ;; (find-all-in '(h a b (e f (h i j) g) c) 'h) will return '((1) (4 3 1))
@@ -510,16 +515,14 @@
 	       (list (append p (list count))))))
      eq)))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-unused-variables (equation)
   (if (find-all-in equation 'nil) nil equation)) ;; probably a better to do this
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun trim-eqn (eq)
   (if (> (length eq) 0)
@@ -529,9 +532,9 @@
 	  (string-trim " " eq)))
     eq))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun undo-eqn-entry (entry)
   "clean up state on removal of student entry"
@@ -539,9 +542,9 @@
   (solver-StudentAddOkay (StudentEntry-ID entry) "") 
 )
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defparameter ***bad-character-codes***
     '(33 34 35 37 38 39 44 58 59 60 62 63 64 91 92 93 96))
@@ -572,9 +575,9 @@
 	  string))
     ""))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun andes-in2pre (equation)
   (let* ((eq (read-from-string (concatenate 'string "(" equation ")")))
@@ -589,9 +592,9 @@
     (Tell :andes-in2pre "<~W>" result)
     (clean result)))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun dnum (args)
   (let ((x (first args)))
@@ -606,9 +609,9 @@
       (Tell :denum "Answer ~W" tmp)
       tmp)))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; to convert (denum (+ 1 3) |m/s|) to (* (+ 1 3) (denum 1 |m/s|))
 (defun denum-mangle (parse)
   (let ((tmp nil))
@@ -645,42 +648,36 @@
     (Tell :denum-mangle "Result is <~W>" tmp)
     tmp))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun grammar-add-variable (varin)
   (Tell :grammar-add-variable "Add variable ~W~%" varin)
   ;;(grammar-add-identifier '**grammar** varin 'variable)
   )
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; removes a variable from the grammar
 ;; returns *grammar* after removal
 (defun grammar-remove-variable (varin)
   (Tell :grammar-remove-variable "Removing variable ~W~%" varin)
   (grammar-remove-identifier '**grammar** varin 'variable))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; kill all variables that have been added
 (defun grammar-clear-variables ()
   (Tell :grammar-clear-variables "Clearing variables.~%~W" **grammar**)
   (grammar-remove-identifiers '**grammar** 'variable)
   (Tell :grammar-clear-variables "Cleared variables.~%~W" **grammar**))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hack instead of altering code in other places --- which is what should happen
-;; Now it has happened.
-;;(defun replace-greek (x)
-;;  x)
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; For answers, we allow student to enter either a full assignment equation of form sought_var = rhs
 ;; or just the answer expression rhs alone. 
@@ -702,15 +699,15 @@
 
 (defun do-check-answer (inputo sought-quant id)
   ;;(format t "Okay start!!!<~A>[~A]~%" input sought-quant)
-  (declare (special **Grammar**)) ;; suppressing warning.
+  (declare (special **Grammar**)) ;suppressing warning.
   (let ((entry (make-studententry :id id
-			  ; not system answer entries so no real prop for these,
-			  ; following will let us find if answer entered for a quant.
+			  ;; not system answer entries so no real prop for these,
+			  ;; following will let us find if answer entered for a quant.
                           :prop `(answer ,sought-quant)
                           :verbatim inputo))
 	(result-turn)
 	(input (trim-eqn (fix-quotes inputo))))
-    (add-entry entry) ; save entry immediately 
+    (add-entry entry) ;save entry immediately 
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
 	    (let* ((stud-var (symbols-label sought-quant)) ; student's var for sought quant, maybe NIL
@@ -733,11 +730,11 @@
 				   (t (setf why (list 'bad-sought lhs))
 				      (format t "bad sought far<~W><~W><~W>!!!~%" lhs stud-var nvar)
 				      (setf valid nil))))
-			; else eqn has empty lhs, e.g. student typed "= 5 N". Allow it.
+			;; else eqn has empty lhs, e.g. student typed "= 5 N". Allow it.
 			(setf lhs (if stud-var stud-var "Answer")))
-		    ; else eqn has empty rhs, so bad.
+		    ;; else eqn has empty rhs, so bad.
 		    (setf valid nil))
-		; else student only entered rhs: fill in lhs student variable.
+		;; else student only entered rhs: fill in lhs student variable.
 		(setf lhs (if stud-var stud-var "Answer")))
 	      (if (not stud-var)
 		  (symbols-enter "Answer" sought-quant id)) ;; !! NB: want to delete this temp in all paths
@@ -821,7 +818,7 @@
 
 (defun bad-answer-bad-sought-error-interp (equation why)
   "Answer is malformed"
-  (declare (ignore Equation) ;; suppressing warning.
+  (declare (ignore Equation) ;suppressing warning.
 	   (special **no-corresponding-correct-entry**)) 
   (let ((rem (make-hint-seq
 	      (list
@@ -852,10 +849,10 @@
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
-; Build interpretation for disallowed variables in answer
-; Could distinguish two cases: 1. problem asks for purely numerical answer 
-; (so any var in answer is illegal); 2. problem asks for answer in terms of 
-; some parameters (so only some vars illegal and we can say which are legal.)
+;;; Build interpretation for disallowed variables in answer
+;;; Could distinguish two cases: 1. problem asks for purely numerical answer 
+;;; (so any var in answer is illegal); 2. problem asks for answer in terms of 
+;;; some parameters (so only some vars illegal and we can say which are legal.)
 (defun bad-variables-vs-parameters-error-interp (equation badvars)
   "Equation has non-parameter variables in answer"
   (declare (ignore equation) (special **no-corresponding-correct-entry**)) ;;suppressing warning.
@@ -872,8 +869,8 @@
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
-; check a single parse tree for disallowed variables in answer
-; returns list of disallowed student vars, NIL if none
+;;; check a single parse tree for disallowed variables in answer
+;;; returns list of disallowed student vars, NIL if none
 (defun bad-vars-in (parse &optional (lhs 'unknown))
   (cond
    ((null parse) NIL)
@@ -915,7 +912,6 @@
 	 bad-answer-bad-sought-error-interp
 	 bad-answer-bad-lhs-error-interp
 	 do-check-answer
-	 ;;replace-greek  ;;; Depreciated.
 	 grammar-clear-variables
 
 	 unused-variables-error-interp
@@ -934,7 +930,7 @@
 	 do-lookup-eqn-string
 	 do-lookup-equation-answer-string))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of parse-andes.cl
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
