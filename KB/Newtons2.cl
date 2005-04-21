@@ -5318,7 +5318,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
                  )
   :effects (
             (eqn (= ?s-var (* ?k-var ?d-var)) (spring-law ?b ?t)))
-  )
+  :hint
+  ( (point (string "Apply Hooke's law to ~A." ?b))
+    (teach 
+     (string "Use ~A as the spring constant and ~A as the compression (or stretch) of the spring." ?k-var ?d-var))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?s-var (* ?k-var ?d-var)) algebra) )) 
+    ))
 
 ;;; gravitational acceleration
 ;;; This represents entering the known constant value 9.8 m/s^2 for the 

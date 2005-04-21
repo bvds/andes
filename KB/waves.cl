@@ -477,7 +477,7 @@
     (eqn (= ?c-var (dnum 2.998E8 |m/s|)) (std-constant speed-of-light)) 
    )
   :hint
-  ((point (string "You can find the value of the speed of light c in your textbook.  Use four significant digits."))
+  ((point (string "You can enter the value of the speed of light c.  Use four significant digits."))
    (teach (string "You can use 2.998E8 N.m/kg^2 as the value of c."))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?c-var (dnum 2.998E8 |m/s|)) algebra) ))
@@ -567,7 +567,7 @@
 		  (wave-speed-string ?string))
 	    )
   :hint (
-	 (point (string "In your textbook, find a formula for the speed of transverse waves on a string."))
+	 (point (string "Find a formula for the speed of transverse waves on a string."))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?vw (sqrt (/ ?tension ?mu-var))) algebra) ))
 	 ))
@@ -633,7 +633,7 @@
                 (max-transverse-speed-wave ?wave))
    )
    :hint (
-      (point (string "In your textbook, find a formula for the maximum speed of an oscillation"))
+      (point (string "Find a formula for the maximum speed of an oscillation"))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?vmax (* ?a ?w)) algebra) ))
       ))
@@ -681,7 +681,7 @@
                 (max-transverse-abs-acceleration-wave ?wave))
    )
    :hint (
-      (point (string "In your textbook, find a formula for the maximum acceleration of an oscillation"))
+      (point (string "Find a formula for the maximum acceleration of an oscillation"))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?amax (* ?a (^ ?w 2))) algebra) ))
       ))
@@ -719,7 +719,7 @@
 		 (spring-mass-oscillation ?block ?spring))
 	    )
   :hint (
-	 (point (string "In your textbook, find a formula for the period of oscillation of a mass and spring"))
+	 (point (string "Find a formula for the period of oscillation of a mass and spring"))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?t (* 2 $p (sqrt (/ ?m ?k)))) algebra) ))
 	 ))
@@ -763,7 +763,7 @@
 		  (pendulum-oscillation ?block ?rod ?planet))
 	    )
   :hint (
-	 (point (string "In your textbook, find a formula for the period of oscillation of a pendulum"))
+	 (point (string "Find a formula for the period of oscillation of a pendulum"))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
 	 ))
