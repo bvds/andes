@@ -32,6 +32,7 @@
 #include "extstruct.h"
 #include <math.h>
 #include <float.h>
+#include "binopfunctions.h"
 using namespace std;
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
@@ -40,14 +41,6 @@ using namespace std;
 #define DBGEQ(A) DBGF(CHKEQS,A)
 #define NEWDTL(A) DBGFM(NEWCKEQSOUT,A)
 
-void recassign( vector<binopexp *> * & eqn, vector<varindx> * & vars,
-		vector<binopexp *> * soleqs);		       // recassign.cpp
-vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn, 	// purelin.cpp
-       vector<varindx> * & vars, vector<binopexp *> * soleqs,
-			       int & doagain );
-bool dofactor(vector<binopexp *> * & eqn, vector<varindx> * & vars);
-bool donlsolv(vector<binopexp *> * & eqn);			// donlsolv.cpp
-int dotrig(vector<binopexp *> * & eqn);			 // dotrig.cpp
 int indyAddStudEq(int slot, const char* const equation);	// in indysgg
 
   // in this file
@@ -223,10 +216,11 @@ string powersolve(const int howstrong, const varindx sought,
   // in principle, this would use the equaleqs.cpp function.
   if(ansexpr->rhs->etype==numval){
     numvalexp *vallexp=(numvalexp *) ansexpr->rhs;
-    if(fabs(vallexp->value-(*canonvars)[sought]->value)>
-       100* DBL_EPSILON * (fabs(vallexp->value)+((*canonvars)[sought]->value)))
+    if(fabs(vallexp->value-(*numsols)[sought])>
+       100* DBL_EPSILON * (fabs(vallexp->value)+((*numsols)[sought])))
       {
-	DBG(cout << "numerical value  != canonical value " << endl);
+	DBG(cout << "numerical value  != canonical value "
+	    << (*numsols)[sought] << endl);
 	DBG(cout << "Assuming this indicates dependence on a parameter"<<endl);
 	answer = string(""); goto cleanup;
       }
