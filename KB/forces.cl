@@ -731,7 +731,7 @@
        (rdebug "fired write-point-charge-Efield-compo  ~%")
     )
     :effects (
-            (eqn (= ?E_x (* (/ (* |kCoulumb| ?q) (^ ?r 2)) (?sin-or-cos ?theta_r)))
+            (eqn (= ?E_x (* (/ (* |kelec| ?q) (^ ?r 2)) (?sin-or-cos ?theta_r)))
                  (compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t)))
 	    ; do we need this? do we use this only in component form?
             (eqn-compos (compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t))
@@ -740,7 +740,7 @@
     :hint (
 	(teach (string "The electric field due to a point charge is directly proportional to the charge and inversely proportional to the square of the distance from the point charge. The constant of proportionality can be written in Andes as kelec. To compute a component of the electric field, multiply the magnitude by the cos or sin of the angle of the relative position of the location from the point charge, using cos for x components and sin for y components."))
 	(bottom-out (string "Write the equation ~A"  
-	    ((= ?E_x (* (/ (* |kCoulumb| ?q) (^ ?r 2)) (?sin-or-cos ?theta_r))) algebra)))
+	    ((= ?E_x (* (/ (* |kelec| ?q) (^ ?r 2)) (?sin-or-cos ?theta_r))) algebra)))
     ))
 
 ;; mag, dir forms of point-charge-Efield
@@ -781,7 +781,7 @@
                   (rdebug "fired write-point-charge-Efield-mag  ~%")
                   )
   :effects (
-            (eqn (= ?magE (/ (* |kCoulumb| (abs ?q)) (^ ?r 2) ))
+            (eqn (= ?magE (/ (* |kelec| (abs ?q)) (^ ?r 2) ))
                (point-charge-Efield-mag ?b ?loc ?t))
             )
   :hint (
@@ -789,7 +789,7 @@
          (teach (kcd "write-point-charge-force-Efield-mag")
                 (string "Write the definition of the magnitude of the electric field due to a point charge in terms of the charge and the distance to the point."))
          (bottom-out (string "Write the equation ~A"
-	                   ( (= ?magE (/ (* |kCoulumb| (abs ?q)) (^ ?r 2) )) algebra)))
+	                   ( (= ?magE (/ (* |kelec| (abs ?q)) (^ ?r 2) )) algebra)))
           ))
 
 #| ; this rule really doesn't add anything to projection rules we have
@@ -1234,13 +1234,13 @@
      (variable ?r (at (mag (relative-position ?loc ?body)) ?t))
   )
   :effects (
-    (eqn (= ?V (* |kCoulumb| (/ ?q ?r))) (point-charge-potential ?body ?loc ?t))
+    (eqn (= ?V (* |kelec| (/ ?q ?r))) (point-charge-potential ?body ?loc ?t))
   )
   :hint (
     ;(point (string " "  ))
     (teach (string "The electric potential at a distance r from a point charge is directly proportional to the charge and inversely proportional to the distance r. The constant of proportionality can be written as kelec in Andes." ))
     (bottom-out (string "Write the equation ~A" 
-                         ((= ?V (* |kCoulumb| (/ ?q ?r))) algebra) ))
+                         ((= ?V (* |kelec| (/ ?q ?r))) algebra) ))
   ))
 
 #| ; this doesn't really solve the problem, since still need p1 and charge1 choices
