@@ -1207,7 +1207,7 @@
  (and (axes-drawnp)                   ; have already drawn at least one
       (not nsh-multi-axis-problemp))) ; only one is required for solution 
 
-(defoperator use-system-axes (?b ?t ?x-rotation)
+(defoperator use-system-axes (?b ?x-rotation)
    :specifications 
    "If the goal is to choose an axis for a body b and we have already drawn an
    axis for a many-body system containing b, then use the system's axis
