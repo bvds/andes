@@ -36,15 +36,15 @@
   ;; If prob involves universal gravitation, predefine G. This is marked
   ;; by a proposition beginning with 'gravity in the givens
   (when (find 'gravity (problem-givens *cp*) :key #'first)
-    (symbols-enter "G" 'G NIL))
+    (symbols-enter "G" 'G NIL '|G|))
   
   ;; Speed of light is "c"
   (when (member 'waves (problem-features *cp*))
-  (symbols-enter "c" 'c NIL))
+  (symbols-enter "c" 'c NIL '|c|))
   
   ;; Iref for defining decibels
   (when (member 'work (problem-features *cp*))
-  (symbols-enter "Iref" 'Iref NIL))
+  (symbols-enter "Iref" 'Iref NIL '|Iref|))
   
   ;; algebra system understands $P (upper-case only) as symbol for pi in
   ;; systemese equations.  We still need to predefine a student label for
@@ -57,7 +57,7 @@
   (when (member 'E&M (problem-features *cp*))
      ;; args are:  name, quantity, owning-entry, sysvar-translation
      ;; NB: need some dummy quantity to prevent inverse match to NIL quantity
-     (symbols-enter "kelec" 'kelec NIL)
+     (symbols-enter "kelec" 'kelec NIL '|kelec|)
      (symbols-enter "$m0" '(physconst |mu0|) NIL '|mu0|)
      (symbols-enter "$e0" '(physconst |eps0|) NIL '|eps0|))
 
