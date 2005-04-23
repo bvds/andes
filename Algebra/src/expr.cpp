@@ -111,6 +111,8 @@ functexp::functexp(oper *f,expr * arg) :
     }
     MKS.set_unkn();
     return; 
+  default:
+    throw("functexp with illegal type");
   } // end of switch
 }
 

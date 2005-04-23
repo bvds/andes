@@ -13,6 +13,7 @@
  *		vector<varindx> * & vars,   (index into canonvars)	*
  *		vector<binopexp *> * soleqs, int & doagain)		*
  ************************************************************************/
+
 #include "decl.h"
 #include "extoper.h"
 #include "dbg.h"

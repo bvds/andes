@@ -58,8 +58,8 @@
      if (!treechk(A,vchk)) throw(string("Treechk bombs on ") +A->getInfix());}}
 #define VEQCHK(A) {if (dbglevel & DOEQCHK) \
 	{ vector<int> *vchk = new vector<int>;\
-	int kc; \
-	for (kc = 0; kc < A->size();kc++) treechk((*A)[kc],vchk); \
+	unsigned int kc; \
+	for (kc = 0; kc < A->size(); kc++) treechk((*A)[kc],vchk); \
 	if (!listchk(vchk)) throw(string("Treechk bombs on " \
 	     + (*A)[0]->getInfix() +"..." + (*A)[A->size()-1]->getInfix()));}}
 #else

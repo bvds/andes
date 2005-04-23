@@ -9,6 +9,7 @@
 #include "extoper.h"
 #include "dbg.h"
 #include "extstruct.h"
+#include "binopfunctions.h"
 using namespace std;
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)

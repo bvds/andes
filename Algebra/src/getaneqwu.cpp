@@ -236,6 +236,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
     if ((token.compare("sqrt")==0) || 
         (token.compare("Sqrt")==0) || 
         (token.compare("SQRT")==0) ) {
+      DBG(cout<<"I think it is sqrt"<<endl);
       functexp *thisguy = new functexp(&sqrtff,exprstack.top());
       exprstack.pop();
       exprstack.push(thisguy);
@@ -244,6 +245,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
     if ((token.compare("abs")==0) || 
         (token.compare("Abs")==0) || 
         (token.compare("ABS")==0) ) {
+      DBG(cout<<"I think it is abs"<<endl);
       functexp *thisguy = new functexp(&absff,exprstack.top());
       exprstack.pop();
       exprstack.push(thisguy);

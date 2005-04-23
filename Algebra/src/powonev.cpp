@@ -46,20 +46,25 @@ int powonev(const expr * eq, const varindx var)
 	    return (powonev(thbin->lhs,var));
 	  else return(3);
 	case topowe:
-	  if (!(powonev(thbin->rhs,var)== 0)) return(3);
-	  k=powonev(thbin->lhs,var);
-	  if (k==0) 
-	    return(0);		// This was written when I was much more 
-	  int q=0;		// ambitious about my equation manip. come back
-	  if (thbin->rhs->etype != numval) return(3);
-	  if (lookslikeint(((numvalexp *)thbin->rhs)->value, q))
-	    {
-	      if (q==0) return (0);	// see just above
-	      if ((q!=1)&&(q!=2)) return(3);
-	      return ((q*k > 3) ? 3 : q*k);
-	    }
-	  else return(3);
+	  { 
+	    if (!(powonev(thbin->rhs,var)== 0)) return(3);
+	    k=powonev(thbin->lhs,var);
+	    if (k==0) 
+	      return(0);      // This was written when I was much more 
+	    int q=0;	      // ambitious about my equation manip. come back
+	    if (thbin->rhs->etype != numval) return(3);
+	    if (lookslikeint(((numvalexp *)thbin->rhs)->value, q))
+	      {
+		if (q==0) return (0);	// see just above
+		if ((q!=1)&&(q!=2)) return(3);
+		return ((q*k > 3) ? 3 : q*k);
+	      }
+	    else return(3);
+	  }
+	default:   // goto error below
+	  break;
 	}
+      break;
     case n_op:
       thnop = (n_opexp *) eq;
       ans = 0;
@@ -74,8 +79,10 @@ int powonev(const expr * eq, const varindx var)
       else return(ans);
     case function:
       if (powonev(((functexp *) eq)->arg,var) == 0) return(0); // see above
-	      //	throw("known function of known arg declared unknown");
+      //	throw("known function of known arg declared unknown");
       else return(3);
+    default:  // go to error below
+      break;
     }
   throw("got to impossible place in powonev");
 }

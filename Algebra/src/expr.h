@@ -113,9 +113,9 @@ class physvar
   double value;
   double abserr;		/* added 5/21/01 */
   string prefUnit;
-  string clipsname;
-  string shortname;
-  string studname;
+  string clipsname;  // canonical name?
+  string shortname; // no longer used?
+  string studname;  // no longer used?
   vartype type;
   dimens MKS;
   bool isnonneg;
@@ -125,12 +125,14 @@ class physvar
   bool isused;
 
   physvar() :
-    clipsname("unknown"), shortname("?"),type(unspecified),
-    value(HUGE_VAL), abserr(-1.), prefUnit(""), isnonneg(false), 
+    value(HUGE_VAL), abserr(-1.),  prefUnit(""), clipsname("unknown"), 
+    shortname("?"),
+    type(unspecified),
+    isnonneg(false), 
     isnonzero(false), isparam(false), keepalgebraic(false), isused(false) { }
   physvar(string clp) :
-    clipsname(clp), shortname("?"),type(unspecified),
-    value(HUGE_VAL), abserr(-1.), prefUnit(""), isnonneg(false), 
+    value(HUGE_VAL), abserr(-1.),  prefUnit(""), clipsname(clp), 
+    shortname("?"),type(unspecified), isnonneg(false), 
     isnonzero(false), isparam(false), keepalgebraic(false),isused(false) { }
   ~physvar();
   void putclipsname(string);
@@ -206,4 +208,5 @@ class n_opexp	:	public expr
   void dbgprint(int indent);
   string getLisp(bool) const;
 };
+
 #endif

@@ -14,15 +14,8 @@
 #include "extoper.h"
 #include "dbg.h"
 #include "extstruct.h"
+#include "binopfunctions.h"
 using namespace std;
-
-void recassign( vector<binopexp *> * & eqn, vector<varindx> * & vars,
-	       vector<binopexp *> * soleqs);
-vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn,
-       vector<varindx> * & vars, vector<binopexp *> * soleqs, int & doagain );
-bool dofactor(vector<binopexp *> * & eqn, vector<varindx> * & vars);
-bool donlsolv(vector<binopexp *> * & eqn);
-int dotrig(vector<binopexp *> * & eqn);	// changed 8/9/02
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
 //  CHKEQS, NEWCKEQSOUT, CHKEQSDTL   might want to rethink these

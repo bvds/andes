@@ -155,36 +155,40 @@ numvalexp * normexpr(expr * & ex)
 	  case numval:
 	    throw(string("eqnumsimped flattened expr shouldnt have e^numval"));
 	  case n_op:
-	    n_opexp * argnop = (n_opexp *)fptr->arg;
-	    if (argnop->op->opty == multe)
-	      {
+	    {
+	      n_opexp * argnop = (n_opexp *)fptr->arg;
+	      if (argnop->op->opty == multe)
+		{
+		  answer = new numvalexp(1.);
+		  answer->MKS.put(0,0,0,0,0);
+		  return(answer);
+		}
+	      cleanup(argnop);
+	      if (argnop->args->size() == 0) // did cleanup make 0?
+		{
+		  ex = new numvalexp(0);
+		  answer = new numvalexp(1.);
+		  answer->MKS.put(0,0,0,0,0);
+		  return(answer);
+		}
+	      if ((*argnop->args)[0]->etype = numval)
+		{
+		  answer = new numvalexp(
+					 exp(((numvalexp *)(*argnop->args)[0])->value));
+		  answer->MKS.put(0,0,0,0,0);
+		  ((numvalexp *)(*argnop->args)[0])->value = 0;
+		  fptr->arg = argnop; // I don't know, it could have changed
+		  flatten(fptr->arg);
+		  return(answer);
+		}
+	      else {	// ?? need to look at this, I got lost here
 		answer = new numvalexp(1.);
 		answer->MKS.put(0,0,0,0,0);
 		return(answer);
 	      }
-	    cleanup(argnop);
-	    if (argnop->args->size() == 0) // did cleanup make 0?
-	      {
-		ex = new numvalexp(0);
-		answer = new numvalexp(1.);
-		answer->MKS.put(0,0,0,0,0);
-		return(answer);
-	      }
-	    if ((*argnop->args)[0]->etype = numval)
-	      {
-		answer = new numvalexp(
-			exp(((numvalexp *)(*argnop->args)[0])->value));
-		answer->MKS.put(0,0,0,0,0);
-		((numvalexp *)(*argnop->args)[0])->value = 0;
-		fptr->arg = argnop; // I don't know that it could have changed
-		flatten(fptr->arg);
-		return(answer);
-	      }
-	    else {	// ?? need to look at this, I got lost here
-	      answer = new numvalexp(1.);
-	      answer->MKS.put(0,0,0,0,0);
-	      return(answer);
 	    }
+	  default:
+	    throw(string("Maybe unknown function in normexpr"));
 	  } // end of switch over arg types for exp
 	case lne:
 	case log10e:

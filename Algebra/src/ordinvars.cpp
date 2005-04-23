@@ -74,7 +74,10 @@ bool ordinvars(const expr * ex, const vector<varindx> * vars,
 	  if (!ordinvars(thbin->lhs,vars,orders)) return(false);
 	  for (k=0; k < vars->size(); k++) (*orders)[k] *= q;
 	  return(true);
+	default:
+	  break;  // goto error below
 	} // end of switch on binop type
+      break;
     case n_op:
       DBG( cout << "ordinvars entering n_op"<<endl; );
       thnop = (n_opexp *) ex;

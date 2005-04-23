@@ -62,6 +62,7 @@ expr * dimenchk(const bool fix, expr * & ex)
 	    }
 	  case sqrte:
 	    {
+	      DBG( cout << "start square root from call " << thisdbg << endl);
 	      if (!fn->MKS.unknp()) 
 		if (fn->arg->MKS.unknp() && fix) 
 		  fn->arg->MKS = fn->MKS * 2.;

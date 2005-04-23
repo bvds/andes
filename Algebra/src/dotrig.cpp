@@ -4,6 +4,7 @@
 #include "extoper.h"
 #include "dbg.h"
 #include "extstruct.h"
+#include "binopfunctions.h"
 using namespace std;
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
@@ -17,7 +18,7 @@ using namespace std;
 */
 int dotrig(vector<binopexp *> * & eqn)
 {
-  int k;
+  unsigned int k;
   int answer = 0;
   for (k = 0; k < eqn->size(); k++) // get rid of rhs for trigsolve.
     {

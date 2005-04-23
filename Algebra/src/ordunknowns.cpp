@@ -54,22 +54,27 @@ int ordunknowns(const expr * eq, const bool chkknown)
 	    return (ordunknowns(thbin->lhs, chkknown));
 	  else return(3);
 	case topowe:
-	  if (ordunknowns(thbin->rhs, chkknown) != 0) return(3);
-	  k=ordunknowns(thbin->lhs, chkknown);
-	  if (k==0) 
-	    //	    throw("topow with known args declared unknown!");
-	    return(0);		// This was written when I was much more 
-	  int q=0;		// ambitious about my equation manip. come back
-	  if (thbin->rhs->etype != numval) return(3);
-	  if (lookslikeint(((numvalexp *)thbin->rhs)->value, q))
-	    {
-	      if (q==0) return (0);	// see just above
-	      //	throw("topow with zero exponent declared unknown");
-	      if ((q!=1)&&(q!=2)) return(3);
-	      return ((q*k > 3) ? 3 : q*k);
-	    }
-	  else return(3);
+	  {
+	    if (ordunknowns(thbin->rhs, chkknown) != 0) return(3);
+	    k=ordunknowns(thbin->lhs, chkknown);
+	    if (k==0) 
+	      //	    throw("topow with known args declared unknown!");
+	      return(0);     // This was written when I was much more 
+	    int q=0;	     // ambitious about my equation manip. come back
+	    if (thbin->rhs->etype != numval) return(3);
+	    if (lookslikeint(((numvalexp *)thbin->rhs)->value, q))
+	      {
+		if (q==0) return (0);	// see just above
+		//	throw("topow with zero exponent declared unknown");
+		if ((q!=1)&&(q!=2)) return(3);
+		return ((q*k > 3) ? 3 : q*k);
+	      }
+	    else return(3);
+	  }
+	default:
+	  break;  // goto error below
 	}
+      break;
     case n_op:
       thnop = (n_opexp *) eq;
       ans = 0;
