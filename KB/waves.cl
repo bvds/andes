@@ -90,7 +90,9 @@
 
 ;;;
 ;;;  For doppler problems, we have to introduce a frequency as
-;;;  observed by someone
+;;;  observed by someone over some time interval.  We assume
+;;;  (but do not check) that the time interval is large enough
+;;;  for the frequency to be well-defined.
 ;;;
 
 (def-qexp observed-frequency (observed-frequency ?wave ?me)
@@ -102,7 +104,9 @@
 
 (defoperator define-observed-frequency (?wave ?me ?t)
   :preconditions
-  ((bind ?freq-var (format-sym "freq_~A_~A_~A" 
+  (
+   (test (time-intervalp ?t)) ;only defined over intervals
+   (bind ?freq-var (format-sym "freq_~A_~A_~A" 
 			       (body-name ?wave) (body-name ?me) 
 			       (time-abbrev ?t))))
   :effects ((variable ?freq-var (at (observed-frequency ?wave ?me) ?t))
@@ -208,7 +212,7 @@
 			 (at (observed-frequency ?w1 ?me) ?t)
 			 (at (observed-frequency ?w2 ?me) ?t)
 			 ))
-    (time ?t) )
+    (test (time-intervalp ?t)) )
   :effects 
   ( (eqn-contains (beat-frequency ?wbeat ?w1 ?w2 ?me ?t) ?sought) ))
 
@@ -742,75 +746,73 @@
 ;;;  should be transparent to the student since all the problems
 ;;;  are one-dimensional.)
 ;;;
-;;;  This assumes all velocities are defined with respect to the wave medium
-;;;  Since this involves the positions of various bodies, 
-;;;  we find the shift at a particular time, which is an exception
-;;;  to the general strategy of frequency being timeless.
-;;;
 
 (def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer 
-						   ?t ?t-interval)
+						   ?t-s ?t-o)
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift")
   :ExpFormat ("using formula for doppler frequency")
   :EqnFormat ("fo=fs*(vw±vo)/(vw±vs))")) 
 
-;;; velocities should be constant over a large enough
-;;; interval.  We should demand (constant ?quant ?t-interval) but
-;;; hopefully that construct will eventually be replaced.
+;;; velocities should be constant over the interval.  
+;;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
+;;; but hopefully that construct will eventually be replaced.
 (defoperator doppler-frequency-contains (?sought)
   :preconditions 
   (
    (doppler-system ?source ?wave ?observer) ;so the ?wave is identified
-   (time ?t) (test (time-pointp ?t))
-   (time ?t-interval) (test (time-intervalp ?t-interval))
-   (test (tinsidep-include-second-endpoint ?t ?t-interval))
+   (time ?t-s) (test (time-intervalp ?t-s))
+   (time ?t-o) (test (time-intervalp ?t-o))
+   ;;  In principle, the beginning of the ?t-o interval must be 
+   ;;  after the beginning of ?t-s interval and the end of the ?t-o 
+   ;;  interval should not come to much after the end of the end of 
+   ;;  the ?t-s interval.
+   ;;  But we won't check these things since we don't know the distance
+   ;;  between the source and observer.
+   ;;  Note that tsomewhat-earlierp allows ?t-s = ?t-o
+   (test (tsomewhat-earlierp ?t-s ?t-o)) 
    (any-member ?sought ((frequency ?source)
 			(wave-speed ?wave)
-			(at (observed-frequency ?source ?observer) ?t)
+			(at (observed-frequency ?source ?observer) ?t-o)
 			;; we *assume* the interval is big enough
-			(at (mag (relative-vel ?source ?wave)) ?t-interval) 
-			(at (mag (relative-vel ?observer ?wave)) ?t-interval)
-			(at (dir (relative-vel ?source ?wave)) ?t-interval) 
-			(at (dir (relative-vel ?observer ?wave)) ?t-interval)
-			(at (dir (relative-position ?source ?observer)) ?t)
+			(at (mag (relative-vel ?source ?wave)) ?t-s) 
+			(at (mag (relative-vel ?observer ?wave)) ?t-o)
+			(at (dir (relative-vel ?source ?wave)) ?t-s) 
+			(at (dir (relative-vel ?observer ?wave)) ?t-o)
+			(at (dir (relative-position ?source ?observer)) ?t-o)
 			))
    (object ?source)
    (object ?observer)
    (sinusoidal ?source)
-   (not (light ?wave))  ;light uses a different formula
+   (not (light ?wave))			;light uses a different formula
    )
-  :effects (
-	    (eqn-contains (doppler-frequency ?source ?wave ?observer 
-					     ?t ?t-interval) ?sought)))
+  :effects 
+  ( (eqn-contains (doppler-frequency ?source ?wave ?observer 
+				     ?t-s ?t-o) ?sought)))
 
-(defoperator make-doppler-frequency (?source ?wave ?observer ?t ?t-interval)
+(defoperator make-doppler-frequency (?source ?wave ?observer ?t-s ?t-o)
   :preconditions 
-  ((variable ?vs (at (mag (relative-vel ?source ?wave)) 
-		     ?t-interval))
-   (variable ?vo (at (mag (relative-vel ?observer ?wave)) 
-				    ?t-interval))
+  ((variable ?vs (at (mag (relative-vel ?source ?wave)) ?t-s))
+   (variable ?vo (at (mag (relative-vel ?observer ?wave)) ?t-o))
    (variable ?vw (wave-speed ?wave))		  
    (variable ?fs (frequency ?source))		  
-   (variable ?fo (at (observed-frequency ?source ?observer) ?t))
+   (variable ?fo (at (observed-frequency ?source ?observer) ?t-o))
    ;; vector from observer to source
    ;; BvdS:  this is 180 deg off from phi in my notes
    ;; BvdS:  maybe want to specify that this is a given so
    ;; that students don't have to draw the vector
    ;; alternatively, figure out how to make r_ab = -r_ba work.
    ;;
-   ;; (variable ?phi (at (dir (relative-position ?source ?observer)) ?t))
-   (given (at (dir (relative-position ?source ?observer)) ?t) ?phi)
+   ;; (variable ?phi (at (dir (relative-position ?source ?observer)) ?t-o))
+   (given (at (dir (relative-position ?source ?observer)) ?t-o) ?phi)
    ;; Doesn't work:
-   ;; (vector ?observer (at (relative-position ?source ?observer) ?t) ?phi)
+   ;; (vector ?observer (at (relative-position ?source ?observer) ?t-o) ?phi)
    
    ;; use vector statements so that zero velocity can be handled correctly.  
    ;; This might prevent relative-vel from being the sought.
    ;; This is in working memory, because the magnitudes were found above.
-   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-interval) 
-		  ?sdir))
-   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-interval) 
-		  ?odir))
+   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-s) ?sdir))
+   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-o) ?odir))
    (bind ?scos (cos (* (get-angle-between ?phi ?sdir) 
 		       (/ pi 180))))	;degrees to radians
    (bind ?ocos (cos (* (get-angle-between ?phi ?odir) 
@@ -832,15 +834,13 @@
    (optional (axis-for ?source x 0)) ;allow draw axes 
    ;; motion descriptions for fancy hints:
    (bind ?stea (if (eql ?sdir 'zero) "not moving~*"
-		 (if (< ?scos 0)  "moving towards ~A" 
-		   "moving away from ~A")))
+		 (if (< ?scos 0)  "moving towards ~A" "moving away from ~A")))
    (bind ?otea (if (eql ?odir 'zero) "not moving~*"
-		 (if (> ?ocos 0) "moving towards ~A"
-		   "moving away from ~A")))
+		 (if (> ?ocos 0) "moving towards ~A" "moving away from ~A")))
    )
   :effects 
   ( (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
-	  (doppler-frequency ?source ?wave ?observer ?t ?t-interval)) )
+	  (doppler-frequency ?source ?wave ?observer ?t-s ?t-o)) )
   :hint 
   ( (point (string "Use the formula for doppler frequency shift."))
     (teach (string "Note that ~A is ~@?" 

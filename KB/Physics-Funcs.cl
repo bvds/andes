@@ -83,7 +83,7 @@
 		 (<= (second t2) (second t1) (third t1) (third t2)))))))
 
 (defun tinsidep-include-endpoints (t1 t2)
-  "non-null if the first time is inside the second time, the second time as a close interval"
+  "non-null if the first time is inside the second time, the second time is a closed interval"
   (or (tinsidep t1 t2)
       (and (time-intervalp t2)
 	   (time-pointp t1)
@@ -114,6 +114,18 @@
        ((and (time-intervalp t1) (time-intervalp t2))
             (<= (third t1) (second t2)))
 	(T (error "bad time arg to tearlierp: ~A ~A~%" t1 t2))))
+
+(defun tsomewhat-earlierp (t1 t2) 
+ "true if there is no point in t2 that is earlier than any point in t1" 
+ (cond ((and (time-pointp t1) (time-pointp t2))
+            (<= t1 t2))
+       ((and (time-pointp t1) (time-intervalp t2))
+            (<= t1 (second t2)))
+       ((and (time-intervalp t1) (time-pointp t2))
+            (<= (second t1) t2))
+       ((and (time-intervalp t1) (time-intervalp t2))
+            (<= (second t1) (second t2)))
+	(T (error "bad time arg to tsomewhatealierp: ~A ~A~%" t1 t2))))
 
 (defun successive-intervals (t1 t2)
    "return list of successive sub-intervals making up t1 to t2"
