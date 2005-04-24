@@ -25,7 +25,12 @@ expr * dimenchk(const bool fix, expr * & ex)
 
   int thisdbg = ++dbgnum;
   DBG( cout << "Starting dimenchk call " << thisdbg << " on " 
-       << ex->getInfix() << endl);
+       << ex->getInfix() << endl;ex->dbgprint(10));
+  if(ex->etype==function){
+    DBG( cout << "Function is " << ((functexp *) ex)->f->printname <<endl );
+    DBG( cout << "opty is " << ((functexp *) ex) ->f->opty
+	 << " sqrte=" << sqrte << " abse=" << abse << endl);
+  }
   switch(ex->etype)
     {
     case numval:

@@ -191,7 +191,9 @@ string binopexp::getInfix() const {
 string functexp::getInfix() const {
   DBG( cout << "getInfix on functexp" << endl; );
   
-  return string(string("(") + f->printname + string(" (") 
+  return string(string("(") + f->printname
+		<<f->opty<<    //find sqrte <-> abse error
+		string(" (") 
 		+ arg->getInfix() + string("))"));
 }
 
@@ -300,7 +302,8 @@ void binopexp::dbgprint(int indent)
 void functexp::dbgprint(int indent)
 {
   cout << string(indent,' ') + "funct:  " + f->printname 
-    + "\t" + MKS.print()<< endl;
+       <<f->opty<<    //find sqrte <-> abse error
+     "\t" + MKS.print() << endl;
   arg->dbgprint(indent+2);
 }
 void n_opexp::dbgprint(int indent)

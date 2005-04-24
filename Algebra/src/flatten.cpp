@@ -166,11 +166,13 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	      EQONIO(cout << "flatten " << thisdbg 
 		     << ": about to reduce sqrt x^2n "
 		     << e->getInfix()<< endl);
-	      efunct->f = &absff; // replace sqrt by abs and halve 
+	      efunct->f = &absff; // replace sqrt by abs and halve	      
 	      ((numvalexp *)fargbin->rhs)->value *= 0.5; // rhs of topowe
 	      answer = true;
 	      EQONIO(cout << "flatten " << thisdbg << ": first result x^n "
-		     << e->getInfix()<< endl);
+		     << e->getInfix()<< endl;
+		     cout << " efunct->f->opty=" << efunct->f->opty 
+		     << " e->f->opty=" << ((functexp *) e)->f->opty << endl);
 	      if (q == 2)		// 	sqrt (x^2n) -> x^n, 
 		{ 				//  sqrt(|v|^n) -> |v|^(n/2)
 		  delete fargbin->rhs;		//  then if n=1, -> x	    
