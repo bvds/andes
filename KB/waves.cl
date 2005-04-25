@@ -482,7 +482,7 @@
   ( (eqn  (= ?v |c|) (wave-speed-light ?medium)) )
   :hint (
 	 (point (string "Light waves and radio waves have a special speed"))
-	 (teach (string "What is the speed of light?"))
+	 (teach (string "c is defined to be the speed of light."))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?v |c|)  algebra) ))
 	 ))

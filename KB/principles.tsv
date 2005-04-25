@@ -56,7 +56,6 @@ LEAF	P = F*v*cos($q)         instantaneous power	inst-power	Power
 LEAF	P = I*4*$p*r^2         relation of power and intensity (spherical emitter)	intensity-to-power	Intensity
 LEAF	$b = 10*log10(I/Iref)   intensity to decibels	intensity-to-decibels	Intensity
 LEAF	I = Iref*10^($b/10)   decibels to intensity	intensity-to-decibels	Intensity
-LEAF	Iref = 1.0E-12 W/m^2   reference intensity for decibels	define-db-intensity-zero	Intensity
 LEAF	Inet = $S Ii           Net intensity	net-intensity	Intensity
 END_GROUP			
 GROUP	Impulse Momentum		
@@ -138,7 +137,6 @@ LEAF	k = 2*$p/$l	wavenumber-lambda-wave
 LEAF	f = $w/(2*$p)	frequency-of-wave	
 LEAF	T = 1/f	period-of-wave	
 LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
-LEAF	c = 2.998E8 m/s       Speed of light	speed-of-light	
 LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
 LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
 LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
@@ -178,8 +176,6 @@ LEAF	Ffk = $u * Fn              Kinetic Friction	kinetic-friction	Kinetic Fricti
 LEAF	Ffs = $u * Fn              Static Friction (at max)	static-friction	Static Friction max
 LEAF	Fs = k * d                Hooke's Law	spring-law	Hooke's Law
 LEAF	Ft1 = Ft2                 Equal tensions at both ends	tensions-equal	Equal tensions at both ends
-LEAF	Fg = G*m1*m2/r^2          Universal gravitation	ug	Universal Gravitation
-LEAF	G = 6.67E-11 N*m^2/kg^2   Gravitational constant	grav-constant	Universal Gravitation
 END_GROUP			
 GROUP	Compound Bodies		
 LEAF	m12 = m1 + m2              Mass of compound	mass-compound	Mass of a compound body
