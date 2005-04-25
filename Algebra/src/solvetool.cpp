@@ -217,7 +217,7 @@ string powersolve(const int howstrong, const varindx sought,
   if(ansexpr->rhs->etype==numval){
     numvalexp *vallexp=(numvalexp *) ansexpr->rhs;
     if(fabs(vallexp->value-(*numsols)[sought])>
-       100* DBL_EPSILON * (fabs(vallexp->value)+((*numsols)[sought])))
+       100* DBL_EPSILON * (fabs(vallexp->value)+fabs((*numsols)[sought])))
       {
 	DBG(cout << "numerical value  != canonical value "
 	    << (*numsols)[sought] << endl);
