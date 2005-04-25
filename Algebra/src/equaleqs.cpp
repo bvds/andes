@@ -21,9 +21,10 @@ bool equaleqs(const expr * exp1, const expr * exp2)
 {
   bool answer;
   int k;
+  int edbgnum= ++dbgnum;
 
-  DBG( cout << "entering equaleqs with " << exp1->getInfix() << " , and "
-	    << exp2->getInfix() << endl; );
+  DBG(cout << "entering equaleqs call " << edbgnum << " with " 
+      << exp1->getInfix() << " and " << exp2->getInfix() << endl);
   switch(exp1->etype)
     {
     case numval:
@@ -41,7 +42,7 @@ bool equaleqs(const expr * exp1, const expr * exp2)
       goto ret;
     case function:
       answer = ( (exp2->etype == function) &&
-		 (((functexp *)exp1)->f->opty =((functexp *)exp2)->f->opty) &&
+		 (((functexp *)exp1)->f->opty ==((functexp *)exp2)->f->opty) &&
 		 equaleqs( ((functexp *)exp1)->arg,
 			   ((functexp *)exp2)->arg));
       goto ret;
@@ -76,6 +77,7 @@ bool equaleqs(const expr * exp1, const expr * exp2)
  retno:
   answer = false;
  ret:
-  DBG( cout << "Equaleqs returning "<<((answer) ? "true" : "false") << endl;);
+  DBG( cout << "Returning " << ((answer) ? "true" : "false") 
+       << " from equaleqs " << edbgnum << endl);
   return(answer);
 }

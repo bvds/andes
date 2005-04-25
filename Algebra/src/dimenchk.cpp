@@ -25,11 +25,9 @@ expr * dimenchk(const bool fix, expr * & ex)
 
   int thisdbg = ++dbgnum;
   DBG( cout << "Starting dimenchk call " << thisdbg << " on " 
-       << ex->getInfix() << endl;ex->dbgprint(10));
+       << ex->getInfix() << endl; ex->dbgprint(10));
   if(ex->etype==function){
     DBG( cout << "Function is " << ((functexp *) ex)->f->printname <<endl );
-    DBG( cout << "opty is " << ((functexp *) ex) ->f->opty
-	 << " sqrte=" << sqrte << " abse=" << abse << endl);
   }
   switch(ex->etype)
     {
@@ -67,7 +65,6 @@ expr * dimenchk(const bool fix, expr * & ex)
 	    }
 	  case sqrte:
 	    {
-	      DBG( cout << "start square root from call " << thisdbg << endl);
 	      if (!fn->MKS.unknp()) 
 		if (fn->arg->MKS.unknp() && fix) 
 		  fn->arg->MKS = fn->MKS * 2.;
@@ -391,7 +388,7 @@ expr * dimenchk(const bool fix, expr * & ex)
 		 );
 	    DBG( if (trouble == (expr *) NULL) cout << "Returning NULL";
 		 else cout << "Returning " << trouble->getInfix();
-		 cout << " from dimenchk " << thisdbg << endl;);
+		 cout << " from dimenchk " << thisdbg << endl);
 	    return(trouble);
 	  default:
 	    throw(string("unknown n_op in dimenchk"));

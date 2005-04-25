@@ -89,10 +89,10 @@ string unitprint(const dimens dim)
  ************************************************************************/
 
 string numvalexp::getInfix() const {
-  DBG( cout << "getInfix on numval" << endl; );
   int q;
   char valuenum[21];
 
+  DBG( cout << "getInfix on numval" << endl);
   if (lookslikeint(value,q)) sprintf(valuenum,"%d",q);
   else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
     sprintf(valuenum,"%19.16lf",value);
@@ -181,7 +181,7 @@ string binopexp::solprint(bool forhelp) const {
 }
 
 string binopexp::getInfix() const {
-  DBG(cout << "getInfix on binop" << endl;);
+  DBG(cout << "getInfix on binop" << endl);
   
   return string(string("(") + lhs->getInfix() + string(" ") 
 		+ op->printname + string(" ") + rhs->getInfix() + string(")"));
@@ -189,19 +189,17 @@ string binopexp::getInfix() const {
 
 
 string functexp::getInfix() const {
-  DBG( cout << "getInfix on functexp" << endl; );
-  
-  return string(string("(") + f->printname
-		<<f->opty<<    //find sqrte <-> abse error
-		string(" (") 
+  DBG(cout << "getInfix on functexp" << endl);
+  return string(string("(") + f->printname + string(" (") 
 		+ arg->getInfix() + string("))"));
 }
 
 
 string n_opexp::getInfix() const {
-  DBG( cout << "getInfix on n_op" << endl;);
   int k;
   string *ans = new string("( ");
+
+  DBG(cout << "getInfix on n_op" << endl);
   if (this->args->size() == 0) {
     ans->append( op->printname + ")");
     return (*ans);
@@ -302,8 +300,7 @@ void binopexp::dbgprint(int indent)
 void functexp::dbgprint(int indent)
 {
   cout << string(indent,' ') + "funct:  " + f->printname 
-       <<f->opty<<    //find sqrte <-> abse error
-     "\t" + MKS.print() << endl;
+     + "\t" + MKS.print() << endl;
   arg->dbgprint(indent+2);
 }
 void n_opexp::dbgprint(int indent)
