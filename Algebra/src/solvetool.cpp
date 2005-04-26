@@ -216,8 +216,8 @@ string powersolve(const int howstrong, const varindx sought,
   // in principle, this would use the equaleqs.cpp function.
   if(ansexpr->rhs->etype==numval){
     numvalexp *vallexp=(numvalexp *) ansexpr->rhs;
-    if(fabs(vallexp->value-(*numsols)[sought])>
-       100* DBL_EPSILON * (fabs(vallexp->value)+fabs((*numsols)[sought])))
+    if(fabs(vallexp->value-(*numsols)[sought]) >
+       100* DBL_EPSILON * fabs(vallexp->value+(*numsols)[sought]))
       {
 	DBG(cout << "numerical value  != canonical value "
 	    << (*numsols)[sought] << endl);
