@@ -208,7 +208,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-; choose-ambiguous-bad-turn: Select which of several incorrect parses to return.
+; choose-ambiguous-bad-turn: Select which of several non-correct parses to return.
 ; PARAMETER: list of candidate (turn entry) pairs collected above
 ; RETURN: chosen turn to use
 ; Side effects: Saves chosen entry on entry list, setting its state to incorrect.
@@ -402,7 +402,7 @@
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
   (let ((rem (make-hint-seq '("Internal error: could not process equation."))))
-    (setf (turn-coloring rem) **color-red**)
+    (setf (turn-coloring rem) **color-black**) ; not red, since not known wrong
      (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(internal-error)
