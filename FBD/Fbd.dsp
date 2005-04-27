@@ -215,8 +215,8 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\TCP_Release
 SOURCE="$(InputPath)"
-PostBuild_Desc=copying into C:\Andes2
-PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe C:\Andes2
+PostBuild_Desc=copying into parent directory
+PostBuild_Cmds=copy $(OutDir)\fbd-tcp.exe ..
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
@@ -591,63 +591,7 @@ SOURCE=.\AxesDlg.cpp
 # Begin Source File
 
 SOURCE=.\Base64Coder.cpp
-
-!IF  "$(CFG)" == "FBD - Win32 Release"
-
 # SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
-
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
-
-# SUBTRACT BASE CPP /YX /Yc /Yu
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
-
-# SUBTRACT BASE CPP /YX /Yc /Yu
-# SUBTRACT CPP /YX /Yc /Yu
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -1905,6 +1849,19 @@ SOURCE=.\res\zvel_o.cur
 # End Group
 # End Target
 # End Project
+# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
+# 	2:5:Class:CWebBrowser
+# 	2:10:HeaderFile:webbrowser.h
+# 	2:8:ImplFile:webbrowser.cpp
+# End Section
+# Section OLE Controls
+# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
+# End Section
+# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
+# 	1:17:ID_INDICATOR_TIME:105
+# 	2:2:BH:
+# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
+# End Section
 # Section FBD : {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # 	0:14:WebBrowser.cpp:C:\Msdev\Projects\Fbd\WebBrowser.cpp
 # 	0:12:WebBrowser.h:C:\Msdev\Projects\Fbd\WebBrowser.h
@@ -1923,17 +1880,4 @@ SOURCE=.\res\zvel_o.cur
 # 	2:10:HeaderName:Splash.h
 # 	2:10:ImplemName:Splash.cpp
 # 	2:7:BmpID16:IDB_SPLASH
-# End Section
-# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
-# 	2:5:Class:CWebBrowser
-# 	2:10:HeaderFile:webbrowser.h
-# 	2:8:ImplFile:webbrowser.cpp
-# End Section
-# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
-# 	1:17:ID_INDICATOR_TIME:105
-# 	2:2:BH:
-# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
-# End Section
-# Section OLE Controls
-# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # End Section

@@ -256,8 +256,8 @@ void CFBDDoc::Serialize(CArchive& ar)
 			m_strTimes.Serialize(ar);
 		}
 		// New practice: ensure always include at least one default time spec
-		if (m_strTimes.IsEmpty())
-			m_strTimes.AddHead("T0 = the instant depicted");
+	//	if (m_strTimes.IsEmpty())
+	//		m_strTimes.AddHead("T0 = the instant depicted");
 	
 		// ar >> m_strEarth			// taken out AT version 22
 		if (m_nVersion < 22)		// consume item in earlier versions
@@ -2715,7 +2715,7 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 				CLispReader::Obj* pAtom = pPair->m_objects.GetAt(posFirst);
 				if (! pAtom->IsAtom()) return FALSE;
 				CString strFirst = ((CLispReader::Atom*)pAtom)->m_strValue;
-				// pull second part
+				// pull second part. 
 			    POSITION posSecond = pPair->m_objects.FindIndex(1);
 			    pAtom = pPair->m_objects.GetAt(posSecond);
 				CString strSecond = ((CLispReader::Atom*) pAtom)->m_strValue;
@@ -2731,6 +2731,13 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 					CString strThird = ((CLispReader::Atom*) pAtom)->m_strValue;
 					int nSecond = atoi(strSecond); int nThird = atoi(strThird);
 					strSpec.Format ("T%d to T%d", nSecond-1, nThird-1);
+					// check for optional description of interval:
+					POSITION posFourth = pPair->m_objects.FindIndex(3);
+					if (posFourth) {
+						pAtom = pPair->m_objects.GetAt(posFourth);
+						CString strFourth = ((CLispReader::Atom*) pAtom)->m_strValue;
+						strSpec += " = " + strFourth;
+					}
 				}
 				m_strTimes.AddTail(strSpec);
 			}
