@@ -138,7 +138,7 @@
 		    :key #'file-namestring :test #'string-equal)
       (format T "~&Loading solver from ~A~%" path)
       (load path))
-    #+uffi(load-foreign-library path
+    #+uffi(uffi:load-foreign-library path
 				;; The libraries which are needed.
 				;; Only needed for Python-based Lisps like 
 				;; CMUCL, SBCL, or SCL?
