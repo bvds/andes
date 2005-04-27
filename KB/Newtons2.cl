@@ -2358,9 +2358,9 @@
    ))
 
 
-;; This operator draws an non-zero acceleration vector for a body that is moving
-;; in a straight line and speeding up.  The motion descriptor's third argument is
-;; the direction of the object's velocity. 
+;;; This operator draws an non-zero acceleration vector for a body that 
+;;; is moving in a straight line and speeding up.  The motion descriptor's 
+;;; third argument is the direction of the object's velocity. 
 
 (defoperator draw-accelerating (?b ?t)
   :specifications 
@@ -2391,13 +2391,18 @@
     (bottom-out (string "Because ~a is speeding up while moving in a straight line with direction ~a, you should use the acceleration tool to draw an acceleration for it ~a at direction ~a." ?b ?dir (?t pp) ?dir))
     ))
 
-;; This draws an acceleration vector at an unknown direction for an object when we are given that there are at least two
-;; forces acting on it (Exdt12b), but the exact direcction of net force will not be known until calculated.
-;; in exact direction is unknown until components are calculated. !!! Might want operator and
-;; hint specific to case where existence of more than one force in different directions is given. As it is it
-;; will appear you are just given that there is acceleration in some straight line.
-;; !!! For now, only applies if more than one *given* force. Could apply if more than one force simpliciter
-;; Also doesn't check if they are in the same direction, in which case direction could be known.
+;;; This draws an acceleration vector at an unknown direction for an object 
+;;; when we are given that there are at least two forces acting on it 
+;;; (Exdt12b), but the exact direcction of net force will not be known 
+;;; until calculated.  The exact direction is unknown until components are 
+;;; calculated. 
+;;; !!! Might want operator and hint specific to case where existence of 
+;;; more than one force in different directions is given. As it is it
+;;; will appear you are just given that there is acceleration in some 
+;;; straight line.
+;;; !!! For now, only applies if more than one *given* force. Could apply 
+;;; if more than one force simpliciter.  Also doesn't check if they are 
+;;; in the same direction, in which case direction could be known.
 (defoperator accel-unknown-net-force (?b ?t)
   :specifications 
    "If ?body is moving in a straight line during ?time,
@@ -2565,9 +2570,9 @@
     (bottom-out (string "Because ~a is accelerating due to gravity, you should use the acceleration tool to draw an acceleration for it ~a in the direction 270 degrees." ?b (?t pp)))
     ))
 
-;;
-;; free-fall equation: acceleration = g
-;;
+;;;
+;;; free-fall equation: acceleration = g
+;;;
 (defoperator free-fall-accel-contains (?quantity)
   :specifications 
   "if an object is in free-fall near a planet during an interval, 
@@ -2643,19 +2648,21 @@
     ))
 
 
-; for Pyrenees missle problem
-; draw acceleration for a curved projectile trajectory when we are given its direction.
-; This differs from draw-accel-given-dir since the dir is in the projectile motion spec
-; Like draw-centripetal-accel in pulling dir from curved motion spec, differing only
-; in that it does not assume uniform circular motion.
+;;; for Pyrenees missle problem
+;;; draw acceleration for a curved projectile trajectory when we are given 
+;;; its direction.
+;;; This differs from draw-accel-given-dir since the dir is in 
+;;; the projectile motion spec
+;;; Like draw-centripetal-accel in pulling dir from curved motion spec, 
+;;; differing only in that it does not assume uniform circular motion.
 (defoperator draw-accel-projectile-given (?b ?t)
    :preconditions 
    ((time ?t)
     (motion ?b ?t-motion (curved projectile (?vel-dir
     					      (dnum ?accel-dir |deg|))))
     (test (tinsidep ?t ?t-motion))
-    ; should we test that free-fall is not specified? Assume we won't
-    ; have this motion spec in that case.
+    ;; should we test that free-fall is not specified? Assume we won't
+    ;; have this motion spec in that case.
     (not (vector ?b (at (accel ?b) ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -2671,9 +2678,9 @@
     (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." ?b (?t pp) ?dir ?dir))
     ))
 
-;;
-;; centripetal acceleration law: acceleration = v^2/r
-;;
+;;;
+;;; centripetal acceleration law: acceleration = v^2/r
+;;;
 (defoperator centripetal-accel-contains (?quantity)
   :specifications 
   "if an object is in uniform circular motion during an interval, 
@@ -2716,9 +2723,9 @@
    (bottom-out (string "Because ~a is moving in a circle of radius ~a with velocity ~a, its acceleration is ~a = ~a^2/~a."  ?b (?radius-var algebra) (?vel-var algebra) (?accel-var algebra) (?vel-var algebra) (?radius-var algebra)))
    ))
 
-;; define a variable for the revolution radius = radius of uniform circular
-;; motion. Note no time on this quantity in the workbench; OK, all our
-;; problems use the default time instant.
+;;; define a variable for the revolution radius = radius of uniform circular
+;;; motion. Note no time on this quantity in the workbench; OK, all our
+;;; problems use the default time instant.
 (defoperator define-revolution-radius (?b ?t)
   :preconditions 
   ((object ?b)
@@ -2783,7 +2790,7 @@
 )
 
 
-;;; =========== For Simple Vector Arithmetic problems ==========================
+;;; =========== For Simple Vector Arithmetic problems =========================
 ;;;
 ;;; Following apply to any vectors for the purpose of our simple vector 
 ;;; arithmetic problems, which give vectors by components in unit vector

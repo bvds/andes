@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Problemsolver.cl
 ;; Collin Lynch
 ;; 3/24/2001
@@ -40,7 +40,7 @@
 ;; own dummy PSM and the result will be a psmgraph struct containing no
 ;; quantities.  The help system will know how to deal with this when it
 ;; gets it.  
-|#
+;;
 
 (defparameter *S-print-Num* t "Print the step Number.")
 (defparameter *S-print-steps* () "Print intermediate solution steps.")
