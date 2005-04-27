@@ -61,50 +61,49 @@
   Eqnset)				; The set of currently active equation ids.
 
 
-(defun print-solution (Solution &optional (Stream t) (Level 0) (form t))
+(defun print-solution (Solution &optional (Stream t) (Level 0) (Form t))
   "Print out the specified solution to the stream."  
   (case Form
     (Full (print-full-solution Solution Stream Level))
     (ProblemFile (print-problemfile-solution Solution Stream Level))
-    
-    (Mini (pprint-Indent :block Stream Level)
+    (Mini (pprint-Indent :block Level Stream)
 	  (format Stream "<B: ~A>~%" (Solution-ID Solution)))
-    	   
-    (Interface (pprint-Indent :block Stream Level)
-	       (format Stream "<B: Path:        ~A>~%" (reverse (Solution-Knowns Solution))))
-         
-    (t (print-basic-solution Solution Stream Level))))
+    (Interface (pprint-Indent :block Level Stream)
+	       (format Stream "<B: Path:        ~A>~%" 
+		       (reverse (Solution-Knowns Solution))))
+    (t (print-basic-solution Solution Stream Level))
+    ))
 
 
 (defun print-full-solution (Solution &optional (Stream t) (level 0))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "<B: ~A~%" (Solution-ID Solution))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "    ~A~%" (Solution-Knowns Solution))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "    ~A~%" (Solution-Soughts Solution))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "    ~A~%" (Solution-Assumptions Solution))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "    ~A~%" (Solution-Eqnset Solution)))
 
 
 (defun print-problemfile-solution (Solution &optional (Stream t) (Level 0))
-   (pprint-Indent :block Stream Level)
+   (pprint-Indent :block Level Stream)
    (format Stream "(~W~%" (Solution-ID Solution))
-   (pprint-Indent :block Stream Level)
+   (pprint-Indent :block Level Stream)
    (format Stream "~W~%" (Solution-Knowns Solution))
-   (pprint-Indent :block Stream Level)
+   (pprint-Indent :block Level Stream)
    (format Stream "~W~%" (Solution-Soughts Solution))
-   (pprint-Indent :block Stream Level)
+   (pprint-Indent :block Level Stream)
    (format Stream "~W~%" (Solution-Assumptions Solution)))
 
 (defun print-basic-solution (Solution &optional (Stream t) (Level 0))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "<B: Knowns:      ~A~%" (Solution-Knowns Solution))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "    ~A~%" (Solution-Assumptions Solution))
-  (pprint-Indent :block Stream Level)
+  (pprint-Indent :block Level Stream)
   (format Stream "    Soughts:    ~A>~%" (Solution-Soughts Solution)))
          
 
