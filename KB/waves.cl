@@ -751,13 +751,10 @@
 						   ?t-s ?t-o)
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift")
-  :ExpFormat ("using formula for doppler frequency"))
-
-;; A hack to include the plus-minus character in the equation
-;; using only standard characters.
-(setf (equation-EqnFormat (lookup-name->equation 'doppler-frequency)) 
-  (list (format nil "fo=fs*(vw~Avo)/(vw~Avs)" 
-		(code-char 177) (code-char 177) )))
+  :ExpFormat ("using formula for doppler frequency")
+  ;; use read-time evaluation macro to insert the plus-minus character code into 
+  ;; the EqnFormat string using only standard characters in our source text
+  :EqnFormat #.(list (format nil "fo=fs*(vw~Avo)/(vw~Avs)" (code-char 177) (code-char 177))))
 
 ;;; velocities should be constant over the interval.  
 ;;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
