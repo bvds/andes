@@ -594,7 +594,7 @@
 ;; Interns symbol in current package so Lisp doesn't print it with #:
 ;; which is bad for algebra code reading our equation output.
 (defmacro format-sym (spec &rest args)
-  `(intern (symbol-name (make-symbol (format NIL ,spec ,@args)))))
+  `(intern (format NIL ,spec ,@args)))
 
 ;;
 ;; For forming variable names:
