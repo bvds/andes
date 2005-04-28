@@ -130,6 +130,7 @@
 
 #+MSWINDOWS (defparameter *DLL-NAME* "Solver.dll") ;name of library
 #+LINUX (defparameter *DLL-NAME* "libSolver.so")
+#+DARWIN (defparameter *DLL-NAME* "libSolver.dylib") ;OS X
 
 (defun solver-initialize (&optional filename)
   (let ((path (if filename filename 

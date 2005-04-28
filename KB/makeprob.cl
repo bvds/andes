@@ -85,51 +85,53 @@
 ;;; if other problem use feature like circular. 
 ;;; Following maps friendly problem set names to distinguishing feature sets
 ;;;
-(defconstant *problem-sets* 
-    '(
-      ;; Mechanics
-      ("Vectors"  vectors)
-      ("Translational Kinematics"  kinematics)
-      ("Free Body Diagrams"  fbd)
-      ("Statics"  statics)		; also in some fbd-only!
-      ("Translational Dynamics"  dynamics) ; also in some fbd-only
-      ("Circular Motion"  circular)
-      ;; !! work-only problem now in Work-Energy set
-      ("Work"  work)			; (and (not energy))
-      ("Energy"  energy)
-      ("Linear Momentum" linmom)
-      ("Rotational Kinematics"  rotkin)
-      ("Angular Momentum"  angmom)
-      ("Rotational Dynamics"  torque)
-      ;; Electricity and Magnetism
-      ("Electric Field" E-field)
-      ("Electric Potential" potential)
-      ("Capacitance" cap)
-      ("Resistance" res)
-      ;; ("DC Circuits"  (or kir rc)
-      ("Kirchoff's Laws" kir)
-      ("RC Circuits" rc)
-      ("Magnetic Field" mag)
-      ("Faraday's Law" fara)
-      ("Inductance" inductance)
-      ("Optics" optics)
-      ))
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+	*problem-sets* 
+	'(
+	  ;; Mechanics
+	  ("Vectors"  vectors)
+	  ("Translational Kinematics"  kinematics)
+	  ("Free Body Diagrams"  fbd)
+	  ("Statics"  statics)		; also in some fbd-only!
+	  ("Translational Dynamics"  dynamics) ; also in some fbd-only
+	  ("Circular Motion"  circular)
+	  ;; !! work-only problem now in Work-Energy set
+	  ("Work"  work)			; (and (not energy))
+	  ("Energy"  energy)
+	  ("Linear Momentum" linmom)
+	  ("Rotational Kinematics"  rotkin)
+	  ("Angular Momentum"  angmom)
+	  ("Rotational Dynamics"  torque)
+	  ;; Electricity and Magnetism
+	  ("Electric Field" E-field)
+	  ("Electric Potential" potential)
+	  ("Capacitance" cap)
+	  ("Resistance" res)
+	  ;; ("DC Circuits"  (or kir rc)
+	  ("Kirchoff's Laws" kir)
+	  ("RC Circuits" rc)
+	  ("Magnetic Field" mag)
+	  ("Faraday's Law" fara)
+	  ("Inductance" inductance)
+	  ("Optics" optics)
+	  ) 	#+sbcl #'equalp)
 
-; List problem statements for given sets (for OLI)
-; topic should be feature unique to this set
-; File is of form
-;    LIST<listname>
-;    <problem-name>
-;    statement
-;    ...
-;    <problem-name>
-;    statement
-;    ...
-;    LIST<listname>
-;    <problem-name>
-;    statement
-;    ....
-; where lower-case words are replaced by actual names.
+;;; List problem statements for given sets (for OLI)
+;;; topic should be feature unique to this set
+;;; File is of form
+;;;   LIST<listname>
+;;;   <problem-name>
+;;;   statement
+;;;   ...
+;;;   <problem-name>
+;;;   statement
+;;;   ...
+;;;   LIST<listname>
+;;;   <problem-name>
+;;;   statement
+;;;   ....
+;;;where lower-case words are replaced by actual names.
 (defun make-stmt-list ()  
  "Write OLI-useable list file of problem statements in each problem set"
  (with-open-file (outf "C:\\Andes2\\kb\\Problems.lst"
@@ -144,7 +146,7 @@
     (dolist (P Probs)
        (format outf "\<~A\>~%" (problem-name P))
        (dolist (line (Problem-Statement P))
-	   (when (not (find #\[ line)) ; skip answer-box marker lines in stmt
+	   (when (not (find #\[ line)) ;skip answer-box marker lines in stmt
               (format outf "~A~%" line))))))))
 
 ; write one text file per problem, containing the problem statement text lines
