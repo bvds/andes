@@ -124,9 +124,12 @@
 (defconstant **Explain-More** 'Explain-More "The Explain more/hide menu.")
 (defconstant **Quant-Menu** 'Quant-Menu)
 (defconstant **Psm-Menu** 'Psm-Menu)
-(defconstant **Yes-No-Menu** '("Yes" "No"))
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+ **Yes-No-Menu** '("Yes" "No") #+sbcl #'equalp)
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+ **OK-Menu** '("OK") #+sbcl #'equalp)
 (defconstant **Hide-Menu** 'Hide-Menu)
-(defconstant **OK-Menu** '("OK"))
 (defconstant **Free-Text** 'Free-text "Calls for a typed student response.") 
 (defconstant **Equation-Menu** 'Equation-menu)
     

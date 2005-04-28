@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; interpret-equation.cl -- routines to handle getting interpretations of equations
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;; Author(s):
@@ -11,12 +11,12 @@
 ;;       in Interpret-equation to be special. 
 ;;    2. Declared references to **Premature-before-compo-eqn-help**, **Premature-subst-help**
 ;;       and **premature-entry-help** in get-premature-msg to be special.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun interpret-equation (se ;; student-entry
+(defun interpret-equation (se		;student-entry
                            &optional (location 'equation)) ; vs 'answer if answer-box entry
   (declare (special **Dead-Path-Help** **Forbidden-Help** **Nogood-Help**))
   (sg-match-StudentEntry se) ;; fills in PossibleCInterps
@@ -209,14 +209,16 @@
 		   (eq (first rhs) '+)
 		   (symbolp (second rhs)))))))
 
-; required-identities -- identities that must always be written out
-; (Maybe this info should be moved to ontology) 
-(defconstant *required-identities* '(
+;; required-identities -- identities that must always be written out
+;; (Maybe this info should be moved to ontology) 
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+    *required-identities* '(
    NTL              ; Newton's Third Law
    ;cons-energy     ; don't require ME1=ME2, so K1+U1=K2+U2 becomes OK
    projection proj  ; projection psm and projection equation
    charge-same-caps-in-branch ; want students to show they know this
-))
+) #+sbcl #'equalp)
 
 (defun required-identity-p (eqn)
 "true if eqn is on the list of required identities"

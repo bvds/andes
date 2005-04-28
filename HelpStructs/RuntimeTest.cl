@@ -172,7 +172,7 @@
 		       :MergeFunc ,MergeFunc))))
      ;; Test to ensure that an appropriate value type has been supplied.
      (when (not (rt-val-p (funcall #'make-instance ValType)))
-       (error "Improper runtime test val type \"~a\" supplied."))
+       (error "Improper runtime test val type supplied."))
      (if (not (= 0 (runtime-test-Weight Test)))
 	 (push Test *Runtime-Score-Testset*))
      (push Test *Runtime-Testset*)
@@ -687,19 +687,21 @@
 ;;;; NOTE: For now some of the columns in the code will generate Nil values while 
 ;;;; others do not.  This may be changed later on.  
 
-;;; ------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Load saved stats set.
-;;; Given a specific set of saved stats load it into the current runtime testset.
-;;; This can then be used for output or other selection.  This is similar to the
-;;; load-stored-runtime-test-stats function above but will be used for score 
-;;; storage in the database not runtime score loading.  
+;;; Given a specific set of saved stats load it into the current runtime 
+;;; testset.  This can then be used for output or other selection.  
+;;; This is similar to the load-stored-runtime-test-stats function above 
+;;; but will be used for score storage in the database not runtime score 
+;;; loading.  
 
 (defun load-saved-stats->runtime-testset (Saved-Stats &key (LoadAll t))
   "Iterate over the stats for later use."
   (let (Test)
     (dolist (Val (saved-stats-scores Saved-Stats))
       (setq Test (lookup-name->runtime-test (car val)))
-      (if (null Test) (error "Supplied Runtime test name \"~a\" not recognized.")
+      (if (null Test) 
+	  (error "Supplied Runtime test not recognized.")
 	(when (or Loadall (and (runtime-test-activep Test) (runtime-test-loadable Test)))
 	  (setf (runtime-test-currval Test)
 	    (unpack-rt-val (cadr Val))))))))

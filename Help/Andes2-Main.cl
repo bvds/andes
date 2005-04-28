@@ -19,8 +19,11 @@
 (in-package :user)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(eval-when (compile load eval) (require :socket))
-
+;; from sockets.lisp by Kevin M. Rosenberg
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  #+sbcl (require :sb-bsd-sockets)
+  #+lispworks (require "comm")
+  #+allegro (require :socket))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Global Variables 
@@ -28,9 +31,9 @@
 ;;
 ;; *andes-path* -- pathname of directory in which Andes files are installed
 ;;                 as logical pathname object
-;; In the runtime image this will be set on startup to the working directory of the
-;; Lisp process -- see top of andes-start. The workbench sets process working 
-;; directory when it launches the help system.
+;; In the runtime image this will be set on startup to the working directory 
+;; of the Lisp process -- see top of andes-start.  The workbench sets process 
+;; working directory when it launches the help system.
 
 (defun andes-path (relative-path)
 "merge relative path with *andes-dir* returning new pathname"
@@ -79,10 +82,20 @@
   (setq *andes-stop* nil) ;; so it doesn't immediately shutdown
   (if (not *andes-socket*)
       (setq *andes-socket*
+	;; see create-inet-listener in sockets.lisp by Kevin M. Rosenberg
+	#+allegro
 	(socket:make-socket :connect :passive
 	                    :backlog 1
 			    :reuse-address &andes-port&
-			    :local-port &andes-port&)))
+			    :local-port &andes-port&)
+	#+cmu (ext:create-inet-listener &andes-port&)
+	#+sbcl
+	(listen-to-inet-port :port &andes-port& :reuse &andes-port&)
+	#+clisp (ext:socket-server &andes-port&)
+	#+openmcl 
+	(ccl:make-socket :connect :passive :local-port &andes-port&
+			 :reuse-address  &andes-port&)
+	))
   (format *debug-io* "~&Opened socket: ~S~%" *andes-socket*) t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -341,7 +354,15 @@
 (defun connection-started (&key wait)
   "Checks to see if *andes-socket* has a connection request. Optionally waits until a connection is established."
   (cond
-   ((setq *andes-stream* (socket:accept-connection *andes-socket* :wait wait))
+   ((setq *andes-stream* 
+      ;; See accept-tcp-connection in sockets.lisp by Kevin M. Rosenberg
+      #+allegro (socket:accept-connection *andes-socket* :wait wait)
+      #+clisp (ext:socket-accept *andes-socket* )
+      #+sbcl
+      (when (sb-sys:wait-until-fd-usable
+	     (sb-bsd-sockets:socket-file-descriptor  *andes-socket* ) :input)
+	(sb-bsd-sockets:socket-accept  *andes-socket* ))	
+    )
     (format *debug-io* "~&Opened stream: ~S~%" *andes-stream*) 
     ;; try to close the listening socket immediately, since we only handle one 
     ;; connection -- you have to start-andes again to run another session
