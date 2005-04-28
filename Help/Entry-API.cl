@@ -154,10 +154,11 @@
 
 (defun fix-body-name (body-arg)
   "Convert atomic body name symbol read from WB arg to KB body symbol"
-  ; NB: can't use read-from-string to make symbol because now some body args from variable
-  ; dialog are not really body names & might contain spaces (e.g. |all forces|). 
-  ; instead make-symbol and intern in current package (to prevent Lisp printing with #:)
-  (intern (make-symbol (string-upcase (substitute #\_ #\- (string body-arg))))))
+  ;; NB: can't use read-from-string to make symbol because now some body args 
+  ;; from variable dialog are not really body names & might contain spaces 
+  ;; (e.g. |all forces|).  Instead, intern in current package 
+  ;; (to prevent Lisp printing with #:)
+  (intern (string-upcase (substitute #\_ #\- (string body-arg)))))
 
 ; For circuits, we have to handle defined compound component terms as arguments.
 ; E.g. if R56 is defined as (resistance (R5 R6)), then body arg sent in, say,
@@ -202,38 +203,46 @@
    "case independent comparison of symbol names"
    (string-equal (string sym1) (string sym2)))
 
-(defconstant **force-types** '(
-  (grav . WEIGHT)
-  (|Kinetic Friction| . KINETIC-FRICTION)
-  (|Static Friction| . STATIC-FRICTION)
-  ; Contact force type not used in Andes2. Replaced by APPLIED in most places,
-  ; though changed to Normal force in a couple of problems.
-  (Contact . APPLIED)
-  ; others just need case adjustment
-))
-(defconstant **vector-types** '(
-  (Acceleration . ACCEL)
-  (Ang-Acceleration . ANG-ACCEL)
-  (Position . RELATIVE-POSITION)
-  ; others just need case adjustment
-))
-(defconstant **quantity-types** '(
-  ; Most of these mappings now obsolete since workbench changed to
-  ; try to send the exact helpsys id. Just keeping them for backwards compatibility.
-  (|distance travelled| . DISTANCE)
-  (|distance between| . DISTANCE-BETWEEN) ; not used in Andes2 yet
-  (|gravitational acceleration| . GRAVITATIONAL-ACCELERATION)
-  (radius . REVOLUTION-RADIUS)
-  (spring-const . SPRING-CONSTANT)
-  (comp-dist . COMPRESSION)
-  (charge . CHARGE-ON)
-  (rate-of-current-change . CURRENT-CHANGE)
-  ;(energy . TOTAL-ENERGY)
-  ; include vector type ids as well:
-  (Acceleration . ACCEL)
-  (Ang-Acceleration . ANG-ACCEL)
-  (Position . RELATIVE-POSITION)
-))
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+ **force-types** '(
+		   (grav . WEIGHT)
+		   (|Kinetic Friction| . KINETIC-FRICTION)
+		   (|Static Friction| . STATIC-FRICTION)
+		   ;; Contact force type not used in Andes2. 
+		   ;; Replaced by APPLIED in most places,
+		   ;; though changed to Normal force in a couple of problems.
+		   (Contact . APPLIED)
+		   ;; others just need case adjustment
+		   )  #+sbcl #'equalp)
+
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+ **vector-types** '(
+		    (Acceleration . ACCEL)
+		    (Ang-Acceleration . ANG-ACCEL)
+		    (Position . RELATIVE-POSITION)
+		    ;; others just need case adjustment
+		    ) #+sbcl #'equalp)
+
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+ **quantity-types** '(
+		      ;; Most of these mappings now obsolete since workbench 
+		      ;; changed to try to send the exact helpsys id. 
+		      ;; Just keeping them for backwards compatibility.
+		      (|distance travelled| . DISTANCE)
+		      (|distance between| . DISTANCE-BETWEEN) ; not used in Andes2 yet
+		      (|gravitational acceleration| . GRAVITATIONAL-ACCELERATION)
+		      (radius . REVOLUTION-RADIUS)
+		      (spring-const . SPRING-CONSTANT)
+		      (comp-dist . COMPRESSION)
+		      (charge . CHARGE-ON)
+		      (rate-of-current-change . CURRENT-CHANGE)
+		      ;; (energy . TOTAL-ENERGY)
+		      ;; include vector type ids as well:
+		      (Acceleration . ACCEL)
+		      (Ang-Acceleration . ANG-ACCEL)
+		      (Position . RELATIVE-POSITION)
+)  #+sbcl #'equalp)
 
 ; KB potential energy type (grav-energy or spring-energy) is implicit in 
 ; type of body arguments sent from workbench (one should be planet or spring)
