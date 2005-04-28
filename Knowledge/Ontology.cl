@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ontology.cl
 ;; Collin Lynch
 ;; 2/21/2001
@@ -20,7 +20,7 @@
 ;; the first but not the only item found testing matches in the order
 ;; in which they were added to the system.
 ;;
-|#
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Params
@@ -76,10 +76,6 @@
   (setq *Ontology-PSMGroups* nil)
   (setq *Ontology-PSMClasses* nil)
   (setq *Ontology-GoalProp-Types* nil))
-
-
-
-
 
 
 ;;;;====================================================================
@@ -313,190 +309,6 @@
   (let ((s (lookup-exptype-struct exptype)))
     (when s 
         (exptype-fromWorkbench s))))
-
-#|(defun get-expression-Var (Exp)
-  "Given an expression get it's interned var symbol."
-  (func-lookup-expression-struct
-  Exp #'(lambda (s) 
-  (funcall (Expression-VarFunc S) Exp))))
-|#
-
-
-;;;---------------------------------------------------------------
-;;; Backwards Compatability.
-;;; The code here is for backwards compatabili
-;;; The following code is maintained for backwards compatability.
-;;; in time this will be phased out but I did not wish to 
-;;; destroy it quite yet.
-#|(defun errt-exp-validp (Exp)
-  "Signal an error if the exp is an invalid expression."
-  (when (not (valid-expression-p exp))
-  (error "Unrecognized Expression form ~A." Exp)))
-  |#  
-
-#|(defun lookup-exp-struct (Exp)
-  "Given an expression return the first expression that unifies with it."
-  (lookup-expression-struct exp))
-  |#
-
-#|(defun lookup-exp-type (Exp)
-  "Given an expression return the first type that unifies with it."
-  (lookup-expression-type exp))
-  |#
-
-#|(defun lookup-exp-units (Exp)
-  "Get the units of a particular expression."
-  (lookup-expression-units exp))
-  |#
-
-#|(defun lookup-exp-restrictions (Exp)
-  "Get the restrictions for a particular expression."
-  (lookup-expression-restrictions exp))
-  |#
-
-#|(defun exp-quantity-p (Exp)
-  "Is the expression a quantity?"
-  (quantity-expression-p Exp))
-  |#
-
-#|;;;------------------------------------------------------------
-  ;;; expression production.
-  ;;; When expressions are produced a make-*-exp function is 
-  ;;; defined.  This macro serves as the producer for that.
-  
-  (defun efunc-make-defun (type form fields)
-  (eval `(defun ,(efunc-make-fname type) ,(efunc-get-exptype-args fields)
-  ,`(format nil "Produce an expression of type ~A." ',type)
-  ,(efunc-make-funcbody (efunc-get-exptype-args fields) form fields))))
-  
-  
-  (defun efunc-make-funcbody (args form fields)
-  `(if ,`(efunc-check-argtypes ,args ',fields)
-  ,`(subst-bindings ,`(efunc-make-bindings ,args ',fields) ',form)
-  (error "Incorrect argument types supplied.")))
-  
-  (defun efunc-make-fname (type)
-  "Make a function name for the exptype-func."
-  (intern (format nil "make-~A-expression" type)))
-  
-  (defun efunc-get-exptype-args (fields)
-  "Get the arguments list for the func from fields."
-  (loop for F in fields 
-  collect (intern (subseq (format nil "~A" (car F)) 1))))
-  
-  (defun efunc-check-argtypes (args fields)
-  "Check the argtypes as supplied."
-  (loop for n below (length args)
-  do (pprint (nth n args))
-  always (or (not (listp (nth n args)))
-  (eq (lookup-expression-type 
-  (nth n args))
-  (cdr (nth n fields))))))
-  
-  (defun efunc-make-bindings (args fields)
-  "Make bindings for the args."
-  (unify (mapcar #'car fields) args))
-  |#
-
-#|;;; The restrictions for a given expression can
-  ;;; be a of atoms, a variable or list of variables
-  ;;; or a combination of the two.  For each var the
-  ;;; restrictions of the corresponding field will be
-  ;;; used.  
-  (defun set-exptype-restrictions (E R)
-  "Set the expression type restrictions."
-  (setf (Exptype-restrictions E)
-  (loop for Elt in (force-to-list R)
-  collect (if (variable-p Elt)
-  (func-field-lookup 
-  (exptype-restrictions 
-  (lookup-expression-fieldtype R E)))
-  Elt))))
-  |#
-
-
-#| ;;;;--------------------------------------------------------------
-   ;;;; Expression generation functions.
-   ;;;; Given an expression type and the field contents of the 
-   ;;;; expression generate a new expression of the appropriate form.
-   ;;;; The arguments to each function is the type and a list of the 
-   ;;;; contents with keywords for their name.  These will be 
-   ;;;; subsituted in as necessary.   
-   ;;;;
-   ;;;; this macro is meant to be called in order to produce the 
-   ;;;; function when the expression type is generated.  This function
-   ;;;; will then continue to exist for the remainder of the run.
-
-
-   (defmacro generate-exptype-make-func (type form fields)
-   (let* ((name (intern (string-upcase (format nil "make-~a-expression" type))))
-   (documentation (format t "Genrate a ~a expression with ~a fields"
-   type (mapcar #'car fields)))
-   (variables (mapcar #'car fields))
-   (f (pprint variables))
-   (varnames (mapcar #'strip-variable-qm variables))
-   (g (pprint varnames))
-   (keylist (cons '&key (map-cadr-quote (listpair-lists varnames variables))))
-   (h (pprint keylist))
-   (bindings (generate-bindings variables varnames))
-   (b (pprint bindings)))
-   (pprint `(list ',keylist ',variables ',varnames))))
-   ;;(defun name keylist
-   ;; documentation
-   ;; (pprint 
-   
-   ;;`(dolist (v ',varnames)
-   ;;	  (pprint v)
-   ;;  (pprint (symbol-value v))))))
-   
-   
-   (defun mkfoo (type form fields)
-   (let* ((name (intern (string-upcase (format nil "make-~a-expression" type))))
-   (documentation (format t "Genrate a ~a expression with ~a fields"
-   type (mapcar #'car fields)))
-   (variables (mapcar #'car fields))
-   (f (pprint variables))
-   (varnames (mapcar #'strip-variable-qm variables))
-   (g (pprint varnames))
-   (keylist (cons '&key (map-cadr-quote (listpair-lists varnames variables))))
-   (h (pprint keylist))
-   (bindings (generate-bindings variables varnames))
-   (b (pprint bindings)))
-   (defun name keylist
-   documentation
-   `(dolist (v varnames
-   
-   (let ((vars (mapcar #'andes-eval ',varnames)))
-   (pprint vars)
-   (pprint bar)
-   (dotimes (n (length ',variables))
-   (push (cons (nth n ',variables) ,`(nth n ',varnames)) vars))
-   (pprint vars)))))
-   
-   ;;(pprint variables)
-   ;;,bindings)))
-   (let (vars)
-   (dotimes (n (length ,variables))
-   
-   (push (cons (nth n ',variables) (nth n ',varnames)) vars))
-   (pprint vars)
-   (pprint (setq bindings (generate-bindings ',variables ',varnames)))
-   (pprint (subst-bindings bindings ',form))
-   (pprint bar)))))
-   
-   ;;       ,(subst-bindings (generate-bindings 
-   
-   
-   (defun tstbar (&optional (b '?bar))
-   (andes-eval '(generate-exptype-make-func foo (foo ?bar) ((?bar baz))))
-   (make-foo-expression :bar b))
-   
-   ;;; Given a list of the form ((<elt> <elt>)...)
-   ;;; map quote onto the cadr of each sublist.
-   (defun map-cadr-quote (Elts)
-   "Map a quote onto the cadr of each sublist."
-   (mapcar #'(lambda (l) (cons (car l) (list (list 'quote (cadr l))))) Elts))
-   |#
 
 ;;;;============================================================
 ;;;; Entry Propositions.
