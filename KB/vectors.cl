@@ -184,11 +184,11 @@
     (not (impulse ?b ?agent ?t . ?dont-care))
   )
   :effects (
-    (impulse ?b ?agent ?t ?dir-expr action)
+    (impulse ?b ?agent ?t ?dir-expr)
   ))
 
 ;; Draw a ("given") impulse at a certain direction. 
-(defoperator draw-impulse (?b ?agent ?t)
+(defoperator draw-impulse-given-dir (?b ?agent ?t)
   :specifications 
   "if you are given that there is an impulse on an object at a time
    at a certain direction,
@@ -197,7 +197,7 @@
    ((impulse ?b ?agent ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
-    ; Prefix "Fg" for "given" or "generic" impulses
+    ;; Prefix "Fg" for "given" or "generic" impulses
     (bind ?mag-var (format-sym "Fg_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir-expr ?b ?agent ?t)
@@ -206,7 +206,7 @@
    ((vector ?b (at (impulse ?b ?agent) ?t) ?dir-expr)
     (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
     (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
-    ; Ensure implicit eqn is written because dir is problem given
+    ;; Ensure implicit eqn is written because dir is problem given
     (implicit-eqn (= ?dir-var ?dir-expr) (at (dir (impulse ?b ?agent)) ?t))
    )
   :hint

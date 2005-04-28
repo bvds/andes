@@ -3993,8 +3993,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Because ~a supports ~a, draw a normal force on ~a due to ~a at an angle of ~a degrees." ?surface ?b ?b ?surface ?normal-dir))
     ))
 
-; Applied force is specified in problem statement by given force direction 
-; which may be unknown
+;; Applied force is specified in problem statement by given force direction 
+;; which may be unknown
 
 (defoperator find-applied-force (?b ?agent ?t)
   :preconditions (
@@ -4008,7 +4008,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (force ?b ?agent applied ?t ?dir-expr action)
   ))
 
-; Draw a applied ("given") force at a certain direction. 
+;; Draw a applied ("given") force at a certain direction. 
 (defoperator draw-applied-force (?b ?agent ?t)
   :specifications 
   "if you are given that there is an applied force on an object at a time
@@ -4035,22 +4035,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Use the force drawing tool to draw the applied force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir-expr))
     ))
 
-; draw-applied-force-unknown-dir -- would be needed if wanted to
-; solve for the angle of an applied force -- reasonable, but
-; not currently used in any of our problems.
+;; draw-applied-force-unknown-dir -- would be needed if wanted to
+;; solve for the angle of an applied force -- reasonable, but
+;; not currently used in any of our problems.
 
-; draw kinetic friction force on ?b due to ?surface
-; requires a (slides-against ?surface ?b ?t) statement in the problem 
-; This form is only to be used where there is a frictional interaction, 
-; just leave it out for frictionless contact.
-; ! might still want to include "frictionless/frictional" tag somewhere
-; to explicitly indicate when friction is to be neglected (helpsys might use).
-; This only handles friction for objects given to be in straight
-; line motion in known direction. We could add another version for object given
-; in curved motion. We could also change to derive direction from the velocity 
-; vector direction instead. This would be a more general rule; however, as 
-; operators are structured now this would require a step of drawing the 
-; velocity vector before you could draw the friction direction.
+;; draw kinetic friction force on ?b due to ?surface
+;; requires a (slides-against ?surface ?b ?t) statement in the problem 
+;; This form is only to be used where there is a frictional interaction, 
+;; just leave it out for frictionless contact.
+;; ! might still want to include "frictionless/frictional" tag somewhere
+;; to explicitly indicate when friction is to be neglected (helpsys might use).
+;; This only handles friction for objects given to be in straight
+;; line motion in known direction. 
+;; We could add another version for object given in curved motion. 
+;; We could also change to derive direction from the velocity 
+;; vector direction instead. This would be a more general rule; however, as 
+;; operators are structured now this would require a step of drawing the 
+;; velocity vector before you could draw the friction direction.
 (defoperator find-kinetic-friction-force (?b ?surface ?t)
   :preconditions (
     (object ?b)
