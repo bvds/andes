@@ -215,7 +215,6 @@
 ;;; (bgnode-p <Node>) -- t iff <Node> is a qnode or Enode.
 ;;; (form-print-node <Node> &optional <form>)  -- Form print an arbitrary node.
 ;;; (bgnode-dead-pathp <Node>)    -- Test for <Node_Type>-dead-pathp
-;;; (Bgnode-optimal-pathp <Node>) -- Test for <Node_Type>-Optimal-Pathp
 ;;; (bgnode-entries <Node>)       -- <Node_Type>-Entries.
 ;;; (bgnode-exp <Node>)           -- Qnode-Exp or Enode-ID (by type).
 ;;; (bgnode-path <Node>)          -- Get the bgnode's path.
@@ -951,18 +950,9 @@
 ;;; Return t iff the specified 
 ;;; BGNode is marked dead-path.
 (defun bgnode-dead-pathp (Node)
-  (or (and (Qnode-P Node)
-	   (Qnode-Dead-pathp Node))
-      (Enode-Dead-pathp Node)))
-
-
-;;; Return t iff the specified 
-;;; BGNode is marked Optimal-Path.
-(defun Bgnode-optimal-pathp (Node)
-  (or (and (Qnode-P Node)
-	   (qnode-dead-pathp Node))
-      (Enode-dead-pathp Node)))
-
+  (if (Qnode-P Node)
+      (Qnode-Dead-pathp Node)
+    (Enode-Dead-pathp Node)))
 
 ;;; Given an arbitrary bgnode collect
 ;;; the set of Systementries from it.
