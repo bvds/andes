@@ -751,8 +751,13 @@
 						   ?t-s ?t-o)
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift")
-  :ExpFormat ("using formula for doppler frequency")
-  :EqnFormat ("fo=fs*(vw±vo)/(vw±vs))")) 
+  :ExpFormat ("using formula for doppler frequency"))
+
+;; A hack to include the plus-minus character in the equation
+;; using only standard characters.
+(setf (equation-EqnFormat (lookup-name->equation 'doppler-frequency)) 
+  (list (format nil "fo=fs*(vw~Avo)/(vw~Avs)" 
+		(code-char 177) (code-char 177) )))
 
 ;;; velocities should be constant over the interval.  
 ;;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
@@ -799,9 +804,8 @@
    (variable ?fo (at (observed-frequency ?source ?observer) ?t-o))
    ;; vector from observer to source
    ;; BvdS:  this is 180 deg off from phi in my notes
-   ;; BvdS:  maybe want to specify that this is a given so
+   ;; BvdS:  maybe want to specify that this is as a given so
    ;; that students don't have to draw the vector
-   ;; alternatively, figure out how to make r_ab = -r_ba work.
    ;;
    ;; (variable ?phi (at (dir (relative-position ?source ?observer)) ?t-o))
    (given (at (dir (relative-position ?source ?observer)) ?t-o) ?phi)
