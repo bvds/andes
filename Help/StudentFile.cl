@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; StudentFile.cl -- routines to suport load save and modification of student information
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;; Author(s):
@@ -13,14 +13,14 @@
 ;;    Specifying the :Data keyword specifies an alternate location for the incoming data
 ;;     other than the default **Studentfile** location.
 ;; NOTES: example usage at end of file
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defparameter **StudentFile** nil)
 (defparameter **StudentFileName** nil)
 
 (defun StudentFile-name (name &key (Explicit Nil))
   (setf **StudentFileName** 
     (if Explicit Name
-      (format nil "~A~A.dat" (andes-path "Log/") name))))
+      (andes-path (format nil "Log/~A.dat" name)))))
 
 (defun StudentFile-load (name &key (Explicit Nil))
   (StudentFile-name name :Explicit Explicit)
