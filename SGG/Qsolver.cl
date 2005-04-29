@@ -533,7 +533,7 @@
 (defun push-history (item state)
   "Adds the given item to the given states' history list"
   (if (not (groundp item))
-      (cerror "Ignore" "Adding non-ground op inst identifier to history" item))
+      (cerror "Ignore" "Adding non-ground ~A to history" item))
   (pushnew item (st-history state) :test #'equalp))
 
 (defun push-binding (variable value state)

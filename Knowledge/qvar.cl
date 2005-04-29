@@ -191,7 +191,7 @@
   (loop for V in Vars
       when (match-var->qvar (cadr V) Qvars)
       collect it
-      else do (error "Unrecognized variable supplied." V)))
+      else do (error "Unrecognized variable ~A supplied." V)))
 
 (defun collect-indicies->qvars (Indicies Vars)
   "Given a list of indicies and a list of vars collect the specified vars."

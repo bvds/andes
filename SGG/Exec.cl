@@ -150,7 +150,7 @@
   (let ((Term (second Ex))
 	(TermSet (subst-bindings (st-bindings State) (third Ex)))
         (bindings)  (NewState)  (successors))
-    (unless (listp TermSet) (error "Non-list given to any member" TermSet))
+    (unless (listp TermSet) (error "Non-list ~A given to any member" TermSet))
     (dolist (Value TermSet)
       (when (setq bindings (unify Term Value (st-bindings State)))
 	(setq NewState (copy-st State))      

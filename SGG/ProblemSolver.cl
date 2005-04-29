@@ -642,15 +642,16 @@
 
 
 ;; Note the dangling links in this function need to be fixed at some point.
+#|
 (defun diff-problem-solution (ProblemName)
   "Run a diff on the problem solution."
   (when (not (Problem-file-exists ProblemName))
     (error "The specified problem for diff does not exist."))
   (problem-solutions-equalp
-   (solve-problem P)
+   (solve-problem P)   ;BvdS:  what is P?
    (read-problem-file 
     (format nil "~A" ProblemName))))
-
+|#
 
 
 

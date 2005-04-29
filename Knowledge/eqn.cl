@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Eqn.cl
 ;; Collin Lynch
 ;; 2/7/2001
@@ -11,7 +11,6 @@
 ;; A bubblegraph itself is a list of the form 
 ;; (<Qnodes> <Enodes> <Vars> <Eqns>) where: 
 ;; 
-|#
 
 ;;==============================================================
 ;; Equation structs are used to catalog the equation elements
@@ -249,7 +248,7 @@
   (loop for E in Equations
       when (find-algebra->eqn (cadr E) Eqns)
       collect it
-      else do (error "Unrecognized Equation supplied." E)))
+      else do (error "Unrecognized Equation ~A supplied." E)))
   
 
 
