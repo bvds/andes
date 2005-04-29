@@ -202,8 +202,8 @@
 	    :Varfunc varfunc
 	    ; if supplied, arg should be body of fn to be called with these args
 	    :fromWorkbench (when fromWorkbench
-	                     `(lambda (subtype body body2 time) 
-	                          ,fromWorkbench))
+	                     (coerce `(lambda (subtype body body2 time) 
+	                                   ,fromWorkbench) 'function))
 	    :english english)))
     (postpend *Ontology-ExpTypes* E)
     E))
