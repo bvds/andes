@@ -527,15 +527,6 @@ consed on if lists or as list otherwize."
     (setq start (+ inc end))))
       
 
-(defun get-separator-loc (String Cap &optional (Loc 0) &key (separators '(#\space)))
-  "Get the justification location for the string."
-  (let ((val (position-if #'(lambda (x) (member x separators))
-			  String :from-end t :start Loc 
-			  :end (min (length String) (+ Loc Cap)))))
-    (cond (val (+ 1 val))
-	  ((<= (+ Loc Cap) (length String)) (+ Loc Cap))
-	  (t (length String)))))
-  
 ;;--------------------------------------------------------------------
 ;; refence counting storage is used for storing some elements in the
 ;; help system to prevent useless memory explosion.
