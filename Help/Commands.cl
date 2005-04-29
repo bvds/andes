@@ -354,14 +354,14 @@
 ;;  entry status return value -- see end of code for description of this
 ;; note(s):
 ;;  add a variable for the radius to the list of variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun label-radius (label id name)
  (handle-non-eq (on-label-radius label id name)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-variable - define a variable to stand for a certain quantity. this is
-;;  called when the student uses the "variable" menu, but not when variables are
-;;  defined by other tools such as the force drawing tool or the body tool.
+;;  called when the student uses the "variable" menu, but not when variables 
+;;  are defined by other tools such as the force drawing tool or the body tool.
 ;; argument(s):
 ;;  var: the variable assigned to the object
 ;;  type: depends on the value of quant (below) --
@@ -385,12 +385,12 @@
 ;;  if the variable definition is correct, marks the corresponding system entry
 ;;  as "entered" and enters the student's variable name into the symbol table
 ;;  paired with the corresponding system variable
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun define-variable (var type quant body time agent id &optional directionp)
   (handle-non-eq
    (on-define-variable var type quant body time agent id directionp)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-x-axis - check correctness of coordinate axis drawn by student
 ;; argument(s):
 ;;  body: the label given to the body the axis applies to

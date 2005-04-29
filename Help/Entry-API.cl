@@ -268,140 +268,142 @@
    (zc	 (vector-zc vector-term))
    (otherwise vector-term)))
 
-; make-quant -- Build a quantity expr from define-variable arg list. 
-; Note args come in workbench form. They should be converted to helpsys
-; form before the case. 
-;
-; Prior to Andes 5.0* students could define vector variables without drawing
-; them, so could also specify vector quantities this way. We handle these
-; also because this argument list will also be used to send quantity choice 
-; responses, even though define-variable won't send them. 
-; optional prop is vector attribute to use, 
+;;; make-quant -- Build a quantity expr from define-variable arg list. 
+;;; Note args come in workbench form. They should be converted to helpsys
+;;; form before the case. 
+;;;
+;;; Prior to Andes 5.0* students could define vector variables without drawing
+;;; them, so could also specify vector quantities this way. We handle these
+;;; also because this argument list will also be used to send quantity choice 
+;;; responses, even though define-variable won't send them. 
+;; optional prop is vector attribute to use, 
 (defun make-quant (type quant body body2 time &optional (prop 'mag))
- (let* ((quant-type (arg-to-id **quantity-types** quant))
-	(subtype    (if (eq quant-type 'force) (arg-to-id **force-types** type)
-	              (arg-to-id **quantity-types** type)))
-        (time-term  (arg-to-time time))
-	(body-term  (arg-to-body body))
-	(body2-term (arg-to-body body2))
-	(fromWorkbench-fn (lookup-exptype-fromWorkbench quant-type)))
- ; if quantity has registered a fromWorkbench handler in ontology, just use that
- (when fromWorkbench-fn
-    (return-from make-quant 
-       (apply fromWorkbench-fn (list subtype body-term body2-term time-term))))
-
- ; else use forms coded here. These blocks could be moved to ontology, but generally
- ; use that for simple translations, and leave more involved code here.
- (case quant-type
-  ; scalar quantities:
-  (work        ; work may be net work, work-nc, or work by an agent
-               (cond ((or (null body2-term) (string-equal body2-term '|all forces|))
-	                    `(at (net-work ,body-term) ,time-term))
-		     ((or (string-equal body2-term '|nonconservative|)
-			  ; NB: arg-to-body converts hyphen in '|non-conservative forces|
-		          (string-equal body2-term '|non_conservative forces|)) 
-	                    `(at (work-nc ,body-term) ,time-term))
-	             (T     `(at (work ,body-term ,body2-term) ,time-term))))
-  (power       ; may be net power or power from an agent
-               (if (or (null body2-term) (string-equal body2-term '|all forces|)) 
-	             `(at (net-power ,body-term) ,time-term)
-	         `(at (power ,body-term ,body2-term) ,time-term)))
-  (energy      (case subtype
-                  (total   `(at (total-energy ,body-term) ,time-term))
-                  (kinetic `(at (kinetic-energy ,body-term) ,time-term))
-		  ; new style:
-		  ; Change 9.0.2: add agent slot to PE quants
-		  (electric `(at (electric-energy ,body-term ,body2-term) ,time-term))
-		  (gravitational `(at (grav-energy ,body-term ,body2-term) ,time-term))
-		  (elastic   `(at (spring-energy ,body-term ,body2-term) ,time-term))
-		  ; old style: same subtype was sent for all types of P.E:
+  (let* ((quant-type (arg-to-id **quantity-types** quant))
+	 (subtype    (if (eq quant-type 'force) (arg-to-id **force-types** type)
+		       (arg-to-id **quantity-types** type)))
+	 (time-term  (arg-to-time time))
+	 (body-term  (arg-to-body body))
+	 (body2-term (arg-to-body body2))
+	 (fromWorkbench-fn (lookup-exptype-fromWorkbench quant-type)))
+    ;; if quantity has registered a fromWorkbench handler in ontology, 
+    ;; just use that
+    (when fromWorkbench-fn
+      (return-from make-quant 
+	(apply fromWorkbench-fn (list subtype body-term body2-term time-term))))
+    
+    ;; else use forms coded here. These blocks could be moved to ontology, 
+    ;; but generally use that for simple translations, and 
+    ;; leave more involved code here.
+    (case quant-type
+      ;; scalar quantities:
+      (work				; work may be net work, work-nc, or work by an agent
+       (cond ((or (null body2-term) (string-equal body2-term '|all forces|))
+	      `(at (net-work ,body-term) ,time-term))
+	     ((or (string-equal body2-term '|nonconservative|)
+		  ;; NB: arg-to-body converts hyphen in '|non-conservative forces|
+		  (string-equal body2-term '|non_conservative forces|)) 
+	      `(at (work-nc ,body-term) ,time-term))
+	     (T     `(at (work ,body-term ,body2-term) ,time-term))))
+      (power				; may be net power or power from an agent
+       (if (or (null body2-term) (string-equal body2-term '|all forces|)) 
+	   `(at (net-power ,body-term) ,time-term)
+	 `(at (power ,body-term ,body2-term) ,time-term)))
+      (energy      (case subtype
+		     (total   `(at (total-energy ,body-term) ,time-term))
+		     (kinetic `(at (kinetic-energy ,body-term) ,time-term))
+		     ;; new style:
+		     ;; Change 9.0.2: add agent slot to PE quants
+		     (electric `(at (electric-energy ,body-term ,body2-term) ,time-term))
+		     (gravitational `(at (grav-energy ,body-term ,body2-term) ,time-term))
+		     (elastic   `(at (spring-energy ,body-term ,body2-term) ,time-term))
+		     ;; old style: same subtype was sent for all types of P.E:
                   (potential 
-		   ; URGH, whether PE is elastic or gravitational can only be
-	           ; determined by type of body (spring or planet). .
-		   ; Also allow args in any order. Prefer grav if they include 
-		   ; planet. 
-		    (cond ((planetp body2-term) 
-                              `(at (grav-energy ,body-term) ,time-term))
-			  ((planetp body-term) 
-                              `(at (grav-energy ,body2-term) ,time-term))
-		          ((springp body2-term)
-	                      `(at (spring-energy ,body-term) ,time-term))
-		          ((springp body-term)
-			      `(at (spring-energy ,body2-term) ,time-term))
-		          (T ; no planet or spring! Use grav, it always exists.
-			     ; include both terms so error handlers can detect
-			      `(at (grav-energy (,body-term ,body2-term)) ,time-term)))
-	          )))
-  (coef-friction  ; !!!student has to get body args in right order:
-	      (if (null subtype) `(coef-friction ,body-term ,body2-term static)
-              `(coef-friction ,body-term ,body2-term ,subtype)))
-  (voltage    (case subtype
-                  (across ; body-term may come here as (resistance (a b c)) for equiv.
+		   ;; URGH, whether PE is elastic or gravitational can only be
+	           ;; determined by type of body (spring or planet). .
+		   ;; Also allow args in any order. Prefer grav if they include 
+		   ;; planet. 
+		   (cond ((planetp body2-term) 
+			  `(at (grav-energy ,body-term) ,time-term))
+			 ((planetp body-term) 
+			  `(at (grav-energy ,body2-term) ,time-term))
+			 ((springp body2-term)
+			  `(at (spring-energy ,body-term) ,time-term))
+			 ((springp body-term)
+			  `(at (spring-energy ,body2-term) ,time-term))
+			 (T		; no planet or spring! Use grav, it always exists.
+					; include both terms so error handlers can detect
+			  `(at (grav-energy (,body-term ,body2-term)) ,time-term)))
+		   )))
+      (coef-friction			; !!!student has to get body args in right order:
+       (if (null subtype) `(coef-friction ,body-term ,body2-term static)
+	 `(coef-friction ,body-term ,body2-term ,subtype)))
+      (voltage    (case subtype
+		    (across		; body-term may come here as (resistance (a b c)) for equiv.
 		     (if (atom body-term) `(at (voltage-across ,body-term) ,time-term)
                        `(at (voltage-across ,(second body-term)) ,time-term)))
-		  (otherwise ; no longer used
-		       	   `(at (voltage-btwn ,body-term ,body2-term) ,time-term))))
-  (current     (case subtype
-		   (through  ; body-term may come here as (resistance a b c) for equiv.
+		    (otherwise		; no longer used
+		     `(at (voltage-btwn ,body-term ,body2-term) ,time-term))))
+      (current     (case subtype
+		     (through		; body-term may come here as (resistance a b c) for equiv.
 		      (if (atom body-term) `(at (current-thru ,body-term)  ,time-term)
-                         `(at (current-thru ,(second body-term))  ,time-term)))
-                   ;(at       `(at (current-at ,body-term) ,time-term))
-		   (in        `(at (current-in ,body-term)  ,time-term))))
-  (resistance  ; body-term may come here as (compound a b c) for equivalent resistance
-               (if (atom body-term) `(resistance ,body-term)
-                `(resistance ,(cdr body-term))))
-  (capacitance ; body-term may come here as (compound a b c) for equivalent capacitance
-               (if (atom body-term) `(capacitance,body-term)
-                `(capacitance ,(cdr body-term))))
-  
-  ;
-  ; vector quantities -- form appropriate prop (mag or dir or compo)
-  ;
-  ((relative-position position) ; include workbench type id to be safe
-                (vec-prop prop `(at (relative-position ,body-term ,body2-term) 
-                                    ,time-term)))
-  (relative-vel (vec-prop prop `(at (relative-vel ,body-term ,body2-term) 
-                                    ,time-term)))
-  (E-field      (vec-prop prop 
-                   (if (or (null body2-term) (string-equal body2-term '|all sources|))
-                        `(at (net-field ,body-term electric) ,time-term)
-                    `(at (field ,body-term electric ,body2-term) ,time-term))))
-  (B-field      (vec-prop prop 
-                   (if (or (null body2-term) (string-equal body2-term '|all sources|))
-                        `(at (net-field ,body-term magnetic) ,time-term)
-                    `(at (field ,body-term magnetic ,body2-term) ,time-term))))
-  (displacement (vec-prop prop `(at (displacement ,body-term) ,time-term)))
-  (velocity     (vec-prop prop `(at (velocity ,body-term) ,time-term)))
-  ((accel acceleration) ; include workbench type id to be safe
-                (vec-prop prop `(at (accel ,body-term) ,time-term)))
-  (force        (vec-prop prop 
-                  (if (eq subtype 'Net) 
-                      `(at (net-force ,body-term) ,time-term)
-                   `(at (force ,body-term ,body2-term ,subtype) ,time-term))))
-  (momentum     (vec-prop prop `(at (momentum ,body-term) ,time-term)))
-  ((ang-accel ang-acceleration) ; include workbench type id to be safe
-                (vec-prop prop `(at (ang-accel ,body-term) ,time-term)))
-  (ang-velocity (vec-prop prop `(at (ang-velocity ,body-term) ,time-term)))
-  (ang-displacement 
-                (vec-prop prop `(at (ang-displacement ,body-term) ,time-term)))
-  (ang-momentum (vec-prop prop `(at (ang-momentum ,body-term) ,time-term)))
-  (torque       (vec-prop prop 
-                  (if (eq subtype 'net) 
-		       `(at (net-torque ,body-term ,body2-term) ,time-term)
-                   (find-torque-term body-term body2-term))))
-  ; unknown:
-  (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
-                          quant-type)
-               ; what the hey, give it our best shot:
-	       (timeify time-term 
-	              (if body2-term `(,quant-type ,body-term ,body2-term) 
-                           `(,quant-type ,body-term))))
- )))
+			`(at (current-thru ,(second body-term))  ,time-term)))
+					;(at       `(at (current-at ,body-term) ,time-term))
+		     (in        `(at (current-in ,body-term)  ,time-term))))
+      (resistance			; body-term may come here as (compound a b c) for equivalent resistance
+       (if (atom body-term) `(resistance ,body-term)
+	 `(resistance ,(cdr body-term))))
+      (capacitance			; body-term may come here as (compound a b c) for equivalent capacitance
+       (if (atom body-term) `(capacitance,body-term)
+	 `(capacitance ,(cdr body-term))))
+      
+      ;;
+      ;; vector quantities -- form appropriate prop (mag or dir or compo)
+      ;;
+      ((relative-position position)	; include workbench type id to be safe
+       (vec-prop prop `(at (relative-position ,body-term ,body2-term) 
+			   ,time-term)))
+      (relative-vel (vec-prop prop `(at (relative-vel ,body-term ,body2-term) 
+					,time-term)))
+      (E-field      (vec-prop prop 
+			      (if (or (null body2-term) (string-equal body2-term '|all sources|))
+				  `(at (net-field ,body-term electric) ,time-term)
+				`(at (field ,body-term electric ,body2-term) ,time-term))))
+      (B-field      (vec-prop prop 
+			      (if (or (null body2-term) (string-equal body2-term '|all sources|))
+				  `(at (net-field ,body-term magnetic) ,time-term)
+				`(at (field ,body-term magnetic ,body2-term) ,time-term))))
+      (displacement (vec-prop prop `(at (displacement ,body-term) ,time-term)))
+      (velocity     (vec-prop prop `(at (velocity ,body-term) ,time-term)))
+      ((accel acceleration)		; include workbench type id to be safe
+       (vec-prop prop `(at (accel ,body-term) ,time-term)))
+      (force        (vec-prop prop 
+			      (if (eq subtype 'Net) 
+				  `(at (net-force ,body-term) ,time-term)
+				`(at (force ,body-term ,body2-term ,subtype) ,time-term))))
+      (momentum     (vec-prop prop `(at (momentum ,body-term) ,time-term)))
+      ((ang-accel ang-acceleration)	; include workbench type id to be safe
+       (vec-prop prop `(at (ang-accel ,body-term) ,time-term)))
+      (ang-velocity (vec-prop prop `(at (ang-velocity ,body-term) ,time-term)))
+      (ang-displacement 
+       (vec-prop prop `(at (ang-displacement ,body-term) ,time-term)))
+      (ang-momentum (vec-prop prop `(at (ang-momentum ,body-term) ,time-term)))
+      (torque       (vec-prop prop 
+			      (if (eq subtype 'net) 
+				  `(at (net-torque ,body-term ,body2-term) ,time-term)
+				(find-torque-term body-term body2-term))))
+      ;; unknown:
+      (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
+			   quant-type)
+		   ;; what the hey, give it our best shot:
+		   (timeify time-term 
+			    (if body2-term `(,quant-type ,body-term ,body2-term) 
+			      `(,quant-type ,body-term))))
+      )))
 
 (defun timeify (time-term quant-expr)
-"Add optional time to quant-expr, returning expr unchanged if time=NIL"
-   (if time-term `(at ,quant-expr ,time-term)
-      quant-expr))
+  "Add optional time to quant-expr, returning expr unchanged if time=NIL"
+  (if time-term `(at ,quant-expr ,time-term)
+    quant-expr))
 
 ;;
 ;; Answer box identifiers
