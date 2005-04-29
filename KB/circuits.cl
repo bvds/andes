@@ -2,6 +2,33 @@
 ;;; means the potential(PtB)-Potential(PtA)
 ;;; (current R1) means from PtA to PtB
 
+;; BvdS:  This file contains some pretty ugly lisp code!
+;;        Here is a Band-aid:
+(defvar ?a)
+(defvar ?b)
+(defvar ?d)
+(defvar ?new)
+(defvar ?res)
+(defvar ?x)
+(defvar ?y)
+(defvar ?z)
+(defvar ?len)
+(defvar a)
+(defvar ans)
+(defvar b)
+(defvar done)
+(defvar temp)
+(defvar np)
+(defvar loc)
+(defvar len)
+(defvar lr)
+(defvar fans)
+(defvar fr)
+(defvar sm)
+(defvar w)
+(defvar x)
+(defvar y)
+(defvar z)
 
 ;;; FUNCTIONS
 ; is ?x is (R_1  2  3) it returns the symbol R_123

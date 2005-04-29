@@ -2836,7 +2836,7 @@
     (format nil "You used ~a, which is the MAGNITUDE of ~a.  Is that what you intended?"
 	    (nlg svar 'algebra) (nlg vector 'def-np))
     (format nil  "Instead of the magnitude, perhaps you should use the component along an axis."
-	    (nlg svar 'algebra)))))
+	   ))))
 
 
 ;;; ============== trig & projection errors ====================================
@@ -3674,7 +3674,7 @@
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined. Since only differences in height are relevant to changes in energy, this value is not needed for the solution. Include an equation determining the difference between heights (h2-h1 = ...) and the 'Solve For' command should be able compute the final answer anyway. Use the lightbulb for hints on such a solution." studvar (nlg quant) studvar) 
+        (format nil "Because this problem does not stipulate a zero-level, the numerical value of ~A, ~A, is not defined. Since only differences in height are relevant to changes in energy, this value is not needed for the solution. Include an equation determining the difference between heights (h2-h1 = ...) and the 'Solve For' command should be able compute the final answer anyway. Use the lightbulb for hints on such a solution." studvar (nlg quant)) 
    ))))
 
 
