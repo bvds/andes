@@ -193,9 +193,9 @@
 ;;; prerequisite steps for defining the required variable; for example, 
 ;;; if the quantity is a vector magnitude the vector would have to be drawn.
 ;;;
-;;; Since the main top-level driver never searches for ways to determine givens,
-;;; there is currently no problem-solving goal in the main search that will 
-;;; cause this operator to be invoked. As a separate step, the top-level 
+;;; Since the main top-level driver never searches for ways to determine 
+;;; givens, there is currently no problem-solving goal in the main search that 
+;;; will cause this operator to be invoked. As a separate step, the top-level 
 ;;; driver can invoke the problem solver to achieve the goal of writing an 
 ;;; equation for each of the givens.  The top-level has to go through the
 ;;; solver for this simple step because the operators encode the knowledge 
@@ -207,8 +207,8 @@
     and write an equation giving its value"
   :preconditions 
   ((in-wm (given ?quantity ?value-expr))
-					; Make sure expression is usable in equation, not special atom. 
-					; Assume if a list its an algebraic expression
+   ;; Make sure expression is usable in equation, not special atom. 
+   ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
    (variable ?var-name ?quantity))
   :effects 
@@ -855,7 +855,7 @@
   ))
 
 
-; !!! this doesn't actually work:
+;; !!! this doesn't actually work:
 (defoperator compo-z-axis-unknown (?compo-var)
   :preconditions
   ((in-wm (variable ?compo-var (at (compo z 0 ?vector) ?t)))
@@ -948,33 +948,39 @@
   ))
 
 (defoperator write-projection (?vector ?t ?xy ?rot)
-  :preconditions (
-    ; Projection normally doesn't draw a body. projection-body stmt in problem
-    ; gets alt version that does. Used to draw body in projection-only problem.
-    (not (projection-body ?problem-body ?problem-time)) 
+  :preconditions 
+  (
+   ;; Projection normally doesn't draw a body. projection-body stmt in problem
+   ;; gets alt version that does. Used to draw body in projection-only problem.
+   (not (projection-body ?problem-body ?problem-time)) 
    
-    ; have to make sure compo variable is defined (which requires drawing
-    ; vector and axes), since the projection writing operators that do
-    ; the work are written to assume it is already in wm as a result of
-    ; drawing a vector diagram for a standard vector-psm.
-    (variable ?compo-var (at (compo ?xy ?rot ?vector) ?t))
-    ; then use existing operators to write projection equation:
-    (eqn (= ?compo-var ?proj) (projection (at (compo ?xy ?rot ?vector) ?t)))
-  ) :effects (
-    ; exact copy of an existing equation is a simple case of a derived eqn.
-    (derived-eqn (= ?compo-var ?proj) (proj (at (compo ?xy ?rot ?vector) ?t)))
-  ))
+   ;; have to make sure compo variable is defined (which requires drawing
+   ;; vector and axes), since the projection writing operators that do
+   ;; the work are written to assume it is already in wm as a result of
+   ;; drawing a vector diagram for a standard vector-psm.
+   (variable ?compo-var (at (compo ?xy ?rot ?vector) ?t))
+   ;; then use existing operators to write projection equation:
+   (eqn (= ?compo-var ?proj) (projection (at (compo ?xy ?rot ?vector) ?t)))
+   ) 
+  :effects 
+  (
+   ;; exact copy of an existing equation is a simple case of a derived eqn.
+   (derived-eqn (= ?compo-var ?proj) (proj (at (compo ?xy ?rot ?vector) ?t)))
+   ))
 
 (defoperator write-projection-with-body (?vector ?t ?xy ?rot)
-  :preconditions (
-    ; alt body-drawing version of write-projection, enabled by stmt in problem
-    (in-wm (projection-body ?problem-body ?dont-care)) 
-    (body ?problem-body)
-    (variable ?compo-var (at (compo ?xy ?rot ?vector) ?t))
-    (eqn (= ?compo-var ?proj) (projection (at (compo ?xy ?rot ?vector) ?t)))
-  ) :effects (
-    (derived-eqn (= ?compo-var ?proj) (proj (at (compo ?xy ?rot ?vector) ?t)))
-  ))
+  :preconditions 
+  (
+   ;; alt body-drawing version of write-projection, enabled by stmt in problem
+   (in-wm (projection-body ?problem-body ?dont-care)) 
+   (body ?problem-body)
+   (variable ?compo-var (at (compo ?xy ?rot ?vector) ?t))
+   (eqn (= ?compo-var ?proj) (projection (at (compo ?xy ?rot ?vector) ?t)))
+   ) 
+  :effects 
+  (
+   (derived-eqn (= ?compo-var ?proj) (proj (at (compo ?xy ?rot ?vector) ?t)))
+   ))
 
 ;;; =============================== axes =========================
 ;;; Although the axis-drawing code is only called from vector-diagram
@@ -1023,8 +1029,8 @@
    (assume axis-for ?b y 90)
   )
   :hint
-  (;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
-   ;(teach (string "When you don't have any vectors in the x-y plane with which to align your coordinate system, you might as well draw a standard horizontal-vertical coordinate system."))
+  (;;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
+   ;;(teach (string "When you don't have any vectors in the x-y plane with which to align your coordinate system, you might as well draw a standard horizontal-vertical coordinate system."))
    (teach (string "In this problem there is no strong reason not to use a standard horizontal-vertical coordinate system."))
    (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
    ))
@@ -1066,13 +1072,14 @@
    (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
    ))
 
-; draw-compo-form axis only applies once to draw axes within a given call to
-; the problem solver, registering those as the "axes-for" vectors on some
-; original body. Following operator reports the standard axes as the "axes-for" 
-; vectors on *another* body in case draw-compo-form axis has already been called
-; to draw the axes.  This is needed in at least one case where we give the
-; equality between components of two vectors on different bodies, and need
-; to define compo vars for each via draw-compo2, hence need an axis for each.
+;; draw-compo-form axis only applies once to draw axes within a given call to
+;; the problem solver, registering those as the "axes-for" vectors on some
+;; original body. Following operator reports the standard axes as the 
+;; "axes-for" vectors on *another* body in case draw-compo-form axis has 
+;; already been called to draw the axes.  This is needed in at least one case 
+;; where we give the equality between components of two vectors on different 
+;; bodies, and need to define compo vars for each via draw-compo2, 
+;; hence need an axis for each.
 (defoperator reuse-compo-form-axes (?b)
 :effects (
    (axis-for ?b x 0) (axis-for ?b y 90)
@@ -1109,19 +1116,19 @@
 ))
 
 
-; following draws standard axes because we are interested in z components for
-; rotational problems.  currently if we are interested in z components we 
-; never use x and y components, so we don't achieve those goals here.
+;; following draws standard axes because we are interested in z components for
+;; rotational problems.  currently if we are interested in z components we 
+;; never use x and y components, so we don't achieve those goals here.
 (defoperator draw-unrotated-axes-for-zcomps ()
   :specifications 
    "If  there are no vectors with numerical directions,
    then draw unrotated coordinate axes"
   :preconditions (
-    ; AW: Feb 2004: don't apply this if component form, since changed 
-    ; draw-comp-form-axes to handle that case
+    ;; AW: Feb 2004: don't apply this if component form, since changed 
+    ;; draw-comp-form-axes to handle that case
     (not (component-form))
-    ; don't draw axis for system part if system axis already chosen
-    ; use-system-axes will choose axes in this case.
+    ;; don't draw axis for system part if system axis already chosen
+    ;; use-system-axes will choose axes in this case.
     (not (axis-for ?sys ?dontcare1 ?dontcare2)
          (part-of-sys ?b ?sys))
     )
@@ -1172,15 +1179,15 @@
        and there are any vectors on that body drawn at known angles
    then draw coordinate axes so that one of them is alligned with ?vector,"
   :preconditions (
-   ; don't rotate axes if components are sought:
+   ;; don't rotate axes if components are sought:
    (not (component-form))
-   ; don't draw axis for system part if system axis already chosen
-   ; use-system-axes will choose axes in this case.
+   ;; don't draw axis for system part if system axis already chosen
+   ;; use-system-axes will choose axes in this case.
    (not (axis-for ?sys ?dontcare1 ?dontcare2)
         (part-of-sys ?b ?sys))
-   ; (test (atom ?b))	; only for atomic bodies
+   ;; (test (atom ?b))	; only for atomic bodies
    (setof (in-wm (vector ?b (at ?vector ?t) ?dir)) ?dir ?dirs)
-   ; add 0 so standard axes always an option:
+   ;; add 0 so standard axes always an option:
    (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
    (any-member ?x-rotation ?min-dirs)
    (bind ?y-rotation (+ ?x-rotation 90))
@@ -1224,10 +1231,10 @@
     (assume axis-for ?b y ?y-rotation)
     (axis-for ?b z 0)			;z-axis always has zero tilt (really = out-of).
   )
-  ; no point to hints since no entry made by this operator
-  ; :hint
-  ;((point (string "You already have an axis for the system containing ~a." ?b))
-  ; (teach (string "If you already have defined axes for a system of bodies, and you want axes for one of its constitutents, then the math is generally simpler if you use the same coordinate system.")))
+  ;; no point to hints since no entry made by this operator
+  ;; :hint
+  ;;((point (string "You already have an axis for the system containing ~a." ?b))
+  ;; (teach (string "If you already have defined axes for a system of bodies, and you want axes for one of its constitutents, then the math is generally simpler if you use the same coordinate system.")))
    )
 
 ;;; =================== defining component variables =============
@@ -3835,8 +3842,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
        define a magnitude variable and an direction variable for it."
   :preconditions
    ( (object ?b)
-    ; !!! cheap hack: for now, cm identified by special atom. 
-    ; Better would be term (cm-of body) or relation (is-cm-of part body)
+    ;; !!! cheap hack: for now, cm identified by special atom. 
+    ;; Better would be term (cm-of body) or relation (is-cm-of part body)
     (in-wm (part-of cm ?b))
     (time ?t)
     (not (massless ?b))
@@ -9167,7 +9174,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	      ;(at (dir (net-torque ?b ?axis)) ?t) 
 	      (at (moment-of-inertia ?b) ?t)
 	               ))
-   ; need to determine rotation axis if not seeking torque
+   ;; need to determine rotation axis if not seeking torque
    (rotation-axis ?b ?axis)
    )
    :effects (

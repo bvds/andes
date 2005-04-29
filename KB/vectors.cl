@@ -174,42 +174,44 @@
 
 ;; Impulse is specified in problem statement by given impulse direction 
 ;; which may be unknown
+(def-qexp impulse (impulse ?body ?agent)
+  :units |N.s|
+  :english ("Impulse on ~A due to ~A" (nlg ?body) (nlg ?agent)))
 
 (defoperator find-impulse (?b ?agent ?t)
   :preconditions (
     (object ?b)
     (time ?t)
-    (in-wm (given (at (dir (impulse ?b ?agent)) ?t-impulse) ?dir-expr))
-    (test (tinsidep ?t ?t-impulse))
-    (not (impulse ?b ?agent ?t . ?dont-care))
+    (test (time-intervalp ?t))
+    (in-wm (given (at (dir (impulse ?b ?agent)) ?t) ?dir))
   )
   :effects (
-    (impulse ?b ?agent ?t ?dir-expr)
+    (impulse ?b ?agent ?t ?dir)
   ))
 
-;; Draw a ("given") impulse at a certain direction. 
+;; Draw a "given" impulse at a certain direction. 
 (defoperator draw-impulse-given-dir (?b ?agent ?t)
   :specifications 
   "if you are given that there is an impulse on an object at a time
-   at a certain direction,
-  then draw the impulse at that direction"
+   in a certain direction, then draw the impulse in that direction"
   :preconditions
-   ((impulse ?b ?agent ?t ?dir-expr action)
-    (test (not (equal ?dir-expr 'unknown)))
+   ((impulse ?b ?agent ?t ?dir)
+    (test (not (equal ?dir 'unknown)))
     (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
     ;; Prefix "Fg" for "given" or "generic" impulses
-    (bind ?mag-var (format-sym "Fg_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir-expr ?b ?agent ?t)
+    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
     )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir-expr)
+   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
     (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
     (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
     ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir-expr) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
    )
   :hint
    ((point (string "You were given that there is an impulse on ~a." ?b))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir-expr))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
+
