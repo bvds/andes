@@ -77,6 +77,34 @@
 ;;   a dynamic port would be better but there is no easy way to tell WB
 ;;     what port is
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Stolen from sockets.lisp by Kevin M. Rosenberg
+#+sbcl
+(defun listen-to-inet-port (&key (port 0) (kind :stream) (reuse nil))
+  "Create, bind and listen to an inet socket on *:PORT.
+setsockopt SO_REUSEADDR if :reuse is not nil"
+  (let ((socket (make-instance 'sb-bsd-sockets:inet-socket
+			       :type :stream
+			       :protocol :tcp)))
+    (if reuse
+        (setf (sb-bsd-sockets:sockopt-reuse-address socket) t))
+    (sb-bsd-sockets:socket-bind 
+     socket (sb-bsd-sockets:make-inet-address "0.0.0.0") port)
+    (sb-bsd-sockets:socket-listen socket 15)
+    socket))
+
+;; Stolen from sockets.lisp by Kevin M. Rosenberg
+(defun close-passive-socket (socket)
+  #+allegro (close socket)
+  #+clisp (close socket)
+  #+cmu (unix:unix-close socket)
+  #+sbcl (sb-unix:unix-close
+	  (sb-bsd-sockets:socket-file-descriptor socket))
+  #+openmcl (close socket)
+  #-(or allegro clisp cmu sbcl openmcl)
+  (warn "close-passive-socket not supported on this implementation")
+  )
+
 (defun initiate-server ()
   "Sets-up the TCP socket on the local machine at the &andes-port& port."
   (setq *andes-stop* nil) ;; so it doesn't immediately shutdown
@@ -95,6 +123,8 @@
 	#+openmcl 
 	(ccl:make-socket :connect :passive :local-port &andes-port&
 			 :reuse-address  &andes-port&)
+	#-(or allegro clisp cmu sbcl openmcl)
+	(warn "create-inet-listener not supported on this implementation")
 	))
   (format *debug-io* "~&Opened socket: ~S~%" *andes-socket*) t)
 
@@ -214,9 +244,9 @@
 (defun execute-stream-event (str)
   "Determines from the 1st char of string how to handle the message"
   (history-log str)
-  (cond ((string= str &notify& :end1 1) ;; Workbench does not expect a reply
+  (cond ((string= str &notify& :end1 1)	;Workbench does not expect a reply
 	 (dispatch-stream-event (remove &notify& str :count 1)))
-	((string= str &exec& :end1 1) ;; Workbench expects reply
+	((string= str &exec& :end1 1)	;Workbench expects reply
 	 (dispatch-and-return-stream-event (remove &exec& str :count 1)))
 	(t (error-message
 	    (format nil "unrecognized command: ~A" str)))))
@@ -341,36 +371,41 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; connection-started -- checks to see if *andes-socket* has a connection
-;;  request and, optionally, waits until a connection is established.
-;; argument(s):
-;;  &key :wait -- determines if this function will return immediately or wait
-;;    for a connection. (default nil)
-;; returns:
-;;  t -- if a connection was established
-;;  nil -- if no connection was established
-;; note(s):
+;;  request and waits until a connection is established.
 ;;  Sets *andes-stream* if a connection to *andes-socket* was established.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun connection-started (&key wait)
+(defun connection-started ()
   "Checks to see if *andes-socket* has a connection request. Optionally waits until a connection is established."
-  (cond
-   ((setq *andes-stream* 
-      ;; See accept-tcp-connection in sockets.lisp by Kevin M. Rosenberg
-      #+allegro (socket:accept-connection *andes-socket* :wait wait)
-      #+clisp (ext:socket-accept *andes-socket* )
-      #+sbcl
-      (when (sb-sys:wait-until-fd-usable
-	     (sb-bsd-sockets:socket-file-descriptor  *andes-socket* ) :input)
-	(sb-bsd-sockets:socket-accept  *andes-socket* ))	
-    )
-    (format *debug-io* "~&Opened stream: ~S~%" *andes-stream*) 
-    ;; try to close the listening socket immediately, since we only handle one 
-    ;; connection -- you have to start-andes again to run another session
-    (close *andes-socket*)
-    (setq *andes-socket* NIL)
-    ;; return success:
-    t) 
-   (t nil)))
+  (if 
+      (setq *andes-stream* 
+	;; See accept-tcp-connection in sockets.lisp by Kevin M. Rosenberg
+	#+allegro (socket:accept-connection *andes-socket* :wait t)
+	#+clisp (ext:socket-accept *andes-socket* )
+	#+cmu
+	(progn (mp:process-wait-until-fd-usable *andes-socket* :input)
+	       (sys:make-fd-stream
+		(nth-value 0 (ext:accept-tcp-connection *andes-socket*)) 
+		:input t :output t))
+	#+sbcl
+	(when (sb-sys:wait-until-fd-usable
+	       (sb-bsd-sockets:socket-file-descriptor *andes-socket* ) :input)
+	  (sb-bsd-sockets:socket-make-stream 
+	   (sb-bsd-sockets:socket-accept  *andes-socket* )
+	   :element-type 'base-char :input t :output t))	
+	#+openmcl 
+	(ccl:accept-connection *andes-socket* :wait t) 
+	#-(or allegro clisp cmu sbcl openmcl)
+	(warn "accept-tcp-connection not supported on this implementation")
+	)
+      (progn 
+	(format *debug-io* "~&Opened stream: ~S~%" *andes-stream*) 
+	;; try to close the listening socket immediately, 
+	;; since we only handle one connection -- you have to 
+	;; start-andes again to run another session
+	(close-passive-socket *andes-socket*)
+	(setq *andes-socket* NIL)
+	t)				;return success:
+    (warn "No connection started")))	;return failure
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function: connection-running
@@ -403,7 +438,7 @@
   (andes-init)
   (solver-logging-on solver-logging)
   (initiate-server)
-  (connection-started :wait t)
+  (connection-started)
   (andes-run)
   ;; andes-run should always call andes-terminate when done so following shouldn't be 
   ;; necessary, but shouldn't hurt to be safe just in case
