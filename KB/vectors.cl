@@ -167,10 +167,11 @@
   ((bottom-out (string "Since the problem specifies that the velocity of ~a relative to ~A is zero, just draw a zero-length vector for it." ?b1 ?b2))
    ))
 
-
+;;;;===========================================================================
 ;;;;
-;;;;        Impulse
+;;;;                            Impulse
 ;;;;
+;;;;===========================================================================
 
 ;; Impulse is specified in problem statement by given impulse direction 
 ;; which may be unknown
@@ -178,6 +179,7 @@
   :units |N.s|
   :english ("Impulse on ~A due to ~A" (nlg ?body) (nlg ?agent)))
 
+;; BvdS:  Why doesn't displacement have "find-displacement" ?
 (defoperator find-impulse (?b ?agent ?t)
   :preconditions (
     (object ?b)
@@ -198,13 +200,14 @@
    ((impulse ?b ?agent ?t ?dir)
     (test (not (equal ?dir 'unknown)))
     (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
-    ;; Prefix "Fg" for "given" or "generic" impulses
-    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
+			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
     )
   :effects
    ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+    ;; BvdS:  Why no equation for this?
     (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
     (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
     ;; Ensure implicit eqn is written because dir is problem given
@@ -215,3 +218,68 @@
     (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
+;;
+;; Relation of impulse and force
+;;
+;; Following operators find average velocity as a vector PSM.
+;; These are mainly for problems that test understanding of definition
+;; of average velocity. Still it could be used to find components of
+;; average velocity if we want.
+;;
+(def-psmclass impulse (?eqn-type impulse ?axis ?rot 
+				 (impulse ?body ?agent ?time ?dir))
+    :group Dynamics
+    :complexity major    
+    :Doc "Definition of impulse."
+    :english ("the definition of impulse") 
+    :ExpFormat ("applying the definition of impulse on ~a ~a"
+		(nlg ?body) (nlg ?time 'pp))
+    :EqnFormat ("J_~A = F(avg)_~a*t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+
+(defoperator impulse-vector-contains (?sought)
+  :preconditions 
+    ((any-member ?sought
+		 ((at (mag (impulse ?b ?agent)) ?t)
+		 (at (dir (impulse ?b ?agent)) ?t)
+		 (at (mag (force ?b ?agent ?type)) ?t)
+		 (at (dir (force ?b ?agent ?type)) ?t)
+		 (duration ?t)))
+     (object ?b)
+    (time ?t)
+    (test (time-intervalp ?t))
+  :effects 
+  ((vector-psm-contains (impulse ?b ?agent ?t ?dir) ?sought)
+  ; since only one compo-eqn under this vector psm, we can just
+  ; select it now, rather than requiring further operators to do so
+  (compo-eqn-contains (impulse ?b ?agent ?t ?dir) 
+		      impulse ?sought)))
+
+(defoperator draw-impulse-diagram (?b ?t1 ?t2)
+  :preconditions 
+  ((not (vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir)))
+   (body ?b)
+   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
+   (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir1)
+   (axis-for ?b x ?rot))
+  :effects 
+  ((vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir))))
+
+(defoperator write-impulse-compo (?b ?t1 ?t2 ?xy ?rot)
+  :preconditions 
+   ((variable ?F12_x  (at (compo ?xy ?rot (displacement ?b)) (during ?t1 ?t2)))
+    (variable ?J12_x  (at (compo ?xy ?rot (velocity ?b)) (during ?t1 ?t2)))
+    (variable ?t12    (duration (during ?t1 ?t2))))
+  :effects (
+   (eqn (= ?J12_x (* ?F12_x ?t12))
+            (compo-eqn impulse ?xy ?rot (impulse ?b ?agent (?during ?t1 ?t2) ?dir)))
+   (eqn-compos 
+            (compo-eqn impulse ?xy ?rot (impulse ?b ?agent (?during ?t1 ?t2) ?dir))
+             (?J12_x ?F12_x)))
+  :hint (
+   (point (string "What is the relationship between average force, impulse and duration?"))
+    (teach (kcd "write_average_velocity_eqn")
+	   (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise to relate the components of average velocity to the components of displacement."))
+    (bottom-out (string "Write the equation ~a"
+			((= ?J12_x (* ?F12_x ?t12)) algebra)))
+  ))

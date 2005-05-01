@@ -1757,6 +1757,7 @@
   )
   :effects ( (eqn-contains (sum-distance ?b1 ?b2 ?b3 ?t) ?sought) )
 )
+
 (defoperator write-sum-distance (?b1 ?b2 ?b3 ?t)
   :preconditions (
     (variable ?r21 (at (mag(relative-position ?b2 ?b1)) ?t))
@@ -1821,24 +1822,24 @@
    (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
    ))
 
-;;; ================================= Displacement ==========================
-;; The operator draws displacement in the case where the object is
-;; moving in a straight line during a time that includes the desired
-;; time.  The desired time, ?t, is passed in via unification with the
-;; effects.  It must be a time interval. 
-;; 
-;; As per the email discussion during the week of 10/16/2000, all vector 
-;; drawing tools will write an equation setting the direction variable to 
-;; the value given in the box on the vector drawing tool.  This value 
-;; should be either a number of degrees, a parameter or the constant unknown.  
-;; That constant unknown stands for the case where the student erases 
-;; the number in the vector drawing dialog box and leaves it blank.
-;; 
-;; Because this should only write the direction variable equation when the 
-;; value is not unknown, we'd need either two versions of this operator or 
-;; conditional effects.  For now, only one version of the operator is 
-;; supplied, and it  will only work when the direction value is known.
-;; 
+;;; ========================= Displacement ====================================
+;;; The operator draws displacement in the case where the object is
+;;; moving in a straight line during a time that includes the desired
+;;; time.  The desired time, ?t, is passed in via unification with the
+;;; effects.  It must be a time interval. 
+;;; 
+;;; As per the email discussion during the week of 10/16/2000, all vector 
+;;; drawing tools will write an equation setting the direction variable to 
+;;; the value given in the box on the vector drawing tool.  This value 
+;;; should be either a number of degrees, a parameter or the constant unknown.  
+;;; That constant unknown stands for the case where the student erases 
+;;; the number in the vector drawing dialog box and leaves it blank.
+;;; 
+;;; Because this should only write the direction variable equation when the 
+;;; value is not unknown, we'd need either two versions of this operator or 
+;;; conditional effects.  For now, only one version of the operator is 
+;;; supplied, and it  will only work when the direction value is known.
+;;; 
 
 (defoperator draw-displacement-straight (?b ?t)
   :specifications "
@@ -1891,8 +1892,8 @@
 		 "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified." ?b (?t pp)))
     ))
 
-;; Might want rule to put out equation thetaD = thetaV for unknown 
-;; directions  if needed.
+;;; Might want rule to put out equation thetaD = thetaV for unknown 
+;;; directions  if needed.
 
 ;; This operator draws a zero-length displacement vector for an object
 ;; that is at rest over an interval.  This would seldom be useful in practice.
@@ -2271,7 +2272,6 @@
   (compo-eqn-contains (avg-velocity ?b (during ?t1 ?t2)) avg-vel ?sought)))
 
 (defoperator draw-avg-vel-diagram (?b ?t1 ?t2)
-  
   :preconditions 
   ((not (vector-diagram (avg-velocity ?b (during ?t1 ?t2))))
    (body ?b)
@@ -2281,8 +2281,7 @@
   :effects 
   ((vector-diagram (avg-velocity ?b (during ?t1 ?t2)))))
 
-(defoperator write-avg-vel-compo (?b ?t1 ?t2 ?xy ?rot)
-  
+(defoperator write-avg-vel-compo (?b ?t1 ?t2 ?xy ?rot)  
   :preconditions 
    ((variable ?d12_x  (at (compo ?xy ?rot (displacement ?b)) (during ?t1 ?t2)))
     (variable ?v12_x  (at (compo ?xy ?rot (velocity ?b)) (during ?t1 ?t2)))
@@ -4009,7 +4008,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (time ?t)
     (in-wm (given (at (dir (force ?b ?agent applied)) ?t-force) ?dir-expr))
     (test (tinsidep ?t ?t-force))
-    (not (force ?b ?agent applied ?t . ?dont-care))
+    ;; BvdS: why is this needed if we have (?b ?agent ?t) above?
+    (not (force ?b ?agent applied ?t . ?dont-care)) 
   )
   :effects (
     (force ?b ?agent applied ?t ?dir-expr action)
@@ -4025,7 +4025,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((force ?b ?agent applied ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (at (force ?b ?agent applied) ?t) ?dont-care))
-    ; Prefix "Fg" for "given" or "generic" forces
+    ;; Prefix "Fg" for "given" or "generic" forces
     (bind ?mag-var (format-sym "Fg_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a applied force on ~a due to ~a at ~a.~%" ?dir-expr ?b ?agent ?t)
@@ -4034,7 +4034,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((vector ?b (at (force ?b ?agent applied) ?t) ?dir-expr)
     (variable ?mag-var (at (mag (force ?b ?agent applied)) ?t))
     (variable ?dir-var (at (dir (force ?b ?agent applied)) ?t))
-    ; Ensure implicit eqn is written because dir is problem given
+    ;; Ensure implicit eqn is written because dir is problem given
     (implicit-eqn (= ?dir-var ?dir-expr) (at (dir (force ?b ?agent applied)) ?t))
    )
   :hint

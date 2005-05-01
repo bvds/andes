@@ -561,7 +561,7 @@
     :english ("the definition of average velocity") 
     :ExpFormat ("applying the definition of average velocity on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("v(avg)_~a = d_~a/t" (nlg ?axis 'adj)))
+    :EqnFormat ("v(avg)_~a = d_~a/t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 (def-goalprop avg-vel-eqn 
  (eqn ?algebra (compo-eqn avg-vel ?axis ?rot (avg-velocity ?body ?time)))
