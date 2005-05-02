@@ -90,6 +90,7 @@
 				     (:file "forces")          
 				     (:file "optics")          
 				     (:file "vectors")
+				     (:file "impulse")
 				     (:file "makeprob")        
 				     ;; there is some ugly code here
 				     (:file "circuits")
