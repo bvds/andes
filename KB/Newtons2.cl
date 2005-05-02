@@ -2267,8 +2267,8 @@
     (time (during ?t1 ?t2)))
   :effects 
   ((vector-psm-contains (avg-velocity ?b (during ?t1 ?t2)) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
+  ;; since only one compo-eqn under this vector psm, we can just
+  ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (avg-velocity ?b (during ?t1 ?t2)) avg-vel ?sought)))
 
 (defoperator draw-avg-vel-diagram (?b ?t1 ?t2)
@@ -6715,7 +6715,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :specifications "choose body and draw all forces on it"
   :preconditions 
    ((body ?b)
-    ; make sure axis is allowed, even if unused
+    ;; make sure axis is allowed, even if unused
     (axis-for ?b x 0) 
     (forces ?b ?t ?forces)
     )
@@ -7748,8 +7748,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ?b (?rotate-dir adj) (?t pp) (?dir adj) (?dir adj)))
     ))
 
-; draw angular acceleration of an object rotating in a known direction
-; and slowing down
+;; draw angular acceleration of an object rotating in a known direction
+;; and slowing down
 (defoperator draw-ang-decelerating(?b ?t)
   :preconditions (
     (time ?t)

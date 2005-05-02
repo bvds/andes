@@ -167,11 +167,14 @@
   ((bottom-out (string "Since the problem specifies that the velocity of ~a relative to ~A is zero, just draw a zero-length vector for it." ?b1 ?b2))
    ))
 
+
+
 ;;;;===========================================================================
 ;;;;
 ;;;;                            Impulse
 ;;;;
 ;;;;===========================================================================
+
 
 ;; Impulse is specified in problem statement by given impulse direction 
 ;; which may be unknown
@@ -228,7 +231,7 @@
 ;;
 (def-psmclass impulse (?eqn-type impulse ?axis ?rot 
 				 (impulse ?body ?agent ?time ?dir))
-    :group Dynamics
+    ;; :group Dynamics  :BvdS:  what to choose?
     :complexity major    
     :Doc "Definition of impulse."
     :english ("the definition of impulse") 
@@ -239,21 +242,21 @@
 
 (defoperator impulse-vector-contains (?sought)
   :preconditions 
-    ((any-member ?sought
-		 ((at (mag (impulse ?b ?agent)) ?t)
-		 (at (dir (impulse ?b ?agent)) ?t)
-		 (at (mag (force ?b ?agent ?type)) ?t)
-		 (at (dir (force ?b ?agent ?type)) ?t)
-		 (duration ?t)))
-     (object ?b)
-    (time ?t)
-    (test (time-intervalp ?t))
+  ((any-member ?sought
+	       ((at (mag (impulse ?b ?agent)) ?t)
+		(at (dir (impulse ?b ?agent)) ?t)
+		(at (mag (force ?b ?agent ?type)) ?t)
+		(at (dir (force ?b ?agent ?type)) ?t)
+		(duration ?t)))
+   (object ?b)
+   (time ?t)
+   (test (time-intervalp ?t)))
   :effects 
-  ((vector-psm-contains (impulse ?b ?agent ?t ?dir) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (impulse ?b ?agent ?t ?dir) 
-		      impulse ?sought)))
+  ;; BvdS: ?dir is not bound above!!!
+   ((vector-psm-contains (impulse ?b ?agent ?t) ?sought)
+    ;; since only one compo-eqn under this vector psm, we can just
+    ;; select it now, rather than requiring further operators to do so
+    (compo-eqn-contains (impulse ?b ?agent ?t ) impulse ?sought)))
 
 (defoperator draw-impulse-diagram (?b ?t1 ?t2)
   :preconditions 
@@ -292,8 +295,9 @@
 ;;; based on the "NSL-compo" rules.
 ;;;
 
-(def-psmclass impulse-NL (?eq-type ?compo-eqn-id ?axis ?rot 
-				   (impulse ?body (during ?t1 ?t2))) 
+(def-psmclass impulse-velocity 
+    (?eq-type ?compo-eqn-id ?axis ?rot 
+	      (impulse ?body  ?agent (during ?t1 ?t2) ?dir)) 
      :complexity major
      :doc "equation relating impulse to change in velocity"
      :english ("Relation between impulse and change in velocity")
@@ -304,62 +308,31 @@
 		 (nlg ?axis 'adj) (nlg ?t2 'nlg-time) 
 		 (nlg ?axis 'adj)(nlg ?t1 'nlg-time)))
 
-;;; This operator indicates when Newton's second law (NSL) is
-;;; applicable.  It should be applicable exactly when NFL is not applicable.
-;;; That could be easily expressed if we could have goals with priorities,
-;;; but we don't right now.  So we write out the condition: If an object is 
-;;; massless or has zero acceleration during a time period containing 
-;;; the target time, then NSL is prevented from applying. This makes use
-;;; of the optional second test clause in the "not" condition, in case
-;;; the time of zero acceleration might be wider than the target time.
+;;; This operator indicates when the impulse form of NSL is
+;;; applicable.  
 ;;;
-;;; Also, to handle cases where a problem describes an acceleration 
-;;; but does not determine the forces causing it, we test for the
-;;; statement "unknown-forces" to block the attempt to apply Newton's Law.
-;;;
-;;; Time may be an interval or an instant. In case of interval, we
-;;; make sure endpoints are consecutive, to avoid applying this accross
-;;; two sub-segments with different forces. [necessary? Could also 
-;;; fail to determine forces applying over this composite segment]
-
-;; NSL now stands for all versions, same as group id:
-
-(defoperator impulse-NL (?quantity)
-  :specifications "
-   If the acceleration is not zero during the target time period
-      and the body is not massless during the target time period,
-   then NSL applies and it potentially contains
-     the mass of the body,
-     the magnitude and direction of its acceleration"
+(defoperator impulse-velocity-contains (?quantity)
   :preconditions 
   ((any-member ?quantity
-	        ((at (mag (force ?b ?agent ?type)) ?t)
-		 (at (dir (force ?b ?agent ?type)) ?t)
+	        ((at (mag (impulse ?b ?agent)) (during ?t1 ?t2))
+		 (at (dir (impulse ?b ?agent)) (during ?t1 ?t2))
 		 (mass ?b)
-		 (at (mag (accel ?b)) ?t)
-		 (at (dir (accel ?b)) ?t)))
+		 (at (mag (velocity ?b)) ?t1)
+		 (at (dir (velocity ?b)) ?t1)
+		 (at (mag (velocity ?b)) ?t2)
+		 (at (dir (velocity ?b)) ?t2))
+		)
    (object ?b)
-   (time ?t)
-   (debug "problem~%.")
-   (not (unknown-forces))
-   ;; Can't apply over interval if variable forces during interval.
-   ;; if time is an interval, make sure endpoints are consecutive,
-   ;; else forces might be different between sub-segments
-   (test (or (time-pointp ?t) (time-consecutivep ?t)))
-   ;; Force from expanding spring will be variable.  NSL would still apply 
-   ;; over interval for average spring force, though we have no way to 
-   ;; compute that if it isn't given. For now we just rule out Newton's Law 
-   ;; if there's any spring contact during time of application.  This would 
-   ;; have to change if we wanted to handle spring forces at an instant as 
-   ;; for objects in static equilibrium.
-   ;;  (not (spring-contact ?b ?spring ?t-contact (dnum ?sforce-dir |deg|)) 
-   ;;       (tintersect2 ?t-contact ?t))
-   ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
-   (not (vector ?b (at (accel ?b) ?t-accel) zero)
-        (tinsidep ?t ?t-accel))
-   (not (massless ?b)))
+   (time ?t1)
+   (time ?t2)
+   (time (during ?t1 ?t2))
+   )
   :effects
-   ((compo-eqn-contains (NL ?b ?t) nsl ?quantity))
+  ;; there is no ?agnet or ?dir
+  ((vector-psm-contains (impulse ?b ?agent (during ?t1 ?t2)) ?sought)
+  ;; since only one compo-eqn under this vector psm, we can just
+  ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (impulse ?b ?agent (during ?t1 ?t2)) imp ?quantity))
  )
 
 ;;; It expects to get the body, time, axis label (?xyz) and axis rotation
@@ -369,24 +342,15 @@
 ;;; proposition recording the component variables that appear in the
 ;;; equation.  
 
-(defoperator write-impulse-NL-compo (?b ?t ?xyz ?rot)
-  :specifications 
-   "If the goal is to write newton's second law in component form,
-      ensure there are component variables ?compo-vars for the components 
-      of each of the forces on ?b at ?t,
-   then write ?f1c + ?f2c + ... = ?m * ?ac, where ?fic and ?ac
-      are the appropriate component variables for ?fi and ?a,
-      respectively."
+(defoperator write-impulse-velocity-compo (?b ?t ?xyz ?rot)
   :preconditions
   ((in-wm (forces ?b ?t ?forces))
-   ; for each force on b at t, define a component variable, 
-   ; collecting variable names into ?f-compo-vars
-   ; (debug "write-impulse-NL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
+   ;; for each force on b at t, define a component variable, 
+   ;; collecting variable names into ?f-compo-vars
    (map ?f ?forces 
     (variable ?f-compo-var (at (compo ?xyz ?rot ?f) ?t))
    	?f-compo-var ?f-compo-vars)
-   ; (debug "write-impulse-NL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
-   ; add acceleration compo var to form list of all compo vars in equation
+   ;; add acceleration compo var to form list of all compo vars in equation
    (variable ?a-compo (at (compo ?xyz ?rot (accel ?b)) ?t))
    (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
    (debug "write-impulse-NL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
@@ -396,7 +360,7 @@
 	 (compo-eqn nsl ?xyz ?rot (nl ?b ?t)))
     (eqn-compos (compo-eqn nsl ?xyz ?rot (nl ?b ?t)) ?eqn-compo-vars))
   :hint
-   ((point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law to it." (?b def-np) (?t pp)))
-    (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
-    (bottom-out (string "Write Newton's Second Law in terms of component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) (* ?m ?a-compo)) algebra)))
+  ((point (string "You can relate the change in velocity of ~A to the
+impulse ~A." (?b def-np) (?t pp)))
+    (bottom-out (string "Write the equation using component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) (* ?m ?a-compo)) algebra)))
     ))
