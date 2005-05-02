@@ -5368,22 +5368,22 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write the equation ~A" ((= ?g-var (dnum 9.8 |m/s^2|)) algebra)))
     ))
 
-; This models defining a variable for gravitational acceleration. In
-; current Andes this step is not needed since g is predefined as a
-; student variable in problems that need it, however we expect to
-; use something like this in the future for consistency. We could model 
-; the ability to use terms for certain predefined constants without defining
-; them by adding a (variable g ...) in the problem statement for any problem
-; that uses them. Perhaps a pre-processing phase could add the set of 
-; predefined constants to every problem's givens. But until we sort out
-; how to handle predefined terms, this is the consistent method to use.
+;; This models defining a variable for gravitational acceleration. In
+;; current Andes this step is not needed since g is predefined as a
+;; student variable in problems that need it, however we expect to
+;; use something like this in the future for consistency. We could model 
+;; the ability to use terms for certain predefined constants without defining
+;; them by adding a (variable g ...) in the problem statement for any problem
+;; that uses them. Perhaps a pre-processing phase could add the set of 
+;; predefined constants to every problem's givens. But until we sort out
+;; how to handle predefined terms, this is the consistent method to use.
 (defoperator define-grav-accel (?planet)
  :preconditions 
  	( (bind ?g-var (format-sym "g_~A" ?planet)) )
  :effects 
  	( (variable ?g-var (gravitational-acceleration ?planet)) ))
 
-;;; ========================== Newton's law ================================ 
+;;;; ========================== Newton's law ================================ 
 
 ;;; NL is newton's second law.  It is represented by several operators.  
 ;;; 
@@ -5402,7 +5402,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; passing info (e.g., the body and the time) from the sought
 ;;; quantity to the hard working operator.
 ;;; 
-;;; I'm not sure if hints on this operator will ever by used, but if
+;;; I'm not sure if hints on this operator will ever be used, but if
 ;;; so, it would be better to have the sought quantity available, as
 ;;; that would make the hint message nicer.
 ;;;
@@ -5444,37 +5444,39 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;
 (defoperator NL-net-vector-contains (?quantity)
   :specifications 
-   "Newton's law potentially contains the body's mass, 
+  "Newton's law potentially contains the body's mass, 
      the magnitude of its acceleration, and
      the direction of its acceleration"
-  :preconditions (
+  :preconditions 
+  (
    (any-member ?quantity
-	        (
-		 (at (mag (net-force ?b)) ?t)
-		 (at (dir (net-force ?b)) ?t)
-		 ; for now, only use this method when seeking net force
-		 ; to keep down dead-path equations in other problems.
-		 ; uncomment the following if we ever add net-force 
-		 ; problems that seek mass or accel.
-		 ;(mass ?b)
-		 ;(at (mag (accel ?b)) ?t)
-		 ;(at (dir (accel ?b)) ?t)
-		 ))
+	       (
+		(at (mag (net-force ?b)) ?t)
+		(at (dir (net-force ?b)) ?t)
+		;; for now, only use this method when seeking net force
+		;; to keep down dead-path equations in other problems.
+		;; uncomment the following if we ever add net-force 
+		;; problems that seek mass or accel.
+		 ;; (mass ?b)
+		;; (at (mag (accel ?b)) ?t)
+		;; (at (dir (accel ?b)) ?t)
+		))
    (object ?b)
    (time ?t)
-   ; only use this if non-zero acceleration, no NFL form of this.
-   (not (motion ?b ?t-motion at-rest)
+   ;; only use this if non-zero acceleration, no NFL form of this.
+   (not (motion ?b ?t-motion at-rest) ;BvdS "not" is a binary operator???
         (tinsidep ?t ?t-motion))
   )
-  :effects (
-    (vector-psm-contains (NL ?b ?t) ?quantity)
-    ; since we know which compo-eqn we'll be using, we can 
-    ; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains  (NL ?b ?t) NSL-net ?quantity)
-    ; Further nl operators, esp diagram drawing, will test the following
-    ; in wm to tell whether net-force version should be drawn
-    (use-net-force)
-  ))
+  :effects 
+  (
+   (vector-psm-contains (NL ?b ?t) ?quantity)
+   ;; since we know which compo-eqn we'll be using, we can 
+   ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains  (NL ?b ?t) NSL-net ?quantity)
+   ;; Further nl operators, esp diagram drawing, will test the following
+   ;; in wm to tell whether net-force version should be drawn
+   (use-net-force)
+   ))
 
 
 ;;; The work of writing NL is divided into drawing the fbd, selecting
@@ -5569,8 +5571,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; if there's any spring contact during time of application.  This would 
    ;; have to change if we wanted to handle spring forces at an instant as 
    ;; for objects in static equilibrium.
- ;;  (not (spring-contact ?b ?spring ?t-contact (dnum ?sforce-dir |deg|)) 
- ;;       (tintersect2 ?t-contact ?t))
+   ;;  (not (spring-contact ?b ?spring ?t-contact (dnum ?sforce-dir |deg|)) 
+   ;;       (tintersect2 ?t-contact ?t))
    ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
    (not (vector ?b (at (accel ?b) ?t-accel) zero)
         (tinsidep ?t ?t-accel))
@@ -5867,7 +5869,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write ~a" ((= ?v1-var ?v2-var) algebra)))))
 
 
-;;;================ Conservation of Energy ===============
+;;;===================== Conservation of Energy ===============================
 ;;;
 ;;; This method applies conservation of mechanical energy to a single body 
 ;;; at different times to find the sought quantity. It writes the top-level 
@@ -7110,9 +7112,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?P-var (* ?F-var ?v-var (cos ?theta-var))) algebra)))
  ))
 
-;;;============================================================================
-;;; Conservation of Linear Momentum
-;;;============================================================================
+;;;;===========================================================================
+;;;;                 Conservation of Linear Momentum
+;;;;===========================================================================
     
 (defoperator linmom-vector-contains (?sought)
   :preconditions (
@@ -8281,12 +8283,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Use the Add Variable command to define a variable for the radius of ~A" ?b))
   ))
 
-;-------------------------------------------------------------------------
-; Formulas for moment of inertia for objects of various shapes about
-; axes such as cm (for center of mass) or end. 
-;-------------------------------------------------------------------------
+;;;;-------------------------------------------------------------------------
+;;;; Formulas for moment of inertia for objects of various shapes about
+;;;; axes such as cm (for center of mass) or end. 
+;;;;-------------------------------------------------------------------------
 
-; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
+;; I for long thin rod rotating about cm = 1/12 m l^2, where l is length
 (defoperator I-rod-cm-contains (?sought)
   :preconditions 
   ((shape ?b rod cm)
@@ -8308,10 +8310,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (bottom-out (string "Write the equation ~A"
             ((= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) algebra)))))
 
-; I for long thin rod about end = 1/3 M * L^2 where L is length
-; This is our only formula for rotation not about the center of mass.
-; It could be derived from the formula for I about cm plus the "parallel 
-; axis theorem", but we don't include that yet.
+;; I for long thin rod about end = 1/3 M * L^2 where L is length
+;; This is our only formula for rotation not about the center of mass.
+;; It could be derived from the formula for I about cm plus the "parallel 
+;; axis theorem", but we don't include that yet.
 (defoperator I-rod-end-contains (?sought)
   :preconditions 
   ((shape ?b rod end)
