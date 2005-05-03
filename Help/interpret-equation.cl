@@ -442,7 +442,8 @@
 	          (is-premature-p (cdr cinterp)))
 	     (setf premature-result (append premature-result (list (cdr cinterp))))
            (setf correct-result (append correct-result (list (cdr cinterp)))))))
-    (format t "Flag Correct ~W~%Premature ~W~%" correct-result premature-result)
+    (when correct-result (format t "Correct Interpretations:~%~W~%" correct-result))
+    (when premature-result (format t "~%Correct but Premature:~%~W~%" premature-result))
     (list correct-result premature-result)))
 
 ; !! Might want a special message for premature answer entries to the effect

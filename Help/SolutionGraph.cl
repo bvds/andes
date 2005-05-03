@@ -689,12 +689,11 @@
   ; For equation entries, apply constraint loss check if flag is set
   (when (and **Filter-Constraint-Losses** 
              (eqn-prop-p (StudentEntry-Prop Entry))) ; it's an eqn entry
-    (format t "Checking for constraint loss:================================~%")
-    (format t "~A~%" (StudentEntry-Cinterp Entry))
     (sg-filter-constraint-losses Entry))
   
-  (format t "Entering Interp:=====================================~%")
-  (format t "~A~%" (StudentEntry-Cinterp Entry))
+  (when (sg-unmark-interp (StudentEntry-Cinterp Entry))
+    (format t "Entering Interp:=====================================~%")
+    (format t "~A~%" (StudentEntry-Cinterp Entry)))
   
   (dolist (E (sg-unmark-interp (studentEntry-Cinterp Entry)))
     (push Entry (SystemEntry-Entered E))))
@@ -727,7 +726,7 @@
   
     (when (> DE DI) 
       (format t "Interp not entered due to constraint loss:~%")
-      (format T " (student eqn dimensions=~a, interp dimensions=~a)~%" DE DI)
+      (format T "  student eqn dimensions=~a, interp dimensions=~a~%" DE DI)
       (setf (StudentEntry-Cinterp Entry) 
 	(if (null Mark) nil
 	  (sg-add-mark-to-interp Mark Nil))))))
