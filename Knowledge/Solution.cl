@@ -127,9 +127,10 @@
   "Print out a numbered eqn set."
   (pprint-indent :block Level Stream)
   (format Stream "~A:-----------------~%" Num)
-  (format Stream "Algebra:~%~{ ~A~%~}~%" (mapcar #'eqn-algebra (eqnset-eqns Set))) 
-  (format Stream "Exps:   ~%~{ ~A~%~}~%" (mapcar #'eqn-exp (eqnset-eqns Set)))
-  (format Stream "Nodes:  ~W~2%" (eqnSet-Nodes Set)))
+  (format Stream "Equations:~%")
+  (dolist (enode (eqnset-eqns Set))
+     (format Stream "~A~%        ~A~%" (enode-algebra enode) (enode-id enode)))
+  (format Stream "~%Nodes:  ~W~2%" (eqnSet-Nodes Set)))
 
 ;;; For the purporses of answer reporting this code prints
 ;;; out the contents of an eqnset in report fasion I.E.
