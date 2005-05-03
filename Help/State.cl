@@ -203,10 +203,24 @@
 (defun do-read-student-info (name &optional (ConcHelp Nil))
   (declare (ignore ConcHelp))
   (set-student-name name)
-  (StudentFile-load name)
-  (Load-Config-File)			;Should be in a general startup script 
-					; but none exists
-  (make-green-turn))			;Return a color-green result.
+  ; Lisp errors within API calls like this one are caught by the API call
+  ; dispatcher,  causing a special "call failed" signal to be returned to
+  ; the workbench. However, the workbench treats failure on this call to mean
+  ; the help system has not initialized and is unavailable. (Maybe this 
+  ; should be changed?) So don't want to return call-failed if we can in fact 
+  ; continue, perhaps without student information, so don't let Lisp errors
+  ; propagate out of this routine. !!! Might want to communicate warning 
+  ; message in case of failure to load student file, though.
+
+  ; Don't fail call if fail to load student file. 
+  (safe-apply 'StudentFile-load (list name))
+   
+  ; we want to load the config file after student name is known, so it can
+  ; include customizations based on student name (used in some experiments).
+  (safe-apply 'Load-Config-File)			
+
+  ; color-green result signals success
+  (make-green-turn))			
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
