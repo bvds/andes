@@ -3710,23 +3710,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((vector-diagram (sum-net-force ?b ?t1 ))))
 
 (defoperator write-sum-net-force-compo (?b ?t1 ?xy ?rot)
-  
   :preconditions 
-   ((variable ?dnet_xy (at (compo ?xy ?rot (net-force ?b)) ?t1))
-    ;  (bind ?intervals (successive-intervals ?t1 ?t2))
-    (object ?b1)
-    (object ?b2)
-    (bind ?agents (list ?b1 ?b2))
+  ((variable ?dnet_xy (at (compo ?xy ?rot (net-force ?b)) ?t1))
+   ;;  (bind ?intervals (successive-intervals ?t1 ?t2))
+   (object ?b1)
+   (object ?b2)
+   (bind ?agents (list ?b1 ?b2))
    (map ?interval ?agents
-      (variable ?di_xy (at (compo ?xy ?rot (force ?b  ?interval applied)) ?t1))
-      ?di_xy ?di_compos))
+	;; BvdS: changed ?interval -> ?dont-care (?agent), ask Anders
+	(variable ?di_xy 
+		  (at (compo ?xy ?rot (force ?b ?dont-care applied)) ?t1))
+	?di_xy ?di_compos))
   :effects 
-   ((eqn (= ?dnet_xy (+ . ?di_compos))
-               (compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1)))
-    (eqn-compos (compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1))
-		(?dnet_xy . ?di_compos)))
-   :hint
-   ())
+  ((eqn (= ?dnet_xy (+ . ?di_compos))
+	(compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1)))
+   (eqn-compos (compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1))
+	       (?dnet_xy . ?di_compos)))
+  :hint
+  ())
 
 |#
 

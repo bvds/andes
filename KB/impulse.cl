@@ -12,18 +12,6 @@
   :units |N.s|
   :english ("Impulse on ~A due to ~A" (nlg ?body) (nlg ?agent)))
 
-;; BvdS:  Why doesn't displacement have "find-displacement" ?
-(defoperator find-impulse (?b ?agent ?t)
-  :preconditions (
-    (object ?b)
-    (time ?t)
-    (test (time-intervalp ?t))
-    (in-wm (given (at (dir (impulse ?b ?agent)) ?t) ?dir))
-  )
-  :effects (
-    (impulse ?b ?agent ?t ?dir)
-  ))
-
 ;; Draw a "given" impulse at a certain direction. 
 (defoperator draw-impulse-given-dir (?b ?agent ?t)
   :specifications 
@@ -69,6 +57,44 @@
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("J_~A = F(avg)_~a*t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
+;; Draw an impulse if associated force and interval known 
+(defoperator draw-impulse-given-force (?b ?agent ?t)
+  :specifications 
+  "if you are given that there is an impulse on an object at a time
+   in a certain direction, then draw the impulse in that direction"
+  :preconditions
+   ((impulse ?b ?agent ?t ?dir)
+    (test (not (equal ?dir 'unknown)))
+    (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
+    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
+			       (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
+    )
+  :effects
+   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+    ;; BvdS:  Why no equation for this?
+    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
+    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    ;; Ensure implicit eqn is written because dir is problem given
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+   )
+  :hint
+   ((point (string "You were given that there is an impulse on ~a." ?b))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    ))
+
+#|  ;old version?
+(defoperator draw-impulse-diagram (?b ?t1 ?t2)
+  :preconditions 
+  ((not (vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir)))
+   (body ?b)
+   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
+   (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir1)
+   (axis-for ?b x ?rot))
+  :effects 
+  ((vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir))))
+|#
 
 (defoperator impulse-vector-contains (?sought)
   :preconditions 
@@ -82,37 +108,28 @@
    (time ?t)
    (test (time-intervalp ?t)))
   :effects 
-  ;; BvdS: ?dir is not bound above!!!
    ((vector-psm-contains (impulse ?b ?agent ?t) ?sought)
     ;; since only one compo-eqn under this vector psm, we can just
     ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (impulse ?b ?agent ?t ) impulse ?sought)))
+    (compo-eqn-contains (impulse ?b ?agent ?t) imp-force ?sought)))
 
-(defoperator draw-impulse-diagram (?b ?t1 ?t2)
+;; This is the impulse from a particular force
+(defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
-  ((not (vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir)))
-   (body ?b)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
-   (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir1)
-   (axis-for ?b x ?rot))
-  :effects 
-  ((vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir))))
-
-(defoperator write-impulse-compo (?b ?t1 ?t2 ?xy ?rot)
-  :preconditions 
-   ((variable ?F12_x  (at (compo ?xy ?rot (displacement ?b)) (during ?t1 ?t2)))
+   ((variable ?F12_x  (at (compo ?xy ?rot (force ?b ?agent ?dont-care)) 
+			  (during ?t1 ?t2)))
     (variable ?J12_x  (at (compo ?xy ?rot (velocity ?b)) (during ?t1 ?t2)))
     (variable ?t12    (duration (during ?t1 ?t2))))
   :effects (
    (eqn (= ?J12_x (* ?F12_x ?t12))
-            (compo-eqn impulse ?xy ?rot (impulse ?b ?agent (?during ?t1 ?t2) ?dir)))
-   (eqn-compos 
-            (compo-eqn impulse ?xy ?rot (impulse ?b ?agent (?during ?t1 ?t2) ?dir))
+            (compo-eqn imp-force ?xy ?rot 
+		       (impulse ?b ?agent (?during ?t1 ?t2))))
+   (eqn-compos (compo-eqn imp-force ?xy ?rot 
+		       (impulse ?b ?agent (?during ?t1 ?t2)))
              (?J12_x ?F12_x)))
-  :hint (
-   (point (string "What is the relationship between average force, impulse and duration?"))
-    (teach (kcd "write_average_velocity_eqn")
-	   (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise to relate the components of average velocity to the components of displacement."))
+  :hint 
+  ( (point (string "What is the relationship between average force, impulse and duration?"))
+    (teach (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise to relate the components of average velocity to the components of displacement."))
     (bottom-out (string "Write the equation ~a"
 			((= ?J12_x (* ?F12_x ?t12)) algebra)))
   ))
@@ -138,6 +155,54 @@
 		 (nlg ?axis 'adj) (nlg ?t2 'nlg-time) 
 		 (nlg ?axis 'adj)(nlg ?t1 'nlg-time)))
 
+;; Draw an impulse if two velocities are given and collinear 
+(defoperator draw-impulse-given-velocities (?b ?agent ?t)
+  :preconditions
+   ((impulse ?b ?agent ?t ?dir)
+    (test (not (equal ?dir 'unknown)))
+    (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
+    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
+			       (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
+    )
+  :effects
+   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+    ;; BvdS:  Why no equation for this?
+    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
+    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    ;; Ensure implicit eqn is written because dir is problem given
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+   )
+  :hint
+   ((point (string "You were given that there is an impulse on ~a." ?b))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    ))
+
+;; Draw an impulse if two velocities are given and not collinear 
+(defoperator draw-impulse-given-velocities-direction-unknown (?b ?agent ?t)
+  :preconditions
+   ((impulse ?b ?agent ?t ?dir)
+    (test (not (equal ?dir 'unknown)))
+    (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
+    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
+			       (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
+    )
+  :effects
+   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+    ;; BvdS:  Why no equation for this?
+    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
+    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    ;; Ensure implicit eqn is written because dir is problem given
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+   )
+  :hint
+   ((point (string "You were given that there is an impulse on ~a." ?b))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    ))
+
 ;;; This operator indicates when the impulse form of NSL is
 ;;; applicable.  
 ;;;
@@ -158,11 +223,10 @@
    (time (during ?t1 ?t2))
    )
   :effects
-  ;; there is no ?agnet or ?dir
   ((vector-psm-contains (impulse ?b ?agent (during ?t1 ?t2)) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (impulse ?b ?agent (during ?t1 ?t2)) imp ?quantity))
+   (compo-eqn-contains (impulse ?b ?agent (during ?t1 ?t2)) imp-velocity ?quantity))
  )
 
 ;;; It expects to get the body, time, axis label (?xyz) and axis rotation
@@ -174,21 +238,24 @@
 
 (defoperator write-impulse-velocity-compo (?b ?t ?xyz ?rot)
   :preconditions
-  ((in-wm (forces ?b ?t ?forces))
-   ;; for each force on b at t, define a component variable, 
-   ;; collecting variable names into ?f-compo-vars
-   (map ?f ?forces 
-    (variable ?f-compo-var (at (compo ?xyz ?rot ?f) ?t))
-   	?f-compo-var ?f-compo-vars)
-   ;; add acceleration compo var to form list of all compo vars in equation
-   (variable ?a-compo (at (compo ?xyz ?rot (accel ?b)) ?t))
-   (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
-   (debug "write-impulse-NL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
+  ((in-wm (impulses ?b ?t ?impulses))
+   ;; for each impulse on b at t, define a component variable, 
+   ;; collecting variable names into ?J-compo-vars
+   (map ?J ?impulses 
+    (variable ?J-compo-var (at (compo ?xyz ?rot ?J) ?t))
+   	?J-compo-var ?J-compo-vars)
+   (variable ?vf-compo (at (compo ?xyz ?rot (velocity ?b)) ?t2))
+   (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
+   ;; Add velocity components to list of variables.
+   (bind ?eqn-compo-vars (cons ?vi-compo (cons ?vf-compo ?J-compo-vars)))
    (variable ?m (mass ?b)))
   :effects
-   ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
-	 (compo-eqn nsl ?xyz ?rot (nl ?b ?t)))
-    (eqn-compos (compo-eqn nsl ?xyz ?rot (nl ?b ?t)) ?eqn-compo-vars))
+   ((eqn (= (+ . ?J-compo-vars) (- (* ?m ?vf-compo) (* ?m ?vi-compo)))
+	 (compo-eqn imp-velocity ?xyz ?rot 
+		    (impulse ?b ?agent (during ?t1 ?t2))))
+    (eqn-compos (compo-eqn imp-velocity ?xyz ?rot 
+			   (impulse ?b ?agent (during ?t1 t2))) 
+		?eqn-compo-vars))
   :hint
   ((point (string "You can relate the change in velocity of ~A to the
 impulse ~A." (?b def-np) (?t pp)))
