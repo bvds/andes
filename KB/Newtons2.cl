@@ -1335,14 +1335,14 @@
   :specifications "let's not and say we did"
    :effects ( (optional ?goal) ))
 
-;;; =================== Generic: Draw each requested vector =============================
+;;; ================= Generic: Draw each requested vector =====================
 ;;;
-;;; A goal of form (draw-vectors . ?vector-list) gives a list of vector quantities
-;;; to draw. This is a convenience used for batching a list of vectors
-;;; into a single goal to be the sought for a non-quantititive problem. That
-;;; is needed by our implementation so we can have a single "done" button to
-;;; mean that all parts are done, since our implementation associates buttons
-;;; with soughts.  May not be needed if we fix our implementation to 
+;;; A goal of form (draw-vectors . ?vector-list) gives a list of vector 
+;;; quantities to draw. This is a convenience used for batching a list of 
+;;; vectors into a single goal to be the sought for a non-quantititive problem.
+;;; That is needed by our implementation so we can have a single "done" button 
+;;; to mean that all parts are done, since our implementation associates 
+;;; buttons with soughts.  May not be needed if we fix our implementation to 
 ;;; understand a button meaning "done-all-parts".
 ;;; Used on qualitative magnetism problems mag1a, mag1b
 (defoperator draw-required-vectors (?vector-list)
@@ -1366,7 +1366,7 @@
   ; no preconditions!
   :effects ((choose-answer ?question-id ?correct-choice)))
 
-;; ===== Generic knowledge about times and constant values ========
+;;; ========== Generic knowledge about times and constant values ==============
 ;;;
 ;; Equal quantities: this is a generic operator that writes the
 ;; equality between scalar quantities in cases where it can be determined
@@ -2224,8 +2224,8 @@
 
 (defoperator draw-avg-vel-from-displacement (?b ?t1 ?t2)
   :preconditions (
-    ; only apply if no other motion spec for object?
-    ; (not (motion ?b ?t-motion . ?motion-spec))
+    ;; only apply if no other motion spec for object?
+    ;; (not (motion ?b ?t-motion . ?motion-spec))
     (in-wm (given (at (dir (displacement ?b)) (during ?t1 ?t2)) ?dir))
     (test (not (equal ?dir 'unknown)))  
     (not (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dontcare))
@@ -3716,10 +3716,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b1)
    (object ?b2)
    (bind ?agents (list ?b1 ?b2))
-   (map ?interval ?agents
-	;; BvdS: changed ?interval -> ?dont-care (?agent), ask Anders
-	(variable ?di_xy 
-		  (at (compo ?xy ?rot (force ?b ?dont-care applied)) ?t1))
+   (map ?agent ?agents
+	(variable ?di_xy (at (compo ?xy ?rot (force ?b ?agent applied)) ?t1))
 	?di_xy ?di_compos))
   :effects 
   ((eqn (= ?dnet_xy (+ . ?di_compos))
@@ -4009,7 +4007,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (time ?t)
     (in-wm (given (at (dir (force ?b ?agent applied)) ?t-force) ?dir-expr))
     (test (tinsidep ?t ?t-force))
-    ;; BvdS: why is this needed if we have (?b ?agent ?t) above?
+    ;; check that something else hasn't defined this force.
     (not (force ?b ?agent applied ?t . ?dont-care)) 
   )
   :effects (
@@ -4553,15 +4551,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (test (not (compound-bodyp ?b2))) ; ignore compound bodies here
     (test (not (equal ?b1 ?b2)))
     (time ?t)
-    ; We look for "action" force exerted *on* object b1 from b2.
-    ; reaction force we seek is on b2 = body of interest from b1. 
-    ; Note dir part matches numerical degree value only
-    (force ?b1 ?b2 ?type ?t (dnum ?f1-dir |deg|) action)
+    ;; We look for "action" force exerted *on* object b1 from b2.
+    ;; reaction force we seek is on b2 = body of interest from b1. 
+    ;; Note dir part matches numerical degree value only
+    ;; BvdS: ask Anders to double-check this change
+    (force ?b1 ?b2 ?type ?t ?f1-dir action)
     (not (force ?b2 ?b1 ?type ?t . ?dontcare))
-    (bind ?opposite-dir (mod (+ ?f1-dir 180) 360))
+    (bind ?opposite-dir (opposite ?f1-dir))
    )
    :effects (
-     (force ?b2 ?b1 ?type ?t (dnum ?opposite-dir |deg|) reaction)
+     (force ?b2 ?b1 ?type ?t ?opposite-dir reaction)
    ))
 
 (defoperator draw-reaction-force (?b1 ?b2 ?type ?t)
@@ -5641,14 +5640,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
       respectively."
   :preconditions
   ((in-wm (forces ?b ?t ?forces))
-   ; for each force on b at t, define a component variable, 
-   ; collecting variable names into ?f-compo-vars
-   ; (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
+   ;; for each force on b at t, define a component variable, 
+   ;; collecting variable names into ?f-compo-vars
+   ;; (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
    (map ?f ?forces 
     (variable ?f-compo-var (at (compo ?xyz ?rot ?f) ?t))
    	?f-compo-var ?f-compo-vars)
-   ; (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
-   ; add acceleration compo var to form list of all compo vars in equation
+   ;; (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
+   ;; add acceleration compo var to form list of all compo vars in equation
    (variable ?a-compo (at (compo ?xyz ?rot (accel ?b)) ?t))
    (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)

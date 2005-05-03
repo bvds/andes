@@ -14,9 +14,6 @@
 
 ;; Draw a "given" impulse at a certain direction. 
 (defoperator draw-impulse-given-dir (?b ?agent ?t)
-  :specifications 
-  "if you are given that there is an impulse on an object at a time
-   in a certain direction, then draw the impulse in that direction"
   :preconditions
    ((impulse ?b ?agent ?t ?dir)
     (test (not (equal ?dir 'unknown)))
@@ -59,46 +56,39 @@
 
 ;; Draw an impulse if associated force and interval known 
 (defoperator draw-impulse-given-force (?b ?agent ?t)
-  :specifications 
-  "if you are given that there is an impulse on an object at a time
-   in a certain direction, then draw the impulse in that direction"
   :preconditions
-   ((impulse ?b ?agent ?t ?dir)
-    (test (not (equal ?dir 'unknown)))
-    (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
-    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
-			       (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
+  (
+   ;; BvdS:  why not this form for forces
+   ;;(in-wm (at (dir (force ?b ?agent ?type)) ?t))
+   (force ?b ?agent ?type ?t ?dir ?action)
+   (test (intervalp ?t)) ;only impulse for intervals
+   (test (not (equal ?dir 'unknown)))
+   (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care)) ;not already drawn
+   (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-val (convert-dnum-to-number ?dir))
     )
   :effects
    ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
     ;; BvdS:  Why no equation for this?
     (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
     (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
-    ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+    ;; Ensure implicit eqn is written because dir is from force
+    ;; BvdS:  why implicit?
+    (implicit-eqn (= ?dir-var ?dir-val) (at (dir (impulse ?b ?agent)) ?t))
    )
   :hint
-   ((point (string "You were given that there is an impulse on ~a." ?b))
+   ((point (string "There is a force acting on ~a." ?b))
+    (teach (string "One can define an impulse associated with the force exerted by ~A ~A." ?agent (?t pp)))
     (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
-#|  ;old version?
-(defoperator draw-impulse-diagram (?b ?t1 ?t2)
-  :preconditions 
-  ((not (vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir)))
-   (body ?b)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
-   (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir1)
-   (axis-for ?b x ?rot))
-  :effects 
-  ((vector-diagram (impulse ?b ?agent (during ?t1 ?t2) ?dir))))
-|#
 
 (defoperator impulse-vector-contains (?sought)
   :preconditions 
-  ((any-member ?sought
+  ((impulse-agent ?b ?agent)
+   (any-member ?sought
 	       ((at (mag (impulse ?b ?agent)) ?t)
 		(at (dir (impulse ?b ?agent)) ?t)
 		(at (mag (force ?b ?agent ?type)) ?t)
@@ -138,8 +128,11 @@
 ;;;
 ;;; This is just F=m*a integrated over time.  It is more natural
 ;;; to express this in terms of momentum, but current problems do
-;;; not require that form (it would be an extra step).  This is
-;;; based on the "NSL-compo" rules.
+;;; not require that form (it would be an extra step).  
+;;; Generally, for these rules to apply, one must specify the 
+;;; agent explicitly using (impulse-agent ?body ?agent)
+;;;
+;;;This is based on the "NSL-compo" rules.
 ;;;
 
 (def-psmclass impulse-velocity 
@@ -155,51 +148,60 @@
 		 (nlg ?axis 'adj) (nlg ?t2 'nlg-time) 
 		 (nlg ?axis 'adj)(nlg ?t1 'nlg-time)))
 
-;; Draw an impulse if two velocities are given and collinear 
-(defoperator draw-impulse-given-velocities (?b ?agent ?t)
+;; Draw an impulse if two velocities are known to be opposite 
+(defoperator draw-impulse-given-velocities (?b ?agent ?t1 ?t2)
   :preconditions
-   ((impulse ?b ?agent ?t ?dir)
-    (test (not (equal ?dir 'unknown)))
-    (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
-    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
-			       (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
-    )
+  (
+   ;; The agent must be specified in the problem statement:
+   (impulse-agent ?b ?agent)			
+   (motion ?b ?t1 (straight ?dontcare1 ?dir1))
+   (test (not (equal ?dir1 'unknown)))	;known direction
+   (motion ?b ?t2 (straight ?dontcare2 ?dir2))
+   (test (not (equal ?dir2 'unknown)))	;known direction
+   (test (equal ?dir2 (opposite ?dir1))) ;velocities in opposite directions
+   (not (vector ?b (at (impulse ?b ?agent) ?t) ?dontcare3)) ;not already done 
+   (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) (body-name ?agent)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-val (convert-dnum-to-number ?dir2))
+   )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
-    ;; BvdS:  Why no equation for this?
+   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir2)
     (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
     (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
     ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dirval) (at (dir (impulse ?b ?agent)) ?t))
    )
   :hint
-   ((point (string "You were given that there is an impulse on ~a." ?b))
+   ((point (string "The impulse on ~a causes its motion to change." ?b))
     (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
-;; Draw an impulse if two velocities are given and not collinear 
-(defoperator draw-impulse-given-velocities-direction-unknown (?b ?agent ?t)
+;; Draw an impulse if two velocities are not known to be opposite
+(defoperator draw-impulse-given-velocities-unknown-dir (?b ?agent ?t1 ?t2)
   :preconditions
-   ((impulse ?b ?agent ?t ?dir)
-    (test (not (equal ?dir 'unknown)))
-    (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
-    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
-			       (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
-    )
+  (
+   ;; The agent must be specified in the problem statement:
+   (impulse-agent ?b ?agent)			
+   (motion ?b ?t1 (straight ?dontcare1 ?dir1))
+   (motion ?b ?t2 (straight ?dontcare2 ?dir2))
+   (test (or (equal ?dir1 'unknown) (equal ?dir2 'unknown) ;unknown direction
+	     (not (equal ?dir2 (opposite ?dir1))))) ;velocities not opposite 
+   (not (vector ?b (at (impulse ?b ?agent) ?t) ?dontcare3)) ;not already done 
+   (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) (body-name ?agent)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-val (convert-dnum-to-number ?dir2))
+   )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
-    ;; BvdS:  Why no equation for this?
+   ((vector ?b (at (impulse ?b ?agent) ?t) unknown)
     (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
     (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
     ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dir-val) (at (dir (impulse ?b ?agent)) ?t))
    )
   :hint
-   ((point (string "You were given that there is an impulse on ~a." ?b))
+   ((point (string "The impulse on ~a causes its motion to change." ?b))
     (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
@@ -208,7 +210,8 @@
 ;;;
 (defoperator impulse-velocity-contains (?quantity)
   :preconditions 
-  ((any-member ?quantity
+  ((impulse-agent ?b ?agent)
+   (any-member ?quantity
 	        ((at (mag (impulse ?b ?agent)) (during ?t1 ?t2))
 		 (at (dir (impulse ?b ?agent)) (during ?t1 ?t2))
 		 (mass ?b)
