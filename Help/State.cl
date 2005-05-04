@@ -244,8 +244,10 @@
   ;; Clear out the student's actions. This may change later. 
   (setq *studentactions* nil) 
   
-  ;; Load the current problem and set into global *cp* defined in sgg
-  (setf *cp* (read-problem-file name :path (andes-path "Problems/")))
+  ;; Load the current problem and set into global *cp* 
+  ;; NB: for case-sensitive filesystems, ensure we convert the problem name, 
+  ;; passed as a string, to canonical upper case used for problem ids.
+  (setf *cp* (read-problem-file (string-upcase name) :path (andes-path "Problems/")))
   ;; If the problem failed to load then we will submit a color-red turn
   ;; to the workbench in order to make the case known.  If not then the 
   ;; code will set up the problem for use and then return a color-green
