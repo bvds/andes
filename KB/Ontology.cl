@@ -1193,5 +1193,5 @@
 ; Used inside conservation of momentum:
 (def-equation momentum-compo (momentum-compo ?body ?time ?axis ?rot)
   :english ("definition of momentum component")
-  :complexity minor ; ?? minor so equation can be optional in psm
+  :complexity definition; ?? minor so equation can be optional in psm
   :EqnFormat ("pi_~a = m * v_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
