@@ -87,7 +87,7 @@
 
 (defoperator impulse-vector-contains (?sought)
   :preconditions 
-  ((impulse-agent ?b ?agent)
+  ((collision ?bodies ?t ?elastic-dont-care)
    (any-member ?sought
 	       ((at (mag (impulse ?b ?agent)) ?t)
 		(at (dir (impulse ?b ?agent)) ?t)
@@ -96,6 +96,8 @@
 		(duration ?t)))
    (object ?b)
    (time ?t)
+   (test (member ?b ?bodies :test #'equal)) 
+   (test (member ?agent ?bodies :test #'equal)) 
    (test (time-intervalp ?t)))
   :effects 
    ((vector-psm-contains (impulse ?b ?agent ?t) ?sought)
@@ -152,8 +154,9 @@
 (defoperator draw-impulse-given-velocities (?b ?agent ?t1 ?t2)
   :preconditions
   (
-   ;; The agent must be specified in the problem statement:
-   (impulse-agent ?b ?agent)			
+   (collision ?bodies ?t ?elastic-dont-care)
+   (test (member ?b ?bodies :test #'equal)) 
+   (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b ?t1 (straight ?dontcare1 ?dir1))
    (test (not (equal ?dir1 'unknown)))	;known direction
    (motion ?b ?t2 (straight ?dontcare2 ?dir2))
@@ -181,8 +184,9 @@
 (defoperator draw-impulse-given-velocities-unknown-dir (?b ?agent ?t1 ?t2)
   :preconditions
   (
-   ;; The agent must be specified in the problem statement:
-   (impulse-agent ?b ?agent)			
+   (collision ?bodies ?t ?elastic-dont-care)
+   (test (member ?b ?bodies :test #'equal)) 
+   (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b ?t1 (straight ?dontcare1 ?dir1))
    (motion ?b ?t2 (straight ?dontcare2 ?dir2))
    (test (or (equal ?dir1 'unknown) (equal ?dir2 'unknown) ;unknown direction
@@ -210,7 +214,8 @@
 ;;;
 (defoperator impulse-velocity-contains (?quantity)
   :preconditions 
-  ((impulse-agent ?b ?agent)
+  (
+   (collision ?bodies ?t ?elastic-dont-care)
    (any-member ?quantity
 	        ((at (mag (impulse ?b ?agent)) (during ?t1 ?t2))
 		 (at (dir (impulse ?b ?agent)) (during ?t1 ?t2))
@@ -221,6 +226,9 @@
 		 (at (dir (velocity ?b)) ?t2))
 		)
    (object ?b)
+   (object ?agent)
+   (test (member ?b ?bodies :test #'equal)) 
+   (test (member ?agent ?bodies :test #'equal)) 
    (time ?t1)
    (time ?t2)
    (time (during ?t1 ?t2))

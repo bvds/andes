@@ -627,7 +627,7 @@
 	(projection (at (compo ?xyz ?rot ?vector) ?t))))
   :hint
   ((point (string "Since ~A ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
+   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qV - $qx)" )
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~A ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A*~A($q~A - $q~A)."
 	       ?vector (?t pp) (?mag-var algebra) (?degrees adj)
@@ -7336,6 +7336,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ;; p1i
   (variable ?v1i_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t1))
   (variable ?p1i_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t1))
+  ;; BvdS:  why are these not in the effects?
   (eqn (= ?p1i_compo (* ?m1 ?v1i_compo)) (momentum-compo ?b1 ?t1 ?xyz ?rot))
   ;; p2i
   (variable ?v2i_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t1))
