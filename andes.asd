@@ -74,9 +74,9 @@
 				     (:file "circuit-ontology")  
 				     ;; AXES-DRAWNP not defined
 				     (:file "Newtons2") 
+				     (:file "vectors")
 				     (:file "NewtonsNogoods")  
 				     (:file "Problems")
-				     (:file "impulse-problems") 
 				     (:file "waves")
 				     (:file "waves-problems")
 				     (:file "work-energy-problems")
@@ -89,8 +89,8 @@
 				     ;; (:file "PyreneesProblems")
 				     (:file "forces")          
 				     (:file "optics")          
-				     (:file "vectors")
 				     (:file "impulse")
+				     (:file "impulse-problems") 
 				     (:file "makeprob")        
 				     ;; there is some ugly code here
 				     (:file "circuits")
