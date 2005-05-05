@@ -87,7 +87,7 @@
   wm                 ;; Collection of the solver working memory.
   )
 
-;;--------------------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; Problem output
 
 ;; Print out the full problem.  
@@ -148,7 +148,7 @@
   (print-bubblegraph (Problem-Graph Problem) t 0 form))
 
 
-;;-----------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; Write-Problem-File
 ;; Writing a problem file is a simple one-pass loop thorough the struct itself.
 ;; The system generates a new file or overwrites the old one and then stores 

@@ -401,27 +401,6 @@
 	 merge-paths 
 	 insert-choose))
 	 
-#|
-  ;;; This file is the interpreter for Andes Script. Call (s2 sdd1) to
-  ;;; try it out.  The following macros allows you to leave off the
-  ;;; quote on the problem identifier.
-  
-  (defmacro s2 (Prob)
-  `(solve2 (quote ,Prob)))
-  
-  (defmacro pwm (Prob)
-  `(print-problem-wms (quote ,Prob)))
-  
-  (defmacro pa (Prob)
-  `(print-problem-actions (quote ,Prob)))
-  
-  (defmacro psg (Prob)
-  `(dump-sg (quote ,Prob)))
-  
-  (defmacro run (Prob)
-  `(solve-dump-sg (quote ,Prob)))
-  |#
-
 ;;; ========================= top level ==========================
 ;;; This function solves the problem and then dumps the solution graph
 ;;; to a file.  The file has same name as the problem and "sg" as the

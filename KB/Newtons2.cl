@@ -7117,13 +7117,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;===========================================================================
     
 (defoperator linmom-vector-contains (?sought)
-  :preconditions (
-  ; for now only apply if there is a collision 
-  (collision ?colliding-bodies (during ?t1 ?t2) ?type)
-   ; in case problem author didn't canonicalize body list:
-  (bind ?bodies (sort ?colliding-bodies #'expr<))
-  (any-member ?sought (
-               (at (mag (velocity ?b)) ?t1) (at (dir (velocity ?b)) ?t1)
+  :preconditions 
+  (
+   ;; for now only apply if there is a collision 
+   (collision ?colliding-bodies (during ?t1 ?t2) ?type)
+   ;; in case problem author didn't canonicalize body list:
+   (bind ?bodies (sort ?colliding-bodies #'expr<))
+   (any-member ?sought (
+			(at (mag (velocity ?b)) ?t1) (at (dir (velocity ?b)) ?t1)
                (at (mag (velocity ?b)) ?t2) (at (dir (velocity ?b)) ?t2)
 	       (mass ?b) 
 	       ; in case bodies split from or join into compound:
