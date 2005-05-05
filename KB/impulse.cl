@@ -209,30 +209,29 @@
 (defoperator impulse-momentum-contains (?sought)
   :preconditions 
   (
-   (time ?t1) (test (time-pointp ?t1)) ;sanity check
-   (time ?t2) (test (time-pointp ?t2)) ;sanity check
-   (bind ?t `(during ,?t1 ,?t2))
-   (time ?t) ;effectively tests ?t is a valid interval
-   (collision ?bodies ?t ?elastic-dont-care)
+   (collision ?bodies (during ?t1 ?t2) ?elastic-dont-care)
+   (time (during ?t1 ?t2)) ;effectively tests ?t is a valid interval
+   (time ?t1) ;(test (time-pointp ?t1)) ;sanity check
+   (time ?t2) ;(test (time-pointp ?t2)) ;sanity check
+   ;(bind ?t `(during ,?t1 ,?t2))
+   (object ?b) (object ?agent)
+   (test (member ?b ?bodies :test #'equal)) 
+   (test (member ?agent ?bodies :test #'equal)) 
+   (test (not (equal ?b ?agent)))
    (any-member ?sought
-	        ((at (mag (impulse ?b ?agent)) ?t)
-		 (at (dir (impulse ?b ?agent)) ?t)
+	        ((at (mag (impulse ?b ?agent)) (during ?t1 ?t2))
+		 (at (dir (impulse ?b ?agent)) (during ?t1 ?t2))
 		 (at (mag (momentum ?b)) ?t1)
 		 (at (dir (momentum ?b)) ?t1)
 		 (at (mag (momentum ?b)) ?t2)
 		 (at (dir (momentum ?b)) ?t2))
 		)
-   (object ?b)
-   (object ?agent)
-   (test (member ?b ?bodies :test #'equal)) 
-   (test (member ?agent ?bodies :test #'equal)) 
-   (test (not (equal ?b ?agent)))
    )
   :effects
-  ((vector-psm-contains (impulse ?b ?agent ?t) ?sought)
+  ((vector-psm-contains (impulse ?b ?agent (during ?t1 ?t2)) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (impulse ?b ?agent ?t) 
+   (compo-eqn-contains (impulse ?b ?agent (during ?t1 ?t2)) 
 		       imp-momentum ?sought))
  )
 
