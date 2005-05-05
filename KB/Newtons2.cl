@@ -4729,7 +4729,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
     (allow-compound)
     (move-together ?body-list ?t-coupled) ; args should be atomic bodies
-    (bind ?bodies (sort ?body-list #'expr<))
+    (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
     (not (object (compound . ?bodies)))
     (in-wm (motion ?b1 ?t-motion ?motion-spec)) 
     (test (member ?b1 ?body-list :test #'equal))
@@ -7122,19 +7122,21 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; for now only apply if there is a collision 
    (collision ?colliding-bodies (during ?t1 ?t2) ?type)
    ;; in case problem author didn't canonicalize body list:
-   (bind ?bodies (sort ?colliding-bodies #'expr<))
+   (bind ?bodies (sort (copy-list ?bodies-list) #'expr<)) ;sort is destructive
    (any-member ?sought (
-			(at (mag (velocity ?b)) ?t1) (at (dir (velocity ?b)) ?t1)
-               (at (mag (velocity ?b)) ?t2) (at (dir (velocity ?b)) ?t2)
-	       (mass ?b) 
-	       ; in case bodies split from or join into compound:
-	       (at (mag (velocity (compound ?bodies)) ?t1))
-	       (at (mag (velocity (compound ?bodies)) ?t2))
-	       (mass (compound ?bodies))
-	       	      ))
-  (test (or (contains-sym ?sought 'compound) 
-            (member ?b ?colliding-bodies :test #'equal)))
-  )
+			(at (mag (velocity ?b)) ?t1) 
+			(at (dir (velocity ?b)) ?t1)
+			(at (mag (velocity ?b)) ?t2) 
+			(at (dir (velocity ?b)) ?t2)
+			(mass ?b) 
+			;; in case bodies split from or join into compound:
+			(at (mag (velocity (compound ?bodies)) ?t1))
+			(at (mag (velocity (compound ?bodies)) ?t2))
+			(mass (compound ?bodies))
+			))
+   (test (or (contains-sym ?sought 'compound) 
+	     (member ?b ?colliding-bodies :test #'equal)))
+   )
   :effects (
   (vector-psm-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
@@ -7506,16 +7508,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; at the bubble-graph level.
 ;
 (defoperator cons-ke-elastic-contains (?quantity)
-  :preconditions (
-    (collision ?colliding-bodies (during ?t1 ?t2) elastic)
-    (any-member ?quantity (
-			(at (mag (velocity ?b)) ?t1)
-			(at (mag (velocity ?b)) ?t2)
-			(mass ?b)
+  :preconditions 
+  (
+   (collision ?coll-bodies (during ?t1 ?t2) elastic)
+   (any-member ?quantity (
+			  (at (mag (velocity ?b)) ?t1)
+			  (at (mag (velocity ?b)) ?t2)
+			  (mass ?b)
                 	  ))
-    (test (member ?b ?colliding-bodies :test #'equalp))
-    ; in case problem author didn't canonicalize list of bodies
-    (bind ?bodies (sort ?colliding-bodies #'expr<))
+   (test (member ?b ?coll-bodies :test #'equalp))
+   ;; in case problem author didn't canonicalize list of bodies
+   (bind ?bodies (sort (copy-list ?coll-bodies) #'expr<)) ;sort is destructive
   )
   :effects (
     (eqn-contains (cons-ke-elastic ?bodies (during ?t1 ?t2)) ?quantity)
@@ -8562,8 +8565,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       	      ))
   (test (or (contains-sym ?sought 'compound)
             (member ?b ?body-list :test #'equal)))
-  ; in case problem author didn't canonicalize body list:
-  (bind ?bodies (sort ?body-list #'expr<))
+  ;; in case problem author didn't canonicalize body list:
+  (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
   )
   :effects (
     (angular-eqn-contains (cons-angmom ?bodies (during ?t1 ?t2)) ?sought)
