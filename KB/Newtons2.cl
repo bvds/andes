@@ -3163,7 +3163,7 @@
 						 algebra)))
   ))
 
-;;#| ;; for commenting out LK-no-a since instructors don't consider it fundamental
+#| ;; for commenting out LK-no-a since USNA instructors don't consider it fundamental
    
 ;;; Writes the equation s = 0.5*(vi + vf)*t, which lacks a
 
@@ -3231,7 +3231,7 @@
 			  algebra)))
    ))
 
-;;|# ;; end commented-out lk-no-a
+|# ;; end possibly commented-out lk-no-a
 
 ;|# ;; end not in physics-lite used in Pyrenees eval
 
