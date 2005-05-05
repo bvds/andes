@@ -7261,10 +7261,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-initial-momentum-split (?bodies ?t1)
   :preconditions (
-     ; use this if collision involves split
+     ;; use this if collision involves split
      (in-wm (collision ?body-list (during ?t1 ?t2) split))
      (bind ?c `(compound ,@?bodies)) ; for shorthand
      (body ?c)
+     ;;(axis-for ?c ?xyz-c ?rot-t) ;BvdS don't know what this would do
      (vector ?c (at (momentum ?c) ?t1) ?dir1)
   )
   :effects ( (initial-momentum-drawn ?bodies ?t1) ))
@@ -7286,6 +7287,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (in-wm (collision ?body-list (during ?t1 ?t2) inelastic))
      (bind ?c `(compound ,@?bodies)) ; for shorthand
      (body ?c)
+     ;;(axis-for ?c ?xyz-c ?rot-t) ;BvdS: don't know what this would do
      (vector ?c (at (momentum ?c) ?t2) ?dir1)
   )
   :effects ( (final-momentum-drawn ?bodies ?t2) ))
