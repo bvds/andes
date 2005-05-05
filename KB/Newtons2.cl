@@ -7112,30 +7112,99 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?P-var (* ?F-var ?v-var (cos ?theta-var))) algebra)))
  ))
 
+
+;;;;===========================================================================
+;;;;                Definition of Linear Momentum p=m*v
+;;;;===========================================================================
+
+;;; Following writes p_x = m * vt_x for a single body and time
+;;; body may be a compound body in case of splits or joins.
+
+(defoperator momentum-contains (?sought)
+  :preconditions 
+  (
+   (any-member ?sought (
+			(at (mag (momentum ?b)) ?t) 
+			(at (dir (momentum ?b)) ?t)
+			(at (mag (velocity ?b)) ?t) 
+			(at (dir (velocity ?b)) ?t)
+			(mass ?b) 
+			))
+   (time ?t)
+   )
+  :effects (
+  (vector-psm-contains (linear-momentum ?b ?t) ?sought)
+  ;; since only one compo-eqn under this vector psm, we can just
+  ;; select it now, rather than requiring further operators to do so
+  (compo-eqn-contains (linear-momentum ?b ?t) definition ?sought)
+  ))
+
+(defoperator draw-momentum-diagram (?b ?t)
+  :preconditions 
+  ( (body ?b)
+    ;; ?dirv = ?dirm is set in drawing rules
+    (vector ?b (at (velocity ?b) ?t) ?dirv)
+    (vector ?b (at (momentum ?b) ?t) ?dirm)
+    (axis-for ?b ?xyz ?rot) ;maybe a problem for compounds?
+  )
+  :effects (
+   (vector-diagram (linear-momentum ?b ?t))
+  ))
+
+
+(defoperator write-momentum-compo (?b ?t ?xyz ?rot)
+  :preconditions (
+    ;; for now, all these preconds satisfied from above
+    (variable ?p_compo (at (compo ?xyz ?rot (momentum ?b)) ?t))
+    (variable ?v_compo (at (compo ?xyz ?rot (velocity ?b)) ?t))
+    (variable ?m (mass ?b))
+    ;; The magnitude equation can be put out as an optional equation. 
+    ;; But this is now done by the projection equations 
+    ;; (variable ?p-var (at (mag (momentum ?b)) ?t))
+    ;; (variable ?v-var (at (mag (velocity ?b)) ?t))
+  )
+  :effects 
+  (
+   (eqn (= ?p_compo (* ?m ?v_compo)) 
+	      (compo-eqn definition ?xyz ?rot (linear-momentum ?b ?t)))
+   (eqn-compos (compo-eqn definition ?xyz ?rot (linear-momentum ?b ?t))
+	       (?p_compo ?v_compo) )
+   ;; associated dir equality is done in drawing rules
+   ;; include as optional equation: but might be done by compo-equation
+   ;; (implicit-eqn (= ?p-var (* ?m ?v-var)) (mag-momentum ?b ?t))
+   )
+  :hint (
+    (point (string "In order to form an expression for the ~a component of total momentum ~a, you will need an expression for the ~a component of the momentum of ~A ~A"
+     ((axis ?xyz ?rot) symbols-label) (?t pp)
+     ((axis ?xyz ?rot) symbols-label)  ?b (?t pp)))
+    (teach (string "The linear momentum of a body is a vector defined as its mass times the velocity vector. Therefore, the component of a body's momentum along an axis can be expressed as its mass times the component of the body's velocity along that axis."))
+    (bottom-out (string "Write the equation ~A"  
+                        ((= ?p_compo (* ?m_compo ?v_compo)) algebra)))
+  ))
+
+
 ;;;;===========================================================================
 ;;;;                 Conservation of Linear Momentum
 ;;;;===========================================================================
     
-(defoperator linmom-vector-contains (?sought)
+(defoperator cons-linmom-contains (?sought)
   :preconditions 
   (
    ;; for now only apply if there is a collision 
-   (collision ?colliding-bodies (during ?t1 ?t2) ?type)
+   (collision ?body-list (during ?t1 ?t2) ?type)
    ;; in case problem author didn't canonicalize body list:
-   (bind ?bodies (sort (copy-list ?bodies-list) #'expr<)) ;sort is destructive
+   (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
    (any-member ?sought (
-			(at (mag (velocity ?b)) ?t1) 
-			(at (dir (velocity ?b)) ?t1)
-			(at (mag (velocity ?b)) ?t2) 
-			(at (dir (velocity ?b)) ?t2)
-			(mass ?b) 
+			(at (mag (momentum ?b)) ?t1) 
+			(at (dir (momentum ?b)) ?t1)
+			(at (mag (momentum ?b)) ?t2) 
+			(at (dir (momentum ?b)) ?t2)
 			;; in case bodies split from or join into compound:
-			(at (mag (velocity (compound ?bodies)) ?t1))
-			(at (mag (velocity (compound ?bodies)) ?t2))
-			(mass (compound ?bodies))
+			(at (mag (momentum (compound ?bodies)) ?t1))
+			(at (mag (momentum (compound ?bodies)) ?t2))
 			))
    (test (or (contains-sym ?sought 'compound) 
-	     (member ?b ?colliding-bodies :test #'equal)))
+	     (member ?b ?body-list :test #'equal)))
    )
   :effects (
   (vector-psm-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
@@ -7183,11 +7252,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      ;; use this if bodies don't split from initial compound
      ;; !!! code assumes there's only one collision in problem
-     (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
+     (in-wm (collision ?body-list (during ?t1 ?t2) ?type))
      (test (not (equal ?type 'split)))
-     ;; (foreach ?b ?bodies (body ?b)) ; drawing body unnecessary
-     (foreach ?b ?bodies
-   	(vector ?b (at (velocity ?b) ?t1) ?dir1))
      (foreach ?b ?bodies
    	(vector ?b (at (momentum ?b) ?t1) ?dir1))
   )
@@ -7196,10 +7262,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-initial-momentum-split (?bodies ?t1)
   :preconditions (
      ; use this if collision involves split
-     (in-wm (collision ?colliding-bodies (during ?t1 ?t2) split))
+     (in-wm (collision ?body-list (during ?t1 ?t2) split))
      (bind ?c `(compound ,@?bodies)) ; for shorthand
      (body ?c)
-     (vector ?c (at (velocity ?c) ?t1) ?dir1)
      (vector ?c (at (momentum ?c) ?t1) ?dir1)
   )
   :effects ( (initial-momentum-drawn ?bodies ?t1) ))
@@ -7207,11 +7272,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-final-momentum (?bodies ?t2)
   :preconditions (
      ;; use this if bodies don't join into compound after collision
-     (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
+     (in-wm (collision ?body-list (during ?t1 ?t2) ?type))
      (test (not (equal ?type 'inelastic)))
     ;; (foreach ?b ?bodies (body ?b)) ; drawing body unnecessary
-     (foreach ?b ?bodies
-   	(vector ?b (at (velocity ?b) ?t2) ?dir1))
      (foreach ?b ?bodies
    	(vector ?b (at (momentum ?b) ?t2) ?dir1))
   )
@@ -7220,10 +7283,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-final-momentum-join (?bodies ?t2)
   :preconditions (
      ;; use this if collision involves join = completely inelastic collision
-     (in-wm (collision ?colliding-bodies (during ?t1 ?t2) inelastic))
+     (in-wm (collision ?body-list (during ?t1 ?t2) inelastic))
      (bind ?c `(compound ,@?bodies)) ; for shorthand
      (body ?c)
-     (vector ?c (at (velocity ?c) ?t2) ?dir1)
      (vector ?c (at (momentum ?c) ?t2) ?dir1)
   )
   :effects ( (final-momentum-drawn ?bodies ?t2) ))
@@ -7320,50 +7382,29 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-cons-linmom-compo (?b1 ?b2 ?t1 ?t2 ?xyz ?rot)
   :preconditions (
   ;; use these steps if no split or join
-  (in-wm (collision ?colliding-bodies (during ?t1 ?t2) ?type))
+  (in-wm (collision ?body-list (during ?t1 ?t2) ?type))
   (test (not (member ?type '(split inelastic))))
-  ;; write subsidiary equations for all needed momenta components along ?xyz
-  ;; Using mass variable goal inflates file with at least 16 different 
-  ;; possibilities -- draw body at any of 3 times + defined variable = 4 ways 
-  ;; to get each mass variable.
-  ;; Instead just require drawing bodies first, which will suffice to get 
+  ;; Require drawing bodies first, which will suffice to get 
   ;; mass variables.  Note this will require the time choice on drawn bodies 
   ;; to be the interval, nothing else.
-  ;;   (variable ?m1 (mass ?b1))
-  ;;   (variable ?m2 (mass ?b2))
   (body ?b1)
   (body ?b2)
-  ;; retrieve mass variables
-  (in-wm (variable ?m1 (mass ?b1)))
-  (in-wm (variable ?m2 (mass ?b2)))
   ;; p1i
-  (variable ?v1i_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t1))
   (variable ?p1i_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t1))
-  ;; BvdS:  why are these not in the effects?
-  (eqn (= ?p1i_compo (* ?m1 ?v1i_compo)) (momentum-compo ?b1 ?t1 ?xyz ?rot))
   ;; p2i
-  (variable ?v2i_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t1))
   (variable ?p2i_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t1))
-  (eqn (= ?p2i_compo (* ?m2 ?v2i_compo)) (momentum-compo ?b2 ?t1 ?xyz ?rot))
   ; p1f
-  (variable ?v1f_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t2))
   (variable ?p1f_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t2))
-  (eqn (= ?p1f_compo (* ?m1 ?v1f_compo)) (momentum-compo ?b1 ?t2 ?xyz ?rot))
   ;; p2f
-  (variable ?v2f_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t2))
   (variable ?p2f_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t2))
-  (eqn (= ?p2f_compo (* ?m2 ?v2f_compo)) (momentum-compo ?b2 ?t2 ?xyz ?rot))
-  ;; and combine into final equation using velocities so cons-linmom can find 
-  ;; them
   )
   :effects (
-  (eqn (= (+ (* ?m1 ?v1i_compo) (* ?m2 ?v2i_compo))
-          (+ (* ?m1 ?v1f_compo) (* ?m2 ?v2f_compo)))
+  (eqn (= (+ ?p1i_compo ?p2i_compo) (+ ?p1f_compo ?p2f_compo))
        (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2))))
   ;; need to collect compos of all terms and list in eqn-compos
   (eqn-compos 
        (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2)))
-       (?v1i_compo ?v2i_compo ?v1f_compo ?v2f_compo) )
+       (?p1i_compo ?p2i_compo ?p1f_compo ?p2f_compo) )
   )
   :hint (
   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
@@ -7371,142 +7412,91 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  after a collision."))
   (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
 			((axis ?xyz ?rot) symbols-label)
-			((= (+ (* ?m1 ?v1i_compo) (* ?m2 ?v2i_compo))
-                            (+ (* ?m1 ?v1f_compo) (* ?m2 ?v2f_compo))) algebra)))
-  ))
-
-;;; Following writes p_x = m * vt_x for a single body and time
-;;; body may be a compound body in case of splits or joins.
-;;; this intermediate step is unnecessary since the term p_x is not used in 
-;;; the final eqn, only m*v_x, but it does serve to illustrate where the term 
-;;; comes from.
-(defoperator write-momentum-compo (?b ?t ?xyz ?rot)
-  :preconditions (
-    ; for now, all these preconds satisfied from above
-    (in-wm (variable ?p_compo (at (compo ?xyz ?rot (momentum ?b)) ?t)))
-    (in-wm (variable ?v_compo (at (compo ?xyz ?rot (velocity ?b)) ?t)))
-    (in-wm (variable ?m (mass ?b)))
-    ; for magnitude equation put out as implicit equation to make it optional
-    (in-wm (variable ?p-var (at (mag (momentum ?b)) ?t)))
-    (in-wm (variable ?v-var (at (mag (velocity ?b)) ?t)))
-  )
-  :effects (
-    (eqn (= ?p_compo (* ?m_compo ?v_compo)) (momentum-compo ?b ?t ?xyz ?rot))
-    (implicit-eqn (= ?p-var (* ?m ?v-var)) (mag-momentum ?b ?t))
-  )
-  :hint (
-    (point (string "In order to form an expression for the ~a component of total momentum ~a, you will need an expression for the ~a component of the momentum of ~A ~A"
-     ((axis ?xyz ?rot) symbols-label) (?t pp)
-     ((axis ?xyz ?rot) symbols-label)  ?b (?t pp)))
-    (teach (string "The linear momentum of a body is a vector defined as its mass times the velocity vector. Therefore, the component of a body's momentum along an axis can be expressed as its mass times the component of the body's velocity along that axis."))
-    (bottom-out (string "Write the equation ~A"  
-                        ((= ?p_compo (* ?m_compo ?v_compo)) algebra)))
+			((= (+ ?p1i_compo ?p2i_compo) (+ ?p1f_compo ?p2f_compo)) algebra)))
   ))
 
 (defoperator write-cons-linmom-compo-split (?b1 ?b2 ?t1 ?t2 ?xyz ?rot)
   :preconditions (
   ;; use these steps if collision involves split 
-  (in-wm (collision ?colliding-bodies (during ?t1 ?t2) split))
+  (in-wm (collision ?body-list (during ?t1 ?t2) split))
   ;; write subsidiary equations for all needed momenta components along ?xyz
   ;; p_initial = pc
   (bind ?c (combine-bodies ?b1 ?b2))
   (body ?c) 
-  (in-wm (variable ?mc (mass ?c)))
   ;; we need to choose an axis to use for the compound since nothing
   (axis-for ?c ?xyz-c ?rot-t)
-  (variable ?vc_compo (at (compo ?xyz ?rot (velocity ?c)) ?t1))
   (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t1))
-  (eqn (= ?pc_compo (* ?mc ?vc_compo)) (momentum-compo ?c ?t1 ?xyz ?rot))
   ;; p1f
-  ;; (variable ?m1 (mass ?b1))
   (body ?b1)
-  (in-wm (variable ?m1 (mass ?b1)))
-  (variable ?v1f_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t2))
   (variable ?p1f_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t2))
-  (eqn (= ?p1f_compo (* ?m1 ?v1f_compo)) (momentum-compo ?b1 ?t2 ?xyz ?rot))
   ;; p2f
-  ;; (variable ?m2 (mass ?b2))
   (body ?b2)
-  (in-wm (variable ?m2 (mass ?b2)))
-  (variable ?v2f_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t2))
   (variable ?p2f_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t2))
-  (eqn (= ?p2f_compo (* ?m2 ?v2f_compo)) (momentum-compo ?b2 ?t2 ?xyz ?rot))
-  ; and combine into final equation using velocities so cons-linmom can find them
   )
-  :effects (
-  (eqn (= (* ?mc ?vc_compo) 
-             (+ (* ?m1 ?v1f_compo) (* ?m2 ?v2f_compo)))
-       (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2))))
-  ; need to collect compos of all terms and list in eqn-compos
-  (eqn-compos 
-       (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2)))
-       (?vc_compo ?v1f_compo ?v2f_compo) )
-  )
-  :hint (
-  (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
-  (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and
+  :effects 
+  ( (eqn (= ?pc_compo (+ ?p1f_compo ?p2f_compo))
+	 (compo-eqn lm-compo ?xyz ?rot 
+		    (cons-linmom (?b1 ?b2) (during ?t1 ?t2))))
+    ;; need to collect compos of all terms and list in eqn-compos
+    (eqn-compos 
+     (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2)))
+     (?pc_compo ?p1f_compo ?p2f_compo) )
+    )
+  :hint 
+  (
+   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
+   (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and
  after a collision."))
-    (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
-		        ((axis ?xyz ?rot) symbols-label)
-                        ((= (* ?mc ?vc_compo) 
-                            (+ (* ?m1 ?v1f_compo) (* ?m2 ?v2f_compo))) algebra)))
-  ))
+   (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
+		       ((axis ?xyz ?rot) symbols-label)
+		       ((= ?pc_compo (+ ?p1f_compo ?p2f_compo)) algebra)))
+   ))
 
 (defoperator write-cons-linmom-compo-join (?b1 ?b2 ?t1 ?t2 ?xyz ?rot)
   :preconditions (
   ;; use these steps if join in inelastic collision
-  (in-wm (collision ?colliding-bodies (during ?t1 ?t2) inelastic))
+  (in-wm (collision ?body-list (during ?t1 ?t2) inelastic))
   ;; write subsidiary equations for all needed momenta components along ?xyz
   ;; p1i
-  ;; (variable ?m1 (mass ?b1))
   (body ?b1)
-  (in-wm (variable ?m1 (mass ?b1)))
-  (variable ?v1i_compo (at (compo ?xyz ?rot (velocity ?b1)) ?t1))
   (variable ?p1i_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t1))
-  (eqn (= ?p1i_compo (* ?m1 ?v1i_compo)) (momentum-compo ?b1 ?t1 ?xyz ?rot))
   ;; p2i
-  ;; (variable ?m2 (mass ?b2))
   (body ?b2)
-  (in-wm (variable ?m2 (mass ?b2)))
-  (variable ?v2i_compo (at (compo ?xyz ?rot (velocity ?b2)) ?t1))
   (variable ?p2i_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t1))
-  (eqn (= ?p2i_compo (* ?m2 ?v2i_compo)) (momentum-compo ?b2 ?t1 ?xyz ?rot)) 
   ;; p_final = pc
   (bind ?c (combine-bodies ?b1 ?b2))
   (body ?c)
-  (in-wm (variable ?mc (mass ?c)))
-  (variable ?vc_compo (at (compo ?xyz ?rot (velocity ?c)) ?t2))
+  ;; we need to choose an axis to use for the compound since nothing
+  (axis-for ?c ?xyz-c ?rot-t)
   (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t2))
-  (eqn (= ?pc_compo (* ?mc ?vc_compo)) (momentum-compo ?c ?t2 ?xyz ?rot))
-  ; and combine into final equation using velocities so cons-linmom can find them
   )
   :effects (
-  (eqn (= (+ (* ?m1 ?v1i_compo) (* ?m2 ?v2i_compo))
-          (* ?mc ?vc_compo))
+  (eqn (= (+ ?p1i_compo ?p2i_compo) ?pc_compo)
        (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2))))
   (eqn-compos 
        (compo-eqn lm-compo ?xyz ?rot (cons-linmom (?b1 ?b2) (during ?t1 ?t2)))
-       (?v1i_compo ?v2i_compo ?vc_compo) )
+       (?p1i_compo ?p2i_compo ?pc_compo) )
   )
   :hint (
    (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
   (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and after a collision."))
     (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
 		        ((axis ?xyz ?rot) symbols-label)  
-                        ((= (+ (* ?m1 ?v1i_compo) (* ?m2 ?v2i_compo))
-                               (* ?mc ?vc_compo)) algebra)))
+                        ((= (+ ?p1i_compo ?p2i_compo) ?pc_compo) algebra)))
   ))
 
-; 
-; if we are given that a collision is perfectly elastic, we may have to use 
-; the fact that kinetic energy is conserved in addition to momentum.
-; The following operator applies conservation of kinetic energy to perfectly
-; elastic collisions. This is slightly different than the more general 
-; conservation of energy equation so we group it under linear momentum.
-; It is a separate scalar equation psm (not part of the cons linmom psm)
-; so it will only be applied if needed to determine some unknown and goes
-; at the bubble-graph level.
-;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; if we are given that a collision is perfectly elastic, we may have to use 
+;;; the fact that kinetic energy is conserved in addition to momentum.
+;;; The following operator applies conservation of kinetic energy to perfectly
+;;; elastic collisions. This is slightly different than the more general 
+;;; conservation of energy equation so we group it under linear momentum.
+;;; It is a separate scalar equation psm (not part of the cons linmom psm)
+;;; so it will only be applied if needed to determine some unknown and goes
+;;; at the bubble-graph level.
+;;;
 (defoperator cons-ke-elastic-contains (?quantity)
   :preconditions 
   (

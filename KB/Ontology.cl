@@ -1190,8 +1190,9 @@
 	      (nlg ?vector 'nlg-vector-var-pref) (nlg ?axis 'adj)))
 
 
-; Used inside conservation of momentum:
-(def-equation momentum-compo (momentum-compo ?body ?time ?axis ?rot)
+;; definition of momentum in component form:
+(def-psmclass momentum-compo (?eq-type definition ?axis ?rot 
+				       (linear-momentum ?body ?time))
   :english ("definition of momentum component")
-  :complexity definition; ?? minor so equation can be optional in psm
+  :complexity definition ;so it can be substituted into momentum conservation
   :EqnFormat ("pi_~a = m * v_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
