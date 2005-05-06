@@ -453,7 +453,7 @@
                   (rdebug "Firing charge-force-Efield-contains  ~%")
                   )
   :effects (
-            (vector-psm-contains (charge-force-Efield ?b ?source ?t) ?sought)
+            (eqn-family-contains (charge-force-Efield ?b ?source ?t) ?sought)
             ; since only one compo-eqn under this vector psm, we can just
             ; select it now, rather than requiring further operators to do so
             (compo-eqn-contains (charge-force-Efield ?b ?source ?t) qfe ?sought)))
@@ -469,7 +469,7 @@
                   (rdebug "Firing charge-force-Efield-contains-charge  ~%")
                   )
   :effects (
-            (vector-psm-contains (charge-force-Efield ?b ?source ?t) ?sought)
+            (eqn-family-contains (charge-force-Efield ?b ?source ?t) ?sought)
             ; since only one compo-eqn under this vector psm, we can just
             ; select it now, rather than requiring further operators to do so
             (compo-eqn-contains (charge-force-Efield ?b ?source ?t) qfe ?sought)))
@@ -680,7 +680,7 @@
                   (rdebug "Firing point-charge-Efield-compo-contains  ~%")
                   )
   :effects (
-            (vector-psm-contains (point-charge-Efield ?b ?loc ?t) ?sought)
+            (eqn-family-contains (point-charge-Efield ?b ?loc ?t) ?sought)
              ; since only one compo-eqn under this vector psm, we can just
              ; select it now, her than requiring further operators to do so
             (compo-eqn-contains (point-charge-Efield ?b ?loc ?t) qpe ?sought)))
@@ -965,7 +965,7 @@
     ; told that coords of origin are (0,0) in givens
     )
   :effects 
-  ((vector-psm-contains (rdiff ?p1 ?p2 ?t) ?sought)
+  ((eqn-family-contains (rdiff ?p1 ?p2 ?t) ?sought)
   ; since only one compo-eqn under this vector psm, we can just
   ; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (rdiff ?p1 ?p2 ?t) rdiff ?sought)))
@@ -1126,7 +1126,7 @@
   ; when we write the equation.
   )
   :effects (
-   (vector-psm-contains (net-Efield ?loc ?t) ?sought)
+   (eqn-family-contains (net-Efield ?loc ?t) ?sought)
   ; since only one compo-eqn under this vector psm, we can just
   ; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (net-Efield ?loc ?t) Enet ?sought)
@@ -1739,7 +1739,7 @@
                   (rdebug "Firing charge-force-Bfield-compo-contains  ~%")
                   )
   :effects (
-            (vector-psm-contains (charge-force-Bfield ?b ?t) ?sought)
+            (eqn-family-contains (charge-force-Bfield ?b ?t) ?sought)
             ; since only one compo-eqn under this vector psm, we can just
             ; select it now, rather than requiring further operators to do so
             (compo-eqn-contains (charge-force-Bfield ?b ?t) qvb ?sought)))

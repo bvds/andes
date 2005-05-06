@@ -292,7 +292,7 @@
 ;;; The author of a vector psm, such as Newton's law or Kinematics, must define
 ;;; operators for
 ;;; 
-;;; *  vector-psm-contains -- indicates which quantities might be found with this
+;;; *  eqn-family-contains -- indicates which quantities might be found with this
 ;;; *  vector-diagram -- procedure for drawing the appropriate diagram
 ;;; *  compo-eqn-contains -- which quantities various component eqns find
 ;;; 
@@ -321,13 +321,13 @@
       ; This chunks projections so they don't appear at the bubble-graph level
       ; so don't use it if component-form solution is wanted (see below).
       (not (component-form)) 
-      (vector-psm-contains ?vec-eqn-id ?sought)
+      (eqn-family-contains ?eqn-family-id ?sought)
       ; make sure psm name not on problem's ignore list:
-      (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
-      (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
-      (vector-diagram ?vec-eqn-id)
-      (debug "Vectors drawn for ~a.~%" ?vec-eqn-id)
-      (compo-eqn-selected ?vec-eqn-id ?sought (compo-eqn . ?eq-args))
+      (test (not (member (first ?eqn-family-id) (problem-ignorePSMS *cp*))))
+      (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?eqn-family-id)
+      (vector-diagram ?eqn-family-id)
+      (debug "Vectors drawn for ~a.~%" ?eqn-family-id)
+      (compo-eqn-selected ?eqn-family-id ?sought (compo-eqn . ?eq-args))
       (debug "Start compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
       (eqn ?compo-eqn (compo-eqn . ?eq-args))
       ;; (assume (eqn-written (compo-eqn . ?eq-args)))
@@ -369,7 +369,7 @@
       (bind ?vec-sought (if (componentp ?sought) 
                             (vector-mag (compo-base-vector ?sought))
                           ?sought))
-      (vector-psm-contains ?vec-eqn-id ?vec-sought)
+      (eqn-family-contains ?vec-eqn-id ?vec-sought)
       ; make sure psm name not on problem's ignore list:
       (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
       (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
@@ -2266,7 +2266,7 @@
     (object ?b)
     (time (during ?t1 ?t2)))
   :effects 
-  ((vector-psm-contains (avg-velocity ?b (during ?t1 ?t2)) ?sought)
+  ((eqn-family-contains (avg-velocity ?b (during ?t1 ?t2)) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (avg-velocity ?b (during ?t1 ?t2)) avg-vel ?sought)))
@@ -2909,7 +2909,7 @@
     (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
     )
   :effects
-   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)))
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)))
 
 |#
 
@@ -2981,7 +2981,7 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity)))
 
 (defoperator draw-lk-no-s-fbd (?b ?t1 ?t2 ?rot)
@@ -3052,7 +3052,7 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-t ?quantity)))
 
 (defoperator draw-lk-no-t-fbd (?b ?t1 ?t2 ?rot)
@@ -3119,7 +3119,7 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity)))
 
 (defoperator draw-lk-no-vf-fbd (?b ?t1 ?t2 ?rot)
@@ -3190,7 +3190,7 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity)))
 
 (defoperator draw-lk-no-a-fbd (?b ?t1 ?t2 ?rot)
@@ -3278,7 +3278,7 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((vector-psm-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity)))
 
 (defoperator draw-sdd-constvel-fbd (?b ?t1 ?t2 ?rot)
@@ -3352,7 +3352,7 @@
    (test (tinsidep `(during ,?t1 ,?t2) ?t-free-fall))
    )
    :effects (
-    (vector-psm-contains (lk ?b ?t-free-fall) ?quantity)
+    (eqn-family-contains (lk ?b ?t-free-fall) ?quantity)
     (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity)
    ))
 
@@ -3459,7 +3459,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (free-fall ?b ?t-free-fall))
     )
   :effects
-   ((vector-psm-contains (avg-accel ?b (during ?t1 ?t2)) ?quantity)))
+   ((eqn-family-contains (avg-accel ?b (during ?t1 ?t2)) ?quantity)))
 
 (defoperator draw-avg-accel-diagram (?b ?t1 ?t2 ?rot)
   :specifications 
@@ -3632,7 +3632,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (time (during ?ti ?tf))
     (test (> (- ?tf ?ti) 1))) ; must span more than one subinterval
   :effects 
-  ((vector-psm-contains (sum-disp ?b (during ?ti ?tf)) ?sought)
+  ((eqn-family-contains (sum-disp ?b (during ?ti ?tf)) ?sought)
   ; since only one compo-eqn under this vector psm, we can just
   ; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (sum-disp ?b (during ?ti ?tf)) sum-disp ?sought)))
@@ -3682,7 +3682,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (object ?b))  
     
   :effects 
-  ((vector-psm-contains (sum-net-force ?b $t1) ?sought)
+  ((eqn-family-contains (sum-net-force ?b $t1) ?sought)
   ; since only one compo-eqn under this vector psm, we can just
   ; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (sum-net-force ?b ?t1) sum-net-force ?sought)))
@@ -4638,7 +4638,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
    )
    :effects (
-   (vector-psm-contains (NTL-vector ?body-pair ?type ?t) ?sought) 
+   (eqn-family-contains (NTL-vector ?body-pair ?type ?t) ?sought) 
     ; since only one compo-eqn under this vector psm, we can just
     ; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (NTL-vector ?body-pair ?type ?t) NTL ?sought)
@@ -5424,7 +5424,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)
    (time ?t))
   :effects
-   ((vector-psm-contains (NL ?b ?t) ?quantity)))
+   ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
 
 ;;; We have to define a special NL-net variant psm to use net force rather 
@@ -5469,7 +5469,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects 
   (
-   (vector-psm-contains (NL ?b ?t) ?quantity)
+   (eqn-family-contains (NL ?b ?t) ?quantity)
    ;; since we know which compo-eqn we'll be using, we can 
    ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains  (NL ?b ?t) NSL-net ?quantity)
@@ -6318,7 +6318,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (time (during ?t1 ?t2))
 		  )
   :effects (
-	    (vector-psm-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
+	    (eqn-family-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
 	    ;; since we know which compo-eqn we'll be using, we can select
 	    ;; it now, rather than requiring further operators to do so
 	    ;; We also select the axis, normally done by select-compo-eqn* ops
@@ -7133,7 +7133,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (time ?t)
    )
   :effects (
-  (vector-psm-contains (linear-momentum ?b ?t) ?sought)
+  (eqn-family-contains (linear-momentum ?b ?t) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (linear-momentum ?b ?t) definition ?sought)
@@ -7207,7 +7207,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	     (member ?b ?body-list :test #'equal)))
    )
   :effects (
-  (vector-psm-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
+  (eqn-family-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (cons-linmom ?bodies (during ?t1 ?t2)) lm-compo ?sought)

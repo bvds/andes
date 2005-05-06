@@ -96,7 +96,7 @@
    (test (member ?agent ?bodies :test #'equal)) 
    (test (time-intervalp ?t)))
   :effects 
-   ((vector-psm-contains (impulse ?b ?agent ?t) ?sought)
+   ((eqn-family-contains (impulse ?b ?agent ?t) ?sought)
     ;; since only one compo-eqn under this vector psm, we can just
     ;; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (impulse ?b ?agent ?t) imp-force ?sought)))
@@ -228,7 +228,7 @@
 		)
    )
   :effects
-  ((vector-psm-contains (impulse ?b ?agent (during ?t1 ?t2)) ?sought)
+  ((eqn-family-contains (impulse ?b ?agent (during ?t1 ?t2)) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (impulse ?b ?agent (during ?t1 ?t2)) 

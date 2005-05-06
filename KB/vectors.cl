@@ -41,7 +41,7 @@
 				       (at (dir (relative-vel ?b2 ?b3)) ?t)))
 		  )
   :effects (
-	    (vector-psm-contains (relative-vel ?b1 ?b2 ?b3 ?t) ?sought)
+	    (eqn-family-contains (relative-vel ?b1 ?b2 ?b3 ?t) ?sought)
 	    (compo-eqn-contains (relative-vel ?b1 ?b2 ?b3 ?t) relvel ?sought)))
 
 
