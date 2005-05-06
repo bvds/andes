@@ -2647,14 +2647,18 @@
 
 ;;; Case where defined opposite relative position than one we want. Exact 
 ;;; reason we want direction rather than another depends on equation being 
-;;; used, but we don't know that here. We don't test direction of drawing
-;;; which could mismatch definition
+;;; used, but we don't know that here. We don't check direction of drawing
+;;; so it could also be wrong; after fixing orientation, may get further
+;;; direction error.
 ;;; Could try to separate case where drew vector in correct direction, but mixed up 
 ;;; from and to points in spec, from case where drew correctly for opposite
 ;;; rel-pos. But many will be unknown, so don't worry about it now.
 (def-error-class opposite-relative-position (?cpt ?cref-pt)
   ((student    (vector (at (relative-position ?cref-pt ?cpt) ?stime) ?sdir))
-   (correct    (vector (at (relative-position ?cpt ?cref-pt) ?ctime) ?cdir)))
+   ; Don't pre-empt direction error like should-be-unknown: make sure there
+   ; is no possible relative position vector with this sense in the solution
+   (no-correct (vector (at (relative-position ?cref-pt ?cpt) ?stime) ?cdir))
+   (correct    (vector (at (relative-position ?cpt ?cref-pt) ?ctime) ?cdir-opp)))
   :utility 55
   :probability
   (+ 0.2
