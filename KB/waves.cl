@@ -1036,36 +1036,32 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 
 (defoperator intensity-to-power-contains (?sought)
   :preconditions 
-  ( (spherical-emitting ?wave ?source) ;need spherical symmetry
-    (time ?t)
-        (any-member ?sought ((at (intensity ?wave ?source) ?t)
-			 (at (net-power-out ?source) ?t)
-			 (at (mag (relative-position ?source ?wave)) ?t)
-			 ))) 
-  :effects 
-  ( (eqn-contains (intensity-to-power ?wave ?source ?t forward) ?sought)))
-
-;; allow the other direction for the relative-position 
-;; since we only need the magnitude anyway
-(defoperator intensity-to-power-contains2 (?sought)
-  :preconditions 
-  ( (spherical-emitting ?wave ?source) ;need spherical symmetry
+  ( (spherical-emitting ?wave ?source)	;need spherical symmetry
     (time ?t)
     (any-member ?sought ((at (intensity ?wave ?source) ?t)
 			 (at (net-power-out ?source) ?t)
 			 (at (mag (relative-position ?source ?wave)) ?t)
-			 (at (mag (relative-position ?wave ?source)) ?t)))
-    )
+			 ))
+    ) 
   :effects 
-  ( (eqn-contains (intensity-to-power ?wave ?source ?t backward) ?sought)))
+  ( (eqn-contains (intensity-to-power ?wave ?source ?t ?source ?wave) ?sought)))
+
+(defoperator intensity-to-power-contains2 (?sought)
+  :preconditions 
+  ( (spherical-emitting ?wave ?source)	;need spherical symmetry
+    (time ?t)
+    (any-member ?sought ((at (intensity ?wave ?source) ?t)
+			 (at (net-power-out ?source) ?t)
+			 (at (mag (relative-position ?wave ?source)) ?t)
+			 ))
+    ) 
+  :effects 
+  ( (eqn-contains (intensity-to-power ?wave ?source ?t ?wave ?source) ?sought)))
 
 (defoperator write-intensity-to-power (?wave ?source ?t ?flag)
   :preconditions 
   ( (variable  ?int  (at (intensity ?wave ?source) ?t))
     (variable  ?power  (at (net-power-out ?source) ?t))
-    ;; pick out right direction for relative-position
-    (bind ?b1 (if (eq ?flag 'forward) ?wave ?source))
-    (bind ?b2 (if (eq ?flag 'forward) ?source ?wave))
     (variable  ?r (at (mag (relative-position ?b1 ?b2)) ?t))
     (optional (body ?source)) ;allow draw bodies
     (optional (body ?wave))
@@ -1073,7 +1069,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
     )
   :effects 
   ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))
-		  (intensity-to-power ?wave ?source ?t ?flag)) )
+		  (intensity-to-power ?wave ?source ?t ?b1 ?b2)) )
   :hint 
   ( (point (string "If the power goes out in all directions, the intensity ~A is the power divided by the surface area of the sphere." 
 		   (?wave pp)))

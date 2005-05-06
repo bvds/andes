@@ -7182,6 +7182,94 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                         ((= ?p_compo (* ?m_compo ?v_compo)) algebra)))
   ))
 
+;;;;===========================================================================
+;;;;                 Draw Linear Momentum
+;;;;===========================================================================
+;;;
+;;; operators for drawing momentum vectors on simple bodies
+;;; these exactly parallel the velocity drawing operators
+
+(defoperator draw-momentum-at-rest (?b ?t)
+  :specifications 
+   "If there is an object,
+     and it is at rest at a certain time,
+   then its momentum at that time is zero."
+  :preconditions
+   ((time ?t)
+    (motion ?b ?t-motion at-rest)
+    (test (tinsidep ?t ?t-motion))
+    (bind ?mag-var (format-sym "p_~A_~A" ?b (time-abbrev ?t)))
+    ;; allows one to draw velocity vector 
+    (optional (vector ?b (at (velocity ?b) ?t) zero))
+    )
+  :effects
+   ((vector ?b (at (momentum ?b) ?t) zero)
+    (variable ?mag-var (at (mag (momentum ?b)) ?t))
+    (given (at (mag (momentum ?b)) ?t) (dnum 0 |kg.m/s|))
+    )
+  :hint
+   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
+    (teach (string "When an object is at rest, its velocity is zero. Since the momentum vector is defined as mass times the velocity vector, the momentum is also zero at that time."))
+    ;; too simple for a kcd
+    (bottom-out (string "Because ~a is at rest ~a, use the momentum tool to draw a zero-length momentum vector for it." ?b (?t pp)))))
+
+;; we could get momentum direction from velocity direction, but these operators
+;; get it from straight-line motion spec, so that it is not required that 
+;; velocity be drawn first.
+(defoperator draw-momentum-straight (?b ?t)
+  :specifications 
+   "If an object is moving in a straight line at a certain time,
+   then its momentum at that time is non-zero and in the same direction
+     as its motion."
+  :preconditions
+   ((time ?t)
+    (motion ?b ?t-motion (straight ?dontcare ?dir))
+    (test (not (equal ?dir 'unknown)))  ; until conditional effects 
+    (test (tinsidep ?t ?t-motion))
+    (not (vector ?b (at (momentum ?b) ?t) ?dir))
+    (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :effects
+   ((vector ?b (at (momentum ?b) ?t) ?dir)
+    (variable ?mag-var (at (mag (momentum ?b)) ?t))
+    (variable ?dir-var (at (dir (momentum ?b)) ?t))
+    (given (at (dir (momentum ?b)) ?t) ?dir))
+  :hint
+   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
+    (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
+	   (kcd "draw_momentum"))
+    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector in direction ~a." ?b (?t pp) ?dir))))
+
+(defoperator draw-momentum-straight-unknown (?b ?t)
+  :specifications 
+   "If an object is moving in a straight line at a certain time,
+   then its momentum at that time is non-zero and in the same direction
+     as its motion."
+  :preconditions
+   ((time ?t)
+    (motion ?b ?t-motion (straight ?dontcare unknown))
+    (test (tinsidep ?t ?t-motion))
+    (not (vector ?b (at (momentum ?b) ?t) ?dir))
+    (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    ;; following is for implicit eqn -- assumes we know how velocity vars are named
+    (bind ?dir-vel (format-sym "Ov_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    )
+  :effects
+   ((vector ?b (at (momentum ?b) ?t) unknown)
+    (variable ?mag-var (at (mag (momentum ?b)) ?t))
+    (variable ?dir-var (at (dir (momentum ?b)) ?t))
+    ;; following is "optional equation" put out so solver will be able to 
+    ;; determine a value for 0p in case student happens to use it. It isn't
+    ;; needed for m*v form solution we teach, so student doesn't have to 
+    ;; enter it
+    (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
+    )
+  :hint
+   ((point (string "Notice that ~a is moving in a straight line ~a, although the exact direction is unknown." ?b (?t pp)))
+    (teach (string "Whenever an object is moving in a straight line, it has a non-zero velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
+	   (kcd "draw_nonzero_momentum"))
+    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
 
 ;;;;===========================================================================
 ;;;;                 Conservation of Linear Momentum
@@ -7291,93 +7379,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (vector ?c (at (momentum ?c) ?t2) ?dir1)
   )
   :effects ( (final-momentum-drawn ?bodies ?t2) ))
-
-
-;; operators for drawing momentum vectors on simple bodies
-;; these exactly parallel the velocity drawing operators
-
-(defoperator draw-momentum-at-rest (?b ?t)
-  :specifications 
-   "If there is an object,
-     and it is at rest at a certain time,
-   then its momentum at that time is zero."
-  :preconditions
-   ((time ?t)
-    (motion ?b ?t-motion at-rest)
-    (test (tinsidep ?t ?t-motion))
-    (bind ?mag-var (format-sym "p_~A_~A" ?b (time-abbrev ?t))))
-  :effects
-   ((vector ?b (at (momentum ?b) ?t) zero)
-    (variable ?mag-var (at (mag (momentum ?b)) ?t))
-    (given (at (mag (momentum ?b)) ?t) (dnum 0 |kg.m/s|)))
-  :hint
-   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
-    (teach (string "When an object is at rest, its velocity is zero. Since the momentum vector is defined as mass times the velocity vector, the momentum is also zero at that time."))
-    ;; too simple for a kcd
-    (bottom-out (string "Because ~a is at rest ~a, use the momentum tool to draw a zero-length momentum vector for it." ?b (?t pp)))))
-
-;; we could get momentum direction from velocity direction, but these operators
-;; get it from straight-line motion spec, so that it is not required that 
-;; velocity be drawn first.
-(defoperator draw-momentum-straight (?b ?t)
-  :specifications 
-   "If an object is moving in a straight line at a certain time,
-   then its momentum at that time is non-zero and in the same direction
-     as its motion."
-  :preconditions
-   ((time ?t)
-    (motion ?b ?t-motion (straight ?dontcare ?dir))
-    (test (not (equal ?dir 'unknown)))  ; until conditional effects 
-    (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (momentum ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
-  :effects
-   ((vector ?b (at (momentum ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (momentum ?b)) ?t))
-    (variable ?dir-var (at (dir (momentum ?b)) ?t))
-    (given (at (dir (momentum ?b)) ?t) ?dir))
-  :hint
-   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
-    (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
-	   (kcd "draw_momentum"))
-    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector in direction ~a." ?b (?t pp) ?dir))))
-
-(defoperator draw-momentum-straight-unknown (?b ?t)
-  :specifications 
-   "If an object is moving in a straight line at a certain time,
-   then its momentum at that time is non-zero and in the same direction
-     as its motion."
-  :preconditions
-   ((time ?t)
-    (motion ?b ?t-motion (straight ?dontcare unknown))
-    (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (momentum ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    ;; following is for implicit eqn -- assumes we know how velocity vars are named
-    (bind ?dir-vel (format-sym "Ov_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    )
-  :effects
-   ((vector ?b (at (momentum ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (momentum ?b)) ?t))
-    (variable ?dir-var (at (dir (momentum ?b)) ?t))
-    ;; following is "optional equation" put out so solver will be able to 
-    ;; determine a value for 0p in case student happens to use it. It isn't
-    ;; needed for m*v form solution we teach, so student doesn't have to enter it
-    (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
-    )
-  :hint
-   ((point (string "Notice that ~a is moving in a straight line ~a, although the exact direction is unknown." ?b (?t pp)))
-    (teach (string "Whenever an object is moving in a straight line, it has a non-zero velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
-	   (kcd "draw_nonzero_momentum"))
-    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
-
-;;; Might want rule that momentum direction = velocity direction for case where
-;;; direction is unknown to write equation dirP = dirV. But dirP does not occur
-;;; in any equation at the bubble graph level since we write p_x = m * v_x so
-;;;  only need projection of v, not of p.
-;;; (defoperator momentum_dir_from_vdir)
 
 ;; following still restricted to two-body collisions, and
 ;; doesn't use compound bodies before split or after join
