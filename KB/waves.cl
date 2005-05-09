@@ -1058,7 +1058,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
   :effects 
   ( (eqn-contains (intensity-to-power ?wave ?source ?t ?wave ?source) ?sought)))
 
-(defoperator write-intensity-to-power (?wave ?source ?t ?flag)
+(defoperator write-intensity-to-power (?wave ?source ?t ?b1 ?b2)
   :preconditions 
   ( (variable  ?int  (at (intensity ?wave ?source) ?t))
     (variable  ?power  (at (net-power-out ?source) ?t))

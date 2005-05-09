@@ -419,9 +419,7 @@
    then select the component equation along that axis." 
   :preconditions
   (
-   (debug "KAY~%")
    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (at (mag ?vector) ?t))
-   (debug "KAY~%")
    (vector ?b (at ?vector ?t) ?dir)
    (axis-for ?b ?xyz ?rot)
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
@@ -542,7 +540,6 @@
 ;;; the variables.
 
 (defoperator write-projections (?compo-vars)
-  
   :specifications "
    If the goal is to write extra equations for component variables,
    then create subgoals, one for each, to write the equations,
