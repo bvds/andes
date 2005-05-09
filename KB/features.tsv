@@ -3,7 +3,7 @@ statics	mass;angle;coef-friction;duration;
 dynamics	mass;angle;coef-friction;duration;
 circular	mass;radius;period;duration;angle;
 energy	mass;duration;work;power;energy;compression;spring-constant;height;
-work	work;power;duration;angle;intensity;db-intensity;db-intensity-zero;
+work	work;power;duration;angle;
 work-quants	work;power;duration;angle;intensity;db-intensity;db-intensity-zero;
 work-quants-out	work;net-power-out;duration;angle;intensity;db-intensity;db-intensity-zero;
 linmom	energy;duration;

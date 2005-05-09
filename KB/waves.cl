@@ -1027,7 +1027,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 ;;; Relate intensity to net power output in a spherical geometry.  
 ;;;
 
-(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?flag)
+(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?b1 ?b2)
   :complexity major  ;must explicitly use
   :english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("relating the intensity to power (spherical symmetry)")

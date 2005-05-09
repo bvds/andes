@@ -43,7 +43,8 @@
   (symbols-enter "c" 'c NIL '|c|))
   
   ;; Iref for defining decibels
-  (when (member 'work (problem-features *cp*))
+  (when (or (member 'work-quants (problem-features *cp*))
+	    (member 'work-quants-out (problem-features *cp*)))
   (symbols-enter "Iref" 'Iref NIL '|Iref|))
   
   ;; algebra system understands $P (upper-case only) as symbol for pi in
