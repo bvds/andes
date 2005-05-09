@@ -458,12 +458,7 @@
 ;;; code to a distinct location to make the split more "clean".  For
 ;;; Now I will use it as-is.
 (defun test-cache-collect-bodies-list ()
-  (mapcar #'(lambda (S) 
-	      (remove-if 
-	       #'null
-	       (remove-duplicates 
-		(mapcan #'nsh-collect-principle-bodyents S))))
-	  *nsh-solution-sets*))
+  (nsh-get-solution-bodies))
 
 ;;; In order to associate the objects with their entries we need
 ;;; to iterate over the list of all systementries.  If a body 
