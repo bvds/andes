@@ -732,8 +732,14 @@
 		  #'null
 		  (remove-duplicates 
 		   (mapcan #'nsh-collect-principle-bodyents S))))
-	     *nsh-solution-sets*))))
+	   (get-solution-enode-sets)))))
 		
+; AW: for some reason *nsh-solution-sets* sometimes includes
+; qnodes. Not sure if this indicates a bug setting it up.
+; In any case, only want enodes passed to body-entry tests.
+(defun get-solution-enode-sets ()
+  (mapcar #'(lambda (nodelist) (remove-if-not #'enode-p nodelist))
+         *nsh-solution-sets*))
 
 ;;; ------------------- principle bodyents ----------------------------
 ;;; Collecting entries from the principle is simply a matter of 
