@@ -724,7 +724,13 @@
 ;;; solution.  
 (defun nsh-collect-body-entries ()
   "Collect all of the valid body entries in the problems."
-  (setq *nsh-bodies*
+  (setq *nsh-bodies* (nsh-get-solution-bodies)))
+
+; Collect list of unique body entries from all solutions
+; NB: this subroutine also called by grading initialization code.
+; !!! Includes body entries that are optional, in the sense that
+; they don't occur on all paths through the psm graph.
+(defun nsh-get-solution-bodies ()
     (remove-if 
      #'null
      (mapcar #'(lambda (S) 
@@ -732,11 +738,11 @@
 		  #'null
 		  (remove-duplicates 
 		   (mapcan #'nsh-collect-principle-bodyents S))))
-	   (get-solution-enode-sets)))))
+	   (get-solution-enode-sets))))
 		
 ; AW: for some reason *nsh-solution-sets* sometimes includes
 ; qnodes. Not sure if this indicates a bug setting it up.
-; In any case, only want enodes passed to body-entry tests.
+; In any case, only want enodes passed to body-entry collecting tests.
 (defun get-solution-enode-sets ()
   (mapcar #'(lambda (nodelist) (remove-if-not #'enode-p nodelist))
          *nsh-solution-sets*))
