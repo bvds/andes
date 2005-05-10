@@ -465,7 +465,7 @@
 (defparameter *nsh-problem-type* () "The type of the problem (quant/no-quant).")
 (defparameter *nsh-valid-entries* () "The valid entries for NSH to prompt.")
 
-(defparameter *nsh-bodies* () "The Body drawing entries in the solutions.")
+(defparameter *nsh-bodysets* () "List of per-solution body drawing entry sets.")
 (defparameter *nsh-axis-entries* () "A zero axis if it is correct.")
 (defparameter *nsh-givens* () "The givens in NSH.")
 (defparameter *nsh-solution-sets* () "The individual solution sets for the student.")
@@ -524,7 +524,7 @@
 (defun nsh-reset-general ()
   (setq *nsh-current-solutions* nil)
   (setq *nsh-last-node* nil)
-  (setq *nsh-bodies* nil)
+  (setq *nsh-bodysets* nil)
   (setq *nsh-givens* nil)
   (setq *nsh-axis-entries* nil)
   (setq *nsh-first-principles* nil)
@@ -723,16 +723,19 @@
 ;;; have completed all of the necessary bodies for at least one 
 ;;; solution.  
 (defun nsh-collect-body-entries ()
-  "Collect all of the valid body entries in the problems."
-  (setq *nsh-bodies* (nsh-get-solution-bodies)))
+  "Collect list of per-solution body entries."
+  (setq *nsh-bodysets* (remove-if #'null (nsh-get-solution-bodies)))
 
-; Collect list of unique body entries from all solutions
-; NB: this subroutine also called by grading initialization code.
-; !!! Includes body entries that are optional, in the sense that
-; they don't occur on all paths through the psm graph.
+; Collect lists of unique body entries in each solution
+; Returns: a list containing one set of body entries per solution,
+; paralleling the list of solutions in the solution graph.
+; NB: this subroutine also used by grading initialization code, which
+; wants NULLs left in result list for solutions that have no bodies. 
+; NSH prompts to draw bodies if *any* solution draws bodies, so removes 
+; NULL sets above (desirable?)
+; !!! No attempt to distinguish body entries that are optional in a solution,
+; in the sense that they don't occur on all paths through the psm graph.
 (defun nsh-get-solution-bodies ()
-    (remove-if 
-     #'null
      (mapcar #'(lambda (S) 
 		 (remove-if 
 		  #'null
@@ -1083,12 +1086,13 @@
 ;;;;
 ;;;; (put these in issues to consider).
 
-;;; We want to prompt body drawing if *nsh-bodies* is t
+;;; We want to prompt body drawing if *nsh-bodysets* is t
 (defun nsh-prompt-bodies? ()
-  (and *nsh-bodies*
+  (and *nsh-bodysets*
+       ; NOT Exists a per-solution bodyset S s.t. all body entries in S entered
        (not (member-if #'(lambda (S) 
 			   (null (remove-if #'systementry-entered S)))
-		       *nsh-bodies*))))
+		       *nsh-bodysets*))))
 
 
 
@@ -1120,7 +1124,7 @@
 ;;; has been made.
 (defun nsh-bodyentry-made? ()
   (member-if #'(lambda (E) (member-if #'systementry-entered E))
-	     *nsh-bodies*))
+	     *nsh-bodysets*))
 
 ;;; If the student is continuing bodies then we want to remind them 
 ;;; of what they should be doing and then to prompt them to contine
@@ -1145,8 +1149,8 @@
        #'systementry-entered
        (find-if #'(lambda (S) 
 		    (member-if #'systementry-entered S))
-		*nsh-bodies*))
-      (caar *nsh-bodies*)))
+		*nsh-bodysets*))
+      (caar *nsh-bodysets*)))
 
 
 ;;;; =================== Prompt Axis ===========================================
