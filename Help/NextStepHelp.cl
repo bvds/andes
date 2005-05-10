@@ -724,7 +724,7 @@
 ;;; solution.  
 (defun nsh-collect-body-entries ()
   "Collect list of per-solution body entries."
-  (setq *nsh-bodysets* (remove-if #'null (nsh-get-solution-bodies)))
+  (setq *nsh-bodysets* (remove-if #'null (nsh-get-solution-bodies))))
 
 ; Collect lists of unique body entries in each solution
 ; Returns: a list containing one set of body entries per solution,
@@ -741,7 +741,7 @@
 		  #'null
 		  (remove-duplicates 
 		   (mapcan #'nsh-collect-principle-bodyents S))))
-	   (get-solution-enode-sets))))
+	   (get-solution-enode-sets)))
 		
 ; AW: for some reason *nsh-solution-sets* sometimes includes
 ; qnodes. Not sure if this indicates a bug setting it up.
