@@ -1809,7 +1809,7 @@
      ;; This doesn't quite make sense.  
      ;; I only want to apply this conditional to defining the mass.
      (not (variable ?dont-care (mass ?b)))
-     (bind ?var (format-sym "m_~A" (body-name ?b))))
+     (bind ?var (format-sym "m_~A" (body-name ?b))))   
   :effects
    ((variable ?var (mass ?b))
     (body ?b)) 	
@@ -1955,8 +1955,8 @@
     (variable ?mag-var (at (mag (displacement ?b)) ?t))
     (variable ?dir-var (at (dir (displacement ?b)) ?t))
     (given (at (dir (displacement ?b)) ?t) ?dir)
-    ; Because dir is problem given, find-by-psm won't ensure implicit eqn
-    ; gets written. Given value may not be used elsewhere so ensure it here.
+    ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
+    ;; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir) (at (dir (displacement ?b)) ?t))
     ) 
    :hint
@@ -7128,6 +7128,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			(mass ?b) 
 			))
    (time ?t)
+   (object ?b)
    )
   :effects (
   (eqn-family-contains (linear-momentum ?b ?t) ?sought)

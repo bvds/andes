@@ -66,8 +66,9 @@
 			:default-component-class no-compile-file
 			:serial t  ;real dependancies would be better
 			:components (
+				     ;; treat these as normal lisp files
+				     (:cl-source-file "Physics-Funcs")
 				     (:file "reset-KB")
-				     (:file "Physics-Funcs")
 				     (:file "constants")
 				     ;; TELL and NLG not defined
 				     (:file "Ontology" )
