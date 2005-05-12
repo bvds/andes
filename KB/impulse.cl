@@ -36,10 +36,10 @@
     (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
-;;
-;; Relation of impulse and force
-;;
-;;
+;;;
+;;; Relation of impulse and force
+;;;
+;;;
 (def-psmclass impulse (?eqn-type impulse ?axis ?rot 
 				 (impulse ?body ?agent ?time ?dir))
     ;; :group Dynamics  :BvdS:  what to choose?
@@ -63,7 +63,6 @@
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (bind ?dir-val (convert-dnum-to-number ?dir))
     )
   :effects
    ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
@@ -71,7 +70,7 @@
     (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
     (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
     ;; Ensure implicit eqn is written because dir is from force
-    (implicit-eqn (= ?dir-var ?dir-val) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
    )
   :hint
    ((point (string "There is a force acting on ~a." ?b))
@@ -278,3 +277,114 @@
 impulse ~A." (?b def-np) (?t pp)))
     (bottom-out (string "Write the equation using component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= ?f-compo-var (- ?vf-compo ?vi-compo)) algebra)))
     ))
+
+;;; ================== Impulse and Impulse ================================== 
+;;;
+;;; This is just NTL integrated over time.  
+;;; The following is based on the "NTL-compo" rules.
+;;;
+
+(def-psmclass NTL-impulse (NTL-impulse (?Object0 ?Object1) ?time)
+  :complexity major
+  :english ("Newton's Third Law applied to impulse")
+  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
+	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
+  :EqnFormat ("Jof1on2 = Jof2on1"))
+
+(def-psmclass NTL-impulse-vector (?eq-type NTL-impulse ?axis ?rot 
+					   (NTL-impulse-vector 
+					    (?Object0 ?Object1) ?time))
+  :complexity major
+  :english ("Newton's Third Law applied to impulse")
+  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
+	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
+  :EqnFormat ("J12_~a = - J21_~a" (nlg ?axis 'adj) (nlg ?axis adj)))
+
+(defoperator NTL-impulse-contains (?quantity)
+  :preconditions 
+  (
+   (collision ?bodies ?t ?elastic-dont-care)
+   (any-member ?quantity (
+			  (at (mag (impulse ?b1 ?b2)) ?t)
+                        ))
+   (test (member ?b1 ?bodies :test #'equal)) 
+   (test (member ?b2 ?bodies :test #'equal)) 
+   (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
+  )
+  :effects ( 
+  	(eqn-contains (NTL-impulse ?body-pair ?t) ?quantity) 
+  ))
+
+(defoperator NTL-impulse (?b1 ?b2 ?t)
+  :preconditions (
+  (variable ?mag1-var (at (mag (impulse ?b1 ?b2)) ?t))
+  (variable ?mag2-var (at (mag (impulse ?b2 ?b1)) ?t))
+  )
+  :effects (
+    	(eqn (= ?mag1-var ?mag2-var) (NTL-impulse (?b2 ?b1) ?t)) 
+  )
+  :hint
+  ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
+  (teach (string "Newton's Third Law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A.  The same is true for impulse.  You can use that to equate the magnitudes of this pair of impulses."))
+   (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
+  ))
+
+;;
+;; Vector form of NTL-impulse writes component equation J12_x = -J21_x
+;;
+;; Note the vector equation ID for this is incompatible with convention required
+;; by select-compo-eqn-for-scalar, according to which vector args start with
+;; body and time. Should be OK, since NTL-impulse doesn't contain any scalars.
+;;
+
+(defoperator NTL-impulse-vector-contains (?sought)
+  :preconditions (
+   (any-member ?sought ( (at (mag(impulse ?b1 ?b2)) ?t)
+  		         (at (dir(impulse ?b1 ?b2)) ?t) ))
+   (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
+   )
+   :effects (
+   (eqn-family-contains (NTL-impulse-vector ?body-pair ?t) ?sought) 
+    ;; since only one compo-eqn under this vector psm, we can just
+    ;; select it now, rather than requiring further operators to do so
+    (compo-eqn-contains (NTL-impulse-vector ?body-pair ?t) NTL-impulse ?sought)
+   ))
+
+(defoperator draw-NTL-impulse-vector-diagram (?bodies ?t)
+  :preconditions (
+    ;; Draw both bodies. 
+    (body ?b1)
+    (body ?b2)
+    (vector ?b1 (at (impulse ?b1 ?b2) ?t) ?dir1)
+    (vector ?b2 (at (impulse ?b2 ?b1) ?t) ?dir2)
+    ;; we need axis-for each body, since component defining operators will 
+    ;; lookup axis-for principal body of each vector. Our operators that
+    ;; draw axes only apply once, so there is no danger of drawing two
+    ;; axes. In order to reuse the axes drawn for body1 as axes used
+    ;; for vectors on body2, we added reuse-other-body-axis in axes section.
+    (axis-for ?b1 x ?x-rot)
+    (axis-for ?b2 y ?y-rot)
+    (bind ?bodies (sort (list ?b1 ?b2)  #'expr<))
+  )
+  :effects (
+    (vector-diagram (NTL-impulse-vector ?bodies ?t))
+  ))
+  
+(defoperator write-NTL-impulse-vector (?b1 ?b2 ?t ?xy ?rot)
+   :preconditions (
+      (variable ?J12_xy (at (compo ?xy ?rot (impulse ?b1 ?b2)) ?t))
+      (variable ?J21_xy (at (compo ?xy ?rot (impulse ?b2 ?b1)) ?t))
+   )
+   :effects (
+    (eqn (= ?J12_xy (- ?J21_xy)) (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t)))
+    (eqn-compos (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t))
+          (?J12_xy ?J21_xy))
+   )
+   :hint (
+     ;; !!! TODO
+     (point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?J12_xy algebra) (?J21_xy algebra)))
+    (teach (string "Newton's Third Law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction.  The same must be true for impulse.  This entails that the components of each impulse vector are the negations of the corresponding components of the other: J12_x = -J21_x and J12_y = -J21_y."))
+     (bottom-out (string "Write the equation ~A" 
+                         ((= ?J12_xy (- ?J21_xy)) algebra)))
+   ))
+
