@@ -1649,7 +1649,7 @@
 ;;; need a lesson on deceleration.  Common misconception.
 (def-error-class deceleration-bug (?body ?sdir ?cdir)
   ((student (vector (at (accel ?body) ?time) ?sdir))
-   (test (dimensioned-numberp ?cdir)) ; not 'zero 'unknown or other atom 
+   (test (dimensioned-numberp ?sdir)) ; not 'zero 'unknown or other atom 
    (bind ?cdir (opposite ?sdir))
    (correct (vector (at (accel ?body) ?time) ?cdir))
    (problem (motion ?body ?time (straight slow-down ?dontcare))))
