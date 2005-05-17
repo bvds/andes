@@ -354,7 +354,7 @@ impulse ~A." (?b def-np) (?t pp)))
     (compo-eqn-contains (NTL-impulse-vector ?body-pair ?t) NTL-impulse ?sought)
    ))
 
-(defoperator draw-NTL-impulse-vector-diagram (?bodies ?t)
+(defoperator draw-NTL-impulse-vector-diagram (?b1 ?b2 ?t)
   :preconditions (
     ;; Draw both bodies. 
     (body ?b1)
@@ -367,11 +367,10 @@ impulse ~A." (?b def-np) (?t pp)))
     ;; axes. In order to reuse the axes drawn for body1 as axes used
     ;; for vectors on body2, we added reuse-other-body-axis in axes section.
     (axis-for ?b1 x ?x-rot)
-    (axis-for ?b2 y ?y-rot)
-    (bind ?bodies (sort (list ?b1 ?b2)  #'expr<))
+    (axis-for ?b2 x ?x-rot2)
     )
   :effects (
-	    (vector-diagram (NTL-impulse-vector ?bodies ?t))
+	    (vector-diagram (NTL-impulse-vector (?b1 ?b2) ?t))
   ))
   
 (defoperator write-NTL-impulse-vector (?b1 ?b2 ?t ?xy ?rot)
