@@ -1379,9 +1379,11 @@
  (make-hint-seq
    (append
       (list "Are you sure that vector has a non-zero magnitude?"
-	    (strcat "It should have a zero magnitude." 
-	            "To draw a zero-length vector, select the appropriate vector tool, then click " 
-	            "and release immediately instead of dragging out an extended arrow."))
+	    ; don't give bottom-out hint prematurely
+	    ;(strcat "It should have a zero magnitude." 
+	    ;        "To draw a zero-length vector, select the appropriate vector tool, then click " 
+	    ;        "and release immediately instead of dragging out an extended arrow.")
+            )
       (sg-map-systemEntry->hints *correct-entry*)
 	 )))
 
@@ -1393,7 +1395,10 @@
 (defun default-should-be-non-zero ()
  (make-hint-seq
    (append (list "Do you really want that vector to have a zero magnitude?"
-	         "It should have a non-zero magnitude." )
+		 ; don't give bottom-out hint prematurely
+	         ;"It should have a non-zero magnitude." 
+		 )
+           ; delegate to operator hints to explain correct magnitude.
 	   (sg-map-systemEntry->hints *correct-entry*)
 	 )))
 
@@ -1412,7 +1417,10 @@
    (append
      (list (format nil "Do you really want the direction of that vector to be ~a?"
 		 (nlg wrong-dir 'adj))
-	   (format nil "It should be ~a." (nlg correct-dir 'adj)))
+	   ; Don't give this bottom-out hint prematurely
+	   ; (format nil "It should be ~a." (nlg correct-dir 'adj))
+	   )
+     ; delegate to the operator hints to explain correct direction.
      (sg-map-systemEntry->hints *correct-entry*))))
 
 ;;; !!! want special case message if drawn in the plane when should 
@@ -2743,16 +2751,16 @@
   (+ 0.1 (* 0.5 (structural-similarity ?svector ?cvector))))
 
 (defun substitute-mag-vars (svar cvar)
+ (let ((quant   (sysvar-to-quant svar)))
   (make-hint-seq
    (list
-    (format nil "Did you really mean to use ~a here?" (nlg svar 'algebra))
-    (format nil (strcat "I know the numerical values for all the variables, "
-			"and when I replaced one occurrence of ~a with ~a, "
-			"then substituted values for all the equation's "
-			"variables, the equation balanced numerically.  "
-			"However, it may or may not be sensible.  You'll "
-			"have to decide whether to risk using it.")
-	    (nlg svar 'algebra) (nlg cvar 'algebra)))))
+    ; include definition in msg, student might have misdefined var 
+    (format nil "Did you really mean to use ~a, ~a, in this equation?" (nlg svar 'algebra) (nlg quant))
+    ; use var-or-quant for cvar since might not be any student var for it yet
+    (format nil (strcat "Replacing one occurrence of ~a with ~a "
+			"would make this a numerically correct equality."
+			"However, that may or may not be what you intended.")
+	    (nlg svar 'algebra) (nlg cvar 'var-or-quant))))))
 
 ;;; Used as a rough means for picking correct variables whose
 ;;; definitions are "similar" to the student's variable's definition.
