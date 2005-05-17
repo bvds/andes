@@ -2164,6 +2164,9 @@
 (defoperator draw-velocity-projectile-unknown (?b ?t)
   :preconditions
    ((time ?t)
+    ; don't use this to draw average velocity over an interval. (Can compete with
+    ; draw-avg-vel-from-displacement for that on some projectile problems.)
+    (test (time-pointp ?t))
     (motion ?b ?t-motion (curved projectile (unknown ?dontcare)))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (velocity ?b) ?t) ?dir))
