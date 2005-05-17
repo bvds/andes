@@ -373,9 +373,17 @@
   (when (not **checking-entries**)
     (dolist (Test *Runtime-Testset*)
       (when (runtime-test-activep Test)
-	;;(pprint (runtime-test-name Test))
-	(funcall (Runtime-test-func Test) 
-		 (runtime-test-CurrVal Test))))
+	; (format T "updating ~A (Currval=~A)~%" (runtime-test-name Test) (runtime-test-CurrVal Test))
+	; AW: following error sometimes occurs after reloads in development environment:
+	(when (null (runtime-test-CurrVal Test)) 
+	     (format T "Warning: score update found ~A active but not initialized! Initializing now." 
+	               (runtime-test-name Test))
+             (setf (runtime-test-CurrVal Test)
+	           (if (Runtime-Test-InitFunc Test) (funcall (Runtime-Test-InitFunc Test))
+	              (Runtime-Test-InitVal Test))))
+	 ; AW: end sanity check for uninitialized runtime tests
+	 (funcall (Runtime-test-func Test) 
+		  (runtime-test-CurrVal Test))))
     (select-current-runtime-testset-solution)))
 
 
