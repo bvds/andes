@@ -2751,16 +2751,20 @@
   (+ 0.1 (* 0.5 (structural-similarity ?svector ?cvector))))
 
 (defun substitute-mag-vars (svar cvar)
- (let ((quant   (sysvar-to-quant svar)))
+ (let ((squant   (sysvar-to-quant svar))
+       (cquant   (sysvar-to-quant cvar)))
   (make-hint-seq
    (list
-    ; include definition in msg, student might have misdefined var 
-    (format nil "Did you really mean to use ~a, ~a, in this equation?" (nlg svar 'algebra) (nlg quant))
+    ; include definition in msg, since student might be confused on that. (Easy to do with
+    ; default most-recently drawn body if you intend to draw a vector on another body.)
+    ; would be nice if we could emphasize differing slot(s) in the definition. 
+    (format nil "Did you really mean to use ~a in this equation? ~a is defined as ~a." 
+                (nlg svar 'algebra) (nlg svar 'algebra) (nlg squant))
     ; use var-or-quant for cvar since might not be any student var for it yet
-    (format nil (strcat "Replacing one occurrence of ~a with ~a "
-			"would make this a numerically correct equality."
-			"However, that may or may not be what you intended.")
-	    (nlg svar 'algebra) (nlg cvar 'var-or-quant))))))
+    (format nil (strcat "I am not sure this is what you intended, but "
+                        "replacing one occurrence of ~a with ~a "
+			"would make this equation numerically correct. ")
+	    (nlg svar 'algebra) (nlg cquant 'var-or-quant))))))
 
 ;;; Used as a rough means for picking correct variables whose
 ;;; definitions are "similar" to the student's variable's definition.
