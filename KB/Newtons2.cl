@@ -4595,7 +4595,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
   (any-member ?quantity (
   		(at (mag (force ?b1 ?b2 ?type)) ?t)
-  		;; (at (mag (force ?b2 ?b1 ?type)) ?t)
                         ))
   ;; no need to test if action/reaction pair definable; fail later if not
   ;; (force ?b1 ?b2 ?type ?t ?dir1 action) 
@@ -4656,9 +4655,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; draw axes only apply once, so there is no danger of drawing two
     ;; axes. In order to reuse the axes drawn for body1 as axes used
     ;; for vectors on body2, we added reuse-other-body-axis in axes section.
-    ;; BvdS: why is this x and y??
-    (axis-for ?b1 x ?x-rot)
-    (axis-for ?b2 y ?y-rot)
+    (axis-for ?b1 x ?x-rot1)
+    (axis-for ?b2 x ?x-rot2)
   )
   :effects (
     (vector-diagram (NTL-vector (?b1 ?b2) ?type ?t))

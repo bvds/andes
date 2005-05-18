@@ -68,6 +68,9 @@
 			:components (
 				     ;; treat these as normal lisp files
 				     (:cl-source-file "Physics-Funcs")
+				     ;; lots of outside dependencies:
+				     (:cl-source-file "errors")
+				     
 				     (:file "reset-KB")
 				     (:file "constants")
 				     ;; TELL and NLG not defined
@@ -83,8 +86,6 @@
 				     (:file "work-energy-problems")
 				     ;; depends on "waves":
 				     (:file "oscillations-problems")
-				     ;; lots of outside dependencies:
-				     (:file "errors")
 				     (:file "force-problems")  
 ;;; Hey, these are the wrong mountains
 				     ;; (:file "PyreneesProblems")
