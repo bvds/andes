@@ -335,6 +335,11 @@
   
 (defun sg-generate-sysent (Do Entry Stack State)
   "Given a help entry prop generate the system entry for it and return."
+  ; show helpful error message for this error: 
+  (when (not (get-operator-by-tag (csdo-op Do)))
+    (error "Solution operator ~A not found in current kb. Maybe need to regenerate .prb" 
+           (first (csdo-op Do))))
+  ; else didn't throw error above:
   (make-systementry 
    :Prop Entry
    :State State
@@ -826,12 +831,24 @@
     (car Interp)))
 
 ;;--------------------------------------------------------------
-;; Get the systementry op.
+;; Get the systementry's op's hints
 (defun sg-map-systementry->hints (entry)
   "Systementry hints."
   (let ((do (car (systementry-sources entry))))
     (get-op-hints (get-operator-by-tag (csdo-op do)) 
 		  (csdo-varvals do))))
+
+; collect tags of operator instances that made this system entry
+; opinst tag is of form (WRITE-MASS-COMPOUND (BOOK PACKAGE))
+(defun sg-map-systementry->opinsts (entry)
+ (remove-duplicates (mapcar #'csdo-op (systementry-sources entry))
+                    :test #'equalp))
+
+; collect set of names of operators that made this system entry
+(defun sg-map-systementry->opnames (entry)
+ (remove-duplicates 
+   (mapcar #'first (sg-map-systementry->opinsts entry))))
+
 
 ;;-------------------------------------------------------------
 ;; debugging code.
