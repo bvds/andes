@@ -36,14 +36,14 @@
     (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
-;;;;=========================================================================
-;;;;
-;;;;              Relation of impulse and force
-;;;;              (definition of impulse)
-;;;;==========================================================================
+;;;
+;;; Relation of impulse and force
+;;;
+;;;
 
-(def-psmclass impulse (?eqn-type definition ?axis ?rot 
-				 (impulse-force ?body ?agent ?time ?dir))
+
+(def-psmclass impulse (?eqn-type impulse ?axis ?rot 
+				 (impulse ?body ?agent ?time ?dir))
     ;; :group Dynamics  :BvdS:  what to choose?
     :complexity major    
     :Doc "Definition of impulse."
@@ -51,63 +51,6 @@
     :ExpFormat ("applying the definition of impulse on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("J_~A = F(avg)_~a*t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
-
-
-(defoperator impulse-contains (?sought)
-  :preconditions 
-  ((collision ?bodies ?t ?elastic-dont-care)
-   (any-member ?sought
-	       ((at (mag (impulse ?b ?agent)) ?t)
-		(at (dir (impulse ?b ?agent)) ?t)
-		(at (mag (force ?b ?agent ?type)) ?t)
-		(at (dir (force ?b ?agent ?type)) ?t)
-		(duration ?t)))
-   (object ?b)
-   (time ?t)
-   (test (member ?b ?bodies :test #'equal)) 
-   (test (member ?agent ?bodies :test #'equal)) 
-   (test (time-intervalp ?t)))
-  :effects 
-   ((eqn-family-contains (impulse-force ?b ?agent ?t) ?sought)
-    ;; since only one compo-eqn under this vector psm, we can just
-    ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (impulse-force ?b ?agent ?t) definition ?sought)))
-
-(defoperator draw-impulse-diagram (?b1 ?b2 ?t)
-  :preconditions 
-  (
-    (body ?b1)
-    (body ?b2)
-    ;; ?dir1=?dir2 is set in the drawing rules
-    (vector ?b1 (at (impulse ?b1 ?b2) ?t) ?dir1)
-    (vector ?b1 (at (force ?b1 ?b2 ?type) ?t) ?dir2)
-    (axis-for ?b1 x ?rot1) 
-  )
-  :effects (
-   (vector-diagram (impulse-force ?b1 ?b2 ?t))
-  ))
-
-;; This is the impulse from a particular force
-(defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
-  :preconditions 
-   ((variable ?F12_x  (at (compo ?xy ?rot (force ?b ?agent ?dont-care)) 
-			  (during ?t1 ?t2)))
-    (variable ?J12_x  (at (compo ?xy ?rot (impulse ?b ?agent)) 
-			  (during ?t1 ?t2)))
-    (variable ?t12    (duration (during ?t1 ?t2))))
-  :effects (
-   (eqn (= ?J12_x (* ?F12_x ?t12))
-            (compo-eqn definition ?xy ?rot 
-		       (impulse-force ?b ?agent (?during ?t1 ?t2))))
-   (eqn-compos (compo-eqn definition ?xy ?rot 
-		       (impulse-force ?b ?agent (?during ?t1 ?t2)))
-             (?J12_x ?F12_x)))
-  :hint 
-  ( (point (string "What is the relationship between average force, impulse and duration?"))
-    (teach (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise.."))
-    (bottom-out (string "Write the equation ~a"
-			((= ?J12_x (* ?F12_x ?t12)) algebra)))
-  ))
 
 ;; Draw an impulse if associated force and interval known 
 (defoperator draw-impulse-given-force (?b ?agent ?t)
@@ -138,6 +81,49 @@
     ))
 
 
+(defoperator impulse-vector-contains (?sought)
+  :preconditions 
+  ((collision ?bodies ?t ?elastic-dont-care)
+   (any-member ?sought
+	       ((at (mag (impulse ?b ?agent)) ?t)
+		(at (dir (impulse ?b ?agent)) ?t)
+		(at (mag (force ?b ?agent ?type)) ?t)
+		(at (dir (force ?b ?agent ?type)) ?t)
+		(duration ?t)))
+   (object ?b)
+   (time ?t)
+   (test (member ?b ?bodies :test #'equal)) 
+   (test (member ?agent ?bodies :test #'equal)) 
+   (test (time-intervalp ?t)))
+  :effects 
+   ((eqn-family-contains (impulse ?b ?agent ?t) ?sought)
+    ;; since only one compo-eqn under this vector psm, we can just
+    ;; select it now, rather than requiring further operators to do so
+    (compo-eqn-contains (impulse ?b ?agent ?t) imp-force ?sought)))
+
+;; This is the impulse from a particular force
+(defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
+  :preconditions 
+   ((variable ?F12_x  (at (compo ?xy ?rot (force ?b ?agent ?dont-care)) 
+			  (during ?t1 ?t2)))
+    (variable ?J12_x  (at (compo ?xy ?rot (impulse ?b ?agent)) 
+			  (during ?t1 ?t2)))
+    (variable ?t12    (duration (during ?t1 ?t2))))
+  :effects (
+   (eqn (= ?J12_x (* ?F12_x ?t12))
+            (compo-eqn imp-force ?xy ?rot 
+		       (impulse ?b ?agent (?during ?t1 ?t2))))
+   (eqn-compos (compo-eqn imp-force ?xy ?rot 
+		       (impulse ?b ?agent (?during ?t1 ?t2)))
+             (?J12_x ?F12_x)))
+  :hint 
+  ( (point (string "What is the relationship between average force, impulse and duration?"))
+    (teach (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise.."))
+    (bottom-out (string "Write the equation ~a"
+			((= ?J12_x (* ?F12_x ?t12)) algebra)))
+  ))
+
+
 ;;; ================== Impulse and momentum ================================== 
 ;;;
 ;;; This is just F=m*a integrated over time.  
@@ -147,7 +133,7 @@
 
 (def-psmclass impulse-momentum 
     (?eq-type ?compo-eqn-id ?axis ?rot 
-	      (impulse-mom ?body  ?agent (during ?t1 ?t2) ?dir)) 
+	      (impulse ?body  ?agent (during ?t1 ?t2) ?dir)) 
      :complexity major
      :doc "equation relating impulse to change in momentum"
      :english ("Relation between impulse and change in momentum")
@@ -168,7 +154,7 @@
     (axis-for ?b ?xyz ?rot) ;maybe a problem for compounds?
   )
   :effects (
-   (vector-diagram  (impulse-mom ?b ?agent (during ?t1 ?t2)))
+   (vector-diagram  (impulse ?b ?agent (during ?t1 ?t2)))
   ))
 
 
@@ -255,10 +241,10 @@
    (test (member ?agent ?bodies :test #'equal)) 
    )
   :effects
-  ((eqn-family-contains (impulse-mom ?b ?agent (during ?t1 ?t2)) ?sought)
+  ((eqn-family-contains (impulse ?b ?agent (during ?t1 ?t2)) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (impulse-mom ?b ?agent (during ?t1 ?t2)) 
+   (compo-eqn-contains (impulse ?b ?agent (during ?t1 ?t2)) 
 		       imp-momentum ?sought))
  )
 
@@ -284,9 +270,9 @@
   :effects
    ((eqn (= ?J-compo-var (- ?pf-compo ?pi-compo))
 	 (compo-eqn imp-momentum ?xyz ?rot 
-		    (impulse-mom ?b ?agent ?t)))
+		    (impulse ?b ?agent ?t)))
     (eqn-compos (compo-eqn imp-momentum ?xyz ?rot 
-			   (impulse-mom ?b ?agent ?t)) 
+			   (impulse ?b ?agent ?t)) 
 		?eqn-compo-vars))
   :hint
   ((point (string "You can relate the change in momentum of ~A to the
@@ -356,9 +342,7 @@ impulse ~A." (?b def-np) (?t pp)))
 ;;
 
 (defoperator NTL-impulse-vector-contains (?sought)
-  :preconditions 
-  (
-		  
+  :preconditions (
    (any-member ?sought ( (at (mag(impulse ?b1 ?b2)) ?t)
   		         (at (dir(impulse ?b1 ?b2)) ?t) ))
    (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
@@ -382,12 +366,11 @@ impulse ~A." (?b def-np) (?t pp)))
     ;; draw axes only apply once, so there is no danger of drawing two
     ;; axes. In order to reuse the axes drawn for body1 as axes used
     ;; for vectors on body2, we added reuse-other-body-axis in axes section.
-    (axis-for ?b1 x ?x-rot1)
+    (axis-for ?b1 x ?x-rot)
     (axis-for ?b2 x ?x-rot2)
     )
-  :effects
-  ( ;; (?b1 ?b2) are sorted because of compo-eqn contains above
-   (vector-diagram (NTL-impulse-vector (?b1 ?b2) ?t))
+  :effects (
+	    (vector-diagram (NTL-impulse-vector (?b1 ?b2) ?t))
   ))
   
 (defoperator write-NTL-impulse-vector (?b1 ?b2 ?t ?xy ?rot)
@@ -395,11 +378,9 @@ impulse ~A." (?b def-np) (?t pp)))
       (variable ?J12_xy (at (compo ?xy ?rot (impulse ?b1 ?b2)) ?t))
       (variable ?J21_xy (at (compo ?xy ?rot (impulse ?b2 ?b1)) ?t))
    )
-   :effects 
-   ( (eqn (= ?J12_xy (- ?J21_xy)) 
-	  (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t)))
-     (eqn-compos (compo-eqn NTL-impulse ?xy ?rot 
-			    (NTL-impulse-vector (?b1 ?b2) ?t))
+   :effects (
+    (eqn (= ?J12_xy (- ?J21_xy)) (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t)))
+    (eqn-compos (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t))
           (?J12_xy ?J21_xy))
    )
    :hint (
