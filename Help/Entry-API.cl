@@ -555,7 +555,8 @@
 			          `(net-field ,body-term magnetic)
 		             `(field ,body-term magnetic ,(arg-to-body avg-inst))))
 	                 ;; a two-body vector type:
-	                ((or (equal vtype 'relative-position) (equal vtype 'relative-vel))
+	                ((or (equal vtype 'relative-position) (equal vtype 'relative-vel)
+			     (equal vtype 'impulse))
 		           `(,vtype ,body-term ,(arg-to-body avg-inst)))
 		        ;; else single body vector: 
 	                (T `(,vtype ,body-term))))
@@ -1103,13 +1104,27 @@
     (unless  (setf cand (first (StudentEntry-PossibleCInterps Entry))) 
         (format T "No matching system entry found~%")
 	(setf (StudentEntry-state entry) 'incorrect)
+	; run whatswrong help to set error interp now, so diagnosis
+	; can be included in log even if student never asks whatswrong
+        (setf (StudentEntry-ErrInterp entry) (diagnose Entry))
+        ; For now, write this log info here. Really should be recorded in 
+        ; result turn for inserting with other assocs though. 
+        (send-fbd-command (format nil "assoc error ~A" (ei-name (StudentEntry-ErrInterp Entry))))	       
+	(let ((target (first (Error-Interp-Intended (StudentEntry-ErrInterp Entry)))))
+	  ; prints NIL for unknown target
+	  (send-fbd-command (format nil "assoc step ~A" (if target (SystemEntry-prop  target))))
+	  (send-fbd-command (format nil "assoc op ~A" (if target (sg-map-systementry->opnames target)))))
 	(return-from Check-NonEq-Entry (make-red-turn))) ; go no further
 
     ; else got a match: set state and correctness from candidate
     (setf (StudentEntry-State entry) (car cand))
     (setf (StudentEntry-CInterp entry) (cdr cand))
     (setf match (first (StudentEntry-CInterp entry)))
-    (format T "Matched system entry: ~A~%" match)
+    (format T "Matched ~A system entry: ~A~%" (car cand) match)
+    ; For now, write this log info here. Really should be recorded in 
+    ; result turn for inserting with other assocs though.
+    (send-fbd-command (format nil "assoc step ~A" (systemEntry-prop match)))
+    (send-fbd-command (format nil "assoc op ~A" (sg-map-systementry->opnames match)))
 
     ; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
