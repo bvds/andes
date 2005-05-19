@@ -207,6 +207,7 @@ string powersolve(const int howstrong, const varindx sought,
   
  partsuccess:
   ansexpr = new binopexp(&equals,new physvarptr(sought),numer);
+  DBG(cout << "gotten answer case partsuccess " << ansexpr->getInfix() << endl);
  success: 
 
   // If the answer depends on a parameter, then the numerical

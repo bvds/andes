@@ -17,20 +17,19 @@ extern vector<double> *numsols;
 
 numvalexp * getfromunits(const string & unitstr);
 
-string ustrp(double dpow)	// moved dots from here to unitprint, 7/26
-{				// and gives absolute value of power
+// print out exponent
+string ustrp(double dpow)      
+{				
   int q;
   char buf[8];
   if (lookslikeint(dpow,q))
     {
-      q = abs(q);
       if (q==1) return (string(""));
       else sprintf(buf,"^%d",q);
     }
-  else sprintf(buf,"^%.1lf",fabs(dpow)); // AW: should show abs val as above
+  else sprintf(buf,"^%.1lf",dpow); 
   return(string(buf));
 }
-
 
 ////////////////////////////////////////////////////////////////////////////
 /******************************** PRINTING ********************************/
@@ -49,34 +48,47 @@ string unitprint(const dimens dim)
     else if(dim.inconsp()) 
       unitstr.append("inconsistent_units");
     else {
-      string unitden;
+      // do all numerators
       if (dim.getlengthd() > 0) 
 	unitstr.append("m" + ustrp(dim.getlengthd())+".");
-      else if (dim.getlengthd() < 0) 
-	unitden.append("m" + ustrp(dim.getlengthd())+"/");
       if (dim.getmassd() > 0) 
 	unitstr.append("kg" + ustrp(dim.getmassd())+".");
-      else if (dim.getmassd() < 0) 
-	unitden.append("kg" + ustrp(dim.getmassd())+"/");
       if (dim.gettimed() > 0) 
 	unitstr.append("s" + ustrp(dim.gettimed())+".");
-      else if (dim.gettimed() < 0) 
-	unitden.append("s" + ustrp(dim.gettimed())+"/");
       if (dim.getcharged() > 0) 
 	unitstr.append("C" + ustrp(dim.getcharged())+".");
-      else if (dim.getcharged() < 0) 
-	unitden.append("C" + ustrp(dim.getcharged())+"/");
       if (dim.gettempd() > 0) 
 	unitstr.append("K" + ustrp(dim.gettempd())+".");
-      else if (dim.gettempd() < 0) 
-	unitden.append("K" + ustrp(dim.gettempd())+"/");
+
       int usl = unitstr.length();
-      if ((usl > 0) && (unitstr[usl-1] == '.')) unitstr.erase(usl-1,1);
-      usl = unitden.length();
-      if ((usl > 0) && (unitden[usl-1] == '/')) unitden.erase(usl-1,1);
-      if (unitden.length()>0) { 
-	unitstr.append("/"); unitstr.append(unitden);
-      }
+      if(usl > 0) {
+        // add denominator to result
+	if (unitstr[usl-1] == '.') unitstr.erase(usl-1,1); //always true
+	if (dim.getlengthd() < 0) 
+	  unitstr.append("/m" + ustrp(-dim.getlengthd()));
+	if (dim.getmassd() < 0) 
+	  unitstr.append("/kg" + ustrp(-dim.getmassd()));
+	if (dim.gettimed() < 0) 
+	  unitstr.append("/s" + ustrp(-dim.gettimed()));
+	if (dim.getcharged() < 0) 
+	  unitstr.append("/C" + ustrp(-dim.getcharged()));
+	if (dim.gettempd() < 0) 
+	  unitstr.append("/K" + ustrp(-dim.gettempd()));
+      } else {
+        // only denominator: use negative powers
+	if (dim.getlengthd() < 0) 
+	  unitstr.append("m" + ustrp(dim.getlengthd())+".");
+	if (dim.getmassd() < 0) 
+	  unitstr.append("kg" + ustrp(dim.getmassd())+".");
+	if (dim.gettimed() < 0) 
+	  unitstr.append("s" + ustrp(dim.gettimed())+".");
+	if (dim.getcharged() < 0) 
+	  unitstr.append("C" + ustrp(dim.getcharged())+".");
+	if (dim.gettempd() < 0) 
+	  unitstr.append("K" + ustrp(dim.gettempd())+".");
+	usl = unitstr.length();
+	if ((usl > 0) && (unitstr[usl-1] == '.')) unitstr.erase(usl-1,1);
+     }
     }
   }
   return(unitstr);

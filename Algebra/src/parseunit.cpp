@@ -36,10 +36,11 @@ double geterr(const string value); // below
 numvalexp * parseunit(stack<string> *toklist)
 {
   DBG(cout << "entering parseunit with " << toklist->size() 
-      << " tokens" << endl; );
+      << " tokens" << endl );
   int k;
   bool expectu = true;
   enum states { A, B, B1, C, D, E };
+  string statestring[6]={"A","B","B1","C","D","E"}; // for DBG(...)
   states state = A;
   double expval, abserr;
   numvalexp * curnv = new numvalexp(1.);
@@ -48,8 +49,9 @@ numvalexp * parseunit(stack<string> *toklist)
   numvalexp * newnv;
   while (!toklist->empty()) {
     string token = toklist->top(); toklist->pop();
-    DBG(cout << "parseunit in state " << state 
-        << " popped " << toklist->size() << "'th token " << token << endl; );
+    DBG(
+	cout << "parseunit in state " << statestring[state] 
+        << " popped " << toklist->size() << "'th token " << token << endl);
     if (token.compare("U)")==0) throw(string("end unit inside units"));
     if (isanum(token)) {
       switch (state)
@@ -109,7 +111,10 @@ numvalexp * parseunit(stack<string> *toklist)
             "[" << curnv->MKS.print() << "]" << endl; );
         return(curnv);
       }
-      else throw(string("parseunit got dnum when not expecting one"));
+      else {
+	DBG(cout<< "parseunit got dnum when not expecting one" << endl);
+	throw(string("parseunit got dnum when not expecting one"));
+      }
     }
     DBG(cout << "only possibilities for " << token << " are const or unit"
         << endl; );
