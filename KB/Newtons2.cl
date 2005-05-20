@@ -3599,7 +3599,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   "if the direction of the relative position of one body with respect to 
   another is not given, you can introduce the relative position vector by drawing it with an unknown direction"
   :preconditions ( 
-    (not (at-origin ?b1 ?t))
+    ; make sure this is not known to be zero-length from at-place stmt.
+    (not (at-place ?b1 ?b2 ?t))
+    (not (at-place ?b2 ?b1 ?t))
     (not (given (at (dir (relative-position ?b1 ?b2)) ?t) (dnum ?dir |deg|)))
     ;; make sure this vector not already drawn
     (not (vector ?b2 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
@@ -3616,6 +3618,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
 	  ?b2 ?b1 (?t pp)))
   ))
+
+; draw zero-length relative position if body is at location
+(defoperator draw-zero-relative-position (?b ?loc ?t)
+  :preconditions
+  ((in-wm (at-place ?b ?loc ?t-at-place))
+   (test (tinsidep ?t ?t-at-place))
+   (not (vector ?b (at (relative-position ?b ?loc) ?t) ?dont-care))
+   (bind ?mag-var (format-sym "r_~A_~A_~A" ?b ?loc (time-abbrev ?t)))
+   (debug "~&Drawing zero-length relative position of ~a wrt ~a at ~a.~%" ?b ?loc ?t))
+  :effects 
+    ((vector ?b (at (relative-position ?b ?loc ?t) zero))
+     (variable ?mag-var (at (mag (relative-position ?b ?loc ?t))))
+     (given (at (mag (relative-position ?b ?loc ?t) (dnum 0 |m|))))))
 
 ;;;
 ;;; Vector sum of displacements
