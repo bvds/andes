@@ -1002,21 +1002,20 @@
   ))
 
 
-; Following would enable the equality rba = rpa to be used when body b is at p
+; Following would enable the equality rba = rpa to be exploited when body b is at p
 ; However, it doesn't really help if rpa is sought and rpa compos given, since
-; then the equality cannot advance any solution, so gets purged as dead-path quant.
-; might be useable if also give rpa compos.
+; then nothing allows rba to be calculated, so gets purged as dead-path quant.
+; Might be useable in some problems.
 
 (defoperator same-relpos(?body ?loc ?origin ?time)
   :preconditions (
-      (in-wm (at-place ?body ?loc ?time))
-      ; must bind origin -- but not all points declared.
-      ; for now, require origin to be a body.
-      (in-wm (object ?origin))
+      (in-wm (at-place ?body ?loc ?t-at-loc))
+      (test (tinsidep ?time ?t-at-loc))
+      ; ?origin should be bound from sought coming in
   )
   :effects (
-     ; Declare equality. Equation will be written by generic write-equality 
-     ; operator without ; mucof a hint, as if equality is given or obvious.
+     ; Assert equality. Equation will be written by generic write-equality 
+     ; operator without much of a hint, as if equality is given or obvious.
      (equals (at (mag(relative-position ?body ?origin)) ?time)
              (at (mag(relative-position ?loc ?origin)) ?time))
   ))
