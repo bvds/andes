@@ -281,7 +281,7 @@ impulse ~A." (?b def-np) (?t pp)))
     ))
 
 
-;;; ================== Impulse and Impulse ================================== 
+;;; ========================== Impulse and Impulse ================================== 
 ;;;
 ;;; This is just NTL integrated over time.  
 ;;; The following is based on the "NTL-compo" rules.
@@ -373,7 +373,7 @@ impulse ~A." (?b def-np) (?t pp)))
 	    (vector-diagram (NTL-impulse-vector (?b1 ?b2) ?t))
   ))
   
-(defoperator write-NTL-impulse-vector (?b1 ?b2 ?t ?xy ?rot)
+(defoperator write-NTL-impulse-compo (?b1 ?b2 ?t ?xy ?rot)
    :preconditions (
       (variable ?J12_xy (at (compo ?xy ?rot (impulse ?b1 ?b2)) ?t))
       (variable ?J21_xy (at (compo ?xy ?rot (impulse ?b2 ?b1)) ?t))
@@ -391,3 +391,85 @@ impulse ~A." (?b def-np) (?t pp)))
                          ((= ?J12_xy (- ?J21_xy)) algebra)))
    ))
 
+;;;;===================================================================================
+;;;;
+;;;;                        Center of Mass
+;;;;
+;;;;===================================================================================
+
+(def-psmclass center-of-mass-compo (?eq-type definition ?axis ?rot 
+				       (center-of-mass ?com ?time))
+  :english ("definition of center of mass")
+  :complexity major ;we want the equation to be used explicitly
+  :EqnFormat ("Rcm_~A = (m1*r1_~A + m2*r2_~A + ...)/(m1 + m2 + ...)" 
+	      (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+(defoperator center-of-mass-contains (?sought)
+  :preconditions 
+  (
+   (center-of-mass ?com ?bodies ?origin) ;define objects (and origin) for cm
+   (any-member ?sought (
+			(at (mag (relative-position ?b ?origin)) ?t) 
+			(at (dir (relative-position ?b ?origin)) ?t)
+			(mass ?b) 
+			))
+   (test (or (member ?b ?bodies) (equal ?b ?com)))
+   (time ?t)
+   )
+  :effects (
+  (eqn-family-contains (center-of-mass ?com ?t) ?sought)
+  ;; since only one compo-eqn under this vector psm, we can just
+  ;; select it now, rather than requiring further operators to do so
+  (compo-eqn-contains (center-of-mass ?com ?t) definition ?sought)
+  ))
+
+(defoperator draw-center-of-mass-diagram (?com ?t)
+  :preconditions 
+  ( 
+   (in-wm (center-of-mass ?com ?bodies ?origin)) ;define objects for cm
+   (foreach ?b ?bodies
+	    (body ?b))			;make object
+   (foreach ?b ?bodies			;make position vector
+	    (vector ?b (at (relative-position ?b ?origin) ?t) ?dirb))
+   (foreach ?b ?bodies 
+	    (axis-for ?b ?xyz ?rot))	;make axes
+   (vector ?com (at (relative-position ?com ?origin) ?t) ?dircom)
+   )
+  :effects (
+   (vector-diagram (center-of-mass ?com ?t))
+  ))
+
+
+(defoperator write-center-of-mass-compo (?com ?t ?xyz ?rot)
+  :preconditions 
+  ( (in-wm (center-of-mass ?com ?bodies ?origin)) ;define objects for cm
+    (variable ?r-com-compo (at (compo ?xyz ?rot (relative-position ?com ?origin)) ?t))
+    ;; list of position variables
+    (map ?b ?bodies
+	(variable ?r-compo-var (at (compo ?xyz ?rot (relative-position ?b ?origin)) ?t))
+	?r-compo-var ?r-compo-vars)
+    ;; list of mass variables
+    (map ?b ?bodies
+	(variable ?mass-var (mass ?b))
+	?mass-var ?mass-vars)
+    ;; compute list of products of mass and position for each ?b
+    (bind ?rhs (mapcar #'(lambda(a b) (list '* a b)) ?mass-vars ?r-compo-vars))
+    ;; list of all variables we have produced
+    (bind ?variables (cons ?r-com-compo (append ?r-compo-vars ?mass-vars)))
+  )
+  :effects 
+  (
+   (eqn (= (* ?r-com-compo (+ . ?mass-vars)) (+ . ?rhs)) 
+	      (compo-eqn definition ?xyz ?rot (center-of-mass ?com ?t)))
+   (eqn-compos (compo-eqn definition ?xyz ?rot (center-of-mass ?com ?t))
+	       ?variables )
+   )
+  :hint 
+  ( (point (string "Find the center of mass of ~A ~A"  
+		   (?bodies conjoined-defnp) (?t pp)))
+    (teach (string "Use the masses ~A and the ~A component of the positions ~A"
+		   (?mass-vars conjoined-defnp) ((axis ?xyz ?rot) symbols-label)
+		   (?r-compo-vars conjoined-defnp)))
+    (bottom-out (string "Write the equation ~A"  
+                        ((= ?r-com-compo (/ (+ . ?rhs) (+ . ?mass-vars))) algebra)))
+    ))
