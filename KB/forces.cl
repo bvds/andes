@@ -874,8 +874,8 @@
             ))
 
 
-; Pythagorean theorem for vector magnitudes: 
-;        r^2 = r_x^2 + r_y^2
+;;; Pythagorean theorem for vector magnitudes: 
+;;;        r^2 = r_x^2 + r_y^2
 ; This applies to any vector, but for now we define it for relative position vectors only, so that
 ; we can limit its effects on other problems until we decide to add it for all vectors
 ; For now we also restrict to standard axes since that's where we need it, although any 
@@ -890,7 +890,7 @@
 ; In general the association of all vectors with bodies for purposes of finding axes to use on them,
 ; which works well for things like the inclined atwoods problem, is not so appropriate 
 ; for field problems with position vectors and an origin. The whole treatment of axes needs to be 
-; cleaned up and simplified to avoid this hairiness.
+;;; cleaned up and simplified to avoid this hairiness.
 (def-psmclass rmag-pyth (rmag-pyth ?body ?origin ?time)
   :complexity minor 
   :english ("the pythagorean theorem for position magnitudes")
@@ -901,6 +901,7 @@
    :preconditions (
      (any-member ?sought (
        (at (mag (relative-position ?b ?o)) ?t)
+       ;; only standard axes (doesn't work for tilted)
        (at (compo x 0 (relative-position ?b ?o)) ?t) 
        (at (compo y 90 (relative-position ?b ?o)) ?t)
                          ))
