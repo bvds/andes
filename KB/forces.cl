@@ -913,9 +913,11 @@
 (defoperator write-rmag-pyth (?b ?o ?t)
   :preconditions (
     (variable ?r (at (mag(relative-position ?b ?o)) ?t))
-    ;; need this if this is to work in non-component-form problems
-    ;; because define-compo requires pre-drawn axes (while define-compo2 
-    ;; only works for component-form).
+    ; don't apply this rule if vector lies along an axis: it won't be needed
+    ; to calculate magnitude from compos and just multiplies solutions.
+    ; Note: this doesn't test for vector along z-axis (unlikely to occur).
+    (in-wm (vector ?dontcare (at (relative-position ?b ?o) ?t) ?dir-r))
+    (test (not (horizontal-or-vertical ?dir-r)))
     (variable ?r_x (at (compo x 0  (relative-position ?b ?o)) ?t)) 
     (variable ?r_y (at (compo y 90 (relative-position ?b ?o)) ?t)) 
   )
