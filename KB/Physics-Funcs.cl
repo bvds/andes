@@ -239,8 +239,8 @@
   "Expects either a number or a number of degrees, and returns a number."
   (cond ((numberp x) x)
 	;;((equal x 'zero) 0) ;; wrong, means zero-length not 0 deg [AW]
-	   ((degree-specifierp x)(second x))
-           (T (error "Non-numerical angle measure: ~a" x))))
+	((degree-specifierp x)(second x))
+        (T (error "Non-numerical angle measure: ~a" x))))
 
 (defun parameterp (x)
   "Non-null if the argument has the form (parameter <symbol>)"
@@ -388,6 +388,12 @@
 	  (T  (torque-zdir dir2 dir1))
           ;(T "error: unhandled case in cross-product-dir1 ~a ~a" dir1 dir2)
    ))
+
+(defun horizontal-or-vertical (dir-expr)
+ "return true if this specifies a horizontal or vertical direction"
+    (when (degree-specifierp dir-expr)
+       (= (mod (term-to-dir dir-expr) 90)
+          0)))
 
 ;;
 ;; Compound body terms: (compound body1 ... bodyn)
