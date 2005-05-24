@@ -347,33 +347,30 @@ bool uptonum(const expr * const ans, const expr * const term,
   bool answer;
   expr * a1 = copyexpr(ans);
   expr * a2 = copyexpr(term);
-  DBG( cout <<"Uptonum: about to call normexpr on a1"<< endl; );
   numvalexp * ansfact = normexpr(a1);
-  DBG( { cout << "Uptonum: normexpr returned factor "<< ansfact->getInfix() << endl;
-	     cout << "         times a1: " << a1->getInfix() << endl; } ) ;
+  DBG(cout << "Uptonum: normexpr returned factor " << ansfact->getInfix() 
+      << endl << "         times a1: " << a1->getInfix() << endl;) ;
   numvalexp * termfact  = normexpr(a2);
-  DBG( { cout << "Uptonum: normexpr returned factor " << termfact->getInfix() << endl;
-         cout << "         times a2: " << a2->getInfix() << endl; } );
-  DBG( {cout << "uptonum about to equaleqs a1 and a2" << endl; } ) ;
+  DBG(cout << "Uptonum: normexpr returned factor " << termfact->getInfix() 
+      << endl << "         times a2: " << a2->getInfix() << endl);
   answer = equaleqs(a1,a2);
   a1->destroy();
   a2->destroy();
-  DBG( cout << "equaleqs returned " << ((answer) ? "true" : "false") 
-       << " and uptonum temps a1 and a2 destroyed" << endl; );
-  if (answer) 
+  if (answer && termfact->value!=0.0) 
     {
       coef = ansfact;
-      coef->value = coef->value	/termfact->value ;
+      coef->value = coef->value/termfact->value ;
       termfact->MKS *= -1.;
       coef->MKS += termfact->MKS;
       termfact->destroy();
-      DBG( cout << "uptonum returning true, coef= " << coef->getInfix() << endl; );
+      DBG(cout << "uptonum returning true, coef=" << coef->getInfix() << endl);
       return(true);
     }
   else {
     termfact->destroy();
     ansfact->destroy();
-    DBG( cout << "uptonum returning false" << endl; );
+    DBG(cout << "uptonum returning false" 
+	<< (termfact->value !=0 )? "because term=0":"" << endl);
     return(false);
   }
 }

@@ -126,7 +126,7 @@ void findtrigvars( expr * & ex, vector<expr *> * &trigvars)
 
 
 /************************************************************************
- * bool signisknown(expr * const ex)      NAME IS MISLEADING		*
+ * bool signisknown(expr * const ex)                    		*
  *	returns true if either ex is known to be nonneg or known to be	*
  *	nonpositive. In principle we should require nonzero as well,	*
  *	but this will cripple it, and if it is zero angle is meaningles	*
@@ -222,7 +222,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 		throw(string("tan(angle) can't have dimensions"));
 	      // BvdS: how do I know k2->value is nonzero?
 	      c2byk2 = c2->value/k2->value;
-	      ktry = atan(c2byk2);// this is always in [-Pi/2,Pi/2]
+	      ktry = atan(c2byk2); // this is always in [-Pi/2,Pi/2]
 	      if (isnonneg(fact2) == isnonneg(fact1)) ktry += M_PI;
 	      if (!firstiscos) ktry = M_PI/2 - ktry;
 	      if (ktry < 0 ) ktry += 2*M_PI;
