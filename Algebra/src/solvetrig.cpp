@@ -25,7 +25,6 @@ void maketrigvars(vector<binopexp *> * eqexpr,
 bool solvetrigvar(const expr * const var, vector<binopexp *> * & eqn);
 bool trigsearch(const expr * const arg, expr *& coef,
 		const expr * const ex, bool & iscos, expr * & oside);
-bool signisknown(const expr * const ex);
 
 /************************************************************************
  *	finds equations involving trig functions, makes list of
@@ -127,6 +126,24 @@ void findtrigvars( expr * & ex, vector<expr *> * &trigvars)
 
 
 /************************************************************************
+ * bool signisknown(expr * const ex)      NAME IS MISLEADING		*
+ *	returns true if either ex is known to be nonneg or known to be	*
+ *	nonpositive. In principle we should require nonzero as well,	*
+ *	but this will cripple it, and if it is zero angle is meaningles	*
+ ************************************************************************/
+bool signisknown(const expr * const ex)
+{
+  if (isnonneg(ex)) return(true);
+  expr * excopy = copyexpr(ex);
+  kmult(excopy, -1.);
+  eqnumsimp(excopy,true);
+  flatten(excopy);
+  bool answer = isnonneg(excopy);
+  excopy->destroy();
+  return(answer);
+}
+
+/************************************************************************
  * void maketrigvars( vector<binopexp *> * eqexpr,			*
  *		vector<expr *> * &trigvars)		 		*
  *	adds to  trigvars (at least empty list required on input	*
@@ -155,7 +172,7 @@ void maketrigvars( vector<binopexp *> * eqexpr,
  *	and 	cc*fact1 + kc * fact2 cos(arg) = 0			*
  * 	with fact1 and fact2 known positive (actually nonnegative!?!)	*
  *  if found, replaces one with arg = numval and other with 		*
- *	(cs^2+cc^2)*fact1^2 = (ks^2+kc^2)* fact2^2			*
+ *	(cs^2+cc^2)*fact1^2 = (ks^2+kc^2)* fact2^2 <-- THIS IS WRONG!!!	*
  ************************************************************************/
 bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 {
@@ -163,44 +180,40 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
   numvalexp *c2, *k2;
   double ktry, c2byk2;
   expr *fact1, *fact2, *oside, *facttry;
-  bool iscos, firstiscos;
+  bool firstiscos, secondiscos;
   DBG( cout << "Entering solvetrigvar, angle arg=" 
        << arg->getInfix() << endl);
   VEQCHK(eqn);
   for (j = 0; j+1 < eqn->size(); j++) // loop to find first equation of pair
-    if (trigsearch(arg, fact2,(expr *)(*eqn)[j], iscos, oside))
+    if (trigsearch(arg, fact2,(expr *)(*eqn)[j], firstiscos, fact1))
       {
 	DBG( cout << "First equation " << j << ":  " << (*eqn)[j]->getInfix() 
-	     << endl << "          Trigsearch returned coef "
-	     << fact2->getInfix() << " and constant term "
-	     << oside->getInfix() << " and iscos "
-	     << ((iscos) ? "true" : "false") << endl);
-	// Unless the signs of oside and fact2 are known, there is a
+	     << endl << "          Trigsearch returned fact2="
+	     << fact2->getInfix() << " and fact1="
+	     << fact1->getInfix() << " and "
+	     << (firstiscos ? "cosine" : "sine") << endl);
+	// Unless the signs of fact1 and fact2 are known, there is a
 	// 180^o uncertainty in the arg. We should probably have some
 	// mechanism for solving up to that uncertainty, but do not
 	// currently. Also, we are cheating, because we are assuming
 	// coef is nonzero without justification. But if coef is zero,
-	// so is oside, and then angle is completely undetermined.
-	DBG( cout << "Sign " << (signisknown(oside)?"is":"is not") 
-	     << " known for oside=" <<oside->getInfix() << endl);
-	if (!signisknown(oside) || !signisknown(fact2)) continue;
-	fact1 = oside;
-	firstiscos = iscos;
-	// first equation reads fact2 * cos arg + fact1 = 0 (if firstiscos)
+	// so is fact1, and then angle is completely undetermined.
+	if (!signisknown(fact1) || !signisknown(fact2)) continue;
+	// first equation reads fact2 * cos(arg) + fact1 = 0 (if firstiscos)
 	for (k = j+1; k < eqn->size(); k++) // loop to find second equation
-	  if (trigsearch(arg, facttry, (expr *)(*eqn)[k], iscos, oside))
+	  if (trigsearch(arg, facttry, (expr *)(*eqn)[k], secondiscos, oside))
 	    {
 	      DBG( cout << "Second Eqn. " << k << ":  " << (*eqn)[k]->getInfix() 
 		   << endl << "          Trigsearch returned coef "
 		   << facttry->getInfix() << " and constant term "
-		   << oside->getInfix() << " and iscos "
-		   << ((iscos) ? "true" : "false") << endl);
-	      if (iscos == firstiscos || !(uptonum(facttry,fact2,k2))
+		   << oside->getInfix() << " and "
+		   << (secondiscos ? "cosine" : "sine") << endl);
+	      if (secondiscos == firstiscos || !(uptonum(facttry,fact2,k2))
 		  || !(uptonum(oside,fact1,c2))) continue;
 	      DBG( cout << "k2 is " << k2->getInfix() << 
 		   ", and c2 is " << c2->getInfix() << endl);
 	      // second equation reads
-	      // k2 * fact2 * sin arg + c2 * fact1 = 0 (if firstiscos)
+	      // k2 * fact2 * sin(arg) + c2 * fact1 = 0 (if firstiscos)
 	      // Thus tan arg = c2/k2 (if firsticos, else cot arg = c2/k2)
 	      // and fact2^2=fact1^2(1+c2^2/k2^2)
 	      
@@ -216,7 +229,6 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      if (ktry >= 2*M_PI) ktry -= 2*M_PI;
 	      // trigsearch will crash if eq doesn't have zero rhs, so
 	      n_opexp *eqlhs = new n_opexp(&myplus);
-	      DBG(cout << "Diag1: " << arg->getInfix() << endl);
 	      eqlhs->addarg(copyexpr(arg));
 	      numvalexp *tempnv = new numvalexp(- ktry);
 	      tempnv->MKS.put(0,0,0,0,0);
@@ -225,6 +237,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      (*eqn)[j] = new binopexp(&equals,eqlhs,new numvalexp(0));
 	      DBG(cout << "Output new Eqn. " <<j << ": " 
 		  << (*eqn)[j]->getInfix() << endl);
+
 	      // just made (*eqn)[j]  arg - ktry = 0
 	      ktry = sqrt(1 + c2byk2*c2byk2);
 	      if (isnonneg(fact2) == isnonneg(fact1)) ktry *= -1.;
@@ -527,22 +540,4 @@ bool trigsearch(const expr * const arg, expr *& coef,
     if (ove != (expr *) NULL) ove->destroy();
     return(false);
   }
-}
-
-/************************************************************************
- * bool signisknown(expr * const ex)      NAME IS MISLEADING		*
- *	returns true if either ex is known to be nonneg or known to be	*
- *	nonpositive. In principle we should require nonzero as well,	*
- *	but this will cripple it, and if it is zero angle is meaningles	*
- ************************************************************************/
-bool signisknown(const expr * const ex)
-{
-  if (isnonneg(ex)) return(true);
-  expr * excopy = copyexpr(ex);
-  kmult(excopy, -1.);
-  eqnumsimp(excopy,true);
-  flatten(excopy);
-  bool answer = isnonneg(excopy);
-  excopy->destroy();
-  return(answer);
 }
