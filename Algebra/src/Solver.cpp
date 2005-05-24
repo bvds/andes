@@ -182,6 +182,12 @@ RETURN_CSTRING solverDoLog(const char* const src) {
   return result;
 }
 
+RETURN_CSTRING solverDebugLevel(const unsigned long int x) {
+  dbglevel = x;
+  setResult("t");
+  return result;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // solver routines
 //////////////////////////////////////////////////////////////////////////////

@@ -187,7 +187,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #-uffi (ff:def-foreign-call (c-solve-start-log "solverStartLog")
 			    ((string (* :char)))
-			    :returning :int)
+			    :returning :int) ;BvdS:  but it returns a string...
 #+uffi (uffi:def-function ("solverStartLog" c-solve-start-log)
 			  ((string :cstring))
 			  :returning :cstring)
@@ -199,6 +199,20 @@
 	 (uffi:convert-from-cstring (c-solve-start-log arg-native))))
 (defun solver-log-new-name (x)
   (my-read-answer (solve-start-log (format nil "~A" x))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#-uffi (ff:def-foreign-call (c-solve-debug-level "solverDebugLevel")
+			    ((level :unsigned-long))
+			    :returning :int) ;BvdS:  but it returns a string...
+#+uffi (uffi:def-function ("solverDebugLevel" c-solve-debug-level)
+			  ((level :unsigned-long))
+			  :returning :cstring)
+#-uffi (defun solve-debug-level (a)
+	 (excl:native-to-string (c-solve-debug-level a)))
+#+uffi (defun solve-debug-level (arg)
+	 (uffi:convert-from-cstring (c-solve-debug-level arg)))
+(defun solver-debug-level (x)  ;use #x... for hexadecimal format
+  (my-read-answer (solve-debug-level x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #-uffi (ff:def-foreign-call (c-solve-bubble "solveBubble")
