@@ -58,7 +58,10 @@ void findtrigvars( expr * & ex, vector<expr *> * &trigvars)
 {
   int k;
   EQCHK(ex);
+#define DEBUG_FINDETRIGVARS 0
+#if DEBUG_FINDTRIGVARS
   DBG( cout << "findTRIG: starting looking at " << ex->getInfix() << endl;);
+#endif
   switch (ex->etype)
     {
     case numval:
@@ -71,8 +74,10 @@ void findtrigvars( expr * & ex, vector<expr *> * &trigvars)
 	    (exfun->f->opty == cose)  ||
 	    (exfun->f->opty == tane))
 	  {
+#if DEBUG_FINDTRIGVARS
 	    DBG( cout << "findTRIG: found a trig: " 
 		      << exfun->getInfix() << endl; );
+#endif
 	    trigsimp(ex);
 	    if (ex->etype == function) exfun = (functexp *)ex;
 	    else 
@@ -86,13 +91,19 @@ void findtrigvars( expr * & ex, vector<expr *> * &trigvars)
 	    for (k = 0; k < trigvars->size(); k++)
 	      {
 		if (equaleqs((*trigvars)[k],exfun->arg)) break;
+#if DEBUG_FINDTRIGVARS
 		DBG( cout << "findTRIG: no dup with var " 
 			  << (*trigvars)[k]->getInfix() << endl; );
+#endif
 	      }
+#if DEBUG_FINDTRIGVARS
 	    DBG( if (k < trigvars->size())
 		 cout << "findTRIG: matches with trigvar " << k << endl; );
+#endif
 	    if (k == trigvars->size()) {
+#if DEBUG_FINDTRIGVARS
 	      DBG( cout << "findTRIG: its a new trig: " << endl; );
+#endif
 	      trigvars->push_back(copyexpr(exfun->arg));
 	    }
 	  } // end of if trig function
@@ -153,58 +164,50 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
   double ktry, c2byk2;
   expr *fact1, *fact2, *oside, *facttry;
   bool iscos, firstiscos;
-  DBG( cout << "Entering solvetrigvar with arg " << arg->getInfix() << endl;);
+  DBG( cout << "Entering solvetrigvar, angle arg=" 
+       << arg->getInfix() << endl);
   VEQCHK(eqn);
-  for (j = 0; j+1 < eqn->size(); j++) // loop over first equation of pair
+  for (j = 0; j+1 < eqn->size(); j++) // loop to find first equation of pair
     if (trigsearch(arg, fact2,(expr *)(*eqn)[j], iscos, oside))
       {
-	DBG( cout << j << "th eq. (hits in solvetrigvar): " << endl
-	          << (*eqn)[j]->getInfix() << endl
-	          << "Trigsearch returned true with coef "
-	          << fact2->getInfix() << " and constant term "
-	          << oside->getInfix() << " and iscos "
-		  << ((iscos) ? "true" : "false") << endl; );
-
+	DBG( cout << "First equation " << j << ":  " << (*eqn)[j]->getInfix() 
+	     << endl << "          Trigsearch returned coef "
+	     << fact2->getInfix() << " and constant term "
+	     << oside->getInfix() << " and iscos "
+	     << ((iscos) ? "true" : "false") << endl);
 	// Unless the signs of oside and fact2 are known, there is a
 	// 180^o uncertainty in the arg. We should probably have some
 	// mechanism for solving up to that uncertainty, but do not
 	// currently. Also, we are cheating, because we are assuming
 	// coef is nonzero without justification. But if coef is zero,
 	// so is oside, and then angle is completely undetermined.
-	if (!signisknown(oside)) {
-	  DBG(cout << "SLVTRIGvar sign unknown " <<oside->getInfix() << endl;);
-	  continue;
-	}
-	DBG( cout << "SLVTRIGvar sign known for oside " << endl; );
-	if (!signisknown(fact2)) continue;
+	DBG( cout << "Sign " << (signisknown(oside)?"is":"is not") 
+	     << " known for oside=" <<oside->getInfix() << endl);
+	if (!signisknown(oside) || !signisknown(fact2)) continue;
 	fact1 = oside;
 	firstiscos = iscos;
 	// first equation reads fact2 * cos arg + fact1 = 0 (if firstiscos)
-	for (k = j+1; k < eqn->size(); k++)
+	for (k = j+1; k < eqn->size(); k++) // loop to find second equation
 	  if (trigsearch(arg, facttry, (expr *)(*eqn)[k], iscos, oside))
 	    {
-	      DBG( cout << k << "th eq. was hit in solvetrigvar: " << endl
-		        << (*eqn)[k]->getInfix() << endl
-		        << "Trigsearch returned true with coef "
-		        << facttry->getInfix() << " and constant term "
-		        << oside->getInfix() << " and iscos "
-			<< ((iscos) ? "true" : "false") << endl; );
-	      if (iscos == firstiscos) continue;
-	      if (!(uptonum(facttry,fact2,k2))) continue;
-	      if (!(uptonum(oside,fact1,c2))) continue;
+	      DBG( cout << "Second Eqn. " << k << ":  " << (*eqn)[k]->getInfix() 
+		   << endl << "          Trigsearch returned coef "
+		   << facttry->getInfix() << " and constant term "
+		   << oside->getInfix() << " and iscos "
+		   << ((iscos) ? "true" : "false") << endl);
+	      if (iscos == firstiscos || !(uptonum(facttry,fact2,k2))
+		  || !(uptonum(oside,fact1,c2))) continue;
 	      DBG( cout << "k2 is " << k2->getInfix() << 
-		   ", and c2 is " << c2->getInfix() << endl; );
+		   ", and c2 is " << c2->getInfix() << endl);
 	      // second equation reads
 	      // k2 * fact2 * sin arg + c2 * fact1 = 0 (if firstiscos)
 	      // Thus tan arg = c2/k2 (if firsticos, else cot arg = c2/k2)
-	      // and fact2^2=fact1^2(1+c2^2/k2^2) 
-	      if (!(c2->MKS == k2->MKS // units differ
-#ifdef AW_EXP
-			    // AW: OK if either dim unknown, as on a 0
-			    || c2->MKS.unknp() || k2->MKS.unknp()
-#endif //AW_EXP
-				)) 
+	      // and fact2^2=fact1^2(1+c2^2/k2^2)
+	      
+	      // check if units definitely differ: 
+	      if (!(c2->MKS == k2->MKS || c2->MKS.unknp() || k2->MKS.unknp())) 
 		throw(string("tan(angle) can't have dimensions"));
+	      // BvdS: how do I know k2->value is nonzero?
 	      c2byk2 = c2->value/k2->value;
 	      ktry = atan(c2byk2);// this is always in [-Pi/2,Pi/2]
 	      if (isnonneg(fact2) == isnonneg(fact1)) ktry += M_PI;
@@ -213,22 +216,20 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      if (ktry >= 2*M_PI) ktry -= 2*M_PI;
 	      // trigsearch will crash if eq doesn't have zero rhs, so
 	      n_opexp *eqlhs = new n_opexp(&myplus);
-//	      eqlhs->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
-	      DBG(  cout << "Diag1: " << arg->getInfix() << endl;  );
+	      DBG(cout << "Diag1: " << arg->getInfix() << endl);
 	      eqlhs->addarg(copyexpr(arg));
 	      numvalexp *tempnv = new numvalexp(- ktry);
 	      tempnv->MKS.put(0,0,0,0,0);
 	      eqlhs->addarg(tempnv);
 	      (*eqn)[j]->destroy();
 	      (*eqn)[j] = new binopexp(&equals,eqlhs,new numvalexp(0));
-	      DBG(  cout << "Solvetrigvar just output "
-			 <<j << ": " << (*eqn)[j]->getInfix() << endl; );
+	      DBG(cout << "Output new Eqn. " <<j << ": " 
+		  << (*eqn)[j]->getInfix() << endl);
 	      // just made (*eqn)[j]  arg - ktry = 0
 	      ktry = sqrt(1 + c2byk2*c2byk2);
 	      if (isnonneg(fact2) == isnonneg(fact1)) ktry *= -1.;
 	      // about to make (*eqn)[k] be  ktry * fact1 + fact2 = 0
 	      n_opexp * tempnop = new n_opexp(&mult);
-//	      tempnop->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
 	      tempnv = new numvalexp(ktry);
 	      tempnv->MKS.put(0,0,0,0,0);
 	      tempnop->addarg(tempnv);
@@ -240,11 +241,8 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      (*eqn)[k] = new binopexp(&equals,eqlhs,new numvalexp(0));
 	      oside->destroy();
 	      facttry->destroy();
-	      DBG(  cout << "Solvetrigvar just output "
-		    << k<< ": " << (*eqn)[k]->getInfix() << endl; );
-	      DBG( { cout << "Is arg OK? here it is: " << endl;
-	             cout << "\t" << arg->getInfix() << endl;
-		     cout << "Solvetrigvar returning true " << endl; } );
+	      DBG(  cout << "Output new Eqn. " << k << ":  " 
+		    << (*eqn)[k]->getInfix() << endl);
 	      return(true);
 	    } // end of checking and implementing matching equation
       }	// end of loop searching for first of pair
@@ -280,8 +278,11 @@ bool trigsearch(const expr * const arg, expr *& coef,
 
   // if it returns true, are not coef and oside always nonzero? if so,
   // don't need all the checking below
+#define DEBUG_TRIGSEARCH 0
+#if DEBUG_TRIGSEARCH
   DBG( cout << "Entering trigsearch with arg " << endl
 	    << arg->getInfix() << ", in expr: " << ex->getInfix() << endl; );
+#endif
   EQCHK(ex);
   switch(ex->etype)
     {
@@ -289,14 +290,18 @@ bool trigsearch(const expr * const arg, expr *& coef,
     case physvart:
       oside = copyexpr(ex);
       coef = new numvalexp(0);
+#if DEBUG_TRIGSEARCH
       DBG( cout << "trigsearch returns true on physvar or numval " << endl; );
+#endif
       return(true);
     case function:
       {
 	functexp * fptr = ( functexp * ) ex;
 	if (equaleqs(fptr->arg,arg)) 
 	  {
+#if DEBUG_TRIGSEARCH
 	    DBG(cout << "TRIGSEARCH: found function of correct arg " << endl;);
+#endif
 	    switch(fptr->f->opty)
 	      {
 	      case sine:
@@ -304,23 +309,29 @@ bool trigsearch(const expr * const arg, expr *& coef,
 		coef = new numvalexp(1);
 		coef->MKS.put(0,0,0,0,0);
 		oside = new numvalexp(0);
+#if DEBUG_TRIGSEARCH
 		DBG( cout << "TRIGSEARCH: its a sine , coef =" <<
 		     coef->getInfix() << " and oside =" << oside->getInfix()
 		     << endl; );
+#endif
 		return(true);
 	      case cose:
 		iscos = true;
 		coef = new numvalexp(1);
 		coef->MKS.put(0,0,0,0,0);
 		oside = new numvalexp(0);
+#if DEBUG_TRIGSEARCH
 		DBG( cout << "TRIGSEARCH: its a cosine , coef =" <<
 		     coef->getInfix() << " and oside =" << oside->getInfix()
 		     << endl; );
+#endif
 		return(true);
 	      case tane:
 	      case abse:
 	      default:
+#if DEBUG_TRIGSEARCH
 		DBG(cout << "Trigsearch returns false" << endl;);
+#endif
 		return(false);
 	      }
 	  }
@@ -333,7 +344,9 @@ bool trigsearch(const expr * const arg, expr *& coef,
 	      {
 		cfe->destroy();
 		if (ove != (expr *) NULL) ove->destroy();
+#if DEBUG_TRIGSEARCH
 		DBG(cout << "Trigsearch returns false" << endl;);
+#endif
 		return(false);
 	      }
 	    else		// dont I still need to destroy dfe and ove?
@@ -341,16 +354,20 @@ bool trigsearch(const expr * const arg, expr *& coef,
 		cfe->destroy(); ove->destroy();	// added 2/27
 		coef = new numvalexp(0);
 		oside = copyexpr(ex);
+#if DEBUG_TRIGSEARCH
 		DBG( cout << "TRIGSEARCH: funct arg not right one. coef =" <<
 		     coef->getInfix() << " and oside =" << oside->getInfix()
 		     << endl; );
+#endif
 		return(true);
 	      }
 	  }
       }
     case binop:
       {
+#if DEBUG_TRIGSEARCH
 	DBG(cout << "Entering trigsearch on binop " <<ex->getInfix() << endl;);
+#endif
 	binopexp * bptr = (binopexp *) ex;
 	if (bptr->op->opty == equalse)
 	  {
@@ -383,22 +400,28 @@ bool trigsearch(const expr * const arg, expr *& coef,
 	  {
 	    cfe->destroy();
 	    if (ove != (expr *) NULL) ove->destroy();
+#if DEBUG_TRIGSEARCH
 	    DBG(cout << "Trigsearch returns false" << endl;);
+#endif
 	    return(false);
 	  }
 	cfe->destroy();
 	if (ove != (expr *) NULL) ove->destroy();
 	oside = copyexpr(ex);	// corrected from ove =, 2/27
 	coef = new numvalexp(0);
+#if DEBUG_TRIGSEARCH
 	DBG( cout << "TRIGSEARCH: binop no arg right one. coef =" <<
 	     coef->getInfix() << " and oside =" << oside->getInfix()
 	     << endl; );
+#endif
 	return(true);
       }
     case n_op:
       if (((n_opexp *)ex)->op->opty == multe)
 	{
+#if DEBUG_TRIGSEARCH
 	  DBG( cout << "Entering trigsearch on mult"<< endl; );
+#endif
 	  cf = new n_opexp(&mult); // keep empty until cos/sin found
 //	  cf->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
 	  ov = new n_opexp(&mult);
@@ -430,11 +453,15 @@ bool trigsearch(const expr * const arg, expr *& coef,
 	    {
 	      coef = cf;
 	      flatten(coef);
+#if DEBUG_TRIGSEARCH
 	      DBG( cout << "Trigsearch: eqnumsimp on " << coef->getInfix()
 			<< endl; );
+#endif
 	      eqnumsimp(coef,true);
+#if DEBUG_TRIGSEARCH
 	      DBG( cout << "Trigsearch: returned from eqnumsimp on "
 			<< coef->getInfix() << endl; );
+#endif
 	    }
 	  else 
 	    {
@@ -442,16 +469,22 @@ bool trigsearch(const expr * const arg, expr *& coef,
 	      cf->destroy();
 	    }
 	  oside = ov;
+#if DEBUG_TRIGSEARCH
 	  DBG(cout << "Trigsearch: flatten on " << oside->getInfix() << endl;);
+#endif
 	  flatten(oside);
+#if DEBUG_TRIGSEARCH
 	  DBG( cout << "Trigsearch: eqnumsimp on "
 		    << oside->getInfix() << endl; );
+#endif
 	  eqnumsimp(oside,true);
 	  return(true);
 	}
       else			// its a plus n_op
 	{
+#if DEBUG_TRIGSEARCH
 	  DBG( cout << "Entering trigsearch on plus"<< endl; );
+#endif
 	  cf = new n_opexp(&myplus);
 	  ov = new n_opexp(&myplus);
 	  bool iscosthis;
