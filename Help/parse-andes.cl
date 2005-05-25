@@ -880,7 +880,11 @@
            (c-var (student-to-canonical s-var)))
       ;;(format t "variable ~A~%" c-var)
       (if (or (stringp c-var) ; not translated 
-	      (not (canonical-var-answer-var-p c-var)))
+	      (not (or (canonical-var-answer-var-p c-var)
+	               ; always allow physical constants like G in answer expression
+	               ; since they are like numbers. (?Would we have a way to specify
+	               ; exactly which constants are allowed in answer if we wanted?)
+	               (physconstp c-var))))
 	  (list s-var))))
    (t (append (bad-vars-in (first parse) lhs)
 	      (bad-vars-in (rest parse) lhs)))))
