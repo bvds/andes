@@ -47,7 +47,7 @@ void kmult(expr * & ex, numvalexp * nv)
 	  DBG( cout << "kmult returns " << ex->getInfix()<< endl; );
 	  return;
   }
-#endif AW_EXP
+#endif // AW_EXP
   // AW: Also want special case for multiplication by 1?
   // that also not simplified by code below.
 
@@ -370,7 +370,7 @@ bool uptonum(const expr * const ans, const expr * const term,
     termfact->destroy();
     ansfact->destroy();
     DBG(cout << "uptonum returning false" 
-	<< ((termfact->value !=0.0 )? "because term=0":"") << endl);
+	<< ((termfact->value == 0.0)? " because term=0":"") << endl);
     return(false);
   }
 }

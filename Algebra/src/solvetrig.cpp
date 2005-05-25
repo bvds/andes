@@ -34,7 +34,7 @@ bool trigsearch(const expr * const arg, expr *& coef,
  *	of the form 
  * 		c1 fact1 + k1 fact sin(arg) = 0 (c1,c2,k1,k2 are numbers)
  *	and  	c2 fact1 + k2 fact cos(arg) = 0
- *	to get tan(arg)
+ *	to get a numerical value for arg
  ************************************************************************/
 //  In fact, in this code, solvetrigvar requires the signs of fact1 and
 //  fact to be determined (except it uses isnonneg instead of ispositive)
@@ -184,18 +184,21 @@ void maketrigvars( vector<binopexp *> * eqexpr,
  *  bool solvetrigvar(const expr * const arg, 				*
  *		vector<binopexp *> * & eqn)				*
  * 	looks for two equations of the form  				*
- *		cs*fact1 + ks * fact2 sin(arg) = 0			*
- *	and 	cc*fact1 + kc * fact2 cos(arg) = 0			*
- * 	with fact1 and fact2 known positive (actually nonnegative!?!)	*
- *  if found, replaces one with arg = numval and other with 		*
- *	(cs^2+cc^2)*fact1^2 = (ks^2+kc^2)* fact2^2 <-- THIS IS WRONG!!!	*
+ *		fact1 + fact2 sin(arg) = 0			        *
+ *	and     fact3 + fact4 cos(arg) = 0			        *
+ * 	with fact2, fact4, and fact1*fact3 all nonzero.	                *
+ *      Also demand that:  fact3 and fact1 are different only by a      *
+ *      known numerical factor.  Likewise with and fact2 and fact4.     *
+ *  if found, replaces one equation with arg = numval and other with    *
+ *  an equation without arg.                                      	*
  ************************************************************************/
 bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 {
-  int j, k;
+  unsigned int j, k;
   numvalexp *c2, *k2;
-  double ktry, c2byk2;
-  expr *fact1, *fact2, *oside, *facttry;
+  double tempvar;
+  expr *fact1, *fact2, *fact3, *fact4;
+  expr *fa, *fb;
   bool firstiscos, secondiscos;
   DBG( cout << "Entering solvetrigvar, angle arg=" 
        << arg->getInfix() << endl);
@@ -208,48 +211,48 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	     << fact2->getInfix() << " and fact1="
 	     << fact1->getInfix() << " and "
 	     << (firstiscos ? "cosine" : "sine") << endl);
-	// Unless the signs of fact1 and fact2 are known, there is a
-	// 180^o uncertainty in the arg. We should probably have some
-	// mechanism for solving up to that uncertainty, but do not
-	// currently. Also, we are cheating, because we are assuming
-	// coef is nonzero without justification. But if coef is zero,
-	// so is fact1, and then angle is completely undetermined.
 	if (!nonzeroisknown(fact2)) continue;
-	// first equation reads fact2 * cos(arg) + fact1 = 0 (if firstiscos)
+	// first equation:  fact2*cos(arg) + fact1 = 0 (if firstiscos)
 	for (k = j+1; k < eqn->size(); k++) // loop to find second equation
-	  if (trigsearch(arg, facttry, (expr *)(*eqn)[k], secondiscos, oside))
+	  if (trigsearch(arg, fact4, (expr *)(*eqn)[k], secondiscos, fact3))
 	    {
 	      DBG( cout << "Second Eqn. " << k << ":  " << (*eqn)[k]->getInfix() 
 		   << endl << "          Trigsearch returned coef "
-		   << facttry->getInfix() << " and constant term "
-		   << oside->getInfix() << " and "
+		   << fact4->getInfix() << " and constant term "
+		   << fact3->getInfix() << " and "
 		   << (secondiscos ? "cosine" : "sine") << endl);
-	      if(secondiscos == firstiscos || !nonzeroisknown(facttry)) 
+	      if(secondiscos == firstiscos || !nonzeroisknown(fact4)) 
 		continue;
-	      // BvdS:  changed up to here ***********************************
-	      if (!(uptonum(facttry,fact2,k2))
-		  || !(uptonum(oside,fact1,c2))) continue;
+	      // 2nd Eqn:  fact3 + fact4*sin(arg) = 0 (if firstiscos)
+	      if(uptonum(fact3,fact1,c2) && uptonum(fact4,fact2,k2)){
+		// 1st Eqn:  fact1 + fact2*cos(arg) = 0 (if firstiscos)
+		// 2nd Eqn:   c2*fact1 + k2*fact2*sin(arg) = 0 (if firstiscos)
+		fa=fact1; fb=fact4;
+		fact2->destroy(); fact3->destroy();  // won't use these
+	      }
+	      // if fact1 is zero, then we need the second form:
+	      else if(uptonum(fact1,fact3,k2) && uptonum(fact2,fact4,c2)) {
+		// 1st Eqn:   k2*fact3 + c2*fact4*cos(arg) = 0 (if firstiscos)
+		// 2nd Eqn:  fact3 + fact4*sin(arg) = 0 (if firstiscos)
+		fa=fact3; fb=fact2;
+		fact1->destroy(); fact4->destroy();  // won't use these
+	      } else continue;
 	      DBG( cout << "k2 is " << k2->getInfix() << 
 		   ", and c2 is " << c2->getInfix() << endl);
-	      // second equation reads
-	      // k2 * fact2 * sin(arg) + c2 * fact1 = 0 (if firstiscos)
-	      // Thus tan arg = c2/k2 (if firsticos, else cot arg = c2/k2)
-	      // and fact2^2=fact1^2(1+c2^2/k2^2)
-	      
 	      // check if units definitely differ: 
 	      if (!(c2->MKS == k2->MKS || c2->MKS.unknp() || k2->MKS.unknp())) 
 		throw(string("tan(angle) can't have dimensions"));
-	      // BvdS: how do I know k2->value is nonzero?
-	      c2byk2 = c2->value/k2->value;
-	      ktry = atan(c2byk2); // this is always in [-Pi/2,Pi/2]
-	      if (isnonneg(fact2) == isnonneg(fact1)) ktry += M_PI;
-	      if (!firstiscos) ktry = M_PI/2 - ktry;
-	      if (ktry < 0 ) ktry += 2*M_PI;
-	      if (ktry >= 2*M_PI) ktry -= 2*M_PI;
+	      // calculate arctangent or arccotangent
+	      tempvar = (firstiscos ? atan2(c2->value,k2->value) :
+		      atan2(k2->value,c2->value));  // interval [-pi,pi]
+	      if(isnonneg(fa) == isnonneg(fb)) tempvar += M_PI;
+	      if(tempvar < 0 ) tempvar += 2*M_PI;  // interval [0,2*pi]
+
+	      // Make equation for the angle.
 	      // trigsearch will crash if eq doesn't have zero rhs, so
 	      n_opexp *eqlhs = new n_opexp(&myplus);
 	      eqlhs->addarg(copyexpr(arg));
-	      numvalexp *tempnv = new numvalexp(- ktry);
+	      numvalexp *tempnv = new numvalexp(- tempvar);
 	      tempnv->MKS.put(0,0,0,0,0);
 	      eqlhs->addarg(tempnv);
 	      (*eqn)[j]->destroy();
@@ -257,22 +260,20 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      DBG(cout << "Output new Eqn. " <<j << ": " 
 		  << (*eqn)[j]->getInfix() << endl);
 
-	      // just made (*eqn)[j]  arg - ktry = 0
-	      ktry = sqrt(1 + c2byk2*c2byk2);
-	      if (isnonneg(fact2) == isnonneg(fact1)) ktry *= -1.;
-	      // about to make (*eqn)[k] be  ktry * fact1 + fact2 = 0
+	      // make equation without an angle
+	      tempvar = sqrt(pow(c2->value,2)+pow(k2->value,2));
+	      if (isnonneg(fa) == isnonneg(fb)) tempvar *= -1.;
+	      // about to make (*eqn)[k] be  tempvar * fa + fb = 0
 	      n_opexp * tempnop = new n_opexp(&mult);
-	      tempnv = new numvalexp(ktry);
+	      tempnv = new numvalexp(tempvar);
 	      tempnv->MKS.put(0,0,0,0,0);
 	      tempnop->addarg(tempnv);
-	      tempnop->addarg(fact1);
+	      tempnop->addarg(fa);
 	      eqlhs = new n_opexp(&myplus);
 	      eqlhs->addarg(tempnop);
-	      eqlhs->addarg(fact2);
+	      eqlhs->addarg(fb);
 	      (*eqn)[k]->destroy();
 	      (*eqn)[k] = new binopexp(&equals,eqlhs,new numvalexp(0));
-	      oside->destroy();
-	      facttry->destroy();
 	      DBG(  cout << "Output new Eqn. " << k << ":  " 
 		    << (*eqn)[k]->getInfix() << endl);
 	      return(true);
@@ -299,7 +300,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
  *	returns true, they are valid expr *, though I haven't checked	*
  *	if they might be n_ops of <2 args 				*
  ************************************************************************/
-bool trigsearch(const expr * const arg, expr *& coef,
+bool trigsearch(const expr * const arg, expr * & coef,
 		const expr * const ex, bool & iscos, expr * & oside)
 {
   n_opexp * cf = (n_opexp *) NULL;
