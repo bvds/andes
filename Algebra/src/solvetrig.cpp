@@ -128,8 +128,7 @@ void findtrigvars( expr * & ex, vector<expr *> * &trigvars)
 /************************************************************************
  * bool signisknown(expr * const ex)                    		*
  *	returns true if either ex is known to be nonneg or known to be	*
- *	nonpositive. In principle we should require nonzero as well,	*
- *	but this will cripple it, and if it is zero angle is meaningles	*
+ *	nonpositive.                                                    *
  ************************************************************************/
 bool signisknown(const expr * const ex)
 {
@@ -139,6 +138,23 @@ bool signisknown(const expr * const ex)
   eqnumsimp(excopy,true);
   flatten(excopy);
   bool answer = isnonneg(excopy);
+  excopy->destroy();
+  return(answer);
+}
+
+/************************************************************************
+ * bool nonzeroisknown(expr * const ex)                    		*
+ *	returns true if either ex is known to be positive or            *
+ *      -ex is known to be positive.                             	*
+ ************************************************************************/
+bool nonzeroisknown(const expr * const ex)
+{
+  if (ispositive(ex)) return(true);
+  expr * excopy = copyexpr(ex);
+  kmult(excopy, -1.);
+  eqnumsimp(excopy,true);
+  flatten(excopy);
+  bool answer = ispositive(excopy);
   excopy->destroy();
   return(answer);
 }
@@ -198,7 +214,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	// currently. Also, we are cheating, because we are assuming
 	// coef is nonzero without justification. But if coef is zero,
 	// so is fact1, and then angle is completely undetermined.
-	if (!signisknown(fact1) || !signisknown(fact2)) continue;
+	if (!nonzeroisknown(fact2)) continue;
 	// first equation reads fact2 * cos(arg) + fact1 = 0 (if firstiscos)
 	for (k = j+1; k < eqn->size(); k++) // loop to find second equation
 	  if (trigsearch(arg, facttry, (expr *)(*eqn)[k], secondiscos, oside))
@@ -208,7 +224,10 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 		   << facttry->getInfix() << " and constant term "
 		   << oside->getInfix() << " and "
 		   << (secondiscos ? "cosine" : "sine") << endl);
-	      if (secondiscos == firstiscos || !(uptonum(facttry,fact2,k2))
+	      if(secondiscos == firstiscos || !nonzeroisknown(facttry)) 
+		continue;
+	      // BvdS:  changed up to here ***********************************
+	      if (!(uptonum(facttry,fact2,k2))
 		  || !(uptonum(oside,fact1,c2))) continue;
 	      DBG( cout << "k2 is " << k2->getInfix() << 
 		   ", and c2 is " << c2->getInfix() << endl);
