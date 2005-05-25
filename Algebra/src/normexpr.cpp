@@ -171,7 +171,7 @@ numvalexp * normexpr(expr * & ex)
 		  answer->MKS.put(0,0,0,0,0);
 		  return(answer);
 		}
-	      if ((*argnop->args)[0]->etype = numval)
+	      if ((*argnop->args)[0]->etype == numval)
 		{
 		  answer = new numvalexp(
 					 exp(((numvalexp *)(*argnop->args)[0])->value));
@@ -370,7 +370,7 @@ bool uptonum(const expr * const ans, const expr * const term,
     termfact->destroy();
     ansfact->destroy();
     DBG(cout << "uptonum returning false" 
-	<< (termfact->value !=0 )? "because term=0":"" << endl);
+	<< ((termfact->value !=0.0 )? "because term=0":"") << endl);
     return(false);
   }
 }
