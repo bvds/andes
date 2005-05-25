@@ -85,9 +85,8 @@
 	; Main step: apply a psm to generate an equation for sought.
 	(psm-applied ?sought ?eqn-id ?eqn-algebra)
 
-	; collect list of quantities in the equation. Ignore predefined
-	; constants like pi that don't need to be solved for
-	(map ?v (remove-if #'physconstp (vars-in-eqn ?eqn-algebra))
+	; collect list of quantities in the equation. 
+	(map ?v (vars-in-eqn ?eqn-algebra)
 	       (in-wm (variable ?v ?q))
                ?q ?quantities-in-eqn)
 	; make sure sought quantity actually occurs in equation

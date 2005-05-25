@@ -445,8 +445,7 @@
 
 ;;; vars-in-eqn returns the variables in a given equation.
 ;;; It assumes any atom that is not a number, parameter,  dimensioned number
-;;; or algebraic operator
-;;; must be a variable.
+;;; algebraic operator, or physical constant symbol must be a variable.
 
 (defun vars-in-eqn (eqn)
    "returns the set of variables in a given equation."
@@ -455,6 +454,7 @@
          ((parameterp eqn) NIL)
          ((dimensioned-numberp eqn) NIL)
          ((member eqn *algebraic-operators*) NIL)
+	 ((physconstp eqn) NIL)    ; defined in constants.cl
          ((symbolp eqn) (list eqn))
          ((not (listp eqn))
           (error "~&Non-eqn ~a" eqn))
@@ -476,7 +476,6 @@
            (numberp (second x))
            (symbolp (third x))
            (null (cdddr x))))
-
 
 ;;; This is used in Newton's laws to convert a component equation 
 ;;; into an equation with the component variables replaced by expressions.
