@@ -8,6 +8,7 @@
 
 #include <string>
 #include <stdio.h>
+#include <float.h>
 #include "decl.h"
 #include "extoper.h"
 #include "dbg.h"
@@ -106,7 +107,10 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
 		  throw(string(
 			     "attempt to add terms of different dimensions"));
 		}
-	      kmult((*answer->args)[k],1. + (nv->value/fk->value)); // AW: what blocks divide by zero???
+		  if (fabs(nv->value + fk->value) < 100* DBL_EPSILON * (fabs(nv->value) + fabs(fk->value)))
+			kmult((*answer->args)[k], 0.);
+		  else
+			kmult((*answer->args)[k],1. + (nv->value/fk->value)); // AW: what blocks divide by zero???
 	      fk->destroy();
 	      nv->destroy();
 	      if (((*answer->args)[k]->etype == numval) &&   
