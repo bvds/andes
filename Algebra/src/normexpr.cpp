@@ -124,8 +124,13 @@ numvalexp * normexpr(expr * & ex)
   binopexp * binptr;
   n_opexp * nopptr;
   functexp * fptr;
+#ifdef WITHDBG // for debugging
+  static int normcall=0;    
+  int thiscall=normcall++;  
+#endif
 
-  DBG( cout << "normexpr on " << ex->getInfix() << endl; );
+  DBG(cout << "normexpr call " << thiscall << " for " 
+      << ex->getInfix() << endl);
 
   eqnumsimp(ex,true);
   flatten(ex);
@@ -135,10 +140,14 @@ numvalexp * normexpr(expr * & ex)
       answer = (numvalexp *) ex;
       ex = (expr *) new numvalexp(1.);
       ex->MKS.put(0,0,0,0,0);
+      DBG(cout << "normexpr call " << thiscall << " returning " 
+	  << answer<-getInfix() << endl); 
       return(answer);
     case physvart:
       answer = new numvalexp(1.);
       answer->MKS.put(0,0,0,0,0);
+      DBG(cout << "normexpr call " << thiscall << " returning " 
+	  << answer<-getInfix() << endl); 
       return(answer);
     case function:
       fptr = (functexp *) ex;
@@ -149,6 +158,8 @@ numvalexp * normexpr(expr * & ex)
 	case tane:
 	  answer = new numvalexp(1.);
 	  answer->MKS.put(0,0,0,0,0);
+	  DBG(cout << "normexpr call " << thiscall << " returning " 
+	      << answer<-getInfix() << endl); 
 	  return(answer);
 	case expe:
 	  switch (fptr->arg->etype) {
@@ -161,6 +172,8 @@ numvalexp * normexpr(expr * & ex)
 		{
 		  answer = new numvalexp(1.);
 		  answer->MKS.put(0,0,0,0,0);
+		  DBG(cout << "normexpr call " << thiscall << " returning " 
+		      << answer<-getInfix() << endl); 
 		  return(answer);
 		}
 	      cleanup(argnop);
@@ -169,6 +182,8 @@ numvalexp * normexpr(expr * & ex)
 		  ex = new numvalexp(0);
 		  answer = new numvalexp(1.);
 		  answer->MKS.put(0,0,0,0,0);
+		  DBG(cout << "normexpr call " << thiscall << " returning " 
+		      << answer<-getInfix() << endl); 
 		  return(answer);
 		}
 	      if ((*argnop->args)[0]->etype == numval)
@@ -179,11 +194,15 @@ numvalexp * normexpr(expr * & ex)
 		  ((numvalexp *)(*argnop->args)[0])->value = 0;
 		  fptr->arg = argnop; // I don't know, it could have changed
 		  flatten(fptr->arg);
+		  DBG(cout << "normexpr call " << thiscall << " returning " 
+		      << answer<-getInfix() << endl); 
 		  return(answer);
 		}
 	      else {	// ?? need to look at this, I got lost here
 		answer = new numvalexp(1.);
 		answer->MKS.put(0,0,0,0,0);
+		DBG(cout << "normexpr call " << thiscall << " returning " 
+		    << answer<-getInfix() << endl); 
 		return(answer);
 	      }
 	    }
@@ -198,10 +217,14 @@ numvalexp * normexpr(expr * & ex)
 	  answer = normexpr(fptr->arg);
 	  if (answer->value < 0) {kmult(fptr->arg,-1.); answer->value *= -1.;}
 	  answer->value = sqrt(answer->value);
+	  DBG(cout << "normexpr call " << thiscall << " returning " 
+	      << answer<-getInfix() << endl); 
 	  return(answer);
 	case abse:
 	  answer = normexpr(fptr->arg);
 	  answer->value = fabs(answer->value);
+	  DBG(cout << "normexpr call " << thiscall << " returning " 
+	      << answer<-getInfix() << endl); 
 	  return(answer);
 	default:
 	  throw(string("unknown function in normexpr"));
@@ -218,12 +241,16 @@ numvalexp * normexpr(expr * & ex)
 	    denom->MKS *= -1.;
 	    answer->MKS += denom->MKS;
 	    denom->destroy();
+	    DBG(cout << "normexpr call " << thiscall << " returning " 
+		<< answer<-getInfix() << endl); 
 	    return(answer);
 	  }
 	case topowe:
 	  if (binptr->rhs->etype != numval) {
 	    answer = new numvalexp(1.);
 	    answer->MKS.put(0,0,0,0,0);
+	    DBG(cout << "normexpr call " << thiscall << " returning " 
+		<< answer<-getInfix() << endl); 
 	    return(answer);
 	  }
 	  answer = normexpr(binptr->lhs);
@@ -240,26 +267,36 @@ numvalexp * normexpr(expr * & ex)
 	  else answer->value = pow(answer->value,
 				   ((numvalexp *)binptr->rhs)->value);
 	  answer->MKS *=((numvalexp *)binptr->rhs)->value;
+	  DBG(cout << "normexpr call " << thiscall << " returning " 
+	      << answer<-getInfix() << endl); 
 	  return(answer);
 	case equalse:
 	  if ((binptr->rhs->etype != numval) || 
 	      ((numvalexp *)binptr->rhs)->value != 0)
 	    {
+#if 0
 	      DBG( cout << "normexpr: about to call apluskb( " 
 		        << binptr->lhs->getInfix() << " , " 
-		        << binptr->rhs->getInfix() << " , -1.)" << endl; );
+		        << binptr->rhs->getInfix() << " , -1.)" << endl);
+#endif
 	      apluskb(binptr->lhs,binptr->rhs, -1.);
+#if 0
 	      DBG( cout << "Normexpr: a+kb output first arg "
 		        << binptr->lhs->getInfix() << endl;);
+#endif
 	      binptr->rhs->destroy();
 	      binptr->rhs = new numvalexp(0);
 	      eqnumsimp(binptr->lhs,true);
 	      flatten(binptr->lhs);
+#if 0
 	      DBG( cout << "normexpr returning "
 		        << binptr->lhs->getInfix() << endl; );
+#endif
 	    }
 	  answer = normexpr(binptr->lhs);
 	  binptr->rhs->MKS = binptr->lhs->MKS;
+	  DBG(cout << "normexpr call " << thiscall << " returning " 
+	      << answer<-getInfix() << endl); 
 	  return(answer);
 	case grte:
 	case gree:
@@ -277,39 +314,53 @@ numvalexp * normexpr(expr * & ex)
 	    kmult(binptr->lhs,-1.); 
 	    answer->value *= -1.;}
 	  binptr->rhs->MKS = binptr->lhs->MKS;
+	  DBG(cout << "normexpr call " << thiscall << " returning " 
+	      << answer<-getInfix() << endl); 
 	  return(answer);
 	default:
 	  throw(string("unknown binop in normexpr"));
 	} // end of switch over binop types
     case n_op:
       nopptr = (n_opexp *) ex;
+#if 0
       DBG( cout << "normexpr n_op " << ex->getInfix() << endl; );
+#endif
       cleanup(nopptr);
+#if 0
       DBG( cout << "n_op cleaned up in normexpr " << ex->getInfix() << endl;);
+#endif
       if (nopptr->args->size()==0)
 	throw(string("I didn't think null n_op could occur in normfact"));
       if (nopptr->op->opty == multe)
 	{
+#if 0
 	  DBG( cout << "n_op is multe in normexpr " << endl; );
+#endif
 	  if ((*nopptr->args)[0]->etype != numval) 
 	    {
 	      ex = nopptr;
 	      answer = new numvalexp(1.);
 	      answer->MKS.put(0,0,0,0,0);
+	      DBG(cout << "normexpr call " << thiscall << " returning " 
+		  << answer<-getInfix() << endl); 
 	      return(answer);
 	    }
 	  else
 	    {
+#if 0
 	      DBG( cout << "n_op[0] is numval" << endl; );
+#endif
 	      answer = (numvalexp *)(*nopptr->args)[0];
 	      for (k=0;k+1<nopptr->args->size();k++)
 		(*nopptr->args)[k] = (*nopptr->args)[k+1];
 	      nopptr->args->pop_back();
+#if 0
 	      DBG( cout << "about to eqnumsimp n_op in normexpr" << endl; );
+#endif
 	      ex = nopptr;
 	      eqnumsimp(ex,true);
-	      DBG( cout << "about to return from normexpr with " 
-		        << answer << endl; );
+	      DBG(cout << "normexpr call " << thiscall << " returning " 
+		  << answer<-getInfix() << endl); 
 	      return(answer);
 	    }
 	}
@@ -323,6 +374,8 @@ numvalexp * normexpr(expr * & ex)
 	  nv->MKS = answer->MKS;
 	  nv->MKS *= -1.;
 	  kmult(ex,nv);
+	  DBG(cout << "normexpr call " << thiscall << " returning " 
+	      << answer<-getInfix() << endl); 
 	  return(answer);
 	} // end of plus n_op
     case unknown:
