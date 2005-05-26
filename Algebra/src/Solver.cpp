@@ -11,24 +11,29 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <iostream>
 #include "indysgg.h"
 #include "dbg.h"
-
-
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
 #define SOLVER_IS_DEBUGGING
 #ifdef SOLVER_IS_DEBUGGING
 #include <fstream>
-static std::ofstream joelLog;
-static std::string joelFileName = "Solver.log";
+static ofstream joelLog;
+static string joelFileName = "Solver.log";
 static bool joelLogOn = false;
-#define SLog(s) if (joelLogOn) { joelLog.open(joelFileName.c_str(), std::ios::app); if (joelLog) {joelLog << s << ";" << std::endl; joelLog.close();} }
-///#define SLog(s) joelLog.open("Solver.log", std::ios::app); if (joelLog) {joelLog << s << ";" << std::endl; joelLog.close();}
-#define NewLog() if (joelLogOn) { joelLog.open(joelFileName.c_str()); if (joelLog) {joelLog << "Begin" << std::endl; joelLog.close(); } }
-//#define CloseLog() joelLog.close();
+#define SLog(s) if (joelLogOn) { \
+      joelLog.open(joelFileName.c_str(), ios::app); \
+      if (joelLog) {joelLog << s << ";" << endl; joelLog.close();} \
+      else cout << "Can't open log file " << joelFileName << endl; } 
+#define NewLog() if (joelLogOn) { \
+   joelLog.open(joelFileName.c_str()); \
+   if (joelLog) {joelLog << "Begin" << endl; joelLog.close();} \
+   else cout << "Can't open new log file " << joelFileName << endl; }
 #else // ifndef SOLVER_IS_DEBUGGING
 #define SLog(s)
+#define NewLog()
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -48,20 +53,20 @@ double myTan(double x) {
 
   if ((sf == ef) && (sf % 90 == 0) && (((sf / 90) % 2) == 1)) {
     // if the same integer and it's a multiple of (2n+1)90 then
-    throw(std::string("Illegal Argument to trig function")); // throw the eexception
+    throw(string("Illegal Argument to trig function")); // throw the eexception
   }
   return tan(x); // otherwise it is okay
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // catch all for code in coldriver.cpp (should enter in .h)
-int indyCanonHowIndy(int setID, int eqnID, std::vector<int>*& linexpand, std::vector<int>*& mightdepend);
-int indyStudHowIndy(int setID, int eqnID, std::vector<int>*& linexpand, std::vector<int>*& mightdepend);
-std::string powersolve(const int howstrong, const std::string varname, 
+int indyCanonHowIndy(int setID, int eqnID, vector<int>*& linexpand, vector<int>*& mightdepend);
+int indyStudHowIndy(int setID, int eqnID, vector<int>*& linexpand, vector<int>*& mightdepend);
+string powersolve(const int howstrong, const string varname, 
 		       const int destslot);
-bool handleInput(std::string& aLine);
+bool handleInput(string& aLine);
 bool clearTheProblem();
-std::string itostr(int val);
+string itostr(int val);
 
 //////////////////////////////////////////////////////////////////////////////
 // local routines and variables not directly accessible from outside this file
@@ -164,7 +169,7 @@ static int findChar(char toFind, const char* const data, int beginAt) {
 // routines supplied through interface (solver.h)
 //////////////////////////////////////////////////////////////////////////////
 RETURN_CSTRING solverStartLog(const char* const src) {
-  std::string tmp = src;
+  string tmp = src;
   joelFileName = tmp;
   NewLog();
   setResult("t");
@@ -172,7 +177,7 @@ RETURN_CSTRING solverStartLog(const char* const src) {
 }
 
 RETURN_CSTRING solverDoLog(const char* const src) {
-  std::string flag = src;
+  string flag = src;
   if ((flag == "T") || (flag == "t")) {
     joelLogOn = true;
   } else {
@@ -196,7 +201,7 @@ RETURN_CSTRING solveBubble() {
   SLog("solveBubble()");
   try {
     setResult(solveTheProblem());
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "solveBubble", "");
   } catch(...) {
     makeError("unexpected and unhandled exception", "solveBubble", "");
@@ -211,7 +216,7 @@ RETURN_CSTRING solveMoreBubble() {
   SLog("solveMoreBubble()");
   try {
     setResult(solveMoreOfTheProblem());
-  } catch(std::string message) {
+  } catch(string message) {
     makeError(message.c_str(), "solveMoreBubble", "");
   } catch(...) {
     makeError("unexpected and unhandled exception", "solveMoreBubble", "");
@@ -225,13 +230,13 @@ RETURN_CSTRING solveMoreBubble() {
 RETURN_CSTRING solveAdd(const char* const lispExpression) {
   SLog("solveAdd(\"" << remove0A0Ds(lispExpression) << "\")");
   try {
-    std::string bfr = lispExpression;
+    string bfr = lispExpression;
     if (handleInput(bfr)) {
       setResult("t");
     } else {
       setResult("nil");
     }
-  } catch(std::string message) {
+  } catch(string message) {
     makeError(message.c_str(), "solveAdd", lispExpression);
   } catch(...) {
     makeError("unexpected and unhandled exception", "solveAdd", lispExpression);
@@ -250,7 +255,7 @@ RETURN_CSTRING solveClear() {
     } else {
       setResult("nil");
     }
-  } catch(std::string message) {
+  } catch(string message) {
     makeError(message.c_str(), "solveClear", "");
   } catch(...) {
     makeError("unexpected and unhandled exception", "solveClear", "");
@@ -276,7 +281,7 @@ RETURN_CSTRING c_indyAddVariable(const char* const data) {
     copyToResult(data, q + 1, strlen(data) - 2, p);
     indyAddVar(result, value, &result[p]);
     setResult("t");
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyAddVariable", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyAddVariable", data);
@@ -292,7 +297,7 @@ RETURN_CSTRING c_indyDoneAddVariable() {
   try {
     indyDoneAddVar();
     setResult("t");
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyDoneAddVariable", "");
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyDoneAddVariable", "");
@@ -305,7 +310,7 @@ RETURN_CSTRING c_indyDoneAddVariable() {
 //////////////////////////////////////////////////////////////////////////////
 RETURN_CSTRING c_indyAddEquation(const char* const data) {
   SLog("c_indyAddEquation(\"" << remove0A0Ds(data) << "\")");
-  std::string tmp = "";
+  string tmp = "";
   try {
     int p = findChar(' ', data, 1);
     copyToResult(data, 1, p - 1);
@@ -316,7 +321,7 @@ RETURN_CSTRING c_indyAddEquation(const char* const data) {
     tmp += result;
     indyAddCanonEq(equationID, result);
     setResult("t");
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyAddEquation", tmp.c_str()); //data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyAddEquation", data);
@@ -332,7 +337,7 @@ RETURN_CSTRING c_indyEmpty() {
   try {
     indyEmpty();
     setResult("t");
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyEmpty", "");
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyEmpty", "");
@@ -352,7 +357,7 @@ RETURN_CSTRING c_indyAddEq2Set(const char* const data) {
     copyToResult(data, p + 1, strlen(data) - 2);
     indyAddEq2CanSet(setID, atoi(result));
     setResult("t");
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyAddEq2CanSet", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyAddEq2CanSet", data);
@@ -372,7 +377,7 @@ RETURN_CSTRING c_indyKeepNOfSet(const char* const data) {
     copyToResult(data, p + 1, strlen(data) - 2);
     indyKeepN(setID, atoi(result));
     setResult("t");
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyKeepNOfSet", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyKeepNOfSet", data);
@@ -389,8 +394,8 @@ RETURN_CSTRING c_indyHowIndy(const int which, const char* const data) {
     copyToResult(data, p + 1, strlen(data) - 2);
     int equationID = atoi(result);
     copyToResult(data, 1, p - 1);
-    std::vector<int>* linexpand = 0L;
-    std::vector<int>* mightdepend = 0L;
+    vector<int>* linexpand = 0L;
+    vector<int>* mightdepend = 0L;
     switch (which) {
     case 0:
       p = indyCanonHowIndy(atoi(result), equationID, linexpand, mightdepend);
@@ -399,9 +404,9 @@ RETURN_CSTRING c_indyHowIndy(const int which, const char* const data) {
       p = indyStudHowIndy(atoi(result), equationID, linexpand, mightdepend);
       break;
     default:
-      throw std::string("No third option in indyHowIndy");
+      throw string("No third option in indyHowIndy");
     }
-    std::string retstr("(");
+    string retstr("(");
     retstr += (itostr(p) + " (");
     if (p != 0) {
       for (int k=0; k<linexpand->size(); k++) {
@@ -416,7 +421,7 @@ RETURN_CSTRING c_indyHowIndy(const int which, const char* const data) {
     }
     retstr += "))";
     setResult(retstr.c_str());
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyHowIndy", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyHowIndy", data);
@@ -447,7 +452,7 @@ RETURN_CSTRING c_indyStudentAddEquationOkay(const char* const data) {
     int equationID = atoi(result);
     copyToResult(data, p + 1, strlen(data) - 2);
     sprintf(result, "%d", indyAddStudEq(equationID, result));
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyStudentAddEquationOkay", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyStudentAddEquationOkay", data);
@@ -463,7 +468,7 @@ RETURN_CSTRING c_indyIsStudentEquationOkay(const char* const data) {
   try {
     copyToResult(data, 1, strlen(data) - 2);
     sprintf(result, "%d", indyIsStudEqnOkay(result));
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "indyIsStudentEquationOkay", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "indyIsStudentEquationOkay", data);
@@ -486,7 +491,7 @@ RETURN_CSTRING c_powersolve(const char* const data) {
     int slot = atoi(result);
     copyToResult(data, p + 1, q - 1);
     setResult(powersolve(strength, result, slot).c_str());
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "powersolve", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "powersolve", data);
@@ -506,7 +511,7 @@ RETURN_CSTRING c_simplifyEqn(const char* const data) {
     copyToResult(data, p + 1, strlen(data) - 2);
     int destSlot = atoi(result);
     setResult(simplifyEqn(sourceSlot,destSlot).c_str());
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "simplifyEqn", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "simplifyEqn", data);
@@ -528,7 +533,7 @@ RETURN_CSTRING c_solveOneEqn(const char* const data) {
     int sourceSlot = atoi(result);
     copyToResult(data, 1, p - 1);
     setResult(solveOneEqn(result,sourceSlot,destSlot).c_str());
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "solveOneEqn", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "solveOneEqn", data);
@@ -551,7 +556,7 @@ RETURN_CSTRING c_subInOneEqn(const char* const data) {
     copyToResult(data, p + 1, q - 1);
     int targetSlot = atoi(result);
     setResult(subInOneEqn(sourceSlot,targetSlot,destSlot).c_str());
-  } catch (std::string message) {
+  } catch (string message) {
     makeError(message.c_str(), "subInOneEqn", data);
   } catch (...) {
     makeError("unexpected and unhandled exception", "subInOneEqn", data);
