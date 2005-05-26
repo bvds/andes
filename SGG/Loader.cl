@@ -35,7 +35,7 @@
 
 (load-andes-modules)                                                    ;; Load the modules.
 
-(solver-initialize (concatenate 'string *Root-Path* *DLL-NAME*))        ;; Load solver dll
+(solver-load (concatenate 'string *Root-Path* *DLL-NAME*))        ;; Load solver dll
 
 
 

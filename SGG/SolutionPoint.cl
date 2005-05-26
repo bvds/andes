@@ -47,7 +47,7 @@ The solver,
 (defun get-solution-point (Vars Eqns)
   "Given the problem-graph G, generate a solution point for it."
   ; in case dll unloaded at end of helpsys test session:
-  (solver-initialize) ; ensure dll loaded
+  (solver-load) ; ensure dll loaded
   (error-test (Solver-new-problem) 'new-problem)
   (send-solution-elements (append Vars Eqns))			
   (let ((S (reverse (collect-result-vals))))

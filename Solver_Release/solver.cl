@@ -132,7 +132,9 @@
 #+LINUX (defparameter *DLL-NAME* "libSolver.so")
 #+DARWIN (defparameter *DLL-NAME* "libSolver.dylib") ;OS X
 
-(defun solver-initialize (&optional filename)
+#+uffi (defvar force-reload nil)	;flag for reloading after solver-unload
+
+(defun solver-load (&optional filename)
   (let ((path (if filename filename 
 		(merge-pathnames *DLL-NAME* *Andes-Path*))))
     #-uffi(unless (member *DLL-NAME* (ff:list-all-foreign-libraries)
@@ -140,17 +142,18 @@
       (format T "~&Loading solver from ~A~%" path)
       (load path))
     #+uffi(uffi:load-foreign-library path
-				;; The libraries which are needed.
-				;; Only needed for Python-based Lisps like 
-				;; CMUCL, SBCL, or SCL?
-				:supporting-libraries '("c" "m")
-				:force-load t ;since unload not defined
+;;; The libraries which are needed.
+;;; Only needed for Python-based Lisps like CMUCL, SBCL, or SCL?
+				     :supporting-libraries '("c" "m")
+				     :force-load force-reload 
 				)
+    #+uffi (setf force-reload nil)
     ))
  
-(defun solver-shutdown ()
+(defun solver-unload ()
   (let ((path (merge-pathnames *DLL-NAME* *Andes-Path*)))
     ;; uffi doesn't have an unload command, so we are stuck with reloading.
+    #+uffi (setf force-reload t)
     #-uffi(when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
 		  :key #'file-namestring :test #'string-equal)
        (format T "~&UnLoading solver from ~A~%" path)
@@ -181,7 +184,7 @@
 	 (check-type arg string)
 	 (uffi:with-cstring (arg-native arg)
 	 (uffi:convert-from-cstring (c-solve-do-log arg-native))))
-(defun solver-logging-on (x)
+(defun solver-logging (x)
   (my-read-answer (solve-do-log (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

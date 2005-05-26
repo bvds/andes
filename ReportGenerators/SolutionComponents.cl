@@ -36,7 +36,7 @@
 (dolist (F **ModFiles**)
   (load (concatenate 'string **Root-Path** F)))
 (load-andes-modules)
-(solver-initialize)  ;; Initialize the solver so that we can extract entries.
+(solver-load)  ;; Initialize the solver so that we can extract entries.
 
 ;;;; ========================================================
 ;;;; Main Loop.

@@ -433,10 +433,10 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dummy 'main' or begin function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-start (&key solver-logging)
+(defun andes-start (&key solver-logging-flag)
   "initialize the andes help system server state"
   (andes-init)
-  (solver-logging-on solver-logging)
+  (solver-logging solver-logging-flag)
   (initiate-server)
   (connection-started)
   (andes-run)
@@ -467,7 +467,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
   (enable-debug) ;; this is in tell.cl so i can edit without further changes to this file
-  (solver-initialize)
+  (solver-load)
   ;; Dynamically load kb on startup. Might want to move to load on each 
   ;; problem, so that don't have to restart helpsys to test kb changes.
   ;(load-kb)
@@ -486,7 +486,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 (defun andes-terminate ()
 "terminate this instance of the help server on session end"
   (terminate-server)
-  (solver-shutdown)
+  (solver-unload)
   (format *debug-io* "~&Andes session finished!~%")
   ; in runtime version only: exit Lisp when session is done
   #+allegro-cl-runtime (exit 0))

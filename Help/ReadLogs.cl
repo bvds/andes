@@ -151,7 +151,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun readlogs-process-help-file (infile outdir fn)
   (format t "Checking ~A" infile)
-  (solver-initialize)
+  (solver-load)
   (physics-algebra-rules-initialize)
   (parse-initialize)
   (symbols-reset)
@@ -185,7 +185,7 @@
 				    (pathname-name infile))))))
 		(format t "Expected Command Request in ~W~%"
 			(pathname-name infile))))))))
-  (solver-shutdown))
+  (solver-unload))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun run-help (outname id cmd ans)

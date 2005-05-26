@@ -123,7 +123,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun history-test (infile &optional (outfile "Check"))
-  (solver-initialize)
+  (solver-load)
   (enable-debug)
   (doSafety :in2pre)
   (history-new "Andes")
@@ -133,7 +133,7 @@
   (symbols-reset)
   (setf **HistoryDebugLog** (format nil "/Andes2/Log/~A~A.log" outfile (get-universal-time)))
   (process-history infile #'run-as-wb)
-  (solver-shutdown))
+  (solver-unload))
 
 (defun history-dump (file)
   (process-history file #'print-log))
