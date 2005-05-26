@@ -173,8 +173,9 @@
     (contextualize candidates)
     ;; (format t "Contextualized Candidates are: ~% ~a~%" candidates)
     (when (cdr candidates) ; trace conflicts, so we can vet the results
-       (format T "Candidates: ~W~%" (sort (mapcar #'ei-info candidates) #'> :key #'second)))
+       (format T "Error candidates: ~W~%" (sort (mapcar #'ei-info candidates) #'> :key #'second)))
     (setf best (select-error-interpretation candidates))
+    (format t "Error interpretation: ~A~%" (ei-name best))
     (Tell :new-error "Best candidate is ~W" best)
     ;; (format t "Best candidate is ~W" best)
     (setf (Error-Interp-Remediation best) (generate-ww-turn best))
@@ -579,6 +580,10 @@
 		 (setq best (list c)))))
     (cond ((cdr best)
 	   (tell :error-selection "~a tied for best" (length best))
+	   ; NOTE: when we choose randomly to break a tie, the "intended" entry may be very unreliable. 
+	   ; Ex: solution has three axis rotations, and student picks none. Three wrong-axis-rotation
+	   ; instances will tie and one will be randomly chosen. This may not be the one nsh would
+	   ; prompt. Possibly we should clear "intended" field if it differs among tied interps?
 	   (random-elt best))
 	  (t (car best)))))
 	
