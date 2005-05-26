@@ -245,8 +245,9 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      // calculate arctangent or arccotangent
 	      tempvar = (firstiscos ? atan2(c2->value,k2->value) :
 		      atan2(k2->value,c2->value));  // interval [-pi,pi]
-	      if(isnonneg(fa) == isnonneg(fb)) tempvar += M_PI;
-	      if(tempvar < 0 ) tempvar += 2*M_PI;  // interval [0,2*pi]
+	      if(isnonneg(fa) == isnonneg(fb)) 
+		tempvar += ((tempvar>0)?-M_PI:M_PI); // interval [-pi,pi]
+	      if(tempvar < 0 ) tempvar += 2*M_PI;  // interval [0,2*pi)
 
 	      // Make equation for the angle.
 	      // trigsearch will crash if eq doesn't have zero rhs, so
