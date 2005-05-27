@@ -558,9 +558,13 @@
 ;;; expected error.  The next bit is 0 if the equation balances to
 ;;; less than 1% (which means it is okay in the answer box but not the
 ;;; equation box) and 1 if it balances to greater than 1%.  The next
-;;; two bits are 0 if the units check, 1 if the student forgot units
-;;; on some numbers and 2 if the student put some incorrect units on
-;;; some numbers.
+;;; two bits are 0 if the units check, 1 if the student appears to 
+;;; have left units off some numbers and 2 if the equation has a more
+;;; severe dimensional inconsistency. (NB: Units flag of 1 means only
+;;; that equation could be made dimensionally consistent by attaching
+;;; suitable units to dimensionless numbers in it.  It could still be
+;;; incorrect numerically, and something else could be the true source
+;;; of the error.)
 				       
 (defun solver-equation-redp (equation &optional (accuracy 'intermediate))
   "Given a student equation and an accuracy, return Nil if the equation should 
@@ -576,7 +580,12 @@
 	   (format T "Unparseable equation in student-eqn-redp: ~a" equation)
 	   'wrong)
 	  ((= 1 (setq units (truncate (/ code 8))))
-	   'forgot-units)
+	    ; check accuracy in this case for better diagnosis message:
+	    ; if accuracy outside appropriate threshold, be uncertain
+	    (if (> (rem code 8) (if (eq accuracy 'answer) 4 0))
+	        'maybe-forgot-units 
+            ; else balances ok ignoring unit error:
+	     'forgot-units)) 
 	  ((= units 2)
 	   'wrong-units)
 	  ((not (= units 0))
