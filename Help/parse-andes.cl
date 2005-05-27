@@ -225,8 +225,13 @@
  	   (setf unused (append unused (list te))))
 	(wrong-units
 	  (setf uni (append uni (list te))))
-	(forgot-units
-	  (setf mis (append mis (list te))))
+	; forgot-units changed to mean: would be correct but for missing units
+	; perhaps this interp should be bumped up below. For now, just insert it in
+	; front of any maybe-forgot-units in the mis set.
+	(forgot-units 
+	  (setf mis (cons te mis)))
+	(maybe-forgot-units
+	   (setf mis (append mis (list te))))
 	(internal-error
 	  (setf err (append err (list te))))
 	; everything else should have OK syntax, vars & units, just plain wrong
@@ -236,7 +241,7 @@
 	      	   (format T "choose-ambiguous-bad: unknown error ~A. Treated as wrong~%" 
 		           (te-error-tag te)))
 	      (setf wrong (append wrong (list te))))))	
-   
+
     ;; now look for choice in order from most charitable to least:
     ;; big OR falls through cases in order till non-NIL:
     (setf choice 
@@ -345,6 +350,8 @@
 	     (case (solver-equation-redp answer location)
 	       (forgot-units
 		(forgot-units-error-interp se))
+	       (maybe-forgot-units
+		(maybe-forgot-units-error-interp se))
 	       (wrong-units
 		(wrong-units-error-interp se))
 	       (inaccurate
@@ -362,6 +369,8 @@
 	       (otherwise
 		(make-green-turn)))))))))
 
+; forgot-units is returned when equation is dimensionally inconsistent but
+; balances numerically when numbers are treated as having unknown units.
 (defun forgot-units-error-interp (se)
   "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
    the student forgot to put units on at least one number.
@@ -380,10 +389,45 @@
     (setf (turn-coloring rem) **color-red**)
     rem))
 
+(defun assignment-eqn (parsed-eqn)
+"true if given prefix eqn parse is a numerical assignment statement"
+   (and (consp parsed-eqn)           ; just sanity checks on argument
+	(eq (first parsed-eqn) '=)   
+        (= (length parsed-eqn) 3)
+	; predicate defined in errors.cl takes (lhs rhs)
+	(assignmentp (second parsed-eqn) (third parsed-eqn))))
+
+; maybe-forgot units is returned when equation is dimensionally inconsistent but
+; could be dimensionally OK if numbers are treated as having unknown units -- though
+; it still fails to balance acceptably. So we are unsure what the error is, but we
+; can remind students of the units requirement, in case fixing the units points them
+; closer to the right correction. This could happen for a simple numerical
+; assignment statement if the value is also mistaken. In this case, we also give the
+; forgot units message.
+(defun maybe-forgot-units-error-interp (se)
+  "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
+   the student appears to have left units off at least one number.
+   Also create an error interpreation in case the student asks a follow-up question, and
+   put it in the student entry's err interp field."
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  ; in case of a simple assignment statement, just make it forgot-units
+  (when (assignment-eqn (studentEntry-ParsedEqn se))
+       (return-from maybe-forgot-units-error-interp (forgot-units-error-interp se)))
+  
+  (let ((rem (make-hint-seq
+	      '( "Units are inconsistent. When numbers are used in equations, they must include the appropriate units.  It looks like one of the numbers you've used is lacking the units."))))
+    (setf (studentEntry-ErrInterp se)
+      (make-error-interp
+       :diagnosis '(maybe-forgot-units)
+       :bindings no-bindings
+       :state **no-corresponding-correct-entry**
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
 
 (defun wrong-units-error-interp (se)
   "Given a student entry, return a tutor turn giving unsolicited feedback saying that
-   the student put the wrong units on at least one number.
+   the student equation has a dimensional inconsistency
    Also create an error interpreation in case the student asks a follow-up question, and
    put it in the student entry's err interp field."
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
