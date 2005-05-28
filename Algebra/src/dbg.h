@@ -4,15 +4,15 @@
 
 #ifdef WITHDBG
 // Start with the high-level stuff and work our way down:
-#define NEWCKEQSOUT     0x1     /*check delete no-var eqs in newcheck */ 
-#define CHKEQS          0x2	/* check delete no-var eqs in newcheck */
-#define QSRT            0x4	/* in qsrtexpr */
-#define SETVAR          0x4	/* in setvardimens */
-#define SUBST           0x8	/* in substin and also subexpin    */
-#define MORE           0x10	/* in more detail */
-#define DOEQCHK        0x20 /* do checking of expr and vector<expr*> args*/
-#define EQNUM          0x40	/* print entry expr in eqnumsimp */
-#define FILEGET        0x80	/* getting the input file troubles in maple2 */
+#define SOLVEEQS        0x1	/* solve equations in canoneqf */
+#define NEWCKEQSOUT     0x2     /*check delete no-var eqs in newcheck */ 
+#define CHKEQS          0x4	/* check delete no-var eqs in newcheck */
+#define QSRT            0x8	/* in qsrtexpr */
+#define SETVAR         0x10	/* in setvardimens */
+#define SUBST          0x20	/* in substin and also subexpin    */
+#define MORE           0x20	/* in more detail */
+#define DOEQCHK        0x40 /* do checking of expr and vector<expr*> args*/
+#define EQNUM          0x80	/* print entry expr in eqnumsimp */
 #define SOLVKV        0x100	/* in solveknownvar */
 #define LEAKCHK       0x100	/* in ioprobwy */
 #define READLOGS      0x200	/* in ioprobwy */

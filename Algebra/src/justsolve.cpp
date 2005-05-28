@@ -7,7 +7,7 @@
 #include "extstruct.h"
 #include "unitabr.h"
 
-#define DBG(A) DBGF(FILEGET,A)
+#define DBG(A) DBGF(SOLVEEQS,A)
 
 /************************************************************************
  * solveeqs   solves the equations in canoneqf 				*
@@ -69,15 +69,15 @@ bool solveeqs(ostream & outfile){
     {
       isokay = false;
       // report status
+      DBG(cout << eqn->size() << " remaining equation in " << vars->size() 
+	  << " variables" << endl;
+	  for (k=0; k < eqn->size(); k++)
+	    cout << (*eqn)[k]->getInfix() << endl;
+	  );
       outfile << "<UNSLVEQS>" << endl;
-      DBG(cout << "REMAINING EQUATIONS: " << eqn->size()
-	  << " in " << vars->size() << " VARIABLES" << endl;);
+      // BvdS:  removed print to cerr since this is not a fatal error
       for (k=0; k < eqn->size(); k++)
-	{
 	  outfile << (*eqn)[k]->getInfix() << endl;
-	  cout << (*eqn)[k]->getInfix() << endl;
-	  cerr << (*eqn)[k]->getInfix() << endl;
-	}
       for (k = eqn->size(); k > 0;) // destroy remaining equations in eqn
 	{
 	  k--;

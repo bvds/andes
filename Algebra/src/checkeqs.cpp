@@ -255,7 +255,8 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	normexpr(eqexpr);
       }
     DBG( { cout << "CHECKEQS: first we fixed them up" << endl;
-    for (k = 0; k < eqn->size(); k++) cout << (*eqn)[k]->getInfix() << endl; }
+	   for (k = 0; k < eqn->size(); k++) 
+	     cout << (*eqn)[k]->getInfix() << endl; }
 	 );
 
     for (k = 0; k+1 < eqn->size(); k++)
@@ -321,6 +322,6 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	      break;
 	    }
       delete partsols;
-      NEWDTL(  cout << "deleted partsols" << endl; );
+      NEWDTL(cout << "deleted partsols" << endl);
     }
 }
