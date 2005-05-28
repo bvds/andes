@@ -6816,7 +6816,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (time ?t)
      (time ?t1)
      (time ?t2)
-     (test (and (time-pointp ?t1) (time-pointp ?t2) (< ?t1 ?t2)))
+     (test (and (time-pointp ?t1) (time-pointp ?t2)))
+     ;; should be separate:  and does not have same evaluation rule as lisp and
+     (test (< ?t1 ?t2))
      (test (or (eql ?t ?t1) (eql ?t ?t2)))
   )
   :effects (
