@@ -13,19 +13,9 @@
 ;;; FUNCTIONS
 ; is ?x is (R_1  2  3) it returns the symbol R_123
 ; Called by comp-name
-(defun convert-to-symbol (?x)
-  (setf ?len (length ?x))
-  (setf ?y (format nil "~a~a" (nth 0 ?x)(nth 1 ?x)))
-  (cond ((= ?len 1) (setf ?y (format nil "~a" (nth 0 ?x)))
-                    (setf ?z (intern ?y)))
-        ((= ?len 2) (setf ?y (format nil "~a~a" (nth 0 ?x)(nth 1 ?x)))
-                   (setf ?z (intern ?y)))
-        (t (do ((count 2 (+ count 1)))
-               ((= count ?len) ?y)
-             (setf ?y (intern (format nil "~a~a" ?y (nth count ?x)))))
-           (setf ?z (intern ?y)))))
+(defun convert-to-symbol (x)
+  (intern (format nil "~{~a~}" x))) ;BvdS: this was 10 lines of buggy code
 
-    
     
 ;If ?res = (R1 R2 R3), this returns the R_123  
 ;Called by define-resistance-var
