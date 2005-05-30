@@ -1100,9 +1100,9 @@ state actions Is set to be traced."
     (setq **QS-Trace-Ops**
       (append **Qs-Trace-Ops** OpNames))))
 
-; watch macro doesn't need to quote args.
-; warn if name doesn't match any operator
-; works entirely by side effects, printing qs-trace-ops
+;;; watch macro doesn't need to quote args.
+;;; warn if name doesn't match any operator
+;;; works entirely by side effects, printing qs-trace-ops
 (defmacro watch (&rest OpNames)
 "add named ops to the trace list; empty list if none"
   (if (null OpNames)
