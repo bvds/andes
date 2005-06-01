@@ -62,7 +62,7 @@
 				     (:file "Solution")))	       
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
-			:depends-on ("Knowledge" "Base" "SGG")
+			:depends-on ("Knowledge" "Base")
 			:default-component-class no-compile-file
 			:serial t  ;real dependancies would be better
 			:components (
