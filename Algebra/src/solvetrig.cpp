@@ -312,7 +312,7 @@ bool trigsearch(const expr * const arg, expr * & coef,
 
   // if it returns true, are not coef and oside always nonzero? if so,
   // don't need all the checking below
-#define DEBUG_TRIGSEARCH 0
+#define DEBUG_TRIGSEARCH 1
 #if DEBUG_TRIGSEARCH
   DBG( cout << "Entering trigsearch with arg " << endl
 	    << arg->getInfix() << ", in expr: " << ex->getInfix() << endl; );

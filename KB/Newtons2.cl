@@ -7274,7 +7274,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (not (vector ?b (at (momentum ?b) ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    ;; following is for implicit eqn -- assumes we know how velocity vars are named
+    ;; following is for implicit-eqn, assumes velocity vars are named this way
     (bind ?dir-vel (format-sym "Ov_~A_~A" (body-name ?b) (time-abbrev ?t)))
     )
   :effects
@@ -7285,11 +7285,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; determine a value for 0p in case student happens to use it. It isn't
     ;; needed for m*v form solution we teach, so student doesn't have to 
     ;; enter it
-    (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
+    ;; using this, imp3b does not solve
+    ;; not using this, lmom2b causes unrecoverable solver crash...
+    ;; (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
     )
   :hint
    ((point (string "Notice that ~a is moving in a straight line ~a, although the exact direction is unknown." ?b (?t pp)))
-    (teach (string "Whenever an object is moving in a straight line, it has a non-zero velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
+    (teach (string "Whenever an object is moving in a straight line, it has a non-zero momentum in the same direction as its motion.")
 	   (kcd "draw_nonzero_momentum"))
     (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
 

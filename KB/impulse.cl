@@ -281,7 +281,7 @@ impulse ~A." (?b def-np) (?t pp)))
     ))
 
 
-;;; ========================== Impulse and Impulse ================================== 
+;;; ========================== Impulse and Impulse ============================
 ;;;
 ;;; This is just NTL integrated over time.  
 ;;; The following is based on the "NTL-compo" rules.
