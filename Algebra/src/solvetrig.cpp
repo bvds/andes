@@ -511,8 +511,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
       if (((n_opexp *)ex)->op->opty == multe)
 	{
 #if DEBUG_TRIGSEARCH
-	  DBG( cout << "trigsearch call " << thiscall << " selects mult, cfe="
-	       << cfe << endl);
+	  DBG( cout << "trigsearch call " << thiscall << " selects mult" 
+	       << endl);
 #endif
 	  cf = new n_opexp(&mult); // keep empty until cos/sin found
 	  ov = new n_opexp(&mult);
@@ -522,19 +522,11 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	      if (!trigsearch(arg,cfe,(*((n_opexp *)ex)->args)[k],
 			      iscosthis,ove))
 		{ 
-#if DEBUG_TRIGSEARCH
-		  DBG( cout << "Trigsearch call " << thiscall 
-		       << " goto abort, cfe=" << cfe << endl);
-#endif
 		goto abort;
 		}
 	      if ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
 		{
 		  if (cf->args->size() > 0) {
-#if DEBUG_TRIGSEARCH
-		  DBG( cout << "Trigsearch call " << thiscall 
-		       << " goto abort" << endl);
-#endif
 		    goto abort;		// found product of two expressions
 		  }
 		  cf->addarg(copyexpr(ov));
@@ -545,11 +537,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		}
 	      if (cf->args->size() > 0) cf->addarg(copyexpr(ove));
 	      ov->addarg(ove);
-#if DEBUG_TRIGSEARCH
-	      DBG( cout << "Trigsearch call " << thiscall  << " destroy cfe" 
-		   << endl);
-#endif
 	      cfe->destroy();
+	      cfe=(expr *) NULL;  // so destroy is not tried on abort
 	      continue;  // BvdS:  why is this here?
 	    }
 	  // the code inside the if was executed unconditionally before
@@ -557,20 +546,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  if (cf->args->size() > 0)
 	    {
 	      coef = cf;
-#if DEBUG_TRIGSEARCH
-	      DBG( cout << "Trigsearch call " << thiscall 
-		   << " about to flatten " << coef->getInfix() << endl);
-#endif
 	      flatten(coef);
-#if DEBUG_TRIGSEARCH
-	      DBG( cout << "Trigsearch call " << thiscall 
-		   << " about to eqnsimp " << coef->getInfix() << endl);
-#endif
 	      eqnumsimp(coef,true);
-#if DEBUG_TRIGSEARCH
-	      DBG( cout << "Trigsearch call " << thiscall 
-		   << " finished eqnsimp " << coef->getInfix() << endl);
-#endif
 	    }
 	  else 
 	    {
@@ -578,14 +555,7 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	      cf->destroy();
 	    }
 	  oside = ov;
-#if DEBUG_TRIGSEARCH
-	  DBG(cout << "Trigsearch: flatten on " << oside->getInfix() << endl);
-#endif
 	  flatten(oside);
-#if DEBUG_TRIGSEARCH
-	  DBG( cout << "Trigsearch: eqnumsimp on "
-		    << oside->getInfix() << endl; );
-#endif
 	  eqnumsimp(oside,true);
 	  return(true);
 	}
