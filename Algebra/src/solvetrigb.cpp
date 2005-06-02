@@ -37,7 +37,7 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 {
   int j, k;
   numvalexp * k2;
-  expr *fact1, *fact2, *coef=(expr *) NULL, *facttry=(expr *) NULL;
+  expr *fact1, *fact2, *coef, *facttry;
   bool iscos, firstiscos;
 
   VEQCHK(eqn);

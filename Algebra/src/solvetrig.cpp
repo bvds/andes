@@ -197,7 +197,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
   unsigned int j, k;
   numvalexp *c2, *k2;
   double tempvar;
-  expr *fact1, *fact2=(expr *) NULL, *fact3, *fact4=(expr *) NULL;
+  expr *fact1, *fact2, *fact3, *fact4;
   expr *fa, *fb;
   bool firstiscos, secondiscos;
   DBG( cout << "Entering solvetrigvar, angle arg=" 
@@ -349,7 +349,7 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		oside = new numvalexp(0);
 #if DEBUG_TRIGSEARCH
 		DBG( cout << "trigsearch call " << thiscall 
-		     << " its a sine , coef =" << coef->getInfix() 
+		     << ":  its a sine , coef =" << coef->getInfix() 
 		     << " and oside =" << oside->getInfix() << endl);
 #endif
 		return(true);
