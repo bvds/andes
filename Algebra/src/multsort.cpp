@@ -44,7 +44,8 @@ bool multsort(expr * & ex)
 	base1 = (*v)[q1]; 
 	exp1 = new numvalexp(1); 
 	exp1->MKS.put(0,0,0,0,0);
-	waspow1 = false; }
+	waspow1 = false; 
+      }
       for (q2 = q1+1; q2 < v->size(); q2++)
 	{
 	  if ( ((*v)[q2]->etype == binop) &&
@@ -69,6 +70,7 @@ bool multsort(expr * & ex)
 	      for (k=q2+1;k<v->size();k++)		// done by q2 destroy
 		(*v)[k-1] = (*v)[k];
 	      v->pop_back();
+	      q2--;
 
 	      eqnumsimp(exp1,true);
 	      
@@ -77,7 +79,6 @@ bool multsort(expr * & ex)
 		  if (((numvalexp *)exp1)->value == 0)
 		    {
 		      (*v)[q1]->destroy();	// remove first factor too.
-		      if (!waspow1) exp1->destroy();	// as above
 		      for (k=q1+1;k<v->size();k++)
 			(*v)[k-1] = (*v)[k];
 		      v->pop_back();
@@ -86,18 +87,22 @@ bool multsort(expr * & ex)
 		    }
 		  if (((numvalexp *)exp1)->value == 1)
 		    {
-		      exp1->destroy();
-		      (*v)[q1] = base1;	// This fixes up (*v)[q1], so
-		      q2--; continue;		// need to skip to end of loop
+		      (*v)[q1] = base1;	// This fixes up (*v)[q1]
+		      waspow1 = false;  // delete exponent
+		      continue;		// skip to next q2
 		    }
 		} // end of if combined exponent is numval. if neither 0 or 1
-	      q2--;	     // that case or non-numval
 	      if (waspow1) ((binopexp *)(*v)[q1])->rhs = exp1;
-	      else (*v)[q1] = new binopexp(&topow,base1,exp1);
+	      else {
+		(*v)[q1] = new binopexp(&topow,base1,exp1);
+		waspow1 = true;
+	      }
 	    } // end of what to do if bases match
 	  else
-	    if(!waspow2)exp2->destroy();
+	    if(!waspow2) exp2->destroy();
 	} // end of loop on q2, second factor. Break above is intended to pass
+
+      if(!waspow1) exp1->destroy();
     } // end of loop on q1, first factor. 		to next q1 start.
   if (((n_opexp *)ex)->args->size() < 2) unnop(ex);
   DBG(cout << "Multsort returning " << ((answer) ? "true" : "false")
