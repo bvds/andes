@@ -59,7 +59,7 @@ void findtrigvars( expr * & ex, vector<expr *> * &trigvars)
   EQCHK(ex);
 #define DEBUG_FINDETRIGVARS 0
 #if DEBUG_FINDTRIGVARS
-  DBG( cout << "findTRIG: starting looking at " << ex->getInfix() << endl;);
+  DBG( cout << "findTRIG: starting looking at " << ex->getInfix() << endl);
 #endif
   switch (ex->etype)
     {
@@ -314,8 +314,12 @@ bool trigsearch(const expr * const arg, expr * & coef,
   // don't need all the checking below
 #define DEBUG_TRIGSEARCH 1
 #if DEBUG_TRIGSEARCH
-  DBG( cout << "Entering trigsearch with arg " << endl
-	    << arg->getInfix() << ", in expr: " << ex->getInfix() << endl; );
+#ifdef WITHDBG // for debugging
+  static int trigsearchcall=0;    
+  int thiscall=trigsearchcall++;  
+#endif
+  DBG( cout << "trigsearch call " << thiscall << " with arg "
+	    << arg->getInfix() << ", in expr:  " << ex->getInfix() << endl);
 #endif
   EQCHK(ex);
   switch(ex->etype)
@@ -325,7 +329,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
       oside = copyexpr(ex);
       coef = new numvalexp(0);
 #if DEBUG_TRIGSEARCH
-      DBG( cout << "trigsearch returns true on physvar or numval " << endl; );
+      DBG( cout << "trigsearch call " << thiscall 
+	   << " returns true on physvar or numval " << endl);
 #endif
       return(true);
     case function:
@@ -334,7 +339,7 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	if (equaleqs(fptr->arg,arg)) 
 	  {
 #if DEBUG_TRIGSEARCH
-	    DBG(cout << "TRIGSEARCH: found function of correct arg " << endl;);
+	    DBG(cout << "TRIGSEARCH: found function of correct arg " << endl);
 #endif
 	    switch(fptr->f->opty)
 	      {
@@ -364,7 +369,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	      case abse:
 	      default:
 #if DEBUG_TRIGSEARCH
-		DBG(cout << "Trigsearch returns false" << endl;);
+		DBG(cout << "trigsearch call " << thiscall << " returns false" 
+		    << endl);
 #endif
 		return(false);
 	      }
@@ -372,14 +378,20 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	else
 	  {
 	    // I don't understand this else 1/24/01 maybe okay, 2/27
-	    if (!trigsearch(arg,cfe,fptr->arg,iscos,ove)) return(false);
+	    if (!trigsearch(arg,cfe,fptr->arg,iscos,ove)){
+#if DEBUG_TRIGSEARCH
+	      DBG(cout << "trigsearch call " << thiscall << " returns false" 
+		  << endl);
+#endif
+	      return(false);
+	    }
 	    if 		// what for: ((cfe != (expr *) NULL) && 
 	      ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
 	      {
 		cfe->destroy();
 		if (ove != (expr *) NULL) ove->destroy();
 #if DEBUG_TRIGSEARCH
-		DBG(cout << "Trigsearch returns false" << endl;);
+		DBG(cout << "trigsearch call " << thiscall << " returns false" << endl);
 #endif
 		return(false);
 	      }
@@ -400,7 +412,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
     case binop:
       {
 #if DEBUG_TRIGSEARCH
-	DBG(cout << "Entering trigsearch on binop " <<ex->getInfix() << endl;);
+	DBG(cout << "trigsearch call " << thiscall << " selects binop " 
+	    << endl);
 #endif
 	binopexp * bptr = (binopexp *) ex;
 	if (bptr->op->opty == equalse)
@@ -409,33 +422,76 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		(((numvalexp *)bptr->rhs)->value != 0))
 	      throw(string(
 		   "trigsearch doesn't expect equations with nonzero rhs"));
-	    if (!trigsearch(arg,cfe,bptr->lhs,iscos,ove)) return(false);
+	    if (!trigsearch(arg,cfe,bptr->lhs,iscos,ove)){
+#if DEBUG_TRIGSEARCH
+	      DBG(cout << "trigsearch call " << thiscall << " returns false" 
+		  << endl);
+#endif
+	      return(false);
+	    }
 	    if ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
-	      {	coef = cfe; oside = ove; return(true); }
-	    else { cfe->destroy(); ove->destroy(); return(false); }
+	      {	
+		coef = cfe; oside = ove; 
+#if DEBUG_TRIGSEARCH
+	      DBG(cout << "trigsearch call " << thiscall << " returns true" 
+		  << endl);
+#endif
+		return(true); 
+	      }
+	    else { 
+	      cfe->destroy(); ove->destroy(); 
+#if DEBUG_TRIGSEARCH
+	      DBG(cout << "trigsearch call " << thiscall << " returns false" 
+		  << endl);
+#endif
+	      return(false); 
+	    }
 	  } // below here we have a non-logical kind of binop
-	if ((bptr->op->opty == grte) ||(bptr->op->opty == gree)) return(false);
+	if ((bptr->op->opty == grte) ||(bptr->op->opty == gree)){
+#if DEBUG_TRIGSEARCH
+	  DBG(cout << "trigsearch call " << thiscall << " returns false" 
+	      << endl);
+#endif
+	  return(false);
+	}
 	//	 below here for non-boolean binop
-	if (!trigsearch(arg,cfe,bptr->lhs,iscos,ove)) return(false);
+	if (!trigsearch(arg,cfe,bptr->lhs,iscos,ove)){
+#if DEBUG_TRIGSEARCH
+	  DBG(cout << "trigsearch call " << thiscall << " returns false" 
+	      << endl);
+#endif
+	  return(false);
+	}
 	if (cfe != (expr *) NULL) // I don't think it can be NULL
 	  { 
 	    if((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
 	      {
 		cfe->destroy();
 		if (ove != (expr *) NULL) ove->destroy();
+#if DEBUG_TRIGSEARCH
+		DBG(cout << "trigsearch call " << thiscall << " returns false" 
+		    << endl);
+#endif
 		return(false);
 	      }
 	    cfe->destroy();
 	  }
 	if (ove != (expr *) NULL) ove->destroy();
-	if (!trigsearch(arg,cfe,bptr->rhs,iscos,ove)) return(false);
+	if (!trigsearch(arg,cfe,bptr->rhs,iscos,ove)){
+#if DEBUG_TRIGSEARCH
+	  DBG(cout << "trigsearch call " << thiscall << " returns false" 
+	      << endl);
+#endif
+	  return(false);
+	}
 	if ((cfe != (expr *) NULL) && 
 	    ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0))
 	  {
 	    cfe->destroy();
 	    if (ove != (expr *) NULL) ove->destroy();
 #if DEBUG_TRIGSEARCH
-	    DBG(cout << "Trigsearch returns false" << endl;);
+	    DBG(cout << "trigsearch call " << thiscall << " returns false" 
+		<< endl);
 #endif
 	    return(false);
 	  }
@@ -454,12 +510,11 @@ bool trigsearch(const expr * const arg, expr * & coef,
       if (((n_opexp *)ex)->op->opty == multe)
 	{
 #if DEBUG_TRIGSEARCH
-	  DBG( cout << "Entering trigsearch on mult"<< endl; );
+	  DBG( cout << "trigsearch call " << thiscall << " selects mult"<< 
+	       endl);
 #endif
 	  cf = new n_opexp(&mult); // keep empty until cos/sin found
-//	  cf->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
 	  ov = new n_opexp(&mult);
-//	  ov->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
 	  bool iscosthis;
 	  for (k = 0; k < ((n_opexp *)ex)->args->size(); k++)
 	    {
@@ -486,15 +541,19 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  if (cf->args->size() > 0)
 	    {
 	      coef = cf;
+#if DEBUG_TRIGSEARCH
+	      DBG( cout << "Trigsearch call " << thiscall 
+		   << " about to flatten " << coef->getInfix() << endl);
+#endif
 	      flatten(coef);
 #if DEBUG_TRIGSEARCH
-	      DBG( cout << "Trigsearch: eqnumsimp on " << coef->getInfix()
-			<< endl; );
+	      DBG( cout << "Trigsearch call " << thiscall 
+		   << " about to eqnsimp " << coef->getInfix() << endl);
 #endif
 	      eqnumsimp(coef,true);
 #if DEBUG_TRIGSEARCH
-	      DBG( cout << "Trigsearch: returned from eqnumsimp on "
-			<< coef->getInfix() << endl; );
+	      DBG( cout << "Trigsearch call " << thiscall 
+		   << " finished eqnsimp " << coef->getInfix() << endl);
 #endif
 	    }
 	  else 
@@ -504,7 +563,7 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	    }
 	  oside = ov;
 #if DEBUG_TRIGSEARCH
-	  DBG(cout << "Trigsearch: flatten on " << oside->getInfix() << endl;);
+	  DBG(cout << "Trigsearch: flatten on " << oside->getInfix() << endl);
 #endif
 	  flatten(oside);
 #if DEBUG_TRIGSEARCH
@@ -517,7 +576,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
       else			// its a plus n_op
 	{
 #if DEBUG_TRIGSEARCH
-	  DBG( cout << "Entering trigsearch on plus"<< endl; );
+	  DBG( cout << "trigsearch call " << thiscall << " selects plus"
+	       << endl);
 #endif
 	  cf = new n_opexp(&myplus);
 	  ov = new n_opexp(&myplus);
@@ -546,6 +606,10 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  oside = ov;
 	  flatten(oside);
 	  eqnumsimp(oside,true);
+#if DEBUG_TRIGSEARCH
+	    DBG(cout << "trigsearch call " << thiscall << " returns true" 
+		<< endl);
+#endif
 	  return(true);
 	}
     case unknown:
@@ -559,6 +623,10 @@ bool trigsearch(const expr * const arg, expr * & coef,
     ov->destroy();
     if (cfe != (expr *) NULL) cfe->destroy();
     if (ove != (expr *) NULL) ove->destroy();
+#if DEBUG_TRIGSEARCH
+    DBG(cout << "trigsearch call " << thiscall << " returns false" 
+	<< endl);
+#endif
     return(false);
   }
 }
