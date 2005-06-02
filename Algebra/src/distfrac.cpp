@@ -96,7 +96,6 @@ bool distfrac(expr * & ex)
 	      else				// will need to check
 		{				// number args > 1
 		  temp4 = new n_opexp (&mult);
-//		 temp4->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
 		  temp4->addarg(ratio->lhs);
 		}
 	      // lden is a list of factors to NOT add when adding each factor
@@ -139,24 +138,25 @@ bool distfrac(expr * & ex)
 	}		// end of loop over terms in sum
       DBG(cout << "distfrac " << thisdbg << ": At end of loop over terms "
 	  << " plsnumer is " << plsnumer->getInfix() << endl
-	  << " and lcd is " << lcd->getInfix() << endl;);
-      binopexp *rete = new binopexp(&divby, plsnumer, lcd);
+	  << " and lcd is " << lcd->getInfix() << endl);
+
+      // change the expression
+
+      ex = new binopexp(&divby, plsnumer, lcd);
       if (lcd->args->size() == 1) // we are in a loop that knows lcdsize > 0
 	{
-	  rete->rhs = (*lcd->args)[0];
+	  ((binopexp *)ex)->rhs = (*lcd->args)[0];
 	  // rmed 2/4/01 need to check		  delete lcd->args;
 	  delete lcd;
 	}
-      // does anything else need freeing up?
-      ex = rete;
-      DBGF(ENTFLP, cout << "distfrac " << thisdbg << 
-	   " returns true with  " << ex->getInfix() << endl;);
+      DBGF(ENTFLP, cout << "distfrac " << thisdbg << " returns true with " 
+	   << ex->getInfix() << endl);
       return(true);
     }
   DBG(cout << "distfrac "<< thisdbg << ": plus did not contain a ratio" 
-      << endl;);
+      << endl);
   delete lcd;
-  DBGF(ENTFLP, cout << "distfrac " << thisdbg << ": did nothing, returns false "
-       << ex->getInfix() << endl;);
+  DBGF(ENTFLP, cout << "distfrac " << thisdbg 
+       << ": did nothing, returns false " << ex->getInfix() << endl);
   return(false);
 }
