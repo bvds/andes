@@ -58,7 +58,8 @@ bool multsort(expr * & ex)
 	    base2 = (*v)[q2]; 
 	    exp2 = new numvalexp(1); 
 	    exp2->MKS.put(0,0,0,0,0);
-	    waspow2 = false; }
+	    waspow2 = false; 
+	  }
 	  if (equaleqs(base1,base2))
 	    {
 	      answer = true;
@@ -94,6 +95,8 @@ bool multsort(expr * & ex)
 	      if (waspow1) ((binopexp *)(*v)[q1])->rhs = exp1;
 	      else (*v)[q1] = new binopexp(&topow,base1,exp1);
 	    } // end of what to do if bases match
+	  else
+	    if(!waspow2)exp2->destroy();
 	} // end of loop on q2, second factor. Break above is intended to pass
     } // end of loop on q1, first factor. 		to next q1 start.
   if (((n_opexp *)ex)->args->size() < 2) unnop(ex);
