@@ -376,7 +376,6 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  }
 	else
 	  {
-	    // I don't understand this else 1/24/01 maybe okay, 2/27
 	    if (!trigsearch(arg,cfe,fptr->arg,iscos,ove)){
 #if DEBUG_TRIGSEARCH
 	      DBG(cout << "trigsearch call " << thiscall << " returns false" 
@@ -384,20 +383,19 @@ bool trigsearch(const expr * const arg, expr * & coef,
 #endif
 	      return(false);
 	    }
-	    if 		// what for: ((cfe != (expr *) NULL) && 
+	    if 		
 	      ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
 	      {
-		cfe->destroy();
-		if (ove != (expr *) NULL) ove->destroy();
+		cfe->destroy(); ove->destroy();
 #if DEBUG_TRIGSEARCH
 		DBG(cout << "trigsearch call " << thiscall << " returns false" 
 		    << endl);
 #endif
 		return(false);
 	      }
-	    else		// dont I still need to destroy dfe and ove?
+	    else		
 	      {
-		cfe->destroy(); ove->destroy();	// added 2/27
+		cfe->destroy(); ove->destroy();
 		coef = new numvalexp(0);
 		oside = copyexpr(ex);
 #if DEBUG_TRIGSEARCH
@@ -463,21 +461,16 @@ bool trigsearch(const expr * const arg, expr * & coef,
 #endif
 	  return(false);
 	}
-	if (cfe != (expr *) NULL) // I don't think it can be NULL
-	  { 
-	    if((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
-	      {
-		cfe->destroy();
-		if (ove != (expr *) NULL) ove->destroy();
+	if((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
+	  {
+	    cfe->destroy(); ove->destroy();
 #if DEBUG_TRIGSEARCH
-		DBG(cout << "trigsearch call " << thiscall 
-		    << " returns false, coef=" << coef << endl);
+	    DBG(cout << "trigsearch call " << thiscall 
+		<< " returns false" << endl);
 #endif
-		return(false);
-	      }
-	    cfe->destroy();
+	    return(false);
 	  }
-	if (ove != (expr *) NULL) ove->destroy();
+	cfe->destroy(); ove->destroy();
 	if (!trigsearch(arg,cfe,bptr->rhs,iscos,ove)){
 #if DEBUG_TRIGSEARCH
 	  DBG(cout << "trigsearch call " << thiscall << " returns false" 
@@ -485,20 +478,17 @@ bool trigsearch(const expr * const arg, expr * & coef,
 #endif
 	  return(false);
 	}
-	if ((cfe != (expr *) NULL) && 
-	    ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0))
+	if ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
 	  {
-	    cfe->destroy();
-	    if (ove != (expr *) NULL) ove->destroy();
+	    cfe->destroy(); ove->destroy();
 #if DEBUG_TRIGSEARCH
 	    DBG(cout << "trigsearch call " << thiscall << " returns false" 
 		<< endl);
 #endif
 	    return(false);
 	  }
-	cfe->destroy();
-	if (ove != (expr *) NULL) ove->destroy();
-	oside = copyexpr(ex);	// corrected from ove =, 2/27
+	cfe->destroy(); ove->destroy();
+	oside = copyexpr(ex);	
 	coef = new numvalexp(0);
 #if DEBUG_TRIGSEARCH
 	DBG( cout << "trigsearch call " << thiscall 
@@ -520,26 +510,23 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  for (k = 0; k < ((n_opexp *)ex)->args->size(); k++)
 	    {
 	      if (!trigsearch(arg,cfe,(*((n_opexp *)ex)->args)[k],
-			      iscosthis,ove))
-		{ 
-		goto abort;
-		}
+			      iscosthis,ove)) goto abort;
 	      if ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
-		{
+		{  // cfe != 0
 		  if (cf->args->size() > 0) {
+		    cfe->destroy(); ove->destroy();
 		    goto abort;		// found product of two expressions
 		  }
-		  cf->addarg(copyexpr(ov));
+		  if(ov->args->size() > 0) cf->addarg(copyexpr(ov));
 		  cf->addarg(cfe);
-		  ov->addarg(ove);
 		  iscos = iscosthis;
-		  continue;
 		}
-	      if (cf->args->size() > 0) cf->addarg(copyexpr(ove));
-	      ov->addarg(ove);
-	      cfe->destroy();
-	      cfe=(expr *) NULL;  // so destroy is not tried on abort
-	      continue;  // BvdS:  why is this here?
+	      else 
+		{  // cfe = 0
+		  if (cf->args->size() > 0) cf->addarg(copyexpr(ove));
+		  cfe->destroy();
+		} 
+	      ov->addarg(ove); // always multiply constant
 	    }
 	  // the code inside the if was executed unconditionally before
 	  // 1/24/01, and the else not there. I think thats wrong
@@ -571,31 +558,20 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  for (k = 0; k < ((n_opexp *)ex)->args->size(); k++)
 	    {
 	      if (!trigsearch(arg,cfe,(*((n_opexp *)ex)->args)[k],
-			      iscosthis,ove)) {
-#if DEBUG_TRIGSEARCH
-		DBG( cout << "Trigsearch call " << thiscall 
-		     << " goto abort" << endl);
-#endif
-		goto abort;
-	      }
+			      iscosthis,ove)) goto abort;
 	      if ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
-		{
+		{  // cfe != 0
 		  if ((cf->args->size() > 0) && (iscos != iscosthis))
 		    {
-#if DEBUG_TRIGSEARCH
-		      DBG( cout << "Trigsearch call " << thiscall 
-		       << " goto abort" << endl);
-#endif
+		      cfe->destroy(); ove->destroy();
 		      goto abort;	 // found one sine and one cosine
 		    }
 		  cf->addarg(cfe);
-		  ov->addarg(ove);
-		  iscos = iscosthis; // may not be set !?
-		  continue;
-		}
-	      else ov->addarg(ove);
-	      cfe->destroy();
-	      continue;
+		  iscos = iscosthis;
+		} 
+	      else  // cfe=0 
+		cfe->destroy();
+	      ov->addarg(ove); // always add constant
 	    }
 	  coef = cf;
 	  flatten(coef);
@@ -618,8 +594,6 @@ bool trigsearch(const expr * const arg, expr * & coef,
   {
     cf->destroy();
     ov->destroy();
-    if (cfe != (expr *) NULL) cfe->destroy();
-    if (ove != (expr *) NULL) ove->destroy();
 #if DEBUG_TRIGSEARCH
     DBG(cout << "trigsearch call " << thiscall << " returns false" 
 	<< endl);
