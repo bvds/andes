@@ -197,7 +197,7 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
   unsigned int j, k;
   numvalexp *c2, *k2;
   double tempvar;
-  expr *fact1, *fact2, *fact3, *fact4;
+  expr *fact1, *fact2=(expr *) NULL, *fact3, *fact4=(expr *) NULL;
   expr *fa, *fb;
   bool firstiscos, secondiscos;
   DBG( cout << "Entering solvetrigvar, angle arg=" 
@@ -319,9 +319,11 @@ bool trigsearch(const expr * const arg, expr * & coef,
   int thiscall=trigsearchcall++;  
 #endif
   DBG( cout << "trigsearch call " << thiscall << " with arg "
-	    << arg->getInfix() << ", in expr:  " << ex->getInfix() << endl);
+	    << arg->getInfix() << ", in expr:  " << ex->getInfix() 
+       << ", coef=" << coef << endl);
 #endif
   EQCHK(ex);
+
   switch(ex->etype)
     {
     case numval:
@@ -338,9 +340,6 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	functexp * fptr = ( functexp * ) ex;
 	if (equaleqs(fptr->arg,arg)) 
 	  {
-#if DEBUG_TRIGSEARCH
-	    DBG(cout << "TRIGSEARCH: found function of correct arg " << endl);
-#endif
 	    switch(fptr->f->opty)
 	      {
 	      case sine:
@@ -349,9 +348,9 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		coef->MKS.put(0,0,0,0,0);
 		oside = new numvalexp(0);
 #if DEBUG_TRIGSEARCH
-		DBG( cout << "TRIGSEARCH: its a sine , coef =" <<
-		     coef->getInfix() << " and oside =" << oside->getInfix()
-		     << endl; );
+		DBG( cout << "trigsearch call " << thiscall 
+		     << " its a sine , coef =" << coef->getInfix() 
+		     << " and oside =" << oside->getInfix() << endl);
 #endif
 		return(true);
 	      case cose:
@@ -360,9 +359,9 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		coef->MKS.put(0,0,0,0,0);
 		oside = new numvalexp(0);
 #if DEBUG_TRIGSEARCH
-		DBG( cout << "TRIGSEARCH: its a cosine , coef =" <<
-		     coef->getInfix() << " and oside =" << oside->getInfix()
-		     << endl; );
+		DBG( cout << "trigsearch call " << thiscall 
+		     << ":  its a cosine , coef =" << coef->getInfix() 
+		     << " and oside =" << oside->getInfix() << endl);
 #endif
 		return(true);
 	      case tane:
@@ -391,7 +390,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		cfe->destroy();
 		if (ove != (expr *) NULL) ove->destroy();
 #if DEBUG_TRIGSEARCH
-		DBG(cout << "trigsearch call " << thiscall << " returns false" << endl);
+		DBG(cout << "trigsearch call " << thiscall << " returns false" 
+		    << endl);
 #endif
 		return(false);
 	      }
@@ -401,9 +401,10 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		coef = new numvalexp(0);
 		oside = copyexpr(ex);
 #if DEBUG_TRIGSEARCH
-		DBG( cout << "TRIGSEARCH: funct arg not right one. coef =" <<
-		     coef->getInfix() << " and oside =" << oside->getInfix()
-		     << endl; );
+		DBG( cout << "trigsearch call " << thiscall 
+		     << ":  funct arg not right one. coef =" 
+		     << coef->getInfix() << " and oside =" << oside->getInfix()
+		     << endl);
 #endif
 		return(true);
 	      }
@@ -469,8 +470,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		cfe->destroy();
 		if (ove != (expr *) NULL) ove->destroy();
 #if DEBUG_TRIGSEARCH
-		DBG(cout << "trigsearch call " << thiscall << " returns false" 
-		    << endl);
+		DBG(cout << "trigsearch call " << thiscall 
+		    << " returns false, coef=" << coef << endl);
 #endif
 		return(false);
 	      }
@@ -500,9 +501,9 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	oside = copyexpr(ex);	// corrected from ove =, 2/27
 	coef = new numvalexp(0);
 #if DEBUG_TRIGSEARCH
-	DBG( cout << "TRIGSEARCH: binop no arg right one. coef =" <<
-	     coef->getInfix() << " and oside =" << oside->getInfix()
-	     << endl; );
+	DBG( cout << "trigsearch call " << thiscall 
+	     << " binop no arg right one. coef =" << coef->getInfix() 
+	     << " and oside =" << oside->getInfix() << endl);
 #endif
 	return(true);
       }
@@ -510,8 +511,8 @@ bool trigsearch(const expr * const arg, expr * & coef,
       if (((n_opexp *)ex)->op->opty == multe)
 	{
 #if DEBUG_TRIGSEARCH
-	  DBG( cout << "trigsearch call " << thiscall << " selects mult"<< 
-	       endl);
+	  DBG( cout << "trigsearch call " << thiscall << " selects mult, cfe="
+	       << cfe << endl);
 #endif
 	  cf = new n_opexp(&mult); // keep empty until cos/sin found
 	  ov = new n_opexp(&mult);
@@ -519,12 +520,23 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  for (k = 0; k < ((n_opexp *)ex)->args->size(); k++)
 	    {
 	      if (!trigsearch(arg,cfe,(*((n_opexp *)ex)->args)[k],
-			      iscosthis,ove)) 
+			      iscosthis,ove))
+		{ 
+#if DEBUG_TRIGSEARCH
+		  DBG( cout << "Trigsearch call " << thiscall 
+		       << " goto abort, cfe=" << cfe << endl);
+#endif
 		goto abort;
+		}
 	      if ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
 		{
-		  if (cf->args->size() > 0) 
+		  if (cf->args->size() > 0) {
+#if DEBUG_TRIGSEARCH
+		  DBG( cout << "Trigsearch call " << thiscall 
+		       << " goto abort" << endl);
+#endif
 		    goto abort;		// found product of two expressions
+		  }
 		  cf->addarg(copyexpr(ov));
 		  cf->addarg(cfe);
 		  ov->addarg(ove);
@@ -533,8 +545,12 @@ bool trigsearch(const expr * const arg, expr * & coef,
 		}
 	      if (cf->args->size() > 0) cf->addarg(copyexpr(ove));
 	      ov->addarg(ove);
+#if DEBUG_TRIGSEARCH
+	      DBG( cout << "Trigsearch call " << thiscall  << " destroy cfe" 
+		   << endl);
+#endif
 	      cfe->destroy();
-	      continue;
+	      continue;  // BvdS:  why is this here?
 	    }
 	  // the code inside the if was executed unconditionally before
 	  // 1/24/01, and the else not there. I think thats wrong
@@ -585,12 +601,23 @@ bool trigsearch(const expr * const arg, expr * & coef,
 	  for (k = 0; k < ((n_opexp *)ex)->args->size(); k++)
 	    {
 	      if (!trigsearch(arg,cfe,(*((n_opexp *)ex)->args)[k],
-			      iscosthis,ove)) 
+			      iscosthis,ove)) {
+#if DEBUG_TRIGSEARCH
+		DBG( cout << "Trigsearch call " << thiscall 
+		     << " goto abort" << endl);
+#endif
 		goto abort;
+	      }
 	      if ((cfe->etype != numval) || ((numvalexp *)cfe)->value != 0)
 		{
 		  if ((cf->args->size() > 0) && (iscos != iscosthis))
-		    goto abort;		// found one sine and one cosine
+		    {
+#if DEBUG_TRIGSEARCH
+		      DBG( cout << "Trigsearch call " << thiscall 
+		       << " goto abort" << endl);
+#endif
+		      goto abort;	 // found one sine and one cosine
+		    }
 		  cf->addarg(cfe);
 		  ov->addarg(ove);
 		  iscos = iscosthis; // may not be set !?
