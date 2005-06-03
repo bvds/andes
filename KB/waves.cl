@@ -40,7 +40,7 @@
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
 (def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave ?medium)
-  :complexity minor  ;can use implicitly
+  :complexity definition  ;substitute implicitly into major equation
   :english ("relation between wavelength and wavenumber")
   :ExpFormat 
   ("applying the equation relating wavenumber and wavelength of ~A in ~A"
@@ -162,7 +162,7 @@
 
 ;;equation of the frequency of the wave, frequency = angular-frequency/2*pi
 (def-psmclass frequency-of-wave (frequency-of-wave ?object)
-  :complexity minor  
+  :complexity definition  ;substitute implicitly into major equation
   :english ("the equation for the frequency of a wave")
   :ExpFormat ("applying the definition angular frequency to ~A"
 	      (nlg ?object))
@@ -262,7 +262,7 @@
 ;;;
 ;;equation of the period of the wave, period = 1/frequency
 (def-psmclass period-of-wave (period-of-wave ?object)
-  :complexity minor 
+  :complexity definition      ;substitute implicitly into major equation
   :english ("the equation for the period")
   :ExpFormat ("applying the definition of period to ~A"
 	      (nlg ?object))
