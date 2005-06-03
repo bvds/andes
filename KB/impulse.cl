@@ -36,13 +36,14 @@
     (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
-;;;
-;;; Relation of impulse and force
-;;;
-;;;
+;;;;===========================================================================
+;;;;
+;;;;              Relation of impulse and force
+;;;;
+;;;;===========================================================================
 
 
-(def-psmclass impulse (?eqn-type impulse ?axis ?rot 
+(def-psmclass impulse (?eqn-type imp-force ?axis ?rot 
 				 (impulse ?body ?agent ?time ?dir))
     ;; :group Dynamics  :BvdS:  what to choose?
     :complexity major    
@@ -158,7 +159,7 @@
   ))
 
 
-;; Draw an impulse if two momenta are known to be opposite 
+;;; Draw an impulse if two momenta are known to be opposite 
 (defoperator draw-impulse-given-momenta (?b ?agent ?t)
   :preconditions
   (
@@ -391,11 +392,11 @@ impulse ~A." (?b def-np) (?t pp)))
                          ((= ?J12_xy (- ?J21_xy)) algebra)))
    ))
 
-;;;;===================================================================================
+;;;;===========================================================================
 ;;;;
 ;;;;                        Center of Mass
 ;;;;
-;;;;===================================================================================
+;;;;===========================================================================
 
 (def-psmclass center-of-mass-compo (?eq-type definition ?axis ?rot 
 				       (center-of-mass ?com ?time))
