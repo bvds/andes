@@ -43,7 +43,7 @@
 ;;;;===========================================================================
 
 
-(def-psmclass impulse (?eqn-type imp-force ?axis ?rot 
+(def-psmclass impulse-force (?eqn-type imp-force ?axis ?rot 
 				 (impulse ?body ?agent ?time ?dir))
     ;; :group Dynamics  :BvdS:  what to choose?
     :complexity major    
@@ -133,7 +133,7 @@
 
 
 (def-psmclass impulse-momentum 
-    (?eq-type ?compo-eqn-id ?axis ?rot 
+    (?eq-type imp-momentum ?axis ?rot 
 	      (impulse ?body  ?agent (during ?t1 ?t2) ?dir)) 
      :complexity major
      :doc "equation relating impulse to change in momentum"
