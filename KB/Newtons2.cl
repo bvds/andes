@@ -7284,10 +7284,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; following is "optional equation" put out so solver will be able to 
     ;; determine a value for 0p in case student happens to use it. It isn't
     ;; needed for m*v form solution we teach, so student doesn't have to 
-    ;; enter it
-    ;; using this, imp3b does not solve
-    ;; not using this, lmom3a does not solve
-   ;; (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
+    ;; enter it.
+    ;; using this, imp3b does not solve:
+    ;; (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
     )
   :hint
    ((point (string "Notice that ~a is moving in a straight line ~a, although the exact direction is unknown." ?b (?t pp)))
