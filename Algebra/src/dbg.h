@@ -3,15 +3,16 @@
 #include "standard.h"
 
 #ifdef WITHDBG
+#define MORE            0x1	/* show more detail using DBGFM(...) */
+
 // Start with the high-level stuff and work our way down:
-#define SOLVEEQS        0x1	/* solve equations in canoneqf */
-#define CHKEQS          0x2	/* check delete no-var eqs in newcheck */
-#define NEWCKEQSOUT     0x4     /*check delete no-var eqs in newcheck */ 
-#define QSRT            0x8	/* in qsrtexpr */
-#define SETVAR         0x10	/* in setvardimens */
-#define SUBST          0x20	/* in substin and also subexpin    */
-#define MORE           0x20	/* in more detail */
-#define DOEQCHK        0x40 /* do checking of expr and vector<expr*> args*/
+#define SOLVEEQS        0x2	/* solve equations in canoneqf */
+#define CHKEQS          0x4	/* check delete no-var eqs in newcheck */
+#define NEWCKEQSOUT     0x8     /*check delete no-var eqs in newcheck */ 
+#define QSRT           0x10	/* in qsrtexpr */
+#define SETVAR         0x20	/* in setvardimens */
+#define SUBST          0x40	/* in substin and also subexpin    */
+#define DOEQCHK        0x80 /* do checking of expr and vector<expr*> args*/
 #define EQNUM          0x80	/* print entry expr in eqnumsimp */
 #define SOLVKV        0x100	/* in solveknownvar */
 #define LEAKCHK       0x100	/* in ioprobwy */
@@ -46,12 +47,12 @@
 #define ISPOS    0x10000000	/* in ispos.cpp */
 #define LINONEV  0x20000000	/* in powonev and slvlinonev */
 #define POLY     0x40000000	/* in polysolve */
-#define RATEQ      0x800000	/* in rationalize NOTE same as SLVTRIG!*/ 
+#define RATEQ    0x80000000	/* in rationalize NOTE same as SLVTRIG!*/ 
 
 
-#define DBGF(FLAG,A) {if ((dbglevel & FLAG) != 0) \
+#define DBGF(FLAG,A) {if (dbglevel & FLAG) \
         {cout << __FILE__ << ","<< __LINE__<<":  "; A;}}
-#define DBGFM(FLAG,A) {if (((dbglevel & FLAG) != 0) && MORE) \
+#define DBGFM(FLAG,A) {if ((dbglevel & FLAG) && (dbglevel & MORE)) \
 	{cout << __FILE__ << ","<< __LINE__<<":  "; A;}}
 #define EQCHK(A) {if (dbglevel & DOEQCHK) \
    { vector<int> *vchk = (vector<int>*) NULL; \
