@@ -81,6 +81,8 @@
 				     (:file "vectors")
 				     (:file "NewtonsNogoods")  
 				     (:file "Problems")
+				     (:file "fluids")
+				     (:file "fluids-problems")
 				     (:file "waves")
 				     (:file "waves-problems")
 				     (:file "work-energy-problems")
