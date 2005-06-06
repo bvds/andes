@@ -433,10 +433,10 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dummy 'main' or begin function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-start (&key solver-logging-flag)
+(defun andes-start (&key solver-logging)
   "initialize the andes help system server state"
   (andes-init)
-  (solver-logging solver-logging-flag)
+  (solver-logging solver-logging)
   (initiate-server)
   (connection-started)
   (andes-run)
