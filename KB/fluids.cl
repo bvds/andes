@@ -628,10 +628,10 @@
          (variable ?Vpart-var (at (volume ?body) ?t)) 
 	 ?Vpart-var ?Vpart-vars) 
   )
-  : effects (
+  :effects (
      (eqn (= ?Vwhole-var (+ . ?Vpart-vars)) (volume-compound ?bodies ?t))
   )
-  : hint
+  :hint
   ((point (string "How does the volume of a compound body relate to the volumes of its parts?"))
    (teach (string "The volume of a compound body is equal to the sum of the volumes of its parts."))
    (bottom-out (string "Write the equation ~A" ((= ?Vwhole-var (+ . ?Vpart-vars)) algebra)))
