@@ -7221,8 +7221,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion at-rest)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "p_~A_~A" ?b (time-abbrev ?t)))
-    ;; allows one to draw momentum vector 
-    (optional (vector ?b (at (momentum ?b) ?t) zero))
+    ;; allow student to draw velocity vector, which might not otherwise
+    ;; be needed for the solution
+    (optional (vector ?b (at (velocity ?b) ?t) zero))
     )
   :effects
    ((vector ?b (at (momentum ?b) ?t) zero)
@@ -7423,6 +7424,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (variable ?p1f_compo (at (compo ?xyz ?rot (momentum ?b1)) ?t2))
   ;; p2f
   (variable ?p2f_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t2))
+  ;; allow any zero-valued velocity components to be mentioned, since they
+  ;; might not be needed anywhere else in the solution
+  (include-zero-vcomps ?xyz ?rot)
   )
   :effects (
   (eqn (= (+ ?p1i_compo ?p2i_compo) (+ ?p1f_compo ?p2f_compo))
@@ -7441,6 +7445,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			((= (+ ?p1i_compo ?p2i_compo) (+ ?p1f_compo ?p2f_compo)) algebra)))
   ))
 
+
+
 (defoperator write-cons-linmom-compo-split (?b1 ?b2 ?t1 ?t2 ?xyz ?rot)
   :preconditions (
   ;; use these steps if collision involves split 
@@ -7458,6 +7464,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ;; p2f
   (body ?b2)
   (variable ?p2f_compo (at (compo ?xyz ?rot (momentum ?b2)) ?t2))
+  ;; allow any zero-valued velocity components to be mentioned, since they
+  ;; might not be needed anywhere else in the solution
+  (include-zero-vcomps ?xyz ?rot)
   )
   :effects 
   ( (eqn (= ?pc_compo (+ ?p1f_compo ?p2f_compo))
@@ -7495,6 +7504,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ;; we need to choose an axis to use for the compound since nothing
   (axis-for ?c ?xyz-c ?rot-t)
   (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t2))
+  ;; allow any zero-valued velocity components to be mentioned, since they
+  ;; might not be needed anywhere else in the solution
+  (include-zero-vcomps ?xyz ?rot)
   )
   :effects (
   (eqn (= (+ ?p1i_compo ?p2i_compo) ?pc_compo)
@@ -7511,6 +7523,40 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                         ((= (+ ?p1i_compo ?p2i_compo) ?pc_compo) algebra)))
   ))
 
+; Following is a somewhat hairy attempt to allow zero-valued velocity components to be mentioned in 
+; student equations, even if they are not formally needed for a conservation of momentum solution. 
+; The solution may need p or p_x, but draws p as zero-magnitude immediately from fact that body is at 
+; rest, and projection rules put out p_x = 0. Momentum definition p_x = m*v_x never comes out because 
+; driver rules don't apply a vector equation for a vector attribute if vector does not have a 
+; non-zero projection along axis. (That is desirable because our bubble-collection method depends on
+; counting variables, and we don't want an equation containing m that can't be used to solve for m.)
+;
+; One way to include equations as optional in the solution is by generating them as "implicit equations"
+; This was not the intent behind the implicit equation designation, but can be used to achieve that effect.
+; Another way is to include them on only one of several paths achieving a psm equation. We try that
+; here, since we are already splitting a path on the optional v drawing in draw-momentum-at-rest.
+; This operator should only write entries along that path, though the include-zero-vcomps subgoal 
+; must still succeed along the other path for the other path to be included in the solution. This happens
+; because on the other path, the setof succeeds but with an empty set of component variables, and the 
+; subsequent foreach's then expand to an empty set of new subgoals, so this turns out to be a no-op.
+(defoperator include-zero-vcomps (?xyz ?rot)
+  :effects ((include-zero-vcomps ?xyz ?rot))
+  :preconditions (
+      ; Collect component terms from all the drawn zero velocity vectors. 
+      ; Zero velocities are drawn as an optional step in draw-momentum-at-rest.
+      ; Since that is optional, this will only find them when in the path through 
+      ; the containing psm that actually draws them.
+      (setof (in-wm (vector ?b (at (velocity ?body) ?t) zero))
+              (at (compo ?xyz ?rot (velocity ?body)) ?t)
+	      ?zero-vcomps)
+      ; for each one, declare its component variable. This is needed because the 
+      ; projection writing operators fetch the variables from wm.
+      (foreach ?vcomp ?zero-vcomps
+          (variable ?var ?vcomp))
+      ; for each one, emit its projection equation.
+      (foreach ?vcomp ?zero-vcomps
+           (eqn (= ?compo-var 0) (projection ?vcomp)))
+  ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
