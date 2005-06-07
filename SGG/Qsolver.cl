@@ -659,7 +659,7 @@
        (successors))
       ((null queue) solutions)
     ; in ACL IDE: pump input events each iter so kbd interrupts can get thru
-    #+common-graphics (cg:process-pending-events)
+    ;#+common-graphics (cg:process-pending-events)
     (setq state (pop queue))
     (cond ((null (st-stack state))
 	   (push state solutions)
@@ -795,14 +795,17 @@
    Returns a state with that goal on the top of the stack."
   (let* ((new-inst (copy-opinst inst))
 	 (subgoal (pop (opinst-subgoals new-inst))))
-    (when (precond-macro-p subgoal)
+    ; AW: add loop for cases where expansion is a macro (rare),
+    ; or is empty and operator's next subgoal is also a macro. 
+    (loop while (precond-macro-p subgoal) do
       (setf (opinst-subgoals new-inst)
 	(append (expand-precond-macro subgoal state)
 		(opinst-subgoals new-inst)))
       (setf subgoal (pop (opinst-subgoals new-inst))))
     (push new-inst (st-stack state))
-    (when subgoal                                                          ;;If a macro expands to nil
-      (push subgoal (st-stack state))                                      ;;this prevents errors.
+    ; NB: macro may expand to NIL => no new subgoal.
+    (when subgoal                                                          
+      (push subgoal (st-stack state))                                      
       (note-action state 
 		   (list *next-operator*
 			 (car (opinst-identifier inst))
