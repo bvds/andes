@@ -225,10 +225,9 @@
  	   (setf unused (append unused (list te))))
 	(wrong-units
 	  (setf uni (append uni (list te))))
-	; forgot-units changed to mean: would be correct but for missing units
-	; perhaps this interp should be bumped up below. For now, just insert it in
-	; front of any maybe-forgot-units in the mis set.
-	(forgot-units 
+	; forgot units given for forgot-units-but-ok OR maybe-forgot-units on assignmentp
+	; prefer it to maybe-forgot-units in mis set
+	(forgot-units
 	  (setf mis (cons te mis)))
 	(maybe-forgot-units
 	   (setf mis (append mis (list te))))
@@ -251,9 +250,13 @@
           ;; by avoiding including unnecessary DNUM mangled forms.
           (first (sort wrong #'simpler-parse))
 	  ;; look for units error:
-          ;; Some ambiguous equations now get both inconsistent and missing units parses:
-	  ;; one parse dnum-mangles rhs of "t=-5m/s" to (* (- 5) (DNUM 1 |m/s|))  
-	  ;; So always prefer the less committal "inconsistent" if any parse has it.
+          ;; URGH Some ambiguous equations get both inconsistent and missing units parses:
+	  ;; one parse dnum-mangles rhs of "s=-5m/s" to (* (- 5) (DNUM 1 |m/s|)) which
+	  ;; then appears to have missing units on 5 if original units are wrong.  This parse
+	  ;; can even get forgot-units-but-ok if the value is correct. Unless this is fixed or
+	  ;; detected, we have to distrust forgot-units interp if any "inconsistent" parses exist 
+	  ;; because the forgot-units reading may just be artifact of dnum mangling. 
+	  ;; Prefer less committal "inconsistent" if any exist
           (first uni)		; inconsistent units
           (first mis) 		; missing units 
           ;; variable errors: unused vars is better than undefined
@@ -348,7 +351,7 @@
 	    (t				;use equation-redp so candidate is tested but not added to slot
 	     (setf (StudentEntry-ParsedEqn se) answer)
 	     (case (solver-equation-redp answer location)
-	       (forgot-units
+	       (forgot-units-but-ok
 		(forgot-units-error-interp se))
 	       (maybe-forgot-units
 		(maybe-forgot-units-error-interp se))
@@ -399,18 +402,17 @@
 
 ; maybe-forgot units is returned when equation is dimensionally inconsistent but
 ; could be dimensionally OK if numbers are treated as having unknown units -- though
-; it still fails to balance acceptably. So we are unsure what the error is, but we
-; can remind students of the units requirement, in case fixing the units points them
-; closer to the right correction. This could happen for a simple numerical
-; assignment statement if the value is also mistaken. In this case, we also give the
-; forgot units message.
+; it STILL fails to balance acceptably. So we are unsure what the true cause of the
+; inconsistency is, but can suggest maybe they forgot units. If this occurs for a simple 
+; numerical assignment statement we promote the response to the more definite "forgot units" 
+; message: The value may be wrong but we are still sure they have forgotten the units on a number.
 (defun maybe-forgot-units-error-interp (se)
   "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
    the student appears to have left units off at least one number.
    Also create an error interpreation in case the student asks a follow-up question, and
    put it in the student entry's err interp field."
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
-  ; in case of a simple assignment statement, just make it forgot-units
+  ; in case of a simple assignment statement, change to forgot-units error interpretation
   (when (assignment-eqn (studentEntry-ParsedEqn se))
        (return-from maybe-forgot-units-error-interp (forgot-units-error-interp se)))
   
@@ -425,6 +427,8 @@
     (setf (turn-coloring rem) **color-red**)
     rem))
 
+; !!! If this is a simple numerical assignment statement, we can say more specifically
+; that units are wrong.
 (defun wrong-units-error-interp (se)
   "Given a student entry, return a tutor turn giving unsolicited feedback saying that
    the student equation has a dimensional inconsistency
