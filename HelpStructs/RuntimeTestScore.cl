@@ -96,7 +96,9 @@
 ;;; some way that is read-safe and can be reread
 ;;; using the rt-score-load-stored-val function.
 (defun format-rt-val-for-storage (Obj value)
-  (list 'rt-val (class-name (class-of Obj)) Value))
+  ; old version wrote ('rt-val class-name Value)
+  ; new version does without 'rt-val
+  (list (class-name (class-of Obj)) Value))
 
 
 
@@ -176,10 +178,13 @@
 ;;; This function should be called on the entire list.
 
 (defun unpack-rt-val (ValLst)
-  (let ((Obj (make-instance (nth 1 ValLst))))
+  ; convert old version ('rt-val type value) to new (type value)
+  (when (eq (first ValLst) 'rt-val)
+      (setq ValLst (cdr ValLst)))
+  (let ((Obj (make-instance (nth 0 ValLst))))
     (when (not (rt-val-p Obj))
       (error "Non rt-val obj passed to read-stored-rt-val"))
-    (rt-val<-stored-val Obj (nth 2 ValLst))
+    (rt-val<-stored-val Obj (nth 1 ValLst))
     Obj))
 
 
