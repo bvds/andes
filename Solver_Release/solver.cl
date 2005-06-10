@@ -583,9 +583,9 @@
 	    ; check accuracy in this case for better diagnosis message:
 	    ; if accuracy outside appropriate threshold, be uncertain
 	    (if (> (rem code 8) (if (eq accuracy 'answer) 4 0))
-	        'maybe-forgot-units 
+	        'maybe-forgot-units
             ; else balances ok ignoring unit error:
-	     'forgot-units)) 
+	     'forgot-units-but-ok)) 
 	  ((= units 2)
 	   'wrong-units)
 	  ((not (= units 0))
