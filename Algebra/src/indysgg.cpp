@@ -257,7 +257,7 @@ void indyAddCanonEq(int eqnID, const char* const equation) {
  *    question indyCanonHowIndy in newindy.cpp				*
  ************************************************************************/
 bool indyIsCanonIndy(int setID, int eqnID) { 
-  DBG(cout << "indyIsCanonIndy asked if " << endl;);
+  DBG(cout << "indyIsCanonIndy asked if " << endl);
   if (!gotthevars) 
     throw(string("indyIsCanonIndy called before indyDoneAddVar"));
   if ((eqnID >= canoneqf->size()) || (eqnID < 0))
@@ -266,9 +266,11 @@ bool indyIsCanonIndy(int setID, int eqnID) {
   if ((setID >= listofsets->size()) || (setID < 0)) throw(string(
      "indyIsCanonIndy called for undefined set"));
   (*lasttriedeq)[setID] = eqnID;
-  DBG(cout << (*canoneqf)[eqnID]->getInfix() << " is independent of the "
-      << (*listofsets)[setID].size()<< " equations in set " << setID 
-      << " of " << listofsets->size() - 1 << " sets."<< endl;);
+  DBG(cout << "indyIsCanonIndy with eqnID=" << eqnID << ", setID=" 
+      << setID << ", determine if " << (*canoneqf)[eqnID]->getInfix() 
+      << " is independent of the "
+      << (*listofsets)[setID].size()<< " equations with " 
+      << listofsets->size() - 1 << " sets."<< endl);
   return((*listofsets)[setID].isindy((*canongrads)[eqnID]));
 }
 
@@ -282,7 +284,6 @@ bool indyIsCanonIndy(int setID, int eqnID) {
  ************************************************************************/
 bool indyIsStudIndy(int setID, int eqnID)
 { 
-  DBG(cout << "indyIsStudIndy asked if " << endl;);
   if (!gotthevars) 
     throw(string("indyIsStudIndy called before indyDoneAddVar"));
   if ((eqnID >= HELPEQSZ) || (eqnID < 0))
@@ -295,7 +296,7 @@ bool indyIsStudIndy(int setID, int eqnID)
      "indyIsStudIndy called for undefined set"));
   (*lasttriedeq)[setID] = eqnID;
   DBG(cout << studeqf[eqnID]->getInfix() << " is independent of the "
-      << (*listofsets)[setID].size()<< " equations in set " << setID << endl;);
+      << (*listofsets)[setID].size()<< " equations in set " << setID << endl);
   return((*listofsets)[setID].isindy(studgrads[eqnID]));
 }
 
