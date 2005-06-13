@@ -3774,6 +3774,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
 
+(defoperator define-changing-mass (?b ?t)
+  :specifications "If ?b is an object, then you can define a mass for ?b"
+  :preconditions
+  ((object ?b)
+   (not (variable ?dont-care (at (mass ?b) ?t))
+   (bind ?var (format-sym "m_~A_~A" (body-name ?b) (time-abbrev ?t))))
+  :effects
+  ((variable ?var (at (mass ?b) ?t))
+   (define-var (at (mass ?b) ?t)))
+  :hint
+  ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
+   ))
+
 ;;; ========================== forces =====================================
 
 ;;; For each basic force type we have an operator called find-TYPE-force
