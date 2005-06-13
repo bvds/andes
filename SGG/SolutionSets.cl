@@ -75,6 +75,8 @@
 
 (defconstant *sgg-indy-threshold* 0 "Theshold for the is-indy test")
 
+(defvar *indyset0-in-use* NIL "indyset 0 needs to be cleared before next use")   
+
 ;;================================================================================
 ;; Solution Collection
 ;;
@@ -89,6 +91,7 @@
   (setq *Indy-Var-index* Vars)
   (setq *Indy-Eqn-Index* Eqns)
   (solver-indyEmpty)
+  (setf *indyset0-in-use* NIL)
 
   (dolist (v Vars)
     (solver-indyAddVar V))
@@ -259,9 +262,12 @@
 
 (defun setup-indyset (Eqns)
   "Setup the Indyset 0 for use by the independence checker."
-  (Solver-indyKeepN 0 0)		; Clear the preexisting set.
+  (when *indyset0-in-use*
+      (Solver-indyKeepN 0 0)) ; Clear any preexisting set contents
   (dolist (E Eqns)
-    (Solver-indyAddEq2Set 0 (car E))))	 
+    (Solver-indyAddEq2Set 0 (car E)))
+  (when Eqns
+     (setf *indyset0-in-use* T)))	 
 
 
 
