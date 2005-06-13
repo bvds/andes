@@ -105,9 +105,9 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
     case sqrte:
       if (argvnd->value > 0.) {
         ret->value = sqrt(argvnd->value);
-        tempval = .5 / ret->value;
+        tempval = 0.5 / ret->value;
         goto functfin; }
-      else throw(string("valander tried to take sqrt of negative"));
+      else throw(string("valander tried to differentiate sqrt(x) at x<=0"));
     case abse:
       if (argvnd->value != 0.) {
         ret->value = fabs(argvnd->value);

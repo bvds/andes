@@ -92,7 +92,7 @@ void indyEmpty() {
       (*canoneqf)[k]->destroy();
       canoneqf->pop_back();
     }
-    DBG(cout << "IndyEmpty emptied canoneqf" << endl; );
+    DBG(cout << "IndyEmpty emptied canoneqf" << endl);
     if ((canongrads != 0L) && (canongrads != (vector<valander *> *)NULL)) {
       for (k = ((int)canongrads->size()) - 1; k >= 0; k--) {
         delete (*canongrads)[k];
@@ -241,8 +241,8 @@ void indyAddCanonEq(int eqnID, const char* const equation) {
   if (eqnID +1 != canoneqf->size()) {
     throw(string("can't deal with equations presented except in sequence"));
   }
-  DBG(cout << eqnID << ": " << (*canoneqf)[eqnID]->getInfix() << endl;);
-  DBG(cout << "Ready to push equation gradient" << endl;);
+  DBG(cout << eqnID << ": " << (*canoneqf)[eqnID]->getInfix() << endl);
+  DBG(cout << "Ready to push equation gradient" << endl);
   // must be okay so record and quit
   canongrads->push_back(getvnd((*canoneqf)[eqnID], canonvars, numsols));
 }
