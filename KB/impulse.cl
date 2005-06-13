@@ -468,9 +468,8 @@ impulse ~A." (?b def-np) (?t pp)))
   :hint 
   ( (point (string "Find the center of mass of ~A ~A"  
 		   (?bodies conjoined-defnp) (?t pp)))
-    (teach (string "Use the masses ~A and the ~A component of the positions ~A"
-		   (?mass-vars conjoined-defnp) ((axis ?xyz ?rot) symbols-label)
-		   (?r-compo-vars conjoined-defnp)))
+    (teach (string "Use the masses and the ~A component of the positions"
+		   ((axis ?xyz ?rot) symbols-label)))
     (bottom-out (string "Write the equation ~A"  
                         ((= ?r-com-compo (/ (+ . ?rhs) (+ . ?mass-vars))) algebra)))
     ))

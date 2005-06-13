@@ -1331,7 +1331,9 @@
 (def-error-class default-should-be-unknown ()
   ((student (vector (at ?descr ?time) ?dir))
    (correct (vector (at ?descr ?time) unknown))
-   (test (not (equal ?dir 'unknown)))))
+   (test (not (equal ?dir 'unknown))))
+;; High probability since close match
+  :probability 0.75)
 
 (defun default-should-be-unknown ()
  (make-hint-seq
