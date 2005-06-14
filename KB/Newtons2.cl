@@ -1810,7 +1810,8 @@
      (not (variable ?dont-care (mass ?b)))
      (bind ?var (format-sym "m_~A" (body-name ?b))))   
   :effects
-   ((variable ?var (mass ?b))
+   (; take this out for now:
+    ; (variable ?var (mass ?b))
     (body ?b)) 	
   :hint
   ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
@@ -3787,6 +3788,27 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
 
+; Now mass can have time in rocket problems, but is left timeless in others
+; Equations using a mass variable should use a precondition 
+;  	(mass-variable ?var ?body ?time)
+; to get the problem-appropriate mass variable defined for the given body and time
+; Which one gets defined is controlled by presence of
+;       (changing-mass)
+; in the problem definition.
+(defoperator use-timeless-mass-variable (?body ?time)
+  :effects ((mass-variable ?var ?body ?time))
+  :preconditions (
+       (not (changing-mass))
+       (variable ?var (mass ?body))
+  ))
+
+(defoperator use-changing-mass-variable (?body ?time)
+  :effects ((mass-variable ?var ?body ?time))
+  :preconditions (
+        (in-wm (changing-mass))
+        (variable ?var (at (mass ?body) ?time))
+  ))
+
 ;;; ========================== forces =====================================
 
 ;;; For each basic force type we have an operator called find-TYPE-force
@@ -3873,26 +3895,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
        define a magnitude variable and an direction variable for it."
   :preconditions
    ( (object ?b)
-    ;; !!! cheap hack: for now, cm identified by special atom. 
-    ;; Better would be term (cm-of body) or relation (is-cm-of part body)
-    (in-wm (part-of cm ?b))
+    (in-wm (center-of-mass ?cm (?b) ?dont-care-origin))
     (time ?t)
     (not (massless ?b))
     (near-planet ?planet)
-    (not (vector cm (at (force cm ?planet weight) ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fw_~A_~A_~A" 'cm ?planet 
+    (not (vector ?cm (at (force ?cm ?planet weight) ?t) ?dont-care))
+    (bind ?mag-var (format-sym "Fw_~A_~A_~A" ?cm ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing weight of ~a at ~a acting at cm.~%" ?b ?t))
   :effects
-   ((vector cm (at (force cm ?planet weight) ?t) (dnum 270 |deg|))
-    (variable ?mag-var (at (mag (force cm ?planet weight)) ?t))
-    (variable ?dir-var (at (dir (force cm ?planet weight)) ?t))
-    (given (at (dir (force cm ?planet weight)) ?t) (dnum 270 |deg|)))
+   ((vector ?cm (at (force ?cm ?planet weight) ?t) (dnum 270 |deg|))
+    (variable ?mag-var (at (mag (force ?cm ?planet weight)) ?t))
+    (variable ?dir-var (at (dir (force ?cm ?planet weight)) ?t))
+    (given (at (dir (force ?cm ?planet weight)) ?t) (dnum 270 |deg|)))
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude m * g acting at a single point called the center of gravity, which normally is the same as the center of mass."))
-   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it which can be treated as acting at the center of mass, so use the force drawing tool to draw a weight force vector acting at cm due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?planet (?t pp)))
+   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it which can be treated as acting at the center of mass, so use the force drawing tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?cm ?planet (?t pp)))
    ))
 
 
@@ -5257,7 +5277,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; variables in the problem statement somehow.
 
 (defoperator wt-law (?b ?t)
-  
   :specifications "
    If a body is near a planet,
      and it is not massless,
@@ -5268,7 +5287,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((near-planet ?planet)
     (not (massless ?b))
-    (variable ?m-var (mass ?b))
+    (mass-variable ?m-var ?b ?t)
     (variable ?w-var (at (mag (force ?b ?planet weight)) ?t))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
@@ -5291,12 +5310,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the mass of the body, and
      the gravitational constant for the planet."
   :preconditions
-  ((any-member ?quantity
-	        ((at (mag (force ?b ?planet weight)) ?t)
-		 (mass ?b)
+  (; only apply this in case where ?cm is declared cm of some single rigid body. 
+   (in-wm (center-of-mass ?cm (?rigid-body) ?dontcare))
+   (any-member ?quantity
+	        ((at (mag (force ?cm ?planet weight)) ?t)
+		 (mass ?rigid-body)
 		 (gravitational-acceleration ?planet)))
-   ; make sure this is case where ?b is cm of rigid body. 
-   (in-wm (part-of ?b ?rigid-body))
    (time ?t)
    (near-planet ?planet)
    (not (massless ?rigid-body))) 
@@ -5305,11 +5324,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator wt-law-cm (?b ?t)
   :preconditions
-   ((near-planet ?planet)
-    (not (massless ?b))
+   ((in-wm (center-of-mass ?cm (?b) ?dontcare))
     (variable ?m-var (mass ?b))
-    ; !!! temp hack: presuppose cm of body is named 'cm
-    (variable ?w-var (at (mag (force cm ?planet weight)) ?t))
+    (variable ?w-var (at (mag (force ?cm ?planet weight)) ?t))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
   :effects
@@ -5683,7 +5700,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?a-compo (at (compo ?xyz ?rot (accel ?b)) ?t))
    (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
-   (variable ?m (mass ?b)))
+   (mass-variable ?m ?b ?t))
   :effects
    ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
 	 (compo-eqn nsl ?xyz ?rot (nl ?b ?t)))
@@ -5707,7 +5724,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((variable ?fnet-compo-var (at (compo ?xyz ?rot (net-force ?b)) ?t))
    (variable ?a-compo        (at (compo ?xyz ?rot (accel ?b)) ?t))
    (bind ?eqn-compo-vars (list ?a-compo ?fnet-compo-var))
-   (variable ?m (mass ?b)))
+   (mass-variable ?m ?b ?t))
   :effects (
     (eqn (= ?fnet-compo-var (* ?m ?a-compo))
 	 (compo-eqn nsl-net ?xyz ?rot (nl ?b ?t)))
