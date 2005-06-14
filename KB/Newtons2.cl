@@ -2288,9 +2288,9 @@
     (variable ?t12    (duration (during ?t1 ?t2))))
   :effects (
    (eqn (= ?v12_x (/ ?d12_x ?t12))
-            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b (?during ?t1 ?t2))))
+            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b (during ?t1 ?t2))))
    (eqn-compos 
-            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b (?during ?t1 ?t2)))
+            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b (during ?t1 ?t2)))
              (?v12_x ?d12_x)))
   :hint (
    (point (string "What is the relationship between average velocity, displacement and duration?"))
@@ -3686,8 +3686,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
       ?di_xy ?di_compos))
   :effects 
    ((eqn (= ?dnet_xy (+ . ?di_compos))
-               (compo-eqn sum-disp ?xy ?rot (sum-disp ?b (?during ?t1 ?t2))))
-   (eqn-compos (compo-eqn sum-disp ?xy ?rot (sum-disp ?b (?during ?t1 ?t2)))
+               (compo-eqn sum-disp ?xy ?rot (sum-disp ?b (during ?t1 ?t2))))
+   (eqn-compos (compo-eqn sum-disp ?xy ?rot (sum-disp ?b (during ?t1 ?t2)))
           (?dnet_xy . ?di_compos)))
    :hint
    ((point (string "Think about the relationship between the net displacement of ~A ~A and the individual displacements over each of the times making up the interval." ?b (?t1 pp)))
@@ -3764,7 +3764,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator define-mass (?b)
   :specifications "If ?b is an object, then you can define a mass for ?b"
-  :preconditions
+  :preconditions 
   ((object ?b)
    (not (variable ?dont-care (mass ?b)))
    (bind ?var (format-sym "m_~A" (body-name ?b))))
@@ -3779,6 +3779,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :specifications "If ?b is an object, then you can define a mass for ?b"
   :preconditions
   ((object ?b)
+   (time ?t)
    (not (variable ?dont-care (at (mass ?b) ?t))
    (bind ?var (format-sym "m_~A_~A" (body-name ?b) (time-abbrev ?t)))))
   :effects
@@ -3788,13 +3789,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
 
-; Now mass can have time in rocket problems, but is left timeless in others
-; Equations using a mass variable should use a precondition 
-;  	(mass-variable ?var ?body ?time)
-; to get the problem-appropriate mass variable defined for the given body and time
-; Which one gets defined is controlled by presence of
-;       (changing-mass)
-; in the problem definition.
+;; mass can have time in rocket problems, but is left timeless in others
+;; Equations using a mass variable should use a precondition 
+;;  	(mass-variable ?var ?body ?time)
+;; to get the problem-appropriate mass variable defined for the given body 
+;; and time.  Which one gets defined is controlled by presence of
+;;       (changing-mass)
+;; in the problem definition.
+
 (defoperator use-timeless-mass-variable (?body ?time)
   :effects ((mass-variable ?var ?body ?time))
   :preconditions (
@@ -3809,7 +3811,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
         (variable ?var (at (mass ?body) ?time))
   ))
 
-;;; ========================== forces =====================================
+;; Magnitude of derivative of mass with respect to time
+;; We use the magnitude form because students in a non-calculus
+;; based course don't have a strong concept of "slope."
+
+(defoperator define-mass-change-magnitude (?b ?t)
+  :preconditions
+  ((object ?b)
+   (time ?t)
+   (bind ?var (format-sym "dmdt_~A_~A" (body-name ?b) (time-abbrev ?t))))
+  :effects
+  ((variable ?var (at (mass-change-magnitude ?b) ?t))
+   (define-var (at (mass-change-magnitude ?b) ?t)))
+  :hint
+  ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for the magnitude of the change in mass."))
+   ))
+
+;;; ============================== forces =====================================
 
 ;;; For each basic force type we have an operator called find-TYPE-force
 ;;; which derives a proposition of the form
@@ -4058,6 +4076,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
     (object ?b)
     (time ?t)
+    ;; energy conservation law also checks for this to not exist:
     (in-wm (given (at (dir (force ?b ?agent applied)) ?t-force) ?dir-expr))
     (test (tinsidep ?t ?t-force))
     ;; check that something else hasn't defined this force.
@@ -4542,79 +4561,214 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
 )
 
-; Other basic force types in current ANDES: 
-; 	"contact force" -- meaning unclear, trying to do without it.
+;;;;===========================================================================
+;;;;
+;;;;                       Thrust force
+;;;;
+;;;;===========================================================================
 
-; draw-reaction-force -- draws equal and opposite force of same type
-;
-; Our "primary" force finding rules are usually asymmetrical -- they derive only
-; one side of an action-reaction pair of forces from a force-determining
-; proposition: 
-;        supports s b => Normal force on b from s 
-;        tied-to str b => tension force on b from str
-;        slides-against b s => kinetic friction on b from s
-;        static-friction b s => static friction on b from s
-;        given (dir (force b a applied)) => applied force on b from a
-; This operator can draw the reaction to any of these "action" forces on 
-; the other body when needed.  We also have an NTL PSM to put out the equation 
-; equating the magnitudes.  Currently we only use NTL for forces at known 
-; directions, so the direction of the reaction force becomes known ("given") 
-; here.
-;
-; A conceptually purer alternative would be to make all our force-inferring 
-; rules symmetrical, so an interaction statement would directly entail *both* 
-; forces in the action-reaction pair.  The asymmetrical method used here 
-; implicates Newton's Third Law in one direction only.  This seems to 
-; correspond more to the reasoning we want to tutor on the forces: If a table 
-; supports a block, we probably want a different hint or dialog for the 
-; Normal force the table exerts on the block than for the Normal force the 
-; block exerts on the table, with NTL only mentioned in the second.
-;
-; Another way to achieve this heuristic goal would be to write a pair of 
-; rules for each force, one for each direction; but the current method is 
-; more economical in treating Newton's Third Law with a single rule.
-;
-; A question is whether the "action" force ought to be drawn before 
-; drawing the "reaction" force. If we are analyzing the forces on block1 
-; with block2 on top of it, we might want to draw the downward normal force 
-; before drawing the upward one.  So here we consult the "force" statement to
-; test for existence of the action force but don't require drawing it.
-;
-; We prevent this operator from applying to interactions involving compound 
-; bodies to prevent the following problem: two blocks are stacked on
-; table. The table exerts a normal force on the lower block and also on
-; the compound. Therefore two reaction forces will be found on the table:
-; one from the lower block and one from the table. If we were interested in
-; all forces on the table for applying Newton's Law, this would give us 
-; the wrong set of forces on the table -- we don't want to count both the force
-; from the compound and the one from its part. This will have to be fixed,
-; but for now we just don't apply NTL to compound bodies. That is OK in our
-; problems since we are usually interested in the dynamics of the compound
-; body and the external forces on it.
+
+;; Right now, we assume the direction of the force
+;; is one of the givens in the problem statement.
+(defoperator find-thrust-force (?body ?agent ?t)
+  :preconditions
+  ( (object ?body)
+    (time ?t)
+    ;; energy conservation law also checks for this:
+    (in-wm (given (at (dir (force ?bbdy ?agent applied)) ?t-force) ?dir))
+    (test (tinsidep ?t ?t-force))
+    ;; check that something else hasn't defined this force.
+    (not (force ?b ?agent thrust ?t . ?dont-care)) ) 
+  :effects ( (force ?body ?agent thrust ?t ?dir action) ))
+
+;; draw thrust force in a known direction
+(defoperator draw-thrust-force (?b ?agent ?t)
+  :preconditions
+  ( (force ?b ?agent thrust ?t ?dir action)
+    (test (not (equal ?dir-expr 'unknown)))
+    (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care))
+    (bind ?mag-var (format-sym "Ft_~A_~A_~A" (body-name ?b) ?agent
+			       (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "~&Drawing ~a thrust force on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
+    )
+  :effects
+  ( (vector ?b (at (force ?b ?agent thrust) ?t) ?dir)
+    (variable ?mag-var (at (mag (force ?b ?agent thrust)) ?t))
+    (variable ?dir-var (at (dir (force ?b ?agent thrust)) ?t))
+    ;; Ensure implicit eqn is written because dir is problem given
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (force ?b ?agent thrust)) ?t)))
+  :hint
+  ( (point (string "Notice that ~a causes a force on ~A." ?agent ?b))
+    (teach (string "When ~A escapes from ~A, a thrust force is exerted on ~A."
+		   ?agent ?b ?b))
+    (bottom-out (string "Draw a thrust force acting on ~a due to ~a at an angle of ~a." 
+			?b ?agent ?dir))
+    ))
+
+
+;;;
+;;;          Define thrust force
+;;;
+
+;; not working yet
+#|
+(def-psmclass thrust-force (?eqn-type thrust-force ?axis ?rot 
+				 (impulse ?body ?agent ?time ?dir))
+    ;; :group Dynamics  :BvdS:  what to choose?
+    :complexity major    
+    :Doc "Definition of impulse."
+    :english ("the definition of impulse") 
+    :ExpFormat ("applying the definition of impulse on ~a ~a"
+		(nlg ?body) (nlg ?time 'pp))
+    :EqnFormat ("J_~A = F(avg)_~a*t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+;; Draw an impulse if associated force and interval known 
+(defoperator draw-impulse-given-force (?b ?agent ?t)
+  :preconditions
+  (
+   ;; BvdS:  why not this form for forces
+   ;;(in-wm (at (dir (force ?b ?agent ?type)) ?t))
+   (force ?b ?agent ?type ?t ?dir ?action)
+   (test (time-intervalp ?t)) ;only impulse for intervals
+   (test (not (equal ?dir 'unknown)))
+   (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care)) ;not already drawn
+   (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+    )
+  :effects
+   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+    ;; BvdS:  Why no equation for this?
+    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
+    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    ;; Ensure implicit eqn is written because dir is from force
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+   )
+  :hint
+   ((point (string "There is a force acting on ~a." ?b))
+    (teach (string "One can define an impulse associated with the force exerted by ~A ~A." ?agent (?t pp)))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    ))
+
+
+(defoperator impulse-vector-contains (?sought)
+  :preconditions 
+  ((collision ?bodies ?t ?elastic-dont-care)
+   (any-member ?sought
+	       ((at (mag (impulse ?b ?agent)) ?t)
+		(at (dir (impulse ?b ?agent)) ?t)
+		(at (mag (force ?b ?agent ?type)) ?t)
+		(at (dir (force ?b ?agent ?type)) ?t)
+		(duration ?t)))
+   (object ?b)
+   (time ?t)
+   (test (member ?b ?bodies :test #'equal)) 
+   (test (member ?agent ?bodies :test #'equal)) 
+   (test (time-intervalp ?t)))
+  :effects 
+   ((eqn-family-contains (impulse ?b ?agent ?t) ?sought)
+    ;; since only one compo-eqn under this vector psm, we can just
+    ;; select it now, rather than requiring further operators to do so
+    (compo-eqn-contains (impulse ?b ?agent ?t) thrust-force ?sought)))
+
+;; This is the impulse from a particular force
+(defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
+  :preconditions 
+   ((variable ?Ft_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
+    (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?b ?agent)) ?t))
+    (variable ?dmdt  (at (mass-change-magnitude ?b) ?t)))
+  :effects (
+   (eqn (= ?Ft_x (* -1.0 ?vr_x ?dmdt))
+            (compo-eqn thrust-force ?xy ?rot 
+		       (impulse ?b ?agent (during ?t1 ?t2))))
+   (eqn-compos (compo-eqn thrust-force ?xy ?rot 
+		       (impulse ?b ?agent (during ?t1 ?t2)))
+             (?J12_x ?F12_x)))
+  :hint 
+  ( (point (string "What is the relationship between average force, impulse and duration?"))
+    (teach (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise.."))
+    (bottom-out (string "Write the equation ~a"
+			((= ?J12_x (* ?F12_x ?t12)) algebra)))
+  ))
+
+|#
+
+;;;============================================================================
+;;;
+;;; Other basic force types in current ANDES: 
+;;; 	"contact force" -- meaning unclear, trying to do without it.
+;;; draw-reaction-force -- draws equal and opposite force of same type
+;;;
+;;; Our "primary" force finding rules are usually asymmetrical -- they derive 
+;;; only one side of an action-reaction pair of forces from a force-determining
+;;; proposition: 
+;;;        supports s b => Normal force on b from s 
+;;;        tied-to str b => tension force on b from str
+;;;        slides-against b s => kinetic friction on b from s
+;;;        static-friction b s => static friction on b from s
+;;;        given (dir (force b a applied)) => applied force on b from a
+;;; This operator can draw the reaction to any of these "action" forces on 
+;;; the other body when needed.  We also have an NTL PSM to put out the equation 
+;;; equating the magnitudes.  Currently we only use NTL for forces at known 
+;;; directions, so the direction of the reaction force becomes known ("given") 
+;;; here.
+;;;
+;;; A conceptually purer alternative would be to make all our force-inferring 
+;;; rules symmetrical, so an interaction statement would directly entail *both* 
+;;; forces in the action-reaction pair.  The asymmetrical method used here 
+;;; implicates Newton's Third Law in one direction only.  This seems to 
+;;; correspond more to the reasoning we want to tutor on the forces: If a table 
+;;; supports a block, we probably want a different hint or dialog for the 
+;;; Normal force the table exerts on the block than for the Normal force the 
+;;; block exerts on the table, with NTL only mentioned in the second.
+;;;
+;;; Another way to achieve this heuristic goal would be to write a pair of 
+;;; rules for each force, one for each direction;;; but the current method is 
+;;; more economical in treating Newton's Third Law with a single rule.
+;;;
+;;; A question is whether the "action" force ought to be drawn before 
+;;; drawing the "reaction" force. If we are analyzing the forces on block1 
+;;; with block2 on top of it, we might want to draw the downward normal force 
+;;; before drawing the upward one.  So here we consult the "force" statement to
+;;; test for existence of the action force but don't require drawing it.
+;;;
+;;; We prevent this operator from applying to interactions involving compound 
+;;; bodies to prevent the following problem: two blocks are stacked on
+;;; table. The table exerts a normal force on the lower block and also on
+;;; the compound. Therefore two reaction forces will be found on the table:
+;;; one from the lower block and one from the table. If we were interested in
+;;; all forces on the table for applying Newton's Law, this would give us 
+;;; the wrong set of forces on the table -- we don't want to count both the force
+;;; from the compound and the one from its part. This will have to be fixed,
+;;; but for now we just don't apply NTL to compound bodies. That is OK in our
+;;; problems since we are usually interested in the dynamics of the compound
+;;; body and the external forces on it.
 
 (defoperator find-reaction-force (?b1 ?b2 ?type ?t)
-   :preconditions (
-    ; We have been allowing some force agents to be implicitly defined by 
-    ; occurrence of their names in arguments of forms like tied-to or supports. 
-    ; Following imposes the requirement that these must be declared in an 
-    ; object proposition if forces on them are to be found. 
-    (object ?b1)
-    (test (not (compound-bodyp ?b1))) ; ignore compound bodies here
-    (object ?b2)
-    (test (not (compound-bodyp ?b2))) ; ignore compound bodies here
-    (test (not (equal ?b1 ?b2)))
-    (time ?t)
-    ;; We look for "action" force exerted *on* object b1 from b2.
-    ;; reaction force we seek is on b2 = body of interest from b1. 
-    ;; Note dir part matches numerical degree value only
-    ;; BvdS: ask Anders to double-check this change
-    (force ?b1 ?b2 ?type ?t ?f1-dir action)
-    (not (force ?b2 ?b1 ?type ?t . ?dontcare))
-    (bind ?opposite-dir (opposite ?f1-dir))
+  :preconditions 
+  (
+   ;; We have been allowing some force agents to be implicitly defined by 
+   ;; occurrence of their names in arguments of forms like tied-to or supports.
+   ;; Following imposes the requirement that these must be declared in an 
+   ;; object proposition if forces on them are to be found. 
+   (object ?b1)
+   (test (not (compound-bodyp ?b1)))	; ignore compound bodies here
+   (object ?b2)
+   (test (not (compound-bodyp ?b2)))	; ignore compound bodies here
+   (test (not (equal ?b1 ?b2)))
+   (time ?t)
+   ;; We look for "action" force exerted *on* object b1 from b2.
+   ;; reaction force we seek is on b2 = body of interest from b1. 
+   ;; Note dir part matches numerical degree value only
+   ;; BvdS: ask Anders to double-check this change
+   (force ?b1 ?b2 ?type ?t ?f1-dir action)
+   (not (force ?b2 ?b1 ?type ?t . ?dontcare))
+   (bind ?opposite-dir (opposite ?f1-dir))
    )
-   :effects (
-     (force ?b2 ?b1 ?type ?t ?opposite-dir reaction)
-   ))
+  :effects (
+	    (force ?b2 ?b1 ?type ?t ?opposite-dir reaction)
+	    ))
 
 (defoperator draw-reaction-force (?b1 ?b2 ?type ?t)
   :preconditions(
@@ -5991,11 +6145,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bind ?t2 (max ?t ?other-t))
   ;; need to ensure all forces conservative so energy is in fact conserved.
   ;; Cheap way would be to assert it in problem statement. For now, test no 
-  ;; friction or drag, external applied or tension force on body. We test
-  ;; by testing for the situation descriptions that entail these forces.
+  ;; friction or drag, external applied, thrust, or tension force on body. 
+  ;; We test by testing for the situation descriptions that entail 
+  ;; these forces.
   (not (given (at (dir (force ?b ?agent1 applied)) ?t-applied) ?dir1)
        (tinsidep ?t-applied `(during ,?t1 ,?t2)))
-  (not (tied-to ?string1 ?b                        ?t-tension ?dir2)
+  (not (given (at (dir (force ?b ?agent2 thrust)) ?t-thrust) ?dir2)
+       (tinsidep ?t-thrust `(during ,?t1 ,?t2))) 
+  (not (tied-to ?string1 ?b                        ?t-tension ?dir3)
        (tinsidep ?t-tension `(during ,?t1 ,?t2)))
   (not (slides-against ?b ?surface1                ?t-friction)
        (tinsidep ?t-friction `(during ,?t1 ,?t2)))

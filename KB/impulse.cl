@@ -113,9 +113,9 @@
   :effects (
    (eqn (= ?J12_x (* ?F12_x ?t12))
             (compo-eqn imp-force ?xy ?rot 
-		       (impulse ?b ?agent (?during ?t1 ?t2))))
+		       (impulse ?b ?agent (during ?t1 ?t2))))
    (eqn-compos (compo-eqn imp-force ?xy ?rot 
-		       (impulse ?b ?agent (?during ?t1 ?t2)))
+		       (impulse ?b ?agent (during ?t1 ?t2)))
              (?J12_x ?F12_x)))
   :hint 
   ( (point (string "What is the relationship between average force, impulse and duration?"))
