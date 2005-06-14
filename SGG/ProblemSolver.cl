@@ -539,7 +539,7 @@
 
 (defun store-problem-file (Problem &optional (Path Nil))
   "Store the specified problem to a file."
-  ; generate everything "s" does as needed
+  ;; generate everything "s" does as needed
   (when (not (Problem-Graph Problem))
     (eval `(s ,(Problem-name Problem))))
 

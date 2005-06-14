@@ -95,6 +95,7 @@
 				     (:file "optics")          
 				     (:file "impulse")
 				     (:file "impulse-problems") 
+				     (:file "rocket-problems") 
 				     (:file "makeprob")        
 				     ;; there is some ugly code here
 				     (:file "circuits")
