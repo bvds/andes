@@ -756,7 +756,7 @@
 (def-psmclass equals (equals ?quant1 ?quant2)
   :complexity connect
   :english ("find by equivalent quantity")
-  :ExpFormat ("applying the fact that ~a is equivalant to ~a"
+  :ExpFormat ("applying the fact that ~a is equivalent to ~a"
 	      (nlg ?quant1) (nlg ?quant2))
   :EqnFormat ("s1 = s2"))
 
