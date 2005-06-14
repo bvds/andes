@@ -3536,6 +3536,7 @@
 "true if exp is negation of a numvalp"
    (and (listp exp)
         (eq (first exp) '-)
+	(= (length exp) 2)
 	(numvalp (second exp))))
 
 ; not used yet:
