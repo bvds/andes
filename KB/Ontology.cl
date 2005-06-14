@@ -135,7 +135,7 @@
 (def-qexp mass	(mass ?body)
   :units |kg|
   :restrictions positive
-  :fromWorkbench `(mass ,body)
+  :fromWorkbench (if time `(at (mass ,body) ,time) `(mass ,body))
   :english ("the mass of ~A" (nlg ?body)))
 (def-qexp distance (distance ?body)
   :units |m|
