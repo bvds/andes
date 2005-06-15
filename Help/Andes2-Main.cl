@@ -264,36 +264,21 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 ;;               time the command was executed, and updates the help system's
 ;;               records.
 ;;
-;;               The dde argument value will be passed into 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun dispatch-stream-event (command-string &key (dde Nil))
   "Reads the string and tries to execute it, returns the result of the execution while also performing some bookkeeping."
-  (let ((cmd-obj nil) (command nil) (arguments nil)
-	(check (read-from-string (subseq command-string 1 (position #\Space command-string)))))
-    (cond
-     ((equal check 'lookup-eqn-string)
-      (setf command 'lookup-eqn-string)
-      (setf arguments
-	(list
-	 (fix-quotes (trim-eqn (subseq command-string
-		 (position #\Space command-string)
-		 (position #\Space command-string
-			   :from-end (- (length command-string) 1)))))
-	 (read-from-string (subseq command-string
-				   (position #\Space command-string
-					     :from-end (- (length command-string) 1)))))))
-      (t
-       (setf cmd-obj (read-from-string (quote-special-characters command-string)))
-       (setf command (first cmd-obj))
-       (setf arguments (rest cmd-obj))))
-;;   (let* ((cmd-obj (read-from-string (quote-special-characters command-string)))
-;;	 (command (first cmd-obj))
-    ;;	 (arguments (rest cmd-obj)))
-    
-    (format *debug-io* "~&~%Executing ~A~%(Apply ~W ~W)~%" command-string command arguments)
-    ;; Once we have constructed the command then we dispatch it directly along with some
-    ;; unambiguous call information.  See commands.cl for definition.
-    (execute-andes-command command arguments dde)))
+  ;; AW: we used to preprocess command string to ensure it could be passed safely through
+  ;; Lisp reader, which we use to parse it into a list of Lisp objects. This was particularly
+  ;; an issue for equation box contents, which could contain characters like quotes that confuse read.
+  ;; Now we just it to the workbench to ensure all arguments in command strings are properly
+  ;; escaped for Lisp.  Still, wrap the work in safe-apply to recover in case of error in Lisp read.
+  (safe-apply 'do-dispatch-stream-event (list command-string dde)))
+
+(defun do-dispatch-stream-event (command-string dde)
+  (let ((cmd-obj (read-from-string command-string))) 
+    (format *debug-io* "~&~%Executing ~A~%(Apply ~W ~W)~%" command-string (first cmd-obj) (rest cmd-obj))
+    ;; Pass parsed call to to the main dispatch wrapper in interface.cl
+    (execute-andes-command (first cmd-obj) (rest cmd-obj) dde)))
 
 
      
@@ -419,8 +404,20 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   (and *andes-stream* (open-stream-p *andes-stream*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; This was applied to incoming raw command strings as defense before passing 
+;; it through read-from-string: escape comma and backslash, which will interfere
+;; with parsing into objects by Lisp read. This simple method applies this blindly 
+;; throughout the string, without taking into account whether it occurs within
+;; vbar-delimited symbol, or quote-delimited string, for example. 
+;;
+;; This should not be necessary now that the workbench tries to ensure that 
+;; arguments in all command strings are sent in a Lisp-readable form.
+;; That was not done perfectly in past versions of Andes; in particular,
+;; bad chars in student-typed-equation box contents used to crash the helpsys.
+;; Should be safer now, and problems should be fixed on workbench side.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun quote-special-characters (string)
+(defun escape-special-characters (string)
   (loop for i from 0 to (1- (length string))
       with special = '(#\, #\\)
       appending
@@ -464,7 +461,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ;; We also fix up the AndesModule system's compiled-in base-name var 
   ;; (set when helpsys was built) so runtime use loads from the runtime 
   ;; Andes directory.
-  (setf *Base-Andes-Module-Path* (namestring *andes-path*))
+  #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
   (enable-debug) ;; this is in tell.cl so i can edit without further changes to this file
   (solver-load)
