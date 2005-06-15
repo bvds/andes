@@ -21,8 +21,8 @@
 ;; do-lookup-equation-string is the special case kludge covered above.
 ;; Called from Entry-API.
 (defun do-lookup-equation-answer-string (eq id)
-  (format t "Before {~A} After {~A}~%" eq (trim-eqn (fix-quotes eq)))
-  (do-lookup-equation-string (trim-eqn (fix-quotes eq)) id 'answer))
+  (format t "Before {~A} After {~A}~%" eq (trim-eqn (fix-eqn-string eq)))
+  (do-lookup-equation-string (trim-eqn (fix-eqn-string eq)) id 'answer))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -38,7 +38,7 @@
 ;; eq:  The raw equation string.
 ;; id:  The entry id itself.
 (defun do-lookup-eqn-string(eq id)
-  (do-lookup-equation-string (fix-quotes (trim-eqn eq)) id 'equation))
+  (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -450,7 +450,7 @@
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
   (let ((rem (make-hint-seq '("Internal error: could not process equation."))))
-    (setf (turn-coloring rem) **color-black**) ; not red, since not known wrong
+    (setf (turn-coloring rem) NIL) ; leaves black. Not red, since not known wrong
      (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(internal-error)
@@ -594,13 +594,31 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;
+;; fix-eqn-string: remove illegal characters from a student equation string
+;;
+;; AW: This was originally intended to be applied to the string argument of lookup-eqn-string, 
+;; before the whole raw argument string is parsed into a list of objects by Lisp read. It was
+;; applied in special pre-read processing in Andes2main.cl to ensure that string contents a student 
+;; might have typed in an equation box were appropriately escaped, since otherwise the API call fail 
+;; when passed through Lisp read. That use should not be needed now that the workbench has been changed
+;; to ensure that all strings sent in an API calls are suitably escaped. 
+;; HOWEVER: this function as implemented also scans for lots of other funny characters, changing them 
+;; to spaces, so they wind up effectively ignored, and this is done even on the post-read equation string. 
+;; We might want to change this, since it means no error is signalled to the user, and the string we
+;; analyze can differ from the one they typed, which is apparent on "syntax error in ..." messages.
+;; This also changes brackets to parentheses, which allows them to be used as alternate parens, which
+;; could be useful, though it might more appropriately be handled in the parser. 
 (defparameter ***bad-character-codes***
     '(33 34 35 37 38 39 44 58 59 60 62 63 64 91 92 93 96))
+;      !  "  #  %  &  '  ,  :  ;  <  >  ?  @  [  \  ]  `
+; Also filtered by > 122 test below:
+;      { | } ~
 (defparameter ***to-swap-character-codes***
     '(91 93))
 (defparameter ***to-swap-with-character-codes***
     '(40 41))
-(defun fix-quotes (string)
+(defun fix-eqn-string (string)
   (let ((len (length string)))
     (if (> len 0)
 	(do ((i 0 (+ i 1)))
@@ -614,6 +632,7 @@
 		  (setf (char string i) #\Space)))))
       string)))
 
+; older simpler version: just replace embedded quotes with spaces.
 (defun lht-fix-quotes (string)
   (if (> (length string) 0)
       (let ((s (position #\" string))
@@ -797,7 +816,7 @@
 			 ((not (bad-vars-in-answer valid)) ; checks no non-parameter vars in answer expression
 			  ;;(format t "Okay here!!!~%")
 			  ;; Check as if student equation was entered in *temp-eqn-slot*.
-			  (setf result-turn (check-answer-eqn
+			  (setf result-turn (do-lookup-equation-answer-string
 					     (concatenate 'string lhs "=" rhs)
 					     *solver-temp-eqn-slot*))
 			  ;; That saved a temp equation entry under *temp-eqn-slot*. 
@@ -953,6 +972,68 @@
     (if (not foundOK) 
        (remove-duplicates badvars :test #'equal))))
 
+
+; check that value-str is a correct expression for given value of quant
+; RETURNS: TURN with coloring and possible message
+; MODIFIES: Entry, the studententry containing this, with state and error interp
+; 
+; Presumably this is the last check in a complex entry that has passed other tests.
+;
+; Value is normally simple number plus units, but might be complex
+; arithmetic expression including constants such as
+;      "3*$p/4 rad/s"
+; This is similar to checking answer expressions: we must form
+; an equation in systemese, check it, and ensure that rhs is of
+; the right form. In this case must also check that value is given.
+(defun check-given-value-expr (entry quant value-str)
+   ; want to distinguish cases where quantity is not given, so should be left unknown,
+   ; from cases where it is given, but value expression is wrong or bad in some other way.
+   ; first do simple check that quantity is given. given-p defined in errors.cl. It takes
+   ; a sysvar. It treats components as given if vector mag is given and lies along axis 
+   ; (though not the reverse); use given-var-p to avoid this behavior. Note it looks for
+   ; given flag on quantities at the bubble-graph level, not implicit equations, so might not 
+   ; work for those.
+  (when (not (given-p (quant-to-sysvar quant)))
+     (return-from check-given-value-expr (not-given-error-interp entry quant)))
+
+  ; else this expression does have a given value:
+  (let* ( ; form a studentese equation and check it like any other equation,
+	 ; using *solver-temp-eqn-slot*. This will give us a result turn,
+	 ; and store an entry struct containing its interp. 
+         (studvar (symbols-label quant))
+	 (studeqn (concatenate 'string studvar "=" value-str))
+	 (result-turn (do-lookup-eqn-string studeqn *solver-temp-eqn-slot*))
+	 (temp-entry (find-entry *solver-temp-eqn-slot*))
+	 )
+	 ; !!! check that equation interp only uses given eqns 
+         (verify-given-eqn temp-entry)
+	 ; copy relevant info into main student entry
+	 (setf (studentEntry-State entry) (studentEntry-State temp-entry))
+         (setf (studentEntry-ErrInterp entry) (studentEntry-ErrInterp temp-entry))
+	 ; don't save the entry anymore
+	 (remove-entry *solver-temp-eqn-slot*) ; clears algebra slot automatically
+	 ; if it's correct, have to add it as an implicit equation
+  ))
+
+(defun not-given-error-interp (se quant)
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  (let ((rem (make-hint-seq
+	      '( (format "The value of ~a is not given in this problem. It should be marked unknown." 
+	                             (nlg (quant-to-sysvar quant) 'algebra))
+	         ))))
+    (setf (studentEntry-ErrInterp se)
+      (make-error-interp
+       :diagnosis '(should-be-unknown)
+       :bindings no-bindings
+       :state **no-corresponding-correct-entry**
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
+
+; verify that studententry is an acceptable entry of a given value
+; modify entry state and ErrorInterp if it is not.
+(defun verify-given-eqn (studententry)
+)
 
 ;;----------------------------------------------------------------
 ;; Debugging code.
