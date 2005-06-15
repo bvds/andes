@@ -511,11 +511,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun my-read-answer (x)
   "If '(Error: <' is start return string else lisp-read."
-  (cond ((equal "Error: <" (subseq x 1 9))
-           (format T "~&SOLVER: ~A~%" x) ; trace msg on error returns 
-            x)
-       ((= 0 (length x)) nil)
-       (T (read-from-string x))))
+  (cond ((and (>= (length x) 9)
+	      (equal "Error: <" (subseq x 1 9)))
+	 (format T "~&SOLVER: ~A~%" x)	;trace msg on error returns 
+	 x)
+	((= 0 (length x)) nil)
+	(T (read-from-string x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the actual 'public' or 'exported' definitions follow
