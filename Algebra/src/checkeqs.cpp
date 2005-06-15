@@ -245,7 +245,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   if (eqn->size() > 1) {
     // remove duplicate or proportional equations:
     numvalexp * factd;
-    DBG( cout << "Now to eliminate redundant eqs" << endl;);
+    DBG( cout << "Now to eliminate redundant eqs" << endl);
     for (k = 0; k < eqn->size(); k++)
       {
 	expr * eqexpr = (*eqn)[k];
@@ -254,18 +254,17 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	eqnumsimp(eqexpr,true);	// is this overkill?
 	normexpr(eqexpr);
       }
-    DBG( { cout << "CHECKEQS: first we fixed them up" << endl;
-	   for (k = 0; k < eqn->size(); k++) 
-	     cout << (*eqn)[k]->getInfix() << endl; }
-	 );
+    DBG(cout << "CHECKEQS: first we fixed them up" << endl;
+	for (k = 0; k < eqn->size(); k++) 
+	  cout << "          " << (*eqn)[k]->getInfix() << endl);
 
     for (k = 0; k+1 < eqn->size(); k++)
       for (q = k+1; q < eqn->size(); q++)
 	{
-	  DBG( cout << "dups? " << k << " " << q << endl; );
+	  DBG( cout << "dups? " << k << " " << q << endl);
 	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
 	    {
-	      DBG(cout <<"YES dups " << k << " "  << q << endl; );
+	      DBG(cout <<"YES dups " << k << " "  << q << endl);
 	      (*eqn)[q]->destroy();
 	      (*eqn)[q] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();

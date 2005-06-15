@@ -56,9 +56,9 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
       a1 = answer;
       if (a1 == (*((n_opexp *)a1)->args)[0]) 
 	throw(string("Whoops, apluskb has a real bug!!!"));
-      DBG( { cout << "apluskb " << thisdbg << " made new n_op: " << endl;
-             cout << answer->getInfix() << ", and a1 is now "
-	          << a1->getInfix() << endl;} );
+      DBG(cout << "apluskb " << thisdbg << " made new n_op: " << endl;
+	  cout << answer->getInfix() << ", and a1 is now "
+	  << a1->getInfix() << endl);
     }
   else answer = ( n_opexp * ) a1; // Okay, a1 is now plus, even if only 1 term
 
@@ -69,7 +69,7 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
 	{
 	  apluskb(a1, (*((n_opexp *)a2)->args)[k],(numvalexp *)copyexpr(nv));
 	  DBG( cout << "apluskb " << thisdbg << ": " << k 
-	       << "th term moved and a1 is now " << a1->getInfix() << endl; );
+	       << "th term moved and a1 is now " << a1->getInfix() << endl);
 	}
       nv->destroy();
       return;

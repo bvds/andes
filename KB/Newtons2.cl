@@ -1805,16 +1805,16 @@
        define a mass variable for ?b at time ?t."
   :preconditions
     ((object ?b)
-     ;; This doesn't quite make sense.  
      ;; I only want to apply this conditional to defining the mass.
-     (not (variable ?dont-care (mass ?b)))
+     ;; take this out if I am not defining a mass
+     ;;(not (variable ?dont-care (mass ?b)))
      (bind ?var (format-sym "m_~A" (body-name ?b))))   
-  :effects
-   (; take this out for now:
-    ; (variable ?var (mass ?b))
-    (body ?b)) 	
-  :hint
-  ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
+    :effects
+    (;; take this out for now:
+     ;; (variable ?var (mass ?b)) ;automatically define a mass
+     (body ?b)) 	
+    :hint
+    ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
    (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
    ))

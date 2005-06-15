@@ -706,7 +706,7 @@ void unnop(expr * & e)
        (((n_opexp *) e)->args->size() >1 ))
     throw(string("unnop should only be called on n_ops with < 2 args"));
   n_opexp * enop = (n_opexp *) e;
-  if (enop->args->size() ==1 )
+  if (enop->args->size() == 1)
     {
       e = (*enop->args)[0];
       delete enop;
