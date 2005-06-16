@@ -2130,11 +2130,14 @@
 		"Because ~a is moving in a straight line ~a in an unknown direction, draw a non-zero velocity vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))
    ))
 
-;; This operator draws velocities for curved motion, where curved
-;; motion includes both projectile, circular and other kinds of curves.
-;; If the motion proposition in the problem statement mentions a time
-;; point, then the direction of motion is tangent to the circle at that point.
-;; Thus, that direction is also the velocity's direction. 
+;;; Using the motion statement:
+;;;      (motion ?body ?time (curved ?type (?dir-velocity ?dir-acceleration)))
+;;; This operator draws velocities for curved motion, where curved
+;;; motion ?type is projectile, circular and other kinds of curves.
+;;; ?dir-accleration is used only for ?type=projectile or circular.
+;;; General motion along a curve can be described by:
+;;;      (motion ?body ?time (curved nil (?dir-velocity nil)))
+;;;
 
 (defoperator draw-velocity-curved (?b ?t)
   :specifications 
@@ -2142,8 +2145,8 @@
    then its velocity is tangent to the curve at that time."
   :preconditions
    ((time ?t)
-    (motion ?b ?t (curved ?dontcare (?dir ?dir-accel)))
-    (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
+    (motion ?b ?t (curved ?dontcare (?dir ?dont-care)))
+    (test (not (equal ?dir 'unknown)))  ;until conditional effects are implemented
     (test (time-pointp ?t))
     (not (vector ?b (at (velocity ?b) ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))

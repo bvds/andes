@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SolutionSets.cl
 ;; Collin Lynch
 ;; 3/14/2001
@@ -63,9 +63,8 @@
 ;; A Qnode Q connected to an Enode is considered valid iff:
 ;;  
 
-|#
 
-;;================================================================================
+;;=============================================================================
 ;; Parameters
 
 (defparameter *debug-cs* () "Controls debugging output for the collect-solutions loop.")
@@ -101,7 +100,7 @@
     (apply #'solver-indyAddEquation E)))
 
 
-;;===============================================================================
+;;=============================================================================
 ;; Collect-solutions (public)
 ;; Given the sought qnodes from the graph and an optional list of forbidden
 ;; nodes iteratively search the graph for viable solution sets.  This function
@@ -408,7 +407,7 @@
 
 
 
-;;=====================================================================================
+;;=============================================================================
 ;; Solution set collection.
 ;; Once we have collected the set of solutions we can merge them into solution sets
 ;; according to the equations that they contain.  These sets are what is then passed
