@@ -281,8 +281,8 @@ bool purelinsolv(vector<binopexp *> const * eqs,
 	  } // end of if A[q][k]!=0 and of loop on q
     } // end of loop on k, of numvars.
   // clean up A and depart
-  for (k=0; k < numeqs; k++) delete A[k];
-  delete A;
+  for (k=0; k < numeqs; k++) delete[] A[k];
+  delete[] A;
   return(true);
 }
 

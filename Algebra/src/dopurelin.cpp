@@ -58,8 +58,9 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn,
 {
   int k, q;
   int thisdbg = ++dbgnum;
-  DBGEQ( cout << "Checkeqs " << thisdbg << ": Still have " << eqn->size() 
-	      << " equations after rec assign" << endl;);
+  DBGEQ( cout << "dopurelin call " << thisdbg << ": Still have " 
+	 << eqn->size() 
+	      << " equations after rec assign" << endl);
   vector<binopexp *> * trylineqs = new vector<binopexp *>;
   for (q=0; q < eqn->size(); )
     {
@@ -278,7 +279,7 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn,
 	      << "We have left " << vars->size()
 	     << " unsolved variables, " << partsols->size()
 	     << " partially solved variables, and " << eqn->size()
-	      << " unused equations, and doagain = "<< doagain << endl;);
+	      << " unused equations, and doagain = "<< doagain << endl);
       } // end of if eqn->size > 0
       delete linvars;
     } // end of if trylineqs->size() > 0

@@ -57,7 +57,7 @@
 using namespace std;
 
 #define EQONIO(A) DBGFM(ENTFLP,A)
-#define JANDTL(A) DBGFM(INTFL,A)
+#define DBGM(A) DBGFM(INTFL,A) //additional detail from lowest bit on
 #define DBG(A) DBGF(INTFL,A)
 
 bool distfrac(expr * & ex);
@@ -544,7 +544,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
       cleanup(enop);		// changes have been made. So flatten may 
       if (k != enop->args->size()) answer = true;  // report false negative.
       DBG(cout << "after check in flatten " << thisdbg << ", enop is " 
-	   << enop->getInfix() << endl;);
+	   << enop->getInfix() << endl);
       if (enop->args->size() < 2)
 	{ unnop(e); 
 	  DBG(cout << "flatten " << thisdbg  << ":  returns " 
@@ -574,14 +574,8 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
       
       n_opexp * temp;
 
-      JANDTL(cout << "DIAG4 " << thisdbg << " enop: " << enop->getInfix()
-	     << ", e=" << e->getInfix() << endl;);
       if(enop->op->opty == multe)	// case n_op e (top level) is mult
 	  {
-	    DBG(cout << "flattening a mult nop of size "
-		 << enop->args->size() << endl;);
-	    JANDTL(cout << "DIAG6 " << thisdbg << " enop: " 
-	    		<< enop->getInfix() << endl; );
 	    // First remove divides
 	    n_opexp * newdenom = new n_opexp(&mult);
 	    for (k=0; k < enop->args->size(); k++)
@@ -596,10 +590,6 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		    delete tempbin;
 		  }
 	      }
-	    JANDTL(cout << "DIAG1 "<< thisdbg << " enop: " << enop->getInfix()
-		   << ", e=" << e->getInfix() << ", newdenom: "
-		   << newdenom->getInfix() << endl;);
-	    //JANDTL(e->dbgprint(2););
 
 	    if (newdenom->args->size() > 0)
 	      {
@@ -629,16 +619,10 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 
 	    // sort and look for factors to combine into topow.	    
 	    e = enop;		// just in case its changed - don't see how
-	    JANDTL(cout << "DIAG7 " << thisdbg << " enop: " << enop->getInfix()
-		   << ", e=" << e->getInfix() << endl;);
 	    if (multsort(e)) answer = true;
-	    JANDTL(cout << "DIAG8 " << thisdbg << " enop: " << enop->getInfix()
-		   << ", e=" << e->getInfix() << endl;);
 	    if (e->etype == n_op) enop =(n_opexp *) e; 	// if multplus didn't
 	    else return(answer);			// or did change type
 				// if no longer an n_op, cant continue here.
-	    JANDTL(cout << "DIAG2 " << thisdbg << " enop: " << enop->getInfix()
-		   << ", e=" << e->getInfix() << endl;);
 				// Now try to distribute + args.
 	    found = false;
 	    for (k=0; k < enop->args->size(); k++)
@@ -647,8 +631,6 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		if (((*enop->args)[k]->etype == n_op)  &&
 		    (((n_opexp *)(*enop->args)[k])->op->opty == pluse))
 		  {
-		    DBG(cout << k << " term of enop mult is +" 
-			 << endl;);
 		    if (!found)
 		      {
 			found = true;
@@ -657,8 +639,6 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		    n_opexp * plusfact = (n_opexp *)(*enop->args)[k];
 		    for (q=0; q < plusfact->args->size(); q++)
 		      {
-			DBG( cout << "about to distribute over term " 
-			     << q << " of + factor" << endl;);
 			temp = new n_opexp(&mult);
 			temp->addarg(copyexpr((*plusfact->args)[q]));
 			for (int r=0; r < enop->args->size(); r++)
@@ -671,16 +651,14 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 			bool flattened; // diag
 			// rmed 2/4/01 need to check	delete enop->args;
 			delete enop;
-			DBG( cout << "found and fixed a term in * +, "
-			     << "about to flatten it, which is:" << endl
-			     << repla->getInfix() << endl;);
+			DBGM(cout << "flatten " << thisdbg
+			    << " found and fixed a term in * +:" << endl
+			    << "        " << repla->getInfix() << endl);
 			expr *replaexp = (expr *) repla;
 			flattened = flatten(replaexp);
-			DBG( cout << "flatten of replaexp returned "
-			     << (flattened ? "true" : "false") << endl
-			     << replaexp->getInfix() << endl;);
 			e = replaexp;
-			DBG(cout << "flatten " << thisdbg  << ":  returns " 
+			DBG(cout << "flatten " << thisdbg  << ", flattened="
+			    << (flattened?"true":"false") << ", return " 
 			    << e->getInfix() << endl);
 			return(true);
 		      }

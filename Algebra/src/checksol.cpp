@@ -10,8 +10,9 @@
 #include "dbg.h"
 
 // if 1 degree is a numval with value 1, we have FAKEDEG
-#define DTL(A) DBGF(CHKSOL,A)
-#define DBG(A) DBGF(OUTSOL,A)
+
+#define DBG(A) DBGF(CHKSOL,A)
+#define DBGM(A) DBGFM(CHKSOL,A)
 
 #ifdef FAKEDEG
   #define DEG2RAD DEGTORAD
@@ -41,28 +42,29 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
  ************************************************************************/
 int checksol(const binopexp* const eqn, const vector<double>* const sols,
 	     const double reltverr) {
-  DTL(cout << "entered checksol" << endl;);
+  DBG(cout << "entered checksol" << endl);
   expr* eqexpr = copyexpr(eqn); // g++ refused this without copyexpr
   answitherr* value = evalexpr(eqexpr, sols, reltverr);
   eqexpr->destroy();
-  DTL(cout << value->value << "+-" << value->abserr << endl;);
-  DBG(cout << "Eqn " << eqn->getInfix() <<
+  DBGM(cout << value->value << "+-" << value->abserr << endl);
+  DBGM(cout << "Eqn " << eqn->getInfix() <<
       " balenced with discrepancy " << value->value 
            << " and error bars " << value->abserr << "  :";);
   // AW: after taking out "dubious" hacks below, need to handle case 
   // where lhs and rhs both exactly 0, so that abserr also comes out 0. 
   // Changed to use <= tests on error range to allow for this.
   if ((fabs(value->value) <= value->abserr) 
-      /*|| (fabs(value->value) < reltverr)*/) {// dubious - not good for nuclear phys
-    DBG(cout << " seems OK" << endl;);
+      // dubious - not good for nuclear phys:
+      /*|| (fabs(value->value) < reltverr)*/) {
+    DBG(cout << " seems OK" << endl);
     return(0);
   } else if ((fabs(value->value) <= 100 * value->abserr) 
 	     /*|| (fabs(value->value) < 100 * reltverr)*/) {// dubious as above
-    DBG(cout << " NOT REALLY OK" << endl;);
+    DBG(cout << " NOT REALLY OK" << endl);
     return(1);
   } else {
     DBG(cout << " seems VERY NOT OK on" << endl; cout << eqn->getInfix() 
-             << endl;);
+             << endl);
     return(2);
   }
 }
@@ -87,13 +89,13 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
   answitherr* retval = new answitherr;
   int k;
   
-  DTL({cout << "entered evalexpr with reltverr = " << reltverr 
-	    << " on" << endl << ex->getInfix() << endl;});
+  DBG(cout << "entered evalexpr with reltverr = " << reltverr 
+	    << " on" << endl << ex->getInfix() << endl;);
   switch (ex->etype) {
     case numval:
       retval->value = ((numvalexp*)ex)->value;
       retval->abserr = reltverr * fabs(retval->value);
-      DTL(cout  << "Evalexpr[numval]: " 
+      DBG(cout  << "Evalexpr[numval]: " 
 	  << retval->value << "+-" << retval->abserr << endl;);
       return(retval);
       break;
@@ -101,7 +103,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     case physvart:
       retval->value = (*sols)[((physvarptr *) ex)->varindex];
       retval->abserr = reltverr * fabs(retval->value);
-      DTL(cout  << "Evalexpr[physvar]: " 
+      DBG(cout  << "Evalexpr[physvar]: " 
 	  << retval->value << "+-" << retval->abserr << endl;);
       return(retval);
 
@@ -150,7 +152,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
       default:
 	throw(string("impossible function in evalexpr"));
       }
-      DTL(cout  << "Evalexpr[function]: " 
+      DBG(cout  << "Evalexpr[function]: " 
 	  << retval->value << "+-" << retval->abserr << endl;);
       delete argval;
       return(retval);
@@ -188,7 +190,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     default:
       throw(string("I can't return eval of >=, >, or unknown expr"));
     }
-    DTL( cout  << "Evalexpr[binop]: " 
+    DBG( cout  << "Evalexpr[binop]: " 
 	 << retval->value << "+-" << retval->abserr << endl;);
     return(retval);
   }
@@ -221,7 +223,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     }
     delete argval;
   }
-  DTL(cout << "Evalexpr[n_op]: " 
+  DBG(cout << "Evalexpr[n_op]: " 
       << retval->value << "+-" << retval->abserr << endl;);
   return(retval);
   case unknown:

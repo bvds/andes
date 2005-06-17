@@ -24,8 +24,6 @@ using namespace std;
 //  CHKEQS, NEWCKEQSOUT, CHKEQSDTL   might want to rethink these
 #define DTL(A) DBGFM(CHKEQS,A)
 #define DBGEQ(A) DBGF(CHKEQS,A)
-#define NEWDTL(A) DBGFM(NEWCKEQSOUT,A)
-#define OUTNOTE(A) DBGF(OUTSOL,A)
 
 void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	       vector<varindx> * & vars,	// variables left to be solved
@@ -48,18 +46,13 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
       for (j= lastsolved; j<numeqs; j++) 
 	{
 	  expr *thiseq = (*eqn)[j];
-	  DBGEQ( cout << "in checkeqs on " << thiseq->getInfix() << endl;);
-	  DTL( {cout << "dimenchk to be called on "  << endl; 
-	  	thiseq->dbgprint(4);});
+	  DBGEQ(cout << "in checkeqs eqn j=" << j << ":  " 
+		<< thiseq->getInfix() << endl);
 	  expr *inconst = dimenchk(true,thiseq);
 	  if (inconst != (expr *)NULL) 
 	    throw(string("Checkeqs: dimenchk returned inconsistency at ")
 		  + inconst->getInfix());
-	  DTL( {cout << "dimenchk returned, and eqnumsimp to be called on " 
-		     << endl; 
-	  	thiseq->dbgprint(4);});
 	  eqnumsimp(thiseq,true);
-	  DTL( {cout << "eqnumsimp returned "  << endl; thiseq->dbgprint(4);});
 	  k = ordunknowns(thiseq,false); // order of equations in unknown vars
 	  varl.clear();
 	  q = numunknowns(thiseq,varl,false); // number of unknown vars in eqn
@@ -89,11 +82,12 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		soleqs->push_back((binopexp *)copyexpr((*eqn)[numsolved]));
 
 		numsolved++;
-		DTL( { cout << "After solving the " << numsolved << 
+		DTL(cout << "After solving the " << numsolved << 
 		    " equation, before substitutions, remaining equations are "
 		       << endl;
-		  for (q=numsolved; q < eqn->size(); q++) 
-		    cout << q << ": " << (*eqn)[q]->getInfix() << endl;} );
+		    for (q=numsolved; q < eqn->size(); q++){ 
+		      cout << q << ": " << (*eqn)[q]->getInfix() << endl;
+		    });
 		for (q=numsolved; q < eqn->size(); q++)
 		  {
 		    expr * eqexpr = (*eqn)[q];
@@ -116,12 +110,13 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	      } // end of else (ie did solve linear equation
 	    } // end of was linear in one variable
 	} // end of loop of equations j
+
       DTL( { cout << "finished solveknownvar " << whilenum
 	          << " with last, num solved = "<< lastsolved
 		  << ", " << numsolved << endl; } );
-      DBGEQ( { cout << "After writing Asgn||"<< whilenum << ", eqn is" << endl;
+      DBGEQ(cout << "After writing Asgn||"<< whilenum << ", eqn is" << endl;
 	       for (int qk=0; qk < eqn->size(); qk++)
-	         cout << qk << ": " << (*eqn)[qk]->getInfix() << endl; } );
+	         cout << qk << ": " << (*eqn)[qk]->getInfix() << endl);
       whilenum++;
     } // end of while loop over attempts to rewrite as assignments and plug in.
   whilenum -= 2;
@@ -135,8 +130,6 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 
   DBG( cout << "after recursive plugins, solved " << numsolved 
        << " of " << vars->size() << " variables" << endl;);
-  OUTNOTE(if (numsolved == vars->size()) 
-	 cout << "Solved for all variables" << endl;);
   // from equations which are left, eliminate those without variables.
   DBG( cout << "Checking equations " << numsolved << " through "
        << eqn->size()-1 << endl;);
@@ -199,16 +192,8 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
   for (q=0; q < numsolved; q++)
     eqn->pop_back();
 
-  DBGEQ( cout << 
-	 "just removed used-up eqs after recursive assignment in checkeqs,"
-	 << " left with "<< eqn->size() << endl;);
-
-  // If we are done, exit
-  if (eqn->size() == 0)
-    {
-      OUTNOTE(cout << "solved all equations by simple recursive assignment" 
-	     << endl; );
+  DBGEQ(cout << "recassign finished with " << eqn->size() << " equations left" 
+	<< endl);
       return;
-    }
 }
 

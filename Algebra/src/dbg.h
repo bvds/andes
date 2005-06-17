@@ -35,8 +35,7 @@
 #define UNITS       0x20000	/* in unitabr */
 #define FACTOUT     0x40000	/* in factorout */
 #define CLEANUP     0x80000	/* entry and exit from cleanup */
-#define OUTSOL     0x100000	/* in checksol, normal output offline */
-#define NLSOLV     0x200000	/* in nlsolv */
+#define NLSOLV     0x100000	/* in nlsolv */
 #define MAKEVARL   0x200000	/* in makevarl (just setvarbools) */
 #define ORDUNK     0x400000	/* in ordunknowns */
 #define SLVTRIG    0x800000	/* in solvetrig */

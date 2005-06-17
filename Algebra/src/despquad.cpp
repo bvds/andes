@@ -12,6 +12,7 @@ using namespace std;
 
 // need to change diag below.
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
+#define DBGM(A) DBGFM(NEWCKEQSOUT,A)
 
 vector<double> *twoquadcoef(const binopexp *eq, const varindx v1,
 			    const varindx v2);
@@ -49,8 +50,8 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
   DBG( cout << "Solvetwoquads on " << eq1->getInfix() << endl << " and "
        << eq2->getInfix() << endl << " in variables " <<
        (*canonvars)[v1]->clipsname << " and " << 
-       (*canonvars)[v2]->clipsname << endl;);
-    vector<double> * cf1 = twoquadcoef(eq1,v1,v2);
+       (*canonvars)[v2]->clipsname << endl);
+  vector<double> * cf1 = twoquadcoef(eq1,v1,v2);
   vector<double> * cf2 = twoquadcoef(eq2,v1,v2);
   if ( (cf1 == (vector<double> *) NULL) ||
        (cf2 == (vector<double> *) NULL))
@@ -76,7 +77,7 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 	    {
 	      delete cf1;
 	      delete cf2;
-	      DBG( cout << "Solvetwoquads found inconsistency" << endl;);
+	      DBG( cout << "Solvetwoquads found inconsistency" << endl);
 	      return(0); // inconsistency!
 	    }
 	  eq1->destroy();
@@ -107,7 +108,6 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 	}
       fact = -(*cfd)[2]/(*cfn)[2];
       temp1 = new n_opexp(&mult);
-//	temp1->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
       temp1->addarg(new numvalexp((*cfn)[2]));
       temp1->addarg(new binopexp(&topow,new physvarptr(v2),
 	  new numvalexp(2)));
@@ -141,7 +141,6 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 	{  eq2->rhs->destroy(); eq2->rhs = new numvalexp(0); }
       ((numvalexp *)(eq2->rhs))->value = 0;
       temp1 = new n_opexp(&mult);
-//	temp1->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
       temp1->addarg(
 	new numvalexp( -(*cfd)[1]*(*cfn)[2]*(*cfn)[1]
 		       +(*cfd)[0]*(*cfn)[2]*(*cfn)[2]
@@ -151,7 +150,6 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
       n_opexp *ex = new n_opexp(&myplus);
       ex->addarg(temp1);
       temp1 = new n_opexp(&mult);
-//	temp1->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
       temp1->addarg(
 	new numvalexp( 2.0*(*cfd)[0]*(*cfn)[2]*(*cfn)[4]
 		       -(*cfd)[1]*(*cfn)[2]*(*cfn)[3]
@@ -164,7 +162,6 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 				    new numvalexp(3)));
       ex->addarg(temp1);
       temp1 = new n_opexp(&mult);
-//	temp1->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
       temp1->addarg(
 	new numvalexp( 2.0*(*cfd)[0]*(*cfn)[5]*(*cfn)[2]
 		       -(*cfd)[1]*(*cfn)[5]*(*cfn)[1]
@@ -180,7 +177,6 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 				    new numvalexp(2)));
       ex->addarg(temp1);
       temp1 = new n_opexp(&mult);
-//	temp1->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
       temp1->addarg(
 	new numvalexp( 2.0*(*cfd)[0]*(*cfn)[5]*(*cfn)[4]
 		       -(*cfd)[1]*(*cfn)[5]*(*cfn)[3]
@@ -198,8 +194,19 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
       eq2->lhs = ex;
       delete cf1;
       delete cf2;
+#if 1 //  Double-check that the units are still OK
+      expr *inconst1 = dimenchk(true,(expr *) eq1);
+      if (inconst1 != (expr *)NULL) 
+	throw(string("solvetwoquads returned inconsistency at ")
+		+ inconst1->getInfix());
+      expr *inconst2 = dimenchk(true,(expr *) eq2);
+      if (inconst2 != (expr *)NULL) 
+	  throw(string("solvetwoquads returned inconsistency at ")
+		+ inconst2->getInfix());
+#endif
       DBG( cout << "Solvetwoquads: replaced both equations by " << endl
-	   << eq1->getInfix() << endl << eq2->getInfix() << endl;);  
+	   << eq1->getInfix() << endl << eq2->getInfix() << endl);
+      DBGM(eq1->dbgprint(4); eq1->dbgprint(4)); 
       return(2);
     } // end of else, meaning rewrote both equations
 }
