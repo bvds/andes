@@ -48,7 +48,7 @@ bool solveeqs(ostream & outfile){
     if (eqexpr->etype != binop) 
       throw(string("dimenchk made nonbinop equation"));
     (*eqn)[k] = (binopexp *) eqexpr;
-    DBG( cout << "Input " << k << "is now:" 
+    DBG( cout << "Input " << k << " is now:  " 
 	 << (*eqn)[k]->getInfix() << endl;);
   } // end of k loop over canoneqf
   // now add in parameter assignments

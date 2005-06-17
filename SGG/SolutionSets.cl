@@ -294,13 +294,15 @@
 ;;; using the given equation only.  This prevents the system from
 ;;; making any unnecessary search.  
 (defun Expand-for-given-Q (S Q Eqns)
-  "When the sought quantity Q is given expand as appropriate for it."
+  "When the sought quantity Q is given, expand as appropriate for it."
   (let ((E (find-if #'Enode-Givenp Eqns)))                                     
     (cond (E (Return-Solution-Successor S :push-soughts E :push-Knowns Q))
-	  ; if a given value can be derived from existing equations in this solution, then the
-	  ; given equation will not be in the passed-in set of extension equations, because 
-	  ; non-independent equations are filtered from the set. We can continue to collect
-	  ; a solution without it. Here we just assume that is the reason, with warning.
+	  ;; if a given value can be derived from existing equations in 
+	  ;; this solution, then the given equation will not be in the 
+	  ;; passed-in set of extension equations, because non-independent 
+	  ;; equations are filtered from the set.  We can continue to collect
+	  ;; a solution without it.  Here we just assume that is the reason, 
+	  ;; with warning.
 	  (t (warn "Partial solution set found no usable given eqn for ~A~%Assuming given value is not needed within this solution." Q)
 	      (Return-Solution-Successor S :push-Knowns Q)))))
 	  
@@ -311,7 +313,7 @@
 (defun Expand-for-Q-eqns (S Q Eqns)
   "Given multiple ways of solving for Q expand for all."
   (let (r)
-    (dotimes (N (length Eqns)) ;; I use this soley to support numbering. 
+    (dotimes (N (length Eqns)) ;; I use this solely to support numbering. 
       (push (Solution-Successor 
 	     S :id 10 :inc N
 	     :Push-Soughts (nth N Eqns)

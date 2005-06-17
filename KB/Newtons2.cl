@@ -3301,15 +3301,15 @@
   :specifications 
   "Writes the component equation s_x = vi_x*t when a_x = 0"
   :preconditions
-   (; make sure accel compo vanishes
-    (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
-    (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
-    ; and write it 
-    (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
-    (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2)))
-    (variable ?t-var    (duration (during ?t1 ?t2)))
-    ; following only used for implicit eqn so a_x can be accepted if used
-    (variable ?a_x   (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2))))
+  ( ;; make sure accel compo vanishes
+   (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
+   (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
+   ;; and write it 
+   (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
+   (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2)))
+   (variable ?t-var    (duration (during ?t1 ?t2)))
+   ;; following only used for implicit eqn so a_x can be accepted if used
+   (variable ?a_x   (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2))))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
    (eqn (= ?s-compo (* ?vi-compo ?t-var))
@@ -4099,8 +4099,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((force ?b ?agent applied ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (at (force ?b ?agent applied) ?t) ?dont-care))
-    ;; Prefix "Fg" for "given" or "generic" forces
-    (bind ?mag-var (format-sym "Fg_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "Fa_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a applied force on ~a due to ~a at ~a.~%" ?dir-expr ?b ?agent ?t)
     )
@@ -4578,7 +4577,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( (object ?body)
     (time ?t)
     ;; energy conservation law also checks for this:
-    (in-wm (given (at (dir (force ?bbdy ?agent applied)) ?t-force) ?dir))
+    (in-wm (given (at (dir (force ?body ?agent thrust)) ?t-force) ?dir))
     (test (tinsidep ?t ?t-force))
     ;; check that something else hasn't defined this force.
     (not (force ?b ?agent thrust ?t . ?dont-care)) ) 
@@ -4590,7 +4589,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( (force ?b ?agent thrust ?t ?dir action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Ft_~A_~A_~A" (body-name ?b) ?agent
+    (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) ?agent
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a thrust force on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
@@ -4678,11 +4677,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; This is the impulse from a particular force
 (defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
-   ((variable ?Ft_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
+   ((variable ?Fth_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
     (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?b ?agent)) ?t))
     (variable ?dmdt  (at (mass-change-magnitude ?b) ?t)))
   :effects (
-   (eqn (= ?Ft_x (* -1.0 ?vr_x ?dmdt))
+   (eqn (= ?Fth_x (* -1.0 ?vr_x ?dmdt))
             (compo-eqn thrust-force ?xy ?rot 
 		       (impulse ?b ?agent (during ?t1 ?t2))))
    (eqn-compos (compo-eqn thrust-force ?xy ?rot 
