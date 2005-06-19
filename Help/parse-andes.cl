@@ -679,7 +679,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; to convert (denum (+ 1 3) |m/s|) to (* (+ 1 3) (denum 1 |m/s|))
+;;
+;; Our equation grammar is liberal in allowing complex arithmetic expressions
+;; of constants in places where numbers are allowed, so that units can attach 
+;; to a complex expression.  This is done to allow such things as 
+;;             omega = 3*pi/4 rad/s
+;; to have an acceptable reading.
+;; However, the solver's prefix-form parser does not allow this. So we convert
+;; our form by "dnum-mangling" it into solver-acceptable form as follows:
+;;  	(dnum (+ 2 3) |m/s|) ==> (* (+ 2 3) (dnum 1 |m/s|))
 (defun denum-mangle (parse)
   (let ((tmp nil))
     (Tell :denum-mangle "Mangling <~W>" parse)
@@ -773,7 +781,7 @@
                           :prop `(answer ,sought-quant)
                           :verbatim inputo))
 	(result-turn)
-	(input (trim-eqn (fix-quotes inputo))))
+	(input (trim-eqn (fix-eqn-string inputo))))
     (add-entry entry) ;save entry immediately 
     (if (quant-to-sysvar sought-quant)
 	(if (/= (length (remove #\Space input)) 0)
