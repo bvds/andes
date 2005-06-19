@@ -238,7 +238,7 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
       {
 	DBG( cout << "calling solvetwoquads in variables vars number "
 	     << (int)((thissimpeq>>17) -1) << " and "
-	     << (int)(((thissimpeq>>10) & 0x7f) -1) << endl;);
+	     << (int)(((thissimpeq>>10) & 0x7f) -1) << endl);
 	switch(solvetwoquads((*eqn)[(thissimpeq & 0x3ff)-1], 		// eq1
 			     (*eqn)[((*simpeqs)[k+1] & 0x3ff)-1],	// eq2
 			     (*vars)[(thissimpeq>>17) -1],		// v1

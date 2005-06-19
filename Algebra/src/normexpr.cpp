@@ -13,6 +13,7 @@
 using namespace std;
 
 #define DBG(A) DBGF(NORMEX,A)
+#define DBGM(A) DBGFM(NORMEX,A)
 
 /************************************************************************
  * void kmult(expr * & ex, const double k)				*
@@ -35,7 +36,8 @@ void kmult(expr * & ex, const double k)
 void kmult(expr * & ex, numvalexp * nv) 
 {
   DBG( cout << "entering kmult on "<< ex->getInfix() 
-            << " with multiplier " << nv->getInfix() << endl; );
+            << " with multiplier " << nv->getInfix() << endl);
+  DBGM(ex->dbgprint(4));
  
 #if AW_EXP
   // AW: add special case for multiplication by zero
@@ -44,7 +46,8 @@ void kmult(expr * & ex, numvalexp * nv)
 	  expr * retexp = new numvalexp(0.);
 	  retexp->MKS = nv->MKS + ex->MKS;
 	  ex = retexp;        // AW: prev contents not destroyed??
-	  DBG( cout << "kmult returns " << ex->getInfix()<< endl; );
+	  DBG( cout << "kmult returns " << ex->getInfix()<< endl);
+	  DBGM(ex->dbgprint(4));
 	  return;
   }
 #endif // AW_EXP
@@ -56,10 +59,9 @@ void kmult(expr * & ex, numvalexp * nv)
   if ((ex->etype != n_op) || ((n_opexp *)ex)->op->opty != multe) 
     {
       retexp = new n_opexp(&mult);
-//	retexp->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
       retexp->addarg(nv);
       retexp->addarg(ex);
-      ex = retexp;				// AW: prev contents not destroyed??
+      ex = retexp;			// AW: prev contents not destroyed??
       eqnumsimp(ex,true);
       flatten(ex);
       if (ex->etype == n_op) 
@@ -67,30 +69,30 @@ void kmult(expr * & ex, numvalexp * nv)
 		  cleanup(retexp);
 		  ex = retexp;
 	  }
-      DBG( cout << "returning from kmult with " << ex->getInfix() << endl;);
+      DBG( cout << "returning from kmult with " << ex->getInfix() << endl);
+      DBGM(ex->dbgprint(4));
       return;
     }
   // else ex is a multiplication:
   retexp = (n_opexp * ) ex;
-  DBG( cout << "kmult working on mult " << ex->getInfix() << endl; );
   
   // if doesn't begin with numval, just add factor:
   if (retexp->args->size() == 0 || (*retexp->args)[0]->etype != numval) 
     {
-      DBG( cout << "its a mult without a numval, so" << endl; );
       retexp->addarg(nv);
-      DBG( cout << "now it is " << retexp->getInfix()<< endl
-	        << "About to cleanup it" << endl; );
       cleanup(retexp);
       ex = retexp;              // AW: prev contents not destroyed??
-      DBG( cout << "kmult returns " << ex->getInfix()<< endl; );
+      DBG( cout << "kmult returns " << ex->getInfix()<< endl);
+      DBGM(ex->dbgprint(4));
       return;
     }
   // else multiplication begins with numval: multiply by factor
   ((numvalexp *)(*retexp->args)[0])->value *= nv->value;
-  (*retexp->args)[0]->MKS += nv->MKS;
+  (*retexp->args)[0]->MKS += nv->MKS; // Update units of numval.
+  retexp->MKS += nv->MKS; // Update units of the multiply.
   nv->destroy();
-  DBG( cout << "kmult returns " << ex->getInfix()<< endl; );
+  DBG( cout << "kmult returns " << ex->getInfix()<< endl);
+  DBGM(ex->dbgprint(4));
   return;
 }
 
