@@ -51,6 +51,19 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
        << eq2->getInfix() << endl << " in variables " <<
        (*canonvars)[v1]->clipsname << " and " << 
        (*canonvars)[v2]->clipsname << endl);
+  DBGM(eq1->dbgprint(4); eq2->dbgprint(4););
+#if 1 //  Double-check that the units are OK
+  {
+    expr *inconst1 = dimenchk(true,(expr *) eq1);
+    if (inconst1 != (expr *)NULL) 
+      throw(string("solvetwoquads start with units inconsistency for eq1:  ")
+	    + inconst1->getInfix());
+    expr *inconst2 = dimenchk(true,(expr *) eq2);
+    if (inconst2 != (expr *)NULL) 
+      throw(string("solvetwoquads start with units inconsistency for eq2:  ")
+	    + inconst2->getInfix());
+  }
+#endif
   vector<double> * cf1 = twoquadcoef(eq1,v1,v2);
   vector<double> * cf2 = twoquadcoef(eq2,v1,v2);
   if ( (cf1 == (vector<double> *) NULL) ||
@@ -60,20 +73,27 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
   vector<double> * cfn;
   if (fabs((*cf1)[0]) >= fabs((*cf2)[0])) { cfd=cf1; cfn=cf2; }
   else { cfd=cf2; cfn=cf1; }
-  if ((*cfd)[0] == 0)		// neither has v1^2 term
+  if ((*cfd)[0] == 0.0)		// neither has v1^2 term
     {
       if (fabs((*cf1)[1]) >= fabs((*cf2)[1])) { cfd=cf1; cfn=cf2; }
-      if ((*cfd)[1] == 0) fact = -1.;	// neither has v1 v2 term either
+      if ((*cfd)[1] == 0.0) fact = -1.;	// neither has v1 v2 term either
       else fact = -(*cfn)[1]/(*cfd)[1];	// now num is n v1 + quad(v2), easy.
     } 					// but use -1 just incase they are same
   else  fact = -(*cfn)[0]/(*cfd)[0];
 
+  // switch eq1 and eq2 when eq1 has larger coefficient
+  if (cfn == cf2) {	     
+    binopexp * tmpbin = eq1; 
+    eq1 = eq2;
+    eq2 = tmpbin;
+  }
+
   for (k = 0; k < 6; k++) (*cfn)[k] = addnum((*cfn)[k], fact * (*cfd)[k]);
-  if (((*cfn)[3]==0) && ((*cfn)[1] == 0)) // result independent of v1
+  if (((*cfn)[3]==0.0) && ((*cfn)[1] == 0.0)) // result independent of v1
     {
-      if (((*cfn)[2] ==0) && ((*cfn)[4] ==0)) // independent of v2 too!
+      if (((*cfn)[2] ==0.0) && ((*cfn)[4] ==0.0)) // independent of v2 too!
 	{
-	  if ((*cfn)[5] != 0) 
+	  if ((*cfn)[5] != 0.0) 
 	    {
 	      delete cf1;
 	      delete cf2;
@@ -84,14 +104,9 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 	  eq1 = new binopexp(&equals,new numvalexp(0),new numvalexp(0));
 	  delete cf1;
 	  delete cf2;
-	  DBG( cout << "Solvetwoquads: Equations not independent" << endl;);
+	  DBG( cout << "Solvetwoquads: Equations not independent" << endl);
 	  return(1);
 	} // end of if new equation has no variables
-      if (cfn == cf2) {		// If equation 2 was the one we have subtracted
-	binopexp * tmpbin = eq1; // from, interchange so as to reverse that.
-	eq1 = eq2;
-	eq2 = tmpbin;
-      }
       eq1->lhs->destroy();
       if (eq1->rhs->etype != numval)
 	{  eq1->rhs->destroy(); eq1->rhs = new numvalexp(0); }
@@ -125,17 +140,30 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
       nfact->MKS += eq1->lhs->MKS * -1;
       apluskb(eq2->lhs,eq1->lhs,nfact);	// should make eq2 linear in v2
       DBG( cout << "Solvetwoquads: one equation now of one var only:" << endl
-	   << eq1->getInfix() << endl;);  
+	   << eq1->getInfix() << endl);  
       return(3);
     } // end of if new combo independent of v1
   else
     {
+      // work on eq1:
       numvalexp * nfact = new numvalexp(fact); // added 7/30 
       nfact->MKS = eq1->lhs->MKS;
       nfact->MKS += eq2->lhs->MKS * -1;
       numvalexp * nfact2 = (numvalexp *) copyexpr(nfact);
       apluskb(eq1->lhs,eq2->lhs,nfact);	// replace eq1 by linear equation
       apluskb(eq1->rhs,eq2->rhs,nfact2); // wouldn't that have worked above 
+      
+      DBG( cout << "Solvetwoquads: replaced first by:" << endl
+	   << "          " << eq1->getInfix() << endl);
+      DBGM(eq1->dbgprint(4)); 
+#if 1 //  Double-check that the units are OK
+      expr *inconst1 = dimenchk(true,(expr *) eq1);
+      if (inconst1 != (expr *)NULL) 
+	throw(string("solvetwoquads units inconsistency for eq1:  ")
+		+ inconst1->getInfix());
+#endif
+
+      // now work on eq2:
       eq2->lhs->destroy();		// as well?
       if (eq2->rhs->etype != numval)
 	{  eq2->rhs->destroy(); eq2->rhs = new numvalexp(0); }
@@ -194,19 +222,17 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
       eq2->lhs = ex;
       delete cf1;
       delete cf2;
-#if 1 //  Double-check that the units are still OK
-      expr *inconst1 = dimenchk(true,(expr *) eq1);
-      if (inconst1 != (expr *)NULL) 
-	throw(string("solvetwoquads returned inconsistency at ")
-		+ inconst1->getInfix());
+
+      DBG( cout << "Solvetwoquads: replaced second by:" << endl
+	   << "          " << eq2->getInfix() << endl);
+      DBGM(eq2->dbgprint(4));       
+#if 1 //  Double-check that the units are OK
       expr *inconst2 = dimenchk(true,(expr *) eq2);
       if (inconst2 != (expr *)NULL) 
-	  throw(string("solvetwoquads returned inconsistency at ")
+	  throw(string("solvetwoquads units inconsistency for eq2:  ")
 		+ inconst2->getInfix());
 #endif
-      DBG( cout << "Solvetwoquads: replaced both equations by " << endl
-	   << eq1->getInfix() << endl << eq2->getInfix() << endl);
-      DBGM(eq1->dbgprint(4); eq1->dbgprint(4)); 
+
       return(2);
     } // end of else, meaning rewrote both equations
 }
