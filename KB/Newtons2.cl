@@ -1290,7 +1290,11 @@
    then draw an axis, draw the vector  
    and use a component variable for the vector along the axis"
   :preconditions
-   ((component-form) ; limit to component-form  stuff
+   (; limit this to component-form solutions
+   (component-form)  
+   ; don't apply if define-compo can be used instead. 
+   (not (vector ?b (at ?vector ?t) ?dir))
+   (not (axis-for ?b ?xyz ?rot)) 
    ; need to bind body for following, so get it from vector term. !!! assumes
    ; principal body can always be found first after vectype
    ; change -- just get it from drawn vector
