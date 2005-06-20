@@ -54,11 +54,11 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
   DBGM(eq1->dbgprint(4); eq2->dbgprint(4););
 #if 1 //  Double-check that the units are OK
   {
-    expr *inconst1 = dimenchk(true,(expr *) eq1);
+    expr *inconst1 = dimenchk(true,(expr * &) eq1);
     if (inconst1 != (expr *)NULL) 
       throw(string("solvetwoquads start with units inconsistency for eq1:  ")
 	    + inconst1->getInfix());
-    expr *inconst2 = dimenchk(true,(expr *) eq2);
+    expr *inconst2 = dimenchk(true,(expr * &) eq2);
     if (inconst2 != (expr *)NULL) 
       throw(string("solvetwoquads start with units inconsistency for eq2:  ")
 	    + inconst2->getInfix());
@@ -157,7 +157,7 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 	   << "          " << eq1->getInfix() << endl);
       DBGM(eq1->dbgprint(4)); 
 #if 1 //  Double-check that the units are OK
-      expr *inconst1 = dimenchk(true,(expr *) eq1);
+      expr *inconst1 = dimenchk(true,(expr * &) eq1);
       if (inconst1 != (expr *)NULL) 
 	throw(string("solvetwoquads units inconsistency for eq1:  ")
 		+ inconst1->getInfix());
@@ -227,7 +227,7 @@ int solvetwoquads(binopexp * & eq1,  binopexp * & eq2,
 	   << "          " << eq2->getInfix() << endl);
       DBGM(eq2->dbgprint(4));       
 #if 1 //  Double-check that the units are OK
-      expr *inconst2 = dimenchk(true,(expr *) eq2);
+      expr *inconst2 = dimenchk(true,(expr * &) eq2);
       if (inconst2 != (expr *)NULL) 
 	  throw(string("solvetwoquads units inconsistency for eq2:  ")
 		+ inconst2->getInfix());
