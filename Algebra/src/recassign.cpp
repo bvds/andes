@@ -22,7 +22,7 @@ using namespace std;
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
 //  CHKEQS, NEWCKEQSOUT, CHKEQSDTL   might want to rethink these
-#define DTL(A) DBGFM(CHKEQS,A)
+#define DBGM(A) DBGFM(CHKEQS,A)
 #define DBGEQ(A) DBGF(CHKEQS,A)
 
 void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
@@ -56,16 +56,16 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	  k = ordunknowns(thiseq,false); // order of equations in unknown vars
 	  varl.clear();
 	  q = numunknowns(thiseq,varl,false); // number of unknown vars in eqn
-	  DTL( cout << "ordunknowns and numunknowns returned " << k
+	  DBGM( cout << "ordunknowns and numunknowns returned " << k
 	            << ", "  << q << endl;);
 	  if ((k==1) && (q==1))  
 	    {
-	      DTL( { cout << "about to call solveknownvar on" << endl;
+	      DBGM( { cout << "about to call solveknownvar on" << endl;
 	      	     thiseq->dbgprint(2);  } );
 	      if (!solveknownvar(thiseq)) 
 		cout << "couldn't solve linear eq in one variable!" << endl;
 	      else   {		// simple linear equations "solved"
-		DTL( { cout << " solveknownvar returned true" << endl;
+		DBGM( { cout << " solveknownvar returned true" << endl;
 		       thiseq->dbgprint(2); } );
 		if (j != numsolved)
 		  (*eqn)[j] = (*eqn)[numsolved];
@@ -82,7 +82,7 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		soleqs->push_back((binopexp *)copyexpr((*eqn)[numsolved]));
 
 		numsolved++;
-		DTL(cout << "After solving the " << numsolved << 
+		DBGM(cout << "After solving the " << numsolved << 
 		    " equation, before substitutions, remaining equations are "
 		       << endl;
 		    for (q=numsolved; q < eqn->size(); q++){ 
@@ -91,16 +91,16 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		for (q=numsolved; q < eqn->size(); q++)
 		  {
 		    expr * eqexpr = (*eqn)[q];
-		    DTL( cout << "about to substin " << numsolved-1 << " in "
+		    DBGM( cout << "about to substin " << numsolved-1 << " in "
 			 << q << endl;);
 		    if (substin(eqexpr,(*eqn)[numsolved-1])) {
-		      DTL( cout << "substin worked, about to eqnumsimp eq " 
+		      DBGM( cout << "substin worked, about to eqnumsimp eq " 
 			   << q << " which is "<< eqexpr->getInfix()<< endl;);
 		      eqnumsimp(eqexpr,true);
-		      DTL( cout<< "Eqnumsimp returns " << eqexpr->getInfix()
+		      DBGM( cout<< "Eqnumsimp returns " << eqexpr->getInfix()
 			   << endl;);
 		      while(flatten(eqexpr)) // added 2/11. Hope no hangs
-			DTL(cout<< "Flatten returns "
+			DBGM(cout<< "Flatten returns "
 			    << eqexpr->getInfix()<< endl;);
 		      if (eqexpr->etype != binop) throw(string(
 		     "substin/eqnumsimp/flatten gives a non-binop equation!"));
@@ -111,7 +111,7 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	    } // end of was linear in one variable
 	} // end of loop of equations j
 
-      DTL( { cout << "finished solveknownvar " << whilenum
+      DBGM( { cout << "finished solveknownvar " << whilenum
 	          << " with last, num solved = "<< lastsolved
 		  << ", " << numsolved << endl; } );
       DBGEQ(cout << "After writing Asgn||"<< whilenum << ", eqn is" << endl;
@@ -138,7 +138,7 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
       expr * eqexpr = (*eqn)[k];
       eqnumsimp(eqexpr,true); // remove equations without content
       // ?? weren't these all just eqnumsimped and flattened 40-45 lines ago?
-      DBG( { cout << "Checking eqn " << k << " after eqnumsimp, is " << endl;
+      DBGM( { cout << "Checking eqn " << k << " after eqnumsimp, is " << endl;
       eqexpr->dbgprint(4); } );
       if (ordunknowns(eqexpr,false) == 0) 	// (ignore inconsistencies!)
 	{				// Shouldn't we really check these?

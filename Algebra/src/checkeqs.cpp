@@ -19,9 +19,9 @@ using namespace std;
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
 //  CHKEQS, NEWCKEQSOUT, CHKEQSDTL   might want to rethink these
-#define DTL(A) DBGFM(CHKEQS,A)
+#define DBGM(A) DBGFM(CHKEQS,A)
 #define DBGEQ(A) DBGF(CHKEQS,A)
-#define NEWDTL(A) DBGFM(NEWCKEQSOUT,A)
+#define NEWDBGM(A) DBGFM(NEWCKEQSOUT,A)
 
 /************************************************************************
  * checkeqs tries very hard to solve the problem and write out the 	*
@@ -261,10 +261,10 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
     for (k = 0; k+1 < eqn->size(); k++)
       for (q = k+1; q < eqn->size(); q++)
 	{
-	  DBG( cout << "dups? " << k << " " << q << endl);
+	  DBGM( cout << "dups? " << k << " " << q << endl);
 	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
 	    {
-	      DBG(cout <<"YES dups " << k << " "  << q << endl);
+	      DBGM(cout <<"YES dups " << k << " "  << q << endl);
 	      (*eqn)[q]->destroy();
 	      (*eqn)[q] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();
@@ -297,14 +297,14 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	{
 	  
 	  solfile << (*partsols)[k]->getInfix() << endl;
-	  NEWDTL(cout << "partsols "<< k << " output to solfile"<< endl; );
+	  NEWDBGM(cout << "partsols "<< k << " output to solfile"<< endl; );
 	  for (q=0; q < vars->size(); q++)
 	    if (
 		((*partsols)[k]->lhs->etype == physvart) &&
 		(((physvarptr *)((*partsols)[k]->lhs))->varindex
 		 == (*vars)[q]))
 	      {
-		NEWDTL( cout << "partsols["<< k 
+		NEWDBGM( cout << "partsols["<< k 
 			     << "] solves variable [ " << q << "]" << endl; );
 		(*vars)[q]=(*vars)[vars->size()-1];
 		vars->pop_back();
@@ -321,6 +321,6 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	      break;
 	    }
       delete partsols;
-      NEWDTL(cout << "deleted partsols" << endl);
+      NEWDBGM(cout << "deleted partsols" << endl);
     }
 }

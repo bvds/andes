@@ -45,13 +45,12 @@ src_objects = Solver.o   \
 	eqnokay.o    ispos.o        physconsts.o \
 	eqnumsimp.o  justonev.o     physvar.o 
 
-
-algebra: $(src_objects) main.o
-	$(CXX) $(CPPFLAGS) -o algebra $(src_objects) main.o
-
 libSolver.so libSolver: $(src_objects) Makefile
 	$(CXX) $(SHARED) $(src_objects) -o libSolver.$(SO) && \
 	mv -f libSolver.$(SO) ../../ 
+
+algebra: $(src_objects) main.o
+	$(CXX) $(CPPFLAGS) -o algebra $(src_objects) main.o
 
 clean:
 	rm *.o
