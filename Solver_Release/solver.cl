@@ -138,9 +138,9 @@
   (let ((path (if filename filename 
 		(merge-pathnames *DLL-NAME* *Andes-Path*))))
     #-uffi(unless (member *DLL-NAME* (ff:list-all-foreign-libraries)
-		    :key #'file-namestring :test #'string-equal)
-      (format T "~&Loading solver from ~A~%" path)
-      (load path))
+			  :key #'file-namestring :test #'string-equal))
+    (format T "~&Loading solver from ~A~%" path)
+    #-uffi(load path)
     #+uffi(uffi:load-foreign-library path
 ;;; The libraries which are needed.
 ;;; Only needed for Python-based Lisps like CMUCL, SBCL, or SCL?
