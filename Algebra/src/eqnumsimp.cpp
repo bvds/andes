@@ -45,8 +45,6 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
   EQCHK(e);
 #ifdef WITHDBG
   unsigned int thisdbg = ++dbgnum;
-  if(thisdbg == 1775206)
-    cout << "hi" << endl;
 #endif
   DBG( cout << "eqnumsimp " << thisdbg << " on " << e->getInfix() << endl);
 
@@ -54,7 +52,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
       (e->etype == numval)   ||  
       (e->etype == physvart) ||  
       (e->etype == fake)){
-    DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+    DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
     return;						// (false)
   }
   if (e->etype == function)
@@ -72,7 +70,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	    }
 	    else
 	      {
-		DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 		return;				// (false)
 	      }
 	  }
@@ -96,7 +94,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		}
 	      else
 		{
-		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 		  return;				// (answer)
 		}
 	    case cose:
@@ -109,7 +107,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		}
 	      else 
 		{
-		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 		  return;				// (answer)
 		}
 	    case tane:
@@ -120,7 +118,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		}
 	      else 
 		{
-		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 		  return;				// (answer)
 		}
 	    case expe:
@@ -131,7 +129,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		}
 	      else
 		{
-		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 		  return;				// (answer)
 		}
 	    case lne:
@@ -141,7 +139,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  break;
 		}
 	      else {
-		DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 		return;				// (answer)
 	      }
 	    case log10e:
@@ -152,7 +150,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		}
 	      else 
 		{
-		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 		  return;				// (answer)
 		}
 	    default:
@@ -164,7 +162,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	th->destroy();
 	e = save;				// answer = true;
       }	// end of if arg is numval
-      DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+      DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
       return;						// (answer)
     } // end of if e is function
   if (e->etype == binop)
@@ -187,7 +185,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	      if (!(thlhs->MKS == thrhs->MKS))
 		throw(string(
 	  "equality or inequality between things with different dimensions"));
-	      DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+	      DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 	      return;						// (answer)
 	    case divbye:
 	      if (fabs(thrhs->value) == 0.0) throw(string("Divide by zero"));
@@ -218,7 +216,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	    case equalse:
 	    case grte:
 	    case gree:
-	      DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+	      DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
 	      return;					// (answer)
 	    case divbye:
 	      if ((thrhs->value == 1.0) && thrhs->MKS.zerop())
