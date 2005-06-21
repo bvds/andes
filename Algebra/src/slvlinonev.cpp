@@ -15,7 +15,7 @@
 using namespace std;
 
 #define DBG(A) DBGF(LINONEV,A)
-#define ONEVDTL(A) DBGFM(LINONEV,A)
+#define DBGM(A) DBGFM(LINONEV,A)
 
 /************************************************************************
  *  bool slvlinonev(binopexp * & eq, const physvar * var)		*
@@ -35,7 +35,7 @@ bool slvlinonev(binopexp * & eq, const varindx var)
   bool encorep;
   
   DBG( cout << "Entering slvlinonev" << endl; );
-  ONEVDTL( cout << "detailed diagnostics enabled" << endl; );
+  DBGM( cout << "detailed diagnostics enabled" << endl; );
   
   if (powonev((expr *)eq,var) != 1) return(false); // insist linear in one var
   if (eq->op->opty != equalse)
@@ -95,8 +95,12 @@ bool linvarcoefs(const expr * ex, const varindx var,
 {
   int k, q;
 
-  DBG( cout << "Entering linvarcoefs var " << (*canonvars)[var]->clipsname
-	    << " on expr "<< endl << ex->getInfix() << endl; );
+#ifdef WITHDBG
+  unsigned int thisdbg = ++dbgnum;
+#endif
+ DBG(cout << "linvarcoefs " << thisdbg << ", var " 
+      << (*canonvars)[var]->clipsname
+      << " on expr "<< endl << ex->getInfix() << endl);
   if (numer != NULL) {
     //    throw(string("linvarcoefs called with non-null numer"));
     cerr << "linvarcoefs called with non-null numer" << endl;
@@ -115,6 +119,7 @@ bool linvarcoefs(const expr * ex, const varindx var,
     case numval:
       numer = copyexpr(ex);
       coef = new numvalexp(0);
+      DBG(cout << "linvarcoefs " << thisdbg << " returning numval" << endl);
       return (true);
     case physvart:
       if (((physvarptr *)ex)->varindex == var) {
@@ -122,6 +127,7 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	coef = new numvalexp(1); 
         coef->MKS.put(0,0,0,0,0); }
       else { coef = new numvalexp(0); numer = copyexpr(ex); }
+      DBG(cout << "linvarcoefs " << thisdbg << " returning physvar" << endl);
       return(true);
     case binop:
       {
@@ -133,13 +139,19 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	  case grte:
 	  case gree:
 	    {
-	      if (!linvarcoefs(thbin->lhs,var,coef,numer)) return(false);
+	      if (!linvarcoefs(thbin->lhs,var,coef,numer)){
+		DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		    << endl);
+		return(false);
+	      }
 	      expr * rn = NULL;
 	      expr * rd = NULL;
 	      if (!linvarcoefs(thbin->rhs,var,rd,rn))
 		{
 		  delete numer; numer = NULL;
 		  delete coef; coef = NULL; // fixed 2/3/01
+		  DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		      << endl);
 		  return(false);
 		}
 	      // This makes the error more clear, but still not found...
@@ -158,28 +170,47 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	      flatten(coef);
 	      eqnumsimp(coef,true);
 	      numvalexp * dfact = normexpr(coef);
-	      if(fabs(dfact->value) < 2.0*DBL_MIN)
-		throw(string("divide by zero error for ") + ex->getInfix()
-		      + string(" and var=") + (*canonvars)[var]->clipsname);
+	      if(fabs(dfact->value) < 8.0*DBL_MIN){
+		delete numer; numer = NULL;
+		delete coef; coef = NULL; 
+		DBGM(cout << "linvarcoefs " << thisdbg << " returning:  " 
+		     << "coef=0, so it is not linear in var" << endl);
+		return(false);
+	      }
 	      dfact->value = 1./dfact->value;
 	      dfact->MKS *= -1;
 	      kmult(numer,dfact);
-	      DBG(cout << "linvarcoefs returning true from eq, with coef "
-		  << coef->getInfix() << ", numer " << numer->getInfix()
-		  << endl;);
+	      DBG(cout << "linvarcoefs " << thisdbg 
+		  << " returning true from eq, coef " << coef->getInfix() 
+		  << ", numer " << numer->getInfix() << endl);
 	      return(true);
 	    }
 	  case divbye:
 	    if (doesnthave(thbin,var) )
-	      { coef = new numvalexp(0); numer = copyexpr(ex); return(true);}
-	    if (!doesnthave(thbin->rhs,var)) return(false);
-	    if (!linvarcoefs(thbin->lhs,var,coef,numer)) return(false);
+	      { coef = new numvalexp(0); numer = copyexpr(ex); 
+		  DBG(cout << "linvarcoefs " << thisdbg << " returning divby" 
+		      << endl);
+	      return(true);}
+	    if (!doesnthave(thbin->rhs,var)){
+		  DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		      << endl);
+		  return(false);
+	    }
+	    if (!linvarcoefs(thbin->lhs,var,coef,numer)){
+	      DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		  << endl);
+	      return(false);
+	    }
 	    numer = new binopexp(&divby,numer,copyexpr(thbin->rhs));
 	    coef = new binopexp(&divby,coef,copyexpr(thbin->rhs));
+	    DBG(cout << "linvarcoefs " << thisdbg << " returning divby" 
+		<< endl);
 	    return(true);
 	  case topowe:
 	    if (doesnthave(thbin,var) )
 	      { coef = new numvalexp(0); numer = copyexpr(ex); return(true);}
+	    DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		<< endl);
 	    return(false);
 	  default:
 	    throw("Undefined binop in "__FILE__);
@@ -187,7 +218,7 @@ bool linvarcoefs(const expr * ex, const varindx var,
       } // end of case binop
       case n_op:
       {
-	ONEVDTL( cout << "Entering linvarcoefs n_op" << endl; );
+	DBGM(cout << "Entering linvarcoefs n_op" << endl);
 	n_opexp *cf;
 	n_opexp *ov;
 	n_opexp *thnop = (n_opexp *) ex;
@@ -195,16 +226,23 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	  cf = new n_opexp(&mult);
 	  ov = new n_opexp(&mult);
 	  for (k=0; k < thnop->args->size(); k++){
-	    ONEVDTL( cout << "Linvarcoefs n_op mult arg " << k << endl; );
+	    DBGM( cout << "Linvarcoefs n_op mult arg " << k << endl; );
 	    if (!linvarcoefs((*thnop->args)[k],var,coef,numer))
-	      { cf->destroy(); ov->destroy(); return(false); }
-	    ONEVDTL( cout << "Linvarcoefs mult arg " << k<< " true" <<endl; );
+	      { cf->destroy(); ov->destroy(); 
+	      DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		  << endl);
+	      return(false); }
+	    DBGM( cout << "Linvarcoefs mult arg " << k<< " true" <<endl; );
 	    if ((coef->etype != numval) || ((numvalexp *)coef)->value != 0)
 	      {
 		if (cf->args->size() > 0) {
 		  cf->destroy(); ov->destroy(); 
 		  coef->destroy(); numer->destroy();
-		  coef = NULL; numer = NULL; return(false); }
+		  coef = NULL; numer = NULL; 
+		  DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		      << endl);
+		  return(false); 
+		}
 		cf->addarg(coef);
 		coef = NULL;
 		for (q = 0; q < ov->args->size(); q++)
@@ -218,7 +256,7 @@ bool linvarcoefs(const expr * ex, const varindx var,
 		coef->destroy(); coef = NULL;
 	      }
 	  }
-	  ONEVDTL( cout << "Linvarcoefs mult preparing return true" << endl; );
+	  DBGM( cout << "Linvarcoefs mult preparing return true" << endl; );
 	  if (cf->args->size() == 0) {
 	    coef = new numvalexp(0);
 	    cf->destroy();
@@ -231,9 +269,9 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	  numer = ov;
 	  flatten(numer);
 	  eqnumsimp(numer,true);
-	  ONEVDTL( cout << "Linvarcoefs mult returning " << coef->getInfix()
-			<< " coef and const term " << numer->getInfix()
-		        << endl; );
+	  DBGM( cout << "Linvarcoefs " << thisdbg << "mult returning " 
+		<< coef->getInfix()
+		<< " coef and const term " << numer->getInfix() << endl);
 	  return(true);
 	} // end of n-op mult
 	if (thnop->op->opty == pluse)
@@ -241,28 +279,40 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	  ov = new n_opexp(&myplus);
 	  for (k=0; k < thnop->args->size(); k++)
 	    {
-	      ONEVDTL( cout << "Linvarcoefs plus arg " << k << endl; );
+	      DBGM( cout << "Linvarcoefs plus arg " << k << endl; );
 	      if (!linvarcoefs((*thnop->args)[k],var,coef,numer))
-		{ cf->destroy(); ov->destroy(); return(false); }
-	      ONEVDTL(cout << "Linvarcoefs plus arg "<< k << " true" << endl;);
+		{ cf->destroy(); ov->destroy(); 
+		DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+		      << endl);
+		  return(false); }
+	      DBGM(cout << "Linvarcoefs plus arg "<< k << " true" << endl);
 	      cf->addarg(coef); coef = NULL;
 	      ov->addarg(numer); numer = NULL;
 	    }
-	  ONEVDTL( cout << "Linvarcoefs plus preparing return true" << endl; );
+	  DBGM( cout << "Linvarcoefs plus preparing return true" << endl);
 	  coef = cf;
 	  flatten(coef);
 	  eqnumsimp(coef,true);
 	  numer = ov;
 	  flatten(numer);
 	  eqnumsimp(numer,true);
-	  ONEVDTL( cout << "Linvarcoefs plus returning " << coef->getInfix()
-		     << " coef and const term " << numer->getInfix() << endl;);
+	  DBGM( cout << "Linvarcoefs " << thisdbg << " plus returning coef " 
+		<< coef->getInfix()
+		<< " and const term " << numer->getInfix() << endl);
 	  return(true);
 	} // end of n-op plus
       throw(string("can't get here in linvarcoefs"));
     case function:
-      if (powonev(((functexp *) ex)->arg,var) != 0) return(false); 
-      else { coef = new numvalexp(0); numer = copyexpr(ex); return(true); }
+      if (powonev(((functexp *) ex)->arg,var) != 0){
+	DBG(cout << "linvarcoefs " << thisdbg << " returning false" 
+	    << endl);
+	return(false);
+      } else { 
+	coef = new numvalexp(0); numer = copyexpr(ex); 
+	DBG(cout << "linvarcoefs " << thisdbg << " returning function" 
+	    << endl);
+	return(true);
+      }
     }
   throw("got to impossible place in linvarcoefs");
 }
