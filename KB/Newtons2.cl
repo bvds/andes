@@ -1293,6 +1293,10 @@
    (; limit this to component-form solutions
    (component-form)  
    ; don't apply if define-compo can be used instead. 
+   ; !!! what we want: (NOT (AND Vector-drawn axes-registered))
+   ; !!! what we have: (AND (NOT Vector-drawn) (NOT axes-registered))
+   ; which differs if only one is drawn. If this breaks anything,
+   ; have to recode in some other way, or add special not-all precond
    (not (vector ?b (at ?vector ?t) ?dir))
    (not (axis-for ?b ?xyz ?rot)) 
    ; need to bind body for following, so get it from vector term. !!! assumes
@@ -7071,7 +7075,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                         (at (work-nc ?body) ?t) ))
   ;; Need to make sure agent exerts non-conservative force on body
   ;; We do this when writing the equation below.
-  (test (time-consecutivep ?t)) ;only apply to consecutive times
+  ;(test (time-consecutivep ?t)) ;only apply to consecutive times
  )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
@@ -7089,14 +7093,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; a power-source we are told is transferring energy to the body, where
    ;; we might not have detailed information about the mechanism so can not
    ;; find or draw a force.
-   (setof (nc-work-agent ?work-agent ?b ?t)
-          ?work-agent ?agents)
+   (setof (nc-work-agent ?t (at (work ?b ?agent) ?t-work)) 
+          (at (work ?b ?agent) ?t-work) ?work-quants)
    ;; this would actually work if no nc work agents, since algebra module
    ;; accepts (= Wnc (+)) interpreting n-ary sum of zero terms as zero.
    ;; But is there a problem giving help based on this form?
    ;; (test (not (null ?agents)))	
-   (map ?agent ?agents
-      (variable ?work-var (at (work ?b ?agent) ?t))
+   (map ?work-quant ?work-quants
+      (variable ?work-var ?work-quant)
       ?work-var ?work-vars) 
   ) 
   :effects (
@@ -7113,23 +7117,27 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; via the nc-work-agent proposition. Note that an agent like the floor 
 ;;; may exert both normal and friction forces on object; we need to ignore
 ;;; the normal force and use the friction force. 
-(defoperator get-nc-force-agent (?b ?t)
+(defoperator get-nc-force-agent (?b ?agent ?t-force) ; don't use twice if same (body agent force-time)
   :preconditions (
-      (force ?b ?agent ?type ?t ?dir1 ?action)
+      (force ?b ?agent ?type ?t-force ?dir1 ?action)
+      (bind ?t-overlap (tintersect2 ?t-force ?t-query))
+      (test ?t-overlap)
       (test (not (member ?type '(weight gravitational normal spring))))
   )
   :effects (
-     (nc-work-agent ?agent ?b ?t)
+     (nc-work-agent ?t-query (at (work ?agent ?b) ?t-overlap))
   ))
 
 ;;; if an entity is declared as a power source transmitting energy to ?b,
 ;;; without details of the force, then it is also an agent of Wnc
-(defoperator get-nc-force-agent2 (?b ?t)
+(defoperator get-nc-force-agent2 (?b ?agent ?t-force)
   :preconditions (
-     (in-wm (does-work-on ?agent ?b ?t))
+     (in-wm (does-work-on ?agent ?b ?t-force))
+     (bind ?t-overlap (tintersect2 ?t-force ?t-query))
+     (test ?t-overlap)
   )
   :effects (
-    (nc-work-agent ?agent ?b ?t)
+    (nc-work-agent ?t-query (at (work ?agent ?b) ?t-overlap))
   ))
 
 (defoperator define-Wnc (?b ?t)
