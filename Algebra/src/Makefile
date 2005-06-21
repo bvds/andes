@@ -3,7 +3,7 @@
 #
 #  -fPIC is needed to make DLL to be used by Allegro
 #  -pg  for gprof
-CPPFLAGS = -Wall -fPIC -g -pg
+CPPFLAGS = -Wall -fPIC -g
 #            * remove these *****
 CPPFLAGS += -DAW_POW_FIX -DAW_EXP -DSOLVER_EXPORTS -DUNITENABLE 
 #                                                                -DNO_DLL
