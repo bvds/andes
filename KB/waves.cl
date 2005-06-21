@@ -667,7 +667,7 @@
   :complexity major			; must explicitly use
   :english ("Formula for period of mass and spring")
   :ExpFormat ("using formula for period of oscillations of a mass and spring")
-  :EqnFormat ("T = 2 ?p sqrt(m/k)")) 
+  :EqnFormat ("T = 2*$p*sqrt(m/k)")) 
 
 (defoperator spring-mass-oscillation-contains (?sought)
   :preconditions (
@@ -705,7 +705,7 @@
   :complexity major			; must explicitly use
   :english ("Formula for period of mass and spring")
   :ExpFormat ("using formula for period of a pendulum")
-  :EqnFormat ("T = 2 ?p sqrt(l/g)")) 
+  :EqnFormat ("T = 2*$p*sqrt(l/g)")) 
 
 (defoperator pendulum-oscillation-contains (?sought)
   :preconditions (
@@ -752,9 +752,9 @@
   :complexity major			; must explicitly use
   :english ("Formula for doppler frequency shift")
   :ExpFormat ("using formula for doppler frequency")
-  ;; use read-time evaluation macro to insert the plus-minus character code into 
+  ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
-  :EqnFormat #.(list (format nil "fo=fs*(vw~Avo)/(vw~Avs)" (code-char 177) (code-char 177))))
+  :EqnFormat ("fo=fs*(vw~Avo)/(vw~Avs)" (code-char 177) (code-char 177)))
 
 ;;; velocities should be constant over the interval.  
 ;;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
