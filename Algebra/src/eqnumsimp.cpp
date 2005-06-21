@@ -43,13 +43,20 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
   double value;
 				// bool answer -= false;
   EQCHK(e);
-  DBG( cout << "eqnumsimp called on type " << e->etype << " which is "
-            << e->getInfix() << endl;);
+#ifdef WITHDBG
+  unsigned int thisdbg = ++dbgnum;
+  if(thisdbg == 1775206)
+    cout << "hi" << endl;
+#endif
+  DBG( cout << "eqnumsimp " << thisdbg << " on " << e->getInfix() << endl);
+
   if ((e->etype == unknown)  || 
       (e->etype == numval)   ||  
       (e->etype == physvart) ||  
-      (e->etype == fake))
+      (e->etype == fake)){
+    DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
     return;						// (false)
+  }
   if (e->etype == function)
     {
       functexp *th = (functexp *) e;
@@ -63,7 +70,11 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	      save->MKS = tharg->MKS;
 	      save->MKS *= 0.5;
 	    }
-	    else return;				// (false)
+	    else
+	      {
+		DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		return;				// (false)
+	      }
 	  }
 	else if (th->f->opty == abse)
 	  {
@@ -83,7 +94,11 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  save = new numvalexp(value);
 		  break;
 		}
-	      else return;				// (answer)
+	      else
+		{
+		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  return;				// (answer)
+		}
 	    case cose:
 	      if (flok)
 		{
@@ -92,35 +107,54 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  save = new numvalexp(value);
 		  break;
 		}
-	      else return;				// (answer)
+	      else 
+		{
+		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  return;				// (answer)
+		}
 	    case tane:
 	      if (flok)
 		{
 		  save = new numvalexp(tan(DEG2RAD * tharg->value));
 		  break;
 		}
-	      else return;				// (answer)
+	      else 
+		{
+		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  return;				// (answer)
+		}
 	    case expe:
 	      if (flok)
 		{
 		  save = new numvalexp(exp(tharg->value));
 		  break;
 		}
-	      else return;				// (answer)
+	      else
+		{
+		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  return;				// (answer)
+		}
 	    case lne:
 	      if (flok)
 		{
 		  save = new numvalexp(log(tharg->value));
 		  break;
 		}
-	      else return;				// (answer)
+	      else {
+		DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		return;				// (answer)
+	      }
 	    case log10e:
 	      if (flok)
 		{
 		  save = new numvalexp(log10(tharg->value));
 		  break;
 		}
-	      else return;				// (answer)
+	      else 
+		{
+		  DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
+		  return;				// (answer)
+		}
 	    default:
 	      throw(string(
 		   "function of unknown type not handled by eqnumsimp"));
@@ -130,6 +164,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	th->destroy();
 	e = save;				// answer = true;
       }	// end of if arg is numval
+      DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
       return;						// (answer)
     } // end of if e is function
   if (e->etype == binop)
@@ -152,9 +187,10 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	      if (!(thlhs->MKS == thrhs->MKS))
 		throw(string(
 	  "equality or inequality between things with different dimensions"));
+	      DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
 	      return;						// (answer)
 	    case divbye:
-	      if (thrhs->value == 0) throw(string("Divide by zero"));
+	      if (fabs(thrhs->value) == 0.0) throw(string("Divide by zero"));
 	      value = thlhs->value / thrhs->value;
 	      save = new numvalexp(value);
 	      save->MKS = thlhs->MKS + thrhs->MKS * -1.;
@@ -182,15 +218,16 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	    case equalse:
 	    case grte:
 	    case gree:
+	      DBG(cout << "eqnsimp " << thisdbg << " returning" << endl);
 	      return;					// (answer)
 	    case divbye:
-	      if ((thrhs->value == 1) && thrhs->MKS.zerop())
+	      if ((thrhs->value == 1.0) && thrhs->MKS.zerop())
 		{
 		  e = th->lhs;
 		  delete th->rhs;
 		  delete th;
-		  DBG( cout << "eqnumsimp (A) returning " << e->getInfix() 
-		       << endl;);
+		  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+		       << e->getInfix() << endl);
 		  return;					// (true)
 		}
 	      else
@@ -198,13 +235,12 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  thrhs->value = 1./thrhs->value;
 		  thrhs->MKS *= -1.;
 		  n_opexp *save = new n_opexp(&mult);
-  //		  save->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
 		  save->addarg(th->lhs);
 		  save->addarg(thrhs);
 		  delete th;
 		  e = save;
-		  DBG( cout << "eqnumsimp (B) returning " << e->getInfix() 
-		       << endl;);
+		  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+		       << e->getInfix() << endl);
 		  return;					// (true)
 		}
 	    case topowe:
@@ -213,28 +249,29 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  th->destroy();
 		  e = new numvalexp(1.);
 		  e->MKS.put(0,0,0,0,0);
-		  DBG( cout << "eqnumsimp (C) returning " << e->getInfix() 
-		       << endl;);
+		  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+		       << e->getInfix() << endl);
 		  return;					// (true)
 		}
 	      if ((thrhs->value == 1.) && thrhs->MKS.zerop())
 		{
 		  EQDEEP( cout << "Eqnumsimp working on "
-			 << th->getInfix() << endl;);
+			 << th->getInfix() << endl);
 		  e = th->lhs;
 		  delete th->rhs;
 		  delete th;	   			 // answer = true;
 		  EQDEEP( cout << "Eqnumsimp about to return "
 			  << e->getInfix() << endl;);
 		}
-	      DBG( cout << "eqnumsimp (D) returning " << e->getInfix() 
-		   << endl;);
+	      DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+		   << e->getInfix() << endl);
 	      return;	    				// (answer)
 	    default:
 	      throw(string("unknown binary operator rhs known"));
 	    }
 	}
-      DBG( cout << "eqnumsimp (E) returning " << e->getInfix() << endl;);
+      DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+	   << e->getInfix() << endl);
       return;
     }
   if (e->etype == n_op)			// NOTE: this does not appear to 
@@ -308,8 +345,8 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  }
 #endif AW_EXP
 		  th->destroy();
-		  DBG( cout << "eqnumsimp (F) returning " << e->getInfix() 
-		       << endl;);
+		  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+		       << e->getInfix() << endl);
 		  return;					// (true)
 		}
 	      else if (th->op->opty == pluse)
@@ -336,7 +373,8 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	  e = (*th->args)[0];
 	  th->args->pop_back();
 	  delete th;
-	  DBG( cout << "eqnumsimp (G) returning " << e->getInfix() << endl;);
+	  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+	       << e->getInfix() << endl);
 	  return;					// (true)
 	}
       if (th->args->size() == 0)
@@ -356,11 +394,12 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	    e->MKS.put(0,0,0,0,0);
 	  }
 	  delete th;
-	  EQDEEP( cout << "Eqnumsimp returns from n_op no args " 
-		           << e->getInfix() << endl; );
+	  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+	       << e->getInfix() << endl);
 	  return;					// (true)
 	}
-      DBG( cout << "eqnumsimp (H) returning " << e->getInfix() << endl;);
+      DBG( cout << "eqnumsimp " << thisdbg << " returning " 
+	   << e->getInfix() << endl);
       return;					// (answer)
     } // end of if e is n_op
   throw(string("Unknown form of expression in call to eqnumsimp"));

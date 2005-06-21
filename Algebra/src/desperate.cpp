@@ -13,6 +13,7 @@ int solvetwoquads(binopexp * & ,  binopexp * & ,
 int twoonevareqs(binopexp * & eq1,  binopexp * & eq2, const varindx v);
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
+#define DBGM(A) DBGFM(NEWCKEQSOUT,A)
 
 // desperate makes several attempts to make further progress in solving
 // the equations in eqn which are expressed in terms of the vars in 
@@ -48,6 +49,15 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
   int thishardness;
   int k, q; 
   int doagain = -1;
+
+#ifdef WITHDBG
+  int thisdbg = ++dbgnum;
+#endif
+
+  DBG(cout << "desperate " << thisdbg << " called for " 
+      << eqn->size() << " equations:" << endl;
+       for (k=0; k < eqn->size(); k++) 
+	 cout << (*eqn)[k]->getInfix() <<endl);
   
   for (k = 0; k < eqn->size(); k++)
     {
@@ -79,21 +89,20 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
       thishardness = (*besthardness)[q];
       bestq = q;
     }
-  DBG(
-    {
-      cout << "In linvarcoefs block in desperate, starting with "
-	   << vars->size() << " variables " << endl;
-      for (k=0; k < vars->size(); k++) cout 
-	<< (*canonvars)[(*vars)[k]]->clipsname <<endl;
-      cout << "in " << eqn->size() << " equations:" << endl; 
-      for (k=0; k < eqn->size(); k++) 
-	cout << (*eqn)[k]->getInfix() <<endl;
-      for (q = 0; q < vars->size(); q++)
-	if ((*lininthis)[q] != NULL)
-	  cout << (*canonvars)[(*vars)[q]]->clipsname << " has hardness " 
-	       << (*besthardness)[q] << " in equation" << endl
-	       << (*lininthis)[q]->getInfix() << endl;
-    } ) ;
+  DBGM(
+       cout << "In linvarcoefs block in desperate, starting with "
+       << vars->size() << " variables " << endl;
+       for (k=0; k < vars->size(); k++) cout 
+	 << (*canonvars)[(*vars)[k]]->clipsname <<endl;
+       cout << "in " << eqn->size() << " equations:" << endl; 
+       for (k=0; k < eqn->size(); k++) 
+	 cout << (*eqn)[k]->getInfix() <<endl;
+       for (q = 0; q < vars->size(); q++)
+	 if ((*lininthis)[q] != NULL)
+	   cout << (*canonvars)[(*vars)[q]]->clipsname << " has hardness " 
+		<< (*besthardness)[q] << " in equation" << endl
+		<< (*lininthis)[q]->getInfix() << endl;
+       );
   
   if (bestq >= 0)
     {
@@ -108,12 +117,12 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	if ((*eqn)[k] != (*lininthis)[bestq])
 	  {
 	    trythis = copyexpr((*eqn)[k]);
-	    DBG( cout << "Substituting " << neweq->getInfix() << " into "
+	    DBGM( cout << "Substituting " << neweq->getInfix() << " into "
 		      << trythis->getInfix() << endl; ) ;
  	    subexpin(trythis,neweq);
 	    flatten(trythis);	 // added 8/14/02 JaS
 	    eqnumsimp(trythis,false); // added 8/14/02 JaS. false is a guess
-	    DBG( cout << "Substitution gave " << trythis->getInfix() << endl;);
+	    DBGM( cout << "Substitution gave " << trythis->getInfix() << endl);
 	    int pv = -1;
 	    if (trythis->etype != binop) 
 	      throw(string("Desperate: subexpin killed binop"));
@@ -123,13 +132,13 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 		(pv >= 0) &&
 		rationalize(trybin))
 	      {
-		DBG( cout << "Desperate: successful replacing " 
+		DBGM( cout << "Desperate: successful replacing " 
 		          << neweq->getInfix() << " leaving "
 		          << trybin->getInfix() << endl;);
 		vector<double> * coefs = NULL; 		// Is this code 
 		if (polyexpand(trybin->lhs,pv,coefs))   // duplicating what is
 		  {					// already in polyslv
-		    DBG(				// and polysolve?
+		    DBGM(				// and polysolve?
 		      {
 			cout << "polyexpand gives ";
 			for (q = ((int)coefs->size())-1; q >= 0; q--)
@@ -137,7 +146,7 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 			cout << "0"<< endl;
 		      } ) ;
 		    vector<double> * roots = findallroots(coefs);
-		    DBG( cout << "findallroots found " << roots->size() 
+		    DBGM( cout << "findallroots found " << roots->size() 
 			       << endl; );
 		    for (q=0; q < roots->size(); q++)
 		      {
@@ -151,7 +160,7 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 			    q--;
 			  }
 		      }
-		    DBG( cout << "After discarding wrong ones, have "
+		    DBGM( cout << "After discarding wrong ones, have "
 			      << roots->size() << endl; );
 		    
 		    if (roots->size() == 1)
@@ -164,25 +173,31 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 		      }
 		  } // end of if polyexpand
 		else 
-		    DBG({ cout << "polyexpand unsuccessful expanding" << endl;
+		    DBGM({ cout << "polyexpand unsuccessful expanding" << endl;
 			   cout << trythis->getInfix() << " in variable "
 				<< (*canonvars)[pv]->clipsname << endl; } );
 	      } // end of ifhasjustonevar ...
-	    else DBG( cout << "failed hasjust... test" << endl; );
+	    else DBGM( cout << "failed hasjust... test" << endl; );
 	  } // end of this equation, k, is not the one I linvarcoefed
     } // end of if there was a linear variable found (bestq > 0)
   delete lininthis;
   delete besthardness;
-  DBG(cout << "After desperate attempt at solve eq linear in one, doagain is "
-      << doagain << endl; );
-  if (doagain >= 0) return(true);
+  if (doagain >= 0){
+    DBG(cout << "desperate " << thisdbg << " returning true, doagain="
+	<< doagain << endl);
+    return(true);
+  }
   // end of block to solve eq linear in one var with nonconst coefs.
   // If unsuccessful, try to find two equations quadradic in the same 
   // two unknowns
 
   // because of the kludgy format used to store simpeq info, we are 
   // limited to 2^10 - 2 equations and 2^7 - 2 vars.
-  if ((eqn->size() > 1022) || (vars->size() > 126)) return(false);
+  if ((eqn->size() > 1022) || (vars->size() > 126)){
+    DBG(cout << "desperate " << thisdbg << " returning false, doagain="
+	<< doagain << endl);
+    return(false);
+  }
   vector<int> *simpeqs = new vector<int>;  
   int thissimpeq;
   for (k = 0; k < eqn->size(); k++) {
@@ -200,14 +215,19 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
     delete ordsinthis;
     ordsinthis = NULL;
   } // end of k loop over equations.
-  if (simpeqs->size() < 2) { delete simpeqs; return(false); }
-  DBG( { cout << "Here is simpeqs, together and by part" << endl;
+  if (simpeqs->size() < 2) { 
+    delete simpeqs; 
+    DBG(cout << "desperate " << thisdbg << " returning false, doagain="
+	<< doagain << endl);
+    return(false); 
+  }
+  DBGM( { cout << "Here is simpeqs, together and by part" << endl;
 	 for (k = 0; k < simpeqs->size(); k++) {
 	   cout << (*simpeqs)[k] << ": " << ((*simpeqs)[k]>>17) 
 		<< ", " << (int) (((*simpeqs)[k]>>10) & 0x7f) << ", " 
 		<< (int) ((*simpeqs)[k] & 0x3ff) << endl; } } ) ;
   sort(simpeqs->begin(),simpeqs->end());
-  DBG( { cout << "simpeqs after sort, together and by part" << endl;
+  DBGM( { cout << "simpeqs after sort, together and by part" << endl;
 	 for (k = 0; k < simpeqs->size(); k++) {
 	   cout << (*simpeqs)[k] << ": " << ((*simpeqs)[k]>>17) 
 		<< ", " << (int) (((*simpeqs)[k]>>10) & 0x7f) << ", " 
@@ -227,6 +247,9 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	      case 1:		// Equations ok, but didn't solve all. 
 		continue;
 	      case 2:		// an equation replaced by assignment
+		DBG(cout << "desperate " << thisdbg 
+		    << " returning true, doagain="
+		    << doagain << endl);
 		return(true);
 	      }
 	  continue;
@@ -247,7 +270,11 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	case 4:			// first equation gives full solution one var.
 	case 3:			// first eq quadratic in one var, second linear
 	case 2:			// both equations used up, and both vars 
-	  return(true);		//   partially solved.
+	                        //   partially solved.
+		DBG(cout << "desperate " << thisdbg 
+		    << " returning true, doagain="
+		    << doagain << endl);
+	  return(true);		
 	case 1:			// equations not independent. First made taut.
 	  continue;		//   (what if inconsistent?)
 	case 0:			// equations didn't live up to promise
@@ -256,8 +283,9 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	} // end of switch on success of solvetwoquads
       } // end of if neighbors have same two vars
     } // end of k loop on simpeqs list of equations.
-  DBG(cout << "Returning from desperate with doagain = " << doagain <<
-      " after looking at " << lastonevar +1 << " eqs in one var and "
-      << lasttwovars - lastonevar << " eqs in two vars" << endl;);
+  DBG(cout << "Returning from desperate " << thisdbg << " with doagain = " 
+      << doagain << " after looking at " << lastonevar +1 
+      << " eqs in one var and "
+      << lasttwovars - lastonevar << " eqs in two vars" << endl);
   return(doagain>=0);
 }

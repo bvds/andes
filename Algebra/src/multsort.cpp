@@ -7,6 +7,7 @@
 using namespace std;
 
 #define DBG(A) DBGF(PLUSSORT,A)
+#define DBGM(A) DBGFM(PLUSSORT,A)
 void qsrtexpr(vector<expr *> *Vptr);
 
 
@@ -20,15 +21,18 @@ bool multsort(expr * & ex)
 {
   int q1, q2, k;
   bool answer = false;
+#ifdef WITHDBG
+  int thisdbg = ++dbgnum;
+#endif
 
-  DBG(cout << "entered multsort with " << ex->getInfix() << endl;);
+  DBG(cout << "multsort " << thisdbg << " with " << ex->getInfix() << endl);
   if (ex->etype != n_op) throw(string("multsort called on non-n_op"));
   if (((n_opexp *)ex)->op->opty != multe)
     throw(string("multsort called on non-mult n_op"));
   vector<expr *> *v = ((n_opexp *)ex)->args;
-  DBG(cout << "Multsort about to call qsrtexpr" << endl;);
+  DBGM(cout << "Multsort about to call qsrtexpr" << endl;);
   qsrtexpr(v);
-  DBG(cout << "Multsort after sort, " << ex->getInfix() << endl;);
+  DBGM(cout << "Multsort after sort, " << ex->getInfix() << endl;);
   expr * base1, * base2, * exp1, * exp2;
   bool waspow1, waspow2;
   for (q1 = 0; q1+1 < v->size(); q1++)
@@ -105,7 +109,8 @@ bool multsort(expr * & ex)
       if(!waspow1) exp1->destroy();
     } // end of loop on q1, first factor. 		to next q1 start.
   if (((n_opexp *)ex)->args->size() < 2) unnop(ex);
-  DBG(cout << "Multsort returning " << ((answer) ? "true" : "false")
-	   << " with ex = " << ex->getInfix() << endl;);
+  DBG(cout << "Multsort " << thisdbg << " returning " 
+      << ((answer) ? "true" : "false")
+	   << " with ex=" << ex->getInfix() << endl);
   return(answer);
 }

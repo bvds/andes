@@ -8,6 +8,7 @@
 using namespace std;
 
 #define DBG(A) DBGF(INTFL,A)
+#define DBGM(A) DBGFM(INTFL,A)
 
 /************************************************************************
  * bool distfrac(expr * & ex)						*
@@ -23,7 +24,10 @@ bool distfrac(expr * & ex)
 {
   int k, q;
 
+#ifdef WITHDBG
   int thisdbg = ++dbgnum;
+#endif
+
   if (ex->etype != n_op) throw(string("distfrac called on non-n_op"));
   n_opexp * enop = (n_opexp *) ex;
   if (enop->op->opty != pluse) throw(string("distfrac called on non-plus"));
@@ -116,12 +120,12 @@ bool distfrac(expr * & ex)
 		  if (r == lden->size()) 	// add this one, not in lden
 		    temp4->addarg(copyexpr((*lcd->args)[q]));
 		}
-	      DBG(cout << "distfrac " << thisdbg << ": temp4 of term "
+	      DBGM(cout << "distfrac " << thisdbg << ": temp4 of term "
 		  << k << " is " << temp4->getInfix() << endl;);
 	      // above doesn't do multiple identical factors right
 	      for (r=0; r < lden->size(); r++) (*lden)[r]->destroy();
 	      delete lden;
-	      DBG(cout << "again after deleting lden, temp4 is "
+	      DBGM(cout << "again after deleting lden, temp4 is "
 		  << temp4->getInfix() << endl;);
 	      if (temp4->args->size() != 1) // can't be 0, right?
 		plsnumer->addarg(temp4);
@@ -131,12 +135,12 @@ bool distfrac(expr * & ex)
 		  // rmed 2/4/01 need to check	  delete temp4->args;
 		  delete temp4;
 		}
-	      DBG(cout << "distfrac " << thisdbg << ": At end of term "
+	      DBGM(cout << "distfrac " << thisdbg << ": At end of term "
 		  << k << " plsnumer is " << plsnumer->getInfix() << endl
 		  << " and lcd is " << lcd->getInfix() << endl;);
 	    } 		// end of processing ratio term
 	}		// end of loop over terms in sum
-      DBG(cout << "distfrac " << thisdbg << ": At end of loop over terms "
+      DBGM(cout << "distfrac " << thisdbg << ": At end of loop over terms "
 	  << " plsnumer is " << plsnumer->getInfix() << endl
 	  << " and lcd is " << lcd->getInfix() << endl);
 
@@ -149,14 +153,12 @@ bool distfrac(expr * & ex)
 	  // rmed 2/4/01 need to check		  delete lcd->args;
 	  delete lcd;
 	}
-      DBGF(ENTFLP, cout << "distfrac " << thisdbg << " returns true with " 
+      DBG(cout << "distfrac " << thisdbg << " returns true with " 
 	   << ex->getInfix() << endl);
       return(true);
     }
-  DBG(cout << "distfrac "<< thisdbg << ": plus did not contain a ratio" 
-      << endl);
   delete lcd;
-  DBGF(ENTFLP, cout << "distfrac " << thisdbg 
+  DBG(cout << "distfrac " << thisdbg 
        << ": did nothing, returns false " << ex->getInfix() << endl);
   return(false);
 }

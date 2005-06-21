@@ -8,6 +8,7 @@
 
 #include "decl.h"
 #include <math.h>
+#include <float.h>
 #include "dbg.h"
 #include "extoper.h"
 #include "extstruct.h"
@@ -53,15 +54,16 @@ bool slvlinonev(binopexp * & eq, const varindx var)
       thbin->destroy();
       return(false);
     }
-  DBG( cout << "linvarcoefs returned true" << endl; );
+  DBG( cout << "linvarcoefs returned true" << endl);
   encorep = true;
   while (encorep) {
     encorep = flatten(coef);
     eqnumsimp(coef,true);
   }
-  if ((coef->etype != numval) || (((numvalexp *)coef)->value == 0))
+  if ((coef->etype != numval) || 
+      (fabs(((numvalexp *)coef)->value) < 2.0*DBL_MIN))
     {
-      DBG( cout << "but coef not nonzero number" << endl; );
+      DBG( cout << "but coef not nonzero number" << endl);
       coef->destroy();
       kex->destroy();
       thbin->destroy();
@@ -140,6 +142,11 @@ bool linvarcoefs(const expr * ex, const varindx var,
 		  delete coef; coef = NULL; // fixed 2/3/01
 		  return(false);
 		}
+	      // This makes the error more clear, but still not found...
+	      DBG(cout << " coef=" << coef->getInfix() 
+		  << " numer=" << numer->getInfix() 
+		  << " rd=" << rd->getInfix() 
+		  << " rn=" << rn->getInfix() << endl);
 	      // Next two exe lines added 8/14/02 JaS because perhaps rn and
 	      // rd need reduction (0 * var may cause trouble)
 	      eqnumsimp(rn,true);	// added 8/14/02 JaS   made no change
@@ -151,6 +158,9 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	      flatten(coef);
 	      eqnumsimp(coef,true);
 	      numvalexp * dfact = normexpr(coef);
+	      if(fabs(dfact->value) < 2.0*DBL_MIN)
+		throw(string("divide by zero error for ") + ex->getInfix()
+		      + string(" and var=") + (*canonvars)[var]->clipsname);
 	      dfact->value = 1./dfact->value;
 	      dfact->MKS *= -1;
 	      kmult(numer,dfact);
@@ -183,9 +193,7 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	n_opexp *thnop = (n_opexp *) ex;
 	if (thnop->op->opty == multe) {
 	  cf = new n_opexp(&mult);
-//	  cf->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
 	  ov = new n_opexp(&mult);
-//	  ov->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor 
 	  for (k=0; k < thnop->args->size(); k++){
 	    ONEVDTL( cout << "Linvarcoefs n_op mult arg " << k << endl; );
 	    if (!linvarcoefs((*thnop->args)[k],var,coef,numer))

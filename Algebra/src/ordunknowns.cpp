@@ -28,7 +28,7 @@ int ordunknowns(const expr * eq, const bool chkknown)
   binopexp *thbin;
   int k, ans;
   
-  DBG( cout << "Entering ordunknowns" << endl; );
+  DBG( cout << "Entering ordunknowns" << endl);
   if (chkknown && eq->known) return(0);
   switch (eq->etype)
     {
