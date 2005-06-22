@@ -3886,7 +3886,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (force ?b ?planet weight ?t . ?dont-care)))
   :effects (
      (force ?b ?planet weight ?t (dnum 270 |deg|) action)
-     ; NIL time here should be translated into sought time interval
+     ;; NIL time here should be translated into sought time interval
      (force-given-at ?b ?planet weight NIL (dnum 270 |deg|) action)
   ))
 
@@ -4157,7 +4157,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :effects (
     (force ?b ?surface kinetic-friction ?t (dnum ?friction-dir |deg|) action)
-    (force-given-at ?b ?surface kinetic-friction ?t-slides (dnum ?friction-dir |deg|) action)
+    (force-given-at ?b ?surface kinetic-friction ?t-slides 
+		    (dnum ?friction-dir |deg|) action)
   ))
 
 (defoperator draw-kinetic-friction (?b ?surface ?t)
@@ -4229,7 +4230,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (force ?b ?surface static-friction ?t . ?dont-care)))
    :effects (
     (force ?b ?surface static-friction ?t ?friction-dir action)
-    (force-given-at ?b ?surface static-friction ?t-friction ?friction-dir action)
+    (force-given-at ?b ?surface static-friction ?t-friction 
+		    ?friction-dir action)
    ))
 
 (defoperator draw-static-friction (?b ?surface ?t)
@@ -4366,7 +4368,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects (
     (force ?b ?spring spring ?t (dnum ?force-dir |deg|) action)
-    (force-given-at ?b ?spring spring ?t-contact (dnum ?force-dir |deg|) action)
+    (force-given-at ?b ?spring spring ?t-contact 
+		    (dnum ?force-dir |deg|) action)
   ))
 
 (defoperator draw-spring-force (?b ?spring ?t)
@@ -4538,7 +4541,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects ( 
     (force ?b1 ?b2 gravitational ?t ?dir NIL)
-    ; NIL given time should be translated to sought interval
+    ;; NIL given time should be translated to sought interval
     (force-given-at ?b1 ?b2 gravitational NIL ?dir NIL)
   ))
 
@@ -7089,10 +7092,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ; during smaller interval.
   (any-member ?sought ( (at (work ?body ?agent) ?t)
                         (at (work-nc ?body) ?t) ))
-  ;; Need to make sure agent exerts non-conservative force on body
-  ;(nc-work-during (at (work ?body ?agent) ?t-work) ?t)
-  ;; We do this when writing the equation below.
-  ;(test (time-consecutivep ?t)) ;only apply to consecutive times
  )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
@@ -7131,23 +7130,27 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ))
 
 
-;; Difficult to collect all work terms with different times inside a large interval, because our (force...) proposition 
-;; will find forces at any time within a desired interval. Eg: if tension force given to exist between 1 and 3, then force
-;; statement will be found for 1 to 2, 2 to 3, 1 to 3 (and time point 2). We only want the largest interval we can find.
-;; Presumably, the problem givens specify the force with its largest possible time. So we want to fetch force times as
-;; they are given, not derive a "force" proposition with unbound time.
+;;; Difficult to collect all work terms with different times inside a large 
+;;; interval, because our (force...) proposition will find forces at any time 
+;;; within a desired interval.  Eg: if tension force given to exist between 
+;;; 1 and 3, then the force statement will be found for 1 to 2, 2 to 3, 
+;;; and 1 to 3 (and time point 2).  We only want the largest interval we can 
+;;; find.  Presumably, the problem givens specify the force with its largest 
+;;; possible time. So we want to fetch force times as
+;;; they are given, not derive a "force" proposition with unbound time.
 
-;;; following returns an agent of a non-conservative force on b during t
+;;; The following returns an agent of a non-conservative force on b during t
 ;;; via the nc-work-during proposition. Note that an agent like the floor 
 ;;; may exert both normal and friction forces on object; we need to ignore
 ;;; the normal force and use the friction force. 
-(defoperator get-nc-force-agent (?b ?agent ?t-force) ; don't use twice if same (body agent force-time)
+(defoperator get-nc-force-agent (?b ?agent ?t-force) ;don't use twice if same (body agent force-time)
   :preconditions (
       (force-given-at ?b ?agent ?type ?t-force ?dir1 ?action)
-      ; force given at time NIL holds over whole problem. Translate to ?t-query here
+      ;; force given at time NIL holds over whole problem. 
+      ;; Translate to ?t-query here
       (bind ?t-overlap (if ?t-force (tintersect2 ?t-force ?t-query)
                           ?t-query))
-      (test (and ?t-overlap (time-intervalp ?t-force)))
+      (test (time-intervalp ?t-overlap))
       (test (not (member ?type '(weight gravitational normal spring electric))))
   )
   :effects ( (nc-work-during (at (work ?b ?agent) ?t-overlap) ?t-query) ))
@@ -7155,14 +7158,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; if an entity is declared as a power source transmitting energy to ?b,
 ;;; without details of the force, then it is also an agent of Wnc
 (defoperator get-nc-force-agent2 (?b ?agent ?t-force)
-  :preconditions (
-     (in-wm (does-work-on ?agent ?b ?t-force))
-     (bind ?t-overlap (tintersect2 ?t-force ?t-query))
-     (test ?t-overlap)
-  )
-  :effects (
-    (nc-work-during (at (work ?b ?agent) ?t-overlap ?t-query))
-  ))
+  :preconditions 
+  (
+   (in-wm (does-work-on ?agent ?b ?t-force))
+   (bind ?t-overlap (tintersect2 ?t-force ?t-query)
+   (test (time-intervalp ?t-overlap))
+   )
+   :effects (
+	     (nc-work-during (at (work ?b ?agent) ?t-overlap) ?t-query)
+	     ))
 
 (defoperator define-Wnc (?b ?t)
   :preconditions (
