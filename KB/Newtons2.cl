@@ -7153,7 +7153,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (test (time-intervalp ?t-overlap))
       (test (not (member ?type '(weight gravitational normal spring electric))))
   )
-  :effects ( (nc-work-during (at (work ?b ?agent) ?t-overlap) ?t-query) ))
+  :effects ( (nc-w () ork-during (at (work ?b ?agent) ?t-overlap) ?t-query) ))
 
 ;;; if an entity is declared as a power source transmitting energy to ?b,
 ;;; without details of the force, then it is also an agent of Wnc
@@ -7161,7 +7161,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    (in-wm (does-work-on ?agent ?b ?t-force))
-   (bind ?t-overlap (tintersect2 ?t-force ?t-query)
+   (bind ?t-overlap (tintersect2 ?t-force ?t-query))
    (test (time-intervalp ?t-overlap))
    )
    :effects (
