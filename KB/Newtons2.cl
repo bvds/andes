@@ -1508,11 +1508,13 @@
 ;;; to setting a quantity to something constant.
 ;;;
 (defoperator inherit-constant-value (?quant ?t-constant ?t1)
-  :preconditions (
-    (constant ?quant ?t-constant)
-    (time ?t1)
-    (test (and (not (equalp ?t1 ?t-constant))
-               (tinsidep ?t1 ?t-constant)))
+  :preconditions 
+  (
+   (constant ?quant ?t-constant)
+   (time ?t-constant)	  ; sanity test
+   (time ?t1)
+   (test (and (not (equalp ?t1 ?t-constant))
+	      (tinsidep ?t1 ?t-constant)))
   )
   :effects (
 	    (equals (at ?quant ?t1) (at ?quant ?t-constant))
@@ -4149,12 +4151,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; velocity vector before you could draw the friction direction.
 (defoperator find-kinetic-friction-force (?b ?surface ?t)
   :preconditions (
-    (object ?b)
-    (time ?t)
     (slides-against ?b ?surface ?t-slides)
-    (test (tinsidep ?t ?t-slides))
-    (not (force ?b ?surface kinetic-friction ?t . ?dont-care))
     (motion ?b ?t-motion (straight ?dont-care32 (dnum ?motion-dir |deg|)))
+    (time ?t)
+    (object ?b)
+    (not (force ?b ?surface kinetic-friction ?t . ?dont-care))
+    (test (tinsidep ?t (tintersect2 ?t-slides ?t-motion)))
     (bind ?friction-dir (mod (+ 180 ?motion-dir) 360))
    )
   :effects (
@@ -5163,12 +5165,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Draw ~a at ~a." ((at (force ?c ?agent ?type) ?t) indef-np) ?dir))
    ))
 
-; Urgh to handle pressure forces defined acting on surfaces, we need two cases to 
-; return forces on component bodies to draw-force-compound.
+;;; Urgh to handle pressure forces defined acting on surfaces, 
+;;; we need two cases to return forces on component bodies to 
+;;; draw-force-compound.
 (defoperator simple-force-on-body-exists (?b ?agent ?type ?t)
    :preconditions ( (force ?b ?agent ?type ?t ?dir ?dontcare) )
    :effects (   (force-on-body ?b ?agent ?type ?t ?dir) ))  
-
 
 (defoperator force-compound-contains (?sought)
    :preconditions (
@@ -5415,11 +5417,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; required to draw at least that one vector.
 ;;; 
 ;;; Like all scalar equations,
-;;; we use one operator (this one) to represent knowledge of what quantities might be
-;;; in the equation if it is written.  In this case, all three quantities (w, m and g) are certain
-;;; to be in the equation, but things are not so certain for other equations.  At any rate,
-;;; the second operator does the actual process of preparing to write the equation then
-;;; writing it.
+;;; we use one operator (this one) to represent knowledge of what quantities 
+;;; might be in the equation if it is written.  In this case, all three 
+;;; quantities (w, m and g) are certain to be in the equation, but things 
+;;; are not so certain for other equations.  At any rate, the second operator 
+;;; does the actual process of preparing to write the equation then writing it.
 
 (defoperator wt-law-contains (?quantity)
   :specifications "
