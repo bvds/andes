@@ -96,7 +96,7 @@ bool linvarcoefs(const expr * ex, const varindx var,
   int k, q;
 
 #ifdef WITHDBG
-  unsigned int thisdbg = ++dbgnum;
+  unsigned long thisdbg = ++dbgnum;
 #endif
  DBG(cout << "linvarcoefs " << thisdbg << ", var " 
       << (*canonvars)[var]->clipsname

@@ -24,8 +24,8 @@ bool distfrac(expr * & ex)
 {
   int k, q;
 
-#ifdef WITHDBG
-  int thisdbg = ++dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
 #endif
 
   if (ex->etype != n_op) throw(string("distfrac called on non-n_op"));

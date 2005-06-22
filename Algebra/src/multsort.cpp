@@ -22,7 +22,7 @@ bool multsort(expr * & ex)
   int q1, q2, k;
   bool answer = false;
 #ifdef WITHDBG
-  int thisdbg = ++dbgnum;
+  unsigned long  thisdbg = ++dbgnum;
 #endif
 
   DBG(cout << "multsort " << thisdbg << " with " << ex->getInfix() << endl);

@@ -21,9 +21,11 @@ bool equaleqs(const expr * exp1, const expr * exp2)
 {
   bool answer;
   int k;
-  int edbgnum= ++dbgnum;
 
-  DBG(cout << "entering equaleqs call " << edbgnum << " with " 
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
+  DBG(cout << "entering equaleqs call " << thisdbg << " with " 
       << exp1->getInfix() << " and " << exp2->getInfix() << endl);
   switch(exp1->etype)
     {
@@ -78,6 +80,6 @@ bool equaleqs(const expr * exp1, const expr * exp2)
   answer = false;
  ret:
   DBG( cout << "Returning " << ((answer) ? "true" : "false") 
-       << " from equaleqs " << edbgnum << endl);
+       << " from equaleqs " << thisdbg << endl);
   return(answer);
 }

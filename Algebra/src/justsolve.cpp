@@ -75,7 +75,6 @@ bool solveeqs(ostream & outfile){
 	    cout << (*eqn)[k]->getInfix() << endl;
 	  );
       outfile << "<UNSLVEQS>" << endl;
-      // BvdS:  removed print to cerr since this is not a fatal error
       for (k=0; k < eqn->size(); k++)
 	  outfile << (*eqn)[k]->getInfix() << endl;
       for (k = eqn->size(); k > 0;) // destroy remaining equations in eqn
@@ -88,8 +87,12 @@ bool solveeqs(ostream & outfile){
   if (vars->size() > 0)
     {
       isokay = false;
+      DBG(cout << "unsolved VARIABLES:" << endl;
+	  for (k=0; k < vars->size(); k++) 
+	  cout << (*canonvars)[(*vars)[k]]->clipsname << "  ";
+	  cout << endl;
+	  );
       outfile << "<UNSLVVARS>" << endl;
-      DBG(cout << "unsolved VARIABLES:" << endl;);
       for (k=0; k < vars->size(); k++) 
 	outfile << "(" << (*canonvars)[(*vars)[k]]->clipsname 
 	      << " NIL)" << endl;

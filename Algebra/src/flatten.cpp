@@ -69,8 +69,9 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
   bool found;
   expr * tempexp;
   EQCHK(e);
-#ifdef WITHDBG
-  unsigned int thisdbg = ++dbgnum;
+
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
 #endif
   DBG(cout << "flatten " << thisdbg << " called for " 
       << e->getInfix() << endl);

@@ -46,7 +46,10 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
 {			
   n_opexp * answer;
   numvalexp * fk;
-  int thisdbg = ++dbgnum;
+
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
   DBG( cout << "Entering apluskb " << thisdbg << " with " << a1->getInfix() 
             << ", " << a2->getInfix() <<", " << nv->getInfix() << endl);
   if ((a2->etype == numval) && (((numvalexp *)a2)->value == 0))    return;

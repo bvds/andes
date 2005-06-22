@@ -136,7 +136,9 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   int k, q;
   int numeqs = eqn->size();
   int doagain;			// should checkeqs recall itself at end
-  int thisdbg = ++dbgnum;	// to keep track of recursive calls for debug
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
   vector<binopexp *> * partsols; // partially solved vars in purelin
   vector<binopexp *> * soleqs = new vector<binopexp *>;
   
@@ -182,10 +184,10 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   DBG( cout << "We now have doagain = "<< doagain << endl;);
 
   // Try polysolve
-  DBG( cout<< "Checkeqs " << dbgnum << ": now try polysolve" << endl;);
+  DBG( cout<< "Checkeqs " << thisdbg << ": now try polysolve" << endl;);
   if (polysolve(eqn,vars)) doagain = 1;
   
-  DBG( { cout << "Checkeqs " << dbgnum << ": after polysolve, doagain is " 
+  DBG( { cout << "Checkeqs " << thisdbg << ": after polysolve, doagain is " 
 	      << doagain << ", and the equations are:" << endl;
 	 for (k = 0; k < eqn->size(); k++) 
 	   cout << (*eqn)[k]->getInfix() << endl; } );

@@ -57,7 +57,9 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn,
 			       vector<binopexp *> * soleqs, int & doagain )
 {
   int k, q;
-  int thisdbg = ++dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
   DBGEQ( cout << "dopurelin call " << thisdbg << ": Still have " 
 	 << eqn->size() 
 	      << " equations after rec assign" << endl);

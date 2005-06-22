@@ -34,7 +34,9 @@ int numfactorsof(const expr * factor,const expr * expression)
   functexp * ffact;
   functexp * fexp;
   
-  int thisdbg = ++dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
 
   switch(factor->etype) {
   case numval:			// factor is a number

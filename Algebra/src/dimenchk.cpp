@@ -23,7 +23,9 @@ expr * dimenchk(const bool fix, expr * & ex)
   int j, k, q;
   expr * trouble = (expr *) NULL;
 
-  int thisdbg = ++dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
   DBG( cout << "Starting dimenchk call " << thisdbg << " on " 
        << ex->getInfix() << endl; ex->dbgprint(10));
   if(ex->etype==function){

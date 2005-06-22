@@ -16,7 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include "justsolve.h"
-// int dbgnum;
+
 bool handleInput(std::string& aLine);
 void doinitinit();  // this is defined below
 int checksol(const binopexp * const eqexpr, const vector<double> * const sols,

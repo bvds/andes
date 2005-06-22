@@ -59,7 +59,9 @@ int pivotpart(vector<expr *> *Vptr, int low, int high)
 {
   int lastlow, i;
   expr *pivotex;
-  int thisdbg = dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
   
   swap(Vptr,low, (low+high)/2);
   pivotex=(*Vptr)[low];
@@ -108,7 +110,9 @@ void swap(vector <expr *> * Vptr, int i, int j)
  ************************************************************************/
 bool outoforder(const expr * ex1, const expr * ex2)
 {
-  int thisdbg = ++dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
   DBG(cout << "Outoforder " << thisdbg << " called on " <<
 	      ex1->getInfix() << ", " << ex2->getInfix() << endl;);
   if (ex1->etype < ex2->etype) return(false);

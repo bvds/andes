@@ -50,10 +50,9 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
   int k, q; 
   int doagain = -1;
 
-#ifdef WITHDBG
-  int thisdbg = ++dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
 #endif
-
   DBG(cout << "desperate " << thisdbg << " called for " 
       << eqn->size() << " equations:" << endl;
        for (k=0; k < eqn->size(); k++) 

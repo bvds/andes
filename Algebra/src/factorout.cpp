@@ -20,7 +20,9 @@ bool factorout(const expr * factor,int n, expr * & expression)
   binopexp * binexpr;
   n_opexp * nopexpr;
 
-  int thisdbg = ++dbgnum;
+#if WITHDBG
+  unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
+#endif
 
   expr *exprcopy = copyexpr(expression); // keep expression unchanged until
 				// verify we can do it.
