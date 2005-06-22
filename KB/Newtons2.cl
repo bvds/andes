@@ -2915,7 +2915,7 @@
 		 (duration (during ?t1 ?t2))))
     (object ?b)
     (time (during ?t1 ?t2))
-    ; only apply if accel known constant within interval we are using
+    ;; only apply if accel known constant within interval we are using
     (constant (accel ?b) ?t-constant)
     (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
     )
@@ -5693,7 +5693,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)
    (time ?t)
    ;; only use this if non-zero acceleration, no NFL form of this.
-   (not (motion ?b ?t-motion at-rest) ;BvdS "not" is a binary operator???
+   (not (motion ?b ?t-motion at-rest) 
         (tinsidep ?t ?t-motion))
   )
   :effects 
@@ -6175,19 +6175,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; We test by testing for the situation descriptions that entail 
   ;; these forces.
   (not (given (at (dir (force ?b ?agent1 applied)) ?t-applied) ?dir1)
-       (tinsidep ?t-applied `(during ,?t1 ,?t2)))
+       (tintersect2 ?t-applied `(during ,?t1 ,?t2)))
   (not (given (at (dir (force ?b ?agent2 thrust)) ?t-thrust) ?dir2)
-       (tinsidep ?t-thrust `(during ,?t1 ,?t2))) 
+       (tintersect2 ?t-thrust `(during ,?t1 ,?t2))) 
   (not (tied-to ?string1 ?b                        ?t-tension ?dir3)
-       (tinsidep ?t-tension `(during ,?t1 ,?t2)))
+       (tintersect2 ?t-tension `(during ,?t1 ,?t2)))
   (not (slides-against ?b ?surface1                ?t-friction)
-       (tinsidep ?t-friction `(during ,?t1 ,?t2)))
+       (tintersect2 ?t-friction `(during ,?t1 ,?t2)))
   (not (drag    ?b ?medium                         ?t-drag)
-       (tinsidep ?t-drag `(during ,?t1 ,?t2)))
+       (tintersect2 ?t-drag `(during ,?t1 ,?t2)))
   ;; Also not conserved if an external work source is given (may not
   ;; be able to find force in this case, but still told it is doing work).
   (not (does-work-on ?agent ?b ?t-work)
-       (tinsidep ?t-drag `(during ,?t1 ,?t2)))
+       (tintersect2 ?t-work `(during ,?t1 ,?t2)))
   ;; make sure we can determine all forces:
   (not (unknown-forces))
   )
