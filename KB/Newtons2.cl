@@ -1268,8 +1268,8 @@
       and there is a vector defined
    then define a component variable for the vector along the axis"
   :preconditions
-  ((in-wm (vector ?b (at ?vector ?t) ?dir))
-   (in-wm (axis-for ?b ?xyz ?rot)) 
+  ((vector ?b (at ?vector ?t) ?dir)
+   (axis-for ?b ?xyz ?rot) 
    (not (variable ?dont-care (at (compo ?xyz ?rot ?vector) ?t)))
    ; fetch vector's mag var for building compo var name only. 
    (in-wm (variable ?v-var (at (mag ?vector) ?t)))  
@@ -1279,6 +1279,7 @@
   :effects
   ((variable ?var (at (compo ?xyz ?rot ?vector) ?t))))
 
+#|
 ; following is needed to introduce compo vars when writing equations for 
 ; given vector components in compo-form solutions.  It doesn't require that
 ; vectors and axes be drawn earlier but draws them as needed. We restrict it 
@@ -1314,6 +1315,7 @@
    )
   :effects
   ((variable ?var (at (compo ?xyz ?rot ?vector) ?t))))
+|#
 
 ;;; =================== Generic: Optional steps =============================
 ;;;
