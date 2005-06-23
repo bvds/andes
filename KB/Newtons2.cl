@@ -1174,29 +1174,34 @@
    "If the goal is to draw coordinate axes for use on some body's vectors,
        and there are any vectors on that body drawn at known angles
    then draw coordinate axes so that one of them is alligned with ?vector,"
-  :preconditions (
-   ;; don't rotate axes if components are sought:
-   (not (component-form))
-   ;; don't draw axis for system part if system axis already chosen
-   ;; use-system-axes will choose axes in this case.
-   (not (axis-for ?sys ?dontcare1 ?dontcare2)
-        (part-of-sys ?b ?sys))
-   ;; (test (atom ?b))	; only for atomic bodies
-   (setof (in-wm (vector ?b (at ?vector ?t) ?dir)) ?dir ?dirs)
-   ;; add 0 so standard axes always an option:
-   (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
-   (any-member ?x-rotation ?min-dirs)
-   (bind ?y-rotation (+ ?x-rotation 90))
-   (debug "Setting axes for ~a: x=~a, y=~a~%" 
-	  ?b ?x-rotation ?y-rotation)
-   )
-  :effects (
-   (draw-axes ?b ?x-rotation) ; action proposition for helpsys gives x dir
-   (axis-for ?b x ?x-rotation)
-   (axis-for ?b y ?y-rotation)
-   (assume axis-for ?b x ?x-rotation)
-   (assume axis-for ?b y ?y-rotation)
-  )
+   :preconditions 
+   (
+    ;; don't rotate axes if components are sought:
+    (not (component-form))
+    (not (use-energy-axes))	  
+    ;; don't draw axis for system part if system axis already chosen
+    ;; use-system-axes will choose axes in this case.
+    (not (axis-for ?sys ?dontcare1 ?dontcare2)
+	 (part-of-sys ?b ?sys))
+    ;; (test (atom ?b))	; only for atomic bodies
+    (setof (in-wm (vector ?b (at ?vector ?t) ?dir)) ?dir ?dirs)
+    ;; only apply if there are some known vector directions
+    (test (minimal-x-rotations ?dirs))
+    ;; add 0 so standard axes always an option:
+    (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
+    (any-member ?x-rotation ?min-dirs)
+    (bind ?y-rotation (+ ?x-rotation 90))
+    (debug "Setting axes for ~a: x=~a, y=~a~%" 
+	   ?b ?x-rotation ?y-rotation)
+    )
+   :effects 
+   (
+    (draw-axes ?b ?x-rotation)	   ;action proposition for helpsys gives x dir
+    (axis-for ?b x ?x-rotation)
+    (axis-for ?b y ?y-rotation)
+    (assume axis-for ?b x ?x-rotation)
+    (assume axis-for ?b y ?y-rotation)
+    )
   :hint
   ((point (string "Can you think of a good direction to set the coordinate axes?"))
    (teach (minilesson "mini_choose_axes.htm")
@@ -6205,7 +6210,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
  :preconditions (
   ;; Draw the boda planet y
   (body ?b)
-  (energy-axes ?b)
+  (axis-for ?b y 90)
   ;; write equation ME_i = ME_f 
   (eqn ?te12eqn (total-energy-cons ?b ?t1 ?t2))
   ;; write equation ME_i = K_i + Ug_i [+ Us_i]
@@ -6568,11 +6573,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
 		  (body ?b)
 		  (vector ?b (at (displacement ?b) ?t) ?dir)
-		  ;; Must use standard axes for this. We put this before 
-		  ;; drawing displacement so don't get vector-aligned axes 
-		  ;; from existing operators.  !!! OP Hint is bad, though, 
-		  ;; doesn't explain why need standard axes in this case.
-		  (energy-axes ?b)
+		  ;; Must use standard axes for this. 
+		  (axis-for ?b y 90)
 		  )
   :effects (
 	    (vector-diagram (height-dy ?b ?t))
@@ -6581,10 +6583,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-energy-axes ()
   :preconditions ( 
 		  ;; only use this if have chosen energy method
-		  (in-wm (use-energy-axes)) 
+		  (in-wm (use-energy-axes))
+		  ;; component-form requires standard axes
+		  (not (component-form))
 		  )
   :effects (
-	    (draw-axes ?b 0)		; action proposition for help system gives x dir
+	    (draw-axes ?b 0)  ;action proposition for help system gives x dir
 	    (axis-for ?b x 0)
 	    (axis-for ?b y 90)
 	    (assume axis-for ?b x 0)
@@ -6710,21 +6714,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?work-var (* ?F-var ?d-var (cos ?theta-var))) algebra)))
  ))
 
+
 ;;; Following operator writes work = 0 for work done by forces known to be 
 ;;; orthogonal to the displacement.
 ;;; When work done by an individual force, one or the other of 
 ;;; work or zero-work equations should apply
 ;;; !!! If agent exerts more than one force this should not apply.
-(defoperator zero-work-contains (?sought)
- :preconditions 
-    ((in-wm (use-work))
-    (any-member ?sought ( (at (work ?b ?agent) ?t)))
-    (test (time-intervalp ?t)))
-    ; will require that ?agent exerts force on ?b when writing equation
- :effects ( (eqn-contains (work ?b ?agent ?t) ?sought)))
 
 (defoperator write-zero-work (?b ?agent ?t)
- 
+  
  :preconditions 
     ;; must draw force and displacement vectors
     ;; to make sure they are perpendicular. 
@@ -7031,13 +7029,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	                   (at (compression ?s) ?t)
 	                   (gravitational-acceleration ?planet)
                            (at (work-nc ?b) (during ?t1 ?t2)) ))
-     (time ?t)
-     (time ?t1)
-     (time ?t2)
-     (test (and (time-pointp ?t1) (time-pointp ?t2)))
-     ;; should be separate:  and does not have same evaluation rule as lisp and
-     (test (< ?t1 ?t2))
-     (test (or (eql ?t ?t1) (eql ?t ?t2)))
+     ;; Need to declare interval in problem statement
+     (time (during ?t1 ?t2))
+     ;; If ?t is not bound, from (any-member ?sought ...) then it is null
+     (test (or (null ?t) (eql ?t ?t1) (eql ?t ?t2)))
   )
   :effects (
     (derived-eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
