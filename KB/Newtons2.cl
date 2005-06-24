@@ -3580,6 +3580,37 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	  ?b2 ?b1 (?t pp) ?dir-expr))
   ))
 
+; draw rba at direction opposite given dir of rab
+(defoperator draw-opposite-relative-position (?b1 ?b2 ?t)
+  :specifications 
+  "if you are given that one body is at a certain direction with respect to another,
+  then draw the relative position vector from one to the other in that direction"
+  :preconditions ( 
+    (given (at (dir (relative-position ?b2 ?b1)) ?t-given) ?opp-dir-expr)
+    (test (not (equal ?opp-dir-expr 'unknown)))
+    (time ?t)
+    (test (tinsidep-include-endpoints ?t ?t-given))
+    ; make sure this vector not already drawn
+    (not (vector ?b1 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
+    (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-expr (opposite ?opp-dir-expr))
+    (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)
+    )
+  :effects (
+    (vector ?b1 (at (relative-position ?b1 ?b2) ?t) ?dir-expr)
+    (variable ?mag-var (at (mag (relative-position ?b1 ?b2)) ?t))
+    (variable ?dir-var (at (dir (relative-position ?b1 ?b2)) ?t))
+     ; Because dir is problem given, find-by-psm won't ensure implicit eqn
+    ; gets written. Given value may not be used elsewhere so ensure it here.
+    (implicit-eqn (= ?dir-var ?dir-expr) (at (dir (relative-position ?b1 ?b2)) ?t))
+   )
+  :hint (
+    (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a at ~a."
+	  ?b2 ?b1 (?t pp) ?dir-expr))
+  ))
+
 (def-psmclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
   :complexity minor
   :english ("relative position equality")
@@ -3622,7 +3653,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ; make sure this is not known to be zero-length from at-place stmt.
     (not (at-place ?b1 ?b2 ?t))
     (not (at-place ?b2 ?b1 ?t))
+    ; make sure not given it's dir, or the opposite dir, so can draw known
     (not (given (at (dir (relative-position ?b1 ?b2)) ?t) (dnum ?dir |deg|)))
+    (not (given (at (dir (relative-position ?b2 ?b1)) ?t) (dnum ?dir |deg|)))
     ;; make sure this vector not already drawn
     (not (vector ?b2 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
