@@ -134,7 +134,6 @@ int indyAddStudEq(int slot, const char* const equation) {
   // if equation is an empty string (or a NIL) empty slot
   if ((strlen(equation) == 0) || 
       (strcmp(equation,"NIL")== 0)) { // if empty we'll delete
-    DBG(cout << "nothing, ie clear slot" << endl;);
     if (studeqf[slot]) { // It really means empty out
       studeqf[slot]->destroy(); // what had been there.
       studeqf[slot] = 0L;
@@ -154,16 +153,15 @@ int indyAddStudEq(int slot, const char* const equation) {
     return(NOPARSE); // throw(string("Couldn't parse ") + string(equation));
   }
 
-  DBG(cout << slot << ": " << studeqf[slot]->getInfix() << endl;);
   // equation is not an equation
   if ((studeqf[slot]->etype != binop) || 
       ((binopexp*)studeqf[slot])->op->opty != equalse) {
     DBG(cout << "indyAddStudEq returning EQNNOTOK" << endl;);
     return(EQNNOTOK);
   }
-  DBG(cout << "Ready to enter equation gradient" << endl;);
   // What if derivative is singular at numsol?
   studgrads[slot] = getvnd(studeqf[slot], canonvars, numsols);
+  DBG(cout << "indyAddStudEq returning OKAY" << endl);
   return(OKAY);
 }
 

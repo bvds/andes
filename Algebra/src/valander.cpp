@@ -44,7 +44,12 @@ string dtostr(double);
 //  sols - const vector<double>* sols -- points at which to evaluate
 valander * getvnd(const expr * ex, const vector<physvar *> * vars,
                   const vector<double> * sols) {
-  DBG( cout << "Entering valander with " << ex->getInfix() << endl;);
+
+#ifdef WITHDBG
+  static unsigned int valcount=0;
+  unsigned int thisdbg=valcount++;
+#endif
+  DBG( cout << "valander " << thisdbg << " with " << ex->getInfix() << endl);
 
   valander* ret = new valander(vars->size());
   int k;
@@ -53,6 +58,7 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
   switch (ex->etype) {
     case numval: {
       ret->value = ((numvalexp *) ex)->value;
+      DBG(cout << "return from valander " << thisdbg << " on numval" << endl); 
       return ret;
     }
   case physvart: {
@@ -63,6 +69,7 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
     ret->value = (*sols)[k];
     ret->gradient[k] = 1.;
     ret->hasvar[k] = true;
+      DBG(cout << "return from valander " << thisdbg << " on physvar" << endl); 
     return(ret);
   }
   case function: {
@@ -123,6 +130,8 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
         ret->hasvar[k] = argvnd->hasvar[k];
       }
       delete argvnd;
+      DBG(cout << "return from valander " << thisdbg << " on function" 
+	  << ret->print() << endl); 
       return(ret);
     } // end of switch on function type
   }   // end of case function
@@ -137,14 +146,14 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
         ret->value = lhsvnd->value/rhsvnd->value;
         tempval = 1./rhsvnd->value;
         temp2 = -lhsvnd->value/pow(rhsvnd->value,2);
-        goto binret; }
+        break; }
       else throw(string("valander tried to divide by 0"));
     case topowe:
       if (lhsvnd->value > 0) {
         ret->value = pow(lhsvnd->value,rhsvnd->value);
         tempval = rhsvnd->value * pow(lhsvnd->value,rhsvnd->value - 1.);
         temp2 = log(lhsvnd->value) * ret->value;
-        goto binret; }
+        break; }
       if ((((binopexp *)ex)->rhs->etype == numval) && 
           (lookslikeint(rhsvnd->value,k))) {
         ret->value = pow(fabs(lhsvnd->value),k);
@@ -152,12 +161,12 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
         if (lhsvnd->value == 0){
           if (k <0) throw(string("0 raised to negative power"));
           if (k == 0) throw(string("0 raised to 0 undefined"));
-          if (k == 1) { tempval = 1.;temp2=0.; goto binret; }
-          if (k > 1)  { tempval = 0.;temp2=0.; goto binret; }
+          if (k == 1) { tempval = 1.;temp2=0.; break; }
+          if (k > 1)  { tempval = 0.;temp2=0.; break; }
         }
         tempval = rhsvnd->value * ret->value/lhsvnd->value;
         temp2 = 0.;     // irrelevant, as grad is 0
-        goto binret;
+        break;
       }
       else throw(string(
                   "valander tried to raise nonpositive to noninteger power"));
@@ -166,29 +175,30 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
       if (fabs(ret->value) < RELERR * 
 	  (fabs(lhsvnd->value) + fabs(rhsvnd->value)))
 	ret->value = 0.;
-      tempval = 1.; temp2 = -1.; goto binret;
+      tempval = 1.; temp2 = -1.; break;
     case grte:
     case gree:
       throw(string("valander not prepared for  >, >="));
     default:
       throw(string("valander got unknown binop"));
-    binret:
-      for (k = 0; k < vars->size(); k++) {
-        ret->gradient[k] = tempval * lhsvnd->gradient[k] 
-          + temp2 * rhsvnd->gradient[k];
-	if (fabs(ret->gradient[k]) < RELERR * 
-	    (fabs(tempval * lhsvnd->gradient[k]) 
-	     + fabs(temp2 * rhsvnd->gradient[k])))
-	  ret->gradient[k] = 0.;
-        ret->hasvar[k] = lhsvnd->hasvar[k] || rhsvnd->hasvar[k];
-      }
-      delete lhsvnd;
-      delete rhsvnd;
-      DBG(cout << "return from valander on binop, " 
-	       << ret->print() << endl; );
-      return(ret);
     }
+
+    for (k = 0; k < vars->size(); k++) {
+      ret->gradient[k] = tempval * lhsvnd->gradient[k] 
+	+ temp2 * rhsvnd->gradient[k];
+      if (fabs(ret->gradient[k]) < RELERR * 
+	  (fabs(tempval * lhsvnd->gradient[k]) 
+	   + fabs(temp2 * rhsvnd->gradient[k])))
+	ret->gradient[k] = 0.;
+      ret->hasvar[k] = lhsvnd->hasvar[k] || rhsvnd->hasvar[k];
+    }
+    delete lhsvnd;
+    delete rhsvnd;
+    DBG(cout << "return from valander " << thisdbg << " on binop, " 
+	<< ret->print() << endl; );
+    return(ret);
   } // end of case binop
+
   case n_op:
     {
       int q;
@@ -217,7 +227,7 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
 		    ret->gradient[k] = 0;
 		delete argvnd;
 	      }
-	    DBG(cout << "return from valander on plus, " 
+	    DBG(cout << "return from valander " << thisdbg << " on plus, " 
 		     << ret->print() << endl; );
 	    return (ret);
 	  }
@@ -241,7 +251,7 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
 		  ret->gradient[k] = 0;
               delete argvnd;
             }
-	  DBG(cout << "return from valander on mult, " 
+	  DBG(cout << "return from valander " << thisdbg << " on mult, " 
 		     << ret->print() << endl; );
           return(ret);
         default:

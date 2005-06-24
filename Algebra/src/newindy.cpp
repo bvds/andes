@@ -13,7 +13,7 @@
 using namespace std;
 
 #define DBG(A) DBGF(INDYEMP,A)
-#define DTL(A) DBGFM(INDYEMP,A)
+#define DBGM(A) DBGFM(INDYEMP,A)
 
 // others not in decl.h
 
@@ -66,13 +66,14 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
  *   This is called from indy(Stud|Canon)HowIndy only after a call to   *
  *      isindy has returned false (ie linear approx shows dependency)   *
  ************************************************************************/
+
 int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
 		vector<int> * & mightdepend )
 {
   int k;
   DBG( cout << "entering indyHowIndy on set " << setID << " and equation "
        << eq->getInfix() << endl;
-       cout << "Valander " << val->print() <<endl;);
+       cout << "Valander " << val->print() <<endl);
   // avoid memory leak if linexpand or mightdepend, as new ones will be made
   if ((linexpand != 0L) && linexpand != (vector<int> *)NULL) // was reversed???
     delete linexpand;
@@ -80,7 +81,7 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
     delete mightdepend;
   // expcoefs is the set of coefs of the equation in linear approx in setID eqs
   vector<double> expcoefs((*listofsets)[setID].expandlast());
-  DTL(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs););
+  DBGM(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs););
   linexpand = new vector<int>;
   double scale = 1.;  	       // set scale for errors = max(1,{|expcoefs[k]|})
   for (k = 0; k < expcoefs.size(); k++) 
@@ -103,14 +104,17 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   for (k = 0; k < numvars; k++) {
     if (wehavevar[k] > 0) ournumvar++;
     // eliminate variables for which an equation has nonzero gradient component
-    if (fabs(val->gradient[k]) > RELERR) wehavevar[k] = 0;
+    // valender has already rounded down to zero, when appropriate
+    if (val->gradient[k] != 0.) wehavevar[k] = 0;
     for (int q = 0; q < linexpand->size(); q++) 
       if (fabs((*canongrads)[(*linexpand)[q]]->gradient[k]) > RELERR) 
 	wehavevar[k] = 0;
   }
+
+
   bool havebadvar = false;
   bool havemaybeeq = false;
-  DTL(cout <<"before checking numvars with wehavevars, linexpand is ";
+  DBGM(cout <<"before checking numvars with wehavevars, linexpand is ";
       for (int q=0; q < linexpand->size(); q++) 
       cout << (*linexpand)[q] << ", ";
       cout << endl;);
@@ -118,23 +122,25 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   for (k = 0; k < numvars; k++) 		// term about sol point,
     if (wehavevar[k] > 0) {			// try to find eqn in full set
       bool haverealeq = false;			// which does have linear term
-      DBG( cout << "indyHowIndy wehavevar " << k << endl;);
+      DBGM( cout << "indyHowIndy wehavevar " << k << endl;);
 		// first, look for other eq in set with nonzero grad comp
       int r;
       int foundeq = -1;
       for (int q = 0; q < (*listofsets)[setID].size(); q++) {
 	valander * thisval = (*canongrads)[(*listsetrefs)[setID][q]];
-	DBG( cout << thisval->print() << endl;);
-	if (fabs(thisval->gradient[k]) > RELERR) { // provisional eq to return
+	DBGM( cout << thisval->print() << endl;);
+	// valender has already rounded down to zero when appropriate
+	if (thisval->gradient[k] != 0.) { // provisional eq to return
 	  foundeq = (*listsetrefs)[setID][q];      // try to find one with only
-	  DTL(cout << "foundeq provisionally set to " << foundeq << endl;);
+	  DBGM(cout << "foundeq provisionally set to " << foundeq << endl;);
 	  for (r = 0; r < numvars; r++)		   // this one variable
-	    if ((r != k) && (fabs(thisval->gradient[r]) > RELERR)) break;
+	    // valender has already rounded down to zero when appropriate
+	    if (r != k && thisval->gradient[r] !=0.) break;
 	  if (r == numvars) { haverealeq = true; break;}// found perfect eqn
 	} // end of found one eq with this comp nonzero
       } // end of checking all eqs in set
       if (foundeq >= 0) {
-	DBG( cout << "found eqn for this var, number " << foundeq << endl;);
+	DBGM( cout << "found eqn for this var, number " << foundeq << endl;);
 	if (haverealeq && (wehavevar[k] == 1)) { // if only one equation in dep
 	  linexpand->push_back(foundeq); 	// set had v_k, and we have 
 	  wehavevar[k] = 0; }	// assgn for it, add it to dependency set
@@ -147,18 +153,19 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
       }	// end of if foundeq
       else {			// no equation in set has gradient in this
 	havebadvar = true;	// needed direction.
-	DBG( cout << "found no eqn in set for this var" << endl;);
+	DBGM( cout << "found no eqn in set for this var" << endl;);
       }
     } // end of wehavevar[k]
-  DTL(cout << "returning from indyHowIndy with linexpand = ";
-    for (int q=0; q < linexpand->size(); q++) 
+
+  DBG(cout << "returning from indyHowIndy with linexpand = ";
+      for (int q=0; q < linexpand->size(); q++) 
       cout << (*linexpand)[q] << ", ";
     if (mightdepend != 0L) {
-      cout << endl << "and mightdepend = ";
+      cout << "and mightdepend = ";
       for (int q=0; q < mightdepend->size(); q++) 
         cout << (*mightdepend)[q] << ", ";
       cout << endl; }
-    else cout << "without a mightdepend" << endl; );
+      else cout << "without a mightdepend" << endl);
 
   if (havebadvar) return(1);
   if (havemaybeeq) return(2);
@@ -199,22 +206,25 @@ int indyCanonHowIndy(int setID, int eqnID, vector<int> * & linexpand,
 int indyStudHowIndy(int setID, int eqnID, vector<int> * & linexpand,
 	vector<int> * & mightdepend )
 { 
-  DBG(cout << "indyStudHowIndy asked if " << endl;);
+  DBG(cout << "entering indyStudHowIndy" << endl);
   if (!gotthevars) 
     throw(string("indyStudHowIndy called before indyDoneAddVar"));
   if ((eqnID >= HELPEQSZ) || (eqnID < 0))
     throw(string(
-     "indyStudHowIndy called for undefined equation"));
+		 "indyStudHowIndy called for undefined equation"));
   if (studeqf[eqnID] == (binopexp *)NULL)
     throw(string("Student Equation ") + itostr(eqnID) + 
 	  " is blank, can't be checked for independence");
-  if ((setID >= listofsets->size()) || (setID < 0)) throw(string(
-     "indyStudHowIndy called for undefined set"));
+  if ((setID >= listofsets->size()) || (setID < 0)) 
+    throw(string("in indyStudHowIndy called for undefined set"));
   (*lasttriedeq)[setID] = eqnID;
-  DBG(cout << studeqf[eqnID]->getInfix() << " is independent of the "
-      << (*listofsets)[setID].size()<< " equations in set " << setID << endl;);
-  if ((*listofsets)[setID].isindy(studgrads[eqnID])) return(0);
-				// okay, it is really independent, returned 0
+  DBG(cout << "indyStudHowIndy. Determine " << studeqf[eqnID]->getInfix() 
+      << " is independent of the " << (*listofsets)[setID].size()
+      << " equations in set " << setID << endl;);
+  if ((*listofsets)[setID].isindy(studgrads[eqnID])) {
+    DBG(cout << "indyStudHowIndy return 0, is independant" << endl);
+    return(0); // okay, it is really independent, returned 0
+  }
   return (indyHowIndy(setID, studeqf[eqnID],studgrads[eqnID],
 		      linexpand, mightdepend));
 }
