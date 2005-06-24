@@ -2075,7 +2075,8 @@
 			                         ))
 			    ; this applies to any t2 between t1 and tf
 			    (time ?t2)  ; have to bind if sought is tau
-			    (test (and (time-pointp ?t2) (< ?t2 ?tf)))
+			    (test (time-pointp ?t2))
+			    (test (< ?t2 ?tf))
 			    (circuit-component ?res resistor)
                             )
              :effects(
@@ -2156,7 +2157,8 @@
 			                         ; also contains tau and I0
 			                         ))
 			     ; this applies to any t2 between t1 and tf
-			    (test (and (time-pointp ?t2) (<= ?t2 ?tf)))
+			    (test (time-pointp ?t2))
+			    (test (<= ?t2 ?tf))
 			    (circuit-component ?res resistor)
                             )
              :effects(

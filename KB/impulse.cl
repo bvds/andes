@@ -424,6 +424,14 @@ impulse ~A." (?b def-np) (?t pp)))
   (compo-eqn-contains (center-of-mass ?com ?t) definition ?sought)
   ))
 
+;;;
+;;;  Currently, the center of mass is assumed to have an unknown direction
+;;;  There are cases where a specific direction could be found from
+;;;  the problem statements (all objects are collinear).
+;;;  In that case, the use of the pythagorean theorem should be suppressed.
+;;;  see cm3.
+;;;
+
 (defoperator draw-center-of-mass-diagram (?com ?t)
   :preconditions 
   ( 
