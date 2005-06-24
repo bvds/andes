@@ -172,7 +172,7 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
                   "valander tried to raise nonpositive to noninteger power"));
     case equalse:
       ret->value = lhsvnd->value - rhsvnd->value;
-      if (fabs(ret->value) < RELERR * 
+      if (fabs(ret->value) <= RELERR * 
 	  (fabs(lhsvnd->value) + fabs(rhsvnd->value)))
 	ret->value = 0.;
       tempval = 1.; temp2 = -1.; break;
@@ -186,7 +186,7 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
     for (k = 0; k < vars->size(); k++) {
       ret->gradient[k] = tempval * lhsvnd->gradient[k] 
 	+ temp2 * rhsvnd->gradient[k];
-      if (fabs(ret->gradient[k]) < RELERR * 
+      if (fabs(ret->gradient[k]) <= RELERR * 
 	  (fabs(tempval * lhsvnd->gradient[k]) 
 	   + fabs(temp2 * rhsvnd->gradient[k])))
 	ret->gradient[k] = 0.;
@@ -221,9 +221,9 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
 		  absgrad[k] += fabs(argvnd->gradient[k]);
 		  ret->hasvar[k] = ret->hasvar[k] || argvnd->hasvar[k];
 		}
-		if (fabs(ret->value) < RELERR * absval) ret->value = 0.;
+		if (fabs(ret->value) <= RELERR * absval) ret->value = 0.;
 		for (k = 0; k < vars->size(); k++) 
-		  if (fabs(ret->gradient[k]) < RELERR * absgrad[k])
+		  if (fabs(ret->gradient[k]) <= RELERR * absgrad[k])
 		    ret->gradient[k] = 0;
 		delete argvnd;
 	      }
@@ -247,8 +247,8 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
                 }
               ret->value *= argvnd->value;
               for (k = 0; k < vars->size(); k++)
-		if (fabs(ret->gradient[k]) < RELERR * absgrad[k])
-		  ret->gradient[k] = 0;
+		if (fabs(ret->gradient[k]) <= RELERR * absgrad[k])
+		  ret->gradient[k] = 0.;
               delete argvnd;
             }
 	  DBG(cout << "return from valander " << thisdbg << " on mult, " 
