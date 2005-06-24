@@ -107,7 +107,7 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
     // valender has already rounded down to zero, when appropriate
     if (val->gradient[k] != 0.) wehavevar[k] = 0;
     for (int q = 0; q < linexpand->size(); q++) 
-      if (fabs((*canongrads)[(*linexpand)[q]]->gradient[k]) > RELERR) 
+      if ((*canongrads)[(*linexpand)[q]]->gradient[k] != 0.) 
 	wehavevar[k] = 0;
   }
 
