@@ -401,8 +401,9 @@
 			(equation-menu     (setf responses "E"))
 		        (T  (warn "WB menu code unimplemented: ~A" 
 			          (turn-menu turn))))))
-		    (when responses
-		    	(setf cmd (concatenate 'string cmd "~" responses)))))
+		     ; always append tilde, even if response list is empty, so wb 
+		     ; can split at last tilde even if msg happens to contain tildes
+		     (setf cmd (concatenate 'string cmd "~" responses))))
       (tcard-turn (when (null (turn-text turn)) 
                     (error "Training card turn with no card-id text"))
 		  (setf cmd (format NIL "!training-card ~A" (turn-text turn))))
