@@ -72,7 +72,7 @@
   :hint
   ((point (string "Can you write an equation of the complement theorem?"))
    (point (string "You need to apply the complement theorem on ~a" (?events nlg-single-events)))
-   (bottom-out (string "Write the equation that ~a = 1. "	 (?events nlg-complement-theorem)))
+   (bottom-out (string "Write the equation ~a "	 (= 1 (+ . ?compo-quants))))
    ))
    
 
@@ -135,8 +135,8 @@
   ((point (string "Can you write an equation of the addition theorem for two events?"))
    (point (string "Please apply the addition theorem on event ~a and event ~b." 
 		  ?e1 ?e2))  
-   (bottom-out (string "Please write the equation p(~a$È~a)= p(~a) + p(~a) - p(~a$Ç~a)." 
-		  ?e1 ?e2  ?e1  ?e2  ?e1 ?e2))
+   (bottom-out (string "Write the equation ~a " 
+		  (= ?quant1o2 (- (+ ?quant1 ?quant2) ?quant12))))
    ))
 
 
@@ -224,10 +224,7 @@
   ((point (string "Can you write an equation of the addition theorem for three events?"))
    (point (string "Please apply the addtion theorem on event ~a, ~a and ~a " 
 		  ?e1 ?e2 ?e3))  
-   (bottom-out (string "The probability of ~a$È ~a$È ~a is equal to the probaility of ~a + the probability of ~a 
-+ the probability of ~a - the probability of ~a$Ç~a - the probability of ~a$Ç~a - the probability of ~a$Ç~a 
- + the probability of ~a$Ç~a$Ç~a " 
-		  ?e1 ?e2 ?e3  ?e1  ?e2  ?e3  ?e1 ?e2  ?e2 ?e3  ?e1 ?e3  ?e1 ?e2 ?e3))  
+   (bottom-out (string "Write the equation ~a " (= ?quant1o23 (+ (- (- (- (+ (+ ?quant1 ?quant2) ?quant3) ?quant12) ?quant13) ?quant23) ?quant123))	))  
    ))
 
 
@@ -351,8 +348,8 @@
      )
   :hint
   ((point (string "Can you write an equation of the de morgan's law?"))
-   (point (string "Please try to apply the de morgan's law on ~a" (?event nlg-event))) 
-   (bottom-out (string "Write the equation p(~a)=p(~a) " (?event nlg-event) (?nevent nlg-event)))
+   (point (string "Please try to apply the de morgan's law on event ~a" (?event nlg-event))) 
+   (bottom-out (string "Write the equation ~a " (= ?quant  ?quantn)))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
@@ -392,7 +389,10 @@
  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------|#   
 (defoperator write-mutually-exclusive-events (?event)
   :preconditions
-  (   
+  (
+   (mutually-exclusive-events ?events)
+   (test (and (> (length (eand-list ?event)) 1)
+	      (subsetp ?events (eand-list ?event)  :test #'(lambda (s c) (equalp s c)) )))
    (variable ?quant (probability  ?event))
    )
   :effects
@@ -400,7 +400,8 @@
      )
   :hint
   ((point (string "Can you write an equation of the probability of mutually exclusive events?"))
-   (point (string "You need to write an equation for the  probability of event ~a is equal to 0." ?event ))  
+   (point (string "Please try to apply the facts that event ~a are mutually exclusive events." (?events nlg-single-events)))  
+   (bottom-out (string "Write the equation ~a " (= 0  ?quant)))
    ))
 
 
@@ -479,9 +480,9 @@ Should apply for this this:
      )
   :hint
   ((point (string "Can you write an equation of the definition of the conditional probability?"))
-   (point (string "The probability of ~a|~a is equal to the probaility of ~a$Ç~a divided by the probability of ~a." 
-		  ?event2 ?event1 ?event2 ?event1  ?event1))  
-   (bottom-out (string "Write the equation ~A") ((= ?pgiven (/ ?pand ?p1)) algebra))
+   (point (string "Please try to apply the definition of conditional probability on the event ~a" 
+		  (?event nlg-event)))  
+   (bottom-out (string "Write the equation ~a " (= ?pgiven (/ ?pand ?p1))))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
@@ -587,9 +588,8 @@ Should apply for this this:
      )
   :hint
   ((point (string "Can you write an equation of the law of total probability?"))
-   (point (string "The law of total probability:  the probability of ~a is the sum of the products of probability of ~a given each event E in ~a and the 
-probability of E." ?event ?events))
-   (bottom-out (string "Write the equation ~A") ((= ?pevent (+ . ?exps)) algebra))
+   (point (string "If ~a is a collection of mutually exclusive and exhaustive events, then we can can apply the total theorem on the event ~a " (?events nlg-single-events) (?event nlg-event)))
+   (bottom-out (string "Write the equation ~a " (= ?pevent (+ . ?exps))))
    ))
 
 #|test: -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -677,11 +677,9 @@ Should apply for this this: p(H|B)=p(H)*p(B|H)/{p(H)*p(B|H)+p(L)*p(B|L)}
   ( (eqn (= ?phb (/ ?exphb (+ . ?exps))) (bayes-rule (given ?eventh ?eventb)))     
      )
   :hint
-  ((point (string "Can you write an equation of Bayes' theorem?"))
-   (point (string "Bayes' Theorem:  the probability of ~a|~a is equalp to the probability of ~a|~a * the 
-probability of ~a and divided the sum of the products of the probability of ~a given each event in ~a times the 
-probability of that event." ?eventh ?eventb  ?eventb ?eventh  ?eventh  ?eventb ?events))
-    (bottom-out (string "Write the equation ~A") ((= ?phb (/ ?exphb (+ . ?exps))) algebra))
+  ((point (string "Can you write an equation of Bayes' theorem?")) 
+   (point (string "If ~a is a collection of mutually exclusive and exhaustive events, then we can can apply the bayes rule on the event ~a|~a " (?events nlg-single-events) (?eventh nlg-event) (?eventb nlg-event)))
+   (bottom-out (string "Write the equation ~a" (= ?phb (/ ?exphb (+ . ?exps))) ))
     ))
 
 
@@ -767,9 +765,11 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
 (defoperator write-independent-events (?event)
   :preconditions
   ( 
-    (variable ?pevent (probability ?event))
-    (bind ?elist (eand-list ?event))
-    (map ?e ?elist
+   (independent-events ?events) 
+   (test (subsetp (event-list (eand-list ?event)) ?events)) 
+   (variable ?pevent (probability ?event))
+   (bind ?elist (eand-list ?event))
+   (map ?e ?elist
              (variable ?pe (probability ?e))
                 ?pe ?pbs) 
   )
@@ -778,9 +778,9 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
      )
   :hint
   ((point (string "Can you write an equation of the independent events?"))
-   (point (string "You need to write an equation about independent events ~a." (?event nlg-single-independent-event)))  
-   (bottom-out (string "Write the equation ~a " (?event nlg-independent-event))
-	       )))
+   (point (string "Since event ~a are independent events, You can apply definition of independent event." (?events nlg-single-events)))  
+   (bottom-out (string "Write the equation ~a " (= ?pevent (* . ?pbs))))
+   ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
@@ -861,6 +861,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
    then write. "
   :preconditions
   ( (variable ?pevent (probability (given ?event ?eventb)))
+    (conditional-independent-events ?events ?eventb) 
     (map ?e (eand-list ?event)
              (variable ?pe (probability (given ?e ?eventb)))
                 ?pe ?pbs) 
@@ -870,7 +871,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
      )
   :hint
   ((point (string "Can you write an equation of the conditional independent probability?"))
-   (point (string "The probability of ~a|~a is the products of the probability of each event in ~a given ~b. " ?event ?eventb ?events ?eventb))
-   (bottom-out (string "Write the equation ~A") ((= ?pevent (* . ?pbs)) algebra))
+   (point (string "Since event ~a are conditional independent events given event ~a, You can apply definition of conditional independent events." (?events nlg-single-events) (?eventb nlg-event)))  
+   (bottom-out (string "Write the equation ~a " (= ?pevent (* . ?pbs))))
    ))
 
