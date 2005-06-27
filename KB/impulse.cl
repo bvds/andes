@@ -119,7 +119,7 @@
              (?J12_x ?F12_x)))
   :hint 
   ( (point (string "What is the relationship between average force, impulse and duration?"))
-    (teach (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise.."))
+    (teach (string "The impulse vector is defined as the average force vector times the duration.  This can be applied component-wise."))
     (bottom-out (string "Write the equation ~a"
 			((= ?J12_x (* ?F12_x ?t12)) algebra)))
   ))

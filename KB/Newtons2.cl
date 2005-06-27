@@ -4679,88 +4679,79 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;          Define thrust force
 ;;;
 
-;; not working yet
-#|
 (def-psmclass thrust-force (?eqn-type thrust-force ?axis ?rot 
-				 (impulse ?body ?agent ?time ?dir))
-    ;; :group Dynamics  :BvdS:  what to choose?
+				 (force ?body ?agent ?time ?dir))
+    :group Dynamics  
     :complexity major    
-    :Doc "Definition of impulse."
-    :english ("the definition of impulse") 
-    :ExpFormat ("applying the definition of impulse on ~a ~a"
+    :Doc "Definition of thrust-force."
+    :english ("the definition of thrust-force") 
+    :ExpFormat ("applying the definition of thrust-force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("J_~A = F(avg)_~a*t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+    :EqnFormat ("F_~A = -v_~a*dmdt" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
-;; Draw an impulse if associated force and interval known 
-(defoperator draw-impulse-given-force (?b ?agent ?t)
+;; Draw an thrust-force if associated relative-vel is known 
+(defoperator draw-thrust-force-given-relative-vel (?b ?agent ?t)
   :preconditions
   (
-   ;; BvdS:  why not this form for forces
-   ;;(in-wm (at (dir (force ?b ?agent ?type)) ?t))
-   (force ?b ?agent ?type ?t ?dir ?action)
-   (test (time-intervalp ?t)) ;only impulse for intervals
+   (in-wm (vector ?b (at (relative-vel ?agent ?b) ?t) ?dir))
    (test (not (equal ?dir 'unknown)))
-   (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care)) ;not already drawn
+   (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care)) ;not already drawn
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
     )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+   ((vector ?b (at (thrust-force ?b ?agent) ?t) ?dir)
     ;; BvdS:  Why no equation for this?
-    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
-    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    (variable ?mag-var (at (mag (thrust-force ?b ?agent)) ?t))
+    (variable ?dir-var (at (dir (thrust-force ?b ?agent)) ?t))
     ;; Ensure implicit eqn is written because dir is from force
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (thrust-force ?b ?agent)) ?t))
    )
   :hint
    ((point (string "There is a force acting on ~a." ?b))
-    (teach (string "One can define an impulse associated with the force exerted by ~A ~A." ?agent (?t pp)))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    (teach (string "One can define an thrust-force associated with the force exerted by ~A ~A." ?agent (?t pp)))
+    (bottom-out (string "Use the thrust-force drawing tool to draw the thrust-force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
 
-(defoperator impulse-vector-contains (?sought)
+(defoperator thrust-force-vector-contains (?sought)
   :preconditions 
-  ((collision ?bodies ?t ?elastic-dont-care)
-   (any-member ?sought
-	       ((at (mag (impulse ?b ?agent)) ?t)
-		(at (dir (impulse ?b ?agent)) ?t)
-		(at (mag (force ?b ?agent ?type)) ?t)
-		(at (dir (force ?b ?agent ?type)) ?t)
-		(duration ?t)))
-   (object ?b)
+  ( (any-member ?sought
+		((at (mag (force ?b ?agent thrust)) ?t)
+		 (at (dir (force ?b ?agent thrust)) ?t)
+		 (at (mag (relative-vel ?b ?agent)) ?t)
+		 (at (dir (relative-vel ?b ?agent)) ?t)
+		 (at (mass-change-magnitude ?b) ?t)))
+    (object ?b)
    (time ?t)
-   (test (member ?b ?bodies :test #'equal)) 
-   (test (member ?agent ?bodies :test #'equal)) 
-   (test (time-intervalp ?t)))
+   )
   :effects 
-   ((eqn-family-contains (impulse ?b ?agent ?t) ?sought)
+   ((eqn-family-contains (thrust ?b ?agent ?t) ?sought)
     ;; since only one compo-eqn under this vector psm, we can just
     ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (impulse ?b ?agent ?t) thrust-force ?sought)))
+    (compo-eqn-contains (thrust ?b ?agent ?t) definition ?sought)))
 
-;; This is the impulse from a particular force
-(defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
+;; This is the thrust-force from a particular force
+(defoperator write-thrust-force-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
    ((variable ?Fth_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
     (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?b ?agent)) ?t))
     (variable ?dmdt  (at (mass-change-magnitude ?b) ?t)))
   :effects (
-   (eqn (= ?Fth_x (* -1.0 ?vr_x ?dmdt))
-            (compo-eqn thrust-force ?xy ?rot 
-		       (impulse ?b ?agent (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn thrust-force ?xy ?rot 
-		       (impulse ?b ?agent (during ?t1 ?t2)))
-             (?J12_x ?F12_x)))
+   (eqn (= ?Fth_x (* -1 ?vr_x ?dmdt))
+            (compo-eqn definition ?xy ?rot (thrust ?b ?agent ?t)))
+   (eqn-compos (compo-eqn definition ?xy ?rot (thrust ?b ?agent ?t))
+             (?Fth_x ?vr_x)))
   :hint 
-  ( (point (string "What is the relationship between average force, impulse and duration?"))
-    (teach (string "The impulse vector is defined as the average force vector time the duration.  This can be applied component-wise.."))
+  ( (point (string "What is the relationship between thrust force, the velocity of ~A, and the magnitude of the mass change rate of ~A?"
+?b ?agent ?b))
+    (teach (string "The thrust force vector is defined as minus the velocity of ~A relative to ~A times the magnitude of the mass change rate of ~A.  This can be applied component-wise." ?agent ?b ?b))
     (bottom-out (string "Write the equation ~a"
-			((= ?J12_x (* ?F12_x ?t12)) algebra)))
+			((= ?Fth_x (* -1 ?vr_x ?dmdt)) algebra)))
   ))
 
-|#
+
 
 ;;;============================================================================
 ;;;
