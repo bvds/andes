@@ -289,7 +289,7 @@
    ((point (string "Can you write an equation of the decomposition law?"))
    (point (string "The probability of ~a is equal to the probaility of ~a$Ç~a plus the probability of ~a$Ç~a." 
 		  ?event ?event ?e1  ?event ?e2))  
-   (bottom-out (string "Write the equation ~A") ((= ?quanta  (+ ?quantab ?quantanb)) algebra))
+   (bottom-out (string "Write the equation ~A" ( (= ?quanta  (+ ?quantab ?quantanb)) algebra) ))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
@@ -779,7 +779,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
   :hint
   ((point (string "Can you write an equation of the independent events?"))
    (point (string "Since event ~a are independent events, You can apply definition of independent event." (?events nlg-single-events)))  
-   (bottom-out (string "Write the equation ~a " (= ?pevent (* . ?pbs))))
+   (bottom-out (string "Write the equation ~a " ((= ?pevent (* . ?pbs)) algebra) ))
    ))
 
 
