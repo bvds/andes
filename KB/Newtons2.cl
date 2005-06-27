@@ -4640,10 +4640,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; is one of the givens in the problem statement.
 (defoperator find-thrust-force (?body ?agent ?t)
   :preconditions
-  ( (object ?body)
-    (time ?t)
-    ;; energy conservation law also checks for this:
+  ( ;; energy conservation law also checks for this:
     (in-wm (given (at (dir (force ?body ?agent thrust)) ?t-force) ?dir))
+    (object ?body)
+    (time ?t)
     (test (tinsidep ?t ?t-force))
     ;; check that something else hasn't defined this force.
     (not (force ?b ?agent thrust ?t . ?dont-care)) ) 
@@ -4674,17 +4674,55 @@ the magnitude and direction of the initial and final velocity and acceleration."
 			?b ?agent ?dir))
     ))
 
-
 ;;;
 ;;;          Define thrust force
 ;;;
 
-(def-psmclass thrust-force (?eqn-type thrust-force ?axis ?rot 
-				 (force ?body ?agent ?time ?dir))
-    :group Dynamics  
+;;; scalar version of definition:
+
+(def-psmclass thrust-force (thrust-force ?body ?agent ?time)
     :complexity major    
-    :Doc "Definition of thrust-force."
-    :english ("the definition of thrust-force") 
+    :Doc "Definition of thrust force."
+    :english ("the definition of thrust force") 
+    :ExpFormat ("applying the definition of thrust force on ~a ~a"
+		(nlg ?body) (nlg ?time 'pp))
+    :EqnFormat ("F = v*abs(dmdt)"))
+
+(defoperator thrust-force-contains (?sought)
+  :preconditions 
+  ( (any-member ?sought
+		((at (mag (force ?b ?agent thrust)) ?t)
+		 (at (mag (relative-vel ?b ?agent)) ?t)
+		 (at (mass-change-magnitude ?b) ?t)))
+    (object ?b)
+    (time ?t)
+   )
+  :effects 
+   ((eqn-contains (thrust-force ?b ?agent ?t) ?sought)))
+
+;; This is the thrust-force from a particular force
+(defoperator write-thrust-force (?b ?agent ?t1 ?t2 ?xy ?rot)
+  :preconditions 
+   ((variable ?Fth (at (mag (force ?b ?agent thrust)) ?t))
+    (variable ?vr (at (mag (relative-vel ?b ?agent)) ?t))
+    (variable ?dmdt  (at (mass-change-magnitude ?b) ?t)))
+  :effects (
+   (eqn (= ?Fth (* ?vr ?dmdt)) (thrust-force ?b ?agent ?t)))
+  :hint 
+  ( (point (string "What is the relationship between thrust force, the velocity of ~A, and the magnitude of the mass change rate of ~A?"
+?b ?agent ?b))
+    (teach (string "The magnitude of the thrust force is defined the speed of ~A relative to ~A times the magnitude of the mass change rate of ~A." ?agent ?b ?b))
+    (bottom-out (string "Write the equation ~a"
+			((= ?Fth (* ?vr ?dmdt)) algebra)))
+  ))
+
+;;; vector version of thrust force
+
+(def-psmclass thrust-force-vector (?eqn-type thrust-force ?axis ?rot 
+				 (force ?body ?agent ?time ?dir))
+    :complexity major    
+    :Doc "Definition of thrust force."
+    :english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust-force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("F_~A = -v_~a*dmdt" (nlg ?axis 'adj) (nlg ?axis 'adj)))
@@ -4696,24 +4734,40 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (vector ?b (at (relative-vel ?agent ?b) ?t) ?dir))
    (test (not (equal ?dir 'unknown)))
    (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care)) ;not already drawn
-   (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
+   (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) ?agent 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
     )
   :effects
-   ((vector ?b (at (thrust-force ?b ?agent) ?t) ?dir)
-    ;; BvdS:  Why no equation for this?
-    (variable ?mag-var (at (mag (thrust-force ?b ?agent)) ?t))
-    (variable ?dir-var (at (dir (thrust-force ?b ?agent)) ?t))
-    ;; Ensure implicit eqn is written because dir is from force
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (thrust-force ?b ?agent)) ?t))
+   ((vector ?b (at (force ?b ?agent thrust) ?t) ?dir)
+    (variable ?mag-var (at (mag (force ?b ?agent thrust)) ?t))
+    (variable ?dir-var (at (dir (force ?b ?agent thrust)) ?t))
+    ;; Ensure implicit eqn is written because dir is from relative-vel
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (relative-vel ?agent? ?b)) ?t))
    )
   :hint
-   ((point (string "There is a force acting on ~a." ?b))
-    (teach (string "One can define an thrust-force associated with the force exerted by ~A ~A." ?agent (?t pp)))
+   ((point (string "There is a thrust force acting on ~a." ?b))
+    (teach (string "One can define a thrust force  acting on ~A due to ~A." 
+		   ?b ?agent (?t pp)))
     (bottom-out (string "Use the thrust-force drawing tool to draw the thrust-force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
+(defoperator draw-thrust-force-vector-diagram (?b ?agent ?t)
+  :preconditions (
+    ;; Draw both bodies. 
+    (body ?b)
+    (vector ?b (at (force ?b ?agent thrust) ?t) ?dir1)
+    (vector ?agent (at (relative-vel ?agent ?b ?t) ?t) ?dir2)
+    ;; we need axis-for each body, since component defining operators will 
+    ;; lookup axis-for principal body of each vector. Our operators that
+    ;; draw axes only apply once, so there is no danger of drawing two
+    ;; axes. In order to reuse the axes drawn for body1 as axes used
+    ;; for vectors on body2, we added reuse-other-body-axis in axes section.
+    (axis-for ?b x ?x-b)
+  )
+  :effects (
+    (vector-diagram (thrust ?b ?agent ?t))
+  ))
 
 (defoperator thrust-force-vector-contains (?sought)
   :preconditions 

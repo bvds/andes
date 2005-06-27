@@ -45,7 +45,6 @@
 
 (def-psmclass impulse-force (?eqn-type imp-force ?axis ?rot 
 				 (impulse ?body ?agent ?time ?dir))
-    ;; :group Dynamics  :BvdS:  what to choose?
     :complexity major    
     :Doc "Definition of impulse."
     :english ("the definition of impulse") 

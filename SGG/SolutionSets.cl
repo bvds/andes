@@ -303,7 +303,7 @@
 	  ;; equations are filtered from the set.  We can continue to collect
 	  ;; a solution without it.  Here we just assume that is the reason, 
 	  ;; with warning.
-	  (t (warn "Partial solution set found no usable given eqn for ~A~%Assuming given value is not needed within this solution." Q)
+	  (t (format t "WARNING:  Partial solution set found no usable given eqn for ~A~%Assuming given value is not needed within this solution." Q)
 	      (Return-Solution-Successor S :push-Knowns Q)))))
 	  
 
