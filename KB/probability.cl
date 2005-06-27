@@ -70,9 +70,9 @@
   ( (eqn (= 1 (+ . ?compo-quants)) (complement-theorem ?events))     
      )
   :hint
-  ((point (string "Can you write an equation of the complement theorem?"))
-   (point (string "You need to apply the complement theorem on ~a" (?events nlg-single-events)))
-   (bottom-out (string "Write the equation ~a "	 (= 1 (+ . ?compo-quants))))
+  ((point (string "Since ~a is equal to sample space, You can apply the complement theorem." (?events nlg-or-single-events)))
+   (point (string "The definition of complement theorem is: if A1, A2, ... An are events and A1$ÈA2$È...$ÈAn is equal to sample space, then we have p(A1$ÈA2$È...$ÈAn)=1. Here we know that ~a is equal to the sample space,  you can apply definition of complement theorem.   " (?events nlg-or-single-events)))
+   (bottom-out (string "Write the equation ~a "	 ((= 1 (+ . ?compo-quants)) algebra)))
    ))
    
 
@@ -132,11 +132,9 @@
   ((eqn (= ?quant1o2 (- (+ ?quant1 ?quant2) ?quant12)) (addition-theorem (eor ?e1 ?e2)))
      )
   :hint
-  ((point (string "Can you write an equation of the addition theorem for two events?"))
-   (point (string "Please apply the addition theorem on event ~a and event ~b." 
-		  ?e1 ?e2))  
-   (bottom-out (string "Write the equation ~a " 
-		  (= ?quant1o2 (- (+ ?quant1 ?quant2) ?quant12))))
+  ((point (string "Please apply the addition theorem for two events: event ~a and event ~a." ?e1 ?e2))
+   (point (string "The definition of addition theorem for two events:  for two events A and B,  P(A$ÈB)=P(A)+ P(B)- P(A$ÇB). Please apply the addition theorem on event ~a and event ~a."  ?e1 ?e2))  
+   (bottom-out (string "Write the equation ~a "   ((= ?quant1o2 (- (+ ?quant1 ?quant2) ?quant12)) algebra)))
    ))
 
 
@@ -221,10 +219,9 @@
   ((eqn (= ?quant1o23 (+ (- (- (- (+ (+ ?quant1 ?quant2) ?quant3) ?quant12) ?quant13) ?quant23) ?quant123)) (addition-theorem3 (eor ?e1 ?e2 ?e3)))
      )
   :hint
-  ((point (string "Can you write an equation of the addition theorem for three events?"))
-   (point (string "Please apply the addtion theorem on event ~a, ~a and ~a " 
-		  ?e1 ?e2 ?e3))  
-   (bottom-out (string "Write the equation ~a " (= ?quant1o23 (+ (- (- (- (+ (+ ?quant1 ?quant2) ?quant3) ?quant12) ?quant13) ?quant23) ?quant123))	))  
+  ((point (string "Please apply the addition theorem for three events on event ~a, ~a and ~a. " ?e1 ?e2 ?e3))
+   (point (string "The definition of addition theorem for three events:  for three events A, B and C,  P(A$ÈB$ÈC)=P(A)+ P(B)+p(C)-P(A$ÇB)-P(B$ÇC)-P(B$ÇC)+P(A$ÇB$ÇC).  Please apply the addtion theorem on event ~a, ~a and ~a " ?e1 ?e2 ?e3))  
+   (bottom-out (string "Write the equation ~a " ((= ?quant1o23 (+ (- (- (- (+ (+ ?quant1 ?quant2) ?quant3) ?quant12) ?quant13) ?quant23) ?quant123)) algebra)))  
    ))
 
 
@@ -289,7 +286,7 @@
    ((point (string "Can you write an equation of the decomposition law?"))
    (point (string "The probability of ~a is equal to the probaility of ~a$Ç~a plus the probability of ~a$Ç~a." 
 		  ?event ?event ?e1  ?event ?e2))  
-   (bottom-out (string "Write the equation ~A" ( (= ?quanta  (+ ?quantab ?quantanb)) algebra) ))
+   (bottom-out (string "Write the equation ~A" ((= ?quanta  (+ ?quantab ?quantanb)) algebra)))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
@@ -347,9 +344,9 @@
   ( (eqn (= ?quant  ?quantn) (de-morgan ?event))     
      )
   :hint
-  ((point (string "Can you write an equation of the de morgan's law?"))
-   (point (string "Please try to apply the de morgan's law on event ~a" (?event nlg-event))) 
-   (bottom-out (string "Write the equation ~a " (= ?quant  ?quantn)))
+  ((point (string "Please apply the addition theorem for three events on event ~a" (?event nlg-event)))
+   (point (string "De Morgan's law is: p(~(A1$ÇA2$Ç...$ÇAn))=p(~A1$È~A2$È,...,$È~An);or p(~(A1$ÈA2$È...$ÈAn))=p(~A1$Ç~A2$Ç... $Ç~An). Please apply De Morgan's law on event ~a" (?event nlg-event))) 
+   (bottom-out (string "Write the equation ~a " ((= ?quant  ?quantn)  algebra)))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
@@ -399,9 +396,9 @@
   ( (eqn (= 0  ?quant) (mutually-exclusive-events ?event))     
      )
   :hint
-  ((point (string "Can you write an equation of the probability of mutually exclusive events?"))
-   (point (string "Please try to apply the facts that event ~a are mutually exclusive events." (?events nlg-single-events)))  
-   (bottom-out (string "Write the equation ~a " (= 0  ?quant)))
+  ((point (string "Please apply the definition of mutually exclusive events on the event ~a" (?event nlg-event)))
+   (point (string "Definition of mutually exclusive events: if A1$ÇA2$Ç...$ÇAn is equal to empty event, then p(A1$ÇA2$Ç...$ÇAn)=0. Here we know that event ~a are mutually exclusive events, please apply the definition of mutual exclusive events on event ~a " (?events nlg-single-events) (?event nlg-event)))  
+   (bottom-out (string "Write the equation ~a " ((= 0  ?quant)  algebra)))
    ))
 
 
@@ -479,10 +476,9 @@ Should apply for this this:
   ( (eqn (= ?pgiven (/ ?pand ?p1)) (conditional-probability ?event))     
      )
   :hint
-  ((point (string "Can you write an equation of the definition of the conditional probability?"))
-   (point (string "Please try to apply the definition of conditional probability on the event ~a" 
-		  (?event nlg-event)))  
-   (bottom-out (string "Write the equation ~a " (= ?pgiven (/ ?pand ?p1))))
+  ((point (string "Please apply the definition of mutually exclusive events on the event ~a " (?event nlg-event)))
+   (point (string "The definition of conditional probability is: for event A and B, p(A|B)=p(A$ÇB)/p(B).  Please apply the definition of conditional event on the event ~a"  (?event nlg-event)))  
+   (bottom-out (string "Write the equation ~a " ((= ?pgiven (/ ?pand ?p1))  algebra)))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
@@ -587,9 +583,9 @@ Should apply for this this:
   ( (eqn (= ?pevent (+ . ?exps)) (total-probability-theorem ?event ?events))     
      )
   :hint
-  ((point (string "Can you write an equation of the law of total probability?"))
-   (point (string "If ~a is a collection of mutually exclusive and exhaustive events, then we can can apply the total theorem on the event ~a " (?events nlg-single-events) (?event nlg-event)))
-   (bottom-out (string "Write the equation ~a " (= ?pevent (+ . ?exps))))
+  ((point (string "Please apply the total probability theorem on the event ~a" (?event nlg-event)))
+   (point (string "The definition of total probability theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, for any event B, we have p(B)=p(B|A1)*(A1)+p(B|A2)*p(A2)+...+p(B|An)*p(An). Here we know that ~a is a collection of mutually exclusive and exhaustive events, then we can can apply the total theorem on the event ~a " (?events nlg-single-events) (?event nlg-event)))
+   (bottom-out (string "Write the equation ~a " ((= ?pevent (+ . ?exps))   algebra)))
    ))
 
 #|test: -----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -677,12 +673,10 @@ Should apply for this this: p(H|B)=p(H)*p(B|H)/{p(H)*p(B|H)+p(L)*p(B|L)}
   ( (eqn (= ?phb (/ ?exphb (+ . ?exps))) (bayes-rule (given ?eventh ?eventb)))     
      )
   :hint
-  ((point (string "Can you write an equation of Bayes' theorem?")) 
-   (point (string "If ~a is a collection of mutually exclusive and exhaustive events, then we can can apply the bayes rule on the event ~a|~a " (?events nlg-single-events) (?eventh nlg-event) (?eventb nlg-event)))
-   (bottom-out (string "Write the equation ~a" (= ?phb (/ ?exphb (+ . ?exps))) ))
+  ((point (string "Please apply the Bayes's theorem on the event ~a " (?event nlg-event))) 
+   (point (string "The definition of Bayes's theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, for any event B, we have p(Ai|B)=p(B|Ai)*(Ai)/{p(B|A1)*(A1)+...+p(B|Ai)*p(Ai)+...+p(B|An)*p(An)}. Here we know that ~a is a collection of mutually exclusive and exhaustive events, we can can apply the bayes rule on the event ~a|~a " (?events nlg-single-events) (?eventh nlg-event) (?eventb nlg-event)))
+   (bottom-out (string "Write the equation ~a" ((= ?phb (/ ?exphb (+ . ?exps)))   algebra)))
     ))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
 ;;  Independent Events                                                                                                                                         
@@ -777,8 +771,8 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
   ( (eqn (= ?pevent (* . ?pbs)) (independent-events ?event))     
      )
   :hint
-  ((point (string "Can you write an equation of the independent events?"))
-   (point (string "Since event ~a are independent events, You can apply definition of independent event." (?events nlg-single-events)))  
+  ((point (string "~a You can apply definition of independent event." ((?event ?events) nlg-independent-event)))
+   (point (string "The definition of independent events is: If two events A and B are independent events, then p(A$ÇB)=p(A)*p(B); If three events A, B and C are independent events, then p(A$ÇB$ÇC)=p(A)*p(B)*p(C),p(A$ÇB)=p(A)*p(B), p(A$ÇC)=p(A)*p(C) and p(B$ÇC)=p(B)*p(C). Here you know: ~a You can apply definition of independent event. " ((?event ?events) nlg-independent-event)))  
    (bottom-out (string "Write the equation ~a " ((= ?pevent (* . ?pbs)) algebra) ))
    ))
 
@@ -870,8 +864,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
   ( (eqn (= ?pevent (* . ?pbs)) (conditional-independent-events (given ?event ?eventb)))     
      )
   :hint
-  ((point (string "Can you write an equation of the conditional independent probability?"))
-   (point (string "Since event ~a are conditional independent events given event ~a, You can apply definition of conditional independent events." (?events nlg-single-events) (?eventb nlg-event)))  
-   (bottom-out (string "Write the equation ~a " (= ?pevent (* . ?pbs))))
+  ((point (string "~a You can apply definition of conditional independent events." ((?event ?events ?eventb) nlg-conditional-independent-event) ))
+   (point (string "The definition of conditional independent events is: If two events A and B are conditional independent events given G, then p(A$ÇB|G)=p(A|G)*p(B|G); If three events A, B and C are conditional independent events given G, then p(A$ÇB$ÇC|G)=p(A|G)*p(B|G)*p(C|G),p(A$ÇB|G)=p(A|G)*p(B|G), p(A$ÇC|G)=p(A|G)*p(C|G) and p(B$ÇC|G)=p(B|G)*p(C|G). Here we know: ~a You can apply definition of conditional independent events." ((?event ?events ?eventb) nlg-conditional-independent-event)))  
+   (bottom-out (string "Write the equation ~a " ((= ?pevent (* . ?pbs)) algebra)))
    ))
-
