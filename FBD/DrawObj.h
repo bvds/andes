@@ -785,8 +785,11 @@ public:
 	CString m_strAgent;			// force agent, or second body or time
 	
 	// derived from above:
-	CString m_strValue;			// quantity type as string
+	CString m_strQuantName;		// quantity type name as string
 	CString m_strDef;			// full definition string
+
+	CString m_strValue;			// Given value expression, empty if unknown
+
 	
 	// For vector variables: equivalent of m_bAngular flag to denote angular form is
 	// coded by type in m_nType. Angular type ids and vector type ids in parallel ranges. 

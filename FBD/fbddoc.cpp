@@ -763,7 +763,7 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 								m_strProblemId, m_nAssessor);	
 	else
 		pszResult = HelpSystemExecf("(read-problem-info \"%s\" %d %d)", 
-								m_strProblemId, m_nKBType, m_nAssessor);
+								LISPSTR(m_strProblemId), m_nKBType, m_nAssessor);
 	// NB: NIL return means help system does not get a "close-problem" notification on 
 	// finish, since it failed to open the problem (correct behavior?)
 	if (! pszResult || (strcmp(pszResult, "NIL") == 0) ){
@@ -878,7 +878,7 @@ void CFBDDoc::OnCloseDocument()
 		HelpIfcSetCallParms(HELPIFC_TIMEOUT, "Waiting for Andes to update its records");
 		(void) HelpSystemExecf( "(close-%s \"%s\")", 
 						m_nProblemType == PROB_EXAMPLE ? "example" : "problem", 
-						m_strProblemId  );
+						LISPSTR(m_strProblemId) );
 		// result of this call is unused, but must block till RPC returns:
 	}
 
@@ -1058,7 +1058,7 @@ void CFBDDoc::CheckInitEntries()
 		{
 			// urgh, no subroutine to check an equation outside of view
 			// strEq.Replace("\"", "\\\"");  // escape any embedded quotes for Lisp read
-			LPCTSTR pszResult = HelpSystemExecf("(lookup-eqn-string \"%s\" %d)", strEq, nEq);
+			LPCTSTR pszResult = HelpSystemExecf("(lookup-eqn-string \"%s\" %d)", LISPSTR(strEq), nEq);
 			CCheckedObj::ApplyStatus(pszResult, m_statusEq[nEq], listErrors);
 		}
 	}
@@ -1074,7 +1074,7 @@ void CFBDDoc::CheckInitEntries()
 			// on always resubmitting to recreate answer status, we always recheck.
 			if (! strAnswer.IsEmpty() /*&& pObj->m_status != statusUnknown */)
 			{	
-				LPCTSTR pszResult = HelpSystemExecf("(check-answer \"%s\" %s)", strAnswer, pObj->m_strId);
+				LPCTSTR pszResult = HelpSystemExecf("(check-answer \"%s\" %s)", LISPSTR(strAnswer), pObj->m_strId);
 				CCheckedObj::ApplyStatus(pszResult, pObj->m_status, listErrors);
 			}
 		}
@@ -2268,6 +2268,7 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 	// counter for answer boxes and text pieces
 	int nAnswers = 0;
 	int nText = 0;
+	int nChoices = 0;
 	// start and end position of answer box markers:
 	int iAnsStart, iAnsEnd;
 
@@ -2328,10 +2329,11 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 			// Extract answer box marker text string. Its size will determine size of box
 			CString strAnswerSize = strRemain.Mid(iAnsStart, iAnsEnd-iAnsStart);
 				
-			// if see a "{" before answer box, we start a choice group -- note can span multiple lines
+			// if see a "{" before answer box, we start a multiple-choice question group. 
+			// note can span multiple lines. 
 			if (strPrefix.Find("{") != -1) {
 				pGroup = new CGroup();
-				pGroup->m_strId.Format("MC-%d", ++nGroups); 
+				pGroup->m_strId.Format("MC-%d", ++nAnswers); // whole group is one answer
 				Add(pGroup, FALSE); pGroup->m_flag = TEACHER_OBJECT;
 				strPrefix.Delete(strPrefix.Find("{"));
 			}
@@ -2365,10 +2367,15 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 				CChoice* pChoice = new CChoice(rcAnswer);
 				strAnswerSize.Replace("[__", "");
 				pChoice->m_strName = strAnswerSize;
-				pChoice->m_strId.Format("Answer-%d", ++nAnswers);
-				// add it to group, if any
-				if (pGroup) pGroup->AddObj(pChoice);
-				else Add(pChoice, /*bGenId*/ FALSE); pChoice->m_flag = TEACHER_OBJECT;
+				pChoice->m_flag = TEACHER_OBJECT;
+				// if there's a group, add as choice under that group
+				if (pGroup) {
+					pChoice->m_strId.Format("Choice-%d", ++nChoices);
+					pGroup->AddObj(pChoice);			
+				} else { // add a free-standing answer button (probably DONE button)
+					pChoice->m_strId.Format("Answer-%d", ++nAnswers);
+					Add(pChoice, /*bGenId*/ FALSE); 
+				}
 				pChoice->Invalidate();
 				xPos+= pChoice->m_position.Width();
 			} else { // create an answer box rectangle

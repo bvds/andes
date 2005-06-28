@@ -302,7 +302,10 @@
 (defun entered-explicitly (syseqn &optional (EntryList *StudentEntries*)) 
 "true if syseqn is explicitly entered somewhere in given set of entries (default all entries)"
   (some #'(lambda (studEntry) 
-            (explicit-entry-of studEntry syseqn))
+            (or (explicit-entry-of studEntry syseqn)
+		; also check among dangling entries for given equations
+	        (some #'(lambda (ge) (explicit-entry-of ge syseqn))
+		      (studentEntry-GivenEqns studEntry))))
         EntryList))
 
 ; might want this instead, if we care about order of solution equations:

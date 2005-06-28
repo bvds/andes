@@ -100,6 +100,11 @@ void CVariableDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CVariableDlg)
+	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
+	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
+	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
+	DDX_Control(pDX, IDC_CHECK_UNKNOWN, m_btnUnknown);
+	DDX_Control(pDX, IDC_GIVEN_VALUE, m_editValue);
 	DDX_Control(pDX, IDOK, m_Ok);
 	DDX_Control(pDX, IDCANCEL, m_Cancel);
 	DDX_Control(pDX, IDC_TXT0, m_stcLet);
@@ -158,6 +163,8 @@ END_CTL_TBL(CVariableDlg)
 
 BEGIN_MESSAGE_MAP(CVariableDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CVariableDlg)
+	ON_BN_CLICKED(IDC_CHECK_UNKNOWN, OnCheckUnknown)
+	ON_EN_CHANGE(IDC_GIVEN_VALUE, OnChangeGivenValue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -175,9 +182,18 @@ BOOL CVariableDlg::OnInitDialog()
 	// adjust dialog for special-purpose uses: to define a sought only (no label)
 	// or to define a property for the HiLevel plan (now unused)
 	if (m_bSought || m_bProp){
+		// remove the whole label box from dialog
+		Remove(IDC_BOX_LABEL);
+		// hide the label controls
 		m_stcLet.ShowWindow(SW_HIDE);
 		m_editName.ShowWindow(SW_HIDE);
-		Remove(IDC_BOX_LABEL);
+		// hide the given value controls as well
+		//m_stcGiven.ShowWindow(SW_HIDE);
+		//m_stcEquals.ShowWindow(SW_HIDE);
+		//m_editValue.ShowWindow(SW_HIDE);
+		//m_stcOr.ShowWindow(SW_HIDE);
+		//m_btnUnknown.ShowWindow(SW_HIDE);
+	
 		if (m_bSought){
 			SetWindowText("Define Sought");
 		} else {
@@ -359,6 +375,10 @@ void CVariableDlg::InitVariableDlg()
 	m_cboBody.SelectStringExact(((CVariable*)m_pTempObj)->m_strObject );
 	m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent );
 	m_cboTime.SelectStringExact(((CVariable*)m_pTempObj)->m_strTime) ;
+	// Transfer given value/unknown bit from controls to variable
+	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	// sync unknown check box with value
+	OnChangeGivenValue();
 }
 
 CLabelRichEdit* CVariableDlg::GetLabelCtrl()
@@ -371,11 +391,15 @@ void CVariableDlg::UpdateTempVariable()
 	((CVariable*)m_pTempObj)->m_strObject = GetCurString(&m_cboBody);
 	((CVariable*)m_pTempObj)->m_strAgent = GetCurString(&m_cboAgent);
 	((CVariable*)m_pTempObj)->m_strTime = GetCurString(&m_cboTime);
+	CString strValue;
+	m_editValue.GetWindowText(strValue);
+	((CVariable*)m_pTempObj)->m_strValue= strValue;
 	
 	CString str;
 	m_editName.GetRichEditText(str);
 	m_pTempObj->m_strName = str;
 }
+
 
 void CVariableDlg::OnOK() 
 {
@@ -479,12 +503,12 @@ void CVariableDlg::BuildVariable()
 	// as a type code in our system. As it stands, this requires human-readable names to be 
 	// unique and persistent across versions, since they function as type codes when
 	// deserializing a variable (since integer type codes are now not persistent).
-	m_pTempVar->m_strValue = CVarView::LookupStrValue(m_pTempVar->m_nType);
+	m_pTempVar->m_strQuantName = CVarView::LookupStrValue(m_pTempVar->m_nType);
 
 	// build the definition string displayed in var window and printout. Note this
 	// shows language as it reads in dialog box, which may have different "Value"
 	// for readability. (We fetch it again without the initial upper-casing done by
-	// LookupCtrlName
+	// LookupCtrlName)
 	m_pTempVar->m_strDef = CVarView::LookupDlgValue(m_pTempVar->m_nType) +  
 						   strBodyPrep + m_pTempVar->m_strObject + 
 						   strAgentPrep + m_pTempVar->m_strAgent +
@@ -525,3 +549,26 @@ END_MESSAGE_MAP()
 
 
 
+// Keep edit control contents and unknown check box in sync:
+// blank string <=> unknown checked
+void CVariableDlg::OnCheckUnknown() 
+{
+	if (m_btnUnknown.GetCheck()) {
+		m_editValue.SetWindowText("");
+	} else {
+		m_editValue.SetFocus();
+	}
+}
+
+void CVariableDlg::OnChangeGivenValue() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	CString strText;
+	m_editValue.GetWindowText(strText);
+	strText.Remove(' ');
+	m_btnUnknown.SetCheck(strText.IsEmpty());
+}

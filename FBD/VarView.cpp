@@ -59,9 +59,10 @@ typedef struct
 typedef CTypedPtrArray<CPtrArray, QuantInfo*> CQuantpArray;
 static CQuantpArray m_quants;
 
-// for scalars using compiled-in dialog, other old code relies on compiled-in integer ids.
-// Now all scalar quants are listed in the external file (mainly so we can control order of all quantities)
-// this map is used to find fixed ids where needed when loading scalar quant info from external file.
+// for scalars using compiled-in dialog, dialog-locating code relies on static, compiled-in integer ids.
+// Now ALL scalar quants are listed in the external file (mainly so we can control order of all quantities)
+// this map is used to find fixed compiled-in ids where needed when loading scalar quant info from external file,
+// instead of assigning a dynamically-generated id for these.
 static struct { 
 	int nId;	
 	char* szTypeId;
@@ -74,7 +75,8 @@ static struct {
 { ID_VARIABLE_ADDVOLTAGE,		"voltage" },
 { ID_VARIABLE_ADDRESISTANCE,	"resistance" },
 { ID_VARIABLE_ADDCAPACITANCE,	"capacitance"	},
-{ ID_VARIABLE_ADDTIME,           "duration"},
+{ ID_VARIABLE_ADDTIME,          "duration"},
+{ ID_VARIABLE_ADDPROBABILITY,   "probability", },
 };
 const int numStaticIds ARRAY_SIZE(staticIds);
 
@@ -184,6 +186,7 @@ static QuantTblEntry vectorQuants[] =
 { ID_VARIABLE_ADDTORQUE,         "torque",			"$t", },
 { ID_VARIABLE_ADDEFIELD,         "E-field",			"E", },
 { ID_VARIABLE_ADDBFIELD,         "B-field",			"B", },
+{ ID_VARIABLE_ADDIMPULSE,        "impulse",         "J", },
 };
 const int numVectors ARRAY_SIZE(vectorQuants);
 
@@ -238,8 +241,9 @@ int CVarView::LookupId(CString strTypeId)  // strTypeId -> integer type code
 	// for backwards compatibility: convert old typeIds to new (may be in old logs or solutions)
 	if (strTypeId == "distance-travelled") strTypeId = "distance-traveled";
 	else if (strTypeId == "compression-distance") strTypeId = "compression";
-	else if (strTypeId.Find("angular-") != -1)
-		strTypeId.Replace("angular-", "ang-");
+	// can now have angular-frequency !
+	//else if (strTypeId.Find("angular-") != -1)
+	//	strTypeId.Replace("angular-", "ang-");
 
 	for (int i = 0; i < m_quants.GetSize(); i++) {
 		if (strcmpi(m_quants[i]->strTypeId, strTypeId) == 0)
@@ -254,11 +258,20 @@ int CVarView::ValueToId(CString strValue)  // strValue (human-readable) -> integ
 	if (strValue == "distance travelled") strValue = "distance traveled";
 	else if (strValue == "rate of current change") strValue = "rate of change of current";
 	
+	int nResult = -1;
 	for (int i = 0; i < m_quants.GetSize(); i++) {
-		if (strcmpi(m_quants[i]->strValue, strValue) == 0)
-			return m_quants[i]->id;
+		if (strcmpi(m_quants[i]->strValue, strValue) == 0) {
+			// Sometimes have duplicate "friendly" names, e.g. "power" for different
+			// power quantities. Prefer to return a hit that is appropriate to this problem
+			if (IncludeQuant(m_quants[i]->strTypeId)) {
+				return m_quants[i]->id;	// return it immediately
+			} else {
+				// save as backup return if no problem-appropriate hit is found
+				nResult = m_quants[i]->id;
+			}
+		}
 	}
-	return -1;
+	return nResult;
 }
 
 CString CVarView::LookupPrefix(int nID)
@@ -518,6 +531,7 @@ void CVarView::InsertTimeVariables()
 		strName.TrimRight();//space will screw up solve-for
 		strDef = strTime.Mid(eqPos + 2);//=space
 		int index = GetListCtrl().GetItemCount();
+		SizeToFit(1, strName);
 		GetListCtrl().InsertItem(index, strName);//insert and set status 
 		GetListCtrl().SetItemText(index, 1, strDef);
 		GetListCtrl().SetItemState(index, INDEXTOSTATEIMAGEMASK(5), LVIS_STATEIMAGEMASK);
@@ -577,6 +591,11 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 				|| (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) )
 	{
 		strDef = pObj->GetDef();
+		// For variables: append given value if specified
+		if (pObj->IsKindOf(RUNTIME_CLASS(CVariable)) 
+			&& ! ((CVariable*)pObj)->m_strValue.IsEmpty() ) {
+			strName += "=" + ((CVariable*)pObj)->m_strValue;
+		}
 	}
 	else if (pObj->HasComponents())//vectors only(!components)  (variables taken care of above)
 	{

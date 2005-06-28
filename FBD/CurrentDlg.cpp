@@ -27,6 +27,11 @@ void CCurrentDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCurrentDlg)
+	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
+	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
+	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
+	DDX_Control(pDX, IDC_CHECK_UNKNOWN, m_btnUnknown);
+	DDX_Control(pDX, IDC_GIVEN_VALUE, m_editValue);
 	DDX_Control(pDX, IDC_LVARIABLE_NAME, m_stcLet);
 	DDX_Control(pDX, IDC_CURRENT_THRU, m_btnThrough);
 	DDX_Control(pDX, IDC_CURRENT_IN, m_btnIn);
@@ -56,6 +61,8 @@ BEGIN_MESSAGE_MAP(CCurrentDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CCurrentDlg)
 	ON_BN_CLICKED(IDC_CURRENT_THRU, OnUpdateType)
 	ON_BN_CLICKED(IDC_CURRENT_IN, OnUpdateType)
+	ON_BN_CLICKED(IDC_CHECK_UNKNOWN, OnCheckUnknown)
+	ON_EN_CHANGE(IDC_GIVEN_VALUE, OnChangeGivenValue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -98,7 +105,11 @@ void CCurrentDlg::InitVariableDlg()
 	}
 	OnUpdateType();
 
-	m_cboTime.SelectStringExact(pVar->m_strTime);;
+	m_cboTime.SelectStringExact(pVar->m_strTime);
+	// Transfer given value/unknown bit from controls to variable
+	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	// sync unknown check box with value
+	OnChangeGivenValue();
 }
 
 void CCurrentDlg::UpdateTempVariable()
@@ -115,9 +126,12 @@ void CCurrentDlg::UpdateTempVariable()
 	}
 	pTempVar->m_strTime = GetCurString(&m_cboTime);
 	m_editName.GetRichEditText(pTempVar->m_strName);
+	CString strValue;
+	m_editValue.GetWindowText(strValue);
+	((CVariable*)m_pTempObj)->m_strValue= strValue;
 	
 	// for vars, also need to set variable quant type and definition strings
-	pTempVar->m_strValue = "current";
+	pTempVar->m_strQuantName = "current";
 	CString strTime;
 	if (! pTempVar->m_strTime.IsEmpty())
 		strTime = " at time " + pTempVar->m_strTime;
@@ -168,4 +182,28 @@ void CCurrentDlg::OnUpdateType()
 {
 	m_cboComponent.EnableWindow(m_btnThrough.GetCheck());
 	m_cboBranch.EnableWindow(m_btnIn.GetCheck());
+}
+
+// Keep edit control contents and unknown check box in sync:
+// blank string <=> unknown checked
+void CCurrentDlg::OnCheckUnknown() 
+{
+	if (m_btnUnknown.GetCheck()) {
+		m_editValue.SetWindowText("");
+	} else {
+		m_editValue.SetFocus();
+	}
+}
+
+void CCurrentDlg::OnChangeGivenValue() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	CString strText;
+	m_editValue.GetWindowText(strText);
+	strText.Remove(' ');
+	m_btnUnknown.SetCheck(strText.IsEmpty());
 }

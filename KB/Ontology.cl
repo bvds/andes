@@ -433,7 +433,7 @@
    :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
 
 (def-goalprop other-var (variable ?var ?quantity)
-   :english ("introducing a variable for ~A" (nlg ?quantity)))
+   :english ("introducing a $a variable for ~A" (nlg ?quantity)))
 ;|# ;; end experimental
 
 (def-goalprop lk-eqn-chosen

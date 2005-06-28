@@ -29,6 +29,11 @@ void CVoltageDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CVoltageDlg)
+	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
+	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
+	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
+	DDX_Control(pDX, IDC_CHECK_UNKNOWN, m_btnUnknown);
+	DDX_Control(pDX, IDC_GIVEN_VALUE, m_editValue);
 	DDX_Control(pDX, IDC_LVARIABLE_NAME, m_stcLet);
 	DDX_Control(pDX, IDC_TIME, m_cboTime);
 	DDX_Control(pDX, IDC_COMPONENT, m_cboComponent);
@@ -50,6 +55,8 @@ void CVoltageDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CVoltageDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CVoltageDlg)
+	ON_BN_CLICKED(IDC_CHECK_UNKNOWN, OnCheckUnknown)
+	ON_EN_CHANGE(IDC_GIVEN_VALUE, OnChangeGivenValue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -81,7 +88,11 @@ void CVoltageDlg::InitVariableDlg()
 
 	// voltage across component
 	m_cboComponent.SelectStringExact(pVar->m_strObject);
-	m_cboTime.SelectStringExact(pVar->m_strTime);;
+	m_cboTime.SelectStringExact(pVar->m_strTime);
+	// Transfer given value/unknown bit from controls to variable
+	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	// sync unknown check box with value
+	OnChangeGivenValue();
 }
 
 void CVoltageDlg::UpdateTempVariable()
@@ -93,9 +104,12 @@ void CVoltageDlg::UpdateTempVariable()
 	pTempVar->m_strAgent.Empty(); // clear any prior value
 	pTempVar->m_strTime = GetCurString(&m_cboTime);
 	m_editName.GetRichEditText(pTempVar->m_strName);
+	CString strValue;
+	m_editValue.GetWindowText(strValue);
+	((CVariable*)m_pTempObj)->m_strValue= strValue;
 	
 	// for vars, also need to set variable quant type and definition strings
-	pTempVar->m_strValue = "voltage";
+	pTempVar->m_strQuantName = "voltage";
 	CString strTime;
 	if (! pTempVar->m_strTime.IsEmpty())
 		strTime = " at time " + pTempVar->m_strTime;
@@ -151,4 +165,28 @@ void CVoltageDlg::OnOK()
 	// Get here => Finished OK: transfer new props into obj via
 	// UpdateObj() called from base class
 	CDrawObjDlg::OnOK();	
+}
+
+// Keep edit control contents and unknown check box in sync:
+// blank string <=> unknown checked
+void CVoltageDlg::OnCheckUnknown() 
+{
+	if (m_btnUnknown.GetCheck()) {
+		m_editValue.SetWindowText("");
+	} else {
+		m_editValue.SetFocus();
+	}
+}
+
+void CVoltageDlg::OnChangeGivenValue() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	CString strText;
+	m_editValue.GetWindowText(strText);
+	strText.Remove(' ');
+	m_btnUnknown.SetCheck(strText.IsEmpty());
 }

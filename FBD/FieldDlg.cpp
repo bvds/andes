@@ -216,12 +216,12 @@ void CFieldDlg::UpdateTempVariable()
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	
 	// for vars, also need to set variable quant type and definition strings
-	pTempVar->m_strValue = m_bMagnetic ? "B-field" : "E-field";
+	pTempVar->m_strQuantName = m_bMagnetic ? "B-field" : "E-field";
 	CString strTime;
 	if (! pTempVar->m_strTime.IsEmpty())
 		strTime = " at time " + pTempVar->m_strTime;
 	
-	pTempVar->m_strDef =  pTempVar->m_strValue
+	pTempVar->m_strDef =  pTempVar->m_strQuantName
 						  + " at " + pTempVar->m_strObject 
 						  + " due to " + pTempVar->m_strAgent 
 						  + strTime;

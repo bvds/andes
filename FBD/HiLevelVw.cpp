@@ -270,7 +270,7 @@ void CHiLevelVw::OnUpdateDirectionParallel(CCmdUI* pCmdUI)
 			while (pos != NULL)
 			{
 				CTableRow* pProp = pTable->m_properties.GetNext(pos);
-				if (pProp->m_strValue.Find("time") == -1)
+				if (pProp->m_strQuantName.Find("time") == -1)
 				{
 					pCmdUI->Enable(TRUE);
 					return;

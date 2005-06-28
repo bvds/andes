@@ -37,8 +37,9 @@
   (cond 
 	; may be NIL on probs w/o distinguished times
         ((null time-arg) (get-default-time))
-	; WB allows defined student variable for duration as interval name.
-	((get-student-time time-arg))
+	; Andes1 WB allowed defined student variable for duration as interval name.
+	; no longer used in Andes2
+	; ((get-student-time time-arg))
 	; may be time interval symbol of form |T0 to T1|
 	((wb-interval-namep time-arg) (get-wb-interval time-arg))
 	; or may be time point name of form T1
@@ -876,8 +877,7 @@
 ;;  as "entered" and enters the student's variable name into the symbol table
 ;;  paired with the corresponding system variable
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-define-variable (var type quant body time body2 id &optional directionp)
- (declare (ignore directionp)) ; obsolete, never used
+(defun on-define-variable (var type quant body time body2 id &optional value)
  (let* ((quant-term (make-quant type quant body body2 time))
 	(action    `(define-var ,quant-term))
 	(entry      (make-StudentEntry :id id :prop action)))
@@ -885,6 +885,11 @@
   ; install new variable in symbol table
   (add-entry entry)
   (symbols-enter var quant-term id)
+
+  ; record associated given value equation entry
+  (when value  ; NIL => unspecified; empty string => unknown
+    (setf (studentEntry-GivenEqns entry) 
+          (list (make-given-eqn-entry var value))))
 
   ; finally return entry 
   entry))
@@ -1044,7 +1049,11 @@
   	(sg-delete-StudentEntry entry)
         ; undo any implicit eqn entry associated with this
   	(when (StudentEntry-ImplicitEqn entry)
-           (undo-entry (StudentEntry-ImplicitEqn entry))))
+           (undo-entry (StudentEntry-ImplicitEqn entry)))
+        ; undo any given eqn entry associated with this
+	(dolist (ge (StudentEntry-GivenEqns entry))
+	  (when (not (blank-given-value-entry ge))
+	    (undo-entry ge))))
 
   ; remove all labels dependent on it from symbol table
   (symbols-delete-dependents (StudentEntry-ID entry))
@@ -1133,11 +1142,25 @@
       ;(when (SystemEntry-PrematureP match)
       ; (format T "Prematurity ignored. Prereqs:~%~{~A~}~%"
       ;            (systemEntry-Prereqs match)))
+
+      ; check any given value equations associated. At first one that is wrong, its
+      ; result turn becomes the result for the whole entry. If wrong, checking routine 
+      ; should update main entry with error interp of equation.
+      (dolist (e (StudentEntry-GivenEqns entry))
+         (setf result (Check-Given-Value-Entry entry e))
+	 (when (not (eq (turn-coloring result) **color-green**))
+	     (return-from Check-NonEq-Entry result)))
+          
       ; enter step as done in solution graph
        (sg-enter-StudentEntry Entry)
       ; if entry has associated implicit equation, enter that as done well
        (when (StudentEntry-ImplicitEqn entry)
 	 (enter-implicit-entry (StudentEntry-ImplicitEqn entry)))
+      ; if entry has associated given value equations, enter them as well
+      ; Note we need parsed equation in systemese
+      (dolist (e (StudentEntry-GivenEqns entry))
+         (enter-given-eqn e))
+      ; Everything is OK!
       (setf result (make-green-turn)))
 
      ; give special messages for some varieties of incorrectness:
@@ -1172,11 +1195,20 @@
 ;;
 (defun enter-implicit-eqn (eqn-entry)
 "enter implicit equation defined by correct non-eqn entry"
-  (let* ((eqn (second (StudentEntry-prop eqn-entry)))
-         ; Set entry id to free high equation slot, aborting entry
+  (enter-subentry-eqn eqn-entry (second (StudentEntry-prop eqn-entry))))
+
+(defun enter-given-eqn (eqn-entry)
+"enter given value equation defined by correct non-eqn entry"
+ ; don't enter if entry says value is unknown. 
+ (when (not (blank-given-value-entry eqn-entry))
+   (enter-subentry-eqn eqn-entry (studentEntry-ParsedEqn eqn-entry))))
+
+; enter some dependent equation
+(defun enter-subentry-eqn (eqn-entry eqn)
+  (let* (; Set entry id to free high equation slot, aborting entry
 	 ; if ran out of slots (should ensure enough so never happens)
          (slot (or (setf (StudentEntry-ID eqn-entry) (get-unused-implicit-slot))
-	           (return-from enter-implicit-eqn)))
+	           (return-from enter-subentry-eqn)))
 	 ; verify it with algebra and enter it in slot
          (result (solver-StudentAddOkay slot eqn)))
 
@@ -1253,12 +1285,14 @@
 
       ;finally return result 
       result-turn))
-|#
+
+; this function no longer used by revised Do-Check-Answer
 (defun check-answer-eqn (student-answer-eqn-str slot)
    ; temp: delegate to student equation checker.
    ; NB: not do-lookup-eqn-string, which does a return-turn
    (do-lookup-equation-answer-string student-answer-eqn-str slot))
 
+|#
 ;; do-check-answer moved to parse-andes.cl
 
 

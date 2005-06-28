@@ -207,12 +207,15 @@ void CChatView::AddSystemText(LPCTSTR pszHint, HintType type/*=Msg*/)
 		textSpec = textSpec.Mid(0, sepIndex); // drop the button part from the text
 	
 		// check for "Query" flag ('?') as first button and remove it if present
-		bQuery = m_strBtns[0] == '?';
-		if (bQuery)
-			m_strBtns.Remove('?');
-		// check for menu spec beginning with vbar or else single-character menu code
-		bMenu = (m_strBtns[0] == '|') ||
-				(m_strBtns.FindOneOf("QPE") != -1);
+		if (! m_strBtns.IsEmpty())
+		{
+			bQuery = m_strBtns[0] == '?';
+			if (bQuery)
+				m_strBtns.Remove('?');
+			// check for menu spec beginning with vbar or else single-character menu code
+			bMenu = (m_strBtns[0] == '|') ||
+					(m_strBtns.FindOneOf("QPE") != -1);
+		}
 	}
 
 	// Unescape any tildes in message text.
@@ -361,7 +364,8 @@ void CChatView::AddText(LPCTSTR str)
 			if (!preText.IsEmpty())
 				edit.ReplaceSel(preText);
 			letter = text[grkPos + 1];
-			if (((letter >= "a") && ( letter <="z"))||((letter >= "A") && ( letter <="Z")))
+			if (((letter >= "a") && ( letter <="z"))||((letter >= "A") && ( letter <="Z"))
+				|| (letter == "\307") || (letter == "\310")) // union or intersection
 			{
 				//ToggleCharSymbol();
 				//edit.ReplaceSel(letter);
@@ -518,7 +522,7 @@ void CChatView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 		// Important since failed calls must end TutorMode (in AddSystemText).
 		LPCTSTR pszResult; 
 		if (HelpSystemIsConnected()) // test for the connection
-			pszResult = HelpSystemExecf("(get-dialog-response \"%s\")", strDiscourse);
+			pszResult = HelpSystemExecf("(get-dialog-response \"%s\")", LISPSTR(strDiscourse));
 		else 
 			pszResult = "Help system is unavailable."; // Do something on a HelpSystem problem.
 
@@ -615,7 +619,7 @@ BOOL CChatView::DispatchEvent(EventID nEvent, LPCTSTR pszArgs)
 		SetInputLine("");
 
 		AddText(pszArgs);
-		AddSystemText(HelpSystemExecf("(get-dialog-response \"%s\")", pszArgs), Hint);
+		AddSystemText(HelpSystemExecf("(get-dialog-response \"%s\")", LISPSTR(pszArgs)), Hint);
 		break;
 
 	case EV_UNSENT_CONTENTS:
@@ -732,9 +736,12 @@ void CChatView::SetCharPlain()
 	CHARFORMAT cfDefault;
 	cfDefault.cbSize = sizeof(CHARFORMAT);
 	GetRichEditCtrl().GetDefaultCharFormat(cfDefault);
-	::lstrcpy(cf.szFaceName, cfDefault.szFaceName); 
+	// Setting default fact name is not working in release mode.
+	// Here we force Arial.
+	::lstrcpy(cf.szFaceName, "Arial"); // */ cfDefault.szFaceName); 
+	//AfxMessageBox(CString("Setting Plain text font=") + cf.szFaceName);
 	
-	cf.dwMask = CFM_ITALIC | CFM_BOLD | CFM_FACE;
+	cf.dwMask = /*CFM_ITALIC | CFM_BOLD |*/ CFM_FACE; // change fontface only
 	GetRichEditCtrl().SetSelectionCharFormat(cf);
 }
 
@@ -1408,7 +1415,7 @@ void CChatView::SubmitMenuSelection(CString strChosen)
 		// Get quantity defining parameters from variable and
 		// submit call to help system as student response argument. To simplify things we
 		// include reader-dispatch to conversion function on the other side
-		pszResult = HelpSystemExecf( "(handle-student-response \"%s\")", strChosen);
+		pszResult = HelpSystemExecf( "(handle-student-response \"%s\")", LISPSTR(strChosen));
 	}
 	// Send the response to the screen
 	theApp.GetMainFrame()->ShowHint(pszResult, Hint); 

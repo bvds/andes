@@ -326,6 +326,15 @@ void CDrawObjDlg::Remove(int nIDBox)
 
 	// !!! Should hide all controls lying within box. Now client code has to do this
 	// anyway. (BUT: might relocate some of these elsewhere within dialog later?)
+	CWnd* pCtrl = pWnd->GetNextWindow(GW_HWNDNEXT );
+	while (pCtrl != NULL){
+		CRect rcCtrl, rcOverlap;
+		pCtrl->GetWindowRect(&rcCtrl);
+		if (rcOverlap.IntersectRect(rcBox, rcCtrl)) {
+			pCtrl->ShowWindow(SW_HIDE);
+		}
+		pCtrl = pCtrl->GetNextWindow(GW_HWNDNEXT );
+	}
 	
 	//move up controls that follow
 	//the pWnd must follow the tab order of the controls it encompasses

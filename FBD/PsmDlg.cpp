@@ -458,7 +458,9 @@ void CPsmDlg::LoadPsmInfo(LPCSTR pszPathName)
 		++nLine;
 		if (strLine.IsEmpty()) continue;
 		int nFields = split(strLine, "\t", strFields);
-		ASSERT(nFields >= 4);
+		// fourth field is optional
+		ASSERT(nFields >= 3);
+		if (nFields == 3) strFields.Add("");
 		AddInfo(strFields[0], strFields[1], strFields[2], strFields[3], nLine);
 	}
 }

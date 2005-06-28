@@ -142,7 +142,8 @@ void CRichEditEx::SetRichEditText(CString &strEq)
 				ReplaceSel(text);
 
 			CString c = strRest[grkPos +1]; //make sure letter follows $
-			if ( ((c >= "a") && ( c<="z"))||((c >= "A") && ( c<="Z")) )
+			if ( ((c >= "a") && ( c<="z"))||((c >= "A") && ( c<="Z")) 
+				 || (c == "\307") || (c=="\310")) // union or intersection
 			{
 				//SetCharSymbol();
 				//ReplaceSel(c);	//insert greek letter
@@ -445,7 +446,8 @@ void CHintRichEdit::SetRichEditText(CString & strHint, int nMargin)
 				ReplaceSel(text);
 
 			CString c = strHint[grkPos +1]; //make sure letter follows $
-			if ( ((c >= "a") && ( c<="z"))||((c >= "A") && ( c<="Z")) )
+			if ( ((c >= "a") && ( c<="z"))||((c >= "A") && ( c<="Z")) 
+				  || (c == "\307") || (c=="\310")) // union or intersection
 			{
 				ToggleCharSymbol();
 				ReplaceSel(c);	//insert greek letter

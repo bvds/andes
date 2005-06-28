@@ -182,11 +182,11 @@ void CRadiusDlg::UpdateTempVariable()
 {
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
 	((CVariable*)m_pTempObj)->m_strObject = GetCurString(&m_cboBodies);
-	((CVariable*)m_pTempObj)->m_strValue = "Radius";
+	((CVariable*)m_pTempObj)->m_strQuantName = "Radius";
 
 	
 	((CVariable*)m_pTempObj)->m_strDef = 
-			((CVariable*)m_pTempObj)->m_strValue + " of Circular Motion of the " + 
+			((CVariable*)m_pTempObj)->m_strQuantName + " of Circular Motion of the " + 
 				((CVariable*)m_pTempObj)->m_strObject;
 
 

@@ -32,6 +32,7 @@
 #include "LabRadDlg.h"
 #include "RelVelDlg.h"
 #include "FieldDlg.h"
+#include "ImpulseDlg.h"
     
 //////////////////////////////////////////////////////////////////////////
 // Vectors
@@ -746,6 +747,8 @@ CDialog* CVector::GetPropertyDlg()
 		return new CVectorMoveDlg(this);
 	// else if (m_nVectorType == VECTOR_COMPONENT)  
 	//	return new CVectorCompDlg(this);
+	else if (m_nVectorType == VECTOR_IMPULSE) 
+		return new CImpulseDlg(this);
 	else if (m_nVectorType == VECTOR_TORQUE)
 		return new CTorqueDlg(this);
 	else if (m_nVectorType == VECTOR_POSITION)
@@ -772,7 +775,7 @@ CString CVector::GetDef()
 		else
 			strTimePart.Format("at time %s", m_strTime);
 	}
-	CString strBodyPart;
+	CString strBodyPart; // includes preposition. Why?
 	if (!m_strBody.IsEmpty())
 		strBodyPart.Format("of %s", m_strBody);
 	// optional modifier prefix includes space
@@ -807,9 +810,11 @@ CString CVector::GetDef()
 		else
 			strDef.Format("Torque about %s from force at %s %s",  m_strAgent, m_strBody, strTimePart);
 	} else if (m_nVectorType == VECTOR_EFIELD) {
-		strDef.Format("Electric Field at %s due to %s",  strBodyPart, m_strAgent);
+		strDef.Format("Electric Field at %s due to %s",  m_strBody, m_strAgent);
 	} else if (m_nVectorType == VECTOR_BFIELD) {
-		strDef.Format("Magnetic Field at %s due to %s",  strBodyPart, m_strAgent);
+		strDef.Format("Magnetic Field at %s due to %s",  m_strBody, m_strAgent);
+	} else if (m_nVectorType == VECTOR_IMPULSE) {
+		strDef.Format("Impulse on %s due to %s", m_strBody, m_strAgent);
 	} else
 		strDef = "Vector";
 	strDef.TrimRight();	
@@ -858,7 +863,9 @@ CString CVector::GetPrintDef()
 		strDef.Format("Electric Field at %s due to %s %s", m_strBody, m_strAgent, strTimePart);
 	} else if (m_nVectorType == VECTOR_BFIELD) {
 		strDef.Format("Magnetic Field at %s due to %s %s", m_strBody, m_strAgent, strTimePart);
-	} else
+	} else if (m_nVectorType == VECTOR_IMPULSE) {
+		strDef.Format("Impulse on %s due to %s %s", m_strBody, m_strAgent, strTimePart);
+	} else 
 		strDef = "Vector";
     
 	// cleanup trailing white space 
@@ -930,6 +937,7 @@ BOOL CVector::SetFromLogStr(LPCTSTR pszStr)
 	else if (strTypeName == "Component") m_nVectorType = VECTOR_COMPONENT;
 	else if (strTypeName == "Displacement") m_nVectorType = VECTOR_DISPLACEMENT;
 	else if (strTypeName == "Momentum") m_nVectorType = VECTOR_MOMENTUM;
+	else if (strTypeName == "Impulse") m_nVectorType = VECTOR_IMPULSE;
 	else if (strTypeName == "Torque") m_nVectorType = VECTOR_TORQUE;
 	else if (strTypeName == "Position") m_nVectorType = VECTOR_POSITION;
 	else if (strTypeName == "Relative-Vel") m_nVectorType = VECTOR_RELVEL;
@@ -986,6 +994,7 @@ void CVector::GetTypeName(CString& strType)
 	case VECTOR_COMPONENT: strType = "Component"; break;
 	case VECTOR_DISPLACEMENT: strType = "Displacement"; break;
 	case VECTOR_MOMENTUM: strType = "Momentum"; break;
+	case VECTOR_IMPULSE: strType = "Impulse"; break;
 	case VECTOR_POSITION: strType = "Position"; break;
 	case VECTOR_RELVEL: strType = "Relative-Vel"; break;
 	case VECTOR_TORQUE: strType = "Torque"; break;
@@ -1007,6 +1016,7 @@ CString CVector::GetLabelPrefix()
 	case VECTOR_COMPONENT: return ""; 
 	case VECTOR_DISPLACEMENT: return m_bAngular ? "$q" :"d";
 	case VECTOR_MOMENTUM: return m_bAngular ? "L" : "p";
+	case VECTOR_IMPULSE: return "J";
 	case VECTOR_POSITION: return "r";
 	case VECTOR_RELVEL: return "v";
 	case VECTOR_TORQUE: return "$t";
@@ -1088,7 +1098,13 @@ BOOL CVector::HasSameDef(CVariable* pVar)
 	case ID_VARIABLE_ADDANGDISPLACEMENT: 
 		bMatchType = (m_bAngular &&	m_nVectorType == VECTOR_DISPLACEMENT); break; 
 	case ID_VARIABLE_ADDANGMOMENTUM:
-		bMatchType = (m_bAngular && m_nVectorType == VECTOR_MOMENTUM); break; 
+		bMatchType = (m_bAngular && m_nVectorType == VECTOR_MOMENTUM); break;
+	// if no angular flag, just match corresponding types
+	case ID_VARIABLE_ADDIMPULSE:
+		bMatchType = (m_nVectorType == VECTOR_IMPULSE); break;
+	case ID_VARIABLE_ADDTORQUE:
+		bMatchType = (m_nVectorType == VECTOR_TORQUE); break;
+	// etc. 
 	}
 	if (!bMatchType) return FALSE;
 
@@ -1299,7 +1315,8 @@ LPCTSTR CVector::CheckMoveVector()
 	if (m_nVectorType == VECTOR_POSITION ||
 		m_nVectorType == VECTOR_RELVEL ||
 		m_nVectorType == VECTOR_EFIELD ||
-		m_nVectorType == VECTOR_BFIELD)
+		m_nVectorType == VECTOR_BFIELD ||
+		m_nVectorType == VECTOR_IMPULSE)
 		strSubTypeArg = m_strAgent;
 	else
 		strSubTypeArg = m_strForceType;
@@ -2462,7 +2479,7 @@ BOOL CSystem::HasSameDef(CVariable* pVar)
 	//Check object list to see if we already have declared a variable 
 	//with the same definition
 	m_strBodies.TrimRight();
-	if (_stricmp(pVar->m_strValue, "mass")==0)//case insensitive
+	if (_stricmp(pVar->m_strQuantName, "mass")==0)//case insensitive
 	{
 		//if system, check if same body & time
 		if (strcmp(m_strBodies, pVar->m_strObject) == 0)				
@@ -3098,7 +3115,7 @@ BOOL CAngle::HasSameDef(CVariable* pVar)
 {
 	//Check object list to see if we already have declared a variable 
 	//with the same definition
-	if (_stricmp(pVar->m_strValue, "Angle") != 0)//case insensitive
+	if (_stricmp(pVar->m_strQuantName, "Angle") != 0)//case insensitive
 		return FALSE;
 	else
 	{
@@ -3459,7 +3476,7 @@ BOOL CRadius::HasSameDef(CVariable* pVar)
 	//with the same definition
 	CString strBodies = m_strBodies;
 	strBodies.TrimRight();
-	if (_stricmp(pVar->m_strValue, "radius")==0){//case insensitive
+	if (_stricmp(pVar->m_strQuantName, "radius")==0){//case insensitive
 		//if system, check if same body & time
 		if (strcmp(strBodies, pVar->m_strObject) == 0)				
 			return TRUE;			

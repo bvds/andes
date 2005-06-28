@@ -255,7 +255,7 @@ void CTorqueDlg::UpdateTempVariable()
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	
 	// for vars, also need to set variable quant type and definition strings
-	pTempVar->m_strValue = "torque";
+	pTempVar->m_strQuantName = "torque";
 	CString strTime;
 	if (! pTempVar->m_strTime.IsEmpty())
 		strTime = " at time " + pTempVar->m_strTime;

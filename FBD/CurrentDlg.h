@@ -21,6 +21,11 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCurrentDlg)
 	enum { IDD = IDD_CURRENT };
+	CStatic	m_stcEquals;
+	CButton	m_stcGiven;
+	CStatic	m_stcOr;
+	CLogBtn	m_btnUnknown;
+	CLogEdit m_editValue;
 	CStatic	m_stcLet;
 	CLogBtn	m_btnThrough;
 	CLogBtn m_btnIn;
@@ -53,6 +58,8 @@ protected:
 	//{{AFX_MSG(CCurrentDlg)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnUpdateType();
+	afx_msg void OnCheckUnknown();
+	afx_msg void OnChangeGivenValue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

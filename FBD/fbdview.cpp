@@ -57,6 +57,7 @@ BEGIN_MESSAGE_MAP(CFBDView, CBaseView)
 	ON_COMMAND(ID_DRAWVECTOR_FORCE, OnDrawvectorForce)
 	ON_COMMAND(ID_DRAWVECTOR_VELOCITY, OnDrawvectorVelocity)
 	ON_COMMAND(ID_DRAWVECTOR_MOMENTUM, OnDrawvectorMomentum)
+	ON_COMMAND(ID_DRAWVECTOR_IMPULSE, OnDrawvectorImpulse)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
@@ -117,6 +118,7 @@ BEGIN_MESSAGE_MAP(CFBDView, CBaseView)
 	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_FORCE, OnUpdateDrawvectorForce)
 	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_VELOCITY, OnUpdateDrawvectorVelocity)
 	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_MOMENTUM, OnUpdateDrawvectorMomentum)
+	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_IMPULSE, OnUpdateDrawvectorImpulse)
 	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
 	ON_COMMAND(ID_VIEW_FONT, OnViewFont)
@@ -201,7 +203,7 @@ CFBDView::CFBDView()
 	m_pCurrentObj = NULL;
 	// default subtypes for some drawing tools:
 	m_selectMode = none;
-	m_vectorType = Unknown;
+	m_vectorType = -1;		// signals unknown
 	m_nZDir = ZDIR_NONE;
 
 	// CG: This line was added by the Clipboard Assistant component
@@ -1015,7 +1017,7 @@ void CFBDView::OnAnswerEnter()
 
 	// check entry with the help system. 
 	LPCTSTR pszResult = 
-			HelpSystemExecf("(check-answer \"%s\" %s)", strEq, pEdit->m_strId);
+			HelpSystemExecf("(check-answer \"%s\" %s)", LISPSTR(strEq), pEdit->m_strId);
 	
 	// set status and color
 	ApplyAnswerStatus(pszResult, pEdit);
@@ -2312,7 +2314,7 @@ void CFBDView::OnUpdateDrawTool(CCmdUI* pCmdUI)
 void CFBDView::OnDrawVector() 
 {
 	m_drawMode = Vector;
-	m_vectorType = Unknown;
+	m_vectorType = -1;
 }
 void CFBDView::OnUpdateDrawVector(CCmdUI* pCmdUI) 
 {   
@@ -2324,7 +2326,7 @@ void CFBDView::OnUpdateDrawVector(CCmdUI* pCmdUI)
 void CFBDView::OnDrawvectorAcceleration() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_ACCELERATION);
-	m_drawMode = Vector; m_vectorType = Acceleration;
+	m_drawMode = Vector; m_vectorType = VECTOR_ACCELERATION;
 	m_nZDir = ZDIR_NONE; 
 
 	if (theApp.m_bTrainMode){
@@ -2335,14 +2337,14 @@ void CFBDView::OnDrawvectorAcceleration()
 }
 void CFBDView::OnUpdateDrawvectorAcceleration(CCmdUI* pCmdUI) 
 { 
-  pCmdUI->SetCheck(m_drawMode == Vector && m_vectorType == Acceleration); 
+  pCmdUI->SetCheck(m_drawMode == Vector && m_vectorType == VECTOR_ACCELERATION); 
   pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorComponent() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_COMPONENT);
-	m_drawMode = Vector; m_vectorType = Component;
+	m_drawMode = Vector; m_vectorType = VECTOR_COMPONENT;
 	m_nZDir = ZDIR_NONE; 
 }
 void CFBDView::OnUpdateDrawvectorComponent(CCmdUI* pCmdUI) 
@@ -2352,27 +2354,27 @@ void CFBDView::OnUpdateDrawvectorComponent(CCmdUI* pCmdUI)
 	pCmdUI->Enable(bHaveAxes && m_bEnabled);
 
 	// Still also have to set button state as command is current tool
-	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == Component); 
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_COMPONENT); 
 }
 
 void CFBDView::OnDrawvectorForce() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_FORCE);
-	m_drawMode = Vector; m_vectorType = Force;
+	m_drawMode = Vector; m_vectorType = VECTOR_FORCE;
 	m_nZDir = ZDIR_NONE; 
 	theApp.SendTrainer(this, ID_TFORCE_TOOL);
 }
 
 void CFBDView::OnUpdateDrawvectorForce(CCmdUI* pCmdUI) 
 { 
-  pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == Force); 
+  pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_FORCE); 
   pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorVelocity() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_VELOCITY);
-	m_drawMode = Vector; m_vectorType = Velocity; 
+	m_drawMode = Vector; m_vectorType = VECTOR_VELOCITY; 
 	m_nZDir = ZDIR_NONE; 
 	if (theApp.m_bTrainMode){
 		// same tool used in fbd and motion diagrams. Rather then figure out ID of next
@@ -2383,14 +2385,14 @@ void CFBDView::OnDrawvectorVelocity()
 }
 void CFBDView::OnUpdateDrawvectorVelocity(CCmdUI* pCmdUI) 
 { 
-  pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == Velocity); 
+  pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_VELOCITY); 
   pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorDisplacement() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_DISPLACEMENT);
-	m_drawMode = Vector; m_vectorType = Displacement;
+	m_drawMode = Vector; m_vectorType = VECTOR_DISPLACEMENT;
 	m_nZDir = ZDIR_NONE; 
 	if (theApp.m_bTrainMode){
 		// following copied from accel and velocity, but not really necessary, since 
@@ -2401,71 +2403,83 @@ void CFBDView::OnDrawvectorDisplacement()
 
 void CFBDView::OnUpdateDrawvectorDisplacement(CCmdUI* pCmdUI) 
 {
-	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == Displacement);
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_DISPLACEMENT);
 	pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorMomentum() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_MOMENTUM);
-	m_drawMode = Vector; m_vectorType = Momentum;
+	m_drawMode = Vector; m_vectorType = VECTOR_MOMENTUM;
 	m_nZDir = ZDIR_NONE; 
 }
 void CFBDView::OnUpdateDrawvectorMomentum(CCmdUI* pCmdUI) 
 {	
-	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == Momentum); 
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_MOMENTUM); 
+	pCmdUI->Enable(m_bEnabled);
+}
+
+void CFBDView::OnDrawvectorImpulse() 
+{
+	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_IMPULSE);
+	m_drawMode = Vector; m_vectorType = VECTOR_IMPULSE;
+	m_nZDir = ZDIR_NONE; 
+}
+void CFBDView::OnUpdateDrawvectorImpulse(CCmdUI* pCmdUI) 
+{	
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_IMPULSE); 
 	pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorTorque() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_TORQUE);
-	m_drawMode = Vector; m_vectorType = Torque;
+	m_drawMode = Vector; m_vectorType = VECTOR_TORQUE;
 	m_nZDir = ZDIR_NONE; 
 }
 
 void CFBDView::OnUpdateDrawvectorTorque(CCmdUI* pCmdUI) 
 {
-	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == Torque); 
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_TORQUE); 
 	pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorRelpos() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_RELPOS);
-	m_drawMode = Vector; m_vectorType = Position;
+	m_drawMode = Vector; m_vectorType = VECTOR_POSITION;
 	m_nZDir = ZDIR_NONE; 
 }
 
 void CFBDView::OnUpdateDrawvectorRelpos(CCmdUI* pCmdUI) 
 {
-	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == Position); 
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_POSITION); 
 	pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorEfield() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_EFIELD);
-	m_drawMode = Vector; m_vectorType = E_Field;
+	m_drawMode = Vector; m_vectorType = VECTOR_EFIELD;
 	m_nZDir = ZDIR_NONE; 	
 }
 
 void CFBDView::OnUpdateDrawvectorEfield(CCmdUI* pCmdUI) 
 {
-	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == E_Field); 
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_EFIELD); 
 	pCmdUI->Enable(m_bEnabled);
 }
 
 void CFBDView::OnDrawvectorBfield() 
 {
 	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_BFIELD);
-	m_drawMode = Vector; m_vectorType = B_Field;
+	m_drawMode = Vector; m_vectorType = VECTOR_BFIELD;
 	m_nZDir = ZDIR_NONE; 	
 }
 
 void CFBDView::OnUpdateDrawvectorBfield(CCmdUI* pCmdUI) 
 {
-	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == B_Field); 
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_BFIELD); 
 	pCmdUI->Enable(m_bEnabled);
 }
 
@@ -3058,10 +3072,10 @@ CDrawObj* CFBDView::NewDrawObj(drawMode type, CPoint local)
 		} else // normal vector, starts out zero-length
 			pObj = new CVector(CRect(local, local));
 		// initialize vector type if specified by command choice (affects drawing)
-		if (m_vectorType != Unknown) {
+		if (m_vectorType != -1) {
 			ASSERT(VECTYPE_FIRST <= m_vectorType && m_vectorType <= VECTYPE_LAST);
 			// if problem flag is set, Velocity tool draws Relative-Velocity vector
-			if (m_vectorType == Velocity 
+			if (m_vectorType == VECTOR_VELOCITY
 				&& (GetDocument()->m_wConcept & ID_PROB_RELVEL)) {
 				((CVector*)pObj)->m_nVectorType = VECTOR_RELVEL; 
 			} else { // just set it from drawtool type, converted
@@ -3664,7 +3678,7 @@ void CFBDView::AddMotionVector(CMotionDiagram* pRuler, CMDVector* pVector)
 
 	// For ambiguous accelerations: show dialog to set properties, i.e. time point
 	// Don't use OnEditProperties since that notifies help system (must wait for further check)
-	if (m_vectorType == Acceleration && ! bOnBody) 
+	if (m_vectorType == VECTOR_ACCELERATION && ! bOnBody) 
 	{
 		// Have object allocate and init a property dialogue and pop it up
 		CDialog* pDlg = pVector->GetPropertyDlg();
@@ -4920,7 +4934,7 @@ BOOL CFBDView::DispatchEvent(EventID nEvent, LPCTSTR pszArgs)
 	CPoint ptClient;			// = point in playback client area coords
 	CPoint local;
 	drawMode tool;				// drawtool code 
-	vectorType subtype;
+	int subtype;
 	int nCtlID;					// integer child control id
 	CEQEditType* pEdit;			// Answer edit box
 	CWnd* pCtl = NULL;			// child control
@@ -4935,12 +4949,16 @@ BOOL CFBDView::DispatchEvent(EventID nEvent, LPCTSTR pszArgs)
 		// Select-tool. Wasn't originally logged, tool choice was deferred
 		// till begin-draw or begin-vector event. But now we have it -- main
 		// effect is to show toolbar button press before drawing begins.
-		if (tool >= ID_DRAWVECTOR_FIRST && tool <= ID_DRAWVECTOR_LAST) {
+		// Following handles old logs which used different integer id range
+		if (tool >= ID_OLD_DRAWVECTOR_FIRST && tool <= ID_OLD_DRAWVECTOR_LAST) {
 			m_drawMode = Vector;
-			// enum vectorType order must parallel ID_DRAWVECTOR command ids.
-			m_vectorType = (vectorType)(tool-ID_DRAWVECTOR_FIRST); 
+			m_vectorType = (tool-ID_OLD_DRAWVECTOR_FIRST); 
+		}
+	    if (tool >= ID_DRAWVECTOR_FIRST && tool <= ID_DRAWVECTOR_LAST) {
+			m_drawMode = Vector;
+			m_vectorType = (tool-ID_DRAWVECTOR_FIRST); 
 		} else
-			m_drawMode = tool;	// check validity!
+			m_drawMode = tool;	// should check its within drawtool range!
 		break;
 
 	case EV_LBUTTON_DOWN:// Pressed left mouse button: init tracking state vars
@@ -5332,7 +5350,8 @@ CDrawObj* CFBDView::CreateNew(LPCSTR pszTypeName)
 	if (strType == "Body") return new CSystem();
 	else if (strType == "Force" || strType == "Velocity" || strType == "Acceleration" 
 		    || strType == "Component" || strType == "Displacement" || strType == "Momentum"
-			|| strType == "Position" || strType == "Torque" || strType == "Relative-Vel") 
+			|| strType == "Position" || strType == "Torque" || strType == "Relative-Vel"
+			|| strType == "Impulse") 
 		return new CVector();
 	else if (strType == "Axes") return new CAxes();
 	else if (strType == "Angle") return new CAngle();
@@ -5976,30 +5995,30 @@ HCURSOR CFBDView::GetDrawtoolCursor(drawMode tool)
 	UINT idCursor;
 	switch(tool){
 	case Vector: 
-		if (m_vectorType == Acceleration) {
+		if (m_vectorType == VECTOR_ACCELERATION) {
 			if (m_nZDir)  idCursor = m_nZDir == ZDIR_INTO ? IDC_ZACCEL_INTO : IDC_ZACCEL_OUTOF;
 			else idCursor = IDC_DRAWACCELERATION;	
-		} else if (m_vectorType == Velocity) {
+		} else if (m_vectorType == VECTOR_VELOCITY) {
 			if (m_nZDir) idCursor = m_nZDir == ZDIR_INTO ? IDC_ZVEL_INTO : IDC_ZVEL_OUTOF;
 			else idCursor = IDC_DRAWVELOCITY; 
-		} else if (m_vectorType == Force) {
+		} else if (m_vectorType == VECTOR_FORCE) {
 			idCursor = IDC_DRAWFORCE; 
-		} else if (m_vectorType == Displacement) {
+		} else if (m_vectorType == VECTOR_DISPLACEMENT) {
 			if (m_nZDir)  idCursor = m_nZDir == ZDIR_INTO ? IDC_ZDISP_INTO : IDC_ZDISP_OUTOF;
 			else idCursor = IDC_DRAWDISPLACEMENT;
-		}else if (m_vectorType == Momentum) {
+		}else if (m_vectorType == VECTOR_MOMENTUM) {
 			if (m_nZDir)  idCursor = m_nZDir == ZDIR_INTO ? IDC_ZMOM_INTO : IDC_ZMOM_OUTOF;
 			else idCursor = IDC_DRAWMOMENTUM;
-		} else if (m_vectorType == Torque) {
+		} else if (m_vectorType == VECTOR_TORQUE) {
 			if (m_nZDir)  idCursor = m_nZDir == ZDIR_INTO ? IDC_ZTOR_INTO : IDC_ZTOR_OUTOF;
 			else idCursor = IDC_DRAWTORQUE;
-		} else if (m_vectorType == Component) {
+		} else if (m_vectorType == VECTOR_COMPONENT) {
 			idCursor = IDC_DRAWCOMPONENT; 
-		} else if (m_vectorType == Position) {
+		} else if (m_vectorType == VECTOR_POSITION) {
 			idCursor = IDC_DRAWRELPOS;
-		} else if (m_vectorType == E_Field) {
+		} else if (m_vectorType == VECTOR_EFIELD) {
 			idCursor = IDC_DRAWEFIELD;
-		} else if (m_vectorType == B_Field) {
+		} else if (m_vectorType == VECTOR_BFIELD) {
 			idCursor = IDC_DRAWBFIELD;
 		} else {
 			TRACE("GetDrawtoolCursor:: Unknown vector type %d\n", m_vectorType);

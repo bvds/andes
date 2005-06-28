@@ -42,6 +42,11 @@ void CResistanceDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CResistanceDlg)
+	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
+	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
+	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
+	DDX_Control(pDX, IDC_CHECK_UNKNOWN, m_btnUnknown);
+	DDX_Control(pDX, IDC_GIVEN_VALUE, m_editValue);
 	DDX_Control(pDX, IDC_MULTIPLE_INSTRUCTIONS, m_grpBox);
 	DDX_Control(pDX, IDC_INSTRUCTIONS, m_stcInstructions);
 	DDX_Control(pDX, IDC_LSYSTEM_NAME, m_stcLet);
@@ -64,7 +69,8 @@ void CResistanceDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CResistanceDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CResistanceDlg)
-		// NOTE: the ClassWizard will add message map macros here
+	ON_BN_CLICKED(IDC_CHECK_UNKNOWN, OnCheckUnknown)
+	ON_EN_CHANGE(IDC_GIVEN_VALUE, OnChangeGivenValue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -114,6 +120,10 @@ void CResistanceDlg::InitVariableDlg()
 	}
 	// m_cboTimeList.SelectStringExact(pVar->m_strTime);
 	m_editName.SetWindowText(m_pTempObj->m_strName);
+	// Transfer given value/unknown bit from controls to variable
+	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	// sync unknown check box with value
+	OnChangeGivenValue();
 }
 
 void CResistanceDlg::UpdateTempVariable()
@@ -143,9 +153,13 @@ void CResistanceDlg::UpdateTempVariable()
 
 	// pVar->m_strTime = GetCurString(&m_cboTimeList);
 	m_editName.GetRichEditText(pVar->m_strName);
+
+	CString strValue;
+	m_editValue.GetWindowText(strValue);
+	((CVariable*)m_pTempObj)->m_strValue= strValue;
 	
 	// for vars, also need to set variable quant type and definition strings
-	pVar->m_strValue = !m_bCapacitance ? "resistance" : "capacitance";
+	pVar->m_strQuantName = !m_bCapacitance ? "resistance" : "capacitance";
 	// CString strTime;
 	//if (! pVar->m_strTime.IsEmpty())
 	//	strTime = " at time " + pVar->m_strTime;
@@ -189,4 +203,28 @@ void CResistanceDlg::OnOK()
 	// Get here => Finished OK: transfer new props into obj via
 	// UpdateObj() called from base class
 	CDrawObjDlg::OnOK();	
+}
+
+// Keep edit control contents and unknown check box in sync:
+// blank string <=> unknown checked
+void CResistanceDlg::OnCheckUnknown() 
+{
+	if (m_btnUnknown.GetCheck()) {
+		m_editValue.SetWindowText("");
+	} else {
+		m_editValue.SetFocus();
+	}
+}
+
+void CResistanceDlg::OnChangeGivenValue() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	CString strText;
+	m_editValue.GetWindowText(strText);
+	strText.Remove(' ');
+	m_btnUnknown.SetCheck(strText.IsEmpty());
 }

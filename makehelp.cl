@@ -25,9 +25,9 @@
 
 (generate-application 
  "Andes2"
- "c:\\Andes2\\"
+ "c:\\cygwin\\home\\andersw\\Andes2\\"
  ; list copied from Andes1, not clear if all of these are needed
- '(:defsys :defctype :ffcompat :foreign :list2 :loop :seq2 :sock
+ '(:defsys :defctype :ffcompat :foreign :list2 :loop :seq2 :sock :defftype
    "load-runtimehelp.cl")
  :image-only t
  :allow-existing-directory t

@@ -38,6 +38,11 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CVectorMoveDlg)
 	enum { IDD = IDD_VECTOR_MOVE };
+	CStatic	m_stcEquals;
+	CButton	m_stcGiven;
+	CStatic	m_stcOr;
+	CLogBtn	m_btnUnknown;
+	CLogEdit m_editValue;
 	CLogCombo	m_cboAngular;
 	CStatic	m_txtDescription;
 	CStatic	m_stcBody;
@@ -86,6 +91,8 @@ protected:
 	afx_msg void OnSelchangeBody();
 	afx_msg void OnSelchangeAngular();
 	afx_msg void OnSelchangeZdir();
+	afx_msg void OnCheckUnknown();
+	afx_msg void OnChangeGivenValue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

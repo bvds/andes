@@ -41,6 +41,8 @@
 #include "ResistanceDlg.h"
 #include "RelVelDlg.h"
 #include "FieldDlg.h"
+#include "ImpulseDlg.h"
+#include "ProbDlg.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3446,7 +3448,7 @@ void CEXInfo::Dump(CDumpContext& dc) const
 }
 #endif // _DEBUG  
 /////////////////////////////////////////////////////////////////////////////
-IMPLEMENT_SERIAL(CVariable, CCheckedObj, VERSIONABLE_SCHEMA | 5);
+IMPLEMENT_SERIAL(CVariable, CCheckedObj, VERSIONABLE_SCHEMA | 6);
 
 const char *CVariable::c_szAllForces = "all forces";
 const char *CVariable::c_szNCForces = "non-conservative forces";
@@ -3471,7 +3473,7 @@ void CVariable::Serialize(CArchive& ar)
 
 		ar << m_strDef;
 		ar << m_strForceType;
-		ar << m_strValue;
+		ar << m_strQuantName;
 		ar << m_strObject;
 		ar << m_strTime;
 		ar << m_strAgent;
@@ -3480,6 +3482,8 @@ void CVariable::Serialize(CArchive& ar)
 		// so not needed in that case, but it is desirable to store it so can have
 		// state "snapshot" files. Can print these from shell w/o rechecking
 		ar << (WORD) m_status;
+		// added v6:
+		ar << m_strValue;
 	} 
 	else 
 	{	
@@ -3507,7 +3511,7 @@ void CVariable::Serialize(CArchive& ar)
 				ar >> WORD(temp);//m_bDrawObj
 		}
 		ar >> m_strForceType;
-		ar >> m_strValue;
+		ar >> m_strQuantName;
 		ar >> m_strObject;
 		ar >> m_strTime;
 		ar >> m_strAgent;
@@ -3519,17 +3523,22 @@ void CVariable::Serialize(CArchive& ar)
 			ar >> temp; m_status = (Status)temp;
 		}
 		// We changed some m_nType codes in Andes 8.1.6, causing a bug reading old solutions.
-		// To avoid any such problems in the future, recalculate m_nType from m_strValue string
+		// To avoid any such problems in the future, recalculate m_nType from m_strQuantName string
 		// on every load, so integer codes are not really persistent and can be changed freely.
-		// Nuisance: CVariableDlg always stores friendly type name (e.g. "object distance") in m_strValue. 
+		// Nuisance: CVariableDlg always stores friendly type name (e.g. "object distance") in m_strQuantName. 
 		// Not sure if custom variable dialogs are consistent in this. So also check for typeid.
-		m_nType = CVarView::ValueToId(m_strValue);	 // lookup by friendly quantity name
-		if (m_nType <= 0) {
-			m_nType = CVarView::LookupId(m_strValue); // lookup by strTypeId
-		}
-		ASSERT(m_nType != -1);
+		// Could pass document concept flags to disambiguate
+    	// ((CFBDDoc*) ar.m_pDocument)->m_wConcept;
+		m_nType = CVarView::ValueToId(m_strQuantName);	 // lookup by friendly quantity name
+		if (m_nType <= 0) 
+			m_nType = CVarView::LookupId(m_strQuantName); // not found: try lookup by strTypeId
+		ASSERT(m_nType != -1);		// should throw runtime error?
 	
 		// if angle variable, recalc angle degrees.
+
+		if (nClassVersion >= 6) {
+			ar >> m_strValue;
+		}
 	}
 }
 
@@ -3542,16 +3551,18 @@ void CVariable::LogEntry()
 
 	// strValue and strDef are redundant given definition, but we have no
 	// easy methods to rederive them from the other fields, so just log them.
-	CString strValue = ValToArg(m_strValue);
+	CString strQuantName = ValToArg(m_strQuantName);
 	CString strObject = ValToArg(m_strObject);
 	CString strTime = ValToArg(m_strTime);
 	CString strAgent = ValToArg(m_strAgent);
 	CString strForceType = ValToArg(m_strForceType);
 	CString strDef = ValToArg(m_strDef);
+	// added (v6 serialization):
+	CString strValue = ValToArg(m_strValue);
 
 	LogEventf(EV_VAR_ENTRY, "%s %s %s %d %s %s %s %s %s %s", 
 		strTypeId, m_strName,  m_strId, m_status, 
-		strForceType, strValue, strObject, strAgent, strTime, strDef);
+		strForceType, strQuantName, strObject, strAgent, strTime, strDef);
 	// need to log angle number for angle variables ? 
 }
 
@@ -3561,16 +3572,19 @@ BOOL CVariable::SetFromLogStr(LPCTSTR pszStr)
 	char szName[80];
 	char szId[80];
 	char szForceType[80];
-	char szValue[80];	
+	char szQuantName[80];	
 	char szObject[80]; 
 	char szAgent[80];
 	char szTime[80];
 	char szDef[255];	// can be long, but should still be plenty
+	char szValue[80];
 	int nStatus;
 
-	if (sscanf(pszStr,"%s %s %s %d %s %s %s %s %s %s", 
+	// 11th arg added later, absent from old logs.
+	int nArgs = sscanf(pszStr,"%s %s %s %d %s %s %s %s %s %s", 
 		szTypeName, szName, szId, &nStatus,
-		szForceType, szValue, szObject, szAgent, szTime, szDef) != 10)
+		szForceType, szValue, szObject, szAgent, szTime, szDef, szValue);
+	if (nArgs < 10)
 		return FALSE;
 	
 	m_nType = CVarView::LookupId(szTypeName);
@@ -3579,11 +3593,13 @@ BOOL CVariable::SetFromLogStr(LPCTSTR pszStr)
 	ASSERT(0 <= nStatus && nStatus <= 2);
 	m_status = (Status) nStatus;
 	m_strForceType = ArgToVal(szForceType);
-	m_strValue = ArgToVal(szValue);
+	m_strQuantName = ArgToVal(szQuantName);
 	m_strObject = ArgToVal(szObject);
 	m_strAgent = ArgToVal(szAgent);
 	m_strTime = ArgToVal(szTime);
 	m_strDef = ArgToVal(szDef);
+	if (nArgs >= 11)
+		m_strValue = ArgToVal(szValue);
 
 	return TRUE;
 }
@@ -3595,7 +3611,7 @@ CString CVariable::GetCheckCmd()
 	CString strCmd;	// final command string result
 
 	// strQuantId = quantity type id used by helpsys
-	CString strQuantId = m_strValue;	// initial default = friendly quantity name (may have spaces)!
+	CString strQuantId = m_strQuantName;	// initial default = friendly quantity name (may have spaces)!
 	CString strObject = m_strObject;
 	CString strTime = m_strTime;
 	CString strAgent = m_strAgent;
@@ -3630,7 +3646,9 @@ CString CVariable::GetCheckCmd()
 		// handled below when command string is built
  		if (m_strForceType == "equiv")
 			strObject = "(" + m_strObject + ")";
-	} 
+	} else if (m_nType == ID_VARIABLE_ADDPROBABILITY) {
+			CProbDlg::EventNameToHelpFormat(strObject);
+	}
 
 	if (m_nType == ID_VARIABLE_ADDANGLE)	// uses special API call
 	{		
@@ -3664,19 +3682,21 @@ CString CVariable::GetCheckCmd()
 	else
 	{
 			// NB: don't want list-valued object arg wrapped in vbars in call (else it reads as symbol, not list)
-			// all other args should always be symbols (hopefully)
+			// all other args should always be symbols (hopefully). Exception: probability, in which compound
+			// event name can begin with "("
 			CString strObjectArg = STR2ARG(strObject);
-			if (strObjectArg[0] != '(')
+			if (strObjectArg[0] != '(' || m_nType == ID_VARIABLE_ADDPROBABILITY)
 				strObjectArg = "|" + strObjectArg + "|";
-			strCmd.Format( "(define-variable \"%s\" |%s| |%s| %s |%s| |%s| %s)",
-			STR2ARG(m_strName),
+			strCmd.Format( "(define-variable \"%s\" |%s| |%s| %s |%s| |%s| %s \"%s\")",
+			STR2ARG(m_strName),   // !!! use LISPSTR if non-empty
 			STR2ARG(strForceType),
 			STR2ARG(strQuantId),
 			strObjectArg,
 			STR2ARG(strTime), 
 			STR2ARG(strAgent),
-			STR2ARG(m_strId)
-			);
+			STR2ARG(m_strId),
+			// NIL => no given value assertion; empty string => asserts unknown value
+			(m_nType == ID_VARIABLE_ADDPROBABILITY) ? "NIL" : LISPSTR(m_strValue)  ); 
 	}
 	// finally return result
 	return strCmd;
@@ -3701,6 +3721,7 @@ CString CVariable::GetDef()
 // !!! This should be done as virtual function on subclasses !!!
 CDialog* CVariable::GetPropertyDlg()
 {
+	// Vector dialogs are all special:
 	if (m_nType == ID_VARIABLE_ADDFORCE)
 		return new CVectorDlg(this);
 	else if (m_nType == ID_VARIABLE_ADDTORQUE)
@@ -3713,6 +3734,8 @@ CDialog* CVariable::GetPropertyDlg()
 		 return new CFieldDlg(this);
 	else if (m_nType == ID_VARIABLE_ADDBFIELD)
 		 return new CFieldDlg(this, /*bMagnetic=*/TRUE); 
+	else if (m_nType == ID_VARIABLE_ADDIMPULSE)
+		return new CImpulseDlg(this);
 	else if (IsLinearVector() || IsAngularVector() ||
 			 m_nType == ID_VARIABLE_ADDSPEED) 
 	{
@@ -3733,8 +3756,9 @@ CDialog* CVariable::GetPropertyDlg()
 			pDlg->m_strDescription = "Speed";
 		return pDlg;
 	}
-	else if (m_nType == ID_VARIABLE_ADDRADIUS)
-		return new CRadiusDlg(this);
+	// some scalar variables use built-in custom dialogs:
+	//else if (m_nType == ID_VARIABLE_ADDRADIUS)
+	//	return new CRadiusDlg(this);
 	else if (m_nType == ID_VARIABLE_ADDANGLE)
 		return new CAngleDlg(this);
 	else if ( m_nType == ID_VARIABLE_ADDNRG )
@@ -3747,7 +3771,9 @@ CDialog* CVariable::GetPropertyDlg()
 		return new CResistanceDlg(this);
 	else if ( m_nType == ID_VARIABLE_ADDCAPACITANCE)
 		return new CCapacitanceDlg(this); 
-	else
+	else if (m_nType == ID_VARIABLE_ADDPROBABILITY)
+		return new CProbDlg(this);
+	else // use generic static variable dialog
 		return new CVariableDlg(this);
 }
 
@@ -3793,6 +3819,7 @@ BOOL CVariable::HasComponents()
 	  || (m_nType == ID_VARIABLE_ADDRELPOS)
 	  || (m_nType == ID_VARIABLE_ADDEFIELD)
 	  || (m_nType == ID_VARIABLE_ADDBFIELD)
+	  || (m_nType == ID_VARIABLE_ADDIMPULSE)
 	);
 }
 
@@ -3810,13 +3837,13 @@ CDrawObj* CVariable::Clone()
 
 	pClone->m_nType = m_nType;
 	pClone->m_strForceType = m_strForceType;
-	pClone->m_strValue = m_strValue;
+	pClone->m_strQuantName = m_strQuantName;
 	pClone->m_strObject = m_strObject;
 	pClone->m_strAgent = m_strAgent;
 	pClone->m_strTime = m_strTime;
-    	
+    pClone->m_strValue = m_strValue;
 	pClone->m_strDef = m_strDef;
-  
+
 	return (pClone);
 }
 
@@ -3930,18 +3957,19 @@ void CVariable::UpdateObj(CDrawObj* pObj)
 	// type code may change in dialog if changed angular/linear
 	m_nType = pTempVar->m_nType;
 	m_strName = pTempVar->m_strName;
-	m_strValue = pTempVar->m_strValue;
+	m_strQuantName = pTempVar->m_strQuantName;
 	m_strDef = pTempVar->m_strDef;
 	m_strForceType = pTempVar->m_strForceType;
 	m_strObject = pTempVar->m_strObject;
 	m_strTime = pTempVar->m_strTime;
 	m_strAgent = pTempVar->m_strAgent;
 	m_status = pTempVar->m_status;
+	m_strValue = pTempVar->m_strValue;
 
 	/*
 			// Log them all for good measure
 	LogEventf(EV_PROPS_VARIABLE, "%s name |%s| value |%s| type |%s| body |%s| agent |%s|" , 
-				 m_strId,  m_strName, m_strValue, m_strForceType,  m_strObject,  m_strAgent);
+				 m_strId,  m_strName, m_strQuantName, m_strForceType,  m_strObject,  m_strAgent);
 
 */
 }
@@ -3961,6 +3989,7 @@ void CVariable::UpdateVarNames(CString strOldName)
 		|| (m_nType == ID_VARIABLE_ADDFORCE) 
 		|| (m_nType == ID_VARIABLE_ADDDISPLACEMENT)
 		|| (m_nType == ID_VARIABLE_ADDMOMENTUM)
+		|| (m_nType == ID_VARIABLE_ADDIMPULSE)
 		|| (m_nType == ID_VARIABLE_ADDRELPOS)
 		|| (m_nType == ID_VARIABLE_ADDEFIELD))
 	{
@@ -3986,6 +4015,7 @@ void CVariable::RemoveVarNames(CString strOldName)
 		|| (m_nType == ID_VARIABLE_ADDFORCE) 
 		|| (m_nType == ID_VARIABLE_ADDDISPLACEMENT)
 		|| (m_nType == ID_VARIABLE_ADDMOMENTUM)
+		|| (m_nType == ID_VARIABLE_ADDIMPULSE)
 		|| (m_nType == ID_VARIABLE_ADDRELPOS)
 		|| (m_nType == ID_VARIABLE_ADDEFIELD))
 	{

@@ -87,11 +87,7 @@
 (defvar *SG-Entries* () "The System entries from the bubblegraph.")
 (defvar *SG-Eqns* () "Equation list with eqn-index->entry mappings.")
 
-;;; Not theat as of the code Nonindy 1 thresh now overrides the nonindy
-;;; 2 thresh be executing in the test prior to it.  It may be reactivated
-;;; later on as student experimentation provides more data.
-(defparameter **sg-nonindy-1-thresh** 2 "Threshold for nonindy nodes taking from the first list.")
-(defparameter **sg-nonindy-2-thresh** 1 "Threshold for nonindy nodes taking from the first and second lists.")
+
 
 (defvar **Test-For-Premature-Subst** nil "If t tests for premature substitutions.")
 (defvar **Test-For-Prematurity** nil "If t tests for premature entries.")
@@ -625,17 +621,22 @@
   (loop for S in *SG-Solutions*
       collect (sg-set-decomp-eqn (sgsol-Num S) Eqn)))
 
+;;; Note that as of the code Nonindy 1 thresh now overrides the nonindy
+;;; 2 thresh by executing in the test prior to it.  It may be reactivated
+;;; later on as student experimentation provides more data.
+(defparameter **sg-nonindy-1-thresh** 2 "Threshold for nonindy nodes taking from the linear expansion only")
+(defparameter **sg-nonindy-2-thresh** 1 "Threshold for nonindy nodes taking from both linear expansion and mightdepends.")
 
 (defun sg-set-decomp-eqn (Set Eqn)
   "Obtain the set of base equations for EQN from set SET."
   (let ((S (Solver-StudentisIndependent Set Eqn)))       
-    (cond ((<= **sg-nonindy-1-thresh** (car S))              
+    (cond ((<= **sg-nonindy-1-thresh** (first S))              
 	   (sg-mark-eqn-interp
-	    (sg-subst-enums->entries (cadr S))))                
-	  ((<= **sg-nonindy-2-thresh** (car S))              
+	    (sg-subst-enums->entries (second S))))                
+	  ((<= **sg-nonindy-2-thresh** (first S))              
 	   (sg-mark-eqn-interp 
-	    (append (sg-subst-enums->entries (cadr S)) 
-		    (sg-subst-enums->entries (caddr S))))))))
+	    (append (sg-subst-enums->entries (second S)) 
+		    (sg-subst-enums->entries (third S))))))))
 
 
 (defun sg-mark-eqn-interp (Interp)

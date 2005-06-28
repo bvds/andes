@@ -25,6 +25,11 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CEnergyDlg)
 	enum { IDD = IDD_ENERGY };
+	CStatic	m_stcEquals;
+	CButton	m_stcGiven;
+	CStatic	m_stcOr;
+	CLogBtn	m_btnUnknown;
+	CLogEdit m_editValue;
 	CStatic	m_stcLet;
 	CStatic	m_stcPE;
 	CLogBtn	m_btnOk;
@@ -67,6 +72,8 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	afx_msg void OnSelchangeNrgType();
+	afx_msg void OnCheckUnknown();
+	afx_msg void OnChangeGivenValue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

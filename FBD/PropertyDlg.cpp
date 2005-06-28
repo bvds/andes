@@ -45,7 +45,7 @@ void CPropertyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_FillList(pDX, IDC_BODY, &m_pDocument->m_strObjects);
 	DDX_FillList(pDX, IDC_TIME, &m_pDocument->m_strObjects);
 	
-	DDX_CBStringExact(pDX, IDC_STATIC_VALUE, ((CVariable*)m_pTempObj)->m_strValue);
+	DDX_CBStringExact(pDX, IDC_STATIC_VALUE, ((CVariable*)m_pTempObj)->m_strQuantName);
 	DDX_CBStringExact(pDX, IDC_BODY, ((CVariable*)m_pTempObj)->m_strObject);
 	DDX_CBString(pDX, IDC_TIME, ((CVariable*)m_pTempObj)->m_strTime);
 	// if bound to object, update it directly.
@@ -129,12 +129,12 @@ void CPropertyDlg::OnSelchangeTime()
 
 void CPropertyDlg::BuildProperty()
 {
-	m_stcValue.GetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	m_stcValue.GetWindowText(((CVariable*)m_pTempObj)->m_strQuantName);
 	m_stcPrep1.GetWindowText(m_strPrep1);
 	((CVariable*)m_pTempObj)->m_strObject = GetCurString(&m_cboObject);
 	m_stcPrep2.GetWindowText(m_strPrep2);
 	((CVariable*)m_pTempObj)->m_strTime = GetCurString(&m_cboTime);
-	((CVariable*)m_pTempObj)->m_strDef = ((CVariable*)m_pTempObj)->m_strValue + " " +  m_strPrep1 + " " + 
+	((CVariable*)m_pTempObj)->m_strDef = ((CVariable*)m_pTempObj)->m_strQuantName + " " +  m_strPrep1 + " " + 
 		((CVariable*)m_pTempObj)->m_strObject + " "  + m_strPrep2 + " " + ((CVariable*)m_pTempObj)->m_strTime;
 	m_strProp = ((CVariable*)m_pTempObj)->m_strDef;
 //	m_stcProperty.SetWindowText(m_strProp);
@@ -147,7 +147,7 @@ void CPropertyDlg::UpdateProperty()
 {
 	if (m_pObj == NULL) return;
 	((CVariable*)m_pObj)->m_strDef = ((CVariable*)m_pTempObj)->m_strDef;
-	((CVariable*)m_pObj)->m_strValue = ((CVariable*)m_pTempObj)->m_strValue;
+	((CVariable*)m_pObj)->m_strQuantName = ((CVariable*)m_pTempObj)->m_strQuantName;
 	((CVariable*)m_pObj)->m_strObject = ((CVariable*)m_pTempObj)->m_strObject;
 	((CVariable*)m_pObj)->m_strTime = ((CVariable*)m_pTempObj)->m_strTime;
 	((CVariable*)m_pObj)->m_nType = ((CVariable*)m_pTempObj)->m_nType;

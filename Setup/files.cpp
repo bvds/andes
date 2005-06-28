@@ -132,6 +132,7 @@ static const char * s_files[] =
 #else // ! EXPERIMENT, i.e. normal ANDES
 
 #ifndef OLI	// no problems in OLI installation
+/*
 	"Problems\\Angular Momentum.aps",
 	"Problems\\Circular Motion.aps",
 	"Problems\\Energy-Work.aps",
@@ -159,6 +160,8 @@ static const char * s_files[] =
 	"Problems\\Oscillations.aps",
 	"Problems\\Waves.aps",
 	"Problems\\Work_Energy.aps",
+*/
+	"Problems\\*.aps",
 
 	// Problems that use the new system (prb and maybe gif, but no .fbd)
 	// are specified here. Problems that still use .fbd files listed below.
@@ -180,12 +183,29 @@ static const char * s_files[] =
 	"Problems\\WAVE*.gif",
 	"Problems\\WE*.prb",
 	"Problems\\WE*.gif",
+	"Problems\\CM*.prb",
+	"Problems\\CM*.gif",
+	"Problems\\IMP*.prb",
+	"Problems\\IMP*.gif",
 
 	// Other recently added batches of problems, not enumerated below.
 	"Problems\\kgraph*.prb",
 	"Problems\\kgraph*.fbd",
 	"Problems\\pgraph*.prb",
 	"Problems\\pgraph*.fbd",
+
+	// Recently added individual problems
+	"Problems\\s12a.prb",
+	"Problems\\e4bb.prb",
+	"Problems\\e4bb.gif",
+	"Problems\\e4cc.prb",
+	"Problems\\e4cc.gif",
+	"Problems\\e5aa.prb",
+	"Problems\\e5aa.gif",
+
+	// Problems using jpg graphics
+	"Problems\\we4b.jpg",
+
 
 	// Video pseudo-problem for preview image
 	"Problems\\video.fbd",

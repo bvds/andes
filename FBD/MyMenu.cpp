@@ -210,11 +210,14 @@ static const PROBLEM_MENUITEMS menuitems[] =
 "Acceleration",	"acceleration",    
 			(ID_PROB_VECTOR|ID_PROB_FORCE|ID_PROB_KINEMATICS|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS),
 "Velocity",   "velocity",		  
-			(ID_PROB_VECTOR|ID_PROB_KINEMATICS|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS|ID_PROB_ENERGY|ID_PROB_FLUIDS),	
+			(ID_PROB_VECTOR|ID_PROB_KINEMATICS|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS|ID_PROB_ENERGY|
+			 ID_PROB_MOMENTUM|ID_PROB_FLUIDS),	
 "Displacement",	"displacement",    			                   
 			(ID_PROB_VECTOR|ID_PROB_KINEMATICS|ID_PROB_ROTKINEMATICS|ID_PROB_ENERGY),					
 "Momentum", "momentum",
 			(ID_PROB_MOMENTUM|ID_PROB_ROTKINEMATICS),
+"Impulse", "impulse", 
+             (ID_PROB_MOMENTUM),
 "Relative Position", "position",
 			(ID_PROB_ROTKINEMATICS|ID_PROB_KINEMATICS),
 "Torque",	"torque", (ID_PROB_ROTKINEMATICS | ID_PROB_EM),
@@ -226,7 +229,7 @@ static const PROBLEM_MENUITEMS menuitems[] =
 //Place separator between vectors and scalars:
 "",		"MF_SEPARATOR",	0xFFFF,	// include for all concept flags
 
-#define FIRST_SCALAR_INDEX  11  // index of first scalar quantity in this table, which follows:
+#define FIRST_SCALAR_INDEX  12  // index of first scalar quantity in this table, which follows:
 //
 // !!! Following scalar portion of the table now unused. 
 // Now scalar quants added to menu from quantity table in CVarView::AddScalarVars, 

@@ -21,6 +21,11 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CResistanceDlg)
 	enum { IDD = IDD_RESISTANCE };
+	CStatic	m_stcEquals;
+	CButton	m_stcGiven;
+	CStatic	m_stcOr;
+	CLogBtn	m_btnUnknown;
+	CLogEdit m_editValue;
 	CButton	m_grpBox;
 	CStatic	m_stcInstructions;
 	CStatic	m_stcLet;
@@ -52,8 +57,9 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CResistanceDlg)
-		// NOTE: the ClassWizard will add member functions here
 	virtual BOOL OnInitDialog();
+	afx_msg void OnCheckUnknown();
+	afx_msg void OnChangeGivenValue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

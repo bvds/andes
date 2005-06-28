@@ -309,10 +309,10 @@ void CAngleDlg::UpdateTempVariable()
 {
 	((CVariable*)m_pTempObj)->m_strObject = GetCurString(&m_cboSide1);
 	((CVariable*)m_pTempObj)->m_strAgent = GetCurString(&m_cboSide2);
-	((CVariable*)m_pTempObj)->m_strValue = "Angle";
+	((CVariable*)m_pTempObj)->m_strQuantName = "Angle";
 	
 	((CVariable*)m_pTempObj)->m_strDef = 
-			((CVariable*)m_pTempObj)->m_strValue + " between " + 
+			((CVariable*)m_pTempObj)->m_strQuantName + " between " + 
 				((CVariable*)m_pTempObj)->m_strObject + " and " +
 					((CVariable*)m_pTempObj)->m_strAgent;
 }

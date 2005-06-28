@@ -352,7 +352,7 @@ void CVectorDlg::UpdateTempVariable()
 	((CVariable*)m_pTempObj)->m_strAgent = GetCurString(&m_cboAgentList);
 	((CVariable*)m_pTempObj)->m_strObject = GetCurString(&m_cboBodyList);
 	((CVariable*)m_pTempObj)->m_strTime = GetCurString(&m_cboTimeList);
-	((CVariable*)m_pTempObj)->m_strValue = "Force";
+	((CVariable*)m_pTempObj)->m_strQuantName = "Force";
 	
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
 
@@ -375,7 +375,7 @@ void CVectorDlg::UpdateTempVariable()
 	}
 
 	((CVariable*)m_pTempObj)->m_strDef = strProp + ((CVariable*)m_pTempObj)->m_strForceType + " " +
-			((CVariable*)m_pTempObj)->m_strValue + " on " + ((CVariable*)m_pTempObj)->m_strObject + 
+			((CVariable*)m_pTempObj)->m_strQuantName + " on " + ((CVariable*)m_pTempObj)->m_strObject + 
 					strTime + strAgent;
 
 

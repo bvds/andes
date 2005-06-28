@@ -125,7 +125,7 @@ CDrawObj* CTableRow::Clone()
 
 	pClone->m_nType = m_nType;
 	pClone->m_strForceType = m_strForceType;
-	pClone->m_strValue = m_strValue;
+	pClone->m_strQuantName = m_strQuantName;
 	pClone->m_strObject = m_strObject;
 	pClone->m_strAgent = m_strAgent;
 	pClone->m_strTime = m_strTime;
@@ -260,9 +260,9 @@ void CTableRow::CheckObject()
 
 	CString strTime = m_strTime;
 	CString strObject = m_strObject;
-	CString strValue = m_strValue;
+	CString strValue = m_strQuantName;
 		//This is kind of a cheat.  However, I don't know where else to put this...
-	if (m_strValue.Find("duration")==0){
+	if (m_strQuantName.Find("duration")==0){
 		strValue = "duration";
 		strTime.Format("%s to %s", m_strObject, m_strTime);
 		strObject = "";
@@ -549,7 +549,7 @@ void CTableGrid::AddProperty(CTableRow* pProp)
 			pCell->CheckObject();
 		//	CheckCell(nRow, nCol, strKnownStatus);
 	}
-	if (pProp->m_strValue.Find("time") != -1)
+	if (pProp->m_strQuantName.Find("time") != -1)
 	{
 		SetItemState(nRow, 2, GVIS_READONLY);
 		pCell = GetCell(nRow, 2);
@@ -615,10 +615,10 @@ void CTableGrid::OnEndEditCell(int nRow, int nCol, CString str)
 
 			if ( (!pProp->m_strForceType.IsEmpty()) && (pProp->m_strForceType[0] == 'G') )
 			{//change to gravitational acceleration
-				pProp->m_strValue = pProp->m_strForceType + " " + pProp->m_strValue;
+				pProp->m_strQuantName = pProp->m_strForceType + " " + pProp->m_strQuantName;
 				pProp->m_nType = (ID_ADDPROP_GRAVACC);
 				pProp->m_strForceType.Empty();
-				pProp->m_strDef = pProp->m_strValue + " of " + pProp->m_strObject ;
+				pProp->m_strDef = pProp->m_strQuantName + " of " + pProp->m_strObject ;
 
 			}
 			tempStr = pProp->m_strDef;

@@ -913,6 +913,11 @@
 (defoperator write-rmag-pyth (?b ?o ?t)
   :preconditions (
     (variable ?r (at (mag(relative-position ?b ?o)) ?t))
+    ; ensure axis drawn, to emulate a vector method diagram drawing step. Reason is hairy: this enables
+    ; the define-compo to apply as it does for normal vector methods, since define-compo requires vectors 
+    ; and axes to have been drawn in wm. Since change to alternative define-compo2, the latter no longer 
+    ; works if EITHER vector or axis is drawn. 
+    (axis-for ?b x 0)
     ; don't apply this rule if vector lies along an axis: it won't be needed
     ; to calculate magnitude from compos and just multiplies solutions.
     ; Note: this doesn't test for vector along z-axis (unlikely to occur).

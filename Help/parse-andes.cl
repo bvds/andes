@@ -112,6 +112,7 @@
     (setf (StudentEntry-ErrInterp se) (bad-syntax-error-interp equation))
     (error-interp-remediation (StudentEntry-ErrInterp se))))
 
+; This returns a plain errorInterp:
 (defun bad-syntax-error-interp (equation)
   "Given a syntactically ill-formed equation, returns an error interpretation for it."
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
@@ -372,6 +373,20 @@
 	       (otherwise
 		(make-green-turn)))))))))
 
+;
+; Note: several canned routines here for particular error interpretations are
+; used for errors that provide unsolicited messages. These routines:
+;    1. create a hint sequence turn for use in the remediation field (rem)
+;    2. construct an error interpretation object (ei) containing rem
+;    3. set the error interp field of the student entry to ei
+;    4. set coloring on the rem turn to color red
+;    5. return rem for use as a final result turn
+; Unsolicited feedback results as the remediation's red+hint turn is returned 
+; up the stack for use as the final result turn for the equation entry.
+; If this is not returned, the hint sequence is saved with the entry but
+; is not given until student asks whats wrong.
+
+
 ; forgot-units is returned when equation is dimensionally inconsistent but
 ; balances numerically when numbers are treated as having unknown units.
 (defun forgot-units-error-interp (se)
@@ -427,7 +442,7 @@
     (setf (turn-coloring rem) **color-red**)
     rem))
 
-; !!! If this is a simple numerical assignment statement, we can say more specifically
+; If this is a simple numerical assignment statement, we can say more specifically
 ; that units are wrong.
 (defun wrong-units-error-interp (se)
   "Given a student entry, return a tutor turn giving unsolicited feedback saying that
@@ -572,6 +587,7 @@
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;; strip comment and leading and trailing spaces from an eqn string.
 (defun trim-eqn (eq)
   (if (> (length eq) 0)
       (let ((p (position #\; eq)))
@@ -681,10 +697,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Our equation grammar is liberal in allowing complex arithmetic expressions
-;; of constants in places where numbers are allowed, so that units can attach 
+;; of constants wherever numbers are allowed so that units can attach 
 ;; to a complex expression.  This is done to allow such things as 
 ;;             omega = 3*pi/4 rad/s
-;; to have an acceptable reading.
+;; to have an acceptable reading. It also allows things like this
+;;             t= 3*3600 + 47*60 + 36 s
+;; for hour, minute, second time given in kt1a (first problem many students see,
+;; in which entering the given time correctly is a hurdle).
 ;; However, the solver's prefix-form parser does not allow this. So we convert
 ;; our form by "dnum-mangling" it into solver-acceptable form as follows:
 ;;  	(dnum (+ 2 3) |m/s|) ==> (* (+ 2 3) (dnum 1 |m/s|))
@@ -993,7 +1012,10 @@
 ; This is similar to checking answer expressions: we must form
 ; an equation in systemese, check it, and ensure that rhs is of
 ; the right form. In this case must also check that value is given.
-(defun check-given-value-expr (entry quant value-str)
+(defun check-given-value-entry (main-entry eqn-entry)
+  (let* ((studvar (second (studentEntry-Prop eqn-entry)))
+         (value-str (third (studentEntry-Prop eqn-entry)))
+	 (quant    (symbols-referent studvar))
    ; want to distinguish cases where quantity is not given, so should be left unknown,
    ; from cases where it is given, but value expression is wrong or bad in some other way.
    ; first do simple check that quantity is given. given-p defined in errors.cl. It takes
@@ -1001,32 +1023,68 @@
    ; (though not the reverse); use given-var-p to avoid this behavior. Note it looks for
    ; given flag on quantities at the bubble-graph level, not implicit equations, so might not 
    ; work for those.
-  (when (not (given-p (quant-to-sysvar quant)))
-     (return-from check-given-value-expr (not-given-error-interp entry quant)))
+	 (is-given (given-p (student-to-canonical studvar))))
 
-  ; else this expression does have a given value:
+   ; first filter case where student hasn't specified a given value (= unknown)
+  (when (blank-given-value-entry eqn-entry)
+       (return-from check-given-value-entry 
+           (if is-given (should-be-given-error-interp main-entry quant)
+	   ; else:
+	     (make-green-turn))))
+
+  ; get here => student specified a given value
+  (when (not is-given)
+     (return-from check-given-value-entry (not-given-error-interp main-entry quant)))
+
+  ; else the quantity does have a given value:
   (let* ( ; form a studentese equation and check it like any other equation,
-	 ; using *solver-temp-eqn-slot*. This will give us a result turn,
-	 ; and store an entry struct containing its interp. 
-         (studvar (symbols-label quant))
+	 ; as if it were entered in *solver-temp-eqn-slot*. This will us a result turn,
+	 ; and record a (temp) entry struct containing its interp. We remove the temp-entry
+	 ; when done with it. Note temp-entry != eqn-entry above, so we may have to update
+	 ; eqn-entry. (clean this up? If eqn is OK, eqn-entry will just be entered again later.
+	 ; should just return the eqn entry to use, and maybe set its slot before this.)
 	 (studeqn (concatenate 'string studvar "=" value-str))
 	 (result-turn (do-lookup-eqn-string studeqn *solver-temp-eqn-slot*))
 	 (temp-entry (find-entry *solver-temp-eqn-slot*))
+	 (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**))
 	 )
-	 ; !!! check that equation interp only uses given eqns 
-         (verify-given-eqn temp-entry)
+	 ; if it passes standard equation check, still have to check it
+	 ; uses only givens. !!! If not, we have to make sure it is removed from
+	 ; algebra, since correct entries get added as side effect of normal eqn processing. 
+	 ; This is OK now, since we *always* delete temp-entry; correct entries
+	 ; are re-added later. But if we change to only add once, must handle this.
+	 (when (and correct-eqn (not (uses-only-given-eqn temp-entry)))
+	    (setf result-turn (more-than-given-error-interp temp-entry quant)))
+	 ; if equation is wrong but no error interpretation (syntax error, missing units, etc)
+	 ; has been set, assume value is just plain wrong, and set that here
+	 (when (and (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
+	    (set-wrong-given-value-error-interp main-entry temp-entry))
+
 	 ; copy relevant info into main student entry
-	 (setf (studentEntry-State entry) (studentEntry-State temp-entry))
-         (setf (studentEntry-ErrInterp entry) (studentEntry-ErrInterp temp-entry))
-	 ; don't save the entry anymore
+	 (setf (studentEntry-State main-entry) (studentEntry-State temp-entry))
+         (setf (studentEntry-ErrInterp main-entry) (studentEntry-ErrInterp temp-entry))
+	 ; urgh, must copy relevant equation info into dependent equation entry, for use
+	 ; when entering the interpretation later.
+	 (setf (studentEntry-State eqn-entry) (studentEntry-State temp-entry))
+	 (setf (studentEntry-ParsedEqn eqn-entry) (studentEntry-ParsedEqn temp-entry))
+	 ; don't save the equation entry on the main list anymore
 	 (remove-entry *solver-temp-eqn-slot*) ; clears algebra slot automatically
-	 ; if it's correct, have to add it as an implicit equation
-  ))
+	 ; if it's correct, caller should add it as an implicit equation
+	 ; finally return turn
+	 result-turn
+  )))
+
+; verify that studententry is an acceptable entry of a given value
+(defun uses-only-given-eqn (studententry)
+   (let ((interp (studententry-cinterp studententry)))
+     (or (and (= (length interp) 1)
+              (given-eqn-entry-p (first interp))) ; singleton given eqn
+	 (allowed-compo-mag-combo interp))))
 
 (defun not-given-error-interp (se quant)
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
-	      '( (format "The value of ~a is not given in this problem. It should be marked unknown." 
+	      (list (format nil "The value of ~a is not given in this problem. It should be marked unknown." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
     (setf (studentEntry-ErrInterp se)
@@ -1038,10 +1096,53 @@
     (setf (turn-coloring rem) **color-red**)
     rem))
 
-; verify that studententry is an acceptable entry of a given value
-; modify entry state and ErrorInterp if it is not.
-(defun verify-given-eqn (studententry)
-)
+(defun should-be-given-error-interp (se quant)
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  (let ((rem (make-hint-seq
+	      (list (format nil "The value of ~a can be determined from the problem statement. It should be entered in the dialog box when defining the relevant variable." 
+	                             (nlg (quant-to-sysvar quant) 'algebra))
+	         ))))
+    (setf (studentEntry-ErrInterp se)
+      (make-error-interp
+       :diagnosis '(should-be-given)
+       :bindings no-bindings
+       :state **no-corresponding-correct-entry**	; dubious, may not matter
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
+
+(defun set-wrong-given-value-error-interp (se quant)
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  (let ((rem (make-hint-seq
+	      (list (format nil "The specified value of ~a is not correct." 
+	                             (nlg (quant-to-sysvar quant) 'algebra))
+	         ))))
+    (setf (studentEntry-ErrInterp se)
+      (make-error-interp
+       :diagnosis '(wrong-given-value)
+       :bindings no-bindings
+       :state **no-corresponding-correct-entry**       ; dubious, may not matter
+       :remediation rem))
+    ; don't return this as unsolicited hint
+    ;(setf (turn-coloring rem) **color-red**)
+    ;rem
+    ))
+
+(defun more-than-given-error-interp (se quant)
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  (let ((rem (make-hint-seq
+	      (list (format nil "Although this equation is a correct expression for the value of ~a, it does not simply state the given value." 
+	                             (nlg (quant-to-sysvar quant) 'algebra))
+	         ))))
+    (setf (studentEntry-ErrInterp se)
+      (make-error-interp
+       :diagnosis '(more-than-given)
+       :bindings no-bindings
+       :state **no-corresponding-correct-entry**	; dubious, may not matter
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
+
 
 ;;----------------------------------------------------------------
 ;; Debugging code.

@@ -89,6 +89,10 @@ extern void HelpIfcSetCallParms(int nTimeout, LPCTSTR pszMsg = NULL);
 inline LPCTSTR STR2ARG(const CString& str) 
 	{ return str.IsEmpty() ? "NIL" : (LPCTSTR) str; }
 
+// Convert string contents to Lisp-readable form.
+// escapes any Lisp special characters
+extern CString LISPSTR(const CString& str);
+
 #if 0 // code for possible C++ interface class yet to be incorporated
 class IHelpIfc			
 {

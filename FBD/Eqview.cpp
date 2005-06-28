@@ -497,7 +497,7 @@ void CEQView::CheckEquation(UINT idEq)
 	// Else check equation by calling help server
 	if (theApp.m_nFeedback == FEEDBACK_WAIT) // Synchronous communication
 	{
-		LPCTSTR pszResult = HelpSystemExecf("(lookup-eqn-string \"%s\" %d)", strEq, nEq);
+		LPCTSTR pszResult = HelpSystemExecf("(lookup-eqn-string \"%s\" %d)", LISPSTR(strEq), nEq);
 		
 		// set status for coloring
 		ApplyStatusResult(pszResult, nEq);
@@ -1071,7 +1071,7 @@ void CEQView::OnCalculate()
 	// Ask help system to do the work. Note: in case where asynch check is
 	// pending, DDEML msg loop should pump its result, updating status of cur eq.
 	LPCTSTR pszResult = 
-		HelpSystemExecf("(calculate-equation-string \"%s\" %d)", strEq, nNextSlot);
+		HelpSystemExecf("(calculate-equation-string \"%s\" %d)", LISPSTR(strEq), nNextSlot);
 
 	// Helpsys may piggyback hint msg in return value on error 
 	// (e.g."you have not entered enough information...").

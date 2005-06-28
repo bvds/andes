@@ -851,7 +851,7 @@ BOOL CFBDApp::EnsureHelpSysInit()
 	   HelpSystemSendf( "(set-session-id \"%s\")", m_strSessionId);
 		// (read-student-info "name" Conc-help [1 or 0 as Conceptual help on or off]
 	   if ( ! HelpSystemExecf("(read-student-info \"%s\" %d)", 
-		                            m_strUserName, 
+		                            LISPSTR(m_strUserName), 
    				                    (m_wHelpFlags & fConceptual) ? 1 : 0) ){
 		// are getting unexplained failures here on Win2000 systems, even though appear to be connected
 		// is some other process using the TCP/IP port? Is an orphaned help system not processing events?
@@ -917,7 +917,7 @@ BOOL CFBDApp::SaveAllModified()
 		}
 
 		// For demo ANDES: never upload. Put back in for USNA eval
-#if 1
+#if 0
 		// For USNA evaluation ANDES, prompt students to run the data uploader utility (default)
 		// Don't nag author/developers, though, and allow override of default via reg setting 0.	
 		if (! m_bAuthor && theApp.GetProfileInt(szSettingsSection, "Upload", 1))

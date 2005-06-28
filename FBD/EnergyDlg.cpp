@@ -29,6 +29,11 @@ void CEnergyDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CEnergyDlg)
+	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
+	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
+	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
+	DDX_Control(pDX, IDC_CHECK_UNKNOWN, m_btnUnknown);
+	DDX_Control(pDX, IDC_GIVEN_VALUE, m_editValue);
 	DDX_Control(pDX, IDC_LVARIABLE_NAME, m_stcLet);
 	DDX_Control(pDX, IDC_PE_LABEL, m_stcPE);
 	DDX_Control(pDX, IDOK, m_btnOk);
@@ -45,6 +50,7 @@ void CEnergyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_FillList(pDX, IDC_NRG_AGENT, &m_pDocument->m_strObjects);
 	DDX_FillList(pDX, IDC_NRGBODY, &m_pDocument->m_strObjects);
 	DDX_FillList(pDX, IDC_TIME, &m_pDocument->m_strTimes);
+	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);
 	DDX_AddCompoundBodies(pDX, IDC_NRGBODY, &m_pDocument->m_objects);
 	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);
 
@@ -76,6 +82,8 @@ IMPLEMENT_DYNAMIC(CEnergyDlg, CDrawObjDlg)
 BEGIN_MESSAGE_MAP(CEnergyDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CEnergyDlg)
 	ON_CBN_SELCHANGE(IDC_NRG_TYPE, OnSelchangeNrgType)
+	ON_BN_CLICKED(IDC_CHECK_UNKNOWN, OnCheckUnknown)
+	ON_EN_CHANGE(IDC_GIVEN_VALUE, OnChangeGivenValue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -113,6 +121,10 @@ void CEnergyDlg::InitVariableDlg()
 	m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent );
 	m_cboTime.SelectStringExact(((CVariable*)m_pTempObj)->m_strTime) ;
 	m_cboEnergyType.SelectStringExact(((CVariable*)m_pTempObj)->m_strForceType) ;
+	// Transfer given value/unknown bit from controls to variable
+	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	// sync unknown check box with value
+	OnChangeGivenValue();
 }
 
 void CEnergyDlg::OnOK() 
@@ -165,7 +177,10 @@ void CEnergyDlg::UpdateTempVariable()
 	((CVariable*)m_pTempObj)->m_strAgent = GetCurString(&m_cboAgent);
 	((CVariable*)m_pTempObj)->m_strTime = GetCurString(&m_cboTime);
 	((CVariable*)m_pTempObj)->m_strForceType = GetCurString(&m_cboEnergyType);
-	((CVariable*)m_pTempObj)->m_strValue = "Energy";
+	((CVariable*)m_pTempObj)->m_strQuantName = "Energy";
+	CString strValue;
+	m_editValue.GetWindowText(strValue);
+	((CVariable*)m_pTempObj)->m_strValue= strValue;
 
 	CString str;
 	m_editName.GetRichEditText(str);
@@ -187,7 +202,7 @@ void CEnergyDlg::UpdateTempVariable()
 
 	((CVariable*)m_pTempObj)->m_strDef = 
 		((CVariable*)m_pTempObj)->m_strForceType + " " +
-			((CVariable*)m_pTempObj)->m_strValue + " of " + 
+			((CVariable*)m_pTempObj)->m_strQuantName + " of " + 
 				((CVariable*)m_pTempObj)->m_strObject + 
 					strAgent +	strTime ;
 
@@ -224,5 +239,28 @@ CLabelRichEdit* CEnergyDlg::GetLabelCtrl()
 }
 
 
+// Keep edit control contents and unknown check box in sync:
+// blank string <=> unknown checked
+void CEnergyDlg::OnCheckUnknown() 
+{
+	if (m_btnUnknown.GetCheck()) {
+		m_editValue.SetWindowText("");
+	} else {
+		m_editValue.SetFocus();
+	}
+}
+
+void CEnergyDlg::OnChangeGivenValue() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	CString strText;
+	m_editValue.GetWindowText(strText);
+	strText.Remove(' ');
+	m_btnUnknown.SetCheck(strText.IsEmpty());
+}
 
 

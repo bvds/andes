@@ -210,12 +210,12 @@ void CRelVelDlg::UpdateTempVariable()
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	
 	// for vars, also need to set variable quant type and definition strings
-	pTempVar->m_strValue = "relative-vel";
+	pTempVar->m_strQuantName = "relative-vel";
 	CString strTime;
 	if (! pTempVar->m_strTime.IsEmpty())
 		strTime = " at time " + pTempVar->m_strTime;
 	
-	pTempVar->m_strDef =  pTempVar->m_strValue
+	pTempVar->m_strDef =  pTempVar->m_strQuantName
 						  + " of " + pTempVar->m_strObject 
 						  + " wrt " + pTempVar->m_strAgent 
 						  + strTime;

@@ -21,6 +21,11 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CVoltageDlg)
 	enum { IDD = IDD_VOLTAGE };
+	CStatic	m_stcEquals;
+	CButton	m_stcGiven;
+	CStatic	m_stcOr;
+	CLogBtn	m_btnUnknown;
+	CLogEdit m_editValue;
 	CStatic	m_stcLet;
 	CLogCombo	m_cboTime;
 	CLogCombo	m_cboComponent;
@@ -49,6 +54,8 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CVoltageDlg)
 	virtual BOOL OnInitDialog();
+	afx_msg void OnCheckUnknown();
+	afx_msg void OnChangeGivenValue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -1,6 +1,6 @@
 // FBDView.h : interface of the CFBDView class
 // 
-// $Id: Fbdview.h,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: Fbdview.h,v 1.3 2005/06/28 22:53:19 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 
 // forward references, so don't need to worry about including 
@@ -175,13 +175,7 @@ protected:
 	CDrawObj* m_pCurrentObj;	// Object currently being tracked
 
 	// tool-specific state:
-	// NB: vectorType enums must parallel ID_DRAWVECTOR_* command IDs, 
-	// and [perhaps] CVector VECTOR_* vector type codes [not sure]
-	// !!! should centralize this list in one place
-	enum vectorType { Force, Velocity, Acceleration, Component, Displacement, 
-					  Momentum, Position, Torque, RelativeVelocity, 
-					  E_Field, B_Field, Unknown}
-			m_vectorType;		// subtype during vector draw
+	int m_vectorType;			// VECTOR_* subtype during vector draw
 	int m_nZDir;				// direction for special z-axis vector drawing
 
 	enum SelectMode { none, move, resize, netSelect }
@@ -302,6 +296,7 @@ protected:
 	afx_msg void OnDrawvectorForce();
 	afx_msg void OnDrawvectorVelocity();
 	afx_msg void OnDrawvectorMomentum();
+	afx_msg void OnDrawvectorImpulse();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
@@ -362,6 +357,7 @@ protected:
 	afx_msg void OnUpdateDrawvectorForce(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateDrawvectorVelocity(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateDrawvectorMomentum(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateDrawvectorImpulse(CCmdUI* pCmdUI);
 	afx_msg void OnEditUndo();
 	afx_msg void OnUpdateEditUndo(CCmdUI* pCmdUI);
 	afx_msg void OnViewFont();

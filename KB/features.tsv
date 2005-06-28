@@ -1,4 +1,4 @@
-kinematics	distance;speed;duration;angle;probability;
+kinematics	distance;speed;duration;angle;
 statics	mass;angle;coef-friction;duration;
 dynamics	mass;angle;coef-friction;duration;
 circular	mass;radius;period;duration;angle;

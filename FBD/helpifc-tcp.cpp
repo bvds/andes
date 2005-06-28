@@ -1069,3 +1069,18 @@ PUBLIC BOOL HelpSystemExecAsync(LPCTSTR pszCmd, PROCP pfnNotify, DWORD dwCookie)
 	}
 	return FALSE;
 }
+
+//-------------------------------------------------------------------------------------------------------
+// Argument processing utilities:
+//-------------------------------------------------------------------------------------------------------
+
+// Ensure string value is Lisp-readable
+CString LISPSTR(const CString& strInput)
+{
+	CString strOutput = strInput;
+	// escape any embedded backslashes. (must do first, following step inserts backslashes)
+	strOutput.Replace("\\", "\\\\");		// doubled for C lexical convention
+	// escape any embedded quotes.
+	strOutput.Replace("\"", "\\\"");
+	return strOutput;
+}

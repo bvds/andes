@@ -477,16 +477,28 @@ NIL if none"
   (when (StudentEntry-ImplicitEqn entry)
       (StudentEntry-ID (StudentEntry-ImplicitEqn entry))))
 
-(defun implicit-slot-in-use (slot)
-  "return true if slot number is in use for an implicit equation entry"
- (find slot *StudentEntries* :key #'StudentEntry-ImplicitEqnSlot)) 
+(defun StudentEntry-GivenEqnSlots (entry)
+"return list of given equation slots used by a student entry"
+  (mapcar #'StudentEntry-ID (StudentEntry-GivenEqns entry)))
+
+(defun entry-uses-slot (entry slot)
+"true if student entry uses eqn slot for dependent entry"
+  (or (eql slot (StudentEntry-ImplicitEqnSlot entry))
+      (member slot (StudentEntry-GivenEqnSlots entry)
+              :test #'eql)))
+	     
+(defun eqn-slot-in-use (slot)
+"return true if slot number is in use for a dependent equation entry"
+  (some #'(lambda (e) (entry-uses-slot e slot))
+        *StudentEntries*))
+       
 
 (defun get-unused-implicit-slot ()
   "return next high equation slot not in use by any entry, NIL if no more"
    (let (slot)
      (dotimes (offset (- *max-implicit-slot* *first-implicit-slot*))
        (setf slot (+ *first-implicit-slot* offset))
-       (when (not (implicit-slot-in-use slot))
+       (when (not (eqn-slot-in-use slot))
           (return-from get-unused-implicit-slot slot))))
    ; get here => failed to find one
    (warn "Ran out of implicit equation slots!")
@@ -511,6 +523,24 @@ NIL if none"
      (make-StudentEntry :prop 
        `(implicit-eqn (= ,(student-to-canonical studvar) ,value)))))
 
+; unlike implicit equations, which can be represented in systemese,
+; a given eqn entry is a studentese variable and a studentese expression
+; string (which may be empty string if no value set). So this winds up
+; almost like an equation entry. However, for these entries, we split studvar 
+; and value string into separate arguments in the proposition, for easy access.
+; We still begin prop with eqn so sg-entering code can recognize it as an equation 
+; entry. That's OK, because that code only uses the car of the prop, the difference
+; in the rest of it should not matter since it's never used (check).
+
+(defun make-given-eqn-entry (studvar value)
+"make equation entry setting student var to given value"
+   (when (student-to-canonical studvar)
+     (make-StudentEntry :prop 
+       `(eqn ,studvar ,value))))
+
+(defun blank-given-value-entry (eqn-entry)
+"true if given value entry is blank for unknown"
+  (= (length (trim-eqn (third (StudentEntry-Prop eqn-entry)))) 0))
 
 ;;===========================================================================
 ;; Student Name

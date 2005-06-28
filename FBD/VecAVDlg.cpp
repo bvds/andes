@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.3 2005/06/28 22:53:19 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -37,6 +37,11 @@ void CVectorMoveDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CVectorMoveDlg)
+	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
+	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
+	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
+	DDX_Control(pDX, IDC_CHECK_UNKNOWN, m_btnUnknown);
+	DDX_Control(pDX, IDC_GIVEN_VALUE, m_editValue);
 	DDX_Control(pDX, IDC_ZDIR, m_cboZDir);
 	DDX_Control(pDX, IDC_ANGULAR, m_cboAngular);
 	DDX_Control(pDX, IDC_LABEL_AVBODY, m_stcBody);
@@ -100,6 +105,8 @@ BEGIN_MESSAGE_MAP(CVectorMoveDlg, CDrawObjDlg)
 	ON_CBN_SELCHANGE(IDC_AVBODY_TEXT, OnSelchangeBody)
 	ON_CBN_SELCHANGE(IDC_ANGULAR, OnSelchangeAngular)
 	ON_CBN_SELCHANGE(IDC_ZDIR, OnSelchangeZdir)
+	ON_BN_CLICKED(IDC_CHECK_UNKNOWN, OnCheckUnknown)
+	ON_EN_CHANGE(IDC_GIVEN_VALUE, OnChangeGivenValue)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -184,6 +191,16 @@ BOOL CVectorMoveDlg::OnInitDialog()
 		Remove(IDC_BOX_TIMEDIR);	// remove whole row moving rest up
 	} else if (m_pDocument->UseZAxis()) {
 		m_cboZDir.ShowWindow(SW_SHOWNORMAL);
+	}
+
+	// Given value box: enable for any variable if not being used to define sought
+	// Really for speed variable only.
+	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVariable)) && ! m_bSought) {
+		m_stcEquals.ShowWindow(SW_SHOW);
+	    m_stcGiven.ShowWindow(SW_SHOW);
+		m_stcOr.ShowWindow(SW_SHOW);
+		m_btnUnknown.ShowWindow(SW_SHOW);
+		m_editValue.ShowWindow(SW_SHOW);
 	}
 
 	// Move top-line static and combo box controls so that they line up nicely without
@@ -474,6 +491,11 @@ void CVectorMoveDlg::InitVariableDlg()
 	m_cboAngular.SelectStringExact(pVar->IsAngularVector() ? szAngular : szLinear);
 	m_txtDescription.SetWindowText(m_strDescription);//string set coming in
 
+	// Transfer given value/unknown bit from controls to variable
+	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	// sync unknown check box with value
+	OnChangeGivenValue();
+
 	// Don't show orientation angle controls/statics
 	m_spinDirection.ShowWindow(SW_HIDE);
 	m_editOrientation.ShowWindow(SW_HIDE);
@@ -555,8 +577,12 @@ void CVectorMoveDlg::UpdateTempVariable()
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	// need to account for angular flag when setting type name ("strValue");
 	UpdateAngularFlag();
-	pTempVar->m_strValue = pTempVar->IsAngularVector() ? "Angular " + m_strDescription
+	pTempVar->m_strQuantName = pTempVar->IsAngularVector() ? "Angular " + m_strDescription
 										         : m_strDescription;
+	CString strValue;
+	m_editValue.GetWindowText(strValue);
+	((CVariable*)m_pTempObj)->m_strValue= strValue;
+	
 						
 	CString strTime = "";
 	if (!pTempVar->m_strTime.IsEmpty())
@@ -578,7 +604,7 @@ void CVectorMoveDlg::UpdateTempVariable()
 	CString strOptModifier;
 	if (!pTempVar->m_strForceType.IsEmpty())
 		strOptModifier = pTempVar->m_strForceType + " ";
-	pTempVar->m_strDef = strProp + strOptModifier + pTempVar->m_strValue 
+	pTempVar->m_strDef = strProp + strOptModifier + pTempVar->m_strQuantName 
 					     + " of " +  pTempVar->m_strObject + strTime ;
 }
 
@@ -759,4 +785,27 @@ void CVectorMoveDlg::OnSelchangeZdir()
 	UpdateComponents();
 }
 
+// Keep edit control contents and unknown check box in sync:
+// blank string <=> unknown checked
+void CVectorMoveDlg::OnCheckUnknown() 
+{
+	if (m_btnUnknown.GetCheck()) {
+		m_editValue.SetWindowText("");
+	} else {
+		m_editValue.SetFocus();
+	}
+}
+
+void CVectorMoveDlg::OnChangeGivenValue() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	CString strText;
+	m_editValue.GetWindowText(strText);
+	strText.Remove(' ');
+	m_btnUnknown.SetCheck(strText.IsEmpty());
+}
 

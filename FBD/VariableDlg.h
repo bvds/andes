@@ -25,6 +25,11 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CVariableDlg)
 	enum { IDD = IDD_DECLARE_VARIABLE };
+	CStatic	m_stcEquals;
+	CButton	m_stcGiven;
+	CStatic	m_stcOr;
+	CLogBtn	m_btnUnknown;
+	CEQRichEdit m_editValue;
 	CLogBtn	m_Ok;
 	CLogBtn	m_Cancel;
 	CStatic	m_stcLet;
@@ -71,6 +76,8 @@ protected:
 	//{{AFX_MSG(CVariableDlg)
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
+	afx_msg void OnCheckUnknown();
+	afx_msg void OnChangeGivenValue();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

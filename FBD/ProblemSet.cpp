@@ -1032,20 +1032,21 @@ int CProblemSet::SetScore(CFBDDoc* pDoc)
 	// token may contain ampersands and equals signs
 	strToken.Replace("&", "%26");
 	strToken.Replace("=", "%3D");
-	// for safety, make sure score we send is not empty string:
-	CString strScore = pDoc->m_strScore;
-	if (strScore.IsEmpty()) strScore = "0";
 
 	CString strCmdBase = strBaseUrl + "/score" +
 		             "?user=" + theApp.m_strUserName + 
 					 "&token=" + strToken + 
 		             "&activity=" + strActivity;
 	CString strCmdScore = strCmdBase +  "&scoreId=score" + 
-		                        "&scoreValue=" + strScore;
+		                        "&scoreValue=" + pDoc->m_strScore;
 	CString strCmdStatus = strCmdBase + "&scoreId=status" + 
 		                        "&scoreValue=" + pDoc->GetWorkStateStr();
-	// status score is less important than score score
-	result = HttpCallURL(strCmdScore, "setScore")
+	// empty score string means unset (maybe helpsys failed to run).
+	// Don't record numerical score in this case. Can still
+	// record status, e.g. partial, if there are some entries.
+	// Do grade first because it is more important than status
+	result = (pDoc->m_strScore.IsEmpty() 
+		       || HttpCallURL(strCmdScore, "setScore"))
 	         && HttpCallURL(strCmdStatus, "setStatus");
 	SetStatusMsg("");
 	return result;
