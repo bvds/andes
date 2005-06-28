@@ -675,8 +675,10 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	  } // end of case n_op e is a mult
       throw(string("unknown n_op expr sent to flatten"));
     }  // end of e = n_op  block
+#ifdef WITHDBG
   cout << "flatten " << thisdbg << " bombs with" << endl;
   e->dbgprint(5);		// diag
+#endif
   throw(string("unknown expr sent to flatten"));
 }
 

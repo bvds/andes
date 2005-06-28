@@ -142,10 +142,13 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
       } // end of checking all eqs in set
       if (foundeq >= 0) {
 	DBGM( cout << "found eqn for this var, number " << foundeq << endl;);
+/* AW: remove case that promoted into linexpand because it is unreliable: 
+   stud eqn may contain var, but not depend on var, as F = m*a contains m
+   but doesn't depend on m when a=0.
 	if (haverealeq && (wehavevar[k] == 1)) { // if only one equation in dep
 	  linexpand->push_back(foundeq); 	// set had v_k, and we have 
 	  wehavevar[k] = 0; }	// assgn for it, add it to dependency set
-	else {
+	else */ {
 	  if (!havemaybeeq) { 
 	    mightdepend = new vector<int>; 
 	    havemaybeeq = true; }
