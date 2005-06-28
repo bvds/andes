@@ -4694,7 +4694,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ( (any-member ?sought
 		((at (mag (force ?b ?agent thrust)) ?t)
-		 (at (mag (relative-vel ?b ?agent)) ?t)
+		 (at (mag (relative-vel ?agent ?b)) ?t)
 		 (at (mass-change-magnitude ?b ?agent) ?t)))
     (object ?b)
     (time ?t)
@@ -4706,7 +4706,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-thrust-force (?b ?agent ?t)
   :preconditions 
    ((variable ?Fth (at (mag (force ?b ?agent thrust)) ?t))
-    (variable ?vr (at (mag (relative-vel ?b ?agent)) ?t))
+    (variable ?vr (at (mag (relative-vel ?agent ?b)) ?t))
     (variable ?dmdt  (at (mass-change-magnitude ?b ?agent) ?t)))
   :effects (
    (eqn (= ?Fth (* ?vr ?dmdt)) (thrust-definition ?b ?agent ?t)))
@@ -4776,8 +4776,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( (any-member ?sought
 		((at (mag (force ?b ?agent thrust)) ?t)
 		 (at (dir (force ?b ?agent thrust)) ?t)
-		 (at (mag (relative-vel ?b ?agent)) ?t)
-		 (at (dir (relative-vel ?b ?agent)) ?t)
+		 (at (mag (relative-vel ?agent ?b)) ?t)
+		 (at (dir (relative-vel ?agent ?b)) ?t)
 		 (at (mass-change-magnitude ?b ?agent) ?t)))
     (object ?b)
    (time ?t)
@@ -4792,7 +4792,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-thrust-force-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
    ((variable ?Fth_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
-    (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?b ?agent)) ?t))
+    (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?agent ?b)) ?t))
     (variable ?dmdt  (at (mass-change-magnitude ?b ?agent) ?t)))
   :effects (
    (eqn (= ?Fth_x (* -1 ?vr_x ?dmdt))
