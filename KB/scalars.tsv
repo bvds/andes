@@ -1,5 +1,6 @@
 mass	m	mass		of [body:bodies]
 mass-per-length	$m	mass per length		of [body:bodies]
+mass-change-magnitude	dmdt	magnitude of mass change per unit time		of [body:bodies] due to [body2:bodies] at [time:times]
 radius	r			
 distance	s	distance traveled		by [body:bodies] at time [time:times]
 distance-between	d	distance		between [body:bodies] and [body2:bodies] at [time:times]
@@ -53,4 +54,3 @@ string-tension	Ft	tension on a string	tension	on [body:bodies]
 amplitude	A	amplitude		for oscillations of [body:bodies]
 amplitude-max-speed	vmax	maximum speed of oscillation		for oscillations of [body:bodies]
 amplitude-max-abs-acceleration	amax	maximum magnitude of acceleration		for oscillations of [body:bodies]
-probability	p		

@@ -3864,18 +3864,20 @@ the magnitude and direction of the initial and final velocity and acceleration."
         (variable ?var (at (mass ?body) ?time))
   ))
 
-;; Magnitude of derivative of mass with respect to time
-;; We use the magnitude form because students in a non-calculus
-;; based course don't have a strong concept of "slope."
+;;; Magnitude of derivative of mass with respect to time
+;;; due to agent
+;;; We use the magnitude form because students in a non-calculus
+;;; based course don't have a strong concept of "slope."
 
-(defoperator define-mass-change-magnitude (?b ?t)
+(defoperator define-mass-change-magnitude (?b ?agent ?t)
   :preconditions
   ((object ?b)
    (time ?t)
-   (bind ?var (format-sym "dmdt_~A_~A" (body-name ?b) (time-abbrev ?t))))
+   (bind ?var (format-sym "dmdt_~A_~A_~A" (body-name ?b) (body-name ?agent) 
+			  (time-abbrev ?t))))
   :effects
-  ((variable ?var (at (mass-change-magnitude ?b) ?t))
-   (define-var (at (mass-change-magnitude ?b) ?t)))
+  ((variable ?var (at (mass-change-magnitude ?b ?agent) ?t))
+   (define-var (at (mass-change-magnitude ?b ?agent) ?t)))
   :hint
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for the magnitude of the change in mass."))
    ))
@@ -4680,7 +4682,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;;; scalar version of definition:
 
-(def-psmclass thrust-force (thrust-force ?body ?agent ?time)
+(def-psmclass thrust-force (thrust-definition ?body ?agent ?time)
     :complexity major    
     :Doc "Definition of thrust force."
     :english ("the definition of thrust force") 
@@ -4693,21 +4695,21 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( (any-member ?sought
 		((at (mag (force ?b ?agent thrust)) ?t)
 		 (at (mag (relative-vel ?b ?agent)) ?t)
-		 (at (mass-change-magnitude ?b) ?t)))
+		 (at (mass-change-magnitude ?b ?agent) ?t)))
     (object ?b)
     (time ?t)
    )
   :effects 
-   ((eqn-contains (thrust-force ?b ?agent ?t) ?sought)))
+   ((eqn-contains (thrust-definition ?b ?agent ?t) ?sought)))
 
 ;; This is the thrust-force from a particular force
-(defoperator write-thrust-force (?b ?agent ?t1 ?t2 ?xy ?rot)
+(defoperator write-thrust-force (?b ?agent ?t)
   :preconditions 
    ((variable ?Fth (at (mag (force ?b ?agent thrust)) ?t))
     (variable ?vr (at (mag (relative-vel ?b ?agent)) ?t))
-    (variable ?dmdt  (at (mass-change-magnitude ?b) ?t)))
+    (variable ?dmdt  (at (mass-change-magnitude ?b ?agent) ?t)))
   :effects (
-   (eqn (= ?Fth (* ?vr ?dmdt)) (thrust-force ?b ?agent ?t)))
+   (eqn (= ?Fth (* ?vr ?dmdt)) (thrust-definition ?b ?agent ?t)))
   :hint 
   ( (point (string "What is the relationship between thrust force, the velocity of ~A, and the magnitude of the mass change rate of ~A?"
 ?b ?agent ?b))
@@ -4752,7 +4754,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Use the thrust-force drawing tool to draw the thrust-force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
     ))
 
-(defoperator draw-thrust-force-vector-diagram (?b ?agent ?t)
+(defoperator thrust-force-vector-diagram (?b ?agent ?t)
   :preconditions (
     ;; Draw both bodies. 
     (body ?b)
@@ -4776,7 +4778,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (at (dir (force ?b ?agent thrust)) ?t)
 		 (at (mag (relative-vel ?b ?agent)) ?t)
 		 (at (dir (relative-vel ?b ?agent)) ?t)
-		 (at (mass-change-magnitude ?b) ?t)))
+		 (at (mass-change-magnitude ?b ?agent) ?t)))
     (object ?b)
    (time ?t)
    )
@@ -4791,7 +4793,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
    ((variable ?Fth_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
     (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?b ?agent)) ?t))
-    (variable ?dmdt  (at (mass-change-magnitude ?b) ?t)))
+    (variable ?dmdt  (at (mass-change-magnitude ?b ?agent) ?t)))
   :effects (
    (eqn (= ?Fth_x (* -1 ?vr_x ?dmdt))
             (compo-eqn definition ?xy ?rot (thrust ?b ?agent ?t)))

@@ -137,12 +137,12 @@
   :restrictions positive
   :fromWorkbench (if time `(at (mass ,body) ,time) `(mass ,body))
   :english ("the mass of ~A" (nlg ?body)))
-(def-qexp mass-change-magnitude	(mass-change-magnitude ?body)
+(def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent)
   :units |kg/s|
   :restrictions nonnegative
   :fromWorkbench `(at (mass-change-rate ,body) ,time)
-  :english ("the magnitude of the change of mass of ~A per unit time" 
-	       (nlg ?body)))
+  :english ("the magnitude of the change of mass of ~A per unit time due to ~A" 
+	       (nlg ?body) (nlg ?agent)))
 (def-qexp distance (distance ?body)
   :units |m|
   :fromWorkbench `(at (distance ,body) ,time)
