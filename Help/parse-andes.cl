@@ -1058,13 +1058,14 @@
 	 ; if equation is wrong but no error interpretation (syntax error, missing units, etc)
 	 ; has been set, assume value is just plain wrong, and set that here
 	 (when (and (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
-	    (set-wrong-given-value-error-interp main-entry temp-entry))
+	    (set-wrong-given-value-error-interp temp-entry quant))
 
-	 ; copy relevant info into main student entry
+	 ; OK, copy relevant info from temp entry into main student entry
 	 (setf (studentEntry-State main-entry) (studentEntry-State temp-entry))
          (setf (studentEntry-ErrInterp main-entry) (studentEntry-ErrInterp temp-entry))
-	 ; urgh, must copy relevant equation info into dependent equation entry, for use
-	 ; when entering the interpretation later.
+	 ; urgh, must also copy filled-in equation info into main entry's dangling dependent
+	 ; equation entry, for possible use when entering the correct interpretation later. 
+	 ; Could maybe nreplace dangling entry with temp entry to avoid this.
 	 (setf (studentEntry-State eqn-entry) (studentEntry-State temp-entry))
 	 (setf (studentEntry-ParsedEqn eqn-entry) (studentEntry-ParsedEqn temp-entry))
 	 ; don't save the equation entry on the main list anymore
