@@ -92,7 +92,8 @@
   ; Allow a single entry id argument here for the usual case where 
   ; symbol info derives from single entry. For component vars it will list
   ; both vector and axes entry ids. Form singleton list for subsequent code.
-  (when (atom entries)
+  ; if entries is NIL, as for predefs, leave it as empty list
+  (when (and entries (atom entries))
       (setf entries (list entries))) 
 
   ; Client code should delete symbols from an existing entry before handling
