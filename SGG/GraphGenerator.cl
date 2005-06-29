@@ -295,8 +295,8 @@
   (let (Qnode Results)
     (setq Results (solve-for-psm-quantity Sought Givens))  ;; leaving only valid choices.
     (when (car Results)
-      ;(gg-debug "Solving for Sought requires complex psm~%")
-      (setq Results (gg-remove-ignore-psms IgnorePsms Results))  ;; remove the ignore psms.
+      ;; remove the ignore psms.
+      (setq Results (gg-remove-ignore-psms IgnorePSMS Results))  
       (setq Qnode (make-qnode :exp Sought))
       (gg-collect-complex-psms 
        Results Givens Qnode

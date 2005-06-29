@@ -4733,7 +4733,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-thrust-force-given-relative-vel (?b ?agent ?t)
   :preconditions
   (
-   (in-wm (vector ?b (at (relative-vel ?agent ?b) ?t) ?dir))
+   (in-wm (vector ?agent (at (relative-vel ?agent ?b) ?t) ?dir))
    (test (not (equal ?dir 'unknown)))
    (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care)) ;not already drawn
    (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) ?agent 
@@ -4759,7 +4759,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; Draw both bodies. 
     (body ?b)
     (vector ?b (at (force ?b ?agent thrust) ?t) ?dir1)
-    (vector ?agent (at (relative-vel ?agent ?b ?t) ?t) ?dir2)
+    (vector ?agent (at (relative-vel ?agent ?b) ?t) ?dir2)
     ;; we need axis-for each body, since component defining operators will 
     ;; lookup axis-for principal body of each vector. Our operators that
     ;; draw axes only apply once, so there is no danger of drawing two
@@ -4789,7 +4789,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (compo-eqn-contains (thrust ?b ?agent ?t) definition ?sought)))
 
 ;; This is the thrust-force from a particular force
-(defoperator write-thrust-force-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
+(defoperator write-thrust-force-compo (?b ?agent ?t ?xy ?rot)
   :preconditions 
    ((variable ?Fth_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
     (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?agent ?b)) ?t))
@@ -4806,7 +4806,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write the equation ~a"
 			((= ?Fth_x (* -1 ?vr_x ?dmdt)) algebra)))
   ))
-
 
 
 ;;;============================================================================
