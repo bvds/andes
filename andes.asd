@@ -86,7 +86,6 @@
 				     (:file "fluids-problems")
 				     (:file "waves")
 				     (:file "waves-problems")
-				     (:file "p-problems")
 				     (:file "work-energy-problems")
 				     ;; depends on "waves":
 				     (:file "oscillations-problems")
