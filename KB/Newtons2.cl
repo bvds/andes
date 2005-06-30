@@ -2429,20 +2429,20 @@
 ;;; !!! For now, only applies if more than one *given* force. Could apply 
 ;;; if more than one force simpliciter.  Also doesn't check if they are 
 ;;; in the same direction, in which case direction could be known.
-(defoperator accel-unknown-net-force (?b ?t)
+(defoperator draw-accel-unknown-net-force (?b ?t)
   :specifications 
    "If ?body is moving in a straight line during ?time,
       and it is subject to more than one given force,
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
    ((time ?t)
-    ; following tells us forces are not balanced, else would have at-rest
+    ;; following tells us forces are not balanced, else would have at-rest
     (motion ?b ?t-motion (straight speed-up unknown))
     (test (tinsidep ?t ?t-motion))
     (setof (in-wm (given (at (dir (force ?b ?agent ?type)) ?t) ?force-dir))
            (force ?b ?agent ?type) ?given-forces)
     (test (>= (length ?given-forces) 2))
-    ; !!! verify not all in same direction
+    ;; Should verify not all in same direction
     (not (vector ?b (at (accel ?b) ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
