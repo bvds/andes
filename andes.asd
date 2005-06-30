@@ -68,7 +68,6 @@
 			:components (
 				     ;; treat these as normal lisp files
 				     (:cl-source-file "Physics-Funcs")
-				     (:cl-source-file "P-Funcs")
 				     ;; lots of outside dependencies:
 				     (:cl-source-file "errors")
 				     
