@@ -252,6 +252,8 @@ And all the element of the sring should either be non-stansard or upcased!
 
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;combine the single event #\A --> A; #\~ #\A --> (eno A)
+;; I commented the (if  (or (not (null (combine-event (rest event-list)))) because it will pass if the student input
+;; something like (make-event ' |~A & ~C   & ~B V |)  Instead of return wrong it will return correctly. (EAND (ENO A) (ENO B) (ENO C))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;|#
 
 (defun combine-event(event-list)
@@ -292,38 +294,38 @@ And all the element of the sring should either be non-stansard or upcased!
 	  ((and (listp event-list)    ;; single binary event operator |
 		(characterp (first event-list))
 		(char= (first event-list) #\/))
-	   (if  (test-charater event-list 1)
-	       (cons 'given (combine-event (rest event-list)))
-	     nil))
+	   ;;(if  (test-charater event-list 1)
+	       (cons 'given (combine-event (rest event-list))))
+	     ;;nil))
 	  
 	  ((and (listp event-list)    ;; single binary event operator |
 		(characterp (first event-list))
 		(char= (first event-list) #\&))
-	   (if  (test-charater event-list 1)
-	       (cons 'eand (combine-event (rest event-list)))
-	     nil))
+	  ;; (if  (test-charater event-list 1)
+	       (cons 'eand (combine-event (rest event-list))))
+	    ;; nil))
 	  
 	  ((and (listp event-list)    ;; single binary event operator |
 		(characterp (first event-list))
 		(char= (first event-list) #\V))
-	   (if  (test-charater event-list 1)
-	       (cons 'eor (combine-event (rest event-list)))
-	     nil))
+	   ;;(if  (test-charater event-list 1)
+	       (cons 'eor (combine-event (rest event-list))))
+	     ;;nil))
 	  
 	  ((and (listp event-list)   
 		(characterp (first event-list))
 		(char= (first event-list) #\())
-		(if  (test-charater event-list 1)	
-		    (cons  (first event-list) (combine-event (rest  event-list)))
-		  nil))
+		;;(if  (test-charater event-list 1)	
+		    (cons  (first event-list) (combine-event (rest  event-list))))
+		  ;;nil))
   	 ((and (listp event-list)  
 		(characterp (first event-list))
 		(char= (first event-list) #\)))
-		(if  (or (not (null (combine-event (rest event-list))))
-		   (null (rest event-list)))
-		    (cons  (first event-list) (combine-event (rest  event-list)))
-		  nil))
-	  ;;; (T  nil)
+		;;(if  (or (not (null (combine-event (rest event-list))))
+		  ;; (null (rest event-list)))
+		    (cons  (first event-list) (combine-event (rest  event-list))))
+		  ;;nil))
+	 (T  nil)
 	   ))
   
 (defun test-charater(event-list pos)
@@ -335,7 +337,22 @@ And all the element of the sring should either be non-stansard or upcased!
 				(char=  (nth pos event-list) #\())
                         (and 	(characterp (nth pos event-list))
 				(char=  (nth pos event-list) #\~))))
-  
+
+
+(defun change-tt (event)
+  (cond
+   ((and 	(characterp event)
+		(char>= event #\A)
+		(not (char=  event #\V))
+		(char<=  event #\Z))     event)
+   ((and 	(characterp event)
+		(char= event #\~))    'eno)
+   ((and 	(characterp event)
+		(char= event #\V))    'eor)
+   ((and 	(characterp event)
+		(char= event #\&))    'eand)
+   ((characterp event)    event)
+	))
 #|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;combine the single event #\A --> A; #\~ #\A --> (eno A)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;|#
@@ -608,8 +625,20 @@ And all the element of the sring should either be non-stansard or upcased!
 (defun nlg-single-events (events)
 
   (cond ((equal (length events) 2)  (format nil "~a and ~a" (nlg-event  (first events)) (nlg-event  (second events))))
-	((equal (length events) 3)  (format nil "~a, ~a and ~a" (nlg-event  (first events)) (nlg-event  (second events)) (nlg-event  (third event)) ))
+	((equal (length events) 3)  (format nil "~a, ~a and ~a" (nlg-event  (first events)) (nlg-event  (second events)) (nlg-event  (third events)) ))
 	))   
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; produce the proper nlg for or of  a list of events.
+
+(defun nlg-or-single-events(events)
+
+  (cond ((equal (length events) 2)  (format nil "~a$È~a" (nlg-event  (first events)) (nlg-event  (second events))))
+	((equal (length events) 3)  (format nil "~a$È~a$È~a" (nlg-event  (first events)) (nlg-event  (second events)) (nlg-event  (third events)) ))
+	))   
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; produce the proper nlg for complement theorem.
@@ -617,18 +646,44 @@ And all the element of the sring should either be non-stansard or upcased!
 (defun nlg-complement-theorem(events)
 
   (cond ((equal (length events) 2)  (format nil "p(~a)+ p(~a)" (nlg-event  (first events)) (nlg-event  (second events))))
-	((equal (length events) 3)  (format nil "p(~a)+ p(~a)+ p(~a)" (nlg-event  (first events)) (nlg-event  (second events)) (nlg-event  (third event)) ))
+	((equal (length events) 3)  (format nil "p(~a)+ p(~a)+ p(~a)" (nlg-event  (first events)) (nlg-event  (second events)) (nlg-event  (third events)) ))
 	))   
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; produce the proper nlg for total theorem.
+
+(defun nlg-total-theorem (event events)
+
+  (cond ((equal (length events) 2)  (format nil "p(~a)= p(~a|~a)*p(~a)+p(~a|~a)*p(~a)" (nlg-event  event) (nlg-event  event) (nlg-event  (first events)) (nlg-event  (first events)) (nlg-event  event) (nlg-event  (second events)) (nlg-event  (second events))))
+	((equal (length events) 3)  (format nil "p(~a)= p(~a|~a)*p(~a)+p(~a|~a)*p(~a)+p(~a|~a)*p(~a)" (nlg-event  event) (nlg-event  event) (nlg-event  (first events)) (nlg-event  (first events)) (nlg-event  event) (nlg-event  (second events)) (nlg-event  (second events)) (nlg-event  event) (nlg-event  (third events)) (nlg-event  (third events)) ))
+	)) 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; produce the proper nlg forbayes theorems.
+
+(defun nlg-bayes-rule (eventh eventb  events)
+
+  (cond ((equal (length events) 2)  (format nil "p(~a|~a)= p(~a|~a)*p(~a)/{p(~a|~a)*p(~a)+p(~a|~a)*p(~a)}" (nlg-event  eventh) (nlg-event  eventb) (nlg-event  eventb) (nlg-event  eventh) (nlg-event  eventh)(nlg-event  eventb) (nlg-event  (first events)) (nlg-event  (first events)) (nlg-event  eventb) (nlg-event  (second events)) (nlg-event  (second events))))
+	((equal (length events) 3)  (format nil "p(~a|~a)= p(~a|~a)*p(~a)/{ p(~a|~a)*p(~a)+p(~a|~a)*p(~a)+p(~a|~a)*p(~a)}" (nlg-event  eventh) (nlg-event  eventb) (nlg-event  eventb) (nlg-event  eventh) (nlg-event  eventh) (nlg-event  eventb) (nlg-event  (first events)) (nlg-event  (first events)) (nlg-event  eventb) (nlg-event  (second events)) (nlg-event  (second events)) (nlg-event  eventb) (nlg-event  (third events)) (nlg-event  (third events)) ))
+	)) 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; produce the proper nlg for the independent events.
+
+(defun nlg-mutually-exclusive-event (event)
+    (cond ((equal (eand-list (first event)) (second event))  (format nil "Event ~a are mutually exclusive events. " (nlg-single-events (second event))))
+	  (T (format nil "Because event ~a are mutually exclusive events, we can infer that ~a are mutually exclusive events. " (nlg-single-events (second event)) (nlg-single-events (eand-list (first event)))))	  
+	  ))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; produce the proper nlg for the independent events.
 
 (defun nlg-independent-event (event)
-
-  (cond ((equal (length (eand-list event)) 2)  (format nil "p(~a)=p(~a)*p(~a)" (nlg-event  event) (nlg-event  (first (eand-list event))) (nlg-event  (second (eand-list event)))))
-	((equal (length (eand-list event)) 3)  (format nil "p(~a)=p(~a)*p(~a)*p(~a)" (nlg-event  event) (nlg-event  (first (eand-list event))) (nlg-event  (second (eand-list event))) (nlg-event  (third (eand-list event))) ))
-       
-	))   
+    (cond ((equal (eand-list (first event)) (second event))  (format nil "Event ~a are independent events. " (nlg-single-events (second event))))
+	  (T (format nil "Because event ~a are independent events, we can infer that ~a are independent events. " (nlg-single-events (second event)) (nlg-single-events (eand-list (first event)))))	  
+	  ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; produce the proper nlg for the independent events.
@@ -639,6 +694,14 @@ And all the element of the sring should either be non-stansard or upcased!
        
 	))   
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; produce the proper nlg for the conditional independent events.
+
+(defun nlg-conditional-independent-event (event)
+
+  (cond ((equal (eand-list (first event)) (second event))  (format nil "From the problem statement,  we can know event ~a are conditional independent events given event ~a. " (nlg-single-events (second event)) (nlg-event (third event))  ))
+	  (T (format nil "Because event ~a are conditional independent events given event ~a, we can infer that ~a are conditional independent events given event ~a. " (nlg-single-events (second event)) (nlg-event (third event)) (nlg-single-events (eand-list (first event))) (nlg-event (third event))))	  
+	  ))
 
 
 (defun etype-operate (type-id)

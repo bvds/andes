@@ -17,7 +17,7 @@
 (def-psmclass complement-theorem(complement-theorem  ?events )
      :group ProbabilityTheory
      :complexity minor
-     :english ("the complement theorem. ")
+     :english ("the complement theorem")
      :EqnFormat ("p(A)+ p(~A) =1 "))
 
 #|------------------------------------------------------------------------------------------
@@ -67,11 +67,11 @@
     ?quant ?compo-quants)
    )
   :effects
-  ( (eqn (= 1 (+ . ?compo-quants)) (complement-theorem ?events))     
+  ( (eqn (= (+ . ?compo-quants) 1) (complement-theorem ?events))     
      )
   :hint
-  ((point (string "Since ~a is equal to sample space, You can apply the complement theorem." (?events nlg-or-single-events)))
-   (point (string "The definition of complement theorem is: if A1, A2, ... An are events and A1$ÈA2$È...$ÈAn is equal to sample space, then we have p(A1$ÈA2$È...$ÈAn)=1. Here we know that ~a is equal to the sample space,  you can apply definition of complement theorem.   " (?events nlg-or-single-events)))
+  ((point (string "Since ~a is equal to sample space, You can apply the complement theorem" (?events nlg-or-single-events)))
+   (point (string "The definition of complement theorem is: if A1, A2, ... An are events and A1$ÈA2$È...$ÈAn is equal to sample space, then we have p(A1$ÈA2$È...$ÈAn)=1. Here we know that ~a is equal to the sample space,  you can apply definition of complement theorem  " (?events nlg-or-single-events)))
    (bottom-out (string "Write the equation ~a "	 ((= 1 (+ . ?compo-quants)) algebra)))
    ))
    
@@ -85,7 +85,7 @@
 (def-psmclass addition-theorem(addition-theorem  ?event )
      :group ProbabilityTheory
      :complexity major
-     :english ("the addition theorem. ")
+     :english ("the addition theorem for two events")
      :EqnFormat ("p(A$È B) = p(A)+p(B)-p(A$ÇB)"))
 
 #|test: ------------------------------------------------------------------------------------------
@@ -129,11 +129,11 @@
    (variable ?quant12 (probability (eand ?e1 ?e2)))   
    )
   :effects
-  ((eqn (= ?quant1o2 (- (+ ?quant1 ?quant2) ?quant12)) (addition-theorem (eor ?e1 ?e2)))
+  ((eqn (=  (- (+ ?quant1 ?quant2) ?quant12) ?quant1o2) (addition-theorem (eor ?e1 ?e2)))
      )
   :hint
-  ((point (string "Please apply the addition theorem for two events: event ~a and event ~a." ?e1 ?e2))
-   (point (string "The definition of addition theorem for two events:  for two events A and B,  P(A$ÈB)=P(A)+ P(B)- P(A$ÇB). Please apply the addition theorem on event ~a and event ~a."  ?e1 ?e2))  
+  ((point (string "Please apply the addition theorem for two events: event ~a and event ~a" (?e1 nlg-event) (?e2 nlg-event) ))
+   (point (string "The definition of addition theorem for two events:  for two events A and B,  P(A$ÈB)=P(A)+ P(B)- P(A$ÇB). Please apply the addition theorem on event ~a and event ~a"  (?e1 nlg-event) (?e2 nlg-event) ))  
    (bottom-out (string "Write the equation ~a "   ((= ?quant1o2 (- (+ ?quant1 ?quant2) ?quant12)) algebra)))
    ))
 
@@ -147,7 +147,7 @@
 (def-psmclass addition-theorem3(addition-theorem3  ?event )
      :group ProbabilityTheory
      :complexity major
-     :english ("the addition theorem (3). ")
+     :english ("the addition theorem for three events")
      :EqnFormat ("p(A$È B$È C) = p(A) + p(B) +p(C)-p(A$ÇB)-p(B$ÇC)-p(A$ÇC)+p(A$È B$È C) "))
 
     
@@ -216,11 +216,11 @@
      (variable ?quant123 (probability (eand ?e1 ?e2 ?e3)))    
    )
   :effects
-  ((eqn (= ?quant1o23 (+ (- (- (- (+ (+ ?quant1 ?quant2) ?quant3) ?quant12) ?quant13) ?quant23) ?quant123)) (addition-theorem3 (eor ?e1 ?e2 ?e3)))
+  ((eqn (=  (+ (- (- (- (+ (+ ?quant1 ?quant2) ?quant3) ?quant12) ?quant13) ?quant23) ?quant123) ?quant1o23) (addition-theorem3 (eor ?e1 ?e2 ?e3)))
      )
   :hint
-  ((point (string "Please apply the addition theorem for three events on event ~a, ~a and ~a. " ?e1 ?e2 ?e3))
-   (point (string "The definition of addition theorem for three events:  for three events A, B and C,  P(A$ÈB$ÈC)=P(A)+ P(B)+p(C)-P(A$ÇB)-P(B$ÇC)-P(B$ÇC)+P(A$ÇB$ÇC).  Please apply the addtion theorem on event ~a, ~a and ~a " ?e1 ?e2 ?e3))  
+  ((point (string "Please apply the addition theorem for three events on event ~a, ~a and ~a " (?e1 nlg-event) (?e2 nlg-event) (?e3 nlg-event)))
+   (point (string "The definition of addition theorem for three events:  for three events A, B and C,  P(A$ÈB$ÈC)=P(A)+ P(B)+p(C)-P(A$ÇB)-P(B$ÇC)-P(B$ÇC)+P(A$ÇB$ÇC).  Please apply the addtion theorem on event ~a, ~a and ~a " (?e1 nlg-event) (?e2 nlg-event) (?e3 nlg-event)))  
    (bottom-out (string "Write the equation ~a " ((= ?quant1o23 (+ (- (- (- (+ (+ ?quant1 ?quant2) ?quant3) ?quant12) ?quant13) ?quant23) ?quant123)) algebra)))  
    ))
 
@@ -235,7 +235,7 @@
 (def-psmclass decomposition-law(decomposition-law  ?event ?events )
      :group ProbabilityTheory
      :complexity major
-     :english ("the decomposition law. ")
+     :english ("the decomposition law")
      :EqnFormat ("p(B)=p(A$ÇB)+p(~A $Çb)"))
 
 #|------------------------------------------------------------------------------------------
@@ -308,7 +308,7 @@
      
 (qsolve-for '((eqn-contains ?e  (probability (eno (eor b c (eno a))))))
      '((task car) (type car probability) (variable pnboa (probability (eand a (eno b) (eno c))))  ))
-  -------------------------------------------------------------------------------------------|#     
+  ------------------------------------------------------------------------------------------- |#     
 (defoperator de-morgan-contains (?sought)
   :preconditions
   (     (task ?task)
@@ -324,7 +324,7 @@
 		 (probability ?nevent)		
 	        )))
   :effects
-  ((eqn-contains (de-morgan ?event) ?sought)))    
+  ((eqn-contains (de-morgan ?event) ?sought)))   
 
 #|test: -----------------------------------------------------------------------------------------------------------------------------------------------------------------
  (qsolve-for '((eqn ?e (de-morgan (eor a (eno b) (eno c))))) 
@@ -344,8 +344,8 @@
   ( (eqn (= ?quant  ?quantn) (de-morgan ?event))     
      )
   :hint
-  ((point (string "Please apply the addition theorem for three events on event ~a" (?event nlg-event)))
-   (point (string "De Morgan's law is: p(~(A1$ÇA2$Ç...$ÇAn))=p(~A1$È~A2$È,...,$È~An);or p(~(A1$ÈA2$È...$ÈAn))=p(~A1$Ç~A2$Ç... $Ç~An). Please apply De Morgan's law on event ~a" (?event nlg-event))) 
+  ((point (string "Please apply the de morgan's law on event ~a" (?event nlg-event)))
+   (point (string "De Morgan's law is: p(~~(A1$ÇA2$Ç...$ÇAn))=p(~~A1$È~~A2$È,...,$È~~An);or p(~~(A1$ÈA2$È...$ÈAn))=p(~~A1$Ç~~A2$Ç... $Ç~~An). Please apply De Morgan's law on event ~a" (?event nlg-event))) 
    (bottom-out (string "Write the equation ~a " ((= ?quant  ?quantn)  algebra)))
    ))
 
@@ -393,11 +393,11 @@
    (variable ?quant (probability  ?event))
    )
   :effects
-  ( (eqn (= 0  ?quant) (mutually-exclusive-events ?event))     
+  ( (eqn (= ?quant 0) (mutually-exclusive-events ?event))     
      )
   :hint
   ((point (string "Please apply the definition of mutually exclusive events on the event ~a" (?event nlg-event)))
-   (point (string "Definition of mutually exclusive events: if A1$ÇA2$Ç...$ÇAn is equal to empty event, then p(A1$ÇA2$Ç...$ÇAn)=0. Here we know that event ~a are mutually exclusive events, please apply the definition of mutual exclusive events on event ~a " (?events nlg-single-events) (?event nlg-event)))  
+   (point (string "Definition of mutually exclusive events: if A1$ÇA2$Ç...$ÇAn is equal to empty event, then p(A1$ÇA2$Ç...$ÇAn)=0. ~a Please apply the definition of mutual exclusive events on event ~a " ((?event ?events) nlg-mutually-exclusive-event) (?event nlg-event)))  
    (bottom-out (string "Write the equation ~a " ((= 0  ?quant)  algebra)))
    ))
 
@@ -412,7 +412,7 @@
 (def-psmclass conditional-probability(conditional-probability  ?event)
      :group ProbabilityTheory
      :complexity major
-     :english ("The definition 0f Conditional Probability. ")
+     :english ("The definition of Conditional Probability ")
      :EqnFormat ("p(A|G)=p(A$Ç\G)/p(G)"))
 
 #|------------------------------------------------------------------------------------------
@@ -473,7 +473,7 @@ Should apply for this this:
     (variable ?pgiven (probability ?event))  
    )
   :effects
-  ( (eqn (= ?pgiven (/ ?pand ?p1)) (conditional-probability ?event))     
+  ( (eqn (=  (/ ?pand ?p1) ?pgiven) (conditional-probability ?event))     
      )
   :hint
   ((point (string "Please apply the definition of mutually exclusive events on the event ~a " (?event nlg-event)))
@@ -491,7 +491,7 @@ Should apply for this this:
 (def-psmclass total-probability-theorem(total-probability-theorem  ?event ?events)
      :group ProbabilityTheory
      :complexity major
-     :english ("The Law Of Total Probability. ")
+     :english ("The Law Of Total Probability")
      :EqnFormat ("p(B)=(p(B|A)*p(A)+ p(B|~A)*p(~A))"))
 
 #|------------------------------------------------------------------------------------------
@@ -521,6 +521,7 @@ Should apply for this this:
   :effects
   ((eqn-contains (total-probability-theorem ?event ?events) ?sought)))
 |#     
+
 
 
 (defoperator total-probability-theorem-contains2 (?sought)
@@ -565,7 +566,7 @@ Should apply for this this:
   :effects
   ((eqn-contains (total-probability-theorem ?event ?events) ?sought))) 
   
-#|test: -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+#| test: -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Should apply for this this: 
  (qsolve-for '((eqn ?t (total-probability-theorem b)))
     '( (variable pa (probability a))  (variable pbga (probability (given b a))) (mutually-exclusive-events (a (eno a)))
@@ -580,7 +581,7 @@ Should apply for this this:
                 ?exp ?exps)   
   )
   :effects
-  ( (eqn (= ?pevent (+ . ?exps)) (total-probability-theorem ?event ?events))     
+  ( (eqn (=  (+ . ?exps) ?pevent) (total-probability-theorem ?event ?events))     
      )
   :hint
   ((point (string "Please apply the total probability theorem on the event ~a" (?event nlg-event)))
@@ -618,7 +619,7 @@ Should apply for this this:
 (def-psmclass bayes-rule(bayes-rule  ?event)
      :group ProbabilityTheory
      :complexity major
-     :english ("Bayes' Theorem. ")
+     :english ("Bayes' Theorem ")
      :EqnFormat ("p(H|B)=p(H)*p(B|H)/{p(H)*p(B|H)+p(L)*p(B|L)}"))
 
 #|------------------------------------------------------------------------------------------
@@ -670,7 +671,7 @@ Should apply for this this: p(H|B)=p(H)*p(B|H)/{p(H)*p(B|H)+p(L)*p(B|L)}
     (expression ?exphb (total-probability ?eventh ?eventb)) 
   )
   :effects
-  ( (eqn (= ?phb (/ ?exphb (+ . ?exps))) (bayes-rule (given ?eventh ?eventb)))     
+  ( (eqn (=  (/ ?exphb (+ . ?exps)) ?phb) (bayes-rule (given ?eventh ?eventb)))     
      )
   :hint
   ((point (string "Please apply the Bayes's theorem on the event ~a " (?event nlg-event))) 
@@ -768,7 +769,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
                 ?pe ?pbs) 
   )
   :effects
-  ( (eqn (= ?pevent (* . ?pbs)) (independent-events ?event))     
+  ( (eqn (=  (* . ?pbs) ?pevent) (independent-events ?event))     
      )
   :hint
   ((point (string "~a You can apply definition of independent event." ((?event ?events) nlg-independent-event)))
@@ -787,7 +788,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
 (def-psmclass conditional-independent-events(conditional-independent-events  ?event)
      :group ProbabilityTheory
      :complexity minor
-     :english ("The definition of conditional independent events.  ")
+     :english ("The definition of conditional independent events  ")
      :EqnFormat ("p(A$ÇB|G)=p(A|G)*p(B|G)"))
 
 #|------------------------------------------------------------------------------------------
@@ -861,7 +862,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
                 ?pe ?pbs) 
   )
   :effects
-  ( (eqn (= ?pevent (* . ?pbs)) (conditional-independent-events (given ?event ?eventb)))     
+  ( (eqn (=  (* . ?pbs) ?pevent) (conditional-independent-events (given ?event ?eventb)))     
      )
   :hint
   ((point (string "~a You can apply definition of conditional independent events." ((?event ?events ?eventb) nlg-conditional-independent-event) ))

@@ -1,4 +1,21 @@
 GROUP	Write a Principle		
+GROUP	Probability		
+GROUP	Axioms of Probability		
+LEAF	p(A)+ p(~A) =1                  complement theorem	complement-theorem	Complement Theorem
+LEAF	p(A$ÈB) = p(A)+p(B)-p(A$ÇB)            addition theorem for two events	addition-theorem	Addition Theorem for two events
+LEAF	p(A$ÈB$ÈC) = p(A) + p(B) +p(C)-p(A$ÇB)-p(B$ÇC)-p(A$ÇC)+p(A$ÈB$ÈC)            addition theorem for three events	addition-theorem3	Addition Theorem for Three Events
+LEAF	p(~(A$ÇB))=p(~A$È~B); p(~(A$ÇB))=p~A$È~B  De Morgan's law	de-morgan	De Morgan's Law
+LEAF	p(A$Ç~A)=0  mutually exclusive events	mutually-exclusive-events	Mutually Exclusive Events
+LEAF	p(A$ÇB)=p(A)*p(B)	Independent events	independent-events	Independent Events
+END_GROUP					
+GROUP	Conditional Probability		
+LEAF	p(A|B)+ p(~A|B) =1                  complement theorem for conditional event	complement-theorem	Complement Theorem for Conditional Event
+LEAF	p(A|G)=p(A$ÇG)/p(G)            definition of conditional probability	conditional-probability	Definition of Conditional Probability
+LEAF	p(B)=(p(B|A1)*p(A1)+p(B|A2)*p(A2)+...+ p(B|An)*p(An))            law of total probability	total-probability-theorem	The Law Of Total Probability
+LEAF	p(Ai|B)=p(Ai)*p(B|Ai)/{p(A1)*p(B|A1)+...+p(Ai)*p(B|Ai)+...+p(An)*p(B|An)}  bayes' theorem	bayes-rule	Bayes' Theorem
+LEAF	p(A$ÇB|G)=p(A|G)*p(B|G)  conditional independent events	conditional-independent-events	Conditional Independent Events
+END_GROUP			
+END_GROUP			
 GROUP	Kinematics		
 GROUP	Translational		
 LEAF	vavg = s/t                  average speed	sdd	Average speed

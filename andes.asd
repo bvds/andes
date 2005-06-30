@@ -68,6 +68,7 @@
 			:components (
 				     ;; treat these as normal lisp files
 				     (:cl-source-file "Physics-Funcs")
+				     (:cl-source-file "P-Funcs")
 				     ;; lots of outside dependencies:
 				     (:cl-source-file "errors")
 				     
@@ -75,9 +76,11 @@
 				     (:file "constants")
 				     ;; TELL and NLG not defined
 				     (:file "Ontology" )
+				     (:file "p-ontology")
 				     (:file "circuit-ontology")  
 				     ;; AXES-DRAWNP not defined
-				     (:file "Newtons2") 
+				     (:file "Newtons2")
+				     (:file "probability")
 				     (:file "vectors")
 				     (:file "NewtonsNogoods")  
 				     (:file "Problems")
@@ -85,6 +88,7 @@
 				     (:file "fluids-problems")
 				     (:file "waves")
 				     (:file "waves-problems")
+				     (:file "p-problems")
 				     (:file "work-energy-problems")
 				     ;; depends on "waves":
 				     (:file "oscillations-problems")

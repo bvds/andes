@@ -300,7 +300,7 @@
 	     (setq tmp (sg-generate-sysents N Stack State))  ;; Generate the systementries.
 	     (setq stack (append tmp stack))                          ;; Add them to the stack.
 	     (setq entries (append tmp Entries))                      ;; Add them to the list of entries.
-	     (setf (csdo-entries N) tmp))                             ;; Set the back pointer to the csdo.
+	     (setf (csdo-Entries N) tmp))                             ;; Set the back pointer to the csdo.
 	     	    
 	    ((cschoose-p N)                             ;; When a choose is encountered 
 	     (setq Entries                              ;; Split the search for each element.  
