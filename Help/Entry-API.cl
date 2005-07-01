@@ -735,7 +735,7 @@
 ; "Drawn" argument specifies if drawn as diagram entry or defined as variable
 ; Either way this should match a solution graph entry.
 (defun on-angle-between-vectors (label degrees id-vector1 id-vector2 id-angle &key drawn) 
-   ;(declare (ignore degrees))
+   (declare (ignore drawn)) ; AW: no longer used
     ; need to map entry id to referent vectors
    (let* ((mag1-term (symbols-entry-referent '(at (mag ?vector) ?t) id-vector1))
           (mag2-term (symbols-entry-referent '(at (mag ?vector) ?t) id-vector2))
@@ -745,16 +745,20 @@
           ; angle-between term in KB should list vectors in canonical order
 	  (vector-terms (sort (list v1-term v2-term) #'expr<))
 	  (angle-term `(angle-between ,@vector-terms))
-	  (action      (if drawn `(angle ,@vector-terms)
-	                  `(define-var ,angle-term)))
+	  ; AW: for simplicity, now map either drawn or defined angle
+	  ; to the same define-var entry. KB should be changed to match.
+	  ;(action      (if drawn `(angle ,@vector-terms)
+	  ;                `(define-var ,angle-term)))
+	  (action      `(define-var ,angle-term))
           (entry       (make-StudentEntry :id id-angle :prop action))
 	 )
 
    ; delete existing entry info and update
    (add-entry entry)
    (symbols-enter label angle-term id-angle)
-   ; !!! could add implicit equation for variable if value known. Not too
-   ; bad to force them to enter it, though we do show it on our dialog box.
+   ; add implicit equation for variable if value known. This means they
+   ; don't have to enter equation giving the value. Interface does
+   ; show them the value on the dialog box.
     (when (numberp degrees)          ; known xy plane direction
        (setf (StudentEntry-ImplicitEqn entry) 
              (make-implicit-eqn-entry label `(dnum ,degrees |deg|))))
@@ -762,8 +766,8 @@
    ; finally return entry
    entry))
 
-; Worker routine to handle labelling angle made with an axis. No matching entry ; in solution graph so doesn't matter whether angle was drawn or defined as a 
-; variable
+; Worker routine to handle labelling angle made with an axis. No matching entry ; in solution graph so doesn't 
+; matter whether angle was drawn or defined as a variable
 (defun on-angle-with-axis (label degrees id-vector1 id-vector2 id-angle axis) 
   (declare (ignore id-vector1 id-vector2 axis))
   ; if degree value known, just treat label as term for degree value

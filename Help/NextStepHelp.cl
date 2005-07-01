@@ -3690,6 +3690,12 @@
 ;;; are none then take the first path.  When author's write unordered
 ;;; preconditions, they should write them in the order they would
 ;;; prefer to see NSH suggest them in.
+;;; AW: this always chooses the first partially entered path it finds.
+;;; So if there are two choices for achieving some goal which we think of
+;;; as exclusive, and student has done one of them, this can wind up 
+;;; hinting the other as well way if that other path happens to be 
+;;; partially entered and is found first -- bad! It appears the logic 
+;;; to find the most entered path is only applied to splits, not chooses.
 (defun walk-choose-step (prefix path stack)
   (walk-psm-path
    prefix
