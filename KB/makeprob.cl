@@ -20,15 +20,20 @@
      (sort problist #'(lambda (p1 p2) (string< (problem-name p1) 
                                                (problem-name p2))))))
 
-; If included, optional topics list is or'd with problem's features. 
-; E.g. (make-prbs 'dynamics 'linmom 'work) to make all of these only.
+;; If included, optional topics list is or'd with problem's features. 
+;; E.g. (make-prbs 'dynamics 'linmom 'work) to make all of these only.
+;; Alternatively, one can give an explicit list of problems
 (defun make-prbs (&rest topics)  
  "Dump problem files for all 'working' CLIPS problems with any of features."
-  (let ((Probs (remove-if-not #'(lambda(p)
-                                 (and (working-Andes2-prob p)
-				      (or (null topics)
-				          (intersection topics 
-				                    (problem-features p)))))
+  (let ((Probs (remove-if-not 
+		#'(lambda(p)
+		    (and (working-Andes2-prob p)
+			 (or (null topics)
+			     (if (listp (first topics)) 
+				 (member (problem-name p) 
+					 (first topics))
+			       (intersection topics 
+					     (problem-features p)))))
 		(listprobs)))
 	;; for minimum of output, clear all trace/debug flags:
 	(*s-print-steps* NIL)    ; intermediate results of top-level steps
@@ -48,8 +53,9 @@
    (format T "~&Failures: ~{~W ~}~%" (mapcar #'first Errs))
    (format T "Errors:~%")
    (pprint Errs)))
-  
-; test-solve all the problems. Args as for make-prbs
+
+
+;;; test-solve all the problems. Args as for make-prbs
 (defun test-prbs (&rest topics)  
  "Dump problem files for all 'working' CLIPS problems with any of features."
   (let ((Probs (remove-if-not #'(lambda(p)
