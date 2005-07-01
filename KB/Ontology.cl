@@ -305,17 +305,6 @@
 	(zero (format nil "zero length vector for ~a." Quant))))))
 		       
 	
-;;; The direction term for a vector can be a special atom indicating
-;;; that the magnitude is zero or 
-;;(defun ont-vec-rotformat (Direction)
-;;  "A formatting function used only in the nlging of vectors."
-;;  (if (equalp Direction 'Unknown)
-;;      "in an unknown direction."
-;;    (format Nil "rotated to ~a" (nlg Direction 'nlg-exp))))
-
-
-
-;; Note: Fie on my inabilty to funcall special forms Fie I Say!
 (def-entryprop draw-axes (draw-axes ?body ?x-direction)
   ;; until workbench associates bodies and times w/axes, just
   ;; leave them out of the entry proposition for axes
@@ -324,29 +313,6 @@
   :English ("a pair of axes on ~a rotated to ~a" 
 	    ?body  (nlg ?x-direction)))
   
-; TEMPORARY: enables loading .prb files with old form axes prop
-; can be removed when all .prbs are regenerated axes prop
-(def-entryprop draw-axes-old (draw-axes ?body ?time ?x-direction)
-  ;; until workbench associates bodies and times w/axes, just
-  ;; leave them out of the entry proposition for axes
-  :helpform (draw-axes ?x-direction)
-  :Doc "The Axes drawing tool."
-  :English ("a pair of axes on ~a rotated to ~a" 
-	    ?body  (nlg ?x-direction)))  
-
-; no longer used - AW
-;(def-entryprop radius (radius ?body ?time))
-
-;; Note:: can't funcall if feh!
-(def-entryprop angle (angle ?vec1 ?vec2)
-  :Doc "Definition of the angle between two vectors."
-  :English ("the angle between ~a and ~a" ?Vec1 ?Vec2))
-	       
-#|	       (or (and (atom ?Vec1) ?Vec1) 
-		   (format Nil "the vector for ~a" (nlg ?Vec1)))
-	     (or (and (atom ?Vec2) ?Vec2) 
-	       (format Nil "the vector for ~a" (nlg ?Vec2)))))
-	       |#
 
 (def-entryprop define-var (define-var ?quantity)
   :Doc "Defining a variable for a specific quantity"
@@ -433,7 +399,7 @@
    :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
 
 (def-goalprop other-var (variable ?var ?quantity)
-   :english ("introducing a $a variable for ~A" (nlg ?quantity)))
+   :english ("introducing a variable for ~A" (nlg ?quantity)))
 ;|# ;; end experimental
 
 (def-goalprop lk-eqn-chosen

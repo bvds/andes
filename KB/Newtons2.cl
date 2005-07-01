@@ -6842,7 +6842,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;
 ;;; On the ANDES interface an angle can also be introduced on the diagram by 
 ;;; labelling the angle between the drawn vectors using the angle label tool.
-;;; A separate operator should handle that.
+;;; This used to be a distinguished sort of entry, with its own entry proposition
+;;; but now we treat this as just a different gesture for defining an angle var
+;;; (Same as treatment of revolution-radius, which may be drawn or defined)
 (defoperator define-angle-between-known (?vec1 ?vec2)
  :preconditions (
  ;; vectors must be drawn first, with known angles
@@ -6870,40 +6872,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (?v1-var algebra) (?v2-var algebra)))
  ))
 
-; This represents introducing the angle-between by using
-; the angle labelling tool on the diagram.
-; We assert an action proposition 
-;  (angle ?vec1 ?vec2) in this case 
-; for the help system to match to the drawing entry action.
-(defoperator draw-angle-between-known (?vec1 ?vec2)
- :preconditions (
- (not (angle ?vec1 ?vec2))
- ; vectors must be drawn first, with known angles
- ; note vector's axis owner bodies need not be the same
- (vector ?b1 ?vec1 (dnum ?v1-dir |deg|))
- (vector ?b2 ?vec2 (dnum ?v2-dir |deg|))
- ; fetch vector mag vars for forming variable name only
- (bind ?v1-mag-exp (vector-mag ?vec1))
- (bind ?v2-mag-exp (vector-mag ?vec2))
- (in-wm (variable ?v1-var ?v1-mag-exp))
- (in-wm (variable ?v2-var ?v2-mag-exp))
- (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
- ; compute angle between vectors to make it known as side-effect.
- (bind ?angle (min (mod (- ?v1-dir ?v2-dir) 360)
-                   (mod (- ?v2-dir ?v1-dir) 360)))
- (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
- )
- :effects (
-   (angle ?vec1 ?vec2)	; action proposition
-   (variable ?theta-var (angle-between ?vec1 ?vec2))
-   (given (angle-between ?vec1 ?vec2) (dnum ?angle |deg|))
- )
- :hint ( 
-; same hint as for angle variable -- angle drawing tool too difficult to use,  
-; should just take it out. 
-(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
-   (?v1-var algebra) (?v2-var algebra)))
- ))
 ;;;
 ;;; Following defines a variable for the work done by a force agent
 ;;; over a time interval.
