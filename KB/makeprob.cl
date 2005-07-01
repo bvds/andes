@@ -33,7 +33,7 @@
 				 (member (problem-name p) 
 					 (first topics))
 			       (intersection topics 
-					     (problem-features p)))))
+					     (problem-features p))))))
 		(listprobs)))
 	;; for minimum of output, clear all trace/debug flags:
 	(*s-print-steps* NIL)    ; intermediate results of top-level steps
