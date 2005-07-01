@@ -68,6 +68,7 @@
 			:components (
 				     ;; treat these as normal lisp files
 				     (:cl-source-file "Physics-Funcs")
+				     (:cl-source-file "makeprob")        
 				     ;; lots of outside dependencies:
 				     (:cl-source-file "errors")
 				     
@@ -97,7 +98,6 @@
 				     (:file "impulse")
 				     (:file "impulse-problems") 
 				     (:file "rocket-problems") 
-				     (:file "makeprob")        
 				     ;; there is some ugly code here
 				     (:file "circuits")
 				     ))
