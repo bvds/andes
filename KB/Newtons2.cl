@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Newtons2 -- Andes2 Physics problem solving operators
 ;;
@@ -4733,30 +4733,33 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-thrust-force-given-relative-vel (?b ?agent ?t)
   :preconditions
   (
-   (in-wm (vector ?agent (at (relative-vel ?agent ?b) ?t) ?dir))
+   (object ?agent) ;this is needed or ?agent unbound error
+   (vector ?agent (at (relative-vel ?agent ?b) ?t) ?dir)
    (test (not (equal ?dir 'unknown)))
    (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care)) ;not already drawn
-   (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) ?agent 
+   (bind ?opposite-dir (opposite ?dir))
+   (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
     )
   :effects
-   ((vector ?b (at (force ?b ?agent thrust) ?t) ?dir)
+   ((vector ?b (at (force ?b ?agent thrust) ?t) ?opposite-dir)
     (variable ?mag-var (at (mag (force ?b ?agent thrust)) ?t))
     (variable ?dir-var (at (dir (force ?b ?agent thrust)) ?t))
     ;; Ensure implicit eqn is written because dir is from relative-vel
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (relative-vel ?agent? ?b)) ?t))
+    (implicit-eqn (= ?dir-var ?opposite-dir) 
+		  (at (dir (force ?b ?agent thrust)) ?t))
    )
   :hint
-   ((point (string "There is a thrust force acting on ~a." ?b))
-    (teach (string "One can define a thrust force  acting on ~A due to ~A." 
-		   ?b ?agent (?t pp)))
-    (bottom-out (string "Use the thrust-force drawing tool to draw the thrust-force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+   ((point (string "How is the thrust force acting on ~a related to the velocity of ~A?" ?b ?agent))
+    (teach (string "The thrust is in the opposite direction of the velocity of ~A." 
+		   ?agent))
+    (bottom-out (string "Use the thrust-force drawing tool to draw the thrust-force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?opposite-dir))
     ))
 
 (defoperator thrust-force-vector-diagram (?b ?agent ?t)
   :preconditions (
-    ;; Draw both bodies. 
+    ;; Draw only one body 
     (body ?b)
     (vector ?b (at (force ?b ?agent thrust) ?t) ?dir1)
     (vector ?agent (at (relative-vel ?agent ?b) ?t) ?dir2)
