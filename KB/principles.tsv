@@ -1,26 +1,9 @@
 GROUP	Write a Principle		
-GROUP	Probability		
-GROUP	Axioms of Probability		
-LEAF	p(A)+ p(~A) =1                  complement theorem	complement-theorem	Complement Theorem
-LEAF	p(A$ÈB) = p(A)+p(B)-p(A$ÇB)            addition theorem for two events	addition-theorem	Addition Theorem for two events
-LEAF	p(A$ÈB$ÈC) = p(A) + p(B) +p(C)-p(A$ÇB)-p(B$ÇC)-p(A$ÇC)+p(A$ÈB$ÈC)            addition theorem for three events	addition-theorem3	Addition Theorem for Three Events
-LEAF	p(~(A$ÇB))=p(~A$È~B); p(~(A$ÇB))=p~A$È~B  De Morgan's law	de-morgan	De Morgan's Law
-LEAF	p(A$Ç~A)=0  mutually exclusive events	mutually-exclusive-events	Mutually Exclusive Events
-LEAF	p(A$ÇB)=p(A)*p(B)	Independent events	independent-events	Independent Events
-END_GROUP					
-GROUP	Conditional Probability		
-LEAF	p(A|B)+ p(~A|B) =1                  complement theorem for conditional event	complement-theorem	Complement Theorem for Conditional Event
-LEAF	p(A|G)=p(A$ÇG)/p(G)            definition of conditional probability	conditional-probability	Definition of Conditional Probability
-LEAF	p(B)=(p(B|A1)*p(A1)+p(B|A2)*p(A2)+...+ p(B|An)*p(An))            law of total probability	total-probability-theorem	The Law Of Total Probability
-LEAF	p(Ai|B)=p(Ai)*p(B|Ai)/{p(A1)*p(B|A1)+...+p(Ai)*p(B|Ai)+...+p(An)*p(B|An)}  bayes' theorem	bayes-rule	Bayes' Theorem
-LEAF	p(A$ÇB|G)=p(A|G)*p(B|G)  conditional independent events	conditional-independent-events	Conditional Independent Events
-END_GROUP			
-END_GROUP			
 GROUP	Kinematics		
 GROUP	Translational		
 LEAF	vavg = s/t                  average speed	sdd	Average speed
 LEAF	v(avg)_x = d_x/t            average velocity	(avg-velocity ((?axis . x)))	Average velocity
-LEAF	v(avg)_y = d_y/t            average velocity	(avg-velocity ((?axis  . y)))	Average velocity
+LEAF	v(avg)_y = d_y/t            average velocity	(avg-velocity ((?axis  .y)))	Average velocity
 LEAF	a(avg)_x = (vf_x - vi_x)/t  average acceleration	(lk-no-s ((?axis . x)))	Average acceleration
 LEAF	a(avg)_y = (vf_y - vi_y)/t  average acceleration	(lk-no-s ((?axis . y)))	Average acceleration
 LEAF	d_x = v0_x*t + 0.5*a_x*t^2 [ax is constant]	(lk-no-vf ((?axis . x)))	Constant acceleration
@@ -80,15 +63,15 @@ GROUP	Translational
 LEAF	$S mi*vi1_x = $S mi*vi2_x  Conservation of momentum	(cons-linmom ((?axis . x)))	Conservation of Momentum
 LEAF	$S mi*vi1_y = $S mi*vi2_y  Conservation of momentum	(cons-linmom ((?axis . y)))	Conservation of Momentum
 LEAF	Kf = Ki                  Elastic collision defined	cons-ke-elastic	Elastic collisions
-LEAF	J_x = F_x(avg) * t       Impulse and force	(impulse-force ((?axis . x)))	Impulse
-LEAF	J_y = F_y(avg) * t       Impulse and force	(impulse-force ((?axis . y))	Impulse
-LEAF	J_x = pf_x - pi_x       Newton's second law	(impulse-momentum ((?axis . x)))	Impulse
-LEAF	J_y = pf_y - pi_y       Newton's second law	(impulse-momentum ((?axis . y))	Impulse
+LEAF	J_x = F_x(avg) * t       Impulse and force	(impulse-force ((?axis.x)))	Impulse
+LEAF	J_y = F_y(avg) * t       Impulse and force	(impulse-force ((?axis.y))	Impulse
+LEAF	J_x = pf_x - pi_x       Newton's second law	(impulse-momentum ((?axis.x)))	Impulse
+LEAF	J_y = pf_y - pi_y       Newton's second law	(impulse-momentum ((?axis.y))	Impulse
 LEAF	J12 = J21      Newton's third law (magnitudes)	NTL-impulse	Impulse
-LEAF	J12_x = -J21_x      Newton's third law (components)	(NTL-impulse-vector ((?axis . x)))	Impulse
-LEAF	J12_y = -J21_y      Newton's third law (components)	(NTL-impulse-vector ((?axis . y)))	Impulse
-LEAF	rcm_x = ($S ri_x * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis . x)))	Center of Mass
-LEAF	rcm_y = ($S ri_y * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis . y)))	Center of Mass
+LEAF	J12_x = -J21_x      Newton's third law (components)	(NTL-impulse-vector ((?axis.x)))	Impulse
+LEAF	J12_y = -J21_y      Newton's third law (components)	(NTL-impulse-vector ((?axis.y)))	Impulse
+LEAF	rcm_x = ($S ri_x * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis.x)))	Center of Mass
+LEAF	rcm_y = ($S ri_y * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis.y)))	Center of Mass
 END_GROUP			
 GROUP	Rotational		
 LEAF	L_z = I * $w_z       Angular momentum defined	ang-momentum	Angular momentum definition
@@ -159,22 +142,22 @@ LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnific
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
 END_GROUP			
 GROUP	Waves and Oscillations		
-LEAF	k = 2*$p/$l	wavenumber-lambda-wave
-LEAF	f = $w/(2*$p)	frequency-of-wave
-LEAF	T = 1/f	period-of-wave
-LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
-LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
-LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed
-LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string
-LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave
-LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave
-LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
-LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
-LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency
-LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
-LEAF	fbeats = abs(f1-f2)/2	beat-frequency
-END_GROUP		
-END_GROUP	Write a Principle	
+LEAF	k = 2*$p/$l	wavenumber-lambda-wave	
+LEAF	f = $w/(2*$p)	frequency-of-wave	
+LEAF	T = 1/f	period-of-wave	
+LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
+LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
+LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
+LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
+LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
+LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
+LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
+LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
+LEAF	fo = fs*(vwÂ±vo)/(vwÂ±vs)   Frequency shift from doppler effect	doppler-frequency	
+LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
+LEAF	fbeats = abs(f1-f2)/2	beat-frequency	
+END_GROUP			
+END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
 GROUP	Translational		
@@ -202,6 +185,9 @@ LEAF	Ffk = $u * Fn              Kinetic Friction	kinetic-friction	Kinetic Fricti
 LEAF	Ffs = $u * Fn              Static Friction (at max)	static-friction	Static Friction max
 LEAF	Fs = k * d                Hooke's Law	spring-law	Hooke's Law
 LEAF	Ft1 = Ft2                 Equal tensions at both ends	tensions-equal	Equal tensions at both ends
+LEAF	Fth = dmdt * v   Thrust force (magnitudes)	thrust-definition	thrust force
+LEAF	Fth12_x = - dmdt * v21_x   Thrust force (components)	(thrust ((?axis . x)))	thrust foce
+LEAF	Fth12_y = - dmdt * v21_y   Thrust force (components)	(thrust ((?axis . y)))	thrust force
 END_GROUP			
 GROUP	Compound Bodies		
 LEAF	m12 = m1 + m2              Mass of compound	mass-compound	Mass of a compound body
@@ -289,17 +275,3 @@ LEAF	r21_x = x2 - x1      Relative Position from coordinates	(rdiff ((axis . ?x)
 LEAF	r21_y = y2 - y1      Relative Position from coordinates	(rdiff ((axis . ?y)))	
 LEAF	A = $p*r^2           Area of a circle	area-of-circle	
 END_GROUP			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
