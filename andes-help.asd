@@ -31,7 +31,8 @@
 					    :depends-on ("CMD"))
 				     (:file "Error-Interp")
 				     (:file "StudentAction"
-					    :depends-on ("TutorTurn"))
+					    :depends-on ("TutorTurn")
+					    :depends-on ("StudentEntry"))
 				     (:file "CMD")
 				     (:file "RuntimeTestScore")
 				     (:file "RuntimeTest")
@@ -40,6 +41,7 @@
 			:depends-on ("HelpStructs")
 			:components (
  				     ;; Solution graph
+				     (:file "tell") ;tracing tool
 	 			     (:file "SolutionGraph")
 				     
                                      (:file "utilities" 
@@ -48,7 +50,6 @@
 				     (:file "History")
 				     (:file "StudentFile"
 					     :depends-on ("tell"))
-				     (:file "tell") ;tracing tool
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
 				     (:file "symbols"
@@ -64,7 +65,8 @@
 				     (:file "physics-algebra-rules"
 					     :depends-on ("tell"))
 				     (:file "parse"
-					     :depends-on ("tell"))
+					    :depends-on ("tell")
+					    :depends-on ("utilities"))
 				     (:file "pre2in"
 					     :depends-on ("tell"))
 				     (:file "in2pre" :depends-on ("tell"))

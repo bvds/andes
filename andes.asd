@@ -76,7 +76,6 @@
 				     (:file "constants")
 				     ;; TELL and NLG not defined
 				     (:file "Ontology" )
-				     (:file "p-ontology")
 				     (:file "circuit-ontology")  
 				     ;; AXES-DRAWNP not defined
 				     (:file "Newtons2")
