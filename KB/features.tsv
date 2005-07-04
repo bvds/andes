@@ -1,7 +1,7 @@
 kinematics	distance;speed;duration;angle;
 statics	mass;angle;coef-friction;duration;
 dynamics	mass;angle;coef-friction;duration;
-changing-mass	mass;mass-change-magnitude;angle;coef-friction;duration;
+changing-mass	mass;mass-change-magnitude;
 circular	mass;radius;period;duration;angle;
 energy	mass;duration;work;power;energy;compression;spring-constant;height;
 work	work;power;duration;angle;
