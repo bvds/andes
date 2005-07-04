@@ -131,7 +131,10 @@
   :units |deg|
   :english ("the direction of ~A" (nlg ?vector)))
   
-;; scalar quantities
+;;;; scalar quantities
+
+;;; in the workbench, the time slot is added if feature changing-mass
+;;; is included.
 (def-qexp mass	(mass ?body)
   :units |kg|
   :restrictions positive
@@ -140,7 +143,7 @@
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent)
   :units |kg/s|
   :restrictions nonnegative
-  :fromWorkbench `(at (mass-change-rate ,body) ,time)
+  :fromWorkbench `(at (mass-change-magnitude ,body) ,time)
   :english ("the magnitude of the change of mass of ~A per unit time due to ~A" 
 	       (nlg ?body) (nlg ?agent)))
 (def-qexp distance (distance ?body)
