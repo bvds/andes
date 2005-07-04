@@ -1,6 +1,7 @@
 kinematics	distance;speed;duration;angle;
 statics	mass;angle;coef-friction;duration;
 dynamics	mass;angle;coef-friction;duration;
+changing-mass	mass;mass-change-magnitude;angle;coef-friction;duration;
 circular	mass;radius;period;duration;angle;
 energy	mass;duration;work;power;energy;compression;spring-constant;height;
 work	work;power;duration;angle;
@@ -17,4 +18,3 @@ fluids	mass;duration;height;mass-density;pressure;area-at;area;radius-of-circle;
 waves	frequency;distance;speed;duration;mass;length;mass-per-length;wavelength;wavenumber;period;angular-frequency;wave-speed;speed-of-light;string-tension;
 observed-frequency	observed-frequency;
 oscillations	mass;length;spring-constant;compression;wavelength;wavenumber;period;frequency;angular-frequency;amplitude;amplitude-max-speed;amplitude-max-abs-acceleration;
-probability	probability;
