@@ -4683,7 +4683,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; scalar version of definition:
 
 (def-psmclass thrust-force (thrust-definition ?body ?agent ?time)
-    :complexity major    
+    :complexity minor  ;same as definitions of other forces
     :Doc "Definition of thrust force."
     :english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust force on ~a ~a"
@@ -4722,7 +4722,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (def-psmclass thrust-force-vector (?eqn-type thrust-force ?axis ?rot 
 				 (force ?body ?agent ?time ?dir))
-    :complexity major    
+    :complexity minor    ;same as definitions of other forces
     :Doc "Definition of thrust force."
     :english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust-force on ~a ~a"

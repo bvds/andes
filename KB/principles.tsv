@@ -185,8 +185,8 @@ LEAF	Ffk = $u * Fn              Kinetic Friction	kinetic-friction	Kinetic Fricti
 LEAF	Ffs = $u * Fn              Static Friction (at max)	static-friction	Static Friction max
 LEAF	Fs = k * d                Hooke's Law	spring-law	Hooke's Law
 LEAF	Ft1 = Ft2                 Equal tensions at both ends	tensions-equal	Equal tensions at both ends
-LEAF	Fth = dmdt * v   Thrust force (magnitudes)	thrust-definition	thrust force
-LEAF	Fth12_x = - dmdt * v21_x   Thrust force (components)	(thrust ((?axis . x)))	thrust foce
+LEAF	Fth = dmdt * v           Thrust force (magnitudes)	thrust-definition	thrust force
+LEAF	Fth12_x = - dmdt * v21_x   Thrust force (components)	(thrust ((?axis . x)))	thrust force
 LEAF	Fth12_y = - dmdt * v21_y   Thrust force (components)	(thrust ((?axis . y)))	thrust force
 END_GROUP			
 GROUP	Compound Bodies		
