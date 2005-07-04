@@ -90,7 +90,8 @@
 				     ;; Top-level manager
 		 		     (:file "Interface" ;The interface api.
 					    :depends-on ("tell")) 
-	 			     (:file "Commands")
+	 			     (:file "Commands"
+					    :depends-on ("tell"))
  				     (:file "API")
 				     (:file "Andes2-Main")))
 	       (:module "Testcode"

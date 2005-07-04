@@ -735,7 +735,8 @@
 ;; The code below identifies the case that we are in and then calls the 
 ;; appropriate handler code in entry-api.  
 (defun lookup-mc-answer (ID Value)
-  (let* ((IDStr (format Nil "~a" ID))
+  (let* ((Result)
+	 (IDStr (format Nil "~a" ID))
 	 (pos (position #\- IDStr))
 	 (IDPref (subseq IDStr 0 Pos))
 	 (IDEnd (Subseq IDStr (+ 1 Pos))))
@@ -775,7 +776,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun delete-object (label &optional id)
   (let ((entry (find-entry id))
-	(result (on-delete-object label id)))
+	(Result (on-delete-object label id)))
     (log-studentaction **last-api-call** result Entry)
     Result))
 
