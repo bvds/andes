@@ -890,7 +890,6 @@
 			"position of ~a with respect to ~b.")
 	    (nlg point 'def-np) (nlg ref-point 'def-np)))))
 
-
 ;;; ===================== defining work ============================
 ;;; The work variable tool has slots for the body, the agent and the
 ;;; time.  The general code handles wrong times.  Thus, the default
@@ -2657,7 +2656,7 @@
 
 ;;; Case where defined opposite relative position than one we want. Exact 
 ;;; reason we want direction rather than another depends on equation being 
-;;; used, but we don't know that here. We don't check direction of drawing
+;;; used, but we don't know that here.  We don't check direction of drawing
 ;;; so it could also be wrong; after fixing orientation, may get further
 ;;; direction error.
 ;;; Could try to separate case where drew vector in correct direction, but mixed up 
@@ -2665,8 +2664,8 @@
 ;;; rel-pos. But many will be unknown, so don't worry about it now.
 (def-error-class opposite-relative-position (?cpt ?cref-pt)
   ((student    (vector (at (relative-position ?cref-pt ?cpt) ?stime) ?sdir))
-   ; Don't pre-empt direction error like should-be-unknown: make sure there
-   ; is no possible relative position vector with this sense in the solution
+   ;; Don't pre-empt direction error like should-be-unknown: make sure there
+   ;; is no possible relative position vector with this sense in the solution
    (no-correct (vector (at (relative-position ?cref-pt ?cpt) ?stime) ?cdir))
    (correct    (vector (at (relative-position ?cpt ?cref-pt) ?ctime) ?cdir-opp)))
   :utility 55
@@ -2681,6 +2680,32 @@
     (format nil (strcat "The relative position you defined will point FROM ~a TO ~a. "
                         "Is that the direction you want?") (nlg cpt) (nlg cref-pt))
     (format nil (strcat "For this problem you need to use the relative position "
+                        "of ~a with respect to ~a, instead of the other way around.")
+			 (nlg cpt) (nlg cref-pt)))))
+
+;;; ===================== relative-vel ============================
+
+;;; Relative-vel is defined pairwise:  give a generic statement about
+;;; the pair.
+;;; We don't check that that the direction of the student vector
+;;; is indeed opposite of the correct vector.
+
+(def-error-class opposite-relative-vel (?cpt ?cref-pt)
+  ((student    (vector (at (relative-vel ?cref-pt ?cpt) ?stime) ?sdir))
+   ; Don't pre-empt direction error like should-be-unknown: make sure there
+   ; is no possible relative velocity vector with this sense in the solution
+   (no-correct (vector (at (relative-vel ?cref-pt ?cpt) ?stime) ?cdir))
+   (correct    (vector (at (relative-vel ?cpt ?cref-pt) ?ctime) ?cdir-opp)))
+  :utility 55
+  :probability
+  (+ 0.2
+     (if (equal ?stime ?ctime) 0.1 0.0)
+     (if (equal ?sdir ?cdir) 0.1 0.0)))
+
+(defun opposite-relative-vel (cpt cref-pt)
+  (make-hint-seq
+   (list 
+    (format nil (strcat "For this problem you need to use the relative velocity "
                         "of ~a with respect to ~a, instead of the other way around.")
 			 (nlg cpt) (nlg cref-pt)))))
 

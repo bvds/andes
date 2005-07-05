@@ -4719,9 +4719,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
 ;;; vector version of thrust force
-
-(def-psmclass thrust-force-vector (?eqn-type thrust-force ?axis ?rot 
-				 (force ?body ?agent ?time ?dir))
+(def-psmclass thrust-force-vector (?eqn-type definition ?axis ?rot 
+				 (thrust ?body ?agent ?time))
     :complexity minor    ;same as definitions of other forces
     :Doc "Definition of thrust force."
     :english ("the definition of thrust force") 

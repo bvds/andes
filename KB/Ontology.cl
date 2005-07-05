@@ -68,14 +68,16 @@
     ; leave untranslated if no name in table:
     (if result (cdr result) (format NIL "~A" x))))
 
-; may wrap any time varying quant:
+;; may wrap any time varying quant:
 (def-qexp at (at ?quant ?time)
   :units ?quant
   :restrictions ?quant
   :english ("~A ~A" (nlg ?quant) (nlg ?time 'pp)))
 (def-qexp dnum (dnum ?value ?unit)
   :english ("~A ~A" (identity ?value) (translate-units ?unit)))
-; vector quantities:
+
+;;;; vector quantities:
+
 (def-qexp relative-position (relative-position ?to-pt ?from-pt)
   :units |m|
   :english ("the relative position of ~A with respect to ~A" (nlg ?to-pt) (nlg ?from-pt)))

@@ -3549,7 +3549,7 @@
 
 
 
-;;;; ======================== random text generation code ========================
+;;;; ===================== random text generation code ========================
 
 (defun random-positive-feedback ()
   (random-elt
