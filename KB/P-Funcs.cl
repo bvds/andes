@@ -634,8 +634,14 @@ And all the element of the sring should either be non-stansard or upcased!
 
 (defun nlg-or-single-events(events)
 
-  (cond ((equal (length events) 2)  (format nil "~a$~a~a" (nlg-event  (first events)) (code-char 200) (nlg-event  (second events))))
-	((equal (length events) 3)  (format nil "~a$~a~a$~a~a" (nlg-event  (first events)) (code-char 200) (nlg-event  (second events)) (code-char 200) (nlg-event  (third events)) ))
+  (cond ((equal (length events) 2)  (format nil "~a$È~a" (nlg-event  (first events)) (nlg-event  (second events))))
+	((equal (length events) 3)  (format nil "~a$È~a$È~a" (nlg-event  (first events)) (nlg-event  (second events)) (nlg-event  (third events)) ))
+	))   
+
+(defun nlg-and-single-events(events)
+
+  (cond ((equal (length events) 2)  (format nil "~a$Ç~a" (nlg-event  (first events)) (nlg-event  (second events))))
+	((equal (length events) 3)  (format nil "~a$Ç~a$Ç~a" (nlg-event  (first events)) (nlg-event  (second events)) (nlg-event  (third events)) ))
 	))   
 
 
@@ -707,8 +713,8 @@ And all the element of the sring should either be non-stansard or upcased!
 (defun etype-operate (type-id)
   "returns type prefix for specified event type"
   (case type-id 
-   (eand (format nil "$~A" (code-char 199)))
-   (eor (format nil "$~A" (code-char 200)))
+   (eand "$Ç")
+   (eor "$È")
    (given  "|") ; "given" 
    ))
 

@@ -70,8 +70,8 @@
   ( (eqn (= (+ . ?compo-quants) 1) (complement-theorem ?events))     
      )
   :hint
-  ((point (string "Since ~a is equal to sample space, You can apply the complement theorem" (?events nlg-or-single-events)))
-   (point (string "The definition of complement theorem is: if A1, A2, ... An are events and A1$ÈA2$È...$ÈAn is equal to sample space, then we have p(A1$ÈA2$È...$ÈAn)=1. Here we know that ~a is equal to the sample space,  you can apply definition of complement theorem  " (?events nlg-or-single-events)))
+  ((point (string "Since ~a =$W and ~a= $Æ , You can apply the complement theorem" (?events nlg-or-single-events) (?events nlg-and-single-events)))
+   (point (string "The definition of complement theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, which means for any two different event Ai, Aj: Ai$ÇAj=$Æ and A1$ÈA2$È...$ÈAn = $W. We have p(A1)+p(A2)+...+p(An)=1. Here we know that ~a is a collection of mutually exclusive and exhaustive events,  you can apply definition of complement theorem  " (?events nlg-single-events)))
    (bottom-out (string "Write the equation ~a "	 ((= 1 (+ . ?compo-quants)) algebra)))
    ))
    
@@ -397,7 +397,7 @@
      )
   :hint
   ((point (string "Please apply the definition of mutually exclusive events on the event ~a" (?event nlg-event)))
-   (point (string "Definition of mutually exclusive events: if A1$ÇA2$Ç...$ÇAn is equal to empty event, then p(A1$ÇA2$Ç...$ÇAn)=0. ~a Please apply the definition of mutual exclusive events on event ~a " ((?event ?events) nlg-mutually-exclusive-event) (?event nlg-event)))  
+   (point (string "Definition of mutually exclusive events: if A1$ÇA2$Ç...$ÇAn = $Æ, then p(A1$ÇA2$Ç...$ÇAn)=0. ~a Please apply the definition of mutual exclusive events on event ~a " ((?event ?events) nlg-mutually-exclusive-event) (?event nlg-event)))  
    (bottom-out (string "Write the equation ~a " ((= 0  ?quant)  algebra)))
    ))
 
@@ -476,7 +476,7 @@ Should apply for this this:
   ( (eqn (=  (/ ?pand ?p1) ?pgiven) (conditional-probability ?event))     
      )
   :hint
-  ((point (string "Please apply the definition of mutually exclusive events on the event ~a " (?event nlg-event)))
+  ((point (string "Please apply the definition of conditional probability on the event ~a " (?event nlg-event)))
    (point (string "The definition of conditional probability is: for event A and B, p(A|B)=p(A$ÇB)/p(B).  Please apply the definition of conditional event on the event ~a"  (?event nlg-event)))  
    (bottom-out (string "Write the equation ~a " ((= ?pgiven (/ ?pand ?p1))  algebra)))
    ))
@@ -585,7 +585,7 @@ Should apply for this this:
      )
   :hint
   ((point (string "Please apply the total probability theorem on the event ~a" (?event nlg-event)))
-   (point (string "The definition of total probability theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, for any event B, we have p(B)=p(B|A1)*(A1)+p(B|A2)*p(A2)+...+p(B|An)*p(An). Here we know that ~a is a collection of mutually exclusive and exhaustive events, then we can can apply the total theorem on the event ~a " (?events nlg-single-events) (?event nlg-event)))
+   (point (string "The definition of total probability theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, which means for any two different event Ai, Aj: Ai$ÇAj=$Æ and A1$ÈA2$È...$ÈAn = $W. For any event B, we have p(B)=p(B|A1)*(A1)+p(B|A2)*p(A2)+...+p(B|An)*p(An). Here we know that ~a is a collection of mutually exclusive and exhaustive events, then we can can apply the total theorem on the event ~a " (?events nlg-single-events) (?event nlg-event)))
    (bottom-out (string "Write the equation ~a " ((= ?pevent (+ . ?exps))   algebra)))
    ))
 
@@ -675,7 +675,7 @@ Should apply for this this: p(H|B)=p(H)*p(B|H)/{p(H)*p(B|H)+p(L)*p(B|L)}
      )
   :hint
   ((point (string "Please apply the Bayes's theorem on the event ~a " (?event nlg-event))) 
-   (point (string "The definition of Bayes's theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, for any event B, we have p(Ai|B)=p(B|Ai)*(Ai)/{p(B|A1)*(A1)+...+p(B|Ai)*p(Ai)+...+p(B|An)*p(An)}. Here we know that ~a is a collection of mutually exclusive and exhaustive events, we can can apply the bayes rule on the event ~a|~a " (?events nlg-single-events) (?eventh nlg-event) (?eventb nlg-event)))
+   (point (string "The definition of Bayes's theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, which means for any two different event Ai, Aj: Ai$ÇAj=$Æ and A1$ÈA2$È...$ÈAn = $W. For any event B, we have p(Ai|B)=p(B|Ai)*(Ai)/{p(B|A1)*(A1)+...+p(B|Ai)*p(Ai)+...+p(B|An)*p(An)}. Here we know that ~a is a collection of mutually exclusive and exhaustive events, we can can apply the bayes rule on the event ~a|~a " (?events nlg-single-events) (?eventh nlg-event) (?eventb nlg-event)))
    (bottom-out (string "Write the equation ~a" ((= ?phb (/ ?exphb (+ . ?exps)))   algebra)))
     ))
 
