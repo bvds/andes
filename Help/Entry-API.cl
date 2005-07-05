@@ -36,7 +36,7 @@
   "convert workbench time argument symbol into a KB time expression"
   (cond 
 	; may be NIL on probs w/o distinguished times
-        ((null time-arg) (get-default-time))
+        ((null time-arg) NIL) ;(get-default-time))
 	; Andes1 WB allowed defined student variable for duration as interval name.
 	; no longer used in Andes2
 	; ((get-student-time time-arg))
@@ -485,10 +485,10 @@
 	                                    :prop `(define-var ,mass-term))))
 
   ;; associate implicit entry
-  (setf (StudentEntry-ImplicitEqn entry) mass-var-entry)
+  ;(setf (StudentEntry-ImplicitEqn entry) mass-var-entry) ; take out automass
 
   (add-entry entry)   ;remove existing info and update
-  (symbols-enter mass-label mass-term id)
+  ;(symbols-enter mass-label mass-term id) ; take out automass
   ;; for compound bodies, enter body label so it can be recognized when
   ;; referenced in subsequent quantity definitions for compound's attributes.
   (when (compound-bodyp body-term)
