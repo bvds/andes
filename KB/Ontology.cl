@@ -64,8 +64,7 @@
 
 (defun translate-units (x)
   (let ((result (assoc x unit-english)))
-    (Tell :test "Got ~W" result)
-    ; leave untranslated if no name in table:
+    ;; leave untranslated if no name in table:
     (if result (cdr result) (format NIL "~A" x))))
 
 ;; may wrap any time varying quant:
