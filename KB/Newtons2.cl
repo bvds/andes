@@ -1424,7 +1424,7 @@
 ;;; to mean quant1 = fraction*quant2
 
 (def-psmclass given-fraction (given-fraction ?q1 ?q2)
-  :complexity major
+  :complexity connect ;just like (equals ...)
   :english ("one quantity as given fraction of another")
   :eqnFormat ("val1 = fraction*val2"))
 
@@ -1509,7 +1509,7 @@
 ;;;           f(x)=c, x \in {a,b} 
 ;;; implies f(x) constant.  Also, if one extends to calculus, one would
 ;;; want average value defined in terms of an integral.
-;;; Also, there is nothing in the user interface corresponding
+;;; Currently, there is nothing in the user interface corresponding
 ;;; to setting a quantity to something constant.
 ;;;
 (defoperator inherit-constant-value (?quant ?t-constant ?t1)
@@ -4753,7 +4753,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((point (string "How is the thrust force acting on ~a related to the velocity of ~A?" ?b ?agent))
     (teach (string "The thrust is in the opposite direction of the velocity of ~A." 
 		   ?agent))
-    (bottom-out (string "Use the thrust-force drawing tool to draw the thrust-force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?opposite-dir))
+    (bottom-out (string "Use the force drawing tool to draw the thrust force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?opposite-dir))
     ))
 
 (defoperator thrust-force-vector-diagram (?b ?agent ?t)
