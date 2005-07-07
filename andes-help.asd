@@ -57,7 +57,8 @@
 				     (:file "State")
 				     (:file "clips-vars")
 				     (:file "Entry-API"
-					    :depends-on ("HelpMessages"))
+					    :depends-on ("HelpMessages")
+					    :depends-on ("SolutionGraph"))
 				     
 				     ;; Equation parser/interpreter
 				     (:file "grammar"
@@ -71,9 +72,11 @@
 					     :depends-on ("tell"))
 				     (:file "in2pre" :depends-on ("tell"))
 				     (:file "parse-andes"
-					     :depends-on ("tell"))
+					    :depends-on ("tell")
+					    :depends-on ("SolutionGraph"))
 				     (:file "interpret-equation"
-					     :depends-on ("tell"))
+					    :depends-on ("tell")
+					    :depends-on ("SolutionGraph"))
 				     
 				     ;;  Help
 				     (:file "HelpMessages")
@@ -91,7 +94,8 @@
 		 		     (:file "Interface" ;The interface api.
 					    :depends-on ("tell")) 
 	 			     (:file "Commands"
-					    :depends-on ("tell"))
+					    :depends-on ("tell")
+					    :depends-on ("Entry-API"))
  				     (:file "API")
 				     (:file "Andes2-Main")))
 	       (:module "Testcode"
