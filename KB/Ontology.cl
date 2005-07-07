@@ -388,23 +388,27 @@
    :english ("drawing a diagram showing all of the needed kinematic vectors of ~A ~A and coordinate axes" 
               (nlg ?body ) (nlg ?time 'pp)))
 
-;#| ;; Experimental, maybe following 2 are better handled by operator hints on entries.
-; Subgoal hint for goal of drawing a vector:
-; We assume first argument is relevant body to mention
+#| ;; Experimental, maybe following 2 are better handled by operator hints on entries.
+;; BvdS:  These also use the internal Andes name as the name of the vector.
+;; 
+;; Subgoal hint for goal of drawing a vector:
+;; We assume first argument is relevant body to mention
 (def-goalprop vec-drawn (vector ?axis-body (at (?vec-type . (?body . ?args)) ?time) ?direction)
    :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
 
-; Subgoal hint for goal of defining a variable: We use one hint for vector [mag] variables,
-; another for all others, to show that vector vars are introduced by drawing.  
-; Note this depends crucially on order of entries and fact that earlier entries are matched first.
-; Note the second form also gets used for vector component variables (which may be givens)
-; -- maybe should insert another variant for that case.
+;; Subgoal hint for goal of defining a variable: We use one hint for vector 
+;; [mag] variables, another for all others, to show that vector vars are 
+;; introduced by drawing.  Note this depends crucially on order of entries and
+;; the fact that earlier entries are matched first.
+;; Note the second form also gets used for vector component variables 
+;; (which may be given)
+;; -- maybe should insert another variant for that case.
 (def-goalprop vector-var (variable ?var (at (mag (?vec-type . (?body . ?args))) ?t))
    :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
+|# ;; end experimental
 
 (def-goalprop other-var (variable ?var ?quantity)
    :english ("introducing a variable for ~A" (nlg ?quantity)))
-;|# ;; end experimental
 
 (def-goalprop lk-eqn-chosen
       (compo-eqn-selected (LK ?body ?time) ?quantity (compo-eqn . ?eq-args))
@@ -437,7 +441,7 @@
   :english ("drawing a free-body diagram for ~A ~A"
             (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
 
-; next goal used as sought in fbd-only problem:
+;; next goal used as sought in fbd-only problem:
 (def-goalprop standard-fbd (fbd ?body ?time)
   :doc "free-body-diagram on its own."
   :english ("drawing a free-body diagram for ~A ~A"
@@ -728,7 +732,7 @@
    :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
    :EqnFormat("T = 2*$p*r/v"))
 
-; MISCELLANEOUS 
+;; MISCELLANEOUS 
 (def-psmclass equals (equals ?quant1 ?quant2)
   :complexity connect
   :english ("find by equivalent quantity")
