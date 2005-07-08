@@ -141,6 +141,7 @@
   :restrictions positive
   :fromWorkbench (if time `(at (mass ,body) ,time) `(mass ,body))
   :english ("the mass of ~A" (nlg ?body)))
+
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent)
   :units |kg/s|
   :restrictions nonnegative
