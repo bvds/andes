@@ -1443,11 +1443,12 @@
 		  (in-wm (fraction-of ?q1 ?fraction ?q2))
 		  (variable ?v1 ?q1)
 		  (variable ?v2 ?q2)
-		  (bind ?fracmult (if (> ?fraction 1) "multiple" "fraction"))
+		  (bind ?fracmult (if (and (numberp ?fraction) (< ?fraction 1))
+				       "fraction" "multiple"))
 		  )
    :effects ( (eqn (= ?v1 (* ?fraction ?v2)) (given-fraction ?q1 ?q2)) )
    :hint (
-	  (point (string "You can determine ~A as a ~A of ~A from the problem statement" ?q1 (?fracmult adj) ?q2)) ;declare as adjective in nlg.
+	  (point (string "You can determine ~A as a ~A of ~A from the problem statement" ?q1 (?fracmult identity) ?q2)) ;bypass nlg
 	  (bottom-out (string "Write the equation ~A" 
 			      ((= ?v1 (* ?fraction ?v2)) algebra)))
 	  ))
@@ -2179,13 +2180,14 @@
    (bottom-out (string "Because ~a is moving in a curve ~a, and the tangent to the curve at that point is ~a, draw a non-zero velocity in direction ~a." ?b (?t pp) (?dir adj) (?dir adj)))
    ))
 
-; This draws velocity for a 2d projectile trajectory at a point for which velocity
-; direction is not given.
+;;; This draws velocity for a 2d projectile trajectory at a point for which 
+;;; velocity direction is not given.
 (defoperator draw-velocity-projectile-unknown (?b ?t)
   :preconditions
    ((time ?t)
-    ; don't use this to draw average velocity over an interval. (Can compete with
-    ; draw-avg-vel-from-displacement for that on some projectile problems.)
+    ;; don't use this to draw average velocity over an interval. 
+    ;; (Can compete with draw-avg-vel-from-displacement for that on 
+    ;; some projectile problems.)
     (test (time-pointp ?t))
     (motion ?b ?t-motion (curved projectile (unknown ?dontcare)))
     (test (tinsidep ?t ?t-motion))

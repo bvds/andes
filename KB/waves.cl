@@ -181,7 +181,7 @@
 		  (variable  ?freq  (frequency ?object))
 		  )
   :effects (
-	    (eqn  (= ?omega (* 2 $p ?freq)) ; pi must be $p
+	    (eqn  (= ?omega (* 2 $p ?freq)) ;pi must be $p
 	    (frequency-of-wave ?object)))
   :hint (
 	 (point (string "You can use equation for the frequency of a wave"))
