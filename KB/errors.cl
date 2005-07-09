@@ -807,16 +807,14 @@
 ;;; The radius drawing tool and the define variable > radius both
 ;;; end up at the same dialog box, which defines either a revolution
 ;;; radius (see above) of the radius of an object (this case).  There
-;;; is are just two slots: body and time.  The default time case is
-;;; handled by the general code, and so is the non-existent case, so
-;;; we only need the wrong-body case.  Not tested yet.
+;;; is just the body slot.  
 
 (def-error-class wrong-body-radius (?sbody ?cbody)
-  ((student    (define-var (at (radius ?sbody) ?stime)))
-   (no-correct (define-var (at (radius ?sbody) ?time2)))
-   (correct    (define-var (at (radius ?cbody) ?ctime))))
+  ((student    (define-var (radius-of-circle ?sbody)))
+   (no-correct (define-var (radius-of-circle ?sbody)))
+   (correct    (define-var (radius-of-circle ?cbody))))
   :probability
-  (+ 0.1 (if (equal ?stime ?ctime) 0.1 0.0)))
+  (+ 0.3 ))
 
 (defun wrong-body-radius (sbody cbody)
   (make-hint-seq

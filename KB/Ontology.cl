@@ -242,10 +242,6 @@
   :units |m|
   :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))
-(def-qexp radius (radius ?body)
-  :units |m|
-  :fromWorkbench `(at (radius ,body) ,time)
-  :english ("the radius of ~A" (nlg ?body)))
 (def-qexp num-torques (num-torques ?body ?axis)
   :english ("the number of torques on ~A about ~A" (nlg ?body) (nlg ?axis)))
 

@@ -2725,8 +2725,8 @@
   :effects
   ((eqn-contains (centripetal-accel ?b ?t) ?quantity)))
 
-;;; This operator writes the equation a = v^2/r, where a is the magnitude of the
-;;; acceleration of the body. 
+;;; This operator writes the equation a = v^2/r, where a is the magnitude 
+;;; of the acceleration of the body. 
 (defoperator write-centripetal-accel (?b ?t)
   
   :specifications 
@@ -6242,7 +6242,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
               ((at (mag (velocity ?b)) ?t)
 	       (mass ?b) 
 	       (at (height ?b) ?t)
-	       (at (spring-const ?s) ?t)
+	       (at (spring-constant ?s) ?t)
 	       (at (compression ?s) ?t)
 	       (gravitational-acceleration ?planet)
 	      ))
@@ -7076,7 +7076,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			   (at (mag (velocity ?b)) ?t)
 	                   (mass ?b) 
 	                   (at (height ?b) ?t)
-	                   (at (spring-const ?s) ?t)
+	                   (at (spring-constant ?s) ?t)
 	                   (at (compression ?s) ?t)
 	                   (gravitational-acceleration ?planet)
                            (at (work-nc ?b) (during ?t1 ?t2)) ))
@@ -8611,19 +8611,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Use the Add Variable command to define a variable for the width of ~A" ?b))
   ))
 
-; following defines a variable for radius of a rigid body
-; whose dimension would normally be characterized as a radius
-; !!! no facility exists for doing this on andes interface !!!
-(defoperator define-shape-radius (?b ?t)
+;; following defines a variable for radius of a rigid body
+;; whose dimension would normally be characterized as a radius
+;; !!! no facility exists for doing this on andes interface !!!
+(defoperator define-shape-radius (?b)
   :preconditions 
      ((object ?b)
      (shape ?b ?shape ?dontcare)
      (any-member ?shape (hoop disk sphere spherical-shell))
-     (time ?t)
-     (bind ?r-var (format-sym "r_~A_~A" (body-name ?b) (time-abbrev ?t))))
+     (bind ?r-var (format-sym "r_~A" (body-name ?b))))
   :effects ( 
-    (define-var (at (radius ?b) ?t)) 
-    (variable ?r-var (at (radius ?b) ?t)) 
+    (define-var (radius-of-circle ?b) ?t)) 
+    (variable ?r-var (radius-of-circle ?b)) 
   )
   :hint (
     (bottom-out (string "Use the Add Variable command to define a variable for the radius of ~A" ?b))
@@ -8695,9 +8694,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((shape ?b hoop cm)
   (any-member ?sought ((at (moment-of-inertia ?b) ?t)
 		   (mass ?b)
-		   ; more correct:
-		   ;(at (radius ?b) ?t)
-		   (at (revolution-radius ?b) ?t)
+		   (radius-of-circle ?b)
 		      ))
   (time ?t))
   :effects 
@@ -8707,10 +8704,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
     ((variable ?I-var (at (moment-of-inertia ?b) ?t))
     (variable ?m-var (mass ?b))
-    ; more correct:
-    ;(variable ?r-var (at (radius ?b) ?t))
-    (variable ?r-var (at (revolution-radius ?b) ?t))
-    )
+    (variable ?r-var (radius-of-circle ?b)))
   :effects 
   ( (eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-hoop-cm ?b ?t)) )
    :hint
@@ -8724,7 +8718,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((shape ?b disk cm)
   (any-member ?sought ((at (moment-of-inertia ?b) ?t)
 		       (mass ?b)
-		       (at (radius ?b) ?t)))
+		       (radius-of-circle ?b)))
   (time ?t))
   :effects 
     ( (eqn-contains (I-disk-cm ?b ?t) ?sought) ))
@@ -8733,7 +8727,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
     (variable ?I-var (at (moment-of-inertia ?b) ?t))
     (variable ?m-var (mass ?b))
-    (variable ?r-var (at (radius ?b) ?t))
+    (variable ?r-var (radius-of-circle ?b))
   )
   :effects 
     ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b ?t)) ))
