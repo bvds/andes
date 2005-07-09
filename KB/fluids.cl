@@ -1,10 +1,10 @@
-;;
-;; Fluids
-;;
+;;;;
+;;;; Fluids
+;;;;
 
-;; Fluids variables. 
-;;  Use height h to define depth with h = positive if higher than reference and
-;;  h = negative if lower than reference.
+;;; Fluids variables. 
+;;;  Use height h to define depth with h = positive if higher than reference 
+;;;  and h = negative if lower than reference.
  
 
 ;; Define the quantity mass density. The density defined here is a vouume density.
@@ -23,13 +23,15 @@
        (bottom-out (string "Define a variable for the mass density of ~A by using the Add Variable command on the Variable menu and selecting Mass Density."  ?material))
        ))
 
-; Definition of mass density: rho = m/V
-;
-; Currently mass-density is a property of a body.  It might be preferable to use terms
-; for kinds of materials, ; e.g. water, copper, bronze, that could be distinct from terms
-; for particular bodies such as block. Then density could be a property of the material.
-; We would need something like (made-of ?body ?material) in the givens to do that. 
-; We stick to the simpler method for now of treating density of objects as given.
+;;; Definition of mass density: rho = m/V
+;;;
+;;; Currently mass-density is a property of a body.  It might be preferable 
+;;; to use terms for kinds of materials, ; e.g. water, copper, bronze, that 
+;;; could be distinct from terms for particular bodies such as block. 
+;;; Then density could be a property of the material.
+;;; We would need something like (made-of ?body ?material) in the givens to 
+;;; do that.  We stick to the simpler method for now of treating density of 
+;;; objects as given.
 (def-psmclass density (density ?body ?t)
   :complexity major
   :english ("the definition of mass density")
@@ -325,20 +327,70 @@
      :units |m^2|
      :restrictions positive
      :english ("the area of ~A" (nlg ?shape))
-     :fromworkbench `(at (area ,body) ,time)
+     :fromworkbench `(area ,body)
 )
 
-(defoperator define-area (?shape ?time)
+(defoperator define-area (?shape)
      :preconditions((bind ?Ac-var (format-sym "A_~A" (body-name ?shape))))
-     :effects ((variable ?Ac-var (at (area ?shape) ?time))
-               (define-var (at (area ?shape) ?time)))
+     :effects ((variable ?Ac-var (area ?shape))
+               (define-var (area ?shape)))
      :hint (
           (bottom-out (string "Define a variable for the area of ~A by using the Add Variable command on the Variable menu and selecting Area."  ?shape))
           ))
 
+;; quantity to represent radius of a circular shape
+(def-qexp radius-of-circle (radius-of-circle ?body)
+     :units |m|
+     :restrictions positive
+     :english ("the radius of ~A" (nlg ?body))
+     :fromworkbench `(radius-of-circle ,body)
+   )
 
-;;equation of the area of a circle Ac = pi*rc^2
-(def-psmclass area-of-circle (area-of-circle ?body ?time)
+(defoperator define-radius-of-circle (?body)
+     :preconditions((bind ?rc-var (format-sym "rc_~A" (body-name ?body))))
+     :effects ((variable ?rc-var (radius-of-circle ?body))
+               (define-var (radius-of-circle ?body))
+   )
+     :hint (
+          (bottom-out (string "Define a variable for the radius of ~A by using the Add Variable command on the Variable menu and selecting circle radius."  ?body))
+          ))
+
+;; quantity to represent diameter of a circular shape
+(def-qexp diameter-of-circle (diameter-of-circle ?body)
+     :units |m|
+     :restrictions positive
+     :english ("the diameter of ~A" (nlg ?body))
+     :fromworkbench `(diameter-of-circle ,body)
+   )
+
+(defoperator define-diameter-of-circle (?body)
+     :preconditions((bind ?dc-var (format-sym "dc_~A" (body-name ?body))))
+     :effects ((variable ?dc-var (diameter-of-circle ?body))
+               (define-var (diameter-of-circle ?body))
+   )
+     :hint (
+          (bottom-out (string "Define a variable for the diameter of ~A by using the Add Variable command on the Variable menu and selecting circle diameter."  ?body))
+          ))
+
+;; quantity to represent circumference of a circular shape
+(def-qexp circumference-of-circle (circumference-of-circle ?body)
+     :units |m|
+     :restrictions positive
+     :english ("the circumference of ~A" (nlg ?body))
+     :fromworkbench `(circumference-of-circle ,body)
+   )
+
+(defoperator define-circumference-of-circle (?body)
+     :preconditions((bind ?cc-var (format-sym "cc_~A" (body-name ?body))))
+     :effects ((variable ?cc-var (circumference-of-circle ?body))
+               (define-var (circumference-of-circle ?body))
+   )
+     :hint (
+          (bottom-out (string "Define a variable for the circumference of ~A by using the Add Variable command on the Variable menu and selecting circle circumference."  ?body))
+          ))
+
+;; equation of the area of a circle Ac = pi*rc^2
+(def-psmclass area-of-circle (area-of-circle ?body)
   :complexity minor  
   :english ("the formula for the area of a circle")
   :ExpFormat ("Applying the formula for the area of a circle")
@@ -346,24 +398,24 @@
 
  (defoperator area-of-circle-contains (?sought)
    :preconditions (
-   (in-wm (shape ?shape circle))
-   (any-member ?sought ( 
-                           (at (radius-of-circle ?shape) ?time)
-                           (at (area ?shape) ?time)
-                         ))  
+		   (in-wm (shape ?shape circle))
+		   (any-member ?sought ( 
+					(radius-of-circle ?shape)
+					(area ?shape)
+					))  
    )
    :effects (
-     (eqn-contains (area-of-circle ?shape ?time) ?sought)
+	     (eqn-contains (area-of-circle ?shape) ?sought)
    ))
 
-(defoperator area-of-circle (?circle ?time)
+(defoperator area-of-circle (?circle)
    :preconditions (
-       (variable  ?rc  (at (radius-of-circle ?circle) ?time))
-       (variable  ?Ac  (at (area ?circle) ?time))
+       (variable  ?rc  (radius-of-circle ?circle))
+       (variable  ?Ac  (area ?circle))
    )
    :effects (
     (eqn  (= ?Ac (* $P (^ ?rc 2))) 
-                (area-of-circle ?circle ?time))
+                (area-of-circle ?circle))
    )
    :hint (
       (point (string "You can use the formula for the area of a circle"))
@@ -372,115 +424,92 @@
                      (= ?Ac (* $P (^ ?rc 2))) algebra) ))
    )
 
-; quantity to represent radius of a circular shape
-(def-qexp radius-of-circle (radius-of-circle ?body)
-     :units |m|
-     :restrictions positive
-     :english ("the radius of ~A" (nlg ?body))
-     :fromworkbench `(at (radius-of-circle ,body) ,time)
-   )
-
-(defoperator define-radius-of-circle (?body ?time)
-     :preconditions((bind ?rc-var (format-sym "rc_~A" (body-name ?body))))
-     :effects ((variable ?rc-var (at (radius-of-circle ?body) ?time))
-               (define-var (at (radius-of-circle ?body) ?time))
-   )
-     :hint (
-          (bottom-out (string "Define a variable for the radius of ~A by using the Add Variable command on the Variable menu and selecting circle radius."  ?body))
-          ))
-
-; Don't think the following is being used now:
-(def-psmclass cross-section-area (cross-section-area ?point1 ?time)
+;; equation of the circumference of a circle c = 2*pi*r
+(def-psmclass circumference-of-circle-r (circumference-of-circle-r ?body)
   :complexity minor  
-  :english ("the area at point equals area of cross section")
-  :ExpFormat ("Finding the area using the cross section shape")
-  :EqnFormat ("Ap = As")) 
+  :english ("the formula for the circumference of a circle")
+  :ExpFormat ("Applying the formula for the circumference of a circle")
+  :EqnFormat ("c = 2*$p*r")) 
 
-(defoperator cross-section-area-contains (?sought)
+ (defoperator circumference-of-circle-r-contains (?sought)
    :preconditions (
-     (in-wm (cross-section ?point1 ?shape1))
-     (any-member ?sought ( 
-                           (at (area ?shape1) ?time)
-                           (at (area-at ?point1) ?time)
-                         ))
+		   (in-wm (shape ?shape circle))
+		   (any-member ?sought ( 
+					(radius-of-circle ?shape)
+					(circumference-of-circle ?shape)
+					))  
    )
    :effects (
-     (eqn-contains (cross-section-area ?point1 ?time) ?sought)
+	     (eqn-contains (circumference-of-circle-r ?shape) ?sought)
    ))
 
-(defoperator cross-section-area (?point1 ?time)
+(defoperator circumference-of-circle-r (?circle)
    :preconditions (
-       (in-wm (cross-section ?point1 ?shape1))
-	(variable ?Ap (at (area-at ?point1) ?time))       
-	(variable ?As (at (area ?shape1) ?time))
+       (variable  ?rc  (radius-of-circle ?circle))
+       (variable  ?Ac  (circumference-of-circle ?circle))
    )
    :effects (
-    (eqn  (= ?Ap ?As) 
-                (cross-section-area ?point1 ?time))
+    (eqn  (= ?Ac (* 2 $P ?rc)) 
+                (circumference-of-circle-r ?circle))
    )
    :hint (
-      (point (string "You can find the cross-sectional area from the shape of the cross-section"))
-      ;(teach (string "The cross-sectional area is the area of the circle."))
+      (point (string "You can use the formula for the circumference of a circle"))
+      (teach (string "The circumference of a circle is 2*$p times the radius."))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?Ap  ?As ) 
-                       algebra) ))
-   ))
+                     (= ?Ac (* 2 $P ?rc)) algebra) ))
+   )
 
-#|
-(def-psmclass area-equals-circle2 (area-equals-circle2 ?point2 ?time)
+;; equation of the circumference of a circle c = pi*d
+(def-psmclass circumference-of-circle-d (circumference-of-circle-d ?body)
   :complexity minor  
-  :english ("the area equals the area of a circle")
-  :ExpFormat ("Finding the area using the area of a circle")
-  :EqnFormat ("A = Ac")) 
+  :english ("the formula for the circumference of a circle")
+  :ExpFormat ("Applying the formula for the circumference of a circle")
+  :EqnFormat ("c = $p*d")) 
 
-(defoperator area-equals-circle2-contains (?sought)
+ (defoperator circumference-of-circle-d-contains (?sought)
    :preconditions (
-     (in-wm (bernoulli ?point1 ?fluid ?point2))
-     (any-member ?sought ( 
-
-                           ;(at (area-of-circle ?point2) ?time)
-                           (at (area ?point2) ?time)
-                           (at (mag (velocity ?point2)) ?time)
-                         ))
+		   (in-wm (shape ?shape circle))
+		   (any-member ?sought ( 
+					(diameter-of-circle ?shape)
+					(circumference-of-circle ?shape)
+					))  
    )
    :effects (
-     (eqn-contains (area-equals-circle2 ?point2 ?time) ?sought)
+	     (eqn-contains (circumference-of-circle-d ?shape) ?sought)
    ))
 
-(defoperator area-equals-circle2 (?point2 ?time)
+(defoperator circumference-of-circle-d (?circle)
    :preconditions (
-       (in-wm (bernoulli ?point1 ?fluid ?point2))
-       (variable ?Ac2 (at (area-of-circle ?point2) ?time))
-       (variable ?A2 (at (area ?point2) ?time))
-   
+       (variable  ?dc  (diameter-of-circle ?circle))
+       (variable  ?Ac  (circumference-of-circle ?circle))
    )
    :effects (
-    (eqn  (= ?A2 ?Ac2) 
-                (area-equals-circle2 ?point2 ?time))
+    (eqn  (= ?Ac (* $P ?dc)) 
+                (circumference-of-circle-d ?circle))
    )
    :hint (
-      (point (string "You can find the cross-sectional area"))
-      ;(teach (string "The cross-sectional area is the area of the circle."))
+      (point (string "You can use the formula for the circumference of a circle"))
+      (teach (string "The circumference of a circle is $p times the diameter."))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?A2  ?Ac2 ) 
-                       algebra) ))
-   ))
-|#
+                     (= ?Ac (* $P ?dc)) algebra) ))
+   )
 
+;;;
+;;; Pressure forces: 
+;;;
 
-; Pressure forces: 
-;
-; Problems involving pressure force require a statement of the form
-;   (fluid-contact ?body ?surface ?fluid ?point ?time ?direction)
-;
-; surface names the surface of the body at which the pressure force acts.
-; direction gives the direction of the force.
-; point names the spatial point at which the fluid pressure is defined. Possibly it can be the
-; same as the surface name.
-;
-; There can be more than one surface on a body. If we need multiple pressure forces from the
-; same fluid, we have to introduce separate agents such as "fluid_at_left" and "fluid_at_right"
-; to make unique force terms.
+;;; Problems involving pressure force require a statement of the form
+;;;   (fluid-contact ?body ?surface ?fluid ?point ?time ?direction)
+;;;
+;;; surface names the surface of the body at which the pressure force acts.
+;;; direction gives the direction of the force.
+;;; point names the spatial point at which the fluid pressure is defined. 
+;;; Possibly it can be the same as the surface name.
+;;;
+;;; There can be more than one surface on a body. If we need multiple 
+;;; pressure forces from the same fluid, we have to introduce separate 
+;;; agents such as "fluid_at_left" and "fluid_at_right" to make unique force 
+;;; terms.
 
 (defoperator find-pressure-force (?body ?surface ?fluid ?t)
    :preconditions (
@@ -513,10 +542,10 @@
     (bottom-out (string "Because ~a presses against ~a at ~a, draw a pressure force on ~a due to ~a at an angle of ~a degrees." ?fluid ?b ?surface ?b ?fluid ?dir))
     ))
 
-;
-; Scalar equation for pressure force magnitude:
-;    Fp = P*A (definition of pressure)
-;
+;;;
+;;; Scalar equation for pressure force magnitude:
+;;;    Fp = P*A (definition of pressure)
+;;;
 (def-psmclass pressure-force (pressure-force ?body ?time ?fluid)
   :complexity major  
   :english ("the definition of pressure")
@@ -527,7 +556,8 @@
   :preconditions(
     (any-member ?sought ( (at (mag (force ?body ?fluid pressure)) ?time)
                           (at (pressure ?point) ?time)
-			  (at (area ?surface) ?time)  ))
+			  (area ?surface)  ))
+    (time ?time) ;because area is timeless
     (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
     (test (tinsidep ?time ?t-pressure))
   )
@@ -542,7 +572,7 @@
     (body ?body)
     (variable ?Fp (at (mag (force ?body ?fluid pressure)) ?t))
     (variable ?P  (at (pressure ?point) ?t))
-    (variable ?A  (at (area ?surface) ?t))
+    (variable ?A  (area ?surface))
   )
   :effects (
      (eqn (= ?Fp (* ?P ?A)) (pressure-force ?body ?t ?fluid))

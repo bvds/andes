@@ -120,7 +120,7 @@
 
 (defoperator focal-length-mirror-contains (?sought)
    :preconditions (
-     ; must declare object to be a mirror this way in problem statement
+     ;; must declare object to be a mirror this way in problem statement
      (mirror ?mirror)
      (any-member ?sought ( (focal-length ?mirror)
                            (radius-of-curvature ?mirror) ))
