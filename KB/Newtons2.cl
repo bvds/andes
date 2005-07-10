@@ -2521,6 +2521,30 @@
     (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." ?b (?t pp) ?dir ?dir))
     ))
 
+;; draw acceleration when the direction is unknown, and have no
+;; other specification about the motion. 
+(defoperator draw-accel-unknown-dir (?b ?t)
+  :preconditions
+   ((in-wm (given (at (dir(accel ?b)) ?t-given) unknown))
+    (time ?t)
+    (test (tinsidep ?t ?t-given))
+    ;; make sure no other motion specification in problem for time
+    ;; !! Too strict, some motion specs leave accel dir out.
+    (not (motion ?b ?t-motion . ?dontcare)
+         (tinsidep ?t ?t-motion))
+    (not (vector ?b (at (accel ?b) ?t) ?dont-care))
+    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :effects
+   ((vector ?b (at (accel ?b) ?t) zero)
+    (variable ?mag-var (at (mag (accel ?b)) ?t))
+    (variable ?dir-var (at (dir (accel ?b)) ?t))
+    ) 
+   :hint
+   ((point (string "You must define the acceleration of ~a ~a." ?b (?t pp)))
+    (bottom-out (string "However, the direction of the acceleration of ~a may not be clear from the problem statement; treat it as unknown." ?b))
+    ))
+
 
 ;;; This operator draws an non-zero acceleration vector for a body that is 
 ;;; moving in a straight line and slowing down.  The motion descriptor's third 
@@ -2648,7 +2672,7 @@
 ;; direction alone doesn't suffice to fully characterize the motion.
 ;; The centripetal acceleration law will specify an equation for the magnitude 
 ;; of the acceleration.
-(defoperator draw-centripetal-acceleration (?b ?t)
+(defoperator draw-centripetal-acceleration (?B ?t)
   :specifications 
    "If ?body is in uniform circular motion during ?time,
    then draw a non-zero acceleration perpendicular to the velocity at ?time."
@@ -3475,7 +3499,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (duration (during ?t1 ?t2))))
     (object ?b)
     (time (during ?t1 ?t2))
-    ; only apply this method if lk/lk-no-s doesn't apply
+    ;; only apply this method if lk/lk-no-s doesn't apply
     (not (constant (accel ?b) ?t-constant)
          (tinsidep `(during ,?t1 ,?t2) ?t-constant))
     (not (free-fall ?b ?t-free-fall))
@@ -8616,16 +8640,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; !!! no facility exists for doing this on andes interface !!!
 (defoperator define-shape-radius (?b)
   :preconditions 
-     ((object ?b)
+  ((object ?b)
      (shape ?b ?shape ?dontcare)
      (any-member ?shape (hoop disk sphere spherical-shell))
      (bind ?r-var (format-sym "r_~A" (body-name ?b))))
   :effects ( 
-    (define-var (radius-of-circle ?b) ?t)) 
-    (variable ?r-var (radius-of-circle ?b)) 
-  )
+	    (define-var (radius-of-circle ?b)) 
+	    (variable ?r-var (radius-of-circle ?b)) 
+	    )
   :hint (
-    (bottom-out (string "Use the Add Variable command to define a variable for the radius of ~A" ?b))
+	 (bottom-out (string "Use the Add Variable command to define a variable for the radius of ~A" ?b))
   ))
 
 ;;;;-------------------------------------------------------------------------
