@@ -63,7 +63,8 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	      DBGM( { cout << "about to call solveknownvar on" << endl;
 	      	     thiseq->dbgprint(2);  } );
 	      if (!solveknownvar(thiseq)) 
-		cout << "couldn't solve linear eq in one variable!" << endl;
+		cout << "couldn't solve " << thiseq->getInfix() << " for "
+		     << "one variable." << endl;
 	      else   {		// simple linear equations "solved"
 		DBGM( { cout << " solveknownvar returned true" << endl;
 		       thiseq->dbgprint(2); } );
