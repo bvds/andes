@@ -2521,17 +2521,18 @@
     (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." ?b (?t pp) ?dir ?dir))
     ))
 
-;; draw acceleration when the direction is unknown, and have no
-;; other specification about the motion. 
-(defoperator draw-accel-unknown-dir (?b ?t)
+;; draw average acceleration when we know that the motion is 
+;; curved (from a motion statement), but no direction is given.
+(defoperator draw-accel-curved-unknown (?b ?t)
   :preconditions
-   ((motion )
+   (
     (time ?t)
-    (test (tinsidep ?t ?t-given))
-    ;; make sure no other motion specification in problem for time
-    ;; !! Too strict, some motion specs leave accel dir out.
-    (not (motion ?b ?t-motion . ?dontcare)
-         (tinsidep ?t ?t-motion))
+    (motion ?b ?t-motion (curved ?dont-care ?dir-spec)  )
+    (test (tinsidep ?t ?t-motion))
+    ;; the acceleration direction is nil or 'unknown
+    (test (or (null ?dir-spec) (null (second ?dir-spec)) 
+	      (equal (second ?dir-spec) 'unknown)))
+    (object ?b) ;sanity test
     (not (vector ?b (at (accel ?b) ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
@@ -2541,8 +2542,10 @@
     (variable ?dir-var (at (dir (accel ?b)) ?t))
     ) 
    :hint
-   ((point (string "You must define the acceleration of ~a ~a." ?b (?t pp)))
-    (bottom-out (string "However, the direction of the acceleration of ~a may not be clear from the problem statement; treat it as unknown." ?b))
+   ((point (string "Note that ?b is not moving in a straight line ~A." 
+		   ?b (?t pp)))
+    (teach (string "If an object is moving in a curved path, then its velocity is changing.  Thus, it has a non-zero acceleration." ?b))
+    (bottom-out (string "Define an acceleration vector for ~a ~A.  Since its direction may not be clear from the problem statement; treat the direction as unknown." ?b (?t pp)))
     ))
 
 
@@ -2663,15 +2666,18 @@
    ))
 
 
-;; This operator draws the instantaneous acceleration vector for a body in 
-;; uniform circular motion.  This must be given in the problem statement as 
-;; (motion body time-point (curved circular (tangent-dir accel-dir)))
-;; where tangent-dir is the direction of the velocity at that time.
-;; The acceleration is orthogonal to the velocity towards the center of the
-;; circle; we include this direction in the motion spec because velocity
-;; direction alone doesn't suffice to fully characterize the motion.
-;; The centripetal acceleration law will specify an equation for the magnitude 
-;; of the acceleration.
+;;; This operator draws the instantaneous acceleration vector for a body in 
+;;; uniform circular motion.  This must be given in the problem statement as 
+;;; (motion body time (curved circular (tangent-dir accel-dir)))
+;;; where tangent-dir is the direction of the velocity at that time.
+;;; It time is an interval, then the angle spec may be ignored, since it
+;;; is no longer well-defined.
+;;;
+;;; The acceleration is orthogonal to the velocity towards the center of the
+;;; circle; we include this direction in the motion spec because velocity
+;;; direction alone doesn't suffice to fully characterize the motion.
+;;; The centripetal acceleration law will specify an equation for the 
+;;; magnitude of the acceleration.
 (defoperator draw-centripetal-acceleration (?B ?t)
   :specifications 
    "If ?body is in uniform circular motion during ?time,
