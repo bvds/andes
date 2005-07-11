@@ -347,7 +347,8 @@
    )
 
 (defoperator define-radius-of-circle (?body)
-     :preconditions((bind ?rc-var (format-sym "rc_~A" (body-name ?body))))
+  :preconditions
+  ((bind ?rc-var (format-sym "rc_~A" (body-name ?body))))
      :effects ((variable ?rc-var (radius-of-circle ?body))
                (define-var (radius-of-circle ?body))
    )

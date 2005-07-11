@@ -2525,7 +2525,7 @@
 ;; other specification about the motion. 
 (defoperator draw-accel-unknown-dir (?b ?t)
   :preconditions
-   ((in-wm (given (at (dir(accel ?b)) ?t-given) unknown))
+   ((motion )
     (time ?t)
     (test (tinsidep ?t ?t-given))
     ;; make sure no other motion specification in problem for time
@@ -2536,7 +2536,7 @@
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (accel ?b) ?t) zero)
+   ((vector ?b (at (accel ?b) ?t) unknown)
     (variable ?mag-var (at (mag (accel ?b)) ?t))
     (variable ?dir-var (at (dir (accel ?b)) ?t))
     ) 
@@ -8635,22 +8635,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Use the Add Variable command to define a variable for the width of ~A" ?b))
   ))
 
-;; following defines a variable for radius of a rigid body
-;; whose dimension would normally be characterized as a radius
-;; !!! no facility exists for doing this on andes interface !!!
-(defoperator define-shape-radius (?b)
-  :preconditions 
-  ((object ?b)
-     (shape ?b ?shape ?dontcare)
-     (any-member ?shape (hoop disk sphere spherical-shell))
-     (bind ?r-var (format-sym "r_~A" (body-name ?b))))
-  :effects ( 
-	    (define-var (radius-of-circle ?b)) 
-	    (variable ?r-var (radius-of-circle ?b)) 
-	    )
-  :hint (
-	 (bottom-out (string "Use the Add Variable command to define a variable for the radius of ~A" ?b))
-  ))
 
 ;;;;-------------------------------------------------------------------------
 ;;;; Formulas for moment of inertia for objects of various shapes about
