@@ -852,7 +852,7 @@
 ;; in a conservation of angular momentum problem.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-label-radius (label id name)
-  (on-define-variable label NIL 'revolution-radius name NIL NIL id))
+  (on-define-variable label NIL 'revolution-radius name 'T0 NIL id))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; define-variable - define a variable to stand for a certain quantity. this is
