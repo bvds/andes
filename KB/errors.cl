@@ -809,21 +809,19 @@
 ;;; radius (see above) of the radius of an object (this case).  There
 ;;; is just the body slot.  
 
-(def-error-class wrong-body-radius (?sbody ?cbody)
+(def-error-class wrong-body-radius-of-circle (?sbody ?cbody)
   ((student    (define-var (radius-of-circle ?sbody)))
    (no-correct (define-var (radius-of-circle ?sbody)))
    (correct    (define-var (radius-of-circle ?cbody))))
-  :probability
-  (+ 0.3 ))
+  :probability 0.3  )
 
-(defun wrong-body-radius (sbody cbody)
+(defun wrong-body-radius-of-circle (sbody cbody)
   (make-hint-seq
    (list (format nil "Are you sure it's ~a that you want the radius of?"
 		 (nlg sbody 'def-np))
 	 (format nil "Define a variable for the radius of ~a."
 		 (nlg cbody 'def-np)))))
 	   
-
 ;;; =============== length  and width ========================
 ;;; There should be two slots on the length and width variable tools: body and
 ;;; time, except that none of our problems have time points so the
