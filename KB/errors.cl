@@ -281,8 +281,8 @@
 		 "for suggestions on how to solve this problem.")
 	 '(function next-step-help))))
 
-; variant for non-time-dependent quantities, for which type we
-; need is first part of the quantity expression
+;; variant for non-time-dependent quantities, for which type we
+;; need is first part of the quantity expression
 (def-error-class non-existent-variable2 (?type)
   ((student (define-var (?type . ?sargs) ))
    (test (not (eq ?type 'at))) ; since will match above
@@ -813,7 +813,7 @@
   ((student    (define-var (radius-of-circle ?sbody)))
    (no-correct (define-var (radius-of-circle ?sbody)))
    (correct    (define-var (radius-of-circle ?cbody))))
-  :probability 0.3  )
+  :probability 0.303  )
 
 (defun wrong-body-radius-of-circle (sbody cbody)
   (make-hint-seq
@@ -821,7 +821,18 @@
 		 (nlg sbody 'def-np))
 	 (format nil "Define a variable for the radius of ~a."
 		 (nlg cbody 'def-np)))))
-	   
+
+(def-error-class wrong-kind-of-radius (?body)
+  ((student    (define-var (radius-of-circle ?body)))
+   (no-correct (define-var (radius-of-circle ?body)))
+   (correct    (define-var (at (revolution-radius ?body) ?time))))
+  :probability 0.3141  )
+
+(defun wrong-kind-of-radius (body)
+  (make-hint-seq
+   (list (format nil "Since we are describing the motion of ~A, use the radius of motion at."
+		 (nlg body 'def-np)))))
+
 ;;; =============== length  and width ========================
 ;;; There should be two slots on the length and width variable tools: body and
 ;;; time, except that none of our problems have time points so the

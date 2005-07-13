@@ -2542,10 +2542,10 @@
     (variable ?dir-var (at (dir (accel ?b)) ?t))
     ) 
    :hint
-   ((point (string "Note that ?b is not moving in a straight line ~A." 
+   ((point (string "Note that ~A is not moving in a straight line ~A." 
 		   ?b (?t pp)))
     (teach (string "If an object is moving in a curved path, then its velocity is changing.  Thus, it has a non-zero acceleration." ?b))
-    (bottom-out (string "Define an acceleration vector for ~a ~A.  Since its direction may not be clear from the problem statement; treat the direction as unknown." ?b (?t pp)))
+    (bottom-out (string "Define an acceleration vector for ~a ~A.  Since its direction may not be clear from the problem statement, treat the direction as unknown." ?b (?t pp)))
     ))
 
 
