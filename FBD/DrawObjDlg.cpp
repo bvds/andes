@@ -324,8 +324,10 @@ void CDrawObjDlg::Remove(int nIDBox)
 	SetWindowPos(NULL, 0, 0, rcDlg.Width(), rcDlg.Height() - rcBox.Height(),
 				SWP_NOZORDER | SWP_NOMOVE);
 
-	// !!! Should hide all controls lying within box. Now client code has to do this
-	// anyway. (BUT: might relocate some of these elsewhere within dialog later?)
+	// New: hide box and all controls lying within box. (Some client code does this also).
+	// (??? Wrong if might relocate some of these elsewhere within dialog later?)
+	// Note this only looks at those following box in the tab order. (Could change to test all).
+	pWnd->ShowWindow(SW_HIDE);
 	CWnd* pCtrl = pWnd->GetNextWindow(GW_HWNDNEXT );
 	while (pCtrl != NULL){
 		CRect rcCtrl, rcOverlap;
@@ -339,7 +341,6 @@ void CDrawObjDlg::Remove(int nIDBox)
 	//move up controls that follow
 	//the pWnd must follow the tab order of the controls it encompasses
 	UpdateControls(pWnd, rcBox.Height());
-
 }
 
 //for this to work, must be careful with the tab order.
