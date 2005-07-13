@@ -67,7 +67,8 @@ static struct {
 	int nId;	
 	char* szTypeId;
 } staticIds[] =  {
-{ ID_VARIABLE_ADDRADIUS,        "radius" },
+//{ ID_VARIABLE_ADDRADIUS,        "radius" },             // old WB quant id for this.
+//{ ID_VARIABLE_ADDRADIUS,        "revolution-radius" },  // new quant id 
 { ID_VARIABLE_ADDSPEED,			"speed"  },
 { ID_VARIABLE_ADDANGLE,			"angle"  },
 { ID_VARIABLE_ADDNRG,			"energy" }, 
@@ -570,12 +571,15 @@ void CVarView::PopulateList()
 
 void CVarView::InsertListItem(CCheckedObj * pObj)
 {
-	// add to var list
+	// now ignore system (body) objects in variable view
+	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem)))
+		return;
+
+	// add object to var list
 	if (m_VarList.Find(pObj) == NULL)
 		m_VarList.AddTail(pObj);
 	
 	CString strName = pObj->m_strName;
-
 	CString strDef;
 
 	if (pObj->IsKindOf(RUNTIME_CLASS(CAxes))) {
@@ -588,9 +592,10 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 	else if ( (pObj->IsKindOf(RUNTIME_CLASS(CVariable))) 
 		|| (pObj->IsKindOf(RUNTIME_CLASS(CRadius))) 
 			|| (pObj->IsKindOf(RUNTIME_CLASS(CAngle))) 
-				|| (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) )
+				/*|| (pObj->IsKindOf(RUNTIME_CLASS(CSystem)))*/ )
 	{
 		strDef = pObj->GetDef();
+
 		// For variables: append given value if specified
 		if (pObj->IsKindOf(RUNTIME_CLASS(CVariable)) 
 			&& ! ((CVariable*)pObj)->m_strValue.IsEmpty() ) {
@@ -603,16 +608,16 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 		str = pObj->GetDef();
 		strDef.Format("magnitude of the %s", str);
 	}
-	else
+	else // not an object we are interested in
 		return;
 
 	// For system "x", associated mass variable is named "mx".
-	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem)))
-		strName = "m" + strName;
+/*	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem)))
+		strName = "m" + strName; */
 	
-	// Adjust column widths to fit
-	SizeToFit(0, strName);
+	// Adjust column widths to fit. Fitting name more important, so do last
 	SizeToFit(1, strDef);
+	SizeToFit(0, strName);
 	
 	// Insert or modify item in list
 	int index = FindIndex(pObj);
@@ -646,7 +651,7 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 {
 	switch (lHint)
 	{
-	case HINT_DELETE_VARIABLE:
+	case HINT_DELETE_VARIABLE:			// Deleted a defined variable
 		{
 			if (pSender != this){//iterate the list and delete the hint var from it
 				CVariable* pVar = (CVariable*) pHint;
@@ -654,7 +659,7 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			}
 		}
 		break;
-	case HINT_DELETE_SELECTION:
+	case HINT_DELETE_SELECTION:			// Deleted one or more drawing objects	
 		{
 			CDrawObjList* pList = (CDrawObjList*) pHint;
 			POSITION pos = pList->GetHeadPosition();
@@ -695,7 +700,7 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			
 		}
 		break;
-	case HINT_UPDATE_DRAWOBJ:
+	case HINT_UPDATE_DRAWOBJ:			// Wrote through modifications to a CDrawObj (may be variable?!)
 		{
 			CDrawObj* pObj = (CDrawObj*) pHint;
 			if (!pObj->InVarList())
@@ -708,6 +713,7 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			if (pObj->IsKindOf(RUNTIME_CLASS(CCheckedObj)))
 			{
 				CCheckedObj* pObj = (CCheckedObj*)pHint;
+			
 				if (pObj->IsKindOf(RUNTIME_CLASS(CSystem)))
 				{
 					CVariable* pVar = GetDocument()->GetMatchingVar(pObj, FALSE);//bMatchDef
@@ -750,7 +756,7 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			
 		}
 		break;
-		case HINT_UPDATE_TEMPOBJ:
+		case HINT_UPDATE_TEMPOBJ:		// Submitted edits of tempobj buffer, not yet written through
 		{
 			CChkObjList* pList = (CChkObjList*)pHint;
 			if (pList->IsEmpty())
@@ -764,6 +770,9 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			if  ( (pRealObj->m_flag == TEACHER_OBJECT) 
 				&& !pRealObj->IsKindOf(RUNTIME_CLASS(CVariable)) )
 				return;
+
+			if (pRealObj->IsKindOf(RUNTIME_CLASS(CSystem)))
+				return;  // now ignore systems (bodies) in variable view
 
 			if (pRealObj->IsKindOf(RUNTIME_CLASS(CAxes)))
 			{//add to varlist
@@ -1479,6 +1488,9 @@ void CVarView::OnUpdateVariableSolvefor(CCmdUI* pCmdUI)
 // while keeping RealObj as the associated object in the item data.
 void CVarView::UpdateListItem(CCheckedObj * pRealObj, CCheckedObj * pTempObj)
 {
+	if (pTempObj->IsKindOf(RUNTIME_CLASS(CSystem)))
+		return;
+
 	// add to var list
 	if (pRealObj)
 	{
@@ -1493,13 +1505,12 @@ void CVarView::UpdateListItem(CCheckedObj * pRealObj, CCheckedObj * pTempObj)
 	}
 
 	CString strName = pTempObj->m_strName;
-
 	CString strDef;
 
 	if ( (pTempObj->IsKindOf(RUNTIME_CLASS(CVariable))) 
 		|| (pTempObj->IsKindOf(RUNTIME_CLASS(CRadius))) 
 			|| (pTempObj->IsKindOf(RUNTIME_CLASS(CAngle))) 
-				|| (pTempObj->IsKindOf(RUNTIME_CLASS(CSystem))) )
+				/*|| (pTempObj->IsKindOf(RUNTIME_CLASS(CSystem)))*/ )
 	{
 		strDef = pTempObj->GetDef();
 	}
@@ -1513,8 +1524,8 @@ void CVarView::UpdateListItem(CCheckedObj * pRealObj, CCheckedObj * pTempObj)
 		return;
 	
 	// For system "x", associated mass variable is named "mx".
-	if (pTempObj->IsKindOf(RUNTIME_CLASS(CSystem)))
-		strName = "m" + strName;
+/*	if (pTempObj->IsKindOf(RUNTIME_CLASS(CSystem)))
+		strName = "m" + strName; */
 
 	// Adjust column widths to fit
 	SizeToFit(0, strName);
