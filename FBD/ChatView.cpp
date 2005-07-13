@@ -354,7 +354,7 @@ void CChatView::AddText(LPCTSTR str)
 
 	// Parse links and greek letters
 	CString preText, letter, tempStr;
-	while (text.FindOneOf("{$") != -1)
+	while (text.Find("$") != -1 || text.Find("{\\") != -1)
 	{
 		int grkPos = text.Find('$');
 		int lnkPos = text.Find("{\\");
@@ -365,7 +365,7 @@ void CChatView::AddText(LPCTSTR str)
 				edit.ReplaceSel(preText);
 			letter = text[grkPos + 1];
 			if (((letter >= "a") && ( letter <="z"))||((letter >= "A") && ( letter <="Z"))
-				|| (letter == "\307") || (letter == "\310")) // union or intersection
+				|| (letter >= "\306") || (letter <= "\310")) // empty set, intersection, union
 			{
 				//ToggleCharSymbol();
 				//edit.ReplaceSel(letter);
