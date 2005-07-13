@@ -70,7 +70,7 @@ public:
 	BOOL m_bDecomposed;			// FORCE|MOTION: marked as resolved into components
 
 	// Helper to derive:
-	int GetMagnitude();			// Drawn magnitude in logical units
+	int GetDrawnMagnitude();			// Drawn magnitude in logical units
 	BOOL IsZeroMag();			// true if this is NULL (zero-mag) vector
 
 	// Gets dir told by user in dialog; returns FALSE if unknown, else T.

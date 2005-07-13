@@ -1061,7 +1061,7 @@ LPCTSTR CMDVector::CheckMoveVector() // do the check with the help system
 			m_pDiagram->m_strId,				// diagram id
 			STR2ARG(m_strName),					// vector label
 			m_pDiagram->GetVectorTimeNum(this) - 1,	// timept, adjusted to zero-based
-			GetMagnitude(),						// mag
+			GetDrawnMagnitude(),				// mag
 			GetDirection(),						// dir
 			m_strId								// id
 		);
@@ -1074,7 +1074,7 @@ LPCTSTR CMDVector::CheckMoveVector() // do the check with the help system
 			STR2ARG(m_strName),					// vector label
 			/*	was GetAccelNum; now changed to 0-based time point, -1 for whole */
 			m_pDiagram->GetVectorTimeNum(this) - 1, //timept, adjusted to zero-based
-			GetMagnitude(),						// mag
+			GetDrawnMagnitude(),				// mag
 			GetDirection(),						// dir
 			m_strId   );						// id
 	}
@@ -1520,7 +1520,7 @@ LPCTSTR CMDVector::Check2DEntry()
 	// and then check that offsets from endpoints to dot center matches those of components 
 	// within a certain tolerance.
 	// !!! might be good to anchor vector endpoint to dot center
-	// !!! or else must build this into GetMagnitude function for motion diagram vectors,
+	// !!! or else must build this into GetDrawnMagnitude function for motion diagram vectors,
 	// since it affects what's sent to help system.
 	// !! calculation actually takes components projection onto ruler, assumes not drawn
 	// at wrong angle
