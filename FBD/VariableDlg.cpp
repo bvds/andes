@@ -47,7 +47,16 @@ CString CVariableDlg::LookupCtrlName(int nID)
 
 CString CVariableDlg::GetSpec()		// get dialog spec for 
 {	
-	return CVarView::LookupSpec(((CVariable*)m_pTempObj)->m_nType); 
+	CString strSpec = CVarView::LookupSpec(((CVariable*)m_pTempObj)->m_nType); 
+	// Ugly special case: if changing-mass feature is set, then mass variable uses
+	// time slot. Adjust spec so other code works without change
+	CString strTypeId = CVarView::LookupTypeId(((CVariable*)m_pTempObj)->m_nType);
+	if (strTypeId.CompareNoCase("mass") != -1) {
+		if (CVarView::IncludeQuant(CString("CHANGING-MASS"))){
+			strSpec += " at time [time:times]";
+		}
+	}
+	return strSpec;
 }
 
 // helpers to extract info from dialog spec string
