@@ -652,7 +652,7 @@ void CLabelRichEdit::SetRichEditText(CString str)
 
 			CString c = str[grkPos +1]; //make sure letter follows $
 			if ( ((c >= "a") && ( c<="z"))||((c >= "A") && ( c<="Z")) 
-				  || (c == "\307") || (c=="\310")) // union or intersection
+				  || (c >= "\306") || (c<="\310")) // empty set, intersection or union
 			{
 				//ReplaceSel(c);		// insert greek letter at caret
 				//SetCharSymbol();
