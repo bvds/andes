@@ -2808,8 +2808,8 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 		{
 			// spec just has base name, not full path
 			// Layout problem expects to find it in Problems Folder
-			// check for NIL => not graphic
-			if (((CLispReader::Atom*)pValue)->m_strValue.CompareNoCase("NIL") != 0) {	
+			// check for NIL => no graphic
+			if (pValue->IsAtom() && ((CLispReader::Atom*)pValue)->m_strValue.CompareNoCase("NIL") != 0) {	
 				m_strGraphicFile = ((CLispReader::Atom*)pValue)->m_strValue;
 			}
 			continue;
