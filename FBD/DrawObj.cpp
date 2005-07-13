@@ -3687,7 +3687,12 @@ CString CVariable::GetCheckCmd()
 			CString strObjectArg = STR2ARG(strObject);
 			if (strObjectArg[0] != '(' || m_nType == ID_VARIABLE_ADDPROBABILITY)
 				strObjectArg = "|" + strObjectArg + "|";
-			strCmd.Format( "(define-variable \"%s\" |%s| |%s| %s |%s| |%s| %s \"%s\")",
+			// For value, NIL => no given value assertion; empty string => asserts unknown value
+			// Note don't want quotes around NIL
+			CString strValueArg = "NIL";
+			if (m_nType != ID_VARIABLE_ADDPROBABILITY)
+				strValueArg = "\"" + LISPSTR(m_strValue) + "\"";
+			strCmd.Format( "(define-variable \"%s\" |%s| |%s| %s |%s| |%s| %s %s)",
 			STR2ARG(m_strName),   // !!! use LISPSTR if non-empty
 			STR2ARG(strForceType),
 			STR2ARG(strQuantId),
@@ -3695,8 +3700,7 @@ CString CVariable::GetCheckCmd()
 			STR2ARG(strTime), 
 			STR2ARG(strAgent),
 			STR2ARG(m_strId),
-			// NIL => no given value assertion; empty string => asserts unknown value
-			(m_nType == ID_VARIABLE_ADDPROBABILITY) ? "NIL" : LISPSTR(m_strValue)  ); 
+			strValueArg); 
 	}
 	// finally return result
 	return strCmd;
@@ -3852,9 +3856,6 @@ CDrawObj* CVariable::Clone()
 BOOL CVariable::HasSameDef(CVariable* pVar)
 {
 	// Cheap test -- check if constructed definition string is the same
-	// !! Misses match if one var uses a time interval name (e.g "T0 to T1")
-	// & other uses a user-defined duration variable (e.g. t01) for the
-	// same interval.
 	if (_stricmp(m_strDef, pVar->m_strDef) == 0){//case insensitive
 	//if same name, check if same id
 		if (strcmp(m_strId, pVar->m_strId)==0)
