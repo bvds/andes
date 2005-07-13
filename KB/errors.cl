@@ -830,7 +830,7 @@
 
 (defun wrong-kind-of-radius (body)
   (make-hint-seq
-   (list (format nil "Since we are describing the motion of ~A, use the radius of motion at."
+   (list (format nil "Since we are describing the motion of ~A, use the radius of motion."
 		 (nlg body 'def-np)))))
 
 ;;; =============== length  and width ========================
