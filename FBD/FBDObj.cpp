@@ -222,7 +222,7 @@ BOOL CVector::IsZeroMag()
 }
     
 // Return drawn magnitude in logical units.
-int CVector::GetMagnitude()
+int CVector::GetDrawnMagnitude()
 {
 	if (IsZeroMag() || IsZAxisVector())
 		return 0;
@@ -778,7 +778,7 @@ CString CVector::GetDef()
 	CString strBodyPart; // includes preposition. Why?
 	if (!m_strBody.IsEmpty())
 		strBodyPart.Format("of %s", m_strBody);
-	// optional modifier prefix includes space
+	// optional modifier prefix includes space, so empty prefix will be OK below
 	CString strMod = m_bAngular ? "Angular " : "";
 	CString strDef;
 	if (m_nVectorType == VECTOR_FORCE) {
@@ -1253,7 +1253,7 @@ CString CVector::MagArg()	// returns magnitude arg for helpsys calls (as string!
 		return "NIL";
 	
 	CString strMag;
-	strMag.Format("%d", GetMagnitude());
+	strMag.Format("%d", GetDrawnMagnitude());
 	return strMag;
 }
 
@@ -1294,7 +1294,7 @@ LPCTSTR CVector::CheckCompVector()
 		STR2ARG(m_strName),						// label
 		STR2ARG(m_strCompOf),					// compo-of
 		(m_strCompDir == "X axis") ? "X" : "Y", // axis
-		GetMagnitude(),							// magnitude
+		GetDrawnMagnitude(),					// magnitude
 		GetDirection(),							// direction
 		m_strId									// id
 		);
@@ -3476,7 +3476,8 @@ BOOL CRadius::HasSameDef(CVariable* pVar)
 	//with the same definition
 	CString strBodies = m_strBodies;
 	strBodies.TrimRight();
-	if (_stricmp(pVar->m_strQuantName, "radius")==0){//case insensitive
+	if (_stricmp(pVar->m_strQuantName, "radius")==0 ||
+		_stricmp(pVar->m_strQuantName, "revolution-radius")){//case insensitive
 		//if system, check if same body & time
 		if (strcmp(strBodies, pVar->m_strObject) == 0)				
 			return TRUE;			
