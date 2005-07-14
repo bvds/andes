@@ -135,6 +135,15 @@
 	          (successive-intervals (1+ t1) t2)))
          (T NIL)))
 
+;; this is for use in rules that sum over sub-intervals
+(defun proper-subintervalp (t1 tt)
+  "true if tt is not atomic and t1 is an atomic sub-interval of tt or t1 equals tt"
+  (and (time-intervalp tt)
+       (> (- (third tt) (second tt)) 1) ;this prevents trivial equations
+       (tinsidep t1 tt)
+       (or (equal t1 tt) (time-consecutivep t1) )
+       ))
+
 ;;;=========================
 ;;; expr< and friends
 ;;;========================

@@ -1454,40 +1454,35 @@
 	  ))
 
 ;;
-;; Summing of time intervals: 
-;; duration (t02) = duration(t01) + duration (t12)
+;; Summing of time intervals. 
+;; duration (t02) = duration(t01) + duration (t12), etc.
 ;;
 (defoperator sum-times-contains (?quant)
   :preconditions (
-  (time (during ?t0 ?t1))
-  (time (during ?t1 ?t2))
-  (time (during ?t0 ?t2))
-  (any-member ?quant ((duration (during ?t0 ?t1))
-  		      (duration (during ?t1 ?t2))
-		      (duration (during ?t0 ?t2))))
+  (any-member ?quant ((duration ?t)))
+  (time ?tt)
+  (test (proper-subintervalp ?t ?tt)) ;?t equals ?tt or is atomic subinterval
   )
   :effects (
-    (eqn-contains (sum-times ?t0 ?t1 ?t2) ?quant)
+    (eqn-contains (sum-times ?tt) ?quant)
   ))
 
-(defoperator write-sum-times (?t0 ?t1 ?t2)
-  
-  :preconditions (
-   (variable ?t01-var (duration (during ?t0 ?t1)))
-   (variable ?t12-var (duration (during ?t1 ?t2)))
-   (variable ?t02-var (duration (during ?t0 ?t2)))
-  )
-  :effects (
-   (eqn (= ?t02-var (+ ?t01-var ?t12-var)) (sum-times ?t0 ?t1 ?t2))
-   )
+;; only handles writing as sum of atomic sub-intervals
+(defoperator write-sum-times (?tt)
+  :preconditions 
+  ((variable ?tt-var (duration ?tt))
+   (bind ?intervals (successive-intervals (second ?tt) (third ?tt)))
+   (map ?interval ?intervals
+      (variable ?t-var (duration ?interval))
+      ?t-var ?t-vars))
+  :effects ( (eqn (= ?tt-var (+ . ?t-vars)) (sum-times ?tt)) )
   :hint
-  ((point (string "There are three time intervals involve the points ~a, ~a and ~a.  The durations of these intervals are inter-related." (?t0 time) (?t1 time) (?t2 time)))
+  ((point (string "Time intervals can be added together."))
    (teach (kcd "write-sum-times")
-          (string "Since the time interval [~a,~a] is equal to the union of time intervals [~a,~a] and [~a,~a], its duration must be the sum of their durations." 
-		  (?t0 time) (?t2 time) (?t0 time) (?t1 time) (?t1 time) (?t2 time)))
-   (bottom-out (string "Since ~a consists of the union of ~a and ~a, write the equation ~a."
-		       (?t01-var algebra) (?t12-var algebra) (?t02-var algebra) 
-		        ((= ?t02-var (+ ?t01-var ?t12-var)) algebra)))
+          (string "Since the time interval [~a,~a] is equal to the union of its subintervals, its duration must be the sum of their durations." 
+		  (?tt second) (?tt third)))
+   (bottom-out (string "Write the equation ~a."
+		        ((= ?t02-var (+ . ?t-vars)) algebra)))
    ))
 
 ;;; Following uses constancy of a quantity over a containing interval to
@@ -1731,6 +1726,37 @@
   ((point (string "How is distance travelled related to displacement?"))
    (teach (string "If ~A is moving in a straight line, the distance traveled ~A is equal to the magnitude of the displacment." ?b (?t pp)))
    (bottom-out (string "Write the equation ~A = ~A" (?s-var algebra) (?d-var algebra)))))
+
+;;;
+;;; add up distances
+;;;
+(defoperator sum-distances-contains (?sought)
+  :preconditions 
+  ((any-member ?sought ( (at (distance ?b) ?t)))
+   (time ?tt)
+   (test (proper-subintervalp ?t ?tt)) ;?t equals ?tt or is atomic subinterval
+   (object ?b) ;sanity check
+   )
+  :effects 
+  ((eqn-contains (sum-distances ?b ?tt) ?sought)))
+
+;; only handles writing as sum of atomic sub-intervals
+(defoperator write-sum-distances (?tt)
+  :preconditions 
+  ((variable ?tt-var (at (distance ?b) ?tt))
+   (bind ?intervals (successive-intervals (second ?tt) (third ?tt)))
+   (map ?interval ?intervals
+      (variable ?t-var (at (distance ?b) ?interval))
+      ?t-var ?t-vars))
+  :effects ( (eqn (= ?tt-var (+ . ?t-vars)) (sum-distances ?b ?tt)) )
+  :hint
+  ((point (string "Distances can be added together."))
+   (teach (string "The distance ~A has traveled ~A is equal to the sum of distances traveled during each sub-interval." 
+		  ?b (?tt pp)))
+   (bottom-out (string "Write the equation ~a."
+		        ((= ?t02-var (+ . ?t-vars)) algebra)))
+   ))
+
 
 ;; Pythagorean theorem for distance, currently only used in kt5a. 
 ;; We use relative positions to specify the givens. 
@@ -3802,16 +3828,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator sum-disp-vector-contains (?sought)
   :preconditions 
     ((any-member ?sought (
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))))
+		 (at (mag (displacement ?b)) ?t)
+		 (at (dir (displacement ?b)) ?t)))
     (object ?b)
-    (time (during ?ti ?tf))
-    (test (> (- ?tf ?ti) 1))) ; must span more than one subinterval
+    (time ?tt)
+    (test (proper-subintervalp ?t ?tt)) ;?t equals ?tt or is atomic subinterval
+    )
   :effects 
-  ((eqn-family-contains (sum-disp ?b (during ?ti ?tf)) ?sought)
+  ((eqn-family-contains (sum-disp ?b ?tt) ?sought)
   ; since only one compo-eqn under this vector psm, we can just
   ; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (sum-disp ?b (during ?ti ?tf)) sum-disp ?sought)))
+  (compo-eqn-contains (sum-disp ?b ?tt) sum-disp ?sought)))
 
 (defoperator draw-sum-disp-diagram (?b ?t1 ?t2)
   

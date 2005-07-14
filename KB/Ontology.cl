@@ -745,12 +745,19 @@
   :EqnFormat ("s1 = s2"))
 
 
-(def-psmclass sum-times (sum-times ?time0 ?time1 ?time2)
+(def-psmclass sum-times (sum-times ?tt)
   :complexity connect
-  :english ("t02 = t01 + t12")
-  :ExpFormat ("calculating the sum of times \"~a = ~a + ~a\"" 
-	      (nlg ?time0 'time) (nlg ?time1 'time) (nlg ?time2 'time))
-  :EqnFormat ("t02 = t01 + t12"))
+  :english ("tac = tab + tbc")
+  :ExpFormat ("calculating the sum of times ~A" (nlg ?tt 'pp)) 
+  :EqnFormat ("tac = tab + tbc"))
+
+
+(def-psmclass sum-distances (sum-distances ?b ?tt)
+  :complexity connect
+  :english ("sac = sab + sbc")
+  :ExpFormat ("calculating the sum of distances travelled by ~A during ~A" 
+	      (nlg ?b) (nlg ?tt 'pp))
+  :EqnFormat ("sac = sab + sbc"))
 
 
 ;; NEWTONS LAW family of equations.
