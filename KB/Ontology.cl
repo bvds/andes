@@ -525,6 +525,13 @@
 		      "* time\" principle with ~a as the body ~a")
 	      (nlg ?body) (nlg ?time))
   :EqnFormat ("vavg = s / t"))
+
+(def-psmclass displacement-distance (displacement-distance ?body ?time)
+  :complexity connect  ;since this is like (equals ...)
+  :doc "Distance = Displacement."
+  :english ("distance = magnitude of displacment")
+  :expFormat ("noting that distance is the magnitude of the displacment")
+  :EqnFormat ("|d| = s"))
  
 (def-goalprop sdd-eqn (eqn ?algebra (sdd ?body ?time))
   :english ("writing an equation involving the speed of ~A ~A, and distance it travelled, and the duration of the trip" 

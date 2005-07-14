@@ -1698,6 +1698,40 @@
 		       (?s-var algebra) (?d-var algebra) (?t-var algebra)))
    ))
 
+;;; 
+;;; Relate the distance travelled to the magnitude of displacement
+;;; in the case of straight line motion.
+;;; 
+
+(defoperator displacement-distance-contains (?quantity)
+  :preconditions
+  ((any-member ?quantity 
+	       ((at (mag (displacement ?b)) ?t)
+		(at (distance ?b) ?t)))
+   ;; make sure we ar moving in a straight line.
+   (motion ?b ?t-motion (straight ?type ?dir))
+   ;; This check for change in direction is rather weak.
+   (test (not (equal ?type 'slow-down)))
+   (test (tinsidep ?t ?t-motion))
+   (time ?t)
+   (test (time-intervalp ?t)) ;sanity check
+   )
+  :effects
+  ((eqn-contains (displacement-distance ?b ?t) ?quantity)))
+
+
+(defoperator write-displacement-distance (?b ?t)
+  :preconditions
+  ((variable ?s-var (at (distance ?b) ?t))
+   (variable ?d-var (at (mag (displacement ?b)) ?t))
+   )
+  :effects
+  ((eqn (= ?s-var ?d-var) (displacement-distance ?b ?t)))
+  :hint
+  ((point (string "How is distance travelled related to displacement?"))
+   (teach (string "If ~A is moving in a straight line, the distance traveled ~A is equal to the magnitude of the displacment." ?b (?t pp)))
+   (bottom-out (string "Write the equation ~A = ~A" (?s-var algebra) (?d-var algebra)))))
+
 ;; Pythagorean theorem for distance, currently only used in kt5a. 
 ;; We use relative positions to specify the givens. 
 ;; We recognize it for displacement of b from points whose relative 
