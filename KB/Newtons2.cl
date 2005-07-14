@@ -1751,7 +1751,7 @@
   :effects ( (eqn (= ?tt-var (+ . ?t-vars)) (sum-distances ?b ?tt)) )
   :hint
   ((point (string "Distances can be added together."))
-   (teach (string "The distance ~A has traveled ~A is equal to the sum of distances traveled during each sub-interval." 
+   (teach (string "The distance ~A has travelled ~A is equal to the sum of distances travelled during each sub-interval." 
 		  ?b (?tt pp)))
    (bottom-out (string "Write the equation ~a."
 		        ((= ?t02-var (+ . ?t-vars)) algebra)))
@@ -1812,7 +1812,7 @@
 ;;; in terms of relative position vectors, this equation is written in terms
 ;;; of magnitudes of relative position vectors.
 ;;;
-;;; Right now this is only used in one problem (Exdt17a), so rather then
+;;; Right now this is only used in one problem (pot4), so rather then
 ;;; spend time on geometry rules, we cheat and rely on a given proposition 
 ;;;       (distance-sum (?b3 ?b1) (?b2 ?b1) (?b2 ?b3))
 ;;; We write the equation using the following relative positions:
