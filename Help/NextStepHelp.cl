@@ -3695,7 +3695,7 @@
 ;;; as exclusive, and student has done one of them, this can wind up 
 ;;; hinting the other as well way if that other path happens to be 
 ;;; partially entered and is found first -- bad! It appears the logic 
-;;; to find the most entered path is only applied to splits, not chooses.
+;;; to find the most entered path is only entered on splits, not chooses.
 (defun walk-choose-step (prefix path stack)
   (walk-psm-path
    prefix
