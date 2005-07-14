@@ -1613,7 +1613,7 @@
     (test (time-intervalp ?interval))
     (object ?b)
     (not (variable ?dont-care (at (speed ?b) ?interval)))
-    (bind ?var (format-sym "sp_~A_~A~A" ?b (second ?interval) (third ?interval))))
+    (bind ?var (format-sym "sp_~A_~A" ?b (time-abbrev ?interval))))
   :effects
   ((variable ?var (at (speed ?b) ?interval))
    (define-var (at (speed ?b) ?interval)))
@@ -1633,7 +1633,7 @@
    (test (time-intervalp ?interval))
    (object ?b)
    (not (variable ?dont-care (at (distance ?b) ?interval)))
-   (bind ?var (format-sym "dist_~A_~A~A" ?b (second ?interval) (third ?interval))))
+   (bind ?var (format-sym "dist_~A_~A" ?b (time-abbrev ?interval))))
   :effects
   ((variable ?var (at (distance ?b) ?interval))
    (define-var (at (distance ?b) ?interval)))
@@ -1867,7 +1867,7 @@
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t)))
+    (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (at (displacement ?b) ?t) ?dir)
@@ -1882,7 +1882,7 @@
    ))
 
 
-(defoperator draw-displacement-unknown (?b ?t)
+(defoperator draw-displacement-straight-unknown (?b ?t)
   :specifications "
    If an object is moving in a straight line over a time interval in an unknown direction,
    then draw a displacement vector for it in the direction of its motion."
@@ -1892,7 +1892,7 @@
     (motion ?b ?t-motion (straight ?dontcare unknown))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t)))
+    (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (at (displacement ?b) ?t) unknown)
@@ -1922,7 +1922,7 @@
     (motion ?b ?t-motion at-rest)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (displacement ?b) ?t) ?dont-care))
-    (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t))))
+    (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
    ((vector ?b (at (displacement ?b) ?t) zero)
     (variable ?mag-var (at (mag (displacement ?b)) ?t)))
@@ -1938,14 +1938,14 @@
 ;; returns to its original position. We don't have any special motion
 ;; specifier to entail this, it is just specified by zero displacement.
 
-(defoperator draw-zero-displacement (?b ?t)
+(defoperator draw-displacement-zero (?b ?t)
   :specifications 
    "If an object has no net change of position over an interval, then
    draw a zero displacement vector"
   :preconditions
    ((in-wm (given (at (mag(displacement ?b)) ?t) (dnum 0 ?units)))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t))))
+    (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
    ((vector ?b (at (displacement ?b) ?t) zero)
     (variable ?mag-var (at (mag (displacement ?b)) ?t)))
@@ -1962,11 +1962,11 @@
    "If you are given the direction of a net displacement over an interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((in-wm (given (at (dir(displacement ?b)) ?t) ?dir))
+   ((in-wm (given (at (dir (displacement ?b)) ?t) ?dir))
     (test (not (equal ?dir 'unknown)))  
     (test (time-intervalp ?t))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t)))
+    (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (at (displacement ?b) ?t) ?dir)
@@ -1997,7 +1997,7 @@
     (not (given (at (dir(displacement ?b)) ?t) ?dir))
     (test (time-intervalp ?t))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t)))
+    (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (at (displacement ?b) ?t) unknown)
@@ -2010,26 +2010,38 @@
 			?b (?t pp)))
     ))
 
-;; This operator draws a net displacement vector at an unknown angle when we have no other
-;; information about it -- no given net displacement direction and no motion spec that we can
-;; use to apply a more specific operator. Needed if net displacement is the sought as in Exvec1a.
-;; No simple way to make sure this applies when nothing else does short of negating all other's 
-;; preconditions.  For now just trigger by complete absence of motion spec for object.
-;; !!! We could try to use the same operator for this case as the projectile case.
-(defoperator draw-unknown-net-displacement (?b ?t)
+;;; This operator draws a displacement vector at an unknown angle when 
+;;; we have no other information about it -- no given displacement 
+;;; direction and no motion spec that we can use to apply a more specific 
+;;; operator. Needed if net displacement is the sought as in vec1a, vec3a.
+;;;
+;;; No simple way to make sure this applies when nothing else does short 
+;;; of negating all other's preconditions.  For now, just trigger by 
+;;; complete absence of motion spec for object.
+;;;
+;;; !!! We could try to use the same operator for this case as the 
+;;; projectile case.
+;;
+(defoperator draw-displacement-unknown (?b ?t)
   :preconditions 
-   ((not (motion ?b ?t-motion . ?dontcare))
+  ( (time ?t)
+    (test (time-intervalp ?t))
+    ;; motion with unknown direction not handled correctly:
+    (not (motion ?b ?t ?motion-spec))
+    ;; dir=unknown not handled correctly:
     (not (given (at (dir(displacement ?b)) ?t) ?dir))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
-    (bind ?mag-var (format-sym "s_~A_~A~A" (body-name ?b) (second ?t) (third ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?is-net (if (> (third ?t) (+ 1 (second ?t))) 
+		      "In this problem, the net displacement vector must be calculated by summing individual displacements.  " "In this problem, the direction of the net displacement is not given.")))
   :effects
-   ((vector ?b (at (displacement ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (displacement ?b)) ?t))
-    (variable ?dir-var (at (dir (displacement ?b)) ?t)))
-   :hint
-   ((point (string "You need to introduce a term for the displacement of ~a ~a." ?b (?t pp)))
-    (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter. In this problem the exact direction of the net displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
+  ((vector ?b (at (displacement ?b) ?t) unknown)
+   (variable ?mag-var (at (mag (displacement ?b)) ?t))
+   (variable ?dir-var (at (dir (displacement ?b)) ?t)))
+  :hint
+  ((point (string "You need to introduce a term for the displacement of ~a ~a." ?b (?t pp)))
+   (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter.~A  Draw the vector at an approximately correct angle and leave the exact angle unspecified." (?is-net identity)))
     (bottom-out (string "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified."
 			?b (?t pp)))
    ))
@@ -2244,40 +2256,39 @@
 ;; direction of net displacement over the interval.  This is needed for case 
 ;; of irregular non-straight-line motion as in the bumblebee problem. 
 
-(defoperator draw-avg-vel-from-displacement (?b ?t1 ?t2)
-  :preconditions (
-    ;; only apply if no other motion spec for object?
-    ;; (not (motion ?b ?t-motion . ?motion-spec))
-    (in-wm (given (at (dir (displacement ?b)) (during ?t1 ?t2)) ?dir))
-    (test (not (equal ?dir 'unknown)))  
-    (not (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dontcare))
-    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
-                                (time-abbrev (list 'during ?t1 ?t2))))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+(defoperator draw-avg-vel-from-displacement (?b ?t)
+  :preconditions 
+  (
+   ;; only apply if no other motion spec for object?
+   ;; (not (motion ?b ?t-motion . ?motion-spec))
+   (in-wm (given (at (dir (displacement ?b)) ?t) ?dir))
+   (test (not (equal ?dir 'unknown)))  
+   (not (vector ?b (at (velocity ?b) ?t) ?dontcare))
+   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir)
-    (variable ?mag-var (at (mag (velocity ?b)) (during ?t1 ?t2)))
-    (variable ?dir-var (at (dir (velocity ?b)) (during ?t1 ?t2)))
-    (given (at (dir (velocity ?b)) (during ?t1 ?t2)) ?dir)
+  ((vector ?b (at (velocity ?b) ?t) ?dir)
+    (variable ?mag-var (at (mag (velocity ?b)) ?t))
+    (variable ?dir-var (at (dir (velocity ?b)) ?t))
+    (given (at (dir (velocity ?b)) ?t) ?dir)
     ; ensure implicit eqn comes out when dir is a problem given 
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (velocity ?b)) (during ?t1 ?t2)))
+    (implicit-eqn (= ?dir-var ?dir) (at (dir (velocity ?b)) ?t))
     )
   :hint
   ((teach (kcd "average_velocity_drawn")
 	  (string "The average velocity during a time interval is just the displacement of the body over that time interval divided by the duration of the time interval.  Since displacement is a vector, so is average velocity, and they have the same direction."))
    (bottom-out (string "Draw an ~a average velocity vector for ~a ~a."
-		       ?dir ?b ((during ?t1 ?t2) pp)))
+		       ?dir ?b (?t pp)))
    ))
 
 (defoperator draw-avg-vel-unknown (?b ?tt)
   :preconditions 
   (
-   (motion ?b ?t-motion (curved ?dontcare ?dir-spec))
-   (time ?tt)
-   (test (time-intervalp ?tt))  ;the hint is appropriate for an interval
-   (test (tinsidep ?tt ?t-motion))
-   (test (or (null ?dir-spec) (null (first ?dir-spec))
-	     (equal (first ?dir-spec) 'unknown)))
+   ;; displacement is unknown from draw-displacement-unknown
+   (vector ?b (at (displacement ?b) ?tt) unknown)
+   ;; This doesn't handle ?dir=unknown correctly:
+   (not (given (at (dir (velocity ?b)) ?tt) ?dir))
    (not (vector ?b (at (velocity ?b) ?tt) ?dontcare))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
                                 (time-abbrev ?tt)))
@@ -2286,12 +2297,11 @@
    ((vector ?b (at (velocity ?b) ?tt) unknown)
     (variable ?mag-var (at (mag (velocity ?b)) ?tt))
     (variable ?dir-var (at (dir (velocity ?b)) ?tt))
-    (given (at (dir (velocity ?b)) ?tt) ?dir)
     )
   :hint
   ((teach (kcd "average_velocity_drawn")
-	  (string "The average velocity during a time interval is just the displacement of the body over that time interval divided by the duration of the time interval.  In this case, the direction of the velocity vector is not clear from the problem statement."))
-   (bottom-out (string "Draw an ~a average velocity vector for ~a ~a."
+	  (string "The average velocity during a time interval is equal to the displacement of the body over that time interval divided by the duration of the time interval.  In this case, the direction of the velocity vector is not clear from the problem statement."))
+   (bottom-out (string "Draw an ~a average velocity vector for ~a ~a with unknown direction."
 		       ?dir ?b (?tt pp)))
    ))
 
@@ -3773,11 +3783,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   
   :preconditions 
   ((not (vector-diagram (displacement ?b (during ?t1 ?t2))))
-   ; 1. draw body.
+   ;; 1. draw body.
    (body ?b)
-   ; 2. draw each constituent displacement. Note we want to do this before
-   ; drawing the net displacement, so have some cue to drawing an accurate
-   ; net displacment.
+   ;; 2. draw each constituent displacement. Note we want to do this before
+   ;; drawing the net displacement, so have some cue to drawing an accurate
+   ;; net displacment.
    (bind ?intervals (successive-intervals ?t1 ?t2))
    (foreach ?interval ?intervals
       (vector ?b (at (displacement ?b) ?interval) ?dir-di))
