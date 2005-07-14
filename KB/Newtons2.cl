@@ -1698,7 +1698,7 @@
 		       (?s-var algebra) (?d-var algebra) (?t-var algebra)))
    ))
 
-;; Pythagorean theorem for distance, currently only used in Exkt6a. 
+;; Pythagorean theorem for distance, currently only used in kt5a. 
 ;; We use relative positions to specify the givens. 
 ;; We recognize it for displacement of b from points whose relative 
 ;; positions from some origin o are given and rbo1 and sb12 form a 
@@ -2231,14 +2231,14 @@
     (bottom-out (string "Use the velocity tool to draw the velocity of ~a ~a at ~A" ?b (?t pp) ?dir))
   ))
 
-;; Special to average velocity vector = displacement / t
-;;
-;; Average velocity is little used in our problems, it's mainly defined for 
-;; basic problems like the bumblebee problem that test understanding the
-;; difference between speed and avg. velocity.  In linear kinematics with 
-;; constant acceleration, v_avg = (v0 + vf)/2 could be used with s = v_avg * t, 
-;; but our solutions don't use this form of that equation so don't introduce 
-;; this term.
+;;; Special to average velocity vector = displacement / t
+;;;
+;;; Average velocity is little used in our problems, it's mainly defined for 
+;;; basic problems like the bumblebee problem that test understanding the
+;;; difference between speed and avg. velocity.  In linear kinematics with 
+;;; constant acceleration, v_avg = (v0 + vf)/2 could be used with 
+;;; s = v_avg * t, but our solutions don't use this form of that equation 
+;;; so don't introduce this term.
 
 ;; Following operator draws the average velocity vector based on known 
 ;; direction of net displacement over the interval.  This is needed for case 
@@ -2267,6 +2267,32 @@
 	  (string "The average velocity during a time interval is just the displacement of the body over that time interval divided by the duration of the time interval.  Since displacement is a vector, so is average velocity, and they have the same direction."))
    (bottom-out (string "Draw an ~a average velocity vector for ~a ~a."
 		       ?dir ?b ((during ?t1 ?t2) pp)))
+   ))
+
+(defoperator draw-avg-vel-unknown (?b ?tt)
+  :preconditions 
+  (
+   (motion ?b ?t-motion (curved ?dontcare ?dir-spec))
+   (time ?tt)
+   (test (time-intervalp ?tt))  ;the hint is appropriate for an interval
+   (test (tinsidep ?tt ?t-motion))
+   (test (or (null ?dir-spec) (null (first ?dir-spec))
+	     (equal (first ?dir-spec) 'unknown)))
+   (not (vector ?b (at (velocity ?b) ?tt) ?dontcare))
+   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
+                                (time-abbrev ?tt)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :effects
+   ((vector ?b (at (velocity ?b) ?tt) unknown)
+    (variable ?mag-var (at (mag (velocity ?b)) ?tt))
+    (variable ?dir-var (at (dir (velocity ?b)) ?tt))
+    (given (at (dir (velocity ?b)) ?tt) ?dir)
+    )
+  :hint
+  ((teach (kcd "average_velocity_drawn")
+	  (string "The average velocity during a time interval is just the displacement of the body over that time interval divided by the duration of the time interval.  In this case, the direction of the velocity vector is not clear from the problem statement."))
+   (bottom-out (string "Draw an ~a average velocity vector for ~a ~a."
+		       ?dir ?b (?tt pp)))
    ))
 
 
@@ -5130,12 +5156,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Use the body drawing tool and select a list of bodies to introduce the compound body consisting of ~a ~A." (?bodies conjoined-defnp) (?t pp)))
    ))
 
-; motion of a part is same as that of a compound
-; this is useful if we are given the motion of a compound in the problem
-; It also enables motion description to propagate from one part up through
-; compound back down to other part so only needed for one part in givens.
-; !!! currently only works if compound body motion is given -- doesn't
-; search to derive compound body motion from move-together statement.
+;; motion of a part is same as that of a compound
+;; this is useful if we are given the motion of a compound in the problem
+;; It also enables motion description to propagate from one part up through
+;; compound back down to other part so only needed for one part in givens.
+;; !!! currently only works if compound body motion is given -- doesn't
+;; search to derive compound body motion from move-together statement.
 (defoperator get-part-motion-from-compound (?b ?bodies)
   :preconditions (
      (in-wm (motion (compound . ?bodies) ?t ?c-motion))
