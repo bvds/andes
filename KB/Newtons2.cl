@@ -2936,7 +2936,7 @@
 
 (defoperator write-period-circular (?b ?t)
    :preconditions (
-      ; make sure body is drawn if it hasn't been drawn for something else
+      ;; make sure body is drawn if it hasn't been drawn for something else
       (body ?b) 
       (variable ?T-var    (period ?b))
       (variable ?r    (at (revolution-radius ?b) ?t))
