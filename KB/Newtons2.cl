@@ -1471,7 +1471,7 @@
 (defoperator write-sum-times (?tt)
   :preconditions 
   ((variable ?tt-var (duration ?tt))
-   (bind ?intervals (successive-intervals (second ?tt) (third ?tt)))
+   (bind ?intervals (successive-intervals ?tt))
    (map ?interval ?intervals
       (variable ?t-var (duration ?interval))
       ?t-var ?t-vars))
@@ -1744,7 +1744,7 @@
 (defoperator write-sum-distances (?tt)
   :preconditions 
   ((variable ?tt-var (at (distance ?b) ?tt))
-   (bind ?intervals (successive-intervals (second ?tt) (third ?tt)))
+   (bind ?intervals (successive-intervals ?tt))
    (map ?interval ?intervals
       (variable ?t-var (at (distance ?b) ?interval))
       ?t-var ?t-vars))
@@ -2087,9 +2087,11 @@
   ( (time ?t)
     (test (time-intervalp ?t))
     ;; motion with unknown direction not handled correctly:
-    (not (motion ?b ?t ?motion-spec))
+    (not (motion ?b ?t-motion ?motion-spec) (tinsidep ?t ?t-motion))
     ;; dir=unknown not handled correctly:
-    (not (given (at (dir(displacement ?b)) ?t) ?dir))
+    (not (given (at (dir (displacement ?b)) ?t) ?dir))
+    ;; BvdS:  hack to get kt13a to work
+    (not (given (at (mag (displacement ?b)) ?t) (dnum 0 ?units)))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -2623,9 +2625,15 @@
   :preconditions
    (
     (time ?t)
-    (motion ?b ?t-motion (curved ?dont-care ?dir-spec)  )
+    (not (free-fall ?b ?tfree)		;direction for free-fall is known
+	 (tinsidep ?t ?tfree))		
+    (motion ?b ?t-motion (curved ?type ?dir-spec)  )
     (test (tinsidep ?t ?t-motion))
+    ;; However, the direction is known for projectile motion.
+    ;; But that should also be visible manifest in the ?dir-spec
+    ;; (test (not (equal ?type 'projectile)))
     ;; the acceleration direction is nil or 'unknown
+    ;; may conflict for cases where nil != unknown; see problem kt12a
     (test (or (null ?dir-spec) (null (second ?dir-spec)) 
 	      (equal (second ?dir-spec) 'unknown)))
     (object ?b) ;sanity test
@@ -2691,7 +2699,7 @@
 ;; the relevant planet is always straight down in the diagram.
 ;; The free-fall law will specify an equation for the magnitude of the 
 ;; acceleration
-(defoperator draw-free-fall-acceleration (?b ?t)
+(defoperator draw-accel-free-fall (?b ?t)
   :specifications 
    "If ?body is in free-fall during ?time,
    then draw a non-zero acceleration straight down during ?time."
@@ -3840,39 +3848,36 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (sum-disp ?b ?tt) sum-disp ?sought)))
 
-(defoperator draw-sum-disp-diagram (?b ?t1 ?t2)
-  
+(defoperator draw-sum-disp-diagram (?b ?tt)
   :preconditions 
-  ((not (vector-diagram (displacement ?b (during ?t1 ?t2))))
-   ;; 1. draw body.
+  (;; 1. draw body.
    (body ?b)
    ;; 2. draw each constituent displacement. Note we want to do this before
    ;; drawing the net displacement, so have some cue to drawing an accurate
    ;; net displacment.
-   (bind ?intervals (successive-intervals ?t1 ?t2))
+   (bind ?intervals (successive-intervals ?tt))
    (foreach ?interval ?intervals
       (vector ?b (at (displacement ?b) ?interval) ?dir-di))
    ;; then draw the net displacement
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir-dnet)
+   (vector ?b (at (displacement ?b) ?tt) ?dir-dnet)
    (axis-for ?b x ?rot))
   :effects 
-  ((vector-diagram (sum-disp ?b (during ?t1 ?t2)))))
+  ((vector-diagram (sum-disp ?b ?tt))))
 
-(defoperator write-sum-disp-compo (?b ?t1 ?t2 ?xy ?rot)
-  
+(defoperator write-sum-disp-compo (?b ?tt ?xy ?rot)
   :preconditions 
-   ((variable ?dnet_xy (at (compo ?xy ?rot (displacement ?b)) (during ?t1 ?t2)))
-   (bind ?intervals (successive-intervals ?t1 ?t2))
+   ((variable ?dnet_xy (at (compo ?xy ?rot (displacement ?b)) ?tt))
+   (bind ?intervals (successive-intervals ?tt))
    (map ?interval ?intervals
       (variable ?di_xy (at (compo ?xy ?rot (displacement ?b)) ?interval))
       ?di_xy ?di_compos))
   :effects 
    ((eqn (= ?dnet_xy (+ . ?di_compos))
-               (compo-eqn sum-disp ?xy ?rot (sum-disp ?b (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn sum-disp ?xy ?rot (sum-disp ?b (during ?t1 ?t2)))
+               (compo-eqn sum-disp ?xy ?rot (sum-disp ?b ?tt)))
+   (eqn-compos (compo-eqn sum-disp ?xy ?rot (sum-disp ?b ?tt))
           (?dnet_xy . ?di_compos)))
    :hint
-   ((point (string "Think about the relationship between the net displacement of ~A ~A and the individual displacements over each of the times making up the interval." ?b (?t1 pp)))
+   ((point (string "Think about the relationship between the net displacement of ~A ~A and the individual displacements over each of the times making up the interval." ?b (?tt pp)))
     (point (string "The net displacement vector over a time interval represents the net change in position over that interval. This will be the vector sum of the individual displacements making up the net change. This can be applied component-wise to write an equation for the components of the net displacement in terms of the components of the individual displacements."))
     (bottom-out (string "Write the equation ~A" ((= ?dnet_xy (+ . ?di_compos)) algebra)))))
 
@@ -3902,7 +3907,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ; 2. draw each constituent displacement. Note we want to do this before
    ; drawing the net displacement, so have some cue to drawing an accurate
    ; net displacment.
-   ;(bind ?intervals (successive-intervals ?t1 ?t2))
+   ;(bind ?intervals (successive-intervals (list 'during ?t1 ?t2)))
    ;(foreach ?interval ?intervals
    (vector ?b (at (force ?b ?b1 applied) ?t1) ?dir-b1)
    (vector ?b (at (force ?b ?b2 applied) ?t1) ?dir-b2)
@@ -3915,7 +3920,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-sum-net-force-compo (?b ?t1 ?xy ?rot)
   :preconditions 
   ((variable ?dnet_xy (at (compo ?xy ?rot (net-force ?b)) ?t1))
-   ;;  (bind ?intervals (successive-intervals ?t1 ?t2))
+   ;;  (bind ?intervals (successive-intervals (list 'during ?t1 ?t2)))
    (object ?b1)
    (object ?b2)
    (bind ?agents (list ?b1 ?b2))
