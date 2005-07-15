@@ -2625,13 +2625,14 @@
   :preconditions
    (
     (time ?t)
-    (not (free-fall ?b ?tfree)		;direction for free-fall is known
-	 (tinsidep ?t ?tfree))		
+    ;; this is redundant with excluding (curved projectile ...)
+    (not (free-fall ?b ?tfree) (tinsidep ?t ?tfree))		
     (motion ?b ?t-motion (curved ?type ?dir-spec)  )
     (test (tinsidep ?t ?t-motion))
     ;; However, the direction is known for projectile motion.
-    ;; But that should also be visible manifest in the ?dir-spec
-    ;; (test (not (equal ?type 'projectile)))
+    ;; This should also be clear from the ?dir-spec but the 
+    ;; ?dir-spec is not specified consistantly on all problems.
+    (test (not (equal ?type 'projectile)))
     ;; the acceleration direction is nil or 'unknown
     ;; may conflict for cases where nil != unknown; see problem kt12a
     (test (or (null ?dir-spec) (null (second ?dir-spec)) 
