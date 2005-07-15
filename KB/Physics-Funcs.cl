@@ -127,13 +127,14 @@
             (<= (second t1) (second t2)))
 	(T (error "bad time arg to tsomewhatealierp: ~A ~A~%" t1 t2))))
 
-(defun successive-intervals (t1 t2)
-   "return list of successive sub-intervals making up t1 to t2"
-   (cond ((= (- t2 t1) 1) (list `(during ,t1 ,t2)))
+(defun successive-intervals (tt)
+  "return list of successive sub-intervals making up t1 to t2"
+  (let ((t1 (second tt)) (t2 (third tt)))
+   (cond ((= (- t2 t1) 1) (list tt))
          ((> (- t2 t1) 1) 
-	   (cons `(during ,t1 ,(1+ t1))
-	          (successive-intervals (1+ t1) t2)))
-         (T NIL)))
+	   (cons `(during ,t1 ,(1+ t1)) 
+	          (successive-intervals (list 'during (1+ t1) t2))))
+         (T NIL))))
 
 ;; this is for use in rules that sum over sub-intervals
 (defun proper-subintervalp (t1 tt)
