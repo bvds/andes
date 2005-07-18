@@ -3202,8 +3202,8 @@
 		 (at (dir (displacement ?b)) (during ?t1 ?t2))
 		 ;;(duration (during ?t1 ?t2))
 		 ))
-   ; only applies if accel is constant within interval we are using
-   ; sought may not bind both times, so must choose endpoints of interval to try
+   ;; only applies if accel is constant within interval we are using
+   ;; sought may not bind t1 & t2, so choose endpoints of interval to try
    (constant (accel ?b) ?t-constant)
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
