@@ -1,9 +1,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; KB/ontology: defines the expressions used in the Andes Knowledge Base
-;;
+;;;;
+;;;;  KB/ontology: defines the expressions used in the Andes Knowledge Base
+;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;
+;;;  Check that all rules are in principles.tsv (tcsh script):
+;;;
+;;;  set list = `grep def-psmclass KB/*.cl | sed -e 's/.*def-psmclass \([^(]*\)(*.*/\1/'`
+;;;  foreach i ($list)
+;;;     if (0 == `grep -c -i $i KB/principles.tsv`) echo $i
+;;;  end
+;;;
 (defparameter unit-english
     '(
       (|m| . "meters")
@@ -210,6 +218,9 @@
 (def-qexp kinetic-energy (kinetic-energy ?body)
   :units J
   :english ("the kinetic energy of ~A" (nlg ?body)))
+(def-qexp rotational-energy (rotational-energy ?body)
+  :units J
+  :english ("the rotational kinetic energy of ~A" (nlg ?body)))
 (def-qexp grav-energy (grav-energy ?body ?agent)
   :units J
   :english ("the gravitational potential energy of ~A" (nlg ?body)))
@@ -563,7 +574,7 @@
    :complexity simple
    :english ("the relationship among the distances between ~a, ~a and ~a" 
               (nlg ?b1) (nlg ?b2) (nlg ?b3))
-   :ExpFormat("relating the total distance between ~a and ~a to the distances from these points to ~a" (nlg ?b1) (nlg ?b3) (nlg ?b2))
+   :ExpFormat ("relating the total distance between ~a and ~a to the distances from these points to ~a" (nlg ?b1) (nlg ?b3) (nlg ?b2))
    :EqnFormat ("rAC = rAB + rBC"))
 
 (def-psmclass net-disp (?eq-type sum-disp ?axis ?rot (sum-disp ?body ?time))
@@ -734,7 +745,7 @@
    :complexity minor
    :english ("the formula for the period of uniform circular motion")
    :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
-   :EqnFormat("T = 2*$p*r/v"))
+   :EqnFormat ("T = 2*$p*r/v"))
 
 ;; MISCELLANEOUS 
 (def-psmclass equals (equals ?quant1 ?quant2)
@@ -887,7 +898,7 @@
   :EqnFormat ("v_compound = v_part"))
 
 					  
-(def-psmclass force-compound(force-compound ?type ?agent ?compound ?time)
+(def-psmclass force-compound (force-compound ?type ?agent ?compound ?time)
   :complexity connect
   :english ("external force on a compound")
   :expformat ((strcat "applying the fact that there is an external force "
@@ -952,10 +963,17 @@
 
 (def-psmclass height-cm (height-cm ?cm ?b ?t)
   :complexity connect  ;like equals
-  :english ("the height is measured from the center of mass")
+  :english ("the height measured from the center of mass")
   :expformat ("measuring the height of ~A using the point ~A."
-	      (nlg ?body) (nlg ?cm))
+	      (nlg ?b) (nlg ?cm))
   :EqnFormat ("h = hcm"))
+
+(def-psmclass linear-velocity-rotating (linear-velocity-rotating ?pivot ?b ?t)
+  :complexity connect  ;like equals
+  :english ("the linear velocity of a rotating object is the velocity of the axis of rotation")
+  :expformat ("measuring the linear velocity of ~A using ~A"
+	      (nlg ?b) (nlg ?pivot))
+  :EqnFormat ("v = vaxis"))
 
 (def-psmclass power (power ?body ?agent ?time)
    :complexity major ; definition, but can be first "principle" for sought
@@ -999,6 +1017,11 @@
   :english ("the definition of kinetic energy")
   :complexity definition
   :EqnFormat ("KE = 0.5*m*v^2"))
+
+(def-equation rotational-energy (rotational-energy ?body ?time)
+  :english ("the definition of rotational kinetic energy")
+  :complexity definition
+  :EqnFormat ("KE = 0.5*I*$w^2"))
 
 (def-equation grav-energy (grav-energy ?body ?time)
    :english ("gravitational potential energy")

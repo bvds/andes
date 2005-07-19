@@ -162,7 +162,7 @@ GROUP	Apply a Definition or Auxiliary Law
 GROUP	Kinematics		
 GROUP	Translational		
 LEAF	dnet_x = $S di_x            net displacement	(net-disp ((?axis . x)))	Net Displacement
-LEAF	dnet_y = $S di_y            net displacement	(net-disp ((?axis . x)))	Net Displacement
+LEAF	dnet_y = $S di_y            net displacement	(net-disp ((?axis . y)))	Net Displacement
 LEAF	v(avg)_x = d_x/t            average velocity	(avg-velocity ((?axis . x)))	Average velocity
 LEAF	v(avg)_y = d_y/t            average velocity	(avg-velocity ((?axis . y)))	Average velocity
 LEAF	a(avg)_x = (vf_x - vi_x)/t  average acceleration	(lk-no-s ((?axis . x)))	Average acceleration
@@ -200,6 +200,7 @@ GROUP	Rotational
 LEAF	$tnet_z = $S $ti_z             Net torque defined	net-torque-zc	Net torque
 LEAF	$t_z = r*F*sin($qF-$qr)        torque defined	torque-zc	Individual torque magnitude
 LEAF	$t = r*F*sin($q)              torque magnitude	mag-torque	Individual torque magnitude
+LEAF	v=vaxis             velocity of rotating object	linear-velocity-rotating	Linear velocity of rotating object
 GROUP	Moment of Inertia		
 LEAF	I = (1/12) m*L^2          rod about center	I-rod-cm	Long thin rod about center of mass
 LEAF	I = (1/3) m*L^2           rod about end	I-rod-end	Long thin rod about end
@@ -217,6 +218,7 @@ LEAF	Wnc = $S Wncf_i         work by non-conservative	work-nc	Conservation of En
 LEAF	ME = K + $S Ui          mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	K = 0.5*m*v^2          kinetic energy defined	kinetic-energy	Conservation of Energy
 LEAF	Ug = m*g*h             gravitational potential energy [near Earth]	grav-energy	Conservation of Energy
+LEAF	h=hcm            height is the height of the center of mass	height-cm	Height of an extended object
 LEAF	Us = 0.5*k*d^2         spring potential energy	spring-energy	Conservation of Energy
 LEAF	Ue = q*V               electric potential energy	electric-energy	Electric Potential
 LEAF	h2 - h1 = d12_y        change in height	height-dy	Height and Displacement
@@ -267,6 +269,7 @@ GROUP	Use information specific to this problem
 LEAF	s1 = s2              Equivalent distances	(equals ((?quant1 . (at (distance ?body) ?time))))	Equivalent quantities
 LEAF	f1 = c*f2              Fraction of	given-fraction	Fraction of
 LEAF	t02 = t01 + t12      Sum of times	sum-times	Sum of times
+LEAF	d02 = d01 + d12      Sum of distances	sum-distances	Sum of distances
 LEAF	c^2 = a^2 + b^2      Pythagorean Thm	pyth-thm	Pythagorean Theorem
 LEAF	a1 = a2              Connected accelerations	connected-accels	Equal accelerations
 LEAF	v1 = v2              Connected velocities	connected-velocities	Equal velocities

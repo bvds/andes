@@ -5742,6 +5742,32 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (string "The weight law for a body is W=m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration of earth or whatever planet is nearby."))
    (bottom-out (string "Write ~a=~a*~a" (?w-var algebra) (?m-var algebra) (?g-var algebra)))))
 
+(defoperator linear-velocity-rotating-contains (?sought)
+  :preconditions 
+  (
+   (motion ?b ?t-motion (rotating ?pivot . ?dontcare))
+   ;; BvdS:  I don't think this one is appropriate:
+   ;;   (center-of-mass ?cm (?b) ?dontcare)
+   (any-member ?sought ((at (velocity ?b) ?t)
+			(at (velocity ?pivot) ?t)))
+   (time ?t)
+   (test (tinsidep ?t ?t-motion))	
+   )
+  :effects
+  ((eqn-contains (linear-velocity-rotating ?pivot ?b ?t) ?sought)))
+
+(defoperator write-linear-velocity-rotating (?pivot ?b ?t)
+  :preconditions 
+  ((variable ?v1 (at (velocity ?pivot) ?t))
+   (variable ?v2 (at (velocity ?b) ?t)))
+  :effects 
+  ((eqn (= ?v1 ?v2) (linear-velocity-rotating ?pivot ?b ?t)))
+  :hint
+  ((point (string "Note that ~A is rotating about ~a.  Does ~A have any linear motion?" ?b ?pivot ?pivot))
+   (teach (string "For an object that is rotating, we measure its linear velocity using the linear velocity of the axis of rotation."))
+   (bottom-out (string "You can write the equation ~A = ~A." (?v1 algebra) (?v2 algebra)))
+  ))
+
 
 ;;; This operator models writing the Fs = k * compression/extension equation.  
 ;;; Selectively enabled by (uses-k-and-d) in the problem statement. ??? Unnecessary ? -AW
@@ -6580,10 +6606,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
 
-(defoperator rotational-energy (?body ?t)
+(defoperator write-rotational-energy (?body ?t)
   :preconditions 
   (
-   (motion ?body ?t-motion (rotating ?cm ?dir ?axis))
+   (motion ?body ?t-motion (rotating ?pivot ?dir ?axis))
    (variable ?ke-var (at (rotational-energy ?body) ?t))
    (variable ?m-var (at (moment-of-inertia ?body) ?t))
    (variable ?v-var (at (mag (ang-velocity ?body)) ?t))
@@ -6858,18 +6884,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator height-cm-contains (?sought)
   :preconditions 
-   ((center-of-mass ?cm (?b) ?dontcare)
-    (any-member ?sought ((at (height ?b) ?t)
-			(at (height ?cm) ?t))
-    (time ?t)
-	       ))
-   :effects
-   ((eqn-contains (height-cm ?cm ?b ?t) ?sought)))
+  ((center-of-mass ?cm (?b) ?dontcare)
+   (any-member ?sought ((at (height ?b) ?t)
+			(at (height ?cm) ?t)))
+   (time ?t)
+   )
+  :effects
+  ((eqn-contains (height-cm ?cm ?b ?t) ?sought)))
 
 (defoperator write-height-cm (?cm ?b ?t)
   :preconditions 
   ((variable ?v1 (at (height ?cm) ?t))
-   (variable ?v2 (at (height ?b) ?t))
+   (variable ?v2 (at (height ?b) ?t)))
   :effects 
   ((eqn (= ?v1 ?v2) (height-cm ?cm ?b ?t)))
   :hint
