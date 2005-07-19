@@ -950,6 +950,13 @@
 	      (nlg ?body) (nlg ?time 'pp))
   :EqnFormat ("h2 - h1 = d12_y"))
 
+(def-psmclass height-cm (height-cm ?cm ?b ?t)
+  :complexity connect  ;like equals
+  :english ("the height is measured from the center of mass")
+  :expformat ("measuring the height of ~A using the point ~A."
+	      (nlg ?body) (nlg ?cm))
+  :EqnFormat ("h = hcm"))
+
 (def-psmclass power (power ?body ?agent ?time)
    :complexity major ; definition, but can be first "principle" for sought
    :english ("the definition of average power")

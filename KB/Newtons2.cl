@@ -4093,11 +4093,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it, so use the force drawing tool to draw a force on ~a due to ~a of type weight ~a." ?b ?planet ?b ?planet (?t pp)))
    ))
 
-; For rigid body problems: treat weight of body as force acting at body's
-; center of mass
-; note this operator bypasses the (force ...) statement, so won't contribute
-; to operators that use that to collect all forces on a body. Should
-; be OK, if those uses all involve treating object as particle.
+;; For rigid body problems: treat weight of body as force acting at body's
+;; center of mass
+;; note this operator bypasses the (force ...) statement, so won't contribute
+;; to operators that use that to collect all forces on a body. Should
+;; be OK, if those uses all involve treating object as particle.
 (defoperator draw-weight-at-cm (?b ?t ?planet)
   :specifications "
     If rigid body is not massless, and it is near a planet,
@@ -4122,7 +4122,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude m * g acting at a single point called the center of gravity, which normally is the same as the center of mass."))
-   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it which can be treated as acting at the center of mass, so use the force drawing tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?cm ?planet (?t pp)))
+   (bottom-out (string "Because ~a is near the planet ~a, ~a exerts a weight force on it which can be treated as acting at the center of mass, so use the force drawing tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?planet ?cm ?planet (?t pp)))
    ))
 
 
@@ -6504,64 +6504,65 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (derived-eqn (= ?te-var (+ . ?energy-exprs)) (total-energy ?b ?t))
  ))
 
-;;; equation TME = Kinetic Energy + Grav PE + Spring PE
+;;; equation TME = Kinetic Energy + rotational energy + Grav PE + Spring PE
 ;;; !!! spring PE term could just be omitted if spring not extended at t
 (defoperator write-total-energy-top (?b ?t)
   :preconditions (
    (variable ?te-var (at (total-energy ?b) ?t))
-   (variable ?ke-var (at (kinetic-energy ?b) ?t))
-   ; define variable for each type of pe that applies in this problem
-   (setof (pe-var ?b ?t ?var) 
-              ?var ?pe-vars)
-   (debug "Set of pe-vars = ~A~%" ?pe-vars)
+   ;; define variable for each type of energy that applies in this problem
+   (setof (ee-var ?b ?t ?var) ?var ?ee-vars)
+   (debug "Set of ee-vars = ~A~%" ?ee-vars)
   )
   :effects (
-  (eqn (= ?te-var (+ ?ke-var . ?pe-vars)) (total-energy-top ?b ?t))
+  (eqn (= ?te-var (+ . ?ee-vars)) (total-energy-top ?b ?t))
   )
   :hint (
    (point (string "Try writing an equation defining the total mechanical energy of the system containing ~a ~a" (?b def-np)(?t pp)))
    (teach (string "The total mechanical energy is the sum of the kinetic energy and the potential energy. Potential energy consists of the gravitational potential energy and the elastic potential energy in any spring in the system."))
-   (bottom-out (string "Write ~a" ((= ?te-var (+ ?ke-var . ?pe-vars)) algebra)))
+   (bottom-out (string "Write ~a" 
+		       ((= ?te-var (+ . ?ee-vars)) algebra)))
    ))
 
-;;; these operators achieve (pe-var ?b ?t ?var) by defining a variable needed 
-;;; for applicable constituents of the potential energy of body at t in this 
+;;; these operators achieve (ee-var ?b ?t ?var) by defining a variable needed 
+;;; for applicable constituents of the energy of body at t in this 
 ;;; problem
-(defoperator define-grav-pe-var (?b ?t)
+(defoperator define-grav-ee-var (?b ?t)
     :preconditions (
 	  ; use this for gravity near surface of a planet only
           (near-planet ?planet) ; 
 	  (variable ?var (at (grav-energy ?b ?planet) ?t))
     )
-    :effects ( (pe-var ?b ?t ?var) ))
+    :effects ( (ee-var ?b ?t ?var) ))
 
-(defoperator define-spring-pe (?b ?t)
+(defoperator define-spring-ee-var (?b ?t)
     :preconditions (
        ;; use this form if spring contact present anywhere in problem -- 
        ;; spring pe may be zero at some times but still use a term for it.
        (in-wm (spring-contact ?b ?spring . ?dontcare))
        (variable ?var (at (spring-energy ?b ?spring) ?t))
     )
-    :effects ( (pe-var ?b ?t ?var) ))
+    :effects ( (ee-var ?b ?t ?var) ))
 
+(defoperator define-kinetic-energy-var (?b ?t)
+    :preconditions (
+	  (variable ?var (at (kinetic-energy ?b) ?t))
+    )
+    :effects ( (ee-var ?b ?t ?var) ))
+
+(defoperator define-rotational-kinetic-energy-var (?b ?t)
+    :preconditions 
+    (
+     (motion ?b ?t-motion (rotating . ?dontcare))
+     (test (tinsitep ?t ?t-motion))
+     (variable ?var (at (rotational-energy ?b) ?t))
+    )
+    :effects ( (ee-var ?b ?t ?var) ))
 
 ;;;
 ;;; equations for constituents of total energy:
 ;;;
 
 ;; equation KE = 1/2 * m * v^2
-
-#| ; would be needed if a psm, but currently used as subsidiary eqn only
-(defoperator kinetic-energy-contains (?sought)
- :preconditions (
-   (any-member ?sought ((at (mag(velocity ?body)) ?t)
-                        (mass ?body)))
-   (time ?t)
- )
- :effects (
-   (eqn-contains (kinetic-energy ?body ?t) ?sought)
- ))
-|# 
 
 (defoperator write-kinetic-energy (?body ?t)
   :preconditions (
@@ -6576,6 +6577,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint (
   (point (string "Try writing the definition of kinetic energy of ~a ~a" (?body def-np)(?t pp)))
   (teach (string "The translational kinetic energy of an object is defined as one half its mass times its velocity squared.  That is, 0.5*m*v^2."))
+  (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
+  ))
+
+(defoperator rotational-energy (?body ?t)
+  :preconditions 
+  (
+   (motion ?body ?t-motion (rotating ?cm ?dir ?axis))
+   (variable ?ke-var (at (rotational-energy ?body) ?t))
+   (variable ?m-var (at (moment-of-inertia ?body) ?t))
+   (variable ?v-var (at (mag (ang-velocity ?body)) ?t))
+  )
+  :effects (
+   (eqn (= ?ke-var (* 0.5 ?m-var (^ ?v-var 2)))
+        (rotational-energy ?body ?t))
+   )
+  :hint (
+  (point (string "Try writing the definition of rotational kinetic energy of ~a ~a" (?body def-np)(?t pp)))
+  (teach (string "The rotational kinetic energy of an object is defined as one half its moment of inertia times its angular velocity squared.  That is, 0.5*I *$w^2."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
 
@@ -6620,6 +6639,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (eqn (= ?PE-var (* 0.5 ?k-var (^ ?d-var 2)))
        (spring-energy ?body ?spring ?t))
   )
+
   :hint (
   (point (string "Try writing an equation for the elastic potential energy due to the interaction between ~a and the spring ~a." (?body def-np) (?t pp)))
   (teach (string "The elastic potential energy due to the interaction of a body with a compressed spring is 0.5*k*x^2 where  k is the spring constant and x is the distance the spring is compressed or extended from its equilibrium length."))
@@ -6835,6 +6855,28 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	 (teach (string "The change in height will be equal to the vertical component of the displacement."))
 	 (bottom-out (string "Write the equation ~A" ((= (- ?h2 ?h1) ?d12_y) algebra)))
 	 ))
+
+(defoperator height-cm-contains (?sought)
+  :preconditions 
+   ((center-of-mass ?cm (?b) ?dontcare)
+    (any-member ?sought ((at (height ?b) ?t)
+			(at (height ?cm) ?t))
+    (time ?t)
+	       ))
+   :effects
+   ((eqn-contains (height-cm ?cm ?b ?t) ?sought)))
+
+(defoperator write-height-cm (?cm ?b ?t)
+  :preconditions 
+  ((variable ?v1 (at (height ?cm) ?t))
+   (variable ?v2 (at (height ?b) ?t))
+  :effects 
+  ((eqn (= ?v1 ?v2) (height-cm ?cm ?b ?t)))
+  :hint
+  ((point (string "How to you measure the height of ~A?" ?b))
+   (teach (string "The height of an object should be defined as the height of its center of mass."))
+   (bottom-out (string "You can write the equation ~A = ~A." (?v1 algebra) (?v2 algebra)))
+  ))
 
 ;;;============================================================================
 ;;; Work
