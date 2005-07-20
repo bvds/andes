@@ -6399,6 +6399,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; check sought is one of cons-energy quants at timepoint t
   (any-member ?sought 
               ((at (mag (velocity ?b)) ?t)
+	       (at (mag (ang-velocity ?b)) ?t)
+	       (at (mag (moment-of-inertia ?b)) ?t)
 	       (mass ?b) 
 	       (at (height ?b) ?t)
 	       (at (spring-constant ?s) ?t)
@@ -6494,12 +6496,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; Following writes an equation for total mechanical energy and also fills in
 ;;; expressions for all of the constituent terms that occur in it, returning
 ;;; the appropriate combination as a derived equation.  Ex:
-;;;       TME = K + Ug + Us                       (total-energy-top)
+;;;       TME = K + R + Ug + Us                    (total-energy-top)
 ;;;         K = 1/2 m*v^2
+;;;         R = 1/2 I*omega^2
 ;;;        Ug = m*g*h
 ;;;        Us = 1/2 k*x^2 
-;;;       ------------------------------------
-;;;       TME = 1/2 m*v^2 + m*g*h [+ 1/2*k*x^2]    (total-energy)
+;;;
 ;;; The spring term is omitted for problems without a spring. Other forms of
 ;;; potential energy (e.g. electrical) might be added in the future.
 ;;;
@@ -6569,17 +6571,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
     )
     :effects ( (ee-var ?b ?t ?var) ))
 
-(defoperator define-kinetic-energy-var (?b ?t)
+(defoperator define-kinetic-energy-ee-var (?b ?t)
     :preconditions (
 	  (variable ?var (at (kinetic-energy ?b) ?t))
     )
     :effects ( (ee-var ?b ?t ?var) ))
 
-(defoperator define-rotational-kinetic-energy-var (?b ?t)
+(defoperator define-rotational-energy-ee-var (?b ?t)
     :preconditions 
     (
-     (motion ?b ?t-motion (rotating . ?dontcare))
-     (test (tinsitep ?t ?t-motion))
+     (in-wm (motion ?b ?t-motion (rotating . ?dontcare)))
+     (test (tinsidep ?t ?t-motion))
      (variable ?var (at (rotational-energy ?b) ?t))
     )
     :effects ( (ee-var ?b ?t ?var) ))
@@ -6610,12 +6612,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    (motion ?body ?t-motion (rotating ?pivot ?dir ?axis))
-   (variable ?ke-var (at (rotational-energy ?body) ?t))
+   (test (tinsidep ?t ?t-motion))
+   (variable ?kr-var (at (rotational-energy ?body) ?t))
    (variable ?m-var (at (moment-of-inertia ?body) ?t))
    (variable ?v-var (at (mag (ang-velocity ?body)) ?t))
   )
   :effects (
-   (eqn (= ?ke-var (* 0.5 ?m-var (^ ?v-var 2)))
+   (eqn (= ?kr-var (* 0.5 ?m-var (^ ?v-var 2)))
         (rotational-energy ?body ?t))
    )
   :hint (
@@ -6707,6 +6710,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint (
 	 (bottom-out (string "Define a variable for total mechanical energy by using the Add Variable command on the Variable menu and selecting Energy."))
 	 ))
+
 (defoperator define-kinetic-energy (?b ?t)
   :preconditions (
 		  (object ?b)
@@ -6718,6 +6722,19 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       )
   :hint (
 	 (bottom-out (string "Define a variable for kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
+	 ))
+
+(defoperator define-rotational-energy (?b ?t)
+  :preconditions (
+		  (object ?b)
+		  (bind ?re-var (format-sym "RE_~A_~A" ?b (time-abbrev ?t)))
+		  ) 
+  :effects ( 
+	    (define-var (at (rotational-energy ?b) ?t))
+	       (variable ?re-var (at (rotational-energy ?b) ?t))
+	       )
+  :hint (
+	 (bottom-out (string "Define a variable for rotational kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
 	 ))
 
 (defoperator define-grav-energy (?b ?planet ?t)
