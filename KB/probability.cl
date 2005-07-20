@@ -478,7 +478,7 @@ Should apply for this this:
   :hint
   ((point (string "Please apply the definition of conditional probability on the event ~a " (?event nlg-event)))
    (point (string "The definition of conditional probability is: for event A and B, p(A|B)=p(A$ÇB)/p(B).  Please apply the definition of conditional event on the event ~a"  (?event nlg-event)))  
-   (bottom-out (string "Write the equation ~a " ((= ?pgiven (/ ?pand ?p1))  algebra)))
+   (bottom-out (string "Write the equation ~a " ((=  (/ ?pand ?p1) ?pgiven)  algebra)))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
@@ -674,7 +674,7 @@ Should apply for this this: p(H|B)=p(H)*p(B|H)/{p(H)*p(B|H)+p(L)*p(B|L)}
   ( (eqn (=  (/ ?exphb (+ . ?exps)) ?phb) (bayes-rule (given ?eventh ?eventb)))     
      )
   :hint
-  ((point (string "Please apply the Bayes's theorem on the event ~a " (?event nlg-event))) 
+  ((point (string "Please apply the Bayes's theorem on the event ~a " ((given ?eventh ?eventb) nlg-event))) 
    (point (string "The definition of Bayes's theorem is: if A1, A2,...An is a collection of mutually exclusive and exhaustive events, which means for any two different event Ai, Aj: Ai$ÇAj=$Æ and A1$ÈA2$È...$ÈAn = $W. For any event B, we have p(Ai|B)=p(B|Ai)*(Ai)/{p(B|A1)*(A1)+...+p(B|Ai)*p(Ai)+...+p(B|An)*p(An)}. Here we know that ~a is a collection of mutually exclusive and exhaustive events, we can can apply the bayes rule on the event ~a|~a " (?events nlg-single-events) (?eventh nlg-event) (?eventb nlg-event)))
    (bottom-out (string "Write the equation ~a" ((= ?phb (/ ?exphb (+ . ?exps)))   algebra)))
     ))
@@ -755,7 +755,9 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
              (event-objects (a b))
              (independent-events (a b))                      
              (given (probability a)  0.98)
-             (given (probability (eand a b))   0.95)      ))             
+	     (given (probability (eand a b))   0.95)      ))   
+
+	     (point (string "The definition of independent events is: If two events A and B are independent events, then p(A$ÇB)=p(A)*p(B); If three events A, B and C are independent events, then p(A$ÇB$ÇC)=p(A)*p(B)*p(C),p(A$ÇB)=p(A)*p(B), p(A$ÇC)=p(A)*p(C) and p(B$ÇC)=p(B)*p(C). Here you know: ~a You can apply definition of independent event. " ((?event ?events) nlg-independent-event))) 
  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------|#   
 (defoperator write-independent-events (?event)
   :preconditions
@@ -773,7 +775,8 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
      )
   :hint
   ((point (string "~a You can apply definition of independent event." ((?event ?events) nlg-independent-event)))
-   (point (string "The definition of independent events is: If two events A and B are independent events, then p(A$ÇB)=p(A)*p(B); If three events A, B and C are independent events, then p(A$ÇB$ÇC)=p(A)*p(B)*p(C),p(A$ÇB)=p(A)*p(B), p(A$ÇC)=p(A)*p(C) and p(B$ÇC)=p(B)*p(C). Here you know: ~a You can apply definition of independent event. " ((?event ?events) nlg-independent-event)))  
+    
+   (point (string "The definition of independent events is: If two events A and B are independent events, then p(A$ÇB)=p(A)*p(B). Here you know: ~a You can apply definition of independent event. " ((?event ?events) nlg-independent-event)))  
    (bottom-out (string "Write the equation ~a " ((= ?pevent (* . ?pbs)) algebra) ))
    ))
 
@@ -848,7 +851,10 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
  (qsolve-for '((eqn ?t (conditional-independent-events (given (eand a b) c))))
     '((variable pagc (probability (given a c))) (variable pbgc (probability (given b c)))
      (variable pabgc (probability (given (eand a b) c)))
-      (variable pb (probability b)) (variable pc (probability c)) ))             
+     (variable pb (probability b)) (variable pc (probability c)) ))    
+
+
+     (point (string "The definition of conditional independent events is: If two events A and B are conditional independent events given G, then p(A$ÇB|G)=p(A|G)*p(B|G); If three events A, B and C are conditional independent events given G, then p(A$ÇB$ÇC|G)=p(A|G)*p(B|G)*p(C|G),p(A$ÇB|G)=p(A|G)*p(B|G), p(A$ÇC|G)=p(A|G)*p(C|G) and p(B$ÇC|G)=p(B|G)*p(C|G). Here we know: ~a You can apply definition of conditional independent events." ((?event ?events ?eventb) nlg-conditional-independent-event))) 
  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------|#   
 (defoperator write-conditional-independent-events (?event)
   :specifications "If the goal is to write the definition of the probability,
@@ -866,6 +872,7 @@ Should apply for this this:  p(A/\B)=p(A)*p(B)
      )
   :hint
   ((point (string "~a You can apply definition of conditional independent events." ((?event ?events ?eventb) nlg-conditional-independent-event) ))
-   (point (string "The definition of conditional independent events is: If two events A and B are conditional independent events given G, then p(A$ÇB|G)=p(A|G)*p(B|G); If three events A, B and C are conditional independent events given G, then p(A$ÇB$ÇC|G)=p(A|G)*p(B|G)*p(C|G),p(A$ÇB|G)=p(A|G)*p(B|G), p(A$ÇC|G)=p(A|G)*p(C|G) and p(B$ÇC|G)=p(B|G)*p(C|G). Here we know: ~a You can apply definition of conditional independent events." ((?event ?events ?eventb) nlg-conditional-independent-event)))  
+    
+   (point (string "The definition of conditional independent events is: If two events A and B are conditional independent events given G, then p(A$ÇB|G)=p(A|G)*p(B|G). Here we know: ~a You can apply definition of conditional independent events." ((?event ?events ?eventb) nlg-conditional-independent-event)))  
    (bottom-out (string "Write the equation ~a " ((= ?pevent (* . ?pbs)) algebra)))
    ))
