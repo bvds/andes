@@ -217,6 +217,7 @@ LEAF	Wnet = $S Wi            Net work	net-work	Net work
 LEAF	Wnc = $S Wncf_i         work by non-conservative	work-nc	Conservation of Energy
 LEAF	ME = K + $S Ui          mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	K = 0.5*m*v^2          kinetic energy defined	kinetic-energy	Conservation of Energy
+LEAF	K = 0.5*I*$w^2          rotational kinetic energy defined	rotational-energy	Conservation of Energy
 LEAF	Ug = m*g*h             gravitational potential energy [near Earth]	grav-energy	Conservation of Energy
 LEAF	h=hcm            height is the height of the center of mass	height-cm	Height of an extended object
 LEAF	Us = 0.5*k*d^2         spring potential energy	spring-energy	Conservation of Energy
