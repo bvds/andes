@@ -7,7 +7,7 @@
 ;;;
 ;;;  Check that all rules are in principles.tsv (tcsh script):
 ;;;
-;;;  set list = `grep def-psmclass KB/*.cl | sed -e 's/.*def-psmclass \([^(]*\)(*.*/\1/'`
+;;;  set list =  egrep '[^;]*def-(equation|psmclass)' KB/*.cl | sed -e 's/.*def-\w* \([^(]*\)(*.*/\1/'
 ;;;  foreach i ($list)
 ;;;     if (0 == `grep -c -i $i KB/principles.tsv`) echo $i
 ;;;  end
@@ -960,20 +960,6 @@
 		      "component of its displacement")
 	      (nlg ?body) (nlg ?time 'pp))
   :EqnFormat ("h2 - h1 = d12_y"))
-
-(def-psmclass height-cm (height-cm ?cm ?b ?t)
-  :complexity connect  ;like equals
-  :english ("the height measured from the center of mass")
-  :expformat ("measuring the height of ~A using the point ~A."
-	      (nlg ?b) (nlg ?cm))
-  :EqnFormat ("h = hcm"))
-
-(def-psmclass linear-velocity-rotating (linear-velocity-rotating ?pivot ?b ?t)
-  :complexity connect  ;like equals
-  :english ("the linear velocity of a rotating object is the velocity of the axis of rotation")
-  :expformat ("measuring the linear velocity of ~A using ~A"
-	      (nlg ?b) (nlg ?pivot))
-  :EqnFormat ("v = vaxis"))
 
 (def-psmclass power (power ?body ?agent ?time)
    :complexity major ; definition, but can be first "principle" for sought

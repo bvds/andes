@@ -2139,6 +2139,26 @@
     (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
     ))
 
+(defoperator draw-velocity-rotating-fixed (?b ?t)
+  :preconditions
+   ((time ?t)
+    (motion ?b ?t-body (rotating ?axis . ?dont-care))
+    (test (tinsidep ?t ?t-body))
+    (motion ?axis ?t-axis ?at-rest)
+    (test (tinsidep ?t ?t-axis))
+    (test (or (equal ?at-rest 'at-rest) (equal ?at-rest 'momentarily-at-rest)))
+    (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
+  :effects
+   ((vector ?b (at (velocity ?b) ?t) zero)
+    (variable ?mag-var (at (mag (velocity ?b)) ?t))
+    (given (at (mag (velocity ?b)) ?t) (dnum 0 |m/s|)))
+  :hint
+  ((point (string "Although ?b is rotating, the axis of rotation ~A is fixed." 
+		  ?b ?axis))
+    (teach (string "For an object that is rotating around a fixed axis, its motion is defined to be rotational.  Thus, its translational velocity is zero.")) ; too simple for a kcd
+    (bottom-out (string "Use the velocity tool to draw a zero-length velocity vector for ~A ~A." ?b (?t pp)))
+    ))
+
 ;;
 ;; This draws zero velocity for object momentarily at rest at an instant
 ;; This is a weaker statement than "at-rest" since it doesn't entail
@@ -5742,33 +5762,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (string "The weight law for a body is W=m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration of earth or whatever planet is nearby."))
    (bottom-out (string "Write ~a=~a*~a" (?w-var algebra) (?m-var algebra) (?g-var algebra)))))
 
-(defoperator linear-velocity-rotating-contains (?sought)
-  :preconditions 
-  (
-   (motion ?b ?t-motion (rotating ?pivot . ?dontcare))
-   ;; BvdS:  I don't think this one is appropriate:
-   ;;   (center-of-mass ?cm (?b) ?dontcare)
-   (any-member ?sought ((at (velocity ?b) ?t)
-			(at (velocity ?pivot) ?t)))
-   (time ?t)
-   (test (tinsidep ?t ?t-motion))	
-   )
-  :effects
-  ((eqn-contains (linear-velocity-rotating ?pivot ?b ?t) ?sought)))
-
-(defoperator write-linear-velocity-rotating (?pivot ?b ?t)
-  :preconditions 
-  ((variable ?v1 (at (velocity ?pivot) ?t))
-   (variable ?v2 (at (velocity ?b) ?t)))
-  :effects 
-  ((eqn (= ?v1 ?v2) (linear-velocity-rotating ?pivot ?b ?t)))
-  :hint
-  ((point (string "Note that ~A is rotating about ~a.  Does ~A have any linear motion?" ?b ?pivot ?pivot))
-   (teach (string "For an object that is rotating, we measure its linear velocity using the linear velocity of the axis of rotation."))
-   (bottom-out (string "You can write the equation ~A = ~A." (?v1 algebra) (?v2 algebra)))
-  ))
-
-
 ;;; This operator models writing the Fs = k * compression/extension equation.  
 ;;; Selectively enabled by (uses-k-and-d) in the problem statement. ??? Unnecessary ? -AW
 	       
@@ -6634,7 +6627,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (near-planet ?planet)
   (variable ?PE-var (at (grav-energy ?body ?planet) ?t))
   (variable ?m-var  (mass ?body))
-  (variable ?h-var  (at (height ?body) ?t))
+  (height-variable ?h-var ?body ?t)
   (variable ?g-var (gravitational-acceleration ?planet))
   )
   :effects (
@@ -6762,18 +6755,42 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint (
 	 (bottom-out (string "Define a variable for elastic potential energy by selecting Energy from the Variables menu on the top menu bar."))
 	 ))
+
 (defoperator define-height (?b ?t)
   :preconditions ( 
-		  (object ?b)
+		  ;; center of mass point is not an (object ?b)
 		  (bind ?h-var (format-sym "h_~A_~A" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (at (height ?b) ?t))
-	       (variable ?h-var  (at (height ?b) ?t))
+	       (variable ?h-var (at (height ?b) ?t))
 	       )
   :hint (
 	 (bottom-out (string "Define a height variable using the Variables menu on the top menu bar."))
 	 ))
+
+;; For an extended object that is rotating, we need to define the 
+;; height as the height of the center of mass
+;; Nothing is done in the case of a rotating body with the 
+;; center of mass is not specified.
+
+(defoperator ordinary-height-variable (?body ?time)
+  :effects ((height-variable ?var ?body ?time))
+  :preconditions 
+  (
+   (not (motion ?body ?t-motion (rotating . ?dont-care))
+       (tinsidep ?time ?t-motion))
+   (variable ?var (at (height ?body) ?time))
+   ))
+
+(defoperator cm-height-variable (?body ?time)
+  :effects ((height-variable ?var ?body ?time))
+  :preconditions 
+  ( (center-of-mass ?cm (?body)  ?dont-care-origin)
+    (motion ?body ?t-motion (rotating . ?dont-care))
+    (test (tinsidep ?time ?t-motion))
+    (variable ?var (at (height ?cm) ?time))
+  ))
 
 (defoperator define-spring-constant (?spring)
   :preconditions ( 
@@ -6899,27 +6916,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	 (bottom-out (string "Write the equation ~A" ((= (- ?h2 ?h1) ?d12_y) algebra)))
 	 ))
 
-(defoperator height-cm-contains (?sought)
-  :preconditions 
-  ((center-of-mass ?cm (?b) ?dontcare)
-   (any-member ?sought ((at (height ?b) ?t)
-			(at (height ?cm) ?t)))
-   (time ?t)
-   )
-  :effects
-  ((eqn-contains (height-cm ?cm ?b ?t) ?sought)))
-
-(defoperator write-height-cm (?cm ?b ?t)
-  :preconditions 
-  ((variable ?v1 (at (height ?cm) ?t))
-   (variable ?v2 (at (height ?b) ?t)))
-  :effects 
-  ((eqn (= ?v1 ?v2) (height-cm ?cm ?b ?t)))
-  :hint
-  ((point (string "How to you measure the height of ~A?" ?b))
-   (teach (string "The height of an object should be defined as the height of its center of mass."))
-   (bottom-out (string "You can write the equation ~A = ~A." (?v1 algebra) (?v2 algebra)))
-  ))
 
 ;;;============================================================================
 ;;; Work
