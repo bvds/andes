@@ -666,8 +666,8 @@
       (setq state (pop queue))
       ;; Printing the length of the queue might be be more 
       ;; helpful than actually printing the depth in the tree
-      ;;(setf *queue-depth* (length queue))
-      (setf *queue-depth* (pop levels))
+      (setf *queue-depth* (length queue))
+      ;; (setf *queue-depth* (pop levels))
       (cond ((null (st-stack state))
 	     (push state solutions)
 	     (qs-debug-print-success state))

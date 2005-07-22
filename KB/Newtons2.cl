@@ -2125,6 +2125,7 @@
    then its velocity at that time is zero."
   :preconditions
    ((time ?t)
+    (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
     (motion ?b ?t-motion at-rest)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
@@ -2139,19 +2140,21 @@
     (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
     ))
 
+;; might now be redundant with draw-velocity-at-rest
 (defoperator draw-velocity-rotating-fixed (?b ?t)
   :preconditions
    ((time ?t)
+    (use-point-for-body ?b ?cm ?axis) ;else ?b is sometimes not bound
     (motion ?b ?t-body (rotating ?axis . ?dont-care))
     (test (tinsidep ?t ?t-body))
     (motion ?axis ?t-axis ?at-rest)
     (test (tinsidep ?t ?t-axis))
     (test (or (equal ?at-rest 'at-rest) (equal ?at-rest 'momentarily-at-rest)))
-    (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
+    (bind ?mag-var (format-sym "v_~A_~A" ?axis (time-abbrev ?t))))
   :effects
-   ((vector ?b (at (velocity ?b) ?t) zero)
-    (variable ?mag-var (at (mag (velocity ?b)) ?t))
-    (given (at (mag (velocity ?b)) ?t) (dnum 0 |m/s|)))
+   ((vector ?b (at (velocity ?axis) ?t) zero)
+    (variable ?mag-var (at (mag (velocity ?axis)) ?t))
+    (given (at (mag (velocity ?axis)) ?t) (dnum 0 |m/s|)))
   :hint
   ((point (string "Although ?b is rotating, the axis of rotation ~A is fixed." 
 		  ?b ?axis))
@@ -2167,13 +2170,14 @@
 ;; are accelerating, so that we don't derive accel zero for them.
 ;; In the future might want projectile motion rule to handle this case.
 ;;
-(defoperator draw-velocity-momentarily-at-rest (?b ?t)
+(defoperator draw-velocity-momentarily-at-rest (?body ?t)
   :specifications 
    "If there is an object,
      and it is momentarily at rest at a certain instant,
    then its velocity at that time is zero."
   :preconditions
    ((time ?t)
+    (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
     (motion ?b ?t-motion momentarily-at-rest)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
@@ -2200,8 +2204,9 @@
      as its motion."
   :preconditions
   ((time ?t)
+   (use-point-for-body ?body ?cm ?b) ;else ?b is sometimes not bound
    (motion ?b ?t-motion (straight ?dontcare ?dir))
-   (test (not (equal ?dir 'unknown)))	; until conditional effects are implemented
+   (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
    (test (tinsidep ?t ?t-motion))
    (not (vector ?b (at (velocity ?b) ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2225,6 +2230,7 @@
      as its motion."
   :preconditions
   ((time ?t)
+   (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
    (motion ?b ?t-motion (straight ?dontcare unknown))
    (test (tinsidep ?t ?t-motion))
    (not (vector ?b (at (velocity ?b) ?t) ?dir))
@@ -3966,9 +3972,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; to draw a body, there are two ways to do it.  Thus, the solution
 ;;; graph builder must construct both solutions.
 ;;;
-;;; Andes interface currently doesn't associate times with masses.
-;;; The mass of a body is assumed to be constant over the course of the 
-;;; problem so carries no time.  
+;;; mass can have time in rocket problems, but is left timeless in others
+;;; Equations using a mass variable should use a precondition 
+;;;  	(mass-variable ?var ?body ?time)
+;;; to get the problem-appropriate mass variable defined for the given body 
+;;; and time.  Which one gets defined is controlled by presence of
+;;;       (changing-mass)
+;;; in the problem definition.
 
 (defoperator define-mass (?b)
   :specifications "If ?b is an object, then you can define a mass for ?b"
@@ -3982,6 +3992,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
+
+(defoperator use-timeless-mass-variable (?body ?time)
+  :preconditions (
+       (not (changing-mass))
+       (variable ?var (mass ?body))
+       )
+    :effects ((mass-variable ?var ?body ?time)))
 
 (defoperator define-changing-mass (?b ?t)
   :specifications "If ?b is an object, then you can define a mass for ?b"
@@ -3997,27 +4014,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
 
-;; mass can have time in rocket problems, but is left timeless in others
-;; Equations using a mass variable should use a precondition 
-;;  	(mass-variable ?var ?body ?time)
-;; to get the problem-appropriate mass variable defined for the given body 
-;; and time.  Which one gets defined is controlled by presence of
-;;       (changing-mass)
-;; in the problem definition.
-
-(defoperator use-timeless-mass-variable (?body ?time)
-  :effects ((mass-variable ?var ?body ?time))
-  :preconditions (
-       (not (changing-mass))
-       (variable ?var (mass ?body))
-  ))
-
 (defoperator use-changing-mass-variable (?body ?time)
-  :effects ((mass-variable ?var ?body ?time))
   :preconditions (
         (in-wm (changing-mass))
         (variable ?var (at (mass ?body) ?time))
-  ))
+	)
+    :effects ((mass-variable ?var ?body ?time)))
 
 ;;; Magnitude of derivative of mass with respect to time
 ;;; due to agent
@@ -4073,10 +4075,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator find-weight-force (?b ?t ?planet)
   :preconditions 
    ((object ?b)
-    ; In rigid body problems, parts of rigid body may be conidered objects
-    ; via use-part-as-object.  We don't want to apply this rule to parts of a 
-    ; larger rigid body, or to the whole rigid body.  Rather an alt op 
-    ; will treat weight of whole body as force acting at cm
+    ;; In rigid body problems, parts of rigid body may be conidered objects
+    ;; via use-part-as-object.  We don't want to apply this rule to parts of a 
+    ;; larger rigid body, or to the whole rigid body.  Rather an alt op 
+    ;; will treat weight of whole body as force acting at cm
     (not (part-of ?b ?rigid-body))
     (not (part-of ?part ?b))
     (time ?t)
@@ -6388,28 +6390,25 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; cons-energy 2 3 and cons-energy 1 3 because these are different equations
 ;;; in the solution graph.
 (defoperator cons-energy-contains (?sought)
- :preconditions (
+  :preconditions 
+  (
   ;; check sought is one of cons-energy quants at timepoint t
-  (any-member ?sought 
-              ((at (mag (velocity ?b)) ?t)
-	       (at (mag (ang-velocity ?b)) ?t)
-	       (at (mag (moment-of-inertia ?b)) ?t)
-	       (mass ?b) 
-	       (at (height ?b) ?t)
-	       (at (spring-constant ?s) ?t)
-	       (at (compression ?s) ?t)
-	       (gravitational-acceleration ?planet)
+   (any-member ?sought 
+	       ((at (mag (velocity ?axis)) ?t)
+		(at (mag (ang-velocity ?b)) ?t)
+		(at (mag (moment-of-inertia ?b)) ?t)
+		(mass ?b) 
+		(at (height ?cm) ?t)
+		(at (spring-constant ?s) ?t)
+		(at (compression ?s) ?t)
+		(gravitational-acceleration ?planet)
 	      ))
-  ;; Sought mass doesn't bind t; sought spring property doesn't bind b. 
-  ;; Following ensures we choose one. If it isn't appropriate e.g. chosen 
-  ;; body doesn't contact spring whose spring-constant is sought at times,
-  ;; this psm will still be applied but the resulting equation will fail to 
-  ;; contain the sought, so it will be rejected further on.
-  (object ?b)   
-  (time ?t)   
-  (test (time-pointp ?t))
-  ; choose a distinct time point other-t
-  ; and bind t1 to earlier, t2 to later of the two times
+   (object ?b)
+   (time ?t)
+   (use-point-for-body ?b ?cm ?axis) ;for rotating objects, use cm
+   (test (time-pointp ?t))
+  ;; choose a distinct time point other-t
+  ;; and bind t1 to earlier, t2 to later of the two times
   (time ?other-t)
   (test (and (time-pointp ?other-t)
    	     (not (equal ?other-t ?t))))
@@ -6565,9 +6564,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     :effects ( (ee-var ?b ?t ?var) ))
 
 (defoperator define-kinetic-energy-ee-var (?b ?t)
-    :preconditions (
-	  (variable ?var (at (kinetic-energy ?b) ?t))
-    )
+    :preconditions ( (variable ?var (at (kinetic-energy ?b) ?t)) )
     :effects ( (ee-var ?b ?t ?var) ))
 
 (defoperator define-rotational-energy-ee-var (?b ?t)
@@ -6579,6 +6576,43 @@ the magnitude and direction of the initial and final velocity and acceleration."
     )
     :effects ( (ee-var ?b ?t ?var) ))
 
+;;; For an object that is rotating, we define linear 
+;;; kinematic quantities using the center of mass or the fixed axis.
+;;; Nothing is done in the case of a rotating body rotating about
+;;; an axis that neither fixed nor the center of mass.
+;;;
+;;; We assume this property if it is rotating about the center of 
+;;; mass or a fixed point at any time.
+;;;
+(defoperator use-body-rotating-cm (?body)
+  :preconditions 
+  ( (object ?body)
+    (motion ?body ?t-motion (rotating ?cm . ?dont-care))
+    (center-of-mass ?cm (?body) ?axis-stuff)
+    )
+  :effects ( (use-point-for-body ?body ?cm ?cm) ))
+
+;; fixed axis case
+(defoperator use-body-rotating-fixed (?body)
+  :preconditions 
+  ( (object ?body)
+    (motion ?body ?t-motion (rotating ?axis . ?dont-care))
+    (center-of-mass ?cm (?body) ?whatever)
+    (motion ?axis ?t-axis ?rest)
+    (test (or (equal ?rest 'at-rest) (equal ?rest 'momentarily-at-rest)))
+    (test (tintersect2 ?t-motion ?t-axis)) ;some time where both are true
+    ) 
+  :effects ( (use-point-for-body ?body ?cm ?axis) ))
+
+;; for non-rotating motion, we don't have to distinguish
+(defoperator use-body-for-body (?body)
+  :preconditions 
+  ( (object ?body)
+    (not (motion ?body ?t-motion (rotating . ?dont-care)))
+    ;; make sure this is really a body
+    (not (part-of ?body ?another-body)))
+  :effects ( (use-point-for-body ?body ?body ?body) ))
+
 ;;;
 ;;; equations for constituents of total energy:
 ;;;
@@ -6589,7 +6623,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
    (variable ?ke-var (at (kinetic-energy ?body) ?t))
    (variable ?m-var (mass ?body))
-   (variable ?v-var (at (mag (velocity ?body)) ?t))
+   (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
+   (variable ?v-var (at (mag (velocity ?axis)) ?t))
   )
   :effects (
    (eqn (= ?ke-var (* 0.5 ?m-var (^ ?v-var 2)))
@@ -6627,7 +6662,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (near-planet ?planet)
   (variable ?PE-var (at (grav-energy ?body ?planet) ?t))
   (variable ?m-var  (mass ?body))
-  (height-variable ?h-var ?body ?t)
+  (use-point-for-body ?body ?cm ?axis) ;always use cm
+  (variable ?h-var (at (height ?cm) ?t))
   (variable ?g-var (gravitational-acceleration ?planet))
   )
   :effects (
@@ -6756,58 +6792,27 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	 (bottom-out (string "Define a variable for elastic potential energy by selecting Energy from the Variables menu on the top menu bar."))
 	 ))
 
-(defoperator define-height (?b ?t)
-  :preconditions ( 
-		  ;; center of mass point is not an (object ?b)
-		  (bind ?h-var (format-sym "h_~A_~A" ?b (time-abbrev ?t)))
-		  ) 
-  :effects ( 
-	    (define-var (at (height ?b) ?t))
-	       (variable ?h-var (at (height ?b) ?t))
-	       )
+(defoperator define-height (?body ?time)
+  :preconditions 
+  ( (bind ?h-var (format-sym "h_~A_~A" ?body (time-abbrev ?time))) )
+  :effects ( (variable ?h-var (at (height ?body) ?time))
+	     (define-var (at (height ?body) ?time)) )
   :hint (
-	 (bottom-out (string "Define a height variable using the Variables menu on the top menu bar."))
+	 (bottom-out (string "Define a height variable for ~A using the Variables menu on the top menu bar." ?body))
 	 ))
 
-;; For an extended object that is rotating, we need to define the 
-;; height as the height of the center of mass
-;; Nothing is done in the case of a rotating body with the 
-;; center of mass is not specified.
-
-(defoperator ordinary-height-variable (?body ?time)
-  :effects ((height-variable ?var ?body ?time))
-  :preconditions 
-  (
-   (not (motion ?body ?t-motion (rotating . ?dont-care))
-       (tinsidep ?time ?t-motion))
-   (variable ?var (at (height ?body) ?time))
-   ))
-
-(defoperator cm-height-variable (?body ?time)
-  :effects ((height-variable ?var ?body ?time))
-  :preconditions 
-  ( (center-of-mass ?cm (?body)  ?dont-care-origin)
-    (motion ?body ?t-motion (rotating . ?dont-care))
-    (test (tinsidep ?time ?t-motion))
-    (variable ?var (at (height ?cm) ?time))
-  ))
-
 (defoperator define-spring-constant (?spring)
-  :preconditions ( 
-		  (bind ?k-var (format-sym "k_~A" ?spring))
-		  ) 
-  :effects ( 
-	    (define-var (spring-constant ?spring))
-	       (variable ?k-var  (spring-constant ?spring))
-	       )
+  :preconditions ( (bind ?k-var (format-sym "k_~A" ?spring)) ) 
+  :effects 
+  ( (define-var (spring-constant ?spring))
+      (variable ?k-var  (spring-constant ?spring)) )
   :hint (
 	 (bottom-out (string "Define a spring constant variable using the Variables menu on the top menu bar."))
 	 ))
 
 (defoperator define-compression (?spring ?t)
-  :preconditions ( 
-		  (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t)))
-		  ) 
+  :preconditions 
+  ( (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t))) ) 
   :effects (
 	    (define-var (at (compression ?spring) ?t))
 	       (variable ?d-var  (at (compression ?spring) ?t))
@@ -6818,13 +6823,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 
 (defoperator define-extension (?spring ?t)
-  :preconditions ( 
-		  (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t)))
-		  ) 
-  :effects (
-	    (define-var (at (extension ?spring) ?t))
-	       (variable ?d-var  (at (extension ?spring) ?t))
-	       )
+  :preconditions 
+  ( (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t))) ) 
+  :effects 
+  ( (define-var (at (extension ?spring) ?t))
+      (variable ?d-var  (at (extension ?spring) ?t)) )
  :hint (
 	(bottom-out (string "Define a variable for the extension of the spring using the Variables menu on the top menu bar."))
 	))
@@ -8661,9 +8664,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-linear-vel (?pt ?t)
    :preconditions (
       (part-of ?pt ?whole-body)
-      ; Problems that use only this rule should draw a body for
-      ; consistency.  We choose the whole rotating object as our 
-      ; body, as suggested by Bob 
+      ;; Problems that use only this rule should draw a body for
+      ;; consistency.  We choose the whole rotating object as our 
+      ;; body, as suggested by Bob 
       (body ?whole-body)
       (variable ?v-var (at (mag (velocity ?pt)) ?t))
       (variable ?omega-var (at (mag (ang-velocity ?whole-body)) ?t))
@@ -8675,6 +8678,42 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :hint (
     (point (string "Do you know the relation between the linear velocity of a point on a rotating object and the angular velocity of the rotation?"))
     (teach (string "The linear velocity of a point on a rotating object is equal to the angular velocity of the rotation times the radius of the point's circular motion = magnitude of relative position of the point from the axis of rotation."))
+    (bottom-out (string "Write the equation ~A"
+                         ((= ?v-var (* ?omega-var ?r-var)) algebra)))
+   )
+)
+
+(defoperator rolling-vel-contains (?sought)
+  :preconditions 
+  (
+   (any-member ?sought (
+		(radius-of-circle ?body)		 
+		(at (mag (velocity ?axis)) ?t)
+		(at (mag (ang-velocity ?body)) ?t)
+		))
+   (time ?t)				;radius-of-circle does not bind ?t
+   (object ?body)			;velocity does not bind ?body
+   (rolling ?body)
+   (motion ?body ?t-motion (rotating ?axis . ?dontcare))
+   (test (tinsidep ?t ?t-motion))
+   )
+   :effects (
+     (eqn-contains (rolling-vel ?body ?axis ?t) ?sought)
+   ))
+
+(defoperator write-rolling-vel (?body ?t)
+   :preconditions (
+      (variable ?v-var (at (mag (velocity ?axis)) ?t))
+      (variable ?omega-var (at (mag (ang-velocity ?body)) ?t))
+      (variable ?r-var (radius-of-circle ?body))
+   )
+   :effects (
+    (eqn  (= ?v-var (* ?omega-var ?r-var)) (rolling-vel ?body ?axis ?t))
+   )
+   :hint (
+	  (point (string "Since ~A is rolling without slipping, what is the relation between the linear velocity of ~A and the rotational velocity of ~A?" 
+			 ?body ?axis ?body))
+    (teach (string "The linear velocity of a rolling body, measured at the axis of rotation, is equal to the angular velocity of the rotation times the radius of the body."))
     (bottom-out (string "Write the equation ~A"
                          ((= ?v-var (* ?omega-var ?r-var)) algebra)))
    )
@@ -9691,7 +9730,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;;; following lets us avoid declaring parts of rigid bodies as objects.
 ;;; we define forces as acting on parts.
-;;; parts must be objects to be used in force drawing rules.
+;;; parts must be objects to be used in drawing rules.
 (defoperator use-part-as-object (?part ?whole)
    :preconditions 
     ((in-wm (part-of ?part ?whole))

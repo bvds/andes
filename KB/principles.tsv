@@ -24,7 +24,8 @@ LEAF	$a(avg) = ($wf - $wi)/t          average angular acceleration	rk-no-vf	Angu
 LEAF	$q_z = $w0_z*t + 0.5*$a_z*t^2   [$a_z is constant (or time average)]	rk-no-vf	Constant angular acceleration
 LEAF	$w_z = $w0_z + $a_z*t           [$a_z is constant (or time average)]	rk-no-s	Constant angular acceleration
 LEAF	$w_z^2 = $w0_z^2 + 2*$a_z*$q_z   [$a_z is constant (or time average)]	rk-no-t	Constant angular acceleration
-LEAF	v = $w*r                       Linear velocity (instantaneous)	linear-vel	Linear velocity
+LEAF	v = $w*r                       Linear velocity at a certain radius	linear-vel	Linear velocity
+LEAF	v = $w*r                       Linear velocity of rolling object	rolling-vel	Linear velocity
 END_GROUP			
 END_GROUP			
 GROUP	Newton's Laws		
@@ -74,7 +75,7 @@ LEAF	rcm_x = ($S ri_x * mi)/($S mi)     center of mass	(center-of-mass-compo ((?
 LEAF	rcm_y = ($S ri_y * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis.y)))	Center of Mass
 END_GROUP			
 GROUP	Rotational		
-LEAF	L_z = I * $w_z       Angular momentum defined	ang-momentum	Angular momentum definition
+LEAF	L_z = I*$w_z       Angular momentum defined	ang-momentum	Angular momentum definition
 LEAF	Li_z = Lf_z         Conservation of Angular momentum	cons-angmom	Conservation of Angular momentum
 END_GROUP			
 END_GROUP			

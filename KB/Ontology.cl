@@ -1052,6 +1052,13 @@
 	      (nlg ?pt) (nlg ?time 'nlg-time))
   :EqnFormat ("v = $w*r"))
 
+(def-psmclass rolling-vel (rolling-vel ?body ?axis ?time)
+  :complexity major
+  :english ("linear velocity of rolling object")
+  :ExpFormat ("finding the relation between linear motion and rotational motion of ~a ~a"
+	      (nlg ?body) (nlg ?time 'nlg-time))
+  :EqnFormat ("v = $w*r"))
+
 
 ;; ROTATIONAL KINEMATICS: CONSTANT ANGULAR ACCELERATION EQUATIONS
 (def-psmgroup rk	
