@@ -655,29 +655,34 @@
 
 (defun solution-sts (initial-st)
   "Given an initial state, returns all solution states"
-  (do ((queue (list initial-st))
-       (state)
-       (solutions)
-       (successors))
-      ((null queue) solutions)
-    ; in ACL IDE: pump input events each iter so kbd interrupts can get thru
-    ;#+common-graphics (cg:process-pending-events)
-    (setq state (pop queue))
-    (setf *queue-depth* (length queue))
-    (pprint-indent :block (length queue))
-    (cond ((null (st-stack state))
-	   (push state solutions)
-	   (qs-debug-print-success state))
-	  ((null (setq successors (successors state)))
-	   (qs-debug-print-failure state))
-	  ((null (cdr successors))
-	   ;; one successor, just put it back on queue
-	   (setq queue (cons (car successors) queue)))
-	  (t
-	   (setq queue (append successors queue))
-	   (qs-debug-print-split state successors)))))
-
-
+  (let ((levels (list 0))) ;list to keep track of depth in tree search 
+    (do ((queue (list initial-st))
+	 (state)
+	 (solutions)
+	 (successors))
+	((null queue) solutions)
+      ;; in ACL IDE: pump input events each iter so kbd interrupts can get thru
+      ;; #+common-graphics (cg:process-pending-events)
+      (setq state (pop queue))
+      ;; Printing the length of the queue might be be more 
+      ;; helpful than actually printing the depth in the tree
+      ;;(setf *queue-depth* (length queue))
+      (setf *queue-depth* (pop levels))
+      (cond ((null (st-stack state))
+	     (push state solutions)
+	     (qs-debug-print-success state))
+	    ((null (setq successors (successors state)))
+	     (qs-debug-print-failure state))
+	    ((null (cdr successors))
+	     ;; one successor, just put it back on queue
+	     (push (car successors) queue)
+	     (push *queue-depth* levels)) ;count as same level in tree
+	    (t
+	     (setq queue (append successors queue))
+	     (dolist (dummy successors) 
+	       (push (+ 1 *queue-depth*) levels))
+	     (qs-debug-print-split state successors))))))
+  
 
 ;;; There are many ways to generate successor states, depending on
 ;;; what is on the top of the stack.  However, they all start by
@@ -1074,13 +1079,13 @@ state actions Is set to be traced."
   
 (defun qs-debug-print-success (state)
   "Prints a trace indicating that this state is a final state"
-  (if (qs-debug-printp State) (format t "~2D:  Success~%" *queue-depth*)))
+  (if (qs-debug-printp State) (format t "~2D>  Success~%" *queue-depth*)))
 
 
 (defun qs-debug-print-failure (state)
   "Prints a trace indicating that this state had no successors"
   (if (qs-debug-printp State)
-      (format t "~2D:  Failed on ~a~%" *queue-depth*
+      (format t "~2D>  Failed on ~a~%" *queue-depth*
 	      (let ((top (first (st-stack state))))
 		(if (listp top)
 		    (subst-bindings (st-bindings state) top)
@@ -1090,14 +1095,14 @@ state actions Is set to be traced."
 (defun qs-debug-print-split (state successors)
   "Prints a trace indicating that the state has mulipled successors"
   (if (qs-debug-printp State)
-      (format t ":::  State has ~a successors.~%" 
+      (format t ">>>  State has ~a successors.~%" 
 	      (length successors))))
 
 
 (defun qs-debug-print-action (state action)
   "Print action if state should be traced."
   (if (qs-debug-printp state)
-      (format t "~2D:  ~a~%" *queue-depth* action)))
+      (format t "~2D>  ~a~%" *queue-depth* action)))
 
 
 ;;; In order to add an operator to the debug tracing 
