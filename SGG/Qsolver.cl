@@ -432,7 +432,7 @@
 
 ;;; ===================== globals ===============================
 
-;;; flags to control tracing (see also *debug* in executable2.cl and
+;;; flag to control tracing (see also *debug* in executable2.cl and
 ;;; *lk-hack* in Physics-Funcs.cl)
 
 (defparameter *actions* nil 
@@ -651,6 +651,8 @@
 
 ;;; This function is also called by execute-setof.
 
+(defvar *queue-depth* 0 "Depth of queue for printing purposes")
+
 (defun solution-sts (initial-st)
   "Given an initial state, returns all solution states"
   (do ((queue (list initial-st))
@@ -661,12 +663,15 @@
     ; in ACL IDE: pump input events each iter so kbd interrupts can get thru
     ;#+common-graphics (cg:process-pending-events)
     (setq state (pop queue))
+    (setf *queue-depth* (length queue))
+    (pprint-indent :block (length queue))
     (cond ((null (st-stack state))
 	   (push state solutions)
 	   (qs-debug-print-success state))
 	  ((null (setq successors (successors state)))
 	   (qs-debug-print-failure state))
 	  ((null (cdr successors))
+	   ;; one successor, just put it back on queue
 	   (setq queue (cons (car successors) queue)))
 	  (t
 	   (setq queue (append successors queue))
@@ -795,8 +800,8 @@
    Returns a state with that goal on the top of the stack."
   (let* ((new-inst (copy-opinst inst))
 	 (subgoal (pop (opinst-subgoals new-inst))))
-    ; AW: add loop for cases where expansion is a macro (rare),
-    ; or is empty and operator's next subgoal is also a macro. 
+    ;; AW: add loop for cases where expansion is a macro (rare),
+    ;; or is empty and operator's next subgoal is also a macro. 
     (loop while (precond-macro-p subgoal) do
       (setf (opinst-subgoals new-inst)
 	(append (expand-precond-macro subgoal state)
@@ -1069,13 +1074,13 @@ state actions Is set to be traced."
   
 (defun qs-debug-print-success (state)
   "Prints a trace indicating that this state is a final state"
-  (if (qs-debug-printp State) (format t "Success~%")))
+  (if (qs-debug-printp State) (format t "~2D:  Success~%" *queue-depth*)))
 
 
 (defun qs-debug-print-failure (state)
   "Prints a trace indicating that this state had no successors"
   (if (qs-debug-printp State)
-      (format t "Failed on ~a~%" 
+      (format t "~2D:  Failed on ~a~%" *queue-depth*
 	      (let ((top (first (st-stack state))))
 		(if (listp top)
 		    (subst-bindings (st-bindings state) top)
@@ -1085,13 +1090,14 @@ state actions Is set to be traced."
 (defun qs-debug-print-split (state successors)
   "Prints a trace indicating that the state has mulipled successors"
   (if (qs-debug-printp State)
-      (format t "State has ~a successors.~%" (length successors))))
+      (format t ":::  State has ~a successors.~%" 
+	      (length successors))))
 
 
 (defun qs-debug-print-action (state action)
   "Print action if state should be traced."
   (if (qs-debug-printp state)
-      (format t "~a~%" action)))
+      (format t "~2D:  ~a~%" *queue-depth* action)))
 
 
 ;;; In order to add an operator to the debug tracing 
