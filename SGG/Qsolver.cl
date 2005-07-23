@@ -481,6 +481,7 @@
 ;;; preceding state, is only used for building the solution graph.
 
 (defstruct (st (:print-function print-st))
+  level          ; The level in search tree (for debugging)
   bindings       ; A binding list (format defined by unifier.cl)
   wm	         ; A set of ground atomic propositions
   stack		 ; a list of operator instances (mostly)
@@ -628,10 +629,12 @@
 (defun initial-st (Goals Givens)
   "Given atomic propositions representing a problem, 
    return an initial state for solving that problem"
-  (Make-st :bindings no-bindings	; no-bindings is in unifier.cl
-	   :WM Givens
-	   :stack (list (final-operator Goals))
-	   :actions NIL))
+  (Make-st 
+   :level 0  ;start at base of tree
+   :bindings no-bindings	; no-bindings is in unifier.cl
+   :WM Givens
+   :stack (list (final-operator Goals))
+   :actions NIL))
 
 (defun final-operator (Goals)
   "Returns a dummy operator instance whose goals are the given ones."
@@ -651,11 +654,8 @@
 
 ;;; This function is also called by execute-setof.
 
-(defvar *queue-depth* 0 "Depth of queue for printing purposes")
-
 (defun solution-sts (initial-st)
   "Given an initial state, returns all solution states"
-  (let ((levels (list 0))) ;list to keep track of depth in tree search 
     (do ((queue (list initial-st))
 	 (state)
 	 (solutions)
@@ -664,24 +664,24 @@
       ;; in ACL IDE: pump input events each iter so kbd interrupts can get thru
       ;; #+common-graphics (cg:process-pending-events)
       (setq state (pop queue))
-      ;; Printing the length of the queue might be be more 
-      ;; helpful than actually printing the depth in the tree
-      (setf *queue-depth* (length queue))
-      ;; (setf *queue-depth* (pop levels))
       (cond ((null (st-stack state))
 	     (push state solutions)
 	     (qs-debug-print-success state))
 	    ((null (setq successors (successors state)))
 	     (qs-debug-print-failure state))
 	    ((null (cdr successors))
+	     ;; treat as same level:
+	     (dolist (x successors) (setf (st-level x) (st-level state)))
 	     ;; one successor, just put it back on queue
-	     (push (car successors) queue)
-	     (push *queue-depth* levels)) ;count as same level in tree
+	     (push (car successors) queue))
 	    (t
+	     ;; Printing the length of the queue might be be more 
+	     ;; helpful than actually printing the depth in the tree
+	     ;; next level deeper:
+	     (dolist (x successors) 
+	       (setf (st-level x) (+ 1 (st-level state))))
 	     (setq queue (append successors queue))
-	     (dolist (dummy successors) 
-	       (push (+ 1 *queue-depth*) levels))
-	     (qs-debug-print-split state successors))))))
+	     (qs-debug-print-split state successors)))))
   
 
 ;;; There are many ways to generate successor states, depending on
@@ -1079,13 +1079,13 @@ state actions Is set to be traced."
   
 (defun qs-debug-print-success (state)
   "Prints a trace indicating that this state is a final state"
-  (if (qs-debug-printp State) (format t "~2D>  Success~%" *queue-depth*)))
+  (if (qs-debug-printp State) (format t "~2D>  Success~%" (st-level state))))
 
 
 (defun qs-debug-print-failure (state)
   "Prints a trace indicating that this state had no successors"
   (if (qs-debug-printp State)
-      (format t "~2D>  Failed on ~a~%" *queue-depth*
+      (format t "~2D>  Failed on ~a~%" (st-level state)
 	      (let ((top (first (st-stack state))))
 		(if (listp top)
 		    (subst-bindings (st-bindings state) top)
@@ -1095,14 +1095,13 @@ state actions Is set to be traced."
 (defun qs-debug-print-split (state successors)
   "Prints a trace indicating that the state has mulipled successors"
   (if (qs-debug-printp State)
-      (format t ">>>  State has ~a successors.~%" 
-	      (length successors))))
+      (format t ">>>  State has ~a successors.~%" (length successors))))
 
 
 (defun qs-debug-print-action (state action)
   "Print action if state should be traced."
   (if (qs-debug-printp state)
-      (format t "~2D>  ~a~%" *queue-depth* action)))
+      (format t "~2D>  ~a~%" (st-level state) action)))
 
 
 ;;; In order to add an operator to the debug tracing 
