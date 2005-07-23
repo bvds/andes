@@ -242,7 +242,8 @@
   :english ("the height of ~A above the zero level" (nlg ?body)))
 (def-qexp moment-of-inertia (moment-of-inertia ?body)
   :units |kg.m^2|
-  :fromWorkbench `(at (moment-of-inertia ,body) ,time)
+  :restrictions positive
+  :fromWorkbench (if time `(at (moment-of-inertia ,body) ,time) `(moment-of-inertia ,body))
   :english ("the moment of inertia of ~A" (nlg ?body)))
 ;; for dimensions of certain rigid bodies:
 (def-qexp length (length ?body)
@@ -1141,10 +1142,10 @@
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
   :eqnformat ("Li_z = Lf_z"))
 
-; ROTATIONAL DYNAMICS (TORQUE)
+;;;; ROTATIONAL DYNAMICS (TORQUE)
 
-; We use two ways of writing net-torque, distinguished by presence or absence
-; of the zc flag in id.  Following form is designed to match either one:
+;;; We use two ways of writing net-torque, distinguished by presence or absence
+;;; of the zc flag in id.  Following form is designed to match either one:
 (def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time . ?opt-zc-flag))
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of net torque")
