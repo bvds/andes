@@ -407,7 +407,10 @@ impulse ~A." (?b def-np) (?t pp)))
 (defoperator center-of-mass-contains (?sought)
   :preconditions 
   (
-   (center-of-mass ?com ?bodies ?origin) ;define objects (and origin) for cm
+   (center-of-mass ?com ?bodies) ;define objects (and origin) for cm
+   ;; This is yucky.  The studend should be able to specify
+   ;; their own axis.
+   (origin ?origin) ;explicitly specify origin point
    (any-member ?sought (
 			(at (mag (relative-position ?b ?origin)) ?t) 
 			(at (dir (relative-position ?b ?origin)) ?t)
@@ -434,7 +437,8 @@ impulse ~A." (?b def-np) (?t pp)))
 (defoperator draw-center-of-mass-diagram (?com ?t)
   :preconditions 
   ( 
-   (in-wm (center-of-mass ?com ?bodies ?origin)) ;define objects for cm
+   (in-wm (center-of-mass ?com ?bodies)) ;define objects for cm
+   (origin ?origin) ;explicitly specify origin point
    (foreach ?b ?bodies
 	    (body ?b))			;make object
    (foreach ?b ?bodies			;make position vector
@@ -450,7 +454,8 @@ impulse ~A." (?b def-np) (?t pp)))
 
 (defoperator write-center-of-mass-compo (?com ?t ?xyz ?rot)
   :preconditions 
-  ( (in-wm (center-of-mass ?com ?bodies ?origin)) ;define objects for cm
+  ( (in-wm (center-of-mass ?com ?bodies)) ;define objects for cm
+    (origin ?origin) ;explicitly specify origin
     (variable ?r-com-compo (at (compo ?xyz ?rot (relative-position ?com ?origin)) ?t))
     ;; list of position variables
     (map ?b ?bodies

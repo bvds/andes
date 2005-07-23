@@ -106,7 +106,8 @@
 			:components ((:file "Qsolver") ;depends on HelpStructs
 				     (:file "Exec" 
 					    :depends-on ("Qsolver"))
-				     (:file "Macros")         
+				     (:file "Macros"
+					    :depends-on ("Qsolver"))         
 				     (:file "SolutionPoint")
 				     (:file "GraphGenerator")
 				     (:file "ProblemSolver")

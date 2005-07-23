@@ -4128,7 +4128,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
        define a magnitude variable and an direction variable for it."
   :preconditions
    ( (object ?b)
-    (in-wm (center-of-mass ?cm (?b) ?dont-care-origin))
+    (in-wm (center-of-mass ?cm (?b)))
     (time ?t)
     (not (massless ?b))
     (near-planet ?planet)
@@ -5739,7 +5739,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the gravitational constant for the planet."
   :preconditions
   (; only apply this in case where ?cm is declared cm of some single rigid body. 
-   (in-wm (center-of-mass ?cm (?rigid-body) ?dontcare))
+   (in-wm (center-of-mass ?cm (?rigid-body)))
    (any-member ?quantity
 	        ((at (mag (force ?cm ?planet weight)) ?t)
 		 (mass ?rigid-body)
@@ -5752,7 +5752,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator wt-law-cm (?b ?t)
   :preconditions
-   ((in-wm (center-of-mass ?cm (?b) ?dontcare))
+   ((in-wm (center-of-mass ?cm (?b)))
     (variable ?m-var (mass ?b))
     (variable ?w-var (at (mag (force ?cm ?planet weight)) ?t))
     (variable ?g-var (gravitational-acceleration ?planet))
@@ -6589,7 +6589,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ( (object ?body)
     (motion ?body ?t-motion (rotating ?cm . ?dont-care))
-    (center-of-mass ?cm (?body) ?axis-stuff)
+    (center-of-mass ?cm (?body))
     )
   :effects ( (use-point-for-body ?body ?cm ?cm) ))
 
@@ -6598,7 +6598,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ( (object ?body)
     (motion ?body ?t-motion (rotating ?axis . ?dont-care))
-    (center-of-mass ?cm (?body) ?whatever)
+    (center-of-mass ?cm (?body))
     (motion ?axis ?t-axis ?rest)
     (test (or (equal ?rest 'at-rest) (equal ?rest 'momentarily-at-rest)))
     (test (tintersect2 ?t-motion ?t-axis)) ;some time where both are true
