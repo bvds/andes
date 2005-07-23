@@ -5677,6 +5677,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((any-member ?quantity
 	        ((at (mag (force ?b ?planet weight)) ?t)
+		 (at (mass ?b) ?t)
 		 (mass ?b)
 		 (gravitational-acceleration ?planet)))
    ; make sure this is not case where ?b is cm of rigid body. For that
@@ -6030,6 +6031,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((any-member ?quantity
 	        ((at (mag (force ?b ?agent ?type)) ?t)
 		 (at (dir (force ?b ?agent ?type)) ?t)
+		 (at (mass ?b) ?t)
 		 (mass ?b)
 		 (at (mag (accel ?b)) ?t)
 		 (at (dir (accel ?b)) ?t)))
@@ -6397,8 +6399,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (any-member ?sought 
 	       ((at (mag (velocity ?axis)) ?t)
 		(at (mag (ang-velocity ?b)) ?t)
-		(at (mag (moment-of-inertia ?b)) ?t)
-		(mass ?b) 
+		(moment-of-inertia ?b) ;needs to be constant
+		(mass ?b) ;needs to be constant
 		(at (height ?cm) ?t)
 		(at (spring-constant ?s) ?t)
 		(at (compression ?s) ?t)
@@ -6643,7 +6645,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (motion ?body ?t-motion (rotating ?pivot ?dir ?axis))
    (test (tinsidep ?t ?t-motion))
    (variable ?kr-var (at (rotational-energy ?body) ?t))
-   (variable ?m-var (at (moment-of-inertia ?body) ?t))
+   ;; definition of energy at a given moment is ok with changing mass...
+   (moment-of-inertia-variable ?m-var ?body ?t)
    (variable ?v-var (at (mag (ang-velocity ?body)) ?t))
   )
   :effects (
@@ -8740,34 +8743,43 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Angular momentum and its conservation
-;;
+;;;;
+;;;; Angular momentum and its conservation
+;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Moment of inertia:
-; This is the rotational analog of mass. Unlike our mass, this quantity 
-; needs a time because in some problems it can change due to changes in 
-; the configuration of the mass. The classic case is a pirouetting skater 
-; tucking in the arms, reducing moment of inertia in order to spin faster.
-;
-; This means that if we are interested in I of an object at two times, we must
-; introduce different variables for each even if there is no change.
-; However, in our current problems, whenever I can be calculated by formula 
-; from shape, it is constant throughout the problem. In problems where I 
-; varies, I is just given at the various times, since the shape, such as that 
-; of a man holding out his arms, is usually complex. It would be more 
-; convenient if we could specify I over the whole range of the problem
-; where it is constant, but we lack a good way to do this.
-;
-; The moment of inertia of a body also depends on the axis of rotation being
-; considered, e.g. it is different for a stick rotating about its center 
-; than about its end. The "shape" statement which specifies the rigid body
-; shape also includes a third argument giving the axis of rotation relevant 
-; to the problem, so the relevant axis can be derived. We don't have 
-; problems where rotation about more than one axis is considered.
+;;; Moment of inertia:
+;;; This is the rotational analog of mass. 
+;;; Like mass, it is timeless unless (changing-mass) is specified.
+;;;
+;;; The moment of inertia of a body also depends on the axis of rotation being
+;;; considered, e.g. it is different for a stick rotating about its center 
+;;; than about its end. The "shape" statement which specifies the rigid body
+;;; shape also includes a third argument giving the axis of rotation relevant 
+;;; to the problem, so the relevant axis can be derived. We don't have 
+;;; problems where rotation about more than one axis is considered.
 
-(defoperator define-moment-of-inertia (?b ?t)
+(defoperator define-moment-of-inertia (?b)
+  :preconditions (
+    (object ?b)
+    (bind ?I-var (format-sym "I_~A" (body-name ?b)))
+  )
+  :effects (
+    (define-var (moment-of-inertia ?b))
+    (variable ?I-var (moment-of-inertia ?b))
+  )
+  :hint (
+   (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A" ?b))
+  ))
+
+(defoperator use-timeless-moment-of-inertia-variable (?body ?time)
+  :preconditions (
+       (not (changing-mass))
+       (variable ?var (moment-of-inertia ?body))
+       )
+    :effects ((moment-of-inertia-variable ?var ?body ?time)))
+
+(defoperator define-changing-moment-of-inertia (?b ?t)
   :preconditions (
     (object ?b)
     (time ?t)
@@ -8781,12 +8793,19 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A" ?b (?t pp)))
   ))
 
-;; Shape variables: We define special scalar variables for the appropriate
-;; dimensions characterizing certain rigid bodies.
+(defoperator use-changing-moment-of-inertia-variable (?body ?time)
+  :preconditions (
+        (in-wm (changing-mass))
+        (variable ?var (at (moment-of-inertia ?body) ?time))
+	)
+    :effects ((moment-of-inertia-variable ?var ?body ?time)))
 
-;; length: defines a variable for the length of a rigid body that has a 
-;; dimension normally described as a length, i.e. rod or rectangular plate
-;; or a string
+;;;; Shape variables: We define special scalar variables for the appropriate
+;;;; dimensions characterizing certain rigid bodies.
+
+;;;; length: defines a variable for the length of a rigid body that has a 
+;;;; dimension normally described as a length, i.e. rod or rectangular plate
+;;;; or a string
 (defoperator define-shape-length (?b)
   :preconditions (
 		  (bind ?l-var (format-sym "length_~A" (body-name ?b)))
@@ -8877,19 +8896,20 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator I-rod-cm-contains (?sought)
   :preconditions 
   ((shape ?b rod cm)
-  (any-member ?sought ( (at (moment-of-inertia ?b) ?t)
+   ;; could be generalized to include time:
+  (any-member ?sought ( (moment-of-inertia ?b)
 		        (mass ?b)
 		        (length ?b) ))
-  (time ?t))
-  :effects ( (eqn-contains (I-rod-cm ?b ?t) ?sought)))
+  )
+  :effects ( (eqn-contains (I-rod-cm ?b) ?sought)))
 
-(defoperator write-I-rod-cm (?b ?t)
+(defoperator write-I-rod-cm (?b)
   :preconditions (
-    (variable ?I-var (at (moment-of-inertia ?b) ?t))
-    (variable ?m-var (mass ?b))
+    (variable ?I-var (moment-of-inertia ?b))
+    (varable ?m-var (mass ?b))
     (variable ?l-var (length ?b) ))
   :effects 
-    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b ?t)))
+    ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b)))
    :hint
     ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
@@ -8902,19 +8922,20 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator I-rod-end-contains (?sought)
   :preconditions 
   ((shape ?b rod end)
-  (any-member ?sought ( (at (moment-of-inertia ?b) ?t)
+   ;; this could be generalized to include time
+  (any-member ?sought ( (moment-of-inertia ?b)
 		        (mass ?b)
 		        (length ?b) ))
-  (time ?t))
-  :effects ( (eqn-contains (I-rod-end ?b ?t) ?sought)))
+  )
+  :effects ( (eqn-contains (I-rod-end ?b) ?sought)))
 
-(defoperator write-I-rod-end (?b ?t)
+(defoperator write-I-rod-end (?b)
   :preconditions (
-    (variable ?I-var (at (moment-of-inertia ?b) ?t))
+    (variable ?I-var (moment-of-inertia ?b))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b) ))
   :effects 
-    ((eqn (= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) (I-rod-end ?b ?t)))
+    ((eqn (= ?I-var (* (/ 1 3) ?m-var (^ ?l-var 2))) (I-rod-end ?b)))
   :hint
     ((point (string "You need the formula for the moment of inertia of a long thin rod rotating about its end."))
      (bottom-out (string "Write the equation ~A"
@@ -8932,17 +8953,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator I-hoop-cm-contains (?sought)
   :preconditions 
   ((shape ?b hoop cm)
-  (any-member ?sought ((at (moment-of-inertia ?b) ?t)
-		   (mass ?b)
-		   (radius-of-circle ?b)
+   ;; this could be generalized to include time
+   (any-member ?sought ((moment-of-inertia ?b)
+			(mass ?b)
+			(radius-of-circle ?b)
 		      ))
   (time ?t))
   :effects 
-    ((eqn-contains (I-hoop-cm ?b ?t) ?sought)))
+    ((eqn-contains (I-hoop-cm ?b) ?sought)))
 
-(defoperator write-I-hoop-cm (?b ?t)
+(defoperator write-I-hoop-cm (?b)
   :preconditions 
-    ((variable ?I-var (at (moment-of-inertia ?b) ?t))
+    ((variable ?I-var (moment-of-inertia ?b))
     (variable ?m-var (mass ?b))
     (variable ?r-var (radius-of-circle ?b)))
   :effects 
@@ -8956,43 +8978,43 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator I-disk-cm-contains (?sought)
   :preconditions 
   ((shape ?b disk cm)
-  (any-member ?sought ((at (moment-of-inertia ?b) ?t)
+   ;; this could be generalized to include time
+  (any-member ?sought ((moment-of-inertia ?b)
 		       (mass ?b)
-		       (radius-of-circle ?b)))
-  (time ?t))
+		       (radius-of-circle ?b))) )
   :effects 
-    ( (eqn-contains (I-disk-cm ?b ?t) ?sought) ))
+    ( (eqn-contains (I-disk-cm ?b) ?sought) ))
 
-(defoperator write-I-disk-cm (?b ?t)
+(defoperator write-I-disk-cm (?b)
   :preconditions (
-    (variable ?I-var (at (moment-of-inertia ?b) ?t))
+    (variable ?I-var (moment-of-inertia ?b))
     (variable ?m-var (mass ?b))
     (variable ?r-var (radius-of-circle ?b))
   )
   :effects 
-    ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b ?t)) ))
+    ( (eqn (= ?I-var (* 0.5 ?m-var (^ ?r-var 2))) (I-disk-cm ?b)) ))
 
 ; rectangular plate I = 1/12 M * (l^2 + w^2) where l = length, w = width
 (defoperator I-rect-cm-contains (?sought)
   :preconditions 
   ((shape ?b rectangle cm)
-  (any-member ?sought ( (at (moment-of-inertia ?b) ?t)
+   ;; this could be generalized to include time
+  (any-member ?sought ( (moment-of-inertia ?b)
 		        (mass ?b)
 		        (length ?b) 
-		        (width ?b) ))
-  (time ?t))
-  :effects ( (eqn-contains (I-rect-cm ?b ?t) ?sought)))
+		        (width ?b) )))
+  :effects ( (eqn-contains (I-rect-cm ?b) ?sought)))
 
-(defoperator write-I-rect-cm (?b ?t)
+(defoperator write-I-rect-cm (?b)
   :preconditions 
-   ((variable ?I-var (at (moment-of-inertia ?b) ?t))
+   ((variable ?I-var (moment-of-inertia ?b))
     (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b)) 
     (variable ?w-var (width ?b)))
   :effects 
     ((eqn (= ?I-var (* (/ 1 12) ?m-var (+ (^ ?l-var 2) 
                                           (^ ?w-var 2)))) 
-          (I-rect-cm ?b ?t)))
+          (I-rect-cm ?b)))
    :hint
     ((point (string "You need the formula for the moment of inertia of a rectangle rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
@@ -9002,25 +9024,26 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; moment of inertia of a compound body is sum of moments of inertia of 
 ;; its constituents
 (defoperator I-compound-contains (?sought)
-   :preconditions (
-     (any-member ?sought ( (at (moment-of-inertia (compound . ?bodies)) ?t) ))
+   :preconditions 
+   (  ;; could be generalized to optionally include time
+    (any-member ?sought ( (moment-of-inertia (compound . ?bodies)) ))
      ; can also find I for component bodies from I of compound, see below
    )
    :effects (
-     (eqn-contains (I-compound ?bodies ?t) ?sought)
+     (eqn-contains (I-compound ?bodies) ?sought)
    ))
 
 (defoperator I-compound-contains2 (?sought)
    :preconditions (
      (object (compound . ?bodies))
-     (any-member ?sought ( (at (moment-of-inertia ?b) ?t) ))
+     (any-member ?sought ( (moment-of-inertia ?b) ))
      (test (member ?b ?bodies :test #'equal))
    )
    :effects (
-     (eqn-contains (I-compound ?bodies ?t) ?sought)
+     (eqn-contains (I-compound ?bodies) ?sought)
    ))
 
-(defoperator write-I-compound (?bodies ?t)
+(defoperator write-I-compound (?bodies)
   :preconditions (
 		  ;; make sure compound body is drawn. This is the only place 
 		  ;; the compound occurs as a "principle body" in a cons 
@@ -9029,13 +9052,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  ;; (This isn't needed for counterpart mass-compound,
       ;; since compound is drawn as one way of defining mass variable.)
       (body (compound . ?bodies))
-      (variable ?I-var (at (moment-of-inertia (compound . ?bodies)) ?t))
+      (variable ?I-var (moment-of-inertia (compound . ?bodies)))
       (map ?body ?bodies
-         (variable ?Ipart-var (at (moment-of-inertia ?body) ?t))
+         (variable ?Ipart-var (moment-of-inertia ?body))
 	 ?Ipart-var ?Ipart-vars)
    )
    :effects (
-      (eqn (= ?I-var (+ . ?Ipart-vars)) (I-compound ?bodies ?t))
+      (eqn (= ?I-var (+ . ?Ipart-vars)) (I-compound ?bodies))
    )
    :hint (
      (point (string "Think about how the moment of inertia of a compound body relates to the moments of inertia of its parts"))
@@ -9083,7 +9106,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	      (at (mag (ang-velocity ?b)) ?t)
 	      (at (dir (ang-velocity ?b)) ?t)
 	      (at (moment-of-inertia ?b) ?t)
+	      (moment-of-inertia ?b)
                           )) 
+      (time ?t)
    )
    :effects ((angular-eqn-contains (ang-momentum ?b ?t) ?sought))
 )
@@ -9100,7 +9125,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      (variable ?L_z     (at (compo z 0 (ang-momentum ?b)) ?t))
      (variable ?omega_z (at (compo z 0 (ang-velocity ?b)) ?t))
-     (variable ?I   (at (moment-of-inertia ?b) ?t))
+     (moment-of-inertia-variable ?I ?b ?t)
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
@@ -9134,6 +9159,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                (at (mag (ang-velocity ?b)) ?t1) (at (dir (ang-velocity ?b)) ?t1)
                (at (mag (ang-velocity ?b)) ?t2) (at (dir (ang-velocity ?b)) ?t2)
 	       (at (moment-of-inertia ?b) ?t1) (at (moment-of-inertia ?b) ?t2)
+	       (moment-of-inertia ?b)
 	       ; in case of split or join
 	       (at (mag (ang-velocity (compound ?bodies)) ?t1))
 	       (at (mag (ang-velocity (compound ?bodies)) ?t2))
@@ -9755,7 +9781,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	      ;(at (mag (net-torque ?b ?axis)) ?t) 
 	      ;(at (dir (net-torque ?b ?axis)) ?t) 
 	      (at (moment-of-inertia ?b) ?t)
+	      (moment-of-inertia ?b)
 	               ))
+   (time ?t)
    ;; need to determine rotation axis if not seeking torque
    (rotation-axis ?b ?axis)
    )
@@ -9780,7 +9808,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    
    :preconditions (
      (variable ?tau_z   (at (compo z 0 (net-torque ?b ?axis)) ?t))
-     (variable ?I       (at (moment-of-inertia ?b) ?t))
+     (moment-of-inertia-variable ?I ?b ?t)
      (variable ?alpha_z (at (compo z 0 (ang-accel ?b)) ?t))
      ; fetch mag variable for implicit equation (defined when drawn)
      (in-wm (variable ?mag-var (at (mag (ang-accel ?b)) ?t)))

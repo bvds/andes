@@ -1087,44 +1087,41 @@
      :english ("constant angular acceleration kinematics")
      :EqnFormat ("$w_z^2 = $w0_z^2 + 2*$a_z*$q_z"))
 ;; MOMENT OF INERTIA
-(def-psmclass I-rod-cm (I-rod-cm ?body ?time)
+(def-psmclass I-rod-cm (I-rod-cm ?body)
   :complexity minor
   :english ("moment of inertia of a rod about its center")
-  :expformat ("calculating the moment of inertia of ~a about its cm ~a"
-	      (nlg ?body) (nlg ?time 'nlg-time))
+  :expformat ("calculating the moment of inertia of ~a about its cm" 
+	      (nlg ?body))
   :EqnFormat ("I = (1/12) m*L^2"))
 
-(def-psmclass I-rod-end (I-rod-end ?body ?time)
+(def-psmclass I-rod-end (I-rod-end ?body)
   :complexity minor
   :english ("moment of inertia of a rod about its end")
-  :expformat ("moment of inertia of the rod ~a about its end ~a"
-	      (nlg ?body) (nlg ?time 'nlg-time))
+  :expformat ("moment of inertia of the rod ~a about its end" (nlg ?body))
   :EqnFormat ("I = (1/3) m*L^2"))
-(def-psmclass I-hoop-cm (I-hoop-cm ?body ?time)
+(def-psmclass I-hoop-cm (I-hoop-cm ?body)
   :complexity minor
   :english ("moment of inertia for a hoop about its center")
-  :expformat ("moment of inertia for the hoop ~a about its cm ~a"
-	      (nlg ?body) (nlg ?time 'nlg-time))
+  :expformat ("moment of inertia for the hoop ~a about its cm" (nlg ?body))
   :EqnFormat ("I = m*r^2"))
 
-(def-psmclass I-disk-cm (I-disk-cm ?body ?time)
+(def-psmclass I-disk-cm (I-disk-cm ?body)
   :complexity minor
   :english ("moment of inertia of a disk about its center")
-  :expformat ("moment of inertia of the disk ~a about its cm ~a"
-	      (nlg ?body) (nlg ?time 'nlg-time)))
+  :expformat ("moment of inertia of the disk ~a about its cm" (nlg ?body)))
 
-(def-psmclass I-rect-cm (I-rect-cm ?body ?time)
+(def-psmclass I-rect-cm (I-rect-cm ?body)
   :complexity minor
   :english ("moment of inertia of a rectangle about its center")
-  :expformat ("moment of inertia of the rectangle ~a about its cm ~a"
-	      (nlg ?body) (nlg ?time 'nlg-time))
+  :expformat ("moment of inertia of the rectangle ~a about its cm"
+	      (nlg ?body))
   :EqnFormat ("I = (1/12) m*(L^2 + W^2)"))
 
-(def-psmclass I-compound (I-compound ?compound ?time)
+(def-psmclass I-compound (I-compound ?compound)
   :complexity minor
   :english ("moment of inertia of a compound body")
-  :expformat ("calculating the moment of inertia of the compound body ~a ~a"
-	      (nlg ?compound) (nlg ?time 'nlg-time))
+  :expformat ("calculating the moment of inertia of the compound body ~a"
+	      (nlg ?compound))
   :EqnFormat ("I12 = I1 + I2"))
 
 

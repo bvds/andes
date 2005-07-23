@@ -328,6 +328,9 @@
 ;;; because we dont' know the best solution plan.  The no-correct
 ;;; condition prevents this from applying when mass is defined via the
 ;;; body tool.
+;;;
+;;; Does not handle time varying mass.
+;;;
 (def-error-class irrelevant-mass (?wrong-body)
   ((student (define-var (mass ?wrong-body)))
    (no-correct (body ?wrong-body))))
@@ -748,20 +751,20 @@
 
 
 ;;; ============= moment of inertia ==============================
-;;; There are two slots on the moment of inertia tool: body and time.
+;;; The slots on the moment of inertia tool are: body and, optinally, time.
 ;;; Thus, the default cases, other than those handled by
 ;;; non-existent-variable and wrong-time-variable, is just picking the
 ;;; wrong body (ignoring time).
 
 ;;; default case: picking the wrong body.  Test this with Exmomr4a.
-(def-error-class wrong-body-moment-of-inertia (?sbody ?cbody ?ctime)
-  ((student (define-var (at (moment-of-inertia ?sbody) ?stime)))
-   (no-correct (define-var (at (moment-of-inertia ?sbody) ?time2)))
-   (correct (define-var (at (moment-of-inertia ?cbody) ?ctime))))
+(def-error-class wrong-body-moment-of-inertia (?sbody ?cbody)
+  ((student (define-var (moment-of-inertia ?sbody)))
+   (no-correct (define-var (moment-of-inertia ?sbody)))
+   (correct (define-var (moment-of-inertia ?cbody))))
   :probability
-  (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
+  (+ 0.3))
 
-(defun wrong-body-moment-of-inertia (sbody cbody ctime)
+(defun wrong-body-moment-of-inertia (sbody cbody)
   (make-hint-seq
    (list (format nil "Are you sure you need the moment of inertia of ~a?"
 		 (nlg sbody 'def-np))

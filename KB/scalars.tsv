@@ -18,7 +18,7 @@ energy
 compression	d	compression distance		of [body:bodies] at time [time:times]
 spring-constant	k	spring constant		of [body:bodies]
 height	h	height		of [body:bodies] at time [time:times]
-moment-of-inertia	I	moment of inertia		of [body:bodies] at time [time:times]
+moment-of-inertia	I	moment of inertia		of [body:bodies]
 length		length		of [body:bodies]
 width		width		of [body:bodies]
 current	I			
