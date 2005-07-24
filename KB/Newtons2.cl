@@ -8899,14 +8899,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; could be generalized to include time:
   (any-member ?sought ( (moment-of-inertia ?b)
 		        (mass ?b)
-		        (length ?b) ))
-  )
+		        (length ?b) )))
   :effects ( (eqn-contains (I-rod-cm ?b) ?sought)))
 
 (defoperator write-I-rod-cm (?b)
   :preconditions (
     (variable ?I-var (moment-of-inertia ?b))
-    (varable ?m-var (mass ?b))
+    (variable ?m-var (mass ?b))
     (variable ?l-var (length ?b) ))
   :effects 
     ((eqn (= ?I-var (* (/ 1 12) ?m-var (^ ?l-var 2))) (I-rod-cm ?b)))
@@ -8958,7 +8957,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			(mass ?b)
 			(radius-of-circle ?b)
 		      ))
-  (time ?t))
+  )
   :effects 
     ((eqn-contains (I-hoop-cm ?b) ?sought)))
 
@@ -8968,7 +8967,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?m-var (mass ?b))
     (variable ?r-var (radius-of-circle ?b)))
   :effects 
-  ( (eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-hoop-cm ?b ?t)) )
+  ( (eqn (= ?I-var (* ?m-var (^ ?r-var 2))) (I-hoop-cm ?b)) )
    :hint
     ((point (string "You need the formula for the moment of inertia of a hoop rotating about its center of mass."))
      (bottom-out (string "Write the equation ~A"
