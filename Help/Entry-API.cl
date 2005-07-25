@@ -891,9 +891,13 @@
   (symbols-enter var quant-term id)
 
   ; record associated given value equation entry
-  (when value  ; NIL => unspecified; empty string => unknown
-    (setf (studentEntry-GivenEqns entry) 
-          (list (make-given-eqn-entry var value))))
+  (when value  ; NIL => unspecified. (use empty string => unknown)
+    (let ((given-eqn (make-given-eqn-entry var value)))
+    ; NB! make-given-eqn-entry returns NIL if no system var found for studvar
+    ; Should mean bad var def in this case. But maybe better to change to always
+    ; have a dangling given eqn entry in this case?
+    (when given-eqn
+       (setf (studentEntry-GivenEqns entry) (list given-eqn)))))
 
   ; finally return entry 
   entry))
