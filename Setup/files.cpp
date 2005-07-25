@@ -163,49 +163,12 @@ static const char * s_files[] =
 */
 	"Problems\\*.aps",
 
-	// Problems that use the new system (prb and maybe gif, but no .fbd)
-	// are specified here. Problems that still use .fbd files listed below.
-	"Problems\\for*.prb",
-	"Problems\\for*.gif",
-	"Problems\\pot*.prb",
-	"Problems\\pot*.gif",
-	"Problems\\mag*.prb",
-	"Problems\\mag*.gif",
-	"Problems\\mirror*.prb",
-	"Problems\\mirror*.gif",
-	"Problems\\lens*.prb",
-	"Problems\\lens*.gif",
-	"Problems\\fluids*.prb",
-	"Problems\\fluids*.gif",
-	"Problems\\OSC*.prb",
-	"Problems\\OSC*.gif",
-	"Problems\\WAVE*.prb",
-	"Problems\\WAVE*.gif",
-	"Problems\\WE*.prb",
-	"Problems\\WE*.gif",
-	"Problems\\CM*.prb",
-	"Problems\\CM*.gif",
-	"Problems\\IMP*.prb",
-	"Problems\\IMP*.gif",
-
-	// Other recently added batches of problems, not enumerated below.
-	"Problems\\kgraph*.prb",
-	"Problems\\kgraph*.fbd",
-	"Problems\\pgraph*.prb",
-	"Problems\\pgraph*.fbd",
-
-	// Recently added individual problems
-	"Problems\\s12a.prb",
-	"Problems\\e4bb.prb",
-	"Problems\\e4bb.gif",
-	"Problems\\e4cc.prb",
-	"Problems\\e4cc.gif",
-	"Problems\\e5aa.prb",
-	"Problems\\e5aa.gif",
-
-	// Problems using jpg graphics
-	"Problems\\we4b.jpg",
-
+	// Now just copy all of these
+	"Problems\\*.fbd",
+	"Problems\\*.prb",
+	"Problems\\*.aps",
+	"Problems\\*.gif",
+	"Problems\\*.jpg",
 
 	// Video pseudo-problem for preview image
 	"Problems\\video.fbd",
@@ -279,7 +242,10 @@ static const char *s_problems[] =
 	"swimmer",
 
 #else // ! EXPERIMENT, i.e. standard full ANDES installation
-  
+
+	"NULL",
+
+/* just install everything in zip for ease of changes
   // "gs00",
   // "gs01",
   "dr1a",
@@ -548,7 +514,7 @@ static const char *s_problems[] =
   "LRC*",
   // Electric power
   "epow*",
-  
+*/ 
 #endif // ! EXPERIMENT, i.e. standard Andes
 
 #ifdef UNINSTALL
