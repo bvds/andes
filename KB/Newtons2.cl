@@ -2280,16 +2280,17 @@
    (bottom-out (string "Because ~a is moving in a curve ~a, and the tangent to the curve at that point is ~a, draw a non-zero velocity in direction ~a." ?b (?t pp) (?dir adj) (?dir adj)))
    ))
 
-;;; This draws velocity for a 2d projectile trajectory at a point for which 
+
+;;; This draws velocity for a curved path at a point for which 
 ;;; velocity direction is not given.
-(defoperator draw-velocity-projectile-unknown (?b ?t)
+(defoperator draw-velocity-curved-unknown (?b ?t)
   :preconditions
    ((time ?t)
     ;; don't use this to draw average velocity over an interval. 
     ;; (Can compete with draw-avg-vel-from-displacement for that on 
     ;; some projectile problems.)
     (test (time-pointp ?t))
-    (motion ?b ?t-motion (curved projectile (unknown ?dontcare)))
+    (motion ?b ?t-motion (curved ?curve-type (unknown ?dontcare)))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (velocity ?b) ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2300,7 +2301,7 @@
     (variable ?dir-var (at (dir (velocity ?b)) ?t)))
   :hint
    ((point (string "You need to introduce a term for the velocity of ~a ~a." ?b (?t pp)))
-    (teach (string "The velocity of a projectile is tangential to its parabolic trajectory. In this problem the exact direction of the velocity vector requires calculation to determine, so you can draw the vector at any angle and leave the exact angle unspecified."))
+    (teach (string "The velocity of an object is tangential to its path of motion.  In this problem, the exact direction of the velocity vector is not given, so you should draw the vector at any angle and leave the exact angle unspecified."))
     (bottom-out (string "Draw the velocity of ~a ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?t pp)))
     ))
 
