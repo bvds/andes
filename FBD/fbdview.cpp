@@ -1775,7 +1775,13 @@ void CFBDView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 			while (pos != NULL) {
 				CVariable* pVar = GetDocument()->m_Variables.GetNext(pos);
 				strLine.Format("%s = %s", pVar->m_strName, pVar->m_strDef);
+			
 				WRITELINE(pDC, rcLine, strLine, pVar->m_status);
+				// add specified given value equation on next line (for room)
+				if (!pVar->m_strValue.IsEmpty()) {
+				  strLine.Format("    = %s", pVar->m_strValue);
+				  WRITELINE(pDC, rcLine, strLine, pVar->m_status);
+				}
 			}
 			SKIPLINE();	// blank line after variables, if any
 		}
@@ -1793,7 +1799,7 @@ void CFBDView::OnPrint(CDC* pDC, CPrintInfo* pInfo)
 					bDrawnObjects = TRUE;
 				}
 				CString strDef = pObj->GetPrintDef();
-				strLine.Format("%s = %s", pObj->m_strName, strDef);
+				strLine.Format("%s %s", pObj->m_strName, strDef);
 				WRITELINE(pDC, rcLine, strLine, pObj->m_status);
 			}
 		}

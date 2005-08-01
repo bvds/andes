@@ -1,6 +1,6 @@
 // ChildFrm.cpp : implementation of the CChildFrame class
 //
-// $Id: ChildFrm.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: ChildFrm.cpp,v 1.3 2005/08/01 23:41:37 anders Exp $
     
 #include "stdafx.h"
 // #include <afxrich.h>
@@ -395,7 +395,8 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 	// In Andes2 qual problem, no tools.
 	/*	nID = IDR_QUALTOOLS;		// bar with motion diagram tools. */
 	}
-	else if (m_pDoc->m_nProblemType == PROB_QUANT) // Quantitative problem
+	else if (m_pDoc->m_nProblemType == PROB_QUANT				// Quantitative problem
+		     && !(m_pDoc->m_wConcept & ID_PROB_PROBABILITY))    // but no drawing tools for probability
 	{
 		if (m_pDoc->m_wConcept & ID_PROB_ROTKINEMATICS)
 			nID = IDR_ROTKINTOOLS;	// bar with special tools for rotational probs

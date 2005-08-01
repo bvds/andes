@@ -330,6 +330,10 @@ static const int nVecProps ARRAY_SIZE(vecprops);
 // Add menu items for given concept mask to created menu. 
 void CVarMenu::AttachProblemMenu(DWORD dwConceptFlag, BOOL bIncludeVectors/*=FALSE*/)
 {
+	// never include vector items on probability problem
+	if (dwConceptFlag & ID_PROB_PROBABILITY)
+		bIncludeVectors = FALSE;
+
 	CMenu vecSubMenu;
 	if (bIncludeVectors) {
 		// only include final z-axis item if problem uses z-axis vectors

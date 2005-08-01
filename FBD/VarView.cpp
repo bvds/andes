@@ -497,7 +497,7 @@ void CVarView::OnInitialUpdate()
 	GetListCtrl().SetImageList (&m_imgStatus, TVSIL_STATE);
 	
 	// Create columns
-	GetListCtrl().InsertColumn(0, "Name", LVCFMT_LEFT, 50, 0);		// variable Label
+	GetListCtrl().InsertColumn(0, "Name", LVCFMT_LEFT, 100, 0);		// variable Label
 	GetListCtrl().InsertColumn(1, "Definition", LVCFMT_LEFT, 200, 1);// definition
 	// remaining columns used for vectors only:
 	GetListCtrl().InsertColumn(2, "Dir", LVCFMT_LEFT,  60, 2);// dir var
@@ -1377,8 +1377,9 @@ void CVarView::SizeToFit(int nCol, CString str)
 	int nListWidth = 0;
 
 	//Make sure column wide enough
-	int iconWidth = 20;
-	int nStrWidth = GetListCtrl().GetStringWidth(str) + iconWidth;
+	const int iconWidth = 20;
+	int nStrWidth = GetListCtrl().GetStringWidth(str);
+	if (nCol == 0)	nStrWidth += iconWidth;
 	int nColWidth = GetListCtrl().GetColumnWidth(nCol);
 
 	if (nStrWidth > nColWidth)
@@ -1386,11 +1387,11 @@ void CVarView::SizeToFit(int nCol, CString str)
 		int nTotWidth = 0;
 		for (int i = 0; i<4; i++)
 			nTotWidth = nTotWidth + GetListCtrl().GetColumnWidth(i);
-		//nDiff is visible width - total width
-		int nDiff = rect.right - nTotWidth;
-		if (nDiff > 0)
+		//nGrowRoom is visible width - total width
+		int nGrowRoom = rect.right - nTotWidth;
+		if (nGrowRoom > 0)
 		{//set columnwidth to max possible while remaining visible
-			GetListCtrl().SetColumnWidth(nCol, min(nStrWidth, (nColWidth + nDiff)));
+			GetListCtrl().SetColumnWidth(nCol, min(nStrWidth, (nColWidth + nGrowRoom)));
 		}
 	}
 

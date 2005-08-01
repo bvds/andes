@@ -89,6 +89,8 @@ public:
 	CString    GetWorkStateStr();   // return string for current work state
 
 	CString     m_strScore;         // score on problem (as string)
+	CString     m_strSavedStats;	// string listing saved stats from prior sessions
+	void        UpdateSavedStats(); // get latest values from helpsys
 	
 	BOOL		m_bIncludePlan;		// Include High-Level Solution Window
 	//
@@ -120,6 +122,8 @@ public:
 #define ID_PROB_CIRCUITS		0x00010000
 #define ID_PROB_EM              0x00020000
 #define ID_PROB_OPTICS          0x00040000
+// Probability
+#define ID_PROB_PROBABILITY     0x01000000
 
 	CStringList m_strFeatures;		// list of feature strings, from .prb file
 	void AddConceptsToFeatures();	// for old-style docs, sets feature list from concepts
@@ -277,6 +281,7 @@ protected:
 	int  GetUnusedId();
 
 public:	// so can be used by event broadcaster to send init entries
+	void RestoreSavedScores();
 	void ImportProblem();
 	BOOL LoadFromPrb(LPCSTR pszFileName);
 	void LogInitEntries();

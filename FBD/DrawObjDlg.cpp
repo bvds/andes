@@ -338,8 +338,7 @@ void CDrawObjDlg::Remove(int nIDBox)
 		pCtrl = pCtrl->GetNextWindow(GW_HWNDNEXT );
 	}
 	
-	//move up controls that follow
-	//the pWnd must follow the tab order of the controls it encompasses
+	//move up controls that follow box, as defined by the tabbing order
 	UpdateControls(pWnd, rcBox.Height());
 }
 

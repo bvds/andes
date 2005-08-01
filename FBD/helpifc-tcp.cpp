@@ -966,7 +966,7 @@ LPCTSTR HelpSystemExecf(LPCTSTR lpszFormat, ...)
 	if (theApp.GetMainFrame())
 		theApp.GetMainFrame()->BeginDdeWait(s_pszStatusMsg);
 	
-	// run the transaction. 
+	// run the transaction.
 	// s_szResult should contain result or empty string on return		
 	BOOL bSuccess = DoExec(szCmd, s_nTimeout);
 

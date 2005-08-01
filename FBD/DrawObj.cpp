@@ -3688,10 +3688,8 @@ CString CVariable::GetCheckCmd()
 			if (strObjectArg[0] != '(' || m_nType == ID_VARIABLE_ADDPROBABILITY)
 				strObjectArg = "|" + strObjectArg + "|";
 			// For value, NIL => no given value assertion; empty string => asserts unknown value
-			// Note don't want quotes around NIL
-			CString strValueArg = "NIL";
-			if (m_nType != ID_VARIABLE_ADDPROBABILITY)
-				strValueArg = "\"" + LISPSTR(m_strValue) + "\"";
+			// Note don't want quotes around NIL value arg if it is sent.
+			CString strValueArg = "\"" + LISPSTR(m_strValue) + "\"";
 			strCmd.Format( "(define-variable \"%s\" |%s| |%s| %s |%s| |%s| %s %s)",
 			STR2ARG(m_strName),   // !!! use LISPSTR if non-empty
 			STR2ARG(strForceType),
@@ -3789,17 +3787,20 @@ CString CVariable::GetLabelPrefix()
 	{
 		if (!m_strForceType.IsEmpty())
 		{
-			if (m_strForceType.GetAt(0) == 'K')		 // Kinetic
+			if (m_strForceType.GetAt(0) == 'K')		  // Kinetic
 				return "K";
-			else if (m_strForceType.GetAt(0) == 'T') // Total Mechanical
+			else if (m_strForceType.GetAt(0) == 'T')  // Total Mechanical
 				return "ME";
-			else if (m_strForceType.GetAt(0) == 'P'   // Potential
-				    || m_strForceType.GetAt(0) == 'E' // Elastic or Electric
-					|| m_strForceType.GetAt(0) == 'G'  // Gravitational
-					) 
-			{
+			else if (m_strForceType.GetAt(0) == 'P')   // Potential (now unused?)
 				return "U";
-			}
+			else if (m_strForceType.GetAt(0) == 'G')   // Gravitational Potential
+				return "Ug";
+			else if (m_strForceType.GetAt(0) == 'E'  &&
+				     m_strForceType.GetAt(2) == 'a')    // Elastic Potential
+				return "Us";
+			else if (m_strForceType.GetAt(0) == 'E'  &&
+				     m_strForceType.GetAt(2) == 'e')    // Electric Potential
+				return "Ue";
 		}
 		return "";
 	}

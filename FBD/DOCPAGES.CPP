@@ -46,6 +46,7 @@ extern const PROBLEM_CONCEPT concepts[] =
 	ID_PROB_CIRCUITS,	"Circuits",
 	ID_PROB_EM,         "Electricity & Magnetism",
 	ID_PROB_FLUIDS,     "Fluids",
+	ID_PROB_PROBABILITY, "Probability",
 };
 
 const int nConcepts ARRAY_SIZE(concepts);

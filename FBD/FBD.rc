@@ -650,8 +650,6 @@ BEGIN
         MENUITEM "Duplicate",                   ID_EDIT_DUPLICATE
         MENUITEM "Group/Ungroup",               ID_DIAGRAM_TOGGLEGROUP
         MENUITEM SEPARATOR
-        MENUITEM "Mark Resolved",               ID_DECOMPOSE_VECTOR
-        MENUITEM SEPARATOR
         MENUITEM "<OLE VERBS>",                 ID_OLE_VERB_FIRST
         MENUITEM "Properties...\tAlt+Enter",    ID_EDIT_PROPERTIES
     END
@@ -1039,7 +1037,7 @@ BEGIN
     ICON            IDR_EXAMPLETYPE,IDC_STATIC,23,14,20,20
     LTEXT           "ANDES Physics Workbench",IDC_STATIC,89,10,91,8,
                     SS_NOPREFIX
-    LTEXT           "Copyright © 1996-2004 Kurt VanLehn",IDC_STATIC,75,34,
+    LTEXT           "Copyright © 1996-2005 Kurt VanLehn",IDC_STATIC,75,34,
                     120,8
     DEFPUSHBUTTON   "OK",IDOK,113,206,42,14,WS_GROUP
     LTEXT           "0.0.0",IDC_VERSION,140,21,16,8
@@ -1471,7 +1469,7 @@ IDD_VECTOR_FORCE DIALOGEX 0, 0, 223, 140
 STYLE DS_MODALFRAME | DS_CONTEXTHELP | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "Force Definition"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "Force on &Body",IDC_LABEL_BODY,6,6,44,8,0,0,
                     HIDC_LABEL_BODY
@@ -1487,7 +1485,7 @@ BEGIN
                     WS_GROUP | WS_TABSTOP,0,HIDC_AGENT
     LTEXT           "of &Type",IDC_LAGENT,120,42,23,8,0,0,HIDC_LAGENT
     COMBOBOX        IDC_FORCE_TYPE,146,41,69,106,CBS_DROPDOWNLIST | CBS_SORT | 
-                    WS_VSCROLL | WS_TABSTOP,0,HIDC_BODY_TEXT2
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_FORCE_TYPE
     GROUPBOX        "",IDC_BOX_TIMEDIR,6,56,211,26,NOT WS_VISIBLE
     LTEXT           "&Orientation:",IDC_L2ANGLE,7,66,33,8,NOT WS_VISIBLE,0,
                     HIDC_L2ANGLE
@@ -1517,7 +1515,7 @@ IDD_VECTOR_MOVE DIALOGEX 0, 0, 228, 120
 STYLE DS_MODALFRAME | DS_CONTEXTHELP | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "Vector definition"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     COMBOBOX        IDC_ANGULAR,6,6,37,44,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
                     WS_VSCROLL | WS_TABSTOP
@@ -2373,7 +2371,7 @@ END
 IDD_ENERGY DIALOGEX 0, 0, 249, 121
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Declare Energy Variable"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Energy",IDC_STATIC_VALUE,7,7,23,8
     LTEXT           "of &Type",IDC_STC_TYPE,33,7,24,8
@@ -2387,6 +2385,7 @@ BEGIN
     LTEXT           "a&nd",IDC_AGENT_LABEL,107,32,13,8
     COMBOBOX        IDC_NRG_AGENT,130,32,67,55,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP,0,HIDC_NRG_AGENT
+    LTEXT           "&at Time",IDC_TIME_LABEL,7,56,24,8,0,0,HIDC_TIME_LABEL
     COMBOBOX        IDC_TIME,38,54,47,62,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP,0,HIDC_TIME
     GROUPBOX        "",IDC_BOX_LABEL,7,69,236,21,NOT WS_VISIBLE
@@ -2609,7 +2608,7 @@ END
 IDD_RESISTANCE DIALOGEX 0, 0, 241, 163
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Resistance Variable"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     GROUPBOX        "Resistance of ...",IDC_MULTIPLE_INSTRUCTIONS,8,7,157,88,
                     0,0,HIDC_MULTIPLE_INSTRUCTIONS
@@ -2641,7 +2640,7 @@ END
 IDD_CURRENT DIALOGEX 0, 0, 261, 121
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define current"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Current",IDC_STATIC_VALUE,13,20,22,8
     CONTROL         "&Through",IDC_CURRENT_THRU,"Button",BS_AUTORADIOBUTTON | 
@@ -2673,7 +2672,7 @@ END
 IDD_VOLTAGE DIALOGEX 0, 0, 260, 117
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Voltage"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Voltage",IDC_STATIC_VALUE,16,14,25,8
     LTEXT           "Across &Component",IDC_ACROSS_LABEL,44,14,58,8
@@ -2847,25 +2846,31 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Probability"
 FONT 10, "MS Sans Serif"
 BEGIN
-    LTEXT           "Probability of",IDC_PROB_TEXT,7,33,42,8
-    CONTROL         "",IDC_EVENT,"RICHEDIT",ES_AUTOHSCROLL | WS_BORDER | 
-                    WS_TABSTOP,54,30,106,14
-    GROUPBOX        "",IDC_BOX_LABEL,6,47,214,19,NOT WS_VISIBLE
-    LTEXT           "Variable Name",IDC_RADNAME_TEXT,6,54,48,8
-    CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
-                    WS_BORDER | WS_TABSTOP,59,51,51,14
-    DEFPUSHBUTTON   "OK",IDOK,58,69,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,124,69,50,14
     PUSHBUTTON      "~",IDC_BTN_TILDE,7,5,20,14
     PUSHBUTTON      "/\\",IDC_BTN_AND,31,5,20,14
     PUSHBUTTON      "\\/",IDC_BTN_OR,55,5,20,14
     PUSHBUTTON      "(",IDC_BTN_LPAREN,79,5,20,14
     PUSHBUTTON      ")",IDC_BTN_RPAREN,103,5,20,14
+    PUSHBUTTON      "|",IDC_BTN_GIVEN,127,5,20,14
     PUSHBUTTON      "A",IDC_BTN_A,151,5,20,14
     PUSHBUTTON      "B",IDC_BTN_B,175,5,20,14
     PUSHBUTTON      "C",IDC_BTN_C,199,5,20,14
     PUSHBUTTON      "D",IDC_BTN_D,223,5,20,14
-    PUSHBUTTON      "|",IDC_BTN_GIVEN,127,5,20,14
+    LTEXT           "Probability of",IDC_PROB_TEXT,7,30,42,8
+    CONTROL         "",IDC_EVENT,"RICHEDIT",ES_AUTOHSCROLL | WS_BORDER | 
+                    WS_TABSTOP,54,27,106,14
+    GROUPBOX        "",IDC_BOX_LABEL,6,48,239,19,NOT WS_VISIBLE
+    LTEXT           "Variable Name",IDC_RADNAME_TEXT,6,55,48,8
+    CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
+                    WS_BORDER | WS_TABSTOP,59,52,51,14
+    GROUPBOX        "Given Value",IDC_GIVEN_BOX,111,41,133,28
+    LTEXT           "=",IDC_STATIC_EQUALS,115,55,8,8
+    EDITTEXT        IDC_GIVEN_VALUE,123,53,63,13,ES_AUTOHSCROLL
+    LTEXT           "or",IDC_STATIC_OR,189,54,8,8
+    CONTROL         "Unknown",IDC_CHECK_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,201,56,40,7
+    DEFPUSHBUTTON   "OK",IDOK,58,72,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,124,72,50,14
 END
 
 
@@ -2876,8 +2881,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 9,2,1,0
- PRODUCTVERSION 9,2,1,0
+ FILEVERSION 9,2,3,2
+ PRODUCTVERSION 9,2,3,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -2895,14 +2900,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "9, 2, 1, 0\0"
+            VALUE "FileVersion", "9, 2, 3, 2\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "9, 2, 1, 0\0"
+            VALUE "ProductVersion", "9, 2, 3, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3634,6 +3639,8 @@ BEGIN
 0x7542, 0x796f, 0x6e61, 0x0074, 
     IDC_FORCE_TYPE, 0x403, 9, 0
 0x7250, 0x7365, 0x7573, 0x6572, "\000" 
+    IDC_FORCE_TYPE, 0x403, 7, 0
+0x6854, 0x7572, 0x7473, "\000" 
     0
 END
 

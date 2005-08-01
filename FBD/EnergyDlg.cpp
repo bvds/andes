@@ -218,9 +218,14 @@ void CEnergyDlg::OnSelchangeNrgType()
 		m_editName.SetPrefix("ME");
 	else if (type == Kinetic)
 		m_editName.SetPrefix("K");
-	else if (type == Gravitational || type == Elastic 
-		|| type == Electric) {
-		m_editName.SetPrefix("U");
+	else if (type == Gravitational) {
+		m_editName.SetPrefix("Ug");
+		bPotential = TRUE;
+	} else if (type == Elastic) { 
+		m_editName.SetPrefix("Us");
+		bPotential = TRUE;
+	} else if (type == Electric) {
+		m_editName.SetPrefix("Ue");
 		bPotential = TRUE;
 	}
 

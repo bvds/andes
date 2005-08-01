@@ -29,7 +29,8 @@ public:
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
 	CLogBtn	m_btnUnknown;
-	CEQRichEdit m_editValue;
+	// CEQRichEdit m_editValue;
+	CLogEdit m_editValue;
 	CLogBtn	m_Ok;
 	CLogBtn	m_Cancel;
 	CStatic	m_stcLet;

@@ -51,7 +51,8 @@ CString CVariableDlg::GetSpec()		// get dialog spec for
 	// Ugly special case: if changing-mass feature is set, then mass variable uses
 	// time slot. Adjust spec so other code works without change
 	CString strTypeId = CVarView::LookupTypeId(((CVariable*)m_pTempObj)->m_nType);
-	if (strTypeId.CompareNoCase("mass") != -1) {
+	if ((strTypeId.CompareNoCase("mass") != -1) ||
+	    (strTypeId.CompareNoCase("moment-of-inertia") != -1)) {
 		if (CVarView::IncludeQuant(CString("CHANGING-MASS"))){
 			strSpec += " at time [time:times]";
 		}
@@ -160,6 +161,7 @@ BEGIN_CTL_TBL(CVariableDlg)
 	"body", IDC_BODY,
 	"time", IDC_TIME,
 	"agent", IDC_FORCEAGENT,
+	"value", IDC_GIVEN_VALUE,
 	"OK",			IDOK,
 	"Cancel",		IDCANCEL,
 	// to interpret old long names for backwards compatibility:

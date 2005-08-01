@@ -49,7 +49,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFBDDoc construction/destruction
     
-#define DOC_VERSION 23		//latest document format version number
+#define DOC_VERSION 24		//latest document format version number
     
 CFBDDoc::CFBDDoc()
 {
@@ -377,6 +377,10 @@ void CFBDDoc::SerializeHeader(CArchive &ar)
 		// copying saved solutions. This should be set on first save of a solution in 
 		// saving management code. We do that so don't set it on problem masters.
 		ar << m_strCreator;
+
+		// Added version 24: saved score statistics string. Make sure up to date
+		UpdateSavedStats();
+		ar << m_strSavedStats;
 		
 	} else {
 		ar >> m_strProblemId;
@@ -402,6 +406,9 @@ void CFBDDoc::SerializeHeader(CArchive &ar)
 		if (m_nVersion >= 20)
 			ar >> m_strCreator;
 		
+		// added version 24:
+		if (m_nVersion >= 24)
+			ar >> m_strSavedStats;
 	}
 }
 
@@ -761,9 +768,13 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		// pszResult = HelpSystemExecf("(read-example-info \"%s\")", m_strProblemId);
 		pszResult = HelpSystemExecf("(read-example-info \"%s\" %d)", 
 								m_strProblemId, m_nAssessor);	
-	else
+	else {
+#ifndef OLI // for Min-Chi experiment: set long timeout on open for large problems.
+		HelpIfcSetCallParms(10*60*1000, "Waiting for tutor to load problem");
+#endif 
 		pszResult = HelpSystemExecf("(read-problem-info \"%s\" %d %d)", 
 								LISPSTR(m_strProblemId), m_nKBType, m_nAssessor);
+	}
 	// NB: NIL return means help system does not get a "close-problem" notification on 
 	// finish, since it failed to open the problem (correct behavior?)
 	if (! pszResult || (strcmp(pszResult, "NIL") == 0) ){
@@ -794,6 +805,10 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
     // Log other initial state of document (id generation counter);
 	LogEventf(EV_NEXT_ID, "%d", nNextID);
 
+	// Now reset persistent scores in the help system
+	if (theApp.m_bFeedback) 
+		RestoreSavedScores();
+
     return TRUE;
 }
 
@@ -819,7 +834,22 @@ void CFBDDoc::LogOpen(LPCTSTR lpszPathName)
 		LogEventf(EV_OPEN_PROBLEM, "%s %s", m_strProblemId, strPath);
 	}
 }
-  
+
+// This is used just before serializing document to fetch the latest saved
+// scores from the help system, if it is available. Does nothing if helpsys
+// not active on current problem. This is not done in OnCloseDocument because
+// the file saving occurs before close of document, triggered by the SaveAllModified
+// buffers mechanism called by the doc or app window close command handler.
+void CFBDDoc::UpdateSavedStats()
+{
+	if (! (HelpSystemIsConnected() && theApp.m_bFeedback))
+		return;
+
+	LPCTSTR pszResult = HelpSystemExecf("(get-stats persist)");
+	if (pszResult) 
+		m_strSavedStats = pszResult;
+}
+
 //
 // Trap close of document to notify help system. Can lead to long wait
 // while Bayes net updates. Note this may be executed invisibly as part
@@ -1018,6 +1048,8 @@ void CFBDDoc::LogInitEntries()
 
 	// TODO: principles, qualitative stuff
 }
+
+extern int split(const CString& str, const CString& Sep, CStringArray& result);
 	
 void CFBDDoc::CheckInitEntries()
 {
@@ -1133,6 +1165,38 @@ void CFBDDoc::CheckInitEntries()
 			CCheckedObj::ApplyStatus(pszResult, pPrinc->m_checkStatus, listErrors);
 		}
 	}
+}
+
+// send saved persistent scores back to help system
+void CFBDDoc::RestoreSavedScores()
+{
+	if (m_strSavedStats.IsEmpty()) 
+		return;
+
+	// urgh, need to parse score string and convert into help sys format.
+	// make list of score-value pairs. 
+	CString strArgList;
+	CStringArray strStats, strFields;
+	int nStats = split(m_strSavedStats, ";", strStats);
+	for (int iStat = 0; iStat < nStats; iStat++)   // for each stat
+	{
+			// split fields from "name weight value" triple
+			int nFields = split(strStats[iStat], " ", strFields);
+			ASSERT(nFields == 3);
+			CString strName = strFields[0];
+			CString strScore = strFields[2];
+			CString strArg;	int nNum, nDenom;
+			if ((sscanf(strScore, "%d/%d", &nNum, &nDenom)) == 2)
+				strArg.Format(" (%s (%d %d))", strName, nNum, nDenom);
+			else
+				strArg.Format(" (%s %s)", strName, strScore);
+			strArgList += strArg;
+	}
+
+	// call help sys API. We can't do anything with a failure result, so
+	// just post the callx and barge on. 
+	HelpSystemSendf("(set-stats %s)", strArgList);
+
 }
 
 // Check for completion, updating work state in doc
@@ -2625,6 +2689,7 @@ featureMap[] =
 	"E&M",        ID_PROB_EM,
 	"optics",     ID_PROB_OPTICS,
 	"relvel",     ID_PROB_RELVEL,
+	"probability", ID_PROB_PROBABILITY,
 };
 const int nFeatures ARRAY_SIZE(featureMap);
 
@@ -3090,6 +3155,8 @@ CHelpData* CFBDDoc::GetHelpData(LPCTSTR pszName)
 	}
 	return NULL; // not found
 }
+
+
 
 
 
