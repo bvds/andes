@@ -169,16 +169,42 @@
 ;;   This function when called returns a stat-turn containing a space-separated 
 ;;   string of tuples representing the student's scores.  
 ;; Argument:
-;;  Type:  Either 'scores' or 'all'  
+;;  Type:  Either 'scores' or 'all' or 'persist
 ;;    If 'stats' then the values will be the total list of stats that Andes is
 ;;       collecting irrespective of their weigths.  
 ;;    If 'scores' then the result will be the statistics that have had non-zero
 ;;       weights assigned to them for computation of the total.
+;;    If 'persist then only 
 ;; Result:  A stat-turn containing the result values.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun get-stats (Type)
   (on-stats-get-stats Type))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; set-stats -- restore specified score values
+;;
+;; This is used by the workbench to restore persistent scores saved in the
+;; the solution file on problem open. The implementation function that does the 
+;; work is in HelpStructs/RuntimeTest.cl
+;;
+;; Argument list for this API call should be a Lisp-readable sequence of pairs 
+;; of the form (score value-expr) (score value-expr) (score value-expr) ...
+;; Currently the only value types we persist will be either a number for a simple 
+;; count or a list of two numbers for a fractional score.  
+;; Example command string:
+;;
+;;   (set-stats (NSH_BO_Call_Count 3) (WWH_BO_Call_Count 2) 
+;;          (Correct_Entries_V_Entries (3 5))
+;;          (Correct_Answer_Entries_V_Answer_Entries (0 6)))
+;;
+;; [Quote is not needed in command strings sent from the workbench because they
+;; are Lisp read then dispatched by (funcall (first cmd) (rest cmd)) so args are
+;; not evaluated, though they must be readable.]
+;;
+;; Result: normally NIL. No indication of success or failure.
+;;
+(defun set-stats (&rest score-value-list)
+  (set-runtime-test-stats score-value-list))
 
 
 ;;; ============================================================================

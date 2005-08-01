@@ -336,7 +336,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-check-entries (State)
   (if (equalp State **checking-entries**)
-      (error "Unmatched check-entries calls made.")
+      (warn "Unmatched check-entries calls made.")
     (setq **Checking-Entries** State)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

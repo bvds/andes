@@ -86,6 +86,6 @@
 (defun on-stats-get-stats (Type)
   (make-stat-turn
    (map-tests->list-results
-    (if (equalp Type 'score)
-	(collect-runtime-score-tests)
-      (collect-all-runtime-tests)))))
+    (cond ((equalp Type 'score) (collect-runtime-score-tests))
+          ((equalp Type 'persist) (collect-persistent-score-tests))
+	  (T (collect-all-runtime-tests))))))

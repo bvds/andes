@@ -270,6 +270,21 @@
       (send-fbd-command (format Nil "set-score ~a" current-score))
       (setf *last-score* current-score))))
 
+;;; AW: now we no longer load and save problem statistics in the
+;;; student history file. Instead, the workbench will fetch the 
+;;; few persistent score statistics from us via (get-stats 'persist),
+;;; save them in the problem solution file, and restore them via
+;;; an API call on problem open. Non-score statistics will not be
+;;; saved (and could be dropped entirely from the test list).
+;;; Following code is therefore mostly obsolete; we keep it in
+;;; case we ever go back to the history file method. 
+;;; Not clear if the stat updates on student/read/close events
+;;; are still necessary. Time stat might change on these, but this
+;;; is not part of score so is no longer accurately tracked. Not
+;;; sure if any other stat could change on these events, or if
+;;; any update is necessary for proper initialization.
+
+
 ;;; When NewCmd is a close-problem then the system will update the 
 ;;; current scores one last time, store the stats within the 
 ;;; Student.dat file.  Once that is done the stats will be reset
@@ -279,13 +294,16 @@
 ;;; time that they spend between problems will not effect the scores
 ;;; that they recieve on each problem-instance.
 (defun iface-handle-stats-close (NewCmd)
-  (update-runtime-testset-scores)
-  (store-runtime-test-stats 
-   (read-from-string (second (cmd-call NewCmd))))
+  (update-runtime-testset-scores)  ; AW: maybe not still needed
+  ; AW: no longer save stats in history file
+  ; (store-runtime-test-stats 
+  ;   (read-from-string (second (cmd-call NewCmd))))
   (setq **Current-Cmd-Stack** Nil)
   (setq **Current-Cmd** Nil)
   (reset-runtime-testset-scores)
-  (load-stored-runtime-test-stats Nil))
+  ; AW: no longer load stats from history file
+  ; (load-stored-runtime-test-stats Nil)
+)
 
 
 ;;; On a read-problem-info cmd the system will store the current 
@@ -293,21 +311,24 @@
 ;;; indicate no problem instance.  Following that the stats will
 ;;; be reset and updated to reflect the new problem instance.
 (defun iface-handle-stats-read (NewCmd)
-  (store-runtime-test-stats Nil)
+  ; AW -- no longer store stats in history file
+  ; (store-runtime-test-stats Nil)
   (setq **Current-Cmd-Stack** (list NewCmd))
   (setq **current-cmd** NewCmd)
   (reset-runtime-testset-scores)
-  (load-stored-runtime-test-stats 
-   (read-from-string (second (cmd-call NewCmd))))
-  (update-runtime-testset-scores))
+  ; AW: no longer load stats from history file
+  ;(load-stored-runtime-test-stats 
+  ; (read-from-string (second (cmd-call NewCmd))))
+  (update-runtime-testset-scores)) ; AW: maybe not still needed
 
 
 ;;; On a read-student-info command we need to load in the 
 ;;; studentfile and to reset the stored stats variable.  
 (defun iface-handle-stats-student ()
-  (load-saved-scores-cache)
-  (load-stored-runtime-test-stats Nil)
-  (update-runtime-testset-scores))
+  ; AW: no longer load stats from history file
+  ; (load-saved-scores-cache)
+  ; (load-stored-runtime-test-stats Nil)
+  (update-runtime-testset-scores))  ; AW: maybe not still needed
 
 
 ;; ---------------------------------------------------------------------

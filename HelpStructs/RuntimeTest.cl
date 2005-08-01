@@ -334,7 +334,14 @@
 	(funcall Cond)
       Cond)))
 
-
+; following initializes a runtime test value, either to static value
+; or by dynamic function call.
+(defun runtime-test-init-value (Test)
+"set runtime test to its designated initial value"
+  (setf (runtime-test-CurrVal Test)
+     (if (Runtime-Test-InitFunc Test) (funcall (Runtime-Test-InitFunc Test))
+        (Runtime-Test-InitVal Test))))
+  
 
 ;;; Iterate over the set of runtime-tests and reset the scores to their
 ;;; initial values.  This is called when a new problem is loaded at 
@@ -348,14 +355,10 @@
 (defun reset-runtime-testset-scores ()
   (execute-runtime-test-prep-funcs)
   (dolist (Test *Runtime-Testset*)
-    (setf (runtime-test-CurrVal Test)
       (when (Runtime-test-activep Test)
-	(let ((F (Runtime-Test-InitFunc Test)))
-	  (if F (funcall F)
-	    (Runtime-Test-InitVal Test))))))
+        (runtime-test-init-value Test)))
   (reset-runtime-score-testset)
   (select-current-runtime-testset-solution))
-
 
 
 ;;; Iterate over the tests funcalling their funcs to set the new scores.
@@ -373,15 +376,12 @@
   (when (not **checking-entries**)
     (dolist (Test *Runtime-Testset*)
       (when (runtime-test-activep Test)
-	; (format T "updating ~A (Currval=~A)~%" (runtime-test-name Test) (runtime-test-CurrVal Test))
 	; AW: following error sometimes occurs after reloads in development environment:
 	(when (null (runtime-test-CurrVal Test)) 
-	     (format T "Warning: score update found ~A active but not initialized! Initializing now." 
+	     (format T "Warning: score update found ~A active but not initialized! Initializing now.~%" 
 	               (runtime-test-name Test))
-             (setf (runtime-test-CurrVal Test)
-	           (if (Runtime-Test-InitFunc Test) (funcall (Runtime-Test-InitFunc Test))
-	              (Runtime-Test-InitVal Test))))
-	 ; AW: end sanity check for uninitialized runtime tests
+	     (runtime-test-init-value Test))
+	 ; (format T "updating ~A (Currval=~A)~%" (runtime-test-name Test) (runtime-test-CurrVal Test))
 	 (funcall (Runtime-test-func Test) 
 		  (runtime-test-CurrVal Test))))
     (select-current-runtime-testset-solution)))
@@ -474,6 +474,11 @@
 ;;; tests are stored.  
 (defun collect-all-runtime-tests ()
   *Runtime-testset*)
+
+;;; This returns those tests whose value must persist across sessions
+;;; NB: only returns tests used in score, not all tracked stats.
+(defun collect-persistent-score-tests ()
+  (remove-if-not #'runtime-test-loadable *Runtime-Score-Testset*))
 
 
 ;;; Given a set of runtime tests translate it into a list of 3-tuples
@@ -674,6 +679,34 @@
 	    (unpack-rt-val (cadr Val))))))))
 
 
+;;; Following supports new persistence via storage of persistent stats in workbench 
+;;; solution file, to be restored by an API call from the workbench on problem load.
+;;; Argument for this function should be list of pairs of the form
+;;;        ((score value-expr) (score value-expr) (score value-expr))
+;;; where value-expr is a Lisp expression suitable as an argument set-rt-score-value. 
+;;; Currently the only value types we persist will be either a number for a simple count 
+;;; or a list of two numbers for a fractional score.  Example list:
+;;;         ((NSH_BO_Call_Count 3) (WWH_BO_Call_Count 2) 
+;;;          (Correct_Entries_V_Entries (3 5))
+;;;          (Correct_Answer_Entries_V_Answer_Entries (0 6))))
+;;;
+;;; Note: This routine may not work on other possible types of score values (e.g. the 
+;;; per-solution value lists), but it works on what we need now.
+;;;
+;;; Note also: a ratio score like Correct_Entries_V_Entries is updated entirely
+;;; independently of the counts it depends on. So in future sessions, the 
+;;; Entry_Count score will start at 0 while the Correct_Entries_V_Entries might
+;;; be reset to 3 of 5. This inconsistency won't matter because the Entry_Count 
+;;; statistic is never used in the score computation; rather, for ratio scores 
+;;; like the correct entry rate, the numerator is bumped on every entry. (See
+;;; test update functions in Testcode/Tests.cl)
+;;;  
+(defun set-runtime-test-stats (score-value-pair-list)
+  (dolist (pair score-value-pair-list)
+     (let ((test (lookup-name->runtime-test (first pair))))
+        (when (and Test (runtime-test-activep test))
+           (set-rt-score-value (runtime-test-currval test) 
+	                       (second pair)))))) 
 
 ;;;; ------------------------------------------------------------------------
 ;;;; ------------------------------------------------------------------------
