@@ -99,7 +99,24 @@
 ;;; will be algebraically unable to solve for the sought quantity.  This
 ;;; filtering is designed to prevent that by elminating those combinations
 ;;; from the system when the entries are made.
-(defvar **Filter-Constraint-losses** T
+;;;
+;;; AW: disable this because it is unreliable for projections as we write them:
+;;; Our solutions do not use theta variables for known angles inside projections. 
+;;; Instead we use the pair of equations:
+;;;          (1) Fn_x = Fn * cos(120 deg)
+;;;          (2) thetaFn = 120 deg
+;;; (It caused trouble for the solution indyset collection to have the theta 
+;;; vars in the equation, in some way because it couldn't make use of the fact
+;;; that two angles denoted by different theta vars were in fact the same. So
+;;; we plugged in known angle values instead.)
+;;; So, when student enters
+;;;           (3) Fn_x = Fn*cos(thetaFn)
+;;; this looks like a weaker constraint than {1,2} -- it does not determine
+;;; that thetaFn is 120 deg so determines a plane.
+;;; There might be some better way of dealing with this, but for now easiest
+;;; just to turn it off.
+
+(defvar **Filter-Constraint-losses** NIL
   "If t will filter out systementries that cause constraint loss in the system.") 
 
 ;;========================================================================
