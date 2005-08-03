@@ -321,7 +321,7 @@
       ; so don't use it if component-form solution is wanted (see below).
       (not (component-form)) 
       (eqn-family-contains ?eqn-family-id ?sought)
-      ; make sure psm name not on problem's ignore list:
+      ;; make sure psm name not on problem's ignore list:
       (test (not (member (first ?eqn-family-id) (problem-ignorePSMS *cp*))))
       (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?eqn-family-id)
       (vector-diagram ?eqn-family-id)
@@ -6995,10 +6995,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (test (not (eq ?type 'spring)))
     ;; must draw body, force and displacement vectors
     (body ?b)
-    ;; make sure standard axis is allowed, even if unused
-    (axis-for ?b x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (displacement ?b) ?t) ?dir-d)
+    ;; must draw standard axes
+    ;; should also allow other directions for axes, see (inst-power ...)
+    ;; (axis-for ?b x 0)
+    
     ;; make sure they are not perpendicular. If so, variant write-zero-work 
     ;; operator will write workF = 0
     (test (not (perpendicularp ?dir-f ?dir-d)))
@@ -7601,7 +7603,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  ))
 
 (defoperator write-inst-power (?b ?agent ?t)
- 
  :preconditions (
     ;; !!! could be more than one force from agent, e.g. normal and friction
     ;; from floor.  This should be fixed by adding type slot to work argument.
@@ -7614,10 +7615,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                            (remove 'Normal ?agent-force-types))))
     ;; must draw body, force and velocity vectors
     (body ?b)
-    ;; make sure standard axis is allowed, even if unused
-    (axis-for ?b x 0) 
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (velocity ?b) ?t) ?dir-d)
+    ;; must draw standard axes
+    ;; should also allow other directions for axes, see (work ...)
+    ;; (axis-for ?b x 0)
     (in-wm (variable ?F-var (at (mag (force ?b ?agent ?type)) ?t)))
     (in-wm (variable ?v-var (at (mag (velocity ?b)) ?t)))
     (variable ?theta-var (angle-between (at (force ?b ?agent ?type) ?t)
