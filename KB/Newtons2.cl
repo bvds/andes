@@ -6997,9 +6997,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (body ?b)
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (displacement ?b) ?t) ?dir-d)
-    ;; must draw standard axes
+    ;; optionally draw standard axes
     ;; should also allow other directions for axes, see (inst-power ...)
-    ;; (axis-for ?b x 0)
+    (optional (axis-for ?b x 0))
     
     ;; make sure they are not perpendicular. If so, variant write-zero-work 
     ;; operator will write workF = 0
@@ -7617,9 +7617,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (body ?b)
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (velocity ?b) ?t) ?dir-d)
-    ;; must draw standard axes
+    ;; optinally draw standard axes
     ;; should also allow other directions for axes, see (work ...)
-    ;; (axis-for ?b x 0)
+    (optional (axis-for ?b x 0))
     (in-wm (variable ?F-var (at (mag (force ?b ?agent ?type)) ?t)))
     (in-wm (variable ?v-var (at (mag (velocity ?b)) ?t)))
     (variable ?theta-var (angle-between (at (force ?b ?agent ?type) ?t)
