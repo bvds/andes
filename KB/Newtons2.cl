@@ -6994,12 +6994,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; don't apply this to spring force which varies over interval
     (test (not (eq ?type 'spring)))
     ;; must draw body, force and displacement vectors
+    ;; Without a proper dot product, there is no point in drawing
+    ;; axes.
     (body ?b)
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (displacement ?b) ?t) ?dir-d)
-    ;; optionally draw standard axes
-    ;; should also allow other directions for axes, see (inst-power ...)
-    (optional (axis-for ?b x 0))
     
     ;; make sure they are not perpendicular. If so, variant write-zero-work 
     ;; operator will write workF = 0
@@ -7602,6 +7601,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (eqn-contains (inst-power ?b ?agent ?t) ?sought)
  ))
 
+	  
 (defoperator write-inst-power (?b ?agent ?t)
  :preconditions (
     ;; !!! could be more than one force from agent, e.g. normal and friction
@@ -7614,12 +7614,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
                            (remove 'Normal ?agent-force-types))))
     ;; must draw body, force and velocity vectors
+    ;; Without a proper dot product, there is no point in drawing axes.
     (body ?b)
     (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
     (vector ?b (at (velocity ?b) ?t) ?dir-d)
-    ;; optinally draw standard axes
-    ;; should also allow other directions for axes, see (work ...)
-    (optional (axis-for ?b x 0))
     (in-wm (variable ?F-var (at (mag (force ?b ?agent ?type)) ?t)))
     (in-wm (variable ?v-var (at (mag (velocity ?b)) ?t)))
     (variable ?theta-var (angle-between (at (force ?b ?agent ?type) ?t)
