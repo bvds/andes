@@ -312,6 +312,7 @@
       (energy      (case subtype
 		     (total   `(at (total-energy ,body-term) ,time-term))
 		     (kinetic `(at (kinetic-energy ,body-term) ,time-term))
+		     (rotational `(at (rotational-energy ,body-term) ,time-term))
 		     ;; new style:
 		     ;; Change 9.0.2: add agent slot to PE quants
 		     (electric `(at (electric-energy ,body-term ,body2-term) ,time-term))
