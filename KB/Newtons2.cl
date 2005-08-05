@@ -1005,11 +1005,13 @@
 ;;;   [- rotational problems, to achieve z-axis for z-compo eqn ] -- taken out!
 ;;  But both of these uses ought to have specialized hints.
 
+#|
 (defoperator axes-for-vectors (?b)
   :preconditions ( (vector ?b ?quant ?dir)
 		   (not (axis-for ?b ?xyz ?rot))
 		   (optional (axis-for ?b x 0)) )
   :effects ( (optional-standard-axes) ))
+|#
 
 (defoperator draw-unrotated-axes ()
   :specifications 
