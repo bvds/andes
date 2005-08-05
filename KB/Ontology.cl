@@ -988,13 +988,29 @@
 
 ; !! "total-energy" label used in kb is misleading, it's total *mechanical* energy only
 
-; Students don't need the sub-equation cons-energy choice since whole cons-energy psm shows 
-; eqn as ME2=ME1. Selection of cons-energy in workbench will match the psmclass, not the sub-equation.
+; Students don't need the sub-equation cons-energy choice since whole cons-energy psm displays the
+; eqn as ME2=ME1, even though that is only the top-level step in the complex psm. Currently, selection 
+; of cons-energy in workbench will match the psmclass, not the sub-equation.  However, it is actually the 
+; top-level sub-equation id that is attached the equation entry students much match. So we duplicate the
+; psm info in declaring the top-level sub equations, and mark them major for grading.
+; Same structure applies to Wnet = K2-K1 and Wnc = ME2-ME1
 (def-equation tme-cons (total-energy-cons ?b ?t1 ?t2)
    :english ("the conservation of mechanical energy")
    :complexity major
    :EqnFormat ("ME1 = ME2"))
 
+(def-equation change-ME-top  (change-ME-top ?body ?time0 ?time1)
+  :complexity major
+  :english ("change in mechanical energy")
+  :EqnFormat("Wnc = ME2 - ME1"))
+
+(def-equation work-delta-ke (work-delta-ke ?body ?time0 ?time1)
+  :complexity major
+  :english ("the work-kinetic energy theorem")
+  :EqnFormat ("Wnet = Kf - Ki"))
+
+; Following subequations define constituents of top-level energy principles.
+; all are declared definitions so can be substituted in.
 (def-equation mechanical-energy  (total-energy-top ?body ?time) 
    :english ("the definition of mechanical energy")
    :complexity definition
@@ -1208,3 +1224,27 @@
   :english ("definition of momentum component")
   :complexity definition ;so it can be substituted into momentum conservation
   :EqnFormat ("pi_~a = m * v_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+;;
+;; required-identities -- identity equations that must always be written out
+;;
+;; This is used by the constraints in Help/interpret-equation.cl that 
+;; check whether fundamental equations are written explicitly. Those constraints
+;; allow variable identity equations to be exploited when formulating principles,
+;; because they usually are trivial artifacts of choice of a quantity. But
+;; a few identities express important principles that we want to see written
+;; explicitly, so we enumerate them here.
+;;
+;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
+(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
+ *required-identities* 
+ '( NTL					;Newton's Third Law
+   total-energy-cons 			;conservation of energy (top-level subeqn)
+   projection proj			;projection psm and projection equation
+   charge-same-caps-in-branch		;want students to show they know this
+   ) #+sbcl #'equalp)
+
+(defun required-identity-p (eqn)
+"true if eqn is on the list of required identities"
+    (member (first (eqn-exp eqn)) *required-identities*))
+

@@ -209,25 +209,11 @@
 		   (eq (first rhs) '+)
 		   (symbolp (second rhs)))))))
 
-;; required-identities -- identities that must always be written out
-;; (Maybe this info should be moved to ontology) 
-;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
-(#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
- *required-identities* 
- '( NTL					;Newton's Third Law
-   ;; cons-energy ;don't require ME1=ME2, so K1+U1=K2+U2 becomes OK
-   projection proj			;projection psm and projection equation
-   charge-same-caps-in-branch		;want students to show they know this
-   ) #+sbcl #'equalp)
-
-(defun required-identity-p (eqn)
-"true if eqn is on the list of required identities"
-    (member (first (eqn-exp eqn)) *required-identities*))
 
 (defun combinable-identity-p (eqn)
 "true if eqn is an identity allowed to be combined"
   (and (identity-eqn-p eqn)
-       (not (required-identity-p eqn))))
+       (not (required-identity-p eqn)))) ; in ontology.cl
 
 
 ; map sysentries to eqn:
