@@ -1005,12 +1005,14 @@
 ;;;   [- rotational problems, to achieve z-axis for z-compo eqn ] -- taken out!
 ;;  But both of these uses ought to have specialized hints.
 
+
 #|
 (defoperator axes-for-vectors (?b)
-  :preconditions ( (vector ?b ?quant ?dir)
+  :preconditions ( (optional-standard-axes) ;only do on request.
+		   (vector ?b ?quant ?dir)
 		   (not (axis-for ?b ?xyz ?rot))
 		   (optional (axis-for ?b x 0)) )
-  :effects ( (optional-standard-axes) ))
+  :effects ( 		     ))
 |#
 
 (defoperator draw-unrotated-axes ()
@@ -6535,7 +6537,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (derived-eqn (= ?te-var (+ . ?energy-exprs)) (total-energy ?b ?t))
  ))
 
-;;; equation TME = Kinetic Energy + rotational energy + Grav PE + Spring PE
+;;; equation TME = Translational Kinetic Energy + rotational energy 
+;;;                    + Grav PE + Spring PE
 ;;; !!! spring PE term could just be omitted if spring not extended at t
 (defoperator write-total-energy-top (?b ?t)
   :preconditions (
@@ -6549,7 +6552,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :hint (
    (point (string "Try writing an equation defining the total mechanical energy of the system containing ~a ~a" (?b def-np)(?t pp)))
-   (teach (string "The total mechanical energy is the sum of the kinetic energy and the potential energy. Potential energy consists of the gravitational potential energy and the elastic potential energy in any spring in the system."))
+   (teach (string "The total mechanical energy is the sum of the kinetic energy and the potential energy. Kinetic energy consists of translational and rotational kinetic energy.  Potential energy consists of the gravitational potential energy and the elastic potential energy in any spring in the system."))
    (bottom-out (string "Write ~a" 
 		       ((= ?te-var (+ . ?ee-vars)) algebra)))
    ))
@@ -6642,7 +6645,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
         (kinetic-energy ?body ?t))
    )
   :hint (
-  (point (string "Try writing the definition of kinetic energy of ~a ~a" (?body def-np)(?t pp)))
+  (point (string "Try writing the definition of translational kinetic energy of ~a ~a" (?body def-np)(?t pp)))
   (teach (string "The translational kinetic energy of an object is defined as one half its mass times its velocity squared.  That is, 0.5*m*v^2."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
@@ -6762,7 +6765,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (variable ?ke-var (at (kinetic-energy ?b) ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
+	 (bottom-out (string "Define a variable for translational kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
 	 ))
 
 (defoperator define-rotational-energy (?b ?t)
@@ -8113,7 +8116,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   )
   :hint (
    (point (string "Notice that the collision is elastic."))
-   (teach (string "An elastic collision is one in which total kinetic energy is conserved. You can use this fact to equate the total kinetic energy in the system before and after the collision."))
+   (teach (string "An elastic collision is one in which kinetic energy is conserved. You can use this fact to equate the kinetic energy in the system before and after the collision."))
    (bottom-out (string "Write the equation ~A"  
                         ((= (+ . ?ke1-terms) (+ . ?ke2-terms)) algebra)))
   ))
