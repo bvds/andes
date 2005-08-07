@@ -286,7 +286,7 @@
 ;;; components are expressed in terms of component variables.  The
 ;;; component-free variable replaces each of the component variables
 ;;; with an algebraic expression.  The equations of the form
-;;; <compo-var>=<expression> are called projection equations.
+;;; compo-var>=<expression> are called projection equations.
 ;;; 
 ;;; The author of a vector psm, such as Newton's law or Kinematics, must define
 ;;; operators for
@@ -1006,15 +1006,6 @@
 ;;  But both of these uses ought to have specialized hints.
 
 
-#|
-(defoperator axes-for-vectors (?b)
-  :preconditions ( (optional-standard-axes) ;only do on request.
-		   (vector ?b ?quant ?dir)
-		   (not (axis-for ?b ?xyz ?rot))
-		   (optional (axis-for ?b x 0)) )
-  :effects ( 		     ))
-|#
-
 (defoperator draw-unrotated-axes ()
   :specifications 
    "If  there are no vectors with numerical directions,
@@ -1246,6 +1237,25 @@
   ;;((point (string "You already have an axis for the system containing ~a." ?b))
   ;; (teach (string "If you already have defined axes for a system of bodies, and you want axes for one of its constitutents, then the math is generally simpler if you use the same coordinate system.")))
    )
+
+;;; One should be able to draw at least standard axes on
+;;; any problem involving vectors.  As of Aug. 6, 2005, this
+;;; is currently a problem for e1a, e1b, e2a, e2b, we1a, we1b.
+;;; See Bugzilla #540.  
+;;;
+;;; For these problems, axes only need to be drawn for the displacement
+;;; vector.  See draw-displacement-straight
+
+(defoperator axes-for-vectors (?b)
+  :preconditions ( (in-wm (want-standard-axes)) ;only use on specific problems
+		   (not (axis-for ?b ?xyz ?rot))
+		   (axis-for ?b x 0) )
+  :effects ( (optional-standard-axes ?b) )) ;precondition in drawing rule
+
+;;; do nothing in other problems
+(defoperator not-axes-for-vectors (?b)
+  :preconditions ( (not (want-standard-axes)) ) 
+  :effects ( (optional-standard-axes ?b) )) ;precondition in drawing rule
 
 ;;; =================== defining component variables =============
 ;;; When writing a compo equation, the code will call (variable <var>
@@ -1936,6 +1946,7 @@
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (displacement ?b) ?t) ?dir))
+    (optional-standard-axes ?b)
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
@@ -3822,7 +3833,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :specifications 
   "if the direction of the relative position of one body with respect to 
   another is not given, you can introduce the relative position vector by drawing it with an unknown direction"
-  :preconditions ( 
+  :preconditions 
+  ( (object ?b1) (object ?b2) (time ?t) ;sanity test for axes-for-vectors
     (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
     ; make sure this is not known to be zero-length from at-place stmt.
     (not (at-place ?b1 ?b2 ?t))
@@ -9839,3 +9851,4 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))
+ 
