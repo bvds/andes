@@ -8720,7 +8720,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		))
    (time ?t)				;radius-of-circle does not bind ?t
    (object ?body)			;velocity does not bind ?body
-   (rolling ?body)
+   (rolling ?body)  ;only apply when specified
    (motion ?body ?t-motion (rotating ?axis . ?dontcare))
    (test (tinsidep ?t ?t-motion))
    )
