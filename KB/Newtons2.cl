@@ -8677,7 +8677,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (any-member ?sought (
 		  (at (mag (velocity ?pt)) ?t)
                   (at (mag (ang-velocity ?whole-body)) ?t)
-		  (at (mag (relative-position ?pt ?axis)) ?t)
+		  (at (revolution-radius ?pt) ?t)
 		))
    (part-of ?pt ?whole-body)
    (time ?t)
@@ -8688,6 +8688,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (eqn-contains (linear-vel ?pt ?t ?axis) ?sought)
    ))
 
+
 (defoperator write-linear-vel (?pt ?t)
    :preconditions (
       (part-of ?pt ?whole-body)
@@ -8697,7 +8698,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (body ?whole-body)
       (variable ?v-var (at (mag (velocity ?pt)) ?t))
       (variable ?omega-var (at (mag (ang-velocity ?whole-body)) ?t))
-      (variable ?r-var (at (mag (relative-position ?pt ?axis)) ?t))
+      (variable ?r-var (at (revolution-radius ?pt) ?t))
    )
    :effects (
     (eqn  (= ?v-var (* ?omega-var ?r-var)) (linear-vel ?pt ?t ?axis))
