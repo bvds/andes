@@ -3841,7 +3841,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   "if the direction of the relative position of one body with respect to 
   another is not given, you can introduce the relative position vector by drawing it with an unknown direction"
   :preconditions 
-  ( (object ?b1) (object ?b2) (time ?t) ;sanity test for axes-for-vectors
+  ( 
     (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
     ; make sure this is not known to be zero-length from at-place stmt.
     (not (at-place ?b1 ?b2 ?t))
