@@ -589,8 +589,7 @@
 
 #| ; unused experimental code -- these new operators would generate special case projection-writing hints
    ; 1. compo-trig-standard-axes*: leave out theta_x term if axes not tilted.
-   ; 2. compo-parallel-axis -- use special case for parallel/anti-parallel axes.
-   ; Hints need to be adjusted in these.
+   ; Note hints need to be adjusted in these if they are used.
 
 ;; note following pair currently apply even in case of parallel or antiparallel to axes
 (defoperator compo-trig-standard-axes (?xyz ?rot ?vector ?t)
@@ -660,6 +659,11 @@
 		       (?dir-var algebra) ((axis x ?x-rot) symbols-label)))
    ))
 
+|# ; end unused experimental projection-writing operators
+
+; special case for parallel/anti-parallel axes allows special hint
+; also enables us to put out implicit equation for orthogonal component, so that it
+; gets into the Andes solution, even if otherwise unused.
 (defoperator compo-parallel-axis (?compo-var)
   :specifications "
    If ?compo-var is the variable for a component of a vector,
@@ -668,27 +672,27 @@
   :preconditions
   ((in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
    (in-wm (vector ?b (at ?vector ?t) ?dir))
-   (test (not (or (equal ?dir 'unknown) (equal ?dir 'z-unknown))))
-   (test (parallelp ?rot ?dir))
-   ;; Note ?dir may be a z-axis spec or a (dnum n deg)
-   (bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) 
-			    ?dir)))
+   (test (parallelp ?rot ?dir))  ; should fail if ?dir is unknown
    (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
-   ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?sign (if (same-angle ?rot ?dir) '+ '-))
+   ; We want off-axis 0 components to be referenced, even if solution doesn't use them
+   ; so we put out an implicit equation for them as well. Following gets the variable we need
+   (bind ?other-axis (if (equal ?xyz 'x) 'y 'x))
+   (bind ?other-rot  (if (equal ?xyz 'x) (+ ?rot 90) (- ?rot 90)))
+   (variable ?other-compo-var (at (compo ?other-axis ?other-rot ?vector) ?t))
    )
   :effects
-  ((eqn (= ?compo-var (?sign ?mag-var)) (projection (at (compo ?xyz ?rot ?vector) ?t))))
+  ((eqn (= ?compo-var (?sign ?mag-var)) (projection (at (compo ?xyz ?rot ?vector) ?t)))
+   (implicit-eqn (= ?other-compo-var 0) (at (compo ?other-axis ?other-rot ?vector) ?t))
+  )
   :hint
   ((point (string "Since ~A ~A lies along to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "If a vector V lies along an axis x and points in the positive direction of that axis, then the component of the vector V_x along the axis is equal to the magnitude of the vector: V_x = V. This is a special case of the more general {\\l projection equations}{\\v ProjectionEquations.html} that will work in all cases")
-	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since ~A ~A points in the same direction as the positive ~a axis (~A deg), write the equation ~A." 
-		       ?vector (?t pp) (?xyz adj) (?degrees adj)
+   (teach (string "You can use general {\\l projection equations}{\\v ProjectionEquations.html} that will work in all cases, but when a vector V lies along an axis x, the component of the vector V_x along the axis is simply equal to plus or minus the magnitude of the vector: V_x = +/- V. The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
+   (bottom-out (string "Since ~A ~A lies along the ~a axis and points in the ~a ~a direction, write the equation ~A." 
+		       ?vector (?t pp) (?xyz adj) (?sign adj) (?xyz adj)
 		       ((= ?compo-var (?sign ?mag-var)) algebra)))
    ))
 
-|# ; end unused experimental projection-writing operators
 
 ;;; This operator represents writing a projection equation for a
 ;;; non-zero vector that is not perpendicular to the axis.  It
@@ -717,6 +721,9 @@
    ; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
    (in-wm (vector ?b (at ?vector ?t) ?dir))
+   ; don't use this if lies along axis
+   (test (not (parallelp ?rot ?dir))) 
+   ; don't use this if known zero projection:
    (test (non-zero-projectionp ?dir ?xyz ?rot))
    ;; test is passed if dir is not known to be orthogonal to axis dir
    ;; following makes sure has a known dir so we can plug in the numerical
