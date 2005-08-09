@@ -178,13 +178,14 @@ string powersolve(const int howstrong, const varindx sought,
   // check partsols for solution to student variable
   DBG(cout << "solvetool exited while doagain loop, checking partsols" 
       << endl);
+#if 0 // AW: take out check for partial solutions
   if (partsols->size() > 0) 
     {
       for (q = 0; q < partsols->size(); q++)
 	if (exprcontains((*partsols)[q],sought)) break;
       if (q == partsols->size()) { // failed to solve for variable at all
 	DBG(cout << "powersolve failed" << endl);
-	return(string(""));
+	return(string(""));		// AW: this skips cleanup -- OK?
       }
       // partsols are only made by purelin, so must be linear
       expr * denom = (expr *)NULL;
@@ -204,10 +205,16 @@ string powersolve(const int howstrong, const varindx sought,
       goto partsuccess;
     } // end of if partsols not empty after doagain not >0
   else { answer = string(""); goto cleanup; }
-  
+
  partsuccess:
   ansexpr = new binopexp(&equals,new physvarptr(sought),numer);
   DBG(cout << "gotten answer case partsuccess " << ansexpr->getInfix() << endl);
+
+#else // AW: replace partsol handling code: just return failure
+  answer = string(""); 
+  goto cleanup; 
+#endif // replacement for partsol handling code
+
  success: 
 
   // If the answer depends on a parameter, then the numerical
