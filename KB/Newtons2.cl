@@ -8272,15 +8272,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a ." ?b (?rotate-dir adj)(?t pp) (?dir adj)))
   ))
 
-; Draw zero angular velocity for an object that is not rotating.
-; This is currently specified using same 'at-rest motion specifier 
-; as for translational motion problems.
-; If we ever wanted to allow for combinations of translational and 
-; rotational motions we would change to use a distinct atom to say that
-; the object is non-rotating as distinct from translationally at-rest.
+;; Draw zero angular velocity for an object that is not rotating.
+;; This is specified using the ang-at-rest motion specifier. 
 (defoperator draw-ang-velocity-at-rest (?b ?t)
    :preconditions (
-    (motion ?b ?t-motion at-rest)
+    (motion ?b ?t-motion ang-at-rest)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (at (ang-velocity ?b) ?t) ?dir-drawn))
@@ -8292,14 +8288,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (given (at (mag (ang-velocity ?b)) ?t) (dnum 0 |rad/s|))
   )
   :hint (
-    (point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
-    (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. If an object is at rest its angular position is not changing, so its angular velocity is zero.")) 
+    (point (string "Notice that ~a is not rotating ~a." ?b (?t pp)))
+    (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. If an object is at rest, its angular position is not changing and its angular velocity is zero.")) 
     (bottom-out (string "Because ~a is not rotating ~a, use the velocity tool to draw a zero-length angular velocity vector for it." ?b (?t pp)))
   )
 )
 
-; draw angular displacement of an object rotating in a known direction
-; over an interval. 
+;; draw angular displacement of an object rotating in a known direction
+;; over an interval. 
 (defoperator draw-ang-displacement-rotating (?b ?t)
   :preconditions (
     (time ?t)
