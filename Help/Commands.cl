@@ -666,9 +666,8 @@
 	   (solve-for-var-error 
 	    (format NIL "Unable to solve for ~A: ~A" var result) action))
 	  (t (solve-for-var-error
-	      (format NIL "Unable to solve for ~A, or multiple solutions were found." var)
+	      (get-failure-to-solve-hint var)  ; implemented in next-step-help.cl
 	      action)))))
-
 
 (defun solve-for-var-success (new-id result action)
   ;; just return eqn text until appropriate turns are implemented
@@ -725,9 +724,37 @@
 ;;  but it ain't exactly clean.  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun check-answer (answer answer-id)
-  (let ((result (Do-Check-Answer answer (get-answer-quant answer-id) answer-id)))
+  ; for Skatz experiment, and maybe generally:
+  ; remember done state before checking answer to detect event of
+  ; "finishing" problem.
+  (let ((was-done (all-answers-done-p))
+        (result (Do-Check-Answer answer (get-answer-quant answer-id) answer-id)))
+    (when (and (not was-done)
+               (all-answers-done-p)    ; is now done
+	       (not-curr-checking-problemp)) ; ignore if in initial entry check
+       (add-followup-if-needed result))
+
     (log-studentaction **last-api-call** result (car *Studententries*))
     Result))
+
+; display followup dialog in browser on done for certain problems in 
+; Skatz experiment
+(defvar *followup-problems* '(e1b e2a e2c e4a e5a e7a e8b e9b e10a))
+
+(defun add-followup-if-needed (result-turn)
+  (when (and (member (problem-name *cp*) *followup-problems*)
+	     (equal (type-of result-turn) 'Turn))
+     ; Add show lesson command to result turn. Gross hackery.
+     ; We have to change existing result turn (presumably type dialog turn
+     ; with color green and no message) into a minilesson turn with the 
+     ; appropriate URL (and color) in order to get the command piggybacked
+     ; on the returned color.  If we used an async command to do it, it would
+     ; enter mode before color result is returned, I think.
+     ; !!! Should verify we aren't clobbering an existing command
+     (setf (turn-type result-turn) **Minil-Turn**)
+     (setf (turn-text result-turn)
+       (format NIL "http://136.142.94.84/cgi-bin/navalkcds?user=~a;prob=~a"
+                   (student-name) (problem-name *cp*)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-mc-answer

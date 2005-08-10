@@ -244,6 +244,9 @@
   ;; Clear out the student's actions. This may change later. 
   (setq *studentactions* nil) 
   
+  ;; clear flag for detecting when problem done
+  (reset-done-flag)
+  
   ;; Load the current problem and set into global *cp* 
   ;; NB: for case-sensitive filesystems, ensure we convert the problem name, 
   ;; passed as a string, to canonical upper case used for problem ids.
@@ -702,7 +705,39 @@ NIL if none"
   (and (problem-loadedp) 
        (not **Checking-Entries**)))
 
+;; test if student has correctly answered all quantitative parts on a problem
+;; This is basically "done-p". 
+;; Note: NIL if there are no quantitative parts on a problem.
+(defun all-answers-done-p ()
+ (let ((nparts (length (remove-if-not #'quantity-expression-p (problem-soughts *cp*))))
+       (ncorrect-answer-entries 
+          (length (remove-if-not 
+                     #'(lambda (E) (and (equalp (studententry-state E) **correct**)
+		                   (equalp (car (studententry-prop E)) 'Answer)))
+                     *Studententries*))))
+  (and (> nparts 0)
+       (= nparts ncorrect-answer-entries))))
 
+;; We don't have an "I'm done" button on the interface, but we may need to do
+;; certain things when problem is completed, as in Sandy Katz followup experiment.
+;; So we use a flag to detect first time in a problem session we change into the done state.
+;; Following code can be used if only interested in the first time they become done, in which
+;; case flag should NOT reset if they make a change to exit the done state.  Note: if a saved 
+;; solution in the done state is opened, the flag will change values during the initial entry check.  
+;; Code to process the transition is in the handler for answer submissions.
+
+(defvar *problem-finished* NIL)     ; set if cp was finished in this session
+
+(defun reset-done-flag ()	    ; call to reset flag on new problem open
+    (setf *problem-finished* NIL))
+
+(defun just-became-done ()	    ; call after answer submission to update flag
+   (when (and (not *problem-finished*)  ; hasn't happened already in this session
+              (setf *problem-finished* (all-answers-done-p)))))
+
+          
+    
+      
 ;;;; ======================================================================
 ;;;; Filtering
 ;;;; Filtration of entries is done in Commands.cl the code here simply maintains

@@ -2290,9 +2290,9 @@
 ;;; use that or not.  Depending upon their choice we will move on from 
 ;;; there.  
 (defparameter **nsh-cfp-change-axis-string**
-    (strcat "The principle application that you chose is not correct.  However, it "
-	    "is correct to apply that same principle along the ~a axis.  Do you "
-	    "with to use that axis instead?"))
+    (strcat "The principle that you chose is correct, but it "
+	    "should be applied along the ~a axis in this problem.  "  
+	    "Do you wish to use that axis instead?"))
 
 (defun nsh-cfp-prompt-change-axis (Axis Choices Class Bindings Sought Past)
   "Prompt the student to change their axis to the other or try again."
@@ -4176,8 +4176,27 @@
 	 nsh-next-call-set? nsh-execute-next-call))
 
 
+;;=============================================================================
+;; Failure to solve messages:
+;; 
+;; If student tries to solve and fails, try to detect common and easily overlooked
+;; sources of the error.
+;; Code is in this module because it is akin to giving next-step-help and makes use of
+;; some of the same information about solutions and doneness.
+;;
 
+(defun missing-g-value ()
+  (let ((g-eqnode (find '(STD-CONSTANT G) (bubblegraph-enodes (problem-graph *cp*))
+		 :key #'enode-id :test #'equal)))
+   (and g-eqnode (nsh-principle-uncompleted-p g-eqnode))))
 
+(defun get-failure-to-solve-hint (var)
+ (cond 
+  ((missing-g-value) 
+       (format NIL "Unable to solve for ~a. One thing you need is an equation specifying the value of g." var))
+  (T
+      (format NIL "Unable to solve for ~A. Either more equations are needed or the Andes solver cannot solve them in this form." var))
+ ))
 
 
 

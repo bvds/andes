@@ -165,6 +165,11 @@
 "true if eqn struct specifies a given value equation"
    (eq (eqn-type eqn) 'given-eqn))
 
+(defun angle-value-eqn-p (eqn)
+"true if eqn struct is an implicit equation giving value of an angle between variable"
+   (and (eq (first (eqn-exp eqn)) 'angle-between)
+        (eq (eqn-type eqn) 'implicit-eqn)))
+
 (defun eqn-English (eqn)
 "return English name for eqn index entry, NULL if not found."
    ; wrong way to do it:
@@ -260,9 +265,13 @@
 ;
 ; This is distinct from "trivial" equation predicate above since definitions are not "trivial". 
 ; Not clear if this matters -- depends on how "trivial-syseqn-p" is used by grading system.
+;
+; We also allow implicit equations giving known angle values to be combined. This should
+; allow students to skip defining angle variable in W = F*d(thetaFd) if angle is known.
 (defun combinable-syseqn-p (syseqn)
    (or (trivial-syseqn-p syseqn)
-       (definition-eqn-p (syseqn->eqn syseqn))))
+       (definition-eqn-p (syseqn->eqn syseqn))
+       (angle-value-eqn-p (syseqn->eqn syseqn))))
      
 (defun get-noncombinable-eqns (interp)
     (remove-if #'combinable-syseqn-p interp))
