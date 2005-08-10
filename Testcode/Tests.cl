@@ -236,6 +236,8 @@
 	 (entryprop-helpform (lookup-entryprop-type 'body)))
        (test-cache-solution-entries)
        (test-cache-solution-objects)
+       (format T "required axes: ~A~%" *test-cache-axis-entries*)
+       (format T "required bodies: ~A~%" *test-cache-objects*)
        (test-problem-nonanswer-entries))))
 
 
@@ -294,7 +296,8 @@
   ;;(if (and (nth Solution *Test-cache-axis-entries*)
   ;;   (single-axis-problemp *cp*))
   ;;     (error "Multiple axes in single-axis problem solution.")
-  (push Entry (nth Solution *test-cache-axis-entries*)))
+ (when (not (sg-systementry-optional-p Entry)) ; ignore if optional
+  (push Entry (nth Solution *test-cache-axis-entries*))))
 
 
 ;;; If the entry is an equation then we need to store or ignore
@@ -458,7 +461,9 @@
 ;;; code to a distinct location to make the split more "clean".  For
 ;;; Now I will use it as-is.
 (defun test-cache-collect-bodies-list ()
-  (nsh-get-solution-bodies))
+ ; remove optional entries from each solution's set of body entries
+ (mapcar #'(lambda (set) (remove-if #'sg-systementry-optional-p set))
+  (nsh-get-solution-bodies)))
 
 ;;; In order to associate the objects with their entries we need
 ;;; to iterate over the list of all systementries.  If a body 

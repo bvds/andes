@@ -211,9 +211,8 @@ string powersolve(const int howstrong, const varindx sought,
   DBG(cout << "gotten answer case partsuccess " << ansexpr->getInfix() << endl);
 
 #else // AW: replace partsol handling code: just return failure
-  answer = string(""); 
-  goto cleanup; 
-#endif // replacement for partsol handling code
+  answer = string(""); goto cleanup; 
+#endif // replacement for partsol handling
 
  success: 
 

@@ -365,3 +365,6 @@
    :Min 3
    :Hour 0
    ))
+
+; disable constraint loss filter
+(setq **Filter-Constraint-losses** NIL)
