@@ -6581,7 +6581,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; problem
 (defoperator define-grav-ee-var (?b ?t)
     :preconditions (
-	  ; use this for gravity near surface of a planet only
+	  ;; use this for gravity near surface of a planet only
           (near-planet ?planet) ; 
 	  (variable ?var (at (grav-energy ?b ?planet) ?t))
     )
@@ -6597,17 +6597,22 @@ the magnitude and direction of the initial and final velocity and acceleration."
     :effects ( (ee-var ?b ?t ?var) ))
 
 (defoperator define-kinetic-energy-ee-var (?b ?t)
-    :preconditions ( (variable ?var (at (kinetic-energy ?b) ?t)) )
-    :effects ( (ee-var ?b ?t ?var) ))
+  :preconditions 
+  ( ;; test for translational motion of any axis at any time
+   (in-wm (motion ?axis ?t-motion (?kind . ?whatever)))
+   (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
+   (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
+   (variable ?var (at (kinetic-energy ?b) ?t)) )
+  :effects ( (ee-var ?b ?t ?var) ))
 
 (defoperator define-rotational-energy-ee-var (?b ?t)
-    :preconditions 
-    (
-     (in-wm (motion ?b ?t-motion (rotating . ?dontcare)))
-     (test (tinsidep ?t ?t-motion))
-     (variable ?var (at (rotational-energy ?b) ?t))
-    )
-    :effects ( (ee-var ?b ?t ?var) ))
+  :preconditions 
+  (
+   ;; include if it rotates at any time
+   (in-wm (motion ?b ?t-motion (rotating . ?whatever)))
+   (variable ?var (at (rotational-energy ?b) ?t))
+   )
+  :effects ( (ee-var ?b ?t ?var) ))
 
 ;;; For an object that is rotating, we define linear 
 ;;; kinematic quantities using the center of mass or the fixed axis.
@@ -6653,10 +6658,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; equation KE = 1/2 * m * v^2
 
 (defoperator write-kinetic-energy (?body ?t)
-  :preconditions (
+  :preconditions 
+  (
+   ;; test for translational motion of axis at any time
+   (motion ?axis ?t-motion (?kind . ?whatever))
+   (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
+   (use-point-for-body ?body ?cm ?axis)	;always use axis of rotation
    (variable ?ke-var (at (kinetic-energy ?body) ?t))
    (variable ?m-var (mass ?body))
-   (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
    (variable ?v-var (at (mag (velocity ?axis)) ?t))
   )
   :effects (
@@ -6672,8 +6681,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-rotational-energy (?body ?t)
   :preconditions 
   (
+   ;; if the object is rotating at any time, then this term should be 
+   ;; included.
    (motion ?body ?t-motion (rotating ?pivot ?dir ?axis))
-   (test (tinsidep ?t ?t-motion))
    (variable ?kr-var (at (rotational-energy ?body) ?t))
    ;; definition of energy at a given moment is ok with changing mass...
    (moment-of-inertia-variable ?m-var ?body ?t)
