@@ -867,6 +867,34 @@
  (remove-duplicates 
    (mapcar #'first (sg-map-systementry->opinsts entry))))
 
+;
+; For treating entries as optional
+; An entry is optional iff for every enode in the graph:
+; either the node doesn't contain it at all or
+; there exists a path through that node that doesn't 
+; include the entry. This requires traversing the hairy
+; psm graph structure
+(defun sg-systementry-optional-p (entry &optional (problem *cp*))
+  (every #'(lambda (enode) (does-not-require enode entry))
+         (bubblegraph-enodes (problem-graph problem))))  
+
+(defun does-not-require (enode entry)
+  (cond ((not (member entry (enode-entries enode))) T)
+        (T (some-path-through-omits (enode-path enode) entry))))
+
+(defun some-path-through-omits (path entry)
+   (cond ((null path) T)
+         ((and (csdo-p (car path)) ; hit a CSDO for this entry
+               (member (car path) (systementry-sources entry)))
+	     NIL)
+	 ((cschoose-p (car path)) 
+	   ; car path is (CHOOSE ((step 1) (step 2)) ((step1 step2)))
+	   ; so everything to the end is inside the current CHOOSE item.
+	   (some #'(lambda (path) (some-path-through-omits path entry))
+	         (cdr (car path))))
+	 ; !!! ignoring splits and joins since we don't
+	 ; generate them any more
+	 (T (some-path-through-omits (cdr path) entry))))
 
 ;;-------------------------------------------------------------
 ;; debugging code.
