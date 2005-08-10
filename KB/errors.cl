@@ -534,6 +534,24 @@
 	 (format nil "Try defining a duration variable ~a." 
 		 (nlg ct 'pp)))))
 
+;;; ======== ===== coefficient of friction ========================
+;;; student can get the wrong type (kinetic vs static)
+(def-error-class wrong-type-coef-friction (?stype ?ctype)
+  ((student (define-var (coef-friction ?body ?agent ?stype)))
+   (correct (define-var (coef-friction ?body ?agent ?ctype)))))
+
+(defun wrong-type-coef-friction (stype ctype)
+  (make-hint-seq
+   (list  "Think about what type of friction occurs in this problem."
+         (strcat "Kinetic friction acts on an object as it moves with "
+                 "respect to the surface exerting the friction force. "
+                 "Static friction keeps an object at rest with respect to "
+		 "a surface when it would otherwise move against it.")
+	(format NIL "Change the coefficient of friction type from ~a to ~a."
+	        (adj stype) (adj ctype)))))
+
+;; can also get order of arguments wrong
+
 ;;; ======== ===== defining energy variables ======================
 ;;; The kinetic and potential energies have a body slot and a time
 ;;; slot, so the only default cases for them are (a) wrong body
