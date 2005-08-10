@@ -670,7 +670,6 @@
 	      action)))))
 
 (defun solve-for-var-success (new-id result action)
-  ;; just return eqn text until appropriate turns are implemented
   (let* ((studEqn  (subst-student-vars (pre2in result)))
 	 ;; suppress *print-pretty* since it could insert newlines 
 	 ;; into long result, and WB requires single-line eqn string

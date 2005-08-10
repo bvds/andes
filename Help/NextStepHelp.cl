@@ -2857,10 +2857,18 @@
 	    "sought quantities (if you have not already) and then "
 	    "enter those values in the answer boxes."))
 
+(defparameter **nsh-answer-var-done-str**
+    (strcat "Do whatever algebra is necessary to obtain an expression "
+            "for each sought quantity whose only variables are those "
+	    "allowed by the problem statement, and enter that expression "
+	    "into the relevant answer box."))
+
 (defun nsh-prompt-done-string ()
-  (if (cdr (problem-soughts *cp*)) ; more than 1 sought
-       **nsh-multi-sought-done-str**
-    **nsh-single-sought-done-str**))
+  (cond ((problem-has-answer-vars) 
+               **nsh-answer-var-done-str**)
+        ((cdr (problem-soughts *cp*)) ; more than 1 sought
+               **nsh-multi-sought-done-str**
+	(T **nsh-single-sought-done-str**))))
 
 
 
@@ -4181,7 +4189,7 @@
 ;; 
 ;; If student tries to solve and fails, try to detect common and easily overlooked
 ;; sources of the error.
-;; Code is in this module because it is akin to giving next-step-help and makes use of
+;; Code is in this file because it is akin to giving next-step-help and makes use of
 ;; some of the same information about solutions and doneness.
 ;;
 
@@ -4190,14 +4198,48 @@
 		 :key #'enode-id :test #'equal)))
    (and g-eqnode (nsh-principle-uncompleted-p g-eqnode))))
 
-(defun get-failure-to-solve-hint (var)
- (cond 
-  ((missing-g-value) 
-       (format NIL "Unable to solve for ~a. One thing you need is an equation specifying the value of g." var))
-  (T
-      (format NIL "Unable to solve for ~A. Either more equations are needed or the Andes solver cannot solve them in this form." var))
- ))
+(defun problem-has-answer-vars ()
+  (some #'qnode-answer-varp (bubblegraph-qnodes (problem-graph *cp*))))
 
+(defun get-failure-to-solve-hint (var)
+ (let (eqnode)
+ (cond 
+  ; missing given
+  ((setq eqnode (find-if-not #'nsh-principle-completed-p *nsh-givens*))
+       (format NIL "Unable to solve for ~a. One thing you probably need is an equation specifying the given value of ~a."
+		 var (var-or-quant (nsh-given-node-quant eqnode))))
+
+  ; need value of g -- but should we check that some entered equation mentions g??
+  ((missing-g-value) 
+       (format NIL "Unable to solve for ~a. One thing you need is an equation specifying the appropriate value of g for this problem." var))
+  
+  ; missing vector projection -- hard to detect! In most problems these are not at the bubblegraph level
+  ; but subsidiary equations inside nodes. So have to choose solution and get all its equations to find
+  ; this (and make sure solution we look at is compatible with students choice of axis, if they have one!)
+  ; Also: probably don't want to suggest this if they haven't yet drawn vector and defined axes, and maybe 
+  ; also if they haven't entered any component equation using the vector yet.
+
+  ; missing both sin theta and cos theta expressions when solving for an angle
+
+  ; not done, but don't have any special case message.
+  ; NB: we could be undone because some diagram drawing step is not done (e.g. zero accel in a statics problem)
+  ; even though all equations have been entered. Especially unclear if we want to do this in answer-var problem.
+  ; Maybe really want a predicate like all-equations-done. Still, this does indicate that nsh will give a step.
+  ((not (nsh-done?))
+      (format NIL "Unable to solve for ~A. Try the light-bulb if you need a hint about a step that still needs to be done." var))
+
+  ; reach here => have done everything 
+
+  ; answer-var problem -- problem seeks partly or wholly symbolic answer, so students must do algebra themselves.  
+  ; We could give this on any use of the solve tool on such a problem, but instead only give it when done so 
+  ; students still get helpful prompts about what they're missing if they try earlier. [appropriate?]
+  ((problem-has-answer-vars) 
+    (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers. Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
+  
+  (T ; done and not an answer-var problem
+       (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form. Try entering algebraic combinations to isolate a calculable expression for ~a yourself. Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve. If not, you will just have to finish the problem on your own."  var var))
+         
+ )))
 
 
 
