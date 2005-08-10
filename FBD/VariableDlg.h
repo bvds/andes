@@ -25,11 +25,12 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CVariableDlg)
 	enum { IDD = IDD_DECLARE_VARIABLE };
+	CLogCombo	m_cboSubtype;
+	CStatic	m_stcType;
 	CStatic	m_stcEquals;
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
 	CLogBtn	m_btnUnknown;
-	// CEQRichEdit m_editValue;
 	CLogEdit m_editValue;
 	CLogBtn	m_Ok;
 	CLogBtn	m_Cancel;

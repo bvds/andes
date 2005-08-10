@@ -379,9 +379,14 @@ void CFBDDoc::SerializeHeader(CArchive &ar)
 		ar << m_strCreator;
 
 		// Added version 24: saved score statistics string. Make sure up to date
-		UpdateSavedStats();
-		ar << m_strSavedStats;
-		
+		// NB: if saving in author mode, assume this is problem master so save
+		// blank stats
+		if (theApp.m_bAuthorMode) 
+			ar << CString("");
+		else {
+			UpdateSavedStats();
+			ar << m_strSavedStats;
+		}
 	} else {
 		ar >> m_strProblemId;
 		// Unpack stored version number and problem type:
@@ -1102,9 +1107,8 @@ void CFBDDoc::CheckInitEntries()
 		if (pObj->IsKindOf(RUNTIME_CLASS(CDrawRect)) && ((CDrawRect*)pObj)->IsAnswerBox() ) {
 			CString strAnswer = pObj->m_strName;
 			strAnswer.TrimLeft();  // strip leading whitespace, process if anything left
-			// since old files (CDrawRect<v2) didn't serialize answer status but relied
-			// on always resubmitting to recreate answer status, we always recheck.
-			if (! strAnswer.IsEmpty() /*&& pObj->m_status != statusUnknown */)
+			// don't recheck if saved status unknown, let it remain as unsubmitted
+			if (! strAnswer.IsEmpty() && pObj->m_status != statusUnknown)
 			{	
 				LPCTSTR pszResult = HelpSystemExecf("(check-answer \"%s\" %s)", LISPSTR(strAnswer), pObj->m_strId);
 				CCheckedObj::ApplyStatus(pszResult, pObj->m_status, listErrors);

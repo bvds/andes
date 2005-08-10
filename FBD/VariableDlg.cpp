@@ -110,6 +110,8 @@ void CVariableDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CVariableDlg)
+	DDX_Control(pDX, IDC_SUBTYPE_LABEL, m_stcType);
+	DDX_Control(pDX, IDC_SUBTYPE, m_cboSubtype);
 	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
 	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
 	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
@@ -198,13 +200,7 @@ BOOL CVariableDlg::OnInitDialog()
 		// hide the label controls
 		m_stcLet.ShowWindow(SW_HIDE);
 		m_editName.ShowWindow(SW_HIDE);
-		// hide the given value controls as well
-		//m_stcGiven.ShowWindow(SW_HIDE);
-		//m_stcEquals.ShowWindow(SW_HIDE);
-		//m_editValue.ShowWindow(SW_HIDE);
-		//m_stcOr.ShowWindow(SW_HIDE);
-		//m_btnUnknown.ShowWindow(SW_HIDE);
-	
+
 		if (m_bSought){
 			SetWindowText("Define Sought");
 		} else {
@@ -275,6 +271,12 @@ BOOL CVariableDlg::OnInitDialog()
 		m_stcDueTo.ShowWindow(SW_SHOW);
 		m_cboAgent.ShowWindow(SW_SHOW);
 		SwitchTimeAgent();
+	}
+
+	// enable subtype control if needed -- currently coefficient of friction only
+	if (strTypeId.CompareNoCase("coef-friction") == 0) {
+		m_stcType.ShowWindow(SW_SHOW);
+		m_cboSubtype.ShowWindow(SW_SHOW);
 	}
 
 	// UGH insert special choices for certain quantities. Should be in spec somehow
@@ -386,6 +388,7 @@ void CVariableDlg::InitVariableDlg()
 	m_cboBody.SelectStringExact(((CVariable*)m_pTempObj)->m_strObject );
 	m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent );
 	m_cboTime.SelectStringExact(((CVariable*)m_pTempObj)->m_strTime) ;
+	m_cboSubtype.SelectStringExact(((CVariable*)m_pTempObj)->m_strForceType);
 	// Transfer given value/unknown bit from controls to variable
 	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
 	OnChangeGivenValue();	// to sync unknown check box with value
@@ -401,6 +404,7 @@ void CVariableDlg::UpdateTempVariable()
 	((CVariable*)m_pTempObj)->m_strObject = GetCurString(&m_cboBody);
 	((CVariable*)m_pTempObj)->m_strAgent = GetCurString(&m_cboAgent);
 	((CVariable*)m_pTempObj)->m_strTime = GetCurString(&m_cboTime);
+	((CVariable*)m_pTempObj)->m_strForceType = GetCurString(&m_cboSubtype);
 	m_editValue.GetWindowText(((CVariable*)m_pTempObj)->m_strValue);	
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
 }
@@ -417,6 +421,11 @@ void CVariableDlg::OnOK()
 	if (IsEmpty(&m_cboAgent))
 	{
 		theApp.DoWarningMessage("Please select an agent", this);
+		return;
+	}
+	if (IsEmpty(&m_cboSubtype)) 
+	{	
+		theApp.DoWarningMessage("Please select a type", this);
 		return;
 	}
 	if (IsEmpty(&m_cboTime))
@@ -514,7 +523,10 @@ void CVariableDlg::BuildVariable()
 	// shows language as it reads in dialog box, which may have different "Value"
 	// for readability. (We fetch it again without the initial upper-casing done by
 	// LookupCtrlName)
-	m_pTempVar->m_strDef = CVarView::LookupDlgValue(m_pTempVar->m_nType) +  
+	strDlgValue = CVarView::LookupDlgValue(m_pTempVar->m_nType);
+	// !!! should customize for coefficient of friction to read
+	// "coefficient of static/kinetic friction"
+	m_pTempVar->m_strDef = strDlgValue +  
 						   strBodyPrep + m_pTempVar->m_strObject + 
 						   strAgentPrep + m_pTempVar->m_strAgent +
 						   strTimePrep + m_pTempVar->m_strTime;

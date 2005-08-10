@@ -3477,7 +3477,7 @@ BOOL CRadius::HasSameDef(CVariable* pVar)
 	CString strBodies = m_strBodies;
 	strBodies.TrimRight();
 	if (_stricmp(pVar->m_strQuantName, "radius")==0 ||
-		_stricmp(pVar->m_strQuantName, "revolution-radius")){//case insensitive
+		_stricmp(pVar->m_strQuantName, "revolution-radius") == 0){//case insensitive
 		//if system, check if same body & time
 		if (strcmp(strBodies, pVar->m_strObject) == 0)				
 			return TRUE;			

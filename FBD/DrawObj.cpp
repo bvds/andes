@@ -3632,12 +3632,16 @@ CString CVariable::GetCheckCmd()
 		strObject = "";
 	} else if (m_nType == ID_VARIABLE_ADDNRG) {
 		// break out first word in energy type to send subtype:
-		//    Total Mechanical => "Total"; else "Kinetic" or "Potential"
+		//    Total Mechanical => "Total"; "Translational" [kinetic], "Rotational" [kinetic],
+		//    "Elastic" [potential], "Graviational" [Potential], "Electric" [potential].
 		CString strBeg;
 		int nPos = strForceType.Find(" ");
 		if (nPos > 0) {
 			strBeg = strForceType.Left(nPos);
 			strForceType = strBeg;
+			// for backwards compat, continue to send this as "Kinetic"
+			if (strForceType.CompareNoCase("Translational") == 0)
+				strForceType = "Kinetic";
 		}
 	} else if (m_nType == ID_VARIABLE_ADDRESISTANCE
 		    || m_nType == ID_VARIABLE_ADDCAPACITANCE){
@@ -3787,19 +3791,19 @@ CString CVariable::GetLabelPrefix()
 	{
 		if (!m_strForceType.IsEmpty())
 		{
-			if (m_strForceType.GetAt(0) == 'K')		  // Kinetic
+			if (m_strForceType.CompareNoCase("Translational Kinetic") == 0)		  
 				return "K";
-			else if (m_strForceType.GetAt(0) == 'T')  // Total Mechanical
+			if (m_strForceType.CompareNoCase("Rotational Kinetic") == 0)		  
+				return "Kr";
+			else if (m_strForceType.CompareNoCase("Total Mechanical") == 0)  
 				return "ME";
-			else if (m_strForceType.GetAt(0) == 'P')   // Potential (now unused?)
+			else if (m_strForceType.CompareNoCase("Potential") == 0)   // (now unused?)
 				return "U";
-			else if (m_strForceType.GetAt(0) == 'G')   // Gravitational Potential
+			else if (m_strForceType.CompareNoCase("Gravitational Potential") == 0) 
 				return "Ug";
-			else if (m_strForceType.GetAt(0) == 'E'  &&
-				     m_strForceType.GetAt(2) == 'a')    // Elastic Potential
+			else if (m_strForceType.CompareNoCase("Elastic Potential") == 0)    
 				return "Us";
-			else if (m_strForceType.GetAt(0) == 'E'  &&
-				     m_strForceType.GetAt(2) == 'e')    // Electric Potential
+			else if (m_strForceType.CompareNoCase("Electric Potential") == 0)
 				return "Ue";
 		}
 		return "";

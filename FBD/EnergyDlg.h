@@ -47,13 +47,8 @@ public:
 protected:
 	virtual void InitVariableDlg();
 
-/* OBSOLETE:  old enum codes for energy types
-	#define ID_NRGPOTENTIAL	1		// "Potential"
-	#define ID_NRGKINETIC	2       // "Kinetic"
-	#define ID_NRGTOTAL		3       // "Total Mechanical"
-*/
-	// new: NB: order must match types in combo box
-    enum EnergyType {TotalMechanical, Kinetic, Gravitational, Elastic, Electric};
+	// new: NB!: order must parallel order of choices in combo box (not alphabetically sorted)
+    enum EnergyType {TotalMechanical, Kinetic, RotationalKinetic, Gravitational, Elastic, Electric};
 
 
 // Overrides

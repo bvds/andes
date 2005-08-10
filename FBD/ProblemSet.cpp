@@ -1019,6 +1019,12 @@ int CProblemSet::PutSolution(CString strPathName)
 
 int CProblemSet::SetScore(CFBDDoc* pDoc)
 {
+	// empty score string means unset (maybe helpsys failed to run).
+	// Don't record numerical score in this case. Might still record
+	// status, e.g. partial, if there are some entries, to show some work
+	if (pDoc->m_strScore.IsEmpty())
+		return TRUE;	// success, because no score to upload
+
 	int result;
 	SetStatusMsg("Recording problem score...");
 	CString strBaseUrl, strActivity, strToken, strCmd;
@@ -1037,17 +1043,15 @@ int CProblemSet::SetScore(CFBDDoc* pDoc)
 		             "?user=" + theApp.m_strUserName + 
 					 "&token=" + strToken + 
 		             "&activity=" + strActivity;
+	// indicate non-completion by showing scores in parentheses
+	CString strScoreArg = pDoc->m_strScore;
+	if (pDoc->m_workState != workCompleted)
+		strScoreArg = "(" + pDoc->m_strScore + ")";
+
 	CString strCmdScore = strCmdBase +  "&scoreId=score" + 
-		                        "&scoreValue=" + pDoc->m_strScore;
-	CString strCmdStatus = strCmdBase + "&scoreId=status" + 
-		                        "&scoreValue=" + pDoc->GetWorkStateStr();
-	// empty score string means unset (maybe helpsys failed to run).
-	// Don't record numerical score in this case. Can still
-	// record status, e.g. partial, if there are some entries.
-	// Do grade first because it is more important than status
-	result = (pDoc->m_strScore.IsEmpty() 
-		       || HttpCallURL(strCmdScore, "setScore"))
-	         && HttpCallURL(strCmdStatus, "setStatus");
+		                        "&scoreValue=" + strScoreArg;
+	
+	result = HttpCallURL(strCmdScore, "setScore");
 	SetStatusMsg("");
 	return result;
 }
@@ -1115,11 +1119,11 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 		if (CFile::GetStatus(strSolnPath, statSoln)) {
 			PutSolution(strSolnPath);
 		}
-
+/* No longer do this since it was unreliable for undiagnosed reasons
 		// Upload the student history file. Must do it after helpsys writes
 		// out most recent grades on close of problem
 		PutHistory(g_strAndesDir + "Log/" + theApp.m_strUserName + ".dat");
-
+*/
 		// Finish log file and upload it. 
 		HistoryFileEnd();
 		PutLog(HistoryFileGetPath());
@@ -1128,15 +1132,15 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 	}
 	else // just viewed a saved solution
 	{
-		// following lets us repair a bad history file. Have to start Andes with repaired
-		// file first, then view student's work 
+/*
+		// following lets us repair a bad history file.
 		if (AfxMessageBox("Update student's history file from this session?", MB_YESNO)
 			== IDYES) {
 			AfxGetApp()->BeginWaitCursor();
 			PutHistory(g_strAndesDir + "Log/" + theApp.m_strUserName + ".dat");
 			AfxGetApp()->EndWaitCursor();
-
 		}
+*/
 	}
 
 	// Post message to close the whole application if not already closing. 

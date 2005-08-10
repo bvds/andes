@@ -117,6 +117,10 @@ BOOL CEnergyDlg::OnInitDialog()
 
 void CEnergyDlg::InitVariableDlg()
 {
+	// if older form, first update
+	if (((CVariable*)m_pTempObj)->m_strForceType.CompareNoCase("Kinetic") == 0) 
+			((CVariable*)m_pTempObj)->m_strForceType = "Translational Kinetic";
+
 	m_cboBody.SelectStringExact(((CVariable*)m_pTempObj)->m_strObject );
 	m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent );
 	m_cboTime.SelectStringExact(((CVariable*)m_pTempObj)->m_strTime) ;
@@ -218,6 +222,8 @@ void CEnergyDlg::OnSelchangeNrgType()
 		m_editName.SetPrefix("ME");
 	else if (type == Kinetic)
 		m_editName.SetPrefix("K");
+	else if (type == RotationalKinetic)
+		m_editName.SetPrefix("Kr");
 	else if (type == Gravitational) {
 		m_editName.SetPrefix("Ug");
 		bPotential = TRUE;
