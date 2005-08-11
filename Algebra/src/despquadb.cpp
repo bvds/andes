@@ -142,6 +142,9 @@ vector<double> *twoqcfex(expr *ex, const varindx v1, const varindx v2)
 			   cout << (*thterm)[k] << ", ";
 			 cout << endl; } 
 		     } );
+		// BvdS: added Aug 2005
+		if (thterm == (vector<double> *) NULL) return(thterm);
+		// else this line will cause a memory exception:
 		if (((*thterm)[0] == 0) && ((*thterm)[1] == 0) &&
 		    ((*thterm)[2] == 0)) 
 		  switch(curpow)
