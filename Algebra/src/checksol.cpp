@@ -46,10 +46,9 @@ int checksol(const binopexp* const eqn, const vector<double>* const sols,
   expr* eqexpr = copyexpr(eqn); // g++ refused this without copyexpr
   answitherr* value = evalexpr(eqexpr, sols, reltverr);
   eqexpr->destroy();
-  DBGM(cout << value->value << "+-" << value->abserr << endl);
   DBGM(cout << "Eqn " << eqn->getInfix() <<
       " balenced with discrepancy " << value->value 
-           << " and error bars " << value->abserr << "  :";);
+           << " and absolute error " << value->abserr << endl);
   // AW: after taking out "dubious" hacks below, need to handle case 
   // where lhs and rhs both exactly 0, so that abserr also comes out 0. 
   // Changed to use <= tests on error range to allow for this.
@@ -164,17 +163,17 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     case divbye:
       retval->value = lhsval->value/rhsval->value;
       retval->abserr = lhsval->abserr/fabs(rhsval->value) 
-	+ rhsval->abserr * lhsval->value/pow(rhsval->value,2);
+	+ rhsval->abserr * fabs(lhsval->value/pow(rhsval->value,2));
       delete lhsval;
       delete rhsval;
       break;
     case topowe:
       retval->value = pow(lhsval->value,rhsval->value);
       if (fabs(lhsval->value)>lhsval->abserr) {
-	  // AW: joel's suggested corrections for kt5a bug (email 9/8/03)  
+	// AW: joel's suggested corrections for kt5a bug (email 9/8/03)  
 	retval->abserr = lhsval->abserr 
-	  * fabs(rhsval->value * (retval->value / /*was rhsval*/lhsval->value)) 
-	  + /*was lhsval*/rhsval->abserr * fabs(log(fabs(lhsval->value)) * retval->value);
+	  * fabs(rhsval->value * (retval->value /lhsval->value)) 
+	  + rhsval->abserr * fabs(log(fabs(lhsval->value)) * retval->value);
       } else {
 	retval->abserr = pow(lhsval->abserr, rhsval->value - rhsval->abserr);
       }
