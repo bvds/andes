@@ -8625,47 +8625,38 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ))
 
 
-; Counterpart to lk-no-a would be 
-;          theta12 = 0.5 * (omega_i + omega_f) * t12
-; This formula wasn't used in the CLIPS solution so it's not included here.
-; It would be straightforward to add it if desired.
+;; Counterpart to lk-no-a would be 
+;;          theta12 = 0.5 * (omega_i + omega_f) * t12
+;; This formula wasn't used in the CLIPS solution so it's not included here.
+;; It would be straightforward to add it if desired.
 
 
-; LINEAR-VEL: Linear velocity of point on rotating object 
-;    v_pt = omega * r 	where r is the radial distance from axis to point.
-;
-; We need an operator to draw the linear velocity of the rotating point with an
-; appropriate direction, even though direction doesn't matter for the
-; answer. For now we derive a motion statement for it from
-; a description of the point's relative position from the center at the
-; sample time shown in the problem diagram together
-; with the rotation direction; draw-velocity-curved will then draw it.
-; We could also add another special-purpose velocity drawing operator.
-; Note CLIPS solutions didn't pick any particular location of the point at
-; the time in question so left the velocity direction completely unspecified. 
-;
-; Exactly which quantity type to use for this "r" in our solutions is 
-; a little unclear.  A "radius" is simply the distance between two points
-; one of which happens to locate an axis of rotation. So we could just use
-; distance-between, though would have to add this, since we haven't used it 
-; yet.  But students are most likely to use the radius tool to label this, 
-; However, our revolution-radius quantity does not have a slot for the axis 
-; point. 
-;
-; So we settled on a relative-position vector, with an instruction on the
-; problem page to use this quantity. This is mainly because we are 
-; already using that for the direction of the point, and also because we hope 
-; to move to using position vectors more consistently for spatial relations 
-; in the future. We have an operator put out an equation for the equality of 
-; revolution-radius to relative position of point from axis, though hopefully 
-; the tutor will be able to avoid hinting to perform this step.
-;
-; Another possibility is to try to split the method graph inside 
-; the psm to use both methods of specifying this quantity, but that involves
-; coding two completely different versions of the operator.
+;; LINEAR-VEL: Linear velocity of point on rotating object 
+;;    v_pt = omega * r 	where r is the radial distance from axis to point.
+;;
+;; We need an operator to draw the linear velocity of the rotating point with 
+;; an appropriate direction, even though direction doesn't matter for the
+;; answer. For now, we derive a motion statement for it from
+;; a description of the point's relative position from the center at the
+;; sample time shown in the problem diagram together
+;; with the rotation direction; draw-velocity-curved will then draw it.
+;; We could also add another special-purpose velocity drawing operator.
+;; Note CLIPS solutions didn't pick any particular location of the point at
+;; the time in question so left the velocity direction completely unspecified. 
+;;
+;; We want the radius in this case to be a vector in order to 
+;; match with the cross product form of the equation.
+;; However, this makes the revolution-radius superfluous.
+;; Perhaps, we should replace revolution-radius with 
+;; (mag (relative-position ...))
+;;
+;; Another possibility is to try to split the method graph inside 
+;; the psm to use both methods of specifying this quantity, but that involves
+;; coding two completely different versions of the operator.
 
-; Following derives linear motion description from given relative position
-; of point on rim and rotation direction, for use by curved velocity drawing op
+;; Following derives linear motion description from given relative position
+;; of point on rim and rotation direction, for use by curved velocity drawing 
+;; operator.
 (defoperator describe-linear-motion (?pt ?t)
    :preconditions (
    (part-of ?pt ?whole-body)
