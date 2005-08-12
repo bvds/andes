@@ -44,7 +44,7 @@
 
 
 (def-psmclass impulse-force (?eqn-type imp-force ?axis ?rot 
-				 (impulse ?body ?agent ?time ?dir))
+				 (impulse ?body ?agent ?time))
     :complexity major    
     :Doc "Definition of impulse."
     :english ("the definition of impulse") 
@@ -133,7 +133,7 @@
 
 (def-psmclass impulse-momentum 
     (?eq-type imp-momentum ?axis ?rot 
-	      (impulse ?body  ?agent (during ?t1 ?t2) ?dir)) 
+	      (impulse ?body  ?agent (during ?t1 ?t2))) 
      :complexity major
      :doc "equation relating impulse to change in momentum"
      :english ("Relation between impulse and change in momentum")
