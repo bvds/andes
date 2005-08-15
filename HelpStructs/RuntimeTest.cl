@@ -37,7 +37,7 @@
 ;;; data or carry out other steps.  When the runtime tests are reset then
 ;;; any functions listed in this parameter (see the registration func below)
 ;;; will be called first.  
-(defparameter *runtime-testset-prep-funcs* () "The preperatory funcs.")
+(defparameter *runtime-testset-prep-funcs* NIL "The preperatory funcs.")
 
 
 ;;; For many problems we will have several tests that have solution-specific
@@ -306,6 +306,9 @@
 ;;;; is called.  They are assumed to be zero-argument procedures.
 ;;;;
 ;;;; NOTE:: These funcs will be called in FIFO order.
+
+(defun clear-runtime-test-prep-funcs ()
+   (setf *runtime-testset-prep-funcs* NIL))
 
 (defun add-runtime-test-prep-func (func)
   "Add a preperatory func to be executed."
