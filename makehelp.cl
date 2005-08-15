@@ -47,7 +47,7 @@
  :include-debugger nil
  :debug-on-error nil
  :include-ide nil
- :include-tpl nil
+ :include-tpl t
  :restart-init-function 'cl-user::andes-start
  :restart-app-function nil
  :runtime :standard)

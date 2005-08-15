@@ -24,7 +24,7 @@
 ;; E.g. (make-prbs 'dynamics 'linmom 'work) to make all of these only.
 ;; Alternatively, one can give an explicit list of problems
 (defun make-prbs (&rest topics)  
- "Dump problem files for all 'working' CLIPS problems with any of features."
+ "Dump problem files for all 'working' problems with any of features."
   (let ((Probs (remove-if-not 
 		#'(lambda(p)
 		    (and (working-Andes2-prob p)
@@ -57,7 +57,7 @@
 
 ;;; test-solve all the problems. Args as for make-prbs
 (defun test-prbs (&rest topics)  
- "Dump problem files for all 'working' CLIPS problems with any of features."
+ "Test solve all 'working' problems with any of features."
   (let ((Probs (remove-if-not #'(lambda(p)
                                  (and (working-Andes2-prob p)
 				      (or (null topics)
@@ -160,7 +160,7 @@
 (defun write-stmts()
    (map-problems 
       #'(lambda(p) 
-         (with-open-file (outf (strcat "C:\\Andes2\\Statements\\" (string (problem-name p)) ".txt")
+         (with-open-file (outf (strcat ".\\Statements\\" (string (problem-name p)) ".txt")
 	                  :direction :output :if-exists :supersede)
 	   (dolist (line (Problem-Statement P))
 	    (when (not (find #\[ line)) ; skip answer-box marker lines in stmt

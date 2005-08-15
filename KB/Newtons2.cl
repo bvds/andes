@@ -686,7 +686,7 @@
    (implicit-eqn (= ?other-compo-var 0) (at (compo ?other-axis ?other-rot ?vector) ?t))
   )
   :hint
-  ((point (string "Since ~A ~A lies along to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
+  ((point (string "Since ~A ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "You can use general {\\l projection equations}{\\v ProjectionEquations.html} that will work in all cases, but when a vector V lies along an axis x, the component of the vector V_x along the axis is simply equal to plus or minus the magnitude of the vector: V_x = +/- V. The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
    (bottom-out (string "Since ~A ~A lies along the ~a axis and points in the ~a ~a direction, write the equation ~A." 
 		       ?vector (?t pp) (?xyz adj) (?sign adj) (?xyz adj)
