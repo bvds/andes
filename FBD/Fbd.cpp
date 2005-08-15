@@ -104,6 +104,7 @@ BEGIN_MESSAGE_MAP(CFBDApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_FILE_OPENSOLUTION, OnUpdateFileOpen)
 	ON_COMMAND(ID_HELP_VIDEOS, OnHelpVideos)
 	ON_COMMAND(ID_HELP_UNITS, OnHelpUnits)
+	ON_COMMAND(ID_HELP_CONSTANTS, OnHelpConstants)
 	//}}AFX_MSG_MAP
    	// Standard file based document commands
    	ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
@@ -1608,6 +1609,11 @@ void CFBDApp::OnHelpUnits()
 	ShowLesson("units.html");
 }
 
+// Help menu commands that go to particular pages via ShowLesson:
+void CFBDApp::OnHelpConstants() 
+{
+	ShowLesson("constants.html");
+}
 // Show a video page, using local page if exists, else from web.
 // strName is file basename, including extension, e.g. for1b.html
 void CFBDApp::ShowVideoPage(CString strName)

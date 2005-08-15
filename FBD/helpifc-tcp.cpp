@@ -229,7 +229,7 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 			LogEventf(EV_START_HELP, strExePath); // added Andes 7.0.0.2.
 		
 			// Wait until child process is ready for input to give it time to init.
-			// ::WaitForInputIdle(hHelpSysProcess, 1000 ); 
+			//::WaitForInputIdle(hHelpSysProcess, 1000 ); 
 
 			// try connecting again on local machine. Loop makes multiple attempts 
 			// with pauses in case helpsys needs more time before ready to accept
@@ -245,6 +245,7 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 				TRACE("Local helpsys connection attempt %d\n", nTries);
 				HelpSystemConnect("localhost");
 			}
+			// Logf("END_ATTEMPT_CONNECT %d %d", nTries, SockIsConnected());
 			return SockIsConnected();
 			break; 
 		}

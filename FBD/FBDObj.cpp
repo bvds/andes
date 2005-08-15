@@ -2425,13 +2425,14 @@ BOOL CSystem::HasSameName(CDrawObj* pObj)
 	//Check object list to see if we already have drawn an object with the
 	//same label
 	CString strName = pObj->m_strName;
-	CString strMassName = "m" + m_strName;
+//	CString strMassName = "m" + m_strName;
 
 	if (_stricmp(strName, m_strName) == 0){//case insensitive
 		//if same name, check if same id
 		if (strcmp(m_strId, pObj->m_strId)!=0)
 			return TRUE;
 	}
+/*
 	if (_stricmp(strName, strMassName) == 0){//case insensitive
 		//if same name, check if same id
 		if (strcmp(m_strId, pObj->m_strId)!=0)
@@ -2451,7 +2452,7 @@ BOOL CSystem::HasSameName(CDrawObj* pObj)
 				return TRUE;
 			}
 	}
-
+*/
 	return FALSE;
 
 }
@@ -2476,6 +2477,7 @@ BOOL CSystem::HasSameDef(CDrawObj* pObj)
  
 BOOL CSystem::HasSameDef(CVariable* pVar)
 {
+/*
 	//Check object list to see if we already have declared a variable 
 	//with the same definition
 	m_strBodies.TrimRight();
@@ -2485,11 +2487,13 @@ BOOL CSystem::HasSameDef(CVariable* pVar)
 		if (strcmp(m_strBodies, pVar->m_strObject) == 0)				
 			return TRUE;			
 	}
+*/
 	return FALSE;
 }
 
 void CSystem::UpdateVarNames(CString strOldName)
 {
+/*
 	if (strOldName.IsEmpty())
 		strOldName = m_strName;
 
@@ -2497,17 +2501,18 @@ void CSystem::UpdateVarNames(CString strOldName)
 	
 	CString strNewMassVar = "m" + m_strName;
 	((CFBDDoc*)theApp.GetDocument())->m_strVarNames.AddTail(strNewMassVar);
-
+*/
 }
 
 void CSystem::RemoveVarNames(CString strOldName)
 {
+/*
 	if (strOldName.IsEmpty())
 		strOldName = m_strName;
 
 	CString strOldMassVar = "m" + strOldName;
 	RemoveVarName(strOldMassVar);
-	
+*/	
 }
 
 

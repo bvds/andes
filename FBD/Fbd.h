@@ -1,6 +1,6 @@
 // FBD.h : main header file for the FBD application
 // 
-// $Id: Fbd.h,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: Fbd.h,v 1.3 2005/08/15 04:28:13 anders Exp $
 
 #ifndef __AFXWIN_H__
 	#error include 'stdafx.h' before including this file for PCH
@@ -251,6 +251,7 @@ protected:
 	afx_msg void OnUpdateFileEditProbset(CCmdUI* pCmdUI);
 	afx_msg void OnHelpVideos();
 	afx_msg void OnHelpUnits();
+	afx_msg void OnHelpConstants();
 	//}}AFX_MSG
 	// Handle custom msg signaling cmd input over TCP/IP cmd port:
 	afx_msg LONG OnEventMsg(UINT wParam, LONG lParam);	

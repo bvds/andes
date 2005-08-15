@@ -700,7 +700,7 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			
 		}
 		break;
-	case HINT_UPDATE_DRAWOBJ:			// Wrote through modifications to a CDrawObj (may be variable?!)
+	case HINT_UPDATE_DRAWOBJ:			// Wrote through modifications to a CDrawObj 
 		{
 			CDrawObj* pObj = (CDrawObj*) pHint;
 			if (!pObj->InVarList())
@@ -716,12 +716,15 @@ void CVarView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 			
 				if (pObj->IsKindOf(RUNTIME_CLASS(CSystem)))
 				{
+				/*
 					CVariable* pVar = GetDocument()->GetMatchingVar(pObj, FALSE);//bMatchDef
 					if (pVar != NULL)
 					{
 						DeleteListItem(pObj);
 						return;
 					}
+				*/
+					return; // ignore, now drawn bodies are of no interest to us.
 				}
 				
 				if (pObj->IsKindOf(RUNTIME_CLASS(CAxes)))

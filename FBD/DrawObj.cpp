@@ -903,6 +903,7 @@ BOOL CDrawObj::HasSameName(CDrawObj* pObj)
 		if (strcmp(m_strId, pObj->m_strId)!=0)  // not same obj [as one being edited].
 			return TRUE;
 	}
+/*
 	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem))){//check system mass label
 		strName = "m" + strName;
 		if (_stricmp(strName, m_strName) == 0){//case insensitive
@@ -911,7 +912,7 @@ BOOL CDrawObj::HasSameName(CDrawObj* pObj)
 				return TRUE;
 		}
 	}
-
+*/
 
 	return FALSE;
 

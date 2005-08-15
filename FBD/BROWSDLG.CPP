@@ -296,6 +296,10 @@ void CBrowserDlg::OnMove(int x, int y)
 	}
 }
 
+void CBrowserDlg::OnOK()  // eat the Enter key without closing window 
+{
+	TRACE("Browser received OK - ignoring\n");
+}
 
 // Replay log events. Generic dialog/ctl events may be passed to CLogDialog handler
 // Note generic button event handler in base class may process "BACK" and "FORWARD" 

@@ -595,7 +595,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&Help Topics",                ID_HELP_FINDER
+        MENUITEM "Help &Topics",                ID_HELP_FINDER
         MENUITEM "&View Training Videos",       ID_HELP_VIDEOS
         MENUITEM "&Frequently Asked Questions", ID_WEB_SUPPORT
         POPUP "How to..."
@@ -609,6 +609,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Review Physics &Equations",   ID_PHYS_REVIEW_EQN
         MENUITEM "&Units used in Andes",        ID_HELP_UNITS
+        MENUITEM "&Constants used in Andes",    ID_HELP_CONSTANTS
         MENUITEM SEPARATOR
         MENUITEM "&What's wrong with that?",    ID_HELP_WHATSWRONG
         MENUITEM "Give me a &Hint",             ID_GET_PROC_HELP
@@ -1401,17 +1402,17 @@ BEGIN
     PUSHBUTTON      "Font...",IDC_CHOOSE_FONT,4,73,50,13
 END
 
-IDD_REVIEW_BROWSER DIALOG DISCARDABLE  0, 0, 344, 340
+IDD_REVIEW_BROWSER DIALOG DISCARDABLE  0, 0, 356, 373
 STYLE WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Physics Concepts"
 FONT 8, "MS Sans Serif"
 BEGIN
-    PUSHBUTTON      "Close",IDCANCEL,275,1,45,18
+    PUSHBUTTON      "Close",IDCANCEL,275,1,45,18,NOT WS_TABSTOP
     PUSHBUTTON      "<-Back",IDC_BACK,177,1,45,18,WS_DISABLED
     PUSHBUTTON      "Forward ->",IDC_FORWARD,226,1,45,18,WS_DISABLED
     CONTROL         "",IDC_WEB_BROWSER,
                     "{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}",WS_TABSTOP,0,20,
-                    343,320
+                    355,352
     LTEXT           "",IDC_TASK_TEXT,29,27,288,8,NOT WS_VISIBLE | NOT 
                     WS_GROUP
     LTEXT           "Topic:",IDC_STATIC,2,5,22,9
@@ -2864,8 +2865,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 9,2,5,0
- PRODUCTVERSION 9,2,5,0
+ FILEVERSION 9,2,6,0
+ PRODUCTVERSION 9,2,6,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -2883,14 +2884,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "9, 2, 5, 0\0"
+            VALUE "FileVersion", "9, 2, 6, 0\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "9, 2, 5, 0\0"
+            VALUE "ProductVersion", "9, 2, 6, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3031,8 +3032,9 @@ BEGIN
     IDD_REVIEW_BROWSER, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 337
+        RIGHTMARGIN, 349
         TOPMARGIN, 7
+        BOTTOMMARGIN, 340
     END
 
     IDD_VECTOR_COMP, DIALOG
@@ -3579,7 +3581,7 @@ END
 IDD_REVIEW_BROWSER DLGINIT
 BEGIN
     IDC_WEB_BROWSER, 0x376, 160, 0
-0x0000, 0x0000, 0x002c, 0x0000, 0x0221, 0x0000, 0x024b, 0x0000, 0x0001, 
+0x0000, 0x0000, 0x002c, 0x0000, 0x0234, 0x0000, 0x0286, 0x0000, 0x0001, 
 0x0000, 0x8201, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
 0x0000, 0x0000, 0x004c, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0001, 
 0x0000, 0xd0e0, 0x0057, 0x3573, 0x11cf, 0x69ae, 0x0008, 0x2e2b, 0x6212, 

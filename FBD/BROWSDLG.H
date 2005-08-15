@@ -1,6 +1,6 @@
 // BrowsDlg.h : header file
 // 
-// $Id: BROWSDLG.H,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: BROWSDLG.H,v 1.3 2005/08/15 04:28:13 anders Exp $
 
 /////////////////////////////////////////////////////////////////////////////
 #ifndef BROWSDLG_INCLUDED
@@ -45,6 +45,7 @@ public:
 	//{{AFX_VIRTUAL(CBrowserDlg)
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void OnOK();
 	//}}AFX_VIRTUAL
 
 	// override CLogDialog dispatcher to handle custom log events:

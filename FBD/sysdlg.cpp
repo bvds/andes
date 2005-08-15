@@ -1,6 +1,6 @@
 // SystemDlg.cpp : implementation file
 // 
-// $Id: sysdlg.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: sysdlg.cpp,v 1.3 2005/08/15 04:28:13 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -73,7 +73,7 @@ BOOL CSystemDlg::OnInitDialog()
 
 	if (!m_pDocument)	return TRUE;
 
-#if OLI  // keep old behavior in OLI version, for now
+#if 0  // old behavior in OLI version, for now
 	// Hide time choice if no time list in problem
 	if (m_pDocument->m_strTimes.IsEmpty() || m_bInPlan) {
 #else // new: ALWAYS disable time on bodies
