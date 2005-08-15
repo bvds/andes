@@ -218,6 +218,10 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 #else  // ATLAS VERSION
 			strExePath = "\"" + strExeDir + "AndesAtlas.exe" + "\"";
 #endif // ATLAS VERSION
+			// allow Lisp cmdline args for showing console to be configured in registry
+			CString strLispArgs = theApp.GetProfileString("Settings", "LispArgs", "");
+			if (!strLispArgs.IsEmpty())
+				strExePath += " " + strLispArgs;
 			TRACE("Helpsys connect failed, trying to exec %s \n", strExePath);
 			hHelpSysProcess =  StartProcess(strExePath, strExeDir);
 			if (hHelpSysProcess == NULL) {
