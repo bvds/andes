@@ -38,7 +38,47 @@
 ;; eq:  The raw equation string.
 ;; id:  The entry id itself.
 (defun do-lookup-eqn-string(eq id)
-  (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation))
+  (log-eq-entry-info (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation)
+                      id))
+
+; insert log info for this entry, returning result unchanged
+(defun log-eq-entry-info (result id)
+#| ; this code not ready for prime time yet
+ (let ((entry (find-entry id))
+       (target))
+   (when (null entry) (return-from log-eq-entry-info result))
+   ; log the parse if we have it
+   (when (and (StudentEntry-ParsedEqn entry) 
+               (listp (StudentEntry-ParsedEqn entry))) ; make sure not a parse tree, see below
+     (send-fbd-command (format nil "assoc parse ~A" (studentEntry-ParsedEqn entry))))
+  ; log info for correct or incorrect entries 
+  (cond ((eq (StudentEntry-state entry) 'incorrect)
+	; if needed, run whatswrong help to set error interp now, so diagnosis
+	; can be included in log even if student never asks whatswrong
+	; !!! if called from check-given-value-eqn, could this pre-empt the errors that
+	; it sets?
+	; !!! if called from check-given-value-eqn, we know the target is the equation
+	; giving the value and the op is always something like write-given-value --
+	; could leave this out, perhaps
+         (unless (StudentEntry-ErrInterp entry)
+	    (setf (StudentEntry-ErrInterp entry) (diagnose Entry)))
+         (send-fbd-command (format nil "assoc error ~A" (ei-name (StudentEntry-ErrInterp Entry))))	       
+	 ; not clear we have good target interp lists on all equation errors
+	 (setf target (first (Error-Interp-Intended (StudentEntry-ErrInterp Entry))))
+         ; format magic prints comma-separated lists
+         (send-fbd-command (format nil "assoc step ~{~A~^, ~}" target))
+         (send-fbd-command (format nil "assoc op ~{~A~^, ~}" 
+                         (mapcar #'sg-map-systementry->opnames target)))
+	)
+	((eq (StudentEntry-state entry) 'correct)
+	   (setf target (studententry-Cinterp entry))
+           (send-fbd-command (format nil "assoc step ~{~A~^, ~}" target))
+           (send-fbd-command (format nil "assoc op ~{~A~^, ~}" 
+	      (mapcar #'sg-map-systementry->opnames target)))
+	)
+	(T)))
+|#
+  result)
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1058,7 +1098,7 @@
 	 ; if equation is wrong but no error interpretation (syntax error, missing units, etc)
 	 ; has been set, assume value is just plain wrong, and set that here
 	 (when (and (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
-	    (set-wrong-given-value-error-interp temp-entry quant))
+	    (set-wrong-given-value-error-interp temp-entry))
 
 	 ; OK, copy relevant info from temp entry into main student entry
 	 (setf (studentEntry-State main-entry) (studentEntry-State temp-entry))
@@ -1112,19 +1152,20 @@
     (setf (turn-coloring rem) **color-red**)
     rem))
 
-(defun set-wrong-given-value-error-interp (se quant)
+; delegate to wrong-given-value (var wrongval) in kb/errors.cl which applies to equations.
+; params are lhs and rhs of a systemese equation -- we better have gotten one if this
+; is called.
+(defun set-wrong-given-value-error-interp (se)
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
-  (let ((rem (make-hint-seq
-	      (list (format nil "The specified value of ~a is not correct." 
-	                             (nlg (quant-to-sysvar quant) 'algebra))
-	         ))))
+  (let ((rem (wrong-given-value (second (studentEntry-ParsedEqn se)) 
+                                (third (studentEntry-ParsedEqn se)))))
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(wrong-given-value)
        :bindings no-bindings
        :state **no-corresponding-correct-entry**       ; dubious, may not matter
        :remediation rem))
-    ; don't return this as unsolicited hint
+    ; don't return this as unsolicited hint -- leave it as whatswrong help
     ;(setf (turn-coloring rem) **color-red**)
     ;rem
     ))
