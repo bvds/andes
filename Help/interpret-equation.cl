@@ -165,10 +165,11 @@
 "true if eqn struct specifies a given value equation"
    (eq (eqn-type eqn) 'given-eqn))
 
-(defun angle-value-eqn-p (eqn)
-"true if eqn struct is an implicit equation giving value of an angle between variable"
-   (and (eq (first (eqn-exp eqn)) 'angle-between)
-        (eq (eqn-type eqn) 'implicit-eqn)))
+(defun known-angle-value-eqn-p (eqn)
+"true if eqn struct is an implicit equation giving value of an orientation or angle between variable"
+   (and (eq (eqn-type eqn) 'implicit-eqn)
+        (or (eq (first (eqn-exp eqn)) 'angle-between)
+	    (unify (eqn-exp eqn) '(at (dir ?vector) ?time)))))
 
 (defun eqn-English (eqn)
 "return English name for eqn index entry, NULL if not found."
@@ -246,7 +247,8 @@
 ; to drop obviously zero terms or use equivalent variables.
 ; Following gets all the other equations in an interp after these
 ; "trivial" (i.e. allowed to be combined) eqns are removed.
-; Note this function is used by grading tests to detect required eqns.
+; Note! this function is used by grading tests to detect required eqns:
+; no "trivial" equation can be required explicit. 
 (defun trivial-syseqn-p (syseqn)
    (or (zero-eqn-p (syseqn->eqn syseqn))
        (combinable-identity-p (syseqn->eqn syseqn))))
@@ -265,13 +267,15 @@
 ;
 ; This is distinct from "trivial" equation predicate above since definitions are not "trivial". 
 ; Not clear if this matters -- depends on how "trivial-syseqn-p" is used by grading system.
+; Should be OK because definitions are not considered "major" so never required explicit.
 ;
 ; We also allow implicit equations giving known angle values to be combined. This should
-; allow students to skip defining angle variable in W = F*d(thetaFd) if angle is known.
+; allow students to skip defining angle variable in W = F*d(thetaFd) if angle between is known,
+; or to write it as W = F*d(thetaF - thetaD) if both are known.
 (defun combinable-syseqn-p (syseqn)
    (or (trivial-syseqn-p syseqn)
        (definition-eqn-p (syseqn->eqn syseqn))
-       (angle-value-eqn-p (syseqn->eqn syseqn))))
+       (known-angle-value-eqn-p (syseqn->eqn syseqn))))
      
 (defun get-noncombinable-eqns (interp)
     (remove-if #'combinable-syseqn-p interp))

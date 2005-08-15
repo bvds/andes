@@ -2867,8 +2867,8 @@
   (cond ((problem-has-answer-vars) 
                **nsh-answer-var-done-str**)
         ((cdr (problem-soughts *cp*)) ; more than 1 sought
-               **nsh-multi-sought-done-str**
-	(T **nsh-single-sought-done-str**))))
+               **nsh-multi-sought-done-str**)
+	(T **nsh-single-sought-done-str**)))
 
 
 
@@ -4211,7 +4211,7 @@
 
   ; need value of g -- but should we check that some entered equation mentions g??
   ((missing-g-value) 
-       (format NIL "Unable to solve for ~a. One thing you need is an equation specifying the appropriate value of g for this problem." var))
+       (format NIL "Unable to solve for ~a. One thing you need is an equation specifying the appropriate value of g for this problem. You can select 'Constants used in Andes' on the Help menu to find it." var))
   
   ; missing vector projection -- hard to detect! In most problems these are not at the bubblegraph level
   ; but subsidiary equations inside nodes. So have to choose solution and get all its equations to find
