@@ -47,7 +47,11 @@
  :include-debugger nil
  :debug-on-error nil
  :include-ide nil
- :include-tpl t
+ ; note: setting include-tpl as attempt to avoid startup crash (because 
+ ; Franz advised this to work around a (different) startup bug in the past)
+ ; caused *read-default-float-format* to be set to 'single-float in the
+ ; runtime image. Need to ensure this is set correctly in Andes initialization.
+ :include-tpl nil  
  :restart-init-function 'cl-user::andes-start
  :restart-app-function nil
  :runtime :standard)

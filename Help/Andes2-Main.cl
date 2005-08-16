@@ -452,6 +452,10 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ;; Set the base help system time
   (setq **base-Htime** (universal-time->htime (get-universal-time)))
   
+  ; Mainly for safety in runtime image: ensure Lisp reads floating point numbers 
+  ; into doubles, no matter what setting had been in effect before.
+  (setq *read-default-float-format* 'double-float)
+  
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			 (make-pathname :host (pathname-host *default-pathname-defaults*)
