@@ -2865,8 +2865,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 9,2,6,1
- PRODUCTVERSION 9,2,6,1
+ FILEVERSION 9,2,7,0
+ PRODUCTVERSION 9,2,7,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -2884,14 +2884,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "9, 2, 6, 1\0"
+            VALUE "FileVersion", "9, 2, 7, 0\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "9, 2, 6, 1\0"
+            VALUE "ProductVersion", "9, 2, 7, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

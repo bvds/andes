@@ -839,8 +839,8 @@ BOOL CDrawObj::IsValid()
 	pObj = pDoc->GetMatchingObj(this, TRUE);//bMatchName
 	if (pObj != NULL){
 		CString def = pObj->GetDef();
-		if ( (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) && (m_strName[0] != 'm') )
-			def = "body" + def.Mid(7);
+		/*if ( (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) && (m_strName[0] != 'm') )
+			def = "body" + def.Mid(7); */
 		str.Format(IDS_LABEL_NOTUNIQUE, m_strName, def);
 		theApp.DoInfoMessage(str);
 		return FALSE;
@@ -3935,8 +3935,8 @@ BOOL CVariable::IsValid()
 		else
 		{
 			CString def = pObj->GetDef();
-			if ( (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) && (pObj->m_strName[0] != 'm') )
-				def = "body" + def.Mid(7);
+			/*if ( (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) && (pObj->m_strName[0] != 'm') )
+				def = "body" + def.Mid(7); */
 			str.Format(IDS_LABEL_NOTUNIQUE, m_strName, def);
 			theApp.DoInfoMessage(str);
 			return FALSE;

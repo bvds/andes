@@ -2346,7 +2346,7 @@ CString CSystem::GetDef()
 {
 	CString strDef;
 	m_strBodies.TrimRight();
-	strDef.Format("mass of %s", m_strBodies);
+	strDef.Format("body %s", m_strBodies);
 	return strDef;
     
 }
@@ -2370,8 +2370,8 @@ BOOL CSystem::IsValid()
 	pObj = pDoc->GetMatchingObj(this, TRUE);//bMatchName
 	if (pObj != NULL){
 		CString def = pObj->GetDef();
-		if ( (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) && (pObj->m_strName[0] != 'm') )
-			def = "body" + def.Mid(7);
+		/*if ( (pObj->IsKindOf(RUNTIME_CLASS(CSystem))) && (pObj->m_strName[0] != 'm') )
+			def = "body" + def.Mid(7); */
 		str.Format(IDS_LABEL_NOTUNIQUE, pObj->m_strName, def);
 		theApp.DoInfoMessage(str);
 		return FALSE;

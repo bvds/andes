@@ -1044,11 +1044,13 @@ int CProblemSet::SetScore(CFBDDoc* pDoc)
 					 "&token=" + strToken + 
 		             "&activity=" + strActivity;
 	// indicate non-completion by showing scores in parentheses
+	// Note: for now this means we must use the "status" score,
+	// since that accepts strings ("score" score is typed numeric)
 	CString strScoreArg = pDoc->m_strScore;
 	if (pDoc->m_workState != workCompleted)
 		strScoreArg = "(" + pDoc->m_strScore + ")";
 
-	CString strCmdScore = strCmdBase +  "&scoreId=score" + 
+	CString strCmdScore = strCmdBase +  "&scoreId=status" + 
 		                        "&scoreValue=" + strScoreArg;
 	
 	result = HttpCallURL(strCmdScore, "setScore");
