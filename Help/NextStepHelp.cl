@@ -4104,11 +4104,11 @@
     (dolist (g stack)
       (if (goalprop-exp-p (cssg-goal g))
 	  (push	`(goal ,(strcat (random-goal-prefix)
-				(nlg (cssg-goal g) 'goal))
+				(nlg (cssg-goal g) 'goal) ".")
 		       (goal ,(cssg-op g) ,(cssg-goal g)))
 		
 		hints)
-	(format t "NSH: Skipping unhintable goal ~A~2%" (cssg-goal g))))
+	(format t "NSH: Skipping unhintable goal ~A.~2%" (cssg-goal g))))
     hints))
 
 
