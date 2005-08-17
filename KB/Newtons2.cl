@@ -1018,7 +1018,9 @@
    "If  there are no vectors with numerical directions,
    then draw unrotated coordinate axes"
    :preconditions 
-   ( (not (component-form))
+   ( ; we want different hints for standard axes in these cases:
+     (not (component-form))
+     (not (use-energy-axes))	  
      ;; don't draw axis for system part if system axis already chosen
      ;; use-system-axes will choose axes in this case.
      (not (axis-for ?sys ?dontcare1 ?dontcare2)
@@ -1071,7 +1073,7 @@
    (axis-for ?b z 0)
   )
   :hint
-  ((point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, since this problem is seeking horizontal or vertical vector components, you should use a standard horizontal-vertical coordinate system."))
+  ((point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, since this problem gives or seeks horizontal or vertical vector components, you should use a standard horizontal-vertical coordinate system."))
    (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
    ))
 
@@ -1140,7 +1142,7 @@
    (axis-for ?b z 0) 
   )
   :hint (
-   (point (string "You need to draw coordinate axes in order for component variables to be defined."))
+   (point (string "You need to draw coordinate axes in order for z-axis component variables to be defined."))
    (teach (string "Since you are concerned with components along the z axis in this problem, there is no special reason to tilt the axes in the x-y plane, so you might as well use a standard horizontal-vertical coordinate system."))
    (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
    ))
@@ -1210,12 +1212,14 @@
     (assume axis-for ?b y ?y-rotation)
     )
   :hint
-  ((point (string "Can you think of a good direction to set the coordinate axes?"))
+  ((point (string "Think about what would be a useful direction to set the coordinate axes when using energy principles."))
    (teach (minilesson "mini_choose_axes.htm")
           (kcd "draw-rotate-axes")
-	  (string "Although you can choose any rotation for the axes and still get a correct answer, the algebra is much simpler if you rotate the axes so at least one vector is parallel to an axis.  The more vectors that are parallel to axes, the simpler the algebra.  More importantly, if the sought quantity is a vector, then making an axis parallel to it will usually simplify the math considerably."))
+	  ; Careful with wording: we can't be sure that the axis direction being prompted actually conforms 
+	  ; to the recommended heuristic. 
+	  (string "Although you can choose any rotation for the axes and still get a correct answer, the solution is usually simpler if you rotate the axes so at least one vector is parallel to an axis.  Typically, the more vectors that come out parallel to the axes, the better, although which choice is most efficient will depend on the particular problem. "))
    (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the x axis at ~a degrees." (rotate-existing-axes) ?x-rotation))
-   ))
+  ))
 
 (defun rotate-existing-axes ()
 "TRUE at help time if should rotate axes rather than drawing new ones"
@@ -6939,8 +6943,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    (energy-axes ?b)
 	    )
   :hint (
-	 (point (string "Can you think of a good direction to set the coordinate axes?"))
-	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because that is the vertical component of the displacement, you should use standard horizontal-vertical coordinate axes."))
+	 (point (string "To find an appropriate direction to set the coordinate axes, think about the sorts of quantities that will be needed for an energy solution."))
+	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because height is the vertical component of the displacement, and because energy solutions otherwise involve only scalar quantities, there is no advantage to using rotated coordinate axes. So energy solutions in Andes use only standard horizontal-vertical axes."))
 	 (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
 	 ))
 

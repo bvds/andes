@@ -1144,8 +1144,16 @@
 
 (defun wrong-axis-rotation (srot)
   (make-hint-seq
+    (append
+      (list (strcat "Although you could in principle solve the problem with any "
+                     "rotation of the axes, that is not a useful choice "
+		     "for this problem. "))
+	 ;; delegate to next-step-help hints on the operator, which can say something
+	 ;; about why this axis was chosen
+         (sg-map-systemEntry->hints *correct-entry*))))
+#|
    (list (format nil "Are you sure you want the axes rotated by ~a degrees?" srot)
-	 ;; axis-rotation
+
 	 (strcat "Although you could in principle solve the problem with any "
 		 "rotation of the axes, the math is much simpler if you follow "
 		 "two general rules: (1) If the problem seeks a vector quantity, "
@@ -1155,7 +1163,8 @@
 	 (strcat "If you are unsure what the problem is seeking, and thus don't "
 		 "know how to rotate the axes, click on the light bulb button "
 		 "or 'explain further' for suggestions.")
-	 '(function next-step-help))))
+	 '(function next-step-help))
+|#
 
 ;;; This error class handles cases, such as the sdd problems, where
 ;;; the student tries to draw axes when none are needed.
