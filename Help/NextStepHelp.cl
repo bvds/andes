@@ -1772,7 +1772,7 @@
   "Tell the student what the problem is seeking and move on."
   (let ((Sought (car (problem-soughts *cp*))))
     (make-dialog-turn
-     (strcat message "Let's just assume that you are seeking "
+     (strcat message "  Let's just assume that you are seeking "
 	     (nlg Sought 'def-np) ".  ")
      **OK-Menu**
      :responder #'(lambda (response)
