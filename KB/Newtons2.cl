@@ -6944,7 +6944,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    )
   :hint (
 	 (point (string "To find an appropriate direction to set the coordinate axes, think about the sorts of quantities that will be needed for an energy solution."))
-	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because height is the vertical component of the displacement, and because energy solutions otherwise involve only scalar quantities, there is no advantage to using rotated coordinate axes. So energy solutions in Andes use only standard horizontal-vertical axes."))
+	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because change in height is the vertical component of the displacement, and because energy solutions otherwise involve only scalar quantities, there is no advantage to using rotated coordinate axes. So energy solutions in Andes use only standard horizontal-vertical axes."))
 	 (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
 	 ))
 
