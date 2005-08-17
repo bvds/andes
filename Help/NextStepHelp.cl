@@ -1133,7 +1133,7 @@
   (let ((Body (nsh-pick-body-to-hint)))
     (nsh-bottom-hint-target-entry
      (strcat "You should continue enumerating all of "
-	     "the necessary bodies for this problem.  ")
+	     "the necessary bodies for this problem.")
      Body
      :Assoc `(nsh continue-bodies ,(nsh-entry-prop Body)))))
 
@@ -1648,11 +1648,10 @@
 	    "may remind you of a principle that can be used to find it."))
 
 
-(defun nsh-ask-sought-and-fp (&optional (prefix ""))
+(defun nsh-ask-sought-and-fp ()
   "Start the NSH sought and FP loop."
   (nsh-ask-sought 
-   (strcat Prefix 
-	   (nsh-asfp-given-str) 
+   (strcat (nsh-asfp-given-str) "  "
 	   (nsh-asfp-sought-str))))
 
 
@@ -1663,15 +1662,15 @@
 (defun nsh-asfp-given-str ()
   (if *nsh-givens*
       (strcat "Now that you have stated all of the given information, you "
-	      "should start on the major principles.  ")
-    "You should now start on the major principles.  "))
+	      "should start on the major principles.")
+    "You should now start on the major principles."))
 
 
 (defun nsh-asfp-sought-str ()
   "Get the prompt string for nsh-ask-sought."
   (if (multi-sought-problem-p *cp*)
-      "What is one quantity that the problem is seeking?  "
-    "What quantity is the problem seeking?  "))
+      "What is one quantity that the problem is seeking?"
+    "What quantity is the problem seeking?"))
 
 
 ;;; This is the loopback point that will be used for the dialogues at runtime 
@@ -1773,7 +1772,7 @@
   (let ((Sought (car (problem-soughts *cp*))))
     (make-dialog-turn
      (strcat message "  Let's just assume that you are seeking "
-	     (nlg Sought 'def-np) ".  ")
+	     (nlg Sought 'def-np) ".")
      **OK-Menu**
      :responder #'(lambda (response)
 		    (declare (ignore response))
