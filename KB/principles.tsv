@@ -48,7 +48,6 @@ GROUP	Work and Energy
 LEAF	W = F*d*cos($q)         work defined	work	Work done by a force
 LEAF	Wnet = $S Wi            Net work defined	net-work	Net work
 LEAF	Wnet = Kf - Ki         work-energy theorem	work-energy	Work-Energy
-LEAF	ME = K + $S Ui          mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	ME1 = ME2              [Wnc=0] conservation of mechanical energy	cons-energy	Conservation of Energy
 LEAF	Wnc = ME2 - ME1        change in mechanical energy	change-me	Conservation of Energy
 LEAF	Pavg = W/t             average power defined	power	Power
@@ -143,22 +142,22 @@ LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnific
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
 END_GROUP			
 GROUP	Waves and Oscillations		
-LEAF	k = 2*$p/$l	wavenumber-lambda-wave	
-LEAF	f = $w/(2*$p)	frequency-of-wave	
-LEAF	T = 1/f	period-of-wave	
-LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
-LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
-LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
-LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
-LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
-LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
-LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
-LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo = fs*(vwÂ±vo)/(vwÂ±vs)   Frequency shift from doppler effect	doppler-frequency	
-LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
-LEAF	fbeats = abs(f1-f2)/2	beat-frequency	
-LEAF	v = c = 2.998e8 m/s    speed of light	wave-speed-light	
-END_GROUP			
+LEAF	k = 2*$p/$l	wavenumber-lambda-wave
+LEAF	f = $w/(2*$p)	frequency-of-wave
+LEAF	T = 1/f	period-of-wave
+LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
+LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
+LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed
+LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string
+LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave
+LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave
+LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
+LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
+LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency
+LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
+LEAF	fbeats = abs(f1-f2)/2	beat-frequency
+LEAF	v = c = 2.998e8 m/s    speed of light	wave-speed-light
+END_GROUP		
 END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		

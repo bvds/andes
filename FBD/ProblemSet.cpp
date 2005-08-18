@@ -715,6 +715,7 @@ int HttpPostBinaryFile(LPCSTR pszURL, LPCTSTR strStart, LPCSTR szPathName, LPCST
 		// look for error page on failure. Result just indicates request was sent.
 		DWORD dwRet;
 		pFile->QueryInfoStatusCode(dwRet);
+		TRACE("Response Status: %d\n", dwRet);
 		if (dwRet != HTTP_STATUS_OK)// save any error page to file in Andes root for debugging
 		{
 			CString strPath = g_strAndesDir + "/" + szCallId + "-result.html";

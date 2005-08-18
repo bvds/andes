@@ -1125,13 +1125,9 @@
 	; run whatswrong help to set error interp now, so diagnosis
 	; can be included in log even if student never asks whatswrong
         (setf (StudentEntry-ErrInterp entry) (diagnose Entry))
-        ; For now, write this log info here. Really should be recorded in 
+        ; For now, log error tag and target info here. Really should be recorded in 
         ; result turn for inserting with other assocs though. 
-        (send-fbd-command (format nil "assoc error ~A" (ei-name (StudentEntry-ErrInterp Entry))))	       
-	(let ((target (first (Error-Interp-Intended (StudentEntry-ErrInterp Entry)))))
-	  ; prints NIL for unknown target
-	  (send-fbd-command (format nil "assoc step ~A" (if target (SystemEntry-prop  target))))
-	  (send-fbd-command (format nil "assoc op ~A" (if target (sg-map-systementry->opnames target)))))
+	(log-entry-info Entry)
 	(return-from Check-NonEq-Entry (make-red-turn))) ; go no further
 
     ; else got a match: set state and correctness from candidate
@@ -1139,22 +1135,17 @@
     (setf (StudentEntry-CInterp entry) (cdr cand))
     (setf match (first (StudentEntry-CInterp entry)))
     (format T "Matched ~A system entry: ~A~%" (car cand) match)
-    ; For now, write this log info here. Really should be recorded in 
-    ; result turn for inserting with other assocs though.
-    (send-fbd-command (format nil "assoc step ~A" (systemEntry-prop match)))
-    (send-fbd-command (format nil "assoc op ~A" (sg-map-systementry->opnames match)))
+    ; For now, write this log info here. Note for variables with given equations, we are
+    ; logging correctness of the variable definition substep, but the given value substep, 
+    ; hence whole entry, might still be wrong.
+    (log-entry-info Entry)
 
     ; decide what to return based on major state of entry
     (case (StudentEntry-State entry)
      ('correct 
-      ; In case prematurity checking is off, trace this info anyway:
-      ;(when (SystemEntry-PrematureP match)
-      ; (format T "Prematurity ignored. Prereqs:~%~{~A~}~%"
-      ;            (systemEntry-Prereqs match)))
-
       ; check any given value equations associated. At first one that is wrong, its
       ; result turn becomes the result for the whole entry. If wrong, checking routine 
-      ; should update main entry with error interp of equation.
+      ; updates main entry record with error interp of equation.
       (dolist (e (StudentEntry-GivenEqns entry))
          (setf result (Check-Given-Value-Entry entry e))
 	 (when (not (eq (turn-coloring result) **color-green**))
@@ -1184,6 +1175,68 @@
 
     ;; finally return result
     result))
+
+; 
+; log-entry-info -- insert extra info for entry into Andes log
+;
+; This function can be used for any student entry including eqns, 
+; after status and possibly error info has been assigned.
+; Logs: parsedEqn (eqns only), error label (if assigned), 
+;       target step and op lists (if one is found)
+; Runs wwh to get an error handler if one is unset.
+; Sends async commands to workbench to do the logging, so
+; the entries go before the final result in the log.
+;
+(defun log-entry-info (entry)
+  (when (null entry) 
+       (return-from log-entry-info NIL)) ; just in case
+  ; don't waste time adding info when checking init entries 
+  ; ?? might we want it anyway ??
+  (when (not **checking-entries**)
+     ; trap errors so any bug in lightly tested logging code 
+     ; won't crash the whole entry handling:
+     (safe-apply #'do-log-entry-info (list entry))))
+  
+(defun do-log-entry-info (entry)
+  (let ((target-entries)
+        (parse (StudentEntry-ParsedEqn entry)))
+    ; fetch target entry list for correct or incorrect entries 
+    (cond ((eq (StudentEntry-state entry) 'incorrect)
+	    ; if needed, run whatswrong help to set error interp now, so diagnosis
+	    ; can be included in log even if student never asks whatswrong
+            (unless (StudentEntry-ErrInterp entry)
+	        (setf (StudentEntry-ErrInterp entry) (diagnose Entry)))
+	    (setf target-entries (Error-Interp-Intended (StudentEntry-ErrInterp Entry))))
+
+	  ((eq (StudentEntry-state entry) 'correct)
+	     (setf target-entries (studententry-Cinterp entry))))
+
+    (let ((*print-pretty* NIL))   ; no line breaks allowed in cmd strings 
+       ; log the parse if we have it.  Note for syntax errors it may be list 
+       ; containing partial parse tree printed as (#S(PARSE :TREE (LM m) :REM =x8*/7))
+       ; print parse of ? for this
+       (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
+           (send-fbd-command (format nil "assoc parse ~A" 
+	                               (if (eq (type-of (first parse)) 'parse) "?" parse))))
+
+       ; For non-eq entries, show entry prop in our notation, so we can identify common errors.
+       ; For correct non-eq entries, it will be the step, but for errors we add it.
+       (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
+                  (eq (StudentEntry-state entry) 'incorrect))
+            (send-fbd-command (format nil "assoc entry ~A" (studentEntry-prop entry))))
+
+       ; log the error tag if one was found
+       (when (StudentEntry-ErrInterp entry)
+           (send-fbd-command (format nil "assoc error ~A" (ei-name (StudentEntry-ErrInterp Entry)))))
+
+        ; log the target entry info if we have any. This shows comma-separated lists of entry props
+	; ("steps") and parallel list of opnames
+       (when target-entries
+           (send-fbd-command (format nil "assoc step ~{~A~^,~}" 
+	                                  (mapcar #'systementry-prop target-entries)))
+           (send-fbd-command (format nil "assoc op ~{~A~^,~}" 
+                                         (mapcar #'sg-map-systementry->opname target-entries))))
+     )))
 
 ; following does the work of entering an implicit entry associated with
 ; a principal entry, either an implicit equation or an implicit variable

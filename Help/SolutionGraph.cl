@@ -867,6 +867,12 @@
  (remove-duplicates 
    (mapcar #'first (sg-map-systementry->opinsts entry))))
 
+; get name of one operator that made this system entry. 
+; For equations, set of opinsts should be a singleton (don't have
+; two operators generating the same equation), so this can be
+; more convenient than list.
+(defun sg-map-systementry->opname (entry)
+  (first (sg-map-systementry->opnames entry)))
 ;
 ; For treating entries as optional
 ; An entry is optional iff for every enode in the graph:
