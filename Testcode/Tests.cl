@@ -638,7 +638,7 @@
  :InitFunc #'(lambda () 
 	       (make-rt-fract-num-score 
 		0 (length (remove-if-not #'quantity-expression-p (problem-soughts *cp*)))))
- :Weight 0.25
+ :Weight 0.20
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
@@ -698,7 +698,7 @@
 			(and (not (quantity-expression-p S))
 			     (not (equalp (car S) 'choose-answer))))
 		    (problem-soughts *cp*)))))
- :Weight 0.25
+ :Weight 0.20
  :CreditType Credit
  :ActiveCond #'(lambda ()
 		 (and (problem-loadedp)
@@ -795,7 +795,7 @@
  :InitFunc #'(lambda ()
 	       (test-cache-setup-fract-solset
 		*test-cache-eqn-entries*))
- :Weight 0.05
+ :Weight 0.20
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
@@ -825,7 +825,7 @@
 	       (test-cache-setup-fract-solset
 		*test-cache-eqn-entries*))
 
- :Weight 0.1
+ :Weight 0.15
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
@@ -853,7 +853,7 @@
 	       (test-cache-setup-fract-solset
 		*test-cache-given-eqn-entries*))
 
- :Weight 0.05
+ :Weight 0.10
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
@@ -918,7 +918,7 @@
 ;;; that was defined above.
 
 (add-runtime-test
- Body_Entry_Subscore
+ Body_Entry_Subscore10
  :PrintStr "Body_Entry_Subscore"
  :ValType rt-solset
  
@@ -928,7 +928,7 @@
 	       (test-cache-setup-fract-solset
 		*test-cache-objects*))
 
- :Weight 0.05
+ :Weight 0.10
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
@@ -1298,7 +1298,6 @@
  :Func #'art-correctent-ent-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :Weight 0.05
- :CreditType Extra
  :ActiveCond #'(lambda () 
 		 (and *cp* (not-curr-checking-problemp)
 		      **Current-Prob-Has-nonanswer-entries**))
@@ -1335,8 +1334,6 @@
  :ValType rt-fract-sum-score
  :Func #'art-correcteqent-eqent-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
- :Weight 0.05
- :CreditType Extra
  :ActiveCond #'not-curr-checking-problemp 
  :MergeFunc #'mergefunc-sum-values
  )
@@ -1372,8 +1369,6 @@
  :ValType rt-fract-sum-score
  :Func #'art-correctnoneqent-noneqent-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
- :Weight 0.05
- :CreditType Extra
  :ActiveCond #'not-curr-checking-problemp
  :MergeFunc #'mergefunc-sum-values
  )
@@ -1409,7 +1404,6 @@
  :Func #'art-canswerents-answerents-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :Weight 0.05
- :CreditType Extra
  :ActiveCond #'not-curr-checking-problemp 
  :MergeFunc #'mergefunc-sum-values
  )
