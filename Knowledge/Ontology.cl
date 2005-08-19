@@ -217,17 +217,14 @@
   "Is type a valid exp type?"
   (lookup-exptype-struct type))
 
-
 (defun valid-expression-p (exp)
   "Is the supplied exp a valid expression type."
   (lookup-expression-struct exp))
-
 
 (defun quantity-expression-p (exp)
   "Is the expression a quantity?"
   (func-lookup-expression-struct
    exp #'ExpType-quantityp))
-
 
 (defun lookup-exptype-struct (type)
   "Lookup the exp struct of ExpType 'TYPE'"
@@ -270,12 +267,10 @@
   "Lookup the struct corresponding to the field."
   (cdr (find Field (ExpType-fields Struct) :key #'car)))
     
-
 (defun lookup-expression-type (exp)
   "Lookup the type of an expression."
   (func-lookup-expression-struct 
    exp #'ExpType-type))
-
 
 (defun lookup-expression-units (exp)
   "Lookup the expression units."
@@ -287,7 +282,6 @@
 	 (subst-bindings b (exptype-units s)))
       (exptype-units s))))
   
-
 (defun lookup-expression-restrictions (exp)
   "Lookup the expression restrictions."
   (let ((s) (b))
@@ -1053,4 +1047,4 @@
 	(dolist (Binding B)
 	  (push (lookup Var Binding) R))))
     (remove-duplicates R :test #'equalp)))
-      
+
