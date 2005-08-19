@@ -3,18 +3,10 @@
 ;;; Collin Lynch
 ;;; Collinl@pitt.edu
 ;;;
-;;; This file contains startup and initialization code for Andes
-;;; and should be modifed to change runtime conditions only.
+;;; This file contains runtime initialization code for Andes
+;;; This allows one to change parameters without recompiling 
+;;; the lisp code.
 ;;;
-;;; NOTE:: Comments in this file are preceeded by a semicolon
-;;;   or enclosed by the hash-pipe braces ("#|" and "|#").
-;;;   If you wish to add your own comments please follow my
-;;;   example here and preceed each line of comments with 
-;;;   a pair or more of semicolons ";;".
-;;;
-;;; If any problem arises please e-mail me.
-
-
 ;;; --------------------------------------------------------
 ;;; Setting Score Weights.  
 ;;; This function will be called at runtime to set the weights 

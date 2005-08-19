@@ -956,7 +956,7 @@
 	       (test-cache-setup-fract-solset
 		*test-cache-axis-entries*))
 
- :Weight 0.05
+ :Weight 0.10
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 

@@ -24,7 +24,7 @@
 ;;; loaded (and evaluated) at runtime.  This file is intended to
 ;;; set parameters and make any modifications that are necessary
 ;;; but cannot be hardcoded into the distribution.  
-(defparameter **Config-File-Path** "Config")
+(defparameter **Config-File-Name** "Config.cl")
 
 ;;; Checking entries is a global flag that is used to indicate
 ;;; whether or not the workbench is currently sending saved entries
@@ -70,16 +70,17 @@
 ;;(defvar *Current-Andes-Session-Start-Time* Nil "The current Session Start time.")
 
 ;;; Problem Instance Time.
-;;; Whenever the student starts andes, opens a new problem, or closes a problem 
-;;; then they are beginning a new "problem instance".  This instance represents a 
-;;; single session of work on a specified problem.  When no problem is open 
-;;; (following a close problem or before any problem is opened) then the problem
-;;; in question is Nil.  
+;;; Whenever the student starts andes, opens a new problem, or closes a problem
+;;; then they are beginning a new "problem instance".  This instance represents
+;;; a single session of work on a specified problem.  When no problem is open 
+;;; (following a close problem or before any problem is opened) then the 
+;;; problem in question is Nil.  
 ;;;
-;;; The purpose of maintaining the problem instance times is to make it possible 
-;;; for the statistics to be sorted efficiently.  This variable is used to store
-;;; the current problem instance time when it is created for later access.  The 
-;;; value could be pulled from the cmd stack but this is more efficient.
+;;; The purpose of maintaining the problem instance times is to make it 
+;;; possible for the statistics to be sorted efficiently.  This variable is 
+;;; used to store the current problem instance time when it is created for 
+;;; later access.  The value could be pulled from the cmd stack but this is 
+;;; more efficient.
 ;;;
 ;;; This value will be set here and read by the problem storage code in 
 ;;; runtimetest.cl
@@ -102,20 +103,20 @@
 ;------------------------------------------------------------------------------
 
 
-;;; ============================================================================
+;;; ===========================================================================
 ;;; State API calls.
 
-;;==============================================================================
+;;=============================================================================
 ;; Session Control Info.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; set-session-id
 ;; Argument(s): session id
 ;; returns: nil for failure, non-nil for success.
 ;; note(s):
-;;   The Session id is, at present a flag that we will use to identify individual 
-;;   sessions within Andes.  It is used to store the score values and to set 
-;;   other test information.  In time it may take on some sort of logging role
-;;   for use in identification and secure testing but not yet.
+;;   The Session id is, at present a flag that we will use to identify 
+;;   individual sessions within Andes.  It is used to store the score values 
+;;   and to set other test information.  In time it may take on some sort of 
+;;   logging role for use in identification and secure testing but not yet.
 ;;
 ;;   Initially the Current-Andes-Session-Start-Utime was set using the contents of
 ;;   the session id.  This is no longer the case as it was deemed necessary to make
@@ -203,23 +204,23 @@
 (defun do-read-student-info (name &optional (ConcHelp Nil))
   (declare (ignore ConcHelp))
   (set-student-name name)
-  ; Lisp errors within API calls like this one are caught by the API call
-  ; dispatcher,  causing a special "call failed" signal to be returned to
-  ; the workbench. However, the workbench treats failure on this call to mean
-  ; the help system has not initialized and is unavailable. (Maybe this 
-  ; should be changed?) So don't want to return call-failed if we can in fact 
-  ; continue, perhaps without student information, so don't let Lisp errors
-  ; propagate out of this routine. !!! Might want to communicate warning 
-  ; message in case of failure to load student file, though.
+  ;; Lisp errors within API calls like this one are caught by the API call
+  ;; dispatcher,  causing a special "call failed" signal to be returned to
+  ;; the workbench. However, the workbench treats failure on this call to mean
+  ;; the help system has not initialized and is unavailable. (Maybe this 
+  ;; should be changed?) So don't want to return call-failed if we can in fact 
+  ;; continue, perhaps without student information, so don't let Lisp errors
+  ;; propagate out of this routine. !!! Might want to communicate warning 
+  ;; message in case of failure to load student file, though.
 
-  ; Don't fail call if fail to load student file. 
+  ;; Don't fail call if fail to load student file. 
   (safe-apply 'StudentFile-load (list name))
    
-  ; we want to load the config file after student name is known, so it can
-  ; include customizations based on student name (used in some experiments).
+  ;; we want to load the config file after student name is known, so it can
+  ;; include customizations based on student name (used in some experiments).
   (safe-apply 'Load-Config-File)			
 
-  ; color-green result signals success
+  ;; color-green result signals success
   (make-green-turn))			
 
 
@@ -568,8 +569,7 @@ NIL if none"
 ;; other info such as the student-name.
 (defun load-config-file ()
   "Load the configuration file."
-  (load (andes-path **Config-File-Path**)
-	:verbose t :if-does-not-exist nil))
+  (load (andes-path **Config-File-Name**)))
 
 
 ;;;; ===============================================================
