@@ -513,7 +513,7 @@
   :complexity connect
   :doc "projection equations"
   :english ("projection equations")
-  :ExpFormat ("writing the projection equation for ~a onto the ~a axis." 
+  :ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
 	      (nlg ?vector) (nlg ?axis 'adj))
   :EqnFormat ("~a_~a = ~a*~a($q~a - $q~a)"
 	      (nlg ?vector 'nlg-vector-var-pref)
@@ -801,7 +801,7 @@
      :group NL
      :complexity major
      :english ("Newton's Second law, net force version")
-     :ExpFormat ("applying Newton's Second Law for net forces on ~a ~a."
+     :ExpFormat ("applying Newton's Second Law for net forces on ~a ~a"
 		 (nlg ?body) (nlg ?time 'nlg-time)))
 
 
@@ -888,7 +888,7 @@
   :complexity connect
   :english ("mass of a compound body is sum of masses of parts")
   :expformat ((strcat "using the fact that the mass of ~a "
-		      "is the sum of the masses of its parts.") 
+		      "is the sum of the masses of its parts") 
 	      (nlg (cons 'compound (car ?compound))))
   :EqnFormat ("m_compound = m_part1 + m_part2"))
 
@@ -1208,7 +1208,7 @@
   :complexity connect
   :english ("projection equation")
   
-  ;:ExpFormat ("writing the projection equation for ~a onto the ~a axis." 
+  ;:ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
   ;	      (nlg ?vector) (nlg ?axis 'adj))
   :EqnFormat ("~a_~a = ~a*~a($q~a - $q~a)"
 	      (nlg ?vector 'nlg-vector-var-pref)
