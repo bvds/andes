@@ -311,11 +311,11 @@
 ;;;
 
 (defun valid-keyword-pair (x)
-  "Check expression is list starting with a keyword and value."
+  "Check x is list starting with a keyword and value."
   (and (consp x) (keywordp (first x)) (> (length x) 1)))
 
 (defmacro get-any-default-value (x)
-  "Remove any non-keyword from beginning of list"
+  "Remove any non-keyword from beginning of x"
   `(when (and (consp ,x) (not (keywordp (first ,x)))) (pop ,x)))
 
 (defun unify-keyword (x y bindings)
