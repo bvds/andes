@@ -5889,10 +5889,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; predefined constants to every problem's givens. But until we sort out
 ;; how to handle predefined terms, this is the consistent method to use.
 (defoperator define-grav-accel (?planet)
- :preconditions 
- 	( (bind ?g-var (format-sym "g_~A" ?planet)) )
- :effects 
- 	( (variable ?g-var (gravitational-acceleration ?planet)) ))
+  :preconditions 
+  ( (bind ?g-var (format-sym "g_~A" ?planet)) )
+  :effects 
+  ( (variable ?g-var (gravitational-acceleration ?planet))
+    (define-var (gravitational-acceleration ?planet)) ))
 
 ;;;; ========================== Newton's law ================================ 
 

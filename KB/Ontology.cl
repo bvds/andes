@@ -185,7 +185,7 @@
   :units |m/s^2|
   :restrictions positive
   :fromWorkbench `(gravitational-acceleration ,body)
-  :english ("the gravitational acceleration due to ~A" (nlg ?planet nil)))
+  :english ("the gravitational acceleration due to ~A" (nlg ?planet)))
 
 (def-qexp num-forces (num-forces ?body)
   :english ("the number of forces on ~A" (nlg ?body)))
