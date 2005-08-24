@@ -272,10 +272,28 @@
         ((eql x y) bindings)
         ((variable-p x) (unify-variable x y bindings))
         ((variable-p y) (unify-variable y x bindings))
+;;; Match any keyword pairs
+	((valid-keyword-pair x) (unify-keyword x y bindings))
+	((valid-keyword-pair y) (unify-keyword y x bindings))
         ((and (consp x) (consp y))
-         (unify (rest x) (rest y) 
-                (unify (first x) (first y) bindings)))
+	 (unify (rest x) (rest y) 
+			 (unify (first x) (first y) bindings)))
         (t fail)))
+
+(defun valid-keyword-pair (x)
+  "Check expression is list starting with a keyword and value."
+  (and (consp x) (keywordp (first x)) (> (length x) 1)))
+
+(defun unify-keyword (x y bindings)
+  "Find match in y for first keyword pair in x"
+  ;; keyword pair is removed from x:
+  (let* ((i (position (pop x) y)) (var (pop x))) 
+    (if (and i (> (length y) (+ i 1))) ;Is there a keyword and value in y?
+	(unify x 
+	 (append (subseq y 0 i) (subseq y (+ i 2))) ;remove keyword pair from y
+	 (unify var (elt y (+ i 1)) bindings)) ;unify values
+      ;; no match:  try to bind var to nil
+      (unify x y (unify var nil bindings)))))
 
 (defun unify-variable (var x bindings)
   "Unify var with x, using (and maybe extending) bindings."
@@ -319,7 +337,8 @@
 
 
 ;;; ===========================================================
-
+;; not used
+#|
 (defun unify-lists (l1 l2 &optional (Bindings No-bindings))
   "Attempt to unify the elements in l1 with the elements in l2."
   (if (null l1) (list Bindings)
@@ -328,7 +347,7 @@
 	(loop for B in NewBindings
 	    when (unify-lists (cdr l1) l2 B)
 	    nconc it)))))
-      
+|#      
 
 (defun unify-with-list (i L &optional (Bindings No-Bindings))
   "Attempt to unify item i with some element in list L returning all possible unifications."
@@ -349,10 +368,10 @@
 ;;      return it))
     
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; filter-values
-;; Search through a list of expressions and pull out the subset of each expression that
-;; are accepted by the filter.
+;; Search through a list of expressions and pull out the subset of each 
+;; expression that are accepted by the filter.
 ;;
 ;; Arguments: Filter: The filter expression to be used.
 ;;            Exps:   The expressions to be filtered.
@@ -401,14 +420,14 @@
     (mapcar #'cons Vars Vals)))
 
 
-;;===================================================================================
+;;=============================================================================
 ;; Code by Kurt VanLehn.
 
-;;; the regular subst-bindings is recursive, but we only want the top level value to 
-;;; have a quote around it.  For instance, if ?x is bound to ?y which is bound to 5,
-;;; then we want (mod ?x 90) to become (mod '5 90).  Thus at the first occurance
-;;; in the cons-tree walk of a variable, we switch from this function to the regular
-;;; subst-bindings function (KVL)
+;;; the regular subst-bindings is recursive, but we only want the top level 
+;;; value to have a quote around it.  For instance, if ?x is bound to ?y which 
+;;; is bound to 5, then we want (mod ?x 90) to become (mod '5 90).  Thus at the
+;;; first occurance in the cons-tree walk of a variable, we switch from this 
+;;; function to the regular subst-bindings function (KVL)
 
 (defun subst-bindings-quoted(Bindings X)
    "Returns X with all variable inside a quote, ready for eval'ing"
@@ -421,13 +440,14 @@
                  (subst-bindings-quoted bindings (cdr x))))))
 
 
-;;===================================================================================
+;;=============================================================================
 ;; Code by Collin Lynch
 
-;;; We may want to perform recursive binds  or more complex binds in which case it will
-;;; become necessary to call some function for each element to be bound.  
-;;; Subst-bindings-func does so by calling the specified predicate function and setting
-;;; its value in the location specified.
+;;; We may want to perform recursive binds or more complex binds in which 
+;;; case it will become necessary to call some function for each element to 
+;;; be bound.  
+;;; Subst-bindings-func does so by calling the specified predicate function 
+;;; and setting its value in the location specified.
 
 (defun subst-bindings-func (Bindings Func X)
    "Returns X with all variables inside replaces by the value of Func(B)."
@@ -512,7 +532,8 @@
 (defun strip-replace-exp-vars (exp)
   "Apply strip-variable-qm to all vars in exp."
   (cond ((null exp) ())
-	((variable-p exp) (list (string-upcase (subseq (format nil "~w" exp) 1)) ))
+	((variable-p exp) (list (string-upcase 
+				 (subseq (format nil "~w" exp) 1)) ))
 	((atom exp) (list exp))
 	((variable-p (car exp))
 	 (cons (string-upcase (subseq (format nil "~w" (car exp)) 1)) 

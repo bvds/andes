@@ -712,7 +712,8 @@
 		  (sinusoidal ?block)
 		  (massless ?rod)
 		  (pendulum ?block ?rod)
-		  (near-planet ?planet)
+		  (near-planet ?planet :body ?body)
+		  (test (or (null ?body) (equal ?body ?block)))
 		  (any-member ?sought ((period ?block)
 				       (length ?rod)
 				       (gravitational-acceleration ?planet)
@@ -725,7 +726,6 @@
 (defoperator pendulum-oscillation (?block ?rod ?planet
 				   )
   :preconditions (
-		  (near-planet ?planet)
 		  (variable  ?t (period ?block))
 		  (variable  ?g-var (gravitational-acceleration ?planet))
 		  (variable ?l (length ?rod))
