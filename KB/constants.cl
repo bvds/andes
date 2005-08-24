@@ -25,8 +25,8 @@
 ;;;
 
 (defun enter-predefs ()
-  ;; if prob has near-planet, predefine g for relevant planet 
-  (let* ((planet-props (filter-expressions '(near-planet ?p) 
+  ;; if there is one planet specified, predefine g for this planet 
+  (let* ((planet-props (filter-expressions '(near-planet ?p :body ?whatever) 
 					   (problem-givens *cp*)))
 	 (planet   (when (= (length planet-props) 1) 
 		     (second (first planet-props)))))

@@ -2791,6 +2791,7 @@
 ;;;
 ;;; free-fall equation: acceleration = g
 ;;;
+
 (defoperator free-fall-accel-contains (?quantity)
   :specifications 
   "if an object is in free-fall near a planet during an interval, 

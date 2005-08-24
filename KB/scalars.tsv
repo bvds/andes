@@ -1,7 +1,7 @@
 mass	m	mass		of [body:bodies]
 mass-per-length	$m	mass per length		of [body:bodies]
 mass-change-magnitude	dmdt	magnitude of mass change per unit time		of [body:bodies] due to [body2:bodies] at [time:times]
-revolution-radius	r	radius of motion	radius for circular motion	of [body:bodies] at [time:times]
+revolution-radius	r	radius of circular motion		of [body:bodies] at [time:times]
 distance	s	distance traveled		by [body:bodies] at time [time:times]
 distance-between	d	distance		between [body:bodies] and [body2:bodies] at [time:times]
 speed	v			
@@ -18,7 +18,7 @@ energy
 compression	d	compression distance		of [body:bodies] at time [time:times]
 spring-constant	k	spring constant		of [body:bodies]
 height	h	height		of [body:bodies] at time [time:times]
-moment-of-inertia	I	moment of inertia		of [body:bodies]
+moment-of-inertia	I	moment of inertia		of [body:bodies] at time [time:times]
 length		length		of [body:bodies]
 width		width		of [body:bodies]
 current	I			
@@ -57,3 +57,4 @@ amplitude	A	amplitude		for oscillations of [body:bodies]
 amplitude-max-speed	vmax	maximum speed of oscillation		for oscillations of [body:bodies]
 amplitude-max-abs-acceleration	amax	maximum magnitude of acceleration		for oscillations of [body:bodies]
 probability	p	probability		
+gravitational-acceleration	g	gravitational acceleration		at surface of [body:bodies]
