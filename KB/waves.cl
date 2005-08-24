@@ -703,7 +703,7 @@
 ;;;  properly check for other forces on the mass.
 (def-psmclass pendulum-oscillation (pendulum-oscillation ?block ?rod ?planet)
   :complexity major			; must explicitly use
-  :english ("Formula for period of mass and spring")
+  :english ("Formula for period of a simple pendulum")
   :ExpFormat ("using formula for period of a pendulum")
   :EqnFormat ("T = 2*$p*sqrt(l/g)")) 
 
