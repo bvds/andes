@@ -280,20 +280,6 @@
 			 (unify (first x) (first y) bindings)))
         (t fail)))
 
-(defun valid-keyword-pair (x)
-  "Check expression is list starting with a keyword and value."
-  (and (consp x) (keywordp (first x)) (> (length x) 1)))
-
-(defun unify-keyword (x y bindings)
-  "Find match in y for first keyword pair in x"
-  ;; keyword pair is removed from x:
-  (let* ((i (position (pop x) y)) (var (pop x))) 
-    (if (and i (> (length y) (+ i 1))) ;Is there a keyword and value in y?
-	(unify x 
-	 (append (subseq y 0 i) (subseq y (+ i 2))) ;remove keyword pair from y
-	 (unify var (elt y (+ i 1)) bindings)) ;unify values
-      ;; no match:  try to bind var to nil
-      (unify x y (unify var nil bindings)))))
 
 (defun unify-variable (var x bindings)
   "Unify var with x, using (and maybe extending) bindings."
@@ -313,6 +299,38 @@
         ((consp x) (or (occurs-check var (first x) bindings)
                        (occurs-check var (rest x) bindings)))
         (t nil)))
+
+;;;
+;;;                    Match to keywords pairs
+;;;
+;;;  Keywords pairs may occur in any order in a list.  One may
+;;;  optionally specify a default value
+;;;  The format is 
+;;;       :keyword value [default]
+;;;  If there is no match, value is bound to default or nil
+;;;
+
+(defun valid-keyword-pair (x)
+  "Check expression is list starting with a keyword and value."
+  (and (consp x) (keywordp (first x)) (> (length x) 1)))
+
+(defmacro get-any-default-value (x)
+  "Remove any non-keyword from beginning of list"
+  `(when (and (consp ,x) (not (keywordp (first ,x)))) (pop ,x)))
+
+(defun unify-keyword (x y bindings)
+  "Find match in y for first keyword pair in x"
+  ;; keyword pair is removed from x:
+  (let* ((i (position (pop x) y)) (var (pop x))
+	 ;; remove any default value from x
+	 (default (get-any-default-value x)))
+    (if (and i (> (length y) (+ i 1)))	;Is there a keyword and value in y?
+	(let ((post (subseq y (+ i 2))))
+	  (get-any-default-value post)	;remove any default value from y
+	  (unify x (append (subseq y 0 i) post) ;y with keyword pair removed
+		 (unify var (elt y (+ i 1)) bindings))) ;unify values
+      ;; no match:  bind var to default
+      (unify x y (unify var default bindings)))))
 
 ;;; ==============================
 
