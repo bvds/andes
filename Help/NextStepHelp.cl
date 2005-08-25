@@ -2911,7 +2911,7 @@
   (trace nsh-start-principle-free?
 	 nsh-start-principle-free))
 	 
-;;;; =================== nsh-continue-solutions ================================
+;;;; =================== nsh-continue-solutions ===============================
 ;;;; NSH-Prompt-continue-solution
 ;;;; If the student has reached this point then we know that they have selected
 ;;;; a solution and we want to continue on with it.  In order to do that we 
@@ -3125,7 +3125,7 @@
 	     
 
 
-;;; ---------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Collect the axes that the student has drawn.
 (defun nsh-collect-student-axes ()
   "Collect the axes that the student has drawn (correct and incorrect)."
@@ -3142,9 +3142,9 @@
 			 *studententries*)))
 
 		 
-;;;; ============================== Solutions ==================================
+;;;; ============================= Solutions ==================================
 
-;;; ----------------------- Picking the best Solution ---------------------------
+;;; ----------------------- Picking the best Solution -------------------------
 ;;; Given a set of solutions, this code favors those solutions that have the 
 ;;; least number of undone principles remaining.  In the event of a tie it 
 ;;; favors those solutions that have standard axes or where the student has
@@ -3171,9 +3171,9 @@
       (car (nsh-pick-most-worked-solutions (or Sols Solutions))))))
 	
 
-;;; ------------------------------------------------------------------------------
-;;; Given a set of solutions select the ones with the least amount of uncompleted
-;;; principles remaining.
+;;; ---------------------------------------------------------------------------
+;;; Given a set of solutions select the ones with the least amount of 
+;;; uncompleted principles remaining.
 
 (defun nsh-pick-least-work-solutions (&optional (Solutions *nsh-solution-sets*))
   "Pick the solution with the least remaining work."
@@ -3188,7 +3188,7 @@
 
 
 
-;;; ----------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Given a set of solutions pick the ones on which the most principles
 ;;; have been completed.
 (defun nsh-pick-most-worked-solutions (&optional (Solutions *nsh-solution-sets*))
@@ -3234,7 +3234,7 @@
    Solutions))
 
 
-;;; ---------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Given a set of solutions collect all those that contain at least one of the
 ;;; proposed first principles.
 (defun nsh-filter-solutions-by-fps (Principles &optional (Solutions *nsh-solution-sets*))
@@ -3242,7 +3242,7 @@
   (remove-if #'(lambda (S) (not (intersection Principles S))) Solutions))
 
 
-;;; ------------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Given a set of nodes collect all of the axes drawing entries that appear
 ;;; within them.
 (defun nsh-collect-solution-axes-entries (Solution)
@@ -3255,14 +3255,14 @@
     Solution)))
 
 
-;;; -------------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Collect all of the individual axes located in each solution.
 (defun nsh-collect-solution-axes (Solution)
   (mapcar #'(lambda (E) (cadr (systementry-prop E)))
 	  (nsh-collect-solution-axes-entries Solution)))
 
 
-;;; --------------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Given a solution return t if it contains more than one axis.
 (defun nsh-multi-axis-solutionp (Solution)
   "Given a solution return t if it contains more than one axis."
@@ -3271,7 +3271,7 @@
 
 
 
-;;; ----------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Test to see if the specified solution has been completed or not.
 (defun nsh-solution-completed-p (Solution)
   "Return t iff the solution is completed."
@@ -3279,7 +3279,7 @@
 
 
 
-;;; --------------------------- Solution NumUndone -----------------------------
+;;; -------------------------- Solution NumUndone -----------------------------
 ;;; Calculate the number of principles in the solution
 ;;; that are uncompleted (no paths in psmgraph entered).
 (defun nsh-Solution-numUndone (Solution)
@@ -3291,7 +3291,7 @@
     R))
 
 
-;;; -------------------------- Solution NunDone ---------------------------------
+;;; ------------------------- Solution NunDone --------------------------------
 ;;; Calculate the number of principles in the solution
 ;;; that were completed (one path in psmgraph entered).
 (defun nsh-Solution-numDone (Solution)
@@ -3615,13 +3615,20 @@
 (defun walk-psm-path (prefix path stack)
   (cond ((null path) 
 	 (error "Reached end of psm path before finding target entry"))
-	((cswm-p (car Path)) (walk-wm-step prefix path stack))          ;; If the step is one of the
-	((csop-p (car Path)) (walk-op-step prefix path stack))	        ;; cognitive steps (op, do,  
-	((cssg-p (car Path)) (walk-sg-step prefix path stack))          ;; wm, sg) then take the 
-	((csdo-p (car Path)) (walk-do-step prefix path stack))          ;; appropriate step action.
-	((cssplit-p (car Path)) (walk-split-step prefix (cdr path) stack))   ;; 'SPLIT' (beginning of unordered)   
-	((cschoose-p (car Path)) (walk-choose-step prefix (car path) stack)) ;; Choose (alternate paths).	 
-	(T (Error "Car of path has illegal syntax"))))                       ;; Or signal a syntax error.
+	;; If the step is one of the
+	((cswm-p (car Path)) (walk-wm-step prefix path stack)) 
+	;; cognitive steps (op, do,  
+	((csop-p (car Path)) (walk-op-step prefix path stack))
+	;; wm, sg) then take the 
+	((cssg-p (car Path)) (walk-sg-step prefix path stack))
+	;; appropriate step action.
+	((csdo-p (car Path)) (walk-do-step prefix path stack))
+	;; 'SPLIT' (beginning of unordered)   
+	((cssplit-p (car Path)) (walk-split-step prefix (cdr path) stack))   
+	;; Choose (alternate paths).	 
+	((cschoose-p (car Path)) (walk-choose-step prefix (car path) stack)) 
+	;; Or signal a syntax error.
+	(T (Error "Car of path has illegal syntax"))))                       
 
 
 ;;; wm steps represent the unification of a goal with something already in
@@ -3672,10 +3679,10 @@
 ;;; entry to the student.
 (defun walk-do-step (prefix path stack)
   "Process a do step that has been made."
-  (if (or (null (csdo-entries (car path)))           ;; If there is no entry in this op,
-	  (csdo-enteredp (car path)))                ;; or if the step has been entered.
-      (walk-psm-path prefix (cdr path) (cdr stack))  ;; pop the sg and continue searching.
-    (hint-target-entry prefix (car path) stack)))    ;; Otherwize hint this step.
+  (if (or (null (csdo-entries (car path))) ;If there is no entry in this op,
+	  (csdo-enteredp (car path)))	;or if the step has been entered.
+      (walk-psm-path prefix (cdr path) (cdr stack)) ;pop sg and continue search
+    (hint-target-entry prefix (car path) stack))) ;Otherwize hint this step.
 
 
 
@@ -4086,8 +4093,9 @@
   (make-hint-seq  
    (append (collect-stack-hintstrs stack)
 	   `((function make-hint-seq 
-		       ,(collect-step-hints step) 
-		       :prefix ,prefix
+		       ,(collect-step-hints step)
+		       ;; BvdS: subsequent steps don't need affirmation.
+		       :prefix ""	; ,prefix
 		       :OpTail ,(list (csdo-op Step)))))
    :prefix Prefix))
 
