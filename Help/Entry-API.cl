@@ -1210,8 +1210,10 @@
 
 	  ((eq (StudentEntry-state entry) 'correct)
 	     (setf target-entries (studententry-Cinterp entry))))
+   
+    ; OK, do the logging
+    (let ((*print-pretty* NIL))   ; no line breaks when formatting cmd strings!
 
-    (let ((*print-pretty* NIL))   ; no line breaks allowed in cmd strings 
        ; log the parse if we have it.  Note for syntax errors it may be list 
        ; containing partial parse tree printed as (#S(PARSE :TREE (LM m) :REM =x8*/7))
        ; print parse of ? for this

@@ -104,6 +104,13 @@
 (defun pronounp (x)
   (member x '(me)))			;add to list as needed
 
+
+;; special translation for agents terms may be 'unspecified
+;; as in "force on car due to ....."
+(defun agent (x)
+   (if (eq x 'UNSPECIFIED) "an unspecified agent"
+     (nlg x)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun def-np (x &rest args)
