@@ -73,11 +73,13 @@
 
 (def-qexp E-field (field ?region electric ?source)
   :units |N/C|
-  :english ("electric field at ~A due to ~A" (nlg ?region) (nlg ?source)))
+  :english ("electric field at ~A due to ~A" 
+	    (nlg ?region) (nlg ?source 'agent)))
 
 (def-qexp B-field (field ?region magnetic ?source)
   :units |T|
-  :english ("magnetic field at ~A due to ~A" (nlg ?region) (nlg ?source)))
+  :english ("magnetic field at ~A due to ~A" 
+	    (nlg ?region) (nlg ?source 'agent)))
 
 (def-qexp net-field (net-field ?region ?type)
   :units |N/C|
@@ -88,7 +90,8 @@
   :fromWorkbench (if (or (null body2) (string-equal body2 '|all sources|))
                      `(at (net-potential ,body) ,time)
                   `(at (potential ,body ,body2) ,time))
-  :english ("the electric potential at ~a due to ~a" (nlg ?loc) (nlg ?source)))
+  :english ("the electric potential at ~a due to ~a" 
+	       (nlg ?loc) (nlg ?source 'agent)))
 
 (def-qexp net-potential (net-potential ?loc)
   :units |V|

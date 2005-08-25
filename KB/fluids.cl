@@ -538,9 +538,10 @@
     (variable ?dir-var (at (dir (force ?b ?fluid pressure)) ?t))
     (given (at (dir (force ?b ?fluid pressure)) ?t) ?dir))
   :hint
-   ((point (string "Notice that ~a is in contact with ~A." ?b ?fluid))
+   ((point (string "Notice that ~a is in contact with ~A." ?b (?fluid agent)))
     (teach (string "When a body in contact with a fluid, the fluid exerts a pressure force on it, acting perpendicular to the surface of contact."))
-    (bottom-out (string "Because ~a presses against ~a at ~a, draw a pressure force on ~a due to ~a at an angle of ~a degrees." ?fluid ?b ?surface ?b ?fluid ?dir))
+    (bottom-out (string "Because ~a presses against ~a at ~a, draw a pressure force on ~a due to ~a at an angle of ~a degrees." 
+			(?fluid agent) ?b ?surface ?b (?fluid agent) ?dir))
     ))
 
 ;;;
@@ -605,7 +606,8 @@
     (bind ?mag-var (format-sym "Fb_~A_~A_~A" (body-name ?b) ?fluid
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a buoyant force on ~a due to ~a at ~a.~%" ?dir ?b ?fluid ?t)
+    (debug "~&Drawing ~a buoyant force on ~a due to ~a at ~a.~%" 
+	   ?dir ?b (?fluid agent) ?t)
     )
   :effects
    ((vector ?b (at (force ?b ?fluid buoyant) ?t) ?dir)
@@ -613,9 +615,10 @@
     (variable ?dir-var (at (dir (force ?b ?fluid buoyant)) ?t))
     (given (at (dir (force ?b ?fluid buoyant)) ?t) ?dir))
   :hint
-   ((point (string "Notice that ~a is submerged in ~A." ?b ?fluid))
+   ((point (string "Notice that ~a is submerged in ~A." ?b (?fluid agent)))
     (teach (string "When a body is submerged in a fluid, the upward fluid pressure on its bottom is greater than the downward pressure on its top. The net effect can be represented by an upward buoyant force on the object."))
-    (bottom-out (string "Because ~a is submerged in ~a, draw a buoyant force on ~a due to ~a at an angle of ~a." ?b ?fluid ?b ?fluid ?dir))
+    (bottom-out (string "Because ~a is submerged in ~a, draw a buoyant force on ~a due to ~a at an angle of ~a." 
+			?b (?fluid agent) ?b (?fluid agent) ?dir))
     ))
 
 ;;Quantity: The volume of a body

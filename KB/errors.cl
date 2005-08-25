@@ -1852,8 +1852,8 @@
 
 (defun force-wrong-agent (body sagent cagent ctime type)
   (make-hint-seq
-   (list (format nil "Is ~a really the object that the force is due to?" 
-		 (nlg sagent 'def-np))
+   (list (format nil "Is the force is due to ~A?" 
+		 (nlg sagent 'agent))
 	 ;; contact-and-field-forces
 	 (strcat "Forces are caused by interacting objects.  The force can "
 		 "either be a field force, such as weight, in which case the "
@@ -1863,8 +1863,8 @@
 	 (format nil (strcat "Draw a ~a force on ~a ~a, but make it "
 			     "be due to ~a instead of ~a.") 
 		 (nlg type 'adj) (nlg body 'def-np)
-		 (nlg ctime 'pp) (nlg cagent 'def-np)
-		 (nlg sagent 'def-np)))))
+		 (nlg ctime 'pp) (nlg cagent 'agent)
+		 (nlg sagent 'agent)))))
 
 
 
@@ -1941,7 +1941,7 @@
   (make-hint-seq
    (list (format nil (strcat "There is indeed a force on ~a due to ~a, "
 			     "but it is not a ~a force.")
-		 (nlg body 'def-np) (nlg agent 'def-np) (nlg stype 'adj))
+		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
 	 (format nil "It is a ~a force" (nlg ctype 'adj)))))
 
 
@@ -1973,11 +1973,11 @@
   (make-hint-seq
    (list (format nil (strcat "There are indeed forces on ~a due to ~a, "
 			     "but the ~a force is not one of them.")
-		 (nlg body 'def-np) (nlg agent 'def-np) (nlg stype 'adj))
+		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
 	 (format nil (strcat "There are two forces on ~a due to ~a, "
 			     "a ~a force and a ~a force.  You should "
 			     "draw one of them.")
-		 (nlg body 'def-np) (nlg agent 'def-np) (nlg stype 'adj)
+		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj)
 		 (nlg frict-type 'adj) (nlg force-type 'adj))
 	 (strcat "If you are unsure of what to do you can click on "
 		 "explain-more or the Lightbulb button for guidance.")
@@ -2013,11 +2013,11 @@
   (make-hint-seq
    (list (format nil (strcat "There are indeed forces on ~a due to ~a, "
 			     "but the ~a force is not one of them.")
-		 (nlg body 'def-np) (nlg agent 'def-np) (nlg stype 'adj))
+		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
 	 (format nil (strcat "There are two forces on ~a due to ~a, "
 			     "a ~a force and a ~a force.  You have "
 			     "already completed the ~a force.")
-		 (nlg body 'def-np) (nlg agent 'def-np) 
+		 (nlg body 'def-np) (nlg agent 'agent) 
 		 (nlg frict-type 'adj) (nlg force-type 'adj) 
 		 (nlg frict-type 'adj))
 	 *dyi*
@@ -2048,11 +2048,11 @@
   (make-hint-seq
    (list (format nil (strcat "There are indeed forces on ~a due to ~a, "
 			     "but the ~a force is not one of them.")
-		 (nlg body 'def-np) (nlg agent 'def-np) (nlg stype 'adj))
+		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
 	 (format nil (strcat "There are two forces on ~a due to ~a, "
 			     "a ~a force and a ~a force.  You have "
 			     "already completed the ~a force.")
-		 (nlg body 'def-np) (nlg agent 'def-np) (nlg stype 'adj)
+		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj)
 		 (nlg frict-type 'adj) (nlg force-type 'adj) 
 		 (nlg force-type 'adj))
 	 *dyi*
@@ -2094,11 +2094,11 @@
    (list (format nil (strcat "Andes' solution does not mention any forces on ~a due to ~a, "
 			     "nor any ~a forces on ~a. Either this force does not exist or "
 			     "it is not needed for solving this problem.")
-		 body (nlg sagent 'def-np) (nlg stype 'adj) body)
+		 body (nlg sagent 'agent) (nlg stype 'adj) body)
 
 	 (format nil (strcat "You could try drawing a ~a "
 			     "force on ~a due to ~a.")
-		 (nlg ctype 'adj) body (nlg cagent 'def-np)))))
+		 (nlg ctype 'adj) body (nlg cagent 'agent)))))
 
 
 
@@ -2777,10 +2777,10 @@
  (make-hint-seq
    (list
     (format nil (strcat "Is ~a the source of the ~a field you are defining?") 
-                        (nlg sagent) (nlg fieldtype 'adj) )
+                        (nlg sagent 'agent) (nlg fieldtype 'adj) )
     (format nil (strcat "A better choice (but maybe not the only one) "
                          "would be the field due to ~A, not ~a") 
-                          (nlg cagent) (nlg sagent)))))
+                          (nlg cagent 'agent) (nlg sagent 'agent)))))
 
 
 ;;; -------------------------------- equation error handlers ------------------------

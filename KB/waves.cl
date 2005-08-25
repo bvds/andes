@@ -862,7 +862,8 @@
 (def-qexp intensity (intensity ?wave ?agent)
   :units |W/m^2|
   :restrictions positive
-  :english ("the intensity supplied to ~A due to ~A" (nlg ?wave) (nlg ?agent))
+  :english ("the intensity supplied to ~A due to ~A" 
+	       (nlg ?wave) (nlg ?agent 'agent))
    :fromWorkbench (if (string-equal body2 '|all sources|)
                      `(at (net-intensity ,body) ,time)
                   `(at (intensity ,body ,body2) ,time)))
@@ -876,7 +877,7 @@
 	    (define-var (at (intensity ?wave ?agent) ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the intensity of ~A due to ~A by using the Add Variable command on the Variable menu and selecting intensity."  
-		  ?wave ?agent))))
+		  ?wave (?agent agent)))))
 
 ;;;
 ;;; Net intensity is sum of all power acting on object.
@@ -938,7 +939,7 @@
 (def-qexp db-intensity (db-intensity ?wave ?agent)
   :units |dB|
   :english ("the intensity supplied to ~A due to ~A in decibels" 
-	       (nlg ?wave) (nlg ?agent))
+	       (nlg ?wave) (nlg ?agent 'agent))
   :fromWorkbench (if (string-equal body2 '|all sources|)
                      `(at (net-db-intensity ,body) ,time)
                   `(at (db-intensity ,body ,body2) ,time)))
@@ -952,7 +953,7 @@
 	    (define-var (at (db-intensity ?wave ?agent) ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the intensity of ~A in decibels 
-due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave ?agent))))
+due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave (?agent agent)))))
 
 ;;;
 ;;; net version of db-intensity

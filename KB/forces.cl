@@ -49,7 +49,8 @@
                   (at-place ?b ?loc ?t)
                   (given (at (dir (field ?loc electric ?source)) ?t) ?dir)  
                   (not (vector ?b (at (field ?loc electric ?source) ?t) ?dir))     
-                  (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?source) ?t))
+                  (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) 
+					     (body-name ?source) ?t))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
                   (rdebug "fired draw-Efield-vector   ~%")
                   )
@@ -57,13 +58,15 @@
             (vector ?b (at (field ?loc electric ?source) ?t) ?dir)
             (variable ?mag-var (at (mag (field ?loc electric ?source)) ?t))
             (variable ?dir-var (at (dir (field ?loc electric ?source)) ?t))
-            ;Because dir is problem given, find-by-psm won't ensure implicit eqn
-            ;gets written.  Given value may not be used elsewhere so ensure it here.
+	    ;; Because dir is problem given, find-by-psm won't ensure implicit 
+	    ;; eqn gets written.  Given value may not be used elsewhere so 
+	    ;; ensure it here.
             (implicit-eqn (= ?dir-var ?dir) (at (dir (field ?loc electric ?source)) ?t))
             )  
   :hint (
-         (point (string "You were given the direction of the electric field at ~a due to ~a." ?loc ?source))
-         (bottom-out (string "Use the electric field drawing tool (labeled E) to draw the electric field at ~a due to ~a in the given direction of ~A." ?loc ?source ?dir))
+         (point (string "You were given the direction of the electric field at ~a due to ~a." ?loc (?source agent)))
+         (bottom-out (string "Use the electric field drawing tool (labeled E) to draw the electric field at ~a due to ~a in the given direction of ~A." 
+			     ?loc (?source agent) ?dir))
          ))
 
 ;; pull out the sign of a given charge
@@ -96,9 +99,9 @@
             (given (at (dir (field ?loc electric ?source)) ?t) (dnum ?Field-dir |deg|))
             )
   :hint (
-        (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc ?source ?loc))
+        (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
 	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is ~a,  use the electric field drawing tool (labeled E) to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A degrees" ?b (?pos-neg adj) ?loc ?source (?same-or-opposite adj) ?b ?field-dir))
+         (bottom-out (string "Because the charge of ~a is ~a,  use the electric field drawing tool (labeled E) to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A degrees" ?b (?pos-neg adj) ?loc (?source agent) (?same-or-opposite adj) ?b ?field-dir))
          ))
 
 ; Can draw Efield vector if E force dir is given by components, and grid is used
@@ -130,7 +133,7 @@
             ;(given (at (dir (field ?loc electric ?source)) ?t) (dnum ?Field-dir |deg|))
             )
   :hint (
-     (point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b ?source))
+     (point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
 	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
          (bottom-out (string "Because the charge of ~a is positive, and you were given the horizontal and vertical components of the force vector, draw the electric field at the location of ~a in the same direction as the force by choosing a scale, then counting ~a units horizontally and ~a vertically as you draw." ?b ?xc ?yc))
          ))
@@ -164,7 +167,7 @@
             ;(given (at (dir (field ?loc electric ?source)) ?t) (dnum ?Field-dir |deg|))
             )
   :hint (
-(point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b ?source))
+(point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
 	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
          (bottom-out (string "Because the charge of ~a is negative, and you were given the horizontal and vertical components of the force vector, draw the electric field at the location of ~a in the opposite direction from the force by choosing a scale, then counting -~a units horizontally and -~a vertically as you draw." ?b ?xc ?yc))
          ))
@@ -205,7 +208,7 @@
   :hint (
          (point (string "You know there is an electric field at ~A." ?loc))
          (teach (string "In this problem the exact direction of the electric field vector requires calculation to determine, so you can draw the vector at an approximately angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the electric field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc ?source ))
+         (bottom-out (string "Draw the electric field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc (?source agent)))
           ))
 
 
@@ -232,7 +235,9 @@
   :hint (
         (point (string "Because ~A is charged, it creates an electric field at ~A." ?b ?loc))
         (teach (string "The direction of the electric field due to a point charge is radial away from a positive charge and toward a negative charge."))
-        (bottom-out (string "Because the charge of ~a is ~a and the line from ~a to ~a is oriented at ~a, draw the electric field at ~a due to ~a in the ~a direction, namely ~a deg." ?b (?pos-neg adj) ?b ?loc ?rdir ?loc ?b (?same-or-opposite adj) ?Field-dir))
+        (bottom-out (string "Because the charge of ~a is ~a and the line from ~a to ~a is oriented at ~a, draw the electric field at ~a due to ~a in the ~a direction, namely ~a deg." 
+			    ?b (?pos-neg adj) ?b ?loc ?rdir ?loc (?b agent) 
+			    (?same-or-opposite adj) ?Field-dir))
   ))
 
 
@@ -263,7 +268,7 @@
   :hint (
         (point (string "Because ~A is charged, it creates an electric field at ~A." ?b ?loc))
         (teach (string "The direction of the electric field due to a point charge is radial away from a positive charge and toward a negative charge.  In this problem the exact direction of the electric field vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
-        (bottom-out (string "Draw the electric field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc ?b))
+        (bottom-out (string "Draw the electric field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc (?b agent)))
           ))
 
 ;
@@ -292,7 +297,7 @@
             )
   :hint (
     (point (string "You were given that there is an electric force on ~a." ?b))
-    (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a at ~a." ?b ?source (?t pp) ?dir))
+    (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a at ~a." ?b (?source agent) (?t pp) ?dir))
 ))
 
 ; if given E field vector dir
@@ -319,10 +324,10 @@
             (given (at (dir (force ?b ?source electric)) ?t) (dnum ?F-dir |deg|))
             )
   :hint (
-        (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc ?source ?loc))
+        (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
 	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
          (bottom-out (string "Because the charge of ~a is ~a, use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A degrees" 
-	 ?b (?pos-neg adj) ?b ?source (?same-or-opposite adj) ?F-dir))
+	 ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) ?F-dir))
          ))
 
 ; if given E field vector dir
@@ -357,9 +362,9 @@
             ; (given (at (dir (force ?b ?source electric)) ?t) ?dir)
             )
   :hint (
-          (point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b ?source))
+          (point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
 	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is positive, and you were given the horizontal and vertical components of the electric field due to ~a, draw the electric force on ~a in the same direction as the field at its location by choosing a scale, then counting ~a units horizontally and ~a vertically as you draw." ?b ?source ?b ?xc ?yc))
+         (bottom-out (string "Because the charge of ~a is positive, and you were given the horizontal and vertical components of the electric field due to ~a, draw the electric force on ~a in the same direction as the field at its location by choosing a scale, then counting ~a units horizontally and ~a vertically as you draw." ?b (?source agent) ?b ?xc ?yc))
          ))
 
 (defoperator draw-Eforce-given-field-compos-neg (?b ?source ?t)
@@ -391,9 +396,9 @@
             ; (given (at (dir (force ?b ?source electric)) ?t) (dnum ?dir |deg|)))
             )
   :hint (
-(point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b ?source))
+(point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
 	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is negative, and you were given the horizontal and vertical components of the electric field due to ~a, draw the electric force on ~a in the opposite direction from the field at its location by choosing a scale, then counting -~a units horizontally and -~a vertically as you draw." ?b ?source ?b ?xc ?yc))
+         (bottom-out (string "Because the charge of ~a is negative, and you were given the horizontal and vertical components of the electric field due to ~a, draw the electric force on ~a in the opposite direction from the field at its location by choosing a scale, then counting -~a units horizontally and -~a vertically as you draw." ?b (?source agent) ?b ?xc ?yc))
          ))
 
 ;  -if given that unknown field exists 
@@ -426,7 +431,7 @@
   :hint (
          (point (string "Since ~a is charged and in an electric field, it is subject to an electric force." ?b))
          (teach (string "In this problem the exact direction of the electric force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the electric force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b ?source ))
+         (bottom-out (string "Draw the electric force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent)))
          ))
 
 ;;-------------------------------
@@ -1090,7 +1095,7 @@
             (define-var (at (potential ?loc ?source) ?t))
             )
    :hint (
-       (bottom-out (string "Define a variable for the potential at ~A due to ~a by using the Add Variable command on the Variable menu and selecting Potential."  ?loc ?source))
+       (bottom-out (string "Define a variable for the potential at ~A due to ~a by using the Add Variable command on the Variable menu and selecting Potential."  ?loc (?source agent)))
        ))
 
 (defoperator define-net-potential-var (?loc ?t)
@@ -1423,9 +1428,9 @@
             )
   :hint (
 	(point (string "You can determine the direction of the magnetic field at ~a due to ~a from the problem statement"
-	                ?loc ?source)) 
+	                ?loc (?source agent))) 
 	(bottom-out (string "Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the given direction of ~A." 
-		     ?loc ?source (?dir-B adj)))
+		     ?loc (?source agent) (?dir-B adj)))
         )) 
 
 ; draw Bfield near a straight current-carrying wire
@@ -1485,7 +1490,8 @@
 	(point (string "The magnetic force on a positively charged particle points in the direction of the cross product of its velocity vector and the magnetic field vector at its location.")) 
 	(teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the force."))
         (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
-			     ?b (?dir-V adj) (?dir-B adj) (?F-dir adj) ?b ?source (?F-dir adj)))
+			    ?b (?dir-V adj) (?dir-B adj) (?F-dir adj) ?b 
+			    (?source agent) (?F-dir adj)))
  ))
 
 (defoperator draw-Bforce-rhr-neg (?b ?t ?source)
@@ -1516,7 +1522,8 @@
   (point (string "The magnetic force on a negatively charged particle points in the opposite direction to the cross product of its velocity vector and the magnetic field vector at its location.")) 
 	(teach (string "The magnetic force vector on a moving *positive* charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, as determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the cross-product. In this case the charge is *negative*, so the force will be in the opposite direction."))
         (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of the cross-product to be ~a. Because the charge is negative, the force is opposite that direction. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
-			     ?b (?dir-V adj) (?dir-B adj) (?rhr-dir adj) ?b ?source (?F-dir adj)))
+			    ?b (?dir-V adj) (?dir-B adj) (?rhr-dir adj) ?b 
+			    (?source agent) (?F-dir adj)))
  ))
 
 ; draw zero-length vector when V, B have null cross product. 
@@ -1544,7 +1551,7 @@
 	(teach (string "Remember the magnitude of a cross product of two vectors is proportional to the sine of the angle between them."))
 	(teach (string "If two vectors are parallel or anti-parallel, the sine of the angle betwen them is zero, so their cross-product is a zero-length vector."))
         (bottom-out (string "Because the cross product of the velocity of ~a and the magnetic field is zero in this case, use the force drawing tool (labeled F) to draw a zero-length vector for the magnetic force on ~a due to ~a " 
-			     ?b ?b ?source))
+			     ?b ?b (?source agent)))
  ))
 
 ; Draw Bforce on object in unknown direction when we know there's a B-field, but can't 
@@ -1587,7 +1594,7 @@
   :hint (
          (point (string "Since ~a is charged and moving in a direction that is not parallel or antiparallel to the magnetic field, it will be subject to a magnetic force." ?b))
          (teach (string "In this problem the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b ?source )) 
+         (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
   ))
 
 ; Need another in case we are given field dir but velocity can't be determined
@@ -1615,7 +1622,7 @@
   :hint (
     (point (string "Since ~a is charged and moving in a direction that is not parallel or antiparallel to the magnetic field, it will be subject to a magnetic force." ?b))
          (teach (string "In this problem the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b ?source )) 
+         (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
   ))
 
 ;; torque vector on a current loop (really anything with a dipole moment!)

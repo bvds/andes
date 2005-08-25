@@ -105,7 +105,8 @@
   :english ("the momentum of ~A" (nlg ?body)))
 (def-qexp force (force ?body ?agent ?type)
   :units N
-  :english ("~A force on ~A due to ~A" (nlg ?type) (nlg ?body) (nlg ?agent)))
+  :english ("~A force on ~A due to ~A" 
+	    (nlg ?type) (nlg ?body) (nlg ?agent 'agent)))
 
 (def-qexp net-force (net-force ?body)
   :units N
@@ -155,7 +156,7 @@
   :restrictions nonnegative
   :fromWorkbench `(at (mass-change-magnitude ,body ,body2) ,time)
   :english ("the magnitude of the change of mass of ~A per unit time due to ~A" 
-	       (nlg ?body) (nlg ?agent)))
+	       (nlg ?body) (nlg ?agent 'agent)))
 (def-qexp distance (distance ?body)
   :units |m|
   :fromWorkbench `(at (distance ,body) ,time)
@@ -905,7 +906,7 @@
   :expformat ((strcat "applying the fact that there is an external force "
 		      "on the compound body consisting of ~a due to ~a ~a"
 		      "of type ~a")
-	      (nlg ?compund) (nlg ?agent) (nlg ?time) (nlg ?type))
+	      (nlg ?compund) (nlg ?agent 'agent) (nlg ?time) (nlg ?type))
   :EqnFormat ("F_on_part = F_on_compound"))
 
 

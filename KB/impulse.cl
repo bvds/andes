@@ -10,7 +10,7 @@
 ;; which may be unknown
 (def-qexp impulse (impulse ?body ?agent)
   :units |N.s|
-  :english ("Impulse on ~A due to ~A" (nlg ?body) (nlg ?agent)))
+  :english ("Impulse on ~A due to ~A" (nlg ?body) (nlg ?agent 'agent)))
 
 ;; Draw a "given" impulse at a certain direction. 
 (defoperator draw-impulse-given-dir (?b ?agent ?t)
@@ -33,7 +33,7 @@
    )
   :hint
    ((point (string "You were given that there is an impulse on ~a." ?b))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
     ))
 
 ;;;;===========================================================================
@@ -77,7 +77,7 @@
   :hint
    ((point (string "There is a force acting on ~a." ?b))
     (teach (string "One can define an impulse associated with the force exerted by ~A ~A." ?agent (?t pp)))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
     ))
 
 
@@ -186,7 +186,7 @@
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
     ))
 
 ;; Draw an impulse if two momenta are not known to be equal or opposite
@@ -217,7 +217,7 @@
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
-    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir))
+    (bottom-out (string "Use the impulse drawing tool to draw the impulse on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir))
     ))
 
 ;;; This operator indicates when the impulse form of NSL is

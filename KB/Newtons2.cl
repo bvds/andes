@@ -4147,7 +4147,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When an object is near a planet, the planet exerts a weight force on the object."))
-   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it, so use the force drawing tool to draw a force on ~a due to ~a of type weight ~a." ?b ?planet ?b ?planet (?t pp)))
+   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it, so use the force drawing tool to draw a force on ~a due to ~a of type weight ~a." ?b ?planet ?b (?planet agent) (?t pp)))
    ))
 
 ;; For rigid body problems: treat weight of body as force acting at body's
@@ -4179,7 +4179,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude m * g acting at a single point called the center of gravity, which normally is the same as the center of mass."))
-   (bottom-out (string "Because ~a is near the planet ~a, ~a exerts a weight force on it which can be treated as acting at the center of mass, so use the force drawing tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?planet ?cm ?planet (?t pp)))
+   (bottom-out (string "Because ~a is near the planet ~a, ~a exerts a weight force on it which can be treated as acting at the center of mass, so use the force drawing tool to draw a weight force vector acting at ~a due to ~a ~a pointing straight down (270 deg)." ?b ?planet ?planet ?cm (?planet agent) (?t pp)))
    ))
 
 
@@ -4229,7 +4229,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (vector ?b (at (force ?b ?string tension) ?t) ?dont-care))
     (bind ?mag-var (format-sym "Ft_~A_~A_~A" (body-name ?b) (body-name ?string)                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a tension on ~a due to ~a at ~a.~%" ?dir-expr ?b ?string ?t)
+    (debug "~&Drawing ~a tension on ~a due to ~a at ~a.~%" 
+	   ?dir-expr ?b ?string ?t)
     )
   :effects
    ((vector ?b (at (force ?b ?string tension) ?t) ?dir-expr)
@@ -4239,7 +4240,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
    ((point (string "Notice that ~a is tied to ~a." ?string ?b))
     (teach (string "Whenever something has a taut string, or something like a string, attached to it, then the string exerts a tension force on it."))
-    (bottom-out (string "Because ~a is tied to ~a, you should use the force drawing tool to draw a force on ~a due to ~a of type tension ~a." ?string ?b ?b ?string (?t pp)))
+    (bottom-out (string "Because ~a is tied to ~a, you should use the force drawing tool to draw a force on ~a due to ~a of type tension ~a." (?string agent)
+			?b ?b (?string agent) (?t pp)))
     ))
 
 ;;; Need a second version of the operator for drawing tension forces
@@ -4266,7 +4268,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
    ((point (string "Notice that ~a is tied to ~a." ?string ?b))
     (teach (string "Whenever something has a string, or something like a string, tied to it, then the string exerts a tension force on it."))
-    (bottom-out (string "Because ~a is tied to ~a, you should use the force drawing tool to draw a force on ~a due to ~a of type tension ~a." ?string ?b ?b ?string (pp ?t)))
+    (bottom-out (string "Because ~a is tied to ~a, you should use the force drawing tool to draw a force on ~a due to ~a of type tension ~a." 
+			(?string agent) ?b ?b (?string agent) (pp ?t)))
     ))
 
 ;;; This operator models drawing a normal force.  The problem
@@ -4317,7 +4320,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (teach (minilesson "mini_normal_force.htm")
            (kcd "normal_force_direction")
 	   (string "When an object is supported by a surface, the surface exerts a normal force on it.  The normal force is perpendicular to the surface."))
-    (bottom-out (string "Because ~a supports ~a, draw a normal force on ~a due to ~a at an angle of ~a degrees." ?surface ?b ?b ?surface ?normal-dir))
+    (bottom-out (string "Because ~a supports ~a, draw a normal force on ~a due to ~a at an angle of ~a degrees." 
+			(?surface agent) ?b ?b (?surface agent) ?normal-dir))
     ))
 
 ;; Applied force is specified in problem statement by given force direction 
@@ -4361,7 +4365,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :hint
    ((point (string "You were given that there is an applied force on ~a." ?b))
-    (bottom-out (string "Use the force drawing tool to draw the applied force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?dir-expr))
+    (bottom-out (string "Use the force drawing tool to draw the applied force on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir-expr))
     ))
 
 ;; draw-applied-force-unknown-dir -- would be needed if wanted to
@@ -4420,7 +4424,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (teach (minilesson "Mini_kinetic_friction.HTM")
            (kcd "dynamic_friction_force_direction")
 	   (string "When an object is moving in contact with a surface and the surface exerts a kinetic friction force on it.  The friction force is opposite to the direction of motion."))
-    (bottom-out (string "Because ~a is moving in contact with ~a, draw a kinetic friction force on ~a due to ~a at an angle of ~a." ?b ?surface ?b ?surface ?friction-dir))
+    (bottom-out (string "Because ~a is moving in contact with ~a, draw a kinetic friction force on ~a due to ~a at an angle of ~a." 
+			?b (?surface agent) ?b (?surface agent) ?friction-dir))
     ))
 
 (defoperator kinetic-friction-law-contains (?quantity)
@@ -4489,7 +4494,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
    ((point (string "Notice that ~a is not moving with respect to ~a." ?b ?surface))
     (teach (string "If an object is in contact with a surface and not moving with respect to it, the surface exerts a static friction force on it.  The friction force is opposite to the direction of incipient motion."))
-    (bottom-out (string "Because ~a is in contact with but not moving with respect to ~a, draw a static friction force on ~a due to ~a at an angle of ~a." ?b ?surface ?b ?surface ?friction-dir))
+    (bottom-out (string "Because ~a is in contact with but not moving with respect to ~a, draw a static friction force on ~a due to ~a at an angle of ~a." 
+			?b (?surface agent) ?b (?surface agent) ?friction-dir))
     ))
 
 ; requires we are given that static friction takes on its max value
@@ -4581,7 +4587,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
    ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
     (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
-    (bottom-out (string "Because ~a is moving in fluid medium ~a, draw a drag force on ~a due to ~a at an angle of ~a." ?b ?medium ?b ?medium ?drag-dir))
+    (bottom-out (string "Because ~a is moving in fluid medium ~a, draw a drag force on ~a due to ~a at an angle of ~a." 
+			?b (?medium agent) ?b (?medium agent) ?drag-dir))
     ))
 
 ; Spring force
@@ -4624,7 +4631,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
    ((point (string "Notice that ~a is in contact with a compressed spring ~a." ?b (?t pp)))
     (teach (string "A compressed spring exerts a restorative force on an object in contact with it.  The spring force opposes the compression of the spring from its equilibrium length."))
-    (bottom-out (string "Because ~a is in contact with compressed ~a, draw a spring force on ~a due to ~a at an angle of ~a." ?b ?spring ?b ?spring ?force-dir))
+    (bottom-out (string "Because ~a is in contact with compressed ~a, draw a spring force on ~a due to ~a at an angle of ~a." 
+			?b (?spring agent) ?b (?spring agent) ?force-dir))
     ))
 
 ; UG -- Newton's Law of Universal Gravitation
@@ -4817,9 +4825,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :hint (
     (point (string "Notice that ~a is subject to a gravitational force due to ~A." 
-                   ?b1 ?b2))
+                   ?b1 (?b2 agent)))
     (teach (string "Every massive particle in the universe attracts every other massive particle with a gravitational force acting along a line joining the two particles. In the case of uniform spheres, the gravitational force acts along a line joining the centers of the two spheres."))
-    (bottom-out (string "Draw the gravitational force on ~a due to ~a at a direction of ~a" ?b1 ?b2 ?dir))
+    (bottom-out (string "Draw the gravitational force on ~a due to ~a at a direction of ~a" ?b1 (?b2 agent) ?dir))
   )
 )
 
@@ -4865,7 +4873,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (teach (string "When ~A escapes from ~A, a thrust force is exerted on ~A."
 		   ?agent ?b ?b))
     (bottom-out (string "Draw a thrust force acting on ~a due to ~a at an angle of ~a." 
-			?b ?agent ?dir))
+			?b (?agent agent) ?dir))
     ))
 
 ;;;
@@ -4945,7 +4953,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((point (string "How is the thrust force acting on ~a related to the velocity of ~A?" ?b ?agent))
     (teach (string "The thrust is in the opposite direction of the velocity of ~A." 
 		   ?agent))
-    (bottom-out (string "Use the force drawing tool to draw the thrust force on ~a due to ~a ~a at ~a." ?b ?agent (?t pp) ?opposite-dir))
+    (bottom-out (string "Use the force drawing tool to draw the thrust force on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?opposite-dir))
     ))
 
 (defoperator thrust-force-vector-diagram (?b ?agent ?t)
@@ -5097,7 +5105,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (teach 
         (kcd "third_law_psm")
         (string "Newton's Third Law states that forces always come in pairs: whenever one body exerts a force on a second body, the second body exerts a force of the same type back on the first body. The members of these action/reaction pairs are equal in magnitude and opposite in direction"))
-    (bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, a ~A force on ~A due to ~A at ~A" (?type adjective) ?b1 ?b2 (?type adjective) ?b2 ?b1 ?dir))
+    (bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, a ~A force on ~A due to ~A at ~A" 
+			(?type adjective) (?b1 agent) ?b2 (?type adjective) 
+			?b2 (?b1 agent) ?dir))
     ))
 
 ;;; In theory NTL should apply to any force at all. However, we don't declare
