@@ -258,11 +258,10 @@
 (def-qexp num-torques (num-torques ?body ?axis)
   :english ("the number of torques on ~A about ~A" (nlg ?body) (nlg ?axis)))
 
-; for now assume only two bodies:
-(def-qexp compound (compound ?body1 ?body2)
-  :english ("the compound of ~A and ~A" (nlg ?body1) (nlg ?body2)))
-(def-qexp system (system ?body1 ?body2)
-  :english ("the system of ~A and ~A" (nlg ?body1) (nlg ?body2)))
+(def-qexp compound (compound . ?bodies)
+  :english ("a compound of ~A" (nlg ?bodies)))
+(def-qexp system (system . ?bodies)
+  :english ("a system of ~A" (nlg ?bodies)))
 
 (def-qexp during (during ?t0 ?t1) 
   :english ("from ~A to ~A" (nlg ?t0 'moment) (nlg ?t1 'moment)))

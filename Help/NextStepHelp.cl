@@ -2710,7 +2710,6 @@
 ;;; for an appropriate completed solution.
 ;;; prompting a principle will vary if it is done or not.
 ;;;
-;;; The problem is how to deal with solu
 (defun nsh-pick-fp (message Sought &key (Case 'Default-nsh-pick-best))
   "pick the appropriate first principle."
   (let* ((P (nsh-pick-best-fp Sought))
@@ -2760,7 +2759,7 @@
 (defun nsh-prompt-fp-solution (Message Principle &key Case)
   "prompt the student to work on the selected first principle."
   (nsh-prompt-principle 
-   (strcat Message "Lets just assume that you will work on ")
+   (strcat Message "  Lets just assume that you will work on ")
    Principle
    :Assoc `(nsh prompt-fp-solution ,Case ,(nsh-principle-expression Principle))))
 

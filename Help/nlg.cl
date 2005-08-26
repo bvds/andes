@@ -53,8 +53,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
-  (or (nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English)
-      (format nil " ~A " x)))
+  (cond ((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
+	;; There is probably a way to do this using format
+	((> (length x) 3) (strcat (nlg (first x)) ", " (nlg (rest x))))	
+	((= (length x) 3) (strcat (nlg (first x)) ", " (nlg (second x)) 
+				  ", and " (nlg (third x))))	
+	((= (length x) 2) (strcat (nlg (first x)) " and " (nlg (second x))))
+	((= (length x) 1) (nlg (first x)))))	
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
