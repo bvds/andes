@@ -25,11 +25,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-print-list (x joiner art)
-  (if (= (length x) 1)
-      (format nil "~A" (nlg (first x) art))
-    (if (= (length x) 2)
-	(format nil "~A ~A ~A" (nlg (first x) art) joiner (nlg (second x) art))
-      (format nil "~A, ~A ~A" (nlg (first x) art) joiner (nlg-print-list (rest x) joiner art)))))
+  (cond ((= (length x) 1) (nlg (first x) art))
+	((= (length x) 2) (format nil "~A ~A ~A" (nlg (first x) art) joiner 
+				  (nlg (second x) art)))
+	((= (length x) 3) (format nil "~A, ~A, ~A ~A" (nlg (first x) art) 
+				  (nlg (second x) art)
+				  joiner (nlg (third x) art)))
+	(t (format nil "~A, ~A" (nlg (first x) art) 
+		   (nlg-print-list (rest x) joiner art)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -54,12 +57,7 @@
 ;;
 (defun nlg-list-default (x &rest args)
   (cond ((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
-	;; There is probably a way to do this using format
-	((> (length x) 3) (strcat (nlg (first x)) ", " (nlg (rest x))))	
-	((= (length x) 3) (strcat (nlg (first x)) ", " (nlg (second x)) 
-				  ", and " (nlg (third x))))	
-	((= (length x) 2) (strcat (nlg (first x)) " and " (nlg (second x))))
-	((= (length x) 1) (nlg (first x)))))	
+	(t (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -218,25 +216,30 @@
 (defun conjoined-defnp (x &rest args)
   (if (atom x)
       (nlg-atom-default x args)
-    (nlg-print-list x '|and| 'def-np)))
+    (nlg-print-list x "and" 'def-np)))
+
+;; the rest are never used
+#|
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun disjoined-defnp (x &rest args)
   (if (atom x)
       (nlg-atom-default x args)
-    (nlg-print-list x '|or| 'def-np)))
+    (nlg-print-list x "or" 'def-np)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
+;; 
 (defun conjoined-indefnp (x &rest args)
   (if (atom x)
       (nlg-atom-default x args)
-    (nlg-print-list x '|and| 'indef-np)))
+    (nlg-print-list x "and" 'indef-np)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun disjoined-indefnp (x &rest args)
   (if (atom x)
       (nlg-atom-default x args)
-    (nlg-print-list x '|or| 'indef-np)))
+    (nlg-print-list x "or" 'indef-np)))
+|#
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun moment (x &rest args)

@@ -259,9 +259,10 @@
   :english ("the number of torques on ~A about ~A" (nlg ?body) (nlg ?axis)))
 
 (def-qexp compound (compound . ?bodies)
-  :english ("a compound of ~A" (nlg ?bodies)))
+  :english ("a compound of ~A" (nlg ?bodies 'conjoined-defnp)))
+
 (def-qexp system (system . ?bodies)
-  :english ("a system of ~A" (nlg ?bodies)))
+  :english ("a system of ~A" (nlg ?bodies 'conjoined-defnp)))
 
 (def-qexp during (during ?t0 ?t1) 
   :english ("from ~A to ~A" (nlg ?t0 'moment) (nlg ?t1 'moment)))
@@ -1221,8 +1222,9 @@
 ;; definition of momentum in component form:
 (def-psmclass momentum-compo (?eq-type definition ?axis ?rot 
 				       (linear-momentum ?body ?time))
-  :english ("definition of momentum component")
   :complexity definition ;so it can be substituted into momentum conservation
+  :english ("the definition of momentum (component form)")
+  :expformat ((strcat "using the definition of momentum for ~A" (nlg ?body)))
   :EqnFormat ("pi_~a = m * v_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 ;;

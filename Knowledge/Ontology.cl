@@ -132,6 +132,8 @@
 ;;; function definitions are intended to distinguish them for
 ;;; reading purposes.  They both take the same set of arguments.
 
+;; never used
+#|
 (defmacro def-nqexp (type Form 
 		     &key fields Units 
 			  restrictions
@@ -148,7 +150,7 @@
     :documentation documentation
     :varfunc Varfunc
     :English English))
-
+|#
 
 (defmacro def-qexp (type Form 
 		   &key Fields
