@@ -2645,9 +2645,9 @@
   "Promp the student to continue on when the first principle is completed."
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
   (make-dialog-turn
-   (strcat Prefix "  You have already completed the "
+   (strcat Prefix "  You have already finished "
 	   (nlg (nsh-principle-expression Best) 'psm-exp) 
-	   " so why don't you move on to the next step in the process.")
+	   ".  You can move on to the next step in the solution.")
    **explain-more**
    :Responder #'(lambda (Resp)
 		  (when (eq Resp **Explain-More**)
@@ -2741,10 +2741,10 @@
 (defun nsh-prompt-done-fp (message Solution &key Case)
   "Prompt the solution."
   (make-dialog-turn
-   (strcat Message "  You have already completed "
+   (strcat Message "  You have already finished "
 	   (nlg (nsh-principle-expression (car Solution)) 'psm-exp)
-	   ".  Which is acceptable as an initial principle application.  "
-	   "Why don't you start on the next principle.")
+	   ".  This is acceptable as an initial principle application.  "
+	   "Why don't you start on the next principle?")
    **Explain-More**
    :Responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
