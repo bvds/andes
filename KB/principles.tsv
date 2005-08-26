@@ -61,6 +61,8 @@ LEAF	Inet = $S Ii           Net intensity	net-intensity	Intensity
 END_GROUP			
 GROUP	Impulse Momentum		
 GROUP	Translational		
+LEAF	pi_x = m * v_x      momentum (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
+LEAF	pi_y = m * v_y      momentum (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
 LEAF	$S mi*vi1_x = $S mi*vi2_x  Conservation of momentum	(cons-linmom ((?axis . x)))	Conservation of Momentum
 LEAF	$S mi*vi1_y = $S mi*vi2_y  Conservation of momentum	(cons-linmom ((?axis . y)))	Conservation of Momentum
 LEAF	Kf = Ki                  Elastic collision defined	cons-ke-elastic	Elastic collisions
@@ -75,7 +77,7 @@ LEAF	rcm_x = ($S ri_x * mi)/($S mi)     center of mass	(center-of-mass-compo ((?
 LEAF	rcm_y = ($S ri_y * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis . y)))	Center of Mass
 END_GROUP			
 GROUP	Rotational		
-LEAF	L_z = I*$w_z       Angular momentum defined	ang-momentum	Angular momentum definition
+LEAF	L_z = I * $w_z       Angular momentum defined	ang-momentum	Angular momentum definition
 LEAF	Li_z = Lf_z         Conservation of Angular momentum	cons-angmom	Conservation of Angular momentum
 END_GROUP			
 END_GROUP			
@@ -226,15 +228,6 @@ LEAF	Ue = q*V               electric potential energy	electric-energy	Electric P
 LEAF	h2 - h1 = d12_y        change in height	height-dy	Height and Displacement
 LEAF	Pavg = W/t             average power defined	power	Power
 LEAF	Pnet = Wnet/t          avg. net power defined	net-power	Power
-END_GROUP			
-GROUP	Impulse Momentum		
-GROUP	Translational		
-LEAF	pi_x = m * v_x      momentum (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
-LEAF	pi_y = m * v_y      momentum (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
-END_GROUP			
-GROUP	Rotational		
-LEAF	L_z = I * $w_z          Angular momentum	ang-momentum	Angular momentum definition
-END_GROUP			
 END_GROUP			
 GROUP	Fluids		
 LEAF	P1 = Pr0                Point 1 open to atmosphere	pressure-at-open-to-atmosphere	Atmospheric Pressure
