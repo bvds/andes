@@ -3071,38 +3071,31 @@
 
 ;;; (ref Bob's email of 7/19/01 8:56 am) If the student has makes a
 ;;; sign error in the definition of average acceleration, then teach
-;;; them about CHANGE in velocity.  Need two version of the error
-;;; class because vf and vi can be in either order.
-(def-error-class avg-accel-is-change-in-velocity1 (?xyz (= ?a (/ (- ?vf ?vi) ?dur)))
-  ((student-eqn (= ?a (/ (+ ?vi ?vf) ?dur)))
-   (var-defn ?a (at (compo ?xyz ?rot (accel ?body)) (during ?t0 ?t3)))
+;;; them about CHANGE in velocity.  
+;;;
+;;; BvdS:  This is way too specific.  It only covers a very specific form for 
+;;; the equation and only certain errors.
+;;; There should also be a similar rule for definition of average velocity.
+;;;
+(def-error-class avg-accel-is-change-in-velocity 
+    (?xyz (= ?a (/ (- ?vf ?vi) ?dur)))
+  ((student-eqn (= ?a (/ (?op ?v1 ?v2) ?dur)))
+   (var-defn ?a (at (compo ?xyz ?rot (accel ?body)) (during ?ti ?tf)))
    (var-defn ?dur (duration (during ?ti ?tf)))
-   (test (tinsidep (list 'during ?ti ?tf) (list 'during ?t0 ?t3)))
-   (var-defn ?vi (at (compo ?xyz ?rot (velocity ?body)) ?ti))
-   (var-defn ?vf (at (compo ?xyz ?rot (velocity ?body)) ?tf)))
+   (correct-var ?vi (at (compo ?xyz ?rot (velocity ?body)) ?ti))
+   (correct-var ?vf (at (compo ?xyz ?rot (velocity ?body)) ?tf))
+   (test (equal (sort (list ?v1 ?v2) #'expr<) (sort (list ?vi ?vf) #'expr<))))
   :utility 50)
-(defun avg-accel-is-change-in-velocity1 (xyz eqn)
-  (avg-accel-is-change-in-velocity xyz eqn))
-(def-error-class avg-accel-is-change-in-velocity2 (?xyz (= ?a (/ (- ?vf ?vi) ?dur)))
-  ((student-eqn (= ?a (/ (+ ?vf ?vi) ?dur)))
-   (var-defn ?a (at (compo ?xyz ?rot (accel ?body)) (during ?t0 ?t3)))
-   (var-defn ?dur (duration (during ?ti ?tf)))
-   (test (tinsidep (list 'during ?ti ?tf) (list 'during ?t0 ?t3)))
-   (var-defn ?vi (at (compo ?xyz ?rot (velocity ?body)) ?ti))
-   (var-defn ?vf (at (compo ?xyz ?rot (velocity ?body)) ?tf)))
-  :utility 50)
-(defun avg-accel-is-change-in-velocity2 (xyz eqn)
-  (avg-accel-is-change-in-velocity xyz eqn))
+
 (defun avg-accel-is-change-in-velocity (xyz eqn)
   (make-hint-seq
    (list
     (format nil (strcat "The average acceleration in the ~a direction in a "
-			"time interval is equal to the CHANGE in the ~a "
-			"component of velocity divided by the time.  CHANGE "
-			"is the final value MINUS the initial value.") xyz xyz)
+			"time interval is equal to the change in the ~a "
+			"component of velocity divided by the time.  Change "
+			"is the final value minus the initial value.") xyz xyz)
     "See the formulae for constant acceleration."  ;; teach avg-accel-defn
     (format nil "Replace your equation with ~a." (nlg eqn 'algebra)))))
-
 
 ;;; (ref eq-Pitt A4 3-03-23) If the student left out the negative sign on
 ;;; a vector component, and the vector is parallel to the axis, then
