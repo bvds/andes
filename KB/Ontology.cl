@@ -1039,12 +1039,11 @@
 
 
 ;; LINEAR MOMENTUM
-(def-psmclass cons-linmom (?eq-type lm-compo ?axis ?rot (cons-linmom ?bodies (during ?time0 ?time1)))
+(def-psmclass cons-linmom (?eq-type lm-compo ?axis ?rot (cons-linmom ?bodies ?time))
   :complexity major
   :english ("conservation of momentum")
-  :expformat ((strcat "applying Conservation of Linear Momentum "
-		      "to ~a from ~a to ~a")
-	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
+  :expformat ("applying Conservation of Linear Momentum to ~a ~a"
+	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
   :EqnFormat ("m1*v1i_~a + m2*v2i_~a = m1*v1f_~a + m2*v2f_~a" (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 (def-psmclass cons-ke-elastic (cons-ke-elastic ?bodies (during ?time0 ?time1))
@@ -1145,18 +1144,17 @@
 
 ;; ANGULAR MOMENTUM
 (def-psmclass ang-momentum (?eq-type z 0 (ang-momentum ?body ?time))
-  :complexity major ; definition, but can be first "principle" for sought
+  :complexity definition ;definition, but can be first "principle" for sought
   :english ("definition of angular momentum")
   :expformat ("applying the definition of angular momentum on ~a ~a"
 	      (nlg ?body) (nlg ?time 'nlg-time))
   :EqnFormat ("L_z = I * $w_z"))
 
-(def-psmclass cons-angmom (?eq-type z 0 (cons-angmom ?bodies (during ?time0 ?time1)))
+(def-psmclass cons-angmom (?eq-type z 0 (cons-angmom ?bodies ?time))
   :complexity major
   :english ("conservation of angular momentum")
-  :expformat ((strcat "applying Conservation of Angular Momentum "
-		      "to ~a from ~a to ~a")
-	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
+  :expformat ("applying Conservation of Angular Momentum to ~a ~a"
+	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
   :eqnformat ("Li_z = Lf_z"))
 
 ;;;; ROTATIONAL DYNAMICS (TORQUE)

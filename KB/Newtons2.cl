@@ -9194,49 +9194,50 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; angular momentum is not conserved for an individual body.
 ;; 
 (defoperator cons-angmom-contains (?sought)
-  :preconditions (
-  ; for now only apply if we are given some momentum conserving change:
-  (rotation-change ?body-list (during ?t1 ?t2) ?split-join)
-  (any-member ?sought (
-               (at (mag (ang-velocity ?b)) ?t1) (at (dir (ang-velocity ?b)) ?t1)
-               (at (mag (ang-velocity ?b)) ?t2) (at (dir (ang-velocity ?b)) ?t2)
-	       (at (moment-of-inertia ?b) ?t1) (at (moment-of-inertia ?b) ?t2)
-	       (moment-of-inertia ?b)
-	       ; in case of split or join
-	       (at (mag (ang-velocity (compound ?bodies)) ?t1))
-	       (at (mag (ang-velocity (compound ?bodies)) ?t2))
-	       	      ))
-  (test (or (contains-sym ?sought 'compound)
-            (member ?b ?body-list :test #'equal)))
-  ;; in case problem author didn't canonicalize body list:
-  (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
-  )
+  :preconditions 
+  (
+   ;; for now only apply if we are given some momentum conserving change:
+   (rotation-change ?body-list (during ?t1 ?t2) ?split-join)
+   ;; in case problem author didn't canonicalize body list:
+   (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
+   (any-member ?sought (
+			(at (mag (ang-momentum ?b)) ?t1) 
+			(at (dir (ang-momentum ?b)) ?t1)
+			(at (mag (ang-momentum ?b)) ?t2) 
+			(at (dir (ang-momentum ?b)) ?t2)
+			;; in case of split or join
+			(at (mag (ang-momentum (compound ?bodies)) ?t1))
+	       (at (mag (ang-momentum (compound ?bodies)) ?t2))
+	       ))
+   (test (or (contains-sym ?sought 'compound)
+	     (member ?b ?body-list :test #'equal)))
+   )
   :effects (
     (angular-eqn-contains (cons-angmom ?bodies (during ?t1 ?t2)) ?sought)
-  ))
+    ))
 
 (defoperator draw-cons-angmom-vectors (?bodies ?t1 ?t2)
   :preconditions (
-   ; don't use this in case of a join or split
+   ;; don't use this in case of a join or split
    (not (rotation-change ?body-list (during ?t1 ?t2) join))
    (not (rotation-change ?body-list (during ?t1 ?t2) split))
-   ; what to draw here? Issues same as conservation of linmom.
-   ; draw system
-	  ; until we sort out drawing of many-body systems
-	  ;(body (system ?b1 ?b2))
-   ; since no join/split, draw bodies over whole interval:
+   ;; what to draw here? Issues same as conservation of linmom.
+   ;; draw system
+	  ;; until we sort out drawing of many-body systems
+	  ;;(body (system ?b1 ?b2))
+   ;; since no join/split, draw bodies over whole interval:
    (foreach ?b ?bodies (body ?b))
-   ; draw each body's initial angular momentum (will draw vel in process)
+   ;; draw each body's initial angular momentum (will draw vel in process)
    (foreach ?b ?bodies
    	(vector ?b (at (ang-momentum ?b) ?t1) ?dir1))
-   ; draw each body's final angular momentum 
+   ;; draw each body's final angular momentum 
    (foreach ?b ?bodies
    	(vector ?b (at (ang-momentum ?b) ?t2) ?dir2))
-   ; need to draw an axis so components can be defined
+   ;; need to draw an axis so components can be defined
    (axis-for (system . ?bodies) z 0)
-   ; must also assert axes to use for constituent bodies so it can be 
-   ; found by compo-var defining operator.  Could also do this when 
-   ; drawing axis for compound system.
+   ;; must also assert axes to use for constituent bodies so it can be 
+   ;; found by compo-var defining operator.  Could also do this when 
+   ;; drawing axis for compound system.
    (foreach ?b ?bodies
       (add-to-wm (axis-for ?b z 0)))
   )
@@ -9247,27 +9248,27 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; draw the diagram for a join, showing compound body after coupling.
 (defoperator draw-cons-angmom-vectors-join (?bodies ?t1 ?t2)
   :preconditions (
-   ; only use this in case of a join
+   ;; only use this in case of a join
    (in-wm (rotation-change ?body-list (during ?t1 ?t2) join))
-   ; what to draw here? Issues same as conservation of linmom.
-   ; draw system
-	  ; until we sort out drawing of many-body systems
-	  ;(body (system ?b1 ?b2))
-   ; draw each body at initial time
+   ;; what to draw here? Issues same as conservation of linmom.
+   ;; draw system
+	  ;; until we sort out drawing of many-body systems
+	  ;;(body (system ?b1 ?b2))
+   ;; draw each body at initial time
    (foreach ?b ?bodies (body ?b))
-   ; draw each body's initial angular momentum (will draw vel in process)
+   ;; draw each body's initial angular momentum (will draw vel in process)
    (foreach ?b ?bodies
    	(vector ?b (at (ang-momentum ?b) ?t1) ?dir1))
-   ; draw compound body for final angular momentum 
+   ;; draw compound body for final angular momentum 
    (bind ?c `(compound ,@?bodies)) ; for shorthand
    (body ?c)
-   ; draw final angular momentum of compound
+   ;; draw final angular momentum of compound
    (vector ?c (at (ang-momentum ?c) ?t2) ?dir-c)
-   ; need to draw an axis so components can be defined
+   ;; need to draw an axis so components can be defined
    (axis-for (system . ?bodies) z 0)
-   ; must also assert axes to use for constituent bodies so it can be 
-   ; found by compo-var defining operator.  Could also do this when 
-   ; drawing axis for compound system.
+   ;; must also assert axes to use for constituent bodies so it can be 
+   ;; found by compo-var defining operator.  Could also do this when 
+   ;; drawing axis for compound system.
    (foreach ?b ?bodies
       (add-to-wm (axis-for ?b z 0)))
    (add-to-wm (axis-for ?c z 0))
@@ -9301,7 +9302,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (map ?b ?bodies
      (eqn (= ?L1_z ?Iw_z) (compo-eqn z 0 (ang-momentum ?b ?t2)))
        ?Iw_z ?Iw_z2-terms)
-  ; need to collect compos of all terms to list in final eqn-compos
+  ;; need to collect compos of all terms to list in final eqn-compos
   (map ?b ?bodies
        (eqn-compos (compo-eqn z 0 (ang-momentum ?b ?t1)) ?compos)
        ?compos ?t1-compo-sets) ; result is list of lists
@@ -9325,18 +9326,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ))
 
 
-; same as above for case of bodies joining together into compound
+;; same as above for case of bodies joining together into compound
 (defoperator write-cons-angmom-join (?bodies ?t1 ?t2)
   :preconditions (
-   ; use this only in case of a join
+   ;; use this only in case of a join
    (in-wm (rotation-change ?body-list (during ?t1 ?t2) join))
-  ; apply single-body ang-momentum method for each to draw vectors and 
-  ; generate compo equation for each body at initial and final times
-  ; initial time:
+  ;; apply single-body ang-momentum method for each to draw vectors and 
+  ;; generate compo equation for each body at initial and final times
+  ;; initial time:
   (map ?b ?bodies
      (eqn (= ?L1_z ?Iw_z) (compo-eqn z 0 (ang-momentum ?b ?t1)))
        ?Iw_z ?Iw_z1-terms)
-  ; need to save compos from all equations to list in final eqn-compos
+  ;; need to save compos from all equations to list in final eqn-compos
   (map ?b ?bodies
        (eqn-compos (compo-eqn z 0 (ang-momentum ?b ?t1)) ?compos)
        ?compos ?t1-compo-sets) ; result is list of lists
