@@ -36,7 +36,7 @@
   :effects ( (variable ?wn-var (wavenumber ?wave ?medium))
              (define-var (wavenumber ?wave ?medium)))
   :hint 
-  ((bottom-out (string "Define a variable for the wave number of the ~A moving in ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave ?medium))))
+  ((bottom-out (string "Define a variable for the wave number of ~A moving in ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave ?medium))))
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
 (def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave ?medium)

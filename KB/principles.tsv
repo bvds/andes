@@ -61,8 +61,8 @@ LEAF	Inet = $S Ii           Net intensity	net-intensity	Intensity
 END_GROUP			
 GROUP	Impulse Momentum		
 GROUP	Translational		
-LEAF	pi_x = m * v_x      momentum (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
-LEAF	pi_y = m * v_y      momentum (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
+LEAF	pi_x = m * v_x      momentum defined (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
+LEAF	pi_y = m * v_y      momentum defined (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
 LEAF	$S mi*vi1_x = $S mi*vi2_x  Conservation of momentum	(cons-linmom ((?axis . x)))	Conservation of Momentum
 LEAF	$S mi*vi1_y = $S mi*vi2_y  Conservation of momentum	(cons-linmom ((?axis . y)))	Conservation of Momentum
 LEAF	Kf = Ki                  Elastic collision defined	cons-ke-elastic	Elastic collisions
