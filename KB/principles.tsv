@@ -48,6 +48,7 @@ GROUP	Work and Energy
 LEAF	W = F*d*cos($q)         work defined	work	Work done by a force
 LEAF	Wnet = $S Wi            Net work defined	net-work	Net work
 LEAF	Wnet = Kf - Ki         work-energy theorem	work-energy	Work-Energy
+LEAF	ME = K + $S Ui          mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	ME1 = ME2              [Wnc=0] conservation of mechanical energy	cons-energy	Conservation of Energy
 LEAF	Wnc = ME2 - ME1        change in mechanical energy	change-me	Conservation of Energy
 LEAF	Pavg = W/t             average power defined	power	Power
@@ -63,15 +64,15 @@ GROUP	Translational
 LEAF	$S mi*vi1_x = $S mi*vi2_x  Conservation of momentum	(cons-linmom ((?axis . x)))	Conservation of Momentum
 LEAF	$S mi*vi1_y = $S mi*vi2_y  Conservation of momentum	(cons-linmom ((?axis . y)))	Conservation of Momentum
 LEAF	Kf = Ki                  Elastic collision defined	cons-ke-elastic	Elastic collisions
-LEAF	J_x = F_x(avg) * t       Impulse and force	(impulse-force ((?axis.x)))	Impulse
-LEAF	J_y = F_y(avg) * t       Impulse and force	(impulse-force ((?axis.y))	Impulse
-LEAF	J_x = pf_x - pi_x       Newton's second law	(impulse-momentum ((?axis.x)))	Impulse
-LEAF	J_y = pf_y - pi_y       Newton's second law	(impulse-momentum ((?axis.y))	Impulse
+LEAF	J_x = F_x(avg) * t       Impulse and force	(impulse-force ((?axis . x)))	Impulse
+LEAF	J_y = F_y(avg) * t       Impulse and force	(impulse-force ((?axis . y))	Impulse
+LEAF	J_x = pf_x - pi_x       Newton's second law	(impulse-momentum ((?axis . x)))	Impulse
+LEAF	J_y = pf_y - pi_y       Newton's second law	(impulse-momentum ((?axis . y))	Impulse
 LEAF	J12 = J21      Newton's third law (magnitudes)	NTL-impulse	Impulse
-LEAF	J12_x = -J21_x      Newton's third law (components)	(NTL-impulse-vector ((?axis.x)))	Impulse
-LEAF	J12_y = -J21_y      Newton's third law (components)	(NTL-impulse-vector ((?axis.y)))	Impulse
-LEAF	rcm_x = ($S ri_x * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis.x)))	Center of Mass
-LEAF	rcm_y = ($S ri_y * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis.y)))	Center of Mass
+LEAF	J12_x = -J21_x      Newton's third law (components)	(NTL-impulse-vector ((?axis . x)))	Impulse
+LEAF	J12_y = -J21_y      Newton's third law (components)	(NTL-impulse-vector ((?axis . y)))	Impulse
+LEAF	rcm_x = ($S ri_x * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis . x)))	Center of Mass
+LEAF	rcm_y = ($S ri_y * mi)/($S mi)     center of mass	(center-of-mass-compo ((?axis . y)))	Center of Mass
 END_GROUP			
 GROUP	Rotational		
 LEAF	L_z = I*$w_z       Angular momentum defined	ang-momentum	Angular momentum definition
@@ -142,22 +143,22 @@ LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnific
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
 END_GROUP			
 GROUP	Waves and Oscillations		
-LEAF	k = 2*$p/$l	wavenumber-lambda-wave
-LEAF	f = $w/(2*$p)	frequency-of-wave
-LEAF	T = 1/f	period-of-wave
-LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
-LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
-LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed
-LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string
-LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave
-LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave
-LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
-LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
-LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency
-LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
-LEAF	fbeats = abs(f1-f2)/2	beat-frequency
-LEAF	v = c = 2.998e8 m/s    speed of light	wave-speed-light
-END_GROUP		
+LEAF	k = 2*$p/$l	wavenumber-lambda-wave	
+LEAF	f = $w/(2*$p)	frequency-of-wave	
+LEAF	T = 1/f	period-of-wave	
+LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
+LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
+LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
+LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
+LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
+LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
+LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
+LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
+LEAF	fo = fs*(vwÂ±vo)/(vwÂ±vs)   Frequency shift from doppler effect	doppler-frequency	
+LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
+LEAF	fbeats = abs(f1-f2)/2	beat-frequency	
+LEAF	v = c = 2.998e8 m/s    speed of light	wave-speed-light	
+END_GROUP			
 END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
