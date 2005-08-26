@@ -1211,11 +1211,11 @@
   
   ;:ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
   ;	      (nlg ?vector) (nlg ?axis 'adj))
-  :EqnFormat ("~a_~a = ~a*~a($q~a - $q~a)"
+  :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
 	      (nlg ?vector 'nlg-vector-var-pref)
 	      (nlg ?axis 'adj) 
 	      (nlg ?vector 'nlg-vector-var-pref)
-	      (format nil "~:[sin~;cos~]" (equal ?axis X))
+	      (equal ?axis X)
 	      (nlg ?vector 'nlg-vector-var-pref) (nlg ?axis 'adj)))
 
 
@@ -1224,7 +1224,7 @@
 				       (linear-momentum ?body ?time))
   :complexity definition ;so it can be substituted into momentum conservation
   :english ("the definition of momentum (component form)")
-  :expformat ((strcat "using the definition of momentum for ~A" (nlg ?body)))
+  :expformat ("applying the definition of momentum to ~A" (nlg ?body))
   :EqnFormat ("pi_~a = m * v_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 ;;

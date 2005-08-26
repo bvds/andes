@@ -118,8 +118,8 @@
   restrictions  ;; a list of atoms such as nonnegative placing restictions on the value.
   documentation ;; A documentation string for the item
 
-  VarFunc       ;;Function that translates the Expression to a var.
-  FromWorkbench ;;constructs expression from workbench api args (see make-quant)
+  VarFunc       ;; Function that translates the Expression to a var.
+  FromWorkbench ;; constructs expression from workbench api args (see make-quant)
   
   english       ;; a format style string determining the english expression of this
                 ;; expresson.  not used at present.

@@ -7694,7 +7694,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;                Definition of Linear Momentum p=m*v
 ;;;;===========================================================================
 
-;;; Following writes p_x = m * vt_x for a single body and time
+;;; Following writes p_x = m * v_x for a single body and time
 ;;; body may be a compound body in case of splits or joins.
 
 (defoperator momentum-contains (?sought)
