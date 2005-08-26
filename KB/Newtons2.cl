@@ -7757,7 +7757,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ((axis ?xyz ?rot) symbols-label)  ?b (?t pp)))
     (teach (string "The linear momentum of a body is a vector defined as its mass times the velocity vector. Therefore, the component of a body's momentum along an axis can be expressed as its mass times the component of the body's velocity along that axis."))
     (bottom-out (string "Write the equation ~A"  
-                        ((= ?p_compo (* ?m_compo ?v_compo)) algebra)))
+                        ((= ?p_compo (* ?m ?v_compo)) algebra)))
   ))
 
 ;;;;===========================================================================
