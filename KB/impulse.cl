@@ -83,7 +83,7 @@
 
 (defoperator impulse-vector-contains (?sought)
   :preconditions 
-  ((collision ?bodies ?t ?elastic-dont-care)
+  ((collision ?bodies ?t :type ?elastic-dont-care)
    (any-member ?sought
 	       ((at (mag (impulse ?b ?agent)) ?t)
 		(at (dir (impulse ?b ?agent)) ?t)
@@ -164,7 +164,7 @@
   (
    (test (time-intervalp ?t))		;introduce ?t to save some typing
    (bind ?t1 (second ?t)) (bind ?t2 (third ?t)) ;get interval endpoints
-   (collision ?bodies ?t ?elastic-dont-care)
+   (collision ?bodies ?t :type ?elastic-dont-care)
    (test (member ?b ?bodies :test #'equal)) 
    (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b ?t1 (straight ?dontcare1 ?dir1))
@@ -197,7 +197,7 @@
    (not (given (at (dir (impulse ?b ?agent)) ?t) ?dir))
    (test (time-intervalp ?t))		;introduce ?t to save some typing
    (bind ?t1 (second ?t)) (bind ?t2 (third ?t)) ;get interval endpoints
-   (collision ?bodies ?t ?elastic-dont-care)
+   (collision ?bodies ?t :type ?elastic-dont-care)
    (test (member ?b ?bodies :test #'equal)) 
    (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b ?t1 (straight ?dontcare1 ?dir1))
@@ -226,7 +226,7 @@
 (defoperator impulse-momentum-contains (?sought)
   :preconditions 
   (
-   (collision ?bodies (during ?t1 ?t2) ?elastic-dont-care)
+   (collision ?bodies (during ?t1 ?t2) :type ?elastic-dont-care)
    (any-member ?sought
 	        ((at (mag (impulse ?b ?agent)) (during ?t1 ?t2))
 		 (at (dir (impulse ?b ?agent)) (during ?t1 ?t2))
@@ -307,7 +307,7 @@ impulse ~A." (?b def-np) (?t pp)))
 (defoperator NTL-impulse-contains (?quantity)
   :preconditions 
   (
-   (collision ?bodies ?t ?elastic-dont-care)
+   (collision ?bodies ?t :type ?elastic-dont-care)
    (any-member ?quantity (
 			  (at (mag (impulse ?b1 ?b2)) ?t)
                         ))
@@ -416,7 +416,7 @@ impulse ~A." (?b def-np) (?t pp)))
 			(at (dir (relative-position ?b ?origin)) ?t)
 			(mass ?b) 
 			))
-   (test (or (member ?b ?bodies) (equal ?b ?com)))
+   (test (or (member ?b ?bodies :test #'equal) (equal ?b ?com)))
    (time ?t)
    )
   :effects (

@@ -82,13 +82,13 @@
 	  (cond ((time-intervalp t2)
 		 (<= (second t2) (second t1) (third t1) (third t2)))))))
 
+(defun tendpointp (t1 t2)
+  "true is first time is an endpoint of the second time"
+  (and (time-intervalp t2) (or (equal t1 (second t2)) (equal t1 (third t2)))))
+
 (defun tinsidep-include-endpoints (t1 t2)
   "non-null if the first time is inside the second time, the second time is a closed interval"
-  (or (tinsidep t1 t2)
-      (and (time-intervalp t2)
-	   (time-pointp t1)
-	   (or (equal t1 (second t2))
-	       (equal t1 (third t2))))))
+  (or (tinsidep t1 t2) (tendpointp t1 t2)))
 
 (defun tinsidep-include-second-endpoint (t1 t2)
   "non-null if the first time is inside the second time, the second time is a half-open interval"
@@ -425,11 +425,6 @@
    (cond ((atom body) (list body))
          ((compound-bodyp body) (cdr body))
 	 (T (error "bad body term: ~A" body))))
-
-(defun combine-bodies (body1 body2)
-     (if (equal body1 body2) body1
-       `(compound ,@(sort (union (simple-parts body1) (simple-parts body2))
-                           #'expr<))))
 
 ;; 
 ;; For multiple body systems: (system body1 ... bodyn)
