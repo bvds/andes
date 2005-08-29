@@ -63,8 +63,8 @@ GROUP	Impulse Momentum
 GROUP	Translational		
 LEAF	pi_x = m * v_x      momentum defined (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
 LEAF	pi_y = m * v_y      momentum defined (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
-LEAF	$S mi*vi1_x = $S mi*vi2_x  Conservation of momentum	(cons-linmom ((?axis . x)))	Conservation of Momentum
-LEAF	$S mi*vi1_y = $S mi*vi2_y  Conservation of momentum	(cons-linmom ((?axis . y)))	Conservation of Momentum
+LEAF	$S pi_x = $S pf_x  Conservation of momentum	(cons-linmom ((?axis . x)))	Conservation of Momentum
+LEAF	$S pi_y = $S pf_y  Conservation of momentum	(cons-linmom ((?axis . y)))	Conservation of Momentum
 LEAF	Kf = Ki                  Elastic collision defined	cons-ke-elastic	Elastic collisions
 LEAF	J_x = F_x(avg) * t       Impulse and force	(impulse-force ((?axis . x)))	Impulse
 LEAF	J_y = F_y(avg) * t       Impulse and force	(impulse-force ((?axis . y))	Impulse
@@ -78,7 +78,7 @@ LEAF	rcm_y = ($S ri_y * mi)/($S mi)     center of mass	(center-of-mass-compo ((?
 END_GROUP			
 GROUP	Rotational		
 LEAF	L_z = I * $w_z       Angular momentum defined	ang-momentum	Angular momentum definition
-LEAF	Li_z = Lf_z         Conservation of Angular momentum	cons-angmom	Conservation of Angular momentum
+LEAF	$S Li_z = $S Lf_z         Conservation of Angular momentum	cons-angmom	Conservation of Angular momentum
 END_GROUP			
 END_GROUP			
 GROUP	Fluids		
