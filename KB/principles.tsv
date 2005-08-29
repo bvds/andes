@@ -59,7 +59,7 @@ LEAF	$b = 10*log10(I/Iref)   intensity to decibels	intensity-to-decibels	Intensi
 LEAF	I = Iref*10^($b/10)   decibels to intensity	intensity-to-decibels	Intensity
 LEAF	Inet = $S Ii           Net intensity	net-intensity	Intensity
 END_GROUP			
-GROUP	Impulse Momentum		
+GROUP	Momentum and Impulse		
 GROUP	Translational		
 LEAF	pi_x = m * v_x      momentum defined (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
 LEAF	pi_y = m * v_y      momentum defined (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
