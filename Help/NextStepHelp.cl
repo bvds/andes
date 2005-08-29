@@ -644,12 +644,14 @@
 ;;; that we want the students to select, hence its reversal.
 ;;;
 ;;; Note remove and remove-if preserve order.
+;;; Note: "major" in this comment must mean "acceptable first principle" = 
+;;; = 'major or 'definition
 (defun nsh-sort-node-lists (nodes)
   "Sort the suppliued nodes into (<Givens> <Major> . <Rest>)"
   (list (remove-if-not #'nsh-given-principle-p nodes)
-	(append (remove-if-not #'nsh-major-principle-P Nodes)
+	(append (remove-if-not #'nsh-acceptable-fp-typep Nodes)
 		(remove-if #'(lambda (N) (or (nsh-given-principle-p N)
-					     (nsh-major-principle-p N)))
+					     (nsh-acceptable-fp-typep N)))
 			   nodes))))
 
 
@@ -1623,7 +1625,7 @@
 ;;; we want them to pick a sought/major priunciple.
 (defun nsh-ask-sought? ()
   "Should NSH prompt the sought(s) to the student?"
-  (and (member-if #'nsh-major-principle-p *nsh-nodes*)
+  (and (member-if #'nsh-acceptable-fp-typep *nsh-nodes*)
        (or (null *nsh-current-solutions*)
 	   (null (find-if #'nsh-principle-started-p
 			  *nsh-current-solutions*
