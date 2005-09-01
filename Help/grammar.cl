@@ -20,9 +20,9 @@
 ;;  rtn - function called when rule 'fires expects the rule that fired followed by anything else
 (defstruct (rule (:type list)) lhs rhs rtn-fn)
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; grammar-set MACRO -- gives a grammar a value
 ;; argument(s):
 ;;  grammar -- symbol used to reference grammar
@@ -103,14 +103,14 @@
 	      (grammar-set grammar (append (symbol-value grammar) (list rule)))
 	    (Tell :notify "~W has already been defined~%" rule)))))))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; grammar-add-nonterminal -- adds nonterminal rules to **grammar**
 ;; argument(s):
 ;;  grammar - symbol that refers to the grammar that will get the new rule
 ;;  lhs - the 'key or name of the rule(s) to be added
-;;  rhs - a list of lists of symbols that are lhs of previously add rules
+;;  rhs - a list of lists of symbols that are lhs of previously added rules
 ;;  rtn-fn - <optional:nil> function defining the return value of the rule(s)
 ;; returns:
 ;;  grammar with new rules added

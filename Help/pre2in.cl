@@ -1,13 +1,13 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; pre2in.cl -- convert from prefix to infix
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;; Author(s):
 ;;  Linwood H. Taylor (lht) <lht@lzri.com>
 ;; Modified:
 ;;  4 June 2001 - (lht) -- created
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun old-pre2in (eq)
   (cond
@@ -40,7 +40,7 @@
     (Tell :pre2in "one ->~W" eq)
     (pre2in (first eq)))))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun pre2in (eq)
   (cond
@@ -55,7 +55,7 @@
     (list (first eq) (pre2in (second eq))))
    ((and (member (first eq) '(+)) (null (cdr eq)))
      (Tell :pre2in "0-element sum -> ~W" eq)
-     0)   ; just turn empty sum into a zero - AW
+     0)   ;; just turn empty sum into a zero - AW
    ((and (member (first eq) '(- +)) (= (length eq) 2))
     (Tell :pre2in "unary -> ~W" eq)
     (if (equal (first eq) '+)
@@ -66,7 +66,7 @@
     (let ((s (subseq eq 1 (- (length eq) 1))))
       (if (first (last eq)) ; has non-NIL units
          (list (pre2in s) (first (last eq)))
-      ; else dimensionless number
+      ;; else dimensionless number
 	(list (pre2in s))) ; maybe drop parens?
       ))
    ((third eq)
