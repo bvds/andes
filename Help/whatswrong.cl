@@ -28,10 +28,8 @@
    Changes the ErrInterp field of the student entry corresponding to this id."
   (let ((student (find-entry id))
 	(ei nil))
-    (Tell :do-whats-wrong "Checking WhatsWrong with ~W." student)
     (cond
      ((not student)
-      (Tell :do-whats-wrong "Can't find student entry for id ~a." id)
       (no-error-interpretation))
      (t (setf ei (diagnose student))
 	(setf (StudentEntry-ErrInterp student) ei)
@@ -64,7 +62,6 @@
      ((eq state **forbidden**)
       (explain-forbidden student))
      ((not (eq state **Incorrect**))
-      (Tell :do-whats-wrong "Unexpected state ~a." (StudentEntry-State student))
       (make-failed-error-interpretation))
      ((and (eq 'eqn (car (StudentEntry-Prop student)))
 	   (not (solver-equation-redp (studentEntry-ParsedEqn student))))
@@ -168,7 +165,6 @@
    return an error interpretation"
   (let ((candidates nil) (best nil))
     (setf candidates (applicable-error-analyses student))
-    (Tell :new-error "Candidates are ~W" candidates)
     ;; (format t "Candidates are ~W" candidates)
     (contextualize candidates)
     ;; (format t "Contextualized Candidates are: ~% ~a~%" candidates)
@@ -176,7 +172,6 @@
        (format T "Error candidates: ~W~%" (sort (mapcar #'ei-info candidates) #'> :key #'second)))
     (setf best (select-error-interpretation candidates))
     (format t "Error interpretation: ~A~%" (ei-name best))
-    (Tell :new-error "Best candidate is ~W" best)
     ;; (format t "Best candidate is ~W" best)
     (setf (Error-Interp-Remediation best) (generate-ww-turn best))
     best))
@@ -203,7 +198,6 @@
 
 (defun check-err-conds (error student)
   (let ((tmp (check-err-conditions error student (error-class-conditions error) nil no-bindings)))
-    (Tell :applicable-error-analysis "[Result ~W]" tmp)
     tmp))
 
 ;;; given a student entry and an error class, returns a list of error
@@ -219,7 +213,6 @@
 ;;; will set the sy to the equation and will use that until changed by 
 ;;; a later entry.
 (defun check-err-conditions (eh st conditions sy bindings)
-  (Tell :check-err-conditions "[Bindings ~W]" bindings)
   (cond
    ((null conditions)
     (list (make-Error-Interp
@@ -252,8 +245,7 @@
 	  (bind (check-err-bind (second c) (third c)
 				eh st r sy bindings))
 	  (debug (check-err-debug (cdr c) eh st r sy bindings))
-	  (t (Tell :check-err-conditions
-		   "Illegal condition in noneqn error handler ~a." (caar conditions))))))))
+	  (t ))))))
 
 
 ;;; If the <pattern> of a (student <pattern>) condition unifies with
@@ -283,8 +275,6 @@
 ;;; Note that this will recurse the call with system set to the correct
 ;;; entry if found.  This will 
 (defun check-err-correct (pattern eh student conditions system bindings)
-  (if system 
-      (Tell :check-err-correct "Two (system <pattern>) conditions in a noneqn-error handler."))
   (loop for se in *sg-entries* with b nconc
 	(and (setf b (unify pattern (systementry-prop se) bindings))
 	     (check-err-conditions eh student conditions (list se) b))))
@@ -298,8 +288,6 @@
 ;;; Note, unlike correct the selected entry here will not be used for 
 ;;; the intended entry in the error-interp.
 (defun check-err-correct-nointent (pattern eh student conditions system bindings)
-  (if system 
-      (Tell :check-err-correct "Two (system <pattern>) conditions in a noneqn-error handler."))
   (loop for se in *sg-entries* with b nconc
 	(and (setf b (unify pattern (systementry-prop se) bindings))
 	     (check-err-conditions eh student conditions system b))))
@@ -569,7 +557,6 @@
 (defun select-best-error-interp (candidates)
   "Given a list of candidate error interpetations with two or more members,
    pick the best ones then choose randomly among them."
-  (tell :error-selection "Choosing among ~a candidates ~&~a. " (length candidates) candidates)
   (let ((best (list (car candidates)))
 	(best-eu (error-interp-expected-utility (car candidates))))
     (loop for c in (cdr candidates) do
@@ -579,8 +566,7 @@
 		 (setq best-eu (error-interp-expected-utility c))
 		 (setq best (list c)))))
     (cond ((cdr best)
-	   (tell :error-selection "~a tied for best" (length best))
-	   ; NOTE: when we choose randomly to break a tie, the "intended" entry may be very unreliable. 
+	   ;; NOTE: when we choose randomly to break a tie, the "intended" entry may be very unreliable. 
 	   ; Ex: solution has three axis rotations, and student picks none. Three wrong-axis-rotation
 	   ; instances will tie and one will be randomly chosen. This may not be the one nsh would
 	   ; prompt. Possibly we should clear "intended" field if it differs among tied interps?

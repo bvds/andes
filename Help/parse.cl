@@ -77,7 +77,6 @@
 ;;    rules that match the character and then get the next character and find all of the pre-
 ;;    viously found rules that have a match with this character
 (defun parse (grammar input)
-  (Tell :parse "~W~%" input)
   (if (> (length input) 0)
       (mapcan
        #'(lambda (rule)
@@ -91,8 +90,6 @@
 ;; pass the left hand side of a rule, the current character (rhs), the rest of the string to be
 ;;    parsed and what is needed to complete the current rule
 (defun parse-support (grammar lhs rhs rem needed)
-  (Tell :parse-support "~%  ~W~%  ~W~%  ~W~%  ~W~%~%" lhs rhs rem needed)
-  ;;(Tell :info ".")
   (if (null needed)
       (let ((parse (make-parse :tree (new-tree lhs rhs) :rem rem)))
 	(cons parse
@@ -192,7 +189,6 @@
    ((null parse) parse)
    ((null (consp parse)) parse)
    ((list-begins-with-p lhs (first parse))
-    (Tell :parse-pack-to-string-lhs "~W -> ~W" (first (first parse)) (second (first parse)))
     (cons (list (first (first parse)) (format nil "~W" (second (first parse))))
 	  ;;(symbol-name (second (first parse))))
 	  (parse-pack-to-string-lhs lhs (rest parse))))

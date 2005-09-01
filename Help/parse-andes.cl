@@ -58,14 +58,11 @@
       (let* ((parses (parse-equation **grammar** equation))
 	     (complete (parse-get-complete parses))
 	     (valid (parse-get-valid 'final complete)))
-	(Tell :ndo-lookup-equation-string "Parses are:~%~W" parses)
 	;;(format T "lookup-eqn-str got ~A valid parses~%" (length valid))
 	(cond
 	 ((null valid)
-	  (Tell :do-lookup-equation-string "Bad ~W" equation)
 	  (setf tmp (handle-bad-syntax-equation eq id parses)))
 	 (t
-	  (Tell :do-lookup-equation-string "Ambiguous ~W" equation)
 	  (setf tmp (handle-ambiguous-equation eq id valid location))))))
     ;;(format t "at end is ~A~%" tmp)
     tmp))
@@ -161,7 +158,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun handle-ambiguous-equation (equation id parses location)
-  (Tell :handle-ambiguous-equation "~W" parses)
   ;(prl parses)
   (let ((tmp nil) (bad nil) (cont t) (result nil) (se nil) (save nil))
     (dolist (parse parses)
@@ -177,33 +173,28 @@
 	(setf tmp (parse-handler se location))
 	(cond
 	 ((equal **Color-Green** (turn-coloring tmp))
-	  (Tell :handle-ambiguous-equation "Chose Good")
 	  (setf (StudentEntry-State se) **Correct**)
 	  ;; know this entry has winning parse so save entry now 
 	  (add-entry se) 	
 	  (setf result se)
 	  (setf cont nil))
 	 (t ;;(equal **Color-Red** (turn-coloring tmp))
-	  (Tell :handle-ambiguous-equation "Chose Bad")
 	  (setf bad (append bad (list (list tmp se))))))))
     (cond
      (cont
-      (Tell :handle-ambiguous-equation "No good results")
       (setf tmp (choose-ambiguous-bad-turn bad)) ; does add-entry on winning candidate
       (if (null tmp)
 	  (setf tmp (make-red-turn "Should not see this error: (1) Notify Instructor"))))
      (t
-      (Tell :handle-ambiguous-equation "Check Interps")
-      ;; Record correct eqn in algebra. (Must happen before interpretation testing)
-      ;; NB: If we later reject it for some reason (because forbidden, premature, etc), 
-      ;; algebra slot should be cleared.
+      ;; Record correct eqn in algebra. (Must happen before interpretation 
+      ;; testing)
+      ;; NB: If we later reject it for some reason (because forbidden, 
+      ;; premature, etc), algebra slot should be cleared.
       (if (stringp (solver-studentAddOkay (studentEntry-Id se) (studentEntry-ParsedEqn se)))
 	  (setf tmp (make-red-turn)) ;; to trap exceptions
 	(setf tmp (interpret-equation result location)))
-      (Tell :handle-ambiguous-equation "End")
       (cond
        ((equal **Color-Green** (turn-coloring tmp))
-	(Tell :handle-ambiguous-equation "Adding entry to SGG and Solver")
 	(sg-Enter-StudentEntry se))
        (t
 	;; empty slot since it failed
@@ -349,10 +340,8 @@
       (setf answer (parse-surround-lhs "(" ")" 'funcall-a answer))
       (setf answer (parse-surround-lhs "(DNUM" ")" 'dnum answer))
       (setf answer (parse-collapse answer))
-      (Tell :parse-handler "collapse~%~W" answer)
       (if (stringp answer)		;collapse makes it a string
 	  (setf answer (andes-in2pre answer)))
-      (Tell :parse-handler "in2prefixed~%~W" answer)
       (cond ((stringp answer)		;in2pre makes a list
 	     (make-red-turn "Should not see this error: (2) Notify Instructor"))
 	    (t				;use equation-redp so candidate is tested but not added to slot
@@ -676,9 +665,6 @@
 	 (special '(dnum))
 	 (infixed (in2pre eq leaveAlone unary binary special))
 	 (result (denum-mangle (car infixed))))
-    (Tell :andes-in2pre "<~W>" eq)
-    (Tell :andes-in2pre "<~W>" infixed)
-    (Tell :andes-in2pre "<~W>" result)
     (clean result)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -687,7 +673,6 @@
 ;;
 (defun dnum (args)
   (let ((x (first args)))
-    (Tell :denum "<~W>~W" x args)
     (let ((tmp (list (append (list (first x))
 			     (in2pre (subseq x 1 (- (length x) 1))
 				     (second args)
@@ -695,7 +680,6 @@
 				     (fourth args)
 				     (fifth args))
 			     (last x)))))
-      (Tell :denum "Answer ~W" tmp)
       tmp)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -715,24 +699,18 @@
 ;;  	(dnum (+ 2 3) |m/s|) ==> (* (+ 2 3) (dnum 1 |m/s|))
 (defun denum-mangle (parse)
   (let ((tmp nil))
-    (Tell :denum-mangle "Mangling <~W>" parse)
     (cond
      ((null parse)
-      (Tell :denum-mangle "Parse is nul <~W>" parse)
       (setf tmp nil))
      ((null (consp parse))
-      (Tell :denum-mangle "Parse is atom <~W>" parse)
       (setf tmp parse))
      ((consp (first parse))
-      (Tell :denum-mangle "First is list <~W>" parse)
       (setf tmp (list (denum-mangle (first parse))
 		      (denum-mangle (rest parse)))))
      ((member (first parse) '(sin cos tan abs ln log10 sqrt exp))
-      (Tell :denum-mangle "First is function <~W>" parse)
       (setf tmp (list (first parse)
 		      (denum-mangle (second parse)))))
      ((member (first parse) '(dnum))
-      (Tell :denum-mangle "First is special <~W>" parse)
       (if (consp (second parse))
 	  (if (= 1 (length (second parse)))
 	      (setf tmp (list (first parse) (first (second parse)) (third parse)))
@@ -741,11 +719,9 @@
 			    (list (first parse) 1 (third parse)))))
 	(setf tmp (list (first parse) (second parse) (third parse)))))
      (t
-      (Tell :denum-mangle "Default <~W>" parse)
       (setf tmp (list (first parse)
 		      (denum-mangle (second parse))
 		      (denum-mangle (third parse))))))
-    (Tell :denum-mangle "Result is <~W>" tmp)
     tmp))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -753,7 +729,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun grammar-add-variable (varin)
-  (Tell :grammar-add-variable "Add variable ~W~%" varin)
   ;;(grammar-add-identifier '**grammar** varin 'variable)
   )
 ;;
@@ -763,7 +738,6 @@
 ;; removes a variable from the grammar
 ;; returns *grammar* after removal
 (defun grammar-remove-variable (varin)
-  (Tell :grammar-remove-variable "Removing variable ~W~%" varin)
   (grammar-remove-identifier '**grammar** varin 'variable))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -771,9 +745,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; kill all variables that have been added
 (defun grammar-clear-variables ()
-  (Tell :grammar-clear-variables "Clearing variables.~%~W" **grammar**)
-  (grammar-remove-identifiers '**grammar** 'variable)
-  (Tell :grammar-clear-variables "Cleared variables.~%~W" **grammar**))
+  (grammar-remove-identifiers '**grammar** 'variable))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -445,8 +445,6 @@
 			 (car (turn-value turn)) (cdr (turn-value turn)))))
       )
     ;; assemble final result string from parts and return it
-    (Tell :turn->WB-Reply "From Turn ~W~%We Get ~W" turn (concatenate 'string result cmd))
-    (Tell :turn->WB-Reply "Here")
     (concatenate 'string result cmd)))
   
 

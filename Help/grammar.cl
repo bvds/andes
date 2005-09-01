@@ -95,13 +95,12 @@
    ((not (consp rhs))
     (let ((rule (make-rule :lhs lhs :rhs rhs :rtn-fn rtn-fn)))
       (if (not (member rule (symbol-value grammar) :test #'equal))
-	  (grammar-set grammar (append (symbol-value grammar) (list rule)))
-	(Tell :notify "~W has already been defined~%" rule))))
+	  (grammar-set grammar (append (symbol-value grammar) (list rule))))))
    (t (dolist (obj rhs)
 	(let ((rule (make-rule :lhs lhs :rhs obj :rtn-fn rtn-fn)))
 	  (if (not (member rule (symbol-value grammar) :test #'equal))
 	      (grammar-set grammar (append (symbol-value grammar) (list rule)))
-	    (Tell :notify "~W has already been defined~%" rule)))))))
+	    ))))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -119,21 +118,20 @@
 ;;    (name (sam) nil) and (name (sam thomas) nil)
 (defun grammar-add-nonterminal (grammar lhs rhs &optional (rtn-fn nil))
   (cond
-   ((not (consp rhs))
-    (Tell :error "~W must be a list of lists." rhs))
+   ((not (consp rhs)))
    (t (dolist (obj rhs)
 	(if (consp obj)
 	    (if (grammar-rhs-valid (symbol-value grammar) obj)
 		(let ((rule (make-rule :lhs lhs :rhs obj :rtn-fn rtn-fn)))
 		  (if (not (member rule (symbol-value grammar) :test #'equal))
 		      (grammar-set grammar (append (symbol-value grammar) (list rule)))
-		    (Tell :notify "~W has already been defined~%" rule)))
-	      (Tell :warn "~W References an undefined rule" obj))
-	  (Tell :error "~W must be a list of lists." obj))))))
+		    ))
+	      )
+	  )))))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; grammar-add-special -- adds new rules to grammar
 ;; argument(s):
 ;;  grammar - symbol that refers to the grammar that will get the new rule
@@ -258,7 +256,6 @@
 (defun grammar-string-to-rhs (grammar var)
   (map 'list
     #'(lambda (x) 
-	(Tell :grammar-string-to-rhs "Converting '~W'~%" x)
 	(rule-lhs (first (grammar-get-rhs grammar x))))
     var))
 ;;
@@ -272,10 +269,9 @@
 ;; returns:
 ;;  a possible nil list of rules that have rhs as their rhs
 (defun grammar-get-rhs (grammar rhs)
-  (Tell :grammar-get-rhs "Searching for ~W" rhs)
   (find-all rhs grammar :key #'rule-rhs :test #'equal))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; grammar-get-rhs-with-first - return a list of all rules that have (as the first item of their
@@ -286,7 +282,6 @@
 ;; returns:
 ;;  a possible nil list of rules that have rhs as the first element of their rhs
 (defun grammar-get-rhs-with-first (grammar rhs)
-  (Tell :grammar-get-rhs-with-first "Searching for a ~W" rhs)
   (find-all rhs grammar :key #'(lambda (rule) (if-list-first-nil (rule-rhs rule)))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

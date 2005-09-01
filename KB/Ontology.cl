@@ -1010,12 +1010,12 @@
   :english ("the work-kinetic energy theorem")
   :EqnFormat ("Wnet = Kf - Ki"))
 
-; Following subequations define constituents of top-level energy principles.
-; all are declared definitions so can be substituted in.
+;; Following subequations define constituents of top-level energy principles.
+;; all are declared definitions so can be substituted in.
 (def-equation mechanical-energy  (total-energy-top ?body ?time) 
    :english ("the definition of mechanical energy")
    :complexity definition
-   :EqnFormat ("ME = K + $S Ui"))
+   :EqnFormat ("ME = KE + $S Ui"))
 
 (def-equation kinetic-energy (kinetic-energy ?body ?time)
   :english ("the definition of kinetic energy")

@@ -92,34 +92,27 @@
       (setf (StudentEntry-State se) **Incorrect**))
      (correct1
       (setf (StudentEntry-CInterp se) correct1)
-      (Tell :interpret-error "correct ~W" (StudentEntry-CInterp se))
       (setf (StudentEntry-State se) **Correct**))
      (deadpath1
       (setf (StudentEntry-CInterp se) deadpath1)
-      (Tell :interpret-error "deadpath ~W" (StudentEntry-CInterp se))
       (setf (StudentEntry-State se) **Dead-Path**))
      (forbidden1
       (setf (StudentEntry-CInterp se) forbidden1)
-      (Tell :interpret-error "Forbidden ~W" (StudentEntry-CInterp se))
       (setf (StudentEntry-State se) **Forbidden**))
      (premature1
       (setf (StudentEntry-CInterp se) premature1)
-      (Tell :interpret-error "premature ~W" (StudentEntry-CInterp se))
       (setf (StudentEntry-State se) **Premature-Entry**))
      ;;(prematures1
      ;; (setf (StudentEntry-CInterp se) prematures1)
-     ;; (Tell :interpret-equation "premature subst ~W" (StudentEntry-CInterp se))
      ;; (setf (StudentEntry-State se) **Premature-Subst**))
      (nogood1
       (setf (StudentEntry-CInterp se) nogood1)
-      (Tell :interpret-equation "no good ~W" (StudentEntry-CInterp se))
       (setf (StudentEntry-State se) **NOGOOD**))
      (t
       (setf (StudentEntry-CInterp se) shortest)
-      (Tell :interpret-error "Unknown ~W" (StudentEntry-CInterp se))
       (setf (StudentEntry-State se) **Incorrect**)))
     ;;(setf (ErrorEntry-Intended ee) se)
-    (Tell :interpret-error "!! ~W" (StudentEntry-CInterp se))))
+    ))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

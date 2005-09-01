@@ -87,7 +87,6 @@
    (setf *variables* NIL))
 
 (defun symbols-enter (label referent entries &optional sysvar)
-  (Tell :symbols-enter "~W ~W ~W ~W" label referent entries sysvar)
   "enter info about a student label into the symbol table"
   ; Allow a single entry id argument here for the usual case where 
   ; symbol info derives from single entry. For component vars it will list

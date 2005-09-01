@@ -41,19 +41,15 @@
 			:depends-on ("HelpStructs")
 			:components (
  				     ;; Solution graph
-				     (:file "tell") ;tracing tool
 	 			     (:file "SolutionGraph")
 				     
-                                     (:file "utilities" 
-					    :depends-on ("tell"))
+                                     (:file "utilities")
 				     (:file "lrdc-errors")
 				     (:file "History")
-				     (:file "StudentFile"
-					     :depends-on ("tell"))
+				     (:file "StudentFile")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
-				     (:file "symbols"
-					     :depends-on ("tell"))
+				     (:file "symbols")
 				     (:file "State")
 				     (:file "clips-vars")
 				     (:file "Entry-API"
@@ -61,40 +57,30 @@
 					    :depends-on ("SolutionGraph"))
 				     
 				     ;; Equation parser/interpreter
-				     (:file "grammar"
-					    :depends-on ("tell"))
-				     (:file "physics-algebra-rules"
-					     :depends-on ("tell"))
+				     (:file "grammar")
+				     (:file "physics-algebra-rules")
 				     (:file "parse"
-					    :depends-on ("tell")
 					    :depends-on ("utilities"))
-				     (:file "pre2in"
-					     :depends-on ("tell"))
-				     (:file "in2pre" :depends-on ("tell"))
+				     (:file "pre2in")
+				     (:file "in2pre")
 				     (:file "parse-andes"
-					    :depends-on ("tell")
 					    :depends-on ("SolutionGraph"))
 				     (:file "interpret-equation"
-					    :depends-on ("tell")
 					    :depends-on ("SolutionGraph"))
 				     
 				     ;;  Help
 				     (:file "HelpMessages")
-				     (:file "whatswrong"
-					     :depends-on ("tell"))
+				     (:file "whatswrong")
 				     (:file "NextStepHelp")
 				     (:file "IEA")
-				     (:file "nlg" ;Natural language.
-					     :depends-on ("tell")) 
+				     (:file "nlg") ;Natural language.
 				     
 				     ;; Automatic statistics code.
 				     (:file "Statistics")
 				     
 				     ;; Top-level manager
-		 		     (:file "Interface" ;The interface api.
-					    :depends-on ("tell")) 
+		 		     (:file "Interface") ;The interface api.
 	 			     (:file "Commands"
-					    :depends-on ("tell")
 					    :depends-on ("Entry-API"))
  				     (:file "API")
 				     (:file "Andes2-Main")))

@@ -46,11 +46,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-bind (rule ef bindings) ; ef is accessor to get nlg spec from struct
-  (Tell :nlg "X <~W>" (list rule bindings))
   (let* ((spec (funcall ef rule)) ; may be NIL if no english specified
          (format (first spec))
 	 (args (subst-bindings-quoted bindings (rest spec))))
-    (Tell :nlg "Format <~W> ARGS <~W>" format args)
     (if spec
       (andes-eval (cons 'format (cons nil (cons format args)))))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

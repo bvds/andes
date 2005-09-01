@@ -49,39 +49,26 @@
 ;;  returns a transformed expression the exact nature of this expression 
 ;;  relise heavily on the arguments specified
 (defun in2pre (expression leaveAlone unary binary special)
-  (Tell :in2pre "Begin ~W #~W #~W #~W #~W" expression 
-	leaveAlone unary binary special)
   (let ((r nil));r is the final infixed expression
     (dolist (obj expression)
       (if (consp obj)
 	  (cond
 	   ((member (car obj) leaveAlone)
-	    (Tell :in2pre "LeaveAlone ~W" obj)
-	    (setf r (append r (list obj)))
-	    (Tell :in2pre "  result ~W" r))
+	    (setf r (append r (list obj))))
 	   ((member (car obj) special)
-	    (Tell :in2pre "Special ~W -- <~W>" obj r)
 	    (setf r (append r (doSafe :in2pre (car obj) obj 
-				      leaveAlone unary binary special)))
-	    (Tell :in2pre "  result ~W" r))
+				      leaveAlone unary binary special))))
 	   ((member (car obj) unary)
-	    (Tell :in2pre "Unary ~W" obj)
 	    (setf r (append r (list
 			       (cons (car obj)
 				     (in2pre (rest obj) 
-					     leaveAlone unary binary special)))))
-	    (Tell :in2pre "  result ~W" r))
+					     leaveAlone unary binary special))))))
 	   (t 
-	    (Tell :in2pre "Binary ~W" obj)
-	    (setf r (append r (in2pre obj leaveAlone unary binary special)))
-	    (Tell :in2pre "  result ~W" r)))
+	    (setf r (append r (in2pre obj leaveAlone unary binary special)))))
 	(when (not (null obj))
 	  ;;  Formerly (if (not (null obj))
 	  ;;  Jnk not needed  (let ((jnk nil))
-	  (Tell :in2pre "Not List ~W" obj)
-	  (setf r (append r (list obj)))
-	  (Tell :in2pre "  result ~W" r))))
-    (Tell :in2pre "Loop finished: ~W~%" r)
+	  (setf r (append r (list obj))))))
     (setf r (in2pre-support r leaveAlone unary binary special))
     (setf r (clean r))
     r))
@@ -94,14 +81,11 @@
 ;;   in2pre
 ;; argument(s): as in2pre above
 (defun in2pre-support (expression leaveAlone unary binary special)
-  (Tell :in2pre-support "One ~W # ~W # ~W # ~W # ~W~%"
-	expression leaveAlone unary binary special)
   (cond
    ((null binary) expression)
    (t
     (let* ((pl (in2pre-position-of-first (car binary) expression)) 
 	   (p (if pl (first pl) nil)))
-      (Tell :in2pre-support "<~W> ~W~%" p pl)
       (if p
 	  (list (append (list (second pl))
 			(in2pre-support (subseq expression 0 p) 
@@ -129,7 +113,6 @@
   (if ops
       (let ((p nil) (pt nil))
 	(dolist (op ops)
-	  (Tell :in2pre-position-of-first "~W" op)
 	  (setf pt
 	    (if (equal 'r (second op))
 		(list (position (first op) expression)
@@ -145,14 +128,11 @@
 			  (first op)
 			  (second op))
 		  (list nil nil (first op) (second op))))))
-	  (Tell :in2pre-position-of-first "In ~W" pt)
 	  (if (not (first pt)) (setf pt nil))
-	  (Tell :in2pre-position-of-first "Out ~W" pt)
 	  (if pt (if p
 		     (if (< (first pt) (first p))
 			 (setf p pt))
-		   (setf p pt)))
-	  (Tell :in2pre-position-of-first "Out2 ~W" p))
+		   (setf p pt))))
 	(if (and p (first p)) (rest p) nil))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

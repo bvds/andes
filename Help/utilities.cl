@@ -59,8 +59,7 @@
   (if (isSafe :safe-apply)
       (let (result)
 	(handler-case (setf result (apply fn args))
-	  (error (c) (Tell :safe-apply "Executing command: (~W ~W)~%      ~A"
-			   fn args c) nil)
+	  (error (c)  nil)
 	  (:no-error (c) (declare (ignore c)) result)))
     (apply fn args)))
 ;;

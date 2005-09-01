@@ -601,24 +601,18 @@
 (defun pre2in (eq)
   (cond
    ((null eq)
-    (Tell :pre2in "null -> ~W" eq)
     nil)
    ((atom eq)
-    (Tell :pre2in "atom -> ~W" eq)
     eq)
    ((member (first eq) '(sin cos tan abs ln log10 sqrt exp))
-    (Tell :pre2in "function -> ~W" eq)
     (list (first eq) (pre2in (second eq))))
    ((and (member (first eq) '(+)) (null (cdr eq)))
-     (Tell :pre2in "0-element sum -> ~W" eq)
      0)   ; just turn empty sum into a zero - AW
    ((and (member (first eq) '(- +)) (= (length eq) 2))
-    (Tell :pre2in "unary -> ~W" eq)
     (if (equal (first eq) '+)
 	(pre2in (second eq))
       (list (first eq) (pre2in (second eq)))))
    ((member (first eq) '(dnum))
-    (Tell :pre2in "dnum -> ~W" eq)
     (let ((s (subseq eq 1 (- (length eq) 1))))
       (if (first (last eq)) ; has non-NIL units
          (list (pre2in s) (first (last eq)))
@@ -626,7 +620,6 @@
 	(list (pre2in s))) ; maybe drop parens?
       ))
    ((third eq)
-    (Tell :pre2in "other -> ~W" eq)
     (if (equal (first eq) '=)
 	(let ((f (pre2in (second eq)))
 	      (s (pre2in (third eq))))
@@ -637,8 +630,7 @@
 	      (setf lst (append lst (list (first eq) (pre2in obj)))))
 	    lst)
 	(list (pre2in (second eq)) (first eq) (pre2in (third eq))))))
-   ((second eq)
-    (Tell :test "Error in pre2in"))
+   ((second eq))
    (t (car eq))))
 
 #|

@@ -103,7 +103,6 @@
   (grammar-add-terminal '**identifier-grammar** 'raised #\^)
   ;; 'minus already exists as the rule 'dash
 	      
-  (Tell :physics-algebra-rules-initialize "We have initialized **identifier-grammar**")
   ;;
   ;; creation and initialization of the base andes physics grammar
   ;;
@@ -196,7 +195,6 @@
 			   (expand-wild-symbols '(integer ?wspace exponent)))
 
   ;; unit prefixes
-  (Tell :physics-algebra-rules-initialize "We are adding 'unit-prefixes and 'unit-names")
   (grammar-add-special '**grammar** 'unit-prefix "a" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-prefix "f" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-prefix "p" nil **identifier-grammar**)
@@ -333,7 +331,6 @@
   ;;(grammar-add-special '**grammar** 'unit-rname "atm" nil **identifier-grammar**)
   ;;(grammar-add-special '**grammar** 'unit-rname "atmosphere" nil **identifier-grammar**)
   ;;(grammar-add-special '**grammar** 'unit-rname "degrees Fahrenheit" nil **grammar**) ;; ???
-  (Tell :physics-algebra-rules-initialize "We are done adding 'unit-prefixes and 'unit-names") 
 
   ;; units ... NOTE: no white-space
   (grammar-add-nonterminal '**grammar** 'a-unit
@@ -350,7 +347,6 @@
 						(l-paren unit r-paren)
 						))
   
-  (Tell :physics-algebra-rules-initialize "Finished with 'unit")
   
   ;; function names ... NOTE: case-insensitive
   (grammar-add-nonterminal '**grammar** 'func '((es ei en)
@@ -447,4 +443,4 @@
   (grammar-add-nonterminal '**grammar** 'final
 			   (expand-wild-symbols '(expression ?wspace equals ?wspace expression)))
 
-  (Tell :physics-algebra-rules-initialize "Finished with 'physics-algebra-rules-initialize"))
+)
