@@ -467,7 +467,6 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ;; Andes directory.
   #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
-  (enable-debug) ;; this is in tell.cl so i can edit without further changes to this file
   (solver-load)
   ;; Dynamically load kb on startup. Might want to move to load on each 
   ;; problem, so that don't have to restart helpsys to test kb changes.

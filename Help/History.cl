@@ -124,7 +124,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun history-test (infile &optional (outfile "Check"))
   (solver-load)
-  (enable-debug)
   (doSafety :in2pre)
   (history-new "Andes")
   (enable-errors)
