@@ -1524,10 +1524,29 @@
 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting time." ((time ?t) def-np)))
                      ))
 
-(defoperator define-time-constant (?c1 ?c2) 
+(defoperator define-RC-time-constant (?c1 ?c2) 
   :preconditions 
   (
-   (bind ?tau-var (format-sym "tau_~A_~A" (comp-name ?c1) (comp-name ?c2)))
+   (circuit-component ?c1 resistor)
+   (circuit-component ?c2 capacitor)
+   (bind ?tau-var (format-sym "tau_~A_~A" 
+			      (comp-name ?c1 'R) (comp-name ?c2 'C)))
+   )
+   :effects (
+      (variable ?tau-var (time-constant ?c1 ?c2))
+      (define-var (time-constant ?c1 ?c2))
+   )
+   :hint (
+     (bottom-out (string "Define a variable for the time constant of the circuit components ~A and ~A by using the Add Variable command and selecting Time Constant"  ?c1 ?c2 ))
+   ))
+
+(defoperator define-LR-time-constant (?c1 ?c2) 
+  :preconditions 
+  (
+   (circuit-component ?c1 inductor)
+   (circuit-component ?c2 resistor)
+   (bind ?tau-var (format-sym "tau_~A_~A" 
+			      (comp-name ?c1 'L) (comp-name ?c2 'R)))
    )
    :effects (
       (variable ?tau-var (time-constant ?c1 ?c2))
@@ -1592,7 +1611,7 @@
              :preconditions(
                             (any-member ?sought ((at (charge-on ?cap) ?t2)
                                                  (duration (during ?t1 ?t2))
-						 (RC-time-constant ?cap ?res)
+						 (time-constant ?res ?cap)
 						 ))
 			    ; make sure we have a time interval:
 			    (time (during ?t1 ?t2))
@@ -1614,7 +1633,7 @@
                              (variable ?c-var (capacitance ?cap))
                              (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
                              (variable ?t-var (duration (during ?t1 ?t2)))
-                             (variable ?tau-var (RC-time-constant ?cap ?res))
+                             (variable ?tau-var (time-constant ?res ?cap))
                              )
              :effects (
                        (eqn (= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
@@ -1636,7 +1655,7 @@
              :preconditions(
                             (any-member ?sought ((at (current-thru ?res) ?t2)
 			                         ; also contains V, R, C, t
-						 (RC-time-constant ?cap ?res)
+						 (time-constant ?res ?cap)
 			                         ))
 			    (time (during ?t1 ?t2))
                             (circuit-component ?cap capacitor)
@@ -1656,7 +1675,7 @@
                              (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
                              (variable ?r-var (resistance ?res))
                              (variable ?t-var (duration (during ?t1 ?t2)))
-                             (variable ?tau-var (RC-time-constant ?cap ?res))
+                             (variable ?tau-var (time-constant ?res ?cap))
                              )
              :effects (
                        (eqn (= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var))))
@@ -2177,44 +2196,46 @@
   :eqnFormat ("I = I0*exp(-t/$t)"))
 
 (defoperator LR-current-decay-contains (?sought)
-             :preconditions(
-			    ; Following in the givens tells us that circuit and switch
-			    ; are configured so current decays during this interval.
-                            (LR-current-decay ?branch (during ?t1 ?tf))
-                            (any-member ?sought ((at (current-in ?branch) ?t2)
-						 (duration (during ?t1 ?t2))
-						 (time-constant ?ind ?res)
-			                         ; also contains I0
-			                         ))
-			     ; this applies to any t2 between t1 and tf
-			    (test (time-pointp ?t2))
-			    (test (<= ?t2 ?tf))
-			    (circuit-component ?res resistor)
-			    (circuit-component ?ind inductor)
-                            )
-             :effects(
-                      (eqn-contains (LR-current-decay ?ind ?res (during ?t1 ?t2)) ?sought)
-                      ))
+  :preconditions
+  (
+   ;; Following in the givens tells us that circuit and switch
+   ;; are configured so current decays during this interval.
+   (LR-current-decay ?branch (during ?t1 ?tf))
+   (any-member ?sought ((at (current-in ?branch) ?t2)
+			(duration (during ?t1 ?t2))
+			(time-constant ?ind ?res)
+			;; also contains I0
+			))
+   ;; this applies to any t2 between t1 and tf
+   (test (time-pointp ?t2))
+   (test (<= ?t2 ?tf))
+   (circuit-component ?res resistor)
+   (circuit-component ?ind inductor)
+   )
+  :effects(
+	   (eqn-contains (LR-current-decay ?ind ?res (during ?t1 ?t2)) ?sought)
+	   ))
 
 (defoperator LR-current-decay (?res ?t1 ?t2)
-             :preconditions (
-                             (LR-current-decay ?branch (during ?t1 ?tf))
-                             (circuit-component ?bat battery)
-                             (variable ?i-var (at (current-in ?branch) ?t2))
+  :preconditions 
+  (
+   (LR-current-decay ?branch (during ?t1 ?tf))
+   (circuit-component ?bat battery)
+   (variable ?i-var (at (current-in ?branch) ?t2))
 			     (variable ?I0-var (at (current-in ?branch) ?t1))
                              (variable ?t-var (duration (during ?t1 ?t2)))
 			     (variable ?tau-var (time-constant ?ind ?res))
                              )
-             :effects (
-                       (eqn (= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var))))
-		            (LR-current-decay ?ind ?res (during ?t1 ?t2)))  
-                       )
-             :hint(
-                   (point (string "When the battery is switched out, the initial current in an LR circuit decays towards zero as an exponential function of time"))
-		   (teach (string "The decaying current in an LR circuit at a time equals the initial current multipled by a factor of a decreasing exponential term. The exponential term is given by e raised to a negative exponent (so this term goes to zero over time) of the time over the inductive time constant, tau. In ANDES you express e raised to the x power by the function exp(x)."))
-                   (bottom-out (string "Write the equation ~a"
-                      ((= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
-                   ))
+  :effects (
+	    (eqn (= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var))))
+		 (LR-current-decay ?ind ?res (during ?t1 ?t2)))  
+	    )
+  :hint(
+	(point (string "When the battery is switched out, the initial current in an LR circuit decays towards zero as an exponential function of time"))
+	(teach (string "The decaying current in an LR circuit at a time equals the initial current multipled by a factor of a decreasing exponential term. The exponential term is given by e raised to a negative exponent (so this term goes to zero over time) of the time over the inductive time constant, tau. In ANDES you express e raised to the x power by the function exp(x)."))
+	(bottom-out (string "Write the equation ~a"
+			    ((= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
+	))
 
 (def-psmclass LR-decay-Imax (LR-growth-Imax ?time)
   :complexity major 
