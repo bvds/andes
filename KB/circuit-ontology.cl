@@ -51,25 +51,25 @@
 	  :fromWorkbench `(inductance ,body)
 	  :english ("the inductance of ~A" (nlg ?inductor)))
 
-; power as used in circuits problem has slightly different definition
-; than power in mechanics: no agent, and may denote power output (from
-; battery into charges) or power dissipated (through resistor).
+;;; power as used in circuits problem has slightly different definition
+;;; than power in mechanics: no agent, and may denote power output (from
+;;; battery into charges) or power dissipated (through resistor).
 (def-qexp electric-power (electric-power ?b)
   :units W
   :english ("power transferred through ~a" (nlg ?b)))
-
-; We could define a generic rate-of-change function, but we don't have a way to
-; define units as function of units of base ?quant over time, I don't think.
-; For now just define rate of change of a current thru component
+;; We could define a generic rate-of-change function, but we don't have a way to
+;; define units as function of units of base ?quant over time, I don't think.
+;;; For now just define rate of change of a current thru component
 (def-qexp current-change (rate-of-change (current-thru ?comp))
-          :units |A/s|
-          :fromWorkbench `(at (rate-of-change (current-thru ,body)) ,time)
-          :english ("the rate of change of the current through ~a" (nlg ?comp)))
+  :units |A/s|
+  :fromWorkbench `(at (rate-of-change (current-thru ,body)) ,time)
+  :english ("the rate of change of the current through ~a" (nlg ?comp)))
 
-(def-qexp time-constant (time-constant ?circuit-id)
+(def-qexp time-constant (time-constant ?c1 ?c2)
           :units |s|
-	  :fromWorkbench `(time-constant NIL) ; may include circuit-id later
-	  :english ("the time constant of the circuit" ))
+	  :fromWorkbench `(time-constant ,body ,body2)
+	  :english ("the time constant for circuit components ~A and ~A" 
+		       (nlg ?c1) (nlg ?c2)))
 
 (def-qexp E-field (field ?region electric ?source)
   :units |N/C|

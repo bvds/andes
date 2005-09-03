@@ -1524,6 +1524,55 @@
 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting time." ((time ?t) def-np)))
                      ))
 
+(defoperator define-time-constant (?c1 ?c2) 
+  :preconditions 
+  (
+   (bind ?tau-var (format-sym "tau_~A_~A" (comp-name ?c1) (comp-name ?c2)))
+   )
+   :effects (
+      (variable ?tau-var (time-constant ?c1 ?c2))
+      (define-var (time-constant ?c1 ?c2))
+   )
+   :hint (
+     (bottom-out (string "Define a variable for the time constant of the circuit components ~A and ~A by using the Add Variable command and selecting Time Constant"  ?c1 ?c2 ))
+   ))
+
+
+(def-psmclass RC-time-constant (RC-time-constant ?res ?cap) 
+  :complexity definition 
+  :english ("RC time constant")
+  :eqnFormat ("$t = RC"))
+
+
+(defoperator RC-time-constant-contains (?sought ?res ?cap)
+   :preconditions (
+     (circuit-component ?cap capacitor)
+     (circuit-component ?res resistor)
+     (any-member ?sought ((time-constant ?res ?cap)
+                          (capacitance ?cap)
+                          (resistance ?res)))
+   )
+   :effects (
+     (eqn-contains (RC-time-constant ?res ?cap) ?sought)
+   ))
+
+
+(defoperator write-RC-time-constant (?res ?cap)
+  :preconditions (
+     (variable ?tau     (time-constant ?res ?cap))
+     (variable ?c-var   (capacitance ?cap))
+     (variable ?r-var   (resistance ?res))
+  )
+  :effects (
+     (eqn (= ?tau (* ?c-var ?r-var)) (RC-time-constant ?res ?cap))
+  )
+  :hint (
+    (point (string "You need to define the RC time constant."))
+    (bottom-out (string "Write the equation ~A" ((= ?tau (* ?c-var ?r-var)) algebra)))
+  ))
+
+
+
 ;(defoperator define-tinterval-var (?t)   
 ;             :preconditions (
 ;                             (bind ?x (second ?t))
@@ -1534,59 +1583,60 @@
 ;               (variable ?t-var (tinterval ?t))
 ;                       ))
 
-(def-psmclass charge-on-capacitor-at-time (charge-on-capacitor-at-time ?cap ?time) 
+(def-psmclass charge-on-capacitor-at-time (charge-on-capacitor-at-time ?res ?cap ?time) 
   :complexity major
   :english ("Charge on RC circuit capacitor")
-  :eqnFormat ("q = C*Vb*(1 - exp(-t/R*C))"))
+  :eqnFormat ("q = C*Vb*(1 - exp(-t/$t))"))
 
 (defoperator charge-on-capacitor-at-time-contains (?sought)
              :preconditions(
                             (any-member ?sought ((at (charge-on ?cap) ?t2)
                                                  (duration (during ?t1 ?t2))
-						 ; also contains C, Vb
+						 (RC-time-constant ?cap ?res)
 						 ))
 			    ; make sure we have a time interval:
 			    (time (during ?t1 ?t2))
 			    ; !!! following means rc problems must have a switch
                             (switch ?dontcare closed (during ?t1 ?t2))
-                            ; Make sure capacitor is empty when switch closes
+                            ;; Make sure capacitor is empty when switch closes
+                            (circuit-component ?res resistor)
                             (circuit-component ?cap capacitor)
                             (empty-capacitor ?cap ?t1)
                             )
              :effects(
-                      (eqn-contains (charge-on-capacitor-at-time ?cap (during ?t1 ?t2)) ?sought)
+                      (eqn-contains (charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
                       ))
 
-(defoperator charge-on-capacitor-at-time (?cap ?t1 ?t2)
+(defoperator charge-on-capacitor-at-time (?res ?cap ?t1 ?t2)
              :preconditions (
-                             (circuit-component ?res resistor)
                              (circuit-component ?bat battery)
                              (variable ?q-var (at (charge-on ?cap) ?t2))
                              (variable ?c-var (capacitance ?cap))
                              (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
                              (variable ?t-var (duration (during ?t1 ?t2)))
-                             (variable ?r-var (resistance ?res))
+                             (variable ?tau-var (RC-time-constant ?cap ?res))
                              )
              :effects (
-                       (eqn (= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) (* ?r-var ?c-var))))))
-		            (charge-on-capacitor-at-time ?cap (during ?t1 ?t2)))  
+                       (eqn (= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
+		            (charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2)))  
                        )
              :hint(
                    (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
                    (bottom-out (string "Write the equation ~a"
-                          ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) (* ?r-var ?c-var)))))) algebra) ))
+                          ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
                    ))
 
 
 (def-psmclass current-in-RC-at-time (current-in-RC-at-time ?res ?time) 
   :complexity major
   :english ("Current in RC circuit")
-  :eqnFormat ("I = (Vb/R)*exp(-t/R*C))"))
+  :eqnFormat ("I = (Vb/R)*exp(-t/$t))"))
 
 (defoperator current-in-RC-at-time-contains (?sought)
              :preconditions(
                             (any-member ?sought ((at (current-thru ?res) ?t2)
 			                         ; also contains V, R, C, t
+						 (RC-time-constant ?cap ?res)
 			                         ))
 			    (time (during ?t1 ?t2))
                             (circuit-component ?cap capacitor)
@@ -1596,28 +1646,26 @@
                             (empty-capacitor ?cap ?t1)
                             )
              :effects(
-                      (eqn-contains (current-in-RC-at-time ?res (during ?t1 ?t2)) ?sought)
+                      (eqn-contains (current-in-RC-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
                       ))
 
 (defoperator current-in-RC-at-time (?res ?t1 ?t2)
              :preconditions (
-                             (circuit-component ?res resistor)
                              (variable ?i-var (at (current-thru ?res) ?t2))
                              (circuit-component ?bat battery)
                              (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
                              (variable ?r-var (resistance ?res))
-                             (circuit-component ?cap capacitor)
-                             (variable ?c-var (capacitance ?cap))
                              (variable ?t-var (duration (during ?t1 ?t2)))
+                             (variable ?tau-var (RC-time-constant ?cap ?res))
                              )
              :effects (
-                       (eqn (= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) (* ?r-var ?c-var)))))
-		            (current-in-RC-at-time ?res (during ?t1 ?t2)))  
+                       (eqn (= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var))))
+		            (current-in-RC-at-time ?res ?cap (during ?t1 ?t2)))  
                        )
              :hint(
                    (point (string "Write the equation for the current in the RC circuit at time ~a." (?t2 time)))
                    (bottom-out (string "Write the equation ~a"
-                      ((= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) (* ?r-var ?c-var))))) algebra) ))
+                      ((= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
                    ))
 
 
@@ -2003,38 +2051,19 @@
 ;; LR circuits
 ;;
 
-; Some formula use tau for the LR-time constant L/R. This is a slight difference from RC equations,
-; which just write out R*C in the formula. This is done because its more complicated to write L/R in
-; the denominator of an exponential and get the grouping right, and also because we have some problems
-; that just give the time constant. But might want to change RC formula to do the same.
+;;; Some formula use tau for the LR-time constant L/R. 
 
-; What parameters do we need for a time constant var? Really want a circuit-id. The time constant
-; could then be either an LR or an RC time constant, depending on the type of circuit.
-; In our initial problems there will only be one circuit -- though could have two if we want
-; to combine an RC or LR circuit with induction in another circuit, say. 
-; But we don't have any circuit IDs in givens. So for now, we always use NIL arg, meaning the default circuit.
 (def-psmclass LR-time-constant (LR-time-constant ?ind ?res) 
-  :complexity major ; ? 
+  :complexity definition 
   :english ("LR time constant")
   :eqnFormat ("$t = L/R"))
 
-(defoperator define--time-constant (?circuit-id) 
-   :preconditions (
-     (bind ?tau-var (format-sym "tau"))
-   )
-   :effects (
-      (variable ?tau-var (time-constant ?circuit-ID))
-      (define-var (time-constant ?circuit-ID))
-   )
-   :hint (
-     (bottom-out (string "Define a variable for the inductive time constant of the circuit by using the Add Variable command and selecting Time Constant" ))
-   ))
 
 (defoperator LR-time-constant-contains (?sought ?ind ?res)
    :preconditions (
      (circuit-component ?ind inductor)
      (circuit-component ?res resistor)
-     (any-member ?sought ((time-constant NIL)
+     (any-member ?sought ((time-constant ?ind ?res)
                           (inductance ?ind)
                           (resistance ?res)))
    )
@@ -2043,9 +2072,9 @@
    ))
 
 
-(defoperator LR-time-constant (?ind ?res)
+(defoperator write-LR-time-constant (?ind ?res)
   :preconditions (
-     (variable ?tau     (time-constant NIL))
+     (variable ?tau     (time-constant ?ind ?res))
      (variable ?L-var   (inductance ?ind))
      (variable ?r-var   (resistance ?res))
   )
@@ -2059,7 +2088,7 @@
   ))
 
 
-(def-psmclass LR-current-growth (LR-current-growth ?res ?time) 
+(def-psmclass LR-current-growth (LR-current-growth ?ind ?res ?time) 
   :complexity major
   :english ("Current growth in LR circuit")
   :eqnFormat ("I = Imax*(1 - exp(-t/$t)"))
@@ -2071,31 +2100,31 @@
                             (LR-current-growth ?branch (during ?t1 ?tf))
                             (any-member ?sought ((at (current-in ?branch) ?t2)
 			                         (duration (during ?t1 ?t2))
-						 (time-constant NIL)
+						 (time-constant ?ind ?res)
 			                         ))
 			    ; this applies to any t2 between t1 and tf
 			    (time ?t2)  ; have to bind if sought is tau
 			    (test (time-pointp ?t2))
 			    (test (< ?t2 ?tf))
+			    (circuit-component ?ind inductor)
 			    (circuit-component ?res resistor)
                             )
              :effects(
-                      (eqn-contains (LR-current-growth ?res (during ?t1 ?t2)) ?sought)
+                      (eqn-contains (LR-current-growth ?ind ?res (during ?t1 ?t2)) ?sought)
                       ))
 
-(defoperator LR-current-growth (?res ?t1 ?t2)
+(defoperator LR-current-growth (?ind ?res ?t1 ?t2)
              :preconditions (
                              (LR-current-growth ?branch (during ?t1 ?tf))
                              (circuit-component ?bat battery)
-                             (circuit-component ?ind inductor)
                              (variable ?i-var (at (current-in ?branch) ?t2))
 			     (variable ?Imax-var (at (current-in ?branch) ?tf))
                              (variable ?t-var (duration (during ?t1 ?t2)))
-			     (variable ?tau-var (time-constant NIL))
+			     (variable ?tau-var (time-constant ?ind ?res))
                              )
              :effects (
                        (eqn (= ?i-var (* ?Imax-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
-		            (LR-current-growth ?res (during ?t1 ?t2)))  
+		            (LR-current-growth ?ind ?res (during ?t1 ?t2)))  
                        )
              :hint(
                    (point (string "After the battery is switched in, the current in an LR circuit rises towards its maximum value as an exponential function of time"))
@@ -2142,7 +2171,7 @@
 
 ; LR circuit decay:
 
-(def-psmclass LR-current-decay (LR-current-decay ?res ?time) 
+(def-psmclass LR-current-decay (LR-current-decay ?ind ?res ?time) 
   :complexity major
   :english ("Current decay in LR circuit")
   :eqnFormat ("I = I0*exp(-t/$t)"))
@@ -2154,30 +2183,31 @@
                             (LR-current-decay ?branch (during ?t1 ?tf))
                             (any-member ?sought ((at (current-in ?branch) ?t2)
 						 (duration (during ?t1 ?t2))
-			                         ; also contains tau and I0
+						 (time-constant ?ind ?res)
+			                         ; also contains I0
 			                         ))
 			     ; this applies to any t2 between t1 and tf
 			    (test (time-pointp ?t2))
 			    (test (<= ?t2 ?tf))
 			    (circuit-component ?res resistor)
+			    (circuit-component ?ind inductor)
                             )
              :effects(
-                      (eqn-contains (LR-current-decay ?res (during ?t1 ?t2)) ?sought)
+                      (eqn-contains (LR-current-decay ?ind ?res (during ?t1 ?t2)) ?sought)
                       ))
 
 (defoperator LR-current-decay (?res ?t1 ?t2)
              :preconditions (
                              (LR-current-decay ?branch (during ?t1 ?tf))
                              (circuit-component ?bat battery)
-                             (circuit-component ?ind inductor)
                              (variable ?i-var (at (current-in ?branch) ?t2))
 			     (variable ?I0-var (at (current-in ?branch) ?t1))
                              (variable ?t-var (duration (during ?t1 ?t2)))
-			     (variable ?tau-var (time-constant NIL))
+			     (variable ?tau-var (time-constant ?ind ?res))
                              )
              :effects (
                        (eqn (= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var))))
-		            (LR-current-decay ?res (during ?t1 ?t2)))  
+		            (LR-current-decay ?ind ?res (during ?t1 ?t2)))  
                        )
              :hint(
                    (point (string "When the battery is switched out, the initial current in an LR circuit decays towards zero as an exponential function of time"))

@@ -30,7 +30,7 @@ potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:t
 stored-energy	U	energy stored		in [body:bodies] at time [time:times]
 inductance	L	inductance		of [body:bodies]
 current-change	dIdt	rate of change of current		through [body:bodies] at time [time:times]
-time-constant	$t	time constant		of circuit containing [body:bodies]
+time-constant	$t	time constant		for circuit elements [body:bodies] and [body2:bodies]
 object-distance	do	object distance		with respect to [body:bodies]
 image-distance	di	image distance		with respect to [body:bodies]
 focal-length	f	focal length		of [body:bodies]
