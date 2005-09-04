@@ -67,7 +67,7 @@
 
 (def-qexp time-constant (time-constant ?c1 ?c2)
           :units |s|
-	  :fromWorkbench `(time-constant ,body ,body2)
+	  :fromWorkbench `(time-constant ,@(sort (list body body2) #'expr<))
 	  :english ("the time constant for circuit components ~A and ~A" 
 		       (nlg ?c1) (nlg ?c2)))
 

@@ -335,7 +335,6 @@
                       (eqn-contains (equiv-resistance-parallel ?res-list) ?sought)
                       ))
 
-
 #| ; don't use these, just put info into the givens
 
 (defoperator find-series-resistors (?res-list)
@@ -1529,15 +1528,17 @@
   (
    (circuit-component ?c1 resistor)
    (circuit-component ?c2 capacitor)
+   ;; ?quants are ordered, see (def-qexp time-constant ...)
+   (bind ?quants (sort (list ?c1 ?c2) #'expr<))
    (bind ?tau-var (format-sym "tau_~A_~A" 
 			      (comp-name ?c1 'R) (comp-name ?c2 'C)))
    )
    :effects (
       (variable ?tau-var (time-constant ?c1 ?c2))
-      (define-var (time-constant ?c1 ?c2))
+      (define-var (time-constant . ?quants))
    )
    :hint (
-     (bottom-out (string "Define a variable for the time constant of the circuit components ~A and ~A by using the Add Variable command and selecting Time Constant"  ?c1 ?c2 ))
+     (bottom-out (string "Define a variable for the time constant of the circuit elements ~A and ~A by using the Add Variable command and selecting Time Constant"  ?c1 ?c2 ))
    ))
 
 (defoperator define-LR-time-constant (?c1 ?c2) 
@@ -1545,25 +1546,25 @@
   (
    (circuit-component ?c1 inductor)
    (circuit-component ?c2 resistor)
+   ;; ?quants are ordered, see (def-qexp time-constant ...)
+   (bind ?quants (sort (list ?c1 ?c2) #'expr<))
    (bind ?tau-var (format-sym "tau_~A_~A" 
 			      (comp-name ?c1 'L) (comp-name ?c2 'R)))
    )
    :effects (
       (variable ?tau-var (time-constant ?c1 ?c2))
-      (define-var (time-constant ?c1 ?c2))
+      (define-var (time-constant . ?quants))
    )
    :hint (
-     (bottom-out (string "Define a variable for the time constant of the circuit components ~A and ~A by using the Add Variable command and selecting Time Constant"  ?c1 ?c2 ))
+     (bottom-out (string "Define a variable for the time constant of the circuit elements ~A and ~A by using the Add Variable command and selecting Time Constant"  ?c1 ?c2 ))
    ))
-
 
 (def-psmclass RC-time-constant (RC-time-constant ?res ?cap) 
   :complexity definition 
   :english ("RC time constant")
   :eqnFormat ("$t = RC"))
 
-
-(defoperator RC-time-constant-contains (?sought ?res ?cap)
+(defoperator RC-time-constant-contains (?sought)
    :preconditions (
      (circuit-component ?cap capacitor)
      (circuit-component ?res resistor)
@@ -1575,13 +1576,13 @@
      (eqn-contains (RC-time-constant ?res ?cap) ?sought)
    ))
 
-
 (defoperator write-RC-time-constant (?res ?cap)
-  :preconditions (
-     (variable ?tau     (time-constant ?res ?cap))
-     (variable ?c-var   (capacitance ?cap))
-     (variable ?r-var   (resistance ?res))
-  )
+  :preconditions 
+  (
+   (variable ?tau  (time-constant ?res ?cap))
+   (variable ?c-var   (capacitance ?cap))
+   (variable ?r-var   (resistance ?res))
+   )
   :effects (
      (eqn (= ?tau (* ?c-var ?r-var)) (RC-time-constant ?res ?cap))
   )
@@ -1608,42 +1609,44 @@
   :eqnFormat ("q = C*Vb*(1 - exp(-t/$t))"))
 
 (defoperator charge-on-capacitor-at-time-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((at (charge-on ?cap) ?t2)
-                                                 (duration (during ?t1 ?t2))
-						 (time-constant ?res ?cap)
-						 ))
-			    ; make sure we have a time interval:
-			    (time (during ?t1 ?t2))
-			    ; !!! following means rc problems must have a switch
-                            (switch ?dontcare closed (during ?t1 ?t2))
-                            ;; Make sure capacitor is empty when switch closes
-                            (circuit-component ?res resistor)
-                            (circuit-component ?cap capacitor)
-                            (empty-capacitor ?cap ?t1)
-                            )
-             :effects(
-                      (eqn-contains (charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
-                      ))
+  :preconditions
+  (
+   (circuit-component ?res resistor)
+   (circuit-component ?cap capacitor)
+   (any-member ?sought ((at (charge-on ?cap) ?t2)
+			(duration (during ?t1 ?t2))
+			(time-constant ?res ?cap)
+			))
+   ;; make sure we have a time interval:
+   (time (during ?t1 ?t2))
+   ;; !!! following means rc problems must have a switch
+   (switch ?dontcare closed (during ?t1 ?t2))
+   ;; Make sure capacitor is empty when switch closes
+   (empty-capacitor ?cap ?t1)
+   )
+  :effects(
+	   (eqn-contains (charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
+	   ))
 
 (defoperator charge-on-capacitor-at-time (?res ?cap ?t1 ?t2)
-             :preconditions (
-                             (circuit-component ?bat battery)
-                             (variable ?q-var (at (charge-on ?cap) ?t2))
-                             (variable ?c-var (capacitance ?cap))
-                             (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
-                             (variable ?t-var (duration (during ?t1 ?t2)))
-                             (variable ?tau-var (time-constant ?res ?cap))
-                             )
-             :effects (
-                       (eqn (= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
-		            (charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2)))  
-                       )
-             :hint(
-                   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
-                   (bottom-out (string "Write the equation ~a"
-                          ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
-                   ))
+  :preconditions 
+  (
+   (circuit-component ?bat battery)
+   (variable ?q-var (at (charge-on ?cap) ?t2))
+   (variable ?c-var (capacitance ?cap))
+   (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
+   (variable ?t-var (duration (during ?t1 ?t2)))
+   (variable ?tau-var (time-constant ?res ?cap))
+   )
+  :effects 
+  ((eqn (= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
+	(charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2))))
+  :hint
+  (
+   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
+   (bottom-out (string "Write the equation ~a"
+		       ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
+   ))
 
 
 (def-psmclass current-in-RC-at-time (current-in-RC-at-time ?res ?time) 
@@ -1652,41 +1655,44 @@
   :eqnFormat ("I = (Vb/R)*exp(-t/$t))"))
 
 (defoperator current-in-RC-at-time-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((at (current-thru ?res) ?t2)
-			                         ; also contains V, R, C, t
-						 (time-constant ?res ?cap)
-			                         ))
-			    (time (during ?t1 ?t2))
-                            (circuit-component ?cap capacitor)
-                            (circuit-component ?res resistor)
-                            (switch ?dontcare closed (during ?t1 ?t2))
-                            ;Make sure capacitor is empty when switch closes
-                            (empty-capacitor ?cap ?t1)
-                            )
-             :effects(
-                      (eqn-contains (current-in-RC-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
-                      ))
+  :preconditions
+  (
+   (circuit-component ?cap capacitor)
+   (circuit-component ?res resistor)
+   (any-member ?sought ((at (current-thru ?res) ?t2)
+			;; also contains V, R, C, t
+			(time-constant ?res ?cap)
+			))
+   (time (during ?t1 ?t2))
+   (switch ?dontcare closed (during ?t1 ?t2))
+   ;; Make sure capacitor is empty when switch closes
+   (empty-capacitor ?cap ?t1)
+   )
+  :effects
+  ((eqn-contains (current-in-RC-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
+   ))
 
-(defoperator current-in-RC-at-time (?res ?t1 ?t2)
-             :preconditions (
-                             (variable ?i-var (at (current-thru ?res) ?t2))
-                             (circuit-component ?bat battery)
-                             (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
-                             (variable ?r-var (resistance ?res))
-                             (variable ?t-var (duration (during ?t1 ?t2)))
-                             (variable ?tau-var (time-constant ?res ?cap))
-                             )
-             :effects (
-                       (eqn (= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var))))
-		            (current-in-RC-at-time ?res ?cap (during ?t1 ?t2)))  
-                       )
-             :hint(
-                   (point (string "Write the equation for the current in the RC circuit at time ~a." (?t2 time)))
-                   (bottom-out (string "Write the equation ~a"
-                      ((= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
-                   ))
 
+(defoperator write-current-in-RC-at-time (?res ?cap ?t1 ?t2)
+  :preconditions 
+  (
+   (variable ?i-var (at (current-thru ?res) ?t2))
+   (circuit-component ?bat battery)
+   (variable ?v-var (at (voltage-across ?bat) (during ?t1 ?t2)))
+   (variable ?r-var (resistance ?res))
+   (variable ?t-var (duration (during ?t1 ?t2)))
+   (variable ?tau-var (time-constant ?res ?cap))
+   )
+  :effects 
+  ((eqn (= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var))))
+	(current-in-RC-at-time ?res ?cap (during ?t1 ?t2)))  
+   )
+  :hint
+  (
+   (point (string "Write the equation for the current in the RC circuit at time ~a." (?t2 time)))
+   (bottom-out (string "Write the equation ~a"
+		       ((= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
+   ))
 
 (def-psmclass charge-on-capacitor-percent-max (charge-on-capacitor-percent-max ?cap ?time) 
   :complexity minor 
