@@ -546,7 +546,7 @@
 		       ))
 
 (def-psmclass ohms-law (ohms-law ?res ?t) 
-  :complexity major 
+  :complexity definition
   :english ("Ohm's Law")
   :eqnFormat ("V = I * R"))
 
