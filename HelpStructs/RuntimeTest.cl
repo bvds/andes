@@ -829,7 +829,7 @@
 ;;;; files being generated.  Lastly, for notebook or other "untethered" 
 ;;;; users, fetching the state from the server may not be an option.  
 ;;;;
-;;;; In these cases it will be necessary (at some point) to merge the 
+;;;; In these cases it will be necessary (some :time point) to merge the 
 ;;;; disconnected files.  The code in this subsection will be used to merge
 ;;;; mutliple sets of saved scores.  Other code will handle the merging
 ;;;; of other studentfile portions.  

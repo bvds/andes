@@ -28,17 +28,17 @@
                       "in relation to ~a and ~a")
               (nlg ?body1) (nlg ?b2) (nlg ?b3))
   :EqnFormat ("Vac_~a = Vab_~a + Vbc_~a" 
-             (nlg ?axis 'adj)(nlg ?axis 'adj) (nlg ?axis 'adj)))
+             (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 (defoperator relative-vel-contains (?sought)
   :preconditions (
 		  (in-wm (relvel-triangle ?b1 ?b2 ?b3))
-		  (any-member ?sought ((at (mag (relative-vel ?b1 ?b3)) ?t)
-				       (at (dir (relative-vel ?b1 ?b3)) ?t)
-				       (at (mag (relative-vel ?b1 ?b2)) ?t)
-				       (at (dir (relative-vel ?b1 ?b2)) ?t)
-				       (at (mag (relative-vel ?b2 ?b3)) ?t)
-				       (at (dir (relative-vel ?b2 ?b3)) ?t)))
+		  (any-member ?sought ((mag (relative-vel ?b1 ?b3 :time ?t))
+				       (dir (relative-vel ?b1 ?b3 :time ?t))
+				       (mag (relative-vel ?b1 ?b2 :time ?t))
+				       (dir (relative-vel ?b1 ?b2 :time ?t))
+				       (mag (relative-vel ?b2 ?b3 :time ?t))
+				       (dir (relative-vel ?b2 ?b3 :time ?t))))
 		  )
   :effects (
 	    (eqn-family-contains (relative-vel ?b1 ?b2 ?b3 ?t) ?sought)
@@ -55,9 +55,9 @@
 		  (rdebug "Using draw-rel-vel-diagram-no-axes-problem ~%")
 		  (not (vector-diagram (relative-vel ?b1 ?b2 ?t)))
 		  (body ?b1)		; choose b1 as our body to draw:
-		  (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir1)    
-		  (vector ?b1 (at (relative-vel ?b1 ?b3) ?t) ?dir3)   
-		  (vector ?dontcare (at (relative-vel ?b2 ?b3) ?t) ?dir2)
+		  (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir1)    
+		  (vector ?b1 (relative-vel ?b1 ?b3 :time ?t) ?dir3)   
+		  (vector ?dontcare (relative-vel ?b2 ?b3 :time ?t) ?dir2)
 		  (axis-for ?b1 x ?rot)
 		  (rdebug "Fired draw-rel-vel-diagram-no-axes-problem ~%")
 		  )
@@ -71,8 +71,8 @@
                    then draw it at the given direction"
   :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
 		  ;; this means sub-intervals must be given explicitly
-		  (given (at (dir(relative-vel ?b1 ?b2)) ?t) ?dir)
-		  (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir))
+		  (given (dir (relative-vel ?b1 ?b2 :time ?t)) ?dir)
+		  (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir))
 		  (bind ?mag-var (format-sym "V_~A_~A_~A" 
 					     (body-name ?b1) 
 					     (body-name ?b2) 
@@ -81,13 +81,13 @@
 		  (rdebug "fired draw-rel-vel-vector-given-dir  ~%")
 		  )
   :effects (
-	    (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dir)
-	    (variable ?mag-var (at (mag (relative-vel ?b1 ?b2)) ?t))
-	    (variable ?dir-var (at (dir (relative-vel ?b1 ?b2)) ?t))
+	    (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir)
+	    (variable ?mag-var (mag (relative-vel ?b1 ?b2 :time ?t)))
+	    (variable ?dir-var (dir (relative-vel ?b1 ?b2 :time ?t)))
 	    ;; Because dir is problem given, find-by-psm won't ensure 
 	    ;; implicit eqn gets written.  Given value may not be used 
 	    ;; elsewhere so ensure it here.
-	    (implicit-eqn (= ?dir-var ?dir) (at (dir (relative-vel ?b1 ?b2)) ?t))
+	    (implicit-eqn (= ?dir-var ?dir) (dir (relative-vel ?b1 ?b2 :time ?t)))
 	    )
   :hint (
 	 (point (string "The problem gives you the direction of the relative velocity of ~a with respect to ~a ~a." ?b1 ?b2 (?t pp)))
@@ -101,17 +101,17 @@
                    then draw it with an unknown direction"
   :preconditions (
 		  (rdebug "Using draw-rel-vel-vector-unknown ~%")
-		  (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare1))
-		  (not (given (at (dir (relative-vel ?b1 ?b2)) ?t) ?dontcare))
-		  (not (given (at (mag (relative-vel ?b1 ?b2)) ?t) (dnum 0 ?units)))
-		  (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1) (body-name ?b2)(time-abbrev ?t)))
+		  (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dontcare1))
+		  (not (given (dir (relative-vel ?b1 ?b2 :time ?t)) ?dontcare))
+		  (not (given (mag (relative-vel ?b1 ?b2 :time ?t)) (dnum 0 ?units)))
+		  (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1) (body-name ?b2) (time-abbrev ?t)))
 		  (bind ?dir-var (format-sym "O~A" ?mag-var))
 		  (rdebug "fired draw-rel-vel-vector-unknown  ~%")
 		  )
   :effects (
-	    (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) unknown)
-	    (variable ?mag-var (at (mag (relative-vel ?b1 ?b2)) ?t))
-	    (variable ?dir-var (at (dir (relative-vel ?b1 ?b2)) ?t))
+	    (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) unknown)
+	    (variable ?mag-var (mag (relative-vel ?b1 ?b2 :time ?t)))
+	    (variable ?dir-var (dir (relative-vel ?b1 ?b2 :time ?t)))
 	    )
   :hint (
 	 (point (string "You need to introduce a term for the relative velocity of ~A with respect to ~A ~A" ?b1 ?b2 (?t pp)))
@@ -124,9 +124,9 @@
 (defoperator write-relative-vel-compo (?b1 ?b2 ?b3 ?t ?xy ?rot)
   :features (unordered)
   :preconditions ((rdebug "Using write-relative-vel-compo ~%")
-		  (variable ?v12  (at (compo ?xy ?rot (relative-vel ?b1 ?b2)) ?t))
-		  (variable ?v23  (at (compo ?xy ?rot (relative-vel ?b2 ?b3)) ?t))
-		  (variable ?v13  (at (compo ?xy ?rot (relative-vel ?b1 ?b3)) ?t))
+		  (variable ?v12  (compo ?xy ?rot (relative-vel ?b1 ?b2 :time ?t)))
+		  (variable ?v23  (compo ?xy ?rot (relative-vel ?b2 ?b3 :time ?t)))
+		  (variable ?v13  (compo ?xy ?rot (relative-vel ?b1 ?b3 :time ?t)))
 		  (rdebug "fired write-relative-vel-compo  ~%")
                   )
   :effects (
@@ -148,20 +148,20 @@
 (defoperator draw-zero-relative-vel (?b1 ?b2 ?t)
   :preconditions
   ;; this means sub-intervals must be given explicitly
-  ((in-wm (given (at (mag(relative-vel ?b1 ?b2)) ?t) (dnum 0 ?units)))
-   (not (vector ?b1 (at (relative-vel ?b1 ?b2) ?t) ?dontcare))
+  ((in-wm (given (mag (relative-vel ?b1 ?b2 :time ?t)) (dnum 0 ?units)))
+   (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dontcare))
    (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1)
 			      (body-name ?b2) (time-abbrev ?t)))
    )
   :effects
-  ((vector ?b1 (at (relative-vel ?b1 ?b2) ?t) zero)
-   (variable ?mag-var (at (mag (relative-vel ?b1 ?b2)) ?t))
+  ((vector ?b1 (relative-vel ?b1 ?b2 :time ?t) zero)
+   (variable ?mag-var (mag (relative-vel ?b1 ?b2 :time ?t)))
    ;; Because mag is problem given, find-by-psm won't ensure 
    ;; implicit eqn gets written.  Given value may not be used 
    ;; elsewhere so ensure it here.
    ;; see draw-rel-vel-vector-given-dir
    (implicit-eqn (= ?mag-var (dnum 0 ?units)) 
-   		 (at (mag (relative-vel ?b1 ?b2)) ?t))
+   		 (mag (relative-vel ?b1 ?b2 :time ?t)))
    )
   :hint
   ((bottom-out (string "Since the problem specifies that the velocity of ~a relative to ~A is zero, just draw a zero-length vector for it." ?b1 ?b2))

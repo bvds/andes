@@ -452,7 +452,7 @@
 #|test: -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Should apply for this this: 
  (qsolve-for '((eqn ?t (conditional-probability (given b a))))
-       '((task car) (event-objects (a b))(type car conditional-probability)
+       '((task car) (event-objects (a b)) (type car conditional-probability)
        (variable pbga (probability  (given b a)))
       (method a 1) (method b 2)))
       

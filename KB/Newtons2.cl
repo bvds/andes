@@ -225,15 +225,16 @@
 (defoperator write-known-zdir-eqn (?vector ?t)
   :preconditions
   (
-   (in-wm (given (at (dir ?vector) ?t) ?dir))
+   (in-wm (given (dir ?vector) ?dir))
+   (bind ?t (time-of ?vector))
    (test (and (z-dir-spec ?dir)
 	      (not (equal ?dir 'z-unknown))))
 					; ? use in-wm for variable here ?
-   (variable ?var-name (at (dir ?vector) ?t))
+   (variable ?var-name (dir ?vector))
    (bind ?dir-degrees (if (equal ?dir 'into) 180 0))
    )
   :effects 
-  ((given-eqn (= ?var-name (dnum ?dir-degrees |deg|)) (at (dir ?vector) ?t)))
+  ((given-eqn (= ?var-name (dnum ?dir-degrees |deg|)) (dir ?vector)))
   :hint
   ((point (string "You know the numerical direction of ~A." ?vector))
    (point (string "The numerical direction of ~A is ~A deg." ?vector ?dir-degrees))
@@ -264,15 +265,16 @@
 ;; of zero or 180 degrees. The phi angle is used in writing projections.
 (defoperator write-implicit-zdir-eqn (?vector ?t)
    :preconditions (
-     (in-wm (given (at (dir ?vector) ?t) ?dir))
+     (in-wm (given (dir ?vector) ?dir))
+     (bind ?t (time-of ?vector))
      (test (and (z-dir-spec ?dir)
 	        (not (equal ?dir 'z-unknown))))
      ; variable should already be defined
-     (in-wm (variable ?var-name (at (dir ?vector) ?t)))
+     (in-wm (variable ?var-name (dir ?vector)))
      (bind ?dir-term (zdir-phi ?dir))
    )
    :effects (
-     (implicit-eqn (= ?var-name ?dir-term) (at (dir ?vector) ?t))
+     (implicit-eqn (= ?var-name ?dir-term) (dir ?vector))
    ))
 
 ;;; ================== applying vector equations ===================
@@ -358,14 +360,14 @@
       and generate the component equation"
    :preconditions
      ((component-form) ; needed to filter method when sought is duration.
-      ;(any-member ?sought ((at (compo x 0 ?vector) ?t)
-      ;                     (at (compo y 90 ?vector) ?t)
+      ;(any-member ?sought ((compo x 0 ?vector)
+      ;                     (compo y 90 ?vector)
       ;			   (duration ?t)))
       ; vector psms defined to seek vector magnitudes, so may need to 
       ; pretend we are seeking magnitude to hook into existing vector
       ; psm selecting code.  If sought is scalar, just leave it
       (bind ?vec-sought (if (componentp ?sought) 
-                            (vector-mag (compo-base-vector ?sought))
+                            `(mag ,(compo-base-vector ?sought))
                           ?sought))
       (eqn-family-contains ?vec-eqn-id ?vec-sought)
       ; make sure psm name not on problem's ignore list:
@@ -407,7 +409,7 @@
 ;;; used on an axis and an open interval when used elsewhere.  Thus,
 ;;; we just ignore the times on axes until this can all be sorted out.
 
-(defoperator select-compo-eqn-for-magnitude (?vec-eqn-id ?compo-eqn-name ?vector ?t)
+(defoperator select-compo-eqn-for-magnitude (?vec-eqn-id ?compo-eqn-name ?vector)
   :specifications 
    "If the sought quantity is the magnitude of a vector,
       and ?compo-eqn-name is a component equation for the given vector equation
@@ -417,8 +419,8 @@
    then select the component equation along that axis." 
   :preconditions
   (
-   (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (at (mag ?vector) ?t))
-   (vector ?b (at ?vector ?t) ?dir)
+   (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (mag ?vector))
+   (vector ?b ?vector ?dir)
    (axis-for ?b ?xyz ?rot)
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
@@ -426,10 +428,10 @@
    )
   :effects
   ((compo-eqn-selected ?vec-eqn-id 
-		       (at (mag ?vector) ?t) 
+		       (mag ?vector) 
 		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
-(defoperator select-compo-eqn-for-direction (?vec-eqn-id ?compo-eqn-name ?vector ?t)
+(defoperator select-compo-eqn-for-direction (?vec-eqn-id ?compo-eqn-name ?vector)
   :specifications "
    If the sought quantity is the direction of a vector,
       and ?compo-eqn-name is a component equation for the given vector equation
@@ -438,8 +440,8 @@
       such that the axis is not perpendicular to the vector
    then select the component equation along that axis." 
   :preconditions
-    ((vector ?b (at ?vector ?t) ?dir)
-     (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (at (dir ?vector) ?t))
+    ((vector ?b ?vector ?dir)
+     (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (dir ?vector))
      (axis-for ?b ?xyz ?rot)
      (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
      (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
@@ -447,7 +449,7 @@
     )
   :effects
   ((compo-eqn-selected ?vec-eqn-id 
-		       (at (dir ?vector) ?t) 
+		       (dir ?vector) 
 		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
 ;;; This operator suggests applying a vector equation in order to find
@@ -479,7 +481,8 @@
     (compo-eqn-contains (?psm-id ?b ?t) ?compo-eqn-name ?quantity)
     (debug "choosing compo to apply ~A to find scalar ~A~%"   ?compo-eqn-name ?quantity) 
     (axis-for ?b ?xyz ?rot)
-    (in-wm (vector ?b (at ?vector ?t) ?dir))
+    ;; this is weak, since we don't check if ?vector is relevant
+    (in-wm (vector ?b ?vector ?dir)) 
     ;;(debug "select-compo: trying vector ~A at ~A~%" ?vector ?dir)
     (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
     ;;(debug "select-compo: rotation OK, checking if already used~%")
@@ -566,19 +569,19 @@
 ;;; vector is zero.  The operator expects ?compo-var to be bound by
 ;;; unifying a goal with the effects.
 
-(defoperator compo-zero-vector (?xyz ?rot ?vector ?t)
+(defoperator compo-zero-vector (?xyz ?rot ?vector)
   :specifications "
    If the goal is to write a projection equation for a given component variable ?v,
       and the vector is zero,
    then write ?v = 0."
   :preconditions
-   ((in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
-    (in-wm (vector ?b (at ?vector ?t) zero))
-    ;;(debug "Zero projection of (at ~a ~a).~%" ?vector ?t)
+   ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+    (in-wm (vector ?b ?vector zero))
+    (bind ?t (time-of ?vector))
     )
   :effects
    ((eqn (= ?compo-var 0)
-	 (projection (at (compo ?xyz ?rot ?vector) ?t))))
+	 (projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string "Notice that the ~a has zero length ~a." ?vector (?t pp)))
    (teach (string "When a vector has zero length, then all its components are zero, too.")
@@ -592,14 +595,14 @@
    ; Note hints need to be adjusted in these if they are used.
 
 ;; note following pair currently apply even in case of parallel or antiparallel to axes
-(defoperator compo-trig-standard-axes (?xyz ?rot ?vector ?t)
+(defoperator compo-trig-standard-axes (?xyz ?rot ?vector)
   :preconditions
   (; require standard axes direction:
    (test (or (equal ?xyz 0) (equal ?xyz 90))
-   (in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
+   (in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
    ; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
-   (in-wm (vector ?b (at ?vector ?t) ?dir))
+   (in-wm (vector ?b ?vector ?dir))
    (test (non-zero-projectionp ?dir ?xyz ?rot))
    ;; test is passed if dir is not known to be orthogonal to axis dir
    ;; following makes sure has a known dir so we can plug in the numerical
@@ -609,16 +612,16 @@
    ;; Note ?dir may be a z-axis spec or a (dnum n deg)
    (bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) 
 			    ?dir)))
-   ;(in-wm (variable ?dir-var (at (dir ?vector) ?t)))
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
+   ;(in-wm (variable ?dir-var (dir ?vector)))
+   (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
-   ;;(debug "projecting (at ~a ~a) onto axis ~a rot ~a.~%" ?vector ?t ?xyz ?rot)
+   (bind ?t (time-of ?vector))
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin ((dnum ?degrees |deg|)))))
-	(projection (at (compo ?xyz ?rot ?vector) ?t))))
+	(projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string "Since ~A ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qV - $qx)" )
@@ -631,22 +634,23 @@
 	       (?mag-var algebra) ((axis x ?x-rot) symbols-label) ))
    ))
 
-(defoperator compo-trig-standard-axes-unknown (?xyz ?rot ?vector ?t)
+(defoperator compo-trig-standard-axes-unknown (?xyz ?rot ?vector)
   :preconditions
   (; require standard axes direction:
    (test (or (equal ?xyz 0) (equal ?xyz 90))
    ; fetch the variables:
-   (in-wm (vector ?b (at ?vector ?t) unknown))
-   (in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
-   (in-wm (variable ?dir-var (at (dir ?vector) ?t)))
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
+   (in-wm (vector ?b ?vector unknown))
+   (in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+   (in-wm (variable ?dir-var (dir ?vector)))
+   (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
+   (bind ?t (time-of ?vector))
    )
   :effects
    ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
-	 (projection (at (compo ?xyz ?rot ?vector) ?t))))
+	 (projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string "Since ~a ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
@@ -670,20 +674,21 @@
       and the vector is at a known angle parallel or antiparallel to the axis,
    then write ?compo-var = +/- ?mag-var as appropriate"
   :preconditions
-  ((in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
-   (in-wm (vector ?b (at ?vector ?t) ?dir))
+  ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+   (in-wm (vector ?b ?vector ?dir))
    (test (parallelp ?rot ?dir))  ; should fail if ?dir is unknown
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
+   (in-wm (variable ?mag-var (mag ?vector)))
    (bind ?sign (if (same-angle ?rot ?dir) '+ '-))
    ; We want off-axis 0 components to be referenced, even if solution doesn't use them
    ; so we put out an implicit equation for them as well. Following gets the variable we need
    (bind ?other-axis (if (equal ?xyz 'x) 'y 'x))
    (bind ?other-rot  (if (equal ?xyz 'x) (+ ?rot 90) (- ?rot 90)))
-   (variable ?other-compo-var (at (compo ?other-axis ?other-rot ?vector) ?t))
+   (variable ?other-compo-var (compo ?other-axis ?other-rot ?vector))
+   (bind ?t (time-of ?vector))
    )
   :effects
-  ((eqn (= ?compo-var (?sign ?mag-var)) (projection (at (compo ?xyz ?rot ?vector) ?t)))
-   (implicit-eqn (= ?other-compo-var 0) (at (compo ?other-axis ?other-rot ?vector) ?t))
+  ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
+   (implicit-eqn (= ?other-compo-var 0) (compo ?other-axis ?other-rot ?vector))
   )
   :hint
   ((point (string "Since ~A ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
@@ -708,7 +713,7 @@
 ;;; written this way, we write projections along the y-axis using the sin
 ;;; of the angle made with the X axis.
 
-(defoperator compo-general-case (?xyz ?rot ?vector ?t)
+(defoperator compo-general-case (?xyz ?rot ?vector)
   :specifications "
    If ?compo-var is the variable for a component of a vector,
       and the vector is at a known angle not perpendicular to the axis,
@@ -717,10 +722,10 @@
       ?dir is the direction in degrees of the vector,
       and ?rot is the rotation of the axes."
   :preconditions
-  ((in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
+  ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
    ; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
-   (in-wm (vector ?b (at ?vector ?t) ?dir))
+   (in-wm (vector ?b ?vector ?dir))
    ; don't use this if lies along axis
    (test (not (parallelp ?rot ?dir))) 
    ; don't use this if known zero projection:
@@ -733,16 +738,16 @@
    ;; Note ?dir may be a z-axis spec or a (dnum n deg)
    (bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) 
 			    ?dir)))
-   ;(in-wm (variable ?dir-var (at (dir ?vector) ?t)))
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
+   ;(in-wm (variable ?dir-var (dir ?vector)))
+   (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
-   ;;(debug "projecting (at ~a ~a) onto axis ~a rot ~a.~%" ?vector ?t ?xyz ?rot)
+   (bind ?t (time-of ?vector))
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- (dnum ?degrees |deg|) (dnum ?x-rot |deg|)))))
-	(projection (at (compo ?xyz ?rot ?vector) ?t))))
+	(projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string "Since ~A ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
@@ -755,7 +760,7 @@
 	       (?mag-var algebra) ((axis x ?x-rot) symbols-label) ))
    ))
 
-(defoperator compo-general-case-unknown (?xyz ?rot ?vector ?t)
+(defoperator compo-general-case-unknown (?xyz ?rot ?vector)
   :specifications "
    If ?compo-var is the variable for a component of a vector,
       and the vector is drawn at an unknown direction,
@@ -766,18 +771,18 @@
   :preconditions
   (; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
-   (in-wm (vector ?b (at ?vector ?t) unknown))
-   (in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
-   (in-wm (variable ?dir-var (at (dir ?vector) ?t)))
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
+   (in-wm (vector ?b ?vector unknown))
+   (in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+   (in-wm (variable ?dir-var (dir ?vector)))
+   (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
-   ;;(debug "projecting (at ~a ~a) onto axis ~a rot ~a.~%" ?vector ?t ?xyz ?rot)
+   (bind ?t (time-of ?vector))
    )
   :effects
    ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
-	 (projection (at (compo ?xyz ?rot ?vector) ?t))))
+	 (projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string "Since ~a ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
@@ -796,21 +801,21 @@
 ;;; its component along the axis is zero.  We need this special case because
 ;;; it removes the vector's magnitude from the system of equations.
 
-(defoperator compo-perpendicular (?xyz ?rot ?vector ?t)
+(defoperator compo-perpendicular (?xyz ?rot ?vector)
   :specifications "
    If a vector is perpendicular to an axis,
    then its component along that axis is zero."
   :preconditions
-   ((in-wm (variable ?compo-var (at (compo ?xyz ?rot ?vector) ?t)))
-    (in-wm (vector ?b (at ?vector ?t) ?dir))
-    (in-wm (variable ?dir-var (at (dir ?vector) ?t)))
-    ; (test (perpendicularp ?dir ?rot)) -- AW: changed to use non-zero-projp
+   ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+    (in-wm (vector ?b ?vector ?dir))
+    (in-wm (variable ?dir-var (dir ?vector)))
+    ;; (test (perpendicularp ?dir ?rot)) -- AW: changed to use non-zero-projp
     (test (not (non-zero-projectionp ?dir ?xyz ?rot))) ; i.e. known zero projectionp
-    ;;(debug "Perpendicular projection of (at ~a ~a) onto ~a rot ~a~%"  ?vector ?t ?xyz ?rot)
+    (bind ?t (time-of ?vector))
     )
   :effects
    ((eqn (= ?compo-var 0)
-	 (projection (at (compo ?xyz ?rot ?vector) ?t))))
+	 (projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string  "Notice that ~a, ~a is perpendicular to the ~a axis." (?t pp) ?vector ((axis ?xyz ?rot) symbols-label)))
    (teach (kcd "write_v_x=v_zero")
@@ -829,10 +834,10 @@
 ;; So in this case we just write equivalent of V = abs(V_z) so mag value
 ;; will be determined. 
 
-(defoperator compo-z-axis (?vector ?t)
+(defoperator compo-z-axis (?vector)
   :preconditions
-  ((in-wm (variable ?compo-var (at (compo z 0 ?vector) ?t)))
-   (in-wm (vector ?b (at ?vector ?t) ?dir))
+  ((in-wm (variable ?compo-var (compo z 0 ?vector)))
+   (in-wm (vector ?b ?vector ?dir))
    (test (non-zero-projectionp ?dir 'z 0))
    ;; test is passed if dir is not known to be orthogonal to axis dir
    ;; following makes sure has a known dir so we can make use of direction.
@@ -840,14 +845,15 @@
    ;; ('unknown shouldn't happen, should mean x-y unknown, so perp. to z)
    (test (not (or (equal ?dir 'unknown) (equal ?dir 'z-unknown))))
    ;(bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) ?dir)))
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
+   (in-wm (variable ?mag-var (mag ?vector)))
    ; rhs is plus or minus mag:
    (bind ?rhs (if (eq ?dir 'out-of) ?mag-var `(- ,?mag-var)))
+   (bind ?t (time-of ?vector))
    )
   :effects
   ((eqn ;(= ?compo-var (* ?mag-var (cos (dnum ?degrees |deg|))))
         (= ?compo-var ?rhs) 
-	(projection (at (compo z 0 ?vector) ?t))))
+	(projection (compo z 0 ?vector))))
   :hint
   ((point (string "You should write an equation relating the ~A component of ~A ~A to its magnitude."  
                   ((axis z 0) symbols-label) ?vector (?t pp)))
@@ -860,9 +866,9 @@
 ;; !!! this doesn't actually work:
 (defoperator compo-z-axis-unknown (?compo-var)
   :preconditions
-  ((in-wm (variable ?compo-var (at (compo z 0 ?vector) ?t)))
-   (in-wm (vector ?b (at ?vector ?t) z-unknown))
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t))))
+  ((in-wm (variable ?compo-var (compo z 0 ?vector)))
+   (in-wm (vector ?b ?vector z-unknown))
+   (in-wm (variable ?mag-var (mag ?vector))))
   :effects
   ; note compo-var must be first so compo values can be picked up
   ; we write v_z = sign * v, where sign = v_z/abs(v_z)
@@ -879,14 +885,15 @@
 ;; when we know it's in the z direction but don't know which way it points
 (defoperator compo-z-axis-unknown (?compo-var)
   :preconditions
-  ((in-wm (variable ?compo-var (at (compo z 0 ?vector) ?t)))
-   (in-wm (vector ?b (at ?vector ?t) z-unknown))
-   (in-wm (variable ?mag-var (at (mag ?vector) ?t)))
-   (in-wm (variable ?dir-var (at (dir ?vector) ?t)))
+  ((in-wm (variable ?compo-var (compo z 0 ?vector)))
+   (in-wm (vector ?b ?vector z-unknown))
+   (in-wm (variable ?mag-var (mag ?vector)))
+   (in-wm (variable ?dir-var (dir ?vector)))
    ; following may be needed so algebra can solve for phi from components
    ; and projections for unknown angles. But then we have to prompt the
    ; student to write it as well
    (eqn (= ?mag-var (abs ?compo-var)) (z-axis-constraint ?compo-var ?mag-var))
+   (bind ?t (time-of ?vector))
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (cos ?dir-var)))
@@ -939,17 +946,17 @@
   :preconditions (
    ; only allow this in problems tagged 'component-form
    (in-wm (component-form))
-   (any-member ?sought ((at (mag ?vector) ?t)
-		        (at (dir ?vector) ?t)
-                        (at (compo ?xy ?rot ?vector) ?t)))
+   (any-member ?sought ((mag ?vector)
+		        (dir ?vector)
+                        (compo ?xy ?rot ?vector)))
    (any-member ?xy (x y z))
    (bind ?rot (if (eq ?xy 'y) 90 0))
    )
   :effects (
-   (derived-eqn-contains (proj (at (compo ?xy ?rot ?vector) ?t)) ?sought)
+   (derived-eqn-contains (proj (compo ?xy ?rot ?vector)) ?sought)
   ))
 
-(defoperator write-projection (?vector ?t ?xy ?rot)
+(defoperator write-projection (?vector ?xy ?rot)
   :preconditions 
   (
    ;; Projection normally doesn't draw a body. projection-body stmt in problem
@@ -960,28 +967,28 @@
    ;; vector and axes), since the projection writing operators that do
    ;; the work are written to assume it is already in wm as a result of
    ;; drawing a vector diagram for a standard vector-psm.
-   (variable ?compo-var (at (compo ?xy ?rot ?vector) ?t))
+   (variable ?compo-var (compo ?xy ?rot ?vector))
    ;; then use existing operators to write projection equation:
-   (eqn (= ?compo-var ?proj) (projection (at (compo ?xy ?rot ?vector) ?t)))
+   (eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
    ) 
   :effects 
   (
    ;; exact copy of an existing equation is a simple case of a derived eqn.
-   (derived-eqn (= ?compo-var ?proj) (proj (at (compo ?xy ?rot ?vector) ?t)))
+   (derived-eqn (= ?compo-var ?proj) (proj (compo ?xy ?rot ?vector)))
    ))
 
-(defoperator write-projection-with-body (?vector ?t ?xy ?rot)
+(defoperator write-projection-with-body (?vector ?xy ?rot)
   :preconditions 
   (
    ;; alt body-drawing version of write-projection, enabled by stmt in problem
    (in-wm (projection-body ?problem-body ?dont-care)) 
    (body ?problem-body)
-   (variable ?compo-var (at (compo ?xy ?rot ?vector) ?t))
-   (eqn (= ?compo-var ?proj) (projection (at (compo ?xy ?rot ?vector) ?t)))
+   (variable ?compo-var (compo ?xy ?rot ?vector))
+   (eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
    ) 
   :effects 
   (
-   (derived-eqn (= ?compo-var ?proj) (proj (at (compo ?xy ?rot ?vector) ?t)))
+   (derived-eqn (= ?compo-var ?proj) (proj (compo ?xy ?rot ?vector)))
    ))
 
 ;;; =============================== axes =========================
@@ -1025,7 +1032,7 @@
      ;; use-system-axes will choose axes in this case.
      (not (axis-for ?sys ?dontcare1 ?dontcare2)
 	  (part-of-sys ?b ?sys))
-     (not (vector ?b (at ?v ?t-vec) (dnum ?dir |deg|))) )
+     (not (vector ?b ?v (dnum ?dir |deg|))) )
   :effects (
    (draw-axes ?b 0) ; action proposition for help system gives x dir
    (axis-for ?b x 0)
@@ -1193,7 +1200,7 @@
     (not (axis-for ?sys ?dontcare1 ?dontcare2)
 	 (part-of-sys ?b ?sys))
     ;; (test (atom ?b))	; only for atomic bodies
-    (setof (in-wm (vector ?b (at ?vector ?t) ?dir)) ?dir ?dirs)
+    (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
     ;; only apply if there are some known vector directions
     (test (minimal-x-rotations ?dirs))
     ;; add 0 so standard axes always an option:
@@ -1303,16 +1310,16 @@
       and there is a vector defined
    then define a component variable for the vector along the axis"
   :preconditions
-  ((vector ?b (at ?vector ?t) ?dir)
+  ((vector ?b ?vector ?dir)
    (axis-for ?b ?xyz ?rot) 
-   (not (variable ?dont-care (at (compo ?xyz ?rot ?vector) ?t)))
+   (not (variable ?dont-care (compo ?xyz ?rot ?vector)))
    ; fetch vector's mag var for building compo var name only. 
-   (in-wm (variable ?v-var (at (mag ?vector) ?t)))  
+   (in-wm (variable ?v-var (mag ?vector)))  
    (bind ?var (format-sym "~Ac_~A_~A" ?xyz ?v-var ?rot))
-   ;;(debug "Defining var for (at (compo ~a ~a ~a) ~a).~%" ?xyz ?rot ?vector ?t)
+   ;;(debug "Defining var for (compo ~a ~a ~a :time ~a).~%" ?xyz ?rot ?vector ?t)
    )
   :effects
-  ((variable ?var (at (compo ?xyz ?rot ?vector) ?t))))
+  ((variable ?var (compo ?xyz ?rot ?vector))))
 
 #|
 ; following is needed to introduce compo vars when writing equations for 
@@ -1333,23 +1340,23 @@
    ; !!! what we have: (AND (NOT Vector-drawn) (NOT axes-registered))
    ; which differs if only one is drawn. If this breaks anything,
    ; have to recode in some other way, or add special not-all precond
-   (not (vector ?b (at ?vector ?t) ?dir))
+   (not (vector ?b ?vector ?dir))
    (not (axis-for ?b ?xyz ?rot)) 
    ; need to bind body for following, so get it from vector term. !!! assumes
    ; principal body can always be found first after vectype
    ; change -- just get it from drawn vector
    ;(bind ?b (second ?vector))
    ; draw the vector
-   (vector ?b (at ?vector ?t) ?dir)
+   (vector ?b ?vector ?dir)
    ; get axes to use for vector's body and time, most likely by drawing them
    (axis-for ?b ?xyz ?rot)
    ; fetch vector's mag var for building compo var name only. 
-   (in-wm (variable ?v-var (at (mag ?vector) ?t)))  
+   (in-wm (variable ?v-var (mag ?vector)))  
    (bind ?var (format-sym "~Ac_~A_~A" ?xyz ?v-var ?rot))
-   ;;(debug "Defining var for (at (compo ~a ~a ~a) ~a).~%" ?xyz ?rot ?vector ?t)
+   ;;(debug "Defining var for (compo ~a ~a ~a :time ~a).~%" ?xyz ?rot ?vector ?t)
    )
   :effects
-  ((variable ?var (at (compo ?xyz ?rot ?vector) ?t))))
+  ((variable ?var (compo ?xyz ?rot ?vector))))
 |#
 
 ;;; =================== Generic: Optional steps =============================
@@ -1546,16 +1553,18 @@
    (time ?t1)
    (test (and (not (equalp ?t1 ?t-constant))
 	      (tinsidep ?t1 ?t-constant)))
+   (bind ?quant1 (set-time ?quant ?t1))
+   (bind ?quant2 (set-time ?quant ?t-constant))
   )
   :effects (
-	    (equals (at ?quant ?t1) (at ?quant ?t-constant))
+	    (equals ?quant1 ?quant2)
      )
   :hint
   ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
    (teach (string "If a quantity is constant over a time interval, then its value at any time inside the interval is equal to its value over the whole interval.")
 	  (kcd "inherit-constant-value"))
    (bottom-out (string "Since ~a is constant ~a, and ~a is inside ~a, write the equation ~a=~a" 
-		       ?quant ?t-constant (?t1 pp) ((at ?quant ?t-constant)) ((at ?quant ?t1))))
+		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
    ))
 
 ;;; this variant allows us to include endpoints in the interval over 
@@ -1567,16 +1576,18 @@
     (time ?t1)
     (test (and (not (equalp ?t1 ?t-constant))
                (tinsidep-include-endpoints ?t1 ?t-constant)))
+   (bind ?quant1 (set-time ?quant ?t1))
+   (bind ?quant2 (set-time ?quant ?t-constant))
   )
   :effects (
-     (equals (at ?quant ?t1) (at ?quant ?t-constant))
+	    (equals ?quant1 ?quant2)
      )
   :hint
   ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
    (teach (string "If a quantity is constant over a time interval, then its value at any time inside the interval is equal to its value over the whole interval.")
 	  (kcd "inherit-constant-value"))
    (bottom-out (string "Since ~a is constant ~a, and ~a is inside ~a, write the equation ~a=~a" 
-		       ?quant ?t-constant (?t1 pp) ((at ?quant ?t-constant)) ((at ?quant ?t1))))
+		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
    ))
 
 ;; Following expands (constant (accel ?b) ?t) to derive constancy of 
@@ -1637,11 +1648,11 @@
    ((time ?interval)
     (test (time-intervalp ?interval))
     (object ?b)
-    (not (variable ?dont-care (at (speed ?b) ?interval)))
+    (not (variable ?dont-care (speed ?b :time ?interval)))
     (bind ?var (format-sym "sp_~A_~A" ?b (time-abbrev ?interval))))
   :effects
-  ((variable ?var (at (speed ?b) ?interval))
-   (define-var (at (speed ?b) ?interval)))
+  ((variable ?var (speed ?b :time ?interval))
+   (define-var (speed ?b :time ?interval)))
   :hint
   ((bottom-out (string "Use the speed menu item under the Variables menu to define a variable for the speed of ~a ~a." ?b ?interval))
    ))
@@ -1657,11 +1668,11 @@
   ((time ?interval)
    (test (time-intervalp ?interval))
    (object ?b)
-   (not (variable ?dont-care (at (distance ?b) ?interval)))
+   (not (variable ?dont-care (distance ?b :time ?interval)))
    (bind ?var (format-sym "dist_~A_~A" ?b (time-abbrev ?interval))))
   :effects
-  ((variable ?var (at (distance ?b) ?interval))
-   (define-var (at (distance ?b) ?interval)))
+  ((variable ?var (distance ?b :time ?interval))
+   (define-var (distance ?b :time ?interval)))
   :hint
   ((bottom-out (string "Use the distance menu item under the Variables menu to define a variable for the distance travelled by ~a ~a." ?b ?interval))
    ))
@@ -1680,8 +1691,8 @@
    where ?b is an object and ?t is a time interval."
   :preconditions
   ((any-member ?quantity 
-	       ((at (speed ?b) ?t)
-		(at (distance ?b) ?t)
+	       ((speed ?b :time ?t)
+		(distance ?b :time ?t)
 		(duration ?t)))
    (object ?b)
    (time ?t)
@@ -1702,8 +1713,8 @@
    then the subgoals are to define variables for speed, distance and duration,
    then write speed = distance / duration. "
   :preconditions
-  ((variable ?s-var (at (speed ?b) ?t))
-   (variable ?d-var (at (distance ?b) ?t))
+  ((variable ?s-var (speed ?b :time ?t))
+   (variable ?d-var (distance ?b :time ?t))
    (variable ?t-var (duration ?t))
    ;; nsh now requires body and axes if you ask for help, so there's 
    ;; little point making these 'optional' any more. 
@@ -1731,8 +1742,8 @@
 (defoperator displacement-distance-contains (?quantity)
   :preconditions
   ((any-member ?quantity 
-	       ((at (mag (displacement ?b)) ?t)
-		(at (distance ?b) ?t)))
+	       ((mag (displacement ?b :time ?t))
+		(distance ?b :time ?t)))
    ;; make sure we ar moving in a straight line.
    (motion ?b ?t-motion (straight ?type ?dir))
    ;; This check for change in direction is rather weak.
@@ -1747,8 +1758,8 @@
 
 (defoperator write-displacement-distance (?b ?t)
   :preconditions
-  ((variable ?s-var (at (distance ?b) ?t))
-   (variable ?d-var (at (mag (displacement ?b)) ?t))
+  ((variable ?s-var (distance ?b :time ?t))
+   (variable ?d-var (mag (displacement ?b :time ?t)))
    )
   :effects
   ((eqn (= ?s-var ?d-var) (displacement-distance ?b ?t)))
@@ -1762,7 +1773,7 @@
 ;;;
 (defoperator sum-distances-contains (?sought)
   :preconditions 
-  ((any-member ?sought ( (at (distance ?b) ?t)))
+  ((any-member ?sought ( (distance ?b :time ?t)))
    (time ?tt)
    (test (proper-subintervalp ?t ?tt)) ;?t equals ?tt or is atomic subinterval
    (object ?b) ;sanity check
@@ -1773,10 +1784,10 @@
 ;; only handles writing as sum of atomic sub-intervals
 (defoperator write-sum-distances (?tt)
   :preconditions 
-  ((variable ?tt-var (at (distance ?b) ?tt))
+  ((variable ?tt-var (distance ?b :time ?tt))
    (bind ?intervals (successive-intervals ?tt))
    (map ?interval ?intervals
-      (variable ?t-var (at (distance ?b) ?interval))
+      (variable ?t-var (distance ?b :time ?interval))
       ?t-var ?t-vars))
   :effects ( (eqn (= ?tt-var (+ . ?t-vars)) (sum-distances ?b ?tt)) )
   :hint
@@ -1798,12 +1809,12 @@
 (defoperator pyth-thm-contains (?sought)
    :preconditions (
      (any-member ?sought (
-       (at (mag(relative-position ?b ?o)) ?t1)
-       (at (mag(relative-position ?b ?o)) ?t2) 
-       (at (mag(displacement ?b)) (during ?t1 ?t2))
+       (mag (relative-position ?b ?o :time ?t1))
+       (mag (relative-position ?b ?o :time ?t2)) 
+       (mag (displacement ?b :time (during ?t1 ?t2)))
                          ))
      ;; angle r1 must be given, and must be able to determine angle d12
-     (given (at (dir(relative-position ?b ?o)) ?t1) ?dir-r1)
+     (given (dir (relative-position ?b ?o :time ?t1)) ?dir-r1)
      (displacement-dir ?b (during ?t1 ?t2) ?dir-d12)
      (test (perpendicularp ?dir-r1 ?dir-d12))
    )
@@ -1813,7 +1824,7 @@
 
 (defoperator get-displacement-dir-from-given (?b ?t1 ?t2)
     :effects ( (displacement-dir ?b (during ?t1 ?t2) ?dir-d12) )
-    :preconditions ( (given (at (dir(displacement ?b)) (during ?t1 ?t2)) ?dir-d12) ))
+    :preconditions ( (given (dir (displacement ?b :time (during ?t1 ?t2))) ?dir-d12) ))
 
 (defoperator get-displacement-dir-from-motion (?b ?t1 ?t2)
     :effects ( (displacement-dir ?b (during ?t1 ?t2) ?dir-d12) )
@@ -1822,9 +1833,9 @@
 (defoperator write-pyth-thm (?b ?o ?t1 ?t2)
   
   :preconditions (
-    (variable ?r1 (at (mag(relative-position ?b ?o)) ?t1))
-    (variable ?r2 (at (mag(relative-position ?b ?o)) ?t2)) 
-    (variable ?d12 (at (mag(displacement ?b)) (during ?t1 ?t2)))
+    (variable ?r1 (mag (relative-position ?b ?o :time ?t1)))
+    (variable ?r2 (mag (relative-position ?b ?o :time ?t2))) 
+    (variable ?d12 (mag (displacement ?b :time (during ?t1 ?t2))))
   )
   :effects (
     (eqn (= (^ ?r2 2) (+ (^ ?r1 2) (^ ?d12 2))) (pyth-thm ?b ?o ?t1 ?t2))
@@ -1854,9 +1865,9 @@
   :preconditions (
      (in-wm (distance-sum (?b3 ?b1) (?b2 ?b1) (?b2 ?b3)))
      (any-member ?sought (
-		      (at (mag(relative-position ?b3 ?b1)) ?t)
-                      (at (mag(relative-position ?b2 ?b1)) ?t)
-		      (at (mag(relative-position ?b2 ?b3)) ?t)
+		      (mag (relative-position ?b3 ?b1 :time ?t))
+                      (mag (relative-position ?b2 ?b1 :time ?t))
+		      (mag (relative-position ?b2 ?b3 :time ?t))
                   ))
   )
   :effects ( (eqn-contains (sum-distance ?b1 ?b2 ?b3 ?t) ?sought) )
@@ -1864,9 +1875,9 @@
 
 (defoperator write-sum-distance (?b1 ?b2 ?b3 ?t)
   :preconditions (
-    (variable ?r21 (at (mag(relative-position ?b2 ?b1)) ?t))
-    (variable ?r23 (at (mag(relative-position ?b2 ?b3)) ?t))
-    (variable ?r31 (at (mag(relative-position ?b3 ?b1)) ?t))
+    (variable ?r21 (mag (relative-position ?b2 ?b1 :time ?t)))
+    (variable ?r23 (mag (relative-position ?b2 ?b3 :time ?t)))
+    (variable ?r31 (mag (relative-position ?b3 ?b1 :time ?t)))
   )
   :effects (
     (eqn (= ?r31 (+ ?r21 ?r23)) (sum-distance ?b1 ?b2 ?b3 ?t))
@@ -1912,15 +1923,8 @@
     then let ?b at ?t be a body, and 
        define a mass variable for ?b at time ?t."
   :preconditions
-    ((object ?b)
-     ;; I only want to apply this conditional to defining the mass.
-     ;; take this out if I am not defining a mass
-     ;;(not (variable ?dont-care (mass ?b)))
-     (bind ?var (format-sym "m_~A" (body-name ?b))))   
-    :effects
-    (;; take this out for now:
-     ;; (variable ?var (mass ?b)) ;automatically define a mass
-     (body ?b)) 	
+    ((object ?b))
+    :effects ((body ?b)) 	
     :hint
     ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
@@ -1956,15 +1960,15 @@
     (motion ?b ?t-motion (straight ?dontcare ?dir))
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (displacement ?b) ?t) ?dir))
+    (not (vector ?b (displacement ?b :time ?t) ?dir))
     (optional-standard-axes ?b)
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (displacement ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (displacement ?b)) ?t))
-    (variable ?dir-var (at (dir (displacement ?b)) ?t))
-    (given (at (dir (displacement ?b)) ?t) ?dir)) 
+   ((vector ?b (displacement ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (displacement ?b :time ?t)))
+    (variable ?dir-var (dir (displacement ?b :time ?t)))
+    (given (dir (displacement ?b :time ?t)) ?dir)) 
   :hint
   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
    (teach (string "Whenever an object is moving in a straight line over a time interval, it has a displacement which is parallel to the direction of motion.")
@@ -1982,13 +1986,13 @@
     (test (time-intervalp ?t))
     (motion ?b ?t-motion (straight ?dontcare unknown))
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (displacement ?b) ?t) ?dir))
+    (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (displacement ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (displacement ?b)) ?t))
-    (variable ?dir-var (at (dir (displacement ?b)) ?t)))
+   ((vector ?b (displacement ?b :time ?t) unknown)
+    (variable ?mag-var (mag (displacement ?b :time ?t)))
+    (variable ?dir-var (dir (displacement ?b :time ?t))))
   :hint
   ((point (string
 	 "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
@@ -2012,11 +2016,11 @@
     (test (time-intervalp ?t))
     (motion ?b ?t-motion at-rest)
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (displacement ?b) ?t) ?dont-care))
+    (not (vector ?b (displacement ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
-   ((vector ?b (at (displacement ?b) ?t) zero)
-    (variable ?mag-var (at (mag (displacement ?b)) ?t)))
+   ((vector ?b (displacement ?b :time ?t) zero)
+    (variable ?mag-var (mag (displacement ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (string "Whenever an object is at rest during a time interval, it has a displacement of zero.")
@@ -2034,12 +2038,12 @@
    "If an object has no net change of position over an interval, then
    draw a zero displacement vector"
   :preconditions
-   ((in-wm (given (at (mag(displacement ?b)) ?t) (dnum 0 ?units)))
-    (not (vector ?b (at (displacement ?b) ?t) ?dir))
+   ((in-wm (given (mag (displacement ?b :time ?t)) (dnum 0 ?units)))
+    (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
-   ((vector ?b (at (displacement ?b) ?t) zero)
-    (variable ?mag-var (at (mag (displacement ?b)) ?t)))
+   ((vector ?b (displacement ?b :time ?t) zero)
+    (variable ?mag-var (mag (displacement ?b :time ?t))))
    :hint
    ((bottom-out (string "Since the problem specifies that the displacement of ~a is zero, just draw a zero-length vector for it." ?b))
     ))
@@ -2053,20 +2057,20 @@
    "If you are given the direction of a net displacement over an interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((in-wm (given (at (dir (displacement ?b)) ?t) ?dir))
+   ((in-wm (given (dir (displacement ?b :time ?t)) ?dir))
     (test (not (equal ?dir 'unknown)))  
     (test (time-intervalp ?t))
-    (not (vector ?b (at (displacement ?b) ?t) ?dir))
+    (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (displacement ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (displacement ?b)) ?t))
-    (variable ?dir-var (at (dir (displacement ?b)) ?t))
-    (given (at (dir (displacement ?b)) ?t) ?dir)
+   ((vector ?b (displacement ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (displacement ?b :time ?t)))
+    (variable ?dir-var (dir (displacement ?b :time ?t)))
+    (given (dir (displacement ?b :time ?t)) ?dir)
     ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
     ;; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (displacement ?b)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (dir (displacement ?b :time ?t)))
     ) 
    :hint
    ((point (string "The problem specifies the displacement of ~a ~a." ?b (?t pp)))
@@ -2085,15 +2089,15 @@
    then draw a displacement vector for it at an unspecified direction"
   :preconditions
    ((motion ?b ?t (curved projectile . ?dontcare))
-    (not (given (at (dir(displacement ?b)) ?t) ?dir))
+    (not (given (dir (displacement ?b :time ?t)) ?dir))
     (test (time-intervalp ?t))
-    (not (vector ?b (at (displacement ?b) ?t) ?dir))
+    (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (displacement ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (displacement ?b)) ?t))
-    (variable ?dir-var (at (dir (displacement ?b)) ?t)))
+   ((vector ?b (displacement ?b :time ?t) unknown)
+    (variable ?mag-var (mag (displacement ?b :time ?t)))
+    (variable ?dir-var (dir (displacement ?b :time ?t))))
    :hint
    ((point (string "You need to introduce a term for the displacement of ~a ~a." ?b (?t pp)))
     (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter. In this problem the exact direction of the net displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
@@ -2120,18 +2124,18 @@
     ;; motion with unknown direction not handled correctly:
     (not (motion ?b ?t-motion ?motion-spec) (tinsidep ?t ?t-motion))
     ;; dir=unknown not handled correctly:
-    (not (given (at (dir (displacement ?b)) ?t) ?dir))
+    (not (given (dir (displacement ?b :time ?t)) ?dir))
     ;; BvdS:  hack to get kt13a to work
-    (not (given (at (mag (displacement ?b)) ?t) (dnum 0 ?units)))
-    (not (vector ?b (at (displacement ?b) ?t) ?dir))
+    (not (given (mag (displacement ?b :time ?t)) (dnum 0 ?units)))
+    (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?is-net (if (> (third ?t) (+ 1 (second ?t))) 
 		      "In this problem, the net displacement vector must be calculated by summing individual displacements.  " "In this problem, the direction of the net displacement is not given.")))
   :effects
-  ((vector ?b (at (displacement ?b) ?t) unknown)
-   (variable ?mag-var (at (mag (displacement ?b)) ?t))
-   (variable ?dir-var (at (dir (displacement ?b)) ?t)))
+  ((vector ?b (displacement ?b :time ?t) unknown)
+   (variable ?mag-var (mag (displacement ?b :time ?t)))
+   (variable ?dir-var (dir (displacement ?b :time ?t))))
   :hint
   ((point (string "You need to introduce a term for the displacement of ~a ~a." ?b (?t pp)))
    (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter.~A  Draw the vector at an approximately correct angle and leave the exact angle unspecified." (?is-net identity)))
@@ -2161,9 +2165,9 @@
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
   :effects
-   ((vector ?b (at (velocity ?b) ?t) zero)
-    (variable ?mag-var (at (mag (velocity ?b)) ?t))
-    (given (at (mag (velocity ?b)) ?t) (dnum 0 |m/s|)))
+   ((vector ?b (velocity ?b :time ?t) zero)
+    (variable ?mag-var (mag (velocity ?b :time ?t)))
+    (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
   :hint
    ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
     (teach (kcd "draw_zero_velocity")
@@ -2183,9 +2187,9 @@
     (test (or (equal ?at-rest 'at-rest) (equal ?at-rest 'momentarily-at-rest)))
     (bind ?mag-var (format-sym "v_~A_~A" ?axis (time-abbrev ?t))))
   :effects
-   ((vector ?b (at (velocity ?axis) ?t) zero)
-    (variable ?mag-var (at (mag (velocity ?axis)) ?t))
-    (given (at (mag (velocity ?axis)) ?t) (dnum 0 |m/s|)))
+   ((vector ?b (velocity ?axis :time ?t) zero)
+    (variable ?mag-var (mag (velocity ?axis :time ?t)))
+    (given (mag (velocity ?axis :time ?t)) (dnum 0 |m/s|)))
   :hint
   ((point (string "Although ?b is rotating, the axis of rotation ~A is fixed." 
 		  ?b ?axis))
@@ -2213,9 +2217,9 @@
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
   :effects
-   ((vector ?b (at (velocity ?b) ?t) zero)
-    (variable ?mag-var (at (mag (velocity ?b)) ?t))
-    (given (at (mag (velocity ?b)) ?t) (dnum 0 |m/s|)))
+   ((vector ?b (velocity ?b :time ?t) zero)
+    (variable ?mag-var (mag (velocity ?b :time ?t)))
+    (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
   :hint
    ((point (string "Notice that ~a is momentarily at rest ~a." ?b (?t pp)))
     (teach (string "When an object is at rest even momentarily, its velocity at that moment is zero.")
@@ -2239,14 +2243,14 @@
    (motion ?b ?t-motion (straight ?dontcare ?dir))
    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
    (test (tinsidep ?t ?t-motion))
-   (not (vector ?b (at (velocity ?b) ?t) ?dir))
+   (not (vector ?b (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-  ((vector ?b (at (velocity ?b) ?t) ?dir)
-   (variable ?mag-var (at (mag (velocity ?b)) ?t))
-   (variable ?dir-var (at (dir (velocity ?b)) ?t))
-   (given (at (dir (velocity ?b)) ?t) ?dir))
+  ((vector ?b (velocity ?b :time ?t) ?dir)
+   (variable ?mag-var (mag (velocity ?b :time ?t)))
+   (variable ?dir-var (dir (velocity ?b :time ?t)))
+   (given (dir (velocity ?b :time ?t)) ?dir))
   :hint
   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
    (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion.")
@@ -2264,13 +2268,13 @@
    (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
    (motion ?b ?t-motion (straight ?dontcare unknown))
    (test (tinsidep ?t ?t-motion))
-   (not (vector ?b (at (velocity ?b) ?t) ?dir))
+   (not (vector ?b (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-  ((vector ?b (at (velocity ?b) ?t) unknown)
-   (variable ?mag-var (at (mag (velocity ?b)) ?t))
-   (variable ?dir-var (at (dir (velocity ?b)) ?t)))
+  ((vector ?b (velocity ?b :time ?t) unknown)
+   (variable ?mag-var (mag (velocity ?b :time ?t)))
+   (variable ?dir-var (dir (velocity ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is moving in a straight line ~a, although the exact direction of motion is unknown." ?b (?t pp)))
    (teach (string "Whenever an object is moving in a straight line, it has a non-zero velocity in the same direction as its motion.")
@@ -2297,14 +2301,14 @@
     (motion ?b ?t (curved ?dontcare (?dir ?dont-care)))
     (test (not (equal ?dir 'unknown)))  ;until conditional effects are implemented
     (test (time-pointp ?t))
-    (not (vector ?b (at (velocity ?b) ?t) ?dir))
+    (not (vector ?b (velocity ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (velocity ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (velocity ?b)) ?t))
-    (variable ?dir-var (at (dir (velocity ?b)) ?t))
-    (given (at (dir (velocity ?b)) ?t) ?dir))
+   ((vector ?b (velocity ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (velocity ?b :time ?t)))
+    (variable ?dir-var (dir (velocity ?b :time ?t)))
+    (given (dir (velocity ?b :time ?t)) ?dir))
   :hint
   ((teach (string "When an object is moving in a curve, its velocity at an instant of time is tangent to the curve.")
 	  (kcd "draw-velocity-curved"))
@@ -2323,13 +2327,13 @@
     (test (time-pointp ?t))
     (motion ?b ?t-motion (curved ?curve-type (unknown ?dontcare)))
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (velocity ?b) ?t) ?dir))
+    (not (vector ?b (velocity ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (velocity ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (velocity ?b)) ?t))
-    (variable ?dir-var (at (dir (velocity ?b)) ?t)))
+   ((vector ?b (velocity ?b :time ?t) unknown)
+    (variable ?mag-var (mag (velocity ?b :time ?t)))
+    (variable ?dir-var (dir (velocity ?b :time ?t))))
   :hint
    ((point (string "You need to introduce a term for the velocity of ~a ~a." ?b (?t pp)))
     (teach (string "The velocity of an object is tangential to its path of motion.  In this problem, the exact direction of the velocity vector is not given, so you should draw the vector at any angle and leave the exact angle unspecified."))
@@ -2346,16 +2350,16 @@
      (motion ?b ?t-trajectory (curved projectile . ?dontcare))
      (apex ?b ?t)
      (test (tinsidep ?t ?t-trajectory))
-     (not (vector ?b (at (velocity ?b) ?t) ?dir))
+     (not (vector ?b (velocity ?b :time ?t) ?dir))
      (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (bind ?dir '(dnum 0 |deg|))
   )
   :effects (
-    (vector ?b (at (velocity ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (velocity ?b)) ?t))
-    (variable ?dir-var (at (dir (velocity ?b)) ?t))
-    (given (at (dir (velocity ?b)) ?t) ?dir)
+    (vector ?b (velocity ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (velocity ?b :time ?t)))
+    (variable ?dir-var (dir (velocity ?b :time ?t)))
+    (given (dir (velocity ?b :time ?t)) ?dir)
   )
   :hint (
     (point (string "Notice that ~A is at its maximum height ~A" ?b (?t pp)))
@@ -2381,19 +2385,19 @@
   (
    ;; only apply if no other motion spec for object?
    ;; (not (motion ?b ?t-motion . ?motion-spec))
-   (in-wm (given (at (dir (displacement ?b)) ?t) ?dir))
+   (in-wm (given (dir (displacement ?b :time ?t)) ?dir))
    (test (not (equal ?dir 'unknown)))  
-   (not (vector ?b (at (velocity ?b) ?t) ?dontcare))
+   (not (vector ?b (velocity ?b :time ?t) ?dontcare))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-  ((vector ?b (at (velocity ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (velocity ?b)) ?t))
-    (variable ?dir-var (at (dir (velocity ?b)) ?t))
-    (given (at (dir (velocity ?b)) ?t) ?dir)
+  ((vector ?b (velocity ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (velocity ?b :time ?t)))
+    (variable ?dir-var (dir (velocity ?b :time ?t)))
+    (given (dir (velocity ?b :time ?t)) ?dir)
     ; ensure implicit eqn comes out when dir is a problem given 
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (velocity ?b)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t)))
     )
   :hint
   ((teach (kcd "average_velocity_drawn")
@@ -2406,17 +2410,17 @@
   :preconditions 
   (
    ;; displacement is unknown from draw-displacement-unknown
-   (vector ?b (at (displacement ?b) ?tt) unknown)
+   (vector ?b (displacement ?b :time ?tt) unknown)
    ;; This doesn't handle ?dir=unknown correctly:
-   (not (given (at (dir (velocity ?b)) ?tt) ?dir))
-   (not (vector ?b (at (velocity ?b) ?tt) ?dontcare))
+   (not (given (dir (velocity ?b :time ?tt)) ?dir))
+   (not (vector ?b (velocity ?b :time ?tt) ?dontcare))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
                                 (time-abbrev ?tt)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (velocity ?b) ?tt) unknown)
-    (variable ?mag-var (at (mag (velocity ?b)) ?tt))
-    (variable ?dir-var (at (dir (velocity ?b)) ?tt))
+   ((vector ?b (velocity ?b :time ?tt) unknown)
+    (variable ?mag-var (mag (velocity ?b :time ?tt)))
+    (variable ?dir-var (dir (velocity ?b :time ?tt)))
     )
   :hint
   ((teach (kcd "average_velocity_drawn")
@@ -2436,39 +2440,39 @@
 (defoperator avg-vel-vector-contains (?sought)
   :preconditions 
     ((any-member ?sought
-	        ((at (mag (velocity ?b)) (during ?t1 ?t2))
-		 (at (dir (velocity ?b)) (during ?t1 ?t2))
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
-		 (duration (during ?t1 ?t2))))
+	        ((mag (velocity ?b :time ?t))
+		 (dir (velocity ?b :time ?t))
+		 (mag (displacement ?b :time ?t))
+		 (dir (displacement ?b :time ?t))
+		 (duration ?t)))
     (object ?b)
-    (time (during ?t1 ?t2)))
+    (time ?t))
   :effects 
-  ((eqn-family-contains (avg-velocity ?b (during ?t1 ?t2)) ?sought)
+  ((eqn-family-contains (avg-velocity ?b ?t) ?sought)
   ;; since only one compo-eqn under this vector psm, we can just
   ;; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (avg-velocity ?b (during ?t1 ?t2)) avg-vel ?sought)))
+  (compo-eqn-contains (avg-velocity ?b ?t) avg-vel ?sought)))
 
-(defoperator draw-avg-vel-diagram (?b ?t1 ?t2)
+(defoperator draw-avg-vel-diagram (?b ?t)
   :preconditions 
-  ((not (vector-diagram (avg-velocity ?b (during ?t1 ?t2))))
+  ((not (vector-diagram (avg-velocity ?b ?t)))
    (body ?b)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir2)
-   (vector ?b (at (velocity ?b) (during ?t1 ?t2)) ?dir1)
+   (vector ?b (displacement ?b :time ?t) ?dir2)
+   (vector ?b (velocity ?b :time ?t) ?dir1)
    (axis-for ?b x ?rot))
   :effects 
-  ((vector-diagram (avg-velocity ?b (during ?t1 ?t2)))))
+  ((vector-diagram (avg-velocity ?b ?t))))
 
-(defoperator write-avg-vel-compo (?b ?t1 ?t2 ?xy ?rot)  
+(defoperator write-avg-vel-compo (?b ?t ?xy ?rot)  
   :preconditions 
-   ((variable ?d12_x  (at (compo ?xy ?rot (displacement ?b)) (during ?t1 ?t2)))
-    (variable ?v12_x  (at (compo ?xy ?rot (velocity ?b)) (during ?t1 ?t2)))
-    (variable ?t12    (duration (during ?t1 ?t2))))
+   ((variable ?d12_x  (compo ?xy ?rot (displacement ?b :time ?t)))
+    (variable ?v12_x  (compo ?xy ?rot (velocity ?b :time ?t)))
+    (variable ?t12    (duration ?t)))
   :effects (
    (eqn (= ?v12_x (/ ?d12_x ?t12))
-            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b (during ?t1 ?t2))))
+            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
    (eqn-compos 
-            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b (during ?t1 ?t2)))
+            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t))
              (?v12_x ?d12_x)))
   :hint (
    (point (string "What is the relationship between average velocity, displacement and duration?"))
@@ -2497,14 +2501,14 @@
    ((time ?t)
     (motion ?b ?t-motion at-rest)
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (accel ?b) ?t) zero))
+    (not (vector ?b (accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (debug "~&Drawing zero accel for at-rest ~a at ~a.~%" ?b ?t)
     )
   :effects
-  ((vector ?b (at (accel ?b) ?t) zero)        
-   (variable ?mag-var (at (mag (accel ?b)) ?t))
-   (given (at (mag (accel ?b)) ?t) (dnum 0 |m/s^2|)))
+  ((vector ?b (accel ?b :time ?t) zero)        
+   (variable ?mag-var (mag (accel ?b :time ?t)))
+   (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
   :hint
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (kcd "draw_accel_when_at_rest")
@@ -2525,14 +2529,14 @@
    ((time ?t)
     (motion ?b ?t-motion (straight constant ?dontcare))
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (accel ?b) ?t) zero))
+    (not (vector ?b (accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (debug "Drawing zero accel vector for constant-speed ~b at ~t.~%" ?b ?t)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) zero)
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (given (at (mag (accel ?b)) ?t) (dnum 0 |m/s^2|)))
+   ((vector ?b (accel ?b :time ?t) zero)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
   :hint
   ((point (string "Notice that ~a is moving in a straight line at constant speed ~a" ?b (?t pp)))
    (teach (minilesson "mini_zero_accel.htm")
@@ -2557,16 +2561,16 @@
     (motion ?b ?t-motion (straight speed-up ?dir))
     (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (accel ?b) ?t) ?dir))
+    (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t))
-    (given (at (dir (accel ?b)) ?t) ?dir))
+   ((vector ?b (accel ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) ?dir))
    :hint
    ((point (string "Notice that ~a is moving in a straight line and speeding up ~a" ?b (?t pp)))
     (teach (minilesson "mini_speedup_accel.htm")
@@ -2597,19 +2601,19 @@
     ;; following tells us forces are not balanced, else would have at-rest
     (motion ?b ?t-motion (straight speed-up unknown))
     (test (tinsidep ?t ?t-motion))
-    (setof (in-wm (given (at (dir (force ?b ?agent ?type)) ?t) ?force-dir))
+    (setof (in-wm (given (dir (force ?b ?agent ?type :time ?t)) ?force-dir))
            (force ?b ?agent ?type) ?given-forces)
     (test (>= (length ?given-forces) 2))
     ;; Should verify not all in same direction
-    (not (vector ?b (at (accel ?b) ?t) ?dir))
+    (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t)))
+   ((vector ?b (accel ?b :time ?t) unknown)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Can you tell whether the acceleration of ~a will be zero or non-zero?" ?b))
     (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. The exact direction of the acceleration vector requires calculation to determine, so you can draw the acceleration at an approximate angle and leave the exact angle unspecified." ?b))
@@ -2629,15 +2633,15 @@
     ;next line to force rule to only work for vec3a
     (component-form)
     ; !!! verify not all in same direction
-    (not (vector ?b (at (accel ?b) ?t) ?dir))
+    (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t)))
+   ((vector ?b (accel ?b :time ?t) unknown)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Can you tell whether the acceleration of ~a will be zero or non-zero?" ?b))
     (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. The exact direction of the acceleration vector requires calculation to determine, so you can draw the acceleration at an approximate angle and leave the exact angle unspecified." ?b))
@@ -2653,24 +2657,24 @@
    "If you are given the direction of acceleration at some time
    then draw an acceleration vector for it in the given direction."
   :preconditions
-   ((in-wm (given (at (dir(accel ?b)) ?t-given) ?dir))
+   ((in-wm (given (dir (accel ?b :time ?t-given)) ?dir))
     (test (not (equal ?dir 'unknown)))  
     (test (tinsidep ?t ?t-given))
     ; make sure no other motion specification in problem for time
     ; !! Too strict, some motion specs leave accel dir out.
     (not (motion ?b ?t-motion . ?dontcare)
          (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (accel ?b) ?t) ?dir))
+    (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (accel ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t))
-    (given (at (dir (accel ?b)) ?t) ?dir)
+   ((vector ?b (accel ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) ?dir)
     ; Because dir is problem given, find-by-psm won't ensure implicit eqn
     ; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (accel ?b)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t)))
     ) 
    :hint
    ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
@@ -2696,13 +2700,13 @@
     (test (or (null ?dir-spec) (null (second ?dir-spec)) 
 	      (equal (second ?dir-spec) 'unknown)))
     (object ?b) ;sanity test
-    (not (vector ?b (at (accel ?b) ?t) ?dont-care))
+    (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (accel ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t))
+   ((vector ?b (accel ?b :time ?t) unknown)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
     ) 
    :hint
    ((point (string "Note that ~A is not moving in a straight line ~A." 
@@ -2719,7 +2723,7 @@
 ;;; motion.
 
 ;; Note: we write out structured direction term in effects and to prevent
-;; effect from unifying with NTL precond (vector ?b (at (accel ?b) ?t) zero). 
+;; effect from unifying with NTL precond (vector ?b (accel ?b :time ?t) zero). 
 ;; When we had (vector ... ?dir) this operator would be tried
 ;; with ?accel-dir bound to 'zero coming in, causing error when we 
 ;; attempt to bind ?accel-dir.
@@ -2732,17 +2736,17 @@
     (motion ?b ?t-motion (straight slow-down (dnum ?motion-dir |deg|)))
     (test (not (equal ?motion-dir 'unknown)))  ; until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (accel ?b) ?t) ?dont-care))
+    (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?accel-dir (mod (+ ?motion-dir 180) 360))
     (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir-val ?b ?t)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) (dnum ?accel-dir |deg|))
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t))
-    (given (at (dir (accel ?b)) ?t) (dnum ?accel-dir |deg|)))
+   ((vector ?b (accel ?b :time ?t) (dnum ?accel-dir |deg|))
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) (dnum ?accel-dir |deg|)))
   :hint
   ((point (string "Notice that ~a is slowing down as it moves in a straight line ~a" ?b (?t pp)))
    (teach (minilesson "mini_slowdown_accel.htm")
@@ -2766,16 +2770,16 @@
    ((free-fall ?b ?t-motion)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (accel ?b) ?t) ?dir))
+    (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing free-fall accel at 270 for ~a at ~a.~%" ?b ?t)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) (dnum 270 |deg|))
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t))
-    (given (at (dir (accel ?b)) ?t) (dnum 270 |deg|))
+   ((vector ?b (accel ?b :time ?t) (dnum 270 |deg|))
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) (dnum 270 |deg|))
     (constant (accel ?b) ?t)
     ;; can't mkae use of this easily, endpoints not included in interval
     ;; and we only inherit constant values from wider intervals to sub-interval
@@ -2799,7 +2803,7 @@
   the body's acceleration and the gravitational acceleration for the planet"
   :preconditions
   ((any-member ?quantity
-	       ((at (mag (accel ?b)) ?t)
+	       ((mag (accel ?b :time ?t))
 		(gravitational-acceleration ?planet)))
    (free-fall ?b ?t)
    (near-planet ?planet))
@@ -2819,7 +2823,7 @@
   :preconditions
   ((free-fall ?b ?t)
    (near-planet ?planet)
-   (variable ?accel-var (at (mag (accel ?b)) ?t))
+   (variable ?accel-var (mag (accel ?b :time ?t)))
    (variable ?g-var (gravitational-acceleration ?planet))
    )
   :effects
@@ -2852,16 +2856,16 @@
     					      (dnum ?accel-dir |deg|))))
     (test (tinsidep ?t ?t-motion))
     (test (time-pointp ?t))
-    (not (vector ?b (at (accel ?b) ?t) ?dontcare))
+    (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing centripetal accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) (dnum ?accel-dir |deg|))
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t))
-    (given (at (dir (accel ?b)) ?t) (dnum ?accel-dir |deg|)))
+   ((vector ?b (accel ?b :time ?t) (dnum ?accel-dir |deg|))
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) (dnum ?accel-dir |deg|)))
    :hint
    ((point (string "Notice that ~a is in uniform circular motion ~a" ?b (?t pp)))
     (teach (kcd "draw_accel_circular_constant_speed")
@@ -2885,16 +2889,16 @@
     (test (tinsidep ?t ?t-motion))
     ;; should we test that free-fall is not specified? Assume we won't
     ;; have this motion spec in that case.
-    (not (vector ?b (at (accel ?b) ?t) ?dontcare))
+    (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing projectile accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
     )
   :effects
-   ((vector ?b (at (accel ?b) ?t) (dnum ?accel-dir |deg|))
-    (variable ?mag-var (at (mag (accel ?b)) ?t))
-    (variable ?dir-var (at (dir (accel ?b)) ?t))
-    (given (at (dir (accel ?b)) ?t) (dnum ?accel-dir |deg|)))
+   ((vector ?b (accel ?b :time ?t) (dnum ?accel-dir |deg|))
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) (dnum ?accel-dir |deg|)))
    :hint
     ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
     (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." ?b (?t pp) ?dir ?dir))
@@ -2910,9 +2914,9 @@
   the body's acceleration and its velocity and radius of circular motion"
   :preconditions
   ((any-member ?quantity
-	        ((at (mag (accel ?b))       ?t)
-		 (at (mag (velocity ?b))    ?t)
-		 (at (revolution-radius ?b) ?t)))
+	        ((mag (accel ?b :time       ?t))
+		 (mag (velocity ?b :time    ?t))
+		 (revolution-radius ?b :time ?t)))
    (motion ?body ?t-motion (curved circular ?dontcare))
    (test (tinsidep ?t ?t-motion))
    )
@@ -2930,9 +2934,9 @@
      divided by the radius of circular motion"
   :preconditions
    (
-   (variable ?accel-var    (at (mag (accel ?b)) ?t))
-   (variable ?vel-var      (at (mag (velocity ?b)) ?t))
-   (variable ?radius-var   (at (revolution-radius ?b) ?t))
+   (variable ?accel-var    (mag (accel ?b :time ?t)))
+   (variable ?vel-var      (mag (velocity ?b :time ?t)))
+   (variable ?radius-var   (revolution-radius ?b :time ?t))
    )
   :effects
   ((eqn (= ?accel-var (/ (^ ?vel-var 2)
@@ -2954,8 +2958,8 @@
    (time ?t)
    (bind ?radius-var (format-sym "r_~A_~A" ?b (time-abbrev ?t)))) 
   :effects 
-  ((variable ?radius-var (at (revolution-radius ?b) ?t))
-   (define-var (at (revolution-radius ?b) ?t))) 
+  ((variable ?radius-var (revolution-radius ?b :time ?t))
+   (define-var (revolution-radius ?b :time ?t))) 
   :hint 
   ((bottom-out (string "Use the Add Variable command to define a radius variable for ~A" ?b))))
 
@@ -2983,8 +2987,8 @@
      (motion ?b ?t-circular (curved circular ?dontcare))
      (any-member ?sought (
                        (period ?b)
-		       (at (revolution-radius ?b) ?t)
-		       (at (mag (velocity ?b)) ?t)
+		       (revolution-radius ?b :time ?t)
+		       (mag (velocity ?b :time ?t))
                          ))
     (time ?t)
     (test (tinsidep ?t ?t-circular))
@@ -2998,8 +3002,8 @@
       ;; make sure body is drawn if it hasn't been drawn for something else
       (body ?b) 
       (variable ?T-var    (period ?b))
-      (variable ?r    (at (revolution-radius ?b) ?t))
-      (variable	?v    (at (mag (velocity ?b)) ?t))
+      (variable ?r    (revolution-radius ?b :time ?t))
+      (variable	?v    (mag (velocity ?b :time ?t)))
    )
    :effects (
      (eqn (= ?T-var (/ (* 2 $P ?r) ?v)) (period ?b ?t circular))
@@ -3024,7 +3028,7 @@
 ;;; vector quantity if we need to destructure the vector term because 
 ;;; different quantities have different numbers of arguments. 
 ;;; We are pretty consistent in putting the principal body in the first 
-;;; position, though, so (at (?vectype ?body . ?rest) ?time) should work
+;;; position, though, so (?vectype ?body . ?rest :time ?time) should work
 ;;; with possibly empty ?rest, though it will also match non-vectors as well.  
 ;;; The following code works for kinematic properties of a body at 
 ;;; a time as used in our problems (velocity and accel), could have problems
@@ -3032,15 +3036,16 @@
 ;;; The first arg of the vector proposition associates a vector with a body
 ;;; for the purposes of choosing axes to use for that vector's components.
 ;;;
-(defoperator draw-vector-given-compos (?b ?vectype ?args ?t)
+(defoperator draw-vector-given-compos (?b ?vectype ?args)
    :specifications "if you are given the components of a vector property of a body at a time and the vector grid is on in this problem, then draw it at atan2(vy, vx)"
    :preconditions (
      (vector-grid)
      (component-form)
-     (given (at (compo x 0 (?vectype ?b . ?args)) ?t) (dnum ?xc ?units))
-     (given (at (compo y 90 (?vectype ?b . ?args)) ?t) (dnum ?yc ?units))
+     (given (compo x 0 (?vectype ?b . ?args)) (dnum ?xc ?units))
+     (given (compo y 90 (?vectype ?b . ?args)) (dnum ?yc ?units))
      ; note we can only apply to vector attributes of body and time.
-     (bind ?vector `(at (,?vectype ,?b . ,?args) ,?t)) ; for use in hints
+     (bind ?vector `(,?vectype ,?b . ,?args)) ; for use in hints
+     (bind ?t (time-of ?args))
      (not (vector ?b ?vector ?dir))
      ; !!! variable name may not be consistent with those generated elsewhere
      ; problem if this has to match up with name generated anywhere else.
@@ -3050,12 +3055,12 @@
      (bind ?dir `(dnum ,(dir-from-compos ?xc ?yc) |deg|))
    )
    :effects (
-    (vector ?b (at (?vectype ?b . ?args) ?t) ?dir)
-    (variable ?mag-var (at (mag (?vectype ?b . ?args)) ?t))
-    (variable ?dir-var (at (dir (?vectype ?b . ?args)) ?t))
+    (vector ?b (?vectype ?b . ?args) ?dir)
+    (variable ?mag-var (mag (?vectype ?b . ?args)))
+    (variable ?dir-var (dir (?vectype ?b . ?args)))
     ;; Don't put out equation for thetaV since value is not exact, could 
     ;; lead to errors if given to algebraic solver with other equations.
-    ;;(given (at (dir (?vectype ?b . ?args)) ?t) ?dir)
+    ;;(given (dir (?vectype ?b . ?args)) ?dir)
    )
    :hint (
     (point (string "You were given ~A in terms of its components." ?vector))
@@ -3070,9 +3075,9 @@
     (vector-grid)
     (component-form)
     ; build expressions for vector and its attributes:
-    (bind ?vector `(at (,?vectype ,?b) ,?t))
-    (bind ?vector-xc (vector-xc ?vector))
-    (bind ?vector-dir (vector-dir ?vector))
+    (bind ?vector `(,?vectype ,?b :time ,?t))
+    (bind ?vector-xc (vector-xc ?vector)) ;gives (compo x 0 ?vector)
+    (bind ?vector-dir `(dir ,?vector))
     ;; we test whether xc of vector is a problem sought. NOTE: This relies
     ;; on *cp* as always holding the current problem. This is not guaranteed
     ;; if problem solver is not invoked through sgg interface functions.
@@ -3087,9 +3092,9 @@
     (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
-    (vector ?b (at (?vectype ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (?vectype ?b)) ?t))
-    (variable ?dir-var (at (dir (?vectype ?b)) ?t))
+    (vector ?b (?vectype ?b :time ?t) unknown)
+    (variable ?mag-var (mag (?vectype ?b :time ?t)))
+    (variable ?dir-var (dir (?vectype ?b :time ?t)))
    )
    :hint
    ((teach (string "In this problem the exact direction of the sought vector, ~A, requires calculation to determine. When a vector angle is not given, you should draw the vector at an unspecified angle. You do this by drawing the vector making your best approximation to the correct angle, then erasing the number in the direction slot of the subsequent dialog box to indicate that the exact angle is being sought." ?vector))
@@ -3109,14 +3114,14 @@
    acceleration and displacement."
   :preconditions
   ((any-member ?quantity
-	       ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (velocity ?b)) ?t2)
-		 (at (dir (velocity ?b)) ?t2)
-		 (at (mag (accel ?b)) (during ?t1 ?t2))
-		 (at (dir (accel ?b)) (during ?t1 ?t2))
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
+	       ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))))
     (object ?b)
     (time (during ?t1 ?t2))
@@ -3170,28 +3175,31 @@
   :specifications 
    "Lists the quantities contained in vf = vi + a * t"
   :preconditions
-  (; This should apply at first step of apply-vector-psm where it calls for a vector-psm 
-   ; (eqn family). It will ALSO post the compo-eqn-contains to choose the particular equation.
-   ; At second step, where apply-vector-psm where calls for a compo-eqn-contains, the goal
-   ; will be satisfied by the WM element. However, solver will also try to achieve goal via
-   ; operators. This operator won't be applied again with the same parameters, but those
-   ; for OTHER lk family equations might be.  So: prevent any of them from applying when 
-   ; the compo-eqn-contains is already in wm. !!! Should simplify apply-vector-psm to avoid
-   ; this whole two-level scheme of choosing eqn-family then choosing compo-eqn. 
+  (
+   ;; This should apply at first step of apply-vector-psm where it calls for a 
+   ;; vector-psm (eqn family).  It will ALSO post the compo-eqn-contains to 
+   ;; choose the particular equation.  At second step, where apply-vector-psm 
+   ;; where calls for a compo-eqn-contains, the goal will be satisfied by 
+   ;; the WM element.  However, solver will also try to achieve goal via
+   ;; operators.  This operator won't be applied again with the same 
+   ;; parameters, but those for OTHER lk family equations might be.  
+   ;; So: prevent any of them from applying when the compo-eqn-contains 
+   ;; is already in wm. 
+   ;; !!! Should simplify apply-vector-psm to avoid this whole two-level 
+   ;; scheme of choosing eqn-family then choosing compo-eqn. 
    (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	       ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (velocity ?b)) ?t2)
-		 (at (dir (velocity ?b)) ?t2)
-		 (at (mag (accel ?b)) (during ?t1 ?t2))
-		 (at (dir (accel ?b)) (during ?t1 ?t2))
-		 ;;(at (mag (displacement ?b)) (during ?t1 ?t2))
-		 ;;(at (dir (displacement ?b)) (during ?t1 ?t2))
+	       ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
-   ; only applies if accel is constant within interval we are using
-   ; sought may not bind both times, so must choose endpoints of interval to try
+   ;; only applies if accel is constant within interval we are using
+   ;; sought may not bind both times, so must choose endpoints of interval 
+   ;; to try
    (constant (accel ?b) ?t-constant)
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
@@ -3208,10 +3216,9 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity))
    (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   (vector ?b (at (velocity ?b) ?t2) ?dir2)
-   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   ;(vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (lk ?b (during ?t1 ?t2))))
@@ -3222,11 +3229,11 @@
    writes vf=vi+a*t.  That is, it leaves out displacement (s)."
   :preconditions
    (; for 2D case, make sure accel compo doesn't vanish
-    (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
-    (variable ?vf-compo (at (compo ?xyz ?rot (velocity ?b)) ?t2))
-    (variable ?a-compo  (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2)))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?t (duration (during ?t1 ?t2))))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
@@ -3251,14 +3258,14 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	       ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (velocity ?b)) ?t2)
-		 (at (dir (velocity ?b)) ?t2)
-		 (at (mag (accel ?b)) (during ?t1 ?t2))
-		 (at (dir (accel ?b)) (during ?t1 ?t2))
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
+	       ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 ;;(duration (during ?t1 ?t2))
 		 ))
    ;; only applies if accel is constant within interval we are using
@@ -3279,10 +3286,10 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-t ?quantity))
    (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   (vector ?b (at (velocity ?b) ?t2) ?dir2)
-   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (lk ?b (during ?t1 ?t2))))
@@ -3293,12 +3300,12 @@
    Writes the equation vf^2 = vi^2 + 2*a*s, which is lacking a duration."
   :preconditions
    (; for 2D case, make sure accel compo doesn't vanish
-    (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
-    (variable ?vf-compo (at (compo ?xyz ?rot (velocity ?b)) ?t2))
-    (variable ?a-compo  (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2)))
-    (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2))))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
+    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2)))))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
    (eqn (= (^ ?vf-compo 2) (+ (^ ?vi-compo 2) (* 2 ?a-compo ?s-compo)))
@@ -3318,14 +3325,14 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 ;;(at (mag (velocity ?b)) ?t2)
-		 ;;(at (dir (velocity ?b)) ?t2)
-		 (at (mag (accel ?b)) (during ?t1 ?t2))
-		 (at (dir (accel ?b)) (during ?t1 ?t2))
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
+	        ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 ;;(mag (velocity ?b :time ?t2))
+		 ;;(dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant within interval we are using
@@ -3346,10 +3353,10 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity))
    (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   ;(vector ?b (at (velocity ?b) ?t2) ?dir2)
-   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   ;(vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (lk ?b (during ?t1 ?t2))))
@@ -3360,11 +3367,11 @@
   "Writes the equation s = vi*t + 0.5*a*t^2, which lacks vf"
   :preconditions
    (; for 2D case, make sure accel compo doesn't vanish
-    (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
-    (variable ?a-compo  (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2)))
-    (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2)))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
+    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     (variable ?t-var    (duration (during ?t1 ?t2))))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
@@ -3389,14 +3396,14 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (velocity ?b)) ?t2)
-		 (at (dir (velocity ?b)) ?t2)
-		 ;;(at (mag (accel ?b)) (during ?t1 ?t2))
-		 ;;(at (dir (accel ?b)) (during ?t1 ?t2))
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
+	        ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 ;;(mag (accel ?b :time (during ?t1 ?t2)))
+		 ;;(dir (accel ?b :time (during ?t1 ?t2)))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant within interval we are using
@@ -3417,10 +3424,10 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity))
    (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   (vector ?b (at (velocity ?b) ?t2) ?dir2)
-   ;(vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   ;(vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (lk ?b (during ?t1 ?t2))))
@@ -3430,9 +3437,9 @@
   :specifications "
    Writes the equation s = 0.5*(vi + vf)*t, which lacks a"
   :preconditions
-   ((variable ?vf-compo (at (compo ?xyz ?rot (velocity ?b)) ?t2))
-    (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
-    (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2)))
+   ((variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     (variable ?t-var    (duration (during ?t1 ?t2))))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
@@ -3481,10 +3488,10 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (displacement ?b)) (during ?t1 ?t2))
+	        ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant so child of lk.
@@ -3501,10 +3508,10 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity))
    (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   ;(vector ?b (at (velocity ?b) ?t2) ?dir2)
-   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   (vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   ;(vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (lk ?b (during ?t1 ?t2))))
@@ -3515,14 +3522,14 @@
   "Writes the component equation s_x = vi_x*t when a_x = 0"
   :preconditions
   ( ;; make sure accel compo vanishes
-   (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
+   (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
    (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
    ;; and write it 
-   (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
-   (variable ?s-compo  (at (compo ?xyz ?rot (displacement ?b)) (during ?t1 ?t2)))
+   (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+   (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
    (variable ?t-var    (duration (during ?t1 ?t2)))
    ;; following only used for implicit eqn so a_x can be accepted if used
-   (variable ?a_x   (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2))))
+   (variable ?a_x   (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
    (eqn (= ?s-compo (* ?vi-compo ?t-var))
@@ -3530,12 +3537,12 @@
     (eqn-compos (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2)))
      (?vi-compo ?s-compo))
     (implicit-eqn (= ?a_x 0)
-                  (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2))))
+                  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
   :hint (
     (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
     (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
     (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction. Therefore, the ~A component of velocity remains constant ~A. You can use this to relate ~A to ~A and ~A." 
-		   ?b ((during ?t1 ?t2) pp) ((axis ?xyz ?rot) symbols-label)((axis ?xyz ?rot) symbols-label) 
+		   ?b ((during ?t1 ?t2) pp) ((axis ?xyz ?rot) symbols-label) ((axis ?xyz ?rot) symbols-label) 
 		   ((axis ?xyz ?rot) symbols-label) ((during ?t1 ?t2) pp) 
 		   (?s-compo algebra) (?vi-compo algebra) (?t-var algebra)))
     (bottom-out (string  "Write the equation ~A"
@@ -3553,10 +3560,10 @@
   :preconditions (
    (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-	         (at (mag (velocity ?b)) ?t2)
-		 (at (dir (velocity ?b)) ?t2)
+	        ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+	         (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
 		 ))
    ; pick a pair of times:
    (time (during ?t1 ?t2))
@@ -3576,10 +3583,10 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity))
    (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   (vector ?b (at (velocity ?b) ?t2) ?dir2)
-   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
-   ;(vector ?b (at (displacement ?b) (during ?t1 ?t2)) ?dir4)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   ;(vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (lk ?b ?t-free-fall)))
@@ -3595,10 +3602,10 @@
   ;; Ensuring vector is drawn allows define-compo to work, since axes have
   ;; been drawn on the body in the containing lk application.  
   :preconditions (
-    (vector ?b (at (velocity ?b) ?t1) ?dir1)
-    (vector ?b (at (velocity ?b) ?t2) ?dir2)
-    (variable ?v1-compo (at (compo x 0 (velocity ?b)) ?t1))
-    (variable ?v2-compo (at (compo x 0 (velocity ?b)) ?t2)))
+    (vector ?b (velocity ?b :time ?t1) ?dir1)
+    (vector ?b (velocity ?b :time ?t2) ?dir2)
+    (variable ?v1-compo (compo x 0 (velocity ?b :time ?t1)))
+    (variable ?v2-compo (compo x 0 (velocity ?b :time ?t2))))
   :effects
   ((eqn (= ?v1-compo ?v2-compo) 
                (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk)))
@@ -3623,13 +3630,13 @@
 #|
 (defoperator vy-apex-contains (?sought)
   :preconditions 
-    ((any-member ?sought ((at (compo y 90 (velocity ?b)) ?t)))
+    ((any-member ?sought ((compo y 90 (velocity ?b :time ?t))))
     (apex ?b ?t))
   :effects ((eqn-contains (vy-apex ?b ?t) ?sought)))
 
 (defoperator write-vy-apex(?b ?t)
   :preconditions 
-  ((variable ?v_y (at (compo y 90 (velocity ?b)) ?t)))
+  ((variable ?v_y (compo y 90 (velocity ?b :time ?t))))
   :effects ((eqn (= ?v_y 0) (vy-apex ?b ?t)))
   :hint
   ((bottom-out (string "Write the equation ~A" ((= ?v_y 0) algebra)))
@@ -3660,12 +3667,12 @@
 the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((any-member ?quantity
-	       ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (velocity ?b)) ?t2)
-		 (at (dir (velocity ?b)) ?t2)
-		 (at (mag (accel ?b)) (during ?t1 ?t2))
-		 (at (dir (accel ?b)) (during ?t1 ?t2))
+	       ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))))
     (object ?b)
     (time (during ?t1 ?t2))
@@ -3685,9 +3692,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((not (vector-diagram (avg-accel ?b (during ?t1 ?t2))))
    (body ?b)
-   (vector ?b (at (velocity ?b) ?t1) ?dir1)
-   (vector ?b (at (velocity ?b) ?t2) ?dir2)
-   (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?dir3)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (avg-accel ?b (during ?t1 ?t2)))))
@@ -3703,12 +3710,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
    "Lists the quantities contained in vf = vi + a * t"
   :preconditions
   ((any-member ?quantity 
-	       ((at (mag (velocity ?b)) ?t1)
-		 (at (dir (velocity ?b)) ?t1)
-		 (at (mag (velocity ?b)) ?t2)
-		 (at (dir (velocity ?b)) ?t2)
-		 (at (mag (accel ?b)) (during ?t1 ?t2))
-		 (at (dir (accel ?b)) (during ?t1 ?t2))
+	       ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    (time (during ?t1 ?t2))
@@ -3720,11 +3727,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :specifications " writes vf=vi+a*t where accel not constant"
   :preconditions
    (; for 2D case, make sure accel compo not known to vanish
-    (in-wm (vector ?b (at (accel ?b) (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (variable ?vi-compo (at (compo ?xyz ?rot (velocity ?b)) ?t1))
-    (variable ?vf-compo (at (compo ?xyz ?rot (velocity ?b)) ?t2))
-    (variable ?a-compo  (at (compo ?xyz ?rot (accel ?b)) (during ?t1 ?t2)))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?t (duration (during ?t1 ?t2))))
   :effects
   ((eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
@@ -3752,23 +3759,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
   "if you are given that one body is at a certain direction with respect to another,
   then draw the relative position vector from one to the other in that direction"
   :preconditions ( 
-    (given (at (dir (relative-position ?b1 ?b2)) ?t-given) ?dir-expr)
+    (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr)
     (test (not (equal ?dir-expr 'unknown)))
     (time ?t)
     (test (tinsidep-include-endpoints ?t ?t-given))
     ; make sure this vector not already drawn
-    (not (vector ?b1 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
+    (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)
     )
   :effects (
-    (vector ?b1 (at (relative-position ?b1 ?b2) ?t) ?dir-expr)
-    (variable ?mag-var (at (mag (relative-position ?b1 ?b2)) ?t))
-    (variable ?dir-var (at (dir (relative-position ?b1 ?b2)) ?t))
+    (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
+    (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
+    (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
      ; Because dir is problem given, find-by-psm won't ensure implicit eqn
     ; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir-expr) (at (dir (relative-position ?b1 ?b2)) ?t))
+    (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
@@ -3782,24 +3789,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
   "if you are given that one body is at a certain direction with respect to another,
   then draw the relative position vector from one to the other in that direction"
   :preconditions ( 
-    (given (at (dir (relative-position ?b2 ?b1)) ?t-given) ?opp-dir-expr)
+    (given (dir (relative-position ?b2 ?b1 :time ?t-given)) ?opp-dir-expr)
     (test (not (equal ?opp-dir-expr 'unknown)))
     (time ?t)
     (test (tinsidep-include-endpoints ?t ?t-given))
     ; make sure this vector not already drawn
-    (not (vector ?b1 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
+    (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?dir-expr (opposite ?opp-dir-expr))
     (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)
     )
   :effects (
-    (vector ?b1 (at (relative-position ?b1 ?b2) ?t) ?dir-expr)
-    (variable ?mag-var (at (mag (relative-position ?b1 ?b2)) ?t))
-    (variable ?dir-var (at (dir (relative-position ?b1 ?b2)) ?t))
+    (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
+    (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
+    (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
      ; Because dir is problem given, find-by-psm won't ensure implicit eqn
     ; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir-expr) (at (dir (relative-position ?b1 ?b2)) ?t))
+    (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
@@ -3817,7 +3824,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator opposite-relative-position-contains (?quantity)
   :preconditions (
   (any-member ?quantity (
-  		(at (mag (relative-position ?b1 ?b2)) ?t)
+  		(mag (relative-position ?b1 ?b2 :time ?t))
                         ))
   ;; sort body names in id so opposite-relative-position(b1, b2) 
   ;; gets same id as opposite-relative-position(b2, b1)
@@ -3829,8 +3836,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator opposite-relative-position (?b1 ?b2 ?t)
   :preconditions (
-  (variable ?mag1-var (at (mag (relative-position ?b1 ?b2)) ?t))
-  (variable ?mag2-var (at (mag (relative-position ?b2 ?b1)) ?t))
+  (variable ?mag1-var (mag (relative-position ?b1 ?b2 :time ?t)))
+  (variable ?mag2-var (mag (relative-position ?b2 ?b1 :time ?t)))
   )
   :effects (
     	(eqn (= ?mag1-var ?mag2-var) (opposite-relative-position (?b2 ?b1) ?t)) 
@@ -3852,18 +3859,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (at-place ?b1 ?b2 ?t))
     (not (at-place ?b2 ?b1 ?t))
     ; make sure not given it's dir, or the opposite dir, so can draw known
-    (not (given (at (dir (relative-position ?b1 ?b2)) ?t) (dnum ?dir |deg|)))
-    (not (given (at (dir (relative-position ?b2 ?b1)) ?t) (dnum ?dir |deg|)))
+    (not (given (dir (relative-position ?b1 ?b2 :time ?t)) (dnum ?dir |deg|)))
+    (not (given (dir (relative-position ?b2 ?b1 :time ?t)) (dnum ?dir |deg|)))
     ;; make sure this vector not already drawn
-    (not (vector ?b2 (at (relative-position ?b1 ?b2) ?t) ?dont-care))
+    (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing relative position ~A wrt ~a at ~a at unknown angle.~%" ?b1 ?b2 ?t)
     )
   :effects (
-    (vector ?b1 (at (relative-position ?b1 ?b2) ?t) unknown)
-    (variable ?mag-var (at (mag (relative-position ?b1 ?b2)) ?t))
-    (variable ?dir-var (at (dir (relative-position ?b1 ?b2)) ?t))
+    (vector ?b1 (relative-position ?b1 ?b2 :time ?t) unknown)
+    (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
+    (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
     (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
@@ -3875,13 +3882,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((in-wm (at-place ?b ?loc ?t-at-place))
    (test (tinsidep ?t ?t-at-place))
-   (not (vector ?b (at (relative-position ?b ?loc) ?t) ?dont-care))
+   (not (vector ?b (relative-position ?b ?loc :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A_~A" ?b ?loc (time-abbrev ?t)))
    (debug "~&Drawing zero-length relative position of ~a wrt ~a at ~a.~%" ?b ?loc ?t))
   :effects 
-  ((vector ?b (at (relative-position ?b ?loc) ?t) zero)
-   (variable ?mag-var (at (mag (relative-position ?b ?loc)) ?t))
-   (given (at (mag (relative-position ?b ?loc)) ?t) (dnum 0 |m|)))
+  ((vector ?b (relative-position ?b ?loc :time ?t) zero)
+   (variable ?mag-var (mag (relative-position ?b ?loc :time ?t)))
+   (given (mag (relative-position ?b ?loc :time ?t)) (dnum 0 |m|)))
   :hint 
   ( (point (string "Note that ~A is at ~A." ?b ?loc))
     (teach (string "What is the relative position of ~A and ~A?" ?b ?loc))    
@@ -3898,8 +3905,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator sum-disp-vector-contains (?sought)
   :preconditions 
     ((any-member ?sought (
-		 (at (mag (displacement ?b)) ?t)
-		 (at (dir (displacement ?b)) ?t)))
+		 (mag (displacement ?b :time ?t))
+		 (dir (displacement ?b :time ?t))))
     (object ?b)
     (time ?tt)
     (test (proper-subintervalp ?t ?tt)) ;?t equals ?tt or is atomic subinterval
@@ -3919,19 +3926,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; net displacment.
    (bind ?intervals (successive-intervals ?tt))
    (foreach ?interval ?intervals
-      (vector ?b (at (displacement ?b) ?interval) ?dir-di))
+      (vector ?b (displacement ?b :time ?interval) ?dir-di))
    ;; then draw the net displacement
-   (vector ?b (at (displacement ?b) ?tt) ?dir-dnet)
+   (vector ?b (displacement ?b :time ?tt) ?dir-dnet)
    (axis-for ?b x ?rot))
   :effects 
   ((vector-diagram (sum-disp ?b ?tt))))
 
 (defoperator write-sum-disp-compo (?b ?tt ?xy ?rot)
   :preconditions 
-   ((variable ?dnet_xy (at (compo ?xy ?rot (displacement ?b)) ?tt))
+   ((variable ?dnet_xy (compo ?xy ?rot (displacement ?b :time ?tt)))
    (bind ?intervals (successive-intervals ?tt))
    (map ?interval ?intervals
-      (variable ?di_xy (at (compo ?xy ?rot (displacement ?b)) ?interval))
+      (variable ?di_xy (compo ?xy ?rot (displacement ?b :time ?interval)))
       ?di_xy ?di_compos))
   :effects 
    ((eqn (= ?dnet_xy (+ . ?di_compos))
@@ -3947,8 +3954,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator sum-net-force-vector-contains (?sought)
   :preconditions 
     ((any-member ?sought (
-		 (at (mag (net-force ?b)) ?t1)
-		 (at (dir (net-force ?b)) ?t1)))
+		 (mag (net-force ?b :time ?t1))
+		 (dir (net-force ?b :time ?t1))))
     (object ?b))  
     
   :effects 
@@ -3971,23 +3978,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ; net displacment.
    ;(bind ?intervals (successive-intervals (list 'during ?t1 ?t2)))
    ;(foreach ?interval ?intervals
-   (vector ?b (at (force ?b ?b1 applied) ?t1) ?dir-b1)
-   (vector ?b (at (force ?b ?b2 applied) ?t1) ?dir-b2)
+   (vector ?b (force ?b ?b1 applied :time ?t1) ?dir-b1)
+   (vector ?b (force ?b ?b2 applied :time ?t1) ?dir-b2)
    ; then draw the net displacement
-   (vector ?b (at (net-force ?b) ?t1) ?dir-nfnet)
+   (vector ?b (net-force ?b :time ?t1) ?dir-nfnet)
    (axis-for ?b  x ?rot))
   :effects 
   ((vector-diagram (sum-net-force ?b ?t1 ))))
 
 (defoperator write-sum-net-force-compo (?b ?t1 ?xy ?rot)
   :preconditions 
-  ((variable ?dnet_xy (at (compo ?xy ?rot (net-force ?b)) ?t1))
+  ((variable ?dnet_xy (compo ?xy ?rot (net-force ?b :time ?t1)))
    ;;  (bind ?intervals (successive-intervals (list 'during ?t1 ?t2)))
    (object ?b1)
    (object ?b2)
    (bind ?agents (list ?b1 ?b2))
    (map ?agent ?agents
-	(variable ?di_xy (at (compo ?xy ?rot (force ?b ?agent applied)) ?t1))
+	(variable ?di_xy (compo ?xy ?rot (force ?b ?agent applied :time ?t1)))
 	?di_xy ?di_compos))
   :effects 
   ((eqn (= ?dnet_xy (+ . ?di_compos))
@@ -4040,11 +4047,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((object ?b)
    (time ?t)
-   (not (variable ?dont-care (at (mass ?b) ?t)))
+   (not (variable ?dont-care (mass ?b :time ?t)))
    (bind ?var (format-sym "m_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
-  ((variable ?var (at (mass ?b) ?t))
-   (define-var (at (mass ?b) ?t)))
+  ((variable ?var (mass ?b :time ?t))
+   (define-var (mass ?b :time ?t)))
   :hint
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
@@ -4052,7 +4059,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator use-changing-mass-variable (?body ?time)
   :preconditions (
         (in-wm (changing-mass))
-        (variable ?var (at (mass ?body) ?time))
+        (variable ?var (mass ?body :time ?time))
 	)
     :effects ((mass-variable ?var ?body ?time)))
 
@@ -4068,8 +4075,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bind ?var (format-sym "dmdt_~A_~A_~A" (body-name ?b) (body-name ?agent) 
 			  (time-abbrev ?t))))
   :effects
-  ((variable ?var (at (mass-change-magnitude ?b ?agent) ?t))
-   (define-var (at (mass-change-magnitude ?b ?agent) ?t)))
+  ((variable ?var (mass-change-magnitude ?b ?agent :time ?t))
+   (define-var (mass-change-magnitude ?b ?agent :time ?t)))
   :hint
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for the magnitude of the change in mass."))
    ))
@@ -4134,16 +4141,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
        define a magnitude variable and an direction variable for it."
   :preconditions
    ((force ?b ?planet weight ?t ?dir action)
-    (not (vector ?b (at (force ?b ?planet weight) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?planet weight :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fw_~A_~A_~A" (body-name ?b) ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing weight of ~a at ~a.~%" ?b ?t))
   :effects
-   ((vector ?b (at (force ?b ?planet weight) ?t) ?dir)
-    (variable ?mag-var (at (mag (force ?b ?planet weight)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?planet weight)) ?t))
-    (given (at (dir (force ?b ?planet weight)) ?t) ?dir))
+   ((vector ?b (force ?b ?planet weight :time ?t) ?dir)
+    (variable ?mag-var (mag (force ?b ?planet weight :time ?t)))
+    (variable ?dir-var (dir (force ?b ?planet weight :time ?t)))
+    (given (dir (force ?b ?planet weight :time ?t)) ?dir))
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When an object is near a planet, the planet exerts a weight force on the object."))
@@ -4166,16 +4173,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (time ?t)
     (not (massless ?b))
     (near-planet ?planet)
-    (not (vector ?cm (at (force ?cm ?planet weight) ?t) ?dont-care))
+    (not (vector ?cm (force ?cm ?planet weight :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fw_~A_~A_~A" ?cm ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing weight of ~a at ~a acting at cm.~%" ?b ?t))
   :effects
-   ((vector ?cm (at (force ?cm ?planet weight) ?t) (dnum 270 |deg|))
-    (variable ?mag-var (at (mag (force ?cm ?planet weight)) ?t))
-    (variable ?dir-var (at (dir (force ?cm ?planet weight)) ?t))
-    (given (at (dir (force ?cm ?planet weight)) ?t) (dnum 270 |deg|)))
+   ((vector ?cm (force ?cm ?planet weight :time ?t) (dnum 270 |deg|))
+    (variable ?mag-var (mag (force ?cm ?planet weight :time ?t)))
+    (variable ?dir-var (dir (force ?cm ?planet weight :time ?t)))
+    (given (dir (force ?cm ?planet weight :time ?t)) (dnum 270 |deg|)))
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude m * g acting at a single point called the center of gravity, which normally is the same as the center of mass."))
@@ -4226,17 +4233,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?string tension ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
-    (not (vector ?b (at (force ?b ?string tension) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?string tension :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Ft_~A_~A_~A" (body-name ?b) (body-name ?string)                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a tension on ~a due to ~a at ~a.~%" 
 	   ?dir-expr ?b ?string ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?string tension) ?t) ?dir-expr)
-    (variable ?mag-var (at (mag (force ?b ?string tension)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?string tension)) ?t))
-    (given (at (dir (force ?b ?string tension)) ?t) ?dir-expr))
+   ((vector ?b (force ?b ?string tension :time ?t) ?dir-expr)
+    (variable ?mag-var (mag (force ?b ?string tension :time ?t)))
+    (variable ?dir-var (dir (force ?b ?string tension :time ?t)))
+    (given (dir (force ?b ?string tension :time ?t)) ?dir-expr))
   :hint
    ((point (string "Notice that ~a is tied to ~a." ?string ?b))
     (teach (string "Whenever something has a taut string, or something like a string, attached to it, then the string exerts a tension force on it."))
@@ -4256,15 +4263,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
      and define vectors for the magnitude and direction of the force."
   :preconditions
    ((force ?b ?string tension ?t unknown action)
-    (not (vector ?b (at (force ?b ?string tension) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?string tension :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Ft_~A_~A_~A" (body-name ?b) (body-name ?string)                                               (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing tension on ~a due to ~a at ~a of unknown direction.~%" ?b ?string ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?string tension) ?t) unknown)
-    (variable ?mag-var (at (mag (force ?b ?string tension)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?string tension)) ?t)))
+   ((vector ?b (force ?b ?string tension :time ?t) unknown)
+    (variable ?mag-var (mag (force ?b ?string tension :time ?t)))
+    (variable ?dir-var (dir (force ?b ?string tension :time ?t))))
   :hint
    ((point (string "Notice that ~a is tied to ~a." ?string ?b))
     (teach (string "Whenever something has a string, or something like a string, tied to it, then the string exerts a tension force on it."))
@@ -4304,17 +4311,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
       and it is perpendicular to the plane"
   :preconditions
    ((force ?b ?surface normal ?t (dnum ?normal-dir |deg|) action)
-    (not (vector ?b (at (force ?b ?surface normal) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?surface normal :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fn_~A_~A_~A" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a normal on ~a due to ~a at ~a.~%" ?normal-dir ?b ?surface ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?surface normal) ?t) (dnum ?normal-dir |deg|))
-    (variable ?mag-var (at (mag (force ?b ?surface normal)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?surface normal)) ?t))
-    (given (at (dir (force ?b ?surface normal)) ?t) (dnum ?normal-dir |deg|)))
+   ((vector ?b (force ?b ?surface normal :time ?t) (dnum ?normal-dir |deg|))
+    (variable ?mag-var (mag (force ?b ?surface normal :time ?t)))
+    (variable ?dir-var (dir (force ?b ?surface normal :time ?t)))
+    (given (dir (force ?b ?surface normal :time ?t)) (dnum ?normal-dir |deg|)))
   :hint
    ((point (string "Notice that ~a is supported by a surface: ~a." ?b ?surface))
     (teach (minilesson "mini_normal_force.htm")
@@ -4332,7 +4339,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (object ?b)
     (time ?t)
     ;; energy conservation law also checks for this to not exist:
-    (in-wm (given (at (dir (force ?b ?agent applied)) ?t-force) ?dir-expr))
+    (in-wm (given (dir (force ?b ?agent applied :time ?t-force)) ?dir-expr))
     (test (tinsidep ?t ?t-force))
     ;; check that something else hasn't defined this force.
     (not (force ?b ?agent applied ?t . ?dont-care)) 
@@ -4351,17 +4358,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?agent applied ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
-    (not (vector ?b (at (force ?b ?agent applied) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?agent applied :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fa_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a applied force on ~a due to ~a at ~a.~%" ?dir-expr ?b ?agent ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?agent applied) ?t) ?dir-expr)
-    (variable ?mag-var (at (mag (force ?b ?agent applied)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?agent applied)) ?t))
+   ((vector ?b (force ?b ?agent applied :time ?t) ?dir-expr)
+    (variable ?mag-var (mag (force ?b ?agent applied :time ?t)))
+    (variable ?dir-var (dir (force ?b ?agent applied :time ?t)))
     ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir-expr) (at (dir (force ?b ?agent applied)) ?t))
+    (implicit-eqn (= ?dir-var ?dir-expr) (dir (force ?b ?agent applied :time ?t)))
    )
   :hint
    ((point (string "You were given that there is an applied force on ~a." ?b))
@@ -4408,17 +4415,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
       and it is opposite the direction of motion"
   :preconditions
    ((force ?b ?surface kinetic-friction ?t (dnum ?friction-dir |deg|) action)
-    (not (vector ?b (at (force ?b ?surface kinetic-friction) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?surface kinetic-friction :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Ff_~A_~A_~A" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a kinetic-friction for ~a due to ~a at ~a.~%" ?friction-dir ?b ?surface ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?surface kinetic-friction) ?t) (dnum ?friction-dir |deg|))
-    (variable ?mag-var (at (mag (force ?b ?surface kinetic-friction)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?surface kinetic-friction)) ?t))
-    (given (at (dir (force ?b ?surface kinetic-friction)) ?t) (dnum ?friction-dir |deg|)))
+   ((vector ?b (force ?b ?surface kinetic-friction :time ?t) (dnum ?friction-dir |deg|))
+    (variable ?mag-var (mag (force ?b ?surface kinetic-friction :time ?t)))
+    (variable ?dir-var (dir (force ?b ?surface kinetic-friction :time ?t)))
+    (given (dir (force ?b ?surface kinetic-friction :time ?t)) (dnum ?friction-dir |deg|)))
   :hint
    ((point (string "Notice that ~a is sliding against a surface ~a." ?b ?surface))
     (teach (minilesson "Mini_kinetic_friction.HTM")
@@ -4431,8 +4438,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator kinetic-friction-law-contains (?quantity)
   :preconditions(
     (any-member ?quantity (
-	           (at (mag (force ?b ?surface kinetic-friction)) ?t)
-		   (at (mag (force ?b ?surface normal)) ?t)
+	           (mag (force ?b ?surface kinetic-friction :time ?t))
+		   (mag (force ?b ?surface normal :time ?t))
 		   (coef-friction ?b ?surface kinetic)
                  	  ))
     (slides-against ?b ?surface ?t-slides)
@@ -4446,8 +4453,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator kinetic-friction-law (?b ?surface ?t)
   
   :preconditions (
-    (variable ?ff-var (at (mag (force ?b ?surface kinetic-friction)) ?t))
-    (variable ?N-var   (at (mag (force ?b ?surface normal)) ?t))
+    (variable ?ff-var (mag (force ?b ?surface kinetic-friction :time ?t)))
+    (variable ?N-var   (mag (force ?b ?surface normal :time ?t)))
     (variable ?mu-var (coef-friction ?b ?surface kinetic))
   )
   :effects (
@@ -4480,17 +4487,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
    "If it is known that there is a static friction force in a given directoin, draw it"
   :preconditions
    ((force ?b ?surface static-friction ?t ?friction-dir action)
-    (not (vector ?b (at (force ?b ?surface static-friction) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?surface static-friction :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fsf_~A_~A_~A" (body-name ?b) ?surface 
                                               (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a static-friction for ~a due to ~a at ~a.~%" ?friction-dir ?b ?surface ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?surface static-friction) ?t) ?friction-dir)
-    (variable ?mag-var (at (mag (force ?b ?surface static-friction)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?surface static-friction)) ?t))
-    (given (at (dir (force ?b ?surface static-friction)) ?t) ?friction-dir))
+   ((vector ?b (force ?b ?surface static-friction :time ?t) ?friction-dir)
+    (variable ?mag-var (mag (force ?b ?surface static-friction :time ?t)))
+    (variable ?dir-var (dir (force ?b ?surface static-friction :time ?t)))
+    (given (dir (force ?b ?surface static-friction :time ?t)) ?friction-dir))
   :hint
    ((point (string "Notice that ~a is not moving with respect to ~a." ?b ?surface))
     (teach (string "If an object is in contact with a surface and not moving with respect to it, the surface exerts a static friction force on it.  The friction force is opposite to the direction of incipient motion."))
@@ -4505,8 +4512,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (time ?t)
     (test (tinsidep ?t ?t-friction))
     (any-member ?quantity (
-	           (at (mag (force ?b ?surface static-friction)) ?t)
-		   (at (mag (force ?b ?surface normal)) ?t)
+	           (mag (force ?b ?surface static-friction :time ?t))
+		   (mag (force ?b ?surface normal :time ?t))
 		   (coef-friction ?b ?surface static)
                  	  ))
   )
@@ -4517,8 +4524,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator static-friction-law (?b ?surface ?t)
   
   :preconditions (
-    (variable ?ff-var (at (mag (force ?b ?surface static-friction)) ?t))
-    (variable ?N-var   (at (mag (force ?b ?surface normal)) ?t))
+    (variable ?ff-var (mag (force ?b ?surface static-friction :time ?t)))
+    (variable ?N-var   (mag (force ?b ?surface normal :time ?t)))
     (variable ?mu-var (coef-friction ?b ?surface static))
   )
   :effects (
@@ -4573,17 +4580,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
       and it is opposite the direction of motion"
   :preconditions
    ((force ?b ?medium drag ?t (dnum ?drag-dir |deg|) action)
-    (not (vector ?b (at (force ?b ?medium drag) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?medium drag :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fd_~A_~A_~A" (body-name ?b) ?medium 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a drag for ~a due to ~a at ~a.~%" ?drag-dir ?b ?medium ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?medium drag) ?t) (dnum ?drag-dir |deg|))
-    (variable ?mag-var (at (mag (force ?b ?medium drag)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?medium drag)) ?t))
-    (given (at (dir (force ?b ?medium drag)) ?t) (dnum ?drag-dir |deg|)))
+   ((vector ?b (force ?b ?medium drag :time ?t) (dnum ?drag-dir |deg|))
+    (variable ?mag-var (mag (force ?b ?medium drag :time ?t)))
+    (variable ?dir-var (dir (force ?b ?medium drag :time ?t)))
+    (given (dir (force ?b ?medium drag :time ?t)) (dnum ?drag-dir |deg|)))
   :hint
    ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
     (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
@@ -4618,16 +4625,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-spring-force (?b ?spring ?t)
   :preconditions 
    ((force ?b ?spring spring ?t (dnum ?force-dir |deg|) action)
-    (not (vector ?b (at (force ?b ?spring spring) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?spring spring :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fs_~A_~A_~A" (body-name ?b) ?spring (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a spring force on ~a due to ~a at ~a.~%" ?force-dir ?b ?spring ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?spring spring) ?t) (dnum ?force-dir |deg|))
-    (variable ?mag-var (at (mag (force ?b ?spring spring)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?spring spring)) ?t))
-    (given (at (dir (force ?b ?spring spring)) ?t) (dnum ?force-dir |deg|)))
+   ((vector ?b (force ?b ?spring spring :time ?t) (dnum ?force-dir |deg|))
+    (variable ?mag-var (mag (force ?b ?spring spring :time ?t)))
+    (variable ?dir-var (dir (force ?b ?spring spring :time ?t)))
+    (given (dir (force ?b ?spring spring :time ?t)) (dnum ?force-dir |deg|)))
   :hint
    ((point (string "Notice that ~a is in contact with a compressed spring ~a." ?b (?t pp)))
     (teach (string "A compressed spring exerts a restorative force on an object in contact with it.  The spring force opposes the compression of the spring from its equilibrium length."))
@@ -4668,9 +4675,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (any-member ?sought (
 		    ; if sought is a mass, can use either equation for force
 		    ; on b1 from b2 or force on b2 from b1, so need both:
-                    (mass ?b1) (mass ?b2) 
-		    (at (mag (force ?b1 ?b2 gravitational)) ?t)
-		    (at (mag (relative-position ?c1 ?c2)) ?t)
+                    (mass ?b1) (mass ?b2)  ;only timeless mass 
+		    (mag (force ?b1 ?b2 gravitational :time ?t))
+		    (mag (relative-position ?c1 ?c2 :time ?t))
                          ))
      (object ?b1)
      (object ?b2)
@@ -4694,8 +4701,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
       ; b1 wrt center of b2. 
       (center-of ?b1 ?c1)
       (center-of ?b2 ?c2)
-      (variable ?r  (at (mag (relative-position ?c1 ?c2)) ?t))
-      (variable ?F  (at (mag (force ?b1 ?b2 gravitational)) ?t))
+      (variable ?r  (mag (relative-position ?c1 ?c2 :time ?t)))
+      (variable ?F  (mag (force ?b1 ?b2 gravitational :time ?t)))
   )
   :effects 
   ;; G is predefined, see file constants.cl
@@ -4719,9 +4726,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
      ; make sure body1 is in circular motion for this form
      (motion ?b1 ?t-circular (curved circular ?dontcare))
      (any-member ?sought (
-                    (mass ?b1) (mass ?b2)
-		    (at (mag (force ?b1 ?b2 gravitational)) ?t)
-		    (at (revolution-radius ?b1) ?t)
+                    (mass ?b1) (mass ?b2) ;only timeless mass
+		    (mag (force ?b1 ?b2 gravitational :time ?t))
+		    (revolution-radius ?b1 :time ?t)
 			 ))
      (object ?b2)
      (time ?t)
@@ -4740,8 +4747,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
       (variable ?m2 (mass ?b2))
       ; force is on b1 due to b2, so want relative position of center of
       ; b1 wrt center of b2. Implicit for now that positions are wrt centers.
-      (variable ?r  (at (revolution-radius ?b1) ?t))
-      (variable ?F  (at (mag (force ?b1 ?b2 gravitational)) ?t))
+      (variable ?r  (revolution-radius ?b1 :time ?t))
+      (variable ?F  (mag (force ?b1 ?b2 gravitational :time ?t)))
   )
   :effects (
       (eqn (= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t radius))
@@ -4793,7 +4800,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
     (in-wm (center-of ?b1 ?c1))
     (in-wm (center-of ?b2 ?c2))
-    (in-wm (given (at(dir(relative-position ?c1 ?c2)) ?t-given) ?r-dir))
+    (in-wm (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir))
     (test (not (equal ?r-dir 'unknown)))
     (test (tinsidep ?t ?t-given))
     (bind ?grav-dir (opposite ?r-dir))
@@ -4804,7 +4811,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
     (in-wm (center-of ?b1 ?c1))
     (in-wm (center-of ?b2 ?c2))
-    (in-wm (given (at(dir(relative-position ?c2 ?c1)) ?t-given) ?r-dir))
+    (in-wm (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir))
     (test (not (equal ?r-dir 'unknown)))
     (test (tinsidep ?t ?t-given))
   )
@@ -4818,10 +4825,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
-    (vector ?b1 (at (force ?b1 ?b2 gravitational) ?t) ?dir)
-    (variable ?mag-var (at (mag(force ?b1 ?b2 gravitational)) ?t))
-    (variable ?dir-var (at (dir(force ?b1 ?b2 gravitational)) ?t))
-    (given (at (dir (force ?b1 ?b2 gravitational)) ?t) ?dir)
+    (vector ?b1 (force ?b1 ?b2 gravitational :time ?t) ?dir)
+    (variable ?mag-var (mag (force ?b1 ?b2 gravitational :time ?t)))
+    (variable ?dir-var (dir (force ?b1 ?b2 gravitational :time ?t)))
+    (given (dir (force ?b1 ?b2 gravitational :time ?t)) ?dir)
   )
   :hint (
     (point (string "Notice that ~a is subject to a gravitational force due to ~A." 
@@ -4843,7 +4850,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator find-thrust-force (?body ?agent ?t)
   :preconditions
   ( ;; energy conservation law also checks for this:
-    (in-wm (given (at (dir (force ?body ?agent thrust)) ?t-force) ?dir))
+    (in-wm (given (dir (force ?body ?agent thrust :time ?t-force)) ?dir))
     (object ?body)
     (time ?t)
     (test (tinsidep ?t ?t-force))
@@ -4856,18 +4863,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ( (force ?b ?agent thrust ?t ?dir action)
     (test (not (equal ?dir-expr 'unknown)))
-    (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?agent thrust :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) ?agent
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a thrust force on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
     )
   :effects
-  ( (vector ?b (at (force ?b ?agent thrust) ?t) ?dir)
-    (variable ?mag-var (at (mag (force ?b ?agent thrust)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?agent thrust)) ?t))
+  ( (vector ?b (force ?b ?agent thrust :time ?t) ?dir)
+    (variable ?mag-var (mag (force ?b ?agent thrust :time ?t)))
+    (variable ?dir-var (dir (force ?b ?agent thrust :time ?t)))
     ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (force ?b ?agent thrust)) ?t)))
+    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?agent thrust :time ?t))))
   :hint
   ( (point (string "Notice that ~a causes a force on ~A." ?agent ?b))
     (teach (string "When ~A escapes from ~A, a thrust force is exerted on ~A."
@@ -4893,9 +4900,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator thrust-force-contains (?sought)
   :preconditions 
   ( (any-member ?sought
-		((at (mag (force ?b ?agent thrust)) ?t)
-		 (at (mag (relative-vel ?agent ?b)) ?t)
-		 (at (mass-change-magnitude ?b ?agent) ?t)))
+		((mag (force ?b ?agent thrust :time ?t))
+		 (mag (relative-vel ?agent ?b :time ?t))
+		 (mass-change-magnitude ?b ?agent :time ?t)))
     (object ?b)
     (time ?t)
    )
@@ -4905,9 +4912,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; This is the thrust-force from a particular force
 (defoperator write-thrust-force (?b ?agent ?t)
   :preconditions 
-   ((variable ?Fth (at (mag (force ?b ?agent thrust)) ?t))
-    (variable ?vr (at (mag (relative-vel ?agent ?b)) ?t))
-    (variable ?dmdt  (at (mass-change-magnitude ?b ?agent) ?t)))
+   ((variable ?Fth (mag (force ?b ?agent thrust :time ?t)))
+    (variable ?vr (mag (relative-vel ?agent ?b :time ?t)))
+    (variable ?dmdt  (mass-change-magnitude ?b ?agent :time ?t)))
   :effects (
    (eqn (= ?Fth (* ?vr ?dmdt)) (thrust-definition ?b ?agent ?t)))
   :hint 
@@ -4933,21 +4940,21 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   (
    (object ?agent) ;this is needed or ?agent unbound error
-   (vector ?agent (at (relative-vel ?agent ?b) ?t) ?dir)
+   (vector ?agent (relative-vel ?agent ?b :time ?t) ?dir)
    (test (not (equal ?dir 'unknown)))
-   (not (vector ?b (at (force ?b ?agent thrust) ?t) ?dont-care)) ;not already drawn
+   (not (vector ?b (force ?b ?agent thrust :time ?t) ?dont-care)) ;not already drawn
    (bind ?opposite-dir (opposite ?dir))
    (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
     )
   :effects
-   ((vector ?b (at (force ?b ?agent thrust) ?t) ?opposite-dir)
-    (variable ?mag-var (at (mag (force ?b ?agent thrust)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?agent thrust)) ?t))
+   ((vector ?b (force ?b ?agent thrust :time ?t) ?opposite-dir)
+    (variable ?mag-var (mag (force ?b ?agent thrust :time ?t)))
+    (variable ?dir-var (dir (force ?b ?agent thrust :time ?t)))
     ;; Ensure implicit eqn is written because dir is from relative-vel
     (implicit-eqn (= ?dir-var ?opposite-dir) 
-		  (at (dir (force ?b ?agent thrust)) ?t))
+		  (dir (force ?b ?agent thrust :time ?t)))
    )
   :hint
    ((point (string "How is the thrust force acting on ~a related to the velocity of ~A?" ?b ?agent))
@@ -4960,8 +4967,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
     ;; Draw only one body 
     (body ?b)
-    (vector ?b (at (force ?b ?agent thrust) ?t) ?dir1)
-    (vector ?agent (at (relative-vel ?agent ?b) ?t) ?dir2)
+    (vector ?b (force ?b ?agent thrust :time ?t) ?dir1)
+    (vector ?agent (relative-vel ?agent ?b :time ?t) ?dir2)
     ;; we need axis-for each body, since component defining operators will 
     ;; lookup axis-for principal body of each vector. Our operators that
     ;; draw axes only apply once, so there is no danger of drawing two
@@ -4976,11 +4983,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator thrust-force-vector-contains (?sought)
   :preconditions 
   ( (any-member ?sought
-		((at (mag (force ?b ?agent thrust)) ?t)
-		 (at (dir (force ?b ?agent thrust)) ?t)
-		 (at (mag (relative-vel ?agent ?b)) ?t)
-		 (at (dir (relative-vel ?agent ?b)) ?t)
-		 (at (mass-change-magnitude ?b ?agent) ?t)))
+		((mag (force ?b ?agent thrust :time ?t))
+		 (dir (force ?b ?agent thrust :time ?t))
+		 (mag (relative-vel ?agent ?b :time ?t))
+		 (dir (relative-vel ?agent ?b :time ?t))
+		 (mass-change-magnitude ?b ?agent :time ?t)))
     (object ?b)
    (time ?t)
    )
@@ -4993,9 +5000,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; This is the thrust-force from a particular force
 (defoperator write-thrust-force-compo (?b ?agent ?t ?xy ?rot)
   :preconditions 
-   ((variable ?Fth_x  (at (compo ?xy ?rot (force ?b ?agent thrust)) ?t))
-    (variable ?vr_x  (at (compo ?xy ?rot (relative-vel ?agent ?b)) ?t))
-    (variable ?dmdt  (at (mass-change-magnitude ?b ?agent) ?t)))
+   ((variable ?Fth_x  (compo ?xy ?rot (force ?b ?agent thrust :time ?t)))
+    (variable ?vr_x  (compo ?xy ?rot (relative-vel ?agent ?b :time ?t)))
+    (variable ?dmdt  (mass-change-magnitude ?b ?agent :time ?t)))
   :effects (
    (eqn (= ?Fth_x (* -1 ?vr_x ?dmdt))
             (compo-eqn definition ?xy ?rot (thrust ?b ?agent ?t)))
@@ -5089,16 +5096,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-reaction-force (?b1 ?b2 ?type ?t)
   :preconditions(
     (force ?b2 ?b1 ?type ?t ?dir reaction)
-    (not (vector ?b2 (at (force ?b2 ?b1 ?type) ?t) ?junk))
+    (not (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?junk))
     (bind ?mag-var (format-sym "F~A_~A_~A_~A" (ftype-prefix ?type) 
                                (body-name ?b2) (body-name ?b1) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
-    (vector ?b2 (at (force ?b2 ?b1 ?type) ?t) ?dir) 
-    (variable ?mag-var (at (mag (force ?b2 ?b1 ?type)) ?t))
-    (variable ?dir-var (at (dir (force ?b2 ?b1 ?type)) ?t))
-    (given (at (dir (force ?b2 ?b1 ?type)) ?t) ?dir)
+    (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?dir) 
+    (variable ?mag-var (mag (force ?b2 ?b1 ?type :time ?t)))
+    (variable ?dir-var (dir (force ?b2 ?b1 ?type :time ?t)))
+    (given (dir (force ?b2 ?b1 ?type :time ?t)) ?dir)
   )
   :hint (
     (point (string "Notice that ~a and ~a are exerting forces on each other." ?b1 ?b2))
@@ -5119,7 +5126,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator NTL-contains (?quantity)
   :preconditions (
   (any-member ?quantity (
-  		(at (mag (force ?b1 ?b2 ?type)) ?t)
+  		(mag (force ?b1 ?b2 ?type :time ?t))
                         ))
   ;; no need to test if action/reaction pair definable; fail later if not
   ;; (force ?b1 ?b2 ?type ?t ?dir1 action) 
@@ -5133,8 +5140,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator NTL (?b1 ?b2 ?type ?t)
   :preconditions (
-  (variable ?mag1-var (at (mag (force ?b1 ?b2 ?type)) ?t))
-  (variable ?mag2-var (at (mag (force ?b2 ?b1 ?type)) ?t))
+  (variable ?mag1-var (mag (force ?b1 ?b2 ?type :time ?t)))
+  (variable ?mag2-var (mag (force ?b2 ?b1 ?type :time ?t)))
   )
   :effects (
     	(eqn (= ?mag1-var ?mag2-var) (NTL (?b2 ?b1) ?type ?t)) 
@@ -5157,8 +5164,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator NTL-vector-contains (?sought)
   :preconditions (
-   (any-member ?sought ( (at (mag(force ?b1 ?b2 ?type)) ?t)
-  		         (at (dir(force ?b1 ?b2 ?type)) ?t) ))
+   (any-member ?sought ( (mag (force ?b1 ?b2 ?type :time ?t))
+  		         (dir (force ?b1 ?b2 ?type :time ?t)) ))
    (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
    )
    :effects (
@@ -5173,8 +5180,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; Draw both bodies. 
     (body ?b1)
     (body ?b2)
-    (vector ?b1 (at (force ?b1 ?b2 ?type) ?t) ?dir1)
-    (vector ?b2 (at (force ?b2 ?b1 ?type) ?t) ?dir2)
+    (vector ?b1 (force ?b1 ?b2 ?type :time ?t) ?dir1)
+    (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?dir2)
     ;; we need axis-for each body, since component defining operators will 
     ;; lookup axis-for principal body of each vector. Our operators that
     ;; draw axes only apply once, so there is no danger of drawing two
@@ -5189,8 +5196,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   
 (defoperator write-NTL-vector (?b1 ?b2 ?type ?t ?xy ?rot)
    :preconditions (
-      (variable ?F12_xy (at (compo ?xy ?rot (force ?b1 ?b2 ?type)) ?t))
-      (variable ?F21_xy (at (compo ?xy ?rot (force ?b2 ?b1 ?type)) ?t))
+      (variable ?F12_xy (compo ?xy ?rot (force ?b1 ?b2 ?type :time ?t)))
+      (variable ?F21_xy (compo ?xy ?rot (force ?b2 ?b1 ?type :time ?t)))
    )
    :effects (
     (eqn (= ?F12_xy (- ?F21_xy)) (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t)))
@@ -5352,23 +5359,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator kine-compound-contains (?sought)
    :preconditions (
    (any-member ?sought ( 
-                        (at (mag (velocity ?b1)) ?t)
-			(at (mag (velocity (compound . ?bodies))) ?t)
-                        (at (mag (accel ?b1)) ?t)
-			(at (mag (accel (compound . ?bodies))) ?t)
-                        (at (mag (displacement ?b1)) ?t)
-			(at (mag (displacement (compound . ?bodies))) ?t)
-			(at (mag (ang-velocity ?b1)) ?t)
-			(at (mag (ang-velocity (compound . ?bodies))) ?t)
-                        (at (mag (ang-accel ?b1)) ?t)
-			(at (mag (ang-accel (compound . ?bodies))) ?t)
-                        (at (mag (ang-displacement ?b1)) ?t)
-			(at (mag (ang-displacement (compound . ?bodies))) ?t)
+                        (mag (velocity ?b1 :time ?t))
+			(mag (velocity (compound . ?bodies)) :time ?t)
+                        (mag (accel ?b1 :time ?t))
+			(mag (accel (compound . ?bodies)) :time ?t)
+                        (mag (displacement ?b1 :time ?t))
+			(mag (displacement (compound . ?bodies)) :time ?t)
+			(mag (ang-velocity ?b1 :time ?t))
+			(mag (ang-velocity (compound . ?bodies)) :time ?t)
+                        (mag (ang-accel ?b1 :time ?t))
+			(mag (ang-accel (compound . ?bodies)) :time ?t)
+                        (mag (ang-displacement ?b1 :time ?t))
+			(mag (ang-displacement (compound . ?bodies)) :time ?t)
                         ))
    (object (compound . ?bodies))
    (object ?b1)
    (test (member ?b1 ?bodies :test #'equal))
-   (bind ?vec-type (first (second (second ?sought))))
+   (bind ?vec-type (first (second ?sought)))
    )
    :effects (
       (eqn-contains (kine-compound ?vec-type ?b1 ?bodies ?t) ?sought)
@@ -5376,10 +5383,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator write-kine-compound (?vec-type ?b1 ?bodies ?t)
    :preconditions (
-      (variable ?c-var (at (mag (?vec-type (compound . ?bodies))) 
-                            ?t))
-      (variable ?b-var (at (mag (?vec-type ?b1)) 
-                           ?t))
+      (variable ?c-var (mag (?vec-type (compound . ?bodies)) :time ?t))
+      (variable ?b-var (mag (?vec-type ?b1) :time ?t))
    )
    :effects (
       (eqn (= ?c-var ?b-var) (kine-compound ?vec-type ?b1 ?bodies ?t))
@@ -5433,24 +5438,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (force-on-body ?b ?agent ?type ?t ?dir)
     (test (not (member ?agent ?bodies :test #'equal)))
     ; make sure this force hasn't been drawn already
-    (not (vector ?c (at (force ?c ?agent ?type) ?t) ?dir))
+    (not (vector ?c (force ?c ?agent ?type :time ?t) ?dir))
     (bind ?mag-var (format-sym "F~A_~A_~A_~A" (ftype-prefix ?type) (body-name ?c) 
                                 (body-name ?agent) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "drawing ~A net ~A force on ~A due to ~A~%" ?dir ?type ?c ?agent)
   )
   :effects (
-   (vector (compound . ?bodies) (at (force (compound . ?bodies) ?agent ?type) 
-                                    ?t) ?dir)
-   (variable ?mag-var (at (mag (force ?c ?agent ?type)) ?t))
-   (variable ?dir-var (at (dir (force ?c ?agent ?type)) ?t))
-   (given (at (dir (force ?c ?agent ?type)) ?t) ?dir)
+   (vector (compound . ?bodies) (force (compound . ?bodies) ?agent ?type 
+                                    :time ?t) ?dir)
+   (variable ?mag-var (mag (force ?c ?agent ?type :time ?t)))
+   (variable ?dir-var (dir (force ?c ?agent ?type :time ?t)))
+   (given (dir (force ?c ?agent ?type :time ?t)) ?dir)
    )
   :hint ;; already received the hint "try drawing a force for the compound ..."
   ((point (string "Notice that ~a, which is a part of the compound body, has a ~a force on it."
 		  (?b def-np) (?type adjective)))
    (teach (string "When a force exists on a part of a compound and the force is due to an object outside the compound, then a similar force acts on the compound body itself."))
-   (bottom-out (string "Draw ~a at ~a." ((at (force ?c ?agent ?type) ?t) indef-np) ?dir))
+   (bottom-out (string "Draw ~a at ~a." ((force ?c ?agent ?type :time ?t) indef-np) ?dir))
    ))
 
 ;;; Urgh to handle pressure forces defined acting on surfaces, 
@@ -5462,7 +5467,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator force-compound-contains (?sought)
    :preconditions (
-    (any-member ?sought ( (at (mag (force ?b ?agent ?type)) ?t) ))
+    (any-member ?sought ( (mag (force ?b ?agent ?type :time ?t)) ))
     (object (compound . ?bodies))
     (test (or (member ?b ?bodies)
 	      (equal ?b `(compound ,@?bodies))))
@@ -5477,7 +5482,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (bind ?c `(compound ,@?bodies)) ; for shorthand
      ; draw net force of given type on compound, will use draw-force-compound
      (debug "write-force-compound: drawing ~A force on compound~%" ?type)
-     (vector ?c (at (force ?c ?agent ?type) ?t) ?dir) 
+     (vector ?c (force ?c ?agent ?type :time ?t) ?dir) 
      ; find set of atomic parts subject to this type force from agent.
      ; tricky: we use setof inside the map since force subgoal can fail
      ; body-set from each step of map is a singleton (b) or NIL 
@@ -5493,10 +5498,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
      ; unfortunately this can only be done by drawing them, although we
      ; avoided drawing them when finding the force.
      (map ?b1 ?parts-affected
-         (variable ?f-part (at (mag (force ?b1 ?agent ?type)) ?t))
+         (variable ?f-part (mag (force ?b1 ?agent ?type :time ?t)))
 	 ?f-part ?f-parts)
-     (variable ?f-compound (at (mag (force (compound . ?bodies) ?agent ?type)) 
-                                ?t)) 
+     (variable ?f-compound (mag (force (compound . ?bodies) ?agent ?type 
+				       :time ?t)))
    )
    :effects (
      (eqn (= ?f-compound (+ . ?f-parts)) (force-compound ?type ?agent ?bodies ?t))
@@ -5525,8 +5530,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
      (object ?b)
      (time ?t)
-     (not (vector ?b (at (net-force ?b) ?t) ?dont-care))
-     (in-wm (vector ?b (at (accel ?b) ?t-accel) ?dir-accel))
+     (not (vector ?b (net-force ?b :time ?t) ?dont-care))
+     (in-wm (vector ?b (accel ?b :time ?t-accel) ?dir-accel))
      (not (equal ?dir-accel 'unknown))
      (test (tinsidep ?t ?t-accel))
      (bind ?mag-var (format-sym "Fnet_~A_~A" ?b (time-abbrev ?t)))
@@ -5534,10 +5539,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
     )
   :effects (
-    (vector ?b (at (net-force ?b) ?t) ?dir-accel)
-    (variable ?mag-var (at (mag (net-force ?b)) ?t))
-    (variable ?dir-var (at (dir (net-force ?b)) ?t))
-    (given (at (dir (net-force ?b)) ?t) ?dir-accel)
+    (vector ?b (net-force ?b :time ?t) ?dir-accel)
+    (variable ?mag-var (mag (net-force ?b :time ?t)))
+    (variable ?dir-var (dir (net-force ?b :time ?t)))
+    (given (dir (net-force ?b :time ?t)) ?dir-accel)
   )
   :hint (
     (bottom-out (string "Draw the net force in the same direction as the acceleration"))
@@ -5565,8 +5570,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions
    ((time ?t)
     (body ?b)
-    (setof (vector ?b (at (force ?b ?agent1 ?type1) ?t) ?dir1) 
-	   (force ?b ?agent1 ?type1) 
+    (setof (vector ?b (force ?b ?agent1 ?type1 :time ?t) ?dir1) 
+	   (force ?b ?agent1 ?type1 :time ?t) 
 	   ?forces1)
     ; in fluids problems, pressures forces on body are defined as acting on
     ; surfaces of the body. Must collect all of these as forces on body as
@@ -5574,8 +5579,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ; collect forces on all parts of body.  Unclear what the ramifications
     ; of that would be (could affect torque problems?). So for now, just
     ; look for pressure forces found on a body's surfaces:
-    (setof (vector ?b (at (force ?surface ?fluid pressure) ?t) ?dir2)
-	  (force ?surface ?fluid pressure)
+    (setof (vector ?b (force ?surface ?fluid pressure :time ?t) ?dir2)
+	  (force ?surface ?fluid pressure :time ?t)
 	  ?pressure-forces)
     ;(debug "Adding pressure forces:  ~A~%" ?pressure-forces)
     ;(debug "To other forces: ~A~%" ?forces1)
@@ -5592,13 +5597,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator num-forces-contains (?b ?t)
   :preconditions ()
-  :effects ( (eqn-contains (num-forces ?b ?t) (at (num-forces ?b) ?t)) ))
+  :effects ( (eqn-contains (num-forces ?b ?t) (num-forces ?b :time ?t)) ))
 
 (defoperator write-num-forces (?b ?t)
   :preconditions 
    ((forces ?b ?t ?forces)
     (bind ?count (length ?forces))
-    (variable ?n-var (at (num-forces ?b) ?t)) )
+    (variable ?n-var (num-forces ?b :time ?t)) )
   :effects 
   ( (eqn (= ?n-var ?count) (num-forces ?b ?t)) ))
  
@@ -5606,8 +5611,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions 
    ((bind ?n-var (format-sym "nforces_~A_~A" (body-name ?b) (time-abbrev ?t))))
    :effects ( 
-       (define-var (at (num-forces ?b) ?t)) 
-       (variable ?n-var (at (num-forces ?b) ?t)) 
+       (define-var (num-forces ?b :time ?t)) 
+       (variable ?n-var (num-forces ?b :time ?t)) 
    ))
 
 ;;; This operator draws a free-body diagram consisting of the forces,
@@ -5642,7 +5647,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (body ?b)
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
-   (vector ?b (at (accel ?b) ?t) ?accel-dir)
+   (vector ?b (accel ?b :time ?t) ?accel-dir)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (nl ?b ?t)))
@@ -5663,8 +5668,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (use-net-force))
    (body ?b)
    ; we draw accel first so it's known at time of drawing net force
-   (vector ?b (at (accel ?b) ?t) ?accel-dir)
-   (vector ?b (at (net-force ?b) ?t) ?force-dir) 
+   (vector ?b (accel ?b :time ?t) ?accel-dir)
+   (vector ?b (net-force ?b :time ?t) ?force-dir) 
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (nl ?b ?t)))
@@ -5720,9 +5725,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the gravitational constant for the planet."
   :preconditions
   ((any-member ?quantity
-	        ((at (mag (force ?b ?planet weight)) ?t)
-		 (at (mass ?b) ?t)
-		 (mass ?b)
+	        ((mag (force ?b ?planet weight :time ?t))
+		 (mass ?b :time ?t ?t)
 		 (gravitational-acceleration ?planet)))
    ; make sure this is not case where ?b is cm of rigid body. For that
    ; we need the mass of the whole body, plus special hint.
@@ -5761,7 +5765,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((near-planet ?planet)
     (not (massless ?b))
     (mass-variable ?m-var ?b ?t)
-    (variable ?w-var (at (mag (force ?b ?planet weight)) ?t))
+    (variable ?w-var (mag (force ?b ?planet weight :time ?t)))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
   :effects
@@ -5786,7 +5790,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (; only apply this in case where ?cm is declared cm of some single rigid body. 
    (in-wm (center-of-mass ?cm (?rigid-body)))
    (any-member ?quantity
-	        ((at (mag (force ?cm ?planet weight)) ?t)
+	        ((mag (force ?cm ?planet weight :time ?t))
 		 (mass ?rigid-body)
 		 (gravitational-acceleration ?planet)))
    (time ?t)
@@ -5799,7 +5803,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((in-wm (center-of-mass ?cm (?b)))
     (variable ?m-var (mass ?b))
-    (variable ?w-var (at (mag (force ?cm ?planet weight)) ?t))
+    (variable ?w-var (mag (force ?cm ?planet weight :time ?t)))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
   :effects
@@ -5826,9 +5830,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the compression/extension."
   :preconditions (
 		  (any-member ?quantity 
-			      ((at (mag (force ?b ?spring spring)) ?t)
+			      ((mag (force ?b ?spring spring :time ?t))
 			       (spring-constant ?spring)
-			       (at (compression ?spring) ?t)
+			       (compression ?spring :time ?t)
 			       ))
 		  (object ?b)
 		  (time ?t)
@@ -5846,9 +5850,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
      on the body, k is the spring constant and d is the compression or
      extension distance of the spring."
   :preconditions(
-                 (variable ?s-var (at (mag (force ?b ?spring spring)) ?t))
+                 (variable ?s-var (mag (force ?b ?spring spring :time ?t)))
                  (variable ?k-var (spring-constant ?spring))
-                 (variable ?d-var (at (compression ?spring) ?t))
+                 (variable ?d-var (compression ?spring :time ?t))
                  )
   :effects (
             (eqn (= ?s-var (* ?k-var ?d-var)) (spring-law ?b ?t)))
@@ -5938,10 +5942,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ((any-member ?quantity
 	        ((mass ?b)
-		 (at (mag (accel ?b)) ?t)
-		 (at (dir (accel ?b)) ?t)
-		 (at (mag (force ?b ?agent ?type)) ?t)
-		 (at (dir (force ?b ?agent ?type)) ?t)))
+		 (mag (accel ?b :time ?t))
+		 (dir (accel ?b :time ?t))
+		 (mag (force ?b ?agent ?type :time ?t))
+		 (dir (force ?b ?agent ?type :time ?t))))
    (not (unknown-forces))
    (object ?b)
    (time ?t))
@@ -5973,15 +5977,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (
    (any-member ?quantity
 	       (
-		(at (mag (net-force ?b)) ?t)
-		(at (dir (net-force ?b)) ?t)
+		(mag (net-force ?b :time ?t))
+		(dir (net-force ?b :time ?t))
 		;; for now, only use this method when seeking net force
 		;; to keep down dead-path equations in other problems.
 		;; uncomment the following if we ever add net-force 
 		;; problems that seek mass or accel.
 		 ;; (mass ?b)
-		;; (at (mag (accel ?b)) ?t)
-		;; (at (dir (accel ?b)) ?t)
+		;; (mag (accel ?b :time ?t))
+		;; (dir (accel ?b :time ?t))
 		))
    (object ?b)
    (time ?t)
@@ -6015,12 +6019,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the magnitude and direction of any force acting on the body"
   :preconditions 
   ((any-member ?quantity
-	        ((at (mag (force ?b ?agent ?type)) ?t)
-		 (at (dir (force ?b ?agent ?type)) ?t)))
+	        ((mag (force ?b ?agent ?type :time ?t))
+		 (dir (force ?b ?agent ?type :time ?t))))
    (object ?b)
    (time ?t)
    (not (unknown-forces))
-   (vector ?b (at (accel ?b) ?t-accel) zero)
+   (vector ?b (accel ?b :time ?t-accel) zero)
    (test (tinsidep ?t ?t-accel)))
   :effects
    ((compo-eqn-contains (NL ?b ?t) nfl ?quantity))
@@ -6038,8 +6042,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the magnitude and direction of any force acting on the body"
   :preconditions 
   ((any-member ?quantity
-	        ((at (mag (force ?b ?agent ?type)) ?t)
-		 (at (dir (force ?b ?agent ?type)) ?t)))
+	        ((mag (force ?b ?agent ?type :time ?t))
+		 (dir (force ?b ?agent ?type :time ?t))))
    (object ?b)
    (time ?t)
    (massless ?b))
@@ -6074,12 +6078,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the magnitude and direction of its acceleration"
   :preconditions 
   ((any-member ?quantity
-	        ((at (mag (force ?b ?agent ?type)) ?t)
-		 (at (dir (force ?b ?agent ?type)) ?t)
-		 (at (mass ?b) ?t)
-		 (mass ?b)
-		 (at (mag (accel ?b)) ?t)
-		 (at (dir (accel ?b)) ?t)))
+	        ((mag (force ?b ?agent ?type :time ?t))
+		 (dir (force ?b ?agent ?type :time ?t))
+		 (mass ?b)  ;F=ma assumes m is constant
+		 (mag (accel ?b :time ?t))
+		 (dir (accel ?b :time ?t))))
    (object ?b)
    (time ?t)
    (debug "problem~%.")
@@ -6097,7 +6100,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;;  (not (spring-contact ?b ?spring ?t-contact (dnum ?sforce-dir |deg|)) 
    ;;       (tintersect2 ?t-contact ?t))
    ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
-   (not (vector ?b (at (accel ?b) ?t-accel) zero)
+   (not (vector ?b (accel ?b :time ?t-accel) zero)
         (tinsidep ?t ?t-accel))
    (not (massless ?b)))
   :effects
@@ -6125,18 +6128,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((in-wm (forces ?b ?t ?forces))
    (map ?f ?forces 
-   	(variable ?compo-var (at (compo ?xyz ?rot ?f) ?t))
+   	(variable ?compo-var (compo ?xyz ?rot ?f))
 	?compo-var ?f-compo-vars)
    ; we want Fi = m * a to be accepted if it is written. But also
    ; need to write Sum Fi = 0 as final eqn so won't appear to contain m, a
    ; so we make sure we have a compo var and put implicit eqn in effects.
-    (variable ?a-compo (at (compo ?xyz ?rot (accel ?b)) ?t))
+    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
   )
   :effects
    ((eqn (= (+ . ?f-compo-vars) 0)
 	 (compo-eqn nfl ?xyz ?rot (nl ?b ?t)))
     (eqn-compos (compo-eqn nfl ?xyz ?rot (nl ?b ?t)) ?f-compo-vars)
-    (implicit-eqn (= ?a-compo 0) (at (compo ?xyz ?rot (accel ?b)) ?t)))
+    (implicit-eqn (= ?a-compo 0) (compo ?xyz ?rot (accel ?b :time ?t))))
   :hint
    ((point (string "Because the acceleration of ~a is zero ~a, you can apply Newton's first law to it." ?b (?t pp)))
     (teach (string 
@@ -6167,11 +6170,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; collecting variable names into ?f-compo-vars
    ;; (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
    (map ?f ?forces 
-    (variable ?f-compo-var (at (compo ?xyz ?rot ?f) ?t))
+    (variable ?f-compo-var (compo ?xyz ?rot ?f))
    	?f-compo-var ?f-compo-vars)
    ;; (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
    ;; add acceleration compo var to form list of all compo vars in equation
-   (variable ?a-compo (at (compo ?xyz ?rot (accel ?b)) ?t))
+   (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    (mass-variable ?m ?b ?t))
@@ -6195,8 +6198,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
       define component variables for the net force and acceleration,
    then write ?fnet_c = ?m * ?ac"
   :preconditions
-  ((variable ?fnet-compo-var (at (compo ?xyz ?rot (net-force ?b)) ?t))
-   (variable ?a-compo        (at (compo ?xyz ?rot (accel ?b)) ?t))
+  ((variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
+   (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
    (bind ?eqn-compo-vars (list ?a-compo ?fnet-compo-var))
    (mass-variable ?m ?b ?t))
   :effects (
@@ -6226,7 +6229,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      and it mentions the magnitudes of the tension forces on the objects."
   :preconditions
   ((any-member ?quantity
-	        ((at (mag (force ?b1 ?string tension)) ?t)))
+	        ((mag (force ?b1 ?string tension :time ?t))))
    ; can apply if string is connected to another body
    (tied-to ?string ?b2 ?t ?dir2)
    (test (not (equal ?b2 ?b1)))
@@ -6250,8 +6253,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((bind ?b1 (first ?bodies))
    (bind ?b2 (second ?bodies))
-   (variable ?t1-var (at (mag (force ?b1 ?string tension)) ?t))
-   (variable ?t2-var (at (mag (force ?b2 ?string tension)) ?t)))
+   (variable ?t1-var (mag (force ?b1 ?string tension :time ?t)))
+   (variable ?t2-var (mag (force ?b2 ?string tension :time ?t))))
   :effects
   ((eqn (= ?t1-var ?t2-var) (tensions-equal ?string ?bodies ?t)))
   :hint
@@ -6301,8 +6304,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      which is an equation that mentions the mags of the accels of the bodies."
   :preconditions (
    (any-member ?quantity
-	        ((at (mag (accel ?b1)) ?t)
-		 (at (mag (accel ?b2)) ?t)))
+	        ((mag (accel ?b1 :time ?t))
+		 (mag (accel ?b2 :time ?t))))
    (connected ?b1 ?b2 ?t-connected)
    (time ?t)
    (test (tinsidep ?t ?t-connected))
@@ -6330,8 +6333,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      their magnitudes are equal."
   :preconditions
   ((connected ?b1 ?b2 ?t)
-   (variable ?a1-var (at (mag (accel ?b1)) ?t))
-   (variable ?a2-var (at (mag (accel ?b2)) ?t)))
+   (variable ?a1-var (mag (accel ?b1 :time ?t)))
+   (variable ?a2-var (mag (accel ?b2 :time ?t))))
   :effects
   ((eqn (= ?a1-var ?a2-var) (connected-accels ?b1 ?b2 ?t)))
   :hint
@@ -6360,8 +6363,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      which is an equation that mentions the mags of the velocities of the bodies."
   :preconditions
   ((any-member ?quantity
-	        ((at (mag (velocity ?b1)) ?t)
-		 (at (mag (velocity ?b2)) ?t)))
+	        ((mag (velocity ?b1 :time ?t))
+		 (mag (velocity ?b2 :time ?t))))
    (debug "trying connected b1 b2 for mag v b1=~A b2=~A~%" ?b1 ?b2)
    (connected ?b1 ?b2 ?t))
   :effects
@@ -6381,8 +6384,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      their magnitudes are equal."
   :preconditions
   ((connected ?b1 ?b2 ?t)
-   (variable ?v1-var (at (mag (velocity ?b1)) ?t))
-   (variable ?v2-var (at (mag (velocity ?b2)) ?t)))
+   (variable ?v1-var (mag (velocity ?b1 :time ?t)))
+   (variable ?v2-var (mag (velocity ?b2 :time ?t))))
   :effects
   ((eqn (= ?v1-var ?v2-var) (connected-velocities ?b1 ?b2 ?t)))
   :hint
@@ -6442,13 +6445,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (
   ;; check sought is one of cons-energy quants at timepoint t
    (any-member ?sought 
-	       ((at (mag (velocity ?axis)) ?t)
-		(at (mag (ang-velocity ?b)) ?t)
+	       ((mag (velocity ?axis :time ?t))
+		(mag (ang-velocity ?b :time ?t))
 		(moment-of-inertia ?b) ;needs to be constant
 		(mass ?b) ;needs to be constant
-		(at (height ?cm) ?t)
-		(at (spring-constant ?s) ?t)
-		(at (compression ?s) ?t)
+		(height ?cm :time ?t)
+		(spring-constant ?s :time ?t)
+		(compression ?s :time ?t)
 		(gravitational-acceleration ?planet)
 	      ))
    (object ?b)
@@ -6467,9 +6470,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; friction or drag, external applied, thrust, or tension force on body. 
   ;; We test by testing for the situation descriptions that entail 
   ;; these forces.
-  (not (given (at (dir (force ?b ?agent1 applied)) ?t-applied) ?dir1)
+  (not (given (dir (force ?b ?agent1 applied :time ?t-applied)) ?dir1)
        (tintersect2 ?t-applied `(during ,?t1 ,?t2)))
-  (not (given (at (dir (force ?b ?agent2 thrust)) ?t-thrust) ?dir2)
+  (not (given (dir (force ?b ?agent2 thrust :time ?t-thrust)) ?dir2)
        (tintersect2 ?t-thrust `(during ,?t1 ,?t2))) 
   (not (tied-to ?string1 ?b                        ?t-tension ?dir3)
        (tintersect2 ?t-tension `(during ,?t1 ,?t2)))
@@ -6520,8 +6523,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ; !!! where Ui is total potential energy at i
 (defoperator write-energy-cons (?b ?t1 ?t2)
   :preconditions (
-   (variable ?te1-var (at (total-energy ?b) ?t1))
-   (variable ?te2-var (at (total-energy ?b) ?t2))
+   (variable ?te1-var (total-energy ?b :time ?t1))
+   (variable ?te2-var (total-energy ?b :time ?t2))
   )
   :effects (
   (eqn (= ?te1-var ?te2-var) (total-energy-cons ?b ?t1 ?t2))
@@ -6548,23 +6551,20 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; This operation similar to writing a component equation then plugging in 
 ;;; projections for all of the components in it.  Rather than use the technique
 ;;; used for projections, we rely on a naming convention for the equations for 
-;;; the constituent terms, s.t. an expression for (at (energy-type ?b) ?t) can 
+;;; the constituent terms, s.t. an expression for (energy-type ?b :time ?t) can 
 ;;; be obtained by writing the equation named (energy-type ?b ?t)
 (defoperator write-total-energy (?b ?t)
  :preconditions (
-   ; first get top-level equation summing constituents of total energy
+   ;; first get top-level equation summing constituents of total energy
    (eqn (= ?te-var (+ . ?energy-vars)) (total-energy-top ?b ?t))
-   ; map list of constituent energy vars from rhs to list of energy quants
+   ;; map list of constituent energy vars from rhs to list of energy quants
    (map ?var ?energy-vars
         (in-wm (variable ?var ?quant))
      ?quant ?energy-quants)
-   ; convert list of quantities to list of equation ids, using transform
-   ; (at (energy-type ?arg1 ...) ?t) ==> (energy-type ?arg1 ...  ?t)
-   ; NB: requires that pe-quant-name and pe-equation id must be the same!
-   (bind ?energy-eqn-ids (mapcar #'(lambda(q) (cdr (flatten1 q)))
-                                 ?energy-quants))
-   ; generate equation for each constituent quantity, saving rhs exprs
-   (map ?eqn-id ?energy-eqn-ids
+   ;; Use list of energy quantities as list of equation ids.
+   ;; Requires that each pe-quant-name and pe-equation id must be the same!
+   ;; generate equation for each constituent quantity, saving rhs exprs:
+   (map ?eqn-id ?energy-quants
 	(eqn (= ?var ?expr) ?eqn-id)
      ?expr ?energy-exprs)
  )
@@ -6577,7 +6577,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; !!! spring PE term could just be omitted if spring not extended at t
 (defoperator write-total-energy-top (?b ?t)
   :preconditions (
-   (variable ?te-var (at (total-energy ?b) ?t))
+   (variable ?te-var (total-energy ?b :time ?t))
    ;; define variable for each type of energy that applies in this problem
    (setof (ee-var ?b ?t ?var) ?var ?ee-vars)
    (debug "Set of ee-vars = ~A~%" ?ee-vars)
@@ -6586,7 +6586,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (eqn (= ?te-var (+ . ?ee-vars)) (total-energy-top ?b ?t))
   )
   :hint (
-   (point (string "Try writing an equation defining the total mechanical energy of the system containing ~a ~a" (?b def-np)(?t pp)))
+   (point (string "Try writing an equation defining the total mechanical energy of the system containing ~a ~a" (?b def-np) (?t pp)))
    (teach (string "The total mechanical energy is the sum of the kinetic energy and the potential energy. Kinetic energy consists of translational and rotational kinetic energy.  Potential energy consists of the gravitational potential energy and the elastic potential energy in any spring in the system."))
    (bottom-out (string "Write ~a" 
 		       ((= ?te-var (+ . ?ee-vars)) algebra)))
@@ -6599,7 +6599,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     :preconditions (
 	  ;; use this for gravity near surface of a planet only
           (near-planet ?planet) ; 
-	  (variable ?var (at (grav-energy ?b ?planet) ?t))
+	  (variable ?var (grav-energy ?b ?planet :time ?t))
     )
     :effects ( (ee-var ?b ?t ?var) ))
 
@@ -6608,7 +6608,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
        ;; use this form if spring contact present anywhere in problem -- 
        ;; spring pe may be zero at some times but still use a term for it.
        (in-wm (spring-contact ?b ?spring . ?dontcare))
-       (variable ?var (at (spring-energy ?b ?spring) ?t))
+       (variable ?var (spring-energy ?b ?spring :time ?t))
     )
     :effects ( (ee-var ?b ?t ?var) ))
 
@@ -6618,7 +6618,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (motion ?axis ?t-motion (?kind . ?whatever)))
    (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
    (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
-   (variable ?var (at (kinetic-energy ?b) ?t)) )
+   (variable ?var (kinetic-energy ?b :time ?t)) )
   :effects ( (ee-var ?b ?t ?var) ))
 
 (defoperator define-rotational-energy-ee-var (?b ?t)
@@ -6626,7 +6626,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (
    ;; include if it rotates at any time
    (in-wm (motion ?b ?t-motion (rotating . ?whatever)))
-   (variable ?var (at (rotational-energy ?b) ?t))
+   (variable ?var (rotational-energy ?b :time ?t))
    )
   :effects ( (ee-var ?b ?t ?var) ))
 
@@ -6680,16 +6680,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (motion ?axis ?t-motion (?kind . ?whatever))
    (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
    (use-point-for-body ?body ?cm ?axis)	;always use axis of rotation
-   (variable ?ke-var (at (kinetic-energy ?body) ?t))
+   (variable ?ke-var (kinetic-energy ?body :time ?t))
    (variable ?m-var (mass ?body))
-   (variable ?v-var (at (mag (velocity ?axis)) ?t))
+   (variable ?v-var (mag (velocity ?axis :time ?t)))
   )
   :effects (
    (eqn (= ?ke-var (* 0.5 ?m-var (^ ?v-var 2)))
-        (kinetic-energy ?body ?t))
+        (kinetic-energy ?body :time ?t))
    )
   :hint (
-  (point (string "Try writing the definition of translational kinetic energy of ~a ~a" (?body def-np)(?t pp)))
+  (point (string "Try writing the definition of translational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
   (teach (string "The translational kinetic energy of an object is defined as one half its mass times its velocity squared.  That is, 0.5*m*v^2."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
@@ -6700,17 +6700,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; if the object is rotating at any time, then this term should be 
    ;; included.
    (motion ?body ?t-motion (rotating ?pivot ?dir ?axis))
-   (variable ?kr-var (at (rotational-energy ?body) ?t))
+   (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
    (moment-of-inertia-variable ?m-var ?body ?t)
-   (variable ?v-var (at (mag (ang-velocity ?body)) ?t))
+   (variable ?v-var (mag (ang-velocity ?body :time ?t)))
   )
   :effects (
    (eqn (= ?kr-var (* 0.5 ?m-var (^ ?v-var 2)))
-        (rotational-energy ?body ?t))
+        (rotational-energy ?body :time ?t))
    )
   :hint (
-  (point (string "Try writing the definition of rotational kinetic energy of ~a ~a" (?body def-np)(?t pp)))
+  (point (string "Try writing the definition of rotational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
   (teach (string "The rotational kinetic energy of an object is defined as one half its moment of inertia times its angular velocity squared.  That is, 0.5*I *$w^2."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
@@ -6720,14 +6720,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-grav-energy (?body ?planet ?t)
   :preconditions (
   (near-planet ?planet)
-  (variable ?PE-var (at (grav-energy ?body ?planet) ?t))
+  (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (variable ?m-var  (mass ?body))
   (use-point-for-body ?body ?cm ?axis) ;always use cm
-  (variable ?h-var (at (height ?cm) ?t))
+  (variable ?h-var (height ?cm :time ?t))
   (variable ?g-var (gravitational-acceleration ?planet))
   )
   :effects (
-  (eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) (grav-energy ?body ?planet ?t))
+  (eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
+       (grav-energy ?body ?planet :time ?t))
   )
   :hint (
    (point (string "Try writing an equation for gravitational potential energy of ~a ~a" (?body def-np) (?t pp)))
@@ -6749,13 +6750,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
   (spring-contact ?body ?spring ?t-contact ?sforce-dir)
   (test (tinsidep ?t ?t-contact))
-  (variable ?PE-var (at (spring-energy ?body ?spring) ?t))
+  (variable ?PE-var (spring-energy ?body ?spring :time ?t))
   (variable ?k-var  (spring-constant ?spring))
-  (variable ?d-var  (at (compression ?spring) ?t))
+  (variable ?d-var  (compression ?spring :time ?t))
   )
   :effects (
   (eqn (= ?PE-var (* 0.5 ?k-var (^ ?d-var 2)))
-       (spring-energy ?body ?spring ?t))
+       (spring-energy ?body ?spring :time ?t))
   )
 
   :hint (
@@ -6775,10 +6776,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		  ;; but must NOT be spring-contact at time we are called for
 		  (not (spring-contact ?body ?spring ?t-contact ?s-force-dir) 
 		       (tinsidep ?t ?t-contact))
-		  (variable ?PE-var (at (spring-energy ?body ?spring) ?t))
+		  (variable ?PE-var (spring-energy ?body ?spring :time ?t))
 		  )
   :effects (
-	    (eqn (= ?PE-var 0) (spring-energy ?b ?spring ?t))
+	    (eqn (= ?PE-var 0) (spring-energy ?b ?spring :time ?t))
 	    )
   :hint (
 	 (point (string "Notice that ~A is not in contact with a spring ~A 
@@ -6793,8 +6794,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (bind ?TE-var (format-sym "TE_~A_~A" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
-	    (define-var (at (total-energy ?b) ?t))
-	       (variable ?TE-var (at (total-energy ?b) ?t))
+	    (define-var (total-energy ?b :time ?t))
+	       (variable ?TE-var (total-energy ?b :time ?t))
 	       )
   :hint (
 	 (bottom-out (string "Define a variable for total mechanical energy by using the Add Variable command on the Variable menu and selecting Energy."))
@@ -6806,8 +6807,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (bind ?ke-var (format-sym "KE_~A_~A" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
-	    (define-var (at (kinetic-energy ?b) ?t))
-	       (variable ?ke-var (at (kinetic-energy ?b) ?t))
+	    (define-var (kinetic-energy ?b :time ?t))
+	       (variable ?ke-var (kinetic-energy ?b :time ?t))
 	       )
   :hint (
 	 (bottom-out (string "Define a variable for translational kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
@@ -6819,8 +6820,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (bind ?re-var (format-sym "RE_~A_~A" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
-	    (define-var (at (rotational-energy ?b) ?t))
-	       (variable ?re-var (at (rotational-energy ?b) ?t))
+	    (define-var (rotational-energy ?b :time ?t))
+	       (variable ?re-var (rotational-energy ?b :time ?t))
 	       )
   :hint (
 	 (bottom-out (string "Define a variable for rotational kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
@@ -6832,8 +6833,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		 (bind ?ge-var (format-sym "Ug_~A_~A" ?b (time-abbrev ?t)))
 		 ) 
  :effects ( 
-	   (define-var (at (grav-energy ?b ?planet) ?t)) 
-	      (variable ?ge-var (at (grav-energy ?b ?planet) ?t)) 
+	   (define-var (grav-energy ?b ?planet :time ?t)) 
+	      (variable ?ge-var (grav-energy ?b ?planet :time ?t)) 
 	      )
  :hint (
 	(bottom-out (string "Define a variable for gravitational potential energy by selecting Energy from the Variables menu on the top menu bar."))
@@ -6845,8 +6846,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (bind ?se-var (format-sym "Us_~A_~A" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
-	    (define-var (at (spring-energy ?b ?spring) ?t))
-	       (variable ?se-var (at (spring-energy ?b ?spring) ?t))
+	    (define-var (spring-energy ?b ?spring :time ?t))
+	       (variable ?se-var (spring-energy ?b ?spring :time ?t))
 	       )
   :hint (
 	 (bottom-out (string "Define a variable for elastic potential energy by selecting Energy from the Variables menu on the top menu bar."))
@@ -6855,8 +6856,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-height (?body ?time)
   :preconditions 
   ( (bind ?h-var (format-sym "h_~A_~A" ?body (time-abbrev ?time))) )
-  :effects ( (variable ?h-var (at (height ?body) ?time))
-	     (define-var (at (height ?body) ?time)) )
+  :effects ( (variable ?h-var (height ?body :time ?time))
+	     (define-var (height ?body :time ?time)) )
   :hint (
 	 (bottom-out (string "Define a height variable for ~A using the Variables menu on the top menu bar." ?body))
 	 ))
@@ -6874,8 +6875,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   ( (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t))) ) 
   :effects (
-	    (define-var (at (compression ?spring) ?t))
-	       (variable ?d-var  (at (compression ?spring) ?t))
+	    (define-var (compression ?spring :time ?t))
+	       (variable ?d-var  (compression ?spring :time ?t))
 	       )
   :hint (
 	 (bottom-out (string "Define a variable for the compression of the spring using the Variables menu on the top menu bar."))
@@ -6886,8 +6887,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   ( (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t))) ) 
   :effects 
-  ( (define-var (at (extension ?spring) ?t))
-      (variable ?d-var  (at (extension ?spring) ?t)) )
+  ( (define-var (extension ?spring :time ?t))
+      (variable ?d-var  (extension ?spring :time ?t)) )
  :hint (
 	(bottom-out (string "Define a variable for the extension of the spring using the Variables menu on the top menu bar."))
 	))
@@ -6909,10 +6910,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator height-dy-contains (?quantity)
   :preconditions (
 		  (any-member ?quantity (
-					 (at (mag (displacement ?b)) (during ?t1 ?t2))
-					 (at (dir (displacement ?b)) (during ?t1 ?t2))
-					 (at (height ?b) ?t1)
-					 (at (height ?b) ?t2)
+					 (mag (displacement ?b :time (during ?t1 ?t2)))
+					 (dir (displacement ?b :time (during ?t1 ?t2)))
+					 (height ?b :time ?t1)
+					 (height ?b :time ?t2)
 					 ))
 		  (time ?t1) (time ?t2)
 		  (time (during ?t1 ?t2))
@@ -6931,7 +6932,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-height-dy-diagram (?b ?t)
   :preconditions (
 		  (body ?b)
-		  (vector ?b (at (displacement ?b) ?t) ?dir)
+		  (vector ?b (displacement ?b :time ?t) ?dir)
 		  ;; Must use standard axes for this. 
 		  (axis-for ?b y 90)
 		  )
@@ -6962,9 +6963,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-height-dy-compo (?b ?t1 ?t2)
   :preconditions (
-		  (variable ?h2 (at (height ?b) ?t2))
-		  (variable ?h1 (at (height ?b) ?t1))
-		  (variable ?d12_y  (at (compo y 90 (displacement ?b)) (during ?t1 ?t2)))
+		  (variable ?h2 (height ?b :time ?t2))
+		  (variable ?h1 (height ?b :time ?t1))
+		  (variable ?d12_y  (compo y 90 (displacement ?b :time (during ?t1 ?t2))))
 		  )
   :effects (
 	    (eqn (= (- ?h2 ?h1) ?d12_y)
@@ -7011,10 +7012,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions (
     (in-wm (use-work))
     (any-member ?sought (
-		  (at (work ?b ?agent) ?t)
-                  (at (mag (force ?b ?agent ?type)) ?t)
-		  (angle-between (at (displacement ?b) ?t)
-		                 (at (force ?b ?agent ?type) ?t))
+		  (work ?b ?agent :time ?t)
+                  (mag (force ?b ?agent ?type :time ?t))
+		  (angle-between (displacement ?b :time ?t)
+		                 (force ?b ?agent ?type :time ?t))
 		  ;; For now, can't use this to seek displacement, since this
 		  ;; quantity doesn't bind force agent.  Could pick any one, 
 		  ;; but can't use (object ?agent) since agents need only be
@@ -7022,7 +7023,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  ;; all force-determining interaction descriptions to choose. 
 		  ;; Rare anyway to be given work and force and asked to compute 
 		  ;; displacement, though could be done.
-                  ;; (at (mag (displacement ?b)) ?t)
+                  ;; (mag (displacement ?b :time ?t))
     			))
     (object ?b)
     (time ?t)
@@ -7052,17 +7053,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; Without a proper dot product, there is no point in drawing
     ;; axes.
     (body ?b)
-    (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
-    (vector ?b (at (displacement ?b) ?t) ?dir-d)
+    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
+    (vector ?b (displacement ?b :time ?t) ?dir-d)
     
     ;; make sure they are not perpendicular. If so, variant write-zero-work 
     ;; operator will write workF = 0
     (test (not (perpendicularp ?dir-f ?dir-d)))
-    (in-wm (variable ?F-var (at (mag (force ?b ?agent ?type)) ?t)))
-    (in-wm (variable ?d-var (at (mag (displacement ?b)) ?t)))
-    (variable ?theta-var (angle-between (at (displacement ?b) ?t)
-                                        (at (force ?b ?agent ?type) ?t)))
-    (variable ?work-var (at (work ?b ?agent) ?t))
+    (in-wm (variable ?F-var (mag (force ?b ?agent ?type :time ?t))))
+    (in-wm (variable ?d-var (mag (displacement ?b :time ?t))))
+    (variable ?theta-var (angle-between (displacement ?b :time ?t)
+                                        (force ?b ?agent ?type :time ?t)))
+    (variable ?work-var (work ?b ?agent :time ?t))
  )
  :effects (
     (eqn (= ?work-var (* ?F-var ?d-var (cos ?theta-var)))
@@ -7094,10 +7095,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
 	   ?type1 ?agent-force-types)
     (test (not (cdr ?agent-force-types)))
-    (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
-    (vector ?b (at (displacement ?b) ?t) ?dir-d)
+    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
+    (vector ?b (displacement ?b :time ?t) ?dir-d)
     (test (perpendicularp ?dir-f ?dir-d))
-    (variable ?work-var (at (work ?b ?agent) ?t)))
+    (variable ?work-var (work ?b ?agent :time ?t)))
  :effects ( (eqn (= ?work-var 0) (work ?b ?agent ?t)))
  :hint (
   (point (string "Notice that the only force exerted by ~a on ~b is perpendicular to the direction of the displacement of ~A." ?agent ?b ?b))
@@ -7111,7 +7112,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; In this case a side-effect of the definition is to make the 
 ;;; angle-between known as well so it won't be sought further.
 ;;; Vector quantities are identified in this quant by expressions of the form 
-;;; 	(at (vec ?b ...) ?t)  
+;;; 	(vec ?b ... :time ?t)  
 ;;; which include the times of each of the two vectors. These could in 
 ;;; principle be different if you were defining the angle between a vector at 
 ;;; one time and the same vector at another.
@@ -7134,8 +7135,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (vector ?b1 ?vec1 (dnum ?v1-dir |deg|))
  (vector ?b2 ?vec2 (dnum ?v2-dir |deg|))
  ;; fetch vector mag vars for forming angle variable name only
- (bind ?v1-mag-exp (vector-mag ?vec1))
- (bind ?v2-mag-exp (vector-mag ?vec2))
+ (bind ?v1-mag-exp `(mag ,?vec1))
+ (bind ?v2-mag-exp `(mag ,?vec2))
  (in-wm (variable ?v1-var ?v1-mag-exp))
  (in-wm (variable ?v2-var ?v2-mag-exp))
  (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
@@ -7166,11 +7167,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  					     (time-abbrev ?t)))
  )
  :effects (
-   (define-var (at (work ?b ?agent) ?t))
-   (variable ?work-var (at (work ?b ?agent) ?t))
+   (define-var (work ?b ?agent :time ?t))
+   (variable ?work-var (work ?b ?agent :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting work" ((at (work ?b ?agent) ?t) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting work" ((work ?b ?agent :time ?t) def-np)))
  ))
 
 ;; following defines a variable for net-work done on an object due to
@@ -7183,11 +7184,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (bind ?work-var (format-sym "net_work_~A_~A" (body-name ?b) (time-abbrev ?t)))
  )
  :effects (
-   (define-var (at (net-work ?b) ?t))
-   (variable ?work-var (at (net-work ?b) ?t))
+   (define-var (net-work ?b :time ?t))
+   (variable ?work-var (net-work ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting work, then choosing work done by all forces." ((at (net-work ?b) ?t) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting work, then choosing work done by all forces." ((net-work ?b :time ?t) def-np)))
  ))
 
 
@@ -7230,8 +7231,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator net-work-contains (?sought)
   :preconditions 
-  ((any-member ?sought  ((at (net-work ?b) ?t) 
-	                 (at (work ?b ?agent) ?t)))
+  ((any-member ?sought  ((net-work ?b :time ?t) 
+	                 (work ?b ?agent :time ?t)))
   ; make sure we can determine all agents doing work
   (not (unknown-work-agents))
   (test (time-consecutivep ?t)))  ;only apply to consecutive times
@@ -7244,7 +7245,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; draw free-body diagram showing all forces on object
    (net-work-diagram ?b ?t) 
    ; introduce net-work variable
-   (variable ?net-work-var (at (net-work ?b) ?t))
+   (variable ?net-work-var (net-work ?b :time ?t))
    ; introduce variables for work done by each work source. 
    ; need to collect list of force *agents* to use in work quantities
    ; agent can be one we know exerts a force on body, but it can also be
@@ -7262,7 +7263,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bind ?agents (remove-duplicates (append (mapcar #'third ?forces) 
                                             ?other-agents)))
    (map ?agent ?agents
-      (variable ?work-var (at (work ?b ?agent) ?t))
+      (variable ?work-var (work ?b ?agent :time ?t))
       ?work-var ?work-vars) 
   )
   :effects (
@@ -7298,9 +7299,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions 
   ((in-wm (use-work))
    (any-member ?sought ( 
-             (at (net-work ?b) (during ?t1 ?t2)) 
-	     (at (mag (velocity ?b)) ?t1)
-	     (at (mag (velocity ?b)) ?t2)
+             (net-work ?b :time (during ?t1 ?t2)) 
+	     (mag (velocity ?b :time ?t1))
+	     (mag (velocity ?b :time ?t2))
 	     (mass ?b)
 	     	      ))
   (time (during ?t1 ?t2)))
@@ -7316,9 +7317,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ; write fundamental principle Wnet = ke2 - ke1
     (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-delta-ke ?b ?t1 ?t2))
     ; write out ke1 = 0.5 * m * v1^2
-    (eqn (= ?ke1-var ?ke1-val) (kinetic-energy ?b ?t1))
+    (eqn (= ?ke1-var ?ke1-val) (kinetic-energy ?b :time ?t1))
     ; write out ke2 = 0.5 * m * v2^2
-    (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b ?t2))
+    (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b :time ?t2))
  )
  :effects ; post derived summary equation using written out ke terms
   ((derived-eqn (= ?Wnet-var (- ?ke2-val ?ke1-val)) 
@@ -7328,9 +7329,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; Write work = delta ke without writing out values for the ke terms.
 (defoperator write-work-delta-ke (?b ?t1 ?t2)
   :preconditions 
-   ((variable ?Wnet-var (at (net-work ?b) (during ?t1 ?t2)))
-    (variable ?ke1-var (at (kinetic-energy ?b) ?t1))
-    (variable ?ke2-var (at (kinetic-energy ?b) ?t2)))
+   ((variable ?Wnet-var (net-work ?b :time (during ?t1 ?t2)))
+    (variable ?ke1-var (kinetic-energy ?b :time ?t1))
+    (variable ?ke2-var (kinetic-energy ?b :time ?t2)))
   :effects 
   ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-delta-ke ?b ?t1 ?t2)))
   :hint (
@@ -7351,13 +7352,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      (in-wm (use-work))
      (any-member ?sought ( ;need all ME quantities
-			   (at (mag (velocity ?b)) ?t)
+			   (mag (velocity ?b :time ?t))
 	                   (mass ?b) 
-	                   (at (height ?b) ?t)
-	                   (at (spring-constant ?s) ?t)
-	                   (at (compression ?s) ?t)
+	                   (height ?b :time ?t)
+	                   (spring-constant ?s :time ?t)
+	                   (compression ?s :time ?t)
 	                   (gravitational-acceleration ?planet)
-                           (at (work-nc ?b) (during ?t1 ?t2)) ))
+                           (work-nc ?b :time (during ?t1 ?t2)) ))
      ;; Need to declare interval in problem statement
      (time (during ?t1 ?t2))
      ;; If ?t is not bound, from (any-member ?sought ...) then it is null
@@ -7396,9 +7397,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;       Wnc = ME2 - ME1
 (defoperator write-change-ME-top (?b ?t1 ?t2)
   :preconditions (
-     (variable ?Wnc (at (work-nc ?b) (during ?t1 ?t2)))
-     (variable ?ME1 (at (total-energy ?b) ?t1))
-     (variable ?ME2 (at (total-energy ?b) ?t2))
+     (variable ?Wnc (work-nc ?b :time (during ?t1 ?t2)))
+     (variable ?ME1 (total-energy ?b :time ?t1))
+     (variable ?ME2 (total-energy ?b :time ?t2))
   )
   :effects (
     (eqn (= ?Wnc (- ?ME2 ?ME1)) (change-ME-top ?b ?t1 ?t2))
@@ -7418,8 +7419,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (in-wm (use-work))
   ; !! this won't find Wnc at wider interval when sought is work
   ; during smaller interval.
-  (any-member ?sought ( (at (work ?body ?agent) ?t)
-                        (at (work-nc ?body) ?t) ))
+  (any-member ?sought ( (work ?body ?agent :time ?t)
+                        (work-nc ?body :time ?t) ))
  )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
@@ -7430,15 +7431,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; draw body and standard axes for principle
     (body ?body)
     (axis-for ?body x 0)
-    (variable ?Wnc (at (work-nc ?body) ?t))
+    (variable ?Wnc (work-nc ?body :time ?t))
    ;; introduce variables for work done by each non-conservative work source. 
    ;; need to collect list of force *agents* to use in work quantities
    ;; agent can be one we know exerts a force on body, but it can also be
    ;; a power-source we are told is transferring energy to the body, where
    ;; we might not have detailed information about the mechanism so can not
    ;; find or draw a force.
-   (setof (nc-work-during (at (work ?b ?agent) ?t-work) ?t) 
-          (at (work ?b ?agent) ?t-work) ?work-quants)
+   (setof (nc-work-during (work ?b ?agent :time ?t-work) ?t) 
+          (work ?b ?agent :time ?t-work) ?work-quants)
    ;; this would actually work if no nc work agents, since algebra module
    ;; accepts (= Wnc (+)) interpreting n-ary sum of zero terms as zero.
    ;; But is there a problem giving help based on this form?
@@ -7482,7 +7483,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (test (not (member ?type 
 			 '(weight gravitational normal spring electric))))
   )
-  :effects ( (nc-work-during (at (work ?b ?agent) ?t-overlap) ?t-query) ))
+  :effects ( (nc-work-during (work ?b ?agent :time ?t-overlap) ?t-query) ))
 
 ;;; if an entity is declared as a power source transmitting energy to ?b,
 ;;; without details of the force, then it is also an agent of Wnc
@@ -7494,7 +7495,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (test (time-intervalp ?t-overlap))
    )
    :effects (
-	     (nc-work-during (at (work ?b ?agent) ?t-overlap) ?t-query)
+	     (nc-work-during (work ?b ?agent :time ?t-overlap) ?t-query)
 	     ))
 
 (defoperator define-Wnc (?b ?t)
@@ -7502,11 +7503,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bind ?work-var (format-sym "Wnc_~A_~A" (body-name ?b) (time-abbrev ?t)))
   )
  :effects (
-   (define-var (at (work-nc ?b) ?t))
-   (variable ?work-var (at (work-nc ?b) ?t))
+   (define-var (work-nc ?b :time ?t))
+   (variable ?work-var (work-nc ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting work, then defining work done by all non-conservative forces." ((at (work-nc ?b) ?t) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting work, then defining work done by all non-conservative forces." ((work-nc ?b :time ?t) def-np)))
 ))
 
 ;;;
@@ -7524,12 +7525,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; from the given power output.
 (defoperator power-contains (?sought)
   :preconditions (
-    (any-member ?sought ( (at (work ?b ?agent) ?t)
+    (any-member ?sought ( (work ?b ?agent :time ?t)
 			  ; if sought is duration, need to bind ?body and 
 			  ; ?agent -- a nuisance, since agents aren't always 
 			  ; declared objects. For now, just don't allow it 
                           ; (duration ?t)
-			  (at (power ?b ?agent) ?t)))
+			  (power ?b ?agent :time ?t)))
   )
   :effects (
     (eqn-contains (power ?b ?agent ?t) ?sought)
@@ -7539,8 +7540,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      (body ?b)
      (axis-for ?b x 0)
-     (variable ?P-var  (at (power ?b ?agent) ?t))
-     (variable ?W-var  (at (work ?b ?agent) ?t))
+     (variable ?P-var  (power ?b ?agent :time ?t))
+     (variable ?W-var  (work ?b ?agent :time ?t))
      (variable ?t-var  (duration ?t))
   )
   :effects (
@@ -7558,11 +7559,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  					     (time-abbrev ?t)))
  )
  :effects (
-   (define-var (at (power ?b ?agent) ?t))
-   (variable ?power-var (at (power ?b ?agent) ?t))
+   (define-var (power ?b ?agent :time ?t))
+   (variable ?power-var (power ?b ?agent :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power" ((at (power ?b ?agent) ?t) def-np) ))
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power" ((power ?b ?agent :time ?t) def-np) ))
  ))
 
 ;;;
@@ -7570,8 +7571,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;
 (defoperator net-power-contains (?sought)
   :preconditions (
-    (any-member ?sought ( (at (net-power ?b) ?t)
-                          (at (net-work ?b) ?t)
+    (any-member ?sought ( (net-power ?b :time ?t)
+                          (net-work ?b :time ?t)
 			  ;; for now don't use to find duration:
 			  ;; (duration ?t)
 			  ))
@@ -7584,8 +7585,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      (body ?b)
      (axis-for ?b x 0)
-     (variable ?P-var  (at (net-power ?b) ?t))
-     (variable ?W-var  (at (net-work ?b) ?t))
+     (variable ?P-var  (net-power ?b :time ?t))
+     (variable ?W-var  (net-work ?b :time ?t))
      (variable ?t-var  (duration ?t))
   )
   :effects (
@@ -7602,30 +7603,30 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (bind ?power-var (format-sym "Pnet_~A_~A" (body-name ?b) (time-abbrev ?t)))
  )
  :effects (
-   (define-var (at (net-power ?b) ?t))
-   (variable ?power-var (at (net-power ?b) ?t))
+   (define-var (net-power ?b :time ?t))
+   (variable ?power-var (net-power ?b :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting power, and defining power supplied by all forces" ((at (net-power ?b) ?t) def-np) ))
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu, selecting power, and defining power supplied by all forces" ((net-power ?b :time ?t) def-np) ))
    ))
 
 ;;;
 ;;;  Net power produced by some source
 ;;;
 
-(def-qexp net-power-out (net-power-out ?source )
+(def-qexp net-power-out (net-power-out ?source :time ?time)
   :units |W|
   :english ("the total power produced by ~A" 
 	       (nlg ?source))
-  :fromWorkbench `(at (net-power-out ,body) ,time))
+  :fromWorkbench `(net-power-out ,body :time ,time))
 
 (defoperator define-net-power-out (?source  ?t)
   :preconditions
   ((bind ?p-var (format-sym "power_~A_~A" 
 			      (body-name ?source) 
 			      (time-abbrev ?t))))
-  :effects ((variable ?p-var (at (net-power-out ?source ) ?t))
-	    (define-var (at (net-power-out ?source) ?t)))
+  :effects ((variable ?p-var (net-power-out ?source  :time ?t))
+	    (define-var (net-power-out ?source :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the total power produced by ~A by using the Add Variable command on the Variable menu and selecting power."  ?source))))
 
@@ -7639,12 +7640,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions (
     (in-wm (use-work))
     (any-member ?sought (
-		  (at (power ?b ?agent) ?t)
-                  (at (mag (force ?b ?agent ?type)) ?t)
-		  (at (mag (velocity ?b)) ?t)
+		  (power ?b ?agent :time ?t)
+                  (mag (force ?b ?agent ?type :time ?t))
+		  (mag (velocity ?b :time ?t))
 		  ;; NB: vector terms must be in sorted order:
-		  (angle-between (at (force ?b ?agent ?type) ?t))
-		                 (at (velocity ?b) ?t)
+		  (angle-between (force ?b ?agent ?type :time ?t))
+		                 (velocity ?b :time ?t)
     			))
     (test (time-pointp ?t))
     ;; get list of force agents we can use
@@ -7672,13 +7673,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; must draw body, force and velocity vectors
     ;; Without a proper dot product, there is no point in drawing axes.
     (body ?b)
-    (vector ?b (at (force ?b ?agent ?type) ?t) ?dir-f)
-    (vector ?b (at (velocity ?b) ?t) ?dir-d)
-    (in-wm (variable ?F-var (at (mag (force ?b ?agent ?type)) ?t)))
-    (in-wm (variable ?v-var (at (mag (velocity ?b)) ?t)))
-    (variable ?theta-var (angle-between (at (force ?b ?agent ?type) ?t)
-                                        (at (velocity ?b) ?t)))
-    (variable ?P-var (at (power ?b ?agent) ?t))
+    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
+    (vector ?b (velocity ?b :time ?t) ?dir-d)
+    (in-wm (variable ?F-var (mag (force ?b ?agent ?type :time ?t))))
+    (in-wm (variable ?v-var (mag (velocity ?b :time ?t))))
+    (variable ?theta-var (angle-between (force ?b ?agent ?type :time ?t)
+                                        (velocity ?b :time ?t)))
+    (variable ?P-var (power ?b ?agent :time ?t))
  )
  :effects (
     (eqn (= ?P-var (* ?F-var ?v-var (cos ?theta-var)))
@@ -7702,10 +7703,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    (any-member ?sought (
-			(at (mag (momentum ?b)) ?t) 
-			(at (dir (momentum ?b)) ?t)
-			(at (mag (velocity ?b)) ?t) 
-			(at (dir (velocity ?b)) ?t)
+			(mag (momentum ?b :time ?t)) 
+			(dir (momentum ?b :time ?t))
+			(mag (velocity ?b :time ?t)) 
+			(dir (velocity ?b :time ?t))
 			(mass ?b) 
 			))
    (time ?t)
@@ -7722,8 +7723,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   ( (body ?b)
     ;; ?dirv = ?dirm is set in drawing rules
-    (vector ?b (at (velocity ?b) ?t) ?dirv)
-    (vector ?b (at (momentum ?b) ?t) ?dirm)
+    (vector ?b (velocity ?b :time ?t) ?dirv)
+    (vector ?b (momentum ?b :time ?t) ?dirm)
     (axis-for ?b ?xyz ?rot) ;maybe a problem for compounds?
   )
   :effects (
@@ -7734,13 +7735,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-momentum-compo (?b ?t ?xyz ?rot)
   :preconditions (
     ;; for now, all these preconds satisfied from above
-    (variable ?p_compo (at (compo ?xyz ?rot (momentum ?b)) ?t))
-    (variable ?v_compo (at (compo ?xyz ?rot (velocity ?b)) ?t))
+    (variable ?p_compo (compo ?xyz ?rot (momentum ?b :time ?t)))
+    (variable ?v_compo (compo ?xyz ?rot (velocity ?b :time ?t)))
     (variable ?m (mass ?b))
     ;; The magnitude equation can be put out as an optional equation. 
     ;; But this is now done by the projection equations 
-    ;; (variable ?p-var (at (mag (momentum ?b)) ?t))
-    ;; (variable ?v-var (at (mag (velocity ?b)) ?t))
+    ;; (variable ?p-var (mag (momentum ?b :time ?t)))
+    ;; (variable ?v-var (mag (velocity ?b :time ?t)))
   )
   :effects 
   (
@@ -7780,12 +7781,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bind ?mag-var (format-sym "p_~A_~A" ?b (time-abbrev ?t)))
     ;; allow student to draw velocity vector, which might not otherwise
     ;; be needed for the solution
-    (optional (vector ?b (at (velocity ?b) ?t) zero))
+    (optional (vector ?b (velocity ?b :time ?t) zero))
     )
   :effects
-   ((vector ?b (at (momentum ?b) ?t) zero)
-    (variable ?mag-var (at (mag (momentum ?b)) ?t))
-    (given (at (mag (momentum ?b)) ?t) (dnum 0 |kg.m/s|))
+   ((vector ?b (momentum ?b :time ?t) zero)
+    (variable ?mag-var (mag (momentum ?b :time ?t)))
+    (given (mag (momentum ?b :time ?t)) (dnum 0 |kg.m/s|))
     )
   :hint
    ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
@@ -7806,14 +7807,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion (straight ?dontcare ?dir))
     (test (not (equal ?dir 'unknown)))  ; until conditional effects 
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (momentum ?b) ?t) ?dir))
+    (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (at (momentum ?b) ?t) ?dir)
-    (variable ?mag-var (at (mag (momentum ?b)) ?t))
-    (variable ?dir-var (at (dir (momentum ?b)) ?t))
-    (given (at (dir (momentum ?b)) ?t) ?dir))
+   ((vector ?b (momentum ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (momentum ?b :time ?t)))
+    (variable ?dir-var (dir (momentum ?b :time ?t)))
+    (given (dir (momentum ?b :time ?t)) ?dir))
   :hint
    ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
     (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
@@ -7829,16 +7830,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ((time ?t)
     (motion ?b ?t-motion (straight ?dontcare unknown))
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (momentum ?b) ?t) ?dir))
+    (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     ;; following is for implicit-eqn, assumes velocity vars are named this way
     (bind ?dir-vel (format-sym "Ov_~A_~A" (body-name ?b) (time-abbrev ?t)))
     )
   :effects
-   ((vector ?b (at (momentum ?b) ?t) unknown)
-    (variable ?mag-var (at (mag (momentum ?b)) ?t))
-    (variable ?dir-var (at (dir (momentum ?b)) ?t))
+   ((vector ?b (momentum ?b :time ?t) unknown)
+    (variable ?mag-var (mag (momentum ?b :time ?t)))
+    (variable ?dir-var (dir (momentum ?b :time ?t)))
     ;; following is "optional equation" put out so solver will be able to 
     ;; determine a value for 0p in case student happens to use it. It isn't
     ;; needed for m*v form solution we teach, so student doesn't have to 
@@ -7864,10 +7865,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; in case problem author didn't canonicalize body list:
    (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
    (any-member ?sought (
-			(at (mag (momentum ?b)) ?t) 
-			(at (dir (momentum ?b)) ?t)
+			(mag (momentum ?b :time ?t)) 
+			(dir (momentum ?b :time ?t))
 			;; in case bodies split from or join into compound:
-			(at (mag (momentum (compound ?bodies)) ?t))
+			(mag (momentum (compound ?bodies) :time ?t))
 			))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))
    (test (or (contains-sym ?sought 'compound) 
@@ -7925,7 +7926,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (and (not (equal ?type 'join)) (equal ?tt (third ?times)))))
      (foreach ?b ?bodies (body ?b))
      (foreach ?b ?bodies
-   	(vector ?b (at (momentum ?b) ?tt) ?dirb))
+   	(vector ?b (momentum ?b :time ?tt) ?dirb))
   )
   :effects ( (collision-momenta-drawn ?bodies ?tt) ))
 
@@ -7939,7 +7940,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (bind ?c `(compound ,@?bodies)) ;for shorthand
      (body ?c)
      (axis-for ?c ?xyz-c ?rot-t)
-     (vector ?c (at (momentum ?c) ?tt) ?dirc)
+     (vector ?c (momentum ?c :time ?tt) ?dirc)
   )
   :effects ( (collision-momenta-drawn ?bodies ?tt) ))
 
@@ -7953,10 +7954,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (in-wm (collision ?body-list (during ?t1 ?t2) :type ?type))
    (test (not (or (equal ?type 'join) (equal ?type 'split))))
    (map ?b ?bodies
-	(variable ?p1_compo (at (compo ?xyz ?rot (momentum ?b)) ?t1))
+	(variable ?p1_compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
 	?p1_compo ?p1_compos)
    (map ?b ?bodies
-	(variable ?p2_compo (at (compo ?xyz ?rot (momentum ?b)) ?t2))
+	(variable ?p2_compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
 	?p2_compo ?p2_compos)
    (bind ?vars (append ?p1_compos ?p2_compos))
   ;; allow any zero-valued velocity components to be mentioned, since they
@@ -7988,9 +7989,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (in-wm (collision ?body-list (during ?t1 ?t2) :type split))
   ;; write subsidiary equations for all needed momenta components along ?xyz
   (bind ?c `(compound ,@?bodies))
-  (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t1))
+  (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?t1)))
   (map ?b ?bodies
-       (variable ?pf_compo (at (compo ?xyz ?rot (momentum ?b)) ?t2))
+       (variable ?pf_compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
        ?pf_compo ?pf_compos)
   ;; allow any zero-valued velocity components to be mentioned, since they
   ;; might not be needed anywhere else in the solution
@@ -8021,11 +8022,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (in-wm (collision ?body-list (during ?t1 ?t2) :type join))
   ;; write subsidiary equations for all needed momenta components along ?xyz
   (map ?b ?bodies
-       (variable ?pi_compo (at (compo ?xyz ?rot (momentum ?b)) ?t1))
+       (variable ?pi_compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
        ?pi_compo ?pi_compos)
   ;; p_final = pc
   (bind ?c `(compound ,@?bodies))
-  (variable ?pc_compo (at (compo ?xyz ?rot (momentum ?c)) ?t2))
+  (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?t2)))
   ;; allow any zero-valued velocity components to be mentioned, since they
   ;; might not be needed anywhere else in the solution
   (include-zero-vcomps ?xyz ?rot)
@@ -8077,8 +8078,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; Zero velocities are drawn as an optional step in draw-momentum-at-rest.
    ;; Since that is optional, this will only find them when in the path 
    ;; through the containing psm that actually draws them.
-      (setof (in-wm (vector ?b (at (velocity ?body) ?t) zero))
-              (at (compo ?xyz ?rot (velocity ?body)) ?t)
+      (setof (in-wm (vector ?b (velocity ?body :time ?t) zero))
+              (compo ?xyz ?rot (velocity ?body :time ?t))
 	      ?zero-vcomps)
       ;; for each one, declare its component variable. This is needed because 
       ;; the  projection writing operators fetch the variables from wm.
@@ -8105,8 +8106,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (collision ?coll-bodies (during ?t1 ?t2) :type elastic)
    (any-member ?quantity (
-			  (at (mag (velocity ?b)) ?t1)
-			  (at (mag (velocity ?b)) ?t2)
+			  (mag (velocity ?b :time ?t1))
+			  (mag (velocity ?b :time ?t2))
 			  (mass ?b)
                 	  ))
    (test (member ?b ?coll-bodies :test #'equalp))
@@ -8122,11 +8123,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; !! Not clear if have to write equation for each of these
    ; write sub equation for each initial ke, saving values
    (map ?b ?bodies
-     (eqn (= ?var ?ke1-val) (kinetic-energy ?b ?t1))
+     (eqn (= ?var ?ke1-val) (kinetic-energy ?b :time ?t1))
      ?ke1-val ?ke1-terms)
    ; write sub equation for each final ke, saving values
    (map ?b ?bodies
-     (eqn (= ?var ?ke2-val) (kinetic-energy ?b ?t2))
+     (eqn (= ?var ?ke2-val) (kinetic-energy ?b :time ?t2))
      ?ke2-val ?ke2-terms)
   )
   :effects (
@@ -8226,13 +8227,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator apply-angular-psm-compo-form (?sought ?eqn-id) 
    :preconditions
      ((component-form) ; needed to filter method when sought is duration.
-      (any-member ?sought ((at (compo z 0 ?vector) ?t)
+      (time ?t)
+      (any-member ?sought ((compo z 0 ?vector)
 			   (duration ?t)))
-      ; vector psms defined to seek vector magnitudes, so need to 
-      ; pretend we are seeking magnitude to hook into existing vector
-      ; psm selecting code.  If sought is duration, just leave it
+      ;; if ?vector is bound, match its time to ?t
+      (test (or (not (equal (first ?sought) 'compo)) 
+		(equal (time-of ?vector) ?t)))
+      ;; vector psms defined to seek vector magnitudes, so need to 
+      ;; pretend we are seeking magnitude to hook into existing vector
+      ;; psm selecting code.  If sought is duration, just leave it
       (bind ?vec-sought (if (eql (first ?sought) 'duration) ?sought
-                         `(at (mag ,?vector) ,?t))) 
+                         `(mag ,?vector))) 
       (angular-eqn-contains ?eqn-id ?vec-sought)
       (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
       (vector-diagram ?eqn-id)
@@ -8255,22 +8260,21 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion (rotating ?axis ?rotate-dir ?accel-spec))
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (ang-velocity ?b) ?t) ?dir-drawn))
+    (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
     (bind ?dir (rotation-zdir ?rotate-dir))
     (bind ?mag-var (format-sym "omega_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
-    (variable ?mag-var (at (mag (ang-velocity ?b)) ?t))
-    (variable ?dir-var (at (dir (ang-velocity ?b)) ?t))
-    ;(variable ?zc-var  (at (compo z 0 (mag (ang-velocity ?b))) ?t))
-    (given (at (dir (ang-velocity ?b)) ?t) ?dir)
-    (vector ?b (at (ang-velocity ?b) ?t) ?dir) 
+    (variable ?mag-var (mag (ang-velocity ?b :time ?t)))
+    (variable ?dir-var (dir (ang-velocity ?b :time ?t)))
+    (given (dir (ang-velocity ?b :time ?t)) ?dir)
+    (vector ?b (ang-velocity ?b :time ?t) ?dir) 
   )
   :hint 
  ((point (string "Notice that ~a is rotating ~a about an axis ~a." ?b (?rotate-dir adj) (?t pp)))
    (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. The angular velocity vector lies along the z-axis in Andes problems. By the right hand rule it points out of the x-y plane of the diagram for counter-clockwise rotation and into the x-y plane for clockwise rotation."))
-   (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a ." ?b (?rotate-dir adj)(?t pp) (?dir adj)))
+   (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a ." ?b (?rotate-dir adj) (?t pp) (?dir adj)))
   ))
 
 ;; Draw zero angular velocity for an object that is not rotating.
@@ -8280,13 +8284,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion ang-at-rest)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (ang-velocity ?b) ?t) ?dir-drawn))
+    (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "omega_~A_~A" (body-name ?b) (time-abbrev ?t)))
   )
   :effects (
-    (vector ?b (at (ang-velocity ?b) ?t) zero) 
-    (variable ?mag-var (at (mag (ang-velocity ?b)) ?t))
-    (given (at (mag (ang-velocity ?b)) ?t) (dnum 0 |rad/s|))
+    (vector ?b (ang-velocity ?b :time ?t) zero) 
+    (variable ?mag-var (mag (ang-velocity ?b :time ?t)))
+    (given (mag (ang-velocity ?b :time ?t)) (dnum 0 |rad/s|))
   )
   :hint (
     (point (string "Notice that ~a is not rotating ~a." ?b (?t pp)))
@@ -8303,16 +8307,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion (rotating ?axis ?rotate-dir ?accel-spec))
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (ang-displacement ?b) ?t) ?dir-drawn))
+    (not (vector ?b (ang-displacement ?b :time ?t) ?dir-drawn))
     (bind ?dir (rotation-zdir ?rotate-dir))
     (bind ?mag-var (format-sym "theta_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
-    (vector ?b (at (ang-displacement ?b) ?t) ?dir) 
-    (variable ?mag-var (at (mag (ang-displacement ?b)) ?t))
-    (variable ?dir-var (at (dir (ang-displacement ?b)) ?t))
-    (given (at (dir (ang-displacement ?b)) ?t) ?dir)
+    (vector ?b (ang-displacement ?b :time ?t) ?dir) 
+    (variable ?mag-var (mag (ang-displacement ?b :time ?t)))
+    (variable ?dir-var (dir (ang-displacement ?b :time ?t)))
+    (given (dir (ang-displacement ?b :time ?t)) ?dir)
   )
   :hint
   ((point (string "Notice that ~a is rotating ~a ~a." ?b (?rotate-dir adj) (?t pp)))
@@ -8328,15 +8332,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion (rotating ?axis ?rotate-dir speed-up))
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (ang-accel ?b) ?t) ?dir-drawn))
+    (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?dir (rotation-zdir ?rotate-dir))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects 
-   ((vector ?b (at (ang-accel ?b) ?t) ?dir) 
-    (variable ?mag-var (at (mag (ang-accel ?b)) ?t))
-    (variable ?dir-var (at (dir (ang-accel ?b)) ?t))
-    (given (at (dir (ang-accel ?b)) ?t) ?dir))
+   ((vector ?b (ang-accel ?b :time ?t) ?dir) 
+    (variable ?mag-var (mag (ang-accel ?b :time ?t)))
+    (variable ?dir-var (dir (ang-accel ?b :time ?t)))
+    (given (dir (ang-accel ?b :time ?t)) ?dir))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is increasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity. If an object's rate of rotation is speeding up then its angular velocity vector is increasing in magnitude over time, so the angular acceleration will point in the same direction as the angular velocity. By the right-hand rule that will be out of the x-y plane for ccw rotation and into the plane for cw rotation."))
@@ -8352,17 +8356,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion (rotating ?axis ?rotate-dir slow-down))
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (ang-accel ?b) ?t) ?dir-drawn))
+    (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?vel-dir (rotation-zdir ?rotate-dir))
     (bind ?dir (opposite ?vel-dir))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects 
-   ((vector ?b (at (ang-accel ?b) ?t) ?dir) 
-    (variable ?mag-var (at (mag (ang-accel ?b)) ?t))
-    (variable ?dir-var (at (dir (ang-accel ?b)) ?t))
-    (given (at (dir (ang-accel ?b)) ?t) ?dir))
+   ((vector ?b (ang-accel ?b :time ?t) ?dir) 
+    (variable ?mag-var (mag (ang-accel ?b :time ?t)))
+    (variable ?dir-var (dir (ang-accel ?b :time ?t)))
+    (given (dir (ang-accel ?b :time ?t)) ?dir))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is decreasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity. If an object's rate of rotation is slowing down then its angular velocity vector is decreasing in magnitude over time, so the angular acceleration will point in the opposite direction from the angular velocity, as determined by the right-hand rule."))
@@ -8386,14 +8390,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ?t-motion (rotating ?axis unknown ?accel-spec))
     (test (not (equal ?accel-spec 'constant)))
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (at (ang-accel ?b) ?t) ?dir-drawn))
+    (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects 
-   ((vector ?b (at (ang-accel ?b) ?t) z-unknown) 
-    (variable ?mag-var (at (mag (ang-accel ?b)) ?t))
-    (variable ?dir-var (at (dir (ang-accel ?b)) ?t)))
+   ((vector ?b (ang-accel ?b :time ?t) z-unknown) 
+    (variable ?mag-var (mag (ang-accel ?b :time ?t)))
+    (variable ?dir-var (dir (ang-accel ?b :time ?t))))
   :hint 
   ((point (string "You need to introduce a term for the angular acceleration of ~A." ?b))
     (teach (string "When a body is subject to a non-zero net torque it will have an angular acceleration in the direction of the net torque. In this problem you can assume that the forces will result in a net torque so the body will have a non-zero angular acceleration. Whether the angular acceleration points into or out of the plane requires calculation to determine. Since it must lie along the z axis, you should draw it but specify an unknown Z direction ." ?b))
@@ -8409,8 +8413,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator ang-sdd-contains (?quantity)
   :preconditions (
    (any-member ?quantity (
-                (at (mag (ang-velocity ?b)) ?t)
-		(at (mag (ang-displacement ?b)) ?t)
+                (mag (ang-velocity ?b :time ?t))
+		(mag (ang-displacement ?b :time ?t))
 		(duration ?t)
 		))
    (object ?b)
@@ -8424,8 +8428,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
    (not (vector-diagram (ang-sdd ?b (during ?t1 ?t2))))
    (body ?b)
-   (vector ?b (at (ang-velocity ?b) (during ?t1 ?t2)) ?dir-v)
-   (vector ?b (at (ang-displacement ?b) (during ?t1 ?t2)) ?dir-d)
+   (vector ?b (ang-velocity ?b :time (during ?t1 ?t2)) ?dir-v)
+   (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
    (variable ?var (duration (during ?t1 ?t2)))
    (axis-for ?b z 0)
   )
@@ -8438,8 +8442,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; to produce the compo-free equation.
 (defoperator write-ang-sdd (?b ?t)
   :preconditions
-   ((variable ?theta_z  (at (compo z 0 (ang-displacement ?b)) ?t))
-    (variable ?omega_z  (at (compo z 0 (ang-velocity ?b)) ?t))
+   ((variable ?theta_z  (compo z 0 (ang-displacement ?b :time ?t)))
+    (variable ?omega_z  (compo z 0 (ang-velocity ?b :time ?t)))
     (variable ?t-var (duration ?t)))
   :effects 
    ((eqn (= ?theta_z (* ?omega_z ?t-var)) (compo-eqn z 0 (ang-sdd ?b ?t)))
@@ -8450,18 +8454,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Write the equation ~a=~a * ~a." (?theta_z algebra) (?omega_z algebra) (?t-var algebra)))
   ))
 
-; angular version of lk-no-s: omega_f = omega_i + alpha_avg * t
-; Because this uses average angular acceleration, it doesn't require
-; acceleration to be constant
+;; angular version of lk-no-s: omega_f = omega_i + alpha_avg * t
+;; Because this uses average angular acceleration, it doesn't require
+;; acceleration to be constant
 (defoperator rk-no-s-contains (?sought)
  :preconditions (
   (any-member ?sought
-	       ( (at (mag (ang-velocity ?b)) ?t1)
-		 (at (dir (ang-velocity ?b)) ?t1)
-		 (at (mag (ang-velocity ?b)) ?t2)
-		 (at (dir (ang-velocity ?b)) ?t2)
-		 (at (mag (ang-accel ?b)) (during ?t1 ?t2))
-		 (at (dir (ang-accel ?b)) (during ?t1 ?t2))
+	       ( (mag (ang-velocity ?b :time ?t1))
+		 (dir (ang-velocity ?b :time ?t1))
+		 (mag (ang-velocity ?b :time ?t2))
+		 (dir (ang-velocity ?b :time ?t2))
+		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
+		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    (object ?b)
@@ -8473,9 +8477,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions  (
    (not (vector-diagram (rk-no-s ?b (during ?t1 ?t2))))
    (body ?b)
-   (vector ?b (at (ang-velocity ?b) ?t2) ?dir-v2)
-   (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-d)
-   (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
+   (vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
+   (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-d)
+   (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
    (variable ?var (duration (during ?t1 ?t2)))
    (axis-for ?b z 0)
   )
@@ -8484,9 +8488,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-rk-no-s (?b ?t1 ?t2)
  :preconditions
-  ((variable ?omega2_z (at (compo z 0 (ang-velocity ?b)) ?t2))
-   (variable ?omega1_z (at (compo z 0 (ang-velocity ?b)) ?t1))
-   (variable ?alpha_z  (at (compo z 0 (ang-accel ?b)) (during ?t1 ?t2)))
+  ((variable ?omega2_z (compo z 0 (ang-velocity ?b :time ?t2)))
+   (variable ?omega1_z (compo z 0 (ang-velocity ?b :time ?t1)))
+   (variable ?alpha_z  (compo z 0 (ang-accel ?b :time (during ?t1 ?t2))))
    (variable ?t-var (duration (during ?t1 ?t2))))
   :effects 
   ((eqn (= ?omega2_z (+ ?omega1_z (* ?alpha_z ?t-var))) 
@@ -8506,12 +8510,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator rk-no-vf-contains (?sought)
  :preconditions (
   (any-member ?sought
-	       ( (at (mag (ang-displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (ang-displacement ?b)) (during ?t1 ?t2))
-		 (at (mag (ang-velocity ?b)) ?t1)
-		 (at (dir (ang-velocity ?b)) ?t1)
-		 (at (mag (ang-accel ?b)) (during ?t1 ?t2))
-		 (at (dir (ang-accel ?b)) (during ?t1 ?t2))
+	       ( (mag (ang-displacement ?b :time (during ?t1 ?t2)))
+		 (dir (ang-displacement ?b :time (during ?t1 ?t2)))
+		 (mag (ang-velocity ?b :time ?t1))
+		 (dir (ang-velocity ?b :time ?t1))
+		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
+		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant within interval we are using
@@ -8526,9 +8530,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions  (
    (not (vector-diagram (rk-no-vf ?b (during ?t1 ?t2))))
    (body ?b)
-   (vector ?b (at (ang-displacement ?b) (during ?t1 ?t2)) ?dir-d)
-   (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-a)
-   (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
+   (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
+   (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
+   (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
    (variable ?var (duration (during ?t1 ?t2)))
    (axis-for ?b z 0)
   )
@@ -8537,9 +8541,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-rk-no-vf (?b ?t1 ?t2)
  :preconditions(
-   (variable ?theta_z  (at (compo z 0 (ang-displacement ?b)) (during ?t1 ?t2)))
-   (variable ?omega1_z (at (compo z 0 (ang-velocity ?b)) ?t1))
-   (variable ?alpha_z  (at (compo z 0 (ang-accel ?b)) (during ?t1 ?t2)))
+   (variable ?theta_z  (compo z 0 (ang-displacement ?b :time (during ?t1 ?t2))))
+   (variable ?omega1_z (compo z 0 (ang-velocity ?b :time ?t1)))
+   (variable ?alpha_z  (compo z 0 (ang-accel ?b :time (during ?t1 ?t2))))
    (variable ?t-var    (duration (during ?t1 ?t2)))
   )
   :effects (
@@ -8562,14 +8566,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator rk-no-t-contains (?sought)
  :preconditions (
   (any-member ?sought
-	       ( (at (mag (ang-velocity ?b)) ?t1)
-		 (at (dir (ang-velocity ?b)) ?t1)
-	         (at (mag (ang-velocity ?b)) ?t2)
-		 (at (dir (ang-velocity ?b)) ?t2)
-	         (at (mag (ang-displacement ?b)) (during ?t1 ?t2))
-		 (at (dir (ang-displacement ?b)) (during ?t1 ?t2))
-		 (at (mag (ang-accel ?b)) (during ?t1 ?t2))
-		 (at (dir (ang-accel ?b)) (during ?t1 ?t2))
+	       ( (mag (ang-velocity ?b :time ?t1))
+		 (dir (ang-velocity ?b :time ?t1))
+	         (mag (ang-velocity ?b :time ?t2))
+		 (dir (ang-velocity ?b :time ?t2))
+	         (mag (ang-displacement ?b :time (during ?t1 ?t2)))
+		 (dir (ang-displacement ?b :time (during ?t1 ?t2)))
+		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
+		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
 		 ))
    ; only applies if accel is constant within interval we are using
    (time (during ?t1 ?t2))  ; ensure both endpoints bound
@@ -8583,10 +8587,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions  (
    (not (vector-diagram (rk-no-t ?b (during ?t1 ?t2))))
    (body ?b)
-   (vector ?b (at (ang-velocity ?b) ?t2) ?dir-v2)
-   (vector ?b (at (ang-velocity ?b) ?t1) ?dir-v1)
-   (vector ?b (at (ang-accel ?b) (during ?t1 ?t2)) ?dir-a)
-   (vector ?b (at (ang-displacement ?b) (during ?t1 ?t2)) ?dir-d)
+   (vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
+   (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
+   (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
+   (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
    (axis-for ?b z 0)
   )
   :effects ( (vector-diagram (rk-no-t ?b (during ?t1 ?t2))) )
@@ -8594,10 +8598,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-rk-no-t (?b ?t1 ?t2)
  :preconditions(
-   (variable ?omega2_z (at (compo z 0 (ang-velocity ?b)) ?t2))
-   (variable ?omega1_z (at (compo z 0 (ang-velocity ?b)) ?t1))
-   (variable ?alpha_z  (at (compo z 0 (ang-accel ?b)) (during ?t1 ?t2)))
-   (variable ?theta_z  (at (compo z 0 (ang-displacement ?b)) (during ?t1 ?t2)))
+   (variable ?omega2_z (compo z 0 (ang-velocity ?b :time ?t2)))
+   (variable ?omega1_z (compo z 0 (ang-velocity ?b :time ?t1)))
+   (variable ?alpha_z  (compo z 0 (ang-accel ?b :time (during ?t1 ?t2))))
+   (variable ?theta_z  (compo z 0 (ang-displacement ?b :time (during ?t1 ?t2))))
   )
   :effects (
    (eqn (= (^ ?omega2_z 2) (+ (^ ?omega1_z 2)
@@ -8655,7 +8659,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (motion ?whole-body ?t-rotating (rotating ?axis-pt ?rotate-dir ?dontcare))
    (test (not (equal ?rotate-dir 'unknown)))
    (test (tinsidep ?t ?t-rotating))
-   (given (at (dir (relative-position ?pt ?axis-pt)) ?t) (dnum ?r-dir |deg|))
+   (given (dir (relative-position ?pt ?axis-pt :time ?t)) (dnum ?r-dir |deg|))
    (bind ?v-dir (if (equal ?rotate-dir 'ccw) (mod (+ ?r-dir 90) 360)
                   (mod (- ?r-dir 90) 360)))
    (bind ?a-dir (mod (+ ?r-dir 180) 360))  
@@ -8670,9 +8674,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator linear-vel-contains (?sought)
    :preconditions (
    (any-member ?sought (
-		  (at (mag (velocity ?pt)) ?t)
-                  (at (mag (ang-velocity ?whole-body)) ?t)
-		  (at (mag (relative-position ?pt ?axis)) ?t)
+		  (mag (velocity ?pt :time ?t))
+                  (mag (ang-velocity ?whole-body :time ?t))
+		  (mag (relative-position ?pt ?axis :time ?t))
 		))
    (part-of ?pt ?whole-body)
    (time ?t)
@@ -8690,9 +8694,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       ;; consistency.  We choose the whole rotating object as our 
       ;; body, as suggested by Bob 
       (body ?whole-body)
-      (variable ?v-var (at (mag (velocity ?pt)) ?t))
-      (variable ?omega-var (at (mag (ang-velocity ?whole-body)) ?t))
-      (variable ?r-var (at (mag (relative-position ?pt ?axis)) ?t))
+      (variable ?v-var (mag (velocity ?pt :time ?t)))
+      (variable ?omega-var (mag (ang-velocity ?whole-body :time ?t)))
+      (variable ?r-var (mag (relative-position ?pt ?axis :time ?t)))
    )
    :effects (
     (eqn  (= ?v-var (* ?omega-var ?r-var)) (linear-vel ?pt ?t ?axis))
@@ -8710,8 +8714,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (any-member ?sought (
 		(radius-of-circle ?body)		 
-		(at (mag (velocity ?axis)) ?t)
-		(at (mag (ang-velocity ?body)) ?t)
+		(mag (velocity ?axis :time ?t))
+		(mag (ang-velocity ?body :time ?t))
 		))
    (time ?t)				;radius-of-circle does not bind ?t
    (object ?body)			;velocity does not bind ?body
@@ -8725,8 +8729,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-rolling-vel (?body ?t)
    :preconditions (
-      (variable ?v-var (at (mag (velocity ?axis)) ?t))
-      (variable ?omega-var (at (mag (ang-velocity ?body)) ?t))
+      (variable ?v-var (mag (velocity ?axis :time ?t)))
+      (variable ?omega-var (mag (ang-velocity ?body :time ?t)))
       (variable ?r-var (radius-of-circle ?body))
    )
    :effects (
@@ -8753,11 +8757,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (motion ?whole-body ?t-rotating (rotating ?axis-pt . ?dontcare))
    (time ?t)
    (test (tinsidep ?t ?t-rotating))
-   (given (at (mag (relative-position ?pt ?axis-pt)) ?t) ?value)
+   (given (mag (relative-position ?pt ?axis-pt :time ?t)) ?value)
    )
    :effects (
-    (equals (at (revolution-radius ?pt) ?t) 
-            (at (mag (relative-position ?pt ?axis-pt)) ?t))
+    (equals (revolution-radius ?pt :time ?t) 
+            (mag (relative-position ?pt ?axis-pt :time ?t)))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -8804,8 +8808,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bind ?I-var (format-sym "I_~A_~A" (body-name ?b) (time-abbrev ?t)))
   )
   :effects (
-    (define-var (at (moment-of-inertia ?b) ?t))
-    (variable ?I-var (at (moment-of-inertia ?b) ?t))
+    (define-var (moment-of-inertia ?b :time ?t))
+    (variable ?I-var (moment-of-inertia ?b :time ?t))
   )
   :hint (
    (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A" ?b (?t pp)))
@@ -8814,7 +8818,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator use-changing-moment-of-inertia-variable (?body ?time)
   :preconditions (
         (in-wm (changing-mass))
-        (variable ?var (at (moment-of-inertia ?body) ?time))
+        (variable ?var (moment-of-inertia ?body :time ?time))
 	)
     :effects ((moment-of-inertia-variable ?var ?body ?time)))
 
@@ -9093,24 +9097,24 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions (
     (object ?b)
     (time ?t)
-    (not (vector ?b (at (ang-momentum ?b) ?t)))
+    (not (vector ?b (ang-momentum ?b :time ?t)))
     ; draw the angular velocity
-    (vector ?b (at (ang-velocity ?b) ?t-rotating) ?dir-vel)
+    (vector ?b (ang-velocity ?b :time ?t-rotating) ?dir-vel)
     (test (not (equal ?dir-vel 'unknown)))
     (test (tinsidep ?t ?t-rotating))
     (bind ?mag-var (format-sym "L_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
-    (vector ?b (at (ang-momentum ?b) ?t) ?dir-vel)
-    (variable ?mag-var (at (mag (ang-momentum ?b)) ?t))
-    (variable ?dir-var (at (dir (ang-momentum ?b)) ?t)) 
-    (given (at (dir (ang-momentum ?b)) ?t) ?dir-vel)
+    (vector ?b (ang-momentum ?b :time ?t) ?dir-vel)
+    (variable ?mag-var (mag (ang-momentum ?b :time ?t)))
+    (variable ?dir-var (dir (ang-momentum ?b :time ?t))) 
+    (given (dir (ang-momentum ?b :time ?t)) ?dir-vel)
    )
   :hint (
    (point (string "Notice that ~a is rotating ~a so has a non-zero angular velocity vector directed ~A." ?b  (?t pp) (?dir-vel adj)))
    (teach (string "In the case of a symmetrical rigid body rotating about a fixed axis, the angular momentum vector will be equal to the moment of inertia -- a scalar-- times the angular velocity vector. The angular momentum will therefore point along the z axis in the same direction as the angular velocity vector."))
-   (bottom-out (string "Because ~a has an angular velocity pointing ~a ~A, use the momentum tool to draw a non-zero angular momentum vector with direction ~a ." ?b (?dir-vel adj)(?t pp) (?dir-vel adj)))
+   (bottom-out (string "Because ~a has an angular velocity pointing ~a ~A, use the momentum tool to draw a non-zero angular momentum vector with direction ~a ." ?b (?dir-vel adj) (?t pp) (?dir-vel adj)))
   ))
 
 ; following writes the equation for angular momentum 
@@ -9118,11 +9122,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator ang-momentum-contains (?sought)
    :preconditions (
       (any-member ?sought (
-              (at (mag (ang-momentum ?b)) ?t)
-              (at (dir (ang-momentum ?b)) ?t)
-	      (at (mag (ang-velocity ?b)) ?t)
-	      (at (dir (ang-velocity ?b)) ?t)
-	      (at (moment-of-inertia ?b) ?t)
+              (mag (ang-momentum ?b :time ?t))
+              (dir (ang-momentum ?b :time ?t))
+	      (mag (ang-velocity ?b :time ?t))
+	      (dir (ang-velocity ?b :time ?t))
+	      (moment-of-inertia ?b :time ?t)
 	      (moment-of-inertia ?b)
                           )) 
       (time ?t)
@@ -9133,15 +9137,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-momentum-vectors (?b ?t)
   :preconditions 
      ( (not (vector-diagram (ang-momentum ?b ?t))) 
-       (vector ?b (at (ang-momentum ?b) ?t) ?dir) 
+       (vector ?b (ang-momentum ?b :time ?t) ?dir) 
        (axis-for ?b z 0) )
   :effects 
      ( (vector-diagram (ang-momentum ?b ?t)) ))
 
 (defoperator write-ang-momentum (?b ?t)
   :preconditions (
-     (variable ?L_z     (at (compo z 0 (ang-momentum ?b)) ?t))
-     (variable ?omega_z (at (compo z 0 (ang-velocity ?b)) ?t))
+     (variable ?L_z     (compo z 0 (ang-momentum ?b :time ?t)))
+     (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
      (moment-of-inertia-variable ?I ?b ?t)
   )
   :effects (
@@ -9171,10 +9175,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; in case problem author didn't canonicalize body list:
    (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
    (any-member ?sought (
-			(at (mag (ang-momentum ?b)) ?t) 
-			(at (dir (ang-momentum ?b)) ?t)
+			(mag (ang-momentum ?b :time ?t)) 
+			(dir (ang-momentum ?b :time ?t))
 			;; in case of split or join
-			(at (mag (ang-momentum (compound ?bodies)) ?t))
+			(mag (ang-momentum (compound ?bodies) :time ?t))
 	       ))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))   
    (test (or (contains-sym ?sought 'compound)
@@ -9208,7 +9212,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (and (not (equal ?type 'join)) (equal ?tt (third ?times)))))
      (foreach ?b ?bodies (body ?b))
      (foreach ?b ?bodies
-   	(vector ?b (at (ang-momentum ?b) ?tt) ?dir1))
+   	(vector ?b (ang-momentum ?b :time ?tt) ?dir1))
   )
   :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
 
@@ -9222,7 +9226,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (bind ?c `(compound ,@?bodies)) ;for shorthand
      (body ?c)
      (axis-for ?c ?xyz-c ?rot-t)
-     (vector ?c (at (ang-momentum ?c) ?tt) ?dir1)
+     (vector ?c (ang-momentum ?c :time ?tt) ?dir1)
   )
   :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
 
@@ -9234,10 +9238,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; apply single-body ang-momentum method for each to draw vectors and 
    ;; generate compo equation for each body at initial and final times
    (map ?b ?bodies
-	(variable ?L1_compo (at (compo z 0 (ang-momentum ?b)) ?t1))
+	(variable ?L1_compo (compo z 0 (ang-momentum ?b :time ?t1)))
 	?L1_compo ?L1_compos)
    (map ?b ?bodies
-	(variable ?L2_compo (at (compo z 0 (ang-momentum ?b)) ?t2))
+	(variable ?L2_compo (compo z 0 (ang-momentum ?b :time ?t2)))
 	?L2_compo ?L2_compos)
   (bind ?vars (append ?L1_compos ?L2_compos))
   )
@@ -9264,11 +9268,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ;; generate compo equation for each body at initial and final times
   ;; initial time:
    (map ?b ?bodies
-	(variable ?L1_compo (at (compo z 0 (ang-momentum ?b)) ?t1))
+	(variable ?L1_compo (compo z 0 (ang-momentum ?b :time ?t1)))
 	?L1_compo ?L1_compos)
   ; final time is the compound
   (bind ?c `(compound ,@?bodies)) ; for shorthand
-  (variable ?L2_z (at (compo z 0 (ang-momentum ?c)) ?t2))
+  (variable ?L2_z (compo z 0 (ang-momentum ?c :time ?t2)))
   )
   :effects (
   (eqn (= (+ . ?L1_compos) ?L2_z)
@@ -9298,12 +9302,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator net-torque-zc-contains (?sought)
   :preconditions (
     (any-member ?sought (
-                     ;(at (mag (net-torque ?b ?axis)) ?t)
-		     ;(at (dir (net-torque ?b ?axis)) ?t)
-		     (at (compo z 0 (net-torque ?b ?axis)) ?t)
+                     ;(mag (net-torque ?b ?axis :time ?t))
+		     ;(dir (net-torque ?b ?axis :time ?t))
+		     (compo z 0 (net-torque ?b ?axis :time ?t))
 		     ; for now, don't use to solve for individual torques:
-		     ;(at  (mag (torque ?b ?axis ?force)) ?t)
-		     ;(at  (dir (torque ?b ?axis ?force)) ?t)
+		     ;(mag (torque ?b ?axis ?force :time ?t))
+		     ;(dir (torque ?b ?axis ?force :time ?t))
                         ))
    ; make sure there aren't unknown forces, as in basic rotational kinematics
    ; problems with unexplained accelerations
@@ -9316,10 +9320,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator net-torque-contains (?sought)
   :preconditions (
     (any-member ?sought (
-                     (at (mag (net-torque ?b ?axis)) ?t)
-		     (at (dir (net-torque ?b ?axis)) ?t)
-		     (at  (mag (torque ?b ?axis ?force)) ?t)
-		     (at  (dir (torque ?b ?axis ?force)) ?t)
+                     (mag (net-torque ?b ?axis :time ?t))
+		     (dir (net-torque ?b ?axis :time ?t))
+		     (mag (torque ?b ?axis ?force :time ?t))
+		     (dir (torque ?b ?axis ?force :time ?t))
                         ))
    ; make sure there aren't unknown forces, as in basic rotational kinematics
    ; problems with unexplained accelerations
@@ -9336,9 +9340,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (in-wm (part-of ?pt ?b))
      ;(force ?pt ?agent ?type ?t (dnum ?dir-f |deg|) action) 
      ; draw the force on the point of applicatin
-     (vector ?pt (at (force ?pt ?agent ?type) ?t) (dnum ?dir-f |deg|))
+     (vector ?pt (force ?pt ?agent ?type :time ?t) (dnum ?dir-f |deg|))
      ; fetch the relative position vector and calculate torque direction
-     (in-wm (given (at (dir (relative-position ?pt ?axis)) ?t) 
+     (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) 
                    (dnum ?dir-r |deg|)))
      (bind ?torque-dir (torque-zdir ?dir-f ?dir-r))
      ; var name identifies force by point of application and agent alone
@@ -9348,11 +9352,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (debug "Drawing torque on ~A from force at ~A ~A plane~%" ?b ?pt ?torque-dir)
    )
    :effects (
-     (vector ?b (at (torque ?b ?axis (force ?pt ?agent ?type)) ?t) ?torque-dir)
-     (variable ?mag-var (at (mag (torque ?b ?axis (force ?pt ?agent ?type))) ?t))
-     (variable ?dir-var (at (dir (torque ?b ?axis (force ?pt ?agent ?type))) ?t)) 
-
-     (given (at (dir (torque ?b ?axis (force ?pt ?agent ?type))) ?t) ?torque-dir)
+     (vector ?b (torque ?b ?axis (force ?pt ?agent ?type) :time ?t) ?torque-dir)
+     (variable ?mag-var (mag (torque ?b ?axis 
+				     (force ?pt ?agent ?type) :time ?t)))
+     (variable ?dir-var (dir (torque ?b ?axis (force ?pt ?agent ?type)
+			     :time ?t)))
+     (given (dir (torque ?b ?axis (force ?pt ?agent ?type) :time ?t)) 
+	    ?torque-dir)
    )
    :hint (
     (point (string "Notice that there is a[n] ~A force acting at ~a ~A which might have a tendency to cause ~a to rotate about ~A."
@@ -9367,22 +9373,22 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; draw net torque if we have been given its direction
 (defoperator draw-net-torque-known-dir (?b ?axis ?t)
  :preconditions (
-     (in-wm (given (at (dir (net-torque ?b ?axis)) ?t) ?dir))
+     (in-wm (given (dir (net-torque ?b ?axis :time ?t)) ?dir))
      ; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (not (vector ?b (at (net-torque ?b ?axis) ?t) ?dontcare))
+     (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
      (bind ?phi-value (zdir-phi ?dir))
    )
    :effects (
-     (vector ?b (at (net-torque ?b ?axis) ?t) ?dir)
-     (variable ?mag-var (at (mag (net-torque ?b ?axis)) ?t))
-     (variable ?dir-var (at (dir (net-torque ?b ?axis)) ?t)) 
-     (given (at (dir (net-torque ?b ?axis)) ?t) ?dir)
+     (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
+     (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
+     (variable ?dir-var (dir (net-torque ?b ?axis :time ?t))) 
+     (given (dir (net-torque ?b ?axis :time ?t)) ?dir)
      ; Because dir is problem given, find-by-psm won't ensure implicit eqn
      ; gets written. Given value may not be used elsewhere so ensure it here.
-     (implicit-eqn (= ?dir-var ?phi-value) (at (dir (net-torque ?b)) ?t))
+     (implicit-eqn (= ?dir-var ?phi-value) (dir (net-torque ?b :time ?t)))
    )
    :hint (
     (point (string "You were given the direction of the net torque on ~a about ~a ~a in this situation." ?b ?axis (?t pp)))
@@ -9396,8 +9402,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; speeding up.
 (defoperator draw-net-torque-from-ang-accel (?b ?axis ?t)
   :preconditions (
-     (not (vector ?b (at (net-torque ?b ?axis) ?t) ?dontcare))
-     (given (at (dir (ang-accel ?b)) ?t) ?dir)
+     (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
+     (given (dir (ang-accel ?b :time ?t)) ?dir)
      (test (not (equal ?dir 'unknown)))
      ; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
@@ -9405,10 +9411,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
-     (vector ?b (at (net-torque ?b ?axis) ?t) ?dir)
-     (variable ?mag-var (at (mag (net-torque ?b ?axis)) ?t))
-     (variable ?dir-var (at (dir (net-torque ?b ?axis)) ?t)) 
-     (given (at (dir (net-torque ?b ?axis)) ?t) ?dir)
+     (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
+     (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
+     (variable ?dir-var (dir (net-torque ?b ?axis :time ?t))) 
+     (given (dir (net-torque ?b ?axis :time ?t)) ?dir)
    )
   :hint (
     (point (string "You should be able to determine the direction of the angular acceleration of ~a ~a from the problem description. You can use that to determine the direction of the net torque." ?b (?t pp)))
@@ -9420,18 +9426,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; we specify this with a given value of 0 for net torque.
 (defoperator draw-net-torque-non-rotating (?b ?axis ?t)
   :preconditions (
-     (not (vector ?b (at (net-torque ?b ?axis) ?t) ?dontcare))
+     (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
      ; NB: must be plain number, not dnum
-     (in-wm (given (at (mag (net-torque ?b ?axis)) ?t) 0))
+     (in-wm (given (mag (net-torque ?b ?axis :time ?t)) 0))
      ; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))
    )
    :effects (
-     (vector ?b (at (net-torque ?b ?axis) ?t) zero)
-     (variable ?mag-var (at (mag (net-torque ?b ?axis)) ?t))
+     (vector ?b (net-torque ?b ?axis :time ?t) zero)
+     (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
      ; put out implicit equation for given
-     (implicit-eqn (= ?mag-var 0) (given (at (mag (net-torque ?b ?axis)) ?t)))
+     (implicit-eqn (= ?mag-var 0) (given (mag (net-torque ?b ?axis :time ?t))))
    )
    :hint (
      (point (string "Notice that you were told that ~A is in rotational equilibrium ~A. That should tell you something about the net torque." ?b (?t pp)))
@@ -9448,28 +9454,28 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      ; apply when none of above known dir ops apply:
      ; not just given dir:
-     (not (given (at (dir (net-torque ?b ?axis)) ?t) ?given-dir))
+     (not (given (dir (net-torque ?b ?axis :time ?t)) ?given-dir))
      ; not given ang-accel dir
-     (not (given (at (dir (ang-accel ?b)) ?t) ?dir))
+     (not (given (dir (ang-accel ?b :time ?t)) ?dir))
      ;     and dir(ang-accel) not derivable from motion
      (not (motion ?b ?t-motion (rotating ?axis ?rotate-dir ?accel-spec))
           (and (not (eq ?rotate-dir 'unknown))
 	       (or (eq ?accel-spec 'speed-up)
 	           (eq ?accel-spec 'slow-down))))
      ; not known in rotational equilibrium:
-     (not (given (at (mag (net-torque ?b ?axis)) ?t) 0))
+     (not (given (mag (net-torque ?b ?axis :time ?t)) 0))
      ; can't determine as torque due to magnetic field (see forces.cl)
-     (not  (given (at (dir (dipole-moment ?b)) ?t) ?dir-mu))
+     (not  (given (dir (dipole-moment ?b :time ?t)) ?dir-mu))
      ; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (not (vector ?b (at (net-torque ?b ?axis) ?t) ?dontcare))
+     (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
    )
    :effects (
-     (vector ?b (at (net-torque ?b ?axis) ?t) z-unknown)
-     (variable ?mag-var (at (mag (net-torque ?b ?axis)) ?t))
-     (variable ?dir-var (at (dir (net-torque ?b ?axis)) ?t)) 
+     (vector ?b (net-torque ?b ?axis :time ?t) z-unknown)
+     (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
+     (variable ?dir-var (dir (net-torque ?b ?axis :time ?t))) 
    )
    :hint (
      (point (string "You need to introduce a term for the net torque on ~a ~a" ?b (?t pp)))
@@ -9484,9 +9490,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      then make them the set of torques on ?body at ?time"
    :preconditions
    ((body ?b)
-    ; draw all individual torques we can find
-    (setof (vector ?b (at (torque ?b ?axis ?force) ?t) ?dir) 
-	   (torque ?b ?axis ?force) 
+    ;; draw all individual torques we can find
+    (setof (vector ?b (torque ?b ?axis ?force :time ?t) ?dir)
+	   (torque ?b ?axis ?force :time ?t) 
 	   ?torques))
    :effects
     ((torques ?b ?axis ?t ?torques)))
@@ -9496,10 +9502,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; draw all torques due to each force
    (torques ?b ?axis ?t ?torques)
    ; draw net torque on object 
-   (vector ?b (at (net-torque ?b ?axis) ?t) ?dir)
+   (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
    (axis-for ?b z 0)
    ; define for zc form only:
-   ; (variable ?tnet_z (at (compo z 0 (net-torque ?b ?axis)) ?t)) 
+   ; (variable ?tnet_z (compo z 0 (net-torque ?b ?axis :time ?t))) 
   )
   :effects (
     (vector-diagram (net-torque ?b ?axis ?t))
@@ -9512,7 +9518,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-torque-fbd (?b ?axis ?t)
    :preconditions 
            ((body ?b)
-	    (torques ?b ?axis ?t ?forces)
+	    (torques ?b ?axis ?t ?torques)
 	    (optional (axis-for ?b z 0)))
    :effects ((torque-fbd ?b ?axis ?t)))
 
@@ -9543,16 +9549,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bind ?forces (mapcar #'fourth ?torques))
    ; define component variables for each of the contributing torques
    (map ?force ?forces
-      (variable ?ti_z (at (compo z 0 (torque ?b ?axis ?force)) ?t))
+      (variable ?ti_z (compo z 0 (torque ?b ?axis ?force :time ?t)))
       ?ti_z ?torque-compos) 
    (debug "net torque components: ~A~%" ?torque-compos)
    ; define zc net torque variable 
-   (variable ?tnet_z (at (compo z 0 (net-torque ?b ?axis)) ?t))
+   (variable ?tnet_z (compo z 0 (net-torque ?b ?axis :time ?t)))
    ; for algebraic completeness: write projection equation for net torque 
    ; to determine values of mag or dir.
    ; (eqn ?tnet_projection (projection ?tnet_z))
    ; fetch mag variable for implicit equation (defined when drawn)
-   (in-wm (variable ?mag-var (at (mag (net-torque ?b ?axis)) ?t)))
+   (in-wm (variable ?mag-var (mag (net-torque ?b ?axis :time ?t))))
   )
   :effects (
    (eqn (= ?tnet_z (+ . ?torque-compos)) 
@@ -9563,7 +9569,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; for algebraic completeness: put out equation for mag torque 
    ; in terms of component, so gets determined from tau_z if dir is unknown
    (implicit-eqn (= ?mag-var (abs (?tnet_z))) 
-                 (at (mag (net-torque ?b ?axis)) ?t))
+                 (mag (net-torque ?b ?axis :time ?t)))
   )
   :hint (
     (point (string "Can you write an equation for the z component of the net torque in terms of the z components of the torques due to each force?"))
@@ -9585,11 +9591,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bind ?forces (mapcar #'fourth ?torques))
    ; define component variables for each of the contributing torques
    (map ?force ?forces
-      (variable ?ti_z (at (compo z 0 (torque ?b ?axis ?force)) ?t))
+      (variable ?ti_z (compo z 0 (torque ?b ?axis ?force :time ?t)))
       ?ti_z ?torque-compos) 
    (debug "net torque components: ~A~%" ?torque-compos)
    ; define zc net torque variable 
-   (variable ?tnet_z (at (compo z 0 (net-torque ?b ?axis)) ?t))
+   (variable ?tnet_z (compo z 0 (net-torque ?b ?axis :time ?t)))
    (bind ?all-compos (cons ?tnet_z ?torque-compos))
   )
   :effects (
@@ -9611,11 +9617,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator mag-torque-contains (?sought)
    :preconditions (
    (any-member ?sought (
-                  (at (mag (torque ?b ?axis (force ?pt ?agent ?type))) ?t)
-		  (at (mag (force ?pt ?agent ?type)) ?t)
-		  (at (mag (relative-position ?pt ?axis)) ?t)
-                  (angle-between (at (force ?pt ?agent ?type) ?t)
-		                 (at (relative-position ?pt ?axis) ?t))
+                  (mag (torque ?b ?axis (force ?pt ?agent ?type) :time ?t))
+		  (mag (force ?pt ?agent ?type :time ?t))
+		  (mag (relative-position ?pt ?axis :time ?t))
+                  (angle-between (force ?pt ?agent ?type :time ?t)
+		                 (relative-position ?pt ?axis :time ?t))
 		  ; doesn't exactly contain directions of relative position
 		  ; and force, only difference between these
                        ))
@@ -9634,11 +9640,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-mag-torque (?b ?axis ?pt ?agent ?type ?t)
    :preconditions (
-      (variable ?tau-var (at (mag (torque ?b ?axis (force ?pt ?agent ?type))) ?t))
-      (variable ?f-var   (at (mag (force ?pt ?agent ?type)) ?t))
-      (variable ?r-var   (at (mag (relative-position ?pt ?axis)) ?t))
-      (variable ?theta-var (angle-between (at (force ?pt ?agent ?type) ?t) 
-                                          (at (relative-position ?pt ?axis) ?t)))
+      (variable ?tau-var (mag (torque ?b ?axis (force ?pt ?agent ?type)
+			      :time ?t)))
+      (variable ?f-var   (mag (force ?pt ?agent ?type :time ?t)))
+      (variable ?r-var   (mag (relative-position ?pt ?axis :time ?t)))
+      (variable ?theta-var (angle-between (force ?pt ?agent ?type :time ?t) 
+                                          (relative-position ?pt ?axis :time ?t)))
    )
    :effects (
       (eqn (= ?tau-var (* ?r-var ?f-var (sin ?theta-var))) 
@@ -9660,11 +9667,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator torque-zc-contains (?sought)
   :preconditions (
     (any-member ?sought ( 
-             (at (compo z 0 (torque ?b ?axis (force ?pt ?agent ?type))) ?t)
-             (at (mag (force ?pt ?agent ?type)) ?t)
-             (at (dir (force ?pt ?agent ?type)) ?t)
-	     (at (mag (relative-position ?pt ?axis)) ?t)
-	     (at (dir (relative-position ?pt ?axis)) ?t)
+             (compo z 0 (torque ?b ?axis (force ?pt ?agent ?type) :time ?t))
+             (mag (force ?pt ?agent ?type :time ?t))
+             (dir (force ?pt ?agent ?type :time ?t))
+	     (mag (relative-position ?pt ?axis :time ?t))
+	     (dir (relative-position ?pt ?axis :time ?t))
 	                ))
    ; So far this will apply in any problem where any force is sought. 
    ; Require pt of application to be part of larger rigid body, so that
@@ -9682,11 +9689,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-torque-zc (?b ?axis ?pt ?agent ?type ?t)
   :preconditions (
-      (variable ?tau-zc (at (compo z 0 (torque ?b ?axis (force ?pt ?agent ?type))) ?t))
-      (variable ?f-var      (at (mag (force ?pt ?agent ?type)) ?t))
-      (variable ?theta-f    (at (dir (force ?pt ?agent ?type)) ?t))
-      (variable ?r-var      (at (mag (relative-position ?pt ?axis)) ?t))
-      (variable ?theta-r    (at (dir (relative-position ?pt ?axis)) ?t))
+      (variable ?tau-zc (compo z 0 (torque ?b ?axis (force ?pt ?agent ?type)
+					   :time ?t)))
+      (variable ?f-var      (mag (force ?pt ?agent ?type :time ?t)))
+      (variable ?theta-f    (dir (force ?pt ?agent ?type :time ?t)))
+      (variable ?r-var      (mag (relative-position ?pt ?axis :time ?t)))
+      (variable ?theta-r    (dir (relative-position ?pt ?axis :time ?t)))
    )
    :effects (
       (eqn (= ?tau-zc (* ?r-var ?f-var (sin (- ?theta-f ?theta-r)))) 
@@ -9702,13 +9710,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; num-torques mainly for test problems:
 (defoperator num-torques-contains (?b ?t)
   :preconditions ()
-  :effects ( (eqn-contains (num-torques ?b ?axis ?t) (at (num-torques ?b ?axis) ?t)) ))
+  :effects ( (eqn-contains (num-torques ?b ?axis ?t) (num-torques ?b ?axis :time ?t)) ))
 
 (defoperator write-num-torques (?b ?axis ?t)
   :preconditions 
    ((torques ?b ?axis ?t ?torques)
     (bind ?count (length ?torques))
-    (variable ?n-var (at (num-torques ?b ?axis) ?t)) )
+    (variable ?n-var (num-torques ?b ?axis :time ?t)) )
   :effects 
   ( (eqn (= ?n-var ?count) (num-torques ?b ?axis ?t)) ))
  
@@ -9716,7 +9724,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions 
    ((bind ?n-var (format-sym "ntorques_~A_~A" (body-name ?b) (time-abbrev ?t))))
    :effects 
-   ( (variable ?n-var (at (num-torques ?b ?axis) ?t)) ))
+   ( (variable ?n-var (num-torques ?b ?axis :time ?t)) ))
 
 ;;; following lets us avoid declaring parts of rigid bodies as objects.
 ;;; we define forces as acting on parts.
@@ -9738,12 +9746,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator NL-rotation-contains (?sought)
    :preconditions (
    (any-member ?sought (
-              (at (mag (ang-accel ?b)) ?t)
-              (at (dir (ang-accel ?b)) ?t)
-	      (at (compo z 0 (net-torque ?b ?axis)) ?t) 
-	      ;(at (mag (net-torque ?b ?axis)) ?t) 
-	      ;(at (dir (net-torque ?b ?axis)) ?t) 
-	      (at (moment-of-inertia ?b) ?t)
+              (mag (ang-accel ?b :time ?t))
+              (dir (ang-accel ?b :time ?t))
+	      (compo z 0 (net-torque ?b ?axis :time ?t)) 
+	      ;(mag (net-torque ?b ?axis :time ?t)) 
+	      ;(dir (net-torque ?b ?axis :time ?t)) 
+	      (moment-of-inertia ?b :time ?t)
 	      (moment-of-inertia ?b)
 	               ))
    (time ?t)
@@ -9759,8 +9767,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (not (vector-diagram (NL-rot ?b ?axis ?t)))
       ;; (body ?b)
       (torques ?b ?axis ?t ?torques)
-      (vector ?b (at (net-torque ?b ?axis) ?t) ?dir)
-      (vector ?b (at (ang-accel ?b) ?t) ?dir-accel)
+      (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
+      (vector ?b (ang-accel ?b :time ?t) ?dir-accel)
       (axis-for ?b z 0)
     )
     :effects (
@@ -9770,11 +9778,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-NL-rotation (?b ?axis ?t)
    
    :preconditions (
-     (variable ?tau_z   (at (compo z 0 (net-torque ?b ?axis)) ?t))
+     (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
      (moment-of-inertia-variable ?I ?b ?t)
-     (variable ?alpha_z (at (compo z 0 (ang-accel ?b)) ?t))
+     (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
      ; fetch mag variable for implicit equation (defined when drawn)
-     (in-wm (variable ?mag-var (at (mag (ang-accel ?b)) ?t)))
+     (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
    )
    :effects (
      (eqn (= ?tau_z (* ?I ?alpha_z)) 
@@ -9784,7 +9792,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; on a component-form problem for magnitude (Extor5a)
      ;; for algebraic completeness: put out equation for mag ang-accel
      ;; in terms of component, so gets determined from alpha_z if dir is unknown
-     ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (at (mag (ang-accel ?b)) ?t))
+     ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (mag (ang-accel ?b :time ?t)))
    )
    :hint (
     (point (string "Can you relate the z components of net torque and angular acceleration?"))

@@ -114,9 +114,9 @@
     ;;(setf (ErrorEntry-Intended ee) se)
     ))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun find-all-interpretations (name interps)
   (let ((result nil))
@@ -125,9 +125,9 @@
 	  (setf result (append result (list (cdr obj))))))
     result))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; New constraint-based prematurity checking for equation entries:
 ;;
@@ -162,7 +162,7 @@
 "true if eqn struct is an implicit equation giving value of an orientation or angle between variable"
    (and (eq (eqn-type eqn) 'implicit-eqn)
         (or (eq (first (eqn-exp eqn)) 'angle-between)
-	    (unify (eqn-exp eqn) '(at (dir ?vector) ?time)))))
+	    (unify (eqn-exp eqn) '(dir ?vector)))))
 
 (defun eqn-English (eqn)
 "return English name for eqn index entry, NULL if not found."
@@ -171,14 +171,14 @@
    ;    (when eqinfo (equation-English eqinfo)))
    (nlg-equation (eqn-exp eqn)))
 
-; We want to allow implicit removal of zero values at any time, so we 
-; remove var=0 equations from interpretations before further testing 
-; for illicit combinations. 
-; Following tests whether equation sets a value to zero.
-; Note this doesn't care whether the zero value is "given" or not.
-; This also doesn't propagate "obviously" inherited zero values, e.g
-; v = 0 GIVEN, KE = 0.5*m*v^2   => KE = 0
-; h = 0 GIVEN, Ug = m*g*h => Ug = 0
+;; We want to allow implicit removal of zero values at any time, so we 
+;; remove var=0 equations from interpretations before further testing 
+;; for illicit combinations. 
+;; Following tests whether equation sets a value to zero.
+;; Note this doesn't care whether the zero value is "given" or not.
+;; This also doesn't propagate "obviously" inherited zero values, e.g
+;; v = 0 GIVEN, KE = 0.5*m*v^2   => KE = 0
+;; h = 0 GIVEN, Ug = m*g*h => Ug = 0
 
 (defun zero-eqn-p (eqn)
 "true if eqn assigns zero to a variable"
@@ -190,13 +190,13 @@
             (and (numberp rhs) 
                  (= rhs 0))))))
 
-; We also want to allow most substitutions of equivalent variables licensed
-; by "allowed" identity equations. Note an identity may come out
-; (= netWork (+ W1)) if rhs is sum that has only one arg in this problem, and
-; we want to allow that in this case.  More complicated forms that could 
-; simplify to identities are not detected here.  (Ex: Kirchoff's Loop rule 
-; for a simple circuit with one battery and one resistor) Probably OK,
-; if the form is not simple A = B, probably want to require explicit.
+;; We also want to allow most substitutions of equivalent variables licensed
+;; by "allowed" identity equations. Note an identity may come out
+;; (= netWork (+ W1)) if rhs is sum that has only one arg in this problem, and
+;; we want to allow that in this case.  More complicated forms that could 
+;; simplify to identities are not detected here.  (Ex: Kirchoff's Loop rule 
+;; for a simple circuit with one battery and one resistor) Probably OK,
+;; if the form is not simple A = B, probably want to require explicit.
 (defun identity-eqn-p (eqn)
 "true if eqn is an identity"
    (let ((lhs (second (eqn-algebra eqn)))
@@ -315,23 +315,23 @@
 	          *StudentEntries*))
 
 
-; For use when detecting premature substitution of numerical values:
-; Instructors also want to allow implicit combination of given magnitudes magV = K units
-; with projection equation V_x = V cos (N deg - M deg) to get V_x = +/- K units in case where
-; vector lies along an axis.  Here we use a cheap but easy-to-code test which just allows 
-; *any* combination of a given vector magnitude and any projection equation.  This will 
-; miss constraint violation where they have used value of sin or cos function to get a 
-; component value from a magnitude.  It is unlikely they will do this in their heads, 
-; though some might use a calculator.  It's tolerable if we miss some violations as long 
-; as we allow what needs to be allowed.
+;; For use when detecting premature substitution of numerical values:
+;; Instructors also want to allow implicit combination of given magnitudes 
+;; magV = K units with projection equation V_x = V cos (N deg - M deg) 
+;; to get V_x = +/- K units in case where vector lies along an axis. 
+;; Here we use a cheap but easy-to-code test which just allows *any* 
+;; combination of a given vector magnitude and any projection equation.  
+;; This will miss constraint violation where they have used value of 
+;; sin or cos function to get a component value from a magnitude.  
+;; It is unlikely they will do this in their heads, though some might 
+;; use a calculator.  It's tolerable if we miss some violations as long 
+;; as we allow what needs to be allowed.
 
 (defun given-mag-eqn-p (eqn)
 "true if eqn states given value of a vector magnitude"
    (and (given-eqn-p eqn)
 	; eqn-exp for given-eqns is quantity expression
-        ; look for (at (mag (...)) ?t)
-	(and (eq (first (eqn-exp eqn)) 'at)
-             (eq (first (second (eqn-exp eqn))) 'mag)))) 
+	(eq (first (eqn-exp eqn)) 'mag))) 
 
 (defun projection-eqn-p (eqn)
 "true if eqn is a projection"
@@ -482,9 +482,9 @@
 
 
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun calculate-cognitive-load (interps)
   (let ((sum 0))
@@ -506,9 +506,9 @@
 	result)
     interps))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun get-all-interpretations (interps)
   (let ((result nil))
@@ -516,9 +516,9 @@
       (setf result (append result (list (cdr obj)))))
     result))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun chain-explain-more (messages)
   (if messages
@@ -531,7 +531,7 @@
 			      (if (equal response 'explain-more)
 				  (chain-explain-more (rest messages))))))))
 	
-; build a color-green turn with given message list
+;; build a color-green turn with given message list
 (defun chain-explain-more-green (messages)
   (if messages
       (if (= (length messages) 1)
@@ -543,9 +543,4 @@
 			      (if (equal response 'explain-more)
 				  (chain-explain-more (rest messages))))))))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; end of interpret-equation.cl
-;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

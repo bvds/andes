@@ -242,6 +242,8 @@
   "An internal function for looking up expression structs."
   (when types
     (let ((b (unify exp (exptype-form (car types)) binds)))
+      ;; (format t "***unify ~s and ~S to get ~S~%" ;debug print
+      ;;     exp (exptype-form (car types)) b)
       (if b (values (car types) b)
 	(lookup-expression-struct-chain 
 	 exp binds (cdr Types))))))
@@ -806,7 +808,7 @@
 (defmacro def-psmclass (name form
 			&key (fields nil) (group nil) 
 			     (complexity nil)
-			     (help nil)(english nil) 
+			     (help nil) (english nil) 
 			     (doc nil) (ExpFormat nil) 
 			     (EqnFormat Nil))
   "Define and store a psm type."
@@ -958,7 +960,7 @@
 ;;; complexity of the associated set.
 (defun psmclasses->complexity (psms &optional (comp ()))
   "Given the set of psms calculate their complexity."
-  (let ((c)(classes (if comp comp nil)))
+  (let ((c) (classes (if comp comp nil)))
     (dolist (p psms)
       (setq c (assoc (psmclass-complexity p) classes))
       (if c (incf (cdr c))

@@ -641,7 +641,7 @@
 (defun call-ww-turn-generator (form)
   ; wrapper attaches function name as assoc info to turn
   (let ((result-turn 
-           (apply (car form)(cdr form))))
+           (apply (car form) (cdr form))))
      (setf (turn-assoc result-turn) (car form))
      result-turn))
 

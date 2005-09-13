@@ -95,12 +95,12 @@
 ;;;  for the frequency to be well-defined.
 ;;;
 
-(def-qexp observed-frequency (observed-frequency ?wave ?me)
+(def-qexp observed-frequency (observed-frequency ?wave ?me :time ?time)
   :units |Hz|
   :restrictions nonnegative 
   :english ("the frequency of ~A as observed by ~A" 
 	       (nlg ?wave) (nlg ?me))
-  :fromWorkbench `(at (observed-frequency ,body ,body2) ,time))
+  :fromWorkbench `(observed-frequency ,body ,body2 :time ,time))
 
 (defoperator define-observed-frequency (?wave ?me ?t)
   :preconditions
@@ -109,8 +109,8 @@
    (bind ?freq-var (format-sym "freq_~A_~A_~A" 
 			       (body-name ?wave) (body-name ?me) 
 			       (time-abbrev ?t))))
-  :effects ((variable ?freq-var (at (observed-frequency ?wave ?me) ?t))
-	    (define-var (at (observed-frequency ?wave ?me) ?t)))
+  :effects ((variable ?freq-var (observed-frequency ?wave ?me :time ?t))
+	    (define-var (observed-frequency ?wave ?me :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the frequency of ~A as observed by ~A by using the Add Variable command on the Variable menu and selecting observed frequency."  ?wave ?me))))
 
@@ -208,9 +208,9 @@
   ( (sinusoidal ?w1)			;only valid for sine waves
     (sinusoidal ?w2)
     (beat-frequency ?wbeat ?w1 ?w2)
-    (any-member ?sought ((at (observed-frequency ?wbeat ?me) ?t) 
-			 (at (observed-frequency ?w1 ?me) ?t)
-			 (at (observed-frequency ?w2 ?me) ?t)
+    (any-member ?sought ((observed-frequency ?wbeat ?me :time ?t) 
+			 (observed-frequency ?w1 ?me :time ?t)
+			 (observed-frequency ?w2 ?me :time ?t)
 			 ))
     (test (time-intervalp ?t)) )
   :effects 
@@ -229,9 +229,9 @@
 
 (defoperator write-beat-frequency (?wbeat ?w1 ?w2 ?me ?t)
   :preconditions 
-  ( (variable  ?f1 (at (observed-frequency ?w1 ?me) ?t))
-    (variable  ?f2 (at (observed-frequency ?w2 ?me) ?t))
-    (variable  ?fbeat (at (observed-frequency ?wbeat ?me) ?t)) )
+  ( (variable  ?f1 (observed-frequency ?w1 ?me :time ?t))
+    (variable  ?f2 (observed-frequency ?w2 ?me :time ?t))
+    (variable  ?fbeat (observed-frequency ?wbeat ?me :time ?t)) )
   :effects 
   ( (eqn  (= ?fbeat (* 0.5 (abs (- ?f1 ?f2)))) 
 	  (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)) )
@@ -437,7 +437,7 @@
 		  (in-wm (wave-speeds-equal ?object ?rope))
 		  (any-member ?sought ( 
 				       (wave-speed ?rope)
-				       (at (speed ?object) ?t)
+				       (speed ?object :time ?t)
 				       (duration ?t)))
 		  (time ?t))
   :effects (
@@ -447,7 +447,7 @@
 (defoperator speed-equals-wave-speed (?object ?rope ?t)
   :preconditions (
 		  (variable  ?v1  (wave-speed ?rope))
-		  (variable  ?v2  (at (speed ?object) ?t)))
+		  (variable  ?v2  (speed ?object :time ?t)))
   :effects (
 	    (eqn  (= ?v1 ?v2) 
 		  (speed-equals-wave-speed ?object ?rope ?t) ))
@@ -774,13 +774,13 @@
    (test (tsomewhat-earlierp ?t-s ?t-o)) 
    (any-member ?sought ((frequency ?source)
 			(wave-speed ?wave)
-			(at (observed-frequency ?source ?observer) ?t-o)
+			(observed-frequency ?source ?observer :time ?t-o)
 			;; we *assume* the interval is big enough
-			(at (mag (relative-vel ?source ?wave)) ?t-s) 
-			(at (mag (relative-vel ?observer ?wave)) ?t-o)
-			(at (dir (relative-vel ?source ?wave)) ?t-s) 
-			(at (dir (relative-vel ?observer ?wave)) ?t-o)
-			(at (dir (relative-position ?source ?observer)) ?t-o)
+			(mag (relative-vel ?source ?wave :time ?t-s)) 
+			(mag (relative-vel ?observer ?wave :time ?t-o))
+			(dir (relative-vel ?source ?wave :time ?t-s)) 
+			(dir (relative-vel ?observer ?wave :time ?t-o))
+			(dir (relative-position ?source ?observer :time ?t-o))
 			))
    (object ?source)
    (object ?observer)
@@ -793,26 +793,26 @@
 
 (defoperator make-doppler-frequency (?source ?wave ?observer ?t-s ?t-o)
   :preconditions 
-  ((variable ?vs (at (mag (relative-vel ?source ?wave)) ?t-s))
-   (variable ?vo (at (mag (relative-vel ?observer ?wave)) ?t-o))
+  ((variable ?vs (mag (relative-vel ?source ?wave :time ?t-s)))
+   (variable ?vo (mag (relative-vel ?observer ?wave :time ?t-o)))
    (variable ?vw (wave-speed ?wave))		  
    (variable ?fs (frequency ?source))		  
-   (variable ?fo (at (observed-frequency ?source ?observer) ?t-o))
+   (variable ?fo (observed-frequency ?source ?observer :time ?t-o))
    ;; vector from observer to source
    ;; BvdS:  this is 180 deg off from phi in my notes
    ;; BvdS:  maybe want to specify that this is as a given so
    ;; that students don't have to draw the vector
    ;;
-   ;; (variable ?phi (at (dir (relative-position ?source ?observer)) ?t-o))
-   (given (at (dir (relative-position ?source ?observer)) ?t-o) ?phi)
+   ;; (variable ?phi (dir (relative-position ?source ?observer :time ?t-o)))
+   (given (dir (relative-position ?source ?observer :time ?t-o)) ?phi)
    ;; Doesn't work:
-   ;; (vector ?observer (at (relative-position ?source ?observer) ?t-o) ?phi)
+   ;; (vector ?observer (relative-position ?source ?observer :time ?t-o) ?phi)
    
    ;; use vector statements so that zero velocity can be handled correctly.  
    ;; This might prevent relative-vel from being the sought.
    ;; This is in working memory, because the magnitudes were found above.
-   (in-wm (vector ?source (at (relative-vel ?source ?wave) ?t-s) ?sdir))
-   (in-wm (vector ?observer (at (relative-vel ?observer ?wave) ?t-o) ?odir))
+   (in-wm (vector ?source (relative-vel ?source ?wave :time ?t-s) ?sdir))
+   (in-wm (vector ?observer (relative-vel ?observer ?wave :time ?t-o) ?odir))
    (bind ?scos (cos (* (get-angle-between ?phi ?sdir) 
 		       (/ pi 180))))	;degrees to radians
    (bind ?ocos (cos (* (get-angle-between ?phi ?odir) 
@@ -859,22 +859,22 @@
 ;;;;   These quantities can be functions of time,
 ;;;;   but none of the problems so far require it.
 ;;;;
-(def-qexp intensity (intensity ?wave ?agent)
+(def-qexp intensity (intensity ?wave ?agent :time ?time)
   :units |W/m^2|
   :restrictions positive
   :english ("the intensity supplied to ~A due to ~A" 
 	       (nlg ?wave) (nlg ?agent 'agent))
    :fromWorkbench (if (string-equal body2 '|all sources|)
-                     `(at (net-intensity ,body) ,time)
-                  `(at (intensity ,body ,body2) ,time)))
+                     `(net-intensity ,body :time ,time)
+                  `(intensity ,body ,body2 :time ,time)))
 
 (defoperator define-intensity (?wave ?agent ?t)
   :preconditions
   ((bind ?intense-var (format-sym "int_~A_~A_~A" 
 				 (body-name ?wave) (body-name ?agent)
 				 (time-abbrev ?t))))
-  :effects ((variable ?intense-var (at (intensity ?wave ?agent) ?t))
-	    (define-var (at (intensity ?wave ?agent) ?t)))
+  :effects ((variable ?intense-var (intensity ?wave ?agent :time ?t))
+	    (define-var (intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the intensity of ~A due to ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		  ?wave (?agent agent)))))
@@ -883,7 +883,7 @@
 ;;; Net intensity is sum of all power acting on object.
 ;;; BvdS:  Maybe combine with intensity, with ?agent set to nil
 ;;;
-(def-qexp net-intensity (net-intensity ?wave)
+(def-qexp net-intensity (net-intensity ?wave :time ?time)
   :units |W/m^2|
   :restrictions positive  
   :english ("the net intensity supplied to ~A" (nlg ?wave)))
@@ -893,8 +893,8 @@
   :preconditions
   ((bind ?intense-var (format-sym "netint_~A_~A" 
 				  (body-name ?wave) (time-abbrev ?t))))
-  :effects ((variable ?intense-var (at (net-intensity ?wave) ?t))
-	    (define-var (at (net-intensity ?wave) ?t)))
+  :effects ((variable ?intense-var (net-intensity ?wave :time ?t))
+	    (define-var (net-intensity ?wave :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the total intensity of ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		  ?wave))))
@@ -902,8 +902,8 @@
 ;; based on net-work-contains
 (defoperator net-intensity-contains (?sought)
   :preconditions 
-  ((any-member ?sought  ((at (net-intensity ?b) ?t) 
-	                 (at (power ?b ?agent) ?t)))
+  ((any-member ?sought  ((net-intensity ?b :time ?t) 
+	                 (power ?b ?agent :time ?t)))
    ;; make sure we can determine all agents providing power
    (not (unknown-intensity-agents)))
   :effects 
@@ -916,12 +916,12 @@
 (defoperator write-net-intensity (?b ?t)
   :preconditions 
   (;; introduce net-intensity variable
-   (variable ?net-intensity-var (at (net-intensity ?b) ?t))
+   (variable ?net-intensity-var (net-intensity ?b :time ?t))
    ;; introduce variables for power from each source. 
    ;; need to collect list of power *agents* to use in quantities.
    (setof (in-wm (power-source ?source ?b)) ?source ?sources)
    (map ?source ?sources
-	(variable ?intensity-var (at (intensity ?b ?source) ?t))
+	(variable ?intensity-var (intensity ?b ?source :time ?t))
 	?intensity-var ?intensity-vars) 
    )
   :effects (
@@ -936,21 +936,21 @@
 ;;;  Intensity in decibels.
 ;;;
 
-(def-qexp db-intensity (db-intensity ?wave ?agent)
+(def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
   :units |dB|
   :english ("the intensity supplied to ~A due to ~A in decibels" 
 	       (nlg ?wave) (nlg ?agent 'agent))
   :fromWorkbench (if (string-equal body2 '|all sources|)
-                     `(at (net-db-intensity ,body) ,time)
-                  `(at (db-intensity ,body ,body2) ,time)))
+                     `(net-db-intensity ,body :time ,time)
+                  `(db-intensity ,body ,body2 :time ,time)))
 
 (defoperator define-db-intensity (?wave ?agent ?t)
   :preconditions
   ((bind ?dbi-var (format-sym "dbint_~A_~A_~A" 
 			      (body-name ?wave) (body-name ?agent) 
 			      (time-abbrev ?t))))
-  :effects ((variable ?dbi-var (at (db-intensity ?wave ?agent) ?t))
-	    (define-var (at (db-intensity ?wave ?agent) ?t)))
+  :effects ((variable ?dbi-var (db-intensity ?wave ?agent :time ?t))
+	    (define-var (db-intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the intensity of ~A in decibels 
 due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave (?agent agent)))))
@@ -961,7 +961,7 @@ due to ~A by using the Add Variable command on the Variable menu and selecting d
 ;;; nil specified as the ?agent
 ;;;
 ;; see def-qexp for db-intensity
-(def-qexp net-db-intensity (net-db-intensity ?wave)
+(def-qexp net-db-intensity (net-db-intensity ?wave :time ?time)
   :units |dB|
   :english ("the total intensity supplied to ~A, in decibels" 
 	       (nlg ?wave)))
@@ -971,8 +971,8 @@ due to ~A by using the Add Variable command on the Variable menu and selecting d
   ((bind ?net-dbi-var (format-sym "dbint_~A_~A" 
 			      (body-name ?wave) 
 			      (time-abbrev ?t))))
-  :effects ((variable ?net-dbi-var (at (net-db-intensity ?wave) ?t))
-	    (define-var (at (net-db-intensity ?wave) ?t)))
+  :effects ((variable ?net-dbi-var (net-db-intensity ?wave :time ?t))
+	    (define-var (net-db-intensity ?wave :time ?t)))
   :hint ((bottom-out 
 	  (string "Define a variable for the total intensity of ~A in decibels 
 using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
@@ -990,24 +990,24 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (defoperator intensity-to-decibels-contains (?sought)
   :preconditions 
   ( (time ?t)
-    (any-member ?sought ((at (intensity ?wave ?agent) ?t)
-			 (at (db-intensity ?wave ?agent) ?t))))
+    (any-member ?sought ((intensity ?wave ?agent :time ?t)
+			 (db-intensity ?wave ?agent :time ?t))))
   :effects ( (eqn-contains (intensity-to-decibels ?wave ?agent ?t) ?sought) ))
 
 (defoperator net-intensity-to-decibels-contains (?sought)
   :preconditions (
 		   (time ?t)
-		   (any-member ?sought ((at (net-intensity ?wave) ?t)
-					(at (net-db-intensity ?wave) ?t))))
+		   (any-member ?sought ((net-intensity ?wave :time ?t)
+					(net-db-intensity ?wave :time ?t))))
    :effects ( (eqn-contains (intensity-to-decibels ?wave nil ?t) ?sought)))
 
 (defoperator write-intensity-to-decibels (?wave ?agent ?t)
   :preconditions 				
   ;; switch between net and ordinary intensity.
-  ( (bind ?int1 (if ?agent `(at (intensity ,?wave ,?agent) ,?t) 
-		  `(at (net-intensity ,?wave) ,?t)))
-    (bind ?intdb1 (if ?agent `(at (db-intensity ,?wave ,?agent) ,?t) 
-		    `(at (net-db-intensity ,?wave) ,?t)))
+  ( (bind ?int1 (if ?agent `(intensity ,?wave ,?agent :time ,?t) 
+		  `(net-intensity ,?wave :time ,?t)))
+    (bind ?intdb1 (if ?agent `(db-intensity ,?wave ,?agent :time ,?t) 
+		    `(net-db-intensity ,?wave :time ,?t)))
     (variable  ?int  ?int1)
     (variable  ?intdb ?intdb1) )
   :effects 
@@ -1038,9 +1038,9 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
   :preconditions 
   ( (spherical-emitting ?wave ?source)	;need spherical symmetry
     (time ?t)
-    (any-member ?sought ((at (intensity ?wave ?source) ?t)
-			 (at (net-power-out ?source) ?t)
-			 (at (mag (relative-position ?source ?wave)) ?t)
+    (any-member ?sought ((intensity ?wave ?source :time ?t)
+			 (net-power-out ?source :time ?t)
+			 (mag (relative-position ?source ?wave :time ?t))
 			 ))
     ) 
   :effects 
@@ -1050,9 +1050,9 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
   :preconditions 
   ( (spherical-emitting ?wave ?source)	;need spherical symmetry
     (time ?t)
-    (any-member ?sought ((at (intensity ?wave ?source) ?t)
-			 (at (net-power-out ?source) ?t)
-			 (at (mag (relative-position ?wave ?source)) ?t)
+    (any-member ?sought ((intensity ?wave ?source :time ?t)
+			 (net-power-out ?source :time ?t)
+			 (mag (relative-position ?wave ?source :time ?t))
 			 ))
     ) 
   :effects 
@@ -1060,9 +1060,9 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 
 (defoperator write-intensity-to-power (?wave ?source ?t ?b1 ?b2)
   :preconditions 
-  ( (variable  ?int  (at (intensity ?wave ?source) ?t))
-    (variable  ?power  (at (net-power-out ?source) ?t))
-    (variable  ?r (at (mag (relative-position ?b1 ?b2)) ?t))
+  ( (variable  ?int  (intensity ?wave ?source :time ?t))
+    (variable  ?power  (net-power-out ?source :time ?t))
+    (variable  ?r (mag (relative-position ?b1 ?b2 :time ?t)))
     (optional (body ?source)) ;allow draw bodies
     (optional (body ?wave))
     (optional (axes-for ?source x 0)) ;allow draw axes

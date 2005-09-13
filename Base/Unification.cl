@@ -324,13 +324,18 @@
   (let* ((i (position (pop x) y)) (var (pop x))
 	 ;; remove any default value from x
 	 (default (get-any-default-value x)))
-    (if (and i (> (length y) (+ i 1)))	;Is there a keyword and value in y?
-	(let ((post (subseq y (+ i 2))))
-	  (get-any-default-value post)	;remove any default value from y
-	  (unify x (append (subseq y 0 i) post) ;y with keyword pair removed
-		 (unify var (elt y (+ i 1)) bindings))) ;unify values
-      ;; no match:  bind var to default
-      (unify x y (unify var default bindings)))))
+    (cond
+     ;; if value in x is nil, just remove keyword pair
+     ((null var) (unify x y bindings))
+     ;; if keyword pair is in y, match values:
+     ((and i (> (length y) (+ i 1)))	;Is there a keyword and value in y?
+      (let ((post (subseq y (+ i 2))))
+	(get-any-default-value post)	;remove any default value from y
+	(unify x (append (subseq y 0 i) post) ;y with keyword pair removed
+	       ;; if y value is nil, bind to default instead
+	       (unify var (or (elt y (+ i 1)) default) bindings))))
+     ;; no match:  bind var to default
+     (t (unify x y (unify var default bindings))))))
 
 ;;; ==============================
 

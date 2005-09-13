@@ -570,7 +570,7 @@
   "Given a student equation and an accuracy, return Nil if the equation should 
    be turned green and an atomic error code if it should be turned red."
   (let* ((code (solver-StudentIsOkay equation))
-	 (acc)(units))
+	 (acc) (units))
     (cond ((not (numberp code))
 	   ;; shouldn't get error strings from the solver anymore, 
 	   ;; but just in case...

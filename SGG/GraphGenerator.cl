@@ -15,7 +15,7 @@
 ;;;##########################  DataStructures  #######################
 ;;;
 ;;;Quantity Node  -- Representation of a quantity such as 
-;;;                  (at (accel Blk 1) 1)
+;;;                  (accel Blk 1 :time 1)
 ;;;
 ;;;   Exp:   Lisp Expression representing this quantites' value.
 ;;;   Marks:  List of marks such as 'invalid_path' for help.
@@ -118,7 +118,7 @@
   (let ((graph) (Q) (qualpart-graph))
     (dolist (S Soughts)
       (cond ((not (quantity-expression-p S))
-	     (format t "WARNING: Non quantity ~A being treated as qualitative part.~%" S)
+	     (format t "WARNING: Non quantity ~S being treated as qualitative part.~%" S)
 	     ; generate a bubblegraph as if this part were a non-quant problem. Such a graph
 	     ; contains one pseudo enode per sought goal,  distinguished by mark 'non-quant. 
 	     ; Then insert the (single) special enode for the current sought from that result graph into the 
@@ -165,23 +165,23 @@
 (defun gg-solve-for-sought (Sought Givens &key (Graph Nil) (IgnorePSMS nil))
   "Solve for the sought with the givens and optional Graph."
   (when (not (quantity-expression-p Sought))
-    (Error "Non-quantity sought supplied ~A." Sought))
-  ; AW -- moved this case up so no trace output for preexisting sought
+    (Error "Non-quantity sought supplied ~S." Sought))
+  ;; AW -- moved this case up so no trace output for preexisting sought
   (or (gg-solve-preexisting-sought Sought Graph)
     (progn
       (gg-debug-incdepth)
       (gg-debug-separator "#" 78)
-      (gg-debug "Finding eqns for ~A~%" Sought)
+      (gg-debug "Finding eqns for ~S~%" Sought)
       (let ((R (or ; (gg-solve-preexisting-sought Sought Graph)
 	           (gg-solve-param-sought Sought Givens Graph)
 	           (gg-solve-given-sought Sought Givens Graph)
 	           (gg-solve-constant-sought Sought Givens Graph)
 	           (gg-solve-complex-sought Sought Givens Graph))))
-      ;(gg-debug "Done finding eqns for: ~A ~%" Sought)
+      ;(gg-debug "Done finding eqns for: ~S ~%" Sought)
       ;(gg-debug-separator "#" 78)
       (gg-debug-decdepth)
       (when (null R)
-          (error "No equations returned for ~A~%" Sought))
+          (error "No equations returned for ~S~%" Sought))
       R))))
 
 

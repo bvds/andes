@@ -42,7 +42,7 @@
    :preconditions (
      (any-member ?sought ( (mass-density ?body)
 		           (mass ?body)
-		           (at (volume ?body) ?t) ))
+		           (volume ?body :time ?t) ))
     (time ?t)
    )
    :effects (
@@ -53,7 +53,7 @@
    :preconditions (
       (variable ?rho  (mass-density ?body))
       (variable ?m    (mass ?body))
-      (variable ?V    (at (volume ?body) ?time))
+      (variable ?V    (volume ?body :time ?time))
    )
    :effects (
       (eqn (= ?rho (/ ?m ?V)) (density ?body ?time))
@@ -66,16 +66,16 @@
 
 
 ;;Define the quantity pressure.  The variable of choice is "P".
-(def-qexp pressure (pressure ?position)
+(def-qexp pressure (pressure ?position :time ?time)
    :units |Pa|
    :english ("the pressure at point ~a in the fluid" (nlg ?position))
-   :fromWorkbench `(at (pressure ,body) ,time)
+   :fromWorkbench `(pressure ,body :time ,time)
 )
 
 (defoperator define-pressure (?point ?time)
   :preconditions ( (bind ?Pr-var (format-sym "Pr_~a" (body-name ?point))) )
-  :effects ( (variable ?Pr-var (at (pressure ?point) ?time))
-             (define-var (at (pressure ?point) ?time)) )
+  :effects ( (variable ?Pr-var (pressure ?point :time ?time))
+             (define-var (pressure ?point :time ?time)) )
   :hint (
        (bottom-out (string "Define a variable for the pressure at ~a by using the Add Variable command on the Variable menu and selecting Pressure."  ?point))
        ))
@@ -131,7 +131,7 @@
 (defoperator pressure-at-open-to-atmosphere-contains (?quantity)
    :preconditions (
      (open-to-atmosphere ?point ?time)  
-     (any-member ?quantity ( (at (pressure ?point) ?time)
+     (any-member ?quantity ( (pressure ?point :time ?time)
    ))
 )
    :effects (
@@ -141,7 +141,7 @@
 (defoperator pressure-at-open-to-atmosphere (?point ?time)
   :preconditions (
      (open-to-atmosphere ?point ?time) 
-     (variable  ?Pr-var (at (pressure ?point) ?time))
+     (variable  ?Pr-var (pressure ?point :time ?time))
      ; should be predefined in Andes:
      (variable ?Pr0-var (atmosphere))
 )
@@ -170,9 +170,9 @@
      (in-wm (in-fluid ?point-bottom ?material ?point-top ?time))
      (bind ?fluid-at-top  (format-sym "FLUID_AT_~a" ?point-top))
      (bind ?fluid-at-bottom  (format-sym "FLUID_AT_~a" ?point-bottom))
-     (any-member ?sought ( (at (pressure ?point-bottom) ?time)
-                           (at (height ?fluid-at-top) ?time)
-			   (at (height ?fluid-at-bottom) ?time)
+     (any-member ?sought ( (pressure ?point-bottom :time ?time)
+                           (height ?fluid-at-top :time ?time)
+			   (height ?fluid-at-bottom :time ?time)
 			   (mass-density ?fluid))  )
    )
    :effects (
@@ -186,13 +186,13 @@
        (in-wm (in-fluid ?point-bottom ?material ?point-top ?time))
        (bind ?fluid-at-top  (format-sym "FLUID_AT_~a" ?point-top))
        (bind ?fluid-at-bottom  (format-sym "FLUID_AT_~a" ?point-bottom))
-       (variable  ?Pr2 (at (pressure ?point-bottom) ?time))
-       (variable  ?Pr1 (at (pressure ?point-top) ?time))
+       (variable  ?Pr2 (pressure ?point-bottom :time ?time))
+       (variable  ?Pr1 (pressure ?point-top :time ?time))
        (variable  ?rho (mass-density ?material))
        (in-wm (near-planet ?planet))
        (variable  ?g   (gravitational-acceleration ?planet))
-       (variable  ?h1  (at (height ?fluid-at-top) ?time))
-       (variable  ?h2  (at (height ?fluid-at-bottom) ?time))
+       (variable  ?h1  (height ?fluid-at-top :time ?time))
+       (variable  ?h2  (height ?fluid-at-bottom :time ?time))
    )
    :effects (
     (eqn  (= (- ?Pr2 ?Pr1) (* ?rho ?g (- ?h1 ?h2))) (pressure-height-fluid ?point-bottom ?time))
@@ -217,13 +217,13 @@
      (in-wm (bernoulli ?point1 ?fluid ?point2))
      (bind ?fluid-at-p1  (format-sym "FLUID_AT_~a" ?point1))
      (bind ?fluid-at-p2  (format-sym "FLUID_AT_~a" ?point2))
-     (any-member ?sought ( (at (pressure ?point1) ?time)
-                           (at (pressure ?point2) ?time)
-                           (at (height ?fluid-at-p1) ?time)
-			   (at (height ?fluid-at-p2) ?time)
+     (any-member ?sought ( (pressure ?point1 :time ?time)
+                           (pressure ?point2 :time ?time)
+                           (height ?fluid-at-p1 :time ?time)
+			   (height ?fluid-at-p2 :time ?time)
 			   (mass-density ?fluid)
-                           (at (mag (velocity ?fluid-at-p1)) ?time)
-                           (at (mag (velocity ?fluid-at-p2)) ?time)
+                           (mag (velocity ?fluid-at-p1 :time ?time))
+                           (mag (velocity ?fluid-at-p2 :time ?time))
                          ))
    )
    :effects (
@@ -235,15 +235,15 @@
       (in-wm (bernoulli ?point1 ?fluid ?point2))
       (bind ?fluid-at-p1  (format-sym "FLUID_AT_~a" ?point1))
       (bind ?fluid-at-p2  (format-sym "FLUID_AT_~a" ?point2))
-      (variable  ?Pr1 (at (pressure ?point1) ?time))
-      (variable  ?Pr2 (at (pressure ?point2) ?time))
+      (variable  ?Pr1 (pressure ?point1 :time ?time))
+      (variable  ?Pr2 (pressure ?point2 :time ?time))
        (variable  ?rho (mass-density ?fluid))
        (in-wm (near-planet ?planet))
        (variable  ?g   (gravitational-acceleration ?planet))
-       (variable  ?h2  (at (height ?fluid-at-p2) ?time))
-       (variable  ?h1  (at (height ?fluid-at-p1) ?time))
-       (variable  ?v1  (at (mag (velocity ?fluid-at-p1)) ?time))
-       (variable  ?v2  (at (mag (velocity ?fluid-at-p2)) ?time))
+       (variable  ?h2  (height ?fluid-at-p2 :time ?time))
+       (variable  ?h1  (height ?fluid-at-p1 :time ?time))
+       (variable  ?v1  (mag (velocity ?fluid-at-p1 :time ?time)))
+       (variable  ?v2  (mag (velocity ?fluid-at-p2 :time ?time)))
    )
    :effects (
     (eqn  (= (+ (* 0.5 ?rho (^ ?v1 2)) (* ?rho ?g ?h1) ?Pr1) 
@@ -274,10 +274,10 @@
      (bind ?fluid-at-p1  (format-sym "FLUID_AT_~a" ?point1))
      (bind ?fluid-at-p2  (format-sym "FLUID_AT_~a" ?point2))
      (any-member ?sought ( 
-                           (at (mag (velocity ?fluid-at-p1)) ?time)
-                           (at (mag (velocity ?fluid-at-p2)) ?time)
-                           (at (area-at ?point1) ?time)
-                           (at (area-at ?point2) ?time)
+                           (mag (velocity ?fluid-at-p1 :time ?time))
+                           (mag (velocity ?fluid-at-p2 :time ?time))
+                           (area-at ?point1 :time ?time)
+                           (area-at ?point2 :time ?time)
                          ))
    )
    :effects (
@@ -288,10 +288,10 @@
    :preconditions (
        (bind ?fluid-at-p1  (format-sym "FLUID_AT_~a" ?point1))
        (bind ?fluid-at-p2  (format-sym "FLUID_AT_~a" ?point2))
-       (variable  ?v1  (at (mag (velocity ?fluid_at_p1)) ?time))
-       (variable  ?v2  (at (mag (velocity ?fluid_at_p2)) ?time))
-       (variable ?A1 (at (area-at ?point1) ?time))
-       (variable ?A2 (at (area-at ?point2) ?time))
+       (variable  ?v1  (mag (velocity ?fluid_at_p1 :time ?time)))
+       (variable  ?v2  (mag (velocity ?fluid_at_p2 :time ?time)))
+       (variable ?A1 (area-at ?point1 :time ?time))
+       (variable ?A2 (area-at ?point2 :time ?time))
    )
    :effects (
     (eqn  (= (* ?A1 ?v1) (* ?A2 ?v2)) 
@@ -307,17 +307,17 @@
 
 
 ;;Define the quantity cross-sectional area at a point.  The variable choice is "A".
-(def-qexp area-at (area-at ?position)
+(def-qexp area-at (area-at ?position :time ?time)
      :units |m^2|
      :restrictions positive
      :english ("the cross-sectional area at ~A" (nlg ?position))
-     :fromworkbench `(at (area-at ,body) ,time)
+     :fromworkbench `(area-at ,body :time ,time)
 )
 
 (defoperator define-area-at (?point ?time)
      :preconditions((bind ?A-var (format-sym "Ac_~A" (body-name ?point))))
-     :effects ((variable ?A-var (at (area-at ?point) ?time))
-               (define-var (at (area-at ?point) ?time)))
+     :effects ((variable ?A-var (area-at ?point :time ?time))
+               (define-var (area-at ?point :time ?time)))
      :hint (
           (bottom-out (string "Define a variable for the cross sectional area at ~A by using the Add Variable command on the Variable menu and selecting Area."  ?body))
           ))
@@ -526,17 +526,17 @@
    ((force ?b ?fluid pressure ?t ?dir action)
     ; need to get body containing surface for vector statement
     (in-wm (fluid-contact ?b ?surface ?fluid ?point ?t-pressure ?dir))
-    (not (vector ?b (at (force ?b ?fluid pressure) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?fluid pressure :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fp_~A_~A_~A" (body-name ?b) ?fluid
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a pressure on ~a due to ~a at ~a.~%" ?dir ?b ?fluid ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?fluid pressure) ?t) ?dir)
-    (variable ?mag-var (at (mag (force ?b ?fluid pressure)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?fluid pressure)) ?t))
-    (given (at (dir (force ?b ?fluid pressure)) ?t) ?dir))
+   ((vector ?b (force ?b ?fluid pressure :time ?t) ?dir)
+    (variable ?mag-var (mag (force ?b ?fluid pressure :time ?t)))
+    (variable ?dir-var (dir (force ?b ?fluid pressure :time ?t)))
+    (given (dir (force ?b ?fluid pressure :time ?t)) ?dir))
   :hint
    ((point (string "Notice that ~a is in contact with ~A." ?b (?fluid agent)))
     (teach (string "When a body in contact with a fluid, the fluid exerts a pressure force on it, acting perpendicular to the surface of contact."))
@@ -556,8 +556,8 @@
 
 (defoperator pressure-force-contains (?sought)
   :preconditions(
-    (any-member ?sought ( (at (mag (force ?body ?fluid pressure)) ?time)
-                          (at (pressure ?point) ?time)
+    (any-member ?sought ( (mag (force ?body ?fluid pressure :time ?time))
+                          (pressure ?point :time ?time)
 			  (area ?surface)  ))
     (time ?time) ;because area is timeless
     (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
@@ -572,8 +572,8 @@
     (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
     (test (tinsidep ?t ?t-pressure))
     (body ?body)
-    (variable ?Fp (at (mag (force ?body ?fluid pressure)) ?t))
-    (variable ?P  (at (pressure ?point) ?t))
+    (variable ?Fp (mag (force ?body ?fluid pressure :time ?t)))
+    (variable ?P  (pressure ?point :time ?t))
     (variable ?A  (area ?surface))
   )
   :effects (
@@ -602,7 +602,7 @@
 (defoperator draw-buoyant-force (?b ?fluid ?t)
   :preconditions
    ((force ?b ?fluid buoyant ?t ?dir action)
-    (not (vector ?b (at (force ?b ?fluid buoyant) ?t) ?dont-care))
+    (not (vector ?b (force ?b ?fluid buoyant :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fb_~A_~A_~A" (body-name ?b) ?fluid
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -610,10 +610,10 @@
 	   ?dir ?b (?fluid agent) ?t)
     )
   :effects
-   ((vector ?b (at (force ?b ?fluid buoyant) ?t) ?dir)
-    (variable ?mag-var (at (mag (force ?b ?fluid buoyant)) ?t))
-    (variable ?dir-var (at (dir (force ?b ?fluid buoyant)) ?t))
-    (given (at (dir (force ?b ?fluid buoyant)) ?t) ?dir))
+   ((vector ?b (force ?b ?fluid buoyant :time ?t) ?dir)
+    (variable ?mag-var (mag (force ?b ?fluid buoyant :time ?t)))
+    (variable ?dir-var (dir (force ?b ?fluid buoyant :time ?t)))
+    (given (dir (force ?b ?fluid buoyant :time ?t)) ?dir))
   :hint
    ((point (string "Notice that ~a is submerged in ~A." ?b (?fluid agent)))
     (teach (string "When a body is submerged in a fluid, the upward fluid pressure on its bottom is greater than the downward pressure on its top. The net effect can be represented by an upward buoyant force on the object."))
@@ -622,17 +622,17 @@
     ))
 
 ;;Quantity: The volume of a body
-(def-qexp volume (volume ?body)
+(def-qexp volume (volume ?body :time ?time)
      :units |m^3|
      :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
      :english ("the volume of ~A" (nlg ?body))
-     :fromworkbench `(at (volume ,body) ,time)
+     :fromworkbench `(volume ,body :time ,time)
    )
 
 (defoperator define-volume (?body ?time)
      :preconditions((bind ?Vol-var (format-sym "Vol_~A" (body-name ?body))))
-     :effects ((variable ?Vol-var (at (volume ?body) ?time))
-               (define-var (at (volume ?body) ?time)))
+     :effects ((variable ?Vol-var (volume ?body :time ?time))
+               (define-var (volume ?body :time ?time)))
      :hint (
           (bottom-out (string "Define a variable for the volume of ~A by using the Add Variable command on the Variable menu and selecting Volume."  ?body))
 	   ))
@@ -652,14 +652,14 @@
              (equal ?b-sought `(compound ,@?bodies))))
   )
   :effects (
-    (eqn-contains (volume-compound ?bodies ?t) (at (volume ?b-sought) ?t))
+    (eqn-contains (volume-compound ?bodies ?t) (volume ?b-sought :time ?t))
   ))
 
 (defoperator write-volume-compound (?bodies ?t)
   :preconditions (
-    (variable ?Vwhole-var (at (volume (compound . ?bodies)) ?t))
+    (variable ?Vwhole-var (volume (compound . ?bodies) :time ?t))
     (map ?body ?bodies
-         (variable ?Vpart-var (at (volume ?body) ?t)) 
+         (variable ?Vpart-var (volume ?body :time ?t)) 
 	 ?Vpart-var ?Vpart-vars) 
   )
   :effects (
@@ -684,9 +684,9 @@
 (defoperator archimedes-contains (?sought)
   :preconditions (
     (in-wm (buoyant-force ?body ?fluid ?t-buoyant ?dir))
-    (any-member ?sought ( (at (mag(force ?b ?fluid ?buoyant)) ?t)
+    (any-member ?sought ( (mag (force ?b ?fluid ?buoyant :time ?t))
                           (mass-density ?fluid) 
-                          (at (volume ?b) ?t) ))
+                          (volume ?b :time ?t) ))
     (test (tinsidep ?t ?t-buoyant))
   )
   :effects (
@@ -696,10 +696,10 @@
 (defoperator write-archimedes (?b ?fluid ?t)
    :preconditions (
        (in-wm (near-planet ?planet))
-       (variable ?Fb  (at (mag(force ?b ?fluid ?buoyant)) ?t))
+       (variable ?Fb  (mag (force ?b ?fluid ?buoyant :time ?t)))
        (variable ?rho (mass-density ?fluid))
        (variable ?g   (gravitational-acceleration ?planet))
-       (variable ?V   (at (volume ?b) ?t))
+       (variable ?V   (volume ?b :time ?t))
    )
    :effects (
        (eqn (= ?Fb (* ?rho ?V ?g)) (archimedes ?b ?fluid ?t))

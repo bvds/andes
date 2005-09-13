@@ -262,8 +262,8 @@
 ;            NIL or anything else gets vector term unchanged
 (defun vec-prop (prop-id vector-term)
  (case prop-id
-   (mag  (vector-mag vector-term))
-   (dir  (vector-dir vector-term))
+   (mag  `(mag ,vector-term))
+   (dir  `(dir ,vector-term))
    (xc   (vector-xc vector-term))
    (yc	 (vector-yc vector-term))
    (zc	 (vector-zc vector-term))
@@ -299,25 +299,25 @@
       ;; scalar quantities:
       (work				; work may be net work, work-nc, or work by an agent
        (cond ((or (null body2-term) (string-equal body2-term '|all forces|))
-	      `(at (net-work ,body-term) ,time-term))
+	      `(net-work ,body-term :time ,time-term))
 	     ((or (string-equal body2-term '|nonconservative|)
 		  ;; NB: arg-to-body converts hyphen in '|non-conservative forces|
 		  (string-equal body2-term '|non_conservative forces|)) 
-	      `(at (work-nc ,body-term) ,time-term))
-	     (T     `(at (work ,body-term ,body2-term) ,time-term))))
+	      `(work-nc ,body-term :time ,time-term))
+	     (T     `(work ,body-term ,body2-term :time ,time-term))))
       (power				; may be net power or power from an agent
        (if (or (null body2-term) (string-equal body2-term '|all forces|)) 
-	   `(at (net-power ,body-term) ,time-term)
-	 `(at (power ,body-term ,body2-term) ,time-term)))
+	   `(net-power ,body-term :time ,time-term)
+	 `(power ,body-term ,body2-term :time ,time-term)))
       (energy      (case subtype
-		     (total   `(at (total-energy ,body-term) ,time-term))
-		     (kinetic `(at (kinetic-energy ,body-term) ,time-term))
-		     (rotational `(at (rotational-energy ,body-term) ,time-term))
+		     (total   `(total-energy ,body-term :time ,time-term))
+		     (kinetic `(kinetic-energy ,body-term :time ,time-term))
+		     (rotational `(rotational-energy ,body-term :time ,time-term))
 		     ;; new style:
 		     ;; Change 9.0.2: add agent slot to PE quants
-		     (electric `(at (electric-energy ,body-term ,body2-term) ,time-term))
-		     (gravitational `(at (grav-energy ,body-term ,body2-term) ,time-term))
-		     (elastic   `(at (spring-energy ,body-term ,body2-term) ,time-term))
+		     (electric `(electric-energy ,body-term ,body2-term :time ,time-term))
+		     (gravitational `(grav-energy ,body-term ,body2-term :time ,time-term))
+		     (elastic   `(spring-energy ,body-term ,body2-term :time ,time-term))
 		     ;; old style: same subtype was sent for all types of P.E:
                   (potential 
 		   ;; URGH, whether PE is elastic or gravitational can only be
@@ -325,32 +325,32 @@
 		   ;; Also allow args in any order. Prefer grav if they include 
 		   ;; planet. 
 		   (cond ((planetp body2-term) 
-			  `(at (grav-energy ,body-term) ,time-term))
+			  `(grav-energy ,body-term :time ,time-term))
 			 ((planetp body-term) 
-			  `(at (grav-energy ,body2-term) ,time-term))
+			  `(grav-energy ,body2-term :time ,time-term))
 			 ((springp body2-term)
-			  `(at (spring-energy ,body-term) ,time-term))
+			  `(spring-energy ,body-term :time ,time-term))
 			 ((springp body-term)
-			  `(at (spring-energy ,body2-term) ,time-term))
+			  `(spring-energy ,body2-term :time ,time-term))
 			 (T		; no planet or spring! Use grav, it always exists.
 					; include both terms so error handlers can detect
-			  `(at (grav-energy (,body-term ,body2-term)) ,time-term)))
+			  `(grav-energy (,body-term ,body2-term :time ,time-term))))
 		   )))
       (coef-friction			; !!!student has to get body args in right order:
        (if (null subtype) `(coef-friction ,body-term ,body2-term static)
 	 `(coef-friction ,body-term ,body2-term ,subtype)))
       (voltage    (case subtype
 		    (across		; body-term may come here as (resistance (a b c)) for equiv.
-		     (if (atom body-term) `(at (voltage-across ,body-term) ,time-term)
-                       `(at (voltage-across ,(second body-term)) ,time-term)))
+		     (if (atom body-term) `(voltage-across ,body-term :time ,time-term)
+                       `(voltage-across ,(second body-term) :time ,time-term)))
 		    (otherwise		; no longer used
-		     `(at (voltage-btwn ,body-term ,body2-term) ,time-term))))
+		     `(voltage-btwn ,body-term ,body2-term :time ,time-term))))
       (current     (case subtype
 		     (through		; body-term may come here as (resistance a b c) for equiv.
-		      (if (atom body-term) `(at (current-thru ,body-term)  ,time-term)
-			`(at (current-thru ,(second body-term))  ,time-term)))
-					;(at       `(at (current-at ,body-term) ,time-term))
-		     (in        `(at (current-in ,body-term)  ,time-term))))
+		      (if (atom body-term) `(current-thru ,body-term :time  ,time-term)
+			`(current-thru ,(second body-term) :time ,time-term)))
+					;`(current-at ,body-term :time ,time-term)
+		     (in        `(current-in ,body-term :time ,time-term))))
       (resistance			; body-term may come here as (compound a b c) for equivalent resistance
        (if (atom body-term) `(resistance ,body-term)
 	 `(resistance ,(cdr body-term))))
@@ -362,36 +362,36 @@
       ;; vector quantities -- form appropriate prop (mag or dir or compo)
       ;;
       ((relative-position position)	; include workbench type id to be safe
-       (vec-prop prop `(at (relative-position ,body-term ,body2-term) 
-			   ,time-term)))
-      (relative-vel (vec-prop prop `(at (relative-vel ,body-term ,body2-term) 
-					,time-term)))
+       (vec-prop prop `(relative-position ,body-term ,body2-term
+			   :time ,time-term)))
+      (relative-vel (vec-prop prop `(relative-vel ,body-term ,body2-term
+					:time ,time-term)))
       (E-field      (vec-prop prop 
 			      (if (or (null body2-term) (string-equal body2-term '|all sources|))
-				  `(at (net-field ,body-term electric) ,time-term)
-				`(at (field ,body-term electric ,body2-term) ,time-term))))
+				  `(net-field ,body-term electric :time ,time-term)
+				`(field ,body-term electric ,body2-term :time ,time-term))))
       (B-field      (vec-prop prop 
 			      (if (or (null body2-term) (string-equal body2-term '|all sources|))
-				  `(at (net-field ,body-term magnetic) ,time-term)
-				`(at (field ,body-term magnetic ,body2-term) ,time-term))))
-      (displacement (vec-prop prop `(at (displacement ,body-term) ,time-term)))
-      (velocity     (vec-prop prop `(at (velocity ,body-term) ,time-term)))
+				  `(net-field ,body-term magnetic :time ,time-term)
+				`(field ,body-term magnetic ,body2-term :time ,time-term))))
+      (displacement (vec-prop prop `(displacement ,body-term :time ,time-term)))
+      (velocity     (vec-prop prop `(velocity ,body-term :time ,time-term)))
       ((accel acceleration)		; include workbench type id to be safe
-       (vec-prop prop `(at (accel ,body-term) ,time-term)))
+       (vec-prop prop `(accel ,body-term :time ,time-term)))
       (force        (vec-prop prop 
 			      (if (eq subtype 'Net) 
-				  `(at (net-force ,body-term) ,time-term)
-				`(at (force ,body-term ,body2-term ,subtype) ,time-term))))
-      (momentum     (vec-prop prop `(at (momentum ,body-term) ,time-term)))
+				  `(net-force ,body-term :time ,time-term)
+				`(force ,body-term ,body2-term ,subtype :time ,time-term))))
+      (momentum     (vec-prop prop `(momentum ,body-term :time ,time-term)))
       ((ang-accel ang-acceleration)	; include workbench type id to be safe
-       (vec-prop prop `(at (ang-accel ,body-term) ,time-term)))
-      (ang-velocity (vec-prop prop `(at (ang-velocity ,body-term) ,time-term)))
+       (vec-prop prop `(ang-accel ,body-term :time ,time-term)))
+      (ang-velocity (vec-prop prop `(ang-velocity ,body-term :time ,time-term)))
       (ang-displacement 
-       (vec-prop prop `(at (ang-displacement ,body-term) ,time-term)))
-      (ang-momentum (vec-prop prop `(at (ang-momentum ,body-term) ,time-term)))
+       (vec-prop prop `(ang-displacement ,body-term :time ,time-term)))
+      (ang-momentum (vec-prop prop `(ang-momentum ,body-term :time ,time-term)))
       (torque       (vec-prop prop 
 			      (if (eq subtype 'net) 
-				  `(at (net-torque ,body-term ,body2-term) ,time-term)
+				  `(net-torque ,body-term ,body2-term :time ,time-term)
 				(find-torque-term body-term body2-term))))
       ;; unknown:
       (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
@@ -404,7 +404,7 @@
 
 (defun timeify (time-term quant-expr)
   "Add optional time to quant-expr, returning expr unchanged if time=NIL"
-  (if time-term `(at ,quant-expr ,time-term)
+  (if time-term (append quant-expr `(:time ,time-term))
     quant-expr))
 
 ;;
@@ -569,12 +569,12 @@
 ;; worker routine to do generic tasks common to vector entries 
 ;; once the vector quantity has been formed
 (defun make-vector-entry (label vquant-term time-term dir-term id)
-   (let* ((vector-term `(at ,vquant-term ,time-term))
+   (let* ((vector-term (append vquant-term `(:time ,time-term)))
           (action      `(vector ,vector-term ,dir-term))
           (entry        (make-StudentEntry :id id :prop action))
 	  ;; this defines magnitude and direction variables
-	  (vector-mag-term (vector-mag vector-term)) ; see Physics-Funcs
-	  (vector-dir-term (vector-dir vector-term)) ; see Physics-Funcs
+	  (vector-mag-term `(mag ,vector-term))
+	  (vector-dir-term `(dir ,vector-term))
 	  ; xy plane vectors get theta prefix, z axis ones get phi
 	  ; Greek symbols expressed by $ + char position in symbol font
 	  (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
@@ -688,21 +688,23 @@
 )
 
 (defun find-torque-term (pt axis)
-"fill in fully explicit torque term implicitly defined by point of force application and axis"
-  (let* (; get force by searching entries for force at pt of application
-        (force-matches (sg-fetch-entry-props 
-                        `(vector (at (force ,pt ?agent ?type) ?t) ?dir)))
-	(force-match   (if (= (length force-matches) 1) (car force-matches)))
-	(force-quant   (if force-match (second (second force-match))
+  "fill in fully explicit torque term implicitly defined by point of force application and axis"
+  (let* (
+	 ;; get force by searching entries for force at pt of application
+	 (force-matches (sg-fetch-entry-props 
+			 `(vector (force ,pt ?agent ?type :time ?t) ?dir)))
+	 (force-match   (if (= (length force-matches) 1)
+			    ;;drop time
+			    (subseq (second (first force-matches)) 0 4)
 	                  `(force ,pt unknown unknown)))
-        ; get main body by searching problem givens for part-of
-	(body-matches (filter-expressions `(part-of ,pt ?b) 
-	                                  (problem-givens *cp*)))
-	(body-match   (if (= (length body-matches) 1) (car body-matches)))
-	(body-term    (if body-match (third body-match) 'unknown)))
-    ; return the torque quantity
-   `(torque ,body-term ,axis ,force-quant) 
-  ))
+	 ;; get main body by searching problem givens for part-of
+	 (body-matches (filter-expressions `(part-of ,pt ?b) 
+					   (problem-givens *cp*)))
+	 (body-match   (if (= (length body-matches) 1) (car body-matches)))
+	 (body-term    (if body-match (third body-match) 'unknown)))
+    ;; return the torque quantity
+    `(torque ,body-term ,axis ,force-match) 
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with
@@ -738,11 +740,11 @@
 (defun on-angle-between-vectors (label degrees id-vector1 id-vector2 id-angle &key drawn) 
    (declare (ignore drawn)) ; AW: no longer used
     ; need to map entry id to referent vectors
-   (let* ((mag1-term (symbols-entry-referent '(at (mag ?vector) ?t) id-vector1))
-          (mag2-term (symbols-entry-referent '(at (mag ?vector) ?t) id-vector2))
-	  ; need time-indexed vector quant terms from (at (mag ?vector) ?t)
-	  (v1-term `(at ,(second (second mag1-term)) ,(third mag1-term)))
-	  (v2-term `(at ,(second (second mag2-term)) ,(third mag2-term)))
+   (let* ((mag1-term (symbols-entry-referent '(mag ?vector) id-vector1))
+          (mag2-term (symbols-entry-referent '(mag ?vector) id-vector2))
+	  ; need time-indexed vector quant terms from (mag ?vector)
+	  (v1-term (second mag1-term))
+	  (v2-term (second mag2-term))
           ; angle-between term in KB should list vectors in canonical order
 	  (vector-terms (sort (list v1-term v2-term) #'expr<))
 	  (angle-term `(angle-between ,@vector-terms))
@@ -947,13 +949,13 @@
 
   ;; if any vectors are defined add all component variables along 
   ;; these new axes as well
-  (dolist (vector-sym (symbols-fetch '(at (mag ?vector) ?t)))
+  (dolist (vector-sym (symbols-fetch '(mag ?vector)))
     (dolist (axis-label (list x-label y-label z-label))
       (let* ((vector-label (sym-label vector-sym))
              (mag-term     (sym-referent vector-sym))
 	     (vector-entry-id (first (sym-entries vector-sym)))
-	     ; need time-indexed vector quant term from (at (mag ?vector) ?t)
-	     (vector-term `(at ,(second (second mag-term)) ,(third mag-term)))
+	     ; need time-indexed vector quant term from (mag ?vector)
+	     (vector-term (second mag-term))
              (compo-var    (format NIL "~A_~A" vector-label axis-label))
 	     (axis-term    (symbols-referent axis-label))
 	     (compo-term   (vector-compo vector-term axis-term)) ; in Physics-Funcs

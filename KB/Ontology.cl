@@ -7,7 +7,7 @@
 ;;;
 ;;;  Check that all rules are in principles.tsv (tcsh script):
 ;;;
-;;;  set list =  egrep '[^;]*def-(equation|psmclass)' KB/*.cl | sed -e 's/.*def-\w* \([^(]*\)(*.*/\1/'
+;;;  set list =  egrep '[^;]*def-(equation|psmclass)' KB/*.cl | sed -e 's/.*def-\w* \([^(]*\) (*.*/\1/'
 ;;;  foreach i ($list)
 ;;;     if (0 == `grep -c -i $i KB/principles.tsv`) echo $i
 ;;;  end
@@ -75,58 +75,53 @@
     ;; leave untranslated if no name in table:
     (if result (cdr result) (format NIL "~A" x))))
 
-;; may wrap any time varying quant:
-(def-qexp at (at ?quant ?time)
-  :units ?quant
-  :restrictions ?quant
-  :english ("~A ~A" (nlg ?quant) (nlg ?time 'pp)))
 (def-qexp dnum (dnum ?value ?unit)
   :english ("~A ~A" (identity ?value) (translate-units ?unit)))
 
 ;;;; vector quantities:
 
-(def-qexp relative-position (relative-position ?to-pt ?from-pt)
+(def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
   :english ("the relative position of ~A with respect to ~A" (nlg ?to-pt) (nlg ?from-pt)))
-(def-qexp displacement (displacement ?body)
+(def-qexp displacement (displacement ?body :time ?time)
   :units |m|
   :english ("the displacement of ~A" (nlg ?body)))
-(def-qexp velocity (velocity ?body)
+(def-qexp velocity (velocity ?body :time ?time)
   :units |m/s|
   :english ("the velocity of ~A" (nlg ?body)))
-(def-qexp relative-vel (relative-vel ?to-pt ?from-pt)
+(def-qexp relative-vel (relative-vel ?to-pt ?from-pt :time ?time)
   :units |m/s|
   :english ("the relative velocity of ~A with respect to ~A" (nlg ?to-pt) (nlg ?from-pt)))
-(def-qexp accel	(accel ?body)
+(def-qexp accel	(accel ?body :time ?time)
   :units |m/s^2|
   :english ("the acceleration of ~A" (nlg ?body)))
-(def-qexp momentum (momentum ?body)
+(def-qexp momentum (momentum ?body :time ?time)
   :units |kg.m/s|
   :english ("the momentum of ~A" (nlg ?body)))
-(def-qexp force (force ?body ?agent ?type)
+(def-qexp force (force ?body ?agent ?type :time ?time)
   :units N
   :english ("~A force on ~A due to ~A" 
 	    (nlg ?type) (nlg ?body) (nlg ?agent 'agent)))
 
-(def-qexp net-force (net-force ?body)
+(def-qexp net-force (net-force ?body :time ?time)
   :units N
   :english ("the net force on ~A" (nlg ?body)))
-(def-qexp ang-displacement (ang-displacement ?body)
+(def-qexp ang-displacement (ang-displacement ?body :time ?time)
   :units |rad|
   :english ("the angular displacement of ~A" (nlg ?body)))
-(def-qexp ang-velocity (ang-velocity ?body)
+(def-qexp ang-velocity (ang-velocity ?body :time ?time)
   :units |rad/s|
   :english ("the angular velocity of ~A" (nlg ?body)))
-(def-qexp ang-accel (ang-accel ?body)
+(def-qexp ang-accel (ang-accel ?body :time ?time)
   :units |rad/s^2|
   :english ("the angular acceleration of ~A" (nlg ?body)))
-(def-qexp ang-momentum (ang-momentum ?body)
+(def-qexp ang-momentum (ang-momentum ?body :time ?time)
   :units |kg.m^2/s|
   :english ("the angular momentum of ~A" (nlg ?body)))
-(def-qexp torque (torque ?body ?axis ?force)
+(def-qexp torque (torque ?body ?axis ?force :time ?time)
   :units |N.m|
   :english ("the torque on ~A about ~A due to ~A" (nlg ?body) (nlg ?axis) (nlg ?force)))
-(def-qexp net-torque (net-torque ?body ?axis)
+(def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
   :english ("the net torque on ~A about ~A" (nlg ?body) (nlg ?axis)))
 ;; attributes of vectors:
@@ -145,25 +140,26 @@
 
 ;;; in the workbench, the time slot is added if feature changing-mass
 ;;; is included.
-(def-qexp mass	(mass ?body)
+(def-qexp mass	(mass ?body :time ?time)
   :units |kg|
   :restrictions positive
-  :fromWorkbench (if time `(at (mass ,body) ,time) `(mass ,body))
+  :fromWorkbench (if time `(mass ,body :time ,time) `(mass ,body))
   :english ("the mass of ~A" (nlg ?body)))
 
-(def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent)
+(def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?time)
   :units |kg/s|
   :restrictions nonnegative
-  :fromWorkbench `(at (mass-change-magnitude ,body ,body2) ,time)
+  :fromWorkbench `(mass-change-magnitude ,body ,body2 :time ,time)
   :english ("the magnitude of the change of mass of ~A per unit time due to ~A" 
 	       (nlg ?body) (nlg ?agent 'agent)))
-(def-qexp distance (distance ?body)
+(def-qexp distance (distance ?body :time ?time)
   :units |m|
-  :fromWorkbench `(at (distance ,body) ,time)
+  :fromWorkbench (if time `(distance ,body :time ,time) `(distance ,body))
   :english ("the distance travelled by ~A" (nlg ?body)))
-(def-qexp distance-between (distance-between ?body ?body2)
+(def-qexp distance-between (distance-between ?body ?body2 :time ?time)
   :units |m|
-  :fromWorkbench `(at (distance-between ,body ,body2) ,time)
+  :fromWorkbench (if time `(distance-between ,body ,body2 :time ,time)
+		   `(distance-between ,body ,body2))
   :english ("the distance between ~A and ~a" (nlg ?body) (nlg ?body2)))
 
 (def-qexp duration (duration (during ?t1 ?t2))
@@ -172,90 +168,90 @@
   :fromWorkbench  `(duration ,time)
   :english ("the duration of the interval from ~A to ~A" 
             (nlg ?t1 'moment) (nlg ?t2 'moment)))
-(def-qexp speed    (speed ?body)
+(def-qexp speed (speed ?body :time ?t)
   :units |m/s|
-  :fromWorkbench `(at (speed ,body) ,time)
+  :fromWorkbench (if time `(speed ,body :time ,time) `(speed ,body))
   :english ("the speed of ~A" (nlg ?body)))
-(def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic)
+(def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :units NIL ;; dimensionless
   :english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) (nlg ?body2))) 
 
 ;; see constants.cl, function enter-predefs
-(def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
+(def-qexp gravitational-acceleration (gravitational-acceleration ?planet :time ?time)
   :units |m/s^2|
   :restrictions positive
   :fromWorkbench `(gravitational-acceleration ,body)
   :english ("the gravitational acceleration due to ~A" (nlg ?planet)))
 
-(def-qexp num-forces (num-forces ?body)
+(def-qexp num-forces (num-forces ?body :time ?time)
   :english ("the number of forces on ~A" (nlg ?body)))
-(def-qexp revolution-radius (revolution-radius ?body)
+(def-qexp revolution-radius (revolution-radius ?body :time ?time)
   :units |m|
   :restrictions positive
-  :fromWorkbench `(at (revolution-radius ,body) ,time)
+  :fromWorkbench `(revolution-radius ,body :time ,time)
   :english ("the radius of the circular motion of ~A" (nlg ?body)))
-(def-qexp work (work ?b ?agent)
+(def-qexp work (work ?b ?agent :time ?time)
   :units J
   :english ("the work done on ~A by ~A" (nlg ?b) (nlg ?agent)))
-(def-qexp net-work (net-work ?b)
+(def-qexp net-work (net-work ?b :time ?time)
   :units J
   :english ("the net work done on ~A" (nlg ?b)))
-(def-qexp work-nc (work-nc ?b)
+(def-qexp work-nc (work-nc ?b :time ?time)
   :units J
   :english ("the work done by non-conservative forces on ~A" (nlg ?b)))
-(def-qexp power (power ?b ?agent)
+(def-qexp power (power ?b ?agent :time ?time)
   :units W
   :english ("the power supplied to ~a from ~a" (nlg ?b) (nlg ?agent)))
-(def-qexp net-power (net-power ?b)
+(def-qexp net-power (net-power ?b :time ?time)
   :units W
   :english ("the net power supplied to ~a" (nlg ?b)))
-(def-qexp angle-between (angle-between ?vec1 ?vec2)
+(def-qexp angle-between (angle-between ?vec1 ?vec2 :time ?time)
   :units |deg|
   :english ("the angle between ~A and ~A" (nlg ?vec1) (nlg ?vec2)))
-(def-qexp total-energy (total-energy ?system) 
+(def-qexp total-energy (total-energy ?system :time ?time) 
   :units J
   :english ("the total mechanical energy of ~A" (nlg ?system)))
-(def-qexp kinetic-energy (kinetic-energy ?body)
+(def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
   :units J
   :english ("the kinetic energy of ~A" (nlg ?body)))
-(def-qexp rotational-energy (rotational-energy ?body)
+(def-qexp rotational-energy (rotational-energy ?body :time ?time)
   :units J
   :english ("the rotational kinetic energy of ~A" (nlg ?body)))
-(def-qexp grav-energy (grav-energy ?body ?agent)
+(def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
   :units J
   :english ("the gravitational potential energy of ~A" (nlg ?body)))
-(def-qexp spring-energy (spring-energy ?body ?agent) 
+(def-qexp spring-energy (spring-energy ?body ?agent :time ?time) 
   :units J
   :english ("the elastic potential energy transmittable to ~A" (nlg ?body)))
-(def-qexp compression (compression ?spring)
+(def-qexp compression (compression ?spring :time ?time)
   :units |m|
-  :fromWorkbench `(at (compression ,body) ,time)
+  :fromWorkbench `(compression ,body :time ,time)
   :english ("the compression distance of ~A" (nlg ?spring)))
-(def-qexp spring-constant (spring-constant ?spring)
+(def-qexp spring-constant (spring-constant ?spring :time ?time)
   :units |N/m|
   :restrictions positive
   :fromWorkbench `(spring-constant ,body)
   :english ("the spring constant of ~A" (nlg ?spring)))
-(def-qexp height (height ?body)
+(def-qexp height (height ?body :time ?time)
   :units |m|
-  :fromWorkbench `(at (height ,body) ,time)
+  :fromWorkbench `(height ,body :time ,time)
   :english ("the height of ~A above the zero level" (nlg ?body)))
-(def-qexp moment-of-inertia (moment-of-inertia ?body)
+(def-qexp moment-of-inertia (moment-of-inertia ?body :time ?time)
   :units |kg.m^2|
   :restrictions positive
-  :fromWorkbench (if time `(at (moment-of-inertia ,body) ,time) `(moment-of-inertia ,body))
+  :fromWorkbench (if time `(moment-of-inertia ,body :time ,time) `(moment-of-inertia ,body))
   :english ("the moment of inertia of ~A" (nlg ?body)))
 ;; for dimensions of certain rigid bodies:
-(def-qexp length (length ?body)
+(def-qexp length (length ?body :time ?time)
   :units |m|
   :fromWorkbench `(length ,body)
   :english ("the length of ~A" (nlg ?body)))
-(def-qexp width  (width ?body)
+(def-qexp width  (width ?body :time ?time)
   :units |m|
   :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))
-(def-qexp num-torques (num-torques ?body ?axis)
+(def-qexp num-torques (num-torques ?body ?axis :time ?time)
   :english ("the number of torques on ~A about ~A" (nlg ?body) (nlg ?axis)))
 
 (def-qexp compound (compound . ?bodies)
@@ -403,7 +399,7 @@
 ;; 
 ;; Subgoal hint for goal of drawing a vector:
 ;; We assume first argument is relevant body to mention
-(def-goalprop vec-drawn (vector ?axis-body (at (?vec-type . (?body . ?args)) ?time) ?direction)
+(def-goalprop vec-drawn (vector ?axis-body (?vec-type . (?body . ?args)) ?direction)
    :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
 
 ;; Subgoal hint for goal of defining a variable: We use one hint for vector 
@@ -413,7 +409,7 @@
 ;; Note the second form also gets used for vector component variables 
 ;; (which may be given)
 ;; -- maybe should insert another variant for that case.
-(def-goalprop vector-var (variable ?var (at (mag (?vec-type . (?body . ?args))) ?t))
+(def-goalprop vector-var (variable ?var (mag (?vec-type . (?body . ?args) )))
    :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
 |# ;; end experimental
 
@@ -510,7 +506,7 @@
   :ExpFormat ("entering the given value of ~A" (nlg ?quantity))
   :EqnFormat ("Var = N units"))
 
-(def-psmclass proj (proj (at (compo ?axis ?rot ?vector) ?time))
+(def-psmclass proj (proj (compo ?axis ?rot ?vector :time ?time))
   :complexity connect
   :doc "projection equations"
   :english ("projection equations")
@@ -723,7 +719,7 @@
 (def-psmclass free-fall-accel (free-fall-accel ?body ?time)
   :complexity simple
   :english ("free fall acceleration")
-  :ExpFormat ("determining free fall acceleration for ~a ~a"
+  :ExpFormat ("determining the free fall acceleration for ~a ~a"
 	      (nlg ?body) (nlg ?time 'nlg-time))
   :EqnFormat ("a = g"))
 
@@ -1202,7 +1198,7 @@
 ; Used as sub-equation inside standard vector psms: 
 ; also used inside the top-level psm version ("proj" above) which
 ; is used in "component-form" solutions
-(def-equation projection (projection (at (compo ?axis ?rot ?vector) ?time))
+(def-equation projection (projection (compo ?axis ?rot ?vector :time ?time))
   :doc "projection equation inside psm"
   :complexity connect
   :english ("projection equation")

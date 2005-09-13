@@ -515,7 +515,7 @@
   (let ((Graph (make-bubblegraph)) (Q))
     (dolist (S Soughts)
       (setq Q (solve-for-non-quantity (list S) Givens))
-      (when (null Q) (error "Unable to solve for non-quant sought: ~a~%" S))
+      (when (null Q) (error "Unable to solve for non-quant sought: ~s~%" S))
       (dolist (R Q) 
 	(setf Graph 
 	  (add-enode-to-bubblegraph

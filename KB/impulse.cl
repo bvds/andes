@@ -8,28 +8,28 @@
 
 ;; Impulse is specified in problem statement by given impulse direction 
 ;; which may be unknown
-(def-qexp impulse (impulse ?body ?agent)
+(def-qexp impulse (impulse ?body ?agent :time ?time)
   :units |N.s|
   :english ("Impulse on ~A due to ~A" (nlg ?body) (nlg ?agent 'agent)))
 
 ;; Draw a "given" impulse at a certain direction. 
 (defoperator draw-impulse-given-dir (?b ?agent ?t)
   :preconditions
-   ((given (at (dir (impulse ?b ?agent)) ?t) ?dir)
+   ((given (dir (impulse ?b ?agent :time ?t)) ?dir)
     (test (not (equal ?dir 'unknown)))
-    (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care))
+    (not (vector ?b (impulse ?b ?agent :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
     )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+   ((vector ?b (impulse ?b ?agent :time ?t) ?dir)
     ;; BvdS:  Why no equation for this?
-    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
-    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
+    (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
     ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (dir (impulse ?b ?agent :time ?t)))
    )
   :hint
    ((point (string "You were given that there is an impulse on ~a." ?b))
@@ -57,22 +57,22 @@
   :preconditions
   (
    ;; BvdS:  why not this form for forces
-   ;;(in-wm (at (dir (force ?b ?agent ?type)) ?t))
+   ;;(in-wm (dir (force ?b ?agent ?type :time ?t)))
    (force ?b ?agent ?type ?t ?dir ?action)
    (test (time-intervalp ?t)) ;only impulse for intervals
    (test (not (equal ?dir 'unknown)))
-   (not (vector ?b (at (impulse ?b ?agent) ?t) ?dont-care)) ;not already drawn
+   (not (vector ?b (impulse ?b ?agent :time ?t) ?dont-care)) ;not already drawn
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
     )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir)
+   ((vector ?b (impulse ?b ?agent :time ?t) ?dir)
     ;; BvdS:  Why no equation for this?
-    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
-    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
+    (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
     ;; Ensure implicit eqn is written because dir is from force
-    (implicit-eqn (= ?dir-var ?dir) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dir) (dir (impulse ?b ?agent :time ?t)))
    )
   :hint
    ((point (string "There is a force acting on ~a." ?b))
@@ -85,10 +85,10 @@
   :preconditions 
   ((collision ?bodies ?t :type ?elastic-dont-care)
    (any-member ?sought
-	       ((at (mag (impulse ?b ?agent)) ?t)
-		(at (dir (impulse ?b ?agent)) ?t)
-		(at (mag (force ?b ?agent ?type)) ?t)
-		(at (dir (force ?b ?agent ?type)) ?t)
+	       ((mag (impulse ?b ?agent :time ?t))
+		(dir (impulse ?b ?agent :time ?t))
+		(mag (force ?b ?agent ?type :time ?t))
+		(dir (force ?b ?agent ?type :time ?t))
 		(duration ?t)))
    (object ?b)
    (time ?t)
@@ -104,10 +104,10 @@
 ;; This is the impulse from a particular force
 (defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
-   ((variable ?F12_x  (at (compo ?xy ?rot (force ?b ?agent ?dont-care)) 
-			  (during ?t1 ?t2)))
-    (variable ?J12_x  (at (compo ?xy ?rot (impulse ?b ?agent)) 
-			  (during ?t1 ?t2)))
+   ((variable ?F12_x  (compo ?xy ?rot (force ?b ?agent ?dont-care)
+			  :time (during ?t1 ?t2)))
+    (variable ?J12_x  (compo ?xy ?rot (impulse ?b ?agent)
+			  :time (during ?t1 ?t2)))
     (variable ?t12    (duration (during ?t1 ?t2))))
   :effects (
    (eqn (= ?J12_x (* ?F12_x ?t12))
@@ -142,15 +142,15 @@
      :EqnFormat ("J1_~a + J2_~a + J3_~a + ...= m*v_~a(~A) - m*v_~a(~A)" 
                  (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) 
 		 (nlg ?axis 'adj) (nlg ?t2 'nlg-time) 
-		 (nlg ?axis 'adj)(nlg ?t1 'nlg-time)))
+		 (nlg ?axis 'adj) (nlg ?t1 'nlg-time)))
 
 (defoperator draw-impulse-momentum-diagram (?b ?t1 ?t2)
   :preconditions 
   ( (body ?b)
     ;; ?dirv = ?dirm is set in drawing rules
-    (vector ?b (at (impulse ?b ?agent) (during ?t1 ?t2)) ?dirj)
-    (vector ?b (at (momentum ?b) ?t1) ?dirm1)
-    (vector ?b (at (momentum ?b) ?t2) ?dirm2)
+    (vector ?b (impulse ?b ?agent :time (during ?t1 ?t2)) ?dirj)
+    (vector ?b (momentum ?b :time ?t1) ?dirm1)
+    (vector ?b (momentum ?b :time ?t2) ?dirm2)
     (axis-for ?b ?xyz ?rot) ;maybe a problem for compounds?
   )
   :effects (
@@ -172,17 +172,17 @@
    (motion ?b ?t2 (straight ?dontcare2 ?dir2))
    (test (not (equal ?dir2 'unknown)))	;known direction
    (test (equal ?dir2 (opposite ?dir1))) ;momenta in opposite directions
-   (not (vector ?b (at (impulse ?b ?agent) ) ?dontcare3)) ;not already done 
+   (not (vector ?b (impulse ?b ?agent :time ) ?dontcare3)) ;not already done 
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) ?dir2)
-    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
-    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+   ((vector ?b (impulse ?b ?agent :time ?t) ?dir2)
+    (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
+    (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
     ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir2) (at (dir (impulse ?b ?agent)) ?t))
+    (implicit-eqn (= ?dir-var ?dir2) (dir (impulse ?b ?agent :time ?t)))
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
@@ -194,7 +194,7 @@
 (defoperator draw-impulse-given-momenta-unknown-dir (?b ?agent ?t)
   :preconditions
   (
-   (not (given (at (dir (impulse ?b ?agent)) ?t) ?dir))
+   (not (given (dir (impulse ?b ?agent :time ?t)) ?dir))
    (test (time-intervalp ?t))		;introduce ?t to save some typing
    (bind ?t1 (second ?t)) (bind ?t2 (third ?t)) ;get interval endpoints
    (collision ?bodies ?t :type ?elastic-dont-care)
@@ -204,16 +204,16 @@
    (motion ?b ?t2 (straight ?dontcare2 ?dir2))
    (test (or (equal ?dir1 'unknown) (equal ?dir2 'unknown) ;unknown direction
 	     (not (equal ?dir2 (opposite ?dir1))))) ;momenta not opposite 
-   (not (vector ?b (at (impulse ?b ?agent) ?t) ?dontcare3)) ;not already done 
+   (not (vector ?b (impulse ?b ?agent :time ?t) ?dontcare3)) ;not already done 
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects
-   ((vector ?b (at (impulse ?b ?agent) ?t) unknown)
-    (variable ?mag-var (at (mag (impulse ?b ?agent)) ?t))
+   ((vector ?b (impulse ?b ?agent :time ?t) unknown)
+    (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
     ;; since it is unknown, no implicit-eqn
-    (variable ?dir-var (at (dir (impulse ?b ?agent)) ?t))
+    (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))
@@ -228,12 +228,12 @@
   (
    (collision ?bodies (during ?t1 ?t2) :type ?elastic-dont-care)
    (any-member ?sought
-	        ((at (mag (impulse ?b ?agent)) (during ?t1 ?t2))
-		 (at (dir (impulse ?b ?agent)) (during ?t1 ?t2))
-		 (at (mag (momentum ?b)) ?t1)
-		 (at (dir (momentum ?b)) ?t1)
-		 (at (mag (momentum ?b)) ?t2)
-		 (at (dir (momentum ?b)) ?t2))
+	        ((mag (impulse ?b ?agent :time (during ?t1 ?t2)))
+		 (dir (impulse ?b ?agent :time (during ?t1 ?t2)))
+		 (mag (momentum ?b :time ?t1))
+		 (dir (momentum ?b :time ?t1))
+		 (mag (momentum ?b :time ?t2))
+		 (dir (momentum ?b :time ?t2)))
 		)
    (object ?b) (object ?agent)
    (test (not (equal ?b ?agent)))
@@ -261,9 +261,9 @@
    ;; one source of momentum.
    (test (time-intervalp ?t))		;introduce ?t to save some typing
    (bind ?t1 (second ?t)) (bind ?t2 (third ?t)) ;get interval endpoints
-   (variable ?J-compo-var (at (compo ?xyz ?rot (impulse ?b ?agent)) ?t))
-   (variable ?pf-compo (at (compo ?xyz ?rot (momentum ?b)) ?t2))
-   (variable ?pi-compo (at (compo ?xyz ?rot (momentum ?b)) ?t1))
+   (variable ?J-compo-var (compo ?xyz ?rot (impulse ?b ?agent :time ?t)))
+   (variable ?pf-compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
+   (variable ?pi-compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
    ;; Add momentum components to list of variables.
    (bind ?eqn-compo-vars (list ?pi-compo ?pf-compo ?J-compo-var))
    )
@@ -309,7 +309,7 @@ impulse ~A." (?b def-np) (?t pp)))
   (
    (collision ?bodies ?t :type ?elastic-dont-care)
    (any-member ?quantity (
-			  (at (mag (impulse ?b1 ?b2)) ?t)
+			  (mag (impulse ?b1 ?b2 :time ?t))
                         ))
    (test (member ?b1 ?bodies :test #'equal)) 
    (test (member ?b2 ?bodies :test #'equal)) 
@@ -321,8 +321,8 @@ impulse ~A." (?b def-np) (?t pp)))
 
 (defoperator NTL-impulse (?b1 ?b2 ?t)
   :preconditions (
-  (variable ?mag1-var (at (mag (impulse ?b1 ?b2)) ?t))
-  (variable ?mag2-var (at (mag (impulse ?b2 ?b1)) ?t))
+  (variable ?mag1-var (mag (impulse ?b1 ?b2 :time ?t)))
+  (variable ?mag2-var (mag (impulse ?b2 ?b1 :time ?t)))
   )
   :effects (
     	(eqn (= ?mag1-var ?mag2-var) (NTL-impulse (?b2 ?b1) ?t)) 
@@ -343,8 +343,8 @@ impulse ~A." (?b def-np) (?t pp)))
 
 (defoperator NTL-impulse-vector-contains (?sought)
   :preconditions (
-   (any-member ?sought ( (at (mag(impulse ?b1 ?b2)) ?t)
-  		         (at (dir(impulse ?b1 ?b2)) ?t) ))
+   (any-member ?sought ( (mag (impulse ?b1 ?b2 :time ?t))
+  		         (dir (impulse ?b1 ?b2 :time ?t)) ))
    (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
    )
    :effects (
@@ -359,8 +359,8 @@ impulse ~A." (?b def-np) (?t pp)))
     ;; Draw both bodies. 
     (body ?b1)
     (body ?b2)
-    (vector ?b1 (at (impulse ?b1 ?b2) ?t) ?dir1)
-    (vector ?b2 (at (impulse ?b2 ?b1) ?t) ?dir2)
+    (vector ?b1 (impulse ?b1 ?b2 :time ?t) ?dir1)
+    (vector ?b2 (impulse ?b2 ?b1 :time ?t) ?dir2)
     ;; we need axis-for each body, since component defining operators will 
     ;; lookup axis-for principal body of each vector. Our operators that
     ;; draw axes only apply once, so there is no danger of drawing two
@@ -375,8 +375,8 @@ impulse ~A." (?b def-np) (?t pp)))
   
 (defoperator write-NTL-impulse-compo (?b1 ?b2 ?t ?xy ?rot)
    :preconditions (
-      (variable ?J12_xy (at (compo ?xy ?rot (impulse ?b1 ?b2)) ?t))
-      (variable ?J21_xy (at (compo ?xy ?rot (impulse ?b2 ?b1)) ?t))
+      (variable ?J12_xy (compo ?xy ?rot (impulse ?b1 ?b2 :time ?t)))
+      (variable ?J21_xy (compo ?xy ?rot (impulse ?b2 ?b1 :time ?t)))
    )
    :effects (
     (eqn (= ?J12_xy (- ?J21_xy)) (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t)))
@@ -412,8 +412,8 @@ impulse ~A." (?b def-np) (?t pp)))
    ;; their own axis.
    (origin ?origin) ;explicitly specify origin point
    (any-member ?sought (
-			(at (mag (relative-position ?b ?origin)) ?t) 
-			(at (dir (relative-position ?b ?origin)) ?t)
+			(mag (relative-position ?b ?origin :time ?t)) 
+			(dir (relative-position ?b ?origin :time ?t))
 			(mass ?b) 
 			))
    (test (or (member ?b ?bodies :test #'equal) (equal ?b ?com)))
@@ -442,10 +442,10 @@ impulse ~A." (?b def-np) (?t pp)))
    (foreach ?b ?bodies
 	    (body ?b))			;make object
    (foreach ?b ?bodies			;make position vector
-	    (vector ?b (at (relative-position ?b ?origin) ?t) ?dirb))
+	    (vector ?b (relative-position ?b ?origin :time ?t) ?dirb))
    (foreach ?b ?bodies 
 	    (axis-for ?b ?xyz ?rot))	;make axes
-   (vector ?com (at (relative-position ?com ?origin) ?t) ?dircom)
+   (vector ?com (relative-position ?com ?origin :time ?t) ?dircom)
    )
   :effects (
    (vector-diagram (center-of-mass ?com ?t))
@@ -456,10 +456,10 @@ impulse ~A." (?b def-np) (?t pp)))
   :preconditions 
   ( (in-wm (center-of-mass ?com ?bodies)) ;define objects for cm
     (origin ?origin) ;explicitly specify origin
-    (variable ?r-com-compo (at (compo ?xyz ?rot (relative-position ?com ?origin)) ?t))
+    (variable ?r-com-compo (compo ?xyz ?rot (relative-position ?com ?origin :time ?t)))
     ;; list of position variables
     (map ?b ?bodies
-	(variable ?r-compo-var (at (compo ?xyz ?rot (relative-position ?b ?origin)) ?t))
+	(variable ?r-compo-var (compo ?xyz ?rot (relative-position ?b ?origin :time ?t)))
 	?r-compo-var ?r-compo-vars)
     ;; list of mass variables
     (map ?b ?bodies

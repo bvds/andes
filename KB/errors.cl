@@ -96,33 +96,6 @@
 ;;;     "value" of this error-class iff it satisfies.  This too
 ;;;     is used for selection later on.
 ;;;
-;;; --------------------------------------------------------------------
-;;; Below is a sample error-handler along with its companion function:
-;;; 
-;;; (def-error-class variable-with-wrong-time (?descr ?stime ?ctime)
-;;;   ((student (define-var (at ?descr ?stime)))
-;;;    (correct (define-var (at ?descr ?ctime)))
-;;;    (test (not (equal ?stime ?ctime))))
-;;;   :utility .1)
-;;; 
-;;; (defun variable-with-wrong-time (descr stime ctime)
-;;;   (setq descr (nlg descr 'def-np))
-;;;   (setq stime (nlg stime 'pp))
-;;;   (setq ctime (nlg ctime 'pp))
-;;;   (make-hint-seq
-;;;    (list (format nil "Are you sure you want the variable defined ~a?" stime)
-;;; 	 (format nil (strcat "Although you need a variable for ~a, no "
-;;; 			     "solution I know of needs it ~a.  Clicking "
-;;; 			     "on the light bulb button will may help you "
-;;; 			     "figure out an overall solution plan.")
-;;; 		 descr stime)
-;;; 	 *dyi*
-;;; 	 (format nil "Define a variable for ~a ~a instead of ~a."
-;;; 		 descr ctime stime))))
-;;;
-;;; This is a general hint regarding variables with incorrect times.
-;;; Note that it has the defauilt probability .1 and an extremely low
-;;; utility.
 ;;;
 ;;; --------------------- Use of Error Classes ------------------------
 ;;; When Whats-Wrong-Help Andes2\Help\whatswrong.cl is called it will
@@ -268,27 +241,10 @@
 ;;; problem, then just say so.
 ;; First form matches time-dependent quantities:
 (def-error-class non-existent-variable (?type)
-  ((student (define-var (at (?type . ?sargs) ?stime)))
-   (no-correct (define-var (at (?type . ?cargs) ?ctime)))))
-
-(defun non-existent-variable (type)
-  (make-hint-seq
-   (list (format nil (strcat "Although you can always define a "
-			     "~a variable, none are needed for "
-			     "any solution I know of this problem.")
-		 (nlg type 'adj))
-	 (strcat "Click on the light bulb button or 'explain further' "
-		 "for suggestions on how to solve this problem.")
-	 '(function next-step-help))))
-
-;; variant for non-time-dependent quantities, for which type we
-;; need is first part of the quantity expression
-(def-error-class non-existent-variable2 (?type)
-  ((student (define-var (?type . ?sargs) ))
-   (test (not (eq ?type 'at))) ; since will match above
+  ((student (define-var (?type . ?sargs)))
    (no-correct (define-var (?type . ?cargs)))))
 
-(defun non-existent-variable2 (type)
+(defun non-existent-variable (type)
   (make-hint-seq
    (list (format nil (strcat "Although you can always define a "
 			     "~a variable, none are needed for "
@@ -301,8 +257,11 @@
 ;;; If the student defines a variable but not for a relevant time,
 ;;; then give a hint then bottom out.
 (def-error-class variable-with-wrong-time (?descr ?stime ?ctime)
-  ((student (define-var (at ?descr ?stime)))
-   (correct (define-var (at ?descr ?ctime)))
+  ((student (define-var (?descr . ?svar)))
+   (correct (define-var (?descr . ?cvar)))
+   (test (equal (remove-time ?svar) (remove-time ?cvar)))
+   (bind ?stime (time-of ?svar))
+   (bind ?ctime (time-of ?cvar))
    (test (not (equal ?stime ?ctime))))
   :utility .1)
 
@@ -367,9 +326,9 @@
 (def-error-class distance-travelled-wrong-body (?wrong-body 
 						?correct-body 
 						?time3)
-  ((student (define-var (at (distance ?wrong-body) ?time1)))
-   (no-correct (define-var (at (distance ?wrong-body) ?time2)))
-   (correct (define-var (at (distance ?correct-body) ?time3)))))
+  ((student (define-var (distance ?wrong-body :time ?time1)))
+   (no-correct (define-var (distance ?wrong-body :time ?time2)))
+   (correct (define-var (distance ?correct-body :time ?time3)))))
 
 (defun distance-travelled-wrong-body (wrong-body correct-body correct-time)
   (make-hint-seq
@@ -388,9 +347,9 @@
 ;;; displacement of that same body is correct.  We ignore the time.
 ;;; Test this on Exkt9a.
 (def-error-class distance-travelled-should-be-displacement (?body ?correct-time)
-  ((student (define-var (at (distance ?body) ?time1)))
-   (no-correct (define-var (at (distance ?body2) ?time2)))
-   (correct (vector (at (displacement ?body) ?correct-time) ?dir)))
+  ((student (define-var (distance ?body :time ?time1)))
+   (no-correct (define-var (distance ?body2 :time ?time2)))
+   (correct (vector (displacement ?body :time ?correct-time) ?dir)))
   :utility 100)
 
 (defun distance-travelled-should-be-displacement (body correct-time)
@@ -425,9 +384,9 @@
 ;;; interpretations where the student's time matches the correct time
 ;;; because this is probably a slip.
 (def-error-class wrong-body-speed (?sbody ?cbody)
-  ((student (define-var (at (speed ?sbody) ?stime)))
-   (no-correct (define-var (at (speed ?sbody) ?time2)))
-   (correct (define-var (at (speed ?cbody) ?ctime))))
+  ((student (define-var (speed ?sbody :time ?stime)))
+   (no-correct (define-var (speed ?sbody :time ?time2)))
+   (correct (define-var (speed ?cbody :time ?ctime))))
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -449,8 +408,8 @@
 ;;; body and time match is more probable than one where they do not
 ;;; match.  Test this on exkt9a.
 (def-error-class velocity-not-speed (?cbody ?ctime )
-  ((student (define-var (at (speed ?sbody) ?stime)))
-   (correct (vector (at (velocity ?cbody) ?ctime) ?dir)))
+  ((student (define-var (speed ?sbody :time ?stime)))
+   (correct (vector (velocity ?cbody :time ?ctime) ?dir)))
   :utility 100
   :probability
   (+ 0.1
@@ -468,7 +427,7 @@
 ;; On problems where wave-speed is defined...
 ;;
 (def-error-class wave-speed-not-speed (?medium)
-  ((student (define-var (at (speed ?sbody) ?stime)))
+  ((student (define-var (speed ?sbody :time ?stime)))
    (correct (define-var (wave-speed ?medium))))
   :utility 100
   :probability 0.3			;the body choice doesn't matter much
@@ -567,10 +526,10 @@
 ;;; need an energy variable of any time, then point and bottom out.
 ;;; Favor interpretations where the times match.
 (def-error-class wrong-body-energy (?energy-type ?sbody ?cbody)
-  ((student (define-var (at (?energy-type ?sbody) ?stime)))
+  ((student (define-var (?energy-type ?sbody :time ?stime)))
    (test (member ?energy-type '(total-energy kinetic-energy)))
-   (no-correct (define-var (at (?energy-type ?sbody) ?time2)))
-   (correct (define-var (at (?energy-type ?cbody) ?ctime))))
+   (no-correct (define-var (?energy-type ?sbody :time ?time2)))
+   (correct (define-var (?energy-type ?cbody :time ?ctime))))
   :probability
   (+ 0.1
      (if (equal ?stime ?ctime) 0.2 0.0)))
@@ -590,9 +549,9 @@
 
 ;; if the order of the body and agent wrong, according to Andes convention.
 (def-error-class wrong-order-potential-energy (?energy-type ?sbody ?sagent)
-  ((student (define-var (at (?energy-type ?sbody ?sagent) ?stime)))
+  ((student (define-var (?energy-type ?sbody ?sagent :time ?stime)))
    (test (member ?energy-type '(grav-energy spring-energy 'electric-energy)))
-   (correct (define-var (at (?energy-type ?sagent ?sbody) ?ctime))))
+   (correct (define-var (?energy-type ?sagent ?sbody :time ?ctime))))
   :utility 10   ; higher, we want students to learn this
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
@@ -608,11 +567,11 @@
 ;;; default utility, so wrong order should take precedence
 ;;; Also want to remind them of our definition convention.
 (def-error-class wrong-body-potential-energy (?energy-type ?sbody ?cbody)
-  ((student (define-var (at (?energy-type ?sbody ?agent) ?stime)))
+  ((student (define-var (?energy-type ?sbody ?agent :time ?stime)))
    (test (member ?energy-type '(grav-energy spring-energy)))
    (test (not (listp ?sbody)))  ; obsolete given WB/entry-API change
-   (no-correct (define-var (at (?energy-type ?sbody ?agent2) ?stime2)))
-   (correct (define-var (at (?energy-type ?cbody ?cagent) ?ctime))))
+   (no-correct (define-var (?energy-type ?sbody ?agent2 :time ?stime2)))
+   (correct (define-var (?energy-type ?cbody ?cagent :time ?ctime))))
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -629,10 +588,10 @@
 		 energy-type (nlg cbody 'def-np) (nlg sbody 'def-np)))))
 
 (def-error-class wrong-agent-for-energy (?energy-type ?sagent ?cagent ?body)
-  ((student    (define-var (at (?energy-type ?body ?sagent) ?stime)))
+  ((student    (define-var (?energy-type ?body ?sagent :time ?stime)))
    (test (member ?energy-type '(grav-energy spring-energy electric-energy)))
-   (no-correct (define-var (at (?energy-type ?body ?sagent) ?time2)))
-   (correct    (define-var (at (?energy-type ?body ?cagent) ?ctime)))))
+   (no-correct (define-var (?energy-type ?body ?sagent :time ?time2)))
+   (correct    (define-var (?energy-type ?body ?cagent :time ?ctime)))))
 
 (defun wrong-agent-for-energy (energy-type sagent cagent body)
   (make-hint-seq
@@ -652,9 +611,9 @@
 ;;; handled pretty bluntly.
 
 (def-error-class wrong-spring-compression-distance (?sspring ?cspring)
-  ((student (define-var (at (compression ?sspring) ?stime)))
-   (no-correct (define-var (at (compression ?sspring) ?time2)))
-   (correct (define-var (at (compression ?cspring) ?ctime))))
+  ((student (define-var (compression ?sspring :time ?stime)))
+   (no-correct (define-var (compression ?sspring :time ?time2)))
+   (correct (define-var (compression ?cspring :time ?ctime))))
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -715,9 +674,9 @@
 
 ;;; default case of wrong body
 (def-error-class wrong-body-for-height (?sbody ?cbody ) 
-  ((student (define-var (at (height ?sbody) ?stime)))
-   (no-correct (define-var (at (height ?sbody) ?time2)))
-   (correct (define-var (at (height ?cbody) ?ctime))))
+  ((student (define-var (height ?sbody :time ?stime)))
+   (no-correct (define-var (height ?sbody :time ?time2)))
+   (correct (define-var (height ?cbody :time ?ctime))))
   :probability
   (+ 0.1
      (if (equal ?stime ?ctime) 0.2 0.0)))
@@ -739,10 +698,10 @@
 ;;; might not specify a zero point, in which case this error-class
 ;;; will fail.
 (def-error-class height-over-a-time-interval (?body (during ?t1 ?t2) ?ctime)
-  ((student (define-var (at (height ?body) (during ?t1 ?t2))))
-   (correct (define-var (at (height ?body) ?ctime)))
+  ((student (define-var (height ?body :time (during ?t1 ?t2))))
+   (correct (define-var (height ?body :time ?ctime)))
    (test (time-pointp ?ctime))
-   (problem (given (at (height ?body) ?t-zero) (dnum 0 ?unit))))
+   (problem (given (height ?body :time ?t-zero) (dnum 0 ?unit))))
   :utility 100
   :probability
   (+ 0.1
@@ -790,7 +749,7 @@
 		 "get suggestions for how to solve this problem.")
 	 *dyi*
 	 (format nil "Define the moment-of-inertia ~a for ~a instead of ~a."
-		 (nlg ctime 'pp) (nlg cbody 'def-np)(nlg sbody 'def-np)))))
+		 (nlg ctime 'pp) (nlg cbody 'def-np) (nlg sbody 'def-np)))))
 	   
 
 ;;; ==================== radius of revolution ============================
@@ -806,9 +765,9 @@
 ;;; Andes' convention, which is to use the object that is moving.
 ;;; Test this with Exkr7a for laughs.
 (def-error-class wrong-body-radius-revolution (?sbody ?cbody ?ctime)
-  ((student (define-var (at (revolution-radius ?sbody) ?stime)))
-   (no-correct (define-var (at (revolution-radius ?sbody) ?time2)))
-   (correct (define-var (at (revolution-radius ?cbody) ?ctime))))
+  ((student (define-var (revolution-radius ?sbody :time ?stime)))
+   (no-correct (define-var (revolution-radius ?sbody :time ?time2)))
+   (correct (define-var (revolution-radius ?cbody :time ?ctime))))
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -846,7 +805,7 @@
 (def-error-class wrong-kind-of-radius (?body)
   ((student    (define-var (radius-of-circle ?body)))
    (no-correct (define-var (radius-of-circle ?body)))
-   (correct    (define-var (at (revolution-radius ?body) ?time))))
+   (correct    (define-var (revolution-radius ?body :time ?time))))
   :probability 0.3141  )
 
 (defun wrong-kind-of-radius (body)
@@ -868,10 +827,10 @@
 ;;; sure why the student might choose the wrong body, so the
 ;;; remediation here is rather generic.
 (def-error-class wrong-body-length-width (?type ?sbody ?cbody ?ctime)
-  ((student (define-var (at (?type ?sbody) ?stime)))
+  ((student (define-var (?type ?sbody :time ?stime)))
    (test (or (equal ?type 'length) (equal ?type 'width)))
-   (no-correct (define-var (at (?type ?sbody) ?time2)))
-   (correct (define-var (at (?type ?cbody) ?ctime))))
+   (no-correct (define-var (?type ?sbody :time ?time2)))
+   (correct (define-var (?type ?cbody :time ?ctime))))
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -894,9 +853,9 @@
 ;;; rotational problems.  I've generalized this to cover width,
 ;;; although that may never occur.
 (def-error-class length-should-be-rel-pos (?type ?point ?ref-point)
-  ((student (define-var (at (?type ?sbody) ?stime)))
+  ((student (define-var (?type ?sbody :time ?stime)))
    (test (or (equal ?type 'length) (equal ?type 'width)))
-   (correct (vector (at (relative-position ?point ?ref-point) ?ctime) ?cdir)))
+   (correct (vector (relative-position ?point ?ref-point :time ?ctime) ?cdir)))
   :utility 100
   :probability
   (+ 0.1
@@ -928,9 +887,9 @@
 ;;; step help.  This should also handle the case where they get the
 ;;; body and agent switched.
 (def-error-class wrong-body-for-work (?sbody ?cbody ?cagent)
-  ((student    (define-var (at (work ?sbody ?sagent) ?stime)))
-   (no-correct (define-var (at (work ?sbody ?agent2) ?time2)))
-   (correct    (define-var (at (work ?cbody ?cagent) ?ctime)))))
+  ((student    (define-var (work ?sbody ?sagent :time ?stime)))
+   (no-correct (define-var (work ?sbody ?agent2 :time ?time2)))
+   (correct    (define-var (work ?cbody ?cagent :time ?ctime)))))
 
 (defun wrong-body-for-work (sbody cbody cagent)
   (make-hint-seq
@@ -948,9 +907,9 @@
 ;;; If the student gets the body right but the agent wrong, then 
 ;;; teach when work gets done.
 (def-error-class wrong-agent-for-work (?sagent ?cagent ?body)
-  ((student    (define-var (at (work ?body ?sagent) ?stime)))
-   (no-correct (define-var (at (work ?body ?sagent) ?time2)))
-   (correct    (define-var (at (work ?body ?cagent) ?ctime)))))
+  ((student    (define-var (work ?body ?sagent :time ?stime)))
+   (no-correct (define-var (work ?body ?sagent :time ?time2)))
+   (correct    (define-var (work ?body ?cagent :time ?ctime)))))
 
 (defun wrong-agent-for-work (sagent cagent body)
   (make-hint-seq
@@ -971,9 +930,9 @@
 ;;; Default case of wrong body -- just like wrong body for individual
 ;;; work variables.  Test with Exwork3a or Exwork3b.
 (def-error-class wrong-body-net-work (?sbody ?cbody)
-  ((student    (define-var (at (net-work ?sbody) ?stime)))
-   (no-correct (define-var (at (net-work ?sbody) ?time2)))
-   (correct    (define-var (at (net-work ?cbody) ?ctime)))))
+  ((student    (define-var (net-work ?sbody :time ?stime)))
+   (no-correct (define-var (net-work ?sbody :time ?time2)))
+   (correct    (define-var (net-work ?cbody :time ?ctime)))))
 
 (defun wrong-body-net-work (sbody cbody)
   (make-hint-seq
@@ -1365,8 +1324,8 @@
 ;;; messages for these.
 
 (def-error-class default-should-be-unknown ()
-  ((student (vector (at ?descr ?time) ?dir))
-   (correct (vector (at ?descr ?time) unknown))
+  ((student (vector ?descr ?dir))
+   (correct (vector ?descr unknown))
    (test (not (equal ?dir 'unknown))))
 ;; High probability since close match
   :probability 0.75)
@@ -1385,8 +1344,8 @@
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
 (def-error-class default-should-be-z-unknown ()
-  ((student (vector (at ?descr ?time) ?dir))
-   (correct (vector (at ?descr ?time) z-unknown))
+  ((student (vector ?descr ?dir))
+   (correct (vector ?descr z-unknown))
    (test (not (equal ?dir 'z-unknown)))))
 
 (defun default-should-be-z-unknown ()
@@ -1409,8 +1368,8 @@
 ;;; default-wrong-dir doesn't apply on zero/non-zero error so leave with 
 ;;; default utility, lower than any special case zero/non-zero errors.
 (def-error-class default-should-be-zero ()
-  ((student (vector (at ?descr ?time) ?dir))
-   (correct (vector (at ?descr ?time) zero))
+  ((student (vector ?descr ?dir))
+   (correct (vector ?descr zero))
    (test (not (equal ?dir 'zero)))))
 
 (defun default-should-be-zero ()
@@ -1426,8 +1385,8 @@
 	 )))
 
 (def-error-class default-should-be-non-zero ()
-  ((student (vector (at ?descr ?time) zero))
-   (correct (vector (at ?descr ?time) ?dir))
+  ((student (vector ?descr zero))
+   (correct (vector ?descr ?dir))
    (test (not (equal ?dir 'zero)))))
 
 (defun default-should-be-non-zero ()
@@ -1443,8 +1402,8 @@
 ;;; (ref Pitt non-eqn 4-17) If the student's vector is correct except
 ;;; for the angle, then just point that out.  This is the default case.
 (def-error-class default-wrong-vector-dir (?wrong-dir ?correct-dir)
-  ((student (vector (at ?descr ?time) ?wrong-dir))
-   (correct (vector (at ?descr ?time) ?correct-dir))
+  ((student (vector ?descr ?wrong-dir))
+   (correct (vector ?descr ?correct-dir))
    (test (not (equal ?wrong-dir 'zero))) ; either zero handled above
    (test (not (equal ?correct-dir 'zero)))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
@@ -1473,8 +1432,11 @@
 ;;; early on when vectors are being drawn.  So the WW help is just to
 ;;; point, then bottom out.
 (def-error-class vector-time (?descr ?bad-time ?good-time)
-  ((student (vector (at ?descr ?bad-time) ?dir))
-   (correct (vector (at ?descr ?good-time) ?dir))
+  ((student (vector (?descr . ?b1) ?dir))
+   (correct (vector (?descr . ?b2) ?dir))
+   (bind ?bad-time (time-of ?b1))
+   (bind ?good-time (time-of ?b2))
+   (test (equal (remove-time ?b1) (remove-time ?b2)))
    (test (not (equal ?bad-time ?good-time)))))
 
 (defun vector-time (descr bad-time good-time)
@@ -1497,8 +1459,11 @@
 ;;; the time intervals of the whole analysis.  This has somewhat
 ;;; higher utility than the default wrong-time error class.
 (def-error-class vector-time-inside-correct-time (?descr ?wrong-time ?correct-time)
-  ((student (vector (at ?descr ?wrong-time) ?dir))
-   (correct (vector (at ?descr ?correct-time) ?dir))
+  ((student (vector (?descr . ?b1) ?dir))
+   (correct (vector (?descr . ?b2) ?dir))
+   (bind ?wrong-time (time-of ?b1))
+   (bind ?correct-time (time-of ?b2))
+   (test (equal (remove-time ?b1) (remove-time ?b2)))
    (test (and (tinsidep-include-endpoints  ?wrong-time ?correct-time)
 	      (not (equal ?wrong-time ?correct-time)))))
   :utility 10)
@@ -1521,10 +1486,14 @@
 ;;; necessary for the logic, as the no-correct conditions will prevent
 ;;; this from firing when only one of the two slots is wrong.
 (def-error-class vector-wrong-time-and-direction (?descr ?stime ?ctime ?sdir ?cdir)
-  ((student (vector (at ?descr ?stime) ?sdir))
-   (correct (vector (at ?descr ?ctime) ?cdir))
-   (no-correct (vector (at ?descr ?stime) ?dir2))
-   (no-correct (vector (at ?descr ?time2) ?sdir)))
+  ((student (vector (?descr . ?b1) ?sdir))
+   (bind ?stime (time-of ?b1))
+   (correct (vector (?descr . ?b2) ?cdir))
+   (bind ?ctime (time-of ?b2))
+   (test (equal (remove-time ?b1) (remove-time ?b2)))
+   (no-correct (vector (?descr . ?b1) ?dir2))
+   (bind ?b4 (set-time ?b1 ?anytime))
+   (no-correct (vector (?descr . ?b4) ?sdir)))
   :probability 0.01)
 
 (defun vector-wrong-time-and-direction (descr stime ctime sdir cdir)
@@ -1546,8 +1515,8 @@
 ;;; default in case everything but body matches some correct vector
 ;;; high probability since close match
 (def-error-class default-wrong-body (?cbody ?sbody)
- ((student (vector (at (?vector-type ?sbody . ?sargs) ?stime) ?sdir))
-   (correct (vector (at (?vector-type ?cbody . ?sargs) ?stime) ?sdir))
+ ((student (vector (?vector-type ?sbody . ?sargs) ?sdir))
+   (correct (vector (?vector-type ?cbody . ?sargs) ?sdir))
    (test (not (equal ?sbody ?cbody)))
    ; first arg of field vectors is a location, not a body
    (test (not (eq ?vector-type 'field)))
@@ -1569,9 +1538,9 @@
 ;;; ignored slots match. Note this only handles case of "wild" body
 ;;; choice such that no correct vector with this body. 
 (def-error-class default-vector-body (?cbody ?sbody)
-  ((student (vector (at (?vector-type ?sbody . ?sargs) ?stime) ?sdir))
-   (no-correct (vector (at (?vector-type ?sbody . ?args2) ?time2) ?dir2))
-   (correct (vector (at (?vector-type ?cbody . ?cargs) ?ctime) ?cdir)))
+  ((student (vector (?vector-type ?sbody . ?sargs) ?sdir))
+   (no-correct (vector (?vector-type ?sbody . ?args2) ?dir2))
+   (correct (vector (?vector-type ?cbody . ?cargs) ?cdir)))
   :probability
   (+ 0.1 
      (if (equal ?sargs ?cargs) 0.2 0.0)
@@ -1591,8 +1560,8 @@
 ;;; On some problems, the student's vector just doesn't appear in any solution.
 ;;; There are two special cases for this below.
 (def-error-class default-non-existent-vector (?vector-type)
-  ((student (vector (at (?vector-type . ?sargs) ?stime) ?sdir))
-   (no-correct (vector (at (?vector-type . ?cargs) ?ctime) ?cdir))
+  ((student (vector (?vector-type . ?sargs) ?sdir))
+   (no-correct (vector (?vector-type . ?cargs) ?cdir))
    (test (not (equal ?vector-type 'force))))
   :probability 0.001)
 
@@ -1610,9 +1579,9 @@
 ;;; it would be inappropriate to tell the student that there are no force 
 ;;; vectors in the problem solution.  
 (def-error-class default-non-existent-force-vector (?type)
-  ((student (vector (at (force ?body ?agent ?type) ?stime) ?sdir))
-   (no-correct (vector (at (force ?body ?nagent ?ntype) ?ntime) ?ndir))
-   (correct (vector (at (net-force ?net-body) ?net-time) ?net-dir)))
+  ((student (vector (force ?body ?agent ?type . ?s-args) ?sdir))
+   (no-correct (vector (force ?body . ?n-args) ?ndir))
+   (correct (vector (net-force . ?net-args) ?net-dir)))
   :probability 0.002)
 
 (defun default-non-existent-force-vector (type)
@@ -1630,9 +1599,9 @@
 ;;; handled by the general vector code, so this is all special cases.
 
 (def-error-class speed-not-velocity (?body )
-  ((student    (vector (at (velocity ?body) ?wrong-time) ?dir))
-   (no-correct (vector (at (velocity ?body) ?time2)      ?dir2))
-   (correct (define-var (at (speed ?body) ?time))))
+  ((student    (vector (velocity ?body :time ?wrong-time) ?dir))
+   (no-correct (vector (velocity ?body :time ?time2)      ?dir2))
+   (correct (define-var (speed ?body :time ?time))))
   :utility 100)
 
 (defun speed-not-velocity (body)
@@ -1646,8 +1615,8 @@
 ;;; then just prompt and bottom out.  This has slightly higher utility
 ;;; than the default wrong-direction error class.
 (def-error-class velocity-should-be-non-zero (?body ?time)
-  ((student (vector (at (velocity ?body) ?time) zero))
-   (correct (vector (at (velocity ?body) ?time) ?dir))
+  ((student (vector (velocity ?body :time ?time) zero))
+   (correct (vector (velocity ?body :time ?time) ?dir))
    (test (not (equal ?dir 'zero))))
   :utility 10)
 
@@ -1667,9 +1636,9 @@
 ;;; how to draw a zero-length vector.  This has higher utility than
 ;;; the default wrong-direction error class.
 (def-error-class velocity-should-be-zero (?body ?time)
-    ((student (vector (at (velocity ?body) ?time) ?dir))
+    ((student (vector (velocity ?body :time ?time) ?dir))
      (test (not (equal ?dir 'zero)))
-     (correct (vector (at (velocity ?body) ?time) zero)))
+     (correct (vector (velocity ?body :time ?time) zero)))
     :utility 25)
 
 (defun velocity-should-be-zero (body time)
@@ -1694,10 +1663,10 @@
 ;;; student draws the acceleration in the opposite direciton, then the
 ;;; need a lesson on deceleration.  Common misconception.
 (def-error-class deceleration-bug (?body ?sdir ?cdir)
-  ((student (vector (at (accel ?body) ?time) ?sdir))
+  ((student (vector (accel ?body :time ?time) ?sdir))
    (test (dimensioned-numberp ?sdir)) ; not 'zero 'unknown or other atom 
    (bind ?cdir (opposite ?sdir))
-   (correct (vector (at (accel ?body) ?time) ?cdir))
+   (correct (vector (accel ?body :time ?time) ?cdir))
    (problem (motion ?body ?time (straight slow-down ?dontcare))))
   :utility 100)
 
@@ -1726,9 +1695,9 @@
 ;;; about displacement), it is probably okay to use their time and body
 ;;; specification in the bottom out hint, as long as it is correct.
 (def-error-class use-distance-instead-of-displacement (?cbody ?ctime)
-  ((student (vector (at (displacement ?sbody) ?stime) ?dir))
-   (no-correct (vector (at (displacement ?body2) ?time2) ?dir2))
-   (correct (define-var (at (distance ?cbody) ?ctime))))
+  ((student (vector (displacement ?sbody :time ?stime) ?dir))
+   (no-correct (vector (displacement ?body2 :time ?time2) ?dir2))
+   (correct (define-var (distance ?cbody :time ?ctime))))
   :utility 40
   :probability
   (+ 0.1
@@ -1749,9 +1718,9 @@
 ;;; being used over that time interval.  If so, it prefers a correct
 ;;; time that matches one of the times in the displacement definition.
 (def-error-class use-height-instead-of-displacement (?body ?ctime)
-  ((student (vector (at (displacement ?body) (during ?st1 ?st2)) ?dir))
-   (no-correct (vector (at (displacement ?body) (during ?st1 ?st2)) ?dir2))
-   (correct (define-var (at (height ?body) ?ctime))))
+  ((student (vector (displacement ?body :time (during ?st1 ?st2)) ?dir))
+   (no-correct (vector (displacement ?body :time (during ?st1 ?st2)) ?dir2))
+   (correct (define-var (height ?body :time ?ctime))))
   :utility 40
   :probability
   (+ 0.1
@@ -1788,10 +1757,10 @@
 ;;; displacement as change in height confusion.
 
 (def-error-class displacement-as-hieght-change-bug (?body ?stime ?etime)
-  ((student (vector (at (displacement ?body) (during ?stime ?etime)) ?dir))
-   (no-correct (vector (at (displacement ?body) (during ?stime ?etime)) ?dir2))
-   (old-student (define-var (at (height ?body) ?stime)))
-   (old-student (define-var (at (height ?body) ?etime))))
+  ((student (vector (displacement ?body :time (during ?stime ?etime)) ?dir))
+   (no-correct (vector (displacement ?body :time (during ?stime ?etime)) ?dir2))
+   (old-student (define-var (height ?body :time ?stime)))
+   (old-student (define-var (height ?body :time ?etime))))
   :utility 80)
 
 (defun displacement-as-hieght-change-bug (body starttime endtime)
@@ -1823,8 +1792,8 @@
 ; not on whole rigid body, if point of application matters. Applies if
 ; everything else is correct, so want very high EU.
 (def-error-class force-on-whole-not-pt (?cbody ?sbody)
- ( (student (vector (at (force ?sbody ?agent ?type) ?time) ?dir))
-   (correct (vector (at (force ?cbody ?agent ?type) ?time) ?dir))
+ ( (student (vector (force ?sbody ?agent ?type :time ?time) ?dir))
+   (correct (vector (force ?cbody ?agent ?type :time ?time) ?dir))
    (problem (part-of ?cbody ?sbody)))
   :probability 0.9
   :utility 100)
@@ -1841,9 +1810,9 @@
 ;;; If the student gets the body and type right but the agent wrong,
 ;;; then teach them the force-is-an-interaction concept.
 (def-error-class force-wrong-agent (?body ?sagent ?cagent ?ctime ?type)
-  ((student (vector (at (force ?body ?sagent ?type) ?stime) ?sdir))
-   (no-correct (vector (at (force ?body ?sagent ?type) ?time2) ?dir2))
-   (correct (vector (at (force ?body ?cagent ?type) ?ctime) ?cdir)))
+  ((student (vector (force ?body ?sagent ?type :time ?stime) ?sdir))
+   (no-correct (vector (force ?body ?sagent ?type :time ?time2) ?dir2))
+   (correct (vector (force ?body ?cagent ?type :time ?ctime) ?cdir)))
   :probability
   (+ 0.1
 	(if (equal ?stime ?ctime) 0.2 0.0)
@@ -1876,9 +1845,9 @@
 ;;; is a net force.  These handlers might be set at a probability just
 ;;; above the no vectors on object rule.
 (def-error-class no-forces-on-body (?body)
-  ((student (vector (at (force ?body ?agent ?type) ?time) ?dir))
-   (no-correct (vector (at (force ?body ?ncagent ?nctype) ?nctime) ?ncdir))
-   (no-correct (vector (at (net-force ?body) ?ntime) ?ndir)))
+  ((student (vector (force ?body ?agent ?type :time ?time) ?dir))
+   (no-correct (vector (force ?body ?ncagent ?nctype :time ?nctime) ?ncdir))
+   (no-correct (vector (net-force ?body :time ?ntime) ?ndir)))
   :probability 0.005)
 
 (defun no-forces-on-body (body)
@@ -1889,9 +1858,9 @@
 ;;; In the situation (such as Exdt5a) where no single forces are 
 ;;; defines on a body but the net foce is.
 (def-error-class net-force-only-on-body (?body ?net-time ?net-dir)
-  ((student (vector (at (force ?body ?agent ?type) ?time) ?dir))
-   (no-correct (vector (at (force ?body ?nagent ?ntype) ?ntime) ?ndir))
-   (correct (vector (at (net-force ?body) ?net-time) ?net-dir)))
+  ((student (vector (force ?body ?agent ?type :time ?time) ?dir))
+   (no-correct (vector (force ?body ?nagent ?ntype :time ?ntime) ?ndir))
+   (correct (vector (net-force ?body :time ?net-time) ?net-dir)))
   :probability 0.01)
 
 
@@ -1929,9 +1898,9 @@
 ;;; interpretation often competes with the wrong-agent one.  It has higher 
 ;;; probability.
 (def-error-class wrong-force-type-single (?body ?agent ?stype ?ctype)
-  ((student (vector (at (force ?body ?agent ?stype) ?stime) ?sdir))
-   (no-correct (vector (at (force ?body ?agent ?stype) ?time2) ?dir2))
-   (correct (vector (at (force ?body ?agent ?ctype) ?ctime) ?cdir)))
+  ((student (vector (force ?body ?agent ?stype :time ?stime) ?sdir))
+   (no-correct (vector (force ?body ?agent ?stype :time ?time2) ?dir2))
+   (correct (vector (force ?body ?agent ?ctype :time ?ctime) ?cdir)))
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
@@ -1956,12 +1925,12 @@
 ;;; and if ?ctype1 is either a kinetic or static friction vector.
 ;;; and if ?ctype2 is either normal or applied. 
 (def-error-class wrong-force-type-dual-undone (?body ?agent ?stype ?frict-type ?force-type)
-  ((student (vector (at (force ?body ?agent ?stype) ?stime) ?sdir))    
-   (no-correct (vector (at (force ?body ?agent ?stype) ?time2) ?dir2))
+  ((student (vector (force ?body ?agent ?stype :time ?stime) ?sdir))    
+   (no-correct (vector (force ?body ?agent ?stype :time ?time2) ?dir2))
    (any-member ?frict-type '(kinetic-friction static-friction))
-   (correct-nointent (vector (at (force ?body ?agent ?frict-type) ?ctime) ?frict-dir))
+   (correct-nointent (vector (force ?body ?agent ?frict-type :time ?ctime) ?frict-dir))
    (any-member ?force-type '(applied normal))
-   (correct-nointent (vector (at (force ?body ?agent ?force-type) ?ctime) ?force-dir)))
+   (correct-nointent (vector (force ?body ?agent ?force-type :time ?ctime) ?force-dir)))
    
   :probability
   (+ 0.3
@@ -1995,12 +1964,12 @@
 ;;; error classes below handle the possibilities.
 (def-error-class wrong-force-type-dual-frict-done 
     (?body ?agent ?stype ?ctime ?frict-type ?force-type ?force-dir)
-  ((student (vector (at (force ?body ?agent ?stype) ?stime) ?sdir))    
-   (no-correct (vector (at (force ?body ?agent ?stype) ?time2) ?dir2))
+  ((student (vector (force ?body ?agent ?stype :time ?stime) ?sdir))    
+   (no-correct (vector (force ?body ?agent ?stype :time ?time2) ?dir2))
    (any-member ?frict-type '(kinetic-friction static-friction))
-   (old-student (vector (at (force ?body ?agent ?frict-type) ?ctime) ?frict-dir))
+   (old-student (vector (force ?body ?agent ?frict-type :time ?ctime) ?frict-dir))
    (any-member ?force-type '(applied normal))
-   (correct (vector (at (force ?body ?agent ?force-type) ?ctime) ?force-dir)))
+   (correct (vector (force ?body ?agent ?force-type :time ?ctime) ?force-dir)))
   
   :probability
   (+ 0.3
@@ -2030,12 +1999,12 @@
 
 (def-error-class wrong-force-type-dual-other-done 
     (?body ?agent ?stype ?ctime ?frict-type ?frict-dir ?force-type)
-  ((student (vector (at (force ?body ?agent ?stype) ?stime) ?sdir))    
-   (no-correct (vector (at (force ?body ?agent ?stype) ?time2) ?dir2))
+  ((student (vector (force ?body ?agent ?stype :time ?stime) ?sdir))    
+   (no-correct (vector (force ?body ?agent ?stype :time ?time2) ?dir2))
    (any-member ?frict-type '(kinetic-friction static-friction))
-   (correct (vector (at (force ?body ?agent ?frict-type) ?ctime) ?frict-dir))
+   (correct (vector (force ?body ?agent ?frict-type :time ?ctime) ?frict-dir))
    (any-member ?force-type '(applied normal))
-   (old-student (vector (at (force ?body ?agent ?force-type) ?ctime) ?force-dir)))
+   (old-student (vector (force ?body ?agent ?force-type :time ?ctime) ?force-dir)))
   
   :probability
   (+ 0.3
@@ -2072,12 +2041,12 @@
 ;;; has not yet been drawn so that the bottom out hint will at least
 ;;; make sense.  This is pretty lousy help, so it gets low utility.
 (def-error-class wrong-force-agent-and-type (?body ?sagent ?cagent ?stype ?ctype)
-  ((student (vector (at (force ?body ?sagent ?stype) ?stime) ?sdir))
+  ((student (vector (force ?body ?sagent ?stype :time ?stime) ?sdir))
    ;; no force with student's agent
-   (no-correct (vector (at (force ?body ?sagent ?type2) ?time2) ?dir2)) 
+   (no-correct (vector (force ?body ?sagent ?type2 :time ?time2) ?dir2)) 
    ;; no force with student's type
-   (no-correct (vector (at (force ?body ?agent3 ?stype) ?time3) ?dir3)) 
-   (correct (vector (at (force ?body ?cagent ?ctype) ?ctime) ?cdir)))
+   (no-correct (vector (force ?body ?agent3 ?stype :time ?time3) ?dir3)) 
+   (correct (vector (force ?body ?cagent ?ctype :time ?ctime) ?cdir)))
   :utility 0.1 
   :probability
   (+ 0.3
@@ -2107,8 +2076,8 @@
 ;;; about weight.  This error interpretation will not have a correct
 ;;; system entry.
 (def-error-class weight-due-to-object (?object ?planet)
-  ((student (vector (at (force ?object ?object weight) ?stime) ?dir))
-   (correct (vector (at (force ?body ?planet weight) ?ctime) ?cdir)))
+  ((student (vector (force ?object ?object weight :time ?stime) ?dir))
+   (correct (vector (force ?body ?planet weight :time ?ctime) ?cdir)))
   :utility 200)
 
 (defun weight-due-to-object (object planet)
@@ -2150,8 +2119,8 @@
    ;;; define only net force and not individual force, must add the
    ;;; correct clause to prevent this from applying.
    (def-error-class same-body-and-agent-of-a-force (?object)
-   ((student (vector (at (force ?object ?object ?type) ?time) ?dir))
-   (correct (vector (at (force ?cbody ?cagent ?ctype) ?ctime) ?cdir)))
+   ((student (vector (force ?object ?object ?type :time ?time) ?dir))
+   (correct (vector (force ?cbody ?cagent ?ctype :time ?ctime) ?cdir)))
    :utility 100)
    (defun same-body-and-agent-of-a-force (object)
    (setq object (nlg object 'def-np))
@@ -2166,9 +2135,9 @@
    |#
 
 (def-error-class same-body-and-agent-of-a-force-no-net (?object)
-   ((student (vector (at (force ?object ?object ?type) ?time) ?dir))
-    (correct (vector (at (force ?cbody ?cagent ?ctype) ?ctime) ?cdir))
-    (no-correct (vector (at (net-force ?net-body) ?net-time) ?net-accel)))
+   ((student (vector (force ?object ?object ?type :time ?time) ?dir))
+    (correct (vector (force ?cbody ?cagent ?ctype :time ?ctime) ?cdir))
+    (no-correct (vector (net-force ?net-body :time ?net-time) ?net-accel)))
    :utility 100)
 
 (defun same-body-and-agent-of-a-force-no-net (object)
@@ -2183,8 +2152,8 @@
    
 
 (def-error-class same-body-and-agent-of-a-force-net-ok (?object)
-  ((student (vector (at (force ?object ?object ?type) ?time) ?dir))
-   (correct-nointent (vector (at (net-force ?object) ?net-time) ?net-accel)))
+  ((student (vector (force ?object ?object ?type :time ?time) ?dir))
+   (correct-nointent (vector (net-force ?object :time ?net-time) ?net-accel)))
   :utility 150)
 
 (defun same-body-and-agent-of-a-force-net-ok (object)
@@ -2204,9 +2173,9 @@
 ;;; give it the normal type, then first hint, then explain about
 ;;; normals, then bottom out.
 (def-error-class normal-force-mistyped (?badtype)
-  ((student (vector (at (force ?body ?surface ?badtype) ?time) ?dir))
+  ((student (vector (force ?body ?surface ?badtype :time ?time) ?dir))
    (test (not (equal ?badtype 'normal)))
-   (correct (vector (at (force ?body ?surface normal) ?time) ?dir)))
+   (correct (vector (force ?body ?surface normal :time ?time) ?dir)))
   :utility 100)
 
 (defun normal-force-mistyped (badtype)
@@ -2226,8 +2195,8 @@
 ;;; is correct except that the body and agent are switched, then they
 ;;; may be confused about the third law or have just make a slip.
 (def-error-class switched-objects-for-force (?sbody ?sagent)
-  ((student (vector (at (force ?sbody ?sagent ?type) ?stime) ?sdir))
-   (correct (vector (at (force ?sagent ?sbody ?type) ?stime) ?sdir)))
+  ((student (vector (force ?sbody ?sagent ?type :time ?stime) ?sdir))
+   (correct (vector (force ?sagent ?sbody ?type :time ?stime) ?sdir)))
   :utility 100)
 
 (defun switched-objects-for-force (sbody sagent)
@@ -2247,8 +2216,8 @@
 ;;; Special case: If the student draws a normal force straight up when its direction
 ;;; should be tilted, then teach them about normal force directions.
 (def-error-class normal-force-direction (?body ?surface ?dir)
-  ((student (vector (at (force ?body ?surface normal) ?time) (dnum 90 |deg|)))
-   (correct (vector (at (force ?body ?surface normal) ?time) ?dir))
+  ((student (vector (force ?body ?surface normal :time ?time) (dnum 90 |deg|)))
+   (correct (vector (force ?body ?surface normal :time ?time) ?dir))
    (test (not (equal ?dir '(dnum 90 |deg|)))))
   :utility 100)
 (defun normal-force-direction (body surface dir)
@@ -2268,9 +2237,9 @@
 ;;; Special case: (ref pitt 1-35-23) Friction forces should
 ;;; always be parallel to the surface.
 (def-error-class friction-force-not-parallel (?sdir ?cdir)
-  ((student (vector (at (force ?body ?surface ?type) ?time) ?sdir))
+  ((student (vector (force ?body ?surface ?type :time ?time) ?sdir))
    (test (member ?type '(static-friction kinetic-friction)))
-   (correct (vector (at (force ?body ?surface ?type) ?time) ?cdir))
+   (correct (vector (force ?body ?surface ?type :time ?time) ?cdir))
    (test (not (equal ?sdir ?cdir)))
    (test (not (parallelp ?sdir ?cdir))))
   :utility 100)
@@ -2286,8 +2255,8 @@
 
 ;;; Special case: Static friction opposes the direction of relative motion
 (def-error-class static-friction-force-sense (?sdir ?cdir)
-  ((student (vector (at (force ?body ?surface static-friction) ?time) ?sdir))
-   (correct (vector (at (force ?body ?surface static-friction) ?time) ?cdir))
+  ((student (vector (force ?body ?surface static-friction :time ?time) ?sdir))
+   (correct (vector (force ?body ?surface static-friction :time ?time) ?cdir))
    (test (not (equal ?sdir ?cdir)))
    (test (parallelp ?sdir ?cdir)))
   :utility 100)
@@ -2306,8 +2275,8 @@
 
 ;;; Special case: Kinetic friction opposes the direction of relative motion
 (def-error-class kinetic-friction-force-sense (?sdir ?cdir)
-  ((student (vector (at (force ?body ?surface kinetic-friction) ?time) ?sdir))
-   (correct (vector (at (force ?body ?surface kinetic-friction) ?time) ?cdir))
+  ((student (vector (force ?body ?surface kinetic-friction :time ?time) ?sdir))
+   (correct (vector (force ?body ?surface kinetic-friction :time ?time) ?cdir))
    (test (not (equal ?sdir ?cdir)))
    (test (parallelp ?sdir ?cdir)))
   :utility 100)
@@ -2332,7 +2301,7 @@
 ;;; certain body and time, Andes will not use net force in its
 ;;; solution.  This is a pretty common error.
 (def-error-class net-force-not-used (?sbody ?stime)
-  ((student (vector (at (net-force ?sbody) ?stime) ?sdir))
+  ((student (vector (net-force ?sbody :time ?stime) ?sdir))
    (problem (forces ?sbody ?stime ?set)))
   :utility 100
   :probability 0.5)
@@ -2355,8 +2324,8 @@
 ;;; non-zero, and the body is moving in a straight line, then point,
 ;;; teach and bottom out.
 (def-error-class net-force-straight (?body ?time ?speed-up-or-slow-down )
-  ((student (vector (at (net-force ?body) ?time) zero))
-   (correct (vector (at (net-force ?body) ?time) ?dir1))
+  ((student (vector (net-force ?body :time ?time) zero))
+   (correct (vector (net-force ?body :time ?time) ?dir1))
    (test (not (equal ?dir1 'zero)))
    (problem (motion ?body ?time (straight ?speed-up-or-slow-down ?dir2))))
   :utility 100)
@@ -2402,9 +2371,11 @@
 ;;; time and direction).  Has to have a high enough utility to
 ;;; over-ride the default wrong-body for general vectors.
 (def-error-class wrong-applied-pt-torque (?spt ?cpt)
-  ((student    (vector (at (torque ?sbody ?spivot (force ?spt . ?junk1)) ?stime) ?sdir))
-   (no-correct (vector (at (torque ?body2 ?pivot2 (force ?spt . ?junk2)) ?time2) ?dir2)) ; no torque at ?spt
-   (correct    (vector (at (torque ?cbody ?cpivot (force ?cpt . ?junk3)) ?ctime) ?cdir)))
+  ((student    (vector (torque ?sbody ?spivot (force ?spt . ?junk1)) ?sdir))
+   (bind ?stime (time-of ?junk1))
+   (no-correct (vector (torque ?body2 ?pivot2 (force ?spt . ?junk2)) ?dir2)) ; no torque at ?spt
+   (correct    (vector (torque ?cbody ?cpivot (force ?cpt . ?junk3)) ?cdir))
+   (bind ?ctime (time-of ?junk3)))
   :utility 10
   :probability
   (+ 0.1 
@@ -2428,9 +2399,9 @@
 ;;; default case for a correct applied point but a wrong axis point.
 ;;; Probably a user-interface confusion, so handled it bluntly.
 (def-error-class wrong-pivot-pt-torque (?spt ?cpt ?body)
-  ((student    (vector (at (torque ?body ?spt (force ?pt ?agt ?type)) ?stime) ?sdir))
-   (no-correct (vector (at (torque ?body ?spt (force ?pt ?ag2 ?typ2)) ?time2) ?dir2)) ;no torque for student's 2 pts
-   (correct    (vector (at (torque ?body ?cpt (force ?pt ?agt ?type)) ?ctime) ?cdir)))
+  ((student    (vector (torque ?body ?spt (force ?pt ?agt ?type :time ?stime)) ?sdir))
+   (no-correct (vector (torque ?body ?spt (force ?pt ?ag2 ?typ2 :time ?time2)) ?dir2)) ;no torque for student's 2 pts
+   (correct    (vector (torque ?body ?cpt (force ?pt ?agt ?type3 :time ?ctime)) ?cdir)))
   :utility 10
   :probability
   (+ 0.1
@@ -2449,7 +2420,7 @@
 
 
 ;;; =============== Sums of torque =================================
-;;; In the case of some torque problems *cough* Extor7a *cough* it
+;;; In the case of some torque problems *cough* tor7a *cough* it
 ;;; is necessary or at least useful for the studets to define a sum 
 ;;; of torque forces such as "$t_l_end + $t_r_end + $t_cm = 0" if 
 ;;; they leave out one of the torque forces then the system should
@@ -2465,7 +2436,8 @@
    (test (sum-p ?sum))			; Ensure that the expression is a sum.
    (problem (torques ?body ?axis ?time ?correct-torques)) ; ensure that the problem has torques.
    
-   (bind ?student-torques (torques-in-sum ?sum ?body ?time)) ; Get the torqes from the eqn
+   ;; Get the torqes from the eqn
+   (bind ?student-torques (torques-in-sum ?sum ?body ?time)) 
    (test (not (null ?student-torques)))	; ensure that there are torques.
    
    (bind ?missing-torques		; Then determine what torques are missing. 
@@ -2495,15 +2467,15 @@
 ;;; draw it.  Else we hint them to draw the set of torques that
 ;;; they have forgotten.
 (defun missing-torques-in-z-axis-sum (time missing-torques)
-  (let ((undrawn-torques (undrawn-vectors time missing-torques)))
+  (let ((undrawn-torques (undrawn-vectors missing-torques)))
     (cond ((null undrawn-torques)	; only hint drawn forces if there are no undrawn ones
 	   (hint-drawn-forces (set-difference missing-torques undrawn-torques :test #'equal)))
 	  ((null (cdr undrawn-torques))	; only one undrawn force to hint
 	   (hint-undrawn-force 
-	    "There is a force acting on ~a ~a that you have not yet drawn."
+	    "There is a torque acting on ~a ~a that you have not yet drawn."
 	    time (car undrawn-torques)))
 	  (t (hint-undrawn-force	; Hint all of the undrawn ones.
-	      "Two or more forces acting on ~a ~a have not yet been drawn."
+	      "Two or more torques acting on ~a ~a have not yet been drawn."
 	      time (car undrawn-torques))))))
 
 
@@ -2516,9 +2488,9 @@
   "Get the compo-sysvars for the torques (always z, 0)."
   (loop for vec in torques
       collect (quant-to-sysvar 
-	       (vector-at-spec 
+	       (set-time 
 		(vector-compo-spec vec :axis 'z :rot 0)
-		:time time))))
+		time))))
 	   
 ;;; Given a set of torque vectors such as 
 ;;; (TORQUE BEAM PIVOT (FORCE R_END UNSPECIFIED APPLIED))
@@ -2529,7 +2501,7 @@
   (loop for v in torques
       with at
       do (setq at (match-exp->qvar 
-		   (vector-at-spec (vector-mag v) :time time) 
+		   `(mag ,(set-time v time))
 		   (problem-varindex *cp*)))
       unless (or (null at) 
 		 (null (qvar-value at))
@@ -2550,9 +2522,9 @@
 ;;; of a catch in case a non-torque is found and non-torques-ok is nil  
 ;;; in that instance it will return the nil that it gains.
 (defun torques-in-sum (sum &optional (body '?body) (time '?time) (non-torques-ok nil))
-  (let ((comp-pattern `(at (compo Z 0 (torque ,body ?axis ?force)) ,time))
-	(mag-pattern `(at  (mag (torque ,body ?axis ?force)) ,time))
-	(torque-pattern `(torque ,body ?axis ?force)))
+  (let ((comp-pattern `(compo Z 0 (torque ,body ?axis ?force :time ,time)))
+	(mag-pattern `(mag (torque ,body ?axis ?force :time ,time)))
+	(torque-pattern `(torque ,body ?axis ?force :time ,time)))
     (catch 'non-torque-found-err
       (torques-in-sum1 sum comp-pattern mag-pattern torque-pattern body time non-torques-ok))))
 
@@ -2618,9 +2590,9 @@
 ;;; If the student gets the pivot wrong but the body right, then its
 ;;; probably a user interface confusion, so just give a blunt hint.
 (def-error-class wrong-pivot-net-torque (?spt ?cpt ?body)
-  ((student    (vector (at (net-torque ?body ?spt) ?stime) ?sdir))
-   (no-correct (vector (at (net-torque ?body ?spt) ?time2) ?dir2))
-   (correct    (vector (at (net-torque ?body ?cpt) ?ctime) ?cdir)))
+  ((student    (vector (net-torque ?body ?spt :time ?stime) ?sdir))
+   (no-correct (vector (net-torque ?body ?spt :time ?time2) ?dir2))
+   (correct    (vector (net-torque ?body ?cpt :time ?ctime) ?cdir)))
   :utility 10
   :probability
   (+ 0.1
@@ -2650,9 +2622,9 @@
 ;;; time and direction).  Has to have a high enough utility to
 ;;; over-ride the default wrong-body for general vectors.
 (def-error-class wrong-pt-relative-position (?spt ?cpt ?cpivot)
-  ((student    (vector (at (relative-position ?spt ?spivot) ?stime) ?sdir))
-   (no-correct (vector (at (relative-position ?spt ?pivot2) ?time2) ?dir2))
-   (correct    (vector (at (relative-position ?cpt ?cpivot) ?ctime) ?cdir)))
+  ((student    (vector (relative-position ?spt ?spivot :time ?stime) ?sdir))
+   (no-correct (vector (relative-position ?spt ?pivot2 :time ?time2) ?dir2))
+   (correct    (vector (relative-position ?cpt ?cpivot :time ?ctime) ?cdir)))
   :utility 10
   :probability
   (+ 0.1 
@@ -2673,9 +2645,9 @@
 ;;; competes with wrong-pt-relative-position if multiple points are
 ;;; being measured, so utility and probablity must be higher.
 (def-error-class wrong-ref-pt-relative-position (?sref-pt ?cref-pt)
-  ((student    (vector (at (relative-position ?pt ?sref-pt) ?stime) ?sdir))
-   (no-correct (vector (at (relative-position ?pt ?sref-pt) ?time2) ?dir2))
-   (correct    (vector (at (relative-position ?pt ?cref-pt) ?ctime) ?cdir)))
+  ((student    (vector (relative-position ?pt ?sref-pt :time ?stime) ?sdir))
+   (no-correct (vector (relative-position ?pt ?sref-pt :time ?time2) ?dir2))
+   (correct    (vector (relative-position ?pt ?cref-pt :time ?ctime) ?cdir)))
   :utility 50
   :probability
   (+ 0.2
@@ -2700,11 +2672,11 @@
 ;;; from and to points in spec, from case where drew correctly for opposite
 ;;; rel-pos. But many will be unknown, so don't worry about it now.
 (def-error-class opposite-relative-position (?cpt ?cref-pt)
-  ((student    (vector (at (relative-position ?cref-pt ?cpt) ?stime) ?sdir))
+  ((student    (vector (relative-position ?cref-pt ?cpt :time ?stime) ?sdir))
    ;; Don't pre-empt direction error like should-be-unknown: make sure there
    ;; is no possible relative position vector with this sense in the solution
-   (no-correct (vector (at (relative-position ?cref-pt ?cpt) ?stime) ?cdir))
-   (correct    (vector (at (relative-position ?cpt ?cref-pt) ?ctime) ?cdir-opp)))
+   (no-correct (vector (relative-position ?cref-pt ?cpt :time ?stime) ?cdir))
+   (correct    (vector (relative-position ?cpt ?cref-pt :time ?ctime) ?cdir-opp)))
   :utility 55
   :probability
   (+ 0.2
@@ -2728,11 +2700,11 @@
 ;;; is indeed opposite of the correct vector.
 
 (def-error-class opposite-relative-vel (?cpt ?cref-pt)
-  ((student    (vector (at (relative-vel ?cref-pt ?cpt) ?stime) ?sdir))
+  ((student    (vector (relative-vel ?cref-pt ?cpt :time ?stime) ?sdir))
    ; Don't pre-empt direction error like should-be-unknown: make sure there
    ; is no possible relative velocity vector with this sense in the solution
-   (no-correct (vector (at (relative-vel ?cref-pt ?cpt) ?stime) ?cdir))
-   (correct    (vector (at (relative-vel ?cpt ?cref-pt) ?ctime) ?cdir-opp)))
+   (no-correct (vector (relative-vel ?cref-pt ?cpt :time ?stime) ?cdir))
+   (correct    (vector (relative-vel ?cpt ?cref-pt :time ?ctime) ?cdir-opp)))
   :utility 55
   :probability
   (+ 0.2
@@ -2752,9 +2724,9 @@
 ;;; so must override default-vector-body, which doesn't fit
 ;;; Same rules work for both electric and magnetic fields
 (def-error-class field-wrong-loc (?cloc ?sloc ?type)
-  ((student    (vector (at (field ?sloc ?type ?sagent) ?stime) ?sdir))
-   (no-correct (vector (at (field ?sloc ?type ?agent2) ?time2) ?dir2))
-   (correct    (vector (at (field ?cloc ?type ?cagent) ?ctime) ?cdir)))
+  ((student    (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
+   (correct    (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir)))
   :utility 50)
 
 (defun field-wrong-loc (correct-loc wrong-loc fieldtype)
@@ -2767,9 +2739,9 @@
 			     "only one) would be ~a.") correct-loc))))
 
 (def-error-class field-wrong-agent (?sagent ?cagent ?loc ?type)
-  ((student    (vector (at (field ?loc ?type ?sagent) ?stime) ?sdir))
-   (no-correct (vector (at (field ?loc ?type ?sagent) ?time2) ?dir2))
-   (correct    (vector (at (field ?loc ?type ?cagent) ?stime) ?cdir)))
+  ((student    (vector (field ?loc ?type ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?loc ?type ?sagent :time ?time2) ?dir2))
+   (correct    (vector (field ?loc ?type ?cagent :time ?stime) ?cdir)))
   :utility 50)
 
 (defun field-wrong-agent (sagent cagent loc fieldtype)
@@ -2804,9 +2776,13 @@
 ;;; better than this.
 (def-error-class substitute-mag-vars (?svar ?cvar)
   ((student-eqn ?dontcare0)
-   (var-loc ?sloc ?svar (at (mag ?svector) ?stime))
-   (correct-var ?cvar (at (mag ?cvector) ?stime))
-   (problem (vector ?body (at ?cvector ?vtime) ?dir))
+   (var-loc ?sloc ?svar (mag ?svector))
+   (bind ?stime (time-of ?svector))
+   (correct-var ?cvar (mag ?cvector))
+   (test (equal (time-of ?svector) (time-of ?cvector)))
+   (problem (vector ?body ?pvector ?dir))
+   (bind ?vtime (time-of ?pvector))
+   (test (equal (remove-time ?pvector) (remove-time ?cvector)))
    (test (not (equal ?dir 'zero)))
    (test (tinsidep-include-endpoints ?stime ?vtime))
    (fix-eqn-by-replacing ?sloc ?cvar))
@@ -2834,7 +2810,7 @@
 ;;; definitions are "similar" to the student's variable's definition.
 (defun structural-similarity (form1 form2)
   "Returns a number between 0 and 1 indicating how similar two cons-trees are."
-  (let ((hit 0)(miss 0))
+  (let ((hit 0) (miss 0))
     (declare (special hit miss))
     (structural-sim form1 form2)
     (/ hit (max 1 (+ hit miss)))))
@@ -2857,8 +2833,11 @@
 ;;; initial velocity in an equation.
 (def-error-class var-has-wrong-time-specifier (?wrong-var ?wrong-time ?right-time )
   ((student-eqn ?dontcare0)
-   (var-loc ?wrong-var-loc ?wrong-var (at ?specifier ?wrong-time))
-   (correct-var ?right-var (at ?specifier ?right-time))
+   (var-loc ?wrong-var-loc ?wrong-var ?specifier)
+   (bind ?wrong-time (time-of ?specifier))
+   (correct-var ?right-var ?specifier2)
+   (bind ?right-time (time-of ?specifier2))
+   (test (equal (remove-time ?specifier) (remove-time ?specifier2)))
    (fix-eqn-by-replacing ?wrong-var-loc ?right-var)))
 
 (defun var-has-wrong-time-specifier (wrong-var wrong-time right-time)
@@ -2882,13 +2861,13 @@
 ;;; be that V_x=-V_y, and a sign error is more likely.
 (def-error-class switched-x-and-y-subscript (?svar ?cvar)
   ((student-eqn ?dontcare0)
-   (var-loc ?svar-loc ?svar (at (compo ?s-xyz ?s-rot ?s-vector) ?s-time))
+   (var-loc ?svar-loc ?svar (compo ?s-xyz ?s-rot ?s-vector))
    (test (member ?s-xyz '(x y)))
    (bind ?c-xyz (if (equal ?s-xyz 'x) 'y 'x))
    (bind ?c-rot (if (equal ?s-xyz 'x) (+ ?s-rot 90) (- ?s-rot 90)))
-   (correct-var ?cvar (at (compo ?c-xyz ?c-rot ?s-vector) ?s-time))
+   (correct-var ?cvar (compo ?c-xyz ?c-rot ?s-vector))
    (fix-eqn-by-replacing ?svar-loc ?cvar)
-   (problem (vector ?body (at ?s-vector ?v-time) (dnum ?v-dir Deg))))
+   (problem (vector ?body ?s-vector (dnum ?v-dir Deg))))
   :probability (if (equalp 45 (mod (- ?v-dir ?s-rot) 90))
 		   0.001
 		 0.1))
@@ -2906,8 +2885,8 @@
 ;;; a bottom out hint.
 (def-error-class used-magnitude-instead-of-component (?svar ?vector)
   ((student-eqn ?dontcare0)
-   (var-loc ?svar-loc ?svar (at (mag ?vector) ?stime))
-   (correct-var ?cvar (at (compo ?xyz ?rot ?vector) ?stime))
+   (var-loc ?svar-loc ?svar (mag ?vector))
+   (correct-var ?cvar (compo ?xyz ?rot ?vector))
    (fix-eqn-by-replacing ?svar-loc ?cvar)))
 
 (defun used-magnitude-instead-of-component (svar vector)
@@ -2987,12 +2966,13 @@
 ;;; cases of projection confused.
 (def-error-class  used-perpendicular-instead-of-parallel-projection (?xyz ?vector ?scompo ?mag)
   ((student-eqn (= ?scompo 0))
-   (correct-var ?ccompo (at (compo ?xyz ?rot ?vector) ?time))
+   (correct-var ?ccompo (compo ?xyz ?rot (?vector . ?args)))
    (test (equal ?scompo ?ccompo))
-   (correct-var ?mag (at (mag ?vector) ?time))
+   (correct-var ?mag (mag (?vector . ?args)))
    (student-eqn ?eqn)
    (bind ?rhs (cddr ?eqn))
    (fix-eqn-by-replacing ?rhs ?mag)))
+
 (defun used-perpendicular-instead-of-parallel-projection (xyz vector compo mag)
   (setq vector (nlg vector 'def-np))
   (make-hint-seq
@@ -3013,7 +2993,7 @@
     ((student-eqn (= ?scompo ?rhs))                
      (expr-loc ?wrong-loc (?trig-fn ?arg))
      (test (member ?trig-fn *proj-trig-functions*))
-     (correct-var ?ccompo (at (compo ?xyz ?compo-dir ?vector) ?time))
+     (correct-var ?ccompo (compo ?xyz ?compo-dir ?vector))
      (test (equal ?scompo ?ccompo))
      ; ?compo-rot may be an x or y axis angle.  ?rot is x axis rotation
      (bind ?rot (if (eq ?xyz 'y) (- ?compo-dir 90) ?compo-dir))
@@ -3080,10 +3060,10 @@
 (def-error-class avg-accel-is-change-in-velocity 
     (?xyz (= ?a (/ (- ?vf ?vi) ?dur)))
   ((student-eqn (= ?a (/ (?op ?v1 ?v2) ?dur)))
-   (var-defn ?a (at (compo ?xyz ?rot (accel ?body)) (during ?ti ?tf)))
+   (var-defn ?a (compo ?xyz ?rot (accel ?body :time (during ?ti ?tf))))
    (var-defn ?dur (duration (during ?ti ?tf)))
-   (correct-var ?vi (at (compo ?xyz ?rot (velocity ?body)) ?ti))
-   (correct-var ?vf (at (compo ?xyz ?rot (velocity ?body)) ?tf))
+   (correct-var ?vi (compo ?xyz ?rot (velocity ?body :time ?ti)))
+   (correct-var ?vf (compo ?xyz ?rot (velocity ?body :time ?tf)))
    (test (equal (sort (list ?v1 ?v2) #'expr<) (sort (list ?vi ?vf) #'expr<))))
   :utility 50)
 
@@ -3102,10 +3082,10 @@
 ;;; the student has probably confused the component and the magnitude.
 (def-error-class missing-negation-on-vector-component (?vector ?xyz ?compo-var ?mag-var)
     ((student-eqn ?dontcare0)
-     (var-loc ?loc ?compo-var (at (compo ?xyz ?rot ?vector) ?time))
+     (var-loc ?loc ?compo-var (compo ?xyz ?rot ?vector))
      (fix-eqn-by-replacing ?loc (- ?compo-var))
-     (correct-var ?mag-var (at (mag ?vector) ?time))
-     (problem (vector ?body (at ?vector ?time) ?dir))
+     (correct-var ?mag-var (mag ?vector))
+     (problem (vector ?body ?vector ?dir))
      ; NB: z rot always 0, so get axis dir before using direction functions
      (test (and (parallelp (axis-dir ?xyz ?rot) ?dir) 
 		(not (same-angle (axis-dir ?xyz ?rot) ?dir))))))
@@ -3146,9 +3126,9 @@
 ;;; missing-negation-on-vector-component, but it is more likely.
 (def-error-class missing-negation-on-vector-magnitude (?vector ?xyz ?compo-var ?mag-var)
     ((student-eqn ?dontcare0)
-     (var-loc ?loc ?mag-var (at (mag ?vector) ?time))
+     (var-loc ?loc ?mag-var (mag ?vector))
      (fix-eqn-by-replacing ?loc (- ?mag-var))
-     (problem (vector ?body (at ?vector ?time) ?dir))
+     (problem (vector ?body ?vector ?dir))
      (old-student (draw-axes ?x-rot))  
      ; Test that vector is antiparallel to *some* axis in the xy[z] system.
      ; then get that axis and its rotation for looking up compo var.
@@ -3159,7 +3139,7 @@
 		      ((eq ?xyz 'z) 0)
 		      (T (warn "missing-negation-on-vector-magnitude: bad axis label ~A~%" ?xyz)
 		         NIL)))
-     (correct-var ?compo-var (at (compo ?xyz ?rot ?vector) ?time)))
+     (correct-var ?compo-var (compo ?xyz ?rot ?vector)))
     :probability 0.2)
 
 ; given x axis rotation and vector dir, return label 'x or 'y or 'z
@@ -3199,7 +3179,7 @@
 (def-error-class no-negation-in-weight-law1 ((= ?smag (* ?smass ?g)))
   ((student-eqn (= ?smag (* ?smass (- ?g))))
    (var-defn ?g (gravitational-acceleration ?planet))
-   (var-defn ?smag (at (mag (force ?body ?planet weight)) ?time))
+   (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
   :utility 100)
 (defun no-negation-in-weight-law1 (eqn)
@@ -3209,7 +3189,7 @@
 (def-error-class no-negation-in-weight-law2 ((= ?smag (* ?smass ?g)))
   ((student-eqn (= ?smag (* (- ?smass) ?g)))
    (var-defn ?g (gravitational-acceleration ?planet))
-   (var-defn ?smag (at (mag (force ?body ?planet weight)) ?time))
+   (var-defn ?smag (mag (force ?body ?planet weight :time ?time)))
    (var-defn ?smass (mass ?body)))
   :utility 100)
 (defun no-negation-in-weight-law2 (eqn)
@@ -3262,6 +3242,7 @@
     :probability
     (+ 0.1 (if (unify-with-student-entries (list 'draw-axes ?rot)) 0.3 0.0))
     :utility 100)
+
 (defun missing-forces-in-x-axis-sum (time missing-forces)
   (missing-forces-in-sum time missing-forces))
 
@@ -3285,6 +3266,7 @@
     :probability
     (+ 0.1 (if (unify-with-student-entries (list 'draw-axes ?rot)) 0.3 0.0))
     :utility 100)
+
 (defun missing-forces-in-y-axis-sum (time missing-forces)
   (missing-forces-in-sum time missing-forces))
 
@@ -3295,7 +3277,7 @@
 ;;; be instructed to draw add the first of the missing forces.  In time this will
 ;;; be changed.    
 (defun missing-forces-in-sum (time missing-forces)
-  (let ((undrawn-forces (undrawn-vectors time missing-forces)))
+  (let ((undrawn-forces (undrawn-vectors missing-forces)))
     (cond ((null undrawn-forces) ; only hint drawn forces if there are no undrawn ones
 	   (hint-drawn-forces
 	    (set-difference missing-forces undrawn-forces :test #'equal)))
@@ -3307,11 +3289,11 @@
 	      "Two or more forces acting on ~a ~a have not yet been drawn."
 	      time (car undrawn-forces))))))
 
-(defun undrawn-vectors (time vectors)
-  "Given a time and list of vector descriptors, returns the subset 
+(defun undrawn-vectors (vectors)
+  "Given a list of vector descriptors, returns the subset 
    of the vectors that has not been drawn by the student"
   (loop for v in vectors 
-      unless (unify-with-student-entries `(vector (at ,v ,time) ?dir)) 
+      unless (unify-with-student-entries `(vector ,v ?dir)) 
       collect v))
 
 ;;; 
@@ -3417,8 +3399,8 @@
 ;;; return NIL if it find an expression that does not contain a force
 ;;; variable.
 (defun forces-in-sum (sum &optional (body '?body) (time '?time) (non-forces-ok nil))
-  (let ((comp-pattern `(at (compo ?xyz ?rot (force ,body ?agent ?type)) ,time))
-	(mag-pattern `(at (mag (force ,body ?agent ?type)) ,time))
+  (let ((comp-pattern `(compo ?xyz ?rot (force ,body ?agent ?type :time ,time)))
+	(mag-pattern `(mag (force ,body ?agent ?type :time ,time)))
 	(force-pattern `(force ,body ?agent ?type)))
     (catch 'non-force-found
       (forces-in-sum1 sum comp-pattern mag-pattern force-pattern non-forces-ok))))
@@ -3459,18 +3441,18 @@
 
 (defun vector-direction (v)
   "Given a vector description, return its direction from working memory.
-   Assumes the proposition in wm is (vector <body> (at <vector descr> <time>) <dir>)"
+   Assumes the proposition in wm is (vector <body> <vector descr> <dir>)"
   (loop for p in (problem-wm *cp*) 
       when (and (listp p)
 		(equal (car p) 'vector)
-		(equal (second (third p)) v))
+		(equal (third p) v))
       do (return (fourth p))))
 
 (defun vectors-to-compo-sysvars (xyz rot time vectors)
   "Given a list of vector descriptors, return the list of system
    variables for the vector components along the given axis label, rotation and time"
   (loop for v in vectors collect
-	(quant-to-sysvar `(at (compo ,xyz ,rot ,v) ,time))))
+	(quant-to-sysvar `(compo ,xyz ,rot ,v))))
 
 ;;; (ref eq-Pitt A10 47-02) Students often try to write Newton's first
 ;;; law as <sum of left forces> = <sum of right forces>, where the
@@ -3489,7 +3471,7 @@
 ;;; variables for all the forces yet or drawn the axes.
 (def-error-class two-force-sums (?Lforces ?Rforces ?time)
   ((student-eqn (= ?lhs ?rhs))
-   (problem (vector ?body (at (accel ?body) ?time) zero)) ; NFL applies
+   (problem (vector ?body (accel ?body :time ?time) zero)) ; NFL applies
    (bind ?Lforces (forces-in-sum ?lhs ?body ?time))
    (test (not (null ?Lforces)))
    (bind ?Rforces (forces-in-sum ?rhs ?body ?time))
@@ -3532,7 +3514,7 @@
   "Given a list of force descriptions, returns their directions (numbers between 0 and 360).  
    If any force lacks a numerical direction, return nil"
   (loop for f in forces with b with dir
-      do (setq b (unify-in-wm `(vector ?body (at ,f ,time) ?dir)))
+      do (setq b (unify-in-wm `(vector ?body ,f ?dir)))
 	 (if (null b) (return nil))
 	 (setq dir (cdr (get-binding '?dir b)))
 	 (if (not (and (dimensioned-numberp dir)
@@ -3558,7 +3540,7 @@
       with result = "=0"
       do (setq result (concatenate 'string
 			"+"
-			(nlg (quant-to-sysvar `(at (mag ,v) ,time)) 'algebra)
+			(nlg (quant-to-sysvar `(mag ,v)) 'algebra)
 			"_s"
 			result))
      finally (return (subseq result 1))))
@@ -3625,8 +3607,8 @@
       (let* ((rot    (compo-axis-rot compo-expr)) 
 	     (xyz    (compo-axis-xyz compo-expr))
 	     (vector (compo-base-vector compo-expr))
-	     (vector-dir (get-quant-value (vector-dir vector))))
-        (and (given-quant-p (vector-mag vector))
+	     (vector-dir (get-quant-value `(dir ,vector))))
+        (and (given-quant-p `(mag ,vector))
 	     (parallelp vector-dir (axis-dir xyz rot)))))))
 
 ;; For given zero-length vectors, magnitude usually not tagged as "given"
@@ -3735,11 +3717,11 @@
    (test (not (given-p ?var)))
    ; don't check if parameter: h1 may be a parameter but h2 not 
    ;(test (canonical-var-cancelling-var-p ?var))
-   (var-defn ?var (at (height ?body) ?time))
+   (var-defn ?var (height ?body :time ?time))
    ; make sure no zero-level stated in givens: RISKY! it's possible a body is never at the zero level (Exe5a).
    ; Currently heights happen to be given when this is true, so its OK, but test could fail in future.
    ; We need to add some other way of identifying the zero level in the problem givens.
-   (test (not (find '(given (at (height ?body) ?time) (dnum 0 |m|)) 
+   (test (not (find '(given (height ?body :time ?time) (dnum 0 |m|)) 
                      (problem-givens *cp*) :test #'unify)))
    )
   :utility 100)
@@ -3843,7 +3825,7 @@
 (defun default-wrong-answer (quant wrongval)
   (make-hint-seq
     (list (format nil "~A is not the correct value for ~A. When you have entered enough equations, ask Andes to solve for ~A, then transfer the result to this answer box."
-            (nlg wrongval 'algebra)(nlg quant) (var-or-quant quant)))))
+            (nlg wrongval 'algebra) (nlg quant) (var-or-quant quant)))))
 
 ; sign error in answer: 
 ; -sought is pos magnitude, answer entry is negative 
@@ -3854,13 +3836,13 @@
 #|
 ; magnitude is sought but they've entered a negative answer
 (def-error-class neg-answer-for-mag (?quant ?wrongval)
-  ((student (answer (at (mag ?vector) ?t)))
+  ((student (answer (mag ?vector)))
    (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
    (bind ?wrongval (third ?eqn))))
    
 ; neg compo is sought but they've entered a positive number
 (def-error-class pos-answer-for-neg-compo (?quant ?wrongval)
-  ((student (answer (at (mag ?vector) ?t)))
+  ((student (answer (mag ?vector)))
    (bind ?eqn (studentEntry-ParsedEqn (get-answer-entry ?quant)))
    (bind ?wrongval (third ?eqn))))
    

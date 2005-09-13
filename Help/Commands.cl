@@ -1073,7 +1073,7 @@
 ;;          (\d text) -- RTF-like tags text as definition
 ;;          (\v text) -- hidden text
 ;;          (\h text) -- callback to help-system
-;;                     (\h "What's wrong?")(\v what-is-wrong) calls help
+;;                     (\h "What's wrong?") (\v what-is-wrong) calls help
 ;;                     function what-is-wrong if the link "What's wrong?" is
 ;;                     selected.
 ;;          Support for Greek alphabet names (ie $a short for greek alpha char)

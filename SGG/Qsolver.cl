@@ -75,7 +75,7 @@
 			   :wm (st-wm State)))))))
     
     (cond ((> (Length R) 1)
-	   (error "Multiple Constant Results for ~A~%" Givens))
+	   (error "Multiple Constant Results for ~S~%" Givens))
 	  (t (car R)))))
 
 
@@ -99,7 +99,7 @@
 			  :assumpts (collect-assumptions State)                         ;;Collect the assumptions.
 			  :wm (st-wm State))))))
     (cond ((eq 0 (length R))                                                        ;;If no values are returned.
-	   (error "No return values specified for given: ~A ~%~A.~%" Goal Givens))  ;;Signal an error.
+	   (error "No return values specified for given: ~S ~%~S.~%" Goal Givens))  ;;Signal an error.
 	  
 	  ((< 1 (length R))                                                         ;;If more than one is returned
 	   (merge-duplicate-givens R))                                              ;;merge the results.
@@ -242,35 +242,35 @@
 	     ;; to warn only when new path element is not *subset* of existing 
 	     ;; path for paths beyond the 2nd to be merged (though we don't 
 	     ;; keep count)
-	     (format t "WARNING: two ways of generating ~A:~%" 
+	     (format t "WARNING: two ways of generating ~s:~%" 
 		     (qsolres-id P))
 	   
 	     (when (setq diff (set-difference (qsolres-subeqns P) 
 					      (qsolres-subeqns P2)
 					      :test #'equalp))
-	       (format t "  equations only in first:  ~A~%" diff))
+	       (format t "  equations only in first:  ~s~%" diff))
 	     (when (setq diff (set-difference (qsolres-subeqns P2) 
 					      (qsolres-subeqns P)
 					      :test #'equalp))
-	       (format t "  equations only in second:  ~A~%" diff))
+	       (format t "  equations only in second:  ~s~%" diff))
 	     
 	     (when (setq diff (set-difference (qsolres-subvars P) 
 					      (qsolres-subvars P2)
 					      :test #'equalp))
-	       (format t "  variables only in first:  ~A~%" diff))
+	       (format t "  variables only in first:  ~S~%" diff))
 	     (when (setq diff (set-difference (qsolres-subvars P2) 
 					      (qsolres-subvars P)
 					      :test #'equalp))
-	       (format t "  variables only in second:  ~A~%" diff))
+	       (format t "  variables only in second:  ~S~%" diff))
 	     
 	     (when (setq diff (set-difference (qsolres-assumpts P) 
 					      (qsolres-assumpts P2)
 					      :test #'equalp))
-	       (format t "  assumptions only in first:  ~A~%" diff))
+	       (format t "  assumptions only in first:  ~S~%" diff))
 	     (when (setq diff (set-difference (qsolres-assumpts P2) 
 					      (qsolres-assumpts P)
 					      :test #'equalp))
-	       (format t "  assumptions only in second:  ~A~%" diff))))
+	       (format t "  assumptions only in second:  ~S~%" diff))))
 	     
 	 (setf (qsolres-path P2) 
 	   (merge-paths (qsolres-path P2) (qsolres-path P))) ;merge the paths
@@ -294,7 +294,7 @@
       ;; Signalling a cerror if they do not.
       (if (sets-not-equalp (qsolres-subeqns R) (qsolres-subeqns G))
 	  (cerror "Continue and merge paths." 
-		  "differences in PSMs~%    subeqns only in first: ~A~%    subeqns only in second: ~A~%" 
+		  "differences in PSMs~%    subeqns only in first: ~S~%    subeqns only in second: ~S~%" 
 		  (set-difference (qsolres-subeqns R) (qsolres-subeqns G) 
 				  :test #'equalp)
 		  (set-difference (qsolres-subeqns G) (qsolres-subeqns R) 
@@ -302,7 +302,7 @@
 
       (if (sets-not-equalp (qsolres-subvars R) (qsolres-subvars G))
 	  (cerror "Continue and merge paths." 
-		  "differences in PSMs~%    subvars only in first: ~A~%    subvars only in second: ~A~%" 
+		  "differences in PSMs~%    subvars only in first: ~S~%    subvars only in second: ~S~%" 
 		  (set-difference (qsolres-subvars R) (qsolres-subvars G) 
 				  :test #'equalp)
 		  (set-difference (qsolres-subvars G) (qsolres-subvars R) 
@@ -310,7 +310,7 @@
       
       (if (sets-not-equalp (qsolres-assumpts R) (qsolres-assumpts G))
 	  (cerror "Continue and merge paths." 
-		  "differences in PSMs~%    assumpts only in first: ~A~%    assumpts only in second: ~A~%" 
+		  "differences in PSMs~%    assumpts only in first: ~S~%    assumpts only in second: ~S~%" 
 		  (set-difference (qsolres-assumpts R) (qsolres-assumpts G) 
 				  :test #'equalp)
 		  (set-difference (qsolres-assumpts G) (qsolres-assumpts R) 
@@ -499,7 +499,7 @@
   (declare (ignore depth))
   (let ((*print-length* 100)
 	(*print-level* 20))
-  (format stream "<st ~a~%>" 
+  (format stream "<st ~S~%>" 
 	  (list (st-wm st)
 		(st-bindings st)
 		(st-stack st)))))
@@ -507,19 +507,19 @@
 (defun push-wm (item state)
   "Adds the given item to the given state's working memory"
   (if (not (groundp item))
-      (cerror "Ignore" "Adding non-ground proposition ~a to wm" item))
+      (cerror "Ignore" "Adding non-ground proposition ~S to wm" item))
   (pushnew item (st-wm state) :test #'equalp))
 
 (defun push-history (item state)
   "Adds the given item to the given states' history list"
   (if (not (groundp item))
-      (cerror "Ignore" "Adding non-ground ~A to history" item))
+      (cerror "Ignore" "Adding non-ground ~S to history" item))
   (pushnew item (st-history state) :test #'equalp))
 
 (defun push-binding (variable value state)
   "Adds the given variable-value pair to the state's bindings"
   (if (not (variable-p variable))
-      (cerror "~a non-variable in push-bindings" variable))
+      (cerror "~S non-variable in push-bindings" variable))
   (setf (st-bindings state)
     (extend-bindings variable value (st-bindings state))))
 
@@ -531,7 +531,7 @@
   (N 1))
   (when p
   (loop for s in (problem-solutions p) do
-  (format t "~&Working Memory for solution ~a.~%" N)
+  (format t "~&Working Memory for solution ~S.~%" N)
   (print-wm s)
   (incf N)))))
 |#
@@ -540,14 +540,14 @@
   "Prints the working memory in batches"
   (let ((predicates '(eqn vector axis-for variable)))
     (dolist (p predicates)
-      (format t "~&Wm for ~a:~%" p)
+      (format t "~&Wm for ~S:~%" p)
       (dolist (wme (st-wm st))
 	(if (eql p (first wme))
-	    (format t "~a~%" wme))))
+	    (format t "~S~%" wme))))
     (format t "The rest of wm:~%")
     (dolist (wme (st-wm st))
       (if (not (member (car wme) predicates))
-	  (format t "~a~%" wme)))))
+	  (format t "~S~%" wme)))))
 
 #|
   (defun print-problem-actions (Prob)
@@ -556,7 +556,7 @@
   (N 1))
   (when p
   (loop for s in (problem-solutions p) do
-  (format t "~&Actions for solution ~a.~%" N)
+  (format t "~&Actions for solution ~S.~%" N)
   (print-acts s)
   (incf N)))))
   |#
@@ -598,7 +598,7 @@
 (defun print-opinst (inst stream depth)
   "Prints the given operator instance on the given stream"
   (declare (ignore depth))
-  (format stream "<opinst ~a>" (opinst-identifier inst)))
+  (format stream "<opinst ~S>" (opinst-identifier inst)))
 
 
 ;;; ========================= solver ==============================
@@ -771,7 +771,7 @@
 (defun opinst-done (inst state)
   "Given operator instance has all its subgoals achieved.
    Returns a list of a successor state."
-  (let ((ground-id)(ground-effects)(ground-act)(ground-vars))
+  (let ((ground-id) (ground-effects) (ground-act) (ground-vars))
     (dolist (e (opinst-effects inst))
       (push (subst-bindings (st-bindings state) e) ground-effects)
       (push-wm (first ground-effects) state))
@@ -782,7 +782,7 @@
     (setf ground-vars (subst-bindings (st-bindings State)
 				      (opinst-variables inst)))
     (if (not (groundp ground-id))
-	(cerror "Ignore" "The op instance identifier ~a is not ground" 
+	(cerror "Ignore" "The op instance identifier ~S is not ground" 
 		ground-id))
     (note-action state (list *do-operator* ground-act ground-effects ground-vars))
     (push-history ground-id state)
@@ -1085,7 +1085,7 @@ state actions Is set to be traced."
 (defun qs-debug-print-failure (state)
   "Prints a trace indicating that this state had no successors"
   (if (qs-debug-printp State)
-      (format t "~2D>  Failed on ~a~%" (st-level state)
+      (format t "~2D>  Failed on ~S~%" (st-level state)
 	      (let ((top (first (st-stack state))))
 		(if (listp top)
 		    (subst-bindings (st-bindings state) top)
@@ -1101,7 +1101,7 @@ state actions Is set to be traced."
 (defun qs-debug-print-action (state action)
   "Print action if state should be traced."
   (if (qs-debug-printp state)
-      (format t "~2D>  ~a~%" (st-level state) action)))
+      (format t "~2D>  ~S~%" (st-level state) action)))
 
 
 ;;; In order to add an operator to the debug tracing 
@@ -1122,7 +1122,7 @@ state actions Is set to be traced."
        (setq **QS-Trace-Ops** nil)
    (dolist (opName opNames)
       (if (not (get-operator-by-name opName))
-         (format T "Warning: operator ~A not found~%" opName)
+         (format T "Warning: operator ~S not found~%" opName)
        (setq **qs-trace-ops** (reverse (adjoin OpName **qs-Trace-Ops**))))))
    ; macro function result form to be evaluated:
    '**QS-Trace-Ops**)
@@ -1133,7 +1133,7 @@ state actions Is set to be traced."
        (setq **QS-Trace-Ops** nil)
    (dolist (opName opNames)
       (if (not (get-operator-by-name opName))
-         (format T "Warning: operator ~A not found~%" opName)
+         (format T "Warning: operator ~S not found~%" opName)
        (setq **qs-trace-ops** (remove OpName **qs-Trace-Ops**)))))
    ; macro function result form to be evaluated:
    '**QS-Trace-Ops**)

@@ -360,7 +360,7 @@ And all the element of the sring should either be non-stansard or upcased!
 (defun delete-extra-pyretheses(event-list)
     (cond 
      ((null event-list) nil)
-     ((and (listp event-list)   ;; getting rid of the pyretheses around single thing (A)((~ A)) ((...)) --> A (~ A) (...)
+     ((and (listp event-list)   ;; getting rid of the pyretheses around single thing (A) ((~ A)) ((...)) --> A (~ A) (...)
 	   (characterp (first event-list))
 	   (char= (first event-list) #\()
 	   (>	(corresponding-right-pyretheses-position (rest event-list) (length event-list) 1) 0)
@@ -605,9 +605,9 @@ And all the element of the sring should either be non-stansard or upcased!
 	 (format nil "~~~a" (nlg-event1  (second term) 1)))
 	((and (compound-eventp term) (equal (length term) 2) (equal (first term) 'eno))  
 	 (format nil "~~~a" (nlg-event1  (second term) 0)))
-	((and (compound-eventp term) (equal (length term) 3)(= num 0))  
+	((and (compound-eventp term) (equal (length term) 3) (= num 0))  
 	 (format nil "(~a~a~a)" (nlg-event1  (second term) 0) (etype-operate (first term)) (nlg-event1  (third term) 0)))
-	((and (compound-eventp term) (equal (length term) 3)(= num 1))  
+	((and (compound-eventp term) (equal (length term) 3) (= num 1))  
 	 (format nil "~a~a~a" (nlg-event1  (second term) 0) (etype-operate (first term)) (nlg-event1  (third term) 0)))
 	((and (compound-eventp term) (equal (length term) 4) (= num 0))  
 	 (format nil "(~a~a~a~a~a)" (nlg-event1  (second term) 0) (etype-operate (first term)) (nlg-event1  (third term) 0) (etype-operate (first term)) (nlg-event1  (fourth term) 0)  ))
@@ -670,7 +670,7 @@ And all the element of the sring should either be non-stansard or upcased!
 
 (defun nlg-bayes-rule (eventh eventb  events)
 
-  (cond ((equal (length events) 2)  (format nil "p(~a|~a)= p(~a|~a)*p(~a)/{p(~a|~a)*p(~a)+p(~a|~a)*p(~a)}" (nlg-event  eventh) (nlg-event  eventb) (nlg-event  eventb) (nlg-event  eventh) (nlg-event  eventh)(nlg-event  eventb) (nlg-event  (first events)) (nlg-event  (first events)) (nlg-event  eventb) (nlg-event  (second events)) (nlg-event  (second events))))
+  (cond ((equal (length events) 2)  (format nil "p(~a|~a)= p(~a|~a)*p(~a)/{p(~a|~a)*p(~a)+p(~a|~a)*p(~a)}" (nlg-event  eventh) (nlg-event  eventb) (nlg-event  eventb) (nlg-event  eventh) (nlg-event  eventh) (nlg-event  eventb) (nlg-event  (first events)) (nlg-event  (first events)) (nlg-event  eventb) (nlg-event  (second events)) (nlg-event  (second events))))
 	((equal (length events) 3)  (format nil "p(~a|~a)= p(~a|~a)*p(~a)/{ p(~a|~a)*p(~a)+p(~a|~a)*p(~a)+p(~a|~a)*p(~a)}" (nlg-event  eventh) (nlg-event  eventb) (nlg-event  eventb) (nlg-event  eventh) (nlg-event  eventh) (nlg-event  eventb) (nlg-event  (first events)) (nlg-event  (first events)) (nlg-event  eventb) (nlg-event  (second events)) (nlg-event  (second events)) (nlg-event  eventb) (nlg-event  (third events)) (nlg-event  (third events)) ))
 	)) 
 
@@ -832,7 +832,7 @@ And all the element of the sring should either be non-stansard or upcased!
   ; !!! should also strip bad characters, e.g. hyphen, dollar sign
   (cond ((null events) nil)   
            ((and (listp term) (>= (length term) 2)) 
-               (let ((term (first events)))(union (eno-events opt 1 events) (union (eno-events 2 events) (eno-events 3 events))))  )    
+               (let ((term (first events))) (union (eno-events opt 1 events) (union (eno-events 2 events) (eno-events 3 events))))  )    
 	
 ))    
 

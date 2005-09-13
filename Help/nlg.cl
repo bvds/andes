@@ -54,8 +54,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
-  (cond ((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
-	(t (format nil "~A" x))))
+  "Take any print format from the ontology and add time."  
+  (format nil "~A~@[ ~A~]" 	
+	  (or (nlg-find (remove-time x) *Ontology-ExpTypes* 
+		#'ExpType-Form #'ExpType-English)
+	      (remove-time x))		;give up and just print list
+	  (nlg (time-of x) 'pp)))	;add any time specification
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -139,11 +143,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun pp (x &rest args)
-  (if (atom x)
-      (if (numberp x)
-	  (format nil "at T~A" (- x 1))
-	(format nil "at ~(~A~)" x))
-    (nlg-list-default x args)))
+  (cond ((null x) nil)
+	((not (atom x)) (nlg-list-default x args)) ;handles (during ...)
+	((numberp x) (format nil "at T~A" (- x 1)))
+	(t (format nil "at ~(~A~)" x))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defparameter adjectives

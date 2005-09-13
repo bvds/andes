@@ -849,7 +849,7 @@
   (find Entry (enode-Entries Node) :test #'equalp))
 
 
-;;; An Enode represents (at one level) a collection of equations
+;;; An Enode represents (one :time level) a collection of equations
 ;;; therefore it is considered to be solved iff all of its subeqns
 ;;; (located in the SubEqns slot) are labelled as solved.
 ;;;

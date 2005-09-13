@@ -25,7 +25,7 @@
    (cond ((null times) NIL)
          ((not (consp times)) (error "Non-list given to tintersect: ~a" times))
          ((null (cdr times)) (car times))
-         (T  (tintersect2 (car times)(tintersect (cdr times))))))
+         (T  (tintersect2 (car times) (tintersect (cdr times))))))
 
 (defun tintersect2 (t1 t2)
    "Given two times, returns their intersection or NIL"
@@ -42,7 +42,7 @@
           t2)
          ((and (time-intervalp t1)
                (time-intervalp t2))
-          (tintersect3 (second t1)(third t1)(second t2)(third t2)))))
+          (tintersect3 (second t1) (third t1) (second t2) (third t2)))))
 
 (defun tintersect3 (t1-start t1-finish t2-start t2-finish)
    "Given beginning and ending points of two time intervals, returns their intersection or NIL"
@@ -159,9 +159,9 @@
    "True if first arg comes before second in lexicographic ordering"
    (cond ((consp expr1)
           (cond ((consp expr2)
-                 (or (expr< (car expr1)(car expr2))
-                     (and (equal (car expr1)(car expr2))
-                          (expr< (cdr expr1)(cdr expr2)))))
+                 (or (expr< (car expr1) (car expr2))
+                     (and (equal (car expr1) (car expr2))
+                          (expr< (cdr expr1) (cdr expr2)))))
                 ( T ;; atoms precede cons in our ordering
                     NIL)))
          ((consp expr2)  ;; atoms preceed cons, and expr1 is an atom
@@ -249,7 +249,7 @@
   "Expects either a number or a number of degrees, and returns a number."
   (cond ((numberp x) x)
 	;;((equal x 'zero) 0) ;; wrong, means zero-length not 0 deg [AW]
-	((degree-specifierp x)(second x))
+	((degree-specifierp x) (second x))
         (T (error "Non-numerical angle measure: ~a" x))))
 
 (defun parameterp (x)
@@ -498,53 +498,25 @@
 (defun scalar-quantityp (q)
   "Non null if the given quantity is neither a magnitude nor a direction."
    (not (and (listp q)
-	     (equal 'at (first q))
-	     (or (equal 'mag (first (second q)))
-		 (equal 'dir (first (second q)))))))
-
-;; Vector-valued quantities at time may be specified as 
-;;       (at (accel b) 1)
-;; Following return expressions for attributes of vector at same time:
-;;       (at (mag (accel b) 1))        ; magnitude
-;;       (at (dir (accel b) 1))        ; direction
-;;       (at (compo x 0 (accel b)) 1)  ; component along axis
-;; If sent vector quantity without time, e.g. (accel b), 
-;; returns attribute expression without time, e.g. (mag (accel b)) etc.
-
-(defun vector-mag (vec-expr)
-  "Given vector expression return expression for magnitude of vector"
-   (if (equal (first vec-expr) 'at)
-      `(at (mag ,(second vec-expr)) ,(third vec-expr))
-    `(mag ,vec-expr)))
-
-(defun vector-dir (vec-expr)
-  "Given vector expression return expression for direction of vector"
-   (if (equal (first vec-expr) 'at)
-      `(at (dir ,(second vec-expr)) ,(third vec-expr))
-    `(dir ,vec-expr)))
-
-(defun vector-at-spec (vec-expr &key (time '?time))
-  (if (equal (car vec-expr) 'at) vec-expr
-    `(at ,vec-expr ,time)))
-
+	     (or (equal 'mag (first q))
+		 (equal 'dir (first q))))))
+	 
 ;; Takes axis term of form (axis x 0), although those terms not used in kb
 (defun vector-compo (vec-expr axis-expr)
   "Given vector expr return expr for component along specified axis"
- (if (equal (first vec-expr) 'at)
-      `(at (compo ,(second axis-expr) ,(third axis-expr)
-                  ,(second vec-expr)) ,(third vec-expr))
-   `(compo ,(second axis-expr) ,(third axis-expr) ,vec-expr)))
+   `(compo ,(second axis-expr) ,(third axis-expr) ,vec-expr))
 
 ;; Texes a vector and the :axis and :rot args and returns a compo.
 ;; purely temporary I hope.
 (defun vector-compo-spec (vec-expr &key (axis '?xyz) (rot '?rot))
   "Given vec-expr and :axis and :rot return the vector."
-  (cond  ((equal (first vec-expr) 'at) (vector-compo-spec (second vec-expr) :axis axis :rot rot))
-	 ((equal (first vec-expr) 'compo) (list 'compo axis rot (fourth vec-expr)))
-	 ((equal (first vec-expr) 'mag) (list 'compo axis rot (second vec-expr)))
+  (cond  ((equal (first vec-expr) 'compo) 
+	  (list 'compo axis rot (fourth vec-expr)))
+	 ((equal (first vec-expr) 'mag) 
+	  (list 'compo axis rot (second vec-expr)))
 	 (t (list 'compo axis rot vec-expr))))
 
-; shorthand:
+;; shorthand:
 (defun vector-xc (vec-expr)
   "Given vector expr return expr for horizontal component"
   (vector-compo vec-expr '(axis x 0)))
@@ -560,31 +532,54 @@
 ; for vector component expressions:
 (defun componentp (expr)
    "true if expr denotes vector component (at time)"
-   (and (eq (first expr) 'at)
-        (eq (first (second expr)) 'compo)
-	(= (length (second expr)) 4)))
+   (and (eq (first expr) 'compo)
+	(= (length expr) 4)))
 
 (defun compo-base-vector (expr)
    "extract base vector from term for vector component (at time)"
-   ; (at (compo ?axis ?rot ?vector) ?t)
-   (let* ((time (third expr))
-          (vec  (fourth (second expr))))
-     `(at ,vec ,time)))
+   ;; (compo ?axis ?rot ?vector)
+   (fourth expr))
 
 (defun compo-axis-rot (expr)
    "extract axis rotation from term for vector component (at time)"
-   ; (at (compo ?axis ?rot ?vector) ?t)
-   (third (second expr)))
+   ;; (compo ?axis ?rot ?vector)
+   (third expr))
 
 (defun compo-axis-xyz (expr)
    "extract axis label from term for vector component (at time)"
-   ; (at (compo ?axis ?rot ?vector) ?t)
-   (second (second expr)))
+   ;; (compo ?axis ?rot ?vector)
+   (second expr))
 
-; for all possibly-time-indexed quantity expressions:
-(defun time-of (expr)
-   "return time of a quantity, NIL if none"
-   (if (eq (first expr) 'at) (third expr)))
+;; for all possibly-time-indexed quantity expressions:
+(defun time-of (quant)
+  "return time of a quantity, NIL if none"
+  (cond ((atom quant) (error "~A must be a list~%" quant))
+	((member ':time quant) (second (member ':time quant)))
+	;; this covers (compo ...), (mag ...), (dir ...):
+	((listp (first (last quant))) (time-of (first (last quant))))))
+
+;; for all possibly-time-indexed quantity expressions:
+(defun remove-time (expr)
+  "remove any time from quantity"
+  (cond ((atom expr) expr)
+	((member ':time expr) 
+	 (let* ((i (position ':time expr)) 
+		(post (subseq expr (+ i 2))))
+	  (get-any-default-value post)	;remove any default value from y
+	  (append (subseq expr 0 i) post))) ;expr with keyword pair removed
+	;; this covers (compo ...), (mag ...), (dir ...):
+	(t (mapcar #'remove-time expr))))
+
+(defun set-time (expr time)
+  "apply time to quantity"
+    (cond  ((equal (first expr) 'compo)     ;case (compo xyz axis quant)
+	    (append (subseq expr 0 3) (list (set-time (fourth expr) time))))
+	   ;; case (mag quant) or (dir quant)
+	   ((or (equal (first expr) 'mag) (equal (first expr) 'dir))
+	    (list (first expr) (set-time (second expr) time)))
+	   ;; all others assumed scalar
+	   ((listp expr) (append (remove-time expr) `(:time ,time)))
+	   (t (error "can't add time ~A to expression ~A~%" time expr))))
 
 ;;; ===================== hacks ========================================
 

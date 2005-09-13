@@ -348,7 +348,7 @@
        )))
  
  (defun check-given (event)
-   (cond ( (and (listp event)(equal (first event) 'given) (equalp (length (rest event)) 2) 
+   (cond ( (and (listp event) (equal (first event) 'given) (equalp (length (rest event)) 2) 
                                   		(not (givenp (first (rest event))))
                                   		(not (givenp (second (rest event))))
                                   		(equalp (intersection (event-list (first (rest event))) 

@@ -403,7 +403,7 @@
   ; remove any existing entry with same id 
   (remove-entry (StudentEntry-ID Entry)) 
   ; add new entry
-  (format T "~&Adding entry: ~A ~A~%" (studententry-id entry) (studententry-prop entry))
+  (format T "~&Adding entry: ~A ~S~%" (studententry-id entry) (studententry-prop entry))
   (push Entry *StudentEntries*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -419,7 +419,7 @@
  "Remove any existing student entry with specified ID, undoing its effects"
  (let ((old-entry (find-entry Id)))
    (when old-entry
-      (format T "~&Removing entry: ~A ~A~%" (studententry-id old-entry) (studententry-prop old-entry))
+      (format T "~&Removing entry: ~A ~S~%" (studententry-id old-entry) (studententry-prop old-entry))
       (undo-entry old-entry))
       ; and remove it from Entry listS
       (setf *StudentEntries*
