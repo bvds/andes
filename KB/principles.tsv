@@ -1,19 +1,19 @@
 GROUP	Write a Principle		
 GROUP	Kinematics		
 GROUP	Translational		
-LEAF	vavg = s/t                  average speed	sdd	Average speed
+LEAF	v(avg) = s/t               average speed	sdd	Average speed
 LEAF	v(avg)_x = d_x/t            average velocity	(avg-velocity ((?axis . x)))	Average velocity
 LEAF	v(avg)_y = d_y/t            average velocity	(avg-velocity ((?axis  .y)))	Average velocity
 LEAF	a(avg)_x = (vf_x - vi_x)/t  average acceleration	(lk-no-s ((?axis . x)))	Average acceleration
 LEAF	a(avg)_y = (vf_y - vi_y)/t  average acceleration	(lk-no-s ((?axis . y)))	Average acceleration
-LEAF	d_x = v0_x*t + 0.5*a_x*t^2 [ax is constant]	(lk-no-vf ((?axis . x)))	Constant acceleration
-LEAF	d_y = v0_y*t + 0.5*a_y*t^2 [ay is constant]	(lk-no-vf ((?axis . y)))	Constant acceleration
-LEAF	v_x = v0_x + a_x*t         [ax is constant (or time average)]	(lk-no-s ((?axis . x)))	Constant acceleration
-LEAF	v_y = v0_y + a_y*t         [ay is constant (or time average)]	(lk-no-s ((?axis . y)))	Constant acceleration
-LEAF	v_x^2 = v0_x^2 + 2*a_x*d_x [ax is constant]	(lk-no-t ((?axis . x)))	Constant acceleration
-LEAF	v_y^2 = v0_y^2 + 2*a_y*d_y [ay is constant]	(lk-no-t ((?axis . y)))	Constant acceleration
-LEAF	d_x = v_x * t              [vx is constant (ax=0)]	(sdd-constvel ((?axis . x)))	Constant velocity component
-LEAF	d_y = v_y * t              [vy is constant (ay=0)]	(sdd-constvel ((?axis . y)))	Constant velocity component
+LEAF	d_x = v0_x*t + 0.5*a_x*t^2 [a_x is constant]	(lk-no-vf ((?axis . x)))	Constant acceleration
+LEAF	d_y = v0_y*t + 0.5*a_y*t^2 [a_y is constant]	(lk-no-vf ((?axis . y)))	Constant acceleration
+LEAF	v_x = v0_x + a_x*t         [a_x is time average]	(lk-no-s ((?axis . x)))	Constant acceleration
+LEAF	v_y = v0_y + a_y*t         [a_y is time average]	(lk-no-s ((?axis . y)))	Constant acceleration
+LEAF	v_x^2 = v0_x^2 + 2*a_x*d_x [a_x is constant]	(lk-no-t ((?axis . x)))	Constant acceleration
+LEAF	v_y^2 = v0_y^2 + 2*a_y*d_y [a_y is constant]	(lk-no-t ((?axis . y)))	Constant acceleration
+LEAF	d_x = v_x * t              [a_x=0, v_x is constant]	(sdd-constvel ((?axis . x)))	Constant velocity component
+LEAF	d_y = v_y * t              [a_y=0, v_y is constant]	(sdd-constvel ((?axis . y)))	Constant velocity component
 LEAF	ac = v^2/r                 Centripetal acceleration (instantaneous)	centripetal-accel	Centripetal acceleration
 LEAF	Vac_x = Vab_x + Vbc_x      Relative velocity	(relative-vel ((?axis . x)))	Relative Velocity
 LEAF	Vac_y = Vab_y + Vbc_y      Relative velocity	(relative-vel ((?axis . y)))	Relative Velocity
@@ -21,9 +21,9 @@ END_GROUP
 GROUP	Rotational		
 LEAF	$w(avg) = $q/t                  average angular velocity	ang-sdd	Angular velocity
 LEAF	$a(avg) = ($wf - $wi)/t          average angular acceleration	rk-no-vf	Angular acceleration
-LEAF	$q_z = $w0_z*t + 0.5*$a_z*t^2   [$a_z is constant (or time average)]	rk-no-vf	Constant angular acceleration
-LEAF	$w_z = $w0_z + $a_z*t           [$a_z is constant (or time average)]	rk-no-s	Constant angular acceleration
-LEAF	$w_z^2 = $w0_z^2 + 2*$a_z*$q_z   [$a_z is constant (or time average)]	rk-no-t	Constant angular acceleration
+LEAF	$q_z = $w0_z*t + 0.5*$a_z*t^2   [$a_z is constant	rk-no-vf	Constant angular acceleration
+LEAF	$w_z = $w0_z + $a_z*t           [$a_z is time average]	rk-no-s	Constant angular acceleration
+LEAF	$w_z^2 = $w0_z^2 + 2*$a_z*$q_z  [$a_z is constant]	rk-no-t	Constant angular acceleration
 LEAF	v = $w*r                       Linear velocity at a certain radius	linear-vel	Linear velocity
 LEAF	v = $w*r                       Linear velocity of rolling object	rolling-vel	Linear velocity
 END_GROUP			
