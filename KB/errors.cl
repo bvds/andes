@@ -717,7 +717,7 @@
    (list   ;; height-at-points
     (strcat "Height is defined relative to the zero of "
 	    "gravitational potential energy, which is usually "
-	    "specified in the probelm statement (if not, you "
+	    "specified in the problem statement (if not, you "
 	    "should specify it).  Thus, you always define height "
 	    "at a time point, and that refers to its vertical "
 	    "distance above or below the zero point.  Thus, you "
@@ -3718,9 +3718,12 @@
    ; don't check if parameter: h1 may be a parameter but h2 not 
    ;(test (canonical-var-cancelling-var-p ?var))
    (var-defn ?var (height ?body :time ?time))
-   ; make sure no zero-level stated in givens: RISKY! it's possible a body is never at the zero level (Exe5a).
-   ; Currently heights happen to be given when this is true, so its OK, but test could fail in future.
-   ; We need to add some other way of identifying the zero level in the problem givens.
+   ;; make sure no zero-level stated in givens: RISKY! it's possible a body 
+   ;; is never at the zero level (e5a).
+   ;; Currently heights happen to be given when this is true, so its OK, 
+   ;; but test could fail in future.
+   ;; We need to add some other way of identifying the zero level in 
+   ;; the problem givens.
    (test (not (find '(given (height ?body :time ?time) (dnum 0 |m|)) 
                      (problem-givens *cp*) :test #'unify)))
    )
