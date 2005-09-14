@@ -6450,7 +6450,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		(moment-of-inertia ?b) ;needs to be constant
 		(mass ?b) ;needs to be constant
 		(height ?cm :time ?t)
-		(spring-constant ?s :time ?t)
+		(spring-constant ?s)
 		(compression ?s :time ?t)
 		(gravitational-acceleration ?planet)
 	      ))
@@ -6707,7 +6707,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects (
    (eqn (= ?kr-var (* 0.5 ?m-var (^ ?v-var 2)))
-        (rotational-energy ?body :time ?t))
+        (rotational-energy ?body ?t))
    )
   :hint (
   (point (string "Try writing the definition of rotational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
@@ -6728,7 +6728,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects (
   (eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
-       (grav-energy ?body ?planet :time ?t))
+       (grav-energy ?body ?planet ?t))
   )
   :hint (
    (point (string "Try writing an equation for gravitational potential energy of ~a ~a" (?body def-np) (?t pp)))
@@ -6756,7 +6756,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects (
   (eqn (= ?PE-var (* 0.5 ?k-var (^ ?d-var 2)))
-       (spring-energy ?body ?spring :time ?t))
+       (spring-energy ?body ?spring ?t))
   )
 
   :hint (
@@ -6779,7 +6779,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		  (variable ?PE-var (spring-energy ?body ?spring :time ?t))
 		  )
   :effects (
-	    (eqn (= ?PE-var 0) (spring-energy ?b ?spring :time ?t))
+	    (eqn (= ?PE-var 0) (spring-energy ?b ?spring ?t))
 	    )
   :hint (
 	 (point (string "Notice that ~A is not in contact with a spring ~A 
@@ -7317,9 +7317,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ; write fundamental principle Wnet = ke2 - ke1
     (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-delta-ke ?b ?t1 ?t2))
     ; write out ke1 = 0.5 * m * v1^2
-    (eqn (= ?ke1-var ?ke1-val) (kinetic-energy ?b :time ?t1))
+    (eqn (= ?ke1-var ?ke1-val) (kinetic-energy ?b ?t1))
     ; write out ke2 = 0.5 * m * v2^2
-    (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b :time ?t2))
+    (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b :?t2))
  )
  :effects ; post derived summary equation using written out ke terms
   ((derived-eqn (= ?Wnet-var (- ?ke2-val ?ke1-val)) 
@@ -7355,7 +7355,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			   (mag (velocity ?b :time ?t))
 	                   (mass ?b) 
 	                   (height ?b :time ?t)
-	                   (spring-constant ?s :time ?t)
+	                   (spring-constant ?s)
 	                   (compression ?s :time ?t)
 	                   (gravitational-acceleration ?planet)
                            (work-nc ?b :time (during ?t1 ?t2)) ))
@@ -8117,11 +8117,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; !! Not clear if have to write equation for each of these
    ; write sub equation for each initial ke, saving values
    (map ?b ?bodies
-     (eqn (= ?var ?ke1-val) (kinetic-energy ?b :time ?t1))
+     (eqn (= ?var ?ke1-val) (kinetic-energy ?b ?t1))
      ?ke1-val ?ke1-terms)
    ; write sub equation for each final ke, saving values
    (map ?b ?bodies
-     (eqn (= ?var ?ke2-val) (kinetic-energy ?b :time ?t2))
+     (eqn (= ?var ?ke2-val) (kinetic-energy ?b ?t2))
      ?ke2-val ?ke2-terms)
   )
   :effects (
