@@ -6686,7 +6686,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects (
    (eqn (= ?ke-var (* 0.5 ?m-var (^ ?v-var 2)))
-        (kinetic-energy ?body :time ?t))
+        (kinetic-energy ?body ?t))
    )
   :hint (
   (point (string "Try writing the definition of translational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
