@@ -68,7 +68,8 @@
 ;;Define the quantity pressure.  The variable of choice is "P".
 (def-qexp pressure (pressure ?position :time ?time)
    :units |Pa|
-   :english ("the pressure at point ~a in the fluid" (nlg ?position))
+   :english ("the pressure at point ~a in the fluid" 
+	     (nlg ?position 'at-time ?time))
    :fromWorkbench `(pressure ,body :time ,time)
 )
 
@@ -310,7 +311,7 @@
 (def-qexp area-at (area-at ?position :time ?time)
      :units |m^2|
      :restrictions positive
-     :english ("the cross-sectional area at ~A" (nlg ?position))
+     :english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
      :fromworkbench `(area-at ,body :time ,time)
 )
 
@@ -625,7 +626,7 @@
 (def-qexp volume (volume ?body :time ?time)
      :units |m^3|
      :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
-     :english ("the volume of ~A" (nlg ?body))
+     :english ("the volume of ~A" (nlg ?body 'at-time ?time))
      :fromworkbench `(volume ,body :time ,time)
    )
 

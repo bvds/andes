@@ -7614,12 +7614,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;  Net power produced by some source
 ;;;
 
-(def-qexp net-power-out (net-power-out ?source :time ?time)
-  :units |W|
-  :english ("the total power produced by ~A" 
-	       (nlg ?source))
-  :fromWorkbench `(net-power-out ,body :time ,time))
-
 (defoperator define-net-power-out (?source  ?t)
   :preconditions
   ((bind ?p-var (format-sym "power_~A_~A" 
@@ -8842,11 +8836,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 
 ;;; mass per length
-(def-qexp mass-per-length (mass-per-length ?rope)
-  :units |kg/m|
-  :restrictions nonnegative 
-  :english ("the mass-per-length of ~A" (nlg ?rope))
-  :fromworkbench `(mass-per-length ,body))
 
 (defoperator mass-per-length (?rope)
   :preconditions(

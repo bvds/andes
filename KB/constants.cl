@@ -25,7 +25,7 @@
 ;;;
 
 (defun enter-predefs ()
-  ;; if there is one planet specified, predefine g for this planet 
+  ;; if there is exactly one planet specified, predefine g for this planet 
   (let* ((planet-props (filter-expressions '(near-planet ?p :body ?whatever) 
 					   (problem-givens *cp*)))
 	 (planet   (when (= (length planet-props) 1) 

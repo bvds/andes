@@ -99,7 +99,7 @@
   :units |Hz|
   :restrictions nonnegative 
   :english ("the frequency of ~A as observed by ~A" 
-	       (nlg ?wave) (nlg ?me))
+	       (nlg ?wave) (nlg ?me 'at-time ?time))
   :fromWorkbench `(observed-frequency ,body ,body2 :time ,time))
 
 (defoperator define-observed-frequency (?wave ?me ?t)
@@ -863,7 +863,7 @@
   :units |W/m^2|
   :restrictions positive
   :english ("the intensity supplied to ~A due to ~A" 
-	       (nlg ?wave) (nlg ?agent 'agent))
+	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
    :fromWorkbench (if (string-equal body2 '|all sources|)
                      `(net-intensity ,body :time ,time)
                   `(intensity ,body ,body2 :time ,time)))
@@ -886,7 +886,7 @@
 (def-qexp net-intensity (net-intensity ?wave :time ?time)
   :units |W/m^2|
   :restrictions positive  
-  :english ("the net intensity supplied to ~A" (nlg ?wave)))
+  :english ("the net intensity supplied to ~A" (nlg ?wave 'at-time ?time)))
 
 ;; based on define-net-work
 (defoperator define-net-intensity (?wave ?t)
@@ -939,7 +939,7 @@
 (def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
   :units |dB|
   :english ("the intensity supplied to ~A due to ~A in decibels" 
-	       (nlg ?wave) (nlg ?agent 'agent))
+	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))
   :fromWorkbench (if (string-equal body2 '|all sources|)
                      `(net-db-intensity ,body :time ,time)
                   `(db-intensity ,body ,body2 :time ,time)))
@@ -964,7 +964,7 @@ due to ~A by using the Add Variable command on the Variable menu and selecting d
 (def-qexp net-db-intensity (net-db-intensity ?wave :time ?time)
   :units |dB|
   :english ("the total intensity supplied to ~A, in decibels" 
-	       (nlg ?wave)))
+	       (nlg ?wave 'at-time ?time)))
 
 (defoperator define-net-db-intensity (?wave ?t)
   :preconditions

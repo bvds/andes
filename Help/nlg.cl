@@ -54,12 +54,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
-  "Take any print format from the ontology and add time."  
-  (format nil "~A~@[ ~A~]" 	
-	  (or (nlg-find (remove-time x) *Ontology-ExpTypes* 
-		#'ExpType-Form #'ExpType-English)
-	      (remove-time x))		;give up and just print list
-	  (nlg (time-of x) 'pp)))	;add any time specification
+  (cond ((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
+	(t (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -144,8 +140,8 @@
 ;;
 (defun pp (x &rest args)
   (cond ((null x) nil)
-	((not (atom x)) (nlg-list-default x args)) ;handles (during ...)
-	((numberp x) (format nil "at T~A" (- x 1)))
+	((listp x) (nlg-list-default x args)) ;handles (during ...)
+	((numberp x) (format nil "at T~D" (- x 1)))
 	(t (format nil "at ~(~A~)" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -248,6 +244,12 @@
   (if (atom x)
       (format nil "T~(~A~)" (if (numberp x) (1- x) x))
     (nlg-list-default x args)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;  This is a shortcut for including time when it exists
+(defun at-time (x &rest args)
+  (if (= (length args) 1)
+      (format nil "~A~@[ ~A~]" (nlg x) (nlg (car args) 'pp))
+    (nlg-list-defautl x args)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Because times can appear either as durations or individual numbers therefore

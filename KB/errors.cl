@@ -1855,7 +1855,7 @@
    (list (format nil (strcat "None of the solutions that I know of include"
 			     " force vectors on ~a.") (nlg body 'def-np)))))
 
-;;; In the situation (such as Exdt5a) where no single forces are 
+;;; In the situation (such as dt5a) where no single forces are 
 ;;; defines on a body but the net foce is.
 (def-error-class net-force-only-on-body (?body ?net-time ?net-dir)
   ((student (vector (force ?body ?agent ?type :time ?time) ?dir))
@@ -2755,9 +2755,9 @@
                           (nlg cagent 'agent) (nlg sagent 'agent)))))
 
 
-;;; -------------------------------- equation error handlers ------------------------
+;;; -------------------------- equation error handlers ------------------------
 
-;;; ================ substitute similar variable ==================================
+;;; ================ substitute similar variable ==============================
 ;;; These error classes all result from the student using one variable
 ;;; when similar variable would make the equation correct.
 
