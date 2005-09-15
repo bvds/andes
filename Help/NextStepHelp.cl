@@ -2715,10 +2715,11 @@
 (defun nsh-pick-fp (message Sought &key (Case 'Default-nsh-pick-best))
   "pick the appropriate first principle."
   (let* ((P (nsh-pick-best-fp Sought))
-	 (s (remove-if-not #'(lambda (S) (equal (car S) P)) *nsh-solution-sets*))) 
+	 (S (remove-if-not #'(lambda (S) (member P S :test #'equal)) 
+			   *nsh-solution-sets*))) 
     (setq *nsh-current-solutions* S)
     (if (nsh-principle-completed-p P)
-	(nsh-prompt-done-fp message (nsh-pick-best-solution S) :Case Case)
+	(nsh-prompt-done-fp message P (nsh-pick-best-solution S) :Case Case)
       (nsh-prompt-fp-solution message P :Case Case))))
 
 
@@ -2740,18 +2741,18 @@
 ;;; If the first principle in our chosen solution is done, then we 
 ;;; will go ahead and prompt the students to do it with a comment
 ;;; Again this is stubbed for now.
-(defun nsh-prompt-done-fp (message Solution &key Case)
+(defun nsh-prompt-done-fp (message Principle Solution &key Case)
   "Prompt the solution."
   (make-dialog-turn
    (strcat Message "  You have already finished "
-	   (nlg (nsh-principle-expression (car Solution)) 'psm-exp)
+	   (nlg (nsh-principle-expression Principle) 'psm-exp)
 	   ".  This is acceptable as an initial principle application.  "
 	   "Why don't you start on the next principle?")
    **Explain-More**
    :Responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
-   :Assoc `(nsh prompt-done-fp ,Case ,(nsh-principle-expression (car Solution)))))
+   :Assoc `(nsh prompt-done-fp ,Case ,(nsh-principle-expression Principle))))
 
 
 
