@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Newtons2 -- Andes2 Physics problem solving operators
 ;;
@@ -2806,7 +2806,7 @@
 	       ((mag (accel ?b :time ?t))
 		(gravitational-acceleration ?planet)))
    (free-fall ?b ?t)
-   (near-planet ?planet))
+   (near-planet ?planet :body ?b ?b))
   :effects
   ((eqn-contains (free-fall-accel ?b ?t) ?quantity)))
 
@@ -2822,14 +2822,14 @@
      that planet"
   :preconditions
   ((free-fall ?b ?t)
-   (near-planet ?planet)
+   (near-planet ?planet :body ?b ?b)
    (variable ?accel-var (mag (accel ?b :time ?t)))
    (variable ?g-var (gravitational-acceleration ?planet))
    )
   :effects
   ((eqn (= ?accel-var ?g-var) (free-fall-accel ?b ?t)))
   :hint
-  ((teach (string "If an object is in free-fall near a planet, its acceleration equals the acceleration due to gravity for that planet. The variable g is predefined in Andes to denote the magnitude of the gravitational acceleration, so you don't have to define g before you use it. However, you will ultimately have to enter an equation giving the value of g."))
+  ((teach (string "If an object is in free-fall near a planet, its acceleration equals the acceleration due to gravity for that planet. The variable g is predefined in Andes to denote the magnitude of the gravitational acceleration, so you don't have to define g before you use it. However, you will have to enter an equation giving the value of g."))
    (bottom-out (string "Write the equation ~A." ((= ?accel-var ?g-var) algebra)))
    ))
 
@@ -4125,7 +4125,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (part-of ?part ?b))
     (time ?t)
     (not (massless ?b))
-    (near-planet ?planet)
+    (near-planet ?planet :body ?b ?b)
     (not (force ?b ?planet weight ?t . ?dont-care)))
   :effects (
      (force ?b ?planet weight ?t (dnum 270 |deg|) action)
@@ -4172,7 +4172,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (in-wm (center-of-mass ?cm (?b)))
     (time ?t)
     (not (massless ?b))
-    (near-planet ?planet)
+    (near-planet ?planet :body ?b ?b)
     (not (vector ?cm (force ?cm ?planet weight :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fw_~A_~A_~A" ?cm ?planet 
                                              (time-abbrev ?t)))
@@ -5732,7 +5732,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ; we need the mass of the whole body, plus special hint.
    (not (part-of ?b ?rigid-body))
    (time ?t)
-   (near-planet ?planet)
+   (near-planet ?planet :body ?b ?b)
    (not (massless ?b))) 
   :effects
   ((eqn-contains (wt-law ?b ?t) ?quantity)))
@@ -5762,7 +5762,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      on the body, m is the body's mass and g is the gravitational
      acceleration of the planet."
   :preconditions
-   ((near-planet ?planet)
+   ((near-planet ?planet :body ?b ?b)
     (not (massless ?b))
     (mass-variable ?m-var ?b ?t)
     (variable ?w-var (mag (force ?b ?planet weight :time ?t)))
@@ -5774,7 +5774,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((point (string "Try applying the weight law."))
    (teach 
        (kcd "write_w_is_mg")
-       (string "The weight law for a body is W=m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration of earth or whatever planet is nearby."))
+       (string "The weight law for a body is W=m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration at the surface of the planet."))
    (bottom-out (string "Write ~a=~a*~a" (?w-var algebra) (?m-var algebra) (?g-var algebra)))))
 
 ;; variant applies weight to a rigid body. In this case the quantity is
@@ -5794,7 +5794,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (mass ?rigid-body)
 		 (gravitational-acceleration ?planet)))
    (time ?t)
-   (near-planet ?planet)
+   (near-planet ?planet :body ?rigid-body ?rigid-body)
    (not (massless ?rigid-body))) 
   :effects
   ((eqn-contains (wt-law ?rigid-body ?t) ?quantity)))
@@ -5902,12 +5902,27 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; that uses them. Perhaps a pre-processing phase could add the set of 
 ;; predefined constants to every problem's givens. But until we sort out
 ;; how to handle predefined terms, this is the consistent method to use.
+
 (defoperator define-grav-accel (?planet)
   :preconditions 
-  ( (bind ?g-var (format-sym "g_~A" ?planet)) )
+  ( ;; for one planet, variable is already defined
+   (setof (in-wm (near-planet ?aplanet :body ?whatever)) ?aplanet ?planets)
+   (test (= (length ?planets) 1))
+   (bind ?g-var (format-sym "g_~A" ?planet)) )
+  :effects ( (variable ?g-var (gravitational-acceleration ?planet)) ))
+
+(defoperator define-grav-accel-explicitly (?planet)
+  :preconditions 
+  (  ;; for more than one planet, student must explicitly define variable
+   (setof (in-wm (near-planet ?aplanet :body ?whatever)) ?aplanet ?planets)
+   (test (> (length ?planets) 1))
+   (bind ?g-var (format-sym "g_~A" ?planet)) )
   :effects 
   ( (variable ?g-var (gravitational-acceleration ?planet))
-    (define-var (gravitational-acceleration ?planet)) ))
+    (define-var (gravitational-acceleration ?planet)) )
+  :hint 
+  ((bottom-out 
+    (string "Define a variable for the gravitational acceleration of ~A by using the Add Variable command on the Variable menu and selecting gravitational acceleration."  ?planet))))
 
 ;;;; ========================== Newton's law ================================ 
 
@@ -6604,7 +6619,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator define-grav-ee-var (?b ?t)
     :preconditions (
 	  ;; use this for gravity near surface of a planet only
-          (near-planet ?planet) ; 
+          (near-planet ?planet :body ?b ?b)  
 	  (variable ?var (grav-energy ?b ?planet :time ?t))
     )
     :effects ( (ee-var ?b ?t ?var) ))
@@ -6725,7 +6740,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; Note relies on problem statement stipulating zero level. 
 (defoperator write-grav-energy (?body ?planet ?t)
   :preconditions (
-  (near-planet ?planet)
+  (near-planet ?planet :body ?body ?body)
   (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (variable ?m-var  (mass ?body))
   (use-point-for-body ?body ?cm ?axis) ;always use cm

@@ -1375,13 +1375,13 @@
   
 
 
-;;;; ====================== Multiple-choice-Problems =============================
+;;;; ====================== Multiple-choice-Problems ==========================
 ;;;; For the Multiple-choice only problems the only tasks that they students need
 ;;;; to complete are the multiple-choice problems themselves.  Therefore the only
 ;;;; help that NSH will give is to alert the students to this fact and to prompt 
 ;;;; them to coninue their work on the problem.  
 
-;;; -------------------------------- Done ----------------------------------------
+;;; -------------------------------- Done -------------------------------------
 ;;; On a multiple-choice only problem the student is done working on the problem
 ;;; when they have answered all of the questions.  This is defined by them having
 ;;; defined one entry for each sought.  I am not going to require that the entries
@@ -1461,7 +1461,7 @@
 
 
 
-;;; ---------------------------- Start -----------------------------------------
+;;; ---------------------------- Start ----------------------------------------
 ;;; When starting an mc-only problem we will give the initial preamble and them 
 ;;; inform the students that they should start work on this task. 
 (defun nsh-mc-only-start ()
@@ -1478,11 +1478,11 @@
    :Assoc '(nsh mc-only start)))
 
 
-;;; -------------------------------- Next ---------------------------------------
+;;; -------------------------------- Next -------------------------------------
 ;;; When the student has already been working on an mc-only problem we want to
-;;; give them the same message that they were given originally but, if they have
-;;; made any incorrect entries we want to offer them the chance to change those 
-;;; entries.
+;;; give them the same message that they were given originally but, if they 
+;;; have made any incorrect entries we want to offer them the chance to change 
+;;; those entries.
 (defun nsh-mc-only-prompt ()
   (make-dialog-turn 
    (strcat "On problems of this type you need to answer "
@@ -1598,7 +1598,7 @@
 
 
 
-;;;; ================== prompting the sought/first principle =====================
+;;;; ================ prompting the sought/first principle ====================
 ;;;; Once the student has completed the givens we want to prompt them to 
 ;;;; identify whant quantities the problem is seeking and then what major 
 ;;;; principle the student will use to find (it|them).  This takes the student 
@@ -2311,7 +2311,7 @@
 
 
 
-;;; -------------------------- Choose-best-fp ----------------------------------------
+;;; -------------------------- Choose-best-fp ---------------------------------
 ;;; Once the student has selected (or been given) a valid first-principle filter then 
 ;;; we want to choose the specific first-principle/solution that we will prompt them
 ;;; to make.  This code takes a list of valid first principles, the sought, and Past
@@ -2572,9 +2572,9 @@
 
   
 
-;;; If the student has elected to stick with their current axes then we want to 
-;;; filter the solutions that are compatible with their selection, and to prompt
-;;; them to work on the best.
+;;; If the student has elected to stick with their current axes then we want 
+;;; to filter the solutions that are compatible with their selection, and to 
+;;; prompt them to work on the best.
 (defun nsh-cbf-change-no (Solutions Principles Sought Past)
   "Prompt the best of the compatible solutions."
   (nsh-cbf-success (nsh-pick-best-solution (nsh-pick-axes-done-solutions Solutions))
@@ -2608,20 +2608,21 @@
    :Assoc `(nsh cbf-axes-draw-prompt ,Prompt)))
 
 
-;;; ---------------------------- Success ----------------------------------------------
-;;; Once the cbf has selected a solution that we wish to hint we need to identify the
-;;; specific first principle (from among the set of principles) that will be prompted.
-;;; Once that is done the specific first-principle will be prompted according to its 
-;;; state, and the *nsh-current-solutions* will be defined as the set of all solutions
-;;; that contain the chosen-fp.  This reverse-lookup is done for the purposes of later
-;;; solving.
+;;; ---------------------------- Success --------------------------------------
+;;; Once the cbf has selected a solution that we wish to hint we need to 
+;;; identify the specific first principle (from among the set of principles) 
+;;; that will be prompted.
+;;; Once that is done the specific first-principle will be prompted according 
+;;; to its state, and the *nsh-current-solutions* will be defined as the set 
+;;; of all solutions that contain the chosen-fp.  This reverse-lookup is done 
+;;; for the purposes of later solving.
 ;;;
 ;;; If One is completed take it.
 ;;; Elif One is started then take it.
 ;;; Else take the first one.  
 ;;;
-;;; NOTE:: for the purposes of this code I am assuming that all acceptable fp's are
-;;;        the same and am ignoring the Principle/Definition divide.  
+;;; NOTE:: for the purposes of this code I am assuming that all acceptable 
+;;; fp's are the same and am ignoring the Principle/Definition divide.  
 (defun nsh-cbf-success (Solution Principles Sought Past &Key (Prefix ()))
   (declare (ignore Sought) (ignore Past))
   (let (Best (Choices (intersection Solution Principles))
@@ -2687,7 +2688,7 @@
 
 
 
-;;;--------------- Wrong principle -------------------------------
+;;;-------------------------- Wrong principle ---------------------------------
 ;;; If the student fails to select the appropriate principle 
 ;;; then we want to give them an appropriate response message
 ;;; and, if they have failed **max-first-principle-tries** then 
@@ -2820,7 +2821,7 @@
   (trace-nsh-ask-first-principle))
 
 	 
-;;;; ===================== Prompting Done =========================================
+;;;; ===================== Prompting Done =====================================
 ;;;; If the student has completed all of the work in a given solution, then we 
 ;;;; can know that they are done.  In this case, we need to prompt them to 
 ;;;; complete the problem by either entering the answer in the answer box (quant 
@@ -3000,7 +3001,7 @@
     (nsh-prompt-Principle Prefix Node :Assoc Assoc)))
 
 
-;;; -------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Prompting a Quantity.
 ;;; Prompting a quantity is a matter of telling the student to work on the 
 ;;; appropriate quantity by type.  At present only parameter nodes should
@@ -3027,7 +3028,7 @@
    :Assoc Assoc)) 
 
 
-;;; ----------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Prompting a principle
 ;;; Prompting principles differentiate by the type of the principle the message
 ;;; that will be used.  Apart from that they are all the same.
@@ -3227,7 +3228,7 @@
    Solutions))
 
 
-;;; ---------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Given a list of solutions 
 (defun nsh-filter-solutions-by-axes (Axes &optional (Solutions *nsh-solution-sets*))
   "Pick solutions on which one of the axes have been drawn."
