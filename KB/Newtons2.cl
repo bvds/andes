@@ -6553,6 +6553,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; used for projections, we rely on a naming convention for the equations for 
 ;;; the constituent terms, s.t. an expression for (energy-type ?b :time ?t) can 
 ;;; be obtained by writing the equation named (energy-type ?b ?t)
+;;; This is because the associated (def-equation ...) in the Ontology
+;;; has this form.
 (defoperator write-total-energy (?b ?t)
  :preconditions (
    ;; first get top-level equation summing constituents of total energy
@@ -6561,10 +6563,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (map ?var ?energy-vars
         (in-wm (variable ?var ?quant))
      ?quant ?energy-quants)
-   ;; Use list of energy quantities as list of equation ids.
+   ;; Convert list of quantities to list of equation ids by
+   ;; removing :time keyword pair and appending time to end.
+   (bind ?energy-eqn-ids 
+	 (mapcar #'(lambda (q) (nconc (remove-time q) (list (time-of q))))
+		 ?energy-quants))
    ;; Requires that each pe-quant-name and pe-equation id must be the same!
    ;; generate equation for each constituent quantity, saving rhs exprs:
-   (map ?eqn-id ?energy-quants
+   (map ?eqn-id ?energy-eqn-ids
 	(eqn (= ?var ?expr) ?eqn-id)
      ?expr ?energy-exprs)
  )
