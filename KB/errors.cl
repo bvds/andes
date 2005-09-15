@@ -2430,7 +2430,7 @@
 ;;; Torques will always be part of the z axis so we need to define a 
 ;;; new specific error handler along that axis.
 
-(def-error-class missing-torques-in-z-axis-sum (?time ?missing-non-zero)
+(def-error-class missing-torques-in-z-axis-sum (?missing-non-zero)
   ((student-eqn ?dontcarewhatitis)	; ensure that the student's entry is an equation.
    (expr-loc ?loc ?sum)			; Get a sum expression if one is to be found.
    (test (sum-p ?sum))			; Ensure that the expression is a sum.
@@ -2466,17 +2466,19 @@
 ;;; have failed to draw one of the torques then we hint them to
 ;;; draw it.  Else we hint them to draw the set of torques that
 ;;; they have forgotten.
-(defun missing-torques-in-z-axis-sum (time missing-torques)
+(defun missing-torques-in-z-axis-sum (missing-torques)
   (let ((undrawn-torques (undrawn-vectors missing-torques)))
     (cond ((null undrawn-torques)	; only hint drawn forces if there are no undrawn ones
-	   (hint-drawn-forces (set-difference missing-torques undrawn-torques :test #'equal)))
+	   (hint-drawn-quants 
+	    "torque" (set-difference missing-torques undrawn-torques 
+		      :test #'equal)))
 	  ((null (cdr undrawn-torques))	; only one undrawn force to hint
-	   (hint-undrawn-force 
+	   (hint-undrawn-torque 
 	    "There is a torque acting on ~a ~a that you have not yet drawn."
-	    time (car undrawn-torques)))
-	  (t (hint-undrawn-force	; Hint all of the undrawn ones.
+	    (car undrawn-torques)))
+	  (t (hint-undrawn-torque	; Hint all of the undrawn ones.
 	      "Two or more torques acting on ~a ~a have not yet been drawn."
-	      time (car undrawn-torques))))))
+	      (car undrawn-torques))))))
 
 
 
@@ -2529,11 +2531,11 @@
       (torques-in-sum1 sum comp-pattern mag-pattern torque-pattern body time non-torques-ok))))
 
 
-;;; Torques-in-sum1 takes a sum and three patterns, a torque-patten, a pattern of a
-;;; component of the same torque, a magnitude of that torque, and then the body
-;;; time and non-torques-ok.  It then tests the elements as described below.  The 
-;;; result value will be a list of torques, nil if there are none, or the
-;;; non-torque-found-error condition if non-torques-ok is nil.
+;;; Torques-in-sum1 takes a sum and three patterns, a torque-patten, a pattern 
+;;; of a component of the same torque, a magnitude of that torque, and then 
+;;; the body time and non-torques-ok.  It then tests the elements as described 
+;;; below.  The  result value will be a list of torques, nil if there are none,
+;;; or the non-torque-found-error condition if non-torques-ok is nil.
 (defun torques-in-sum1 (expr comp-patt mag-patt torque-patt body time non-torques-ok)
   "Return the torques in the sum or nil if none are found or 
    non-torques are found and non-torques-ok is nil."
@@ -3224,7 +3226,7 @@
 ;;; Fa * cos(45 deg) = 0.  Substitute-mag-vars suggests replacing Fn
 ;;; with Fk.  Thus, the utility is boosted here.
 
-(def-error-class missing-forces-in-x-axis-sum (?time ?missing-non-zero)
+(def-error-class missing-forces-in-x-axis-sum (?missing-non-zero)
     ((student-eqn ?dontcare0)
      (expr-loc ?loc ?sum)
      (test (sum-p ?sum))
@@ -3243,11 +3245,11 @@
     (+ 0.1 (if (unify-with-student-entries (list 'draw-axes ?rot)) 0.3 0.0))
     :utility 100)
 
-(defun missing-forces-in-x-axis-sum (time missing-forces)
-  (missing-forces-in-sum time missing-forces))
+(defun missing-forces-in-x-axis-sum (missing-forces)
+  (missing-forces-in-sum missing-forces))
 
 
-(def-error-class missing-forces-in-y-axis-sum (?time ?missing-non-zero)
+(def-error-class missing-forces-in-y-axis-sum (?missing-non-zero)
     ((student-eqn ?dontcare0)
      (expr-loc ?loc ?sum)
      (test (sum-p ?sum))
@@ -3267,64 +3269,67 @@
     (+ 0.1 (if (unify-with-student-entries (list 'draw-axes ?rot)) 0.3 0.0))
     :utility 100)
 
-(defun missing-forces-in-y-axis-sum (time missing-forces)
-  (missing-forces-in-sum time missing-forces))
+(defun missing-forces-in-y-axis-sum (missing-forces)
+  (missing-forces-in-sum missing-forces))
 
-;;; If there are missing forces in a sum then there are three possible situations
-;;; firstly the student has failed to draw all of the necessary forces.  In that
-;;; case they will be hinted to draw them.  Else, if they have left out only one
-;;; of the necessary forces then they will be told to add those.  Else they will 
-;;; be instructed to draw add the first of the missing forces.  In time this will
-;;; be changed.    
-(defun missing-forces-in-sum (time missing-forces)
+;;; If there are missing forces in a sum then there are three possible 
+;;; situations firstly the student has failed to draw all of the necessary 
+;;; forces.  In that case they will be hinted to draw them.  Else, if they 
+;;; have left out only one of the necessary forces then they will be told to 
+;;; add those.  Else they will be instructed to draw add the first of 
+;;; the missing forces.  In time this will be changed.    
+(defun missing-forces-in-sum (missing-forces)
   (let ((undrawn-forces (undrawn-vectors missing-forces)))
     (cond ((null undrawn-forces) ; only hint drawn forces if there are no undrawn ones
-	   (hint-drawn-forces
-	    (set-difference missing-forces undrawn-forces :test #'equal)))
+	   (hint-drawn-quants
+	    "force" (set-difference missing-forces undrawn-forces 
+		     :test #'equal)))
 	  ((null (cdr undrawn-forces)) ; only one undrawn force to hint
 	   (hint-undrawn-force 
 	    "There is a force acting on ~a ~a that you have not yet drawn."
-	    time (car undrawn-forces)))
+	    (car undrawn-forces)))
 	  (t (hint-undrawn-force 
 	      "Two or more forces acting on ~a ~a have not yet been drawn."
-	      time (car undrawn-forces))))))
+	      (car undrawn-forces))))))
 
 (defun undrawn-vectors (vectors)
-  "Given a list of vector descriptors, returns the subset 
+  "Given a list of vector descriptors, returns the subset
    of the vectors that has not been drawn by the student"
   (loop for v in vectors 
       unless (unify-with-student-entries `(vector ,v ?dir)) 
       collect v))
 
 ;;; 
-(defun hint-drawn-forces (forces)
+(defun hint-drawn-quants (quant forces)
   "Return a hint sequence for a set of forces that have already
    been drawn by the student"
   (if (null (cdr forces))
       (make-hint-seq
-       (list "Did you leave a force out of your sum of forces?"
-	     (format nil "You left ~a out of your sum of forces" 
-		     (nlg (car forces) 'def-np))))
+       (list (format nil "Did you leave a ~A out of your sum of ~As?"
+		     quant quant) ;no nlg here
+	     (format nil "You left ~a out of your sum of ~As" 
+		     (nlg (car forces) 'def-np) quant)))
     (make-hint-seq
-     (list "Some forces may be missing from your sum of forces."
-	   (format nil "You left several forces out: ~a"
-		   (nlg forces 'conjoined-defnp))))))
-  
+     (list (format nil "Some ~As may be missing from your sum of ~As."
+		   quant quant) ;no nlg here
+	   (format nil "You left several ~As out: ~a"
+		   quant (nlg forces 'conjoined-defnp))))))
 
-(defun hint-undrawn-force (msg time force)
+(defun hint-undrawn-force (msg force)
   "Return a hint sequence for a force that has not yet been drawn by
-   the student.  Msg is a format string with two ~a in it for the
-   body and time.  It indicates whether one or mulple forces are
-   missing from the diagram."
+    the student.  Msg is a format string with two ~a in it for the
+    body and time.  It indicates whether one or mulple forces are
+    missing from the diagram."
   (let ((type (fourth force))
 	(body (second force))
-	(agent (third force)))
+	(agent (third force))
+	(time (time-of force)))
     (make-hint-seq
      (cons (format nil msg
-		   (nlg body 'def-np) 
+		   (nlg body 'def-np)
 		   (nlg  time 'pp))
-	   (hint-sequence-from-op-ap 
-	    (case type  ; create an operator application to pass in
+	   (hint-sequence-from-op-ap
+	    (case type		  ;create an operator application to pass in
 	      (applied (list 'draw-applied-force body agent time))
 	      (kinetic-friction (list 'draw-kinetic-friction body agent time))
 	      (static-friction (list 'draw-static-friction body agent time))
@@ -3332,6 +3337,23 @@
 	      (spring (list 'draw-spring-force body agent time))
 	      (tension (list 'draw-tension body agent time))
 	      (weight (list 'draw-weight body time agent))))))))
+
+(defun hint-undrawn-torque (msg torque)
+  "Return a hint sequence for a torque that has not yet been drawn by
+    the student.  Msg is a format string with two ~a in it for the
+    body and time.  It indicates whether one or mulple forces are
+    missing from the diagram."
+  (let ((force (fourth torque))
+	(body (second torque))
+	(time (time-of torque)))
+    (make-hint-seq
+     (cons (format nil msg
+		   (nlg body 'def-np)
+		   (nlg  time 'pp))
+	   (hint-sequence-from-op-ap
+	    (list 'draw-torque body (third torque) 
+		  (second force) (third force) (fourth force) 
+		  time))))))
 
 ;;; If NIL is passed in, then the force type was unknown and its an
 ;;; error. Stubbed out.
@@ -3401,7 +3423,7 @@
 (defun forces-in-sum (sum &optional (body '?body) (time '?time) (non-forces-ok nil))
   (let ((comp-pattern `(compo ?xyz ?rot (force ,body ?agent ?type :time ,time)))
 	(mag-pattern `(mag (force ,body ?agent ?type :time ,time)))
-	(force-pattern `(force ,body ?agent ?type)))
+	(force-pattern `(force ,body ?agent ?type :time ,time)))
     (catch 'non-force-found
       (forces-in-sum1 sum comp-pattern mag-pattern force-pattern non-forces-ok))))
 
