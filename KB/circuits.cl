@@ -552,54 +552,54 @@
 
 ;May need to uncomment (resistance) as a sought to get currents to work
 (defoperator ohms-law-contains-resistor (?sought)
-             :preconditions(
-                            (any-member ?sought ((current-thru ?res :time ?t)
-                                                 (voltage-across ?res :time ?t)))
-                            (time ?t)
-                            (circuit-component ?res resistor)
-                            ;Added mary/Kay 7 May
-                            ;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
-                            ;(test (member ?res ?path :test #'equal))     
+  :preconditions(
+		 (time ?t)
+		 (any-member ?sought ((current-thru ?res :time ?t)
+				      (voltage-across ?res :time ?t ?t)))
+		 (circuit-component ?res resistor)
+		 ;; Added mary/Kay 7 May
+		 ;; (branch ?br-res ?dontcare1 ?dontcare2 ?path)
+		 ;; (test (member ?res ?path :test #'equal))     
                             )
-             :effects(
-                      (eqn-contains (ohms-law ?res ?t) ?sought)
-                      ))
+  :effects(
+	   (eqn-contains (ohms-law ?res ?t) ?sought)
+	   ))
 
 (defoperator single-resistance-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((resistance ?res)))
-			    ; only apply for resistance of atomic resistor:
-			    ; (Why? -- AW)
-                            (test (atom ?res))
-                            (time ?t)
-                            (circuit-component ?res resistor)
-                            ;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
-                            ;(test (member ?res ?path))
-                            )
-             :effects(
-                      (eqn-contains (ohms-law ?res ?t) ?sought)
-                      ))
+  :preconditions(
+		 (any-member ?sought ((resistance ?res)))
+		 ;; only apply for resistance of atomic resistor:
+		 ;; (Why? -- AW)
+		 (test (atom ?res))
+		 (time ?t)
+		 (circuit-component ?res resistor)
+		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
+		 ;;(test (member ?res ?path))
+		 )
+  :effects(
+	   (eqn-contains (ohms-law ?res ?t) ?sought)
+	   ))
 
 (defoperator ohms-law (?res ?t)
-             :specifications "doc"
-             :preconditions(
-			    ; if we want to use branch current var:
-                            ;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
-                            ;(test (member ?res ?path))
-                            ;(variable ?i-var (current-in ?br-res :time ?t))
-                            (variable ?r-var (resistance ?res))
-                            (variable ?i-var (current-thru ?res :time ?t))
-                            (variable ?v-var (voltage-across ?res :time ?t))
-                            )
-             :effects(
-                      (eqn (= ?v-var (* ?r-var ?i-var)) (ohms-law ?res ?t))
-                      )
-             :hint(
-                   (point (string "Apply Ohm's Law to the resistor, ~a." ?res))
-                   (point (string "Write an equation relating the voltage across the resistor ~a to the current through the resistor ~a and the resistance ~a." (?v-var algebra) (?i-var algebra) (?r-var algebra)))
-                   (teach (string "The voltage across the resistor is equal to product of the current through the resistor and the resistance."))
-                   (bottom-out (string "The voltage across the resistor ~a is equal to the current through the resistor ~a times the resistance ~a." (?v-var algebra) (?i-var algebra) (?r-var algebra)))
-                   ))
+  :specifications "doc"
+  :preconditions (
+		  ;; if we want to use branch current var:
+		  ;; (branch ?br-res ?dontcare1 ?dontcare2 ?path)
+		  ;; (test (member ?res ?path))
+		  ;; (variable ?i-var (current-in ?br-res :time ?t))
+		  (variable ?r-var (resistance ?res))
+		     (variable ?i-var (current-thru ?res :time ?t ?t))
+		     (variable ?v-var (voltage-across ?res :time ?t ?t))
+    )
+  :effects(
+	   (eqn (= ?v-var (* ?r-var ?i-var)) (ohms-law ?res ?t))
+	   )
+  :hint(
+	(point (string "Apply Ohm's Law to the resistor, ~a." ?res))
+	(point (string "Write an equation relating the voltage across the resistor ~a to the current through the resistor ~a and the resistance ~a." (?v-var algebra) (?i-var algebra) (?r-var algebra)))
+	(teach (string "The voltage across the resistor is equal to product of the current through the resistor and the resistance."))
+	(bottom-out (string "The voltage across the resistor ~a is equal to the current through the resistor ~a times the resistance ~a." (?v-var algebra) (?i-var algebra) (?r-var algebra)))
+	))
 
 
  
@@ -647,17 +647,18 @@
 
 
 (defoperator define-voltage-across-var-resistor (?comp ?t)
-             :preconditions (
-                             (bind ?nt (if (atom ?t) ?t (convert-time ?t)))
-                             (bind ?v-var (format-sym "deltaV_~A$~A" (comp-name ?comp 'R) ?nt))
-                             )
-             :effects (
-                       (variable ?v-var (voltage-across ?comp :time ?t))
-                       (define-var (voltage-across ?comp :time ?t))
-                       )
-	     :hint (
+  :preconditions (
+		  (bind ?nt (if (atom ?t) ?t (convert-time ?t)))
+		  (bind ?v-var (format-sym "deltaV_~A$~@[~A~]" 
+					   (comp-name ?comp 'R) ?nt))
+		  )
+  :effects (
+	    (variable ?v-var (voltage-across ?comp :time ?t))
+	    (define-var (voltage-across ?comp :time ?t))
+	    )
+  :hint (
 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting voltage." ((voltage-across ?comp :time ?t) def-np)))
-		   ))
+))
 
 (def-psmclass loop-rule  (loop-rule ?branch-list ?t ?dir)  
   :complexity major 
@@ -855,22 +856,22 @@
                       
                       ;get all the resistor delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-res :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-res1-vars)
 
                       ;get all the battery delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-batt1-vars)
 
                       ;get all the resistor delta variables for ?p2
                       (map ?comp (intersection ?p3 ?all-res :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-res2-vars)
 
                       ;get all the battery delta variables for ?p2
                       (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-batt2-vars)
 
                       ;determine whether ?p1 + ?p2 or ?p1 - ?p2
@@ -917,22 +918,22 @@
 
                       ;get all the resistor delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-res :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-res1-vars)
 
                       ;get all the battery delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-batt1-vars)
                              
                       ;get all the capacitor delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-caps :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-cap-vars)
 
 		      ; get all the inductor delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-inds :test #'equal)
-                         (variable ?v-var (voltage-across  ?comp :time ?t))
+                         (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                          ?v-var ?v-ind-vars)
 		      ; list batteries and inductors for positive sum
 		      (bind ?emf-vars (append ?v-batt1-vars ?v-ind-vars))
@@ -978,37 +979,37 @@
 
 
 (defoperator junction-rule (?br-list1 ?br-list2 ?t )
-             :preconditions (
-                             (any-member ?sought ((current-in ?branch :time ?t)
-                                                  (current-thru ?res :time ?t)
-                                                  (voltage-across ?res :time ?t)))
-                             (time ?t)
-                             ;find the in branches current variables
-                             (map ?br ?br-list1
-                               (variable ?v-var (current-in ?br :time ?t))
-                               ?v-var ?v-in-br-vars)
-                             
-                             ;find the out branches current variables
-                             (map ?br ?br-list2
-                               (variable ?v-var (current-in ?br :time ?t))
-                               ?v-var ?v-out-br-vars)
-                             )
-             :effects (
-                       (eqn (= (+ . ?v-in-br-vars) (+ . ?v-out-br-vars))
-                            (junction-rule ?br-list1 ?br-list2 ?t))
-                       )
-             :hint(
-                   (point (string "Apply Kirchhoff's Junction Rule to this circuit."))
-                   (point (string "Pick a junction. A junction occurs when two or more branches meet."))
-                   (teach (string "The sum of the currents into a junction must equal the sum of the currents out of the junction."))
-                   (teach (string "Set the sum of the currents into the junction equal to the sum of the currents out of the junction."))
-                   (bottom-out (string "Write the equation ~A"
-		      ((= (+ . ?v-in-br-vars) (+ . ?v-out-br-vars)) algebra) ))
-                   ))
+  :preconditions (
+		  (any-member ?sought ((current-in ?branch :time ?t)
+				       (current-thru ?res :time ?t)
+				       (voltage-across ?res :time ?t ?)))
+		  (time ?t)
+		  ;; find the in branches current variables
+		  (map ?br ?br-list1
+		       (variable ?v-var (current-in ?br :time ?t))
+		       ?v-var ?v-in-br-vars)
+		  
+		  ;; find the out branches current variables
+		  (map ?br ?br-list2
+		       (variable ?v-var (current-in ?br :time ?t))
+		       ?v-var ?v-out-br-vars)
+		  )
+  :effects (
+	    (eqn (= (+ . ?v-in-br-vars) (+ . ?v-out-br-vars))
+		 (junction-rule ?br-list1 ?br-list2 ?t))
+	    )
+  :hint(
+	(point (string "Apply Kirchhoff's Junction Rule to this circuit."))
+	(point (string "Pick a junction. A junction occurs when two or more branches meet."))
+	(teach (string "The sum of the currents into a junction must equal the sum of the currents out of the junction."))
+	(teach (string "Set the sum of the currents into the junction equal to the sum of the currents out of the junction."))
+	(bottom-out (string "Write the equation ~A"
+			    ((= (+ . ?v-in-br-vars) (+ . ?v-out-br-vars)) algebra) ))
+	))
 
 
 (defoperator find-out-branches ()
-             :preconditions (
+  :preconditions (
                              (junction ?jun ?br-list)                        
                              ; find all branches 
                              (setof (in-wm (branch ?name given ?dontcare ?path))
@@ -1203,18 +1204,19 @@
 
 ;;;CHARGES ON CAPACITORS
 (defoperator define-charge-on-cap-var (?what ?t)
-             :preconditions (
-                             (test (and (atom ?t) (not (eq ?t 'inf))))
-                             (circuit-component ?what capacitor)
-                             (bind ?q-what-var (format-sym "Q_~A$~A" (comp-name ?what 'C) ?t))
-                             )
-             :effects (
-                       (variable ?q-what-var (charge-on ?what :time ?t))
-                       (define-var (charge-on ?what :time ?t))
-                       )
- 	     :hint (
-(bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." ((charge-on ?what :time ?t) def-np)))
-		   ))
+  :preconditions 
+  (
+   (test (and (atom ?t) (not (eq ?t 'inf))))
+   (circuit-component ?what capacitor)
+   (bind ?q-what-var (format-sym "Q_~A$~@[~A~]" (comp-name ?what 'C) ?t))
+   )
+  :effects (
+	    (variable ?q-what-var (charge-on ?what :time ?t))
+	    (define-var (charge-on ?what :time ?t))
+	    )
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." ((charge-on ?what :time ?t) def-np)))
+	 ))
 
 
 (def-psmclass cap-defn (cap-defn ?cap ?t) 
@@ -1223,16 +1225,16 @@
   :eqnFormat ("C = q/V"))
 
 (defoperator capacitor-definition-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((charge-on ?cap :time ?t)
-                                                 (voltage-across ?cap :time ?t)))
-                            (time ?t)
-                            (test (atom ?t))
-                            (circuit-component ?cap capacitor)
-                            )
-             :effects(
-                      (eqn-contains (cap-defn ?cap ?t) ?sought)
-                      ))
+  :preconditions(
+		 (time ?t)
+		 (any-member ?sought ((charge-on ?cap :time ?t ?t)
+				      (voltage-across ?cap :time ?t ?t)))
+		 (test (atom ?t))
+		 (circuit-component ?cap capacitor)
+		 )
+  :effects(
+	   (eqn-contains (cap-defn ?cap ?t) ?sought)
+	   ))
 
 (defoperator capacitor-definition-single-contains (?sought)
              :preconditions(
@@ -1249,8 +1251,8 @@
              :specifications "doc"
              :preconditions(
                             (variable ?c-var (capacitance ?cap))
-                            (variable ?q-var (charge-on ?cap :time ?t))
-                            (variable ?v-var (voltage-across ?cap :time ?t))
+                            (variable ?q-var (charge-on ?cap :time ?t ?t))
+                            (variable ?v-var (voltage-across ?cap :time ?t ?t))
                             )
              :effects(
                       (eqn (= ?c-var (/ ?q-var ?v-var)) (cap-defn ?cap ?t))
@@ -1283,22 +1285,22 @@
                       
                       ;get all the capacitor delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-cap :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-cap1-vars)
 
                       ;get all the battery delta variables for ?p1
                       (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-batt1-vars)
 
                       ;get all the capacitor delta variables for ?p2
                       (map ?comp (intersection ?p3 ?all-cap :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-cap2-vars)
 
                       ;get all the battery delta variables for ?p2
                       (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-                        (variable ?v-var (voltage-across  ?comp :time ?t))
+                        (variable ?v-var (voltage-across  ?comp :time ?t ?t))
                         ?v-var ?v-batt2-vars)
 
                       ;determine whether ?p1 + ?p2 or ?p1 - ?p2
@@ -1344,11 +1346,11 @@
                 ))
 
 (defoperator junction-rule-cap (?path-list1 ?path-list2 ?t )
-             :preconditions (
-                             (any-member ?sought ((charge-on ?cap :time ?t)
-                                                  (voltage-across ?cap :time ?t)))
-                             (time ?t)
-                             ;find the charge variables for capacitor going into the branch                            
+  :preconditions (
+		  (time ?t)
+		  (any-member ?sought ((charge-on ?cap :time ?t ?t)
+				       (voltage-across ?cap :time ?t ?t)))
+		  ;; find the charge variables for capacitor going into the branch                            
                              (setof (in-wm (circuit-component ?cap capacitor))
                                     ?cap ?all-caps)
                              
@@ -1357,7 +1359,7 @@
                              (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
                              (test (not (equal nil ?in-caps)))
                              (map ?x ?in-caps  
-                               (variable ?q-var (charge-on ?x :time ?t))
+                               (variable ?q-var (charge-on ?x :time ?t ?t))
                                ?q-var ?q-in-path-vars)
                              
                              ;find the charge variables for capacitor going into the branch  
@@ -1367,7 +1369,7 @@
                              (test (not (equal nil ?out-caps)))
 
                              (map ?x ?out-caps
-                               (variable ?q-var (charge-on ?x :time ?t))
+                               (variable ?q-var (charge-on ?x :time ?t ?t))
                                ?q-var ?q-out-path-vars)
                              )
              :effects (
@@ -1428,7 +1430,7 @@
 
 (defoperator charge-same-caps-in-branch-contains (?sought)
              :preconditions(
-                            (any-member ?sought ((charge-on ?cap1 :time ?t)))
+                            (any-member ?sought ((charge-on ?cap1 :time ?t ?t)))
                             (time ?t)
                             (branch ?br-res given ?dontcare1 ?path)
                             (test (member ?cap1 ?path) :test #'equal)
@@ -1449,7 +1451,7 @@
              :preconditions (
                             ; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
                              (map ?cap ?temp-caps
-                               (variable ?q-var (charge-on ?cap :time ?t))
+                               (variable ?q-var (charge-on ?cap :time ?t ?t))
                                ?q-var ?q-path-cap-vars)
                              (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
                              (bind ?pair (first ?adj-pairs))
@@ -1473,8 +1475,9 @@
 
 (defoperator cap-energy-contains (?sought)
   :preconditions (
-    (any-member ?sought ( (charge-on ?cap :time ?t)
-			  (voltage-across ?cap :time ?t)
+		  (time ?t)
+    (any-member ?sought ( (charge-on ?cap :time ?t ?t)
+			  (voltage-across ?cap :time ?t ?t)
 			  (stored-energy ?cap :time ?t)))
    (circuit-component ?cap capacitor)
    (test (time-pointp ?t))
@@ -1484,8 +1487,8 @@
 
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
-     (variable ?Q (charge-on ?cap :time ?t))
-     (variable ?V (voltage-across ?cap :time ?t))
+     (variable ?Q (charge-on ?cap :time ?t ?t))
+     (variable ?V (voltage-across ?cap :time ?t ?t))
      (variable ?U (stored-energy ?cap :time ?t))
   )
   :effects (
@@ -1861,37 +1864,6 @@
                    ))
 |# ; end unused
 
-#| ; can use generic inherit-constant-value for this:
-
-(defoperator battery-voltage-same-different-times-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((voltage-across ?name :time ?t)))
-                            (time ?t)
-                            (time ?t1)
-                            (test (listp ?t1))
-                            (circuit-component ?name battery)
-                            )
-             :effects(
-                      (eqn-contains (battery-voltage-same-different-times ?t ?t1) ?sought)
-                      ))
-
-(defoperator battery-voltage-same-different-time (?t ?t1)
-             :preconditions (
-                             (circuit-component ?name battery)
-                             (variable ?v-var1 (voltage-across ?name :time ?t))                          
-                             (variable ?v-var2 (voltage-across ?name :time ?t1))
-                             )
-             :effects (
-                       (eqn (= ?v-var1 ?v-var2) (battery-voltage-same-different-times ?t ?t1))
-                       )
-             :hint(
-                   (point (string "The voltage across the battery doesn't change with time."))
-                   (point (string "You need to define the voltage across the battery at time ~a." ?t))
-                   (teach (string "The voltage across the battery doesn't change so the voltage at a time point is the same as the voltage for any time interval containing that time point."))
-                   (bottom-out (string "Set the voltage across the battery at time ~a equal the voltage at time ~a." ?t ?t1))
-                   ))
-|#
-
 
 #|
 (defoperator define-QMax-var (?cap)   
@@ -1967,7 +1939,7 @@
 (defoperator inductor-emf-contains (?ind ?time)
    :preconditions (
       (circuit-component ?ind inductor)
-      (any-member ?sought ( (voltage-across ?ind :time ?time)
+      (any-member ?sought ( (voltage-across ?ind :time ?time ?time)
                             (inductance ?ind)
                             (rate-of-change (current-thru ?ind :time ?time)) ))
       (time ?time)
@@ -1976,7 +1948,7 @@
 
 (defoperator inductor-emf (?ind ?time)
    :preconditions (
-       (variable ?V (voltage-across ?ind :time ?time))
+       (variable ?V (voltage-across ?ind :time ?time ?time))
        (variable ?L (inductance ?ind))
        (variable ?dIdt (rate-of-change (current-thru ?ind :time ?time)))
    )
@@ -2282,19 +2254,21 @@
    :eqnFormat ("P = I*V"))
 
 (defoperator electric-power-contains (?sought)
-    :preconditions ( 
-       (any-member ?sought ( (voltage-across ?comp :time ?t) 
-                             (current-thru ?comp :time ?t)
-			     (electric-power ?comp :time ?t) )) ; omit "agent" for electric power ?
-      ; we only apply this to batteries and resistors
-      (in-wm (circuit-component ?comp ?comp-type))
-      (test (member ?comp-type '(battery resistor)))
-    ) 
-    :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
+  :preconditions 
+  ( 
+   (time ?t)	  
+   (any-member ?sought ( (voltage-across ?comp :time ?t ?t) 
+			 (current-thru ?comp :time ?t)
+			 (electric-power ?comp :time ?t) )) ;omit "agent" for electric power ?
+   ;; we only apply this to batteries and resistors
+   (in-wm (circuit-component ?comp ?comp-type))
+   (test (member ?comp-type '(battery resistor)))
+   ) 
+  :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
 
 (defoperator electric-power (?comp ?t)
      :preconditions (
-         (variable ?V (voltage-across ?comp :time ?t) )
+         (variable ?V (voltage-across ?comp :time ?t ?t) )
          (variable ?I (current-thru ?comp :time ?t))
          (variable ?P  (electric-power ?comp :time ?t)) 
      )
