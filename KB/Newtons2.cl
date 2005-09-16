@@ -5907,7 +5907,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ( ;; for one planet, variable is already defined
    (setof (in-wm (near-planet ?aplanet :body ?whatever)) ?aplanet ?planets)
-   (test (= (length ?planets) 1))
+   (test (= (length (remove-duplicates ?planets :test #'equal)) 1))
    (bind ?g-var (format-sym "g_~A" ?planet)) )
   :effects ( (variable ?g-var (gravitational-acceleration ?planet)) ))
 
@@ -5915,7 +5915,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (  ;; for more than one planet, student must explicitly define variable
    (setof (in-wm (near-planet ?aplanet :body ?whatever)) ?aplanet ?planets)
-   (test (> (length ?planets) 1))
+   (test (> (length (remove-duplicates ?planets :test #'equal)) 1))
    (bind ?g-var (format-sym "g_~A" ?planet)) )
   :effects 
   ( (variable ?g-var (gravitational-acceleration ?planet))
