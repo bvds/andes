@@ -581,10 +581,6 @@
 	   ((listp expr) (append (remove-time expr) `(:time ,time)))
 	   (t (error "can't add time ~A to expression ~A~%" time expr))))
 
-(defun constant-of (time)
-  "extract any constant keyword from time"
-  (when (listp time) (second (member ':constant time))))
-
 ;;; ===================== hacks ========================================
 
 (defparameter *lk-hack* nil
@@ -610,9 +606,8 @@
 ;;
 (defun time-abbrev (x)
    "returns string of form \"1\" for points or \"12\" for intervals to abbreviate time in variable names" 
-   (cond ((null x) nil)
-	 ((time-intervalp x) (format NIL "~A~A" (second x) (third x)))
-	 (t (format NIL "~A" x))))
+   (if (time-intervalp x) (format NIL "~A~A" (second x) (third x))
+     (format NIL "~A" x)))
 
 (defun body-name (term)
   "given body term, returns string to put in body name slot in variable names" 

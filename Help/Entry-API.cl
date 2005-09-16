@@ -341,8 +341,8 @@
 	 `(coef-friction ,body-term ,body2-term ,subtype)))
       (voltage    (case subtype
 		    (across		; body-term may come here as (resistance (a b c)) for equiv.
-		     (if (atom body-term) (if time-term `(voltage-across ,body-term :time ,time-term) `(voltage-across ,body-term))
-                       (if time-term  `(voltage-across ,(second body-term) :time ,time-term) `(voltage-across ,(second body-term)))))
+		     (if (atom body-term) `(voltage-across ,body-term :time ,time-term)
+                       `(voltage-across ,(second body-term) :time ,time-term)))
 		    (otherwise		; no longer used
 		     `(voltage-btwn ,body-term ,body2-term :time ,time-term))))
       (current     (case subtype

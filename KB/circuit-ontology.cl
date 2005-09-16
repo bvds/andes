@@ -39,8 +39,7 @@
 	:english ("the capacitance of ~A" ?name))
 (def-qexp charge-on (charge-on ?name :time ?time)
         :units |C|
-	:fromWorkbench (if time `(charge-on ,body :time ,time) 
-			 `(charge-on ,body))
+	:fromWorkbench `(charge-on ,body :time ,time)
         :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
 (def-qexp max-charge (max-charge ?name :time ?time)
           :units |C|)

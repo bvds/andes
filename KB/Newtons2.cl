@@ -1545,23 +1545,67 @@
 ;;; Currently, there is nothing in the user interface corresponding
 ;;; to setting a quantity to something constant.
 ;;;
-
-(defoperator inherit-constant-value (?quant)
+(defoperator inherit-constant-value (?quant ?t-constant ?t1)
   :preconditions 
   (
-   (bind ?t1 (time-of ?quant))
-   (time ?t2)
-   (test (and (not (equalp ?t1 ?t2))
-	      (tinsidep-include-endpoints ?t1 ?t2)))
-   (bind ?quant2 (set-time ?quant (append ?t2 '(:constant t)))))
-  :effects ((equals ?quant ?quant2))
+   (constant ?quant ?t-constant)
+   (time ?t-constant)	  ; sanity test
+   (time ?t1)
+   (test (and (not (equalp ?t1 ?t-constant))
+	      (tinsidep ?t1 ?t-constant)))
+   (bind ?quant1 (set-time ?quant ?t1))
+   (bind ?quant2 (set-time ?quant ?t-constant))
+  )
+  :effects (
+	    (equals ?quant1 ?quant2)
+     )
   :hint
-  ((point (string "Notice that ~a is constant." ?quant2))
+  ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
    (teach (string "If a quantity is constant over a time interval, then its value at any time inside the interval is equal to its value over the whole interval.")
 	  (kcd "inherit-constant-value"))
-   (bottom-out (string "Since ~a is constant, and ~a is inside ~a, write the equation ~a=~a" 
-		       ?quant2 (?t1 pp) (?t2 pp) ?quant ?quant2))
+   (bottom-out (string "Since ~a is constant ~a, and ~a is inside ~a, write the equation ~a=~a" 
+		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
    ))
+
+;;; this variant allows us to include endpoints in the interval over 
+;;; which the value is declared constant
+;;; Specify (constant ?quant ?time inclusive) in givens for this form.
+(defoperator inherit-constant-value2 (?quant ?t-constant ?t1)
+  :preconditions (
+    (in-wm (constant ?quant ?t-constant inclusive))
+    (time ?t1)
+    (test (and (not (equalp ?t1 ?t-constant))
+               (tinsidep-include-endpoints ?t1 ?t-constant)))
+   (bind ?quant1 (set-time ?quant ?t1))
+   (bind ?quant2 (set-time ?quant ?t-constant))
+  )
+  :effects (
+	    (equals ?quant1 ?quant2)
+     )
+  :hint
+  ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
+   (teach (string "If a quantity is constant over a time interval, then its value at any time inside the interval is equal to its value over the whole interval.")
+	  (kcd "inherit-constant-value"))
+   (bottom-out (string "Since ~a is constant ~a, and ~a is inside ~a, write the equation ~a=~a" 
+		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
+   ))
+
+;; Following expands (constant (accel ?b) ?t) to derive constancy of 
+;; magnitude and direction attributes. This rule functions a bit like a macro 
+;; expansion, it exists to let us write more concise statements in terms of 
+;; the vector quantity which are used in constant acceleration preconds and
+;; then make use of it where needed to propagate values of vector magnitude 
+;; or direction. 
+;; Could be revised to work for any vector quantity.
+(defoperator use-constant-accel (?b ?t-constant)
+  :preconditions (
+   (constant (accel ?b) ?t-constant)
+   (object ?b)
+  )
+  :effects (
+   (constant (mag (accel ?b)) ?t-constant)
+   (constant (dir (accel ?b)) ?t-constant)
+  ))
 
 ;;; ================= speed distance duration ===================
 ;;; These operators represent knowledge of the speed=distance/duration
@@ -2726,17 +2770,20 @@
    ((free-fall ?b ?t-motion)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
-    (bind ?tt (append ?t '(:constant t)))
-    (not (vector ?b (accel ?b :time ?tt) ?dir))
+    (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing free-fall accel at 270 for ~a at ~a.~%" ?b ?t)
     )
   :effects
-   ((vector ?b (accel ?b :time ?tt) (dnum 270 |deg|))
-    (variable ?mag-var (mag (accel ?b :time ?tt)))
-    (variable ?dir-var (dir (accel ?b :time ?tt)))
-    (given (dir (accel ?b :time ?tt)) (dnum 270 |deg|))
+   ((vector ?b (accel ?b :time ?t) (dnum 270 |deg|))
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) (dnum 270 |deg|))
+    (constant (accel ?b) ?t)
+    ;; can't mkae use of this easily, endpoints not included in interval
+    ;; and we only inherit constant values from wider intervals to sub-interval
+    ;; (constant (compo x 0 (velocity ?b)) ?t)
    )
    :hint
    ((point (string "Notice that ~a is a freely falling body ~a" ?b (?t pp)))
@@ -3055,6 +3102,40 @@
 			?b (?t pp)))
     ))
 
+
+;;; ===================== linear kinematics ===================
+
+#| ; now choose the component equation first, to avoid defining unneeded quantities
+
+(defoperator LK-vector-contains (?quantity)
+  :specifications 
+   "The lk equation potentially contains the duration and the
+   the magnitude and direction of the initial and final velocity,
+   acceleration and displacement."
+  :preconditions
+  ((any-member ?quantity
+	       ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
+		 (duration (during ?t1 ?t2))))
+    (object ?b)
+    (time (during ?t1 ?t2))
+    ;; only apply if accel known constant within interval we are using
+    (constant (accel ?b) ?t-constant)
+    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+    )
+  :effects
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)))
+
+|#
+
+
+
 ;;; =============== linear kinematics compo equations ==============
 ;;; The physicist do not want Andes to hint s=vf*t-0.5*a*t^2 (leaves
 ;;; out vi), so that equation is left out.  The other four are here,
@@ -3066,6 +3147,10 @@
 
 ;;; Acceleration over an interval is interpreted as average acceleration.
 ;;; This is consistent with the labels in the Andes dialog boxes.
+;;; We use the proposition (constant (accel ?b) (during ?t1 ?t2)) to 
+;;; assert that the *instantaneous* acceleration is constant over each instant 
+;;; in an interval. This can be deduced from the fact that the object is given 
+;;; to be free-fall during an interval. In other cases it must often be given. 
 ;;;
 ;;; Where acceleration is known to be constant, as in most kinematics problems,
 ;;; the average acceleration will of course equal the constant instantaneous 
@@ -3103,20 +3188,21 @@
    ;; !!! Should simplify apply-vector-psm to avoid this whole two-level 
    ;; scheme of choosing eqn-family then choosing compo-eqn. 
    (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (any-member ?quantity 
 	       ((mag (velocity ?b :time ?t1))
 		 (dir (velocity ?b :time ?t1))
 		 (mag (velocity ?b :time ?t2))
 		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2 :constant ?true)))
-		 (dir (accel ?b :time (during ?t1 ?t2 :constant ?true)))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    ;; only applies if accel is constant within interval we are using
-   (vector (accel ?b :time ?t-constant) ?dir)
-   (test (and (constant-of ?t-constant)	;explicitly constant
-	      (tinsidep `(during ,?t1 ,?t2) ?t-constant)))
+   ;; sought may not bind both times, so must choose endpoints of interval 
+   ;; to try
+   (constant (accel ?b) ?t-constant)
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
    ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
@@ -3171,22 +3257,22 @@
    Lists the quantities contained in vf^2 = vi^2+2*a*s"
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (any-member ?quantity 
 	       ((mag (velocity ?b :time ?t1))
 		 (dir (velocity ?b :time ?t1))
 		 (mag (velocity ?b :time ?t2))
 		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2 :constant ?true)))
-		 (dir (accel ?b :time (during ?t1 ?t2 :constant ?true)))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (mag (displacement ?b :time (during ?t1 ?t2)))
 		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 ;;(duration (during ?t1 ?t2))
 		 ))
    ;; only applies if accel is constant within interval we are using
-   (vector (accel ?b :time ?t-constant) ?dir)
-   (test (and (constant-of ?t-constant) ;explicitly constant
-		  (tinsidep `(during ,?t1 ,?t2) ?t-constant)))
+   ;; sought may not bind t1 & t2, so choose endpoints of interval to try
+   (constant (accel ?b) ?t-constant)
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
    ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
@@ -3238,20 +3324,22 @@
    Lists the quantities contained in s = vi*t + 0.5*a*t^2"
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (any-member ?quantity 
 	        ((mag (velocity ?b :time ?t1))
 		 (dir (velocity ?b :time ?t1))
-		 (mag (accel ?b :time (during ?t1 ?t2 :constant ?true)))
-		 (dir (accel ?b :time (during ?t1 ?t2 :constant ?true)))
+		 ;;(mag (velocity ?b :time ?t2))
+		 ;;(dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (mag (displacement ?b :time (during ?t1 ?t2)))
 		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
-   ;; only applies if accel is constant within interval we are using
-   (vector (accel ?b :time ?t-constant) ?dir)
-   (test (and (constant-of ?t-constant)	;explicitly constant
-	      (tinsidep `(during ,?t1 ,?t2) ?t-constant)))
+   ; only applies if accel is constant within interval we are using
+   ; sought may not bind both times, so must choose endpoints of interval to try
+   (constant (accel ?b) ?t-constant)
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
    ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
@@ -3298,9 +3386,239 @@
 						 algebra)))
   ))
 
+#| ;; for commenting out LK-no-a since USNA instructors don't consider it fundamental
+   
+;;; Writes the equation s = 0.5*(vi + vf)*t, which lacks a
+
+(defoperator LK-no-a-contains (?quantity)
+  :specifications "
+   Lists the quantities contained in s = 0.5*(vi + vf)*t, which lacks a"
+  :preconditions
+  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
+	        ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 ;;(mag (accel ?b :time (during ?t1 ?t2)))
+		 ;;(dir (accel ?b :time (during ?t1 ?t2)))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
+		 (duration (during ?t1 ?t2))
+		 ))
+   ; only applies if accel is constant within interval we are using
+   ; sought may not bind both times, so must choose endpoints of interval to try
+   (constant (accel ?b) ?t-constant)
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+   )
+  :effects
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity)))
+
+(defoperator draw-lk-no-a-fbd (?b ?t1 ?t2 ?rot)
+  :specifications "
+   If the goal is to draw a lk fbd for lk-no-s
+   then draw the body, the initial and final velocity, 
+      the acceleration, and axes"
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity))
+   (body ?b)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   ;(vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+)
+
+(defoperator write-lk-no-a-compo (?b ?t1 ?t2 ?xyz ?rot)
+  :specifications "
+   Writes the equation s = 0.5*(vi + vf)*t, which lacks a"
+  :preconditions
+   ((variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
+    (variable ?t-var    (duration (during ?t1 ?t2))))
+  :effects
+  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
+   (eqn (= ?s-compo (*  0.5 (+ ?vi-compo ?vf-compo) ?t-var))
+	 (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2))))
+    (eqn-compos (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2)))
+		(?vi-compo ?vf-compo ?s-compo)))
+   :hint (
+     (point (string "Do you know an equation relating the components of displacement to that of initial velocity, final velocity and time when acceleration is constant?"))
+     (bottom-out (string "Write the equation ~A"
+			 ((= ?s-compo (* 0.5 (+ ?vi-compo ?vf-compo) ?t-var))
+			  algebra)))
+   ))
+
+|# ;; end possibly commented-out lk-no-a
+
 ;|# ;; end not in physics-lite used in Pyrenees eval
 
-;; TODO: Need some principles for problems like kt17a. Which?
+;;
+;; LK equations special to projectile motion
+;;
+
+;; Following two write component equations for components with constant 
+;; velocity motion.  This is used for horizontal motion of a projectile.
+;; Note they apply only to one component, since v_y need not be constant, 
+;; so can't be derived as instances of a general vector equation. 
+
+;; Following writes s_x = v0_x * t when a_x is zero so v_x is constant.
+;; (This is a special case of lk-no-vf, so could possibly use same eq id
+;; to treat it as a special case --  not clear if this would be useful.)
+;; V0 is most commonly given, but other constant velocity rule should permit 
+;; equating v0_x to v1_x, v2_x if needed. Vavg_x could also be used but we 
+;; don't introduce Vavg ;; all unless the problem asks for it. 
+;; The test for vanishing acceleration compo must be deferred until we actually 
+;; write the equation since the axis is not chosen at the time of trying 
+;; compo-eqn-contains.
+;;
+;; Because this is defined as a subsdiary compo-eqn under the lk method
+;; writing it will require drawing all the lk vectors over the interval. This 
+;; could be a nuisance if you wish to apply it over a sub-interval of 
+;; projectile motion but for now it suffices. The const-vx shows how to
+;; work around it if we need to.
+(defoperator sdd-constvel-compo-contains (?quantity)
+  :specifications 
+   "Lists the quantities contained in s_x = v0_x*t when a_x = 0" 
+  :preconditions
+  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
+	        ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+		 (mag (displacement ?b :time (during ?t1 ?t2)))
+		 (dir (displacement ?b :time (during ?t1 ?t2)))
+		 (duration (during ?t1 ?t2))
+		 ))
+   ; only applies if accel is constant so child of lk.
+   ; sought may not bind both times, so must choose endpoints of interval to try
+   (constant (accel ?b) ?t-constant)
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+   )
+  :effects
+   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity)))
+
+(defoperator draw-sdd-constvel-fbd (?b ?t1 ?t2 ?rot)
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity))
+   (body ?b)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   ;(vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+)
+
+(defoperator sdd-constvel-compo (?b ?t1 ?t2 ?xyz ?rot)
+  :specifications 
+  "Writes the component equation s_x = vi_x*t when a_x = 0"
+  :preconditions
+  ( ;; make sure accel compo vanishes
+   (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+   (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
+   ;; and write it 
+   (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+   (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
+   (variable ?t-var    (duration (during ?t1 ?t2)))
+   ;; following only used for implicit eqn so a_x can be accepted if used
+   (variable ?a_x   (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
+  :effects
+  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
+   (eqn (= ?s-compo (* ?vi-compo ?t-var))
+	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
+    (eqn-compos (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2)))
+     (?vi-compo ?s-compo))
+    (implicit-eqn (= ?a_x 0)
+                  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
+  :hint (
+    (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
+    (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
+    (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction. Therefore, the ~A component of velocity remains constant ~A. You can use this to relate ~A to ~A and ~A." 
+		   ?b ((during ?t1 ?t2) pp) ((axis ?xyz ?rot) symbols-label) ((axis ?xyz ?rot) symbols-label) 
+		   ((axis ?xyz ?rot) symbols-label) ((during ?t1 ?t2) pp) 
+		   (?s-compo algebra) (?vi-compo algebra) (?t-var algebra)))
+    (bottom-out (string  "Write the equation ~A"
+		   ((= ?s-compo (* ?vi-compo ?t-var)) algebra)))
+  ))
+
+;; Following writes vi_x = vj_x when v_x is constant because a_x = 0
+;; Note we may need to apply this within a sub-interval of a larger lk 
+;; application, e.g. from given v2_x at apex of flight (Exkt17a) to v_x3 
+;; end of flight, without having to draw all lk vectors such as d for the 
+;; sub-segment. Thus we need both the two times and the containing lk time
+(defoperator const-vx-contains (?quantity)
+ :specifications 
+   "Lists the quantities contained in v1_x = v2_x when a_x = 0"
+  :preconditions (
+   (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (any-member ?quantity 
+	        ((mag (velocity ?b :time ?t1))
+		 (dir (velocity ?b :time ?t1))
+	         (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 ))
+   ; pick a pair of times:
+   (time (during ?t1 ?t2))
+   ; make sure vx is constant within containing time
+   ; for now just use free-fall time, assume it uses widest possible interval.
+   ; We also assume that is the same as the lk application time.
+   ; we still have to pass the particular times we want to the eqn writing op
+   (free-fall ?b ?t-free-fall) 
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-free-fall))
+   )
+   :effects (
+    (eqn-family-contains (lk ?b ?t-free-fall) ?quantity)
+    (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity)
+   ))
+
+(defoperator draw-const-vx-fbd (?b ?t1 ?t2 ?rot)
+  :preconditions
+  ((in-wm (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity))
+   (body ?b)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   ;(vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (lk ?b ?t-free-fall)))
+)
+
+(defoperator use-const-vx (?b ?t1 ?t2 ?t-lk)
+  :specifications "Writes the component equation v1_x = v2_x when a_x = 0"
+  ;; if time is inside lk time, then vector may not have been drawn on the lk 
+  ;; diagram. Can give hairy problems defining compo vars -- define-compo 
+  ;; only works if vector and axes both drawn.  Define-compo2 was added to
+  ;; work in other cases, but can fail if it has has already been applied 
+  ;; once to draw axes for body at different time!
+  ;; Ensuring vector is drawn allows define-compo to work, since axes have
+  ;; been drawn on the body in the containing lk application.  
+  :preconditions (
+    (vector ?b (velocity ?b :time ?t1) ?dir1)
+    (vector ?b (velocity ?b :time ?t2) ?dir2)
+    (variable ?v1-compo (compo x 0 (velocity ?b :time ?t1)))
+    (variable ?v2-compo (compo x 0 (velocity ?b :time ?t2))))
+  :effects
+  ((eqn (= ?v1-compo ?v2-compo) 
+               (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk)))
+   (eqn-compos (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk))
+        (?v1-compo ?v2-compo)))
+  :hint
+  ((point (string "What do you know about the x component of the velocity of ~A ~A?"  ?b (?t-lk pp)))
+   (teach (string "Because the acceleration of ~A ~A is perpendicular to the x axis, is has no component in the x direction. Therefore, the x component of velocity remains constant ~A. You can use this to relate ~A to ~A. " 
+		  ?b (?t-lk pp)  (?t-lk pp) (?v1-compo algebra) (?v2-compo algebra)))
+   (bottom-out (string "Write the equation ~A" ((= ?v1-compo ?v2-compo) algebra)))
+   ))
+
+;; TODO: Need some principles for problems like Exkt17a. Which?
 ;;
 ;; 1. Could add principle that v_y = 0 at max-height.
 ;; 2. Could use s12_y = -s23_y if (same-height ?b ?t1 ?t3)
@@ -3336,26 +3654,35 @@
 ;;; if the student ever selects avg-accel as a psm when accel is constant
 ;;; we can match on the child id only to find it as part of the appropriate
 ;;; containing parent method.
+;;; 
+;;; LK attempts to prove that acceleration is constant. Since we don't 
+;;; have true negation-by-failure we can't complement that with 
+;;; (not (constant (accel ?b) ?t)) which only means "not-in-wm". 
+;;; But the only ways we can currently derive that accel is constant is 
+;;; if it's or free-fall is given, so we just test for the absence of those.
 ;;;
 (defoperator avg-accel-contains (?quantity)
   :specifications
 "The average acceleration equation potentially contains the duration and the
 the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
-  (
-   (time (during ?t1 ?t2))
-   (any-member ?quantity
+  ((any-member ?quantity
 	       ((mag (velocity ?b :time ?t1))
-		(dir (velocity ?b :time ?t1))
-		(mag (velocity ?b :time ?t2))
-		(dir (velocity ?b :time ?t2))
-		(mag (accel ?b :time (during ?t1 ?t2 :constant ?true)))
-		(dir (accel ?b :time (during ?t1 ?t2 :constant ?true)))
-		(duration (during ?t1 ?t2))))
-   (object ?b)
-   )
+		 (dir (velocity ?b :time ?t1))
+		 (mag (velocity ?b :time ?t2))
+		 (dir (velocity ?b :time ?t2))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
+		 (duration (during ?t1 ?t2))))
+    (object ?b)
+    (time (during ?t1 ?t2))
+    ;; only apply this method if lk/lk-no-s doesn't apply
+    (not (constant (accel ?b) ?t-constant)
+         (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+    (not (free-fall ?b ?t-free-fall))
+    )
   :effects
-  ((eqn-family-contains (avg-accel ?b (during ?t1 ?t2)) ?quantity)))
+   ((eqn-family-contains (avg-accel ?b (during ?t1 ?t2)) ?quantity)))
 
 (defoperator draw-avg-accel-diagram (?b ?t1 ?t2 ?rot)
   :specifications 
@@ -3367,11 +3694,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (body ?b)
    (vector ?b (velocity ?b :time ?t1) ?dir1)
    (vector ?b (velocity ?b :time ?t2) ?dir2)
-   (vector ?b (accel ?b :time (during ?t1 ?t2 :constant ?true)) ?dir3)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (avg-accel ?b (during ?t1 ?t2)))))
 
+;; following writes LK-no-s in context of avg-accel method.
+;; duplicates lk/lk-no-s pair of operators.
 ;; We could generalize them with variables in place of parent-psm-id, since
 ;; id is always bound coming in.  Then the same operators would apply in
 ;; both instances.  These are separate for now only so don't have to 
@@ -3385,8 +3714,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (dir (velocity ?b :time ?t1))
 		 (mag (velocity ?b :time ?t2))
 		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2 :constant ?true)))
-		 (dir (accel ?b :time (during ?t1 ?t2 :constant ?true)))
+		 (mag (accel ?b :time (during ?t1 ?t2)))
+		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
    (time (during ?t1 ?t2))
@@ -3398,13 +3727,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :specifications " writes vf=vi+a*t where accel not constant"
   :preconditions
    (; for 2D case, make sure accel compo not known to vanish
-    (in-wm (vector ?b (accel ?b :time 
-			     (during ?t1 ?t2 :constant ?true)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
     (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
     (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-    (variable ?a-compo compo ?xyz ?rot 
-	      (accel ?b :time (during ?t1 ?t2 :constant ?true)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?t (duration (during ?t1 ?t2))))
   :effects
   ((eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
@@ -8196,22 +8523,20 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; angular version of lk-no-vf: 
 ;        theta12 = omega1 * t + 0.5 * alpha12 * t12^2
 (defoperator rk-no-vf-contains (?sought)
-  :preconditions 
-  (
-   (time (during ?t1 ?t2))		; ensure both endpoints bound
-   (any-member ?sought
+ :preconditions (
+  (any-member ?sought
 	       ( (mag (ang-displacement ?b :time (during ?t1 ?t2)))
 		 (dir (ang-displacement ?b :time (during ?t1 ?t2)))
 		 (mag (ang-velocity ?b :time ?t1))
 		 (dir (ang-velocity ?b :time ?t1))
-		 (mag (ang-accel ?b :time (during ?t1 ?t2 :constant ?true)))
-		 (dir (ang-accel ?b :time (during ?t1 ?t2 :constant ?true)))
+		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
+		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
-   ;; only applies if accel is constant within interval we are using
-   (vector (ang-accel ?b :time ?t-constant) ?dir)
-   (test (and (constant-of ?t-constant)	;explicitly constant
-	      (tinsidep `(during ,?t1 ,?t2) ?t-constant)))
+   ; only applies if accel is constant within interval we are using
+   (time (during ?t1 ?t2))  ; ensure both endpoints bound
+   (constant (ang-accel ?b) ?t-constant)
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
   )
  :effects ( (angular-eqn-contains (rk-no-vf ?b (during ?t1 ?t2)) ?sought) )
 )
@@ -8255,7 +8580,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;        omega2^2 = omega1^2 + 2 * alpha12 * theta12
 (defoperator rk-no-t-contains (?sought)
  :preconditions (
-   (time (during ?t1 ?t2))  ; ensure both endpoints bound
   (any-member ?sought
 	       ( (mag (ang-velocity ?b :time ?t1))
 		 (dir (ang-velocity ?b :time ?t1))
@@ -8263,13 +8587,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		 (dir (ang-velocity ?b :time ?t2))
 	         (mag (ang-displacement ?b :time (during ?t1 ?t2)))
 		 (dir (ang-displacement ?b :time (during ?t1 ?t2)))
-		 (mag (ang-accel ?b :time (during ?t1 ?t2 :constant t)))
-		 (dir (ang-accel ?b :time (during ?t1 ?t2 :constant t)))
+		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
+		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
 		 ))
-  ;; only applies if accel is constant within interval we are using
-  (vector (ang-accel ?b :time ?t-constant) ?dir)
-  (test (and (constant-of ?t-constant)	;explicitly constant
-	     (tinsidep `(during ,?t1 ,?t2) ?t-constant)))
+   ; only applies if accel is constant within interval we are using
+   (time (during ?t1 ?t2))  ; ensure both endpoints bound
+   (constant (ang-accel ?b) ?t-constant)
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
   )
  :effects ( (angular-eqn-contains (rk-no-t ?b (during ?t1 ?t2)) ?sought) )
 )
