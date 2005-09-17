@@ -3142,9 +3142,6 @@
 ;;; expressed with two operators each.  One lists the quantities
 ;;; contained in the equation, and the other writes the equation.
 
-
-;;; This operator writes vf=vi+a*t.  That is, it leaves out displacement (s).
-
 ;;; Acceleration over an interval is interpreted as average acceleration.
 ;;; This is consistent with the labels in the Andes dialog boxes.
 ;;; We use the proposition (constant (accel ?b) (during ?t1 ?t2)) to 
@@ -3154,15 +3151,15 @@
 ;;;
 ;;; Where acceleration is known to be constant, as in most kinematics problems,
 ;;; the average acceleration will of course equal the constant instantaneous 
-;;; acceleration at each point in the interval. However a few problems test the 
-;;; application of the definition of average acceleration over intervals where 
-;;; it is not known to be constant.
+;;; acceleration at each point in the interval. However a few problems test 
+;;; the application of the definition of average acceleration over intervals 
+;;; where it is not known to be constant.
 ;;;
-;;; All the other "lk" equations only apply where acceleration is constant thus 
-;;; have to test for constancy of the acceleration over the interval before 
-;;; applying.  But this equation defines average acceleration so can be applied 
-;;; even if acceleration is not constant over interval, hence does not use any 
-;;; such test. 
+;;; All the other "lk" equations only apply where acceleration is constant 
+;;; thus have to test for constancy of the acceleration over the interval 
+;;; before applying.  But this equation defines average acceleration so can 
+;;; be applied even if acceleration is not constant over interval, hence 
+;;; does not use any such test. 
 ;;; 
 ;;; We have to be able to apply this equation in either case. However, if we
 ;;; are just using it to find average acceleration we shouldn't draw the
@@ -3188,6 +3185,7 @@
    ;; !!! Should simplify apply-vector-psm to avoid this whole two-level 
    ;; scheme of choosing eqn-family then choosing compo-eqn. 
    (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (any-member ?quantity 
 	       ((mag (velocity ?b :time ?t1))
 		 (dir (velocity ?b :time ?t1))
@@ -3197,11 +3195,8 @@
 		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
-   ;; only applies if accel is constant within interval we are using
-   ;; sought may not bind both times, so must choose endpoints of interval 
-   ;; to try
+   ;; only applies if accel is constant within interval
    (constant (accel ?b) ?t-constant)
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
@@ -3230,22 +3225,25 @@
   :preconditions
    (; for 2D case, make sure accel compo doesn't vanish
     (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-    (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
+    (bind ?hint (if (non-zero-projectionp ?accel-dir ?xyz ?rot)
+		    "of average acceleration to those " "")) 
     (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
     (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
     (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
-    (variable ?t (duration (during ?t1 ?t2))))
+    (variable ?t (duration (during ?t1 ?t2)))
+    (bind ?a-term (if (non-zero-projectionp ?accel-dir ?xyz ?rot)
+		      `(* ,?a-compo ,?t) 0)))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
+   (eqn (= ?vf-compo (+ ?vi-compo ?a-term))
 	 (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2)))
 		(?vi-compo ?vf-compo ?a-compo)))
   :hint
-   ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
+   ((point (string "Can you think of an equation that relates the components ~Aof initial velocity, final velocity, and duration?" ?hint))
     (teach (kcd "write_lk_without_displacement")
 	   (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied component-wise to relate ~A, ~A, ~A and ~A" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
-    (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
+    (bottom-out (string "Write the equation ~a = ~a + ~a" (?vf-compo algebra) (?vi-compo algebra) (?a-term algebra)))
     ))
 
 ;#| ; NOT in physics-lite  used in Pyrenees eval
@@ -3324,6 +3322,7 @@
    Lists the quantities contained in s = vi*t + 0.5*a*t^2"
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (any-member ?quantity 
 	        ((mag (velocity ?b :time ?t1))
 		 (dir (velocity ?b :time ?t1))
@@ -3335,10 +3334,8 @@
 		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
-   ; only applies if accel is constant within interval we are using
-   ; sought may not bind both times, so must choose endpoints of interval to try
+   ;; only applies if accel is constant within interval we are using
    (constant (accel ?b) ?t-constant)
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
@@ -3366,257 +3363,43 @@
   :specifications 
   "Writes the equation s = vi*t + 0.5*a*t^2, which lacks vf"
   :preconditions
-   (; for 2D case, make sure accel compo doesn't vanish
+   (
     (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-    (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
     (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
     (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
-    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-    (variable ?t-var    (duration (during ?t1 ?t2))))
+    (variable ?s-compo  (compo ?xyz ?rot 
+			       (displacement ?b :time (during ?t1 ?t2))))
+    (variable ?t-var    (duration (during ?t1 ?t2)))
+    ;; only write acceleration term if it is non-zero
+    (bind ?quad-term (if (non-zero-projectionp ?accel-dir ?xyz ?rot)
+			 `(* 0.5 ,?a-compo (^ ,?t-var 2))
+		       0))
+    ;;only write non-trivial implicit equation if ?a-compo=0
+;    (bind ?a-zero (if (non-zero-projectionp ?accel-dir ?xyz ?rot)
+;			 0 ?a-compo))
+    (bind ?hint (if (non-zero-projectionp ?accel-dir ?xyz ?rot)
+		    "time, and acceleration when acceleration is constant?"
+		  "and time, when this component of acceleration is zero?")))
   :effects
   ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?s-compo (+ (* ?vi-compo ?t-var) (* 0.5 ?a-compo (^ ?t-var 2))))
+   (eqn (= ?s-compo (+ (* ?vi-compo ?t-var) ?quad-term))
 	 (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-		(?vi-compo ?a-compo ?s-compo)))
-  :hint (
-    (point (string "Do you know an equation relating the components of displacement to those of initial velocity, time, and acceleration when acceleration is constant?"))
-    (bottom-out (string "Write the equation ~A" ((= ?s-compo (+ (* ?vi-compo ?t-var)
-								(* 0.5 ?a-compo (^ ?t-var 2))))
-						 algebra)))
-  ))
-
-#| ;; for commenting out LK-no-a since USNA instructors don't consider it fundamental
-   
-;;; Writes the equation s = 0.5*(vi + vf)*t, which lacks a
-
-(defoperator LK-no-a-contains (?quantity)
-  :specifications "
-   Lists the quantities contained in s = 0.5*(vi + vf)*t, which lacks a"
-  :preconditions
-  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
-   (any-member ?quantity 
-	        ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 ;;(mag (accel ?b :time (during ?t1 ?t2)))
-		 ;;(dir (accel ?b :time (during ?t1 ?t2)))
-		 (mag (displacement ?b :time (during ?t1 ?t2)))
-		 (dir (displacement ?b :time (during ?t1 ?t2)))
-		 (duration (during ?t1 ?t2))
-		 ))
-   ; only applies if accel is constant within interval we are using
-   ; sought may not bind both times, so must choose endpoints of interval to try
-   (constant (accel ?b) ?t-constant)
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
-   )
-  :effects
-   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
-    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity)))
-
-(defoperator draw-lk-no-a-fbd (?b ?t1 ?t2 ?rot)
-  :specifications "
-   If the goal is to draw a lk fbd for lk-no-s
-   then draw the body, the initial and final velocity, 
-      the acceleration, and axes"
-  :preconditions
-  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity))
-   (body ?b)
-   (vector ?b (velocity ?b :time ?t1) ?dir1)
-   (vector ?b (velocity ?b :time ?t2) ?dir2)
-   ;(vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
-   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
-   (axis-for ?b x ?rot))
-  :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
-)
-
-(defoperator write-lk-no-a-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications "
-   Writes the equation s = 0.5*(vi + vf)*t, which lacks a"
-  :preconditions
-   ((variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-    (variable ?t-var    (duration (during ?t1 ?t2))))
-  :effects
-  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?s-compo (*  0.5 (+ ?vi-compo ?vf-compo) ?t-var))
-	 (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-		(?vi-compo ?vf-compo ?s-compo)))
-   :hint (
-     (point (string "Do you know an equation relating the components of displacement to that of initial velocity, final velocity and time when acceleration is constant?"))
-     (bottom-out (string "Write the equation ~A"
-			 ((= ?s-compo (* 0.5 (+ ?vi-compo ?vf-compo) ?t-var))
-			  algebra)))
+		(?vi-compo ?a-compo ?s-compo))
+    ;; so a_xyz can be accepted if used
+ ;   (implicit-eqn (= ?a-zero 0)
+ ;                 (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
+    )
+  :hint 
+  (
+   (point (string "Do you know an equation relating the component of displacement to initial velocity, ~A" ?hint))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?s-compo (+ (* ?vi-compo ?t-var) ?quad-term))
+			algebra)))
    ))
 
-|# ;; end possibly commented-out lk-no-a
 
 ;|# ;; end not in physics-lite used in Pyrenees eval
-
-;;
-;; LK equations special to projectile motion
-;;
-
-;; Following two write component equations for components with constant 
-;; velocity motion.  This is used for horizontal motion of a projectile.
-;; Note they apply only to one component, since v_y need not be constant, 
-;; so can't be derived as instances of a general vector equation. 
-
-;; Following writes s_x = v0_x * t when a_x is zero so v_x is constant.
-;; (This is a special case of lk-no-vf, so could possibly use same eq id
-;; to treat it as a special case --  not clear if this would be useful.)
-;; V0 is most commonly given, but other constant velocity rule should permit 
-;; equating v0_x to v1_x, v2_x if needed. Vavg_x could also be used but we 
-;; don't introduce Vavg ;; all unless the problem asks for it. 
-;; The test for vanishing acceleration compo must be deferred until we actually 
-;; write the equation since the axis is not chosen at the time of trying 
-;; compo-eqn-contains.
-;;
-;; Because this is defined as a subsdiary compo-eqn under the lk method
-;; writing it will require drawing all the lk vectors over the interval. This 
-;; could be a nuisance if you wish to apply it over a sub-interval of 
-;; projectile motion but for now it suffices. The const-vx shows how to
-;; work around it if we need to.
-(defoperator sdd-constvel-compo-contains (?quantity)
-  :specifications 
-   "Lists the quantities contained in s_x = v0_x*t when a_x = 0" 
-  :preconditions
-  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
-   (any-member ?quantity 
-	        ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (displacement ?b :time (during ?t1 ?t2)))
-		 (dir (displacement ?b :time (during ?t1 ?t2)))
-		 (duration (during ?t1 ?t2))
-		 ))
-   ; only applies if accel is constant so child of lk.
-   ; sought may not bind both times, so must choose endpoints of interval to try
-   (constant (accel ?b) ?t-constant)
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
-   )
-  :effects
-   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
-    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity)))
-
-(defoperator draw-sdd-constvel-fbd (?b ?t1 ?t2 ?rot)
-  :preconditions
-  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity))
-   (body ?b)
-   (vector ?b (velocity ?b :time ?t1) ?dir1)
-   ;(vector ?b (velocity ?b :time ?t2) ?dir2)
-   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
-   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
-   (axis-for ?b x ?rot))
-  :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
-)
-
-(defoperator sdd-constvel-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications 
-  "Writes the component equation s_x = vi_x*t when a_x = 0"
-  :preconditions
-  ( ;; make sure accel compo vanishes
-   (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-   (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
-   ;; and write it 
-   (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-   (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-   (variable ?t-var    (duration (during ?t1 ?t2)))
-   ;; following only used for implicit eqn so a_x can be accepted if used
-   (variable ?a_x   (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
-  :effects
-  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?s-compo (* ?vi-compo ?t-var))
-	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-     (?vi-compo ?s-compo))
-    (implicit-eqn (= ?a_x 0)
-                  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
-  :hint (
-    (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
-    (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
-    (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction. Therefore, the ~A component of velocity remains constant ~A. You can use this to relate ~A to ~A and ~A." 
-		   ?b ((during ?t1 ?t2) pp) ((axis ?xyz ?rot) symbols-label) ((axis ?xyz ?rot) symbols-label) 
-		   ((axis ?xyz ?rot) symbols-label) ((during ?t1 ?t2) pp) 
-		   (?s-compo algebra) (?vi-compo algebra) (?t-var algebra)))
-    (bottom-out (string  "Write the equation ~A"
-		   ((= ?s-compo (* ?vi-compo ?t-var)) algebra)))
-  ))
-
-;; Following writes vi_x = vj_x when v_x is constant because a_x = 0
-;; Note we may need to apply this within a sub-interval of a larger lk 
-;; application, e.g. from given v2_x at apex of flight (Exkt17a) to v_x3 
-;; end of flight, without having to draw all lk vectors such as d for the 
-;; sub-segment. Thus we need both the two times and the containing lk time
-(defoperator const-vx-contains (?quantity)
- :specifications 
-   "Lists the quantities contained in v1_x = v2_x when a_x = 0"
-  :preconditions (
-   (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
-   (any-member ?quantity 
-	        ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-	         (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 ))
-   ; pick a pair of times:
-   (time (during ?t1 ?t2))
-   ; make sure vx is constant within containing time
-   ; for now just use free-fall time, assume it uses widest possible interval.
-   ; We also assume that is the same as the lk application time.
-   ; we still have to pass the particular times we want to the eqn writing op
-   (free-fall ?b ?t-free-fall) 
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-free-fall))
-   )
-   :effects (
-    (eqn-family-contains (lk ?b ?t-free-fall) ?quantity)
-    (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity)
-   ))
-
-(defoperator draw-const-vx-fbd (?b ?t1 ?t2 ?rot)
-  :preconditions
-  ((in-wm (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity))
-   (body ?b)
-   (vector ?b (velocity ?b :time ?t1) ?dir1)
-   (vector ?b (velocity ?b :time ?t2) ?dir2)
-   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
-   ;(vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
-   (axis-for ?b x ?rot))
-  :effects
-   ((vector-diagram (lk ?b ?t-free-fall)))
-)
-
-(defoperator use-const-vx (?b ?t1 ?t2 ?t-lk)
-  :specifications "Writes the component equation v1_x = v2_x when a_x = 0"
-  ;; if time is inside lk time, then vector may not have been drawn on the lk 
-  ;; diagram. Can give hairy problems defining compo vars -- define-compo 
-  ;; only works if vector and axes both drawn.  Define-compo2 was added to
-  ;; work in other cases, but can fail if it has has already been applied 
-  ;; once to draw axes for body at different time!
-  ;; Ensuring vector is drawn allows define-compo to work, since axes have
-  ;; been drawn on the body in the containing lk application.  
-  :preconditions (
-    (vector ?b (velocity ?b :time ?t1) ?dir1)
-    (vector ?b (velocity ?b :time ?t2) ?dir2)
-    (variable ?v1-compo (compo x 0 (velocity ?b :time ?t1)))
-    (variable ?v2-compo (compo x 0 (velocity ?b :time ?t2))))
-  :effects
-  ((eqn (= ?v1-compo ?v2-compo) 
-               (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk)))
-   (eqn-compos (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk))
-        (?v1-compo ?v2-compo)))
-  :hint
-  ((point (string "What do you know about the x component of the velocity of ~A ~A?"  ?b (?t-lk pp)))
-   (teach (string "Because the acceleration of ~A ~A is perpendicular to the x axis, is has no component in the x direction. Therefore, the x component of velocity remains constant ~A. You can use this to relate ~A to ~A. " 
-		  ?b (?t-lk pp)  (?t-lk pp) (?v1-compo algebra) (?v2-compo algebra)))
-   (bottom-out (string "Write the equation ~A" ((= ?v1-compo ?v2-compo) algebra)))
-   ))
 
 ;; TODO: Need some principles for problems like Exkt17a. Which?
 ;;

@@ -702,47 +702,6 @@
    (eqn ?algebra (compo-eqn lk-no-vf ?axis ?rot (lk ?body ?time)))
   :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
 
-
-(def-psmclass lk-no-a (?eq-type lk-no-a ?axis ?rot (lk ?body (during ?time0 ?time1)))
-  :group lk
-  :complexity major
-  :doc "Linear Kinematics sans acceleration."
-  :english ("the constant acceleration equation d_~a = 0.5*(vi_~a + vf_~a)*t" 
-             (adj ?axis) (adj ?axis) (adj ?axis) )
-  :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "d_~a = 0.5*(vi_~a + vf_~a)*t "
-		      "for ~a from ~a to ~a") 
-                      (adj ?axis) (adj ?axis) (adj ?axis) 
-		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time)))
-
-
-(def-goalprop lk-no-a-eqn 
-   (eqn ?algebra (compo-eqn lk-no-a ?axis ?rot (lk ?body ?time)))
-   :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
-
-
-; special-case constant-velocity equations for x component of 2D projectile:
-; We treat these as members of const accel group (0 accel is constant!), 
-; though it might not be obvious to the students what to choose.
-; Might also use a constant-velocity group, though only component is constant
-(def-psmclass const-vx (compo-eqn (const-vx ?time0 ?time1) x 0 (lk ?body ?t-lk))
-   :group lk
-   :complexity simple
-   :english ("constant velocity component")
-   :ExpFormat ("using the constancy of the x-component of the velocity of ~a from ~a to ~a"
-		  (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-   :EqnFormat ("vf_x = vi_x"))
-
-(def-psmclass sdd-constvel (compo-eqn sdd-constvel ?axis ?rot (lk ?body (during ?time0 ?time1)))
-  :group lk
-  :complexity major
-  :english ("displacement component = constant velocity component * time")
-  :ExpFormat ((strcat "calculating the ~a component of displacement as constant "
-		      "velocity component * time for ~a from ~a to ~a") 
-	      (nlg ?axis 'adj) (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("d_~a = v_~a * t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
-
-
 ; FREELY FALLING BODIES
 (def-psmclass free-fall-accel (free-fall-accel ?body ?time)
   :complexity simple
