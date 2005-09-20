@@ -2393,8 +2393,8 @@
 			"the body whose rotation you want to analyze.")
 	    (nlg spt 'def-np))
     
-    (format nil "For instance, define the torque due to a force applied to ~a."
-	    (nlg cpt 'def-np)))))
+    (format nil "For instance, define the ~A due to a force applied to ~a."
+	  *moment-name*  (nlg cpt 'def-np)))))
 
 ;;; default case for a correct applied point but a wrong axis point.
 ;;; Probably a user-interface confusion, so handled it bluntly.
@@ -2470,14 +2470,14 @@
   (let ((undrawn-torques (undrawn-vectors missing-torques)))
     (cond ((null undrawn-torques)	; only hint drawn forces if there are no undrawn ones
 	   (hint-drawn-quants 
-	    "torque" (set-difference missing-torques undrawn-torques 
+	    *moment-name* (set-difference missing-torques undrawn-torques 
 		      :test #'equal)))
 	  ((null (cdr undrawn-torques))	; only one undrawn force to hint
 	   (hint-undrawn-torque 
-	    "There is a torque acting on ~a ~a that you have not yet drawn."
+	    "There is a ~A acting on ~a ~a that you have not yet drawn."
 	    (car undrawn-torques)))
 	  (t (hint-undrawn-torque	; Hint all of the undrawn ones.
-	      "Two or more torques acting on ~a ~a have not yet been drawn."
+	      "Two or more ~As acting on ~a ~a have not yet been drawn."
 	      (car undrawn-torques))))))
 
 
@@ -3340,14 +3340,15 @@
 
 (defun hint-undrawn-torque (msg torque)
   "Return a hint sequence for a torque that has not yet been drawn by
-    the student.  Msg is a format string with two ~a in it for the
-    body and time.  It indicates whether one or mulple forces are
-    missing from the diagram."
+   the student.  Msg is a format string with three ~a in it for the
+   moment name, the body, and the time.  It indicates whether one or mulple
+  forces are missing from the diagram."
   (let ((force (fourth torque))
 	(body (second torque))
 	(time (time-of torque)))
     (make-hint-seq
      (cons (format nil msg
+		   *moment-name*
 		   (nlg body 'def-np)
 		   (nlg  time 'pp))
 	   (hint-sequence-from-op-ap

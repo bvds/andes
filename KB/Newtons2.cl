@@ -3959,7 +3959,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (object ?b))  
     
   :effects 
-  ((eqn-family-contains (sum-net-force ?b $t1) ?sought)
+  ((eqn-family-contains (sum-net-force ?b ?t1) ?sought)
   ; since only one compo-eqn under this vector psm, we can just
   ; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (sum-net-force ?b ?t1) sum-net-force ?sought)))
@@ -8415,16 +8415,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?dir-var (dir (ang-accel ?b :time ?t))))
   :hint 
   ((point (string "You need to introduce a term for the angular acceleration of ~A." ?b))
-    (teach (string "When a body is subject to a non-zero net torque it will have an angular acceleration in the direction of the net torque. In this problem you can assume that the forces will result in a net torque so the body will have a non-zero angular acceleration. Whether the angular acceleration points into or out of the plane requires calculation to determine. Since it must lie along the z axis, you should draw it but specify an unknown Z direction ." ?b))
+   (teach (string "When a body is subject to a non-zero net ~A it will have an angular acceleration in the direction of the net ~A.  In this problem you can assume that the forces will result in a net ~A so the body will have a non-zero angular acceleration.  Whether the angular acceleration points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction." 
+		  (*moment-name* eval) (*moment-name* eval) 
+		  (*moment-name* eval)))
     (bottom-out (string "Use the acceleration tool to draw a non-zero angular acceleration for ~a ~A and select Unknown Z direction in the dialog box." ?b (?t pp)))
   ))
  
 
-; angular sdd:
-; angular displacement = avg angular velocity * duration
-; Because this uses average angular velocity it does not require
-; that the velocity be constant. It could also be called the definition
-; of average angular velocity, as scalar sdd is definition of average speed.
+;;; angular sdd:
+;;; angular displacement = avg angular velocity * duration
+;;; Because this uses average angular velocity it does not require
+;;; that the velocity be constant. It could also be called the definition
+;;; of average angular velocity, as scalar sdd is definition of average speed.
 (defoperator ang-sdd-contains (?quantity)
   :preconditions (
    (any-member ?quantity (
@@ -9264,7 +9266,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	   )
   :hint (
   (point (string "Can you write an equation relating the z components making up the total angular momentum before and after the change?"))
-  (teach (string "The law of conservation of angular momentum states that if no external torque acts on a system, then the total angular momentum in the system remains constant. Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the z components of the angular momenta of each body is the same before and after any internal change such as change of shape, as long as there is no external torque."))
+  (teach (string "The law of conservation of angular momentum states that if no external ~A acts on a system, then the total angular momentum in the system remains constant.  Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the z components of the angular momenta of each body is the same before and after any internal change such as change of shape, as long as there is no external ~A."
+		 (*moment-name* eval) (*moment-name* eval)))
   (bottom-out (string "Write the equation ~A" 
                       ((= (+ . ?L1_compos) (+ . ?L2_compos)) algebra)))
   ))
@@ -9294,7 +9297,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :hint (
  (point (string "Can you write an equation relating the z-components making up
  the total angular momentum before and after the change?"))
-  (teach (string "The law of conservation of angular momentum states that if no external torque acts on a system, then the total angular momentum in the system constant. Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the angular momentum components in the z direction is the same before and after a collision."))
+ (teach (string "The law of conservation of angular momentum states that if no external ~A acts on a system, then the total angular momentum in the system constant.  Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the angular momentum components in the z direction is the same before and after a collision."
+		(*moment-name* eval)))
   (bottom-out (string "Write the equation ~A" 
                       ((= (+ . ?L1_compos) ?L2_z) algebra)))	  
 	  ))
@@ -9335,31 +9339,30 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		     (mag (torque ?b ?axis ?force :time ?t))
 		     (dir (torque ?b ?axis ?force :time ?t))
                         ))
-   ; make sure there aren't unknown forces, as in basic rotational kinematics
-   ; problems with unexplained accelerations
+   ;; make sure there aren't unknown forces, as in basic rotational kinematics
+   ;; problems with unexplained accelerations
    (not (unknown-forces))
    )
    :effects (
      (angular-eqn-contains (net-torque ?b ?axis ?t) ?sought)
    ))
 
-; draw an individual torque due to a force with at known direction
-; acting on a point with a known relative position
+;;; draw an individual torque due to a force with at known direction
+;;; acting on a point with a known relative position
 (defoperator draw-torque (?b ?axis ?pt ?agent ?type ?t)
    :preconditions (
      (in-wm (part-of ?pt ?b))
-     ;(force ?pt ?agent ?type ?t (dnum ?dir-f |deg|) action) 
-     ; draw the force on the point of applicatin
+     ;;(force ?pt ?agent ?type ?t (dnum ?dir-f |deg|) action) 
+     ;; draw the force on the point of applicatin
      (vector ?pt (force ?pt ?agent ?type :time ?t) (dnum ?dir-f |deg|))
-     ; fetch the relative position vector and calculate torque direction
+     ;; fetch the relative position vector and calculate torque direction
      (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) 
                    (dnum ?dir-r |deg|)))
      (bind ?torque-dir (torque-zdir ?dir-f ?dir-r))
-     ; var name identifies force by point of application and agent alone
+     ;; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "TOR_~A_~A_~A_~A" (body-name ?b) ?pt ?agent 
                                                  (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (debug "Drawing torque on ~A from force at ~A ~A plane~%" ?b ?pt ?torque-dir)
    )
    :effects (
      (vector ?b (torque ?b ?axis (force ?pt ?agent ?type) :time ?t) ?torque-dir)
@@ -9370,12 +9373,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (given (dir (torque ?b ?axis (force ?pt ?agent ?type) :time ?t)) 
 	    ?torque-dir)
    )
-   :hint (
+   :hint 
+   (
     (point (string "Notice that there is a[n] ~A force acting at ~a ~A which might have a tendency to cause ~a to rotate about ~A."
                    (?type adj) ?pt (?t pp) ?b ?axis))
-    (teach (string "A torque vector represents the tendency of a force acting on a rigid body to rotate the body about some axis. In Andes problems the torque vector will lie in the z axis, pointing in the positive direction (out of the plane of the diagram) for torques that tend to cause ccw rotations, and in the negative direction (into the plane) for torques that tend to cause cw rotations."))
-    (bottom-out (string "Use the torque vector drawing tool (labelled $t) to draw the torque about ~a due to the force acting at ~A ~A and set the direction to point ~A" ?axis ?pt (?t pp) (?torque-dir adj)))
-   ))
+    (teach (string "A ~A vector represents the tendency of a force acting on a rigid body to rotate the body about some axis.  In Andes problems a ~A vector will lie in the z axis, pointing in the positive direction (out of the plane of the diagram) for ~As that tend to cause ccw rotations, and in the negative direction (into the plane) for ~As that tend to cause cw rotations."
+		   (*moment-name* eval) (*moment-name* eval) 
+		   (*moment-name* eval)  (*moment-name* eval)))
+    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A about ~a due to the force acting at ~A ~A and set the direction to point ~A"  
+			(*moment-name* eval) (*moment-symbol* eval)  
+			(*moment-name* eval)
+			?axis ?pt (?t pp) (?torque-dir adj)))
+    ))
 
 ; For drawing net torque. Direction usually must be calculated, but first
 ; two operators apply for special cases:
@@ -9400,16 +9409,21 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ; gets written. Given value may not be used elsewhere so ensure it here.
      (implicit-eqn (= ?dir-var ?phi-value) (dir (net-torque ?b :time ?t)))
    )
-   :hint (
-    (point (string "You were given the direction of the net torque on ~a about ~a ~a in this situation." ?b ?axis (?t pp)))
-   (bottom-out (string "Use the torque vector drawing tool (labelled $t) to draw the net torque on ~a about ~a ~A and set the direction to point ~A" ?b ?axis (?time pp) (?dir adj))) 
-   ))
+   :hint 
+   (
+    (point (string "You were given the direction of the net ~A on ~a about ~a ~a in this situation." 
+		   (*moment-name* eval) ?b ?axis (?t pp)))
+    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
+			(*moment-name* eval) (*moment-symbol* eval) 
+			(*moment-name* eval) 
+			?b ?axis (?time pp) (?dir adj))) 
+    ))
 
-; draw net torque if direction of angular acceleration known
-; may be directly given or derivable from motion spec
-; In some cases this is a cheat for where the direction is obvious because
-; there is only one force, so we have given that the object's rotation is
-; speeding up.
+;;; draw net torque if direction of angular acceleration known
+;;; may be directly given or derivable from motion spec
+;;; In some cases this is a cheat for where the direction is obvious because
+;;; there is only one force, so we have given that the object's rotation is
+;;; speeding up.
 (defoperator draw-net-torque-from-ang-accel (?b ?axis ?t)
   :preconditions (
      (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
@@ -9426,14 +9440,19 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (variable ?dir-var (dir (net-torque ?b ?axis :time ?t))) 
      (given (dir (net-torque ?b ?axis :time ?t)) ?dir)
    )
-  :hint (
-    (point (string "You should be able to determine the direction of the angular acceleration of ~a ~a from the problem description. You can use that to determine the direction of the net torque." ?b (?t pp)))
-     (teach (string "Newton's Second Law for rotation says that the net torque on an object is proportional to its angular acceleration. This is a vector relation, therefore the net torque will point in the same direction as the angular acceleration vector."))
-   (bottom-out (string "Since the angular acceleration is known to be directed ~A, use the torque vector drawing tool (labelled $t) to draw the net torque on ~a about ~a ~A and set the direction to point ~A" (?dir adj) ?b ?axis (?time pp) (?dir adj))) 
-   ))
+   :hint 
+   (
+    (point (string "You should be able to determine the direction of the angular acceleration of ~a ~a from the problem description.  You can use that to determine the direction of the net ~A." ?b (?t pp) (*moment-name* eval)))
+    (teach (string "Newton's Second Law for rotation says that the net ~A on an object is proportional to its angular acceleration.  This is a vector relation, therefore the net ~A will point in the same direction as the angular acceleration vector." 
+		   (*moment-name* eval) (*moment-name* eval)))
+    (bottom-out (string "Since the angular acceleration is known to be directed ~A, use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
+			(?dir adj)  (*moment-name* eval) (*moment-symbol* eval)
+			(*moment-name* eval)
+			?b ?axis (?time pp) (?dir adj))) 
+    ))
 
-; draw zero net torque if object given in rotational equilibrium
-; we specify this with a given value of 0 for net torque.
+;;; draw zero net torque if object given in rotational equilibrium
+;;; we specify this with a given value of 0 for net torque.
 (defoperator draw-net-torque-non-rotating (?b ?axis ?t)
   :preconditions (
      (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
@@ -9450,9 +9469,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (implicit-eqn (= ?mag-var 0) (given (mag (net-torque ?b ?axis :time ?t))))
    )
    :hint (
-     (point (string "Notice that you were told that ~A is in rotational equilibrium ~A. That should tell you something about the net torque." ?b (?t pp)))
-     (teach (string "A rigid object is said to be in rotational equilibrium if the net torque from all external forces acting on it is zero, so it has no tendency to rotate."))
-    (bottom-out (string "Since the object is in rotational equilibrium, use the torque vector drawing tool (labelled $t) to draw a zero length vector representing the net torque on ~a about ~a ~A." ?b ?axis (?t pp) (?dir adj))) 
+	  (point (string "Notice that you were told that ~A is in rotational equilibrium ~A. That should tell you something about the net ~A." 
+			 ?b (?t pp) (*moment-name* eval)))
+	  (teach (string "A rigid object is said to be in rotational equilibrium if the net ~A acting on it is zero, so it has no tendency to rotate." 
+			 (*moment-name* eval)))
+     (bottom-out (string "Since the object is in rotational equilibrium, use the ~A vector drawing tool (labelled ~A) to draw a zero length vector representing the net ~A on ~a about ~a ~A." 
+			 (*moment-name* eval) (*moment-symbol* eval) 
+			 (*moment-name* eval) ?b ?axis (?t pp) (?dir adj))) 
    ))
 
 ; following draws the net torque vector on a body at an unknown direction
@@ -9488,9 +9511,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (variable ?dir-var (dir (net-torque ?b ?axis :time ?t))) 
    )
    :hint (
-     (point (string "You need to introduce a term for the net torque on ~a ~a" ?b (?t pp)))
-     (teach (string "The net torque on a rigid body will represent the tendency of the body to rotate cw or ccw by a vector along the z axis in accordance with the right hand rule. Although you know the net torque vector lies along the z axis, it requires calculation to determine whether it points into or out of the plane. Therefore you should specify its direction as Unknown Z direction in the dialog box after drawing it."))
-     (bottom-out (string "Use the torque vector drawing tool (labelled $t) to draw a non-zero net torque vector on ~A about ~a ~A, seelecting \"Unknown Z direction\" from the direction menu in the dialog box." ?b ?axis (?t pp)))
+	  (point (string "You need to introduce a term for the net ~A on ~a ~a"  
+			 (*moment-name* eval) ?b (?t pp)))
+     (teach (string "The net ~A on a rigid body will represent the tendency of the body to rotate cw or ccw by a vector along the z axis in accordance with the right hand rule.  Although you know the net ~A vector lies along the z axis, it requires calculation to determine whether it points into or out of the plane. Therefore you should specify its direction as Unknown Z direction in the dialog box after drawing it." (*moment-name* eval) (*moment-name* eval)))
+     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw a non-zero net ~A vector on ~A about ~a ~A, selecting \"Unknown Z direction\" from the direction menu in the dialog box." 
+			 (*moment-name* eval) (*moment-symbol* eval) 
+			 (*moment-name* eval) ?b ?axis (?t pp)))
    ))
 
 
@@ -9582,8 +9608,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                  (mag (net-torque ?b ?axis :time ?t)))
   )
   :hint (
-    (point (string "Can you write an equation for the z component of the net torque in terms of the z components of the torques due to each force?"))
-    (teach (string "The net torque on a rigid body is the vector sum of the individual torques due to each force acting on that body. Therefore the z component of the net torque is the sum of the z components of the torque dues to each force."))
+	 (point (string "Can you write an equation for the z component of the net ~A in terms of the z components of ~As due to each force?" 
+			(*moment-name* eval) (*moment-name* eval)))
+	 (teach (string "The net ~A on a rigid body is the vector sum of the individual ~As due to each force acting on that body.  Therefore the z component of the net ~A is the sum of the z components of the ~A due to each force."
+		   (*moment-name* eval) (*moment-name* eval) 
+		   (*moment-name* eval) (*moment-name* eval)))
     (bottom-out (string "Write the equation ~A" 
           ((= ?tnet_z (+ . ?torque-compos)) algebra)))
   ))
@@ -9614,8 +9643,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (eqn-compos (compo-eqn z 0 (net-torque ?b ?axis ?t)) ?all-compos)
   )
   :hint (
-   (point (string "Can you write an equation for the z component of the net torque in terms of the z components of the torques due to each force?"))
-    (teach (string "The net torque on a rigid body is the vector sum of the individual torques due to each force acting on that body. Therefore the z component of the net torque is the sum of the z components of the torque dues to each force."))
+	 (point (string "Can you write an equation for the z component of the net ~A in terms of the z components of ~As due to each force?" 
+			(*moment-name* eval) (*moment-name* eval)))
+   (teach (string "The net ~A on a rigid body is the vector sum of the individual ~As due to each force acting on that body. Therefore the z component of the net ~A is the sum of the z components of the ~A due to each force."
+		  (*moment-name* eval) (*moment-name* eval) 
+		  (*moment-name* eval) (*moment-name* eval)))
     (bottom-out (string "Write the equation ~A" 
           ((= ?tnet_z (+ . ?torque-compos)) algebra)))
   ))
@@ -9662,8 +9694,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
              (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t))
    )
    :hint (
-   (point (string "You need an expression for the magnitude of the torque due to the ~A force acting at ~A" (?type adj) ?pt))
-   (teach (string "The magnitude of the torque $t resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis is given by $t = r * F * sin ($q), where $q is the smaller of two angles between the vectors r and F."))
+   (point (string "You need an expression for the magnitude of the ~A due to the ~A force acting at ~A" (*moment-name* eval) (?type adj) ?pt))
+   (teach (string "The magnitude of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis is given by ~A = r * F * sin ($q), where $q is the smaller of two angles between the vectors r and F." (*moment-name* eval) (*moment-symbol* eval) (*moment-symbol* eval)))
    (bottom-out (string "Write the equation ~A" 
                ((= ?tau-var (* ?r-var ?f-var (sin ?theta-var))) algebra)))
    ))
@@ -9711,8 +9743,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
              (torque-zc ?b ?axis (force ?pt ?agent ?type) ?t))
    )
    :hint (
-   (point (string "You need an expression for the z component of the torque due to the ~A force acting at ~A" (?type adj) ?pt))
-   (teach (string "The z component of the torque $t resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis can be calculated as $t_z = r * F * sin ($qF - $qr) where $qF and $qr are the orientations of the vectors F and r ."))
+   (point (string "You need an expression for the z component of the ~A due to the ~A force acting at ~A"  (*moment-name* eval) (?type adj) ?pt))
+   (teach (string "The z component of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis can be calculated as ~A_z = r * F * sin ($qF - $qr) where $qF and $qr are the orientations of the vectors F and r ."
+		  (*moment-name* eval) (*moment-symbol* eval) (*moment-symbol* eval)))
    (bottom-out (string "Write the equation ~A" 
           ((= ?tau-zc (* ?r-var ?f-var (sin (- ?theta-f ?theta-r)))) algebra)))
   ))
@@ -9803,10 +9836,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; for algebraic completeness: put out equation for mag ang-accel
      ;; in terms of component, so gets determined from alpha_z if dir is unknown
      ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (mag (ang-accel ?b :time ?t)))
-   )
+     )
    :hint (
-    (point (string "Can you relate the z components of net torque and angular acceleration?"))
-    (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net torque on an object equals the object's moment of inertia times its angular acceleration. This vector relation can be applied along the z axis to relate the z-components of net torque and angular acceleration."))
+	  (point (string "Can you relate the z components of the net ~A and angular acceleration?"
+			  (*moment-name* eval)))
+	  (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration. This vector relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
+			 (*moment-name* eval) (*moment-name* eval)))
     (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))

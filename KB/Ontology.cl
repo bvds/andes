@@ -67,6 +67,14 @@
       (|knot| . "knots")
       (|dB| . "decibels")
       ))
+;;;;
+;;;;  Engineers like to use the term "moment" instead of "torque"
+;;;;  This is turned on via **engineering** flag.
+;;;;  Need both a lisp function for below and an Ontology expression.
+
+(defparameter **engineering** nil)
+(defparameter *moment-symbol* (if **engineering** "M" "$t"))
+(defparameter  *moment-name* (if **engineering** "moment" "torque"))
 
 ;;;             Quantity Terms:
 
@@ -122,12 +130,13 @@
   :english ("the angular momentum of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp torque (torque ?body ?axis ?force :time ?time)
   :units |N.m|
-  :english ("the torque on ~A about ~A due to ~A" 
-	    (nlg ?body) (nlg ?axis) (nlg ?force 'at-time ?time)))
+  :english ("the ~A on ~A about ~A due to ~A" 
+	       (eval *moment-name*) (nlg ?body) (nlg ?axis) 
+	       (nlg ?force 'at-time ?time)))
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
-  :english ("the net torque on ~A about ~A" 
-	    (nlg ?body) (nlg ?axis 'at-time ?time)))
+  :english ("the net ~A on ~A about ~A" 
+	       (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
 ;; attributes of vectors:
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
@@ -279,8 +288,8 @@
   :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
-  :english ("the number of torques on ~A about ~A" 
-	    (nlg ?body) (nlg ?axis 'at-time ?time)))
+  :english ("the number of ~As on ~A about ~A" 
+	     (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
 (def-qexp compound (compound . ?bodies)
   :english ("a compound of ~A" (nlg ?bodies 'conjoined-defnp)))
@@ -290,6 +299,7 @@
 
 (def-qexp during (during ?t0 ?t1) 
   :english ("from ~A to ~A" (nlg ?t0 'moment) (nlg ?t1 'moment)))
+
 
 ;; Note when nlg'ing other time arguments in format strings: 
 ;; 'pp         forms a prepositional phrase: "at T0" or "during T0 to T1"
@@ -492,12 +502,13 @@
    :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes"))
 
 (def-goalprop all-torques (torques ?b ?axis ?time ?torques)
-   :english ("showing the torques due to each force acting on ~A ~A" (nlg ?b) (nlg ?time 'pp)))
+  :english ("showing the ~A due to each force acting on ~A ~A" 
+	     (eval *moment-name*) (nlg ?b) (nlg ?time 'pp)))
 
 (def-goalprop nl-rot-fbd  (vector-diagram (NL-rot ?b ?axis ?t))
   :doc "diagram for applying Newton's Law for rotation"
-  :english ("drawing a diagram showing all the torques on ~A ~A, the angular acceleration, and coordinate axes"
-            (nlg ?b) (nlg ?t 'pp))) 
+  :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
+	    (eval *moment-name*) (nlg ?b) (nlg ?t 'pp))) 
 
 ; this goal used as sought in vector-drawing-only problem (magtor*)
 (def-goalprop draw-vectors (draw-vectors ?vector-list)
@@ -1187,26 +1198,30 @@
 ;;; of the zc flag in id.  Following form is designed to match either one:
 (def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time . ?opt-zc-flag))
   :complexity major ; definition, but can be first "principle" for sought
-  :english ("the definition of net torque")
-  :expformat ("applying the definition of Net Torque on ~a about ~a ~A"
-	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
-  :eqnformat ("$tnet_z = $t1_z + $t2_z + ..."))
+  :english ("the definition of net ~A" (eval *moment-name*))
+  :expformat ("applying the definition of net ~A on ~a about ~a ~A"
+	      (eval *moment-name*) (nlg ?body) (nlg ?pivot) 
+	      (nlg ?time 'nlg-time))
+  :eqnformat ((if **engineering** "Mnet_z = M1_z + M2_z + ..."
+			    "$tnet_z = $t1_z + $t2_z + ...")))
 
 (def-psmclass torque-zc (torque-zc ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
-  :english ("the definition of torque")
-  :expformat ((strcat "calculating the z component of the torque "
+  :english ("the definition of ~A" *moment-name*)
+  :expformat ((strcat "calculating the z component of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
-	      (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
-  :EqnFormat ("$t_z = r*F*sin($qF-$qr)"))
+	      (eval *moment-name*) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
+  :EqnFormat ((if **engineering**  "M_z = r*F*sin($qF-$qr)"
+			     "$t_z = r*F*sin($qF-$qr)")))
 
 (def-psmclass mag-torque (mag-torque ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of torque magnitude")
-  :expformat ((strcat "calculating the magnitude of torque "
+  :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
-	      (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
-  :EqnFormat ("$t = r*F*sin($q)"))
+	      (eval *moment-name*) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
+  :EqnFormat ((if **engineering** "M = r*F*sin($q)"
+	      "$t = r*F*sin($q)")))
   
 
 (def-psmclass NL-rot (?eq-type z 0 (NL-rot ?body ?pivot ?time))
@@ -1214,7 +1229,8 @@
   :english ("Newton's Law for rotation")
   :expformat ("appling Newton's Law for rotation to ~a about ~a ~a"
 	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
-  :eqnFormat ("$tnet_z = I*$a_z"))
+  :eqnFormat ((if **engineering** "Mnet_z = I*$a_z"
+		"$tnet_z = I*$a_z" )))
 
 
 ;;
