@@ -99,6 +99,7 @@
 				     (:file "rocket-problems") 
 				     ;; there is some ugly code here
 				     (:file "circuits")
+				     (:file "statics-problems") 
 				     ))
 	       (:module "SGG"
 ;;;			:description "Solution Graph Generator" 

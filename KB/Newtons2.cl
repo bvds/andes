@@ -2581,7 +2581,7 @@
 
 ;;; This draws an acceleration vector at an unknown direction for an object 
 ;;; when we are given that there are at least two forces acting on it 
-;;; (dt12b), but the exact direcction of net force will not be known 
+;;; (dt12b), but the exact direction of net force will not be known 
 ;;; until calculated.  The exact direction is unknown until components are 
 ;;; calculated. 
 ;;; !!! Might want operator and hint specific to case where existence of 

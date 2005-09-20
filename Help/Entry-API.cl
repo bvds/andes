@@ -390,9 +390,14 @@
        (vec-prop prop `(ang-displacement ,body-term :time ,time-term)))
       (ang-momentum (vec-prop prop `(ang-momentum ,body-term :time ,time-term)))
       (torque       (vec-prop prop 
-			      (if (eq subtype 'net) 
-				  `(net-torque ,body-term ,body2-term :time ,time-term)
-				(find-torque-term body-term body2-term))))
+			      (cond ((eq subtype 'net) 
+				     `(net-torque ,body-term :axis ,body2-term :time ,time-term))
+				    ((eq subtype 'couple)
+				     `(torque ,body-term ,body2-term nil
+					      (couple ,body-term ,body3-term) 
+					      :time ,time-term))
+				    ;; serious bug: time is missing!
+				(t (find-torque-term body-term body2-term)))))
       ;; unknown:
       (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
 			   quant-type)

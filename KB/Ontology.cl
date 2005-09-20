@@ -67,10 +67,12 @@
       (|knot| . "knots")
       (|dB| . "decibels")
       ))
+
 ;;;;
 ;;;;  Engineers like to use the term "moment" instead of "torque"
 ;;;;  This is turned on via **engineering** flag.
-;;;;  Need both a lisp function for below and an Ontology expression.
+;;;;  Hints generally tend to hold their arguements unevaluated,
+;;;;  thus we need to eval the parameter in the context of a hint.
 
 (defparameter **engineering** nil)
 (defparameter *moment-symbol* (if **engineering** "M" "$t"))
