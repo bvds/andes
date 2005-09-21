@@ -9316,12 +9316,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator net-torque-zc-contains (?sought)
   :preconditions (
     (any-member ?sought (
-                     ;(mag (net-torque ?b ?axis :time ?t))
-		     ;(dir (net-torque ?b ?axis :time ?t))
-		     (compo z 0 (net-torque ?b ?axis :time ?t))
+                     ;(mag (net-torque ?b :axis ?axis :time ?t))
+		     ;(dir (net-torque ?b :axis ?axis :time ?t))
+		     (compo z 0 (net-torque ?b :axis ?axis :time ?t))
 		     ; for now, don't use to solve for individual torques:
-		     ;(mag (torque ?b ?axis ?force :time ?t))
-		     ;(dir (torque ?b ?axis ?force :time ?t))
+		     ;(mag (torque ?b ?axis ?force :axis ?axis ?axis :time ?t))
+		     ;(dir (torque ?b ?axis ?force :axis ?axis ?axis :time ?t))
                         ))
    ; make sure there aren't unknown forces, as in basic rotational kinematics
    ; problems with unexplained accelerations
@@ -9334,11 +9334,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator net-torque-contains (?sought)
   :preconditions (
     (any-member ?sought (
-                     (mag (net-torque ?b ?axis :time ?t))
-		     (dir (net-torque ?b ?axis :time ?t))
-		     (mag (torque ?b ?axis ?force :time ?t))
-		     (dir (torque ?b ?axis ?force :time ?t))
+                     (mag (net-torque ?b :axis ?axis :time ?t))
+		     (dir (net-torque ?b :axis ?axis :time ?t))
+		     (mag (torque ?b ?force :axis ?axis ?axis :time ?t))
+		     (dir (torque ?b ?force :axis ?axis ?axis :time ?t))
                         ))
+    (part-of ?axis ?b) ;?axis is not bound by couples
    ;; make sure there aren't unknown forces, as in basic rotational kinematics
    ;; problems with unexplained accelerations
    (not (unknown-forces))
@@ -9365,12 +9366,50 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
-     (vector ?b (torque ?b ?axis (force ?pt ?agent ?type) :time ?t) ?torque-dir)
-     (variable ?mag-var (mag (torque ?b ?axis 
-				     (force ?pt ?agent ?type) :time ?t)))
-     (variable ?dir-var (dir (torque ?b ?axis (force ?pt ?agent ?type)
-			     :time ?t)))
-     (given (dir (torque ?b ?axis (force ?pt ?agent ?type) :time ?t)) 
+     (vector ?b (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t) 
+	     ?torque-dir)
+     (variable ?mag-var (mag (torque ?b (force ?pt ?agent ?type) 
+				     :axis ?axis :time ?t)))
+     (variable ?dir-var (dir (torque ?b (force ?pt ?agent ?type)
+			     :axis ?axis :time ?t)))
+     (given (dir (torque ?b (force ?pt ?agent ?type):axis ?axis :time ?t)) 
+	    ?torque-dir)
+   )
+   :hint 
+   (
+    (point (string "Notice that there is a[n] ~A force acting at ~a ~A which might have a tendency to cause ~a to rotate about ~A."
+                   (?type adj) ?pt (?t pp) ?b ?axis))
+    (teach (string "A ~A vector represents the tendency of a force acting on a rigid body to rotate the body about some axis.  In Andes problems a ~A vector will lie in the z axis, pointing in the positive direction (out of the plane of the diagram) for ~As that tend to cause ccw rotations, and in the negative direction (into the plane) for ~As that tend to cause cw rotations."
+		   (*moment-name* eval) (*moment-name* eval) 
+		   (*moment-name* eval)  (*moment-name* eval)))
+    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A about ~a due to the force acting at ~A ~A and set the direction to point ~A"  
+			(*moment-name* eval) (*moment-symbol* eval)  
+			(*moment-name* eval)
+			?axis ?pt (?t pp) (?torque-dir adj)))
+    ))
+
+;;; draw an individual torque due to a couple
+;;; BvdS:  in progress
+(defoperator draw-torque-couple (?b ?agent ?t)
+   :preconditions (
+     (in-wm (couple . ?bodies))
+(test (equal ?bodies (sort (list ?b ?agent
+     (vector ?pt (force ?pt ?agent ?type :time ?t) (dnum ?dir-f |deg|))
+     ;; fetch the relative position vector and calculate torque direction
+     (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) 
+                   (dnum ?dir-r |deg|)))
+     (bind ?torque-dir (torque-zdir ?dir-f ?dir-r))
+     ;; var name identifies force by point of application and agent alone
+     (bind ?mag-var (format-sym "TOR_~A_~A_~A_~A" (body-name ?b) ?pt ?agent 
+                                                 (time-abbrev ?t)))
+     (bind ?dir-var (format-sym "O~A" ?mag-var))
+   )
+   :effects (
+     (vector ?b (torque ?b (couple . ?bodies) :time ?t) ?torque-dir)
+     (variable ?mag-var (mag (torque ?b 
+				     (couple . ?bodies) :time ?t)))
+     (variable ?dir-var (dir (torque ?b (couple . ?bodies) :time ?t)))
+     (given (dir (torque ?b (couple . ?bodies) :time ?t)) 
 	    ?torque-dir)
    )
    :hint 

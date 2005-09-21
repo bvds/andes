@@ -391,13 +391,18 @@
       (ang-momentum (vec-prop prop `(ang-momentum ,body-term :time ,time-term)))
       (torque       (vec-prop prop 
 			      (cond ((eq subtype 'net) 
-				     `(net-torque ,body-term :axis ,body2-term :time ,time-term))
+				     `(net-torque ,body-term :axis ,body2-term 
+						  :time ,time-term))
 				    ((eq subtype 'couple)
-				     `(torque ,body-term ,body2-term nil
-					      (couple ,body-term ,body3-term) 
+				     `(torque ,body-term
+					      (couple ,@(sort 
+							 (list body-term 
+							       body2-term) 
+                                                        #'expr<)) 
 					      :time ,time-term))
-				    ;; serious bug: time is missing!
-				(t (find-torque-term body-term body2-term)))))
+				(t (timeify time-term 
+					    (find-torque-term 
+					     body-term body2-term))))))
       ;; unknown:
       (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
 			   quant-type)
@@ -661,7 +666,7 @@
 ;; lookup-torque - check correctness of a torque vector drawn by student
 ;; Arguments:
 ;; label: the torque label
-;; net: T if this is net torque, else NIL
+;; type: net, couple, or other.
 ;; body: Net torque: the label of the whole torqued body. 
 ;;       Individual torque: the point of application of the force
 ;; axis: the pt about which the rotation axis is located
@@ -677,16 +682,21 @@
 ;; 
 ;; Side Effects: Updates state as for other vector entries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-torque (label net body axis dir mag time id)
+(defun on-lookup-torque (label type body axis dir mag time id)
  (let* ((body-term   (arg-to-body body))
 	(time-term   (arg-to-time time))
 	(axis-term   (arg-to-body axis))
-	; net torque is easy. For individual torques, must find body containing
-	; point of application as part and also full term for force applied
-	; at that point, assumed to be unique. Note if no such force we can't 
-	; determine a full quantity spec at all.
-	(vquant-term (if net `(net-torque ,body-term ,axis-term)
-	               (find-torque-term body-term axis-term)))
+	;; net torque is easy. For individual torques, must find body 
+	;; containing the point of application as part and also full term 
+	;; for force applied at that point, assumed to be unique.  Note if 
+	;; no such force we can't determine a full quantity spec at all.
+	(vquant-term (cond
+		      ((eql type 'net) `(net-torque ,body-term :axis ,axis-term))
+		      ((eql type 'couple) 
+		       `(torque ,body-term 
+				(couple ,@(sort (list body-term axis-term)
+						#'expr<))))
+	               (t (find-torque-term body-term axis-term))))
 	(dir-term    (arg-to-dir dir mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id))
@@ -708,7 +718,7 @@
 	 (body-match   (if (= (length body-matches) 1) (car body-matches)))
 	 (body-term    (if body-match (third body-match) 'unknown)))
     ;; return the torque quantity
-    `(torque ,body-term ,axis ,force-match) 
+    `(torque ,body-term ,force-match :axis ,axis) 
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

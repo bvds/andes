@@ -130,15 +130,18 @@
 (def-qexp ang-momentum (ang-momentum ?body :time ?time)
   :units |kg.m^2/s|
   :english ("the angular momentum of ~A" (nlg ?body 'at-time ?time)))
-(def-qexp torque (torque ?body ?axis ?force :time ?time)
+(def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :units |N.m|
-  :english ("the ~A on ~A about ~A due to ~A" 
-	       (eval *moment-name*) (nlg ?body) (nlg ?axis) 
-	       (nlg ?force 'at-time ?time)))
-(def-qexp net-torque (net-torque ?body ?axis :time ?time)
+  :english ("the ~A on ~A ~@[about ~A~] due to ~A" 
+	       (eval *moment-name*) (nlg ?body) (when ?axis (nlg ?axis)) 
+	       (nlg ?agent 'at-time ?time)))
+(def-qexp net-torque (net-torque ?body :axis ?axis :time ?time)
   :units |N.m|
   :english ("the net ~A on ~A about ~A" 
 	       (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
+(def-qexp couple (couple ?body1 ?body2)
+  :english ("the couple between ~A and ~A"
+	       (nlg ?body1) (nlg ?body2)))
 ;; attributes of vectors:
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
@@ -289,7 +292,7 @@
   :units |m|
   :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))
-(def-qexp num-torques (num-torques ?body ?axis :time ?time)
+(def-qexp num-torques (num-torques ?body :axis ?axis :time ?time)
   :english ("the number of ~As on ~A about ~A" 
 	     (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
