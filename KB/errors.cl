@@ -2371,11 +2371,13 @@
 ;;; time and direction).  Has to have a high enough utility to
 ;;; over-ride the default wrong-body for general vectors.
 (def-error-class wrong-applied-pt-torque (?spt ?cpt)
-  ((student    (vector (torque ?sbody ?spivot (force ?spt . ?junk1)) ?sdir))
-   (bind ?stime (time-of ?junk1))
-   (no-correct (vector (torque ?body2 ?pivot2 (force ?spt . ?junk2)) ?dir2)) ; no torque at ?spt
-   (correct    (vector (torque ?cbody ?cpivot (force ?cpt . ?junk3)) ?cdir))
-   (bind ?ctime (time-of ?junk3)))
+  ((student    (vector (torque ?sbody (force ?spt . ?junk1)
+			       :axis ?spivot :time ?stime) ?sdir))
+   ;; no torque at ?spt
+   (no-correct (vector (torque ?body2 (force ?spt . ?junk2)
+			       :axis ?pivot2 :time ?time2) ?dir2)) 
+   (correct    (vector (torque ?cbody (force ?cpt . ?junk3)
+			       :axis ?cpivot :time ?ctime) ?cdir)))
   :utility 10
   :probability
   (+ 0.1 
@@ -2399,9 +2401,13 @@
 ;;; default case for a correct applied point but a wrong axis point.
 ;;; Probably a user-interface confusion, so handled it bluntly.
 (def-error-class wrong-pivot-pt-torque (?spt ?cpt ?body)
-  ((student    (vector (torque ?body ?spt (force ?pt ?agt ?type :time ?stime)) ?sdir))
-   (no-correct (vector (torque ?body ?spt (force ?pt ?ag2 ?typ2 :time ?time2)) ?dir2)) ;no torque for student's 2 pts
-   (correct    (vector (torque ?body ?cpt (force ?pt ?agt ?type3 :time ?ctime)) ?cdir)))
+  ((student    (vector (torque ?body (force ?pt ?agt ?type) 
+			       :axis ?spt :time ?stime) ?sdir))
+  ;; no torque for student's 2 pts
+  (no-correct (vector (torque ?body (force ?pt ?ag2 ?typ2)
+			      :axis ?spt :time ?time2) ?dir2)) 
+  (correct    (vector (torque ?body ?cpt (force ?pt ?agt ?type3)
+			      :axis ?cpt :time ?ctime) ?cdir)))
   :utility 10
   :probability
   (+ 0.1
@@ -2524,9 +2530,10 @@
 ;;; of a catch in case a non-torque is found and non-torques-ok is nil  
 ;;; in that instance it will return the nil that it gains.
 (defun torques-in-sum (sum &optional (body '?body) (time '?time) (non-torques-ok nil))
-  (let ((comp-pattern `(compo Z 0 (torque ,body ?axis ?force :time ,time)))
-	(mag-pattern `(mag (torque ,body ?axis ?force :time ,time)))
-	(torque-pattern `(torque ,body ?axis ?force :time ,time)))
+  (let ((comp-pattern `(compo Z 0 (torque ,body ?force 
+					  :axis ?axis :time ,time)))
+	(mag-pattern `(mag (torque ,body ?force :axis ?axis :time ,time)))
+	(torque-pattern `(torque ,body ?force :axis ?axis :time ,time)))
     (catch 'non-torque-found-err
       (torques-in-sum1 sum comp-pattern mag-pattern torque-pattern body time non-torques-ok))))
 
