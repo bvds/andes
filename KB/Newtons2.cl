@@ -9316,9 +9316,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator net-torque-zc-contains (?sought)
   :preconditions (
     (any-member ?sought (
-                     ;(mag (net-torque ?b :axis ?axis :time ?t))
-		     ;(dir (net-torque ?b :axis ?axis :time ?t))
-		     (compo z 0 (net-torque ?b :axis ?axis :time ?t))
+                     ;(mag (net-torque ?b ?axis :time ?t))
+		     ;(dir (net-torque ?b ?axis :time ?t))
+		     (compo z 0 (net-torque ?b ?axis :time ?t))
 		     ; for now, don't use to solve for individual torques:
 		     ;(mag (torque ?b ?axis ?force :axis ?axis ?axis :time ?t))
 		     ;(dir (torque ?b ?axis ?force :axis ?axis ?axis :time ?t))
@@ -9334,8 +9334,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator net-torque-contains (?sought)
   :preconditions (
     (any-member ?sought (
-                     (mag (net-torque ?b :axis ?axis :time ?t))
-		     (dir (net-torque ?b :axis ?axis :time ?t))
+                     (mag (net-torque ?b ?axis :time ?t))
+		     (dir (net-torque ?b ?axis :time ?t))
 		     (mag (torque ?b ?force :axis ?axis ?axis :time ?t))
 		     (dir (torque ?b ?force :axis ?axis ?axis :time ?t))
                         ))
@@ -9372,7 +9372,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 				     :axis ?axis :time ?t)))
      (variable ?dir-var (dir (torque ?b (force ?pt ?agent ?type)
 			     :axis ?axis :time ?t)))
-     (given (dir (torque ?b (force ?pt ?agent ?type):axis ?axis :time ?t)) 
+     (given (dir (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t)) 
 	    ?torque-dir)
    )
    :hint 

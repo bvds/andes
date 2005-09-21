@@ -391,7 +391,7 @@
       (ang-momentum (vec-prop prop `(ang-momentum ,body-term :time ,time-term)))
       (torque       (vec-prop prop 
 			      (cond ((eq subtype 'net) 
-				     `(net-torque ,body-term :axis ,body2-term 
+				     `(net-torque ,body-term ,body2-term 
 						  :time ,time-term))
 				    ((eq subtype 'couple)
 				     `(torque ,body-term
@@ -691,7 +691,7 @@
 	;; for force applied at that point, assumed to be unique.  Note if 
 	;; no such force we can't determine a full quantity spec at all.
 	(vquant-term (cond
-		      ((eql type 'net) `(net-torque ,body-term :axis ,axis-term))
+		      ((eql type 'net) `(net-torque ,body-term ,axis-term))
 		      ((eql type 'couple) 
 		       `(torque ,body-term 
 				(couple ,@(sort (list body-term axis-term)

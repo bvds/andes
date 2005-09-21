@@ -135,7 +135,7 @@
   :english ("the ~A on ~A ~@[about ~A~] due to ~A" 
 	       (eval *moment-name*) (nlg ?body) (when ?axis (nlg ?axis)) 
 	       (nlg ?agent 'at-time ?time)))
-(def-qexp net-torque (net-torque ?body :axis ?axis :time ?time)
+(def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
   :english ("the net ~A on ~A about ~A" 
 	       (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
@@ -292,7 +292,7 @@
   :units |m|
   :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))
-(def-qexp num-torques (num-torques ?body :axis ?axis :time ?time)
+(def-qexp num-torques (num-torques ?body ?axis :time ?time)
   :english ("the number of ~As on ~A about ~A" 
 	     (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
