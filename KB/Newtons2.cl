@@ -9412,7 +9412,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :hint 
    (
     (point (string "Notice that there is a couple between ~A."
-		   (?bodies conjoined-defnp))
+		   (?bodies conjoined-defnp)))
     (teach (string "A couple is a way of expression the rotational part of the forces between two bodies."))
     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A  due to the couple from ~A ~A and set the direction to point ~A"  
 			(*moment-name* eval) (*moment-symbol* eval)  
