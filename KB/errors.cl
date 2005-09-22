@@ -1667,7 +1667,7 @@
    (test (dimensioned-numberp ?sdir)) ; not 'zero 'unknown or other atom 
    (bind ?cdir (opposite ?sdir))
    (correct (vector (accel ?body :time ?time) ?cdir))
-   (problem (motion ?body ?time (straight slow-down ?dontcare))))
+   (problem (motion ?body (straight slow-down ?dontcare) :time ?time)))
   :utility 100)
 
 (defun deceleration-bug (body sdir cdir)
@@ -2327,7 +2327,8 @@
   ((student (vector (net-force ?body :time ?time) zero))
    (correct (vector (net-force ?body :time ?time) ?dir1))
    (test (not (equal ?dir1 'zero)))
-   (problem (motion ?body ?time (straight ?speed-up-or-slow-down ?dir2))))
+   (problem (motion ?body (straight ?speed-up-or-slow-down ?dir2) 
+		    :time ?time)))
   :utility 100)
 
 (defun net-force-straight (body time speed-up-or-slow-down)

@@ -1745,7 +1745,7 @@
 	       ((mag (displacement ?b :time ?t))
 		(distance ?b :time ?t)))
    ;; make sure we ar moving in a straight line.
-   (motion ?b ?t-motion (straight ?type ?dir))
+   (motion ?b (straight ?type ?dir) :time ?t-motion ?t)
    ;; This check for change in direction is rather weak.
    (test (not (equal ?type 'slow-down)))
    (test (tinsidep ?t ?t-motion))
@@ -1828,7 +1828,8 @@
 
 (defoperator get-displacement-dir-from-motion (?b ?t1 ?t2)
     :effects ( (displacement-dir ?b (during ?t1 ?t2) ?dir-d12) )
-    :preconditions ( (motion ?b (during ?t1 ?t2) (straight ?dont-care ?dir-d12)) ))
+    :preconditions 
+    (  (motion ?b (straight ?dont-care ?dir-d12) :time (during ?t1 ?t2)) ))
 
 (defoperator write-pyth-thm (?b ?o ?t1 ?t2)
   
@@ -1957,7 +1958,7 @@
   :preconditions
    ((time ?t)
     (test (time-intervalp ?t))
-    (motion ?b ?t-motion (straight ?dontcare ?dir))
+    (motion ?b (straight ?dontcare ?dir) :time ?t-motion ?t)
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
@@ -1984,7 +1985,7 @@
   :preconditions
    ((time ?t)
     (test (time-intervalp ?t))
-    (motion ?b ?t-motion (straight ?dontcare unknown))
+    (motion ?b (straight ?dontcare unknown) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2014,7 +2015,7 @@
   :preconditions
    ((time ?t)
     (test (time-intervalp ?t))
-    (motion ?b ?t-motion at-rest)
+    (motion ?b at-rest :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
@@ -2088,7 +2089,7 @@
    "If you don't know the direction of a net displacement over an interval
    then draw a displacement vector for it at an unspecified direction"
   :preconditions
-   ((motion ?b ?t (curved projectile . ?dontcare))
+   ((motion ?b (curved projectile . ?dontcare) :time ?t)
     (not (given (dir (displacement ?b :time ?t)) ?dir))
     (test (time-intervalp ?t))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
@@ -2122,7 +2123,7 @@
   ( (time ?t)
     (test (time-intervalp ?t))
     ;; motion with unknown direction not handled correctly:
-    (not (motion ?b ?t-motion ?motion-spec) (tinsidep ?t ?t-motion))
+    (not (motion ?b ?motion-spec :time ?t-motion ?t) (tinsidep ?t ?t-motion))
     ;; dir=unknown not handled correctly:
     (not (given (dir (displacement ?b :time ?t)) ?dir))
     ;; BvdS:  hack to get kt13a to work
@@ -2161,7 +2162,7 @@
   :preconditions
    ((time ?t)
     (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
-    (motion ?b ?t-motion at-rest)
+    (motion ?b at-rest :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
   :effects
@@ -2180,9 +2181,9 @@
   :preconditions
    ((time ?t)
     (use-point-for-body ?b ?cm ?axis) ;else ?b is sometimes not bound
-    (motion ?b ?t-body (rotating ?axis . ?dont-care))
+    (motion ?b (rotating ?axis . ?dont-care) :time ?t-body ?t)
     (test (tinsidep ?t ?t-body))
-    (motion ?axis ?t-axis ?at-rest)
+    (motion ?axis ?at-rest :time ?t-axis ?t)
     (test (tinsidep ?t ?t-axis))
     (test (or (equal ?at-rest 'at-rest) (equal ?at-rest 'momentarily-at-rest)))
     (bind ?mag-var (format-sym "v_~A_~A" ?axis (time-abbrev ?t))))
@@ -2213,8 +2214,8 @@
   :preconditions
    ((time ?t)
     (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
-    (motion ?b ?t-motion momentarily-at-rest)
-    (test (tinsidep ?t ?t-motion))
+    (motion ?b momentarily-at-rest :time ?t-motion)
+    (test (and ?t-motion (tinsidep ?t ?t-motion)))
     (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
   :effects
    ((vector ?b (velocity ?b :time ?t) zero)
@@ -2240,7 +2241,7 @@
   :preconditions
   ((time ?t)
    (use-point-for-body ?body ?cm ?b) ;else ?b is sometimes not bound
-   (motion ?b ?t-motion (straight ?dontcare ?dir))
+   (motion ?b (straight ?dontcare ?dir) :test ?t-motion ?t)
    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
    (test (tinsidep ?t ?t-motion))
    (not (vector ?b (velocity ?b :time ?t) ?dir))
@@ -2266,7 +2267,7 @@
   :preconditions
   ((time ?t)
    (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
-   (motion ?b ?t-motion (straight ?dontcare unknown))
+   (motion ?b (straight ?dontcare unknown) :time ?t-motion ?t)
    (test (tinsidep ?t ?t-motion))
    (not (vector ?b (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2284,12 +2285,12 @@
    ))
 
 ;;; Using the motion statement:
-;;;      (motion ?body ?time (curved ?type (?dir-velocity ?dir-acceleration)))
+;;;    (motion ?body (curved ?type (?dir-velocity ?dir-acceleration)) :time ?t)
 ;;; This operator draws velocities for curved motion, where curved
 ;;; motion ?type is projectile, circular and other kinds of curves.
 ;;; ?dir-accleration is used only for ?type=projectile or circular.
 ;;; General motion along a curve can be described by:
-;;;      (motion ?body ?time (curved nil (?dir-velocity nil)))
+;;;     (motion ?body (curved nil (?dir-velocity nil)) :time ?t)
 ;;;
 
 (defoperator draw-velocity-curved (?b ?t)
@@ -2298,7 +2299,7 @@
    then its velocity is tangent to the curve at that time."
   :preconditions
    ((time ?t)
-    (motion ?b ?t (curved ?dontcare (?dir ?dont-care)))
+    (motion ?b (curved ?dontcare (?dir ?dont-care)) :time ?t)
     (test (not (equal ?dir 'unknown)))  ;until conditional effects are implemented
     (test (time-pointp ?t))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
@@ -2325,7 +2326,7 @@
     ;; (Can compete with draw-avg-vel-from-displacement for that on 
     ;; some projectile problems.)
     (test (time-pointp ?t))
-    (motion ?b ?t-motion (curved ?curve-type (unknown ?dontcare)))
+    (motion ?b (curved ?curve-type (unknown ?dontcare)) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2347,7 +2348,7 @@
   :specifications "if a projectile is at the apex of parabolic flight then its velocity is horizontal at that point"
   :preconditions (
      ; make sure it's 2d motion, we might use "apex" for 1d toss as well.
-     (motion ?b ?t-trajectory (curved projectile . ?dontcare))
+     (motion ?b (curved projectile . ?dontcare) :time ?t-trajectory ?t)
      (apex ?b ?t)
      (test (tinsidep ?t ?t-trajectory))
      (not (vector ?b (velocity ?b :time ?t) ?dir))
@@ -2384,7 +2385,7 @@
   :preconditions 
   (
    ;; only apply if no other motion spec for object?
-   ;; (not (motion ?b ?t-motion . ?motion-spec))
+   ;; (not (motion ?b ?motion-spec :time ?t-motion))
    (in-wm (given (dir (displacement ?b :time ?t)) ?dir))
    (test (not (equal ?dir 'unknown)))  
    (not (vector ?b (velocity ?b :time ?t) ?dontcare))
@@ -2498,7 +2499,7 @@
    "If a body is a rest, then it has zero acceleration."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion at-rest)
+    (motion ?b at-rest :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2526,7 +2527,7 @@
    then its acceleration during ?time is zero."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion (straight constant ?dontcare))
+    (motion ?b (straight constant ?dontcare) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2557,7 +2558,7 @@
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion (straight speed-up ?dir))
+    (motion ?b (straight speed-up ?dir) :time ?t-motion ?t)
     (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
@@ -2598,7 +2599,7 @@
   :preconditions
    ((time ?t)
     ;; following tells us forces are not balanced, else would have at-rest
-    (motion ?b ?t-motion (straight speed-up unknown))
+    (motion ?b (straight speed-up unknown) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (setof (in-wm (given (dir (force ?b ?agent ?type :time ?t)) ?force-dir))
            (force ?b ?agent ?type) ?given-forces)
@@ -2627,7 +2628,7 @@
   :preconditions
    ((time ?t)
     ; following tells us forces are not balanced, else would have at-rest
-    (motion ?b ?t-motion (straight speed-up unknown))
+    (motion ?b (straight speed-up unknown) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     ;next line to force rule to only work for vec3a
     (component-form)
@@ -2661,7 +2662,7 @@
     (test (tinsidep ?t ?t-given))
     ; make sure no other motion specification in problem for time
     ; !! Too strict, some motion specs leave accel dir out.
-    (not (motion ?b ?t-motion . ?dontcare)
+    (not (motion ?b ?dontcare :time ?t-motion ?t)
          (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2688,7 +2689,7 @@
     (time ?t)
     ;; this is redundant with excluding (curved projectile ...)
     (not (free-fall ?b ?tfree) (tinsidep ?t ?tfree))		
-    (motion ?b ?t-motion (curved ?type ?dir-spec)  )
+    (motion ?b (curved ?type ?dir-spec) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     ;; However, the direction is known for projectile motion.
     ;; This should also be clear from the ?dir-spec but the 
@@ -2732,7 +2733,8 @@
    then its acceleration is opposite its direction of motion."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion (straight slow-down (dnum ?motion-dir |deg|)))
+    (motion ?b (straight slow-down (dnum ?motion-dir |deg|)) 
+	    :time ?t-motion ?t)
     (test (not (equal ?motion-dir 'unknown)))  ; until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
@@ -2835,7 +2837,7 @@
 
 ;;; This operator draws the instantaneous acceleration vector for a body in 
 ;;; uniform circular motion.  This must be given in the problem statement as 
-;;; (motion body time (curved circular (tangent-dir accel-dir)))
+;;; (motion ?body (curved circular (tangent-dir accel-dir)) :time ?t)
 ;;; where tangent-dir is the direction of the velocity at that time.
 ;;; It time is an interval, then the angle spec may be ignored, since it
 ;;; is no longer well-defined.
@@ -2851,8 +2853,8 @@
    then draw a non-zero acceleration perpendicular to the velocity at ?time."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion (curved circular (?vel-dir
-    					      (dnum ?accel-dir |deg|))))
+    (motion ?b (curved circular (?vel-dir
+				 (dnum ?accel-dir |deg|))) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (test (time-pointp ?t))
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
@@ -2883,8 +2885,8 @@
 (defoperator draw-accel-projectile-given (?b ?t)
    :preconditions 
    ((time ?t)
-    (motion ?b ?t-motion (curved projectile (?vel-dir
-    					      (dnum ?accel-dir |deg|))))
+    (motion ?b (curved projectile 
+		    (?vel-dir (dnum ?accel-dir |deg|))) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     ;; should we test that free-fall is not specified? Assume we won't
     ;; have this motion spec in that case.
@@ -2916,7 +2918,7 @@
 	        ((mag (accel ?b :time       ?t))
 		 (mag (velocity ?b :time    ?t))
 		 (revolution-radius ?b :time ?t)))
-   (motion ?body ?t-motion (curved circular ?dontcare))
+   (motion ?body (curved circular ?dontcare) :time ?t-motion ?t)
    (test (tinsidep ?t ?t-motion))
    )
   :effects
@@ -2983,7 +2985,7 @@
 
 (defoperator period-circular-contains (?sought)
   :preconditions (
-     (motion ?b ?t-circular (curved circular ?dontcare))
+     (motion ?b (curved circular ?dontcare) :time ?t-circular ?t)
      (any-member ?sought (
                        (period ?b)
 		       (revolution-radius ?b :time ?t)
@@ -3084,7 +3086,7 @@
     (test (member ?vector-xc (problem-soughts *cp*) :test #'equal))
     ; make sure no motion spec that might enable vector to be drawn
     ; tighter test than actually correct, but should work for our problems.
-    (not (motion ?b ?t-motion . ?dontcare))
+    (not (motion ?b . ?dontcare))
     ; make sure vector dir not given, as in simple projection-only problems
     (not (given ?vector-dir (dnum ?dir |deg|)))
     (bind ?mag-var (format-sym "~A_~A_~A" ?vectype (body-name ?b) (time-abbrev ?t)))
@@ -4394,7 +4396,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator find-kinetic-friction-force (?b ?surface ?t)
   :preconditions (
     (slides-against ?b ?surface ?t-slides)
-    (motion ?b ?t-motion (straight ?dont-care32 (dnum ?motion-dir |deg|)))
+    (motion ?b (straight ?dont-care32 
+			 (dnum ?motion-dir |deg|)) :time ?t-motion ?t)
     (time ?t)
     (object ?b)
     (not (force ?b ?surface kinetic-friction ?t . ?dont-care))
@@ -4564,7 +4567,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (drag ?b ?medium ?t-slides)
     (test (tinsidep ?t ?t-slides))
     (not (force ?b ?medium drag ?t . ?dont-care))
-    (motion ?b ?t-motion (straight ?dont-care32 (dnum ?motion-dir |deg|)))
+    (motion ?b (straight ?dont-care32 (dnum ?motion-dir |deg|)) 
+	    :time ?t-motion ?t)
+    (test (tinsidep ?t ?t-motion))
     (bind ?drag-dir (mod (+ 180 ?motion-dir) 360))
    )
   :effects (
@@ -4720,17 +4725,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator ug-circular-contains (?sought)
    :preconditions (
+     (time ?t)
      ; first make sure gravitational interaction exists in problem
      (gravity . ?grav-bodies)
      ; make sure body1 is in circular motion for this form
-     (motion ?b1 ?t-circular (curved circular ?dontcare))
+     (motion ?b1 (curved circular ?dontcare) :time ?t-circular ?t)
      (any-member ?sought (
                     (mass ?b1) (mass ?b2) ;only timeless mass
 		    (mag (force ?b1 ?b2 gravitational :time ?t))
 		    (revolution-radius ?b1 :time ?t)
 			 ))
      (object ?b2)
-     (time ?t)
      (test (tinsidep ?t ?t-circular))
      (test (and (member ?b1 ?grav-bodies :test #'equal) 
                 (member ?b2 ?grav-bodies :test #'equal)))
@@ -5261,13 +5266,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (move-together ?body-list ?t-coupled) ; args should be atomic bodies
     (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
     (not (object (compound . ?bodies)))
-    (in-wm (motion ?b1 ?t-motion ?motion-spec)) 
+    (in-wm (motion ?b1 ?motion-spec :time ?t-motion ?t-coupled)) 
     (test (member ?b1 ?body-list :test #'equal))
     (test (tinsidep ?t-coupled ?t-motion))
   )
   :effects (
      (object (compound . ?bodies))
-     (motion (compound . ?bodies) ?t-coupled ?motion-spec)
+     (motion (compound . ?bodies) ?motion-spec :time ?t-coupled)
      (body (compound . ?bodies))
   )
   :hint
@@ -5286,15 +5291,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; compounds into progressively larger compounds, but would be tricky. 
 (defoperator form-compound-at-rest (?bodies)
   :preconditions (
-   (in-wm (motion ?b1 ?t at-rest))
+   (in-wm (motion ?b1 at-rest :time ?t))
    (supports ?b1 ?b2 ?t ?dont-care) ; should only be written for atomic b1, b2 
-   (in-wm (motion ?b2 ?t at-rest))
+   (in-wm (motion ?b2 at-rest :time ?t))
    (bind ?bodies (sort (list ?b1 ?b2) #'expr<))
    (not (object (compound . ?bodies)))
   )
   :effects (
     (object (compound . ?bodies))
-    (motion (compound . ?bodies) ?t at-rest)
+    (motion (compound . ?bodies) at-rest :time ?t)
     (body (compound . ?bodies))
   )
   :hint
@@ -5314,12 +5319,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; search to derive compound body motion from move-together statement.
 (defoperator get-part-motion-from-compound (?b ?bodies)
   :preconditions (
-     (in-wm (motion (compound . ?bodies) ?t ?c-motion))
+     (in-wm (motion (compound . ?bodies) ?c-motion :time ?t))
      (any-member ?b ?bodies)
-     (not (motion ?b ?t ?b-motion))
+     (not (motion ?b ?b-motion :time ?t))
   )
   :effects (
-     (motion ?b ?t ?c-motion)
+     (motion ?b ?c-motion :time ?t)
   ))
 
 
@@ -6004,7 +6009,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)
    (time ?t)
    ;; only use this if non-zero acceleration, no NFL form of this.
-   (not (motion ?b ?t-motion at-rest) 
+   (not (motion ?b at-rest :time ?t-motion ?t) 
         (tinsidep ?t ?t-motion))
   )
   :effects 
@@ -6325,9 +6330,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (tinsidep ?t ?t-connected))
    ; this rule doesn't apply to connected points on rotating objects
    ; so make sure both bodies in straight line motion during sought time
-   (in-wm (motion ?b1 ?t-straight1 (straight . ?dontcare1)))
+   (in-wm (motion ?b1 (straight . ?dontcare1) :time ?t-straight1 ?t))
    (test (tinsidep ?t ?t-straight1))
-   (in-wm (motion ?b2 ?t-straight2 (straight . ?dontcare2)))
+   (in-wm (motion ?b2 (straight . ?dontcare2) :time ?t-straight2 ?t))
    (test (tinsidep ?t ?t-straight2))
   )
   :effects
@@ -6635,7 +6640,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator define-kinetic-energy-ee-var (?b ?t)
   :preconditions 
   ( ;; test for translational motion of any axis at any time
-   (in-wm (motion ?axis ?t-motion (?kind . ?whatever)))
+   (in-wm (motion ?axis (?kind . ?whatever) :time ?t-any))
    (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
    (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
    (variable ?var (kinetic-energy ?b :time ?t)) )
@@ -6645,7 +6650,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    ;; include if it rotates at any time
-   (in-wm (motion ?b ?t-motion (rotating . ?whatever)))
+   (in-wm (motion ?b (rotating . ?whatever) :time ?t-any))
    (variable ?var (rotational-energy ?b :time ?t))
    )
   :effects ( (ee-var ?b ?t ?var) ))
@@ -6661,7 +6666,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator use-body-rotating-cm (?body)
   :preconditions 
   ( (object ?body)
-    (motion ?body ?t-motion (rotating ?cm . ?dont-care))
+    (motion ?body (rotating ?cm . ?dont-care) :time ?t-any)
     (center-of-mass ?cm (?body))
     )
   :effects ( (use-point-for-body ?body ?cm ?cm) ))
@@ -6670,11 +6675,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator use-body-rotating-fixed (?body)
   :preconditions 
   ( (object ?body)
-    (motion ?body ?t-motion (rotating ?axis . ?dont-care))
+    (motion ?body (rotating ?axis . ?dont-care) :time ?t-motion)
     (center-of-mass ?cm (?body))
-    (motion ?axis ?t-axis ?rest)
+    (motion ?axis ?rest :time ?t-axis)
     (test (or (equal ?rest 'at-rest) (equal ?rest 'momentarily-at-rest)))
-    (test (tintersect2 ?t-motion ?t-axis)) ;some time where both are true
+    ;; some time where both are true
+    (test (or (null ?t-motion) (null ?t-axis) (tintersect2 ?t-motion ?t-axis)))
     ) 
   :effects ( (use-point-for-body ?body ?cm ?axis) ))
 
@@ -6682,7 +6688,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator use-body-for-body (?body)
   :preconditions 
   ( (object ?body)
-    (not (motion ?body ?t-motion (rotating . ?dont-care)))
+    (not (motion ?body (rotating . ?dont-care) :time ?t-motion))
     ;; make sure this is really a body
     (not (part-of ?body ?another-body)))
   :effects ( (use-point-for-body ?body ?body ?body) ))
@@ -6697,7 +6703,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    ;; test for translational motion of axis at any time
-   (motion ?axis ?t-motion (?kind . ?whatever))
+   (motion ?axis (?kind . ?whatever) :time ?t-motion)
    (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
    (use-point-for-body ?body ?cm ?axis)	;always use axis of rotation
    (variable ?ke-var (kinetic-energy ?body :time ?t))
@@ -6719,7 +6725,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (
    ;; if the object is rotating at any time, then this term should be 
    ;; included.
-   (motion ?body ?t-motion (rotating ?pivot ?dir ?axis))
+   (motion ?body (rotating ?pivot ?dir ?axis) :time ?t-motion)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
    (moment-of-inertia-variable ?m-var ?body ?t)
@@ -7790,7 +7796,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    then its momentum at that time is zero."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion at-rest)
+    (motion ?b at-rest :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "p_~A_~A" ?b (time-abbrev ?t)))
     ;; allow student to draw velocity vector, which might not otherwise
@@ -7818,7 +7824,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      as its motion."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion (straight ?dontcare ?dir))
+    (motion ?b (straight ?dontcare ?dir) :time ?t-motion ?t)
     (test (not (equal ?dir 'unknown)))  ; until conditional effects 
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
@@ -7842,7 +7848,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      as its motion."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion (straight ?dontcare unknown))
+    (motion ?b (straight ?dontcare unknown) :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -8163,7 +8169,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Objects rotating in the x-y plane of the screen are described by 
-;; 	(motion ?obj ?time (rotating ?axis-pt ?rotate-dir ?accel-spec)
+;; 	(motion ?obj (rotating ?axis-pt ?rotate-dir ?accel-spec) :time ?t)
 ;; ?axis-pt: name of pt about which rotation occurs 
 ;;           most often 'cm for center of mass
 ;; ?rotate-dir: 'cw or 'ccw or 'unknown
@@ -8271,7 +8277,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-velocity-rotating (?b ?t)
    :preconditions (
     (time ?t)
-    (motion ?b ?t-motion (rotating ?axis ?rotate-dir ?accel-spec))
+    (motion ?b (rotating ?axis ?rotate-dir ?accel-spec) :time ?t-motion ?t)
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
@@ -8295,7 +8301,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; This is specified using the ang-at-rest motion specifier. 
 (defoperator draw-ang-velocity-at-rest (?b ?t)
    :preconditions (
-    (motion ?b ?t-motion ang-at-rest)
+    (motion ?b ang-at-rest :time ?t-motion ?t)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
@@ -8319,7 +8325,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-displacement-rotating (?b ?t)
   :preconditions (
     (time ?t)
-    (motion ?b ?t-motion (rotating ?axis ?rotate-dir ?accel-spec))
+    (motion ?b (rotating ?axis ?rotate-dir ?accel-spec) :time ?t-motion ?t)
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-displacement ?b :time ?t) ?dir-drawn))
@@ -8344,7 +8350,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    "If a body is a rest, then it has zero acceleration."
   :preconditions
    ((time ?t)
-    (motion ?b ?t-motion ang-at-rest)
+    (motion ?b ang-at-rest :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -8365,7 +8371,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-accelerating (?b ?t)
   :preconditions 
    ((time ?t)
-    (motion ?b ?t-motion (rotating ?axis ?rotate-dir speed-up))
+    (motion ?b (rotating ?axis ?rotate-dir speed-up) :time ?t-motion ?t)
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
@@ -8389,7 +8395,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-decelerating(?b ?t)
   :preconditions (
     (time ?t)
-    (motion ?b ?t-motion (rotating ?axis ?rotate-dir slow-down))
+    (motion ?b (rotating ?axis ?rotate-dir slow-down) :time ?t-motion ?t)
     (test (not (equal ?rotate-dir 'unknown)))  
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
@@ -8421,7 +8427,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-accel-unknown-dir (?b ?t)
   :preconditions (
     (time ?t)
-    (motion ?b ?t-motion (rotating ?axis unknown ?accel-spec))
+    (motion ?b (rotating ?axis unknown ?accel-spec) :time ?t-motion ?t)
     (test (not (equal ?accel-spec 'constant)))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
@@ -8691,7 +8697,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions (
    (part-of ?pt ?whole-body)
    (time ?t)
-   (motion ?whole-body ?t-rotating (rotating ?axis-pt ?rotate-dir ?dontcare))
+   (motion ?whole-body (rotating ?axis-pt ?rotate-dir ?dontcare) 
+	   :time ?t-rotating ?t)
    (test (not (equal ?rotate-dir 'unknown)))
    (test (tinsidep ?t ?t-rotating))
    (given (dir (relative-position ?pt ?axis-pt :time ?t)) (dnum ?r-dir |deg|))
@@ -8701,8 +8708,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (debug "linear motion of ~A: vel dir ~A, accel dir ~A~%" ?pt ?v-dir ?a-dir)
    )
    :effects (
-     (motion ?pt ?t (curved circular ((dnum ?v-dir |deg|) 
-                                      (dnum ?a-dir |deg|))))
+	     (motion ?pt (curved circular ((dnum ?v-dir |deg|) 
+					   (dnum ?a-dir |deg|))) :time ?t)
    )
 )
 
@@ -8715,7 +8722,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		))
    (part-of ?pt ?whole-body)
    (time ?t)
-   (motion ?whole-body ?t-rotating (rotating ?axis . ?dontcare))
+   (motion ?whole-body (rotating ?axis . ?dontcare) :time ?t-rotating ?t)
    (test (tinsidep ?t ?t-rotating))
    )
    :effects (
@@ -8755,7 +8762,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (time ?t)				;radius-of-circle does not bind ?t
    (object ?body)			;velocity does not bind ?body
    (rolling ?body)  ;only apply when specified
-   (motion ?body ?t-motion (rotating ?axis . ?dontcare))
+   (motion ?body (rotating ?axis . ?dontcare) :time ?t-motion ?t)
    (test (tinsidep ?t ?t-motion))
    )
    :effects (
@@ -8789,7 +8796,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    to the magnitude of its relative position from the axis of rotation" 
    :preconditions (
    (part-of ?pt ?whole-body)
-   (motion ?whole-body ?t-rotating (rotating ?axis-pt . ?dontcare))
+   (motion ?whole-body (rotating ?axis-pt . ?dontcare) :time ?t-rotating ?t)
    (time ?t)
    (test (tinsidep ?t ?t-rotating))
    (given (mag (relative-position ?pt ?axis-pt :time ?t)) ?value)
@@ -9509,7 +9516,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (time ?t)
    (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
    ;; The hints should be for an object that is not rotating.
-   (motion ?b ?t-motion ang-at-rest)
+   (motion ?b ang-at-rest :time ?t-motion ?t)
    (test (tinsidep ?t ?t-motion))
    ;; var name identifies force by point of application and agent alone
    (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
@@ -9543,13 +9550,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (not (given (dir (net-torque ?b ?axis :time ?t)) ?given-dir))
      ; not given ang-accel dir
      (not (given (dir (ang-accel ?b :time ?t)) ?dir))
-     ;     and dir(ang-accel) not derivable from motion
-     (not (motion ?b ?t-motion (rotating ?axis ?rotate-dir ?accel-spec))
-          (and (not (eq ?rotate-dir 'unknown))
-	       (or (eq ?accel-spec 'speed-up)
-	           (eq ?accel-spec 'slow-down))))
+     ;;     and dir(ang-accel) not derivable from motion
+     (not (motion ?b (rotating ?axis ?rotate-dir ?accel-spec) 
+		  :time ?t-motion ?t)
+          (and  (tinsidep ?t ?t-motion)
+		(not (eq ?rotate-dir 'unknown))
+		(or (eq ?accel-spec 'speed-up)
+		    (eq ?accel-spec 'slow-down))))
      ;; Know known to be static
-     (not (motion ?b ?t-motion ang-at-rest) (tinsidep ?t ?t-motion))
+     (not (motion ?b ang-at-rest :time ?t-motion ?t) (tinsidep ?t ?t-motion))
      ;; can't determine as torque due to magnetic field (see forces.cl)
      (not  (given (dir (dipole-moment ?b :time ?t)) ?dir-mu))
      ;; var name identifies force by point of application and agent alone
