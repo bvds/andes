@@ -510,8 +510,8 @@
   :english ("showing the ~A due to each force acting on ~A ~A" 
 	     (eval *moment-name*) (nlg ?b) (nlg ?time 'pp)))
 
-(def-goalprop nl-rot-fbd  (vector-diagram (NL-rot ?b ?axis ?t))
-  :doc "diagram for applying Newton's Law for rotation"
+(def-goalprop nl-rot-fbd  (vector-diagram (NSL-rot ?b ?axis ?t))
+  :doc "diagram for applying the rotational version of Newton's Second Law"
   :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
 	    (eval *moment-name*) (nlg ?b) (nlg ?t 'pp))) 
 
@@ -1229,10 +1229,10 @@
 	      "$t = r*F*sin($q)")))
   
 
-(def-psmclass NL-rot (?eq-type z 0 (NL-rot ?body ?pivot ?time))
+(def-psmclass NSL-rot (?eq-type z 0 (NSL-rot ?body ?pivot ?time))
   :complexity major
-  :english ("Newton's Law for rotation")
-  :expformat ("appling Newton's Law for rotation to ~a about ~a ~a"
+  :english ("rotational version of Newton's Second Law")
+  :expformat ("applying rotational version of Newton's Second Law to ~a about ~a ~a"
 	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
   :eqnFormat ((if **engineering** "Mnet_z = I*$a_z"
 		"$tnet_z = I*$a_z" )))

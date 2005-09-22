@@ -2495,8 +2495,7 @@
 
 (defoperator accel-at-rest (?b ?t)
   :specifications 
-   "If a body is a rest,
-   then it has zero acceleration."
+   "If a body is a rest, then it has zero acceleration."
   :preconditions
    ((time ?t)
     (motion ?b ?t-motion at-rest)
@@ -8340,9 +8339,30 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Because ~a is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for it in direction ~a" ?b (?rotate-dir adj) (?t pp) (?dir adj)))
    ))
 
-; draw angular acceleration of an object rotating in a known direction
-; and speeding up
-(defoperator draw-ang-accelerating(?b ?t)
+(defoperator ang-accel-at-rest (?b ?t)
+  :specifications 
+   "If a body is a rest, then it has zero acceleration."
+  :preconditions
+   ((time ?t)
+    (motion ?b ?t-motion ang-at-rest)
+    (test (tinsidep ?t ?t-motion))
+    (not (vector ?b (ang-accel ?b :time ?t) zero))
+    (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    )
+  :effects
+  ((vector ?b (ang-accel ?b :time ?t) zero)        
+   (variable ?mag-var (mag (ang-accel ?b :time ?t)))
+   (given (mag (ang-accel ?b :time ?t)) (dnum 0 |rad/s^2|)))
+  :hint
+  ((point (string "Notice that ~a is not rotating ~a." ?b (?t pp)))
+   (teach (kcd "draw_accel_when_at_rest")
+          (string "If a body is not rotating during some time interval, its average angular acceleration during that interval is zero."))
+   (bottom-out (string "Because ~a is not rotating ~a, use the acceleration tool to draw a zero-length angular acceleration vector for it." ?b (?t pp)))
+   ))
+
+;;; draw angular acceleration of an object rotating in a known direction
+;;; and speeding up
+(defoperator draw-ang-accelerating (?b ?t)
   :preconditions 
    ((time ?t)
     (motion ?b ?t-motion (rotating ?axis ?rotate-dir speed-up))
@@ -8389,17 +8409,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Because the angular acceleration of ~a ~a opposes the angular velocity for ~A rotation, which points ~A, you should use the acceleration tool to draw an angular acceleration for it pointing ~a." 
     ?b  (?t pp) (?rotate-dir adj) (?vel-dir adj) (?dir adj)))))
 
-; !!! draw-zero-ang-accel for object at rest or rotating at constant vel.
-
-; draw angular acceleration of an objection rotating in an unknown direction
-; but known to be accelerating. This arises in torque problems which seek
-; angular acceleration at an instant from given forces. 
-; Since we need not be given the initial angular velocity we don't know if it 
-; is speeding up or slowing down, but we do know it may be changing (i.e. it
-; is not known constant) Strictly, zero acceleration is a possible answer, but 
-; that is a bad choice for Andes problems since we expect any zero vectors to 
-; be determinable from the givens. By drawing it unknown we should allow that 
-; it could turn out to be zero. 
+;;; draw angular acceleration of an objection rotating in an unknown direction
+;;; but known to be accelerating. This arises in torque problems which seek
+;;; angular acceleration at an instant from given forces. 
+;;; Since we need not be given the initial angular velocity we don't know if 
+;;; it is speeding up or slowing down, but we do know it may be changing 
+;;; (i.e. it is not known constant).  Strictly, zero acceleration is a 
+;;; possible answer, but that is a bad choice for Andes problems since we 
+;;; expect any zero vectors to be determinable from the givens. 
+;;; By drawing it unknown we should allow that it could turn out to be zero. 
 (defoperator draw-ang-accel-unknown-dir (?b ?t)
   :preconditions (
     (time ?t)
@@ -8422,7 +8440,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Use the acceleration tool to draw a non-zero angular acceleration for ~a ~A and select Unknown Z direction in the dialog box." ?b (?t pp)))
   ))
  
-
 ;;; angular sdd:
 ;;; angular displacement = avg angular velocity * duration
 ;;; Because this uses average angular velocity it does not require
@@ -9826,8 +9843,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; parallel to NFL version of NL -- can't use this to find I in this
 ;; case because rhs vanishes.
 
-(defoperator NL-rotation-contains (?sought)
+(defoperator NSL-rotation-contains (?sought)
    :preconditions (
+   ;; need to bind rotation axis if not seeking torque
+   (rotation-axis ?b ?axis)
    (any-member ?sought (
               (mag (ang-accel ?b :time ?t))
               (dir (ang-accel ?b :time ?t))
@@ -9838,16 +9857,21 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	      (moment-of-inertia ?b)
 	               ))
    (time ?t)
-   ;; need to determine rotation axis if not seeking torque
-   (rotation-axis ?b ?axis)
+   ;; Can't apply over interval if variable forces during interval.
+   ;; if time is an interval, make sure endpoints are consecutive,
+   ;; else forces might be different between sub-segments
+   (test (or (time-pointp ?t) (time-consecutivep ?t)))
+   ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
+   (not (vector ?b (ang-accel ?b :time ?t-accel) zero)
+        (tinsidep ?t ?t-accel))
    )
    :effects (
-     (angular-eqn-contains (NL-rot ?b ?axis ?t) ?sought)
+     (angular-eqn-contains (NSL-rot ?b ?axis ?t) ?sought)
    ))
 
-(defoperator draw-NL-rot-diagram (?b ?axis ?t)
+(defoperator draw-NSL-rot-diagram (?b ?axis ?t)
     :preconditions (
-      (not (vector-diagram (NL-rot ?b ?axis ?t)))
+      (not (vector-diagram (NSL-rot ?b ?axis ?t)))
       ;; (body ?b)
       (torques ?b ?axis ?t ?torques)
       (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
@@ -9855,10 +9879,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (axis-for ?b z 0)
     )
     :effects (
-      (vector-diagram (NL-rot ?b ?axis ?t))
+      (vector-diagram (NSL-rot ?b ?axis ?t))
     ))
 
-(defoperator write-NL-rotation (?b ?axis ?t)
+(defoperator write-NSL-rotation (?b ?axis ?t)
    
    :preconditions (
      (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
@@ -9869,10 +9893,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
    :effects (
      (eqn (= ?tau_z (* ?I ?alpha_z)) 
-                 (compo-eqn z 0 (NL-rot ?b ?axis ?t)))
-     (eqn-compos (compo-eqn z 0 (NL-rot ?b ?axis ?t)) (?tau_z ?alpha_z))
+                 (compo-eqn z 0 (NSL-rot ?b ?axis ?t)))
+     (eqn-compos (compo-eqn z 0 (NSL-rot ?b ?axis ?t)) (?tau_z ?alpha_z))
      ;; Don't do this because it can pre-empt projection if it is in fact used
-     ;; on a component-form problem for magnitude (Extor5a)
+     ;; on a component-form problem for magnitude (tor5a)
      ;; for algebraic completeness: put out equation for mag ang-accel
      ;; in terms of component, so gets determined from alpha_z if dir is unknown
      ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (mag (ang-accel ?b :time ?t)))
@@ -9885,3 +9909,4 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))
+
