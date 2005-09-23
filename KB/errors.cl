@@ -733,11 +733,11 @@
 ;;; non-existent-variable and wrong-time-variable, is just picking the
 ;;; wrong body (ignoring time).
 
-;;; default case: picking the wrong body.  Test this with Exmomr4a.
+;;; default case: picking the wrong body.  Test this with momr4a.
 (def-error-class wrong-body-moment-of-inertia (?sbody ?cbody)
-  ((student (define-var (moment-of-inertia ?sbody)))
-   (no-correct (define-var (moment-of-inertia ?sbody)))
-   (correct (define-var (moment-of-inertia ?cbody))))
+  ((student (define-var (moment-of-inertia ?sbody :time ?t)))
+   (no-correct (define-var (moment-of-inertia ?sbody :time ?t)))
+   (correct (define-var (moment-of-inertia ?cbody :time ?t))))
   :probability
   (+ 0.3))
 
@@ -750,7 +750,6 @@
 	 *dyi*
 	 (format nil "Define the moment-of-inertia for ~a instead of ~a."
 		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))
-	   
 
 ;;; ==================== radius of revolution ============================
 ;;; There are two slots on the radius variable tool: body and time, except 
