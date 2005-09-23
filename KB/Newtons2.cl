@@ -8346,6 +8346,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Because ~a is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for it in direction ~a" ?b (?rotate-dir adj) (?t pp) (?dir adj)))
    ))
 
+#|
 (defoperator ang-accel-at-rest (?b ?t)
   :specifications 
    "If a body is a rest, then it has zero acceleration."
@@ -8366,6 +8367,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
           (string "If a body is not rotating during some time interval, its average angular acceleration during that interval is zero."))
    (bottom-out (string "Because ~a is not rotating ~a, use the acceleration tool to draw a zero-length angular acceleration vector for it." ?b (?t pp)))
    ))
+|#
 
 ;;; draw angular acceleration of an object rotating in a known direction
 ;;; and speeding up
@@ -9516,8 +9518,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (time ?t)
    (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
-   ;; The hints should be for an object that is not rotating.
-   (motion ?b ang-at-rest :time ?t-motion ?t)
+   ;; NB: must be plain number, not dnum
+   (in-wm (given (mag (net-torque ?b ?axis :time ?t)) 0))
    (test (tinsidep ?t ?t-motion))
    ;; var name identifies force by point of application and agent alone
    (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
@@ -9558,8 +9560,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		(not (eq ?rotate-dir 'unknown))
 		(or (eq ?accel-spec 'speed-up)
 		    (eq ?accel-spec 'slow-down))))
-     ;; Know known to be static
-     (not (motion ?b ang-at-rest :time ?t-motion ?t) (tinsidep ?t ?t-motion))
+     ;; not known in rotational equilibrium:
+     (not (given (mag (net-torque ?b ?axis :time ?t)) 0))
      ;; can't determine as torque due to magnetic field (see forces.cl)
      (not  (given (dir (dipole-moment ?b :time ?t)) ?dir-mu))
      ;; var name identifies force by point of application and agent alone
@@ -9590,8 +9592,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions
    ((body ?b)
     ;; draw all individual torques and couples we can find
-    (setof (vector ?b (torque ?b ?force :axis ?axis ?axis :time ?t) ?dir)
-	   (torque ?b ?force :axis ?axis ?axis :time ?t) 
+    (setof (vector ?b (torque ?b ?force :axis ?axis :time ?t) ?dir)
+	   (torque ?b ?force :axis ?axis :time ?t) 
 	   ?torques))
    :effects
     ((torques ?b ?axis ?t ?torques)))
@@ -9649,7 +9651,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; define component variables for each of the contributing torques
    (map ?force ?forces
       (variable ?ti_z (compo z 0 
-			     (torque ?b ?force :axis ?axis ?axis :time ?t)))
+			     (torque ?b ?force :axis ?axis :time ?t)))
       ?ti_z ?torque-compos) 
    (debug "net torque components: ~A~%" ?torque-compos)
    ;; define zc net torque variable 
@@ -9691,11 +9693,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (not (zc-form))
    ; fetch list of individual torques, extracting list of forces
    (in-wm (torques ?b ?axis ?t ?torques))
-   (bind ?forces (mapcar #'fourth ?torques))
+   (bind ?forces (mapcar #'third ?torques))
    ; define component variables for each of the contributing torques
    (map ?force ?forces
       (variable ?ti_z (compo z 0 
-			     (torque ?b ?force :axis ?axis ?axis :time ?t)))
+			     (torque ?b ?force :axis ?axis :time ?t)))
       ?ti_z ?torque-compos) 
    (debug "net torque components: ~A~%" ?torque-compos)
    ; define zc net torque variable 
@@ -9868,13 +9870,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	      (moment-of-inertia ?b)
 	               ))
    (time ?t)
-   ;; Can't apply over interval if variable forces during interval.
-   ;; if time is an interval, make sure endpoints are consecutive,
-   ;; else forces might be different between sub-segments
-   (test (or (time-pointp ?t) (time-consecutivep ?t)))
-   ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
-   (not (vector ?b (ang-accel ?b :time ?t-accel) zero)
-        (tinsidep ?t ?t-accel))
    )
    :effects (
      (angular-eqn-contains (NSL-rot ?b ?axis ?t) ?sought)
