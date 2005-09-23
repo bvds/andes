@@ -712,8 +712,8 @@
 			    ;;drop time
 			    (subseq (second (first force-matches)) 0 4)
 	                  `(force ,pt unknown unknown)))
-	 ;; get main body by searching problem givens for part-of
-	 (body-matches (filter-expressions `(part-of ,pt ?b) 
+	 ;; get main body by searching problem givens for point-on-body
+	 (body-matches (filter-expressions `(point-on-body ,pt ?b) 
 					   (problem-givens *cp*)))
 	 (body-match   (if (= (length body-matches) 1) (car body-matches)))
 	 (body-term    (if body-match (third body-match) 'unknown)))

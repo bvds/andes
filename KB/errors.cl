@@ -748,8 +748,8 @@
 	 (strcat "You can click on the light bulb button to "
 		 "get suggestions for how to solve this problem.")
 	 *dyi*
-	 (format nil "Define the moment-of-inertia ~a for ~a instead of ~a."
-		 (nlg ctime 'pp) (nlg cbody 'def-np) (nlg sbody 'def-np)))))
+	 (format nil "Define the moment-of-inertia for ~a instead of ~a."
+		 (nlg cbody 'def-np) (nlg sbody 'def-np)))))
 	   
 
 ;;; ==================== radius of revolution ============================
@@ -1794,7 +1794,7 @@
 (def-error-class force-on-whole-not-pt (?cbody ?sbody)
  ( (student (vector (force ?sbody ?agent ?type :time ?time) ?dir))
    (correct (vector (force ?cbody ?agent ?type :time ?time) ?dir))
-   (problem (part-of ?cbody ?sbody)))
+   (problem (point-on-body ?cbody ?sbody)))
   :probability 0.9
   :utility 100)
 
@@ -2397,7 +2397,7 @@
 	    (nlg spt 'def-np))
     
     (format nil "For instance, define the ~A due to a force applied to ~a."
-	  *moment-name*  (nlg cpt 'def-np)))))
+	  (moment-name)  (nlg cpt 'def-np)))))
 
 ;;; default case for a correct applied point but a wrong axis point.
 ;;; Probably a user-interface confusion, so handled it bluntly.
@@ -2477,7 +2477,7 @@
   (let ((undrawn-torques (undrawn-vectors missing-torques)))
     (cond ((null undrawn-torques)	; only hint drawn forces if there are no undrawn ones
 	   (hint-drawn-quants 
-	    *moment-name* (set-difference missing-torques undrawn-torques 
+	    (moment-name) (set-difference missing-torques undrawn-torques 
 		      :test #'equal)))
 	  ((null (cdr undrawn-torques))	; only one undrawn force to hint
 	   (hint-undrawn-torque 
@@ -3356,7 +3356,7 @@
 	(time (time-of torque)))
     (make-hint-seq
      (cons (format nil msg
-		   *moment-name*
+		   (moment-name)
 		   (nlg body 'def-np)
 		   (nlg  time 'pp))
 	   (hint-sequence-from-op-ap

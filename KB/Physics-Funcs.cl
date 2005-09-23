@@ -414,11 +414,13 @@
    "non-null if arg is a compound body term"
    (and (listp body) (equal (first body) 'compound)))
 
+#|  ;; not used anywhere
 (defun part-of-body (body1 body2)
    "non-null if body1 is part or all of body2"
    (or (equal body1 body2) ; same
        (and (atom body1) (compound-bodyp body2)
             (member body1 (cdr body2)))))
+|#
 
 (defun simple-parts (body)
    "get list of atomic parts of a body, simple or compound"

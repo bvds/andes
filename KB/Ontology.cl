@@ -70,13 +70,15 @@
 
 ;;;;
 ;;;;  Engineers like to use the term "moment" instead of "torque"
-;;;;  This is turned on via **engineering** flag.
+;;;;  This is turned on via engineering-names problem feature.
 ;;;;  Hints generally tend to hold their arguements unevaluated,
 ;;;;  thus we need to eval the parameter in the context of a hint.
 
 (defparameter **engineering** nil)
-(defparameter *moment-symbol* (if **engineering** "M" "$t"))
-(defparameter  *moment-name* (if **engineering** "moment" "torque"))
+(defun moment-symbol () 
+  (if (member 'engineering-names (problem-features *cp*)) "M" "$t"))
+(defun moment-name () 
+  (if (member 'engineering-names (problem-features *cp*)) "moment" "torque"))
 
 ;;;             Quantity Terms:
 
@@ -133,12 +135,12 @@
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :units |N.m|
   :english ("the ~A on ~A ~@[about ~A~] due to ~A" 
-	       (eval *moment-name*) (nlg ?body) (when ?axis (nlg ?axis)) 
+	       (eval (moment-name)) (nlg ?body) (when ?axis (nlg ?axis)) 
 	       (nlg ?agent 'at-time ?time)))
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
   :english ("the net ~A on ~A about ~A" 
-	       (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
+	       (eval (moment-name)) (nlg ?body) (nlg ?axis 'at-time ?time)))
 (def-qexp couple (couple ?body1 ?body2)
   :english ("the couple between ~A and ~A"
 	       (nlg ?body1) (nlg ?body2)))
@@ -294,7 +296,7 @@
   :english ("the width of ~A" (nlg ?body)))
 (def-qexp num-torques (num-torques ?body ?axis :time ?time)
   :english ("the number of ~As on ~A about ~A" 
-	     (eval *moment-name*) (nlg ?body) (nlg ?axis 'at-time ?time)))
+	     (eval (moment-name)) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
 (def-qexp compound (compound . ?bodies)
   :english ("a compound of ~A" (nlg ?bodies 'conjoined-defnp)))
@@ -508,12 +510,12 @@
 
 (def-goalprop all-torques (torques ?b ?axis ?time ?torques)
   :english ("showing the ~A due to each force acting on ~A ~A" 
-	     (eval *moment-name*) (nlg ?b) (nlg ?time 'pp)))
+	     (eval (moment-name)) (nlg ?b) (nlg ?time 'pp)))
 
 (def-goalprop nl-rot-fbd  (vector-diagram (NSL-rot ?b ?axis ?t))
   :doc "diagram for applying the rotational version of Newton's Second Law"
   :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
-	    (eval *moment-name*) (nlg ?b) (nlg ?t 'pp))) 
+	    (eval (moment-name)) (nlg ?b) (nlg ?t 'pp))) 
 
 ; this goal used as sought in vector-drawing-only problem (magtor*)
 (def-goalprop draw-vectors (draw-vectors ?vector-list)
@@ -1203,19 +1205,19 @@
 ;;; of the zc flag in id.  Following form is designed to match either one:
 (def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time . ?opt-zc-flag))
   :complexity major ; definition, but can be first "principle" for sought
-  :english ("the definition of net ~A" (eval *moment-name*))
+  :english ("the definition of net ~A" (eval (moment-name)))
   :expformat ("applying the definition of net ~A on ~a about ~a ~A"
-	      (eval *moment-name*) (nlg ?body) (nlg ?pivot) 
+	      (eval (moment-name)) (nlg ?body) (nlg ?pivot) 
 	      (nlg ?time 'nlg-time))
   :eqnformat ((if **engineering** "Mnet_z = M1_z + M2_z + ..."
 			    "$tnet_z = $t1_z + $t2_z + ...")))
 
 (def-psmclass torque-zc (torque-zc ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
-  :english ("the definition of ~A" *moment-name*)
+  :english ("the definition of ~A" (moment-name))
   :expformat ((strcat "calculating the z component of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
-	      (eval *moment-name*) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
+	      (eval (moment-name)) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
   :EqnFormat ((if **engineering**  "M_z = r*F*sin($qF-$qr)"
 			     "$t_z = r*F*sin($qF-$qr)")))
 
@@ -1224,7 +1226,7 @@
   :english ("the definition of torque magnitude")
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
-	      (eval *moment-name*) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
+	      (eval (moment-name)) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
   :EqnFormat ((if **engineering** "M = r*F*sin($q)"
 	      "$t = r*F*sin($q)")))
   
