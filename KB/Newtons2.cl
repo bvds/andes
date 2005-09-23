@@ -2241,7 +2241,7 @@
   :preconditions
   ((time ?t)
    (use-point-for-body ?body ?cm ?b) ;else ?b is sometimes not bound
-   (motion ?b (straight ?dontcare ?dir) :test ?t-motion ?t)
+   (motion ?b (straight ?dontcare ?dir) :time ?t-motion ?t)
    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
    (test (tinsidep ?t ?t-motion))
    (not (vector ?b (velocity ?b :time ?t) ?dir))
