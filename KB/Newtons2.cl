@@ -9367,9 +9367,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		     (mag (torque ?b ?force :axis ?axis ?axis :time ?t))
 		     (dir (torque ?b ?force :axis ?axis ?axis :time ?t))
                         ))
-    (point-on-body ?axis ?b) ;?axis is not bound by couples
-   ;; make sure there aren't unknown forces, as in basic rotational kinematics
-   ;; problems with unexplained accelerations
+    ;; should be able to do any point-on-body, 
+    ;; but choose rotation axis when specified
+    (rotation-axis ?b ?axis) ;?axis is not bound by couples
+    ;; make sure there aren't unknown forces, as in basic rotational kinematics
+    ;; problems with unexplained accelerations
    (not (unknown-forces))
    )
    :effects (
