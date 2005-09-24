@@ -8299,11 +8299,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ))
 
 ;; Draw zero angular velocity for an object that is not rotating.
-;; This is specified using the ang-at-rest motion specifier. 
+;; This is specified using the ang-at-rest or 
+;; ang-momentarily-at-rest motion specifier. 
 (defoperator draw-ang-velocity-at-rest (?b ?t)
    :preconditions (
-    (motion ?b ang-at-rest :time ?t-motion ?t)
     (time ?t)
+    (motion ?b ?ar :time ?t-motion ?t)
+    (test (or (equal ?ar 'ang-at-rest) (equal ?ar 'ang-momentarily-at-rest)))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "omega_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -8346,7 +8348,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Because ~a is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for it in direction ~a" ?b (?rotate-dir adj) (?t pp) (?dir adj)))
    ))
 
-#|
 (defoperator ang-accel-at-rest (?b ?t)
   :specifications 
    "If a body is a rest, then it has zero acceleration."
@@ -8354,7 +8355,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ((time ?t)
     (motion ?b ang-at-rest :time ?t-motion ?t)
     (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (ang-accel ?b :time ?t) zero))
+    (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
     )
   :effects
@@ -8367,7 +8368,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
           (string "If a body is not rotating during some time interval, its average angular acceleration during that interval is zero."))
    (bottom-out (string "Because ~a is not rotating ~a, use the acceleration tool to draw a zero-length angular acceleration vector for it." ?b (?t pp)))
    ))
-|#
 
 ;;; draw angular acceleration of an object rotating in a known direction
 ;;; and speeding up
@@ -9520,8 +9520,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (time ?t)
    (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
-   ;; NB: must be plain number, not dnum
-   (in-wm (given (mag (net-torque ?b ?axis :time ?t)) 0))
+   (motion ?b ang-at-rest :time ?t-motion ?t)
    (test (tinsidep ?t ?t-motion))
    ;; var name identifies force by point of application and agent alone
    (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
@@ -9563,7 +9562,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		(or (eq ?accel-spec 'speed-up)
 		    (eq ?accel-spec 'slow-down))))
      ;; not known in rotational equilibrium:
-     (not (given (mag (net-torque ?b ?axis :time ?t)) 0))
+     (not (motion ?b ang-at-rest :time ?t-motion ?t) (tinsidep ?t ?t-motion))
      ;; can't determine as torque due to magnetic field (see forces.cl)
      (not  (given (dir (dipole-moment ?b :time ?t)) ?dir-mu))
      ;; var name identifies force by point of application and agent alone
