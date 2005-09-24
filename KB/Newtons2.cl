@@ -4119,8 +4119,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
    ((object ?b)
     ;; In rigid body problems, parts of rigid body may be conidered objects
-    ;; via use-part-as-object.  We don't want to apply this rule to parts of a 
-    ;; larger rigid body, or to the whole rigid body.  Rather an alt op 
+    ;; via use-point-as-object.  We don't want to apply this rule to parts of 
+    ;; a larger rigid body, or to the whole rigid body.  Rather an alt op 
     ;; will treat weight of whole body as force acting at cm
     (not (point-on-body ?b ?rigid-body))
     (not (point-on-body ?part ?b))
@@ -9834,15 +9834,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ( (eqn (= ?n-var ?count) (num-torques ?b ?axis ?t)) ))
  
 (defoperator define-num-torques (?b ?axis ?t)
-   :preconditions 
-   ((bind ?n-var (format-sym "ntorques_~A_~A" (body-name ?b) (time-abbrev ?t))))
-   :effects 
-   ( (variable ?n-var (num-torques ?b ?axis :time ?t)) ))
+  :preconditions 
+  ((bind ?n-var (format-sym "ntorques_~A_~A" 
+			    (body-name ?b) (time-abbrev ?t))))
+  :effects ( (variable ?n-var (num-torques ?b ?axis :time ?t)) ))
 
-;;; following lets us avoid declaring parts of rigid bodies as objects.
-;;; we define forces as acting on parts.
-;;; parts must be objects to be used in drawing rules.
-(defoperator use-part-as-object (?part ?whole)
+;;; following lets us avoid declaring points on rigid bodies as objects.
+;;; we define forces as acting on points.
+;;; points must be objects to be used in drawing rules.
+(defoperator use-point-as-object (?part ?whole)
    :preconditions 
     ((in-wm (point-on-body ?part ?whole))
      (in-wm (object ?whole))
