@@ -54,7 +54,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
-  (cond ((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
+  (cond ((null x) nil) 
+	((nlg-find x *Ontology-ExpTypes* #'ExpType-Form #'ExpType-English))
 	(t (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -115,15 +116,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun def-np (x &rest args)
-  (if (atom x)
-      (cond ((numberp x)      (format nil "~A" x))
-	    ((pronounp x) (format nil "~(~A~)" x))
-	    ((upper-case-namep x) (format nil "~A" x))
-	    ((proper-namep x) (format nil "~(~A~)" x))
-	    ;; else assuming x is a common noun
-	    (T                (format nil "the ~(~A~)" x)))
-    ;; else non-atom:
-    (nlg-list-default x args)))
+  (if (listp x)
+      (nlg-list-default x args)  
+    ;; Assume x is an atom
+    (cond ((numberp x)      (format nil "~A" x))
+	  ((pronounp x) (format nil "~(~A~)" x))
+	  ((upper-case-namep x) (format nil "~A" x))
+	  ((proper-namep x) (format nil "~(~A~)" x))
+	  ;; else assuming x is a common noun
+	  (T                (format nil "the ~(~A~)" x)))
+    ))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun indef-np	(x &rest args)
