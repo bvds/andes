@@ -135,7 +135,7 @@
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :units |N.m|
   :english ("the ~A on ~A ~@[about ~A~] due to ~A" 
-	       (eval (moment-name)) (nlg ?body) (when ?axis (nlg ?axis)) 
+	       (eval (moment-name)) (nlg ?body) (nlg ?axis)
 	       (nlg ?agent 'at-time ?time)))
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)
   :units |N.m|
