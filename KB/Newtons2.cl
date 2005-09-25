@@ -8365,7 +8365,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint
   ((point (string "Notice that ~a is not rotating ~a." ?b (?t pp)))
    (teach (kcd "draw_accel_when_at_rest")
-          (string "If a body is not rotating during some time interval, its average angular acceleration during that interval is zero."))
+          (string "If a body is not rotating during some time interval, its angular acceleration during that interval is zero."))
    (bottom-out (string "Because ~a is not rotating ~a, use the acceleration tool to draw a zero-length angular acceleration vector for it." ?b (?t pp)))
    ))
 
@@ -9338,35 +9338,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; Net torque psm -- for computing net torque on an object as sum of
 ;; torques produced by individual forces on parts of object.
 ;;
-;; We also have a variant for computing the z component of net torque
-;; since this is asked for in some of our problems.
 
-(defoperator net-torque-zc-contains (?sought)
-  :preconditions (
-    (any-member ?sought (
-                     ;(mag (net-torque ?b ?axis :time ?t))
-		     ;(dir (net-torque ?b ?axis :time ?t))
-		     (compo z 0 (net-torque ?b ?axis :time ?t))
-		     ; for now, don't use to solve for individual torques:
-		     ;(mag (torque ?b ?axis ?force :axis ?axis ?axis :time ?t))
-		     ;(dir (torque ?b ?axis ?force :axis ?axis ?axis :time ?t))
-                        ))
-   ; make sure there aren't unknown forces, as in basic rotational kinematics
-   ; problems with unexplained accelerations
-   (not (unknown-forces))
-   )
-   :effects (
-     (angular-eqn-contains (net-torque ?b ?axis ?t zc) ?sought)
-   ))
 
 (defoperator net-torque-contains (?sought)
   :preconditions (
     (any-member ?sought (
                      (mag (net-torque ?b ?axis :time ?t))
 		     (dir (net-torque ?b ?axis :time ?t))
+		     (compo z 0 (net-torque ?b ?axis :time ?t))
 		     (mag (torque ?b ?force :axis ?axis ?axis :time ?t))
 		     (dir (torque ?b ?force :axis ?axis ?axis :time ?t))
                         ))
+    (bind ?type (first ?sought))
     ;; should be able to do any point-on-body, 
     ;; but choose rotation axis when specified
     (rotation-axis ?b ?axis) ;?axis is not bound by couples
@@ -9375,7 +9358,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (not (unknown-forces))
    )
    :effects (
-     (angular-eqn-contains (net-torque ?b ?axis ?t) ?sought)
+     (angular-eqn-contains (net-torque ?b ?axis ?t ?type) ?sought)
    ))
 
 ;;; draw an individual torque due to a force with at known direction
@@ -9522,14 +9505,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
    (motion ?b ang-at-rest :time ?t-motion ?t)
    (test (tinsidep ?t ?t-motion))
-   ;; var name identifies force by point of application and agent alone
    (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
 			      (time-abbrev ?t)))
    )
    :effects (
      (vector ?b (net-torque ?b ?axis :time ?t) zero)
      (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
-     ; put out implicit equation for given
+     ;; put out implicit equation for given
      (implicit-eqn (= ?mag-var 0) (given (mag (net-torque ?b ?axis :time ?t))))
    )
    :hint (
@@ -9593,8 +9575,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions
    ((body ?b)
     ;; draw all individual torques and couples we can find
-    (setof (vector ?b (torque ?b ?force :axis ?axis :time ?t) ?dir)
-	   (torque ?b ?force :axis ?axis :time ?t) 
+    (setof (vector ?b (torque ?b ?force :axis ?axis ?axis :time ?t) ?dir)
+	   (torque ?b ?force :axis ?axis ?axis :time ?t) 
 	   ?torques))
    :effects
     ((torques ?b ?axis ?t ?torques)))
@@ -9606,12 +9588,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; draw net torque on object 
    (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
    (axis-for ?b z 0)
-   ; define for zc form only:
-   ; (variable ?tnet_z (compo z 0 (net-torque ?b ?axis :time ?t))) 
   )
   :effects (
-    (vector-diagram (net-torque ?b ?axis ?t))
-    (vector-diagram (net-torque ?b ?axis ?t zc))
+    (vector-diagram (net-torque ?b ?axis ?t ?type))
   ))
 
 ;; following draws torque diagram for qualititative problems that ask for 
@@ -9624,24 +9603,24 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    (optional (axis-for ?b z 0)))
    :effects ((torque-fbd ?b ?axis ?t)))
 
-; generate equation for net torque:
-; Tnet_z = Tau1_z + Tau2_z + Tau3_z
-;
-; The generic projection operator plugs in
-;    magTau * cos (0Tau_z) for Tau_z, where cos (0Tau_z) = +/- 1
-; We might like to use torque mag formula
-;    magR * magF * sin (ThetaRF)  for magTau1
-; and plug these terms in final equation for net torque. But that would 
-; preclude using the generic operators for writing a component equation then
-; for moving from component eqns to compo-free eqns by plugging in projections.
-; We would have to plug in projections first then plug in magnitude expressions.
-; For now we just enter equations for mag of individual torques as separate in 
-; bubble graph. 
+;; generate equation for net torque:
+;; Tnet_z = Tau1_z + Tau2_z + Tau3_z
+;;
+;; The generic projection operator plugs in
+;;    magTau * cos (0Tau_z) for Tau_z, where cos (0Tau_z) = +/- 1
+;; We might like to use torque mag formula
+;;    magR * magF * sin (ThetaRF)  for magTau1
+;; and plug these terms in final equation for net torque. But that would 
+;; preclude using the generic operators for writing a component equation then
+;; for moving from component eqns to compo-free eqns by plugging in 
+;; projections.  We would have to plug in projections first then plug in 
+;; magnitude expressions.  For now, we just enter equations for mag of 
+;; individual torques as separate in bubble graph. 
 
-;
-; net-torque zc is a special case form for zcomponent if zc-form flag is set.
-; It doesn't plug in projection for zc. This is for use when sought is zc of
-; net torque.
+;;
+;; net-torque zc is a special case form for z-component if ?type=compo.
+;; It doesn't plug in projection for zc. This is for use when sought is zc of
+;; net torque.
 
 (defoperator write-net-torque-zc (?b ?axis ?t)
   :preconditions (
@@ -9665,10 +9644,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   )
   :effects (
    (eqn (= ?tnet_z (+ . ?torque-compos)) 
-        (compo-eqn z 0 (net-torque ?b ?axis ?t zc)))
+        (compo-eqn z 0 (net-torque ?b ?axis ?t compo)))
    ;; need to list eqn-compos so projections get plugged in for component 
    ;; torques.  Don't do this for net torque however, just leave it as z-comp.
-   (eqn-compos (compo-eqn z 0 (net-torque ?b ?axis ?t zc))  ?torque-compos)
+   (eqn-compos (compo-eqn z 0 (net-torque ?b ?axis ?t compo))  ?torque-compos)
    ; for algebraic completeness: put out equation for mag torque 
    ; in terms of component, so gets determined from tau_z if dir is unknown
    (implicit-eqn (= ?mag-var (abs (?tnet_z))) 
@@ -9684,14 +9663,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
           ((= ?tnet_z (+ . ?torque-compos)) algebra)))
   ))
 
-; net-torque zc writes equation for zcomponent if zc-form flag is set.
-;
-; Following is more standard compo-eqn, which also asks for projection for 
-; net torque. For use when dir is known. This can now be used with generic
-; component-form flag as well, so zc-form special case is sort of unnecessary.
+;; Following is more standard compo-eqn, which also asks for projection for 
+;; net torque. For use when dir is known. This can now be used with generic
+;; component-form flag as well, so zc-form special case is sort of unnecessary.
 (defoperator write-net-torque (?b ?axis ?t)
   :preconditions (
    (not (zc-form))
+   (test (not (equal ?type 'compo)))
    ; fetch list of individual torques, extracting list of forces
    (in-wm (torques ?b ?axis ?t ?torques))
    (bind ?forces (mapcar #'third ?torques))
@@ -9707,8 +9685,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   )
   :effects (
    (eqn (= ?tnet_z (+ . ?torque-compos)) 
-               (compo-eqn z 0 (net-torque ?b ?axis ?t)))
-   (eqn-compos (compo-eqn z 0 (net-torque ?b ?axis ?t)) ?all-compos)
+               (compo-eqn z 0 (net-torque ?b ?axis ?t ?type)))
+   (eqn-compos (compo-eqn z 0 (net-torque ?b ?axis ?t ?type)) ?all-compos)
   )
   :hint (
 	 (point (string "Can you write an equation for the z component of the net ~A in terms of the z components of ~As due to each force?" 
@@ -9720,9 +9698,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
           ((= ?tnet_z (+ . ?torque-compos)) algebra)))
   ))
 
-;
-; mag-torque: scalar equation for magnitude of an individual torque
-;
+;;
+;; mag-torque: scalar equation for magnitude of an individual torque
+;;
 
 (defoperator mag-torque-contains (?sought)
    :preconditions (
@@ -9733,18 +9711,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (mag (relative-position ?pt ?axis :time ?t))
                   (angle-between (force ?pt ?agent ?type :time ?t)
 		                 (relative-position ?pt ?axis :time ?t))
-		  ; doesn't exactly contain directions of relative position
-		  ; and force, only difference between these
+		  ;; doesn't exactly contain directions of relative position
+		  ;; and force, only difference between these
                        ))
-   ; So far this will apply in any problem where any force is sought. 
-   ; Require pt of application to be part of larger rigid body, so that
-   ; won't apply if dealing only with particles. 
+   ;; So far this will apply in any problem where any force is sought. 
+   ;; Require pt of application to be part of larger rigid body, so that
+   ;; won't apply if dealing only with particles. 
    (point-on-body ?pt ?b)
-   ; !!! if sought is not torque, e.g. a force on body part, have to choose 
-   ; an axis on body about which to consider torque.  In theory the torque about
-   ; an axis is defined for any point on the object, but if it's fixed at a
-   ; pivot or known to be rotating we should pick that axis.
-   ; So might want rotation-axis statement ala CLIPs to tell this. 
+   ;; !!! if sought is not torque, e.g. a force on body part, have to choose 
+   ;; an axis on body about which to consider torque.  In theory the torque 
+   ;; about an axis is defined for any point on the object, but if it's fixed 
+   ;; at a pivot or known to be rotating we should pick that axis.
+   ;; So might want rotation-axis statement ala CLIPs to tell this. 
    (rotation-axis ?b ?axis)
    )
    :effects ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
@@ -9770,10 +9748,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ))
    
 
-;
-; torque-zc: equation for individual torque z-component
-;  tau_z = F*r*sin(thetaF - thetaR)
-;
+;;
+;; torque-zc: equation for individual torque z-component
+;;  tau_z = F*r*sin(thetaF - thetaR)
+;;
 
 (defoperator torque-zc-contains (?sought)
   :preconditions (
@@ -9785,14 +9763,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	     (mag (relative-position ?pt ?axis :time ?t))
 	     (dir (relative-position ?pt ?axis :time ?t))
 	                ))
-   ; So far this will apply in any problem where any force is sought. 
-   ; Require pt of application to be part of larger rigid body, so that
-   ; won't apply if dealing only with particles. 
+   ;; So far this will apply in any problem where any force is sought. 
+   ;; Require pt of application to be part of larger rigid body, so that
+   ;; won't apply if dealing only with particles. 
    (point-on-body ?pt ?b)
-   ; if sought is not torque, e.g. a force on body part, have to choose 
-   ; an axis on body about which to consider torque.  In theory the torque about
-   ; an axis is defined for any point on the object, but if it's fixed at a
-   ; pivot or known to be rotating we should pick that axis.
+   ;; if sought is not torque, e.g. a force on body part, have to choose 
+   ;; an axis on body about which to consider torque.  In theory the torque 
+   ;; about an axis is defined for any point on the object, but if it's 
+   ;; fixed at a pivot or known to be rotating we should pick that axis.
    (rotation-axis ?b ?axis)
    )
  :effects (
@@ -9821,7 +9799,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
           ((= ?tau-zc (* ?r-var ?f-var (sin (- ?theta-f ?theta-r)))) algebra)))
   ))
 
-; num-torques mainly for test problems:
+;; num-torques mainly for test problems:
 (defoperator num-torques-contains (?b ?t)
   :preconditions ()
   :effects ( (eqn-contains (num-torques ?b ?axis ?t) (num-torques ?b ?axis :time ?t)) ))
@@ -9850,12 +9828,91 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (not (object ?part)))
    :effects ( (object ?part) ))
 
-;;
-;; NSL for rotation tau_net = I * alpha
-;;
-;; !!! Need special handling of case where alpha = 0 here, 
-;; parallel to NFL version of NL -- can't use this to find I in this
-;; case because rhs vanishes.
+;;;;===========================================================================
+;;;;
+;;;;                  Rotational version of NFL
+;;;;
+;;;;===========================================================================
+
+
+(defoperator NFL-rotation-contains (?sought)
+  :preconditions 
+  (
+   (motion ?b ang-at-rest :time ?t ?t)
+   ;; need to bind rotation axis if not seeking torque
+   (point-on-body ?axis ?b)
+   (not (rotation-axis ?b ?axis))
+   (any-member ?sought (
+			(mag (torque ?b ?force :axis ?axis ?axis :time ?t))
+			(dir (torque ?b ?force :axis ?axis ?axis :time ?t))
+			(compo z 0 (net-torque ?b ?axis :time ?t))
+			))
+   (bind ?type (first ?sought))
+   )
+  :effects (
+	    (angular-eqn-contains (NFL-rot ?b ?axis ?t ?type) ?sought)
+	    ))
+
+(defoperator NFL-rotation-zc-contains (?sought)
+  :preconditions (
+		  (motion ?b ang-at-rest :time ?t ?t)
+		  (not (rotation-axis ?b ?axis))
+		  (point-on-body ?axis ?b)
+		  (any-member ?sought (
+			(mag (torque ?b ?force :axis ?axis ?axis :time ?t))
+			(dir (torque ?b ?force :axis ?axis ?axis :time ?t))
+			))
+		  )
+  :effects (
+	    (angular-eqn-contains (NFL-rot ?b ?axis ?t zc) ?sought)
+	    ))
+
+(defoperator draw-NFL-rot-diagram (?b ?axis ?t)
+  :preconditions (
+		  (not (vector-diagram (NFL-rot ?b ?axis ?t)))
+		  ;; (body ?b)
+		  (torques ?b ?axis ?t ?torques)
+		  (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
+		  (vector ?b (ang-accel ?b :time ?t) ?dir-accel)
+		  (axis-for ?b z 0)
+		  )
+  :effects (
+	    (vector-diagram (NFL-rot ?b ?axis ?t))
+	    ))
+
+(defoperator write-NFL-rotation (?b ?axis ?t)
+  
+  :preconditions 
+  (
+   (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
+   (moment-of-inertia-variable ?I ?b ?t)
+   (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
+   ;; fetch mag variable for implicit equation (defined when drawn)
+   (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
+   )
+  :effects 
+  (
+   (eqn (= ?tau_z (* ?I ?alpha_z)) 
+	(compo-eqn z 0 (NFL-rot ?b ?axis ?t)))
+   (eqn-compos (compo-eqn z 0 (NFL-rot ?b ?axis ?t)) (?tau_z ?alpha_z))
+   ;; Don't do this because it can pre-empt projection if it is in fact used
+   ;; on a component-form problem for magnitude (tor5a)
+   ;; for algebraic completeness: put out equation for mag ang-accel
+   ;; in terms of component, so gets determined from alpha_z if dir is unknown
+   ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (mag (ang-accel ?b :time ?t)))
+   )
+  :hint (
+	 (point (string "Can you relate the z components of the net ~A and angular acceleration?"
+			((moment-name) eval)))
+	 (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration. This vector relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
+			((moment-name) eval) ((moment-name) eval)))
+	 (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
+			     ((= ?tau_z (* ?I ?alpha_z)) algebra)))
+	 ))
+
+;;;;
+;;;;            NSL for rotation tau_net = I * alpha
+;;;;
 
 (defoperator NSL-rotation-contains (?sought)
    :preconditions (

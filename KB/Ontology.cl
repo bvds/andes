@@ -512,7 +512,7 @@
   :english ("showing the ~A due to each force acting on ~A ~A" 
 	     (eval (moment-name)) (nlg ?b) (nlg ?time 'pp)))
 
-(def-goalprop nl-rot-fbd  (vector-diagram (NSL-rot ?b ?axis ?t))
+(def-goalprop NSL-rot-fbd  (vector-diagram (NSL-rot ?b ?axis ?t))
   :doc "diagram for applying the rotational version of Newton's Second Law"
   :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
 	    (eval (moment-name)) (nlg ?b) (nlg ?t 'pp))) 
@@ -831,7 +831,7 @@
      :EqnFormat ("F1_~a + F2_~a + F3_~a + ...= m*a_~a" 
                  (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
-; following more specific choices no longer offered to students:
+;; following more specific choices no longer offered to students:
 (def-psmclass NFL (?eq-type NFL ?axis ?rot (NL ?body ?time)) 
      :group NL
      :complexity major
@@ -1203,14 +1203,16 @@
 
 ;;; We use two ways of writing net-torque, distinguished by presence or absence
 ;;; of the zc flag in id.  Following form is designed to match either one:
-(def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time . ?opt-zc-flag))
+(def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time 
+						      ?zc-flag))
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of net ~A" (eval (moment-name)))
   :expformat ("applying the definition of net ~A on ~a about ~a ~A"
 	      (eval (moment-name)) (nlg ?body) (nlg ?pivot) 
 	      (nlg ?time 'nlg-time))
-  :eqnformat ((if **engineering** "Mnet_z = M1_z + M2_z + ..."
-			    "$tnet_z = $t1_z + $t2_z + ...")))
+  :eqnformat ((if  (member 'engineering-names (problem-features *cp*)) 
+		  "Mnet_z = M1_z + M2_z + ..."
+		"$tnet_z = $t1_z + $t2_z + ...")))
 
 (def-psmclass torque-zc (torque-zc ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
@@ -1218,8 +1220,9 @@
   :expformat ((strcat "calculating the z component of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (eval (moment-name)) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
-  :EqnFormat ((if **engineering**  "M_z = r*F*sin($qF-$qr)"
-			     "$t_z = r*F*sin($qF-$qr)")))
+  :EqnFormat ((if  (member 'engineering-names (problem-features *cp*))  
+		  "M_z = r*F*sin($qF-$qr)"
+		"$t_z = r*F*sin($qF-$qr)")))
 
 (def-psmclass mag-torque (mag-torque ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
@@ -1227,8 +1230,18 @@
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (eval (moment-name)) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
-  :EqnFormat ((if **engineering** "M = r*F*sin($q)"
-	      "$t = r*F*sin($q)")))
+  :EqnFormat ((if  (member 'engineering-names (problem-features *cp*)) 
+		  "M = r*F*sin($q)"
+		"$t = r*F*sin($q)")))
+
+(def-psmclass NFL-rot (?eq-type z 0 (NFL-rot ?body ?pivot ?time))
+  :complexity major
+  :english ("rotational version of Newton's First Law")
+  :expformat ("applying rotational version of Newton's First Law to ~a about ~a ~a"
+	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
+  :eqnFormat ((if  (member 'engineering-names (problem-features *cp*)) 
+		  "Mnet_z = I*$a_z"
+		"$tnet_z = I*$a_z" )))
   
 
 (def-psmclass NSL-rot (?eq-type z 0 (NSL-rot ?body ?pivot ?time))
@@ -1236,7 +1249,8 @@
   :english ("rotational version of Newton's Second Law")
   :expformat ("applying rotational version of Newton's Second Law to ~a about ~a ~a"
 	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
-  :eqnFormat ((if **engineering** "Mnet_z = I*$a_z"
+  :eqnFormat ((if  (member 'engineering-names (problem-features *cp*)) 
+		  "Mnet_z = I*$a_z"
 		"$tnet_z = I*$a_z" )))
 
 
