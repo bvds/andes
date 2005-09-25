@@ -9575,8 +9575,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions
    ((body ?b)
     ;; draw all individual torques and couples we can find
-    (setof (vector ?b (torque ?b ?force :axis ?axis ?axis :time ?t) ?dir)
-	   (torque ?b ?force :axis ?axis ?axis :time ?t) 
+    ;; Look in *.prb file to see if this turns out OK
+    (setof (vector ?b (torque ?b ?force :axis ?axis :time ?t) ?dir)
+	   (torque ?b ?force :axis ?axis :time ?t) 
 	   ?torques))
    :effects
     ((torques ?b ?axis ?t ?torques)))

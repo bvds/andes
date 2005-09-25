@@ -1240,8 +1240,8 @@
   :expformat ("applying rotational version of Newton's First Law to ~a about ~a ~a"
 	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
   :eqnFormat ((if  (member 'engineering-names (problem-features *cp*)) 
-		  "Mnet_z = I*$a_z"
-		"$tnet_z = I*$a_z" )))
+		  "0 = M1_z + M2_z + ..."
+		"$0 = $t1_z + $t2_z + ...")))
   
 
 (def-psmclass NSL-rot (?eq-type z 0 (NSL-rot ?body ?pivot ?time))
