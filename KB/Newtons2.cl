@@ -1612,11 +1612,13 @@
 ;;;;  value for time.
 ;;;;
 
+#|  ;for now, put in explicitly in problem statement
 (defoperator timeless-time ()
   :preconditions (
-   (not (in-wm (time ?t)))
+   (not (time ?t))
   )
-  :effects ( (time nil) ))
+  :effects ( (time null) ))
+|# 
 
 ;;; ================= speed distance duration ===================
 ;;; These operators represent knowledge of the speed=distance/duration
@@ -4129,7 +4131,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator find-weight-force (?b ?t ?planet)
   :preconditions 
    ((object ?b)
-    ;; In rigid body problems, parts of rigid body may be conidered objects
+    ;; In rigid body problems, parts of rigid body may be considered objects
     ;; via use-point-as-object.  We don't want to apply this rule to parts of 
     ;; a larger rigid body, or to the whole rigid body.  Rather an alt op 
     ;; will treat weight of whole body as force acting at cm
@@ -6045,7 +6047,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator NFL-zero-accel (?quantity)
   :specifications "
    If the object has zero acceleration over a time period,
-      and that time perid includes the one we're useing for NL,
+      and that time period includes the one we're useing for NL,
    then NFL applies and it potentially contains
      the magnitude and direction of any force acting on the body"
   :preconditions 
@@ -6058,7 +6060,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (accel ?b :time ?t-accel) zero)
    (test (tinsidep ?t ?t-accel)))
   :effects
-   ((compo-eqn-contains (NL ?b ?t) nfl ?quantity))
+   ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
 )
 
 
@@ -6079,7 +6081,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (time ?t)
    (massless ?b))
   :effects
-   ((compo-eqn-contains (NL ?b ?t) nfl ?quantity))
+   ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
 )
 
 ;;; This operator indicates when Newton's second law (NSL) is
@@ -6121,7 +6123,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; Can't apply over interval if variable forces during interval.
    ;; if time is an interval, make sure endpoints are consecutive,
    ;; else forces might be different between sub-segments
-   (test (or (time-pointp ?t) (time-consecutivep ?t)))
+   ;; In timeless problems, can apply at any instant.
+   (test (or (null ?t) (time-pointp ?t) (time-consecutivep ?t)))
    ;; Force from expanding spring will be variable.  NSL would still apply 
    ;; over interval for average spring force, though we have no way to 
    ;; compute that if it isn't given. For now we just rule out Newton's Law 
@@ -6168,8 +6171,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects
    ((eqn (= (+ . ?f-compo-vars) 0)
-	 (compo-eqn nfl ?xyz ?rot (nl ?b ?t)))
-    (eqn-compos (compo-eqn nfl ?xyz ?rot (nl ?b ?t)) ?f-compo-vars)
+	 (compo-eqn NFL ?xyz ?rot (nl ?b ?t)))
+    (eqn-compos (compo-eqn NFL ?xyz ?rot (nl ?b ?t)) ?f-compo-vars)
     (implicit-eqn (= ?a-compo 0) (compo ?xyz ?rot (accel ?b :time ?t))))
   :hint
    ((point (string "Because the acceleration of ~a is zero ~a, you can apply Newton's first law to it." ?b (?t pp)))
@@ -7679,7 +7682,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (angle-between (force ?b ?agent ?type :time ?t))
 		                 (velocity ?b :time ?t)
     			))
-    (test (time-pointp ?t))
+    ;; can be timeless
+    (test (or (null ?t) (time-pointp ?t)))
     ;; get list of force agents we can use
     (setof (force ?b ?agent1 ?type1 ?t ?dir1 ?action) 
 	   ?agent1 ?force-agents)
