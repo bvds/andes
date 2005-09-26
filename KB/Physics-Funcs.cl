@@ -73,7 +73,8 @@
 
 (defun tinsidep (t1 t2)
    "non-null if the first time is inside the second time."
-   (cond ((time-pointp t1)
+   (cond ((null t2) t) ;timeless is expressed as null time
+	 ((time-pointp t1)
 	  (cond ((time-intervalp t2)
 		 (< (second t2) t1 (third t2)))
 		((time-pointp t2)
@@ -145,38 +146,8 @@
        (or (equal t1 tt) (time-consecutivep t1) )
        ))
 
-;;;=========================
-;;; expr< and friends
-;;;========================
 
-;;; expr< is needed in order to generates sets where the elements are
-;;; ordered.  Otherwise the code will generate all possible orderings of the elements
-;;; in the sets.
-;;; Does a tree walk, and is true if first non-equal leaf is string<.
-
-
-(defun expr< (expr1 expr2)
-   "True if first arg comes before second in lexicographic ordering"
-   (cond ((consp expr1)
-          (cond ((consp expr2)
-                 (or (expr< (car expr1) (car expr2))
-                     (and (equal (car expr1) (car expr2))
-                          (expr< (cdr expr1) (cdr expr2)))))
-                ( T ;; atoms precede cons in our ordering
-                    NIL)))
-         ((consp expr2)  ;; atoms preceed cons, and expr1 is an atom
-          T)
-         ((numberp expr1)
-          (cond ((Numberp expr2) 
-                 (< expr1 expr2))
-                (T ;; numbers follow other atoms, and expr2 is a non-number atom
-                  NIL)))
-         ((numberp expr2) ;; numbers follow other atoms, and expr1 is a non-number atom
-          T)
-         (T ;; both are non-numeric atoms
-            (string< expr1 expr2)))) 
-
-;;; ====================
+;;; ===========================================================================
 ;;; Geometry helper functions
 ;;; This are written to take either numbers, zero, unknown
 ;;; or (dnum <number> |deg|), or (parameter <atom>).
@@ -603,9 +574,10 @@
 (defmacro format-sym (spec &rest args)
   `(intern (format NIL ,spec ,@args)))
 
-;;
-;; For forming variable names:
-;;
+;;;
+;;; For forming variable names:
+;;;
+
 (defun time-abbrev (x)
    "returns string of form \"1\" for points or \"12\" for intervals to abbreviate time in variable names" 
    (if (time-intervalp x) (format NIL "~A~A" (second x) (third x))

@@ -11,15 +11,45 @@
 ;; as such at runtime.  It provides no package thus all functions
 ;; will be automatically loaded by the caller.
 ;;
-;; =====================================================================
-;; Changelog:
-;;  6/5/2003:  Removed duplicate copy of get-current-time-component and
-;;    commented out the unused function print-flat-by-size.
 
 
-;;========================================================================
-;; Code from Peter Norvig's Paradigms of Artificial Intelligence 
-;; Programming auxfns.lisp file.
+;;;;===========================================================================
+;;;;
+;;;;             expr< 
+;;;;
+;;;;===========================================================================
+
+;;; expr< is needed in order to generates sets where the elements are ordered.
+;;; Otherwise the code will generate all possible orderings of the elements
+;;; in the sets.  Does a tree walk, and is true if first non-equal leaf is 
+;;; string<.
+
+(defun expr< (expr1 expr2)
+   "True if first arg comes before second in lexicographic ordering"
+   (cond ((consp expr1)
+          (cond ((consp expr2)
+                 (or (expr< (car expr1) (car expr2))
+                     (and (equal (car expr1) (car expr2))
+                          (expr< (cdr expr1) (cdr expr2)))))
+                ( T ;; atoms precede cons in our ordering
+                    NIL)))
+         ((consp expr2)  ;; atoms preceed cons, and expr1 is an atom
+          T)
+         ((numberp expr1)
+          (cond ((Numberp expr2) 
+                 (< expr1 expr2))
+                (T ;; numbers follow other atoms, and expr2 is a non-number atom
+                  NIL)))
+         ((numberp expr2) ;; numbers follow other atoms, and expr1 is a non-number atom
+          T)
+         (T ;; both are non-numeric atoms
+            (string< expr1 expr2)))) 
+
+;;;;========================================================================
+;;;;
+;;;; Code from Peter Norvig's Paradigms of Artificial Intelligence 
+;;;; Programming auxfns.lisp file.
+;;;;
 
 (defun mappend (fn list)
   "Append the results of calling fn on each element of list.
