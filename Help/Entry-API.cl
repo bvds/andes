@@ -691,7 +691,7 @@
 	;; for force applied at that point, assumed to be unique.  Note if 
 	;; no such force we can't determine a full quantity spec at all.
 	(vquant-term (cond
-		      ((equal type 'net) `(net-torque ,body-term ,axis-term))
+		      ((equal type '|Net|) `(net-torque ,body-term ,axis-term))
 		      ((equal type 'couple) 
 		       `(torque ,body-term 
 				(couple ,@(sort (list body-term axis-term)
