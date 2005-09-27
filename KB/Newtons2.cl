@@ -4678,10 +4678,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ; functional terms like center-of(b1), there is currently no way to specify
 ; complex terms like this in the workbench. So we need to use
 ; atomic names like center_of_Earth and include propositions like
-;   (center-of Earth center_of_Earth)
+;   (center-of-mass center_of_Earth (Earth))
 ; to enable the rules to map object names to names of their center points. 
 ; Note if an object is treated as a point we have to include the statement
-;   (center-of person1 person1)  
+;   (center-of-mass person1 (person1))  
 ; for these rules to work.
 ;
 ; The equation is scalar equation containing vector magnitudes only.
@@ -4700,9 +4700,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (object ?b2)
      (test (and (member ?b1 ?grav-bodies :test #'equal) 
                 (member ?b2 ?grav-bodies :test #'equal)))
-     ; in case sought is relative position:
-     (center-of ?b1 ?c1)
-     (center-of ?b2 ?c2)
+     ;; in case sought is relative position:
+     (center-of-mass ?c1 (?b1))
+     (center-of-mass ?c2 (?b2))
      (time ?t)
    )
    :effects (
@@ -4714,10 +4714,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
       (body ?b1)
       (variable ?m1 (mass ?b1))
       (variable ?m2 (mass ?b2))
-      ; force is on b1 due to b2, so want relative position of center of
-      ; b1 wrt center of b2. 
-      (center-of ?b1 ?c1)
-      (center-of ?b2 ?c2)
+      ;; force is on b1 due to b2, so want relative position of center of
+      ;; b1 wrt center of b2. 
+      (center-of-mass ?c1 (?b1))
+      (center-of-mass ?c2 (?b2))
       (variable ?r  (mag (relative-position ?c1 ?c2 :time ?t)))
       (variable ?F  (mag (force ?b1 ?b2 gravitational :time ?t)))
   )
@@ -4783,7 +4783,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; statement specifying the center of an object is required for
 ;; all objects subject to a gravitational force, even if the object
 ;; is treated as a particle. It is permitted to say
-;;      (center-of astronaut astronaut)
+;;      (center-of-mass astronaut (astronaut))
 ;; in which case the required relative position will wind up 
 ;; specified as that of astronaut with respect to center_of_Earth, say.
 ;;
@@ -4815,8 +4815,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator grav-dir-from-rel-pos (?b1 ?b2 ?t)
   :preconditions (
-    (in-wm (center-of ?b1 ?c1))
-    (in-wm (center-of ?b2 ?c2))
+		  (in-wm (center-of-mass ?c1 (?b1)))
+		  (in-wm (center-of-mass ?c2 (?b2)))
     (in-wm (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir))
     (test (not (equal ?r-dir 'unknown)))
     (test (tinsidep ?t ?t-given))
@@ -4826,8 +4826,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      
 (defoperator grav-dir-from-inverse-rel-pos (?b1 ?b2 ?t)
   :preconditions (
-    (in-wm (center-of ?b1 ?c1))
-    (in-wm (center-of ?b2 ?c2))
+		  (in-wm (center-of-mass ?c1 (?b1)))
+		  (in-wm (center-of-mass ?c2 (?b2)))
     (in-wm (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir))
     (test (not (equal ?r-dir 'unknown)))
     (test (tinsidep ?t ?t-given))
