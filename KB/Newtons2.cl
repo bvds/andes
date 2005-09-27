@@ -5589,22 +5589,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (body ?b)
     (setof (vector ?b (force ?b ?agent1 ?type1 :time ?t) ?dir1) 
 	   (force ?b ?agent1 ?type1 :time ?t) 
-	   ?forces1)
-    ;; in fluids problems, pressures forces on body are defined as acting on
-    ;; surfaces of the body. Must collect all of these as forces on body as
-    ;; well.  Could generalize this to rely on our point-on-body statement to 
-    ;; collect forces on all parts of body.  Unclear what the ramifications
-    ;; of that would be (could affect torque problems?). So for now, just
-    ;; look for pressure forces found on a body's surfaces:
-    (setof (vector ?b (force ?surface ?fluid pressure :time ?t) ?dir2)
-	  (force ?surface ?fluid pressure :time ?t)
-	  ?pressure-forces)
-    ;;(debug "Adding pressure forces:  ~A~%" ?pressure-forces)
-    ;;(debug "To other forces: ~A~%" ?forces1)
-    ;; Note: two sets can overlap if problem overloads object name as surface 
-    ;; name as well (which can be convenient, for piston, say, to avoid 
-    ;; introducing surfaces)
-    (bind ?forces (union ?forces1 ?pressure-forces :test #'equal)) 
+	   ?forces)
     )
    :effects
     ((forces ?b ?t ?forces)))
