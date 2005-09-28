@@ -1201,10 +1201,7 @@
 
 ;;;; ROTATIONAL DYNAMICS (TORQUE)
 
-;;; We use two ways of writing net-torque, distinguished by presence or absence
-;;; of the zc flag in id.  Following form is designed to match either one:
-(def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time 
-						      ?zc-flag))
+(def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time))
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of net ~A" (eval (moment-name)))
   :expformat ("applying the definition of net ~A on ~a about ~a ~A"
