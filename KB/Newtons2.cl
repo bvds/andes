@@ -1253,7 +1253,7 @@
 
 (defoperator use-body-axes-for-point (?point ?x-rotation)
   :specifications 
-  "Axes for points on a body inherit the axes for the whole body."
+  "Axes for points on a body inherit the axes used for the whole body."
   :preconditions (
 		  (point-on-body ?point ?body)
 		  (axis-for ?body x ?x-rotation)
@@ -4966,6 +4966,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   (
    (object ?agent) ;this is needed or ?agent unbound error
+   (time ?t) ;neede or ?t unbound error BvdS: ask Anders about this
    (vector ?agent (relative-vel ?agent ?b :time ?t) ?dir)
    (test (not (equal ?dir 'unknown)))
    (not (vector ?b (force ?b ?agent thrust :time ?t) ?dont-care)) ;not already drawn
@@ -5594,18 +5595,35 @@ the magnitude and direction of the initial and final velocity and acceleration."
     "If there are some forces on ?body at ?time,
      then make them the set of forces on ?body at ?time"
    :preconditions
-   ((time ?t)
-    (body ?b)
-    (setof (vector ?b (force ?b ?agent1 ?type1 :time ?t) ?dir1) 
-	   (force ?b ?agent1 ?type1 :time ?t) 
-	   ?forces)
-    )
+   ( (time ?t)
+     (body ?b)
+     ;; list of forces acting on entire body (particle)
+     (setof (vector ?b (force ?b ?agent ?type :time ?t) ?dir)
+	    (force ?b ?agent ?type :time ?t)
+	    ?body-forces)
+     ;; list of forces acting on points on extended body
+     (setof (force-on-point ?b ?force) ?force ?point-forces)
+     ;; only one case should apply
+     (test (or (null ?body-forces) (null ?point-forces)
+	       (error "draw-forces error: can't act on entire body and on point of body:~%    ~A~%    ~A"
+		      ?body-forces ?point-forces)))
+     (bind ?forces (or ?body-forces ?point-forces))
+     )
    :effects
-    ((forces ?b ?t ?forces)))
+   ((forces ?b ?t ?forces)))
 
-; The "num-forces" scalar equation exists to put out an equation answering the 
-; question "how many forces on ?b at ?t". This will likely be one part of
-; a larger Newton's Law problem though it could be asked all alone.
+;; this is used by draw-forces to collect all forces acting on
+;; points on body
+(defoperator collect-forces-on-points (?pt ?agent ?type ?t)
+  :preconditions (
+		  (point-on-body ?pt ?b)
+		  (vector ?whatever (force ?pt ?agent ?type :time ?t) ?dir)
+		  )
+  :effects ((force-on-point ?b (force ?pt ?agent ?type :time ?t))))
+
+;;; The "num-forces" scalar equation exists to put out an equation answering 
+;;; the question "how many forces on ?b at ?t". This will likely be one part of
+;;; a larger Newton's Law problem though it could be asked all alone.
 
 (defoperator num-forces-contains (?b ?t)
   :preconditions ()
@@ -5979,6 +5997,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
+;; version for rigid bodies
+(defoperator NL-vector-point-contains (?Quantity)
+  :preconditions 
+  ( (any-member ?quantity
+              ((mag (force ?point ?agent ?type :time ?t))
+              (dir (force ?point ?agent ?type :time ?t))))
+    (not (unknown-forces))
+    (point-on-body ?point ?b)
+    (object ?b) ;sanity check (not really needed)
+    (time ?t))
+  :effects
+   ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
 ;;; We have to define a special NL-net variant psm to use net force rather 
 ;;; than sum F1 + F2 ...  for those few problems that work in terms of net 
@@ -6049,7 +6079,21 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	        ((mag (force ?b ?agent ?type :time ?t))
 		 (dir (force ?b ?agent ?type :time ?t))))
    (object ?b)
-   (time ?t)
+   (not (unknown-forces))
+   (vector ?b (accel ?b :time ?t-accel) zero)
+   (test (tinsidep ?t ?t-accel)))
+  :effects
+   ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
+)
+
+;; variation for points on body
+(defoperator NFL-zero-accel-point (?quantity)
+  :preconditions 
+  ((any-member ?quantity
+	        ((mag (force ?pt ?agent ?type :time ?t))
+		 (dir (force ?pt ?agent ?type :time ?t))))
+   (point-on-body ?pt ?b)
+   (object ?b)  ;sanity check (not really needed)
    (not (unknown-forces))
    (vector ?b (accel ?b :time ?t-accel) zero)
    (test (tinsidep ?t ?t-accel)))
