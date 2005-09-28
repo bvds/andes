@@ -1248,13 +1248,24 @@
     (assume axis-for ?b x ?x-rotation)
     (axis-for ?b y ?y-rotation)
     (assume axis-for ?b y ?y-rotation)
-    (axis-for ?b z 0)			;z-axis always has zero tilt (really = out-of).
-  )
-  ;; no point to hints since no entry made by this operator
-  ;; :hint
-  ;;((point (string "You already have an axis for the system containing ~a." ?b))
-  ;; (teach (string "If you already have defined axes for a system of bodies, and you want axes for one of its constitutents, then the math is generally simpler if you use the same coordinate system.")))
-   )
+    (axis-for ?b z 0)	   ;z-axis always has zero tilt (really = out-of).
+  ))
+
+(defoperator use-body-axes-for-point (?point ?x-rotation)
+  :specifications 
+  "Axes for points on a body inherit the axes for the whole body."
+  :preconditions (
+		  (point-on-body ?point ?body)
+		  (axis-for ?body x ?x-rotation)
+		  (axis-for ?body y ?y-rotation)
+		  )
+  :effects (
+    (axis-for ?point x ?x-rotation)
+    (assume axis-for ?point x ?x-rotation)
+    (axis-for ?point y ?y-rotation)
+    (assume axis-for ?point y ?y-rotation)
+    (axis-for ?point z 0)      ;z-axis always has zero tilt (really = out-of).
+  ))
 
 ;;; One should be able to draw at least standard axes on
 ;;; any problem involving vectors.  As of Aug. 6, 2005, this
@@ -2231,7 +2242,7 @@
     (test (and ?t-motion (tinsidep ?t ?t-motion)))
     (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
   :effects
-   ((vector ?b (velocity ?b :time ?t) zero)
+   ((vector ?body (velocity ?b :time ?t) zero)
     (variable ?mag-var (mag (velocity ?b :time ?t)))
     (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
   :hint
@@ -2257,11 +2268,11 @@
    (motion ?b (straight ?dontcare ?dir) :time ?t-motion)
    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
    (test (tinsidep ?t ?t-motion))
-   (not (vector ?b (velocity ?b :time ?t) ?dir))
+   (not (vector ?body (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-  ((vector ?b (velocity ?b :time ?t) ?dir)
+  ((vector ?body (velocity ?b :time ?t) ?dir)
    (variable ?mag-var (mag (velocity ?b :time ?t)))
    (variable ?dir-var (dir (velocity ?b :time ?t)))
    (given (dir (velocity ?b :time ?t)) ?dir))
@@ -2282,11 +2293,11 @@
    (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
    (motion ?b (straight ?dontcare unknown) :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
-   (not (vector ?b (velocity ?b :time ?t) ?dir))
+   (not (vector ?body (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-  ((vector ?b (velocity ?b :time ?t) unknown)
+  ((vector ?body (velocity ?b :time ?t) unknown)
    (variable ?mag-var (mag (velocity ?b :time ?t)))
    (variable ?dir-var (dir (velocity ?b :time ?t))))
   :hint
@@ -4131,8 +4142,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator find-weight-force (?b ?t ?planet)
   :preconditions 
    ((object ?b)
-    ;; In rigid body problems, parts of rigid body may be considered objects
-    ;; via use-point-as-object.  We don't want to apply this rule to parts of 
+    ;; We don't want to apply this rule to parts of 
     ;; a larger rigid body, or to the whole rigid body.  Rather an alt op 
     ;; will treat weight of whole body as force acting at cm
     (not (point-on-body ?b ?rigid-body))
@@ -4350,7 +4360,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator find-applied-force (?b ?agent ?t)
   :preconditions (
-    (object ?b)
     (time ?t)
     ;; energy conservation law also checks for this to not exist:
     (in-wm (given (dir (force ?b ?agent applied :time ?t-force)) ?dir-expr))
@@ -4370,7 +4379,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    at a certain direction,
   then draw the force at that direction"
   :preconditions
-   ((force ?b ?agent applied ?t ?dir-expr action)
+  ( (force ?b ?agent applied ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (force ?b ?agent applied :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fa_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
@@ -6669,7 +6678,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (motion ?body (rotating ?cm . ?dont-care) :time ?t-any)
     (center-of-mass ?cm (?body))
     )
-  :effects ( (use-point-for-body ?body ?cm ?cm) ))
+  :effects ( (use-point-for-body ?body ?cm ?cm) 
+	     ;; ?cm is kinematic variable for translational motion
+	     (object ?cm)))
 
 ;; fixed axis case
 (defoperator use-body-rotating-fixed (?body)
@@ -6682,7 +6693,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; some time where both are true
     (test (or (null ?t-motion) (null ?t-axis) (tintersect2 ?t-motion ?t-axis)))
     ) 
-  :effects ( (use-point-for-body ?body ?cm ?axis) ))
+  :effects ( (use-point-for-body ?body ?cm ?axis)))
 
 ;; for non-rotating motion, we don't have to distinguish
 (defoperator use-body-for-body (?body)
@@ -9818,16 +9829,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((bind ?n-var (format-sym "ntorques_~A_~A" 
 			    (body-name ?b) (time-abbrev ?t))))
   :effects ( (variable ?n-var (num-torques ?b ?axis :time ?t)) ))
-
-;;; following lets us avoid declaring points on rigid bodies as objects.
-;;; we define forces as acting on points.
-;;; points must be objects to be used in drawing rules.
-(defoperator use-point-as-object (?part ?whole)
-   :preconditions 
-    ((in-wm (point-on-body ?part ?whole))
-     (in-wm (object ?whole))
-     (not (object ?part)))
-   :effects ( (object ?part) ))
 
 ;;;;===========================================================================
 ;;;;
