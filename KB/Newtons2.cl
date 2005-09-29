@@ -89,46 +89,52 @@
 	(map ?v (vars-in-eqn ?eqn-algebra)
 	       (in-wm (variable ?v ?q))
                ?q ?quantities-in-eqn)
-	; make sure sought quantity actually occurs in equation
-	(test (member ?sought ?quantities-in-eqn :test #'equalp))
+	;; make sure sought quantity actually occurs in equation
+	(test (member ?sought ?quantities-in-eqn 
+	;; keyword pairs need "unify" for match
+		      :test (lambda (x y) (or (equalp x y) (unify x y)))))
 
-	; Some quantities in eqn may have become "given" -- known -- as side 
-	; effects of applying the psm. Here we call them the new-knowns.
-	; We get what's known now and figure out what's changed.
+	;; Some quantities in eqn may have become "given" -- known -- as side 
+	;; effects of applying the psm. Here we call them the new-knowns.
+	;; We get what's known now and figure out what's changed.
     	(setof (in-wm (given ?quant ?dont-care))
-	        ?quant ?given-now)
+	       ?quant ?given-now)
 	(bind ?known-now (union ?given-now ?parameters :test #'equalp))
+
 	(bind ?new-knowns
 	      (set-difference ?known-now ?initial-knowns :test #'equalp))
-	; (debug "Made known inside psm: ~A~%" ?new-knowns)
-	; Although the bubble driver won't have to seek them, for algebraic 
-	; completeness we must put out equations giving values for 
-	; the new-knowns. Could also do this at all the points they become 
-	; known but it's simpler to have one bit of code to do this.
-	; we distinguish them as implicit equations since the student will
-	; not have to write them. The algebra module still needs them.
+	
+	;; (debug "Made known inside psm: ~A~%" ?new-knowns)
+	;; Although the bubble driver won't have to seek them, for algebraic 
+	;; completeness we must put out equations giving values for 
+	;; the new-knowns. Could also do this at all the points they become 
+	;; known but it's simpler to have one bit of code to do this.
+	;; we distinguish them as implicit equations since the student will
+	;; not have to write them. The algebra module still needs them.
 	(foreach ?quant ?new-knowns
 	    (implicit-eqn ?new-eqn ?quant))
 
-	; Collect residual unknowns from eqn to include in the final psm stmt 
-	; This is a convenience to bubble-graph search driver, which will
-	; see the equation and can easily get its variables but finds it 
-	; inconvenient to map the variables to quantities.  Used to be:
-    	; (bind ?new-unknowns
-	;      (set-difference ?quantities-in-eqn ?known-now :test #'equalp))
-        ; But removing problem givens and parameters is no longer wanted. Driver
-	; now pre-enters problem givens and parameters into the graph before
-	; calling solver to find soughts, so now wants them included in order 
-	; to know to link nodes for these quants to this equation. Since 
-	; givens and parameters are flagged known the driver won't seek them.  
-	; We do exclude the quantities known by side effect since they 
-	; shouldn't go into the bubble-graph. We get these by looking for
-	; quantities for which implicit equations were written, either above
-	; or in the operators -- for given vector dirs it happens in operators
+	;; Collect residual unknowns from eqn to include in the final psm stmt 
+	;; This is a convenience to bubble-graph search driver, which will
+	;; see the equation and can easily get its variables but finds it 
+	;; inconvenient to map the variables to quantities.  Used to be:
+    	;; (bind ?new-unknowns
+	;;      (set-difference ?quantities-in-eqn ?known-now :test #'equalp))
+        ;; But removing problem givens and parameters is no longer wanted. 
+	;; Driver now pre-enters problem givens and parameters into the graph 
+	;; before calling solver to find soughts, so now wants them included 
+	;; in order to know to link nodes for these quants to this equation. 
+	;; Since givens and parameters are flagged known the driver won't seek 
+	;; them.  We do exclude the quantities known by side effect since they 
+	;; shouldn't go into the bubble-graph. We get these by looking for
+	;; quantities for which implicit equations were written, either above
+	;; or in the operators -- for given vector dirs it happens in operators
 	(setof (in-wm (implicit-eqn (= ?var (dnum . ?valunits)) ?imp-eq-quant))
 	      ?imp-eq-quant ?imp-eq-quants)
 	(bind ?new-unknowns 
-	      (set-difference ?quantities-in-eqn ?imp-eq-quants :test #'equalp))
+	      (set-difference ?quantities-in-eqn ?imp-eq-quants 
+			      :test #'equalp))
+
 	)
   :effects
    	((psm ?sought ?eqn-id ?eqn-algebra ?new-unknowns)))
@@ -154,9 +160,8 @@
       ;; make sure psm name not on problem's ignore list:
       (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
       (not (eqn ?dont-care ?eqn-id))
-      (debug "~&To find ~a,~%  will try writing ~a~%" ?sought ?eqn-id)
       (eqn ?eqn-algebra ?eqn-id)
-      (debug "~&To find ~a via ~a, ~%   wrote ~a~%"
+      (debug "~&To find ~S~%    via ~S,~%    wrote ~a~%"
 	     ?sought ?eqn-id ?eqn-algebra)
    )
    :effects
@@ -171,16 +176,15 @@
 ;; psms should post a derived-eqn-contains statement instead of eqn-contains.
 (defoperator apply-scalar-psm2 (?sought ?eqn-id)
    :specifications "If the goal is to apply a psm to find a quantity,
-      and there is a scalar equation  that contains that quantity,
+      and there is a scalar equation that contains that quantity,
       then generate the equation."
    :preconditions (
       (derived-eqn-contains ?eqn-id ?sought)
       ;; make sure psm name not on problem's ignore list:
       (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
       (not (derived-eqn ?dont-care ?eqn-id))
-      (debug "~&To find ~a,~%  will try writing ~a~%" ?sought ?eqn-id)
       (derived-eqn ?eqn-algebra ?eqn-id)
-      (debug "~&To find ~a via ~a, ~%   wrote ~a~%"
+      (debug "~&To find ~S~%    via ~S, ~%     wrote ~a~%" 
 	     ?sought ?eqn-id ?eqn-algebra)
    )
    :effects
@@ -4384,7 +4388,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (vector ?b (force ?b ?agent applied :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fa_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a applied force on ~a due to ~a at ~a.~%" ?dir-expr ?b ?agent ?t)
+    (debug "~&Drawing ~a applied force on ~a due to ~a at ~a.~%" 
+	   ?dir-expr ?b ?agent ?t)
     )
   :effects
    ((vector ?b (force ?b ?agent applied :time ?t) ?dir-expr)
@@ -9424,8 +9429,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions (
      (in-wm (point-on-body ?pt ?b))
      ;;(force ?pt ?agent ?type ?t (dnum ?dir-f |deg|) action) 
-     ;; draw the force on the point of applicatin
-     (vector ?b (force ?pt ?agent ?type :time ?t) (dnum ?dir-f |deg|))
+     ;; draw the force on the point of application
+     ;; sometimes the axis owner is ?b and sometimes ?pt
+     (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) (dnum ?dir-f |deg|))
      ;; fetch the relative position vector and calculate torque direction
      (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) 
                    (dnum ?dir-r |deg|)))
