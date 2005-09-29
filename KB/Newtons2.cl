@@ -73,37 +73,33 @@
 
 (defoperator find-by-psm (?sought ?eqn-id)
   :preconditions (
-  	; save initially known quants for detecting changes below
-	; This is initial givens plus quantities given as parameters
+  	;; save initially known quants for detecting changes below
+	;; This is initial givens plus quantities given as parameters
 	(setof (in-wm (given ?quant ?dont-care))
 	       ?quant ?initial-givens)
 	(setof (in-wm (parameter ?quant ?dont-care))
 	        ?quant ?parameters)
 	(bind ?initial-knowns (union ?initial-givens ?parameters 
-	                             :test #'equalp))
+	                             :test #'unify))
 	
-	; Main step: apply a psm to generate an equation for sought.
+	;; Main step: apply a psm to generate an equation for sought.
 	(psm-applied ?sought ?eqn-id ?eqn-algebra)
 
-	; collect list of quantities in the equation. 
+	;; collect list of quantities in the equation. 
 	(map ?v (vars-in-eqn ?eqn-algebra)
 	       (in-wm (variable ?v ?q))
                ?q ?quantities-in-eqn)
 	;; make sure sought quantity actually occurs in equation
-	(test (member ?sought ?quantities-in-eqn 
-	;; keyword pairs need "unify" for match
-		      :test (lambda (x y) (or (equalp x y) (unify x y)))))
+	(test (member ?sought ?quantities-in-eqn :test #'unify))
 
 	;; Some quantities in eqn may have become "given" -- known -- as side 
 	;; effects of applying the psm. Here we call them the new-knowns.
 	;; We get what's known now and figure out what's changed.
     	(setof (in-wm (given ?quant ?dont-care))
-	       ?quant ?given-now)
-	(bind ?known-now (union ?given-now ?parameters :test #'equalp))
-
+	        ?quant ?given-now)
+	(bind ?known-now (union ?given-now ?parameters :test #'unify))
 	(bind ?new-knowns
-	      (set-difference ?known-now ?initial-knowns :test #'equalp))
-	
+	      (set-difference ?known-now ?initial-knowns :test #'unify))
 	;; (debug "Made known inside psm: ~A~%" ?new-knowns)
 	;; Although the bubble driver won't have to seek them, for algebraic 
 	;; completeness we must put out equations giving values for 
@@ -132,9 +128,7 @@
 	(setof (in-wm (implicit-eqn (= ?var (dnum . ?valunits)) ?imp-eq-quant))
 	      ?imp-eq-quant ?imp-eq-quants)
 	(bind ?new-unknowns 
-	      (set-difference ?quantities-in-eqn ?imp-eq-quants 
-			      :test #'equalp))
-
+	      (set-difference ?quantities-in-eqn ?imp-eq-quants :test #'unify))
 	)
   :effects
    	((psm ?sought ?eqn-id ?eqn-algebra ?new-unknowns)))
@@ -1450,7 +1444,7 @@
 (defoperator equality-contains (?quant)
   :preconditions 
    ((equals ?quant1 ?quant2)
-   (test (not (equalp ?quant1 ?quant2))) ; i.e. different defs.
+   (test (not (equal ?quant1 ?quant2))) ; i.e. different defs.
    (any-member ?quant (?quant1 
                        ?quant2))
    ; sort quants in id so A=B and B=A get same id.
@@ -1566,7 +1560,7 @@
    (constant ?quant ?t-constant)
    (time ?t-constant)	  ; sanity test
    (time ?t1)
-   (test (and (not (equalp ?t1 ?t-constant))
+   (test (and (not (equal ?t1 ?t-constant))
 	      (tinsidep ?t1 ?t-constant)))
    (bind ?quant1 (set-time ?quant ?t1))
    (bind ?quant2 (set-time ?quant ?t-constant))
@@ -1589,7 +1583,7 @@
   :preconditions (
     (in-wm (constant ?quant ?t-constant inclusive))
     (time ?t1)
-    (test (and (not (equalp ?t1 ?t-constant))
+    (test (and (not (equal ?t1 ?t-constant))
                (tinsidep-include-endpoints ?t1 ?t-constant)))
    (bind ?quant1 (set-time ?quant ?t1))
    (bind ?quant2 (set-time ?quant ?t-constant))
@@ -3111,7 +3105,7 @@
     ;; on *cp* as always holding the current problem. This is not guaranteed
     ;; if problem solver is not invoked through sgg interface functions.
     ;; But there should be some way to access this info from the environment.
-    (test (member ?vector-xc (problem-soughts *cp*) :test #'equal))
+    (test (member ?vector-xc (problem-soughts *cp*) :test #'unify))
     ; make sure no motion spec that might enable vector to be drawn
     ; tighter test than actually correct, but should work for our problems.
     (not (motion ?b . ?dontcare))
@@ -4575,7 +4569,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; could be confusing if between two bodies.
 (defoperator define-coef-friction (?b ?surface ?type)
   :preconditions (
-   (bind ?mu-var (format-sym "mu~A_~A_~A" (if (equalp ?type 'static) "s" "k") 
+   (bind ?mu-var (format-sym "mu~A_~A_~A" (if (equal ?type 'static) "s" "k") 
                                   ?b ?surface ))
   )
   :effects (
@@ -5362,7 +5356,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ; compound must exist
    (object (compound . ?bodies))
    ; applies if sought is mass of compound or one of its parts
-   (test (or (member ?b-sought ?bodies)
+   (test (or (member ?b-sought ?bodies :test #'equal)
              (equal ?b-sought `(compound ,@?bodies))))
   )
   :effects (
@@ -5464,12 +5458,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
     (in-wm (object (compound . ?bodies)))
     (bind ?c `(compound ,@?bodies)) ; just shorthand
-    ; pick any body in compound
+    ;; pick any body in compound
     (any-member ?b ?bodies)
-    ; find an external force on the body = one with agent not in compound.
+    ;; find an external force on the body = one with agent not in compound.
     (force-on-body ?b ?agent ?type ?t ?dir)
-    (test (not (member ?agent ?bodies :test #'equal)))
-    ; make sure this force hasn't been drawn already
+    (test (not (member ?agent ?bodies)))
+    ;; make sure this force hasn't been drawn already
     (not (vector ?c (force ?c ?agent ?type :time ?t) ?dir))
     (bind ?mag-var (format-sym "F~A_~A_~A_~A" (ftype-prefix ?type) (body-name ?c) 
                                 (body-name ?agent) (time-abbrev ?t)))
@@ -5501,9 +5495,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions (
     (any-member ?sought ( (mag (force ?b ?agent ?type :time ?t)) ))
     (object (compound . ?bodies))
-    (test (or (member ?b ?bodies)
+    (test (or (member ?b ?bodies :test #'equal)
 	      (equal ?b `(compound ,@?bodies))))
-    (test (not (member ?agent ?bodies :test #'equal)))
+    (test (not (member ?agent ?bodies)))
    )
    :effects (
     (eqn-contains (force-compound ?type ?agent ?bodies ?t) ?sought)
@@ -8194,7 +8188,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			  (mag (velocity ?b :time ?t2))
 			  (mass ?b)
                 	  ))
-   (test (member ?b ?coll-bodies :test #'equalp))
+   (test (member ?b ?coll-bodies :test #'equal))
    ;; in case problem author didn't canonicalize list of bodies
    (bind ?bodies (sort (copy-list ?coll-bodies) #'expr<)) ;sort is destructive
   )
