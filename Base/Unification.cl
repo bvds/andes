@@ -280,7 +280,6 @@
 			 (unify (first x) (first y) bindings)))
         (t fail)))
 
-
 (defun unify-variable (var x bindings)
   "Unify var with x, using (and maybe extending) bindings."
   (cond ((get-binding var bindings)
@@ -299,6 +298,7 @@
         ((consp x) (or (occurs-check var (first x) bindings)
                        (occurs-check var (rest x) bindings)))
         (t nil)))
+
 
 ;;;
 ;;;                    Match to keywords pairs
@@ -321,19 +321,19 @@
 (defun unify-keyword (x y bindings)
   "Find match in y for first keyword pair in x"
   ;; keyword pair is removed from x:
-  (let* ((i (position (pop x) y)) (var (pop x))
+  (let* ((ykey (member (pop x) y)) (var (pop x))
 	 ;; remove any default value from x
 	 (default (get-any-default-value x)))
     (cond
      ;; if value in x is nil, just remove keyword pair
      ((null var) (unify x y bindings))
      ;; if keyword pair is in y, match values:
-     ((and i (> (length y) (+ i 1)))	;Is there a keyword and value in y?
-      (let ((post (subseq y (+ i 2))))
-	(get-any-default-value post)	;remove any default value from y
-	(unify x (append (subseq y 0 i) post) ;y with keyword pair removed
+     ((> (length ykey) 1)	;Is there a keyword and value in y?
+      (let ((post (cddr ykey)))
+	(get-any-default-value post)	;discard any default value from y
+	(unify x (append (ldiff y ykey) post) ;keyword pair removed
 	       ;; if y value is nil, bind to default instead
-	       (unify var (or (elt y (+ i 1)) default) bindings))))
+	       (unify var (or (second ykey) default) bindings))))
      ;; no match:  bind var to default
      (t (unify x y (unify var default bindings))))))
 
