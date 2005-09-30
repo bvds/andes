@@ -37,13 +37,13 @@
    (loop for State in (qsolve-for (list `(psm ,Goal ?eqn-id ?eqn-algebra ?unknowns)) Givens)
        collect (let ((PSM (find 'psm (St-WM State)
 				:key #'car
-				:test #'equalp)))
-		 (setq **wm** (union (st-wm state) **wm** :test #'equalp))
+				:test #'equal)))
+		 (setq **wm** (union (st-wm state) **wm** :test #'equal))
 		 (make-qsolres
 		  :ID (nth 2 PSM)
 		  :algebra (nth 3 PSM)
 		  :nodes (mapcar #'cdr
-				  (remove-if-not #'(lambda (wme) (and (equalp (car wme) 'variable)
+				  (remove-if-not #'(lambda (wme) (and (eql (car wme) 'variable)
 								      (member (caddr wme) (nth 4 PSM))))
 						 (St-WM State)))
 		  :path (collect-path State)
@@ -59,13 +59,13 @@
 	    (loop for State in (qsolve-for (list `(psm ,Goal (STD-Constant ?V) ?eqn-algebra ?unknowns)) Givens)
 		collect (let ((PSM (find 'psm (St-WM State)
 					 :key #'car
-					 :test #'equalp)))
-			  (setq **wm** (union (st-wm state) **wm** :test #'equalp))
+					 :test #'equal)))
+			  (setq **wm** (union (st-wm state) **wm** :test #'unify))
 			  (make-qsolres
 			   :id (nth 2 PSM)
 			   :algebra (nth 3 PSM)
 			   :nodes (mapcar #'cdr
-					  (remove-if-not #'(lambda (wme) (and (equalp (car wme) 'variable)
+					  (remove-if-not #'(lambda (wme) (and (eql (car wme) 'variable)
 									      (member (caddr wme) (nth 4 PSM))))
 							 (St-WM State)))
 			   :path (collect-path State)
@@ -86,12 +86,12 @@
 			      
 	       collect (let ((Eqn (find 'Given-eqn (st-wm State)                    ;;For each returned state.
 					:key #'car
-					:test #'equalp)))
-			 (setq **wm** (union (st-wm state) **wm** :test #'equalp))
+					:test #'unify)))
+			 (setq **wm** (union (st-wm state) **wm** :test #'unify))
 			 (make-qsolres
 			  :id (nth 1 Eqn)                                             ;;collect the eqn algebra
-			  :nodes (find-if #'(lambda (V) (and (equalp (car V) 'Variable)  ;;Get the quantity variable.
-							      (equalp (caddr V) Goal)))
+			  :nodes (find-if #'(lambda (V) (and (eql (car V) 'Variable)  ;;Get the quantity variable.
+							      (equal (caddr V) Goal)))
 					   (st-wm State))
 			  :path (collect-path State)                                    ;;collect the paths.
 			  :subeqns (collect-subeqns State)                                  ;;Collect the subequations.
@@ -112,7 +112,7 @@
   (merge-duplicate-param-vars 
    (loop for State in (qsolve-for (list `(variable ?var ,Param)) Givens)
        collect (let ((Var (find-if #'(lambda (W) (unify W `(Variable ?Var ,Param))) (st-wm State))))
-		 (setq **wm** (union (st-wm state) **wm** :test #'equalp))
+		 (setq **wm** (union (st-wm state) **wm** :test #'unify))
 		 (make-qsolres
 		  :id (cadr Var)
 		  :path (collect-path State)
@@ -126,7 +126,7 @@
   (let ((R) (P) (N))
     (loop for S in (qsolve-for goals givens)
 	do (setq N (subst-bindings (st-bindings S) goals))
-	   (setq P (find N R :key #'qsolres-id :test #'equalp))
+	   (setq P (find N R :key #'qsolres-id :test #'unify))
 	when (or (null R) (null P)) 
 	do (push (make-qsolres
 		  :ID (subst-bindings (st-bindings S) Goals)
@@ -184,10 +184,10 @@
 (defun collect-subvars (State BubbleVars)
   "Collect every variable statement in a state's WM, that is not in the Bubble."
    (loop for V in (St-wm State)
-       when (and (equalp (car V) 'Variable)
+       when (and (eql (car V) 'Variable)
 		 (not (member (caddr V) 
 			      BubbleVars
-			     :test #'equalp)))
+			     :test #'equal)))
        collect V))
 
 
@@ -198,14 +198,14 @@
 		     (eq (car E) 'Given-Eqn)
 		     (eq (car E) 'Derived-Eqn)
 		     (eq (car E) 'Implicit-eqn)))
-		 ;;(not (equalp (nth 2 E) MainEqn)))
+		 ;;(not (unify (nth 2 E) MainEqn)))
        collect E))
 
 
 (defun collect-assumptions (State)
   "collect the set of (assume <assumption>) statements found in State."
   (loop for A in (St-wm State)
-      when (equalp (car A) 'Assume)
+      when (eql (car A) 'Assume)
       collect (cdr A)))
 
 
@@ -227,7 +227,7 @@
 (defun merge-psm (P Set)
   "Merge the specified PSM into the set of possible"
   (loop for P2 in Set			;If it matches another PSM
-      when (and (equalp (qsolres-algebra P) (qsolres-algebra P2))                  ;;In equations
+      when (and (equal (qsolres-algebra P) (qsolres-algebra P2))                  ;;In equations
 		(sets-equalp (qsolres-nodes P) (qsolres-nodes P2))) ;And quantities 
       do (when (or (sets-not-equalp (qsolres-subeqns P) (qsolres-subeqns P2)) 
                    (sets-not-equalp (qsolres-subvars P) (qsolres-subvars P2)) 
@@ -247,29 +247,29 @@
 	   
 	     (when (setq diff (set-difference (qsolres-subeqns P) 
 					      (qsolres-subeqns P2)
-					      :test #'equalp))
+					      :test #'unify))
 	       (format t "  equations only in first:  ~s~%" diff))
 	     (when (setq diff (set-difference (qsolres-subeqns P2) 
 					      (qsolres-subeqns P)
-					      :test #'equalp))
+					      :test #'unify))
 	       (format t "  equations only in second:  ~s~%" diff))
 	     
 	     (when (setq diff (set-difference (qsolres-subvars P) 
 					      (qsolres-subvars P2)
-					      :test #'equalp))
+					      :test #'unify))
 	       (format t "  variables only in first:  ~S~%" diff))
 	     (when (setq diff (set-difference (qsolres-subvars P2) 
 					      (qsolres-subvars P)
-					      :test #'equalp))
+					      :test #'unify))
 	       (format t "  variables only in second:  ~S~%" diff))
 	     
 	     (when (setq diff (set-difference (qsolres-assumpts P) 
 					      (qsolres-assumpts P2)
-					      :test #'equalp))
+					      :test #'unify))
 	       (format t "  assumptions only in first:  ~S~%" diff))
 	     (when (setq diff (set-difference (qsolres-assumpts P2) 
 					      (qsolres-assumpts P)
-					      :test #'equalp))
+					      :test #'unify))
 	       (format t "  assumptions only in second:  ~S~%" diff))))
 	     
 	 (setf (qsolres-path P2) 
@@ -280,9 +280,9 @@
 	   (union (qsolres-subvars P) (qsolres-subvars P2))) ;SubVars
 	 (setf (qsolres-assumpts P2) 
 	   (union (qsolres-assumpts P) (qsolres-assumpts P2) 
-		  :test #'equalp))	;Assumptions.
+		  :test #'unify))	;Assumptions.
 	 (setf (qsolres-wm P2)
-	   (union (qsolres-wm P) (qsolres-wm p2) :test #'equalp))
+	   (union (qsolres-wm P) (qsolres-wm p2) :test #'unify))
       and return Set))			;return the result.
 
 
@@ -296,32 +296,32 @@
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subeqns only in first: ~S~%    subeqns only in second: ~S~%" 
 		  (set-difference (qsolres-subeqns R) (qsolres-subeqns G) 
-				  :test #'equalp)
+				  :test #'unify)
 		  (set-difference (qsolres-subeqns G) (qsolres-subeqns R) 
-				  :test #'equalp) ))
+				  :test #'unify) ))
 
       (if (sets-not-equalp (qsolres-subvars R) (qsolres-subvars G))
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subvars only in first: ~S~%    subvars only in second: ~S~%" 
 		  (set-difference (qsolres-subvars R) (qsolres-subvars G) 
-				  :test #'equalp)
+				  :test #'eql)
 		  (set-difference (qsolres-subvars G) (qsolres-subvars R) 
-				  :test #'equalp) ))
+				  :test #'eql) ))
       
       (if (sets-not-equalp (qsolres-assumpts R) (qsolres-assumpts G))
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    assumpts only in first: ~S~%    assumpts only in second: ~S~%" 
 		  (set-difference (qsolres-assumpts R) (qsolres-assumpts G) 
-				  :test #'equalp)
+				  :test #'unify)
 		  (set-difference (qsolres-assumpts G) (qsolres-assumpts R) 
-				  :test #'equalp) ))
+				  :test #'unify) ))
       ;; do merge
       (setf (qsolres-path R) 
 	(merge-paths (qsolres-path R) 
 		     (qsolres-path G)))	;Merge it into R
       (setf (qsolres-wm R)
 	(union (qsolres-wm R) (qsolres-wm G)
-	       :test #'equalp)) )
+	       :test #'unify)) )
     R))					;Return R.
 
 (defun merge-duplicate-param-vars (Params)
@@ -333,7 +333,7 @@
 		     (qsolres-path P)))
       (setf (qsolres-wm R)
 	(union (Qsolres-wm R) (qsolres-wm P)
-	       :test #'equalp)))
+	       :test #'unify)))
     R))
 	      
       
@@ -346,12 +346,12 @@
 
 (defun merge-paths (P1 P2)
   "merge P2 path into P1."
-  (let ((Loc (mismatch P1 P2 :test #'equalp)))
+  (let ((Loc (mismatch P1 P2 :test #'unify)))
     
     (append (subseq P1 0 Loc)
 	    
 	    (if (or (not (listp (nth Loc P1)))
-		    (not (equalp (car (nth Loc P1)) 'CHOOSE)))
+		    (not (eql (car (nth Loc P1)) 'CHOOSE)))
 		
 		(list (list 'CHOOSE
 			    (subseq P1 Loc)
@@ -363,7 +363,7 @@
   "Insert subsequence S into choose C."
   (let ((R)) 
     (loop for I below (length (cdr C))
-	when (equalp (car S) (car (nth I (cdr C))))
+	when (unify (car S) (car (nth I (cdr C))))
 	do (setq R C)
 	   (setf (nth I (cdr R)) (merge-paths (nth I (cdr C)) S))
 	and return t)
@@ -508,13 +508,13 @@
   "Adds the given item to the given state's working memory"
   (if (not (groundp item))
       (cerror "Ignore" "Adding non-ground proposition ~S to wm" item))
-  (pushnew item (st-wm state) :test #'equalp))
+  (pushnew item (st-wm state) :test #'unify))
 
 (defun push-history (item state)
   "Adds the given item to the given states' history list"
   (if (not (groundp item))
       (cerror "Ignore" "Adding non-ground ~S to history" item))
-  (pushnew item (st-history state) :test #'equalp))
+  (pushnew item (st-history state) :test #'unify))
 
 (defun push-binding (variable value state)
   "Adds the given variable-value pair to the state's bindings"
@@ -757,7 +757,7 @@
   (let ((Ground-id (ground-expression (opinst-identifier inst) 
 				      (st-bindings state))))
     (and ground-id 
-	 (member ground-id (st-history state) :test #'equalp))))
+	 (member ground-id (st-history state) :test #'unify))))
 
 ;;; This is called to generate successor states when the top of the
 ;;; stack is an operator instance whose subgoals have all been

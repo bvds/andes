@@ -95,7 +95,7 @@
          (New-Value  (eval (subst-bindings-quoted (St-Bindings State) 
 	                                          (third E)))))
     (cond (Existing-Binding  ; already bound 
-	     (if (equalp (binding-val Existing-Binding) New-Value) 
+	     (if (unify (binding-val Existing-Binding) New-Value) 
 	        (list State) ; values match, succeed
 	       NIL))         ; values incompatible, fail
 	  (t
@@ -172,7 +172,6 @@
   "Returns NIL if the <prop> of executable (not <prop> &optional <test>) 
    matches a wme and <test> if present returns t, a set consisting of 
    the given state otherwise."
-  
   (if (= (length (cdr Ex)) 2)
       (execute-test-not Ex St)
     (execute-unary-not Ex St)))
@@ -189,7 +188,7 @@
 
 
 (defun execute-unary-not (Ex St)
-  "Execute the (not <prop> <test>) form."
+  "Execute the (not <prop>) form."
   (if (loop for wme in (st-wm St) never 
 	    (unify (second ex) wme (st-bindings st)))
       (list St)))
@@ -207,11 +206,11 @@
   "If *debug* is non-null, prints the given format stuff."  
   (let ((call (cdr Exp)))
     (cond ((not *debug*))
-	  ((Stringp (car call))                                           ;;If this is a typical debug call
+	  ((Stringp (car call))		;If this is a typical debug call
 	   (eval (concatenate 'list 
 		   '(format t) 
 		   (subst-bindings-quoted (st-Bindings St) call))))
-	  ((equalp (car call) 'State)                                      ;;If the user wants the state printed.
+	  ((eql (car call) 'State)	;If the user wants the state printed.
 	   (eval (concatenate 'list 
 		   '(format t) 
 		   (subst-bindings-quoted (st-Bindings St) (cdr call))))
@@ -235,7 +234,7 @@
 	   (eval (concatenate 'list 
 		   '(format t) 
 		   (subst-bindings-quoted (st-Bindings St) call))))
-	  ((equalp (car call) 'State)                                      ;;If the user wants the state printed.
+	  ((eql (car call) 'State)                                      ;;If the user wants the state printed.
 	   (eval (concatenate 'list 
 		   '(format t) 
 		   (subst-bindings-quoted (st-Bindings St) (cdr call))))
@@ -285,11 +284,11 @@
     (setf (st-stack Initial-state) (list Goal))
     (dolist (SubState (solution-sts initial-state))
       (setf (st-wm State)
-	(union (st-wm SubState) (st-wm State) :test #'equalp))
+	(union (st-wm SubState) (st-wm State) :test #'unify))
       (setf (st-history State)
-	(union (st-history SubState) (st-history State) :test #'equalp))
+	(union (st-history SubState) (st-history State) :test #'unify))
       (pushnew (subst-bindings (st-bindings SubState) Term)
-	       Result :test #'equalp))
+	       Result :test #'unify))
     (push-binding SetVar Result State)
     (setof-actions state initial-state)
     (list State)))
@@ -313,7 +312,7 @@
       (cons *next*
 	    (append (actions-along-path SubState)
 		    (st-actions state)))))
-  (if (equal 1 (- (length (st-actions state))
+  (if (= 1 (- (length (st-actions state))
 		  (length (solution-sts initial-state))))
       (setf (st-actions state) NIL)
     (push *split* (st-actions state))))
