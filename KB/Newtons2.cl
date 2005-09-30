@@ -1322,9 +1322,7 @@
   :preconditions
   ((vector ?b ?vector ?dir)
    (axis-for ?b ?xyz ?rot)
-   ;;(test (trace execute-unary-not)) 
    (not (variable ?dont-care (compo ?xyz ?rot ?vector)))
-   ;;(test (untrace))
    ;; fetch vector's mag var for building compo var name only. 
    (in-wm (variable ?v-var (mag ?vector)))  
    (bind ?var (format-sym "~Ac_~A_~A" ?xyz ?v-var ?rot))
@@ -8160,8 +8158,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; Zero velocities are drawn as an optional step in draw-momentum-at-rest.
    ;; Since that is optional, this will only find them when in the path 
    ;; through the containing psm that actually draws them.
-      (setof (in-wm (vector ?b (velocity ?body :time ?t) zero))
-              (compo ?xyz ?rot (velocity ?body :time ?t))
+      (setof (in-wm (vector ?b (velocity . ?rest) zero))
+              (compo ?xyz ?rot (velocity . ?rest))
 	      ?zero-vcomps)
       ;; for each one, declare its component variable. This is needed because 
       ;; the  projection writing operators fetch the variables from wm.
@@ -9638,14 +9636,20 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ((body ?b)
     ;; draw all individual torques and couples we can find
     ;; Look in *.prb file to see if this turns out OK
-    (setof (vector ?b (torque ?b ?force :axis ?axis ?axis :time ?t ?t) ?dir)
-	   (torque ?b ?force :axis ?axis ?axis :time ?t ?t) 
+    (setof (vector ?b (torque ?b ?force :axis ?axis :time ?t) ?dir)
+	   (torque ?b ?force :axis ?axis :time ?t) 
 	   ?torques)
+    ;; Because of the way setof works (it substitutes bindings gotten
+    ;; from unifying the Goal into the Term) this must be separate:
+    (setof (vector ?b (torque ?b ?force :time ?t) ?dir)
+	   (torque ?b ?force :time ?t) 
+	   ?couples)
+    (bind ?all-torques (union ?torques ?couples :test #'unify))
     (debug "Draw-torques for ?b=~A ?axis=~A ?t=~A:~%~{     ~S~%~}" 
-	   ?b ?axis ?t ?torques)
+	   ?b ?axis ?t ?all-torques)
     )
    :effects
-    ((torques ?b ?axis ?t ?torques)))
+    ((torques ?b ?axis ?t ?all-torques)))
 
 (defoperator draw-net-torque-diagram (?b ?axis ?t)
   :preconditions (
