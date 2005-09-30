@@ -8319,6 +8319,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (bind ?vec-sought (if (eql (first ?sought) 'duration) ?sought
                          `(mag ,?vector))) 
       (angular-eqn-contains ?eqn-id ?vec-sought)
+      ;; make sure psm name not on problem's ignore list:
+      (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
       (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
       (vector-diagram ?eqn-id)
       (debug "Diagram drawn for ~A, writing z-compo eqn~%" ?eqn-id)
