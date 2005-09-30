@@ -4073,7 +4073,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((object ?b)
    (time ?t)
    (not (variable ?dont-care (mass ?b :time ?t)))
-   (bind ?var (format-sym "m_~A_~A" (body-name ?b) (time-abbrev ?t))))
+   (bind ?var (format-sym "m_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))))
   :effects
   ((variable ?var (mass ?b :time ?t))
    (define-var (mass ?b :time ?t)))

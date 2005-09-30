@@ -29,8 +29,10 @@
 
 (defun tintersect2 (t1 t2)
    "Given two times, returns their intersection or NIL"
-   (cond ((null t1) nil)
-         ((null t2) nil)
+   (cond ((and (null t1) (null t2)) 
+	   (error "tintersect2 can't return for both times nil."))
+	 ((null t1) t2)
+         ((null t2) t1)
          ((equal t1 t2) t1)
          ((and (time-pointp t1)
                (time-intervalp t2)
@@ -579,9 +581,10 @@
 ;;;
 
 (defun time-abbrev (x)
-   "returns string of form \"1\" for points or \"12\" for intervals to abbreviate time in variable names" 
-   (if (time-intervalp x) (format NIL "~A~A" (second x) (third x))
-     (format NIL "~A" x)))
+  "returns string of form \"1\" for points or \"12\" for intervals to abbreviate time in variable names" 
+  (cond ((null x) nil)
+	((time-intervalp x) (format NIL "~A~A" (second x) (third x)))
+	(t (format NIL "~A" x))))
 
 (defun body-name (term)
   "given body term, returns string to put in body name slot in variable names" 
