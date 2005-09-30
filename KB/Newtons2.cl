@@ -90,6 +90,7 @@
 	       (in-wm (variable ?v ?q))
                ?q ?quantities-in-eqn)
 	;; make sure sought quantity actually occurs in equation
+	;; Use "unify" to correctly handle keywords.
 	(test (member ?sought ?quantities-in-eqn :test #'unify))
 
 	;; Some quantities in eqn may have become "given" -- known -- as side 
@@ -1320,12 +1321,15 @@
    then define a component variable for the vector along the axis"
   :preconditions
   ((vector ?b ?vector ?dir)
-   (axis-for ?b ?xyz ?rot) 
+   (axis-for ?b ?xyz ?rot)
+   ;;(test (trace execute-unary-not)) 
    (not (variable ?dont-care (compo ?xyz ?rot ?vector)))
-   ; fetch vector's mag var for building compo var name only. 
+   ;;(test (untrace))
+   ;; fetch vector's mag var for building compo var name only. 
    (in-wm (variable ?v-var (mag ?vector)))  
    (bind ?var (format-sym "~Ac_~A_~A" ?xyz ?v-var ?rot))
-   ;;(debug "Defining var for (compo ~a ~a ~a :time ~a).~%" ?xyz ?rot ?vector ?t)
+   (debug "define-compo:  defining var for (compo ~a ~a ~a).~%" 
+	  ?xyz ?rot ?vector)
    )
   :effects
   ((variable ?var (compo ?xyz ?rot ?vector))))
@@ -5619,7 +5623,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions (
 		  (point-on-body ?pt ?b)
 		  ;; in some cases the axis owner is ?pt and others ?b
-		  (vector ?whatever (force ?pt ?agent ?type :time ?t) ?dir)
+		  (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) ?dir)
 		  )
   :effects ((force-on-point ?b (force ?pt ?agent ?type :time ?t))))
 
@@ -9405,6 +9409,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		     (compo z 0 (net-torque ?b ?axis :time ?t))
 		     (mag (torque ?b ?force :axis ?axis ?axis :time ?t))
 		     (dir (torque ?b ?force :axis ?axis ?axis :time ?t))
+		     (compo z 0 (torque ?b ?force :axis ?axis ?axis :time ?t))
                         ))
     ;; should be able to do any point-on-body, 
     ;; but choose rotation axis when specified
@@ -9636,7 +9641,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (setof (vector ?b (torque ?b ?force :axis ?axis ?axis :time ?t ?t) ?dir)
 	   (torque ?b ?force :axis ?axis ?axis :time ?t ?t) 
 	   ?torques)
-    (debug "Draw-all-torques for ?b=~A ?axis=~A ?t=~A:~%~{     ~S~%~}" 
+    (debug "Draw-torques for ?b=~A ?axis=~A ?t=~A:~%~{     ~S~%~}" 
 	   ?b ?axis ?t ?torques)
     )
    :effects
@@ -9836,6 +9841,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;===========================================================================
 
 
+#| ;not working yet
 (defoperator NFL-rotation-contains (?sought)
   :preconditions 
   (
@@ -9912,6 +9918,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	 (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
 			     ((= ?tau_z (* ?I ?alpha_z)) algebra)))
 	 ))
+|#
 
 ;;;;
 ;;;;            NSL for rotation tau_net = I * alpha
