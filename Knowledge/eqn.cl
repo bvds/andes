@@ -272,17 +272,17 @@
 ;;; Hack that should be located else where in ontology say.
 (defun eqn-sort-comp (e1 e2)
   "Compare e1 and e2 t if e1 < e2."
-  (or (and (equalp (eqn-type e1) (eqn-type e2))
+  (or (and (eql (eqn-type e1) (eqn-type e2))
 	   (or (and (eqn-solved e1) (eqn-solved e2))
 	       (and (eqn-solved e1) (not (eqn-solved e2)))))
       
-      (equalp (eqn-type e2) 'implicit-eqn)
+      (eq (eqn-type e2) 'implicit-eqn)
       
       (and (equalp (eqn-type e2) 'derived-eqn)
-	   (not (equalp (eqn-type e1) 'implicit-eqn)))
+	   (not (eq (eqn-type e1) 'implicit-eqn)))
       
-      (and (equalp (eqn-type e2) 'eqn)
-	   (equalp (eqn-type e1) 'given-eqn))))
+      (and (eq (eqn-type e2) 'eqn)
+	   (eq (eqn-type e1) 'given-eqn))))
 
   
 ;;----------------------------------------------------

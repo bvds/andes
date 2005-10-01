@@ -159,7 +159,7 @@
 ;;; associated psm node will be generated and added to the graph.  The 
 ;;; psm will then be returned along with its modified graph.
 ;;;
-;;; Laslt y if the sought can be solved for by psm chaining then the 
+;;; Lastly if the sought can be solved for by psm chaining then the 
 ;;; code will call the qsolver and recursively attempt to solve for the
 ;;; quantity adding the resulting nodes to the supplied graph.
 (defun gg-solve-for-sought (Sought Givens &key (Graph Nil) (IgnorePSMS nil))
