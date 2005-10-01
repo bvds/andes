@@ -2188,7 +2188,7 @@
     (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
     (motion ?b at-rest :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
-    (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
+    (bind ?mag-var (format-sym "v_~A~@[_~A~]" ?b (time-abbrev ?t))))
   :effects
    ((vector ?b (velocity ?b :time ?t) zero)
     (variable ?mag-var (mag (velocity ?b :time ?t)))
@@ -2210,7 +2210,7 @@
     (motion ?axis ?at-rest :time ?t-axis)
     (test (tinsidep ?t ?t-axis))
     (test (or (equal ?at-rest 'at-rest) (equal ?at-rest 'momentarily-at-rest)))
-    (bind ?mag-var (format-sym "v_~A_~A" ?axis (time-abbrev ?t))))
+    (bind ?mag-var (format-sym "v_~A~@[_~A~]" ?axis (time-abbrev ?t))))
   :effects
    ((vector ?b (velocity ?axis :time ?t) zero)
     (variable ?mag-var (mag (velocity ?axis :time ?t)))
@@ -2240,7 +2240,7 @@
     (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
     (motion ?b momentarily-at-rest :time ?t-motion)
     (test (and ?t-motion (tinsidep ?t ?t-motion)))
-    (bind ?mag-var (format-sym "v_~A_~A" ?b (time-abbrev ?t))))
+    (bind ?mag-var (format-sym "v_~A~@[_~A~]" ?b (time-abbrev ?t))))
   :effects
    ((vector ?body (velocity ?b :time ?t) zero)
     (variable ?mag-var (mag (velocity ?b :time ?t)))
@@ -2269,7 +2269,7 @@
    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
    (test (tinsidep ?t ?t-motion))
    (not (vector ?body (velocity ?b :time ?t) ?dir))
-   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
   ((vector ?body (velocity ?b :time ?t) ?dir)
@@ -2294,7 +2294,7 @@
    (motion ?b (straight ?dontcare unknown) :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
    (not (vector ?body (velocity ?b :time ?t) ?dir))
-   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
   ((vector ?body (velocity ?b :time ?t) unknown)
@@ -2327,7 +2327,7 @@
     (test (not (equal ?dir 'unknown)))  ;until conditional effects are implemented
     (test (time-pointp ?t))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (velocity ?b :time ?t) ?dir)
@@ -2353,7 +2353,7 @@
     (motion ?b (curved ?curve-type (unknown ?dontcare)) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (velocity ?b :time ?t) unknown)
@@ -2439,7 +2439,7 @@
    ;; This doesn't handle ?dir=unknown correctly:
    (not (given (dir (velocity ?b :time ?tt)) ?dir))
    (not (vector ?b (velocity ?b :time ?tt) ?dontcare))
-   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
+   (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) 
                                 (time-abbrev ?tt)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
@@ -2526,7 +2526,7 @@
     (motion ?b at-rest :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (debug "~&Drawing zero accel for at-rest ~a at ~a.~%" ?b ?t)
     )
   :effects
@@ -2554,7 +2554,7 @@
     (motion ?b (straight constant ?dontcare) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (debug "Drawing zero accel vector for constant-speed ~b at ~t.~%" ?b ?t)
     )
   :effects
@@ -2586,7 +2586,7 @@
     (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
@@ -2630,7 +2630,7 @@
     (test (>= (length ?given-forces) 2))
     ;; Should verify not all in same direction
     (not (vector ?b (accel ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
@@ -2658,7 +2658,7 @@
     (component-form)
     ; !!! verify not all in same direction
     (not (vector ?b (accel ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
@@ -2689,7 +2689,7 @@
     (not (motion ?b ?dontcare :time ?t-motion)
          (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (accel ?b :time ?t) ?dir)
@@ -2725,7 +2725,7 @@
 	      (equal (second ?dir-spec) 'unknown)))
     (object ?b) ;sanity test
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (accel ?b :time ?t) unknown)
@@ -2762,7 +2762,7 @@
     (test (not (equal ?motion-dir 'unknown)))  ; until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?accel-dir (mod (+ ?motion-dir 180) 360))
     (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir-val ?b ?t)
@@ -2796,7 +2796,7 @@
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing free-fall accel at 270 for ~a at ~a.~%" ?b ?t)
     )
@@ -2981,7 +2981,7 @@
   :preconditions 
   ((object ?b)
    (time ?t)
-   (bind ?radius-var (format-sym "r_~A_~A" ?b (time-abbrev ?t)))) 
+   (bind ?radius-var (format-sym "r_~A~@[_~A~]" ?b (time-abbrev ?t)))) 
   :effects 
   ((variable ?radius-var (revolution-radius ?b :time ?t))
    (define-var (revolution-radius ?b :time ?t))) 
@@ -3075,7 +3075,7 @@
      ; !!! variable name may not be consistent with those generated elsewhere
      ; problem if this has to match up with name generated anywhere else.
      ; Also, generated name makes no use of ?args. 
-     (bind ?mag-var (format-sym "~A_~A_~A" ?vectype (body-name ?b) (time-abbrev ?t)))
+     (bind ?mag-var (format-sym "~A_~A~@[_~A~]" ?vectype (body-name ?b) (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (bind ?dir `(dnum ,(dir-from-compos ?xc ?yc) |deg|))
    )
@@ -3113,7 +3113,7 @@
     (not (motion ?b . ?dontcare))
     ; make sure vector dir not given, as in simple projection-only problems
     (not (given ?vector-dir (dnum ?dir |deg|)))
-    (bind ?mag-var (format-sym "~A_~A_~A" ?vectype (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "~A_~A~@[_~A~]" ?vectype (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
@@ -3790,7 +3790,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (test (tinsidep-include-endpoints ?t ?t-given))
     ; make sure this vector not already drawn
     (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)
     )
@@ -3888,7 +3888,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (given (dir (relative-position ?b2 ?b1 :time ?t)) (dnum ?dir |deg|)))
     ;; make sure this vector not already drawn
     (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing relative position ~A wrt ~a at ~a at unknown angle.~%" ?b1 ?b2 ?t)
     )
@@ -3908,7 +3908,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((in-wm (at-place ?b ?loc ?t-at-place))
    (test (tinsidep ?t ?t-at-place))
    (not (vector ?b (relative-position ?b ?loc :time ?t) ?dont-care))
-   (bind ?mag-var (format-sym "r_~A_~A_~A" ?b ?loc (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b ?loc (time-abbrev ?t)))
    (debug "~&Drawing zero-length relative position of ~a wrt ~a at ~a.~%" ?b ?loc ?t))
   :effects 
   ((vector ?b (relative-position ?b ?loc :time ?t) zero)
@@ -4097,7 +4097,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((object ?b)
    (time ?t)
-   (bind ?var (format-sym "dmdt_~A_~A_~A" (body-name ?b) (body-name ?agent) 
+   (bind ?var (format-sym "dmdt_~A_~A~@[_~A~]" (body-name ?b) (body-name ?agent) 
 			  (time-abbrev ?t))))
   :effects
   ((variable ?var (mass-change-magnitude ?b ?agent :time ?t))
@@ -4166,7 +4166,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?planet weight ?t ?dir action)
     (not (vector ?b (force ?b ?planet weight :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fw_~A_~A_~A" (body-name ?b) ?planet 
+    (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" (body-name ?b) ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing weight of ~a at ~a.~%" ?b ?t))
@@ -4198,7 +4198,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (massless ?b))
     (near-planet ?planet :body ?b ?b)
     (not (vector ?cm (force ?cm ?planet weight :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fw_~A_~A_~A" ?cm ?planet 
+    (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" ?cm ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing weight of ~a at ~a acting at cm.~%" ?b ?t))
@@ -4258,7 +4258,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((force ?b ?string tension ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (force ?b ?string tension :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Ft_~A_~A_~A" (body-name ?b) (body-name ?string)                                              (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "Ft_~A_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a tension on ~a due to ~a at ~a.~%" 
 	   ?dir-expr ?b ?string ?t)
@@ -4288,7 +4288,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?string tension ?t unknown action)
     (not (vector ?b (force ?b ?string tension :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Ft_~A_~A_~A" (body-name ?b) (body-name ?string)                                               (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "Ft_~A_~A~@[_~A~]" (body-name ?b) (body-name ?string)                                               (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing tension on ~a due to ~a at ~a of unknown direction.~%" ?b ?string ?t)
     )
@@ -4336,7 +4336,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?surface normal ?t (dnum ?normal-dir |deg|) action)
     (not (vector ?b (force ?b ?surface normal :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fn_~A_~A_~A" (body-name ?b) ?surface 
+    (bind ?mag-var (format-sym "Fn_~A_~A~@[_~A~]" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a normal on ~a due to ~a at ~a.~%" ?normal-dir ?b ?surface ?t)
@@ -4382,7 +4382,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( (force ?b ?agent applied ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (force ?b ?agent applied :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fa_~A_~A_~A" (body-name ?b) ?agent (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "Fa_~A_~A~@[_~A~]" 
+			       (body-name ?b) ?agent (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a applied force on ~a due to ~a at ~a.~%" 
 	   ?dir-expr ?b ?agent ?t)
@@ -4441,7 +4442,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?surface kinetic-friction ?t (dnum ?friction-dir |deg|) action)
     (not (vector ?b (force ?b ?surface kinetic-friction :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Ff_~A_~A_~A" (body-name ?b) ?surface 
+    (bind ?mag-var (format-sym "Ff_~A_~A~@[_~A~]" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a kinetic-friction for ~a due to ~a at ~a.~%" ?friction-dir ?b ?surface ?t)
@@ -4513,7 +4514,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?surface static-friction ?t ?friction-dir action)
     (not (vector ?b (force ?b ?surface static-friction :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fsf_~A_~A_~A" (body-name ?b) ?surface 
+    (bind ?mag-var (format-sym "Fsf_~A_~A~@[_~A~]" (body-name ?b) ?surface 
                                               (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a static-friction for ~a due to ~a at ~a.~%" ?friction-dir ?b ?surface ?t)
@@ -4608,7 +4609,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?medium drag ?t (dnum ?drag-dir |deg|) action)
     (not (vector ?b (force ?b ?medium drag :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fd_~A_~A_~A" (body-name ?b) ?medium 
+    (bind ?mag-var (format-sym "Fd_~A_~A~@[_~A~]" (body-name ?b) ?medium 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a drag for ~a due to ~a at ~a.~%" ?drag-dir ?b ?medium ?t)
@@ -4653,7 +4654,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
    ((force ?b ?spring spring ?t (dnum ?force-dir |deg|) action)
     (not (vector ?b (force ?b ?spring spring :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fs_~A_~A_~A" (body-name ?b) ?spring (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "Fs_~A_~A~@[_~A~]" (body-name ?b) ?spring (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a spring force on ~a due to ~a at ~a.~%" ?force-dir ?b ?spring ?t)
     )
@@ -4847,7 +4848,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-grav-force (?b1 ?b2 ?t)
   :preconditions (
     (force ?b1 ?b2 gravitational ?t ?dir ?dontcare)
-    (bind ?mag-var (format-sym "Fg_~A_~A_~A" (body-name ?b1) (body-name ?b2)
+    (bind ?mag-var (format-sym "Fg_~A_~A~@[_~A~]" (body-name ?b1) (body-name ?b2)
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
@@ -4891,7 +4892,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( (force ?b ?agent thrust ?t ?dir action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (force ?b ?agent thrust :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) ?agent
+    (bind ?mag-var (format-sym "Fth_~A_~A~@[_~A~]" (body-name ?b) ?agent
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a thrust force on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
@@ -4972,7 +4973,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (not (equal ?dir 'unknown)))
    (not (vector ?b (force ?b ?agent thrust :time ?t) ?dont-care)) ;not already drawn
    (bind ?opposite-dir (opposite ?dir))
-   (bind ?mag-var (format-sym "Fth_~A_~A_~A" (body-name ?b) (body-name ?agent)
+   (bind ?mag-var (format-sym "Fth_~A_~A~@[_~A~]" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
     )
@@ -5125,7 +5126,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions(
     (force ?b2 ?b1 ?type ?t ?dir reaction)
     (not (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?junk))
-    (bind ?mag-var (format-sym "F~A_~A_~A_~A" (ftype-prefix ?type) 
+    (bind ?mag-var (format-sym "F~A_~A_~A~@[_~A~]" (ftype-prefix ?type) 
                                (body-name ?b2) (body-name ?b1) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
@@ -5467,7 +5468,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (test (not (member ?agent ?bodies)))
     ;; make sure this force hasn't been drawn already
     (not (vector ?c (force ?c ?agent ?type :time ?t) ?dir))
-    (bind ?mag-var (format-sym "F~A_~A_~A_~A" (ftype-prefix ?type) (body-name ?c) 
+    (bind ?mag-var (format-sym "F~A_~A_~A~@[_~A~]" (ftype-prefix ?type) (body-name ?c) 
                                 (body-name ?agent) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "drawing ~A net ~A force on ~A due to ~A~%" ?dir ?type ?c ?agent)
@@ -5562,7 +5563,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (in-wm (vector ?b (accel ?b :time ?t-accel) ?dir-accel))
      (not (equal ?dir-accel 'unknown))
      (test (tinsidep ?t ?t-accel))
-     (bind ?mag-var (format-sym "Fnet_~A_~A" ?b (time-abbrev ?t)))
+     (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" ?b (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
     )
@@ -5643,7 +5644,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
  
 (defoperator define-num-forces (?b ?t)
    :preconditions 
-   ((bind ?n-var (format-sym "nforces_~A_~A" (body-name ?b) (time-abbrev ?t))))
+   ((bind ?n-var (format-sym "nforces_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))))
    :effects ( 
        (define-var (num-forces ?b :time ?t)) 
        (variable ?n-var (num-forces ?b :time ?t)) 
@@ -6876,7 +6877,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-total-energy (?b ?t)
   :preconditions (
 		  (object ?b)
-		  (bind ?TE-var (format-sym "TE_~A_~A" ?b (time-abbrev ?t)))
+		  (bind ?TE-var (format-sym "TE_~A~@[_~A~]" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (total-energy ?b :time ?t))
@@ -6889,7 +6890,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-kinetic-energy (?b ?t)
   :preconditions (
 		  (object ?b)
-		  (bind ?ke-var (format-sym "KE_~A_~A" ?b (time-abbrev ?t)))
+		  (bind ?ke-var (format-sym "KE_~A~@[_~A~]" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (kinetic-energy ?b :time ?t))
@@ -6902,7 +6903,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-rotational-energy (?b ?t)
   :preconditions (
 		  (object ?b)
-		  (bind ?re-var (format-sym "RE_~A_~A" ?b (time-abbrev ?t)))
+		  (bind ?re-var (format-sym "RE_~A~@[_~A~]" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (rotational-energy ?b :time ?t))
@@ -6915,7 +6916,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-grav-energy (?b ?planet ?t)
  :preconditions (
 		 (object ?b)
-		 (bind ?ge-var (format-sym "Ug_~A_~A" ?b (time-abbrev ?t)))
+		 (bind ?ge-var (format-sym "Ug_~A~@[_~A~]" ?b (time-abbrev ?t)))
 		 ) 
  :effects ( 
 	   (define-var (grav-energy ?b ?planet :time ?t)) 
@@ -6928,7 +6929,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-spring-energy (?b ?spring ?t)
   :preconditions ( 
 		  (object ?b)
-		  (bind ?se-var (format-sym "Us_~A_~A" ?b (time-abbrev ?t)))
+		  (bind ?se-var (format-sym "Us_~A~@[_~A~]" ?b (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (spring-energy ?b ?spring :time ?t))
@@ -6940,7 +6941,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-height (?body ?time)
   :preconditions 
-  ( (bind ?h-var (format-sym "h_~A_~A" ?body (time-abbrev ?time))) )
+  ( (bind ?h-var (format-sym "h_~A~@[_~A~]" ?body (time-abbrev ?time))) )
   :effects ( (variable ?h-var (height ?body :time ?time))
 	     (define-var (height ?body :time ?time)) )
   :hint (
@@ -6958,7 +6959,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-compression (?spring ?t)
   :preconditions 
-  ( (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t))) ) 
+  ( (bind ?d-var (format-sym "comp_~A~@[_~A~]" ?spring (time-abbrev ?t))) ) 
   :effects (
 	    (define-var (compression ?spring :time ?t))
 	       (variable ?d-var  (compression ?spring :time ?t))
@@ -6970,7 +6971,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-extension (?spring ?t)
   :preconditions 
-  ( (bind ?d-var (format-sym "comp_~A_~A" ?spring (time-abbrev ?t))) ) 
+  ( (bind ?d-var (format-sym "comp_~A~@[_~A~]" ?spring (time-abbrev ?t))) ) 
   :effects 
   ( (define-var (extension ?spring :time ?t))
       (variable ?d-var  (extension ?spring :time ?t)) )
@@ -7248,7 +7249,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (object ?b)
  (time ?t)
  (test (time-intervalp ?t))
- (bind ?work-var (format-sym "work_~A_~A_~A" (body-name ?b) (body-name ?agent) 
+ (bind ?work-var (format-sym "work_~A_~A~@[_~A~]" (body-name ?b) (body-name ?agent) 
  					     (time-abbrev ?t)))
  )
  :effects (
@@ -7266,7 +7267,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (object ?b)
  (time ?t)
  (test (time-intervalp ?t))
- (bind ?work-var (format-sym "net_work_~A_~A" (body-name ?b) (time-abbrev ?t)))
+ (bind ?work-var (format-sym "net_work_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
  )
  :effects (
    (define-var (net-work ?b :time ?t))
@@ -7585,7 +7586,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-Wnc (?b ?t)
   :preconditions (
-    (bind ?work-var (format-sym "Wnc_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?work-var (format-sym "Wnc_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
   )
  :effects (
    (define-var (work-nc ?b :time ?t))
@@ -7640,7 +7641,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-power-var (?b ?agent ?t)
  :preconditions (
- (bind ?power-var (format-sym "power_~A_~A_~A" (body-name ?b) (body-name ?agent) 
+ (bind ?power-var (format-sym "power_~A_~A~@[_~A~]" (body-name ?b) (body-name ?agent) 
  					     (time-abbrev ?t)))
  )
  :effects (
@@ -7685,7 +7686,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-net-power-var (?b ?t)
  :preconditions (
- (bind ?power-var (format-sym "Pnet_~A_~A" (body-name ?b) (time-abbrev ?t)))
+ (bind ?power-var (format-sym "Pnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
  )
  :effects (
    (define-var (net-power ?b :time ?t))
@@ -7701,7 +7702,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-net-power-out (?source  ?t)
   :preconditions
-  ((bind ?p-var (format-sym "power_~A_~A" 
+  ((bind ?p-var (format-sym "power_~A~@[_~A~]" 
 			      (body-name ?source) 
 			      (time-abbrev ?t))))
   :effects ((variable ?p-var (net-power-out ?source  :time ?t))
@@ -7858,7 +7859,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ((time ?t)
     (motion ?b at-rest :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
-    (bind ?mag-var (format-sym "p_~A_~A" ?b (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "p_~A~@[_~A~]" ?b (time-abbrev ?t)))
     ;; allow student to draw velocity vector, which might not otherwise
     ;; be needed for the solution
     (optional (vector ?b (velocity ?b :time ?t) zero))
@@ -7888,7 +7889,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (test (not (equal ?dir 'unknown)))  ; until conditional effects 
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    ((vector ?b (momentum ?b :time ?t) ?dir)
@@ -7911,10 +7912,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b (straight ?dontcare unknown) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "p_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     ;; following is for implicit-eqn, assumes velocity vars are named this way
-    (bind ?dir-vel (format-sym "Ov_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-vel (format-sym "Ov_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     )
   :effects
    ((vector ?b (momentum ?b :time ?t) unknown)
@@ -8344,7 +8345,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
     (bind ?dir (rotation-zdir ?rotate-dir))
-    (bind ?mag-var (format-sym "omega_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "omega_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
@@ -8369,7 +8370,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (test (or (equal ?ar 'ang-at-rest) (equal ?ar 'ang-momentarily-at-rest)))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
-    (bind ?mag-var (format-sym "omega_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "omega_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
   )
   :effects (
     (vector ?b (ang-velocity ?b :time ?t) zero) 
@@ -8417,7 +8418,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (motion ?b ang-at-rest :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
-    (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "alpha_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     )
   :effects
   ((vector ?b (ang-accel ?b :time ?t) zero)        
@@ -8911,7 +8912,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
     (object ?b)
     (time ?t)
-    (bind ?I-var (format-sym "I_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?I-var (format-sym "I_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
   )
   :effects (
     (define-var (moment-of-inertia ?b :time ?t))
@@ -9203,7 +9204,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (vector ?b (ang-velocity ?b :time ?t-rotating) ?dir-vel)
     (test (not (equal ?dir-vel 'unknown)))
     (test (tinsidep ?t ?t-rotating))
-    (bind ?mag-var (format-sym "L_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "L_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
@@ -9436,8 +9437,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                    (dnum ?dir-r |deg|)))
      (bind ?torque-dir (torque-zdir ?dir-f ?dir-r))
      ;; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "TOR_~A_~A_~A_~A" (body-name ?b) ?pt ?agent 
-                                                 (time-abbrev ?t)))
+     (bind ?mag-var (format-sym "TOR_~A_~A_~A~@[_~A~]" (body-name ?b) ?pt 
+				?agent (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
@@ -9472,7 +9473,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (test (member ?pt ?points)) ;sanity test
      (bind ?agent (first (set-difference ?points (list ?pt))))
      ;; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?pt) 
+     (bind ?mag-var (format-sym "TOR_~A_~A~@[_~A~]" (body-name ?pt) 
 				(body-name ?agent) (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (given (dir (torque ?pt (couple . ?gpoints) :time ?t)) ?torque-dir) 
@@ -9502,7 +9503,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions (
      (in-wm (given (dir (net-torque ?b ?axis :time ?t)) ?dir))
      ; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
+     (bind ?mag-var (format-sym "NTOR_~A_~A~@[_~A~]" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
@@ -9567,7 +9568,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
    (motion ?b ang-at-rest :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
-   (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
+   (bind ?mag-var (format-sym "NTOR_~A_~A~@[_~A~]" (body-name ?b) ?axis 
 			      (time-abbrev ?t)))
    )
    :effects (
@@ -9610,7 +9611,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; can't determine as torque due to magnetic field (see forces.cl)
      (not  (given (dir (dipole-moment ?b :time ?t)) ?dir-mu))
      ;; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
+     (bind ?mag-var (format-sym "NTOR_~A_~A~@[_~A~]" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
@@ -9836,7 +9837,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  
 (defoperator define-num-torques (?b ?axis ?t)
   :preconditions 
-  ((bind ?n-var (format-sym "ntorques_~A_~A" 
+  ((bind ?n-var (format-sym "ntorques_~A~@[_~A~]" 
 			    (body-name ?b) (time-abbrev ?t))))
   :effects ( (variable ?n-var (num-torques ?b ?axis :time ?t)) ))
 
