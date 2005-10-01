@@ -38,7 +38,7 @@
        collect (let ((PSM (find 'psm (St-WM State)
 				:key #'car
 				:test #'equal)))
-		 (setq **wm** (union (st-wm state) **wm** :test #'equal))
+		 (setq **wm** (union (st-wm state) **wm** :test #'unify))
 		 (make-qsolres
 		  :ID (nth 2 PSM)
 		  :algebra (nth 3 PSM)
@@ -187,7 +187,7 @@
        when (and (eql (car V) 'Variable)
 		 (not (member (caddr V) 
 			      BubbleVars
-			     :test #'equal)))
+			     :test #'unify)))
        collect V))
 
 
@@ -304,9 +304,9 @@
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subvars only in first: ~S~%    subvars only in second: ~S~%" 
 		  (set-difference (qsolres-subvars R) (qsolres-subvars G) 
-				  :test #'eql)
+				  :test #'unify)
 		  (set-difference (qsolres-subvars G) (qsolres-subvars R) 
-				  :test #'eql) ))
+				  :test #'unify) ))
       
       (if (sets-not-equalp (qsolres-assumpts R) (qsolres-assumpts G))
 	  (cerror "Continue and merge paths." 

@@ -218,7 +218,7 @@
 (defun find-sought-param (Sought Givens)
   "Find a parameter statement that matches Sought."
   (find-if #'(lambda (G) (and (eq (car G) 'Parameter)
-			      (equalp (cadr G) Sought)))
+			      (unify (cadr G) Sought)))
 	   Givens))
 
 
@@ -251,7 +251,7 @@
 
 (defun gg-find-matching-given (Sought Givens)
   (find-if #'(lambda (G) (and (eq (car G) 'Given)
-			      (equalp (cadr G) Sought)))
+			      (unify (cadr G) Sought)))
 	   Givens))
 
 

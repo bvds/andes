@@ -113,7 +113,7 @@ The solver,
 
 (defun error-test (V &optional (command 'solver-command))
   "Test to determine if the returned element is an error."
-  (when (or (and (listp V) (equalp (car V) 'Error))
+  (when (or (and (listp V) (eq (car V) 'Error))
 	    (stringp V))
     (error "Error: Solver returned ~A~% to ~A" V command))
   V)
