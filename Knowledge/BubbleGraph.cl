@@ -1641,7 +1641,7 @@
 ;; this code extracts those.  If there is more than one of them
 ;; it will then merge the duplicates and update the graphs itself.
 ;;
-;; In some cases we will wand to append problem-specific or other
+;; In some cases we will want to append problem-specific or other
 ;; temporary variable restrictions when this is done.  These will
 ;; be passed in (optionally) to this function and will be included
 ;; in the resulting variables.
