@@ -75,9 +75,9 @@
 
 (defun eqn-equalp (X Y)
   "Determine if the two eqns are equalp."
-  (and (equalp (eqn-type X) (eqn-type Y))
-       (equalp (eqn-Algebra X) (eqn-Algebra Y))
-       (equalp (eqn-Exp X) (Eqn-Exp Y))))
+  (and (eql (eqn-type X) (eqn-type Y))
+       (equal (eqn-Algebra X) (eqn-Algebra Y))
+       (unify (eqn-Exp X) (Eqn-Exp Y))))
 
 ;;; make-qsolver-eqn
 ;;; As Eqns come out of the qsolver they consist of lists that
