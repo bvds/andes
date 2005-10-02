@@ -31,7 +31,7 @@
 ;; ((Svar <Var> <Units) <Restrictions-list>)
 ;; where <Restrictions-list> is a list of the form 
 ;; (<Restriction> <Var>) and <Restriction can be 'parameter
-;; 'nonnegative, etc.  This cde draws heavily on the ontology facility.
+;; 'nonnegative, etc.  This code draws heavily on the ontology facility.
 ;;
 ;; Index vars are qvars with an additional value slot.
 
@@ -279,13 +279,13 @@
 
 (defun match-var->Qvar (Var Qvars)
   "Given a list of qvars look for one that matches var."
-  (find Var Qvars :key #'Qvar-Var :test #'equalp))
+  (find Var Qvars :key #'Qvar-Var :test #'equalp-versus-unify))
 
 (defun match-qexps->qvars (Exps Vars)
   "Collect the qvars for the specified quantity exp's."
   (loop for E in exps
       with var = nil
-      do (setq Var (find E Vars :key #'qvar-exp :test #'equalp))
+      do (setq Var (find E Vars :key #'qvar-exp :test #'unify))
       when Var
       collect var
 	      
@@ -315,7 +315,7 @@
 
 (defun match-exp->qvar (Exp Vars)
   "Given a kb expression look up the qvar that matches it from List."
-  (find Exp Vars :test #'equalp :key #'Qvar-Exp))
+  (find Exp Vars :test #'equalp-versus-unify :key #'Qvar-Exp))
 
 
 (defun qvars-solvedp (Vars)

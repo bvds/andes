@@ -549,7 +549,7 @@
 
 ;;; BvdS:  this is just test code to asses where equalp should be axed.
  (defun equalp-versus-unify (x y)
-   (let ((a (unify x y)) (b (weak-match-expressions x y)))
+   (let ((a (unify x y)) (b (equalp x y)))
      (when (not (eql (null a) (null b))) 
        (format t "equalp-versus-unify discrepency for~%     ~A and ~A~%"
              a b))
