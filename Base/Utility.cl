@@ -353,8 +353,8 @@ consed on if lists or as list otherwize."
 ;; BvdS:  This is a temporary test to see if unify is needed instead.
 (defun sets-not-equalp (S1 S2 &key (test #'equalp))
   "Tests to ensure that the supplied sets are not all equalp."
-  (let ((a (or (set-difference S1 S2 :test unify)
-	       (set-difference S2 S1 :test unify)))
+  (let ((a (or (set-difference S1 S2 :test #'unify)
+	       (set-difference S2 S1 :test #'unify)))
 	(b (or (set-difference S1 S2 :test test)
 	       (set-difference S2 S1 :test test))))
     (when (not (eql (null a) (null b)))
