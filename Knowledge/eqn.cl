@@ -214,11 +214,11 @@
 
 (defun find-algebra->eqn (Alg Eqns)
   "Find the eqn that matches Algebra."
-  (find Alg Eqns :key #'eqn-Algebra :test #'equalp))
+  (find Alg Eqns :key #'eqn-Algebra :test #'equal))
 
 (defun find-exp->eqn (Exp Eqns)
   "Obtain the Eqn that is connected to the Exp supplied."
-  (find Exp Eqns :test #'equalp :key #'Eqn-Exp))
+  (find Exp Eqns :test #'unify :key #'Eqn-Exp))
 
 
 

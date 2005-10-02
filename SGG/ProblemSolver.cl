@@ -124,13 +124,14 @@
   (let ((Result (Generate-Bubblegraph 
 		 (Problem-Soughts Problem) (Problem-Givens Problem)
 		 :IgnorePSMS (problem-IgnorePSMS Problem))))
-    
+     
     (setf (Problem-Graph Problem) Result)
     (setf (Problem-WM Problem) **wm**)                         
     (when *S-Print-Steps*
       (format t "Problem Bubblegraph: ~A~%" (Problem-Name Problem))
       (pprint (Problem-Graph Problem))
       (print-BubbleGraph (Problem-Graph Problem)))
+
     (Problem-Graph Problem)))
 
 (defun gpb ()

@@ -513,6 +513,7 @@
 ;;; This is intended for weak recursion prevention.
 ;;;
 ;;; NOTE: This is not recursive.
+;;; BvdS:  Note, it does not handle keywords correctly.
 
 (defun weak-match-expressions (exp1 exp2)
   "Do the two expressions match weakly?"
@@ -526,7 +527,7 @@
 (defun weak-match-expressions-loc (loc1 loc2)
   "Do the locations weakly match?"
   (or (and (variable-p loc1) (variable-p loc2))
-      (equalp loc1 loc2)))
+      (eql loc1 loc2)))
 
 
 ;;;; ==================================================================

@@ -81,23 +81,25 @@
 
 (defun solve-for-given-eqn (Goal Givens)
   "Solve for the general goal expression given Givens."
-
-  (let ((R (loop for State in (qsolve-for (list `(Given-eqn ?eqn ,Goal)) Givens)
-			      
-	       collect (let ((Eqn (find 'Given-eqn (st-wm State)                    ;;For each returned state.
+  
+  (let ((R 
+	 (loop for State in 
+	       (qsolve-for (list `(Given-eqn ?eqn ,Goal)) Givens)
+	       ;;For each returned state.
+	       collect (let ((Eqn (find 'Given-eqn (st-wm State)             
 					:key #'car
 					:test #'unify)))
 			 (setq **wm** (union (st-wm state) **wm** :test #'unify))
 			 (make-qsolres
-			  :id (nth 1 Eqn)                                             ;;collect the eqn algebra
-			  :nodes (find-if #'(lambda (V) (and (eql (car V) 'Variable)  ;;Get the quantity variable.
-							      (equal (caddr V) Goal)))
-					   (st-wm State))
-			  :path (collect-path State)                                    ;;collect the paths.
-			  :subeqns (collect-subeqns State)                                  ;;Collect the subequations.
-			  :subvars (collect-subvars State (list Goal))                      ;;Collect the variables.
-			  :assumpts (collect-assumptions State)                         ;;Collect the assumptions.
-			  :wm (st-wm State))))))
+			    :id (nth 1 Eqn)                                             ;;collect the eqn algebra
+			    :nodes (find-if #'(lambda (V) (and (eql (car V) 'Variable)  ;;Get the quantity variable.
+							       (unify (caddr V) Goal)))
+					    (st-wm State))
+			    :path (collect-path State)                                    ;;collect the paths.
+			    :subeqns (collect-subeqns State)                                  ;;Collect the subequations.
+			    :subvars (collect-subvars State (list Goal))                      ;;Collect the variables.
+			    :assumpts (collect-assumptions State)                         ;;Collect the assumptions.
+			    :wm (st-wm State))))))
     (cond ((eq 0 (length R))                                                        ;;If no values are returned.
 	   (error "No return values specified for given: ~S ~%~S.~%" Goal Givens))  ;;Signal an error.
 	  
@@ -142,8 +144,7 @@
 
     
 (defun qsolve-for (goals givens)
-  "Call the quantity solver for the gols with givens."
-  
+  "Call the quantity solver for the goals with givens."
   (solution-sts (initial-st Goals Givens))) 
 			       
 			       
@@ -712,7 +713,7 @@
 ;;;    point.  (see below for criteria)
 ;;; 2. The opewrator has already been done in the history and therefore
 ;;;    is unnecessary so we will skip it.
-;;; 3. The operator is done with no more subgoials and we can pop it off
+;;; 3. The operator is done with no more subgoals and we can pop it off
 ;;;    of the stack.
 ;;; 4. The operator has some goals left so we move onto them.
 
@@ -729,21 +730,31 @@
 ;;; for two cases:
 ;;; 1. Exact matches:  "foo(A)" and "foo(A)"
 ;;; 2. Variable matches: "foo(?x)" and "foo(?y)"
+;;; But this is exactly what unify does!
+;;; BvdS: use unify instead of weak-match-expressions so 
+;;; that keywords are handled correctly
+
+(defun weak-match-versus-unify (x y)
+  (let ((a (unify x y)) (b (weak-match-expressions x y)))
+    (when (not (eql (null a) (null b))) 
+      (format t "weak-match-versus-unify discrepency for~%     ~A and ~A~%"
+	      a b))
+    a))
 
 (defun opinst-in-stack-p (inst state)
   "return t iff there exists a copy of inst in st-stack or one inst subsumes."
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Generate the ground id instance.
-  (let ((ground-id (subst-bindings (st-bindings State) (opinst-identifier inst))))
+  (let ((ground-id (subst-bindings (st-bindings State) 
+				   (opinst-identifier inst))))
     ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; Search through the stack for a direct 
     ;; match or an expression subsumption. (unification.cl)
     (member-if 
-     #'(lambda (Op) (weak-match-expressions 
+     #'(lambda (Op) (weak-match-versus-unify
 		     ground-id (subst-bindings (st-bindings State) 
 					       (Opinst-identifier Op))))
      (st-stack State))))
-
 
 ;;; We never want to apply the same operator instance twice to the
 ;;; same state.  Thus, we keep a list of operator instances that have

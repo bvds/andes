@@ -339,7 +339,7 @@ consed on if lists or as list otherwize."
 			append Sp)))
        
 
-(defun sets-intersect (Set1 Set2 &key (Test #'equalp))
+(defun sets-intersect (Set1 Set2 &key (Test #'equal))
   "Obtain the intersection of the sets."
   (loop for S in Set1
       when (find S Set2 :test Test)
@@ -350,11 +350,17 @@ consed on if lists or as list otherwize."
   "Return t iff the sets are all equalp."
   (not (sets-not-equalp S1 S2 :test test)))
 
-
+;; BvdS:  This is a temporary test to see if unify is needed instead.
 (defun sets-not-equalp (S1 S2 &key (test #'equalp))
   "Tests to ensure that the supplied sets are not all equalp."
-  (or (set-difference S1 S2 :test test)
-      (set-difference S2 S1 :test test)))
+  (let ((a (or (set-difference S1 S2 :test unify)
+	       (set-difference S2 S1 :test unify)))
+	(b (or (set-difference S1 S2 :test test)
+	       (set-difference S2 S1 :test test))))
+    (when (not (eql (null a) (null b)))
+      (format t "sets-not-equalp discrepency for~%    ~A and ~A~%"
+	      a b))
+    a))
 
 (defun subset (Object Sequence &key (test #'equal) key)
   "Like remove if not with an object test."

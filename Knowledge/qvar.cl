@@ -128,7 +128,7 @@
     (dolist (V (cdr Vars))
       (if (setq tmp (find (Qvar-Exp V) R
 			  :key #'Qvar-Exp 
-			  :test #'equalp))
+			  :test #'unify))
 	  (setf (Qvar-Nodes tmp)
 	    (union (Qvar-Nodes tmp) (Qvar-Nodes V)))
 	(push V R)))

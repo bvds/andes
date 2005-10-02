@@ -540,13 +540,20 @@
 ;; Comparison functions for relating two qnodes.
 (defun qnodes-equalp (Q1 Q2)
   "Qnode equalp is tested for contents but ignores the path."
-  (and (equalp (qnode-Exp Q1) (Qnode-Exp Q2))
-       (equalp (qnode-Var Q1) (Qnode-Var Q2))
+  (and (equalp-versus-unify (qnode-Exp Q1) (Qnode-Exp Q2))
+       (equalp-versus-unify (qnode-Var Q1) (Qnode-Var Q2))
        (sets-equalp (Qnode-Marks Q1) (Qnode-Marks Q2))
        (sets-equalp (Qnode-Assumptions Q1) (Qnode-Assumptions Q2))
        (sets-equalp (mapcar #'Enode-ID (Qnode-eqns Q1))
 		    (mapcar #'Enode-ID (Qnode-eqns Q2)))))
 
+;;; BvdS:  this is just test code to asses where equalp should be axed.
+ (defun equalp-versus-unify (x y)
+   (let ((a (unify x y)) (b (weak-match-expressions x y)))
+     (when (not (eql (null a) (null b))) 
+       (format t "equalp-versus-unify discrepency for~%     ~A and ~A~%"
+             a b))
+     a))
 
 
 ;;; Each Qnode is connected to a set qvar which is generated
@@ -831,8 +838,8 @@
 
 (defun enodes-equalp (E1 E2)
   "Enode equatlity does not take into account the path."
-  (and (equalp (Enode-ID E1) (Enode-ID E2))
-       (equalp (Enode-Algebra E1) (Enode-Algebra E2))
+  (and (equalp-versus-unify (Enode-ID E1) (Enode-ID E2))
+       (equalp-versus-unify (Enode-Algebra E1) (Enode-Algebra E2))
        (sets-equalp (Enode-Marks E1) (Enode-Marks E2))
        (sets-equalp (Enode-Subeqns E1) (Enode-Subeqns E2))
        (sets-equalp (Enode-Subvars E1) (Enode-Subvars E2))
@@ -1766,7 +1773,7 @@
       (find-algebra->eqn (Enode-Algebra E) Index))
     (setf (Enode-Subeqns E)
       (collect-algebra->eqns 
-       (remove-duplicates (Enode-Subeqns E) :test #'equalp) 
+       (remove-duplicates (Enode-Subeqns E) :test #'unify) 
        Index))))
 
 
