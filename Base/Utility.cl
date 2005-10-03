@@ -346,21 +346,12 @@ consed on if lists or as list otherwize."
       collect S))
 
 
-(defun sets-equalp (S1 S2 &key (test #'equalp))
-  "Return t iff the sets are all equalp."
-  (not (sets-not-equalp S1 S2 :test test)))
-
-;; BvdS:  This is a temporary test to see if unify is needed instead.
-(defun sets-not-equalp (S1 S2 &key (test #'equalp))
-  "Tests to ensure that the supplied sets are not all equalp."
-  (let ((a (or (set-difference S1 S2 :test #'unify)
-	       (set-difference S2 S1 :test #'unify)))
-	(b (or (set-difference S1 S2 :test test)
-	       (set-difference S2 S1 :test test))))
-    (when (not (eql (null a) (null b)))
-      (format t "sets-not-equalp discrepency for~%    ~A and ~A~%"
-	      a b))
-    a))
+(defun equal-sets (x y &key (test #'unify))
+  "Return true iff the sets are equal, unify is default test."
+  (if (and (listp x) (listp y))
+      (and (subsetp x y :test test)
+	   (subsetp y x :test test))
+    (funcall test x y)))
 
 (defun subset (Object Sequence &key (test #'equal) key)
   "Like remove if not with an object test."
