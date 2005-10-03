@@ -116,7 +116,7 @@
 	;; see the equation and can easily get its variables but finds it 
 	;; inconvenient to map the variables to quantities.  Used to be:
     	;; (bind ?new-unknowns
-	;;      (set-difference ?quantities-in-eqn ?known-now :test #'equalp))
+	;;      (set-difference ?quantities-in-eqn ?known-now :test #'unify))
         ;; But removing problem givens and parameters is no longer wanted. 
 	;; Driver now pre-enters problem givens and parameters into the graph 
 	;; before calling solver to find soughts, so now wants them included 
@@ -6727,9 +6727,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;
 (defoperator use-body-rotating-cm (?body)
   :preconditions 
-  ( (object ?body)
+  ( (center-of-mass ?cm (?body))
+    (in-wm (object ?body)) ;sanity test
     (motion ?body (rotating ?cm . ?dont-care) :time ?t-any)
-    (center-of-mass ?cm (?body))
     )
   :effects ( (use-point-for-body ?body ?cm ?cm) 
 	     ;; ?cm is kinematic variable for translational motion
