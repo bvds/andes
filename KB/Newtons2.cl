@@ -4259,7 +4259,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((force ?b ?string tension ?t ?dir-expr action)
     (test (not (equal ?dir-expr 'unknown)))
     (not (vector ?b (force ?b ?string tension :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Ft_~A_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "Ft_~A_~A~@[_~A~]" (body-name ?b) 
+			       ?string (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a tension on ~a due to ~a at ~a.~%" 
 	   ?dir-expr ?b ?string ?t)
@@ -4289,7 +4290,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((force ?b ?string tension ?t unknown action)
     (not (vector ?b (force ?b ?string tension :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "Ft_~A_~A~@[_~A~]" (body-name ?b) (body-name ?string)                                               (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "Ft_~A_~A~@[_~A~]" (body-name ?b) ?string                                               (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing tension on ~a due to ~a at ~a of unknown direction.~%" ?b ?string ?t)
     )
