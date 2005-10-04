@@ -684,11 +684,11 @@
 
 
 ;;; If the operator matches one that is already in the stack then we 
-;;; want to prune this branch in order to avoid a loop.  This tests
-;;; for two cases:
+;;; want to prune this branch in order to avoid a loop.  
+;;; Generally, this should never happen if the rules are well-formed.
+;;; This function tests for two cases:
 ;;; 1. Exact matches:  "foo(A)" and "foo(A)"
 ;;; 2. Variable matches: "foo(?x)" and "foo(?y)"
-;;; But this is exactly what unify does!
 ;;; BvdS: use unify so that keywords are handled correctly
 
 (defun opinst-in-stack-p (inst state)
