@@ -81,7 +81,7 @@
    (pprint Errs)))
 
 ;;; compare prb files in two directories
-;;; (diff-prbs (Default-ProblemFile-Path) #P"/home/bvds/Andes2-old/" '(lmom1a lmom1b))
+;;; (diff-prbs (Default-ProblemFile-Path) #P"/home/bvds/Andes2-old/Problems/" '(lmom1a lmom1b))
 (defun diff-prbs (path1 path2 &rest topics)  
   "compare prb files in two directories."
   (let (Errs)
@@ -90,14 +90,12 @@
       (finish-output)			;flush output buffer
       (let (E P1 P2)
 	(handler-case 
-	    (progn (setf P1 (read-problem-file 
-			     (string (problem-name P)) 
-			     :Path path1))
-		   (setf P2 (read-problem-file 
-			     (string (problem-name P)) 
-			     :Path path2)))
+	    (progn (setf P1 (read-problem-file (string (problem-name P)) 
+					       :Path path1))
+		   (setf P2 (read-problem-file (string (problem-name P)) 
+					       :Path path2)))
 	  (error (c) (setf E (format nil "File read error: ~A~%" c))))
-	(when (null E) (diff-problem-solutions P1 P2))
+	(when (null E) (setf E (diff-problem-solutions P1 P2)))
 	(format t "~:[OK~;~A~]~%" E E)
 	(when E (push (list (Problem-Name P) (format nil "~A" E)) Errs))))
     ;; dump list of discrepencies 
