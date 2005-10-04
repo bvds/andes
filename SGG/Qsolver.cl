@@ -423,15 +423,6 @@
 ;;; of the file is the solver itself.  The last part of the file is
 ;;; the code for dump-sg, which prints the solution graph.
 
-#|(defun solve-dump-sg (Problem)
-  (solve2 Problem)
-  (with-open-file 
-  (sg-stream (concatenate 'string *solver-path* (string Problem) ".sg")
-  :direction :output :iff-exists :supersede)
-  (dump-sg Problem sg-stream))
-  t)
-|#
-
 ;;; ===================== globals ===============================
 
 ;;; flag to control tracing (see also *debug* in executable2.cl and
@@ -525,19 +516,6 @@
   (setf (st-bindings state)
     (extend-bindings variable value (st-bindings state))))
 
-;;; The following print functions are called from macros at the top level
-#|
-  (defun print-problem-wms (Prob)
-  "Called from top level to print wms of all solutions to given problem"
-  (let ((p (get-named-problem Prob))
-  (N 1))
-  (when p
-  (loop for s in (problem-solutions p) do
-  (format t "~&Working Memory for solution ~S.~%" N)
-  (print-wm s)
-  (incf N)))))
-|#
-
 (defun print-wm (st)
   "Prints the working memory in batches"
   (let ((predicates '(eqn vector axis-for variable)))
@@ -550,18 +528,6 @@
     (dolist (wme (st-wm st))
       (if (not (member (car wme) predicates))
 	  (format t "~S~%" wme)))))
-
-#|
-  (defun print-problem-actions (Prob)
-  "Called from top level to print actions of all solutions to given problem"
-  (let ((p (get-named-problem Prob))
-  (N 1))
-  (when p
-  (loop for s in (problem-solutions p) do
-  (format t "~&Actions for solution ~S.~%" N)
-  (print-acts s)
-  (incf N)))))
-  |#
 
 (defun print-acts (st)
   "prints the actions of the given state"
@@ -610,19 +576,6 @@
 ;;; generating a possibly empty set of solution states, and stores it
 ;;; in the problem.  Macros in the Problem.cl file can be used to
 ;;; print the solutions of a problem in various ways).
-#|
-(defun solve2 (Problem)
-  "Solves the given problem, stores the set of solution states 
-  in it, and returns length of the set" 
-  (let ((prob (get-problem Problem)))
-    (when prob
-      (print-problem-text Prob)
-      (setf (problem-initial-state Prob)
-	(initial-st (problem-soughts Prob) (problem-givens prob)))
-      (setf (problem-graph Prob)
-	(solution-sts (problem-initial-state prob)))
-      (length (problem-solutions prob)))))
-|#
 
 ;;; The problem might specify more than one goal, so the goal stack is
 ;;; initialized with an operator application for a dummy operator that
@@ -982,17 +935,6 @@
 ;;; filter out failed paths, which would be a pain.  Thus, we collect
 ;;; the tree with the links going the wrong way, and then turn them
 ;;; around here.  After that, its just a matter of printing the sg.
-
-#|
-  (defun dump-sg (problem-id &optional (stream t))
-  "Dumps a subgraph to the given stream"
-  (let ((prob (get-named-problem problem-id)))
-  (when prob
-  (dolist (s (problem-solutions prob))
-  (reverse-sg-links s))
-  (print-sg (problem-initial-state prob)
-  stream ""))))
-  |#
 
 (defun reverse-sg-links (state)
   "Given states with a precedessor link, fill in the successor links."

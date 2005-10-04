@@ -363,36 +363,12 @@
 
 
 ;;; ===========================================================
-;; not used
-#|
-(defun unify-lists (l1 l2 &optional (Bindings No-bindings))
-  "Attempt to unify the elements in l1 with the elements in l2."
-  (if (null l1) (list Bindings)
-    (let ((NewBindings (unify-with-list (car l1) l2 Bindings)))
-      (when NewBindings
-	(loop for B in NewBindings
-	    when (unify-lists (cdr l1) l2 B)
-	    nconc it)))))
-|#      
 
 (defun unify-with-list (i L &optional (Bindings No-Bindings))
   "Attempt to unify item i with some element in list L returning all possible unifications."
   (loop for i2 in L
       when (unify i i2 Bindings)
       collect it))
-
-
-;;; Not used right now.
-;;; This function differs from the unify-with-list above in that it
-;;; returns the first match that is found in the list and no more.
-;;; This is done for efficiency reasons when we do not need the 
-;;; remaining lists.
-;;(defun first-unify-with-list (i L &optional (Bindings No-Bindings))
-;;  "Attempt to unify item i with some element in list L returning the first unification."
-;;  (loop for i2 in L
-;;      when (unify i i2 Bindings)
-;;      return it))
-    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; filter-values
@@ -491,7 +467,8 @@
 ;;; the list that unify with the supplied pattern.  Otional keywoyd arguments
 ;;; can be supplied for key and bindings if any.
 
-(defun collect-unifiers (set pattern &key (bindings no-bindings) (key #'identity))
+(defun collect-unifiers (set pattern &key (bindings no-bindings) 
+					  (key #'identity))
   "collect all of the expressions that unify with the pattern in set."
   (remove-if-not 
    #'(lambda (x)
