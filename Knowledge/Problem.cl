@@ -277,17 +277,24 @@
 		       :if-does-not-exist :error)
 	 
 	(mpf-read File '<Andes2Problem>) ;Read the file ID tag.
-	(read-pfile-contents File Problem) ;Read the contents until the close tag is found.
-	
-	(when (problem-varindex Problem)                      ;; When the files are stored numerical indicies 
-	  (regen-bg-vindex-links (Problem-Graph Problem)      ;; are used for qvars in the BGNODES.  This call
-				 (Problem-VarIndex Problem))) ;; Regenerates those links for later use. 
+	;; Read the contents until the close tag is found.
+	(read-pfile-contents File Problem) 
+	;; When the files are stored numerical indicies 
+	;; are used for qvars in the BGNODES.  This call
+	;; Regenerates those links for later use.
+	(when (problem-varindex Problem)  
+	  (regen-bg-vindex-links (Problem-Graph Problem)     
+				 (Problem-VarIndex Problem)))  
+	;; When the files are stored numerical indicies
+	;; are used for eqns in the BGNODES.  This call	
+	;; Regenerates those links for later use. 
+	(when (problem-Eqnindex Problem)                       
+	  (regen-bg-eindex-links (Problem-Graph Problem)      
+				 (Problem-EqnIndex Problem))) 
+	Problem))))                                         
 
-	(when (problem-Eqnindex Problem)                      ;; When the files are stored numerical indicies 
-	  (regen-bg-eindex-links (Problem-Graph Problem)      ;; are used for eqns in the BGNODES.  This call
-				 (Problem-EqnIndex Problem))) ;; Regenerates those links for later use. 
-	Problem))))                                         ;; Return the problem struct.
-		 ;; Regenerate the links between elements within
+;;; Return the problem struct.
+;;; Regenerate the links between elements within
 (defun read-pfile-contents (S P)
   "Read the headere contents of the Problem File."
   (let ((name (mpf-readret S)))
@@ -534,10 +541,14 @@
 ;;; operation.
 (defun problem-solutions-equalp (P1 P2)
   "Run a diff between the problem solutions."
-  (and (bubblegraphs-equalp (Problem-Graph P1) (Problem-Graph P2))
-       (Var-Indicies-equalp (Problem-VarIndex P1) (Problem-Varindex P2))
-       (Eqn-Indicies-equalp (Problem-EqnIndex P1) (Problem-EqnIndex P2))
-       (= (length (Problem-Solutions P1)) (length (Problem-Solutions P2)))))
+  (cond
+   ((not (= (length (Problem-Solutions P1)) (length (Problem-Solutions P2))))
+    (format t "~A: lengths ~A and ~A~%" (problem-name p1) 
+	    (length (Problem-Solutions P1)) (length (Problem-Solutions P2))))
+  ; (set-diff-bubblegraphs (Problem-Graph P1) (Problem-Graph P2))
+  ; (Var-Indicies-equalp (Problem-VarIndex P1) (Problem-Varindex P2))
+  ; (Eqn-Indicies-equalp (Problem-EqnIndex P1) (Problem-EqnIndex P2))
+   (t t)))
 
 
 

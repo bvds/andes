@@ -1209,11 +1209,6 @@
 ;; test for equality of the graphs bu ensuiring that for each unique 
 ;; node in the graph there exists a comprable node in the other graph
 ;; and that the two comprable nodes are equalp.
-(defun bubblegraphs-equalp (G1 G2)
-  "Are thetwo bubblegraphs comprable?"
-  (equal (set-diff-bubblegraphs G1 G2)
-	 '((nil nil) (nil nil))))
-
 
 (defun set-diff-bubblegraphs (GA GB)
   "Perform a set-difference style comparison of two bublegraphs."
