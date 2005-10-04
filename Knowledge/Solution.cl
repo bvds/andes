@@ -158,7 +158,7 @@
 				  (if (Enode-p n) (enode-path n)
 				    (qnode-path n)))
 			      (Eqnset-Nodes Set))
-		      :test #'equalp)))))
+		      :test #'equalp-versus-unify)))))
 		     
 
 (defun print-eqnset-implicit-eqns (Set Stream Level)
@@ -211,15 +211,14 @@
       collect (list (collect-indicies->eqns (car S) EqnIndex)
 		    (cadr S) (caddr S))))
 
-(defun solution-equalp (B1 B2)
-  "Determine iff two solutions are set-equal."
-  (and (sets-equalp (Solution-Soughts B1)
-		    (Solution-Soughts B2))
-       (sets-equalp (Solution-Knowns B1)
-		    (Solution-Knowns B2))
-       (sets-equalp (Solution-Assumptions B1)
-		    (Solution-Assumptions B2))))
-
+ (defun solution-equalp (B1 B2)
+   "Determine iff two solutions are set-equal."
+   (and (equal-sets (Solution-Soughts B1)
+                   (Solution-Soughts B2))
+        (equal-sets (Solution-Knowns B1)
+                   (Solution-Knowns B2))
+        (equal-sets (Solution-Assumptions B1)
+                   (Solution-Assumptions B2))))
 
 ;;; Given a set of eqnsets collect the set of nodes within
 ;;; them for later use.

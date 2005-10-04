@@ -180,7 +180,7 @@
   (loop for V in Vars
       with Q = NiL
       when (setq Q (find (string (Qvar-Var V)) Values
-			 :test #'equalp 
+			 :test #'equalp ;matching different cases 
 			 :key #'(lambda (v) (string (cadr v)))))
       do (setf (Qvar-Value V) (caddr Q))
       else do (setf (Qvar-Value V) NIL))
@@ -235,12 +235,12 @@
 
 (defun qvars-ni-equalp (q1 q2)
   "Are the two qvars equal but for their index."
-  (and (equalp (qvar-var q1) (qvar-var q2))
-       (equalp (qvar-exp q1) (qvar-exp q2))
-       (equalp (qvar-value q1) (qvar-value q2))
-       (equalp (qvar-units q1) (qvar-units q2))
-       (sets-equalp (qvar-Marks q1) (qvar-Marks q2))
-       (sets-equalp (mapcar #'bgnode-exp (qvar-Nodes q1))
+  (and (unify (qvar-var q1) (qvar-var q2))
+       (unify (qvar-exp q1) (qvar-exp q2))
+       (unify (qvar-value q1) (qvar-value q2))
+       (unify (qvar-units q1) (qvar-units q2))
+       (equal-sets (qvar-Marks q1) (qvar-Marks q2))
+       (equal-sets (mapcar #'bgnode-exp (qvar-Nodes q1))
 		    (mapcar #'bgnode-exp (qvar-Nodes q2)))))
 
 

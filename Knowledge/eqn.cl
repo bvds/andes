@@ -278,7 +278,7 @@
       
       (eq (eqn-type e2) 'implicit-eqn)
       
-      (and (equalp (eqn-type e2) 'derived-eqn)
+      (and (eq (eqn-type e2) 'derived-eqn)
 	   (not (eq (eqn-type e1) 'implicit-eqn)))
       
       (and (eq (eqn-type e2) 'eqn)
@@ -294,9 +294,9 @@
 
 (defun eqns-ni-equalp (e1 e2)
   "Are the two qvars equal but for their index."
-  (and (equalp (eqn-type e1) (eqn-type e2))
-       (equalp (eqn-algebra e1) (eqn-algebra e2))
-       (equalp (eqn-exp e1) (eqn-exp e2))
-       (equalp (eqn-solved e1) (eqn-solved e2))
-       (sets-equalp (mapcar #'bgnode-exp (eqn-Nodes e1))
+  (and (unify (eqn-type e1) (eqn-type e2))
+       (unify (eqn-algebra e1) (eqn-algebra e2))
+       (unify (eqn-exp e1) (eqn-exp e2))
+       (unify (eqn-solved e1) (eqn-solved e2))
+       (equal-sets (mapcar #'bgnode-exp (eqn-Nodes e1))
 		    (mapcar #'bgnode-exp (eqn-Nodes e2)))))

@@ -519,7 +519,7 @@
 
 (defun read-mreadable-qnode (S)
   "Read an Mreadable qnode from the stream."
-  (when (not (equalp (mg-srt2 S '<Qnode> '</Qnodes>) '</Qnodes>))
+  (when (not (equal (mg-srt2 S '<Qnode> '</Qnodes>) '</Qnodes>))
     (let ((N (make-qnode :Symbol (mg-sr S)
 			 :gindex (mg-sr S)
 			 :vindex (mg-sr S)
@@ -542,17 +542,17 @@
   "Qnode equalp is tested for contents but ignores the path."
   (and (equalp-versus-unify (qnode-Exp Q1) (Qnode-Exp Q2))
        (equalp-versus-unify (qnode-Var Q1) (Qnode-Var Q2))
-       (sets-equalp (Qnode-Marks Q1) (Qnode-Marks Q2))
-       (sets-equalp (Qnode-Assumptions Q1) (Qnode-Assumptions Q2))
-       (sets-equalp (mapcar #'Enode-ID (Qnode-eqns Q1))
+       (equal-sets (Qnode-Marks Q1) (Qnode-Marks Q2))
+       (equal-sets (Qnode-Assumptions Q1) (Qnode-Assumptions Q2))
+       (equal-sets (mapcar #'Enode-ID (Qnode-eqns Q1))
 		    (mapcar #'Enode-ID (Qnode-eqns Q2)))))
 
-;;; BvdS:  this is just test code to asses where equalp should be axed.
+;;; BvdS:  this is just test code to assess how equalp should be axed.
  (defun equalp-versus-unify (x y)
    (let ((a (unify x y)) (b (equalp x y)))
      (when (not (eql (null a) (null b))) 
-       (format t "equalp-versus-unify discrepency for~%     ~A and ~A~%"
-             a b))
+       (error "equalp-versus-unify discrepency for expressions~%     ~A and ~A~%"
+             x y))
      a))
 
 
@@ -570,7 +570,7 @@
 ;;; these entries are searched to identify the source when neccessary.
 (defun qnode-contains-entryp (Entry Node)
   "Does the quantity node contain the specified entry."
-  (member Entry (Qnode-Entries Node) :test #'equalp))
+  (member Entry (Qnode-Entries Node) :test #'equalp-versus-unify))
 
 
 ;;------------------------------------------------------------------
@@ -814,7 +814,7 @@
 
 (defun read-mreadable-Enode (S)
   "Read an Mreadable qnode from the stream."
-  (when (not (equalp (mg-srt2 S '<Enode> '</Enodes>) '</Enodes>))
+  (when (not (equal (mg-srt2 S '<Enode> '</Enodes>) '</Enodes>))
     (let ((N (make-enode :Symbol (mg-sr S)
 			 :id (mg-sr S)
 			 :gindex (mg-sr S)
@@ -840,11 +840,11 @@
   "Enode equatlity does not take into account the path."
   (and (equalp-versus-unify (Enode-ID E1) (Enode-ID E2))
        (equalp-versus-unify (Enode-Algebra E1) (Enode-Algebra E2))
-       (sets-equalp (Enode-Marks E1) (Enode-Marks E2))
-       (sets-equalp (Enode-Subeqns E1) (Enode-Subeqns E2))
-       (sets-equalp (Enode-Subvars E1) (Enode-Subvars E2))
-       (sets-equalp (Enode-Assumptions E1) (Enode-Assumptions E2))
-       (sets-equalp (mapcar #'Qnode-Exp (Enode-Qnodes E1))
+       (equal-sets (Enode-Marks E1) (Enode-Marks E2))
+       (equal-sets (Enode-Subeqns E1) (Enode-Subeqns E2))
+       (equal-sets (Enode-Subvars E1) (Enode-Subvars E2))
+       (equal-sets (Enode-Assumptions E1) (Enode-Assumptions E2))
+       (equal-sets (mapcar #'Qnode-Exp (Enode-Qnodes E1))
 		    (mapcar #'Qnode-Exp (Enode-Qnodes E2)))))
 
 
@@ -853,7 +853,7 @@
 ;;; node if present and returns it if found.
 (defun enode-contains-entryp (Entry Node)
   "Does the quantity node contain the specified entry."
-  (find Entry (enode-Entries Node) :test #'equalp))
+  (find Entry (enode-Entries Node) :test #'equalp-versus-unify))
 
 
 ;;; An Enode represents (one :time level) a collection of equations
@@ -1154,14 +1154,14 @@
 
 (defun mg-srt (Stream Comp)
   (let ((R (read Stream)))
-    (when (not (equalp R Comp))
+    (when (not (equalp-versus-unify R Comp))
       (error "Malformed Bubblegraph-file"))
     R))
 
 (defun mg-srt2 (Stream Comp1 Comp2)
   (let ((R (read Stream)))
-    (when (and (not (equalp R Comp1))
-	       (not (equalp R Comp2)))
+    (when (and (not (equalp-versus-unify R Comp1))
+	       (not (equalp-versus-unify R Comp2)))
       (error "Malformed Bubblegraph-file"))
     R))
 
@@ -1288,14 +1288,14 @@
   "Match the given exp to a coresponding qnode."
   (find Exp (bubblegraph-qnodes Graph)
 	:key #'Qnode-Exp 
-	:test #'equalp))
+	:test #'unify))
 
 
 (defun match-exp->enode (exp Graph)
   "Match the given exp to a coresponding qnode."
   (find Exp (bubblegraph-enodes Graph)
 	:key #'enode-ID 
-	:test #'equalp))
+	:test #'equalp-versus-unify))
 
 
 (defun match-exp->bgnode (Exp Graph)
@@ -1718,7 +1718,7 @@
     (dolist (E Enodes)
       (setf (Enode-Subvars E)
 	(collect-vars->qvars 
-	 (remove-duplicates (Enode-Subvars E) :test #'equalp) 
+	 (remove-duplicates (Enode-Subvars E) :test #'equalp-versus-unify) 
 	 Index))))
 
 

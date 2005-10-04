@@ -291,7 +291,7 @@
 (defun read-pfile-contents (S P)
   "Read the headere contents of the Problem File."
   (let ((name (mpf-readret S)))
-    (when (not (equalp name '</Andes2Problem>))
+    (when (not (equal name '</Andes2Problem>))
       (set-pfile-contents name S P)
       (read-pfile-contents S P))))
 
@@ -399,7 +399,7 @@
   "Backwards compatability."
   (if (not (listp S)) S
     (mapcar #'(lambda (a) 
-		(if (and (listp s) (equalp (car a) 'answer))
+		(if (and (listp s) (eq (car a) 'answer))
 		    (cadr a)
 		  a))
 	    S)))
