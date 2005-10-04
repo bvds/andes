@@ -84,20 +84,22 @@
 ;;; (diff-prbs (Default-ProblemFile-Path) #P"/home/bvds/Andes2-old/" '(lmom1a lmom1b))
 (defun diff-prbs (path1 path2 &rest topics)  
   "compare prb files in two directories."
-  (let (P1 P2 E Errs)
+  (let (Errs)
     (dolist (P (choose-Andes2-probs topics))
       (format t "Comparing ~A:  " (problem-name P)) 
       (finish-output)			;flush output buffer
-      (setf E (handler-case 
-		  (progn (setf P1 (read-problem-file (string (problem-name P)) 
-						     :Path path1))
-			 (setf P2 (read-problem-file (string (problem-name P)) 
-						     :Path path2))
-			 nil)
-		(error (c) (format nil "File read error: ~A~%" c))))
-      (when (null E) (diff-problem-solutions P1 P2))
-      (format t "~:[OK~;~A~]~%" E E)
-      (when E (push (list (Problem-Name P) (format nil "~A" E)) Errs)))
+      (let (E P1 P2)
+	(handler-case 
+	    (progn (setf P1 (read-problem-file 
+			     (string (problem-name P)) 
+			     :Path path1))
+		   (setf P2 (read-problem-file 
+			     (string (problem-name P)) 
+			     :Path path2)))
+	  (error (c) (setf E (format nil "File read error: ~A~%" c))))
+	(when (null E) (diff-problem-solutions P1 P2))
+	(format t "~:[OK~;~A~]~%" E E)
+	(when E (push (list (Problem-Name P) (format nil "~A" E)) Errs))))
     ;; dump list of discrepencies 
     (format T "~&Discrepencies in: ~{~W ~}~%" (mapcar #'first Errs))
     (format T "Discrepencies:~%")
