@@ -623,7 +623,8 @@
 ;;;; Occasionally it is necessary to test all of the problem
 ;;;; files for differences.  this function will batch solve each
 ;;;; of the problem files and compare them to new solutions. 
-(defun diff-problem-solutions ()
+#|  ;not used
+(defun generate-and-diff-problem-solutions ()
   "Collect the problems whose new solutions differ from the old."
   (collect-func-problems 
    #'(lambda (P) 
@@ -640,7 +641,7 @@
 	     (setq s (problem-solutions-equalp s f))
 	     (format t ">>>>>> Difference: ~A~%" s)
 	     (if s (Problem-Name P))))))))
-
+|#
 
 ;; Note the dangling links in this function need to be fixed at some point.
 #|

@@ -472,8 +472,6 @@
 	     *Problem-Registry*)
     R))
 
-
-
 (defun collect-func-problems (Function)
   "Collect all problems for which Function returns t."
   (let ((Storage))
@@ -526,30 +524,20 @@
 
 
 ;;;--------------------------------------------------------
-;;; Given two problems such as one that has been solved and
-;;; a preexisting file format it is possible that we will 
-;;; want to compare the two.  This process will do that at a 
-;;; course grain checking to see if there are the same number
-;;; of solutions, if the graphs are the same, etc.  
-;;; there are also automated functions for testing the 
-;;; similarity of a file with its new solution.
-
-;;; compare-problems
-;;; compare problems solves a problem and then compares
-;;; each of its fields with a loaded file of the same name or a
-;;; second problem struct if supplied this is essentially a diff
-;;; operation.
-(defun problem-solutions-equalp (P1 P2)
+;;; Rough-grain comparision of two solutions to a problem
+;;;
+(defun diff-problem-solutions (P1 P2)
   "Run a diff between the problem solutions."
   (cond
+   ((or (null P1) (null P2)) 
+    (format nil "Problem file missing."))
    ((not (= (length (Problem-Solutions P1)) (length (Problem-Solutions P2))))
-    (format t "~A: lengths ~A and ~A~%" (problem-name p1) 
+    (format nil "lengths ~A and ~A" 
 	    (length (Problem-Solutions P1)) (length (Problem-Solutions P2))))
   ; (set-diff-bubblegraphs (Problem-Graph P1) (Problem-Graph P2))
   ; (Var-Indicies-equalp (Problem-VarIndex P1) (Problem-Varindex P2))
   ; (Eqn-Indicies-equalp (Problem-EqnIndex P1) (Problem-EqnIndex P2))
-   (t t)))
-
+   (t nil)))
 
 
 ;;;-----------------------------------------------------------------

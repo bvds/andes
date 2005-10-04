@@ -3793,14 +3793,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)
+    (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" 
+	   ?dir-expr ?b1 ?b2 ?t)
     )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
     (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
-     ; Because dir is problem given, find-by-psm won't ensure implicit eqn
-    ; gets written. Given value may not be used elsewhere so ensure it here.
+    ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
+    ;; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
@@ -3821,7 +3822,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (test (tinsidep-include-endpoints ?t ?t-given))
     ; make sure this vector not already drawn
     (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A_~A" ?b1 ?b2 (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b1 ?b2 (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?dir-expr (opposite ?opp-dir-expr))
     (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)

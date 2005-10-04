@@ -19,28 +19,30 @@
      ; and return sorted list
      (sort problist #'(lambda (p1 p2) (string< (problem-name p1) 
                                                (problem-name p2))))))
+(defun choose-Andes2-probs (topics)
+  "list of problems with specified features or use given list of problems"
+  (remove-if-not #'(lambda (p) 
+		     (and (working-Andes2-prob p)
+			  (or (null topics)
+			      (if (listp (first topics)) 
+				  (member (problem-name p) 
+					  (first topics))
+				(intersection topics 
+					      (problem-features p)))))) 
+		 (listprobs)))
 
 ;; If included, optional topics list is or'd with problem's features. 
 ;; E.g. (make-prbs 'dynamics 'linmom 'work) to make all of these only.
 ;; Alternatively, one can give an explicit list of problems
 (defun make-prbs (&rest topics)  
  "Dump problem files for all 'working' problems with any of features."
-  (let ((Probs (remove-if-not 
-		#'(lambda(p)
-		    (and (working-Andes2-prob p)
-			 (or (null topics)
-			     (if (listp (first topics)) 
-				 (member (problem-name p) 
-					 (first topics))
-			       (intersection topics 
-					     (problem-features p))))))
-		(listprobs)))
+  (let ((Probs (choose-Andes2-probs topics))
 	;; for minimum of output, clear all trace/debug flags:
-	(*s-print-steps* NIL)    ; intermediate results of top-level steps
-	(*debug-gg* NIL)	 ; graph building process steps
-	(*debug-sp* NIL)	 ; solution point generation detail
-	(*debug* NIL)		 ; debugging messages inside operators
-	(*actions* NIL)		 ; traces all problem-solver actions
+	(*s-print-steps* NIL)		;intermediate results of top-level step
+	(*debug-gg* NIL)		;graph building process steps
+	(*debug-sp* NIL)		;solution point generation detail
+	(*debug* NIL)			;debugging messages inside operators
+	(*actions* NIL)			;traces all problem-solver actions
         (Errs))
     (dolist (P Probs)
 	 (handler-case 
@@ -58,18 +60,13 @@
 ;;; test-solve all the problems. Args as for make-prbs
 (defun test-prbs (&rest topics)  
  "Test solve all 'working' problems with any of features."
-  (let ((Probs (remove-if-not #'(lambda(p)
-                                 (and (working-Andes2-prob p)
-				      (or (null topics)
-				          (intersection topics 
-				                    (problem-features p)))))
-		(listprobs)))
-	; for minimum of output, clear all trace/debug flags:
-	(*s-print-steps* NIL)    ; intermediate results of top-level steps
-	(*debug-gg* NIL)	 ; graph building process steps
-	(*debug-sp* NIL)	 ; solution point generation detail
-	(*debug* NIL)		 ; debugging messages inside operators
-	(*actions* NIL)		 ; traces all problem-solver actions
+  (let ((Probs (choose-Andes2-probs topics))
+	;; for minimum of output, clear all trace/debug flags:
+	(*s-print-steps* NIL)		;intermediate results of top-level
+	(*debug-gg* NIL)		;graph building process steps
+	(*debug-sp* NIL)		;solution point generation detail
+	(*debug* NIL)			;debugging messages inside operators
+	(*actions* NIL)			;traces all problem-solver actions
         (Errs))
     (dolist (P Probs)
 	 (handler-case 
@@ -78,10 +75,33 @@
 	     (format T "~&!!! Error on ~A: ~A~%" (Problem-name P) E)
 	     ; save it for report at end
 	     (push (list (Problem-Name P) (format nil "~A" E)) Errs))))
-   ; dump list of failures 
+   ;; dump list of failures 
    (format T "~&Failures: ~{~W ~}~%" (mapcar #'first Errs))
    (format T "Errors:~%")
    (pprint Errs)))
+
+;;; compare prb files in two directories
+;;; (diff-prbs (Default-ProblemFile-Path) #P"/home/bvds/Andes2-old/" '(lmom1a lmom1b))
+(defun diff-prbs (path1 path2 &rest topics)  
+  "compare prb files in two directories."
+  (let (P1 P2 E Errs)
+    (dolist (P (choose-Andes2-probs topics))
+      (format t "Comparing ~A:  " (problem-name P)) 
+      (finish-output)			;flush output buffer
+      (setf E (handler-case 
+		  (progn (setf P1 (read-problem-file (string (problem-name P)) 
+						     :Path path1))
+			 (setf P2 (read-problem-file (string (problem-name P)) 
+						     :Path path2))
+			 nil)
+		(error (c) (format nil "File read error: ~A~%" c))))
+      (when (null E) (diff-problem-solutions P1 P2))
+      (format t "~:[OK~;~A~]~%" E E)
+      (when E (push (list (Problem-Name P) (format nil "~A" E)) Errs)))
+    ;; dump list of discrepencies 
+    (format T "~&Discrepencies in: ~{~W ~}~%" (mapcar #'first Errs))
+    (format T "Discrepencies:~%")
+    (pprint Errs)))
 
 ;;; for dealing with problem sets:
 ;;; For each ANDES problem set, there should be some distinguished feature set 
