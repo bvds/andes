@@ -370,7 +370,7 @@
   "Return t iff the specified type is an entry type."
   (member type *Ontology-EntryProp-Types*
 	  :key #'EntryProp-Type
-	  :test #'equalp-versus-unify ))
+	  :test #'unify ))		;could use "equal"
 
 
 (defun kb-prop->help-Prop (Prop)
@@ -384,7 +384,7 @@
 (defun lookup-entryprop-type (Type)
   (find type *Ontology-EntryProp-Types*
 	:key #'EntryProp-Type
-	:test #'equalp-versus-unify ))
+	:test #'unify ))		;could use "equal"
 
 
 
@@ -587,7 +587,7 @@
   "Return t iff the specified type is an entry type."
   (member type *Ontology-goalProp-Types*
 	  :key #'GoalProp-Type
-	  :test #'equalp-versus-unify ))
+	  :test #'unify ))		;could use "equal"
 
 
 (defun goalprop-exp-p (exp)
@@ -1039,7 +1039,7 @@
     (error "Specified var ~a is not a valid variable." Var))
   
   (dolist (Form Forms)
-    (when (not (member Var (vars-in-exp Form) :test #'equalp-versus-unify))
+    (when (not (member Var (vars-in-exp Form) :test #'unify)) ;could use "equal"
       (error "Specified form ~a does not contain var: ~a" Form Var)))
 
   (when (vars-in-exp Exps)
@@ -1050,5 +1050,5 @@
       (when (setq B (unify-with-list Exp Forms))
 	(dolist (Binding B)
 	  (push (lookup Var Binding) R))))
-    (remove-duplicates R :test #'equalp-versus-unify)))
+    (remove-duplicates R :test #'unify))) ;could use "equal"
 

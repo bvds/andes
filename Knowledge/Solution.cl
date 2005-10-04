@@ -158,7 +158,7 @@
 				  (if (Enode-p n) (enode-path n)
 				    (qnode-path n)))
 			      (Eqnset-Nodes Set))
-		      :test #'equalp-versus-unify)))))
+		      :test #'unify))))) ;could use "equal"
 		     
 
 (defun print-eqnset-implicit-eqns (Set Stream Level)

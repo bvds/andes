@@ -540,20 +540,12 @@
 ;; Comparison functions for relating two qnodes.
 (defun qnodes-equalp (Q1 Q2)
   "Qnode equalp is tested for contents but ignores the path."
-  (and (equalp-versus-unify (qnode-Exp Q1) (Qnode-Exp Q2))
-       (equalp-versus-unify (qnode-Var Q1) (Qnode-Var Q2))
+  (and (unify (qnode-Exp Q1) (Qnode-Exp Q2)) ;could just as well use "equal"
+       (unify (qnode-Var Q1) (Qnode-Var Q2))
        (equal-sets (Qnode-Marks Q1) (Qnode-Marks Q2))
        (equal-sets (Qnode-Assumptions Q1) (Qnode-Assumptions Q2))
        (equal-sets (mapcar #'Enode-ID (Qnode-eqns Q1))
 		    (mapcar #'Enode-ID (Qnode-eqns Q2)))))
-
-;;; BvdS:  this is just test code to assess how equalp should be axed.
- (defun equalp-versus-unify (x y)
-   (let ((a (unify x y)) (b (equalp x y)))
-     (when (not (eql (null a) (null b))) 
-       (error "equalp-versus-unify discrepency for expressions~%     ~A and ~A~%"
-             x y))
-     a))
 
 
 ;;; Each Qnode is connected to a set qvar which is generated
@@ -570,7 +562,7 @@
 ;;; these entries are searched to identify the source when neccessary.
 (defun qnode-contains-entryp (Entry Node)
   "Does the quantity node contain the specified entry."
-  (member Entry (Qnode-Entries Node) :test #'equalp-versus-unify))
+  (member Entry (Qnode-Entries Node) :test #'unify)) ;could use "equal"
 
 
 ;;------------------------------------------------------------------
@@ -838,8 +830,8 @@
 
 (defun enodes-equalp (E1 E2)
   "Enode equatlity does not take into account the path."
-  (and (equalp-versus-unify (Enode-ID E1) (Enode-ID E2))
-       (equalp-versus-unify (Enode-Algebra E1) (Enode-Algebra E2))
+  (and (unify (Enode-ID E1) (Enode-ID E2)) ;could use "equal"
+       (unify (Enode-Algebra E1) (Enode-Algebra E2))
        (equal-sets (Enode-Marks E1) (Enode-Marks E2))
        (equal-sets (Enode-Subeqns E1) (Enode-Subeqns E2))
        (equal-sets (Enode-Subvars E1) (Enode-Subvars E2))
@@ -853,7 +845,7 @@
 ;;; node if present and returns it if found.
 (defun enode-contains-entryp (Entry Node)
   "Does the quantity node contain the specified entry."
-  (find Entry (enode-Entries Node) :test #'equalp-versus-unify))
+  (find Entry (enode-Entries Node) :test #'unify)) ;could use "equal"
 
 
 ;;; An Enode represents (one :time level) a collection of equations
@@ -1154,14 +1146,14 @@
 
 (defun mg-srt (Stream Comp)
   (let ((R (read Stream)))
-    (when (not (equalp-versus-unify R Comp))
+    (when (not (unify R Comp))		;could use "equal"
       (error "Malformed Bubblegraph-file"))
     R))
 
 (defun mg-srt2 (Stream Comp1 Comp2)
   (let ((R (read Stream)))
-    (when (and (not (equalp-versus-unify R Comp1))
-	       (not (equalp-versus-unify R Comp2)))
+    (when (and (not (unify R Comp1))	;could use "equal"
+	       (not (unify R Comp2)))	;could use "equal"
       (error "Malformed Bubblegraph-file"))
     R))
 
@@ -1295,7 +1287,7 @@
   "Match the given exp to a coresponding qnode."
   (find Exp (bubblegraph-enodes Graph)
 	:key #'enode-ID 
-	:test #'equalp-versus-unify))
+	:test #'unify))			;could use "equal"
 
 
 (defun match-exp->bgnode (Exp Graph)
@@ -1718,7 +1710,7 @@
     (dolist (E Enodes)
       (setf (Enode-Subvars E)
 	(collect-vars->qvars 
-	 (remove-duplicates (Enode-Subvars E) :test #'equalp-versus-unify) 
+	 (remove-duplicates (Enode-Subvars E) :test #'unify) ;could use "equal"
 	 Index))))
 
 

@@ -279,7 +279,7 @@
 
 (defun match-var->Qvar (Var Qvars)
   "Given a list of qvars look for one that matches var."
-  (find Var Qvars :key #'Qvar-Var :test #'equalp-versus-unify))
+  (find Var Qvars :key #'Qvar-Var :test #'unify)) ;could use "equal"
 
 (defun match-qexps->qvars (Exps Vars)
   "Collect the qvars for the specified quantity exp's."
@@ -315,7 +315,7 @@
 
 (defun match-exp->qvar (Exp Vars)
   "Given a kb expression look up the qvar that matches it from List."
-  (find Exp Vars :test #'equalp-versus-unify :key #'Qvar-Exp))
+  (find Exp Vars :test #'unify :key #'Qvar-Exp)) ;could use "equal"
 
 
 (defun qvars-solvedp (Vars)
