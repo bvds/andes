@@ -299,6 +299,9 @@
                        (occurs-check var (rest x) bindings)))
         (t nil)))
 
+(defun exactly-equal (x y)
+  "test equality under unification without any bindings"
+  (equal (unify x y) '(T . t)))
 
 ;;;
 ;;;                    Match to keywords pairs
@@ -503,32 +506,6 @@
 (defun format-subst (form bindings)
   "Apply format to the result of binding the elements."
   (apply 'format (cons nil (subst-bindings bindings form))))
-
-
-;;; weak-match-test
-;;; Given two expressions test to see if they can possibly be matched
-;;; using a weak entry-first test.  If the expressions are of the same
-;;; length and each corresponding entry matches identically or contain
-;;; variables then they will be flagged as potential matches else nil.
-;;; This is intended for weak recursion prevention.
-;;;
-;;; NOTE: This is not recursive.
-;;; BvdS:  Note, it does not handle keywords correctly.
-
-(defun weak-match-expressions (exp1 exp2)
-  "Do the two expressions match weakly?"
-  (cond ((and (consp exp1) (consp exp2))
-	 (if (weak-match-expressions-loc (car exp1) (car exp2))
-	     (weak-match-expressions (cdr exp1) (cdr exp2))))
-	((not (or exp1 exp2)) t)
-	(t nil)))
-
-
-(defun weak-match-expressions-loc (loc1 loc2)
-  "Do the locations weakly match?"
-  (or (and (variable-p loc1) (variable-p loc2))
-      (eql loc1 loc2)))
-
 
 ;;;; ==================================================================
 ;;;; Strip off the leading question mark from a variable
