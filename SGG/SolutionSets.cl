@@ -249,7 +249,7 @@
       (cs-db "Testing Nonindy eqns for indy:~%")
       (cs-db "Eqn: ~A " E)
       (setq Eqn (find (Enode-Algebra E) *Indy-Eqn-Index*
-		      :test #'equalp :key #'cadr))
+		      :test #'equal :key #'cadr))
       
       (cond ((not Eqn) (cs-db "Unsolved.~%"))
 	    ((< *sgg-Indy-Threshold* (car (Solver-isIndependent 0 (car Eqn))))
@@ -339,7 +339,7 @@
 
 (defun Expand-for-E (S &optional (Forbidden Nil))
   "Given a solution S Expand for its sought equation E."
-  (let* ((E (car (Solution-Soughts S)))                ;;Pop the top of Bs' Soughts into E.
+  (let* ((E (car (Solution-Soughts S)))                ;Pop the top of Bs' Soughts into E.
 	 (Qs (set-difference 
 	      (Enode-Qnodes (car (Solution-Soughts S)))
 	      Forbidden)))
@@ -347,11 +347,11 @@
     (cs-bp "Expanding for Eqn ~A" (Solution-ID S))
     (cs-db "~A~%  ~A~%" (Solution-soughts S) Qs)
     
-    (cond ((null Qs)                                   ;;If no unknown quantities remain in the eqn.
-	   (Solution-Successor S :Push-Knowns E))           ;;make it known and return the resulting solution.
+    (cond ((null Qs)                                   ;If no unknown quantities remain in the eqn.
+	   (Solution-Successor S :Push-Knowns E))           ;make it known and return the resulting solution.
 	  
-	  (t (Solution-Successor S :Push-Soughts Qs         ;;Otherwize generate a new solution 
-				 :Push-Knowns E)))))        ;;with them sought and E Known.
+	  (t (Solution-Successor S :Push-Soughts Qs         ;Otherwize generate a new solution 
+				 :Push-Knowns E)))))        ;with them sought and E Known.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -408,45 +408,45 @@
   (loop for E in (Solution-Knowns Solution)
       when (Enode-P E)
       collect (find (Enode-Algebra E) *Indy-Eqn-Index*
-		    :key #'cadr :test #'equalp)))
+		    :key #'cadr :test #'equal)))
 
 
 
 
 
-;;=============================================================================
-;; Solution set collection.
-;; Once we have collected the set of solutions we can merge them into solution sets
-;; according to the equations that they contain.  These sets are what is then passed
-;; on to the help system.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; collect-eqn-sets
-;; Given a set of solutions traversing through the graph convert them to a 
-;; set of equation sets for output.
-;;
-;; Arguments: Solutions: A set of solution traversals.
-;;
-;; Returns: A collated list of the equation sets containing the solutions.
+;;;============================================================================
+;;; Solution set collection.
+;;; Once we have collected the set of solutions we can merge them into 
+;;; solution sets according to the equations that they contain.  These sets 
+;;; are what is then passed on to the help system.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; collect-eqn-sets
+;;; Given a set of solutions traversing through the graph convert them to a 
+;;; set of equation sets for output.
+;;;
+;;; Arguments: Solutions: A set of solution traversals.
+;;;
+;;; Returns: A collated list of the equation sets containing the solutions.
 
 (defun collect-Eqn-Sets (Solutions)
   "Collect a set of equation sets from the solutions provided."
   (let ((Esets) (E))
-    (loop for S in Solutions                            ;;For each solution B
-	when (setq E (member-eset S Esets))             ;; IF s is a member of an eset
-	do (append-eset S E)                            ;; add it into S
-	else do (push (make-eset S) Esets))             ;; otherwize make a new eset.
-    Esets))                                             ;; Return the sets.
+    (loop for S in Solutions		;For each solution B
+	when (setq E (member-eset S Esets)) ;IF s is a member of an eset
+	do (append-eset S E)		;add it into S
+	else do (push (make-eset S) Esets)) ;otherwize make a new eset.
+    Esets))				;Return the sets.
 
 
 (defun member-eset (S Sets)
-  (loop for E in sets                                                ;; for each set
-      when (and (null (set-exclusive-or                               ;; If all the equations in
-		       (remove-if-not #'enode-p (Solution-Knowns S))  ;; the solution are in the 
-		       (EqnSet-Eqns E)))                              ;; set and vice versa.
-		(null (set-exclusive-or                               ;; And if all the 
-		       (Solution-Assumptions S)                       ;; assumptions are equal.
+  (loop for E in sets			;for each set
+      when (and (null (set-exclusive-or	;If all the equations in
+		       (remove-if-not #'enode-p (Solution-Knowns S)) ; the solution are in the 
+		       (EqnSet-Eqns E))) ; set and vice versa.
+		(null (set-exclusive-or	; And if all the 
+		       (Solution-Assumptions S) ; assumptions are equal.
 		       (EqnSet-Assumpts E))))
-      return E))                                                      ;; return e or nil otherwize.
+      return E))			; return e or nil otherwize.
 
 
 (defun append-eset (Solution Set)
@@ -465,8 +465,8 @@
    :Solutions (list Solution)))
 
 							  
-;;--------------------------------------------------------
-;; Printing funcs.
+;;;--------------------------------------------------------
+;;; Printing funcs.
 
 (defun cs-db (&rest form)
   (if *Debug-cs* (eval `(format t ,@(qlist form)))))

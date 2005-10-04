@@ -227,12 +227,12 @@
   
 (defun merge-psm (P Set)
   "Merge the specified PSM into the set of possible"
-  (loop for P2 in Set			;If it matches another PSM
-      when (and (equal (qsolres-algebra P) (qsolres-algebra P2))                  ;;In equations
-		(sets-equalp (qsolres-nodes P) (qsolres-nodes P2))) ;And quantities 
-      do (when (or (sets-not-equalp (qsolres-subeqns P) (qsolres-subeqns P2)) 
-                   (sets-not-equalp (qsolres-subvars P) (qsolres-subvars P2)) 
-                   (sets-not-equalp (qsolres-assumpts P) (qsolres-assumpts P2)))
+  (loop for P2 in Set			;If it matches another PSM in equations
+      when (and (equal (qsolres-algebra P) (qsolres-algebra P2))
+		(equal-sets (qsolres-nodes P) (qsolres-nodes P2))) ;And quantities 
+      do (when (not (and (equal-sets (qsolres-subeqns P) (qsolres-subeqns P2)) 
+			 (equal-sets (qsolres-subvars P) (qsolres-subvars P2)) 
+			 (equal-sets (qsolres-assumpts P) (qsolres-assumpts P2))))
 	   (let ((diff))
 	     ;; If paths differ in eqns, vars, or assumptions, it may indicate 
 	     ;; coding error (perhaps only one path was intended) or it may be 
@@ -293,7 +293,7 @@
     (dolist (G (cdr Givens))		;For each G in the rest of givens.
       ;; Ensure that they match in subeqns, subvars, assumpts:
       ;; Signalling a cerror if they do not.
-      (if (sets-not-equalp (qsolres-subeqns R) (qsolres-subeqns G))
+      (if (not (equal-sets (qsolres-subeqns R) (qsolres-subeqns G)))
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subeqns only in first: ~S~%    subeqns only in second: ~S~%" 
 		  (set-difference (qsolres-subeqns R) (qsolres-subeqns G) 
@@ -301,7 +301,7 @@
 		  (set-difference (qsolres-subeqns G) (qsolres-subeqns R) 
 				  :test #'unify) ))
 
-      (if (sets-not-equalp (qsolres-subvars R) (qsolres-subvars G))
+      (if (not (equal-sets (qsolres-subvars R) (qsolres-subvars G)))
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subvars only in first: ~S~%    subvars only in second: ~S~%" 
 		  (set-difference (qsolres-subvars R) (qsolres-subvars G) 
@@ -309,7 +309,7 @@
 		  (set-difference (qsolres-subvars G) (qsolres-subvars R) 
 				  :test #'unify) ))
       
-      (if (sets-not-equalp (qsolres-assumpts R) (qsolres-assumpts G))
+      (if (not (equal-sets (qsolres-assumpts R) (qsolres-assumpts G)))
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    assumpts only in first: ~S~%    assumpts only in second: ~S~%" 
 		  (set-difference (qsolres-assumpts R) (qsolres-assumpts G) 
@@ -347,7 +347,8 @@
 
 (defun merge-paths (P1 P2)
   "merge P2 path into P1."
-  (let ((Loc (mismatch P1 P2 :test #'unify)))
+  ;; must match without any bindings needed.
+  (let ((Loc (mismatch P1 P2 :test #'exactly-equal))) 
     
     (append (subseq P1 0 Loc)
 	    
@@ -711,7 +712,7 @@
 ;;; 1. The operator matches one above it in the stack and is therefore
 ;;;    (probably) going to cause a loop so we will kick it out at this
 ;;;    point.  (see below for criteria)
-;;; 2. The opewrator has already been done in the history and therefore
+;;; 2. The operator has already been done in the history and therefore
 ;;;    is unnecessary so we will skip it.
 ;;; 3. The operator is done with no more subgoals and we can pop it off
 ;;;    of the stack.
@@ -719,7 +720,9 @@
 
 (defun opinst-successors (inst state)
   "Given an operator instance, returns zero or more copies of the given state"
-  (cond ((opinst-in-stack-p inst state) NIL)
+  (cond ((opinst-in-stack-p inst state) 
+	 (format t "opinst-successors:  ~A already in stack.~%  This is probably due to an unwanted recursion." inst) 
+	 NIL)
 	((opinst-done-already-p inst state) NIL)
 	((null (opinst-subgoals inst)) (opinst-done inst state))
 	(T (opinst-next inst state))))
@@ -734,13 +737,6 @@
 ;;; BvdS: use unify instead of weak-match-expressions so 
 ;;; that keywords are handled correctly
 
-(defun weak-match-versus-unify (x y)
-  (let ((a (unify x y)) (b (weak-match-expressions x y)))
-    (when (not (eql (null a) (null b))) 
-      (format t "weak-match-versus-unify discrepency for~%     ~A and ~A~%"
-	      a b))
-    a))
-
 (defun opinst-in-stack-p (inst state)
   "return t iff there exists a copy of inst in st-stack or one inst subsumes."
   ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -751,7 +747,7 @@
     ;; Search through the stack for a direct 
     ;; match or an expression subsumption. (unification.cl)
     (member-if 
-     #'(lambda (Op) (weak-match-versus-unify
+     #'(lambda (Op) (unify
 		     ground-id (subst-bindings (st-bindings State) 
 					       (Opinst-identifier Op))))
      (st-stack State))))
