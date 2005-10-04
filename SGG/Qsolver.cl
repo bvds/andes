@@ -674,7 +674,9 @@
 (defun opinst-successors (inst state)
   "Given an operator instance, returns zero or more copies of the given state"
   (cond ((opinst-in-stack-p inst state) 
-	 (format t "opinst-successors:  ~A already in stack.~%  This is probably due to an unwanted recursion." inst) 
+	 (cerror (strcat "opinst-successors:  ~A already in stack.~%"
+			 "This is a symptom of an unwanted recursion.~%"
+			 "Prune and continue?~%") inst) 
 	 NIL)
 	((opinst-done-already-p inst state) NIL)
 	((null (opinst-subgoals inst)) (opinst-done inst state))
@@ -687,8 +689,7 @@
 ;;; 1. Exact matches:  "foo(A)" and "foo(A)"
 ;;; 2. Variable matches: "foo(?x)" and "foo(?y)"
 ;;; But this is exactly what unify does!
-;;; BvdS: use unify instead of weak-match-expressions so 
-;;; that keywords are handled correctly
+;;; BvdS: use unify so that keywords are handled correctly
 
 (defun opinst-in-stack-p (inst state)
   "return t iff there exists a copy of inst in st-stack or one inst subsumes."
