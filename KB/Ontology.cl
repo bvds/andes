@@ -962,6 +962,13 @@
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("W = F*d*cos($qF - $qd)"))
 
+(def-psmclass work-compo (work ?body ?agent (during ?time0 ?time1) ?rot)
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the definition of work")
+  :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
+	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
+  :EqnFormat ("W = F_x*d_x+F_y*d_y"))
+
 (def-psmclass net-work (net-work ?body (during ?time0 ?time1)) ; by all forces
  :complexity major ; definition, but can be first "principle" for sought
  :english ("the definition of net work")

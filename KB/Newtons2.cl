@@ -664,9 +664,9 @@
 
 |# ; end unused experimental projection-writing operators
 
-; special case for parallel/anti-parallel axes allows special hint
-; also enables us to put out implicit equation for orthogonal component, so that it
-; gets into the Andes solution, even if otherwise unused.
+;;; special case for parallel/anti-parallel axes allows special hint
+;;; also enables us to put out implicit equation for orthogonal component, 
+;;; so that it gets into the Andes solution, even if otherwise unused.
 (defoperator compo-parallel-axis (?compo-var)
   :specifications "
    If ?compo-var is the variable for a component of a vector,
@@ -678,8 +678,9 @@
    (test (parallelp ?rot ?dir))  ; should fail if ?dir is unknown
    (in-wm (variable ?mag-var (mag ?vector)))
    (bind ?sign (if (same-angle ?rot ?dir) '+ '-))
-   ; We want off-axis 0 components to be referenced, even if solution doesn't use them
-   ; so we put out an implicit equation for them as well. Following gets the variable we need
+   ;; We want off-axis 0 components to be referenced, even if solution doesn't 
+   ;; use them so we put out an implicit equation for them as well. 
+   ;; Following gets the variable we need
    (bind ?other-axis (if (equal ?xyz 'x) 'y 'x))
    (bind ?other-rot  (if (equal ?xyz 'x) (+ ?rot 90) (- ?rot 90)))
    (variable ?other-compo-var (compo ?other-axis ?other-rot ?vector))
@@ -7144,29 +7145,120 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; Without a proper dot product, there is no point in drawing
     ;; axes.
     (body ?b)
-    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
-    (vector ?b (displacement ?b :time ?t) ?dir-d)
-    
+    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t)
+	 nil)
     ;; make sure they are not perpendicular. If so, variant write-zero-work 
     ;; operator will write workF = 0
-    (test (not (perpendicularp ?dir-f ?dir-d)))
-    (in-wm (variable ?F-var (mag (force ?b ?agent ?type :time ?t))))
-    (in-wm (variable ?d-var (mag (displacement ?b :time ?t))))
-    (variable ?theta-var (angle-between (displacement ?b :time ?t)
-                                        (force ?b ?agent ?type :time ?t)))
+    (test (not (equal ?dot 0)))
     (variable ?work-var (work ?b ?agent :time ?t))
  )
  :effects (
-    (eqn (= ?work-var (* ?F-var ?d-var (cos ?theta-var)))
+    (eqn (= ?work-var ?dot)
          (work ?b ?agent ?t))
  )
  :hint (
   (point (string "You need the value of the work done on ~a by ~a ~A" ?b ?agent (?t pp)))
   (teach (string "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
   (bottom-out (string "Write ~A"  
-                ((= ?work-var (* ?F-var ?d-var (cos ?theta-var))) algebra)))
+                ((= ?work-var ?dot) algebra)))
  ))
 
+(defoperator work-compo-contains (?sought)
+ :preconditions (
+    (in-wm (use-work))
+    (any-member ?sought (
+		  (work ?b ?agent :time ?t)
+                  (vector (force ?b ?agent ?type :time ?t) ?rot)
+    			))
+    (object ?b)
+    (time ?t)
+    (axis-for ?b x ?rot)
+    (test (time-intervalp ?t))
+    ;; will require that ?agent exerts force on ?body when writing equation
+ )
+ :effects (
+    (eqn-contains (work-compo ?b ?agent ?t ?rot) ?sought)
+ ))
+
+
+(defoperator write-work-compo (?b ?agent ?t ?rot)
+ :preconditions (
+    ;; !!! could be more than one force from agent, e.g. normal and friction
+    ;; from floor.  This should be fixed by adding type slot to work argument.
+    ;; Until then, just ignore normal force if there's more than one, since
+    ;; it does not contribute to the work done by this agent. Leave it if it's
+    ;; the only one in frictionless problems so we can write Wa = 0.
+    (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
+	   ?type1 ?agent-force-types)
+    (debug "write-work: agent ~a exerts forces of type ~A~%" ?agent ?agent-force-types)
+    (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
+                           (remove 'Normal ?agent-force-types))))
+    (debug "write-work: choosing force of type ~A for work by ~A~%" ?type ?agent)
+    ;; don't apply this to spring force which varies over interval
+    (test (not (eq ?type 'spring)))
+    ;; must draw body, force and displacement vectors
+    ;; Without a proper dot product, there is no point in drawing
+    ;; axes.
+    (body ?b)
+    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t)
+	 ?rot)
+    ;; make sure they are not perpendicular. If so, variant write-zero-work 
+    ;; operator will write workF = 0
+    (test (not (equal ?dot 0)))
+    (variable ?work-var (work ?b ?agent :time ?t))
+ )
+ :effects (
+    (eqn (= ?work-var ?dot)
+         (work-compo ?b ?agent ?t ?rot))
+ )
+ :hint (
+  (point (string "You need the value of the work done on ~a by ~a ~A" ?b ?agent (?t pp)))
+  (teach (string "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
+  (bottom-out (string "Write ~A"  
+                ((= ?work-var ?dot) algebra)))
+ ))
+
+;;;;===========================================================================
+;;;;
+;;;;   dot product of two vectors
+;;;;
+;;;;===========================================================================
+
+;; dot product for two vectors
+(defoperator dot-using-angle (?a ?b)
+  :preconditions 
+  ( (vector ?a-body ?a ?dir-a)
+    (vector ?b-body ?b ?dir-b)
+    (in-wm (variable ?a-var (mag ?a)))
+    (in-wm (variable ?b-var (mag ?b)))
+    (variable ?theta-var (angle-between ?a ?b))
+    (bind ?dot (if (perpendicularp ?dir-a ?dir-b) 0 
+		 `(* ,?a-var ,?b-var (cos ,?theta-var))))
+    )
+:effects ( (dot ?dot ?a ?b nil) ))
+
+;; use vector-psm
+;; follow cross product, but they just use standard axes
+(defoperator dot-using-components (?a ?b ?x-rot)
+  :preconditions 
+  ( (vector ?axis-body ?a ?dir-a)
+    (vector ?axis-body ?b ?dir-b)
+    (axis-for ?axis-body x ?x-rot)
+    (bind ?y-rot (+ ?x-rot 90))
+    (variable ?ax (compo x ?x-rot ?a))
+    (variable ?ay (compo y ?y-rot ?a))
+    (variable ?bx (compo x ?x-rot ?b))
+    (variable ?by (compo y ?y-rot ?b))
+    (bind ?dot (cond 
+		;; a vector is parallel or anti-parallel to the x-axis
+		((or (parallelp ?dir-a ?x-rot) (parallelp ?dir-b ?x-rot))
+		 `(* ,?ax ,?bx))
+		;; a vector is parallel or anti-parallel to the y-axis
+		((or (parallelp ?dir-a ?y-rot) (parallelp ?dir-b ?y-rot))
+		 `(* ,?ay ,?by))
+		(t `(+ (* ,?ax ,?bx) (* ,?ay ,?by)))))
+    )
+  :effects ( (dot ?dot ?a ?b ?x-rot) ))
 
 ;;; Following operator writes work = 0 for work done by forces known to be 
 ;;; orthogonal to the displacement.
@@ -7175,7 +7267,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; !!! If agent exerts more than one force this should not apply.
 
 (defoperator write-zero-work (?b ?agent ?t)
-  
  :preconditions 
     ;; must draw force and displacement vectors
     ;; to make sure they are perpendicular. 
@@ -7186,16 +7277,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
 	   ?type1 ?agent-force-types)
     (test (not (cdr ?agent-force-types)))
-    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
-    (vector ?b (displacement ?b :time ?t) ?dir-d)
-    (test (perpendicularp ?dir-f ?dir-d))
+    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t) nil)
+    ;; make sure they are not perpendicular. If so, variant write-zero-work 
+    ;; operator will write workF = 0
+    (test (equal ?dot 0))
     (variable ?work-var (work ?b ?agent :time ?t)))
- :effects ( (eqn (= ?work-var 0) (work ?b ?agent ?t)))
+ :effects ( (eqn (= ?work-var ?dot) (work ?b ?agent ?t)))
  :hint (
   (point (string "Notice that the only force exerted by ~a on ~b is perpendicular to the direction of the displacement of ~A." ?agent ?b ?b))
   (teach (string "If a force has no component in the direction of the displacement of an object, then the force does no work on that object through the displacement."))
-  (bottom-out (string "Write the equation ~A" ((= ?work-var 0) algebra)))
+  (bottom-out (string "Write the equation ~A" ((= ?work-var ?dot) algebra)))
  ))
+
 
 ;;; Following defines a variable for the angle between two vectors
 ;;; for the case where the angle of the two vectors is known.
