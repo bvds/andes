@@ -230,9 +230,12 @@
 
 (defun collect-index->eqn (I Eqns)
   "Given a list of indicies and a list of vars collect the specified vars."
-  (when (not (= I (Eqn-Index (nth I Eqns))))
-    (error "Incompatible variable index ~A ~A" I Eqns))
-  (nth I Eqns))
+  (let ((eqn (nth I eqns)))
+    (when (null eqn) (error "Index i=~A larger than ~A eqns~%" 
+			    i (length eqns)))
+    (when (not (= I (Eqn-Index eqn)))
+      (error "Incompatible variable index ~A ~A" I Eqns))
+    eqn))
 
 
 (defun collect-eqns->indicies (Eqns)
