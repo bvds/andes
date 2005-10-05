@@ -12,8 +12,8 @@ LEAF	v_x = v0_x + a_x*t         [a_x is time average]	(lk-no-s ((?axis . x)))	Co
 LEAF	v_y = v0_y + a_y*t         [a_y is time average]	(lk-no-s ((?axis . y)))	Constant acceleration
 LEAF	v_x^2 = v0_x^2 + 2*a_x*d_x [a_x is constant]	(lk-no-t ((?axis . x)))	Constant acceleration
 LEAF	v_y^2 = v0_y^2 + 2*a_y*d_y [a_y is constant]	(lk-no-t ((?axis . y)))	Constant acceleration
-LEAF	d_x = v_x * t              [a_x=0, v_x is constant]	(sdd-constvel ((?axis . x)))	Constant velocity component
-LEAF	d_y = v_y * t              [a_y=0, v_y is constant]	(sdd-constvel ((?axis . y)))	Constant velocity component
+LEAF	d_x = v_x * t              [a_x=0; v_x is constant]	(sdd-constvel ((?axis . x)))	Constant velocity component
+LEAF	d_y = v_y * t              [a_y=0; v_y is constant]	(sdd-constvel ((?axis . y)))	Constant velocity component
 LEAF	ac = v^2/r                 Centripetal acceleration (instantaneous)	centripetal-accel	Centripetal acceleration
 LEAF	Vac_x = Vab_x + Vbc_x      Relative velocity	(relative-vel ((?axis . x)))	Relative Velocity
 LEAF	Vac_y = Vab_y + Vbc_y      Relative velocity	(relative-vel ((?axis . y)))	Relative Velocity
@@ -21,7 +21,7 @@ END_GROUP
 GROUP	Rotational		
 LEAF	$w(avg) = $q/t                  average angular velocity	ang-sdd	Angular velocity
 LEAF	$a(avg) = ($wf - $wi)/t          average angular acceleration	rk-no-vf	Angular acceleration
-LEAF	$q_z = $w0_z*t + 0.5*$a_z*t^2   [$a_z is constant	rk-no-vf	Constant angular acceleration
+LEAF	$q_z = $w0_z*t + 0.5*$a_z*t^2   [$a_z is constant]	rk-no-vf	Constant angular acceleration
 LEAF	$w_z = $w0_z + $a_z*t           [$a_z is time average]	rk-no-s	Constant angular acceleration
 LEAF	$w_z^2 = $w0_z^2 + 2*$a_z*$q_z  [$a_z is constant]	rk-no-t	Constant angular acceleration
 LEAF	v = $w*r                       Linear velocity at a certain radius	linear-vel	Linear velocity
@@ -156,7 +156,7 @@ LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transve
 LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
 LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
 LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo = fs*(vwÂ±vo)/(vwÂ±vs)   Frequency shift from doppler effect	doppler-frequency	
+LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency	
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
 LEAF	fbeats = abs(f1-f2)/2	beat-frequency	
 LEAF	v = c = 2.998e8 m/s    speed of light	wave-speed-light	
@@ -276,3 +276,17 @@ LEAF	A = $p*r^2           Area of a circle	area-of-circle
 LEAF	A = 2*$p*r           Circumference of a circle	circumference-of-circle-r	
 LEAF	A = $p*d             Circumference of a circle	circumference-of-circle-d	
 END_GROUP			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
