@@ -7,7 +7,7 @@
 ;; ============== Top-level search support ===================
   
 ;; The top-level search for a solution is driven externally by the 
-;; "Bubble Graph" generator written in Lisp. It aims to build a network
+;; "Bubble Graph" generator written in Lisp.  It aims to build a network
 ;; of quantities and applicable equations containing them that may be 
 ;; searched to find sets of equations sufficient to solve for the problem 
 ;; sought(s).  In the course of this process the bubble graph generator 
@@ -17,48 +17,48 @@
 ;; generate an applicable equation containing the requested quantity.
 ;; 
 ;; Each invocation of the problem solver applies one problem solving method 
-;; (psm) to generate one result equation for a single sought quantity (although
-;; subsidiary equations may be written as well.) No problem solver
+;; (PSM) to generate one result equation for a single sought quantity (although
+;; subsidiary equations may be written as well).  No problem solver
 ;; state persists across invocations, so each invocation is entirely 
 ;; independent of any other. 
 ;; 
 ;; The Bubble-Graph generator invokes the problem-solver code to achieve a
-;; top-level goal of applying a psm to generate an equation for
+;; top-level goal of applying a PSM to generate an equation for
 ;; a sought quantity. This goal is represented by a proposition of the 
-;; form (psm ?sought ?eqn-id ?eqn ?remaining-unknowns), with ?sought
-;; bound to a quantity term coming in. Thus this goal represents the
+;; form (PSM ?sought ?eqn-id ?eqn ?remaining-unknowns), with ?sought
+;; bound to a quantity term coming in.  Thus this goal represents the
 ;; main top-level entry point into the problem solver.
 ;;
-;; The operators for applying specific psms should result in a statement of
-;; the form (psm-applied ?sought ?eqn-id ?eqn-algebra) in wm. These
-;; operators do the real psm-specific work of generating an equation.
+;; The operators for applying specific PSMs should result in a statement of
+;; the form (PSM-applied ?sought ?eqn-id ?eqn-algebra) in wm.  These
+;; operators do the real PSM-specific work of generating an equation.
 ;; The following operator encapsulates the common bookkeeping needed to
-;; finish up the psm application after some equation has been so generated.
-;; It posts the final psm statement the top-level driver keys on.
+;; finish up the PSM application after some equation has been so generated.
+;; It posts the final PSM statement the top-level driver keys on.
 ;; It does the following:
 ;;
-;; 1. Sometimes a psm might get applied and generate an equation which does not
+;; 1. Sometimes a PSM might get applied and generate an equation which does not
 ;; actually contain the sought quantity. This can happen because the 
-;; applicability tests for some psms check only that the equation *might* 
+;; applicability tests for some PSMs check only that the equation *might* 
 ;; contain the sought quantity.  A test here fails in these cases. Since the 
-;; final psm statement is never posted, these blind alleys don't make it into 
+;; final PSM statement is never posted, these blind alleys don't make it into 
 ;; the solution at all.
 ;;
 ;; 2. Here is common code to collect the residual unknowns from the equation 
-;; for inclusion in the final "psm" statement as a service to the bubble-graph
+;; for inclusion in the final "PSM" statement as a service to the bubble-graph
 ;; generator.
 ;;
 ;; 3. Some vars in the equation such may become known as a side effect of 
-;; applying the psm. For example, vector direction variables typically become 
+;; applying the PSM. For example, vector direction variables typically become 
 ;; known as the vectors are drawn by the relevant operators. In this case the
 ;; operator should add a "given" statement for them to wm since they are
-;; now like the givens in not needing to be sought. ("given" is being
+;; now like the givens in not needing to be sought.  ("given" is being
 ;; used to mean "known").  We write equations for all these new knowns here 
 ;; since these equations are required for algebraic completeness.
 ;;
 ;; Some of these equations correspond to steps the student will have to write; 
 ;; others, in particular those for angles of drawn vectors, need not be
-;; written by the student although they may be. Issues pertaining to writing
+;; written by the student although they may be.  Issues pertaining to writing
 ;; equations for givens may have to be worked out later. For now we declare 
 ;; this operator unordered so that the given equation steps may occur in
 ;; any order with respect to the other steps.
@@ -67,11 +67,11 @@
 ;; handled specially, because they should be questions: "What
 ;; quantity are you seeking?" and "What method should be used to find
 ;; it?"  These questions comprise the preamble discussed in the
-;; proposal. The specification document works out how the preamble
+;; proposal.  The specification document works out how the preamble
 ;; will be generated from the bubble graph.  Thus, there are no hints on 
 ;; operators that exist to support this top-level search.
 
-(defoperator find-by-psm (?sought ?eqn-id)
+(defoperator find-by-PSM (?sought ?eqn-id)
   :preconditions (
   	;; save initially known quants for detecting changes below
 	;; This is initial givens plus quantities given as parameters
@@ -82,8 +82,8 @@
 	(bind ?initial-knowns (union ?initial-givens ?parameters 
 	                             :test #'unify))
 	
-	;; Main step: apply a psm to generate an equation for sought.
-	(psm-applied ?sought ?eqn-id ?eqn-algebra)
+	;; Main step: apply a PSM to generate an equation for sought.
+	(PSM-applied ?sought ?eqn-id ?eqn-algebra)
 
 	;; collect list of quantities in the equation. 
 	(map ?v (vars-in-eqn ?eqn-algebra)
@@ -94,24 +94,24 @@
 	(test (member ?sought ?quantities-in-eqn :test #'unify))
 
 	;; Some quantities in eqn may have become "given" -- known -- as side 
-	;; effects of applying the psm. Here we call them the new-knowns.
+	;; effects of applying the PSM. Here we call them the new-knowns.
 	;; We get what's known now and figure out what's changed.
     	(setof (in-wm (given ?quant ?dont-care))
 	        ?quant ?given-now)
 	(bind ?known-now (union ?given-now ?parameters :test #'unify))
 	(bind ?new-knowns
 	      (set-difference ?known-now ?initial-knowns :test #'unify))
-	;; (debug "Made known inside psm: ~A~%" ?new-knowns)
+	;; (debug "Made known inside PSM: ~A~%" ?new-knowns)
 	;; Although the bubble driver won't have to seek them, for algebraic 
 	;; completeness we must put out equations giving values for 
-	;; the new-knowns. Could also do this at all the points they become 
+	;; the new-knowns.  Could also do this at all the points they become 
 	;; known but it's simpler to have one bit of code to do this.
 	;; we distinguish them as implicit equations since the student will
 	;; not have to write them. The algebra module still needs them.
 	(foreach ?quant ?new-knowns
 	    (implicit-eqn ?new-eqn ?quant))
 
-	;; Collect residual unknowns from eqn to include in the final psm stmt 
+	;; Collect residual unknowns from eqn to include in the final PSM stmt 
 	;; This is a convenience to bubble-graph search driver, which will
 	;; see the equation and can easily get its variables but finds it 
 	;; inconvenient to map the variables to quantities.  Used to be:
@@ -132,7 +132,7 @@
 	      (set-difference ?quantities-in-eqn ?imp-eq-quants :test #'unify))
 	)
   :effects
-   	((psm ?sought ?eqn-id ?eqn-algebra ?new-unknowns)))
+   	((PSM ?sought ?eqn-id ?eqn-algebra ?new-unknowns)))
 
 
 ;;; =================== applying a scalar equation=================
@@ -146,13 +146,13 @@
 ;;; Because the reasoning done by this operator is covered by the
 ;;; preamble, it has no hints.
 
-(defoperator apply-scalar-psm (?sought ?eqn-id)
-   :specifications "If the goal is to apply a psm to find a quantity,
+(defoperator apply-scalar-PSM (?sought ?eqn-id)
+   :specifications "If the goal is to apply a PSM to find a quantity,
       and there is a scalar equation  that contains that quantity,
       then generate the equation."
    :preconditions (
       (eqn-contains ?eqn-id ?sought)
-      ;; make sure psm name not on problem's ignore list:
+      ;; make sure PSM name not on problem's ignore list:
       (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
       (not (eqn ?dont-care ?eqn-id))
       (eqn ?eqn-algebra ?eqn-id)
@@ -160,22 +160,22 @@
 	     ?sought ?eqn-id ?eqn-algebra)
    )
    :effects
-   ((psm-applied ?sought ?eqn-id ?eqn-algebra)))
+   ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
 
 ;; For use by the help system, we need to indicate the difference between 
 ;; fundamental equations and derived equations that result from combinations 
 ;; of the fundamental equations.  This is done by the choice of "eqn" or
-;; "derived-eqn" proposition. The following variant of "apply-scalar-psm"
-;; searches for scalar psm's that result in derived eqns, rather than 
-;; fundamental equations. (Currently this is only the net-work psm). These 
-;; psms should post a derived-eqn-contains statement instead of eqn-contains.
-(defoperator apply-scalar-psm2 (?sought ?eqn-id)
-   :specifications "If the goal is to apply a psm to find a quantity,
+;; "derived-eqn" proposition. The following variant of "apply-scalar-PSM"
+;; searches for scalar PSM's that result in derived eqns, rather than 
+;; fundamental equations.  (Currently this is only the net-work PSM).  These 
+;; PSMs should post a derived-eqn-contains statement instead of eqn-contains.
+(defoperator apply-scalar-PSM2 (?sought ?eqn-id)
+   :specifications "If the goal is to apply a PSM to find a quantity,
       and there is a scalar equation that contains that quantity,
       then generate the equation."
    :preconditions (
       (derived-eqn-contains ?eqn-id ?sought)
-      ;; make sure psm name not on problem's ignore list:
+      ;; make sure PSM name not on problem's ignore list:
       (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
       (not (derived-eqn ?dont-care ?eqn-id))
       (derived-eqn ?eqn-algebra ?eqn-id)
@@ -183,11 +183,11 @@
 	     ?sought ?eqn-id ?eqn-algebra)
    )
    :effects
-   ((psm-applied ?sought ?eqn-id ?eqn-algebra)))
+   ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
 
 ;;; ================== entering givens =============================
 ;;; This operator corresponds to the step of entering an "assignment
-;;; statement" equation for given values. Note there may be 
+;;; statement" equation for given values.  Note there may be 
 ;;; prerequisite steps for defining the required variable; for example, 
 ;;; if the quantity is a vector magnitude the vector would have to be drawn.
 ;;;
@@ -201,8 +201,8 @@
 ;;;
 
 (defoperator write-known-value-eqn (?quantity)
-  :specifications "If a quantity's value is known, then define a variable for it
-    and write an equation giving its value"
+  :specifications "If a quantity's value is known, then define a variable 
+    for it and write an equation giving its value"
   :preconditions 
   ((in-wm (given ?quantity ?value-expr))
    ;; Make sure expression is usable in equation, not special atom. 
@@ -212,9 +212,12 @@
   :effects 
   ((given-eqn (= ?var-name ?value-expr) ?quantity))
   :hint
-  ((point (string "You can find the value of ~A in the problem statement." ?quantity))
-   (point (string "The value of ~A is given as ~A." ?quantity (?value-expr algebra)))
-   (bottom-out (string "Enter the equation ~A = ~A." (?var-name algebra) (?value-expr algebra)))
+  ((point (string "You can find the value of ~A in the problem statement." 
+		  ?quantity))
+   (point (string "The value of ~A is given as ~A." 
+		  ?quantity (?value-expr algebra)))
+   (bottom-out (string "Enter the equation ~A = ~A." 
+		       (?var-name algebra) (?value-expr algebra)))
    ))
 
 ;; This variant handles the case where the known value is a z-axis direction
@@ -225,35 +228,38 @@
   :preconditions
   (
    (in-wm (given (dir ?vector) ?dir))
-   (bind ?t (time-of ?vector))
    (test (and (z-dir-spec ?dir)
 	      (not (equal ?dir 'z-unknown))))
-					; ? use in-wm for variable here ?
+   (bind ?t (time-of ?vector))
+   ;; ? use in-wm for variable here ?
    (variable ?var-name (dir ?vector))
-   (bind ?dir-degrees (if (equal ?dir 'into) 180 0))
+   (bind ?dir-degrees (if (eql ?dir 'into) 180 0))
    )
   :effects 
   ((given-eqn (= ?var-name (dnum ?dir-degrees |deg|)) (dir ?vector)))
   :hint
   ((point (string "You know the numerical direction of ~A." ?vector))
-   (point (string "The numerical direction of ~A is ~A deg." ?vector ?dir-degrees))
+   (point (string "The numerical direction of ~A is ~A deg." 
+		  ?vector ?dir-degrees))
    (teach (string "For algebraic purposes, the direction of ~A is represented numerically as the angle it makes with the z-axis. This will be 0 deg if the vector points out of the plane and 180 deg if it points into the plane." ?vector))
-   (bottom-out (string "Enter the equation ~A = ~A deg." (?var-name algebra) ?dir-degrees))
+   (bottom-out (string "Enter the equation ~A = ~A deg." 
+		       (?var-name algebra) ?dir-degrees))
    ))
 
 ;; following variants write implicit equations for quantities like vector
 ;; directions or zero-magnitudes that become known as side-effects of 
-;; other steps. We don't attach hints to these since we don't want the help system
-;; to prompt the student to enter them explicitly. They have to be printed out
-;; as equations however for algebraic completeness of the set sent to algebra.
+;; other steps.  We don't attach hints to these since we don't want the 
+;; help system to prompt the student to enter them explicitly. 
+;; They have to be printed out as equations however for algebraic completeness 
+;; of the set sent to algebra.
 (defoperator write-implicit-eqn (?quantity)
   :specifications "If a quantity's value becomes known as a side effect of some other step, then define a variable for it and write an equation giving its value"
   :preconditions 
   ((in-wm (given ?quantity ?value-expr))
-					; Make sure expression is usable in equation, not special atom. 
-					; Assume if a list its an algebraic expression
+   ;; Make sure expression is usable in equation, not special atom. 
+   ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
-					; variable should already be defined 
+   ;; variable should already be defined 
    (in-wm (variable ?var-name ?quantity))) 
   :effects 
   ((implicit-eqn (= ?var-name ?value-expr) ?quantity)))
@@ -268,7 +274,7 @@
      (bind ?t (time-of ?vector))
      (test (and (z-dir-spec ?dir)
 	        (not (equal ?dir 'z-unknown))))
-     ; variable should already be defined
+     ;; variable should already be defined
      (in-wm (variable ?var-name (dir ?vector)))
      (bind ?dir-term (zdir-phi ?dir))
    )
@@ -289,17 +295,18 @@
 ;;; with an algebraic expression.  The equations of the form
 ;;; compo-var>=<expression> are called projection equations.
 ;;; 
-;;; The author of a vector psm, such as Newton's law or Kinematics, must define
+;;; The author of a vector PSM, such as Newton's law or Kinematics, must define
 ;;; operators for
 ;;; 
-;;; *  eqn-family-contains -- indicates which quantities might be found with this
+;;; *  eqn-family-contains -- indicates which quantities might be found 
+;;;                           with this
 ;;; *  vector-diagram -- procedure for drawing the appropriate diagram
 ;;; *  compo-eqn-contains -- which quantities various component eqns find
 ;;; 
 ;;; This operator takes care of the rest of the job of applying
 ;;; the vector equation.  
 ;;; 
-;;; Kinematics is treated as one vector psm even though it has 5
+;;; Kinematics is treated as one vector PSM even though it has 5
 ;;; different component equations that can be used with it, all of
 ;;; which reference the same vector diagram.  This means that no
 ;;; matter which of the 5 equations the student will eventually write,
@@ -309,8 +316,8 @@
 ;;; Because the reasoning done by these opearors is covered by the
 ;;; preamble, they have no hints.
 
-(defoperator apply-vector-psm (?sought ?eq-args) 
-   :specifications " If the goal is to apply a psm to find a quantity,
+(defoperator apply-vector-PSM (?sought ?eq-args) 
+   :specifications " If the goal is to apply a PSM to find a quantity,
       and there is a vector equation that contains that quantity,
       then
       draw the vector diagram (including the axis),
@@ -322,7 +329,7 @@
       ; so don't use it if component-form solution is wanted (see below).
       (not (component-form)) 
       (eqn-family-contains ?eqn-family-id ?sought)
-      ;; make sure psm name not on problem's ignore list:
+      ;; make sure PSM name not on problem's ignore list:
       (test (not (member (first ?eqn-family-id) (problem-ignorePSMS *cp*))))
       (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?eqn-family-id)
       (vector-diagram ?eqn-family-id)
@@ -336,23 +343,23 @@
       (derived-eqn ?compo-free-eqn (compo-free . ?eq-args))
     )
    :effects (
-      (psm-applied ?sought (compo-free . ?eq-args) ?compo-free-eqn)
+      (PSM-applied ?sought (compo-free . ?eq-args) ?compo-free-eqn)
    ))
 
 ;;
-;; Following applies vector psms writing compo-equations only.
+;; Following applies vector PSMs writing compo-equations only.
 ;; This is for use when we want "component-form" solutions, because the
 ;; problem is actually seeking a component value along standard axes.
 ;; We flag the problem with "(component-form)" proposition
 ;; to enable this form of solution.
-;; Note that compo-eqn-contains will be asserted by a vector psm for
+;; Note that compo-eqn-contains will be asserted by a vector PSM for
 ;; the *magnitude* of the relevant vector, so we have to temporarily
 ;; pretend we are seeking that when running through the generic equation
 ;; selection code. This avoids having to add new stuff to the existing
 ;; equation-contains stuff.
 ;;
-(defoperator apply-vector-psm-compo-form (?sought ?eq-args) 
- :specifications " If the goal is to apply a psm to find a vector component,
+(defoperator apply-vector-PSM-compo-form (?sought ?eq-args) 
+ :specifications " If the goal is to apply a PSM to find a vector component,
       and there is a vector equation that contains the vector magnitude,
       then
       find a component equation that contains the quantity,
@@ -362,14 +369,14 @@
       ;(any-member ?sought ((compo x 0 ?vector)
       ;                     (compo y 90 ?vector)
       ;			   (duration ?t)))
-      ; vector psms defined to seek vector magnitudes, so may need to 
+      ; vector PSMs defined to seek vector magnitudes, so may need to 
       ; pretend we are seeking magnitude to hook into existing vector
-      ; psm selecting code.  If sought is scalar, just leave it
+      ; PSM selecting code.  If sought is scalar, just leave it
       (bind ?vec-sought (if (componentp ?sought) 
                             `(mag ,(compo-base-vector ?sought))
                           ?sought))
       (eqn-family-contains ?vec-eqn-id ?vec-sought)
-      ; make sure psm name not on problem's ignore list:
+      ; make sure PSM name not on problem's ignore list:
       (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
       (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
       (vector-diagram ?vec-eqn-id)
@@ -382,10 +389,10 @@
       (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eq-args)
      )
    :effects
-   ((psm-applied ?sought (compo-eqn . ?eq-args) ?compo-eqn)))
+   ((PSM-applied ?sought (compo-eqn . ?eq-args) ?compo-eqn)))
 
 ;;;
-;;; operators for applying vector psm's
+;;; operators for applying vector PSM's
 ;;;
 ;;; The next three operators decide which component equation to
 ;;; generate and which axis to generate it along.  They get
@@ -466,7 +473,7 @@
 ;;; the ids must be body and time so we can pull them out by matching.
 ;;; If the time is an interval it should be packaged into a (during ..) term
 
-(defoperator select-compo-eqn-for-scalar (?psm-id ?b ?t ?compo-eqn-name ?quantity)
+(defoperator select-compo-eqn-for-scalar (?PSM-id ?b ?t ?compo-eqn-name ?quantity)
   :specifications 
    "If the sought quantity is a scalar,
       and ?compo-eqn-name is a component equation for the given vector equation
@@ -477,7 +484,7 @@
     ; pull out body and time from inside vector eqn id to make sure we pick up
     ; axis for that body and vector on that body when testing projection.
     ; NB: this requires that main vector eqn ids contain just these args!!
-    (compo-eqn-contains (?psm-id ?b ?t) ?compo-eqn-name ?quantity)
+    (compo-eqn-contains (?PSM-id ?b ?t) ?compo-eqn-name ?quantity)
     (debug "choosing compo to apply ~A to find scalar ~A~%"   ?compo-eqn-name ?quantity) 
     (axis-for ?b ?xyz ?rot)
     ;; this is weak, since we don't check if ?vector is relevant
@@ -485,13 +492,13 @@
     ;;(debug "select-compo: trying vector ~A at ~A~%" ?vector ?dir)
     (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
     ;;(debug "select-compo: rotation OK, checking if already used~%")
-    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot (?psm-id ?b ?t))))
+    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot (?PSM-id ?b ?t))))
     ;;(debug "Selecting ~a rot ~a via scalar ~a~%" ?xyz ?rot ?quantity)
     )
   :effects
-  ((compo-eqn-selected (?psm-id ?b ?t)
+  ((compo-eqn-selected (?PSM-id ?b ?t)
 		       ?quantity 
-		       (compo-eqn ?compo-eqn-name ?xyz ?rot (?psm-id ?b ?t)))))
+		       (compo-eqn ?compo-eqn-name ?xyz ?rot (?PSM-id ?b ?t)))))
 
 
 ;;; After the compo equation has been written, this operator writes
@@ -830,7 +837,7 @@
 ;; value when vector is drawn, so there is really no need to use them 
 ;; in projections for known directions. We could use them with trig 
 ;; functions in case of unknown phi dirs, but currently the algebra system 
-;; cannot solve for unknown phi variables (see apply-vector-psm-compo-form). 
+;; cannot solve for unknown phi variables (see apply-vector-PSM-compo-form). 
 ;; So in this case we just write equivalent of V = abs(V_z) so mag value
 ;; will be determined. 
 
@@ -921,16 +928,16 @@
   ))
 
 
-; Following is the projection psm applied at the bubble-graph level 
+; Following is the projection PSM applied at the bubble-graph level 
 ; for component-form solutions, in which projections are not hidden inside
-; psms. For example, if given mag and dir of v0, need projection to link to
+; PSMs. For example, if given mag and dir of v0, need projection to link to
 ; v0_x and v0_y which occur in component-form bubble-graph equations.
 ; We use a different eqn-id for this so we can reuse the existing equation
 ; writing operators as subroutines. Unfortunately we can't use the existing
 ; projection writing operators to achieve our final equation writing goal
 ; directly since as written they make assumptions about the context, viz
 ; that a diagram with vectors and axes has already been drawn and variables
-; already been defined. When used as a top-level psm we have to generate
+; already been defined. When used as a top-level PSM we have to generate
 ; that context ourself.  Until we fix that, we have to treat this operator
 ; as generating a derived-eqn -- though it is in fact identical 
 ; to the single sub-eqn we are wrapping.
@@ -966,7 +973,7 @@
    ;; have to make sure compo variable is defined (which requires drawing
    ;; vector and axes), since the projection writing operators that do
    ;; the work are written to assume it is already in wm as a result of
-   ;; drawing a vector diagram for a standard vector-psm.
+   ;; drawing a vector diagram for a standard vector-PSM.
    (variable ?compo-var (compo ?xy ?rot ?vector))
    ;; then use existing operators to write projection equation:
    (eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
@@ -1180,7 +1187,7 @@
 ;;; parameter lists. That means the axis drawing operators can only apply
 ;;; once to draw an axis at any particular rotation. This should be OK within
 ;;; the context of a single PSM application. However, if we needed axes for
-;;; multiple bodies within a single psm application we could use variants
+;;; multiple bodies within a single PSM application we could use variants
 ;;; that achieve the goal of choosing axes for a body by reusing existing 
 ;;; drawn axes for another body without drawing again.
 
@@ -1298,7 +1305,7 @@
 ;;; Because the component variables are defined automatically by the
 ;;; workbench, no hints are necessary on this operator.
 ;;;
-;;; Normally, the psm that needs component variables will ensure that
+;;; Normally, the PSM that needs component variables will ensure that
 ;;; they have already been drawn before the component variable is needed,
 ;;; so these subgoals will usually be satisfied in working memory.
 ;;; But in component-form problems, some operator may have to be used 
@@ -1307,7 +1314,7 @@
 ;;; to take out "in-wm" on these preconds. One issue is that it may
 ;;; is necessary to pick a time to associate with the axis if we have
 ;;; to draw it. [The time an axis is chosen "for" is not necessarily the
-;;; time on the vector but more like the time on the main psm -- e.g
+;;; time on the vector but more like the time on the main PSM -- e.g
 ;;; in (lk block (1 2) time on the axis will be (1 2) while we still
 ;;; draw instantaneous vector at 1.] For this reason we define another op
 ;;; to achieve axes for writing given compos for component form problems.
@@ -1472,7 +1479,7 @@
 ;;;     (fraction-of ?quant1 ?fraction ?quant2) 
 ;;; to mean quant1 = fraction*quant2
 
-(def-psmclass given-fraction (given-fraction ?q1 ?q2)
+(def-PSMclass given-fraction (given-fraction ?q1 ?q2)
   :complexity connect ;just like (equals ...)
   :english ("one quantity as given fraction of another")
   :eqnFormat ("val1 = fraction*val2"))
@@ -1743,7 +1750,7 @@
    (variable ?t-var (duration ?t))
    ;; nsh now requires body and axes if you ask for help, so there's 
    ;; little point making these 'optional' any more. 
-   ;; At end so psm graph branches at end only.
+   ;; At end so PSM graph branches at end only.
    (optional (body ?b))
    (optional (axis-for ?b x 0))
    )
@@ -2094,7 +2101,7 @@
     (variable ?mag-var (mag (displacement ?b :time ?t)))
     (variable ?dir-var (dir (displacement ?b :time ?t)))
     (given (dir (displacement ?b :time ?t)) ?dir)
-    ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
+    ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
     ;; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir) (dir (displacement ?b :time ?t)))
     ) 
@@ -2475,7 +2482,7 @@
     (time ?t))
   :effects 
   ((eqn-family-contains (avg-velocity ?b ?t) ?sought)
-  ;; since only one compo-eqn under this vector psm, we can just
+  ;; since only one compo-eqn under this vector PSM, we can just
   ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (avg-velocity ?b ?t) avg-vel ?sought)))
 
@@ -2697,7 +2704,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir)
-    ; Because dir is problem given, find-by-psm won't ensure implicit eqn
+    ; Because dir is problem given, find-by-PSM won't ensure implicit eqn
     ; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t)))
     ) 
@@ -2970,7 +2977,7 @@
 	(centripetal-accel ?b ?t)))
   :hint
   ((point (string "Notice that ~a is moving in uniform circular motion." ?b))
-   (teach (kcd "centripetal_psm")
+   (teach (kcd "centripetal_PSM")
 	  (string "If an object is in uniform circular motion, its acceleration equals the velocity squared divided by the radius of circular motion."))
    (bottom-out (string "Because ~a is moving in a circle of radius ~a with velocity ~a, its acceleration is ~a = ~a^2/~a."  ?b (?radius-var algebra) (?vel-var algebra) (?accel-var algebra) (?vel-var algebra) (?radius-var algebra)))
    ))
@@ -3194,8 +3201,8 @@
 ;;; We have to be able to apply this equation in either case. However, if we
 ;;; are just using it to find average acceleration we shouldn't draw the
 ;;; displacement as required for an "lk" diagram. Therefore we use it as
-;;; a child compo-eqn of two different vector psms -- as a child of the
-;;; lk psm when accel is known constant, and as a child of the avg-accel psm
+;;; a child compo-eqn of two different vector PSMs -- as a child of the
+;;; lk PSM when accel is known constant, and as a child of the avg-accel PSM
 ;;; when accel is not known constant.
 
 (defoperator LK-no-s-contains (?quantity)
@@ -3203,16 +3210,16 @@
    "Lists the quantities contained in vf = vi + a * t"
   :preconditions
   (
-   ;; This should apply at first step of apply-vector-psm where it calls for a 
-   ;; vector-psm (eqn family).  It will ALSO post the compo-eqn-contains to 
-   ;; choose the particular equation.  At second step, where apply-vector-psm 
+   ;; This should apply at first step of apply-vector-PSM where it calls for a 
+   ;; vector-PSM (eqn family).  It will ALSO post the compo-eqn-contains to 
+   ;; choose the particular equation.  At second step, where apply-vector-PSM 
    ;; where calls for a compo-eqn-contains, the goal will be satisfied by 
    ;; the WM element.  However, solver will also try to achieve goal via
    ;; operators.  This operator won't be applied again with the same 
    ;; parameters, but those for OTHER lk family equations might be.  
    ;; So: prevent any of them from applying when the compo-eqn-contains 
    ;; is already in wm. 
-   ;; !!! Should simplify apply-vector-psm to avoid this whole two-level 
+   ;; !!! Should simplify apply-vector-PSM to avoid this whole two-level 
    ;; scheme of choosing eqn-family then choosing compo-eqn. 
    (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
@@ -3672,13 +3679,13 @@
 
 ;;; ===================== average acceleration =================
 ;;;
-;;; This is a vector psm to find average acceleration when the
+;;; This is a vector PSM to find average acceleration when the
 ;;; acceleration is not known to be constant. It uses the same
 ;;; compo equation lk-no-s that is used under the constant acceleration
 ;;; equation method "lk". We want avg-accel/lk-no-s to apply only 
 ;;; when lk/lk-no-s doesn't to keep down multiplication of solutions.
 ;;; Since we use the same child equation id lk-no-s in both cases, 
-;;; if the student ever selects avg-accel as a psm when accel is constant
+;;; if the student ever selects avg-accel as a PSM when accel is constant
 ;;; we can match on the child id only to find it as part of the appropriate
 ;;; containing parent method.
 ;;; 
@@ -3728,7 +3735,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;; following writes LK-no-s in context of avg-accel method.
 ;; duplicates lk/lk-no-s pair of operators.
-;; We could generalize them with variables in place of parent-psm-id, since
+;; We could generalize them with variables in place of parent-PSM-id, since
 ;; id is always bound coming in.  Then the same operators would apply in
 ;; both instances.  These are separate for now only so don't have to 
 ;; regenerate existing problem files for the change.
@@ -3801,7 +3808,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
     (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
-    ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
+    ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
     ;; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
@@ -3832,7 +3839,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
     (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
-     ; Because dir is problem given, find-by-psm won't ensure implicit eqn
+     ; Because dir is problem given, find-by-PSM won't ensure implicit eqn
     ; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
@@ -3842,7 +3849,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	  ?b2 ?b1 (?t pp) ?dir-expr))
   ))
 
-(def-psmclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
+(def-PSMclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
   :complexity minor
   :english ("relative position equality")
   :ExpFormat ("applying relative position equality to ~a and ~a ~a"
@@ -3941,7 +3948,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     )
   :effects 
   ((eqn-family-contains (sum-disp ?b ?tt) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
+  ; since only one compo-eqn under this vector PSM, we can just
   ; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (sum-disp ?b ?tt) sum-disp ?sought)))
 
@@ -3988,7 +3995,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     
   :effects 
   ((eqn-family-contains (sum-net-force ?b ?t1) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
+  ; since only one compo-eqn under this vector PSM, we can just
   ; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (sum-net-force ?b ?t1) sum-net-force ?sought)))
 
@@ -4564,7 +4571,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint (
     (point (string "You know that the static friction takes on its maximum value in this problem"))
     (teach 
-        (kcd "dynamic_friction_psm")
+        (kcd "dynamic_friction_PSM")
         (string "When static friction is at its maximum, the magnitude of the static friction force a surface exerts on an object is equal to the coefficient of static friction times the normal force on the object from the surface"))
     (bottom-out (string "Write the equation ~A" ((= ?ff-var (* ?mu-var ?N-var)) algebra)))
   ))
@@ -4921,7 +4928,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;;; scalar version of definition:
 
-(def-psmclass thrust-force (thrust-definition ?body ?agent ?time)
+(def-PSMclass thrust-force (thrust-definition ?body ?agent ?time)
     :complexity minor  ;same as definitions of other forces
     :Doc "Definition of thrust force."
     :english ("the definition of thrust force") 
@@ -4958,7 +4965,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
 ;;; vector version of thrust force
-(def-psmclass thrust-force-vector (?eqn-type definition ?axis ?rot 
+(def-PSMclass thrust-force-vector (?eqn-type definition ?axis ?rot 
 				 (thrust ?body ?agent ?time))
     :complexity minor    ;same as definitions of other forces
     :Doc "Definition of thrust force."
@@ -5026,7 +5033,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :effects 
    ((eqn-family-contains (thrust ?b ?agent ?t) ?sought)
-    ;; since only one compo-eqn under this vector psm, we can just
+    ;; since only one compo-eqn under this vector PSM, we can just
     ;; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (thrust ?b ?agent ?t) definition ?sought)))
 
@@ -5143,7 +5150,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint (
     (point (string "Notice that ~a and ~a are exerting forces on each other." ?b1 ?b2))
     (teach 
-        (kcd "third_law_psm")
+        (kcd "third_law_PSM")
         (string "Newton's Third Law states that forces always come in pairs: whenever one body exerts a force on a second body, the second body exerts a force of the same type back on the first body. The members of these action/reaction pairs are equal in magnitude and opposite in direction"))
     (bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, a ~A force on ~A due to ~A at ~A" 
 			(?type adjective) (?b1 agent) ?b2 (?type adjective) 
@@ -5182,7 +5189,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
   ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
    (teach 
-      (kcd "third_law_psm")
+      (kcd "third_law_PSM")
       (string "Newton's Third Law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A. You can use that to equate the magnitudes of this pair of forces."))
    (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
   ))
@@ -5203,7 +5210,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
    :effects (
    (eqn-family-contains (NTL-vector ?body-pair ?type ?t) ?sought) 
-    ; since only one compo-eqn under this vector psm, we can just
+    ; since only one compo-eqn under this vector PSM, we can just
     ; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (NTL-vector ?body-pair ?type ?t) NTL ?sought)
    ))
@@ -5241,7 +5248,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      ;; !!! TODO
      (point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?F12_xy algebra) (?F21_xy algebra)))
    (teach 
-    (kcd "third_law_psm")
+    (kcd "third_law_PSM")
     (string "Newton's Third Law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction. This entails that the components of each force vector are the negations of the corresponding components of the other: F12_x = -F21_x and F12_y = -F21_y."))
      (bottom-out (string "Write the equation ~A" 
                          ((= ?F12_xy (- ?F21_xy)) algebra)))
@@ -5858,7 +5865,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; This operator models writing the Fs = k * compression/extension equation.  
 ;;; Selectively enabled by (uses-k-and-d) in the problem statement. ??? Unnecessary ? -AW
 	       
-(def-psmclass spring-law (spring-law ?body ?time)
+(def-PSMclass spring-law (spring-law ?body ?time)
   :complexity minor
   :english ("Hooke's Law")
   :expformat ("applying Hooke's Law to ~a " (nlg ?body))
@@ -6021,7 +6028,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
-;;; We have to define a special NL-net variant psm to use net force rather 
+;;; We have to define a special NL-net variant PSM to use net force rather 
 ;;; than sum F1 + F2 ...  for those few problems that work in terms of net 
 ;;; force only without determining how net force is decomposed into individual
 ;;; forces. Net force is the sought in these; it could be given as well.
@@ -6601,7 +6608,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 )
 
 ; generate equation TME_1 = TME_2
-; currently only used as subsidiary equation in cons-energy psm
+; currently only used as subsidiary equation in cons-energy PSM
 ; !!! Could also use formulation: K1 + U1 = K2 + U2 
 ; !!! where Ui is total potential energy at i
 (defoperator write-energy-cons (?b ?t1 ?t2)
@@ -7087,14 +7094,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; Note: this requires there to be a unique force done by a given agent, so 
 ;;; couldn't handle work done by friction and normal force from floor
 
-;;; The "work" scalar equation psm computes work done by a single force over 
+;;; The "work" scalar equation PSM computes work done by a single force over 
 ;;; a time interval as F * d * cos(theta) where theta is angle between F and d.
 ;;; We use a variant operator to write work = 0 for forces known to be 
 ;;; orthogonal to the displacement. 
 ;;;
 ;;; Note: if coordinate axes are drawn this quantity can also be computed 
 ;;; component-wise as F_x * d_x + F_y * d_y. We will have to define another 
-;;; psm to calculate the work done by a single force in this way.
+;;; PSM to calculate the work done by a single force in this way.
 ;;;
 ;;; !!! This only applies if the force is constant over the interval. That is
 ;;; true of almost all forces in Andes problems except the force from a
@@ -7224,6 +7231,25 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;
 ;;;;===========================================================================
 
+(defoperator apply-inner-PSM (?sought ?eqn-id)
+   :preconditions (
+     ;;(not (component-form)) ;BvdS: what about this
+     (inner-eqn-contains ?eqn-id ?sought)
+     ;; make sure PSM name not on problem's ignore list:
+     (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
+     (debug "To find ~S~%     trying inner product eqn ~A~%" ?sought ?eqn-id)
+     (vector-diagram ?eqn-id)
+     (debug "Diagram drawn for ~A~%" ?eqn-id)
+     (eqn ?compo-eqn (compo-eqn z 0 ?eqn-id))
+     (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
+     (derived-eqn ?compo-free-eqn (compo-free z 0 ?eqn-id))
+     (debug "Compo-free eqn: ~a. ~%" ?compo-free-eqn)
+   )
+   :effects (
+    (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
+   ))
+
+
 ;; dot product for two vectors
 (defoperator dot-using-angle (?a ?b)
   :preconditions 
@@ -7237,7 +7263,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     )
 :effects ( (dot ?dot ?a ?b nil) ))
 
-;; use vector-psm
+;; use vector-PSM
 ;; follow cross product, but they just use standard axes
 (defoperator dot-using-components (?a ?b ?x-rot)
   :preconditions 
@@ -7377,7 +7403,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 
 ;;
-;; Net-work psm -- compute net work as the sum of the work done by
+;; Net-work PSM -- compute net work as the sum of the work done by
 ;; each force on the object. 
 ;;
 ;; The most natural method would be to write the equation 
@@ -7393,11 +7419,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; We include alternate code for an "all-in-one" version that incorporates
 ;; subsidiary equations for the individual works done by each force. These 
 ;; terms are eliminated in the final equation, so the whole solution for 
-;; net work occurs within a single psm. This means we can't simply chain from 
+;; net work occurs within a single PSM. This means we can't simply chain from 
 ;; net work to find work done by an individual force at the top-level, though 
 ;; we could find the force magnitude.
 ;;
-;; Either way the net work psm requires drawing a free body diagram showing 
+;; Either way the net work PSM requires drawing a free body diagram showing 
 ;; all the forces on an object as for Newton's Law problems (but w/o accel).
 ;; Forces orthogonal to the displacement contribute nothing to 
 ;; the net work done so could in principle be left out of the computation 
@@ -7471,7 +7497,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :effects ( (net-work-diagram ?b ?t) ))
 
 ;;;
-;;; work-energy psm -- net-work = change in kinetic energy
+;;; work-energy PSM -- net-work = change in kinetic energy
 ;;;
 ;;; In almost all Andes problems where net work can be computed the forces are
 ;;; constant so an equivalent solution using Newton's Law + constant 
@@ -7894,7 +7920,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
   :effects (
   (eqn-family-contains (linear-momentum ?b ?t) ?sought)
-  ;; since only one compo-eqn under this vector psm, we can just
+  ;; since only one compo-eqn under this vector PSM, we can just
   ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (linear-momentum ?b ?t) definition ?sought)
   ))
@@ -8056,7 +8082,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
   :effects (
   (eqn-family-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
-  ;; since only one compo-eqn under this vector psm, we can just
+  ;; since only one compo-eqn under this vector PSM, we can just
   ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (cons-linmom ?bodies (during ?t1 ?t2)) lm-compo ?sought)
   ))
@@ -8242,7 +8268,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; equation designation, but can be used to achieve that effect.
 ;;;
 ;;; Another way is to include them on only one of several paths achieving a 
-;;; psm equation.  We try that here, since we are already splitting a path on 
+;;; PSM equation.  We try that here, since we are already splitting a path on 
 ;;; the optional v drawing in draw-momentum-at-rest.  This operator should only
 ;;; write entries along that path, though the include-zero-vcomps subgoal 
 ;;; must still succeed along the other path for the other path to be included 
@@ -8257,7 +8283,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; Collect component terms from all the drawn zero velocity vectors. 
    ;; Zero velocities are drawn as an optional step in draw-momentum-at-rest.
    ;; Since that is optional, this will only find them when in the path 
-   ;; through the containing psm that actually draws them.
+   ;; through the containing PSM that actually draws them.
       (setof (in-wm (vector ?b (velocity . ?rest) zero))
               (compo ?xyz ?rot (velocity . ?rest))
 	      ?zero-vcomps)
@@ -8277,7 +8303,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; The following operator applies conservation of kinetic energy to perfectly
 ;;; elastic collisions. This is slightly different than the more general 
 ;;; conservation of energy equation so we group it under linear momentum.
-;;; It is a separate scalar equation psm (not part of the cons linmom psm)
+;;; It is a separate scalar equation PSM (not part of the cons linmom PSM)
 ;;; so it will only be applied if needed to determine some unknown and goes
 ;;; at the bubble-graph level.
 ;;;
@@ -8362,12 +8388,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; and an equation we can use algebraically to specify it; and, it may help 
 ;; to teach general vector concepts.
 ;;
-;; There is a special driver for angular psms because they operate slightly 
-;; differently from the vector psms. Mainly we know the axis is going
+;; There is a special driver for angular PSMs because they operate slightly 
+;; differently from the vector PSMs. Mainly we know the axis is going
 ;; to be the z-axis, so don't have to go to the trouble of drawing axes and
 ;; choosing directions based on drawn vectors to apply.  Independently,
 ;; we don't go through the step of grouping different component equations
-;; under a single psm with a common diagram here; we just associate the
+;; under a single PSM with a common diagram here; we just associate the
 ;; diagram with the equation and only draw the vectors we need.
 ;;
 ;; Note: In current Andes you can't use z-component variables until you draw a
@@ -8377,11 +8403,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; should always be achievable by draw-unrotated-axes. It might fail in
 ;; the future a problem if any linear vectors are drawn on the body.
 
-(defoperator apply-angular-psm (?sought ?eqn-id)
+(defoperator apply-angular-PSM (?sought ?eqn-id)
    :preconditions (
      (not (component-form)) ; suppress projections unless component-form
      (angular-eqn-contains ?eqn-id ?sought)
-     ;; make sure psm name not on problem's ignore list:
+     ;; make sure PSM name not on problem's ignore list:
      (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
      (debug "To find ~S~%     trying z-vector eqn ~A~%" ?sought ?eqn-id)
      (vector-diagram ?eqn-id)
@@ -8392,7 +8418,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (debug "Compo-free eqn: ~a. ~%" ?compo-free-eqn)
    )
    :effects (
-    (psm-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
+    (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
    ))
 
 ; Following variant writes component-form equations in order to solve
@@ -8404,7 +8430,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; with the magnitude of alpha, which can be determined by alpha = abs(alpha_z).
 ; The reason is that it can't invert cos(phi) = 1 (or -1) to solve for phi
 
-(defoperator apply-angular-psm-compo-form (?sought ?eqn-id) 
+(defoperator apply-angular-PSM-compo-form (?sought ?eqn-id) 
    :preconditions
      ((component-form) ; needed to filter method when sought is duration.
       (time ?t)
@@ -8413,13 +8439,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       ;; if ?vector is bound, match its time to ?t
       (test (or (not (equal (first ?sought) 'compo)) 
 		(equal (time-of ?vector) ?t)))
-      ;; vector psms defined to seek vector magnitudes, so need to 
+      ;; vector PSMs defined to seek vector magnitudes, so need to 
       ;; pretend we are seeking magnitude to hook into existing vector
-      ;; psm selecting code.  If sought is duration, just leave it
+      ;; PSM selecting code.  If sought is duration, just leave it
       (bind ?vec-sought (if (eql (first ?sought) 'duration) ?sought
                          `(mag ,?vector))) 
       (angular-eqn-contains ?eqn-id ?vec-sought)
-      ;; make sure psm name not on problem's ignore list:
+      ;; make sure PSM name not on problem's ignore list:
       (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
       (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
       (vector-diagram ?eqn-id)
@@ -8428,7 +8454,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
      )
    :effects
-   ((psm-applied ?sought (compo-eqn z 0 ?eqn-id) ?z-compo-eqn)))
+   ((PSM-applied ?sought (compo-eqn z 0 ?eqn-id) ?z-compo-eqn)))
 
 
 ; draw angular velocity of an object rotating in a known direction 
@@ -8854,7 +8880,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; (mag (relative-position ...))
 ;;
 ;; Another possibility is to try to split the method graph inside 
-;; the psm to use both methods of specifying this quantity, but that involves
+;; the PSM to use both methods of specifying this quantity, but that involves
 ;; coding two completely different versions of the operator.
 
 ;; Following derives linear motion description from given relative position
@@ -9063,7 +9089,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;;; mass per length = mass /length of a rod
 
-(def-psmclass mass-per-length-eqn (mass-per-length-equation ?b)
+(def-PSMclass mass-per-length-eqn (mass-per-length-equation ?b)
   :complexity minor  ;same as the moment of inertia formulas
   :doc "mass per length = mass/length"
   :english ("mass per length = mass/length")
@@ -9499,7 +9525,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;===================== Torque and Net Torque =========================
 
 
-;; Net torque psm -- for computing net torque on an object as sum of
+;; Net torque PSM -- for computing net torque on an object as sum of
 ;; torques produced by individual forces on parts of object.
 ;;
 
@@ -9616,7 +9642,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
      (variable ?dir-var (dir (net-torque ?b ?axis :time ?t))) 
      (given (dir (net-torque ?b ?axis :time ?t)) ?dir)
-     ; Because dir is problem given, find-by-psm won't ensure implicit eqn
+     ; Because dir is problem given, find-by-PSM won't ensure implicit eqn
      ; gets written. Given value may not be used elsewhere so ensure it here.
      (implicit-eqn (= ?dir-var ?phi-value) (dir (net-torque ?b :time ?t)))
    )
