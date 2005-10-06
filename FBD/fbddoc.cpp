@@ -720,8 +720,13 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		BOOL bOK = LoadFromPrb(strPathName);
 		if (! bOK) {
 			// !!! need to show reason, e.g. if file doesn't exist or
-			// has old format without info we need
-			theApp.DoWarningMessage("Failed to load " +  strPathName);
+			// has old format without info we need. For OLI, this may mean .fbd file
+			// was not downloaded successfully.
+#ifdef OLI
+			theApp.DoWarningMessage("Failed to load problem. A required problem file may not have downloaded successfully. Close ANDES and try again another time.");
+#else ! OLI
+			theApp.DoWarningMessage("Failed to load problem from " +  strPathName);
+#endif !OLI
 			return FALSE;
 		}
 	}
@@ -2320,6 +2325,7 @@ void CFBDDoc::RemoveLayoutItems()
 
 // Layout the problem statement items from given statement spec.
 // returns bounding box of problem statement.
+// returns NULL rectangle for a bad problem.
 CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 {
 	// split source into array of lines:
@@ -2494,6 +2500,11 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 	// don't leave font selected in DC.
 	dc.SelectObject(pOldFont);
 
+	// If problem doesn't have answers, return failure code (NULL rectangle).
+	// probably need an .fbd file for this problem
+	if (nAnswers == 0)
+		return CRect(0,0,0,0);
+	// else:
 	// return bounding rect of statement (including lower border).
 	return CRect(xLeftMargin, yTopMargin, xMax, yPos);
 }
@@ -2548,12 +2559,16 @@ void CFBDDoc::LayoutGraphic(const CString &strPathName, const CRect &rcStmt)
 }
 
 // Main routine to layout a problem from the spec info in member variables.
-void CFBDDoc::LayoutProblem()
+BOOL CFBDDoc::LayoutProblem()
 {
 	// Clear existing layout first, in case we are doing it again.
 	RemoveLayoutItems();
-	// Layout the statement
+
+	// Layout the statement and verify it was well-formed
 	CRect rcStmt = LayoutStatement(m_strStatement);
+	if (rcStmt.IsRectNull())
+		return FALSE;
+
 	// Layout the graphic if an external graphic file is specified
 	if (!m_strGraphicFile.IsEmpty()) 
 	{
@@ -2567,6 +2582,7 @@ void CFBDDoc::LayoutProblem()
 		CString strPathName = g_strAndesDir + g_szProblemDir + "\\" + m_strGraphicFile;
 		LayoutGraphic(strPathName, rcStmt);
 	}
+	return TRUE;
 }
 
 
@@ -2916,8 +2932,9 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 	// make sure we have all we need.
 	fclose(fp);
 
-	// Layout the Problem from the spec
-	LayoutProblem();
+	// Layout the Problem from the spec, verify it is well-formed:
+	if (! LayoutProblem())
+		return FALSE;
 
 	// The dirty bit will have been set on adding graphic to file. In student mode, clear it,
 	// so no prompt to save if no further changes. For authors, leave it, they have created a new

@@ -289,7 +289,7 @@ public:	// so can be used by event broadcaster to send init entries
 	CRect LayoutStatement(const CString& strStatement);
 	void LayoutGraphic(const CString& strFileName, const CRect& rcStmt);
 	void RemoveLayoutItems();
-	void LayoutProblem();
+	BOOL LayoutProblem();
 	int GetNextAxesIndex();
 
 	// Helpers for dealing with object metrics and font info.

@@ -314,6 +314,11 @@ void CProblemSet::GetName(CString strPath)
 	int iLastDot = strPath.ReverseFind('.');
 	int iFileName = strPath.ReverseFind('\\') + 1;
 	m_strName = strPath.Mid(iFileName, iLastDot - iFileName);
+	// in case we are opening an IE-downloaded .aps file not from OLI (as in Min
+	// Chi experiment): If extracted basename contains a '[', take only up to that:
+	int iLBracket = m_strName.ReverseFind('[');
+	if (iLBracket != -1)
+		m_strName = m_strName.Mid(iLBracket);
 }
 
 // determine solution states for all problems based on what we can find in
@@ -886,10 +891,13 @@ int CProblemSet::GetProblemFiles(CString strProblemId)
 	// set flag to create solution dir in case student never worked locally before
 	CTask* pTask = FindTask(strProblemId);
 	CString strSolnPath = pTask->GetSolutionPath(TRUE);	
-	if (GetSolution(strSolnPath) == 0
-		&& ! m_bViewSolution)				// = 0 => file doesn't exist
+	if (GetSolution(strSolnPath) == 0) 	// = 0 => file doesn't exist
 	{
-		// no solution file: look for .fbd file
+		if (m_bViewSolution)	// odd, should be a solution file there.
+			// should cancel open. For now, just warn and continue
+			AfxMessageBox("No student solution file found on OLI! Opening new solution file.");	
+
+		// no solution file to open: look for .fbd file
 		CString strProblemIdLC = strProblemId;	// lower-case
 		strProblemIdLC.MakeLower();
 		strBaseName = strProblemIdLC + ".fbd";
@@ -1144,6 +1152,28 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 			AfxGetApp()->EndWaitCursor();
 		}
 */
+#if 0 // don't give this power to instructors
+
+		// following lets instructor update from this session (!!! but grade is not updated).
+		// The delete option lets us remove a bad solution file, though repair is still a two-stage process
+		// requiring us to load again to create a fresh solution file. Needed since current Andes on the student's 
+		// machine may still find and load the saved local copy even if none exists on OLI.
+		int nChoice =  AfxMessageBox("Update student's solution file from this session?\n[Select Cancel to delete saved solution file]", 
+			                          MB_YESNOCANCEL|MB_DEFBUTTON2);
+		if (nChoice != IDNO) 
+		{
+			CString strSolnPath = FindTask(pDoc->m_strProblemId)->GetSolutionPath();
+			if (nChoice == IDCANCEL)  // truncate solution file to zero length
+				CFile(strSolnPath, CFile::modeWrite|CFile::modeCreate);
+		
+			AfxGetApp()->BeginWaitCursor();
+			PutSolution(strSolnPath);
+			AfxGetApp()->EndWaitCursor();
+
+			if (nChoice == IDCANCEL)  // delete local copy
+				CFile::Remove(strSolnPath);
+		}
+#endif 0
 	}
 
 	// Post message to close the whole application if not already closing. 

@@ -736,12 +736,14 @@ void CChatView::SetCharPlain()
 	CHARFORMAT cfDefault;
 	cfDefault.cbSize = sizeof(CHARFORMAT);
 	GetRichEditCtrl().GetDefaultCharFormat(cfDefault);
-	// Setting default fact name is not working in release mode.
-	// Here we force Arial.
+
+	// Setting default face name is not working in release mode - don't know why
+	// Here we specify Arial explicitly. (Note: Arial matches the default font very
+	// closely, but not quite exactly, it seems.)
 	::lstrcpy(cf.szFaceName, "Arial"); // */ cfDefault.szFaceName); 
+	cf.dwMask = /*CFM_ITALIC | CFM_BOLD |*/ CFM_FACE; // change fontface only
 	//AfxMessageBox(CString("Setting Plain text font=") + cf.szFaceName);
 	
-	cf.dwMask = /*CFM_ITALIC | CFM_BOLD |*/ CFM_FACE; // change fontface only
 	GetRichEditCtrl().SetSelectionCharFormat(cf);
 }
 
@@ -946,6 +948,7 @@ void CChatView::SetFormat(char tag)
 void CChatView::InsertGreekText(CString strText)
 {
 	CRichEditCtrl& edit = GetRichEditCtrl();
+
 	// Simple method consisting of SetCharSymbol to set format at insertion point followed
 	// by ReplaceSel does not display Greek symbols in the richedit control on Windows 
 	// 2000 and Me, even though the Greek format attributes are correctly retreived on 

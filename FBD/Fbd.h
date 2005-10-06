@@ -1,6 +1,6 @@
 // FBD.h : main header file for the FBD application
 // 
-// $Id: Fbd.h,v 1.3 2005/08/15 04:28:13 anders Exp $
+// $Id: Fbd.h,v 1.4 2005/10/06 23:22:18 anders Exp $
 
 #ifndef __AFXWIN_H__
 	#error include 'stdafx.h' before including this file for PCH
@@ -118,6 +118,7 @@ public:
 	BOOL m_bRegisterOnly;		// flag that running to register filetypes only
 
 	CString m_strAndesVersion;	// current Andes version as defined in version resource
+
 
 	// 
 	// Utilities to find principal objects from anywhere in the code:

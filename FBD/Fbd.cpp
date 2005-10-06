@@ -574,6 +574,8 @@ void CFBDApp::LoadAndesSettings()
 	m_bUsePrincipleWnd = GetProfileInt(szSettingsSection, szPrincipleWnd, 0);
 }
 
+// Fetch the version number out of our .exe file, formatting into
+// m_strAndesVersion string
 void CFBDApp::InitVersion()
 {
 	DWORD dwVerInfoSize;
@@ -611,7 +613,25 @@ void CFBDApp::InitVersion()
 			free(pBuffer);
 
 	}
-
+/*
+	// Also set the OS version flag here
+	OSVERSIONINFO osvi;
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (::GetVersionEx ( &osvi) ) {	
+		// dwPlatformId == VER_PLATFORM_WIN32_WINDOWS:
+		//     [dwMajorVersion == 4]
+		//     dwMinorVersion = 0 => Win95
+		//     dwMinorVersion > 0 => Win98 or Me
+		//           98: minor==10; 
+		//           Me: minor==90  
+		// dwPlatformId == VER_PLATFORM_WIN32_NT
+		//      dwMajorVersion, dwMinorVersion:
+		//          3.51 => NT 3.51
+		//          4.0  => NT 4.0
+		//          5.0  => Windows 2000
+		//          5.1  => Windows XP	
+	}
+*/
 }
 
 // Although stored version resources have 4 16 bit slots allowing 64 bits total,
