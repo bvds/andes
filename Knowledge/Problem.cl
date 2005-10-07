@@ -154,12 +154,12 @@
 ;; The system generates a new file or overwrites the old one and then stores 
 ;; each independent field in turn by writing the field name followed by the 
 ;; field contents.  This facilitates human reading of the problem file and also
-;; aids in error detection.  Future versions of a problem can add new fields without
-;; invalidating the storage code for the old ones.  
+;; aids in error detection.  Future versions of a problem can add new fields 
+;; without invalidating the storage code for the old ones.  
 ;;
-;; Most field contents are stpored using a simple format call.  Some more complex
-;; fields such as the graph are written using specialized functions.  In all cases
-;; the overall format is unchanged.  
+;; Most field contents are stpored using a simple format call.  Some more 
+;; complex fields such as the graph are written using specialized functions.  
+;; In all cases the overall format is unchanged.  
 
 (defun write-problem-file (Problem &key (Name nil) (Path (Default-Problemfile-Path))) 
   "Store the solved problem file and indicies to a file."

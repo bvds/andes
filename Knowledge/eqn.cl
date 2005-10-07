@@ -66,14 +66,7 @@
 	    :nodes (collect-gindicies->nodes (nth 5 L) Graph)
 	    :Solved (nth 6 L)))
 
-
-
-
-;;; A better named wrapper should replace them soon.
 (defun eqns-equalp (X Y)
-  (Eqn-equalp X Y))
-
-(defun eqn-equalp (X Y)
   "Determine if the two eqns are equalp."
   (and (eql (eqn-type X) (eqn-type Y))
        (equal (eqn-Algebra X) (eqn-Algebra Y))
@@ -113,7 +106,7 @@
 
 (defun merge-duplicate-eqns (Eqns)
   "Iterate through the list merging duplicate eqns."
-  (let ((R (list (car Eqns))) (tmp))
+  (let ((R (list (car Eqns))) tmp)
     (dolist (E (cdr Eqns))
       (cond ((setq tmp (find-exp->eqn (Eqn-exp E) R))
 	     (merge-eqns E tmp))
@@ -122,7 +115,7 @@
 
 
 ;;; Equation merging can take place in two ways.
-;;; Firslty if the equations are equalp (including type)
+;;; Firstly if the equations are equalp (including type)
 ;;; then the nodes lists are unioned and set into the
 ;;; second eqn.  If the equations differ only in type
 ;;; then the system will test if they can be merged
@@ -135,8 +128,10 @@
   (cond ((eqns-equalp E1 E2)                           
 	 (setf (Eqn-Nodes E2)
 	   (union (Eqn-Nodes E2) (Eqn-Nodes E1))))
-	
+	;; equations have different types
 	((merge-eqn-types (Eqn-Type E1) (Eqn-Type E2))
+	 (format t "merge-eqns merging different types:~%   ~A~%    ~A~%" 
+		 E1 E2)
 	 (setf (Eqn-Type E2)
 	   (merge-eqn-types (Eqn-Type E1) (Eqn-Type E2)))
 	 (setf (Eqn-Nodes E2)

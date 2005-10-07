@@ -1729,7 +1729,9 @@
 ;;; sort them for indexing.
 (defun collect-bg-eindex (Graph)
   "Collect the eqn index for Graph."
-  (let ((e (collect-bg-eqns Graph)))
+  (let ((E (collect-bg-eqns Graph)))
+    (format t "collect-bg-eindex, starting with ~A equations~%" 
+	    (length E))
     (when E
       (setq E (sort-eqn-list (merge-duplicate-eqns E)))
       (dotimes (N (length E))
