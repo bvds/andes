@@ -57,7 +57,7 @@
 (defoperator draw-impulse-given-force (?b ?agent ?t)
   :preconditions
   (
-   ;; BvdS:  why not this form for forces
+   ;; BvdS:  why not this form for forces?
    ;;(in-wm (dir (force ?b ?agent ?type :time ?t)))
    (force ?b ?agent ?type ?t ?dir ?action)
    (test (time-intervalp ?t)) ;only impulse for intervals

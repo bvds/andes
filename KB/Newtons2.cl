@@ -295,8 +295,8 @@
 ;;; with an algebraic expression.  The equations of the form
 ;;; compo-var>=<expression> are called projection equations.
 ;;; 
-;;; The author of a vector PSM, such as Newton's law or Kinematics, must define
-;;; operators for
+;;; The author of a vector PSM, such as Newton's law or Kinematics, must 
+;;; define operators for
 ;;; 
 ;;; *  eqn-family-contains -- indicates which quantities might be found 
 ;;;                           with this
@@ -325,8 +325,8 @@
       generate the component equation, 
       and generate a component-free equation"
    :preconditions (
-      ; This chunks projections so they don't appear at the bubble-graph level
-      ; so don't use it if component-form solution is wanted (see below).
+      ;; This chunks projections so they don't appear at the bubble-graph level
+      ;; so don't use it if component-form solution is wanted (see below).
       (not (component-form)) 
       (eqn-family-contains ?eqn-family-id ?sought)
       ;; make sure PSM name not on problem's ignore list:
@@ -366,23 +366,23 @@
       and generate the component equation"
    :preconditions
      ((component-form) ; needed to filter method when sought is duration.
-      ;(any-member ?sought ((compo x 0 ?vector)
-      ;                     (compo y 90 ?vector)
-      ;			   (duration ?t)))
-      ; vector PSMs defined to seek vector magnitudes, so may need to 
-      ; pretend we are seeking magnitude to hook into existing vector
-      ; PSM selecting code.  If sought is scalar, just leave it
+      ;;(any-member ?sought ((compo x 0 ?vector)
+      ;;                     (compo y 90 ?vector)
+      ;;			   (duration ?t)))
+      ;; vector PSMs defined to seek vector magnitudes, so may need to 
+      ;; pretend we are seeking magnitude to hook into existing vector
+      ;; PSM selecting code.  If sought is scalar, just leave it
       (bind ?vec-sought (if (componentp ?sought) 
                             `(mag ,(compo-base-vector ?sought))
                           ?sought))
       (eqn-family-contains ?vec-eqn-id ?vec-sought)
-      ; make sure PSM name not on problem's ignore list:
+      ;; make sure PSM name not on problem's ignore list:
       (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
       (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
       (vector-diagram ?vec-eqn-id)
       (debug "Vectors drawn for ~a.~%" ?vec-eqn-id)
-      ; ! if sought is x-comp V, want to make sure we write in x direction
-      ; not just any direction containing magV
+      ;; ! if sought is x-comp V, want to make sure we write in x direction
+      ;; not just any direction containing magV
       (compo-eqn-selected ?vec-eqn-id ?vec-sought (compo-eqn . ?eq-args))
       (debug "Writing compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
       (eqn ?compo-eqn (compo-eqn . ?eq-args))
@@ -576,10 +576,9 @@
 ;;; unifying a goal with the effects.
 
 (defoperator compo-zero-vector (?xyz ?rot ?vector)
-  :specifications "
-   If the goal is to write a projection equation for a given component variable ?v,
-      and the vector is zero,
-   then write ?v = 0."
+  :specifications 
+  "If the goal is to write a projection equation for a given component 
+   variable ?v, and the vector is zero, then write ?v = 0."
   :preconditions
    ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
     (in-wm (vector ?b ?vector zero))
@@ -7231,7 +7230,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;
 ;;;;===========================================================================
 
-(defoperator apply-inner-PSM (?sought ?eqn-id)
+(defoperator apply-dot-PSM (?sought ?eqn-id)
    :preconditions (
      ;;(not (component-form)) ;BvdS: what about this
      (inner-eqn-contains ?eqn-id ?sought)
