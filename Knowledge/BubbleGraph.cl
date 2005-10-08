@@ -1720,9 +1720,16 @@
 ;; merging duplicate equations and returning the results.
 (defun generate-bg-eindex (Graph)
   "Generate the index for the eqns."
-  (let ((I (collect-bg-eindex Graph)))
-    (eindex-enodes (bubblegraph-Enodes Graph) I)
-    I))
+  (let ((Index (collect-bg-eindex Graph)))
+    (dolist (E (bubblegraph-Enodes Graph))
+      (setf (Enode-Eindex E)
+	    (find-algebra->eqn (Enode-Algebra E) Index))
+      (setf (Enode-Subeqns E)
+	    (collect-algebra->eqns 
+	     (remove-duplicates (Enode-Subeqns E) :test #'unify) 
+	     Index)))
+    Index))
+
 
 
 ;;; Collect the eqns in the Graph and, if there are any
@@ -1754,16 +1761,6 @@
       when (Enode-P N)
       append (cons (Enode-Eindex N)
 		   (Enode-Subeqns N))))
-
-(defun eindex-Enodes (Enodes Index)
-  "Substitute the eqns for the subeqns in Qnodes."
-  (dolist (E Enodes)
-    (setf (Enode-Eindex E)
-      (find-algebra->eqn (Enode-Algebra E) Index))
-    (setf (Enode-Subeqns E)
-      (collect-algebra->eqns 
-       (remove-duplicates (Enode-Subeqns E) :test #'unify) 
-       Index))))
 
 
 
