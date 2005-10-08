@@ -2511,12 +2511,11 @@
       do (setq at (match-exp->qvar 
 		   `(mag ,(set-time v time))
 		   (problem-varindex *cp*)))
-      (format t "zvectors-non-zero ~a ~A~%" at (qvar-value at))
+      (format t "!!! zvectors-non-zero ~a ~A~%" at (qvar-value at))
       unless (or (null at) 
 		 (null (qvar-value at))
 		 (= 0 (qvar-value at)))
       collect v))
-
 
 
 ;;; given a sum, which can be a tree of sums e.g, (+ (- (+

@@ -130,7 +130,7 @@
 	   (union (Eqn-Nodes E2) (Eqn-Nodes E1))))
 	;; equations have different types
 	((merge-eqn-types (Eqn-Type E1) (Eqn-Type E2))
-	 (format t "merge-eqns merging different types:~%   ~A~%    ~A~%" 
+	 (format t "!!! merge-eqns merging different types:~%   ~A~%    ~A~%" 
 		 E1 E2)
 	 (setf (Eqn-Type E2)
 	   (merge-eqn-types (Eqn-Type E1) (Eqn-Type E2)))
