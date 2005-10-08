@@ -324,9 +324,10 @@
       find a component equation that contains the quantity,
       generate the component equation, 
       and generate a component-free equation"
-   :preconditions (
-      ;; This chunks projections so they don't appear at the bubble-graph level
-      ;; so don't use it if component-form solution is wanted (see below).
+   :preconditions 
+   (
+    ;; This chunks projections so they don't appear at the bubble-graph level
+    ;; so don't use it if component-form solution is wanted (see below).
       (not (component-form)) 
       (eqn-family-contains ?eqn-family-id ?sought)
       ;; make sure PSM name not on problem's ignore list:
@@ -7169,6 +7170,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?work-var ?dot) algebra)))
  ))
 
+#|  ;; not working yet
+;; BvdS:  right now, this code causes 
+;; e1c e2c e3a e8a e10a e11a to not work. e8aa does not finish
 (defoperator work-compo-contains (?sought)
  :preconditions (
     (in-wm (use-work))
@@ -7223,6 +7227,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (bottom-out (string "Write ~A"  
                 ((= ?work-var ?dot) algebra)))
  ))
+
+|#
 
 ;;;;===========================================================================
 ;;;;
