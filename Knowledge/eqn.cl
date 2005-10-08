@@ -68,6 +68,14 @@
 
 (defun eqns-equalp (X Y)
   "Determine if the two eqns are equalp."
+  (when (and (not (eql (eqn-type X) (eqn-type Y)))
+	     (unify (eqn-Exp X) (Eqn-Exp Y)))
+    (format t "!!! eqns-equalp:  same Eqn-Exp but different type ~A ~A~%" 
+	    X Y))
+  (when (and (not (equal (eqn-Algebra X) (eqn-Algebra Y)))
+	     (unify (eqn-Exp X) (Eqn-Exp Y)))
+    (format t "!!! eqns-equalp:  same Eqn-Exp but different algebra ~A ~A~%" 
+	    X Y))
   (and (eql (eqn-type X) (eqn-type Y))
        (equal (eqn-Algebra X) (eqn-Algebra Y))
        (unify (eqn-Exp X) (Eqn-Exp Y))))
@@ -213,7 +221,7 @@
 
 (defun find-exp->eqn (Exp Eqns)
   "Obtain the Eqn that is connected to the Exp supplied."
-  (find Exp Eqns :test #'unify :key #'Eqn-Exp))
+  (find Exp Eqns :key #'Eqn-Exp :test #'unify))
 
 
 
