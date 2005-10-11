@@ -18,11 +18,11 @@
   
 (defstruct (eqn (:print-function print-eqn))
   index
-  Type	   ;; One of Eqn, Given-Eqn, Derived-Eqn  
+  Type	   ;One of Eqn, Given-Eqn, Derived-Eqn  
   Algebra
   Exp
   Nodes
-  Solved)  ;; if t then this equation has been solved.
+  Solved)  ;if t then this equation has been solved.
 
 (defun print-eqn (Eqn &optional (Stream t) (Level 0))
   "Print out an eqn as a list."
@@ -68,17 +68,14 @@
 
 (defun eqns-equalp (X Y)
   "Determine if the two eqns are equalp."
-  (when (and (not (eql (eqn-type X) (eqn-type Y)))
-	     (unify (eqn-Exp X) (Eqn-Exp Y)))
-    (format t "!!! eqns-equalp:  same Eqn-Exp but different type ~A ~A~%" 
-	    X Y))
-  (when (and (not (equal (eqn-Algebra X) (eqn-Algebra Y)))
-	     (unify (eqn-Exp X) (Eqn-Exp Y)))
-    (format t "!!! eqns-equalp:  same Eqn-Exp but different algebra ~A ~A~%" 
-	    X Y))
-  (and (eql (eqn-type X) (eqn-type Y))
-       (equal (eqn-Algebra X) (eqn-Algebra Y))
-       (unify (eqn-Exp X) (Eqn-Exp Y))))
+  (when (unify (eqn-Exp X) (Eqn-Exp Y))
+    (when (not (equal (eqn-Algebra X) (eqn-Algebra Y))) ;sanity check
+      (error "eqns-equalp:  same Eqn-Exp but different algebra:~%     ~A~%     ~A~%" 
+	      X Y))
+    (when (not (eql (eqn-type X) (eqn-type Y))) ;sanity check
+      (format t "!!! eqns-equalp:  same Eqn-Exp but different type:~%     ~A~%     ~A~%" 
+	      X Y))
+    (eql (eqn-type X) (eqn-type Y))))
 
 ;;; make-qsolver-eqn
 ;;; As Eqns come out of the qsolver they consist of lists that

@@ -1736,19 +1736,15 @@
 ;;; sort them for indexing.
 (defun collect-bg-eindex (Graph)
   "Collect the eqn index for Graph."
-  (let ((E (collect-bg-eqns Graph)))
-    ;; (format t "!!! collect-bg-eindex, starting with ~A equations~%" 
-    ;;	    (length E))
+  (let ((E
+	 ;; Collect all the eqns in a graph later used for indexing.
+	 (loop for EE in (bubblegraph-Enodes Graph)
+	     append (enode->eqns EE))))
     (when E
       (setq E (sort-eqn-list (merge-duplicate-eqns E)))
       (dotimes (N (length E))
 	(setf (Eqn-Index (nth N E)) N))
       E)))
-
-(defun collect-bg-eqns (Graph)
-  "Collect all the eqns in a graph later used for indexing."
-  (loop for E in (bubblegraph-Enodes Graph)
-      append (enode->eqns E)))
 
 (defun enode->eqns (Enode)
   (loop for S in (Enode-Subeqns Enode)
