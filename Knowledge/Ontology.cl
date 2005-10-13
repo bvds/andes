@@ -418,10 +418,6 @@
   (find (car prop) *Ontology-Equation-types*))
 
 
-(defun eqn-type-p (type)
-  (find type *Ontology-Equation-Types*))
-
-
 (defun kb-eqn-entryprop-p (prop)
   "Is the prop an eqn and an enttyprop?"
   (and (eqn-prop-p prop)
@@ -436,30 +432,8 @@
 
 (defun eqn-entry-type-p (type)
   "Is the specified type an eqn and an entry type."
-  (and (eqn-type-p type)
+  (and (find type *Ontology-Equation-Types*)
        (entryprop-type-p type)))
-
-
-;;; In merging equations it is sometimes necessary to 
-;;; merge equation types specifically Given equations
-;;; can also be implicit in the current heiarchy.  This
-;;; code is responsible for taking two equation types and
-;;; determining if they can be merged.  If so the resulting
-;;; type is returned for use by the user.
-(defun def-eqntype-merge (T1 T2 R)
-  "Define a merge pair for merging eqn types."
-  (push (list T1 T2 R) *Ontology-EqnMerge-Lists*))
-
-
-(defun merge-eqn-types (T1 T2)
-  "If the two equation types can be merged do so and return them."
-  (caddr (find-if #'(lambda (ML) (or (and (eq T1 (car ML))
-					  (eq T2 (cadr ML)))
-				     (and (eq T2 (car ML))
-					  (eq T1 (cadr ML)))))
-		  *Ontology-EqnMerge-Lists*)))
-
-
 
 
 ;;;;=============================================================

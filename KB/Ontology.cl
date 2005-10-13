@@ -403,13 +403,6 @@
 
 (def-eqntype 'derived-eqn)
 
-;;; Equation type merges specify what to do when two equations with the same
-;;; expression and algebra but different type are called to be merged.
-(def-eqntype-merge 'Implicit-eqn 'Given-Eqn 'Implicit-Eqn)  ;; Implicit + Given -> Implicit
-
-
-
-
 ;;========================================================
 ;; goal proposition forms
 ;;

@@ -27,11 +27,9 @@
 (defun print-eqn (Eqn &optional (Stream t) (Level 0))
   "Print out an eqn as a list."
   (pprint-Indent :block Level)
-  (format Stream "~A" (Eqn->peqn Eqn)))
-
-(defun eqn->peqn (Eqn)
-  (list 'eqn (Eqn-Index Eqn) (Eqn-Type Eqn) (Eqn-Algebra Eqn)
-	(Eqn-Exp Eqn) (Eqn-Nodes Eqn) (Eqn-Solved Eqn)))
+  (format Stream "~A" 
+	  (list 'eqn (Eqn-Index Eqn) (Eqn-Type Eqn) (Eqn-Algebra Eqn) 
+		(Eqn-Exp Eqn) (Eqn-Nodes Eqn) (Eqn-Solved Eqn))))
 
 (defun print-mreadable-eqn (Eqn &optional (Stream t) (Level 0))
   "Print out an eqn as a list."
@@ -93,16 +91,12 @@
   (loop for Q in Qeqns
       collect (make-qsolver-eqn Q)))
 
-
-;;; Eqn type checking info.
-(defun eqn-implicitp (E)
-  (eql (eqn-type E) 'Implicit))
-
 ;;-----------------------------------------------------------------
 ;; use functions.
 
 (defun gen-eqn (Type Algebra Expression Nodes)
   "Generate a new eqn."
+  (when (null nodes) (error "gen-eqn expects non-null nodes~%"))
   (make-eqn :Type Type
 	    :Algebra Algebra
 	    :exp Expression
@@ -123,9 +117,7 @@
 ;;; Firstly if the equations are equalp (including type)
 ;;; then the nodes lists are unioned and set into the
 ;;; second eqn.  If the equations differ only in type
-;;; then the system will test if they can be merged
-;;; using the ontology module's merge-eqn-type code
-;;; setting the type or returning nil.  
+;;; then the system will test if they can be merged.
 ;;;
 ;;; If the eqns cannot be merged then an error is returned.
 (defun merge-eqns (E1 E2)
@@ -144,6 +136,19 @@
 
 	(t (error "Two ~A eqns don't match:~%~A~%~A~%" 
 		  (Eqn-exp E1) E1 E2))))
+
+
+;;  This tells us which equation types can actually be merged
+(defun merge-eqn-types (T1 T2)
+  "If the two equation types can be merged, return merged type."
+  (let ((m1 '(Implicit-Eqn Given-Eqn))
+	(m2 '(Implicit-Eqn Eqn)))
+    (cond 
+     ;; merge Implicit-Eqn and Given-Eqn into Implicit-Eqn
+     ((and (member (T1 m1) (member T2 m1))) 'Implicit-Eqn)
+     ;; merge Implicit-Eqn and Eqn into Implicit-Eqn
+     ((and (member (T1 m2) (member T2 m2))) 'Implicit-Eqn)
+     (t nil))))
 
 
 (defun eqns->Algebra (Eqns)
@@ -207,7 +212,7 @@
 ;; Equation Index.
 
 (defun Index-eqn-list (Eqns)
-  "Set the equation indivies in the list."
+  "Set the equation indicies in the list."
   (dotimes (N (length Eqns))
     (setf (Eqn-Index (nth N Eqns)) N))
   Eqns)
@@ -237,19 +242,9 @@
       (error "Incompatible variable index ~A ~A" I Eqns))
     eqn))
 
-
-(defun collect-eqns->indicies (Eqns)
-  "Subst the eqn indicies for the Eqns."
-  (loop for E in Eqns
-      collect (Eqn-Index E)))
-
-
-(defun eqn->index (Eqn)
-  (Eqn-Index Eqn))
-
 (defun collect-algebra->eqns (Equations Eqns)
   (loop for E in Equations
-      when (find-algebra->eqn (cadr E) Eqns)
+      when (find-algebra->eqn (second E) Eqns)
       collect it
       else do (error "Unrecognized Equation ~A supplied." E)))
   
