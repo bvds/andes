@@ -145,9 +145,9 @@
 	(m2 '(Implicit-Eqn Eqn)))
     (cond 
      ;; merge Implicit-Eqn and Given-Eqn into Implicit-Eqn
-     ((and (member (T1 m1) (member T2 m1))) 'Implicit-Eqn)
+     ((and (member T1 m1) (member T2 m1)) 'Implicit-Eqn)
      ;; merge Implicit-Eqn and Eqn into Implicit-Eqn
-     ((and (member (T1 m2) (member T2 m2))) 'Implicit-Eqn)
+     ((and (member T1 m2) (member T2 m2)) 'Implicit-Eqn)
      (t nil))))
 
 
