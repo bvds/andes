@@ -87,10 +87,21 @@
   "Solve a problem that seeks a quantity."
   (Generate-Problem-Bubblegraph Problem)
   (Generate-Problem-Indicies Problem)
+  (format t "solve-quant-problem 1 length=~A~%" 
+	(length (problem-eqnindex Problem)))
   (generate-problem-Solutionpoint Problem)
+  (format t "solve-quant-problem 2 length=~A~%" 
+	(length (problem-eqnindex Problem)))
   (mark-forbidden-nodes Problem)
+  (format t "solve-quant-problem 3 length=~A~%" 
+	(length (problem-eqnindex Problem)))
   (generate-problem-eqn-sets Problem)
-  (mark-problem-graph Problem))
+  (format t "solve-quant-problem 4 length=~A~%" 
+	(length (problem-eqnindex Problem)))
+  (mark-problem-graph Problem)
+  (format t "solve-quant-problem 4 length=~A~%" 
+	(length (problem-eqnindex Problem)))
+  )
 
 
 ;; Test whether a solution point for this problem can be 
@@ -121,10 +132,10 @@
   
   (setq **wm** nil)     ;; This is an ugly hack used
                         ;; until I can find the bug and clean it.
-
   (setf (Problem-Graph Problem) 
-    (Generate-Bubblegraph (Problem-Soughts Problem) (Problem-Givens Problem)
-			  :IgnorePSMS (problem-IgnorePSMS Problem)))
+	(Generate-Bubblegraph (Problem-Soughts Problem) 
+			      (Problem-Givens Problem)
+			      :IgnorePSMS (problem-IgnorePSMS Problem)))
   (setf (Problem-WM Problem) **wm**)                         
   (when *S-Print-Steps*
     (format t "Problem Bubblegraph: ~A~%" (Problem-Name Problem))
@@ -310,14 +321,14 @@
 
 
 
-;;-----------------------------------------------------------------------------------
+;;----------------------------------------------------------------------------
 ;; 4. Mark-Forbidden Nodes. (Ontology support code.)
 ;; Cycle through the graph marking all of the forbidden nodes within the graph
 ;; itself.  This process is one of cycling through the nodes in the graph and
-;; matching them to the list of ForbiddenPSMS in the problem.  If a node matches
-;; then it is defined as forbidden and is marked as such.  Forbidden nodes cannot
-;; be included in any solution path and entries below them will raise an error for
-;; the students at runtime.  
+;; matching them to the list of ForbiddenPSMS in the problem.  If a node 
+;; matches then it is defined as forbidden and is marked as such.  
+;; Forbidden nodes cannot be included in any solution path and entries 
+;; below them will raise an error for the students at runtime.  
 
 (defun mark-forbidden-nodes (Problem)
   "Mark the forbidden nodes within the problem graph."
@@ -338,7 +349,7 @@
 
 
 
-;;------------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; Step 5 Equation Sets.  (SolutionSets.cl)
 ;; After we have generated a complete solution set for the problem we must obtain the
 ;; set of traversals thorugh the bubblegraph.  This consists of a list of psm nodes and
@@ -408,7 +419,12 @@
 	(t ;(pprint (problem-graph problem))
 	   (mark-optimal-path Problem)
 	   (mark-dead-paths Problem)
-	   (remove-dead-path-eqns Problem)
+	   (format t "mark-problem-graph 1 length=~A~%   ~A~%" 
+		   (length (problem-eqnindex Problem))
+		   (problem-eqnindex Problem))
+	   (Remove-dead-path-eqns Problem)
+	   (format t "mark-problem-graph 2 length=~A~%" 
+		   (length (problem-eqnindex Problem)))
 	   (remove-dead-path-vars Problem)
 	   
 	   (when *S-Print-Steps*
@@ -432,7 +448,7 @@
   (setf (Problem-Graph Problem)
     (index-Bubblegraph 
      (remove-bg-dead-path-nodes 
-      (mark-Bg-dead-path-nodes 
+      (mark-bg-dead-path-nodes 
        (Problem-Graph Problem)
        (union (collect-eqnsets->nodes (Problem-Solutions Problem))
 	      (collect-forbidden-bgnodes (Problem-Graph Problem))))))))
@@ -443,10 +459,11 @@
   (let ((Eqns))
     (dolist (E (Problem-EqnIndex Problem))
       (setf (Eqn-Nodes E) 
-	(remove-if #'bgnode-dead-pathp (Eqn-Nodes E)))
+	    ;; remove based on **dead-path** mark
+	    (remove-if #'bgnode-dead-pathp (Eqn-Nodes E)))
       (when (Eqn-Nodes E)
 	(push E Eqns)))
- 
+    (format t "remove-dead-path-eqns length ~A~%" (length Eqns))
     (setf (Problem-EqnIndex Problem) 
       (index-eqn-list Eqns))))
     
@@ -643,7 +660,7 @@
 
 ;; Note the dangling links in this function need to be fixed at some point.
 #|
-(defun diff-problem-solution (ProblemName)
+(defun diff-one-problem-solution (ProblemName)
   "Run a diff on the problem solution."
   (when (not (Problem-file-exists ProblemName))
     (error "The specified problem for diff does not exist."))

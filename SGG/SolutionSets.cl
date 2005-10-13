@@ -123,33 +123,39 @@
 
 (defun collect-solutions (Soughts &key (Forbidden nil))
   "Given a list of sought quantities generate a solution for them."
-  (cs-bp "Collecting Solutions for ~A" Soughts)                ;; Produce debugging info.
-  (do ((Que (list (make-solution :id 1 :Soughts Soughts)))     ;; Make the initial S and iterate.
-       (Results) (S) (cache) (Local) (clocal))                 ;; Allocate other temp variables.
-      
-      ((null Que) Results)                                     ;; Set the end test for a Null que.
-    
-    (setq S (pop Que))                                         ;; Pop the top Solution from the que.
-
-    (cond ((null (Solution-Soughts S))                         ;; If there are no more soughts in S
-	   (cs-bp2 "Solution Completed ~A" (Solution-id S))    ;; The provide debugging info for the
-	   (cs-db "~A~%" (Solution-Knowns S))                  ;; User if debugging is on.
-	   (push S Results))                                   ;; Then add the solution to results.
-	  
-	  ((Qnode-P (car (Solution-Soughts S)))                ;; If the top sought in S is a quantity.
-	   (setq Que (append (Expand-for-Q S Forbidden) Que))) ;; Expand as appropriate and append.
-
-	  ((Enode-P (car (Solution-Soughts S)))                ;; If the top sought is an Enode then
-	   (setf Local (Expand-for-E S Forbidden))             ;; Expand it via the Enode.
-	   (setf clocal (find Local cache                      ;; Test to see if a matching solution
-			      :test #'Solution-equalp))        ;; has been cached already.
-	   	   
-	   (cond (clocal                                       ;; If a matching solution has already
-		  (cs-bp2 "Equal solutions found:")            ;; been cached in the system then inform
-		  (cs-db "~A~%  ~A~%" Local clocal))           ;; the user if debugging is on.
-		 
-		 (t (push Local Que)                           ;; Else if no matching solution has been
-		    (push Local cache)))))))                   ;; cached then add this to the que and continue.
+  (cs-bp "Collecting Solutions for ~A" Soughts)       ;Produce debugging info.
+  ;; Make the initial S and iterate.
+  (do ((Que (list (make-solution :id 1 :Soughts Soughts)))  
+       ;; Allocate other temp variables.
+       (Results) (S) (cache) (Local) (clocal))                 
+      ((null Que) Results)           ;Set the end test for a Null que.
+    (setq S (pop Que))               ;pop the top Solution from the que.
+    (cond ((null (Solution-Soughts S))    ;If there are no more soughts in S
+	   ;; The provide debugging info for the
+	   (cs-bp2 "Solution Completed ~A" (Solution-id S))   
+	   ;; User if debugging is on.
+	   (cs-db "~A~%" (Solution-Knowns S))                  
+	   (push S Results))           ;Then add the solution to results.
+	  ;; If the top sought in S is a quantity.
+	  ((Qnode-P (car (Solution-Soughts S)))  
+	   ;; Expand as appropriate and append.
+	   (setq Que (append (Expand-for-Q S Forbidden) Que))) 
+	  ;; If the top sought is an Enode then
+	  ((Enode-P (car (Solution-Soughts S)))
+	   ;; Expand it via the Enode.
+	   (setf Local (Expand-for-E S Forbidden))             
+	   (setf clocal (find Local cache   ;Test to see if a matching solution
+			      :test #'Solution-equalp)) ;has been cached.
+	   (cond (clocal               
+		  ;; If a matching solution has already
+		  ;; been cached in the system then inform
+		  ;; the user if debugging is on.
+		  (cs-bp2 "Equal solutions found:")            
+		  (cs-db "~A~%  ~A~%" Local clocal))           
+		 ;; Else if no matching solution has been
+		 ;; cached then add this to the que and continue.
+		 (t (push Local Que)                           
+		    (push Local cache)))))))                   
 
 
 
