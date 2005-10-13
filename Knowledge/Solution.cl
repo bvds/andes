@@ -199,7 +199,7 @@
 
 (defun print-mreadable-EqnSet (Set Stream)
   (format Stream "(~w ~w ~w)~%"
-	  (collect-eqns->indicies
+	  (mapcar #'Eqn-Index
 	   (remove-duplicates  
 	    (list-base-eqns 
 	     (collect-bgnodes->eqns (EqnSet-Eqns Set)))))

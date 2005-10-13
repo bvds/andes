@@ -291,14 +291,6 @@
 	      
       else do (error "Undefined or Non quantity expression supplied ~%~A" E)))
 
-
-
-(defun collect-qvars->indicies (Vars)
-  "Collect the index nums for each Qvar in VARS."
-  (loop for V in Vars
-      collect (Qvar-Index V)))
-
-
 (defun collect-solved-qvars (Vars)
   "Collect all solved qvars in the list."
   (loop for V in Vars

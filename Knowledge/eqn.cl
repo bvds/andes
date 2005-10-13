@@ -96,6 +96,7 @@
 
 (defun gen-eqn (Type Algebra Expression Nodes)
   "Generate a new eqn."
+  ;; This might not be true if gen-eqn is applied earlier
   (when (null nodes) (error "gen-eqn expects non-null nodes~%"))
   (make-eqn :Type Type
 	    :Algebra Algebra
@@ -151,12 +152,6 @@
      (t nil))))
 
 
-(defun eqns->Algebra (Eqns)
-  "Collect the algebra elements out of a list of eqns."
-  (loop for E in Eqns
-      collect (Eqn-Algebra E)))
-
-
 (defun mark-unsolved-eqns (Uvars Eqns)
   "Given the list of equations mark those that contain unsolved vars."
   (loop for E in Eqns
@@ -167,7 +162,6 @@
       else do (setf (Eqn-Solved E) t))
   Eqns)
 			     
-
 
 (defun collect-solved-eqns (Eqns)
   "Get the solved equations from the list."

@@ -780,16 +780,19 @@
   (format S "~W~%" (Enode-Symbol E))
   (format S "~W~%" (Enode-ID E))
   (format S "~W~%" (Enode-GIndex E))
-  (format S "~W~%" (if (Enode-Eindex E) (Eqn->Index (Enode-eIndex E)))) 
+  (format S "~W~%" (if (Enode-Eindex E) (Eqn-Index (Enode-eIndex E)))) 
   (format S "~W~%" (Enode-Algebra E))
   (format S "~W~%" (Enode-Path E))
   (format S "~W~%" (Enode-Assumptions E))
-  (format S "~W~%" (if (enode-Qnodes E) (collect-qnodes->gindicies (Enode-Qnodes E))))
+  (format S "~W~%" (if (enode-Qnodes E) (collect-qnodes->gindicies 
+					 (Enode-Qnodes E))))
   (format S "~W~%" (Enode-Marks E))
   (format S "~W~%" (Enode-State E))
   (format S "~W~%" (Enode-Entries E))  
-  (format S "~W~%" (if (enode-subeqns E) (collect-eqns->indicies (Enode-Subeqns E))))
-  (format S "~W~%" (if (enode-subvars E) (collect-qvars->indicies (Enode-Subvars E))))
+  (format S "~W~%" (if (enode-subeqns E) (mapcar #'Eqn-Index 
+					  (Enode-Subeqns E))))
+  (format S "~W~%" (if (enode-subvars E) (mapcar #'Qvar-Index 
+					  (Enode-Subvars E))))
   (format S "</Enode>~%"))
 
 ;;------------------------------------------------------------------
@@ -1718,15 +1721,15 @@
 ;; merging duplicate equations and returning the results.
 (defun generate-bg-eindex (Graph)
   "Generate the index for the eqns."
-  (let* ((collected-eqns
-	  ;; Collect all the eqns in graph to be used for indexing.
-	  (loop for EE in (bubblegraph-Enodes Graph)
-		append (enode->eqns EE)))
+  (let* (
+	 ;; Collect all the eqns in graph to be used for indexing.
+	 (collected-eqns (loop for EE in (bubblegraph-Enodes Graph)
+			       append (enode->eqns EE)))
 	  ;; Reduce, sort, and number collected eqns.
-	 (Index 
-	  (when collected-eqns 
-	    (Index-eqn-list (sort-eqn-list (merge-duplicate-eqns 
-					    collected-eqns))))))
+	 (Index (when collected-eqns 
+		  (Index-eqn-list (sort-eqn-list (merge-duplicate-eqns 
+						  collected-eqns))))))
+    (format t "generate-bg-eindex eqn list: ~%   ~A~%" Index)
     ;; modify bubblegraph based on index of equations
     (dolist (E (bubblegraph-Enodes Graph))
       (setf (Enode-Eindex E)
