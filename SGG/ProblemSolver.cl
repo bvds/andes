@@ -246,7 +246,7 @@
   (gen-problem-sp 
    Problem 
    (qvars->svars (Problem-Varindex Problem))
-   (Eqns->algebra (Problem-eqnindex Problem))))
+   (mapcar #'Eqn-Algebra (Problem-eqnindex Problem))))
 
 
 ;;; Generate a problem solution point using only the variables and 
@@ -257,7 +257,7 @@
    Problem 
    (qvars->svars (collect-solved-qvars 
 		  (Problem-varindex Problem)))
-   (Eqns->algebra (collect-solved-eqns 
+   (mapcar '#Eqn-Algebra (collect-solved-eqns 
 		   (Problem-eqnindex Problem)))))
 
 

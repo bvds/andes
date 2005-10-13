@@ -147,7 +147,7 @@ The solver,
       
       (loop for I in (qvars->svars VarIndex)
 	  do (format File "~A~%" I))
-      (loop for I in (Eqns->Algebra EqnIndex)
+      (loop for I in (mapcar #'Eqn-Algebra EqnIndex)
 	  do (format File "~A~%" I)))))
 
 
