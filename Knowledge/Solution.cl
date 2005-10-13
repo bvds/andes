@@ -58,7 +58,7 @@
   Knowns
   Soughts
   Assumptions
-  Eqnset)				; The set of currently active equation ids.
+  Eqnset)		   ; The set of currently active equation ids.
 
 
 (defun print-solution (Solution &optional (Stream t) (Level 0) (Form t))

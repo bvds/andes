@@ -81,8 +81,6 @@
   Graph              ;;Storage for the bubblegraph. 
   VarIndex           ;;List of variable-values indicating solution point.
   EqnIndex           ;;Index of equations in the system.
-  ;;OpIndex            ;; Index of operator applications in the Problem Bubblegraph.
-  ;;SolverResults      ;; Results of calling the solver as a flat list.
   Solutions          ;; Set of solution bubbles. The first of these will always be the best.
   wm                 ;; Collection of the solver working memory.
   )
