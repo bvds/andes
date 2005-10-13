@@ -695,7 +695,7 @@
    )
   :effects
   ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
-   (implicit-eqn (= ?other-compo-var 0) (compo ?other-axis ?other-rot ?vector))
+   (implicit-eqn (= ?other-compo-var 0) (projection (compo ?other-axis ?other-rot ?vector)))
   )
   :hint
   ((point (string "Since ~A ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
