@@ -96,11 +96,10 @@
 ;;; field for modification and testing purposes and is indended for 
 ;;; public use.
 ;;;
-;;; (add-qnode-dead-path-mark <Qnode>)  - Mark the qnode as **Dead-PAth**
-;;; (Qnode-Dead-pathp <Qnode>)          - Return t iff the qnode is **Dead-Path**
+;;; (Qnode-Dead-pathp <Qnode>)          - Return t iff qnode is **Dead-Path**
 ;;;
 ;;; (Add-qnode-sought-mark <Qnode>)     - Mark the qnode as **Sought**.
-;;; (Qnode-soughtp <Qnode>)             - Returns t iff the qnode is **Sought**.
+;;; (Qnode-soughtp <Qnode>)             - Returns t iff qnode is **Sought**.
 ;;;
 ;;; (mark-qnode-parameter <Qnode>)      - Mark the qnode as a parameter.
 ;;; (Qnode-Parameterp <Qnode>)          - Is qnode marked **Parameter**?
@@ -194,7 +193,6 @@
 ;;; (remove-enode-mark <Enode> <mark> &optional (test #'equal)) -- Remove MARK from ENODE.
 ;;; (enode-has-mark? <Enode> <mark> &optional (test #'equal))   -- Test for MARK on ENODE.
 ;;;
-;;; (mark-enode-dead-path <Enode>)        -- Mark ENODE as **Dead-PAth**
 ;;; (enode-dead-pathp <Enode>)            -- Test if ENODE is **Dead-Path**
 ;;;
 ;;; (mark-enode-optimal-path <Enode>)     -- Mark Enode **Optimal-Path**
@@ -572,21 +570,18 @@
 ;; field for modification and testing purposes and is indended for 
 ;; public use.
 
-;;; (add-qnode-dead-path-mark <Qnode>) Mark the qnode as **Dead-PAth**
-(defun mark-qnode-dead-path (Q)
-  "Add the dead-path mark to the qnode."
-  (mark-qnode Q **Dead-Path**))
 
-;;; (Qnode-Dead-pathp <Qnode>) Return t iff the qnode is marked as **Dead-Path**
+;; Return t iff the qnode is marked as **Dead-Path**
 (defun qnode-dead-pathp (Q)
   "Is the Qnode on a dead path?"
   (qnode-has-mark? Q **dead-path**))
 
 
-;;; (Add-qnode-sought-mark <Qnode>) Mark the qnode as **Sought**.
+;; (Add-qnode-sought-mark <Qnode>) Mark the qnode as **Sought**.
 (defun mark-qnode-sought (Q)
   "Mark the Qnode as sought."
   (mark-qnode Q **Sought**))
+
   
 ;;; (Qnode-soughtp <Qnode>) Returns t iff the qnode is marked as **Sought**.
 (defun qnode-soughtp (Q)
@@ -730,7 +725,10 @@
 (defun print-Enode (Equation &optional (Stream t) (level 0))
   "Print out the specified equation node."
   (pprint-indent :block Level Stream)
-  (format Stream "<Eq: ~A>" (Enode-ID Equation)))
+  (format Stream "<Eq:  ~A ~A>" 
+	  (if (Enode-Eindex Equation)
+	      (eqn-index (Enode-eindex equation)) nil) 
+	  (Enode-ID Equation)))
 
 
 (defun print-full-enode (Equation &optional (Stream t) (Level 0))
@@ -893,11 +891,6 @@
 (defun enode-has-mark? (Enode mark &key (test #'equal))
   "Does the enode contain the specified Mark?"
   (find Mark (Enode-Marks Enode) :test test))
-
-
-(defun mark-enode-dead-path (E)
-  "Mark the enode as a dead-path-node."
-  (mark-enode E **Dead-Path**))
 
 (defun enode-dead-pathp (E)
   "Is the Enode on a dead path?"
@@ -1530,14 +1523,19 @@
 ;; list.
 (defun mark-bg-dead-path-nodes (Graph UsedNodes) 
   "Mark the dead path nodes in the graph."
+  (format t "mark-bg-dead-path-nodes, bubblegraph-enodes:~%     ~A~%" 
+	  (bubblegraph-enodes graph))
+  (format t "mark-bg-dead-path-nodes:  used nodes:~%     ~A~%" UsedNodes)
   (dolist (Q (bubblegraph-qnodes Graph))
     (when (not (member Q UsedNodes))
+      (format t "mark-bg-dead-path-nodes:  removing Qnode ~A~%" Q)
       (push **Dead-Path** (Qnode-Marks Q))))
   
-  ; AW: for hybrid quant/non-quant problems: don't mark pseudo-enodes generated for 
-  ; qualitative problem parts as dead-paths.
+  ;; AW: for hybrid quant/non-quant problems: don't mark pseudo-enodes 
+  ;; generated for qualitative problem parts as dead-paths.
   (dolist (E (remove-if #'enode-non-quantp (bubblegraph-enodes Graph)))
     (when (not (member E UsedNodes))
+      (format t "mark-bg-dead-path-nodes:  removing Enode ~A~%" E)
       (push **Dead-Path** (Enode-Marks E))))
   
   Graph)
@@ -1720,7 +1718,16 @@
 ;; merging duplicate equations and returning the results.
 (defun generate-bg-eindex (Graph)
   "Generate the index for the eqns."
-  (let ((Index (collect-bg-eindex Graph)))
+  (let* ((collected-eqns
+	  ;; Collect all the eqns in graph to be used for indexing.
+	  (loop for EE in (bubblegraph-Enodes Graph)
+		append (enode->eqns EE)))
+	  ;; Reduce, sort, and number collected eqns.
+	 (Index 
+	  (when collected-eqns 
+	    (Index-eqn-list (sort-eqn-list (merge-duplicate-eqns 
+					    collected-eqns))))))
+    ;; modify bubblegraph based on index of equations
     (dolist (E (bubblegraph-Enodes Graph))
       (setf (Enode-Eindex E)
 	    (find-algebra->eqn (Enode-Algebra E) Index))
@@ -1730,23 +1737,8 @@
 	     Index)))
     Index))
 
-
-
-;;; Collect the eqns in the Graph and, if there are any
-;;; sort them for indexing.
-(defun collect-bg-eindex (Graph)
-  "Collect the eqn index for Graph."
-  (let ((E
-	 ;; Collect all the eqns in a graph later used for indexing.
-	 (loop for EE in (bubblegraph-Enodes Graph)
-	     append (enode->eqns EE))))
-    (when E
-      (setq E (sort-eqn-list (merge-duplicate-eqns E)))
-      (dotimes (N (length E))
-	(setf (Eqn-Index (nth N E)) N))
-      E)))
-
 (defun enode->eqns (Enode)
+  ;; BvdS:  I don't see why S is not an eqn struct..
   (loop for S in (Enode-Subeqns Enode)
       collect (gen-eqn (nth 0 S) (nth 1 S) (nth 2 S) (list Enode))))
 
