@@ -179,30 +179,28 @@
 ;;; enode-utilities
 ;;;
 ;;; (enodes-equalp <Enode1> <Enode2>) -- Test for all except path equality.
-;;; (enode-contains-entryp <Entry> <Node>) 
+;;; (Enode-contains-entryp <Entry> <Node>) 
 ;;;        -- search for a systementry in Enode-Entries.
-;;; (enode-solvedp <Enode>)  
+;;; (Enode-solvedp <Enode>)  
 ;;;        -- Test if the corresponding eqn for enode exists and is solved.
-;;; (enodes->eqns <Enode>)            -- The set iof all eqns in the enodes.
-;;; (enodes->expressions <Enodes>)    -- The set of all expressions in the enodes.
 ;;;
 ;;;---------------------------------------------------------------------
 ;;; Markings tests and modifications.
 ;;;
 ;;; (add-enode-mark <Enode> <mark> &optional (test #'equal))    -- Add MARK to ENODE.
 ;;; (remove-enode-mark <Enode> <mark> &optional (test #'equal)) -- Remove MARK from ENODE.
-;;; (enode-has-mark? <Enode> <mark> &optional (test #'equal))   -- Test for MARK on ENODE.
+;;; (Enode-has-mark? <Enode> <mark> &optional (test #'equal))   -- Test for MARK on ENODE.
 ;;;
-;;; (enode-dead-pathp <Enode>)            -- Test if ENODE is **Dead-Path**
+;;; (Enode-dead-pathp <Enode>)            -- Test if ENODE is **Dead-Path**
 ;;;
 ;;; (mark-enode-optimal-path <Enode>)     -- Mark Enode **Optimal-Path**
-;;; (enode-optimal-pathp <Enode>)         -- Test if Enode is **Optimal-Path**
+;;; (Enode-optimal-pathp <Enode>)         -- Test if Enode is **Optimal-Path**
 ;;;
 ;;; (mark-enode-forbidden <Enode>)        -- Mark Enode **Forbidden**
-;;; (enode-forbiddenp <Enode>)            -- Test if Enode is **Forbidden**
+;;; (Enode-forbiddenp <Enode>)            -- Test if Enode is **Forbidden**
 ;;;
 ;;; (mark-enode-given <Enode>)            -- Mark Enode **Given**
-;;; (enode-givenp <Enode>)                -- Test if Enode is **Given**
+;;; (Enode-givenp <Enode>)                -- Test if Enode is **Given**
 ;;;
 ;;;=============================================================================
 ;;; BubbleGraph Nodes
@@ -317,7 +315,7 @@
 ;;; Collect the path(s) that link the start node to end node.
 ;;; (collect-bubblegraph-paths (Start End Graph))
 ;;;
-;;;-----------------------------------------------------------------------------------
+;;;----------------------------------------------------------------------------
 ;;; mapping functions can be applied across the qnodes and enodes.
 ;;;
 ;;; (mapcar-bubblegraph-qnodes <Func> <Graph>) -- Map the specified func to the qnodes.
@@ -784,14 +782,14 @@
   (format S "~W~%" (Enode-Algebra E))
   (format S "~W~%" (Enode-Path E))
   (format S "~W~%" (Enode-Assumptions E))
-  (format S "~W~%" (if (enode-Qnodes E) (collect-qnodes->gindicies 
+  (format S "~W~%" (if (Enode-Qnodes E) (collect-qnodes->gindicies 
 					 (Enode-Qnodes E))))
   (format S "~W~%" (Enode-Marks E))
   (format S "~W~%" (Enode-State E))
   (format S "~W~%" (Enode-Entries E))  
-  (format S "~W~%" (if (enode-subeqns E) (mapcar #'Eqn-Index 
+  (format S "~W~%" (if (Enode-Subeqns E) (mapcar #'Eqn-Index 
 					  (Enode-Subeqns E))))
-  (format S "~W~%" (if (enode-subvars E) (mapcar #'Qvar-Index 
+  (format S "~W~%" (if (Enode-subvars E) (mapcar #'Qvar-Index 
 					  (Enode-Subvars E))))
   (format S "</Enode>~%"))
 
@@ -846,7 +844,7 @@
 ;;; node if present and returns it if found.
 (defun enode-contains-entryp (Entry Node)
   "Does the quantity node contain the specified entry."
-  (find Entry (enode-Entries Node) :test #'unify)) ;could use "equal"
+  (find Entry (Enode-Entries Node) :test #'unify)) ;could use "equal"
 
 
 ;;; An Enode represents (one :time level) a collection of equations
@@ -861,23 +859,6 @@
        (Eqn-Solved (Enode-Eindex Enode))
        (or (null (Enode-Subeqns Enode))
 	   (eval (cons 'and (mapcar #'Eqn-Solved (Enode-Subeqns Enode)))))))
-
-
-;;; Given a set of enodes collect their equations.
-(defun Enodes->eqns (Nodes)
-  "Collect the eqns in the supplied bgnodes."
-  (mappend #'Enode-SubEqns Nodes))
-
-;;  (let (R)
-;;    (dolist (N Nodes)
-;;      (setq R (union R (Enode-subEqns N))))
-;;    R))
-
-
-;;; Given a set of enodes obtain their expressions.
-(defun enodes->expressions (Nodes)
-  "Collect the expressions in the enodes."
-  (mapcar #'enode-id Nodes))
 
 ;;---------------------------------------------------------------------
 ;; Markings tests and modifications.
@@ -897,7 +878,7 @@
 
 (defun enode-dead-pathp (E)
   "Is the Enode on a dead path?"
-  (enode-has-mark? E **Dead-Path**))
+  (Enode-has-mark? E **Dead-Path**))
 
 (defun mark-enode-optimal-path (E)
   "Mark the Enode as an optimal path node."
@@ -905,22 +886,22 @@
 
 (defun enode-optimal-pathp (E)
   "Is the enode on the optimal path?"
-  (enode-has-mark? E **optimal-path**))
+  (Enode-has-mark? E **optimal-path**))
 
 (defun mark-enode-forbidden (E)
   (mark-enode E **Forbidden**))
 
 (defun enode-forbiddenp (E)
-  (enode-has-mark? E **Forbidden**))
+  (Enode-has-mark? E **Forbidden**))
 
 (defun mark-enode-given (E)
   (mark-enode E **Given**))
 
 (defun enode-givenp (E)
-  (enode-has-mark? E **Given**))
+  (Enode-has-mark? E **Given**))
 
 (defun enode-non-quantp (E)
-  (enode-has-mark? E 'non-quant))
+  (Enode-has-mark? E 'non-quant))
 
 ;;;=============================================================================
 ;;; BubbleGraph Nodes
@@ -931,7 +912,7 @@
 ;;; Determine if <NODE> is a qnode or enode.
 (defun bgnode-p (Node)
   "Return t iff NODE is a Qnode or Enode."
-  (or (qnode-p Node) (enode-P Node)))
+  (or (qnode-p Node) (Enode-P Node)))
 
 ;;; Given an arbitrary node print it out in one of the 
 ;;; specified forms Full (default), Graph and Mreadable.
@@ -970,7 +951,7 @@
 ;;; Given an arbitary bgnode get the path 
 ;;; connected to it.
 (defun bgnode-path (N)
-  (if (enode-P N)
+  (if (Enode-P N)
       (Enode-Path N)
     (Qnode-Path N)))
 
@@ -978,8 +959,8 @@
 ;;; Get the gindex of the supplied bgnode.
 (defun bgnode-gindex (N)
   "Get the gindex of the supplied bgnode."
-  (if (enode-p N) 
-      (enode-gindex N)
+  (if (Enode-p N) 
+      (Enode-gindex N)
     (qnode-gindex N)))
 
 ;;; Get the other nodes in the graph that are linked
@@ -990,7 +971,7 @@
   "Get the other nodes linked to this bgnode."
   (if (qnode-p N)
       (qnode-eqns N)
-    (enode-qnodes N)))
+    (Enode-qnodes N)))
 
 
 ;;; Return t iff the two nodes are equalp this includes ensuring
@@ -1000,7 +981,7 @@
   "Return two iff both nodes are equalp."
   (cond ((and (qnode-p N1) (qnode-p N2))
 	 (qnodes-equalp N1 N2))
-	((and (enode-p N1) (enode-p N2))
+	((and (Enode-p N1) (Enode-p N2))
 	 (enodes-equalp N1 N2))))
 
 
@@ -1127,8 +1108,8 @@
     (when (Enode-Eindex E)
       (setf (Enode-Eindex E)
 	(collect-index->Eqn (Enode-Eindex E) Eindex)))
-    (when (Enode-SubEqns E)
-      (setf (Enode-SubEqns E)
+    (when (Enode-Subeqns E)
+      (setf (Enode-Subeqns E)
 	(collect-indicies->Eqns (Enode-Subeqns E) Eindex)))))
 
 
@@ -1327,7 +1308,7 @@
 (defun collect-marked-enodes (mark Graph &key (test #'equal))
   "Collect enodes with the mark."
   (collect-predicate-enodes
-   #'(lambda (E) (enode-has-mark? E Mark :test test))
+   #'(lambda (E) (Enode-has-mark? E Mark :test test))
    Graph))
 
 
@@ -1347,7 +1328,7 @@
 (defun collect-unmarked-enodes (mark Graph &key (test #'equal))
   "Collect enodes with the mark."
   (collect-predicate-enodes
-   #'(lambda (E) (not (enode-has-mark? E Mark :test test)))
+   #'(lambda (E) (not (Enode-has-mark? E Mark :test test)))
    Graph))
 
 
@@ -1479,8 +1460,8 @@
 ;;  (setf (qnode-eqns q4) (list e2))
 ;;  (setf (qnode-eqns g) (list e1 e2))
 ;;  
-;;  (setf (enode-qnodes e1) (list q1 g))
-;;  (setf (enode-qnodes e2) (list q1 g q2 q3 q4)))
+;;  (setf (Enode-qnodes e1) (list q1 g))
+;;  (setf (Enode-qnodes e2) (list q1 g q2 q3 q4)))
 
 
 ;;;------------------------------------------------------------------
@@ -1664,7 +1645,7 @@
 	      collect (qnode->qvar Q)) 
 	  (loop for E in (bubblegraph-Enodes Graph)
 	      unless (Enode-Dead-pathp E)
-	      append (enode->qvars E))))
+	      append (Enode->qvars E))))
 
 
 (defun collect-bg-qvars (Graph &key (ExpMarks Nil))
@@ -1672,7 +1653,7 @@
   (append (loop for Q in (bubblegraph-qnodes Graph)
 	      collect (qnode->qvar Q :ExpMarks ExpMarks)) 
 	  (loop for E in (bubblegraph-Enodes Graph)
-	      append (enode->qvars E :ExpMarks ExpMarks))))
+	      append (Enode->qvars E :ExpMarks ExpMarks))))
 
 
 (defun qnode->qvar (Q &key (ExpMarks Nil))
@@ -1723,8 +1704,7 @@
   "Generate the index for the eqns."
   (let* (
 	 ;; Collect all the eqns in graph to be used for indexing.
-	 (collected-eqns (loop for EE in (bubblegraph-Enodes Graph)
-			       append (enode->eqns EE)))
+	 (collected-eqns (mappend #'Enode-Subeqns (bubblegraph-Enodes Graph)))
 	  ;; Reduce, sort, and number collected eqns.
 	 (Index (when collected-eqns 
 		  (Index-eqn-list (sort-eqn-list (merge-duplicate-eqns 
@@ -1732,7 +1712,7 @@
     (format t "generate-bg-eindex eqn list: ~%   ~A~%" Index)
     ;; modify bubblegraph based on index of equations
     (dolist (E (bubblegraph-Enodes Graph))
-      (setf (Enode-Eindex E)
+      (setf (Enode-Eindex E) ;this is only place where Enode-Eindex is set
 	    (find-algebra->eqn (Enode-Algebra E) Index))
       (setf (Enode-Subeqns E)
 	    (collect-algebra->eqns 
@@ -1740,38 +1720,10 @@
 	     Index)))
     Index))
 
-(defun enode->eqns (Enode)
-  ;; BvdS:  I don't see why S is not an eqn struct..
-  (loop for S in (Enode-Subeqns Enode)
-      collect (gen-eqn (nth 0 S) (nth 1 S) (nth 2 S) (list Enode))))
-
-
 (defun collect-bgnodes->eqns (Nodes)
   "Collect the eqns from the selected nodes."
   (loop for N in Nodes
       when (Enode-P N)
       append (cons (Enode-Eindex N)
 		   (Enode-Subeqns N))))
-
-
-
-
-
-
-
-
-	   
-	    
-
-
-
-
-
-
-
-
-
-
-
-
 
