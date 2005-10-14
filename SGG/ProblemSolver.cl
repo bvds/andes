@@ -257,7 +257,7 @@
    Problem 
    (qvars->svars (collect-solved-qvars 
 		  (Problem-varindex Problem)))
-   (mapcar '#Eqn-Algebra (collect-solved-eqns 
+   (mapcar #'Eqn-Algebra (collect-solved-eqns 
 		   (Problem-eqnindex Problem)))))
 
 
@@ -589,7 +589,6 @@
 	      (Problem-VarIndex Problem) 
 	      (Problem-EqnIndex Problem)))) 
 		
-
 
 (defun dump-working-eqfs ()  
   "Dump an eqf file for all 'working' problems."
