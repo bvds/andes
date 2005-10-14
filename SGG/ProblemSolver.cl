@@ -419,9 +419,8 @@
 	(t ;(pprint (problem-graph problem))
 	   (mark-optimal-path Problem)
 	   (mark-dead-paths Problem)
-	   (format t "mark-problem-graph 1 length=~A~%   ~A~%" 
-		   (length (problem-eqnindex Problem))
-		   (problem-eqnindex Problem))
+	   (format t "mark-problem-graph 1 length=~A~%" 
+		   (length (problem-eqnindex Problem)))
 	   (Remove-dead-path-eqns Problem)
 	   (format t "mark-problem-graph 2 length=~A~%" 
 		   (length (problem-eqnindex Problem)))
