@@ -65,15 +65,13 @@
 	    :Solved (nth 6 L)))
 
 (defun eqns-equalp (X Y)
-  "Determine if the two eqns are equalp."
-  (when (unify (eqn-Exp X) (Eqn-Exp Y))
-    (when (not (equal (eqn-Algebra X) (eqn-Algebra Y))) ;sanity check
-      (error "eqns-equalp:  same Eqn-Exp but different algebra:~%     ~A~%     ~A~%" 
-	      X Y))
-    (when (not (eql (eqn-type X) (eqn-type Y))) ;sanity check
-      (format t "!!! eqns-equalp:  same Eqn-Exp but different type:~%     ~A~%     ~A~%" 
-	      X Y))
-    (eql (eqn-type X) (eqn-type Y))))
+  "Determine if the two eqns are equal or can be merged."
+  (let ((exp (unify (Eqn-Exp X) (Eqn-Exp Y)))
+	(alg (equal (Eqn-Algebra X) (Eqn-Algebra Y))))
+    (when (not (eql (null exp) (null alg)))
+      (error "eqns-equalp:  both Algebra and Exp should match:~%     ~A~%     ~A~%" 
+	     X Y))
+    (and exp alg (merge-eqn-types (Eqn-Type X) (Eqn-Type Y)))))
 
 ;;; make-qsolver-eqn
 ;;; As Eqns come out of the qsolver they consist of lists that
@@ -91,43 +89,32 @@
   (loop for Q in Qeqns
       collect (make-qsolver-eqn Q)))
 
-;;-----------------------------------------------------------------
-;; use functions.
+;;;-----------------------------------------------------------------
+;;;
+;;;   Rules for merging equations
+;;;   Matching equations must have identical Eqn-Algebra and Eqn-Exp
+;;;   and Eqn-Type must be mergable.
+;;;   Eqn-Index and Eqn-Solved are ignores.
 
 (defun merge-duplicate-eqns (Eqns)
   "Iterate through the list merging duplicate eqns."
-  (let ((R (list (car Eqns))) tmp)
-    (dolist (E (cdr Eqns))
-      (cond ((setq tmp (find-exp->eqn (Eqn-exp E) R))
-	     (merge-eqns E tmp))
-	    (t (push E R))))
+  (let ((R (list (first Eqns))))
+    (dolist (A (rest Eqns))
+    ;;  (format t "merge-duplicate-eqns R length ~A~%" (length R))
+      (let ((B (find A R :test #'eqns-equalp)))
+	(if B (merge-eqns A B) (push A R))))
     R))
 
-
-;;; Equation merging can take place in two ways.
-;;; Firstly if the equations are equalp (including type)
-;;; then the nodes lists are unioned and set into the
-;;; second eqn.  If the equations differ only in type
-;;; then the system will test if they can be merged.
-;;;
-;;; If the eqns cannot be merged then an error is returned.
 (defun merge-eqns (E1 E2)
-  "Merge Eqn 1 into Eqn 2."
-  (cond ((eqns-equalp E1 E2)                           
-	 (setf (Eqn-Nodes E2)
-	   (union (Eqn-Nodes E2) (Eqn-Nodes E1))))
-	;; equations have different types
-	((merge-eqn-types (Eqn-Type E1) (Eqn-Type E2))
-	 (format t "!!! merge-eqns merging different types:~%   ~A~%    ~A~%" 
-		 E1 E2)
-	 (setf (Eqn-Type E2)
-	   (merge-eqn-types (Eqn-Type E1) (Eqn-Type E2)))
-	 (setf (Eqn-Nodes E2)
-	   (union (Eqn-Nodes E2) (Eqn-Nodes E1))))
-
-	(t (error "Two ~A eqns don't match:~%~A~%~A~%" 
-		  (Eqn-exp E1) E1 E2))))
-
+  "Merge Eqn 1 into Eqn 2.  These are assumed to be equal under Eqns-Equalp."
+  (setf (Eqn-Nodes E2)
+	;; equality is when both point to same object
+	(union (Eqn-Nodes E2) (Eqn-Nodes E1)))
+  (setf (Eqn-Type E2)
+	(merge-eqn-types (Eqn-Type E1) (Eqn-Type E2)))
+  ;; this looks ok
+  ;;  (format t "merge result ~A~%" E2)
+  )
 
 ;;  This tells us which equation types can actually be merged
 (defun merge-eqn-types (T1 T2)

@@ -1709,16 +1709,27 @@
 	 (Index (when collected-eqns 
 		  (Index-eqn-list (sort-eqn-list (merge-duplicate-eqns 
 						  collected-eqns))))))
-    (format t "generate-bg-eindex eqn list: ~%   ~A~%" Index)
+    (format t "generate-bg-eindex eqn list length ~A~%" (length Index))
     ;; modify bubblegraph based on index of equations
     (dolist (E (bubblegraph-Enodes Graph))
       (setf (Enode-Eindex E) ;this is only place where Enode-Eindex is set
+	    ;; since only Enode-Algebra is known, match using this.
 	    (find-algebra->eqn (Enode-Algebra E) Index))
+      ;; Go back and fix up Enode-Subeqns to point to Eqn's in Index
       (setf (Enode-Subeqns E)
-	    (collect-algebra->eqns 
-	     (remove-duplicates (Enode-Subeqns E) :test #'unify) 
+	    (collect-index-eqns 
+	     (remove-duplicates (Enode-Subeqns E) :test #'eqns-equalp) 
 	     Index)))
     Index))
+
+(defun collect-index-eqns (Subeqns Index)
+  "Collect eqn's in index that match, using Eqns-equalp, a member of Subeqns."
+  (let (R)
+    (dolist (E Subeqns)
+    ;;  (format t "trying to find ~A~%" E)
+      (let ((I (find E Index :test #'eqns-equalp)))
+	(when I (push I R))))
+    R))
 
 (defun collect-bgnodes->eqns (Nodes)
   "Collect the eqns from the selected nodes."
@@ -1726,4 +1737,3 @@
       when (Enode-P N)
       append (cons (Enode-Eindex N)
 		   (Enode-Subeqns N))))
-
