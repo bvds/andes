@@ -374,10 +374,6 @@
   "Solve for the specified psm result."
   (let ((R) (PSM))
     (setq PSM (gg-qsolres->enode Result))
-    ; AW: simplify this:
-    ;(gg-debug "PSM is new.~%")
-    ;(gg-debug "Psm quantities: ~A~%" (qsolres-nodes Result))
-    ;-;(gg-debug "~A~%" (qsolres-nodes Result))
     (when (setq R (gg-collect-psm-qnodes 
 		   (Qsolres-Nodes Result) 
 		   Givens (add-nodes-to-bubblegraph Graph PSM)))
@@ -415,21 +411,26 @@
 ;;; This function does so including setting up the subvars and
 ;;; subeqns properly and settng the contents as specified.
 (defun gg-qsolres->Enode (R &key ID Algebra Path Marks 
-			      Subeqns Subvars 
-			      Qnodes Assumpts)
+			     Subvars Qnodes Assumpts)
   (let ((E (make-Enode :ID (or ID (Qsolres-ID R))
 		       :Algebra (or Algebra (Qsolres-Algebra R))
 		       :path (or Path (Qsolres-Path R))
 		       :marks (force-to-list Marks) 
-		       :subeqns (or Subeqns (qsolres-subeqns R))
+		       :subeqns (mapcar #'qsolres->eqn (qsolres-subeqns R))
 		       :subvars (or Subvars (qsolres-subvars R))
 		       :Qnodes (force-to-list Qnodes)
 		       :assumptions (or Assumpts (qsolres-Assumpts R)))))
-;;    (dolist (Eq (Enode-Subeqns E))
-;;      (setf (Eqn-Nodes Eq) (list E)))
-;;    (dolist (Q (Enode-SubVars E))
-;;      (setf (Qvar-Nodes Q) (list E)))
+    ;; make back-pointer for each subeqn
+    (dolist (S (Enode-subeqns E))
+      (setf (eqn-nodes S) (list E)))
+    ;;    (dolist (Q (Enode-SubVars E))
+    ;;      (setf (Qvar-Nodes Q) (list E)))
     E))
+
+(defun qsolres->eqn (S)
+  (make-eqn :Type (first S)
+	    :Algebra (second S)
+	    :Exp (third S)))
 
 ;;;============================================================================
 ;;; Debug code.

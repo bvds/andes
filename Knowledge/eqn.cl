@@ -94,16 +94,6 @@
 ;;-----------------------------------------------------------------
 ;; use functions.
 
-(defun gen-eqn (Type Algebra Expression Nodes)
-  "Generate a new eqn."
-  ;; This might not be true if gen-eqn is applied earlier
-  (when (null nodes) (error "gen-eqn expects non-null nodes~%"))
-  (make-eqn :Type Type
-	    :Algebra Algebra
-	    :exp Expression
-	    :Nodes Nodes))
-
-
 (defun merge-duplicate-eqns (Eqns)
   "Iterate through the list merging duplicate eqns."
   (let ((R (list (car Eqns))) tmp)
@@ -238,7 +228,7 @@
 
 (defun collect-algebra->eqns (Equations Eqns)
   (loop for E in Equations
-      when (find-algebra->eqn (second E) Eqns)
+      when (find-algebra->eqn (eqn-algebra E) Eqns)
       collect it
       else do (error "Unrecognized Equation ~A supplied." E)))
   
