@@ -169,7 +169,7 @@
 	   (mapcar #'eqn-algebra
 		   (remove-if-not
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
-		    (enodes->eqns (EqnSet-Eqns Set)))))))
+		    (mappend #'Enode-Subeqns (EqnSet-Eqns Set)))))))
    
      
 (defun print-eqnset-explicit-eqns (Set Stream Level)
@@ -180,7 +180,7 @@
 	   (mapcar #'eqn-algebra
 		   (remove-if
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
-		    (enodes->eqns (EqnSet-Eqns Set)))))))
+		    (mappend #'Enode-Subeqns (EqnSet-Eqns Set)))))))
   
 
 (defun print-num-eqnset-wsols (Num Set &optional (Stream t) (Level 0))
