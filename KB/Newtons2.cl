@@ -960,7 +960,7 @@
    (bind ?rot (if (eq ?xy 'y) 90 0))
    )
   :effects (
-   (derived-eqn-contains (proj (compo ?xy ?rot ?vector)) ?sought)
+   (derived-eqn-contains (projection (compo ?xy ?rot ?vector)) ?sought)
   ))
 
 (defoperator write-projection (?vector ?xy ?rot)
@@ -981,7 +981,7 @@
   :effects 
   (
    ;; exact copy of an existing equation is a simple case of a derived eqn.
-   (derived-eqn (= ?compo-var ?proj) (proj (compo ?xy ?rot ?vector)))
+   (derived-eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
    ))
 
 (defoperator write-projection-with-body (?vector ?xy ?rot)
@@ -995,7 +995,7 @@
    ) 
   :effects 
   (
-   (derived-eqn (= ?compo-var ?proj) (proj (compo ?xy ?rot ?vector)))
+   (derived-eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
    ))
 
 ;;; =============================== axes =========================

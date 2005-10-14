@@ -631,7 +631,9 @@
    )
 
 (defoperator define-volume (?body ?time)
-     :preconditions((bind ?Vol-var (format-sym "Vol_~A" (body-name ?body))))
+     :preconditions((bind ?Vol-var (format-sym "Vol_~A~@[_~A~]" 
+					       (body-name ?body) 
+					       (time-abbrev ?time))))
      :effects ((variable ?Vol-var (volume ?body :time ?time))
                (define-var (volume ?body :time ?time)))
      :hint (
