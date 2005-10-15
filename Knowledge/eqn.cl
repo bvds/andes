@@ -68,10 +68,6 @@
   "Determine if the two eqns are equal or can be merged."
   (let ((exp (unify (Eqn-Exp X) (Eqn-Exp Y)))
 	(alg (equal (Eqn-Algebra X) (Eqn-Algebra Y))))
-    (when (not (equal (null exp) (null (equalp (eqn-exp x) (eqn-exp y)))))
-      (format t "!!! eqns-equalp unify discrepency for ~A ~A~%" x y))
-    (when (not (equal (null alg) (null (equalp (eqn-algebra x) (eqn-algebra y)))))
-      (format t "!!! eqns-equalp equal discrepency for ~A ~A~%" x y))
     (when (not (eql (null exp) (null alg)))
       (error "eqns-equalp:  both Algebra and Exp should match:~%     ~A~%     ~A~%" 
 	     X Y))
@@ -104,7 +100,6 @@
   "Iterate through the list merging duplicate eqns."
   (let ((R (list (first Eqns))))
     (dolist (A (rest Eqns))
-    ;;  (format t "merge-duplicate-eqns R length ~A~%" (length R))
       (let ((B (find A R :test #'eqns-equalp)))
 	(if B (merge-eqns A B) (push A R))))
     R))
@@ -116,8 +111,6 @@
 	(union (Eqn-Nodes E2) (Eqn-Nodes E1)))
   (setf (Eqn-Type E2)
 	(merge-eqn-types (Eqn-Type E1) (Eqn-Type E2)))
-  ;; this looks ok
-  ;;  (format t "merge result ~A~%" E2)
   )
 
 ;;  This tells us which equation types can actually be merged
