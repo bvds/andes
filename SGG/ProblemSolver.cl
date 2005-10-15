@@ -87,20 +87,20 @@
   "Solve a problem that seeks a quantity."
   (Generate-Problem-Bubblegraph Problem)
   (Generate-Problem-Indicies Problem)
-  (format t "solve-quant-problem 1 length=~A~%" 
-	(length (problem-eqnindex Problem)))
+;;  (format t "solve-quant-problem 1 length=~A~%" 
+;;	(length (problem-eqnindex Problem)))
   (generate-problem-Solutionpoint Problem)
-  (format t "solve-quant-problem 2 length=~A~%" 
-	(length (problem-eqnindex Problem)))
+;;  (format t "solve-quant-problem 2 length=~A~%" 
+;;	(length (problem-eqnindex Problem)))
   (mark-forbidden-nodes Problem)
-  (format t "solve-quant-problem 3 length=~A~%" 
-	(length (problem-eqnindex Problem)))
+;;  (format t "solve-quant-problem 3 length=~A~%" 
+;;	(length (problem-eqnindex Problem)))
   (generate-problem-eqn-sets Problem)
-  (format t "solve-quant-problem 4 length=~A~%" 
-	(length (problem-eqnindex Problem)))
+;;  (format t "solve-quant-problem 4 length=~A~%" 
+;;	(length (problem-eqnindex Problem)))
   (mark-problem-graph Problem)
-  (format t "solve-quant-problem 4 length=~A~%" 
-	(length (problem-eqnindex Problem)))
+ ;; (format t "solve-quant-problem 4 length=~A~%" 
+;;	(length (problem-eqnindex Problem)))
   )
 
 
@@ -419,11 +419,11 @@
 	(t ;(pprint (problem-graph problem))
 	   (mark-optimal-path Problem)
 	   (mark-dead-paths Problem)
-	   (format t "mark-problem-graph 1 length=~A~%" 
-		   (length (problem-eqnindex Problem)))
+	   ;;(format t "mark-problem-graph 1 length=~A~%" 
+	;;	   (length (problem-eqnindex Problem)))
 	   (Remove-dead-path-eqns Problem)
-	   (format t "mark-problem-graph 2 length=~A~%" 
-		   (length (problem-eqnindex Problem)))
+	  ;; (format t "mark-problem-graph 2 length=~A~%" 
+	;;	   (length (problem-eqnindex Problem)))
 	   (remove-dead-path-vars Problem)
 	   
 	   (when *S-Print-Steps*
@@ -462,7 +462,7 @@
 	    (remove-if #'bgnode-dead-pathp (Eqn-Nodes E)))
       (when (Eqn-Nodes E)
 	(push E Eqns)))
-    (format t "remove-dead-path-eqns length ~A~%" (length Eqns))
+  ;;  (format t "remove-dead-path-eqns length ~A~%" (length Eqns))
     (setf (Problem-EqnIndex Problem) 
       (index-eqn-list Eqns))))
     

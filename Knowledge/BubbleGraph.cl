@@ -1507,12 +1507,12 @@
 ;; list.
 (defun mark-bg-dead-path-nodes (Graph UsedNodes) 
   "Mark the dead path nodes in the graph."
-  (format t "mark-bg-dead-path-nodes, bubblegraph-enodes:~%     ~A~%" 
-	  (bubblegraph-enodes graph))
-  (format t "mark-bg-dead-path-nodes:  used nodes:~%     ~A~%" UsedNodes)
+;;  (format t "mark-bg-dead-path-nodes, bubblegraph-enodes:~%     ~A~%" 
+;;	  (bubblegraph-enodes graph))
+;;  (format t "mark-bg-dead-path-nodes:  used nodes:~%     ~A~%" UsedNodes)
   (dolist (Q (bubblegraph-qnodes Graph))
     (when (not (member Q UsedNodes))
-      (format t "mark-bg-dead-path-nodes:  removing Qnode ~A~%" Q)
+   ;;   (format t "mark-bg-dead-path-nodes:  removing Qnode ~A~%" Q)
       (push **Dead-Path** (Qnode-Marks Q))))
   
   ;; AW: for hybrid quant/non-quant problems: don't mark pseudo-enodes 
@@ -1709,7 +1709,7 @@
 	 (Index (when collected-eqns 
 		  (Index-eqn-list (sort-eqn-list (merge-duplicate-eqns 
 						  collected-eqns))))))
-    (format t "generate-bg-eindex eqn list length ~A~%" (length Index))
+  ;;  (format t "generate-bg-eindex eqn list length ~A~%" (length Index))
     ;; modify bubblegraph based on index of equations
     (dolist (E (bubblegraph-Enodes Graph))
       (setf (Enode-Eindex E) ;this is only place where Enode-Eindex is set
