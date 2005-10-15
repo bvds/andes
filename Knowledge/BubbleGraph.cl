@@ -1519,7 +1519,7 @@
   ;; generated for qualitative problem parts as dead-paths.
   (dolist (E (remove-if #'enode-non-quantp (bubblegraph-enodes Graph)))
     (when (not (member E UsedNodes))
-      (format t "mark-bg-dead-path-nodes:  removing Enode ~A~%" E)
+    ;;  (format t "mark-bg-dead-path-nodes:  removing Enode ~A~%" E)
       (push **Dead-Path** (Enode-Marks E))))
   
   Graph)
