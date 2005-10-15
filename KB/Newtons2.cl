@@ -3571,7 +3571,7 @@
     (eqn-compos (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2)))
      (?vi-compo ?s-compo))
     (implicit-eqn (= ?a_x 0)
-                  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
+                  (projection (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))))
   :hint (
     (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
     (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
@@ -6229,7 +6229,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((eqn (= (+ . ?f-compo-vars) 0)
 	 (compo-eqn NFL ?xyz ?rot (nl ?b ?t)))
     (eqn-compos (compo-eqn NFL ?xyz ?rot (nl ?b ?t)) ?f-compo-vars)
-    (implicit-eqn (= ?a-compo 0) (compo ?xyz ?rot (accel ?b :time ?t))))
+    (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
    ((point (string "Because the acceleration of ~a is zero ~a, you can apply Newton's first law to it." ?b (?t pp)))
     (teach (string 
@@ -6676,6 +6676,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?te-var (total-energy ?b :time ?t))
    ;; define variable for each type of energy that applies in this problem
    (setof (ee-var ?b ?t ?var) ?var ?ee-vars)
+   (test ?ee-vars)  ;make sure there is something
    (debug "Set of ee-vars = ~A~%" ?ee-vars)
   )
   :effects (
