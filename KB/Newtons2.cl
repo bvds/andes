@@ -581,7 +581,8 @@
   "If the goal is to write a projection equation for a given component 
    variable ?v, and the vector is zero, then write ?v = 0."
   :preconditions
-   ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+   ((body-for-projection ?rot ?vector)
+    (variable ?compo-var (compo ?xyz ?rot ?vector))
     (in-wm (vector ?b ?vector zero))
     (bind ?t (time-of ?vector))
     )
@@ -605,7 +606,8 @@
   :preconditions
   (; require standard axes direction:
    (test (or (equal ?xyz 0) (equal ?xyz 90))
-   (in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+   (body-for-projection ?rot ?vector)
+   (variable ?compo-var (compo ?xyz ?rot ?vector))
    ; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
    (in-wm (vector ?b ?vector ?dir))
@@ -644,9 +646,10 @@
   :preconditions
   (; require standard axes direction:
    (test (or (equal ?xyz 0) (equal ?xyz 90))
+   (body-for-projection ?rot ?vector)
    ; fetch the variables:
+   (variable ?compo-var (compo ?xyz ?rot ?vector))
    (in-wm (vector ?b ?vector unknown))
-   (in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
    (in-wm (variable ?dir-var (dir ?vector)))
    (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
@@ -679,8 +682,9 @@
    If ?compo-var is the variable for a component of a vector,
       and the vector is at a known angle parallel or antiparallel to the axis,
    then write ?compo-var = +/- ?mag-var as appropriate"
-  :preconditions
-  ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+  :preconditions (
+   (body-for-projection ?rot ?vector)
+   (variable ?compo-var (compo ?xyz ?rot ?vector))
    (in-wm (vector ?b ?vector ?dir))
    (test (parallelp ?rot ?dir))  ; should fail if ?dir is unknown
    (in-wm (variable ?mag-var (mag ?vector)))
@@ -728,8 +732,9 @@
       where ?mag is the magnitude of the vector,
       ?dir is the direction in degrees of the vector,
       and ?rot is the rotation of the axes."
-  :preconditions
-  ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+  :preconditions (
+   (body-for-projection ?rot ?vector)
+   (variable ?compo-var (compo ?xyz ?rot ?vector))
    ; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
    (in-wm (vector ?b ?vector ?dir))
@@ -775,11 +780,12 @@
       where ?mag is the magnitude of the vector,
       ?dir is the variable for the direction of the vector,
       and ?rot is the rotation of the axes."
-  :preconditions
-  (; use different special case op for z axis projections:
+  :preconditions (
+  ; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
+   (body-for-projection ?rot ?vector)
+   (variable ?compo-var (compo ?xyz ?rot ?vector))
    (in-wm (vector ?b ?vector unknown))
-   (in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
    (in-wm (variable ?dir-var (dir ?vector)))
    (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
@@ -812,11 +818,11 @@
   :specifications "
    If a vector is perpendicular to an axis,
    then its component along that axis is zero."
-  :preconditions
-   ((in-wm (variable ?compo-var (compo ?xyz ?rot ?vector)))
+  :preconditions (
+    (body-for-projection ?rot ?vector)
+    (variable ?compo-var (compo ?xyz ?rot ?vector))
     (in-wm (vector ?b ?vector ?dir))
     (in-wm (variable ?dir-var (dir ?vector)))
-    ;; (test (perpendicularp ?dir ?rot)) -- AW: changed to use non-zero-projp
     (test (not (non-zero-projectionp ?dir ?xyz ?rot))) ; i.e. known zero projectionp
     (bind ?t (time-of ?vector))
     )
@@ -842,8 +848,9 @@
 ;; will be determined. 
 
 (defoperator compo-z-axis (?vector)
-  :preconditions
-  ((in-wm (variable ?compo-var (compo z 0 ?vector)))
+  :preconditions (
+   (body-for-projection 0 ?vector)
+   (variable ?compo-var (compo z 0 ?vector))
    (in-wm (vector ?b ?vector ?dir))
    (test (non-zero-projectionp ?dir 'z 0))
    ;; test is passed if dir is not known to be orthogonal to axis dir
@@ -892,7 +899,7 @@
 ;; when we know it's in the z direction but don't know which way it points
 (defoperator compo-z-axis-unknown (?compo-var)
   :preconditions
-  ((in-wm (variable ?compo-var (compo z 0 ?vector)))
+  ((variable ?compo-var (compo z 0 ?vector))
    (in-wm (vector ?b ?vector z-unknown))
    (in-wm (variable ?mag-var (mag ?vector)))
    (in-wm (variable ?dir-var (dir ?vector)))
@@ -929,25 +936,18 @@
 
 
 ; Following is the projection PSM applied at the bubble-graph level 
-; for component-form solutions, in which projections are not hidden inside
-; PSMs. For example, if given mag and dir of v0, need projection to link to
-; v0_x and v0_y which occur in component-form bubble-graph equations.
-; We use a different eqn-id for this so we can reuse the existing equation
-; writing operators as subroutines. Unfortunately we can't use the existing
-; projection writing operators to achieve our final equation writing goal
-; directly since as written they make assumptions about the context, viz
-; that a diagram with vectors and axes has already been drawn and variables
-; already been defined. When used as a top-level PSM we have to generate
-; that context ourself.  Until we fix that, we have to treat this operator
-; as generating a derived-eqn -- though it is in fact identical 
-; to the single sub-eqn we are wrapping.
-
-; Even w/component form flag, it can be tricky to put out projection equation 
-; by itself because writing it requires drawing vector and choosing axes 
-; to enable compo variables to be used. But define-compo and some other 
-; operators use in-wm for their preconds, on the assumption that a diagram 
-; drawing step for some other method has already taken care of the necessary 
-; drawing. See define-compo2 for a workaround for this problem.
+; for component-form solutions, in which projections are not chunked as
+; subsidiary steps inside vector PSMs. For example, if given mag and dir 
+; of v0, need projection to link to v0_x and v0_y which occur in 
+; component-form bubble-graph equations.
+;
+; This just puts out the eqn-contains for the psm. The existing projection 
+; writing operators do the work of generating the appropriate equation.
+; 
+; As a PSM we require standard axes for component-form problems. If we
+; used this as a psm in all cases, there would be a difficulty of choosing
+; which axes are appropriate to use when sought is magnitude, say. 
+;
 
 (defoperator projection-contains (?sought)
   :preconditions (
@@ -960,43 +960,23 @@
    (bind ?rot (if (eq ?xy 'y) 90 0))
    )
   :effects (
-   (derived-eqn-contains (projection (compo ?xy ?rot ?vector)) ?sought)
+   (eqn-contains (projection (compo ?xy ?rot ?vector)) ?sought)
   ))
 
-(defoperator write-projection (?vector ?xy ?rot)
-  :preconditions 
-  (
-   ;; Projection normally doesn't draw a body. projection-body stmt in problem
-   ;; gets alt version that does. Used to draw body in projection-only problem.
-   (not (projection-body ?problem-body ?problem-time)) 
+;; Projection writing rules used within larger psms should not draw a body, since 
+;; it is the psm that decides whether and which body should be drawn. However, on
+;; simple projection-only problems in our introductory vector set, we do want the body
+;; to be drawn. We use a projection-body stmt in problem to turn this on. 
+(defoperator draw-body-for-projection (?rot ?vector)
+   :preconditions (
+      (in-wm (projection-body ?problem-body ?problem-time)) 
+      (body ?problem-body)
+   ) :effects ((body-for-projection ?rot ?vector)))
+ 
+(defoperator omit-body-for-projection (?rot ?vector)
+   :preconditions ( (not (projection-body ?problem-body ?problem-time)) )
+   :effects ((body-for-projection ?rot ?vector)))
    
-   ;; have to make sure compo variable is defined (which requires drawing
-   ;; vector and axes), since the projection writing operators that do
-   ;; the work are written to assume it is already in wm as a result of
-   ;; drawing a vector diagram for a standard vector-PSM.
-   (variable ?compo-var (compo ?xy ?rot ?vector))
-   ;; then use existing operators to write projection equation:
-   (eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
-   ) 
-  :effects 
-  (
-   ;; exact copy of an existing equation is a simple case of a derived eqn.
-   (derived-eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
-   ))
-
-(defoperator write-projection-with-body (?vector ?xy ?rot)
-  :preconditions 
-  (
-   ;; alt body-drawing version of write-projection, enabled by stmt in problem
-   (in-wm (projection-body ?problem-body ?dont-care)) 
-   (body ?problem-body)
-   (variable ?compo-var (compo ?xy ?rot ?vector))
-   (eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
-   ) 
-  :effects 
-  (
-   (derived-eqn (= ?compo-var ?proj) (projection (compo ?xy ?rot ?vector)))
-   ))
 
 ;;; =============================== axes =========================
 ;;; Although the axis-drawing code is only called from vector-diagram

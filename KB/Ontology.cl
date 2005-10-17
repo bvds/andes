@@ -545,7 +545,7 @@
   :ExpFormat ("entering the given value of ~A" (nlg ?quantity))
   :EqnFormat ("Var = N units"))
 
-(def-psmclass proj (proj (compo ?axis ?rot ?vector :time ?time))
+(def-psmclass proj (projection (compo ?axis ?rot ?vector :time ?time))
   :complexity connect
   :doc "projection equations"
   :english ("projection equations")
