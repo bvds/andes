@@ -145,9 +145,9 @@ LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnific
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
 END_GROUP			
 GROUP	Waves and Oscillations		
-LEAF	k = 2*$p/$l	wavenumber-lambda-wave	
-LEAF	f = $w/(2*$p)	frequency-of-wave	
-LEAF	T = 1/f	period-of-wave	
+LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
+LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave	
+LEAF	T = 1/f       Period of oscillation	period-of-wave	
 LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
 LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
 LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
@@ -156,10 +156,10 @@ LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transve
 LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
 LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
 LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency	
+LEAF	fo = fs*(vwÂ±vo)/(vwÂ±vs)   Frequency shift from doppler effect	doppler-frequency	
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
-LEAF	fbeats = abs(f1-f2)/2	beat-frequency	
-LEAF	v = c = 2.998e8 m/s    speed of light	wave-speed-light	
+LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
+LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
 END_GROUP			
 END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
@@ -217,7 +217,7 @@ END_GROUP
 END_GROUP			
 GROUP	Work and Energy		
 LEAF	W = F*d*cos($q)         work done by a force	work	Work done by a force
-LEAF	Wnet = $S Wi            Net work	net-work	Net work
+LEAF	Wnet = $S Wi            Net work defined	net-work	Net work
 LEAF	Wnc = $S Wncf_i         work by non-conservative	work-nc	Conservation of Energy
 LEAF	ME = K + $S Ui          mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	K = 0.5*m*v^2          kinetic energy defined	kinetic-energy	Conservation of Energy
@@ -276,17 +276,3 @@ LEAF	A = $p*r^2           Area of a circle	area-of-circle
 LEAF	A = 2*$p*r           Circumference of a circle	circumference-of-circle-r	
 LEAF	A = $p*d             Circumference of a circle	circumference-of-circle-d	
 END_GROUP			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
