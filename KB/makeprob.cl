@@ -94,7 +94,7 @@
 					       :Path path1))
 		   (setf P2 (read-problem-file (string (problem-name P)) 
 					       :Path path2)))
-	  (error (c) (setf E (format nil "File read error: ~A~%" c))))
+	  (error (c) (setf E (format nil "File read error: ~A" c))))
 	(when (null E) (setf E (diff-problem-solutions P1 P2)))
 	(format t "~:[OK~;~A~]~%" E E)
 	(when E (push (list (Problem-Name P) (format nil "~A" E)) Errs))))
