@@ -156,7 +156,7 @@ LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transve
 LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
 LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
 LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo = fs*(vwÂ±vo)/(vwÂ±vs)   Frequency shift from doppler effect	doppler-frequency	
+LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency	
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
 LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
 LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
@@ -276,3 +276,17 @@ LEAF	A = $p*r^2           Area of a circle	area-of-circle
 LEAF	A = 2*$p*r           Circumference of a circle	circumference-of-circle-r	
 LEAF	A = $p*d             Circumference of a circle	circumference-of-circle-d	
 END_GROUP			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
