@@ -1371,13 +1371,12 @@
   ))
 
 (defoperator define-electric-energy (?b ?t)
- :preconditions (
- (object ?b)
- (bind ?ge-var (format-sym "Ue_~A_~A" ?b (time-abbrev ?t)))
- ) 
+  :preconditions 
+  ( (object ?b)
+    (bind ?ge-var (format-sym "Ue_~A~@[_~A~]" ?b (time-abbrev ?t))) ) 
  :effects ( 
- (define-var (electric-energy ?b ?source :time ?t)) 
- (variable ?ge-var (electric-energy ?b ?source :time ?t)) 
+	   (define-var (electric-energy ?b ?source :time ?t)) 
+	   (variable ?ge-var (electric-energy ?b ?source :time ?t)) 
   )
  :hint (
 	 (bottom-out (string "Define a variable for electrical potential energy by selecting Energy from the Variables menu on the top menu bar."))
@@ -1385,19 +1384,19 @@
 
 ; To interact with cons-energy psm: op to tell it that electric pe 
 ; exists in this problem by defining a variable when needed
-(defoperator define-electric-pe-var (?b ?t)
-    :preconditions (
-          ; need to know electric field exists in problem
-	  ; for now look for this: 
-	  (at-place ?b ?loc ?t)
-          (Efield-sources ?loc ?t ?sources)
-	  ; need to bind source. See electric-energy-contains above
-          (bind ?source (cond ((and (null (cdr ?sources))
-			        (not (eq (car ?sources) 'unspecified))) (car ?sources))
-			       (T 'electric_field)))
-	  (variable ?var (electric-energy ?b ?source :time ?t))
-    )
-    :effects ( (pe-var ?b ?t ?var) ))
+(defoperator define-electric-ee-var (?b ?t)
+  :preconditions 
+  ( ;; need to know electric field exists in problem
+   (at-place ?b ?loc ?t)
+   (Efield-sources ?loc ?t ?sources)
+   ;; need to bind source. See electric-energy-contains above
+   (bind ?source (cond ((and (null (cdr ?sources))
+			     (not (eq (car ?sources) 'unspecified))) 
+			(car ?sources))
+		       (T 'electric_field)))
+   (variable ?var (electric-energy ?b ?source :time ?t))
+   )
+  :effects ( (ee-var ?b ?t ?var) ))
 
 ;;--------------------------------------------------
 ;;  Magnetic fields and forces 

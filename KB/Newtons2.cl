@@ -949,6 +949,7 @@
 ; which axes are appropriate to use when sought is magnitude, say. 
 ;
 
+
 (defoperator projection-contains (?sought)
   :preconditions (
    ; only allow this in problems tagged 'component-form
@@ -6908,10 +6909,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	 ))
 
 (defoperator define-grav-energy (?b ?planet ?t)
- :preconditions (
-		 (object ?b)
-		 (bind ?ge-var (format-sym "Ug_~A~@[_~A~]" ?b (time-abbrev ?t)))
-		 ) 
+ :preconditions 
+ ( (object ?b)
+   (bind ?ge-var (format-sym "Ug_~A~@[_~A~]" ?b (time-abbrev ?t))) ) 
  :effects ( 
 	   (define-var (grav-energy ?b ?planet :time ?t)) 
 	      (variable ?ge-var (grav-energy ?b ?planet :time ?t)) 
