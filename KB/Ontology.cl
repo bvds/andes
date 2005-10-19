@@ -1091,8 +1091,8 @@
 (def-psmclass cons-ke-elastic (cons-ke-elastic ?bodies (during ?time0 ?time1))
   :complexity major
   :english ("conservation of kinetic energy in elastic collisions")
-  :expformat ((strcat "Applying Conservation of Kinetic Energy in "
-		      "elastic collisions to ~a from ~a to ~a")
+  :expformat ((strcat "applying Conservation of Kinetic Energy to "
+		      "elastic collisions of ~a from ~a to ~a")
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("K1 = K2"))
 
