@@ -306,14 +306,14 @@
   "Collect the System entries from the specified PSM Graph."
   (let ((Stack Stk) (Entries) (tmp))
     (dolist (N Graph)
-      (cond ((or (cssplit-p N) (csnext-p N))            ;; Push ops and splits
-	     (push N Stack))                            ;; onto the stack.
-
-	    ((csjoin-p N)                               ;; When a join is encountered clear
-	     (setq Stack (sg-drop-snj Stack)))          ;; the splits and nexts preceeding it.
+      (cond ((or (cssplit-p N) (csnext-p N))            ;Push ops and splits
+	     (push N Stack))                            ;onto the stack.
 	    
-	    ((and (csdo-p N)                                          ;; When a do is encountered
-		  (find-if #'help-EntryProp-p (csdo-effects N)))      ;; and it contains an entry prop.
+	    ((csjoin-p N)                        ;When a join is encountered clear
+	     (setq Stack (sg-drop-snj Stack)))   ;the splits and nexts preceeding it.
+	    
+	    ((and (csdo-p N)                            ;When a do is encountered
+		  (find-if #'help-EntryProp-p (csdo-effects N))) ;and it contains an entry prop.
 	     (setq tmp (sg-generate-sysents N Stack State))  ;; Generate the systementries.
 	     (setq stack (append tmp stack))                          ;; Add them to the stack.
 	     (setq entries (append tmp Entries))                      ;; Add them to the list of entries.
@@ -873,13 +873,13 @@
 ; more convenient than list.
 (defun sg-map-systementry->opname (entry)
   (first (sg-map-systementry->opnames entry)))
-;
-; For treating entries as optional
-; An entry is optional iff for every enode in the graph:
-; either the node doesn't contain it at all or
-; there exists a path through that node that doesn't 
-; include the entry. This requires traversing the hairy
-; psm graph structure
+
+;; For treating entries as optional
+;; An entry is optional iff for every enode in the graph:
+;; either the node doesn't contain it at all or
+;; there exists a path through that node that doesn't 
+;; include the entry. This requires traversing the hairy
+;; psm graph structure
 (defun sg-systementry-optional-p (entry &optional (problem *cp*))
   (every #'(lambda (enode) (does-not-require enode entry))
          (bubblegraph-enodes (problem-graph problem))))  
@@ -894,12 +894,12 @@
                (member (car path) (systementry-sources entry)))
 	     NIL)
 	 ((cschoose-p (car path)) 
-	   ; car path is (CHOOSE ((step 1) (step 2)) ((step1 step2)))
-	   ; so everything to the end is inside the current CHOOSE item.
+	   ;; car path is (CHOOSE ((step 1) (step 2)) ((step1 step2)))
+	   ;; so everything to the end is inside the current CHOOSE item.
 	   (some #'(lambda (path) (some-path-through-omits path entry))
 	         (cdr (car path))))
-	 ; !!! ignoring splits and joins since we don't
-	 ; generate them any more
+	 ;; !!! ignoring splits and joins since we don't
+	 ;; generate them any more
 	 (T (some-path-through-omits (cdr path) entry))))
 
 ;;-------------------------------------------------------------

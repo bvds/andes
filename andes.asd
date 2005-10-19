@@ -89,16 +89,17 @@
 				     (:file "work-energy-problems")
 				     ;; depends on "waves":
 				     (:file "oscillations-problems")
-				     (:file "force-problems")  
 ;;; Hey, these are the wrong mountains
 				     ;; (:file "PyreneesProblems")
-				     (:file "forces")          
+				     (:file "electromagnetism")          
+				     (:file "electromagnetism-problems")  
 				     (:file "optics")          
 				     (:file "impulse")
 				     (:file "impulse-problems") 
 				     (:file "rocket-problems") 
 				     ;; there is some ugly code here
 				     (:file "circuits")
+				     (:file "circuit-problems")
 				     (:file "statics-problems") 
 				     ))
 	       (:module "SGG"
