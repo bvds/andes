@@ -3343,10 +3343,6 @@
 ;;; and entries.  This code generalizes accessing the two to make it possible
 ;;; to deal with both, as necessary.
 
-(defun nsh-node-graph (Node) 
-  "Get the specified node's graph."
-  (bgnode-path Node))
-
 ;;; Has the specified node been completed?  
 ;;; Uses the psmg entered values.
 (defun nsh-node-completed-p (Node)
@@ -3613,7 +3609,8 @@
 ;;; this depends upon the graph structures defined in the psmg file
 ;;; of helpstructs.
 (defun nsh-walk-node-graph (prefix node)
-  (walk-psm-path prefix (cdr (nsh-node-graph Node)) nil))
+  ;; Get the specified node's graph.
+  (walk-psm-path prefix (cdr (bgnode-path Node)) nil))
 
 (defun walk-psm-path (prefix path stack)
   (cond ((null path) 

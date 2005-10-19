@@ -246,12 +246,13 @@
   (if (atom x)
       (format nil "T~(~A~)" (if (numberp x) (1- x) x))
     (nlg-list-default x args)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  This is a shortcut for including time when it exists
 (defun at-time (x &rest args)
   (if (= (length args) 1)
       (format nil "~A~@[ ~A~]" (nlg x) (nlg (car args) 'pp))
-    (nlg-list-defautl x args)))
+    (nlg-list-default x args)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Because times can appear either as durations or individual numbers therefore
