@@ -4445,7 +4445,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?dir-var (dir (force ?b ?surface kinetic-friction :time ?t)))
     (given (dir (force ?b ?surface kinetic-friction :time ?t)) (dnum ?friction-dir |deg|)))
   :hint
-   ((point (string "Notice that ~a is sliding against a surface ~a." ?b ?surface))
+   ((point (string "Notice that ~a is sliding across ~a." ?b ?surface))
     (teach (minilesson "Mini_kinetic_friction.HTM")
            (kcd "dynamic_friction_force_direction")
 	   (string "When an object is moving in contact with a surface and the surface exerts a kinetic friction force on it.  The friction force is opposite to the direction of motion."))
