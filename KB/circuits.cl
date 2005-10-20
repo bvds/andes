@@ -1253,7 +1253,8 @@
                             (variable ?v-var (voltage-across ?cap :time ?t))
                             )
              :effects(
-                      (eqn (= ?c-var (/ ?q-var ?v-var)) (cap-defn ?cap ?t))
+		      ;; handles zero charge OK
+                      (eqn (= (* ?c-var ?v-var) ?q-var) (cap-defn ?cap ?t))
                       )
              :hint(
                    (point (string "Write an equation for the capacitance of ~a." (?cap adj)))
@@ -1591,47 +1592,91 @@
     (bottom-out (string "Write the equation ~A" ((= ?tau (* ?c-var ?r-var)) algebra)))
   ))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;  circuit with resistor and capacitor in series.
+;;;
 
-
-;(defoperator define-tinterval-var (?t)   
-;             :preconditions (
-;                             (bind ?x (second ?t))
-;                             (bind ?y (third ?t))
-;                             (bind ?t-var (format-sym "~A" (concatenate 'string "T$during_" (format nil "~a" ?x) (format nil "~a" ?y))))
-;                             )
-;             :effects (
-;               (variable ?t-var (tinterval ?t))
-;                       ))
-
-(def-psmclass charge-on-capacitor-at-time (charge-on-capacitor-at-time ?res ?cap ?time) 
+(def-psmclass discharging-capacitor-at-time (discharging-capacitor-at-time 
+					     ?components ?time) 
   :complexity major
-  :english ("Charge on RC circuit capacitor")
-  :eqnFormat ("q = C*Vb*(1 - exp(-t/$t))"))
+  :english ("Charge on capacitor in RC circuit, initially full")
+  :eqnFormat ("q = qi*exp(-t/$t)"))
 
-(defoperator charge-on-capacitor-at-time-contains (?sought)
+(defoperator discharging-capacitor-at-time-contains (?sought)
   :preconditions
   (
+   ;; should generalize to cyclic permutations of loop 
+   ;; and time intervals containing ?t1 ?t2
+   (closed-loop (?res ?cap) :time (during ?t1 ?t2))
+   (circuit-component ?res resistor)
+   (circuit-component ?cap capacitor)
+   (any-member ?sought ((charge-on ?cap :time ?t1)
+			(charge-on ?cap :time ?t2)
+			(duration (during ?t1 ?t2))
+			(time-constant ?res ?cap)
+			))
+   ;; make sure we have a time interval:
+   (time (during ?t1 ?t2))
+   )
+  :effects(
+	   (eqn-contains (discharging-capacitor-at-time (?res ?cap) (during ?t1 ?t2)) ?sought)
+	   ))
+
+(defoperator discharging-capacitor-at-time (?res ?cap ?t1 ?t2)
+  :preconditions 
+  (
+   (variable ?q1-var (charge-on ?cap :time ?t1))
+   (variable ?q2-var (charge-on ?cap :time ?t2))
+   (variable ?c-var (capacitance ?cap))
+   (variable ?t-var (duration (during ?t1 ?t2)))
+   (variable ?tau-var (time-constant ?res ?cap))
+   )
+  :effects 
+  ((eqn (= ?q2-var (* ?q1-var (exp (/ (- ?t-var) ?tau-var))))
+	(discharging-capacitor-at-time (?res ?cap) (during ?t1 ?t2))))
+  :hint
+  (
+   (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
+   (bottom-out (string "Write the equation ~a"
+		       ((= ?q2-var (* ?q1-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
+   ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;  circuit with battery, resistor, and capacitor in series.
+;;;
+
+(def-psmclass charging-capacitor-at-time (charging-capacitor-at-time 
+					  ?components ?time) 
+  :complexity major
+  :english ("Charge on capacitor in RC circuit, initially empty")
+  :eqnFormat ("q = C*Vb*(1 - exp(-t/$t))"))
+
+(defoperator charging-capacitor-at-time-contains (?sought)
+  :preconditions
+  (
+   ;; in principle, should matching under cyclic permutations
+   ;; maybe do this by an extension to unify
+   ;; also, could generalize the time to contain ?t1 and ?t2
+   (closed-loop (?bat ?res ?cap) :time (during ?t1 ?t2))
+   (circuit-component ?bat battery)
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
    (any-member ?sought ((charge-on ?cap :time ?t2)
 			(duration (during ?t1 ?t2))
 			(time-constant ?res ?cap)
 			))
-   ;; make sure we have a time interval:
-   (time (during ?t1 ?t2))
-   ;; !!! following means rc problems must have a switch
-   (switch ?dontcare closed (during ?t1 ?t2))
-   ;; Make sure capacitor is empty when switch closes
-   (empty-capacitor ?cap ?t1)
+   (time (during ?t1 ?t2)) ;sanity test
+   (given (charge-on ?cap :time ?t1) 0) ;boundary condition
    )
   :effects(
-	   (eqn-contains (charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
+	   (eqn-contains (charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2)) ?sought)
 	   ))
 
-(defoperator charge-on-capacitor-at-time (?res ?cap ?t1 ?t2)
+(defoperator charging-capacitor-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (circuit-component ?bat battery)
    (variable ?q-var (charge-on ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
@@ -1640,7 +1685,7 @@
    )
   :effects 
   ((eqn (= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
-	(charge-on-capacitor-at-time ?res ?cap (during ?t1 ?t2))))
+	(charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))))
   :hint
   (
    (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
@@ -1648,8 +1693,11 @@
 		       ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
    ))
 
+;;;
+;;;  BvdS:  Why is this a separate law????
+;;;
 
-(def-psmclass current-in-RC-at-time (current-in-RC-at-time ?res ?time) 
+(def-psmclass current-in-RC-at-time (current-in-RC-at-time ?components ?time) 
   :complexity major
   :english ("Current in RC circuit")
   :eqnFormat ("I = (Vb/R)*exp(-t/$t))"))
@@ -1657,27 +1705,28 @@
 (defoperator current-in-RC-at-time-contains (?sought)
   :preconditions
   (
+   ;; in principle, should test for matching under cyclic permutations
+   ;; also, could generalize the time to contain ?t1 and ?t2
+   (closed-loop (?bat ?res ?cap) :time (during ?t1 ?t2))
+   (circuit-component ?bat battery)
    (circuit-component ?cap capacitor)
    (circuit-component ?res resistor)
    (any-member ?sought ((current-thru ?res :time ?t2)
 			;; also contains V, R, C, t
 			(time-constant ?res ?cap)
 			))
-   (time (during ?t1 ?t2))
-   (switch ?dontcare closed (during ?t1 ?t2))
-   ;; Make sure capacitor is empty when switch closes
-   (empty-capacitor ?cap ?t1)
+   (time (during ?t1 ?t2)) ;sanity test
+   (given (charge-on ?cap :time ?t1) 0) ;boundary condition
    )
   :effects
-  ((eqn-contains (current-in-RC-at-time ?res ?cap (during ?t1 ?t2)) ?sought)
+  ((eqn-contains (current-in-RC-at-time (?bat ?res ?cap) (during ?t1 ?t2)) ?sought)
    ))
 
 
-(defoperator write-current-in-RC-at-time (?res ?cap ?t1 ?t2)
+(defoperator write-current-in-RC-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
    (variable ?i-var (current-thru ?res :time ?t2))
-   (circuit-component ?bat battery)
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?r-var (resistance ?res))
    (variable ?t-var (duration (during ?t1 ?t2)))
@@ -1685,7 +1734,7 @@
    )
   :effects 
   ((eqn (= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var))))
-	(current-in-RC-at-time ?res ?cap (during ?t1 ?t2)))  
+	(current-in-RC-at-time (?bat ?res ?cap) (during ?t1 ?t2)))  
    )
   :hint
   (
@@ -1694,218 +1743,50 @@
 		       ((= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
    ))
 
+;;;
+;;;  BvdS:  This could be rewritten in terms of (fraction-of ....)
+;;;
+
 (def-psmclass charge-on-capacitor-percent-max (charge-on-capacitor-percent-max ?cap ?time) 
   :complexity minor 
   :english ("RC charge as percent of maximum")
   :eqnFormat ("q = percent*C*V"))
 
 (defoperator charge-on-capacitor-percent-max-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((charge-on ?cap :time ?t2)
-                                                 ;(max-charge ?cap :time inf)
-						 ; also contains C and V
-						 ))
-                            (percent-max ?cap ?value ?t2)
-                            (circuit-component ?cap capacitor)
-                            (switch ?dontcare closed (during ?t1 ?t2))
-                            )
-             :effects(
-                      (eqn-contains (charge-on-capacitor-percent-max ?cap ?t2) ?sought)
-                      ))
+  :preconditions(
+		 (any-member ?sought ((charge-on ?cap :time ?t2)
+				      ;;(max-charge ?cap :time inf)
+				      ;; also contains C and V
+				      ))
+		 (percent-max ?cap ?value ?t2)
+		 (circuit-component ?cap capacitor)
+		 (given (charge-on ?cap :time ?t1) 0) ;boundary condition
+		 )
+  :effects(
+	   (eqn-contains (charge-on-capacitor-percent-max ?cap ?t1 ?t2) ?sought)
+	   ))
 
 
 (defoperator charge-on-capacitor-percent-max (?cap ?t)
-             :preconditions (
-			     (variable ?C-var (capacitance ?cap))
-			     ; use constant Vb defined across charging interval.
-			     (circuit-component ?bat battery)	 
-			     (time (during ?t0 ?t))
-                             (switch ?dontcare closed (during ?t0 ?t))
-                             (variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
-                             (variable ?q-var (charge-on ?cap :time ?t))
-                             (percent-max ?cap ?fraction ?t)
-                             )
-	     :effects (
-		     (eqn (= ?q-var (* ?fraction ?C-var ?V-var))
-		          (charge-on-capacitor-percent-max ?cap ?t))  
-                       )
-             :hint(
-                   (point (string "Write the equation for the charge on the capacitor ~a ~a in terms of the percentage of the maximum charge." ?cap (?t pp)))
-                   (point (string "Use the definition of capacitance, remembering that when the charge on the capacitor is at its maximum, the voltage across the capacitor ~a equals the voltage across the battery ~a." ?cap ?bat))
-                   (teach (string "The maximum charge on a capacitor equals the capacitance times the battery voltage. You can express the charge at ~a as a fraction of this quantity." (?t pp)))
-                   (bottom-out (string "Write the equation ~A"  
-		                        ((= ?q-var (* ?fraction ?C-var ?V-var)) algebra) ))
-                   ))
-
-
-#| ; not used yet
-(defoperator charge-on-capacitor-max-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((time ?t2)))
-                            (test (listp ?t2))
-                            (percent-max ?cap ?value ?t)
-                            (circuit-component ?cap capacitor)
-                            (switch ?dontcare closed ?t2)
-                            (test (listp ?t2))
-                            (bind ?y (third ?t2))
-                            (test (tinsidep-include-endpoints ?t ?t2))
-                            (variable ?q-var (charge-on ?cap :time ?y))
-                            ;Make sure capacitor is empty when switch closes
-                            (empty-capacitor ?cap ?t3)
-                            (test (or (and (listp ?t3) (eq (third ?t3) (second ?t2)))
-                                      (and (atom ?t3) (eq ?t3 (second ?t2)))))
-                            (variable ?qm-var (max-charge ?cap :time inf))
-                            ;(test (eq ?t3 'inf)
-                            )
-             :effects(
-                      (eqn-contains (charge-on-capacitor-max ?cap ?t ?t2 inf) ?sought)
-                      ))
-
-(defoperator charge-on-capacitor-max (?cap ?t ?t2 ?t3)
-             :preconditions (
-                             (variable ?qm-var (max-charge ?cap :time ?t3))
-			     (variable ?q-var (charge-on ?cap :time ?t))
-			     (test (and (atom ?t) (atom ?t3) (not (eq ?t 'inf))))
-                             (variable ?c-var (capacitance ?cap))
-                             (circuit-component ?res resistor)
-                             (variable ?r-var (resistance ?res))
-                             (variable ?t-var (time ?t2))
-                             (test (listp ?t2))
-                             )
-             :effects (
-                       (eqn (= ?q-var (* ?qm-var (- 1 (exp (/ (- ?t-var) (* ?r-var ?c-var)))))) (charge-on-capacitor-max ?cap ?t ?t2 ?t3))  
-                       )
-             :hint(
-                   (point (string "Have you defined a variable to represent the maximum charge on the capacitor?"))
-                   (point (string "Write the equation for the charge on the capacitor ~a at time ~a in terms of the maximum charge on the capacitor." ?cap ?t))
-                   (bottom-out (string "Write the equation ~a = ~a * (1 - exp(- ~a / (~a * ~a)))." ?q-var ?qm-var ?t-var ?r-var ?c-var))
-                   ))
-
-(defoperator charge-on-capacitor-inf-time-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((charge-on ?cap :time ?t)
-                                                 (max-charge ?cap :time inf)))
-                            (test (atom ?t))
-                            (circuit-component ?cap capacitor)
-                            (switch ?dontcare closed ?t2)
-                            (variable ?qm-var (max-charge ?cap :time inf))
-                            (percent-max ?cap ?value ?t)
-                            )
-             :effects(
-                      (eqn-contains (charge-on-capacitor-inf-time ?cap ?t ?t2 inf) ?sought)
-                      ))
-
-
-(defoperator charge-on-capacitor-inf-time (?cap ?t ?t2 ?t3)
-             :preconditions (
-                             (variable ?qm-var (max-charge ?cap :time ?t3))
-                             (circuit-component ?bat battery)
-                             (variable ?v-var (voltage-across ?bat :time ?t2))
-                             (variable ?c-var (capacitance ?cap))
-                             ;(percent-max ?cap ?value ?t)
-                             )
-             :effects (
-                       (eqn (= ?qm-var (* ?c-var ?v-var)) (charge-on-capacitor-inf-time ?cap ?t ?t2 ?t3))  
-
-                       )
-             :hint(
-                   (point (string "Write an equation for the maximum charge on the capacitor ~a." ?cap))
-                   (point (string "Use the definition of capacitance, remembering that the voltage across the capacitor ~a equals the voltage across the battery ~a when the charge on the capacitor is maximum." ?cap ?bat))
-                   (teach (string "The charge on the capacitor ~a is maximum after the current has fallen to zero.  Therefore, the voltage across the capacitor is equal to the battery voltage."))
-                   (bottom-out (string "Write the equation ~a = ~a * ~a." ?qm-var ?c-var ?v-var))
-                   ))
-|# ; end unused
-
-
-
-#| ; don't use this yet
-(defoperator time-interval-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((time ?t)))
-                            (test (listp ?t))
-                            (bind ?t1 (second ?t))
-                            (bind ?t2 (third ?t))
-                           )
-             :effects(
-                      (eqn-contains (time-interval ?t ?t1 ?t2) ?sought)
-                      ))
-
-(defoperator time-points-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((time ?t)))
-                            (time ?t1)
-                            (test (and (atom ?t) (atom ?t1)))
-                            (test (not(= ?t ?t1)))
-                            (bind ?t2 (if (< ?t ?t1) (cons 'during (cons ?t (list ?t1))) (cons 'during (cons ?t1 (list ?t)))))
-                            (bind ?x (if (< ?t ?t1) ?t ?t1))
-                            (bind ?y (if (< ?t ?t1) ?t1 ?t))                           )
-             :effects(
-                      (eqn-contains (time-interval ?t2 ?x ?y) ?sought)
-                      ))
-
-
-(defoperator time-interval (?t ?t1 ?t2)
-             :preconditions(
-                            (test (and (listp ?t) (atom ?t1) (atom ?t2)))
-                            (variable ?t-var (time ?t))
-                            (variable ?t-var1 (time ?t1))
-                            (variable ?t-var2 (time ?t2))                                      
-                            )
-             :effects(
-                      (eqn (= ?t-var (- ?t-var2 ?t-var1)) (time-interval ?t ?t1 ?t2))  
-                      )
-             :hint(
-                   (point (string "Write an equation the expresses the length of the time interval ~a in terms of its beginning and end points, ~a and ~a." ?t ?t1 ?t2))
-                   (teach (string "The length of a time interval is defined as the difference between the end point and beginning point."))
-                   (bottom-out (string "The time interval ~a equals ~a - ~a." ?t ?t2 ?t1))
-                   ))
-|# ; end unused
-
-#| ; can use generic inherit-constant-value for this:
-
-(defoperator battery-voltage-same-different-times-contains (?sought)
-             :preconditions(
-                            (any-member ?sought ((voltage-across ?name :time ?t)))
-                            (time ?t)
-                            (time ?t1)
-                            (test (listp ?t1))
-                            (circuit-component ?name battery)
-                            )
-             :effects(
-                      (eqn-contains (battery-voltage-same-different-times ?t ?t1) ?sought)
-                      ))
-
-(defoperator battery-voltage-same-different-time (?t ?t1)
-             :preconditions (
-                             (circuit-component ?name battery)
-                             (variable ?v-var1 (voltage-across ?name :time ?t))                          
-                             (variable ?v-var2 (voltage-across ?name :time ?t1))
-                             )
-             :effects (
-                       (eqn (= ?v-var1 ?v-var2) (battery-voltage-same-different-times ?t ?t1))
-                       )
-             :hint(
-                   (point (string "The voltage across the battery doesn't change with time."))
-                   (point (string "You need to define the voltage across the battery at time ~a." ?t))
-                   (teach (string "The voltage across the battery doesn't change so the voltage at a time point is the same as the voltage for any time interval containing that time point."))
-                   (bottom-out (string "Set the voltage across the battery at time ~a equal the voltage at time ~a." ?t ?t1))
-                   ))
-|#
-
-
-#|
-(defoperator define-QMax-var (?cap)   
-             :preconditions (
-                             (bind ?qm-var (format-sym "QMax_~A$inf" (comp-name ?cap 'C)))
-                             )
-             :effects (
-               (variable ?qm-var (max-charge ?cap :time ?t))
-               (define-var (max-charge ?cap :time ?t))
-                       )
-              :hint (
-(bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting max charge." ((max-charge ?cap :time ?t))))
-                     ))
-|#
+  :preconditions (
+		  (variable ?C-var (capacitance ?cap))
+					; use constant Vb defined across charging interval.
+		  (circuit-component ?bat battery)	 
+		  (variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
+		  (variable ?q-var (charge-on ?cap :time ?t))
+		  (percent-max ?cap ?fraction ?t)
+		  )
+  :effects (
+	    (eqn (= ?q-var (* ?fraction ?C-var ?V-var))
+		 (charge-on-capacitor-percent-max ?cap ?t0 ?t))  
+	    )
+  :hint(
+	(point (string "Write the equation for the charge on the capacitor ~a ~a in terms of the percentage of the maximum charge." ?cap (?t pp)))
+	(point (string "Use the definition of capacitance, remembering that when the charge on the capacitor is at its maximum, the voltage across the capacitor ~a equals the voltage across the battery ~a." ?cap ?bat))
+	(teach (string "The maximum charge on a capacitor equals the capacitance times the battery voltage. You can express the charge at ~a as a fraction of this quantity." (?t pp)))
+	(bottom-out (string "Write the equation ~A"  
+			    ((= ?q-var (* ?fraction ?C-var ?V-var)) algebra) ))
+	))
 
 ;;--------------------------------------------------
 ;; Inductance

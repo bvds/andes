@@ -8312,18 +8312,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-cons-ke-elastic (?bodies ?t1 ?t2)
   :preconditions (
-   ; !! Not clear if have to write equation for each of these
-   ; write sub equation for each initial ke, saving values
+   ;; !! Not clear if have to write equation for each of these
+   ;; write sub equation for each initial ke, saving values
    (map ?b ?bodies
      (eqn (= ?var ?ke1-val) (kinetic-energy ?b ?t1))
      ?ke1-val ?ke1-terms)
-   ; write sub equation for each final ke, saving values
+   ;; write sub equation for each final ke, saving values
    (map ?b ?bodies
      (eqn (= ?var ?ke2-val) (kinetic-energy ?b ?t2))
      ?ke2-val ?ke2-terms)
   )
   :effects (
-     ; final equation sets sum of ke's equal
+     ;; final equation sets sum of ke's equal
      (eqn (= (+ . ?ke1-terms) (+ . ?ke2-terms)) 
      	  (cons-ke-elastic ?bodies (during ?t1 ?t2)))
   )
