@@ -3035,10 +3035,14 @@
 
 (defun nsh-prompt-principle (Prefix principle &key Assoc)
   "Prompt the specified principle appropriately based upoin how \"done\" it is"
-  (cond ((nsh-goal-principle-P Principle) (nsh-prompt-goal-principle Prefix Principle Assoc))
-	((nsh-major-principle-P Principle) (nsh-prompt-major-principle Prefix Principle Assoc))
-	((nsh-given-principle-P Principle) (nsh-prompt-given-principle Prefix Principle Assoc))
-	((nsh-Definition-principle-P Principle) (nsh-prompt-definition-principle Prefix Principle Assoc))
+  (cond ((nsh-goal-principle-P Principle) 
+	 (nsh-prompt-goal-principle Prefix Principle Assoc))
+	((nsh-major-principle-P Principle) 
+	 (nsh-prompt-major-principle Prefix Principle Assoc))
+	((nsh-given-principle-P Principle) 
+	 (nsh-prompt-given-principle Prefix Principle Assoc))
+	((nsh-Definition-principle-P Principle) 
+	 (nsh-prompt-definition-principle Prefix Principle Assoc))
 	(t (nsh-prompt-minor-principle Prefix Principle Assoc))))
   
 
