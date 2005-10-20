@@ -9,14 +9,11 @@
 (def-qexp voltage-across (voltage-across ?comp :time ?time)
           :units |V|
           :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
-#| ;not used at the moment
-(def-qexp voltage-btwn (voltage-btwn ?pt1 ?pt2 :time ?time)
-	:units |V|
-	:english ("the potential difference between ~A and ~A~@[ ~A~]" ?pt1 ?pt2 (nlg ?time 'pp)))
-|#
+
 (def-qexp resistance (resistance ?names)
 	:units |ohm|
 	:english ("the resistance of ~A" (conjoined-names ?names)))
+
 (def-qexp current-thru (current-thru ?component :time ?time)
 	:units |A|
         ;; !!! HACK until sgg provides a correct way to do this  
@@ -26,21 +23,20 @@
 	;; reload before others.
 	;:restrictions positive 
 	:english ("the current through ~A~@[ ~A~]" ?component (nlg ?time 'pp)))
-#| ; not used at the moment
-(def-qexp current-at (current-at ?point :time ?time)
-	:units |A|
-	:english ("the current at ~A~@[ ~A~]" ?point (nlg ?time 'pp)))
-|#
+
 (def-qexp current-in (current-in ?branch :time ?time)
 	:units |A|
 	:english ("the current in branch ~A~@[ ~A~]" ?branch (nlg ?time 'pp)))
+
 (def-qexp capacitance (capacitance ?name)
         :units |F|
 	:english ("the capacitance of ~A" ?name))
+
 (def-qexp charge-on (charge-on ?name :time ?time)
         :units |C|
 	:fromWorkbench `(charge-on ,body :time ,time)
         :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
+
 (def-qexp max-charge (max-charge ?name :time ?time)
           :units |C|)
 
@@ -108,10 +104,6 @@
   :units |J|
   :english ("the electric energy stored in ~a" 
 	    (nlg ?component 'at-time ?time)))
-
-(defun conjoined-names (names)
-   (if (listp names) (format NIL "~A~{ and ~A~}" (first names) (rest names))
-     (format NIL "~A" names)))
 
 
 

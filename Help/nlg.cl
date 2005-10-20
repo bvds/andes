@@ -218,6 +218,12 @@
       (nlg-atom-default x args)
     (nlg-print-list x "and" 'def-np)))
 
+(defun conjoined-names (x &rest args)
+  "assume list is proper names"
+  (if (atom x)
+      (format nil "~A" x)
+    (nlg-print-list x "and" 'identity)))
+
 ;; the rest are never used
 #|
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
