@@ -957,14 +957,27 @@
 (defoperator projection-contains (?sought)
   :preconditions (
    (allow-projection-psm)
-   (any-member ?sought ((mag ?vector)
-		        (dir ?vector)
-                        (compo ?xy ?rot ?vector)))
+   (any-member ?sought ((mag ?vector) (dir ?vector)))
+   ; when sought is vector mag or dir, it's tricky to choose all reasonable
+   ; axes. In this case, just apply along standard axes. When a component along
+   ; a different axis is introduced into the solution graph by some other equation, the 
+   ; second eqn contains below should get applied when equations are sought for it.
    (any-member ?xy (x y z))
    (bind ?rot (if (eq ?xy 'y) 90 0))
    )
   :effects (
    (eqn-contains (projection (compo ?xy ?rot ?vector)) ?sought)
+  ))
+
+(defoperator projection-contains-compo (?rot ?vector)
+  :preconditions ( 
+     (allow-projection-psm) 
+     (bind ?x-rot (if (eq ?xy 'y) (- ?rot 90) ?rot))
+   )
+  :effects (
+   (eqn-contains (projection (compo ?xy ?rot ?vector)) (compo ?xy ?rot ?vector))
+   ; set flag to draw use these axes, even if not vector-aligned or standard.
+   (projection-axis ?x-rot)
   ))
 
 ;; Projection writing rules used within larger psms should not draw a body, since 
@@ -1186,6 +1199,7 @@
     ;; don't rotate axes if components are sought:
     (not (component-form))
     (not (use-energy-axes))	  
+    (not (projection-axes ?junk))
     ;; don't draw axis for system part if system axis already chosen
     ;; use-system-axes will choose axes in this case.
     (not (axis-for ?sys ?dontcare1 ?dontcare2)
@@ -1276,6 +1290,23 @@
 (defoperator not-axes-for-vectors (?b)
   :preconditions ( (not (want-standard-axes)) ) 
   :effects ( (optional-standard-axes ?b) )) ;precondition in drawing rule
+
+; this draws the axes requested by the projection psm.
+(defoperator draw-projection-axes (?x-rotation)
+   :preconditions (
+     (in-wm (projection-axis ?x-rotation))
+     (bind ?y-rotation (+ ?x-rotation 90))
+   ) 
+   :effects (
+    (draw-axes ?b ?x-rotation)	   ;action proposition for helpsys gives x dir
+    (axis-for ?b x ?x-rotation)
+    (axis-for ?b y ?y-rotation)
+    (assume axis-for ?b x ?x-rotation)
+    (assume axis-for ?b y ?y-rotation)
+   )
+   :hint (
+       ; !!! TODO
+   ))
 
 ;;; =================== defining component variables =============
 ;;; When writing a compo equation, the code will call (variable <var>
