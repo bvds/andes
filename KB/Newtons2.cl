@@ -949,11 +949,14 @@
 ; which axes are appropriate to use when sought is magnitude, say. 
 ;
 
+(defoperator use-projection-for-compo-form (?sought)
+  :specifications  "allow this in problems tagged component-form"
+  :preconditions ((in-wm (component-form)))
+  :effects ( (allow-projection-psm) ))
 
 (defoperator projection-contains (?sought)
   :preconditions (
-   ; only allow this in problems tagged 'component-form
-   (in-wm (component-form))
+   (allow-projection-psm)
    (any-member ?sought ((mag ?vector)
 		        (dir ?vector)
                         (compo ?xy ?rot ?vector)))
@@ -4955,34 +4958,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		(nlg ?body) (nlg ?time 'pp))
     :EqnFormat ("F_~A = -v_~a*dmdt" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
-;; Draw an thrust-force if associated relative-vel is known 
-(defoperator draw-thrust-force-given-relative-vel (?b ?agent ?t)
-  :preconditions
-  (
-   (object ?agent) ;this is needed or ?agent unbound error
-   (time ?t) ;neede or ?t unbound error BvdS: ask Anders about this
-   (vector ?agent (relative-vel ?agent ?b :time ?t) ?dir)
-   (test (not (equal ?dir 'unknown)))
-   (not (vector ?b (force ?b ?agent thrust :time ?t) ?dont-care)) ;not already drawn
-   (bind ?opposite-dir (opposite ?dir))
-   (bind ?mag-var (format-sym "Fth_~A_~A~@[_~A~]" (body-name ?b) (body-name ?agent)
-			      (time-abbrev ?t)))
-   (bind ?dir-var (format-sym "O~A" ?mag-var))
-    )
-  :effects
-   ((vector ?b (force ?b ?agent thrust :time ?t) ?opposite-dir)
-    (variable ?mag-var (mag (force ?b ?agent thrust :time ?t)))
-    (variable ?dir-var (dir (force ?b ?agent thrust :time ?t)))
-    ;; Ensure implicit eqn is written because dir is from relative-vel
-    (implicit-eqn (= ?dir-var ?opposite-dir) 
-		  (dir (force ?b ?agent thrust :time ?t)))
-   )
-  :hint
-   ((point (string "How is the thrust force acting on ~a related to the velocity of ~A?" ?b ?agent))
-    (teach (string "The thrust is in the opposite direction of the velocity of ~A." 
-		   ?agent))
-    (bottom-out (string "Use the force drawing tool to draw the thrust force on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?opposite-dir))
-    ))
 
 (defoperator thrust-force-vector-diagram (?b ?agent ?t)
   :preconditions (
@@ -7123,7 +7098,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; the only one in frictionless problems so we can write Wa = 0.
     (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
 	   ?type1 ?agent-force-types)
-    (debug "write-work: agent ~a exerts forces of type ~A~%" ?agent ?agent-force-types)
+    (debug "write-work: agent ~a exerts forces of type ~A~%" 
+	   ?agent ?agent-force-types)
     (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
                            (remove 'Normal ?agent-force-types))))
     (debug "write-work: choosing force of type ~A for work by ~A~%" ?type ?agent)
@@ -7151,24 +7127,31 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?work-var ?dot) algebra)))
  ))
 
-#|  ;; not working yet
+;; not working yet
 ;; BvdS:  right now, this code causes 
 ;; e1c e2c e3a e8a e10a e11a to not work. e8aa does not finish
 (defoperator work-compo-contains (?sought)
- :preconditions (
-    (in-wm (use-work))
+  :preconditions 
+  (
+   (in-wm (use-work))	 
     (any-member ?sought (
-		  (work ?b ?agent :time ?t)
-                  (vector (force ?b ?agent ?type :time ?t) ?rot)
-    			))
-    (object ?b)
+			 (work ?b ?agent :time ?t)
+			 (compo ?xyz ?rot (force ?b ?agent ?type :time ?t))
+			 ;; see work-contains for explanation
+			 ;; (compo ?xyz ?rot (displacement ?b :time ?t))
+			 ))
+    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
+    (vector ?b (displacement ?b :time ?t) ?dir-d)
     (time ?t)
-    (axis-for ?b x ?rot)
+    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
+    ;; etc. will choose the angle.  If it is bound from the ?sought,
+    ;; operator will also succeed.
+    (axis-for ?b x ?rot) 
     (test (time-intervalp ?t))
     ;; will require that ?agent exerts force on ?body when writing equation
  )
  :effects (
-    (eqn-contains (work-compo ?b ?agent ?t ?rot) ?sought)
+	   (eqn-contains (work-compo ?b ?agent ?t ?rot) ?sought)
  ))
 
 
@@ -7209,7 +7192,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                 ((= ?work-var ?dot) algebra)))
  ))
 
-|#
+
 
 ;;;;===========================================================================
 ;;;;
@@ -7217,6 +7200,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;
 ;;;;===========================================================================
 
+#|
 (defoperator apply-dot-PSM (?sought ?eqn-id)
    :preconditions (
      ;;(not (component-form)) ;BvdS: what about this
@@ -7234,7 +7218,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :effects (
     (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
    ))
-
+|#
 
 ;; dot product for two vectors
 (defoperator dot-using-angle (?a ?b)
@@ -7253,9 +7237,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; follow cross product, but they just use standard axes
 (defoperator dot-using-components (?a ?b ?x-rot)
   :preconditions 
-  ( (vector ?axis-body ?a ?dir-a)
-    (vector ?axis-body ?b ?dir-b)
-    (axis-for ?axis-body x ?x-rot)
+  ( 
+   (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
+   (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
     (bind ?y-rot (+ ?x-rot 90))
     (variable ?ax (compo x ?x-rot ?a))
     (variable ?ay (compo y ?y-rot ?a))
