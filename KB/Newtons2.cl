@@ -7184,6 +7184,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :effects (
     (eqn (= ?work-var ?dot)
          (work-compo ?b ?agent ?t ?rot))
+   (assume axis-for ?b x ?rot)
  )
  :hint (
   (point (string "You need the value of the work done on ~a by ~a ~A" ?b ?agent (?t pp)))
