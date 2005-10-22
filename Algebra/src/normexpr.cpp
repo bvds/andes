@@ -243,10 +243,12 @@ numvalexp * normexpr(expr * & ex)
 	case divbye:
 	  {
 	    answer = normexpr(binptr->lhs);
-	    numvalexp *denom = normexpr(binptr->rhs);
-	    answer->value = answer->value/denom->value;
-	    denom->MKS *= -1.;
-	    answer->MKS += denom->MKS;
+	    numvalexp *denom = normexpr(binptr->rhs);	    
+	    if(answer){
+	      answer->value = answer->value/denom->value;
+	      denom->MKS *= -1.;
+	      answer->MKS += denom->MKS;
+	    } // zero in numerator, don't do anything
 	    denom->destroy();
 	    DBG(cout << "normexpr call " << thiscall << " returning " 
 		<< ex->getInfix() << endl); 
