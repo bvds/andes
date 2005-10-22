@@ -105,6 +105,7 @@ void kmult(expr * & ex, numvalexp * nv)
  *	if a mult n_op, has no numval factor				      *
  *	if a plus n_op, with numval, the numval is 1			      *
  *	       if without a numval, first term is normalized		      *
+ *	if a numval = zero, don't do anything				      *
  *	if a numval, it is 1						      *
  *	if a physvar, it is always normalized				      *
  *	if a function of type sin, cos, tan, it is normalized		      *
@@ -139,9 +140,13 @@ numvalexp * normexpr(expr * & ex)
   switch(ex->etype)
     {
     case numval:		// is this really useful?
-      answer = (numvalexp *) ex;
-      ex = (expr *) new numvalexp(1.);
-      ex->MKS.put(0,0,0,0,0);
+      if (((numvalexp *) ex)->value == 0)
+	answer = NULL;  // for zero, don't do anything.
+      else {
+	answer = (numvalexp *) ex;
+	ex = (expr *) new numvalexp(1.);
+	ex->MKS.put(0,0,0,0,0);
+      }
       DBG(cout << "normexpr call " << thiscall << " returning " 
 	  << ex->getInfix() << endl); 
       return(answer);
@@ -278,13 +283,13 @@ numvalexp * normexpr(expr * & ex)
 	    {
 #if 0
 	      DBG( cout << "normexpr: about to call apluskb( " 
-		        << binptr->lhs->getInfix() << " , " 
-		        << binptr->rhs->getInfix() << " , -1.)" << endl);
+		   << binptr->lhs->getInfix() << " , " 
+		   << binptr->rhs->getInfix() << " , -1.)" << endl);
 #endif
 	      apluskb(binptr->lhs,binptr->rhs, -1.);
 #if 0
 	      DBG( cout << "Normexpr: a+kb output first arg "
-		        << binptr->lhs->getInfix() << endl;);
+		   << binptr->lhs->getInfix() << endl;);
 #endif
 	      binptr->rhs->destroy();
 	      binptr->rhs = new numvalexp(0);
@@ -294,13 +299,9 @@ numvalexp * normexpr(expr * & ex)
 	      DBG(cout << "normexpr call " << thiscall << " binptr->lhs="
 		  << binptr->lhs->getInfix() << endl);
 #endif
-	    } else {
-#if 1
-	      DBG(cout << "normexpr call " << thiscall << " ouch" << endl);
-#endif
-	    }
-	  answer = normexpr(binptr->lhs);
-	  binptr->rhs->MKS = binptr->lhs->MKS;
+	    } 
+	  answer = normexpr(binptr->lhs); 
+	  binptr->rhs->MKS = binptr->lhs->MKS;  // just in case
 	  DBG(cout << "normexpr call " << thiscall << " returning " 
 	      << answer->getInfix() << " and ex=" << ex->getInfix() << endl); 
 	  return(answer);

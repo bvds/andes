@@ -185,7 +185,8 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	      if (!(thlhs->MKS == thrhs->MKS))
 		throw(string(
 	  "equality or inequality between things with different dimensions"));
-	      DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
+	      DBG(cout << "eqnumsimp " << thisdbg << " returning " 
+		  << e->getInfix()<< endl);
 	      return;						// (answer)
 	    case divbye:
 	      if (fabs(thrhs->value) == 0.0) throw(string("Divide by zero"));
