@@ -120,7 +120,6 @@
 			     ?b1 ?b2 (?t pp)))
 	 ))
 
-
 (defoperator write-relative-vel-compo (?b1 ?b2 ?b3 ?t ?xy ?rot)
   :features (unordered)
   :preconditions ((rdebug "Using write-relative-vel-compo ~%")

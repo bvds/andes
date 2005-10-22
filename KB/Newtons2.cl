@@ -935,21 +935,21 @@
   ))
 
 
-; Following is the projection PSM applied at the bubble-graph level 
-; for component-form solutions, in which projections are not chunked as
-; subsidiary steps inside vector PSMs. For example, if given mag and dir 
-; of v0, need projection to link to v0_x and v0_y which occur in 
-; component-form bubble-graph equations.
-;
-; This just puts out the eqn-contains for the psm. The existing projection 
-; writing operators do the work of generating the appropriate equation.
-; 
-; As a PSM we require standard axes for component-form problems. If we
-; used this as a psm in all cases, there would be a difficulty of choosing
-; which axes are appropriate to use when sought is magnitude, say. 
-;
+;;; Following is the projection PSM applied at the bubble-graph level 
+;;; for component-form solutions, in which projections are not chunked as
+;;; subsidiary steps inside vector PSMs. For example, if given mag and dir 
+;;; of v0, need projection to link to v0_x and v0_y which occur in 
+;;; component-form bubble-graph equations.
+;;;
+;;; This just puts out the eqn-contains for the psm. The existing projection 
+;;; writing operators do the work of generating the appropriate equation.
+;;; 
+;;; As a PSM we require standard axes for component-form problems. If we
+;;; used this as a psm in all cases, there would be a difficulty of choosing
+;;; which axes are appropriate to use when sought is magnitude, say. 
+;;;
 
-(defoperator use-projection-for-compo-form (?sought)
+(defoperator use-projection-for-compo-form () ;use only once
   :specifications  "allow this in problems tagged component-form"
   :preconditions ((in-wm (component-form)))
   :effects ( (allow-projection-psm) ))
@@ -4930,12 +4930,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; Ensure implicit eqn is written because dir is problem given
     (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?agent thrust :time ?t))))
   :hint
-  ( (point (string "Notice that ~a causes a force on ~A." ?agent ?b))
+( (point (string "Notice that ~a causes a force on ~A." ?agent ?b))
     (teach (string "When ~A escapes from ~A, a thrust force is exerted on ~A."
 		   ?agent ?b ?b))
     (bottom-out (string "Draw a thrust force acting on ~a due to ~a at an angle of ~a." 
 			?b (?agent agent) ?dir))
     ))
+
 
 ;;;
 ;;;          Define thrust force
