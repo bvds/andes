@@ -395,6 +395,9 @@ numvalexp * normexpr(expr * & ex)
  *	returns false, not sure about coef				*
  *    coef should be NULL on entry, as it will be set to new numvalexp	*
  *	if uptonum returns true
+ *    0 and 0 returns true, coef=NULL           
+ *    x and 0 returns false
+ *    0 and x returns true, coef=0
  ************************************************************************/
 bool uptonum(const expr * const ans, const expr * const term, 
 	     numvalexp * & coef)
@@ -411,14 +414,19 @@ bool uptonum(const expr * const ans, const expr * const term,
   answer = equaleqs(a1,a2);
   a1->destroy();
   a2->destroy();
-  if (answer && termfact->value!=0.0) 
+  if (answer && ansfact) 
     {
       coef = ansfact;
       coef->value = coef->value/termfact->value ;
-      termfact->MKS *= -1.;
-      coef->MKS += termfact->MKS;
+	  termfact->MKS *= -1.;
+	  coef->MKS += termfact->MKS;
       termfact->destroy();
       DBG(cout << "uptonum returning true, coef=" << coef->getInfix() << endl);
+      return(true);
+    }
+  else if (answer &&)
+    {
+      DBG(cout << "uptonum returning true, coef=NULL" << endl);
       return(true);
     }
   else {
