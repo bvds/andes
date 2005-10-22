@@ -180,13 +180,22 @@ void maketrigvars( vector<binopexp *> * eqexpr,
   }
 }
 
+/* wrapper to remove any previous values of coef */
+
+bool uptonum2(const expr * const ans, const expr * const term, 
+	     numvalexp * & coef)
+{
+  if(coef) coef->destroy(); coef=NULL;
+  uptonum(ans,term,coef);
+}
+
 /************************************************************************
  *  bool solvetrigvar(const expr * const arg, 				*
  *		vector<binopexp *> * & eqn)				*
  * 	looks for two equations of the form  				*
  *		fact1 + fact2 sin(arg) = 0			        *
  *	and     fact3 + fact4 cos(arg) = 0			        *
- * 	with fact2, fact4, and fact1*fact3 all nonzero.	                *
+ * 	with fact2, fact4, and |fact1|+|fact3| all nonzero.	        *
  *      Also demand that:  fact3 and fact1 are different only by a      *
  *      known numerical factor.  Likewise with and fact2 and fact4.     *
  *  if found, replaces one equation with arg = numval and other with    *
@@ -195,7 +204,7 @@ void maketrigvars( vector<binopexp *> * eqexpr,
 bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 {
   unsigned int j, k;
-  numvalexp *c2, *k2;
+  numvalexp *c2=NULL, *k2=NULL;
   double tempvar;
   expr *fact1, *fact2, *fact3, *fact4;
   expr *fa, *fb;
@@ -224,18 +233,18 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      if(secondiscos == firstiscos || !nonzeroisknown(fact4)) 
 		continue;
 	      // 2nd Eqn:  fact3 + fact4*sin(arg) = 0 (if firstiscos)
-	      if(uptonum(fact3,fact1,c2) && uptonum(fact4,fact2,k2)){
+	      if(uptonum2(fact3,fact1,c2) && uptonum2(fact4,fact2,k2)){
 		// 1st Eqn:  fact1 + fact2*cos(arg) = 0 (if firstiscos)
 		// 2nd Eqn:   c2*fact1 + k2*fact2*sin(arg) = 0 (if firstiscos)
 		fa=fact1; fb=fact4;
 		fact2->destroy(); fact3->destroy();  // won't use these
 	      }
 	      // if fact1 is zero, then we need the second form:
-	      else if(uptonum(fact1,fact3,k2) && uptonum(fact2,fact4,c2)) {
+	      else if(uptonum2(fact1,fact3,k2) && uptonum2(fact2,fact4,c2)) {
 		// 1st Eqn:   k2*fact3 + c2*fact4*cos(arg) = 0 (if firstiscos)
 		// 2nd Eqn:  fact3 + fact4*sin(arg) = 0 (if firstiscos)
 		fa=fact3; fb=fact2;
-		fact1->destroy(); fact4->destroy();  // won't use these
+		fact1->destroy(); fact4->destroy();  // won't use these	
 	      } else continue;
 	      DBG( cout << "k2 is " << k2->getInfix() << 
 		   ", and c2 is " << c2->getInfix() << endl);
@@ -277,9 +286,13 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      (*eqn)[k] = new binopexp(&equals,eqlhs,new numvalexp(0));
 	      DBG(  cout << "Output new Eqn. " << k << ":  " 
 		    << (*eqn)[k]->getInfix() << endl);
+	      c2->destroy();
+	      k2->destroy();
 	      return(true);
 	    } // end of checking and implementing matching equation
       }	// end of loop searching for first of pair
+  if(c2) c2->destroy();
+  if(k2) k2->destroy();
   return(false);
 }
 

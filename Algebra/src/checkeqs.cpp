@@ -246,7 +246,6 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	   cout << (*eqn)[k]->getInfix() << endl; } );
   if (eqn->size() > 1) {
     // remove duplicate or proportional equations:
-    numvalexp * factd;
     DBG( cout << "Now to eliminate redundant eqs" << endl);
     for (k = 0; k < eqn->size(); k++)
       {
@@ -263,9 +262,11 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
     for (k = 0; k+1 < eqn->size(); k++)
       for (q = k+1; q < eqn->size(); q++)
 	{
+	  numvalexp * factd=NULL; // result not used
 	  DBGM( cout << "dups? " << k << " " << q << endl);
 	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
 	    {
+	      if(factd) factd->destroy();
 	      DBGM(cout <<"YES dups " << k << " "  << q << endl);
 	      (*eqn)[q]->destroy();
 	      (*eqn)[q] = (*eqn)[eqn->size()-1];

@@ -19,7 +19,6 @@ void qsrtexpr(vector<expr *> *Vptr);
 bool plussort(expr * & ex)
 {
   int q, k;
-  numvalexp * addfact;
   bool answer = false;
 
   DBG(cout << "entered plussort with " << ex->getInfix() << endl;);
@@ -44,14 +43,16 @@ bool plussort(expr * & ex)
     }
   for (q = 0; q+1 < v->size(); q++)
     {
+      numvalexp * addfact=NULL;
+
       DBG(cout << "At start of q loop in Plussort, q =" << q 
 	  << ", vsize is " << v->size() << endl;);
-      if (uptonum((*v)[q],(*v)[q+1],addfact))
+      if (uptonum((*v)[q],(*v)[q+1],addfact) && addfact)
 	{
 	  DBG(cout << "Plussort found combo, " << (*v)[q]->getInfix()
 	      << " with " << (*v)[q+1]->getInfix()
 	      << ", #1/#2 = " << addfact->getInfix() << endl;);
-	  if (!(addfact->MKS.zerop()))
+	  if (!(addfact->MKS.unknp() || addfact->MKS.zerop()))
 	    throw(string("plussort tries to add terms with diff dimens"));
 	  if (addfact->value == -1.)	// terms cancel
 	    {
@@ -83,8 +84,7 @@ bool plussort(expr * & ex)
 		}	// end of not mult
 	      else		// is already a mult
 		{
-		  if ( (*((n_opexp *)(*v)[q+1])->args)[0]->etype !=
-		       numval)
+		  if ( (*((n_opexp *)(*v)[q+1])->args)[0]->etype != numval)
 		    {		// need to add arg at front of list, move rest
 		      DBG(cout << "Plussort needs to add numval to args of " 
 			  << (*v)[q+1]->getInfix() << endl;);

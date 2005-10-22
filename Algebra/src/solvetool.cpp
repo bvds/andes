@@ -154,7 +154,6 @@ string powersolve(const int howstrong, const varindx sought,
     }
     // remove duplicate or proportional equations:
     DBG(cout << "solvetool about to remove duplicate equations" << endl);
-    numvalexp * factd;
     for (q = 0; q < eqn->size(); q++)
       {
 	expr * eqexpr = (*eqn)[q];
@@ -167,13 +166,16 @@ string powersolve(const int howstrong, const varindx sought,
     for (k = 0; k+1 < eqn->size(); k++)
       for (q = k+1; q < eqn->size(); q++)
 	{
+	  numvalexp * factd=NULL;  // result not used
 	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
 	    {
+	      if(factd) factd->destroy();
 	      (*eqn)[q]->destroy();
 	      (*eqn)[q] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();
-
-	      q--;	    }	}
+	      q--;	    
+	    }
+	}
   } // end of while doagain > 0
   // check partsols for solution to student variable
   DBG(cout << "solvetool exited while doagain loop, checking partsols" 

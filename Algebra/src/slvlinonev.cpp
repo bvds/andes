@@ -170,7 +170,7 @@ bool linvarcoefs(const expr * ex, const varindx var,
 	      flatten(coef);
 	      eqnumsimp(coef,true);
 	      numvalexp * dfact = normexpr(coef);
-	      if(fabs(dfact->value) < 8.0*DBL_MIN){
+	      if(dfact==NULL){
 		delete numer; numer = NULL;
 		delete coef; coef = NULL; 
 		DBGM(cout << "linvarcoefs " << thisdbg << " returning:  " 

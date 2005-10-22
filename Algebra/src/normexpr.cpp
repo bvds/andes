@@ -139,7 +139,7 @@ numvalexp * normexpr(expr * & ex)
   flatten(ex);
   switch(ex->etype)
     {
-    case numval:		// is this really useful?
+    case numval:	     
       if (((numvalexp *) ex)->value == 0)
 	answer = NULL;  // for zero, don't do anything.
       else {
@@ -149,7 +149,7 @@ numvalexp * normexpr(expr * & ex)
       }
       DBG(cout << "normexpr call " << thiscall << " returning " 
 	  << ex->getInfix() << endl); 
-      return(answer);
+      return(answer);   // answer is never zero
     case physvart:
       answer = new numvalexp(1.);
       answer->MKS.put(0,0,0,0,0);
@@ -393,11 +393,11 @@ numvalexp * normexpr(expr * & ex)
  *	if ans and term are the same up to a numerical coefficient, 	*
  *	sets coef so that ans = coef * term and returns true. 		*
  *	returns false, not sure about coef				*
- *    coef should be NULL on entry, as it will be set to new numvalexp	*
+ *    coef must be NULL on entry. It may be set to new numvalexp	*
  *	if uptonum returns true
- *    0 and 0 returns true, coef=NULL           
- *    x and 0 returns false
- *    0 and x returns true, coef=0
+ *    0 and 0 returns true,  coef=NULL           
+ *    x and 0 returns false, coef=NULL
+ *    0 and x returns true,  coef=0
  ************************************************************************/
 bool uptonum(const expr * const ans, const expr * const term, 
 	     numvalexp * & coef)
@@ -407,33 +407,51 @@ bool uptonum(const expr * const ans, const expr * const term,
   expr * a2 = copyexpr(term);
   numvalexp * ansfact = normexpr(a1);
   DBG(cout << "Uptonum: normexpr returned factor " << ansfact->getInfix() 
-      << endl << "         times a1: " << a1->getInfix() << endl;) ;
+      << endl << "         times a1: " << a1->getInfix() << endl);
+
   numvalexp * termfact  = normexpr(a2);
   DBG(cout << "Uptonum: normexpr returned factor " << termfact->getInfix() 
       << endl << "         times a2: " << a2->getInfix() << endl);
   answer = equaleqs(a1,a2);
   a1->destroy();
   a2->destroy();
-  if (answer && ansfact) 
+
+  if (coef) throw(string("uptonum expects coef to be null"));
+
+  if(ansfact==NULL && termfact==NULL) // 0 and 0
+    {
+      DBG(cout << "uptonum returning true, coef=NULL" << endl);
+      return(true);  
+    }
+  else if(termfact==NULL) // x and 0
+    {
+      ansfact->destroy();
+      DBG(cout << "uptonum returning false" << endl);
+      return(false);
+    }
+  else if(ansfact==NULL) // 0 and x
+    {
+      termfact->destroy();
+      coef=new numvalexp(0.);
+      DBG(cout << "uptonum returning true, coef=" << coef->getInfix() << endl);
+      return(true);
+    }
+  else if (answer) // nonzero match
     {
       coef = ansfact;
       coef->value = coef->value/termfact->value ;
-	  termfact->MKS *= -1.;
-	  coef->MKS += termfact->MKS;
+      termfact->MKS *= -1.;
+      coef->MKS += termfact->MKS;
       termfact->destroy();
       DBG(cout << "uptonum returning true, coef=" << coef->getInfix() << endl);
       return(true);
     }
-  else if (answer &&)
+  else   // nonzero, don't match 
     {
-      DBG(cout << "uptonum returning true, coef=NULL" << endl);
-      return(true);
-    }
-  else {
     termfact->destroy();
     ansfact->destroy();
-    DBG(cout << "uptonum returning false" 
-	<< ((termfact->value == 0.0)? " because term=0":"") << endl);
+    DBG(cout << "uptonum returning false, coef=NULL" << endl);
     return(false);
   }
 }
+  

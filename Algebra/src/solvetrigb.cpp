@@ -36,7 +36,6 @@ bool trigsearch(const expr * const arg, expr *& coef,
 bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 {
   int j, k;
-  numvalexp * k2;
   expr *fact1, *fact2, *coef, *facttry;
   bool iscos, firstiscos;
 
@@ -57,26 +56,27 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	for (k = j+1; k < eqn->size(); k++)
 	  if (trigsearch(arg, facttry, (expr *)(*eqn)[k], iscos, fact2))
 	    {
+	      numvalexp * k2=NULL;
+
 	      DBG( cout << k << "th eq. was hit in undotrigvar: " << endl
 		        << (*eqn)[k]->getInfix() << endl
 		        << "Trigsearch returned true with coef "
 		        << facttry->getInfix() << " and constant term "
 		        << fact2->getInfix() << " and iscos "
 			<< ((iscos) ? "true" : "false") << endl; );
-	      if ((iscos == firstiscos) ||(!(uptonum(facttry,coef,k2))))
+	      if ((iscos == firstiscos) || !(uptonum(facttry,coef,k2)) 
+		  || (k2==NULL))
 		{
 		  facttry->destroy(); 	// shouldn't we have done this in
 		  fact2->destroy(); 	// solvetrigvar too?
 		  continue;
 		}
-	      DBG( cout << "undotrigvar: k2 is " << k2->getInfix() << endl; );
+	      DBG( cout << "undotrigvar: k2 is " << k2->getInfix() << endl);
 	      // second equation reads
 	      // k2 * coef * sin arg + fact2 = 0 (if firstiscos),
 	      // and therefore we know k2^2 fact1^2 + fact2^2= k2^2 coef^2
 	      n_opexp * eqlhs = new n_opexp(&myplus);
 	      n_opexp * tempnop = new n_opexp(&mult);
-//	      tempnop->MKS.put(0,0,0,0,0); // REMOVE after fixing constructor
-
 	      k2->value *= k2->value;
 	      k2->MKS *= 2;
 	      numvalexp * tempnv = new numvalexp(2);
@@ -96,7 +96,7 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      k = eqn->size();
 	      DBG( cout << "Undotrigvar just output new equation no. "
 		    << k-1<< ": " << (*eqn)[k-1]->getInfix() << endl 
-		    << "undotrigvar returning true " << endl; );
+		    << "undotrigvar returning true " << endl);
 	      return(true);
 	    } // End of checking and implementing matching equations
       }	// end of loop searching for first of pair

@@ -83,7 +83,7 @@ string solveOneEqn(const char * const varName, const int sourceSlot,
     bool encorep = true;  // this loop prob unneccessary, as normexpr does some
     while (encorep) { encorep = flatten(coef); eqnumsimp(coef,true); }
     numvalexp * cfact = normexpr(coef);
-    if (cfact->value == 0)
+    if (cfact == NULL)
       throw(string("solveOneEqn found zero coef of variable to solve for"));
     cfact->value = -1./cfact->value;
     cfact->MKS *= -1;

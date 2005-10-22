@@ -45,7 +45,6 @@ void apluskb(expr * & a1, const expr * const a2, const double coef)
 void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
 {			
   n_opexp * answer;
-  numvalexp * fk;
 
 #if WITHDBG
   unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
@@ -82,6 +81,8 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
     {				// a2 is not a plus, treat as one term.
       for (int k = 0; k < answer->args->size(); k++) // check to see if lhs
 	{			// sum already has a term proportional to it.
+	  numvalexp * fk=NULL;
+	  
 	  if (((*answer->args)[k]->etype == numval) &&
 	      ((numvalexp *)(*answer->args)[k])->value == 0)
 	    {
@@ -93,9 +94,10 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
 	    }
 	  DBGM( cout << "apluskb " << thisdbg << ": About to uptonum arg " 
 	       << k << endl);
-	  if (uptonum((*answer->args)[k],a2,fk))    // if term on lhs and term
-	    {			// to be added differ only by numval, 
-				// just change its coefficient
+	  if (uptonum((*answer->args)[k],a2,fk) && fk)    
+	    // if term on lhs and term to be added differ only by numval, 
+	    // just change its coefficient
+	    {			
 	      DBGM(cout << "Apluskb " << thisdbg 
 		   << ": uptonum returned true " 
 		   << "on " << k << "'th term of a1"<< endl);
@@ -112,10 +114,10 @@ void apluskb(expr * & a1, const expr * const a2, numvalexp *nv)
 		  throw(string(
 			     "attempt to add terms of different dimensions"));
 		}
-		  if (fabs(nv->value + fk->value) < 100* DBL_EPSILON * (fabs(nv->value) + fabs(fk->value)))
-			kmult((*answer->args)[k], 0.);
-		  else
-			kmult((*answer->args)[k],1. + (nv->value/fk->value)); // AW: what blocks divide by zero???
+	      if (fabs(nv->value + fk->value) < 100* DBL_EPSILON * (fabs(nv->value) + fabs(fk->value)))
+		kmult((*answer->args)[k], 0.);
+	      else
+		kmult((*answer->args)[k],1. + (nv->value/fk->value)); // AW: what blocks divide by zero???
 	      fk->destroy();
 	      nv->destroy();
 	      if (((*answer->args)[k]->etype == numval) &&   
