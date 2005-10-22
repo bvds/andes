@@ -74,14 +74,14 @@ int dotrig(vector<binopexp *> * & eqn)
 	{
 	  DBG( {
 		cout << "Checkeqs: undotrigvar returned true on " << endl;
-		cout << (*trigvars)[k]->getInfix() << endl; } );
+		cout << (*trigvars)[k]->getInfix() << endl} );
 	  answer = 1;	// 8/9/02 JaS
 	  //	      doagain = partsols->size() +1; // force redo
 	  DBG( cout << "Checkeqs: found equation from trig arg "
-	       << (*trigvars)[k]->getInfix() << endl; );
+	       << (*trigvars)[k]->getInfix() << endl);
 	}
       else DBG( cout << "false returned by undotrigvar for " 
-		<< (*trigvars)[k]->getInfix() << endl; );
+		<< (*trigvars)[k]->getInfix() << endl);
     }
   DBG(cout << "After undotrigvar = " << answer << ", we have" << endl;
       cout << eqn->size() << " equations left:" << endl;
