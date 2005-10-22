@@ -16,7 +16,7 @@ bool trigsearch(const expr * const arg, expr *& coef,
 		const expr * const ex, bool & iscos, expr * & oside);
 
 //  This is an attempt to make our trig manipulation powerful enough to 
-//  solve exlmom3a.  If fact sin(arg) = v1 and fact cos(arg)=v2,
+//  solve lmom3a.  If fact sin(arg) = v1 and fact cos(arg)=v2,
 //  we can conclude that fact^2 = v1^2 + v2^2. While this does not 
 //  return a more tractible equation for arg, it might help determine
 //  fact, v1 and v2.
