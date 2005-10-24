@@ -1272,25 +1272,6 @@
     (axis-for ?point z 0)      ;z-axis always has zero tilt (really = out-of).
   ))
 
-;;; One should be able to draw at least standard axes on
-;;; any problem involving vectors.  As of Aug. 6, 2005, this
-;;; is currently a problem for e1a, e1b, e2a, e2b, we1a, we1b.
-;;; See Bugzilla #540.  
-;;;
-;;; For these problems, axes only need to be drawn for the displacement
-;;; vector.  See draw-displacement-straight
-
-(defoperator axes-for-vectors (?b)
-  :preconditions ( (in-wm (want-standard-axes)) ;only use on specific problems
-		   (not (axis-for ?b ?xyz ?rot))
-		   (axis-for ?b x 0) )
-  :effects ( (optional-standard-axes ?b) )) ;precondition in drawing rule
-
-;;; do nothing in other problems
-(defoperator not-axes-for-vectors (?b)
-  :preconditions ( (not (want-standard-axes)) ) 
-  :effects ( (optional-standard-axes ?b) )) ;precondition in drawing rule
-
 ; this draws the axes requested by the projection psm.
 (defoperator draw-projection-axes (?x-rotation)
    :preconditions (
