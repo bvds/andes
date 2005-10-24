@@ -1990,7 +1990,6 @@
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
-    (optional-standard-axes ?b)
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
