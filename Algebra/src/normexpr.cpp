@@ -105,7 +105,7 @@ void kmult(expr * & ex, numvalexp * nv)
  *	if a mult n_op, has no numval factor				      *
  *	if a plus n_op, with numval, the numval is 1			      *
  *	       if without a numval, first term is normalized		      *
- *	if a numval = zero, don't do anything				      *
+ *	if a numval = zero, don't do anything, return NULL		      *
  *	if a numval, it is 1						      *
  *	if a physvar, it is always normalized				      *
  *	if a function of type sin, cos, tan, it is normalized		      *

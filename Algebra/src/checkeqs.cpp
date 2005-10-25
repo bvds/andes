@@ -238,8 +238,13 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   VEQCHK(eqn);
   // now place the partially solved variables back on the eqn list
   for (k = 0; k < partsols->size(); k++)
-    eqn->push_back((*partsols)[k]);
-  
+    {
+      eqn->push_back((*partsols)[k]);
+      DBG(cout << "partsols "<< k << " of " << partsols->size() 
+	  << " put on equation list:  " << 
+	  (*partsols)[k]->getInfix() << endl);
+    }
+	
   DBG( { cout << "Just before elimination of redundant eqs, we have" << endl;
          cout << eqn->size() << " equations left, namely" << endl;
 	 for (k = 0; k < eqn->size(); k++)
@@ -259,12 +264,23 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	for (k = 0; k < eqn->size(); k++) 
 	  cout << "          " << (*eqn)[k]->getInfix() << endl);
 
+    // remove any beginning null equation.
+    // It would be better to check for equations proportional to 1=1.
+    if (eqn->size()>0 && normexpr((expr *) (*eqn)[0]) == NULL)
+      {
+	(*eqn)[0]->destroy();
+	if(eqn->size()>1)(*eqn)[0] = (*eqn)[eqn->size()-1];
+	eqn->pop_back();
+      }
+    
+    // remove redundant and null equations.
     for (k = 0; k+1 < eqn->size(); k++)
       for (q = k+1; q < eqn->size(); q++)
 	{
 	  numvalexp * factd=NULL; // result not used
-	  DBGM( cout << "dups? " << k << " " << q << endl);
-	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
+	  DBGM( cout << "dups? and zeros" << k << " " << q << endl);
+	  if (uptonum((*eqn)[k],(*eqn)[q],factd) || 
+	      normexpr((expr *) (*eqn)[q]) == NULL)
 	    {
 	      if(factd) factd->destroy();
 	      DBGM(cout <<"YES dups " << k << " "  << q << endl);
@@ -288,19 +304,19 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	    
   if (doagain > 0) 
     {
-      DBG( cout << "Redoing checkeqs after numpasses" << numpasses<< endl;);
+      DBG( cout << "Redoing checkeqs after numpasses" << numpasses<< endl);
       checkeqs(eqn,vars,solfile); 
     }
   
   else				// giving up, might as well write out
     {				// partially solved variables and eliminate 
-      DBG( cout << "not repeating checkeqs" << endl;);
+      DBG(cout << "not repeating checkeqs" << endl);
       if (partsols->size() > 0) solfile << "<PARTSLVV>" << endl;
       for (k=0; k < partsols->size(); k++)
 	{
-	  
+	  NEWDBGM(cout << "partsols "<< k << " of " << partsols->size() 
+		  << " output to solfile" << endl);
 	  solfile << (*partsols)[k]->getInfix() << endl;
-	  NEWDBGM(cout << "partsols "<< k << " output to solfile"<< endl; );
 	  for (q=0; q < vars->size(); q++)
 	    if (
 		((*partsols)[k]->lhs->etype == physvart) &&
@@ -308,7 +324,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		 == (*vars)[q]))
 	      {
 		NEWDBGM( cout << "partsols["<< k 
-			     << "] solves variable [ " << q << "]" << endl; );
+			 << "] solves variable [ " << q << "]" << endl);
 		(*vars)[q]=(*vars)[vars->size()-1];
 		vars->pop_back();
 		break;
