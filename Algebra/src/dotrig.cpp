@@ -22,9 +22,8 @@ int dotrig(vector<binopexp *> * & eqn)
   int answer = 0;
   for (k = 0; k < eqn->size(); k++) // get rid of rhs for trigsolve.
     {
-      numvalexp * answer; 
       expr * eqexpr = (*eqn)[k];
-      answer=normexpr(eqexpr);
+      numvalexp * answer=normexpr(eqexpr);
       if(answer) answer->destroy(); //stop memory leak
       if (eqexpr->etype != binop) 
 	throw(string("normexpr gives a non-binop equation!"));

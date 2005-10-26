@@ -254,12 +254,11 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
     DBG( cout << "Before eliminating redundant eqs, fix them up" << endl);
     for (k = 0; k < eqn->size(); k++)
       {
-	numvalexp * answer; 
 	expr * eqexpr = (*eqn)[k];
 	eqnumsimp(eqexpr,true);
 	flatten(eqexpr);
 	eqnumsimp(eqexpr,true);	// is this overkill?
-	answer=normexpr(eqexpr);
+	numvalexp * answer=normexpr(eqexpr);
 	if(answer) answer->destroy(); //stop memory leak
       }
     DBG(cout << "after fixing them up" << endl;

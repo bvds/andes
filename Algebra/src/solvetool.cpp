@@ -174,7 +174,7 @@ string powersolve(const int howstrong, const varindx sought,
 	    {
 	      if(factd) factd->destroy();
 	      (*eqn)[q]->destroy();
-	      if(eqn->size>q+1)(*eqn)[q] = (*eqn)[eqn->size()-1];
+	      if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();
 	      q--;	    
 	    }
