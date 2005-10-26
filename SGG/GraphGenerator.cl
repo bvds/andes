@@ -317,17 +317,12 @@
 ;;; ignore set.  For debugging purposes this is accomplished via a loop.
 (defun gg-remove-ignore-psms (Ignore PSMS)
   (let (r)
-    ;(gg-debug-separator "=" 10)
-    ;(gg-debug "Removing \"Ignore\" Psms~%")
     (dolist (p Psms)
       (cond ((exp-of-psmtype-set? (qsolres-id P) Ignore)
 	     (gg-debug "  Removing ignore-psm ~%")
 	     (gg-debug (format nil "~A.~%" (qsolres-id P))))
-	
-	    (t (gg-debug (format nil "  Got eqn ~A~%" (qsolres-id P)))
-	       ;(gg-debug (format nil "~A.~%" (qsolres-id P)))
+	    (t (gg-debug (format nil "  Got eqn ~S~%" (qsolres-id P)))
 	       (push P R))))
-    ;(gg-debug-separator "=" 10)
     R))
 
 ;;; Once we have a complex sought node it is necessary to generate all of the 
@@ -340,29 +335,13 @@
 (defun gg-collect-complex-psms (Psms Givens Qnode Graph)
   (let ((NewGraph Graph) (PSM))
     (dolist (P PSMs)
-      ; AW -- changed to suppress output in case psm expanded already
-      ;(gg-debug-incdepth)
-      ;(gg-debug-separator "=" 78)
-      ;(gg-debug "Processing quantities from PSM: ~A  ~%" (Qsolres-id P))
       (cond ((setq PSM (match-exp->enode (Qsolres-id P) Graph))
-	     ;(gg-debug "PSM already processed.~%")
 	     (pushnew PSM (Qnode-Eqns Qnode)))
-	    (;; AW: *second* change marked ;-; eliminates this output altogether
-	     ;; might want switch to turn it on.
-	     T
-               ;-;(gg-debug-incdepth)
-               ;-;(gg-debug-separator "=" 78)
-               ;-;(gg-debug "Processing quantities from ~A:~%" (Qsolres-id P))
+	    (T
 	     (setq PSM (gg-solve-complex-psm P Givens NewGraph))
 	     (pushnew (car PSM) (Qnode-Eqns Qnode))
 	     (setq NewGraph (cdr PSM))
-               ;-;(gg-debug "Done processing quantities from ~A~%" (Qsolres-id P))
-               ;-;(gg-debug-separator "=" 78)
-               ;-;(gg-debug-decdepth)
 	     )))
-      ;(gg-debug "Done processing quantities from ~A~%" (Qsolres-id P))
-      ;(gg-debug-separator "=" 78)
-      ;(gg-debug-decdepth)
     (cons Qnode NewGraph)))
 
 
