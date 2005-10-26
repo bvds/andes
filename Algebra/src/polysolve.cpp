@@ -105,7 +105,8 @@ vector<double> *slvpolyexpr(const expr * eq, varindx var)
   if (bineq->op->opty != equalse)
     throw(string("slvpolyexpr called on non-equation"));  
   expr * eqcpy = copyexpr(eq);
-  normexpr(eqcpy);
+  numvalexp * answer=normexpr(eqcpy);
+  if(answer) answer->destroy(); //stop memory leak
   if (!polyexpand(((binopexp *)eqcpy)->lhs,var,poly))
     return(poly);
   vector<double> * answer = findallroots(poly);
