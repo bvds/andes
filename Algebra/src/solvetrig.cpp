@@ -186,7 +186,7 @@ bool uptonum2(const expr * const ans, const expr * const term,
 	     numvalexp * & coef)
 {
   if(coef) coef->destroy(); coef=NULL;
-  uptonum(ans,term,coef);
+  return(uptonum(ans,term,coef));
 }
 
 /************************************************************************
@@ -246,8 +246,8 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 		fa=fact3; fb=fact2;
 		fact1->destroy(); fact4->destroy();  // won't use these	
 	      } else continue;
-	      DBG( cout << "k2 is " << k2->getInfix() << 
-		   ", and c2 is " << c2->getInfix() << endl);
+	      DBG( cout << "k2 is " << (k2?k2->getInfix():"NULL") << 
+		   ", and c2 is " << (c2?c2->getInfix():"NULL") << endl);
 	      // check if units definitely differ: 
 	      if (!(c2->MKS == k2->MKS || c2->MKS.unknp() || k2->MKS.unknp())) 
 		throw(string("tan(angle) can't have dimensions"));
