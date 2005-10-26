@@ -52,7 +52,7 @@
     ; assumption args are from compo-eqn-id, eg:
     ;      (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
     ((using-compo-free (?id ?xy ?rot1 ?family-id))
-     (using-compo-free (?id ?xy ?rot1 ?family-id))
+     (using-compo-free (?id ?xy ?rot2 ?family-id))
      (test (not (equalp ?rot1 ?rot2))))
   :Specs ("Prevents the use of same compo-free eqn at different x or y axis rotations")
   :message (Max compo-free eqns per axis ?id ?rot1 ?rot22))
