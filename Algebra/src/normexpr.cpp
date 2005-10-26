@@ -305,7 +305,8 @@ numvalexp * normexpr(expr * & ex)
 	  answer = normexpr(binptr->lhs); 
 	  binptr->rhs->MKS = binptr->lhs->MKS;  // just in case
 	  DBG(cout << "normexpr call " << thiscall << " returning " 
-	      << answer->getInfix() << " and ex=" << ex->getInfix() << endl); 
+	      << (answer?answer->getInfix():"NULL" )
+	      << " and ex=" << ex->getInfix() << endl); 
 	  return(answer);
 	case grte:
 	case gree:
