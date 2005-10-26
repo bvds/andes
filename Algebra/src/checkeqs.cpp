@@ -264,28 +264,32 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	for (k = 0; k < eqn->size(); k++) 
 	  cout << "          " << (*eqn)[k]->getInfix() << endl);
 
-    // remove any beginning null equation.
-    // It would be better to check for equations proportional to 1=1.
-    if (eqn->size()>0 && normexpr((expr *) (*eqn)[0]) == NULL)
+    // remove any null equation.
+    // Since RHS is zero, any trivial equation has been reduced to 0=0
+    for (q = 0; q < eqn->size(); q++)
       {
-	(*eqn)[0]->destroy();
-	if(eqn->size()>1)(*eqn)[0] = (*eqn)[eqn->size()-1];
-	eqn->pop_back();
+	expr * eqexpr = (*eqn)[q];
+	if(normexpr(eqexpr) == NULL)
+	  {
+	    (*eqn)[q]->destroy();
+	    if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
+	    eqn->pop_back();
+	    q--;
+	  }
       }
     
-    // remove redundant and null equations.
+    // remove redundant equations.
     for (k = 0; k+1 < eqn->size(); k++)
       for (q = k+1; q < eqn->size(); q++)
 	{
 	  numvalexp * factd=NULL; // result not used
 	  DBGM( cout << "dups? and zeros" << k << " " << q << endl);
-	  if (uptonum((*eqn)[k],(*eqn)[q],factd) || 
-	      normexpr((expr *) (*eqn)[q]) == NULL)
+	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
 	    {
 	      if(factd) factd->destroy();
 	      DBGM(cout <<"YES dups " << k << " "  << q << endl);
 	      (*eqn)[q]->destroy();
-	      (*eqn)[q] = (*eqn)[eqn->size()-1];
+	      if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();
 	      q--;
 	    }
