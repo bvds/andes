@@ -28,7 +28,8 @@ bool rationalize(binopexp * & bineq)
   expr * eqcpy = copyexpr(bineq);
   DBG( cout << "In rationalize after copyexpr, eqcpy is "
 	    << eqcpy->getInfix() << endl; );
-  normexpr(eqcpy);
+  numvalexp * answer = normexpr(eqcpy);
+  if(answer) answer->destroy(); //stop memory leak
   DBG( { cout << "In rationalize after normexpr, eqcpy is "
 	    << eqcpy->getInfix() << endl;
 	 cout << "In rationalize after normexpr, lhs is "

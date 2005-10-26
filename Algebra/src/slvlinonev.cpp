@@ -45,7 +45,10 @@ bool slvlinonev(binopexp * & eq, const varindx var)
   theq = copyexpr(eq);
   thbin = (binopexp *) theq;
   if ((thbin->rhs->etype != numval) || ((numvalexp *)thbin->rhs)->value != 0)
-    normexpr(theq);
+    {
+      numvalexp * answer=normexpr(theq);
+      if(answer) answer->destroy(); //stop memory leak
+    }
   thbin = (binopexp *) theq;	// added 1/28/01 - can't understand how it was
   theq = thbin->lhs;
   DBG( cout << "slvlinonev about to linvarcoefs" << endl; );

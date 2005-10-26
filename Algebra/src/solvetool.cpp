@@ -160,9 +160,12 @@ string powersolve(const int howstrong, const varindx sought,
 	eqnumsimp(eqexpr,true);
 	flatten(eqexpr);
 	eqnumsimp(eqexpr,true);	// is this overkill?
-	normexpr(eqexpr);	// this assumes eqexpr still points to same
-      }				//  place as (*eqn)[q]. Not obvious, but if 
-				// wrong, better fix checkeqs as well
+	// this assumes eqexpr still points to same
+	// place as (*eqn)[q]. Not obvious, but if 
+	// wrong, better fix checkeqs as well
+	numvalexp * answer = normexpr(eqexpr);	
+	if(answer) answer->destroy(); //stop memory leak
+      }
     for (k = 0; k+1 < eqn->size(); k++)
       for (q = k+1; q < eqn->size(); q++)
 	{

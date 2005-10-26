@@ -251,16 +251,18 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	   cout << (*eqn)[k]->getInfix() << endl; } );
   if (eqn->size() > 1) {
     // remove duplicate or proportional equations:
-    DBG( cout << "Now to eliminate redundant eqs" << endl);
+    DBG( cout << "Before eliminating redundant eqs, fix them up" << endl);
     for (k = 0; k < eqn->size(); k++)
       {
+	numvalexp * answer; 
 	expr * eqexpr = (*eqn)[k];
 	eqnumsimp(eqexpr,true);
 	flatten(eqexpr);
 	eqnumsimp(eqexpr,true);	// is this overkill?
-	normexpr(eqexpr);
+	answer=normexpr(eqexpr);
+	if(answer) answer->destroy(); //stop memory leak
       }
-    DBG(cout << "CHECKEQS: first we fixed them up" << endl;
+    DBG(cout << "after fixing them up" << endl;
 	for (k = 0; k < eqn->size(); k++) 
 	  cout << "          " << (*eqn)[k]->getInfix() << endl);
 
@@ -268,8 +270,11 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
     // Since RHS is zero, any trivial equation has been reduced to 0=0
     for (q = 0; q < eqn->size(); q++)
       {
+	numvalexp * answer;
 	expr * eqexpr = (*eqn)[q];
-	if(normexpr(eqexpr) == NULL)
+	if((answer=normexpr(eqexpr)))
+	  answer->destroy();
+	else
 	  {
 	    (*eqn)[q]->destroy();
 	    if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
