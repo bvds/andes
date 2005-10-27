@@ -948,19 +948,25 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; WORK and ENERGY
-(def-psmclass work (work ?body ?agent (during ?time0 ?time1))     ; by a single force
-  :complexity major ; definition, but can be first "principle" for sought
-  :english ("the definition of work")
-  :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
-	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("W = F*d*cos($qF - $qd)"))
 
-(def-psmclass work-compo (work ?body ?agent (during ?time0 ?time1) ?rot)
+; the form tagged "work" matches either form of the work equation
+(def-psmclass work (work ?body ?agent (during ?time0 ?time1) ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of work")
   :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("W = F_x*d_x+F_y*d_y"))
+  :EqnFormat ("W = F*d*cos($qF - $qd) OR W = F_x*d_x+F_y*d_y"))
+
+; this form can be used to match only the angle form, if needed
+(def-psmclass work-by-angle (work ?body ?agent (during ?time0 ?time1) NIL)     ; by a single force
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the definition of work")
+  :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
+	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
+  :EqnFormat ("W = F*d*cos($qF - $qd) "))
+ 
+; No pattern to select only the component form of the work equation, since a variable
+; will match NIL for the angle form as well as the rotation arg for component form
 
 (def-psmclass net-work (net-work ?body (during ?time0 ?time1)) ; by all forces
  :complexity major ; definition, but can be first "principle" for sought

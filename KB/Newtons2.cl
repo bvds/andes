@@ -7114,43 +7114,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; will require that ?agent exerts force on ?body when writing equation
  )
  :effects (
-    (eqn-contains (work ?b ?agent ?t) ?sought)
- ))
-
-(defoperator write-work (?b ?agent ?t)
- :preconditions (
-    ;; !!! could be more than one force from agent, e.g. normal and friction
-    ;; from floor.  This should be fixed by adding type slot to work argument.
-    ;; Until then, just ignore normal force if there's more than one, since
-    ;; it does not contribute to the work done by this agent. Leave it if it's
-    ;; the only one in frictionless problems so we can write Wa = 0.
-    (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
-	   ?type1 ?agent-force-types)
-    (debug "write-work: agent ~a exerts forces of type ~A~%" 
-	   ?agent ?agent-force-types)
-    (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
-                           (remove 'Normal ?agent-force-types))))
-    (debug "write-work: choosing force of type ~A for work by ~A~%" 
-	   ?type ?agent)
-    ;; don't apply this to spring force which varies over interval
-    (test (not (eq ?type 'spring)))
-    ;; must draw body, force and displacement vectors
-    (body ?b)
-    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t)
-	 nil)
-    ;; make sure they are not perpendicular. If so, variant write-zero-work 
-    ;; operator will write workF = 0
-    (test (not (equal ?dot 0)))
-    (variable ?work-var (work ?b ?agent :time ?t))
- )
- :effects (
-    (eqn (= ?work-var ?dot)
-         (work ?b ?agent ?t)) )
- :hint (
-  (point (string "You need the value of the work done on ~a by ~a ~A" ?b ?agent (?t pp)))
-  (teach (string "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
-  (bottom-out (string "Write ~A"  
-                ((= ?work-var ?dot) algebra)))
+    (eqn-contains (work ?b ?agent ?t NIL) ?sought)
  ))
 
 (defoperator work-compo-contains (?sought)
@@ -7175,11 +7139,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; will require that ?agent exerts force on ?body when writing equation
  )
  :effects (
-	   (eqn-contains (work-compo ?b ?agent ?t ?rot) ?sought)
+	   (eqn-contains (work ?b ?agent ?t ?rot) ?sought)
+           (assume axis-for ?b x ?rot)
  ))
 
-
-(defoperator write-work-compo (?b ?agent ?t ?rot)
+; This can write either the component or the angle form of the work equation,
+; depending on ?rot. Work is done in dot product operators.
+(defoperator write-work (?b ?agent ?t ?rot)
  :preconditions (
     ;; !!! could be more than one force from agent, e.g. normal and friction
     ;; from floor.  This should be fixed by adding type slot to work argument.
@@ -7206,14 +7172,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?work-var (work ?b ?agent :time ?t))
  )
  :effects (
-    (eqn (= ?work-var ?dot)
-         (work-compo ?b ?agent ?t ?rot))
-   (assume axis-for ?b x ?rot) )
+    (eqn (= ?work-var ?dot) (work ?b ?agent ?t ?rot))
+    )
  :hint (
   (point (string "You need the value of the work done on ~a by ~a ~A" ?b ?agent (?t pp)))
   (teach (string "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
-  (bottom-out (string "Write ~A"  
-                ((= ?work-var ?dot) algebra)))
+  (bottom-out (string "Write ~A"  ((= ?work-var ?dot) algebra)))
  ))
 
 
@@ -7243,6 +7207,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
    ))
 |#
+(defoperator apply-dot-PSM (?sought ?eqn-id)
+   :preconditions (
+      (dot-psm-contains ?eqn-id ?sought)
+      ;; make sure PSM name not on problem's ignore list:
+      (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
+      (eqn ?eqn-algebra ?eqn-id)
+      (debug "~&To find ~S~%    via ~S,~%    wrote ~a~%"
+	     ?sought ?eqn-id ?eqn-algebra)
+   )
+   :effects
+   ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
 
 ;; dot product for two vectors
 (defoperator dot-using-angle (?a ?b)
@@ -7251,7 +7226,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (vector ?b-body ?b ?dir-b)
     (in-wm (variable ?a-var (mag ?a)))
     (in-wm (variable ?b-var (mag ?b)))
-    (variable ?theta-var (angle-between ?a ?b))
+    ; canonicalize angle-between argument order
+    (bind ?a-and-b (sort (list ?a ?b) #'expr<))
+    (variable ?theta-var (angle-between . ?a-and-b))
     (bind ?dot (if (perpendicularp ?dir-a ?dir-b) 0 
 		 `(* ,?a-var ,?b-var (cos ,?theta-var))))
     )
@@ -7264,6 +7241,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator dot-using-components (?a ?b ?x-rot)
   :preconditions 
   ( 
+   (test (not (null ?x-rot)))
    (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
     (bind ?y-rot (+ ?x-rot 90))
@@ -7309,7 +7287,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; operator will write workF = 0
     (test (equal ?dot 0))
     (variable ?work-var (work ?b ?agent :time ?t)))
- :effects ( (eqn (= ?work-var ?dot) (work ?b ?agent ?t)))
+ :effects ( (eqn (= ?work-var ?dot) (work ?b ?agent ?t NIL)))
  :hint (
   (point (string "Notice that the only force exerted by ~a on ~b is perpendicular to the direction of the displacement of ~A." ?agent ?b ?b))
   (teach (string "If a force has no component in the direction of the displacement of an object, then the force does no work on that object through the displacement."))
