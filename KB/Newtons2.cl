@@ -7207,17 +7207,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
    ))
 |#
-(defoperator apply-dot-PSM (?sought ?eqn-id)
-   :preconditions (
-      (dot-psm-contains ?eqn-id ?sought)
-      ;; make sure PSM name not on problem's ignore list:
-      (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
-      (eqn ?eqn-algebra ?eqn-id)
-      (debug "~&To find ~S~%    via ~S,~%    wrote ~a~%"
-	     ?sought ?eqn-id ?eqn-algebra)
-   )
-   :effects
-   ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
+
 
 ;; dot product for two vectors
 (defoperator dot-using-angle (?a ?b)
