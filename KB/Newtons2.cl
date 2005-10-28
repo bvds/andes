@@ -7166,20 +7166,23 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (body ?b)
     (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t)
 	 ?rot)
-    ;; make sure they are not perpendicular. If so, variant write-zero-work 
-    ;; operator will write workF = 0
-    (test (not (equal ?dot 0)))
+    (test (not (and (equal ?dot 0) ?rot)))
+    ;; Different hints for orthogonal vectors
+    (bind ?points (if ?dot "You need the value of the work done on ~a by ~a ~A"
+		    "Notice that the force exerted on ~A by ~A is perpendicular to the direction of the displacement ~A."))
+    (bind ?teaches (if ?dot
+		       "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by F * d * cos ($q), where $q is the angle between the force and displacement vectors."
+		     "If a force has no component in the direction of the displacement of an object, then the force does no work on that object through the displacement."))
     (variable ?work-var (work ?b ?agent :time ?t))
  )
  :effects (
     (eqn (= ?work-var ?dot) (work ?b ?agent ?t ?rot))
     )
  :hint (
-  (point (string "You need the value of the work done on ~a by ~a ~A" ?b ?agent (?t pp)))
-  (teach (string "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
+  (point (string ?points ?b ?agent (?t pp)))
+  (teach (string ?teaches))
   (bottom-out (string "Write ~A"  ((= ?work-var ?dot) algebra)))
  ))
-
 
 
 ;;;;===========================================================================
@@ -7253,36 +7256,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects ( (dot ?dot ?a ?b ?x-rot)
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?x-rot) ))
-
-
-;;; Following operator writes work = 0 for work done by forces known to be 
-;;; orthogonal to the displacement.
-;;; When work done by an individual force, one or the other of 
-;;; work or zero-work equations should apply
-;;; !!! If agent exerts more than one force this should not apply.
-
-(defoperator write-zero-work (?b ?agent ?t)
- :preconditions 
-    ;; must draw force and displacement vectors
-    ;; to make sure they are perpendicular. 
-   (
-    ;; !!! could be more than one force from agent, e.g. normal and friction
-    ;; from floor.  This should be fixed by adding type slot to work argument.
-    ;; Until then, only apply this rule if there is a unique force. 
-    (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
-	   ?type1 ?agent-force-types)
-    (test (not (cdr ?agent-force-types)))
-    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t) nil)
-    ;; make sure they are not perpendicular. If so, variant write-zero-work 
-    ;; operator will write workF = 0
-    (test (equal ?dot 0))
-    (variable ?work-var (work ?b ?agent :time ?t)))
- :effects ( (eqn (= ?work-var ?dot) (work ?b ?agent ?t NIL)))
- :hint (
-  (point (string "Notice that the only force exerted by ~a on ~b is perpendicular to the direction of the displacement of ~A." ?agent ?b ?b))
-  (teach (string "If a force has no component in the direction of the displacement of an object, then the force does no work on that object through the displacement."))
-  (bottom-out (string "Write the equation ~A" ((= ?work-var ?dot) algebra)))
- ))
 
 
 ;;; Following defines a variable for the angle between two vectors

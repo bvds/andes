@@ -1,3 +1,4 @@
+;;;;
 ;;; (voltage R1) when PtA is left of R1 and PtB is right of R1 
 ;;; means the potential(PtB)-Potential(PtA)
 ;;; (current R1) means from PtA to PtB
