@@ -948,14 +948,8 @@
 ;;; which axes are appropriate to use when sought is magnitude, say. 
 ;;;
 
-(defoperator use-projection-for-compo-form () ;use only once
-  :specifications  "allow this in problems tagged component-form"
-  :preconditions ((in-wm (component-form)))
-  :effects ( (allow-projection-psm) ))
-
 (defoperator projection-contains (?sought)
   :preconditions (
-;;   (allow-projection-psm)
    (any-member ?sought ((mag ?vector) (dir ?vector)))
    ;; When sought is vector mag or dir, it's tricky to choose all reasonable
    ;; axes.  In this case, just apply along standard axes.  When a component 
@@ -972,8 +966,6 @@
 (defoperator projection-contains-compo (?rot ?vector)
   :preconditions 
   ( 
-   ;; see comment #5 from Bug #515 
-   ;; (allow-projection-psm) 
    (bind ?x-rot (if (eq ?xy 'y) (- ?rot 90) ?rot))
    )
   :effects 
@@ -983,17 +975,6 @@
    ;; set flag to draw use these axes, even if not vector-aligned or standard.
    (projection-axis ?x-rot)
   ))
-
-
-#|  ;; this just allows just the standard axes to be drawn...
-;; Else, don't do anything
-(defoperator omit-projection-contains-compo (?rot ?vector)
-  :preconditions ( (not (allow-projection-psm)) )
-  :effects (
-   (eqn-contains (projection (compo ?xy ?rot ?vector)) 
-		 (compo ?xy ?rot ?vector))
-  ))
-|#
 
 ;; Projection writing rules used within larger psms should not draw a body, 
 ;; since it is the psm that decides whether and which body should be drawn. 
@@ -7143,8 +7124,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
            (assume axis-for ?b x ?rot)
  ))
 
-; This can write either the component or the angle form of the work equation,
-; depending on ?rot. Work is done in dot product operators.
+;; This can write either the component or the angle form of the work equation,
+;; depending on ?rot. Work is done in dot product operators.
 (defoperator write-work (?b ?agent ?t ?rot)
  :preconditions (
     ;; !!! could be more than one force from agent, e.g. normal and friction
@@ -7161,18 +7142,29 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (debug "write-work: choosing force of type ~A for work by ~A~%" 
 	   ?type ?agent)
     ;; don't apply this to spring force which varies over interval
+    ;; more correctly, we should test for the force to be constant...
     (test (not (eq ?type 'spring)))
     ;; must draw body, force and displacement vectors
     (body ?b)
     (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t)
 	 ?rot)
+    ;; for orthogonal vectors, prohibit dot-using-components
+    ;; in favor of dot-using-angle since it does not require drawing axes
+    ;;
+    ;; It might make sense to have a seperate operator for the case
+    ;; of zero work.  In that case, the displacement and the force can't
+    ;; be soughts.  Also, the formula is valid for non-constant forces.
+    ;;
     (test (not (and (equal ?dot 0) ?rot)))
     ;; Different hints for orthogonal vectors
     (bind ?points (if ?dot "You need the value of the work done on ~a by ~a ~A"
-		    "Notice that the force exerted on ~A by ~A is perpendicular to the direction of the displacement ~A."))
+		    "Notice that the force exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."))
+    ;; This is a copy of stuff in the work ontology...
     (bind ?teaches (if ?dot
-		       "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by F * d * cos ($q), where $q is the angle between the force and displacement vectors."
-		     "If a force has no component in the direction of the displacement of an object, then the force does no work on that object through the displacement."))
+		       (strcat "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by"
+			       (if ?rot "F_x * d_x + F_y d_y." 
+				 "F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
+		     "If a force has no component in the direction of the displacement of an object, then the force does no work on that object."))
     (variable ?work-var (work ?b ?agent :time ?t))
  )
  :effects (
@@ -7190,27 +7182,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;;   dot product of two vectors
 ;;;;
 ;;;;===========================================================================
-
-#|
-(defoperator apply-dot-PSM (?sought ?eqn-id)
-   :preconditions (
-     ;;(not (component-form)) ;BvdS: what about this
-     (inner-eqn-contains ?eqn-id ?sought)
-     ;; make sure PSM name not on problem's ignore list:
-     (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
-     (debug "To find ~S~%     trying inner product eqn ~A~%" ?sought ?eqn-id)
-     (vector-diagram ?eqn-id)
-     (debug "Diagram drawn for ~A~%" ?eqn-id)
-     (eqn ?compo-eqn (compo-eqn z 0 ?eqn-id))
-     (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
-     (derived-eqn ?compo-free-eqn (compo-free z 0 ?eqn-id))
-     (debug "Compo-free eqn: ~a. ~%" ?compo-free-eqn)
-   )
-   :effects (
-    (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
-   ))
-|#
-
 
 ;; dot product for two vectors
 (defoperator dot-using-angle (?a ?b)
