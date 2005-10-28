@@ -45,7 +45,7 @@ LEAF	$t = r*F*sin($q)        torque magnitude	mag-torque	Individual torque magni
 END_GROUP			
 END_GROUP			
 GROUP	Work and Energy		
-LEAF	"W = F.d, W = F*d*cos($q), or W = F_x*d_x + F_y*d_y    work defined"	work	Work done by a force
+LEAF	W = F.d  [W = F*d*cos($q) or W = F_x*d_x + F_y*d_y]   work defined	work	Work done by a force
 LEAF	Wnet = $S Wi            Net work defined	net-work	Net work
 LEAF	Wnet = Kf - Ki         work-energy theorem	work-energy	Work-Energy
 LEAF	ME1 = ME2              [Wnc=0] conservation of mechanical energy	cons-energy	Conservation of Energy
