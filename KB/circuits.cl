@@ -528,7 +528,7 @@
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting voltage." ((voltage-across ?comp :time ?t) def-np)))
 	 ))
 
-(def-psmclass loop-rule  (loop-rule ?branch-list ?t ?dir)  
+(def-psmclass loop-rule  (loop-rule ?branch-list ?t)  
   :complexity major 
   :english ("Kirchoff's loop rule")
   :eqnFormat ("V1 + V2 + V3 ... = 0"))
@@ -538,7 +538,7 @@
 		  (closed-loop ?branch-list ?p1 ?p2 ?path ?reversed)
 		  (test (member ?comp ?path :test #'equal)))
   :effects (
-	    (eqn-contains (loop-rule ?branch-list ?t forward) (voltage-across ?comp :time ?t))
+	    (eqn-contains (loop-rule ?branch-list ?t) (voltage-across ?comp :time ?t))
 	    ))
 
 
@@ -753,7 +753,7 @@
   :effects (
 	    (eqn (= 0 (?sign (- (+ . ?v-batt1-vars) (+ . ?v-res1-vars))
 			     (- (+ . ?v-batt2-vars) (+ . ?v-res2-vars))))
-		 (loop-rule ?branch-list ?t forward))
+		 (loop-rule ?branch-list ?t))
 	    )
   :hint(
 	(point (string "Find a closed loop in this circuit and apply Kirchhoff's Loop Rule to it."))
@@ -811,7 +811,7 @@
 		  )
   :effects (
 	    (eqn (= 0 (- (+ . ?emf-vars) (+ . ?drop-vars)))
-		 (loop-rule ?branch-list ?t forward))
+		 (loop-rule ?branch-list ?t))
 	    )
   :hint(
 	;;(point (string "Apply Kirchhoff's Loop Rule to the circuit."))
@@ -823,13 +823,48 @@
 			    ((= 0 (- (+ . ?emf-vars) (+ . ?drop-vars))) algebra) ))
 	))
 
-;; filter to use when fetching batteries for loop rule, because a battery may be present 
-;; in problem but switched out as for LC decay.
+;; filter to use when fetching batteries for loop rule, because a battery 
+;; may be present in problem but switched out as for LC decay.
+;; Used only by lr3b.
+;; BvdS:  this is certainly the wrong way to do this.  If the 
+;;        circuit topology changes with time, then the topology should
+;;        be given time dependence
 (defoperator get-active-battery (?bat ?t)
   :preconditions (
 		  (in-wm (circuit-component ?bat battery))
 		  (not (switched-out ?bat ?t))
 		  ) :effects ( (active-battery ?bat ?t) ))
+
+(defoperator loop-rule-contains (?sought)
+  :preconditions (
+		  (closed-loop ?compo-list :time ?tt)
+		  (any-member ?sought ((voltage-across ?compo :time ?t)))
+		  (test (member ?compo ?compo-list :test #'eql))
+		  (test (tinsidep-include-endpoints ?t ?tt))
+		  )
+  :effects ((eqn-contains (loop-rule ?compo-list ?t) ?sought)))
+
+(defoperator write-loop-rule-two (?c1 ?c2 ?t)
+  :preconditions (
+		  (variable ?v1 (voltage-across ?c1 :time ?t))
+		  (variable ?v2 (voltage-across ?c2 :time ?t))		  
+		  )
+  :effects ((eqn (= ?v1 ?v2) (loop-rule (?c1 ?c2) ?t)))
+  :hint 
+  (
+   (point (string "The components ~A and ~A are in parallel~@[~A]." 
+		  ?c1 ?c2 (?t time))) 
+   (teach (string "The voltage across any components in parallel is equal."))
+   (bottom-out (string "Write the equation ~A." ((= ?v1 ?v2) algebra)))
+   ))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;               Junction rule
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (def-psmclass junction-rule  (junction-rule ?br-list1 ?br-list2 ?t)  
   :complexity major 
@@ -1131,7 +1166,7 @@
   :effects (
 	    (eqn (= 0 (?sign (- (+ . ?v-batt1-vars) (+ . ?v-cap1-vars))
 			     (- (+ . ?v-batt2-vars) (+ . ?v-cap2-vars))))
-		 (loop-rule ?branch-list ?t forward))
+		 (loop-rule ?branch-list ?t))
 	    )
   :hint(
 	(point (string "Find a closed loop in this circuit and apply Kirchhoff's Loop Rule to it.  To find the closed loop, pick any point in the circuit and find a path around the circuit that puts you back at the same place."))
@@ -1607,9 +1642,11 @@
 			    ((= ?q-var (* ?fraction ?C-var ?V-var)) algebra) ))
 	))
 
-;;--------------------------------------------------
-;; Inductance
-;;--------------------------------------------------
+;;;;---------------------------------------------------------------------------
+;;;;
+;;;;                               Inductance
+;;;;
+;;;;---------------------------------------------------------------------------
 
 ;; define inductance var
 (defoperator define-inductance-var (?ind)   
