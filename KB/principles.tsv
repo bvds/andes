@@ -52,7 +52,7 @@ LEAF	ME1 = ME2              [Wnc=0] conservation of mechanical energy	cons-energ
 LEAF	Wnc = ME2 - ME1        change in mechanical energy	change-me	Conservation of Energy
 LEAF	Pavg = W/t             average power defined	power	Power
 LEAF	Pnet = Wnet/t          average net power defined	net-power	Power
-LEAF	P = F*v*cos($q)         instantaneous power	inst-power	Power
+LEAF	P = F.v   [P = F*v*cos($q) or P = F_x*v_x+F_y*v_y]         instantaneous power	inst-power	Power
 LEAF	P = I*4*$p*r^2         relation of power and intensity (spherical emitter)	intensity-to-power	Intensity
 LEAF	$b = 10*log10(I/Iref)   intensity to decibels	intensity-to-decibels	Intensity
 LEAF	I = Iref*10^($b/10)   decibels to intensity	intensity-to-decibels	Intensity
