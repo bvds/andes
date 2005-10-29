@@ -121,7 +121,8 @@ LEAF	1/Ceq = 1/C1 + 1/C2 + ...  Equivalent capacitance series	equiv-capacitance-
 LEAF	q1 = q2                    Charge on series capacitors	charge-same-caps-in-branch	Series Capacitors
 LEAF	U = 0.5*q*V                Energy stored in a capacitor	cap-energy	Capacitor Energy
 LEAF	$t = R*C                  RC time constant	RC-time-constant	RC Circuits
-LEAF	q = C*Vb*(1 - exp(-t/$t) Charge on RC circuit capacitor	charge-on-capacitor-at-time	RC Circuits
+LEAF	"q = C*Vb*(1 - exp(-t/$t)) Charge on capacitor in RC, initially empty"	charging-capacitor-at-time	RC Circuits
+LEAF	"q = qi*exp(-t/$t) Charge on capacitor in RC circuit, initially full"	discharging-capacitor-at-time	RC Circuits
 LEAF	I = (Vb/R)*exp(-t/$t)    Current in RC circuit	current-in-RC-at-time	RC Circuits
 LEAF	q = fraction*C*Vb          RC charge as fraction of max	charge-on-capacitor-percent-max	RC Circuits
 END_GROUP			
