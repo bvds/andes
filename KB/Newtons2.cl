@@ -864,9 +864,7 @@
    (bind ?t (time-of ?vector))
    )
   :effects
-  ((eqn ;(= ?compo-var (* ?mag-var (cos (dnum ?degrees |deg|))))
-        (= ?compo-var ?rhs) 
-	(projection (compo z 0 ?vector))))
+  ((eqn (= ?compo-var ?rhs) (projection (compo z 0 ?vector))))
   :hint
   ((point (string "You should write an equation relating the ~A component of ~A ~A to its magnitude."  
                   ((axis z 0) symbols-label) ?vector (?t pp)))
@@ -7080,13 +7078,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                   (mag (force ?b ?agent ?type :time ?t))
 		  (angle-between (displacement ?b :time ?t)
 		                 (force ?b ?agent ?type :time ?t))
-		  ;; For now, can't use this to seek displacement, since this
-		  ;; quantity doesn't bind force agent.  Could pick any one, 
-		  ;; but can't use (object ?agent) since agents need only be
-		  ;; implicitly declared (may change). Would have to look at 
-		  ;; all force-determining interaction descriptions to choose. 
-		  ;; Rare anyway to be given work and force and asked to 
-		  ;; compute displacement, though could be done.
+		  ;; see inst-power-contains for the correct way to
+		  ;; find the displacement and still get the ?agent
                   ;; (mag (displacement ?b :time ?t))
     			))
     (object ?b)
@@ -7161,7 +7154,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		    "Notice that the force exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."))
     ;; This is a copy of stuff in the work ontology...
     (bind ?teaches (if ?dot
-		       (strcat "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by"
+		       (strcat "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by "
 			       (if ?rot "F_x * d_x + F_y d_y." 
 				 "F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
 		     "If a force has no component in the direction of the displacement of an object, then the force does no work on that object."))
@@ -7774,7 +7767,37 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (any-member ?agent ?force-agents)
  )
  :effects (
-    (eqn-contains (inst-power ?b ?agent ?t) ?sought)
+    (eqn-contains (inst-power ?b ?agent ?t NIL) ?sought)
+ ))
+
+(defoperator inst-power-compo-contains (?sought)
+  :preconditions 
+  (
+   (in-wm (use-work))	 
+    (any-member ?sought (
+			 (power ?b ?agent :time ?t)
+			 (compo ?xyz ?rot (force ?b ?agent ?type :time ?t))
+			 (compo ?xyz ?rot (velocity ?b :time ?t))
+			 ))
+    ;; find axes now, before applying dot product:
+    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
+    (vector ?b (velocity ?b :time ?t) ?dir-v)
+    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
+    ;; etc. will choose the angle.  If it is bound from the ?sought,
+    ;; operator will also succeed.
+    (axis-for ?b x ?rot) 
+    ;; can be timeless
+    (test (or (null ?t) (time-pointp ?t)))
+    ;; will require that ?agent exerts force on ?body when writing equation
+    ;; get list of force agents we can use
+    (setof (force ?b ?agent1 ?type1 ?t ?dir1 ?action) 
+	   ?agent1 ?force-agents)
+    ;; select a force agent in case sought is velocity, else verify agent
+    (any-member ?agent ?force-agents)
+)
+ :effects (
+	   (eqn-contains (inst-power ?b ?agent ?t ?rot) ?sought)
+           (assume axis-for ?b x ?rot)
  ))
 
 	  
@@ -7792,22 +7815,26 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; must draw body, force and velocity vectors
     ;; Without a proper dot product, there is no point in drawing axes.
     (body ?b)
-    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
-    (vector ?b (velocity ?b :time ?t) ?dir-d)
-    (in-wm (variable ?F-var (mag (force ?b ?agent ?type :time ?t))))
-    (in-wm (variable ?v-var (mag (velocity ?b :time ?t))))
-    (variable ?theta-var (angle-between (force ?b ?agent ?type :time ?t)
-                                        (velocity ?b :time ?t)))
+    (dot ?dot (force ?b ?agent ?type :time ?t) (velocity ?b :time ?t)
+	 ?rot)
+    ;; for orthogonal vectors, prohibit dot-using-components
+    ;; in favor of dot-using-angle since it does not require drawing axes
+    (test (not (and (equal ?dot 0) ?rot)))
+    ;; Different hints for orthogonal vectors
+    (bind ?teaches (if ?dot
+		       (strcat "Power is the rate at which work is done.  The instantaneous power supplied from a force F to a body moving at velocity v is equal to " 
+			       (if ?rot "F_x * v_x + F_y v_y." 
+				 "F * v * cos ($q), where $q is the angle between the force and velocity vectors."))
+		     "If a force has no component in the direction of the movement of an object, then the force does no work on that object."))
+    
     (variable ?P-var (power ?b ?agent :time ?t))
  )
  :effects (
-    (eqn (= ?P-var (* ?F-var ?v-var (cos ?theta-var)))
-         (inst-power ?b ?agent ?t))
+    (eqn (= ?P-var ?dot) (inst-power ?b ?agent ?t ?rot))
  )
  :hint (
-  (teach (string "Power is the rate at which work is done. The instantaneous power supplied from a force F to a body moving at velocity v can be shown to be equal to F * v * cos ($q), where $q is the angle between the force and velocity vectors."))
-  (bottom-out (string "Write the equation ~A"  
-                ((= ?P-var (* ?F-var ?v-var (cos ?theta-var))) algebra)))
+  (teach (string ?teaches))
+  (bottom-out (string "Write the equation ~A" ((= ?P-var ?dot) algebra)))
  ))
 
 
