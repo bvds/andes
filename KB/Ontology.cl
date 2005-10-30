@@ -949,24 +949,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; WORK and ENERGY
 
-; the form tagged "work" matches either form of the work equation
+;; the form tagged "work" matches either form of the work equation
 (def-psmclass work (work ?body ?agent (during ?time0 ?time1) ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of work")
   :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("W = F*d*cos($qF - $qd) OR W = F_x*d_x+F_y*d_y"))
+  :EqnFormat ("W = F*d*cos($qF - $qd) OR W = F_x*d_x + F_y*d_y"))
 
-; this form can be used to match only the angle form, if needed
+;; this form can be used to match only the angle form, if needed
+#|
 (def-psmclass work-by-angle (work ?body ?agent (during ?time0 ?time1) NIL)     ; by a single force
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of work")
   :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("W = F*d*cos($qF - $qd) "))
- 
-; No pattern to select only the component form of the work equation, since a variable
-; will match NIL for the angle form as well as the rotation arg for component form
+ |#
+
+;; No pattern to select only the component form of the work equation, 
+;; since a variable will match NIL for the angle form as well as the 
+;; rotation arg for component form
 
 (def-psmclass net-work (net-work ?body (during ?time0 ?time1)) ; by all forces
  :complexity major ; definition, but can be first "principle" for sought
@@ -1025,24 +1028,27 @@
                (nlg ?body) (nlg ?time 'pp))
    :EqnFormat("Pnet = Wnet/t"))
 
-(def-psmclass inst-power (inst-power ?body ?agent ?time)
+(def-psmclass inst-power (inst-power ?body ?agent ?time ?rot)
    :complexity major ; definition, but can be first "principle" for sought
    :english ("the instantaneous power principle")
    :expformat ("calculating the instantaneous power supplied to ~A by ~A ~A"
                (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-   :EqnFormat("P = F*v*cos($q)"))
+   :EqnFormat("P = F*v*cos($q) or P = F_x*v_x + F_y*v_y"))
 
-; Subsidiary equations used inside energy psms:
-; complexity = major => must be explicit in solution for full credit
+;; Subsidiary equations used inside energy psms:
+;; complexity = major => must be explicit in solution for full credit
 
-; !! "total-energy" label used in kb is misleading, it's total *mechanical* energy only
+;; !! "total-energy" label used in kb is misleading, it is, in fact,
+;; total *mechanical* energy.
 
-; Students don't need the sub-equation cons-energy choice since whole cons-energy psm displays the
-; eqn as ME2=ME1, even though that is only the top-level step in the complex psm. Currently, selection 
-; of cons-energy in workbench will match the psmclass, not the sub-equation.  However, it is actually the 
-; top-level sub-equation id that is attached the equation entry students much match. So we duplicate the
-; psm info in declaring the top-level sub equations, and mark them major for grading.
-; Same structure applies to Wnet = K2-K1 and Wnc = ME2-ME1
+;; Students don't need the sub-equation cons-energy choice since whole 
+;; cons-energy psm displays the eqn as ME2 = ME1, even though that is only 
+;; the top-level step in the complex psm. Currently, selection  of 
+;; cons-energy in workbench will match the psmclass, not the sub-equation.  
+;; However, it is actually the top-level sub-equation id that is attached 
+;; the equation entry students much match. So we duplicate the psm info in 
+;; declaring the top-level sub equations, and mark them major for grading.
+;; Same structure applies to Wnet = K2-K1 and Wnc = ME2-ME1
 (def-equation tme-cons (total-energy-cons ?b ?t1 ?t2)
    :english ("the conservation of mechanical energy")
    :complexity major

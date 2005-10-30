@@ -900,16 +900,16 @@
    (in-wm (vector ?b ?vector z-unknown))
    (in-wm (variable ?mag-var (mag ?vector)))
    (in-wm (variable ?dir-var (dir ?vector)))
-   ; following may be needed so algebra can solve for phi from components
-   ; and projections for unknown angles. But then we have to prompt the
-   ; student to write it as well
+   ;; following may be needed so algebra can solve for phi from components
+   ;; and projections for unknown angles. But then we have to prompt the
+   ;; student to write it as well
    (eqn (= ?mag-var (abs ?compo-var)) (z-axis-constraint ?compo-var ?mag-var))
    (bind ?t (time-of ?vector))
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (cos ?dir-var)))
 	(projection ?compo-var))
-   ; following needed so algebra can solve for phi
+   ;; following needed so algebra can solve for phi
    (implicit-eqn (= 0 (sin ?dir-var)) (phi-constraint ?dir-var))
    )
   :hint
@@ -7183,7 +7183,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (vector ?b-body ?b ?dir-b)
     (in-wm (variable ?a-var (mag ?a)))
     (in-wm (variable ?b-var (mag ?b)))
-    ; canonicalize angle-between argument order
+    ;; canonicalize angle-between argument order
     (bind ?a-and-b (sort (list ?a ?b) #'expr<))
     (variable ?theta-var (angle-between . ?a-and-b))
     (bind ?dot (if (perpendicularp ?dir-a ?dir-b) 0 
@@ -7642,10 +7642,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator power-contains (?sought)
   :preconditions (
     (any-member ?sought ( (work ?b ?agent :time ?t)
-			  ; if sought is duration, need to bind ?body and 
-			  ; ?agent -- a nuisance, since agents aren't always 
-			  ; declared objects. For now, just don't allow it 
-                          ; (duration ?t)
+			  ;; if sought is duration, need to bind ?body and 
+			  ;; ?agent -- a nuisance, since agents aren't always 
+			  ;; declared objects. For now, just don't allow it 
+                          ;; (duration ?t)
 			  (power ?b ?agent :time ?t)))
   )
   :effects (
@@ -7661,7 +7661,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (variable ?t-var  (duration ?t))
   )
   :effects (
-    (eqn (= ?P-var (/ ?W-var ?t-var)) (power ?b ?agent ?t))
+    (eqn (= ?W-var (* ?P-var ?t-var)) (power ?b ?agent ?t))
   )
   :hint (
    (teach (string "Power is the rate at which work is done. The average power supplied by a force over an interval is therefore the work done by that force over the interval divided by the time."))
@@ -7801,7 +7801,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  ))
 
 	  
-(defoperator write-inst-power (?b ?agent ?t)
+(defoperator write-inst-power (?b ?agent ?t ?rot)
  :preconditions (
     ;; !!! could be more than one force from agent, e.g. normal and friction
     ;; from floor.  This should be fixed by adding type slot to work argument.
