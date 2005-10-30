@@ -243,8 +243,7 @@
   (let ((Q) (P) (R) (G (gg-find-matching-given Sought Givens)))
     (when G 
       (gg-debug "Sought is given, adding:~%") 
-      ;(gg-debug " Qnode: ~A ~%" Sought)
-      (gg-debug " PSM: ~A.~%" G)
+      (gg-debug "  PSM: ~S.~%" G)
 
       (Setq R (solve-for-given-eqn Sought Givens))
 
