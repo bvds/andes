@@ -46,13 +46,14 @@
    ))
 
 (defoperator write-coulomb (?b1 ?b2 ?t) 
-  :preconditions (
-      (body ?b1)
-      (variable ?q1 (charge-on ?b1 :time ?t))
-      (variable ?q2 (charge-on ?b2 :time ?t))
-      (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
-      (variable ?F  (mag (force ?b1 ?b2 electric :time ?t)))
-  )
+  :preconditions 
+  (
+   (body ?b1)
+   (variable ?q1 (charge-on ?b1 :time ?t))
+   (variable ?q2 (charge-on ?b2 :time ?t))
+   (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
+   (variable ?F  (mag (force ?b1 ?b2 electric :time ?t)))
+   )
   :effects 
   ;; G is predefined, see file constants.cl
   ( (eqn (= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) (^ ?r 2))) 
@@ -112,31 +113,32 @@
 
 (defoperator draw-Efield-vector (?b ?loc ?source ?t)
  :specifications " "
-  :preconditions ((rdebug "Using draw-Efield-vector  ~%")
-                  (time ?t)
-                  (test (time-pointp ?t))
-		  ;; ?b is "test charge" feeling force at loc
-		  ;; it is only used as axis owner for vector
-		  ;; !!! what if we're given field at point with no body?
-                  (at-place ?b ?loc ?t)
-                  (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
-                  (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
-                  (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) 
-					     (body-name ?source) ?t))
-                  (bind ?dir-var (format-sym "O~A" ?mag-var))
-                  (rdebug "fired draw-Efield-vector   ~%")
-                  )
-  :effects (
-            (vector ?b (field ?loc electric ?source :time ?t) ?dir)
-            (variable ?mag-var (mag (field ?loc electric ?source :time ?t)))
-            (variable ?dir-var (dir (field ?loc electric ?source :time ?t)))
-	    ;; Because dir is problem given, find-by-psm won't ensure implicit 
-	    ;; eqn gets written.  Given value may not be used elsewhere so 
-	    ;; ensure it here.
-            (implicit-eqn (= ?dir-var ?dir) (dir (field ?loc electric ?source :time ?t)))
+ :preconditions 
+ ((rdebug "Using draw-Efield-vector  ~%")
+  (time ?t)
+  (test (time-pointp ?t))
+  ;; ?b is "test charge" feeling force at loc
+  ;; it is only used as axis owner for vector
+  ;; !!! what if we're given field at point with no body?
+  (at-place ?b ?loc ?t)
+  (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
+  (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
+  (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) 
+			     (body-name ?source) (time-abbrev ?t)))
+  (bind ?dir-var (format-sym "O~A" ?mag-var))
+  (rdebug "fired draw-Efield-vector   ~%")
+  )
+ :effects (
+	   (vector ?b (field ?loc electric ?source :time ?t) ?dir)
+	   (variable ?mag-var (mag (field ?loc electric ?source :time ?t)))
+	   (variable ?dir-var (dir (field ?loc electric ?source :time ?t)))
+	   ;; Because dir is problem given, find-by-psm won't ensure implicit 
+	   ;; eqn gets written.  Given value may not be used elsewhere so 
+	   ;; ensure it here.
+	   (implicit-eqn (= ?dir-var ?dir) (dir (field ?loc electric ?source :time ?t)))
             )  
-  :hint (
-         (point (string "You were given the direction of the electric field at ~a due to ~a." ?loc (?source agent)))
+ :hint (
+	(point (string "You were given the direction of the electric field at ~a due to ~a." ?loc (?source agent)))
          (bottom-out (string "Use the electric field drawing tool (labeled E) to draw the electric field at ~a due to ~a in the given direction of ~A." 
 			     ?loc (?source agent) ?dir))
          ))
@@ -161,7 +163,8 @@
     (sign-charge ?b ?pos-neg)
     (bind ?field-dir (if (eq ?pos-neg 'pos) ?F-dir (mod (+ 180 ?F-dir) 360)))
     (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
-    (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+    (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source)
+			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (rdebug "fired draw-Efield-given-force-dir  ~%")
     )
@@ -196,7 +199,8 @@
    (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
    (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
    ;; similar to draw-vector-given-compos
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source) 
+			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (bind ?dir (dir-from-compos ?xc ?yc)) 
    )
@@ -231,7 +235,8 @@
     (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
     (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
     ;; similar to draw-vector-given-compos
-    (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+    (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source)
+			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?opp-dir (dir-from-compos ?xc ?yc)) 
     (bind ?dir (mod (+ 180 ?opp-dir) 360))
@@ -277,7 +282,8 @@
    ;; (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare4))
    ;; !!! Should also make sure direction of E-force not given, directly or via components.
    ;; Would be given as electric force on object for an object at-place loc.
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?source) ?t))
+   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?source)
+			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-region-Efield-unknown  ~%")
    )
@@ -305,7 +311,8 @@
    (sign-charge ?b ?pos-neg)
    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?rdir (mod (+ 180 ?rdir) 360)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?b) ?t))
+   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?b) 
+			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
@@ -339,7 +346,8 @@
    (not (vector ?dontcare (field ?loc electric ?b :time ?t) ?dir))
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
    (not (given (dir (relative-position ?loc ?b :time ?t)) (dnum ?rdir |deg|)))
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?b) ?t))
+   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?b)
+			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "Fired draw-point-Efield-unknown  ~%")
    )
@@ -369,7 +377,8 @@
   :preconditions 
   ((rdebug "Using draw-Eforce-given-dir ~%")
    (given (dir (force ?b ?source electric :time ?t)) ?dir)
-   (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) (body-name ?source)?t))
+   (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
+			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Eforce-given-dir  ~%")
    )
@@ -400,7 +409,8 @@
     (sign-charge ?b ?pos-neg)
     (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (mod (+ 180 ?field-dir) 360)))
     (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
-    (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+    (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
+			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (rdebug "fired draw-Eforce-given-field-dir  ~%")
     )
@@ -437,7 +447,8 @@
     (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
     (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
     ;; similar to draw-vector-given-compos
-    (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+    (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
+			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?dir `(dnum ,(dir-from-compos ?xc ?yc) |deg|))
     (rdebug "fired draw-Eforce-given-field-compos-pos  ~%")
@@ -471,7 +482,8 @@
     (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
     (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
     ;; similar to draw-vector-given-compos
-    (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+    (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
+			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?opp-dir (dir-from-compos ?xc ?yc))
     (bind ?dir (mod (+ 180 ?opp-dir) 360))
@@ -510,7 +522,8 @@
    (at-place ?b ?loc ?t)
    (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare3))
    ;; (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare4))
-   (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+   (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
+			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Eforce-unknown  ~%")
    )
@@ -947,168 +960,15 @@
             ))
 
 
-;;; Pythagorean theorem for vector magnitudes: 
-;;;        r^2 = r_x^2 + r_y^2
-; This applies to any vector, but for now we define it for relative position vectors only, so that
-; we can limit its effects on other problems until we decide to add it for all vectors
-; For now we also restrict to standard axes since that's where we need it, although any 
-; orthogonal pair could do.
-;
-; !!! This seems only to work on component-form, due to problems getting the axes drawn when
-; fetching component variables. This is the detail: define-compo, intended for standard vector psms, 
-; fails because it uses "in-wm", but no axis from vector psm diagram is already registered in wm for 
-; vectors on body ?b (which may just be a point in space in this case).
-; The more liberal define-compo2 draws vectors and standard axes as needed. That will work, but is defined 
-; only to apply when component-form is set.
-; In general the association of all vectors with bodies for purposes of finding axes to use on them,
-; which works well for things like the inclined atwoods problem, is not so appropriate 
-; for field problems with position vectors and an origin. The whole treatment of axes needs to be 
-;;; cleaned up and simplified to avoid this hairiness.
-(def-psmclass rmag-pyth (rmag-pyth ?body ?origin ?time)
-  :complexity minor 
-  :english ("the pythagorean theorem for position magnitudes")
-  :ExpFormat ("calculating the magnitude of the position of ~a from its components" (nlg ?body))
-  :EqnFormat ("r = sqrt(r_x^2 + r_y^2)"))
-
-(defoperator rmag-pyth-contains (?sought)
-   :preconditions (
-     (any-member ?sought (
-       (mag (relative-position ?b ?o :time ?t))
-       ;; only standard axes (doesn't work for tilted)
-       (compo x 0 (relative-position ?b ?o :time ?t)) 
-       (compo y 90 (relative-position ?b ?o :time ?t))
-                         ))
-   )
-   :effects ( 
-     (eqn-contains (rmag-pyth ?b ?o ?t) ?sought) 
-   ))
-
-(defoperator write-rmag-pyth (?b ?o ?t)
-  :preconditions (
-    (variable ?r (mag (relative-position ?b ?o :time ?t)))
-    ; ensure axis drawn, to emulate a vector method diagram drawing step. Reason is hairy: this enables
-    ; the define-compo to apply as it does for normal vector methods, since define-compo requires vectors 
-    ; and axes to have been drawn in wm. Since change to alternative define-compo2, the latter no longer 
-    ; works if EITHER vector or axis is drawn. 
-    (axis-for ?b x 0)
-    ; don't apply this rule if vector lies along an axis: it won't be needed
-    ; to calculate magnitude from compos and just multiplies solutions.
-    ; Note: this doesn't test for vector along z-axis (unlikely to occur).
-    (in-wm (vector ?dontcare (relative-position ?b ?o :time ?t) ?dir-r))
-    (test (not (eq ?dir-r 'zero))) ;don't apply to zero length
-    (test (not (horizontal-or-vertical ?dir-r)))
-    (variable ?r_x (compo x 0  (relative-position ?b ?o :time ?t))) 
-    (variable ?r_y (compo y 90 (relative-position ?b ?o :time ?t))) 
-  )
-  :effects (
-    (eqn (= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) (rmag-pyth ?b ?o ?t))
-  )
-  :hint (
-   (point (string "The pythagorean theorem can be used to relate the magnitude of a relative position vector to its components."))
-   (bottom-out (string "Write the equation ~A." 
-		       ((= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) algebra)))
-  ))
-
-;
-; "rdiff": vector psm for calculating components of r21 from given
-; coordinates of points 1 and 2. Coordinates are given values of 
-; relative-positions wrt the specially named point 'origin.
-; The equation is:
-;   r21_x = r2o_x - r1o_x 
-; However, to keep the solutions simple, we plug the numerical
-; values of the given coordinates directly into the equation, rather 
-; than using variables for the given positions, which would then have
-; to be drawn.  Might have to change this eventually, or add variant
-; that allows them to be drawn.
-
-(def-psmclass rdiff
-             (?eq-type rdiff ?axis ?rot (rdiff ?p1 ?p2 ?time)) 
-  :complexity minor
-  :english ("the relative position definition")
-  :ExpFormat ("computing the ~a component of the relative position of ~a with respect to ~a"
-		 (nlg ?axis 'adj) (nlg ?p2) (nlg ?p1) )
-  :EqnFormat ("r21_~a = ~a2 - ~a1" (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
-
-(defoperator rdiff-contains (?sought)
-  :preconditions (
-    ; only applies in component-form
-    (component-form)
-    (any-member ?sought (
-		 (mag (relative-position ?p2 ?p1 :time ?t))
-		 (dir (relative-position ?p2 ?p1 :time ?t))
-		 ; no other variables in this equation
-		 ))
-    (in-wm (given (compo x 0  (relative-position ?p1 origin :time ?t)) ?p1_x))
-    (in-wm (given (compo y 90 (relative-position ?p1 origin :time ?t)) ?p1_y))
-    (in-wm (given (compo x 0  (relative-position ?p2 origin :time ?t)) ?p2_x))
-    (test (not (eq ?p2 ?p1))) ; make sure two different points
-    (in-wm (given (compo y 90 (relative-position ?p2 origin :time ?t)) ?p2_y))
-    ; should still work if p1 or p2 = origin, but would need to be 
-    ; told that coords of origin are (0,0) in givens
-    )
-  :effects 
-  ((eqn-family-contains (rdiff ?p1 ?p2 ?t) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (rdiff ?p1 ?p2 ?t) rdiff ?sought)))
-
-(defoperator draw-rdiff-diagram (?p1 ?p2 ?t)
-  :preconditions 
-  ((not (vector-diagram (rdiff ?p1 ?p2 ?t)))
-   ;; do we draw a body for this? What body do we call this
-   (vector ?p2 (relative-position ?p2 ?p1 :time ?t) ?dir1)
-   ;; have to make sure we have an axis for this vector
-   (axis-for ?p2 x 0))
-  :effects 
-  ((vector-diagram (rdiff ?p1 ?p2 ?t))))
-
-(defoperator write-rdiff-compo (?p1 ?p2 ?t ?xy ?rot)
-  :preconditions (
-    (variable ?r21_xy (compo ?xy ?rot (relative-position ?p2 ?p1 :time ?t)))
-    ; just fetch the coordinate values to plug in
-    (given (compo ?xy ?rot  (relative-position ?p1 origin :time ?t)) ?r1o_xy_val)
-    (given (compo ?xy ?rot  (relative-position ?p2 origin :time ?t)) ?r2o_xy_val)
-   )
-  :effects (
-   (eqn (= ?r21_xy (- ?r2o_xy_val ?r1o_xy_val))
-         (compo-eqn rdiff ?xy ?rot (rdiff ?p1 ?p2 ?t)) )
-   (eqn-compos 
-         (compo-eqn rdiff ?xy ?rot (rdiff ?p1 ?p2 ?t))
-         (?r21_xy))
-  ) 
-  :hint (
-    (point (string "The components of the relative position of one point wrt another can be computed from the coordinates of the two points"))
-    (teach (string "The relative position vector r21 of a point p2 wrt p1 is the vector difference r2o - r1o of the positions of p2 and p1 with respect to the origin. You can apply this relation component-wise to compute the components of the needed relative position vector from the given coordinates of the two points."))
-    (bottom-out (string "Write the equation ~A"
-                ((= ?r21_xy (- ?r2o_xy_val ?r1o_xy_val)) algebra)))
-  ))
-
-
-; Following would enable the equality rba = rpa to be exploited when body b is at p
-; However, it doesn't really help if rpa is sought and rpa compos given, since
-; then nothing allows rba to be calculated, so gets purged as dead-path quant.
-; Might be useable in some problems.
-
-(defoperator same-relpos(?body ?loc ?origin ?time)
-  :preconditions (
-      (in-wm (at-place ?body ?loc ?t-at-loc))
-      (test (tinsidep ?time ?t-at-loc))
-      ; ?origin should be bound from sought coming in
-  )
-  :effects (
-     ; Assert equality. Equation will be written by generic write-equality 
-     ; operator without much of a hint, as if equality is given or obvious.
-     (equals (mag (relative-position ?body ?origin :time ?time))
-             (mag (relative-position ?loc ?origin :time ?time)))
-  ))
-
 ;; Scalar variable definitions:
 
 
-; Charge has a time argument, mainly to handle varying charge on capacitors.
-; Charge on a particle will not change over time in Andes electrostatic problems.
-; Most of our simple problems involve only an instant, so this is not an issue,
-; but it does come up when conservation of energy is applied over an interval.
+;;; Charge has a time argument, mainly to handle varying charge on capacitors.
+;;; Charge on a particle will not change over time in Andes electrostatic 
+;;;  problems.
+;;; Most of our simple problems involve only an instant, so this is not an 
+;;; issue, but it does come up when conservation of energy is applied over an 
+;;; interval.
 ; If problem involves more than one time point, we want to use charge defined
 ; over the longest possible interval. We want this in all equations mentioning charge.
 ; Therefore, in all equation-writing operators with a precondition of a charge variable, 
@@ -1118,14 +978,15 @@
 ;
 ; (This method might be generalized for other variables that can be constant over time)
 (defoperator define-charge-on-obj-var (?p ?t)
-  :preconditions (
-                  (rdebug "Using define-charge-on-obj-var ~%")
-		  ; use this form if haven't declared constant charge over problem interval
-		  (not (constant (charge-on ?b) ?t-constant inclusive))
-                  (bind ?q-var (format-sym "Q_~A$~A" (body-name ?p) (time-abbrev ?t)))
-                  (not (circuit-component ?p capacitor))
-                  (rdebug "fired define-charge-on-obj-var ~%")
-                  )
+  :preconditions 
+  (
+   (rdebug "Using define-charge-on-obj-var ~%")
+   ;; use this form if haven't declared constant charge over problem interval
+   (not (constant (charge-on ?b) ?t-constant inclusive))
+   (bind ?q-var (format-sym "Q_~A$~A" (body-name ?p) (time-abbrev ?t)))
+   (not (circuit-component ?p capacitor))
+   (rdebug "fired define-charge-on-obj-var ~%")
+   )
   :effects (
             (variable ?q-var (charge-on ?p :time ?t))
 	    (define-var (charge-on ?p :time ?t))
@@ -1136,15 +997,16 @@
        ))
 
 (defoperator define-charge-on-obj-var2 (?p ?t)
-  :preconditions (
-		  ; If there's more than one time, charge should be declared constant
-		  (constant (charge-on ?b) ?t-constant inclusive)
-                  (bind ?q-var (format-sym "Q_~A$~A" (body-name ?p) (time-abbrev ?t-constant)))
-                  (not (circuit-component ?p capacitor))
-		  ; hairy: must ensure ?t is bound, since we may be called by generic variable 
-		  ; declaring precond to enter given by write-known-value-eqn 
-		  (bind ?t (if (null ?t) ?t-constant ?t))
-                  )
+  :preconditions 
+  (
+   ;; If there's more than one time, charge should be declared constant
+   (constant (charge-on ?b) ?t-constant inclusive)
+   (bind ?q-var (format-sym "Q_~A$~A" (body-name ?p) (time-abbrev ?t-constant)))
+   (not (circuit-component ?p capacitor))
+   ;; hairy: must ensure ?t is bound, since we may be called by generic 
+   ;; variable declaring precond to enter given by write-known-value-eqn 
+   (bind ?t (if (null ?t) ?t-constant ?t))
+   )
   :effects (
             (variable ?q-var (charge-on ?p :time ?t-constant))
 	    (define-var (charge-on ?p :time ?t-constant))
@@ -1155,9 +1017,10 @@
        ))
 
 (defoperator define-potential-var (?loc ?source ?t)
-  :preconditions (
-                  (bind ?V-var (format-sym "V_~A_~A_~A" ?loc ?source ?t))
-                  )
+  :preconditions 
+  (
+   (bind ?V-var (format-sym "V_~A_~A_~A" ?loc ?source (time-abbrev ?t)))
+   )
   :effects (
             (variable ?V-var (potential ?loc ?source :time ?t))
             (define-var (potential ?loc ?source :time ?t))
@@ -1168,7 +1031,7 @@
 
 (defoperator define-net-potential-var (?loc ?t)
   :preconditions (
-                  (bind ?V-var (format-sym "Vnet_~A_~A" ?loc ?t))
+                  (bind ?V-var (format-sym "Vnet_~A_~A" ?loc (time-abbrev ?t)))
                   )
   :effects (
             (variable ?V-var (net-potential ?loc :time ?t))
@@ -1265,7 +1128,7 @@
   ; could make sure there is more than one source of an Efield.
    (in-wm (Efield-sources ?loc ?t ?sources))
    (test (cdr ?sources)) ; more than one in list
-   (bind ?mag-var (format-sym "Enet_~A$~A" (body-name ?loc) ?t))
+   (bind ?mag-var (format-sym "Enet_~A$~A" (body-name ?loc) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
@@ -1479,7 +1342,8 @@
                   (at-place ?b ?loc ?t)
                   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)  
                   (not (vector ?b (field ?loc magnetic ?source :time ?t) ?dir1))     
-                  (bind ?mag-var (format-sym "B_~A$~A" (body-name ?loc) ?t))
+                  (bind ?mag-var (format-sym "B_~A$~A" (body-name ?loc) 
+					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
 		  ; if dir is z-axis, implicit eqn should give phi angle value
 		  (bind ?angle-value (if (z-dir-spec ?dir-B) (zdir-phi ?dir-B) 
@@ -1511,7 +1375,8 @@
 	  (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
 	  (test ?dir-B)
 	  (test (not (eq ?B-dir 'zero)))
-          (bind ?mag-var (format-sym "B_~A$~A" (body-name ?loc) ?t))
+          (bind ?mag-var (format-sym "B_~A$~A" (body-name ?loc)
+				     (time-abbrev ?t)))
           (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
@@ -1544,7 +1409,8 @@
 		  ; make sure we have a non-null direction
 		  (test ?F-dir) ; may be NIL on failure
 		  (test (not (eq ?F-dir 'zero)))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc) ?t))
+                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc)
+					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
  )
  :effects (
@@ -1576,7 +1442,8 @@
 		  (test (not (eq ?rhr-dir 'zero)))
 		  (bind ?F-dir (opposite ?rhr-dir))
 		  (test ?F-dir) ; make sure this succeeded
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc) ?t))
+                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc)
+					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
  )
  :effects (
@@ -1607,7 +1474,8 @@
 		  ; make sure we have a non-null direction
 		  (test ?F-dir) ; may be NIL on failure
 		  (test (eq ?F-dir 'zero))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc) ?t))
+                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc)
+					     (time-abbrev ?t)))
  )
  :effects (
             (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
@@ -1649,7 +1517,8 @@
                   (at-place ?b ?loc ?t)
                   (not (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B))
                   (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?b) ?t))
+                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?b) 
+					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
                   (rdebug "fired draw-Bforce-unknown  ~%")
                   )
@@ -1677,7 +1546,8 @@
 		  (motion ?b (straight ?dontcare unknown) :time ?t ?t)
                   (test (time-pointp ?t))
                   (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?b) ?t))
+                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?b) 
+					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
                   (rdebug "fired draw-Bforce-unknown  ~%")
                   )
@@ -1703,7 +1573,8 @@
 	   (bind ?tau-dir (cross-product-dir ?dir-mu ?dir-B))
 	   ; make sure we have a non-null direction
 	   (test (not (eq ?tau-dir 'zero)))  
-           (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis (time-abbrev ?t)))
+           (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
+				      (time-abbrev ?t)))
            (bind ?dir-var (format-sym "O~A" ?mag-var))
 	   ; need rotation axis for torque definition
 	   (rotation-axis ?b ?axis)
@@ -1730,7 +1601,8 @@
 	   (bind ?tau-dir (cross-product-dir ?dir-mu ?dir-B))
 	   ; make sure we have a non-null direction
 	   (test (eq ?tau-dir 'zero))  
-           (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis (time-abbrev ?t)))
+           (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
+				      (time-abbrev ?t)))
 	   ; need rotation axis for torque definition
 	   (rotation-axis ?b ?axis)
  )
@@ -2078,7 +1950,8 @@
     ;; But there shoudl be some way to access this info from the environment.
                    ; (test (member ?xc (problem-soughts *cp*) :test #'equal))
                    (not (given (dir ?vector :time ?t) (dnum ?dir |deg|)))
-                   (bind ?mag-var (format-sym "~A_~A_~A" ?vectype (body-name ?b) (time-abbrev ?t)))                                                         
+                   (bind ?mag-var (format-sym "~A_~A_~A" ?vectype 
+					      (body-name ?b) (time-abbrev ?t)))
                    (bind ?dir-var (format-sym "O~A" ?mag-var))
                    (rdebug "fired draw-sought-force-vector-unknown-with-multi-args ~%")
                    )

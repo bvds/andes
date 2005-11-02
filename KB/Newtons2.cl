@@ -1914,6 +1914,169 @@
   ))
 
 
+;;; Pythagorean theorem for vector magnitudes: 
+;;;        r^2 = r_x^2 + r_y^2
+;;; This applies to any vector, but for now we define it for relative 
+;;; position vectors only, so that we can limit its effects on other problems 
+;;; until we decide to add it for all vectors.
+;;; For now we also restrict to standard axes since that's where we need it, 
+;;; although any orthogonal pair could do.
+;;;
+;;; !!! This seems only to work on component-form, due to problems getting 
+;;; the axes drawn when fetching component variables.  This is the detail: 
+;;; define-compo, intended for standard vector psms, fails because it uses 
+;;; "in-wm", but no axis from vector psm diagram is already registered in 
+;;; wm for vectors on body ?b (which may just be a point in space in this 
+;;; case).
+;;;
+;;; The more liberal define-compo2 draws vectors and standard axes as needed. 
+;;; That will work, but is defined only to apply when component-form is set.
+;;; In general the association of all vectors with bodies for purposes of 
+;;; finding axes to use on them, which works well for things like 
+;;; the Atwoods machine problems, is not so appropriate for field problems 
+;;; with position vectors and an origin. 
+;;;
+;;; The whole treatment of axes needs to be cleaned up and simplified to 
+;;; avoid this hairiness.
+(def-psmclass rmag-pyth (rmag-pyth ?body ?origin ?time)
+  :complexity minor 
+  :english ("the pythagorean theorem for position magnitudes")
+  :ExpFormat ("calculating the magnitude of the position of ~a from its components" (nlg ?body))
+  :EqnFormat ("r = sqrt(r_x^2 + r_y^2)"))
+
+(defoperator rmag-pyth-contains (?sought)
+   :preconditions (
+     (any-member ?sought (
+       (mag (relative-position ?b ?o :time ?t))
+       ;; only standard axes (doesn't work for tilted)
+       (compo x 0 (relative-position ?b ?o :time ?t)) 
+       (compo y 90 (relative-position ?b ?o :time ?t))
+                         ))
+   )
+   :effects ( 
+     (eqn-contains (rmag-pyth ?b ?o ?t) ?sought) 
+   ))
+
+(defoperator write-rmag-pyth (?b ?o ?t)
+  :preconditions (
+    (variable ?r (mag (relative-position ?b ?o :time ?t)))
+    ; ensure axis drawn, to emulate a vector method diagram drawing step. Reason is hairy: this enables
+    ; the define-compo to apply as it does for normal vector methods, since define-compo requires vectors 
+    ; and axes to have been drawn in wm. Since change to alternative define-compo2, the latter no longer 
+    ; works if EITHER vector or axis is drawn. 
+    (axis-for ?b x 0)
+    ; don't apply this rule if vector lies along an axis: it won't be needed
+    ; to calculate magnitude from compos and just multiplies solutions.
+    ; Note: this doesn't test for vector along z-axis (unlikely to occur).
+    (in-wm (vector ?dontcare (relative-position ?b ?o :time ?t) ?dir-r))
+    (test (not (eq ?dir-r 'zero))) ;don't apply to zero length
+    (test (not (horizontal-or-vertical ?dir-r)))
+    (variable ?r_x (compo x 0  (relative-position ?b ?o :time ?t))) 
+    (variable ?r_y (compo y 90 (relative-position ?b ?o :time ?t))) 
+  )
+  :effects (
+    (eqn (= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) (rmag-pyth ?b ?o ?t))
+  )
+  :hint (
+   (point (string "The pythagorean theorem can be used to relate the magnitude of a relative position vector to its components."))
+   (bottom-out (string "Write the equation ~A." 
+		       ((= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) algebra)))
+  ))
+
+;
+; "rdiff": vector psm for calculating components of r21 from given
+; coordinates of points 1 and 2. Coordinates are given values of 
+; relative-positions wrt the specially named point 'origin.
+; The equation is:
+;   r21_x = r2o_x - r1o_x 
+; However, to keep the solutions simple, we plug the numerical
+; values of the given coordinates directly into the equation, rather 
+; than using variables for the given positions, which would then have
+; to be drawn.  Might have to change this eventually, or add variant
+; that allows them to be drawn.
+
+(def-psmclass rdiff
+             (?eq-type rdiff ?axis ?rot (rdiff ?p1 ?p2 ?time)) 
+  :complexity minor
+  :english ("the relative position definition")
+  :ExpFormat ("computing the ~a component of the relative position of ~a with respect to ~a"
+		 (nlg ?axis 'adj) (nlg ?p2) (nlg ?p1) )
+  :EqnFormat ("r21_~a = ~a2 - ~a1" (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+(defoperator rdiff-contains (?sought)
+  :preconditions (
+    ; only applies in component-form
+    (component-form)
+    (any-member ?sought (
+		 (mag (relative-position ?p2 ?p1 :time ?t))
+		 (dir (relative-position ?p2 ?p1 :time ?t))
+		 ; no other variables in this equation
+		 ))
+    (in-wm (given (compo x 0  (relative-position ?p1 origin :time ?t)) ?p1_x))
+    (in-wm (given (compo y 90 (relative-position ?p1 origin :time ?t)) ?p1_y))
+    (in-wm (given (compo x 0  (relative-position ?p2 origin :time ?t)) ?p2_x))
+    (test (not (eq ?p2 ?p1))) ; make sure two different points
+    (in-wm (given (compo y 90 (relative-position ?p2 origin :time ?t)) ?p2_y))
+    ; should still work if p1 or p2 = origin, but would need to be 
+    ; told that coords of origin are (0,0) in givens
+    )
+  :effects 
+  ((eqn-family-contains (rdiff ?p1 ?p2 ?t) ?sought)
+  ; since only one compo-eqn under this vector psm, we can just
+  ; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (rdiff ?p1 ?p2 ?t) rdiff ?sought)))
+
+(defoperator draw-rdiff-diagram (?p1 ?p2 ?t)
+  :preconditions 
+  ((not (vector-diagram (rdiff ?p1 ?p2 ?t)))
+   ;; do we draw a body for this? What body do we call this
+   (vector ?p2 (relative-position ?p2 ?p1 :time ?t) ?dir1)
+   ;; have to make sure we have an axis for this vector
+   (axis-for ?p2 x 0))
+  :effects 
+  ((vector-diagram (rdiff ?p1 ?p2 ?t))))
+
+(defoperator write-rdiff-compo (?p1 ?p2 ?t ?xy ?rot)
+  :preconditions (
+    (variable ?r21_xy (compo ?xy ?rot (relative-position ?p2 ?p1 :time ?t)))
+    ; just fetch the coordinate values to plug in
+    (given (compo ?xy ?rot  (relative-position ?p1 origin :time ?t)) ?r1o_xy_val)
+    (given (compo ?xy ?rot  (relative-position ?p2 origin :time ?t)) ?r2o_xy_val)
+   )
+  :effects (
+   (eqn (= ?r21_xy (- ?r2o_xy_val ?r1o_xy_val))
+         (compo-eqn rdiff ?xy ?rot (rdiff ?p1 ?p2 ?t)) )
+   (eqn-compos 
+         (compo-eqn rdiff ?xy ?rot (rdiff ?p1 ?p2 ?t))
+         (?r21_xy))
+  ) 
+  :hint (
+    (point (string "The components of the relative position of one point wrt another can be computed from the coordinates of the two points"))
+    (teach (string "The relative position vector r21 of a point p2 wrt p1 is the vector difference r2o - r1o of the positions of p2 and p1 with respect to the origin. You can apply this relation component-wise to compute the components of the needed relative position vector from the given coordinates of the two points."))
+    (bottom-out (string "Write the equation ~A"
+                ((= ?r21_xy (- ?r2o_xy_val ?r1o_xy_val)) algebra)))
+  ))
+
+
+; Following would enable the equality rba = rpa to be exploited when body b is at p
+; However, it doesn't really help if rpa is sought and rpa compos given, since
+; then nothing allows rba to be calculated, so gets purged as dead-path quant.
+; Might be useable in some problems.
+
+(defoperator same-relpos(?body ?loc ?origin ?time)
+  :preconditions (
+      (in-wm (at-place ?body ?loc ?t-at-loc))
+      (test (tinsidep ?time ?t-at-loc))
+      ; ?origin should be bound from sought coming in
+  )
+  :effects (
+     ; Assert equality. Equation will be written by generic write-equality 
+     ; operator without much of a hint, as if equality is given or obvious.
+     (equals (mag (relative-position ?body ?origin :time ?time))
+             (mag (relative-position ?loc ?origin :time ?time)))
+  ))
+
+
 ;;; =============== bodies =======================================
 
 
