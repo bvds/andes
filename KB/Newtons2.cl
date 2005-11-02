@@ -4671,39 +4671,39 @@ the magnitude and direction of the initial and final velocity and acceleration."
 			?b (?spring agent) ?b (?spring agent) ?force-dir))
     ))
 
-; UG -- Newton's Law of Universal Gravitation
-;
-; We use "near-planet" statements when problem takes place within a region 
-; near the surface of a planet throughout which gravitational force can be 
-; treated as m*g. For greater distances we need the general law of UG in 
-; terms of the gravitational constant G. This is enabled by a statement
-;   (gravity ?body1 ?body2 ...)
-; to mean there is a gravitational interaction between any pair of bodies
-; in the list.  No time on this statement, significant gravity is assumed 
-; to exist throughout the problem (though it may have different values at
-; different times if relative position of bodies changes, of course.)
-;
-; We normally treat the r in the law of universal gravitation as the
-; magnitude of the relative position vector from the center of the body 
-; exerting the force to the center of the body experiencing the force.
-; Referring to centers of bodies: though the kb can employ
-; functional terms like center-of(b1), there is currently no way to specify
-; complex terms like this in the workbench. So we need to use
-; atomic names like center_of_Earth and include propositions like
-;   (center-of-mass center_of_Earth (Earth))
-; to enable the rules to map object names to names of their center points. 
-; Note if an object is treated as a point we have to include the statement
-;   (center-of-mass person1 (person1))  
-; for these rules to work.
-;
-; The equation is scalar equation containing vector magnitudes only.
+;;; UG -- Newton's Law of Universal Gravitation
+;;;
+;;; We use "near-planet" statements when problem takes place within a region 
+;;; near the surface of a planet throughout which gravitational force can be 
+;;; treated as m*g.  For greater distances we need the general law of UG in 
+;;; terms of the gravitational constant G.  This is enabled by a statement
+;;;   (gravity ?body1 ?body2 ...)
+;;; to mean there is a gravitational interaction between any pair of bodies
+;;; in the list.  No time on this statement, significant gravity is assumed 
+;;; to exist throughout the problem (though it may have different values at
+;;; different times if relative position of bodies changes, of course.)
+;;;
+;;; We normally treat the r in the law of universal gravitation as the
+;;; magnitude of the relative position vector from the center of the body 
+;;; exerting the force to the center of the body experiencing the force.
+;;; Referring to centers of bodies: though the kb can employ
+;;; functional terms like center-of(b1), there is currently no way to specify
+;;; complex terms like this in the workbench. So we need to use
+;;; atomic names like center_of_Earth and include propositions like
+;;;   (center-of-mass center_of_Earth (Earth))
+;;; to enable the rules to map object names to names of their center points. 
+;;; Note if an object is treated as a point we have to include the statement
+;;;   (center-of-mass person1 (person1))  
+;;; for these rules to work.
+;;;
+;;; The equation is scalar equation containing vector magnitudes only.
 (defoperator ug-contains (?sought)
    :preconditions (
-     ; first make sure a gravitational interaction exists in problem
+     ;; first make sure a gravitational interaction exists in problem
      (gravity . ?grav-bodies)
      (any-member ?sought (
-		    ; if sought is a mass, can use either equation for force
-		    ; on b1 from b2 or force on b2 from b1, so need both:
+		    ;; if sought is a mass, can use either equation for force
+		    ;; on b1 from b2 or force on b2 from b1, so need both:
                     (mass ?b1) (mass ?b2)  ;only timeless mass 
 		    (mag (force ?b1 ?b2 gravitational :time ?t))
 		    (mag (relative-position ?c1 ?c2 :time ?t))
