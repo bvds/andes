@@ -151,77 +151,71 @@
 
 ;;; ===========================================================================
 ;;; Geometry helper functions
-;;; This are written to take either numbers, zero, unknown
+;;; This are written to take either numbers, zero, unknown,
 ;;; or (dnum <number> |deg|), or (parameter <atom>).
-;;; Eventually, they may get smarter and be able to accept algebraic formulas in terms
+;;; Eventually, they may get smarter and be able to accept algebraic 
+;;;  formulas in terms
 ;;; of (dnum ...) and (parameter ...)
 ;;; Now also have z-axis directions as 'into or 'out-of or 'z-unknown
 ;;;
 ;;; All Andes vectors are either in the xy-plane or along the z-axis.
 ;;; z-unknown guarantees vector lies along z axis, and there are some things we
-;;; can use this for, e.g z-unknown is perpendicular to any x-y plane angle and has no
-;;; cross-product with another zdir angle.  
-;;; !!! We should have something similar to to guarantee angle is in xy-plane.  
-;;; Some code below does assume "unknown" does guarantee this. But not clear if 
-;;; this has been consistently followed throughout.
+;;; can use this for, e.g z-unknown is perpendicular to any x-y plane angle 
+;;; and has no cross-product with another zdir angle.
+;;;
+;;; Assume that 'unknown means the vector is in the xy-plane.
+;;; Should, in principle have something to indicate that the direction
+;;; of a vector is completely unknown, but this is not needed yet.  
 ;;; 
 
 (defun perpendicularp (x1 x2)
    "true if the two angles are known to be perpendicular"
-   (cond ((parameter-or-unknownp x1) NIL)
-         ((parameter-or-unknownp x2) NIL)
-         ((equal x1 'zero) T)  ; null angle orthogonal to anything
+   (cond
+         ((equal x1 'zero) T)  ; zero vector orthogonal to anything
          ((equal x2 'zero) T)
-	 ; else each arg must be either a known xy angle or a zdir (maybe
-	 ; z-unknown).  zdirs are perpendicular to any xy dir.
 	 ((z-dir-spec x1) (not (z-dir-spec x2)))
 	 ((z-dir-spec x2) (not (z-dir-spec x1)))
-	 ; else both should be known xy angle specifiers
-         (T 
-           (let ((ang1 (convert-dnum-to-number x1))
-                 (ang2 (convert-dnum-to-number x2)))
-             (equal 90 (mod (- ang1 ang2) 180))))))
+	 ;; both angles in x-y plane.
+	 ((parameter-or-unknownp x1) NIL)
+         ((parameter-or-unknownp x2) NIL)
+	 ;; else both should be known xy angle specifiers
+         (T (equal 90 (mod (- (convert-dnum-to-number x1) 
+			      (convert-dnum-to-number x2)) 180)))))
 
 (defun non-zero-projectionp (vector-dir xyz axis-rot)
-   "non-null if the vector is non-zero and direction is either unknown or not perpendicular to the given axis at the given rotation."
-   (cond ((equal vector-dir 'zero) NIL)
-	 ; if z axis vector, projects only on z axis, not xy axes
-	 ((z-dir-spec vector-dir) (equal xyz 'z)) 
-	 ; else its an xy plane angle (though maybe parameter or unknown)
-	 ((equal xyz 'z) NIL) ; if axis is z, then no projection
-	 ((parameter-or-unknownp vector-dir) T)
-	 ((degree-specifierp vector-dir)
-	  (not (perpendicularp axis-rot vector-dir)))
-	 (T (error "~a is not a direction specifier." vector-dir))))
+   "non-null if the vector is not known to be orthogonal to the given axis."
+   (not (perpendicularp vector-dir (axis-dir xyz axis-rot))))
 
-(defun parallelp (x1 x2)
-   "true if the two angles are known parallel or anti-parallel"
-   (cond ((parameter-or-unknownp x1) NIL)
-         ((parameter-or-unknownp x2) NIL)
-         ((equal x1 'zero) NIL)
-         ((equal x2 'zero) NIL)
-	 ; if first is zdir vec, it's  parallel if second is zdir
-	 ((z-dir-spec x1) (z-dir-spec x2))
-	 ; else if only second is zdir spec:
-	 ((z-dir-spec x2) NIL)
-         (T 
-           (let ((ang1 (convert-dnum-to-number x1))
-                 (ang2 (convert-dnum-to-number x2)))
-             (zerop (mod (- ang1 ang2) 180))))))
+;; Note that the behavior for 'unknown and 'z-unknown are rather different
+(defun parallel-or-antiparallelp (x1 x2)
+   "true if the two angles are known to be parallel or anti-parallel"
+   (cond 
+    ((equal x1 'zero) NIL)
+    ((equal x2 'zero) NIL)
+    ;; if first is zdir vec, it's parallel if second is zdir
+    ((z-dir-spec x1) (z-dir-spec x2))
+    ((z-dir-spec x2) NIL) ;since x1 is in xy-plane
+    ;; must be in xy-plane
+    ((parameter-or-unknownp x1) NIL)
+    ((parameter-or-unknownp x2) NIL)
+    ;; known angle in xy-plane
+    (T (zerop (mod (- (convert-dnum-to-number x1) 
+		      (convert-dnum-to-number x2)) 180)))))
 
-; Given an axis specified by 'x|'y|'z + rotation, return its 3D direction code.
-; maps z-axes whose rot is always zero to direction code 'out-of [the plane.]
+;; Given an axis specified by 'x|'y|'z + rotation, return 3D direction code.
+;; maps z-axes to direction code 'out-of [the plane.]
 (defun axis-dir (xyz rot)
- "return direction given axis and its rotation"
- (if (eq xyz 'z) 'out-of ; ignore rot, should always be zero
-   rot))
+ "return direction of given axis in degress or z-axis specification"
+ (cond ((eq xyz 'x) rot)
+       ((eq xyz 'y) (+ rot 90))
+       ((eq xyz 'z) 'out-of)		; ignore rot
+       (t (error "invalid axis specification~%"))))
 
 ; !!! following only applies to known xy plane angles.
 ; calling with zero-length, dir unknown or z-axis dirs will throw error
 (defun convert-dnum-to-number (x)
   "Expects either a number or a number of degrees, and returns a number."
   (cond ((numberp x) x)
-	;;((equal x 'zero) 0) ;; wrong, means zero-length not 0 deg [AW]
 	((degree-specifierp x) (second x))
         (T (error "Non-numerical angle measure: ~a" x))))
 
@@ -233,8 +227,8 @@
            (null (cddr x))))
 
 (defun parameter-or-unknownp (x)
-  "Non-null if argument is parameter or special 'unknown symbol"
-   (or (eq x 'unknown) (parameterp x)))
+  "Non-null if argument is parameter or 'unknown or 'z-unknown"
+   (or (eq x 'unknown) (eq x 'z-unknown) (parameterp x)))
 
 (defun degree-specifierp (x)
   "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> DEG)"
@@ -258,10 +252,13 @@
 
 (defun opposite (x)
    "returns a direction specifier that is 180 degrees opposite the given direction"
-   (cond ((eql x 'into) 'out-of) ; special cases for z-axis dir specifiers
-         ((eql x 'out-of) 'into)
-	 (T (let ((ang (convert-dnum-to-number x)))
-              (list 'dnum (mod (+ ang 180) 360) '|deg|)))))
+   (cond ((eq x 'into) 'out-of) ; special cases for z-axis dir specifiers
+         ((eq x 'out-of) 'into)
+	 ((eq x 'z-unknown) x)
+	 ((eq x 'unknown) x)
+	 ((degrees-or-num x) 
+	  `(dnum ,(mod (+ (convert-dnum-to-number x) 180) 360) |deg|))
+	 (t (error "Opposite for ~A" x))))
 
 (defun minimal-x-rotations (Bag)
    "Given a bag of directions, returns set of number between 0 and 90 for x-rotation of axes"
@@ -271,11 +268,11 @@
 
 (defun z-dir-spec (x)
     "returns true if expression is a z-axis direction specifier"
-   (or (equal x 'into) (equal x 'out-of) (equal x 'z-unknown))) 
+   (or (eq x 'into) (eq x 'out-of) (eq x 'z-unknown))) 
 
 (defun known-z-dir-spec (x)
     "returns true if expression is a z-axis direction specifier for a known direction"
-   (and (z-dir-spec x) (not (equal x 'z-unknown))))
+   (and (z-dir-spec x) (not (eq x 'z-unknown))))
 
 (defun rotation-zdir (rotate-dir)
    "Convert given rotation ('cw or 'ccw) to z-axis direction specifier by rhr"
@@ -353,23 +350,21 @@
                               (term-to-dir dir-term2))))
 
 (defun cross-product (dir1 dir2)
-"return direction of cross product of two Andes vector dirs"
-   (cond  ((eq dir1 'unknown) NIL)
-          ((eq dir2 'unknown) NIL)
-	  ((eq dir1 'zero) 'zero)
-	  ((eq dir2 'zero) 'zero)
-	  ((parallelp dir1 dir2) 'zero) ; includes antiparallel
-	  ; so not both zdir (else would be parallelp)
-	  ((eq dir1 'z-unknown) NIL)  ; can't tell
-	  ; cross z-dir vector with non-zdir:
-	  ((eq dir1 'out-of) (mod (+ dir2 90) 360))
-	  ((eq dir1 'into)   (mod (- dir2 90) 360))
-	  ; cross non-zdir with zdir:
-	  ((z-dir-spec dir2) (opposite (cross-product dir2 dir1)))
-	  ; else must be crossing two non-parallel xy-plane angles
-	  ; use function for dir torque(fdir rdir), inverting order of args
-	  (T  (torque-zdir dir2 dir1))
-          ;(T "error: unhandled case in cross-product-dir1 ~a ~a" dir1 dir2)
+  "return direction of cross product of two Andes vector dirs"
+  (cond ((parallel-or-antiparallelp dir1 dir2) 'zero)
+	((eq dir1 'zero) 'zero)
+	((eq dir2 'zero) 'zero)
+	;; cross non-zdir with zdir:
+	((z-dir-spec dir2) (opposite (cross-product dir2 dir1)))
+	((and (z-dir-spec dir1) (eq dir2 'unknown)) 'unknown)
+	;; so not both zdir (else would be parallel-or-antiparallelp)
+	((eq dir1 'z-unknown) 'unknown) 
+	;; cross z-dir vector with non-zdir:
+	((eq dir1 'out-of) (mod (+ dir2 90) 360))
+	((eq dir1 'into)   (mod (- dir2 90) 360))
+	;; else must be crossing two non-parallel xy-plane angles
+	;; use function for dir torque(fdir rdir), inverting order of args
+	(T  (torque-zdir dir2 dir1))
    ))
 
 (defun horizontal-or-vertical (dir-expr)
@@ -476,35 +471,12 @@
 	     (or (equal 'mag (first q))
 		 (equal 'dir (first q))))))
 	 
-;; Takes axis term of form (axis x 0), although those terms not used in kb
+;; Takes axis-expr of form (axis ?xyz ?rot)
 (defun vector-compo (vec-expr axis-expr)
   "Given vector expr return expr for component along specified axis"
-   `(compo ,(second axis-expr) ,(third axis-expr) ,vec-expr))
+   (list 'compo (second axis-expr) (third axis-expr) vec-expr))
 
-;; Texes a vector and the :axis and :rot args and returns a compo.
-;; purely temporary I hope.
-(defun vector-compo-spec (vec-expr &key (axis '?xyz) (rot '?rot))
-  "Given vec-expr and :axis and :rot return the vector."
-  (cond  ((equal (first vec-expr) 'compo) 
-	  (list 'compo axis rot (fourth vec-expr)))
-	 ((equal (first vec-expr) 'mag) 
-	  (list 'compo axis rot (second vec-expr)))
-	 (t (list 'compo axis rot vec-expr))))
-
-;; shorthand:
-(defun vector-xc (vec-expr)
-  "Given vector expr return expr for horizontal component"
-  (vector-compo vec-expr '(axis x 0)))
-
-(defun vector-yc (vec-expr)
-  "Given vector expr return expr for vertical component"
-  (vector-compo vec-expr '(axis y 90)))
- 
-(defun vector-zc (vec-expr)
-  "Given vector expr return expr for z component"
-  (vector-compo vec-expr '(axis z 0)))
-
-; for vector component expressions:
+;; for vector component expressions:
 (defun componentp (expr)
    "true if expr denotes vector component (at time)"
    (and (eq (first expr) 'compo)
@@ -555,6 +527,25 @@
 	   ;; all others assumed scalar
 	   ((listp expr) (append (remove-time expr) `(:time ,time)))
 	   (t (error "can't add time ~A to expression ~A~%" time expr))))
+
+;; for all possibly-axis-indexed quantity expressions:
+(defun axis-of (quant)
+  "return time of a quantity, NIL if none"
+  (cond ((atom quant) (error "~A must be a list~%" quant))
+	((member ':axis quant) (second (member ':axis quant)))
+	;; this covers (compo ...), (mag ...), (dir ...):
+	((listp (first (last quant))) (axis-of (first (last quant))))))
+
+;;; ===================== hacks ========================================
+
+(defparameter *lk-hack* nil
+  "When true, causes only one lk equation to be generated.")
+
+(defun not-too-many-lk-eqns (N)
+  "If *lk-hack* is non-null, then true when N=0 else true when N=0 or N=1.
+   Use *lk-hack* to prevent generating all 10 possible lk solutions"
+  (if *lk-hack* (zerop N)
+    (< N 2)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

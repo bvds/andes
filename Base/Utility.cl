@@ -689,27 +689,29 @@ consed on if lists or as list otherwize."
     (eval `(cons '',(car lst) ,`(qlist ',(cdr lst))))))    
 
 
-;;--------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; code by collin Lynch.
 (defun func-eval (expressions)
   "Evaluate the expression by wrapping it as a funcall and applying."
   (funcall (append '(lambda ()) expressions)))
 
 
-;;--------------------------------------------------------------------------------
-;; Code by Lynwood Taylor.
+;;;----------------------------------------------------------------------------
+;;; Code by Lynwood Taylor.
+;;;
+;;; This is a replacement for eval.  According to the Allegro Lisp licensing,
+;;; one is not supposed to use eval (which compiles lisp code) in the
+;;; runtime code that is distributed.
+;;;
 (defun andes-eval (expr &optional (environment nil))
   "For use in place of eval ... works in nlg.cl but may need further cases checked."
   (cond
-   ((atom expr) 
-    (cond ((eq expr t) t)
-	  ((eq expr nil) nil)
-	  (t (let ((tmp (cdr (assoc expr environment)))) (if tmp tmp expr)))))
+   ((symbolp expr) 
+    (or (cdr (assoc expr environment)) (symbol-value expr)))
+   ((atom expr) expr)
    ((eq (car expr) 'quote) (cadr expr))
    ((atom (car expr)) (apply (car expr) (mapcar #'andes-eval (cdr expr))))
    (t (apply (andes-eval (car expr)) (mapcar #'andes-eval (cdr expr))))))  
-
-
 
 
 ;;;----------------------------------------------------------------------

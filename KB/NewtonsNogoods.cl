@@ -32,27 +32,20 @@
 ;; the axis tool to allow setting one axis direction only.
 
 (defnogood multiple-coords-for-body
-    ((axis-for ?b x ?rot1)
-     (axis-for ?b x ?rot2)
+    ((axis-for ?b ?xyz1 ?rot1)
+     (axis-for ?b ?xyz2 ?rot2)
      (test (not (equal ?rot1 ?rot2))))
   :specs ("prevent use of multiple coordinate systems for same body")
   :message ("Multiple inequivalent coordinate systems for ?b with x at ?rot1 and ?rot2"))
-
-(defnogood non-orthogonal-axes
-    ((axis-for ?b x ?x-rot)
-     (axis-for ?b y ?y-rot)
-     (test (not (= ?y-rot (+ ?x-rot 90)))))
-  :Specs ("Prevent use of non-orthogonal xy axes pairs for same body")
-  :message (Non-orthogonal axes for body ?b at ?t x ?x-rot y ?y-rot))
 
 ;; Prevent applying same compo-equation along x [or y] axis with
 ;; different rotations in the same solution. e.g. NSL at x=0 and x=30 deg
 ;; this constraint now probably redundant with multiple-coords-for-body
 (defnogood Max-axis-compo-free
-    ; assumption args are from compo-eqn-id, eg:
-    ;      (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
-    ((using-compo-free (?id ?xy ?rot1 ?family-id))
-     (using-compo-free (?id ?xy ?rot2 ?family-id))
+    ;; assumption args are from compo-eqn-id, eg:
+    ;;      (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
+    ((using-compo-free (?id ?xyz1 ?rot1 ?family-id))
+     (using-compo-free (?id ?xyz2 ?rot2 ?family-id))
      (test (not (equalp ?rot1 ?rot2))))
   :Specs ("Prevents the use of same compo-free eqn at different x or y axis rotations")
   :message (Max compo-free eqns per axis ?id ?rot1 ?rot22))
@@ -61,8 +54,8 @@
 ;; and individual bodies can be used: must use same axes on all of them
 ;; It represents the simple rule of picking the same axes for the whole solution
 (defnogood diff-axes-compound-part
-    ((axis-for (compound . ?bodies) x ?rot1)
-     (axis-for ?b x ?rot2)
+    ((axis-for (compound . ?bodies) ?xyz1 ?rot1)
+     (axis-for ?b ?xyz2 ?rot2)
      (test (member ?b ?bodies :test #'equal))
      (test (not (equal ?rot1 ?rot2))))
    :Specs ("Prevent use of different axes for compound and for part in same solution")

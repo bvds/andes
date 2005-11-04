@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Operators.cl
 ;; Collin Lynch
 ;; 10/26/2000
@@ -86,7 +86,7 @@
 ;; The Operator structs will become the basis of the solution graphs and will be 
 ;; stored for later use along with their variable values.  These values will then
 ;; be used to provide hints at runtime.
-|#
+
 
 ;;=======================================================================
 ;; Parameters
@@ -521,7 +521,7 @@
     (andes-eval arg)))
 
 
-;;;------------------------------------------------------------------------------
+;;;----------------------------------------------------------------------------
 ;;; Collecting hint specs
 ;;; Given an operator it may be necessary to extract specific elements such
 ;;; as the kcd or minilesson names that might be hinted within it.  This code

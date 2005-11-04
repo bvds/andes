@@ -831,7 +831,7 @@
 		 (t `(+ ,?vw (* ,?ocos ,?vo)))))
    (optional (body ?source))		;allow draw source and observers  
    (optional (body ?observer))		
-   (optional (axis-for ?source x 0)) ;allow draw axes 
+   (optional (axis-for ?source x 0)) ;allow draw standard axes 
    ;; motion descriptions for fancy hints:
    (bind ?stea (if (eql ?sdir 'zero) "not moving~*"
 		 (if (< ?scos 0)  "moving towards ~A" "moving away from ~A")))

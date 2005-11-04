@@ -193,7 +193,7 @@
    (sign-charge ?b pos)
    ;; make sure E-force compos given
    (given (compo x 0  (force ?b ?source electric :time ?t)) (dnum ?xc ?units))
-   (given (compo y 90 (force ?b ?source electric :time ?t)) (dnum ?yc ?units))
+   (given (compo y 0 (force ?b ?source electric :time ?t)) (dnum ?yc ?units))
    ;; make sure field direction not given at loc of ?b, directly or via components:
    (at-place ?b ?loc ?t)
    (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
@@ -229,7 +229,7 @@
     (sign-charge ?b neg)
     ;; make sure E-force compos given
     (given (compo x 0  (force ?b ?source electric :time ?t)) (dnum ?xc ?units))
-    (given (compo y 90 (force ?b ?source electric :time ?t)) (dnum ?yc ?units))
+    (given (compo y 0 (force ?b ?source electric :time ?t)) (dnum ?yc ?units))
     ;; make sure field direction not given at loc of ?b, directly or via components:
     (at-place ?b ?loc ?t)
     (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
@@ -442,7 +442,7 @@
     (sign-charge ?b pos)
     ;; make sure E-field compos given at loc of ?b
     (given (compo x 0 (field ?loc electric ?source :time ?t)) (dnum ?xc ?units))
-    (given (compo y 90 (field ?loc electric ?source :time ?t)) (dnum ?yc ?units))
+    (given (compo y 0 (field ?loc electric ?source :time ?t)) (dnum ?yc ?units))
     ;; make sure force direction not given, directly or via components:
     (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
     (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
@@ -477,7 +477,7 @@
     (sign-charge ?b neg)
     ;; make sure E-field compos given at loc of ?b
     (given (compo x 0 (field ?loc electric ?source :time ?t)) (dnum ?xc ?units))
-    (given (compo y 90 (field ?loc electric ?source :time ?t)) (dnum ?yc ?units))
+    (given (compo y 0 (field ?loc electric ?source :time ?t)) (dnum ?yc ?units))
     ;; make sure force direction not given, directly or via components:
     (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
     (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
@@ -799,7 +799,7 @@
 (defoperator coords-to-relpos ()
  :preconditions ( (given (pos ?loc :time ?t) (?value1 ?value2)) )
  :effects ( (given (compo x 0 (relative-position ?loc origin :time ?t)) ?value1)
-            (given (compo y 90 (relative-position ?loc origin :time ?t)) ?value2) ))
+            (given (compo y 0 (relative-position ?loc origin :time ?t)) ?value2) ))
 
 
 ; This is equation for the component of field, so includes a sort of projection.
@@ -902,7 +902,7 @@
                   (sign-charge ?b pos)
                   (variable ?dirE (dir (field ?loc electric ?b :time ?t)))
 		  (variable ?xpos (compo x 0 (relative-position ?loc ?b :time ?t)))
-		  (variable ?ypos (compo y 90 (relative-position ?loc ?b :time ?t)))
+		  (variable ?ypos (compo y 0 (relative-position ?loc ?b :time ?t)))
                   (rdebug "fired write-point-charge-Efield-dir-pos  ~%")
                   )
   :effects (
@@ -926,7 +926,7 @@
                   (sign-charge ?b neg)
                   (variable ?dirE (dir (field ?loc electric ?b :time ?t)))
 		  (variable ?xpos (compo x 0 (relative-position ?loc ?b :time ?t)))
-		  (variable ?ypos (compo y 90 (relative-position ?loc ?b :time ?t)))
+		  (variable ?ypos (compo y 0 (relative-position ?loc ?b :time ?t)))
                   (rdebug "fired write-point-charge-Efield-dir-neg  ~%")
                   )
   :effects (
@@ -1097,9 +1097,9 @@
  :effects (
     (vector-diagram (net-Efield ?loc ?t))
  ))
+
 (defoperator write-net-Efield-compo (?loc ?t ?xy ?rot)
  :preconditions (
-		 ;(test (setf *actions* T))
    (variable ?Enet_x (compo ?xy ?rot (net-field ?loc electric :time ?t)))
    (in-wm (Efield-sources ?loc ?t ?sources))
    (map ?source ?sources 
@@ -1762,10 +1762,10 @@
 (defoperator charge-force-Bfield-x-contains (?sought)
   :preconditions ((component-form)
                  (any-member ?sought((compo x 0 (force ?b ?source magnetic :time ?t))
-				      (compo y 90 (velocity ?b :time ?t))
+				      (compo y 0 (velocity ?b :time ?t))
                                       (compo z 0 (field ?loc magnetic ?source :time ?t))
 				      (compo z 0 (velocity ?b :time ?t))
-                                      (compo y 90 (field ?loc magnetic ?source :time ?t))
+                                      (compo y 0 (field ?loc magnetic ?source :time ?t))
                                       (charge-on ?b :time ?t)
                                       ))
                   (at-place ?b ?loc ?t))
@@ -1775,10 +1775,10 @@
   :preconditions ((at-place ?b ?loc ?t)
                  (vector-diagram (charge-force-Bfield ?b ?t))
                  (variable ?Fx (compo x 0 (force ?b ?source magnetic :time ?t)))
-		 (variable ?Vy (compo y 90 (velocity ?b :time ?t)))
+		 (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
                  (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?t)))
 		 (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
-		 (variable ?By (compo y 90 (field ?loc magnetic ?source :time ?t)))
+		 (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?t)))
                  (variable ?q (charge-on ?b :time ?t)))
   :effects ( 
               (eqn (= ?Fx (* ?q (- (* ?Vy ?Bz) (* ?Vz ?By)))) (charge-force-Bfield-x ?b ?t)) 
@@ -1798,7 +1798,7 @@
 
 (defoperator charge-force-Bfield-y-contains (?sought)
   :preconditions ((component-form)
-                  (any-member ?sought((compo y 90 (force ?b ?source magnetic :time ?t))
+                  (any-member ?sought((compo y 0 (force ?b ?source magnetic :time ?t))
 				      (compo z 0 (velocity ?b :time ?t))
                                       (compo x 0 (field ?loc magnetic ?source :time ?t))
 				      (compo x 0 (velocity ?b :time ?t))
@@ -1812,7 +1812,7 @@
   :preconditions ( 
                  (at-place ?b ?loc ?t)
                  (vector-diagram (charge-force-Bfield ?b ?t))
-                 (variable ?Fy (compo y 90 (force ?b ?source magnetic :time ?t)))
+                 (variable ?Fy (compo y 0 (force ?b ?source magnetic :time ?t)))
 		 (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
                  (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?t)))
 		 (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
@@ -1836,29 +1836,32 @@
   :EqnFormat ("F_z = q*(V_x*B_y - V_y*B_x" ))
 
 (defoperator charge-force-Bfield-z-contains (?sought)
-  :preconditions ((component-form)
-                  (any-member ?sought ((compo z 0 (force ?b ?source magnetic :time ?t))
-				      (compo x 0 (velocity ?b :time ?t))
-                                      (compo y 90 (field ?loc magnetic ?source :time ?t))
-				      (compo y 90 (velocity ?b :time ?t))
-                                      (compo x 0 (field ?loc magnetic ?source :time ?t))
-                                      (charge-on ?b :time ?t)
-				      ))
-		  (at-place ?b ?loc ?t))
+  :preconditions 
+  ((component-form)
+   (any-member ?sought ((compo z 0 (force ?b ?source magnetic :time ?t))
+			(compo x 0 (velocity ?b :time ?t))
+			(compo y 0 (field ?loc magnetic ?source :time ?t))
+			(compo y 0 (velocity ?b :time ?t))
+			(compo x 0 (field ?loc magnetic ?source :time ?t))
+			(charge-on ?b :time ?t)
+			))
+   (at-place ?b ?loc ?t))
   :effects ((eqn-contains (charge-force-Bfield-z ?b ?t) ?sought)))
 
 (defoperator charge-force-Bfield-z (?b ?t)
-  :preconditions ( 
-                 (at-place ?b ?loc ?t)
-                 (variable ?Fz (compo z 0 (force ?b ?source magnetic :time ?t)))
-		 (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
-                 (variable ?By (compo y 90 (field ?loc magnetic ?source :time ?t)))
-		 (variable ?Vy (compo y 90 (velocity ?b :time ?t)))
-		 (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?t)))
-                 (variable ?q (charge-on ?b :time ?t))
-                 )
+  :preconditions 
+  ( 
+   (at-place ?b ?loc ?t)
+   (variable ?Fz (compo z 0 (force ?b ?source magnetic :time ?t)))
+   (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
+   (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?t)))
+   (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
+   (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?t)))
+   (variable ?q (charge-on ?b :time ?t))
+   )
   :effects ( 
-              (eqn (= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) (charge-force-Bfield-z ?b ?t)) 
+	    (eqn (= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) 
+		 (charge-force-Bfield-z ?b ?t)) 
            )
   :hint (
           (point (string "The z component of a vector cross product can be computed from the x and y components of the vectors being multiplied. You can use this formula to compute the z component of the magnetic force."))
@@ -1943,12 +1946,12 @@
                    (bind ?vector `(,?vectype ,?b . ?args :time ,?t))
                    (test (or (equal 'force (first (second ?vector)))
                              (equal 'field (first (second ?vector)))))
-                   (bind ?xc (vector-xc ?vector))
-    ;; we test whether xc of vector is a problem sought. HACK: This relies
-    ;; on *cp* as always holding the current problem, which is not guaranteed
-    ;; if problem solver is not invoked through our interface functions.
-    ;; But there shoudl be some way to access this info from the environment.
-                   ; (test (member ?xc (problem-soughts *cp*) :test #'equal))
+;;; we test whether xc of vector is a problem sought. HACK: This relies
+;;; on *cp* as always holding the current problem, which is not guaranteed
+;;; if problem solver is not invoked through our interface functions.
+;;; But there should be some way to access this info from the environment.
+                   ;; (bind ?xc `(compo x 0 ,?vector))
+                   ;; (test (member ?xc (problem-soughts *cp*) :test #'equal))
                    (not (given (dir ?vector :time ?t) (dnum ?dir |deg|)))
                    (bind ?mag-var (format-sym "~A_~A_~A" ?vectype 
 					      (body-name ?b) (time-abbrev ?t)))

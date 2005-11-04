@@ -229,9 +229,10 @@
 ;;----------------------------------------------------
 ;; compare var indicies
 
-(defun var-indicies-equalp (V1 V2)
+(defun diff-var-indicies (V1 V2)
   "Are the two indicies equalp?"
-  (null (set-exclusive-or V1 V2 :test #'qvars-ni-equalp)))
+  (list (set-difference V1 V2 :test #'qvars-ni-equalp)
+	(set-difference V2 V1 :test #'qvars-ni-equalp)))
 
 (defun qvars-ni-equalp (q1 q2)
   "Are the two qvars equal but for their index."

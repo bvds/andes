@@ -530,11 +530,22 @@
    ((or (null P1) (null P2)) 
     (format nil "Problem file missing."))
    ((not (= (length (Problem-Solutions P1)) (length (Problem-Solutions P2))))
-    (format nil "lengths ~A and ~A" 
+    (format nil "Solution lengths ~A and ~A" 
 	    (length (Problem-Solutions P1)) (length (Problem-Solutions P2))))
-  ; (set-diff-bubblegraphs (Problem-Graph P1) (Problem-Graph P2))
-  ; (Var-Indicies-equalp (Problem-VarIndex P1) (Problem-Varindex P2))
+   ((not (= (length (Problem-EqnIndex P1)) (length (Problem-EqnIndex P2))))
+    (format nil "EqnIndex lengths ~A and ~A" 
+	    (length (Problem-EqnIndex P1)) (length (Problem-EqnIndex P2))))
+   ((not (= (length (Problem-VarIndex P1)) (length (Problem-VarIndex P2))))
+    (format nil "VarIndex lengths ~A and ~A" 
+	    (length (Problem-VarIndex P1)) (length (Problem-VarIndex P2))))
+   ((not (= (length (Problem-Graph P1)) (length (Problem-Graph P2))))
+    (format nil "Bubblegraph lengths ~A and ~A" 
+	    (length (Problem-Graph P1)) (length (Problem-Graph P2))))
+  ; ((diff-var-Indicies (Problem-VarIndex P1) (Problem-Varindex P2))
+  ;  (format nil "var indicies ~A" 
+;	    (diff-var-Indicies (Problem-VarIndex P1) (Problem-Varindex P2))))
   ; (Eqn-Indicies-equalp (Problem-EqnIndex P1) (Problem-EqnIndex P2))
+  ; (set-diff-bubblegraphs (Problem-Graph P1) (Problem-Graph P2))
    (t nil)))
 
 

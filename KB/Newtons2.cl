@@ -367,7 +367,7 @@
    :preconditions
      ((component-form) ; needed to filter method when sought is duration.
       ;;(any-member ?sought ((compo x 0 ?vector)
-      ;;                     (compo y 90 ?vector)
+      ;;                     (compo y 0 ?vector)
       ;;			   (duration ?t)))
       ;; vector PSMs defined to seek vector magnitudes, so may need to 
       ;; pretend we are seeking magnitude to hook into existing vector
@@ -427,7 +427,7 @@
   (
    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (mag ?vector))
    (vector ?b ?vector ?dir)
-   (axis-for ?b ?xyz ?rot)
+   (axis-for ?b ?xyz ?rot) ;iterate over ?xyz and ?rot
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
    ;;(debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
@@ -448,7 +448,7 @@
   :preconditions
     ((vector ?b ?vector ?dir)
      (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (dir ?vector))
-     (axis-for ?b ?xyz ?rot)
+     (axis-for ?b ?xyz ?rot) ;iterate over ?xyz and ?rot
      (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
      (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
      ;;(debug "Selecting ~a rot ~a for direction ~a time ~a~%."  ?xyz ?rot ?vector ?t)
@@ -486,12 +486,10 @@
     ; NB: this requires that main vector eqn ids contain just these args!!
     (compo-eqn-contains (?PSM-id ?b ?t) ?compo-eqn-name ?quantity)
     (debug "choosing compo to apply ~A to find scalar ~A~%"   ?compo-eqn-name ?quantity) 
-    (axis-for ?b ?xyz ?rot)
     ;; this is weak, since we don't check if ?vector is relevant
     (in-wm (vector ?b ?vector ?dir)) 
-    ;;(debug "select-compo: trying vector ~A at ~A~%" ?vector ?dir)
+    (axis-for ?b ?xyz ?rot) ;iterate over ?xyz and ?rot
     (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
-    ;;(debug "select-compo: rotation OK, checking if already used~%")
     (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot (?PSM-id ?b ?t))))
     ;;(debug "Selecting ~a rot ~a via scalar ~a~%" ?xyz ?rot ?quantity)
     )
@@ -596,85 +594,9 @@
    ((axis ?xyz ?rot) symbols-label) ((= ?compo-var 0) algebra)))
    ))
 
-#| ; unused experimental code -- these new operators would generate special case projection-writing hints
-   ; 1. compo-trig-standard-axes*: leave out theta_x term if axes not tilted.
-   ; Note hints need to be adjusted in these if they are used.
 
-;; note following pair currently apply even in case of parallel or antiparallel to axes
-(defoperator compo-trig-standard-axes (?xyz ?rot ?vector)
-  :preconditions
-  (; require standard axes direction:
-   (test (or (equal ?xyz 0) (equal ?xyz 90))
-   (body-for-projection ?rot ?vector)
-   (variable ?compo-var (compo ?xyz ?rot ?vector))
-   ; use different special case op for z axis projections:
-   (test (not (equal ?xyz 'z)))
-   (in-wm (vector ?b ?vector ?dir))
-   (test (non-zero-projectionp ?dir ?xyz ?rot))
-   ;; test is passed if dir is not known to be orthogonal to axis dir
-   ;; following makes sure has a known dir so we can plug in the numerical
-   ;; degree value (this is important for generating the right equation).
-   ;; Another operator will handle unknowns in terms of angle variables
-   (test (not (or (equal ?dir 'unknown) (equal ?dir 'z-unknown))))
-   ;; Note ?dir may be a z-axis spec or a (dnum n deg)
-   (bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) 
-			    ?dir)))
-   ;(in-wm (variable ?dir-var (dir ?vector)))
-   (in-wm (variable ?mag-var (mag ?vector)))
-   ; write y-axis projection as mag * sin (dir - x-axis rotation)
-   (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
-   (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
-   (bind ?t (time-of ?vector))
-   )
-  :effects
-  ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin ((dnum ?degrees |deg|)))))
-	(projection (compo ?xyz ?rot ?vector))))
-  :hint
-  ((point (string "Since ~A ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qV - $qx)" )
-	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~A ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A*~A($q~A - $q~A)."
-	       ?vector (?t pp) (?mag-var algebra) (?degrees adj)
-	       ; symbols-label gets x axis label -- could be x, x1, x2
-	       ((axis x ?x-rot) symbols-label) (?x-rot adjective)
-	       (?compo-var algebra) (?mag-var algebra) (?cos-or-sin adjective) 
-	       (?mag-var algebra) ((axis x ?x-rot) symbols-label) ))
-   ))
-
-(defoperator compo-trig-standard-axes-unknown (?xyz ?rot ?vector)
-  :preconditions
-  (; require standard axes direction:
-   (test (or (equal ?xyz 0) (equal ?xyz 90))
-   (body-for-projection ?rot ?vector)
-   ; fetch the variables:
-   (variable ?compo-var (compo ?xyz ?rot ?vector))
-   (in-wm (vector ?b ?vector unknown))
-   (in-wm (variable ?dir-var (dir ?vector)))
-   (in-wm (variable ?mag-var (mag ?vector)))
-   ; write y-axis projection as mag * sin (dir - x-axis rotation)
-   (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
-   (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
-   (bind ?t (time-of ?vector))
-   )
-  :effects
-   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
-	 (projection (compo ?xyz ?rot ?vector))))
-  :hint
-  ((point (string "Since ~a ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
-	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~a ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a*~a(~a - $q~A)." 
-		       ?vector (?t pp) (?dir-var algebra) 
-		       ((axis x ?x-rot) symbols-label) (?x-rot adj)
-		       (?compo-var algebra)
-		       (?mag-var algebra)  (?cos-or-sin adj) 
-		       (?dir-var algebra) ((axis x ?x-rot) symbols-label)))
-   ))
-
-|# ; end unused experimental projection-writing operators
-
-;;; special case for parallel/anti-parallel axes allows special hint
-;;; also enables us to put out implicit equation for orthogonal component, 
+;;; special case for parallel/anti-parallel axis in xy-plane
+;;; also enables us to put out implicit equations for orthogonal component, 
 ;;; so that it gets into the Andes solution, even if otherwise unused.
 (defoperator compo-parallel-axis (?compo-var)
   :specifications "
@@ -684,22 +606,23 @@
   :preconditions (
    (body-for-projection ?rot ?vector)
    (variable ?compo-var (compo ?xyz ?rot ?vector))
+   (test (member ?xyz '(x y)))  ;restrict to xy-plane
    (in-wm (vector ?b ?vector ?dir))
-   (test (parallelp ?rot ?dir))  ; should fail if ?dir is unknown
    (in-wm (variable ?mag-var (mag ?vector)))
-   (bind ?sign (if (same-angle ?rot ?dir) '+ '-))
+   ;; should fail if ?dir is 'unknown (this test does not work for z-axis)
+   (test (parallel-or-antiparallelp (axis-dir ?xyz ?rot) ?dir))
+   (bind ?sign (if (same-angle (axis-dir ?xyz ?rot) ?dir) '+ '-))
    ;; We want off-axis 0 components to be referenced, even if solution doesn't 
    ;; use them so we put out an implicit equation for them as well. 
    ;; Following gets the variable we need
-   (bind ?other-axis (if (equal ?xyz 'x) 'y 'x))
-   (bind ?other-rot  (if (equal ?xyz 'x) (+ ?rot 90) (- ?rot 90)))
-   (variable ?other-compo-var (compo ?other-axis ?other-rot ?vector))
+   (bind ?o-axis (if (eql ?xyz 'x) 'y 'x))
+   (variable ?o-var (compo ?o-axis ?rot ?vector))
    (bind ?t (time-of ?vector))
    )
   :effects
   ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
-   (implicit-eqn (= ?other-compo-var 0) (projection (compo ?other-axis ?other-rot ?vector)))
-  )
+   (implicit-eqn (= ?o-var 0) (projection (compo ?o-axis ?rot ?vector)))
+   )
   :hint
   ((point (string "Since ~A ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "You can use general {\\l projection equations}{\\v ProjectionEquations.html} that will work in all cases, but when a vector V lies along an axis x, the component of the vector V_x along the axis is simply equal to plus or minus the magnitude of the vector: V_x = +/- V. The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
@@ -738,7 +661,7 @@
    (test (not (equal ?xyz 'z)))
    (in-wm (vector ?b ?vector ?dir))
    ; don't use this if lies along axis
-   (test (not (parallelp ?rot ?dir))) 
+   (test (not (parallel-or-antiparallelp (axis-dir ?xyz ?rot) ?dir))) 
    ; don't use this if known zero projection:
    (test (non-zero-projectionp ?dir ?xyz ?rot))
    ;; test is passed if dir is not known to be orthogonal to axis dir
@@ -749,11 +672,10 @@
    ;; Note ?dir may be a z-axis spec or a (dnum n deg)
    (bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) 
 			    ?dir)))
-   ;(in-wm (variable ?dir-var (dir ?vector)))
    (in-wm (variable ?mag-var (mag ?vector)))
-   ; write y-axis projection as mag * sin (dir - x-axis rotation)
+   ;; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
-   (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
+   (bind ?x-rot (axis-dir 'x ?rot))
    (bind ?t (time-of ?vector))
    )
   :effects
@@ -765,10 +687,10 @@
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~A ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A*~A($q~A - $q~A)."
 	       ?vector (?t pp) (?mag-var algebra) (?degrees adj)
-	       ; symbols-label gets x axis label -- could be x, x1, x2
-	       ((axis x ?x-rot) symbols-label) (?x-rot adjective)
+	       ;; symbols-label gets x axis label -- could be x, x1, x2
+	       ((axis x ?rot) symbols-label) (?x-rot adjective)
 	       (?compo-var algebra) (?mag-var algebra) (?cos-or-sin adjective) 
-	       (?mag-var algebra) ((axis x ?x-rot) symbols-label) ))
+	       (?mag-var algebra) ((axis x ?rot) symbols-label) ))
    ))
 
 (defoperator compo-general-case-unknown (?xyz ?rot ?vector)
@@ -789,7 +711,7 @@
    (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
-   (bind ?x-rot      (if (equal ?xyz 'y) (- ?rot 90) ?rot))
+   (bind ?x-rot  (axis-dir 'x ?rot))
    (bind ?t (time-of ?vector))
    )
   :effects
@@ -801,10 +723,10 @@
 	  (kcd "write_x_trig_projection_equation"))
    (bottom-out (string "Since the direction of ~a ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a*~a(~a - $q~A)." 
 		       ?vector (?t pp) (?dir-var algebra) 
-		       ((axis x ?x-rot) symbols-label) (?x-rot adj)
+		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)
 		       (?mag-var algebra)  (?cos-or-sin adj) 
-		       (?dir-var algebra) ((axis x ?x-rot) symbols-label)))
+		       (?dir-var algebra) ((axis x ?rot) symbols-label)))
    ))
 
 
@@ -822,7 +744,8 @@
     (variable ?compo-var (compo ?xyz ?rot ?vector))
     (in-wm (vector ?b ?vector ?dir))
     (in-wm (variable ?dir-var (dir ?vector)))
-    (test (not (non-zero-projectionp ?dir ?xyz ?rot))) ; i.e. known zero projectionp
+    ;; known to be orthogonal
+    (test (perpendicularp (axis-dir ?xyz ?rot) ?dir)) 
     (bind ?t (time-of ?vector))
     )
   :effects
@@ -848,87 +771,25 @@
 
 (defoperator compo-z-axis (?vector)
   :preconditions (
-   (body-for-projection 0 ?vector)
-   (variable ?compo-var (compo z 0 ?vector))
+   (body-for-projection ?rot ?vector)
+   (variable ?compo-var (compo z ?rot ?vector))
    (in-wm (vector ?b ?vector ?dir))
-   (test (non-zero-projectionp ?dir 'z 0))
-   ;; test is passed if dir is not known to be orthogonal to axis dir
-   ;; following makes sure has a known dir so we can make use of direction.
-   ;; Another operator will handle unknowns in terms of angle variables
-   ;; ('unknown shouldn't happen, should mean x-y unknown, so perp. to z)
-   (test (not (or (equal ?dir 'unknown) (equal ?dir 'z-unknown))))
-   ;(bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) ?dir)))
+   (test (parallel-or-antiparallelp (axis-dir 'z ?rot) ?dir))
+   ;; will still pass above test if ?dir is 'z-unknown, thus:
+   (test (known-z-dir-spec ?dir))
    (in-wm (variable ?mag-var (mag ?vector)))
-   ; rhs is plus or minus mag:
+   ;; rhs is plus or minus mag:
    (bind ?rhs (if (eq ?dir 'out-of) ?mag-var `(- ,?mag-var)))
    (bind ?t (time-of ?vector))
    )
   :effects
-  ((eqn (= ?compo-var ?rhs) (projection (compo z 0 ?vector))))
+  ((eqn (= ?compo-var ?rhs) (projection (compo z ?rot ?vector))))
   :hint
   ((point (string "You should write an equation relating the ~A component of ~A ~A to its magnitude."  
-                  ((axis z 0) symbols-label) ?vector (?t pp)))
+                  ((axis z ?rot) symbols-label) ?vector (?t pp)))
    (teach (string "If a vector V lies entirely along an axis, its component along that axis will be + or - its magnitude, depending on whether the vector points in the positive or negative direction.  In a right-handed coordinate system, the positive z axis points out of the x-y plane of the diagram, and the negative z axis points into the plane.  Thus V_z = V if V points out of the plane and V_z = -V if into the plane." ))
   (bottom-out (string "Since ~A ~A points ~A, write the equation ~A" 
                       ?vector (?t pp) (?dir adj) ((= ?compo-var ?rhs) algebra)))
-  ))
-
-
-#|  ;; !!! this doesn't actually work:
-(defoperator compo-z-axis-unknown (?compo-var)
-  :preconditions
-  ((variable ?compo-var (compo z 0 ?vector))
-   (vector ?b ?vector z-unknown)
-   (variable ?mag-var (mag ?vector)))
-  :effects
-  ; note compo-var must be first so compo values can be picked up
-  ; we write v_z = sign * v, where sign = v_z/abs(v_z)
-  ((eqn (= ?compo-var (* (/ ?compo-var 
-                            (abs ?compo-var)) 
-			 ?mag-var))    (projection ?compo-var)))
-  :hint (
-   (bottom-out (string "Write the equation ~A" ; hint shows simpler eqn -- OK?
-                       ((= ?mag-var (abs ?compo-var)) algebra)))
-   ))
-|#
-#| ; not used yet
-;; pair of operators we would use if algebra could solve for phi:
-;; when we know it's in the z direction but don't know which way it points
-(defoperator compo-z-axis-unknown (?compo-var)
-  :preconditions
-  ((variable ?compo-var (compo z 0 ?vector))
-   (in-wm (vector ?b ?vector z-unknown))
-   (in-wm (variable ?mag-var (mag ?vector)))
-   (in-wm (variable ?dir-var (dir ?vector)))
-   ;; following may be needed so algebra can solve for phi from components
-   ;; and projections for unknown angles. But then we have to prompt the
-   ;; student to write it as well
-   (eqn (= ?mag-var (abs ?compo-var)) (z-axis-constraint ?compo-var ?mag-var))
-   (bind ?t (time-of ?vector))
-   )
-  :effects
-  ((eqn (= ?compo-var (* ?mag-var (cos ?dir-var)))
-	(projection ?compo-var))
-   ;; following needed so algebra can solve for phi
-   (implicit-eqn (= 0 (sin ?dir-var)) (phi-constraint ?dir-var))
-   )
-  :hint
-  ((point (string "You should write an equation relating the ~A component of ~A ~A to its magnitude and direction."  
-                  ((axis z 0) symbols-label) ?vector (?t pp)))
-   (teach (string "In general, if a vector V lies at an angle of $jV with respect to the z axis, its projection along the z axis will be given by V * cos($jV). In Andes, $jV is always either 0 degrees for a vector pointing in the positive z direction (out of the plane) or 180 deg for a vector in the negative z direction (into the plane). Thus V_z will equal V or -V, but if you don't know which, you should use the general formula so you can solve for ~qV if needed." ))
-   (bottom-out (string "Since the angle of ~A ~A with respect to the z axis is represented by $q~A, you can write the general formula ~A = ~A*cos($q~A)."
-	       ?vector (?t pp) (?mag-var algebra) 
-	       (?compo-var algebra) (?mag-var algebra) (?mag-var algebra) ))
-   ))
-|#
-
-(defoperator write-z-axis-constraint(?compo-var ?mag-var)
-  :effects 
-   ((eqn (= ?mag-var (abs ?compo-var)) (z-axis-constraint ?compo-var ?mag-var)))
-  :hint (
-    (teach (string "If a vector is constrained to lie along the z-axis, you know its magnitude is equal to the absolute value of its z-component. You can enter the equation ~A in order to represent this constraint."
-    ((= ?mag-var (abs ?compo-var)) algebra)))
-    (teach (string "Enter the equation ~A" ((= ?mag-var (abs ?compo-var)) algebra)))
   ))
 
 
@@ -955,24 +816,19 @@
    ;; other equation, the second eqn contains below should get applied when 
    ;; equations are sought for it.
    (any-member ?xy (x y z))
-   (bind ?rot (if (eq ?xy 'y) 90 0))
    )
   :effects (
-   (eqn-contains (projection (compo ?xy ?rot ?vector)) ?sought)
+   (eqn-contains (projection (compo ?xy 0 ?vector)) ?sought)
   ))
 
 (defoperator projection-contains-compo (?rot ?vector)
-  :preconditions 
-  ( 
-   (bind ?x-rot (if (eq ?xy 'y) (- ?rot 90) ?rot))
-   )
+  :preconditions nil
   :effects 
-  (
-   (eqn-contains (projection (compo ?xy ?rot ?vector)) 
-		 (compo ?xy ?rot ?vector))
+  ( (eqn-contains (projection (compo ?xy ?rot ?vector)) 
+		  (compo ?xy ?rot ?vector))
    ;; set flag to draw use these axes, even if not vector-aligned or standard.
-   (projection-axis ?x-rot)
-  ))
+    (projection-axis ?rot)
+    ))
 
 ;; Projection writing rules used within larger psms should not draw a body, 
 ;; since it is the psm that decides whether and which body should be drawn. 
@@ -1035,9 +891,9 @@
   :effects (
    (draw-axes ?b 0) ; action proposition for help system gives x dir
    (axis-for ?b x 0)
-   (axis-for ?b y 90)
+   (axis-for ?b y 0)
    (assume axis-for ?b x 0)
-   (assume axis-for ?b y 90)
+   (assume axis-for ?b y 0)
   )
   :hint
   (;;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
@@ -1071,8 +927,8 @@
     )
   :effects (
    (draw-axes ?b 0) ; action proposition for help system gives x dir
-   (axis-for ?b x 0) (axis-for ?b y 90) 
-   (assume axis-for ?b x 0) (assume axis-for ?b y 90)
+   (axis-for ?b x 0) (axis-for ?b y 0) 
+   (assume axis-for ?b x 0) (assume axis-for ?b y 0)
    ;; added March 2004: also register z axis. 
    ;; Consequences of this for other problems
    ;; unclear, may apply in same case as draw-unrotated-axes-for-zcomps
@@ -1092,9 +948,8 @@
 ;; bodies, and need to define compo vars for each via draw-compo2, 
 ;; hence need an axis for each.
 (defoperator reuse-compo-form-axes (?b)
-:effects (
-   (axis-for ?b x 0) (axis-for ?b y 90)
-)
+:effects ( (axis-for ?b x 0) 
+	   (axis-for ?b y 0) )
 :preconditions (
    (component-form)
    (in-wm (draw-axes ?drawn-axes-body 0))
@@ -1111,7 +966,7 @@
 (defoperator reuse-other-body-axes (?b)
 :preconditions (
    (not (component-form))
-   (in-wm (draw-axes ?drawn-axes-body ?x-rot))
+   (in-wm (draw-axes ?drawn-axes-body ?rot))
    ;; don't need this in addition if already registered an axis for 
    ;; vectors on ?b 
    (not (axis-for ?b ?dontcare3 ?dontcare4))
@@ -1119,11 +974,10 @@
    ;; use-system-axes will return axes in this case.
    (not (axis-for ?sys ?dontcare1 ?dontcare2)
         (part-of-sys ?b ?sys))
-   (bind ?y-rot (+ ?x-rot 90))
 )
 :effects (
-   (axis-for ?b x ?x-rot) 
-   (axis-for ?b y ?y-rot)
+   (axis-for ?b x ?rot) 
+   (axis-for ?b y ?rot)
 ))
 
 
@@ -1172,10 +1026,10 @@
 ;;; condition.
 ;;;
 ;;; Although these operators achieve the goal of defining axes for a given
-;;; body at a given time, the workbench currently provides no way of 
-;;; associating drawn axes with any particular body or time. For this reason
+;;; body, the workbench currently provides no way of 
+;;; associating drawn axes with any particular body. For this reason
 ;;; the action propositions posted for use by the help system leave out
-;;; body and time, and the operators do not have body and time in their
+;;; body, and the operators do not have body in their
 ;;; parameter lists. That means the axis drawing operators can only apply
 ;;; once to draw an axis at any particular rotation. This should be OK within
 ;;; the context of a single PSM application. However, if we needed axes for
@@ -1184,7 +1038,7 @@
 ;;; drawn axes for another body without drawing again.
 
 ;; don't be misled by name: really means "draw-vector-aligned-axes"
-(defoperator draw-rotate-axes (?x-rotation)
+(defoperator draw-rotate-axes (?rot)
   :specifications 
    "If the goal is to draw coordinate axes for use on some body's vectors,
        and there are any vectors on that body drawn at known angles
@@ -1205,18 +1059,17 @@
     (test (minimal-x-rotations ?dirs))
     ;; add 0 so standard axes always an option:
     (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
-    (any-member ?x-rotation ?min-dirs)
-    (bind ?y-rotation (+ ?x-rotation 90))
-    (debug "Setting axes for ~a: x=~a, y=~a~%" 
-	   ?b ?x-rotation ?y-rotation)
+    (any-member ?rot ?min-dirs)
+    (bind ?x-rotation (axis-dir 'x ?rot)) ;for help statement
+    (debug "Setting axes for ~a at ~A~%" ?b ?rot)
     )
    :effects 
    (
-    (draw-axes ?b ?x-rotation)	   ;action proposition for helpsys gives x dir
-    (axis-for ?b x ?x-rotation)
-    (axis-for ?b y ?y-rotation)
-    (assume axis-for ?b x ?x-rotation)
-    (assume axis-for ?b y ?y-rotation)
+    (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
+    (axis-for ?b x ?rot)
+    (axis-for ?b y ?rot)
+    (assume axis-for ?b x ?rot)
+    (assume axis-for ?b y ?rot)
     )
   :hint
   ((point (string "Think about what would be a useful direction to set the coordinate axes when using energy principles."))
@@ -1233,52 +1086,52 @@
  (and (axes-drawnp)                   ; have already drawn at least one
       (not nsh-multi-axis-problemp))) ; only one is required for solution 
 
-(defoperator use-system-axes (?b ?x-rotation)
+(defoperator use-system-axes (?b ?rot)
    :specifications 
    "If the goal is to choose an axis for a body b and we have already drawn an
    axis for a many-body system containing b, then use the system's axis
    as the axis for b."
   :preconditions (
-    (in-wm (axis-for (system . ?bodies) x ?x-rotation))
+    (in-wm (axis-for (system . ?bodies) x ?rot))
+    (in-wm (axis-for (system . ?bodies) y ?rot))
     (test (part-of-sys ?b `(system ,@?bodies)))
-    (in-wm (axis-for (system . ?bodies) y ?y-rotation))
   )
   :effects (
-    (axis-for ?b x ?x-rotation)
-    (assume axis-for ?b x ?x-rotation)
-    (axis-for ?b y ?y-rotation)
-    (assume axis-for ?b y ?y-rotation)
-    (axis-for ?b z 0)	   ;z-axis always has zero tilt (really = out-of).
+    (axis-for ?b x ?rot)
+    (assume axis-for ?b x ?rot)
+    (axis-for ?b y ?rot)
+    (assume axis-for ?b y ?rot)
+    (axis-for ?b z ?rot)       
+    (assume axis-for ?b z ?rot)
   ))
 
-(defoperator use-body-axes-for-point (?point ?x-rotation)
+(defoperator use-body-axes-for-point (?point ?rot)
   :specifications 
   "Axes for points on a body inherit the axes used for the whole body."
   :preconditions (
 		  (point-on-body ?point ?body)
-		  (axis-for ?body x ?x-rotation)
-		  (axis-for ?body y ?y-rotation)
+		  (axis-for ?body x ?rot)
+		  (axis-for ?body y ?rot)
 		  )
   :effects (
-    (axis-for ?point x ?x-rotation)
-    (assume axis-for ?point x ?x-rotation)
-    (axis-for ?point y ?y-rotation)
-    (assume axis-for ?point y ?y-rotation)
-    (axis-for ?point z 0)      ;z-axis always has zero tilt (really = out-of).
+    (axis-for ?point x ?rot)
+    (assume axis-for ?point x ?rot)
+    (axis-for ?point y ?rot)
+    (assume axis-for ?point y ?rot)
+    (axis-for ?point z ?rot) 
+    (assume axis-for ?point z ?rot)
   ))
 
 ; this draws the axes requested by the projection psm.
-(defoperator draw-projection-axes (?x-rotation)
-   :preconditions (
-     (in-wm (projection-axis ?x-rotation))
-     (bind ?y-rotation (+ ?x-rotation 90))
-   ) 
+(defoperator draw-projection-axes (?rot)
+  :preconditions
+  ( (in-wm (projection-axis ?rot)) ) 
    :effects (
-    (draw-axes ?b ?x-rotation)	   ;action proposition for helpsys gives x dir
-    (axis-for ?b x ?x-rotation)
-    (axis-for ?b y ?y-rotation)
-    (assume axis-for ?b x ?x-rotation)
-    (assume axis-for ?b y ?y-rotation)
+    (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
+    (axis-for ?b x ?rot)
+    (axis-for ?b y ?rot)
+    (assume axis-for ?b x ?rot)
+    (assume axis-for ?b y ?rot)
    )
    :hint (
        ; !!! TODO
@@ -3228,7 +3081,7 @@
      (vector-grid)
      (component-form)
      (given (compo x 0 (?vectype ?b . ?args)) (dnum ?xc ?units))
-     (given (compo y 90 (?vectype ?b . ?args)) (dnum ?yc ?units))
+     (given (compo y 0 (?vectype ?b . ?args)) (dnum ?yc ?units))
      ; note we can only apply to vector attributes of body and time.
      (bind ?vector `(,?vectype ,?b . ,?args)) ; for use in hints
      (bind ?t (time-of ?args))
@@ -3261,14 +3114,14 @@
    :preconditions (
     (vector-grid)
     (component-form)
-    ; build expressions for vector and its attributes:
+    ;; build expressions for vector and its attributes:
     (bind ?vector `(,?vectype ,?b :time ,?t))
-    (bind ?vector-xc (vector-xc ?vector)) ;gives (compo x 0 ?vector)
     (bind ?vector-dir `(dir ,?vector))
     ;; we test whether xc of vector is a problem sought. NOTE: This relies
     ;; on *cp* as always holding the current problem. This is not guaranteed
     ;; if problem solver is not invoked through sgg interface functions.
     ;; But there should be some way to access this info from the environment.
+    (bind ?vector-xc `(compo x 0 ,?vector))
     (test (member ?vector-xc (problem-soughts *cp*) :test #'unify))
     ; make sure no motion spec that might enable vector to be drawn
     ; tighter test than actually correct, but should work for our problems.
@@ -3710,7 +3563,7 @@
   :preconditions
   ( ;; make sure accel compo vanishes
    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-   (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
+   (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
    ;; and write it 
    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
@@ -3817,13 +3670,13 @@
 #|
 (defoperator vy-apex-contains (?sought)
   :preconditions 
-    ((any-member ?sought ((compo y 90 (velocity ?b :time ?t))))
+    ((any-member ?sought ((compo y 0 (velocity ?b :time ?t))))
     (apex ?b ?t))
   :effects ((eqn-contains (vy-apex ?b ?t) ?sought)))
 
 (defoperator write-vy-apex(?b ?t)
   :preconditions 
-  ((variable ?v_y (compo y 90 (velocity ?b :time ?t))))
+  ((variable ?v_y (compo y 0 (velocity ?b :time ?t))))
   :effects ((eqn (= ?v_y 0) (vy-apex ?b ?t)))
   :hint
   ((bottom-out (string "Write the equation ~A" ((= ?v_y 0) algebra)))
@@ -4170,7 +4023,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (force ?b ?b2 applied :time ?t1) ?dir-b2)
    ; then draw the net displacement
    (vector ?b (net-force ?b :time ?t1) ?dir-nfnet)
-   (axis-for ?b  x ?rot))
+   (axis-for ?b x ?rot))
   :effects 
   ((vector-diagram (sum-net-force ?b ?t1 ))))
 
@@ -5140,7 +4993,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; draw axes only apply once, so there is no danger of drawing two
     ;; axes. In order to reuse the axes drawn for body1 as axes used
     ;; for vectors on body2, we added reuse-other-body-axis in axes section.
-    (axis-for ?b x ?x-b)
+    (axis-for ?b x ?rot)
   )
   :effects (
     (vector-diagram (thrust ?b ?agent ?t))
@@ -6713,7 +6566,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
  :preconditions (
   ;; Draw the boda planet y
   (body ?b)
-  (axis-for ?b y 90)
+  (axis-for ?b y 0)
   ;; write equation ME_i = ME_f 
   (eqn ?te12eqn (total-energy-cons ?b ?t1 ?t2))
   ;; write equation ME_i = K_i + Ug_i [+ Us_i]
@@ -7149,7 +7002,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    ;; it now, rather than requiring further operators to do so
 	    ;; We also select the axis, normally done by select-compo-eqn* ops
 	    (compo-eqn-selected (height-dy ?b (during ?t1 ?t2)) ?quantity 
-				(compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))))
+				(compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))))
 	    ;; post this to make sure we will use standard axes
 	    (use-energy-axes)
 	    ))
@@ -7159,7 +7012,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (body ?b)
 		  (vector ?b (displacement ?b :time ?t) ?dir)
 		  ;; Must use standard axes for this. 
-		  (axis-for ?b y 90)
+		  (axis-for ?b y 0)
 		  )
   :effects (
 	    (vector-diagram (height-dy ?b ?t))
@@ -7175,9 +7028,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects (
 	    (draw-axes ?b 0)  ;action proposition for help system gives x dir
 	    (axis-for ?b x 0)
-	    (axis-for ?b y 90)
+	    (axis-for ?b y 0)
 	    (assume axis-for ?b x 0)
-	    (assume axis-for ?b y 90)
+	    (assume axis-for ?b y 0)
 	    (energy-axes ?b)
 	    )
   :hint (
@@ -7190,12 +7043,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
 		  (variable ?h2 (height ?b :time ?t2))
 		  (variable ?h1 (height ?b :time ?t1))
-		  (variable ?d12_y  (compo y 90 (displacement ?b :time (during ?t1 ?t2))))
+		  (variable ?d12_y  (compo y 0 (displacement ?b :time (during ?t1 ?t2))))
 		  )
   :effects (
 	    (eqn (= (- ?h2 ?h1) ?d12_y)
-		 (compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))))
-	    (eqn-compos (compo-eqn height-dy y 90 (height-dy ?b (during ?t1 ?t2))) 
+		 (compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))))
+	    (eqn-compos (compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))) 
 			(?d12_y))
 	    )
   :hint (
@@ -7271,13 +7124,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
     ;; etc. will choose the angle.  If it is bound from the ?sought,
     ;; operator will also succeed.
-    (axis-for ?b x ?rot) 
+    (axis-for ?b ?xyz ?rot) 
     (test (time-intervalp ?t))
     ;; will require that ?agent exerts force on ?body when writing equation
  )
  :effects (
 	   (eqn-contains (work ?b ?agent ?t ?rot) ?sought)
-           (assume axis-for ?b x ?rot)
+           (assume axis-for ?b ?xyz ?rot)
  ))
 
 ;; This can write either the component or the angle form of the work equation,
@@ -7358,31 +7211,34 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;; use vector-PSM
 ;; follow cross product, but they just use standard axes
-(defoperator dot-using-components (?a ?b ?x-rot)
+(defoperator dot-using-components (?a ?b ?rot)
   :preconditions 
   ( 
-   (test (not (null ?x-rot)))
+   (test (not (null ?rot)))
    (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
-    (bind ?y-rot (+ ?x-rot 90))
-    (variable ?ax (compo x ?x-rot ?a))
-    (variable ?ay (compo y ?y-rot ?a))
-    (variable ?bx (compo x ?x-rot ?b))
-    (variable ?by (compo y ?y-rot ?b))
+    (variable ?ax (compo x ?rot ?a))
+    (variable ?ay (compo y ?rot ?a))
+    (variable ?bx (compo x ?rot ?b))
+    (variable ?by (compo y ?rot ?b))
+    (bind ?x-rot (axis-dir 'x ?rot))
+    (bind ?y-rot (axis-dir 'y ?rot))
     (bind ?dot (cond
 		;; same behavior as dot-using-angle for orthogonal vectors 
 		((perpendicularp ?dir-a ?dir-b) 0)
 		;; a vector is parallel or anti-parallel to the x-axis
-		((or (parallelp ?dir-a ?x-rot) (parallelp ?dir-b ?x-rot))
+		((or (parallel-or-antiparallelp ?dir-a ?x-rot) 
+		     (parallel-or-antiparallelp ?dir-b ?x-rot))
 		 `(* ,?ax ,?bx))
 		;; a vector is parallel or anti-parallel to the y-axis
-		((or (parallelp ?dir-a ?y-rot) (parallelp ?dir-b ?y-rot))
+		((or (parallel-or-antiparallelp ?dir-a ?y-rot) 
+		     (parallel-or-antiparallelp ?dir-b ?y-rot))
 		 `(* ,?ay ,?by))
 		(t `(+ (* ,?ax ,?bx) (* ,?ay ,?by)))))
     )
-  :effects ( (dot ?dot ?a ?b ?x-rot)
+  :effects ( (dot ?dot ?a ?b ?rot)
 	     ;; nogood rule to so that only one form of dot is chosen
-	     (assume using-dot ?a ?b ?x-rot) ))
+	     (assume using-dot ?a ?b ?rot) ))
 
 
 ;;; Following defines a variable for the angle between two vectors
@@ -7948,7 +7804,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
     ;; etc. will choose the angle.  If it is bound from the ?sought,
     ;; operator will also succeed.
-    (axis-for ?b x ?rot) 
+    (axis-for ?b ?xyz ?rot) 
     ;; can be timeless
     (test (or (null ?t) (time-pointp ?t)))
     ;; will require that ?agent exerts force on ?body when writing equation
@@ -7960,7 +7816,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 )
  :effects (
 	   (eqn-contains (inst-power ?b ?agent ?t ?rot) ?sought)
-           (assume axis-for ?b x ?rot)
+           (assume axis-for ?b ?xyz ?rot)
  ))
 
 	  
@@ -8248,7 +8104,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
      (bind ?c `(compound ,@?bodies)) ;for shorthand
      (body ?c)
-     (axis-for ?c ?xyz-c ?rot-t)
+     (axis-for ?c ?xyz ?rot)
      (vector ?c (momentum ?c :time ?tt) ?dirc)
   )
   :effects ( (collision-momenta-drawn ?bodies ?tt) ))
@@ -8737,8 +8593,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint 
   ((point (string "You need to introduce a term for the angular acceleration of ~A." ?b))
    (teach (string "When a body is subject to a non-zero net ~A it will have an angular acceleration in the direction of the net ~A.  In this problem you can assume that the forces will result in a net ~A so the body will have a non-zero angular acceleration.  Whether the angular acceleration points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction." 
-		  ((moment-name) eval) ((moment-name) eval) 
-		  ((moment-name) eval)))
+		  (nil moment-name) (nil moment-name) 
+		  (nil moment-name)))
     (bottom-out (string "Use the acceleration tool to draw a non-zero angular acceleration for ~a ~A and select Unknown Z direction in the dialog box." ?b (?t pp)))
   ))
  
@@ -9558,7 +9414,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
      (bind ?c `(compound ,@?bodies)) ;for shorthand
      (body ?c)
-     (axis-for ?c ?xyz-c ?rot-t)
+     (axis-for ?c ?xyz ?rot)
      (vector ?c (ang-momentum ?c :time ?tt) ?dir1)
   )
   :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
@@ -9588,7 +9444,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint (
   (point (string "Can you write an equation relating the z components making up the total angular momentum before and after the change?"))
   (teach (string "The law of conservation of angular momentum states that if no external ~A acts on a system, then the total angular momentum in the system remains constant.  Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the z components of the angular momenta of each body is the same before and after any internal change such as change of shape, as long as there is no external ~A."
-		 ((moment-name) eval) ((moment-name) eval)))
+		 (nil moment-name) (nil moment-name)))
   (bottom-out (string "Write the equation ~A" 
                       ((= (+ . ?L1_compos) (+ . ?L2_compos)) algebra)))
   ))
@@ -9619,7 +9475,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (point (string "Can you write an equation relating the z-components making up
  the total angular momentum before and after the change?"))
  (teach (string "The law of conservation of angular momentum states that if no external ~A acts on a system, then the total angular momentum in the system constant.  Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the angular momentum components in the z direction is the same before and after a collision."
-		((moment-name) eval)))
+		(nil moment-name)))
   (bottom-out (string "Write the equation ~A" 
                       ((= (+ . ?L1_compos) ?L2_z) algebra)))	  
 	  ))
@@ -9687,11 +9543,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (point (string "Notice that there is a[n] ~A force acting at ~a ~A which might have a tendency to cause ~a to rotate about ~A."
                    (?type adj) ?pt (?t pp) ?b ?axis))
     (teach (string "A ~A vector represents the tendency of a force acting on a rigid body to rotate the body about some axis.  In Andes problems a ~A vector will lie in the z axis, pointing in the positive direction (out of the plane of the diagram) for ~As that tend to cause ccw rotations, and in the negative direction (into the plane) for ~As that tend to cause cw rotations."
-		   ((moment-name) eval) ((moment-name) eval) 
-		   ((moment-name) eval)  ((moment-name) eval)))
+		   (nil moment-name) (nil moment-name) 
+		   (nil moment-name)  (nil moment-name)))
     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A about ~a due to the force acting at ~A ~A and set the direction to point ~A"  
-			((moment-name) eval) ((moment-symbol) eval)  
-			((moment-name) eval)
+			(nil moment-name) (nil moment-symbol)  
+			(nil moment-name)
 			?axis ?pt (?t pp) (?torque-dir adj)))
     ))
 
@@ -9721,8 +9577,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		   (?points conjoined-defnp)))
     (teach (string "A couple is a way of expression the rotational part of the forces between two bodies."))
     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A  due to the couple from ~A ~A and set the direction to point ~A"  
-			((moment-name) eval) ((moment-symbol) eval)  
-			((moment-name) eval) ?agent
+			(nil moment-name) (nil moment-symbol)  
+			(nil moment-name) ?agent
 			 (?t pp) (?torque-dir adj)))
     ))
 
@@ -9752,10 +9608,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :hint 
    (
     (point (string "You were given the direction of the net ~A on ~a about ~a ~a in this situation." 
-		   ((moment-name) eval) ?b ?axis (?t pp)))
+		   (nil moment-name) ?b ?axis (?t pp)))
     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
-			((moment-name) eval) ((moment-symbol) eval) 
-			((moment-name) eval) 
+			(nil moment-name) (nil moment-symbol) 
+			(nil moment-name) 
 			?b ?axis (?time pp) (?dir adj))) 
     ))
 
@@ -9782,12 +9638,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
    :hint 
    (
-    (point (string "You should be able to determine the direction of the angular acceleration of ~a ~a from the problem description.  You can use that to determine the direction of the net ~A." ?b (?t pp) ((moment-name) eval)))
+    (point (string "You should be able to determine the direction of the angular acceleration of ~a ~a from the problem description.  You can use that to determine the direction of the net ~A." ?b (?t pp) (nil moment-name)))
     (teach (string "Newton's Second Law for rotation says that the net ~A on an object is proportional to its angular acceleration.  This is a vector relation, therefore the net ~A will point in the same direction as the angular acceleration vector." 
-		   ((moment-name) eval) ((moment-name) eval)))
+		   (nil moment-name) (nil moment-name)))
     (bottom-out (string "Since the angular acceleration is known to be directed ~A, use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
-			(?dir adj)  ((moment-name) eval) ((moment-symbol) eval)
-			((moment-name) eval)
+			(?dir adj)  (nil moment-name) (nil moment-symbol)
+			(nil moment-name)
 			?b ?axis (?time pp) (?dir adj))) 
     ))
 
@@ -9810,12 +9666,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
    :hint (
 	  (point (string "Notice that ~A is in rotational equilibrium ~A. That should tell you something about the net ~A." 
-			 ?b (?t pp) ((moment-name) eval)))
+			 ?b (?t pp) (nil moment-name)))
 	  (teach (string "A rigid object is said to be in rotational equilibrium if the net ~A acting on it is zero, so it has no tendency to rotate." 
-			 ((moment-name) eval)))
+			 (nil moment-name)))
      (bottom-out (string "Since the object is in rotational equilibrium, use the ~A vector drawing tool (labelled ~A) to draw a zero length vector representing the net ~A on ~a about ~a ~A." 
-			 ((moment-name) eval) ((moment-symbol) eval) 
-			 ((moment-name) eval) ?b ?axis (?t pp) (?dir adj))) 
+			 (nil moment-name) (nil moment-symbol) 
+			 (nil moment-name) ?b ?axis (?t pp) (?dir adj))) 
    ))
 
 ;;; following draws the net torque vector on a body at an unknown direction
@@ -9854,11 +9710,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
    :hint (
 	  (point (string "You need to introduce a term for the net ~A on ~a ~a"  
-			 ((moment-name) eval) ?b (?t pp)))
-     (teach (string "The net ~A on a rigid body will represent the tendency of the body to rotate cw or ccw by a vector along the z axis in accordance with the right hand rule.  Although you know the net ~A vector lies along the z axis, it requires calculation to determine whether it points into or out of the plane. Therefore you should specify its direction as Unknown Z direction in the dialog box after drawing it." ((moment-name) eval) ((moment-name) eval)))
+			 (nil moment-name) ?b (?t pp)))
+     (teach (string "The net ~A on a rigid body will represent the tendency of the body to rotate cw or ccw by a vector along the z axis in accordance with the right hand rule.  Although you know the net ~A vector lies along the z axis, it requires calculation to determine whether it points into or out of the plane. Therefore you should specify its direction as Unknown Z direction in the dialog box after drawing it." (nil moment-name) (nil moment-name)))
      (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw a non-zero net ~A vector on ~A about ~a ~A, selecting \"Unknown Z direction\" from the direction menu in the dialog box." 
-			 ((moment-name) eval) ((moment-symbol) eval) 
-			 ((moment-name) eval) ?b ?axis (?t pp)))
+			 (nil moment-name) (nil moment-symbol) 
+			 (nil moment-name) ?b ?axis (?t pp)))
    ))
 
 
@@ -9944,10 +9800,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   )
   :hint (
 	 (point (string "Can you write an equation for the z component of the net ~A in terms of the z components of ~As due to each force?" 
-			((moment-name) eval) ((moment-name) eval)))
+			(nil moment-name) (nil moment-name)))
    (teach (string "The net ~A on a rigid body is the vector sum of the individual ~As due to each force acting on that body. Therefore the z component of the net ~A is the sum of the z components of the ~A due to each force."
-		  ((moment-name) eval) ((moment-name) eval) 
-		  ((moment-name) eval) ((moment-name) eval)))
+		  (nil moment-name) (nil moment-name) 
+		  (nil moment-name) (nil moment-name)))
     (bottom-out (string "Write the equation ~A" 
           ((= ?tnet_z (+ . ?torque-compos)) algebra)))
   ))
@@ -9995,8 +9851,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
              (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t))
    )
    :hint (
-   (point (string "You need an expression for the magnitude of the ~A due to the ~A force acting at ~A" ((moment-name) eval) (?type adj) ?pt))
-   (teach (string "The magnitude of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis is given by ~A = r * F * sin ($q), where $q is the smaller of two angles between the vectors r and F." ((moment-name) eval) ((moment-symbol) eval) ((moment-symbol) eval)))
+   (point (string "You need an expression for the magnitude of the ~A due to the ~A force acting at ~A" (nil moment-name) (?type adj) ?pt))
+   (teach (string "The magnitude of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis is given by ~A = r * F * sin ($q), where $q is the smaller of two angles between the vectors r and F." (nil moment-name) (nil moment-symbol) (nil moment-symbol)))
    (bottom-out (string "Write the equation ~A" 
                ((= ?tau-var (* ?r-var ?f-var (sin ?theta-var))) algebra)))
    ))
@@ -10045,10 +9901,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
              (torque-zc ?b ?axis (force ?pt ?agent ?type) ?t))
    )
    :hint (
-   (point (string "You need an expression for the z component of the ~A due to the ~A force acting at ~A"  ((moment-name) eval) (?type adj) ?pt))
+   (point (string "You need an expression for the z component of the ~A due to the ~A force acting at ~A"  (nil moment-name) (?type adj) ?pt))
    (teach (string "The z component of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis can be calculated as ~A_z = r * F * sin ($qF - $qr) where $qF and $qr are the orientations of the vectors F and r ."
-		  ((moment-name) eval) ((moment-symbol) eval) 
-		  ((moment-symbol) eval)))
+		  (nil moment-name) (nil moment-symbol) 
+		  (nil moment-symbol)))
    (bottom-out (string "Write the equation ~A" 
           ((= ?tau-zc (* ?r-var ?f-var (sin (- ?theta-f ?theta-r)))) algebra)))
   ))
@@ -10150,9 +10006,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
   :hint (
 	 (point (string "Can you relate the z components of the net ~A and angular acceleration?"
-			((moment-name) eval)))
+			(nil moment-name)))
 	 (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration. This vector relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
-			((moment-name) eval) ((moment-name) eval)))
+			(nil moment-name) (nil moment-name)))
 	 (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
 			     ((= ?tau_z (* ?I ?alpha_z)) algebra)))
 	 ))
@@ -10215,9 +10071,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      )
    :hint (
 	  (point (string "Can you relate the z components of the net ~A and angular acceleration?"
-			  ((moment-name) eval)))
+			  (nil moment-name)))
 	  (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration. This vector relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
-			 ((moment-name) eval) ((moment-name) eval)))
+			 (nil moment-name) (nil moment-name)))
     (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))

@@ -1275,7 +1275,7 @@
   (make-hint-seq
   (list (strcat (projectile-axis4-resp response)
   **projectile-axis4-respstring**)
-  (strcat "Rotate the axes so that the y-axis alligns "
+  (strcat "Rotate the axes so that the y-axis aligns "
   "with the gravitational force.")
   "Click and drag on the axes to make the y-axis vertical.")))
   
@@ -2239,8 +2239,7 @@
   ((student (vector (force ?body ?surface ?type :time ?time) ?sdir))
    (test (member ?type '(static-friction kinetic-friction)))
    (correct (vector (force ?body ?surface ?type :time ?time) ?cdir))
-   (test (not (equal ?sdir ?cdir)))
-   (test (not (parallelp ?sdir ?cdir))))
+   (test (not (parallel-or-antiparallelp ?sdir ?cdir))))
   :utility 100)
 
 (defun friction-force-not-parallel (sdir cdir)
@@ -2256,8 +2255,8 @@
 (def-error-class static-friction-force-sense (?sdir ?cdir)
   ((student (vector (force ?body ?surface static-friction :time ?time) ?sdir))
    (correct (vector (force ?body ?surface static-friction :time ?time) ?cdir))
-   (test (not (equal ?sdir ?cdir)))
-   (test (parallelp ?sdir ?cdir)))
+   (test (parallel-or-antiparallelp ?sdir ?cdir))
+   (test (not (equal ?sdir ?cdir))))
   :utility 100)
 
 (defun static-friction-force-sense (sdir cdir)
@@ -2276,8 +2275,8 @@
 (def-error-class kinetic-friction-force-sense (?sdir ?cdir)
   ((student (vector (force ?body ?surface kinetic-friction :time ?time) ?sdir))
    (correct (vector (force ?body ?surface kinetic-friction :time ?time) ?cdir))
-   (test (not (equal ?sdir ?cdir)))
-   (test (parallelp ?sdir ?cdir)))
+   (test (parallel-or-antiparallelp ?sdir ?cdir))
+   (test (not (equal ?sdir ?cdir))))
   :utility 100)
 
 (defun kinetic-friction-force-sense (sdir cdir)
@@ -2449,16 +2448,16 @@
    (bind ?missing-torques		; Then determine what torques are missing. 
 	 (set-difference ?correct-torques ?student-torques :test #'equal))
    (test (not (null ?missing-torques)))	; and ensure that they are not null.
-   
-   (bind ?missing-non-zero		; get the missing torques that are not 
-	 (zvectors-non-zero ?missing-torques ?time)) ; zero from ?missing-torques
+   (correct (draw-axes ?rot))   
+   (bind ?missing-non-zero		; get nonzero missing torques 
+	 (torques-non-zero ?missing-torques))
    (test (not (null ?missing-non-zero))) ; Ensure that it isn't null
    
+
+   (bind ?missing-compo-vars		; collect the compos that are missing. 
+	 (vectors-to-compo-sysvars 'z ?rot ?missing-non-zero))
    
-   (bind ?missing-compos		; collect the compos that are missing. 
-	 (torques-to-compo-sysvars ?missing-non-zero ?time))
-   
-   (bind ?new-sum (cons '+ (append ?sum ?missing-compos)))
+   (bind ?new-sum (cons '+ (cons ?sum ?missing-compo-vars)))
    (fix-eqn-by-replacing ?loc ?new-sum))
   
   
@@ -2485,33 +2484,17 @@
 	  (t (hint-undrawn-torque	; Hint all of the undrawn ones.
 	      "Two or more ~As acting on ~a ~a have not yet been drawn."
 	      (car undrawn-torques))))))
-
-
-
-;;; Given a set of torques such as 
-;;; (TORQUE BEAM PIVOT (FORCE R_END UNSPECIFIED APPLIED))
-;;; Collect the sysvars for the z components of them at
-;;; rot=0
-(defun torques-to-compo-sysvars (torques time)
-  "Get the compo-sysvars for the torques (always z, 0)."
-  (loop for vec in torques
-      collect (quant-to-sysvar 
-	       (set-time 
-		(vector-compo-spec vec :axis 'z :rot 0)
-		time))))
 	   
 ;;; Given a set of torque vectors such as 
 ;;; (TORQUE BEAM PIVOT (FORCE R_END UNSPECIFIED APPLIED))
 ;;; and a time point collect the values of their magnitudes
 ;;; at that time from the problem's quantity index.
-(defun zvectors-non-zero (torques time)
+(defun torques-non-zero (torques)
   "Get the values for the TORQUES at TIME." 
   (loop for v in torques
       with at
-      do (setq at (match-exp->qvar 
-		   `(mag ,(set-time v time))
-		   (problem-varindex *cp*)))
-      (format t "!!! zvectors-non-zero ~a ~A~%" at (qvar-value at))
+      do (setq at (match-exp->qvar `(mag ,v) (problem-varindex *cp*)))
+      (format t "!!! torques-non-zero ~a ~A~%" at (qvar-value at))
       unless (or (null at) 
 		 (null (qvar-value at))
 		 (= 0 (qvar-value at)))
@@ -2530,7 +2513,7 @@
 ;;; of a catch in case a non-torque is found and non-torques-ok is nil  
 ;;; in that instance it will return the nil that it gains.
 (defun torques-in-sum (sum &optional (body '?body) (time '?time) (non-torques-ok nil))
-  (let ((comp-pattern `(compo Z 0 (torque ,body ?force 
+  (let ((comp-pattern `(compo ?xyz ?rot (torque ,body ?force 
 					  :axis ?axis :time ,time)))
 	(mag-pattern `(mag (torque ,body ?force :axis ?axis :time ,time)))
 	(torque-pattern `(torque ,body ?force :axis ?axis :time ,time)))
@@ -2870,14 +2853,13 @@
 ;;; be that V_x=-V_y, and a sign error is more likely.
 (def-error-class switched-x-and-y-subscript (?svar ?cvar)
   ((student-eqn ?dontcare0)
-   (var-loc ?svar-loc ?svar (compo ?s-xyz ?s-rot ?s-vector))
+   (var-loc ?svar-loc ?svar (compo ?s-xyz ?rot ?s-vector))
    (test (member ?s-xyz '(x y)))
    (bind ?c-xyz (if (equal ?s-xyz 'x) 'y 'x))
-   (bind ?c-rot (if (equal ?s-xyz 'x) (+ ?s-rot 90) (- ?s-rot 90)))
-   (correct-var ?cvar (compo ?c-xyz ?c-rot ?s-vector))
+   (correct-var ?cvar (compo ?c-xyz ?rot ?s-vector))
    (fix-eqn-by-replacing ?svar-loc ?cvar)
    (problem (vector ?body ?s-vector (dnum ?v-dir Deg))))
-  :probability (if (equalp 45 (mod (- ?v-dir ?s-rot) 90))
+  :probability (if (equalp 45 (mod (- ?v-dir ?rot) 90))
 		   0.001
 		 0.1))
 
@@ -3002,13 +2984,11 @@
     ((student-eqn (= ?scompo ?rhs))                
      (expr-loc ?wrong-loc (?trig-fn ?arg))
      (test (member ?trig-fn *proj-trig-functions*))
-     (correct-var ?ccompo (compo ?xyz ?compo-dir ?vector))
+     (correct-var ?ccompo (compo ?xyz ?rot ?vector))
      (test (equal ?scompo ?ccompo))
-     ; ?compo-rot may be an x or y axis angle.  ?rot is x axis rotation
-     (bind ?rot (if (eq ?xyz 'y) (- ?compo-dir 90) ?compo-dir))
      (test (not (= ?rot 0))) 
-     ; This can conflict with sin/cos error (wrong-trig-function).
-     ; Don't apply if trig-fn arg already appears to subtract axis tilt
+     ;; This can conflict with sin/cos error (wrong-trig-function).
+     ;; Don't apply if trig-fn arg already appears to subtract axis tilt
      (test (not (expr-subtracts-tilt ?arg ?rot)))
      (fix-eqn-by-replacing ?wrong-loc (?trig-fn (- ?arg (dnum ?rot |deg|)))))
 )
@@ -3095,8 +3075,7 @@
      (fix-eqn-by-replacing ?loc (- ?compo-var))
      (correct-var ?mag-var (mag ?vector))
      (problem (vector ?body ?vector ?dir))
-     ; NB: z rot always 0, so get axis dir before using direction functions
-     (test (and (parallelp (axis-dir ?xyz ?rot) ?dir) 
+     (test (and (parallel-or-antiparallelp (axis-dir ?xyz ?rot) ?dir) 
 		(not (same-angle (axis-dir ?xyz ?rot) ?dir))))))
 
 (defun missing-negation-on-vector-component (vector xyz compo-var mag-var)
@@ -3138,33 +3117,22 @@
      (var-loc ?loc ?mag-var (mag ?vector))
      (fix-eqn-by-replacing ?loc (- ?mag-var))
      (problem (vector ?body ?vector ?dir))
-     (old-student (draw-axes ?x-rot))  
+     (old-student (draw-axes ?rot))  
      ; Test that vector is antiparallel to *some* axis in the xy[z] system.
      ; then get that axis and its rotation for looking up compo var.
-     (bind ?xyz (find-antiparallel-axis ?x-rot ?dir))
+     (bind ?xyz (find-antiparallel-axis ?rot ?dir))
      (test ?xyz) ; make sure 
-     (bind ?rot (cond ((eq ?xyz 'x) ?x-rot)
-                      ((eq ?xyz 'y) (+ ?x-rot 90))
-		      ((eq ?xyz 'z) 0)
-		      (T (warn "missing-negation-on-vector-magnitude: bad axis label ~A~%" ?xyz)
-		         NIL)))
      (correct-var ?compo-var (compo ?xyz ?rot ?vector)))
     :probability 0.2)
 
-; given x axis rotation and vector dir, return label 'x or 'y or 'z
-; specifying the axis in the system to which vdir is antiparallel;
-; NIL if none
-(defun find-antiparallel-axis (x-rot vdir)
-    (cond ((known-z-dir-spec vdir) ; vector points in a z direction
-	      (if (eq vdir 'into)  ; +z is out-of the plane
-	        'z))
-	  ; else vdir must be xy plane direction (or z-unknown)
-          ((and (parallelp x-rot vdir) (not (same-angle x-rot vdir)))
-		'x)
-	  ((and (parallelp (+ 90 x-rot) vdir) 
-	        (not (same-angle (+ 90 x-rot) vdir)))
-		'y)	
-          (T NIL)))
+;; given x axis rotation and vector dir, return label 'x or 'y or 'z
+;; specifying the axis in the system to which vdir is antiparallel;
+;; NIL if none
+(defun find-antiparallel-axis (rot vdir)
+  (cond ((same-angle (axis-dir 'z rot) (opposite vdir)) 'z)
+	((same-angle (axis-dir 'x rot) (opposite vdir)) 'x)
+	((same-angle (axis-dir 'y rot) (opposite vdir)) 'y)	
+	(T NIL)))
 
 (defun missing-negation-on-vector-magnitude (vector xyz compo-var mag-var)
   (setq vector (nlg vector 'def-np))
@@ -3243,9 +3211,10 @@
      (bind ?missing-forces (set-difference ?correct-forces ?student-forces :test #'equal))
      (test (not (null ?missing-forces)))
      (correct (draw-axes ?rot))  ; generate rotations for possible x-axes
-     (bind ?missing-non-zero (vectors-non-zero ?missing-forces ?rot))
+     (bind ?missing-non-zero (vectors-non-zero ?missing-forces 
+					       (axis-dir 'x ?rot)))
      (test (not (null ?missing-non-zero)))
-     (bind ?missing-compo-vars (vectors-to-compo-sysvars 'x ?rot ?time ?missing-non-zero))
+     (bind ?missing-compo-vars (vectors-to-compo-sysvars 'x ?rot ?missing-non-zero))
      (bind ?new-sum (cons '+ (cons ?sum  ?missing-compo-vars)))
      (fix-eqn-by-replacing ?loc ?new-sum))
     :probability
@@ -3266,10 +3235,10 @@
      (bind ?missing-forces (set-difference ?correct-forces ?student-forces :test #'equal))
      (test (not (null ?missing-forces)))
      (correct (draw-axes ?rot))		; generate rotations for the possible x-axes
-     (bind ?y-rot (+ 90 ?rot))
-     (bind ?missing-non-zero (vectors-non-zero ?missing-forces ?y-rot))
+     (bind ?missing-non-zero (vectors-non-zero ?missing-forces 
+					       (axis-dir 'y ?rot)))
      (test (not (null ?missing-non-zero)))
-     (bind ?missing-compo-vars (vectors-to-compo-sysvars 'y ?y-rot ?time ?missing-non-zero))
+     (bind ?missing-compo-vars (vectors-to-compo-sysvars 'y ?rot ?missing-non-zero))
      (bind ?new-sum (cons '+ (cons ?sum ?missing-compo-vars)))
      (fix-eqn-by-replacing ?loc ?new-sum))
     :probability
@@ -3350,16 +3319,17 @@
    the student.  Msg is a format string with three ~a in it for the
    moment name, the body, and the time.  It indicates whether one or mulple
   forces are missing from the diagram."
-  (let ((force (fourth torque))
+  (let ((force (third torque))
 	(body (second torque))
-	(time (time-of torque)))
+	(time (time-of torque))
+	(axis (axis-of torque)))
     (make-hint-seq
      (cons (format nil msg
 		   (moment-name)
 		   (nlg body 'def-np)
 		   (nlg  time 'pp))
 	   (hint-sequence-from-op-ap
-	    (list 'draw-torque body (third torque) 
+	    (list 'draw-torque body axis 
 		  (second force) (third force) (fourth force) 
 		  time))))))
 
@@ -3460,13 +3430,13 @@
 	  (non-forces-ok NIL)
 	  (t (throw 'non-force-found NIL)))))
   
-(defun vectors-non-zero (vectors rot)
+(defun vectors-non-zero (vectors direction-angle)
   "Given a set of vector descriptions, returns those that are not perpendicular to the given rotation and not zero"
   (loop for v in vectors 
       with dir
       do (setq dir (vector-direction v))
       unless (or (equal dir 'zero)
-		 (perpendicularp rot (vector-direction v)))
+		 (perpendicularp direction-angle (vector-direction v)))
       collect v))
 
 (defun vector-direction (v)
@@ -3478,7 +3448,7 @@
 		(equal (third p) v))
       do (return (fourth p))))
 
-(defun vectors-to-compo-sysvars (xyz rot time vectors)
+(defun vectors-to-compo-sysvars (xyz rot vectors)
   "Given a list of vector descriptors, return the list of system
    variables for the vector components along the given axis label, rotation and time"
   (loop for v in vectors collect
@@ -3639,7 +3609,7 @@
 	     (vector (compo-base-vector compo-expr))
 	     (vector-dir (get-quant-value `(dir ,vector))))
         (and (given-quant-p `(mag ,vector))
-	     (parallelp vector-dir (axis-dir xyz rot)))))))
+	     (parallel-or-antiparallelp vector-dir (axis-dir xyz rot)))))))
 
 ;; For given zero-length vectors, magnitude usually not tagged as "given"
 ;; since value comes from implicit equation generated by operators.

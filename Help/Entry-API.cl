@@ -255,18 +255,18 @@
 (defun springp (body-term)
   (sym-match body-term 'spring))
 
-; Dispatch function takes an atom coding a vector attribute and a vector-term
-; Builds and returns a term for that attribute of the vector.
-; Uses functions defined in kb/Physics-Funcs.cl
-; prop-id = 'mag 'dir 'xc 'yc 'zc 
-;            NIL or anything else gets vector term unchanged
+;; Dispatch function takes an atom coding a vector attribute and a vector-term
+;; Builds and returns a term for that attribute of the vector.
+;; Uses function vector-compo defined in kb/Physics-Funcs.cl
+;; prop-id = 'mag 'dir 'xc 'yc 'zc 
+;;            NIL or anything else gets vector term unchanged
 (defun vec-prop (prop-id vector-term)
  (case prop-id
    (mag  `(mag ,vector-term))
    (dir  `(dir ,vector-term))
-   (xc   (vector-xc vector-term))
-   (yc	 (vector-yc vector-term))
-   (zc	 (vector-zc vector-term))
+   (xc (vector-compo vector-term '(axis x 0)))
+   (yc (vector-compo vector-term '(axis y 0)))
+   (zc (vector-compo vector-term '(axis z 0)))
    (otherwise vector-term)))
 
 ;;; make-quant -- Build a quantity expr from define-variable arg list. 
@@ -938,14 +938,13 @@
   (declare (ignore body))
   ;; workbench doesn't associate axes with bodies yet, so we leave this
   ;; out of the entry proposition we match (see kb/ontology.cl).
-  ;; !! need to make sure x axis between zero and 90 and canonicalize if
+  ;; !! need to make sure axis between zero and 90 and canonicalize if
   ;; not
   (let* ((action  `(draw-axes ,dir)) ; dir is naked degree value
 	 (entry    (make-StudentEntry :id id :prop action))
-         (ydir     (mod (+ 90 dir) 360))
 	 (x-term  `(axis x ,dir))
-	 (y-term  `(axis y ,ydir))
-	 (z-term  `(axis z 0)) ; can't be rotated
+	 (y-term  `(axis y ,dir))
+	 (z-term  `(axis z ,dir))
 	 (xdir-dnum `(dnum ,dir |deg|))
 	)
 
@@ -969,7 +968,7 @@
       (let* ((vector-label (sym-label vector-sym))
              (mag-term     (sym-referent vector-sym))
 	     (vector-entry-id (first (sym-entries vector-sym)))
-	     ; need time-indexed vector quant term from (mag ?vector)
+	     ;; need time-indexed vector quant term from (mag ?vector)
 	     (vector-term (second mag-term))
              (compo-var    (format NIL "~A_~A" vector-label axis-label))
 	     (axis-term    (symbols-referent axis-label))

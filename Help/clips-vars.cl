@@ -66,7 +66,7 @@
      (twd    `(work ,(cbody (second args)) ,(cbody (third args))
                  :time ,(ctime (cdddr args))))
      (xc     (vector-compo (clips-vector (rest args)) '(axis x 0)))
-     (yc     (vector-compo (clips-vector (rest args)) '(axis y 90)))
+     (yc     (vector-compo (clips-vector (rest args)) '(axis y 0)))
      (zc     (vector-compo (clips-vector (rest args)) '(axis z 0)))
      (otherwise (error "Unrecognized CLIPS var: ~A~%" var))
    )))

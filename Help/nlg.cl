@@ -50,7 +50,7 @@
          (format (first spec))
 	 (args (subst-bindings-quoted bindings (rest spec))))
     (if spec
-      (andes-eval (cons 'format (cons nil (cons format args)))))))
+      (andes-eval `(format nil ,format ,@args)))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun nlg-list-default (x &rest args)
