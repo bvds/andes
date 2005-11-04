@@ -56,7 +56,7 @@
    )
   :effects 
   ;; kelec is predefined, see file constants.cl
-  ( (eqn (= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) (^ ?r 2))
+  ( (eqn (= ?F (/ (* |kelec| (abs ?q1) (abs ?q2)) (^ ?r 2)))
 	 (coulomb ?b1 ?b2 ?t) ))
   :hint (
      (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
