@@ -1803,7 +1803,7 @@
        (mag (relative-position ?b ?o :time ?t))
        ;; only standard axes (doesn't work for tilted)
        (compo x 0 (relative-position ?b ?o :time ?t)) 
-       (compo y 90 (relative-position ?b ?o :time ?t))
+       (compo y 0 (relative-position ?b ?o :time ?t))
                          ))
    )
    :effects ( 
@@ -1825,7 +1825,7 @@
     (test (not (eq ?dir-r 'zero))) ;don't apply to zero length
     (test (not (horizontal-or-vertical ?dir-r)))
     (variable ?r_x (compo x 0  (relative-position ?b ?o :time ?t))) 
-    (variable ?r_y (compo y 90 (relative-position ?b ?o :time ?t))) 
+    (variable ?r_y (compo y 0 (relative-position ?b ?o :time ?t))) 
   )
   :effects (
     (eqn (= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) (rmag-pyth ?b ?o ?t))
@@ -1866,10 +1866,10 @@
 		 ; no other variables in this equation
 		 ))
     (in-wm (given (compo x 0  (relative-position ?p1 origin :time ?t)) ?p1_x))
-    (in-wm (given (compo y 90 (relative-position ?p1 origin :time ?t)) ?p1_y))
+    (in-wm (given (compo y 0 (relative-position ?p1 origin :time ?t)) ?p1_y))
     (in-wm (given (compo x 0  (relative-position ?p2 origin :time ?t)) ?p2_x))
     (test (not (eq ?p2 ?p1))) ; make sure two different points
-    (in-wm (given (compo y 90 (relative-position ?p2 origin :time ?t)) ?p2_y))
+    (in-wm (given (compo y 0 (relative-position ?p2 origin :time ?t)) ?p2_y))
     ; should still work if p1 or p2 = origin, but would need to be 
     ; told that coords of origin are (0,0) in givens
     )
