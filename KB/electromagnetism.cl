@@ -16,7 +16,7 @@
 ;;; magnitude of the relative position vector from the center of the body 
 ;;; exerting the force to the center of the body experiencing the force.
 ;;;
-(def-psmclass coulomb (coulomb ?body ?agent ?time ?distance-quant)
+(def-psmclass coulomb (coulomb ?body ?agent ?time)
   :complexity major 
   :english ("Coulomb's Law")
   :expformat ("applying Coulombs's Law for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
@@ -42,7 +42,7 @@
      (test (member ?b2 ?coul-bodies))
    )
    :effects (
-    (eqn-contains (coulomb ?b1 ?b2 ?t rel-pos) ?sought)
+    (eqn-contains (coulomb ?b1 ?b2 ?t) ?sought)
    ))
 
 (defoperator write-coulomb (?b1 ?b2 ?t) 
@@ -55,9 +55,9 @@
    (variable ?F  (mag (force ?b1 ?b2 electric :time ?t)))
    )
   :effects 
-  ;; G is predefined, see file constants.cl
-  ( (eqn (= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) (^ ?r 2))) 
-	 (coulomb ?b1 ?b2 ?t rel-pos)) 
+  ;; kelec is predefined, see file constants.cl
+  ( (eqn (= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) (^ ?r 2))
+	 (coulomb ?b1 ?b2 ?t) ))
   :hint (
      (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
@@ -386,9 +386,11 @@
             (vector ?b (force ?b ?source electric :time ?t) ?dir)
             (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
             (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
-            ;Because dir is problem given, find-by-psm won't ensure implicit eqn
-            ;gets written.  Given value may not be used elsewhere so ensure it here.
-            (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?source electric :time ?t)))
+	    ;; Because dir is problem given, find-by-psm won't ensure implicit 
+	    ;; eqn gets written.  Given value may not be used elsewhere so 
+	    ;; ensure it here.
+            (implicit-eqn (= ?dir-var ?dir) 
+			  (dir (force ?b ?source electric :time ?t)))
             )
   :hint (
     (point (string "You were given that there is an electric force on ~a." ?b))
