@@ -116,7 +116,6 @@
  :preconditions 
  ((rdebug "Using draw-Efield-vector  ~%")
   (time ?t)
-  (test (time-pointp ?t))
   ;; ?b is "test charge" feeling force at loc
   ;; it is only used as axis owner for vector
   ;; !!! what if we're given field at point with no body?
@@ -161,7 +160,7 @@
     (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
     ;; require sign of charge to be given
     (sign-charge ?b ?pos-neg)
-    (bind ?field-dir (if (eq ?pos-neg 'pos) ?F-dir (mod (+ 180 ?F-dir) 360)))
+    (bind ?field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
     (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
     (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source)
 			       (time-abbrev ?t)))
@@ -239,7 +238,7 @@
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?opp-dir (dir-from-compos ?xc ?yc)) 
-    (bind ?dir (mod (+ 180 ?opp-dir) 360))
+    (bind ?dir (opposite ?opp-dir))
     )
    :effects 
    (
@@ -309,7 +308,7 @@
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
    (in-wm (given (dir (relative-position ?loc ?b :time ?t)) (dnum ?rdir |deg|)))
    (sign-charge ?b ?pos-neg)
-   (bind ?Field-dir (if (eq ?pos-neg 'pos) ?rdir (mod (+ 180 ?rdir) 360)))
+   (bind ?Field-dir (if (eq ?pos-neg 'pos) ?rdir (opposite ?rdir)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
    (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?b) 
 			      (time-abbrev ?t)))
@@ -372,13 +371,31 @@
 ;; and have to reason about all forces in the problem (e.g. whether they are 
 ;; all conservative) without drawing vectors.
 
-;; - if given E force vector dir -- 
+;; - if given E force vector dir --
+
+;; make sure force exists apart from drawing
+(defoperator find-electric-force (?b ?agent ?t)
+  :preconditions (
+    (time ?t)
+    (in-wm (given (dir (force ?b ?agent electric :time ?t-force)) ?dir-expr))
+    (test (tinsidep ?t ?t-force))
+    ;; check that something else hasn't defined this force.
+    (not (force ?b ?agent electric ?t . ?dont-care)) 
+  )
+  :effects (
+    (force ?b ?agent electric ?t ?dir-expr action)
+    (force-given-at ?b ?agent electric ?t-force ?dir-expr action)
+  ))
+
+ 
 (defoperator draw-Eforce-given-dir (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Eforce-given-dir ~%")
-   (given (dir (force ?b ?source electric :time ?t)) ?dir)
-   (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
-			      (time-abbrev ?t)))
+   (force ?b ?source electric ?t ?dir ?dontcare)
+   (test (not (equal ?dir 'unknown)))
+   (not (vector ?b (force ?b ?source electric :time ?t) ?whatever))
+   (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
+			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Eforce-given-dir  ~%")
    )
@@ -397,6 +414,27 @@
     (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a at ~a." ?b (?source agent) (?t pp) ?dir))
 ))
 
+
+(defoperator draw-Eforce-unknown (?b ?source ?t)
+  :preconditions 
+  ((rdebug "Using draw-Eforce-given-dir ~%")
+   (force ?b ?source electric ?t unknown ?dontcare)
+   (not (vector ?b (force ?b ?source electric :time ?t) ?whatever))
+   (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
+			      (body-name ?source) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (rdebug "fired draw-Eforce-given-dir  ~%")
+   )
+  :effects (
+            (vector ?b (force ?b ?source electric :time ?t) unknown)
+            (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
+            (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
+            )
+  :hint (
+    (point (string "You were given that there is an electric force on ~a." ?b))
+    (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a, direction unknown." ?b (?source agent) (?t pp)))
+))
+
 ;; if given E field vector dir
 ;;    - directly
 (defoperator draw-Eforce-given-field-dir (?b ?source ?t)
@@ -409,7 +447,7 @@
     (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
     ;; require sign of charge to be given
     (sign-charge ?b ?pos-neg)
-    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (mod (+ 180 ?field-dir) 360)))
+    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
     (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
     (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
 			       (time-abbrev ?t)))
@@ -488,7 +526,7 @@
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?opp-dir (dir-from-compos ?xc ?yc))
-    (bind ?dir (mod (+ 180 ?opp-dir) 360))
+    (bind ?dir (opposite ?opp-dir))
     (rdebug "fired draw-Eforce-given-field-compos-pos  ~%")
     )
   :effects (
@@ -553,59 +591,65 @@
   :EqnFormat ("F_~a = q * E_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 (defoperator charge-force-Efield-contains (?sought)
-  :preconditions ((rdebug "Using charge-force-Efield-contains  ~%")
-                  (any-member ?sought((mag (force ?b ?source electric :time ?t))
-                                      (dir (force ?b ?source electric :time ?t))
-                                      (mag (field ?loc electric ?source :time ?t))
-                                      (dir (field ?loc electric ?source :time ?t))
-                                      ))
-		  ; make sure ?b (test-charge) is bound in case sought is field at loc
-                  (at-place ?b ?loc ?t)
-                  (rdebug "Firing charge-force-Efield-contains  ~%")
-                  )
+  :preconditions 
+  ((rdebug "Using charge-force-Efield-contains  ~%")
+   (any-member ?sought((mag (force ?b ?source electric :time ?t))
+		       (dir (force ?b ?source electric :time ?t))
+		       (mag (field ?loc electric ?source :time ?t))
+		       (dir (field ?loc electric ?source :time ?t))
+		       ))
+   ;; make sure ?b (test-charge) is bound in case sought is field at loc
+   (at-place ?b ?loc ?t)
+   (rdebug "Firing charge-force-Efield-contains  ~%")
+   )
   :effects (
             (eqn-family-contains (charge-force-Efield ?b ?source ?t) ?sought)
-            ; since only one compo-eqn under this vector psm, we can just
-            ; select it now, rather than requiring further operators to do so
+            ;; since only one compo-eqn under this vector psm, we can just
+            ;; select it now, rather than requiring further operators to do so
             (compo-eqn-contains (charge-force-Efield ?b ?source ?t) qfe ?sought)))
 
-; special case when sought is charge: need to choose a field source to bind
+;; special case when sought is charge: need to choose a field source to bind
 (defoperator charge-force-Efield-contains-charge (?sought)
-  :preconditions ((rdebug "Using charge-force-Efield-contains-charge  ~%")
-                  (any-member ?sought ( (charge-on ?b :time ?t) ))
-                  (at-place ?b ?loc ?t)
-		  ; following will fetch the source of an E-field at loc if we are given
-		  ; its direction or component value
-		  (source-of-Efield ?loc ?t ?source)
-                  (rdebug "Firing charge-force-Efield-contains-charge  ~%")
-                  )
-  :effects (
-            (eqn-family-contains (charge-force-Efield ?b ?source ?t) ?sought)
-            ; since only one compo-eqn under this vector psm, we can just
-            ; select it now, rather than requiring further operators to do so
-            (compo-eqn-contains (charge-force-Efield ?b ?source ?t) qfe ?sought)))
+  :preconditions 
+  ((rdebug "Using charge-force-Efield-contains-charge  ~%")
+   (any-member ?sought ( (charge-on ?b :time ?t) ))
+   (at-place ?b ?loc ?t)
+   ;; following will fetch the source of an E-field at loc if we are given
+   ;; its direction or component value
+   (source-of-Efield ?loc ?t ?source)
+   (rdebug "Firing charge-force-Efield-contains-charge  ~%")
+   )
+  :effects 
+  (
+   (eqn-family-contains (charge-force-Efield ?b ?source ?t) ?sought)
+   ;; since only one compo-eqn under this vector psm, we can just
+   ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (charge-force-Efield ?b ?source ?t) qfe ?sought)))
 
 (defoperator get-source-from-given-field-dir (?loc ?t ?source)
-  :preconditions ((in-wm (given (dir (field ?loc electric ?source :time ?t)) ?value)))
+  :preconditions 
+  ((in-wm (given (dir (field ?loc electric ?source :time ?t)) ?value)))
   :effects ((source-of-Efield ?loc ?t ?source)))
 
 (defoperator get-source-from-given-field-compo (?loc ?t ?source)
-  :preconditions ((in-wm (given (compo x 0 (field ?loc electric ?source :time ?t)) ?value)))
+  :preconditions 
+  ((in-wm (given (compo x 0 (field ?loc electric ?source :time ?t)) ?value)))
   :effects ((source-of-Efield ?loc ?t ?source)))
 
 (defoperator draw-charge-force-Efield-diagram (?b ?source ?t)
-  :preconditions (
-                  (debug "Using draw-charge-force-Efield-diagram ~%")
-                  (not (vector-diagram (charge-force-Efield ?b ?source ?t)))
-                  ;; ?b is "test charge" feeling force at ?loc 
-                  (body ?b)
-                  (at-place ?b ?loc ?t)
-		  ; need source of field
-                  (vector ?dontcare (field ?loc electric ?source :time ?t) ?dir1) 
-                  (vector ?b (force ?b ?source electric :time ?t) ?dir2)
-                  (axis-for ?b x ?rot)
-                  (rdebug "Fired draw-charge-force-Efield-diagram ~%")
-                  )
+  :preconditions 
+  (
+   (debug "Using draw-charge-force-Efield-diagram ~%")
+   (not (vector-diagram (charge-force-Efield ?b ?source ?t)))
+   ;; ?b is "test charge" feeling force at ?loc 
+   (body ?b)
+   (at-place ?b ?loc ?t)
+   ;; need source of field
+   (vector ?dontcare (field ?loc electric ?source :time ?t) ?dir1) 
+   (vector ?b (force ?b ?source electric :time ?t) ?dir2)
+   (axis-for ?b x ?rot)
+   (rdebug "Fired draw-charge-force-Efield-diagram ~%")
+   )
   :effects (
             (vector-diagram (charge-force-Efield ?b ?source ?t))
             ))
