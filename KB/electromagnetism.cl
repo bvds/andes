@@ -988,21 +988,20 @@
           ))
 
 
-; This derives sign on charge of ?b when Fe_x and E_x are given at location of ?b
-; x-component can't be zero
-(defoperator get-sign-charge-from-FE-compos (?b)
+;; This derives sign on charge of ?b when Fe_x and E_x are given at location 
+;; of ?b x-component can't be zero
+(defoperator get-sign-charge-from-FE-compos (?b ?t ?xyz ?rot)
   :specifications " "
   :preconditions ((rdebug "sign-on-charge ~%")
-                  (time ?t)
-                  (test (time-pointp ?t))
                   ;(at-place ?b ?loc ?t)                    
-                  (given (compo x 0 (force ?b ?source electric :time 1)) (dnum ?val1 |N|))
-                  (given (compo x 0 (field ?loc electric ?source :time 1)) (dnum ?val2 |N/C|))
-                  (bind ?sign (if (> (/ ?val1 ?val2) 0) 'pos 'neg))
+                  (given (compo ?xyz ?rot (force ?b ?source electric :time ?t)) (dnum ?val1 |N|))
+                  (given (compo ?xyz ?rot (field ?loc electric ?source :time ?t)) (dnum ?val2 |N/C|))
+		  (test (not (or (= ?val1 0) (= ?val2 0))))
+                  (bind ?sign (if (> (* ?val1 ?val2) 0) 'pos 'neg))
                   (rdebug "sign-on-charge~%")
                   )
   :effects (
-            (sign-charge ?b ?sign)
+            (sign-charge ?b ?sign) 
             ))
 
 

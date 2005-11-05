@@ -3516,12 +3516,6 @@
 (defun nsh-principle-p (principle)
   (enode-p principle))
 
-
-;;; principle graph
-(defun nsh-principle-graph (principle)
-  (when (nsh-principle-p Principle)
-    (enode-path principle)))
-
 (defun nsh-principle-expression (principle)
   (enode-id principle))
 
@@ -3551,7 +3545,6 @@
 	 nsh-major-principle-p
 	 nsh-goal-principle-p
 	 nsh-principle-p
-	 nsh-principle-graph
 	 nsh-principle-expression
 	 nsh-principle-entries
 	 nsh-lookup-principle-class

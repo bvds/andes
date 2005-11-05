@@ -1410,16 +1410,17 @@
 (defun do-check-mc-no-quant-done-answer (ID Value)
   (cond ((not (numberp Value))
 	    (error "Value not numberp in do-check-mc-answer: ~A" Value))
-        ; if cleared done button, delete any prior entry for this button
-	; and leave control black. 
+        ;; if cleared done button, delete any prior entry for this button
+	;; and leave control black. 
 	((= 0 Value) (remove-entry ID)
 	             (make-black-turn))
-	; Treat any non-zero value as T, just in case other non-zero comes from C 
+	;; Treat any non-zero value as T, just in case other non-zero 
+	;; comes from C 
 	(T (check-mc-no-quant-done-answer-sought ID))))
 
-;; Given an mc-no-quant done answer lookup the corresponding sought.  Having done 
-;; that look up the corresponding PSM and determine if the PSM has been completed
-;; if so then the value is green if not then don't. 
+;; Given an mc-no-quant done answer lookup the corresponding sought.  
+;; Having done that look up the corresponding PSM and determine if the PSM 
+;; has been completed if so then the value is green if not then don't. 
 (defun check-mc-no-quant-done-answer-sought (ID)
   (let ((PSM (match-exp->enode (get-answer-quant ID) (problem-graph *cp*)))
         (Entry (make-StudentEntry :ID ID :prop `(lookup-mc-answer ,ID))))

@@ -2778,7 +2778,7 @@
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?accel-dir (mod (+ ?motion-dir 180) 360))
+    (bind ?accel-dir (opposite ?motion-dir))
     (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir-val ?b ?t)
     )
   :effects
@@ -3899,7 +3899,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ; make sure this is not known to be zero-length from at-place stmt.
     (not (at-place ?b1 ?b2 ?t))
     (not (at-place ?b2 ?b1 ?t))
-    ; make sure not given it's dir, or the opposite dir, so can draw known
+    ;; make sure not given it's dir, or the opposite dir, so can draw known
     (not (given (dir (relative-position ?b1 ?b2 :time ?t)) (dnum ?dir |deg|)))
     (not (given (dir (relative-position ?b2 ?b1 :time ?t)) (dnum ?dir |deg|)))
     ;; make sure this vector not already drawn
@@ -4443,7 +4443,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (object ?b)
     (not (force ?b ?surface kinetic-friction ?t . ?dont-care))
     (test (tinsidep ?t (tintersect2 ?t-slides ?t-motion)))
-    (bind ?friction-dir (mod (+ 180 ?motion-dir) 360))
+    (bind ?friction-dir (opposite ?motion-dir))
    )
   :effects (
     (force ?b ?surface kinetic-friction ?t (dnum ?friction-dir |deg|) action)
@@ -4611,7 +4611,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (motion ?b (straight ?dont-care32 (dnum ?motion-dir |deg|)) 
 	    :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
-    (bind ?drag-dir (mod (+ 180 ?motion-dir) 360))
+    (bind ?drag-dir (opposite ?motion-dir))
    )
   :effects (
     (force ?b ?medium drag ?t (dnum ?drag-dir |deg|) action)
@@ -8856,7 +8856,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (given (dir (relative-position ?pt ?axis-pt :time ?t)) (dnum ?r-dir |deg|))
    (bind ?v-dir (if (equal ?rotate-dir 'ccw) (mod (+ ?r-dir 90) 360)
                   (mod (- ?r-dir 90) 360)))
-   (bind ?a-dir (mod (+ ?r-dir 180) 360))  
+   (bind ?a-dir (opposite ?r-dir 180))  
    (debug "linear motion of ~A: vel dir ~A, accel dir ~A~%" ?pt ?v-dir ?a-dir)
    )
    :effects (
