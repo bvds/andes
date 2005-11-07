@@ -26,7 +26,7 @@
 ;;; The equation is scalar equation containing vector magnitudes only.
 (defoperator coulomb-contains (?sought)
    :preconditions (
-     ;; first make sure a gravitational interaction exists in problem
+     ;; first make sure a coulomb interaction exists in problem
      (coulomb-bodies . ?coul-bodies)
      (any-member ?sought 
 		 (;; if sought is charge, can use either equation for force
@@ -376,6 +376,7 @@
 ;; make sure force exists apart from drawing
 (defoperator find-electric-force (?b ?agent ?t)
   :preconditions (
+		  
     (time ?t)
     (in-wm (given (dir (force ?b ?agent electric :time ?t-force)) ?dir-expr))
     (test (tinsidep ?t ?t-force))
@@ -385,6 +386,26 @@
   :effects (
     (force ?b ?agent electric ?t ?dir-expr action)
     (force-given-at ?b ?agent electric ?t-force ?dir-expr action)
+  ))
+
+
+(defoperator find-electric-force-unknown (?b ?agent ?t)
+  :preconditions (
+	(coulomb-bodies . ?bodies)	  
+	(time ?t)
+	(object ?b)
+	(object ?agent)
+	(not (given (dir (force ?b1 ?b2 electric :time ?t-force)) ?dir-expr)
+	     (and (member ?b1 (list ?b ?agent)) (member ?b2 (list ?b ?agent)) 
+		  (tinsidep ?t ?t-force)))
+	(test (member ?b ?bodies :test #'equal))
+	(test (member ?agent ?bodies :test #'equal))
+	;; check that something else hasn't defined this force.
+	(not (force ?b ?agent electric ?t . ?dont-care)) 
+  )
+  :effects (
+    (force ?b ?agent electric ?t unknown action)
+    (force-given-at ?b ?agent electric ?t unknown action)
   ))
 
  
