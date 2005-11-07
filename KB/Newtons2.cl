@@ -4056,17 +4056,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; graph builder must construct both solutions.
 ;;;
 ;;; mass can have time in rocket problems, but is left timeless in others
-;;; Equations using a mass variable should use a precondition 
-;;;  	(mass-variable ?var ?body ?time)
-;;; to get the problem-appropriate mass variable defined for the given body 
-;;; and time.  Which one gets defined is controlled by presence of
-;;;       (changing-mass)
+;;; Which one gets defined is controlled by presence of (changing-mass)
 ;;; in the problem definition.
 
-(defoperator define-mass (?b)
+(defoperator define-constant-mass (?b)
   :specifications "If ?b is an object, then you can define a mass for ?b"
   :preconditions 
-  ((object ?b)
+  (
+   (not (changing-mass))
+   (object ?b)
    (not (variable ?dont-care (mass ?b)))
    (bind ?var (format-sym "m_~A" (body-name ?b))))
   :effects
@@ -4076,17 +4074,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
 
-(defoperator use-timeless-mass-variable (?body ?time)
-  :preconditions (
-       (not (changing-mass))
-       (variable ?var (mass ?body))
-       )
-    :effects ((mass-variable ?var ?body ?time)))
-
 (defoperator define-changing-mass (?b ?t)
   :specifications "If ?b is an object, then you can define a mass for ?b"
   :preconditions
-  ((object ?b)
+  ((in-wm (changing-mass))
+   (object ?b)
    (time ?t)
    (not (variable ?dont-care (mass ?b :time ?t)))
    (bind ?var (format-sym "m_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))))
@@ -4096,13 +4088,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
-
-(defoperator use-changing-mass-variable (?body ?time)
-  :preconditions (
-        (in-wm (changing-mass))
-        (variable ?var (mass ?body :time ?time))
-	)
-    :effects ((mass-variable ?var ?body ?time)))
 
 ;;; Magnitude of derivative of mass with respect to time
 ;;; due to agent
@@ -5753,7 +5738,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((any-member ?quantity
 	        ((mag (force ?b ?planet weight :time ?t))
-		 (mass ?b :time ?t ?t)
+		 (mass ?b :time ?t ?t) ;can be timeless or changing
 		 (gravitational-acceleration ?planet)))
    ; make sure this is not case where ?b is cm of rigid body. For that
    ; we need the mass of the whole body, plus special hint.
@@ -5791,7 +5776,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((near-planet ?planet :body ?b ?b)
     (not (massless ?b))
-    (mass-variable ?m-var ?b ?t)
+    (variable ?m-var (mass ?b :time ?t ?t))
     (variable ?w-var (mag (force ?b ?planet weight :time ?t)))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
@@ -5814,7 +5799,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the mass of the body, and
      the gravitational constant for the planet."
   :preconditions
-  (; only apply this in case where ?cm is declared cm of some single rigid body. 
+  (
+   ;; only apply this in case where ?cm is declared cm of a single rigid body. 
    (in-wm (center-of-mass ?cm (?rigid-body)))
    (any-member ?quantity
 	        ((mag (force ?cm ?planet weight :time ?t))
@@ -5983,7 +5969,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the direction of its acceleration"
   :preconditions 
   ((any-member ?quantity
-	        ((mass ?b)
+	       ;; assume any mass change described by thrust force
+	        ((mass ?b :time ?t ?t) 
 		 (mag (accel ?b :time ?t))
 		 (dir (accel ?b :time ?t))
 		 (mag (force ?b ?agent ?type :time ?t))
@@ -6148,7 +6135,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((any-member ?quantity
 	        ((mag (force ?b ?agent ?type :time ?t))
 		 (dir (force ?b ?agent ?type :time ?t))
-		 (mass ?b)  ;F=ma assumes m is constant
+		 ;; assume any mass change is subsumed into thrust
+		 (mass ?b :time ?t ?t) 
 		 (mag (accel ?b :time ?t))
 		 (dir (accel ?b :time ?t))))
    (object ?b)
@@ -6246,7 +6234,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
-   (mass-variable ?m ?b ?t))
+   ;; assume any mass change is described by thrust force
+   (variable ?m (mass ?b :time ?t ?t))
+   )
   :effects
    ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
 	 (compo-eqn nsl ?xyz ?rot (nl ?b ?t)))
@@ -6261,6 +6251,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; This operator writes the net force version of Newton's second law in 
 ;;; component form.  
 ;;;
+
 (defoperator write-NSL-net-compo (?b ?t ?xyz ?rot)
   :specifications 
    "If the goal is to use newton's second law for net force in component form,
@@ -6270,7 +6261,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
    (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
    (bind ?eqn-compo-vars (list ?a-compo ?fnet-compo-var))
-   (mass-variable ?m ?b ?t))
+   ;; assume any mass change is described by thrust force
+   (variable ?m (mass ?b :time ?t ?t)))
   :effects (
     (eqn (= ?fnet-compo-var (* ?m ?a-compo))
 	 (compo-eqn nsl-net ?xyz ?rot (nl ?b ?t)))
@@ -6506,7 +6498,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;
 ;;; Note we need time parameters in the operator because one of the times is
 ;;; going to be chosen, and might be chosen multiple ways. For example, if our
-;;; sought is height at 3 (as in Exe1a) we want different op-apps for 
+;;; sought is height at 3 (as in e1a) we want different op-apps for 
 ;;; cons-energy 2 3 and cons-energy 1 3 because these are different equations
 ;;; in the solution graph.
 (defoperator cons-energy-contains (?sought)
@@ -6781,7 +6773,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (motion ?body (rotating ?pivot ?dir ?axis) :time ?t-motion)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
-   (moment-of-inertia-variable ?m-var ?body ?t)
+   (variable ?m-var (moment-of-inertia ?body :time ?t ?t))
    (variable ?v-var (mag (ang-velocity ?body :time ?t)))
   )
   :effects (
@@ -8975,10 +8967,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; to the problem, so the relevant axis can be derived. We don't have 
 ;;; problems where rotation about more than one axis is considered.
 
-(defoperator define-moment-of-inertia (?b)
-  :preconditions (
-    (object ?b)
-    (bind ?I-var (format-sym "I_~A" (body-name ?b)))
+(defoperator define-constant-moment-of-inertia (?b)
+  :preconditions 
+  (
+   (not (changing-mass))
+   (object ?b)
+   (bind ?I-var (format-sym "I_~A" (body-name ?b)))
   )
   :effects (
     (define-var (moment-of-inertia ?b))
@@ -8988,33 +8982,21 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A" ?b))
   ))
 
-(defoperator use-timeless-moment-of-inertia-variable (?body ?time)
-  :preconditions (
-       (not (changing-mass))
-       (variable ?var (moment-of-inertia ?body))
-       )
-    :effects ((moment-of-inertia-variable ?var ?body ?time)))
-
 (defoperator define-changing-moment-of-inertia (?b ?t)
-  :preconditions (
-    (object ?b)
-    (time ?t)
-    (bind ?I-var (format-sym "I_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-  )
+  :preconditions 
+  (
+   (in-wm (changing-mass))
+   (object ?b)
+   (time ?t)
+   (bind ?I-var (format-sym "I_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+   )
   :effects (
-    (define-var (moment-of-inertia ?b :time ?t))
-    (variable ?I-var (moment-of-inertia ?b :time ?t))
-  )
+	    (define-var (moment-of-inertia ?b :time ?t))
+	       (variable ?I-var (moment-of-inertia ?b :time ?t))
+	       )
   :hint (
-   (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A" ?b (?t pp)))
-  ))
-
-(defoperator use-changing-moment-of-inertia-variable (?body ?time)
-  :preconditions (
-        (in-wm (changing-mass))
-        (variable ?var (moment-of-inertia ?body :time ?time))
-	)
-    :effects ((moment-of-inertia-variable ?var ?body ?time)))
+	 (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A" ?b (?t pp)))
+	 ))
 
 ;;;; Shape variables: We define special scalar variables for the appropriate
 ;;;; dimensions characterizing certain rigid bodies.
@@ -9315,8 +9297,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
               (dir (ang-momentum ?b :time ?t))
 	      (mag (ang-velocity ?b :time ?t))
 	      (dir (ang-velocity ?b :time ?t))
-	      (moment-of-inertia ?b :time ?t)
-	      (moment-of-inertia ?b)
+	      (moment-of-inertia ?b :time ?t ?t)
                           )) 
       (time ?t)
    )
@@ -9335,7 +9316,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      (variable ?L_z     (compo z 0 (ang-momentum ?b :time ?t)))
      (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
-     (moment-of-inertia-variable ?I ?b ?t)
+     (variable ?I (moment-of-inertia ?b :time ?t ?t))
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
@@ -9988,7 +9969,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-   (moment-of-inertia-variable ?I ?b ?t)
+   (variable ?I (moment-of-inertia ?b)
    (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
    ;; fetch mag variable for implicit equation (defined when drawn)
    (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
@@ -10028,8 +10009,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	      (compo z 0 (net-torque ?b ?axis :time ?t)) 
 	      ;(mag (net-torque ?b ?axis :time ?t)) 
 	      ;(dir (net-torque ?b ?axis :time ?t)) 
-	      (moment-of-inertia ?b :time ?t)
-	      (moment-of-inertia ?b)
+	      (moment-of-inertia ?b :time ?t ?t)
 	               ))
    (time ?t)
    )
@@ -10054,7 +10034,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    
    :preconditions (
      (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-     (moment-of-inertia-variable ?I ?b ?t)
+     (variable ?I (moment-of-inertia ?b :time ?t ?t))
      (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
      ; fetch mag variable for implicit equation (defined when drawn)
      (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
