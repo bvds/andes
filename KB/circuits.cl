@@ -104,11 +104,6 @@
   (multiple-value-bind (ans num)
       (read-from-string ?b)
     (setf ?temp ans)))
-
-;Converts (during 1 2) to during_12
-(defun convert-time (x)
-  (concatenate 'string "during_" (format nil "~a" (second x)) (format nil "~a" (third x))))
-
   
 ; if p = (JunA PtB R1 PtC R2 PtD JunE) and res-list = (R1 R2)
 ; it returns (JunA PtB (R1 R2) PtD JunE)
@@ -516,10 +511,9 @@
 
 
 (defoperator define-voltage-across-var-resistor (?comp ?t)
-  :preconditions (
-		  (bind ?nt (if (atom ?t) ?t (convert-time ?t)))
-		  (bind ?v-var (format-sym "deltaV_~A$~A" (comp-name ?comp 'R) ?nt))
-		  )
+  :preconditions 
+  ((bind ?v-var (format-sym "deltaV_~A~@[_~A~]" (comp-name ?comp 'R)
+			    (time-abbrev ?t))))
   :effects (
 	    (variable ?v-var (voltage-across ?comp :time ?t))
 	    (define-var (voltage-across ?comp :time ?t))
@@ -1056,18 +1050,37 @@
 
 
 ;;;CHARGES ON CAPACITORS
-(defoperator define-charge-on-cap-var (?what ?t)
+(defoperator define-constant-charge-on-cap-var (?what)
   :preconditions (
-		  (test (and (atom ?t) (not (eq ?t 'inf))))
+		  (not (changing-voltage))
 		  (circuit-component ?what capacitor)
-		  (bind ?q-what-var (format-sym "Q_~A$~A" (comp-name ?what 'C) ?t))
+		  (bind ?q-what-var (format-sym "Q_~A" 
+						(comp-name ?what 'C)))
+		  )
+  :effects (
+	    (variable ?q-what-var (charge-on ?what))
+	    (define-var (charge-on ?what))
+	    )
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." ((charge-on ?what) def-np)))
+	 ))
+
+(defoperator define-changing-charge-on-cap-var (?what ?t)
+  :preconditions (
+		  (in-wm (changing-voltage))
+		  (time ?t)
+		  (test (not (eq ?t 'inf)))
+		  (circuit-component ?what capacitor)
+		  (bind ?q-what-var (format-sym "Q_~A_~A" (comp-name ?what 'C) 
+						(time-abbrev ?t)))
 		  )
   :effects (
 	    (variable ?q-what-var (charge-on ?what :time ?t))
 	    (define-var (charge-on ?what :time ?t))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." ((charge-on ?what :time ?t) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." 
+			     ((charge-on ?what :time ?t) def-np)))
 	 ))
 
 
@@ -1078,10 +1091,9 @@
 
 (defoperator capacitor-definition-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge-on ?cap :time ?t)
+		 (any-member ?sought ((charge-on ?cap :time ?t ?t)
 				      (voltage-across ?cap :time ?t)))
 		 (time ?t)
-		 (test (atom ?t))
 		 (circuit-component ?cap capacitor)
 		 )
   :effects(
@@ -1103,7 +1115,7 @@
   :specifications "doc"
   :preconditions(
 		 (variable ?c-var (capacitance ?cap))
-		 (variable ?q-var (charge-on ?cap :time ?t))
+		 (variable ?q-var (charge-on ?cap :time ?t ?t))
 		 (variable ?v-var (voltage-across ?cap :time ?t))
 		 )
   :effects(
@@ -1200,7 +1212,7 @@
 
 (defoperator junction-rule-cap (?path-list1 ?path-list2 ?t )
   :preconditions (
-		  (any-member ?sought ((charge-on ?cap :time ?t)
+		  (any-member ?sought ((charge-on ?cap :time ?t ?t)
 				       (voltage-across ?cap :time ?t)))
 		  (time ?t)
 		  ;;find the charge variables for capacitor going into the branch                            
@@ -1212,7 +1224,7 @@
 		  (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
 		  (test (not (equal nil ?in-caps)))
 		  (map ?x ?in-caps  
-		       (variable ?q-var (charge-on ?x :time ?t))
+		       (variable ?q-var (charge-on ?x :time ?t ?t))
 		       ?q-var ?q-in-path-vars)
                              
 		  ;;find the charge variables for capacitor going into the branch  
@@ -1222,7 +1234,7 @@
 		  (test (not (equal nil ?out-caps)))
 
 		  (map ?x ?out-caps
-		       (variable ?q-var (charge-on ?x :time ?t))
+		       (variable ?q-var (charge-on ?x :time ?t ?t))
 		       ?q-var ?q-out-path-vars)
 		  )
   :effects (
@@ -1283,7 +1295,7 @@
 
 (defoperator charge-same-caps-in-branch-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge-on ?cap1 :time ?t)))
+		 (any-member ?sought ((charge-on ?cap1 :time ?t ?t)))
 		 (time ?t)
 		 (branch ?br-res given ?dontcare1 ?path)
 		 (test (member ?cap1 ?path) :test #'equal)
@@ -1304,7 +1316,7 @@
   :preconditions (
 		  ;; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
 		  (map ?cap ?temp-caps
-		       (variable ?q-var (charge-on ?cap :time ?t))
+		       (variable ?q-var (charge-on ?cap :time ?t ?t))
 		       ?q-var ?q-path-cap-vars)
 		  (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
 		  (bind ?pair (first ?adj-pairs))
@@ -1328,7 +1340,7 @@
 
 (defoperator cap-energy-contains (?sought)
   :preconditions (
-		  (any-member ?sought ( (charge-on ?cap :time ?t)
+		  (any-member ?sought ( (charge-on ?cap :time ?t ?t)
 					(voltage-across ?cap :time ?t)
 					(stored-energy ?cap :time ?t)))
 		  (circuit-component ?cap capacitor)
@@ -1339,7 +1351,7 @@
 
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
-		  (variable ?Q (charge-on ?cap :time ?t))
+		  (variable ?Q (charge-on ?cap :time ?t ?t))
 		  (variable ?V (voltage-across ?cap :time ?t))
 		  (variable ?U (stored-energy ?cap :time ?t))
 		  )
@@ -1364,19 +1376,6 @@
 		  ))
 
 ;;; RC CIRCUITS
-
-(defoperator define-time-var (?t)   
-  :preconditions (
-		  (bind ?t-var (if (atom ?t) (format-sym "~A" (concatenate 'string "T$" (format nil "~a" ?t)))
-				 (format-sym "~A" (concatenate 'string "T$during_" (format nil "~a" (second ?t)) (format nil "~a" (third ?t))))))
-		  )
-  :effects (
-	    (variable ?t-var (time ?t))
-	    (define-var (time ?t))
-	    )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting time." ((time ?t) def-np)))
-	 ))
 
 (defoperator define-RC-time-constant (?c1 ?c2) 
   :preconditions 
@@ -1627,7 +1626,7 @@
 					; use constant Vb defined across charging interval.
 		  (circuit-component ?bat battery)	 
 		  (variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
-		  (variable ?q-var (charge-on ?cap :time ?t))
+		  (variable ?q-var (charge-on ?cap :time ?t ?t))
 		  (percent-max ?cap ?fraction ?t)
 		  )
   :effects (
@@ -1683,7 +1682,7 @@
 (defoperator define-dIdt-var (?comp ?time)
   :preconditions (
 					; might want to require student to define a current var first on Andes interface
-		  (bind ?dIdt-var (format-sym "dI_~A_dt$~A" ?comp (time-abbrev ?time)))
+		  (bind ?dIdt-var (format-sym "dI_~A_dt_~A" ?comp (time-abbrev ?time)))
 		  )
   :effects (
 	    (variable ?dIdt-var (rate-of-change (current-thru ?comp :time ?time)))
@@ -1735,25 +1734,34 @@
   )
 
 (defoperator avg-rate-current-change-contains (?sought)
-  :preconditions (
-		  (any-member ?sought ( (rate-of-change (current-thru ?ind :time (during ?t1 ?t2)))
-					(current-thru ?ind :time ?t2)
-					(current-thru ?ind :time ?t1) ))
-		  (time (during ?t1 ?t2))
-		  )
-  :effects (
-	    (eqn-contains (avg-rate-current-change ?ind (during ?t1 ?t2)) ?sought)
-	    ))
+  :preconditions 
+  (
+   (any-member ?sought ( (rate-of-change 
+			  (current-thru ?ind :time (during ?t1 ?t2)))
+			 (current-thru ?ind :time ?t2)
+			 (current-thru ?ind :time ?t1) 
+			 (duration (during ?t1 ?t2))))
+   ;; ?ind is not bound by ?sought = (duration ...)
+   (circuit-component ?ind ?whatever-type)
+   (time (during ?t1 ?t2))
+   )
+  :effects 
+  (
+   (eqn-contains (avg-rate-current-change ?ind (during ?t1 ?t2)) 
+		 ?sought)
+   ))
 
 (defoperator avg-rate-current-change (?ind ?t1 ?t2)
-  :preconditions (
-		  (variable ?dIdt (rate-of-change (current-thru ?ind :time (during ?t1 ?t2))))
-		  (variable ?I2 (current-thru ?ind :time ?t2))
-		  (variable ?I1 (current-thru ?ind :time ?t1))
-		  (variable ?t12 (duration (during ?t1 ?t2)))
-		  )
+  :preconditions 
+  (
+   (variable ?dIdt (rate-of-change (current-thru ?ind :time (during ?t1 ?t2))))
+   (variable ?I2 (current-thru ?ind :time ?t2))
+   (variable ?I1 (current-thru ?ind :time ?t1))
+   (variable ?t12 (duration (during ?t1 ?t2)))
+   )
   :effects (
-	    (eqn (= ?dIdt (/ (- ?I2 ?I1) ?t12)) (avg-rate-current-change ?ind (during ?t1 ?t2)))
+	    (eqn (= ?dIdt (/ (- ?I2 ?I1) ?t12)) 
+		 (avg-rate-current-change ?ind (during ?t1 ?t2)))
 	    )
   :hint (
 	 (teach (string "The average rate of change of current over a time interval is simply the difference between the final value of the current and the initial value divided by the time. If the rate of change is constant, then the average rate of change will equal the instantaneous rate of change at any point during the time period"))
@@ -1800,7 +1808,9 @@
 (defoperator define-stored-energy-inductor-var (?inductor ?t)
   :preconditions (
 		  (circuit-component ?inductor inductor)
-		  (bind ?U-var (format-sym "U_~A$~A" (comp-name ?inductor 'L) ?t))
+		  (bind ?U-var (format-sym "U_~A~@[_~A~]" 
+					   (comp-name ?inductor 'L) 
+					   (time-abbrev ?t)))
 		  ) :effects (
 		  (variable ?U-var (stored-energy ?inductor :time ?t))
 		  (define-var (stored-energy ?inductor :time ?t))

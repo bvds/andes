@@ -31,7 +31,7 @@
      (any-member ?sought 
 		 (;; if sought is charge, can use either equation for force
 		  ;; on b1 from b2 or force on b2 from b1, so need both:
-		  (charge-on ?b1 :time ?t) (charge-on ?b2 :time ?t)
+		  (charge-on ?b1 :time ?t ?t) (charge-on ?b2 :time ?t ?t)
 		  (mag (force ?b1 ?b2 electric :time ?t))
 		  (mag (relative-position ?b1 ?b2 :time ?t))
 		  ))
@@ -49,8 +49,8 @@
   :preconditions 
   (
    (body ?b1)
-   (variable ?q1 (charge-on ?b1 :time ?t))
-   (variable ?q2 (charge-on ?b2 :time ?t))
+   (variable ?q1 (charge-on ?b1 :time ?t ?t))
+   (variable ?q2 (charge-on ?b2 :time ?t ?t))
    (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
    (variable ?F  (mag (force ?b1 ?b2 electric :time ?t)))
    )
@@ -144,7 +144,7 @@
 
 ;; pull out the sign of a given charge
 (defoperator get-sign-given-charge (?b ?t)
-  :preconditions ((in-wm (given (charge-on ?b :time ?t) (dnum ?val ?units)))
+  :preconditions ((in-wm (given (charge-on ?b :time ?t ?t) (dnum ?val ?units)))
                   (bind ?pos-neg (if (> ?val 0) 'pos 'neg)))
   :effects ((sign-charge ?b ?pos-neg)))
 
@@ -612,7 +612,7 @@
 (defoperator charge-force-Efield-contains-charge (?sought)
   :preconditions 
   ((rdebug "Using charge-force-Efield-contains-charge  ~%")
-   (any-member ?sought ( (charge-on ?b :time ?t) ))
+   (any-member ?sought ( (charge-on ?b :time ?t ?t) ))
    (at-place ?b ?loc ?t)
    ;; following will fetch the source of an E-field at loc if we are given
    ;; its direction or component value
@@ -659,7 +659,7 @@
                   (at-place ?b ?loc ?t)
                   (variable ?E_x  (compo ?xy ?rot (field ?loc electric ?source :time ?t)))
                   (variable ?F_x  (compo ?xy ?rot (force ?b ?source electric :time ?t)))
-                  (variable ?q (charge-on ?b :time ?t))
+                  (variable ?q (charge-on ?b :time ?t ?t))
                   ;(sign-charge ?b ?pos-neg)
                   ;(bind ?sign (if (equal ?pos-neg 'neg) '- '+))
                   (rdebug "fired write-charge-force-Efield-compo  ~%")
@@ -698,7 +698,7 @@
                                        (mag (field ?loc electric ?source :time ?t))
 				       ; need to choose a source if sought is charge:
 				       ; ignore for now
-                                       ;(charge-on ?b :time ?t)
+                                       ;(charge-on ?b :time ?t ?t)
 				       ))
 		  (at-place ?b ?loc ?t)
                   (debug "Using & firing write-charge-force-Efield-mag-contains ~%")
@@ -722,7 +722,7 @@
 		  (axis-for ?b x ?rot)
                   (variable ?magE (mag (field ?loc electric ?source :time ?t)))
                   (variable ?magF (mag (force ?b ?source electric :time ?t)))
-                  (variable ?q (charge-on ?b :time ?t))
+                  (variable ?q (charge-on ?b :time ?t ?t))
                   (rdebug "fired write-charge-force-Efield-mag  ~%")
                   )
   :effects (
@@ -752,7 +752,7 @@
   :preconditions (
                   (any-member ?sought ((dir (force ?b ?source electric :time ?t))
                                        (dir (field ?loc electric ?source :time ?t))
-                                       (charge-on ?b :time ?t)))
+                                       (charge-on ?b :time ?t ?t)))
                   ;(not (component-form))
                   (at-place ?b ?loc ?t)
                   (rdebug "Using & firing write-charge-force-Efield-dir-contains ~%")
@@ -767,7 +767,7 @@
                   (at-place ?b ?loc ?t)
                   (variable ?dirE (dir (field ?loc electric ?source :time ?t)))
                   (variable ?dirF (dir (force ?b ?source electric :time ?t)))
-                  (variable ?q (charge-on ?b :time ?t))
+                  (variable ?q (charge-on ?b :time ?t ?t))
                   (rdebug "fired write-charge-force-Efield-dir  ~%")
                   )
   :effects (
@@ -803,7 +803,7 @@
 		  (component-form)
                   (any-member ?sought((mag (field ?loc electric ?b :time ?t))
                                       (dir (field ?loc electric ?b :time ?t))
-                                      (charge-on ?b :time ?t) 
+                                      (charge-on ?b :time ?t ?t) 
 				      (mag (relative-position ?loc ?b :time ?t))
 				      (dir (relative-position ?loc ?b :time ?t))
                                       ))
@@ -855,7 +855,7 @@
        ; b is point-charge source of field
        ;(at-place ?b ?loc-source ?t)
        (variable ?E_x  (compo ?xy ?rot (field ?loc electric ?b :time ?t)))
-       (variable ?q    (charge-on ?b :time ?t))
+       (variable ?q    (charge-on ?b :time ?t ?t))
        (variable ?r    (mag (relative-position ?loc ?b :time ?t)))
        (variable ?theta_r (dir (relative-position ?loc ?b :time ?t)))
        (bind ?sin-or-cos (if (eq ?xy 'x) 'cos 'sin))
@@ -890,7 +890,7 @@
                   ;(not (component-form))
                   (any-member ?sought ((mag (field ?loc electric ?b :time ?t))
 				       (mag (relative-position ?loc ?loc-source :time ?t))
-                                       (charge-on ?b :time ?t)))
+                                       (charge-on ?b :time ?t ?t)))
                   ;(at-place ?b ?loc-source ?t)
 		  (point-charge ?b)
                   (rdebug "Firing point-charge-Efield-mag-contains ~%")
@@ -908,7 +908,7 @@
 		  ;; need to allow axes for this scalar psm. 
 		  (axis-for ?b x 0) ; use standard axes only
                   (variable ?magE (mag (field ?loc electric ?b :time ?t)))
-                  (variable ?q (charge-on ?b :time ?t))
+                  (variable ?q (charge-on ?b :time ?t ?t))
 		  (variable ?r (mag (relative-position ?loc ?b :time ?t)))
                   (rdebug "fired write-point-charge-Efield-mag  ~%")
                   )
@@ -928,7 +928,7 @@
 (defoperator point-charge-Efield-dir-contains (?sought)
   :preconditions ((rdebug "Using point-charge-Efield-dir-contains ~%")
                   (any-member ?sought ((dir (field ?loc electric ?b :time ?t))
-                                       (charge-on ?b :time ?t)))
+                                       (charge-on ?b :time ?t ?t)))
                   ;(not (component-form))
                   ;(at-place ?b ?loc2 ?t)
 		  (point-charge ?b)
@@ -1007,59 +1007,44 @@
 
 ;; Scalar variable definitions:
 
-
-;;; Charge has a time argument, mainly to handle varying charge on capacitors.
-;;; Charge on a particle will not change over time in Andes electrostatic 
-;;;  problems.
-;;; Most of our simple problems involve only an instant, so this is not an 
-;;; issue, but it does come up when conservation of energy is applied over an 
-;;; interval.
-; If problem involves more than one time point, we want to use charge defined
-; over the longest possible interval. We want this in all equations mentioning charge.
-; Therefore, in all equation-writing operators with a precondition of a charge variable, 
-; the precond should be 
-;  (charge-var ?var (charge-on ?body :time ?time-needed) 
-; This may be realized by actually definining a charge-variable for a different time.
-;
-; (This method might be generalized for other variables that can be constant over time)
-(defoperator define-charge-on-obj-var (?p ?t)
+(defoperator define-constant-charge-on-obj-var (?p)
   :preconditions 
   (
    (rdebug "Using define-charge-on-obj-var ~%")
-   ;; use this form if haven't declared constant charge over problem interval
-   (not (constant (charge-on ?b) ?t-constant inclusive))
-   (bind ?q-var (format-sym "Q_~A$~A" (body-name ?p) (time-abbrev ?t)))
+   (not (changing-voltage))
+   (object ?p)
+   (bind ?q-var (format-sym "Q_~A" (body-name ?p)))
+   (not (circuit-component ?p capacitor))
+   (rdebug "fired define-charge-on-obj-var ~%")
+   )
+  :effects (
+            (variable ?q-var (charge-on ?p))
+	    (define-var (charge-on ?p))
+            )
+   :hint (
+       (bottom-out (string "Define a variable for the charge on ~A by using the Add Variable command on the Variable menu and selecting Charge."  ?p ))
+       ))
+
+#|  ;; not used anywhere yet
+(defoperator define-changing-charge-on-obj-var (?p ?t)
+  :preconditions 
+  (
+   (rdebug "Using define-charge-on-obj-var ~%")
+   (in-wm (changing-voltage))
+   (object ?p)
+   (time ?t)
+   (bind ?q-var (format-sym "Q_~A~@[_~A~]" (body-name ?p) (time-abbrev ?t)))
    (not (circuit-component ?p capacitor))
    (rdebug "fired define-charge-on-obj-var ~%")
    )
   :effects (
             (variable ?q-var (charge-on ?p :time ?t))
 	    (define-var (charge-on ?p :time ?t))
-	    (charge-var ?q-var (charge-on ?p :time ?t))
             )
    :hint (
        (bottom-out (string "Define a variable for the charge on ~A by using the Add Variable command on the Variable menu and selecting Charge."  ?p ))
        ))
-
-(defoperator define-charge-on-obj-var2 (?p ?t)
-  :preconditions 
-  (
-   ;; If there's more than one time, charge should be declared constant
-   (constant (charge-on ?b) ?t-constant inclusive)
-   (bind ?q-var (format-sym "Q_~A$~A" (body-name ?p) (time-abbrev ?t-constant)))
-   (not (circuit-component ?p capacitor))
-   ;; hairy: must ensure ?t is bound, since we may be called by generic 
-   ;; variable declaring precond to enter given by write-known-value-eqn 
-   (bind ?t (if (null ?t) ?t-constant ?t))
-   )
-  :effects (
-            (variable ?q-var (charge-on ?p :time ?t-constant))
-	    (define-var (charge-on ?p :time ?t-constant))
-	    (charge-var ?q-var (charge-on ?p :time ?t))
-            )
-   :hint (
-       (bottom-out (string "Define a variable for the charge on ~A by using the Add Variable command on the Variable menu and selecting Charge. Because the charge is constant throughout the problem, define the charge ~A"  ?p ?t-constant))
-       ))
+|#
 
 (defoperator define-potential-var (?loc ?source ?t)
   :preconditions 
@@ -1204,7 +1189,7 @@
                         (mag (relative-position ?loc ?body :time ?t))
 			; if sought is charge, have to choose a location
 			; for now, just don't apply for charge
-                        ;(charge-on ?body :time ?t)
+                        ;(charge-on ?body :time ?t ?t)
                       ))
   ; NB: have to make sure body is a point-charge, or else this will apply
   ; for any relative positions in any problem.
@@ -1219,7 +1204,7 @@
      ;; this psm draws source charge as body:
      (body ?body)
      (variable ?V (potential ?loc ?body :time ?t))
-     (charge-var ?q (charge-on ?body :time ?t))
+     (variable ?q (charge-on ?body :time ?t ?t))
      (variable ?r (mag (relative-position ?loc ?body :time ?t)))
   )
   :effects (
@@ -1307,7 +1292,7 @@
   :preconditions (
     (any-member ?sought ((electric-energy ?body ?source :time ?t) 
                          (net-potential ?loc :time ?t)
-			 (charge-on ?body :time ?t)
+			 (charge-on ?body :time ?t ?t)
 			 ))
     ; if sought is net-potential, must bind body: 
     (in-wm (at-place ?body ?loc ?t))
@@ -1330,11 +1315,11 @@
   :preconditions (
      (in-wm (at-place ?body ?loc ?t))
      (variable ?Ue (electric-energy ?body ?source :time ?t))
-     (charge-var ?q (charge-on ?body :time ?t))
+     (variable ?q (charge-on ?body :time ?t ?t))
      (variable ?Vnet (net-potential ?loc :time ?t))
-     ; this psm may be the only one to draw body 
-     ; NB: this goal fails if part of cons-energy psm, since
-     ; body already drawn and body-drawing op tests for that.
+     ;; this psm may be the only one to draw body 
+     ;; NB: this goal fails if part of cons-energy psm, since
+     ;; body already drawn and body-drawing op tests for that.
      (optional (body ?body))
   )
   :effects (
@@ -1676,7 +1661,7 @@
   :preconditions ((debug "Using write-charge-force-Bfield-mag-contains ~%")
                   (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
                                        (mag (field ?loc magnetic ?source :time ?t))
-                                       (charge-on ?b :time ?t)))
+                                       (charge-on ?b :time ?t ?t)))
                   ;(not (component-form))
                   (at-place ?b ?loc ?t)
                   (rdebug "Firing write-charge-force-Bfield-mag-contains ~%")
@@ -1699,7 +1684,7 @@
                   (in-wm (variable ?magV (mag (velocity ?b :time ?t))))
                   (in-wm (variable ?magF (mag (force ?b ?source magnetic :time ?t))))
 		  ; define charge variable
-                  (variable ?q (charge-on ?b :time ?t))
+                  (variable ?q (charge-on ?b :time ?t ?t))
 		  ; calculate angle between. Put it directly into eqn w/o variable.
 		  (bind ?theta `(dnum ,(get-angle-between ?V-dir ?B-dir) |deg|))
 		  (test ?theta) ; make sure it was determinable
@@ -1732,7 +1717,7 @@
                                       (dir (force ?b ?source magnetic :time ?t))
                                       (mag (field ?loc magnetic ?source :time ?t))
                                       (dir (field ?loc magnetic ?source :time ?t))
-                                      (charge-on ?b :time ?t)
+                                      (charge-on ?b :time ?t ?t)
                                       ))
                   (at-place ?b region ?t)
                   (rdebug "Firing charge-force-Bfield-compo-contains  ~%")
@@ -1811,7 +1796,7 @@
                                       (compo z 0 (field ?loc magnetic ?source :time ?t))
 				      (compo z 0 (velocity ?b :time ?t))
                                       (compo y 0 (field ?loc magnetic ?source :time ?t))
-                                      (charge-on ?b :time ?t)
+                                      (charge-on ?b :time ?t ?t)
                                       ))
                   (at-place ?b ?loc ?t))
   :effects ((eqn-contains (charge-force-Bfield-x ?b ?t) ?sought)))
@@ -1824,7 +1809,7 @@
                  (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?t)))
 		 (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
 		 (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?t)))
-                 (variable ?q (charge-on ?b :time ?t)))
+                 (variable ?q (charge-on ?b :time ?t ?t)))
   :effects ( 
               (eqn (= ?Fx (* ?q (- (* ?Vy ?Bz) (* ?Vz ?By)))) (charge-force-Bfield-x ?b ?t)) 
            )
@@ -1848,7 +1833,7 @@
                                       (compo x 0 (field ?loc magnetic ?source :time ?t))
 				      (compo x 0 (velocity ?b :time ?t))
                                       (compo z 0 (field ?loc magnetic ?source :time ?t))
-                                      (charge-on ?b :time ?t)
+                                      (charge-on ?b :time ?t ?t)
 				     ))
 		  (at-place ?b ?loc ?t))
   :effects ((eqn-contains (charge-force-Bfield-y ?b ?t) ?sought)))
@@ -1862,7 +1847,7 @@
                  (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?t)))
 		 (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
 		 (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?t)))
-                 (variable ?q (charge-on ?b :time ?t))
+                 (variable ?q (charge-on ?b :time ?t ?t))
                  )
   :effects ( 
               (eqn (= ?Fy (* ?q (- (* ?Vz ?Bx) (* ?Vx ?Bz)))) (charge-force-Bfield-y ?b ?t)) 
@@ -1888,7 +1873,7 @@
 			(compo y 0 (field ?loc magnetic ?source :time ?t))
 			(compo y 0 (velocity ?b :time ?t))
 			(compo x 0 (field ?loc magnetic ?source :time ?t))
-			(charge-on ?b :time ?t)
+			(charge-on ?b :time ?t ?t)
 			))
    (at-place ?b ?loc ?t))
   :effects ((eqn-contains (charge-force-Bfield-z ?b ?t) ?sought)))
@@ -1902,7 +1887,7 @@
    (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?t)))
    (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
    (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?t)))
-   (variable ?q (charge-on ?b :time ?t))
+   (variable ?q (charge-on ?b :time ?t ?t))
    )
   :effects ( 
 	    (eqn (= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) 
@@ -1922,7 +1907,7 @@
   ((debug "Using write-charge-force-Bfield-dir-contains ~%")
    (any-member ?sought ((dir (force ?b ?source magnetic :time ?t))
 			(dir (field ?loc magnetic ?source :time ?t))
-			(charge-on ?b :time ?t)))
+			(charge-on ?b :time ?t ?t)))
    ;;(not (component-form))
    (body ?b)
    (rdebug "Firing write-charge-force-Bfield-dir-contains ~%")
@@ -1935,7 +1920,7 @@
   :preconditions 
   ((debug "Using write-force-dir-charge-Bfield-pos ~%")
    (at-place ?b ?loc ?t)
-   (variable ?q (charge-on ?b :time ?t))
+   (variable ?q (charge-on ?b :time ?t ?t))
    (given (dir (field ?loc magnetic ?source :time ?t)) (dnum ?dir1 ?doncare1)) 
    (motion ?b (straight NIL (dnum ?dir2 ?dontcare1)) :time ?t ?t)
    (variable ?OF (dir (force ?b ?source magnetic :time ?t)))
@@ -1957,7 +1942,7 @@
   :preconditions 
   ((debug "Using write-force-dir-charge-Bfield-neg ~%")
    (at-place ?b ?loc ?t)
-   (variable ?q (charge-on ?b :time ?t))
+   (variable ?q (charge-on ?b :time ?t ?t))
    (given (dir (field ?loc magnetic ?source :time ?t)) (dnum ?dir1 ?doncare1)) 
    (motion ?b (straight NIL (dnum ?dir2 ?dontcare1)) :time ?t ?t)
    (variable ?OF (dir (force ?b ?source magnetic :time ?t)))

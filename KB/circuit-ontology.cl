@@ -29,16 +29,18 @@
 	:english ("the current in branch ~A~@[ ~A~]" ?branch (nlg ?time 'pp)))
 
 (def-qexp capacitance (capacitance ?name)
-        :units |F|
-	:english ("the capacitance of ~A" ?name))
+  :units |F|
+  :english ("the capacitance of ~A" ?name))
 
+;;; in the workbench, the time slot is added if feature changing-voltage
+;;; is included.
 (def-qexp charge-on (charge-on ?name :time ?time)
-        :units |C|
-	:fromWorkbench `(charge-on ,body :time ,time)
-        :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
+  :units |C|
+  :fromWorkbench (if time `(charge-on ,body :time ,time) `(charge-on ,body))
+  :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
-          :units |C|)
+  :units |C|)
 
 (def-qexp inductance (inductance ?inductor)
           :units |H|
