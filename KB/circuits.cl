@@ -1344,6 +1344,7 @@
 					(voltage-across ?cap :time ?t)
 					(stored-energy ?cap :time ?t)))
 		  (circuit-component ?cap capacitor)
+		  (time ?t) ;not always bound
 		  (test (time-pointp ?t))
 		  ) :effects ( 
 		  (eqn-contains (cap-energy ?cap ?t) ?sought) 
@@ -1366,7 +1367,8 @@
 (defoperator define-stored-energy-cap-var (?cap ?t)
   :preconditions (
 		  (circuit-component ?cap capacitor)
-		  (bind ?U-var (format-sym "U_~A$~A" (comp-name ?cap 'C) ?t))
+		  (bind ?U-var (format-sym "U_~A~@[_~A~]" (comp-name ?cap 'C) 
+					   (time-abbrev ?t)))
 		  ) :effects (
 		  (variable ?U-var (stored-energy ?cap :time ?t))
 		  (define-var (stored-energy ?cap :time ?t))
