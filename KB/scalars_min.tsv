@@ -25,7 +25,7 @@ current	I
 voltage	V			
 resistance	R			
 capacitance	C			
-charge	q	charge		on [body:bodies] at time [time:times]
+charge-on	q	charge		on [body:bodies] at time [time:times]
 potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:times]
 stored-energy	U	energy stored		in [body:bodies] at time [time:times]
 inductance	L	inductance		of [body:bodies]
@@ -54,4 +54,4 @@ string-tension	Ft	tension on a string	tension	on [body:bodies]
 amplitude	A	amplitude		for oscillations of [body:bodies]
 amplitude-max-speed	vmax	maximum speed of oscillation		for oscillations of [body:bodies]
 amplitude-max-abs-acceleration	amax	maximum magnitude of acceleration		for oscillations of [body:bodies]
-probability	P			
+probability	P			

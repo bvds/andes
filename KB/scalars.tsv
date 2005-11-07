@@ -25,7 +25,7 @@ current	I
 voltage	V			
 resistance	R			
 capacitance	C			
-charge	q	charge		on [body:bodies] at time [time:times]
+charge-on	q	charge		on [body:bodies]
 potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:times]
 stored-energy	U	energy stored		in [body:bodies] at time [time:times]
 inductance	L	inductance		of [body:bodies]
