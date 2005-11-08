@@ -44,8 +44,8 @@
 ;;;;===========================================================================
 
 
-(def-psmclass impulse-force (?eqn-type imp-force ?axis ?rot 
-				 (impulse ?body ?agent ?time))
+(def-psmclass impulse-force (?eqn-type definition ?axis ?rot 
+				 (impulse-force-vector ?body ?agent ?time))
     :complexity major    
     :Doc "Definition of impulse."
     :english ("the definition of impulse") 
@@ -57,8 +57,6 @@
 (defoperator draw-impulse-given-force (?b ?agent ?t)
   :preconditions
   (
-   ;; BvdS:  why not this form for forces?
-   ;;(in-wm (dir (force ?b ?agent ?type :time ?t)))
    (force ?b ?agent ?type ?t ?dir ?action)
    (test (time-intervalp ?t)) ;only impulse for intervals
    (test (not (equal ?dir 'unknown)))
@@ -97,26 +95,39 @@
    (test (member ?agent ?bodies :test #'equal)) 
    (test (time-intervalp ?t)))
   :effects 
-   ((eqn-family-contains (impulse ?b ?agent ?t) ?sought)
+   ((eqn-family-contains (impulse-force-vector ?b ?agent ?t) ?sought)
     ;; since only one compo-eqn under this vector psm, we can just
     ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (impulse ?b ?agent ?t) imp-force ?sought)))
+    (compo-eqn-contains (impulse-force-vector ?b ?agent ?t) 
+			definition ?sought)))
+
+(defoperator draw-impulse-force-vector-diagram (?b ?agent ?t)
+  :preconditions (
+    ;; ?agent might not be a proper body
+    (body ?b)
+    (vector ?b (impulse ?b ?agent :time ?t) ?dir1)
+    (vector ?b (force ?b ?agent :time ?t) ?dir2)
+    (axis-for ?b ?xy ?b-rot)
+    )
+  :effects (
+	    (vector-diagram (impulse-force-vector ?b ?agent ?t))
+  ))
 
 ;; This is the impulse from a particular force
 (defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
-   ((variable ?F12_x  (compo ?xy ?rot (force ?b ?agent ?dont-care)
-			  :time (during ?t1 ?t2)))
-    (variable ?J12_x  (compo ?xy ?rot (impulse ?b ?agent)
-			  :time (during ?t1 ?t2)))
-    (variable ?t12    (duration (during ?t1 ?t2))))
+   ((variable ?F12_x (compo ?xy ?rot (force ?b ?agent ?dont-care
+					    :time (during ?t1 ?t2))))
+    (variable ?J12_x (compo ?xy ?rot (impulse ?b ?agent 
+					      :time (during ?t1 ?t2))))
+    (variable ?t12 (duration (during ?t1 ?t2))))
   :effects (
    (eqn (= ?J12_x (* ?F12_x ?t12))
-            (compo-eqn imp-force ?xy ?rot 
-		       (impulse ?b ?agent (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn imp-force ?xy ?rot 
-		       (impulse ?b ?agent (during ?t1 ?t2)))
-             (?J12_x ?F12_x)))
+            (compo-eqn definition ?xy ?rot 
+		       (impulse-force-vector ?b ?agent (during ?t1 ?t2))))
+   (eqn-compos (compo-eqn definition ?xy ?rot 
+		       (impulse-force-vector ?b ?agent (during ?t1 ?t2)))
+	       (?J12_x ?F12_x)))
   :hint 
   ( (point (string "What is the relationship between average force, impulse and duration?"))
     (teach (string "The impulse vector is defined as the average force vector times the duration.  This can be applied component-wise."))
@@ -155,7 +166,7 @@
     (axis-for ?b ?xyz ?rot) ;maybe a problem for compounds?
   )
   :effects (
-   (vector-diagram  (impulse ?b ?agent (during ?t1 ?t2)))
+   (vector-diagram (impulse ?b ?agent (during ?t1 ?t2)))
   ))
 
 
@@ -270,10 +281,8 @@
    )
   :effects
    ((eqn (= ?J-compo-var (- ?pf-compo ?pi-compo))
-	 (compo-eqn imp-momentum ?xyz ?rot 
-		    (impulse ?b ?agent ?t)))
-    (eqn-compos (compo-eqn imp-momentum ?xyz ?rot 
-			   (impulse ?b ?agent ?t)) 
+	 (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)))
+    (eqn-compos (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)) 
 		?eqn-compo-vars))
   :hint
   ((point (string "You can relate the change in momentum of ~A to the
