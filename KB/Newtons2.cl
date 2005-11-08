@@ -4624,11 +4624,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?dir-var (dir (force ?b ?medium drag :time ?t)))
     (given (dir (force ?b ?medium drag :time ?t)) ?drag-dir))
   :hint
-  ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
-   (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
-   (bottom-out (string "Because ~a is moving in fluid medium ~a, draw a drag force on ~a due to ~a at an angle of ~a." 
-		       ?b (?medium agent) ?b (?medium agent) (?drag-dir adj)))
-   ))
+   ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
+    (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
+    (bottom-out (string "Because ~a is moving in fluid medium ~a, draw a drag force on ~a due to ~a at an angle of ~a." 
+			?b (?medium agent) ?b (?medium agent) (?drag-dir adj)))
+    ))
 
 ;; Spring force
 ;;
@@ -4645,33 +4645,34 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (object ?b)
      (time ?t)
      ;; make sure in contact with spring at t and dir is not zero
-     (spring-contact ?b ?spring ?t-contact (dnum ?force-dir |deg|))
+     (spring-contact ?b ?spring ?t-contact ?force-dir)
+     (test (not (eq ?force-dir 'zero)))
      (test  (tinsidep ?t ?t-contact))
   )
   :effects (
-    (force ?b ?spring spring ?t (dnum ?force-dir |deg|) action)
-    (force-given-at ?b ?spring spring ?t-contact 
-		    (dnum ?force-dir |deg|) action)
+    (force ?b ?spring spring ?t ?force-dir action)
+    (force-given-at ?b ?spring spring ?t-contact ?force-dir action)
   ))
 
 (defoperator draw-spring-force (?b ?spring ?t)
   :preconditions 
-   ((force ?b ?spring spring ?t (dnum ?force-dir |deg|) action)
+   ((force ?b ?spring spring ?t ?force-dir action)
     (not (vector ?b (force ?b ?spring spring :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fs_~A_~A~@[_~A~]" (body-name ?b) ?spring (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a spring force on ~a due to ~a at ~a.~%" ?force-dir ?b ?spring ?t)
     )
   :effects
-   ((vector ?b (force ?b ?spring spring :time ?t) (dnum ?force-dir |deg|))
+   ((vector ?b (force ?b ?spring spring :time ?t) ?force-dir)
     (variable ?mag-var (mag (force ?b ?spring spring :time ?t)))
     (variable ?dir-var (dir (force ?b ?spring spring :time ?t)))
-    (given (dir (force ?b ?spring spring :time ?t)) (dnum ?force-dir |deg|)))
-  :hint
+    (given (dir (force ?b ?spring spring :time ?t)) ?force-dir))
+   :hint
    ((point (string "Notice that ~a is in contact with a compressed spring ~a." ?b (?t pp)))
     (teach (string "A compressed spring exerts a restorative force on an object in contact with it.  The spring force opposes the compression of the spring from its equilibrium length."))
     (bottom-out (string "Because ~a is in contact with compressed ~a, draw a spring force on ~a due to ~a at an angle of ~a." 
-			?b (?spring agent) ?b (?spring agent) ?force-dir))
+			?b (?spring agent) ?b (?spring agent) 
+			(?force-dir adj)))
     ))
 
 ;;; UG -- Newton's Law of Universal Gravitation
