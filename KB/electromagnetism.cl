@@ -29,9 +29,8 @@
      ;; first make sure a coulomb interaction exists in problem
      (coulomb-bodies . ?coul-bodies)
      (any-member ?sought 
-		 (;; if sought is charge, can use either equation for force
-		  ;; on b1 from b2 or force on b2 from b1, so need both:
-		  (charge-on ?b1 :time ?t ?t) (charge-on ?b2 :time ?t ?t)
+		 (
+		  ;; because of the abs(q1)*abs(q2), don't include charge
 		  (mag (force ?b1 ?b2 electric :time ?t))
 		  (mag (relative-position ?b1 ?b2 :time ?t))
 		  ))
@@ -63,6 +62,62 @@
      (bottom-out (string "Write the equation ~A" 
 			 ((= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) 
 			     (^ ?r 2))) algebra))
+  ))
+
+(def-psmclass coulomb-compo (?eqn-type coulomb-force ?axis ?rot 
+				 (coulomb ?body ?agent ?time))
+    :complexity major    
+    :Doc "Definition of Coulomb's law, component form."
+    :english ("the definition of Coulomb's law (component form)") 
+    :ExpFormat ("applying Coulomb's law to ~a and ~A ~a"
+		(nlg ?body) (nlg ?agent) (nlg ?time 'pp))
+    :EqnFormat ("F_~A = kelec*q1*q2/r^2 r_~A/r" 
+		(nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+(defoperator coulomb-vector-contains (?sought)
+  :preconditions 
+  (
+   ;; first make sure a coulomb interaction exists in problem
+   (coulomb-bodies . ?coul-bodies)
+   (any-member ?sought
+	       (;; if sought is charge, can use either equation for force
+		;; on b1 from b2 or force on b2 from b1, so need both:
+		(charge-on ?b1 :time ?t ?t)
+		(charge-on ?b2 :time ?t ?t)
+		(compo ?xy ?rot (relative-position ?b1 ?b2 :time ?t))
+		(compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
+	       )
+   (object ?b1)
+   (object ?b2)
+   (time ?t)
+   (test (member ?b1 ?coul-bodies))
+   (test (member ?b2 ?coul-bodies))
+   )
+  :effects 
+   ((eqn-family-contains (coulomb ?b1 ?b2 ?t) ?sought)
+    ;; since only one compo-eqn under this vector psm, we can just
+    ;; select it now, rather than requiring further operators to do so
+    (compo-eqn-contains (coulomb ?b1 ?b2 ?t) coulomb-force ?sought)))
+
+(defoperator write-coulomb-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
+  :preconditions 
+   ((variable ?F12_x  (compo ?xy ?rot (force ?b ?agent ?dont-care)
+			  :time (during ?t1 ?t2)))
+    (variable ?J12_x  (compo ?xy ?rot (coulomb ?b ?agent)
+			  :time (during ?t1 ?t2)))
+    (variable ?t12    (duration (during ?t1 ?t2))))
+  :effects (
+   (eqn (= ?J12_x (* ?F12_x ?t12))
+            (compo-eqn coulomb-force ?xy ?rot 
+		       (coulomb ?b ?agent (during ?t1 ?t2))))
+   (eqn-compos (compo-eqn coulomb-force ?xy ?rot 
+		       (coulomb ?b ?agent (during ?t1 ?t2)))
+             (?J12_x ?F12_x)))
+  :hint 
+  ( (point (string "What is the relationship between average force, coulomb and duration?"))
+    (teach (string "The coulomb vector is defined as the average force vector times the duration.  This can be applied component-wise."))
+    (bottom-out (string "Write the equation ~a"
+			((= ?J12_x (* ?F12_x ?t12)) algebra)))
   ))
 
 
