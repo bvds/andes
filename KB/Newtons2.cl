@@ -2893,8 +2893,7 @@
    then draw a non-zero acceleration perpendicular to the velocity at ?time."
   :preconditions
    ((time ?t)
-    (motion ?b (curved circular (?vel-dir
-				 (dnum ?accel-dir |deg|))) :time ?t-motion)
+    (motion ?b (curved circular (?vel-dir ?accel-dir)) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (test (time-pointp ?t))
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
@@ -2903,15 +2902,16 @@
     (debug "~&Drawing centripetal accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
     )
   :effects
-   ((vector ?b (accel ?b :time ?t) (dnum ?accel-dir |deg|))
+   ((vector ?b (accel ?b :time ?t) ?accel-dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) (dnum ?accel-dir |deg|)))
+    (given (dir (accel ?b :time ?t)) ?accel-dir))
    :hint
    ((point (string "Notice that ~a is in uniform circular motion ~a" ?b (?t pp)))
     (teach (kcd "draw_accel_circular_constant_speed")
 	   (string "When a body is in uniform circular motion, its acceleration is directed towards the center of the circle."))
-    (bottom-out (string "Because ~a is in uniform circular motion you should use the acceleration tool to draw an acceleration for it ~a at direction ~A degrees." ?b (?t pp) ?accel-dir))
+    (bottom-out (string "Because ~a is in uniform circular motion you should use the acceleration tool to draw an acceleration for it ~a at direction ~A degrees." 
+			?b (?t pp) (?accel-dir adj)))
     ))
 
 
@@ -2925,8 +2925,7 @@
 (defoperator draw-accel-projectile-given (?b ?t)
    :preconditions 
    ((time ?t)
-    (motion ?b (curved projectile 
-		    (?vel-dir (dnum ?accel-dir |deg|))) :time ?t-motion)
+    (motion ?b (curved projectile (?vel-dir ?accel-dir)) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     ;; should we test that free-fall is not specified? Assume we won't
     ;; have this motion spec in that case.
@@ -2936,13 +2935,14 @@
     (debug "~&Drawing projectile accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
     )
   :effects
-   ((vector ?b (accel ?b :time ?t) (dnum ?accel-dir |deg|))
+   ((vector ?b (accel ?b :time ?t) ?accel-dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) (dnum ?accel-dir |deg|)))
+    (given (dir (accel ?b :time ?t)) ?accel-dir))
    :hint
     ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
-    (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." ?b (?t pp) ?dir ?dir))
+    (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." 
+			?b (?t pp) (?dir adj) (?dir adj)))
     ))
 
 ;;;
@@ -4338,7 +4338,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then there is normal force on the object due to the plane,
       and it is perpendicular to the plane"
   :preconditions
-   ((force ?b ?surface normal ?t (dnum ?normal-dir |deg|) action)
+   ((force ?b ?surface normal ?t ?normal-dir action)
     (not (vector ?b (force ?b ?surface normal :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fn_~A_~A~@[_~A~]" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
@@ -4346,17 +4346,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (debug "~&Drawing ~a normal on ~a due to ~a at ~a.~%" ?normal-dir ?b ?surface ?t)
     )
   :effects
-   ((vector ?b (force ?b ?surface normal :time ?t) (dnum ?normal-dir |deg|))
+   ((vector ?b (force ?b ?surface normal :time ?t) ?normal-dir)
     (variable ?mag-var (mag (force ?b ?surface normal :time ?t)))
     (variable ?dir-var (dir (force ?b ?surface normal :time ?t)))
-    (given (dir (force ?b ?surface normal :time ?t)) (dnum ?normal-dir |deg|)))
+    (given (dir (force ?b ?surface normal :time ?t)) ?normal-dir))
   :hint
    ((point (string "Notice that ~a is supported by a surface: ~a." ?b ?surface))
     (teach (minilesson "mini_normal_force.htm")
            (kcd "normal_force_direction")
 	   (string "When an object is supported by a surface, the surface exerts a normal force on it.  The normal force is perpendicular to the surface."))
     (bottom-out (string "Because ~a supports ~a, draw a normal force on ~a due to ~a at an angle of ~a degrees." 
-			(?surface agent) ?b ?b (?surface agent) ?normal-dir))
+			(?surface agent) ?b ?b (?surface agent) 
+			(?normal-dir adj)))
     ))
 
 ;; Applied force is specified in problem statement by given force direction 
@@ -4643,7 +4644,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions(
      (object ?b)
      (time ?t)
-     ; make sure in contact with spring at t and dir is not zero
+     ;; make sure in contact with spring at t and dir is not zero
      (spring-contact ?b ?spring ?t-contact (dnum ?force-dir |deg|))
      (test  (tinsidep ?t ?t-contact))
   )
