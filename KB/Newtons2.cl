@@ -789,7 +789,8 @@
                   ((axis z ?rot) symbols-label) ?vector (?t pp)))
    (teach (string "If a vector V lies entirely along an axis, its component along that axis will be + or - its magnitude, depending on whether the vector points in the positive or negative direction.  In a right-handed coordinate system, the positive z axis points out of the x-y plane of the diagram, and the negative z axis points into the plane.  Thus V_z = V if V points out of the plane and V_z = -V if into the plane." ))
   (bottom-out (string "Since ~A ~A points ~A, write the equation ~A" 
-                      ?vector (?t pp) (?dir adj) ((= ?compo-var ?rhs) algebra)))
+                      ?vector (?t pp) (?dir adj) 
+		      ((= ?compo-var ?rhs) algebra)))
   ))
 
 
@@ -2351,7 +2352,8 @@
   :hint
   ((teach (string "When an object is moving in a curve, its velocity at an instant of time is tangent to the curve.")
 	  (kcd "draw-velocity-curved"))
-   (bottom-out (string "Because ~a is moving in a curve ~a, and the tangent to the curve at that point is ~a, draw a non-zero velocity in direction ~a." ?b (?t pp) (?dir adj) (?dir adj)))
+   (bottom-out (string "Because ~a is moving in a curve ~a, and the tangent to the curve at that point is ~a, draw a non-zero velocity in direction ~a." 
+		       ?b (?t pp) (?dir adj) (?dir adj)))
    ))
 
 
@@ -2771,8 +2773,7 @@
    then its acceleration is opposite its direction of motion."
   :preconditions
    ((time ?t)
-    (motion ?b (straight slow-down (dnum ?motion-dir |deg|)) 
-	    :time ?t-motion)
+    (motion ?b (straight slow-down ?motion-dir) :time ?t-motion)
     (test (not (equal ?motion-dir 'unknown)))  ; until conditional effects are implemented
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
@@ -2782,16 +2783,17 @@
     (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir-val ?b ?t)
     )
   :effects
-   ((vector ?b (accel ?b :time ?t) (dnum ?accel-dir |deg|))
+   ((vector ?b (accel ?b :time ?t) ?accel-dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) (dnum ?accel-dir |deg|)))
+    (given (dir (accel ?b :time ?t)) ?accel-dir))
   :hint
   ((point (string "Notice that ~a is slowing down as it moves in a straight line ~a" ?b (?t pp)))
    (teach (minilesson "mini_slowdown_accel.htm")
           (kcd "draw_accel_straight_slowing_down")
 	  (string "When a body is slowing down as it moves in a straight line, it is decelerating, which means that its acceleration is in the opposite direction from its motion."))
-   (bottom-out (string "Because ~a is slowing down as it moves in a straight line, draw an acceleration vector for it ~a.  It should have a direction of ~a because that is the opposite direction from its motion." ?b (?t pp) ?accel-dir))
+   (bottom-out (string "Because ~a is slowing down as it moves in a straight line, draw an acceleration vector for it at ~a.  It should have a direction of ~a because that is the opposite direction from its motion." 
+		       ?b (?t pp) (?accel-dir adj)))
    ))
   
 
@@ -3092,7 +3094,7 @@
      (bind ?mag-var (format-sym "~A_~A~@[_~A~]" ?vectype (body-name ?b) 
 				(time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (bind ?dir `(dnum ,(dir-from-compos ?xc ?yc) |deg|))
+     (bind ?dir (dir-from-compos ?xc ?yc))
    )
    :effects (
     (vector ?b (?vectype ?b . ?args) ?dir)
@@ -3852,7 +3854,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
     (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a at ~a."
-	  ?b2 ?b1 (?t pp) ?dir-expr))
+	  ?b2 ?b1 (?t pp) (?dir-expr adj)))
   ))
 
 (def-PSMclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
@@ -4422,8 +4424,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator find-kinetic-friction-force (?b ?surface ?t)
   :preconditions (
     (slides-against ?b ?surface ?t-slides)
-    (motion ?b (straight ?dont-care32 
-			 (dnum ?motion-dir |deg|)) :time ?t-motion ?t)
+    (motion ?b (straight ?dont-care32 ?motion-dir) :time ?t-motion ?t)
     (time ?t)
     (object ?b)
     (not (force ?b ?surface kinetic-friction ?t . ?dont-care))
@@ -4431,9 +4432,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bind ?friction-dir (opposite ?motion-dir))
    )
   :effects (
-    (force ?b ?surface kinetic-friction ?t (dnum ?friction-dir |deg|) action)
+    (force ?b ?surface kinetic-friction ?t ?friction-dir action)
     (force-given-at ?b ?surface kinetic-friction ?t-slides 
-		    (dnum ?friction-dir |deg|) action)
+		    ?friction-dir action)
   ))
 
 (defoperator draw-kinetic-friction (?b ?surface ?t)
@@ -4442,7 +4443,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then there is a kinetic friction force on the object due to the surface,
       and it is opposite the direction of motion"
   :preconditions
-   ((force ?b ?surface kinetic-friction ?t (dnum ?friction-dir |deg|) action)
+   ((force ?b ?surface kinetic-friction ?t ?friction-dir action)
     (not (vector ?b (force ?b ?surface kinetic-friction :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Ff_~A_~A~@[_~A~]" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
@@ -4450,17 +4451,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (debug "~&Drawing ~a kinetic-friction for ~a due to ~a at ~a.~%" ?friction-dir ?b ?surface ?t)
     )
   :effects
-   ((vector ?b (force ?b ?surface kinetic-friction :time ?t) (dnum ?friction-dir |deg|))
+   ((vector ?b (force ?b ?surface kinetic-friction :time ?t) ?friction-dir)
     (variable ?mag-var (mag (force ?b ?surface kinetic-friction :time ?t)))
     (variable ?dir-var (dir (force ?b ?surface kinetic-friction :time ?t)))
-    (given (dir (force ?b ?surface kinetic-friction :time ?t)) (dnum ?friction-dir |deg|)))
+    (given (dir (force ?b ?surface kinetic-friction :time ?t)) ?friction-dir))
   :hint
    ((point (string "Notice that ~a is sliding across ~a." ?b ?surface))
     (teach (minilesson "Mini_kinetic_friction.HTM")
            (kcd "dynamic_friction_force_direction")
 	   (string "When an object is moving in contact with a surface and the surface exerts a kinetic friction force on it.  The friction force is opposite to the direction of motion."))
     (bottom-out (string "Because ~a is moving in contact with ~a, draw a kinetic friction force on ~a due to ~a at an angle of ~a." 
-			?b (?surface agent) ?b (?surface agent) ?friction-dir))
+			?b (?surface agent) ?b (?surface agent) 
+			(?friction-dir adj)))
     ))
 
 (defoperator kinetic-friction-law-contains (?quantity)
@@ -4593,14 +4595,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (drag ?b ?medium ?t-slides)
     (test (tinsidep ?t ?t-slides))
     (not (force ?b ?medium drag ?t . ?dont-care))
-    (motion ?b (straight ?dont-care32 (dnum ?motion-dir |deg|)) 
-	    :time ?t-motion)
+    (motion ?b (straight ?dont-care32 ?motion-dir) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (bind ?drag-dir (opposite ?motion-dir))
    )
   :effects (
-    (force ?b ?medium drag ?t (dnum ?drag-dir |deg|) action)
-    (force-given-at ?b ?medium drag ?t-slides (dnum ?drag-dir |deg|) action)
+    (force ?b ?medium drag ?t ?drag-dir action)
+    (force-given-at ?b ?medium drag ?t-slides ?drag-dir action)
   ))
 
 (defoperator draw-drag (?b ?medium ?t)
@@ -4609,7 +4610,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then there is a drag force on the object due to the medium,
       and it is opposite the direction of motion"
   :preconditions
-   ((force ?b ?medium drag ?t (dnum ?drag-dir |deg|) action)
+   ((force ?b ?medium drag ?t ?drag-dir action)
     (not (vector ?b (force ?b ?medium drag :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fd_~A_~A~@[_~A~]" (body-name ?b) ?medium 
                                              (time-abbrev ?t)))
@@ -4617,27 +4618,27 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (debug "~&Drawing ~a drag for ~a due to ~a at ~a.~%" ?drag-dir ?b ?medium ?t)
     )
   :effects
-   ((vector ?b (force ?b ?medium drag :time ?t) (dnum ?drag-dir |deg|))
+   ((vector ?b (force ?b ?medium drag :time ?t) ?drag-dir)
     (variable ?mag-var (mag (force ?b ?medium drag :time ?t)))
     (variable ?dir-var (dir (force ?b ?medium drag :time ?t)))
-    (given (dir (force ?b ?medium drag :time ?t)) (dnum ?drag-dir |deg|)))
+    (given (dir (force ?b ?medium drag :time ?t)) ?drag-dir))
   :hint
-   ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
-    (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
-    (bottom-out (string "Because ~a is moving in fluid medium ~a, draw a drag force on ~a due to ~a at an angle of ~a." 
-			?b (?medium agent) ?b (?medium agent) ?drag-dir))
-    ))
+  ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
+   (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
+   (bottom-out (string "Because ~a is moving in fluid medium ~a, draw a drag force on ~a due to ~a at an angle of ~a." 
+		       ?b (?medium agent) ?b (?medium agent) (?drag-dir adj)))
+   ))
 
-; Spring force
-;
-; Spring forces by Hooke's Law not fully implemented in Andes (no deep
-; reason for this). We currently only use springs in energy problems.
-; We need to know that a spring force exists so that we can include it
-; in the net work done on an object. Can add Hooke's Law problems later
-;
-; spring-contact statement includes direction of the force. Note we may
-; include this statement even for times at which compression is zero,
-; so that zero-valued term for spring energy is included in total energy
+;; Spring force
+;;
+;; Spring forces by Hooke's Law not fully implemented in Andes (no deep
+;; reason for this). We currently only use springs in energy problems.
+;; We need to know that a spring force exists so that we can include it
+;; in the net work done on an object. Can add Hooke's Law problems later
+;;
+;; spring-contact statement includes direction of the force. Note we may
+;; include this statement even for times at which compression is zero,
+;; so that zero-valued term for spring energy is included in total energy
 (defoperator find-spring-force (?b ?spring ?t)
   :preconditions(
      (object ?b)
@@ -8432,9 +8433,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (vector ?b (ang-velocity ?b :time ?t) ?dir) 
   )
   :hint 
- ((point (string "Notice that ~a is rotating ~a about an axis ~a." ?b (?rotate-dir adj) (?t pp)))
+  ((point (string "Notice that ~a is rotating ~a about an axis ~a." ?b 
+		  (?rotate-dir adj) (?t pp)))
    (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. The angular velocity vector lies along the z-axis in Andes problems. By the right hand rule it points out of the x-y plane of the diagram for counter-clockwise rotation and into the x-y plane for clockwise rotation."))
-   (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a ." ?b (?rotate-dir adj) (?t pp) (?dir adj)))
+   (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a." 
+		       ?b (?rotate-dir adj) (?t pp) (?dir adj)))
   ))
 
 ;; Draw zero angular velocity for an object that is not rotating.
@@ -8483,9 +8486,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (given (dir (ang-displacement ?b :time ?t)) ?dir)
   )
   :hint
-  ((point (string "Notice that ~a is rotating ~a ~a." ?b (?rotate-dir adj) (?t pp)))
+  ((point (string "Notice that ~a is rotating ~a ~a." 
+		  ?b (?rotate-dir adj) (?t pp)))
    (teach (string "The angular displacement of an object over an interval represents its net change in angular position as it rotates during that interval.  This vector is defined to lie along the z-axis in Andes problems. By the right hand rule, the angular displacment vector points out of the x-y plane of the diagram for net counter-clockwise rotation and into the x-y plane for net clockwise rotation."))
-   (bottom-out (string "Because ~a is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for it in direction ~a" ?b (?rotate-dir adj) (?t pp) (?dir adj)))
+   (bottom-out (string "Because ~a is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for it in direction ~a" 
+		       ?b (?rotate-dir adj) (?t pp) (?dir adj)))
    ))
 
 (defoperator ang-accel-at-rest (?b ?t)
@@ -8848,12 +8853,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (given (dir (relative-position ?pt ?axis-pt :time ?t)) (dnum ?r-dir |deg|))
    (bind ?v-dir (if (equal ?rotate-dir 'ccw) (mod (+ ?r-dir 90) 360)
                   (mod (- ?r-dir 90) 360)))
-   (bind ?a-dir (opposite ?r-dir 180))  
+   (bind ?a-dir (opposite ?r-dir))  
    (debug "linear motion of ~A: vel dir ~A, accel dir ~A~%" ?pt ?v-dir ?a-dir)
    )
    :effects (
 	     (motion ?pt (curved circular ((dnum ?v-dir |deg|) 
-					   (dnum ?a-dir |deg|))) :time ?t)
+					   ?a-dir)) :time ?t)
    )
 )
 
@@ -9623,9 +9628,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (teach (string "Newton's Second Law for rotation says that the net ~A on an object is proportional to its angular acceleration.  This is a vector relation, therefore the net ~A will point in the same direction as the angular acceleration vector." 
 		   (nil moment-name) (nil moment-name)))
     (bottom-out (string "Since the angular acceleration is known to be directed ~A, use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
-			(?dir adj)  (nil moment-name) (nil moment-symbol)
-			(nil moment-name)
-			?b ?axis (?time pp) (?dir adj))) 
+			(?dir adj) (nil moment-name) (nil moment-symbol)
+			(nil moment-name) ?b ?axis (?time pp) (?dir adj))) 
     ))
 
 ;;; draw zero net torque if object given is not rotating.

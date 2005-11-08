@@ -257,7 +257,7 @@
 	 ((eq x 'z-unknown) x)
 	 ((eq x 'unknown) x)
 	 ((degrees-or-num x) 
-	  `(dnum ,(mod (+ (convert-dnum-to-number x) 180) 360) |deg|))
+	  (dir-to-dnum (mod (+ (convert-dnum-to-number x) 180) 360)))
 	 (t (error "Opposite for ~A" x))))
 
 (defun minimal-x-rotations (Bag)
@@ -283,8 +283,7 @@
 (defun zdir-phi (zdir)
   "Convert given z-axis direction (into or out-of) into polar angle degrees"
   (when (known-z-dir-spec zdir)
-    (if (equal zdir 'into) '(dnum 180 |deg|) 
-      '(dnum 0 |deg|))))
+    (if (equal zdir 'into) '(dnum 180 |deg|) '(dnum 0 |deg|))))
 
 ; following assumes f-dir and r-dir are in the plane, 
 ; and also that not parallel nor anti-parallel, so torque is non-zero
@@ -304,8 +303,8 @@
  (* radians (/ 180 pi)))
 
 (defun dir-from-compos (xc yc)
- "return nearest integral direction degrees given vector components"
-  (round (mod (rad-to-deg (atan yc xc)) 360)))
+ "return nearest integral direction given vector components"
+  (dir-to-dnum (round (mod (rad-to-deg (atan yc xc)) 360))))
 
 ;;; In following, a a "dir" is either a plain number representing xy angle 
 ;;; in degrees or one of the special atoms: unknown, zero, into, out-of, 
@@ -319,7 +318,7 @@
   (if (degree-specifierp dir-term) (second dir-term) 
                dir-term))
 
-(defun dir-to-term (dir)
+(defun dir-to-dnum (dir)
 "return dnum term for number of degrees, else arg unchanged"
    (if (numberp dir) `(dnum ,dir |deg|) dir))
 
@@ -342,11 +341,10 @@
 	(T (min (mod (- dir1 dir2) 360)
                 (mod (- dir2 dir1) 360))))))
 
-; For computing cross product direction.
-
+;; For computing cross product direction.
 (defun cross-product-dir (dir-term1 dir-term2)
 "return term for cross product direction of two given vector dir terms"
-  (dir-to-term (cross-product (term-to-dir dir-term1)
+  (dir-to-dnum (cross-product (term-to-dir dir-term1)
                               (term-to-dir dir-term2))))
 
 (defun cross-product (dir1 dir2)

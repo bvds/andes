@@ -143,8 +143,8 @@
          ))
 
 ;; pull out the sign of a given charge
-(defoperator get-sign-given-charge (?b ?t)
-  :preconditions ((in-wm (given (charge-on ?b :time ?t ?t) (dnum ?val ?units)))
+(defoperator get-sign-given-charge (?b)
+  :preconditions ((in-wm (given (charge-on ?b) (dnum ?val ?units)))
                   (bind ?pos-neg (if (> ?val 0) 'pos 'neg)))
   :effects ((sign-charge ?b ?pos-neg)))
 
@@ -153,14 +153,14 @@
    :preconditions 
    ((rdebug "Using draw-Efield-given-force-dir ~%")
     ;; make sure direction of force on ?b is given
-    (given (dir (force ?b ?source electric :time ?t)) (dnum ?F-dir |deg|))
+    (given (dir (force ?b ?source electric :time ?t)) ?F-dir)
     ;; make sure field direction at loc of b not given, directly or via components:
     (at-place ?b ?loc ?t)
     (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
     (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
     ;; require sign of charge to be given
     (sign-charge ?b ?pos-neg)
-    (bind ?field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
+    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
     (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
     (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source)
 			       (time-abbrev ?t)))
@@ -169,15 +169,17 @@
     )
    :effects 
    (
-    (vector ?b (field ?loc electric ?source :time ?t) (dnum ?Field-dir |deg|))
+    (vector ?b (field ?loc electric ?source :time ?t) ?Field-dir)
     (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
     (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
-    (given (dir (field ?loc electric ?source :time ?t)) (dnum ?Field-dir |deg|))
+    (given (dir (field ?loc electric ?source :time ?t)) ?Field-dir)
     )
    :hint (
 	  (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
 	  (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-	  (bottom-out (string "Because the charge of ~a is ~a,  use the electric field drawing tool (labeled E) to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A degrees" ?b (?pos-neg adj) ?loc (?source agent) (?same-or-opposite adj) ?b ?field-dir))
+	  (bottom-out (string "Because the charge of ~a is ~a,  use the electric field drawing tool (labeled E) to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A." 
+			      ?b (?pos-neg adj) ?loc (?source agent) 
+			      (?same-or-opposite adj) ?b (?field-dir adj)))
 	  ))
 
 ;; Can draw Efield vector if E force dir is given by components, 
@@ -204,7 +206,7 @@
    (bind ?dir (dir-from-compos ?xc ?yc)) 
    )
   :effects (
-            (vector ?b (field ?loc electric ?source :time ?t) (dnum ?dir |deg|))
+            (vector ?b (field ?loc electric ?source :time ?t) ?dir)
             (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
             (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
             ;; Don't put out equation for thetaV since value is not exact, 
@@ -236,13 +238,11 @@
     ;; similar to draw-vector-given-compos
     (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source)
 			       (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?opp-dir (dir-from-compos ?xc ?yc)) 
-    (bind ?dir (opposite ?opp-dir))
+    (bind ?dir (opposite (dir-from-compos ?xc ?yc)))
     )
    :effects 
    (
-    (vector ?b (field ?loc electric ?source :time ?t) (dnum ?dir |deg|))
+    (vector ?b (field ?loc electric ?source :time ?t) ?dir)
     (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
     (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
     ;; Don't put out equation for thetaV since value is not exact, could 
@@ -306,7 +306,7 @@
    (point-charge ?b)
    (test (time-pointp ?t))
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
-   (in-wm (given (dir (relative-position ?loc ?b :time ?t)) (dnum ?rdir |deg|)))
+   (in-wm (given (dir (relative-position ?loc ?b :time ?t)) ?rdir))
    (sign-charge ?b ?pos-neg)
    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?rdir (opposite ?rdir)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
@@ -315,15 +315,15 @@
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
-            (vector ?b (field ?loc electric ?b :time ?t) (dnum ?Field-dir |deg|))
+            (vector ?b (field ?loc electric ?b :time ?t) ?Field-dir)
             (variable ?mag-var (mag (field ?loc electric ?b :time ?t))) 
             (variable ?dir-var (dir (field ?loc electric ?b :time ?t))) 
-            (given (dir (field ?loc electric ?b :time ?t)) (dnum ?Field-dir |deg|))
+            (given (dir (field ?loc electric ?b :time ?t)) ?Field-dir)
   )
   :hint (
         (point (string "Because ~A is charged, it creates an electric field at ~A." ?b ?loc))
         (teach (string "The direction of the electric field due to a point charge is radial away from a positive charge and toward a negative charge."))
-        (bottom-out (string "Because the charge of ~a is ~a and the line from ~a to ~a is oriented at ~a, draw the electric field at ~a due to ~a in the ~a direction, namely ~a deg." 
+        (bottom-out (string "Because the charge of ~a is ~a and the line from ~a to ~a is oriented at ~a, draw the electric field at ~a due to ~a in the ~a direction, namely ~a." 
 			    ?b (?pos-neg adj) ?b ?loc ?rdir ?loc (?b agent) 
 			    (?same-or-opposite adj) ?Field-dir))
   ))
@@ -484,8 +484,9 @@
   :hint (
         (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
 	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is ~a, use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A degrees" 
-	 ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) ?F-dir))
+         (bottom-out (string "Because the charge of ~a is ~a, use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A." 
+	 ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) 
+	 (?F-dir adj)))
          ))
 
 ;; if given E field vector dir
@@ -511,7 +512,7 @@
     (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?dir `(dnum ,(dir-from-compos ?xc ?yc) |deg|))
+    (bind ?dir (dir-from-compos ?xc ?yc))
     (rdebug "fired draw-Eforce-given-field-compos-pos  ~%")
     )
   :effects (
@@ -546,12 +547,11 @@
     (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?opp-dir (dir-from-compos ?xc ?yc))
-    (bind ?dir (opposite ?opp-dir))
+    (bind ?dir (opposite (dir-from-compos ?xc ?yc)))
     (rdebug "fired draw-Eforce-given-field-compos-pos  ~%")
     )
   :effects (
-            (vector ?b (force ?b ?source electric :time ?t) (dnum ?dir |deg|))
+            (vector ?b (force ?b ?source electric :time ?t) ?dir)
             (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
             (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
             ;; Don't put out equation for thetaV since value is not exact, could 
@@ -1636,12 +1636,14 @@
             (variable ?dir-var (dir (net-torque ?b ?axis :time ?t)))
             (given (dir (net-torque ?b ?axis :time ?t)) ?tau-dir)
  )
- :hint (
-	(point (string "The torque on a current loop points in the direction of the cross product of its magnetic dipole moment and the magnetic field vector at its location.")) 
-	(teach (string "The torque vector on a current loop points in a direction perpendicular to the plane formed by the magnetic moment and magnetic field vectors, in a direction determined by the right hand rule: curl the fingers of your right hand from the dipole moment vector to the magnetic field vector, and your thumb will point in the direction of the torque."))
-        (bottom-out (string "Because the magnetic moment has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the net torque on ~a about ~a in the direction of ~A." 
-			     (?dir-mu adj) (?dir-B adj) (?tau-dir adj) ?b ?axis (?tau-dir adj)))
-        ))
+ :hint 
+ (
+  (point (string "The torque on a current loop points in the direction of the cross product of its magnetic dipole moment and the magnetic field vector at its location.")) 
+  (teach (string "The torque vector on a current loop points in a direction perpendicular to the plane formed by the magnetic moment and magnetic field vectors, in a direction determined by the right hand rule: curl the fingers of your right hand from the dipole moment vector to the magnetic field vector, and your thumb will point in the direction of the torque."))
+  (bottom-out (string "Because the magnetic moment has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the net torque on ~a about ~a in the direction of ~A." 
+		      (?dir-mu adj) (?dir-B adj) (?tau-dir adj) ?b ?axis 
+		      (?tau-dir adj)))
+  ))
 
 (defoperator draw-torque-current-loop-zero (?b ?t)
  :preconditions (
