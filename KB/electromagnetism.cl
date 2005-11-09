@@ -455,20 +455,20 @@
 		  (tinsidep ?t ?t-force)))
 	(test (member ?b ?bodies :test #'equal))
 	(test (member ?agent ?bodies :test #'equal))
+	(test (not (equal ?b ?agent)))
 	;; check that something else hasn't defined this force.
 	(not (force ?b ?agent electric ?t . ?dont-care)) 
   )
   :effects (
-    (force ?b ?agent electric ?t unknown action)
-    (force-given-at ?b ?agent electric ?t unknown action)
+    (force ?b ?agent electric ?t unknown nil)
+    (force-given-at ?b ?agent electric ?t unknown nil)
   ))
 
  
 (defoperator draw-Eforce-given-dir (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Eforce-given-dir ~%")
-   (force ?b ?source electric ?t ?dir ?dontcare)
-   (test (not (equal ?dir 'unknown)))
+   (force ?b ?source electric ?t ?dir action)
    (not (vector ?b (force ?b ?source electric :time ?t) ?whatever))
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
@@ -494,7 +494,7 @@
 (defoperator draw-Eforce-unknown (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Eforce-given-dir ~%")
-   (force ?b ?source electric ?t unknown ?dontcare)
+   (force ?b ?source electric ?t unknown nil)
    (not (vector ?b (force ?b ?source electric :time ?t) ?whatever))
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
