@@ -61,12 +61,6 @@
    :Specs ("Prevent use of different axes for compound and for part in same solution")
    :message (Different axes used for part ?b and compound of ?bodies))
 
-;; don't use both Net-force and sum of forces form of Newton's Law
-(defnogood redundant-NSL-forms
-    ((using-compo-free (NSL ?xyz1 ?rot1 ?family-id))
-     (using-compo-free (NSL-net ?xyz2 ?rot2 ?family-id)))
-  :specs ("Prevent combining different ways of writing Newton's Law -- net force and sum of forces form -- on a body and time")
-  :message (Redundant NSL forms for ?family-id))
 
 (defnogood only-one-form-of-dot
   ((using-dot ?a ?b ?x1-rot)
