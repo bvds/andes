@@ -237,78 +237,6 @@
 			      (?same-or-opposite adj) ?b (?field-dir adj)))
 	  ))
 
-;; Can draw Efield vector if E force dir is given by components, 
-;; and grid is used
-(defoperator draw-Efield-given-force-compos-pos (?b ?source ?t)
-  :preconditions 
-  (
-   ;; only use for component form problems with drawing grid
-   (component-form)
-   (vector-grid)
-   ;; require sign of charge to be positive
-   (sign-charge ?b pos)
-   ;; make sure E-force compos given
-   (given (compo x 0  (force ?b ?source electric :time ?t)) (dnum ?xc ?units))
-   (given (compo y 0 (force ?b ?source electric :time ?t)) (dnum ?yc ?units))
-   ;; make sure field direction not given at loc of ?b, directly or via components:
-   (at-place ?b ?loc ?t)
-   (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
-   (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
-   ;; similar to draw-vector-given-compos
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source) 
-			      (time-abbrev ?t)))
-   (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (bind ?dir (dir-from-compos ?xc ?yc)) 
-   )
-  :effects (
-            (vector ?b (field ?loc electric ?source :time ?t) ?dir)
-            (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
-            (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
-            ;; Don't put out equation for thetaV since value is not exact, 
-	    ;; could lead to errors if given to algebraic solver with other 
-	    ;; equations.
-            ;; (given (dir (field ?loc electric ?source :time ?t)) (dnum ?Field-dir |deg|))
-            )
-  :hint (
-	 (point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
-	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-	(bottom-out (string "Because the charge of ~a is positive, and you were given the horizontal and vertical components of the force vector, draw the electric field at the location of ~a in the same direction as the force by choosing a scale, then counting ~a units horizontally and ~a vertically as you draw." ?b ?xc ?yc))
-	))
-
-(defoperator draw-Efield-given-force-compos-neg (?b ?source ?t)
-   :preconditions 
-   (
-    ;; only use for component form problems with drawing grid
-    (component-form)
-    (vector-grid)
-    ;; require sign of charge to be positive
-    (sign-charge ?b neg)
-    ;; make sure E-force compos given
-    (given (compo x 0  (force ?b ?source electric :time ?t)) (dnum ?xc ?units))
-    (given (compo y 0 (force ?b ?source electric :time ?t)) (dnum ?yc ?units))
-    ;; make sure field direction not given at loc of ?b, directly or via components:
-    (at-place ?b ?loc ?t)
-    (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
-    (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
-    ;; similar to draw-vector-given-compos
-    (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source)
-			       (time-abbrev ?t)))
-    (bind ?dir (opposite (dir-from-compos ?xc ?yc)))
-    )
-   :effects 
-   (
-    (vector ?b (field ?loc electric ?source :time ?t) ?dir)
-    (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
-    (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
-    ;; Don't put out equation for thetaV since value is not exact, could 
-    ;; lead to errors if given to algebraic solver with other equations.
-    ;;(given (dir (field ?loc electric ?source :time ?t)) (dnum ?Field-dir |deg|))
-    )
-   :hint (
-(point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
-	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is negative, and you were given the horizontal and vertical components of the force vector, draw the electric field at the location of ~a in the opposite direction from the force by choosing a scale, then counting -~a units horizontally and -~a vertically as you draw." ?b ?xc ?yc))
-         ))
 
 ;; Draw field vector if given that unknown E field exists
 ;;      given by (E-field source) in problem. 
@@ -527,36 +455,6 @@
 	     ;; no reaction force since field is not an object
 	     (force ?b ?source electric ?t ?F-dir ?pos-neg)
 	     ))
-
-;; if given E field vector dir
-;;    - by components, with grid
-;; Similar to generic draw-vector-given-compos, but requires sign to be taken 
-;; into account.
-
-(defoperator find-electric-force-given-field-compos (?b ?source ?t)
-   :preconditions 
-   ((rdebug "Using draw-Eforce-given-field-compos-pos ~%")
-    ;; only use for component form problems with drawing grid
-    (component-form)
-    (vector-grid)
-    ;; require sign of charge to be known
-    (sign-charge ?b ?pos-neg)
-    ;; make sure E-field compos given at loc of ?b
-    (given (compo x 0 (field ?loc electric ?source :time ?t)) (dnum ?xc ?units))
-    (given (compo y 0 (field ?loc electric ?source :time ?t)) (dnum ?yc ?units))
-    ;; make sure force direction not given, directly or via components:
-    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
-    (not (given (compo ?xyz ?rot (force ?b ?source electric :time ?t)) ?dontcare2))
-    (bind ?field-dir (dir-from-compos ?xc ?yc))
-    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
-    (rdebug "fired draw-Eforce-given-field-compos-pos  ~%")
-    )
-   :effects 
-   (
-	     ;; no reaction force since field is not an object
-	     (force ?b ?source electric ?t ?F-dir ?pos-neg)
-))
-
 
 (defoperator draw-electric-force-given-field-dir (?b ?source ?t)
   :preconditions 
@@ -1974,39 +1872,4 @@
 
 
 
-
-#|
-;; following draws the sought vector in one of these problems
-(defoperator draw-sought-force-vector-unknown-with-multi-args (?b ?vectype ?args ?t)
-   :preconditions ((rdebug "Using draw-sought-force-vector-unknown-with-multi-args  ~%")
-                   (vector-grid)
-                   (component-form) 
-                   (test (not (equal ?args nil)))
-                   (bind ?vector `(,?vectype ,?b . ?args :time ,?t))
-                   (test (or (equal 'force (first (second ?vector)))
-                             (equal 'field (first (second ?vector)))))
-;;; we test whether xc of vector is a problem sought. HACK: This relies
-;;; on *cp* as always holding the current problem, which is not guaranteed
-;;; if problem solver is not invoked through our interface functions.
-;;; But there should be some way to access this info from the environment.
-                   ;; (bind ?xc `(compo x 0 ,?vector))
-                   ;; (test (member ?xc (problem-soughts *cp*) :test #'equal))
-                   (not (given (dir ?vector :time ?t) (dnum ?dir |deg|)))
-                   (bind ?mag-var (format-sym "~A_~A_~A" ?vectype 
-					      (body-name ?b) (time-abbrev ?t)))
-                   (bind ?dir-var (format-sym "O~A" ?mag-var))
-                   (rdebug "fired draw-sought-force-vector-unknown-with-multi-args ~%")
-                   )
-   :effects (
-             (vector ?b (?vectype ?b . ?args :time ?t) unknown)
-             (variable ?mag-var (mag (?vectype ?b . ?args :time ?t)))
-             (variable ?dir-var (dir (?vectype ?b . ?args :time ?t)))
-             )
-  :hint (
-         (point (string "Try drawing a diagram."))
-         (teach (string "The diagram should show the vector you are seeking."))
-         (bottom-out (string "Draw a diagram showing the vector you are seeking using the given components."))
-        ))
-
-|#
 
