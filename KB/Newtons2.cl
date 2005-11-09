@@ -3278,8 +3278,7 @@
     (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?t (duration (during ?t1 ?t2))))
   :effects
-  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
+  ((eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
 	 (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2)))
 		(?vi-compo ?vf-compo ?a-compo)))
@@ -3349,8 +3348,7 @@
     (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2)))))
   :effects
-  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= (^ ?vf-compo 2) (+ (^ ?vi-compo 2) (* 2 ?a-compo ?s-compo)))
+  ((eqn (= (^ ?vf-compo 2) (+ (^ ?vi-compo 2) (* 2 ?a-compo ?s-compo)))
 	        (compo-eqn lk-no-t ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-t ?xyz ?rot (lk ?b (during ?t1 ?t2)))
 		(?vi-compo ?vf-compo ?a-compo ?s-compo)))
@@ -3416,8 +3414,7 @@
     (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     (variable ?t-var    (duration (during ?t1 ?t2))))
   :effects
-  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?s-compo (+ (* ?vi-compo ?t-var) (* 0.5 ?a-compo (^ ?t-var 2))))
+  ((eqn (= ?s-compo (+ (* ?vi-compo ?t-var) (* 0.5 ?a-compo (^ ?t-var 2))))
 	 (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2)))
 		(?vi-compo ?a-compo ?s-compo)))
@@ -3484,8 +3481,7 @@
     (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     (variable ?t-var    (duration (during ?t1 ?t2))))
   :effects
-  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?s-compo (*  0.5 (+ ?vi-compo ?vf-compo) ?t-var))
+  ((eqn (= ?s-compo (*  0.5 (+ ?vi-compo ?vf-compo) ?t-var))
 	 (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2)))
 		(?vi-compo ?vf-compo ?s-compo)))
@@ -3573,8 +3569,7 @@
    ;; following only used for implicit eqn so a_x can be accepted if used
    (variable ?a_x   (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
   :effects
-  ((assume using lk-eqn ?b ?t1 ?t2 ?xyz ?rot)
-   (eqn (= ?s-compo (* ?vi-compo ?t-var))
+  ((eqn (= ?s-compo (* ?vi-compo ?t-var))
 	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2)))
      (?vi-compo ?s-compo))
@@ -4364,17 +4359,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; which may be unknown
 
 (defoperator find-applied-force (?b ?agent ?t)
-  :preconditions (
-    (time ?t)
-    ;; energy conservation law also checks for this to not exist:
-    (in-wm (given (dir (force ?b ?agent applied :time ?t-force)) ?dir-expr))
-    (test (tinsidep ?t ?t-force))
-    ;; check that something else hasn't defined this force.
-    (not (force ?b ?agent applied ?t . ?dont-care)) 
-  )
+  :preconditions 
+  (
+   ;; energy conservation law also checks for this to not exist:
+   (in-wm (given (dir (force ?b ?agent applied :time ?t-force)) ?dir-expr))
+   (time ?t)
+   (test (tinsidep ?t ?t-force))
+   ;; check that something else hasn't defined this force.
+   (not (force ?b ?agent applied ?t . ?dont-care)) 
+   )
   :effects (
-    (force ?b ?agent applied ?t ?dir-expr action)
-    (force-given-at ?b ?agent applied ?t-force ?dir-expr action)
+	    (force ?b ?agent applied ?t ?dir-expr action)
+	    (force-given-at ?b ?agent applied ?t-force ?dir-expr action)
   ))
 
 ;; Draw a applied ("given") force at a certain direction. 
@@ -4515,7 +4511,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-static-friction (?b ?surface ?t)
   :specifications 
-   "If it is known that there is a static friction force in a given directoin, draw it"
+   "If it is known that there is a static friction force in a given direction, draw it"
   :preconditions
    ((force ?b ?surface static-friction ?t ?friction-dir action)
     (not (vector ?b (force ?b ?surface static-friction :time ?t) ?dont-care))
@@ -4852,7 +4848,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-grav-force (?b1 ?b2 ?t)
   :preconditions (
-    (force ?b1 ?b2 gravitational ?t ?dir ?dontcare)
+    (force ?b1 ?b2 gravitational ?t ?dir NIL)
     (bind ?mag-var (format-sym "Fg_~A_~A~@[_~A~]" (body-name ?b1) (body-name ?b2)
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -5039,22 +5035,22 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;        static-friction b s => static friction on b from s
 ;;;        given (dir (force b a applied)) => applied force on b from a
 ;;; This operator can draw the reaction to any of these "action" forces on 
-;;; the other body when needed.  We also have an NTL PSM to put out the equation 
-;;; equating the magnitudes.  Currently we only use NTL for forces at known 
-;;; directions, so the direction of the reaction force becomes known ("given") 
-;;; here.
+;;; the other body when needed.  We also have an NTL PSM to put out the 
+;;; equation equating the magnitudes.  Currently we only use NTL for forces 
+;;; at known directions, so the direction of the reaction force becomes known 
+;;; ("given") here.
 ;;;
 ;;; A conceptually purer alternative would be to make all our force-inferring 
-;;; rules symmetrical, so an interaction statement would directly entail *both* 
-;;; forces in the action-reaction pair.  The asymmetrical method used here 
-;;; implicates Newton's Third Law in one direction only.  This seems to 
-;;; correspond more to the reasoning we want to tutor on the forces: If a table 
-;;; supports a block, we probably want a different hint or dialog for the 
-;;; Normal force the table exerts on the block than for the Normal force the 
-;;; block exerts on the table, with NTL only mentioned in the second.
+;;; rules symmetrical, so an interaction statement would directly entail 
+;;; *both* forces in the action-reaction pair.  The asymmetrical method used 
+;;; here implicates Newton's Third Law in one direction only.  This seems to 
+;;; correspond more to the reasoning we want to tutor on the forces: If a 
+;;; table supports a block, we probably want a different hint or dialog for 
+;;; the Normal force the table exerts on the block than for the Normal force 
+;;; the block exerts on the table, with NTL only mentioned in the second.
 ;;;
 ;;; Another way to achieve this heuristic goal would be to write a pair of 
-;;; rules for each force, one for each direction;;; but the current method is 
+;;; rules for each force, one for each direction, but the current method is 
 ;;; more economical in treating Newton's Third Law with a single rule.
 ;;;
 ;;; A question is whether the "action" force ought to be drawn before 
@@ -5067,52 +5063,62 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; bodies to prevent the following problem: two blocks are stacked on
 ;;; table. The table exerts a normal force on the lower block and also on
 ;;; the compound. Therefore two reaction forces will be found on the table:
-;;; one from the lower block and one from the table. If we were interested in
+;;; one from the lower block and one from the table.  If we were interested in
 ;;; all forces on the table for applying Newton's Law, this would give us 
-;;; the wrong set of forces on the table -- we don't want to count both the force
-;;; from the compound and the one from its part. This will have to be fixed,
-;;; but for now we just don't apply NTL to compound bodies. That is OK in our
-;;; problems since we are usually interested in the dynamics of the compound
-;;; body and the external forces on it.
+;;; the wrong set of forces on the table -- we don't want to count both 
+;;; the force from the compound and the one from its part.  This will have to 
+;;; be fixed, but for now we just don't apply NTL to compound bodies.  
+;;; That is OK in our problems since we are usually interested in the dynamics 
+;;; of the compound body and the external forces on it.
+
 
 (defoperator find-reaction-force (?b1 ?b2 ?type ?t)
   :preconditions 
   (
+   ;; We look for "action" force exerted *on* object b2 from b1.
+   (force ?b2 ?b1 ?type ?t ?f1-dir action)
+
+   ;; make sure that this force cannot be generated by other means
+   ;; it is not sufficient to test working memory
+;;; It is probably better not to make this test.  Rather, 
+;;; an error will occur when there is a conflict.
+   ;; (setof (force ?b1 ?b2 ?type ?t ?f-dir action) ?f-dir ?f-dirs)
+   ;; (debug "find-reaction-force test list ~A~%" ?f-dirs)
+   ;; (test (null ?f-dirs))
+   
    ;; We have been allowing some force agents to be implicitly defined by 
    ;; occurrence of their names in arguments of forms like tied-to or supports.
    ;; Following imposes the requirement that these must be declared in an 
-   ;; object proposition if forces on them are to be found. 
+   ;; object proposition if a reaction force is to be found. 
    (object ?b1)
    (test (not (compound-bodyp ?b1)))	; ignore compound bodies here
    (object ?b2)
    (test (not (compound-bodyp ?b2)))	; ignore compound bodies here
    (test (not (equal ?b1 ?b2)))
-   (time ?t)
-   ;; We look for "action" force exerted *on* object b1 from b2.
-   ;; reaction force we seek is on b2 = body of interest from b1. 
-   ;; Note dir part matches numerical degree value only
-   ;; BvdS: ask Anders to double-check this change
-   (force ?b1 ?b2 ?type ?t ?f1-dir action)
-   (not (force ?b2 ?b1 ?type ?t . ?dontcare))
    (bind ?opposite-dir (opposite ?f1-dir))
    )
   :effects (
-	    (force ?b2 ?b1 ?type ?t ?opposite-dir reaction)
+	    (force ?b1 ?b2 ?type ?t ?opposite-dir reaction)
 	    ))
 
 (defoperator draw-reaction-force (?b1 ?b2 ?type ?t)
   :preconditions(
     (force ?b2 ?b1 ?type ?t ?dir reaction)
-    (not (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?junk))
-    (bind ?mag-var (format-sym "F~A_~A_~A~@[_~A~]" (ftype-prefix ?type) 
-                               (body-name ?b2) (body-name ?b1) (time-abbrev ?t)))
+    (not (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?whatever-dir))
+    ;; unique symbol for a reaction force.  Thus, if the force is also
+    ;; drawn through other means, an error should occur.
+    (bind ?mag-var (format-sym "rF~A_~A_~A~@[_~A~]" 
+			       ?type (body-name ?b2) 
+			       (body-name ?b1) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
     (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?dir) 
     (variable ?mag-var (mag (force ?b2 ?b1 ?type :time ?t)))
     (variable ?dir-var (dir (force ?b2 ?b1 ?type :time ?t)))
-    (given (dir (force ?b2 ?b1 ?type :time ?t)) ?dir)
+;; BvdS:  are these really needed?
+;;    (given (dir (force ?b2 ?b1 ?type :time ?t)) ?dir)
+;;    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b2 ?b1 ?type :time ?t)))
   )
   :hint (
     (point (string "Notice that ~a and ~a are exerting forces on each other." ?b1 ?b2))
@@ -5121,7 +5127,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
         (string "Newton's Third Law states that forces always come in pairs: whenever one body exerts a force on a second body, the second body exerts a force of the same type back on the first body. The members of these action/reaction pairs are equal in magnitude and opposite in direction"))
     (bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, a ~A force on ~A due to ~A at ~A" 
 			(?type adjective) (?b1 agent) ?b2 (?type adjective) 
-			?b2 (?b1 agent) ?dir))
+			?b2 (?b1 agent) (?dir adj)))
     ))
 
 ;;; In theory NTL should apply to any force at all. However, we don't declare
@@ -5151,7 +5157,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (variable ?mag2-var (mag (force ?b2 ?b1 ?type :time ?t)))
   )
   :effects (
-    	(eqn (= ?mag1-var ?mag2-var) (NTL (?b2 ?b1) ?type ?t)) 
+	    (eqn (= ?mag1-var ?mag2-var) (NTL (?b2 ?b1) ?type ?t)) 
+	    (assume using-NTL (?b2 ?b1) ?type ?t)
   )
   :hint
   ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
@@ -5161,13 +5168,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
   ))
 
-;;
-;; Vector form of NTL writes component equation F12_x = -F21_x
-;;
-;; Note the vector equation ID for this is incompatible with convention required
-;; by select-compo-eqn-for-scalar, according to which vector args start with
-;; body and time. Should be OK, since NTL doesn't contain any scalars.
-;;
+;;;
+;;; Vector form of NTL writes component equation F12_x = -F21_x
+;;;
+;;; Note the vector equation ID for this is incompatible with convention 
+;;; required by select-compo-eqn-for-scalar, according to which vector args 
+;;; start with body and time.  Should be OK, since NTL doesn't contain any 
+;;; scalars.
+;;;
 
 (defoperator NTL-vector-contains (?sought)
   :preconditions (
@@ -5177,8 +5185,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
    :effects (
    (eqn-family-contains (NTL-vector ?body-pair ?type ?t) ?sought) 
-    ; since only one compo-eqn under this vector PSM, we can just
-    ; select it now, rather than requiring further operators to do so
+    ;; since only one compo-eqn under this vector PSM, we can just
+    ;; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (NTL-vector ?body-pair ?type ?t) NTL ?sought)
    ))
 
@@ -5194,8 +5202,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; draw axes only apply once, so there is no danger of drawing two
     ;; axes. In order to reuse the axes drawn for body1 as axes used
     ;; for vectors on body2, we added reuse-other-body-axis in axes section.
-    (axis-for ?b1 x ?x-rot1)
-    (axis-for ?b2 x ?x-rot2)
+    (axis-for ?b1 ?xyz ?x-rot1)
+    (axis-for ?b2 ?xyz ?x-rot2)
   )
   :effects (
     (vector-diagram (NTL-vector (?b1 ?b2) ?type ?t))
@@ -5210,6 +5218,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (eqn (= ?F12_xy (- ?F21_xy)) (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t)))
     (eqn-compos (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t))
           (?F12_xy ?F21_xy))
+    (assume using-NTL (?b1 ?b2) ?type ?t)
    )
    :hint (
      ;; !!! TODO
@@ -5401,41 +5410,41 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write the equation ~A" ((= ?c-var ?b-var) algebra)))
    ))
 
-; compound body force rules
-; if there is a forceful interaction between a compound body part and
-; an object outside the compound (i.e. an external force) then there is
-; an interaction of the same type between the compound and the object.
-; The general rule is that the magnitude of a force of type T on the compound 
-; from a is the sum of the magnitudes of the forces of type T from that agent 
-; on the parts.  This sum rule is needed to handle cases where the same agent 
-; may have an interaction of the same type with several of the bodies.  
-; For ex, if two blocks are pushed side by side along a plane, the net normal 
-; force from the plane on the compound is the sum of the normal forces from 
-; the plane on each of the blocks; similarly for kinetic friction on the 
-; compound. However:
-; -In the case of weight, Wc = m1 * g + m2 * g simplifies to the simple 
-; weight law applied to the compound Wc = mc * g where mc = m1 + m2
-; so we can also get it this way (this is one advantage of compounding.)
-; -Applied or tension force will typically act at a point on only one of 
-; the parts so there can only be one such force on the compound. 
-; Thus the sum rule will really only be needed for normal and friction forces
-; from a surface. But if there is more than one unknown force of this type
-; then the problem is not much simplified by treating the objects as a compound 
-; body anyway.  So we could just ignore this case and only write a rule to 
-; handle the case where there is a single force of the given type. 
-; Still it doesn't seem to hurt to write the general rule.
-;
-; Note this means there are now two operators to draw the weight force on 
-; a compound, one using the weight operator and the other using the
-; force on compound operator . There are also two corresponding 
-; equations for the magnitude of the weight on the compound. We could
-; filter in the force-compound rule to exclude weight, but since this is 
-; physically correct, we leave it.
+;;; compound body force rules
+;;; if there is a forceful interaction between a compound body part and
+;;; an object outside the compound (i.e. an external force) then there is
+;;; an interaction of the same type between the compound and the object.
+;;; The general rule is that the magnitude of a force of type T on the compound
+;;; from a is the sum of the magnitudes of the forces of type T from that agent
+;;; on the parts.  This sum rule is needed to handle cases where the same agent
+;;; may have an interaction of the same type with several of the bodies.  
+;;; For ex, if two blocks are pushed side by side along a plane, the net normal
+;;; force from the plane on the compound is the sum of the normal forces from 
+;;; the plane on each of the blocks; similarly for kinetic friction on the 
+;;; compound. However:
+;;; -In the case of weight, Wc = m1 * g + m2 * g simplifies to the simple 
+;;; weight law applied to the compound Wc = mc * g where mc = m1 + m2
+;;; so we can also get it this way (this is one advantage of compounding.)
+;;; -Applied or tension force will typically act at a point on only one of 
+;;; the parts so there can only be one such force on the compound. 
+;;; Thus the sum rule will really only be needed for normal and friction forces
+;;; from a surface.  But if there is more than one unknown force of this type
+;;; then the problem is not much simplified by treating the objects as a 
+;;; compound body anyway.  So we could just ignore this case and only write 
+;;; a rule to handle the case where there is a single force of the given type. 
+;;; Still it doesn't seem to hurt to write the general rule.
+;;;
+;;; Note this means there are now two operators to draw the weight force on 
+;;; a compound, one using the weight operator and the other using the
+;;; force on compound operator . There are also two corresponding 
+;;; equations for the magnitude of the weight on the compound. We could
+;;; filter in the force-compound rule to exclude weight, but since this is 
+;;; physically correct, we leave it.
 
-; draw a force on a compound body
+;; draw a force on a compound body
 (defoperator draw-force-compound (?bodies ?agent ?type ?t)
-  ; if a force on a part of the compound due to a exists,
-  ; force in same direction exists on compound from a.
+  ;; if a force on a part of the compound due to a exists,
+  ;; force in same direction exists on compound from a.
   :preconditions (
     (in-wm (object (compound . ?bodies)))
     (bind ?c `(compound ,@?bodies)) ; just shorthand
@@ -5446,9 +5455,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (test (not (member ?agent ?bodies)))
     ;; make sure this force hasn't been drawn already
     (not (vector ?c (force ?c ?agent ?type :time ?t) ?dir))
-    (bind ?mag-var (format-sym "F~A_~A_~A~@[_~A~]" (ftype-prefix ?type) 
-			       (body-name ?c) (body-name ?agent) 
-			       (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "F~A_~A_~A~@[_~A~]" ?type (body-name ?c) 
+			       (body-name ?agent) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "drawing ~A net ~A force on ~A due to ~A~%" ?dir ?type ?c ?agent)
   )
@@ -5463,7 +5471,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((point (string "Notice that ~a, which is a part of the compound body, has a ~a force on it."
 		  (?b def-np) (?type adjective)))
    (teach (string "When a force exists on a part of a compound and the force is due to an object outside the compound, then a similar force acts on the compound body itself."))
-   (bottom-out (string "Draw ~a at ~a." ((force ?c ?agent ?type :time ?t) indef-np) ?dir))
+   (bottom-out (string "Draw ~a at ~a." 
+		       ((force ?c ?agent ?type :time ?t) indef-np) (?dir adj)))
    ))
 
 ;;; Urgh to handle pressure forces defined acting on surfaces, 
@@ -5657,7 +5666,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then draw a body, draw the forces, the acceleration and the axes,
    in any order."
   :preconditions
-  ((not (vector-diagram (nl ?b ?t)))
+  ((not (vector-diagram (NL ?b ?t)))
    (not (use-net-force))
    (body ?b)
    (forces ?b ?t ?forces)
@@ -5665,21 +5674,21 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (accel ?b :time ?t) ?accel-dir)
    (axis-for ?b x ?rot))
   :effects
-   ((vector-diagram (nl ?b ?t)))
+   ((vector-diagram (NL ?b ?t)))
   :hint
    ((bottom-out (string "In order to draw a free-body diagram, which is the first step to applying Newton's law, draw (1) a body, (2) the forces on the body, (3) the acceleration of the body, and (4) coordinate axes."))))
 
 ;; 
 ;; Following draws a free-body diagram for the net-force variant of NL
 ;;
-(defoperator draw-nl-net-fbd (?b ?t)
+(defoperator draw-NL-net-fbd (?b ?t)
   
   :specifications 
    "If the goal is to draw a fbd for newton's law in terms of net force,
    then draw a body, draw the acceleration, draw the net force vector and the axes,
    in any order."
   :preconditions
-  ((not (vector-diagram (nl ?b ?t)))
+  ((not (vector-diagram (NL ?b ?t)))
    (in-wm (use-net-force))
    (body ?b)
    ; we draw accel first so it's known at time of drawing net force
@@ -5687,7 +5696,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (net-force ?b :time ?t) ?force-dir) 
    (axis-for ?b x ?rot))
   :effects
-   ((vector-diagram (nl ?b ?t)))
+   ((vector-diagram (NL ?b ?t)))
   :hint
    ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
 
@@ -6012,7 +6021,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;      else if not net force => NL/NSL
 ;;;      else net force => NL/NSL-net
 ;;;
-(defoperator NL-net-vector-contains (?quantity)
+(defoperator NSL-net-vector-contains (?quantity)
   :specifications 
   "Newton's law potentially contains the body's mass, 
      the magnitude of its acceleration, and
@@ -6164,7 +6173,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
         (tinsidep ?t ?t-accel))
    (not (massless ?b)))
   :effects
-   ((compo-eqn-contains (NL ?b ?t) nsl ?quantity))
+   ((compo-eqn-contains (NL ?b ?t) NSL ?quantity))
  )
  
 ;;; This operator writes newton's first law in component form for all
@@ -6197,8 +6206,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects
    ((eqn (= (+ . ?f-compo-vars) 0)
-	 (compo-eqn NFL ?xyz ?rot (nl ?b ?t)))
-    (eqn-compos (compo-eqn NFL ?xyz ?rot (nl ?b ?t)) ?f-compo-vars)
+	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t)))
+    (eqn-compos (compo-eqn NFL ?xyz ?rot (NL ?b ?t)) ?f-compo-vars)
     (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
    ((point (string "Because the acceleration of ~a is zero ~a, you can apply Newton's first law to it." ?b (?t pp)))
@@ -6242,8 +6251,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :effects
    ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
-	 (compo-eqn nsl ?xyz ?rot (nl ?b ?t)))
-    (eqn-compos (compo-eqn nsl ?xyz ?rot (nl ?b ?t)) ?eqn-compo-vars))
+	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t)))
+    (eqn-compos (compo-eqn NSL ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars))
   :hint
    ((point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law to it." (?b def-np) (?t pp)))
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
@@ -6268,8 +6277,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?m (mass ?b :time ?t ?t)))
   :effects (
     (eqn (= ?fnet-compo-var (* ?m ?a-compo))
-	 (compo-eqn nsl-net ?xyz ?rot (nl ?b ?t)))
-    (eqn-compos (compo-eqn nsl-net ?xyz ?rot (nl ?b ?t)) ?eqn-compo-vars)
+	 (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)))
+    (eqn-compos (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars)
   )
   :hint (
     (point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law." (?b def-np) (?t pp)))
@@ -8688,8 +8697,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((eqn (= ?omega2_z (+ ?omega1_z (* ?alpha_z ?t-var))) 
                (compo-eqn z 0 (rk-no-s ?b (during ?t1 ?t2))))
    (eqn-compos (compo-eqn z 0 (rk-no-s ?b (during ?t1 ?t2))) 
-   	(?omega2_z ?omega1_z ?alpha_z))
-   (assume using-rk-eqn ?b ?t1 ?t2))
+   	(?omega2_z ?omega1_z ?alpha_z)))
     :hint
    ((point (string "Can you think of an equation that relates the z component of average angular acceleration to that of the initial angular velocity, final angular velocity, and duration?"))
     (teach (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied in component form to relate ~A, ~A, ~A and ~A" (?omega2_z algebra) (?omega1_z algebra) (?alpha_z algebra) (?t-var algebra)))
@@ -8744,7 +8752,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                (compo-eqn z 0 (rk-no-vf ?b (during ?t1 ?t2))))
    (eqn-compos (compo-eqn z 0 (rk-no-vf ?b (during ?t1 ?t2))) 
    	(?theta_z ?omega1_z ?alpha_z))
-   (assume using-rk-eqn ?b ?t1 ?t2)
    )
   :hint (
     (point (string "Do you know an equation relating the z component of angular displacement to that of initial angular velocity, time, and angular acceleration when angular acceleration is constant?"))
@@ -8801,7 +8808,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                (compo-eqn z 0 (rk-no-t ?b (during ?t1 ?t2))))
    (eqn-compos (compo-eqn z 0 (rk-no-t ?b (during ?t1 ?t2))) 
    	(?omega2_z ?omega1_z ?alpha_z ?theta_z))
-   (assume using-rk-eqn ?b ?t1 ?t2)
    )
   :hint (
     (point (string "Do you know an equation relating the z components of initial angular velocity, final angular velocity, angular acceleration, and angular displacement when acceleration is constant?"))
