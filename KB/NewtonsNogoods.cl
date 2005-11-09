@@ -32,7 +32,7 @@
 ;; the axis tool to allow setting one axis direction only.
 
 (defnogood multiple-coords-for-body
-    ((axis-for ?b ?xyz1 ?rot1)
+    ((axis-for ?b ?xyx1 ?rot1)
      (axis-for ?b ?xyz2 ?rot2)
      (test (not (equal ?rot1 ?rot2))))
   :specs ("prevent use of multiple coordinate systems for same body")
@@ -46,13 +46,13 @@
     ;;      (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
     ((using-compo-free (?id ?xyz1 ?rot1 ?family-id))
      (using-compo-free (?id ?xyz2 ?rot2 ?family-id))
-     (test (not (equalp ?rot1 ?rot2))))
+     (test (not (equal ?rot1 ?rot2))))
   :Specs ("Prevents the use of same compo-free eqn at different x or y axis rotations")
   :message (Max compo-free eqns per axis ?id ?rot1 ?rot22))
 
-;; Following heuristic rule limits explosion of solutions where both compound
-;; and individual bodies can be used: must use same axes on all of them
-;; It represents the simple rule of picking the same axes for the whole solution
+;; Following rule limits explosion of solutions where both compound and 
+;; individual bodies can be used: must use same axes on all of them.  It 
+;; represents the simple rule of picking the same axes for the whole solution.
 (defnogood diff-axes-compound-part
     ((axis-for (compound . ?bodies) ?xyz1 ?rot1)
      (axis-for ?b ?xyz2 ?rot2)
@@ -63,18 +63,24 @@
 
 ;; don't use both Net-force and sum of forces form of Newton's Law
 (defnogood redundant-NSL-forms
-    ((using-compo-free (?eq1 ?xyz1 ?rot1 (NL ?b ?t)))
-     (using-compo-free (?eq2 ?xyz2 ?rot2 (NL-net ?b ?t))))
+    ((using-compo-free (NSL ?xyz1 ?rot1 ?family-id))
+     (using-compo-free (NSL-net ?xyz2 ?rot2 ?family-id)))
   :specs ("Prevent combining different ways of writing Newton's Law -- net force and sum of forces form -- on a body and time")
-  :message (Redundant NL forms ?b ?t))
+  :message (Redundant NSL forms for ?family-id))
 
 (defnogood only-one-form-of-dot
   ((using-dot ?a ?b ?x1-rot)
    (using-dot ?a ?b ?x2-rot)
    (test (not (equal ?x1-rot ?x2-rot))))
   :Specs ("Prevents the use of more than form of dot product")
-  :message (Only one form of dot ?a ?b))
+  :message (Only one form of dot for ?a ?b))
 
-  
-     
-     
+;;;
+;;;  don't use both impulse and force versions of Newton's third law
+;;;
+
+(defnogood only-one-form-of-NTL
+    ((using-NTL ?bodies ?type ?t)
+     (using-NTL-impulse ?bodies ?t))
+  :specs ("Prevent combining different ways of writing Newton's third Law -- net force and impulse form -- on two bodies at a time")
+  :message (Redundant NTL forms for ?bodies at ?t))
