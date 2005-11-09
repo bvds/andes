@@ -5451,14 +5451,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; pick any body in compound
     (any-member ?b ?bodies)
     ;; find an external force on the body = one with agent not in compound.
-    (force-on-body ?b ?agent ?type ?t ?dir)
+    (force ?b ?agent ?type ?t ?dir ?whatever-action)
     (test (not (member ?agent ?bodies)))
-    ;; make sure this force hasn't been drawn already
-    (not (vector ?c (force ?c ?agent ?type :time ?t) ?dir))
+    ;; make sure this force cannot be defined in another manner
+    (setof (force ?c ?agent ?type ?t ?dir ?action) ?action ?action-list)
+    (test (null ?action-list))
     (bind ?mag-var (format-sym "F~A_~A_~A~@[_~A~]" ?type (body-name ?c) 
 			       (body-name ?agent) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "drawing ~A net ~A force on ~A due to ~A~%" ?dir ?type ?c ?agent)
+    (debug "drawing ~A ~A force on ~A due to ~A~%" ?dir ?type ?c ?agent)
   )
   :effects (
    (vector (compound . ?bodies) (force (compound . ?bodies) ?agent ?type 
@@ -5475,12 +5476,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		       ((force ?c ?agent ?type :time ?t) indef-np) (?dir adj)))
    ))
 
-;;; Urgh to handle pressure forces defined acting on surfaces, 
-;;; we need two cases to return forces on component bodies to 
-;;; draw-force-compound.
-(defoperator simple-force-on-body-exists (?b ?agent ?type ?t)
-   :preconditions ( (force ?b ?agent ?type ?t ?dir ?dontcare) )
-   :effects (   (force-on-body ?b ?agent ?type ?t ?dir) ))  
 
 (defoperator force-compound-contains (?sought)
    :preconditions (
@@ -5500,29 +5495,27 @@ the magnitude and direction of the initial and final velocity and acceleration."
      ; draw net force of given type on compound, will use draw-force-compound
      (debug "write-force-compound: drawing ~A force on compound~%" ?type)
      (vector ?c (force ?c ?agent ?type :time ?t) ?dir) 
-     ; find set of atomic parts subject to this type force from agent.
-     ; tricky: we use setof inside the map since force subgoal can fail
-     ; body-set from each step of map is a singleton (b) or NIL 
-     ; body-sets is then a list of these results which must be flattened
+     ;; find set of atomic parts subject to this type force from agent.
+     ;; tricky: we use setof inside the map since force subgoal can fail
+     ;; body-set from each step of map is a singleton (b) or NIL 
+     ;; body-sets is then a list of these results which must be flattened
      (debug "write-force-compound: finding parts subject to ~A force from ~A~%" ?type ?agent)
      (map ?b ?bodies
-         (setof (force-on-body ?b ?agent ?type ?t . ?dont-care)
-	         ?b ?body-set)
+         (setof (force ?b ?agent ?type ?t . ?dont-care) ?b ?body-set)
 	?body-set ?body-sets)
      (bind ?parts-affected (remove NIL (flatten1 ?body-sets)))
      (debug "write-force-compound: parts contributing: ~A~%" ?parts-affected)
-     ; define variables for each of the force parts making up the net
-     ; unfortunately this can only be done by drawing them, although we
-     ; avoided drawing them when finding the force.
+     ;; define variables for each of the force parts making up the net
+     ;; unfortunately this can only be done by drawing them, although we
+     ;; avoided drawing them when finding the force.
      (map ?b1 ?parts-affected
          (variable ?f-part (mag (force ?b1 ?agent ?type :time ?t)))
 	 ?f-part ?f-parts)
      (variable ?f-compound (mag (force (compound . ?bodies) ?agent ?type 
 				       :time ?t)))
    )
-   :effects (
-     (eqn (= ?f-compound (+ . ?f-parts)) (force-compound ?type ?agent ?bodies ?t))
-	     )
+   :effects ( (eqn (= ?f-compound (+ . ?f-parts))
+		  (force-compound ?type ?agent ?bodies ?t)) )
    :hint
    ((point (string "What is the relationship between the magnitudes of the ~a force on the compound body and the ~a force(s) on ~a?" (?type adjective) (?type adjective) (?parts-affected conjoined-defnp)))
     (teach (string "Even though a force on a compound body corresponds directly with the force(s) on its part(s), you need to write an equation relating the magnitudes of the variables, because the variables refer to different bodies and thus denote different quantities."))
