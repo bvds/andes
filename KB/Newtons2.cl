@@ -5456,6 +5456,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; make sure this force cannot be defined in another manner
     (setof (force ?c ?agent ?type ?t ?dir ?action) ?action ?action-list)
     (test (null ?action-list))
+    ;;
     (bind ?mag-var (format-sym "F~A_~A_~A~@[_~A~]" ?type (body-name ?c) 
 			       (body-name ?agent) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))

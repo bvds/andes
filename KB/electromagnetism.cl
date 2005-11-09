@@ -84,6 +84,7 @@
 		;; on b1 from b2 or force on b2 from b1, so need both:
 		(charge-on ?b1 :time ?t ?t)
 		(charge-on ?b2 :time ?t ?t)
+		(mag (relative-position ?b1 ?b2 :time ?t))
 		(compo ?xy ?rot (relative-position ?b1 ?b2 :time ?t))
 		(compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
 	       )
@@ -99,25 +100,40 @@
     ;; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (coulomb ?b1 ?b2 ?t) coulomb-force ?sought)))
 
-(defoperator write-coulomb-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
+(defoperator draw-coulomb-vector-diagram (?b ?agent ?t)
   :preconditions 
-   ((variable ?F12_x  (compo ?xy ?rot (force ?b ?agent ?dont-care)
-			  :time (during ?t1 ?t2)))
-    (variable ?J12_x  (compo ?xy ?rot (coulomb ?b ?agent)
-			  :time (during ?t1 ?t2)))
-    (variable ?t12    (duration (during ?t1 ?t2))))
+  (
+   (body ?b)
+   (vector ?b (relative-position ?b ?agent :time ?t) ?dir1)
+   ;; assuming (without checking) only one force between the two bodies.
+   (vector ?b (force ?b ?agent electric :time ?t) ?dir2)
+   (axis-for ?b ?xy ?b-rot)
+   )
   :effects (
-   (eqn (= ?J12_x (* ?F12_x ?t12))
+	    (vector-diagram (coulomb ?b ?agent ?t))
+  ))
+
+(defoperator write-coulomb-compo (?b ?agent ?t ?xy ?rot)
+  :preconditions 
+  (
+   (variable ?q1 (charge-on ?b1 :time ?t ?t))
+   (variable ?q2 (charge-on ?b2 :time ?t ?t))
+   (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
+   (variable ?r_xy  (compo ?xy ?rot (relative-position ?b1 ?b2 :time ?t)))
+   (variable ?F_xy  (compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
+   )
+  :effects (
+   (eqn (= ?F_xy (/ (* |kelec| ?q1 ?q2 ?r_xy) (^ ?r 3)))
             (compo-eqn coulomb-force ?xy ?rot 
-		       (coulomb ?b ?agent (during ?t1 ?t2))))
+		       (coulomb ?b ?agent ?t)))
    (eqn-compos (compo-eqn coulomb-force ?xy ?rot 
-		       (coulomb ?b ?agent (during ?t1 ?t2)))
-             (?J12_x ?F12_x)))
-  :hint 
-  ( (point (string "What is the relationship between average force, coulomb and duration?"))
-    (teach (string "The coulomb vector is defined as the average force vector times the duration.  This can be applied component-wise."))
-    (bottom-out (string "Write the equation ~a"
-			((= ?J12_x (* ?F12_x ?t12)) algebra)))
+		       (coulomb ?b ?agent ?t))
+             (?r_xy ?F_xy)))
+  :hint (
+     (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
+     (bottom-out (string "Write the equation ~A" 
+			 ((= ?F (* (/ (* |kelec| ?q1 ?q2)) 
+			     (^ ?r 2) (/ ?r_xy r)))) algebra))
   ))
 
 
@@ -398,34 +414,36 @@
 ))
 
 (defoperator find-electric-force-unknown (?b ?agent ?t)
-  :preconditions (
-	(coulomb-bodies . ?bodies)	  
-	(time ?t)
-	(object ?b)
-	(object ?agent)
-	(not (given (dir (force ?b1 ?b2 electric :time ?t-force)) ?dir-expr)
-	     (and (member ?b1 (list ?b ?agent)) (member ?b2 (list ?b ?agent)) 
-		  (tinsidep ?t ?t-force)))
-	(test (member ?b ?bodies :test #'equal))
-	(test (member ?agent ?bodies :test #'equal))
-	(test (not (equal ?b ?agent)))
-	;; check that something else hasn't defined this force.
-	(not (force ?b ?agent electric ?t . ?dont-care)) 
+  :preconditions 
+  (
+   (coulomb-bodies . ?bodies)	  
+   (time ?t)
+   (object ?b)
+   (object ?agent)
+   (not (given (dir (force ?b1 ?b2 electric :time ?t-force)) ?dir-expr)
+	(and (member ?b1 (list ?b ?agent) :test #'equal) 
+	     (member ?b2 (list ?b ?agent) :test #'equal) 
+	     (tinsidep ?t ?t-force)))
+   (test (member ?b ?bodies :test #'equal))
+   (test (member ?agent ?bodies :test #'equal))
+   (test (not (equal ?b ?agent)))
+   ;; check that something else hasn't defined this force.
+   (not (force ?b ?agent electric ?t . ?dont-care)) 
   )
   :effects (
     (force ?b ?agent electric ?t unknown nil)
     (force-given-at ?b ?agent electric ?t unknown nil)
   ))
 
-(defoperator draw-Eforce-unknown (?b ?source ?t)
+(defoperator draw-electric-force-unknown (?b ?source ?t)
   :preconditions 
-  ((rdebug "Using draw-Eforce-given-dir ~%")
+  ((rdebug "Using draw-electric-force-unknown ~%")
    (force ?b ?source electric ?t unknown nil)
    (not (vector ?b (force ?b ?source electric :time ?t) ?whatever))
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (rdebug "fired draw-Eforce-given-dir  ~%")
+   (rdebug "fired draw-electric-force-given-unknown  ~%")
    )
   :effects (
             (vector ?b (force ?b ?source electric :time ?t) unknown)
@@ -1867,9 +1885,3 @@
          (bottom-out (string "Use the right hand rule using the velocity vector and the magnetic field vector."))
          ))
 |#
-
-
-
-
-
-
