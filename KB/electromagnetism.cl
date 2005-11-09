@@ -488,7 +488,7 @@
 ;;;;---------------------------------------------------------------------------
 
 (def-psmclass charge-force-Efield 
-             (?eq-type qfe ?axis ?rot (charge-force-Efield ?body ?source ?time)) 
+    (?eq-type qfe ?axis ?rot (charge-force-Efield ?body ?source ?time)) 
   :complexity major
   :english ("the definition of electric field")
   :ExpFormat ("applying the definition of electric field on ~a ~a"
