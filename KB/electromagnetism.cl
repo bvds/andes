@@ -443,29 +443,8 @@
     (force-given-at ?b ?agent electric ?t-force ?dir-expr action)
   ))
 
-
-(defoperator find-electric-force-unknown (?b ?agent ?t)
-  :preconditions (
-	(coulomb-bodies . ?bodies)	  
-	(time ?t)
-	(object ?b)
-	(object ?agent)
-	(not (given (dir (force ?b1 ?b2 electric :time ?t-force)) ?dir-expr)
-	     (and (member ?b1 (list ?b ?agent)) (member ?b2 (list ?b ?agent)) 
-		  (tinsidep ?t ?t-force)))
-	(test (member ?b ?bodies :test #'equal))
-	(test (member ?agent ?bodies :test #'equal))
-	(test (not (equal ?b ?agent)))
-	;; check that something else hasn't defined this force.
-	(not (force ?b ?agent electric ?t . ?dont-care)) 
-  )
-  :effects (
-    (force ?b ?agent electric ?t unknown nil)
-    (force-given-at ?b ?agent electric ?t unknown nil)
-  ))
-
  
-(defoperator draw-Eforce-given-dir (?b ?source ?t)
+(defoperator draw-electric-force-given-dir (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Eforce-given-dir ~%")
    (force ?b ?source electric ?t ?dir action)
@@ -490,6 +469,25 @@
     (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a at ~a." ?b (?source agent) (?t pp) ?dir))
 ))
 
+(defoperator find-electric-force-unknown (?b ?agent ?t)
+  :preconditions (
+	(coulomb-bodies . ?bodies)	  
+	(time ?t)
+	(object ?b)
+	(object ?agent)
+	(not (given (dir (force ?b1 ?b2 electric :time ?t-force)) ?dir-expr)
+	     (and (member ?b1 (list ?b ?agent)) (member ?b2 (list ?b ?agent)) 
+		  (tinsidep ?t ?t-force)))
+	(test (member ?b ?bodies :test #'equal))
+	(test (member ?agent ?bodies :test #'equal))
+	(test (not (equal ?b ?agent)))
+	;; check that something else hasn't defined this force.
+	(not (force ?b ?agent electric ?t . ?dont-care)) 
+  )
+  :effects (
+    (force ?b ?agent electric ?t unknown nil)
+    (force-given-at ?b ?agent electric ?t unknown nil)
+  ))
 
 (defoperator draw-Eforce-unknown (?b ?source ?t)
   :preconditions 
@@ -513,150 +511,83 @@
 
 ;; if given E field vector dir
 ;;    - directly
-(defoperator draw-Eforce-given-field-dir (?b ?source ?t)
+(defoperator find-electric-force-given-field-dir (?b ?source ?t)
    :preconditions 
-   ((rdebug "Using draw-Eforce-given-field-dir ~%")
+   ((rdebug "Using find-electric-force-given-field-dir~%")
     ;; make sure E-field direction given at loc of ?b
-    (in-wm (given (dir (field ?loc electric ?source :time ?t)) (dnum ?field-dir |deg|)))
+    (in-wm (given (dir (field ?loc electric ?source :time ?t)) ?field-dir))
     ;; make sure force direction not given, directly or via components:
     (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
-    (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
-    ;; require sign of charge to be given
-    (sign-charge ?b ?pos-neg)
+    (not (given (compo ?xy ?rot (force ?b ?source electric :time ?t)) ?dontcare2))
     (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
-    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
-    (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
-			       (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (rdebug "fired draw-Eforce-given-field-dir  ~%")
+    ;; require sign of charge to be known
+    (sign-charge ?b ?pos-neg)
     )
-  :effects (
-            (vector ?b (force ?b ?source electric :time ?t) (dnum ?F-dir |deg|))
-            (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
-            (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
-            (given (dir (force ?b ?source electric :time ?t)) (dnum ?F-dir |deg|))
-            )
-  :hint (
-        (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
-	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is ~a, use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A." 
-	 ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) 
-	 (?F-dir adj)))
-         ))
+   :effects (
+	     ;; no reaction force since field is not an object
+	     (force ?b ?source electric ?t ?F-dir ?pos-neg)
+	     ))
 
 ;; if given E field vector dir
 ;;    - by components, with grid
 ;; Similar to generic draw-vector-given-compos, but requires sign to be taken 
 ;; into account.
 
-(defoperator draw-Eforce-given-field-compos-pos (?b ?source ?t)
+(defoperator find-electric-force-given-field-compos (?b ?source ?t)
    :preconditions 
    ((rdebug "Using draw-Eforce-given-field-compos-pos ~%")
     ;; only use for component form problems with drawing grid
     (component-form)
     (vector-grid)
-    ;; require sign of charge to be positive
-    (sign-charge ?b pos)
+    ;; require sign of charge to be known
+    (sign-charge ?b ?pos-neg)
     ;; make sure E-field compos given at loc of ?b
     (given (compo x 0 (field ?loc electric ?source :time ?t)) (dnum ?xc ?units))
     (given (compo y 0 (field ?loc electric ?source :time ?t)) (dnum ?yc ?units))
     ;; make sure force direction not given, directly or via components:
     (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
-    (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
-    ;; similar to draw-vector-given-compos
-    (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
-			       (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?dir (dir-from-compos ?xc ?yc))
+    (not (given (compo ?xyz ?rot (force ?b ?source electric :time ?t)) ?dontcare2))
+    (bind ?field-dir (dir-from-compos ?xc ?yc))
+    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
     (rdebug "fired draw-Eforce-given-field-compos-pos  ~%")
     )
-  :effects (
-            (vector ?b (force ?b ?source electric :time ?t) ?dir)
-            (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
-            (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
-            ;; Don't put out equation for thetaV since value is not exact, could 
-            ;; lead to errors if given to algebraic solver with other equations.
-            ; (given (dir (force ?b ?source electric :time ?t)) ?dir)
-            )
-  :hint (
-          (point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
-	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is positive, and you were given the horizontal and vertical components of the electric field due to ~a, draw the electric force on ~a in the same direction as the field at its location by choosing a scale, then counting ~a units horizontally and ~a vertically as you draw." ?b (?source agent) ?b ?xc ?yc))
-         ))
+   :effects 
+   (
+	     ;; no reaction force since field is not an object
+	     (force ?b ?source electric ?t ?F-dir ?pos-neg)
+))
 
-(defoperator draw-Eforce-given-field-compos-neg (?b ?source ?t)
-   :preconditions 
-   ((rdebug "Using draw-Eforce-given-field-compos-pos ~%")
-    ;; only use for component form problems with drawing grid
-    (component-form)
-    (vector-grid)
-    ;; require sign of charge to be negative
-    (sign-charge ?b neg)
-    ;; make sure E-field compos given at loc of ?b
-    (given (compo x 0 (field ?loc electric ?source :time ?t)) (dnum ?xc ?units))
-    (given (compo y 0 (field ?loc electric ?source :time ?t)) (dnum ?yc ?units))
-    ;; make sure force direction not given, directly or via components:
-    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
-    (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
-    ;; similar to draw-vector-given-compos
-    (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
-			       (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?dir (opposite (dir-from-compos ?xc ?yc)))
-    (rdebug "fired draw-Eforce-given-field-compos-pos  ~%")
-    )
-  :effects (
-            (vector ?b (force ?b ?source electric :time ?t) ?dir)
-            (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
-            (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
-            ;; Don't put out equation for thetaV since value is not exact, could 
-            ;; lead to errors if given to algebraic solver with other equations.
-            ; (given (dir (force ?b ?source electric :time ?t)) (dnum ?dir |deg|)))
-            )
-  :hint (
-(point (string "Think about how the direction of the electric force on ~a due to ~a is related to the direction of the electric field vector at its location." ?b (?source agent)))
-	(teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-         (bottom-out (string "Because the charge of ~a is negative, and you were given the horizontal and vertical components of the electric field due to ~a, draw the electric force on ~a in the opposite direction from the field at its location by choosing a scale, then counting -~a units horizontally and -~a vertically as you draw." ?b (?source agent) ?b ?xc ?yc))
-         ))
 
-;;  -if given that unknown field exists 
-;;      given by (E-field source) or (B-field source) in problem. 
-;;      Don't use these if field direction given in other ways
-(defoperator draw-Eforce-unknown (?b ?source ?t)
-  :specifications " "
+(defoperator draw-electric-force-given-field-dir (?b ?source ?t)
   :preconditions 
-  ((rdebug "Using draw-Eforce-unknown ~%")
-   (time ?t)
-   (E-field ?source) 
-   (test (time-pointp ?t))
-   (not (vector ?b (force ?b ?source electric :time ?t) ?dir))
-   ;; make sure force direction not given, directly or via components:
-   (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
-   ;; take out when we change to unknown:
-   ;; (not (given (compo x 0 (force ?b ?source electric :time ?t)) ?dontcare2))
-   ;; make sure E-field direction not given, directly or via components
-   (at-place ?b ?loc ?t)
-   (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare3))
-   ;; (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare4))
+  (
+   (force ?b ?source electric ?t ?F-dir ?pos-neg)
+   (test (member ?pos-neg '(pos neg)))
+   (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
    (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (rdebug "fired draw-Eforce-unknown  ~%")
+   (rdebug "finish find-electric-force-given-field-dir~%")
    )
-  :effects (
-            (vector ?b (force ?b ?source electric :time ?t) unknown)
-            (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
-            (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
-            )
-  :hint (
-         (point (string "Since ~a is charged and in an electric field, it is subject to an electric force." ?b))
-         (teach (string "In this problem the exact direction of the electric force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the electric force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent)))
-         ))
+:effects (
+	  (vector ?b (force ?b ?source electric :time ?t) ?F-dir)
+	  (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
+	  (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
+	  (given (dir (force ?b ?source electric :time ?t)) ?F-dir)
+	  )
+:hint (
+       (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
+       (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
+       (bottom-out (string "Because the charge of ~a is ~a, use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A." 
+			   ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) 
+			   (?F-dir adj)))
+       ))
 
-;;-------------------------------
-;; Charge-force-Efield Vector PSM
-;;-------------------------------
+;;;;---------------------------------------------------------------------------
+;;;;
+;;;;                   Charge-force-Efield Vector PSM
+;;;;
+;;;;---------------------------------------------------------------------------
 
 (def-psmclass charge-force-Efield 
              (?eq-type qfe ?axis ?rot (charge-force-Efield ?body ?source ?time)) 
