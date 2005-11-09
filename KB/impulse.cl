@@ -101,14 +101,16 @@
     (compo-eqn-contains (impulse-force-vector ?b ?agent ?t) 
 			definition ?sought)))
 
-(defoperator draw-impulse-force-vector-diagram (?b ?agent ?t)
-  :preconditions (
-    ;; ?agent might not be a proper body
-    (body ?b)
-    (vector ?b (impulse ?b ?agent :time ?t) ?dir1)
-    (vector ?b (force ?b ?agent :time ?t) ?dir2)
-    (axis-for ?b ?xy ?b-rot)
-    )
+(defoperator draw-impulse-force-vector-diagram (?b ?agent ?type ?t)
+  :preconditions 
+  (
+   ;; ?agent might not be a proper body
+   (body ?b)
+   (vector ?b (impulse ?b ?agent :time ?t) ?dir1)
+   ;; assuming (without checking) only one force between the two bodies.
+   (vector ?b (force ?b ?agent ?type :time ?t) ?dir2)
+   (axis-for ?b ?xy ?b-rot)
+   )
   :effects (
 	    (vector-diagram (impulse-force-vector ?b ?agent ?t))
   ))
@@ -280,10 +282,12 @@
    (bind ?eqn-compo-vars (list ?pi-compo ?pf-compo ?J-compo-var))
    )
   :effects
-   ((eqn (= ?J-compo-var (- ?pf-compo ?pi-compo))
+  (
+   (eqn (= ?J-compo-var (- ?pf-compo ?pi-compo))
 	 (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)))
     (eqn-compos (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)) 
-		?eqn-compo-vars))
+		?eqn-compo-vars)
+    )
   :hint
   ((point (string "You can relate the change in momentum of ~A to the
 impulse ~A." (?b def-np) (?t pp)))
@@ -336,6 +340,7 @@ impulse ~A." (?b def-np) (?t pp)))
   )
   :effects (
     	(eqn (= ?mag1-var ?mag2-var) (NTL-impulse (?b2 ?b1) ?t)) 
+	(assume using-NTL-impulse (?b2 ?b1) ?t)
   )
   :hint
   ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
@@ -392,6 +397,7 @@ impulse ~A." (?b def-np) (?t pp)))
     (eqn (= ?J12_xy (- ?J21_xy)) (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t)))
     (eqn-compos (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t))
           (?J12_xy ?J21_xy))
+    (assume using-NTL-impulse (?b1 ?b2) ?t)
    )
    :hint (
      ;; !!! TODO
