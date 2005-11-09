@@ -585,12 +585,3 @@
 					   (body-name (rest term))))
 	(T    term)) ; signal error?
 )
-
-(defun ftype-prefix (type-id)
-  "returns type prefix for specified force type"
-  (case type-id 
-   (kinetic-friction "f")
-   (static-friction "sf")
-   (applied         "g") ; "given" or "generic"
-   (otherwise (string-downcase (subseq (string type-id) 0 1)))
-  ))
