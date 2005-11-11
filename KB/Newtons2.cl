@@ -4457,6 +4457,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
       and it is opposite the direction of motion"
   :preconditions
    ((force ?b ?surface kinetic-friction ?t ?friction-dir action)
+    (test (not (eq ?friction-dir 'unknown))) ;only explicit angles
     (not (vector ?b (force ?b ?surface kinetic-friction :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Ff_~A_~A~@[_~A~]" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
