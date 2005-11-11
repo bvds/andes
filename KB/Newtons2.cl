@@ -2957,18 +2957,24 @@
                       ?b (?t pp) (?accel-dir adj) (?accel-dir adj)))
     ))
 
+;; If all the forces are in the same direction then we can infer the 
+;; direction of acceleration.
 (defoperator draw-accel-given-parallel-forces (?b ?t)
    :preconditions 
    (
+    ;; we have special rules to handle straight line and circular motion
+    ;; This motion statement implies all other possibilities
     (motion ?b (curved projectile ?dirstuff) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
+    ;; we have special rules for the case of gravitational acceleration
     (not (free-fall ?b ?t-freefall) (tinsidep ?t ?t-freefall))
+    ;; find all forces that are acting on ?b and collect directions
     (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
     (bind ?accel-dir (first ?dirs))
     ;; test that all the directions are the same
     (test (and ?dirs (every #'(lambda (x) (equal x ?accel-dir)) ?dirs)))
-    (test (dimensioned-numberp ?accel-dir))
-    (not (unknown-forces))
+    (test (dimensioned-numberp ?accel-dir)) ;exclude 'zero and 'unknown
+    (not (unknown-forces)) ;only valid if all forces are specified
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -2981,8 +2987,8 @@
     (given (dir (accel ?b :time ?t)) ?accel-dir))
    :hint
     ((point (string "The force(s) acting on ~A ~A point(s) in the direction ~A." ?b (?t pp) (?accel-dir adj)))
-    (teach (string "Newton's second law relates for")) 
-    (bottom-out (string "Draw the acceleration of ~a ~a at the angle ~a." 
+    (teach (string "Newton's second law F=ma relates the net force and acceleration vectors.  If you know the direction of the net force, then you can find the direction of the acceleration.")) 
+    (bottom-out (string "Draw the acceleration of ~a ~a at an angle of ~a." 
                       ?b (?t pp) (?accel-dir adj)))
     ))
 
