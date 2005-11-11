@@ -193,7 +193,7 @@
   (at-place ?b ?loc ?t)
   (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
   (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
-  (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) 
+  (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
 			     (body-name ?source) (time-abbrev ?t)))
   (bind ?dir-var (format-sym "O~A" ?mag-var))
   (rdebug "fired draw-Efield-vector   ~%")
@@ -233,8 +233,8 @@
     (sign-charge ?b ?pos-neg)
     (bind ?Field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
     (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
-    (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?b) (body-name ?source)
-			       (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?b) 
+			       (body-name ?source) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (rdebug "fired draw-Efield-given-force-dir  ~%")
     )
@@ -280,7 +280,7 @@
    ;; (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare4))
    ;; !!! Should also make sure direction of E-force not given, directly or via components.
    ;; Would be given as electric force on object for an object at-place loc.
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?source)
+   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-region-Efield-unknown  ~%")
@@ -309,7 +309,7 @@
    (sign-charge ?b ?pos-neg)
    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?rdir (opposite ?rdir)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?b) 
+   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
@@ -344,7 +344,7 @@
    (not (vector ?dontcare (field ?loc electric ?b :time ?t) ?dir))
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
    (not (given (dir (relative-position ?loc ?b :time ?t)) (dnum ?rdir |deg|)))
-   (bind ?mag-var (format-sym "E_~A_~A$~A" (body-name ?loc) (body-name ?b)
+   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "Fired draw-point-Efield-unknown  ~%")
@@ -483,7 +483,7 @@
    (force ?b ?source electric ?t ?F-dir ?pos-neg)
    (test (member ?pos-neg '(pos neg)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
-   (bind ?mag-var (format-sym "Fe_~A_~A$~A" (body-name ?b) (body-name ?source)
+   (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "finish find-electric-force-given-field-dir~%")
@@ -530,7 +530,7 @@
   (
    (force ?b ?source electric ?t unknown from-field)
    (not (vector ?b (force ?b ?source electric :time ?t) ?dir))
-   (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) 
+   (bind ?mag-var (format-sym "F_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Eforce-unknown  ~%")
@@ -1132,7 +1132,7 @@
   ; could make sure there is more than one source of an Efield.
    (in-wm (Efield-sources ?loc ?t ?sources))
    (test (cdr ?sources)) ; more than one in list
-   (bind ?mag-var (format-sym "Enet_~A$~A" (body-name ?loc) (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "Enet_~A~@[_~A~]" (body-name ?loc) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
@@ -1346,7 +1346,7 @@
                   (at-place ?b ?loc ?t)
                   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)  
                   (not (vector ?b (field ?loc magnetic ?source :time ?t) ?dir1))     
-                  (bind ?mag-var (format-sym "B_~A$~A" (body-name ?loc) 
+                  (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
 					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
 		  ; if dir is z-axis, implicit eqn should give phi angle value
@@ -1379,7 +1379,7 @@
 	  (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
 	  (test ?dir-B)
 	  (test (not (eq ?B-dir 'zero)))
-          (bind ?mag-var (format-sym "B_~A$~A" (body-name ?loc)
+          (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc)
 				     (time-abbrev ?t)))
           (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
@@ -1413,7 +1413,7 @@
 		  ; make sure we have a non-null direction
 		  (test ?F-dir) ; may be NIL on failure
 		  (test (not (eq ?F-dir 'zero)))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc)
+                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
 					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
  )
@@ -1446,7 +1446,7 @@
 		  (test (not (eq ?rhr-dir 'zero)))
 		  (bind ?F-dir (opposite ?rhr-dir))
 		  (test ?F-dir) ; make sure this succeeded
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc)
+                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
 					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
  )
@@ -1478,7 +1478,7 @@
 		  ; make sure we have a non-null direction
 		  (test ?F-dir) ; may be NIL on failure
 		  (test (eq ?F-dir 'zero))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?loc)
+                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
 					     (time-abbrev ?t)))
  )
  :effects (
@@ -1521,7 +1521,7 @@
                   (at-place ?b ?loc ?t)
                   (not (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B))
                   (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?b) 
+                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
 					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
                   (rdebug "fired draw-Bforce-unknown  ~%")
@@ -1550,7 +1550,7 @@
 		  (motion ?b (straight ?dontcare unknown) :time ?t ?t)
                   (test (time-pointp ?t))
                   (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
-                  (bind ?mag-var (format-sym "Fb_~A$~A" (body-name ?b) 
+                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
 					     (time-abbrev ?t)))
                   (bind ?dir-var (format-sym "O~A" ?mag-var))
                   (rdebug "fired draw-Bforce-unknown  ~%")
