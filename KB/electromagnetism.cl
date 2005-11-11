@@ -435,6 +435,7 @@
     (force-given-at ?b ?agent electric ?t unknown nil)
   ))
 
+
 (defoperator draw-electric-force-unknown (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-electric-force-unknown ~%")
@@ -450,10 +451,12 @@
             (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
             (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
             )
-  :hint (
-    (point (string "You were given that there is an electric force on ~a." ?b))
-    (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a, direction unknown." ?b (?source agent) (?t pp)))
-))
+  :hint 
+  (
+   (point (string "Note that ~A and ~A are both charged particles." ?b ?agent))
+   (point (string "Charged particles experience a force due to other charged particles."))
+   (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a, direction unknown." ?b (?source agent) (?t pp)))
+   ))
 
 ;; if given E field vector dir
 ;;    - directly
@@ -498,6 +501,49 @@
 			   ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) 
 			   (?F-dir adj)))
        ))
+
+;;  -if given that unknown field exists 
+;;      given by (E-field source) or (B-field source) in problem. 
+;;      Don't use these if field direction given in other ways
+(defoperator find-electric-force-given-field-unknown (?b ?source ?t)
+  :preconditions 
+  ((rdebug "Using draw-Eforce-unknown ~%")
+   (time ?t)
+   (E-field ?source) 
+   ;; make sure force direction not given, directly or via components:
+   (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
+   ;; make sure E-field direction not given, directly or via components
+   (at-place ?b ?loc ?t)
+   (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare3))
+   ;; check that something else hasn't defined this force.
+   (not (force ?b ?source electric ?t . ?dont-care)) 
+   (rdebug "fired draw-Eforce-unknown  ~%")
+   )
+  :effects (
+	    ;; We don't want a reaction-force in this case.
+	    (force ?b ?source electric ?t unknown from-field)
+	    (force-given-at ?b ?source electric ?t unknown from-field)
+         ))
+
+(defoperator draw-electric-force-given-field-unknown (?b ?source ?t)
+  :preconditions 
+  (
+   (force ?b ?source electric ?t unknown from-field)
+   (not (vector ?b (force ?b ?source electric :time ?t) ?dir))
+   (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (rdebug "fired draw-Eforce-unknown  ~%")
+   )
+  :effects (
+            (vector ?b (force ?b ?source electric :time ?t) unknown)
+            (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
+            (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
+            )
+  :hint (
+         (point (string "Since ~a is charged and in an electric field, it is subject to an electric force." ?b))
+         (teach (string "In this problem the exact direction of the electric force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
+         (bottom-out (string "Draw the electric force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent)))
+         ))
 
 ;;;;---------------------------------------------------------------------------
 ;;;;
@@ -771,7 +817,7 @@
             (given (compo y 0 (relative-position ?loc origin :time ?t)) ?value2) ))
 
 
-; This is equation for the component of field, so includes a sort of projection.
+;; This is equation for the component of field, so includes a sort of projection.
 (defoperator write-point-charge-Efield-compo (?b ?loc ?t ?xy ?rot)
    :preconditions (
        (rdebug "Using write-point-charge-Efield-compo ~%")
