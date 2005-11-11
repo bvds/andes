@@ -2387,10 +2387,7 @@
 (defoperator draw-velocity-apex(?b ?t)
   :specifications "if a projectile is at the apex of parabolic flight then its velocity is horizontal at that point"
   :preconditions (
-     ; make sure it's 2d motion, we might use "apex" for 1d toss as well.
-     (motion ?b (curved projectile . ?dontcare) :time ?t-trajectory)
-     (apex ?b ?t)
-     (test (tinsidep ?t ?t-trajectory))
+     (apex ?b ?t)  ;only use if there is horizontal motion
      (not (vector ?b (velocity ?b :time ?t) ?dir))
      (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -2834,14 +2831,19 @@
     (bottom-out (string "Because ~a is accelerating due to gravity, you should use the acceleration tool to draw an acceleration for it ~a in the direction 270 degrees." ?b (?t pp)))
     ))
 
+;;; right now (curved projectile ...) means all non-circular curved
+;;; motion.  So automatically entailing (free-fall ...) is inappropriate
+;;; perhaps we should rename projectile to "nil" or "unknown"
+#| 
 ;; projectile motion entails (free-fall ...)
 ;; we might want to get rid of (free-fall ...) entirely 
 (defoperator projectile-motion-is-free-fall (?b ?t)
   :preconditions ((motion ?b (curved projectile ?whatever) :time ?t)
-		  (test (time-intervalp ?t)))
+		  (test (time-intervalp ?t))
+		  )
   :effects
    ((free-fall ?b ?t)))
-
+|#
 
 ;;;
 ;;; free-fall equation: acceleration = g
@@ -3615,16 +3617,11 @@
 		 ))
    ; pick a pair of times:
    (time (during ?t1 ?t2))
-   ; make sure vx is constant within containing time
-   ; for now just use free-fall time, assume it uses widest possible interval.
-   ; We also assume that is the same as the lk application time.
-   ; we still have to pass the particular times we want to the eqn writing op
-   (free-fall ?b ?t-free-fall) 
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-free-fall))
+   ;; test for zero component takes place after vector diagram is drawn
    )
    :effects (
-    (eqn-family-contains (lk ?b ?t-free-fall) ?quantity)
-    (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity)
+    (eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) (const-vx ?t1 ?t2) ?quantity)
    ))
 
 (defoperator draw-const-vx-fbd (?b ?t1 ?t2 ?rot)
@@ -3649,11 +3646,16 @@
   ;; once to draw axes for body at different time!
   ;; Ensuring vector is drawn allows define-compo to work, since axes have
   ;; been drawn on the body in the containing lk application.  
-  :preconditions (
-    (vector ?b (velocity ?b :time ?t1) ?dir1)
-    (vector ?b (velocity ?b :time ?t2) ?dir2)
-    (variable ?v1-compo (compo x 0 (velocity ?b :time ?t1)))
-    (variable ?v2-compo (compo x 0 (velocity ?b :time ?t2))))
+  :preconditions 
+  (
+   (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+   (test (not (eq ?accel-dir 'zero)))
+   (test (perpendicularp (axis-dir 'x 0) ?accel-dir))
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (variable ?v1-compo (compo x 0 (velocity ?b :time ?t1)))
+   (variable ?v2-compo (compo x 0 (velocity ?b :time ?t2)))
+   )
   :effects
   ((eqn (= ?v1-compo ?v2-compo) 
                (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk)))
