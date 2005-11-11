@@ -2803,6 +2803,7 @@
 ;; the relevant planet is always straight down in the diagram.
 ;; The free-fall law will specify an equation for the magnitude of the 
 ;; acceleration
+;;
 (defoperator draw-accel-free-fall (?b ?t)
   :specifications 
    "If ?body is in free-fall during ?time,
@@ -2822,7 +2823,7 @@
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) (dnum 270 |deg|))
     (constant (accel ?b) ?t)
-    ;; can't mkae use of this easily, endpoints not included in interval
+    ;; can't make use of this easily, endpoints not included in interval
     ;; and we only inherit constant values from wider intervals to sub-interval
     ;; (constant (compo x 0 (velocity ?b)) ?t)
    )
@@ -2832,6 +2833,15 @@
 	   (string "When a body is in free fall, it undergoes acceleration due to gravity directed toward the center of the planet exerting the gravitational force on it. This will be straight down in the diagrams for Andes problems."))
     (bottom-out (string "Because ~a is accelerating due to gravity, you should use the acceleration tool to draw an acceleration for it ~a in the direction 270 degrees." ?b (?t pp)))
     ))
+
+;; projectile motion entails (free-fall ...)
+;; we might want to get rid of (free-fall ...) entirely 
+(defoperator projectile-motion-is-free-fall (?b ?t)
+  :preconditions ((motion ?b (curved projectile ?whatever) :time ?t)
+		  (test (time-intervalp ?t)))
+  :effects
+   ((free-fall ?b ?t)))
+
 
 ;;;
 ;;; free-fall equation: acceleration = g
@@ -2914,36 +2924,6 @@
 			?b (?t pp) (?accel-dir adj)))
     ))
 
-
-;;; for Pyrenees missle problem
-;;; draw acceleration for a curved projectile trajectory when we are given 
-;;; its direction.
-;;; This differs from draw-accel-given-dir since the dir is in 
-;;; the projectile motion spec
-;;; Like draw-centripetal-accel in pulling dir from curved motion spec, 
-;;; differing only in that it does not assume uniform circular motion.
-(defoperator draw-accel-projectile-given (?b ?t)
-   :preconditions 
-   ((time ?t)
-    (motion ?b (curved projectile (?vel-dir ?accel-dir)) :time ?t-motion)
-    (test (tinsidep ?t ?t-motion))
-    ;; should we test that free-fall is not specified? Assume we won't
-    ;; have this motion spec in that case.
-    (not (vector ?b (accel ?b :time ?t) ?dontcare))
-    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing projectile accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
-    )
-  :effects
-   ((vector ?b (accel ?b :time ?t) ?accel-dir)
-    (variable ?mag-var (mag (accel ?b :time ?t)))
-    (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?accel-dir))
-   :hint
-    ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
-    (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." 
-			?b (?t pp) (?dir adj) (?dir adj)))
-    ))
 
 ;;;
 ;;; centripetal acceleration law: acceleration = v^2/r
@@ -3716,7 +3696,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; only apply this method if lk/lk-no-s doesn't apply
     (not (constant (accel ?b) ?t-constant)
          (tinsidep `(during ,?t1 ,?t2) ?t-constant))
-    (not (free-fall ?b ?t-free-fall))
+    ;; make sure that it is not in free-fall
+    (not (free-fall ?b ?t-free)
+         (tinsidep `(during ,?t1 ,?t2) ?t-free))
+    ;; make sure it is not projectile motion
+    (not (motion ?b  (curved projectile ?whatever) :time ?t-free)
+         (tinsidep `(during ,?t1 ,?t2) ?t-free))
     )
   :effects
    ((eqn-family-contains (avg-accel ?b (during ?t1 ?t2)) ?quantity)))
