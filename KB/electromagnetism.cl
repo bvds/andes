@@ -468,9 +468,9 @@
     ;; make sure force direction not given, directly or via components:
     (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
     (not (given (compo ?xy ?rot (force ?b ?source electric :time ?t)) ?dontcare2))
-    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
     ;; require sign of charge to be known
     (sign-charge ?b ?pos-neg)
+    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
     )
    :effects (
 	     ;; no reaction force since field is not an object
@@ -629,8 +629,6 @@
                   (variable ?E_x  (compo ?xy ?rot (field ?loc electric ?source :time ?t)))
                   (variable ?F_x  (compo ?xy ?rot (force ?b ?source electric :time ?t)))
                   (variable ?q (charge-on ?b :time ?t ?t))
-                  ;(sign-charge ?b ?pos-neg)
-                  ;(bind ?sign (if (equal ?pos-neg 'neg) '- '+))
                   (rdebug "fired write-charge-force-Efield-compo  ~%")
                   )
   :effects (
@@ -676,35 +674,40 @@
            (eqn-contains (charge-force-Efield-mag ?b ?source ?t) ?sought)
            ))  
 
- ; !!! since making charge signed and writing equation with abs, this equation now can't be
- ; inverted to solve for q. Would need to add further equation for sign of q,
- ; e.g. q = -abs(q), or have a way of registering sign constraints with algebra module.  Even then,
- ; bubble-collection algorithm doesn't know a further equation is needed. Might try to put it out here
- ; as a sub-equation, but it is not always needed. Might try as an implicit equation but then it
- ; is optional, and won't be hinted for even when it is needed.
+;; !!! since making charge signed and writing equation with abs, this equation 
+;; now can't be inverted to solve for q.  Would need to add further equation 
+;; for sign of q, e.g. q = -abs(q), or have a way of registering sign 
+;; constraints with algebra module.  Even then, bubble-collection algorithm 
+;; doesn't know a further equation is needed.  Might try to put it out here
+;; as a sub-equation, but it is not always needed.  Might try as an implicit 
+;; equation but then it is optional, and won't be hinted for even when it is 
+;; needed.
 (defoperator write-charge-force-Efield-mag (?b ?t)
-  :preconditions ((debug "Using write-charge-force-Efield-mag ~%")
-                  (at-place ?b ?loc ?t)
-		  ;; must draw body in diagram for this psm
-		  (body ?b)
-		  ; even though this is scalar equation, want axes to be allowed
-		  (axis-for ?b x ?rot)
-                  (variable ?magE (mag (field ?loc electric ?source :time ?t)))
-                  (variable ?magF (mag (force ?b ?source electric :time ?t)))
-                  (variable ?q (charge-on ?b :time ?t ?t))
-                  (rdebug "fired write-charge-force-Efield-mag  ~%")
-                  )
-  :effects (
-	    ; NB: need abs charge since it is now signed
-            (eqn (= ?magF (* (abs ?q) ?magE)) (charge-force-Efield-mag ?b ?source ?t))
-            )
-  :hint (
-         (point (string "What is the relationship between the force, the charge and the electric field?"))
-         (teach ;(kcd "write-charge-force-Efield-mag")
-                (string "The electric field vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied to relate force and field magnitudes."))
-
-         (bottom-out (string "Write the equation ~a" ((= ?magF (* (abs ?q) ?magE)) algebra)))
-          ))
+  :preconditions 
+  ((debug "Using write-charge-force-Efield-mag ~%")
+   (at-place ?b ?loc ?t)
+   ;; must draw body in diagram for this psm
+   (body ?b)
+   ;; even though this is scalar equation, want axes to be allowed
+   (axis-for ?b x ?rot)
+   (variable ?magE (mag (field ?loc electric ?source :time ?t)))
+   (variable ?magF (mag (force ?b ?source electric :time ?t)))
+   (variable ?q (charge-on ?b :time ?t ?t))
+   (rdebug "fired write-charge-force-Efield-mag  ~%")
+   )
+  :effects 
+  (
+   ;; NB: need abs charge since it is now signed
+   (eqn (= ?magF (* (abs ?q) ?magE)) (charge-force-Efield-mag ?b ?source ?t))
+   )
+  :hint 
+  (
+   (point (string "What is the relationship between the force, the charge and the electric field?"))
+   (teach ;(kcd "write-charge-force-Efield-mag")
+    (string "The electric field vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied to relate force and field magnitudes."))
+   
+   (bottom-out (string "Write the equation ~a" ((= ?magF (* (abs ?q) ?magE)) algebra)))
+   ))
 
 ;;
 ;; direction equation must be different for positive and negative charge
@@ -729,7 +732,7 @@
   :effects(
            (eqn-contains (charge-force-Efield-dir ?b ?source ?t) ?sought)
            ))
-|#
+
 (defoperator write-charge-force-Efield-dir-pos (?b ?t)
   :preconditions ((debug "Using write-charge-force-Efield-dir ~%")
                   (sign-charge ?b pos)
@@ -749,6 +752,7 @@
          (bottom-out (string "Write the equation ~a=~a."
 			(?dirF algebra) (?dirE algebra)))
           ))
+|#
 
 ;;;;--------------------------------------------
 ;;;;                      point-charge-Efield Vector PSM 
