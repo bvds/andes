@@ -530,7 +530,8 @@
   (
    (force ?b ?source electric ?t unknown from-field)
    (not (vector ?b (force ?b ?source electric :time ?t) ?dir))
-   (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) (body-name ?source) ?t))
+   (bind ?mag-var (format-sym "F_~A_~A$~A" (body-name ?b) 
+			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Eforce-unknown  ~%")
    )
