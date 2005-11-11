@@ -2839,8 +2839,7 @@
 ;; we might want to get rid of (free-fall ...) entirely 
 (defoperator projectile-motion-is-free-fall (?b ?t)
   :preconditions ((motion ?b (curved projectile ?whatever) :time ?t)
-		  (test (time-intervalp ?t))
-		  )
+		  (test (time-intervalp ?t)))
   :effects
    ((free-fall ?b ?t)))
 |#
@@ -2956,6 +2955,35 @@
     ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
     (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." 
                       ?b (?t pp) (?accel-dir adj) (?accel-dir adj)))
+    ))
+
+(defoperator draw-accel-given-parallel-forces (?b ?t)
+   :preconditions 
+   (
+    (motion ?b (curved projectile ?dirstuff) :time ?t-motion)
+    (test (tinsidep ?t ?t-motion))
+    (not (free-fall ?b ?t-freefall) (tinsidep ?t ?t-freefall))
+    (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
+    (bind ?accel-dir (first ?dirs))
+    ;; test that all the directions are the same
+    (test (and ?dirs (every #'(lambda (x) (equal x ?accel-dir)) ?dirs)))
+    (test (dimensioned-numberp ?accel-dir))
+    (not (unknown-forces))
+    (not (vector ?b (accel ?b :time ?t) ?dontcare))
+    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "~&Drawing projectile accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
+    )
+  :effects
+   ((vector ?b (accel ?b :time ?t) ?accel-dir)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) ?accel-dir))
+   :hint
+    ((point (string "The force(s) acting on ~A ~A point(s) in the direction ~A." ?b (?t pp) (?accel-dir adj)))
+    (teach (string "Newton's second law relates for")) 
+    (bottom-out (string "Draw the acceleration of ~a ~a at the angle ~a." 
+                      ?b (?t pp) (?accel-dir adj)))
     ))
 
 ;;;
