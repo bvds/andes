@@ -2924,6 +2924,37 @@
 			?b (?t pp) (?accel-dir adj)))
     ))
 
+;;; for Pyrenees missle problem
+;;; draw acceleration for a curved projectile trajectory when we are given 
+;;; its direction.
+;;; This differs from draw-accel-given-dir since the dir is in 
+;;; the projectile motion spec
+;;; Like draw-centripetal-accel in pulling dir from curved motion spec, 
+;;; differing only in that it does not assume uniform circular motion.
+(defoperator draw-accel-projectile-given-dir (?b ?t)
+   :preconditions 
+   (
+    (motion ?b (curved projectile (?vel-dir ?accel-dir)) :time ?t-motion)
+    (test (dimensioned-numberp ?accel-dir))
+    (time ?t)
+    (test (tinsidep ?t ?t-motion))
+    ;; should we test that free-fall is not specified? Assume we won't
+    ;; have this motion spec in that case.
+    (not (vector ?b (accel ?b :time ?t) ?dontcare))
+    (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "~&Drawing projectile accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
+    )
+  :effects
+   ((vector ?b (accel ?b :time ?t) ?accel-dir)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) ?accel-dir))
+   :hint
+    ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
+    (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." 
+                      ?b (?t pp) (?accel-dir adj) (?accel-dir adj)))
+    ))
 
 ;;;
 ;;; centripetal acceleration law: acceleration = v^2/r
