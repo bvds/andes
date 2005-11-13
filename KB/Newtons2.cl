@@ -1996,10 +1996,10 @@
    If an object is moving in a straight line over a time interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((time ?t)
-    (test (time-intervalp ?t))
-    (motion ?b (straight ?dontcare ?dir) :time ?t-motion)
+   ((motion ?b (straight ?dontcare ?dir) :time ?t-motion)
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
+    (time ?t)
+    (test (time-intervalp ?t))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2022,9 +2022,9 @@
    If an object is moving in a straight line over a time interval in an unknown direction,
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((time ?t)
+   ((motion ?b (straight ?dontcare unknown) :time ?t-motion)
+    (time ?t)
     (test (time-intervalp ?t))
-    (motion ?b (straight ?dontcare unknown) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2052,9 +2052,9 @@
   :specifications "If an object is at rest,
    then draw a zero displacement vector."
   :preconditions
-   ((time ?t)
+   ((motion ?b at-rest :time ?t-motion)
+    (time ?t)
     (test (time-intervalp ?t))
-    (motion ?b at-rest :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
@@ -2199,9 +2199,9 @@
      and it is at rest at a certain time,
    then its velocity at that time is zero."
   :preconditions
-   ((time ?t)
-    (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
+   ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
     (motion ?b at-rest :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "v_~A~@[_~A~]" ?b (time-abbrev ?t))))
   :effects
@@ -2218,9 +2218,9 @@
 ;; might now be redundant with draw-velocity-at-rest
 (defoperator draw-velocity-rotating-fixed (?b ?t)
   :preconditions
-   ((time ?t)
-    (use-point-for-body ?b ?cm ?axis) ;else ?b is sometimes not bound
+   ((use-point-for-body ?b ?cm ?axis) ;else ?b is sometimes not bound
     (motion ?b (rotating ?axis . ?dont-care) :time ?t-body)
+    (time ?t)
     (test (tinsidep ?t ?t-body))
     (motion ?axis ?at-rest :time ?t-axis)
     (test (tinsidep ?t ?t-axis))
@@ -2251,9 +2251,9 @@
      and it is momentarily at rest at a certain instant,
    then its velocity at that time is zero."
   :preconditions
-   ((time ?t)
-    (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
+   ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
     (motion ?b momentarily-at-rest :time ?t-motion)
+    (time ?t)
     (test (and ?t-motion (tinsidep ?t ?t-motion)))
     (bind ?mag-var (format-sym "v_~A~@[_~A~]" ?b (time-abbrev ?t))))
   :effects
@@ -2278,10 +2278,10 @@
    then its velocity at that time is non-zero and in the same direction
      as its motion."
   :preconditions
-  ((time ?t)
-   (use-point-for-body ?body ?cm ?b) ;else ?b is sometimes not bound
+  ((use-point-for-body ?body ?cm ?b) ;else ?b is sometimes not bound
    (motion ?b (straight ?dontcare ?dir) :time ?t-motion)
    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
+   (time ?t)
    (test (tinsidep ?t ?t-motion))
    (not (vector ?body (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2304,9 +2304,9 @@
    then its velocity at that time is non-zero and in the same direction
      as its motion."
   :preconditions
-  ((time ?t)
-   (use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
+  ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
    (motion ?b (straight ?dontcare unknown) :time ?t-motion)
+   (time ?t)
    (test (tinsidep ?t ?t-motion))
    (not (vector ?body (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2337,9 +2337,9 @@
    "If an object is moving along a curved at a certain time point,
    then its velocity is tangent to the curve at that time."
   :preconditions
-   ((time ?t)
-    (motion ?b (curved ?dontcare (?dir ?dont-care)) :time ?t)
+   ((motion ?b (curved ?dontcare (?dir ?dont-care)) :time ?t)
     (test (not (equal ?dir 'unknown)))  ;until conditional effects are implemented
+    (time ?t) ;sanity test
     (test (time-pointp ?t))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2361,12 +2361,12 @@
 ;;; velocity direction is not given.
 (defoperator draw-velocity-curved-unknown (?b ?t)
   :preconditions
-   ((time ?t)
-    ;; don't use this to draw average velocity over an interval. 
+   (;; don't use this to draw average velocity over an interval. 
     ;; (Can compete with draw-avg-vel-from-displacement for that on 
     ;; some projectile problems.)
-    (test (time-pointp ?t))
     (motion ?b (curved ?curve-type (unknown ?dontcare)) :time ?t-motion)
+    (time ?t)
+    (test (time-pointp ?t))
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2535,8 +2535,8 @@
   :specifications 
    "If a body is a rest, then it has zero acceleration."
   :preconditions
-   ((time ?t)
-    (motion ?b at-rest :time ?t-motion)
+   ((motion ?b at-rest :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2563,8 +2563,8 @@
    "If ?body is moving in a straight line with constant speed during ?time,
    then its acceleration during ?time is zero."
   :preconditions
-   ((time ?t)
-    (motion ?b (straight constant ?dontcare) :time ?t-motion)
+   ((motion ?b (straight constant ?dontcare) :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2594,9 +2594,9 @@
       and the direction of motion ?direction,
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
-   ((time ?t)
-    (motion ?b (straight speed-up ?dir) :time ?t-motion)
+   ((motion ?b (straight speed-up ?dir) :time ?t-motion)
     (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2634,9 +2634,9 @@
       and it is subject to more than one given force,
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
-   ((time ?t)
-    ;; following tells us forces are not balanced, else would have at-rest
+   (;; following tells us forces are not balanced, else would have at-rest
     (motion ?b (straight speed-up unknown) :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (setof (in-wm (given (dir (force ?b ?agent ?type :time ?t)) ?force-dir))
            (force ?b ?agent ?type) ?given-forces)
@@ -2663,12 +2663,12 @@
    "If ?body is moving in a straight line during ?time,
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
-   ((time ?t)
-    ; following tells us forces are not balanced, else would have at-rest
+  (    
+   (component-form) ;force rule to only work for vec3a
+   ;; following tells us forces are not balanced, else would have at-rest
     (motion ?b (straight speed-up unknown) :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
-    ;next line to force rule to only work for vec3a
-    (component-form)
     ; !!! verify not all in same direction
     (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2769,9 +2769,9 @@
    "If ?body is moving in a straight line and slowing down during ?time,
    then its acceleration is opposite its direction of motion."
   :preconditions
-   ((time ?t)
-    (motion ?b (straight slow-down ?motion-dir) :time ?t-motion)
+   ((motion ?b (straight slow-down ?motion-dir) :time ?t-motion)
     (test (not (equal ?motion-dir 'unknown)))  ; until conditional effects are implemented
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2903,8 +2903,8 @@
    "If ?body is in uniform circular motion during ?time,
    then draw a non-zero acceleration perpendicular to the velocity at ?time."
   :preconditions
-   ((time ?t)
-    (motion ?b (curved circular (?vel-dir ?accel-dir)) :time ?t-motion)
+   ((motion ?b (curved circular (?vel-dir ?accel-dir)) :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (test (time-pointp ?t))
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
@@ -7991,8 +7991,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      and it is at rest at a certain time,
    then its momentum at that time is zero."
   :preconditions
-   ((time ?t)
-    (motion ?b at-rest :time ?t-motion)
+   ((motion ?b at-rest :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "p_~A~@[_~A~]" ?b (time-abbrev ?t)))
     ;; allow student to draw velocity vector, which might not otherwise
@@ -8019,9 +8019,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    then its momentum at that time is non-zero and in the same direction
      as its motion."
   :preconditions
-   ((time ?t)
-    (motion ?b (straight ?dontcare ?dir) :time ?t-motion)
+   ((motion ?b (straight ?dontcare ?dir) :time ?t-motion)
     (test (not (equal ?dir 'unknown)))  ; until conditional effects 
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -8043,8 +8043,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    then its momentum at that time is non-zero and in the same direction
      as its motion."
   :preconditions
-   ((time ?t)
-    (motion ?b (straight ?dontcare unknown) :time ?t-motion)
+   ((motion ?b (straight ?dontcare unknown) :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -8555,8 +8555,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :specifications 
    "If a body is a rest, then it has zero acceleration."
   :preconditions
-   ((time ?t)
-    (motion ?b ang-at-rest :time ?t-motion)
+   ((motion ?b ang-at-rest :time ?t-motion)
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "alpha_~A~@[_~A~]" (body-name ?b) 
@@ -8577,9 +8577,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; and speeding up
 (defoperator draw-ang-accelerating (?b ?t)
   :preconditions 
-   ((time ?t)
-    (motion ?b (rotating ?axis ?rotate-dir speed-up) :time ?t-motion)
+   ((motion ?b (rotating ?axis ?rotate-dir speed-up) :time ?t-motion)
     (test (not (equal ?rotate-dir 'unknown)))  
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?dir (rotation-zdir ?rotate-dir))
