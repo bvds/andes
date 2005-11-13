@@ -236,7 +236,7 @@
 		      (radius . REVOLUTION-RADIUS)
 		      (spring-const . SPRING-CONSTANT)
 		      (comp-dist . COMPRESSION)
-		      (charge . CHARGE-ON)
+		      (charge . CHARGE-ON) ;for backwards compatibility
 		      (rate-of-current-change . CURRENT-CHANGE)
 		      ;; (energy . TOTAL-ENERGY)
 		      ;; include vector type ids as well:
