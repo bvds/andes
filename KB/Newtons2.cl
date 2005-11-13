@@ -6590,6 +6590,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; friction or drag, external applied, thrust, or tension force on body. 
   ;; We test by testing for the situation descriptions that entail 
   ;; these forces.
+  ;; An applied force might be conservative, but don't include since
+  ;; there is no corresponding potential
   (not (given (dir (force ?b ?agent1 applied :time ?t-applied)) ?dir1)
        (or (null ?t-applied) (tintersect2 ?t-applied `(during ,?t1 ,?t2))))
   (not (given (dir (force ?b ?agent2 thrust :time ?t-thrust)) ?dir2)
@@ -7632,16 +7634,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; (test (not (null ?agents)))	
    (map ?work-quant ?work-quants
       (variable ?work-var ?work-quant)
-      ?work-var ?work-vars) 
+      ?work-var ?work-vars)
+   (bind ?rhs (if ?work-vars `(+ ,@?work-vars) 0)) 
   ) 
   :effects (
-    (eqn (= ?Wnc (+ . ?work-vars)) (Wnc ?body ?t))
+    (eqn (= ?Wnc ?rhs) (Wnc ?body ?t))
   ) 
   :hint (
    (point (string "You need to identify all the non-conservative forces that do work in this problem."))
    (teach (string "In Andes problems, the conservative or path-independent forces are gravity and spring forces; all other forces acting on a system are non-conservative and should be included in Wnc since they change the total mechanical energy of the system."))
    (bottom-out
-    (string "Write the equation ~A" ( (= ?Wnc (+ . ?work-vars)) algebra)))
+    (string "Write the equation ~A" ( (= ?Wnc ?rhs) algebra)))
   ))
 
 
