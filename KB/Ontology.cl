@@ -616,19 +616,18 @@
    :ExpFormat ("relating the total distance between ~a and ~a to the distances from these points to ~a" (nlg ?b1) (nlg ?b3) (nlg ?b2))
    :EqnFormat ("rAC = rAB + rBC"))
 
+
 (def-psmclass net-disp (?eq-type sum-disp ?axis ?rot (sum-disp ?body ?time))
   :complexity minor 
   :english ("net displacement")
   :ExpFormat ("calculating the net displacement of ~a ~a" (nlg ?body) (nlg ?time))
   :EqnFormat ("dnet_~a = d1_~a + d2_~a + d3_~a + ..." (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
-
 (def-goalprop net-disp-eqn 
  (eqn ?algebra (compo-eqn sum-disp ?axis ?rot (sum-disp ?body ?time)))
  :english ((strcat "writing an equation for the component of net "
 		   "displacement of ~A ~A along the ~A axis") 
 	   (nlg ?body) (nlg ?time 'pp) ?axis))
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -841,6 +840,14 @@
      :english ("Newton's Second law, net force version")
      :ExpFormat ("applying Newton's Second Law for net forces on ~a ~a"
 		 (nlg ?body) (nlg ?time 'nlg-time)))
+
+(def-psmclass net-force (?eq-type definition ?axis ?rot (net-force ?body ?t))
+  :complexity minor 
+  :english ("net force")
+  :ExpFormat ("calculating the net force acting on ~a ~a" (nlg ?body) (nlg ?t))
+  :EqnFormat ("Fnet_~a = F1_~a + F2_~a + F3_~a + ..." 
+	      (nlg ?axis 'adj) 
+	      (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 
 ;;; NOTE: Because this principle is applied to objects such as "the Air Bag"

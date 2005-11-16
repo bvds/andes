@@ -4040,61 +4040,56 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (point (string "The net displacement vector over a time interval represents the net change in position over that interval. This will be the vector sum of the individual displacements making up the net change. This can be applied component-wise to write an equation for the components of the net displacement in terms of the components of the individual displacements."))
     (bottom-out (string "Write the equation ~A" ((= ?dnet_xy (+ . ?di_compos)) algebra)))))
 
-#|
-(defoperator sum-net-force-vector-contains (?sought)
+
+(defoperator net-force-vector-contains (?sought)
   :preconditions 
     ((any-member ?sought (
-		 (mag (net-force ?b :time ?t1))
-		 (dir (net-force ?b :time ?t1))))
+		 (mag (net-force ?b :time ?t))
+		 (dir (net-force ?b :time ?t))
+		 (compo ?xy ?rot (net-force ?b :time ?t))
+		 (mag (force ?b ?agent ?type :time ?t))
+		 (dir (force ?b ?agent ?type :time ?t))))
     (object ?b))  
-    
   :effects 
-  ((eqn-family-contains (sum-net-force ?b ?t1) ?sought)
-  ; since only one compo-eqn under this vector PSM, we can just
-  ; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (sum-net-force ?b ?t1) sum-net-force ?sought)))
+  ((eqn-family-contains (net-force ?b ?t) ?sought)
+  ;; since only one compo-eqn under this vector PSM, we can just
+  ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (net-force ?b ?t) definition ?sought)))
 
-(defoperator draw-sum-net-force-diagram (?b ?t1)
-  
-  :preconditions 
-  ((not (vector-diagram (net-force ?b ?t1)))
-   ; 1. draw body.
-   (body ?b)
-   (object ?b1)
-   (object ?b2)
-   (test (not (equal ?b1 ?b2)))
-   ; 2. draw each constituent displacement. Note we want to do this before
-   ; drawing the net displacement, so have some cue to drawing an accurate
-   ; net displacment.
-   ;(bind ?intervals (successive-intervals (list 'during ?t1 ?t2)))
-   ;(foreach ?interval ?intervals
-   (vector ?b (force ?b ?b1 applied :time ?t1) ?dir-b1)
-   (vector ?b (force ?b ?b2 applied :time ?t1) ?dir-b2)
-   ; then draw the net displacement
-   (vector ?b (net-force ?b :time ?t1) ?dir-nfnet)
-   (axis-for ?b x ?rot))
-  :effects 
-  ((vector-diagram (sum-net-force ?b ?t1 ))))
+(defoperator draw-net-force-diagram (?b ?t)
+  :preconditions
+  ((not (vector-diagram (net-force ?b ?t)))
+   (forces ?b ?t ?forces)
+   (test ?forces)	; fail if no forces could be found
+   (vector ?b (net-force ?b :time ?t) ?net-force-dir)
+   (axis-for ?b ?xyz ?rot)
+     (debug "Finish draw-net-force-diagram for ?b=~A ?t=~A" ?b ?t))
+  :effects
+   ((vector-diagram (net-force ?b ?t))))
 
-(defoperator write-sum-net-force-compo (?b ?t1 ?xy ?rot)
+(defoperator write-net-force-compo (?b ?t ?xy ?rot)
   :preconditions 
-  ((variable ?dnet_xy (compo ?xy ?rot (net-force ?b :time ?t1)))
-   ;;  (bind ?intervals (successive-intervals (list 'during ?t1 ?t2)))
-   (object ?b1)
-   (object ?b2)
-   (bind ?agents (list ?b1 ?b2))
-   (map ?agent ?agents
-	(variable ?di_xy (compo ?xy ?rot (force ?b ?agent applied :time ?t1)))
-	?di_xy ?di_compos))
+  (
+   (in-wm (forces ?b ?t ?forces))	;draw all needed force vectors
+   ;; for each force on b at t, define a component variable, 
+   ;; collecting variable names into ?f-compo-vars
+   (map ?f ?forces 
+	(variable ?f-compo-var (compo ?xyz ?rot ?f))
+	?f-compo-var ?f-compo-vars)
+   (variable ?fnet_xy (compo ?xy ?rot (net-force ?b :time ?t1)))
+   )
   :effects 
-  ((eqn (= ?dnet_xy (+ . ?di_compos))
-	(compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1)))
-   (eqn-compos (compo-eqn sum-net-force ?xy ?rot (sum-net-force ?b ?t1))
-	       (?dnet_xy . ?di_compos)))
+  ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
+	(compo-eqn definition ?xy ?rot (net-force ?b ?t1)))
+   (eqn-compos (compo-eqn definition ?xy ?rot (net-force ?b ?t1))
+	       (?fnet_xy . ?f-compo-vars)))
   :hint
-  ())
+  ((point (string "What is the total force acting on ~A ~A." 
+		  (?b def-np) (?t pp)))
+   (teach (string "The net force on an object is the vector sum of all forces acting on the object."))
+   (bottom-out (string "Write the equation for net force along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?fnet_xy) algebra)))
+   ))
 
-|#
 
 ;;; ========================== mass  ======================
 
@@ -5612,6 +5607,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Draw the net force in the same direction as the acceleration"))
   ))
 
+(defoperator draw-net-force-unknown (?b ?t)
+  :preconditions
+  ((given (dir (net-force ?b :time ?t-force)) unknown)
+   (time ?t)
+   (test (tinsidep ?t ?t-force))
+   (not (given (accel ?t :time ?t-accel) ?a-dir) (tinsidep ?t ?t-accel))
+   (not (vector ?b (net-force ?b :time ?t) ?dir))
+   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" ?b (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   )
+  :effects
+  ((vector ?b (net-force ?b :time ?t) unknown)
+   (variable ?mag-var (mag (net-force ?b :time ?t)))
+   (variable ?dir-var (dir (net-force ?b :time ?t))))
+  :hint
+  ((point (string "Notice that there are forces acting on ~a ~a, although the exact direction of the total force is unknown." ?b (?t pp)))
+   (bottom-out (string "Draw a non-zero net force vector for ~A ~A in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
+
  
 ;;; =============================  nl fbd  ====================================
 
@@ -5645,7 +5658,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	       (error "draw-forces error: can't act both on entire body and on point of body:~%    ~A~%    ~A"
 		      ?body-forces ?point-forces)))
      (bind ?forces (or ?body-forces ?point-forces))
-     (debug "Draw-forces for ?b=~A ?t=~A:~%~{     ~S~%~}"
+     (debug "Finish draw-forces for ?b=~A ?t=~A:~%~{     ~S~%~}"
 	    ?b ?t ?forces)
      )
    :effects
@@ -5715,11 +5728,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((not (vector-diagram (NL ?b ?t)))
    (not (use-net-force))
-   (body ?b)
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
    (vector ?b (accel ?b :time ?t) ?accel-dir)
-   (axis-for ?b x ?rot))
+   (axis-for ?b ?xyz ?rot))
   :effects
    ((vector-diagram (NL ?b ?t)))
   :hint
@@ -8085,6 +8097,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (teach (string "Whenever an object is moving in a straight line, it has a non-zero momentum in the same direction as its motion.")
 	   (kcd "draw_nonzero_momentum"))
     (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
+
 
 ;;;;===========================================================================
 ;;;;                 Conservation of Linear Momentum
