@@ -4067,7 +4067,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((vector-diagram (net-force ?b ?t))))
 
-(defoperator write-net-force-compo (?b ?t ?xy ?rot)
+(defoperator write-net-force-compo (?b ?t ?xyz ?rot)
   :preconditions 
   (
    (in-wm (forces ?b ?t ?forces))	;draw all needed force vectors
@@ -4076,12 +4076,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (map ?f ?forces 
 	(variable ?f-compo-var (compo ?xyz ?rot ?f))
 	?f-compo-var ?f-compo-vars)
-   (variable ?fnet_xy (compo ?xy ?rot (net-force ?b :time ?t1)))
+   (variable ?fnet_xy (compo ?xyz ?rot (net-force ?b :time ?t1)))
    )
   :effects 
   ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
-	(compo-eqn definition ?xy ?rot (net-force ?b ?t1)))
-   (eqn-compos (compo-eqn definition ?xy ?rot (net-force ?b ?t1))
+	(compo-eqn definition ?xyz ?rot (net-force ?b ?t1)))
+   (eqn-compos (compo-eqn definition ?xyz ?rot (net-force ?b ?t1))
 	       (?fnet_xy . ?f-compo-vars)))
   :hint
   ((point (string "What is the total force acting on ~A ~A." 
@@ -5609,10 +5609,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-net-force-unknown (?b ?t)
   :preconditions
-  ((given (dir (net-force ?b :time ?t-force)) unknown)
-   (time ?t)
-   (test (tinsidep ?t ?t-force))
-   (not (given (accel ?t :time ?t-accel) ?a-dir) (tinsidep ?t ?t-accel))
+  (    
+   ;; find all forces that are acting on ?b (without drawing them)
+   ;; and collect directions
+   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
+   ;; make sure several forces are acting on ?b 
+   ;; assume (without testing) that the forces are in different directions
+   (test (> (length ?dirs) 1))
+   ;; make sure it is not given in the acceleration
+   (not (vector (accel ?t :time ?t-accel) ?a-dir) 
+	(and (tinsidep ?t ?t-accel) (not (eq ?a-dir 'unknown))))
+   ;; make sure net-force has not already been drawn
    (not (vector ?b (net-force ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" ?b (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
