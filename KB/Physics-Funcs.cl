@@ -247,7 +247,8 @@
    (cond ((and (known-z-dir-spec x1) (known-z-dir-spec x2)) 
             (equal x1 x2))
          ((and (degrees-or-num x1) (degrees-or-num x2))
-            (= (convert-dnum-to-number x1) (convert-dnum-to-number x2)))
+	  (zerop (mod (- (convert-dnum-to-number x1) 
+			 (convert-dnum-to-number x2)) 360)))
        (T NIL)))
 
 (defun opposite (x)

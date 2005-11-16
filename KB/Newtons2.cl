@@ -7219,14 +7219,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;;
     (test (not (and (equal ?dot 0) ?rot)))
     ;; Different hints for orthogonal vectors
-    (bind ?points (if ?dot "You need the value of the work done on ~a by ~a ~A"
-		    "Notice that the force exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."))
+    (bind ?points (if (equal ?dot 0)  
+		      "Notice that the force exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."
+		    "You need the value of the work done on ~a by ~a ~A"
+		    ))
     ;; This is a copy of stuff in the work ontology...
-    (bind ?teaches (if ?dot
-		       (strcat "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by "
-			       (if ?rot "F_x * d_x + F_y d_y." 
-				 "F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
-		     "If a force has no component in the direction of the displacement of an object, then the force does no work on that object."))
+    (bind ?teaches (if (equal ?dot 0)
+		       "If a force has no component in the direction of the displacement of an object, then the force does no work on that object."
+		     (strcat "The work done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by "
+			     (if ?rot "F_x * d_x + F_y d_y." 
+			       "F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
+		     ))
     (variable ?work-var (work ?b ?agent :time ?t))
  )
  :effects (
@@ -7255,8 +7258,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; canonicalize angle-between argument order
     (bind ?a-and-b (sort (list ?a ?b) #'expr<))
     (variable ?theta-var (angle-between . ?a-and-b))
-    (bind ?dot (if (perpendicularp ?dir-a ?dir-b) 0 
-		 `(* ,?a-var ,?b-var (cos ,?theta-var))))
+    (bind ?dot (cond
+		((perpendicularp ?dir-a ?dir-b) 0)
+		;; dot of a vector with itself, even if direction is unknown
+		((exactly-equal ?a ?b) (* ?a-var ?b-var))
+;;; It is not clear that the instructors at USNL would want this
+;;; In any case, there should be a special for this and 
+;;; the angle variable should still be definable
+		;; ((parallel-or-antiparallelp ?dir-a ?dir-b) 
+		;;  (if (same-angle ?dir-a ?dir-b)
+		;;   `(* ,?a-var ,?b-var)
+		;;   `(* -1 ,?a-var ,?b-var)))
+		(t `(* ,?a-var ,?b-var (cos ,?theta-var)))))
     )
 :effects ( (dot ?dot ?a ?b nil) 
 	     ;; nogood rule to so that only one form of dot is chosen
@@ -7894,11 +7907,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; in favor of dot-using-angle since it does not require drawing axes
     (test (not (and (equal ?dot 0) ?rot)))
     ;; Different hints for orthogonal vectors
-    (bind ?teaches (if ?dot
-		       (strcat "Power is the rate at which work is done.  The instantaneous power supplied from a force F to a body moving at velocity v is equal to " 
-			       (if ?rot "F_x * v_x + F_y v_y." 
-				 "F * v * cos ($q), where $q is the angle between the force and velocity vectors."))
-		     "If a force has no component in the direction of the movement of an object, then the force does no work on that object."))
+    (bind ?teaches (if (equal ?dot 0)
+		       "If a force has no component in the direction of the movement of an object, then the force does no work on that object."
+		     (strcat "Power is the rate at which work is done.  The instantaneous power supplied from a force F to a body moving at velocity v is equal to " 
+			     (if ?rot "F_x * v_x + F_y v_y." 
+			       "F * v * cos ($q), where $q is the angle between the force and velocity vectors."))
+		     ))
     
     (variable ?P-var (power ?b ?agent :time ?t))
  )
