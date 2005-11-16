@@ -7261,7 +7261,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bind ?dot (cond
 		((perpendicularp ?dir-a ?dir-b) 0)
 		;; dot of a vector with itself, even if direction is unknown
-		((exactly-equal ?a ?b) (* ?a-var ?b-var))
+		((exactly-equal ?a ?b) `(* ,?a-var ,?b-var))
 ;;; It is not clear that the instructors at USNL would want this
 ;;; In any case, there should be a special for this and 
 ;;; the angle variable should still be definable
