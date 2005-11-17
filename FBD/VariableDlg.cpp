@@ -57,6 +57,11 @@ CString CVariableDlg::GetSpec()		// get dialog spec for
 			strSpec += " at time [time:times]";
 		}
 	}
+	if ((strTypeId.CompareNoCase("charge-on") != -1)	) {
+		if (CVarView::IncludeQuant(CString("CHANGING-VOLTAGE"))){
+			strSpec += " at time [time:times]";
+		}
+	}
 	return strSpec;
 }
 

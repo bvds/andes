@@ -3550,8 +3550,8 @@ void CVariable::LogEntry()
 	if (strTypeId.IsEmpty())
 		strTypeId.Format("%d", m_nType);
 
-	// strValue and strDef are redundant given definition, but we have no
-	// easy methods to rederive them from the other fields, so just log them.
+	// strQuantName and strDef are redundant given type and args, but we originally
+	// had no easy methods to rederive them from the other fields, so just logged them.
 	CString strQuantName = ValToArg(m_strQuantName);
 	CString strObject = ValToArg(m_strObject);
 	CString strTime = ValToArg(m_strTime);
@@ -3561,9 +3561,9 @@ void CVariable::LogEntry()
 	// added (v6 serialization):
 	CString strValue = ValToArg(m_strValue);
 
-	LogEventf(EV_VAR_ENTRY, "%s %s %s %d %s %s %s %s %s %s", 
+	LogEventf(EV_VAR_ENTRY, "%s %s %s %d %s %s %s %s %s %s %s", 
 		strTypeId, m_strName,  m_strId, m_status, 
-		strForceType, strQuantName, strObject, strAgent, strTime, strDef);
+		strForceType, strQuantName, strObject, strAgent, strTime, strDef, strValue);
 	// need to log angle number for angle variables ? 
 }
 
@@ -3581,8 +3581,8 @@ BOOL CVariable::SetFromLogStr(LPCTSTR pszStr)
 	char szValue[80];
 	int nStatus;
 
-	// 11th arg added later, absent from old logs.
-	int nArgs = sscanf(pszStr,"%s %s %s %d %s %s %s %s %s %s", 
+	// 11th arg added later, absent from older logs.
+	int nArgs = sscanf(pszStr,"%s %s %s %d %s %s %s %s %s %s %s", 
 		szTypeName, szName, szId, &nStatus,
 		szForceType, szValue, szObject, szAgent, szTime, szDef, szValue);
 	if (nArgs < 10)

@@ -1152,7 +1152,7 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 			AfxGetApp()->EndWaitCursor();
 		}
 */
-#if 0 // don't give this power to instructors
+#if 1 // don't give this power to instructors
 
 		// following lets instructor update from this session (!!! but grade is not updated).
 		// The delete option lets us remove a bad solution file, though repair is still a two-stage process
@@ -1173,7 +1173,7 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 			if (nChoice == IDCANCEL)  // delete local copy
 				CFile::Remove(strSolnPath);
 		}
-#endif 0
+#endif 1
 	}
 
 	// Post message to close the whole application if not already closing. 
