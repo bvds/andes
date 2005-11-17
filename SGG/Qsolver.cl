@@ -34,45 +34,64 @@
 (defun solve-for-PSM-Quantity (Goal Givens)
   "Solve for PSMs on the specified Quantity with the specified givens."
   (merge-duplicate-PSMS
-   (loop for State in (qsolve-for (list `(psm ,Goal ?eqn-id ?eqn-algebra ?unknowns)) Givens)
-       collect (let ((PSM (find 'psm (St-WM State)
-				:key #'car
-				:test #'equal)))
-		 (setq **wm** (union (st-wm state) **wm** :test #'unify))
-		 (make-qsolres
-		  :ID (nth 2 PSM)
-		  :algebra (nth 3 PSM)
-		  :nodes (mapcar #'cdr
-				  (remove-if-not #'(lambda (wme) (and (eql (car wme) 'variable)
-								      (member (caddr wme) (nth 4 PSM))))
-						 (St-WM State)))
-		  :path (collect-path State)
-		  :subeqns (collect-subeqns State)                              ;;Collect the subequations.
-		  :subvars (collect-subvars State (nth 4 PSM))                  ;;Collect the variables.
-		  :assumpts (collect-assumptions State)                          ;;Collect the assumptions.
-		  :wm (St-wm State))))))                                        ;; Collect the wm.
+   (loop for State in (qsolve-for (list 
+				   `(psm ,Goal ?eqn-id ?eqn-algebra 
+					 ?unknowns)) Givens)
+	 collect (let ((PSM (find 'psm (St-WM State)
+				  :key #'car
+				  :test #'equal)))
+		   (setq **wm** (union (st-wm state) **wm** :test #'unify))
+		   (make-qsolres
+		    :ID (nth 2 PSM)
+		    :algebra (nth 3 PSM)
+		    :nodes (mapcar #'cdr
+				   (remove-if-not 
+				    #'(lambda (wme) 
+					(and (eql (car wme) 
+						  'variable)
+					     (member (caddr wme) 
+						     (nth 4 PSM))))
+				    (St-WM State)))
+		    :path (collect-path State)
+		    :subeqns (collect-subeqns State)  ;Collect the subequations
+		    ;; Collect variables.
+		    :subvars (collect-subvars State (nth 4 PSM))
+		    ;; Collect the assumptions.
+		    :assumpts (collect-assumptions State)                   
+		    ;; Collect the wm.
+		    :wm (St-wm State))))))     
 
 
 (defun solve-for-Constant-Quantity (Goal Givens)
   "Solve for the quantity iff it is a Constant."
   (let ((R (merge-duplicate-PSMS
-	    (loop for State in (qsolve-for (list `(psm ,Goal (STD-Constant ?V) ?eqn-algebra ?unknowns)) Givens)
-		collect (let ((PSM (find 'psm (St-WM State)
-					 :key #'car
-					 :test #'equal)))
-			  (setq **wm** (union (st-wm state) **wm** :test #'unify))
-			  (make-qsolres
-			   :id (nth 2 PSM)
-			   :algebra (nth 3 PSM)
-			   :nodes (mapcar #'cdr
-					  (remove-if-not #'(lambda (wme) (and (eql (car wme) 'variable)
-									      (member (caddr wme) (nth 4 PSM))))
-							 (St-WM State)))
-			   :path (collect-path State)
-			   :subeqns (collect-subeqns State)                              ;;Collect the subequations.
-			   :subvars (collect-subvars State (nth 4 PSM))                  ;;Collect the variables.
-			   :assumpts (collect-assumptions State)                         ;;Collect the assumptions.
-			   :wm (st-wm State)))))))
+	    (loop for State in (qsolve-for (list `(psm ,Goal (STD-Constant ?V) 
+						       ?eqn-algebra ?unknowns))
+					   Givens)
+		  collect (let ((PSM (find 'psm (St-WM State)
+					   :key #'car
+					   :test #'equal)))
+			    (setq **wm** (union (st-wm state) **wm** 
+						:test #'unify))
+			    (make-qsolres
+			     :id (nth 2 PSM)
+			     :algebra (nth 3 PSM)
+			     :nodes (mapcar #'cdr
+					  (remove-if-not 
+					   #'(lambda (wme) (and (eql (car wme)
+								     'variable)
+								(member 
+								 (caddr wme) 
+								 (nth 4 PSM))))
+					   (St-WM State)))
+			     :path (collect-path State)
+			     ;;Collect the subequations.
+			     :subeqns (collect-subeqns State) 
+			     ;;Collect the variables.
+			     :subvars (collect-subvars State (nth 4 PSM))
+			     ;;Collect the assumptions.
+			     :assumpts (collect-assumptions State)
+			     :wm (st-wm State)))))))
     
     (cond ((> (Length R) 1)
 	   (error "Multiple Constant Results for ~S~%" Givens))
@@ -89,31 +108,41 @@
 	       collect (let ((Eqn (find 'Given-eqn (st-wm State)             
 					:key #'car
 					:test #'unify)))
-			 (setq **wm** (union (st-wm state) **wm** :test #'unify))
+			 (setq **wm** 
+			       (union (st-wm state) **wm** :test #'unify))
 			 (make-qsolres
-			    :id (nth 1 Eqn)                                             ;;collect the eqn algebra
-			    :nodes (find-if #'(lambda (V) (and (eql (car V) 'Variable)  ;;Get the quantity variable.
-							       (unify (caddr V) Goal)))
-					    (st-wm State))
-			    :path (collect-path State)                                    ;;collect the paths.
-			    :subeqns (collect-subeqns State)                                  ;;Collect the subequations.
-			    :subvars (collect-subvars State (list Goal))                      ;;Collect the variables.
-			    :assumpts (collect-assumptions State)                         ;;Collect the assumptions.
-			    :wm (st-wm State))))))
-    (cond ((eq 0 (length R))                                                        ;;If no values are returned.
-	   (error "No return values specified for given: ~S ~%~S.~%" Goal Givens))  ;;Signal an error.
+			  :id (nth 1 Eqn)       ;collect the eqn algebra
+			  ;;Get the quantity variable.
+			  :nodes (find-if #'(lambda (V) (and (eql (car V) 
+								  'Variable)
+							     (unify (caddr V) 
+								    Goal)))
+					  (st-wm State))
+			  ;;collect the paths.
+			  :path (collect-path State)
+			  ;;Collect the subequations
+			  :subeqns (collect-subeqns State)
+			  ;;Collect the variables.
+			  :subvars (collect-subvars State (list Goal))
+			  ;;Collect the assumptions. 
+			  :assumpts (collect-assumptions State)
+			  :wm (st-wm State))))))
+    (cond ((eq 0 (length R))            ;If no values are returned.
+	   (error "No return values specified for given: ~S ~%~S.~%" 
+		  Goal Givens))  ;Signal an error.
 	  
-	  ((< 1 (length R))                                                         ;;If more than one is returned
-	   (merge-duplicate-givens R))                                              ;;merge the results.
-	  
-	  (t (car R)))))                                                                  ;;Otherwize return it.
+	  ((< 1 (length R))             ;if more than one is returned
+	   (merge-duplicate-givens R))  ;merge the results
+	  (t (car R)))))                ;Otherwize return it.
 
 
 (defun solve-for-param-var (Param Givens)
   "Solve for a parameter variable corresponding to param."
   (merge-duplicate-param-vars 
    (loop for State in (qsolve-for (list `(variable ?var ,Param)) Givens)
-       collect (let ((Var (find-if #'(lambda (W) (unify W `(Variable ?Var ,Param))) (st-wm State))))
+       collect (let ((Var (find-if #'(lambda (W) 
+				       (unify W `(Variable ?Var ,Param))) 
+				   (st-wm State))))
 		 (setq **wm** (union (st-wm state) **wm** :test #'unify))
 		 (make-qsolres
 		  :id (cadr Var)
@@ -183,7 +212,7 @@
 			
 
 (defun collect-subvars (State BubbleVars)
-  "Collect every variable statement in a state's WM, that is not in the Bubble."
+  "Collect every variable statement in a state's WM not in the Bubble."
    (loop for V in (St-wm State)
        when (and (eql (car V) 'Variable)
 		 (not (member (caddr V) 
@@ -213,7 +242,7 @@
 ;;===========================================================================
 ;; Merge-duplicates
 ;; In solving for psms, given, eqns, etc we occasionally end up with
-;; duplicate values the functions herew are used to merge those
+;; duplicate values the functions here are used to merge those
 ;; suplicates top generate a single set as necessary.
 
 (defun merge-duplicate-psms (PSMS)
@@ -462,7 +491,7 @@
 ;;; an ordered list of operator instances, except for the top item on
 ;;; the stack, which might be a goal or an executable form instead of
 ;;; an operator instance.  The stuff in the stack has lots of
-;;; variables in it.  Rather thatn continually substituting values
+;;; variables in it.  Rather than continually substituting values
 ;;; into the variable, the state keeps a list of bindings (the format
 ;;; is defined by unifier.cl) which indicate what values all the
 ;;; variables appearing in the stack have. The history slot is a list
@@ -554,10 +583,10 @@
 ;;; on the same state.
 
 (defstruct (opinst (:print-function print-opinst))
-  subgoals				; An ordered list of preconditions
-  effects				; A set of effects (atomic propositions)
-  identifier				; the name of the operator plus its arguments
-  variables				; a list of the operats's help variables.
+  subgoals	     ;an ordered list of preconditions
+  effects	     ;a set of effects (atomic propositions)
+  identifier	     ;the name of the operator plus its arguments
+  variables	     ;a list of the operats's help variables.
   )
 
 ;;; This is called by the Lisp system whenever it wants to print an
@@ -745,7 +774,8 @@
     (if (not (groundp ground-id))
 	(cerror "Ignore" "The op instance identifier ~S is not ground" 
 		ground-id))
-    (note-action state (list *do-operator* ground-act ground-effects ground-vars))
+    (note-action state 
+		 (list *do-operator* ground-act ground-effects ground-vars))
     (push-history ground-id state)
     (list state)))
 
@@ -789,7 +819,7 @@
 ;;; operator.
 
 (defun goal-successors (goal state)
-  "Given a new state, returns a copy of it for each unification of the given goal"
+  "Given a new state, returns a copy for each unification of the given goal"
   (nconc (goal-successors-wmes goal state t)
 	 (goal-successors-effects goal state)))
 
@@ -816,7 +846,8 @@
    and the action noted."
   (let ((new-state (copy-st state)))
     (setf (st-bindings new-state) bindings)
-    (if action-flag (note-action new-state (list *goal-unified-with-fact* wme)))
+    (if action-flag (note-action new-state 
+				 (list *goal-unified-with-fact* wme)))
     new-state))
 
 ;;; This is called by goal-successors to generate states via matching
@@ -839,7 +870,8 @@
 (defun goal-successors-effects (goal state)
   "Returns a set of states, one for each unification of the given goal
    with an effect of an operator."
-  (let ((bound-goal (rename-variables (subst-bindings (st-bindings state) goal)))
+  (let ((bound-goal (rename-variables 
+		     (subst-bindings (st-bindings state) goal)))
 	(successors)
 	(n))
     (dolist (op (get-operators-by-effect (car bound-goal)))
@@ -868,7 +900,8 @@
     (setf inst (make-opinst
 		:subgoals (operator-preconditions new-op)
 		:effects  (operator-effects new-op)
-		:identifier (cons (operator-name op) (operator-arguments new-op))
+		:identifier (cons (operator-name op) 
+				  (operator-arguments new-op))
 		:variables (operator-variables new-op)))
     (push inst (st-stack new-state))
     (setf (st-bindings new-state) bindings)
@@ -906,8 +939,8 @@
 ;;; executables do not put any actions in their state's actions slot.
 
 (defun note-action (state action)
-  "Sets the actions field of the state to the action plus split/next/join markers.
-   Prints trace if *actions* is true.  Use for its side-effects."
+  "Sets the actions field of the state to the action plus split/next/join 
+   markers.  Prints trace if *actions* is true.  Use for its side-effects."
   (let ((act-type (car action)))
     (setf (st-actions state)
       (cond ((and (eql act-type *goal-unified-with-effect*)
@@ -923,7 +956,8 @@
     (qs-debug-print-action State action)))
 
 (defun unordered-op-id (op-name)
-  "Non-null if the given operator instance identifier comes from an unordered operator"
+  "Non-null if the given operator instance identifier comes from an 
+   unordered operator"
   (let ((op (get-operator-by-name op-name)))
     (and op (member 'unordered (operator-features op)))))
 
@@ -952,7 +986,7 @@
   (terpri stream))
 
 (defun print-path (state stream indent)
-  "Prints the indentation, then the actions in the state, then the rest of the path"
+  "Prints the indentation, the actions in the state, and the rest of the path"
   (dolist (act (st-actions state)) (print-act act stream indent))
   (cond ((null (St-successors state)))
 	((null (cdr (st-successors state)))
@@ -977,31 +1011,6 @@
   (not (and (listp act)
 	    (eql (car act) *next-operator*)
 	    (executable-p (third act)))))
-
-
-;;; ===================== utilities ===========================
-;;; should be moved to utilities.cl eventually
-
-(defun groundp (form)
-  "True if the given form contains no variables"
-  (cond ((variable-p form) NIL)
-	((atom form) t)
-	(t (and (groundp (car form))
-		(groundp (cdr form))))))
-
-(defun ground-expression (form bindings)
-  "If all the variables in the given form are bound, 
-   returns a ground instance of it. Otherwise, returns NIL"
-  (and (all-boundp form bindings)
-       (subst-bindings bindings form)))
-
-(defun all-boundp (form bindings)
-  "True if the given form's variables all have bindings"
-  (cond ((variable-p form)
-	 (get-binding form bindings))
-	((atom form) t)
-	(t (and (all-boundp (car form) bindings)
-		(all-boundp (cdr form) bindings)))))
 
 
 ;;; ============================ QS-Debug Printing ========================

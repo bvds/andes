@@ -260,11 +260,35 @@
     rules))
 
 
+;;;;
+;;;; ============= test if expression contains variables ====================
+;;;;
 
-;;================================================================== 
-;; Unification
+(defun groundp (form)
+  "True if the given form contains no variables"
+  (cond ((variable-p form) NIL)
+	((atom form) t)
+	(t (and (groundp (car form))
+		(groundp (cdr form))))))
+
+(defun ground-expression (form bindings)
+  "If all the variables in the given form are bound, 
+   returns a ground instance of it. Otherwise, returns NIL"
+  (and (all-boundp form bindings)
+       (subst-bindings bindings form)))
+
+(defun all-boundp (form bindings)
+  "True if the given form's variables all have bindings"
+  (cond ((variable-p form)
+	 (get-binding form bindings))
+	((atom form) t)
+	(t (and (all-boundp (car form) bindings)
+		(all-boundp (cdr form) bindings)))))
 
 
+;;;; ================================================================== 
+;;;;                              Unification
+;;;; ================================================================== 
 
 (defun unify (x y &optional (bindings no-bindings))
   "See if x and y match with given bindings."
@@ -365,7 +389,8 @@
 ;;; ===========================================================
 
 (defun unify-with-list (i L &optional (Bindings No-Bindings))
-  "Attempt to unify item i with some element in list L returning all possible unifications."
+  "Attempt to unify item i with some element in list L returning all 
+   possible unifications."
   (loop for i2 in L
       when (unify i i2 Bindings)
       collect it))
@@ -542,9 +567,6 @@
   "Change the bindings value for var from its initial form the new one."
   (when (get-binding Var Bindings)
     (extend-bindings Var Value (reduce-bindings Var Bindings))))
-
-
-  
 
 
 #| Unused for now.
