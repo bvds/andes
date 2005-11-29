@@ -105,7 +105,9 @@ string numvalexp::getInfix() const {
   char valuenum[21];
 
   DBG( cout << "getInfix on numval" << endl);
-  if (lookslikeint(value,q)) sprintf(valuenum,"%d",q);
+  // don't truncate nonzero numbers near zero
+  if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q))
+    sprintf(valuenum,"%d",q);
   else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
     sprintf(valuenum,"%19.16lf",value);
   else
@@ -178,7 +180,9 @@ string binopexp::solprint(bool forhelp) const {
     DBG(cout << "Solprint: manufactured unitstr " << unitstr << endl;);
   }
 
-  if (lookslikeint(value,q)) sprintf(valuenum,"%d",q);
+  // don't truncate nonzero numbers near zero
+  if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q)) 
+    sprintf(valuenum,"%d",q);
   else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
     sprintf(valuenum,"%19.16lf",value);
   else
@@ -235,7 +239,9 @@ void numvalexp::pretty(int indent)
 {
   int q;
   char valuenum[17];
-  if (lookslikeint(value,q)) sprintf(valuenum," %d ",q);
+  // don't truncate nonzero numbers near zero
+  if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q))
+    sprintf(valuenum,"%d",q);
   else sprintf(valuenum," %14.8lf ",value);
   cout << string(indent,' ') + valuenum << endl;
 }
@@ -282,7 +288,9 @@ void numvalexp::dbgprint(int indent)
 {
   int q;
   char valuenum[17];
-  if (lookslikeint(value,q)) sprintf(valuenum," %d ",q);
+  // don't truncate nonzero numbers near zero
+  if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q))
+    sprintf(valuenum,"%d",q);
   else sprintf(valuenum," %14.8lf ",value);
   cout << string(indent,' ') + "numval:  " + valuenum + "\t" + 
     MKS.print() << endl;
@@ -335,7 +343,9 @@ string numvalexp::getLisp(bool withbarp) const {
   int q;
   char valuenum[21];
 
-  if (lookslikeint(value,q)) sprintf(valuenum,"%d",q);
+  // don't truncate nonzero numbers near zero
+  if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q))
+    sprintf(valuenum,"%d",q);
   else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
     sprintf(valuenum,"%19.16lf",value);
   else

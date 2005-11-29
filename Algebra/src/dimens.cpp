@@ -2,13 +2,12 @@
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
 
 #include "dimens.h"
+#include "decl.h"
 #include <string>
 #include <stdio.h>
 using namespace std;
 
 // no diagnostics
-
-bool lookslikeint(double, int &);
 
 const DIMEXP dimens::UNKNDIM=-127;
 const DIMEXP dimens::INCONS=-126;

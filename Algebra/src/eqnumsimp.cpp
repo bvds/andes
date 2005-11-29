@@ -8,11 +8,11 @@
 #include "decl.h"
 #include "extoper.h"
 #include "dbg.h"
+#include "extstruct.h"
 #include <math.h>
 #include "mconst.h"
 using namespace std;
 
-const double RELERR = 1.0E-11;		// remove if include extstruct.h
 
 #define DBG(A) DBGF(EQNUM,A)
 #define EQDEEP(A) DBGFM(EQNUM,A)
@@ -114,6 +114,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	      if (flok)
 		{
 		  save = new numvalexp(tan(DEG2RAD * tharg->value));
+		  if (lookslikeint(value, q)) value = (double) q;
 		  break;
 		}
 	      else 
@@ -217,7 +218,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	    case equalse:
 	    case grte:
 	    case gree:
-	      DBG(cout << "eqnumsimp " << thisdbg << " returning" << endl);
+	      DBG(cout << "eqnumsimp " << thisdbg << " returning." << endl);
 	      return;					// (answer)
 	    case divbye:
 	      if ((thrhs->value == 1.0) && thrhs->MKS.zerop())

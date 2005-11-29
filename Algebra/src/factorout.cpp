@@ -3,6 +3,7 @@
 
 #include "decl.h"
 #include "dbg.h"
+#include "extstruct.h"
 
 using namespace std;
 #define DBG(A) DBGF(FACTOUT,A)
@@ -88,10 +89,11 @@ bool factorout(const expr * factor,int n, expr * & expression)
 	else goto abort;
       if (binexpr->op->opty == topowe)
   	{
-  	  if (binexpr->rhs->etype != numval) goto abort;
-  	  if (((numvalexp *)binexpr->rhs)->value <=0) goto abort;
-  	  if (lookslikeint(n/((numvalexp *)binexpr->rhs)->value,q)) // what's
-	    if (factorout(factor,q,binexpr->lhs)) goto fixup; 	   //  this? 
+  	  if (binexpr->rhs->etype != numval ||
+	      // close to zero treated as zero
+	      ((numvalexp *)binexpr->rhs)->value < RELERR) goto abort;
+  	  if (lookslikeint(n/((numvalexp *)binexpr->rhs)->value,q) && // what's
+	      factorout(factor,q,binexpr->lhs)) goto fixup; 	   //  this? 
 	  if (equaleqs(factor,binexpr->lhs)) {
 	    ((numvalexp *)binexpr->rhs)->value  -= .5 * n;
 	    goto fixup;
