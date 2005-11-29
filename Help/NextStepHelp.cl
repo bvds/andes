@@ -3663,6 +3663,8 @@
 
 
 ;;; kvl changed case statement to member
+;;; This is somewhat redundant with removable-actionp
+;; should make common list in HelpStructs/PsmGraph.cl
 (defun sg-ignore-class (sg)
   "True if the given sg step should be ignored when pushing goals onto the stack"
   (member (car (cssg-goal sg)) 
