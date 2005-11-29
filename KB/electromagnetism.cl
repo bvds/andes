@@ -56,23 +56,25 @@
   :effects 
   ;; kelec is predefined, see file constants.cl
   ( (eqn (= ?F (/ (* |kelec| (abs ?q1) (abs ?q2)) (^ ?r 2)))
-	 (coulomb ?b1 ?b2 ?t) ))
+	 (coulomb ?b1 ?b2 ?t) )
+    (assume using-magnitude (coulomb-vec ?b1 ?b2 ?t)) ;magnitude xor components
+    )
   :hint (
-     (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
-     (bottom-out (string "Write the equation ~A" 
-			 ((= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) 
-			     (^ ?r 2))) algebra))
-  ))
+	 (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) 
+				 (^ ?r 2))) algebra))
+	 ))
 
 (def-psmclass coulomb-compo (?eqn-type coulomb-force ?axis ?rot 
-				 (coulomb ?body ?agent ?time))
-    :complexity major    
-    :Doc "Definition of Coulomb's law, component form."
-    :english ("the definition of Coulomb's law (component form)") 
-    :ExpFormat ("applying Coulomb's law to ~a and ~A ~a"
-		(nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-    :EqnFormat ("F_~A = kelec*q1*q2/r^2 r_~A/r" 
-		(nlg ?axis 'adj) (nlg ?axis 'adj)))
+				 (coulomb-vec ?body ?agent ?time))
+  :complexity major    
+  :Doc "Definition of Coulomb's law, component form."
+  :english ("the definition of Coulomb's law (component form)") 
+  :ExpFormat ("applying Coulomb's law to ~a and ~A ~a"
+	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
+  :EqnFormat ("F_~A = kelec*q1*q2/r^2 r_~A/r" 
+	      (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 (defoperator coulomb-vector-contains (?sought)
   :preconditions 
@@ -95,10 +97,10 @@
    (test (member ?b2 ?coul-bodies))
    )
   :effects 
-   ((eqn-family-contains (coulomb ?b1 ?b2 ?t) ?sought)
+   ((eqn-family-contains (coulomb-vec ?b1 ?b2 ?t) ?sought)
     ;; since only one compo-eqn under this vector psm, we can just
     ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (coulomb ?b1 ?b2 ?t) coulomb-force ?sought)))
+    (compo-eqn-contains (coulomb-vec ?b1 ?b2 ?t) coulomb-force ?sought)))
 
 (defoperator draw-coulomb-vector-diagram (?b ?agent ?t)
   :preconditions 
@@ -110,12 +112,15 @@
    (axis-for ?b ?xy ?b-rot)
    )
   :effects (
-	    (vector-diagram (coulomb ?b ?agent ?t))
+	    (vector-diagram (coulomb-vec ?b ?agent ?t))
   ))
 
-(defoperator write-coulomb-compo (?b ?agent ?t ?xy ?rot)
+(defoperator write-coulomb-compo (?b1 ?b2 ?t ?xy ?rot)
   :preconditions 
   (
+   ;; make sure r-hat compo doesn't vanish
+   (in-wm (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?r-dir))
+   (test (non-zero-projectionp ?r-dir ?xy ?rot))
    (variable ?q1 (charge-on ?b1 :time ?t ?t))
    (variable ?q2 (charge-on ?b2 :time ?t ?t))
    (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
@@ -125,10 +130,11 @@
   :effects (
    (eqn (= ?F_xy (/ (* |kelec| ?q1 ?q2 ?r_xy) (^ ?r 3)))
             (compo-eqn coulomb-force ?xy ?rot 
-		       (coulomb ?b ?agent ?t)))
+		       (coulomb-vec ?b1 ?b2 ?t)))
    (eqn-compos (compo-eqn coulomb-force ?xy ?rot 
-		       (coulomb ?b ?agent ?t))
-             (?r_xy ?F_xy)))
+		       (coulomb-vec ?b1 ?b2 ?t))
+             (?r_xy ?F_xy))
+   )
   :hint (
      (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
@@ -700,6 +706,7 @@
   (
    ;; NB: need abs charge since it is now signed
    (eqn (= ?magF (* (abs ?q) ?magE)) (charge-force-Efield-mag ?b ?source ?t))
+   (assume using-magnitude (charge-force-Efield ?b ?source ?t)) ;mag xor compos
    )
   :hint 
   (
@@ -886,10 +893,12 @@
 		  (variable ?r (mag (relative-position ?loc ?b :time ?t)))
                   (rdebug "fired write-point-charge-Efield-mag  ~%")
                   )
-  :effects (
-            (eqn (= ?magE (/ (* |kelec| (abs ?q)) (^ ?r 2) ))
-               (point-charge-Efield-mag ?b ?loc ?t))
-            )
+  :effects 
+  (
+   (eqn (= ?magE (/ (* |kelec| (abs ?q)) (^ ?r 2) ))
+	(point-charge-Efield-mag ?b ?loc ?t))
+   (assume using-magnitude (point-charge-Efield ?b ?loc ?t)) ;mag xor compos
+   )
   :hint (
          (point (string "What is the equation for the magnitude of the electric field due to a point charge?"))
          (teach (kcd "write-point-charge-force-Efield-mag")

@@ -338,9 +338,11 @@ impulse ~A." (?b def-np) (?t pp)))
   (variable ?mag1-var (mag (impulse ?b1 ?b2 :time ?t)))
   (variable ?mag2-var (mag (impulse ?b2 ?b1 :time ?t)))
   )
-  :effects (
-    	(eqn (= ?mag1-var ?mag2-var) (NTL-impulse (?b2 ?b1) ?t)) 
-	(assume using-NTL-impulse (?b2 ?b1) ?t)
+  :effects 
+  (
+   (eqn (= ?mag1-var ?mag2-var) (NTL-impulse (?b2 ?b1) ?t)) 
+   (assume using-NTL-impulse (?b2 ?b1) ?t)
+   (assume using-magnitude (NTL-impulse-vector (?b2 ?b1) ?t)) ;max xor compos
   )
   :hint
   ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))

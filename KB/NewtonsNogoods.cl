@@ -78,3 +78,16 @@
      (using-NTL-impulse ?bodies ?t))
   :specs ("Prevent combining different ways of writing Newton's third Law -- net force and impulse form -- on two bodies at a time")
   :message (Redundant NTL forms for ?bodies at ?t))
+
+;;;
+;;;  don't want both component and magnitude form of a vector equation
+;;;  Also use to disallow both projection and pyth-theorem for a vector
+;;;
+
+(defnogood component-or-magnitude-form
+    ((using-magnitude ?family-id)
+     ;; asserted in apply-vector-PSM* and 
+     (using-compo (?id ?xyz ?rot ?family-id)) 
+     )
+  :specs ("Prevent both component and magnitude form of a vector equation")
+  :message (Both component and magnitude forms for ?family-id))
