@@ -12,7 +12,9 @@
 #include "standard.h"
 
 //////////////////////////////////////////////////////////////////////////////
+#ifdef _WINDOWS
 #pragma warning (disable: 4786)
+#endif
 #include <vector>
 #include <string>
 #include "expr.h"
@@ -26,7 +28,10 @@
 //////////////////////////////////////////////////////////////////////////////
 const int STUDEQSZ = 40;	/* number of actual student equation slots */
 const int HELPEQSZ = 70;	/* number of slots including implicit eqs */
-const double RELERR = 1.0E-11;
+// This is a bit larger than machine epsilon in case there is
+// some accumulated roundoff error
+#include <float.h>
+#define RELERR (32*DBL_EPSILON)
 
 //////////////////////////////////////////////////////////////////////////////
 // globals defined here
