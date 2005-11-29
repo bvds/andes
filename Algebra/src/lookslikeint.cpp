@@ -6,15 +6,19 @@
 #include "extstruct.h"
 
 // no diagnostics
+// Previously, there was special handling for numbers near zero,
+// but this is inconsistant with what one would expect.
 
 bool lookslikeint(double v, int &q) // if double v is close to an integer,
 {				// return true and place integer in q
-  // AW: test below doesn't work for non-zero values smaller than RELERR. 
-  if ((fabs(v) <= RELERR) && (v != 0)) return(false);
-
-  if (floor(v + RELERR) - floor(v - RELERR) > .5)
+  if (floor(v + RELERR) > floor(v - RELERR) + 0.5)
     {
-      q = (int) floor(v + RELERR);
+      if(fabs(v)<RELERR && v!=0){
+	cout << "lookslikeint case incorrect previously" <<endl;
+      }
+
+      // cast from float to integer truncates at decimal point
+      q = (v>-0.5 ? v+0.5 : v-0.5); 
       return(true);
     }
   else return(false);
