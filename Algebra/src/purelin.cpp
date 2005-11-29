@@ -44,7 +44,6 @@ bool purelinsolv(vector<binopexp *> const * eqs,
   n_opexp * lhs;
   n_opexp * thisterm;
   double pivot;
-  double relerr = 1.E-8;	// should this -> RELERR (= 1.0^-11)?
   double **A;
 
   int outputprec = 3;
@@ -145,7 +144,7 @@ bool purelinsolv(vector<binopexp *> const * eqs,
       {
 	for (k=stepr; k < numeqs; k++)
 	  if (fabs(A[k][stepc]) > pivot) {pivot = fabs(A[k][stepc]); q = k;}
-/* 	if (pivot < relerr * normvars[stepc++]) pivot = 0.; 
+/* 	if (pivot < RELERR * normvars[stepc++]) pivot = 0.; 
  * the above line was found not to work (use Excir40-Solver.log 7/11/02),
  * primarily because normvars does not accurately reflect the size of a 
  * variable. This test should be rethought, but for now, we drop it. 
@@ -179,7 +178,7 @@ bool purelinsolv(vector<binopexp *> const * eqs,
 	for (q = 0; q <= numvars; q++) 		// to make sure
 	  {
 	    A[k][q] += A[stepr][q] * pivot;
-	    if (fabs(A[k][q]) < relerr * fabs(A[stepr][q]* pivot))
+	    if (fabs(A[k][q]) < RELERR * fabs(A[stepr][q]* pivot))
 		A[k][q] = 0.;
 	  }
       }
@@ -198,7 +197,7 @@ bool purelinsolv(vector<binopexp *> const * eqs,
 
   //  check remaining equations are 0 = 0
   for (k=numvars; k < numeqs; k++)
-    if (fabs(A[k][numvars]) > relerr) 
+    if (fabs(A[k][numvars]) > RELERR) 
       {
 	DBG( { cout << "purelinsolv failed at Eqn " << k
 	            << " inconsistency. Here are the variables:" << endl;
@@ -229,13 +228,13 @@ bool purelinsolv(vector<binopexp *> const * eqs,
     {
       for (q=0; q < numeqs; q++)
 /* Lin modified the next line to 
- * 	if (fabs(A[q][k] > relerr))  // look for equation to write out for this
+ * 	if (fabs(A[q][k] > RELERR))  // look for equation to write out for this
  * to the one below, but is this right? When making new A's, didn't I do
  * this check already? and will this fail if numbers are too small? 
  * [July 11, 2002]  Removed 7/12/02 see line 147 */
 	if (A[q][k] != 0)	// look for equation to write out for this 
 	  {			// variable. If it was unsolvable, its nonzero
-	    if (fabs(1. -A[q][k]) > relerr)	 // elements should be zapped 
+	    if (fabs(1. -A[q][k]) > RELERR)	 // elements should be zapped 
 	      {	
 		cout << "found non-1 as pivot in result in purelin at row "
 		     << q << " column " << k << ", value=" << A[q][k] << endl;

@@ -11,11 +11,10 @@
  ************************************************************************/
 #include "decl.h"
 #include "dbg.h"
+#include "extstruct.h"
 #include <math.h>
 #define DBG(A) DBGF(EQUALEQ,A)
 using namespace std;
-
-const double RELERR = 1.0E-11;		// remove if include extstruct.h
 
 bool equaleqs(const expr * exp1, const expr * exp2)
 {

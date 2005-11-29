@@ -4,10 +4,10 @@
 		// apluskb used in place of many lines below
 #include "decl.h"
 #include "extoper.h"
+#include "extstruct.h"
 #include "dbg.h"
 #include <math.h>
 using namespace std;
-const double RELERR = 1.0E-11;		// remove if include extstruct.h
 
 #define DBG(A) DBGF(SOLVKV,A)
 

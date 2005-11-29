@@ -7,7 +7,6 @@
 //			 Reorganization seems called for.]
 
 #include <cmath>
-#include <float.h>
 #include "decl.h"
 #include "extoper.h"
 #include "extstruct.h"
@@ -325,7 +324,7 @@ double findroot(const vector<double> * poly,
   double delx;
   double x = 0.5 * (low + high);
   // Actually, tol=0 would probably work OK
-  double tol = 10. * DBL_EPSILON *(fabs(low) + fabs(high));
+  double tol = RELERR * (fabs(low) + fabs(high));
   do {
     delx = - evalpoly(poly,x)/evalpoly(polyderiv,x);
     // assume poly is monotonic on [low,high]

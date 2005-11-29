@@ -57,17 +57,18 @@ bool indyset::isindy(const valander * const candval)
 	{
 	  double chkerr = fabs(candleft[q])+ fabs(coef*basis[k][q]);
 	  candleft[q] += -coef*basis[k][q];
-	  if (fabs(candleft[q]) < RELERR * chkerr) candleft[q] = 0;
-	  //	  DBG( cout << "candleft = " << candleft[q] << ", chkerr = "
-	  //	       << chkerr << endl;); // remove this soon
+	  if (fabs(candleft[q]) < RELERR * chkerr)
+	    {
+	      DBG( cout << "setting candleft[" << q << "] = " << candleft[q] 
+		   << " to zero with chkerr = " << chkerr << endl);
+	      candleft[q] = 0;
+	  }
 	}
       candexpand[k] = coef;
     }
   lastisvalid = true;
-  DBG( { cout << "Leaving isindy with coefs ";
-	 printdv(candexpand);
-	 cout << "and with remaining gradient ";
-	 printdv(candleft); } ) ;
+  DBG(cout << "Leaving isindy with coefs "; printdv(candexpand);
+      cout << "and with remaining gradient "; printdv(candleft);) ;
 
   for (int q = 0; q < numvars; q++) if (candleft[q] != 0) return(true);
   return(false);
@@ -135,13 +136,7 @@ vector<double> indyset::expandlast()
 	{	  
 	   double addend = candexpand[q] * basexpand[q][k];
 	   if (fabs(addend) > maxadd)  maxadd = fabs(addend);
-
 	   ret[k] += addend;
-	   // Temporary: detail trace of this step: -- AW
-	   DBG( cout << "ret[k="<< k <<"] +=" 
-		         << "candexpand[q=" << q <<"] "<< candexpand[q] 
-		                      << " * basexpand[q][k] "<< basexpand[q][k] ;
-	        cout << " ==> " << ret[k] << endl);
 	}
 	// check sum wrt maxadd to see if it should be zero
     if (fabs(ret[k]) < RELERR * maxadd) {
