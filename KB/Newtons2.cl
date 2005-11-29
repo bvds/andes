@@ -72,67 +72,65 @@
 ;; operators that exist to support this top-level search.
 
 (defoperator find-by-PSM (?sought ?eqn-id)
-  :preconditions (
-  	;; save initially known quants for detecting changes below
-	;; This is initial givens plus quantities given as parameters
-	(setof (in-wm (given ?quant ?dont-care))
-	       ?quant ?initial-givens)
-	(setof (in-wm (parameter ?quant ?dont-care))
-	        ?quant ?parameters)
-	(bind ?initial-knowns (union ?initial-givens ?parameters 
-	                             :test #'unify))
-	
-	;; Main step: apply a PSM to generate an equation for sought.
-	(PSM-applied ?sought ?eqn-id ?eqn-algebra)
-
-	;; collect list of quantities in the equation. 
-	(map ?v (vars-in-eqn ?eqn-algebra)
-	       (in-wm (variable ?v ?q))
-               ?q ?quantities-in-eqn)
-	;; make sure sought quantity actually occurs in equation
-	;; Use "unify" to correctly handle keywords.
-	(test (member ?sought ?quantities-in-eqn :test #'unify))
-
-	;; Some quantities in eqn may have become "given" -- known -- as side 
-	;; effects of applying the PSM. Here we call them the new-knowns.
-	;; We get what's known now and figure out what's changed.
-    	(setof (in-wm (given ?quant ?dont-care))
-	        ?quant ?given-now)
-	(bind ?known-now (union ?given-now ?parameters :test #'unify))
-	(bind ?new-knowns
-	      (set-difference ?known-now ?initial-knowns :test #'unify))
-	;; (debug "Made known inside PSM: ~A~%" ?new-knowns)
-	;; Although the bubble driver won't have to seek them, for algebraic 
-	;; completeness we must put out equations giving values for 
-	;; the new-knowns.  Could also do this at all the points they become 
-	;; known but it's simpler to have one bit of code to do this.
-	;; we distinguish them as implicit equations since the student will
-	;; not have to write them. The algebra module still needs them.
-	(foreach ?quant ?new-knowns
+  :preconditions 
+  (
+   ;; save initially known quants for detecting changes below
+   ;; This is initial givens plus quantities given as parameters
+   (setof (in-wm (given ?quant ?dont-care)) ?quant ?initial-givens)
+   (setof (in-wm (parameter ?quant ?dont-care)) ?quant ?parameters)
+   (bind ?initial-knowns (union ?initial-givens ?parameters :test #'unify))
+   
+   ;; Main step: apply a PSM to generate an equation for sought.
+   (PSM-applied ?sought ?eqn-id ?eqn-algebra)
+   
+   ;; collect list of quantities in the equation. 
+   (map ?v (vars-in-eqn ?eqn-algebra)
+	(in-wm (variable ?v ?q))
+	?q ?quantities-in-eqn)
+   ;; make sure sought quantity actually occurs in equation
+   ;; Use "unify" to correctly handle keywords.
+   (test (member ?sought ?quantities-in-eqn :test #'unify))
+   
+   ;; Some quantities in eqn may have become "given" -- known -- as side 
+   ;; effects of applying the PSM. Here we call them the new-knowns.
+   ;; We get what's known now and figure out what's changed.
+   (setof (in-wm (given ?quant ?dont-care))
+	  ?quant ?given-now)
+   (bind ?known-now (union ?given-now ?parameters :test #'unify))
+   (bind ?new-knowns
+	 (set-difference ?known-now ?initial-knowns :test #'unify))
+   ;; (debug "Made known inside PSM: ~A~%" ?new-knowns)
+   ;; Although the bubble driver won't have to seek them, for algebraic 
+   ;; completeness we must put out equations giving values for 
+   ;; the new-knowns.  Could also do this at all the points they become 
+   ;; known but it's simpler to have one bit of code to do this.
+   ;; we distinguish them as implicit equations since the student will
+   ;; not have to write them. The algebra module still needs them.
+   (foreach ?quant ?new-knowns
 	    (implicit-eqn ?new-eqn ?quant))
-
-	;; Collect residual unknowns from eqn to include in the final PSM stmt 
-	;; This is a convenience to bubble-graph search driver, which will
-	;; see the equation and can easily get its variables but finds it 
-	;; inconvenient to map the variables to quantities.  Used to be:
-    	;; (bind ?new-unknowns
-	;;      (set-difference ?quantities-in-eqn ?known-now :test #'unify))
-        ;; But removing problem givens and parameters is no longer wanted. 
-	;; Driver now pre-enters problem givens and parameters into the graph 
-	;; before calling solver to find soughts, so now wants them included 
-	;; in order to know to link nodes for these quants to this equation. 
-	;; Since givens and parameters are flagged known the driver won't seek 
-	;; them.  We do exclude the quantities known by side effect since they 
-	;; shouldn't go into the bubble-graph. We get these by looking for
-	;; quantities for which implicit equations were written, either above
-	;; or in the operators -- for given vector dirs it happens in operators
-	(setof (in-wm (implicit-eqn (= ?var (dnum . ?valunits)) ?imp-eq-quant))
-	      ?imp-eq-quant ?imp-eq-quants)
-	(bind ?new-unknowns 
-	      (set-difference ?quantities-in-eqn ?imp-eq-quants :test #'unify))
-	)
+   
+   ;; Collect residual unknowns from eqn to include in the final PSM stmt 
+   ;; This is a convenience to bubble-graph search driver, which will
+   ;; see the equation and can easily get its variables but finds it 
+   ;; inconvenient to map the variables to quantities.  Used to be:
+   ;; (bind ?new-unknowns
+   ;;      (set-difference ?quantities-in-eqn ?known-now :test #'unify))
+   ;; But removing problem givens and parameters is no longer wanted. 
+   ;; Driver now pre-enters problem givens and parameters into the graph 
+   ;; before calling solver to find soughts, so now wants them included 
+   ;; in order to know to link nodes for these quants to this equation. 
+   ;; Since givens and parameters are flagged known the driver won't seek 
+   ;; them.  We do exclude the quantities known by side effect since they 
+   ;; shouldn't go into the bubble-graph. We get these by looking for
+   ;; quantities for which implicit equations were written, either above
+   ;; or in the operators -- for given vector dirs it happens in operators
+   (setof (in-wm (implicit-eqn (= ?var (dnum . ?valunits)) ?imp-eq-quant))
+	  ?imp-eq-quant ?imp-eq-quants)
+   (bind ?new-unknowns 
+	 (set-difference ?quantities-in-eqn ?imp-eq-quants :test #'unify))
+   )
   :effects
-   	((PSM ?sought ?eqn-id ?eqn-algebra ?new-unknowns)))
+  ((PSM ?sought ?eqn-id ?eqn-algebra ?new-unknowns)))
 
 
 ;;; =================== applying a scalar equation=================
@@ -344,6 +342,7 @@
     )
    :effects (
       (PSM-applied ?sought (compo-free . ?eq-args) ?compo-free-eqn)
+      (assume using-compo ?eq-args)
    ))
 
 ;;
@@ -389,7 +388,8 @@
       (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eq-args)
      )
    :effects
-   ((PSM-applied ?sought (compo-eqn . ?eq-args) ?compo-eqn)))
+   ((PSM-applied ?sought (compo-eqn . ?eq-args) ?compo-eqn)
+    (assume using-compo ?eq-args)))
 
 ;;;
 ;;; operators for applying vector PSM's
@@ -680,7 +680,9 @@
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- (dnum ?degrees |deg|) (dnum ?x-rot |deg|)))))
-	(projection (compo ?xyz ?rot ?vector))))
+	(projection (compo ?xyz ?rot ?vector)))
+   (assume using-compo (compo ?xyz ?rot ?vector)) ;projection xor pyth-theorem
+   )
   :hint
   ((point (string "Since ~A ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
@@ -715,8 +717,10 @@
    (bind ?t (time-of ?vector))
    )
   :effects
-   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
-	 (projection (compo ?xyz ?rot ?vector))))
+  ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
+	(projection (compo ?xyz ?rot ?vector)))
+   (assume using-compo (compo ?xyz ?rot ?vector)) ;projection xor pyth-theorem
+   )
   :hint
   ((point (string "Since ~a ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
@@ -1792,6 +1796,7 @@
 ;;;
 ;;; The whole treatment of axes needs to be cleaned up and simplified to 
 ;;; avoid this hairiness.
+;;;   
 (def-psmclass rmag-pyth (rmag-pyth ?body ?origin ?time)
   :complexity minor 
   :english ("the pythagorean theorem for position magnitudes")
@@ -1799,17 +1804,16 @@
   :EqnFormat ("r = sqrt(r_x^2 + r_y^2)"))
 
 (defoperator rmag-pyth-contains (?sought)
-   :preconditions (
-     (any-member ?sought (
-       (mag (relative-position ?b ?o :time ?t))
-       ;; only standard axes (doesn't work for tilted)
-       (compo x 0 (relative-position ?b ?o :time ?t)) 
-       (compo y 0 (relative-position ?b ?o :time ?t))
-                         ))
-   )
+   :preconditions 
+   (
+    (any-member ?sought (
+			 (mag (relative-position ?b ?o :time ?t))
+			 ;; can't use to get components, because of square.
+			 ))
+    )
    :effects ( 
-     (eqn-contains (rmag-pyth ?b ?o ?t) ?sought) 
-   ))
+	     (eqn-contains (rmag-pyth ?b ?o ?t) ?sought) 
+	     ))
 
 (defoperator write-rmag-pyth (?b ?o ?t)
   :preconditions (
@@ -1830,6 +1834,8 @@
   )
   :effects (
     (eqn (= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) (rmag-pyth ?b ?o ?t))
+    ;; pyth-theorem xor projections
+    (assume using-magnitude (relative-position ?b ?o :time ?t))
   )
   :hint (
    (point (string "The pythagorean theorem can be used to relate the magnitude of a relative position vector to its components."))
@@ -2968,11 +2974,11 @@
     (test (tinsidep ?t ?t-motion))
     ;; we have special rules for the case of gravitational acceleration
     (not (free-fall ?b ?t-freefall) (tinsidep ?t ?t-freefall))
-    ;; find all forces that are acting on ?b and collect directions
+    ;; find all forces that are acting on ?b and collect distinct directions
     (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
-    (bind ?accel-dir (first ?dirs))
     ;; test that all the directions are the same
-    (test (and ?dirs (every #'(lambda (x) (equal x ?accel-dir)) ?dirs)))
+    (test (= (length ?dirs) 1)) ;setof only gives distinct matches to ?dir
+    (bind ?accel-dir (first ?dirs))
     (test (dimensioned-numberp ?accel-dir)) ;exclude 'zero and 'unknown
     (not (unknown-forces)) ;only valid if all forces are specified
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
@@ -3354,7 +3360,6 @@
 		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (mag (displacement ?b :time (during ?t1 ?t2)))
 		 (dir (displacement ?b :time (during ?t1 ?t2)))
-		 ;;(duration (during ?t1 ?t2))
 		 ))
    ;; only applies if accel is constant within interval we are using
    ;; sought may not bind t1 & t2, so choose endpoints of interval to try
@@ -3387,21 +3392,33 @@
   :specifications "
    Writes the equation vf^2 = vi^2 + 2*a*s, which is lacking a duration."
   :preconditions
-   (; for 2D case, make sure accel compo doesn't vanish
+   (
+    ;; make sure accel compo doesn't vanish
     (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
     (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
     (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
     (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
-    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2)))))
+    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
+    ;; see if initial velocity compo doesn't vanish
+    (in-wm (vector ?b (velocity ?b :time ?t1) ?dir-vi))
+    (bind ?vi-term (if (non-zero-projectionp ?dir-vi ?xyz ?rot)
+		      `(^ ,?vi-compo 2) 0))
+    ;; see if final velocity compo doesn't vanish
+    (in-wm (vector ?b (velocity ?b :time ?t2) ?dir-vf))
+    (bind ?vf-term (if (non-zero-projectionp ?dir-vf ?xyz ?rot)
+		      `(^ ,?vf-compo 2) 0))
+
+)
   :effects
-  ((eqn (= (^ ?vf-compo 2) (+ (^ ?vi-compo 2) (* 2 ?a-compo ?s-compo)))
+  ((eqn (= ?vf-term (+ ?vi-term (* 2 ?a-compo ?s-compo)))
 	        (compo-eqn lk-no-t ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-t ?xyz ?rot (lk ?b (during ?t1 ?t2)))
 		(?vi-compo ?vf-compo ?a-compo ?s-compo)))
   :hint (
     (point (string "Do you know an equation relating the components of initial velocity, final velocity, acceleration, and displacement when acceleration is constant?"))
-    (bottom-out (string "Write the equation ~A" ((= (^ ?vf-compo 2) (+ (^ ?vi-compo 2) (* 2 ?a-compo ?s-compo))) algebra)))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?vf-term (+ ?vi-term (* 2 ?a-compo ?s-compo))) algebra)))
   ))
 
 ;;; Writes the equation s = vi*t + 0.5*a*t^2, which lacks vf
@@ -3414,16 +3431,15 @@
    (any-member ?quantity 
 	        ((mag (velocity ?b :time ?t1))
 		 (dir (velocity ?b :time ?t1))
-		 ;;(mag (velocity ?b :time ?t2))
-		 ;;(dir (velocity ?b :time ?t2))
 		 (mag (accel ?b :time (during ?t1 ?t2)))
 		 (dir (accel ?b :time (during ?t1 ?t2)))
 		 (mag (displacement ?b :time (during ?t1 ?t2)))
 		 (dir (displacement ?b :time (during ?t1 ?t2)))
 		 (duration (during ?t1 ?t2))
 		 ))
-   ; only applies if accel is constant within interval we are using
-   ; sought may not bind both times, so must choose endpoints of interval to try
+   ;; only applies if accel is constant within interval we are using
+   ;; sought may not bind both times, so must choose endpoints of interval 
+   ;; to try
    (constant (accel ?b) ?t-constant)
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
@@ -3441,7 +3457,6 @@
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity))
    (body ?b)
    (vector ?b (velocity ?b :time ?t1) ?dir1)
-   ;(vector ?b (velocity ?b :time ?t2) ?dir2)
    (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axis-for ?b x ?rot))
@@ -3451,24 +3466,29 @@
 
 (defoperator write-lk-no-vf-compo (?b ?t1 ?t2 ?xyz ?rot)
   :specifications 
-  "Writes the equation s = vi*t + 0.5*a*t^2, which lacks vf"
+  "Writes the equation s = vi*t + 0.5*a*t^2 (which lacks vf)"
   :preconditions
-   (; for 2D case, make sure accel compo doesn't vanish
+   (;; make sure accel compo doesn't vanish
     (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
     (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
-    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-    (variable ?t-var    (duration (during ?t1 ?t2))))
+    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
+    (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
+    (variable ?t-var (duration (during ?t1 ?t2)))
+    ;; see if initial velocity compo doesn't vanish
+    (in-wm (vector ?b (velocity ?b :time ?t1) ?dir-vi))
+    (bind ?v-term (if (non-zero-projectionp ?dir-vi ?xyz ?rot)
+		      `(* ,?vi-compo ,?t-var) 0))
+    )
   :effects
-  ((eqn (= ?s-compo (+ (* ?vi-compo ?t-var) (* 0.5 ?a-compo (^ ?t-var 2))))
+  ((eqn (= ?s-compo (+ ?v-term (* 0.5 ?a-compo (^ ?t-var 2))))
 	 (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2))))
     (eqn-compos (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2)))
 		(?vi-compo ?a-compo ?s-compo)))
   :hint (
     (point (string "Do you know an equation relating the components of displacement to those of initial velocity, time, and acceleration when acceleration is constant?"))
-    (bottom-out (string "Write the equation ~A" ((= ?s-compo (+ (* ?vi-compo ?t-var)
-								(* 0.5 ?a-compo (^ ?t-var 2))))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?s-compo (+ ?v-term	(* 0.5 ?a-compo (^ ?t-var 2))))
 						 algebra)))
   ))
 
@@ -4994,7 +5014,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?vr (mag (relative-vel ?agent ?b :time ?t)))
     (variable ?dmdt  (mass-change-magnitude ?b ?agent :time ?t)))
   :effects (
-   (eqn (= ?Fth (* ?vr ?dmdt)) (thrust-definition ?b ?agent ?t)))
+   (eqn (= ?Fth (* ?vr ?dmdt)) (thrust-definition ?b ?agent ?t))
+   (assume using-magnitude (thrust ?b ?agent ?t)) ;magnitude xor components
+   )
   :hint 
   ( (point (string "What is the relationship between thrust force, the velocity of ~A, and the magnitude of the mass change rate of ~A?"
 ?b ?agent ?b))
@@ -5204,10 +5226,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (variable ?mag1-var (mag (force ?b1 ?b2 ?type :time ?t)))
   (variable ?mag2-var (mag (force ?b2 ?b1 ?type :time ?t)))
   )
-  :effects (
-	    (eqn (= ?mag1-var ?mag2-var) (NTL (?b2 ?b1) ?type ?t)) 
-	    (assume using-NTL (?b2 ?b1) ?type ?t)
-  )
+  :effects 
+  (
+   (eqn (= ?mag1-var ?mag2-var) (NTL (?b2 ?b1) ?type ?t)) 
+   (assume using-NTL (?b2 ?b1) ?type ?t)
+   (assume using-magnitude (NTL-vector (?b2 ?b1) ?type ?t)) ;mag xor compos
+   )
   :hint
   ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
    (teach 
@@ -5611,11 +5635,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   (    
    ;; find all forces that are acting on ?b (without drawing them)
-   ;; and collect directions
+   ;; and collect all distinct directions
    (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
-   ;; make sure several forces are acting on ?b 
-   ;; assume (without testing) that the forces are in different directions
-   (test (> (length ?dirs) 1))
+   ;; forces with different directions are acting on ?b 
+   (test (or (member 'unknown ?dirs) (> (length ?dirs) 1)))
    ;; make sure it is not given in the acceleration
    (not (vector (accel ?t :time ?t-accel) ?a-dir) 
 	(and (tinsidep ?t ?t-accel) (not (eq ?a-dir 'unknown))))
@@ -6303,11 +6326,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((in-wm (forces ?b ?t ?forces))
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
-   ;; (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
+   (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
    (map ?f ?forces 
     (variable ?f-compo-var (compo ?xyz ?rot ?f))
    	?f-compo-var ?f-compo-vars)
-   ;; (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
+   (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
    ;; add acceleration compo var to form list of all compo vars in equation
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
@@ -6827,7 +6850,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-kinetic-energy (?body ?t)
   :preconditions 
   (
-   ;; test for translational motion of axis at any time
+   ;; test for translational motion of body axis at any time
    (motion ?axis (?kind . ?whatever) :time ?t-motion)
    (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
    (use-point-for-body ?body ?cm ?axis)	;always use axis of rotation
@@ -6836,8 +6859,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?v-var (mag (velocity ?axis :time ?t)))
   )
   :effects (
-   (eqn (= ?ke-var (* 0.5 ?m-var (^ ?v-var 2)))
-        (kinetic-energy ?body ?t))
+   (eqn (= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) 
+	(kinetic-energy ?body ?t))
    )
   :hint (
   (point (string "Try writing the definition of translational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
@@ -7523,7 +7546,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	     (mag (velocity ?b :time ?t1))
 	     (mag (velocity ?b :time ?t2))
 	     (mass ?b)
-	     	      ))
+	     ))
   (time (during ?t1 ?t2)))
  :effects 
   ((derived-eqn-contains (work-energy ?b (during ?t1 ?t2)) ?sought)))
@@ -7539,7 +7562,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ; write out ke1 = 0.5 * m * v1^2
     (eqn (= ?ke1-var ?ke1-val) (kinetic-energy ?b ?t1))
     ; write out ke2 = 0.5 * m * v2^2
-    (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b :?t2))
+    (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b ?t2))
  )
  :effects ; post derived summary equation using written out ke terms
   ((derived-eqn (= ?Wnet-var (- ?ke2-val ?ke1-val)) 
