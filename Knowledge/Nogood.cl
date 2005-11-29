@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Nogood facility.
 ;; Collin Lynch 12/18/2000
 ;;
@@ -48,17 +48,15 @@
 ;; (test-nogood <Nogood> <Assumpts> {&optional <Bindings: no-bindings>)
 ;;    -- Test the specific nogood against the assumptions 
 ;;       to see if it fires.  If so return t.
-|#
 
 
-
-;;================================================================================
+;;=============================================================================
 ;; Nogoood parameters.
 
 (defparameter *nogoods* ())
 (defparameter *print-nogood-messages* () "If a nogood is signalled print out the nogood message.")
 
-;;===============================================================
+;;=============================================================================
 ;; Nogood Struct
 ;;
 (defstruct (nogood (:print-function Print-nogood))
@@ -80,7 +78,7 @@
 
 
 
-;;================================================================================
+;;=============================================================================
 ;; Nogood functions.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Defnogood (public)
@@ -104,7 +102,7 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; test-for-nogood (public)
 ;; Given a list of ground expressions test to see if it triggers one of the 
 ;; registered nogoods.
@@ -124,7 +122,7 @@
       and return t))			; Return t iff it unifies.
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; test-nogood (Public)
 ;; Given a list of ground expressions test a given nogood by attempting to
 ;; unify its triggers with the expressions.  If the lists unify then a nogood 
@@ -133,13 +131,14 @@
 ;; Arguments:  ng:   Nogood being tested.
 ;;             exps: List of expressions being tested.
 ;;
-;; Returns: For the time being this returns t.  Later it will return more useful info.
+;; Returns: For the time being this returns t.  Later it will return more 
+;; useful info.
 ;;          A signalled nogood error with unified triggers.
 
 (defun test-nogood (ng exps &optional (Bindings '((t . t))))
   "Test a given nogood against a collected list of assumptions."
-  (let ((Binds (list Bindings)))                                           ;;Generate local binding storage.
-    (loop for trigger in (nogood-triggers ng)				   ;;For each trigger in the triggers list.
+  (let ((Binds (list Bindings)))               ;Generate local binding storage.
+    (loop for trigger in (nogood-triggers ng)  ;For each trigger in the triggers list.
 	unless (setq Binds                                                 ;;loop until the inner loop returns nil     
 		 (loop for B in Binds                                      ;;For each element in the bindings list.
 				
