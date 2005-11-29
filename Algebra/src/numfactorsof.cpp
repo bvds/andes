@@ -43,7 +43,7 @@ int numfactorsof(const expr * factor,const expr * expression)
     factval = sqrt(fabs(((numvalexp *)factor)->value));
     if (lookslikeint(factval,q) && (q <= 1)) 
       {
-	DBG( cout << "NUMFACT " << thisdbg << " returns 0 on 0 or 1" << endl;);
+	DBG( cout << "NUMFACT " << thisdbg << " returns 0 on 0 or 1" << endl);
 	return(0);
       }
     switch(expression->etype){

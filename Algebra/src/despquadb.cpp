@@ -71,9 +71,9 @@ vector<double> *twoqcfex(expr *ex, const varindx v1, const varindx v2)
       if (((binopexp *)ex)->op->opty != topowe) 
 	return((vector<double> *) NULL);
       expr * brhs = ((binopexp *)ex)->rhs;
-      if ((brhs->etype != numval) || 
-	  !lookslikeint(((numvalexp *)brhs)->value, q) ||
-	  (q != 2))
+      if (!((brhs->etype == numval) &&
+	  lookslikeint(((numvalexp *)brhs)->value, q) &&
+	  (q == 2)))
 	return((vector<double> *) NULL);
       retval = twoqcfex(((binopexp *)ex)->lhs, v1, v2);
       DBG( { cout << "Twoqcfex on lhs of binop returned ";

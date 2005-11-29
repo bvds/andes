@@ -8,12 +8,12 @@
 //       a variable appears at all, to try to get around linear limits
 //      as of 7/6, pluses replace <eps * sum || with 0
 #include <stdio.h>
-#include "../src/decl.h"
-#include "../src/dbg.h"
-#include "../src/extstruct.h"
+#include "decl.h"
+#include "dbg.h"
+#include "extstruct.h"
 #include "valander.h"
 #include <math.h>
-#include "../src/mconst.h"
+#include "mconst.h"
 using namespace std;
 
 #define DBG(A) DBGF(VALANDER,A)

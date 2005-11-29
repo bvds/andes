@@ -257,7 +257,7 @@ void indyAddCanonEq(int eqnID, const char* const equation) {
  *    question indyCanonHowIndy in newindy.cpp				*
  ************************************************************************/
 bool indyIsCanonIndy(int setID, int eqnID) { 
-  DBG(cout << "indyIsCanonIndy asked if " << endl);
+  DBG(cout << "indyIsCanonIndy started" << endl);
   if (!gotthevars) 
     throw(string("indyIsCanonIndy called before indyDoneAddVar"));
   if ((eqnID >= canoneqf->size()) || (eqnID < 0))
@@ -266,12 +266,14 @@ bool indyIsCanonIndy(int setID, int eqnID) {
   if ((setID >= listofsets->size()) || (setID < 0)) throw(string(
      "indyIsCanonIndy called for undefined set"));
   (*lasttriedeq)[setID] = eqnID;
+  bool answer=(*listofsets)[setID].isindy((*canongrads)[eqnID]);
   DBG(cout << "indyIsCanonIndy with eqnID=" << eqnID << ", setID=" 
-      << setID << ", determine if " << (*canoneqf)[eqnID]->getInfix() 
-      << " is independent of the "
-      << (*listofsets)[setID].size()<< " equations with " 
+      << setID << ", determined that " << endl << "    "
+      << (*canoneqf)[eqnID]->getInfix() << endl << "     is "
+      << (answer?"independent":"dependent") << " of the "
+      << (*listofsets)[setID].size() << " equations with " 
       << listofsets->size() - 1 << " sets."<< endl);
-  return((*listofsets)[setID].isindy((*canongrads)[eqnID]));
+  return(answer);
 }
 
 /************************************************************************
@@ -346,51 +348,6 @@ void indyKeepN(int setID, int numberToKeep)
   return;
 }
 
-/************************************************************************
- *  indyExpSetCanEq is obsolete because it doesn't deal with 		*
- *    equations which are independent but appear dependent in linear	*
- *    approximation. use indyCanonHowIndy instead			*
- ************************************************************************/
-string indyExpSetCanEq(int setID, int eqnID)
-{
-  if (setID >= listofsets->size() || setID < 0)
-    throw(string("tried to expand using set not defined"));
-  if (indyIsCanonIndy(setID,eqnID))
-    throw(string("Equation ") + itostr(eqnID) + 
-          " is independent of what is in set " + itostr(setID));
-  vector<double> coefs = (*listofsets)[setID].expandlast();
-  string answer = string("( ");
-  for (int k = 0; k < coefs.size(); k++)
-    {
-      if (fabs(coefs[k]) > RELERR)
-        answer += itostr((*listsetrefs)[setID][k]) + " ";
-    }
-  answer += ")";
-  return(answer);
-}
-
-/************************************************************************
- *  indyExpSetStudEq is obsolete because it doesn't deal with 		*
- *    equations which are independent but appear dependent in linear	*
- *    approximation. use indyStudHowIndy instead			*
- ************************************************************************/
-string indyExpSetStudEq(int setID, int slot)
-{
-  if (setID >= listofsets->size() || setID < 0)
-    throw(string("tried to expand using set not defined"));
-  if (indyIsStudIndy(setID,slot))
-    throw(string("Equation ") + itostr(slot) + 
-          " is independent of what is in set " + itostr(setID));
-  vector<double> coefs = (*listofsets)[setID].expandlast();
-  string answer = string("( ");
-  for (int k = 0; k < coefs.size(); k++)
-    {
-      if (fabs(coefs[k]) > RELERR)
-        answer += itostr((*listsetrefs)[setID][k]) + " ";
-    }
-  answer += ")";
-  return(answer);
-}
 
 /************************************************************************
  *  closeupshop()  deletes all the structures created by indyEmpty, to  *

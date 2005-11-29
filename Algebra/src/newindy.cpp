@@ -2,13 +2,13 @@
 //	
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
 
-#include "../src/decl.h"
-#include "../src/dbg.h"
-#include "../src/extstruct.h"
+#include "decl.h"
+#include "dbg.h"
+#include "extstruct.h"
 #include "indyset.h"
-#include "../src/unitabr.h"
+#include "unitabr.h"
 #include <math.h>
-#include "../src/indysgg.h"
+#include "indysgg.h"
 
 using namespace std;
 
@@ -83,7 +83,8 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   vector<double> expcoefs((*listofsets)[setID].expandlast());
   DBGM(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs););
   linexpand = new vector<int>;
-  double scale = 1.;  	       // set scale for errors = max(1,{|expcoefs[k]|})
+  // BvdS:  why do this????
+  double scale = 1.0;  	       // set scale for errors = max(1,{|expcoefs[k]|})
   for (k = 0; k < expcoefs.size(); k++) 
     if (fabs(expcoefs[k]) > scale) scale = fabs(expcoefs[k]);
   for (k = 0; k < expcoefs.size(); k++) 
