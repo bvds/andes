@@ -93,6 +93,7 @@
 				     ;; (:file "PyreneesProblems")
 				     (:file "electromagnetism")          
 				     (:file "electromagnetism-problems")  
+				     (:file "elec-bob")  
 				     (:file "optics")          
 				     (:file "impulse")
 				     (:file "impulse-problems") 
