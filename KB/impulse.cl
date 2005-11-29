@@ -287,6 +287,7 @@
 	 (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)))
     (eqn-compos (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)) 
 		?eqn-compo-vars)
+    (assume using-NSL impulse ?b ?t)
     )
   :hint
   ((point (string "You can relate the change in momentum of ~A to the

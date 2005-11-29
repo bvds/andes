@@ -70,6 +70,18 @@
   :message (Only one form of dot for ?a ?b))
 
 ;;;
+;;;  don't use both net-force and explicit versions of Newton's second law
+;;;
+
+(defnogood only-one-form-of-NSL
+    ((using-NSL ?type1 ?b ?t)
+     (using-NSL ?type2 ?b ?t)
+     (test (not (eq ?type1 ?type2))))
+  :specs ("Prevent combining different ways of writing Newton's second Law")
+  :message (Redundant NSL forms for ?b at ?t))
+
+
+;;;
 ;;;  don't use both impulse and force versions of Newton's third law
 ;;;
 

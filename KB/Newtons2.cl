@@ -5759,7 +5759,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((not (vector-diagram (NL ?b ?t)))
    (not (use-net-force))
    (forces ?b ?t ?forces)
-   (test ?forces)	; fail if no forces could be found
+   (test ?forces)	;fail if no forces could be found
    (vector ?b (accel ?b :time ?t) ?accel-dir)
    (axis-for ?b ?xyz ?rot))
   :effects
@@ -6121,13 +6121,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	       (
 		(mag (net-force ?b :time ?t))
 		(dir (net-force ?b :time ?t))
-		;; for now, only use this method when seeking net force
-		;; to keep down dead-path equations in other problems.
-		;; uncomment the following if we ever add net-force 
-		;; problems that seek mass or accel.
-		 ;; (mass ?b)
-		;; (mag (accel ?b :time ?t))
-		;; (dir (accel ?b :time ?t))
+	        (mass ?b)
+		(mag (accel ?b :time ?t))
+		(dir (accel ?b :time ?t))
 		))
    (object ?b)
    (time ?t)
@@ -6341,7 +6337,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
 	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t)))
-    (eqn-compos (compo-eqn NSL ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars))
+    (eqn-compos (compo-eqn NSL ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars)
+    (assume using-NSL forces ?b ?t)
+    )
   :hint
    ((point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law to it." (?b def-np) (?t pp)))
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
@@ -6368,6 +6366,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (eqn (= ?fnet-compo-var (* ?m ?a-compo))
 	 (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)))
     (eqn-compos (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars)
+    (assume using-NSL net ?b ?t)
   )
   :hint (
     (point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law." (?b def-np) (?t pp)))
