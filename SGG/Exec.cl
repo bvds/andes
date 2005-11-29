@@ -290,9 +290,11 @@
       (pushnew (subst-bindings (st-bindings SubState) Term)
 	       Result :test #'unify))
     (push-binding SetVar Result State)
-    (setof-actions state initial-state)
+;;; The history is long and not in tree form
+   ;; (setof-actions state initial-state)
+;;; Instead, show the end result; see removable-actionp
+    (push (list 'setof-result Result) (st-actions State))
     (list State)))
-
 
 ;;; The action list for the resulting state starts SPLIT, then NEXT
 ;;; <subacts> for each substate, then JOIN.  Here <subacts> is a list
@@ -302,6 +304,26 @@
 ;;; number of actions with the number of states.  If there are N+1
 ;;; actions for N states, then N of the "actions" are *next*
 ;;; and the last one is *join*, so there were no real actions.
+
+;; version without split and join and all that
+(defun setof-actions (state initial-state)
+  "Collects actions from the substates and puts them on the state"
+  (setf (st-predecessor initial-state) NIL) ;halts actions-along-path
+  (dolist (SubState (solution-sts initial-state))
+    (setf (st-actions state)
+      (append (actions-along-path SubState)
+		    (st-actions state)))))
+
+;;; The action list for the resulting state starts SPLIT, then NEXT
+;;; <subacts> for each substate, then JOIN.  Here <subacts> is a list
+;;; of all the actions taken to achive the substate, with the oldest
+;;; action first.  However, if none of the substates have any actions,
+;;; then the action list is empty.  This is detected by comparing the
+;;; number of actions with the number of states.  If there are N+1
+;;; actions for N states, then N of the "actions" are *next*
+;;; and the last one is *join*, so there were no real actions.
+
+#|  ;not working for the case without joins and splits
 
 (defun setof-actions (state initial-state)
   "Collects actions from the substates and puts them on the state"
@@ -316,6 +338,7 @@
 		  (length (solution-sts initial-state))))
       (setf (st-actions state) NIL)
     (push *split* (st-actions state))))
+|#
 
 ;;; This converts a list of states into a list of the actions that
 ;;; they contain.
