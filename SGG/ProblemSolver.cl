@@ -51,11 +51,15 @@
 ;;;; Problem solutions.
 
 (defmacro s (Pname)
-  `(progn (setq *cp* (get-problem ',Pname))
-	  (solve-problem *cp*)
-	  (format T "~&~A: Number of solutions found: ~A~%~%" 
-	             (problem-name *cp*) (length (problem-solutions *cp*)))
-	  (values))) ; don't return any value
+  `(let ((t0 (get-internal-run-time)))
+     (setq *cp* (get-problem ',Pname))
+     (solve-problem *cp*)
+     (format t "~&~A  ~A: ~A solution~:p found in ~,2F minutes.~%~%"
+	     (print-outline-indent 0) 
+	     (problem-name *cp*) (length (problem-solutions *cp*))
+	     (/ (- (get-internal-run-time) t0) 
+			  (* 60 internal-time-units-per-second)))
+     (values))) ; don't return any value
 
 (defmacro scp (Pname)
   `(setq *cp* (get-problem ',Pname)))
