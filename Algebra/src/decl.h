@@ -1,5 +1,7 @@
 // decl.h  declarations for lists.cc etc.
+#ifdef _WINDOWS
 #pragma warning (disable: 4786)
+#endif
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
 
 #include <string>
@@ -7,7 +9,9 @@
 #include <vector>
 #include <stack>
 #include <fstream>
+#ifdef _WINDOWS
 #pragma warning (disable: 4786)
+#endif
 using namespace std;
 #include "expr.h"
 

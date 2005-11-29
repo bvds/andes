@@ -8,7 +8,7 @@
 // Start with the high-level stuff and work our way down:
 #define SOLVEEQS        0x2	/* solve equations in canoneqf */
 #define CHKEQS          0x4	/* check delete no-var eqs in newcheck */
-#define NEWCKEQSOUT     0x8     /*check delete no-var eqs in newcheck */ 
+#define NEWCKEQSOUT     0x8     /* check delete no-var eqs in newcheck */ 
 #define QSRT           0x10	/* in qsrtexpr */
 #define SETVAR         0x20	/* in setvardimens */
 #define SUBST          0x40	/* in substin and also subexpin    */

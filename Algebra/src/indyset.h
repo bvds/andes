@@ -1,7 +1,7 @@
 // indyset.h	a class for independent sets of equations as functions
 // Copyright (C) 2001 by Joel A. Shapiro -- All Rights Reserved
 
-#include "../src/expr.h"
+#include "expr.h"
 #include "valander.h"
 
 /************************************************************************
