@@ -15,7 +15,7 @@
 ;;   K is defined as a set of known nodes.
 ;;
 ;; Begin by generating a stack Q containing one set
-;;  Where S = the set of problem soughts and k = nil.
+;;  Where S = the set of problem soughts and K = nil.
 ;;
 ;; Generate a second empty stack of sets D
 ;;
@@ -76,10 +76,10 @@
 
 (defvar *indyset0-in-use* NIL "indyset 0 needs to be cleared before next use")   
 
-;;================================================================================
+;;=============================================================================
 ;; Solution Collection
 ;;
-;;------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; Before Using the independence checker we have to 'prime' it by feeding it
 ;; all of the var indicies and equation indicies that we will use in order to 
 ;; run the independence test.  Once primed we can freely ask independence 
@@ -123,7 +123,7 @@
 
 (defun collect-solutions (Soughts &key (Forbidden nil))
   "Given a list of sought quantities generate a solution for them."
-  (cs-bp "Collecting Solutions for ~A" Soughts)       ;Produce debugging info.
+  (cs-action 0 "Collecting Solutions for ~A" Soughts)   ;Produce debugging info
   ;; Make the initial S and iterate.
   (do ((Que (list (make-solution :id 1 :Soughts Soughts)))  
        ;; Allocate other temp variables.
@@ -132,9 +132,9 @@
     (setq S (pop Que))               ;pop the top Solution from the que.
     (cond ((null (Solution-Soughts S))    ;If there are no more soughts in S
 	   ;; The provide debugging info for the
-	   (cs-bp2 "Solution Completed ~A" (Solution-id S))   
+	   (cs-result 1 "Solution for quant ~A completed" (Solution-id S))   
 	   ;; User if debugging is on.
-	   (cs-db "~A~%" (Solution-Knowns S))                  
+	   (cs-list 1 (Solution-Knowns S))                  
 	   (push S Results))           ;Then add the solution to results.
 	  ;; If the top sought in S is a quantity.
 	  ((Qnode-P (car (Solution-Soughts S)))  
@@ -150,8 +150,8 @@
 		  ;; If a matching solution has already
 		  ;; been cached in the system then inform
 		  ;; the user if debugging is on.
-		  (cs-bp2 "Equal solutions found:")            
-		  (cs-db "~A~%  ~A~%" Local clocal))           
+		  (cs-result 1 "Equal solutions found:")            
+		  (cs-list 1 Local clocal))           
 		 ;; Else if no matching solution has been
 		 ;; cached then add this to the que and continue.
 		 (t (push Local Que)                           
@@ -181,8 +181,8 @@
 
 (defun Expand-for-Q (S &optional (Forbidden nil))
   "Expand the solution B for the given quantity."
-  (cs-bp "Expanding for Quantity ~A" (Solution-ID S))    ;; Perform debugging output.
-  (cs-bp "~A" (car (Solution-Soughts S)))                ;; If debugging is turned on.
+  (cs-action 1 "Expanding for Quantity ~A" (Solution-ID S))  ;debugging output
+  (cs-list 1 (Solution-Soughts S))          
   
   (let ((Q (car (Solution-Soughts S)))                   ;; Get the sought Qnode Q.
 	(Eqns (get-extension-eqns S Forbidden)))         ;; Get the Enodes that can extend it Eqns. 
@@ -217,7 +217,7 @@
 (defun get-extension-eqns (Solution &optional (Forbidden nil))
   "Get the set of valid extension connected to the sought."
   (let ((EqnSet (collect-Solution-Eqns Solution)))             
-    (cs-db "Solution Equations ~A~%" Solution)
+    (cs-action 1 "Solution Equations ~A" Solution)
         
     (setq EqnSet
       (remove-nogood-eqns 
@@ -225,7 +225,8 @@
        (if EqnSet (get-indy-ext-eqns Solution EqnSet Forbidden)
 	 (get-nonindy-ext-eqns Solution Forbidden))))
     		    
-    (cs-db "Resulting Set After Nogoods:~%  ~A~%" EqnSet)
+    (cs-result 1 "Resulting Set After Nogood:" )
+    (cs-list 1 EqnSet)
     EqnSet))
 
 
@@ -248,19 +249,19 @@
 ;;; collect the proper subset of those eq
 (defun get-indy-ext-eqns (Solution EqnSet Forbidden)
   "Get the indy eqns set."
-  (cs-bp2 "Testing indy Equations.")
+  (cs-action 2 "Testing indy Equations.")
   (setup-indyset EqnSet)
   (let ((R) (Eqn))
     (dolist (E (get-nonindy-ext-eqns Solution Forbidden))
-      (cs-db "Testing Nonindy eqns for indy:~%")
-      (cs-db "Eqn: ~A " E)
+      (cs-result 3 "Testing Nonindy eqns for indy:")
+      (cs-list 3 E)
       (setq Eqn (find (Enode-Algebra E) *Indy-Eqn-Index*
 		      :test #'equal :key #'cadr))
       
-      (cond ((not Eqn) (cs-db "Unsolved.~%"))
+      (cond ((not Eqn) (cs-result 3 "Unsolved"))
 	    ((< *sgg-Indy-Threshold* (car (Solver-isIndependent 0 (car Eqn))))
-	     (cs-db "Not independent.~%"))
-	    (t (cs-db "Accepted.~%")
+	     (cs-result 3 "Not independent."))
+	    (t (cs-result 3 "Accepted.")
 	       (push E R))))
     R))
 
@@ -281,15 +282,15 @@
 ;;; return the proper subset of the solution's equations that are
 ;;; neither unsolved nor forbidden.
 (defun get-nonindy-ext-eqns (Solution Forbidden)
-  (if *debug-cs* (cs-bp2 "Testing Equations."))
+  (if *debug-cs* (cs-action 2 "Testing Equations."))
   (let (R)
     (dolist (E (Qnode-Eqns (Car (Solution-Soughts Solution))))
-      (cs-db "Eqn: ~A " E)
-      (cond ((not (Enode-Solvedp E)) (cs-db " Unsolved therefore invalid.~%"))
-	    ((member E Forbidden) (cs-db " Forbidden therefore invalid.~%"))
+      (cs-list 3 (list E))
+      (cond ((not (Enode-Solvedp E)) (cs-result 4 "Unsolved therefore invalid"))
+	    ((member E Forbidden) (cs-result 4 "Forbidden therefore invalid"))
 	    ((member E (Solution-Knowns Solution)) 
-	     (cs-db " Already known therefore invalid.~%"))
-	    (t (cs-db " Solved and acceptable therefore valid.~%")
+	     (cs-result 4 "Already known therefore invalid."))
+	    (t (cs-result 4 "Solved and acceptable therefore valid.")
 	       (push E R))))
     R))
 
@@ -350,8 +351,8 @@
 	      (Enode-Qnodes (car (Solution-Soughts S)))
 	      Forbidden)))
 	 
-    (cs-bp "Expanding for Eqn ~A" (Solution-ID S))
-    (cs-db "~A~%  ~A~%" (Solution-soughts S) Qs)
+    (cs-action 1 "Expanding for Eqn ~A" (Solution-ID S))
+    (cs-list 1 (Solution-soughts S) Qs)
     
     (cond ((null Qs)                                   ;If no unknown quantities remain in the eqn.
 	   (Solution-Successor S :Push-Knowns E))           ;make it known and return the resulting solution.
@@ -474,17 +475,18 @@
 ;;;--------------------------------------------------------
 ;;; Printing funcs.
 
-(defun cs-db (&rest form)
-  (if *Debug-cs* (eval `(format t ,@(qlist form)))))
+(defun cs-action (x format &rest args)
+  (when *Debug-cs* (format t "~A ~?~%" (print-outline-indent (+ x 1)) 
+			   format args)))
 
-(defun cs-bp (&rest form)
-  (if *debug-cs* (barprint "############" 1 form)))
+(defun cs-result (x format &rest args)
+  (when *Debug-cs* (format t "~A ~?~%" (print-outline-indent (+ x 1) nil) 
+			   format args)))
 
-(defun cs-bp2 (&rest form)
-  (if *debug-cs* (barprint "#####" 0 form)))
+(defun cs-list (x &rest args)
+  (when *Debug-cs* (format t "~A ~A~%" (print-outline-indent (+ x 1) nil) 
+			   args)))
 			     
-
-
 
 ;;=======================================================================
 ;; Trace functions.

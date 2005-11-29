@@ -53,7 +53,7 @@
 (defmacro s (Pname)
   `(progn (setq *cp* (get-problem ',Pname))
 	  (solve-problem *cp*)
-	  (format T "~%~A: Number of solutions found: ~A~%" 
+	  (format T "~&~A: Number of solutions found: ~A~%~%" 
 	             (problem-name *cp*) (length (problem-solutions *cp*)))
 	  (values))) ; don't return any value
 
@@ -128,7 +128,7 @@
 
 (defun Generate-Problem-BubbleGraph (Problem)
   "Generate the BubbleGraph solution for Problem."
-  (ps-bp 1 "~&Generating Bubblegraph: ~A" (Problem-Name Problem))
+  (ps-bp "Generating Bubblegraph: ~A" (Problem-Name Problem))
   
   (setq **wm** nil)     ;; This is an ugly hack used
                         ;; until I can find the bug and clean it.
@@ -178,13 +178,13 @@
 
 
 (defun gen-prb-eqn-index (Problem)
-  (ps-bp 2 "Generating Equation Index: ~A" (Problem-Name Problem))
+  (ps-bp "Generating Equation Index: ~A" (Problem-Name Problem))
   (setf (Problem-EqnIndex Problem)
     (generate-bg-eindex (Problem-Graph Problem))))
 
 
 (defun gen-prb-var-index (Problem)  
-  (ps-bp 3 "Generating Var Index: ~A" (Problem-Name Problem))
+  (ps-bp "Generating Var Index: ~A" (Problem-Name Problem))
   (setf (Problem-VarIndex Problem)
     (generate-bg-vindex (Problem-Graph Problem) 
 			:ExpMarks (problem-VariableMarks Problem))))
@@ -225,7 +225,7 @@
 (defun generate-problem-solutionpoint (Problem)
   "Get the solution point for Problem."
   (when (and (problem-varindex Problem) (problem-eqnindex Problem))
-    (ps-bp 4 "Generating Solution Point: ~A" (Problem-Name Problem))
+    (ps-bp "Generating Solution Point: ~A" (Problem-Name Problem))
     (let ((Results (generate-initial-problem-sp Problem)))
       (loop while (and Results 
 		       (position-if #'tagp Results)
@@ -268,7 +268,7 @@
 (defun gen-problem-sp (Problem Vars Eqns)
   "Generate and store the solution given the vars and eqns."
   (when *S-Print-Steps* 
-    (ps-bp2 "Generating initial Solution.")
+    (ps-bp "Generating initial Solution.")
     (format t "Variables: ~%~A~%" Vars)
     (format t "Equations: ~%~A~%" Eqns))
   
@@ -332,7 +332,7 @@
 
 (defun mark-forbidden-nodes (Problem)
   "Mark the forbidden nodes within the problem graph."
-  (ps-bp 5 "Marking Forbidden nodes: ~A" (Problem-Name Problem))
+  (ps-bp "Marking Forbidden nodes: ~A" (Problem-Name Problem))
   (mapcar-bubblegraph-enodes 
    #'(lambda (e) 
        (when (exp-of-psmtype-set?
@@ -357,7 +357,7 @@
 
 (defun generate-problem-eqn-sets (Problem)
   "Collect the solution bubbles for Problem."
-  (ps-bp 6 "Generating Solution Bubbles: ~A" (Problem-Name Problem))
+  (ps-bp "Generating Solution Bubbles: ~A" (Problem-Name Problem))
   (prime-solution-indy 
    (qvars->indyvars (Problem-VarIndex Problem))
    (eqns->indyeqns (Problem-EqnIndex Problem)))
@@ -411,7 +411,7 @@
 
 (defun mark-problem-graph (Problem)
   "Mark the problem's path."
-  (ps-bp 7 "Marking Problem Graph: ~A" (Problem-Name Problem))
+  (ps-bp "Marking Problem Graph: ~A" (Problem-Name Problem))
   (cond ((null (Problem-Solutions Problem))
 	 (bp " ** WARNING ** " 0 "No Problem Solutions defined for marking.")
 	 (format t "~2%"))
@@ -618,20 +618,13 @@
   
 
 ;;;;==================================================================
-;;;; utility code.
+;;
+;;  This is the debug print for the top level of the problem solving
 
-(defun ps-bp (num &rest form)
-  (when *S-Print-Num*
-    (let ((lst (make-list 10 :initial-element num)))
-      (format t "~{~A~} ~A ~{~A~}~%" 
-	      lst (apply 'format nil form) lst))))
+(defun ps-bp (form &rest args)
+  (format t "~76@<~A~;~?~>~%" (print-outline-indent 0) form args))
 
-(defun ps-bp2 (&rest form)
-  (when *S-Print-Num*
-    (barprint "@%@%@%@%@%" 1 form)))
-
-
-;;;;==============================================================
+;;;;=================================================================
 ;;;; Batch functions
 ;;;; Occasionally it is necessary to test all of the problem
 ;;;; files for differences.  this function will batch solve each

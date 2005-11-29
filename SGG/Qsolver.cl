@@ -191,25 +191,26 @@
 (defun collect-Path (State)
   "Collect the path of actions from State and it's preceeding states."
   (when (not (null State))
-    ;;(pprint (st-actions State))
     (append (collect-path (St-Predecessor State))
 	    (remove-if #'removable-actionp 
-		       (St-actions State)))))
+		       (st-actions State)))))
 
 ;; Some of the actions do not need to be recorded in the 
-;; solution path.  These such as not. in-em, wm, bind and
-;; test simply get eleiminated from the path as they are 
+;; solution path.  Operators like 'not, 'in-wm, 'bind and
+;; 'test simply get eliminated from the path as they are 
 ;; of not further use once the search is over.
-
+;; this is somewhat redundant with sg-ignore-class
+;; should make common list in HelpStructs/PsmGraph.cl
 (defun removable-actionp (action)
   (and (listp action)
-       (and (eq (car action) 'sg)
-	    (or (eq (car (cssg-goal action)) 'not)
-		(eq (car (cssg-goal action)) 'bind)
-		(eq (car (cssg-goal action)) 'test)
-		(eq (car (cssg-goal action)) 'debug)
-		(eq (car (cssg-goal action)) 'in-wm)))))
-			
+       (or (eq (car action) 'setof-result)
+	   (and (eq (car action) 'sg)
+		(or (eq (car (cssg-goal action)) 'not)
+		    (eq (car (cssg-goal action)) 'bind)
+		    (eq (car (cssg-goal action)) 'test)
+		    (eq (car (cssg-goal action)) 'debug)
+		    (eq (car (cssg-goal action)) 'in-wm))))))
+
 
 (defun collect-subvars (State BubbleVars)
   "Collect every variable statement in a state's WM not in the Bubble."
@@ -466,7 +467,7 @@
 (defconstant *do-operator* 'DO 
   "Action prefix meaning that an operator is executed")
 (defconstant *next-operator* 'SG
-  "Actin prefix meaning that a subgoal is being started for an operator")
+  "Action prefix meaning that a subgoal is being started for an operator")
 (defconstant *goal-unified-with-fact* 'WM
   "Action prefix meaning that a goal unified with a working memory element")
 (defconstant *goal-unified-with-effect* 'OP
@@ -504,13 +505,13 @@
 
 (defstruct (st (:print-function print-st))
   level          ; The level in search tree (for debugging)
+  branches       ; T if multiple fellow branches in search tree (for debugging)
   bindings       ; A binding list (format defined by unifier.cl)
   wm	         ; A set of ground atomic propositions
   stack		 ; a list of operator instances (mostly)
   history	 ; a list of operator instance identifiers
   predecessor    ; the preceding state (represented as a st struct)
   actions	 ; list of s-expression recording the actions taken here
-  successors	 ; states that come after this one (set by reverse-sg-links)
   )
 
 ;;; This is called by the Lisp system whenever it wants to print a st
@@ -558,12 +559,6 @@
       (if (not (member (car wme) predicates))
 	  (format t "~S~%" wme)))))
 
-(defun print-acts (st)
-  "prints the actions of the given state"
-  (cond ((null st) NIL)
-	((st-p st)
-	 (print-acts (st-predecessor st))
-	 (print (st-actions st)))))
 
 ;;; =================== opinst =====================================
 ;;; The operator instance (opinst for short) struct represents an
@@ -614,7 +609,8 @@
   "Given atomic propositions representing a problem, 
    return an initial state for solving that problem"
   (Make-st 
-   :level 0  ;start at base of tree
+   :level 2  ;start two levels from base of tree
+   :branches T  ;start at base of tree
    :bindings no-bindings	; no-bindings is in unifier.cl
    :WM Givens
    :stack (list (final-operator Goals))
@@ -655,17 +651,20 @@
 	     (qs-debug-print-failure state))
 	    ((null (cdr successors))
 	     ;; treat as same level:
-	     (dolist (x successors) (setf (st-level x) (st-level state)))
+	     (dolist (x successors) 
+	       (setf (st-branches x) nil)
+	       (setf (st-level x) (+ 0 (st-level state))))
+	     (qs-debug-print-node state  (length successors))
 	     ;; one successor, just put it back on queue
 	     (push (car successors) queue))
 	    (t
-	     ;; Printing the length of the queue might be be more 
-	     ;; helpful than actually printing the depth in the tree
 	     ;; next level deeper:
-	     (dolist (x successors) 
+	     (dolist (x successors)
+	       (setf (st-branches x) t)
 	       (setf (st-level x) (+ 1 (st-level state))))
-	     (setq queue (append successors queue))
-	     (qs-debug-print-split state successors)))))
+	     (qs-debug-print-node state (length successors))
+	     (setq queue (append successors queue))))
+      ))
   
 
 ;;; There are many ways to generate successor states, depending on
@@ -953,7 +952,8 @@
 		  (unordered-op-id (first (second action))))
 	     (list *join* action))
 	    (T  (list action))))
-    (qs-debug-print-action State action)))
+    (qs-debug-print-action State)
+    ))
 
 (defun unordered-op-id (op-name)
   "Non-null if the given operator instance identifier comes from an 
@@ -962,62 +962,11 @@
     (and op (member 'unordered (operator-features op)))))
 
 
-;;; Although the printed version of the solution graph starts with the
-;;; initial action as it root, the states are collected so that the
-;;; final states are available to start with and we can use the
-;;; predecessor slot to reach earlier ones.  If we collected the
-;;; states so that they pointed to their successors, then we'd have to
-;;; filter out failed paths, which would be a pain.  Thus, we collect
-;;; the tree with the links going the wrong way, and then turn them
-;;; around here.  After that, its just a matter of printing the sg.
-
-(defun reverse-sg-links (state)
-  "Given states with a precedessor link, fill in the successor links."
-  (let ((p (st-predecessor state)))
-    (when (and p (not (member state (st-successors p))))
-      (push state (st-successors p))
-      (reverse-sg-links p))))
-
-(defun print-sg (root stream indent)
-  "prints a tree of solution paths"
-  (princ "(" stream)
-  (print-path root stream indent)
-  (princ ") " stream)
-  (terpri stream))
-
-(defun print-path (state stream indent)
-  "Prints the indentation, the actions in the state, and the rest of the path"
-  (dolist (act (st-actions state)) (print-act act stream indent))
-  (cond ((null (St-successors state)))
-	((null (cdr (st-successors state)))
-	 (print-path (car (st-successors state)) stream indent))
-	(t (princ "(" stream)
-	   (princ *choose* stream)
-	   (terpri stream)
-	   (dolist (alt (st-successors state))
-	     (print-sg alt stream (concatenate 'string "   " indent)))
-	   (princ ")" stream)
-	   (terpri stream))))
-
-(defun print-act (act stream indent)
-  "Only prints the interesting actions"
-  (when (interesting-action act)
-    (princ indent stream)
-    (prin1 act stream)
-    (terpri stream)))
-
-(defun interesting-action (act)
-  "An action is interesting if it doesn't involve executables"
-  (not (and (listp act)
-	    (eql (car act) *next-operator*)
-	    (executable-p (third act)))))
-
-
 ;;; ============================ QS-Debug Printing ========================
 ;;; The qs-debug-print-* functions allow for debug printing
 ;;; of only those states that are at or below a desired 
 ;;; operator.  The three functions below print relevant
-;;; information for the problem designer if the stste is at
+;;; information for the problem designer if the state is at
 ;;; or below a predicate being traced.  (definition of the trace
 ;;; code is below.)
 
@@ -1035,32 +984,59 @@ state actions Is set to be traced."
 	    (and (st-predecessor State)
 		 (qs-debug-printp (St-Predecessor State)))
 	    ))))
-  
+
+;;  Characters for use in emacs outline minor-mode
+;;  Allegro uses normal outline mode with a minimum of one asterisk
+;;  sbcl uses lisp-mode outline mode with a minimum of 3 semicolons
+
+(defun print-outline-indent (x &optional (charp T)) 
+  (make-string (+ x #+sbcl 3 #+allegro 1)
+  :initial-element (if charp #+sbcl #\; #+allegro #\* #\space)))
+
+;;
+;; Print outline header if state has multiple successors
+;; or parent has multiple successors.
+;;
+;; The node is printed based on the content of st-actions, which is
+;; defined in the routine note-action.  Currently, cases handled by 
+;; executable-successors do not have actions defined. (May want to
+;; do this later.)
+;;
 (defun qs-debug-print-success (state)
   "Prints a trace indicating that this state is a final state"
-  (if (qs-debug-printp State) (format t "~2D>  Success~%" (st-level state))))
-
+  (when (and (qs-debug-printp State) (st-actions state))
+    (format t  "~A Success on ~S~%" 
+	    (print-outline-indent (st-level state) (st-branches state)) 
+	    (st-actions state))))
 
 (defun qs-debug-print-failure (state)
   "Prints a trace indicating that this state had no successors"
-  (if (qs-debug-printp State)
-      (format t "~2D>  Failed on ~S~%" (st-level state)
-	      (let ((top (first (st-stack state))))
-		(if (listp top)
-		    (subst-bindings (st-bindings state) top)
-		  top)))))
+  (when (and (qs-debug-printp State) (st-actions state))
+    (format t   "~A Failed on ~S~%" 
+	    (print-outline-indent (st-level state) (st-branches state)) 
+	    (st-actions state)
+	    ;;    (let ((top (first (st-stack state))))
+	    ;;	(if (listp top)
+	    ;;    (subst-bindings (st-bindings state) top)
+	    ;;	  top))
+	    )))
 
+(defun qs-debug-print-node (state ns)
+  "Prints a trace of a state that is a node"
+  (when (and (qs-debug-printp State) (st-actions state))
+    (format t "~A ~S~%"
+	    (print-outline-indent (st-level state) 
+				  (or (> ns 1) (st-branches state)))
+	    (st-actions state))))
 
-(defun qs-debug-print-split (state successors)
-  "Prints a trace indicating that the state has mulipled successors"
-  (if (qs-debug-printp State)
-      (format t ">>>  State has ~a successors.~%" (length successors))))
+;; this is the old method for printing tree nodes; it does not
+;; put the nodes in the right order however.  
+;; Note that it is currently turned off.
 
-
-(defun qs-debug-print-action (state action)
+(defun qs-debug-print-action (state)
   "Print action if state should be traced."
-  (if (qs-debug-printp state)
-      (format t "~2D>  ~S~%" (st-level state) action)))
+  (if (and (qs-debug-printp state) nil) ;turn on/off
+      (format t "~2D> *** ~S~%" (st-level state) (st-actions state))))
 
 
 ;;; In order to add an operator to the debug tracing 

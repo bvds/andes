@@ -145,7 +145,7 @@
 
 
 ;;; This is the top level recursive call for the generator.  Given a 
-;;; sought expression thios will generate a qnode for it of the 
+;;; sought expression this will generate a Qnode for it of the 
 ;;; appropriate type as well as any supporting graph info.  It will
 ;;; then return that qnode consd onto the resulting graph (which will
 ;;; include the qnode itself).  Thus this code allows for a sought
@@ -177,15 +177,13 @@
   (or (gg-solve-preexisting-sought Sought Graph)
     (progn
       (gg-debug-incdepth)
-      (gg-debug-separator "#" 78)
-      (gg-debug "Finding eqns for ~S~%" Sought)
+      (gg-debug "Finding eqns for ~S" Sought)
       (let ((R (or ; (gg-solve-preexisting-sought Sought Graph)
 	           (gg-solve-param-sought Sought Givens Graph)
 	           (gg-solve-given-sought Sought Givens Graph)
 	           (gg-solve-constant-sought Sought Givens Graph)
 	           (gg-solve-complex-sought Sought Givens Graph))))
-      ;(gg-debug "Done finding eqns for: ~S ~%" Sought)
-      ;(gg-debug-separator "#" 78)
+      ;(gg-debug "Done finding eqns for: ~S" Sought)
       (gg-debug-decdepth)
       (when (null R)
           (error "No equations returned for ~S~%" Sought))
@@ -199,7 +197,7 @@
 (defun gg-solve-preexisting-sought (Sought Graph)
   (let ((Q (match-exp->qnode Sought Graph)))
     (when Q 
-      ;(gg-debug "Sought already processed.~%")
+      ;(gg-debug "Sought already processed.")
       (cons Q Graph))))
 
 
@@ -213,7 +211,7 @@
   "Generate the infor for an unnamed parameter."
   (let* ((Q) (P (find-sought-param Sought Givens)))
     (when (and P (setq Q (solve-for-param-var Sought Givens)))
-      (gg-debug "Sought is the parameter: ~A~%" (Qsolres-id Q))
+      (gg-debug "Sought is the parameter: ~A" (Qsolres-id Q))
       (setq Q (make-qnode :exp Sought
 			  :var (qsolres-id Q)
 			  :path (qsolres-path Q)
@@ -242,8 +240,8 @@
 (defun gg-solve-given-sought (Sought Givens Graph)
   (let ((Q) (P) (R) (G (gg-find-matching-given Sought Givens)))
     (when G 
-      (gg-debug "Sought is given, adding:~%") 
-      (gg-debug "  PSM: ~S.~%" G)
+      (gg-debug "Sought is given, adding PSM") 
+      (gg-debug "  ~S" G)
 
       (Setq R (solve-for-given-eqn Sought Givens))
 
@@ -271,7 +269,7 @@
 (defun gg-solve-constant-sought (Sought Givens Graph)
   (let ((Q) (P) (R (solve-for-constant-quantity Sought Givens)))
     (when R
-      (gg-debug "Sought is constant ~A~%" (caar (Qsolres-Nodes R)))
+      (gg-debug "Sought is constant ~A" (caar (Qsolres-Nodes R)))
       (setq Q (make-qnode :exp Sought
 			  :var (caar (Qsolres-nodes R))
 			  :marks '(constant)))
@@ -318,9 +316,9 @@
   (let (r)
     (dolist (p Psms)
       (cond ((exp-of-psmtype-set? (qsolres-id P) Ignore)
-	     (gg-debug "  Removing ignore-psm ~%")
+	     (gg-debug "  Removing ignore-psm")
 	     (gg-debug (format nil "~A.~%" (qsolres-id P))))
-	    (t (gg-debug (format nil "  Got eqn ~S~%" (qsolres-id P)))
+	    (t (gg-debug (format nil "  Got eqn ~S" (qsolres-id P)))
 	       (push P R))))
     R))
 
@@ -413,13 +411,10 @@
 ;;;============================================================================
 ;;; Debug code.
 
-(defun gg-debug-separator (sep count)
-  (if *Debug-gg* (print-separator sep count)))
-
-(defun gg-debug (&rest form)
+(defun gg-debug (format &rest stuff)
   (when *Debug-gg* 
-    (format t "~A: " *gg-debug-depth*)
-    (apply #'format t form)))
+    (format t "~A ~A:  ~?~%" (print-outline-indent 1) *gg-debug-depth*
+	    format stuff)))
 
 (defparameter *gg-debug-depth* 0)
 
