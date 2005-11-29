@@ -158,13 +158,13 @@
     ))
 
 (defoperator write-relative-vel-compo (?b1 ?b2 ?b3 ?t ?xy ?rot)
-  :features (unordered)
-  :preconditions ((rdebug "Using write-relative-vel-compo ~%")
-		  (variable ?v12  (compo ?xy ?rot (relative-vel ?b1 ?b2 :time ?t)))
-		  (variable ?v23  (compo ?xy ?rot (relative-vel ?b2 ?b3 :time ?t)))
-		  (variable ?v13  (compo ?xy ?rot (relative-vel ?b1 ?b3 :time ?t)))
-		  (rdebug "fired write-relative-vel-compo  ~%")
-                  )
+  :preconditions 
+  ((rdebug "Using write-relative-vel-compo ~%")
+   (variable ?v12  (compo ?xy ?rot (relative-vel ?b1 ?b2 :time ?t)))
+   (variable ?v23  (compo ?xy ?rot (relative-vel ?b2 ?b3 :time ?t)))
+   (variable ?v13  (compo ?xy ?rot (relative-vel ?b1 ?b3 :time ?t)))
+   (rdebug "fired write-relative-vel-compo  ~%")
+   )
   :effects (
             (eqn (= ?v13 (+ ?v12 ?v23))
                  (compo-eqn relvel ?xy ?rot (relative-vel ?b1 ?b2 ?b3 ?t)))
