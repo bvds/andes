@@ -6333,9 +6333,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    ;; assume any mass change is described by thrust force
    (variable ?m (mass ?b :time ?t ?t))
+    ;; see if acceleration compo doesn't vanish
+    (in-wm (vector ?b (accel ?b :time ?t1) ?dir-a))
+    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
+		      `(* ,?m ,?a-compo) 0))
    )
   :effects
-   ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
+   ((eqn (= (+ . ?f-compo-vars) ?ma-term)
 	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t)))
     (eqn-compos (compo-eqn NSL ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars)
     (assume using-NSL forces ?b ?t)
@@ -6343,7 +6347,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
    ((point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law to it." (?b def-np) (?t pp)))
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
-    (bottom-out (string "Write Newton's Second Law in terms of component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) (* ?m ?a-compo)) algebra)))
+    (bottom-out (string "Write Newton's Second Law in terms of component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?ma-term) algebra)))
     ))
 
 ;;; 
@@ -6361,9 +6365,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
    (bind ?eqn-compo-vars (list ?a-compo ?fnet-compo-var))
    ;; assume any mass change is described by thrust force
-   (variable ?m (mass ?b :time ?t ?t)))
+   (variable ?m (mass ?b :time ?t ?t))
+    ;; see if acceleration compo doesn't vanish
+    (in-wm (vector ?b (accel ?b :time ?t1) ?dir-a))
+    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
+		      `(* ,?m ,?a-compo) 0))
+    )
   :effects (
-    (eqn (= ?fnet-compo-var (* ?m ?a-compo))
+    (eqn (= ?fnet-compo-var ?ma-term)
 	 (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)))
     (eqn-compos (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars)
     (assume using-NSL net ?b ?t)
@@ -6371,7 +6380,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint (
     (point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law." (?b def-np) (?t pp)))
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. This can be applied component-wise to relate the net force in any direction to the mass times the component of acceleration in that direction."))
-    (bottom-out (string "Write Newton's Second Law along the ~a axis in terms of component variables, namely, ~a" ((axis ?xyz ?rot) symbols-label) ((= ?fnet-compo-var (* ?m ?a-compo)) algebra)))
+    (bottom-out (string "Write Newton's Second Law along the ~a axis in terms of component variables, namely, ~a" ((axis ?xyz ?rot) symbols-label) ((= ?fnet-compo-var ?ma-term) algebra)))
    )
 )
 
@@ -6607,6 +6616,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; check sought is one of cons-energy quants at timepoint t
    (any-member ?sought 
 	       ((mag (velocity ?axis :time ?t))
+		(kinetic-energy ?b :time ?t)
 		(mag (ang-velocity ?b :time ?t))
 		(moment-of-inertia ?b) ;needs to be constant
 		(mass ?b) ;needs to be constant
@@ -7595,6 +7605,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (in-wm (use-work))
      (any-member ?sought ( ;need all ME quantities
 			   (mag (velocity ?b :time ?t))
+			   (kinetic-energy ?b :time ?t)
 	                   (mass ?b) 
 	                   (height ?b :time ?t)
 	                   (spring-constant ?s)
