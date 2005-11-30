@@ -1,10 +1,9 @@
-
 (defproblem elec1
 	:statement (
-		"An electron (qe = -1.6E-19 C; me = 9.1E-31 kg) is placed"
-		"in an electric field.  Determine the magnitude of the electric field"
-		"that the electron is in so that it will exactly cancel"
-		"its weight near the Earth's surface."
+		"An electron (qe = -1.6e-19 C; me = 9.1e-31 kg) is in a region where"
+		"there is a uniform electric field E that exactly cancels its weight"
+		"near the Earth's surface. Find the magnitude and show the direction"
+		"of the electric field E."
 		"    Answer:  [XXXXXXXXXXXX]"
 	)
 	;:graphic "elec1.gif"
@@ -28,9 +27,10 @@
 
 (defproblem elec2
 	:statement (
-		"A particle having a net charge of 52.0 $mC is placed in a"
-		"uniform electric field of 120 N/C directed vertically. What is"
-		"the mass of the object if it `floats' in the field?"
+		"A charged particle (q = 52.0 $mC) is in a region where there is a"
+		"uniform electric field E of magnitude 120 N/C at an angle of 90 degrees"
+		"above the positive x-axis. If the electric field exactly cancels its"
+		"weight near the Earth's surface, find the mass of the particle."
 		"    Answer:  [XXXXXXXXXXXX]"
 	)
 	;:graphic "elec2.gif"
@@ -54,15 +54,14 @@
 
 (defproblem elec3
   :statement (
-	      "An electron (charge -1.6E-19 C, mass 9.1E-31 kg) is accelerated in"
-	      "a uniform electric field (E = 2.0E+4 N/C) between two parallel"
-	      "charged plates. The separation between the plates is 1.5 cm. The"
-	      "electron undergoes a constant acceleration from rest near the"
-	      "negative plate and passes through a tiny hole in the positive plate"
-	      "(see Figure below). What is the magnitude of the velocity as"
-	      "the electron leaves the hole?"
-	      "    Answer:  [XXXXXXXXXXXX]"
-	      "In this problem, gravity can be ignored."
+		"An electron (qe = -1.6e-19 C; me = 9.1e-31 kg) is in a region, between "
+		"two parallel charged plates, that produce a uniform electric field E " 
+		"of magnitude 2.0e+4 N/C. The separation between the plates is 1.5 cm. "
+		"The electron undergoes a constant acceleration from rest near the negative "
+		"plate and passes through a tiny hole in the positive plate (see Figure below). "
+		"Find the velocity of the electron as it leaves the hole."
+		"    Answer:  [XXXXXXXXXXXX]"
+		"In this problem, gravity can be ignored."
 	      )
   ;; :graphic "elec3.gif"
   :features (E&M E-field andes2 working dynamics)
@@ -96,10 +95,10 @@
 
 (defproblem elec4
 	:statement (
-		"A proton (qp = 1.6E-19 C; mp = 1.7E-27 kg) accelerates from"
-		"rest in a uniform electric field of 320 N/C. After some later"
-		"time, its velocity is 1.20E+5 m/s moving to the right."
-		"How long does it take the proton to reach this speed?"
+		"A proton (qp = 1.6e-19 C; mp = 1.7e-27 kg) is in a region where there is a "
+		"uniform electric field E of magnitude 320 N/C, directed along the positive "
+ 		"x-axis. The proton accelerates from rest and reaches a speed of 1.20e+5 m/s. "
+		"How long does it take thep proton to reach this speed?"
 		"    Answer:  [XXXXXXXXXXXX]"
 		"In this problem, gravity can be ignored."
 	)
@@ -135,10 +134,10 @@
 
 (defproblem elec5
 	:statement (
-		"A proton (charge 1.6E-19 C, mass 1.7E-27 kg) accelerates from"
-		"rest in a uniform electric field of 920 N/C pointing to"
-		"the left.  After some time, its speed is 7.2E+3 m/s."
-		"How far does the proton travel during this duration?"
+		"A proton (qp = 1.6e-19 C; mp = 1.7e-27 kg) is in a region where there is a "
+		"uniform electric field E of magnitude 920 N/C, directed along the negative x-axis. "
+		"The proton accelerates from rest and reaches a speed of 7.2e+3 m/s. How far does "
+		"the proton travel during this duration?"
 		"    Answer:  [XXXXXXXXXXXX]"
 		"In this problem, gravity can be ignored."
 	)
@@ -173,18 +172,19 @@
 
 (defproblem elec6
   :statement (
-	      "An electron (charge -1.6e-19 C, mass 9.1e-31 kg) is moving in"
-	      "the upwards in an electric field of magnitude 4.0e-12 N/C"
-	      "at an initial velocity of 4.3 m/s.  How far will the electron"
-	      "travel before it comes to rest? In this problem, please include"
-	      "gravity."
-	      "    Answer:  [XXXXXXXXXXXX]"
+		"An electron (qe = -1.6e-19 C; me = 9.1e-31 kg) is in a region where "
+		"there is a uniform electric field E of magnitude 4.0e-12 N/C, directed "
+		"along the negative y-axis. The electron is moving in the positive y-direction "
+		"at an initial velocity of 4.3 m/s. How far will the electron travel before "
+		"it comes to rest?"
+		"In this problem, please include gravity."
+		"    Answer:  [XXXXXXXXXXXX]"
 	      )
   ;; :graphic "elec6.gif"
   :features (E&M E-field andes2 working dynamics)
   :choices ((bodies (electron Earth))
 	    (positions (region)))
-  :times ((1 "at 4.3E+6 m/s") (2 "at rest") (during 1 2))
+  :times ((1 "at 4.3 m/s") (2 "at rest") (during 1 2))
   :givens 
   (
    (time 1) (time 2) (time (during 1 2))
@@ -210,4 +210,5 @@
   :soughts (
 	    (mag (displacement electron :time (during 1 2)))
 	    ))
+
 
