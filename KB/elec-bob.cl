@@ -175,7 +175,7 @@
   :statement (
 	      "An electron (charge -1.6e-19 C, mass 9.1e-31 kg) is moving in"
 	      "the upwards in an electric field of magnitude 4.0e-12 N/C"
-	      "at an initial velocity of 4.3E+6 m/s.  How far will the electron"
+	      "at an initial velocity of 4.3 m/s.  How far will the electron"
 	      "travel before it comes to rest? In this problem, please include"
 	      "gravity."
 	      "    Answer:  [XXXXXXXXXXXX]"
@@ -200,8 +200,8 @@
 	  (dnum 270 |deg|))
    (E-field unspecified)
    ;; Kinematics (rectilinear)
-   (given (mag (velocity electron :time 1)) (dnum 4.3E+6 |m/s|))
-   (motion electron (straight constant (dnum 90 |deg|)) :time 1)
+   (given (mag (velocity electron :time 1)) (dnum 4.3 |m/s|))
+   (motion electron (straight nil (dnum 90 |deg|)) :time 1)
    (motion electron (straight slow-down (dnum 90 |deg|)) :time (during 1 2))
    (motion electron momentarily-at-rest :time 2)
    (constant (accel electron) (during 1 2))
