@@ -1177,8 +1177,8 @@
       and there is a vector defined
    then define a component variable for the vector along the axis"
   :preconditions
-  ((vector ?b ?vector ?dir)
-   (axis-for ?b ?xyz ?rot)
+  ((wm-or-derive (vector ?b ?vector ?dir))
+   (wm-or-derive (axis-for ?b ?xyz ?rot))
    (not (variable ?dont-care (compo ?xyz ?rot ?vector)))
    ;; fetch vector's mag var for building compo var name only. 
    (in-wm (variable ?v-var (mag ?vector)))  
@@ -1189,43 +1189,6 @@
   :effects
   ((variable ?var (compo ?xyz ?rot ?vector))))
 
-#|
-; following is needed to introduce compo vars when writing equations for 
-; given vector components in compo-form solutions.  It doesn't require that
-; vectors and axes be drawn earlier but draws them as needed. We restrict it 
-; to compo-form solutions to keep from overdtermining the compo-var-defining 
-; in other problems. It could perhaps replace define-compo entirely though.
-(defoperator define-compo2 (?var)
-  :specifications 
-   "If you need a compo variable and no axis and vector have been drawn,
-   then draw an axis, draw the vector  
-   and use a component variable for the vector along the axis"
-  :preconditions
-   (; limit this to component-form solutions
-   (component-form)  
-   ; don't apply if define-compo can be used instead. 
-   ; !!! what we want: (NOT (AND Vector-drawn axes-registered))
-   ; !!! what we have: (AND (NOT Vector-drawn) (NOT axes-registered))
-   ; which differs if only one is drawn. If this breaks anything,
-   ; have to recode in some other way, or add special not-all precond
-   (not (vector ?b ?vector ?dir))
-   (not (axis-for ?b ?xyz ?rot)) 
-   ; need to bind body for following, so get it from vector term. !!! assumes
-   ; principal body can always be found first after vectype
-   ; change -- just get it from drawn vector
-   ;(bind ?b (second ?vector))
-   ; draw the vector
-   (vector ?b ?vector ?dir)
-   ; get axes to use for vector's body and time, most likely by drawing them
-   (axis-for ?b ?xyz ?rot)
-   ; fetch vector's mag var for building compo var name only. 
-   (in-wm (variable ?v-var (mag ?vector)))  
-   (bind ?var (format-sym "~Ac_~A_~A" ?xyz ?v-var ?rot))
-   ;;(debug "Defining var for (compo ~a ~a ~a :time ~a).~%" ?xyz ?rot ?vector ?t)
-   )
-  :effects
-  ((variable ?var (compo ?xyz ?rot ?vector))))
-|#
 
 ;;; =================== Generic: Optional steps =============================
 ;;;
@@ -1250,6 +1213,19 @@
 (defoperator skip-optional-step (?goal)
   :specifications "let's not and say we did"
    :effects ( (optional ?goal) ))
+
+;;; in cases where a goal only need be satisfied once,
+;;; we don't want to continue if it is already in working memory
+
+(defoperator use-wm (?goal)
+  :preconditions ((in-wm ?goal))
+  :effects ((wm-or-derive ?goal)))
+
+(defoperator derive (?goal)
+  :preconditions ((not ?goal) ;not in working memory, that is
+		  ?goal)
+  :effects ((wm-or-derive ?goal)))
+
 
 ;;; ================= Generic: Draw each requested vector =====================
 ;;;
@@ -2574,7 +2550,7 @@
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (debug "Drawing zero accel vector for constant-speed ~b at ~t.~%" ?b ?t)
+    (debug "Drawing zero accel vector for constant-speed ~A at ~A.~%" ?b ?t)
     )
   :effects
    ((vector ?b (accel ?b :time ?t) zero)
@@ -2631,10 +2607,8 @@
 ;;; more than one force in different directions is given. As it is it
 ;;; will appear you are just given that there is acceleration in some 
 ;;; straight line.
-;;; !!! For now, only applies if more than one *given* force. Could apply 
-;;; if more than one force simpliciter.  Also doesn't check if they are 
-;;; in the same direction, in which case direction could be known.
-(defoperator draw-accel-unknown-net-force (?b ?t)
+
+(defoperator draw-accel-unknown (?b ?t)
   :specifications 
    "If ?body is moving in a straight line during ?time,
       and it is subject to more than one given force,
@@ -2644,10 +2618,13 @@
     (motion ?b (straight speed-up unknown) :time ?t-motion)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
-    (setof (in-wm (given (dir (force ?b ?agent ?type :time ?t)) ?force-dir))
-           (force ?b ?agent ?type) ?given-forces)
-    (test (>= (length ?given-forces) 2))
-    ;; Should verify not all in same direction
+    ;; find all forces that are acting on ?b (without drawing them)
+    ;; and collect all distinct directions
+    ;; This is really redundant with the motion statement above
+    (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
+    ;; forces with different directions are acting on ?b 
+    (test (or (member 'unknown ?dirs) (> (length ?dirs) 1)))
+    ;;
     (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -2659,38 +2636,9 @@
     (variable ?dir-var (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Can you tell whether the acceleration of ~a will be zero or non-zero?" ?b))
-    (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. The exact direction of the acceleration vector requires calculation to determine, so you can draw the acceleration at an approximate angle and leave the exact angle unspecified." ?b))
+    (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. But not all of the forces are known, so you shou the acceleration at an approximate angle and leave the exact angle unspecified." ?b))
     (bottom-out (string "Use the acceleration tool to draw the acceleration for ~a ~A an an approximately correct direction and erase the direction value in the dialog box to leave the exact direction unspecified." ?b (?t pp)))
     ))
-
-
-(defoperator avg-accel-unknown (?b ?t)
-  :specifications 
-   "If ?body is moving in a straight line during ?time,
-   then draw a non-zero acceleration in ?direction during ?time."
-  :preconditions
-  (    
-   (component-form) ;force rule to only work for vec3a
-   ;; following tells us forces are not balanced, else would have at-rest
-    (motion ?b (straight speed-up unknown) :time ?t-motion)
-    (time ?t)
-    (test (tinsidep ?t ?t-motion))
-    ; !!! verify not all in same direction
-    (not (vector ?b (accel ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
-    )
-  :effects
-   ((vector ?b (accel ?b :time ?t) unknown)
-    (variable ?mag-var (mag (accel ?b :time ?t)))
-    (variable ?dir-var (dir (accel ?b :time ?t))))
-   :hint
-   ((point (string "Can you tell whether the acceleration of ~a will be zero or non-zero?" ?b))
-    (teach (string "When a body is subject to a net force it will have an acceleration parallel to the vector sum of all forces. In this problem you should be able to see that there will be a net force on ~A so it will have a non-zero acceleration. The exact direction of the acceleration vector requires calculation to determine, so you can draw the acceleration at an approximate angle and leave the exact angle unspecified." ?b))
-    (bottom-out (string "Use the acceleration tool to draw the acceleration for ~a ~A an an approximately correct direction and erase the direction value in the dialog box to leave the exact direction unspecified." ?b (?t pp)))
-    ))
-
 
 
 ;; draw acceleration when all we are given is its direction, and have no
@@ -2783,7 +2731,7 @@
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?accel-dir (opposite ?motion-dir))
-    (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir-val ?b ?t)
+    (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir ?b ?t)
     )
   :effects
    ((vector ?b (accel ?b :time ?t) ?accel-dir)
@@ -3323,7 +3271,7 @@
   :specifications "
    writes vf=vi+a*t.  That is, it leaves out displacement (s)."
   :preconditions
-   (; for 2D case, make sure accel compo doesn't vanish
+   (;; for 2D case, make sure accel compo doesn't vanish
     (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
     (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
@@ -3614,7 +3562,6 @@
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity))
    (body ?b)
    (vector ?b (velocity ?b :time ?t1) ?dir1)
-   ;(vector ?b (velocity ?b :time ?t2) ?dir2)
    (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axis-for ?b x ?rot))
@@ -4090,18 +4037,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-net-force-compo (?b ?t ?xyz ?rot)
   :preconditions 
   (
-   (in-wm (forces ?b ?t ?forces))	;draw all needed force vectors
+   ;; test that this component of the net force may be nonzero.
+   ;; else, we have NSL to set the sum of forces to zero, and 
+   ;; vector drawing will set this component of net-force to zero.
+   (in-wm (vector ?b (net-force ?b :time ?t) ?net-force-dir))
+   (test (non-zero-projectionp ?net-force-dir ?xyz ?rot))
+   (in-wm (forces ?b ?t ?forces))	;found in vector-diagram
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
    (map ?f ?forces 
 	(variable ?f-compo-var (compo ?xyz ?rot ?f))
 	?f-compo-var ?f-compo-vars)
-   (variable ?fnet_xy (compo ?xyz ?rot (net-force ?b :time ?t1)))
+   (variable ?fnet_xy (compo ?xyz ?rot (net-force ?b :time ?t)))
    )
   :effects 
   ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
-	(compo-eqn definition ?xyz ?rot (net-force ?b ?t1)))
-   (eqn-compos (compo-eqn definition ?xyz ?rot (net-force ?b ?t1))
+	(compo-eqn definition ?xyz ?rot (net-force ?b ?t)))
+   (eqn-compos (compo-eqn definition ?xyz ?rot (net-force ?b ?t))
 	       (?fnet_xy . ?f-compo-vars)))
   :hint
   ((point (string "What is the total force acting on ~A ~A." 
@@ -5603,8 +5555,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; Thus net force quantity is inferentially isolated from sum of forces.
 ;;
 ;; Here we draw the net force in the same direction as the known acceleration
-;; direction. This requires that the acceleration be drawn first so that it's 
-;; direction has been derived from the motion description. 
+;; direction. 
+;;
 ;; A net-force form problem might in principle give the net force mag and 
 ;; direction and ask for some kinematic property, but we don't currently 
 ;; have any problems of this form; this would require another operator and
@@ -5614,8 +5566,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (object ?b)
      (time ?t)
      (not (vector ?b (net-force ?b :time ?t) ?dont-care))
-     (in-wm (vector ?b (accel ?b :time ?t-accel) ?dir-accel))
-     (not (equal ?dir-accel 'unknown))
+     (vector ?b (accel ?b :time ?t-accel) ?dir-accel)
+     (test (not (eq ?dir-accel 'unknown)))
      (test (tinsidep ?t ?t-accel))
      (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" ?b (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -5640,12 +5592,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; forces with different directions are acting on ?b 
    (test (or (member 'unknown ?dirs) (> (length ?dirs) 1)))
    ;; make sure it is not given in the acceleration
-   (not (vector (accel ?t :time ?t-accel) ?a-dir) 
-	(and (tinsidep ?t ?t-accel) (not (eq ?a-dir 'unknown))))
+   (setof (vector ?b (accel ?b :time ?t) ?a-dir) ?a-dir ?a-dirs)
+   (test (or (null ?a-dirs) (member 'unknown ?a-dirs)))
    ;; make sure net-force has not already been drawn
-   (not (vector ?b (net-force ?b :time ?t) ?dir))
+   (not (vector ?b (net-force ?b :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" ?b (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (debug "~&Drawing unknown net force for ~a at ~a.~%" ?b ?t)
    )
   :effects
   ((vector ?b (net-force ?b :time ?t) unknown)
@@ -6284,9 +6237,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (map ?f ?forces 
    	(variable ?compo-var (compo ?xyz ?rot ?f))
 	?compo-var ?f-compo-vars)
-   ; we want Fi = m * a to be accepted if it is written. But also
-   ; need to write Sum Fi = 0 as final eqn so won't appear to contain m, a
-   ; so we make sure we have a compo var and put implicit eqn in effects.
+   ;; we want Fi = m * a to be accepted if it is written. But also
+   ;; need to write Sum Fi = 0 as final eqn so won't appear to contain m, a
+   ;; so we make sure we have a compo var and put implicit eqn in effects.
     (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
   )
   :effects
@@ -6327,16 +6280,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?f-compo-var (compo ?xyz ?rot ?f))
    	?f-compo-var ?f-compo-vars)
    (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
-   ;; add acceleration compo var to form list of all compo vars in equation
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
-   (bind ?eqn-compo-vars (cons ?a-compo ?f-compo-vars))
-   (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    ;; assume any mass change is described by thrust force
    (variable ?m (mass ?b :time ?t ?t))
-    ;; see if acceleration compo doesn't vanish
-    (in-wm (vector ?b (accel ?b :time ?t1) ?dir-a))
-    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
+   ;; see if acceleration compo doesn't vanish
+   ;; if it does, we still write equation to give sum of forces = 0
+   (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
+   (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
 		      `(* ,?m ,?a-compo) 0))
+   ;; add acceleration compo var to form list of all compo vars in equation
+   (bind ?eqn-compo-vars (if (non-zero-projectionp ?dir-a ?xyz ?rot)
+	 (cons ?a-compo ?f-compo-vars) ?f-compo-vars))
+   (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    )
   :effects
    ((eqn (= (+ . ?f-compo-vars) ?ma-term)
@@ -6363,13 +6318,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
    (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
-   (bind ?eqn-compo-vars (list ?a-compo ?fnet-compo-var))
    ;; assume any mass change is described by thrust force
    (variable ?m (mass ?b :time ?t ?t))
     ;; see if acceleration compo doesn't vanish
-    (in-wm (vector ?b (accel ?b :time ?t1) ?dir-a))
-    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
+   (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
+   (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
 		      `(* ,?m ,?a-compo) 0))
+   ;; add acceleration compo var to form list of all compo vars in equation
+   (bind ?eqn-compo-vars (if (non-zero-projectionp ?dir-a ?xyz ?rot)
+	 (list ?a-compo ?fnet-compo-var) (list ?fnet-compo-var)))
     )
   :effects (
     (eqn (= ?fnet-compo-var ?ma-term)
