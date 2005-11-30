@@ -666,18 +666,16 @@
   :EqnFormat ("F = abs(q) * E" ))
 
 (defoperator charge-force-Efield-mag-contains (?sought)
-  :preconditions (
-                  (not (component-form))
-                  (any-member ?sought ((mag (force ?b ?source electric :time ?t))
-                                       (mag (field ?loc electric ?source :time ?t))
-				       ; need to choose a source if sought is charge:
-				       ; ignore for now
-                                       ;(charge-on ?b :time ?t ?t)
-				       ))
-		  (at-place ?b ?loc ?t)
-                  (debug "Using & firing write-charge-force-Efield-mag-contains ~%")
-                  )
-  :effects(
+  :preconditions 
+  (
+   ;; because of abs(Q), charge is not a sought
+   (any-member ?sought ((mag (force ?b ?source electric :time ?t))
+			(mag (field ?loc electric ?source :time ?t))
+			))
+   (at-place ?b ?loc ?t)
+   (debug "Using & firing write-charge-force-Efield-mag-contains ~%")
+   )
+  :effects (
            (eqn-contains (charge-force-Efield-mag ?b ?source ?t) ?sought)
            ))  
 
@@ -696,7 +694,7 @@
    ;; must draw body in diagram for this psm
    (body ?b)
    ;; even though this is scalar equation, want axes to be allowed
-   (axis-for ?b x ?rot)
+   (axis-for ?b ?xyz ?rot)
    (variable ?magE (mag (field ?loc electric ?source :time ?t)))
    (variable ?magF (mag (force ?b ?source electric :time ?t)))
    (variable ?q (charge-on ?b :time ?t ?t))
@@ -704,7 +702,6 @@
    )
   :effects 
   (
-   ;; NB: need abs charge since it is now signed
    (eqn (= ?magF (* (abs ?q) ?magE)) (charge-force-Efield-mag ?b ?source ?t))
    (assume using-magnitude (charge-force-Efield ?b ?source ?t)) ;mag xor compos
    )
@@ -733,7 +730,6 @@
                   (any-member ?sought ((dir (force ?b ?source electric :time ?t))
                                        (dir (field ?loc electric ?source :time ?t))
                                        (charge-on ?b :time ?t ?t)))
-                  ;(not (component-form))
                   (at-place ?b ?loc ?t)
                   (rdebug "Using & firing write-charge-force-Efield-dir-contains ~%")
                   )
@@ -781,7 +777,6 @@
 
 (defoperator point-charge-Efield-contains (?sought)
   :preconditions ((rdebug "Using point-charge-Efield-compo-contains  ~%")
-		  (component-form)
                   (any-member ?sought((mag (field ?loc electric ?b :time ?t))
                                       (dir (field ?loc electric ?b :time ?t))
                                       (charge-on ?b :time ?t ?t) 
@@ -868,7 +863,6 @@
 
 (defoperator point-charge-Efield-mag-contains (?sought)
   :preconditions ((rdebug "Using point-charge-Efield-mag-contains ~%")
-                  ;(not (component-form))
                   (any-member ?sought ((mag (field ?loc electric ?b :time ?t))
 				       (mag (relative-position ?loc ?loc-source :time ?t))
                                        (charge-on ?b :time ?t ?t)))
@@ -912,7 +906,6 @@
   :preconditions ((rdebug "Using point-charge-Efield-dir-contains ~%")
                   (any-member ?sought ((dir (field ?loc electric ?b :time ?t))
                                        (charge-on ?b :time ?t ?t)))
-                  ;(not (component-form))
                   ;(at-place ?b ?loc2 ?t)
 		  (point-charge ?b)
                   (rdebug "Firing point-charge-Efield-dir-contains ~%")
@@ -1647,7 +1640,6 @@
                   (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
                                        (mag (field ?loc magnetic ?source :time ?t))
                                        (charge-on ?b :time ?t ?t)))
-                  ;(not (component-form))
                   (at-place ?b ?loc ?t)
                   (rdebug "Firing write-charge-force-Bfield-mag-contains ~%")
                   )
@@ -1893,7 +1885,6 @@
    (any-member ?sought ((dir (force ?b ?source magnetic :time ?t))
 			(dir (field ?loc magnetic ?source :time ?t))
 			(charge-on ?b :time ?t ?t)))
-   ;;(not (component-form))
    (body ?b)
    (rdebug "Firing write-charge-force-Bfield-dir-contains ~%")
    )
