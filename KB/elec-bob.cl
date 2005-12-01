@@ -7,7 +7,7 @@
 		"    Answer:  [XXXXXXXXXXXX]"
 	)
 	;:graphic "elec1.gif"
-	:features (E&M E-field andes2 working dynamics)
+	:features (E&M E-field andes2 working kinematics dynamics)
 	:choices ((bodies (electron Earth))
 	       (positions (region)))
 	:givens (
@@ -34,7 +34,7 @@
 		"    Answer:  [XXXXXXXXXXXX]"
 	)
 	;:graphic "elec2.gif"
-	:features (E&M E-field andes2 working dynamics)
+	:features (E&M E-field andes2 working kinematics dynamics)
 	:choices ((bodies (particle Earth))
 	       (positions (region)))
 	:givens (
@@ -64,7 +64,7 @@
 		"In this problem, gravity can be ignored."
 	      )
   ;; :graphic "elec3.gif"
-  :features (E&M E-field andes2 working dynamics)
+  :features (E&M E-field andes2 working kinematics dynamics)
   :choices ((bodies (electron plates))
 	    (positions (region)))
   :times ((1 "at rest") (2 "leaves hole") (during 1 2))
@@ -103,7 +103,7 @@
 		"In this problem, gravity can be ignored."
 	)
 	;:graphic "elec4.gif"
-	:features (E&M E-field andes2 working dynamics)
+	:features (E&M E-field andes2 working kinematics dynamics)
 	:choices ((bodies (proton))
 	      (positions (region)))
 	:times ((1 "at rest") (2 "at 1.20E+5 m/s") (during 1 2))
@@ -142,7 +142,7 @@
 		"In this problem, gravity can be ignored."
 	)
 	;:graphic "elec5.gif"
-	:features (E&M E-field andes2 working dynamics)
+	:features (E&M E-field andes2 working kinematics dynamics)
 	:choices ((bodies (proton))
 	      (positions (region)))
 	:times ((1 "at rest") (2 "at 7.2E+3 m/s") (during 1 2))
@@ -181,7 +181,7 @@
 		"    Answer:  [XXXXXXXXXXXX]"
 	      )
   ;; :graphic "elec6.gif"
-  :features (E&M E-field andes2 working dynamics)
+  :features (E&M E-field andes2 working kinematics dynamics)
   :choices ((bodies (electron Earth))
 	    (positions (region)))
   :times ((1 "at 4.3 m/s") (2 "at rest") (during 1 2))
