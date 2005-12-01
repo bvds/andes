@@ -6571,16 +6571,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
   ;; check sought is one of cons-energy quants at timepoint t
-   (any-member ?sought 
-	       ((mag (velocity ?axis :time ?t))
-		(kinetic-energy ?b :time ?t)
-		(mag (ang-velocity ?b :time ?t))
-		(moment-of-inertia ?b) ;needs to be constant
-		(mass ?b) ;needs to be constant
-		(height ?cm :time ?t)
-		(spring-constant ?s)
-		(compression ?s :time ?t)
-		(gravitational-acceleration ?planet)
+   (any-member ?sought (
+                (kinetic-energy ?b :time ?t)
+		(rotational-energy ?b :time ?t)
+ 		(spring-energy ?body ?spring :time ?t)
+ 		(grav-energy ?body ?planet :time ?t)
+		(electric-energy ?body ?source :time ?t)
 	      ))
    (object ?b)
    (time ?t)
@@ -6631,11 +6627,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; write equation ME_i = ME_f 
   (eqn ?te12eqn (total-energy-cons ?b ?t1 ?t2))
   ;; write equation ME_i = K_i + Ug_i [+ Us_i]
-  ;; plus sub-eqns for all terms on the rhs, getting combined result
-  (derived-eqn (= ?te1 ?te1-exp) (total-energy ?b ?t1))
+  (eqn (= ?te1 ?te1-exp) (total-energy-top ?b ?t1))
   ;; write equation ME_f = K_f + Ug_f [+ Us_f]
-  ;; plus sub-eqns for terms on the rhs, getting combined result
-  (derived-eqn (= ?te2 ?te2-exp) (total-energy ?b ?t2))
+  (eqn (= ?te2 ?te2-exp) (total-energy-top ?b ?t2))
   ;; write total mech. energy equivalence with all energy terms plugged in
   (bind ?eqn-algebra `(= ,?te1-exp ,?te2-exp))
   (debug "final cons-energy eq: ~A~%" ?eqn-algebra)
@@ -6665,6 +6659,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (teach (string "When the only forces doing work on a body are conservative, then the law of conservation of energy states that the total mechanical energy remains constant.  That is, the total mechanical energy at one time is equal to the total mechanical energy at another time, for any two time points."))
   (bottom-out (string "Write ~a" ((= ?te1-var ?te2-var) algebra)))
   ))
+
+#| ; total-energy now no longer called; only total-energy-top (which could be renamed) now used
 
 ;;; Following writes an equation for total mechanical energy and also fills in
 ;;; expressions for all of the constituent terms that occur in it, returning
@@ -6707,9 +6703,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
  :effects (
   (derived-eqn (= ?te-var (+ . ?energy-exprs)) (total-energy ?b ?t))
  ))
+|#
 
 ;;; equation TME = Translational Kinetic Energy + rotational energy 
-;;;                    + Grav PE + Spring PE
+;;;                    + Grav PE + Spring PE + Electrostatic PE
 ;;; !!! spring PE term could just be omitted if spring not extended at t
 (defoperator write-total-energy-top (?b ?t)
   :preconditions (
@@ -6813,6 +6810,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;; equation KE = 1/2 * m * v^2
 
+(defoperator kinetic-energy-contains (?sought)
+  :preconditions (
+    (any-member ?sought ((kinetic-energy ?body :time ?t)
+                         (mag (velocity ?body :time ?t))
+		         (mass ?body)))
+   (time ?t) ; choose t if sought is mass
+  )
+  :effects (
+    (eqn-contains (kinetic-energy ?body ?t) ?sought)
+  ))
+
 (defoperator write-kinetic-energy (?body ?t)
   :preconditions 
   (
@@ -6832,6 +6840,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (point (string "Try writing the definition of translational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
   (teach (string "The translational kinetic energy of an object is defined as one half its mass times its velocity squared.  That is, 0.5*m*v^2."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
+  ))
+
+(defoperator rotational-energy-contains (?sought)
+  :preconditions (
+    (any-member ?sought ((rotational-energy ?body :time ?t)
+                         (mag (ang-velocity ?body :time ?t))
+		         (moment-of-inertia ?body :time ?t)))
+  )
+  :effects (
+    (eqn-contains (rotational-energy ?body ?t) ?sought)
   ))
 
 (defoperator write-rotational-energy (?body ?t)
@@ -6855,11 +6873,26 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
 
+(defoperator grav-energy-contains (?sought)
+  :preconditions (
+    (any-member ?sought ((grav-energy ?body ?planet :time ?t)
+                         (mass ?body)
+		         (gravitational-acceleration ?planet)
+                         (height ?cm :time ?t)))
+    (object ?body)	; must choose if sought is g 
+    (time ?t)		; must choose if sought is g or m
+    (near-planet ?planet :body ?body ?body)
+    (use-point-for-body ?body ?cm ?axis) ;always use cm
+  )
+  :effects (
+    (eqn-contains (grav-energy ?body ?planet ?t) ?sought)
+  ))
+
 ;; equation PE_grav = m * g * h
 ;; Note relies on problem statement stipulating zero level. 
 (defoperator write-grav-energy (?body ?planet ?t)
   :preconditions (
-  (near-planet ?planet :body ?body ?body)
+  ;(near-planet ?planet :body ?body ?body) ; moved to grav-energy-contains
   (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (variable ?m-var  (mass ?body))
   (use-point-for-body ?body ?cm ?axis) ;always use cm
@@ -6876,6 +6909,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write ~a" ((= ?PE-var (* ?m-var ?g-var ?h-var)) algebra)))
    ))
 
+(defoperator spring-energy-contains (?sought)
+  :preconditions (
+    (any-member ?sought ((spring-energy ?body ?spring :time ?t)
+                         (spring-constant ?spring)
+                         (compression ?spring :time ?t)))
+    (object ?body)	; must choose if sought is k or d
+    (time ?t)		; must choose if sought is k
+    (spring-contact ?body ?spring ?t-contact ?sforce-dir)
+  )
+  :effects (
+    (eqn-contains (spring-energy ?body ?spring ?t) ?sought)
+  ))
 
 ;;; equation PE_spring = 1/2 * k * d^2 
 ;;; where k = spring const, d = compression distance.
@@ -6926,6 +6971,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	 (bottom-out (string "Write ~A" ((= ?PE-var 0) algebra)))
 	 ))
+
+;;;
+;;; NB: Electrostatic potential energy defined in electromagnetism.cl as electric-energy
+;;;
 
 ;;; ops to define variables for energy quantities:
 (defoperator define-total-energy (?b ?t)
@@ -7560,14 +7609,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator change-ME-contains (?sought)
   :preconditions (
      (in-wm (use-work))
-     (any-member ?sought ( ;need all ME quantities
-			   (mag (velocity ?b :time ?t))
+     (any-member ?sought ( ; all ME constituents
 			   (kinetic-energy ?b :time ?t)
-	                   (mass ?b) 
-	                   (height ?b :time ?t)
-	                   (spring-constant ?s)
-	                   (compression ?s :time ?t)
-	                   (gravitational-acceleration ?planet)
+		           (rotational-energy ?b :time ?t)
+ 			   (spring-energy ?b ?spring :time ?t)
+ 		           (grav-energy ?b ?planet :time ?t)
+		           (electric-energy ?b ?source :time ?t)
                            (work-nc ?b :time (during ?t1 ?t2)) ))
      ;; Need to declare interval in problem statement
      (time (during ?t1 ?t2))
@@ -7589,11 +7636,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ;; write equation Wnc = ME2 - ME1
   (eqn (= ?Wnc (- ?te2 ?te1))  (change-ME-top ?b ?t1 ?t2))
   ;; write equation ME2 = K2 + Ug2 [+ Us2]
-  ;; plus sub-eqns for terms on the rhs, getting combined result
-  (derived-eqn (= ?te2 ?te2-exp) (total-energy ?b ?t2))
+  (eqn (= ?te2 ?te2-exp) (total-energy-top ?b ?t2))
   ;; write equation ME1 = K1 + Ug1 [+ Us1]
-  ;; plus sub-eqns for all terms on the rhs, getting combined result
-  (derived-eqn (= ?te1 ?te1-exp) (total-energy ?b ?t1))
+  (eqn (= ?te1 ?te1-exp) (total-energy-top ?b ?t1))
   ;; write total mech. energy equivalence with all energy terms plugged in
   (bind ?eqn-algebra `(= ,?Wnc (- ,?te2-exp ,?te1-exp)))
   (debug "final change-ME eq: ~A~%" ?eqn-algebra)
