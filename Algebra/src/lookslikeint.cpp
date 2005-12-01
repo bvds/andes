@@ -6,20 +6,17 @@
 #include "extstruct.h"
 
 // no diagnostics
-// Previously, there was special handling for numbers near zero,
-// but this is inconsistant with what one would expect.
+// Previously, there was no special handling for numbers near zero,
+// but there are several places where it is assumed that the error
+// is relative to 1.
 
 bool lookslikeint(double v, int &q) // if double v is close to an integer,
-{				// return true and place integer in q
-  if (floor(v + RELERR) > floor(v - RELERR) + 0.5)
-    {
-      if(fabs(v)<RELERR && v!=0){
-	cout << "lookslikeint case incorrect previously" <<endl;
-      }
-
-      // cast from float to integer truncates at decimal point
-      q = (v>-0.5 ? v+0.5 : v-0.5); 
-      return(true);
-    }
-  else return(false);
+{				// return true; place nearest integer in q
+  
+  // cast from float to integer truncates at decimal point
+  q = (v>-0.5 ? v+0.5 : v-0.5); 
+  // assume relevant error scale is one.
+  return (fabs(v-q) <= RELERR 
+	  // floating point representation necessitates relative error:
+	  || fabs(v-q) <= fabs(v)*RELERR);
 }

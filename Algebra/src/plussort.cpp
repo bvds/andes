@@ -51,9 +51,12 @@ bool plussort(expr * & ex)
 	{
 	  DBG(cout << "Plussort found combo, " << (*v)[q]->getInfix()
 	      << " with " << (*v)[q+1]->getInfix()
-	      << ", #1/#2 = " << addfact->getInfix() << endl;);
-	  if (!(addfact->MKS.unknp() || addfact->MKS.zerop()))
+	      << ", #1/#2 = " << addfact->getInfix() << endl);
+	  if (!(addfact->MKS.unknp() || addfact->MKS.zerop())){
+	    DBG(cout << "Plussort error " << addfact->getInfix()
+		<< " has non-trivial dimensions" << endl);
 	    throw(string("plussort tries to add terms with diff dimens"));
+	  }
 	  if (addfact->value == -1.)	// terms cancel
 	    {
 	      (*v)[q]->destroy();

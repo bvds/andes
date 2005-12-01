@@ -417,14 +417,16 @@ bool uptonum(const expr * const ans, const expr * const term,
   expr * a1 = copyexpr(ans);
   expr * a2 = copyexpr(term);
   numvalexp * ansfact = normexpr(a1);
-  DBG(cout << "Uptonum call " << thiscall << " normexpr returned factor " << 
-      (ansfact?ansfact->getInfix():"NULL") 
-      << endl << "         times a1: " << a1->getInfix() << endl);
+  DBG(cout << "Uptonum call " << thiscall 
+      << ":  call to normexpr returned factor " 
+      << (ansfact?ansfact->getInfix():"NULL") << endl 
+      << "         times a1: " << a1->getInfix() << endl);
 
   numvalexp * termfact  = normexpr(a2);
-  DBG(cout << "Uptonum " << thiscall << " normexpr returned factor " << 
-      (termfact?termfact->getInfix():"NULL") 
-      << endl << "         times a2: " << a2->getInfix() << endl);
+  DBG(cout << "Uptonum " << thiscall 
+      << ":  call to normexpr returned factor " 
+      << (termfact?termfact->getInfix():"NULL") << endl 
+      << "         times a2: " << a2->getInfix() << endl);
   answer = equaleqs(a1,a2);
   a1->destroy();
   a2->destroy();
@@ -433,7 +435,8 @@ bool uptonum(const expr * const ans, const expr * const term,
 
   if(ansfact==NULL && termfact==NULL) // 0 and 0
     {
-      DBG(cout << "uptonum " << thiscall << " returning true, coef=NULL" << endl);
+      DBG(cout << "uptonum " << thiscall << " returning true, coef=NULL" 
+	  << endl);
       return(true);  
     }
   else if(termfact==NULL) // x and 0
@@ -446,7 +449,8 @@ bool uptonum(const expr * const ans, const expr * const term,
     {
       termfact->destroy();
       coef=new numvalexp(0.);
-      DBG(cout << "uptonum " << thiscall << " returning true, coef=" << coef->getInfix() << endl);
+      DBG(cout << "uptonum " << thiscall << " returning true, coef=" 
+	  << coef->getInfix() << endl);
       return(true);
     }
   else if (answer) // nonzero match
@@ -456,14 +460,16 @@ bool uptonum(const expr * const ans, const expr * const term,
       termfact->MKS *= -1.;
       coef->MKS += termfact->MKS;
       termfact->destroy();
-      DBG(cout << "uptonum " << thiscall << " returning true, coef=" << coef->getInfix() << endl);
+      DBG(cout << "uptonum " << thiscall << " returning true, coef=" 
+	  << coef->getInfix() << endl);
       return(true);
     }
   else   // nonzero, don't match 
     {
     termfact->destroy();
     ansfact->destroy();
-    DBG(cout << "uptonum " << thiscall << " returning false, coef=NULL" << endl);
+    DBG(cout << "uptonum " << thiscall << " returning false, coef=NULL" 
+	<< endl);
     return(false);
   }
 }
