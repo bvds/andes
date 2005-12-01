@@ -113,8 +113,9 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	    case tane:
 	      if (flok)
 		{
-		  save = new numvalexp(tan(DEG2RAD * tharg->value));
+		  value = tan(DEG2RAD * tharg->value);
 		  if (lookslikeint(value, q)) value = (double) q;
+		  save = new numvalexp(value);
 		  break;
 		}
 	      else 
@@ -343,7 +344,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  for (int q=0; q<th->args->size(); q++) {
 			e->MKS += (*th->args)[q]->MKS;
 		  }
-#endif AW_EXP
+#endif
 		  th->destroy();
 		  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
 		       << e->getInfix() << endl);
