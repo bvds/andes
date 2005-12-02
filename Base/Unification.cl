@@ -325,7 +325,7 @@
 
 (defun exactly-equal (x y)
   "test equality under unification without any bindings"
-  (equal (unify x y) '(T . t)))
+  (equal (unify x y) no-bindings))
 
 ;;;
 ;;;                    Match to keywords pairs
