@@ -12,7 +12,7 @@
 
 bool lookslikeint(double v, int &q) // if double v is close to an integer,
 {				// return true; place nearest integer in q
-  
+  if(fabs(v)>(double) INT_MAX) return(false); // too big to be an integer
   // cast from float to integer truncates at decimal point
   q = (v>-0.5 ? v+0.5 : v-0.5); 
   // assume relevant error scale is one.
