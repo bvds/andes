@@ -481,8 +481,6 @@
   "Marks a end of one parallel branch and the beginning of another")
 (defconstant *join* 'join
   "Marks the end of a set of parallel branches")
-(defconstant *choose* 'choose
-  "Marks a choice among alternative paths")
 
 
 ;;; ======================= st ====================================
