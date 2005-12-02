@@ -1805,6 +1805,7 @@
     (in-wm (vector ?dontcare (relative-position ?b ?o :time ?t) ?dir-r))
     (test (not (eq ?dir-r 'zero))) ;don't apply to zero length
     (test (not (horizontal-or-vertical ?dir-r)))
+    (debug "write-rmag-pyth with ~A and ~A at dir=~A~%" ?b ?o ?dir-r)
     (variable ?r_x (compo x 0  (relative-position ?b ?o :time ?t))) 
     (variable ?r_y (compo y 0 (relative-position ?b ?o :time ?t))) 
   )
