@@ -222,22 +222,22 @@
   :english ("the radius of the circular motion of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp work (work ?b ?agent :time ?time)
-  :units J
+  :units |J|
   :english ("the work done on ~A by ~A" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
 (def-qexp net-work (net-work ?b :time ?time)
-  :units J
+  :units |J|
   :english ("the net work done on ~A" (nlg ?b 'at-time ?time)))
 (def-qexp work-nc (work-nc ?b :time ?time)
-  :units J
+  :units |J|
   :english ("the work done by non-conservative forces on ~A" 
 	    (nlg ?b 'at-time ?time)))
 (def-qexp power (power ?b ?agent :time ?time)
-  :units W
+  :units |W|
   :english ("the power supplied to ~a from ~a" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
 (def-qexp net-power (net-power ?b :time ?time)
-  :units W
+  :units |W|
   :english ("the net power supplied to ~a" (nlg ?b 'at-time ?time)))
 (def-qexp net-power-out (net-power-out ?source :time ?time)
   :units |W|
@@ -250,22 +250,22 @@
   :english ("the angle between ~A and ~A" 
 	    (nlg ?vec1) (nlg ?vec2 'at-time ?time)))
 (def-qexp total-energy (total-energy ?system :time ?time) 
-  :units J
+  :units |J|
   :english ("the total mechanical energy of ~A" 
 	    (nlg ?system 'at-time ?time)))
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
-  :units J
+  :units |J|
   :english ("the kinetic energy of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
-  :units J
+  :units |J|
   :english ("the rotational kinetic energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
-  :units J
+  :units |J|
   :english ("the gravitational potential energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp spring-energy (spring-energy ?body ?agent :time ?time) 
-  :units J
+  :units |J|
   :english ("the elastic potential energy transmittable to ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp compression (compression ?spring :time ?time)
