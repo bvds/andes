@@ -5423,8 +5423,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Draw a non-zero net force vector for ~A ~A in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
 
  
-;;; =============================  nl fbd  ====================================
-
+;;; ========================  draw all forces  ================================
+;;;
 ;;; This operator represents the procedure for drawing all forces on a
 ;;; given body.  The procedure is simply to draw each of them.  Duh.
 ;;; Because (forces ?b ?t ?forces) can be a top level goal, it must
@@ -5846,7 +5846,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (dir (accel ?b :time ?t))
 		 (mag (force ?b ?agent ?type :time ?t))
 		 (dir (force ?b ?agent ?type :time ?t))))
-   (not (unknown-forces))
    (object ?b)
    (time ?t))
   :effects
@@ -5858,7 +5857,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( (any-member ?quantity
               ((mag (force ?point ?agent ?type :time ?t))
               (dir (force ?point ?agent ?type :time ?t))))
-    (not (unknown-forces))
     (point-on-body ?point ?b)
     (object ?b) ;sanity check (not really needed)
     (time ?t))
@@ -5887,20 +5885,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the direction of its acceleration"
   :preconditions 
   (
-   (any-member ?quantity
-	       (
-		(mag (net-force ?b :time ?t))
-		(dir (net-force ?b :time ?t))
-	        (mass ?b)
-		(mag (accel ?b :time ?t))
-		(dir (accel ?b :time ?t))
-		))
+   (any-member ?quantity ((mass ?b :time ?t ?t) 
+			  (mag (accel ?b :time ?t))
+			  (dir (accel ?b :time ?t))
+			  (mag (net-force ?b :time ?t))
+			  (dir (net-force ?b :time ?t))
+			  ))
    (object ?b)
    (time ?t)
-   ;; only use this if non-zero acceleration, no NFL form of this.
-   (not (motion ?b at-rest :time ?t-motion) 
-        (tinsidep ?t ?t-motion))
-  )
+   )
   :effects 
   (
    (eqn-family-contains (NL ?b ?t) ?quantity)
@@ -5912,6 +5905,67 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (use-net-force)
    ))
 
+
+;; This operator draws a free-body diagram consisting of the forces,
+;;; acceleration and axes. Unlike draw-fbd-lk (linear kinematics), it
+;;; doesn't draw velocity and displacement.  This is an unordered And
+;;; operator.
+
+;;; Unfortunately, the Andes vector drawing tools will add component
+;;; variables if the axes are already drawn.  The operators for vector
+;;; drawing don't do this.  Only the axis drawing operators define
+;;; component variables.  Thus, we must insure that axis goal is posed
+;;; *after* all the vectors are drawn.  Even though this operator is
+;;; unordered in that it doesn't force the student to do the
+;;; conditions in the specified order, the interpreter must achieve
+;;; those conditions in the specified order for the code to work.
+
+;;; In the last condition, only the x axis is requested. Drawing it
+;;; causes the other axes to be draw as well.
+
+;;; there are two mutually exclusive operators depending on whether
+;;; net force is to be shown or not. We only show net force if the
+;;; problem explicitly mentions it (i.e. seeks it.)
+(defoperator draw-nl-fbd (?b ?t)
+  
+  :specifications 
+   "If the goal is to draw a fbd for newton's law,
+   then draw a body, draw the forces, the acceleration and the axes,
+   in any order."
+  :preconditions
+  ((not (vector-diagram (NL ?b ?t)))
+   (not (use-net-force))
+   (forces ?b ?t ?forces)
+   (test ?forces)	;fail if no forces could be found
+   (vector ?b (accel ?b :time ?t) ?accel-dir)
+   (axis-for ?b ?xyz ?rot))
+  :effects
+   ((vector-diagram (NL ?b ?t)))
+  :hint
+   ((bottom-out (string "In order to draw a free-body diagram, which is the first step to applying Newton's law, draw (1) a body, (2) the forces on the body, (3) the acceleration of the body, and (4) coordinate axes."))))
+
+;; 
+;; Following draws a free-body diagram for the net-force variant of NL
+;;
+;; In the case of known zero acceleration, we have Fnet=0 from general
+;; vector drawing rules
+(defoperator draw-NL-net-fbd (?b ?t)
+  :specifications 
+   "If the goal is to draw a fbd for newton's law in terms of net force,
+   then draw a body, draw the acceleration, draw the net force vector and the axes,
+   in any order."
+  :preconditions
+  ((not (vector-diagram (NL ?b ?t)))
+   (in-wm (use-net-force))
+   (body ?b)
+   (vector ?b (accel ?b :time ?t) ?accel-dir)
+   (test (not (eq ?accel-dir 'zero))) ;make sure accel is nonzero
+   (vector ?b (net-force ?b :time ?t) ?force-dir) 
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (NL ?b ?t)))
+  :hint
+   ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
 
 ;;; The work of writing NL is divided into drawing the fbd, selecting
 ;;; an NL equation and writing the NL in component form.  An operator
@@ -5930,8 +5984,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	        ((mag (force ?b ?agent ?type :time ?t))
 		 (dir (force ?b ?agent ?type :time ?t))))
    (object ?b)
-   (not (unknown-forces))
-   (vector ?b (accel ?b :time ?t-accel) zero)
+   (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
    (test (tinsidep ?t ?t-accel)))
   :effects
    ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
@@ -5945,8 +5998,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (dir (force ?pt ?agent ?type :time ?t))))
    (point-on-body ?pt ?b)
    (object ?b)  ;sanity check (not really needed)
-   (not (unknown-forces))
-   (vector ?b (accel ?b :time ?t-accel) zero)
+   (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
    (test (tinsidep ?t ?t-accel)))
   :effects
    ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
@@ -6031,65 +6083,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((compo-eqn-contains (NL ?b ?t) NSL ?quantity))
  )
 
-;; This operator draws a free-body diagram consisting of the forces,
-;;; acceleration and axes. Unlike draw-fbd-lk (linear kinematics), it
-;;; doesn't draw velocity and displacement.  This is an unordered And
-;;; operator.
-
-;;; Unfortunately, the Andes vector drawing tools will add component
-;;; variables if the axes are already drawn.  The operators for vector
-;;; drawing don't do this.  Only the axis drawing operators define
-;;; component variables.  Thus, we must insure that axis goal is posed
-;;; *after* all the vectors are drawn.  Even though this operator is
-;;; unordered in that it doesn't force the student to do the
-;;; conditions in the specified order, the interpreter must achieve
-;;; those conditions in the specified order for the code to work.
-
-;;; In the last condition, only the x axis is requested. Drawing it
-;;; causes the other axes to be draw as well.
-
-;;; there are two mutually exclusive operators depending on whether
-;;; net force is to be shown or not. We only show net force if the
-;;; problem explicitly mentions it (i.e. seeks it.)
-(defoperator draw-nl-fbd (?b ?t)
-  
-  :specifications 
-   "If the goal is to draw a fbd for newton's law,
-   then draw a body, draw the forces, the acceleration and the axes,
-   in any order."
-  :preconditions
-  ((not (vector-diagram (NL ?b ?t)))
-   (not (use-net-force))
-   (forces ?b ?t ?forces)
-   (test ?forces)	;fail if no forces could be found
-   (vector ?b (accel ?b :time ?t) ?accel-dir)
-   (axis-for ?b ?xyz ?rot))
-  :effects
-   ((vector-diagram (NL ?b ?t)))
-  :hint
-   ((bottom-out (string "In order to draw a free-body diagram, which is the first step to applying Newton's law, draw (1) a body, (2) the forces on the body, (3) the acceleration of the body, and (4) coordinate axes."))))
-
-;; 
-;; Following draws a free-body diagram for the net-force variant of NL
-;;
-(defoperator draw-NL-net-fbd (?b ?t)
-  
-  :specifications 
-   "If the goal is to draw a fbd for newton's law in terms of net force,
-   then draw a body, draw the acceleration, draw the net force vector and the axes,
-   in any order."
-  :preconditions
-  ((not (vector-diagram (NL ?b ?t)))
-   (in-wm (use-net-force))
-   (body ?b)
-   ; we draw accel first so it's known at time of drawing net force
-   (vector ?b (accel ?b :time ?t) ?accel-dir)
-   (vector ?b (net-force ?b :time ?t) ?force-dir) 
-   (axis-for ?b x ?rot))
-  :effects
-   ((vector-diagram (NL ?b ?t)))
-  :hint
-   ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
 
  
 ;;; This operator writes newton's first law in component form for all
@@ -6150,7 +6143,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
       are the appropriate component variables for ?fi and ?a,
       respectively."
   :preconditions
-  ((in-wm (forces ?b ?t ?forces))
+  ((in-wm (forces ?b ?t ?forces)) ;done in drawing step
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
    (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
@@ -6199,7 +6192,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; assume any mass change is described by thrust force
    (variable ?m (mass ?b :time ?t ?t))
     ;; see if acceleration compo doesn't vanish
-   (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
+   (in-wm (vector ?b (accel ?b :time ?t) ?dir-a)) ;done in drawing step
    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
 		      `(* ,?m ,?a-compo) 0))
    ;; add acceleration compo var to form list of all compo vars in equation
