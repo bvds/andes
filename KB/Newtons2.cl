@@ -1164,7 +1164,7 @@
 ;;; is necessary to pick a time to associate with the axis if we have
 ;;; to draw it. [The time an axis is chosen "for" is not necessarily the
 ;;; time on the vector but more like the time on the main PSM -- e.g
-;;; in (lk block (1 2) time on the axis will be (1 2) while we still
+;;; in [LK block (1 2) time on the axis will be (1 2) while we still
 ;;; draw instantaneous vector at 1.] For this reason we define another op
 ;;; to achieve axes for writing given compos for component form problems.
 ;;; !!! we should just have a common set of operators that draw axes as needed
@@ -3146,38 +3146,6 @@
     ))
 
 
-;;; ===================== linear kinematics ===================
-
-#| ; now choose the component equation first, to avoid defining unneeded quantities
-
-(defoperator LK-vector-contains (?quantity)
-  :specifications 
-   "The lk equation potentially contains the duration and the
-   the magnitude and direction of the initial and final velocity,
-   acceleration and displacement."
-  :preconditions
-  ((any-member ?quantity
-	       ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2)))
-		 (dir (accel ?b :time (during ?t1 ?t2)))
-		 (mag (displacement ?b :time (during ?t1 ?t2)))
-		 (dir (displacement ?b :time (during ?t1 ?t2)))
-		 (duration (during ?t1 ?t2))))
-    (object ?b)
-    (time (during ?t1 ?t2))
-    ;; only apply if accel known constant within interval we are using
-    (constant (accel ?b) ?t-constant)
-    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
-    )
-  :effects
-   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)))
-
-|#
-
-
 
 ;;; =============== linear kinematics compo equations ==============
 ;;; The physicist do not want Andes to hint s=vf*t-0.5*a*t^2 (leaves
@@ -4008,59 +3976,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write the equation ~A" ((= ?dnet_xy (+ . ?di_compos)) algebra)))))
 
 
-(defoperator net-force-vector-contains (?sought)
-  :preconditions 
-    ((any-member ?sought (
-		 (mag (net-force ?b :time ?t))
-		 (dir (net-force ?b :time ?t))
-		 (compo ?xy ?rot (net-force ?b :time ?t))
-		 (mag (force ?b ?agent ?type :time ?t))
-		 (dir (force ?b ?agent ?type :time ?t))))
-    (object ?b))  
-  :effects 
-  ((eqn-family-contains (net-force ?b ?t) ?sought)
-  ;; since only one compo-eqn under this vector PSM, we can just
-  ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (net-force ?b ?t) definition ?sought)))
-
-(defoperator draw-net-force-diagram (?b ?t)
-  :preconditions
-  ((not (vector-diagram (net-force ?b ?t)))
-   (forces ?b ?t ?forces)
-   (test ?forces)	; fail if no forces could be found
-   (vector ?b (net-force ?b :time ?t) ?net-force-dir)
-   (axis-for ?b ?xyz ?rot)
-     (debug "Finish draw-net-force-diagram for ?b=~A ?t=~A" ?b ?t))
-  :effects
-   ((vector-diagram (net-force ?b ?t))))
-
-(defoperator write-net-force-compo (?b ?t ?xyz ?rot)
-  :preconditions 
-  (
-   ;; test that this component of the net force may be nonzero.
-   ;; else, we have NSL to set the sum of forces to zero, and 
-   ;; vector drawing will set this component of net-force to zero.
-   (in-wm (vector ?b (net-force ?b :time ?t) ?net-force-dir))
-   (test (non-zero-projectionp ?net-force-dir ?xyz ?rot))
-   (in-wm (forces ?b ?t ?forces))	;found in vector-diagram
-   ;; for each force on b at t, define a component variable, 
-   ;; collecting variable names into ?f-compo-vars
-   (map ?f ?forces 
-	(variable ?f-compo-var (compo ?xyz ?rot ?f))
-	?f-compo-var ?f-compo-vars)
-   (variable ?fnet_xy (compo ?xyz ?rot (net-force ?b :time ?t)))
-   )
-  :effects 
-  ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
-	(compo-eqn definition ?xyz ?rot (net-force ?b ?t)))
-   (eqn-compos (compo-eqn definition ?xyz ?rot (net-force ?b ?t))
-	       (?fnet_xy . ?f-compo-vars)))
-  :hint
-  ((point (string "What is the total force acting on ~A ~A." 
-		  (?b def-np) (?t pp)))
-   (teach (string "The net force on an object is the vector sum of all forces acting on the object."))
-   (bottom-out (string "Write the equation for net force along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?fnet_xy) algebra)))
-   ))
 
 
 ;;; ========================== mass  ======================
@@ -5152,107 +5067,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 			?b2 (?b1 agent) (?dir adj)))
     ))
 
-;;; In theory NTL should apply to any force at all. However, we don't declare
-;;; every force agent an "object" (particle with kinematic properties), E.g. 
-;;; planes or ground or Earth are not usually declared objects, so can't 
-;;; actually use introduce reaction forces on these. This may have to change
-;;; but then it will multiply solutions since then could draw them and write 
-;;; NSL in terms of reaction force magnitudes. That would be odd but correct.
-(defoperator NTL-contains (?quantity)
-  :preconditions (
-  (any-member ?quantity (
-  		(mag (force ?b1 ?b2 ?type :time ?t))
-                        ))
-  ;; no need to test if action/reaction pair definable; fail later if not
-  ;; (force ?b1 ?b2 ?type ?t ?dir1 action) 
-  ;; (force ?b2 ?b1 ?type ?t ?dir2 reaction) 
-  ;; sort body names in id so NTL(b1, b2) gets same id as NTL(b2, b1)
-  (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
-  )
-  :effects ( 
-  	(eqn-contains (NTL ?body-pair ?type ?t) ?quantity) 
-  ))
-
-(defoperator NTL (?b1 ?b2 ?type ?t)
-  :preconditions (
-  (variable ?mag1-var (mag (force ?b1 ?b2 ?type :time ?t)))
-  (variable ?mag2-var (mag (force ?b2 ?b1 ?type :time ?t)))
-  )
-  :effects 
-  (
-   (eqn (= ?mag1-var ?mag2-var) (NTL (?b2 ?b1) ?type ?t)) 
-   (assume using-NTL (?b2 ?b1) ?type ?t)
-   (assume using-magnitude (NTL-vector (?b2 ?b1) ?type ?t)) ;mag xor compos
-   )
-  :hint
-  ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
-   (teach 
-      (kcd "third_law_PSM")
-      (string "Newton's Third Law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A. You can use that to equate the magnitudes of this pair of forces."))
-   (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
-  ))
-
-;;;
-;;; Vector form of NTL writes component equation F12_x = -F21_x
-;;;
-;;; Note the vector equation ID for this is incompatible with convention 
-;;; required by select-compo-eqn-for-scalar, according to which vector args 
-;;; start with body and time.  Should be OK, since NTL doesn't contain any 
-;;; scalars.
-;;;
-
-(defoperator NTL-vector-contains (?sought)
-  :preconditions (
-   (any-member ?sought ( (mag (force ?b1 ?b2 ?type :time ?t))
-  		         (dir (force ?b1 ?b2 ?type :time ?t)) ))
-   (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
-   )
-   :effects (
-   (eqn-family-contains (NTL-vector ?body-pair ?type ?t) ?sought) 
-    ;; since only one compo-eqn under this vector PSM, we can just
-    ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (NTL-vector ?body-pair ?type ?t) NTL ?sought)
-   ))
-
-(defoperator draw-NTL-vector-diagram (?b1 ?b2 ?type ?t)
-  :preconditions (
-    ;; Draw both bodies. 
-    (body ?b1)
-    (body ?b2)
-    (vector ?b1 (force ?b1 ?b2 ?type :time ?t) ?dir1)
-    (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?dir2)
-    ;; we need axis-for each body, since component defining operators will 
-    ;; lookup axis-for principal body of each vector. Our operators that
-    ;; draw axes only apply once, so there is no danger of drawing two
-    ;; axes. In order to reuse the axes drawn for body1 as axes used
-    ;; for vectors on body2, we added reuse-other-body-axis in axes section.
-    (axis-for ?b1 ?xyz ?x-rot1)
-    (axis-for ?b2 ?xyz ?x-rot2)
-  )
-  :effects (
-    (vector-diagram (NTL-vector (?b1 ?b2) ?type ?t))
-  ))
-  
-(defoperator write-NTL-vector (?b1 ?b2 ?type ?t ?xy ?rot)
-   :preconditions (
-      (variable ?F12_xy (compo ?xy ?rot (force ?b1 ?b2 ?type :time ?t)))
-      (variable ?F21_xy (compo ?xy ?rot (force ?b2 ?b1 ?type :time ?t)))
-   )
-   :effects (
-    (eqn (= ?F12_xy (- ?F21_xy)) (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t)))
-    (eqn-compos (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t))
-          (?F12_xy ?F21_xy))
-    (assume using-NTL (?b1 ?b2) ?type ?t)
-   )
-   :hint (
-     ;; !!! TODO
-     (point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?F12_xy algebra) (?F21_xy algebra)))
-   (teach 
-    (kcd "third_law_PSM")
-    (string "Newton's Third Law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction. This entails that the components of each force vector are the negations of the corresponding components of the other: F12_x = -F21_x and F12_y = -F21_y."))
-     (bottom-out (string "Write the equation ~A" 
-                         ((= ?F12_xy (- ?F21_xy)) algebra)))
-   ))
 
 ;;
 ;; Compound bodies = (compound body1 body2 ... bodyn)
@@ -5630,6 +5444,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions
    ( (time ?t)
      (body ?b)
+     (not (unknown-forces)) ;can't collect forces if some are unknown
      ;; list of forces acting on entire body (particle)
      (setof (vector ?b (force ?b ?agent ?type :time ?t) ?dir)
 	    (force ?b ?agent ?type :time ?t)
@@ -5682,65 +5497,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (variable ?n-var (num-forces ?b :time ?t)) 
    ))
 
-;;; This operator draws a free-body diagram consisting of the forces,
-;;; acceleration and axes. Unlike draw-fbd-lk (linear kinematics), it
-;;; doesn't draw velocity and displacement.  This is an unordered And
-;;; operator.
-
-;;; Unfortunately, the Andes vector drawing tools will add component
-;;; variables if the axes are already drawn.  The operators for vector
-;;; drawing don't do this.  Only the axis drawing operators define
-;;; component variables.  Thus, we must insure that axis goal is posed
-;;; *after* all the vectors are drawn.  Even though this operator is
-;;; unordered in that it doesn't force the student to do the
-;;; conditions in the specified order, the interpreter must achieve
-;;; those conditions in the specified order for the code to work.
-
-;;; In the last condition, only the x axis is requested. Drawing it
-;;; causes the other axes to be draw as well.
-
-;;; there are two mutually exclusive operators depending on whether
-;;; net force is to be shown or not. We only show net force if the
-;;; problem explicitly mentions it (i.e. seeks it.)
-(defoperator draw-nl-fbd (?b ?t)
-  
-  :specifications 
-   "If the goal is to draw a fbd for newton's law,
-   then draw a body, draw the forces, the acceleration and the axes,
-   in any order."
-  :preconditions
-  ((not (vector-diagram (NL ?b ?t)))
-   (not (use-net-force))
-   (forces ?b ?t ?forces)
-   (test ?forces)	;fail if no forces could be found
-   (vector ?b (accel ?b :time ?t) ?accel-dir)
-   (axis-for ?b ?xyz ?rot))
-  :effects
-   ((vector-diagram (NL ?b ?t)))
-  :hint
-   ((bottom-out (string "In order to draw a free-body diagram, which is the first step to applying Newton's law, draw (1) a body, (2) the forces on the body, (3) the acceleration of the body, and (4) coordinate axes."))))
-
-;; 
-;; Following draws a free-body diagram for the net-force variant of NL
-;;
-(defoperator draw-NL-net-fbd (?b ?t)
-  
-  :specifications 
-   "If the goal is to draw a fbd for newton's law in terms of net force,
-   then draw a body, draw the acceleration, draw the net force vector and the axes,
-   in any order."
-  :preconditions
-  ((not (vector-diagram (NL ?b ?t)))
-   (in-wm (use-net-force))
-   (body ?b)
-   ; we draw accel first so it's known at time of drawing net force
-   (vector ?b (accel ?b :time ?t) ?accel-dir)
-   (vector ?b (net-force ?b :time ?t) ?force-dir) 
-   (axis-for ?b x ?rot))
-  :effects
-   ((vector-diagram (NL ?b ?t)))
-  :hint
-   ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
 
 
 ;;; The following draws a standard free-body-diagram, for qualititative 
@@ -5764,6 +5520,66 @@ the magnitude and direction of the initial and final velocity and acceleration."
     :effects ( (fbd-axes-drawn ?b) )
     ; choose any legal rotation:
     :preconditions ( (axis-for ?b x ?x-rot) ))
+
+
+;;;                  Net Force
+
+(defoperator net-force-vector-contains (?sought)
+  :preconditions 
+    ((any-member ?sought (
+		 (mag (net-force ?b :time ?t))
+		 (dir (net-force ?b :time ?t))
+		 (compo ?xy ?rot (net-force ?b :time ?t))
+		 (mag (force ?b ?agent ?type :time ?t))
+		 (dir (force ?b ?agent ?type :time ?t))))
+    (object ?b)
+    (not (unknown-forces))
+    )  
+  :effects 
+  ((eqn-family-contains (net-force ?b ?t) ?sought)
+  ;; since only one compo-eqn under this vector PSM, we can just
+  ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (net-force ?b ?t) definition ?sought)))
+
+(defoperator draw-net-force-diagram (?b ?t)
+  :preconditions
+  ((not (vector-diagram (net-force ?b ?t)))
+   (forces ?b ?t ?forces)
+   (test ?forces)	; fail if no forces could be found
+   (vector ?b (net-force ?b :time ?t) ?net-force-dir)
+   (axis-for ?b ?xyz ?rot)
+   (debug "Finish draw-net-force-diagram for ?b=~A ?t=~A forces=~A" 
+	  ?b ?t ?forces))
+  :effects
+   ((vector-diagram (net-force ?b ?t))))
+
+(defoperator write-net-force-compo (?b ?t ?xyz ?rot)
+  :preconditions 
+  (
+   ;; test that this component of the net force may be nonzero.
+   ;; else, we have NSL to set the sum of forces to zero, and 
+   ;; vector drawing will set this component of net-force to zero.
+   (in-wm (vector ?b (net-force ?b :time ?t) ?net-force-dir))
+   (test (non-zero-projectionp ?net-force-dir ?xyz ?rot))
+   (in-wm (forces ?b ?t ?forces))	;found in vector-diagram
+   ;; for each force on b at t, define a component variable, 
+   ;; collecting variable names into ?f-compo-vars
+   (map ?f ?forces 
+	(variable ?f-compo-var (compo ?xyz ?rot ?f))
+	?f-compo-var ?f-compo-vars)
+   (variable ?fnet_xy (compo ?xyz ?rot (net-force ?b :time ?t)))
+   )
+  :effects 
+  ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
+	(compo-eqn definition ?xyz ?rot (net-force ?b ?t)))
+   (eqn-compos (compo-eqn definition ?xyz ?rot (net-force ?b ?t))
+	       (?fnet_xy . ?f-compo-vars)))
+  :hint
+  ((point (string "What is the total force acting on ~A ~A." 
+		  (?b def-np) (?t pp)))
+   (teach (string "The net force on an object is the vector sum of all forces acting on the object."))
+   (bottom-out (string "Write the equation for net force along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?fnet_xy) algebra)))
+   ))
 
 ;;; ==================== The gravitational force ==============================
 
@@ -5991,6 +5807,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out 
     (string "Define a variable for the gravitational acceleration of ~A by using the Add Variable command on the Variable menu and selecting gravitational acceleration."  ?planet))))
 
+
 ;;;; ========================== Newton's law ================================ 
 
 ;;; NL is newton's second law.  It is represented by several operators.  
@@ -6213,6 +6030,67 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((compo-eqn-contains (NL ?b ?t) NSL ?quantity))
  )
+
+;; This operator draws a free-body diagram consisting of the forces,
+;;; acceleration and axes. Unlike draw-fbd-lk (linear kinematics), it
+;;; doesn't draw velocity and displacement.  This is an unordered And
+;;; operator.
+
+;;; Unfortunately, the Andes vector drawing tools will add component
+;;; variables if the axes are already drawn.  The operators for vector
+;;; drawing don't do this.  Only the axis drawing operators define
+;;; component variables.  Thus, we must insure that axis goal is posed
+;;; *after* all the vectors are drawn.  Even though this operator is
+;;; unordered in that it doesn't force the student to do the
+;;; conditions in the specified order, the interpreter must achieve
+;;; those conditions in the specified order for the code to work.
+
+;;; In the last condition, only the x axis is requested. Drawing it
+;;; causes the other axes to be draw as well.
+
+;;; there are two mutually exclusive operators depending on whether
+;;; net force is to be shown or not. We only show net force if the
+;;; problem explicitly mentions it (i.e. seeks it.)
+(defoperator draw-nl-fbd (?b ?t)
+  
+  :specifications 
+   "If the goal is to draw a fbd for newton's law,
+   then draw a body, draw the forces, the acceleration and the axes,
+   in any order."
+  :preconditions
+  ((not (vector-diagram (NL ?b ?t)))
+   (not (use-net-force))
+   (forces ?b ?t ?forces)
+   (test ?forces)	;fail if no forces could be found
+   (vector ?b (accel ?b :time ?t) ?accel-dir)
+   (axis-for ?b ?xyz ?rot))
+  :effects
+   ((vector-diagram (NL ?b ?t)))
+  :hint
+   ((bottom-out (string "In order to draw a free-body diagram, which is the first step to applying Newton's law, draw (1) a body, (2) the forces on the body, (3) the acceleration of the body, and (4) coordinate axes."))))
+
+;; 
+;; Following draws a free-body diagram for the net-force variant of NL
+;;
+(defoperator draw-NL-net-fbd (?b ?t)
+  
+  :specifications 
+   "If the goal is to draw a fbd for newton's law in terms of net force,
+   then draw a body, draw the acceleration, draw the net force vector and the axes,
+   in any order."
+  :preconditions
+  ((not (vector-diagram (NL ?b ?t)))
+   (in-wm (use-net-force))
+   (body ?b)
+   ; we draw accel first so it's known at time of drawing net force
+   (vector ?b (accel ?b :time ?t) ?accel-dir)
+   (vector ?b (net-force ?b :time ?t) ?force-dir) 
+   (axis-for ?b x ?rot))
+  :effects
+   ((vector-diagram (NL ?b ?t)))
+  :hint
+   ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
+
  
 ;;; This operator writes newton's first law in component form for all
 ;;; forces.  This operator expects to get the body, time, axis label,
@@ -6340,6 +6218,115 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write Newton's Second Law along the ~a axis in terms of component variables, namely, ~a" ((axis ?xyz ?rot) symbols-label) ((= ?fnet-compo-var ?ma-term) algebra)))
    )
 )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;                  Newton's third law (NTL)
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; In theory NTL should apply to any force at all. However, we don't declare
+;;; every force agent an "object" (particle with kinematic properties), E.g. 
+;;; planes or ground or Earth are not usually declared objects, so can't 
+;;; actually use introduce reaction forces on these. This may have to change
+;;; but then it will multiply solutions since then could draw them and write 
+;;; NSL in terms of reaction force magnitudes. That would be odd but correct.
+(defoperator NTL-contains (?quantity)
+  :preconditions (
+  (any-member ?quantity (
+  		(mag (force ?b1 ?b2 ?type :time ?t))
+                        ))
+  ;; no need to test if action/reaction pair definable; fail later if not
+  ;; (force ?b1 ?b2 ?type ?t ?dir1 action) 
+  ;; (force ?b2 ?b1 ?type ?t ?dir2 reaction) 
+  ;; sort body names in id so NTL(b1, b2) gets same id as NTL(b2, b1)
+  (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
+  )
+  :effects ( 
+  	(eqn-contains (NTL ?body-pair ?type ?t) ?quantity) 
+  ))
+
+(defoperator NTL (?b1 ?b2 ?type ?t)
+  :preconditions (
+  (variable ?mag1-var (mag (force ?b1 ?b2 ?type :time ?t)))
+  (variable ?mag2-var (mag (force ?b2 ?b1 ?type :time ?t)))
+  )
+  :effects 
+  (
+   (eqn (= ?mag1-var ?mag2-var) (NTL (?b2 ?b1) ?type ?t)) 
+   (assume using-NTL (?b2 ?b1) ?type ?t)
+   (assume using-magnitude (NTL-vector (?b2 ?b1) ?type ?t)) ;mag xor compos
+   )
+  :hint
+  ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
+   (teach 
+      (kcd "third_law_PSM")
+      (string "Newton's Third Law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A. You can use that to equate the magnitudes of this pair of forces."))
+   (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
+  ))
+
+
+;;;
+;;; Vector form of NTL writes component equation F12_x = -F21_x
+;;;
+;;; Note the vector equation ID for this is incompatible with convention 
+;;; required by select-compo-eqn-for-scalar, according to which vector args 
+;;; start with body and time.  Should be OK, since NTL doesn't contain any 
+;;; scalars.
+;;;
+
+(defoperator NTL-vector-contains (?sought)
+  :preconditions (
+   (any-member ?sought ( (mag (force ?b1 ?b2 ?type :time ?t))
+  		         (dir (force ?b1 ?b2 ?type :time ?t)) ))
+   (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
+   )
+   :effects (
+   (eqn-family-contains (NTL-vector ?body-pair ?type ?t) ?sought) 
+    ;; since only one compo-eqn under this vector PSM, we can just
+    ;; select it now, rather than requiring further operators to do so
+    (compo-eqn-contains (NTL-vector ?body-pair ?type ?t) NTL ?sought)
+   ))
+
+(defoperator draw-NTL-vector-diagram (?b1 ?b2 ?type ?t)
+  :preconditions (
+    ;; Draw both bodies. 
+    (body ?b1)
+    (body ?b2)
+    (vector ?b1 (force ?b1 ?b2 ?type :time ?t) ?dir1)
+    (vector ?b2 (force ?b2 ?b1 ?type :time ?t) ?dir2)
+    ;; we need axis-for each body, since component defining operators will 
+    ;; lookup axis-for principal body of each vector. Our operators that
+    ;; draw axes only apply once, so there is no danger of drawing two
+    ;; axes. In order to reuse the axes drawn for body1 as axes used
+    ;; for vectors on body2, we added reuse-other-body-axis in axes section.
+    (axis-for ?b1 ?xyz ?x-rot1)
+    (axis-for ?b2 ?xyz ?x-rot2)
+  )
+  :effects (
+    (vector-diagram (NTL-vector (?b1 ?b2) ?type ?t))
+  ))
+  
+(defoperator write-NTL-vector (?b1 ?b2 ?type ?t ?xy ?rot)
+   :preconditions (
+      (variable ?F12_xy (compo ?xy ?rot (force ?b1 ?b2 ?type :time ?t)))
+      (variable ?F21_xy (compo ?xy ?rot (force ?b2 ?b1 ?type :time ?t)))
+   )
+   :effects (
+    (eqn (= ?F12_xy (- ?F21_xy)) (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t)))
+    (eqn-compos (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t))
+          (?F12_xy ?F21_xy))
+    (assume using-NTL (?b1 ?b2) ?type ?t)
+   )
+   :hint (
+     ;; !!! TODO
+     (point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?F12_xy algebra) (?F21_xy algebra)))
+   (teach 
+    (kcd "third_law_PSM")
+    (string "Newton's Third Law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction. This entails that the components of each force vector are the negations of the corresponding components of the other: F12_x = -F21_x and F12_y = -F21_y."))
+     (bottom-out (string "Write the equation ~A" 
+                         ((= ?F12_xy (- ?F21_xy)) algebra)))
+   ))
 
 
 ;;; ====================== tensions equal  =================
