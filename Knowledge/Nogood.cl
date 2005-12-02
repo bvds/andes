@@ -135,7 +135,7 @@
 ;; useful info.
 ;;          A signalled nogood error with unified triggers.
 
-(defun test-nogood (ng exps &optional (Bindings '((t . t))))
+(defun test-nogood (ng exps &optional (Bindings no-bindings))
   "Test a given nogood against a collected list of assumptions."
   (let ((Binds (list Bindings)))               ;Generate local binding storage.
     (loop for trigger in (nogood-triggers ng)  ;For each trigger in the triggers list.
