@@ -1310,7 +1310,7 @@
 (defoperator define-electric-energy (?b ?t)
   :preconditions 
   ( (object ?b)
-    (bind ?ge-var (format-sym "Ue_~A~@[_~A~]" ?b (time-abbrev ?t))) ) 
+    (bind ?ge-var (format-sym "Ue_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))) ) 
  :effects ( 
 	   (define-var (electric-energy ?b ?source :time ?t)) 
 	   (variable ?ge-var (electric-energy ?b ?source :time ?t)) 

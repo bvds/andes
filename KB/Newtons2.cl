@@ -2999,7 +2999,7 @@
   :preconditions 
   ((object ?b)
    (time ?t)
-   (bind ?radius-var (format-sym "r_~A~@[_~A~]" ?b (time-abbrev ?t)))) 
+   (bind ?radius-var (format-sym "r_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))) 
   :effects 
   ((variable ?radius-var (revolution-radius ?b :time ?t))
    (define-var (revolution-radius ?b :time ?t))) 
@@ -5384,7 +5384,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (vector ?b (accel ?b :time ?t-accel) ?dir-accel)
      (test (not (eq ?dir-accel 'unknown)))
      (test (tinsidep ?t ?t-accel))
-     (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" ?b (time-abbrev ?t)))
+     (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
     )
@@ -5411,7 +5411,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (or (null ?a-dirs) (member 'unknown ?a-dirs)))
    ;; make sure net-force has not already been drawn
    (not (vector ?b (net-force ?b :time ?t) ?any-dir))
-   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" ?b (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (debug "~&Drawing unknown net force for ~a at ~a.~%" ?b ?t)
    )
@@ -6641,50 +6641,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bottom-out (string "Write ~a" ((= ?te1-var ?te2-var) algebra)))
   ))
 
-#| ; total-energy now no longer called; only total-energy-top (which could be renamed) now used
-
-;;; Following writes an equation for total mechanical energy and also fills in
-;;; expressions for all of the constituent terms that occur in it, returning
-;;; the appropriate combination as a derived equation.  Ex:
-;;;       TME = K + R + Ug + Us                    (total-energy-top)
-;;;         K = 1/2 m*v^2
-;;;         R = 1/2 I*omega^2
-;;;        Ug = m*g*h
-;;;        Us = 1/2 k*x^2 
-;;;
-;;; The spring term is omitted for problems without a spring. Other forms of
-;;; potential energy (e.g. electrical) might be added in the future.
-;;;
-;;; This operation similar to writing a component equation then plugging in 
-;;; projections for all of the components in it.  Rather than use the technique
-;;; used for projections, we rely on a naming convention for the equations for 
-;;; the constituent terms, s.t. an expression for (energy-type ?b :time ?t) can 
-;;; be obtained by writing the equation named (energy-type ?b ?t)
-;;; This is because the associated (def-equation ...) in the Ontology
-;;; has this form.
-(defoperator write-total-energy (?b ?t)
- :preconditions (
-   ;; first get top-level equation summing constituents of total energy
-   (eqn (= ?te-var (+ . ?energy-vars)) (total-energy-top ?b ?t))
-   ;; map list of constituent energy vars from rhs to list of energy quants
-   (map ?var ?energy-vars
-        (in-wm (variable ?var ?quant))
-     ?quant ?energy-quants)
-   ;; Convert list of quantities to list of equation ids by
-   ;; removing :time keyword pair and appending time to end.
-   (bind ?energy-eqn-ids 
-	 (mapcar #'(lambda (q) (nconc (remove-time q) (list (time-of q))))
-		 ?energy-quants))
-   ;; Requires that each pe-quant-name and pe-equation id must be the same!
-   ;; generate equation for each constituent quantity, saving rhs exprs:
-   (map ?eqn-id ?energy-eqn-ids
-	(eqn (= ?var ?expr) ?eqn-id)
-     ?expr ?energy-exprs)
- )
- :effects (
-  (derived-eqn (= ?te-var (+ . ?energy-exprs)) (total-energy ?b ?t))
- ))
-|#
 
 ;;; equation TME = Translational Kinetic Energy + rotational energy 
 ;;;                    + Grav PE + Spring PE + Electrostatic PE
@@ -6961,7 +6917,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-total-energy (?b ?t)
   :preconditions (
 		  (object ?b)
-		  (bind ?TE-var (format-sym "TE_~A~@[_~A~]" ?b (time-abbrev ?t)))
+		  (bind ?TE-var (format-sym "TE_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (total-energy ?b :time ?t))
@@ -6974,7 +6930,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-kinetic-energy (?b ?t)
   :preconditions (
 		  (object ?b)
-		  (bind ?ke-var (format-sym "KE_~A~@[_~A~]" ?b (time-abbrev ?t)))
+		  (bind ?ke-var (format-sym "KE_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (kinetic-energy ?b :time ?t))
@@ -6987,7 +6943,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-rotational-energy (?b ?t)
   :preconditions (
 		  (object ?b)
-		  (bind ?re-var (format-sym "RE_~A~@[_~A~]" ?b (time-abbrev ?t)))
+		  (bind ?re-var (format-sym "RE_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (rotational-energy ?b :time ?t))
@@ -7000,7 +6956,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-grav-energy (?b ?planet ?t)
  :preconditions 
  ( (object ?b)
-   (bind ?ge-var (format-sym "Ug_~A~@[_~A~]" ?b (time-abbrev ?t))) ) 
+   (bind ?ge-var (format-sym "Ug_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))) ) 
  :effects ( 
 	   (define-var (grav-energy ?b ?planet :time ?t)) 
 	      (variable ?ge-var (grav-energy ?b ?planet :time ?t)) 
@@ -7012,7 +6968,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-spring-energy (?b ?spring ?t)
   :preconditions ( 
 		  (object ?b)
-		  (bind ?se-var (format-sym "Us_~A~@[_~A~]" ?b (time-abbrev ?t)))
+		  (bind ?se-var (format-sym "Us_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
 		  ) 
   :effects ( 
 	    (define-var (spring-energy ?b ?spring :time ?t))
@@ -7024,7 +6980,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator define-height (?body ?time)
   :preconditions 
-  ( (bind ?h-var (format-sym "h_~A~@[_~A~]" ?body (time-abbrev ?time))) )
+  ( (bind ?h-var (format-sym "h_~A~@[_~A~]" (body-name ?body) (time-abbrev ?time))) )
   :effects ( (variable ?h-var (height ?body :time ?time))
 	     (define-var (height ?body :time ?time)) )
   :hint (
@@ -8046,7 +8002,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ((motion ?b at-rest :time ?t-motion)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
-    (bind ?mag-var (format-sym "p_~A~@[_~A~]" ?b (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     ;; allow student to draw velocity vector, which might not otherwise
     ;; be needed for the solution
     (optional (vector ?b (velocity ?b :time ?t) zero))
