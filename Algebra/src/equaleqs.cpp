@@ -7,7 +7,7 @@
  *		locations)						*
  *	It would probably be better if we said (+ A B) equals (+ B A), 	*
  *		but this doesn't					*
- *	Note: numerical tolerance relative accuracy relerr (=1.e-11)	*
+ *	Note: numerical tolerance relative accuracy RELERR	        *
  ************************************************************************/
 #include "decl.h"
 #include "dbg.h"
@@ -30,6 +30,7 @@ bool equaleqs(const expr * exp1, const expr * exp2)
     {
     case numval:
       answer = ((exp2->etype == numval) &&
+		exp1->MKS == exp2->MKS &&
 	       (fabs( ((numvalexp *)exp1)->value 
 		      - ((numvalexp *)exp2)->value)
 		<= RELERR *
