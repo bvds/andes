@@ -1526,7 +1526,7 @@
    (test (time-intervalp ?interval))
    (object ?b)
    (not (variable ?dont-care (distance ?b :time ?interval)))
-   (bind ?var (format-sym "dist_~A_~A" ?b (time-abbrev ?interval))))
+   (bind ?var (format-sym "dist_~A_~A" (body-name ?b) (time-abbrev ?interval))))
   :effects
   ((variable ?var (distance ?b :time ?interval))
    (define-var (distance ?b :time ?interval)))
