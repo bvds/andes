@@ -1497,21 +1497,21 @@
 ;;; Thus, it only produces a speed variable when there is a goal to
 ;;; have one.  
 
-(defoperator define-speed (?b ?interval)
+(defoperator define-speed (?b ?t)
   :specifications "
    If there is time interval and an object,
    then you can define a speed of the object"
   :preconditions
-   ((time ?interval)
-    (test (time-intervalp ?interval))
+   ((time ?t)
+    (test (time-intervalp ?t))
     (object ?b)
-    (not (variable ?dont-care (speed ?b :time ?interval)))
-    (bind ?var (format-sym "sp_~A_~A" ?b (time-abbrev ?interval))))
+    (not (variable ?dont-care (speed ?b :time ?t)))
+    (bind ?var (format-sym "sp_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
-  ((variable ?var (speed ?b :time ?interval))
-   (define-var (speed ?b :time ?interval)))
+  ((variable ?var (speed ?b :time ?t))
+   (define-var (speed ?b :time ?t)))
   :hint
-  ((bottom-out (string "Use the speed menu item under the Variables menu to define a variable for the speed of ~a ~a." ?b ?interval))
+  ((bottom-out (string "Use the speed menu item under the Variables menu to define a variable for the speed of ~a ~a." ?b (?t pp)))
    ))
 
 ;; This operator defines a distance-travelled variable.  Same comments
