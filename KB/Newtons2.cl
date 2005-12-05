@@ -7495,40 +7495,24 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((in-wm (use-work))
    (any-member ?sought ( 
              (net-work ?b :time (during ?t1 ?t2)) 
-	     (mag (velocity ?b :time ?t1))
-	     (mag (velocity ?b :time ?t2))
-	     (mass ?b)
+	     (kinetic-energy ?b :time ?t1)
+	     (kinetic-energy ?b :time ?t2)
 	     ))
   (time (during ?t1 ?t2)))
  :effects 
-  ((derived-eqn-contains (work-energy ?b (during ?t1 ?t2)) ?sought)))
-
-(defoperator write-work-energy (?b ?t1 ?t2)
- :preconditions (
-    ; draw body and standard axes for principle
-    (body ?b)
-    (axis-for ?b x 0)
-
-    ; write fundamental principle Wnet = ke2 - ke1
-    (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-delta-ke ?b ?t1 ?t2))
-    ; write out ke1 = 0.5 * m * v1^2
-    (eqn (= ?ke1-var ?ke1-val) (kinetic-energy ?b ?t1))
-    ; write out ke2 = 0.5 * m * v2^2
-    (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b ?t2))
- )
- :effects ; post derived summary equation using written out ke terms
-  ((derived-eqn (= ?Wnet-var (- ?ke2-val ?ke1-val)) 
-                (work-energy ?b (during ?t1 ?t2))))
-)
+  ((eqn-contains (work-energy ?b (during ?t1 ?t2)) ?sought)))
 
 ;;; Write work = delta ke without writing out values for the ke terms.
-(defoperator write-work-delta-ke (?b ?t1 ?t2)
+(defoperator write-work-energy (?b ?t1 ?t2)
   :preconditions 
-   ((variable ?Wnet-var (net-work ?b :time (during ?t1 ?t2)))
+   ( ; draw body and standard axes for principle
+    (body ?b)
+    (axis-for ?b x 0)
+    (variable ?Wnet-var (net-work ?b :time (during ?t1 ?t2)))
     (variable ?ke1-var (kinetic-energy ?b :time ?t1))
     (variable ?ke2-var (kinetic-energy ?b :time ?t2)))
   :effects 
-  ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-delta-ke ?b ?t1 ?t2)))
+  ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2))))
   :hint (
    (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
    (teach (string "The work-energy principle states that the net work done on an object by all forces over an interval is equal to the change in its kinetic energy over that interval"))

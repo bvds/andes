@@ -1057,7 +1057,7 @@
 ;; However, it is actually the top-level sub-equation id that is attached 
 ;; the equation entry students much match. So we duplicate the psm info in 
 ;; declaring the top-level sub equations, and mark them major for grading.
-;; Same structure applies to Wnet = K2-K1 and Wnc = ME2-ME1
+;; Same structure applies to Wnc = ME2-ME1
 (def-equation tme-cons (total-energy-cons ?b ?t1 ?t2)
    :english ("the conservation of mechanical energy")
    :complexity major
@@ -1068,11 +1068,6 @@
   :english ("change in mechanical energy")
   :EqnFormat("Wnc = ME2 - ME1"))
 
-(def-equation work-delta-ke (work-delta-ke ?body ?time0 ?time1)
-  :complexity major
-  :english ("the work-kinetic energy theorem")
-  :EqnFormat ("Wnet = Kf - Ki"))
-
 ;; Following subequations define constituents of top-level energy principles.
 ;; all are declared definitions so can be substituted in.
 (def-equation mechanical-energy  (total-energy-top ?body ?time) 
@@ -1080,22 +1075,23 @@
    :complexity definition
    :EqnFormat ("ME = KE + $S Ui"))
 
-(def-equation kinetic-energy (kinetic-energy ?body ?time)
+; These are now top level psms, not subequations:
+(def-psmclass kinetic-energy (kinetic-energy ?body ?time)
   :english ("the definition of kinetic energy")
   :complexity definition
   :EqnFormat ("KE = 0.5*m*v^2"))
 
-(def-equation rotational-energy (rotational-energy ?body ?time)
+(def-psmclass rotational-energy (rotational-energy ?body ?time)
   :english ("the definition of rotational kinetic energy")
   :complexity definition
   :EqnFormat ("KE = 0.5*I*$w^2"))
 
-(def-equation grav-energy (grav-energy ?body ?time)
+(def-psmclass grav-energy (grav-energy ?body ?time)
    :english ("gravitational potential energy")
    :complexity definition
    :EqnFormat ("Ug = m*g*h"))
 
-(def-equation spring-energy (spring-energy ?body ?time)
+(def-psmclass spring-energy (spring-energy ?body ?time)
    :english ("spring potential energy")
    :complexity definition
    :EqnFormat ("Us = 0.5*k*d^2"))
