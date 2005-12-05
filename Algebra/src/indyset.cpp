@@ -42,27 +42,39 @@ bool indyset::isindy(const expr * const candex)
   return(answer);
 }
 
+// BvdS:  assume relative error for elements of candval->gradient and 
+//        basis are less than RELERR.
+
 bool indyset::isindy(const valander * const candval)
 {
-  candleft.assign(numvars,0.0);
   candleft = candval->gradient;
   candexpand.assign(numinset,0);
+  vector<double> candleft_err(numvars);
+  for (int q = 0; q < numvars; q++) 
+    candleft_err[q] = fabs(candval->gradient[q])*RELERR;
   // write the gradient of the new expression as a sum of basis vectors b_k
   // times candexpand[k], + candleft
   for (int k = 0; k < numinset; k++)
     {
       int thisvar = ordervar[k];
       double coef = candleft[thisvar]/basis[k][thisvar];
+      double coef_err = candleft_err[thisvar]/fabs(basis[k][thisvar])
+	+ RELERR*fabs(coef);
       for (int q = 0; q < numvars; q++) 
 	{
-	  double chkerr = fabs(candleft[q])+ fabs(coef*basis[k][q]);
 	  candleft[q] += -coef*basis[k][q];
-	  if (fabs(candleft[q]) < RELERR * chkerr)
+	  candleft_err[q] +=  coef_err*fabs(basis[k][q])
+	    + fabs(coef*basis[k][q])*RELERR;
+	  if(candleft[q]==0. && candleft_err[q]==0.) continue; // nothing to do
+	  if (fabs(candleft[q]) < candleft_err[q])
 	    {
 	      DBG( cout << "setting candleft[" << q << "] = " << candleft[q] 
-		   << " to zero with chkerr = " << chkerr << endl);
-	      candleft[q] = 0;
-	  }
+		   << " to zero" << endl);
+	      candleft[q] = 0.0;
+	      candleft_err[q] = 0.0;
+	  } else if (fabs(candleft[q]) < 1000.0 * candleft_err[q])
+	      DBG( cout << "candleft[" << q << "] = " << candleft[q] 
+		   << ", candleft_err=" << candleft_err[q] << endl);
 	}
       candexpand[k] = coef;
     }
