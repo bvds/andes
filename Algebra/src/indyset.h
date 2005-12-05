@@ -18,6 +18,7 @@ class indyset
 private:
   vector<vector<double> > basis;   // basis vectors for gradients already in
 				// the set of independent equations.
+  vector<vector<double> > basis_err;   // associated errors
   int numvars;
   int numinset;
   vector<int> ordervar;		// order of variables to eliminate. 
@@ -30,6 +31,7 @@ private:
   vector<double> candexpand;	// expansion of candidate gradient in terms
 				// of basis (not expr - this is done on req)
   vector<double> candleft;	// gradient of cand minus stuff from candexpand
+  vector<double> candleft_err;	// associated error
 public:
   indyset(int numvars);
   bool isindy(const expr * const candex);
