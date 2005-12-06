@@ -90,7 +90,7 @@ bool indyset::isindy(const valander * const candval)
   DBG(cout << "Leaving isindy with coefs "; printdv(candexpand);
       cout << "and with remaining gradient "; printdv(candleft);) ;
 
-  for (int q = 0; q < numvars; q++) if (candleft[q] != 0) return(true);
+  for (int qq = 0; qq < numvars; qq++) if (candleft[qq] != 0) return(true);
   return(false);
 }
 
