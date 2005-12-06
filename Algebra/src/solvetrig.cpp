@@ -276,7 +276,9 @@ bool solvetrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      // about to make (*eqn)[k] be  tempvar * fa + fb = 0
 	      n_opexp * tempnop = new n_opexp(&mult);
 	      tempnv = new numvalexp(tempvar);
-	      tempnv->MKS.put(0,0,0,0,0);
+	      // c2 and k2 have matching units (tested above),
+	      // take the units that are better known.
+	      tempnv->MKS=(c2->MKS.unknp()?k2->MKS:c2->MKS);
 	      tempnop->addarg(tempnv);
 	      tempnop->addarg(fa);
 	      eqlhs = new n_opexp(&myplus);
@@ -325,7 +327,7 @@ bool trigsearch(const expr * const arg, expr * & coef,
 
   // if it returns true, are not coef and oside always nonzero? if so,
   // don't need all the checking below
-#define DEBUG_TRIGSEARCH 1
+#define DEBUG_TRIGSEARCH 0
 #if DEBUG_TRIGSEARCH
 #ifdef WITHDBG // for debugging
   static int trigsearchcall=0;    
