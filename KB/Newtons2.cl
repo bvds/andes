@@ -6748,12 +6748,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; equation KE = 1/2 * m * v^2
 
 (defoperator kinetic-energy-contains (?sought)
-  :preconditions (
-    (any-member ?sought ((kinetic-energy ?body :time ?t)
-                         (mag (velocity ?body :time ?t))
-		         (mass ?body)))
+  :preconditions 
+  (
+   (any-member ?sought ((kinetic-energy ?body :time ?t)
+			(mag (velocity ?body :time ?t))
+			(mass ?body :time ?t ?t)))
    (time ?t) ; choose t if sought is mass
-  )
+   ;; if we did allow an interval, would need test for constant v
+   (test (time-pointp ?t)) 
+   )
   :effects (
     (eqn-contains (kinetic-energy ?body ?t) ?sought)
   ))
@@ -6780,11 +6783,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
 (defoperator rotational-energy-contains (?sought)
-  :preconditions (
-    (any-member ?sought ((rotational-energy ?body :time ?t)
-                         (mag (ang-velocity ?body :time ?t))
-		         (moment-of-inertia ?body :time ?t)))
-  )
+  :preconditions 
+  (
+   (any-member ?sought ((rotational-energy ?body :time ?t)
+			(mag (ang-velocity ?body :time ?t))
+			(moment-of-inertia ?body :time ?t ?t)))
+   (time ?t) ;choose ?t for timeless moment-of-inertia
+   ;; if we did allow an interval, would need test for constant omega
+   (test (time-pointp ?t)) 
+   )
   :effects (
     (eqn-contains (rotational-energy ?body ?t) ?sought)
   ))
@@ -6813,7 +6820,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator grav-energy-contains (?sought)
   :preconditions (
     (any-member ?sought ((grav-energy ?body ?planet :time ?t)
-                         (mass ?body)
+                         (mass ?body :time ?t ?t)
 		         (gravitational-acceleration ?planet)
                          (height ?cm :time ?t)))
     (object ?body)	; must choose if sought is g 
@@ -6854,6 +6861,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (object ?body)	; must choose if sought is k or d
     (time ?t)		; must choose if sought is k
     (spring-contact ?body ?spring ?t-contact ?sforce-dir)
+    ;; if we did allow an interval, would need test for constant compression
+    (test (time-pointp ?t)) 
   )
   :effects (
     (eqn-contains (spring-energy ?body ?spring ?t) ?sought)
