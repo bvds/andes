@@ -31,7 +31,7 @@ const int HELPEQSZ = 70;	/* number of slots including implicit eqs */
 // This is a bit larger than machine epsilon in case there is
 // some accumulated roundoff error
 #include <float.h>
-#define RELERR (32*DBL_EPSILON)
+#define RELERR (100*DBL_EPSILON)
 
 //////////////////////////////////////////////////////////////////////////////
 // globals defined here

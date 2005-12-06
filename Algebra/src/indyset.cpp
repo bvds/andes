@@ -44,6 +44,14 @@ bool indyset::isindy(const expr * const candex)
 
 // BvdS:  assume relative error for elements of candval->gradient
 //        is less than RELERR.
+// Constructing an orthogonal basis from a set of vectors
+// is a standard problem in linear algebra.  In particular,
+// methods of handling roundoff errors are well-established.
+// Thus, one should use a standard library routine to do this.
+//
+// The fact that I needed to add explicit error propogation along
+// with such a large value of RELERR suggests that the routine here
+// is seriously flawed.
 
 bool indyset::isindy(const valander * const candval)
 {
@@ -69,7 +77,7 @@ bool indyset::isindy(const valander * const candval)
 	  if (fabs(candleft[q]) < candleft_err[q])
 	    {
 	      DBG( cout << "setting candleft[" << q << "] = " << candleft[q] 
-		   << " to zero" << endl);
+		   << " < " << candleft_err[q] << " to zero" << endl);
 	      candleft[q] = 0.0;
 	      candleft_err[q] = 0.0;
 	  } else if (fabs(candleft[q]) < 1000.0 * candleft_err[q])
@@ -139,24 +147,24 @@ vector<double> indyset::expandlast()
   DBG(    cout << "Entering indyset::expandlast" << endl; );
   vector<double> ret = *new vector<double>(numinset,0.0);
   for (int k = 0; k < numinset; k++) 
-  {
-	// AW: add check for addition result that should be set to zero.
-	// followup check on final coeffs in indyHowIndy may not use appropriate 
-	// scale if we subtract large numbers here with small differences, but all
-	// final coeffs wind up small (pot3b indy bug, email 1/22/04).
-	double maxadd = 0.0;       // max abs addend, for zero check below.
-    for (int q = k; q < numinset; q++)
+    {
+      // AW: add check for addition result that should be set to zero.
+      // followup check on final coeffs in indyHowIndy may not use appropriate 
+      // scale if we subtract large numbers here with small differences, but all
+      // final coeffs wind up small (pot3b indy bug, email 1/22/04).
+      double ret_err = 0.0;       // max abs addend, for zero check below.
+      for (int q = k; q < numinset; q++)
 	{	  
-	   double addend = candexpand[q] * basexpand[q][k];
-	   if (fabs(addend) > maxadd)  maxadd = fabs(addend);
-	   ret[k] += addend;
+	  double addend = candexpand[q] * basexpand[q][k];
+	  // the errors for candexpand and basexpand are actually much larger
+	  ret_err += 2*RELERR*fabs(addend);
+	  ret[k] += addend;
 	}
-	// check sum wrt maxadd to see if it should be zero
-    if (fabs(ret[k]) < RELERR * maxadd) {
-	    ret[k] = 0;
-		DBG ( cout << "ret[k] set to 0" << endl);
-	}
-  }
+      if (fabs(ret[k]) < ret_err) {
+	ret[k] = 0;
+	DBG ( cout << "ret[k] set to 0" << endl);
+      }
+    }
   lastisvalid = false;
   return(ret);
 }
