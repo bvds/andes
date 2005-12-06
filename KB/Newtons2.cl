@@ -6642,12 +6642,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
 
-;;; equation TME = Translational Kinetic Energy + rotational energy 
+;;; equation TME = Translational Kinetic Energy + Rotational KE
 ;;;                    + Grav PE + Spring PE + Electrostatic PE
 ;;; !!! spring PE term could just be omitted if spring not extended at t
 (defoperator write-total-energy-top (?b ?t)
-  :preconditions (
+  :preconditions 
+  (
    (variable ?te-var (total-energy ?b :time ?t))
+   ;; can't collect potential energy if not all are defined
+   (not (unknown-potentials))	  
    ;; define variable for each type of energy that applies in this problem
    (setof (ee-var ?b ?t ?var) ?var ?ee-vars)
    (test ?ee-vars)  ;make sure there is something
