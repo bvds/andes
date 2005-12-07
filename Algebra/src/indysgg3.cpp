@@ -28,8 +28,6 @@ using namespace std;
 extern vector<valander *> studgrads;
 int indyAddStudEq(int slot, const char* const equation);	// in indysgg
 extern bool gotthevars;					// in indysgg.cpp
-int checksol(const binopexp* const eqn, 		// in checksol.cpp
-	     const vector<double>* const sols, const double reltverr);
 numvalexp * getfromunits(const string & unitstr);	// in unitabr.cpp
 
 /************************************************************************

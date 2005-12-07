@@ -15,15 +15,17 @@
 #define DBGM(A) DBGFM(CHKSOL,A)
 
 #ifdef FAKEDEG
-  #define DEG2RAD DEGTORAD
+#define DEG2RAD DEGTORAD
 #else
-  #define DEG2RAD 1.
+#define DEG2RAD 1.
 #endif
 
+string FPE_handler("FPE:  ");
+
 class answitherr { // evaluation of an expression with error est
-  public:
-    double value;
-    double abserr;
+public:
+  double value;
+  double abserr;
 };
 
 answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
@@ -38,32 +40,39 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
  *    0 if seems within error bars                                      *
  *    1 if within 100 * error bars                                      *
  *    2 if not within 100 * error bars                                  *
+ *    3 floating point error (really, really not ok)                    *
  * NOTE: currently the error bar calculation has faults                 *
  ************************************************************************/
 int checksol(const binopexp* const eqn, const vector<double>* const sols,
 	     const double reltverr) {
   DBG(cout << "entered checksol" << endl);
+  answitherr* value;
   expr* eqexpr = copyexpr(eqn); // g++ refused this without copyexpr
-  answitherr* value = evalexpr(eqexpr, sols, reltverr);
+  try {
+    value = evalexpr(eqexpr, sols, reltverr);
+  } 
+  catch (string &err){
+    eqexpr->destroy();
+    DBG(cout << " ERROR " << err << endl);
+    if(FPE_handler==err.substr(0,FPE_handler.length()))  //if beginning matches
+      return(3);
+    else {
+      throw(err);
+    }
+  }
   eqexpr->destroy();
   DBGM(cout << "Eqn " << eqn->getInfix() <<
-      " balenced with discrepancy " << value->value 
-           << " and absolute error " << value->abserr << endl);
-  // AW: after taking out "dubious" hacks below, need to handle case 
-  // where lhs and rhs both exactly 0, so that abserr also comes out 0. 
-  // Changed to use <= tests on error range to allow for this.
-  if ((fabs(value->value) <= value->abserr) 
-      // dubious - not good for nuclear phys:
-      /*|| (fabs(value->value) < reltverr)*/) {
+       " balenced with discrepancy " << value->value 
+       << " and absolute error " << value->abserr << endl);
+  if ((fabs(value->value) <= value->abserr)) {
     DBG(cout << " seems OK" << endl);
     return(0);
-  } else if ((fabs(value->value) <= 100 * value->abserr) 
-	     /*|| (fabs(value->value) < 100 * reltverr)*/) {// dubious as above
+  } else if ((fabs(value->value) <= 100 * value->abserr)) {
     DBG(cout << " NOT REALLY OK" << endl);
     return(1);
   } else {
     DBG(cout << " seems VERY NOT OK on" << endl; cout << eqn->getInfix() 
-             << endl);
+	<< endl);
     return(2);
   }
 }
@@ -88,79 +97,86 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
   answitherr* retval = new answitherr;
   int k;
   
-  DBG(cout << "entered evalexpr with reltverr = " << reltverr 
-	    << " on" << endl << ex->getInfix() << endl;);
+#ifdef WITHDBG // for debugging
+  static int call=0;    
+  int thiscall=call++;  
+#endif
+  DBG(cout << "evalexpr call " << thiscall << " for " 
+      << ex->getInfix() << " with reltverr = " << reltverr << endl);
   switch (ex->etype) {
-    case numval:
-      retval->value = ((numvalexp*)ex)->value;
-      retval->abserr = reltverr * fabs(retval->value);
-      DBG(cout  << "Evalexpr[numval]: " 
-	  << retval->value << "+-" << retval->abserr << endl;);
-      return(retval);
+  case numval:
+    retval->value = ((numvalexp*)ex)->value;
+    retval->abserr = reltverr * fabs(retval->value);
+    DBG(cout << "evalexpr call " << thiscall << " numval returning " 
+	<< retval->value << "+-" << retval->abserr << endl);
+    return(retval);
+    break;
+
+  case physvart:
+    retval->value = (*sols)[((physvarptr *) ex)->varindex];
+    retval->abserr = reltverr * fabs(retval->value);
+    DBG(cout << "evalexpr call " << thiscall << " physvar returning " 
+	<< retval->value << "+-" << retval->abserr << endl;);
+    return(retval);
+
+  case function: {
+    answitherr* argval = evalexpr(((functexp *)ex)->arg,sols, reltverr);
+    switch(((functexp *)ex)->f->opty) {    // remember, if FAKEDEG, trig 
+    case sine:                // functions in degrees! if not, trig functions
+      retval->value = sin(DEG2RAD * argval->value);      //  of radians
+      retval->abserr = max(fabs(cos(DEG2RAD * argval->value) 
+				* DEG2RAD * (argval->abserr)), reltverr);
       break;
-
-    case physvart:
-      retval->value = (*sols)[((physvarptr *) ex)->varindex];
-      retval->abserr = reltverr * fabs(retval->value);
-      DBG(cout  << "Evalexpr[physvar]: " 
-	  << retval->value << "+-" << retval->abserr << endl;);
-      return(retval);
-
-    case function: {
-      answitherr* argval = evalexpr(((functexp *)ex)->arg,sols, reltverr);
-      switch(((functexp *)ex)->f->opty) {    // remember, if FAKEDEG, trig 
-      case sine:                // functions in degrees! if not, trig functions
-	retval->value = sin(DEG2RAD * argval->value);      //  of radians
-	retval->abserr = max(fabs(cos(DEG2RAD * argval->value) 
-				  * DEG2RAD * (argval->abserr)), reltverr);
-	break;
-      case cose:
-	retval->value = cos(DEG2RAD * argval->value);
-	retval->abserr = max(fabs(sin(DEG2RAD * argval->value) 
-				  * DEG2RAD * (argval->abserr)), reltverr);
-	break;
-      case tane:
-	retval->value = tan(DEG2RAD * argval->value);
-	retval->abserr = fabs((1.0 + pow(retval->value,2)) 
-			      * DEG2RAD * (argval->abserr));
-	break;
-      case expe:
-	retval->value = exp(argval->value);
-	retval->abserr = fabs(retval->value * argval->abserr);
-	break;
-      case lne:
-	retval->value = log(argval->value);
-	retval->abserr = fabs(argval->abserr / retval->value);
-	break;
-      case log10e:
-	retval->value = log10(argval->value);
-	retval->abserr = fabs(argval->abserr / (retval->value * log(10.0)));
-	break;
-      case sqrte:
-	retval->value = sqrt(argval->value);
-	if (retval->value > reltverr) {
-	  retval->abserr = (argval->abserr / (2.0 * retval->value));
-	} else {
-	  retval->abserr = sqrt(argval->abserr);
-	}
-	break;
-      case abse:
-	retval->value = fabs(argval->value);
-	retval->abserr = argval->abserr;
-	break;
-      default:
-	throw(string("impossible function in evalexpr"));
+    case cose:
+      retval->value = cos(DEG2RAD * argval->value);
+      retval->abserr = max(fabs(sin(DEG2RAD * argval->value) 
+				* DEG2RAD * (argval->abserr)), reltverr);
+      break;
+    case tane:
+      retval->value = tan(DEG2RAD * argval->value);
+      retval->abserr = fabs((1.0 + pow(retval->value,2)) 
+			    * DEG2RAD * (argval->abserr));
+      break;
+    case expe:
+      retval->value = exp(argval->value);
+      retval->abserr = fabs(retval->value * argval->abserr);
+      break;
+    case lne:
+      retval->value = log(argval->value);
+      retval->abserr = fabs(argval->abserr / retval->value);
+      break;
+    case log10e:
+      if(argval->value<=0)throw(FPE_handler + string("log of negative"));
+      retval->value = log10(argval->value);
+      retval->abserr = fabs(argval->abserr / (retval->value * log(10.0)));
+      break;
+    case sqrte:
+      if(argval->value<=0)throw(FPE_handler + string("sqrt of negative"));
+      retval->value = sqrt(argval->value);
+      if (retval->value > reltverr) {
+	retval->abserr = (argval->abserr / (2.0 * retval->value));
+      } else {
+	retval->abserr = sqrt(argval->abserr);
       }
-      DBG(cout  << "Evalexpr[function]: " 
-	  << retval->value << "+-" << retval->abserr << endl;);
-      delete argval;
-      return(retval);
+      break;
+    case abse:
+      retval->value = fabs(argval->value);
+      retval->abserr = argval->abserr;
+      break;
+    default:
+      throw(string("impossible function in evalexpr"));
     }
+    DBG(cout << "evalexpr call " << thiscall << " function returning " 
+	<< retval->value << "+-" << retval->abserr << endl;);
+    delete argval;
+    return(retval);
+  }
   case binop: {
     answitherr* lhsval = evalexpr(((binopexp*)ex)->lhs,sols,reltverr);
     answitherr* rhsval = evalexpr(((binopexp*)ex)->rhs,sols,reltverr);
     switch(((binopexp*)ex)->op->opty) {
     case divbye:
+      if(rhsval->value==0.0) throw(FPE_handler + string("divide by zero"));
       retval->value = lhsval->value/rhsval->value;
       retval->abserr = lhsval->abserr/fabs(rhsval->value) 
 	+ rhsval->abserr * fabs(lhsval->value/pow(rhsval->value,2));
@@ -189,8 +205,8 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     default:
       throw(string("I can't return eval of >=, >, or unknown expr"));
     }
-    DBG( cout  << "Evalexpr[binop]: " 
-	 << retval->value << "+-" << retval->abserr << endl;);
+    DBG(cout << "evalexpr call " << thiscall << " binop returning " 
+	<< retval->value << "+-" << retval->abserr << endl;);
     return(retval);
   }
   case n_op: {
@@ -222,9 +238,9 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     }
     delete argval;
   }
-  DBG(cout << "Evalexpr[n_op]: " 
-      << retval->value << "+-" << retval->abserr << endl;);
-  return(retval);
+    DBG(cout << "evalexpr call " << thiscall << " n_op returning " 
+	<< retval->value << "+-" << retval->abserr << endl);
+    return(retval);
   case unknown:
   case fake:
   default:

@@ -21,8 +21,6 @@ using namespace std;
 bool getCanonEqn(const string bufst);                    // in getaneqwu.cpp
 bool getStudEqn(int slot,const string bufst);            // in getaneqwu.cpp
 numvalexp * getfromunits(const string & unitstr);        // in unitabr.cpp
-int checksol(const binopexp * const eqn, const vector<double> * const sols,
-	     const double reltverr);
 
 //  Need global variables
 bool setupdone = false;        // set the first time indyEmpty is called, 
