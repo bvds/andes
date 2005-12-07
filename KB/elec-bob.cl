@@ -49,8 +49,8 @@
     )
   :soughts (
     (mag (force particle unspecified electric :time 1))
-    ; Problem with seeking directions of drawn vectors:
-    ;(dir (force particle field electric :time 1))
+    ;; Problem with seeking directions of drawn vectors:
+    ;; (dir (force particle field electric :time 1))
   )
 )
 
@@ -151,8 +151,10 @@
     (given (mag (displacement electron :time (during 1 2))) 
       (dnum 0.015 |m|))
     (constant (accel electron) (during 1 2))
+     ;; Although there is an electrostatic potential, we don't 
+     ;; have any rules to derive it.
+    (unknown-potentials)
   )
-  :ignorePSMS (cons-energy total-energy-cons linear-momentum momentum total-energy-top kinetic-energy total-energy)
   :soughts (
     (mag (velocity electron :time 2))
   )
@@ -191,8 +193,10 @@
     (motion proton (straight constant (dnum 0 |deg|)) :time 2)      
     (given (mag (velocity proton :time 2)) (dnum 1.20E+5 |m/s|))
     (constant (accel proton) (during 1 2))
+     ;; Although there is an electrostatic potential, we don't 
+     ;; have any rules to derive it.
+    (unknown-potentials)
   )
-  :ignorePSMS (cons-energy total-energy-cons linear-momentum momentum total-energy-top kinetic-energy total-energy)
   :soughts (
     (duration (during 1 2))
   )
