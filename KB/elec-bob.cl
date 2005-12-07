@@ -232,8 +232,10 @@
     (motion proton (straight constant (dnum 180 |deg|)) :time 2)      
     (given (mag (velocity proton :time 2)) (dnum 7.20E+3 |m/s|))
     (constant (accel proton) (during 1 2))
+     ;; Although there is an electrostatic potential, we don't 
+     ;; have any rules to derive it.
+    (unknown-potentials)
   )
-  :ignorePSMS (cons-energy total-energy-cons linear-momentum momentum total-energy-top kinetic-energy total-energy)
   :soughts (
     (mag (displacement proton :time (during 1 2)))
   )
@@ -274,8 +276,10 @@
     (motion electron (straight slow-down (dnum 90 |deg|)) :time (during 1 2))
     (motion electron momentarily-at-rest :time 2)
     (constant (accel electron) (during 1 2))
+     ;; Although there is an electrostatic potential, we don't 
+     ;; have any rules to derive it.
+    (unknown-potentials)
   )
-  :ignorePSMS (cons-energy total-energy-cons momentum linear-momentum total-energy-top kinetic-energy total-energy)
   :soughts (
     (mag (displacement electron :time (during 1 2)))
   )
