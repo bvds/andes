@@ -4821,7 +4821,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (test (tinsidep ?t ?t-force))
     ;; check that something else hasn't defined this force.
     (not (force ?b ?agent thrust ?t . ?dont-care)) ) 
-  :effects ( (force ?body ?agent thrust ?t ?dir action) ))
+  :effects ( 
+	    (force ?body ?agent thrust ?t ?dir action) 
+	    (force-given-at ?body ?agent thrust ?t-force ?dir action)
+	    ))
 
 ;; draw thrust force in a known direction
 (defoperator draw-thrust-force (?b ?agent ?t)
@@ -6587,10 +6590,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (tintersect2 ?t-friction `(during ,?t1 ,?t2)))
   (not (drag    ?b ?medium                         ?t-drag)
        (tintersect2 ?t-drag `(during ,?t1 ,?t2)))
-  ;; Also not conserved if an external work source is given (may not
-  ;; be able to find force in this case, but still told it is doing work).
+  ;; Also not conserved if a (possibly unknown) external work source is given 
+  ;; (the associated force may not be defined, but it is still doing work).
   (not (does-work-on ?agent ?b ?t-work)
        (tintersect2 ?t-work `(during ,?t1 ,?t2)))
+  (not (unknown-work-agents))
   ;; make sure we can determine all forces:
   (not (unknown-forces))
   )
@@ -7440,7 +7444,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   ((any-member ?sought  ((net-work ?b :time ?t) 
 	                 (work ?b ?agent :time ?t)))
-  ; make sure we can determine all agents doing work
+   ;; Can't collect (does-work-on ..) if some work agents are unknown;
+   ;; (unknown-work-agents) means that a work agent is neither specified
+   ;; as a force, nor specified via (does-work-on ...).
   (not (unknown-work-agents))
   (test (time-consecutivep ?t)))  ;only apply to consecutive times
   :effects 
@@ -7609,7 +7615,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ; during smaller interval.
   (any-member ?sought ( (work ?body ?agent :time ?t)
                         (work-nc ?body :time ?t) ))
- )
+  ;; Can't collect (nc-work-during ..) if some work agents are unknown;
+  ;; (unknown-work-agents) means that a work agent is neither specified
+  ;; as a force, nor specified via (does-work-on ...).
+  (not (unknown-work-agents))
+  )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
  ))
