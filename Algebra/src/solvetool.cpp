@@ -227,12 +227,16 @@ string powersolve(const int howstrong, const varindx sought,
   // in principle, this would use the equaleqs.cpp function.
   if(ansexpr->rhs->etype==numval){
     numvalexp *vallexp=(numvalexp *) ansexpr->rhs;
-    if(fabs(vallexp->value-(*numsols)[sought]) >
-       RELERR * fabs(vallexp->value+(*numsols)[sought]))
+    // This is huge compared to machine epsilon.
+    // needed to get elec6 working...
+    double val_err = 10 * RELERR * (fabs(vallexp->value)
+				      + fabs((*numsols)[sought]));
+    if(fabs(vallexp->value-(*numsols)[sought]) > val_err)
       {
-	DBG(cout << "numerical value  != canonical value "
-	    << (*numsols)[sought] << endl);
-	DBG(cout << "Assuming this indicates dependence on a parameter"<<endl);
+	DBG(cout << "numerical value != canonical value " << endl);
+	DBG(cout << "     difference=" << vallexp->value-(*numsols)[sought]
+	    << ", error=" << val_err << endl);
+	DBG(cout << "This amy indicate dependence on a parameter"<<endl);
 	answer = string(""); goto cleanup;
       }
   }
