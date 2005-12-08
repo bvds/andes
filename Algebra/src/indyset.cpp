@@ -42,8 +42,8 @@ bool indyset::isindy(const expr * const candex)
   return(answer);
 }
 
-// BvdS:  assume relative error for elements of candval->gradient
-//        is less than RELERR.
+// BvdS:  assume relative error for elements of candval->gradient 
+//        and basis are less than RELERR.
 // Constructing an orthogonal basis from a set of vectors
 // is a standard problem in linear algebra.  In particular,
 // methods of handling roundoff errors are well-established.
@@ -67,12 +67,12 @@ bool indyset::isindy(const valander * const candval)
       int thisvar = ordervar[k];
       double coef = candleft[thisvar]/basis[k][thisvar];
       double coef_err = candleft_err[thisvar]/fabs(basis[k][thisvar])
-	+ fabs(coef/basis[k][thisvar])*basis_err[k][thisvar];
+	+ fabs(coef)*RELERR;
       for (int q = 0; q < numvars; q++) 
 	{
 	  candleft[q] += -coef*basis[k][q];
 	  candleft_err[q] +=  coef_err*fabs(basis[k][q]) 
-	    + fabs(coef)*basis_err[k][q];
+	    + fabs(coef*basis[k][q])*RELERR;
 	  if(candleft[q]==0. && candleft_err[q]==0.) continue; // nothing to do
 	  if (fabs(candleft[q]) < candleft_err[q])
 	    {
@@ -122,7 +122,6 @@ bool indyset::placelast()
     }
   basexpand.push_back(*temp);
   basis.push_back(candleft);
-  basis_err.push_back(candleft_err);
   double biggest = -1.; 
   for ( k = 0; k < numvars; k++) 
     if (fabs(candleft[k]) > biggest) { biggest = fabs(candleft[k]); q = k;}
@@ -185,7 +184,6 @@ bool indyset::keepn(int n) {
     basexpand.pop_back();
 //    delete &(basis[k]);	    // had been &basis
     basis.pop_back();
-    basis_err.pop_back();
   }
   lastisvalid = false;
   numinset = n;

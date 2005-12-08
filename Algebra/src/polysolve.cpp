@@ -315,7 +315,6 @@ double evalpoly(const vector<double> * poly, const double x)
  *	we are supposed to already know poly(low) and poly(high) have	*
  *	opposite signs, and polyderiv is the derivative polynomial of	*
  *	poly, and it has no roots in (low, high). 			*
- * returns the root to perhaps accuracy of 10 times machine resolution	*
  ************************************************************************/
 double findroot(const vector<double> * poly, 
 		const vector<double> * polyderiv, 
@@ -324,7 +323,7 @@ double findroot(const vector<double> * poly,
   double delx;
   double x = 0.5 * (low + high);
   // Actually, tol=0 would probably work OK
-  double tol = RELERR * (fabs(low) + fabs(high));
+  double tol = DBL_EPSILON * (fabs(low) + fabs(high));
   do {
     delx = - evalpoly(poly,x)/evalpoly(polyderiv,x);
     // assume poly is monotonic on [low,high]

@@ -90,7 +90,7 @@ bool factorout(const expr * factor,int n, expr * & expression)
       if (binexpr->op->opty == topowe)
   	{
   	  if (binexpr->rhs->etype != numval ||
-	      // close to zero treated as zero
+	      // exponent close to zero treated as zero
 	      ((numvalexp *)binexpr->rhs)->value < RELERR) goto abort;
   	  if (lookslikeint(n/((numvalexp *)binexpr->rhs)->value,q) && // what's
 	      factorout(factor,q,binexpr->lhs)) goto fixup; 	   //  this? 

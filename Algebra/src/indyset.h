@@ -18,7 +18,6 @@ class indyset
 private:
   vector<vector<double> > basis;   // basis vectors for gradients already in
 				// the set of independent equations.
-  vector<vector<double> > basis_err;   // associated errors
   int numvars;
   int numinset;
   vector<int> ordervar;		// order of variables to eliminate. 
