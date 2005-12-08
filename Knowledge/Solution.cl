@@ -113,9 +113,9 @@
 
 
 
-;; -------------------------------------------------------
-;; Solution set.
-;; listing of solutions for use.
+;;; -------------------------------------------------------
+;;; Solution set.
+;;; listing of solutions for use.
 
 (defstruct (EqnSet (:type list))
   Eqns
@@ -155,8 +155,9 @@
 			       (not (kb-eqn-entryprop-p e))))
 	    (mapunion #'collect-psmgraph-csdo-effects
 		      (mapcar #'(lambda (n) 
-				  (if (Enode-p n) (enode-path n)
-				    (qnode-path n)))
+				  (cond ((Enode-p n) (enode-path n))
+					((Qnode-p n) (qnode-path n))
+					(t nil))) ;if read from a file
 			      (Eqnset-Nodes Set))
 		      :test #'unify))))) ;could use "equal"
 		     
@@ -169,7 +170,9 @@
 	   (mapcar #'eqn-algebra
 		   (remove-if-not
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
-		    (mappend #'Enode-Subeqns (EqnSet-Eqns Set)))))))
+		    (mappend #'Enode-Subeqns 
+			     (remove-if-not #'Enode-p ;for read from file
+					    (EqnSet-Eqns Set))))))))
    
      
 (defun print-eqnset-explicit-eqns (Set Stream Level)
@@ -180,7 +183,9 @@
 	   (mapcar #'eqn-algebra
 		   (remove-if
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
-		    (mappend #'Enode-Subeqns (EqnSet-Eqns Set)))))))
+		    (mappend #'Enode-Subeqns 
+			     (remove-if-not #'Enode-p ;for read from file
+					    (EqnSet-Eqns Set))))))))
   
 
 (defun print-num-eqnset-wsols (Num Set &optional (Stream t) (Level 0))
@@ -204,12 +209,15 @@
 	    (list-base-eqns 
 	     (collect-bgnodes->eqns (EqnSet-Eqns Set)))))
 	  (collect-nodes->gindicies (EqnSet-Nodes Set))
-	  (EqnSet-Assumpts Set)))
+	  (EqnSet-Assumpts Set)
+	  ))
 
 (defun read-mreadable-EqnSets (Stream EqnIndex)
   (loop for S in (read Stream "Error: Malformed Equation Sets.")
-      collect (list (collect-indicies->eqns (car S) EqnIndex)
-		    (cadr S) (caddr S))))
+      collect (make-EqnSet 
+	       :Eqns (collect-indicies->eqns (car S) EqnIndex)
+	       :Nodes  (second S) 
+	       :Assumpts (third S))))
 
  (defun solution-equalp (B1 B2)
    "Determine iff two solutions are set-equal."
