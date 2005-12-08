@@ -457,6 +457,27 @@
     (bottom-out (string "Write the equation ~A" 
 			((= ?v1 ?v2) algebra) )) ))
 
+
+;;;;
+;;;;         Index of refraction
+;;;;
+;;;;
+
+(def-qexp index-of-refraction (index-of-refraction ?medium)
+  :units |m/s|
+  :restrictions nonnegative
+  :english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
+  :fromworkbench `(index-of-refraction ,body))
+
+(defoperator define-index-of-refraction (?medium)
+  :preconditions
+  ( (wave-medium ?medium) ;must be object waves can move through
+    (bind ?wv-var (format-sym "wv_~A" (body-name ?medium))))
+  :effects ((variable ?wv-var (index-of-refraction ?medium))
+	    (define-var (index-of-refraction ?medium)))
+  :hint ((bottom-out 
+	  (string "Define a variable for the speed of waves in ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?medium))))
+
 ;;;;
 ;;;;  Wave speed for various objects   
 ;;;;
