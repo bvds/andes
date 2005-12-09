@@ -5471,7 +5471,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-forces (?b ?t)
   :preconditions 
-  ( (not (does-work-on ?work-agent ?t ?t-work) (tinsidesp ?t ?t-work))
+  ( (not (does-work-on ?work-agent ?b ?t-work) (tinsidep ?t ?t-work))
     (any-forces ?b ?t ?forces))
   :effects ((forces ?b ?t ?forces)))
 
