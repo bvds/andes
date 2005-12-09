@@ -2300,7 +2300,7 @@
 ;;; solution.  This is a pretty common error.
 (def-error-class net-force-not-used (?sbody ?stime)
   ((student (vector (net-force ?sbody :time ?stime) ?sdir))
-   (problem (forces ?sbody ?stime ?set)))
+   (problem (any-forces ?sbody ?stime ?set)))
   :utility 100
   :probability 0.5)
 
@@ -3205,7 +3205,7 @@
     ((student-eqn ?dontcare0)
      (expr-loc ?loc ?sum)
      (test (sum-p ?sum))
-     (problem (forces ?body ?time ?correct-forces)) ; generates bodies and times
+     (problem (any-forces ?body ?time ?correct-forces)) ; generates bodies and times
      (bind ?student-forces (forces-in-sum ?sum ?body ?time T))
      (test (not (null ?student-forces))) ; nil means a sum of something other than forces
      (bind ?missing-forces (set-difference ?correct-forces ?student-forces :test #'equal))
@@ -3229,7 +3229,7 @@
     ((student-eqn ?dontcare0)
      (expr-loc ?loc ?sum)
      (test (sum-p ?sum))
-     (problem (forces ?body ?time ?correct-forces)) ; generates bodies and times
+     (problem (any-forces ?body ?time ?correct-forces)) ; generates bodies and times
      (bind ?student-forces (forces-in-sum ?sum ?body ?time T))
      (test (not (null ?student-forces))) ; nil means a sum of something other than forces
      (bind ?missing-forces (set-difference ?correct-forces ?student-forces :test #'equal))
