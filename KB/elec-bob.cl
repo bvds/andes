@@ -10,19 +10,20 @@
   :features (E&M E-field andes2 working)
   :choices (
     (bodies (particle))
-    (positions (region)))
+    (positions (region))
+  )
   :givens(
     (time 1)
     (object particle)
     (at-place particle region 1)
     (given (charge-on particle) (dnum 7.8 |C|))
-    (given (mag (field region electric unspecified :time 1)) (dnum 11.1 |N/C|))
-    (given (dir (field region electric unspecified :time 1)) (dnum 45 |deg|)) 
-    )
+    (given (mag (field region electric unspecified :time 1))
+      (dnum 11.1 |N/C|))
+    (given (dir (field region electric unspecified :time 1))
+      (dnum 45 |deg|)) 
+  )
   :soughts (
     (mag (force particle unspecified electric :time 1))
-    ; Problem with seeking directions of drawn vectors:
-    ;(dir (force particle field electric :time 1))
   )
 )
 
@@ -30,27 +31,32 @@
   :statement (
     "A charged particle is in a region where there is an"
     "electric field E of magnitude 16.2 N/C at an angle of"
-    "15 degrees above the positive x-axis. If the charge"
-    "on the particle is -7.8 C, find the magnitude of the"	
-    "force on the particle P due to the electric field E."
+    "15 degrees above the positive x-axis. The particle"
+    "experiences a force, F of magnitude 60.4 N in the opposite"
+    "direction. Find the charge on the particle."
     "    Answer:  [XXXXXXXXXXXXXXX]"
   )
   :features (E&M E-field andes2 working)
   :choices (
     (bodies (particle))
-    (positions (region)))
+    (positions (region))
+  )
   :givens(
     (time 1)
     (object particle)
     (at-place particle region 1)
-    (given (charge-on particle) (dnum -7.8 |C|))
-    (given (mag (field region electric unspecified :time 1)) (dnum 16.2 |N/C|))
-    (given (dir (field region electric unspecified :time 1)) (dnum 15 |deg|)) 
-    )
+    (sign-charge particle neg)
+    (given (mag (force particle unspecified electric :time 1))
+      (dnum 60.4 |N|))
+    (given (dir (force particle unspecified electric :time 1))
+      (dnum 195 |deg|))
+    (given (mag (field region electric unspecified :time 1))
+      (dnum 16.2 |N/C|))
+    (given (dir (field region electric unspecified :time 1))
+      (dnum 15 |deg|)) 
+  )
   :soughts (
-    (mag (force particle unspecified electric :time 1))
-    ;; Problem with seeking directions of drawn vectors:
-    ;; (dir (force particle field electric :time 1))
+    (charge-on particle)
   )
 )
 
@@ -81,7 +87,7 @@
   )
   :soughts (
     (mag (field region electric unspecified :time 1))
-   )
+  )
 )
 
 (defproblem elec2
@@ -124,8 +130,7 @@
     "below). Find the velocity of the electron as it leaves the hole."
     "    Answer:  [XXXXXXXXXXXX]"
     "In this problem, gravity can be ignored."
-	      
-)
+  )
   ;; :graphic "elec3.gif"
   :features (E&M E-field andes2 working kinematics dynamics)
   :choices (
@@ -173,7 +178,8 @@
   :features (E&M E-field andes2 working kinematics dynamics)
   :choices (
     (bodies (proton))
-    (positions (region)))
+    (positions (region))
+  )
   :times ((1 "at rest") (2 "at 1.20E+5 m/s") (during 1 2))
   :givens (
     (time 1) (time 2) (time (during 1 2))
