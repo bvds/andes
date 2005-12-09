@@ -5441,7 +5441,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; force.  So I guess this operator shouldn't have any hints.
 
 
-(defoperator draw-forces (?b ?t)
+(defoperator draw-any-forces (?b ?t)
    :specifications 
     "If there are some forces on ?body at ?time,
      then make them the set of forces on ?body at ?time"
@@ -5464,7 +5464,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	    ?b ?t ?forces)
      )
    :effects
-   ((forces ?b ?t ?forces)))
+   ((any-forces ?b ?t ?forces))) 
+
+;; wrapper for draw-any-forces to make sure no special 
+;; work agents have been defined
+
+(defoperator draw-forces (?b ?t)
+  :preconditions 
+  ( (not (does-work-on ?work-agent ?t ?t-work) (tinsidesp ?t ?t-work))
+    (any-forces ?b ?t ?forces))
+  :effects ((forces ?b ?t ?forces)))
 
 ;; this is used by draw-forces to collect all forces acting on
 ;; points on body
@@ -5537,7 +5546,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		 (mag (force ?b ?agent ?type :time ?t))
 		 (dir (force ?b ?agent ?type :time ?t))))
     (object ?b)
-    (not (unknown-forces))
+    (not (unknown-forces)) ;also checked in draw-forces
     )  
   :effects 
   ((eqn-family-contains (net-force ?b ?t) ?sought)
@@ -5560,8 +5569,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-net-force-compo (?b ?t ?xyz ?rot)
   :preconditions 
   (
-   ;; test that this component of the net force may be nonzero.
-   ;; else, we have NSL to set the sum of forces to zero, and 
+   ;; Test that this component of the net force may be nonzero.
+   ;; Otherwise, we have NSL to set the sum of forces to zero, and 
    ;; vector drawing will set this component of net-force to zero.
    (in-wm (vector ?b (net-force ?b :time ?t) ?net-force-dir))
    (test (non-zero-projectionp ?net-force-dir ?xyz ?rot))
@@ -6065,7 +6074,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)
    (time ?t)
    (debug "problem~%.")
-   (not (unknown-forces))
+   (not (unknown-forces)) ;also checked in draw-forces
    ;; Can't apply over interval if variable forces during interval.
    ;; if time is an interval, make sure endpoints are consecutive,
    ;; else forces might be different between sub-segments
@@ -6594,7 +6603,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; (the associated force may not be defined, but it is still doing work).
   (not (does-work-on ?agent ?b ?t-work)
        (tintersect2 ?t-work `(during ,?t1 ,?t2)))
-  (not (unknown-work-agents))
   ;; make sure we can determine all forces:
   (not (unknown-forces))
   )
@@ -7445,9 +7453,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((any-member ?sought  ((net-work ?b :time ?t) 
 	                 (work ?b ?agent :time ?t)))
    ;; Can't collect (does-work-on ..) if some work agents are unknown;
-   ;; (unknown-work-agents) means that a work agent is neither specified
+   ;; (unknown-forces) means that a work agent is neither specified
    ;; as a force, nor specified via (does-work-on ...).
-  (not (unknown-work-agents))
+  (not (unknown-forces)) ;also tested in draw-forces
   (test (time-consecutivep ?t)))  ;only apply to consecutive times
   :effects 
   ((eqn-contains (net-work ?b ?t) ?sought)))
@@ -7470,7 +7478,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; friction is present, but that is ugly. For now we list agents
    ; get the ind work operator to write expr for the non-orthogonal force 
    ; when it is asked to write work done by agent.
-   (in-wm (forces ?b ?t ?forces))
+   (in-wm (any-forces ?b ?t ?forces))
    (setof (in-wm (does-work-on ?work-agent ?b ?t))
           ?work-agent ?other-agents)
    (bind ?agents (remove-duplicates (append (mapcar #'third ?forces) 
@@ -7495,7 +7503,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ((body ?b)
     ;; make sure axis is allowed, even if unused
     (axis-for ?b x 0) 
-    (forces ?b ?t ?forces)
+    (any-forces ?b ?t ?forces) 
     )
    :effects ( (net-work-diagram ?b ?t) ))
 
@@ -7616,9 +7624,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (any-member ?sought ( (work ?body ?agent :time ?t)
                         (work-nc ?body :time ?t) ))
   ;; Can't collect (nc-work-during ..) if some work agents are unknown;
-  ;; (unknown-work-agents) means that a work agent is neither specified
+  ;; (unknown-forces) means that a work agent is neither specified
   ;; as a force, nor specified via (does-work-on ...).
-  (not (unknown-work-agents))
+  (not (unknown-forces))  ;can't collect (nc-work-during ...) if unknown forces
   )
  :effects (
   (eqn-contains (Wnc ?body ?t) ?sought)
