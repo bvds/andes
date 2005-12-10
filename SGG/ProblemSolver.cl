@@ -689,13 +689,35 @@
   (print-problem-solutions *cp*))
 
 (defun print-problem-solutions (problem &optional (Stream t))
-  (format Stream "=============================================~%")
+  (format Stream "~&~A~%" (make-string 79 :initial-element #\=))
   (format Stream "Problem Solutions: ~A~%" (problem-name Problem))
-  (dotimes (n (length (Problem-Solutions Problem)))
-    (format Stream "~%--------------------------------------~%")
-    (print-numbered-report-eqnset 
-     n (nth n (Problem-Solutions Problem)) Stream)))
-   
+  (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
+  (format Stream "Solution 0: ~%")
+  (print-numbered-report-eqnset (first (Problem-Solutions Problem)) Stream)
+  (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
+  (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
+    (format Stream "Solution ~A: ~%" n)
+    (print-diff-ids (first (Problem-Solutions Problem))
+		    (nth n (Problem-Solutions Problem))
+		    Stream)
+    (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
+    ))
+
+(defun print-diff-ids (x y &optional (stream t))
+  (format stream "~&+:  ~A~%-:  ~A~%" 
+	  (set-difference (mapcar #'get-node-id (EqnSet-eqns y)) 
+			  (mapcar #'get-node-id (EqnSet-eqns x)) 
+			  :test #'equalp)
+	  (set-difference (mapcar #'get-node-id (EqnSet-eqns x)) 
+			  (mapcar #'get-node-id (EqnSet-eqns y)) 
+			  :test #'equalp)))
+
+(defun get-node-id (node)
+"Newly generated EqnSet structures, and those read from files have 
+ different structures.  This is a work-around."
+(cond ((Enode-p node) (Enode-id node))
+      ((Eqn-p node) (Eqn-exp node))
+      (t (format t "help ~A~%" node) node)))
 
 ;;;;============================================================
 (defun trace-solve-problem ()

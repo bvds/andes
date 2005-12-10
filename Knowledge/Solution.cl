@@ -135,14 +135,15 @@
 ;;; For the purporses of answer reporting this code prints
 ;;; out the contents of an eqnset in report fasion I.E.
 ;;; it prints the psms then the entries and equations.
-(defun print-numbered-report-eqnset (Num Set &optional (Stream t) (level 0))
-  (format Stream "~A: Problem Solution Methods.~%" num) 
-  (format Stream "~{    ~A~%~}" (EqnSet-Eqns set))
-  (format Stream "~A: Entries.~%" num)
+(defun print-numbered-report-eqnset (Set &optional (Stream t) (level 0))
+  (format Stream "Problem Solution Methods.~%") 
+  (format Stream "~{    ~A~%~}" 
+	  (mapcar #'get-node-id (EqnSet-Eqns set)))
+  (format Stream "Entries.~%")
   (print-eqnset-entries Set Stream Level)
-  (format Stream "~A: Implicit Equations~%" num)
+  (format Stream "Implicit Equations~%")
   (print-eqnset-implicit-eqns Set Stream Level)
-  (format Stream "~A: Explicit Equations~%" num)
+  (format Stream "Explicit Equations~%")
   (print-eqnset-explicit-eqns Set Stream Level))
 
 (defun print-eqnset-entries (Set Stream Level)
