@@ -7,7 +7,7 @@
     "force on the particle P due to the electric field E."
     "    Answer:  [XXXXXXXXXXXXXXX]"
   )
-  :features (E&M E-field andes2 working)
+  :features (E&M E-field andes2 working kinematics dynamics)
   :choices (
     (bodies (particle))
     (positions (region))
@@ -36,7 +36,7 @@
     "direction. Find the charge on the particle."
     "    Answer:  [XXXXXXXXXXXXXXX]"
   )
-  :features (E&M E-field andes2 working)
+  :features (E&M E-field andes2 working kinematics dynamics)
   :choices (
     (bodies (particle))
     (positions (region))
