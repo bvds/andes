@@ -5366,12 +5366,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ))
 
 
-;; Net force is only used in a few problems in which it is the sought. 
-;; Other NL problems work only in terms of the sum of forces on the assumption
-;; that introducing a net force term in addition to the individual forces
-;; might be confusing since it may look like an extra force.
-;; Thus net force quantity is inferentially isolated from sum of forces.
-;;
 ;; Here we draw the net force in the same direction as the known acceleration
 ;; direction. 
 ;;

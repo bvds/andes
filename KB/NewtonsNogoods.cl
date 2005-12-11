@@ -98,7 +98,7 @@
 
 (defnogood component-or-magnitude-form
     ((using-magnitude ?family-id)
-     ;; asserted in apply-vector-PSM* and 
+     ;; asserted in apply-vector-PSM* and mag-pyth
      (using-compo (?id ?xyz ?rot ?family-id)) 
      )
   :specs ("Prevent both component and magnitude form of a vector equation")
