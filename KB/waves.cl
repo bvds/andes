@@ -39,6 +39,7 @@
   ((bottom-out (string "Define a variable for the wave number of ~A moving in ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave ?medium))))
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
+
 (def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave ?medium)
   :complexity definition  ;substitute implicitly into major equation
   :english ("relation between wavelength and wavenumber")
@@ -89,10 +90,10 @@
 	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
 
 ;;;
-;;;  For doppler problems, we have to introduce a frequency as
-;;;  observed by someone over some time interval.  We assume
-;;;  (but do not check) that the time interval is large enough
-;;;  for the frequency to be well-defined.
+;;  For doppler problems, we have to introduce a frequency as
+;;  observed by someone over some time interval.  We assume
+;;  (but do not check) that the time interval is large enough
+;;  for the frequency to be well-defined.
 ;;;
 
 (def-qexp observed-frequency (observed-frequency ?wave ?me :time ?time)
@@ -190,10 +191,10 @@
 			     ((= ?omega (*2 $p ?freq))  algebra) ))
 	 ))
 
-;;; There are two versions for beat frequency: one for
-;;; the "timeless" intrinsic frequency and the other for
-;;; observed-frequency.  As much as possible, these should 
-;;; appear to the user as the same equation.
+;; There are two versions for beat frequency: one for
+;; the "timeless" intrinsic frequency and the other for
+;; observed-frequency.  As much as possible, these should 
+;; appear to the user as the same equation.
 
 ;;equation beat frequency for two waves
 (def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)
@@ -259,7 +260,7 @@
 
 ;;;
 ;;;  Relate frequency and period of a wave
-;;;
+
 ;;equation of the period of the wave, period = 1/frequency
 (def-psmclass period-of-wave (period-of-wave ?object)
   :complexity definition      ;substitute implicitly into major equation
@@ -292,9 +293,10 @@
 
 ;;;
 ;;;  Hamonics of standing waves
-;;;  The allows one to do things in terms of either frequency or wavelength
-;;;
 
+
+;;  The allows one to do things in terms of either frequency or wavelength
+;;
 (def-psmclass harmonic-of (harmonic-of ?waven ?wave1 ?form)
   :complexity minor
   :english ("harmonic of a standing wave")
@@ -351,7 +353,6 @@
 
 ;;;
 ;;;   Wave speed, this is |phase velocity|
-;;;
 
 (def-qexp wave-speed (wave-speed ?medium)
   :units |m/s|
@@ -366,10 +367,12 @@
   :effects ((variable ?wv-var (wave-speed ?medium))
 	    (define-var (wave-speed ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for the speed of waves in ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?medium))))
+	  (string "Define a variable for the speed of waves in ~A by using the Add Variable command on the Variable menu and selecting speed of wave."  ?medium))))
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
-;;; Only for sinusoidal waves (where freq & wavelength are well-defined)
+
+;; Only for sinusoidal waves (where freq & wavelength are well-defined)
+
 (def-psmclass speed-of-wave (speed-of-wave ?object ?medium ?form)
   :complexity major ; must use explicitly 
   :english ("the equation of the speed of a wave")
@@ -458,31 +461,65 @@
 			((= ?v1 ?v2) algebra) )) ))
 
 
-;;;;
-;;;;         Index of refraction
-;;;;
-;;;;
+
+;;;         Index of refraction
+
+;; in principle, this should be a function of frequency, 
+;; but we don't have any problems with this yet
 
 (def-qexp index-of-refraction (index-of-refraction ?medium)
-  :units |m/s|
+  :units NIL  ;dimensionless
   :restrictions nonnegative
-  :english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
+  :english ("the index of refraction of ~A" (nlg ?medium))
   :fromworkbench `(index-of-refraction ,body))
 
 (defoperator define-index-of-refraction (?medium)
   :preconditions
   ( (wave-medium ?medium) ;must be object waves can move through
-    (bind ?wv-var (format-sym "wv_~A" (body-name ?medium))))
-  :effects ((variable ?wv-var (index-of-refraction ?medium))
+    (bind ?n-var (format-sym "n_~A" (body-name ?medium))))
+  :effects ((variable ?n-var (index-of-refraction ?medium))
 	    (define-var (index-of-refraction ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for the speed of waves in ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?medium))))
+	  (string "Define a variable for the index of refraction of ~A by using the Add Variable command on the Variable menu and selecting index of refraction."  ?medium))))
 
-;;;;
-;;;;  Wave speed for various objects   
-;;;;
+;;;; Relate index of refraction to wave-speed
 
-;;; If medium is "light" then set its wave-speed to c
+(def-psmclass wave-speed-refraction (wave-speed-refraction . ?media)
+  :complexity major			; must explicitly use
+  :english ("the definition of index of refraction")
+  :ExpFormat ("relating the speed of waves in ~A to the index of refraction" 
+	      (nlg ?media 'conjoined-defnp))
+  :EqnFormat ("vw1*n1 = vw2*n2")) 
+
+(defoperator wave-speed-refraction-contains (?sought)
+  :preconditions 
+  ( (any-member ?sought ((wave-speed ?medium1)
+			 (index-of-refraction ?medium1)))
+    (wave-medium ?medium1)
+    (wave-medium ?medium2)
+    (test (not (eq ?medium1 ?medium2)))
+    (bind ?media (sort (list ?medium1 ?medium2) #'expr<)) )
+  :effects ( (eqn-contains (wave-speed-refraction . ?media) ?sought) ))
+
+(defoperator write-wave-speed-refraction (?medium1 ?medium2)
+  :preconditions 
+  ( (variable  ?v1 (wave-speed ?medium1))
+    (variable  ?n1 (index-of-refraction ?medium1))
+    (variable  ?v2 (wave-speed ?medium2))
+    (variable  ?n2 (index-of-refraction ?medium2)) )
+  :effects ( (eqn  (= (* ?v1 ?n1) (* ?v2 ?n2))
+		   (wave-speed-refraction ?medium1 ?medium2)) )
+  :hint (
+	 (hint (string "Relate the speed of waves in ~A to those in ~A." ?medium1 ?medium2))
+	 (pont (string "The index of refraction relates the speed of waves in a medium to the speed of waves in another medium."))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= (* ?v1 ?n1) (* ?v2 ?n2)) algebra) ))
+	 ))
+
+
+;;;  Wave speed for various objects   
+
+;; If medium is "light" then set its wave-speed to c
 (def-psmclass wave-speed-light (wave-speed-light ?medium)
   :complexity minor
   :english ("the speed of a light or radio wave")
@@ -491,7 +528,7 @@
 
 (defoperator wave-speed-light-contains (?sought)
   :preconditions (
-		  (light ?medium)
+		  (vacuum ?medium)
 		  (any-member ?sought ((wave-speed ?medium))))
   :effects (
 	    (eqn-contains (wave-speed-light ?medium) ?sought)))
@@ -508,14 +545,37 @@
 			     ((= ?v |c|)  algebra) ))
 	 ))
 
-;;;
+;;; set the index of refraction of vacuum to 1
+
+(def-psmclass refraction-vacuum (refraction-vacuum ?medium)
+  :complexity minor
+  :english ("the index of refraction of a vacuum")
+  :ExpFormat("setting the index of refraction to 1")
+  :EqnFormat("n=1"))
+
+(defoperator vacuum-refraction-contains (?sought)
+  :preconditions (
+		  (vacuum ?medium)
+		  (any-member ?sought ((index-of-refraction ?medium))))
+  :effects (
+	    (eqn-contains (refraction-vacuum ?medium) ?sought)))
+
+(defoperator write-vacuum-refraction (?medium)
+  :preconditions ((variable  ?n (index-of-refraction ?medium)))
+  :effects ( (eqn  (= ?n 1.0) (refraction-vacuum ?medium)) )
+  :hint (
+	 (hint (string "What is the index of refraction of ~A?" ?medium))
+	 (teach (string "The index of refraction of a vacuum is 1.  Some materials (like air) have an index of refraction that is very close to 1."))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?n 1.0)  algebra) ))
+	 ))
+
 ;;; Speed of transverse wave on a string
-;;;
 
+;;; define tension of a rope.
 
-;;; First, define tension of a rope.
-;;; In principle, this should be connected with the
-;;; tension force applied to an object...
+;; In principle, this should be connected with the
+;; tension force applied to an object...
 
 (def-qexp string-tension (string-tension ?rope)
   :units |N|
@@ -566,11 +626,10 @@
 			     ((= ?vw (sqrt (/ ?tension ?mu-var))) algebra) ))
 	 ))
 
-;;;; 
-;;;;   The amplitude of a wave and associated quantities
-;;;;   (usually, the amplitude is just given in a problem
-;;;;    and the student must identify the quantity.
-;;;;
+
+;;;   The amplitude of a wave and associated quantities
+;;   (usually, the amplitude is just given in a problem
+;;    and the student must identify the quantity.
 
 (def-qexp amplitude (amplitude ?wave)
   :units |m|
@@ -598,7 +657,7 @@
 	    (define-var (amplitude-max-speed ?wave)))
   :hint ((bottom-out 
 	  (string "Define a variable for the maximum speed of ~A by using the Add Variable command on the Variable menu and selecting maximum speed."  ?wave))))
-;;; Yuck!  In the real world, one would derive this...
+;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("Formula for maximum speed of an oscillation")
@@ -647,7 +706,7 @@
   :hint ((bottom-out 
 	  (string "Define a variable for |maximum acceleration of ~A| by using the Add Variable command on the Variable menu and selecting |maximum acceleration|."  ?wave))))
 
-;;; Yuck!  In the real world, one would derive this...
+;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?wave)
   :complexity major  ; must explicitly use
   :english ("Formula for |maximum acceleration| of an oscillation")
@@ -681,9 +740,11 @@
       ))
 
 ;;;  Frequency for mass and spring.
-;;;  This is kind of lousy:  only works for one spring acting
-;;;  on a block and does not check any other forces that
-;;;  might be acting on the block.
+
+;;  This is kind of lousy:  only works for one spring acting
+;;  on a block and does not check any other forces that
+;;  might be acting on the block.
+
 (def-psmclass spring-mass-oscillation (spring-mass-oscillation ?block ?spring)
   :complexity major			; must explicitly use
   :english ("Formula for period of mass and spring")
@@ -719,9 +780,10 @@
 	 ))
 
 ;;;  Frequency for simple pendulum
-;;;  This is kind of lousy:  
-;;;  Since it is not done as a true F=ma problem, it does not
-;;;  properly check for other forces on the mass.
+
+;;  This is kind of lousy:  
+;; Since it is not done as a true F=ma problem, it does not
+;; properly check for other forces on the mass.
 (def-psmclass pendulum-oscillation (pendulum-oscillation ?block ?rod ?planet)
   :complexity major			; must explicitly use
   :english ("Formula for period of a simple pendulum")
@@ -761,11 +823,11 @@
 			     ((= ?t (* 2 $p (sqrt (/ ?l ?g-var)))) algebra) ))
 	 ))
 
-;;;
-;;;  Doppler shift in two dimensions.  (The two-dimensional nature
-;;;  should be transparent to the student since all the problems
-;;;  are one-dimensional.)
-;;;
+
+;;; Doppler shift in two dimensions.  
+
+;; (The two-dimensional nature should be transparent to the student since 
+;; all the problems are one-dimensional.)
 
 (def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer 
 						   ?t-s ?t-o)
@@ -776,13 +838,14 @@
   ;; the EqnFormat string using only standard characters in our source text
   :EqnFormat ("fo=fs*(vw~Avo)/(vw~Avs)" (code-char 177) (code-char 177)))
 
-;;; velocities should be constant over the interval.  
-;;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
-;;; but hopefully that construct will eventually be replaced.
+;; velocities should be constant over the interval.  
+;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
+;; but hopefully that construct will eventually be replaced.
+
 (defoperator doppler-frequency-contains (?sought)
   :preconditions 
   (
-   (doppler-system ?source ?wave ?observer) ;so the ?wave is identified
+   (doppler-system ?source ?medium ?observer) ;so the ?medium is identified
    (time ?t-s) (test (time-intervalp ?t-s))
    (time ?t-o) (test (time-intervalp ?t-o))
    ;;  In principle, the beginning of the ?t-o interval must be 
@@ -794,29 +857,29 @@
    ;;  Note that tsomewhat-earlierp allows ?t-s = ?t-o
    (test (tsomewhat-earlierp ?t-s ?t-o)) 
    (any-member ?sought ((frequency ?source)
-			(wave-speed ?wave)
+			(wave-speed ?medium)
 			(observed-frequency ?source ?observer :time ?t-o)
 			;; we *assume* the interval is big enough
-			(mag (relative-vel ?source ?wave :time ?t-s)) 
-			(mag (relative-vel ?observer ?wave :time ?t-o))
-			(dir (relative-vel ?source ?wave :time ?t-s)) 
-			(dir (relative-vel ?observer ?wave :time ?t-o))
+			(mag (relative-vel ?source ?medium :time ?t-s)) 
+			(mag (relative-vel ?observer ?medium :time ?t-o))
+			(dir (relative-vel ?source ?medium :time ?t-s)) 
+			(dir (relative-vel ?observer ?medium :time ?t-o))
 			(dir (relative-position ?source ?observer :time ?t-o))
 			))
    (object ?source)
    (object ?observer)
    (sinusoidal ?source)
-   (not (light ?wave))			;light uses a different formula
+   (not (vacuum ?medium))			;light uses a different formula
    )
   :effects 
-  ( (eqn-contains (doppler-frequency ?source ?wave ?observer 
+  ( (eqn-contains (doppler-frequency ?source ?medium ?observer 
 				     ?t-s ?t-o) ?sought)))
 
-(defoperator make-doppler-frequency (?source ?wave ?observer ?t-s ?t-o)
+(defoperator make-doppler-frequency (?source ?medium ?observer ?t-s ?t-o)
   :preconditions 
-  ((variable ?vs (mag (relative-vel ?source ?wave :time ?t-s)))
-   (variable ?vo (mag (relative-vel ?observer ?wave :time ?t-o)))
-   (variable ?vw (wave-speed ?wave))		  
+  ((variable ?vs (mag (relative-vel ?source ?medium :time ?t-s)))
+   (variable ?vo (mag (relative-vel ?observer ?medium :time ?t-o)))
+   (variable ?vw (wave-speed ?medium))		  
    (variable ?fs (frequency ?source))		  
    (variable ?fo (observed-frequency ?source ?observer :time ?t-o))
    ;; vector from observer to source
@@ -832,24 +895,22 @@
    ;; use vector statements so that zero velocity can be handled correctly.  
    ;; This might prevent relative-vel from being the sought.
    ;; This is in working memory, because the magnitudes were found above.
-   (in-wm (vector ?source (relative-vel ?source ?wave :time ?t-s) ?sdir))
-   (in-wm (vector ?observer (relative-vel ?observer ?wave :time ?t-o) ?odir))
+   (in-wm (vector ?source (relative-vel ?source ?medium :time ?t-s) ?sdir))
+   (in-wm (vector ?observer (relative-vel ?observer ?medium :time ?t-o) ?odir))
    (bind ?scos (cos (* (get-angle-between ?phi ?sdir) 
 		       (/ pi 180))))	;degrees to radians
    (bind ?ocos (cos (* (get-angle-between ?phi ?odir) 
 		       (/ pi 180))))	;degrees to radians
    ;; If we had a real smp doing the algebraic simplifications, 
    ;; this nonsense would not be needed:
-   (bind ?sterm (cond 
-		 ((eql ?sdir 'zero) ?vw)
-		 ((equal ?scos 1.0) `(+ ,?vw ,?vs))
-		 ((equal ?scos -1.0) `(- ,?vw ,?vs))
-		 (t `(+ ,?vw (* ,?scos ,?vs)))))
-   (bind ?oterm (cond 
-		 ((eql ?odir 'zero) ?vw)
-		 ((equal ?ocos 1.0) `(+ ,?vw ,?vo))
-		 ((equal ?ocos -1.0) `(- ,?vw ,?vo))
-		 (t `(+ ,?vw (* ,?ocos ,?vo)))))
+   (bind ?sterm (cond ((eql ?sdir 'zero) ?vw)
+		      ((equal ?scos 1.0) `(+ ,?vw ,?vs))
+		      ((equal ?scos -1.0) `(- ,?vw ,?vs))
+		      (t `(+ ,?vw (* ,?scos ,?vs)))))
+   (bind ?oterm (cond ((eql ?odir 'zero) ?vw)
+		      ((equal ?ocos 1.0) `(+ ,?vw ,?vo))
+		      ((equal ?ocos -1.0) `(- ,?vw ,?vo))
+		      (t `(+ ,?vw (* ,?ocos ,?vo)))))
    (optional (body ?source))		;allow draw source and observers  
    (optional (body ?observer))		
    (optional (axis-for ?source x 0)) ;allow draw standard axes 
@@ -861,7 +922,7 @@
    )
   :effects 
   ( (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
-	  (doppler-frequency ?source ?wave ?observer ?t-s ?t-o)) )
+	  (doppler-frequency ?source ?medium ?observer ?t-s ?t-o)) )
   :hint 
   ( (point (string "Use the formula for doppler frequency shift."))
     (teach (string "Note that ~A is ~@?" 
@@ -872,14 +933,12 @@
 			((=  ?fo (/  (* ?fs ?oterm) ?sterm)) algebra) ))
     ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;
+
 ;;;;   Decibels and intensity
-;;;;   These quantities can be functions of time,
-;;;;   but none of the problems so far require it.
-;;;;
+
+;;   These quantities can be functions of time,
+;;   but none of the problems so far require it.
+
 (def-qexp intensity (intensity ?wave ?agent :time ?time)
   :units |W/m^2|
   :restrictions positive
@@ -900,10 +959,11 @@
 	  (string "Define a variable for the intensity of ~A due to ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		  ?wave (?agent agent)))))
 
-;;;
-;;; Net intensity is sum of all power acting on object.
-;;; BvdS:  Maybe combine with intensity, with ?agent set to nil
-;;;
+;;; Net intensity
+
+;; Net intensity is sum of all power acting on object.
+;; BvdS:  Maybe combine with intensity, with ?agent set to nil
+
 (def-qexp net-intensity (net-intensity ?wave :time ?time)
   :units |W/m^2|
   :restrictions positive  
@@ -930,9 +990,9 @@
   :effects 
   ((eqn-contains (net-intensity ?b ?t) ?sought)))
 
-;;;  
+  
 ;;;  Add up all intensities acting on ?b
-;;;
+
 ;; based on apply-net-work
 (defoperator write-net-intensity (?b ?t)
   :preconditions 
@@ -953,9 +1013,8 @@
 	 (teach (string "The net power acting on ~A is the sum of the various individual powers." ?b))
 	 (bottom-out (string "Write the equation ~A" ((= ?net-intensity-var (+ . ?intensity-vars)) algebra)))
 	 ))
-;;;
+
 ;;;  Intensity in decibels.
-;;;
 
 (def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
   :units |dB|
@@ -976,11 +1035,12 @@
 	  (string "Define a variable for the intensity of ~A in decibels 
 due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave (?agent agent)))))
 
-;;;
+
 ;;; net version of db-intensity
-;;; BvdS:  Maybe we should combine this with db-intensity, with
-;;; nil specified as the ?agent
-;;;
+
+;; BvdS:  Maybe we should combine this with db-intensity, with
+;; nil specified as the ?agent
+
 ;; see def-qexp for db-intensity
 (def-qexp net-db-intensity (net-db-intensity ?wave :time ?time)
   :units |dB|
@@ -998,10 +1058,9 @@ due to ~A by using the Add Variable command on the Variable menu and selecting d
 	  (string "Define a variable for the total intensity of ~A in decibels 
 using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
 
-;;;
-;;; Relate intensity to intensity in decibels
-;;; ?agent=nil marks net-intensity and net-db-intensity
+;; Relate intensity to intensity in decibels
 
+;; ?agent=nil marks net-intensity and net-db-intensity
 (def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?agent ?t)
   :complexity major			;must explicitly use
   :english ("express intensity in decibels")
@@ -1043,10 +1102,8 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 						))) algebra)
 			((= ?int (* |Iref| (^ 10 (/ ?intdb 10)))) algebra) ))
     ))
-
-;;; 
+ 
 ;;; Relate intensity to net power output in a spherical geometry.  
-;;;
 
 (def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?b1 ?b2)
   :complexity major  ;must explicitly use
