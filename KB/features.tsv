@@ -16,7 +16,7 @@ E&M	charge-on;potential;duration;
 optics	object-distance;image-distance;focal-length;magnification;radius-of-curvature;lens-distance;
 fluids	mass;duration;height;mass-density;pressure;area-at;area;volume;
 circle-geometry	area;radius-of-circle;diameter-of-circle;circumference-of-circle;
-waves	frequency;distance;speed;duration;mass;length;mass-per-length;wavelength;wavenumber;period;angular-frequency;wave-speed;speed-of-light;string-tension;
+waves	frequency;distance;speed;duration;mass;length;mass-per-length;wavelength;wavenumber;period;angular-frequency;wave-speed;index-of-refraction;speed-of-light;refraction-vacuum;string-tension;
 observed-frequency	observed-frequency;
 oscillations	mass;length;spring-constant;compression;wavelength;wavenumber;period;frequency;angular-frequency;amplitude;amplitude-max-speed;amplitude-max-abs-acceleration;
 probability	probability;
