@@ -36,7 +36,18 @@
      (axis-for ?b ?xyz2 ?rot2)
      (test (not (equal ?rot1 ?rot2))))
   :specs ("prevent use of multiple coordinate systems for same body")
-  :message ("Multiple inequivalent coordinate systems for ?b with x at ?rot1 and ?rot2"))
+  :message (Multiple inequivalent coordinate systems for ?b with x at ?rot1 and ?rot2))
+
+(defnogood multiple-coords-for-move-together
+    ((move-together ?bodies)
+     (axis-for ?b1 ?xyx1 ?rot1)
+     (axis-for ?b2 ?xyz2 ?rot2)
+     (test (not (equal ?b1 ?b2)))
+     (test (not (equal ?rot1 ?rot2)))
+     (test (member ?b1 ?bodies :test #'equal))
+     (test (member ?b2 ?bodies :test #'equal)))
+  :specs ("prevent use of multiple coordinate systems for bodies that are moving together")
+  :message (Multiple inequivalent coordinate systems for ?b1 and ?b2))
 
 ;; Prevent applying same compo-equation along x [or y] axis with
 ;; different rotations in the same solution. e.g. NSL at x=0 and x=30 deg
@@ -60,7 +71,6 @@
      (test (not (equal ?rot1 ?rot2))))
    :Specs ("Prevent use of different axes for compound and for part in same solution")
    :message (Different axes used for part ?b and compound of ?bodies))
-
 
 (defnogood only-one-form-of-dot
   ((using-dot ?a ?b ?x1-rot)

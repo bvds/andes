@@ -5076,7 +5076,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; Compound bodies = (compound body1 body2 ... bodyn)
 ;;
 ;; Bodies given as moving together may be treated as a single unit.
-;; This is specified in a (move-together (b1 b2 ...) ?t) proposition.
+;; This is specified in a (assume move-together (b1 b2 ...)) proposition.
 ;; We don't make any other use of the move-together proposition beyond
 ;; forming compounds; we could use it directly in the future for things 
 ;; like carried objects but it is not currently used for that.
@@ -5117,7 +5117,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator form-compound-moving (?bodies)
   :preconditions (
     (allow-compound)
-    (move-together ?body-list ?t-coupled) ; args should be atomic bodies
+    (assume move-together ?body-list) ; args should be atomic bodies
     (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
     (not (object (compound . ?bodies)))
     (in-wm (motion ?b1 ?motion-spec :time ?t-motion)) 
