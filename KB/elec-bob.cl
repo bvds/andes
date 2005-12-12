@@ -64,8 +64,9 @@
   :statement (
     "An electron (qe = -1.6e-19 C; me = 9.1e-31 kg) is in a region where"
     "there is a uniform electric field E that exactly cancels its weight"
-    "near the Earth's surface. Find the magnitude and show the direction"
-    "of the electric field E."
+    "near the Earth's surface. If the y-component of the net force on the"
+    "particle near Earth due to the electric field and gravity is zero,"
+    "what is the magnitude (and show the direction) of the electric field E?"
     "    Answer:  [XXXXXXXXXXXX]"
   )
   ;; :graphic "elec1.gif"
@@ -94,8 +95,9 @@
   :statement (
     "A charged particle (q = 52.0 $mC) is in a region where there is a"
     "uniform electric field E of magnitude 120 N/C at an angle of 90 degrees"
-    "above the positive x-axis. If the electric field exactly cancels its"
-    "weight near the Earth's surface, find the mass of the particle."
+    "above the positive x-axis. If the y-component of the net force on the"
+    "particle near Earth due to the electric field and gravity is zero, what"
+    "is the mass of the particle?"
     "    Answer:  [XXXXXXXXXXXX]"
   )
   ;; :graphic "elec2.gif"
