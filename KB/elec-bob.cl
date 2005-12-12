@@ -172,7 +172,7 @@
     "A proton (qp = 1.6e-19 C; mp = 1.7e-27 kg) is in a region where there is"
     "a uniform electric field E of magnitude 320 N/C, directed along the"
     "positive x-axis. The proton accelerates from rest and reaches a speed of"
-    "1.20e+5 m/s. How long does it take thep proton to reach this speed?"
+    "1.20e+5 m/s. How long does it take the proton to reach this speed?"
     "    Answer:  [XXXXXXXXXXXX]"
     "In this problem, gravity can be ignored."
   )
