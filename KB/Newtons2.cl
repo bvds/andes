@@ -7368,6 +7368,34 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (?v1-var algebra) (?v2-var algebra)))
  ))
 
+(defoperator define-angle-between-lines (?r1 ?r2)
+ :preconditions 
+ (
+  ;; lines must be drawn first, with known angles
+  (line ?r1 ?dir1)
+  (line ?r2 ?dir2)
+  (bind ?angle1 (convert-dnum-to-number ?dir1))
+  (bind ?angle2 (convert-dnum-to-number ?dir2))
+ ;; fetch vector mag vars for forming angle variable name only
+ (in-wm (variable ?v1-var (mag (line ?r1))))
+ (in-wm (variable ?v2-var (mag (line ?r2))))
+ (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
+ ;; compute angle between vectors to make it known as side-effect.
+ ;; lines are defined mod 180 degrees
+ (bind ?angle (min (mod (- ?angle1 ?angle2) 180)
+                   (mod (- ?angle2 ?angle1) 180)))
+ (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
+ )
+ :effects (
+   (define-var (angle-between (line ?r1) (line ?r2)))
+   (variable ?theta-var (angle-between (line ?r1) (line ?r2)))
+   (given (angle-between (line ?r1) (line ?r2)) (dnum ?angle |deg|))
+ )
+ :hint (
+  (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
+   ?r1 ?r2))
+ ))
+
 ;;;
 ;;; Following defines a variable for the work done by a force agent
 ;;; over a time interval.

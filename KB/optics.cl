@@ -393,79 +393,74 @@
          ((= (/ 1 ?f21) (+ (/ 1 ?f1) (/ 1 ?f2))) algebra) ))
   ))
 
-;;; Ray vector
+;;; line drawing
 
-;; this is actually supposed to be a generic vector with (optional)
-;; location slot
+;; this draws a line, with the bodies as a choice.
 
-(def-qexp ray (ray ?r :place ?p :time ?t)
+(def-qexp line (line ?r)
   :units nil
-  :english ("~A~@[ in ~A~]" (nlg ?r 'at-time ?t) (nlg ?p)))
+  :english ("~A" (nlg ?r)))
 
-(defoperator draw-ray (?r ?p ?t)
+(defoperator draw-line-given-dir (?r)
   :preconditions
-   ((ray ?r :place ?p :dir ?dir :time ?t)
-    (not (vector ?b (ray ?r . ?whatever) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?r) 
-			       (body-name ?p) (time-abbrev ?t)))
+   (
+    (given (dir (line ?r)) ?dir)
+    (not (line ?r . ?whatever))
+    (bind ?mag-var (format-sym "r_~A" (body-name ?r)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?r (ray ?r :place ?p :time ?t) ?dir)
-    (variable ?mag-var (mag (ray ?r :place ?p :time ?t)))
-    (variable ?dir-var (dir (ray ?r :place ?p :time ?t))))
+   (
+    (line ?r ?dir)
+    (variable ?mag-var (mag (line ?r)))
+    (variable ?dir-var (dir (line ?r))))
   :hint
-  ((bottom-out (string "Draw a vector for ~A~@[ in ~A~]." ?r ?p))
+  ((bottom-out (string "Use the line tool to draw a line for ~A." ?r))
    ))
 
 
 ;;; Snell's Law
 
-(def-psmclass snells-law (snells-law ?ray)
+(def-psmclass snells-law (snells-law ?line1 ?line2)
   :complexity major
   :english ("Snell's law")
-  :ExpFormat ("using Snell's law for ~A" (nlg ?ray))
+  :ExpFormat ("using Snell's law for ~A and ~A" (nlg ?line1) (nlg ?line2))
   :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
 
 (defoperator snells-law-contains (?sought)
   :preconditions 
-  ( (snell-system ?ray ?medium1 ?medium2 ?surface)
+  ( (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
     (any-member ?sought (
-			 (angle-between (?ray :place ?medium1) ?whatever)
-			 (angle-between (?ray :place ?medium2) ?whatever)
-			 (angle-between ?whatever (?ray :place ?medium1))
-			 (angle-between ?whatever (?ray :place ?medium2))
+			 (angle-between (line ?line1) ?whatever)
+			 (angle-between (line ?line2) ?whatever)
+			 (angle-between ?whatever (line ?line1))
+			 (angle-between ?whatever (line ?line2))
 			 (index-of-refraction ?medium1)		
 			 (index-of-refraction ?medium2)))
-    (wave-medium ?medium1)   ;sanity check
-    (wave-medium ?medium2) )
-  :effects ( (eqn-contains (snells-law ?ray) ?sought)
-	    ))
+    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    )
+  :effects ( (eqn-contains (snells-law ?line1 ?line2) ?sought) ))
 
-(defoperator write-snells-law (?ray)
+(defoperator write-snells-law (?line)
   :preconditions 
   ( 
-   (snell-system ?ray ?medium1 ?medium2 ?normal-to-surface)
-   ;; vector drawing step   
-   (vector (ray ?ray :place ?medium1) ?dir1)
-   (vector (ray ?ray :place ?medium2) ?dir2)
-   (vector (ray ?normal-to-surface :place ?medium1) ?dirn1)
-   (vector (ray ?normal-to-surface :place ?medium2) ?dirn2)
+   (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
+   ;; line drawing step   
+   (dir (line ?line1) ?dir1)
+   (dir (line ?line2) ?dir2)
+   (dir (line ?normal-to-surface) ?dirn)
    ;;
-   (bind ?vlist (sort (list ?ray ?normal-to-surface) #'expr<))
-   (bind ?v1 (first ?vlist))
-   (bind ?v2 (second ?vlist))
-   (variable ?theta1 (angle-between (ray ?v1 :place ?medium1) 
-				    (ray ?v2 :place ?medium1)))
-   (variable ?theta2 (angle-between (ray ?v1 :pleace ?medium2) 
-				    (ray ?v2 :place ?medium2)))
+   (bind ?l1 (sort `((line ,?line1) (line ,?normal-to-surface)) #'expr<))
+   (bind ?l2 (sort `((line ,?line2) (line ,?normal-to-surface)) #'expr<))
+   (variable ?theta1 (angle-between . ?l1))
+   (variable ?theta2 (angle-between . ?l2))
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2)) 
    )
   :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
-		  (snells-law ?ray1 ?ray2)))
+		  (snells-law ?line1 ?line2)))
   :hint (
 	 (point (string "How is the angle of ~A related to the angle of ~A?"
-			?ray1 ?ray2))
+			?line1 ?line2))
 	 (teach (string "Use Snell's law")) 
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= (* ?n1 (sin ?theta1)) 

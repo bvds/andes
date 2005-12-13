@@ -189,22 +189,21 @@
 ;;; from configuration wrt point particle, or else unknown.
 
 (defoperator draw-Efield-vector (?b ?loc ?source ?t)
- :specifications " "
- :preconditions 
- ((rdebug "Using draw-Efield-vector  ~%")
-  (time ?t)
-  ;; ?b is "test charge" feeling force at loc
-  ;; it is only used as axis owner for vector
-  ;; !!! what if we're given field at point with no body?
-  (at-place ?b ?loc ?t)
-  (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
-  (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
-  (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
-			     (body-name ?source) (time-abbrev ?t)))
-  (bind ?dir-var (format-sym "O~A" ?mag-var))
-  (rdebug "fired draw-Efield-vector   ~%")
-  )
- :effects (
+  :preconditions 
+  ((rdebug "Using draw-Efield-vector  ~%")
+   (time ?t)
+   ;; ?b is "test charge" feeling force at loc
+   ;; it is only used as axis owner for vector
+   ;; !!! what if we're given field at point with no body?
+   (at-place ?b ?loc ?t)
+   (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
+   (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
+   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
+			      (body-name ?source) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (rdebug "fired draw-Efield-vector   ~%")
+   )
+  :effects (
 	   (vector ?b (field ?loc electric ?source :time ?t) ?dir)
 	   (variable ?mag-var (mag (field ?loc electric ?source :time ?t)))
 	   (variable ?dir-var (dir (field ?loc electric ?source :time ?t)))
@@ -212,9 +211,9 @@
 	   ;; eqn gets written.  Given value may not be used elsewhere so 
 	   ;; ensure it here.
 	   (implicit-eqn (= ?dir-var ?dir) (dir (field ?loc electric ?source :time ?t)))
-            )  
- :hint (
-	(point (string "You were given the direction of the electric field at ~a due to ~a." ?loc (?source agent)))
+	   )  
+  :hint (
+	 (point (string "You were given the direction of the electric field at ~a due to ~a." ?loc (?source agent)))
          (bottom-out (string "Use the electric field drawing tool (labeled E) to draw the electric field at ~a due to ~a in the given direction of ~A." 
 			     ?loc (?source agent) ?dir))
          ))
