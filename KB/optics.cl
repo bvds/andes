@@ -1,6 +1,6 @@
-;;
-;; Geometrical Optics 
-;;
+
+;;; Geometrical Optics 
+
 
 ;; Optics variables. Question how to define image-distance and object-distance,
 ;; which are really just distances in the context of optics problems.
@@ -393,29 +393,81 @@
          ((= (/ 1 ?f21) (+ (/ 1 ?f1) (/ 1 ?f2))) algebra) ))
   ))
 
-
 ;;; Ray vector
 
-;; this is actually supposed to be a generic vector drawn (optionally)
-;; in some medium.  
+;; this is actually supposed to be a generic vector with (optional)
+;; location slot
 
-(defoperator draw-ray (?r)
+(def-qexp ray (ray ?r :place ?p :time ?t)
+  :units nil
+  :english ("~A~@[ in ~A~]" (nlg ?r 'at-time ?t) (nlg ?p))
+
+(defoperator draw-ray (?r ?p ?t)
   :preconditions
-   ((ray ?r :medium ?medium :dir ?dir)
+   ((ray ?r :place ?p :dir ?dir :time ?t)
     (not (vector ?b (ray ?r . ?whatever) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A~@[_~A]" (body-name ?r) (time-abbrev ?t))))
-  :effects
-   ((vector ?r (ray ?r :medium ?medium) ?dir)
-    (variable ?mag-var (mag (ray ?b :time ?t)))
+    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?r) 
+			       (body-name ?p) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :effects
+   ((vector ?r (ray ?r :place ?p :time ?t) ?dir)
+    (variable ?mag-var (mag (ray ?r :place ?p :time ?t)))
+    (variable ?dir-var (dir (ray ?r :place ?p :time ?t))))
   :hint
-  ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
-   (teach (string "Whenever an object is at rest during a time interval, it has a displacement of zero.")
-	  (kcd "draw_zero_displacement"))
-   (bottom-out (string "Because ~a is at rest ~a, use the displacement tool to draw zero length vector for it." ?b (?t pp)))
+  ((bottom-out (string "Draw a vector for ~A~@[ in ~A~]." ?r ?p))
    ))
 
 
 ;;; Snell's Law
 
+(def-psmclass harmonic-of (snells-law ?ray)
+  :complexity major
+  :english ("Snell's law")
+  :ExpFormat ("using Snell's law for ~A" (nlg ?ray))
+  :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
 
+(defoperator snells-law-contains (?sought)
+  :preconditions 
+  ( (snell-system ?ray ?medium1 ?medium2 ?surface)
+    (any-member ?sought (
+			 (angle-between (?ray :place ?medium1) ?whatever)
+			 (angle-between (?ray :place ?medium2) ?whatever)
+			 (angle-between ?whatever (?ray :place ?medium1))
+			 (angle-between ?whatever (?ray :place ?medium2))
+			 (index-of-refraction ?medium1)		
+			 (index-of-refraction ?medium2)))
+    (wave-medium ?medium1)   ;sanity check
+    (wave-medium ?medium2) )
+  :effects ( (eqn-contains (snells-law ?ray) ?sought)
+	    ))
+
+(defoperator write-snells-law (?ray)
+  :preconditions 
+  ( 
+   (snell-system ?ray ?medium1 ?medium2 ?normal-to-surface)
+   ;; vector drawing step   
+   (vector (ray ?ray :place ?medium1) ?dir1)
+   (vector (ray ?ray :place ?medium2) ?dir2)
+   (vector (ray ?normal-to-surface :place ?medium1) ?dirn1)
+   (vector (ray ?normal-to-surface :place ?medium2) ?dirn2)
+   ;;
+   (bind ?vlist (sort (list ?ray ?normal-to-surface) #'expr<))
+   (bind ?v1 (first ?vlist))
+   (bind ?v2 (second ?vlist))
+   (variable ?theta1 (angle-between (ray ?v1 :place ?medium1) 
+				    (ray ?v2 :place ?medium1)))
+   (variable ?theta2 (angle-between (ray ?v1 :pleace ?medium2) 
+				    (ray ?v2 :place ?medium2)))
+   (variable ?n1 (index-of-refraction ?medium1))
+   (variable ?n2 (index-of-refraction ?medium2)) 
+   )
+  :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
+		  (snells-law ?ray1 ?ray2)))
+  :hint (
+	 (point (string "How is the angle of ~A related to the angle of ~A?"
+			?ray1 ?ray2))
+	 (teach (string "Use Snell's law")) 
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= (* ?n1 (sin ?theta1)) 
+				 (* ?n2 (sin ?theta2))) algebra)))
+	 ))

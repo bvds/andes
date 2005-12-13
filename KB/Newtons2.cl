@@ -7841,8 +7841,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                   (mag (force ?b ?agent ?type :time ?t))
 		  (mag (velocity ?b :time ?t))
 		  ;; NB: vector terms must be in sorted order:
-		  (angle-between (force ?b ?agent ?type :time ?t))
-		                 (velocity ?b :time ?t)
+		  (angle-between (force ?b ?agent ?type :time ?t)
+		                 (velocity ?b :time ?t))
     			))
     ;; can be timeless
     (test (or (null ?t) (time-pointp ?t)))
