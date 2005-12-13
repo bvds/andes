@@ -400,7 +400,7 @@
 
 (def-qexp ray (ray ?r :place ?p :time ?t)
   :units nil
-  :english ("~A~@[ in ~A~]" (nlg ?r 'at-time ?t) (nlg ?p))
+  :english ("~A~@[ in ~A~]" (nlg ?r 'at-time ?t) (nlg ?p)))
 
 (defoperator draw-ray (?r ?p ?t)
   :preconditions
@@ -420,7 +420,7 @@
 
 ;;; Snell's Law
 
-(def-psmclass harmonic-of (snells-law ?ray)
+(def-psmclass snells-law (snells-law ?ray)
   :complexity major
   :english ("Snell's law")
   :ExpFormat ("using Snell's law for ~A" (nlg ?ray))
