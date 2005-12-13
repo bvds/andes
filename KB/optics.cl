@@ -394,7 +394,28 @@
   ))
 
 
-;;
-;; Snell's Law
-;;
+;;; Ray vector
+
+;; this is actually supposed to be a generic vector drawn (optionally)
+;; in some medium.  
+
+(defoperator draw-ray (?r)
+  :preconditions
+   ((ray ?r :medium ?medium :dir ?dir)
+    (not (vector ?b (ray ?r . ?whatever) ?dont-care))
+    (bind ?mag-var (format-sym "r_~A~@[_~A]" (body-name ?r) (time-abbrev ?t))))
+  :effects
+   ((vector ?r (ray ?r :medium ?medium) ?dir)
+    (variable ?mag-var (mag (ray ?b :time ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :hint
+  ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
+   (teach (string "Whenever an object is at rest during a time interval, it has a displacement of zero.")
+	  (kcd "draw_zero_displacement"))
+   (bottom-out (string "Because ~a is at rest ~a, use the displacement tool to draw zero length vector for it." ?b (?t pp)))
+   ))
+
+
+;;; Snell's Law
+
 

@@ -7640,6 +7640,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; find or draw a force.
    (setof (nc-work-during (work ?b ?agent :time ?t-work) ?t) 
           (work ?b ?agent :time ?t-work) ?work-quants)
+   (debug "collect nc-work-during gives:  ~A~%" ?work-quants)
    ;; this would actually work if no nc work agents, since algebra module
    ;; accepts (= Wnc (+)) interpreting n-ary sum of zero terms as zero.
    ;; But is there a problem giving help based on this form?
