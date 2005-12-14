@@ -406,7 +406,7 @@
    (
     (given (dir (line ?r)) ?dir)
     (not (line ?r . ?whatever))
-    (bind ?mag-var (format-sym "r_~A" (body-name ?r)))
+    (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
    (
@@ -440,14 +440,14 @@
     )
   :effects ( (eqn-contains (snells-law ?line1 ?line2) ?sought) ))
 
-(defoperator write-snells-law (?line)
+(defoperator write-snells-law (?line1 ?line2)
   :preconditions 
   ( 
    (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
    ;; line drawing step   
-   (dir (line ?line1) ?dir1)
-   (dir (line ?line2) ?dir2)
-   (dir (line ?normal-to-surface) ?dirn)
+   (line ?line1 ?dir1)
+   (line ?line2 ?dir2)
+   (line ?normal-to-surface ?dirn)
    ;;
    (bind ?l1 (sort `((line ,?line1) (line ,?normal-to-surface)) #'expr<))
    (bind ?l2 (sort `((line ,?line2) (line ,?normal-to-surface)) #'expr<))
