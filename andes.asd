@@ -95,6 +95,7 @@
 				     (:file "electromagnetism-problems")  
 				     (:file "elec-bob")  
 				     (:file "optics")          
+				     (:file "optics-problems")          
 				     (:file "impulse")
 				     (:file "impulse-problems") 
 				     (:file "rocket-problems") 
