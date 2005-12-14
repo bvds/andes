@@ -629,10 +629,13 @@
 (defun on-lookup-line (label body-arg dir mag &optional time id)
   (let* ((body-term    (arg-to-body body-arg))
 	 (time-term    (arg-to-time time))
-	 (dir-term     (arg-to-dir dir mag))
-	 (line-term (if time-term `(line ,body-term ,dir-term :time ,time-term)
-		      `(line ,body-term ,dir-term)))
-	 (entry (make-StudentEntry :id id :prop line-term))
+	 (unmod-dir    (arg-to-dir dir mag))
+	 ;; lines defined mod 180 degrees
+	 (dir-term (if (degrees-or-num unmod-dir) 
+		   (mod (convert-dnum-to-number unmod-dir) 180) unmod-dir))
+	 (line-term `(line ,body-term :time ,time-term))
+	 (action `(draw-line ,line-term ,dir-term)) 
+	 (entry (make-StudentEntry :id id :prop action))
 	 ;; this defines magnitude and direction variables
 	 (line-mag-term `(mag ,line-term))
 	 (line-dir-term `(dir ,line-term))

@@ -286,10 +286,10 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lookup-vector -- check the correctness of a vector drawn by the student. May
-;;  be any vector type except force
+;; lookup-line -- check the correctness of a line drawn by the student.
 ;; argument(s):
 ;;  label: the line label
+;;  body:  the ``body'' associated with the line.
 ;;  dir: angle of the line from horizontal (0->360 degrees) or a nega-
 ;;    tive number coding a z-axiz direction as follows (-1->out of plane; -2
 ;;    is into plane; -3 unknown but along z axis
@@ -305,9 +305,9 @@
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-line (label dir mag &optional time id)
+(defun lookup-line (label body dir mag &optional time id)
   (handle-non-eq 
-     (on-lookup-line label dir mag time id)))
+     (on-lookup-line label body dir mag time id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-force - check correctness of a force vector drawn by the student

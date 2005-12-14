@@ -7372,8 +7372,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions 
  (
   ;; lines must be drawn first, with known angles
-  (line ?r1 ?dir1)
-  (line ?r2 ?dir2)
+  (draw-line (line ?r1) ?dir1)
+  (draw-line (line ?r2) ?dir2)
   (test (expr< ?r1 ?r2))  ;only do one order, ?r1 & ?r2 distinct
   (test (and (degrees-or-num ?dir1) (degrees-or-num ?dir2)))
   (bind ?angle1 (convert-dnum-to-number ?dir1))
@@ -7400,8 +7400,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    ;; lines must be drawn first, with unknown angles
-   (line ?r1 unknown)
-   (line ?r2 unknown)
+   (draw-line (line ?r1) unknown)
+   (draw-line (line ?r2) unknown)
    (test (expr< ?r1 ?r2))  ;only do one order, ?r1 & ?r2 distinct
    ;; define variable name
    (bind ?theta-var (format-sym "theta_~A_~A" (body-name ?r1) (body-name ?r2)))

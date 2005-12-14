@@ -520,7 +520,7 @@
 
 ;; If medium is "light" then set its wave-speed to c
 (def-psmclass wave-speed-light (wave-speed-light ?medium)
-  :complexity minor
+  :complexity definition
   :english ("the speed of a light or radio wave")
   :ExpFormat("setting wave speed to c")
   :EqnFormat("vw=c"))
@@ -547,7 +547,7 @@
 ;;; set the index of refraction of vacuum to 1
 
 (def-psmclass refraction-vacuum (refraction-vacuum ?medium)
-  :complexity minor
+  :complexity definition
   :english ("the index of refraction of a vacuum")
   :ExpFormat("setting the index of refraction to 1")
   :EqnFormat("n=1"))

@@ -361,12 +361,13 @@
 	(z-unknown (format Nil "vector for ~a the direction is ~a." Quant Dir))
 	(zero (format nil "zero length vector for ~a." Quant))))))
 
-(def-entryprop line (line ?line ?dir)
-  :helpform (line ?line)
+(def-entryprop draw-line (draw-line ?line ?dir)
+  :helpform (draw-line ?line)
   :Doc "The line drawing tool"
-  :English ("a line ~A representing ~A" (line-entryprop ?dir) (nlg ?line)))
+  :English ("a line ~A representing ~A" 
+	    (draw-line-entryprop ?dir) (nlg ?line)))
 
-(defun line-entryprop (dir)
+(defun draw-line-entryprop (dir)
   (if (eq dir 'unknown) "in an unknown direction" 
     "at an angle of ~A" (nlg dir)))
 	

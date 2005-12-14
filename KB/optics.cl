@@ -405,20 +405,24 @@
   :preconditions
    (
     (given (dir (line ?r)) ?dir-in)
-    (not (line ?r . ?whatever))
-    (bind ?dir (if (degrees-or-num ?dir) 
-		   (mod (convert-dnum-to-number ?dir1) 180) ?dir-in))
+    (not (draw-line ?r ?dontcare))
+    (bind ?dir (if (degrees-or-num ?dir-in) 
+		   (mod (convert-dnum-to-number ?dir-in) 180) ?dir-in))
     (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-hint (if (degrees-or-num ?dir) 
+			(format nil "a direction of ~A degrees with respect to the horizontal" ?dir) 
+		      "an unknown direction"))
     (debug "draw line ~A at ~A~%" ?r ?dir)
     )
   :effects
    (
-    (line ?r ?dir)
+    (draw-line (line ?r) ?dir)
     (variable ?mag-var (mag (line ?r)))
     (variable ?dir-var (dir (line ?r))))
   :hint
-  ((bottom-out (string "Use the line tool to draw a line for ~A." ?r))
+  ((bottom-out (string "Use the line tool to draw a line for ~A in ~A." 
+		       ?r ?dir-hint))
    ))
 
 
@@ -449,9 +453,9 @@
   ( 
    (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
    ;; line drawing step   
-   (line ?line1 ?dir1)
-   (line ?line2 ?dir2)
-   (line ?normal-to-surface ?dirn)
+   (draw-line (line ?line1) ?dir1)
+   (draw-line (line ?line2) ?dir2)
+   (draw-line (line ?normal-to-surface) ?dirn)
    ;;
    (bind ?l1 (sort `((line ,?line1) (line ,?normal-to-surface)) #'expr<))
    (bind ?l2 (sort `((line ,?line2) (line ,?normal-to-surface)) #'expr<))
