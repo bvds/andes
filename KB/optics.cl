@@ -404,10 +404,14 @@
 (defoperator draw-line-given-dir (?r)
   :preconditions
    (
-    (given (dir (line ?r)) ?dir)
+    (given (dir (line ?r)) ?dir-in)
     (not (line ?r . ?whatever))
+    (bind ?dir (if (degrees-or-num ?dir) 
+		   (mod (convert-dnum-to-number ?dir1) 180) ?dir-in))
     (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "draw line ~A at ~A~%" ?r ?dir)
+    )
   :effects
    (
     (line ?r ?dir)
@@ -455,6 +459,7 @@
    (variable ?theta2 (angle-between . ?l2))
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2)) 
+   (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
    )
   :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
 		  (snells-law ?line1 ?line2)))

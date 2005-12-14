@@ -294,7 +294,6 @@
 ;;;
 ;;;  Hamonics of standing waves
 
-
 ;;  The allows one to do things in terms of either frequency or wavelength
 ;;
 (def-psmclass harmonic-of (harmonic-of ?waven ?wave1 ?form)
