@@ -483,7 +483,7 @@
 
 ;;;; Relate index of refraction to wave-speed
 
-(def-psmclass wave-speed-refraction (wave-speed-refraction . ?media)
+(def-psmclass wave-speed-refraction (wave-speed-refraction ?type . ?media)
   :complexity major			; must explicitly use
   :english ("the definition of index of refraction")
   :ExpFormat ("relating the speed of waves in ~A to the index of refraction" 
@@ -495,24 +495,38 @@
   ( (any-member ?sought ((wave-speed ?medium1)
 			 (index-of-refraction ?medium1)))
     (wave-medium ?medium1)
+    (not (vacuum ?medium1))
     (wave-medium ?medium2)
+    (not (vacuum ?medium2))
     (test (not (eq ?medium1 ?medium2)))
     (bind ?media (sort (list ?medium1 ?medium2) #'expr<)) )
-  :effects ( (eqn-contains (wave-speed-refraction . ?media) ?sought) ))
+  :effects ( (eqn-contains (wave-speed-refraction t . ?media) ?sought) ))
+
+(defoperator wave-speed-refraction-vacuum-contains (?sought)
+  :preconditions 
+  ( (any-member ?sought ((wave-speed ?medium1)
+			 (index-of-refraction ?medium1)))
+    (wave-medium ?medium1)
+    (wave-medium ?medium2)
+    (in-wm (vacuum ?medium2)) ;thus rhs will have n=1, simplify equation
+    (test (not (eq ?medium1 ?medium2)))
+    (bind ?media (list ?medium1 ?medium2)) )
+  :effects ( (eqn-contains (wave-speed-refraction nil . ?media) ?sought) ))
 
 (defoperator write-wave-speed-refraction (?medium1 ?medium2)
   :preconditions 
   ( (variable  ?v1 (wave-speed ?medium1))
     (variable  ?n1 (index-of-refraction ?medium1))
     (variable  ?v2 (wave-speed ?medium2))
-    (variable  ?n2 (index-of-refraction ?medium2)) )
-  :effects ( (eqn  (= (* ?v1 ?n1) (* ?v2 ?n2))
-		   (wave-speed-refraction ?medium1 ?medium2)) )
+    (variable  ?n2 (index-of-refraction ?medium2)) 
+    (bind ?rhs (if ?type `(* ,?v2 ,?n2) ?v2)) )
+  :effects ( (eqn  (= (* ?v1 ?n1) ?rhs)
+		   (wave-speed-refraction ?type ?medium1 ?medium2)) )
   :hint (
 	 (hint (string "Relate the speed of waves in ~A to those in ~A." ?medium1 ?medium2))
 	 (pont (string "The index of refraction relates the speed of waves in a medium to the speed of waves in another medium."))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= (* ?v1 ?n1) (* ?v2 ?n2)) algebra) ))
+			     ((= (* ?v1 ?n1) ?rhs) algebra) ))
 	 ))
 
 
