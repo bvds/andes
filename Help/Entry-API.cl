@@ -621,6 +621,43 @@
     ; finally return entry
     entry))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lookup-line -- check the correctness of a line drawn by the student.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun on-lookup-line (label body-arg dir mag &optional time id)
+  (let* ((body-term    (arg-to-body body-arg))
+	 (time-term    (arg-to-time time))
+	 (dir-term     (arg-to-dir dir mag))
+	 (line-term (if time-term `(line ,body-term ,dir-term :time ,time-term)
+		      `(line ,body-term ,dir-term)))
+	 (entry (make-StudentEntry :id id :prop line-term))
+	 ;; this defines magnitude and direction variables
+	 (line-mag-term `(mag ,line-term))
+	 (line-dir-term `(dir ,line-term))
+	 ;; xy plane lines get theta prefix, z axis ones get phi
+	 ;; Greek symbols expressed by $ + char position in symbol font
+	 (dir-label  (format NIL "~A~A" (if (z-dir-spec dir-term) "$j" "$q")
+			     label)))
+    ;; remove existing entry and update
+    (add-entry entry)
+    (symbols-enter label line-mag-term id)
+    (symbols-enter dir-label line-dir-term id)
+    
+    ;; if direction is known, associate implicit equation dirV = dir deg.
+    (when (dimensioned-numberp dir-term)          ; known xy plane direction
+      (setf (StudentEntry-ImplicitEqn entry) 
+	    (make-implicit-eqn-entry dir-label dir-term)))
+    (when (and (z-dir-spec dir-term) 
+	       (not (equal dir-term 'z-unknown))) ; known z axis direction
+      (setf (StudentEntry-ImplicitEqn entry) 
+	    (make-implicit-eqn-entry dir-label (zdir-phi dir-term))))
+    ;; Associated eqns will be entered later if entry is found correct.
+    
+    ;; finally return entry
+    entry))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-force - check correctness of a force vector drawn by the student
 ;; argument(s):

@@ -284,6 +284,31 @@
   (handle-non-eq 
      (on-lookup-vector label avg-inst type system dir mag time id)))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lookup-vector -- check the correctness of a vector drawn by the student. May
+;;  be any vector type except force
+;; argument(s):
+;;  label: the line label
+;;  dir: angle of the line from horizontal (0->360 degrees) or a nega-
+;;    tive number coding a z-axiz direction as follows (-1->out of plane; -2
+;;    is into plane; -3 unknown but along z axis
+;;  mag: length of line or nil if unspecified
+;;  time: the time period during which the vector is constant. if nil and 
+;;    system is a student defined system, the time will be taken from 
+;;     the system definition
+;;  id: id assigned to vector by the workbench
+;; returns:
+;;  entry status return value -- see end of code for description of this
+;; note(s):
+;;  if the line is correct, the help system marks the corresponding system
+;;  entry as "entered", defines the magnitude and direction variables, and
+;;  enters the variables in the symbol table.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun lookup-line (label dir mag &optional time id)
+  (handle-non-eq 
+     (on-lookup-line label dir mag time id)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-force - check correctness of a force vector drawn by the student
 ;; argument(s):
@@ -461,7 +486,7 @@
 
 
 
-;;; ==============================================================================
+;;; ===========================================================================
 ;;; Eqn-entry
 ;;; Equation entry commands.
 
@@ -484,7 +509,7 @@
 
 
 
-;;; ================================================================================
+;;; ===========================================================================
 ;;; Algebra API calls.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
