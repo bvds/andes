@@ -345,7 +345,7 @@
 
 ;;; Special case: The student defines a distance-travelled when
 ;;; displacement of that same body is correct.  We ignore the time.
-;;; Test this on Exkt9a.
+;;; Test this on kt9a.
 (def-error-class distance-travelled-should-be-displacement (?body ?correct-time)
   ((student (define-var (distance ?body :time ?time1)))
    (no-correct (define-var (distance ?body2 :time ?time2)))
@@ -406,7 +406,7 @@
 ;;; use speeds, we can ignore the body and time arguments.  However,
 ;;; an interpretatin where the body and time matches the student's
 ;;; body and time match is more probable than one where they do not
-;;; match.  Test this on exkt9a.
+;;; match.  Test this on kt9a.
 (def-error-class velocity-not-speed (?cbody ?ctime )
   ((student (define-var (speed ?sbody :time ?stime)))
    (correct (vector (velocity ?cbody :time ?ctime) ?dir)))
@@ -1322,24 +1322,25 @@
 ;;; known/unknown error. Need several defaults under (1) to give special 
 ;;; messages for these.
 
-(def-error-class default-should-be-unknown ()
+(def-error-class default-should-be-unknown ("vector")
   ((student (vector ?descr ?dir))
    (correct (vector ?descr unknown))
    (test (not (equal ?dir 'unknown))))
 ;; High probability since close match
   :probability 0.75)
 
-(defun default-should-be-unknown ()
+(defun default-should-be-unknown (object)
  (make-hint-seq
    (list 
-        (strcat "When the direction of a vector is not given or easily "
-	        "inferred from the problem statement, you should mark "
-		"it unknown.  Since drawing the vector automatically "
-		"fills in a value for the vector's orientation angle, "
-		"you have to erase this value in the dialog box to mark "
-		"the direction unknown.")
-        "Double-click on the vector in order to bring up its properties, then erase the number in the direction box to mark the direction unknown."
-	 )))
+    (format nil (strcat "When the direction of a ~A is not given or easily "
+			"inferred from the problem statement, you should mark "
+			"it unknown.  Since drawing the ~A automatically "
+			"fills in a value for the ~A's orientation angle, "
+			"you have to erase this value in the dialog box to "
+			"mark the direction unknown.") object object object)
+    (format nil 
+	    "Double-click on the ~A in order to bring up its properties, then erase the number in the direction box to mark the direction unknown."
+	    object))))
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
 (def-error-class default-should-be-z-unknown ()
@@ -1400,7 +1401,7 @@
 
 ;;; (ref Pitt non-eqn 4-17) If the student's vector is correct except
 ;;; for the angle, then just point that out.  This is the default case.
-(def-error-class default-wrong-vector-dir (?wrong-dir ?correct-dir)
+(def-error-class default-wrong-dir ("vector" ?wrong-dir ?correct-dir)
   ((student (vector ?descr ?wrong-dir))
    (correct (vector ?descr ?correct-dir))
    (test (not (equal ?wrong-dir 'zero))) ; either zero handled above
@@ -1408,11 +1409,11 @@
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
    (test (not (equal ?wrong-dir ?correct-dir)))))
 
-(defun default-wrong-vector-dir (wrong-dir correct-dir)
+(defun default-wrong-dir (object wrong-dir correct-dir)
   (make-hint-seq
    (append
-     (list (format nil "Do you really want the direction of that vector to be ~a?"
-		 (nlg wrong-dir 'adj))
+     (list (format nil "Do you really want the direction of that ~A to be ~A?"
+		 object (nlg wrong-dir 'adj))
 	   ; Don't give this bottom-out hint prematurely
 	   ; (format nil "It should be ~a." (nlg correct-dir 'adj))
 	   )
@@ -1591,6 +1592,40 @@
 	 (format nil (strcat "If you wish for more guidance you can click on "
 			     "the Light Bulb Button or 'Explain-More'."))
 	 '(function next-step-help))))
+
+
+;;; ==================== line drawing ===============================
+
+(def-error-class line-should-be-unknown ("line")
+  ((student (draw-line ?descr ?dir))
+   (correct (draw-line ?descr unknown))
+   (test (not (equal ?dir 'unknown))))
+;; High probability since close match
+  :probability 0.5)
+
+;;; The student's line doesn't appear at any angle
+(def-error-class default-non-existent-line (?cline ?sline)
+  ((student (draw-line ?sline ?sdir))
+   (no-correct (draw-line ?cline ?cdir))
+   (test (not (equal ?cline ?sline))))
+  :probability 0.01)
+
+(defun default-non-existent-line (correct-line wrong-line)
+  (setf correct-line (nlg correct-line 'def-np))
+  (setf wrong-line (nlg wrong-line 'def-np))
+  (make-hint-seq
+   (list (format nil "Are you sure you want to draw a line for ~a?" wrong-line)
+	 (format nil "A better choice would be to draw a line for ~a."
+		 correct-line))))
+
+;;; If the student's line is correct except
+;;; for the angle, then just point that out.  This is the default case.
+(def-error-class default-wrong-dir ("line" ?wrong-dir ?correct-dir)
+  ((student (line ?descr ?wrong-dir))
+   (correct (line ?descr ?correct-dir))
+   (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
+   (test (not (equal ?wrong-dir ?correct-dir))))
+  :probablility 0.1)
 
 
 ;;; ==================== velocity drawing ===========================

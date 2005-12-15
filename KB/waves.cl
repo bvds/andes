@@ -509,9 +509,10 @@
     (wave-medium ?medium1)
     (wave-medium ?medium2)
     (in-wm (vacuum ?medium2)) ;thus rhs will have n=1, simplify equation
-    (test (not (eq ?medium1 ?medium2)))
-    (bind ?media (list ?medium1 ?medium2)) )
-  :effects ( (eqn-contains (wave-speed-refraction nil . ?media) ?sought) ))
+    (test (not (eq ?medium1 ?medium2))) )
+  :effects 
+  ( (eqn-contains (wave-speed-refraction nil ?medium1 ?medium2) ?sought) )
+  )
 
 (defoperator write-wave-speed-refraction (?medium1 ?medium2)
   :preconditions 
