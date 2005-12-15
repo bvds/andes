@@ -423,15 +423,12 @@
     (not (draw-line (line ?r) ?dontcare))
     (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (variable ?dummy-var (test-var ?dir-var))
     (debug "draw line ~A in unkown direction~%" ?r)
     )
   :effects
   ( (draw-line (line ?r) unknown)
     (variable ?mag-var (mag (line ?r)))
-    (variable ?dir-var (dir (line ?r)))
-    (implicit-eqn (= ?dummy-var (sin ?dir-var)) (draw-line (line ?r) unknown))
-    )
+    (variable ?dir-var (dir (line ?r))) )
   :hint
    ((bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
 			?r))
@@ -483,8 +480,12 @@
   :preconditions 
   ( (variable ?angle (dir (line ?line)))
     (variable ?norm (dir (line ?normal-to-surface)))
+    (variable ?dummy-var (test-var ?angle))
     (bind ?theta `(- ,?angle ,?norm)))
-  :effects ((snell-angle ?theta ?line ?normal-to-surface t)))
+  :effects 
+  ( (snell-angle ?theta ?line ?normal-to-surface t)
+    (implicit-eqn (= ?dummy-var (cos ?theta)) (draw-line (line ?line) unknown))
+    ))
  
 (defoperator write-snells-law (?line1 ?line2 ?angle-flag)
   :preconditions 
