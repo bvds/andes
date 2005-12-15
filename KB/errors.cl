@@ -1596,7 +1596,7 @@
 
 ;;; ==================== line drawing ===============================
 
-(def-error-class line-should-be-unknown ("line")
+(def-error-class default-should-be-unknown ("line")
   ((student (draw-line ?descr ?dir))
    (correct (draw-line ?descr unknown))
    (test (not (equal ?dir 'unknown))))
@@ -1625,7 +1625,7 @@
    (correct (line ?descr ?correct-dir))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
    (test (not (equal ?wrong-dir ?correct-dir))))
-  :probablility 0.1)
+  :probability 0.1)
 
 
 ;;; ==================== velocity drawing ===========================
