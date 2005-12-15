@@ -403,32 +403,51 @@
 
 (defoperator draw-line-given-dir (?r)
   :preconditions
-   (
-    (given (dir (line ?r)) ?dir-in)
-    (not (draw-line ?r ?dontcare))
-    (bind ?dir (if (degrees-or-num ?dir-in) 
-		   (mod (convert-dnum-to-number ?dir-in) 180) ?dir-in))
+  ( (given (dir (line ?r)) ?dir-in)
+    (not (draw-line (line ?r) ?dontcare))
+    (bind ?dir (mod (convert-dnum-to-number ?dir-in) 180))
     (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?dir-hint (if (degrees-or-num ?dir) 
-			(format nil "a direction of ~A degrees with respect to the horizontal" ?dir) 
-		      "an unknown direction"))
-    (debug "draw line ~A at ~A~%" ?r ?dir)
+    (debug "draw line ~A at ~A~%" ?r ?dir) )
+  :effects ( (draw-line (line ?r) ?dir)
+	     (variable ?mag-var (mag (line ?r)))
+	     (variable ?dir-var (dir (line ?r))))
+  :hint ((bottom-out (string "Use the line tool to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
+			     ?r ?dir))
+	 ))
+
+(defoperator draw-line-unknown-dir (?r)
+  :preconditions
+  ( (setof (given (dir (line ?r)) ?dir) ?dir ?dirs)
+    (test (null ?dirs))
+    (not (draw-line (line ?r) ?dontcare))
+    (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (variable ?dummy-var (test-var ?dir-var))
+    (debug "draw line ~A in unkown direction~%" ?r)
     )
   :effects
-   (
-    (draw-line (line ?r) ?dir)
+  ( (draw-line (line ?r) unknown)
     (variable ?mag-var (mag (line ?r)))
-    (variable ?dir-var (dir (line ?r))))
+    (variable ?dir-var (dir (line ?r)))
+    (implicit-eqn (= ?dummy-var (sin ?dir-var)) (draw-line (line ?r) unknown))
+    )
   :hint
-  ((bottom-out (string "Use the line tool to draw a line for ~A in ~A." 
-		       ?r ?dir-hint))
-   ))
+   ((bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
+			?r))
+    ))
 
+;;; make trig test variable (for implicit equations only)
+
+;; This is a dummy variable for making restrictions for trig equations
+(defoperator define-test-var (?angle)
+  :preconditions ((bind ?var (format-sym "test_~A" ?angle)))
+  :effects ((variable ?var (test-var ?angle))
+	  (define-var (test-var ?angle))))
 
 ;;; Snell's Law
 
-(def-psmclass snells-law (snells-law ?line1 ?line2)
+(def-psmclass snells-law (snells-law ?line1 ?line2 ?angle-flag)
   :complexity major
   :english ("Snell's law")
   :ExpFormat ("using Snell's law for ~A and ~A" (nlg ?line1) (nlg ?line2))
@@ -442,31 +461,44 @@
 			 (angle-between (line ?line2) ?whatever)
 			 (angle-between ?whatever (line ?line1))
 			 (angle-between ?whatever (line ?line2))
+			 (dir (line ?line1))
+			 (dir (line ?line2))
 			 (index-of-refraction ?medium1)		
 			 (index-of-refraction ?medium2)))
+    (bind ?angle-flag (eq (first ?sought) 'dir))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
-  :effects ( (eqn-contains (snells-law ?line1 ?line2) ?sought) ))
+  :effects ( (eqn-contains (snells-law ?line1 ?line2 ?angle-flag) ?sought) ))
 
-(defoperator write-snells-law (?line1 ?line2)
+;; construct variable for angle of incidence or angle of refraction.
+(defoperator get-snell-angle1 (?theta)
+  :preconditions 
+  ( (bind ?l (sort `((line ,?line) (line ,?normal-to-surface)) #'expr<))
+    (variable ?theta (angle-between . ?l)))
+  :effects ((snell-angle ?theta ?line ?normal-to-surface nil)))
+
+;; alternative form of angle for cases where the direction
+;; of the line is sought
+(defoperator get-snell-angle2 (?theta)
+  :preconditions 
+  ( (variable ?angle (dir (line ?line)))
+    (variable ?norm (dir (line ?normal-to-surface)))
+    (bind ?theta `(- ,?angle ,?norm)))
+  :effects ((snell-angle ?theta ?line ?normal-to-surface t)))
+ 
+(defoperator write-snells-law (?line1 ?line2 ?angle-flag)
   :preconditions 
   ( 
    (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
-   ;; line drawing step   
-   (draw-line (line ?line1) ?dir1)
-   (draw-line (line ?line2) ?dir2)
-   (draw-line (line ?normal-to-surface) ?dirn)
    ;;
-   (bind ?l1 (sort `((line ,?line1) (line ,?normal-to-surface)) #'expr<))
-   (bind ?l2 (sort `((line ,?line2) (line ,?normal-to-surface)) #'expr<))
-   (variable ?theta1 (angle-between . ?l1))
-   (variable ?theta2 (angle-between . ?l2))
    (variable ?n1 (index-of-refraction ?medium1))
-   (variable ?n2 (index-of-refraction ?medium2)) 
+   (variable ?n2 (index-of-refraction ?medium2))
+   (snell-angle ?theta1 ?line1 ?normal-to-surface ?angle-flag)
+   (snell-angle ?theta2 ?line2 ?normal-to-surface ?angle-flag)
    (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
    )
   :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
-		  (snells-law ?line1 ?line2)))
+		  (snells-law ?line1 ?line2 ?angle-flag)))
   :hint (
 	 (point (string "How is the angle of ~A related to the angle of ~A?"
 			?line1 ?line2))

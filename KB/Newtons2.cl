@@ -7345,8 +7345,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions (
  ;; vectors must be drawn first, with known angles
  ;; note vector's axis owner bodies need not be the same
- (vector ?b1 ?vec1 (dnum ?v1-dir |deg|))
- (vector ?b2 ?vec2 (dnum ?v2-dir |deg|))
+ (vector ?b1 ?vec1 ?dir1)
+ (vector ?b2 ?vec2 ?dir2)
+ (test (and (degrees-or-num ?dir1) (degrees-or-num ?dir2)))
+ (bind ?angle1 (convert-dnum-to-number ?dir1))
+ (bind ?angle2 (convert-dnum-to-number ?dir2))
  ;; fetch vector mag vars for forming angle variable name only
  (bind ?v1-mag-exp `(mag ,?vec1))
  (bind ?v2-mag-exp `(mag ,?vec2))
@@ -7354,8 +7357,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (in-wm (variable ?v2-var ?v2-mag-exp))
  (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
  ;; compute angle between vectors to make it known as side-effect.
- (bind ?angle (min (mod (- ?v1-dir ?v2-dir) 360)
-                   (mod (- ?v2-dir ?v1-dir) 360)))
+ (bind ?angle (min (mod (- ?angle1 ?angle2) 360)
+                   (mod (- ?angle2 ?angle1) 360)))
  (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
  )
  :effects (
@@ -7396,25 +7399,20 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ?r1 ?r2))
  ))
 
-(defoperator define-given-angle-between-lines (?r1 ?r2)
+(defoperator define-given-between-unknown-lines (?r1 ?r2)
   :preconditions 
   (
-   ;; lines must be drawn first, with unknown angles
-   (draw-line (line ?r1) unknown)
-   (draw-line (line ?r2) unknown)
+   ;; lines must be drawn first, with an unknown angle
+   (draw-line (line ?r1) ?dir1)
+   (draw-line (line ?r2) ?dir2)
+   (test (or (eq ?dir1 'unknown) (eq ?dir2 'unknown)))
    (test (expr< ?r1 ?r2))  ;only do one order, ?r1 & ?r2 distinct
    ;; define variable name
    (bind ?theta-var (format-sym "theta_~A_~A" (body-name ?r1) (body-name ?r2)))
-   ;; given angle between vectors.
-   ;; lines are defined mod 180 degrees
-   (given (angle-between (line ?r1) (line ?r2)) ?angle)
-   (test (degrees-or-num ?angle))
-   (debug "given angle between ~A and ~A = ~A~%" ?r1 ?r2 ?angle)
+   (debug "angle between unknown ~A and ~A~%" ?r1 ?r2)
    )
-  :effects (
-	    (define-var (angle-between (line ?r1) (line ?r2)))
-	    (variable ?theta-var (angle-between (line ?r1) (line ?r2)))
-	    )
+  :effects ( (define-var (angle-between (line ?r1) (line ?r2)))
+	    (variable ?theta-var (angle-between (line ?r1) (line ?r2))) )
   :hint 
   ( (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
 			?r1 ?r2))

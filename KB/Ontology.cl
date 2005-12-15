@@ -157,6 +157,12 @@
 (def-qexp dir	(dir ?vector)
   :units |deg|
   :english ("the direction of ~A" (nlg ?vector)))
+
+;; this is only used by implicit-eqns, so it should never be visible
+;; to the user
+(def-qexp test-var (test-var ?angle)
+:units nil
+:restrictions nonnegative)
   
 ;;;; scalar quantities
 
@@ -521,11 +527,11 @@
   :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
 	    (moment-name) (nlg ?b) (nlg ?t 'pp))) 
 
-; this goal used as sought in vector-drawing-only problem (magtor*)
+;; this goal used as sought in vector-drawing-only problem (magtor*)
 (def-goalprop draw-vectors (draw-vectors ?vector-list)
   :english ("drawing the vectors asked for in the problem statement"))
 
-; this goal used as sought in multiple-choice question problem
+;; this goal used as sought in multiple-choice question problem
 (def-goalprop choose-mc-answer (choose-answer ?question-id ?answer)
    :english ("answering question ~A" (str-after ?question-id)))
 
