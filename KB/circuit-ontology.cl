@@ -11,7 +11,7 @@
           :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
 
 (def-qexp resistance (resistance ?names)
-	:units |ohm|
+	:units |$W|
 	:english ("the resistance of ~A" (conjoined-names ?names)))
 
 (def-qexp current-thru (current-thru ?component :time ?time)
