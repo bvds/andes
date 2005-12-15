@@ -519,13 +519,17 @@ NIL if none"
 ;; will not be processed further. Thus it does not need to be cleaned up if
 ;; the containing entry is not correct.
 ;;
-(defun make-implicit-eqn-entry (studvar value)
-"make equation entry setting student var to given value"
+(defun make-implicit-assignment-entry (studvar value)
+"make implicit equation entry setting student var to specified value expression"
    ; make sure corresponding system var exists
    ; if not, source entry is probably an error
-   (when (student-to-canonical studvar)
-     (make-StudentEntry :prop 
-       `(implicit-eqn (= ,(student-to-canonical studvar) ,value)))))
+   (let ((sysvar (student-to-canonical studvar)))
+    (when sysvar
+      (make-implicit-eqn-entry `(= ,sysvar ,value)))))
+
+(defun make-implicit-eqn-entry (eqn)
+"construct implicit eqn entry struct for given systemese equation"
+     (make-StudentEntry :prop `(implicit-eqn ,eqn)))
 
 ; unlike implicit equations, which can be represented in systemese,
 ; a given eqn entry is a studentese variable and a studentese expression
