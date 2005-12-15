@@ -244,6 +244,7 @@
   (grammar-add-special '**grammar** 'unit-name "T" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-name "Wb" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-name "ohm" nil **identifier-grammar**)
+  (grammar-add-special '**grammar** 'unit-name "$W" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-name "Hz" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-name "Pa" nil **identifier-grammar**)
   (grammar-add-special '**grammar** 'unit-name "F" nil **identifier-grammar**)
