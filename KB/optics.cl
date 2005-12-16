@@ -450,6 +450,7 @@
   :ExpFormat ("using Snell's law for ~A and ~A" (nlg ?line1) (nlg ?line2))
   :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
 
+;; form with angle-between
 (defoperator snells-law-contains (?sought)
   :preconditions 
   ( (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
@@ -458,53 +459,89 @@
 			 (angle-between (line ?line2) ?whatever)
 			 (angle-between ?whatever (line ?line1))
 			 (angle-between ?whatever (line ?line2))
+			 (index-of-refraction ?medium1)		
+			 (index-of-refraction ?medium2)))
+    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    )
+  :effects ( (eqn-contains (snells-law ?line1 ?line2 nil) ?sought) ))
+
+;; form with explicit angles
+(defoperator snells-law-contains2 (?sought)
+  :preconditions 
+  ( (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
+    (any-member ?sought (
 			 (dir (line ?line1))
 			 (dir (line ?line2))
 			 (index-of-refraction ?medium1)		
 			 (index-of-refraction ?medium2)))
-    (bind ?angle-flag (eq (first ?sought) 'dir))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
-  :effects ( (eqn-contains (snells-law ?line1 ?line2 ?angle-flag) ?sought) ))
+  :effects ( (eqn-contains (snells-law ?line1 ?line2 t) ?sought) ))
 
 ;; construct variable for angle of incidence or angle of refraction.
 (defoperator get-snell-angle1 (?theta)
   :preconditions 
   ( (bind ?l (sort `((line ,?line) (line ,?normal-to-surface)) #'expr<))
     (variable ?theta (angle-between . ?l)))
-  :effects ((snell-angle ?theta ?line ?normal-to-surface nil)))
+  :effects ((snell-angle ?theta ?line ?ignore ?normal-to-surface nil)))
 
 ;; alternative form of angle for cases where the direction
 ;; of the line is sought
 (defoperator get-snell-angle2 (?theta)
   :preconditions 
-  ( (variable ?angle (dir (line ?line)))
-    (variable ?norm (dir (line ?normal-to-surface)))
-    (variable ?dummy-var (test-var ?angle))
-    (bind ?theta `(- ,?angle ,?norm)))
+  (
+   ;; draw lines for the test
+   (draw-line (line ?line1) ?dir1)
+   (draw-line (line ?line2) ?dir2)
+   (draw-line (line ?normal-to-surface) ?dirn)
+
+   ;; All the angles are mod 180 degrees, but this fact should be
+   ;; transparent to the student (and the solver).  Thus, we only 
+   ;; allow directions where the incident angle and angle of refraction
+   ;; can be calculated without taking the mod.
+   (bind ?ray (cond ((degrees-or-num ?dir1) (convert-dnum-to-number ?dir1))
+		    ((degrees-or-num ?dir2) (convert-dnum-to-number ?dir2))
+		    (t nil)))
+   (test ?ray)
+   (bind ?normal (when (degrees-or-num ?dirn) (convert-dnum-to-number ?dirn)))
+   (test ?normal)
+   (test (or (and (<= 0 ?normal 90) (<= ?normal ?ray))
+	     (and (<= 90 ?normal 180) (<= ?ray ?normal))))
+
+   (variable ?angle1 (dir (line ?line1)))
+   (variable ?anglen (dir (line ?normal-to-surface)))
+   (bind ?theta1 (if (< ?ray ?normal) `(- ,?anglen ,?angle1) 
+		  `(- ,?angle1 ,?anglen)))
+   )
   :effects 
-  ( (snell-angle ?theta ?line ?normal-to-surface t)
-    (implicit-eqn (= ?dummy-var (cos ?theta)) (draw-line (line ?line) unknown))
-    ))
+  ( (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface t) ))
  
 (defoperator write-snells-law (?line1 ?line2 ?angle-flag)
   :preconditions 
-  ( 
+  (
    (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
    (snell-angle ?theta1 ?line1 ?normal-to-surface ?angle-flag)
    (snell-angle ?theta2 ?line2 ?normal-to-surface ?angle-flag)
+   (variable ?dummy1 (test-var ?line1)) ;; dummy1 is non-negative
+   (variable ?dummy2 (test-var ?line2)) ;; dummy2 is non-negative
    (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
    )
   :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
-		  (snells-law ?line1 ?line2 ?angle-flag)))
+		  (snells-law ?line1 ?line2 ?angle-flag))
+	     ;; Implicit equations to enforce the correct root for the sines
+	     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
+			   (snells-law ?line1 ?angle-flag))
+	     (implicit-eqn (= ?dummy2 (cos ?theta2)) 
+			   (snells-law ?line2 ?angle-flag))
+    )
   :hint (
-	 (point (string "How is the angle of ~A related to the angle of ~A?"
+	 (point (string "How is the direction of ~A related to the direction of ~A?"
 			?line1 ?line2))
-	 (teach (string "Use Snell's law")) 
-	 (bottom-out (string "Write the equation ~A" 
+	 (teach (string "Use Snell's law.")) 
+	 (bottom-out (string "Write the equation ~A." 
 			     ((= (* ?n1 (sin ?theta1)) 
 				 (* ?n2 (sin ?theta2))) algebra)))
 	 ))
