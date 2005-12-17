@@ -509,7 +509,7 @@
    ;; the test itself is somewhat redundant with the implicit-eqn below
    (test (or (and (<= 0 ?normal 90) (<= ?normal ?ray))
 	     (and (<= 90 ?normal 180) (<= ?ray ?normal))
-	   (cerror "invalid angles for Snell's law")))
+	   (error "invalid angles for Snell's law")))
 
    (variable ?angle1 (dir (line ?line1)))
    (variable ?anglen (dir (line ?normal-to-surface)))
