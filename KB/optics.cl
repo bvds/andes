@@ -487,7 +487,7 @@
 
 ;; alternative form of angle for cases where the direction
 ;; of the line is sought
-(defoperator get-snell-angle2 (?theta)
+(defoperator get-snell-angle2 (?theta1)
   :preconditions 
   (
    ;; draw lines for the test
@@ -499,14 +499,17 @@
    ;; transparent to the student (and the solver).  Thus, we only 
    ;; allow directions where the incident angle and angle of refraction
    ;; can be calculated without taking the mod.
+   ;; Thus, we need an explicit angle for the normal and one ray
    (bind ?ray (cond ((degrees-or-num ?dir1) (convert-dnum-to-number ?dir1))
 		    ((degrees-or-num ?dir2) (convert-dnum-to-number ?dir2))
 		    (t nil)))
    (test ?ray)
    (bind ?normal (when (degrees-or-num ?dirn) (convert-dnum-to-number ?dirn)))
    (test ?normal)
+   ;; the test itself is somewhat redundant with the implicit-eqn below
    (test (or (and (<= 0 ?normal 90) (<= ?normal ?ray))
-	     (and (<= 90 ?normal 180) (<= ?ray ?normal))))
+	     (and (<= 90 ?normal 180) (<= ?ray ?normal))
+	   (cerror "invalid angles for Snell's law")))
 
    (variable ?angle1 (dir (line ?line1)))
    (variable ?anglen (dir (line ?normal-to-surface)))
@@ -523,8 +526,8 @@
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (snell-angle ?theta1 ?line1 ?normal-to-surface ?angle-flag)
-   (snell-angle ?theta2 ?line2 ?normal-to-surface ?angle-flag)
+   (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface ?angle-flag)
+   (snell-angle ?theta2 ?line2 ?line1 ?normal-to-surface ?angle-flag)
    (variable ?dummy1 (test-var ?line1)) ;; dummy1 is non-negative
    (variable ?dummy2 (test-var ?line2)) ;; dummy2 is non-negative
    (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
@@ -532,10 +535,11 @@
   :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
 		  (snells-law ?line1 ?line2 ?angle-flag))
 	     ;; Implicit equations to enforce the correct root for the sines
+	     ;; This is needed if one wants to calculate one of the angles
 	     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
-			   (snells-law ?line1 ?angle-flag))
+			   (angle-constraint ?line1 ?angle-flag))
 	     (implicit-eqn (= ?dummy2 (cos ?theta2)) 
-			   (snells-law ?line2 ?angle-flag))
+			   (angle-constraint ?line2 ?angle-flag))
     )
   :hint (
 	 (point (string "How is the direction of ~A related to the direction of ~A?"

@@ -649,26 +649,25 @@
     (symbols-enter dir-label line-dir-term id)
     
     ;; if direction is known, associate implicit equation dirV = dir deg.
-    (if (dimensioned-numberp dir-term)          ; known xy plane direction
-      (setf (StudentEntry-ImplicitEqn entry) 
-	    (make-implicit-assignment-entry dir-label dir-term))
-    ; ELSE: 
-    ; include implicit equation sin dir = dummy variable declared > 0. This may have
-    ; been included in the solution to enable solver to solve for dir from principle equations 
-    ; in cos dir only (Snell's Law). If so, treat this constraining equation as entered by 
-    ; student now so solve tool can solve student's system the same way as at sgg time.
-    ; NB: relies on fact that the equation id for this equation is the same as 
-    ; the entry proposition for this entry, so can just fetch syseqn from eqn index.
-     (let ((eqinfo (find action (Problem-EqnIndex *cp*) :key #'eqn-Exp :test #'equal)))
-       (when eqinfo
-         (setf (StudentEntry-ImplicitEqn entry) 
-	     (make-implicit-eqn-entry (eqn-algebra eqinfo))))))
-
+    (when (dimensioned-numberp dir-term)          ; known xy plane direction
+	(setf (StudentEntry-ImplicitEqn entry) 
+	      (make-implicit-assignment-entry dir-label dir-term)))
     (when (and (z-dir-spec dir-term) 
 	       (not (equal dir-term 'z-unknown))) ; known z axis direction
       (setf (StudentEntry-ImplicitEqn entry) 
 	    (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
     ;; Associated eqns will be entered later if entry is found correct.
+
+    ;; Include implicit equation cos angle = dummy, where dummy is 
+    ;; nonnegative.  This is associated with Snell's law, but it
+    ;; is convenient to add this eqn when drawing a line with unknown dir.
+    ;; Treat this equation as entered by the student so the solve tool can 
+    ;; solve student's system the same way as at sgg time.
+    (let ((eqinfo (find `(angle-constraint ,body-term . ?whatever) 
+			(Problem-EqnIndex *cp*) :key #'eqn-Exp :test #'equal)))
+      (when eqinfo
+	(setf (StudentEntry-ImplicitEqn entry) 
+	      (make-implicit-eqn-entry (eqn-algebra eqinfo)))))
     
     ;; finally return entry
     entry))
