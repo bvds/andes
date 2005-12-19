@@ -130,6 +130,10 @@
       (setf rem (make-hint-seq (list
 				(format nil "Syntax error in ~a" equation)
 				"If you are giving a value in seconds, the correct SI symbol is just s, not sec."))))
+     ((search "ohms" equation)
+      (setf rem (make-hint-seq (list
+				(format nil "Syntax error in ~a" equation)
+				"If you are giving a resistance in Ohms, the correct SI symbol is $W, not ohms."))))
      ;; BvdS:  There should be a handler for "unknown functions"
      ;; analogous to the handler for "unknown variables"
      ;; This is a work-around.
