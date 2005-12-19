@@ -1085,7 +1085,7 @@
 
 
 (def-psmclass cap-defn (cap-defn ?cap ?t) 
-  :complexity major
+  :complexity definition
   :english ("Definition of capacitance")
   :eqnFormat ("C = q/V"))
 
