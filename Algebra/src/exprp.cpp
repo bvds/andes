@@ -101,17 +101,19 @@ string unitprint(const dimens dim)
  ************************************************************************/
 
 string numvalexp::getInfix() const {
-  int q;
-  char valuenum[21];
 
+  // WARNING:  This code is repeated three times in this file
+  int q;
+  char valuenum[30];
+  // The number of digits are supposed to match DBL_EPSILON
   DBG( cout << "getInfix on numval" << endl);
   // don't truncate nonzero numbers near zero
   if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q))
     sprintf(valuenum,"%d",q);
   else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
-    sprintf(valuenum,"%19.16lf",value);
+    sprintf(valuenum,"%.17lf",value);
   else
-    sprintf(valuenum,"%20.14lG",value);
+    sprintf(valuenum,"%.17lG",value);
 #ifdef UNITENABLE  
   string unitstr = unitprint(MKS);
   if (unitstr.size() == 0)   return(string(valuenum));
@@ -144,8 +146,6 @@ string physvarptr::getInfix() const {
  *	already exist and be big enough!				*
  ************************************************************************/
 string binopexp::solprint(bool forhelp) const {
-  int q;
-  char valuenum[21];
   string unitstr;
 
   if ( op->opty != equalse)
@@ -180,13 +180,16 @@ string binopexp::solprint(bool forhelp) const {
     DBG(cout << "Solprint: manufactured unitstr " << unitstr << endl;);
   }
 
+  // WARNING:  This code is repeated three times in this file
+  int q;
+  char valuenum[30];
   // don't truncate nonzero numbers near zero
   if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q)) 
     sprintf(valuenum,"%d",q);
   else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
-    sprintf(valuenum,"%19.16lf",value);
+    sprintf(valuenum,"%.17lf",value);
   else
-    sprintf(valuenum,"%20.14lG",value);
+    sprintf(valuenum,"%.17lG",value);
   if (forhelp)
   return(string("(= |") 
 	 + (*canonvars)[varidx]->clipsname
@@ -340,16 +343,17 @@ void n_opexp::dbgprint(int indent)
  ************************************************************************/
 string numvalexp::getLisp(bool withbarp) const {
   DBG( cout << "getLisp on numval" << endl; );
-  int q;
-  char valuenum[21];
 
+  // WARNING:  This code is repeated three times in this file
+  int q;
+  char valuenum[30];
   // don't truncate nonzero numbers near zero
   if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q))
     sprintf(valuenum,"%d",q);
   else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
-    sprintf(valuenum,"%19.16lf",value);
+    sprintf(valuenum,"%.17lf",value);
   else
-    sprintf(valuenum,"%20.14lG",value);
+    sprintf(valuenum,"%.17lG",value);
 #ifdef UNITENABLE  
   string unitstr = unitprint(MKS);
   if (unitstr.size() == 0)   return(string("( ") +valuenum + " )");

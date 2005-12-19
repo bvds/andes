@@ -297,27 +297,30 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 		  sumabs = fabs(tharg->value);
 		  continue; 
 		}
-		  else {  // numk >= 0: not first numval. 
+	      else {  // numk >= 0: not first numval. 
 		if (th->op->opty == multe) {
 		  if (numkexp->abserr > 0) {
 		    if (tharg->abserr <= 0) numkexp->abserr = tharg->abserr;
 		    else numkexp->abserr = tharg->abserr * fabs(numkexp->value)
 			   + numkexp->abserr * fabs(tharg->value);}
+		  DBG(cout << "eqnumsimp " << thisdbg << " multiplying " 
+		      << numkexp->getInfix() << " and " 
+		      << tharg->getInfix() << endl);
 		  numkexp->value *= tharg->value;
 		  numkexp->MKS += tharg->MKS;
 		}
 		else if (th->op->opty == pluse)
 		  {
-		  if (numkexp->abserr >= 0) {
-		    if (tharg->abserr < 0) numkexp->abserr = tharg->abserr;
-		    else numkexp->abserr = tharg->abserr + numkexp->abserr; }
+		    if (numkexp->abserr >= 0) {
+		      if (tharg->abserr < 0) numkexp->abserr = tharg->abserr;
+		      else numkexp->abserr = tharg->abserr + numkexp->abserr; }
 		    numkexp->value += tharg->value;
 		    sumabs += fabs(tharg->value);
 		    if (numkexp->MKS.unknp()) numkexp->MKS = tharg->MKS;
 		    if (tharg->MKS.unknp()) tharg->MKS = numkexp->MKS;
 		    if (!(numkexp->MKS == tharg->MKS))
 		      throw(string(
-			 "Eqnumsimp: Can't add terms with different units"));
+				   "Eqnumsimp: Can't add terms with different units"));
 		  }
 	        else throw (string("unknown n-ary with known arg"));
 		(*th->args)[k]->destroy();
