@@ -12,12 +12,14 @@
 ;;;     if (0 == `grep -c -i $i KB/principles.tsv`) echo $i
 ;;;  end
 ;;;
+
+;; should match entries in Algebra/src/units.h
 (defparameter unit-english
     '(
       (|m| . "meters")
       (|kg| . "kilograms")
       (|s| . "seconds")
-      (|C| . "degrees centigrade")
+      (|C| . "coulombs")
       (|K| . "degrees kelvin")
       (|g| . "grams")
       (|N| . "newtons")
