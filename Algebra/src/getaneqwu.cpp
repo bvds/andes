@@ -72,16 +72,15 @@ binopexp* getAnEqn(const string bufst, bool tight) {
     }
     if (isanum(token)) {
       int q;
+      // units are initialized as "unknown"
       numvalexp *nvtemp = new numvalexp(token);
       // For certain numbers, 1/2, 1, 3/2, 2, and their negatives, 
       // we assume they are known to be dimensionless.
       // Other numbers are assigned dimensionless or unknown based on "tight"
-      if (lookslikeint(2*nvtemp->value,q)) {
-	if(q==0)nvtemp->MKS.set_unkn();     // Zero must always be "unknown."
-	else if (tight || (abs(q) < 5))
-	  nvtemp->MKS.put(0,0,0,0,0);
-      }
-      else if (tight) nvtemp->MKS.put(0,0,0,0,0);  
+      if(nvtemp->value != 0.       // Zero is always "unknown."
+	 && (tight || (fabs(nvtemp->value)>0.5 
+		       && lookslikeint(2*nvtemp->value,q) && (abs(q) < 5))))
+	 nvtemp->MKS.put(0,0,0,0,0);
       nvtemp->abserr = geterr(token);
       DBG(cout << "getaneqwu on numval " << token << " assigning error "
 	  << nvtemp->abserr << " and units " << nvtemp->MKS.print() << endl; );
