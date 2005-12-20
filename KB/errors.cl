@@ -119,6 +119,11 @@
 ;;;  checking conditions with the new bindings caused by unification.
 ;;;  If not, then fail by returning NIL.
 ;;;
+;;; (no-student <pattern>)
+;;;  If the <pattern> of a (no-student <pattern>) condition never unifies with
+;;;  the entry proposition of a and existing correct student entry, 
+;;;  then succeed.
+;;;
 ;;; (correct <pattern>)
 ;;;  If the <pattern> of a (correct <pattern>) condition unifies with
 ;;;  the entry proposition of a system entry, then continue checking
@@ -1008,7 +1013,9 @@
 (def-error-class body-tool-multiple-correct ()
   ((student (body ?wrong-body))
    (correct (body ?body1))
+   (no-student (body ?body1))
    (correct (body ?body2))
+   (no-student (body ?body2))
    (test (not (equal ?body1 ?body2))))
   :utility 100)
 
@@ -1048,20 +1055,36 @@
 			     "for the body.  Analyze the motion of ~a "
 			     "instead.") wrong-body correct-body))))
 
-;;; the student draws a body for the wrong object
-(def-error-class wrong-object-for-body-tool (?correct-body ?wrong-body)
+;; the student draws a body for an object but another object needs defining
+(def-error-class wrong-object-for-body-tool (?correct-body)
   ((student (body ?wrong-body))
    (correct (body ?correct-body ))
-   (test (not (equal ?wrong-body ?correct-body)))))
+   (no-student (body ?correct-body )))
+  :probability 0.5  
+  )
 
-(defun wrong-object-for-body-tool (correct-body wrong-body)
+(defun wrong-object-for-body-tool (correct-body)
   (setf correct-body (nlg correct-body 'def-np))
+  (make-hint-seq
+   (list (strcat "What other bodies can you define?")
+	 (format nil (strcat "Analyzing ~a is more important for solving " 
+			     "this problem.") correct-body)
+	 (format nil "Choose ~a as the body." correct-body))))
+
+;; the student draws a body, but it doesn't need defining.
+(def-error-class extra-object-for-body-tool (?wrong-body)
+  ((student (body ?wrong-body))
+   (correct (body ?correct-body )))
+  :probability 0.1  ;more general than above
+  )
+
+(defun extra-object-for-body-tool (wrong-body)
   (setf wrong-body (nlg wrong-body 'def-np))
   (make-hint-seq
-   (list (strcat "You chose the wrong object as the body.")
-	 (format nil (strcat "You probably meant to use ~a as the body "
-			     "instead of  ~a.") correct-body wrong-body)
-	 (format nil "Choose ~a as the body." correct-body))))
+   (list (format nil (strcat 
+		      "You don't need to draw ~A to solve this problem.  "
+		      "You should focus your attention on the other body "
+		      "(or bodies).") wrong-body))))
 
 ;;; I suppose it might someday be possible to have a solution that
 ;;; doesn't include a body, such as a W=mg problem, but I think none
@@ -1069,7 +1092,7 @@
 ;;; drawing a body when none are needed.
 (def-error-class non-existent-body ()
   ((student (body ?sbody))
-   (no-correct ?cbody))
+   (no-correct (body ?cbody)))
   :probability 0.01)
 
 (defun non-existent-body ()
