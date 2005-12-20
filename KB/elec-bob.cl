@@ -36,7 +36,7 @@
     "direction. Find the charge on the particle."
     "    Answer:  [XXXXXXXXXXXXXXX]"
   )
-  :features (E&M E-field andes2 working kinematics dynamics)
+  :features (E&M E-field andes2 kinematics dynamics)
   :choices (
     (bodies (particle))
     (positions (region))
@@ -62,11 +62,12 @@
 
 (defproblem elec1
   :statement (
-    "An electron (qe = -1.6e-19 C; me = 9.1e-31 kg) is in a region where"
-    "there is a uniform electric field E that exactly cancels its weight"
-    "near the Earth's surface. If the y-component of the net force on the"
-    "particle near Earth due to the electric field and gravity is zero,"
-    "what is the magnitude (and show the direction) of the electric field E?"
+    "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region" 
+    "where there is a uniform electric field E that exactly cancels its" 
+    "weight near the Earth's surface. If the y-component of the net" 
+    "force on the particle near Earth due to the electric field and" 
+    "gravity is zero, what is the magnitude (and show the direction) of" 
+    "the electric field E?"
     "    Answer:  [XXXXXXXXXXXX]"
   )
   ;; :graphic "elec1.gif"
@@ -81,8 +82,8 @@
     (near-planet earth)
     (E-field unspecified)
     (at-place electron region 1)
-    (given (charge-on electron) (dnum -1.6E-19 |C|)) 
-    (given (mass electron) (dnum 9.1E-31 |kg|))
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
+    (given (mass electron) (dnum 9.11E-31 |kg|))
     (given (dir (field region electric unspecified :time 1)) (dnum 270 |deg|)) 
     (motion electron at-rest :time 1)
   )
@@ -93,7 +94,7 @@
 
 (defproblem elec2
   :statement (
-    "A charged particle (q = 52.0 $mC) is in a region where there is a"
+    "A charged particle (q = 52.0e-6 C) is in a region where there is a"
     "uniform electric field E of magnitude 120 N/C at an angle of 90 degrees"
     "above the positive x-axis. If the y-component of the net force on the"
     "particle near Earth due to the electric field and gravity is zero, what"
@@ -124,16 +125,17 @@
 
 (defproblem elec3
   :statement (
-    "An electron (qe = -1.6e-19 C; me = 9.1e-31 kg) is in a region, between "
-    "two parallel charged plates, that produce a uniform electric field E " 
-    "of magnitude 2.0e+4 N/C. The separation between the plates is 1.5 cm. "
-    "The electron undergoes a constant acceleration from rest near the negative"
-    "plate and passes through a tiny hole in the positive plate (see Figure"
-    "below). Find the velocity of the electron as it leaves the hole."
+    "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region,"
+    "between two parallel charged plates, that produce a uniform electric"
+    "field E of magnitude 2.0e+4 N/C. The separation between the plates" 
+    "is 1.5 cm. The electron undergoes a constant acceleration from rest"
+    "near the negative plate and passes through a tiny hole in the positive"
+    "plate (see Figure below). Find the velocity of the electron as it leaves"
+    "the hole."
     "    Answer:  [XXXXXXXXXXXX]"
     "In this problem, gravity can be ignored."
   )
-  ;; :graphic "elec3.gif"
+  :graphic "elec3.gif"
   :features (E&M E-field andes2 working kinematics dynamics)
   :choices (
     (bodies (electron plates))
@@ -143,10 +145,10 @@
   :givens (
     (time 1) (time 2) (time (during 1 2))
     (object electron)
-    (given (mass electron) (dnum 9.1E-31 |kg|))
+    (given (mass electron) (dnum 9.11E-31 |kg|))
     ;; Electrostatics
     (at-place electron region (during 1 2))
-    (given (charge-on electron) (dnum -1.6E-19 |C|)) 
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
     (given (mag (field region electric plates :time (during 1 2))) 
       (dnum 2.0E4 |N/C|))
     (given (dir (field region electric plates :time (during 1 2))) 
@@ -169,10 +171,11 @@
 
 (defproblem elec4
   :statement (
-    "A proton (qp = 1.6e-19 C; mp = 1.7e-27 kg) is in a region where there is"
-    "a uniform electric field E of magnitude 320 N/C, directed along the"
-    "positive x-axis. The proton accelerates from rest and reaches a speed of"
-    "1.20e+5 m/s. How long does it take the proton to reach this speed?"
+    "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where"
+    "there is a uniform electric field E of magnitude 320 N/C, directed" 
+    "along the positive x-axis. The proton accelerates from rest and" 
+    "reaches a speed of 1.20e+5 m/s. How long does it take the proton to"
+    "reach this speed?"
     "    Answer:  [XXXXXXXXXXXX]"
     "In this problem, gravity can be ignored."
   )
@@ -189,7 +192,7 @@
     (given (mass proton) (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region (during 1 2))
-    (given (charge-on proton) (dnum 1.6E-19 |C|)) 
+    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
     (dnum 320 |N/C|))
     (given (dir (field region electric unspecified :time (during 1 2))) 
@@ -212,10 +215,11 @@
 
 (defproblem elec5
   :statement (
-    "A proton (qp = 1.6e-19 C; mp = 1.7e-27 kg) is in a region where there is"
-    "a uniform electric field E of magnitude 920 N/C, directed along the"
-    "negative x-axis. The proton accelerates from rest and reaches a speed of"
-    "7.2e+3 m/s. How far does the proton travel during this duration?"
+    "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where" 
+    "there is a uniform electric field E of magnitude 920 N/C, directed" 
+    "along the negative x-axis. The proton accelerates from rest and" 
+    "reaches a speed of 7.2e+3 m/s. How far does the proton travel" 
+    "during this duration?"
     "    Answer:  [XXXXXXXXXXXX]"
     "In this problem, gravity can be ignored."
   )
@@ -232,7 +236,7 @@
     (given (mass proton)      (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region (during 1 2))
-    (given (charge-on proton) (dnum 1.6E-19 |C|)) 
+    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
       (dnum 920 |N/C|))
     (given (dir (field region electric unspecified :time (during 1 2))) 
@@ -255,13 +259,13 @@
 
 (defproblem elec6
   :statement (
-    "An electron (qe = -1.6e-19 C; me = 9.1e-31 kg) is in a region where"
-    "there is a uniform electric field E of magnitude 4.0e-12 N/C, directed"
-    "along the negative y-axis. The electron is moving in the positive"
-    "y-direction at an initial velocity of 4.3 m/s. How far will the"  
-    "electron travel before it comes to rest?"
-    "In this problem, please include gravity."
+    "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region" 
+    "where there is a uniform electric field E of magnitude 4.0e-12 N/C," 
+    "directed along the negative y-axis. The electron is moving in the" 
+    "positive y-direction at an initial velocity of 4.3 m/s. How far" 
+    "will the electron travel before it comes to rest?"
     "    Answer:  [XXXXXXXXXXXX]"
+    "In this problem, please include gravity."
   )
   ;; :graphic "elec6.gif"
   :features (E&M E-field andes2 working kinematics dynamics)
@@ -275,8 +279,8 @@
     (near-planet earth)
     ;; Electrostatics
     (at-place electron region (during 1 2))
-    (given (charge-on electron) (dnum -1.6E-19 |C|)) 
-    (given (mass electron)      (dnum 9.1E-31 |kg|)) 
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
+    (given (mass electron)      (dnum 9.11E-31 |kg|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
       (dnum 4.0E-12 |N/C|)) 
     (given (dir (field region electric unspecified :time (during 1 2))) 
