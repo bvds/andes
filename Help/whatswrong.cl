@@ -225,6 +225,7 @@
 	(case (first c)
 	  (student (check-err-student (second c) eh st r sy bindings))
 	  (old-student (check-err-old-student (second c) eh st r sy bindings))
+	  (no-student (check-err-no-student (second c) eh st r sy bindings))
 	  (correct (check-err-correct (second c) eh st r sy bindings))
 	  (correct-nointent (check-err-correct-nointent (second c) eh st r sy bindings))
 	  (no-correct (check-err-no-correct (second c) eh st r sy bindings))
@@ -263,9 +264,15 @@
 (defun check-err-old-student (pattern eh student conditions system bindings)
   (loop for s in *StudentEntries* with b nconc
 	(if (and (equal (studentEntry-state s) **Correct**)
-		 (setq b (unify (studententry-prop s) pattern bindings)))
+		 (setq b (unify (studentEntry-prop s) pattern bindings)))
 	    (check-err-conditions eh student conditions system b))))
 
+;;; If the <pattern> of a (no-student <pattern>) condition never unifies with
+;;; the entry proposition of an existing correct student entry, then succeed.
+(defun check-err-no-student (pattern eh student conditions system bindings)
+  (if (loop for se in *StudentEntries*
+	  never (unify pattern (studentEntry-prop se) bindings))
+      (check-err-conditions eh student conditions system bindings)))
 
 ;;; If the <pattern> of a (correct <pattern>) condition unifies with
 ;;; the entry proposition of a system entry, then continue checking
