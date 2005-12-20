@@ -63,11 +63,11 @@
 (defproblem elec1
   :statement (
     "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region" 
-    "where there is a uniform electric field E that exactly cancels its" 
-    "weight near the Earth's surface. If the y-component of the net" 
-    "force on the particle near Earth due to the electric field and" 
-    "gravity is zero, what is the magnitude (and show the direction) of" 
-    "the electric field E?"
+    "where there is a uniform electric field E. The force on the electron"
+    "due to the electric field exactly cancels its weight near the Earth's"
+    "surface. If the y-component of the net force on the particle near"
+    "Earth due to the electric field and gravity is zero, what is the"
+    "magnitude (and show the direction) of the electric field E?"
     "    Answer:  [XXXXXXXXXXXX]"
   )
   ;; :graphic "elec1.gif"
