@@ -660,7 +660,7 @@
 
     ;; Include implicit equation cos angle = dummy, where dummy is 
     ;; nonnegative.  This is associated with Snell's law, but it
-    ;; is convenient to add this eqn when drawing a line with unknown dir.
+    ;; is convenient to add this eqn when drawing the line.
     ;; Treat this equation as entered by the student so the solve tool can 
     ;; solve student's system the same way as at sgg time.
     (let ((eqinfo (find `(angle-constraint ,body-term . ?whatever) 
