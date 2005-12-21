@@ -57,7 +57,7 @@
   Soughts         ;; The problem's sought quantities in KB form.
   Givens          ;; The given quantities for this problem in KB form.
   
-  ForbiddenPSMS   ;; A list of psmclas  and psmgroup names that cannot be
+  ForbiddenPSMS   ;; A list of psmclass and psmgroup names that cannot be
                   ;; used within this problem and will raise an error if tried. 
   
   IgnorePSMS      ;; A list of psmclass and psmgroup names that will not
