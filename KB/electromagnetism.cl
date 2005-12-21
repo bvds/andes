@@ -1302,7 +1302,7 @@
   )
   :hint (
     ;(point (string " "  ))
-    (teach (string "The electric potential energy of a body is equal to the the charge on that body times the electric potential at its location." ))
+    (teach (string "The electric potential energy of a body is equal to the charge on that body times the electric potential at its location." ))
     (bottom-out (string "Write the equation ~A" ((= ?Ue (* q ?Vnet)) algebra) ))
   ))
 
@@ -1426,7 +1426,7 @@
  )
  :hint (
 	(point (string "The magnetic force on a positively charged particle points in the direction of the cross product of its velocity vector and the magnetic field vector at its location.")) 
-	(teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the force."))
+	(teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the force."))
         (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 			    ?b (?dir-V adj) (?dir-B adj) (?F-dir adj) ?b 
 			    (?source agent) (?F-dir adj)))
@@ -1459,7 +1459,7 @@
  )
  :hint (
   (point (string "The magnetic force on a negatively charged particle points in the opposite direction to the cross product of its velocity vector and the magnetic field vector at its location.")) 
-	(teach (string "The magnetic force vector on a moving *positive* charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, as determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the cross-product. In this case the charge is *negative*, so the force will be in the opposite direction."))
+	(teach (string "The magnetic force vector on a moving *positive* charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, as determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the cross-product. In this case the charge is *negative*, so the force will be in the opposite direction."))
         (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of the cross-product to be ~a. Because the charge is negative, the force is opposite that direction. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 			    ?b (?dir-V adj) (?dir-B adj) (?rhr-dir adj) ?b 
 			    (?source agent) (?F-dir adj)))

@@ -793,7 +793,7 @@
   (setf (dde-result-value Val) (turn-text Result)))
 
 
-;;; Training card turns are used to display info the the users via
+;;; Training card turns are used to display info to the users via
 ;;; Microsoft's Training-card system. 
 (defun iface-set-ddr-tcard-turn-c (Val Result)
   (when (null (turn-text Result)) 

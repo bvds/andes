@@ -22,8 +22,8 @@
 ;; parse is a statement of a parse condition:
 ;;  a tree with the current state of the parse and
 ;;  a remainder; the string of characters that reamin to be parsed
-;; NOTE: if parse quits and remainder is not empty the the beginning of rem 
-;; indicates the point of failure
+;; NOTE:  if parse quits and remainder is not empty, the beginning of rem 
+;; indicates the point of failure.
 (defstruct (parse) "A parse tree and a remainder." tree rem)
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

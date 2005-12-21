@@ -2323,9 +2323,9 @@
     "Think about the direction of the force."
     ;; teach static-friction-sense
     (strcat "To figure out which way static friction points, imagine "
-	    "the the surface is frictionless, and see which direction "
-	    "the body moves relative to the surface.  The static "
-	    "friction opposes that imaginary relative motion.")
+	    "that the surface is frictionless, and see which direction "
+	    "the body would move relative to the surface.  The static "
+	    "friction opposes this imaginary relative motion.")
     (format nil "The direction of the force should be ~a instead of ~a."
 	    (nlg cdir 'adj) (nlg sdir 'adj)))))
 
@@ -3061,7 +3061,7 @@
        (good-expr `(,trig-fn (- ,arg (dnum ,rot |deg|)))))
   (make-hint-seq
    (list
-    (format nil (strcat "Remember that the the axes are rotated by $qx = ~A degrees "
+    (format nil (strcat "Remember that the axes are rotated by $qx = ~A degrees "
                         "from the horizontal-vertical system used for vector " 
 			"orientations. You need to take this into account when calculating the projection of a vector along the axis.")
 	    rot)

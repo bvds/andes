@@ -27,7 +27,7 @@
 ;;                                put into the Interpretation slot by the Entry Interpreter. 
 ;;     Error-interpretations -- If the entry is incorrect, all interpretations produced by 
 ;;                              the error handlers are stored here.  One of these is 
-;;                              selected by What's wrong help and put in the the 
+;;                              selected by What's wrong help and put in the 
 ;;                              Interpretation slot. 
 ;;     Verbatim -- If the entry is an equation, this records the student's string exactly 
 ;;                 as they typed it before it was parsed.  This is useful for some error

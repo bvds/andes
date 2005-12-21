@@ -697,7 +697,7 @@
 ;; returns:
 ;;  entry status return value -- see end of code for description of this
 ;; note(s):
-;;   if the force is correct the the help system marks the corresponding sys-
+;;   if the force is correct then the help system marks the corresponding sys-
 ;;   tem entry as "entered" it also defines magnitude and direction variables
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

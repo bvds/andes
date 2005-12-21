@@ -6128,7 +6128,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint
    ((point (string "Because the acceleration of ~a is zero ~a, you can apply Newton's first law to it." ?b (?t pp)))
     (teach (string 
-    "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. In this case the acceleration is zero so you know the sum of all forces on the object must be zero. This vector principle can be applied component-wise to require that the the force components in any direction sum to zero."
+    "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. In this case the acceleration is zero so you know the sum of all forces on the object must be zero. This vector principle can be applied component-wise to require that the force components in any direction sum to zero."
     ))
     (bottom-out (string "Because ~a is not accelerating ~a, write Newton's first law as ~A" ?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
 

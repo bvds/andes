@@ -1166,14 +1166,14 @@
 
 ;;; Add an enode to the Bubblegraph
 (defun add-enode-to-bubblegraph (Enode Graph)
-  "Add the specified enode the the bubblegraph."
+  "Add the specified enode to the bubblegraph."
   (list (bubblegraph-qnodes Graph)
 	(cons Enode (bubblegraph-enodes Graph))))
  
 
 ;;; Add a qnode to the Bubblegraph
 (defun add-qnode-to-bubblegraph (Qnode Graph)
-  "Add the specified enode the the bubblegraph."
+  "Add the specified enode to the bubblegraph."
   (list (cons Qnode (bubblegraph-qnodes Graph))
 	(bubblegraph-enodes Graph)))
 
