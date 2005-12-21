@@ -460,7 +460,7 @@
 
 ;;; This operator suggests applying a vector equation in order to find
 ;;; a scalar.  
-;;; One issue is how to prevent overgeneration in choice of
+;;; One issue is how to prevent over-generation in choice of
 ;;; axis to apply along.  For instance, on problem k9, the
 ;;; problem gives vf, vi and a and asks for t.  One of the choices
 ;;; might appear to be to generate lk-no-s along the axis perpendicular 
@@ -481,9 +481,9 @@
    then select the component equation along any axis." 
   :preconditions
    ((test (scalar-quantityp ?quantity))
-    ; pull out body and time from inside vector eqn id to make sure we pick up
-    ; axis for that body and vector on that body when testing projection.
-    ; NB: this requires that main vector eqn ids contain just these args!!
+    ;; pull out body and time from inside vector eqn id to make sure we pick up
+    ;; axis for that body and vector on that body when testing projection.
+    ;; NB: this requires that main vector eqn ids contain just these args!!
     (compo-eqn-contains (?PSM-id ?b ?t) ?compo-eqn-name ?quantity)
     (debug "choosing compo to apply ~A to find scalar ~A~%"   ?compo-eqn-name ?quantity) 
     ;; this is weak, since we don't check if ?vector is relevant
