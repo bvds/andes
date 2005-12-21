@@ -232,7 +232,7 @@
   )
 )
 
-(defproblem elec4b ;version for general use
+(defproblem elec4b ;version for general use, includes work solution
   :statement (
     "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where"
     "there is a uniform electric field E of magnitude 320 N/C, directed" 
@@ -322,7 +322,7 @@
 )
 
 
-(defproblem elec5b ;version for general use
+(defproblem elec5b ;version for general use, includes work solution
   :statement (
     "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where" 
     "there is a uniform electric field E of magnitude 920 N/C, directed" 
@@ -411,7 +411,7 @@
   )
 )
 
-(defproblem elec6b  ;version for general use
+(defproblem elec6b  ;version for general use, includes work solution
   :statement (
     "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region" 
     "where there is a uniform electric field E of magnitude 4.0e-12 N/C," 
