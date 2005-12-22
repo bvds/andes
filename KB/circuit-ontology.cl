@@ -75,7 +75,7 @@
 	    (nlg ?region 'at-time ?time) (nlg ?source 'agent) (nlg ?time 'pp)))
 
 (def-qexp electric-dipole-moment (electric-dipole-moment ?dipole :time ?time)
-  :units |Cm|
+  :units |C.m|
   :english ("electric dipole moment of ~A~@[ ~A~]" 
 	    (nlg ?dipole) (nlg ?time 'pp)))
 

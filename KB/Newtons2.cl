@@ -1944,8 +1944,7 @@
     If ?b is an object, 
        ?t is a time, 
        and there is no mass variable for ?b at ?t yet,
-    then let ?b at ?t be a body, and 
-       define a mass variable for ?b at time ?t."
+    then let ?b at ?t be a body"
   :preconditions
     ((object ?b))
     :effects ((body ?b)) 	

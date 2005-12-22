@@ -646,7 +646,7 @@
   :hint (
          (point (string "What is the relationship between the force, the charge and the electric field?"))
          (teach ;(kcd "write-charge-force-Efield-compo")
-                 (string "The electric field vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied component-wise to relate force and field components"))
+                 (string "The electric field vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied component-wise to relate force and field components."))
          (bottom-out (string "Write the equation ~a" ((= ?F_x (* ?q ?E_x)) algebra)))
          ))
 
@@ -1347,7 +1347,7 @@
    (time ?t)
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
    (given (dir (relative-position ?positive-charge ?negative-charge :time ?t))
-	  ?dir-given)
+	  ?dir)
    (test (tinsidep ?t ?t-given))  
    (not (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "P_~A~@[_~A~]" (body-name ?dipole) 
@@ -1373,7 +1373,8 @@
          ))
 
 
-;; This is copied from charge-force-efield.  This was 1500 lines of code.
+;; The following is copied from charge-force-efield.
+;; It takes 1500 lines of code to define P=q*d
 
 (def-psmclass electric-dipole-moment 
     (?eq-type definition ?axis ?rot (electric-dipole-moment ?dipole ?time)) 
@@ -1405,70 +1406,77 @@
    ;; since only one compo-eqn under this vector psm, we can just
    ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (electric-dipole-moment ?dipole ?t) definition ?sought)))
-(defoperator draw-electric-dipole-moment-diagram (?b ?source ?t)
+(defoperator draw-electric-dipole-moment-diagram (?dipole ?t)
   :preconditions 
   (
    (debug "Using draw-electric-dipole-moment-diagram ~%")
    (not (vector-diagram (electric-dipole-moment ?dipole ?t)))
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   ;; must draw charges in diagram for this psm
+   (body ?positive-charge)
+   (body ?negative-charge)
    (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dir1) 
    (vector ?positive-charge (relative-position 
 			     ?positive-charge 
 			     ?negative-charge :time ?t) ?dir1) 
-   (axis-for ?dipole x ?rot)
+   (axis-for ?dipole ?xyz ?rot)
    (rdebug "Fired draw-electric-dipole-moment-diagram ~%")
    )
   :effects (
             (vector-diagram (electric-dipole-moment ?dipole ?t))
             ))
 
-(defoperator write-electric-dipole-moment-compo (?b ?t ?xy ?rot)
+(defoperator write-electric-dipole-moment-compo (?dipole ?t ?xy ?rot)
   :preconditions ((debug "Using write-electric-dipole-moment-compo ~%")
-                  (at-place ?b ?loc ?t)
-                  (variable ?E_x  (compo ?xy ?rot (electric-dipole-moment ?dipole electric ?source :time ?t)))
-                  (variable ?F_x  (compo ?xy ?rot (force ?b ?source electric :time ?t)))
-                  (variable ?q (charge-on ?b :time ?t ?t))
+		  (electric-dipole ?dipole ?positive-charge ?negative-charge)
+                  (variable ?P_x  (compo ?xy ?rot (electric-dipole-moment ?dipole :time ?t)))
+                  (variable ?d_x  (compo ?xy ?rot (relative-position 
+			     ?positive-charge ?negative-charge :time ?t)))
+                  (variable ?q (charge-on ?positive-charge))
                   (rdebug "fired write-electric-dipole-moment-compo  ~%")
                   )
   :effects (
-            (eqn (= ?F_x (* ?q ?E_x))
-                 (compo-eqn definition ?xy ?rot (electric-dipole-moment ?b ?source ?t)))
-            (eqn-compos (compo-eqn definition ?xy ?rot (electric-dipole-moment ?b ?source ?t))
-                        (?F_x ?E_x))
+            (eqn (= ?P_x (* ?q ?d_x))
+                 (compo-eqn definition ?xy ?rot 
+			    (electric-dipole-moment ?dipole ?t)))
+            (eqn-compos (compo-eqn definition ?xy ?rot 
+				   (electric-dipole-moment ?dipole ?t))
+                        (?P_x ?d_x))
             )
   :hint (
-         (point (string "What is the relationship between the force, the charge and the electric dipole moment?"))
+         (point (string "What is the definition of the electric dipole moment?"))
          (teach ;(kcd "write-electric-dipole-moment-compo")
-                 (string "The electric dipole moment vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied component-wise to relate force and field components"))
-         (bottom-out (string "Write the equation ~a" ((= ?F_x (* ?q ?E_x)) algebra)))
+                 (string "The electric dipole moment of a +q -q pair of charges  is defined as the charge q times a vector going from -q to +q."))
+         (bottom-out (string "Write the equation ~a" ((= ?P_x (* ?q ?d_x)) algebra)))
          ))
 
-;; Vector relation F = q*E also licences magnitude and direction scalar 
+;; Vector relation P = q*d also licences magnitude and direction scalar 
 ;; equations.  Simpler to find these quantities than using component equations 
 ;; plus projections (though should be able to use either method).
 ;; We have to write these out as separate scalar principles.
 ;; Similarly for B-field equations.
 
 (def-psmclass electric-dipole-moment-mag 
-             (electric-dipole-moment-mag ?body ?source ?time) 
+             (electric-dipole-moment-mag ?body ?time) 
   :complexity major
   :english ("the definition of electric dipole moment magnitude")
   :ExpFormat ("applying the definition of electric dipole moment magnitude at ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("F = abs(q) * E" ))
+  :EqnFormat ("P = abs(q) * d" ))
 
 (defoperator electric-dipole-moment-mag-contains (?sought)
   :preconditions 
   (
+   (electric-dipole ?dipole ?positive-charge ?negative-charge)
    ;; because of abs(Q), charge is not a sought
-   (any-member ?sought ((mag (force ?b ?source electric :time ?t))
-			(mag (electric-dipole-moment ?dipole electric ?source :time ?t))
+   (any-member ?sought ((mag (relative-position ?positive-charge ?negative-charge :time ?t))
+			(mag (electric-dipole-moment ?dipole :time ?t))
 			))
-   (at-place ?b ?loc ?t)
+   (time ?t)
    (debug "Using & firing write-electric-dipole-moment-mag-contains ~%")
    )
   :effects (
-           (eqn-contains (electric-dipole-moment-mag ?b ?source ?t) ?sought)
+           (eqn-contains (electric-dipole-moment-mag ?dipole ?t) ?sought)
            ))  
 
 ;; !!! since making charge signed and writing equation with abs, this equation 
@@ -1479,31 +1487,32 @@
 ;; as a sub-equation, but it is not always needed.  Might try as an implicit 
 ;; equation but then it is optional, and won't be hinted for even when it is 
 ;; needed.
-(defoperator write-electric-dipole-moment-mag (?b ?t)
+(defoperator write-electric-dipole-moment-mag (?dipole ?t)
   :preconditions 
   ((debug "Using write-electric-dipole-moment-mag ~%")
-   (at-place ?b ?loc ?t)
+   (electric-dipole ?dipole ?positive-charge ?negative-charge)
    ;; must draw body in diagram for this psm
-   (body ?b)
+   (body ?positive-charge)
+   (body ?negative-charge)
    ;; even though this is scalar equation, want axes to be allowed
-   (axis-for ?b ?xyz ?rot)
-   (variable ?magE (mag (electric-dipole-moment ?dipole electric ?source :time ?t)))
-   (variable ?magF (mag (force ?b ?source electric :time ?t)))
-   (variable ?q (charge-on ?b :time ?t ?t))
+   (axis-for ?dipole ?xyz ?rot)
+   (variable ?magP (mag (electric-dipole-moment ?dipole :time ?t)))
+   (variable ?magd (mag (relative-position ?positive-charge 
+					   ?negative-charge :time ?t)))
+   (variable ?q (charge-on ?positive-charge))
    (rdebug "fired write-electric-dipole-moment-mag  ~%")
    )
   :effects 
   (
-   (eqn (= ?magF (* (abs ?q) ?magE)) (electric-dipole-moment-mag ?b ?source ?t))
-   (assume using-magnitude (electric-dipole-moment ?b ?source ?t)) ;mag xor compos
+   (eqn (= ?magP (* (abs ?q) ?magd)) (electric-dipole-moment-mag ?dipole ?t))
+   (assume using-magnitude (electric-dipole-moment ?dipole ?t)) ;mag xor compos
    )
   :hint 
   (
-   (point (string "What is the relationship between the force, the charge and the electric dipole moment?"))
+   (point (string "What is the definition of the electric dipole moment?"))
    (teach ;(kcd "write-electric-dipole-moment-mag")
-    (string "The electric dipole moment vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied to relate force and field magnitudes."))
-   
-   (bottom-out (string "Write the equation ~a" ((= ?magF (* (abs ?q) ?magE)) algebra)))
+    (string "The electric dipole moment of a +q -q pair of charges  is defined as the charge q times a vector going from -q to +q."))
+   (bottom-out (string "Write the equation ~a" ((= ?magP (* (abs ?q) ?magd)) algebra)))
    ))
 
 
@@ -1564,8 +1573,8 @@
            (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
   )
   :hint (
-      (point (string "The direction of the magnetic field lines around a straight current-carrying wire can be determined by a use of the right-hand rule"))
-      (teach (string "Magnetic field lines near a straight current-carrying wire take the form of concentric circles with the wire at their center. If you grasp the wire with your right hand with the thumb pointing in the direction of the current, your fingers curl around the wire in the direction of the magnetic field lines"))
+      (point (string "The direction of the magnetic field lines around a straight current-carrying wire can be determined by a use of the right-hand rule."))
+      (teach (string "Magnetic field lines near a straight current-carrying wire take the form of concentric circles with the wire at their center. If you grasp the wire with your right hand with the thumb pointing in the direction of the current, your fingers curl around the wire in the direction of the magnetic field lines."))
       (bottom-out (string "Curling your right hand around the wire with the thumb in the direction of the current, ~a, your fingers at ~a point in the direction ~a.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in that direction, ~A." 
            (?dir-l adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
   ))
