@@ -74,6 +74,11 @@
   :english ("electric field at ~A due to ~A~@[ ~A~]" 
 	    (nlg ?region 'at-time ?time) (nlg ?source 'agent) (nlg ?time 'pp)))
 
+(def-qexp electric-dipole-moment (electric-dipole-moment ?dipole :time ?time)
+  :units |Cm|
+  :english ("electric dipole moment of ~A~@[ ~A~]" 
+	    (nlg ?dipole) (nlg ?time 'pp)))
+
 (def-qexp B-field (field ?region magnetic ?source :time ?time)
   :units |T|
   :english ("magnetic field at ~A due to ~A~@[ ~A~]" 

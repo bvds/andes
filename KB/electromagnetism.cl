@@ -1334,6 +1334,179 @@
    )
   :effects ( (ee-var ?b ?t ?var) ))
 
+;;;;---------------------------------------------------------------------------
+;;;;
+;;;;                   Electric dipole moment
+;;;;
+;;;;---------------------------------------------------------------------------
+
+;; borrowed from draw-efield-vector
+(defoperator draw-Electric-Dipole-Moment-given-relative-position (?dipole ?t)
+  :preconditions 
+  ((rdebug "Using draw-Electric-Dipole-Moment-vector  ~%")
+   (time ?t)
+   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (given (dir (relative-position ?positive-charge ?negative-charge :time ?t))
+	  ?dir-given)
+   (test (tinsidep ?t ?t-given))  
+   (not (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?any-dir))
+   (bind ?mag-var (format-sym "P_~A~@[_~A~]" (body-name ?dipole) 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (rdebug "fired draw-Electric-Dipole-Moment-vector   ~%")
+   )
+  :effects (
+	   (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dir)
+	   (variable ?mag-var (mag (electric-dipole-moment ?dipole :time ?t)))
+	   (variable ?dir-var (dir (electric-dipole-moment ?dipole :time ?t)))
+	   ;; Because dir is problem given, find-by-psm won't ensure implicit 
+	   ;; eqn gets written.  Given value may not be used elsewhere so 
+	   ;; ensure it here.
+	   (implicit-eqn (= ?dir-var ?dir) 
+			 (dir (electric-dipole-moment ?dipole :time ?t)))
+	   )  
+  :hint (
+	 (point (string "You were given the position of ~A relative to ~A.  What does this tell you about the electric dipole moment?" ?positive-charge ?negative-charge))
+	 (teach (string "The dipole moment of a pair of charges is in the same direction as a vector starting at the negative charge and going to the positive charge."))
+         (bottom-out (string "Use the electric dipole moment drawing tool (labeled P) to draw the electric dipole moment of ~a in the given direction of ~A." 
+			     ?dipole ?dir))
+         ))
+
+
+;; This is copied from charge-force-efield.  This was 1500 lines of code.
+
+(def-psmclass electric-dipole-moment 
+    (?eq-type definition ?axis ?rot (electric-dipole-moment ?dipole ?time)) 
+  :complexity major
+  :english ("the definition of electric dipole moment")
+  :ExpFormat ("applying the definition of electric dipole moment on ~a ~a"
+		 (nlg ?body) (nlg ?time 'pp) )
+  :EqnFormat ("P_~a = q * d_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+(defoperator electric-dipole-moment-contains (?sought)
+  :preconditions 
+  ((rdebug "Using electric-dipole-moment-contains  ~%")
+   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (time ?t)
+   (any-member ?sought((mag (relative-position ?positive-charge
+					       ?negative-charge :time ?t))
+		       (dir (relative-position ?positive-charge
+					       ?negative-charge :time ?t))
+		       (mag (electric-dipole-moment ?dipole :time ?t))
+		       (dir (electric-dipole-moment ?dipole :time ?t))
+		       (charge-on ?positive-charge) ;should be timeless
+		       (charge-on ?negative-charge) ;should be timeless
+		       ))
+   (rdebug "Firing electric-dipole-moment-contains  ~%")
+   )
+  :effects 
+  (
+   (eqn-family-contains (electric-dipole-moment ?dipole ?t) ?sought)
+   ;; since only one compo-eqn under this vector psm, we can just
+   ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (electric-dipole-moment ?dipole ?t) definition ?sought)))
+(defoperator draw-electric-dipole-moment-diagram (?b ?source ?t)
+  :preconditions 
+  (
+   (debug "Using draw-electric-dipole-moment-diagram ~%")
+   (not (vector-diagram (electric-dipole-moment ?dipole ?t)))
+   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dir1) 
+   (vector ?positive-charge (relative-position 
+			     ?positive-charge 
+			     ?negative-charge :time ?t) ?dir1) 
+   (axis-for ?dipole x ?rot)
+   (rdebug "Fired draw-electric-dipole-moment-diagram ~%")
+   )
+  :effects (
+            (vector-diagram (electric-dipole-moment ?dipole ?t))
+            ))
+
+(defoperator write-electric-dipole-moment-compo (?b ?t ?xy ?rot)
+  :preconditions ((debug "Using write-electric-dipole-moment-compo ~%")
+                  (at-place ?b ?loc ?t)
+                  (variable ?E_x  (compo ?xy ?rot (electric-dipole-moment ?dipole electric ?source :time ?t)))
+                  (variable ?F_x  (compo ?xy ?rot (force ?b ?source electric :time ?t)))
+                  (variable ?q (charge-on ?b :time ?t ?t))
+                  (rdebug "fired write-electric-dipole-moment-compo  ~%")
+                  )
+  :effects (
+            (eqn (= ?F_x (* ?q ?E_x))
+                 (compo-eqn definition ?xy ?rot (electric-dipole-moment ?b ?source ?t)))
+            (eqn-compos (compo-eqn definition ?xy ?rot (electric-dipole-moment ?b ?source ?t))
+                        (?F_x ?E_x))
+            )
+  :hint (
+         (point (string "What is the relationship between the force, the charge and the electric dipole moment?"))
+         (teach ;(kcd "write-electric-dipole-moment-compo")
+                 (string "The electric dipole moment vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied component-wise to relate force and field components"))
+         (bottom-out (string "Write the equation ~a" ((= ?F_x (* ?q ?E_x)) algebra)))
+         ))
+
+;; Vector relation F = q*E also licences magnitude and direction scalar 
+;; equations.  Simpler to find these quantities than using component equations 
+;; plus projections (though should be able to use either method).
+;; We have to write these out as separate scalar principles.
+;; Similarly for B-field equations.
+
+(def-psmclass electric-dipole-moment-mag 
+             (electric-dipole-moment-mag ?body ?source ?time) 
+  :complexity major
+  :english ("the definition of electric dipole moment magnitude")
+  :ExpFormat ("applying the definition of electric dipole moment magnitude at ~a ~a"
+		 (nlg ?body) (nlg ?time 'pp) )
+  :EqnFormat ("F = abs(q) * E" ))
+
+(defoperator electric-dipole-moment-mag-contains (?sought)
+  :preconditions 
+  (
+   ;; because of abs(Q), charge is not a sought
+   (any-member ?sought ((mag (force ?b ?source electric :time ?t))
+			(mag (electric-dipole-moment ?dipole electric ?source :time ?t))
+			))
+   (at-place ?b ?loc ?t)
+   (debug "Using & firing write-electric-dipole-moment-mag-contains ~%")
+   )
+  :effects (
+           (eqn-contains (electric-dipole-moment-mag ?b ?source ?t) ?sought)
+           ))  
+
+;; !!! since making charge signed and writing equation with abs, this equation 
+;; now can't be inverted to solve for q.  Would need to add further equation 
+;; for sign of q, e.g. q = -abs(q), or have a way of registering sign 
+;; constraints with algebra module.  Even then, bubble-collection algorithm 
+;; doesn't know a further equation is needed.  Might try to put it out here
+;; as a sub-equation, but it is not always needed.  Might try as an implicit 
+;; equation but then it is optional, and won't be hinted for even when it is 
+;; needed.
+(defoperator write-electric-dipole-moment-mag (?b ?t)
+  :preconditions 
+  ((debug "Using write-electric-dipole-moment-mag ~%")
+   (at-place ?b ?loc ?t)
+   ;; must draw body in diagram for this psm
+   (body ?b)
+   ;; even though this is scalar equation, want axes to be allowed
+   (axis-for ?b ?xyz ?rot)
+   (variable ?magE (mag (electric-dipole-moment ?dipole electric ?source :time ?t)))
+   (variable ?magF (mag (force ?b ?source electric :time ?t)))
+   (variable ?q (charge-on ?b :time ?t ?t))
+   (rdebug "fired write-electric-dipole-moment-mag  ~%")
+   )
+  :effects 
+  (
+   (eqn (= ?magF (* (abs ?q) ?magE)) (electric-dipole-moment-mag ?b ?source ?t))
+   (assume using-magnitude (electric-dipole-moment ?b ?source ?t)) ;mag xor compos
+   )
+  :hint 
+  (
+   (point (string "What is the relationship between the force, the charge and the electric dipole moment?"))
+   (teach ;(kcd "write-electric-dipole-moment-mag")
+    (string "The electric dipole moment vector at a location is defined as electric force vector per unit charge. That is, the electric force vector that a test charge would undergo if placed there, divided by the size of the charge. This definition can be applied to relate force and field magnitudes."))
+   
+   (bottom-out (string "Write the equation ~a" ((= ?magF (* (abs ?q) ?magE)) algebra)))
+   ))
+
+
 ;;--------------------------------------------------
 ;;  Magnetic fields and forces 
 ;;--------------------------------------------------
