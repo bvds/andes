@@ -346,7 +346,7 @@ BOOL CEQRichEdit::PreTranslateMessage(MSG* pMsg)
 		//using ALT + key
 		CString alpha = "abcdefghijklmnopqrstuvwxyz";//Use VkKey scan to
 		int pos = (int)pMsg->wParam - VkKeyScan('a');//convertASCII to
-		// TRACE("EQ got ALT-key: WParam=%d\n", pMsg->wParam);		//virtual key code
+		// TRACE("EQRichEdit got ALT-key: WParam=%d\n", pMsg->wParam);		//virtual key code
 		if ((pos < 26)&&(pos >= 0)){
 			CString letter = alpha[pos];
 			CString gralpha = "abgdezhqiklmnxoprstujcyw";//greek translation
@@ -567,7 +567,7 @@ void CLabelRichEdit::OnMsgFilter(NMHDR* pNMHDR, LRESULT* pResult)
 
 	if (pMsgFilter->msg == WM_KEYDOWN)
 	{
-		TRACE("keydown %d\n", pMsgFilter->wParam);
+		TRACE("CLabelRichEdit::OnMsgFilter: keydown %d\n", pMsgFilter->wParam);
 		LONG nBeg, nEnd;
 		GetSel(nBeg, nEnd);
 
@@ -608,8 +608,33 @@ void CLabelRichEdit::OnMsgFilter(NMHDR* pNMHDR, LRESULT* pResult)
 			*pResult = 1;
 		}
 	}
-
+	// following would enable ALT-ch Greek shortcuts. This method translates into Greek letter insertion
+	// command message sent to parent to handle, which must handle it for a letter to appear. Could be changed
+	// to do the insertion directly (this way allows Greek palette to be used in dlg, see CAngleDlg.)
+	// !!! Not working: OnMsgFilter not getting called at all for LabelRichEdits used for Given Value box in 
+	// VariableDlg. Not sure why -- maybe EventMask initialization problem? 
+#if 0  
+	else if (pMsgFilter->msg == WM_SYSKEYDOWN)	// user pressed a key and
+		// ALT modifier is down
+	{//still want a way to type Greek (with shortcut key)
+		//using ALT + key
+		CString alpha = "abcdefghijklmnopqrstuvwxyz";//Use VkKey scan to
+		int pos = (int)pMsgFilter->wParam - VkKeyScan('a');//convertASCII to
+		TRACE("CLabelRichEdit::OnMsgFilter: ALT-key: WParam=%d\n", pMsgFilter->wParam);		//virtual key code
+		if ((pos < 26)&&(pos >= 0)){
+			CString letter = alpha[pos];
+			CString gralpha = "abgdezhqiklmnxoprstujcyw";//greek translation
+			int grpos = gralpha.Find(letter);
+			if (grpos != -1){
+				UINT msg = (UINT)grpos + IDM_GREEKLETTER_FIRST;
+				GetParent()->SendMessage(WM_COMMAND, msg);
+			}
+			*pResult = 1;
+		}
+	}
+#endif 
 }
+
 
 void CLabelRichEdit::OnPrefix(NMHDR* pNMHDR, LRESULT* pResult)
 {

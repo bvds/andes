@@ -167,6 +167,10 @@ void CFBDDoc::Serialize(CArchive& ar)
 		m_strBranches.Serialize(ar);	// added version 21
 
    		//  Serialize drawing objects
+		
+		// update answer boxes from controls -- needed for correct Greek until bug found.
+		//CFBDView * pFBDView = theApp.GetFBDView();
+   		//if (pFBDView != NULL) pFBDView->UpdateDoc();
     
    		m_objects.Serialize(ar);
    		// Added version 3: store ID generation counter
@@ -2710,6 +2714,7 @@ featureMap[] =
 	"optics",     ID_PROB_OPTICS,
 	"relvel",     ID_PROB_RELVEL,
 	"probability", ID_PROB_PROBABILITY,
+	"changing-voltage", ID_PROB_CHANGING_VOLTAGE,
 };
 const int nFeatures ARRAY_SIZE(featureMap);
 
@@ -2918,6 +2923,10 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 					if (strFeature.CompareNoCase(featureMap[i].szName) == 0)
 						m_wConcept |= featureMap[i].wConcepts;
 				}
+
+				// check for purely qualitative problem.
+				if (strFeature.CompareNoCase("no-quant") == 0)
+					m_nProblemType = PROB_QUAL;
 			}
 		}
 		if (strTag.CompareNoCase("Soughts") == 0 ||

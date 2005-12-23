@@ -48,16 +48,17 @@ CString CVariableDlg::LookupCtrlName(int nID)
 CString CVariableDlg::GetSpec()		// get dialog spec for 
 {	
 	CString strSpec = CVarView::LookupSpec(((CVariable*)m_pTempObj)->m_nType); 
+
 	// Ugly special case: if changing-mass feature is set, then mass variable uses
 	// time slot. Adjust spec so other code works without change
 	CString strTypeId = CVarView::LookupTypeId(((CVariable*)m_pTempObj)->m_nType);
-	if ((strTypeId.CompareNoCase("mass") != -1) ||
-	    (strTypeId.CompareNoCase("moment-of-inertia") != -1)) {
+	if ((strTypeId.CompareNoCase("mass") == 0) ||
+	    (strTypeId.CompareNoCase("moment-of-inertia") == 0)) {
 		if (CVarView::IncludeQuant(CString("CHANGING-MASS"))){
 			strSpec += " at time [time:times]";
 		}
 	}
-	if ((strTypeId.CompareNoCase("charge-on") != -1)	) {
+	if ((strTypeId.CompareNoCase("charge-on") == 0)	) {
 		if (CVarView::IncludeQuant(CString("CHANGING-VOLTAGE"))){
 			strSpec += " at time [time:times]";
 		}

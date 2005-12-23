@@ -190,7 +190,10 @@ void CEQView::UpdateDoc()
 		CString strEq;
 		m_Edit[i].GetRichEditText(strEq); 
 		
-		ASSERT(pDoc->m_strEq[i] == strEq);
+		if (pDoc->m_strEq[i] != strEq) {
+			TRACE("EQ mismatch!: correcting eqn %d to %s\n", i, strEq);
+			pDoc->m_strEq[i] = strEq;
+		}
 		// pDoc->m_statusEq[i] = GetEqStatus(i);
 	}
 }

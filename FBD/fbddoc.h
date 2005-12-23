@@ -119,9 +119,10 @@ public:
 #define ID_PROB_RELVEL          0x00000200
 #define ID_PROB_FLUIDS          0x00000400
 // E&M topics:
-#define ID_PROB_CIRCUITS		0x00010000
-#define ID_PROB_EM              0x00020000
-#define ID_PROB_OPTICS          0x00040000
+#define ID_PROB_CIRCUITS		 0x00010000
+#define ID_PROB_EM               0x00020000
+#define ID_PROB_OPTICS           0x00040000
+#define ID_PROB_CHANGING_VOLTAGE 0x00100000
 // Probability
 #define ID_PROB_PROBABILITY     0x01000000
 
