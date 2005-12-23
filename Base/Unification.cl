@@ -296,6 +296,7 @@
         ((eql x y) bindings)
         ((variable-p x) (unify-variable x y bindings))
         ((variable-p y) (unify-variable y x bindings))
+	((and (orderless-p x) (orderless-p y)) (unify-orderless x y bindings))
 ;;; Match any keyword pairs
 	((valid-keyword-pair x) (unify-keyword x y bindings))
 	((valid-keyword-pair y) (unify-keyword y x bindings))
@@ -364,6 +365,27 @@
      ;; no match:  bind var to default
      (t (unify x y (unify var default bindings))))))
 
+;;; Orderless lists with (orderless ...)
+
+;; orderless cannot sort unbound variables
+;; valid expressions include:  (orderless a b c ...)
+;;                             (orderless . ?a)
+;;                             (orderless ?a)      
+
+(defun orderless-p (x)
+  (and (consp x) 
+       (eq (car x) 'orderless)
+       (or (variable-p (cdr x))   ; (orderless . ?a)
+	   (and (listp (cdr x)) (null (cddr x))) ; (orderless ?a)
+	   ;; (orderless a b c ...)
+	   (and (listp (cdr x)) (null (member-if #'variable-p (cdr x))))
+	   (error "invalid orderless ~A" x))))
+
+(defun unify-orderless (x y bindings)
+  (unify (if (listp (cdr x)) (sort (copy-list (cdr x)) #'expr<) (cdr x))
+	 (if (listp (cdr y)) (sort (copy-list (cdr y)) #'expr<) (cdr y))
+	 bindings))
+  
 ;;; ==============================
 
 (defun subst-bindings (bindings x)
