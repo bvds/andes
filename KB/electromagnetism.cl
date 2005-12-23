@@ -1427,28 +1427,32 @@
             ))
 
 (defoperator write-electric-dipole-moment-compo (?dipole ?t ?xy ?rot)
-  :preconditions ((debug "Using write-electric-dipole-moment-compo ~%")
-		  (electric-dipole ?dipole ?positive-charge ?negative-charge)
-                  (variable ?P_x  (compo ?xy ?rot (electric-dipole-moment ?dipole :time ?t)))
-                  (variable ?d_x  (compo ?xy ?rot (relative-position 
-			     ?positive-charge ?negative-charge :time ?t)))
-                  (variable ?q (charge-on ?positive-charge))
-                  (rdebug "fired write-electric-dipole-moment-compo  ~%")
-                  )
-  :effects (
-            (eqn (= ?P_x (* ?q ?d_x))
-                 (compo-eqn definition ?xy ?rot 
-			    (electric-dipole-moment ?dipole ?t)))
-            (eqn-compos (compo-eqn definition ?xy ?rot 
-				   (electric-dipole-moment ?dipole ?t))
-                        (?P_x ?d_x))
-            )
-  :hint (
-         (point (string "What is the definition of the electric dipole moment?"))
-         (teach ;(kcd "write-electric-dipole-moment-compo")
-                 (string "The electric dipole moment of a +q -q pair of charges  is defined as the charge q times a vector going from -q to +q."))
-         (bottom-out (string "Write the equation ~a" ((= ?P_x (* ?q ?d_x)) algebra)))
-         ))
+  :preconditions 
+  ((debug "Using write-electric-dipole-moment-compo ~%")
+   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (variable ?P_x  (compo ?xy ?rot (electric-dipole-moment ?dipole :time ?t)))
+   (variable ?d_x  (compo ?xy ?rot (relative-position 
+				    ?positive-charge 
+				    ?negative-charge :time ?t)))
+   (variable ?qp (charge-on ?positive-charge))
+   (variable ?qn (charge-on ?negative-charge))
+   (rdebug "fired write-electric-dipole-moment-compo  ~%")
+   )
+  :effects 
+  ( (eqn (= ?P_x (* ?qp ?d_x))
+	 (compo-eqn definition ?xy ?rot (electric-dipole-moment ?dipole ?t)))
+    ;; allows (forces?) student to define both charges
+    (implicit-eqn (= (+ ?qp ?qn) 0) 
+		  (electric-dipole-moment-balance ?dipole ?t))
+    (eqn-compos (compo-eqn definition ?xy ?rot 
+			   (electric-dipole-moment ?dipole ?t))
+		(?P_x ?d_x)))
+  :hint 
+  ( (point (string "What is the definition of the electric dipole moment?"))
+    (teach ;(kcd "write-electric-dipole-moment-compo")
+     (string "The electric dipole moment of a +q -q pair of charges  is defined as the charge q times a vector going from -q to +q."))
+    (bottom-out (string "Write the equation ~a" ((= ?P_x (* ?qp ?d_x)) algebra)))
+    ))
 
 ;; Vector relation P = q*d also licences magnitude and direction scalar 
 ;; equations.  Simpler to find these quantities than using component equations 
@@ -1499,12 +1503,16 @@
    (variable ?magP (mag (electric-dipole-moment ?dipole :time ?t)))
    (variable ?magd (mag (relative-position ?positive-charge 
 					   ?negative-charge :time ?t)))
-   (variable ?q (charge-on ?positive-charge))
+   (variable ?qp (charge-on ?positive-charge))
+   (variable ?qn (charge-on ?negative-charge))
    (rdebug "fired write-electric-dipole-moment-mag  ~%")
    )
   :effects 
   (
-   (eqn (= ?magP (* (abs ?q) ?magd)) (electric-dipole-moment-mag ?dipole ?t))
+   (eqn (= ?magP (* (abs ?qp) ?magd)) 
+	(electric-dipole-moment-mag ?dipole ?t))
+   ;; allows (forces?) student to define both charges
+   (implicit-eqn (= (+ ?qp ?qn) 0) (electric-dipole-moment-balance ?dipole ?t))
    (assume using-magnitude (electric-dipole-moment ?dipole ?t)) ;mag xor compos
    )
   :hint 
@@ -1512,8 +1520,70 @@
    (point (string "What is the definition of the electric dipole moment?"))
    (teach ;(kcd "write-electric-dipole-moment-mag")
     (string "The electric dipole moment of a +q -q pair of charges  is defined as the charge q times a vector going from -q to +q."))
-   (bottom-out (string "Write the equation ~a" ((= ?magP (* (abs ?q) ?magd)) algebra)))
+   (bottom-out (string "Write the equation ~a" ((= ?magP (* (abs ?qp) ?magd)) algebra)))
    ))
+
+
+;;; dipole-torque-zc: equation for torque z-component for a dipole
+
+;;  tau_z = E*P*sin(thetaE - thetaP)
+
+(def-psmclass dipole-torque-zc (dipole-torque-zc ?dipole 
+				    (field ?region electric ?source) ?t) 
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the ~A on a dipole in an electric field" (moment-name))
+  :expformat ((strcat "calculating the z component of the ~A "
+		      "on ~a ~a due to the electric field in ~A")
+	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
+  :EqnFormat ((torque-switch "M_z = P*E*sin($qE-$qP)"
+			     "$t_z = P*E*sin($qE-$qP)")))
+
+(defoperator dipole-torque-zc-contains (?sought)
+  :preconditions (
+    (any-member ?sought ( 
+             (compo z 0 (torque ?dipole (field ?region electric ?source)
+			        :time ?t))
+             (mag (field ?region electric ?source :time ?t))
+             (dir (field ?region electric ?source :time ?t))
+	     (mag (electric-dipole-moment ?dipole :time ?t))
+	     (dir (electric-dipole-moment ?dipole :time ?t))
+	                ))
+    (E-field ?source)
+    (at-place ?dipole ?region ?t)
+   )
+ :effects 
+ ( (eqn-contains (dipole-torque-zc ?dipole (field ?region electric ?source) ?t)
+		 ?sought) ))
+
+(defoperator write-dipole-torque-zc (?dipole ?source ?t)
+  :preconditions 
+  ( (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dirP)
+    (test (degrees-or-num ?dirP))
+    (vector ?source (field ?region electric ?source :time ?t) ?dirE)
+    (test (degrees-or-num ?dirE))
+    (bind ?torque-dir (torque-zdir (convert-dnum-to-number ?dirE) 
+				   (convert-dnum-to-number ?dirP)))
+    
+    (variable ?tau-zc (compo z 0 (torque ?dipole 
+					 (field ?region electric ?source)
+					 :time ?t)))
+    (variable ?E (mag (field ?region electric ?source :time ?t)))
+    (variable ?theta-E (dir (field ?region electric ?source :time ?t)))
+    (variable ?P (mag (electric-dipole-moment ?dipole :time ?t)))
+    (variable ?theta-P (dir (electric-dipole-moment ?dipole :time ?t)))
+    )
+  :effects 
+  ( (eqn (= ?tau-zc (* ?P ?E (sin (- ?theta-E ?theta-P)))) 
+	 (dipole-torque-zc ?dipole (field ?region electric ?source) ?t))  
+    (given (dir (torque ?dipole (field ?region electric ?source) :time ?t)) 
+	   ?torque-dir) )
+	    :hint 
+   ( (point (string "What is the torque produced by ~A due to the electric field?" ?dipole))
+     (teach (string "When a an electic dipole is placed in an electric field, the field exerts a torque on the dipole."))
+     (bottom-out (string "Write the equation ~A" 
+			 ((= ?tau-zc (* ?P ?E (sin (- ?theta-E ?theta-P)))) 
+			  algebra)))
+  ))
 
 
 ;;--------------------------------------------------

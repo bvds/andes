@@ -377,7 +377,7 @@
 
 (defun draw-line-entryprop (dir)
   (if (eq dir 'unknown) "in an unknown direction" 
-    "at an angle of ~A" (nlg dir)))
+    (format nil "at an angle of ~A" (nlg dir))))
 	
 (def-entryprop draw-axes (draw-axes ?body ?x-direction)
   ;; until workbench associates bodies and times w/axes, just

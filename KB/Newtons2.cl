@@ -9659,6 +9659,32 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			?axis ?pt (?t pp) (?torque-dir adj)))
     ))
 
+;;; draw the torque due to something or other
+(defoperator draw-torque-whatever (?b ?agent ?t)
+   :preconditions 
+   (
+     ;; var name identifies force by point of application and agent alone
+     (bind ?mag-var (format-sym "TOR_~A_~A~@[_~A~]" (body-name ?b) 
+				(body-name ?agent) (time-abbrev ?t)))
+     (bind ?dir-var (format-sym "O~A" ?mag-var))
+     (given (dir (torque ?b ?agent :time ?t)) ?torque-dir) 
+   )
+   :effects (
+     (vector ?b (torque ?b ?agent :time ?t) ?torque-dir)
+     (variable ?mag-var (mag (torque ?b ?agent :time ?t)))
+     (variable ?dir-var (dir (torque ?b ?agent :time ?t)))
+   )
+   :hint 
+   (
+    (point (string "There is a ~A acting on ~A due to the ~A." 
+		   (nil moment-name) ?b ?agent))
+    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A  due to ~A and set the direction to point ~A"  
+			(nil moment-name) (nil moment-symbol)  
+			(nil moment-name) ?agent
+			 (?t pp) (?torque-dir adj)))
+    ))
+
+
 ;;; draw an individual torque due to a couple
 (defoperator draw-torque-couple (?pt ?agent ?t)
    :preconditions (
@@ -9683,7 +9709,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (
     (point (string "Notice that there is a couple between ~A."
 		   (?points conjoined-defnp)))
-    (teach (string "A couple is a way of expression the rotational part of the forces between two bodies."))
+    (teach (string "A couple is a way of expressing the rotational part of the forces between two bodies."))
     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A  due to the couple from ~A ~A and set the direction to point ~A"  
 			(nil moment-name) (nil moment-symbol)  
 			(nil moment-name) ?agent
