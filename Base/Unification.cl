@@ -341,11 +341,11 @@
 
 (defun valid-keyword-pair (x)
   "Check x is list starting with a keyword and value."
-  (and (consp x) (keywordp (first x)) (> (length x) 1)))
+  (and (consp x) (keywordp (car x)) (consp (cdr x))))
 
 (defmacro get-any-default-value (x)
   "Remove any non-keyword from beginning of x"
-  `(when (and (consp ,x) (not (keywordp (first ,x)))) (pop ,x)))
+  `(when (and (consp ,x) (not (keywordp (car ,x)))) (pop ,x)))
 
 (defun unify-keyword (x y bindings)
   "Find match in y for first keyword pair in x"
@@ -357,7 +357,7 @@
      ;; if value in x is nil, just remove keyword pair
      ((null var) (unify x y bindings))
      ;; if keyword pair is in y, match values:
-     ((> (length ykey) 1)	;Is there a keyword and value in y?
+     ((consp (cdr ykey))	;Is there a keyword and value in y?
       (let ((post (cddr ykey)))
 	(get-any-default-value post)	;discard any default value from y
 	(unify x (append (ldiff y ykey) post) ;keyword pair removed
@@ -383,7 +383,7 @@
 	((and (listp x) (null (cdr (last x))) ; check for proper list
 	      (null (member-if #'variable-p x))) (sort (copy-list x) #'expr<))
 	(t (error "Invalid orderless ~A.  Need a proper list with no unbound variables." 
-		  (cons 'orderlesss x)))))
+		  (cons 'orderless x)))))
  
   
 ;;; ==============================
