@@ -296,7 +296,8 @@
         ((eql x y) bindings)
         ((variable-p x) (unify-variable x y bindings))
         ((variable-p y) (unify-variable y x bindings))
-	((and (orderless-p x) (orderless-p y)) (unify-orderless x y bindings))
+	((and (orderless-p x) (orderless-p y)) 
+	 (unify (orderless-sort (cdr x)) (orderless-sort (cdr y)) bindings))
 ;;; Match any keyword pairs
 	((valid-keyword-pair x) (unify-keyword x y bindings))
 	((valid-keyword-pair y) (unify-keyword y x bindings))
@@ -367,24 +368,22 @@
 
 ;;; Orderless lists with (orderless ...)
 
-;; orderless cannot sort unbound variables
+;; (orderless ...) must be a proper list with no unbound variables
 ;; valid expressions include:  (orderless a b c ...)
 ;;                             (orderless . ?a)
 ;;                             (orderless ?a)      
 
 (defun orderless-p (x)
-  (and (consp x) 
-       (eq (car x) 'orderless)
-       (or (variable-p (cdr x))   ; (orderless . ?a)
-	   (and (listp (cdr x)) (null (cddr x))) ; (orderless ?a)
-	   ;; (orderless a b c ...)
-	   (and (listp (cdr x)) (null (member-if #'variable-p (cdr x))))
-	   (error "invalid orderless ~A" x))))
+  (and (consp x) (eq (car x) 'orderless)))
 
-(defun unify-orderless (x y bindings)
-  (unify (if (listp (cdr x)) (sort (copy-list (cdr x)) #'expr<) (cdr x))
-	 (if (listp (cdr y)) (sort (copy-list (cdr y)) #'expr<) (cdr y))
-	 bindings))
+(defun orderless-sort (x)
+  (cond ((variable-p x) x)                 ;(orderless . ?a)
+	((and (listp x) (null (cdr x))) x) ;(orderless ?a)
+	;; (orderless a b c ...)
+	((and (listp x) (null (cdr (last x))) ; check for proper list
+	      (null (member-if #'variable-p x))) (sort (copy-list x) #'expr<))
+	(t (error "Invalid orderless ~A" (cons 'orderlesss x)))))
+ 
   
 ;;; ==============================
 
@@ -399,14 +398,6 @@
         (t (reuse-cons (subst-bindings bindings (car x))
                        (subst-bindings bindings (cdr x))
                        x))))
-
-;;; ==============================
-
-(defun unifier (x y)
- "Return something that unifies with both x and y (or fail)."
- (subst-bindings (unify x y) x))
-
-
 
 ;;; ===========================================================
 
@@ -433,18 +424,6 @@
       (if (unify Filter E Bindings)
 	  (push E R)))
     R))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Vars-in-exp
-;; Obtain a list of all variables in a nested lisp expression.
-;;
-;; Argument: Exp: The expression being polled.
-;; Returns:  A list of all variables in the expression.
-
-(defun vars-in-exp (Exp)
-  (variables-in Exp))              ;;temporary.
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; generate-bindings
