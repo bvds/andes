@@ -269,15 +269,15 @@
   "Obtain a list of all variables in this operator."
   (remove-duplicates                                             ;;Cull the copies from the results and return.
    (append (Operator-arguments Op)
-	   (vars-in-exp (Operator-preconditions op))
-	   (vars-in-exp (Operator-Effects Op)))))
+	   (variables-in (Operator-preconditions op))
+	   (variables-in (Operator-Effects Op)))))
 
 
 (defun get-operator-hintvars (Op)
   "Obtain a list of all variables in this operator."
   (remove-duplicates                                             ;;Cull the copies from the results and return.
    (append (Operator-arguments Op)
-	   (vars-in-exp (Operator-hint OP)))))
+	   (variables-in (Operator-hint OP)))))
 
 
 (defun bind-operator-vars (op vals)

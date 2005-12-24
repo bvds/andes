@@ -1013,10 +1013,10 @@
     (error "Specified var ~a is not a valid variable." Var))
   
   (dolist (Form Forms)
-    (when (not (member Var (vars-in-exp Form) :test #'unify)) ;could use "equal"
+    (when (not (member Var (variables-in Form) :test #'unify)) ;could use "equal"
       (error "Specified form ~a does not contain var: ~a" Form Var)))
 
-  (when (vars-in-exp Exps)
+  (when (variables-in Exps)
     (error "Variables found in Expressions."))
   
   (let (R B)
