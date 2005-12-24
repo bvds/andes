@@ -382,7 +382,8 @@
 	;; (orderless a b c ...)
 	((and (listp x) (null (cdr (last x))) ; check for proper list
 	      (null (member-if #'variable-p x))) (sort (copy-list x) #'expr<))
-	(t (error "Invalid orderless ~A" (cons 'orderlesss x)))))
+	(t (error "Invalid orderless ~A.  Need a proper list with no unbound variables." 
+		  (cons 'orderlesss x)))))
  
   
 ;;; ==============================

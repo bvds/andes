@@ -451,38 +451,6 @@ consed on if lists or as list otherwize."
 
 
 ;;; -------------------------------------------------
-;;; Given lists of integers add them together.
-;;; Add 0 to elements not represented in the other 
-;;; lists.
-(defun addlists (&rest lists)
-  (if (= 1 (length lists)) (car lists)
-    (apply #'addlists 
-	   (cons (addlistpair (car lists) (cadr Lists))
-		 (cddr Lists)))))
-
-
-(defun addlistpair (A B)
-  (loop for i below (max (length A) (length B))
-      collect (+ (or (nth i A) 0) 
-		 (or (nth i B) 0))))
-
-
-
-;;; Add the val to the Nth term of List.
-(defun addnth (Val N List)
-  (let ((l (copy-list List)))
-    (setf (nth N L) (+ Val (nth N L)))
-    L))
-
-
-
-
-
-
-
-
-
-
 
 ;;; Sort things by the length that they 
 ;;; appear as strings.
@@ -492,23 +460,6 @@ consed on if lists or as list otherwize."
 	    (sort (mapcar #'princ-to-string lst)
 		  #'length-LE-comp))))
 
-
-;; Segment string
-;; Given a string break it into a list of substrings
-;; according to the soft-justification segment delimiters.
-#| (defun just-segment-string (string &key (cap 10) (delimiters '("\n" " ")))
-   "Justify-segment the string according to the delimiters."
-   
-   
-   (let (R)
-   (do ((m) (n 0)) ((= n (length String)))
-   (setq m (search-precidence-set 
-   String Delimiters :test #'string= :from-end t)) 
-   (if (null m) (postpend (subseq String n) R)
-   (postpend (subseq String n m) R))
-   (setq n m))
-   R))
-   |#
 
 ;; Given a sequence and a set of subsequences search for 
 ;; them in priority order and return the location of the 
@@ -553,29 +504,6 @@ consed on if lists or as list otherwize."
     (format Stream "~A~%" (subseq String start end))
     (setq start (+ inc end))))
       
-
-;;--------------------------------------------------------------------
-;; refence counting storage is used for storing some elements in the
-;; help system to prevent useless memory explosion.
-
-(defun ref-append (Exps Loc)
-  (let ((L Loc) (Exp) (Count 0))
-    (loop for E in Exps
-	when (setq Exp (find E Loc :key #'cadr :test #'equalp))
-	do (incf (car Exp))
-	else do (push (list 1 E) L)
-	     (incf count))
-    (values L Count)))
-
-(defun ref-remove (Exps Loc)
-  "Remove the specified ref's from Loc."
-  (let ((L) (Exp))
-    (dolist (E Exps)
-      (setq Exp (find E Loc :key #'cadr :test #'equalp))
-      (when (not Exp) (error "Expression not found ~%~A~%~A." E Loc))
-      (decf (car E)))
-    (setq L (remove 0 Loc :key #'car))
-  (values L (- (length Loc) (length L)))))
 
 ;;------------------------------------------------------
 ;; printing info.
