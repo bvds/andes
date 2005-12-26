@@ -137,7 +137,7 @@
 ;;; it prints the psms then the entries and equations.
 (defun print-numbered-report-eqnset (Set &optional (Stream t) (level 0))
   (format Stream "Problem Solution Methods.~%") 
-  (format Stream "~{    ~A~%~}" 
+  (format Stream "~{    ~S~%~}" 
 	  (mapcar #'get-node-id (EqnSet-Eqns set)))
   (format Stream "Entries.~%")
   (print-eqnset-entries Set Stream Level)
@@ -149,7 +149,7 @@
 (defun print-eqnset-entries (Set Stream Level)
   (declare (ignore Level))
   "Print the eqnset entries."
-  (format Stream "~{    ~A~%~}" 
+  (format Stream "~{    ~S~%~}" 
 	  (sort-ascending-string-length
 	   (remove-if-not 
 	    #'(lambda (e) (and (kb-entryprop-p e)

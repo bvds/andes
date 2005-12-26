@@ -82,7 +82,7 @@
 
 (defoperator impulse-vector-contains (?sought)
   :preconditions 
-  ((collision ?bodies ?t :type ?elastic-dont-care)
+  ((collision (orderless . ?bodies) ?t :type ?elastic-dont-care)
    (any-member ?sought
 	       ((mag (impulse ?b ?agent :time ?t))
 		(dir (impulse ?b ?agent :time ?t))
@@ -178,7 +178,7 @@
   (
    (test (time-intervalp ?t))		;introduce ?t to save some typing
    (bind ?t1 (second ?t)) (bind ?t2 (third ?t)) ;get interval endpoints
-   (collision ?bodies ?t :type ?elastic-dont-care)
+   (collision (orderless . ?bodies) ?t :type ?elastic-dont-care)
    (test (member ?b ?bodies :test #'equal)) 
    (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b (straight ?dontcare1 ?dir1) :time ?t1)
@@ -211,7 +211,7 @@
    (not (given (dir (impulse ?b ?agent :time ?t)) ?dir))
    (test (time-intervalp ?t))		;introduce ?t to save some typing
    (bind ?t1 (second ?t)) (bind ?t2 (third ?t)) ;get interval endpoints
-   (collision ?bodies ?t :type ?elastic-dont-care)
+   (collision (orderless . ?bodies) ?t :type ?elastic-dont-care)
    (test (member ?b ?bodies :test #'equal)) 
    (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b (straight ?dontcare1 ?dir1) :time ?t1)
@@ -240,7 +240,7 @@
 (defoperator impulse-momentum-contains (?sought)
   :preconditions 
   (
-   (collision ?bodies (during ?t1 ?t2) :type ?elastic-dont-care)
+   (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?elastic-dont-care)
    (any-member ?sought
 	        ((mag (impulse ?b ?agent :time (during ?t1 ?t2)))
 		 (dir (impulse ?b ?agent :time (during ?t1 ?t2)))
@@ -322,16 +322,13 @@ impulse ~A." (?b def-np) (?t pp)))
 (defoperator NTL-impulse-contains (?quantity)
   :preconditions 
   (
-   (collision ?bodies ?t :type ?elastic-dont-care)
    (any-member ?quantity (
 			  (mag (impulse ?b1 ?b2 :time ?t))
                         ))
-   (test (member ?b1 ?bodies :test #'equal)) 
-   (test (member ?b2 ?bodies :test #'equal)) 
-   (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
+   (bind ?bodies (sort (list ?b1 ?b2) #'expr<))
   )
   :effects ( 
-  	(eqn-contains (NTL-impulse ?body-pair ?t) ?quantity) 
+  	(eqn-contains (NTL-impulse ?bodies ?t) ?quantity) 
   ))
 
 (defoperator NTL-impulse (?b1 ?b2 ?t)

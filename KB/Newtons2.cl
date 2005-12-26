@@ -8144,9 +8144,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    ;; for now only apply if there is a collision 
-   (in-wm (collision ?body-list (during ?t1 ?t2) :type ?type))
-   ;; in case problem author didn't canonicalize body list:
-   (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
+   (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?type))
    (any-member ?sought (
 			(mag (momentum ?b :time ?t)) 
 			(dir (momentum ?b :time ?t))
@@ -8155,7 +8153,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))
    (test (or (contains-sym ?sought 'compound) 
-	     (member ?b ?body-list :test #'equal)))
+	     (member ?b ?bodies :test #'equal)))
    )
   :effects (
   (eqn-family-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
@@ -8203,7 +8201,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      ;; use this if bodies don't split from initial compound
      ;; !!! code assumes there's only one collision in problem
-     (in-wm (collision ?body-list ?times :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?times :type ?type))
      ;; make sure this is a time without a compound body
      (test (or (and (not (equal ?type 'split)) (equal ?tt (second ?times)))
 	       (and (not (equal ?type 'join)) (equal ?tt (third ?times)))))
@@ -8216,7 +8214,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-collision-momenta-inelastic (?bodies ?tt)
   :preconditions (
      ;; use this if collision involves split or join
-     (in-wm (collision ?body-list ?times :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?times :type ?type))
      ;; make sure this is a time with a compound body
      (test (or (and (equal ?type 'split) (equal ?tt (second ?times)))
 	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
@@ -8234,7 +8232,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    ;; use these steps if no split or join
-   (in-wm (collision ?body-list (during ?t1 ?t2) :type ?type))
+   (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?type))
    (test (not (or (equal ?type 'join) (equal ?type 'split))))
    (map ?b ?bodies
 	(variable ?p1_compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
@@ -8269,7 +8267,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-cons-linmom-compo-split (?bodies ?t1 ?t2 ?xyz ?rot)
   :preconditions (
   ;; use these steps if collision involves split 
-  (in-wm (collision ?body-list (during ?t1 ?t2) :type split))
+  (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type split))
   ;; write subsidiary equations for all needed momenta components along ?xyz
   (bind ?c `(compound ,@?bodies))
   (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?t1)))
@@ -8302,7 +8300,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-cons-linmom-compo-join (?bodies ?t1 ?t2 ?xyz ?rot)
   :preconditions (
   ;; use these steps if join in inelastic collision
-  (in-wm (collision ?body-list (during ?t1 ?t2) :type join))
+  (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type join))
   ;; write subsidiary equations for all needed momenta components along ?xyz
   (map ?b ?bodies
        (variable ?pi_compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
@@ -8387,15 +8385,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator cons-ke-elastic-contains (?quantity)
   :preconditions 
   (
-   (collision ?coll-bodies (during ?t1 ?t2) :type elastic)
+   (collision (orderless . ?bodies) (during ?t1 ?t2) :type elastic)
    (any-member ?quantity (
 			  (mag (velocity ?b :time ?t1))
 			  (mag (velocity ?b :time ?t2))
 			  (mass ?b)
                 	  ))
-   (test (member ?b ?coll-bodies :test #'equal))
-   ;; in case problem author didn't canonicalize list of bodies
-   (bind ?bodies (sort (copy-list ?coll-bodies) #'expr<)) ;sort is destructive
+   (test (member ?b ?bodies :test #'equal))
   )
   :effects (
     (eqn-contains (cons-ke-elastic ?bodies (during ?t1 ?t2)) ?quantity)
@@ -9468,9 +9464,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    ;; for now only apply if we are given some momentum conserving change:
-   (collision ?body-list (during ?t1 ?t2) :axis ?axis :type ?split-join)
-   ;; in case problem author didn't canonicalize body list:
-   (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
+   (collision (orderless . ?bodies) (during ?t1 ?t2) 
+	      :axis ?axis :type ?split-join)
    (any-member ?sought (
 			(mag (ang-momentum ?b :time ?t)) 
 			(dir (ang-momentum ?b :time ?t))
@@ -9479,7 +9474,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       ))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))   
    (test (or (contains-sym ?sought 'compound)
-	     (member ?b ?body-list :test #'equal)))
+	     (member ?b ?bodies :test #'equal)))
    )
   :effects (
     (angular-eqn-contains (cons-angmom ?bodies (during ?t1 ?t2)) ?sought)
@@ -9503,7 +9498,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-rotation-collision-momenta (?bodies ?tt)
   :preconditions (
      ;; use this if bodies don't split from initial compound
-     (in-wm (collision ?body-list ?times :axis ?axis :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?times :axis ?axis :type ?type))
      ;; make sure this is a time without a compound body
      (test (or (and (not (equal ?type 'split)) (equal ?tt (second ?times)))
 	       (and (not (equal ?type 'join)) (equal ?tt (third ?times)))))
@@ -9516,7 +9511,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-rotation-collision-momenta-inelastic (?bodies ?tt)
   :preconditions (
      ;; use this if collision involves split or join
-     (in-wm (collision ?body-list ?times :axis ?axis :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?times :axis ?axis :type ?type))
      ;; make sure this is a time with a compound body
      (test (or (and (equal ?type 'split) (equal ?tt (second ?times)))
 	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
@@ -9530,7 +9525,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-cons-angmom (?bodies ?t1 ?t2)
   :preconditions (
    ;; don't use this in case of a join
-   (collision ?body-list (during ?t1 ?t2) :axis ?axis :type ?type)
+   (collision (orderless . ?bodies) (during ?t1 ?t2) :axis ?axis :type ?type)
    (test (not (or (equal ?type 'join) (equal ?type 'split))))
    ;; apply single-body ang-momentum method for each to draw vectors and 
    ;; generate compo equation for each body at initial and final times
@@ -9561,7 +9556,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-cons-angmom-join (?bodies ?t1 ?t2)
   :preconditions (
    ;; use this only in case of a join
-  (collision ?body-list (during ?t1 ?t2) :axis ?axis :type join)
+  (collision (orderless . ?bodies) (during ?t1 ?t2) :axis ?axis :type join)
   ;; apply single-body ang-momentum method for each to draw vectors and 
   ;; generate compo equation for each body at initial and final times
   ;; initial time:

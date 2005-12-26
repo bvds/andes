@@ -285,6 +285,18 @@
 	(t (and (all-boundp (car form) bindings)
 		(all-boundp (cdr form) bindings)))))
 
+(defun subst-bindings (bindings x)
+  "Substitute the value of variables in bindings into x,
+  taking recursively bound variables into account."
+  (cond ((eq bindings fail) fail)
+        ((eq bindings no-bindings) x)
+        ((and (variable-p x) (get-binding x bindings))
+         (subst-bindings bindings (lookup x bindings)))
+        ((atom x) x)
+        (t (reuse-cons (subst-bindings bindings (car x))
+                       (subst-bindings bindings (cdr x))
+                       x))))
+
 
 ;;;; ================================================================== 
 ;;;;                              Unification
@@ -297,7 +309,8 @@
         ((variable-p x) (unify-variable x y bindings))
         ((variable-p y) (unify-variable y x bindings))
 	((and (orderless-p x) (orderless-p y)) 
-	 (unify (orderless-sort (cdr x)) (orderless-sort (cdr y)) bindings))
+	 (unify (orderless-sort (cdr x) bindings) 
+		(orderless-sort (cdr y) bindings) bindings))
 ;;; Match any keyword pairs
 	((valid-keyword-pair x) (unify-keyword x y bindings))
 	((valid-keyword-pair y) (unify-keyword y x bindings))
@@ -376,31 +389,18 @@
 (defun orderless-p (x)
   (and (consp x) (eq (car x) 'orderless)))
 
-(defun orderless-sort (x)
+(defun orderless-sort (x bindings)
   (cond ((variable-p x) x)                 ;(orderless . ?a)
 	((and (listp x) (null (cdr x))) x) ;(orderless ?a)
 	;; (orderless a b c ...)
-	((and (listp x) (null (cdr (last x))) ; check for proper list
-	      (null (member-if #'variable-p x))) (sort (copy-list x) #'expr<))
-	(t (error "Invalid orderless ~A.  Need a proper list with no unbound variables." 
+	((and (listp x) (null (cdr (last x))) ;check for proper list
+	      (all-boundp x bindings))        ;with all variables bound
+	 (sort (copy-list (subst-bindings bindings x)) #'expr<))
+	(t (error "Invalid orderless ~A.~%  Need a proper list with all variables bound." 
 		  (cons 'orderless x)))))
- 
-  
-;;; ==============================
 
-(defun subst-bindings (bindings x)
-  "Substitute the value of variables in bindings into x,
-  taking recursively bound variables into account."
-  (cond ((eq bindings fail) fail)
-        ((eq bindings no-bindings) x)
-        ((and (variable-p x) (get-binding x bindings))
-         (subst-bindings bindings (lookup x bindings)))
-        ((atom x) x)
-        (t (reuse-cons (subst-bindings bindings (car x))
-                       (subst-bindings bindings (cdr x))
-                       x))))
 
-;;; ===========================================================
+;;; ===========================================================================
 
 (defun unify-with-list (i L &optional (Bindings No-Bindings))
   "Attempt to unify item i with some element in list L returning all 

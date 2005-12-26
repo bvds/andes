@@ -200,10 +200,10 @@
    s))
 
 (defun algebra (x &rest args)
-    ; x could be prefix expr (maybe DNUM), var or dimensionless number
+    ;; x could be prefix expr (maybe DNUM), var or dimensionless number
     (strip-outer-parens (format nil "~A" (subst-student-vars (pre2in x)))))
 
-; for concise reference to quantities in algebraic contexts:
+;; for concise reference to quantities in algebraic contexts:
 (defun var-or-quant (x &rest args)
 "return student's var for quant if one exists, else full quantity def."
     (or (symbols-label x)
