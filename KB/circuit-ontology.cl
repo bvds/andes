@@ -63,11 +63,11 @@
   :english ("the rate of change of the current through ~a" 
 	    (nlg ?comp 'at-time ?time)))
 
-(def-qexp time-constant (time-constant ?c1 ?c2)
+(def-qexp time-constant (time-constant orderless . ?quants)
           :units |s|
-	  :fromWorkbench `(time-constant ,@(sort (list body body2) #'expr<))
-	  :english ("the time constant for circuit components ~A and ~A" 
-		       (nlg ?c1) (nlg ?c2)))
+	  :fromWorkbench `(time-constant orderless ,body ,body2)
+	  :english ("the time constant for ~A" 
+		       (nlg ?quants 'conjoined-defnp)))
 
 (def-qexp E-field (field ?region electric ?source :time ?time)
   :units |N/C|

@@ -1383,10 +1383,10 @@
 (defoperator define-time-constant (?quants) 
   :preconditions 
   ( (bind ?tau-var (format-sym "tau~{_~A~}" (mapcar #'body-name ?quants))) )
-  :effects ( (variable ?tau-var (time-constant . ?quants))
-	    (define-var (time-constant . ?quants)) )
+  :effects ( (variable ?tau-var (time-constant orderless . ?quants))
+	    (define-var (time-constant orderless . ?quants)) )
   :hint 
-  ( (bottom-out (string "Define a variable for the time constant of the circuit elements ~A and ~A by using the Add Variable command and selecting Time Constant"  ?c1 ?c2 ))
+  ( (bottom-out (string "Define a variable for the time constant for ~A by using the Add Variable command and selecting Time Constant"  (?quants 'conjoined-defnp) ))
     ))
 
 (def-psmclass RC-time-constant (RC-time-constant ?res ?cap) 
@@ -1398,8 +1398,7 @@
   :preconditions (
 		  (circuit-component ?cap capacitor)
 		  (circuit-component ?res resistor)
-		  (bind ?quants (sort (list ?res ?cap) #'expr<))
-		  (any-member ?sought ((time-constant . ?quants)
+		  (any-member ?sought ((time-constant orderless ?res ?cap)
 				       (capacitance ?cap)
 				       (resistance ?res)))
 		  )
@@ -1410,8 +1409,7 @@
 (defoperator write-RC-time-constant (?res ?cap)
   :preconditions 
   (
-   (bind ?quants (sort (list ?res ?cap) #'expr<))
-   (variable ?tau (time-constant . ?quants))
+   (variable ?tau (time-constant orderless ?res ?cap))
    (variable ?c-var (capacitance ?cap))
    (variable ?r-var (resistance ?res))
    )
@@ -1442,11 +1440,10 @@
    (closed-loop (?res ?cap) :time (during ?t1 ?t2))
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
-   (bind ?quants (sort (list ?res ?cap) #'expr<))
    (any-member ?sought ((charge-on ?cap :time ?t1)
 			(charge-on ?cap :time ?t2)
 			(duration (during ?t1 ?t2))
-			(time-constant . ?quants)
+			(time-constant orderless ?res ?cap)
 			))
    ;; make sure we have a time interval:
    (time (during ?t1 ?t2))
@@ -1462,8 +1459,7 @@
    (variable ?q2-var (charge-on ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
    (variable ?t-var (duration (during ?t1 ?t2)))
-   (bind ?quants (sort (list ?res ?cap) #'expr<))
-   (variable ?tau-var (time-constant . ?quants))
+   (variable ?tau-var (time-constant orderless ?res ?cap))
    )
   :effects 
   ((eqn (= ?q2-var (* ?q1-var (exp (/ (- ?t-var) ?tau-var))))
@@ -1496,10 +1492,9 @@
    (circuit-component ?bat battery)
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
-   (bind ?quants (sort (list ?res ?cap) #'expr<))
    (any-member ?sought ((charge-on ?cap :time ?t2)
 			(duration (during ?t1 ?t2))
-			(time-constant . ?quants)
+			(time-constant orderless ?res ?cap)
 			))
    (time (during ?t1 ?t2))		;sanity test
    (given (charge-on ?cap :time ?t1) 0) ;boundary condition
@@ -1515,8 +1510,7 @@
    (variable ?c-var (capacitance ?cap))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?t-var (duration (during ?t1 ?t2)))
-   (bind ?quants (sort (list ?res ?cap) #'expr<))
-   (variable ?tau-var (time-constant . ?quants))
+   (variable ?tau-var (time-constant orderless ?res ?cap))
    )
   :effects 
   ((eqn (= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
@@ -1546,10 +1540,9 @@
    (circuit-component ?bat battery)
    (circuit-component ?cap capacitor)
    (circuit-component ?res resistor)
-   (bind ?quants (sort (list ?res ?cap) #'expr<))
    (any-member ?sought ((current-thru ?res :time ?t2)
 			;; also contains V, R, C, t
-			(time-constant ?quants)
+			(time-constant orderless ?res ?cap)
 			))
    (time (during ?t1 ?t2))		;sanity test
    (given (charge-on ?cap :time ?t1) 0) ;boundary condition
@@ -1566,8 +1559,7 @@
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?r-var (resistance ?res))
    (variable ?t-var (duration (during ?t1 ?t2)))
-   (bind ?quants (sort (list ?res ?cap) #'expr<))
-   (variable ?tau-var (time-constant . ?quants))
+   (variable ?tau-var (time-constant orderless ?res ?cap))
    )
   :effects 
   ((eqn (= ?i-var (* (/ ?v-var ?r-var) (exp (/ (- ?t-var) ?tau-var))))
@@ -1819,8 +1811,7 @@
   :preconditions (
 		  (circuit-component ?ind inductor)
 		  (circuit-component ?res resistor)
-		  (bind ?quants (sort (list ?ind ?res) #'expr<))
-		  (any-member ?sought ((time-constant . ?quants)
+		  (any-member ?sought ((time-constant orderless ?ind ?res)
 				       (inductance ?ind)
 				       (resistance ?res)))
 		  )
@@ -1831,8 +1822,7 @@
 
 (defoperator write-LR-time-constant (?ind ?res)
   :preconditions (
-		  (bind ?quants (sort (list ?ind ?res) #'expr<))
-		  (variable ?tau     (time-constant . ?quants))
+		  (variable ?tau     (time-constant orderless ?ind ?res))
 		  (variable ?L-var   (inductance ?ind))
 		  (variable ?r-var   (resistance ?res))
 		  )
@@ -1858,10 +1848,9 @@
 		 (LR-current-growth ?branch (during ?t1 ?tf))
 		 (circuit-component ?ind inductor)
 		 (circuit-component ?res resistor)
-		 (bind ?quants (sort (list ?ind ?res) #'expr<))
 		 (any-member ?sought ((current-in ?branch :time ?t2)
 				      (duration (during ?t1 ?t2))
-				      (time-constant . ?quants)
+				      (time-constant orderless ?ind ?res)
 				      ))
 					; this applies to any t2 between t1 and tf
 		 (time ?t2)	       ; have to bind if sought is tau
@@ -1879,8 +1868,7 @@
 		  (variable ?i-var (current-in ?branch :time ?t2))
 		  (variable ?Imax-var (current-in ?branch :time ?tf))
 		  (variable ?t-var (duration (during ?t1 ?t2)))
-		  (bind ?quants (sort (list ?ind ?res) #'expr<))
-		  (variable ?tau-var (time-constant . ?quants))
+		  (variable ?tau-var (time-constant orderless ?ind ?res))
 		  )
   :effects (
 	    (eqn (= ?i-var (* ?Imax-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
@@ -1944,10 +1932,9 @@
    (LR-current-decay ?branch (during ?t1 ?tf))
    (circuit-component ?res resistor)
    (circuit-component ?ind inductor)
-   (bind ?quants (sort (list ?ind ?res) #'expr<))
    (any-member ?sought ((current-in ?branch :time ?t2)
 			(duration (during ?t1 ?t2))
-			(time-constant . ?quants)
+			(time-constant orderless ?ind ?res)
 			;; also contains I0
 			))
    ;; this applies to any t2 between t1 and tf
@@ -1966,8 +1953,7 @@
    (variable ?i-var (current-in ?branch :time ?t2))
    (variable ?I0-var (current-in ?branch :time ?t1))
    (variable ?t-var (duration (during ?t1 ?t2)))
-   (bind ?quants (sort (list ?ind ?res) #'expr<))
-   (variable ?tau-var (time-constant . ?quants))
+   (variable ?tau-var (time-constant orderless ?ind ?res))
    )
   :effects (
 	    (eqn (= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var))))
