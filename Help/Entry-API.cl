@@ -145,7 +145,7 @@
 (defun arg-to-body (body-arg)
   "Convert WB API body argument to KB body term" 
   (if (consp body-arg)  ; list of body names: make compound body term
-      `(compound ,@(sort (mapcar #'fix-body-name body-arg) #'expr<)) 
+      `(compound orderless ,@(mapcar #'fix-body-name body-arg)) 
   ; else atomic body name:
    ; check if this is a student-defined compound-body label
    (let ((stud-quant (symbols-referent (string body-arg))))
@@ -395,10 +395,8 @@
 						  :time ,time-term))
 				    ((eq subtype 'couple)
 				     `(torque ,body-term
-					      (couple ,@(sort 
-							 (list body-term 
-							       body2-term) 
-                                                        #'expr<)) 
+					      (couple orderless ,body-term 
+							       ,body2-term) 
 					      :time ,time-term))
 				(t (timeify time-term 
 					    (find-torque-term 
@@ -745,8 +743,7 @@
 		      ((equal type '|Net|) `(net-torque ,body-term ,axis-term))
 		      ((equal type 'couple) 
 		       `(torque ,body-term 
-				(couple ,@(sort (list body-term axis-term)
-						#'expr<))))
+				(couple orderless ,body-term ,axis-term)))
 	               (t (find-torque-term body-term axis-term))))
 	(dir-term    (arg-to-dir dir mag)))
 
@@ -811,15 +808,13 @@
 	  ; need time-indexed vector quant terms from (mag ?vector)
 	  (v1-term (second mag1-term))
 	  (v2-term (second mag2-term))
-          ; angle-between term in KB should list vectors in canonical order
-	  (vector-terms (sort (list v1-term v2-term) #'expr<))
-	  (angle-term `(angle-between ,@vector-terms))
+	  (angle-term `(angle-between orderless ,v1-term ,v2-term))
 	  ; AW: for simplicity, now map either drawn or defined angle
 	  ; to the same define-var entry. KB should be changed to match.
 	  ;(action      (if drawn `(angle ,@vector-terms)
 	  ;                `(define-var ,angle-term)))
-	  (action      `(define-var ,angle-term))
-          (entry       (make-StudentEntry :id id-angle :prop action))
+	  (action `(define-var ,angle-term))
+          (entry (make-StudentEntry :id id-angle :prop action))
 	 )
 
    ; delete existing entry info and update
