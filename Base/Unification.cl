@@ -394,7 +394,9 @@
 	((and (listp x) (null (cdr x))) x) ;(orderless ?a)
 	;; (orderless a b c ...)
 	((and (listp x) (null (cdr (last x))) ;check for proper list
-	      (all-boundp x bindings))        ;with all variables bound
+	      ;; In principle, we only need bindings sufficient for the sort
+	      ;; to be unambiguous. 
+	      (all-boundp x bindings))        ;with *all* variables bound
 	 (sort (copy-list (subst-bindings bindings x)) #'expr<))
 	(t (error "Invalid orderless ~A.~%  Need a proper list with all variables bound." 
 		  (cons 'orderless x)))))
