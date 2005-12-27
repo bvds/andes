@@ -65,7 +65,7 @@
 ;; individual bodies can be used: must use same axes on all of them.  It 
 ;; represents the simple rule of picking the same axes for the whole solution.
 (defnogood diff-axes-compound-part
-    ((axis-for (compound . ?bodies) ?xyz1 ?rot1)
+    ((axis-for (compound orderless . ?bodies) ?xyz1 ?rot1)
      (axis-for ?b ?xyz2 ?rot2)
      (test (member ?b ?bodies :test #'equal))
      (test (not (equal ?rot1 ?rot2))))

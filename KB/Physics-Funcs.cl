@@ -373,7 +373,7 @@
           0)))
 
 ;;
-;; Compound body terms: (compound body1 ... bodyn)
+;; Compound body terms: (compound orderless body1 ... bodyn)
 ;; Body names should be sorted by expr<
 ;; Must have more than one body. 
 ;;
@@ -392,7 +392,7 @@
 (defun simple-parts (body)
    "get list of atomic parts of a body, simple or compound"
    (cond ((atom body) (list body))
-         ((compound-bodyp body) (cdr body))
+         ((compound-bodyp body) (cddr body))
 	 (T (error "bad body term: ~A" body))))
 
 ;; 
@@ -570,18 +570,15 @@
   ; !!! should also strip bad characters, e.g. hyphen, dollar sign
   (cond ((null term) "")
         ((atom term) (string term))
-        ; Complex terms may be simple functional terms like (end-1 str) or 
-	; compound body/system terms like (compound b1 b2 ...). 
-	; for compound bodies we want body1&body2&body3
+        ;; Complex terms may be simple functional terms like (end-1 str) or 
+	;; compound body/system terms like (compound orderless b1 b2 ...). 
+	;; for compound bodies we want body1&body2&body3
 	((compound-bodyp term)
-	   (let ((body-list (rest term)))
-             (concatenate 'string (body-name (first body-list)) 
-	                  (if (rest body-list) 
-		            (concatenate 'string "__" ; "&"
-			       (body-name `(compound ,@(rest body-list))))))))
-	; For anything else just concatenate all symbols in the list, 
-	; recursing down tree in case of nested complex terms, e.g. 
-	; (foo (end-1 str) block (end-2 str))
+	 (let ((y (mapcar #'body-name (cddr term))))
+	   (format nil "~A~{__~A~}" (car y) (cdr y))))
+	;; For anything else just concatenate all symbols in the list, 
+	;; recursing down tree in case of nested complex terms, e.g. 
+	;; (foo (end-1 str) block (end-2 str))
         ((listp term) (concatenate 'string (body-name (first term)) 
 					   (body-name (rest term))))
 	(T    term)) ; signal error?

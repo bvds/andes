@@ -649,10 +649,10 @@
 (defoperator volume-compound-contains (?b-sought ?t)
   :preconditions (
    ; compound must exist
-   (object (compound . ?bodies))
+   (object (compound orderless . ?bodies))
    ; applies if sought is volume of compound or one of its parts
    (test (or (member ?b-sought ?bodies)
-             (equal ?b-sought `(compound ,@?bodies))))
+             (equal ?b-sought `(compound orderless ,@?bodies))))
   )
   :effects (
     (eqn-contains (volume-compound ?bodies ?t) (volume ?b-sought :time ?t))
@@ -660,7 +660,7 @@
 
 (defoperator write-volume-compound (?bodies ?t)
   :preconditions (
-    (variable ?Vwhole-var (volume (compound . ?bodies) :time ?t))
+    (variable ?Vwhole-var (volume (compound orderless . ?bodies) :time ?t))
     (map ?body ?bodies
          (variable ?Vpart-var (volume ?body :time ?t)) 
 	 ?Vpart-var ?Vpart-vars) 

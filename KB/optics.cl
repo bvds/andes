@@ -13,7 +13,7 @@
 ;;
 ;; Note we will allow for two touching lenses to be treated as a single compound lens
 ;; with its own focal length and magnification. These could be represented just 
-;; as compound bodies are by complex terms of the form (compound ?lens1 ?lens2).  
+;; as compound bodies are by complex terms of the form (compound orderless ?lens1 ?lens2).  
 ;; If that were done any property or equation mentioning a lens would
 ;; have to be prepared to take a compound lens term as argument.  But in fact interfacing 
 ;; with the workbench dialog boxes is much easier if we just predefine a single name for 
@@ -455,10 +455,8 @@
   :preconditions 
   ( (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
     (any-member ?sought (
-			 (angle-between (line ?line1) ?whatever)
-			 (angle-between (line ?line2) ?whatever)
-			 (angle-between ?whatever (line ?line1))
-			 (angle-between ?whatever (line ?line2))
+			 (angle-between orderless ?line1 ?normal-to-surface)
+			 (angle-between orderless ?line1 ?normal-to-surface)
 			 (index-of-refraction ?medium1)		
 			 (index-of-refraction ?medium2)))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
@@ -481,8 +479,8 @@
 ;; construct variable for angle of incidence or angle of refraction.
 (defoperator get-snell-angle1 (?theta)
   :preconditions 
-  ( (bind ?l (sort `((line ,?line) (line ,?normal-to-surface)) #'expr<))
-    (variable ?theta (angle-between . ?l)))
+  ( (variable ?theta (angle-between orderless 
+				    (line ?line) (line ?normal-to-surface))))
   :effects ((snell-angle ?theta ?line ?ignore ?normal-to-surface nil)))
 
 ;; alternative form of angle for cases where the direction

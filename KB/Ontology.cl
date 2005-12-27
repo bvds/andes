@@ -253,10 +253,9 @@
 	       (nlg ?source 'at-time ?time))
   :fromWorkbench (if time `(net-power-out ,body :time ,time) 
 		    `(net-power-out ,body)))
-(def-qexp angle-between (angle-between ?vec1 ?vec2 :time ?time)
+(def-qexp angle-between (angle-between orderless . ?vecs)
   :units |deg|
-  :english ("the angle between ~A and ~A" 
-	    (nlg ?vec1) (nlg ?vec2 'at-time ?time)))
+  :english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp))
 (def-qexp total-energy (total-energy ?system :time ?time) 
   :units |J|
   :english ("the total mechanical energy of ~A" 
@@ -308,7 +307,7 @@
   :english ("the number of ~As on ~A about ~A" 
 	     (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
-(def-qexp compound (compound . ?bodies)
+(def-qexp compound (compound orderless . ?bodies)
   :english ("a compound of ~A" (nlg ?bodies 'conjoined-defnp)))
 
 (def-qexp system (system . ?bodies)
