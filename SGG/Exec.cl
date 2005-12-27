@@ -19,9 +19,6 @@
 ;;  (test <Function>)                          --> Test to determine if the given function is true in the 
 ;;                                                 current state.  If it is return the state otherwize return nil.
 ;;
-;;  (add-to-mem <Expression> <justification>)  --> Add the specified expression to the state's working memory
-;;                                                 and return the result.
-;;
 ;;  (in-wm <Expression>)                       --> Test to determine if the given expression is in the 
 ;;                                                 state's wm and return true if it is.
 ;;
@@ -30,8 +27,6 @@
 ;;  
 ;;  (any-member <var> <Function>)              --> Generate a set of states with var bound to the 
 ;;                                                 successive elements of the list returned by Function.
-;;
-;;  (collect-into <Var> <Form>)                --> Set the specified variable to the collection of 
 ;;
 ;;  (debug <Form> <vars>)                      --> Pass the specified format string and vars to format.
 ;;
