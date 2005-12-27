@@ -255,7 +255,7 @@
 		    `(net-power-out ,body)))
 (def-qexp angle-between (angle-between orderless . ?vecs)
   :units |deg|
-  :english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp))
+  :english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
 (def-qexp total-energy (total-energy ?system :time ?time) 
   :units |J|
   :english ("the total mechanical energy of ~A" 
