@@ -5075,7 +5075,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; Compound bodies = (compound body1 body2 ... bodyn)
 ;;
 ;; Bodies given as moving together may be treated as a single unit.
-;; This is specified in a (assume move-together (b1 b2 ...)) proposition.
+;; This is specified in using (assume move-together orderless b1 b2 ...).
 ;; We don't make any other use of the move-together proposition beyond
 ;; forming compounds; we could use it directly in the future for things 
 ;; like carried objects but it is not currently used for that.
@@ -5116,8 +5116,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator form-compound-moving (?bodies)
   :preconditions (
     (allow-compound)
-    (assume move-together ?body-list) ; args should be atomic bodies
-    (bind ?bodies (sort (copy-list ?body-list) #'expr<)) ;sort is destructive
+    (assume move-together orderless . ?bodies) ; args should be atomic bodies
     (not (object (compound . ?bodies)))
     (in-wm (motion ?b1 ?motion-spec :time ?t-motion)) 
     (test (member ?b1 ?body-list :test #'equal))
@@ -9682,23 +9681,25 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;;; draw an individual torque due to a couple
 (defoperator draw-torque-couple (?pt ?agent ?t)
-   :preconditions (
-     (couple . ?cpoints)
-     ;; in case points are not sorted in problem statement
-     (bind ?points (sort (copy-list ?cpoints) #'expr<))
-     (test (member ?pt ?points)) ;sanity test
-     (bind ?agent (first (set-difference ?points (list ?pt))))
-     ;; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "TOR_~A_~A~@[_~A~]" (body-name ?pt) 
-				(body-name ?agent) (time-abbrev ?t)))
-     (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (given (dir (torque ?pt (couple . ?gpoints) :time ?t)) ?torque-dir) 
-     (test (equal (sort (copy-list ?gpoints) #'expr<) ?points))
-   )
-   :effects (
-     (vector ?pt (torque ?pt (couple . ?points) :time ?t) ?torque-dir)
-     (variable ?mag-var (mag (torque ?pt (couple . ?points) :time ?t)))
-     (variable ?dir-var (dir (torque ?pt (couple . ?points) :time ?t)))
+   :preconditions 
+   (
+    (couple orderless . ?points)
+    (test (member ?pt ?points)) ;sanity test
+    (bind ?agent (first (set-difference ?points (list ?pt))))
+    ;; var name identifies force by point of application and agent alone
+    (bind ?mag-var (format-sym "TOR_~A_~A~@[_~A~]" (body-name ?pt) 
+			       (body-name ?agent) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (given (dir (torque ?pt (couple orderless . ?points) :time ?t)) 
+	   ?torque-dir) 
+    )
+   :effects 
+   (
+    (vector ?pt (torque ?pt (couple orderless . ?points) :time ?t) ?torque-dir)
+    (variable ?mag-var 
+	      (mag (torque ?pt (couple orderless . ?points) :time ?t)))
+    (variable ?dir-var 
+	      (dir (torque ?pt (couple orderless . ?points) :time ?t)))
    )
    :hint 
    (
@@ -9708,7 +9709,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A  due to the couple from ~A ~A and set the direction to point ~A"  
 			(nil moment-name) (nil moment-symbol)  
 			(nil moment-name) ?agent
-			 (?t pp) (?torque-dir adj)))
+			(?t pp) (?torque-dir adj)))
     ))
 
 ;; For drawing net torque. Direction usually must be calculated, but first

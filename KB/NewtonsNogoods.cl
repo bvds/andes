@@ -39,7 +39,7 @@
   :message (Multiple inequivalent coordinate systems for ?b with x at ?rot1 and ?rot2))
 
 (defnogood multiple-coords-for-move-together
-    ((move-together ?bodies)
+    ((move-together orderless . ?bodies)
      (axis-for ?b1 ?xyx1 ?rot1)
      (axis-for ?b2 ?xyz2 ?rot2)
      (test (not (equal ?b1 ?b2)))

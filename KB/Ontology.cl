@@ -145,9 +145,9 @@
   :units |N.m|
   :english ("the net ~A on ~A about ~A" 
 	       (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
-(def-qexp couple (couple ?body1 ?body2)
-  :english ("the couple between ~A and ~A"
-	       (nlg ?body1) (nlg ?body2)))
+(def-qexp couple (couple orderless . ?bodies)
+  :english ("the couple between ~A"
+	       (nlg ?bodies 'conjoined-defnp)))
 ;; attributes of vectors:
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
