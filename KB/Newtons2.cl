@@ -5283,17 +5283,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; physically correct, we leave it.
 
 ;; draw a force on a compound body
-(defoperator draw-force-compound (?obodies ?agent ?type ?t)
+(defoperator draw-force-compound (?bodies ?agent ?type ?t)
   ;; if a force on a part of the compound due to a exists,
   ;; force in same direction exists on compound from a.
   :preconditions (
-    (in-wm (object (compound . ?obodies)))
-    (bind ?c `(compound ,@?obodies)) ; just shorthand
+    (in-wm (object (compound orderless . ?bodies)))
+    (bind ?c `(compound orderless ,@?bodies)) ; just shorthand
     ;; pick any body in compound
-    (any-member ?b (cdr ?obodies))
+    (any-member ?b ?bodies)
     ;; find an external force on the body = one with agent not in compound.
     (force ?b ?agent ?type ?t ?dir ?whatever-action)
-    (test (not (member ?agent (cdr ?obodies))))
+    (test (not (member ?agent ?bodies)))
     ;; make sure this force cannot be defined in another manner
     (setof (force ?c ?agent ?type ?t ?dir ?action) ?action ?action-list)
     (test (null ?action-list))
@@ -5305,8 +5305,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects 
   (
-   (vector (compound . ?obodies) 
-	   (force (compound . ?obodies) ?agent ?type :time ?t) ?dir)
+   (vector (compound orderless . ?bodies) 
+	   (force (compound orderless . ?bodies) ?agent ?type :time ?t) ?dir)
    (variable ?mag-var (mag (force ?c ?agent ?type :time ?t)))
    (variable ?dir-var (dir (force ?c ?agent ?type :time ?t)))
    (given (dir (force ?c ?agent ?type :time ?t)) ?dir)
