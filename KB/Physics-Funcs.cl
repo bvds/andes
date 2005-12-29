@@ -379,7 +379,7 @@
 ;;
 (defun compound-bodyp (body)
    "non-null if arg is a compound body term"
-   (and (listp body) (equal (first body) 'compound)))
+   (and (consp body) (eq (car body) 'compound) (orderless-p (cdr body))))
 
 #|  ;; not used anywhere
 (defun part-of-body (body1 body2)

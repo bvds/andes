@@ -450,13 +450,16 @@
   :ExpFormat ("using Snell's law for ~A and ~A" (nlg ?line1) (nlg ?line2))
   :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
 
+
 ;; form with angle-between
 (defoperator snells-law-contains (?sought)
   :preconditions 
   ( (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
     (any-member ?sought (
-			 (angle-between orderless ?line1 ?normal-to-surface)
-			 (angle-between orderless ?line1 ?normal-to-surface)
+			 (angle-between orderless (line ?line1) 
+					(line ?normal-to-surface))
+			 (angle-between orderless (line ?line2) 
+					(line ?normal-to-surface))
 			 (index-of-refraction ?medium1)		
 			 (index-of-refraction ?medium2)))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
@@ -479,8 +482,8 @@
 ;; construct variable for angle of incidence or angle of refraction.
 (defoperator get-snell-angle1 (?theta)
   :preconditions 
-  ( (variable ?theta (angle-between orderless 
-				    (line ?line) (line ?normal-to-surface))))
+  ((variable ?theta (angle-between orderless 
+				   (line ?line) (line ?normal-to-surface))))
   :effects ((snell-angle ?theta ?line ?ignore ?normal-to-surface nil)))
 
 ;; alternative form of angle for cases where the direction
@@ -497,7 +500,7 @@
    ;; transparent to the student (and the solver).  Thus, we only 
    ;; allow directions where the incident angle and angle of refraction
    ;; can be calculated without taking the mod.
-   ;; Thus, we need an explicit angle for the normal and one ray
+   ;; Consequently, we need an explicit angle for the normal and one ray.
    (bind ?ray (cond ((degrees-or-num ?dir1) (convert-dnum-to-number ?dir1))
 		    ((degrees-or-num ?dir2) (convert-dnum-to-number ?dir2))
 		    (t nil)))
@@ -515,7 +518,8 @@
 		  `(- ,?angle1 ,?anglen)))
    )
   :effects 
-  ( (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface t) ))
+  ( (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface t)
+    ))
  
 (defoperator write-snells-law (?line1 ?line2 ?angle-flag)
   :preconditions 
@@ -526,8 +530,8 @@
    (variable ?n2 (index-of-refraction ?medium2))
    (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface ?angle-flag)
    (snell-angle ?theta2 ?line2 ?line1 ?normal-to-surface ?angle-flag)
-   (variable ?dummy1 (test-var ?line1)) ;; dummy1 is non-negative
-   (variable ?dummy2 (test-var ?line2)) ;; dummy2 is non-negative
+   (variable ?dummy1 (test-var ?line1)) ;?dummy1 is non-negative
+   (variable ?dummy2 (test-var ?line2)) ;?dummy2 is non-negative
    (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
    )
   :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 

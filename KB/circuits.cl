@@ -1380,7 +1380,7 @@
 ;;; RC CIRCUITS
 
 ;; ?quants are ordered, see (def-qexp time-constant ...)
-(defoperator define-time-constant (?quants) 
+(defoperator define-time-constant (?quants)
   :preconditions 
   ( (bind ?tau-var (format-sym "tau~{_~A~}" (mapcar #'body-name ?quants))) )
   :effects ( (variable ?tau-var (time-constant orderless . ?quants))
@@ -1945,7 +1945,7 @@
 	   (eqn-contains (LR-current-decay ?ind ?res (during ?t1 ?t2)) ?sought)
 	   ))
 
-(defoperator LR-current-decay (?res ?t1 ?t2)
+(defoperator LR-current-decay (?ind ?res ?t1 ?t2)
   :preconditions 
   (
    (LR-current-decay ?branch (during ?t1 ?tf))

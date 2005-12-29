@@ -5119,7 +5119,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (assume move-together orderless . ?bodies) ; args should be atomic bodies
     (not (object (compound orderless . ?bodies)))
     (in-wm (motion ?b1 ?motion-spec :time ?t-motion)) 
-    (test (member ?b1 ?body-list :test #'equal))
+    (test (member ?b1 ?bodies :test #'equal))
     (test (tinsidep ?t-coupled ?t-motion))
   )
   :effects (
@@ -5216,34 +5216,35 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions (
    (any-member ?sought ( 
                         (mag (velocity ?b1 :time ?t))
-			(mag (velocity (compound orderless . ?bodies)) :time ?t)
+			(mag (velocity (compound . ?obodies)) :time ?t)
                         (mag (accel ?b1 :time ?t))
-			(mag (accel (compound orderless . ?bodies)) :time ?t)
+			(mag (accel (compound . ?obodies)) :time ?t)
                         (mag (displacement ?b1 :time ?t))
-			(mag (displacement (compound orderless . ?bodies)) :time ?t)
+			(mag (displacement (compound . ?obodies)) :time ?t)
 			(mag (ang-velocity ?b1 :time ?t))
-			(mag (ang-velocity (compound orderless . ?bodies)) :time ?t)
+			(mag (ang-velocity (compound . ?obodies)) :time ?t)
                         (mag (ang-accel ?b1 :time ?t))
-			(mag (ang-accel (compound orderless . ?bodies)) :time ?t)
+			(mag (ang-accel (compound . ?obodies)) :time ?t)
                         (mag (ang-displacement ?b1 :time ?t))
-			(mag (ang-displacement (compound orderless . ?bodies)) :time ?t)
+			(mag (ang-displacement (compound . ?obodies)) :time ?t)
                         ))
-   (object (compound orderless . ?bodies))
+   (object (compound . ?obodies))
    (object ?b1)
-   (test (member ?b1 ?bodies :test #'equal))
+   (test (orderless-p ?obodies)) ;sanity test
+   (test (member ?b1 (cdr ?obodies) :test #'equal))
    (bind ?vec-type (first (second ?sought)))
    )
    :effects (
-      (eqn-contains (kine-compound ?vec-type ?b1 ?bodies ?t) ?sought)
+      (eqn-contains (kine-compound ?vec-type ?b1 ?obodies ?t) ?sought)
    ))
 
-(defoperator write-kine-compound (?vec-type ?b1 ?bodies ?t)
+(defoperator write-kine-compound (?vec-type ?b1 ?obodies ?t)
    :preconditions (
-      (variable ?c-var (mag (?vec-type (compound orderless . ?bodies)) :time ?t))
+      (variable ?c-var (mag (?vec-type (compound . ?obodies)) :time ?t))
       (variable ?b-var (mag (?vec-type ?b1) :time ?t))
    )
    :effects (
-      (eqn (= ?c-var ?b-var) (kine-compound ?vec-type ?b1 ?bodies ?t))
+      (eqn (= ?c-var ?b-var) (kine-compound ?vec-type ?b1 ?obodies ?t))
    )
    :hint
    ((teach (string "If an object is part of a compound body, then ~a of the object is the same as ~a of the compound body." ?vec-type ?vec-type))
@@ -5282,17 +5283,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; physically correct, we leave it.
 
 ;; draw a force on a compound body
-(defoperator draw-force-compound (?bodies ?agent ?type ?t)
+(defoperator draw-force-compound (?obodies ?agent ?type ?t)
   ;; if a force on a part of the compound due to a exists,
   ;; force in same direction exists on compound from a.
   :preconditions (
-    (in-wm (object (compound orderless . ?bodies)))
-    (bind ?c `(compound orderless ,@?bodies)) ; just shorthand
+    (in-wm (object (compound . ?obodies)))
+    (bind ?c `(compound ,@?obodies)) ; just shorthand
     ;; pick any body in compound
-    (any-member ?b ?bodies)
+    (any-member ?b (cdr ?obodies))
     ;; find an external force on the body = one with agent not in compound.
     (force ?b ?agent ?type ?t ?dir ?whatever-action)
-    (test (not (member ?agent ?bodies)))
+    (test (not (member ?agent (cdr ?obodies))))
     ;; make sure this force cannot be defined in another manner
     (setof (force ?c ?agent ?type ?t ?dir ?action) ?action ?action-list)
     (test (null ?action-list))
@@ -5302,9 +5303,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "drawing ~A ~A force on ~A due to ~A~%" ?dir ?type ?c ?agent)
   )
-  :effects (
-   (vector (compound orderless . ?bodies) (force (compound orderless . ?bodies) ?agent ?type 
-                                    :time ?t) ?dir)
+  :effects 
+  (
+   (vector (compound . ?obodies) 
+	   (force (compound . ?obodies) ?agent ?type :time ?t) ?dir)
    (variable ?mag-var (mag (force ?c ?agent ?type :time ?t)))
    (variable ?dir-var (dir (force ?c ?agent ?type :time ?t)))
    (given (dir (force ?c ?agent ?type :time ?t)) ?dir)
@@ -7337,11 +7339,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; This used to be a distinguished sort of entry, with its own entry proposition
 ;;; but now we treat this as just a different gesture for defining an angle var
 ;;; (Same as treatment of revolution-radius, which may be drawn or defined)
-(defoperator define-angle-between-known (?vec1 ?vec2)
+(defoperator define-angle-between-known (?ovecs)
  :preconditions 
  (
-  (bind ?vec1 (first ?vecs))
-  (bind ?vec2 (second ?vecs))
+  (test (orderless-p ?ovecs))
+  (bind ?vec1 (second ?ovecs))
+  (bind ?vec2 (third ?ovecs))
   ;; vectors must be drawn first, with known angles
   ;; note vector's axis owner bodies need not be the same
   (vector ?b1 ?vec1 ?dir1)
@@ -7361,16 +7364,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
  )
  :effects (
-	   (define-var (angle-between orderless . ?vecs))
-	   (variable ?theta-var (angle-between orderless . ?vecs))
-	   (given (angle-between orderless . ?vecs) (dnum ?angle |deg|))
+	   (define-var (angle-between . ?ovecs))
+	   (variable ?theta-var (angle-between . ?ovecs))
+	   (given (angle-between . ?ovecs) (dnum ?angle |deg|))
 	   )
  :hint (
 	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
 			    (?v1-var algebra) (?v2-var algebra)))
 	))
 
-(defoperator define-angle-between-lines (?r1 ?r2)
+(defoperator define-angle-between-lines (?lines)
  :preconditions 
  (
   (any-member ?lines (((line ?r1) (line ?r2))))
@@ -7399,7 +7402,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ?r1 ?r2))
  ))
 
-(defoperator define-given-between-unknown-lines (?r1 ?r2)
+(defoperator define-angle-between-unknown-lines (?lines)
   :preconditions 
   (
    (any-member ?lines (((line ?r1) (line ?r2))))
@@ -7407,7 +7410,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (draw-line (line ?r1) ?dir1)
    (draw-line (line ?r2) ?dir2)
    (test (or (eq ?dir1 'unknown) (eq ?dir2 'unknown)))
-   (test (expr< ?r1 ?r2))  ;only do one order, ?r1 & ?r2 distinct
+   (test (not (equal ?r1 ?r2)))  ;?r1 & ?r2 distinct
    ;; define variable name
    (bind ?theta-var (format-sym "theta_~A_~A" (body-name ?r1) (body-name ?r2)))
    (debug "angle between unknown ~A and ~A~%" ?r1 ?r2)
@@ -8152,7 +8155,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			(mag (momentum ?b :time ?t)) 
 			(dir (momentum ?b :time ?t))
 			;; in case bodies split from or join into compound:
-			(mag (momentum (compound orderless ?bodies) :time ?t))
+			(mag (momentum (compound orderless . ?bodies) :time ?t))
 			))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))
    (test (or (contains-sym ?sought 'compound) 
@@ -9473,7 +9476,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			(mag (ang-momentum ?b :time ?t)) 
 			(dir (ang-momentum ?b :time ?t))
 			;; in case of split or join
-			(mag (ang-momentum (compound orderless ?bodies) :time ?t))
+			(mag (ang-momentum (compound orderless . ?bodies) 
+					   :time ?t))
 	       ))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))   
    (test (or (contains-sym ?sought 'compound)
@@ -9952,10 +9956,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			       :axis ?axis :time ?t))
 		  (mag (force ?pt ?agent ?type :time ?t))
 		  (mag (relative-position ?pt ?axis :time ?t))
-                  (angle-between orderless (force ?pt ?agent ?type :time ?t)
-		                 (relative-position ?pt ?axis :time ?t))
-		  ;; doesn't exactly contain directions of relative position
-		  ;; and force, only difference between these
                        ))
    ;; So far this will apply in any problem where any force is sought. 
    ;; Require pt of application to be part of larger rigid body, so that
@@ -9968,7 +9968,24 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; So might want rotation-axis statement ala CLIPs to tell this. 
    (rotation-axis ?b ?axis)
    )
-   :effects ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
+   :effects 
+   ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
+
+(defoperator mag-torque-contains-angle (?sought)
+   :preconditions 
+   (
+    ;; doesn't explicitly contain directions of relative position
+    ;; and force, only difference between these
+   (any-member ?sought ((angle-between orderless . ?vecs)))
+   (any-member ?vecs 
+	       ;; These must be in lexical order:
+	       (((force ?pt ?agent ?type :time ?t)
+		 (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t))))
+   (point-on-body ?pt ?b)
+   (rotation-axis ?b ?axis)
+   )
+   :effects 
+   ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
 
 (defoperator write-mag-torque (?b ?axis ?pt ?agent ?type ?t)
    :preconditions 
