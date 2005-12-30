@@ -1254,7 +1254,7 @@
 
 (def-psmclass mag-torque (mag-torque ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
-  :english ("the definition of torque magnitude")
+  :english ("the definition of ~A magnitude" (moment-name))
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
 	      (moment-name) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
