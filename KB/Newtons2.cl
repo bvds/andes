@@ -7157,11 +7157,12 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (any-member ?sought (
 		  (work ?b ?agent :time ?t)
                   (mag (force ?b ?agent ?type :time ?t))
-		  (angle-between orderless (displacement ?b :time ?t)
-		                 (force ?b ?agent ?type :time ?t))
 		  ;; see inst-power-contains for the correct way to
 		  ;; find the displacement and still get the ?agent
                   ;; (mag (displacement ?b :time ?t))
+		  ;;
+		  ;; should also have angle-between, but no problem uses
+		  ;; this now.
     			))
     (object ?b)
     (time ?t)
@@ -7176,26 +7177,26 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    (in-wm (use-work))	 
-    (any-member ?sought (
-			 (work ?b ?agent :time ?t)
-			 (compo ?xyz ?rot (force ?b ?agent ?type :time ?t))
-			 ;; see work-contains for explanation
-			 ;; (compo ?xyz ?rot (displacement ?b :time ?t))
-			 ))
-    ;; find axes now, before applying dot product:
-    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
-    (vector ?b (displacement ?b :time ?t) ?dir-d)
-    (time ?t)
-    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
-    ;; etc. will choose the angle.  If it is bound from the ?sought,
-    ;; operator will also succeed.
-    (axis-for ?b ?xyz ?rot) 
-    (test (time-intervalp ?t))
-    ;; will require that ?agent exerts force on ?body when writing equation
- )
- :effects (
-	   (eqn-contains (work ?b ?agent ?t ?rot) ?sought)
-           (assume axis-for ?b ?xyz ?rot)
+   (any-member ?sought ((work ?b ?agent :time ?t)
+			(compo ?xyz ?rot (force ?b ?agent ?type :time ?t))
+			;; see inst-power-contains for the correct way to
+			;; find the displacement and still get the ?agent
+			;; (mag (displacement ?b :time ?t))
+			))
+   ;; find axes now, before applying dot product:
+   (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
+   (vector ?b (displacement ?b :time ?t) ?dir-d)
+   (time ?t)
+   ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
+   ;; etc. will choose the angle.  If it is bound from the ?sought,
+   ;; operator will also succeed.
+   (axis-for ?b ?xyz ?rot) 
+   (test (time-intervalp ?t))
+   ;; will require that ?agent exerts force on ?body when writing equation
+   )
+  :effects (
+	    (eqn-contains (work ?b ?agent ?t ?rot) ?sought)
+	    (assume axis-for ?b ?xyz ?rot)
  ))
 
 ;; This can write either the component or the angle form of the work equation,
@@ -7610,6 +7611,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  			   (spring-energy ?b ?spring :time ?t)
  		           (grav-energy ?b ?planet :time ?t)
 		           (electric-energy ?b ?source :time ?t)
+		           (dipole-energy ?b ?source :time ?t)
                            (work-nc ?b :time (during ?t1 ?t2)) ))
      ;; Need to declare interval in problem statement
      (time (during ?t1 ?t2))

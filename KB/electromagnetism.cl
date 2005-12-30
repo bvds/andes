@@ -1338,9 +1338,10 @@
 ;;;;
 ;;;;                   Electric dipole moment
 ;;;;
+;;;; 
 ;;;;---------------------------------------------------------------------------
 
-;; borrowed from draw-efield-vector
+;; modification of draw-efield-vector
 (defoperator draw-Electric-Dipole-Moment-given-relative-position (?dipole ?t)
   :preconditions 
   ((rdebug "Using draw-Electric-Dipole-Moment-vector  ~%")
@@ -1373,8 +1374,7 @@
          ))
 
 
-;; The following is copied from charge-force-efield.
-;; It takes 1500 lines of code to define P=q*d
+;; The following is a modification of charge-force-efield.
 
 (def-psmclass electric-dipole-moment 
     (?eq-type definition ?axis ?rot (electric-dipole-moment ?dipole ?time)) 
@@ -1442,8 +1442,9 @@
   ( (eqn (= ?P_x (* ?qp ?d_x))
 	 (compo-eqn definition ?xy ?rot (electric-dipole-moment ?dipole ?t)))
     ;; allows (forces?) student to define both charges
+    ;; note this equation is timeless
     (implicit-eqn (= (+ ?qp ?qn) 0) 
-		  (electric-dipole-moment-balance ?dipole ?t))
+		  (electric-dipole-moment-balance ?dipole))
     (eqn-compos (compo-eqn definition ?xy ?rot 
 			   (electric-dipole-moment ?dipole ?t))
 		(?P_x ?d_x)))
@@ -1512,7 +1513,8 @@
    (eqn (= ?magP (* (abs ?qp) ?magd)) 
 	(electric-dipole-moment-mag ?dipole ?t))
    ;; allows (forces?) student to define both charges
-   (implicit-eqn (= (+ ?qp ?qn) 0) (electric-dipole-moment-balance ?dipole ?t))
+   ;; this equation is timeless
+   (implicit-eqn (= (+ ?qp ?qn) 0) (electric-dipole-moment-balance ?dipole))
    (assume using-magnitude (electric-dipole-moment ?dipole ?t)) ;mag xor compos
    )
   :hint 
@@ -1524,8 +1526,10 @@
    ))
 
 
-;;; mag-dipole-torque
-;; copied from mag-torque
+;;;              Torque from an electric dipole in an electric field
+
+;; Note that this is really a couple. 
+;; The following is copied from mag-torque
 
 (def-psmclass mag-dipole-torque 
   (mag-dipole-torque ?dipole (field ?region electric ?source) ?time)
@@ -1546,7 +1550,8 @@
 		  (mag (electric-dipole-moment ?dipole :time ?t))
 		  ))
    (E-field ?source)
-   (at-place ?dipole ?region ?t)
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
    )
    :effects 
    ((eqn-contains (mag-dipole-torque ?dipole (field ?region electric ?source) ?t) ?sought)))
@@ -1562,7 +1567,8 @@
 	       (((electric-dipole-moment ?dipole :time ?t)
 		 (field ?region electric ?source :time ?t))))
    (E-field ?source)
-   (at-place ?dipole ?region ?t)
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
    )
    :effects 
    ((eqn-contains (mag-dipole-torque ?dipole (field ?region electric ?source) ?t) ?sought)))
@@ -1616,7 +1622,8 @@
 	     (dir (electric-dipole-moment ?dipole :time ?t))
 	                ))
     (E-field ?source)
-    (at-place ?dipole ?region ?t)
+    (at-place ?dipole ?region ?t-at)
+    (test (tinsidep ?t ?t-at))
    )
  :effects 
  ( (eqn-contains (dipole-torque-zc ?dipole (field ?region electric ?source) ?t)
@@ -1654,145 +1661,152 @@
 
 ;;; Potential energy of an electric dipole
 
+;; can be either electric or magnetic
 ;; this was borrowed from work
-(def-qexp electric-dipole-energy (electric-dipole-energy ?dipole ?field 
+(def-qexp electric-dipole-energy (dipole-energy ?dipole ?field 
 							 :time ?time)
   :units |J|
   :english ("the potential energy of ~A in ~A" 
-	    (nlg ?b) (nlg ?field 'at-time ?time)))
+	    (nlg ?dipole) (nlg ?field 'at-time ?time)))
 
-(defoperator define-electric-dipole-energy (?dipole ?field ?t)
+(defoperator define-dipole-energy (?dipole ?field ?t)
  :preconditions 
  ( (object ?dipole)
    (time ?t)
-   (bind ?de-var (format-sym "Ude_~A_~A~@[_~A~]" (body-name ?dipole) 
+   (test (eq (first ?field) 'field))
+   (bind ?source (fourth ?field))
+   (bind ?de-var (format-sym "Ud~A_~A_~A~@[_~A~]" 
+			     (subseq (string (third ?field)) 0 1)
+			     (body-name ?dipole) 
 			     (body-name ?source) (time-abbrev ?t))) )
  :effects (
-   (define-var (electric-dipole-energy ?dipole (field ?region electric ?source) :time ?t))
-   (variable ?de-var (electric-dipole-energy ?dipole (field ?region electric ?source) :time ?t))
+   (define-var (dipole-energy ?dipole ?field :time ?t))
+   (variable ?de-var (dipole-energy ?dipole ?field :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting electric dipole energy" (electric-dipole-energy ?dipole (field ?region electric ?source) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting dipole energy" ((dipole-energy ?dipole ?field) def-np)))
  ))
 
-(defoperator define-electric-dipole-energy-ee-var (?dipole ?source)
+(defoperator define-electric-dipole-energy-ee-var (?dipole ?source ?t)
   :preconditions 
   ( ;; Test for electric field acting on object
    (E-field ?source)
-   (at-place ?dipole ?region ?t)
-   (variable ?var (electric-dipole-energy 
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
+   (variable ?var (dipole-energy 
 		   ?dipole (field ?region electric ?source) :time ?t)))
   :effects ( (ee-var ?dipole ?t ?var) ))
+
 
 (def-psmclass electric-dipole-energy 
   (electric-dipole-energy ?dipole ?field ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of the energy of a dipole in an electric field")
   :expformat ("calculating the energy of ~a in ~A ~A" 
-	      (nlg ?dipole) (nlg ?field 'at-time ?time)
+	      (nlg ?dipole) (nlg ?field 'at-time ?time))
   :EqnFormat ("U = -P*E*cos($qP - $qE) OR U = -(P_x*E_x + P_y*E_y)"))
 
-
-;;;;; done to here 
 (defoperator electric-dipole-energy-contains (?sought)
- :preconditions (
-    (any-member ?sought (
-		  (electric-dipole-energy ?b ?agent :time ?t)
-                  (mag (force ?b ?agent ?type :time ?t))
-		  (angle-between orderless (displacement ?b :time ?t)
-		                 (force ?b ?agent ?type :time ?t))
-		  ;; see inst-power-contains for the correct way to
-		  ;; find the displacement and still get the ?agent
-                  ;; (mag (displacement ?b :time ?t))
-    			))
-    (object ?b)
-    (time ?t)
-    (test (time-intervalp ?t))
-    ;; will require that ?agent exerts force on ?body when writing equation
+  :preconditions 
+  ((any-member ?sought 
+	       ( (dipole-energy  ?dipole 
+					  (field ?region electric ?source) 
+					  :time ?t)
+		 (mag (field ?region electric ?source :time ?t))
+		 (mag (electric-dipole-moment ?dipole :time ?t))
+		 ))
+   (E-field ?source)
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
+   )
+ :effects 
+ ((eqn-contains (electric-dipole-energy ?dipole 
+					(field ?region electric ?source) 
+					?t NIL) ?sought)
+  ))
+
+(defoperator electric-dipole-energy-angle-contains (?sought)
+ :preconditions 
+ ((any-member ?sought ((angle-between orderless ?vecs)))
+  ;; must be in canonical order
+  (any-member ?vecs (((electric-dipole-moment ?dipole :time ?t) 
+		      (field ?region electric ?source :time ?t))))
+   (E-field ?source)
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
  )
- :effects (
-    (eqn-contains (electric-dipole-energy ?b ?agent ?t NIL) ?sought)
- ))
+ :effects 
+ ((eqn-contains (electric-dipole-energy ?dipole 
+					(field ?region electric ?source) 
+					?t NIL) ?sought)
+  ))
 
 (defoperator electric-dipole-energy-compo-contains (?sought)
   :preconditions 
-  (
-    (any-member ?sought (
-			 (electric-dipole-energy ?b ?agent :time ?t)
-			 (compo ?xyz ?rot (force ?b ?agent ?type :time ?t))
-			 ;; see work-contains for explanation
-			 ;; (compo ?xyz ?rot (displacement ?b :time ?t))
-			 ))
-    ;; find axes now, before applying dot product:
-    (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
-    (vector ?b (displacement ?b :time ?t) ?dir-d)
-    (time ?t)
-    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
-    ;; etc. will choose the angle.  If it is bound from the ?sought,
-    ;; operator will also succeed.
-    (axis-for ?b ?xyz ?rot) 
-    (test (time-intervalp ?t))
-    ;; will require that ?agent exerts force on ?body when writing equation
- )
- :effects (
-	   (eqn-contains (electric-dipole-energy ?b ?agent ?t ?rot) ?sought)
-           (assume axis-for ?b ?xyz ?rot)
+  ((any-member ?sought 
+	       ( (dipole-energy ?dipole (field ?region electric ?source) 
+				:time ?t)
+		 (compo ?xyz ?rot (field ?region electric ?source :time ?t))
+		 (compo ?xyz ?rot (electric-dipole-moment ?dipole :time ?t))
+		 ))
+   (E-field ?source)
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
+   ;; find axes now, before applying dot product:
+   (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dir-d)
+   (vector ?dipole (field ?region electric ?source :time ?t) ?dir-e)
+   (time ?t)
+   ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
+   ;; etc. will choose the angle.  If it is bound from the ?sought,
+   ;; operator will also succeed.
+   (axis-for ?dipole ?xyz ?rot) 
+   )
+  :effects 
+  ((eqn-contains (electric-dipole-energy ?dipole 
+					 (field ?region electric ?source) 
+					 ?t ?rot) ?sought)
+   (assume axis-for ?dipole ?xyz ?rot)
  ))
 
-;; This can write either the component or the angle form of the electric-dipole-energy equation,
-;; depending on ?rot. Electric-Dipole-Energy is done in dot product operators.
-(defoperator write-electric-dipole-energy (?b ?agent ?t ?rot)
- :preconditions (
-    ;; !!! could be more than one force from agent, e.g. normal and friction
-    ;; from floor.  This should be fixed by adding type slot to electric-dipole-energy argument.
-    ;; Until then, just ignore normal force if there's more than one, since
-    ;; it does not contribute to the electric-dipole-energy done by this agent. Leave it if it's
-    ;; the only one in frictionless problems so we can write Wa = 0.
-    (setof (force ?b ?agent ?type1 ?t ?dir1 ?action) 
-	   ?type1 ?agent-force-types)
-    (debug "write-electric-dipole-energy: agent ~a exerts forces of type ~A~%" 
-	   ?agent ?agent-force-types)
-    (bind ?type (first (if (not (cdr ?agent-force-types)) ?agent-force-types
-                           (remove 'Normal ?agent-force-types))))
-    (debug "write-electric-dipole-energy: choosing force of type ~A for electric-dipole-energy by ~A~%" 
-	   ?type ?agent)
-    ;; don't apply this to spring force which varies over interval
-    ;; more correctly, we should test for the force to be constant...
-    (test (not (eq ?type 'spring)))
-    ;; must draw body, force and displacement vectors
-    (body ?b)
-    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t)
-	 ?rot)
+;; This can write either the component or the angle form of the 
+;; electric dipole energy equation, depending on ?rot.  
+(defoperator write-electric-dipole-energy (?dipole ?t ?rot)
+ :preconditions 
+ ((variable ?u-var (dipole-energy ?dipole 
+					  (field ?region electric ?source) 
+					  :time ?t))
+  (dot ?dot (electric-dipole-moment ?dipole :time ?t)
+       (field ?region electric ?source :time ?t)
+       ?rot)
     ;; for orthogonal vectors, prohibit dot-using-components
     ;; in favor of dot-using-angle since it does not require drawing axes
     ;;
     ;; It might make sense to have a seperate operator for the case
-    ;; of zero electric-dipole-energy.  In that case, the displacement and the force can't
-    ;; be soughts.  Also, the formula is valid for non-constant forces.
+    ;; of zero energy.  In that case, the displacement and the force can't
+    ;; be soughts. 
     ;;
     (test (not (and (equal ?dot 0) ?rot)))
     ;; Different hints for orthogonal vectors
     (bind ?points (if (equal ?dot 0)  
-		      "Notice that the force exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."
-		    "You need the value of the electric-dipole-energy done on ~a by ~a ~A"
+		      "Notice that the torque exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."
+		    
 		    ))
-    ;; This is a copy of stuff in the electric-dipole-energy ontology...
-    (bind ?teaches (if (equal ?dot 0)
-		       "If a force has no component in the direction of the displacement of an object, then the force does no electric-dipole-energy on that object."
-		     (strcat "The electric-dipole-energy done on a body by a constant force of magnitude F acting through a displacement of magnitude d is given by "
-			     (if ?rot "F_x * d_x + F_y d_y." 
-			       "F * d * cos ($q), where $q is the angle between the force and displacement vectors."))
-		     ))
-    (variable ?electric-dipole-energy-var (electric-dipole-energy ?b ?agent :time ?t))
- )
- :effects (
-    (eqn (= ?electric-dipole-energy-var ?dot) (electric-dipole-energy ?b ?agent ?t ?rot))
+    (bind ?teaches (strcat "The electric dipole energy of a dipole P in an electric field E is given by "
+			   (if ?rot "- (P_x * E_x + P_y * E_y)." 
+			     "- P * E * cos ($q), where $q is the angle between the dipole and electric field vectors.")
+	  ))
     )
+ :effects 
+ ((eqn (= ?u-var (- ?dot))
+       (electric-dipole-energy ?dipole (field ?region electric ?source) 
+			       ?t ?rot))
+  )
  :hint (
-  (point (string ?points ?b ?agent (?t pp)))
-  (teach (string ?teaches))
-  (bottom-out (string "Write ~A"  ((= ?electric-dipole-energy-var ?dot) algebra)))
- ))
+	(point (string "You need the value of the electric dipole energy of ~a ~A" 
+		       ?dipole (?t pp)))
+	(teach (string ?teaches))
+	(bottom-out (string "Write ~A"  ((= ?u-var (- ?dot)) algebra)))
+	))
 
 
 ;;--------------------------------------------------

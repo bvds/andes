@@ -700,9 +700,11 @@
 (defun opinst-successors (inst state)
   "Given an operator instance, returns zero or more copies of the given state"
   (cond ((opinst-in-stack-p inst state) 
-	 (cerror (strcat "opinst-successors:  ~A already in stack.~%"
-			 "This is a symptom of an unwanted recursion.~%"
-			 "Prune and continue?~%") inst) 
+	 (cerror "Prune and continue." 
+		 (strcat "opinst-successors:  Expression already in stack:~%"
+			 "   ~A~%"
+			 "   This is a symptom of an unwanted recursion.~%") 
+		 inst)
 	 NIL)
 	((opinst-done-already-p inst state) NIL)
 	((null (opinst-subgoals inst)) (opinst-done inst state))
