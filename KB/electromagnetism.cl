@@ -500,7 +500,7 @@
 	  (given (dir (force ?b ?source electric :time ?t)) ?F-dir)
 	  )
 :hint (
-       (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the direction of the electric field vector" ?b (?source agent)))
+       (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the direction of the electric field vector." ?b (?source agent)))
        (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
        (bottom-out (string "Because the charge of ~a is ~a, use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction as the electric field at that location, namely ~A." 
 			   ?b (?pos-neg adj) ?b (?source agent) (?same-or-opposite adj) 

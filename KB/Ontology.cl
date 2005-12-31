@@ -151,7 +151,7 @@
 ;; attributes of vectors:
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
-  :english ("the ~A component of ~A" (nlg ?xyz adj) (nlg ?vector)))
+  :english ("the ~A component of ~A" (nlg ?xyz 'adj) (nlg ?vector)))
 (def-qexp mag	(mag ?vector)
   :units ?vector
   :restrictions nonnegative
@@ -881,7 +881,7 @@
   :english ("Newton's Third Law")
   :ExpFormat ("applying Newton's Third Law to ~a and ~a ~a"
 	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
-  :EqnFormat ("F12_~a = - F21_~a" (nlg ?axis 'adj) (nlg ?axis adj)))
+  :EqnFormat ("F12_~a = - F21_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 ; FORCE LAWS
 (def-psmclass wt-law (wt-law ?body ?time)
