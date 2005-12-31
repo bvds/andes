@@ -369,11 +369,12 @@
 
 (defproblem elec6a ;version for bob's experiment
   :statement (
-    "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region" 
-    "where there is a uniform electric field E of magnitude 4.0e-12 N/C," 
-    "directed along the negative y-axis. The electron is moving in the" 
-    "positive y-direction at an initial velocity of 4.3 m/s. How far" 
-    "will the electron travel before it comes to rest?"
+    "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region near" 
+    "the surface of the earth where there is a uniform electric field E"
+    "of magnitude 4.0e-12 N/C, directed along the negative y-axis."
+    "The electron is moving in the positive y-direction at an initial"
+    "velocity of 4.3 m/s. How far will the electron travel before it"
+    "momentarily comes to rest?"
     "    Answer:  [XXXXXXXXXXXX]"
     "In this problem, please include gravity."
   )
@@ -413,11 +414,12 @@
 
 (defproblem elec6b  ;version for general use, includes work solution
   :statement (
-    "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region" 
-    "where there is a uniform electric field E of magnitude 4.0e-12 N/C," 
-    "directed along the negative y-axis. The electron is moving in the" 
-    "positive y-direction at an initial velocity of 4.3 m/s. How far" 
-    "will the electron travel before it comes to rest?"
+    "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region near" 
+    "the surface of the earth where there is a uniform electric field E"
+    "of magnitude 4.0e-12 N/C, directed along the negative y-axis."
+    "The electron is moving in the positive y-direction at an initial"
+    "velocity of 4.3 m/s. How far will the electron travel before it"
+    "momentarily comes to rest?"
     "    Answer:  [XXXXXXXXXXXX]"
     "In this problem, please include gravity."
   )
