@@ -491,6 +491,8 @@
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ;; retrieve ?loc for hints below
+   (in-wm (given (dir (field ?loc electric ?source :time ?t)) ?whatever))
    (rdebug "finish find-electric-force-given-field-dir~%")
    )
 :effects (
