@@ -36,9 +36,8 @@ using namespace std;
 
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
 //  CHKEQS, NEWCKEQSOUT, CHKEQSDTL   might want to rethink these
-#define DTL(A) DBGFM(CHKEQS,A)
+#define DBGM(A) DBGFM(NEWCKEQSOUT,A)
 #define DBGEQ(A) DBGF(CHKEQS,A)
-#define NEWDTL(A) DBGFM(NEWCKEQSOUT,A)
 
 int indyAddStudEq(int slot, const char* const equation);	// in indysgg
 
@@ -149,51 +148,73 @@ string powersolve(const int howstrong, const varindx sought,
       if (desperate(eqn,vars)) doagain = 1;
       DBG(cout << "after desperate, doagain is " << doagain << endl);
     }
+
     // now, if we are going to try over, put partsols back into eqn list.
     if (doagain > 0) {
       for (q = 0; q < partsols->size(); q++) eqn->push_back((*partsols)[q]);
       while (partsols->size() > 0) partsols->pop_back();
     }
-    // remove duplicate or proportional equations:
-    DBG(cout << "solvetool about to remove duplicates from "
-	<< eqn->size() << " equations" << endl);
-    for (q = 0; q < eqn->size(); q++)
-      {
-	expr * eqexpr = (*eqn)[q];
-	eqnumsimp(eqexpr,true);
-	flatten(eqexpr);
-	eqnumsimp(eqexpr,true);	// is this overkill?
-	// this assumes eqexpr still points to same
-	// place as (*eqn)[q]. Not obvious, but if 
-	// wrong, better fix checkeqs as well
-	numvalexp * answer = normexpr(eqexpr);	
-	if(answer) answer->destroy(); //stop memory leak
-      }
-    for (k = 0; k+1 < eqn->size(); k++)
-      for (q = k+1; q < eqn->size(); q++)
+
+    // The following section is a duplicate of code in checkeqs.cpp
+    DBG( { cout << "Just before elimination of redundant eqs, we have" << endl;
+	   cout << eqn->size() << " equations left, namely" << endl;
+	   for (k = 0; k < eqn->size(); k++)
+	     cout << (*eqn)[k]->getInfix() << endl; } );
+    if (eqn->size() > 1) {
+      // remove duplicate or proportional equations:
+      DBG( cout << "Before eliminating redundant eqs, fix them up" << endl);
+      for (q = 0; q < eqn->size(); q++)
 	{
-	  numvalexp * factd=NULL;  // result not used
-	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
+	  expr * eqexpr = (*eqn)[q];
+	  eqnumsimp(eqexpr,true);
+	  flatten(eqexpr);
+	  eqnumsimp(eqexpr,true);	// is this overkill?
+	  // this assumes eqexpr still points to same
+	  // place as (*eqn)[q]. Not obvious, but if 
+	  // wrong, better fix checkeqs as well
+	  numvalexp * answer = normexpr(eqexpr);	
+	  if(answer) answer->destroy(); //stop memory leak
+	}
+      DBG(cout << "after fixing them up" << endl;
+	  for (k = 0; k < eqn->size(); k++) 
+	    cout << "          " << (*eqn)[k]->getInfix() << endl);
+      
+      // remove any null equation.
+      // Since RHS is zero, any trivial equation has been reduced to 0=0
+      for (q = 0; q < eqn->size(); q++)
+	{
+	  numvalexp * answer;
+	  expr * eqexpr = (*eqn)[q];
+	  if((answer=normexpr(eqexpr)))
+	    answer->destroy();
+	  else
 	    {
-	      DBG(cout << "remove eqn " << q << ":"<< endl
-		  << "   " << (*eqn)[q]->getLisp(false) << endl
-		  << "   which is duplicate of eqn " << k << ":" << endl
-		  << "   " << (*eqn)[q]->getLisp(false) << endl);
-	      if(factd) factd->destroy();
 	      (*eqn)[q]->destroy();
 	      if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();
-	      q--;	    
+	      q--;
 	    }
 	}
+      
+      // remove redundant equations.
+      for (k = 0; k+1 < eqn->size(); k++)
+	for (q = k+1; q < eqn->size(); q++)
+	  {
+	    numvalexp * factd=NULL; // result not used
+	    DBGM( cout << "dups? and zeros" << k << " " << q << endl);
+	    if (uptonum((*eqn)[k],(*eqn)[q],factd))
+	      {
+		if(factd) factd->destroy();
+		DBGM(cout <<"YES dups " << k << " "  << q << endl);
+		(*eqn)[q]->destroy();
+		if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
+		eqn->pop_back();
+		q--;
+	      }
+	  }
+    }
     DBG(cout << "********** doagain loop " << ++loopcount 
-	<< " done **********" << endl;
-	cout << "          eqn = " << endl;
-	for (q = 0; q < eqn->size();q++) 
-	cout << "          " << (*eqn)[q]->getLisp(false)<< endl;
-	cout << "          and soleqs =" << endl;
-	for (q = 0; q < soleqs->size(); q++) 
-	cout << "          " << (*soleqs)[q]->getLisp(false) << endl);
+	<< " done **********" << endl);
   } // end of while doagain > 0
   // check partsols for solution to student variable
   DBG(cout << "Exited doagain loop." << endl);

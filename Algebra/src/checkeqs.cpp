@@ -245,6 +245,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	  (*partsols)[k]->getInfix() << endl);
     }
 	
+  // The following section is a duplicate of code in solvetool.cpp
   DBG( { cout << "Just before elimination of redundant eqs, we have" << endl;
          cout << eqn->size() << " equations left, namely" << endl;
 	 for (k = 0; k < eqn->size(); k++)
