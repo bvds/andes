@@ -98,8 +98,11 @@ string powersolve(const int howstrong, const varindx sought,
   binopexp * ansexpr;		// will hold answer
   int doagain = 1;			// should we repeat
   expr * numer = (expr *)NULL;		// expr will be rhs of answer 
+#ifdef WITHDBG
+  int loopcount = 0;
+#endif
   while (doagain > 0) {
-    DBG(cout << "about to recassign in solvetool" << endl;);
+    DBG(cout << "about to recassign in solvetool" << endl);
     recassign(eqn,vars,soleqs);
     DBG(cout << "After recassign, eqn = " << endl;
 	for (q = 0; q < eqn->size();q++) 
@@ -152,7 +155,8 @@ string powersolve(const int howstrong, const varindx sought,
       while (partsols->size() > 0) partsols->pop_back();
     }
     // remove duplicate or proportional equations:
-    DBG(cout << "solvetool about to remove duplicate equations" << endl);
+    DBG(cout << "solvetool about to remove duplicates from "
+	<< eqn->size() << " equations" << endl);
     for (q = 0; q < eqn->size(); q++)
       {
 	expr * eqexpr = (*eqn)[q];
@@ -171,6 +175,10 @@ string powersolve(const int howstrong, const varindx sought,
 	  numvalexp * factd=NULL;  // result not used
 	  if (uptonum((*eqn)[k],(*eqn)[q],factd))
 	    {
+	      DBG(cout << "remove eqn " << q << ":"<< endl
+		  << "   " << (*eqn)[q]->getLisp(false) << endl
+		  << "   which is duplicate of eqn " << k << ":" << endl
+		  << "   " << (*eqn)[q]->getLisp(false) << endl);
 	      if(factd) factd->destroy();
 	      (*eqn)[q]->destroy();
 	      if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
@@ -178,10 +186,17 @@ string powersolve(const int howstrong, const varindx sought,
 	      q--;	    
 	    }
 	}
+    DBG(cout << "********** doagain loop " << ++loopcount 
+	<< " done **********" << endl;
+	cout << "          eqn = " << endl;
+	for (q = 0; q < eqn->size();q++) 
+	cout << "          " << (*eqn)[q]->getLisp(false)<< endl;
+	cout << "          and soleqs =" << endl;
+	for (q = 0; q < soleqs->size(); q++) 
+	cout << "          " << (*soleqs)[q]->getLisp(false) << endl);
   } // end of while doagain > 0
   // check partsols for solution to student variable
-  DBG(cout << "solvetool exited while doagain loop, checking partsols" 
-      << endl);
+  DBG(cout << "Exited doagain loop." << endl);
 #if 0 // AW: take out check for partial solutions
   if (partsols->size() > 0) 
     {
@@ -219,7 +234,6 @@ string powersolve(const int howstrong, const varindx sought,
 #endif // replacement for partsol handling
 
  success: 
-
   // If the answer depends on a parameter, then the numerical
   // will not match the canonical numerical value.
   // Thus, we remove solutions whose numerical value does not
@@ -252,7 +266,7 @@ string powersolve(const int howstrong, const varindx sought,
   delete eqn;
   delete soleqs;
   delete vars;
-  DBG(cout << "powersolve returning " << answer << endl;);
+  DBG(cout << "powersolve returning " << answer << endl);
   return answer;
 } // end of powersolve
 
