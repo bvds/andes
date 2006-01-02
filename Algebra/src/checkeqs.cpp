@@ -245,7 +245,66 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	  (*partsols)[k]->getInfix() << endl);
     }
 	
-  // The following section is a duplicate of code in solvetool.cpp
+  // clean up equations and remove any obvious duplicates
+  remove_duplicates(eqn,doagain);
+
+  DBG( { cout << "Just before possible recall of checkeqs, we have" << endl;
+         cout << eqn->size() << " equations left, namely" << endl;
+	 for (k = 0; k < eqn->size(); k++)
+	   cout << (*eqn)[k]->getInfix() << endl;
+	 cout << "The remaining " << vars->size() << " variables are" << endl;
+	 for (k = 0; k < vars->size(); k++)
+	   cout << (*canonvars)[(*vars)[k]]->clipsname << endl;
+	 cout << "And doagain is " << doagain 
+	      << ", if >0 about to recurse"<< endl; } );
+	    
+  if (doagain > 0) 
+    {
+      DBG( cout << "Redoing checkeqs after numpasses" << numpasses<< endl);
+      checkeqs(eqn,vars,solfile); 
+    }
+  
+  else				// giving up, might as well write out
+    {				// partially solved variables and eliminate 
+      DBG(cout << "not repeating checkeqs" << endl);
+      if (partsols->size() > 0) solfile << "<PARTSLVV>" << endl;
+      for (k=0; k < partsols->size(); k++)
+	{
+	  NEWDBGM(cout << "partsols "<< k << " of " << partsols->size() 
+		  << " output to solfile" << endl);
+	  solfile << (*partsols)[k]->getInfix() << endl;
+	  for (q=0; q < vars->size(); q++)
+	    if (
+		((*partsols)[k]->lhs->etype == physvart) &&
+		(((physvarptr *)((*partsols)[k]->lhs))->varindex
+		 == (*vars)[q]))
+	      {
+		NEWDBGM( cout << "partsols["<< k 
+			 << "] solves variable [ " << q << "]" << endl);
+		(*vars)[q]=(*vars)[vars->size()-1];
+		vars->pop_back();
+		break;
+	      }
+	}
+      for (q = 0; q < partsols->size(); q++)
+	for (k = 0; k < eqn->size(); k++)
+	  if ((*partsols)[q] == (*eqn)[k])
+	    {
+	      (*eqn)[k]->destroy();
+	      (*eqn)[k] = (*eqn)[eqn->size()-1];
+	      eqn->pop_back();
+	      break;
+	    }
+      delete partsols;
+      NEWDBGM(cout << "deleted partsols" << endl);
+    }
+}
+
+// clean up equations and remove any obvious duplicates
+
+void remove_duplicates (vector<binopexp *> * & eqn, int & doagain )
+{
+  int k, q;
   DBG( { cout << "Just before elimination of redundant eqs, we have" << endl;
          cout << eqn->size() << " equations left, namely" << endl;
 	 for (k = 0; k < eqn->size(); k++)
@@ -301,54 +360,4 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	}
   }
   
-  DBG( { cout << "Just before possible recall of checkeqs, we have" << endl;
-         cout << eqn->size() << " equations left, namely" << endl;
-	 for (k = 0; k < eqn->size(); k++)
-	   cout << (*eqn)[k]->getInfix() << endl;
-	 cout << "The remaining " << vars->size() << " variables are" << endl;
-	 for (k = 0; k < vars->size(); k++)
-	   cout << (*canonvars)[(*vars)[k]]->clipsname << endl;
-	 cout << "And doagain is " << doagain 
-	      << ", if >0 about to recurse"<< endl; } );
-	    
-  if (doagain > 0) 
-    {
-      DBG( cout << "Redoing checkeqs after numpasses" << numpasses<< endl);
-      checkeqs(eqn,vars,solfile); 
-    }
-  
-  else				// giving up, might as well write out
-    {				// partially solved variables and eliminate 
-      DBG(cout << "not repeating checkeqs" << endl);
-      if (partsols->size() > 0) solfile << "<PARTSLVV>" << endl;
-      for (k=0; k < partsols->size(); k++)
-	{
-	  NEWDBGM(cout << "partsols "<< k << " of " << partsols->size() 
-		  << " output to solfile" << endl);
-	  solfile << (*partsols)[k]->getInfix() << endl;
-	  for (q=0; q < vars->size(); q++)
-	    if (
-		((*partsols)[k]->lhs->etype == physvart) &&
-		(((physvarptr *)((*partsols)[k]->lhs))->varindex
-		 == (*vars)[q]))
-	      {
-		NEWDBGM( cout << "partsols["<< k 
-			 << "] solves variable [ " << q << "]" << endl);
-		(*vars)[q]=(*vars)[vars->size()-1];
-		vars->pop_back();
-		break;
-	      }
-	}
-      for (q = 0; q < partsols->size(); q++)
-	for (k = 0; k < eqn->size(); k++)
-	  if ((*partsols)[q] == (*eqn)[k])
-	    {
-	      (*eqn)[k]->destroy();
-	      (*eqn)[k] = (*eqn)[eqn->size()-1];
-	      eqn->pop_back();
-	      break;
-	    }
-      delete partsols;
-      NEWDBGM(cout << "deleted partsols" << endl);
-    }
 }

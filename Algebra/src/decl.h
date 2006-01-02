@@ -101,6 +101,7 @@ bool purelinsolv(const vector<binopexp *> * const eqs,		// purelin
 	vector<binopexp *> * & sols);
 void qsrtexpr(vector<expr *> *Vptr);				// qsrtexpr
 bool rationalize(binopexp * & eq);				// rationalize
+void remove_duplicates (vector<binopexp *> * & eqn, int & doagain);
 bool signisknown(const expr * const ex);			// solvetrig
 bool slvlinonev(binopexp * & eq, const varindx var);		// slvlinonev
 bool slvlinvar(const expr * ex, const varindx var, 		// slvlinvar

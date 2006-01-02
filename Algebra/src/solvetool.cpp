@@ -155,64 +155,9 @@ string powersolve(const int howstrong, const varindx sought,
       while (partsols->size() > 0) partsols->pop_back();
     }
 
-    // The following section is a duplicate of code in checkeqs.cpp
-    DBG( { cout << "Just before elimination of redundant eqs, we have" << endl;
-	   cout << eqn->size() << " equations left, namely" << endl;
-	   for (k = 0; k < eqn->size(); k++)
-	     cout << (*eqn)[k]->getInfix() << endl; } );
-    if (eqn->size() > 1) {
-      // remove duplicate or proportional equations:
-      DBG( cout << "Before eliminating redundant eqs, fix them up" << endl);
-      for (q = 0; q < eqn->size(); q++)
-	{
-	  expr * eqexpr = (*eqn)[q];
-	  eqnumsimp(eqexpr,true);
-	  flatten(eqexpr);
-	  eqnumsimp(eqexpr,true);	// is this overkill?
-	  // this assumes eqexpr still points to same
-	  // place as (*eqn)[q]. Not obvious, but if 
-	  // wrong, better fix checkeqs as well
-	  numvalexp * answer = normexpr(eqexpr);	
-	  if(answer) answer->destroy(); //stop memory leak
-	}
-      DBG(cout << "after fixing them up" << endl;
-	  for (k = 0; k < eqn->size(); k++) 
-	    cout << "          " << (*eqn)[k]->getInfix() << endl);
-      
-      // remove any null equation.
-      // Since RHS is zero, any trivial equation has been reduced to 0=0
-      for (q = 0; q < eqn->size(); q++)
-	{
-	  numvalexp * answer;
-	  expr * eqexpr = (*eqn)[q];
-	  if((answer=normexpr(eqexpr)))
-	    answer->destroy();
-	  else
-	    {
-	      (*eqn)[q]->destroy();
-	      if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
-	      eqn->pop_back();
-	      q--;
-	    }
-	}
-      
-      // remove redundant equations.
-      for (k = 0; k+1 < eqn->size(); k++)
-	for (q = k+1; q < eqn->size(); q++)
-	  {
-	    numvalexp * factd=NULL; // result not used
-	    DBGM( cout << "dups? and zeros" << k << " " << q << endl);
-	    if (uptonum((*eqn)[k],(*eqn)[q],factd))
-	      {
-		if(factd) factd->destroy();
-		DBGM(cout <<"YES dups " << k << " "  << q << endl);
-		(*eqn)[q]->destroy();
-		if(eqn->size()>q+1) (*eqn)[q] = (*eqn)[eqn->size()-1];
-		eqn->pop_back();
-		q--;
-	      }
-	  }
-    }
+    // clean up equations and remove any obvious duplicates
+    remove_duplicates(eqn,doagain);
+
     DBG(cout << "********** doagain loop " << ++loopcount 
 	<< " done **********" << endl);
   } // end of while doagain > 0
