@@ -57,7 +57,9 @@
   ;; kelec is predefined, see file constants.cl
   ( (eqn (= ?F (/ (* |kelec| (abs ?q1) (abs ?q2)) (^ ?r 2)))
 	 (coulomb ?b1 ?b2 ?t) )
-    (assume using-magnitude (coulomb-vec ?b1 ?b2 ?t)) ;magnitude xor components
+    ;; match both forms of vector version of equation
+    (assume using-magnitude (coulomb-vec ?b1 ?b2 ?t t))
+    (assume using-magnitude (coulomb-vec ?b1 ?b2 ?t nil))
     )
   :hint (
 	 (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
@@ -67,7 +69,7 @@
 	 ))
 
 (def-psmclass coulomb-compo (?eqn-type coulomb-force ?axis ?rot 
-				 (coulomb-vec ?body ?agent ?time))
+				 (coulomb-vec ?body ?agent ?time ?form))
   :complexity major    
   :Doc "Definition of Coulomb's law, component form."
   :english ("the definition of Coulomb's law (component form)") 
@@ -90,6 +92,7 @@
 		(compo ?xy ?rot (relative-position ?b1 ?b2 :time ?t))
 		(compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
 	       )
+   (any-member ?form (nil t)) ;switch between forms of r-hat
    (object ?b1)
    (object ?b2)
    (time ?t)
@@ -97,10 +100,10 @@
    (test (member ?b2 ?coul-bodies))
    )
   :effects 
-   ((eqn-family-contains (coulomb-vec ?b1 ?b2 ?t) ?sought)
+   ((eqn-family-contains (coulomb-vec ?b1 ?b2 ?t ?form) ?sought)
     ;; since only one compo-eqn under this vector psm, we can just
     ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (coulomb-vec ?b1 ?b2 ?t) coulomb-force ?sought)))
+    (compo-eqn-contains (coulomb-vec ?b1 ?b2 ?t ?form) coulomb-force ?sought)))
 
 (defoperator draw-coulomb-vector-diagram (?b ?agent ?t)
   :preconditions 
@@ -112,10 +115,10 @@
    (axis-for ?b ?xy ?b-rot)
    )
   :effects (
-	    (vector-diagram (coulomb-vec ?b ?agent ?t))
+	    (vector-diagram (coulomb-vec ?b ?agent ?t ?form))
   ))
 
-(defoperator write-coulomb-compo (?b1 ?b2 ?t ?xy ?rot)
+(defoperator write-coulomb-compo (?b1 ?b2 ?t ?xy ?rot ?form)
   :preconditions 
   (
    ;; make sure r-hat compo doesn't vanish
@@ -124,22 +127,21 @@
    (variable ?q1 (charge-on ?b1 :time ?t ?t))
    (variable ?q2 (charge-on ?b2 :time ?t ?t))
    (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
-   (variable ?r_xy  (compo ?xy ?rot (relative-position ?b1 ?b2 :time ?t)))
    (variable ?F_xy  (compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
+   (hat ?rhat-compo (relative-position ?b1 ?b2 :time ?t) ?xy ?rot ?form)
    )
   :effects (
-   (eqn (= ?F_xy (/ (* |kelec| ?q1 ?q2 ?r_xy) (^ ?r 3)))
+   (eqn (= ?F_xy (* (/ (* |kelec| ?q1 ?q2) (^ ?r 2)) ?rhat-compo))
             (compo-eqn coulomb-force ?xy ?rot 
-		       (coulomb-vec ?b1 ?b2 ?t)))
+		       (coulomb-vec ?b1 ?b2 ?t ?form)))
    (eqn-compos (compo-eqn coulomb-force ?xy ?rot 
-		       (coulomb-vec ?b1 ?b2 ?t))
-             (?r_xy ?F_xy))
+		       (coulomb-vec ?b1 ?b2 ?t ?form)) (?F_xy))
    )
   :hint (
      (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
 			 ((= ?F (* (/ (* |kelec| ?q1 ?q2)) 
-			     (^ ?r 2) (/ ?r_xy r)))) algebra))
+			     (^ ?r 2) ?rhat-compo))) algebra))
   ))
 
 
@@ -761,36 +763,35 @@
 ;;;;                      point-charge-Efield Vector PSM 
 ;;;;--------------------------------------------
 
-(def-psmclass point-charge-Efield (?eq-type 
-				   qpe ?axis ?rot 
-				   (point-charge-Efield ?body ?loc ?time)) 
+(def-psmclass point-charge-Efield 
+  (?eq-type qpe ?axis ?rot (point-charge-Efield ?body ?loc ?time ?form)) 
   :complexity major
   :english ("the formula for electric field due to a point charge")
   :ExpFormat ("calculating for electric field at ~A due to ~a"
 	      (nlg ?loc) (nlg ?body) )
-  :EqnFormat ("E_~a = (kelec * q / r^2 ) * ~a $qr" (nlg ?axis 'adj) (axis-proj-func ?axis)))
-
-(defun axis-proj-func (axis) 
-  "map axis label to trig func used to project on that axis"
-    (if (eq axis 'y) 'sin 'cos))
+  :EqnFormat ("E_~a = (kelec * q / r^2 ) * r_~a/r" 
+	      (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 (defoperator point-charge-Efield-contains (?sought)
-  :preconditions ((rdebug "Using point-charge-Efield-compo-contains  ~%")
-                  (any-member ?sought((mag (field ?loc electric ?b :time ?t))
-                                      (dir (field ?loc electric ?b :time ?t))
-                                      (charge-on ?b :time ?t ?t) 
-				      (mag (relative-position ?loc ?b :time ?t))
-				      (dir (relative-position ?loc ?b :time ?t))
-                                      ))
-		  (point-charge ?b)
-                  ;(at-place ?b ?loc-source ?t)
-                  (rdebug "Firing point-charge-Efield-compo-contains  ~%")
-                  )
-  :effects (
-            (eqn-family-contains (point-charge-Efield ?b ?loc ?t) ?sought)
-             ;; since only one compo-eqn under this vector psm, we can just
-             ;; select it now, her than requiring further operators to do so
-            (compo-eqn-contains (point-charge-Efield ?b ?loc ?t) qpe ?sought)))
+  :preconditions 
+  ((rdebug "Using point-charge-Efield-compo-contains  ~%")
+   (any-member ?sought((mag (field ?loc electric ?b :time ?t))
+		       (dir (field ?loc electric ?b :time ?t))
+		       (charge-on ?b :time ?t ?t) 
+		       (mag (relative-position ?loc ?b :time ?t))
+		       (dir (relative-position ?loc ?b :time ?t))
+		       ))
+   (any-member ?form (nil t)) ;switch between forms of r-hat
+   (point-charge ?b)
+					;(at-place ?b ?loc-source ?t)
+   (rdebug "Firing point-charge-Efield-compo-contains  ~%")
+   )
+  :effects 
+  (
+   (eqn-family-contains (point-charge-Efield ?b ?loc ?t ?form) ?sought)
+   ;; since only one compo-eqn under this vector psm, we can just
+   ;; select it now, her than requiring further operators to do so
+   (compo-eqn-contains (point-charge-Efield ?b ?loc ?t ?form) qpe ?sought)))
 
 (defoperator draw-point-charge-Efield-diagram (?b ?loc ?t)
   :preconditions (
@@ -805,7 +806,7 @@
                   (rdebug "Fired draw-point-charge-Efield-diagram ~%")
                   )
   :effects (
-            (vector-diagram (point-charge-Efield ?b ?loc ?t))
+            (vector-diagram (point-charge-Efield ?b ?loc ?t ?form))
             )
   :hint (
          (point (string "Try drawing a diagram."))
@@ -824,31 +825,33 @@
 
 
 ;; This is equation for the component of field, so includes a sort of projection.
-(defoperator write-point-charge-Efield-compo (?b ?loc ?t ?xy ?rot)
-   :preconditions (
-       (rdebug "Using write-point-charge-Efield-compo ~%")
-       ; b is point-charge source of field
-       ;(at-place ?b ?loc-source ?t)
-       (variable ?E_x  (compo ?xy ?rot (field ?loc electric ?b :time ?t)))
-       (variable ?q    (charge-on ?b :time ?t ?t))
-       (variable ?r    (mag (relative-position ?loc ?b :time ?t)))
-       (variable ?theta_r (dir (relative-position ?loc ?b :time ?t)))
-       (bind ?sin-or-cos (if (eq ?xy 'x) 'cos 'sin))
-       ; how to handle k_e ?
-       (rdebug "fired write-point-charge-Efield-compo  ~%")
+(defoperator write-point-charge-Efield-compo (?b ?loc ?t ?xy ?rot ?form)
+  :preconditions 
+  (
+   (rdebug "Using write-point-charge-Efield-compo ~%")
+   ;; b is point-charge source of field
+   ;;(at-place ?b ?loc-source ?t)
+   (variable ?E_x  (compo ?xy ?rot (field ?loc electric ?b :time ?t)))
+   (variable ?q    (charge-on ?b :time ?t ?t))
+   (variable ?r    (mag (relative-position ?loc ?b :time ?t)))
+   (hat ?rhat-compo (relative-position ?loc ?b :time ?t) ?xy ?rot ?form)
+   (rdebug "fired write-point-charge-Efield-compo  ~%")
+   )
+  :effects 
+  (
+   (eqn (= ?E_x (* (/ (* |kelec| ?q) (^ ?r 2)) ?rhat-compo))
+	(compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t ?form)))
+   ;; do we need this? do we use this only in component form?
+   (eqn-compos (compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t ?form))
+	       (?E_x))
     )
-    :effects (
-            (eqn (= ?E_x (* (/ (* |kelec| ?q) (^ ?r 2)) (?sin-or-cos ?theta_r)))
-                 (compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t)))
-	    ; do we need this? do we use this only in component form?
-            (eqn-compos (compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t))
-                        (?E_x))
-    )
-    :hint (
-	(teach (string "The electric field due to a point charge is directly proportional to the charge and inversely proportional to the square of the distance from the point charge. The constant of proportionality can be written in Andes as kelec. To compute a component of the electric field, multiply the magnitude by the cos or sin of the angle of the relative position of the location from the point charge, using cos for x components and sin for y components."))
-	(bottom-out (string "Write the equation ~A"  
-	    ((= ?E_x (* (/ (* |kelec| ?q) (^ ?r 2)) (?sin-or-cos ?theta_r))) algebra)))
-    ))
+  :hint 
+  (
+   (teach (string "The electric field due to a point charge is directly proportional to the charge and inversely proportional to the square of the distance from the point charge. The constant of proportionality can be written in Andes as kelec. To compute a component of the electric field, multiply the magnitude by the cos or sin of the angle of the relative position of the location from the point charge, using cos for x components and sin for y components."))
+   (bottom-out (string "Write the equation ~A"  
+		       ((= ?E_x (* (/ (* |kelec| ?q) (^ ?r 2)) ?rhat-compo)) 
+			algebra)))
+   ))
 
 ;; mag, dir forms of point-charge-Efield
 
@@ -890,7 +893,9 @@
   (
    (eqn (= ?magE (/ (* |kelec| (abs ?q)) (^ ?r 2) ))
 	(point-charge-Efield-mag ?b ?loc ?t))
-   (assume using-magnitude (point-charge-Efield ?b ?loc ?t)) ;mag xor compos
+    ;; match both forms of vector version of equation
+   (assume using-magnitude (point-charge-Efield ?b ?loc ?t t))
+   (assume using-magnitude (point-charge-Efield ?b ?loc ?t nil))
    )
   :hint (
          (point (string "What is the equation for the magnitude of the electric field due to a point charge?"))
@@ -900,19 +905,6 @@
 	                   ( (= ?magE (/ (* |kelec| (abs ?q)) (^ ?r 2) )) algebra)))
           ))
 
-#| ; this rule really doesn't add anything to projection rules we have
-(defoperator point-charge-Efield-dir-contains (?sought)
-  :preconditions ((rdebug "Using point-charge-Efield-dir-contains ~%")
-                  (any-member ?sought ((dir (field ?loc electric ?b :time ?t))
-                                       (charge-on ?b :time ?t ?t)))
-                  ;(at-place ?b ?loc2 ?t)
-		  (point-charge ?b)
-                  (rdebug "Firing point-charge-Efield-dir-contains ~%")
-                  )
-  :effects(
-           (eqn-contains (point-charge-Efield-dir ?b ?loc ?t) ?sought)
-           ))
-|# ; if this commented out, rule will never be used
 
 (defoperator write-point-charge-Efield-dir-pos (?b ?loc ?t)
   :preconditions ((debug "Using write-point-charge-Efield-dir-pos ~%")

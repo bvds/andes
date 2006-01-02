@@ -72,6 +72,13 @@
    :Specs ("Prevent use of different axes for compound and for part in same solution")
    :message (Different axes used for part ?b and compound of ?bodies))
 
+(defnogood only-one-form-of-hat
+  ((using-hat ?vec ?rot1 ?form1)
+   (using-hat ?vec ?rot2 ?form2)
+   (test (not (and (equal ?rot1 ?rot2) (equal ?form1 ?form2)))))
+  :Specs ("Prevents the use of more than form of unit vector")
+  :message (Only one form of hat for ?vec))
+
 (defnogood only-one-form-of-dot
   ((using-dot ?a ?b ?x1-rot)
    (using-dot ?a ?b ?x2-rot)

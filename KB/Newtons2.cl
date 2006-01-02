@@ -1854,8 +1854,8 @@
     (in-wm (given (compo x 0  (relative-position ?p2 origin :time ?t)) ?p2_x))
     (test (not (eq ?p2 ?p1))) ; make sure two different points
     (in-wm (given (compo y 0 (relative-position ?p2 origin :time ?t)) ?p2_y))
-    ; should still work if p1 or p2 = origin, but would need to be 
-    ; told that coords of origin are (0,0) in givens
+    ;; should still work if p1 or p2 = origin, but would need to be 
+    ;; told that coords of origin are (0,0) in givens
     )
   :effects 
   ((eqn-family-contains (rdiff ?p1 ?p2 ?t) ?sought)
@@ -1869,14 +1869,14 @@
    ;; do we draw a body for this? What body do we call this
    (vector ?p2 (relative-position ?p2 ?p1 :time ?t) ?dir1)
    ;; have to make sure we have an axis for this vector
-   (axis-for ?p2 x 0))
+   (axis-for ?p2 ?xyz ?rot))
   :effects 
   ((vector-diagram (rdiff ?p1 ?p2 ?t))))
 
 (defoperator write-rdiff-compo (?p1 ?p2 ?t ?xy ?rot)
   :preconditions (
     (variable ?r21_xy (compo ?xy ?rot (relative-position ?p2 ?p1 :time ?t)))
-    ; just fetch the coordinate values to plug in
+    ;; just fetch the coordinate values to plug in
     (given (compo ?xy ?rot  (relative-position ?p1 origin :time ?t)) ?r1o_xy_val)
     (given (compo ?xy ?rot  (relative-position ?p2 origin :time ?t)) ?r2o_xy_val)
    )
@@ -3864,9 +3864,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (variable ?mag1-var (mag (relative-position ?b1 ?b2 :time ?t)))
   (variable ?mag2-var (mag (relative-position ?b2 ?b1 :time ?t)))
   )
-  :effects (
-    	(eqn (= ?mag1-var ?mag2-var) (opposite-relative-position (?b2 ?b1) ?t)) 
-  )
+  :effects 
+  (
+   (eqn (= ?mag1-var ?mag2-var) (opposite-relative-position (?b2 ?b1) ?t))
+   ;; don't use when rdiff is being used
+   (assume using-magnitude (rdiff ?b1 ?b2 ?t))
+   (assume using-magnitude (rdiff ?b2 ?b1 ?t))
+   )
   :hint
   ((point (string "Note that ~A and ~A are equal" (?mag1-var algebra) (?mag2-var algebra)))
    (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
@@ -7254,6 +7258,31 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (bottom-out (string "Write ~A"  ((= ?work-var ?dot) algebra)))
  ))
 
+;;;;===========================================================================
+;;;;
+;;;; construct component of a unit vector associated with some normal vector
+;;;;
+;;;;===========================================================================
+
+;; This is a bit of a hack until we get real vectors working in Andes
+
+(defoperator hat-using-angle (?vec ?xyz ?rot)
+  :preconditions 
+  ((variable ?vec-theta (dir ?vec))
+   (bind ?sin-or-cos (cond ((eq ?xyz 'x) 'cos) ((eq ?xyz 'y) 'sin) (t nil)))
+   (bind ?axis-angle (axis-dir 'x ?rot))
+   (test ?sin-or-cos))
+  :effects ((hat (?sin-or-cos (- ?vec-theta ?axis-angle)) ?vec ?xyz ?rot nil)
+	  (assume using-hat ?vec ?rot nil)
+	  ))
+
+(defoperator hat-using-compos (?vec ?xyz ?rot)
+  :preconditions
+  ((variable ?vec-compo (compo ?xyz ?rot ?vec))
+   (variable ?vec-mag (mag ?vec)))
+  :effects ((hat (/ ?vec-compo ?vec-mag) ?vec ?xyz ?rot t)
+	    (assume using-hat ?vec ?rot t)
+	    ))
 
 ;;;;===========================================================================
 ;;;;
