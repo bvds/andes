@@ -95,14 +95,14 @@ LEAF	Fb = $rf*V*g                  Archimedes principle (buoyant force)	archimed
 END_GROUP	Fluids		
 GROUP	Electricity and Magnetism		
 LEAF	F = kelec*abs(q1)*abs(q2)/r^2          Coulomb's law (magnitude)	coulomb	Electric Field
-LEAF	F_x = (kelec*q1*q2/r^2) * cos($qr)    Coulomb's law (x component)	(coulomb-compo ((?axis . x)))	Electric Field
-LEAF	F_x = (kelec*q1*q2/r^2) * sin($qr)    Coulomb's law (y component)	(coulomb-compo ((?axis . y)))	Electric Field
+LEAF	F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)	(coulomb-compo ((?axis . x)))	Electric Field
+LEAF	F_x = (kelec*q1*q2/r^2) * r_y/r    Coulomb's law (y component)	(coulomb-compo ((?axis . y)))	Electric Field
 LEAF	F = abs(q)*E                  Electric field (magnitude)	charge-force-Efield-mag	Electric Field
 LEAF	F_x = q*E_x                   Electric field	(charge-force-Efield ((?axis . x)))	Electric Field
 LEAF	F_y = q*E_y                   Electric field	(charge-force-Efield ((?axis . y)))	Electric Field
 LEAF	E = kelec*abs(q)/r^2          point charge field (magnitude)	point-charge-Efield-mag	Point Charge Field
-LEAF	E_x = (kelec*q/r^2) * cos($qr) point charge field	(point-charge-Efield ((?axis . x)))	Point Charge Field
-LEAF	E_y = (kelec*q/r^2) * sin($qr) point charge field	(point-charge-Efield ((?axis . y)))	Point Charge Field
+LEAF	E_x = (kelec*q/r^2) * r_x/r   point charge field	(point-charge-Efield ((?axis . x)))	Point Charge Field
+LEAF	E_y = (kelec*q/r^2) * r_y/r   point charge field	(point-charge-Efield ((?axis . y)))	Point Charge Field
 LEAF	Enet_x = E1_x + E2_x + ...    Net Electric Field	(net-Efield ((?axis . x)))	Electric Field
 LEAF	Enet_y = E1_y + E2_y + ...    Net Electric Field	(net-Efield ((?axis . y)))	Electric Field
 LEAF	V = kelec*q/r                 point charge potential	point-charge-potential	Electric Potential
