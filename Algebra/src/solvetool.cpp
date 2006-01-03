@@ -53,7 +53,7 @@ bool checkifdone(const varindx sought, binopexp * & ansexpr,
 string powersolve(const int howstrong, const varindx sought, 
 		  const int destslot)
 {
-  int k, q;
+  int q;
   string answer;
   numpasses = 0;
   DBG( cout << "entering powersolve " << howstrong << ", " 

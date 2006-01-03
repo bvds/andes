@@ -9,7 +9,7 @@ CPPFLAGS += -DAW_POW_FIX -DAW_EXP -DSOLVER_EXPORTS -DUNITENABLE
 #                                                                -DNO_DLL
 #
 #  debug version flags
-#
+#       
 CPPFLAGS += -DWITHDBG -DTRACE_OUTPUT
 #
 #  For OS X, do things a bit differently:

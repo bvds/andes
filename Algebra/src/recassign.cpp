@@ -76,7 +76,7 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		if (troub != (expr *) NULL) 
 		  DBG(cout << "Dimenchk before write-out had trouble with "
 		      << troub->getInfix() << endl);
-		(*eqn)[numsolved]=(binopexp *) thiseq;
+ 		(*eqn)[numsolved]=(binopexp *) thiseq;
 		DBG(cout << "About to push onto soleqs " 
 		    << (*eqn)[numsolved]->getInfix() << endl; );
 		// was	solfile << (*eqn)[numsolved]->solprint()  << endl;
