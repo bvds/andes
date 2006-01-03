@@ -1655,8 +1655,7 @@
 
 ;; can be either electric or magnetic
 ;; this was borrowed from work
-(def-qexp electric-dipole-energy (dipole-energy ?dipole ?field 
-							 :time ?time)
+(def-qexp dipole-energy (dipole-energy ?dipole ?field :time ?time)
   :units |J|
   :english ("the potential energy of ~A in ~A" 
 	    (nlg ?dipole) (nlg ?field 'at-time ?time)))
@@ -2040,7 +2039,7 @@
  :preconditions (
 	   ; loc must be "region"
            (given (dir (field region magnetic ?source :time ?t)) ?dir-B)
-           (given (dir (dipole-moment ?b :time ?t)) ?dir-mu)
+           (given (dir (magnetic-dipole-moment ?b :time ?t)) ?dir-mu)
 	   ; following currently only works for dirs along axis
 	   (bind ?tau-dir (cross-product-dir ?dir-mu ?dir-B))
 	   ; make sure we have a non-null direction
@@ -2070,7 +2069,7 @@
  :preconditions (
 	   ; loc must be "region"
            (given (dir (field region magnetic ?source :time ?t)) ?dir-B)
-           (given (dir (dipole-moment ?b :time ?t)) ?dir-mu)
+           (given (dir (magnetic-dipole-moment ?b :time ?t)) ?dir-mu)
 	   ; following currently only works for dirs along axis
 	   (bind ?tau-dir (cross-product-dir ?dir-mu ?dir-B))
 	   ; make sure we have a non-null direction

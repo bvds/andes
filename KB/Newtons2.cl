@@ -9864,8 +9864,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		    (eq ?accel-spec 'slow-down))))
      ;; not known in rotational equilibrium:
      (not (motion ?b ang-at-rest :time ?t-motion) (tinsidep ?t ?t-motion))
-     ;; can't determine as torque due to magnetic field (see forces.cl)
-     (not  (given (dir (dipole-moment ?b :time ?t)) ?dir-mu))
      ;; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "NTOR_~A_~A~@[_~A~]" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))
