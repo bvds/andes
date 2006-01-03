@@ -3,7 +3,7 @@
 ;;; sbcl < make-prbs.cl >& make-prbs.log &
 (rkb)
 (defvar t0 (get-internal-run-time))
-(make-prbs '(ELEC1A ELEC1B ELEC2 ELEC3A ELEC3B ELEC4A ELEC4B ELEC5A ELEC5B ELEC6A ELEC6B FOR11A FOR11B FOR11C FOR4B FOR4 MAG4A))
+(make-prbs '(FOR10B FOR10 FOR7B FOR7 FOR8B FOR8 FOR9B FOR9 POT1A POT1B POT2A POT2B POT2C POT3A POT3B POT4 COUL1A COUL1B COUL2A COUL2B))
 ;; time to do this is:
 (format t "~F hours~%" (/ (- (get-internal-run-time) t0) 
 			  (* 3600 internal-time-units-per-second)))
