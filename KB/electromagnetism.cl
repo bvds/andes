@@ -1357,6 +1357,7 @@
 	   ;; ensure it here.
 	   (implicit-eqn (= ?dir-var ?dir) 
 			 (dir (electric-dipole-moment ?dipole :time ?t)))
+	   (given (dir (electric-dipole-moment ?dipole :time ?t)) ?dir)
 	   )  
   :hint (
 	 (point (string "You were given the position of ~A relative to ~A.  What does this tell you about the electric dipole moment?" ?positive-charge ?negative-charge))
@@ -1649,6 +1650,44 @@
 			 ((= ?tau-zc (* ?P ?E (sin (- ?theta-E ?theta-P)))) 
 			  algebra)))
   ))
+
+
+;;; Draw torque acting on an electric dipole
+
+(defoperator draw-torque-electric-dipole (?b ?t)
+  :preconditions 
+  (
+   (given (dir (electric-dipole-moment ?b :time ?t)) ?dir-p)
+   (given (dir ?field) ?dir-E)
+   (any-member ?field ((field ?region electric ?source :time ?t)))
+   (bind ?type (third ?field))
+   ;; following currently only works for dirs along axis
+   (bind ?tau-dir (cross-product-dir ?dir-p ?dir-E))
+   ;; make sure we have a non-null direction
+   (test (not (eq ?tau-dir 'zero)))  
+   (bind ?mag-var (format-sym "TORd_~A_~A_~A" (body-name ?b) ?axis 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ;; need rotation axis for torque definition
+   (rotation-axis ?b ?axis)
+   )
+ :effects 
+ (
+  (vector ?b (torque ?b ?field :time ?t) ?tau-dir)
+  (variable ?mag-var (mag (torque ?b ?field :time ?t)))
+  (variable ?dir-var (dir (torque ?b ?field :time ?t)))
+  (given (dir (torque ?b ?field :time ?t)) ?tau-dir)
+  )
+ :hint 
+ (
+  (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." ?type ?type)) 
+  (teach (string "The torque vector on a dipole points in a direction perpendicular to the plane formed by the dipole moment and ~A field vectors, in a direction determined by the right hand rule: curl the fingers of your right hand from the dipole moment vector to the ~A field vector, and your thumb will point in the direction of the torque." ?type ?type))
+  (bottom-out (string "Because the ?type moment has direction ~a and the ~A field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the torque on ~a due to ~a in the direction of ~A." 
+		      ?type (?dir-p adj) 
+		      ?type (?dir-E adj) (?tau-dir adj) 
+		      ?b  ?field (?tau-dir adj)))
+  ))
+
 
 
 ;;; Potential energy of an electric dipole
@@ -2037,17 +2076,17 @@
 ;; We draw this as a net-torque, so the assumption is there is no other source of torque.
 (defoperator draw-torque-current-loop (?b ?t)
  :preconditions (
-	   ; loc must be "region"
+	   ;; loc must be "region"
            (given (dir (field region magnetic ?source :time ?t)) ?dir-B)
            (given (dir (magnetic-dipole-moment ?b :time ?t)) ?dir-mu)
-	   ; following currently only works for dirs along axis
+	   ;; following currently only works for dirs along axis
 	   (bind ?tau-dir (cross-product-dir ?dir-mu ?dir-B))
-	   ; make sure we have a non-null direction
+	   ;; make sure we have a non-null direction
 	   (test (not (eq ?tau-dir 'zero)))  
            (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
 				      (time-abbrev ?t)))
            (bind ?dir-var (format-sym "O~A" ?mag-var))
-	   ; need rotation axis for torque definition
+	   ;; need rotation axis for torque definition
 	   (rotation-axis ?b ?axis)
  )
  :effects (

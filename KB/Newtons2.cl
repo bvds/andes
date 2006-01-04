@@ -9692,31 +9692,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			?axis ?pt (?t pp) (?torque-dir adj)))
     ))
 
-;;; draw the torque due to something or other in the z-direction
-(defoperator draw-torque-whatever-unknown (?b ?agent ?t)
-   :preconditions 
-   (
-    (not (vector ?b (torque ?b ?agent :time ?t) ?whatever))
-     ;; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "TOR_~A_~A~@[_~A~]" (body-name ?b) 
-				(body-name ?agent) (time-abbrev ?t)))
-     (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (not (given (dir (torque ?b ?agent :time ?t)) ?torque-dir))
-   )
-   :effects (
-     (vector ?b (torque ?b ?agent :time ?t) z-unknown)
-     (variable ?mag-var (mag (torque ?b ?agent :time ?t)))
-     (variable ?dir-var (dir (torque ?b ?agent :time ?t)))
-   )
-   :hint 
-   (
-    (point (string "There is a ~A acting on ~A due to the ~A." 
-		   (nil moment-name) ?b ?agent))
-    (bottom-out (string "Use the ~A vector drawing tool (labelled ~A) to draw the ~A  due to ~A.  Whether the vector points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction."  
-			(nil moment-name) (nil moment-symbol)  
-			(nil moment-name) ?agent
-			 (?t pp)))
-    ))
 
 
 ;;; draw an individual torque due to a couple
