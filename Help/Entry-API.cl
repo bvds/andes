@@ -163,7 +163,7 @@
 
 ; For circuits, we have to handle defined compound component terms as arguments.
 ; E.g. if R56 is defined as (resistance (R5 R6)), then body arg sent in, say,
-; voltage-across R56 will need to be translated. In this case, arg to body
+; (voltage-across R56) will need to be translated. In this case, arg to body
 ; will return (resistance (R5 R6)), so make-quant cases will have to be prepared
 ; to receive this as a body-term wherever args can be compound equivalents
 
@@ -177,6 +177,11 @@
         (or (eq (first quant) 'resistance)
 	    (eq (first quant) 'capacitance))
 	(consp (second quant))))
+
+(defun bodyterm-complist (bodyterm)
+ "extract component list from a compound component term as built by arg-to-body"
+ ; arg-to-body builds: (compound orderless C1 C2 ...)
+ (cddr bodyterm))  
 
 ;; 
 ;; Type/subtype identifiers
@@ -346,17 +351,17 @@
 		    (otherwise		; no longer used
 		     `(voltage-btwn ,body-term ,body2-term :time ,time-term))))
       (current     (case subtype
-		     (through		; body-term may come here as (resistance a b c) for equiv.
+		     (through		; body-term may come here as (resistance (a b c)) for equiv.
 		      (if (atom body-term) `(current-thru ,body-term :time  ,time-term)
 			`(current-thru ,(second body-term) :time ,time-term)))
 					;`(current-at ,body-term :time ,time-term)
 		     (in        `(current-in ,body-term :time ,time-term))))
       (resistance			; body-term may come here as (compound a b c) for equivalent resistance
        (if (atom body-term) `(resistance ,body-term)
-	 `(resistance ,(cdr body-term))))
+	 `(resistance ,(bodyterm-complist body-term))))
       (capacitance			; body-term may come here as (compound a b c) for equivalent capacitance
        (if (atom body-term) `(capacitance,body-term)
-	 `(capacitance ,(cdr body-term))))
+	 `(capacitance ,(bodyterm-complist body-term))))
       
       ;;
       ;; vector quantities -- form appropriate prop (mag or dir or compo)
