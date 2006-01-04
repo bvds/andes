@@ -1357,7 +1357,6 @@
 	   ;; ensure it here.
 	   (implicit-eqn (= ?dir-var ?dir) 
 			 (dir (electric-dipole-moment ?dipole :time ?t)))
-	   (given (dir (electric-dipole-moment ?dipole :time ?t)) ?dir)
 	   )  
   :hint (
 	 (point (string "You were given the position of ~A relative to ~A.  What does this tell you about the electric dipole moment?" ?positive-charge ?negative-charge))
@@ -1652,20 +1651,20 @@
   ))
 
 
-;;; Draw torque acting on an electric dipole
+;;; Draw torque acting on an electric or magnetic dipole
 
-(defoperator draw-torque-electric-dipole (?b ?t)
+(defoperator draw-torque-dipole-given-dir (?b ?t)
   :preconditions 
   (
-   (given (dir (electric-dipole-moment ?b :time ?t)) ?dir-p)
-   (given (dir ?field) ?dir-E)
-   (any-member ?field ((field ?region electric ?source :time ?t)))
+   ;; currently just used for dip1a.
+   ;; right now, this must be specified in the problem statement
+   ;; although the hints assume given dipole moment and given
+   ;; field direction.
+   (given (dir (torque ?b ?field) ?tau-dir)) ;could be 'out-of, 'into, 'zero
    (bind ?type (third ?field))
-   ;; following currently only works for dirs along axis
-   (bind ?tau-dir (cross-product-dir ?dir-p ?dir-E))
-   ;; make sure we have a non-null direction
-   (test (not (eq ?tau-dir 'zero)))  
-   (bind ?mag-var (format-sym "TORd_~A_~A_~A" (body-name ?b) ?axis 
+   (bind ?source (fourth ?field))
+   (test (not (eq ?tau-dir 'zero)))  ; should have seperate zero version
+   (bind ?mag-var (format-sym "TORd_~A_~A_~A" (body-name ?b) ?source 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    ;; need rotation axis for torque definition
@@ -1676,7 +1675,6 @@
   (vector ?b (torque ?b ?field :time ?t) ?tau-dir)
   (variable ?mag-var (mag (torque ?b ?field :time ?t)))
   (variable ?dir-var (dir (torque ?b ?field :time ?t)))
-  (given (dir (torque ?b ?field :time ?t)) ?tau-dir)
   )
  :hint 
  (
@@ -1687,7 +1685,6 @@
 		      ?type (?dir-E adj) (?tau-dir adj) 
 		      ?b  ?field (?tau-dir adj)))
   ))
-
 
 
 ;;; Potential energy of an electric dipole
