@@ -1706,11 +1706,11 @@
   )
  :hint 
  (
-  (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." ?type ?type)) 
-  (teach (string "The torque vector on a dipole points in a direction perpendicular to the plane formed by the dipole moment and ~A field vectors, in a direction determined by the right hand rule: curl the fingers of your right hand from the dipole moment vector to the ~A field vector, and your thumb will point in the direction of the torque." ?type ?type))
-  (bottom-out (string "Because the ?type moment has direction ~a and the ~A field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the torque on ~a due to ~a in the direction of ~A." 
-		      ?type (?dir-p adj) 
-		      ?type (?dir-E adj) (?tau-dir adj) 
+  (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." (?type 'adj) (?type 'adj))) 
+  (teach (string "The torque vector on a dipole points in a direction perpendicular to the plane formed by the dipole moment and ~A field vectors, in a direction determined by the right hand rule: curl the fingers of your right hand from the dipole moment vector to the ~A field vector, and your thumb will point in the direction of the torque." (?type 'adj) (?type 'adj)))
+  (bottom-out (string "Because the ~A moment has direction ~a and the ~A field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the torque on ~a due to ~a in the direction of ~A." 
+		      (?type 'adj) (?dir-d adj) 
+		      (?type 'adj) (?dir-f adj) (?tau-dir adj) 
 		      ?dipole ?field (?tau-dir adj)))
   ))
 
@@ -1742,11 +1742,12 @@
   )
  :hint 
  (
-  (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." ?type ?type)) 
+  (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." 
+		 (?type 'adj) (?type 'adj))) 
   (teach (string "Remember the magnitude of a cross product of two vectors is proportional to the sine of the angle between them."))
   (teach (string "If two vectors are parallel or anti-parallel, the sine of the angle betwen them is zero, so their cross-product is a zero-length vector."))
   (bottom-out (string "Because the cross product of the dipole moment and the ~A field direction is zero in this case, use the torque drawing tool (labeled $t) to draw a zero-length vector for torque on ~a due to ~a." 
-			     ?type ?dipole ?field))
+			     (?type 'adj) ?dipole ?field))
   ))
 
 
