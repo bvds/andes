@@ -39,9 +39,9 @@ LEAF	Fg = G*m1*m2/r^2    Universal gravitation	ug	Universal Gravitation
 END_GROUP			
 GROUP	Rotational		
 LEAF	$tnet_z = I*$a_z        rotational form of Newton's 2nd Law	NL-rot	Newton's Law for rotation
-LEAF	$t_z = r*F*sin($qF-$qr)  torque defined	torque-zc	Individual torque magnitude
+LEAF	$t = r*F*sin($q)        torque defined (magnitude)	mag-torque	Individual torque magnitude
+LEAF	$t_z = r*F*sin($qF-$qr)  torque defined (z component)	torque-zc	Individual torque magnitude
 LEAF	$tnet_z = $S $ti_z       Net torque defined	net-torque-zc	Net torque
-LEAF	$t = r*F*sin($q)        torque magnitude	mag-torque	Individual torque magnitude
 END_GROUP			
 END_GROUP			
 GROUP	Work and Energy		
@@ -101,13 +101,19 @@ LEAF	F = abs(q)*E                  Electric field (magnitude)	charge-force-Efiel
 LEAF	F_x = q*E_x                   Electric field	(charge-force-Efield ((?axis . x)))	Electric Field
 LEAF	F_y = q*E_y                   Electric field	(charge-force-Efield ((?axis . y)))	Electric Field
 LEAF	E = kelec*abs(q)/r^2          point charge field (magnitude)	point-charge-Efield-mag	Point Charge Field
-LEAF	E_x = (kelec*q/r^2) * r_x/r   point charge field	(point-charge-Efield ((?axis . x)))	Point Charge Field
-LEAF	E_y = (kelec*q/r^2) * r_y/r   point charge field	(point-charge-Efield ((?axis . y)))	Point Charge Field
+LEAF	E_x = (kelec*q/r^2) * r_x/r   point charge field (x component)	(point-charge-Efield ((?axis . x)))	Point Charge Field
+LEAF	E_y = (kelec*q/r^2) * r_y/r   point charge field (y component)	(point-charge-Efield ((?axis . y)))	Point Charge Field
 LEAF	Enet_x = E1_x + E2_x + ...    Net Electric Field	(net-Efield ((?axis . x)))	Electric Field
 LEAF	Enet_y = E1_y + E2_y + ...    Net Electric Field	(net-Efield ((?axis . y)))	Electric Field
 LEAF	V = kelec*q/r                 point charge potential	point-charge-potential	Electric Potential
 LEAF	Vnet = V1 + V2 + V3...        Net potential	net-potential	Electric Potential
 LEAF	Ue = q*Vnet                   electric potential energy	electric-energy	Electric Potential
+LEAF	p = abs(q)*r        electric dipole moment (magnitude)	electric-dipole-moment-mag	Dipoles
+LEAF	p_x = q*r_x        electric dipole moment (x component)	(electric-dipole-moment ((?axis . x)))	Dipoles
+LEAF	p_y = q*r_y        electric dipole moment (y component)	(electric-dipole-moment ((?axis . y)))	Dipoles
+LEAF	$t = p*E*sin($q)        torque for electric dipole (magnitude)	dipole-torque-mag	Dipoles
+LEAF	$t_z = p*E*sin($qE-$qp)  torque for electric dipole (z component)	dipole-torque-zc	Dipoles
+LEAF	Ud = -p.E   [Ud = -p*E*cos($q) or Ud = -(p_x*E_x+p_y*E_y]         potential energy of electric dipole	electric-dipole-energy	Dipoles
 LEAF	F = abs(q)*v*B*sin($q)         Magnetic force (magnitude)	charge-force-Bfield-mag	Magnetic Field
 LEAF	F_x = q*(v_y*B_z - v_z*B_y)   Magnetic force (x component)	charge-force-Bfield-x	Magnetic Field
 LEAF	F_y = q*(v_z*B_x - v_x*B_z)   Magnetic force (y component)	charge-force-Bfield-y	Magnetic Field
@@ -152,12 +158,12 @@ LEAF	f = r/2                 Focal Length of Mirror	focal-length-mirror	Spherica
 LEAF	do2 = d12 - di1         Combination of Lenses	lens-combo	Combined Lenses
 LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnification
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
-LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction	
-LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum	
-END_GROUP			
-GROUP	Waves and Oscillations		
-LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
-LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave	
+LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction
+LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum
+END_GROUP		
+GROUP	Waves and Oscillations	
+LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave
+LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave
 LEAF	T = 1/f       Period of oscillation	period-of-wave
 LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
 LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
@@ -168,12 +174,12 @@ LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-t
 LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
 LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
 LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency
-LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
-LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
-LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
-END_GROUP		
-END_GROUP	Write a Principle	
-GROUP	Apply a Definition or Auxiliary Law	
+LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
+LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
+LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
+END_GROUP			
+END_GROUP	Write a Principle		
+GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
 GROUP	Translational		
 LEAF	dnet_x = $S di_x            net displacement	(net-disp ((?axis . x)))	Net Displacement
