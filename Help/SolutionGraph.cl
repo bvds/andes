@@ -466,7 +466,7 @@
     (remove-duplicates 
      (loop for E in Entries
 	 do (setq tmp (find (SystemEntry-Prop E) Index
-			    :key #'SystemEntry-Prop :test #'equalp))
+			    :key #'SystemEntry-Prop :test #'unify)) ; AW: was equal
 	 when (null tmp)
 	 do (error "No matching entry in index~% ~A~% ~A." E Index)
 	 else collect tmp))))
@@ -809,11 +809,13 @@
 
 ;;--------------------------------------------------------------
 ;; Match a proposition to the SystemEntry that enters it.
-
+;;
+;; NB: must now use #'unify rather than #'equal to correctly match lists 
+;; tagged 'orderless. Could also be required for multiple keyword lists.
 (defun sg-EntryProp->SystemEntry (Prop)
   "Match a proposition to the SystemEntry that enters it."
   (find Prop *SG-Entries*
-	:test #'equalp :key #'SystemEntry-Prop))
+	:test #'unify :key #'SystemEntry-Prop))
 
 
 ;;-------------------------------------------------------------
