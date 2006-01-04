@@ -2347,6 +2347,9 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 	int nAnswers = 0;
 	int nText = 0;
 	int nChoices = 0;
+	// current multiple choice group. Check box indicators are
+	// aggregated into the current group, if any, else treated as check boxes.
+	CGroup* pGroup = NULL;
 	// start and end position of answer box markers:
 	int iAnsStart, iAnsEnd;
 
@@ -2390,7 +2393,6 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 		}
 
 		// else process line containing one or more answer boxes:
-		CGroup* pGroup = NULL;
 		int nGroups = 0;
 		
 		//  skip a line to accomodate box height, unless preceding line is already blank:
