@@ -1384,7 +1384,7 @@
   :english ("the definition of electric dipole moment")
   :ExpFormat ("applying the definition of electric dipole moment on ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("P_~a = q * d_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+  :EqnFormat ("p_~a = q * r_~a" (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
 (defoperator electric-dipole-moment-contains (?sought)
   :preconditions 
@@ -1432,7 +1432,7 @@
   :preconditions 
   ((debug "Using write-electric-dipole-moment-compo ~%")
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
-   (variable ?P_x  (compo ?xy ?rot (dipole-moment ?dipole electric :time ?t)))
+   (variable ?p_x  (compo ?xy ?rot (dipole-moment ?dipole electric :time ?t)))
    (variable ?d_x  (compo ?xy ?rot (relative-position 
 				    ?positive-charge 
 				    ?negative-charge :time ?t)))
@@ -1441,7 +1441,7 @@
    (rdebug "fired write-electric-dipole-moment-compo  ~%")
    )
   :effects 
-  ( (eqn (= ?P_x (* ?qp ?d_x))
+  ( (eqn (= ?p_x (* ?qp ?d_x))
 	 (compo-eqn definition ?xy ?rot (dipole-moment ?dipole electric ?t)))
     ;; allows (forces?) student to define both charges
     ;; note this equation is timeless
@@ -1449,15 +1449,15 @@
 		  (electric-dipole-moment-balance ?dipole))
     (eqn-compos (compo-eqn definition ?xy ?rot 
 			   (dipole-moment ?dipole electric ?t))
-		(?P_x ?d_x)))
+		(?p_x ?d_x)))
   :hint 
   ( (point (string "What is the definition of the electric dipole moment?"))
     (teach ;(kcd "write-electric-dipole-moment-compo")
      (string "The electric dipole moment of a +q -q pair of charges  is defined as the charge q times a vector going from -q to +q."))
-    (bottom-out (string "Write the equation ~a" ((= ?P_x (* ?qp ?d_x)) algebra)))
+    (bottom-out (string "Write the equation ~a" ((= ?p_x (* ?qp ?d_x)) algebra)))
     ))
 
-;; Vector relation P = q*d also licences magnitude and direction scalar 
+;; Vector relation p = q*r also licences magnitude and direction scalar 
 ;; equations.  Simpler to find these quantities than using component equations 
 ;; plus projections (though should be able to use either method).
 ;; We have to write these out as separate scalar principles.
@@ -1469,7 +1469,7 @@
   :english ("the definition of electric dipole moment magnitude")
   :ExpFormat ("applying the definition of electric dipole moment magnitude at ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("P = abs(q) * d" ))
+  :EqnFormat ("p = abs(q) * r" ))
 
 (defoperator electric-dipole-moment-mag-contains (?sought)
   :preconditions 
@@ -1533,17 +1533,17 @@
 ;; Note that this is really a couple. 
 ;; The following is copied from mag-torque
 
-(def-psmclass mag-dipole-torque 
-  (mag-dipole-torque ?dipole (field ?region electric ?source) ?time)
+(def-psmclass dipole-torque-mag 
+  (dipole-torque-mag ?dipole (field ?region electric ?source) ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the magnitude of the ~A on a dipole in an electric field" 
 	    (moment-name))
   :expformat ((strcat "calculating the magnitude of the ~A "
 		      "on ~a ~a due to the electric field in ~a")
 	      (moment-name) (nlg ?dipole) (nlg ?time 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M = P*E*sin($q)" "$t = P*E*sin($q)")))
+  :EqnFormat ((torque-switch "M = p*E*sin($q)" "$t = p*E*sin($q)")))
 
-(defoperator mag-dipole-torque-contains (?sought)
+(defoperator dipole-torque-mag-contains (?sought)
    :preconditions (
    (any-member ?sought (
 			(mag (
@@ -1559,9 +1559,9 @@
    (test (tinsidep ?t ?t-at))
    )
    :effects 
-   ((eqn-contains (mag-dipole-torque ?dipole (field ?region electric ?source) ?t) ?sought)))
+   ((eqn-contains (dipole-torque-mag ?dipole (field ?region electric ?source) ?t) ?sought)))
 
-(defoperator mag-dipole-torque-contains-angle (?sought)
+(defoperator dipole-torque-mag-contains-angle (?sought)
    :preconditions 
    (
     ;; doesn't explicitly contain directions of relative position
@@ -1576,9 +1576,9 @@
    (test (tinsidep ?t ?t-at))
    )
    :effects 
-   ((eqn-contains (mag-dipole-torque ?dipole (field ?region electric ?source) ?t) ?sought)))
+   ((eqn-contains (dipole-torque-mag ?dipole (field ?region electric ?source) ?t) ?sought)))
 
-(defoperator write-mag-dipole-torque (?dipole ?source ?t)
+(defoperator write-dipole-torque-mag (?dipole ?source ?t)
    :preconditions 
    (
     (variable ?tau-var (mag (
@@ -1586,28 +1586,28 @@
 			net-torque ?dipole axis
 			;; torque ?dipole (field ?region electric ?source)
 				    :time ?t)))
-    (variable ?P-var   (mag (dipole-moment ?dipole electric :time ?t)))
+    (variable ?p-var   (mag (dipole-moment ?dipole electric :time ?t)))
     (variable ?E-var   (mag (field ?region electric ?source :time ?t)))
     (variable ?theta-var (angle-between orderless 
 				(dipole-moment ?dipole electric :time ?t)      
 				(field ?region electric ?source :time ?t)))
     )
    :effects (
-      (eqn (= ?tau-var (* ?P-var ?E-var (sin ?theta-var))) 
-             (mag-dipole-torque ?dipole (field ?region electric ?source) ?t))
+      (eqn (= ?tau-var (* ?p-var ?E-var (sin ?theta-var))) 
+             (dipole-torque-mag ?dipole (field ?region electric ?source) ?t))
    )
    :hint
    ( (point (string "What is the magnitude of the torque produced by ~A due to the electric field?" ?dipole))
      (teach (string "When a an electic dipole is placed in an electric field, the field exerts a torque on the dipole."))
      (bottom-out (string "Write the equation ~A" 
-			 ((= ?tau-var (* ?P-var ?E-var (sin ?theta-var))) 
+			 ((= ?tau-var (* ?p-var ?E-var (sin ?theta-var))) 
 			  algebra)))
   ))
 
 
 ;;; dipole-torque-zc: equation for torque z-component for a dipole
 
-;;  tau_z = E*P*sin(thetaE - thetaP)
+;;  tau_z = p*E*sin(thetaE - thetaP)
 
 (def-psmclass dipole-torque-zc (dipole-torque-zc ?dipole 
 				    (field ?region electric ?source) ?t) 
@@ -1616,8 +1616,8 @@
   :expformat ((strcat "calculating the z component of the ~A "
 		      "on ~a ~a due to the electric field in ~A")
 	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M_z = P*E*sin($qE-$qP)"
-			     "$t_z = P*E*sin($qE-$qP)")))
+  :EqnFormat ((torque-switch "M_z = p*E*sin($qE-$qP)"
+			     "$t_z = p*E*sin($qE-$qP)")))
 
 (defoperator dipole-torque-zc-contains (?sought)
   :preconditions (
@@ -1655,18 +1655,18 @@
 					 :time ?t)))
     (variable ?E (mag (field ?region electric ?source :time ?t)))
     (variable ?theta-E (dir (field ?region electric ?source :time ?t)))
-    (variable ?P (mag (dipole-moment ?dipole electric :time ?t)))
-    (variable ?theta-P (dir (dipole-moment ?dipole electric :time ?t)))
+    (variable ?p (mag (dipole-moment ?dipole electric :time ?t)))
+    (variable ?theta-p (dir (dipole-moment ?dipole electric :time ?t)))
     )
   :effects 
-  ( (eqn (= ?tau-zc (* ?P ?E (sin (- ?theta-E ?theta-P)))) 
+  ( (eqn (= ?tau-zc (* ?p ?E (sin (- ?theta-E ?theta-p)))) 
 	 (dipole-torque-zc ?dipole (field ?region electric ?source) ?t))  
      )
   :hint 
    ( (point (string "What is the torque produced by ~A due to the electric field?" ?dipole))
      (teach (string "When a an electic dipole is placed in an electric field, the field exerts a torque on the dipole."))
      (bottom-out (string "Write the equation ~A" 
-			 ((= ?tau-zc (* ?P ?E (sin (- ?theta-E ?theta-P)))) 
+			 ((= ?tau-zc (* ?p ?E (sin (- ?theta-E ?theta-p)))) 
 			  algebra)))
   ))
 
@@ -1759,22 +1759,21 @@
   :english ("the potential energy of ~A in ~A" 
 	    (nlg ?dipole) (nlg ?field 'at-time ?time)))
 
-(defoperator define-dipole-energy (?dipole ?field ?t)
+(defoperator define-dipole-energy (?dipole ?args ?t)
  :preconditions 
  ( (object ?dipole)
    (time ?t)
-   (test (eq (first ?field) 'field))
-   (bind ?source (fourth ?field))
+   (bind ?source (third ?args))
    (bind ?de-var (format-sym "Ud~A_~A_~A~@[_~A~]" 
-			     (subseq (string (third ?field)) 0 1)
+			     (subseq (string (second ?args)) 0 1)
 			     (body-name ?dipole) 
 			     (body-name ?source) (time-abbrev ?t))) )
  :effects (
-   (define-var (dipole-energy ?dipole ?field :time ?t))
-   (variable ?de-var (dipole-energy ?dipole ?field :time ?t))
+   (define-var (dipole-energy ?dipole (field . ?args) :time ?t))
+   (variable ?de-var (dipole-energy ?dipole (field . ?args) :time ?t))
  )
  :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting dipole energy" ((dipole-energy ?dipole ?field) def-np)))
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting dipole energy" ((dipole-energy ?dipole (field . ?args) :time ?t) def-np)))
  ))
 
 (defoperator define-electric-dipole-energy-ee-var (?dipole ?source ?t)
@@ -1794,7 +1793,7 @@
   :english ("the definition of the energy of a dipole in an electric field")
   :expformat ("calculating the energy of ~a in ~A ~A" 
 	      (nlg ?dipole) (nlg ?field 'at-time ?time))
-  :EqnFormat ("U = -P*E*cos($qP - $qE) OR U = -(P_x*E_x + P_y*E_y)"))
+  :EqnFormat ("U = -p*E*cos($qP - $qE) OR U = -(p_x*E_x + p_y*E_y)"))
 
 (defoperator electric-dipole-energy-contains (?sought)
   :preconditions 
@@ -1882,8 +1881,8 @@
 		    
 		    ))
     (bind ?teaches (strcat "The electric dipole energy of a dipole P in an electric field E is given by "
-			   (if ?rot "- (P_x * E_x + P_y * E_y)." 
-			     "- P * E * cos ($q), where $q is the angle between the dipole and electric field vectors.")
+			   (if ?rot "- (p_x * E_x + p_y * E_y)." 
+			     "- p * E * cos ($q), where $q is the angle between the dipole and electric field vectors.")
 	  ))
     )
  :effects 

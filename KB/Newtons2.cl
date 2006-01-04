@@ -6653,8 +6653,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 
 ;;; equation TME = Translational Kinetic Energy + Rotational KE
-;;;                    + Grav PE + Spring PE + Electrostatic PE
-;;; !!! spring PE term could just be omitted if spring not extended at t
+;;;                    + Grav PE + Spring PE + Electrostatic PE ...
+;;  Note that any new kind of energy must be added to the list
+;;  of energies in the hint below.
+;; !!! spring PE term could just be omitted if spring not extended at t
 (defoperator write-total-energy-top (?b ?t)
   :preconditions 
   (
@@ -6671,7 +6673,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :hint (
    (point (string "Try writing an equation defining the total mechanical energy of the system containing ~a ~a" (?b def-np) (?t pp)))
-   (teach (string "The total mechanical energy is the sum of the kinetic energy and the potential energy. Kinetic energy consists of translational and rotational kinetic energy.  Potential energy consists of the gravitational potential energy and the elastic potential energy in any spring in the system."))
+   (teach (string "The total mechanical energy is the sum of the kinetic energy and the potential energy. Kinetic energy consists of translational and rotational kinetic energy.  Potential energy consists of the gravitational potential energy, electric potential energy, the energy of any dipole, and the elastic potential energy in any spring in the system."))
    (bottom-out (string "Write ~a" 
 		       ((= ?te-var (+ . ?ee-vars)) algebra)))
    ))
