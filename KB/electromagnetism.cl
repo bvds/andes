@@ -1333,6 +1333,16 @@
 ;;;; 
 ;;;;---------------------------------------------------------------------------
 
+(def-qexp electric-dipole-moment (dipole-moment ?dipole electric :time ?time)
+  :units |C.m|
+  :english ("electric dipole moment of ~A~@[ ~A~]" 
+	    (nlg ?dipole) (nlg ?time 'pp)))
+
+(def-qexp magnetic-dipole-moment (dipole-moment ?dipole magnetic :time ?time)
+  :units |C.m^2/s|
+  :english ("magnetic dipole moment of ~A~@[ ~A~]" 
+	    (nlg ?dipole) (nlg ?time 'pp)))
+
 ;; modification of draw-efield-vector
 (defoperator draw-Electric-Dipole-Moment-given-relative-position (?dipole ?t)
   :preconditions 
@@ -1342,21 +1352,21 @@
    (given (dir (relative-position ?positive-charge ?negative-charge :time ?t))
 	  ?dir)
    (test (tinsidep ?t ?t-given))  
-   (not (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?any-dir))
+   (not (vector ?dipole (dipole-moment ?dipole electric :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "P_~A~@[_~A~]" (body-name ?dipole) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Electric-Dipole-Moment-vector   ~%")
    )
   :effects (
-	   (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dir)
-	   (variable ?mag-var (mag (electric-dipole-moment ?dipole :time ?t)))
-	   (variable ?dir-var (dir (electric-dipole-moment ?dipole :time ?t)))
+	   (vector ?dipole (dipole-moment ?dipole electric :time ?t) ?dir)
+	   (variable ?mag-var (mag (dipole-moment ?dipole electric :time ?t)))
+	   (variable ?dir-var (dir (dipole-moment ?dipole electric :time ?t)))
 	   ;; Because dir is problem given, find-by-psm won't ensure implicit 
 	   ;; eqn gets written.  Given value may not be used elsewhere so 
 	   ;; ensure it here.
 	   (implicit-eqn (= ?dir-var ?dir) 
-			 (dir (electric-dipole-moment ?dipole :time ?t)))
+			 (dir (dipole-moment ?dipole electric :time ?t)))
 	   )  
   :hint (
 	 (point (string "You were given the position of ~A relative to ~A.  What does this tell you about the electric dipole moment?" ?positive-charge ?negative-charge))
@@ -1369,7 +1379,7 @@
 ;; The following is a modification of charge-force-efield.
 
 (def-psmclass electric-dipole-moment 
-    (?eq-type definition ?axis ?rot (electric-dipole-moment ?dipole ?time)) 
+    (?eq-type definition ?axis ?rot (dipole-moment ?dipole electric ?time)) 
   :complexity major
   :english ("the definition of electric dipole moment")
   :ExpFormat ("applying the definition of electric dipole moment on ~a ~a"
@@ -1385,8 +1395,8 @@
 					       ?negative-charge :time ?t))
 		       (dir (relative-position ?positive-charge
 					       ?negative-charge :time ?t))
-		       (mag (electric-dipole-moment ?dipole :time ?t))
-		       (dir (electric-dipole-moment ?dipole :time ?t))
+		       (mag (dipole-moment ?dipole electric :time ?t))
+		       (dir (dipole-moment ?dipole electric :time ?t))
 		       (charge-on ?positive-charge) ;should be timeless
 		       (charge-on ?negative-charge) ;should be timeless
 		       ))
@@ -1394,20 +1404,20 @@
    )
   :effects 
   (
-   (eqn-family-contains (electric-dipole-moment ?dipole ?t) ?sought)
+   (eqn-family-contains (dipole-moment ?dipole electric ?t) ?sought)
    ;; since only one compo-eqn under this vector psm, we can just
    ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (electric-dipole-moment ?dipole ?t) definition ?sought)))
+   (compo-eqn-contains (dipole-moment ?dipole electric ?t) definition ?sought)))
 (defoperator draw-electric-dipole-moment-diagram (?dipole ?t)
   :preconditions 
   (
    (debug "Using draw-electric-dipole-moment-diagram ~%")
-   (not (vector-diagram (electric-dipole-moment ?dipole ?t)))
+   (not (vector-diagram (dipole-moment ?dipole electric ?t)))
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
    ;; must draw charges in diagram for this psm
    (body ?positive-charge)
    (body ?negative-charge)
-   (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dir1) 
+   (vector ?dipole (dipole-moment ?dipole electric :time ?t) ?dir1) 
    (vector ?positive-charge (relative-position 
 			     ?positive-charge 
 			     ?negative-charge :time ?t) ?dir1) 
@@ -1415,14 +1425,14 @@
    (rdebug "Fired draw-electric-dipole-moment-diagram ~%")
    )
   :effects (
-            (vector-diagram (electric-dipole-moment ?dipole ?t))
+            (vector-diagram (dipole-moment ?dipole electric ?t))
             ))
 
 (defoperator write-electric-dipole-moment-compo (?dipole ?t ?xy ?rot)
   :preconditions 
   ((debug "Using write-electric-dipole-moment-compo ~%")
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
-   (variable ?P_x  (compo ?xy ?rot (electric-dipole-moment ?dipole :time ?t)))
+   (variable ?P_x  (compo ?xy ?rot (dipole-moment ?dipole electric :time ?t)))
    (variable ?d_x  (compo ?xy ?rot (relative-position 
 				    ?positive-charge 
 				    ?negative-charge :time ?t)))
@@ -1432,13 +1442,13 @@
    )
   :effects 
   ( (eqn (= ?P_x (* ?qp ?d_x))
-	 (compo-eqn definition ?xy ?rot (electric-dipole-moment ?dipole ?t)))
+	 (compo-eqn definition ?xy ?rot (dipole-moment ?dipole electric ?t)))
     ;; allows (forces?) student to define both charges
     ;; note this equation is timeless
     (implicit-eqn (= (+ ?qp ?qn) 0) 
 		  (electric-dipole-moment-balance ?dipole))
     (eqn-compos (compo-eqn definition ?xy ?rot 
-			   (electric-dipole-moment ?dipole ?t))
+			   (dipole-moment ?dipole electric ?t))
 		(?P_x ?d_x)))
   :hint 
   ( (point (string "What is the definition of the electric dipole moment?"))
@@ -1467,7 +1477,7 @@
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
    ;; because of abs(Q), charge is not a sought
    (any-member ?sought ((mag (relative-position ?positive-charge ?negative-charge :time ?t))
-			(mag (electric-dipole-moment ?dipole :time ?t))
+			(mag (dipole-moment ?dipole electric :time ?t))
 			))
    (time ?t)
    (debug "Using & firing write-electric-dipole-moment-mag-contains ~%")
@@ -1493,7 +1503,7 @@
    (body ?negative-charge)
    ;; even though this is scalar equation, want axes to be allowed
    (axis-for ?dipole ?xyz ?rot)
-   (variable ?magP (mag (electric-dipole-moment ?dipole :time ?t)))
+   (variable ?magP (mag (dipole-moment ?dipole electric :time ?t)))
    (variable ?magd (mag (relative-position ?positive-charge 
 					   ?negative-charge :time ?t)))
    (variable ?qp (charge-on ?positive-charge))
@@ -1507,7 +1517,7 @@
    ;; allows (forces?) student to define both charges
    ;; this equation is timeless
    (implicit-eqn (= (+ ?qp ?qn) 0) (electric-dipole-moment-balance ?dipole))
-   (assume using-magnitude (electric-dipole-moment ?dipole ?t)) ;mag xor compos
+   (assume using-magnitude (dipole-moment ?dipole electric ?t)) ;mag xor compos
    )
   :hint 
   (
@@ -1536,10 +1546,13 @@
 (defoperator mag-dipole-torque-contains (?sought)
    :preconditions (
    (any-member ?sought (
-                  (mag (torque ?dipole (field ?region electric ?source)
-			       :time ?t))
+			(mag (
+			 ;; Yuck, work-around for missing torque tool
+			 net-torque ?dipole axis
+			 ;; torque ?dipole (field ?region electric ?source)
+				     :time ?t))
 		  (mag (field ?region electric ?source :time ?t))
-		  (mag (electric-dipole-moment ?dipole :time ?t))
+		  (mag (dipole-moment ?dipole electric :time ?t))
 		  ))
    (E-field ?source)
    (at-place ?dipole ?region ?t-at)
@@ -1556,7 +1569,7 @@
    (any-member ?sought ((angle-between orderless . ?vecs)))
    (any-member ?vecs 
 	       ;; These must be in lexical order:
-	       (((electric-dipole-moment ?dipole :time ?t)
+	       (((dipole-moment ?dipole electric :time ?t)
 		 (field ?region electric ?source :time ?t))))
    (E-field ?source)
    (at-place ?dipole ?region ?t-at)
@@ -1568,12 +1581,15 @@
 (defoperator write-mag-dipole-torque (?dipole ?source ?t)
    :preconditions 
    (
-    (variable ?tau-var (mag (torque ?dipole (field ?region electric ?source)
+    (variable ?tau-var (mag (
+			;; Yuck, work-around for missing torque tool
+			net-torque ?dipole axis
+			;; torque ?dipole (field ?region electric ?source)
 				    :time ?t)))
-    (variable ?P-var   (mag (electric-dipole-moment ?dipole :time ?t)))
+    (variable ?P-var   (mag (dipole-moment ?dipole electric :time ?t)))
     (variable ?E-var   (mag (field ?region electric ?source :time ?t)))
     (variable ?theta-var (angle-between orderless 
-				(electric-dipole-moment ?dipole :time ?t)      
+				(dipole-moment ?dipole electric :time ?t)      
 				(field ?region electric ?source :time ?t)))
     )
    :effects (
@@ -1606,12 +1622,15 @@
 (defoperator dipole-torque-zc-contains (?sought)
   :preconditions (
     (any-member ?sought ( 
-             (compo z 0 (torque ?dipole (field ?region electric ?source)
+             (compo z 0 (
+		    ;; Yuck, work-around for missing torque tool
+		    net-torque ?dipole axis
+		    ;; torque ?dipole (field ?region electric ?source)
 			        :time ?t))
              (mag (field ?region electric ?source :time ?t))
              (dir (field ?region electric ?source :time ?t))
-	     (mag (electric-dipole-moment ?dipole :time ?t))
-	     (dir (electric-dipole-moment ?dipole :time ?t))
+	     (mag (dipole-moment ?dipole electric :time ?t))
+	     (dir (dipole-moment ?dipole electric :time ?t))
 	                ))
     (E-field ?source)
     (at-place ?dipole ?region ?t-at)
@@ -1623,20 +1642,21 @@
 
 (defoperator write-dipole-torque-zc (?dipole ?source ?t)
   :preconditions 
-  ( (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dirP)
+  ( (vector ?dipole (dipole-moment ?dipole electric :time ?t) ?dirP)
     (test (degrees-or-num ?dirP))
     (vector ?dipole (field ?region electric ?source :time ?t) ?dirE)
     (test (degrees-or-num ?dirE))
     (bind ?torque-dir (torque-zdir (convert-dnum-to-number ?dirE) 
 				   (convert-dnum-to-number ?dirP)))
     
-    (variable ?tau-zc (compo z 0 (torque ?dipole 
-					 (field ?region electric ?source)
+    (variable ?tau-zc (compo z 0 (
+			     net-torque ?dipole axis 
+			     ;; torque ?dipole (field ?region electric ?source)
 					 :time ?t)))
     (variable ?E (mag (field ?region electric ?source :time ?t)))
     (variable ?theta-E (dir (field ?region electric ?source :time ?t)))
-    (variable ?P (mag (electric-dipole-moment ?dipole :time ?t)))
-    (variable ?theta-P (dir (electric-dipole-moment ?dipole :time ?t)))
+    (variable ?P (mag (dipole-moment ?dipole electric :time ?t)))
+    (variable ?theta-P (dir (dipole-moment ?dipole electric :time ?t)))
     )
   :effects 
   ( (eqn (= ?tau-zc (* ?P ?E (sin (- ?theta-E ?theta-P)))) 
@@ -1653,28 +1673,36 @@
 
 ;;; Draw torque acting on an electric or magnetic dipole
 
-(defoperator draw-torque-dipole-given-dir (?b ?t)
+(defoperator draw-torque-dipole-given-dir (?dipole ?t)
   :preconditions 
   (
    ;; currently just used for dip1a.
    ;; right now, this must be specified in the problem statement
    ;; although the hints assume given dipole moment and given
    ;; field direction.
-   (given (dir (torque ?b ?field) ?tau-dir)) ;could be 'out-of, 'into, 'zero
-   (bind ?type (third ?field))
-   (bind ?source (fourth ?field))
-   (test (not (eq ?tau-dir 'zero)))  ; should have seperate zero version
+   (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
+   (given (dir (field ?region ?type ?source :time ?t)) ?dir-f)
+   (bind ?field (list 'field ?region ?type ?source))
+   (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
+   (test (not (eq ?tau-dir 'zero)))
    (bind ?mag-var (format-sym "TORd_~A_~A_~A" (body-name ?b) ?source 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   ;; need rotation axis for torque definition
-   (rotation-axis ?b ?axis)
    )
  :effects 
  (
-  (vector ?b (torque ?b ?field :time ?t) ?tau-dir)
-  (variable ?mag-var (mag (torque ?b ?field :time ?t)))
-  (variable ?dir-var (dir (torque ?b ?field :time ?t)))
+  (vector ?dipole (
+	  net-torque ?dipole axis 
+	  ;; torque ?dipole ?field
+		  :time ?t) ?tau-dir)
+  (variable ?mag-var (mag (
+	  net-torque ?dipole axis 
+	  ;; torque ?dipole ?field
+		      :time ?t)))
+  (variable ?dir-var (dir (
+	  net-torque ?dipole axis 
+	  ;; torque ?dipole ?field 
+		      :time ?t)))
   )
  :hint 
  (
@@ -1683,7 +1711,42 @@
   (bottom-out (string "Because the ?type moment has direction ~a and the ~A field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the torque on ~a due to ~a in the direction of ~A." 
 		      ?type (?dir-p adj) 
 		      ?type (?dir-E adj) (?tau-dir adj) 
-		      ?b  ?field (?tau-dir adj)))
+		      ?dipole ?field (?tau-dir adj)))
+  ))
+
+(defoperator draw-torque-dipole-zero (?dipole ?t)
+  :preconditions 
+  (
+   ;; currently just used for dip1a.
+   ;; right now, this must be specified in the problem statement
+   ;; although the hints assume given dipole moment and given
+   ;; field direction.
+   (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
+   (given (dir (field ?region ?type ?source :time ?t)) ?dir-f)
+   (bind ?field (list 'field ?region ?type ?source))
+   (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
+   (test (eq ?tau-dir 'zero))
+   (bind ?mag-var (format-sym "TORd_~A_~A_~A" (body-name ?b) ?source 
+			      (time-abbrev ?t)))
+   )
+ :effects 
+ (
+  (vector ?dipole (
+	  net-torque ?dipole axis 
+	  ;; torque ?dipole ?field
+		  :time ?t) ?tau-dir)
+  (variable ?mag-var (mag (
+	  net-torque ?dipole axis 
+	  ;; torque ?dipole ?field
+		      :time ?t)))
+  )
+ :hint 
+ (
+  (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." ?type ?type)) 
+  (teach (string "Remember the magnitude of a cross product of two vectors is proportional to the sine of the angle between them."))
+  (teach (string "If two vectors are parallel or anti-parallel, the sine of the angle betwen them is zero, so their cross-product is a zero-length vector."))
+  (bottom-out (string "Because the cross product of the dipole moment and the ~A field direction is zero in this case, use the torque drawing tool (labeled $t) to draw a zero-length vector for torque on ~a due to ~a." 
+			     ?type ?dipole ?field))
   ))
 
 
@@ -1740,7 +1803,7 @@
 					  (field ?region electric ?source) 
 					  :time ?t)
 		 (mag (field ?region electric ?source :time ?t))
-		 (mag (electric-dipole-moment ?dipole :time ?t))
+		 (mag (dipole-moment ?dipole electric :time ?t))
 		 ))
    (E-field ?source)
    (at-place ?dipole ?region ?t-at)
@@ -1756,7 +1819,7 @@
  :preconditions 
  ((any-member ?sought ((angle-between orderless ?vecs)))
   ;; must be in canonical order
-  (any-member ?vecs (((electric-dipole-moment ?dipole :time ?t) 
+  (any-member ?vecs (((dipole-moment ?dipole electric :time ?t) 
 		      (field ?region electric ?source :time ?t))))
    (E-field ?source)
    (at-place ?dipole ?region ?t-at)
@@ -1774,13 +1837,13 @@
 	       ( (dipole-energy ?dipole (field ?region electric ?source) 
 				:time ?t)
 		 (compo ?xyz ?rot (field ?region electric ?source :time ?t))
-		 (compo ?xyz ?rot (electric-dipole-moment ?dipole :time ?t))
+		 (compo ?xyz ?rot (dipole-moment ?dipole electric :time ?t))
 		 ))
    (E-field ?source)
    (at-place ?dipole ?region ?t-at)
    (test (tinsidep ?t ?t-at))
    ;; find axes now, before applying dot product:
-   (vector ?dipole (electric-dipole-moment ?dipole :time ?t) ?dir-d)
+   (vector ?dipole (dipole-moment ?dipole electric :time ?t) ?dir-d)
    (vector ?dipole (field ?region electric ?source :time ?t) ?dir-e)
    (time ?t)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
@@ -1802,7 +1865,7 @@
  ((variable ?u-var (dipole-energy ?dipole 
 					  (field ?region electric ?source) 
 					  :time ?t))
-  (dot ?dot (electric-dipole-moment ?dipole :time ?t)
+  (dot ?dot (dipole-moment ?dipole electric :time ?t)
        (field ?region electric ?source :time ?t)
        ?rot)
     ;; for orthogonal vectors, prohibit dot-using-components
@@ -2068,64 +2131,6 @@
          (teach (string "In this problem the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
          (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
   ))
-
-;; torque vector on a current loop (really anything with a dipole moment!)
-;; We draw this as a net-torque, so the assumption is there is no other source of torque.
-(defoperator draw-torque-current-loop (?b ?t)
- :preconditions (
-	   ;; loc must be "region"
-           (given (dir (field region magnetic ?source :time ?t)) ?dir-B)
-           (given (dir (magnetic-dipole-moment ?b :time ?t)) ?dir-mu)
-	   ;; following currently only works for dirs along axis
-	   (bind ?tau-dir (cross-product-dir ?dir-mu ?dir-B))
-	   ;; make sure we have a non-null direction
-	   (test (not (eq ?tau-dir 'zero)))  
-           (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
-				      (time-abbrev ?t)))
-           (bind ?dir-var (format-sym "O~A" ?mag-var))
-	   ;; need rotation axis for torque definition
-	   (rotation-axis ?b ?axis)
- )
- :effects (
-            (vector ?b (net-torque ?b ?axis :time ?t) ?tau-dir)
-            (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
-            (variable ?dir-var (dir (net-torque ?b ?axis :time ?t)))
-            (given (dir (net-torque ?b ?axis :time ?t)) ?tau-dir)
- )
- :hint 
- (
-  (point (string "The torque on a current loop points in the direction of the cross product of its magnetic dipole moment and the magnetic field vector at its location.")) 
-  (teach (string "The torque vector on a current loop points in a direction perpendicular to the plane formed by the magnetic moment and magnetic field vectors, in a direction determined by the right hand rule: curl the fingers of your right hand from the dipole moment vector to the magnetic field vector, and your thumb will point in the direction of the torque."))
-  (bottom-out (string "Because the magnetic moment has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the net torque on ~a about ~a in the direction of ~A." 
-		      (?dir-mu adj) (?dir-B adj) (?tau-dir adj) ?b ?axis 
-		      (?tau-dir adj)))
-  ))
-
-(defoperator draw-torque-current-loop-zero (?b ?t)
- :preconditions (
-	   ; loc must be "region"
-           (given (dir (field region magnetic ?source :time ?t)) ?dir-B)
-           (given (dir (magnetic-dipole-moment ?b :time ?t)) ?dir-mu)
-	   ; following currently only works for dirs along axis
-	   (bind ?tau-dir (cross-product-dir ?dir-mu ?dir-B))
-	   ; make sure we have a non-null direction
-	   (test (eq ?tau-dir 'zero))  
-           (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
-				      (time-abbrev ?t)))
-	   ; need rotation axis for torque definition
-	   (rotation-axis ?b ?axis)
- )
- :effects (
-            (vector ?b (net-torque ?b ?axis :time ?t) ?tau-dir)
-            (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
- )
- :hint (
-	(point (string "The torque on a current loop points in the direction of the cross product of its magnetic dipole moment and the magnetic field vector at its location.")) 
-	(teach (string "Remember the magnitude of a cross product of two vectors is proportional to the sine of the angle between them."))
-	(teach (string "If two vectors are parallel or anti-parallel, the sine of the angle betwen them is zero, so their cross-product is a zero-length vector."))
-        (bottom-out (string "Because the cross product of the magnetic moment and the magnetic field direction is zero in this case, use the torque drawing tool (labeled $t) to draw a zero-length vector for the net torque on ~a about ~a." 
-			     ?b ?axis ))
-        ))
 
 ;---------------------------------------------------------
 ; Bforce magnitude equation: F = abs(q)*V*B*sin(thetaVB)
