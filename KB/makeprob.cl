@@ -6,10 +6,13 @@
 ;; to be part of the Andes2 distribution (ignoring test problems). 
 ;; Generates in alphabetical order by problem name so progress is obvious.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun Andes2-prob (p)
+"true if this problem is tagged as part of the main Andes2 distribution"
+   (member 'Andes2 (problem-features p)))
+
 (defun working-Andes2-prob (p)
-"true if this is both an Andes2 problem and working"
-  (and (working-problem-p p)	
-       (member 'Andes2 (problem-features p))))
+"true if this is both an Andes2 problem and tagged as working"
+  (and (working-problem-p p) (Andes2-prob p)))
 
 (defun listprobs () 
 "list problems in alphabetical problem name order"
@@ -176,7 +179,8 @@
               (format outf "~A~%" line))))))))
 
 ; write one text file per problem, containing the problem statement text lines
-; puts into "Statements" directory 
+; puts into "Statements" directory. This is a convenience for the script that
+; generates OLI learning pages from problem sets.
 (defun write-stmts()
    (map-problems 
       #'(lambda(p) 
@@ -185,6 +189,6 @@
 	   (dolist (line (Problem-Statement P))
 	    (when (not (find #\[ line)) ; skip answer-box marker lines in stmt
               (format outf "~A~%" line)))))
-      ; filter func to map:
-      #'working-andes2-prob))
+      ; filter func to map: Include non-working problems in case we want stubs
+      #'andes2-prob))
       
