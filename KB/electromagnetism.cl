@@ -1798,8 +1798,7 @@
 (defoperator electric-dipole-energy-contains (?sought)
   :preconditions 
   ((any-member ?sought 
-	       ( (dipole-energy  ?dipole 
-					  (field ?region electric ?source) 
+	       ( (dipole-energy  ?dipole (field ?region electric ?source) 
 					  :time ?t)
 		 (mag (field ?region electric ?source :time ?t))
 		 (mag (dipole-moment ?dipole electric :time ?t))
