@@ -1616,8 +1616,8 @@
   :expformat ((strcat "calculating the z component of the ~A "
 		      "on ~a ~a due to the electric field in ~A")
 	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M_z = p*E*sin($qE-$qP)"
-			     "$t_z = p*E*sin($qE-$qP)")))
+  :EqnFormat ((torque-switch "M_z = p*E*sin($qE-$qp)"
+			     "$t_z = p*E*sin($qE-$qp)")))
 
 (defoperator dipole-torque-zc-contains (?sought)
   :preconditions (
@@ -1793,7 +1793,7 @@
   :english ("the definition of the energy of a dipole in an electric field")
   :expformat ("calculating the energy of ~a in ~A ~A" 
 	      (nlg ?dipole) (nlg ?field 'at-time ?time))
-  :EqnFormat ("U = -p*E*cos($qP - $qE) OR U = -(p_x*E_x + p_y*E_y)"))
+  :EqnFormat ("U = -p*E*cos($qp - $qE) OR U = -(p_x*E_x + p_y*E_y)"))
 
 (defoperator electric-dipole-energy-contains (?sought)
   :preconditions 
