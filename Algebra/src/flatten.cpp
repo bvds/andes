@@ -56,7 +56,6 @@
 #include "dbg.h"
 using namespace std;
 
-#define EQONIO(A) DBGFM(ENTFLP,A)
 #define DBGM(A) DBGFM(INTFL,A) //additional detail from lowest bit on
 #define DBG(A) DBGF(INTFL,A)
 
@@ -96,11 +95,11 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  // this can't happen if we guarantee all n_ops flatten
 		  // returns always have at least two args:
 		  unnop(efunct->arg);
-		  DBG(cout << "flatten " << thisdbg  << ":  returns " 
+		  DBGM(cout << "flatten " << thisdbg  << ":  returns " 
 		      << e->getInfix()<< endl);
 		  return(true); 
 		}
-	      DBGF(ENTFLP, cout << "flatten " << thisdbg << 
+	      DBG(cout << "flatten " << thisdbg << 
 		   " called sqrt of product " << endl;
 		   // e->dbgprint(0)
 		   );
@@ -135,11 +134,11 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	      if (rootdone->args->size() == 0)
 		{
 		  delete rootdone;
-		  DBGF(ENTFLP, {cout << "flatten " << thisdbg 
+		  DBG({cout << "flatten " << thisdbg 
 			 << " return false from sqrt of product" << endl; });
 		  return(answer);
 		}
-	      DBGF(ENTFLP, cout << "flatten " << thisdbg 
+	      DBG(cout << "flatten " << thisdbg 
 		   << " return from sqrt of product with done "
 		   << endl; 
 		     // rootdone->dbgprint(2);
@@ -160,18 +159,18 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  (!lookslikeint(((numvalexp *)fargbin->rhs)->value,q)) ||
 		  ((q%2 == 1) && !isnonneg(fargbin->lhs)))
 		{
-		  EQONIO(cout << "flatten " << thisdbg 
+		  DBGM(cout << "flatten " << thisdbg 
 			 << ": nosimp " << e->getInfix() << ", returning "
 			 << ((answer) ? "true" : "false") << endl;);
 		  return(answer);
 		}
-	      EQONIO(cout << "flatten " << thisdbg 
+	      DBGM(cout << "flatten " << thisdbg 
 		     << ": about to reduce sqrt x^2n "
 		     << e->getInfix()<< endl);
 	      efunct->f = &absff; // replace sqrt by abs and halve	      
 	      ((numvalexp *)fargbin->rhs)->value *= 0.5; // rhs of topowe
 	      answer = true;
-	      EQONIO(cout << "flatten " << thisdbg << ": first result x^n "
+	      DBGM(cout << "flatten " << thisdbg << ": first result x^n "
 		     << e->getInfix()<< endl;
 		     cout << " efunct->f->opty=" << efunct->f->opty 
 		     << " e->f->opty=" << ((functexp *) e)->f->opty << endl);
@@ -184,7 +183,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		}
 	      DBG( cout << "flatten " << thisdbg << " simplified a sqrt"
 		   << endl;);
-	      EQONIO(cout << "flatten " << thisdbg << ": sqrt x^2 -> |x| : "
+	      DBGM(cout << "flatten " << thisdbg << ": sqrt x^2 -> |x| : "
 		     << e->getInfix()<< endl);
 	    } // end of sqrt of binop
 	} // end of e is sqrt
@@ -193,7 +192,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 
       if (efunct->f->opty == abse) // top op is abs
 	{
-	  EQONIO(cout << "flatten " << thisdbg << ": looking at abs : "
+	  DBGM(cout << "flatten " << thisdbg << ": looking at abs : "
 		 << e->getInfix() << endl);
 	  if (isnonneg(efunct->arg)) 		// abs of nonneg 
 	    {
@@ -205,7 +204,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	      return(true);
 	    }
 	  else {
-	    EQONIO(cout << "flatten " << thisdbg << ": arg not nonnegative " 
+	    DBGM(cout << "flatten " << thisdbg << ": arg not nonnegative " 
 		   << endl;);
 	  }
 	  
@@ -235,7 +234,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	      e = enop;
 	      answer = true;
 	    }
-	  EQONIO(cout << "flatten " << thisdbg << ": returning from abs with " 
+	  DBGM(cout << "flatten " << thisdbg << ": returning from abs with " 
 		 << ((answer) ? "true" : "false") << endl);
 	  return(answer);
 	} // end of top op is abs
@@ -258,7 +257,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	    efunct->f->opty = abse;
 	    answer = true;
 	  }
-      EQONIO(cout << "flatten " << thisdbg << ":  returns " 
+      DBGM(cout << "flatten " << thisdbg << ":  returns " 
 	      << e->getInfix() << ", returning "
 			 << ((answer) ? "true" : "false") << endl);
       return(answer);
@@ -280,7 +279,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	  if ((ebin->rhs->etype != binop) || 
 	      (((binopexp *)ebin->rhs)->op->opty != divbye)) 
 	    {
-	      EQONIO(cout << "flatten of equality " << thisdbg << ": returns " 
+	      DBGM(cout << "flatten of equality " << thisdbg << ": returns " 
 		     << e->getInfix()<< endl
 		     << "locs e[" << (int)e << "], e->lhs[" << 
 		     (int)(ebin->lhs) << "], e->rhs[" <<
@@ -315,7 +314,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	  {
 	    if (((binopexp *)ebin->lhs)->op->opty != divbye) 
 	      {
-		EQONIO(cout << "flatten " << thisdbg << ": not divby returns " 
+		DBGM(cout << "flatten " << thisdbg << ": not divby returns " 
 		       << e->getInfix() << ", returning "
 		    << ((answer) ? "true" : "false") << endl);
 		return(answer);
@@ -338,7 +337,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		<< e->getInfix()<< endl);
 	    return(true);
 	  }
-	EQONIO(cout << "flatten " << thisdbg 
+	DBGM(cout << "flatten " << thisdbg 
 	       << ": equalse did nothing, returns " 
 	       << e->getInfix() << ", returning "
 		    << ((answer) ? "true" : "false") << endl;);
@@ -364,6 +363,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	      n_opexp * temp = new n_opexp(&mult);
 	      temp->addarg(elhs->rhs);
 	      temp->addarg(ebin->rhs);
+	      elhs->rhs = temp;
 	      delete ebin;
 	      e = elhs;
 	      break;
@@ -374,7 +374,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	ebin = (binopexp *) e; 		// e may have changed since last done
 	if (ebin->rhs->etype != binop) 		// (we still have divby as top)
 	  {
-	    EQONIO( cout << "flatten " << thisdbg << ":  divbye in " 
+	    DBGM( cout << "flatten " << thisdbg << ":  divbye in " 
 		    << e->getInfix() << " returning "	    
 		    << ((answer) ? "true" : "false") << endl);
 	    return(answer);
@@ -382,7 +382,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	{
 	  binopexp *erhs =  (binopexp *) ebin->rhs; // only case is rhs = divby
 	  if (erhs->op->opty != divbye) {		// ? assume eqnumsimp
-	    EQONIO( cout << "flatten " << thisdbg << " divbye in " 
+	    DBGM( cout << "flatten " << thisdbg << " divbye in " 
 		    << e->getInfix() << " returning "
 		    << ((answer) ? "true" : "false") << endl);
 	    return(answer); 
@@ -406,7 +406,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	  case numval:
 	  case physvart:
 	  case function:	// should we change sin^2 to 1 - cos^2 ?
-	    EQONIO( cout << "flatten " << thisdbg << 
+	    DBGM( cout << "flatten " << thisdbg << 
 		    " topow lhs makes for no improv " << e->getInfix() 
 		    << ", returning "
 		    << ((answer) ? "true" : "false") << endl);
@@ -494,7 +494,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  if (!((ebin->rhs->etype == numval) ||
 		      (ebin->lhs->MKS.zerop())))
 		    {
-		      EQONIO(cout << "flatten " << thisdbg << 
+		      DBGM(cout << "flatten " << thisdbg << 
 			     ": returns false on " 
 			     << e->getInfix() << endl;);
 		      return(answer);
@@ -566,7 +566,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		}
 	    }
 	  answer = distfrac(e) || answer;
-	  EQONIO(cout << "flatten " << thisdbg << ": returns " 
+	  DBGM(cout << "flatten " << thisdbg << ": returns " 
 			 << (answer ? "true" : "false")  
 			 << e->getInfix() << " after sorting a plus" << endl;
 	         //   e->dbgprint(2)
@@ -623,9 +623,13 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	    e = enop;		// just in case its changed - don't see how
 	    if (multsort(e)) answer = true;
 	    if (e->etype == n_op) enop =(n_opexp *) e; 	// if multplus didn't
-	    else return(answer);			// or did change type
-				// if no longer an n_op, cant continue here.
-				// Now try to distribute + args.
+	    else {
+	      DBG(cout << "flatten " << thisdbg  << ":  returns " 
+		  << e->getInfix()<< endl);
+	      return(answer);			// or did change type
+	    }
+	      // if no longer an n_op, cant continue here.
+	      // Now try to distribute + args.
 	    found = false;
 	    for (k=0; k < enop->args->size(); k++)
 	      {			
@@ -667,7 +671,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  }  // end of what to do on found plus inside mult
 	      } // end of loop over args of mult
 	    if (!found) {
-	      EQONIO(cout << "flatten " << thisdbg << ": " 
+	      DBGM(cout << "flatten " << thisdbg << ": " 
 		     << e->getInfix() << ", returning "
 		     << ((answer) ? "true" : "false") << endl;);
 	      return(answer);

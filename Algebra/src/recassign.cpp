@@ -49,9 +49,11 @@ void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	  DBGEQ(cout << "in checkeqs eqn j=" << j << ":  " 
 		<< thiseq->getInfix() << endl);
 	  expr *inconst = dimenchk(true,thiseq);
-	  if (inconst != (expr *)NULL) 
+	  if (inconst != (expr *)NULL){
+	    DBG(cout << "Checkeqs: dimenchk returned inconsistency" << endl);
 	    throw(string("Checkeqs: dimenchk returned inconsistency at ")
 		  + inconst->getInfix());
+	  }
 	  eqnumsimp(thiseq,true);
 	  k = ordunknowns(thiseq,false); // order of equations in unknown vars
 	  varl.clear();

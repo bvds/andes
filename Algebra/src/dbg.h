@@ -19,7 +19,6 @@
 #define READLOGS      0x200	/* in ioprobwy */
 #define GETEQS        0x200 /* in getall, could be in geteqs if needed */
 #define INTFL         0x400 /*show eqs @ intermediate points in flatten */
-#define ENTFLP        0x800	/* announce entry to flatten */
 			/* if MORE,  show equation on entry/exit to flatten */
 #define FUFPLS       0x1000	/* in fixupforpls */
 #define INDY         0x1000	/* in indyset */
