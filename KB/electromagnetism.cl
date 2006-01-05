@@ -48,6 +48,7 @@
   :preconditions 
   (
    (body ?b1)
+   (body ?b2) ; draw source as pot and E-field rules do
    (variable ?q1 (charge-on ?b1 :time ?t ?t))
    (variable ?q2 (charge-on ?b2 :time ?t ?t))
    (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
@@ -109,6 +110,7 @@
   :preconditions 
   (
    (body ?b)
+   (body ?agent) ; draw source as pot and E-field rules do
    (vector ?b (relative-position ?b ?agent :time ?t) ?dir1)
    ;; assuming (without checking) only one force between the two bodies.
    (vector ?b (force ?b ?agent electric :time ?t) ?dir2)
