@@ -1,6 +1,6 @@
 // FBDView.h : interface of the CFBDView class
 // 
-// $Id: Fbdview.h,v 1.3 2005/06/28 22:53:19 anders Exp $
+// $Id: Fbdview.h,v 1.4 2006/01/05 04:09:16 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 
 // forward references, so don't need to worry about including 
@@ -231,6 +231,7 @@ protected:
 	void SetAnswerStatus(CEQEditType* pAnswer, Status nStatus);
 	BOOL m_bIgnoreChange;				// set to ignore change notifications we caused
 	void ApplyAnswerStatus(LPCTSTR pszResult, CEQEditType* pEdit);
+
 
 	// hyper text
 	BOOL m_bOnHyperText;

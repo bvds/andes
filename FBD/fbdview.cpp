@@ -1002,7 +1002,9 @@ void CFBDView::OnAnswerEnter()
 	TRACE("Submitted %s: %s\n", pEdit->m_strId, strEq);
 	LogEventf(EV_ANSWER_SUBMIT,"%s %s", pEdit->m_strId, strEq);	// was Answer-enter 	
 
-#if 0 // shouldn't be necessary anymore since we synch on changes
+	// Now do this anyway to fix up text for bug getting Greek char when synching on change.
+
+#if 1 // shouldn't be necessary anymore since we synch on changes
 	// Find associated answer box item in doc and update data
 	CDrawObj* pObj = GetDocument()->Lookup(pEdit->m_strId);
 	ASSERT(pObj != NULL);

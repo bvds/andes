@@ -168,10 +168,6 @@ void CFBDDoc::Serialize(CArchive& ar)
 
    		//  Serialize drawing objects
 		
-		// update answer boxes from controls -- needed for correct Greek until bug found.
-		//CFBDView * pFBDView = theApp.GetFBDView();
-   		//if (pFBDView != NULL) pFBDView->UpdateDoc();
-    
    		m_objects.Serialize(ar);
    		// Added version 3: store ID generation counter
    		if (m_nVersion >= 3)	
