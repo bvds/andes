@@ -285,9 +285,10 @@
       (pushnew (subst-bindings (st-bindings SubState) Term)
 	       Result :test #'unify))
     (push-binding SetVar Result State)
-;;; The history is long and not in tree form
-   ;; (setof-actions state initial-state)
-;;; Instead, show the end result; see removable-actionp
+;; The history is long and not in tree form
+;; However, entries are used by the Helpsystem
+    (setof-actions state initial-state)
+;; Show the end result; see removable-actionp
     (push (list 'setof-result Result) (st-actions State))
     (list State)))
 
