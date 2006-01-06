@@ -171,7 +171,7 @@
 
 (defun symbols-lookup-quant (quant)
   "fetch sym info struct for quantity, NIL if not found"
-   (find quant *variables* :key #'sym-referent :test #'equal))
+   (find quant *variables* :key #'sym-referent :test #'unify))
 
 (defun symbols-sysvar (label)
    "return expression in system terms corresponding to student label"
@@ -236,7 +236,7 @@
   "lookup system variable name for quant in current problem, NIL if none"
   (let ((qvar (find quant (Problem-VarIndex Problem) 
 		    :key #'qvar-exp 
-		    :test #'equal)))
+		    :test #'unify)))
      (when qvar (qvar-var qvar))))
 
 (defun sysvar-to-quant (sysvar &optional (Problem *cp*)) ; could be helper in solution graph module
@@ -260,7 +260,7 @@
   "lookup algebraically usable system variable name for quant in current problem, NIL if none"
   (let ((qvar (find quant (Problem-VarIndex Problem) 
 		    :key #'qvar-exp 
-		    :test #'equal)))
+		    :test #'unify)))
      (when (and qvar (qvar-value qvar)) ; make sure it has a value
          (qvar-var qvar))))
 
