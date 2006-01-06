@@ -374,8 +374,8 @@
 ;; Returns: The problem struct.
 
 (defmacro defproblem (name &key (soughts ()) (Givens ())
-				(Statement "No Problem Statement.")
-				(Comments "No Comments") (Features nil)
+				(Statement "")
+				(Comments "") (Features nil)
 				(ModDate nil) (Version nil) 
 				(ForbiddenPSMS nil) (IgnorePSMS nil)
 				(VariableMarks Nil) (Times nil)
