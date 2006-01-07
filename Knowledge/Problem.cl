@@ -375,7 +375,7 @@
 
 (defmacro defproblem (name &key (soughts ()) (Givens ())
 				(Statement "")
-				(Comments "") (Features nil)
+				(Comments NIL) (Features nil)
 				(ModDate nil) (Version nil) 
 				(ForbiddenPSMS nil) (IgnorePSMS nil)
 				(VariableMarks Nil) (Times nil)
