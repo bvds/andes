@@ -26,6 +26,8 @@ voltage	V
 resistance	R			
 capacitance	C			
 charge-on	q	charge		on [body:bodies]
+magnetic-flux	$FM	magnetic flux		through [body:bodies]
+electric-flux	$FE	electric flux		through [body:bodies]
 potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:times]
 stored-energy	U	energy stored		in [body:bodies] at time [time:times]
 inductance	L	inductance		of [body:bodies]
