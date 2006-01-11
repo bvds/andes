@@ -381,7 +381,7 @@
 (defun merge-paths (P1 P2)
   "merge P2 path into P1."
   ;; must match without any bindings needed.
-  (let ((Loc (mismatch P1 P2 :test #'exactly-equal))) 
+  (let ((Loc (mismatch P1 P2 :test #'unify-check-for-variables))) 
 
    (when *watch-merge*
     (if (= Loc 0) ; no common prefix: shouldn't normally occur
@@ -401,12 +401,12 @@
 			    (subseq P2 Loc)))
 	      ; else add or merge new choice into existing choose 
 	      (list (insert-choose (nth Loc P1) (subseq P2 Loc)))))))
-	      
+      
 (defun insert-choose (C S)
   "Insert subsequence S into choose C."
   (let ((R)) 
     (loop for I below (length (cdr C)) ; for each existing choice i
-	when (unify (car S) (car (nth I (cdr C)))) ; if matches new one at first element
+	when (unify-check-for-variables (car S) (car (nth I (cdr C)))) ; if matches new one at first element
 	do (setq R C)	; modify choice i to be merge of old choice i and s, returning C
 	   (setf (nth I (cdr R)) (merge-paths (nth I (cdr C)) S))
 	and return t)
@@ -415,9 +415,13 @@
 	(setq R (append C (list S))))
     
     R))
-			       
-			       
-  
+
+(defun unify-check-for-variables (x y)
+  (when (and (unify x y) (not (exactly-equal x y)))
+    (format t "WARNING:  head two paths differ only by unbound variables~%   ~S~%"
+	    x))
+	    (exactly-equal x y))
+
 (defun solver-trace ()
   (trace solve-for)
   (trace solution-sts)
