@@ -1048,6 +1048,42 @@
 	))
 
 
+
+;;;CHARGES ON CAPACITORS
+(defoperator define-constant-charge-on-cap-var (?what)
+  :preconditions (
+		  (not (changing-voltage))
+		  (circuit-component ?what capacitor)
+		  (bind ?q-what-var (format-sym "Q_~A" 
+						(comp-name ?what 'C)))
+		  )
+  :effects (
+	    (variable ?q-what-var (charge-on ?what))
+	    (define-var (charge-on ?what))
+	    )
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." ((charge-on ?what) def-np)))
+	 ))
+
+(defoperator define-changing-charge-on-cap-var (?what ?t)
+  :preconditions (
+		  (in-wm (changing-voltage))
+		  (time ?t)
+		  (test (not (eq ?t 'inf)))
+		  (circuit-component ?what capacitor)
+		  (bind ?q-what-var (format-sym "Q_~A_~A" (comp-name ?what 'C) 
+						(time-abbrev ?t)))
+		  )
+  :effects (
+	    (variable ?q-what-var (charge-on ?what :time ?t))
+	    (define-var (charge-on ?what :time ?t))
+	    )
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." 
+			     ((charge-on ?what :time ?t) def-np)))
+	 ))
+
+
 (def-psmclass cap-defn (cap-defn ?cap ?t) 
   :complexity definition
   :english ("Definition of capacitance")
@@ -1055,7 +1091,7 @@
 
 (defoperator capacitor-definition-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge ?cap :time ?t ?t)
+		 (any-member ?sought ((charge-on ?cap :time ?t ?t)
 				      (voltage-across ?cap :time ?t)))
 		 (time ?t)
 		 (circuit-component ?cap capacitor)
@@ -1079,7 +1115,7 @@
   :specifications "doc"
   :preconditions(
 		 (variable ?c-var (capacitance ?cap))
-		 (variable ?q-var (charge ?cap :time ?t ?t))
+		 (variable ?q-var (charge-on ?cap :time ?t ?t))
 		 (variable ?v-var (voltage-across ?cap :time ?t))
 		 )
   :effects(
@@ -1176,7 +1212,7 @@
 
 (defoperator junction-rule-cap (?path-list1 ?path-list2 ?t )
   :preconditions (
-		  (any-member ?sought ((charge ?cap :time ?t ?t)
+		  (any-member ?sought ((charge-on ?cap :time ?t ?t)
 				       (voltage-across ?cap :time ?t)))
 		  (time ?t)
 		  ;;find the charge variables for capacitor going into the branch                            
@@ -1188,7 +1224,7 @@
 		  (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
 		  (test (not (equal nil ?in-caps)))
 		  (map ?x ?in-caps  
-		       (variable ?q-var (charge ?x :time ?t ?t))
+		       (variable ?q-var (charge-on ?x :time ?t ?t))
 		       ?q-var ?q-in-path-vars)
                              
 		  ;;find the charge variables for capacitor going into the branch  
@@ -1198,7 +1234,7 @@
 		  (test (not (equal nil ?out-caps)))
 
 		  (map ?x ?out-caps
-		       (variable ?q-var (charge ?x :time ?t ?t))
+		       (variable ?q-var (charge-on ?x :time ?t ?t))
 		       ?q-var ?q-out-path-vars)
 		  )
   :effects (
@@ -1259,7 +1295,7 @@
 
 (defoperator charge-same-caps-in-branch-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge ?cap1 :time ?t ?t)))
+		 (any-member ?sought ((charge-on ?cap1 :time ?t ?t)))
 		 (time ?t)
 		 (branch ?br-res given ?dontcare1 ?path)
 		 (test (member ?cap1 ?path) :test #'equal)
@@ -1280,7 +1316,7 @@
   :preconditions (
 		  ;; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
 		  (map ?cap ?temp-caps
-		       (variable ?q-var (charge ?cap :time ?t ?t))
+		       (variable ?q-var (charge-on ?cap :time ?t ?t))
 		       ?q-var ?q-path-cap-vars)
 		  (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
 		  (bind ?pair (first ?adj-pairs))
@@ -1304,7 +1340,7 @@
 
 (defoperator cap-energy-contains (?sought)
   :preconditions (
-		  (any-member ?sought ( (charge ?cap :time ?t ?t)
+		  (any-member ?sought ( (charge-on ?cap :time ?t ?t)
 					(voltage-across ?cap :time ?t)
 					(stored-energy ?cap :time ?t)))
 		  (circuit-component ?cap capacitor)
@@ -1316,7 +1352,7 @@
 
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
-		  (variable ?Q (charge ?cap :time ?t ?t))
+		  (variable ?Q (charge-on ?cap :time ?t ?t))
 		  (variable ?V (voltage-across ?cap :time ?t))
 		  (variable ?U (stored-energy ?cap :time ?t))
 		  )
@@ -1404,8 +1440,8 @@
    (closed-loop (?res ?cap) :time (during ?t1 ?t2))
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
-   (any-member ?sought ((charge ?cap :time ?t1)
-			(charge ?cap :time ?t2)
+   (any-member ?sought ((charge-on ?cap :time ?t1)
+			(charge-on ?cap :time ?t2)
 			(duration (during ?t1 ?t2))
 			(time-constant orderless ?res ?cap)
 			))
@@ -1419,8 +1455,8 @@
 (defoperator discharging-capacitor-at-time (?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (variable ?q1-var (charge ?cap :time ?t1))
-   (variable ?q2-var (charge ?cap :time ?t2))
+   (variable ?q1-var (charge-on ?cap :time ?t1))
+   (variable ?q2-var (charge-on ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
    (variable ?t-var (duration (during ?t1 ?t2)))
    (variable ?tau-var (time-constant orderless ?res ?cap))
@@ -1456,12 +1492,12 @@
    (circuit-component ?bat battery)
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
-   (any-member ?sought ((charge ?cap :time ?t2)
+   (any-member ?sought ((charge-on ?cap :time ?t2)
 			(duration (during ?t1 ?t2))
 			(time-constant orderless ?res ?cap)
 			))
    (time (during ?t1 ?t2))		;sanity test
-   (given (charge ?cap :time ?t1) 0) ;boundary condition
+   (given (charge-on ?cap :time ?t1) 0) ;boundary condition
    )
   :effects(
 	   (eqn-contains (charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2)) ?sought)
@@ -1470,7 +1506,7 @@
 (defoperator charging-capacitor-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (variable ?q-var (charge ?cap :time ?t2))
+   (variable ?q-var (charge-on ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?t-var (duration (during ?t1 ?t2)))
@@ -1509,7 +1545,7 @@
 			(time-constant orderless ?res ?cap)
 			))
    (time (during ?t1 ?t2))		;sanity test
-   (given (charge ?cap :time ?t1) 0) ;boundary condition
+   (given (charge-on ?cap :time ?t1) 0) ;boundary condition
    )
   :effects
   ((eqn-contains (current-in-RC-at-time (?bat ?res ?cap) (during ?t1 ?t2)) ?sought)
@@ -1540,38 +1576,38 @@
 ;;;  BvdS:  This could be rewritten in terms of (fraction-of ....)
 ;;;
 
-(def-psmclass charge-capacitor-percent-max (charge-capacitor-percent-max ?cap ?time) 
+(def-psmclass charge-on-capacitor-percent-max (charge-on-capacitor-percent-max ?cap ?time) 
   :complexity minor 
   :english ("RC charge as percent of maximum")
   :eqnFormat ("q = percent*C*V"))
 
-(defoperator charge-capacitor-percent-max-contains (?sought)
+(defoperator charge-on-capacitor-percent-max-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge ?cap :time ?t2)
+		 (any-member ?sought ((charge-on ?cap :time ?t2)
 				      ;;(max-charge ?cap :time inf)
 				      ;; also contains C and V
 				      ))
 		 (percent-max ?cap ?value ?t2)
 		 (circuit-component ?cap capacitor)
-		 (given (charge ?cap :time ?t1) 0) ;boundary condition
+		 (given (charge-on ?cap :time ?t1) 0) ;boundary condition
 		 )
   :effects(
-	   (eqn-contains (charge-capacitor-percent-max ?cap ?t1 ?t2) ?sought)
+	   (eqn-contains (charge-on-capacitor-percent-max ?cap ?t1 ?t2) ?sought)
 	   ))
 
 
-(defoperator charge-capacitor-percent-max (?cap ?t)
+(defoperator charge-on-capacitor-percent-max (?cap ?t)
   :preconditions (
 		  (variable ?C-var (capacitance ?cap))
 					; use constant Vb defined across charging interval.
 		  (circuit-component ?bat battery)	 
 		  (variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
-		  (variable ?q-var (charge ?cap :time ?t ?t))
+		  (variable ?q-var (charge-on ?cap :time ?t ?t))
 		  (percent-max ?cap ?fraction ?t)
 		  )
   :effects (
 	    (eqn (= ?q-var (* ?fraction ?C-var ?V-var))
-		 (charge-capacitor-percent-max ?cap ?t0 ?t))  
+		 (charge-on-capacitor-percent-max ?cap ?t0 ?t))  
 	    )
   :hint(
 	(point (string "Write the equation for the charge on the capacitor ~a ~a in terms of the percentage of the maximum charge." ?cap (?t pp)))

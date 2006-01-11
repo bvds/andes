@@ -21,7 +21,7 @@
     (near-planet earth)
     (E-field unspecified)
     (at-place electron region 1)
-    (given (charge electron) (dnum -1.60E-19 |C|)) 
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
     (given (mass electron) (dnum 9.11E-31 |kg|))
     (given (dir (field region electric unspecified :time 1)) (dnum 270 |deg|)) 
     (motion electron at-rest :time 1)
@@ -60,7 +60,7 @@
       (dnum 15 |deg|)) 
   )
   :soughts (
-    (charge particle)
+    (charge-on particle)
   )
 )
 
@@ -85,7 +85,7 @@
     (near-planet earth)
     (E-field unspecified)
     (at-place particle region 1)
-    (given (charge particle) (dnum 52.0 |$mC|))
+    (given (charge-on particle) (dnum 52.0 |$mC|))
     (given (mag (field region electric unspecified :time 1)) (dnum 120 |N/C|)) 
     (given (dir (field region electric unspecified :time 1)) (dnum 90 |deg|)) 
     (motion particle at-rest :time 1)
@@ -120,7 +120,7 @@
     (given (mass electron) (dnum 9.11E-31 |kg|))
     ;; Electrostatics
     (at-place electron region (during 1 2))
-    (given (charge electron) (dnum -1.60E-19 |C|)) 
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
     (given (mag (field region electric plates :time (during 1 2))) 
       (dnum 2.0E4 |N/C|))
     (given (dir (field region electric plates :time (during 1 2))) 
@@ -166,7 +166,7 @@
     (given (mass electron) (dnum 9.11E-31 |kg|))
     ;; Electrostatics
     (at-place electron region (during 1 2))
-    (given (charge electron) (dnum -1.60E-19 |C|)) 
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
     (given (mag (field region electric plates :time (during 1 2))) 
       (dnum 2.0E4 |N/C|))
     (given (dir (field region electric plates :time (during 1 2))) 
@@ -211,7 +211,7 @@
     (given (mass proton) (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region (during 1 2))
-    (given (charge proton) (dnum 1.60E-19 |C|)) 
+    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
     (dnum 320 |N/C|))
     (given (dir (field region electric unspecified :time (during 1 2))) 
@@ -255,7 +255,7 @@
     (given (mass proton) (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region (during 1 2))
-    (given (charge proton) (dnum 1.60E-19 |C|)) 
+    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
     (dnum 320 |N/C|))
     (given (dir (field region electric unspecified :time (during 1 2))) 
@@ -300,7 +300,7 @@
     (given (mass proton)      (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region (during 1 2))
-    (given (charge proton) (dnum 1.60E-19 |C|)) 
+    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
       (dnum 920 |N/C|))
     (given (dir (field region electric unspecified :time (during 1 2))) 
@@ -345,7 +345,7 @@
     (given (mass proton)      (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region (during 1 2))
-    (given (charge proton) (dnum 1.60E-19 |C|)) 
+    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
       (dnum 920 |N/C|))
     (given (dir (field region electric unspecified :time (during 1 2))) 
@@ -390,7 +390,7 @@
     (near-planet earth)
     ;; Electrostatics
     (at-place electron region (during 1 2))
-    (given (charge electron) (dnum -1.60E-19 |C|)) 
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
     (given (mass electron)      (dnum 9.11E-31 |kg|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
       (dnum 4.0E-12 |N/C|)) 
@@ -435,7 +435,7 @@
     (near-planet earth)
     ;; Electrostatics
     (at-place electron region (during 1 2))
-    (given (charge electron) (dnum -1.60E-19 |C|)) 
+    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
     (given (mass electron)      (dnum 9.11E-31 |kg|)) 
     (given (mag (field region electric unspecified :time (during 1 2))) 
       (dnum 4.0E-12 |N/C|)) 

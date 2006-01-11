@@ -750,7 +750,7 @@
 		       `(torque ,body-term 
 				(couple orderless ,body-term ,axis-term)))
 	               (t (find-torque-term body-term axis-term))))
-	(dir-term    (arg-to-dir dir mag)))
+	(dir-term (arg-to-dir dir mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id))
 )

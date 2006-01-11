@@ -9157,7 +9157,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (variable ?I-var (moment-of-inertia ?b :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A." ?b (?t pp)))
+	 (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A" ?b (?t pp)))
 	 ))
 
 ;;;; Shape variables: We define special scalar variables for the appropriate
