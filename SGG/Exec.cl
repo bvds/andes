@@ -47,7 +47,7 @@
 (defun executable-p (Ex)
   (and (listp ex)
        (member (car ex)
-	       '(bind not in-wm add-to-wm test any-member debug rdebug count setof))))
+	       '(bind not in-wm wm-or-derive add-to-wm test any-member debug rdebug count setof))))
 
 ;; execute-executable
 ;; Given the specified State and 
@@ -64,12 +64,14 @@
     (test (execute-test ex st))
     (not (execute-not ex st))
     (in-wm (execute-in-wm ex st))
+    (wm-or-derive (execute-wm-or-derive ex st))
     (add-to-wm (execute-add-to-wm ex st))
     (any-member (execute-any-member ex st))
     (debug (execute-debug ex st))
     (rdebug (execute-rdebug ex st))
     (count (execute-count ex st))
-    (setof (execute-setof ex st))))
+    (setof (execute-setof ex st))
+    ))
 
 ;;; This executable precondition should have the form (bind <variable>
 ;;; <form>).  If the variable is already bound, returns an empty set
@@ -132,6 +134,15 @@
   "Returns a set of states, one for each unification of the given 
    goal with a wme." 
   (goal-successors-wmes (second Ex) State NIL))
+
+;;; (wm-or-derive <goal>) checks if a goal can be satisfied by wm. If yes,
+;;; successor states are the wm satisfiers alone; otherwise it attempts 
+;;; to derive the goal by operators. This can be used for efficiency to 
+;;; suppress needless search through operators in contexts where all we care 
+;;; about is the result in wm.  Maybe needs a better name. Ensure-in-wm? 
+(defun execute-wm-or-derive (Ex State)
+  (or (goal-successors-wmes (second Ex) State t)
+      (goal-successors-effects (second Ex) State)))
 
 ;;; The executable (Any-member <term> <set>) expects <set> to be a
 ;;; list of terms when bindings are substituted into it.  It returns a

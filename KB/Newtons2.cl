@@ -1214,6 +1214,8 @@
   :specifications "let's not and say we did"
    :effects ( (optional ?goal) ))
 
+
+#| ; wm-or-derive now moved into interpreter
 ;;; in cases where a goal only need be satisfied once,
 ;;; we don't want to continue if it is already in working memory
 
@@ -1225,7 +1227,7 @@
   :preconditions ((not ?goal) ;not in working memory, that is
 		  ?goal)
   :effects ((wm-or-derive ?goal)))
-
+|#
 
 ;;; ================= Generic: Draw each requested vector =====================
 ;;;
