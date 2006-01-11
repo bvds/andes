@@ -890,7 +890,7 @@
      (not (use-energy-axes))	  
      ;; don't draw axis for system part if system axis already chosen
      ;; use-system-axes will choose axes in this case.
-     (not (axis-for ?sys ?dontcare1 ?dontcare2)
+     (not (axis-for ?sys . ?dontcare)
 	  (part-of-sys ?b ?sys))
      (not (vector ?b ?v (dnum ?dir |deg|))) )
   :effects (
@@ -927,7 +927,7 @@
     (component-form)
     ; don't draw new axis for system part if system axis already chosen
     ; use-system-axes will choose axes in this case.
-    (not (axis-for ?sys ?dontcare1 ?dontcare2)
+    (not (axis-for ?sys . ?dontcare)
          (part-of-sys ?b ?sys))
     )
   :effects (
@@ -960,10 +960,10 @@
    (in-wm (draw-axes ?drawn-axes-body 0))
    ;; don't need this in addition if already registered an axis for 
    ;; vectors on ?b 
-   (not (axis-for ?b ?dontcare3 ?dontcare4))
+   (not (axis-for ?b . ?dontcare1))
    ;; don't return axis for system part if system axis already chosen
    ;; use-system-axes will return axes in this case.
-   (not (axis-for ?sys ?dontcare1 ?dontcare2)
+   (not (axis-for ?sys . ?dontcare2)
         (part-of-sys ?b ?sys))
 ))
 
@@ -974,10 +974,10 @@
    (in-wm (draw-axes ?drawn-axes-body ?rot))
    ;; don't need this in addition if already registered an axis for 
    ;; vectors on ?b 
-   (not (axis-for ?b ?dontcare3 ?dontcare4))
+   (not (axis-for ?b . ?dontcare1))
    ;; don't return axis for system part if system axis already chosen
    ;; use-system-axes will return axes in this case.
-   (not (axis-for ?sys ?dontcare1 ?dontcare2)
+   (not (axis-for ?sys . ?dontcare2)
         (part-of-sys ?b ?sys))
 )
 :effects (
@@ -999,7 +999,7 @@
     (not (component-form))
     ;; don't draw axis for system part if system axis already chosen
     ;; use-system-axes will choose axes in this case.
-    (not (axis-for ?sys ?dontcare1 ?dontcare2)
+    (not (axis-for ?sys . ?dontcare)
          (part-of-sys ?b ?sys))
     )
   :effects (
@@ -1056,7 +1056,7 @@
     (not (projection-axes ?junk))
     ;; don't draw axis for system part if system axis already chosen
     ;; use-system-axes will choose axes in this case.
-    (not (axis-for ?sys ?dontcare1 ?dontcare2)
+    (not (axis-for ?sys . ?dontcare)
 	 (part-of-sys ?b ?sys))
     ;; (test (atom ?b))	; only for atomic bodies
     (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
@@ -1869,7 +1869,7 @@
    ;; do we draw a body for this? What body do we call this
    (vector ?p2 (relative-position ?p2 ?p1 :time ?t) ?dir1)
    ;; have to make sure we have an axis for this vector
-   (axis-for ?p2 ?xyz ?rot))
+   (axis-for ?p2 x ?rot))
   :effects 
   ((vector-diagram (rdiff ?p1 ?p2 ?t))))
 
@@ -5558,7 +5558,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
    (vector ?b (net-force ?b :time ?t) ?net-force-dir)
-   (axis-for ?b ?xyz ?rot)
+   (axis-for ?b x ?rot)
    (debug "Finish draw-net-force-diagram for ?b=~A ?t=~A forces=~A" 
 	  ?b ?t ?forces))
   :effects
@@ -5949,7 +5949,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (forces ?b ?t ?forces)
    (test ?forces)	;fail if no forces could be found
    (vector ?b (accel ?b :time ?t) ?accel-dir)
-   (axis-for ?b ?xyz ?rot))
+   (axis-for ?b x ?rot))
   :effects
    ((vector-diagram (NL ?b ?t)))
   :hint
@@ -6304,8 +6304,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ;; draw axes only apply once, so there is no danger of drawing two
     ;; axes. In order to reuse the axes drawn for body1 as axes used
     ;; for vectors on body2, we added reuse-other-body-axis in axes section.
-    (axis-for ?b1 ?xyz ?x-rot1)
-    (axis-for ?b2 ?xyz ?x-rot2)
+    (axis-for ?b1 x ?x-rot1)
+    (axis-for ?b2 x ?x-rot2)
   )
   :effects (
     (vector-diagram (NTL-vector (?b1 ?b2) ?type ?t))
@@ -8046,7 +8046,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; ?dirv = ?dirm is set in drawing rules
     (vector ?b (velocity ?b :time ?t) ?dirv)
     (vector ?b (momentum ?b :time ?t) ?dirm)
-    (axis-for ?b ?xyz ?rot) ;maybe a problem for compounds?
+    (axis-for ?b x ?rot) ;maybe a problem for compounds?
   )
   :effects (
    (vector-diagram (linear-momentum ?b ?t))
@@ -8187,12 +8187,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (any-member ?sought (
 			(mag (momentum ?b :time ?t)) 
 			(dir (momentum ?b :time ?t))
-			;; in case bodies split from or join into compound:
-			(mag (momentum (compound orderless . ?bodies) :time ?t))
 			))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))
-   (test (or (contains-sym ?sought 'compound) 
-	     (member ?b ?bodies :test #'equal)))
+   (test (subsetp (simple-parts ?b) ?bodies))
    )
   :effects (
   (eqn-family-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
@@ -8221,7 +8218,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; draw axis to use for many-body system. 
    ;; ! Because no vectors have been drawn on the system object, will always 
    ;; get standard horizontal-vertical axes since nothing to align with
-   (axis-for (system . ?bodies) ?xyz ?rot)
+   (axis-for (system . ?bodies) x ?rot)
    ;; must also record axes to use for vectors on system's constituent bodies 
    ;; so they can be picked up from working wm by compo-eqn choosing operators.
    ;; Use-system-axis should apply to inherit from the main system axis. 
@@ -8230,7 +8227,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; an axis for compound bodies that are constituents of the system in case 
    ;; of split/join.
    (foreach ?b ?bodies
-      (axis-for ?b ?xyz ?rot))
+      (axis-for ?b x ?rot))
   )
   :effects (
    (vector-diagram (cons-linmom ?bodies (during ?t1 ?t2)))
@@ -8259,7 +8256,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
      (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
      (body ?c)
-     (axis-for ?c ?xyz ?rot)
+     (axis-for ?c x ?rot)
      (vector ?c (momentum ?c :time ?tt) ?dirc)
   )
   :effects ( (collision-momenta-drawn ?bodies ?tt) ))
@@ -9527,9 +9524,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (not (vector-diagram (cons-angmom ?bodies (during ?t1 ?t2))))
    (rotation-collision-momenta-drawn ?bodies ?t1)
    (rotation-collision-momenta-drawn ?bodies ?t2)
-   (axis-for (system . ?bodies) ?xyz ?rot)
+   (axis-for (system . ?bodies) x ?rot)
    (foreach ?b ?bodies
-	    (axis-for ?b ?xyz ?rot))
+	    (axis-for ?b x ?rot))
   )
   :effects (
    (vector-diagram (cons-angmom ?bodies (during ?t1 ?t2)))
@@ -9557,7 +9554,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
      (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
      (body ?c)
-     (axis-for ?c ?xyz ?rot)
+     (axis-for ?c x ?rot)
      (vector ?c (ang-momentum ?c :time ?tt) ?dir1)
   )
   :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))

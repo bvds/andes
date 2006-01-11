@@ -109,7 +109,7 @@
    (vector ?b (impulse ?b ?agent :time ?t) ?dir1)
    ;; assuming (without checking) only one force between the two bodies.
    (vector ?b (force ?b ?agent ?type :time ?t) ?dir2)
-   (axis-for ?b ?xy ?b-rot)
+   (axis-for ?b x ?b-rot)
    )
   :effects (
 	    (vector-diagram (impulse-force-vector ?b ?agent ?t))
@@ -165,7 +165,7 @@
     (vector ?b (impulse ?b ?agent :time (during ?t1 ?t2)) ?dirj)
     (vector ?b (momentum ?b :time ?t1) ?dirm1)
     (vector ?b (momentum ?b :time ?t2) ?dirm2)
-    (axis-for ?b ?xyz ?rot) ;maybe a problem for compounds?
+    (axis-for ?b x ?rot) ;maybe a problem for compounds?
   )
   :effects (
    (vector-diagram (impulse ?b ?agent (during ?t1 ?t2)))
@@ -460,7 +460,7 @@ impulse ~A." (?b def-np) (?t pp)))
    (foreach ?b ?bodies			;make position vector
 	    (vector ?b (relative-position ?b ?origin :time ?t) ?dirb))
    (foreach ?b ?bodies 
-	    (axis-for ?b ?xyz ?rot))	;make axes
+	    (axis-for ?b x ?rot))	;make axes
    (vector ?com (relative-position ?com ?origin :time ?t) ?dircom)
    )
   :effects (

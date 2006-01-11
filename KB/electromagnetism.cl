@@ -114,7 +114,7 @@
    (vector ?b (relative-position ?b ?agent :time ?t) ?dir1)
    ;; assuming (without checking) only one force between the two bodies.
    (vector ?b (force ?b ?agent electric :time ?t) ?dir2)
-   (axis-for ?b ?xy ?b-rot)
+   (axis-for ?b x ?b-rot)
    )
   :effects (
 	    (vector-diagram (coulomb-vec ?b ?agent ?t ?form))
@@ -696,8 +696,8 @@
    (at-place ?b ?loc ?t)
    ;; must draw body in diagram for this psm
    (body ?b)
-   ;; even though this is scalar equation, want axes to be allowed
-   (axis-for ?b ?xyz ?rot)
+   ;; even though this is scalar equation, want axes to be drawn
+   (axis-for ?b x ?rot)
    (variable ?magE (mag (field ?loc electric ?source :time ?t)))
    (variable ?magF (mag (force ?b ?source electric :time ?t)))
    (variable ?q (charge-on ?b :time ?t ?t))
@@ -1091,7 +1091,7 @@
     (foreach ?source ?sources
        (vector ?b (field ?loc electric ?source :time ?t) ?dir)) 
     ; which body should own the axis to use for these vectors
-    (axis-for ?loc ?xy ?rot)
+    (axis-for ?loc x ?rot)
  )
  :effects (
     (vector-diagram (net-Efield ?loc ?t))
@@ -1423,7 +1423,7 @@
    (vector ?positive-charge (relative-position 
 			     ?positive-charge 
 			     ?negative-charge :time ?t) ?dir1) 
-   (axis-for ?dipole ?xyz ?rot)
+   (axis-for ?dipole x ?rot)
    (rdebug "Fired draw-electric-dipole-moment-diagram ~%")
    )
   :effects (
@@ -1504,7 +1504,7 @@
    (body ?positive-charge)
    (body ?negative-charge)
    ;; even though this is scalar equation, want axes to be allowed
-   (axis-for ?dipole ?xyz ?rot)
+   (axis-for ?dipole x ?rot)
    (variable ?magP (mag (dipole-moment ?dipole electric :time ?t)))
    (variable ?magd (mag (relative-position ?positive-charge 
 					   ?negative-charge :time ?t)))
