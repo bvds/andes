@@ -275,7 +275,11 @@
 	     ;; keep count)
 	     (format t "WARNING: two ways of generating ~s:~%" 
 		     (qsolres-id P))
-	   
+	     ;(format t "new path:~%")
+	     ;(pprint (qsolres-path P))
+	     ;(format t "~% existing [merged] path~%")
+             ;(pprint (qsolres-path P2))
+
 	     (when (setq diff (set-difference (qsolres-subeqns P) 
 					      (qsolres-subeqns P2)
 					      :test #'unify))
@@ -368,8 +372,7 @@
     R))
 	      
       
-		      
-			      
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The root of all the merge-duplicates functions is merge-paths.
 ;; this function locates the point at which the pair of paths diverge
@@ -379,28 +382,36 @@
   "merge P2 path into P1."
   ;; must match without any bindings needed.
   (let ((Loc (mismatch P1 P2 :test #'exactly-equal))) 
-    
+
+   (when *watch-merge*
+    (if (= Loc 0) ; no common prefix: shouldn't normally occur
+       (format t "warning: merging non-matching paths~% (~A ...)~% (~A ...)~%" 
+               (first P1) (first P2))
+    ; else note point of divergence, plus preceding line for context:
+    (format t "merge-paths: choice after~% ~A:~%either~%  ~A~%or~%  ~A~%" 
+                  (nth (1- Loc) P1) 
+		  (if (choose-p (nth Loc P1)) "(CHOOSE ...)" (nth Loc P1))
+		  (nth Loc P2))))
+
     (append (subseq P1 0 Loc)
 	    
-	    (if (or (not (listp (nth Loc P1)))
-		    (not (eql (car (nth Loc P1)) 'CHOOSE)))
-		
-		(list (list 'CHOOSE
+	    (if (not (choose-p (nth Loc P1))) ; not already a choose at Loc
+		(list (list 'CHOOSE	     ; so make one
 			    (subseq P1 Loc)
 			    (subseq P2 Loc)))
-	      
+	      ; else add or merge new choice into existing choose 
 	      (list (insert-choose (nth Loc P1) (subseq P2 Loc)))))))
 	      
 (defun insert-choose (C S)
   "Insert subsequence S into choose C."
   (let ((R)) 
-    (loop for I below (length (cdr C))
-	when (unify (car S) (car (nth I (cdr C))))
-	do (setq R C)
+    (loop for I below (length (cdr C)) ; for each existing choice i
+	when (unify (car S) (car (nth I (cdr C)))) ; if matches new one at first element
+	do (setq R C)	; modify choice i to be merge of old choice i and s, returning C
 	   (setf (nth I (cdr R)) (merge-paths (nth I (cdr C)) S))
 	and return t)
     
-    (if (not R)
+    (if (not R)   ; no match in existing choices: append whole new choice
 	(setq R (append C (list S))))
     
     R))
@@ -461,6 +472,9 @@
 (defparameter *actions* nil 
   "Controls whether note-action will trace.")
 
+(defvar *watch-merge* nil
+  "enable trace message on merging paths")
+
 ;;; action types used as part of actions that appear in action lists
 ;;; and solution graphs
 
@@ -482,6 +496,10 @@
 (defconstant *join* 'join
   "Marks the end of a set of parallel branches")
 
+(defun choose-p (exp)
+  "true if expression is a choose list"
+  (and (listp exp) (eq (first exp) 'CHOOSE))) 
+			      
 
 ;;; ======================= st ====================================
 ;;; The st (short for state) struct represents a problem solver's
