@@ -9501,13 +9501,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (any-member ?sought (
 			(mag (ang-momentum ?b :time ?t)) 
 			(dir (ang-momentum ?b :time ?t))
-			;; in case of split or join
-			(mag (ang-momentum (compound orderless . ?bodies) 
-					   :time ?t))
 	       ))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))   
-   (test (or (contains-sym ?sought 'compound)
-	     (member ?b ?bodies :test #'equal)))
+   (test (subsetp (simple-parts ?b) ?bodies))
    )
   :effects (
     (angular-eqn-contains (cons-angmom ?bodies (during ?t1 ?t2)) ?sought)
