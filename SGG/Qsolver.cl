@@ -383,33 +383,34 @@
   ;; must match without any bindings needed.
   (let ((Loc (mismatch P1 P2 :test #'unify-check-for-variables))) 
 
-   (when *watch-merge*
-    (if (= Loc 0) ; no common prefix: shouldn't normally occur
-       (format t "warning: merging non-matching paths~% (~A ...)~% (~A ...)~%" 
-               (first P1) (first P2))
-    ; else note point of divergence, plus preceding line for context:
-    (format t "merge-paths: choice after~% ~A:~%either~%  ~A~%or~%  ~A~%" 
-                  (nth (1- Loc) P1) 
-		  (if (choose-p (nth Loc P1)) "(CHOOSE ...)" (nth Loc P1))
-		  (nth Loc P2))))
+    (when *watch-merge*
+      (if (= Loc 0) ; no common prefix: shouldn't normally occur
+	  (format t "WARNING:  merging non-matching paths~%  (~A ...)~%  (~A ...)~%" 
+		  (first P1) (first P2))
+	;; else note point of divergence, plus preceding line for context:
+	(format t "merge-paths: choice after~%  ~S:~%either~%  ~S~%or~%  ~S~%" 
+		(nth (1- Loc) P1) 
+		(if (choose-p (nth Loc P1)) "(CHOOSE ...)" (nth Loc P1))
+		(nth Loc P2))))
 
     (append (subseq P1 0 Loc)
-	    
 	    (if (not (choose-p (nth Loc P1))) ; not already a choose at Loc
 		(list (list 'CHOOSE	     ; so make one
 			    (subseq P1 Loc)
 			    (subseq P2 Loc)))
-	      ; else add or merge new choice into existing choose 
+	      ;; else add or merge new choice into existing choose 
 	      (list (insert-choose (nth Loc P1) (subseq P2 Loc)))))))
-      
+
 (defun insert-choose (C S)
   "Insert subsequence S into choose C."
   (let ((R)) 
     (loop for I below (length (cdr C)) ; for each existing choice i
-	when (unify-check-for-variables (car S) (car (nth I (cdr C)))) ; if matches new one at first element
-	do (setq R C)	; modify choice i to be merge of old choice i and s, returning C
-	   (setf (nth I (cdr R)) (merge-paths (nth I (cdr C)) S))
-	and return t)
+	  ;; if matches new one at first element
+	  when (unify-check-for-variables (car S) (car (nth I (cdr C)))) 
+	  ;; modify choice i to be merge of old choice i and s, returning C
+	  do (setq R C)	
+	  (setf (nth I (cdr R)) (merge-paths (nth I (cdr C)) S))
+	  and return t)
     
     (if (not R)   ; no match in existing choices: append whole new choice
 	(setq R (append C (list S))))
@@ -417,10 +418,11 @@
     R))
 
 (defun unify-check-for-variables (x y)
-  (when (and (unify x y) (not (exactly-equal x y)))
-    (format t "WARNING:  head two paths differ only by unbound variables~%   ~S~%"
-	    x))
-	    (exactly-equal x y))
+  (let ((bindings (unify x y)))
+    (when (and bindings (not (equal bindings no-bindings)))
+      (format t "WARNING:  two paths differ only by unbound variables:~%    ~A~%  Path:  ~S~%"
+	      bindings x))
+    (equal bindings no-bindings)))
 
 (defun solver-trace ()
   (trace solve-for)
