@@ -427,7 +427,7 @@
   (
    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (mag ?vector))
    (vector ?b ?vector ?dir)
-   (axis-for ?b ?xyz ?rot) ;iterate over ?xyz and ?rot
+   (wm-or-derive (axis-for ?b ?xyz ?rot)) ;iterate over ?xyz and ?rot
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
    ;;(debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
@@ -448,7 +448,7 @@
   :preconditions
     ((vector ?b ?vector ?dir)
      (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (dir ?vector))
-     (axis-for ?b ?xyz ?rot) ;iterate over ?xyz and ?rot
+     (wm-or-derive (axis-for ?b ?xyz ?rot)) ;iterate over ?xyz and ?rot
      (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
      (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
      ;;(debug "Selecting ~a rot ~a for direction ~a time ~a~%."  ?xyz ?rot ?vector ?t)
@@ -486,10 +486,12 @@
     ;; NB: this requires that main vector eqn ids contain just these args!!
     (compo-eqn-contains (?PSM-id ?b ?t) ?compo-eqn-name ?quantity)
     (debug "choosing compo to apply ~A to find scalar ~A~%"   ?compo-eqn-name ?quantity) 
+    (wm-or-derive (axis-for ?b ?xyz ?rot)) ;iterate over ?xyz and ?rot
+    ;; make sure some drawn vector not known to have zero projection along ?rot
     ;; this is weak, since we don't check if ?vector is relevant
-    (in-wm (vector ?b ?vector ?dir)) 
-    (axis-for ?b ?xyz ?rot) ;iterate over ?xyz and ?rot
-    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
+    (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
+    (test (some #'(lambda (dirarg) (non-zero-projectionp dirarg ?xyz ?rot)) 
+                 ?dirs))
     (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot (?PSM-id ?b ?t))))
     ;;(debug "Selecting ~a rot ~a via scalar ~a~%" ?xyz ?rot ?quantity)
     )
