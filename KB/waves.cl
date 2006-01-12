@@ -1157,7 +1157,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
     (variable  ?r (mag (relative-position ?b1 ?b2 :time ?t)))
     (optional (body ?source)) ;allow draw bodies
     (optional (body ?wave))
-    (optional (axes-for ?source x 0)) ;allow draw axes
+    (optional (axis-for ?source x 0)) ;allow draw axes
     )
   :effects 
   ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))

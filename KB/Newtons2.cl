@@ -899,8 +899,7 @@
    (draw-axes ?b 0) ; action proposition for help system gives x dir
    (axis-for ?b x 0)
    (axis-for ?b y 0)
-   (assume axis-for ?b x 0)
-   (assume axis-for ?b y 0)
+   (assume axes-for ?b 0)
   )
   :hint
   (;;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
@@ -935,7 +934,7 @@
   :effects (
    (draw-axes ?b 0) ; action proposition for help system gives x dir
    (axis-for ?b x 0) (axis-for ?b y 0) 
-   (assume axis-for ?b x 0) (assume axis-for ?b y 0)
+   (assume axes-for ?b 0)
    ;; added March 2004: also register z axis. 
    ;; Consequences of this for other problems
    ;; unclear, may apply in same case as draw-unrotated-axes-for-zcomps
@@ -1075,8 +1074,7 @@
     (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
     (axis-for ?b x ?rot)
     (axis-for ?b y ?rot)
-    (assume axis-for ?b x ?rot)
-    (assume axis-for ?b y ?rot)
+    (assume axes-for ?b ?rot)
     )
   :hint
   ((point (string "Think about what would be a useful direction to set the coordinate axes when using energy principles."))
@@ -1105,11 +1103,9 @@
   )
   :effects (
     (axis-for ?b x ?rot)
-    (assume axis-for ?b x ?rot)
     (axis-for ?b y ?rot)
-    (assume axis-for ?b y ?rot)
     (axis-for ?b z ?rot)       
-    (assume axis-for ?b z ?rot)
+    (assume axes-for ?b ?rot)
   ))
 
 (defoperator use-body-axes-for-point (?point ?rot)
@@ -1122,11 +1118,9 @@
 		  )
   :effects (
     (axis-for ?point x ?rot)
-    (assume axis-for ?point x ?rot)
     (axis-for ?point y ?rot)
-    (assume axis-for ?point y ?rot)
     (axis-for ?point z ?rot) 
-    (assume axis-for ?point z ?rot)
+    (assume axes-for ?point ?rot)
   ))
 
 ; this draws the axes requested by the projection psm.
@@ -1137,8 +1131,7 @@
     (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
     (axis-for ?b x ?rot)
     (axis-for ?b y ?rot)
-    (assume axis-for ?b x ?rot)
-    (assume axis-for ?b y ?rot)
+    (assume axes-for ?b ?rot)
    )
    :hint (
        ; !!! TODO
@@ -7104,8 +7097,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    (draw-axes ?b 0)  ;action proposition for help system gives x dir
 	    (axis-for ?b x 0)
 	    (axis-for ?b y 0)
-	    (assume axis-for ?b x 0)
-	    (assume axis-for ?b y 0)
+	    (assume axes-for ?b 0)
 	    (energy-axes ?b)
 	    )
   :hint (
@@ -7200,13 +7192,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
-   (axis-for ?b ?xyz ?rot) 
+   (axis-for ?b x ?rot) 
    (test (time-intervalp ?t))
    ;; will require that ?agent exerts force on ?body when writing equation
    )
   :effects (
 	    (eqn-contains (work ?b ?agent ?t ?rot) ?sought)
-	    (assume axis-for ?b ?xyz ?rot)
+	    (assume axes-for ?b ?rot)
  ))
 
 ;; This can write either the component or the angle form of the work equation,
@@ -7963,7 +7955,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
     ;; etc. will choose the angle.  If it is bound from the ?sought,
     ;; operator will also succeed.
-    (axis-for ?b ?xyz ?rot) 
+    (axis-for ?b x ?rot) 
     ;; can be timeless
     (test (or (null ?t) (time-pointp ?t)))
     ;; will require that ?agent exerts force on ?body when writing equation
@@ -7975,7 +7967,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 )
  :effects (
 	   (eqn-contains (inst-power ?b ?agent ?t ?rot) ?sought)
-           (assume axis-for ?b ?xyz ?rot)
+           (assume axes-for ?b ?rot)
  ))
 
 	  

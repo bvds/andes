@@ -32,16 +32,16 @@
 ;; the axis tool to allow setting one axis direction only.
 
 (defnogood multiple-coords-for-body
-    ((axis-for ?b ?xyx1 ?rot1)
-     (axis-for ?b ?xyz2 ?rot2)
+    ((axes-for ?b ?rot1)
+     (axes-for ?b ?rot2)
      (test (not (equal ?rot1 ?rot2))))
   :specs ("prevent use of multiple coordinate systems for same body")
   :message (Multiple inequivalent coordinate systems for ?b with x at ?rot1 and ?rot2))
 
 (defnogood multiple-coords-for-move-together
     ((move-together orderless . ?bodies)
-     (axis-for ?b1 ?xyx1 ?rot1)
-     (axis-for ?b2 ?xyz2 ?rot2)
+     (axes-for ?b1 ?rot1)
+     (axes-for ?b2 ?rot2)
      (test (not (equal ?b1 ?b2)))
      (test (not (equal ?rot1 ?rot2)))
      (test (member ?b1 ?bodies :test #'equal))
@@ -65,8 +65,8 @@
 ;; individual bodies can be used: must use same axes on all of them.  It 
 ;; represents the simple rule of picking the same axes for the whole solution.
 (defnogood diff-axes-compound-part
-    ((axis-for (compound orderless . ?bodies) ?xyz1 ?rot1)
-     (axis-for ?b ?xyz2 ?rot2)
+    ((axes-for (compound orderless . ?bodies) ?rot1)
+     (axes-for ?b ?rot2)
      (test (member ?b ?bodies :test #'equal))
      (test (not (equal ?rot1 ?rot2))))
    :Specs ("Prevent use of different axes for compound and for part in same solution")

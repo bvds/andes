@@ -1850,13 +1850,13 @@
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
-   (axis-for ?dipole ?xyz ?rot) 
+   (axis-for ?dipole x ?rot) 
    )
   :effects 
   ((eqn-contains (electric-dipole-energy ?dipole 
 					 (field ?region electric ?source) 
 					 ?t ?rot) ?sought)
-   (assume axis-for ?dipole ?xyz ?rot)
+   (assume axes-for ?dipole ?rot)
  ))
 
 ;; This can write either the component or the angle form of the 
