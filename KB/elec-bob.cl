@@ -64,7 +64,7 @@
   )
 )
 
-(defproblem elec1c
+(defproblem for4c  ;this is a variant of for4
   :statement ("A charged particle is in a region where there is an"
     "electric field E of magnitude 24.4 V/m at an angle of"
     "17 degrees above the positive x-axis. If the charge"
