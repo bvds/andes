@@ -64,6 +64,34 @@
   )
 )
 
+(defproblem elec1c
+  :statement ("A charged particle is in a region where there is an"
+    "electric field E of magnitude 24.4 V/m at an angle of"
+    "17 degrees above the positive x-axis. If the charge"
+    "on the particle is 8.4 C, find the magnitude of the"
+    "force on the particle P due to the electric field E."
+    "    Answer:  [XXXXXXXXXXXXXXX]"
+  )
+  :features (E&M E-field andes2 working)
+  :choices (
+    (bodies (particle))
+    (positions (region))
+  )
+  :givens(
+    (time 1)
+    (object particle)
+    (at-place particle region 1)
+    (given (charge-on particle) (dnum 8.4 |C|))
+    (given (mag (field region electric unspecified :time 1)) (dnum 24.4 |V/m|))
+    (given (dir (field region electric unspecified :time 1)) (dnum 17 |deg|)) 
+  )
+  :soughts (
+    (mag (force particle unspecified electric :time 1))
+    ; Problem with seeking directions of drawn vectors:
+    ;(dir (force particle field electric :time 1))
+  )
+)
+
 (defproblem elec2
   :statement (
     "A charged particle (q = 52.0e-6 C) is in a region where there is a"
