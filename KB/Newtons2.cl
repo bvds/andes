@@ -8235,8 +8235,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; !!! code assumes there's only one collision in problem
      (in-wm (collision (orderless . ?bodies) ?times :type ?type))
      ;; make sure this is a time without a compound body
-     (test (or (and (not (equal ?type 'split)) (equal ?tt (second ?times)))
-	       (and (not (equal ?type 'join)) (equal ?tt (third ?times)))))
+     (test (or (and (not (eq ?type 'split)) (equal ?tt (second ?times)))
+	       (and (not (eq ?type 'join)) (equal ?tt (third ?times)))))
      (foreach ?b ?bodies (body ?b))
      (foreach ?b ?bodies
    	(vector ?b (momentum ?b :time ?tt) ?dirb))

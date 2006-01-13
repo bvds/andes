@@ -866,22 +866,20 @@
   :eqnFormat ("Iin = Iout"))
 
 (defoperator junction-rule-contains (?sought)
-  :preconditions (
-		  (in-branches ?dontcare ?br-list1)
-		  (out-branches ?dontcare ?br-list2)
-		  (time ?t)
-		  )
+  :preconditions 
+  (
+   (in-branches ?jun ?br-list1)
+   (out-branches ?jun ?br-list2)
+   (any-member ?sought ((current-in ?branch :time ?t)))
+   (time ?t)
+   (test (or (member ?branch ?br-list1) (member ?branch ?br-list2)))
+   )
   :effects (
 	    (eqn-contains (junction-rule ?br-list1 ?br-list2 ?t) ?sought)
 	    ))
 
-
 (defoperator junction-rule (?br-list1 ?br-list2 ?t )
   :preconditions (
-		  (any-member ?sought ((current-in ?branch :time ?t)
-				       (current-thru ?res :time ?t)
-				       (voltage-across ?res :time ?t)))
-		  (time ?t)
 		  ;;find the in branches current variables
 		  (map ?br ?br-list1
 		       (variable ?v-var (current-in ?br :time ?t))
@@ -1194,43 +1192,43 @@
 
 
 (defoperator junction-rule-cap-contains (?sought)
-  :preconditions (
-		  (in-paths ?dontcare ?path-list1)
-		  (out-paths ?dontcare ?path-list2)
-		  ;;get the set of capacitors
-		  (setof (circuit-component ?comp1 capacitor)
-			 ?comp1 ?all-cap)
-		  (test (intersection (first ?path-list1) ?all-cap :test #'equal))
-		  ;;Stop a=b+c and b+c=a from both coming out
-		  (bind ?p1 (if (expr< ?path-list1 ?path-list2) ?path-list1 ?path-list2))
-		  (bind ?p2 (if (expr< ?path-list1 ?path-list2) ?path-list2 ?path-list1))
-		  (time ?t)
-		  )
-  :effects (
-	    (eqn-contains (junction-rule-cap ?p2 ?p1 ?t) ?sought)
-	    ))
+  :preconditions 
+  (
+   (in-paths ?dontcare ?path-list1)
+   (out-paths ?dontcare ?path-list2)
+   (branch ?branch-dontcare ?dontcare1 ?dontcare2 ?path)
+   (test (or (member ?path ?path-list1) (member ?path ?path-list2)))
+   (any-member ?sought ((charge-on ?cap :time ?t ?t)))
+   (circuit-component ?cap capacitor)
+   (test (member ?cap ?path))
+   (time ?t)
+   ;;Stop a=b+c and b+c=a from both coming out
+   (test (expr< ?path-list1 ?path-list2))
+   )		  
+  :effects 
+  (
+   (eqn-contains (junction-rule-cap ?path-list1 ?path-list2 ?t) ?sought)
+   ))
 
 (defoperator junction-rule-cap (?path-list1 ?path-list2 ?t )
-  :preconditions (
-		  (any-member ?sought ((charge-on ?cap :time ?t ?t)
-				       (voltage-across ?cap :time ?t)))
-		  (time ?t)
-		  ;;find the charge variables for capacitor going into the branch                            
-		  (setof (in-wm (circuit-component ?cap capacitor))
-			 ?cap ?all-caps)
-                             
-		  (bind ?p-list1 (modify ?path-list1 ?all-caps))
-                             
-		  (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
-		  (test (not (equal nil ?in-caps)))
-		  (map ?x ?in-caps  
-		       (variable ?q-var (charge-on ?x :time ?t ?t))
-		       ?q-var ?q-in-path-vars)
-                             
-		  ;;find the charge variables for capacitor going into the branch  
-		  (bind ?p-list2 (modify ?path-list2 ?all-caps))
-                             
-		  (bind ?out-caps (intersection ?all-caps (flatten ?p-list2)))
+  :preconditions 
+  (
+   ;;find the charge variables for capacitor going into the branch                            
+   (setof (in-wm (circuit-component ?cap capacitor))
+	  ?cap ?all-caps)
+   
+   (bind ?p-list1 (modify ?path-list1 ?all-caps))
+   
+   (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
+   (test (not (equal nil ?in-caps)))
+   (map ?x ?in-caps  
+	(variable ?q-var (charge-on ?x :time ?t ?t))
+	?q-var ?q-in-path-vars)
+   
+   ;;find the charge variables for capacitor going into the branch  
+   (bind ?p-list2 (modify ?path-list2 ?all-caps))
+   
+   (bind ?out-caps (intersection ?all-caps (flatten ?p-list2)))
 		  (test (not (equal nil ?out-caps)))
 
 		  (map ?x ?out-caps
