@@ -762,13 +762,8 @@
 ;;; the necessary body(ies) for the principle.  This takes the individual
 ;;; bodies and locates the corresponding entries. 
 ;;;
-;;; NOTE::  This function is called by the code in Tests.cl so it is 
-;;;   Exposed and needs to be considered as such for now.  When time 
-;;;   permits this code will be duplicated or moved elsewhere but 
-;;;   not at present.  
-
 (defun nsh-collect-principle-bodyents (principle)
-  (let ((Bodies (nsh-collect-principle-bodies principle)))
+  (let ((Bodies (nsh-collect-principle-body-args principle)))
     (when Bodies
       (mapcar #'(lambda (B) 
 		  (nsh-lookup-body-entry 
@@ -784,7 +779,7 @@
 ;;; how to locate these as necessary.  Once this is done the system will
 ;;; lookup their bindings and return a list of the results (accounting for
 ;;; multiple bodies listed in ?bodies.
-(defun nsh-collect-principle-bodies (principle)
+(defun nsh-collect-principle-body-args (principle)
   (let* (class Bindings)
     (setq Class (nsh-lookup-principle-class principle))
     (when Class
