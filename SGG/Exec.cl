@@ -303,14 +303,11 @@
     (push (list 'setof-result Result) (st-actions State))
     (list State)))
 
-;;; The action list for the resulting state starts SPLIT, then NEXT
-;;; <subacts> for each substate, then JOIN.  Here <subacts> is a list
+;;; The action list for the resulting state consists of <subacts> 
+;;; for each substate.  Here <subacts> is a list
 ;;; of all the actions taken to achive the substate, with the oldest
 ;;; action first.  However, if none of the substates have any actions,
-;;; then the action list is empty.  This is detected by comparing the
-;;; number of actions with the number of states.  If there are N+1
-;;; actions for N states, then N of the "actions" are *next*
-;;; and the last one is *join*, so there were no real actions.
+;;; then the action list is empty.
 
 ;; version without split and join and all that
 (defun setof-actions (state initial-state)
@@ -318,8 +315,8 @@
   (setf (st-predecessor initial-state) NIL) ;halts actions-along-path
   (dolist (SubState (solution-sts initial-state))
     (setf (st-actions state)
-      (append (actions-along-path SubState)
-		    (st-actions state)))))
+	  (append (actions-along-path SubState)
+		  (st-actions state)))))
 
 ;;; The action list for the resulting state starts SPLIT, then NEXT
 ;;; <subacts> for each substate, then JOIN.  Here <subacts> is a list
