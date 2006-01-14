@@ -865,7 +865,7 @@
   :english ("Kirchoff's junction rule")
   :eqnFormat ("Iin = Iout"))
 
-(defoperator junction-rule-contains (?sought)
+(defoperator junction-rule-contains (?Sought)
   :preconditions 
   (
    (in-branches ?jun ?br-list1)
@@ -1191,7 +1191,7 @@
 
 
 
-(defoperator junction-rule-cap-contains (?sought)
+(defoperator junction-rule-cap-contains (?Sought)
   :preconditions 
   (
    (in-paths ?dontcare ?path-list1)

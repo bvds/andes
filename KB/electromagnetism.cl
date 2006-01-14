@@ -2443,3 +2443,46 @@
          (bottom-out (string "Use the right hand rule using the velocity vector and the magnetic field vector."))
          ))
 |#
+
+;;;              Magnetic field of a straight wire
+
+(def-psmclass straight-wire-Bfield (straight-wire-Bfield ?point ?wire ?t)
+  :complexity major
+  :english ("the magnetic field from current flowing through a straight wire")
+  :ExpFormat ("finding the magnetic field due to a current flowing through ~A" (nlg ?wire))
+  :EqnFormat ("B = $m0*I/(2*$p*r)" ))
+
+(defoperator straight-wire-bfield-contains (?sought)
+  :preconditions 
+  (
+   ;; relative-position must be perpendicular to the wire
+   (given (dir (current-length ?wire :time ?t)) ?dir-i)
+   (given (dir (relative-position ?point ?wire :time ?t)) ?dir-r)
+   (test (perpendicularp ?dir-i ?dir-r))
+
+   (any-member ?sought (
+			(current-in ?wire :time ?t)
+			(mag (relative-position ?point ?wire :time ?t))
+			(mag (field ?point magnetic ?wire :time ?t))
+			))
+   (time ?t) ;sanity test
+   )
+  :effects ((eqn-contains (straight-wire-Bfield ?point ?wire ?t) ?sought)))
+
+(defoperator write-straight-wire-Bfield (?b ?t)
+  :preconditions 
+  ( 
+   (variable ?I	(current-in ?wire :time ?t))
+   (variable ?r	(mag (relative-position ?point ?wire :time ?t)))
+   (variable ?B	(mag (field ?point magnetic ?wire :time ?t)))
+   )
+  :effects ( 
+	    (eqn (= (* 2 $p ?r ?B) (* |mu0| ?I))
+		 (straight-wire-Bfield ?point ?wire ?t))
+	    )
+  :hint (
+	 (point (string "What is the magnetic at ~A due to the current flowing in ~A?" ?point ?wire))
+	 (teach (string "Find the formula for the magnetic field due to the current flowing through a straight wire."))
+	 (bottom-out (string "Write the equation ~A"  
+			     ((= ?B (/ (* |mu0| ?I) (* 2 $p ?r))) algebra) ))
+	 ))
