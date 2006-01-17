@@ -44,7 +44,7 @@ LEAF	$t_z = r*F*sin($qF-$qr)  torque defined (z component)	torque-zc	Individual 
 LEAF	$tnet_z = $S $ti_z       Net torque defined	net-torque-zc	Net torque
 END_GROUP			
 END_GROUP			
-GROUP	Work and Energy		
+GROUP	"Work, Energy and Power"		
 LEAF	W = F.d  [W = F*d*cos($q) or W = F_x*d_x + F_y*d_y]   work defined	work	Work done by a force
 LEAF	Wnet = $S Wi            Net work defined	net-work	Net work
 LEAF	Wnet = Kf - Ki         work-energy theorem	work-energy	Work-Energy
