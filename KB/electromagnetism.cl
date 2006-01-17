@@ -1040,31 +1040,32 @@
        (bottom-out (string "Define a variable for the net potential at ~A from all sources by using the Add Variable command on the Variable menu and selecting Potential."  ?loc))
        ))
 
-;;--------------------------------------------------
-;; Superposition principle for electric fields:
+;;-----------------------------------------------------------
+;; Superposition principle for electric or magnetic fields:
 ;;   Enet_x = E1_x + E2_x + ...
-;;--------------------------------------------------
+;;-----------------------------------------------------------
 
-; We might try writing a generic version that will work for both electric and 
-; magnetic fields.  However, we might need a different way of enumerating all 
-; sources of fields to consider for each. So for now, restrict to electric.
 
+;; This is the old version, left in for backwards compatability
+;; Remove after Spring, 2006 semester.
 (def-psmclass net-Efield (?eq-type Enet ?axis ?rot (net-Efield ?loc ?time))
   :complexity major
   :english ("the definition of net electric field")
   :ExpFormat ("calculating the net electric field at ~a ~a" (nlg ?loc) (nlg ?time 'pp))
   :EqnFormat ("Enet_~a = E1_~a + E2_~a + E3_~a + ..." (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
 
+;; This is the old version, left in for backwards compatability
+;; Remove after Spring, 2006 semester.
 (defoperator net-Efield-contains (?sought)
  :preconditions (
   (any-member ?sought (
-		 (mag (net-field ?loc electric :time ?t))
-		 (dir (net-field ?loc electric :time ?t))
+                 (mag (net-field ?loc electric :time ?t))
+                 (dir (net-field ?loc electric :time ?t))
                  ; need to choose ?loc to apply at when sought is field due 
-		 ; to some source.  Ignore this case for now.
-		 ;(mag (field ?loc electric ?source :time ?t))
-		 ;(dir (field ?loc electric ?source :time ?t))
-		 ))
+                 ; to some source.  Ignore this case for now.
+                 ;(mag (field ?loc electric ?source :time ?t))
+                 ;(dir (field ?loc electric ?source :time ?t))
+                 ))
   ; Must make sure don't include source at loc. We will filter for this
   ; when we write the equation.
   )
@@ -1075,15 +1076,8 @@
    (compo-eqn-contains (net-Efield ?loc ?t) Enet ?sought)
   ))
 
-#|
-(defoperator get-Efield-sources (?loc ?t)
-  :preconditions (
-  )
-  :effects (
-  )
-)
-|#
-
+;; This is the old version, left in for backwards compatability
+;; Remove after Spring, 2006 semester.
 (defoperator draw-net-Efield-diagram (?loc ?t)
  :preconditions (
     ; draw body? which? use the point?
@@ -1097,13 +1091,15 @@
     (vector-diagram (net-Efield ?loc ?t))
  ))
 
+;; This is the old version, left in for backwards compatability
+;; Remove after Spring, 2006 semester.
 (defoperator write-net-Efield-compo (?loc ?t ?xy ?rot)
  :preconditions (
    (variable ?Enet_x (compo ?xy ?rot (net-field ?loc electric :time ?t)))
    (in-wm (Efield-sources ?loc ?t ?sources))
    (map ?source ?sources 
-   	(variable ?compo-var (compo ?xy ?rot (field ?loc electric ?source :time ?t)))
-	?compo-var ?Ei_x)
+        (variable ?compo-var (compo ?xy ?rot (field ?loc electric ?source :time ?t)))
+        ?compo-var ?Ei_x)
   )
   :effects (
     (eqn (= ?Enet_x (+ . ?Ei_x))
@@ -1115,10 +1111,11 @@
     (point (string "The net electric field at a point can be computed from the fields set up at that point by each of the field sources."))
     (teach (string "The principle of superposition states that the net electric field at a point is the vector sum of the electric fields due to each of the individual sources. This relation can be applied component-wise to calculate the components of the net electric field due to all sources."))
     (bottom-out (string "Write the equation ~A" 
-			((= ?Enet_x (+ . ?Ei_x)) algebra) ))
+                        ((= ?Enet_x (+ . ?Ei_x)) algebra) ))
   ))
 
-; drawing net fields
+;; This is the old version, left in for backwards compatability
+;; Remove after Spring, 2006 semester.
 (defoperator draw-net-Efield-unknown (?loc ?t)
  :preconditions (
   ; make sure field exists -- for now, test Efield-sources
@@ -1139,6 +1136,104 @@
          (point (string "You know there is a net electric field at ~A." ?loc))
          (teach (string "In this problem the exact direction of the net electric field vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
          (bottom-out (string "Draw the net electric field at ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc))
+  ))
+
+
+(def-psmclass net-field-electric 
+  (?eq-type definition ?axis ?rot (net-field ?loc electric ?time))
+  :complexity major
+  :english ("the definition of net electric field")
+  :ExpFormat ("calculating the net electric field at ~a ~a" (nlg ?loc) (nlg ?time 'pp))
+  :EqnFormat ("Enet_~a = E1_~a + E2_~a + E3_~a + ..." (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+(def-psmclass net-field-magnetic 
+  (?eq-type definition ?axis ?rot (net-field ?loc magnetic ?time))
+  :complexity major
+  :english ("the definition of net electric field")
+  :ExpFormat ("calculating the net electric field at ~a ~a" (nlg ?loc) (nlg ?time 'pp))
+  :EqnFormat ("Bnet_~a = B1_~a + B2_~a + B3_~a + ..." (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
+(defoperator net-field-contains (?sought)
+ :preconditions (
+  (any-member ?sought (
+		 (mag (net-field ?loc ?type :time ?t))
+		 (dir (net-field ?loc ?type :time ?t))
+                 ;; need to choose ?loc to apply at when sought is field due 
+		 ;; to some source.  Ignore this case for now.
+		 (mag (field ?loc ?type ?source :time ?t))
+		 (dir (field ?loc ?type ?source :time ?t))
+		 ))
+  ;; Must make sure don't include source at loc. We will filter for this
+  ;; when we write the equation.
+  )
+  :effects (
+   (eqn-family-contains (net-field ?loc ?type ?t) ?sought)
+  ; since only one compo-eqn under this vector psm, we can just
+  ; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (net-field ?loc ?type ?t) definition ?sought)
+  ))
+
+(defoperator draw-net-field-diagram (?loc ?type ?t)
+ :preconditions (
+    ; draw body? which? use the point?
+    (field-sources ?loc ?type ?t ?sources)
+    (foreach ?source ?sources
+       (vector ?b (field ?loc ?type ?source :time ?t) ?dir)) 
+    ; which body should own the axis to use for these vectors
+    (axis-for ?loc x ?rot)
+ )
+ :effects (
+    (vector-diagram (net-field ?loc ?type ?t))
+ ))
+
+(defoperator write-net-field-compo (?loc ?type ?t ?xy ?rot)
+ :preconditions (
+   (variable ?Fnet_x (compo ?xy ?rot (net-field ?loc ?type :time ?t)))
+   (in-wm (field-sources ?loc ?type ?t ?sources))
+   (map ?source ?sources 
+   	(variable ?compo-var (compo ?xy ?rot (field ?loc ?type ?source :time ?t)))
+	?compo-var ?Fi_x)
+  )
+  :effects (
+    (eqn (= ?Fnet_x (+ . ?Fi_x))
+                 (compo-eqn definition ?xy ?rot (net-field ?loc ?type ?t)))
+     (eqn-compos (compo-eqn definition ?xy ?rot (net-field ?loc ?type ?t))
+                        (?Fnet_x . ?Fi_x))
+  )
+  :hint (
+    (point (string "The net ~A field at a point can be computed from the fields set up at that point by each of the field sources." 
+		   (?type adj)))
+    (teach (string "The principle of superposition states that the net ~A field at a point is the vector sum of the ~A fields due to each of the individual sources. This relation can be applied component-wise to calculate the components of the net ~A field due to all sources."
+		   (?type adj) (?type adj) (?type adj)))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?Fnet_x (+ . ?Fi_x)) algebra) ))
+  ))
+
+; drawing net fields
+(defoperator draw-net-field-unknown (?loc ?type ?t)
+ :preconditions (
+  ; make sure field exists -- for now, test Efield-sources
+  ; presume the direction is unknown -- not given.
+  (not (given (dir (net-field ?loc ?type :time ?t)) ?val))
+  ; could make sure there is more than one source of an Efield.
+   (in-wm (field-sources ?loc ?type ?t ?sources))
+   (test (cdr ?sources)) ; more than one in list
+   (bind ?mag-var (format-sym "~Anet_~A~@[_~A~]" 
+			      (subseq (string ?type) 0 1)
+			      (body-name ?loc) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+  )
+  :effects (
+            (vector ?loc (net-field ?loc ?type :time ?t) unknown)
+            (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
+	    (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
+            )
+  :hint (
+         (point (string "You know there is a net ~A field at ~A." 
+			(?type adj) ?loc))
+         (teach (string "In this problem the exact direction of the net ~A field vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."
+			(?type adj)))
+         (bottom-out (string "Draw the net ~A field at ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." (?type adj) ?loc))
   ))
 
 ;;--------------------------------------------------------------------------
