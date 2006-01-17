@@ -763,7 +763,8 @@
 
 ; display followup dialog in browser on done for certain problems in 
 ; Skatz experiment
-(defvar *followup-problems* '(e1b e2a e2c e4a e5a e7a e8b e9b e10a))
+;(defvar *followup-problems* '(e1b e2a e2c e4a e5a e7a e8b e9b e10a))
+(defvar *followup-problems* NIL) ; now disable followups
 
 (defun add-followup-if-needed (result-turn)
   (when (and (member (problem-name *cp*) *followup-problems*)
