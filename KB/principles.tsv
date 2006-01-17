@@ -103,8 +103,8 @@ LEAF	F_y = q*E_y                   Electric field	(charge-force-Efield ((?axis .
 LEAF	E = kelec*abs(q)/r^2          point charge field (magnitude)	point-charge-Efield-mag	Point Charge Field
 LEAF	E_x = (kelec*q/r^2) * r_x/r   point charge field (x component)	(point-charge-Efield ((?axis . x)))	Point Charge Field
 LEAF	E_y = (kelec*q/r^2) * r_y/r   point charge field (y component)	(point-charge-Efield ((?axis . y)))	Point Charge Field
-LEAF	Enet_x = E1_x + E2_x + ...    Net Electric Field	(net-Efield ((?axis . x)))	Electric Field
-LEAF	Enet_y = E1_y + E2_y + ...    Net Electric Field	(net-Efield ((?axis . y)))	Electric Field
+LEAF	Enet_x = E1_x + E2_x + ...    Net Electric Field (x component)	(net-Efield ((?axis . x)))	Electric Field
+LEAF	Enet_y = E1_y + E2_y + ...    Net Electric Field (y component)	(net-Efield ((?axis . y)))	Electric Field
 LEAF	V = kelec*q/r                 point charge potential	point-charge-potential	Electric Potential
 LEAF	Vnet = V1 + V2 + V3...        Net potential	net-potential	Electric Potential
 LEAF	Ue = q*Vnet                   electric potential energy	electric-energy	Electric Potential
@@ -120,6 +120,8 @@ LEAF	F_x = q*(v_y*B_z - v_z*B_y)   Magnetic force (x component)	charge-force-Bfi
 LEAF	F_y = q*(v_z*B_x - v_x*B_z)   Magnetic force (y component)	charge-force-Bfield-y	Magnetic Field
 LEAF	F_z = q*(v_x*B_y - v_y*B_x)   Magnetic force (z component)	charge-force-Bfield-z	Magnetic Field
 LEAF	B = $m0*I/(2*$p*r)            Magnetic field of a straight wire	straight-wire-Bfield	Magnetic Field
+LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	Magnetic Field
+LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	Magnetic Field
 END_GROUP			
 GROUP	DC Circuits		
 LEAF	+/-V1 +/-V2 +/-V3...=0     Kirchoff's Loop rule	loop-rule	Loop Rule
