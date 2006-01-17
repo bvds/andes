@@ -1209,7 +1209,39 @@
 			((= ?Fnet_x (+ . ?Fi_x)) algebra) ))
   ))
 
-; drawing net fields
+;;; drawing net fields
+
+; draw net field in given direction:
+(defoperator draw-net-field-given-dir (?b ?type ?t)
+  :preconditions 
+  ((time ?t)
+   ;; following requires ?loc to be occupied by body
+   (at-place ?b ?loc ?t)
+   (given (dir (net-field ?loc ?type :time ?t)) ?dir-B)  
+   (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
+   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ;; if dir is z-axis, implicit eqn should give phi angle value
+   (bind ?angle-value (if (z-dir-spec ?dir-B) (zdir-phi ?dir-B) 
+			?dir-B)))
+  :effects 
+  (
+   (vector ?b (net-field ?loc ?type :time ?t) ?dir-B)
+   (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
+   (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
+   ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
+   ;; gets written.  Given value may not be used elsewhere so ensure it here.
+   (implicit-eqn (= ?dir-var ?angle-value) 
+		 (dir (net-field ?loc ?type :time ?t)))
+   )
+  :hint (
+	 (point (string "You can determine the direction of the net ~A field at ~a from the problem statement."
+	                (?type adj) ?loc)) 
+	 (bottom-out (string "Use the ~A field drawing tool to draw the net ~A field at ~a in the given direction of ~A." 
+			     (?type adj) (?type adj) ?loc (?dir-B adj)))
+	 )) 
+
 (defoperator draw-net-field-unknown (?loc ?type ?t)
  :preconditions (
   ; make sure field exists -- for now, test Efield-sources
