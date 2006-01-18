@@ -17,7 +17,7 @@ using namespace std;
  *  returns a stack of string tokens, each of which is one of		*
  *		( = + - * / ^ )					  	*
  *	or	a string starting with [A-Z] | [a-z] and continuing	*
- *		  with [A-Z] | [a-z] | [0-9] | _ | $			*
+ *		  with [A-Z] | [a-z] | [0-9] | _ | $ | :		*
  *	or	a number						*
  *      or      string "U)", which is used for ending units		*
  *  if top element returned is not ), something is wrong		*
@@ -54,25 +54,25 @@ stack<string> *parseEqWUnits(const string & lispeq)
 	if (thiscar==')') {
 	  tokstack->push("U)");
 	  DBG(cout << "parseEqWUnits just pushed " << tokstack->top() 
-	      << endl;);
+	      << endl);
 	  unitparse = false; 
 	  index++; continue;
 	}
 	if (thiscar=='*') {
 	  tokstack->push(".");
 	  DBG(cout << "parseEqWUnits just pushed " << tokstack->top() 
-	      << endl;); 
+	      << endl); 
 	  index++; continue;
 	}
 	if (thiscar=='/') {
 	  if (indenom) {
 	    tokstack->push(".");
 	    DBG(cout << "parseEqWUnits just pushed " << tokstack->top() 
-		<< endl;); }
+		<< endl); }
 	  else { 
 	    tokstack->push("/"); 
 	    DBG(cout << "parseEqWUnits just pushed " << tokstack->top() 
-		<< endl;);
+		<< endl);
 	    indenom = true; }
 	  index++; continue;
 	} // end of if /
@@ -84,14 +84,14 @@ stack<string> *parseEqWUnits(const string & lispeq)
 	    {
 	      tokstack->push(lispeq.substr(index,j-index));
 	      DBG(cout << "parseEqWUnits just pushed " << tokstack->top() 
-		  << endl;);
+		  << endl);
 	      index = j;
 	    }
 	  else
 	    {
 	      tokstack->push(thiscarstr);
 	      DBG(cout << "parseEqWUnits just pushed " << tokstack->top() 
-		  << endl;);
+		  << endl);
 	      index++;
 	    }
 	  continue;
@@ -105,7 +105,7 @@ stack<string> *parseEqWUnits(const string & lispeq)
 	  index = j;
 	  continue;
 	}
-      if (isalpha(thiscar) || (thiscar == '$'))
+      if (isalpha(thiscar) || (thiscar == '$') || (thiscar == ':'))
 	{
 	  j = getclipsvar(lispeq,index);
 	  string *p = new string(lispeq.substr(index,j-index));
@@ -117,13 +117,15 @@ stack<string> *parseEqWUnits(const string & lispeq)
 	    indenom = false;
 	  }
 	  if (p->compare("DNUM")==0) p->assign("dnum");
+	  if (p->compare(":ERROR")==0) p->assign(":error");
 	  tokstack->push(*p);
 	  DBG(cout << "parseEqWUnits just pushed " << tokstack->top() 
-	      << endl;);
+	      << endl);
 	  delete p;
 	  continue;
 	}
-      if ((thiscar==' ') || (thiscar=='\r') || (thiscar=='\n')) index++;
+      if ((thiscar=='|') || (thiscar==' ') || (thiscar=='\r') 
+	  || (thiscar=='\n')) index++;
       else
 	{
 	  cerr << "ParseEqWUnits: string contained uninterpretable character "

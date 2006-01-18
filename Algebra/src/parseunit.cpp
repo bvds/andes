@@ -28,7 +28,7 @@ double geterr(const string value); // below
  *        A:  expecting a unit. on alpha -> B, on num -> C else error   *
  *        B:  expecting . or / or value                                 *
  *	  B1:  got value from B, need to see if was exponent or value	*
- *        C:  expecting ^, -> D, else error                             *
+ *        C:  expecting ^, -> D, on ":error" -> A, else error           *
  *        D:  expecting unit to be raised to power                      *
  *        E:  cleanup, got value, expecting dnum                        *
  *      Transitions are by tokens recieved:   .  /  ^  num  alpha       *
@@ -42,7 +42,7 @@ numvalexp * parseunit(stack<string> *toklist)
   enum states { A, B, B1, C, D, E };
   string statestring[6]={"A","B","B1","C","D","E"}; // for DBG(...)
   states state = A;
-  double expval, abserr;
+  double expval, abserr = 0.0;
   numvalexp * curnv = new numvalexp(1.);
   curnv->abserr = 0.;
   curnv->MKS.put(0,0,0,0,0);
@@ -58,12 +58,12 @@ numvalexp * parseunit(stack<string> *toklist)
         {
         case A:
           expval = atof(token.c_str()); // got a number when expecting a unit
-          state = C;                    // must be the exponent, search for ^
+          state = C;                    // may be :error keyword or exponent 
           break;
         case B:
 	  {
 	    expval = atof(token.c_str()); // could be value or exponent
-	    abserr = curnv->value * geterr(token);
+	    abserr += curnv->value * geterr(token);
 	    DBG(cout << "getaneqwu on numval " << token << " assigning error "
 		     << abserr << endl; );
 	    state = B1;
@@ -73,6 +73,14 @@ numvalexp * parseunit(stack<string> *toklist)
           throw(string("parseunit got number when not expecting one"));
         }
       continue;
+    }
+    if(token.compare(":error")==0) {
+      if(state == C) {
+	abserr += expval;
+        state = A;
+        continue;
+      }
+      else throw(string("parseunit got :error when not expecting one"));
     }
     if (token.compare(".")==0) {
       if (state == B) {
@@ -117,7 +125,7 @@ numvalexp * parseunit(stack<string> *toklist)
       }
     }
     DBG(cout << "only possibilities for " << token << " are const or unit"
-        << endl; );
+        << endl);
     for (k = 0; k < constnames->size(); k++)
         if ((*constnames)[k]==token) break;
     if (k < constnames->size())

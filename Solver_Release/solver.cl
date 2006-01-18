@@ -259,7 +259,7 @@
 	 (uffi:with-cstring (arg-native arg)
   (uffi:convert-from-cstring (c-solve-add arg-native))))
 (defun solver-send-problem-statement (x)
-  (my-read-answer (solve-add (format nil "~A" x))))
+  (my-read-answer (solve-add (format nil "~S" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #-uffi (ff:def-foreign-call (c-solve-clear "solveClear")
