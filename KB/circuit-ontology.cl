@@ -16,12 +16,8 @@
 
 (def-qexp current-thru (current-thru ?component :time ?time)
 	:units |A|
-        ;; !!! HACK until sgg provides a correct way to do this  
-	;; uncomment the following and reload kb just before problems 
-	;; LR1b,1c,2b that require
-	;; that solver know current is positive. comment out agin then 
-	;; reload before others.
-	;:restrictions positive 
+	; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
+	; currents to be positive on a per-problem basis with :VariableMarks
 	:english ("the current through ~A~@[ ~A~]" ?component (nlg ?time 'pp)))
 
 (def-qexp current-in (current-in ?branch :time ?time)
