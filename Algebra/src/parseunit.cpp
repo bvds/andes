@@ -63,7 +63,7 @@ numvalexp * parseunit(stack<string> *toklist)
         case B:
 	  {
 	    expval = atof(token.c_str()); // could be value or exponent
-	    abserr += curnv->value * geterr(token);
+	    abserr += fabs(curnv->value) * geterr(token);
 	    DBG(cout << "getaneqwu on numval " << token << " assigning error "
 		     << abserr << endl; );
 	    state = B1;
