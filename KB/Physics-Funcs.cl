@@ -444,12 +444,24 @@
     '(= + - * / ^ sin cos tan abs ln log10 sqrt exp))
 
 (defun dimensioned-numberp (x)
-  "Non-null if the argument has the form (dnum <number> <symbol>)"
-      (and (consp x)
-	   (equal (first x) 'dnum)
-           (numberp (second x))
-           (symbolp (third x))
-           (null (cdddr x))))
+  "Non-null if the argument has the form (dnum value ...)"
+  (and (unify x '(dnum ?val ?units :error ?err))
+       (or (numberp (second x))
+	   (error "invalid dnum: ~A" x))))
+
+;; should test arguements using dimensioned-numberp
+;; before calling this routine.
+(defun compare-dnums (x y &optional (bindings no-bindings))
+  "Compare two dnums, properly handling :error keyword."
+  (let* ((dnum-expr '(dnum ?val ?units :error ?err))
+	 (x-err (or (cdr (get-binding '?err (unify x dnum-expr))) 0))
+	 (y-err (or (cdr (get-binding '?err (unify y dnum-expr))) 0))
+	 (x-val (second x))
+	 (y-val (second y)))
+    (if (and (>= (+ x-val x-err) (- y-val y-err))
+	     (<= (- x-val x-err) (+ y-val y-err)))
+	(unify (third x) (third y) bindings)
+      fail)))
 
 ;;; This is used in Newton's laws to convert a component equation 
 ;;; into an equation with the component variables replaced by expressions.
