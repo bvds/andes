@@ -810,8 +810,9 @@
 ;;--------------------------------------------------------------
 ;; Match a proposition to the SystemEntry that enters it.
 ;;
-;; NB: must now use #'unify rather than #'equal to correctly match lists 
+;; Uses unify-with-dnum rather than equal to correctly match lists 
 ;; tagged 'orderless. Could also be required for multiple keyword lists.
+;; Also handles error flag in dnum match.
 (defun sg-EntryProp->SystemEntry (Prop)
   "Match a proposition to the SystemEntry that enters it."
   (find Prop *SG-Entries*
