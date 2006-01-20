@@ -132,6 +132,6 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
     varindx = canonvars->size();
     canonvars->push_back(newpv);
   }
-  DBG( cout << "About to return true from getavarwu" << endl;);
+  DBG( cout << "About to return true from getavarwu" << endl);
   return(varindx);
 }
