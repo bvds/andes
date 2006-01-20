@@ -251,7 +251,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
       continue;
     }
     // if we got here, must be a new token
-    for (k = 0;k < constnames->size();k++)
+    for (k = 0; k<constnames->size(); k++)
       if ((*constnames)[k]==token)
         break;
     if (k < constnames->size()) {
@@ -259,11 +259,16 @@ binopexp* getAnEqn(const string bufst, bool tight) {
       continue;
     }
 
-    for (k=0;k< canonvars->size();k++)
+    for (k=0; k<canonvars->size();k++)
       if ((*canonvars)[k]->clipsname==token)
         break;
-    if (k==canonvars->size())
+    if (k==canonvars->size()){
+      DBG(cout << "Can't find " << token << " in list" << endl << "     ";
+	  for (k=0; k<canonvars->size();k++)
+	  cout << (*canonvars)[k]->clipsname << " ";
+	  cout << endl);
       throw(string("variable ")+token+" not declared");
+    }
     (*canonvars)[k]->isused = true;
     exprstack.push(new physvarptr(k));
   }

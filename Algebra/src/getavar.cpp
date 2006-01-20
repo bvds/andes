@@ -53,7 +53,7 @@ numvalexp * getfromunits(const string & unitstr);	// in unitabr.cpp
 int getavarwu(const string bufst, const bool varNew, const bool valToo,
 	       double & SIvalue)
 {
-  int k, kstrt;
+  int k, kstrt, kend;
   int varindx;
   double value;
   physvar * newpv;
@@ -61,20 +61,19 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
 
   DBG (
     cout << "bufst is " << bufst.size() << " chars, "
-	 << "text |" << bufst << "|" << endl; );
+	 << "text |" << bufst << "|" << endl);
   bool started = false;
-  kstrt = 6;
-  for (k = kstrt; k < bufst.size(); k++) if (bufst[k] != ' ') break;
-  if (k == bufst.size()) throw(string("nothing after (SVAR "));
-  kstrt = k;
-  for (k = kstrt; k < bufst.size(); k++) if (bufst[k] == ' ') break;
-  if ((k == kstrt) || k >= bufst.size()) throw(string("svar in bad format ")
-					   + bufst);
-  string newvar = bufst.substr(kstrt,k - kstrt);
-  DBG ( cout << "variable |" << newvar <<"|" << endl; );
-  kstrt = k+1;
-  for (k = kstrt; k < bufst.size(); k++) if (bufst[k] != ' ') break;
-  kstrt = k;
+  // find beginning of symbol, stripping any '|'
+  for(kstrt = 6; kstrt < bufst.size() && 
+	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
+  if (kstrt == bufst.size()) throw(string("nothing after (SVAR "));
+  for(kend = kstrt; kend < bufst.size() 
+	&& bufst[kend] != ' ' && bufst[kend] != '|'; kend++);
+  if ((kend == kstrt) || kend == bufst.size()) 
+    throw(string("svar in bad format ") + bufst);
+  string newvar = bufst.substr(kstrt,kend - kstrt);
+  DBG ( cout << "variable |" << newvar <<"|" << endl );
+  kstrt = kend+1;
   if (valToo) {
     int j = parseanum(bufst,k);
     if (j == k)
@@ -83,14 +82,16 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
     value = atof(bufst.substr(k,j-k).c_str());
     DBG ( cout << "value = " << value << endl; );
     kstrt=j+1;
-    for (k = kstrt; k < bufst.size(); k++) if (bufst[k] != ' ') break;
-    kstrt = k;
   }
   else value = 1.;
-  k = bufst.size() - 2;		// want it to be last nonblank, ignoring ")"
-  for (;k >= kstrt;k--) if (bufst[k] != ' ') break;
-  if (k < kstrt) throw(string("getavarwu found no unit string"));
-  string unitstr = bufst.substr(kstrt,k-kstrt+1);
+  // find beginning of unit string, stripping any "|"
+  for(;kstrt < bufst.size() && 
+	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
+  // want it to be last nonblank, ignoring ")" and stripping "|"
+  for (kend = bufst.size() - 2; kend >= kstrt 
+	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
+  if (kend < kstrt) throw(string("getavarwu found no unit string"));
+  string unitstr = bufst.substr(kstrt,kend-kstrt+1);
   DBG ( cout << "units |" << unitstr << "|" << endl; );
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname) {

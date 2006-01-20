@@ -96,11 +96,16 @@ bool getall(const string bufst)
  ************************************************************************/
 bool getavar(const string bufst)
 {
-  int k;
   DBG (
     cout << "bufst is " << bufst.size() << " chars, "
 	 << "text |" << bufst << "|" << endl; );
-  string newvar = bufst.substr(10,bufst.size() - 11);
+  int k, kstrt, kend;
+  for(kstrt = 10; kstrt < bufst.size() && 
+	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
+  // drop trailing ")", strip any "|"
+  for (kend = bufst.size() - 2; kend >= kstrt 
+	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
+  string newvar = bufst.substr(kstrt, kend-kstrt+1);
   DBG (
     cout << "variable |" << newvar << "|" << endl; );
   for (k = 0; k < canonvars->size(); k++)
@@ -119,8 +124,13 @@ bool getavar(const string bufst)
  ************************************************************************/
 bool makenn(const string bufst)
 {
-  int k;
-  string newvar = bufst.substr(13,bufst.size() - 14);
+  int k, kstrt, kend;
+  for(kstrt = 13; kstrt < bufst.size() && 
+	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
+  // drop trailing ")", strip any "|"
+  for (kend = bufst.size() - 2; kend >= kstrt 
+	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
+  string newvar = bufst.substr(kstrt, kend-kstrt+1);
   DBG ( cout << "variable |" << newvar << "| set nn" << endl; );
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
@@ -139,9 +149,14 @@ bool makenn(const string bufst)
  ************************************************************************/
 bool makepos(const string bufst)
 {
-  int k;
-  string newvar = bufst.substr(10,bufst.size() - 11);
-  DBG (    cout << "variable |" << newvar << "| set pos?" << endl; );
+  int k, kstrt, kend;
+  for(kstrt = 10; kstrt < bufst.size() && 
+	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
+  // drop trailing ")", strip any "|"
+  for (kend = bufst.size() - 2; kend >= kstrt 
+	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
+  string newvar = bufst.substr(kstrt,kend-kstrt+1);
+  DBG (cout << "variable |" << newvar << "| set pos?" << endl);
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
       {
@@ -163,8 +178,13 @@ bool makepos(const string bufst)
  ************************************************************************/
 bool makenz(const string bufst)
 {
-  int k;
-  string newvar = bufst.substr(9,bufst.size() - 10);
+  int k, kstrt, kend;
+  for(kstrt = 9; kstrt < bufst.size() && 
+	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
+  // drop trailing ")", strip any "|"
+  for (kend = bufst.size() - 2; kend >= kstrt 
+	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
+  string newvar = bufst.substr(kstrt,kend-kstrt+1);
   DBG ( cout << "variable |" << newvar << "| set nonzero?" << endl; );
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
@@ -178,6 +198,7 @@ bool makenz(const string bufst)
   return(false);
 }
 
+#if 0
 //    setacc below is commented out, waiting for decent treatment of
 //      error bars.
 /************************************************************************
@@ -188,7 +209,7 @@ bool makenz(const string bufst)
  *	If not found, returns false.					*
  * Note: value is temporary and misleading, as it is a RELATIVE error   *
  *      It gets converted after value is known to ABSOLUTE error	*
- ************************************************************************ /
+ ************************************************************************/
 bool setacc(const string bufst)
 {
   int k;
@@ -210,7 +231,7 @@ bool setacc(const string bufst)
        << endl; // diag
   return(false);
 }
-*/
+#endif
 
 /************************************************************************
  * bool makepar(const string varname) 					*
@@ -224,13 +245,19 @@ bool setacc(const string bufst)
 bool makepar(const string bufst, bool keep_algebraic)
 {
   int k,taglength;
+  int kstrt, kend;
   extern int numparams;
   if(keep_algebraic)
     taglength=13;
   else
     taglength=12;
-  string newvar = bufst.substr(taglength-1,bufst.size() - taglength);
-  DBG ( cout << "variable |" << newvar << "| set param?" << endl; );
+  for(kstrt = taglength-1; kstrt < bufst.size() && 
+	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
+  // drop trailing ")", strip any "|"
+  for (kend = bufst.size() - 2; kend >= kstrt 
+	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
+  string newvar = bufst.substr(kstrt,kend-kstrt+1);
+  DBG ( cout << "variable |" << newvar << "| set param?" << endl);
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname)
       {
