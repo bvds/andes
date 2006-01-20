@@ -91,8 +91,9 @@
     ;; leave untranslated if no name in table:
     (if result (cdr result) (format NIL "~A" x))))
 
-(def-qexp dnum (dnum ?value ?unit)
-  :english ("~A ~A" (identity ?value) (translate-units ?unit)))
+(def-qexp dnum (dnum ?value ?unit :error ?err)
+  :english ("~A~:[~2*~;~A~A~] ~A" (identity ?value) ?err (code-char 177) 
+	    ?err (translate-units ?unit)))
 
 ;;;; vector quantities:
 
