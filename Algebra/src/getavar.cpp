@@ -59,8 +59,7 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
   physvar * newpv;
   numvalexp * temp;
 
-  DBG (
-    cout << "bufst is " << bufst.size() << " chars, "
+  DBG(cout << "bufst is " << bufst.size() << " chars, "
 	 << "text |" << bufst << "|" << endl);
   bool started = false;
   // find beginning of symbol, stripping any '|'
@@ -71,28 +70,26 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
 	&& bufst[kend] != ' ' && bufst[kend] != '|'; kend++);
   if ((kend == kstrt) || kend == bufst.size()) 
     throw(string("svar in bad format ") + bufst);
-  string newvar = bufst.substr(kstrt,kend - kstrt);
-  DBG ( cout << "variable |" << newvar <<"|" << endl );
-  kstrt = kend+1;
+  string newvar = bufst.substr(kstrt,kend-kstrt);
+  DBG(cout << "variable |" << newvar <<"|" << endl);
   if (valToo) {
-    int j = parseanum(bufst,k);
-    if (j == k)
+    kend = parseanum(bufst,kstrt);
+    if (kend == kstrt)
       throw(string(
 	   "getavarwu(.,.,true,.) requires numerical value before units"));
-    value = atof(bufst.substr(k,j-k).c_str());
-    DBG ( cout << "value = " << value << endl; );
-    kstrt=j+1;
+    value = atof(bufst.substr(kstrt,kend-kstrt).c_str());
+    DBG(cout << "value = " << value << endl);
   }
   else value = 1.;
   // find beginning of unit string, stripping any "|"
-  for(;kstrt < bufst.size() && 
+  for(kstrt=kend+1; kstrt < bufst.size() && 
 	(bufst[kstrt] == ' ' || bufst[kstrt] == '|'); kstrt++);
   // want it to be last nonblank, ignoring ")" and stripping "|"
   for (kend = bufst.size() - 2; kend >= kstrt 
 	 && (bufst[kend] == ' ' || bufst[kend] == '|'); kend--);
   if (kend < kstrt) throw(string("getavarwu found no unit string"));
   string unitstr = bufst.substr(kstrt,kend-kstrt+1);
-  DBG ( cout << "units |" << unitstr << "|" << endl; );
+  DBG(cout << "units |" << unitstr << "|" << endl);
   for (k = 0; k < canonvars->size(); k++)
     if (newvar == (*canonvars)[k]->clipsname) {
       if (varNew) return(-1);
@@ -109,10 +106,10 @@ int getavarwu(const string bufst, const bool varNew, const bool valToo,
 	    + newvar);
     else {
       newpv = (*canonvars)[varindx];
-      DBG( cout << "Setting value on established physvar " << varindx 
-	   << " whose name is " << newpv->clipsname << endl;);
+      DBG(cout << "Setting value on established physvar " << varindx 
+	   << " whose name is " << newpv->clipsname << endl);
       temp = getfromunits(unitstr);
-      DBG( cout << "Unitstr equiv to " << temp->getInfix() << endl;);
+      DBG(cout << "Unitstr equiv to " << temp->getInfix() << endl);
     }
   }
   else {
