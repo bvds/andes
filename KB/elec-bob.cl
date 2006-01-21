@@ -218,7 +218,7 @@
 
 (defproblem elec4a ;version for bob's experiment
   :statement (
-    "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where"
+    "A proton (qp = 1.60e-19 C; mp = 1.67e-27 kg) is in a region where"
     "there is a uniform electric field E of magnitude 320 N/C, directed" 
     "along the positive x-axis. The proton accelerates from rest and" 
     "reaches a speed of 1.20e+5 m/s. How long does it take the proton to"
@@ -262,7 +262,7 @@
 
 (defproblem elec4b ;version for general use, includes work solution
   :statement (
-    "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where"
+    "A proton (qp = 1.60e-19 C; mp = 1.67e-27 kg) is in a region where"
     "there is a uniform electric field E of magnitude 320 N/C, directed" 
     "along the positive x-axis. The proton accelerates from rest and" 
     "reaches a speed of 1.20e+5 m/s. How long does it take the proton to"
@@ -307,7 +307,7 @@
 
 (defproblem elec5a ;version for bob's experiment
   :statement (
-    "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where" 
+    "A proton (qp = 1.60e-19 C; mp = 1.67e-27 kg) is in a region where" 
     "there is a uniform electric field E of magnitude 920 N/C, directed" 
     "along the negative x-axis. The proton accelerates from rest and" 
     "reaches a speed of 7.2e+3 m/s. How far does the proton travel" 
@@ -352,7 +352,7 @@
 
 (defproblem elec5b ;version for general use, includes work solution
   :statement (
-    "A proton (qp = 1.60e-19 C; mp = 1.7e-27 kg) is in a region where" 
+    "A proton (qp = 1.60e-19 C; mp = 1.67e-27 kg) is in a region where" 
     "there is a uniform electric field E of magnitude 920 N/C, directed" 
     "along the negative x-axis. The proton accelerates from rest and" 
     "reaches a speed of 7.2e+3 m/s. How far does the proton travel" 
