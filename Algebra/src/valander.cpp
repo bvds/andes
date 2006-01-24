@@ -268,7 +268,8 @@ valander * getvnd(const expr * ex, const vector<physvar *> * vars,
 string valander::print() {  
   string ret = string("Value =") + dtostr(value) + ", gradient = ";
   for (int k=0; k<gradient.size(); k++) {
-    ret += dtostr(gradient[k]);
+    if(gradient[k]==0.) continue;
+    ret += "("+dtostr(k)+","+dtostr(gradient[k])+")";
     if ((gradient[k]==0) && hasvar[k]) {
       ret += "*";
     }

@@ -3,17 +3,27 @@
 //	string dtostr(double val);
 //	string itostr(int val);
 //  
+#include "decl.h"
 #include <string>
 #include <vector>
 #include <iostream>
 #include <stdio.h>
 using namespace std;
 
-string dtostr(double val)
+// This is a copy of multiple copies of code in exprp.cpp
+string dtostr(double value)
 {
-  char buf[14];
-  sprintf(buf,"%13lg",val);
-  return(string(buf));
+  int q;
+  char valuenum[30];
+  // The number of digits are supposed to match DBL_EPSILON
+  // don't truncate nonzero numbers near zero
+  if ((value==0. || fabs(value)>0.5) && lookslikeint(value,q))
+    sprintf(valuenum,"%d",q);
+  else if ((fabs(value) < 1.) && (fabs(value)> 0.001))
+    sprintf(valuenum,"%.17lf",value);
+  else
+    sprintf(valuenum,"%.17lG",value);
+  return(string(valuenum));
 }
 
 string itostr(int val)
@@ -27,8 +37,9 @@ void printdv(const vector<double> & vec)
 {
   for (int k=0; k < vec.size(); k++)
     {
-      cout << vec[k];
-      if (k+1 != vec.size()) cout << ", ";
-      else cout << endl;
+      if(vec[k]==0.) continue;
+      if (k>0) cout << ", ";
+      cout << "(" << k << "," << vec[k] << ")";
     }
+  cout << endl;
 }

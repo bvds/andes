@@ -81,7 +81,7 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
     delete mightdepend;
   // expcoefs is the set of coefs of the equation in linear approx in setID eqs
   vector<double> expcoefs((*listofsets)[setID].expandlast());
-  DBGM(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs););
+  DBGM(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs));
   linexpand = new vector<int>;
   // BvdS:  why do this????
   double scale = 1.0;  	       // set scale for errors = max(1,{|expcoefs[k]|})
@@ -134,7 +134,7 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
 	// valender has already rounded down to zero when appropriate
 	if (thisval->gradient[k] != 0.) { // provisional eq to return
 	  foundeq = (*listsetrefs)[setID][q];      // try to find one with only
-	  DBGM(cout << "foundeq provisionally set to " << foundeq << endl;);
+	  DBGM(cout << "foundeq provisionally set to " << foundeq << endl);
 	  for (r = 0; r < numvars; r++)		   // this one variable
 	    // valender has already rounded down to zero when appropriate
 	    if (r != k && thisval->gradient[r] !=0.) break;
@@ -142,7 +142,7 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
 	} // end of found one eq with this comp nonzero
       } // end of checking all eqs in set
       if (foundeq >= 0) {
-	DBGM( cout << "found eqn for this var, number " << foundeq << endl;);
+	DBGM( cout << "found eqn for this var, number " << foundeq << endl);
 /* AW: remove case that promoted into linexpand because it is unreliable: 
    stud eqn may contain var, but not depend on var, as F = m*a contains m
    but doesn't depend on m when a=0.
@@ -223,7 +223,7 @@ int indyStudHowIndy(int setID, int eqnID, vector<int> * & linexpand,
   if ((setID >= listofsets->size()) || (setID < 0)) 
     throw(string("in indyStudHowIndy called for undefined set"));
   (*lasttriedeq)[setID] = eqnID;
-  DBG(cout << "indyStudHowIndy. Determine " << studeqf[eqnID]->getInfix() 
+  DBG(cout << "indyStudHowIndy. Determine if " << studeqf[eqnID]->getInfix() 
       << " is independent of the " << (*listofsets)[setID].size()
       << " equations in set " << setID << endl;);
   if ((*listofsets)[setID].isindy(studgrads[eqnID])) {
