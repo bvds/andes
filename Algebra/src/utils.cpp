@@ -35,11 +35,13 @@ string itostr(int val)
 
 void printdv(const vector<double> & vec)
 {
+  bool flag=false;
   for (int k=0; k < vec.size(); k++)
     {
       if(vec[k]==0.) continue;
-      if (k>0) cout << ", ";
+      if (flag) cout << ", ";
       cout << "(" << k << "," << vec[k] << ")";
+      flag=true;
     }
-  cout << endl;
+  cout << " [" << vec.size() << "]";
 }

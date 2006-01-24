@@ -88,8 +88,14 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   for (k = 0; k < expcoefs.size(); k++) 
     if (fabs(expcoefs[k]) > scale) scale = fabs(expcoefs[k]);
   for (k = 0; k < expcoefs.size(); k++) 
-    if (fabs(expcoefs[k]) > RELERR * scale)
-      linexpand->push_back((*listsetrefs)[setID][k]);
+    if (fabs(expcoefs[k]) > RELERR * scale) // for debugging
+       linexpand->push_back((*listsetrefs)[setID][k]);
+    else if (fabs(expcoefs[k]) > 0.0)
+      {
+	DBG(cout << "rejecting equation " << k 
+	    << " because coefficient " << fabs(expcoefs[k]) << " < " 
+	    << RELERR * scale << endl);
+      }
   // linexpand now has canonical equation indices of equations on which 
   // there is a dependence in the linear approximation
   vector<int> wehavevar(numvars,0); // wehavevar[vk] will be the number of 
@@ -163,14 +169,18 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
     } // end of wehavevar[k]
 
   DBG(cout << "returning from indyHowIndy with linexpand = ";
-      for (int q=0; q < linexpand->size(); q++) 
-      cout << (*linexpand)[q] << ", ";
+      for (int q=0; q < linexpand->size(); q++){
+	if(q>0)cout << ", ";
+	cout << (*linexpand)[q];
+      }
     if (mightdepend != 0L) {
-      cout << "and mightdepend = ";
-      for (int q=0; q < mightdepend->size(); q++) 
-        cout << (*mightdepend)[q] << ", ";
+      cout << " and mightdepend = ";
+      for (int q=0; q < mightdepend->size(); q++){
+	if(q>0)cout << ", ";
+        cout << (*mightdepend)[q];
+      }
       cout << endl; }
-      else cout << "without a mightdepend" << endl);
+      else cout << " without a mightdepend" << endl);
 
   if (havebadvar) return(1);
   if (havemaybeeq) return(2);

@@ -55,6 +55,8 @@ bool indyset::isindy(const expr * const candex)
 
 bool indyset::isindy(const valander * const candval)
 {
+  DBG( cout << "Entering indyset::isindy with gradient "; 
+       printdv(candval->gradient); cout <<endl);
   candleft = candval->gradient;
   candleft_err=candleft; // just to set the size
   candexpand.assign(numinset,0);
@@ -76,8 +78,9 @@ bool indyset::isindy(const valander * const candval)
 	  if(candleft[q]==0. && candleft_err[q]==0.) continue; // nothing to do
 	  if (fabs(candleft[q]) < candleft_err[q])
 	    {
-	      DBG( cout << "setting candleft[" << q << "] = " << candleft[q] 
-		   << " < " << candleft_err[q] << " to zero" << endl);
+	      if(fabs(candleft[q]) > 0.0)
+		DBG( cout << "setting candleft[" << q << "] = " << candleft[q] 
+		     << " < " << candleft_err[q] << " to zero" << endl);
 	      candleft[q] = 0.0;
 	      candleft_err[q] = 0.0;
 	  } else if (fabs(candleft[q]) < 1000.0 * candleft_err[q])
@@ -87,8 +90,9 @@ bool indyset::isindy(const valander * const candval)
       candexpand[k] = coef;
     }
   lastisvalid = true;
-  DBG(cout << "Leaving isindy with coefs "; printdv(candexpand);
-      cout << "and with remaining gradient "; printdv(candleft);) ;
+  DBG(cout << "Leaving indyset::isindy with coefs "; printdv(candexpand);
+      cout << endl << "         and remaining gradient "; printdv(candleft);
+      cout << endl);
 
   for (int qq = 0; qq < numvars; qq++) if (candleft[qq] != 0) return(true);
   return(false);
@@ -102,7 +106,7 @@ bool indyset::isindy(const valander * const candval)
 bool indyset::placelast()
 {
   int k, q;
-  DBG(    cout << "Entering indyset::placelast" << endl; );
+  DBG(    cout << "Entering indyset::placelast" << endl);
   if (!lastisvalid) return(false);
   // insert candleft as new basis vector.
   // The basis vectors can be expanded in terms of the inserted independent
@@ -110,7 +114,7 @@ bool indyset::placelast()
   // and as (at the nth step) E_n = B_n + \sum_{r<n} C_r B_r,
   // B_n = E_n - \sum_{r<n} C_r \sum{q<=r} D_{rq}E_q, so
   // D_{nq} = \delta_{nq} - \sum_{r=q}{n-1} C_r D_{rq}. This is stored in
-  // temp[q] and then pushed as the nth element in baseexpand.
+  // temp[q] and then pushed as the nth element in basexpand.
   // 
   vector<double> *temp = new vector<double>(numinset+1);
   (*temp)[numinset] = 1.;
@@ -128,10 +132,10 @@ bool indyset::placelast()
   ordervar.push_back(q);
   lastisvalid = false;
   numinset++;
-  DBG( { cout << "Placelast: inserted new basis vector, now have " 
-	      << numinset << endl;
-	 cout << "Placelast: Its pivot is variable " 
-	      << ordervar[ordervar.size()-1] << endl; } ) ;
+  DBG(cout << "Leaving indyset::placelast, inserted basis vector ";
+      printdv(*temp); cout << endl;
+      cout << "           Its pivot is variable " 
+      << ordervar[ordervar.size()-1] << endl);
   return(true);
 }
 
@@ -143,7 +147,7 @@ bool indyset::placelast()
  ************************************************************************/
 vector<double> indyset::expandlast()
 {
-  DBG(    cout << "Entering indyset::expandlast" << endl; );
+  DBG(    cout << "Entering indyset::expandlast" << endl);
   vector<double> ret = *new vector<double>(numinset,0.0);
   for (int k = 0; k < numinset; k++) 
     {
@@ -161,9 +165,17 @@ vector<double> indyset::expandlast()
 	}
       if (fabs(ret[k]) < ret_err) {
 	ret[k] = 0;
-	DBG ( cout << "ret[k] set to 0" << endl);
+	if(fabs(ret[k]) > 0.){
+	  DBG ( cout << "|ret[" << k << "]| = " << fabs(ret[k]) << " < " 
+	      << ret_err << " set to 0" << endl);
+	}
+      } else if(fabs(ret[k]) > 0.) {
+	DBG ( cout << "|ret[" << k << "]| = " << fabs(ret[k]) << " > " 
+	      << ret_err << endl);
       }
     }
+  DBG(    cout << "Leaving indyset::expandlast with vector ";
+	  printdv(ret); cout << endl);
   lastisvalid = false;
   return(ret);
 }
