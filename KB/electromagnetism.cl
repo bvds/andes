@@ -1836,7 +1836,7 @@
  :hint 
  (
   (point (string "The torque on a dipole is the cross product of its ~A dipole moment and the ~A field vector at the same location." (?type adj) (?type adj))) 
-  (teach (string "The torque vector on a dipole points in a direction perpendicular to the plane formed by the dipole moment and ~A field vectors, in a direction determined by the right hand rule: curl the fingers of your right hand from the dipole moment vector to the ~A field vector, and your thumb will point in the direction of the torque." (?type adj) (?type adj)))
+  (teach (string "The torque vector on a dipole points in a direction perpendicular to the plane formed by the dipole moment and ~A field vectors, in a direction determined by the right hand rule:  curl the fingers of your right hand from the dipole moment vector to the ~A field vector, and your thumb will point in the direction of the torque." (?type adj) (?type adj)))
   (bottom-out (string "Because the ~A moment has direction ~a and the ~A field direction is ~a, the right-hand rule determines the direction of torque to be ~a. Use the torque drawing tool (labeled $t) to draw the torque on ~a due to ~a in the direction of ~A." 
 		      (?type adj) (?dir-d adj) 
 		      (?type adj) (?dir-f adj) (?tau-dir adj) 
@@ -2119,7 +2119,7 @@
  )
  :hint (
 	(point (string "The magnetic force on a positively charged particle points in the direction of the cross product of its velocity vector and the magnetic field vector at its location.")) 
-	(teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the force."))
+	(teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
         (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 			    ?b (?dir-V adj) (?dir-B adj) (?F-dir adj) ?b 
 			    (?source agent) (?F-dir adj)))
@@ -2152,7 +2152,7 @@
  )
  :hint (
   (point (string "The magnetic force on a negatively charged particle points in the opposite direction to the cross product of its velocity vector and the magnetic field vector at its location.")) 
-	(teach (string "The magnetic force vector on a moving *positive* charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, as determined by the right hand rule: orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field. Your thumb will then point in the direction of the cross-product. In this case the charge is *negative*, so the force will be in the opposite direction."))
+	(teach (string "The magnetic force vector on a moving *positive* charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, as determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross-product. In this case the charge is *negative*, so the force will be in the opposite direction."))
         (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of the cross-product to be ~a. Because the charge is negative, the force is opposite that direction. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 			    ?b (?dir-V adj) (?dir-B adj) (?rhr-dir adj) ?b 
 			    (?source agent) (?F-dir adj)))
@@ -2260,9 +2260,39 @@
          (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
   ))
 
-;---------------------------------------------------------
-; Bforce magnitude equation: F = abs(q)*V*B*sin(thetaVB)
-;---------------------------------------------------------
+(defoperator draw-Bforce-wire (?b ?t ?source)
+ :preconditions (
+                  (at-place ?b ?loc ?t)
+                  (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
+                  (given (dir (current-length ?b :time ?t)) ?dir-i)
+		  ;; following currently only works for dirs along axis
+		  (bind ?F-dir (cross-product-dir ?dir-i ?dir-B))
+		  ;; make sure we have a non-null direction
+		  (test ?F-dir) ; may be NIL on failure
+		  (test (not (eq ?F-dir 'zero)))
+                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+					     (time-abbrev ?t)))
+                  (bind ?dir-var (format-sym "O~A" ?mag-var))
+ )
+ :effects (
+            (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
+            (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
+            (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
+            (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
+ )
+ :hint (
+	(point (string "The magnetic force on a wire points in the direction of the cross product of its current and the external magnetic field vector at that location.")) 
+	(teach (string "The magnetic force vector on a current carrying wire points in a direction perpendicular to the plane formed by the current and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the current and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
+        (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
+			    ?b (?dir-V adj) (?dir-B adj) (?F-dir adj) ?b 
+			    (?source agent) (?F-dir adj)))
+ ))
+
+
+;;;---------------------------------------------------------
+;;; Bforce magnitude equation: F = abs(q)*V*B*sin(thetaVB)
+;;;---------------------------------------------------------
+
 (def-psmclass charge-force-Bfield-mag (charge-force-Bfield-mag ?body ?time)
   :complexity major
   :english ("force on charge moving in a magnetic field")
