@@ -60,6 +60,7 @@ bool indyset::isindy(const valander * const candval)
   candleft = candval->gradient;
   candleft_err=candleft; // just to set the size
   candexpand.assign(numinset,0);
+  candexpand_err.assign(numinset,0);
   for (int q = 0; q < numvars; q++) 
     candleft_err[q] = fabs(candval->gradient[q])*RELERR;
   // write the gradient of the new expression as a sum of basis vectors b_k
@@ -83,11 +84,12 @@ bool indyset::isindy(const valander * const candval)
 		     << " < " << candleft_err[q] << " to zero" << endl);
 	      candleft[q] = 0.0;
 	      candleft_err[q] = 0.0;
-	  } else if (fabs(candleft[q]) < 1000.0 * candleft_err[q])
+	    } else if (fabs(candleft[q]) < 1000.0 * candleft_err[q])
 	      DBG( cout << "candleft[" << q << "] = " << candleft[q] 
 		   << ", candleft_err=" << candleft_err[q] << endl);
 	}
       candexpand[k] = coef;
+      candexpand_err[k] = coef_err;
     }
   lastisvalid = true;
   DBG(cout << "Leaving indyset::isindy with coefs "; printdv(candexpand);
@@ -147,7 +149,7 @@ bool indyset::placelast()
  ************************************************************************/
 vector<double> indyset::expandlast()
 {
-  DBG(    cout << "Entering indyset::expandlast" << endl);
+  DBG(cout << "Entering indyset::expandlast" << endl);
   vector<double> ret = *new vector<double>(numinset,0.0);
   for (int k = 0; k < numinset; k++) 
     {
@@ -160,7 +162,8 @@ vector<double> indyset::expandlast()
 	{	  
 	  double addend = candexpand[q] * basexpand[q][k];
 	  // the errors for candexpand and basexpand are actually much larger
-	  ret_err += 2*RELERR*fabs(addend);
+	  ret_err += candexpand_err[q]*fabs(basexpand[q][k])
+	    + RELERR*fabs(addend);
 	  ret[k] += addend;
 	}
       if (fabs(ret[k]) < ret_err) {

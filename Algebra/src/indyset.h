@@ -29,6 +29,7 @@ private:
 				// placelast or expandlast
   vector<double> candexpand;	// expansion of candidate gradient in terms
 				// of basis (not expr - this is done on req)
+  vector<double> candexpand_err;// associated error
   vector<double> candleft;	// gradient of cand minus stuff from candexpand
   vector<double> candleft_err;	// associated error
 public:
