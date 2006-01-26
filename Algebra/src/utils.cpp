@@ -29,7 +29,7 @@ string dtostr(double value)
 string itostr(int val)
 {
   char buf[13];
-  sprintf(buf,"%12d",val);
+  sprintf(buf,"%d",val);
   return(string(buf));
 }
 

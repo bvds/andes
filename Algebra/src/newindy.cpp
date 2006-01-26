@@ -84,6 +84,7 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   DBGM(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs));
   linexpand = new vector<int>;
   // BvdS:  why do this????
+#if 0  // old method
   double scale = 1.0;  	       // set scale for errors = max(1,{|expcoefs[k]|})
   for (k = 0; k < expcoefs.size(); k++) 
     if (fabs(expcoefs[k]) > scale) scale = fabs(expcoefs[k]);
@@ -96,6 +97,22 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
 	    << " because coefficient " << fabs(expcoefs[k]) << " < " 
 	    << RELERR * scale << endl);
       }
+#elif 1  // test case where it fails for ambiguous cases
+  double scale = 1.0;  	       // set scale for errors = max(1,{|expcoefs[k]|})
+  for (k = 0; k < expcoefs.size(); k++) 
+    if (fabs(expcoefs[k]) > scale) scale = fabs(expcoefs[k]);
+  for (k = 0; k < expcoefs.size(); k++)
+    if (fabs(expcoefs[k]) > RELERR * scale) // for debugging
+      linexpand->push_back((*listsetrefs)[setID][k]);
+    else if (fabs(expcoefs[k]) > 0.0)
+      throw(string("indyHowIndy rejecting Eqn ") 
+	    + itostr((*listsetrefs)[setID][k]) 
+	    + ", setID=" + itostr(setID) + " k=" + itostr(k));
+#else   // what I think is right
+  for (k = 0; k < expcoefs.size(); k++) 
+    if (fabs(expcoefs[k]) > 0.0) // for debugging
+      linexpand->push_back((*listsetrefs)[setID][k]);
+#endif
   // linexpand now has canonical equation indices of equations on which 
   // there is a dependence in the linear approximation
   vector<int> wehavevar(numvars,0); // wehavevar[vk] will be the number of 
