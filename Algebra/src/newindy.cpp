@@ -102,12 +102,13 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   for (k = 0; k < expcoefs.size(); k++) 
     if (fabs(expcoefs[k]) > scale) scale = fabs(expcoefs[k]);
   for (k = 0; k < expcoefs.size(); k++)
-    if (fabs(expcoefs[k]) > RELERR * scale) // for debugging
-      linexpand->push_back((*listsetrefs)[setID][k]);
-    else if (fabs(expcoefs[k]) > 0.0)
-      throw(string("indyHowIndy rejecting Eqn ") 
-	    + itostr((*listsetrefs)[setID][k]) 
-	    + ", setID=" + itostr(setID) + " k=" + itostr(k));
+    if (fabs(expcoefs[k]) > 0) // for debugging
+      {
+	linexpand->push_back((*listsetrefs)[setID][k]);
+	if (fabs(expcoefs[k]) < RELERR * scale)
+	  cout << "indyHowIndy would reject Eqn " << (*listsetrefs)[setID][k] 
+	       << ", setID=" << setID << " k=" << k << endl;
+      }
 #else   // what I think is right
   for (k = 0; k < expcoefs.size(); k++) 
     if (fabs(expcoefs[k]) > 0.0) // for debugging
