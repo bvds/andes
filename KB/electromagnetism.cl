@@ -2596,7 +2596,7 @@
    (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
 			(mag (field ?loc magnetic ?source :time ?t))
 			(length ?b)
-			(current-in ?b :time ?t ?t)))
+			(current-thru ?b :time ?t ?t)))
    (time ?t)
    (object ?source)  ;this is not bound by most ?sought
    (at-place ?b ?loc ?t)  ;so that ?b is bound
@@ -2620,7 +2620,7 @@
    ;; direction of current (problem given)
    (given (dir (current-length ?b :time ?t)) ?dir-i)
    ;; define current variable
-   (variable ?i (current-in ?b :time ?t ?t))
+   (variable ?i (current-thru ?b :time ?t ?t))
    (variable ?l (length ?b))
    ;; calculate angle between. Put it directly into eqn w/o variable.
    (bind ?theta `(dnum ,(get-angle-between ?dir-i ?B-dir) |deg|))
@@ -2713,7 +2713,7 @@
    (test (perpendicularp ?dir-i ?dir-r))
 
    (any-member ?sought (
-			(current-in ?wire :time ?t)
+			(current-thru ?wire :time ?t)
 			(mag (relative-position ?point ?wire :time ?t))
 			(mag (field ?point magnetic ?wire :time ?t))
 			))
@@ -2724,7 +2724,7 @@
 (defoperator write-straight-wire-Bfield (?b ?t)
   :preconditions 
   ( 
-   (variable ?I	(current-in ?wire :time ?t))
+   (variable ?I	(current-thru ?wire :time ?t))
    (variable ?r	(mag (relative-position ?point ?wire :time ?t)))
    (variable ?B	(mag (field ?point magnetic ?wire :time ?t)))
    )
