@@ -122,9 +122,15 @@ bool indyset::placelast()
   (*temp)[numinset] = 1.;
   for ( q = 0; q < numinset; q++) 
     {
-      (*temp)[q] = 0.;
+      (*temp)[q] = 0.0;
+      double temp_err=0.0;
       for (int r = q; r < numinset; r++) 
-	(*temp)[q] += -candexpand[r] * basexpand[r][q];
+	{
+	  double temp_term = -candexpand[r] * basexpand[r][q];
+	  (*temp)[q] += temp_term;
+	  temp_err += RELERR * fabs(temp_term);
+	}
+      if(fabs((*temp)[q]) < temp_err) (*temp)[q]=0.0;
     }
   basexpand.push_back(*temp);
   basis.push_back(candleft);
