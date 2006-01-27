@@ -2584,10 +2584,10 @@
 ;;;       Magnetic force on a wire
 
 ;; mag7 needs just the magnitude, still need to add components
-(def-psmclass current-force-Bfield-mag (current-force-Bfield-mag ?body ?time)
+(def-psmclass current-force-Bfield-mag (current-force-Bfield-mag ?body ?source ?time)
   :complexity major
-  :english ("force on current carrying wire in a magnetic field")
-  :ExpFormat ("finding the force on a current carrrying wire in a magnetic field")
+  :english ("force on a current carrying wire in a magnetic field")
+  :ExpFormat ("finding the force on ~A in a magnetic field" (nlg ?body))
   :EqnFormat ("Fb = I*B*sin($q)" ))
 
 (defoperator current-force-Bfield-mag-contains (?sought)
@@ -2733,7 +2733,7 @@
 		 (straight-wire-Bfield ?point ?wire ?t))
 	    )
   :hint (
-	 (point (string "What is the magnetic at ~A due to the current flowing in ~A?" ?point ?wire))
+	 (point (string "What is the magnetic field at ~A due to the current flowing in ~A?" ?point ?wire))
 	 (teach (string "Find the formula for the magnetic field due to the current flowing through a straight wire."))
 	 (bottom-out (string "Write the equation ~A"  
 			     ((= ?B (/ (* |mu0| ?I) (* 2 $p ?r))) algebra) ))
