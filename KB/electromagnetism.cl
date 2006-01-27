@@ -2090,11 +2090,49 @@
            (?dir-l adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
   ))
 
-; This draws the magnetic force vector on a positive charge by right-hand-rule
-; given direction of B-field and v. Note dir of v may not be directly given,
-; but can be derived in several ways, e.g. straight line or circular or other
-; motion spec, by draw-velocity* operators. This may draw v as well to get
-; the direction from givens.
+;; This draws the magnetic force vector on a charge by right-hand-rule
+;; given direction of B-field and v. Note dir of v may not be directly given,
+;; but can be derived in several ways, e.g. straight line or circular or other
+;; motion spec, by draw-velocity* operators. This may draw v as well to get
+;; the direction from givens.
+(defoperator draw-Bforce-charge (?b ?t ?source)
+ :preconditions 
+ (
+  (at-place ?b ?loc ?t)
+  (sign-charge ?b ?pos-or-neg)
+  (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
+  ;; this may require drawing the velocity vector: 
+  (given (dir (velocity ?b :time ?t)) ?dir-V)
+  ;; following currently only works for dirs along axis
+  (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
+  (test ?cross-dir) ; may be NIL on failure
+  (test (not (eq ?cross-dir 'zero)))
+  (bind ?F-dir (if (eq ?pos-or-neg 'pos) ?cross-dir (opposite ?cross-dir)))
+  ;; make sure we have a non-null direction
+  (test ?F-dir) ; may be NIL on failure
+  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+			     (time-abbrev ?t)))
+  (bind ?dir-var (format-sym "O~A" ?mag-var))
+  (bind ?porn (if (eq ?pos-or-neg 'pos) "positive" "negative"))
+  (bind ?saop (if (eq ?pos-or-neg 'pos) "same" "opposite"))
+  )
+ :effects (
+	   (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
+            (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
+            (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
+            (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
+	    )
+ :hint 
+ (
+  (point (string "The magnetic force on a ~Aly charged particle points in the ~A direction as the cross product of its velocity vector and the magnetic field vector at that location." ?porn ?saop)) 
+  (teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross product.  For a ~A charge, the force is in the ~A direction." ?porn ?saop))
+  (bottom-out (string "Because the velocity of ~a has direction ~a, the magnetic field direction is ~a, and the charge is ~A, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
+		      ?b (?dir-V adj) (?dir-B adj) ?porn (?F-dir adj) ?b 
+		      (?source agent) (?F-dir adj)))
+  ))
+
+
+;; Left for backwards compatability, Remove after spring semester 2006
 (defoperator draw-Bforce-rhr-pos (?b ?t ?source)
  :preconditions (
                   (at-place ?b ?loc ?t)
@@ -2125,6 +2163,7 @@
 			    (?source agent) (?F-dir adj)))
  ))
 
+;; Left for backwards compatability, Remove after spring semester 2006
 (defoperator draw-Bforce-rhr-neg (?b ?t ?source)
  :preconditions (
                   (at-place ?b ?loc ?t)
@@ -2158,9 +2197,6 @@
 			    (?source agent) (?F-dir adj)))
  ))
 
-; draw zero-length vector when V, B have null cross product. 
-; Hints assume this is because they are parallel/anti-parallel.
-; !!! Could also happen if one vector is zero-length 
 (defoperator draw-Bforce-rhr-zero (?b ?t ?source)
  :preconditions (
                   (at-place ?b ?loc ?t)
@@ -2187,26 +2223,29 @@
 			     ?b ?b (?source agent)))
  ))
 
-; Draw Bforce on object in unknown direction when we know there's a B-field, but can't 
-; determine both B AND V dir for right-hand rule from givens.  
-; This might apply in cases where vectors are given by listing components so exact
-; directions will be unknown.
-;
-; In theory, also should require that Fb not given directly -- but we have no problems 
-; that just give Fb direction. 
-; !!! Also need to test that body is charged and has non-zero velocity. 
-; For now we are just assuming that if there's a B-field in the problem, any bodies in problem
-; are moving charges, so subject to a force unless given directions determine zero force.
-;
-; !! Some geometry functions in PhysicsFuncs.cl take "unknown" to guarantee xy-planehood.
-; This affects projection equations for unknown angles -- z-projections will always 
-; come out equal to zero. Until that is fixed, problems must be designed so unknown
-; Bforces come out in the x-y plane.
+#|   ;this is not used in any problems
+;; Draw Bforce on object in unknown direction when we know there's a B-field, 
+;; but can't determine both B AND V dir for right-hand rule from givens.  
+;; This might apply in cases where vectors are given by listing components so 
+;; exact directions will be unknown.
 
-; This is a nuisance to code, since "not" can't negate a conjunction of conditions.
-; Also, there are several ways V might be determinable from givens
+;; In theory, also should require that Fb not given directly -- but we have 
+;; no problems that just give Fb direction. 
+;; !!! Also need to test that body is charged and has non-zero velocity. 
+;; For now we are just assuming that if there's a B-field in the problem, 
+;; any bodies in problem are moving charges, so subject to a force unless 
+;; given directions determine zero force.
 
-; First form draws if we aren't given field dir:
+;; !! Some geometry functions in PhysicsFuncs.cl take "unknown" to guarantee 
+;; xy-planehood.  This affects projection equations for unknown angles 
+;; -- z-projections will always come out equal to zero. Until that is fixed, 
+;; problems must be designed so unknown Bforces come out in the x-y plane.
+
+;; This is a nuisance to code, since "not" can't negate a conjunction of 
+;; conditions.  Also, there are several ways V might be determinable from 
+;; givens
+
+;; First form draws if we aren't given field dir:
 (defoperator draw-Bforce-unknown-field (?b ?t)
   :specifications " "
   :preconditions ((rdebug "Using draw-Bforce-unknown ~%")
@@ -2230,10 +2269,11 @@
          (teach (string "In this problem the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
          (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
   ))
+|#
 
-; Need another in case we are given field dir but velocity can't be determined
-; (might be given by x and y components for component-form calculation.)
-; For now, we just require problem to tell us velocity is unknown.
+;; Given field dir but velocity can't be determined
+;; (might be given by x and y components for component-form calculation.)
+;; For now, we just require problem to tell us velocity is unknown.
 (defoperator draw-Bforce-unknown-velocity (?b ?t)
   :preconditions ((rdebug "Using draw-Bforce-unknown ~%")
                   (B-field ?source) ;so know there is a Bfield
@@ -2260,7 +2300,7 @@
          (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
   ))
 
-(defoperator draw-Bforce-wire (?b ?t ?source)
+(defoperator draw-Bforce-current (?b ?t ?source)
  :preconditions (
                   (at-place ?b ?loc ?t)
                   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
@@ -2281,10 +2321,10 @@
             (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
  )
  :hint (
-	(point (string "The magnetic force on a wire points in the direction of the cross product of its current and the external magnetic field vector at that location.")) 
-	(teach (string "The magnetic force vector on a current carrying wire points in a direction perpendicular to the plane formed by the current and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the current and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
-        (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
-			    ?b (?dir-V adj) (?dir-B adj) (?F-dir adj) ?b 
+	(point (string "The magnetic force on a wire points in the direction of the cross product of the direction of the current and the magnetic field.")) 
+	(teach (string "The magnetic force vector on a current carrying wire points in a direction perpendicular to the plane formed by the wire and the magnetic field vector, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the current and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
+        (bottom-out (string "Because the current in ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
+			    ?b (?dir-i adj) (?dir-B adj) (?F-dir adj) ?b 
 			    (?source agent) (?F-dir adj)))
  ))
 
@@ -2335,8 +2375,8 @@
             (eqn (= ?magF (* (abs ?q) ?magV ?magB (sin ?theta))) (charge-force-Bfield-mag ?b ?t))
             )
   :hint (
-         (point (string "You can calculate magnitude of the magnetic force on a particle from the magnitude of its charge, its velocity, the magnetic field, and the angle between the velocity and magnetic field vectors."))
-         (teach (string "The magnitude of the magnetic force on a moving particle in a magnetic field is the product of the absolute value of the charge, the velocity, the magnetic field and the angle theta between the velocity and magnetic field vectors." ))
+         (point (string "You can find the magnitude of the magnetic force on ~A due to ~A" ?b (field ?loc magnetic ?source :time ?t)))
+         (teach (string "The magnitude of the magnetic force on a particle moving in a magnetic field is the product of the absolute value of the charge, the velocity, the magnetic field and the angle theta between the velocity and magnetic field vectors." ))
          (bottom-out (string "Write the equation ~a" ((= ?magF (* (abs ?q) ?magV ?magB (sin ?theta))) algebra)
 		      ))
           ))
@@ -2540,6 +2580,61 @@
           (bottom-out (string "Write the equation ~A"  
 	                      ((= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) algebra) ))
         ))
+
+;;;       Magnetic force on a wire
+
+;; mag7 needs just the magnitude, still need to add components
+(def-psmclass current-force-Bfield-mag (current-force-Bfield-mag ?body ?time)
+  :complexity major
+  :english ("force on current carrying wire in a magnetic field")
+  :ExpFormat ("finding the force on a current carrrying wire in a magnetic field")
+  :EqnFormat ("Fb = I*B*sin($q)" ))
+
+(defoperator current-force-Bfield-mag-contains (?sought)
+  :preconditions 
+  (
+   (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
+			(mag (field ?loc magnetic ?source :time ?t))
+			(length ?b)
+			(current-in ?b :time ?t ?t)))
+   (time ?t)
+   (object ?source)  ;this is not bound by most ?sought
+   (at-place ?b ?loc ?t)  ;so that ?b is bound
+   )
+  :effects(
+           (eqn-contains (current-force-Bfield-mag ?b ?source ?t) ?sought)
+           ))  
+
+(defoperator write-current-force-Bfield-mag (?b ?t)
+  :preconditions 
+  (
+   (at-place ?b ?loc ?t)
+   ;; draw body for this psm
+   (body ?b)
+   ;; draw the vectors B, and F.
+   (vector ?dontcare1 (field ?loc magnetic ?source :time ?t) ?B-dir)
+   (vector ?dontcare3 (force ?b ?source magnetic :time ?t) ?F-dir)
+   ;; retrieve vector variables for equation:
+   (in-wm (variable ?magB (mag (field ?loc magnetic ?source :time ?t))))
+   (in-wm (variable ?magF (mag (force ?b ?source magnetic :time ?t))))
+   ;; direction of current (problem given)
+   (given (dir (current-length ?b :time ?t)) ?dir-i)
+   ;; define current variable
+   (variable ?i (current-in ?b :time ?t ?t))
+   (variable ?l (length ?b))
+   ;; calculate angle between. Put it directly into eqn w/o variable.
+   (bind ?theta `(dnum ,(get-angle-between ?dir-i ?B-dir) |deg|))
+   (test ?theta) ; make sure it was determinable
+   )
+  :effects ((eqn (= ?magF (* ?i ?l ?magB (sin ?theta))) 
+		 (current-force-Bfield-mag ?b ?source ?t)))
+  :hint 
+  (
+   (point (string "You can calculate magnitude of the magnetic force on ~A due to ~A." ?b (field ?loc magnetic ?source :time ?t)))
+   (teach (string "The magnitude of the magnetic force on a wire in a magnetic field is the product of the current, the length of the wire, the magnetic field and the angle between the direction of the current and the magnetic field vector." ))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?magF (* ?i ?l ?magB (sin ?theta))) algebra)))
+   ))
 
 
 #| ; not using this, just show dir on diagram
