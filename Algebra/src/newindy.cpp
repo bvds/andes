@@ -82,38 +82,13 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   // expcoefs is the set of coefs of the equation in linear approx in setID eqs
   vector<double> expcoefs((*listofsets)[setID].expandlast());
   DBGM(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs));
+
+  // See Bug #736 for details on the zero test that was removed from here
   linexpand = new vector<int>;
-  // BvdS:  why do this????
-#if 0  // old method
-  double scale = 1.0;  	       // set scale for errors = max(1,{|expcoefs[k]|})
-  for (k = 0; k < expcoefs.size(); k++) 
-    if (fabs(expcoefs[k]) > scale) scale = fabs(expcoefs[k]);
-  for (k = 0; k < expcoefs.size(); k++) 
-    if (fabs(expcoefs[k]) > RELERR * scale) // for debugging
-       linexpand->push_back((*listsetrefs)[setID][k]);
-    else if (fabs(expcoefs[k]) > 0.0)
-      {
-	DBG(cout << "rejecting equation " << k 
-	    << " because coefficient " << fabs(expcoefs[k]) << " < " 
-	    << RELERR * scale << endl);
-      }
-#elif 1  // test case where it fails for ambiguous cases
-  double scale = 1.0;  	       // set scale for errors = max(1,{|expcoefs[k]|})
-  for (k = 0; k < expcoefs.size(); k++) 
-    if (fabs(expcoefs[k]) > scale) scale = fabs(expcoefs[k]);
-  for (k = 0; k < expcoefs.size(); k++)
-    if (fabs(expcoefs[k]) > 0) // for debugging
-      {
-	linexpand->push_back((*listsetrefs)[setID][k]);
-	if (fabs(expcoefs[k]) < RELERR * scale)
-	  cout << "indyHowIndy would reject Eqn " << (*listsetrefs)[setID][k] 
-	       << ", setID=" << setID << " k=" << k << endl;
-      }
-#else   // what I think is right
   for (k = 0; k < expcoefs.size(); k++) 
     if (fabs(expcoefs[k]) > 0.0) // for debugging
       linexpand->push_back((*listsetrefs)[setID][k]);
-#endif
+
   // linexpand now has canonical equation indices of equations on which 
   // there is a dependence in the linear approximation
   vector<int> wehavevar(numvars,0); // wehavevar[vk] will be the number of 
