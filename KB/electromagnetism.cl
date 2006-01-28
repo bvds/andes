@@ -1724,6 +1724,8 @@
    :effects (
       (eqn (= ?tau-var (* ?p-var ?E-var (sin ?theta-var))) 
              (dipole-torque-mag ?dipole (field ?region electric ?source) ?t))
+      (assume using-magnitude 
+	      (dipole-torque ?dipole (field ?region electric ?source) ?t))
    )
    :hint
    ( (point (string "What is the magnitude of the torque produced by ~A due to the electric field?" ?dipole))
@@ -1790,7 +1792,11 @@
   :effects 
   ( (eqn (= ?tau-zc (* ?p ?E (sin (- ?theta-E ?theta-p)))) 
 	 (dipole-torque-zc ?dipole (field ?region electric ?source) ?t))  
-     )
+    ;; disallow both component-form and magnitude form in a solution
+    (assume using-compo 
+	    (whatever z 0 (dipole-torque ?dipole 
+					 (field ?region electric ?source) ?t)))
+    )
   :hint 
    ( (point (string "What is the torque produced by ~A due to the electric field?" ?dipole))
      (teach (string "When a an electic dipole is placed in an electric field, the field exerts a torque on the dipole."))
