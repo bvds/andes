@@ -2727,7 +2727,7 @@
    )
   :effects ((eqn-contains (straight-wire-Bfield ?point ?wire ?t) ?sought)))
 
-(defoperator write-straight-wire-Bfield (?b ?t)
+(defoperator write-straight-wire-Bfield (?point ?wire ?t)
   :preconditions 
   ( 
    (variable ?I	(current-thru ?wire :time ?t))
@@ -2744,3 +2744,150 @@
 	 (bottom-out (string "Write the equation ~A"  
 			     ((= ?B (/ (* |mu0| ?I) (* 2 $p ?r))) algebra) ))
 	 ))
+
+;;;              Magnetic field at the center of a coil
+
+(def-psmclass center-coil-Bfield (center-coil-Bfield ?center ?coil ?t)
+  :complexity major
+  :english ("the magnetic field at the center of a coil of N turns")
+  :ExpFormat ("finding the magnetic field at the center of ~A" (nlg ?coil))
+  :EqnFormat ("B = $m0*N*I" ))
+
+(defoperator center-coil-Bfield-contains (?sought)
+  :preconditions 
+  (
+   (center-of-coil ?point ?coil)  ;given that there is a coil
+   (any-member ?sought (
+			(current-thru ?coil :time ?t)
+			(turns ?coil)
+			(radius-of-circle ?coil)
+			(mag (field ?center magnetic ?coil :time ?t))
+			))
+   (time ?t) ;not bound by some ?sought
+   )
+  :effects ((eqn-contains (center-coil-Bfield ?point ?coil ?t) ?sought)))
+
+(defoperator write-center-coil-Bfield (?point ?coil ?t)
+  :preconditions 
+  ( 
+   (variable ?I	(current-thru ?coil :time ?t))
+   (variable ?N (turns ?coil))
+   (variable ?r	(radius-of-circle ?coil))
+   (variable ?B	(mag (field ?point magnetic ?coil :time ?t)))
+   )
+  :effects ( 
+	    (eqn (= (* 2 ?r ?B) (* |mu0| ?N ?I))
+		 (center-coil-Bfield ?point ?coil ?t))
+	    )
+  :hint (
+	 (point (string "What is the magnetic field at ~A due to the current flowing in ~A?" ?point ?coil))
+	 (teach (string "Find the formula for the magnetic field at the center of a coil of N turns."))
+	 (bottom-out (string "Write the equation ~A"  
+			     ((= ?B (/ (* |mu0| ?N ?I) (* 2 ?r))) algebra) ))
+	 ))
+
+;;;              Magnetic field inside a long solenoid
+
+(def-psmclass inside-solenoid-Bfield (inside-solenoid-Bfield ?center ?solenoid ?t)
+  :complexity major
+  :english ("the magnetic field inside a long solenoid")
+  :ExpFormat ("finding the magnetic field inside ~A" (nlg ?solenoid))
+  :EqnFormat ("B = $m0*n*I" ))
+
+(defoperator inside-solenoid-Bfield-contains (?sought)
+  :preconditions 
+  (
+   (inside-solenoid ?point ?solenoid)  ;given that there is a solenoid
+   (any-member ?sought (
+			(current-thru ?solenoid :time ?t)
+			(turns-per-length ?solenoid)
+			(mag (field ?center magnetic ?solenoid :time ?t))
+			))
+   (time ?t) ;not bound by some ?sought
+   )
+  :effects ((eqn-contains (inside-solenoid-Bfield ?point ?solenoid ?t) ?sought)))
+
+(defoperator write-inside-solenoid-Bfield (?point ?solenoid ?t)
+  :preconditions 
+  ( 
+   (variable ?I	(current-thru ?solenoid :time ?t))
+   (variable ?n (turns-per-length ?solenoid))
+   (variable ?B	(mag (field ?point magnetic ?solenoid :time ?t)))
+   )
+  :effects ( 
+	    (eqn (= ?B (* |mu0| ?n ?I))
+		 (inside-solenoid-Bfield ?point ?solenoid ?t))
+	    )
+  :hint (
+	 (point (string "What is the magnetic field at ~A due to ~A?" ?point ?solenoid))
+	 (teach (string "Find the formula for the magnetic field inside a long solenoid."))
+	 (bottom-out (string "Write the equation ~A"  
+			     ((= ?B (* |mu0| ?n ?I)) algebra) ))
+	 ))
+
+
+;;;  definition of turns and turns per unit length
+
+(def-qexp turns (turns ?body)
+     :units NIL  ;dimensionless
+     :restrictions positive
+     :english ("the number of turns wrapping around ~A" (nlg ?body))
+     :fromworkbench `(turns ,body)
+   )
+
+(defoperator define-turns (?body)
+     :preconditions((bind ?N-var (format-sym "Nt_~A" (body-name ?body))))
+     :effects ((variable ?N-var (turns ?body))
+               (define-var (turns ?body))
+   )
+     :hint (
+          (bottom-out (string "Define a variable for the number of turns wrapping around ~A by using the Add Variable command on the Variable menu and selecting turns."  ?body))
+          ))
+
+
+(def-qexp turns-per-length (turns-per-length ?body)
+     :units |m^-1|
+     :restrictions positive
+     :english ("the number of turns per length wrapping around ~A" (nlg ?body))
+     :fromworkbench `(turns-per-length ,body)
+   )
+
+(defoperator define-turns-per-length (?body)
+     :preconditions((bind ?N-var (format-sym "ntl_~A" (body-name ?body))))
+     :effects ((variable ?N-var (turns-per-length ?body))
+               (define-var (turns-per-length ?body))
+   )
+     :hint (
+          (bottom-out (string "Define a variable for the number of turns per unit length wrapping around ~A by using the Add Variable command on the Variable menu and selecting turns per unit length."  ?body))
+          ))
+
+;;; turns per length = turns/length
+
+(def-PSMclass turns-per-length-definition (turns-per-length ?b)
+  :complexity minor
+  :doc "turns per length = turns/length"
+  :english ("turns per length = turns/length")
+  :expFormat ("using the turns per length of ~A" (nlg ?b))
+  :EqnFormat ("n = N/l"))
+
+(defoperator turns-per-length-contains (?quantity)
+  :preconditions (
+		  (any-member ?quantity
+			      ((turns-per-length ?b)
+			       (length ?b)
+			       (turns ?b))))
+  :effects
+  ((eqn-contains (turns-per-length ?b) ?quantity)))
+
+(defoperator write-turns-per-length (?b)
+  :preconditions (
+		  (variable ?m (turns ?b))
+		  (variable ?l (length ?b))
+		  (variable ?mu (turns-per-length ?b)))
+  :effects
+  ((eqn (= ?mu (/ ?m ?l)) (turns-per-length ?b)))
+  :hint
+  ((point (string "Use the turns per unit length of ~A." ?b))
+   (teach (string "The turns per unit length is the total turns wrapped around ~a divided by the length of ~a" ?b ?b))
+   (bottom-out (string "Write the equation ~A" ((= ?mu (/ ?m ?l)) algebra)))
+   ))
