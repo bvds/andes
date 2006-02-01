@@ -121,6 +121,8 @@ LEAF	F_y = q*(v_z*B_x - v_x*B_z)   Magnetic force (y component)	charge-force-Bfi
 LEAF	F_z = q*(v_x*B_y - v_y*B_x)   Magnetic force (z component)	charge-force-Bfield-z	Magnetic Field
 LEAF	F = I*L*sin($q)               Magnetic force on a wire (magnitude)	current-force-Bfield-mag	Magnetic Field
 LEAF	B = $m0*I/(2*$p*r)            Magnetic field of a straight wire	straight-wire-Bfield	Magnetic Field
+LEAF	B = $m0*N*I/(2*r)            Magnetic field at center of a coil	coil-Bfield	Magnetic Field
+LEAF	B = $m0*n*I            Magnetic field inside a long solenoid	inside-solenoid-Bfield	Magnetic Field
 LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	Magnetic Field
 LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	Magnetic Field
 END_GROUP			

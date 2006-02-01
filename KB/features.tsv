@@ -12,10 +12,10 @@ rotkin	mass;radius;revolution-radius;period;duration;angle;moment-of-inertia;len
 angmom	mass;radius;period;duration;angle;moment-of-inertia;length;width;
 torque	mass;radius;period;duration;angle;moment-of-inertia;length;width;
 circuits	electric-power;current;voltage;resistance;capacitance;charge-on;stored-energy;inductance;current-change;time-constant;duration;
-E&M	charge-on;current;potential;duration;length;
+E&M	charge-on;current;potential;duration;length;turns;turns-per-length;
 optics	object-distance;image-distance;focal-length;magnification;radius-of-curvature;lens-distance;index-of-refraction;angle;
 fluids	mass;duration;height;mass-density;pressure;area-at;area;volume;
-circle-geometry	area;radius-of-circle;diameter-of-circle;circumference-of-circle;turns;
+circle-geometry	area;radius-of-circle;diameter-of-circle;circumference-of-circle;
 waves	frequency;distance;speed;duration;mass;length;mass-per-length;wavelength;wavenumber;period;angular-frequency;wave-speed;index-of-refraction;speed-of-light;refraction-vacuum;string-tension;
 observed-frequency	observed-frequency;
 oscillations	mass;length;spring-constant;compression;wavelength;wavenumber;period;frequency;angular-frequency;amplitude;amplitude-max-speed;amplitude-max-abs-acceleration;
