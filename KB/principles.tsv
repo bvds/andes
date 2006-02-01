@@ -299,6 +299,8 @@ LEAF	r21_y = y2 - y1      Relative Position from coordinates	(rdiff ((axis . ?y)
 LEAF	A = $p*r^2           Area of a circle	area-of-circle	
 LEAF	A = 2*$p*r           Circumference of a circle	circumference-of-circle-r	
 LEAF	A = $p*d             Circumference of a circle	circumference-of-circle-d	
+LEAF	$m = m/l             mass per unit length defined	mass-per-length-eqn	
+LEAF	n = N/l              turns per unit length defined	turns-per-length-definition	
 END_GROUP			
 			
 			
