@@ -263,46 +263,31 @@
 	  ))
 
 
-;; Draw field vector if given that unknown E field exists
-;;      given by (E-field source) in problem. 
-;; Don't include this field dir determinable by other ways
-
-;; NB: ?b is only needed as axis-owner of drawn vector. 
-;; It is "test charge" experiencing force at ?loc
-(defoperator draw-region-Efield-unknown (?b ?loc ?source ?t)
-  :specifications " "
+(defoperator draw-field-unknown (?b ?loc ?type ?source ?t)
   :preconditions 
-  ((rdebug "Using draw-region-Efield-unknown ~%")
-   (time ?t)
-   (E-field ?source) ; means that unknown E-field exists
+  ((time ?t)
+   (unknown-field-dir ?type ?source) ;field due to ?source has unknown dir.
    ;; Must be given there is a body at ?loc. ?? Seems to be used to
-   ;; indicate this is region Efield type problem -- should change.
+   ;; indicate this is region field type problem -- should change.
    ;; what if we're asked about field at an unoccupied point?
    (at-place ?b ?loc ?t)
-   ;; make sure source not at loc of test charge
-   ;; (not (at-place ?source ?loc ?t))
-   (test (time-pointp ?t))
-   (not (vector ?dontcare (field ?loc electric ?source :time ?t) ?dir))
+   (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?dir))
    ;; make sure field direction not given, directly 
-   (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare3))
-   ;; take out following when we change from grid to drawing unknown
-   ;; (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare4))
-   ;; !!! Should also make sure direction of E-force not given, directly or via components.
-   ;; Would be given as electric force on object for an object at-place loc.
-   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?source)
+   (not (given (dir (field ?loc ?type ?source :time ?t)) ?dontcare3))
+   (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
+			      (body-name ?loc) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (rdebug "fired draw-region-Efield-unknown  ~%")
    )
   :effects (
-            (vector ?b (field ?loc electric ?source :time ?t) unknown)
-            (variable ?mag-var (mag (field ?loc electric ?source :time ?t)))
-	    (variable ?dir-var (dir (field ?loc electric ?source :time ?t)))
+            (vector ?b (field ?loc ?type ?source :time ?t) unknown)
+            (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
+	    (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
             )
   :hint (
-         (point (string "You know there is an electric field at ~A." ?loc))
-         (teach (string "In this problem the exact direction of the electric field vector requires calculation to determine, so you can draw the vector at an approximately angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the electric field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc (?source agent)))
+         (point (string "Note the ~A field at ~A." (?type adj) ?loc))
+         (teach (string "In this problem the exact direction of the ~A field vector is not given, so you can draw the vector at an approximately angle and leave the exact angle unspecified." (?type adj)))
+         (bottom-out (string "Draw the ~A field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." (?type adj) ?loc (?source agent)))
           ))
 
 
