@@ -1636,6 +1636,66 @@
 			     ((inductance ?ind) def-np)))
 	 ))
 
+;; define mutual inductance var
+(defoperator define-mutual-inductance-var (?inds)   
+  :preconditions 
+  (
+   (test (orderless-p ?inds))
+   (bind ?ind1 (second ?inds))
+   (bind ?ind2 (third ?inds))
+   (bind ?L-var (format-sym "M_~A_~A" (body-name ?ind1) (body-name ?ind2)))
+   )
+  :effects (
+	    (variable ?L-var (mutual-inductance . ?inds))
+	    (define-var (mutual-inductance . ?inds))
+	    )
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting mutual inductance." 
+			     ((mutual-inductance . ?inds) def-np)))
+	 ))
+
+;;;              Magnetic field inside a long solenoid
+
+(def-psmclass solenoid-self-inductance (solenoid-self-inductance ?solenoid)
+  :complexity major
+  :english ("the self-inductance of a long, uniform solenoid")
+  :ExpFormat ("finding the self-inductance of ~A" (nlg ?solenoid))
+  :EqnFormat ("L = $m0*N^2*A/l" ))
+
+(defoperator solenoid-self-inductance-contains (?sought)
+  :preconditions 
+  (
+   (inside-solenoid ?inside ?solenoid)  ;given that there is a solenoid
+   (vacuum ?inside)  ;air-core solenoid
+   (any-member ?sought (
+			(length ?solenoid)
+			(turns ?solenoid)
+			(area ?solenoid)
+			(inductance ?solenoid)
+			))
+   )
+  :effects ((eqn-contains (solenoid-self-inductance ?solenoid) ?sought)))
+
+(defoperator write-solenoid-self-inductance (?solenoid)
+  :preconditions 
+  ( 
+   (variable ?length (length ?solenoid))
+   (variable ?N (turns ?solenoid))
+   (variable ?A (area ?solenoid))
+   (variable ?L (inductance ?solenoid))
+   )
+  :effects ( 
+	    (eqn (= (* ?L ?length) (* |mu0| ?N ?N ?A))
+		 (solenoid-self-inductance ?solenoid))
+	    )
+  :hint 
+  (
+   (point (string "What is the self-inductance of ~A?" ?solenoid))
+   (teach (string "Find the formula for the self-inductance of a long, uniformly wound, solenoid."))
+   (bottom-out (string "Write the equation ~A"  
+		       ((= (* ?L ?length) (* |mu0| (^ ?N 2) ?A)) algebra) ))
+   ))
+
 ;; define variable for time rate-of-change of current, dI/dt
 ;; Rate of change may defined over either interval, for average rate of change, or instant,
 ;; just like acceleration.  Problems using average rate of change over interval will 
@@ -1674,7 +1734,7 @@
   :eqnFormat ("V = -L*dIdt") 
   )
 
-(defoperator inductor-emf-contains (?ind ?time)
+(defoperator inductor-emf-contains (?sought)
   :preconditions (
 		  (circuit-component ?ind inductor)
 		  (any-member ?sought ( (voltage-across ?ind :time ?time)
@@ -1691,13 +1751,64 @@
 		  (variable ?dIdt (rate-of-change (current-thru ?ind :time ?time)))
 		  )
   :effects (
-	    (eqn (= ?V (* (- ?L) ?dIdt)) (inductor-emf ?ind ?time))
+	    (eqn (= ?V (- (* ?L ?dIdt))) (inductor-emf ?ind ?time))
 	    )
   :hint (
 	 (point (string "The voltage across the ends of an inductor is related to the inductance and the rate at which the current through it is changing"))
-	 (teach (string "The EMF (voltage) produced between the ends of an inductor is proportional to its inductance and the instantaneous time rate of change of the current. The voltage is conventionally shown as negative for increasing positive current to indicate that the induced EMF opposes the change."))
-	 (bottom-out (string "Write the equation ~A" ((= ?V (* (- ?L) ?dIdt)) algebra) ))
+	 (teach (string "The EMF (voltage) produced between the ends of an inductor is proportional to its inductance and the instantaneous time rate of change of the current.  The voltage is conventionally shown as negative for increasing positive current to indicate that the induced EMF opposes the change."))
+	 (bottom-out (string "Write the equation ~A" ((= ?V ( - (* ?L ?dIdt))) algebra) ))
 	 ))
+
+;; Mutual inductance version of inductor-emf
+
+(def-psmclass mutual-inductor-emf (mutual-inductor-emf ?ind1 ?ind2 ?time) 
+  :complexity major
+  :english ("induced EMF (voltage) across ~A due to ~A" 
+	    (nlg ?ind1) (nlg ?ind2))
+  :eqnFormat ("V2 = -M12*dI1dt") 
+  )
+
+(defoperator mutual-inductor-emf-contains (?sought)
+  :preconditions 
+  (
+   (mutual-inductor . ?inds)
+   (any-member ?sought ((mutual-inductance . ?inds)))
+   (bind ?ind2 (second ?inds))
+   (bind ?ind1 (third ?inds))
+   (time ?time)
+   )
+  :effects ( (eqn-contains (mutual-inductor-emf ?ind1 ?ind2 ?time) ?sought) ))
+
+(defoperator mutual-inductor-emf-contains2 (?sought)
+  :preconditions 
+  (
+   (mutual-inductor . ?inds)
+   (bind ?ind1 (second ?inds))
+   (bind ?ind2 (third ?inds))
+   (any-member ?sought ((mutual-inductor orderless ?ind1 ?ind2) 
+			(voltage-across ?ind1 :time ?time)
+			(rate-of-change (current-thru ?ind2 :time ?time)) ))
+   (time ?time)
+   )
+  :effects ( (eqn-contains (mutual-inductor-emf ?ind1 ?ind2 ?time) ?sought) ))
+
+(defoperator write-mutual-inductor-emf (?ind1 ?ind2 ?time)
+  :preconditions 
+  (
+   (variable ?V (voltage-across ?ind1 :time ?time))
+   (variable ?M (mutual-inductance orderless ?ind1 ?ind2))
+   (variable ?dIdt (rate-of-change (current-thru ?ind2 :time ?time)))
+		  )
+  :effects (
+	    (eqn (= ?V (- (* ?M ?dIdt))) 
+		 (mutual-inductor-emf ?ind1 ?ind2 ?time))
+	    )
+  :hint 
+  (
+   (point (string "The voltage across ~A is related to the change in the current through ~A" ?ind1 ?ind2))
+   (teach (string "The EMF (voltage) generated in a coil due to changing current in a second coil is given by the mutual inductance of the two coils times the instantaneous rate of current change in the second coil.  The voltage is conventionally shown as negative for increasing positive current to indicate that the induced EMF opposes the change."))
+   (bottom-out (string "Write the equation ~A" ((= ?V (- (* ?M ?dIdt))) algebra) ))
+   ))
 
 ;; need rule that average rate of change dIdt12 = (I2-I1)/t12
 
