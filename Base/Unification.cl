@@ -302,12 +302,14 @@
 ;;;;                              Unification
 ;;;; ================================================================== 
 
-(defun unify (x y &optional (bindings no-bindings))
+(defun unify (x y &optional (bindings no-bindings) test test-function)
   "See if x and y match with given bindings."
   (cond ((eq bindings fail) fail)
         ((eql x y) bindings)
         ((variable-p x) (unify-variable x y bindings))
         ((variable-p y) (unify-variable y x bindings))
+	((and test (funcall test x) (funcall test y)) 
+	 (funcall test-function x y bindings))
 	((and (orderless-p x) (orderless-p y)) 
 	 (unify (orderless-sort (cdr x) bindings) 
 		(orderless-sort (cdr y) bindings) bindings))

@@ -43,7 +43,7 @@
 	  :fromWorkbench `(inductance ,body)
 	  :english ("the inductance of ~A" (nlg ?inductor)))
 
-(def-qexp mutual-inductance (mutual-inductance orderless . ?inductor)
+(def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
           :units |H|
 	  :fromWorkbench `(mutual-inductance orderless ,body ,body2)
 	  :english ("the mutual inductance of ~A" 

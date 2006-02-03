@@ -820,12 +820,7 @@
 
 (defun unify-with-dnum (x y &optional (bindings no-bindings))
   "See if x and y match with given bindings, treating dnum special."
-  (cond ((and (dimensioned-numberp x) (dimensioned-numberp y))
-	 (compare-dnums x y))
-	((and (consp x) (consp y)) 
-	 (unify-with-dnum (rest x) (rest y)
-			   (unify-with-dnum (first x) (first y) bindings)))
-	(t (unify x y bindings))))
+  (unify x y bindings #'dimensioned-numberp #'compare-dnums))
 
 
 ;;-------------------------------------------------------------
