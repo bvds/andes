@@ -105,6 +105,7 @@ LEAF	E_x = (kelec*q/r^2) * r_x/r   point charge field (x component)	(point-charg
 LEAF	E_y = (kelec*q/r^2) * r_y/r   point charge field (y component)	(point-charge-Efield ((?axis . y)))	Point Charge Field
 LEAF	Enet_x = E1_x + E2_x + ...    Net Electric Field (x component)	(net-Efield ((?axis . x)))	Electric Field
 LEAF	Enet_y = E1_y + E2_y + ...    Net Electric Field (y component)	(net-Efield ((?axis . y)))	Electric Field
+LEAF	$FE = A*E.n   [$FE = A*E*cos($q) or $FE = A*(E_x*n_x+E_y*n_y]        electric flux (constant field)	electric-flux-constant-field	Electric Field
 LEAF	V = kelec*q/r                 point charge potential	point-charge-potential	Electric Potential
 LEAF	Vnet = V1 + V2 + V3...        Net potential	net-potential	Electric Potential
 LEAF	Ue = q*Vnet                   electric potential energy	electric-energy	Electric Potential
@@ -125,6 +126,7 @@ LEAF	B = $m0*N*I/(2*r)            Magnetic field at center of a coil	center-coil
 LEAF	B = $m0*n*I            Magnetic field inside a long solenoid	inside-solenoid-Bfield	Magnetic Field
 LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	Magnetic Field
 LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	Magnetic Field
+LEAF	$FB = A*B.n   [$FB = A*B*cos($q) or $FB = A*(B_x*n_x+B_y*n_y]        magnetic flux (constant field)	magnetic-flux-constant-field	Magnetic Field
 END_GROUP			
 GROUP	DC Circuits		
 LEAF	+/-V1 +/-V2 +/-V3...=0     Kirchoff's Loop rule	loop-rule	Loop Rule
@@ -172,8 +174,8 @@ LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum
 END_GROUP			
 GROUP	Waves and Oscillations		
 LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
-LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave	
-LEAF	T = 1/f       Period of oscillation	period-of-wave	
+LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave
+LEAF	T = 1/f       Period of oscillation	period-of-wave
 LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
 LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
 LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed
@@ -188,8 +190,8 @@ LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
 LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
 END_GROUP		
 END_GROUP	Write a Principle	
-GROUP	Apply a Definition or Auxiliary Law	
-GROUP	Kinematics	
+GROUP	Apply a Definition or Auxiliary Law		
+GROUP	Kinematics		
 GROUP	Translational		
 LEAF	dnet_x = $S di_x            net displacement	(net-disp ((?axis . x)))	Net Displacement
 LEAF	dnet_y = $S di_y            net displacement	(net-disp ((?axis . y)))	Net Displacement
