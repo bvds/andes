@@ -314,13 +314,15 @@
 	;; handle orderless objects
 	((and (orderless-p x) (orderless-p y)) 
 	 (unify (orderless-sort (cdr x) bindings) 
-		(orderless-sort (cdr y) bindings) bindings))
+		(orderless-sort (cdr y) bindings) bindings test test-function))
 	;; Match any keyword pairs
 	((valid-keyword-pair x) (unify-keyword x y bindings))
 	((valid-keyword-pair y) (unify-keyword y x bindings))
         ((and (consp x) (consp y))
 	 (unify (rest x) (rest y) 
-			 (unify (first x) (first y) bindings)))
+			 (unify (first x) (first y) 
+				bindings test test-function) 
+			 test test-function))
         (t fail)))
 
 (defun unify-variable (var x bindings)
