@@ -149,8 +149,10 @@ LEAF	q = fraction*C*Vb          RC charge as fraction of max	charge-on-capacitor
 END_GROUP			
 GROUP	Inductance		
 LEAF	V = -L*dIdt               Inductor EMF	inductor-emf	Inductance
+LEAF	V1 = -M12*dI2dt               Mutual Inductor EMF	mutual-inductor-emf	Inductance
 LEAF	dIdt = (I2-I1)/t12        Constant rate of change (or avg)	avg-rate-current-change	Inductance
 LEAF	U = 0.5*L*I^2             Energy stored in inductor	inductor-energy	Inductance
+LEAF	"L = $m0*N^2*A/l       Self-inductance of a long, uniform solenoid"	solenoid-self-inductance	Inductance
 LEAF	$t = L/R                   LR time constant	LR-time-constant	LR Circuits
 LEAF	I = If*(1 - exp(-t/$t)     LR current growth	LR-current-growth	LR Circuits
 LEAF	If = Vb/R                 LR growth final current	LR-growth-Imax	LR Circuits
@@ -172,22 +174,22 @@ GROUP	Waves and Oscillations
 LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
 LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave	
 LEAF	T = 1/f       Period of oscillation	period-of-wave	
-LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
-LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
-LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
-LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
-LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
-LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
-LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
-LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo = fs*(vw콀o)/(vw콀s)   Frequency shift from doppler effect	doppler-frequency	
-LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
-LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
-LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
-END_GROUP			
-END_GROUP	Write a Principle		
-GROUP	Apply a Definition or Auxiliary Law		
-GROUP	Kinematics		
+LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
+LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
+LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed
+LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string
+LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave
+LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave
+LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
+LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
+LEAF	fo = fs*(vw콀o)/(vw콀s)   Frequency shift from doppler effect	doppler-frequency
+LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
+LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
+LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
+END_GROUP		
+END_GROUP	Write a Principle	
+GROUP	Apply a Definition or Auxiliary Law	
+GROUP	Kinematics	
 GROUP	Translational		
 LEAF	dnet_x = $S di_x            net displacement	(net-disp ((?axis . x)))	Net Displacement
 LEAF	dnet_y = $S di_y            net displacement	(net-disp ((?axis . y)))	Net Displacement
