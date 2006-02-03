@@ -1785,7 +1785,7 @@
    (mutual-inductor . ?inds)
    (bind ?ind1 (second ?inds))
    (bind ?ind2 (third ?inds))
-   (any-member ?sought ((mutual-inductor orderless ?ind1 ?ind2) 
+   (any-member ?sought ((mutual-inductance orderless ?ind1 ?ind2) 
 			(voltage-across ?ind1 :time ?time)
 			(rate-of-change (current-thru ?ind2 :time ?time)) ))
    (time ?time)
