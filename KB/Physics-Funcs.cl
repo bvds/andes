@@ -449,7 +449,7 @@
        (or (numberp (second x))
 	   (error "invalid dnum: ~A" x))))
 
-;; should test arguements using dimensioned-numberp
+;; should test both arguments using dimensioned-numberp
 ;; before calling this routine.
 (defun compare-dnums (x y &optional (bindings no-bindings))
   "Compare two dnums, properly handling :error keyword."

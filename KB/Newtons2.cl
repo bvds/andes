@@ -7450,6 +7450,51 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			?r1 ?r2))
     ))
 
+(def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
+  :units nil  ;dimensionless
+  :english ("a unit vector~@[ at ~A~] ~A ~A" ?loc 
+	    (unit-vector-orientation-name ?orientation)
+	    (nlg ?body 'at-time ?time)))
+
+(defun unit-vector-orientation-name (orientation)
+  (cond ((eq orientation 'normal-to) "normal to")
+	((eq orientation 'towards) "pointing towards")
+	((eq orientation 'away-from) "pointing away from")
+	(t orientation)))
+
+(defoperator draw-unit-vector-given-dir (?orientation ?body ?loc ?t)
+  :preconditions 
+  ((time ?t)
+   (given (dir (unit-vector ?orientation ?body :at ?loc :time ?t)) ?dir)
+   (not (vector ?whatever (unit-vector ?orientation ?body :at ?loc :time ?t) 
+		?dir))
+   (bind ?mag-var (format-sym "n~A_~A_~A~@[_~A~]"
+			      (subseq (string ?orientation) 0 1) 
+			      (body-name ?body) 
+			      (body-name ?loc) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   )
+  :effects 
+  (
+   (vector ?body (unit-vector ?orientation ?body :at ?loc :time ?t) ?dir)
+   (variable ?mag-var (mag (unit-vector ?orientation ?body :at ?loc :time ?t)))
+   (variable ?dir-var (dir (unit-vector ?orientation ?body :at ?loc :time ?t)))
+   ;; Because dir is problem given, find-by-psm won't ensure implicit 
+   ;; eqn gets written.  Given value may not be used elsewhere so 
+   ;; ensure it here.
+   (implicit-eqn (= ?dir-var ?dir) 
+		 (dir (unit-vector ?orientation ?body :at ?loc :time ?t)))
+   ;; BvdS:  I am not sure if here is exactly the right place for this.
+   (implicit-eqn (= ?mag-var 1) 
+		 (mag (unit-vector ?orientation ?body :at ?loc :time ?t)))
+   )  
+  :hint (
+       (point (string "You can draw ~A?" 
+		      (unit-vector ?orientation ?body :at ?loc :time ?t)))
+       (bottom-out (string "Use the unit vector drawing tool (labeled n) to draw a unit vector in the direction ~A." 
+			   ?dir))
+       ))
+
 ;;;
 ;;; Following defines a variable for the work done by a force agent
 ;;; over a time interval.

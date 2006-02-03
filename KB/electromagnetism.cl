@@ -1995,11 +1995,6 @@
     ;; be soughts. 
     ;;
     (test (not (and (equal ?dot 0) ?rot)))
-    ;; Different hints for orthogonal vectors
-    (bind ?points (if (equal ?dot 0)  
-		      "Notice that the torque exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."
-		    
-		    ))
     (bind ?teaches (strcat "The electric dipole energy of a dipole P in an electric field E is given by "
 			   (if ?rot "- (p_x * E_x + p_y * E_y)." 
 			     "- p * E * cos ($q), where $q is the angle between the dipole and electric field vectors.")
@@ -2014,7 +2009,8 @@
 	(point (string "You need the value of the electric dipole energy of ~a ~A" 
 		       ?dipole (?t pp)))
 	(teach (string ?teaches))
-	(bottom-out (string "Write ~A"  ((= ?u-var (- ?dot)) algebra)))
+	(bottom-out (string "Write the equation ~A"  
+			    ((= ?u-var (- ?dot)) algebra)))
 	))
 
 
@@ -2876,3 +2872,118 @@
    (teach (string "The turns per unit length is the total turns wrapped around ~a divided by the length of ~a" ?b ?b))
    (bottom-out (string "Write the equation ~A" ((= ?mu (/ ?m ?l)) algebra)))
    ))
+
+
+;;;      Flux through a surface for a field that is constant over
+;;;      the surface in the direction orthogonal to the surface.
+
+(def-qexp electric-flux (flux ?surface electric :time ?t)
+     :units |V.m|
+     :english ("electric flux through ~A~@[ ~A~]" 
+	       (nlg ?surface) (nlg ?t 'pp)))
+
+(def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
+     :units |T.m^2|
+     :english ("magnetic flux through ~A~@[ ~A~]" 
+	       (nlg ?surface) (nlg ?t 'pp)))
+
+(defoperator define-flux (?surface ?type ?t)
+ :preconditions 
+ ((bind ?flux-var (format-sym "Phi~A_~A~@[_~A~]" 
+			     (subseq (string ?type) 0 1)
+			     (body-name ?surface) (time-abbrev ?t))) )
+ :effects (
+   (define-var (flux ?surface ?type :time ?t))
+   (variable ?flux-var (flux ?surface ?type :time ?t))
+ )
+ :hint (
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting ~A flux" 
+		       ((flux ?surface ?type :time ?t) def-np) (?type adj)))
+ ))
+
+(def-psmclass electric-flux-constant-field
+  (flux-constant-field ?surface electric ?field ?time ?rot)
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the definition of electric flux through a surface")
+  :expformat ("calculating the  ~A" 
+	      (nlg '(flux ?surface electric :time ?time)))
+  :EqnFormat ("$FE = A*E*cos($qE - $qn) OR $FE = A*(E_x*n_x + E_y*n_y)"))
+
+(def-psmclass magnetic-flux-constant-field
+  (flux-constant-field ?surface magnetic ?time ?rot)
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the definition of magnetic flux through a surface")
+  :expformat ("calculating the  ~A" 
+	      (nlg '(flux ?surface magnetic :time ?time)))
+  :EqnFormat ("$FB = A*B*cos($qB - $qn) OR $FB = A*(B_x*n_x + B_y*n_y)"))
+
+(defoperator flux-constant-field-angle-contains (?sought)
+  :preconditions 
+  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+   (any-member ?sought 
+	       ( (flux ?surface ?type :time ?t)
+		 (mag (field ?surface ?type ?source :time ?t))
+		 (area ?surface)
+		 ))
+   (time ?t)
+   )
+  :effects ((eqn-contains (flux-constant-field ?surface ?type ?t NIL) ?sought)
+  ))
+
+
+(defoperator flux-constant-field-compo-contains (?sought)
+  :preconditions 
+  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+   (any-member ?sought 
+	       ( (flux ?surface ?type :time ?t)
+		 (area ?surface)
+		 (compo ?xyz ?rot (field ?surface ?type ?source :time ?t))
+		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
+		 ))
+   ;; find axes now, before applying dot product:
+   (vector ?surface (field ?surface ?type ?source :time ?t) ?dir-d)
+   (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
+   (time ?t)
+   ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
+   ;; etc. will choose the angle.  If it is bound from the ?sought,
+   ;; operator will also succeed.
+   (axis-for ?surface x ?rot) 
+   )
+  :effects 
+  ((eqn-contains (flux-constant-field ?surface ?type ?t ?rot) ?sought)
+   (assume axes-for ?surface ?rot)
+ ))
+
+;; This can write either the component or the angle form of the 
+;; electric dipole energy equation, depending on ?rot.  
+(defoperator write-flux-constant-field (?surface ?type ?t ?rot)
+ :preconditions 
+ (
+  ;; make sure there is only one field defined on the surface
+  ;; if we have multiple fields, this law probably should be expressed
+  ;; in terms of the net field.
+  (setof (vector ?dontcare (field ?surface ?type ?source :time ?t) ?dir) 
+	 ?source ?sources)
+  (test (= 1 (length ?sources))) ;exactly one field at surface
+  (bind ?source (first ?sources))
+  (dot ?dot (field ?surface ?type ?source :time ?t)
+       (unit-vector normal-to ?surface :time ?t)
+       ?rot)
+  ;; for orthogonal vectors, prohibit dot-using-components
+  ;; in favor of dot-using-angle since it does not require drawing axes
+  (test (not (and (equal ?dot 0) ?rot)))
+  (variable ?Phi-var (flux ?surface ?type :time ?t))
+  (variable ?A (area ?surface))
+  )
+ :effects 
+ ((eqn (= ?Phi-var (* ?A ?dot))
+       (flux-constant-field ?surface ?type ?t ?rot))
+  )
+ :hint (
+	(point (string "Note that the ~A field is constant over ~A." 
+		       ?type ?surface))
+	(teach (string "The flux of a constant ~A field over a surface is the area times the dot product of the field and the unit normal to the surface." ?type))
+	(bottom-out (string "Write the equation ~A."  
+			    ((= ?Phi-var (* ?A ?dot)) algebra)))
+	))
+
