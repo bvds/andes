@@ -28,6 +28,8 @@ capacitance	C
 charge-on	q	charge		on [body:bodies]
 potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:times]
 stored-energy	U	energy stored		in [body:bodies] at time [time:times]
+electric-flux	$FE	electric flux		through [body:bodies] at time [time:times]
+magnetic-flux	$FM	magnetic flux		through [body:bodies] at time [time:times]
 inductance	L	inductance		of [body:bodies]
 mutual-inductance	M	mutual inductance		between [body:bodies] and [body2:bodies]
 current-change	dIdt	rate of change of current		through [body:bodies] at time [time:times]
