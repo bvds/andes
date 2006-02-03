@@ -308,12 +308,14 @@
         ((eql x y) bindings)
         ((variable-p x) (unify-variable x y bindings))
         ((variable-p y) (unify-variable y x bindings))
+	;; this allows for arbitrary matching functions
 	((and test (funcall test x) (funcall test y)) 
 	 (funcall test-function x y bindings))
+	;; handle orderless objects
 	((and (orderless-p x) (orderless-p y)) 
 	 (unify (orderless-sort (cdr x) bindings) 
 		(orderless-sort (cdr y) bindings) bindings))
-;;; Match any keyword pairs
+	;; Match any keyword pairs
 	((valid-keyword-pair x) (unify-keyword x y bindings))
 	((valid-keyword-pair y) (unify-keyword y x bindings))
         ((and (consp x) (consp y))
