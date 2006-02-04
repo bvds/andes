@@ -508,7 +508,7 @@
    )
    :effects ((eqn-contains (area-of-rectangle ?shape) ?sought)) )
 
-(defoperator area-of-rectangle (?rectangle)
+(defoperator write-area-of-rectangle (?rectangle)
    :preconditions 
    (
     (variable  ?l  (length ?rectangle))

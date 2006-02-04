@@ -9267,7 +9267,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; statement of the given dimensions. 
 (defoperator define-width (?b)
   :preconditions (
-     (object ?b)
      (shape ?b rectangle ?dontcare)
      (bind ?l-var (format-sym "width_~A" (body-name ?b)))
   )
