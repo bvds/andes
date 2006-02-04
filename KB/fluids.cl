@@ -391,41 +391,6 @@
           (bottom-out (string "Define a variable for the circumference of ~A by using the Add Variable command on the Variable menu and selecting circle circumference."  ?body))
           ))
 
-;; equation of the area of a circle Ac = pi*rc^2
-(def-psmclass area-of-circle (area-of-circle ?body)
-  :complexity minor  
-  :english ("the formula for the area of a circle")
-  :ExpFormat ("Applying the formula for the area of a circle")
-  :EqnFormat ("Ac = $p*r^2")) 
-
- (defoperator area-of-circle-contains (?sought)
-   :preconditions (
-		   (in-wm (shape ?shape circle))
-		   (any-member ?sought ( 
-					(radius-of-circle ?shape)
-					(area ?shape)
-					))  
-   )
-   :effects (
-	     (eqn-contains (area-of-circle ?shape) ?sought)
-   ))
-
-(defoperator area-of-circle (?circle)
-   :preconditions (
-       (variable  ?rc  (radius-of-circle ?circle))
-       (variable  ?Ac  (area ?circle))
-   )
-   :effects (
-    (eqn  (= ?Ac (* $P (^ ?rc 2))) 
-                (area-of-circle ?circle))
-   )
-   :hint (
-      (point (string "You can use the formula for the area of a circle"))
-      (teach (string "The area of a circle is $p times the radius squared."))
-      (bottom-out (string "Write the equation ~A" 
-                     (= ?Ac (* $P (^ ?rc 2))) algebra) ))
-   )
-
 ;; equation of the circumference of a circle c = 2*pi*r
 (def-psmclass circumference-of-circle-r (circumference-of-circle-r ?body)
   :complexity minor  
@@ -495,6 +460,68 @@
       (bottom-out (string "Write the equation ~A" 
                      (= ?Ac (* $P ?dc)) algebra) ))
    )
+
+;;; equation of the area of a circle Ac = pi*rc^2
+(def-psmclass area-of-circle (area-of-circle ?body)
+  :complexity minor  
+  :english ("the formula for the area of a circle")
+  :ExpFormat ("Applying the formula for the area of a circle")
+  :EqnFormat ("Ac = $p*r^2")) 
+
+ (defoperator area-of-circle-contains (?sought)
+   :preconditions 
+   (
+    (in-wm (shape ?shape circle))
+    (any-member ?sought ( (radius-of-circle ?shape)
+			  (area ?shape) ))  
+   )
+   :effects ( (eqn-contains (area-of-circle ?shape) ?sought) ))
+
+(defoperator area-of-circle (?circle)
+   :preconditions (
+       (variable  ?rc  (radius-of-circle ?circle))
+       (variable  ?Ac  (area ?circle))
+   )
+   :effects (
+    (eqn  (= ?Ac (* $P (^ ?rc 2))) 
+                (area-of-circle ?circle))
+   )
+   :hint (
+      (point (string "You can use the formula for the area of a circle"))
+      (teach (string "The area of a circle is $p times the radius squared."))
+      (bottom-out (string "Write the equation ~A" 
+                     (= ?Ac (* $P (^ ?rc 2))) algebra) ))
+   )
+
+(def-psmclass area-of-rectangle (area-of-rectangle ?body)
+  :complexity minor  
+  :english ("the formula for the area of a rectangle")
+  :ExpFormat ("Applying the formula for the area of a rectangle")
+  :EqnFormat ("A = w*l")) 
+
+ (defoperator area-of-rectangle-contains (?sought)
+   :preconditions (
+		   (in-wm (shape ?shape rectangle ?dontcare))
+		   (any-member ?sought ((width ?shape)
+					(length ?shape)
+					(area ?shape)))  
+   )
+   :effects ((eqn-contains (area-of-rectangle ?shape) ?sought)) )
+
+(defoperator area-of-rectangle (?rectangle)
+   :preconditions 
+   (
+    (variable  ?l  (length ?rectangle))
+    (variable  ?w  (width ?rectangle))
+    (variable  ?A  (area ?rectangle))
+    )
+   :effects ( (eqn (= ?A (* ?l ?w)) (area-of-rectangle ?rectangle)) )
+   :hint (
+      (point (string "You can use the formula for the area of a rectangle"))
+      (teach (string "The area of a rectangle is length times width."))
+      (bottom-out (string "Write the equation ~A"  
+			  (= ?A (* ?l ?w)) algebra) )) )
+
 
 ;;;
 ;;; Pressure forces: 

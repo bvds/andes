@@ -300,6 +300,7 @@ LEAF	Ft1 = Ft2            Equal tensions at both ends	tensions-equal	Equal tensi
 LEAF	r = sqrt(r_x^2 + r_y^2) Position mag from components	rmag-pyth	Pythagorean Theorem
 LEAF	r21_x = x2 - x1      Relative Position from coordinates	(rdiff ((axis . ?x)))	
 LEAF	r21_y = y2 - y1      Relative Position from coordinates	(rdiff ((axis . ?y)))	
+LEAF	A = l*w          Area of a rectangle	area-of-rectangle	
 LEAF	A = $p*r^2           Area of a circle	area-of-circle	
 LEAF	A = 2*$p*r           Circumference of a circle	circumference-of-circle-r	
 LEAF	A = $p*d             Circumference of a circle	circumference-of-circle-d	
