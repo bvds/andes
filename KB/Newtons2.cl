@@ -2076,7 +2076,7 @@
    "If you are given the direction of a net displacement over an interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((in-wm (given (dir (displacement ?b :time ?t)) ?dir))
+   ((given (dir (displacement ?b :time ?t)) ?dir)
     (test (not (equal ?dir 'unknown)))  
     (test (time-intervalp ?t))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
@@ -2086,7 +2086,6 @@
    ((vector ?b (displacement ?b :time ?t) ?dir)
     (variable ?mag-var (mag (displacement ?b :time ?t)))
     (variable ?dir-var (dir (displacement ?b :time ?t)))
-    (given (dir (displacement ?b :time ?t)) ?dir)
     ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
     ;; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir) (dir (displacement ?b :time ?t)))
@@ -7484,9 +7483,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; ensure it here.
    (implicit-eqn (= ?dir-var ?dir) 
 		 (dir (unit-vector ?orientation ?body :at ?loc :time ?t)))
-   ;; BvdS:  I am not sure if here is exactly the right place for this.
-   (implicit-eqn (= ?mag-var 1) 
-		 (mag (unit-vector ?orientation ?body :at ?loc :time ?t)))
+   ;; BvdS:  I am not sure how to do this.  I want the n=1 to be
+   ;; an automatic side-effect of drawing the vector.
+   (given (mag (unit-vector ?orientation ?body :at ?loc :time ?t)) 1)
    )  
   :hint (
        (point (string "You can draw ~A?" 
