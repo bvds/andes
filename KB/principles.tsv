@@ -127,6 +127,8 @@ LEAF	B = $m0*n*I            Magnetic field inside a long solenoid	inside-solenoi
 LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	Magnetic Field
 LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	Magnetic Field
 LEAF	$FB = A*B.n   [$FB = A*B*cos($q) or $FB = A*(B_x*n_x+B_y*n_y]        magnetic flux (constant field)	magnetic-flux-constant-field	Magnetic Field
+LEAF	d$FB/dt = B.n*dA/dt        the rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	Magnetic Field
+LEAF	V = -d$FB/dt                          Faraday's law	faradays-law	Magnetic Field
 END_GROUP			
 GROUP	DC Circuits		
 LEAF	+/-V1 +/-V2 +/-V3...=0     Kirchoff's Loop rule	loop-rule	Loop Rule
@@ -172,8 +174,8 @@ LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-leng
 LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction	
 LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum	
 END_GROUP			
-GROUP	Waves and Oscillations		
-LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
+GROUP	Waves and Oscillations	
+LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave
 LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave
 LEAF	T = 1/f       Period of oscillation	period-of-wave
 LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
@@ -188,8 +190,8 @@ LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequ
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
 LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
 LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
-END_GROUP		
-END_GROUP	Write a Principle	
+END_GROUP			
+END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
 GROUP	Translational		
@@ -244,7 +246,6 @@ END_GROUP
 END_GROUP			
 END_GROUP			
 GROUP	Work and Energy		
-LEAF	W = F*d*cos($q)         work done by a force	work	Work done by a force
 LEAF	Wnet = $S Wi            Net work defined	net-work	Net work
 LEAF	Wnc = $S Wncf_i         work by non-conservative	work-nc	Conservation of Energy
 LEAF	ME = K + $S Ui          mechanical energy defined	mechanical-energy	Conservation of Energy
@@ -302,6 +303,7 @@ LEAF	r = sqrt(r_x^2 + r_y^2) Position mag from components	rmag-pyth	Pythagorean 
 LEAF	r21_x = x2 - x1      Relative Position from coordinates	(rdiff ((axis . ?x)))	
 LEAF	r21_y = y2 - y1      Relative Position from coordinates	(rdiff ((axis . ?y)))	
 LEAF	A = l*w          Area of a rectangle	area-of-rectangle	
+LEAF	dA/dt = w*dl/dt          time derivative of formula for area of rectangle (constant width)	area-of-rectangle-change	
 LEAF	A = $p*r^2           Area of a circle	area-of-circle	
 LEAF	A = 2*$p*r           Circumference of a circle	circumference-of-circle-r	
 LEAF	A = $p*d             Circumference of a circle	circumference-of-circle-d	
