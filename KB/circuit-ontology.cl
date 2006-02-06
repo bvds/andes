@@ -7,22 +7,22 @@
 ;; note arguments are usually proper names -- R1, PtA, etc -- not common nouns
 ;; so we don't use nlg types that add articles.
 (def-qexp voltage-across (voltage-across ?comp :time ?time)
-          :units |V|
-          :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
+  :units |V|
+  :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
 
 (def-qexp resistance (resistance ?names)
 	:units |$W|
 	:english ("the resistance of ~A" (conjoined-names ?names)))
 
 (def-qexp current-thru (current-thru ?component :time ?time)
-	:units |A|
-	; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
-	; currents to be positive on a per-problem basis with :VariableMarks
-	:english ("the current through ~A~@[ ~A~]" ?component (nlg ?time 'pp)))
+  :units |A|
+  ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
+  ;; currents to be positive on a per-problem basis with :VariableMarks
+  :english ("the current through ~A~@[ ~A~]" ?component (nlg ?time 'pp)))
 
 (def-qexp current-in (current-in ?branch :time ?time)
-	:units |A|
-	:english ("the current in branch ~A~@[ ~A~]" ?branch (nlg ?time 'pp)))
+  :units |A|
+  :english ("the current in branch ~A~@[ ~A~]" ?branch (nlg ?time 'pp)))
 
 (def-qexp capacitance (capacitance ?name)
   :units |F|

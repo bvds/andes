@@ -300,6 +300,10 @@
   :units |m|
   :fromWorkbench `(length ,body)
   :english ("the length of ~A" (nlg ?body)))
+(def-qexp length-change (rate-of-change (length ?body))
+  :units |m/s|
+  :fromWorkbench `(rate-of-change (length ,body))
+  :english ("the rate of change of the length of ~A" (nlg ?body)))
 (def-qexp width  (width ?body)
   :units |m|
   :fromWorkbench `(width ,body) 

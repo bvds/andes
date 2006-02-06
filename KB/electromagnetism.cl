@@ -2879,12 +2879,28 @@
 
 (def-qexp electric-flux (flux ?surface electric :time ?t)
      :units |V.m|
+     :fromworkbench `(flux ,body electric :time ,time)
      :english ("electric flux through ~A~@[ ~A~]" 
+	       (nlg ?surface) (nlg ?t 'pp)))
+
+(def-qexp electric-flux-change (rate-of-change 
+				(flux ?surface electric :time ?t))
+     :units |V.m/s|
+     :fromworkbench `(rate-of-change (flux ,body electric :time ,time))
+     :english ("rate of change in electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
      :units |T.m^2|
+     :fromworkbench `(flux ,body magnetic :time ,time)
      :english ("magnetic flux through ~A~@[ ~A~]" 
+	       (nlg ?surface) (nlg ?t 'pp)))
+
+(def-qexp magnetic-flux-change (rate-of-change 
+				(flux ?surface magnetic :time ?t))
+     :units |T.m^2/s|
+     :fromworkbench `(rate-of-change (flux ,body magnetic :time ,time))
+     :english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (defoperator define-flux (?surface ?type ?t)
@@ -2905,7 +2921,7 @@
   (flux-constant-field ?surface electric ?field ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of electric flux through a surface")
-  :expformat ("calculating the  ~A" 
+  :expformat ("calculating the ~A" 
 	      (nlg '(flux ?surface electric :time ?time)))
   :EqnFormat ("$FE = A*E*cos($qE - $qn) OR $FE = A*(E_x*n_x + E_y*n_y)"))
 
@@ -2913,7 +2929,7 @@
   (flux-constant-field ?surface magnetic ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of magnetic flux through a surface")
-  :expformat ("calculating the  ~A" 
+  :expformat ("calculating the ~A" 
 	      (nlg '(flux ?surface magnetic :time ?time)))
   :EqnFormat ("$FB = A*B*cos($qB - $qn) OR $FB = A*(B_x*n_x + B_y*n_y)"))
 
@@ -2987,3 +3003,127 @@
 			    ((= ?Phi-var (* ?A ?dot)) algebra)))
 	))
 
+;;;; This is really clunky, it is just the time derivative of
+;;;; flux-constant-field above
+
+(def-psmclass electric-flux-constant-field-change
+  (flux-constant-field-change ?surface electric ?field ?time ?rot)
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the time derivative of the definition of electric flux through a surface")
+  :expformat ("calculating the ~A" 
+	      (nlg '(rate-of-change (flux ?surface electric :time ?time))))
+  :EqnFormat ("d$FE/dt = E.n*dA/dt"))
+
+(def-psmclass magnetic-flux-constant-field-change
+  (flux-constant-field-change ?surface magnetic ?time ?rot)
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the time derivative of the definition of magnetic flux through a surface")
+  :expformat ("calculating the ~A" 
+	      (nlg '(rate-of-change (flux ?surface magnetic :time ?time))))
+  :EqnFormat ("d$FB/dt = B.n*dA/dt"))
+
+(defoperator flux-constant-field-change-angle-contains (?sought)
+  :preconditions 
+  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+   (any-member ?sought 
+	       ( (rate-of-change (flux ?surface ?type :time ?t))
+		 (mag (field ?surface ?type ?source :time ?t))
+		 (rate-of-change (area ?surface))
+		 ))
+   (time ?t)
+   )
+  :effects ((eqn-contains (flux-constant-field-change ?surface ?type ?t NIL) ?sought)
+  ))
+
+
+(defoperator flux-constant-field-change-compo-contains (?sought)
+  :preconditions 
+  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+   (any-member ?sought 
+	       ( (rate-of-change (flux ?surface ?type :time ?t))
+		 (rate-of-change (area ?surface))
+		 (compo ?xyz ?rot (field ?surface ?type ?source :time ?t))
+		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
+		 ))
+   ;; find axes now, before applying dot product:
+   (vector ?surface (field ?surface ?type ?source :time ?t) ?dir-d)
+   (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
+   (time ?t)
+   ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
+   ;; etc. will choose the angle.  If it is bound from the ?sought,
+   ;; operator will also succeed.
+   (axis-for ?surface x ?rot) 
+   )
+  :effects 
+  ((eqn-contains (flux-constant-field-change ?surface ?type ?t ?rot) ?sought)
+   (assume axes-for ?surface ?rot)
+ ))
+
+;; This can write either the component or the angle form of the 
+;; electric dipole energy equation, depending on ?rot.  
+(defoperator write-flux-constant-field-change (?surface ?type ?t ?rot)
+ :preconditions 
+ (
+  ;; make sure there is only one field defined on the surface
+  ;; if we have multiple fields, this law probably should be expressed
+  ;; in terms of the net field.
+  (setof (vector ?dontcare (field ?surface ?type ?source :time ?t) ?dir) 
+	 ?source ?sources)
+  (test (= 1 (length ?sources))) ;exactly one field at surface
+  (bind ?source (first ?sources))
+  (dot ?dot (field ?surface ?type ?source :time ?t)
+       (unit-vector normal-to ?surface :time ?t)
+       ?rot)
+  ;; for orthogonal vectors, prohibit dot-using-components
+  ;; in favor of dot-using-angle since it does not require drawing axes
+  (test (not (and (equal ?dot 0) ?rot)))
+  (variable ?Phi-var (rate-of-change (flux ?surface ?type :time ?t)))
+  (variable ?A (rate-of-change (area ?surface)))
+  )
+ :effects 
+ ((eqn (= ?Phi-var (* ?A ?dot))
+       (flux-constant-field-change ?surface ?type ?t ?rot))
+  )
+ :hint (
+	(point (string "Note that the ~A field is constant over ~A." 
+		       ?type ?surface))
+	(teach (string "The time derivative of the flux of a constant ~A field over a surface is the time derivative of the area times the dot product of the field and the unit normal to the surface." ?type))
+	(bottom-out (string "Write the equation ~A."  
+			    ((= ?Phi-var (* ?A ?dot)) algebra)))
+	))
+
+;;;
+;;;              Faraday's law
+;;;
+
+(def-psmclass faradays-law (faradays-law ?surface ?R ?time)
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("Faraday's law")
+  :expformat ("applying Faradays law to ~A" (nlg ?surface)) 
+  :EqnFormat ("V = -d$FB/dt"))
+
+(defoperator faradays-law-contains (?sought)
+  :preconditions 
+  (
+    ;; assuming EMF induces voltage across ?R
+   (faraday-loop ?surface ?R) ;specify by hand whether formula is valid
+   (any-member ?sought 
+	       ( (rate-of-change (flux ?surface magnetic :time ?t))
+				 (voltage-across ?R :time ?t)))
+   (time ?t)
+   )
+  :effects ((eqn-contains (faradays-law ?surface ?r ?t) ?sought)
+  ))
+
+(defoperator write-faradays-law (?surface ?r ?t)
+ :preconditions 
+ ( (variable ?V (voltage-across ?R :time ?t))
+  (variable ?Phi-var (rate-of-change (flux ?surface magnetic :time ?t))) )
+ :effects ( (eqn (= ?Phi-var (- ?V)) (faradays-law ?surface ?R ?t)) )
+ :hint (
+	(point (string "Note that the magnetic flux through ~A is changing." 
+		        ?surface))
+	(teach (string "Faraday's law states that changing magnetic flux through a surface induces a voltage around the edge of that surface."))
+ 	(bottom-out (string "Write the equation ~A."  
+			    ((= ?Phi-var (- ?V)) algebra)))
+	))

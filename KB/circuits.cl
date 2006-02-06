@@ -1727,6 +1727,24 @@
 			     ((rate-of-change (current-thru ?comp :time ?time)) var-or-quant) ))
 	 ))
 
+;; Generic wrapper to define the derivative of a generic quantity
+;; Partially because these quantities correspond to distinct variable
+;; choices in the user interface, a unique def-qexp will be needed for
+;; each quantity.
+;;
+;; The hint is a bit weak because KB has no information about 
+;; the menu item name given in scalars.tsv
+
+(defoperator define-rate-of-change-var (?quant)
+  :preconditions ((variable ?var ?quant)
+		  (bind ?change-var (format-sym "d~A_dt" ?var)))
+  :effects ((variable ?change-var (rate-of-change ?quant))
+	    (define-var (rate-of-change ?quant)))
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu." 
+			     (rate-of-change ?quant) ))
+	 ))
+
 ;; voltage across an inductor V = -L*dI/dt
 (def-psmclass inductor-emf (inductor-emf ?inductor ?time) 
   :complexity major

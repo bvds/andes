@@ -7322,10 +7322,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
     (variable ?ax (compo x ?rot ?a))
     (variable ?ay (compo y ?rot ?a))
+    (variable ?az (compo z ?rot ?a))
     (variable ?bx (compo x ?rot ?b))
     (variable ?by (compo y ?rot ?b))
+    (variable ?bz (compo z ?rot ?b))
     (bind ?x-rot (axis-dir 'x ?rot))
     (bind ?y-rot (axis-dir 'y ?rot))
+    (bind ?z-rot (axis-dir 'z ?rot))
     (bind ?dot (cond
 		;; same behavior as dot-using-angle for orthogonal vectors 
 		((perpendicularp ?dir-a ?dir-b) 0)
@@ -7337,7 +7340,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		((or (parallel-or-antiparallelp ?dir-a ?y-rot) 
 		     (parallel-or-antiparallelp ?dir-b ?y-rot))
 		 `(* ,?ay ,?by))
-		(t `(+ (* ,?ax ,?bx) (* ,?ay ,?by)))))
+		;; a vector is parallel or anti-parallel to the z-axis
+		((or (parallel-or-antiparallelp ?dir-a ?z-rot) 
+		     (parallel-or-antiparallelp ?dir-b ?z-rot))
+		 `(* ,?az ,?bz))
+		(t `(+ (* ,?ax ,?bx) (* ,?ay ,?by) (* ,?az ,?bz)))))
     )
   :effects ( (dot ?dot ?a ?b ?rot)
 	     ;; nogood rule to so that only one form of dot is chosen
@@ -7472,6 +7479,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			      (body-name ?body) 
 			      (body-name ?loc) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?angle-value (if (z-dir-spec ?dir) (zdir-phi ?dir) ?dir))
    )
   :effects 
   (
@@ -7481,11 +7489,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; Because dir is problem given, find-by-psm won't ensure implicit 
    ;; eqn gets written.  Given value may not be used elsewhere so 
    ;; ensure it here.
-   (implicit-eqn (= ?dir-var ?dir) 
+   (implicit-eqn (= ?dir-var ?angle-value) 
 		 (dir (unit-vector ?orientation ?body :at ?loc :time ?t)))
-   ;; BvdS:  I am not sure how to do this.  I want the n=1 to be
-   ;; an automatic side-effect of drawing the vector.
-   (given (mag (unit-vector ?orientation ?body :at ?loc :time ?t)) 1)
+   (implicit-eqn (= ?mag-var 1) 
+		 (mag (unit-vector ?orientation ?body :at ?loc :time ?t)))
    )  
   :hint (
        (point (string "You can draw ~A?" 
@@ -7493,6 +7500,26 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
        (bottom-out (string "Use the unit vector drawing tool (labeled n) to draw a unit vector in the direction ~A." 
 			   ?dir))
        ))
+
+(def-psmclass unit-vector-mag (unit-vector-mag . ?args)
+  :complexity definition
+  :english ("the length of a unit vector")
+  :ExpFormat("setting length of unit vector to 1")
+  :EqnFormat("n=1"))
+
+(defoperator unit-vector-mag-contains (?sought)
+  :preconditions ( (any-member ?sought ((mag (unit-vector . ?args)))) )
+  :effects ( (eqn-contains (unit-vector-mag . ?args) ?sought) ))
+
+
+(defoperator write-unit-vector-mag (?args)
+  :preconditions ((variable  ?n (mag (unit-vector . ?args))) )
+  :effects ( (eqn  (= ?n 1.0) (unit-vector-mag . ?args)) )
+  :hint (
+	 (hint (string "What is the length of a unit vector?"))
+	 (bottom-out (string "Write the equation ~A" ((= ?n 1.0)  algebra) ))
+	 ))
+
 
 ;;;
 ;;; Following defines a variable for the work done by a force agent

@@ -331,6 +331,13 @@
      :fromworkbench `(area ,body)
 )
 
+(def-qexp area-change (rate-of-change (area ?shape))
+     :units |m^2/s|
+     :restrictions positive
+     :english ("the rate of change of the area of ~A" (nlg ?shape))
+     :fromworkbench `(rate-of-chage (area ,body))
+)
+
 (defoperator define-area (?shape)
      :preconditions((bind ?Ac-var (format-sym "A_~A" (body-name ?shape))))
      :effects ((variable ?Ac-var (area ?shape))
@@ -519,6 +526,35 @@
    :hint (
       (point (string "You can use the formula for the area of a rectangle"))
       (teach (string "The area of a rectangle is length times width."))
+      (bottom-out (string "Write the equation ~A"  
+			  (= ?A (* ?l ?w)) algebra) )) )
+
+(def-psmclass area-of-rectangle-change (area-of-rectangle-change ?body)
+  :complexity minor  
+  :english ("the derivative of the formula for the area of a rectangle")
+  :ExpFormat ("taking the derivative of the formula for area")
+  :EqnFormat ("dA/dt = w*dl/dt")) 
+
+ (defoperator area-of-rectangle-change-contains (?sought)
+   :preconditions (
+		   (in-wm (shape ?shape rectangle ?dontcare))
+		   (any-member ?sought ((width ?shape)
+					(rate-of-change (length ?shape))
+					(rate-of-change (area ?shape)))  )
+   )
+   :effects ((eqn-contains (area-of-rectangle-change ?shape) ?sought)) )
+
+(defoperator write-area-of-rectangle-change (?rectangle)
+   :preconditions 
+   (
+    (variable  ?l  (rate-of-change (length ?rectangle)))
+    (variable  ?w  (width ?rectangle))
+    (variable  ?A  (rate-of-change (area ?rectangle)))
+    )
+   :effects ( (eqn (= ?A (* ?l ?w)) (area-of-rectangle-change ?rectangle)) )
+   :hint (
+      (point (string "You can take the time derivative of the formula for the area of a rectangle"))
+      (teach (string "The area of a rectangle is length times width.  Take the time derivative, assuming the width is constant."))
       (bottom-out (string "Write the equation ~A"  
 			  (= ?A (* ?l ?w)) algebra) )) )
 
