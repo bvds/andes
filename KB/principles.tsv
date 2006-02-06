@@ -294,6 +294,7 @@ LEAF	f1 = c*f2              Fraction of	given-fraction	Fraction of
 LEAF	t02 = t01 + t12      Sum of times	sum-times	Sum of times
 LEAF	d02 = d01 + d12      Sum of distances	sum-distances	Sum of distances
 LEAF	c^2 = a^2 + b^2      Pythagorean Thm	pyth-thm	Pythagorean Theorem
+LEAF	n = 1                length of unit vector	unit-vector-mag	
 LEAF	a1 = a2              Connected accelerations	connected-accels	Equal accelerations
 LEAF	v1 = v2              Connected velocities	connected-velocities	Equal velocities
 LEAF	Ft1 = Ft2            Equal tensions at both ends	tensions-equal	Equal tensions at both ends
