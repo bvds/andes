@@ -3096,34 +3096,45 @@
 ;;;              Faraday's law
 ;;;
 
-(def-psmclass faradays-law (faradays-law ?surface ?R ?time)
+(def-psmclass faradays-law (faradays-law ?surface ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("Faraday's law")
   :expformat ("applying Faradays law to ~A" (nlg ?surface)) 
   :EqnFormat ("V = -d$FB/dt"))
 
+
 (defoperator faradays-law-contains (?sought)
   :preconditions 
   (
-    ;; assuming EMF induces voltage across ?R
-   (faraday-loop ?surface ?R) ;specify by hand whether formula is valid
+   ;; assuming EMF induces voltage across ?R
+   ;; specify by hand whether formula is valid
+   (faraday-loop ?surface ?R :turns ?turn-flag) 
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface magnetic :time ?t))
-				 (voltage-across ?R :time ?t)))
+		 (turns ?surface)
+		 (voltage-across ?R :time ?t)))
    (time ?t)
+   (test (if (eq (first ?sought) 'turns) ?turn-flag t))
    )
-  :effects ((eqn-contains (faradays-law ?surface ?r ?t) ?sought)
+  :effects ((eqn-contains (faradays-law ?surface ?t) ?sought)
   ))
 
 (defoperator write-faradays-law (?surface ?r ?t)
  :preconditions 
- ( (variable ?V (voltage-across ?R :time ?t))
-  (variable ?Phi-var (rate-of-change (flux ?surface magnetic :time ?t))) )
- :effects ( (eqn (= ?Phi-var (- ?V)) (faradays-law ?surface ?R ?t)) )
+ (
+  (in-wm (faraday-loop ?surface ?R :turns ?turn-flag))
+  (variable ?V (voltage-across ?R :time ?t))
+  (variable ?Phi-var (rate-of-change (flux ?surface magnetic :time ?t)))
+  (variable ?turn-var (turns ?surface))
+  (bind ?phi-term (if ?turn-flag `(* ,?turn-var ,?Phi-var) ?Phi-var))
+ )
+ :effects 
+ ( (eqn (= ?Phi-term (- ?V)) (faradays-law ?surface ?t)) )
  :hint (
 	(point (string "Note that the magnetic flux through ~A is changing." 
 		        ?surface))
 	(teach (string "Faraday's law states that changing magnetic flux through a surface induces a voltage around the edge of that surface."))
  	(bottom-out (string "Write the equation ~A."  
-			    ((= ?Phi-var (- ?V)) algebra)))
+			    ((= ?Phi-term (- ?V)) algebra)))
 	))
+

@@ -1745,6 +1745,50 @@
 			     (rate-of-change ?quant) ))
 	 ))
 
+;;; Generic definition of average rate of change of some quantity
+
+(def-psmclass average-rate-of-change (average-rate-of-change ?quant ?time)
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the average rate of change of quantity")
+  :expformat ("applying definition of average rate of change to ~A" 
+	      (nlg ?quant)) 
+  :EqnFormat ("dy/dt_avg = (y2-y1)/(t2-t1)"))
+
+;; This is rather incomplete:  it should also allow the time interval
+;; or the end values to be the sought
+(defoperator average-rate-of-change-contains (?sought)
+  :preconditions 
+  (
+   (time ?t)
+   (test (time-intervalp ?t))
+   (any-member ?sought ((rate-of-change ?quant)))
+   (test (equal ?t (time-of ?quant)))
+   )
+  :effects ((eqn-contains (average-rate-of-change ?quant ?t) ?sought)
+  ))
+
+(defoperator write-average-rate-of-change (?quant ?t)
+ :preconditions 
+ (
+  (variable ?qavg (rate-of-change ?quant))
+  (variable ?dt (duration ?t))
+  (bind ?q1 (set-time ?quant (second ?t)))
+  (bind ?q2 (set-time ?quant (third ?t)))
+  (variable ?q1-var ?q1)
+  (variable ?q2-var ?q2)
+ )
+ :effects 
+ ( (eqn (= ?qavg (/ (- ?q2-var ?q1-var) ?dt)) 
+	(average-rate-of-change ?quant ?t)) )
+ :hint (
+	(point (string "Find the average value of ~A." 
+		        (rate-of-change ?quant)))
+	(teach (string "The average rate of change is the change in value divided by the change in time."))
+ 	(bottom-out (string "Write the equation ~A."  
+			    ((= ?qavg (/ (- ?q2-var ?q1-var) ?dt))  algebra)))
+	))
+
+
 ;; voltage across an inductor V = -L*dI/dt
 (def-psmclass inductor-emf (inductor-emf ?inductor ?time) 
   :complexity major
