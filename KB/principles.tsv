@@ -164,7 +164,7 @@ LEAF	I = I0*exp(-t/$t)          LR current decay	LR-current-decay	LR Circuits
 LEAF	I0 = Vb/R                 LR decay initial current	LR-decay-Imax	LR Circuits
 LEAF	$w = 1/sqrt(L*C)                   LC angular frequency	LC-angular-frequency	LC Circuits
 LEAF	$t = 2*L/R                       RLC time constant	RLC-time-constant	RLC Circuits
-LEAF	$w = 1/sqrt(L*C-(R/(2*L))^2)       RLC angular frequency	RLC-angular-frequency	RLC Circuits
+LEAF	$w = sqrt(1/(L*C)-R^2/(2*L)^2)       RLC angular frequency	RLC-angular-frequency	RLC Circuits
 END_GROUP			
 END_GROUP			
 GROUP	Optics		
