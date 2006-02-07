@@ -162,6 +162,7 @@ LEAF	I = If*(1 - exp(-t/$t)     LR current growth	LR-current-growth	LR Circuits
 LEAF	If = Vb/R                 LR growth final current	LR-growth-Imax	LR Circuits
 LEAF	I = I0*exp(-t/$t)          LR current decay	LR-current-decay	LR Circuits
 LEAF	I0 = Vb/R                 LR decay initial current	LR-decay-Imax	LR Circuits
+LEAF	$w = 1/sqrt(L*C)                   LC frequency	LC-angular-frequency	LC Circuits
 END_GROUP			
 END_GROUP			
 GROUP	Optics		
@@ -173,7 +174,7 @@ LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnific
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
 LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction	
 LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum	
-END_GROUP			
+END_GROUP		
 GROUP	Waves and Oscillations	
 LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave
 LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave
@@ -189,7 +190,7 @@ LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pen
 LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
 LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
-LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
+LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
 END_GROUP			
 END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
