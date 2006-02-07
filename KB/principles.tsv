@@ -192,7 +192,7 @@ LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pen
 LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
 LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
-LEAF	E = E0*exp(-2*t/$t)          Oscillator energy decay	oscillator-energy-decay	
+LEAF	E = E0*exp(-2*t/$t)          energy decay	energy-decay	
 LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
 END_GROUP			
 END_GROUP	Write a Principle		
