@@ -162,7 +162,9 @@ LEAF	I = If*(1 - exp(-t/$t)     LR current growth	LR-current-growth	LR Circuits
 LEAF	If = Vb/R                 LR growth final current	LR-growth-Imax	LR Circuits
 LEAF	I = I0*exp(-t/$t)          LR current decay	LR-current-decay	LR Circuits
 LEAF	I0 = Vb/R                 LR decay initial current	LR-decay-Imax	LR Circuits
-LEAF	$w = 1/sqrt(L*C)                   LC frequency	LC-angular-frequency	LC Circuits
+LEAF	$w = 1/sqrt(L*C)                   LC angular frequency	LC-angular-frequency	LC Circuits
+LEAF	$t = 2*L/R                       RLC time constant	RLC-time-constant	RLC Circuits
+LEAF	$w = 1/sqrt(L*C-(R/(2*L))^2)       RLC angular frequency	RLC-angular-frequency	RLC Circuits
 END_GROUP			
 END_GROUP			
 GROUP	Optics		
@@ -172,8 +174,8 @@ LEAF	f = r/2                 Focal Length of Mirror	focal-length-mirror	Spherica
 LEAF	do2 = d12 - di1         Combination of Lenses	lens-combo	Combined Lenses
 LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnification
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
-LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction	
-LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum	
+LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction
+LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum
 END_GROUP		
 GROUP	Waves and Oscillations	
 LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave
@@ -188,8 +190,9 @@ LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-t
 LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
 LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
 LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequency
-LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
-LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
+LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
+LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
+LEAF	E = E0*exp(-2*t/$t)          Oscillator energy decay	oscillator-energy-decay	
 LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
 END_GROUP			
 END_GROUP	Write a Principle		
