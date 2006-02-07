@@ -1170,3 +1170,47 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
     (bottom-out (string "Write the equation ~A" 
 			     ((= ?power (* 4 $p (^ ?r 2) ?int)) algebra) ))
 	 ))
+
+;;; Energy dissipation in an oscillator.
+
+(def-psmclass energy-decay (energy-decay ?components ?time) 
+  :complexity major
+  :english ("Energy in a damped system")
+  :eqnFormat ("E = Ei*exp(-2*t/$t)"))
+
+(defoperator energy-decay-contains (?sought)
+  :preconditions
+  (
+   (damping . ?system)  ; system appropriate for formula
+   (any-member ?sought ((stored-energy (compound . ?system) :time ?t1)
+			(stored-energy (compound . ?system) :time ?t2)
+			(duration (during ?t1 ?t2))
+			(time-constant . ?system)
+			))
+   ;; make sure we have a time interval:
+   (time (during ?t1 ?t2))
+   )
+  :effects(
+	   (eqn-contains (energy-decay ?system (during ?t1 ?t2)) ?sought)
+	   ))
+
+(defoperator write-energy-decay (?system ?t1 ?t2)
+  :preconditions 
+  (
+   (variable ?E1-var (stored-energy (compound . ?system) :time ?t1))
+   (variable ?E2-var (stored-energy (compound . ?system) :time ?t2))
+   (variable ?t-var (duration (during ?t1 ?t2)))
+   (variable ?tau-var (time-constant . ?system))
+   )
+  :effects 
+  ((eqn (= ?E2-var (* ?E1-var (exp (/ (- (* 2 ?t-var)) ?tau-var))))
+	(energy-decay ?system (during ?t1 ?t2))))
+  :hint
+  (
+   (point (string "Write the equation for exponential decay of energy for ~a."
+		  (compound . ?system)))
+   (bottom-out (string "Write the equation ~a"
+		       ((= ?E2-var (* ?E1-var 
+				      (exp (/ (- (* 2 ?t-var)) ?tau-var)))) 
+			algebra) ))
+   ))

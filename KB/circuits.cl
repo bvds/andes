@@ -1375,6 +1375,17 @@
 				      ((stored-energy ?cap :time ?t) def-np)))
 		  ))
 
+(defoperator define-stored-energy-var (?b ?t)
+  :preconditions 
+  ( (bind ?U-var (format-sym "U_~A~@[_~A~]" (body-name ?b) 
+					   (time-abbrev ?t))) ) 
+  :effects ( (variable ?U-var (stored-energy ?b :time ?t))
+	     (define-var (stored-energy ?b :time ?t)) ) 
+  :hint 
+  ( (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Stored Energy." 
+			((stored-energy ?b :time ?t) def-np)))
+    ))
+
 ;;; RC CIRCUITS
 
 ;; ?quants are ordered, see (def-qexp time-constant ...)
@@ -1419,12 +1430,49 @@
 	 (bottom-out (string "Write the equation ~A" ((= ?tau (* ?c-var ?r-var)) algebra)))
 	 ))
 
+;;;     time constant for RLC circuit
+
+(def-psmclass RLC-time-constant (RLC-time-constant ?res ?ind ?cap) 
+  :complexity definition 
+  :english ("RLC time constant")
+  :eqnFormat ("$t = RLC"))
+
+(defoperator RLC-time-constant-contains (?sought)
+  :preconditions (
+		  (circuit-component ?res resistor)
+		  (circuit-component ?ind inductor)
+		  (circuit-component ?cap capacitor)
+		  (any-member ?sought ((time-constant orderless ?res ?ind ?cap)
+				       (resistance ?res)
+				       (inductance ?ind)) )
+		  )
+  :effects (
+	    (eqn-contains (RLC-time-constant ?res ?ind ?cap) ?sought)
+	    ))
+
+(defoperator write-RLC-time-constant (?res ?ind ?cap)
+  :preconditions 
+  (
+   (variable ?tau (time-constant orderless ?res ?ind ?cap))
+   (variable ?l-var (inductance ?ind))
+   (variable ?r-var (resistance ?res))
+   )
+  :effects (
+	    (eqn (= ?tau (/ (* 2 ?l-var) ?r-var)) 
+		 (RLC-time-constant ?res ?ind ?cap))
+	    )
+  :hint (
+	 (point (string "You need to define the RLC time constant."))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?tau (/ (* 2 ?l-var) ?r-var)) algebra)))
+	 ))
+
 ;;;      Angular frequency for LC circuit
 
 (def-psmclass LC-angular-frequency (LC-angular-frequency ?ind ?cap) 
   :complexity definition 
-  :english ("RC time constant")
-  :eqnFormat ("$t = RC"))
+  :english ("LC angular frequency")
+  :eqnFormat ("$w = 1/sqrt(LC)"))
 
 (defoperator LC-angular-frequency-contains (?sought)
   :preconditions 
@@ -1455,6 +1503,50 @@
    (point (string "You need to define the LC frequency."))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?omega (/ 1 (sqrt (* ?c-var ?l-var)))) algebra)))
+   ))
+
+;;;      Angular frequency for RLC circuit
+
+(def-psmclass RLC-angular-frequency (RLC-angular-frequency ?res ?ind ?cap) 
+  :complexity definition 
+  :english ("RLC angular frequency")
+  :eqnFormat ("$w = sqrt(1/(LC)-R^2/(2*L)^2)"))
+
+(defoperator RLC-angular-frequency-contains (?sought)
+  :preconditions 
+  (
+   (circuit-component ?res resistor)
+   (circuit-component ?cap capacitor)
+   (circuit-component ?ind inductor)
+   (any-member ?sought ((angular-frequency (compound orderless ?res ?ind ?cap))
+			(capacitance ?cap)
+			(resistance ?res)
+			(inductance ?ind)))
+   )
+  :effects (
+	    (eqn-contains (RLC-angular-frequency ?res ?ind ?cap) ?sought)
+	    ))
+
+(defoperator write-RLC-angular-frequency (?res ?ind ?cap)
+  :preconditions 
+  (
+   (variable ?omega (angular-frequency (compound orderless ?res ?ind ?cap)))
+   (variable ?r-var (resistance ?res))
+   (variable ?l-var (inductance ?ind))
+   (variable ?c-var (capacitance ?cap))
+   )
+  :effects (
+	    (eqn (= (^ ?omega 2) (- (/ 1 (* ?c-var ?l-var)) 
+				    (^ (/ ?r-var (* 2.0 ?l-var)) 2)))
+		 (RLC-angular-frequency ?res ?ind ?cap))
+	    )
+  :hint 
+  (
+   (point (string "You need to define the RLC frequency."))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?omega (sqrt (- (/ 1 (* ?c-var ?l-var)) 
+					   (^ (/ ?r-var (* 2.0 ?l-var)) 2)))) 
+			algebra)))
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
