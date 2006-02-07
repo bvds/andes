@@ -309,6 +309,7 @@ LEAF	A = 2*$p*r           Circumference of a circle	circumference-of-circle-r
 LEAF	A = $p*d             Circumference of a circle	circumference-of-circle-d	
 LEAF	$m = m/l             mass per unit length defined	mass-per-length-eqn	
 LEAF	n = N/l              turns per unit length defined	turns-per-length-definition	
+LEAF	dy/dt_avg = (y2-y1)/(t2-t1)     Average rate of change	average-rate-of-change	
 END_GROUP			
 			
 			
