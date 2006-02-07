@@ -1419,6 +1419,44 @@
 	 (bottom-out (string "Write the equation ~A" ((= ?tau (* ?c-var ?r-var)) algebra)))
 	 ))
 
+;;;      Angular frequency for LC circuit
+
+(def-psmclass LC-angular-frequency (LC-angular-frequency ?ind ?cap) 
+  :complexity definition 
+  :english ("RC time constant")
+  :eqnFormat ("$t = RC"))
+
+(defoperator LC-angular-frequency-contains (?sought)
+  :preconditions 
+  (
+   (circuit-component ?cap capacitor)
+   (circuit-component ?ind inductor)
+   (any-member ?sought ((angular-frequency (compound orderless ?ind ?cap))
+			(capacitance ?cap)
+			(inductance ?ind)))
+   )
+  :effects (
+	    (eqn-contains (LC-angular-frequency ?ind ?cap) ?sought)
+	    ))
+
+(defoperator write-LC-angular-frequency (?ind ?cap)
+  :preconditions 
+  (
+   (variable ?omega (angular-frequency (compound orderless ?ind ?cap)))
+   (variable ?c-var (capacitance ?cap))
+   (variable ?l-var (inductance ?ind))
+   )
+  :effects (
+	    (eqn (= 1 ( * (^ ?omega 2) ?c-var ?l-var))
+		 (LC-angular-frequency ?ind ?cap))
+	    )
+  :hint 
+  (
+   (point (string "You need to define the LC frequency."))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?omega (/ 1 (sqrt (* ?c-var ?l-var)))) algebra)))
+   ))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;  circuit with resistor and capacitor in series.
