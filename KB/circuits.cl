@@ -1748,7 +1748,9 @@
 ;;; Generic definition of average rate of change of some quantity
 
 (def-psmclass average-rate-of-change (average-rate-of-change ?quant ?time)
-  :complexity major ; definition, but can be first "principle" for sought
+  ;; This is actually an important equation, but it is often shown
+  ;; combined with other equations.
+  :complexity definition 
   :english ("the average rate of change of quantity")
   :expformat ("applying definition of average rate of change to ~A" 
 	      (nlg ?quant)) 
