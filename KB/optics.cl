@@ -33,7 +33,8 @@
   :effects ( (variable ?do-var (object-distance ?lens))
              (define-var (object-distance ?lens)))
   :hint (
-       (bottom-out (string "Define a variable for the distance of the object from ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  ?lens))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
+			   ((object-distance ?lens) def-np)))
        ))
 
 (def-qexp image-distance (image-distance ?lens)
@@ -47,7 +48,8 @@
   :effects ( (variable ?di-var (image-distance ?lens))
              (define-var (image-distance ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for the distance of the image from ~A by using the Add Variable command on the Variable menu and selecting Image Distance."  ?lens))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Image Distance."  
+			   ((image-distance ?lens) def-np)))
        ))
 
 (def-qexp focal-length (focal-length ?lens)
@@ -61,7 +63,8 @@
   :effects ( (variable ?f-var (focal-length ?lens))
              (define-var (focal-length ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for the focal length of ~A by using the Add Variable command on the Variable menu and selecting Focal Length."  ?lens))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Focal Length."  
+			   ((focal-length ?lens) def-np)))
        ))
 
 (def-qexp magnification (magnification ?lens)
@@ -75,7 +78,8 @@
   :effects ( (variable ?m-var (magnification ?lens))
             (define-var (magnification ?lens)) )
   :hint (
-       (bottom-out (string "Define a variable for the magnfication of ~A by using the Add Variable command on the Variable menu and selecting Magnification."  ?lens))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Magnification."  
+			   ((magnification ?lens) def-np)))
        ))
 
 (def-qexp radius-of-curvature (radius-of-curvature ?mirror)

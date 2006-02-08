@@ -2844,7 +2844,7 @@
    )
      :hint 
      ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting turns per unit length."  
-			      ((turns-per-length ?body) def-np)))
+			      ((turns-per-length ?body) def-np))) ))
 
 ;;; turns per length = turns/length
 

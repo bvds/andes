@@ -9,7 +9,7 @@
 (def-qexp wavelength (wavelength ?wave ?medium)
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
-  :english ("the wavelength of ~A in ~A" (nlg ?wave) (nlg ?medium))
+  :english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
   :fromworkbench `(wavelength ,body ,body2))
 
 (defoperator define-wavelength (?wave ?medium)
@@ -20,12 +20,13 @@
   :effects ((variable ?lambda-var (wavelength ?wave ?medium))
 	    (define-var (wavelength ?wave ?medium)))
   :hint 
-  ((bottom-out (string "Define a variable for the wavelength of ~A moving in ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave ?medium))))
+  ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting wavelength."  
+		       ((wavelength ?wave ?medium) def-np)))))
 
 (def-qexp wavenumber (wavenumber ?wave ?medium)
   :units |rad/m|
   :restrictions nonnegative  
-  :english ("the wavenumber of ~A in ~A" (nlg ?wave) (nlg ?medium))
+  :english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
    :fromWorkbench `(wavenumber ,body ,body2))
 
 (defoperator define-wavenumber (?wave ?medium)
@@ -36,7 +37,8 @@
   :effects ( (variable ?wn-var (wavenumber ?wave ?medium))
              (define-var (wavenumber ?wave ?medium)))
   :hint 
-  ((bottom-out (string "Define a variable for the wave number of ~A moving in ~A by using the Add Variable command on the Variable menu and selecting wave number."  ?wave ?medium))))
+  ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting wave-number." 
+		       ((wavenumber ?wave ?medium) def-np)))))
 
 ;;; Equation of the wavenumber of the wave, wavenumber*lambda = 2*pi
 
@@ -87,7 +89,8 @@
   :effects ((variable ?freq-var (frequency ?wave))
 	    (define-var (frequency ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for the frequency of ~A by using the Add Variable command on the Variable menu and selecting frequency."  ?wave))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting frequency."  
+		  ((frequency ?wave) def-np)))))
 
 ;;;
 ;;  For doppler problems, we have to introduce a frequency as
@@ -113,7 +116,8 @@
   :effects ((variable ?freq-var (observed-frequency ?wave ?me :time ?t))
 	    (define-var (observed-frequency ?wave ?me :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the frequency of ~A as observed by ~A by using the Add Variable command on the Variable menu and selecting observed frequency."  ?wave ?me))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting observed frequency."  
+		  ((observed-frequency ?wave ?me :time ?time) def-np)))))
 
 ;;
 ;; period is used in some circular motion rules:
@@ -145,7 +149,8 @@
       (define-var (period ?b))
    )
  :hint
-  ((bottom-out (string "Use the Add Variable command located under 'variable' on the top menu bar and select Period to define a variable for the period of the motion of ~A." ?b))
+  ((bottom-out (string "Use the Add Variable command located under 'variable' on the top menu bar and select Period to define a variable for ~A." 
+		       ((period ?b) def-np)))
    ))
 
 (def-qexp angular-frequency (angular-frequency ?wave)
@@ -159,7 +164,8 @@
   :effects ((variable ?omega-var (angular-frequency ?wave))
 	    (define-var (angular-frequency ?wave)))
   :hint (
-	 (bottom-out (string "Define a variable for the angular-frequency of ~A by using the Add Variable command on the Variable menu and selecting wavelength."  ?wave))))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Angular frequency."  
+			     ((angular-frequency ?wave) def-np)))))
 
 ;;equation of the frequency of the wave, frequency = angular-frequency/2*pi
 (def-psmclass frequency-of-wave (frequency-of-wave ?object)
@@ -366,7 +372,8 @@
   :effects ((variable ?wv-var (wave-speed ?medium))
 	    (define-var (wave-speed ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for the speed of waves in ~A by using the Add Variable command on the Variable menu and selecting speed of wave."  ?medium))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting speed of wave."
+		  ((wave-speed ?medium) def-np)))))
 
 ;;; equation of the speed of the wave, speed = freq* wavelength
 
@@ -479,7 +486,8 @@
   :effects ((variable ?n-var (index-of-refraction ?medium))
 	    (define-var (index-of-refraction ?medium)))
   :hint ((bottom-out 
-	  (string "Define a variable for the index of refraction of ~A by using the Add Variable command on the Variable menu and selecting index of refraction."  ?medium))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting index of refraction." 
+		  ((index-of-refraction ?medium) def-np) ))))
 
 ;;;; Relate index of refraction to wave-speed
 
@@ -605,7 +613,8 @@
 	    (variable ?t-var (string-tension ?rope))
 	    (define-var (string-tension ?rope)))
   :hint ((bottom-out 
-	  (string "Define a variable for the tension of ~A by using the Add Variable command on the Variable menu and selecting tension."  ?rope))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting tension."  
+		  ((string-tension ?rope) def-np)))))
 
 ;;; speed of transverse waves on a string
 (def-psmclass wave-speed-string (wave-speed-string ?wave)
@@ -656,7 +665,7 @@
   :effects ((variable ?lambda-var (amplitude ?wave))
 	    (define-var (amplitude ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for the amplitude of ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ?wave))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ((amplitude ?wave) def-np)))))
 
 ;;; define maximum speed of transverse motion
 (def-qexp amplitude-max-speed (amplitude-max-speed ?wave)
@@ -670,7 +679,9 @@
   :effects ((variable ?lambda-var (amplitude-max-speed ?wave))
 	    (define-var (amplitude-max-speed ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for the maximum speed of ~A by using the Add Variable command on the Variable menu and selecting maximum speed."  ?wave))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting maximum speed."  
+		  ((amplitude-max-speed ?wave) def-np)))))
+
 ;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?wave)
   :complexity major  ; must explicitly use
@@ -718,7 +729,8 @@
   :effects ((variable ?lambda-var (amplitude-max-abs-acceleration ?wave))
 	    (define-var (amplitude-max-abs-acceleration ?wave)))
   :hint ((bottom-out 
-	  (string "Define a variable for |maximum acceleration of ~A| by using the Add Variable command on the Variable menu and selecting |maximum acceleration|."  ?wave))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting |maximum acceleration|."
+		  ((amplitude-max-abs-acceleration ?wave) def-np)))))
 
 ;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?wave)
@@ -970,8 +982,8 @@
   :effects ((variable ?intense-var (intensity ?wave ?agent :time ?t))
 	    (define-var (intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the intensity of ~A due to ~A by using the Add Variable command on the Variable menu and selecting intensity."  
-		  ?wave (?agent agent)))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+		  ((intensity ?wave ?agent :time ?t) def-np)))))
 
 ;;; Net intensity
 
@@ -991,8 +1003,8 @@
   :effects ((variable ?intense-var (net-intensity ?wave :time ?t))
 	    (define-var (net-intensity ?wave :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the total intensity of ~A by using the Add Variable command on the Variable menu and selecting intensity."  
-		  ?wave))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+		 ((net-intensity ?wave :time ?t) def-np) ))))
 
 ;; based on net-work-contains
 (defoperator net-intensity-contains (?sought)
@@ -1046,8 +1058,8 @@
   :effects ((variable ?dbi-var (db-intensity ?wave ?agent :time ?t))
 	    (define-var (db-intensity ?wave ?agent :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the intensity of ~A in decibels 
-due to ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave (?agent agent)))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting decibel-intensity." 
+		  ((db-intensity ?wave ?agent :time ?t) def-np)))))
 
 
 ;;; net version of db-intensity
@@ -1069,8 +1081,8 @@ due to ~A by using the Add Variable command on the Variable menu and selecting d
   :effects ((variable ?net-dbi-var (net-db-intensity ?wave :time ?t))
 	    (define-var (net-db-intensity ?wave :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the total intensity of ~A in decibels 
-using the Add Variable command on the Variable menu and selecting decibel-intensity."  ?wave))))
+	  (string "Define a variable for ~A using the Add Variable command on the Variable menu and selecting decibel-intensity."  
+		  ((net-db-intensity ?wave :time ?t) def-np)))))
 
 ;; Relate intensity to intensity in decibels
 

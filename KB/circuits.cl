@@ -221,7 +221,8 @@
 	    (define-var (resistance ?res))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting resistance." ((resistance ?res) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting resistance." 
+			     ((resistance ?res) def-np)))
 	 ))
 
 (def-psmclass equiv-resistance-series (equiv-resistance-series ?res-list) 
@@ -392,7 +393,8 @@
 	    (define-var  (current-thru ?what :time ?t))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting current." ((current-thru ?what :time ?t) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting current." 
+			     ((current-thru ?what :time ?t) def-np)))
 	 ))
 		       
 
@@ -406,7 +408,8 @@
 	    (define-var (current-in ?branch :time ?t))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting current." ((current-in ?branch :time ?t) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting current." 
+			     ((current-in ?branch :time ?t) def-np)))
 	 ))
 
 (def-psmclass ohms-law (ohms-law ?res ?t) 
@@ -519,7 +522,8 @@
 	    (define-var (voltage-across ?comp :time ?t))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting voltage." ((voltage-across ?comp :time ?t) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting voltage." 
+			     ((voltage-across ?comp :time ?t) def-np)))
 	 ))
 
 (def-psmclass loop-rule  (loop-rule ?branch-list ?t)  
@@ -950,7 +954,8 @@
 	    (define-var (capacitance ?cap))
 	    )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting capacitance." ((capacitance ?cap) def-np)))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting capacitance." 
+			     ((capacitance ?cap) def-np)))
 	 ))
 
 (def-psmclass equiv-capacitance-series (equiv-capacitance-series ?cap-list) 
@@ -1395,7 +1400,8 @@
   :effects ( (variable ?tau-var (time-constant orderless . ?quants))
 	    (define-var (time-constant orderless . ?quants)) )
   :hint 
-  ( (bottom-out (string "Define a variable for the time constant for ~A by using the Add Variable command and selecting Time Constant"  (?quants 'conjoined-defnp) ))
+  ( (bottom-out (string "Define a variable for ~A by using the Add Variable command and selecting Time Constant"  
+			((time-constant orderless . ?quants) def-np) ))
     ))
 
 (def-psmclass RC-time-constant (RC-time-constant ?res ?cap) 
@@ -1887,7 +1893,7 @@
 	    (define-var (rate-of-change ?quant)))
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu." 
-			     (rate-of-change ?quant) ))
+			     ((rate-of-change ?quant) var-or-quant) ))
 	 ))
 
 ;;; Generic definition of average rate of change of some quantity
@@ -2353,7 +2359,8 @@
 		  (variable ?power-var (electric-power ?b :time ?t))
 		  )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power." ((electric-power ?b :time ?t) def-np) ))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power." 
+			     ((electric-power ?b :time ?t) def-np) ))
 	 ))
 
 ;;; transformer voltage relation

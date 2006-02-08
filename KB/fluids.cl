@@ -19,9 +19,9 @@
   :preconditions ( (bind ?$rm-var (format-sym "$rm_~A" (body-name ?material))) )
   :effects ( (variable ?$rm-var (mass-density ?material))
              (define-var (mass-density ?material)))
-  :hint (
-       (bottom-out (string "Define a variable for the mass density of ~A by using the Add Variable command on the Variable menu and selecting Mass Density."  ?material))
-       ))
+  :hint 
+  ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Mass Density." 
+			   ((mass-density ?material) def-np)))))
 
 ;;; Definition of mass density: rho = m/V
 ;;;
@@ -78,7 +78,8 @@
   :effects ( (variable ?Pr-var (pressure ?point :time ?time))
              (define-var (pressure ?point :time ?time)) )
   :hint (
-       (bottom-out (string "Define a variable for the pressure at ~a by using the Add Variable command on the Variable menu and selecting Pressure."  ?point))
+       (bottom-out (string "Define a variable for ~a by using the Add Variable command on the Variable menu and selecting Pressure."  
+			   ((pressure ?point :time ?time) def-np)))
        ))
 
 
@@ -320,8 +321,8 @@
      :effects ((variable ?A-var (area-at ?point :time ?time))
                (define-var (area-at ?point :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for the cross sectional area at ~A by using the Add Variable command on the Variable menu and selecting Area."  ?body))
-          ))
+          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Area."  
+			      ((area-at ?point :time ?time) def-np)))))
 
 ;; area of a shape
 (def-qexp area (area ?shape)
@@ -343,8 +344,8 @@
      :effects ((variable ?Ac-var (area ?shape))
                (define-var (area ?shape)))
      :hint (
-          (bottom-out (string "Define a variable for the area of ~A by using the Add Variable command on the Variable menu and selecting Area."  ?shape))
-          ))
+          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Area."  
+			      ((area ?shape) def-np)))))
 
 ;; quantity to represent radius of a circular shape
 (def-qexp radius-of-circle (radius-of-circle ?body)
@@ -361,8 +362,8 @@
                (define-var (radius-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for the radius of ~A by using the Add Variable command on the Variable menu and selecting circle radius."  ?body))
-          ))
+          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting circle radius."  
+			      ((radius-of-circle ?body) def-np)))))
 
 ;; quantity to represent diameter of a circular shape
 (def-qexp diameter-of-circle (diameter-of-circle ?body)
@@ -378,7 +379,8 @@
                (define-var (diameter-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for the diameter of ~A by using the Add Variable command on the Variable menu and selecting circle diameter."  ?body))
+          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting circle diameter."  
+			      ((diameter-of-circle ?body) def-np)))
           ))
 
 ;; quantity to represent circumference of a circular shape
@@ -395,7 +397,8 @@
                (define-var (circumference-of-circle ?body))
    )
      :hint (
-          (bottom-out (string "Define a variable for the circumference of ~A by using the Add Variable command on the Variable menu and selecting circle circumference."  ?body))
+          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting circle circumference."  
+			      ((circumference-of-circle ?body) def-np)))
           ))
 
 ;; equation of the circumference of a circle c = 2*pi*r
@@ -700,14 +703,15 @@
      :effects ((variable ?Vol-var (volume ?body :time ?time))
                (define-var (volume ?body :time ?time)))
      :hint (
-          (bottom-out (string "Define a variable for the volume of ~A by using the Add Variable command on the Variable menu and selecting Volume."  ?body))
+          (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Volume."  
+			      ((volume ?body :time ?time) def-np)))
 	   ))
 
-; TODO: add equations for volumes of various shapes
+;; TODO: add equations for volumes of various shapes
 
 
-; Volume of compound body is sum of volumes of its parts. This parallels mass-compound
-; in Newtons2.cl
+;; Volume of compound body is sum of volumes of its parts. 
+;; This parallels mass-compound in Newtons2.cl
 
 (defoperator volume-compound-contains (?b-sought ?t)
   :preconditions (

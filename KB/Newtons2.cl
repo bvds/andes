@@ -4501,11 +4501,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write the equation ~A" ((= ?ff-var (* ?mu-var ?N-var)) algebra)))
   ))
 
-; Define a variable for coefficient of friction, either static or kinetic
-; Here assuming it doesn't vary with time.
-; Expect all variables will be bound coming in.
-; !!! Note args are ordered. Body must come first, then supporting surface.
-;; could be confusing if between two bodies.
+;; Define a variable for coefficient of friction, either static or kinetic
+;; Here assuming it doesn't vary with time.
+;; Expect all variables will be bound coming in.
+;; !!! Note args are ordered. Body must come first, then supporting surface.
+;;; could be confusing if between two bodies.
 (defoperator define-coef-friction (?b ?surface ?type)
   :preconditions (
    (bind ?mu-var (format-sym "mu~A_~A_~A" (if (equal ?type 'static) "s" "k") 
@@ -5812,7 +5812,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (define-var (gravitational-acceleration ?planet)) )
   :hint 
   ((bottom-out 
-    (string "Define a variable for the gravitational acceleration of ~A by using the Add Variable command on the Variable menu and selecting gravitational acceleration."  ?planet))))
+    (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting gravitational acceleration." 
+	    ((gravitational-acceleration ?planet) def-np)))))
 
 
 ;;;; ========================== Newton's law ================================ 
@@ -6944,7 +6945,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (variable ?TE-var (total-energy ?b :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for total mechanical energy by using the Add Variable command on the Variable menu and selecting Energy."))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Energy."
+			     ((total-energy ?b :time ?t) def-np)))
 	 ))
 
 (defoperator define-kinetic-energy (?b ?t)
@@ -6957,7 +6959,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (variable ?ke-var (kinetic-energy ?b :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for translational kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Energy."
+			     ((kinetic-energy ?b :time ?t) def-np)))
 	 ))
 
 (defoperator define-rotational-energy (?b ?t)
@@ -6970,7 +6973,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (variable ?re-var (rotational-energy ?b :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for rotational kinetic energy by using the Add Variable command on the Variable menu and selecting Energy."))
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Energy."
+			     ((rotational-energy ?b :time ?t) def-np)))
 	 ))
 
 (defoperator define-grav-energy (?b ?planet ?t)
@@ -6982,7 +6986,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	      (variable ?ge-var (grav-energy ?b ?planet :time ?t)) 
 	      )
  :hint (
-	(bottom-out (string "Define a variable for gravitational potential energy by selecting Energy from the Variables menu on the top menu bar."))
+	(bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
+((grav-energy ?b ?planet :time ?t) def-np)))
 	))
 
 (defoperator define-spring-energy (?b ?spring ?t)
@@ -6995,7 +7000,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (variable ?se-var (spring-energy ?b ?spring :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for elastic potential energy by selecting Energy from the Variables menu on the top menu bar."))
+	 (bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
+((spring-energy ?b ?spring :time ?t) def-np)))
 	 ))
 
 (defoperator define-height (?body ?time)
@@ -7024,7 +7030,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	       (variable ?d-var  (compression ?spring :time ?t))
 	       )
   :hint (
-	 (bottom-out (string "Define a variable for the compression of the spring using the Variables menu on the top menu bar."))
+	 (bottom-out (string "Define a variable for ~A using the Variables menu on the top menu bar."
+			     ((compression ?spring :time ?t) def-np)))
 	 ))
 
 
@@ -7033,9 +7040,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ( (bind ?d-var (format-sym "comp_~A~@[_~A~]" ?spring (time-abbrev ?t))) ) 
   :effects 
   ( (define-var (extension ?spring :time ?t))
-      (variable ?d-var  (extension ?spring :time ?t)) )
+      (variable ?d-var (extension ?spring :time ?t)) )
  :hint (
-	(bottom-out (string "Define a variable for the extension of the spring using the Variables menu on the top menu bar."))
+	(bottom-out (string "Define a variable for ~A using the Variables menu on the top menu bar."
+			    ((extension ?spring :time ?t) def-np)))
 	))
 
 ;;; Change in height is y component of displacement 
@@ -7983,7 +7991,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects ((variable ?p-var (net-power-out ?source  :time ?t))
 	    (define-var (net-power-out ?source :time ?t)))
   :hint ((bottom-out 
-	  (string "Define a variable for the total power produced by ~A by using the Add Variable command on the Variable menu and selecting power."  ?source))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power."  
+		  ((net-power-out ?source :time ?t) def-np)))))
 
 ;;;
 ;;; instantaneous power = F dot v = F*v*cos(theta)
@@ -9256,7 +9265,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    (variable ?mu-var (mass-per-length ?rope))
 	    (define-var (mass-per-length ?rope)))
   :hint ((bottom-out 
-	  (string "Define a variable for the mass per unit length of ~A by using the Add Variable command on the Variable menu and selecting mass per length."  ?rope))))
+	  (string "Define a variable ~A by using the Add Variable command on the Variable menu and selecting mass per length."  
+		  ((mass-per-length ?rope) def-np)))))
 
 ;;; mass per length = mass /length of a rod
 
