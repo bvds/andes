@@ -475,11 +475,9 @@
 (defconstant *first-implicit-slot*  (1+ *max-student-slot*)) 
 (defconstant *max-implicit-slot*    (1- *solver-max-eqn-slot*))
 
-(defun StudentEntry-ImplicitEqnSlot (entry)
-"Return the implicit equation slot number used by a student entry, 
-NIL if none"
-  (when (StudentEntry-ImplicitEqn entry)
-      (StudentEntry-ID (StudentEntry-ImplicitEqn entry))))
+(defun StudentEntry-ImplicitEqnSlots (entry)
+"Return list of implicit equation slot number used by a student entry"
+  (mapcar #'StudentEntry-ID (StudentEntry-ImplicitEqns entry)))
 
 (defun StudentEntry-GivenEqnSlots (entry)
 "return list of given equation slots used by a student entry"
@@ -487,7 +485,7 @@ NIL if none"
 
 (defun entry-uses-slot (entry slot)
 "true if student entry uses eqn slot for dependent entry"
-  (or (eql slot (StudentEntry-ImplicitEqnSlot entry))
+  (or (member slot (StudentEntry-ImplicitEqnSlots entry))
       (member slot (StudentEntry-GivenEqnSlots entry)
               :test #'eql)))
 	     
@@ -508,7 +506,7 @@ NIL if none"
    (warn "Ran out of implicit equation slots!")
    NIL)
 
-;; Make implicit equation -- initialize and return a candidate
+;; Make implicit assignment entry -- initialize and return a candidate
 ;; StudentEntry struct for equation setting student variable to given value.
 ;; Value should be either a dnum term or dimensionless 0
 ;;
@@ -543,8 +541,7 @@ NIL if none"
 (defun make-given-eqn-entry (studvar value)
 "make equation entry setting student var to given value"
    (when (student-to-canonical studvar)
-     (make-StudentEntry :prop 
-       `(eqn ,studvar ,value))))
+     (make-StudentEntry :prop `(eqn ,studvar ,value))))
 
 (defun blank-given-value-entry (eqn-entry)
 "true if given value entry is blank for unknown"

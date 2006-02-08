@@ -499,7 +499,7 @@
 	                                    :prop `(define-var ,mass-term))))
 
   ;; associate implicit entry
-  ;(setf (StudentEntry-ImplicitEqn entry) mass-var-entry) ; take out automass
+  ;(push mass-var-entry (StudentEntry-ImplicitEqns entry)) ; take out automass
 
   (add-entry entry)   ;remove existing info and update
   ;(symbols-enter mass-label mass-term id) ; take out automass
@@ -609,16 +609,25 @@
 
     ; if vector is zero-length, associate implicit equation magV = 0
     (when (equal dir-term 'zero)
-       (setf (StudentEntry-ImplicitEqn entry) 
-             (make-implicit-assignment-entry label 0)))
+       (push (make-implicit-assignment-entry label 0)
+             (StudentEntry-ImplicitEqns entry)))
+    ; if vector is a unit vector, associate equation magV = 1 
+    ; !!! We are stuffing this into the entry's associated "given" equation list, 
+    ; because there is currently only one implicit equation slot for the entry 
+    ; and that might be needed for direction. Should clean this up, perhaps use one
+    ; list for both sorts of associated equation entries.
+    (when (eq (first vector-term) 'unit-vector)
+        (push (make-implicit-assignment-entry label 1)
+             (StudentEntry-ImplicitEqns entry)))
     ; if direction is known, associate implicit equation dirV = dir deg.
     (when (dimensioned-numberp dir-term)          ; known xy plane direction
-       (setf (StudentEntry-ImplicitEqn entry) 
-             (make-implicit-assignment-entry dir-label dir-term)))
+       (push (make-implicit-assignment-entry dir-label dir-term)
+             (StudentEntry-ImplicitEqns entry)))
     (when (and (z-dir-spec dir-term) 
                (not (equal dir-term 'z-unknown))) ; known z axis direction
-       (setf (StudentEntry-ImplicitEqn entry) 
-             (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
+       (push (make-implicit-assignment-entry dir-label (zdir-phi dir-term))
+             (StudentEntry-ImplicitEqns entry)))
+   
     ; Associated eqns will be entered later if entry is found correct.
 
     ; finally return entry
@@ -653,12 +662,12 @@
     
     ;; if direction is known, associate implicit equation dirV = dir deg.
     (when (dimensioned-numberp dir-term)          ; known xy plane direction
-	(setf (StudentEntry-ImplicitEqn entry) 
-	      (make-implicit-assignment-entry dir-label dir-term)))
+	 (push (make-implicit-assignment-entry dir-label dir-term)
+	       (StudentEntry-ImplicitEqns entry)))
     (when (and (z-dir-spec dir-term) 
 	       (not (equal dir-term 'z-unknown))) ; known z axis direction
-      (setf (StudentEntry-ImplicitEqn entry) 
-	    (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
+      (push  (make-implicit-assignment-entry dir-label (zdir-phi dir-term))
+             (StudentEntry-ImplicitEqns entry)))
     ;; Associated eqns will be entered later if entry is found correct.
 
     ;; Include implicit equation cos angle = dummy, where dummy is 
@@ -669,8 +678,8 @@
     (let ((eqinfo (find `(angle-constraint ,body-term . ?whatever) 
 			(Problem-EqnIndex *cp*) :key #'eqn-Exp :test #'equal)))
       (when eqinfo
-	(setf (StudentEntry-ImplicitEqn entry) 
-	      (make-implicit-eqn-entry (eqn-algebra eqinfo)))))
+	(push (make-implicit-eqn-entry (eqn-algebra eqinfo))
+	      (StudentEntry-ImplicitEqns entry))))
     
     ;; finally return entry
     entry))
@@ -829,8 +838,8 @@
    ; don't have to enter equation giving the value. Interface does
    ; show them the value on the dialog box.
     (when (numberp degrees)          ; known xy plane direction
-       (setf (StudentEntry-ImplicitEqn entry) 
-             (make-implicit-assignment-entry label `(dnum ,degrees |deg|))))
+       (push (make-implicit-assignment-entry label `(dnum ,degrees |deg|))
+	     (StudentEntry-ImplicitEqns entry)))
 
    ; finally return entry
    entry))
@@ -1124,8 +1133,8 @@
 	; unmark entry interpretations as done in solution graph
   	(sg-delete-StudentEntry entry)
         ; undo any implicit eqn entry associated with this
-  	(when (StudentEntry-ImplicitEqn entry)
-           (undo-entry (StudentEntry-ImplicitEqn entry)))
+  	(dolist (ie (StudentEntry-ImplicitEqns entry))
+           (undo-entry ie))
         ; undo any given eqn entry associated with this
 	(dolist (ge (StudentEntry-GivenEqns entry))
 	  (when (not (blank-given-value-entry ge))
@@ -1220,9 +1229,9 @@
           
       ; enter step as done in solution graph
        (sg-enter-StudentEntry Entry)
-      ; if entry has associated implicit equation, enter that as done well
-       (when (StudentEntry-ImplicitEqn entry)
-	 (enter-implicit-entry (StudentEntry-ImplicitEqn entry)))
+      ; if entry has associated implicit equations, enter them as done well
+       (dolist (e (StudentEntry-ImplicitEqns entry))
+	 (enter-implicit-entry e))
       ; if entry has associated given value equations, enter them as well
       ; Note we need parsed equation in systemese
       (dolist (e (StudentEntry-GivenEqns entry))
