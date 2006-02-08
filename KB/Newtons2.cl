@@ -7506,12 +7506,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (implicit-eqn (= ?mag-var 1) 
 		 (mag (unit-vector ?orientation ?body :at ?loc :time ?t)))
    )  
-  :hint (
-       (point (string "You can draw ~A?" 
-		      (unit-vector ?orientation ?body :at ?loc :time ?t)))
+  :hint 
+  ( (point (string "You can draw ~A?" 
+		   ((unit-vector ?orientation ?body :at ?loc :time ?t) def-np)))
        (bottom-out (string "Use the unit vector drawing tool (labeled n) to draw a unit vector in the direction ~A." 
-			   ?dir))
-       ))
+			   ?dir))))
 
 (def-psmclass unit-vector-mag (unit-vector-mag . ?args)
   :complexity definition
