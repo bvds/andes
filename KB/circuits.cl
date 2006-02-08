@@ -2390,7 +2390,7 @@
   :effects 
   ( (eqn (= (* ?N1 ?V2) (* ?N2 ?V1)) (transformer-voltage ?coils ?t)) )
   :hint (
-	 (point (string "The input and output voltages for a transformer are related."))
+	 (point (string "The input and output voltages of a transformer are related."))
 	 (bottom-out (string "Write the equation ~a" 
 			     ((= (/ ?V1 ?N1)  (/ ?V2 ?N2)) algebra)))
 	 ))
@@ -2427,7 +2427,7 @@
   :effects 
   ( (eqn (= ?P1 ?P2) (transformer-power ?coils ?t)) )
   :hint (
-	 (point (string "The input and output power for a transformer are related."))
+	 (point (string "The input and output power of an ideal transformer are related."))
 	 (bottom-out (string "Write the equation ~a" 
 			     ((= ?P1 ?P2) algebra)))
 	 ))
