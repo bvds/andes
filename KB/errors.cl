@@ -1541,10 +1541,10 @@
  ((student (vector (?vector-type ?sbody . ?sargs) ?sdir))
    (correct (vector (?vector-type ?cbody . ?sargs) ?sdir))
    (test (not (equal ?sbody ?cbody)))
-   ; first arg of field vectors is a location, not a body
+   ; first arg not a body for following vector types
    (test (not (eq ?vector-type 'field)))
-   ; first arg of unit-vector is orientation-tag, not a body
-   (test (not (eq ?vector-type 'unit-vector))))
+   (test (not (eq ?vector-type 'unit-vector)))
+   )
   :probability 0.5)
 
 (defun default-wrong-body (correct-body wrong-body)
@@ -1564,7 +1564,11 @@
 (def-error-class default-vector-body (?cbody ?sbody)
   ((student (vector (?vector-type ?sbody . ?sargs) ?sdir))
    (no-correct (vector (?vector-type ?sbody . ?args2) ?dir2))
-   (correct (vector (?vector-type ?cbody . ?cargs) ?cdir)))
+   (correct (vector (?vector-type ?cbody . ?cargs) ?cdir))
+   ; first arg not a body for the following vector types:
+   (test (not (eq ?vector-type 'field)))
+   (test (not (eq ?vector-type 'unit-vector)))
+   )
   :probability
   (+ 0.1 
      (if (equal ?sargs ?cargs) 0.2 0.0)

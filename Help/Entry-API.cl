@@ -569,7 +569,7 @@
 			    (if (null avg-inst) ;null agent => net-field
 			          `(net-field ,body-term magnetic)
 		             `(field ,body-term magnetic ,(arg-to-body avg-inst))))
-			; unit vector type codes pack in subtype info
+			; WB unit vector type codes pack in kb subtype argument:
 			((equal vtype 'unit-Normal) 
 			     `(unit-vector normal-to ,body-term :at NIL))
 			((equal vtype 'unit-towards)

@@ -44,7 +44,7 @@
 //
 // Currently use one class for all vector types.
 //////////////////////////////////////////////////////////////////////////
-IMPLEMENT_SERIAL(CVector, CCheckedObj, VERSIONABLE_SCHEMA | 9);
+IMPLEMENT_SERIAL(CVector, CCheckedObj, VERSIONABLE_SCHEMA | 10);
 CVector::CVector()			//used by serialization only
    	: CCheckedObj()
 { 
@@ -94,10 +94,14 @@ void CVector::Serialize(CArchive& ar)
 		ar << (WORD) m_status;
 		ar << m_strOrientation;
 		ar << m_strTime;
+		// put out stype specific fields (urgh, should just dump them always)
+		// if we read a vector of that type from a file, file should have saved the appropriate subtype 
+		// info as well. 
 		if ((m_nVectorType == VECTOR_FORCE)
 			|| (m_nVectorType == VECTOR_ACCELERATION) // added v7 for vel, accel
 			|| (m_nVectorType == VECTOR_VELOCITY)
-			|| (m_nVectorType == VECTOR_TORQUE))	  // added new case v9 for torque
+			|| (m_nVectorType == VECTOR_TORQUE) 	  // added new case v9 for torque
+			|| (m_nVectorType == VECTOR_UNITVECTOR))  // added new case v10 for unit vector
 			ar << m_strForceType;					  // OK, no saved torques < v9
 		else if (m_nVectorType == VECTOR_COMPONENT){
 			ar << m_strCompDir;
@@ -180,6 +184,9 @@ void CVector::Serialize(CArchive& ar)
 						|| (m_nVectorType == VECTOR_TORQUE))
 					&& (nVersion >= 7) ) // avg/inst for accel, vel; Net/Ind for torque
 				ar >> m_strForceType;
+			else if ( (m_nVectorType == VECTOR_UNITVECTOR)
+				     && (nVersion >= 10) )
+			    ar >> m_strForceType;
 
 			m_Angles.Serialize(ar);
 			
