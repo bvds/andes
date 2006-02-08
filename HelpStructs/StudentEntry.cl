@@ -51,7 +51,7 @@
   ; Some non-eqn student entries carry associated equation entries with them. These
   ; associated entries are dependent in that they must be deleted if the main entry is deleted.
   ; Dependent equation entries hang off the following fields in the main entry:
-  ImplicitEqn          ;; associated implicit equation entry, if any
+  ImplicitEqns         ;; list of associated implicit equation entries, if any
   GivenEqns	       ;; list of associated given value equation entries, if any
   (Time (get-current-htime))  ;;  The entry's time.  Typically the time it was created
                                ;;  But not necessarily.
