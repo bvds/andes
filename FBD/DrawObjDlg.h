@@ -30,7 +30,8 @@ protected:
 		if ((pCtl != NULL) && pCtl->IsKindOf(RUNTIME_CLASS(CLabelRichEdit)))
 			return (CLabelRichEdit*) pCtl;
 		return NULL;
-	};	
+	};
+	void CDrawObjDlg::PrepareLabelCtrl(CLabelRichEdit* pLabelCtrl);
 	
 	void InitLabel();
 

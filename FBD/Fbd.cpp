@@ -757,6 +757,12 @@ BOOL CFBDApp::EnsureUserInit()
 	// as unique Andes session id, for easy correlation with logs
    	m_strSessionId = HistoryFileSetStudent(m_strUserName);
 
+#ifdef EXP // For experiment: record screen movie
+	extern BOOL BeginRecordScreen(LPCSTR pszOutputPath, LPCTSTR pszProfileName, LPCTSTR pszProfileDir=NULL);
+	if (! BeginRecordScreen(g_strAndesDir + "Log/" + m_strSessionId + ".wmv", "Hausmann Experiment", g_strAndesDir + "Log"))
+		AfxMessageBox("Failed to start screen recorder. ");
+#endif EXP
+
 	// If this is roving student installation, download student files now
 	if (IsRovingStudent())
 		TransferStudentFiles(/*bUpload = */ FALSE);
@@ -1031,6 +1037,11 @@ void CFBDApp::DoFinalCleanup()
     
    		// Finish history log 
    		HistoryFileEnd();
+
+#ifdef EXP  // for experiment: stop screen recorder
+		extern void EndRecordScreen();
+		EndRecordScreen();
+#endif EXP
 
 		// don't do again
 		m_bTerminated = TRUE;

@@ -188,6 +188,7 @@ static QuantTblEntry vectorQuants[] =
 { ID_VARIABLE_ADDEFIELD,         "E-field",			"E", },
 { ID_VARIABLE_ADDBFIELD,         "B-field",			"B", },
 { ID_VARIABLE_ADDIMPULSE,        "impulse",         "J", },
+{ ID_VARIABLE_ADDUNITVECTOR,     "unit-vector",     "n", },
 };
 const int numVectors ARRAY_SIZE(vectorQuants);
 

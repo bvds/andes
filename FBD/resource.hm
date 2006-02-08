@@ -4,6 +4,7 @@
 #define HIDCANCEL                       0x80d40002    // IDD_ANGLE
 #define HIDC_AGENT                      0x816d040d    // IDD_TORQUE
 #define HIDC_ANGLE                      0x818004ce    // IDD_FIELD
+#define HIDC_AT_BODY                    0x818c0594    // IDD_VECTOR_UNIT
 #define HIDC_AVBODY_TEXT                0x80bb040e    // IDD_VECTOR_MOVE
 #define HIDC_BODY                       0x81560510    // IDD_LAW_APPLICATION
 #define HIDC_BODY_TEXT                  0x816d040a    // IDD_TORQUE

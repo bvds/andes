@@ -254,6 +254,7 @@
 #define IDD_OLIVIEW                     391
 #define IDD_VECTOR_IMPULSE              392
 #define IDD_PROBABILITY                 394
+#define IDD_VECTOR_UNIT                 396
 #define IDC_SINGLE_BODY                 1000
 #define IDC_STATUS_MSG                  1000
 #define IDC_MULTIPLE_BODIES             1001
@@ -642,6 +643,10 @@
 #define IDC_STATIC_EQUALS               1422
 #define IDC_SUBTYPE_LABEL               1423
 #define IDC_SUBTYPE                     1424
+#define IDC_NORMAL_BTN                  1425
+#define IDC_AT_BTN                      1426
+#define IDC_TOWARDS_AWAY                1427
+#define IDC_AT_BODY                     1428
 #define IDC_EQ1                         4000
 #define IDC_EQ2                         4001
 #define IDI_WINHELP                     4001
@@ -942,6 +947,7 @@
 #define ID_HELP_EMAIL                   33223
 #define ID_DRAWVECTOR_IMPUSE            33224
 #define ID_HELP_CONSTANTS               33225
+#define ID_DR                           33227
 #define ID_TACCELERATION_TYPE           33232
 #define ID_VARIABLE_ADDFIRST            41000
 #define ID_VARIABLE_ADDFORCE            41001
@@ -999,6 +1005,7 @@
 #define ID_VARIABLE_ADDLENSDISTANCE     41049
 #define ID_VARIABLE_ADDIMPULSE          41050
 #define ID_VARIABLE_ADDPROBABILITY      41051
+#define ID_VARIABLE_ADDUNITVECTOR       41052
 #define ID_VARIABLE_MAX_STATIC          41100
 #define ID_VARIABLE_ADDLAST             41200
 #define ID_DRAWVECTOR_FIRST             45000
@@ -1014,7 +1021,8 @@
 #define ID_DRAWVECTOR_EFIELD            45009
 #define ID_DRAWVECTOR_BFIELD            45010
 #define ID_DRAWVECTOR_IMPULSE           45011
-#define ID_DRAWVECTOR_LAST              45011
+#define ID_DRAWVECTOR_UNITVECTOR        45012
+#define ID_DRAWVECTOR_LAST              45012
 #define ID_DRAWTOOL_FIRST               50000
 #define ID_DRAW_VECTOR                  50000
 #define ID_DIAGRAM_COORDINATES          50001
@@ -1095,9 +1103,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        396
-#define _APS_NEXT_COMMAND_VALUE         33226
-#define _APS_NEXT_CONTROL_VALUE         1425
+#define _APS_NEXT_RESOURCE_VALUE        399
+#define _APS_NEXT_COMMAND_VALUE         33229
+#define _APS_NEXT_CONTROL_VALUE         1429
 #define _APS_NEXT_SYMED_VALUE           119
 #endif
 #endif

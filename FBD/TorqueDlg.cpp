@@ -251,7 +251,7 @@ void CTorqueDlg::UpdateTempVariable()
 		 pTempVar->m_strForceType.Empty();
 	}
 	pTempVar->m_strAgent = GetCurString(&m_cboAgent);
-	pTempVar->m_strTime = GetCurString(&m_cboTimeList);\
+	pTempVar->m_strTime = GetCurString(&m_cboTimeList);
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	
 	// for vars, also need to set variable quant type and definition strings

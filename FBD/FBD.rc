@@ -327,6 +327,7 @@ BEGIN
     BUTTON      ID_DRAWVECTOR_EFIELD
     BUTTON      ID_DRAWVECTOR_BFIELD
     BUTTON      ID_DRAWVECTOR_TORQUE
+    BUTTON      ID_DRAWVECTOR_UNITVECTOR
     BUTTON      ID_ZDIR_MENU
     SEPARATOR
     BUTTON      ID_ANGLE
@@ -2400,7 +2401,7 @@ END
 IDD_TORQUE DIALOGEX 0, 0, 207, 149
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Torque Definition"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     GROUPBOX        "Type",IDC_STC_GROUP,4,3,199,47
     CONTROL         "&Net Torque",IDC_NETBTN,"Button",BS_AUTORADIOBUTTON | 
@@ -2857,6 +2858,49 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,124,72,50,14
 END
 
+IDD_VECTOR_UNIT DIALOGEX 0, 0, 228, 141
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Define Vector"
+FONT 10, "MS Sans Serif"
+BEGIN
+    LTEXT           "Unit vector",IDC_STATIC,6,6,33,8
+    CONTROL         "&Normal to",IDC_NORMAL_BTN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP | WS_TABSTOP,6,18,45,10
+    CONTROL         "&At",IDC_AT_BTN,"Button",BS_AUTORADIOBUTTON,6,35,22,10
+    COMBOBOX        IDC_BODY,52,17,61,107,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_BODY
+    COMBOBOX        IDC_AT_BODY,28,34,58,110,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_AT_BODY
+    LTEXT           "&pointing",IDC_STATIC,90,36,25,8
+    COMBOBOX        IDC_TOWARDS_AWAY,118,34,45,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_AGENT,164,34,61,55,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_GROUP | WS_TABSTOP,0,HIDC_AGENT
+    LTEXT           "at &Time",IDC_TIME_LABEL,58,53,24,8,0,0,HIDC_TIME_LABEL
+    COMBOBOX        IDC_TIME,85,52,71,88,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP,0,HIDC_TIME
+    GROUPBOX        "",IDC_BOX_TIMEDIR,8,63,201,26,NOT WS_VISIBLE
+    LTEXT           "&Orientation:",IDC_L2ANGLE,9,73,33,8,0,0,HIDC_L2ANGLE
+    EDITTEXT        IDC_ORIENTATION_TEXT,43,71,30,14,ES_AUTOHSCROLL,0,
+                    HIDC_ORIENTATION_TEXT
+    CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,70,72,9,12,0,0x818c03ee
+    LTEXT           "degrees",IDC_LANGLE,78,74,27,8,NOT WS_GROUP,0,
+                    HIDC_LANGLE
+    ICON            IDI_ANGLE,IDC_ANGLE,103,70,16,16,0,0,HIDC_ANGLE
+    COMBOBOX        IDC_ZDIR,136,73,71,73,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_BOX_LABEL,8,92,201,21,NOT WS_VISIBLE
+    LTEXT           "&Variable Name",IDC_LVECTOR_NAME_TEXT,9,100,47,8,0,0,
+                    HIDC_LVECTOR_NAME_TEXT
+    CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
+                    WS_BORDER | WS_TABSTOP,62,98,40,14,0,HIDC_CUSTOM_LABEL
+    LTEXT           "",IDC_COMP,114,96,93,18
+    DEFPUSHBUTTON   "OK",IDOK,56,120,50,14,0,0,HIDOK
+    PUSHBUTTON      "Cancel",IDCANCEL,122,120,50,14,0,0,HIDCANCEL
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -2865,8 +2909,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,1,1,0
- PRODUCTVERSION 10,1,1,0
+ FILEVERSION 10,1,1,3
+ PRODUCTVERSION 10,1,1,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -2884,14 +2928,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "10, 1, 1, 0\0"
+            VALUE "FileVersion", "10, 1, 1, 3\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "10, 1, 1, 0\0"
+            VALUE "ProductVersion", "10, 1, 1, 3\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3549,6 +3593,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 83
     END
+
+    IDD_VECTOR_UNIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 221
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 134
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -3708,20 +3760,6 @@ BEGIN
     0
 END
 
-IDD_TORQUE DLGINIT
-BEGIN
-    IDC_ZDIR, 0x403, 13, 0
-0x6e49, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
-    IDC_ZDIR, 0x403, 15, 0
-0x6e49, 0x6f74, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
-    IDC_ZDIR, 0x403, 17, 0
-0x754f, 0x2074, 0x666f, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
-    IDC_ZDIR, 0x403, 20, 0
-0x6e55, 0x6e6b, 0x776f, 0x206e, 0x205a, 0x6964, 0x6572, 0x7463, 0x6f69, 
-0x006e, 
-    0
-END
-
 IDD_VECTOR_POS DLGINIT
 BEGIN
     IDC_ZDIR, 0x403, 13, 0
@@ -3772,6 +3810,38 @@ BEGIN
 0x694b, 0x656e, 0x6974, 0x0063, 
     IDC_SUBTYPE, 0x403, 7, 0
 0x7453, 0x7461, 0x6369, "\000" 
+    0
+END
+
+IDD_VECTOR_UNIT DLGINIT
+BEGIN
+    IDC_TOWARDS_AWAY, 0x403, 8, 0
+0x6f74, 0x6177, 0x6472, 0x0073, 
+    IDC_TOWARDS_AWAY, 0x403, 10, 0
+0x7761, 0x7961, 0x6620, 0x6f72, 0x006d, 
+    IDC_ZDIR, 0x403, 13, 0
+0x6e49, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 15, 0
+0x6e49, 0x6f74, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 17, 0
+0x754f, 0x2074, 0x666f, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 20, 0
+0x6e55, 0x6e6b, 0x776f, 0x206e, 0x205a, 0x6964, 0x6572, 0x7463, 0x6f69, 
+0x006e, 
+    0
+END
+
+IDD_TORQUE DLGINIT
+BEGIN
+    IDC_ZDIR, 0x403, 13, 0
+0x6e49, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 15, 0
+0x6e49, 0x6f74, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 17, 0
+0x754f, 0x2074, 0x666f, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 20, 0
+0x6e55, 0x6e6b, 0x776f, 0x206e, 0x205a, 0x6964, 0x6572, 0x7463, 0x6f69, 
+0x006e, 
     0
 END
 

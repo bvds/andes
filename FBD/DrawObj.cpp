@@ -43,6 +43,7 @@
 #include "FieldDlg.h"
 #include "ImpulseDlg.h"
 #include "ProbDlg.h"
+#include "UnitVectorDlg.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3743,6 +3744,8 @@ CDialog* CVariable::GetPropertyDlg()
 		 return new CFieldDlg(this, /*bMagnetic=*/TRUE); 
 	else if (m_nType == ID_VARIABLE_ADDIMPULSE)
 		return new CImpulseDlg(this);
+	else if (m_nType == ID_VARIABLE_ADDUNITVECTOR)
+		return new CUnitVectorDlg(this);
 	else if (IsLinearVector() || IsAngularVector() ||
 			 m_nType == ID_VARIABLE_ADDSPEED) 
 	{
@@ -3830,6 +3833,7 @@ BOOL CVariable::HasComponents()
 	  || (m_nType == ID_VARIABLE_ADDEFIELD)
 	  || (m_nType == ID_VARIABLE_ADDBFIELD)
 	  || (m_nType == ID_VARIABLE_ADDIMPULSE)
+	  || (m_nType == ID_VARIABLE_ADDUNITVECTOR)
 	);
 }
 
@@ -3997,6 +4001,7 @@ void CVariable::UpdateVarNames(CString strOldName)
 		|| (m_nType == ID_VARIABLE_ADDDISPLACEMENT)
 		|| (m_nType == ID_VARIABLE_ADDMOMENTUM)
 		|| (m_nType == ID_VARIABLE_ADDIMPULSE)
+		|| (m_nType == ID_VARIABLE_ADDUNITVECTOR)
 		|| (m_nType == ID_VARIABLE_ADDRELPOS)
 		|| (m_nType == ID_VARIABLE_ADDEFIELD))
 	{
@@ -4024,7 +4029,9 @@ void CVariable::RemoveVarNames(CString strOldName)
 		|| (m_nType == ID_VARIABLE_ADDMOMENTUM)
 		|| (m_nType == ID_VARIABLE_ADDIMPULSE)
 		|| (m_nType == ID_VARIABLE_ADDRELPOS)
-		|| (m_nType == ID_VARIABLE_ADDEFIELD))
+		|| (m_nType == ID_VARIABLE_ADDEFIELD)
+		|| (m_nType == ID_VARIABLE_ADDUNITVECTOR) 
+	   )
 	{
 		CString strOldXVar = strOldName + "_x";
 		CString strOldYVar = strOldName + "_y";

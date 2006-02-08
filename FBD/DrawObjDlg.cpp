@@ -65,7 +65,9 @@ CDrawObjDlg::CDrawObjDlg(int id, CDrawObj* pObj /*NULL*/, CWnd* pParent /*=NULL*
 //  then call CDrawObjDlg::DoDataExchange (this routine).
 // -this routine sees that it is loading values, so moves current slot values from tempobj into controls 
 //  via InitDlg, which delegates to custom 
-//  InitObjectDlg|InitVariableDlg to do the work of setting control vals from object
+//     InitObjectDlg|InitVariableDlg to do the work of setting control vals from object
+//  and also calls
+//     InitLabel to init the label value (via custom GetLabel) w/prefix (GetLabelPrefix)
 //
 // .... user edits controls then hits OK...
 //
@@ -124,24 +126,10 @@ void CDrawObjDlg::InitDlg()
 void CDrawObjDlg::InitLabel()
 {
 	CWnd* pCtrl = GetLabelCtrl();
-	if (pCtrl == NULL)
+	if (pCtrl == NULL)		// no label in this dialog
 		return;
 
-	//font must be set before calling setprefix or setting default font
-	//otherwise will override setprefix's format bold change and default's onprotected change
-	GetLabelCtrl()->SetFont(GetFont());
-
-	// Set default style to PROTECTED, used by control to suppress change notifications
-	// on format changes.
-	CHARFORMAT cfDefault;
-	cfDefault.cbSize = sizeof(cfDefault);
-	cfDefault.dwEffects = CFE_PROTECTED; 
-	cfDefault.dwMask = CFM_PROTECTED;
-	GetLabelCtrl()->SetDefaultCharFormat(cfDefault);
-
-	// Set up to get change notifications, adding ENM_PROTECTED since 
-	// control requires it. 
-	GetLabelCtrl()->SetEventMask(ENM_CHANGE |ENM_PROTECTED | ENM_LINK | ENM_KEYEVENTS);
+	PrepareLabelCtrl(GetLabelCtrl());
 
 	// Set "read-only" prefix with object's prefix.
 	GetLabelCtrl()->SetPrefix(m_pTempObj->GetLabelPrefix());
@@ -153,6 +141,25 @@ void CDrawObjDlg::InitLabel()
 	GetLabelCtrl()->GetRichEditText(m_pTempObj->m_strName);
 }
 
+// Does common work of preparing a label rich edit control for use:
+void CDrawObjDlg::PrepareLabelCtrl(CLabelRichEdit* pLabelCtrl)
+{
+	//font must be set before calling setprefix or setting default font
+	//otherwise will override setprefix's format bold change and default's onprotected change
+	pLabelCtrl->SetFont(GetFont());
+
+	// Set default style to PROTECTED, used by control to suppress change notifications
+	// on format changes.
+	CHARFORMAT cfDefault;
+	cfDefault.cbSize = sizeof(cfDefault);
+	cfDefault.dwEffects = CFE_PROTECTED; 
+	cfDefault.dwMask = CFM_PROTECTED;
+	pLabelCtrl->SetDefaultCharFormat(cfDefault);
+
+	// Set up to get change notifications, adding ENM_PROTECTED since 
+	// control requires it. 
+	pLabelCtrl->SetEventMask(ENM_CHANGE |ENM_PROTECTED | ENM_LINK | ENM_KEYEVENTS);
+}
 
 BOOL CDrawObjDlg::OnInitDialog() 
 {

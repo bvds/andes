@@ -970,6 +970,10 @@ SOURCE=.\PtrDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RecordScreen.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Rectdlg.cpp
 # End Source File
 # Begin Source File
@@ -1865,6 +1869,20 @@ SOURCE=.\res\zvel_o.cur
 # End Group
 # End Target
 # End Project
+# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
+# 	1:17:ID_INDICATOR_TIME:105
+# 	2:2:BH:
+# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
+# End Section
+# Section OLE Controls
+# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
+# End Section
+# Section FBD : {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
+# 	0:14:WebBrowser.cpp:C:\Msdev\Projects\Fbd\WebBrowser.cpp
+# 	0:12:WebBrowser.h:C:\Msdev\Projects\Fbd\WebBrowser.h
+# 	2:21:DefaultSinkHeaderFile:webbrowser.h
+# 	2:16:DefaultSinkClass:CWebBrowser
+# End Section
 # Section FBD : {2B6C9470-6704-11CF-BC04-0000C037C67D}
 # 	0:8:Splash.h:C:\Msdev\Projects\Fbd\Splash.h
 # 	0:10:Splash.cpp:C:\Msdev\Projects\Fbd\Splash.cpp
@@ -1882,18 +1900,4 @@ SOURCE=.\res\zvel_o.cur
 # 	2:5:Class:CWebBrowser
 # 	2:10:HeaderFile:webbrowser.h
 # 	2:8:ImplFile:webbrowser.cpp
-# End Section
-# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
-# 	1:17:ID_INDICATOR_TIME:105
-# 	2:2:BH:
-# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
-# End Section
-# Section OLE Controls
-# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
-# End Section
-# Section FBD : {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
-# 	0:14:WebBrowser.cpp:C:\Msdev\Projects\Fbd\WebBrowser.cpp
-# 	0:12:WebBrowser.h:C:\Msdev\Projects\Fbd\WebBrowser.h
-# 	2:21:DefaultSinkHeaderFile:webbrowser.h
-# 	2:16:DefaultSinkClass:CWebBrowser
 # End Section

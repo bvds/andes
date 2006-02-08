@@ -391,12 +391,14 @@ void CVariableDlg::SwitchTimeAgent()
 
 void CVariableDlg::InitVariableDlg()
 {
-	m_cboBody.SelectStringExact(((CVariable*)m_pTempObj)->m_strObject );
-	m_cboAgent.SelectStringExact(((CVariable*)m_pTempObj)->m_strAgent );
-	m_cboTime.SelectStringExact(((CVariable*)m_pTempObj)->m_strTime) ;
-	m_cboSubtype.SelectStringExact(((CVariable*)m_pTempObj)->m_strForceType);
+	CVariable* pTempVar = (CVariable*)m_pTempObj;
+
+	m_cboBody.SelectStringExact(pTempVar->m_strObject );
+	m_cboAgent.SelectStringExact(pTempVar->m_strAgent );
+	m_cboTime.SelectStringExact(pTempVar->m_strTime) ;
+	m_cboSubtype.SelectStringExact(pTempVar->m_strForceType);
 	// Transfer given value/unknown bit from controls to variable
-	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	m_editValue.SetWindowText(pTempVar->m_strValue);
 	OnChangeGivenValue();	// to sync unknown check box with value
 }
 
@@ -407,12 +409,13 @@ CLabelRichEdit* CVariableDlg::GetLabelCtrl()
 
 void CVariableDlg::UpdateTempVariable()
 {
-	((CVariable*)m_pTempObj)->m_strObject = GetCurString(&m_cboBody);
-	((CVariable*)m_pTempObj)->m_strAgent = GetCurString(&m_cboAgent);
-	((CVariable*)m_pTempObj)->m_strTime = GetCurString(&m_cboTime);
-	((CVariable*)m_pTempObj)->m_strForceType = GetCurString(&m_cboSubtype);
-	m_editValue.GetWindowText(((CVariable*)m_pTempObj)->m_strValue);	
-	m_editName.GetRichEditText(m_pTempObj->m_strName);
+	CVariable* pTempVar = (CVariable*)m_pTempObj;
+	pTempVar->m_strObject = GetCurString(&m_cboBody);
+	pTempVar->m_strAgent = GetCurString(&m_cboAgent);
+	pTempVar->m_strTime = GetCurString(&m_cboTime);
+	pTempVar->m_strForceType = GetCurString(&m_cboSubtype);
+	m_editValue.GetWindowText(pTempVar->m_strValue);	
+	m_editName.GetRichEditText(pTempVar->m_strName);
 }
 
 

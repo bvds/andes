@@ -44,7 +44,8 @@ public:
 #define VECTOR_EFIELD       (ID_DRAWVECTOR_EFIELD - ID_DRAWVECTOR_FIRST)
 #define VECTOR_BFIELD       (ID_DRAWVECTOR_BFIELD - ID_DRAWVECTOR_FIRST)
 #define VECTOR_IMPULSE      (ID_DRAWVECTOR_IMPULSE - ID_DRAWVECTOR_FIRST)
-#define VECTYPE_LAST		VECTOR_IMPULSE
+#define VECTOR_UNITVECTOR   (ID_DRAWVECTOR_UNITVECTOR - ID_DRAWVECTOR_FIRST)
+#define VECTYPE_LAST		VECTOR_UNITVECTOR
 	BOOL	m_bAngular;			// means type is angular version of specified vec
 
 	CString m_strForceType;		// FORCE: type string
@@ -172,6 +173,7 @@ protected:
 	LPCTSTR CheckMoveVector();
 	LPCTSTR CheckForceVector();
 	LPCTSTR CheckTorqueVector();
+	LPCTSTR CheckUnitVector();
 	/* LPCTSTR Check2DEntry(); */
 
 	 

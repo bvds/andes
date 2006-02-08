@@ -58,6 +58,7 @@ BEGIN_MESSAGE_MAP(CFBDView, CBaseView)
 	ON_COMMAND(ID_DRAWVECTOR_VELOCITY, OnDrawvectorVelocity)
 	ON_COMMAND(ID_DRAWVECTOR_MOMENTUM, OnDrawvectorMomentum)
 	ON_COMMAND(ID_DRAWVECTOR_IMPULSE, OnDrawvectorImpulse)
+	ON_COMMAND(ID_DRAWVECTOR_UNITVECTOR, OnDrawvectorUnitVector)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
@@ -119,6 +120,7 @@ BEGIN_MESSAGE_MAP(CFBDView, CBaseView)
 	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_VELOCITY, OnUpdateDrawvectorVelocity)
 	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_MOMENTUM, OnUpdateDrawvectorMomentum)
 	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_IMPULSE, OnUpdateDrawvectorImpulse)
+	ON_UPDATE_COMMAND_UI(ID_DRAWVECTOR_UNITVECTOR, OnUpdateDrawvectorUnitVector)
 	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
 	ON_COMMAND(ID_VIEW_FONT, OnViewFont)
@@ -2436,6 +2438,18 @@ void CFBDView::OnDrawvectorImpulse()
 void CFBDView::OnUpdateDrawvectorImpulse(CCmdUI* pCmdUI) 
 {	
 	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_IMPULSE); 
+	pCmdUI->Enable(m_bEnabled);
+}
+
+void CFBDView::OnDrawvectorUnitVector() 
+{
+	LogEventf(EV_SELECT_TOOL,"%d", ID_DRAWVECTOR_UNITVECTOR);
+	m_drawMode = Vector; m_vectorType = VECTOR_UNITVECTOR;
+	m_nZDir = ZDIR_NONE; 
+}
+void CFBDView::OnUpdateDrawvectorUnitVector(CCmdUI* pCmdUI) 
+{	
+	pCmdUI->SetRadio(m_drawMode == Vector && m_vectorType == VECTOR_UNITVECTOR); 
 	pCmdUI->Enable(m_bEnabled);
 }
 

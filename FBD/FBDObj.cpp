@@ -33,6 +33,7 @@
 #include "RelVelDlg.h"
 #include "FieldDlg.h"
 #include "ImpulseDlg.h"
+#include "UnitVectorDlg.h"
     
 //////////////////////////////////////////////////////////////////////////
 // Vectors
@@ -759,6 +760,8 @@ CDialog* CVector::GetPropertyDlg()
 		return new CFieldDlg(this);
 	else if (m_nVectorType == VECTOR_BFIELD)
 		return new CFieldDlg(this, /*bMagnetic*/TRUE);
+	else if (m_nVectorType == VECTOR_UNITVECTOR)
+		return new CUnitVectorDlg(this);
 
 	// else fall through:
 	TRACE("CVector::GetPropertyDlg:: Bad vector type d\n", m_nVectorType); 
@@ -815,6 +818,12 @@ CString CVector::GetDef()
 		strDef.Format("Magnetic Field at %s due to %s",  m_strBody, m_strAgent);
 	} else if (m_nVectorType == VECTOR_IMPULSE) {
 		strDef.Format("Impulse on %s due to %s", m_strBody, m_strAgent);
+	} else if (m_nVectorType == VECTOR_UNITVECTOR) {
+		// type is "Normal" "Towards" "Away From"
+		if (m_strForceType == "Normal") 
+			strDef.Format("Unit vector normal to %s %s", m_strBody, strTimePart);
+		else strDef.Format("Unit vector at %s pointing %s %s %s",
+			                m_strBody, m_strForceType, m_strAgent, strTimePart);
 	} else
 		strDef = "Vector";
 	strDef.TrimRight();	
@@ -866,7 +875,7 @@ CString CVector::GetPrintDef()
 	} else if (m_nVectorType == VECTOR_IMPULSE) {
 		strDef.Format("Impulse on %s due to %s %s", m_strBody, m_strAgent, strTimePart);
 	} else 
-		strDef = "Vector";
+		strDef = GetDef();
     
 	// cleanup trailing white space 
 	strDef.TrimRight();
@@ -944,6 +953,7 @@ BOOL CVector::SetFromLogStr(LPCTSTR pszStr)
 	else if (strTypeName == "Relative-Velocity") m_nVectorType = VECTOR_RELVEL;
 	else if (strTypeName == "E-field") m_nVectorType = VECTOR_EFIELD;
 	else if (strTypeName == "B-field") m_nVectorType = VECTOR_BFIELD;
+	else if (strTypeName == "Unit-Vector") m_nVectorType = VECTOR_UNITVECTOR;
 
 	// set the CVector specific stuff 
 	if (m_nVectorType == VECTOR_COMPONENT) {
@@ -1000,6 +1010,7 @@ void CVector::GetTypeName(CString& strType)
 	case VECTOR_TORQUE: strType = "Torque"; break;
 	case VECTOR_EFIELD: strType = "E-field"; break;
 	case VECTOR_BFIELD: strType = "B-field"; break;
+	case VECTOR_UNITVECTOR: strType = "Unit-Vector"; break;
 	default: strType = "Vector"; break;
 	}
 	if (m_bAngular)
@@ -1022,6 +1033,7 @@ CString CVector::GetLabelPrefix()
 	case VECTOR_TORQUE: return "$t";
 	case VECTOR_EFIELD: return "E";
 	case VECTOR_BFIELD: return "B";
+	case VECTOR_UNITVECTOR: return "n";
 	default: return "v"; 
 	}
 }
@@ -1104,6 +1116,8 @@ BOOL CVector::HasSameDef(CVariable* pVar)
 		bMatchType = (m_nVectorType == VECTOR_IMPULSE); break;
 	case ID_VARIABLE_ADDTORQUE:
 		bMatchType = (m_nVectorType == VECTOR_TORQUE); break;
+	case ID_VARIABLE_ADDUNITVECTOR:
+		bMatchType = (m_nVectorType == VECTOR_UNITVECTOR); break;
 	// etc. 
 	}
 	if (!bMatchType) return FALSE;
@@ -1226,6 +1240,8 @@ void CVector::CheckObject()
 	else if (m_nVectorType == VECTOR_POSITION)
 		pszResult = CheckPositionVector();
 #endif 0
+	else if (m_nVectorType == VECTOR_UNITVECTOR)
+		pszResult = CheckUnitVector();
 	else
 		pszResult = CheckMoveVector();	// all others only differ in vector type
 
@@ -1322,7 +1338,7 @@ LPCTSTR CVector::CheckMoveVector()
 		strSubTypeArg = m_strForceType;
 
 	// if net field, send special subtype of 'NIL
-	if (m_nVectorType == VECTOR_EFIELD && 		
+	if ((m_nVectorType == VECTOR_EFIELD || m_nVectorType == VECTOR_BFIELD) && 		
 		m_strAgent == c_szAllSources)
 			strSubTypeArg = "NIL";
 
@@ -1356,7 +1372,27 @@ LPCTSTR CVector::CheckTorqueVector()
 		);
 }
 
-   
+LPCTSTR CVector::CheckUnitVector()
+{
+	// Urgh, lookup vector does not have enough arguments for both a subtype and a second body.
+	// So we code subtype in the main type as unit-normal, unit-towards, unit-away-from
+	// assume helpsys can deal with these pretend vector types.
+	CString strSubType = m_strForceType;
+	strSubType.Replace(" ", "-");  
+	CString strType = "unit-" + strSubType;
+	//(lookup-vector label type object direction mag time)
+	return HelpSystemExecf( "(lookup-vector \"%s\" %s |%s| |%s| %s %s |%s| %s)",
+			STR2ARG(m_strName),				// label
+			STR2ARG(m_strAgent),			// instantaneous or average
+			strType,						// vector type
+			STR2ARG(m_strBody),				// object
+			DirArg(),						// direction
+			MagArg(),						// mag
+			STR2ARG(m_strTime),				// time
+			m_strId							// id
+		);
+}
+ 
 BOOL CVector::CanDuplicate()
 {
    	return TRUE;

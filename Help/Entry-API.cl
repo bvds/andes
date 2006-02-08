@@ -569,7 +569,14 @@
 			    (if (null avg-inst) ;null agent => net-field
 			          `(net-field ,body-term magnetic)
 		             `(field ,body-term magnetic ,(arg-to-body avg-inst))))
-	                 ;; a two-body vector type:
+			; unit vector type codes pack in subtype info
+			((equal vtype 'unit-Normal) 
+			     `(unit-vector normal-to ,body-term :at NIL))
+			((equal vtype 'unit-towards)
+			     `(unit-vector towards ,(arg-to-body avg-inst) :at ,body-term))
+			((equal vtype 'unit-away-from)
+			     `(unit-vector away-from ,(arg-to-body avg-inst) :at ,body-term))
+	                ;; a two-body vector type:
 	                ((or (equal vtype 'relative-position) (equal vtype 'relative-vel)
 			     (equal vtype 'impulse))
 		           `(,vtype ,body-term ,(arg-to-body avg-inst)))

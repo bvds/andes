@@ -172,7 +172,7 @@ CEQRichEdit::CEQRichEdit()
 	m_colorText = ::GetSysColor(COLOR_WINDOWTEXT);
 	m_bParentMenu = FALSE;
 	m_nMenuId = -1;
-
+	m_bFormatChange = 0;
 }
 
 CEQRichEdit::~CEQRichEdit()

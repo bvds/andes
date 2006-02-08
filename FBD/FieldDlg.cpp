@@ -55,8 +55,7 @@ void CFieldDlg::DoDataExchange(CDataExchange* pDX)
 	if (! pDX->m_bSaveAndValidate) 
 		m_cboAgent.AddString("Unspecified");
 	// Add "all sources" choice for net field if appropriate
-	if (m_pDocument->m_strObjects.GetCount() > 1  // heuristic test, works for our problems
-		&& ! m_bMagnetic)                         // don't use "net" magnetic field
+	if (m_pDocument->m_strObjects.GetCount() > 1)  // heuristic test, works for our problems
 		m_cboAgent.AddString(CVector::c_szAllSources);
 	DDX_FillList(pDX, IDC_TIME, &m_pDocument->m_strTimes);
 	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);

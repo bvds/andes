@@ -1,6 +1,6 @@
 // FBDView.h : interface of the CFBDView class
 // 
-// $Id: Fbdview.h,v 1.4 2006/01/05 04:09:16 anders Exp $
+// $Id: Fbdview.h,v 1.5 2006/02/08 22:34:11 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 
 // forward references, so don't need to worry about including 
@@ -298,10 +298,12 @@ protected:
 	afx_msg void OnDrawvectorVelocity();
 	afx_msg void OnDrawvectorMomentum();
 	afx_msg void OnDrawvectorImpulse();
+	afx_msg void OnDrawvectorUnitVector();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnUpdateDrawVector(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateDrawvectorUnitVector(CCmdUI* pCmdUI);
 	afx_msg void OnLabel();
 	afx_msg void OnUpdateAngle(CCmdUI* pCmdUI);
 	afx_msg void OnEditDelete();
