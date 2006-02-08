@@ -1432,38 +1432,41 @@
 
 ;;;     time constant for RLC circuit
 
-(def-psmclass RLC-time-constant (RLC-time-constant ?res ?ind ?cap) 
+(def-psmclass RLC-time-constant (RLC-time-constant ?circuit) 
   :complexity definition 
   :english ("RLC time constant")
   :eqnFormat ("$t = 2*L/R"))
 
 (defoperator RLC-time-constant-contains (?sought)
-  :preconditions (
-		  (circuit-component ?res resistor)
-		  (circuit-component ?ind inductor)
-		  (circuit-component ?cap capacitor)
-		  (closed-loop (?res ?ind ?cap) :name ?whatever)
-		  (any-member ?sought ((time-constant orderless ?res ?ind ?cap)
-				       (resistance ?res)
-				       (inductance ?ind)) )
-		  )
-  :effects (
-	    (eqn-contains (RLC-time-constant ?res ?ind ?cap) ?sought)
-	    ))
-
-(defoperator write-RLC-time-constant (?res ?ind ?cap)
   :preconditions 
   (
+   (closed-loop (?res ?ind ?cap) :name ?circuit) ;should be cyclic
+   (circuit-component ?res resistor)
+   (circuit-component ?ind inductor)
+   (circuit-component ?cap capacitor)
+   (any-member ?sought ((time-constant orderless ?res ?ind ?cap)
+			(resistance ?res)
+			(inductance ?ind)) )
+   )
+  :effects (
+	    (eqn-contains (RLC-time-constant ?circuit) ?sought)
+	    ))
+
+(defoperator write-RLC-time-constant (?circuit)
+  :preconditions 
+  (
+   (in-wm (closed-loop (?res ?ind ?cap) :name ?circuit))
    (variable ?tau (time-constant orderless ?res ?ind ?cap))
    (variable ?l-var (inductance ?ind))
    (variable ?r-var (resistance ?res))
    )
   :effects (
 	    (eqn (= ?tau (/ (* 2 ?l-var) ?r-var)) 
-		 (RLC-time-constant ?res ?ind ?cap))
+		 (RLC-time-constant ?circuit))
 	    )
-  :hint (
-	 (point (string "You need to define the RLC time constant."))
+  :hint 
+  (
+   (point (string "You need to define the time constant for ~A." ?circuit))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?tau (/ (* 2 ?l-var) ?r-var)) algebra)))
 	 ))
