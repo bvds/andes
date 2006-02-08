@@ -1173,7 +1173,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 
 ;;; Energy dissipation in an oscillator.
 
-(def-psmclass energy-decay (energy-decay ?components ?time) 
+(def-psmclass energy-decay (energy-decay ?system ?time) 
   :complexity major
   :english ("Energy in a damped system")
   :eqnFormat ("E = Ei*exp(-2*t/$t)"))
@@ -1181,11 +1181,11 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (defoperator energy-decay-contains (?sought)
   :preconditions
   (
-   (damping . ?system)  ; system appropriate for formula
-   (any-member ?sought ((stored-energy (compound . ?system) :time ?t1)
-			(stored-energy (compound . ?system) :time ?t2)
+   (damping ?system ?components)  ; system appropriate for formula
+   (any-member ?sought ((stored-energy ?system :time ?t1)
+			(stored-energy ?system :time ?t2)
 			(duration (during ?t1 ?t2))
-			(time-constant . ?system)
+			(time-constant . ?components)
 			))
    ;; make sure we have a time interval:
    (time (during ?t1 ?t2))
@@ -1197,10 +1197,11 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
 (defoperator write-energy-decay (?system ?t1 ?t2)
   :preconditions 
   (
-   (variable ?E1-var (stored-energy (compound . ?system) :time ?t1))
-   (variable ?E2-var (stored-energy (compound . ?system) :time ?t2))
+   (in-wm (damping ?system ?components))  ; system appropriate for formula
+   (variable ?E1-var (stored-energy ?system :time ?t1))
+   (variable ?E2-var (stored-energy ?system :time ?t2))
    (variable ?t-var (duration (during ?t1 ?t2)))
-   (variable ?tau-var (time-constant . ?system))
+   (variable ?tau-var (time-constant . ?components))
    )
   :effects 
   ((eqn (= ?E2-var (* ?E1-var (exp (/ (- (* 2 ?t-var)) ?tau-var))))
@@ -1208,7 +1209,7 @@ using the Add Variable command on the Variable menu and selecting decibel-intens
   :hint
   (
    (point (string "Write the equation for exponential decay of energy for ~a."
-		  (compound . ?system)))
+		  ?system))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?E2-var (* ?E1-var 
 				      (exp (/ (- (* 2 ?t-var)) ?tau-var)))) 

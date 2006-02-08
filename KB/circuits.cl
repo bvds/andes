@@ -1435,13 +1435,14 @@
 (def-psmclass RLC-time-constant (RLC-time-constant ?res ?ind ?cap) 
   :complexity definition 
   :english ("RLC time constant")
-  :eqnFormat ("$t = RLC"))
+  :eqnFormat ("$t = 2*L/R"))
 
 (defoperator RLC-time-constant-contains (?sought)
   :preconditions (
 		  (circuit-component ?res resistor)
 		  (circuit-component ?ind inductor)
 		  (circuit-component ?cap capacitor)
+		  (closed-loop (?res ?ind ?cap) :name ?whatever)
 		  (any-member ?sought ((time-constant orderless ?res ?ind ?cap)
 				       (resistance ?res)
 				       (inductance ?ind)) )
@@ -1469,7 +1470,7 @@
 
 ;;;      Angular frequency for LC circuit
 
-(def-psmclass LC-angular-frequency (LC-angular-frequency ?ind ?cap) 
+(def-psmclass LC-angular-frequency (LC-angular-frequency ?circuit) 
   :complexity definition 
   :english ("LC angular frequency")
   :eqnFormat ("$w = 1/sqrt(LC)"))
@@ -1477,37 +1478,40 @@
 (defoperator LC-angular-frequency-contains (?sought)
   :preconditions 
   (
+   (closed-loop (?ind ?cap) :name ?circuit)  ;should be made cyclic
    (circuit-component ?cap capacitor)
    (circuit-component ?ind inductor)
-   (any-member ?sought ((angular-frequency (compound orderless ?ind ?cap))
+   (any-member ?sought ((angular-frequency ?circuit)
 			(capacitance ?cap)
 			(inductance ?ind)))
    )
   :effects (
-	    (eqn-contains (LC-angular-frequency ?ind ?cap) ?sought)
+	    (eqn-contains (LC-angular-frequency ?circuit) ?sought)
 	    ))
 
-(defoperator write-LC-angular-frequency (?ind ?cap)
+(defoperator write-LC-angular-frequency (?circuit)
   :preconditions 
   (
-   (variable ?omega (angular-frequency (compound orderless ?ind ?cap)))
+   (in-wm (closed-loop (?ind ?cap) :name ?circuit))  ;should be made cyclic
+   (variable ?omega (angular-frequency ?circuit))
    (variable ?c-var (capacitance ?cap))
    (variable ?l-var (inductance ?ind))
    )
   :effects (
 	    (eqn (= 1 ( * (^ ?omega 2) ?c-var ?l-var))
-		 (LC-angular-frequency ?ind ?cap))
+		 (LC-angular-frequency ?circuit))
 	    )
   :hint 
   (
-   (point (string "You need to define the LC frequency."))
+   (point (string "What is the formula for the frequency of oscillations of ~A?" 
+ ?circuit))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?omega (/ 1 (sqrt (* ?c-var ?l-var)))) algebra)))
    ))
 
 ;;;      Angular frequency for RLC circuit
 
-(def-psmclass RLC-angular-frequency (RLC-angular-frequency ?res ?ind ?cap) 
+(def-psmclass RLC-angular-frequency (RLC-angular-frequency ?circuit) 
   :complexity definition 
   :english ("RLC angular frequency")
   :eqnFormat ("$w = sqrt(1/(LC)-R^2/(2*L)^2)"))
@@ -1515,22 +1519,24 @@
 (defoperator RLC-angular-frequency-contains (?sought)
   :preconditions 
   (
+   (closed-loop (?res ?ind ?cap) :name ?circuit) ;should be cyclic
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
    (circuit-component ?ind inductor)
-   (any-member ?sought ((angular-frequency (compound orderless ?res ?ind ?cap))
+   (any-member ?sought ((angular-frequency ?circuit)
 			(capacitance ?cap)
 			(resistance ?res)
 			(inductance ?ind)))
    )
   :effects (
-	    (eqn-contains (RLC-angular-frequency ?res ?ind ?cap) ?sought)
+	    (eqn-contains (RLC-angular-frequency ?circuit) ?sought)
 	    ))
 
-(defoperator write-RLC-angular-frequency (?res ?ind ?cap)
+(defoperator write-RLC-angular-frequency (?circuit)
   :preconditions 
   (
-   (variable ?omega (angular-frequency (compound orderless ?res ?ind ?cap)))
+   (in-wm (closed-loop (?res ?ind ?cap) :name ?circuit))
+   (variable ?omega (angular-frequency ?circuit))
    (variable ?r-var (resistance ?res))
    (variable ?l-var (inductance ?ind))
    (variable ?c-var (capacitance ?cap))
@@ -1538,7 +1544,7 @@
   :effects (
 	    (eqn (= (^ ?omega 2) (- (/ 1 (* ?c-var ?l-var)) 
 				    (^ (/ ?r-var (* 2.0 ?l-var)) 2)))
-		 (RLC-angular-frequency ?res ?ind ?cap))
+		 (RLC-angular-frequency ?circuit))
 	    )
   :hint 
   (
