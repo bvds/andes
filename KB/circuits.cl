@@ -1481,7 +1481,7 @@
 
 (def-psmclass LC-angular-frequency (LC-angular-frequency ?circuit) 
   :complexity definition 
-  :english ("LC angular frequency")
+  :english ("the angular frequency of an LC circuit")
   :eqnFormat ("$w = 1/sqrt(LC)"))
 
 (defoperator LC-angular-frequency-contains (?sought)
@@ -1522,7 +1522,7 @@
 
 (def-psmclass RLC-angular-frequency (RLC-angular-frequency ?circuit) 
   :complexity definition 
-  :english ("RLC angular frequency")
+  :english ("the angular frequency of an RLC circuit")
   :eqnFormat ("$w = sqrt(1/(LC)-R^2/(2*L)^2)"))
 
 (defoperator RLC-angular-frequency-contains (?sought)
@@ -1572,7 +1572,7 @@
 (def-psmclass discharging-capacitor-at-time (discharging-capacitor-at-time 
 					     ?components ?time) 
   :complexity major
-  :english ("Charge on capacitor in RC circuit, initially full")
+  :english ("the charge on capacitor in RC circuit, initially full")
   :eqnFormat ("q = qi*exp(-t/$t)"))
 
 (defoperator discharging-capacitor-at-time-contains (?sought)
@@ -1622,7 +1622,7 @@
 (def-psmclass charging-capacitor-at-time (charging-capacitor-at-time 
 					  ?components ?time) 
   :complexity major
-  :english ("Charge on capacitor in RC circuit, initially empty")
+  :english ("the charge on capacitor in RC circuit, initially empty")
   :eqnFormat ("q = C*Vb*(1 - exp(-t/$t))"))
 
 (defoperator charging-capacitor-at-time-contains (?sought)
@@ -1721,7 +1721,7 @@
 
 (def-psmclass charge-on-capacitor-percent-max (charge-on-capacitor-percent-max ?cap ?time) 
   :complexity minor 
-  :english ("RC charge as percent of maximum")
+  :english ("the RC circuit charge as percent of maximum")
   :eqnFormat ("q = percent*C*V"))
 
 (defoperator charge-on-capacitor-percent-max-contains (?sought)
@@ -2029,7 +2029,7 @@
 
 (def-psmclass avg-rate-current-change (avg-rate-current-change ?ind ?time)
   :complexity major 
-  :english ("definition of average rate of current change")
+  :english ("the definition of average rate of current change")
   :eqnFormat ("dIdt_avg = (I2 - I1)/t12") 
   )
 
@@ -2076,7 +2076,7 @@
 
 (def-psmclass inductor-energy (inductor-energy ?ind ?t) 
   :complexity major 
-  :english ("The formula for energy stored in a inductor")
+  :english ("the formula for energy stored in a inductor")
   :expformat("Applying the formula for energy stored in a inductor to ~A" (nlg ?ind))
   :eqnFormat ("U = 0.5*L*I^2"))
 
@@ -2127,7 +2127,7 @@
 
 (def-psmclass LR-time-constant (LR-time-constant ?ind ?res) 
   :complexity definition 
-  :english ("LR time constant")
+  :english ("the LR circuit time constant")
   :eqnFormat ("$t = L/R"))
 
 
@@ -2162,7 +2162,7 @@
 
 (def-psmclass LR-current-growth (LR-current-growth ?ind ?res ?time) 
   :complexity major
-  :english ("Current growth in LR circuit")
+  :english ("current growth in an LR circuit")
   :eqnFormat ("I = Imax*(1 - exp(-t/$t)"))
 
 (defoperator LR-current-growth-contains (?sought)
@@ -2212,7 +2212,7 @@
 
 (def-psmclass LR-growth-Imax (LR-growth-Imax ?time)
   :complexity major 
-  :english ("LR growth final current")
+  :english ("LR circuit growth final current")
   :eqnFormat ("Imax = Vb/R"))
 
 (defoperator LR-growth-Imax-contains (?sought)
@@ -2245,7 +2245,7 @@
 
 (def-psmclass LR-current-decay (LR-current-decay ?ind ?res ?time) 
   :complexity major
-  :english ("Current decay in LR circuit")
+  :english ("current decay in an LR circuit")
   :eqnFormat ("I = I0*exp(-t/$t)"))
 
 (defoperator LR-current-decay-contains (?sought)
@@ -2292,7 +2292,7 @@
 
 (def-psmclass LR-decay-Imax (LR-growth-Imax ?time)
   :complexity major 
-  :english ("LR decay initial current")
+  :english ("LR circuit initial current")
   :eqnFormat ("I0 = Vb/R"))
 
 (defoperator LR-decay-Imax-contains (?sought)
@@ -2368,7 +2368,7 @@
 
 (def-psmclass transformer-voltage (transformer-voltage ?coils ?t)
   :complexity major
-  :english ("voltage relation for an ideal transformer")
+  :english ("the voltage relation for an ideal transformer")
   :eqnFormat ("V1/N1 = V2/N2"))
 
 (defoperator transformer-voltage-contains (?sought)
@@ -2407,7 +2407,7 @@
 
 (def-psmclass transformer-power (transformer-power ?coils ?t)
   :complexity major
-  :english ("power relation for an ideal transformer")
+  :english ("the power relation for an ideal transformer")
   :eqnFormat ("P1 = P2"))
 
 (defoperator transformer-power-contains (?sought)
