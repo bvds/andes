@@ -1543,7 +1543,8 @@
    (test (not (equal ?sbody ?cbody)))
    ; first arg of field vectors is a location, not a body
    (test (not (eq ?vector-type 'field)))
-   )
+   ; first arg of unit-vector is orientation-tag, not a body
+   (test (not (eq ?vector-type 'unit-vector))))
   :probability 0.5)
 
 (defun default-wrong-body (correct-body wrong-body)
