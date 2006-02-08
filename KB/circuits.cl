@@ -2323,25 +2323,22 @@
   :eqnFormat ("P = I*V"))
 
 (defoperator electric-power-contains (?sought)
-  :preconditions ( 
-		  (any-member ?sought ( (voltage-across ?comp :time ?t) 
-					(current-thru ?comp :time ?t)
-					(electric-power ?comp :time ?t) )) ; omit "agent" for electric power ?
-					; we only apply this to batteries and resistors
-		  (in-wm (circuit-component ?comp ?comp-type))
-		  (test (member ?comp-type '(battery resistor)))
-		  ) 
+  :preconditions 
+  ( 
+   (any-member ?sought ( (voltage-across ?comp :time ?t) 
+			 (current-thru ?comp :time ?t)
+			 (electric-power ?comp :time ?t) )) 
+   ) 
   :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
 
 (defoperator electric-power (?comp ?t)
-  :preconditions (
-		  (variable ?V (voltage-across ?comp :time ?t) )
-		  (variable ?I (current-thru ?comp :time ?t))
-		  (variable ?P  (electric-power ?comp :time ?t)) 
-		  )
-  :effects (
-	    (eqn (= ?P (* ?V ?I)) (electric-power ?comp ?t))
-	    )
+  :preconditions 
+  (
+   (variable ?V (voltage-across ?comp :time ?t) )
+   (variable ?I (current-thru ?comp :time ?t))
+   (variable ?P  (electric-power ?comp :time ?t)) 
+   )
+  :effects ( (eqn (= ?P (* ?V ?I)) (electric-power ?comp ?t)) )
   :hint (
 	 (point (string "Power specifies the rate at which energy is transferred. Think about how the rate of energy transferred as charge moves across a component can be related to the current and the difference in electric potential across the endpoints."))
 	 (teach (string "The potential difference (voltage) between two points is defined as the work needed to move a unit charge between those points. Power is the rate of doing work. For a battery with EMF V to produce a current I, it must move I unit charges per second through a potential difference of V, so its power output equals V*I. The same formula will give the amount of power DRAWN by a resistor as charge moves through it from higher to lower potential, when the electrical potential energy is converted to other forms of energy such as heat or light and dissipated from the circuit.)"))
@@ -2357,4 +2354,80 @@
 		  )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power." ((electric-power ?b :time ?t) def-np) ))
+	 ))
+
+;;; transformer voltage relation
+
+
+(def-psmclass transformer-voltage (transformer-voltage ?coils ?t)
+  :complexity major
+  :english ("voltage relation for an ideal transformer")
+  :eqnFormat ("V1/N1 = V2/N2"))
+
+(defoperator transformer-voltage-contains (?sought)
+  :preconditions 
+  ( 
+   (mutual-inductor . ?coils)
+   (any-member ?sought ( (voltage-across ?coil :time ?t) 
+			 (turns ?coil))) 
+   (test (member ?coil (rest ?coils)))
+   (time ?t)
+   ) 
+  :effects 
+  ( (eqn-contains (transformer-voltage ?coils ?t) ?sought) ))
+
+(defoperator write-transformer-voltage (?coils ?t)
+  :preconditions 
+  (
+   (test (orderless-p ?coils))
+   (bind ?coil1 (second ?coils))
+   (bind ?coil2 (third ?coils))
+   (variable ?V1 (voltage-across ?coil1 :time ?t))
+   (variable ?N1 (turns ?coil1))
+   (variable ?V2 (voltage-across ?coil2 :time ?t))
+   (variable ?N2 (turns ?coil2))
+   )
+  :effects 
+  ( (eqn (= (* ?N1 ?V2) (* ?N2 ?V1)) (transformer-voltage ?coils ?t)) )
+  :hint (
+	 (point (string "The input and output voltages for a transformer are related."))
+	 (bottom-out (string "Write the equation ~a" 
+			     ((= (/ ?V1 ?N1)  (/ ?V2 ?N2)) algebra)))
+	 ))
+
+;;; transformer power relation
+
+
+(def-psmclass transformer-power (transformer-power ?coils ?t)
+  :complexity major
+  :english ("power relation for an ideal transformer")
+  :eqnFormat ("P1 = P2"))
+
+(defoperator transformer-power-contains (?sought)
+  :preconditions 
+  ( 
+   (mutual-inductor . ?coils)
+   (any-member ?sought ( (electric-power ?coil :time ?t) ))
+   (test (member ?coil (rest ?coils)))
+   (time ?t)
+   ) 
+  :effects 
+  ( (eqn-contains (transformer-power ?coils ?t) ?sought) ))
+
+(defoperator write-transformer-power (?coils ?t)
+  :preconditions 
+  (
+   ;; should also test for only two coils
+   (test (orderless-p ?coils))
+   (bind ?coil1 (second ?coils))
+   (bind ?coil2 (third ?coils))
+   (variable ?P1 (electric-power ?coil1 :time ?t))
+   (variable ?P2 (electric-power ?coil2 :time ?t))
+   )
+  :effects 
+  ( (eqn (= ?P1 ?P2) (transformer-power ?coils ?t)) )
+  :hint (
+	 (point (string "The input and output power for a transformer are related."))
+	 (bottom-out (string "Write the equation ~a" 
+			     ((= ?P1 ?P2) algebra)))
 	 ))
