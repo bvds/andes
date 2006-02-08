@@ -1875,8 +1875,14 @@
 ;; the menu item name given in scalars.tsv
 
 (defoperator define-rate-of-change-var (?quant)
-  :preconditions ((variable ?var ?quant)
-		  (bind ?change-var (format-sym "d~A_dt" ?var)))
+  :preconditions 
+  (
+   ;; getting the base variable name means that student has
+   ;; to also define the base variable
+   ;;(variable ?var ?quant)
+   ;; make unique variable name:  not too pretty, but it works
+   (bind ?change-var (format-sym "d~A_~A_dt"  (first ?quant) 
+				 (sxhash (rest ?quant)))))
   :effects ((variable ?change-var (rate-of-change ?quant))
 	    (define-var (rate-of-change ?quant)))
   :hint (
