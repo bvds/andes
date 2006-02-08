@@ -165,6 +165,8 @@ LEAF	I0 = Vb/R                 LR decay initial current	LR-decay-Imax	LR Circuit
 LEAF	$w = 1/sqrt(L*C)                   LC angular frequency	LC-angular-frequency	LC Circuits
 LEAF	$t = 2*L/R                       RLC time constant	RLC-time-constant	RLC Circuits
 LEAF	$w = sqrt(1/(L*C)-R^2/(2*L)^2)       RLC angular frequency	RLC-angular-frequency	RLC Circuits
+LEAF	V1/N1 = V2/N2                   transformer voltage relation	transformer-voltage	Inductance
+LEAF	P1 = P2                   transformer power relation	transformer-power	Inductance
 END_GROUP			
 END_GROUP			
 GROUP	Optics		
@@ -174,22 +176,22 @@ LEAF	f = r/2                 Focal Length of Mirror	focal-length-mirror	Spherica
 LEAF	do2 = d12 - di1         Combination of Lenses	lens-combo	Combined Lenses
 LEAF	m12 = m1*m2             Combined Magnification	combo-magnification	Magnification
 LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-length	Touching Lenses
-LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction
-LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum
-END_GROUP		
-GROUP	Waves and Oscillations	
-LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave
-LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave
-LEAF	T = 1/f       Period of oscillation	period-of-wave
-LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
-LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
-LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed
-LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string
-LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave
-LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave
-LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
-LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
-LEAF	fo = fs*(vw콀o)/(vw콀s)   Frequency shift from doppler effect	doppler-frequency
+LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction	
+LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum	
+END_GROUP			
+GROUP	Waves and Oscillations		
+LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
+LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave	
+LEAF	T = 1/f       Period of oscillation	period-of-wave	
+LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
+LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
+LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
+LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
+LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
+LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
+LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
+LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
+LEAF	fo = fs*(vw콀o)/(vw콀s)   Frequency shift from doppler effect	doppler-frequency	
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
 LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
 LEAF	E = E0*exp(-2*t/$t)          energy decay	energy-decay	
