@@ -976,7 +976,8 @@
 	    (define-var (charge-on ?p))
             )
    :hint (
-       (bottom-out (string "Define a variable for the charge on ~A by using the Add Variable command on the Variable menu and selecting Charge."  ?p ))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Charge."  
+			   ((charge-on ?p) def-np) ))
        ))
 
 #|  ;; not used anywhere yet
@@ -996,7 +997,8 @@
 	    (define-var (charge-on ?p :time ?t))
             )
    :hint (
-       (bottom-out (string "Define a variable for the charge on ~A by using the Add Variable command on the Variable menu and selecting Charge."  ?p ))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Charge." 
+			   ((charge-on ?p :time ?t) def-np) ))
        ))
 |#
 
@@ -1010,7 +1012,7 @@
             (define-var (potential ?loc ?source :time ?t))
             )
    :hint (
-       (bottom-out (string "Define a variable for the potential at ~A due to ~a by using the Add Variable command on the Variable menu and selecting Potential."  ?loc (?source agent)))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Potential."  ((potential ?loc ?source :time ?t) def-np)))
        ))
 
 (defoperator define-net-potential-var (?loc ?t)
@@ -1022,7 +1024,8 @@
             (define-var (net-potential ?loc :time ?t))
             )
    :hint (
-       (bottom-out (string "Define a variable for the net potential at ~A from all sources by using the Add Variable command on the Variable menu and selecting Potential."  ?loc))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Potential."  
+			   ((net-potential ?loc :time ?t) def-np)))
        ))
 
 ;;-----------------------------------------------------------
@@ -1421,7 +1424,8 @@
 	   (variable ?ge-var (electric-energy ?b ?source :time ?t)) 
   )
  :hint (
-	 (bottom-out (string "Define a variable for electrical potential energy by selecting Energy from the Variables menu on the top menu bar."))
+	 (bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
+			     ((electric-energy ?b ?source :time ?t) def-np)))
        ))
 
 ; To interact with cons-energy psm: op to tell it that electric pe 
@@ -2821,9 +2825,9 @@
      :effects ((variable ?N-var (turns ?body))
                (define-var (turns ?body))
    )
-     :hint (
-          (bottom-out (string "Define a variable for the number of turns wrapping around ~A by using the Add Variable command on the Variable menu and selecting turns."  ?body))
-          ))
+     :hint 
+     ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting turns."  
+			      ((turns ?body) def-np))) ))
 
 
 (def-qexp turns-per-length (turns-per-length ?body)
@@ -2838,9 +2842,9 @@
      :effects ((variable ?N-var (turns-per-length ?body))
                (define-var (turns-per-length ?body))
    )
-     :hint (
-          (bottom-out (string "Define a variable for the number of turns per unit length wrapping around ~A by using the Add Variable command on the Variable menu and selecting turns per unit length."  ?body))
-          ))
+     :hint 
+     ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting turns per unit length."  
+			      ((turns-per-length ?body) def-np)))
 
 ;;; turns per length = turns/length
 
