@@ -336,7 +336,7 @@
      :units |m^2/s|
      :restrictions positive
      :english ("the rate of change of the area of ~A" (nlg ?shape))
-     :fromworkbench `(rate-of-chage (area ,body))
+     :fromworkbench `(rate-of-change (area ,body))
 )
 
 (defoperator define-area (?shape)
