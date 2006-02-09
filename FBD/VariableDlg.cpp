@@ -54,12 +54,12 @@ CString CVariableDlg::GetSpec()		// get dialog spec for
 	CString strTypeId = CVarView::LookupTypeId(((CVariable*)m_pTempObj)->m_nType);
 	if ((strTypeId.CompareNoCase("mass") == 0) ||
 	    (strTypeId.CompareNoCase("moment-of-inertia") == 0)) {
-		if (CVarView::IncludeQuant(CString("CHANGING-MASS"))){
+		if (CVarView::HasFeature(CString("CHANGING-MASS"))){
 			strSpec += " at time [time:times]";
 		}
 	}
 	if ((strTypeId.CompareNoCase("charge-on") == 0)	) {
-		if (CVarView::IncludeQuant(CString("CHANGING-VOLTAGE"))){
+		if (CVarView::HasFeature(CString("CHANGING-VOLTAGE"))){
 			strSpec += " at time [time:times]";
 		}
 	}

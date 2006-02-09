@@ -76,7 +76,7 @@ public:
 	// initializer
 	static void InitQuantTable();
 	// for building menu of add variable commands
-	static BOOL IncludeQuant(CString& strTypeId);
+	static BOOL HasFeature(CString& strTypeId);
 	static void AddScalarVars(CMenu* pMenu, BOOL bQuantityChoice);
 	
 

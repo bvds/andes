@@ -265,7 +265,7 @@ int CVarView::ValueToId(CString strValue)  // strValue (human-readable) -> integ
 		if (strcmpi(m_quants[i]->strValue, strValue) == 0) {
 			// Sometimes have duplicate "friendly" names, e.g. "power" for different
 			// power quantities. Prefer to return a hit that is appropriate to this problem
-			if (IncludeQuant(m_quants[i]->strTypeId)) {
+			if (HasFeature(m_quants[i]->strTypeId)) {
 				return m_quants[i]->id;	// return it immediately
 			} else {
 				// save as backup return if no problem-appropriate hit is found
@@ -362,7 +362,7 @@ static BOOL FeatureSetContains(CString& strFeatureSet, CString& strFeature)
 	return FALSE;
 }
 
-BOOL CVarView::IncludeQuant(CString& strTypeId)
+BOOL CVarView::HasFeature(CString& strTypeId)
 {
 	// check if it's in feature set specified for this problem
 	CFBDDoc* pDoc = theApp.GetCurrentProblem();
@@ -392,7 +392,7 @@ void CVarView::AddScalarVars(CMenu* pMenu, BOOL bQuantityChoice)
 		if (bQuantityChoice && (strcmp(m_quants[i]->strTypeId, "angle") == 0))
 			continue;
 
-		if (IncludeQuant(m_quants[i]->strTypeId))
+		if (HasFeature(m_quants[i]->strTypeId))
 		{
 			CString strValue = m_quants[i]->strValue;
 			strValue.SetAt(0, toupper(strValue[0]));

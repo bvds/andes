@@ -7,6 +7,7 @@
 #include "fbddoc.h"
 #include "fbdobj.h"
 #include "FieldDlg.h"
+#include "VarView.h"  // for CVarView::HasFeature
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -54,8 +55,9 @@ void CFieldDlg::DoDataExchange(CDataExchange* pDX)
 	// add "Unspecified" choice for field agent as well, to handle given fields
 	if (! pDX->m_bSaveAndValidate) 
 		m_cboAgent.AddString("Unspecified");
-	// Add "all sources" choice for net field if appropriate
-	if (m_pDocument->m_strObjects.GetCount() > 1)  // heuristic test, works for our problems
+	// Add "all sources" choice for net field if appropriate for problem
+	if ((!m_bMagnetic && m_pDocument->m_strObjects.GetCount()>1)  // old: heuristic for our E-problems
+		|| CVarView::HasFeature(CString("NET-FIELD")))  // new: turn this on by problem feature
 		m_cboAgent.AddString(CVector::c_szAllSources);
 	DDX_FillList(pDX, IDC_TIME, &m_pDocument->m_strTimes);
 	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);
