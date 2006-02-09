@@ -1206,6 +1206,7 @@
    ;; following requires ?loc to be occupied by body
    (at-place ?b ?loc ?t)
    (given (dir (net-field ?loc ?type :time ?t)) ?dir-B)  
+   (test (not (eq ?dir-B 'zero)))
    (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
 			      (time-abbrev ?t)))
@@ -1229,6 +1230,28 @@
 	 (bottom-out (string "Use the ~A field drawing tool to draw the net ~A field at ~a in the given direction of ~A." 
 			     (?type adj) (?type adj) ?loc (?dir-B adj)))
 	 )) 
+
+(defoperator draw-net-field-given-zero (?b ?type ?t)
+  :preconditions 
+  ((time ?t)
+   ;; following requires ?loc to be occupied by body
+   (at-place ?b ?loc ?t)
+   (given (dir (net-field ?loc ?type :time ?t)) zero)  
+   (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
+   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
+			      (time-abbrev ?t)))
+   )
+  :effects 
+  (
+   (vector ?b (net-field ?loc ?type :time ?t) zero)
+   (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
+   )
+  :hint (
+	 (point (string "At the point ~A, the ~A fields add up to zero."
+	                ?loc (?type adj))) 
+	 (bottom-out (string "Use the ~A field drawing tool to draw a zero-length vector for the net ~A field at ~a ." 
+			     (?type adj) (?type adj) ?loc))
+	 ))
 
 (defoperator draw-net-field-unknown (?loc ?type ?t)
  :preconditions (
