@@ -77,7 +77,8 @@ static struct {
 { ID_VARIABLE_ADDRESISTANCE,	"resistance" },
 { ID_VARIABLE_ADDCAPACITANCE,	"capacitance"	},
 { ID_VARIABLE_ADDTIME,          "duration"},
-{ ID_VARIABLE_ADDPROBABILITY,   "probability", },
+{ ID_VARIABLE_ADDPROBABILITY,   "probability"}, 
+{ ID_VARIABLE_ADDTIMECONSTANT,   "time-constant"},
 };
 const int numStaticIds ARRAY_SIZE(staticIds);
 

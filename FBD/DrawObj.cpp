@@ -44,6 +44,7 @@
 #include "ImpulseDlg.h"
 #include "ProbDlg.h"
 #include "UnitVectorDlg.h"
+#include "TimeConstantDlg.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3647,10 +3648,12 @@ CString CVariable::GetCheckCmd()
 		}
 	} else if (m_nType == ID_VARIABLE_ADDRESISTANCE
 		    || m_nType == ID_VARIABLE_ADDCAPACITANCE){
-		// listify body arg (wrap in parens) if more than one
+		// listify body arg (wrap in parens) if tagged as equivalent
 		// NB: don't want list-valued arg wrapped in vbars in call (else it reads as symbol, not list)
 		// handled below when command string is built
  		if (m_strForceType == "equiv")
+			strObject = "(" + m_strObject + ")";
+	} else if (m_nType == ID_VARIABLE_ADDTIMECONSTANT) {
 			strObject = "(" + m_strObject + ")";
 	} else if (m_nType == ID_VARIABLE_ADDPROBABILITY) {
 			CProbDlg::EventNameToHelpFormat(strObject);
@@ -3783,6 +3786,8 @@ CDialog* CVariable::GetPropertyDlg()
 		return new CCapacitanceDlg(this); 
 	else if (m_nType == ID_VARIABLE_ADDPROBABILITY)
 		return new CProbDlg(this);
+	else if (m_nType == ID_VARIABLE_ADDTIMECONSTANT)
+		return new CTimeConstantDlg(this);
 	else // use generic static variable dialog
 		return new CVariableDlg(this);
 }

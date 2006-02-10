@@ -255,6 +255,7 @@
 #define IDD_VECTOR_IMPULSE              392
 #define IDD_PROBABILITY                 394
 #define IDD_VECTOR_UNIT                 396
+#define IDD_TIMECONSTANT                399
 #define IDC_SINGLE_BODY                 1000
 #define IDC_STATUS_MSG                  1000
 #define IDC_MULTIPLE_BODIES             1001
@@ -1103,7 +1104,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        399
+#define _APS_NEXT_RESOURCE_VALUE        400
 #define _APS_NEXT_COMMAND_VALUE         33229
 #define _APS_NEXT_CONTROL_VALUE         1429
 #define _APS_NEXT_SYMED_VALUE           119

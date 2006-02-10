@@ -67,7 +67,8 @@
 
 (def-qexp time-constant (time-constant orderless . ?quants)
           :units |s|
-	  :fromWorkbench `(time-constant orderless ,body ,body2)
+	  ; translated wb body arg is (compound orderless comp1 comp2 ...)
+	  :fromWorkbench `(time-constant orderless ,@(bodyterm-complist body))
 	  :english ("the time constant for ~A" 
 		       (nlg ?quants 'conjoined-defnp)))
 

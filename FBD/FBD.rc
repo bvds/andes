@@ -2901,6 +2901,32 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,122,120,50,14,0,0,HIDCANCEL
 END
 
+IDD_TIMECONSTANT DIALOGEX 0, 0, 243, 138
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Define Variable"
+FONT 10, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_MULTIPLE_BODY_LIST,114,10,92,65,LBS_MULTIPLESEL | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP,0,
+                    HIDC_MULTIPLE_BODY_LIST
+    GROUPBOX        "",IDC_BOX_LABEL,7,89,229,21,NOT WS_VISIBLE
+    LTEXT           "&Variable Name",IDC_LSYSTEM_NAME,7,96,49,8,0,0,
+                    HIDC_LSYSTEM_NAME
+    CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
+                    WS_BORDER | WS_TABSTOP,58,95,48,14
+    DEFPUSHBUTTON   "OK",IDOK,63,119,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,119,50,14
+    GROUPBOX        "Given Value",IDC_GIVEN_BOX,108,83,133,28
+    LTEXT           "=",IDC_STATIC_EQUALS,112,97,8,8
+    EDITTEXT        IDC_GIVEN_VALUE,120,95,63,13,ES_AUTOHSCROLL
+    LTEXT           "or",IDC_STATIC_OR,186,96,8,8
+    CONTROL         "Unknown",IDC_CHECK_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,198,98,40,7
+    LTEXT           "Time constant of circuit elements:",IDC_STATIC,7,14,98,
+                    8
+    LTEXT           "(Select all that apply)",IDC_STATIC,21,29,66,9
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -3600,6 +3626,14 @@ BEGIN
         RIGHTMARGIN, 221
         TOPMARGIN, 7
         BOTTOMMARGIN, 134
+    END
+
+    IDD_TIMECONSTANT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 131
     END
 END
 #endif    // APSTUDIO_INVOKED
