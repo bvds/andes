@@ -529,6 +529,13 @@
 "construct implicit eqn entry struct for given systemese equation"
      (make-StudentEntry :prop `(implicit-eqn ,eqn)))
 
+;; Note attempt to build an implicit equation entry above may fail w/NIL
+;; Use following when adding to protect against adding a NULL implicit eqn
+(defun add-implicit-eqn (mainEntry implicitEntry)
+"add implicit eqn entry to mainEntrys list if non-NULL"
+   (when implicitEntry
+      (push (studentEntry-ImplicitEqns mainEntry) ImplicitEntry)))
+
 ; unlike implicit equations, which can be represented in systemese,
 ; a given eqn entry is a studentese variable and a studentese expression
 ; string (which may be empty string if no value set). So this winds up
