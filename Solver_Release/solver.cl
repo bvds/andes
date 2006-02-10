@@ -336,8 +336,8 @@
 	 (uffi:with-cstring (arg-native arg)
   (uffi:convert-from-cstring (c-indy-add-equation arg-native))))
 (defun solver-indyAddEquation (equationID equation)
-  (my-read-answer (indy-add-equation 
-		   (format nil "(~A ~A)" equationID equation))))
+  (my-read-answer (indy-add-equation ; ~S so keywords have colons [for :error]
+		   (format nil "(~A ~S)" equationID equation)))) 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #-uffi (ff:def-foreign-call (c-indy-empty "c_indyEmpty")
