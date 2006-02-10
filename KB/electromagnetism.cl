@@ -2872,7 +2872,7 @@
 ;;; turns per length = turns/length
 
 (def-PSMclass turns-per-length-definition (turns-per-length ?b)
-  :complexity minor
+  :complexity definition
   :doc "turns per length = turns/length"
   :english ("turns per length = turns/length")
   :expFormat ("using the turns per length of ~A" (nlg ?b))
