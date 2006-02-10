@@ -6242,7 +6242,7 @@ void CFBDView::OnUpdateSetZDir(CCmdUI* pCmdUI)
 
 void CFBDView::OnInsertGreekLetter(UINT nID)
 {
-	const char* alpha = "abgdezhqiklmnxoprstujcyw";//greek translation
+	const char* alpha = "abgdezhqiklmnxoprstufcyw";//greek translation
 	int pos = nID - IDM_GREEKLETTER_FIRST;
 	CString strLetter = alpha[pos];
 	// insert upper-case letter if SHIFT pressed or CAPSLOCK on

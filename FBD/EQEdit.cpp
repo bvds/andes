@@ -349,7 +349,7 @@ BOOL CEQRichEdit::PreTranslateMessage(MSG* pMsg)
 		// TRACE("EQRichEdit got ALT-key: WParam=%d\n", pMsg->wParam);		//virtual key code
 		if ((pos < 26)&&(pos >= 0)){
 			CString letter = alpha[pos];
-			CString gralpha = "abgdezhqiklmnxoprstujcyw";//greek translation
+			CString gralpha = "abgdezhqiklmnxoprstufcyw";//greek translation
 			int grpos = gralpha.Find(letter);
 			if (grpos != -1){
 				UINT msg = (UINT)grpos + IDM_GREEKLETTER_FIRST;
@@ -618,12 +618,12 @@ void CLabelRichEdit::OnMsgFilter(NMHDR* pNMHDR, LRESULT* pResult)
 		// ALT modifier is down
 	{//still want a way to type Greek (with shortcut key)
 		//using ALT + key
-		CString alpha = "abcdefghijklmnopqrstuvwxyz";//Use VkKey scan to
+		CString alpha = "abcdefghijklmnopqrstuwxyz";//Use VkKey scan to
 		int pos = (int)pMsgFilter->wParam - VkKeyScan('a');//convertASCII to
 		TRACE("CLabelRichEdit::OnMsgFilter: ALT-key: WParam=%d\n", pMsgFilter->wParam);		//virtual key code
 		if ((pos < 26)&&(pos >= 0)){
 			CString letter = alpha[pos];
-			CString gralpha = "abgdezhqiklmnxoprstujcyw";//greek translation
+			CString gralpha = "abgdezhqiklmnxoprstufcyw";//greek translation
 			int grpos = gralpha.Find(letter);
 			if (grpos != -1){
 				UINT msg = (UINT)grpos + IDM_GREEKLETTER_FIRST;

@@ -987,7 +987,7 @@ BOOL CEQView::PreTranslateMessage(MSG* pMsg)
 // command code defines letter.
 void CEQView::OnInsertGreekLetter(UINT nID)
 {
-	CString alpha = "abgdezhqiklmnxoprstujcyw";//greek translation
+	CString alpha = "abgdezhqiklmnxoprstufcyw";//greek translation
 	int pos = nID - IDM_GREEKLETTER_FIRST;
 	CString strLetter = alpha[pos];
 	// insert upper-case letter if SHIFT pressed or CAPSLOCK on

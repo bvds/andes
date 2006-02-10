@@ -2401,7 +2401,7 @@ END
 IDD_TORQUE DIALOGEX 0, 0, 207, 149
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Torque Definition"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     GROUPBOX        "Type",IDC_STC_GROUP,4,3,199,47
     CONTROL         "&Net Torque",IDC_NETBTN,"Button",BS_AUTORADIOBUTTON | 
@@ -2861,7 +2861,7 @@ END
 IDD_VECTOR_UNIT DIALOGEX 0, 0, 228, 141
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Vector"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Unit vector",IDC_STATIC,6,6,33,8
     CONTROL         "&Normal to",IDC_NORMAL_BTN,"Button",BS_AUTORADIOBUTTON | 
@@ -2909,8 +2909,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,1,1,5
- PRODUCTVERSION 10,1,1,5
+ FILEVERSION 10,1,1,7
+ PRODUCTVERSION 10,1,1,7
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -2928,14 +2928,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "10, 1, 1, 5\0"
+            VALUE "FileVersion", "10, 1, 1, 7\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "10, 1, 1, 5\0"
+            VALUE "ProductVersion", "10, 1, 1, 7\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -4357,7 +4357,7 @@ BEGIN
     IDM_SIGMA               "Insert Greek letter sigma\nsigma (Alt-s)"
     IDM_TAU                 "Insert Greek letter tau\ntau (Alt-t)"
     IDM_UPSILON             "Insert Greek letter upsilon\nupsilon (Alt-u)"
-    IDM_PHI                 "Insert Greek letter phi\nphi (Alt-j)"
+    IDM_PHI                 "Insert Greek letter phi\nphi (Alt-f)"
     IDM_CHI                 "Insert Greek letter chi\nchi (Alt-c)"
     IDM_PSI                 "Insert Greek letter psi\npsi (Alt-y)"
     IDM_OMEGA               "Insert Greek letter omega\nomega (Alt-w)"

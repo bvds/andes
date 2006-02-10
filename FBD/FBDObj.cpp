@@ -2470,7 +2470,7 @@ BOOL CSystem::HasSameName(CDrawObj* pObj)
 	CString strName = pObj->m_strName;
 //	CString strMassName = "m" + m_strName;
 
-	if (_stricmp(strName, m_strName) == 0){//case insensitive
+	if (strcmp(strName, m_strName) == 0){//AW: change to be case sensitive
 		//if same name, check if same id
 		if (strcmp(m_strId, pObj->m_strId)!=0)
 			return TRUE;

@@ -899,7 +899,7 @@ BOOL CDrawObj::HasSameName(CDrawObj* pObj)
 
 	CString strName = pObj->m_strName;
 
-	if (_stricmp(strName, m_strName) == 0){//case insensitive
+	if (strcmp(strName, m_strName) == 0){//AW: no longer case sensitive
 	//if same name, check if different id
 		if (strcmp(m_strId, pObj->m_strId)!=0)  // not same obj [as one being edited].
 			return TRUE;

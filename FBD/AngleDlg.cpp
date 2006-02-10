@@ -209,7 +209,7 @@ void CAngleDlg::OnMove(int x, int y)
 
 void CAngleDlg::OnInsertGreekLetter(UINT nID )
 {
-	CString alpha = "abgdezhqiklmnxoprstujcyw";//greek translation
+	CString alpha = "abgdezhqiklmnxoprstufcyw";//greek translation
 	int pos = nID - IDM_GREEKLETTER_FIRST;
 	CString strLetter = alpha[pos];
 	// insert upper-case letter if SHIFT pressed or CAPSLOCK on
@@ -233,7 +233,7 @@ void CAngleDlg::SetRichEditText(CString str)
 		}
 
 		grchar = str.Mid(pos + 1, 1);
-		CString gralpha = "abgdezhqiklmnxoprstujcyw";//greek translation
+		CString gralpha = "abgdezhqiklmnxoprstufcyw";//greek translation
 		int grpos = gralpha.Find(grchar);
 		if (grpos != -1){
 			UINT msg = (UINT)grpos + IDM_GREEKLETTER_FIRST;

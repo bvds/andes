@@ -56,8 +56,7 @@ void CFieldDlg::DoDataExchange(CDataExchange* pDX)
 	if (! pDX->m_bSaveAndValidate) 
 		m_cboAgent.AddString("Unspecified");
 	// Add "all sources" choice for net field if appropriate for problem
-	if ((!m_bMagnetic && m_pDocument->m_strObjects.GetCount()>1)  // old: heuristic for our E-problems
-		|| CVarView::HasFeature(CString("NET-FIELD")))  // new: turn this on by problem feature
+	if (CVarView::HasFeature(CString("NET-FIELD")))  // new: turn this on by problem feature
 		m_cboAgent.AddString(CVector::c_szAllSources);
 	DDX_FillList(pDX, IDC_TIME, &m_pDocument->m_strTimes);
 	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);
