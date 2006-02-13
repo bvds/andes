@@ -93,7 +93,8 @@
  :effects ( (variable ?r-var (radius-of-curvature ?mirror))
             (define-var (radius-of-curvature ?mirror)) )
   :hint (
-       (bottom-out (string "Define a variable for the radius of curvature of ~A by using the Add Variable command on the Variable menu and selecting Radius of Curvature."  ?mirror))
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Radius of Curvature."  
+			   ((radius-of-curvature ?mirror) def-np)))
        ))
 
 (def-qexp lens-distance (lens-distance ?lens1 ?lens2)
