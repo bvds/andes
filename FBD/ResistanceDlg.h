@@ -51,6 +51,7 @@ public:
 	// for CDrawObjDlg property transfer protocol:
 	virtual void InitVariableDlg();
 	virtual void UpdateTempVariable();
+	virtual CLabelRichEdit* GetLabelCtrl() { return &m_editName; };
 
 // Implementation
 protected:

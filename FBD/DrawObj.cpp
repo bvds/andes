@@ -3542,6 +3542,10 @@ void CVariable::Serialize(CArchive& ar)
 		if (nClassVersion >= 6) {
 			ar >> m_strValue;
 		}
+		// fixup for reading older variables:
+		// older version of time constant used agent arg; new version uses list in body arg
+		if (m_strQuantName == "time constant" && ! m_strAgent.IsEmpty())
+			m_strObject += " " + m_strAgent;
 	}
 }
 

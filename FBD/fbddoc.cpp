@@ -2875,8 +2875,9 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 
 					// add it to the choice we need
 					if (strFirst.CompareNoCase("Bodies") == 0) {
-						// undo LISP print's upper casing. But not for R1, C1, etc.
-						if (! (strChoice.GetLength() == 2 && isdigit(strChoice[1]))) // cheap heuristic
+						// undo LISP print's upper casing. But not for R1, C1, or A, B, C.
+						if (! ((strChoice.GetLength() == 2 && isdigit(strChoice[1]))
+							    || strChoice.GetLength() == 1) ) 
 							strChoice.MakeLower();
 						m_strObjects.AddTail(strChoice);
 					}

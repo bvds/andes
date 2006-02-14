@@ -119,7 +119,7 @@ void CResistanceDlg::InitVariableDlg()
 		}
 	}
 	// m_cboTimeList.SelectStringExact(pVar->m_strTime);
-	m_editName.SetWindowText(m_pTempObj->m_strName);
+
 	// Transfer given value/unknown bit from controls to variable
 	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
 	// sync unknown check box with value
