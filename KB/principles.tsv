@@ -105,11 +105,11 @@ LEAF	E_x = (kelec*q/r^2) * r_x/r   point charge field (x component)	(point-charg
 LEAF	E_y = (kelec*q/r^2) * r_y/r   point charge field (y component)	(point-charge-Efield ((?axis . y)))	Point Charge Field
 LEAF	Enet_x = E1_x + E2_x + ...    Net Electric Field (x component)	(net-Efield ((?axis . x)))	Electric Field
 LEAF	Enet_y = E1_y + E2_y + ...    Net Electric Field (y component)	(net-Efield ((?axis . y)))	Electric Field
-LEAF	$FE = A*E.n   [$FE = A*E*cos($q) or $FE = A*(E_x*n_x+E_y*n_y]        electric flux (constant field)	electric-flux-constant-field	Electric Field
+LEAF	$Fe = A*E.n   [$Fe = A*E*cos($q) or $Fe = A*(E_x*n_x+E_y*n_y)]        electric flux (constant field)	electric-flux-constant-field	Electric Field
 LEAF	V = kelec*q/r                 point charge potential	point-charge-potential	Electric Potential
 LEAF	Vnet = V1 + V2 + V3...        Net potential	net-potential	Electric Potential
 LEAF	Ue = q*Vnet                   electric potential energy	electric-energy	Electric Potential
-LEAF	$FE = Q/eps0                   Gauss' law	gauss-law	
+LEAF	$Fe = Q/eps0                   Gauss' law	gauss-law	
 LEAF	p = abs(q)*r        electric dipole moment (magnitude)	electric-dipole-moment-mag	Dipoles
 LEAF	p_x = q*r_x        electric dipole moment (x component)	(electric-dipole-moment ((?axis . x)))	Dipoles
 LEAF	p_y = q*r_y        electric dipole moment (y component)	(electric-dipole-moment ((?axis . y)))	Dipoles
@@ -126,9 +126,9 @@ LEAF	B = $m0*N*I/(2*r)            Magnetic field at center of a coil	center-coil
 LEAF	B = $m0*n*I            Magnetic field inside a long solenoid	inside-solenoid-Bfield	Magnetic Field
 LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	Magnetic Field
 LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	Magnetic Field
-LEAF	$FB = A*B.n   [$FB = A*B*cos($q) or $FB = A*(B_x*n_x+B_y*n_y]        magnetic flux (constant field)	magnetic-flux-constant-field	Magnetic Field
-LEAF	d$FB/dt = B.n*dA/dt        the rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	Magnetic Field
-LEAF	V = -d$FB/dt                          Faraday's law	faradays-law	Magnetic Field
+LEAF	$Fb = A*B.n   [$Fb = A*B*cos($q) or $Fb = A*(B_x*n_x+B_y*n_y)]        magnetic flux (constant field)	magnetic-flux-constant-field	Magnetic Field
+LEAF	d$Fb/dt = B.n*dA/dt        the rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	Magnetic Field
+LEAF	V = -d$Fb/dt                          Faraday's law	faradays-law	Magnetic Field
 END_GROUP			
 GROUP	DC Circuits		
 LEAF	+/-V1 +/-V2 +/-V3...=0     Kirchoff's Loop rule	loop-rule	Loop Rule

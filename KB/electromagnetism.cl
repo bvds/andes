@@ -2950,7 +2950,7 @@
   :english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg '(flux ?surface electric :time ?time)))
-  :EqnFormat ("$FE = A*E*cos($qE - $qn) OR $FE = A*(E_x*n_x + E_y*n_y)"))
+  :EqnFormat ("$Fe = A*E*cos($qE - $qn) OR $Fe = A*(E_x*n_x + E_y*n_y)"))
 
 (def-psmclass magnetic-flux-constant-field
   (flux-constant-field ?surface magnetic ?time ?rot)
@@ -2958,7 +2958,7 @@
   :english ("the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg '(flux ?surface magnetic :time ?time)))
-  :EqnFormat ("$FB = A*B*cos($qB - $qn) OR $FB = A*(B_x*n_x + B_y*n_y)"))
+  :EqnFormat ("$Fb = A*B*cos($qB - $qn) OR $Fb = A*(B_x*n_x + B_y*n_y)"))
 
 (defoperator flux-constant-field-angle-contains (?sought)
   :preconditions 
@@ -3039,7 +3039,7 @@
   :english ("the time derivative of the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg '(rate-of-change (flux ?surface electric :time ?time))))
-  :EqnFormat ("d$FE/dt = E.n*dA/dt"))
+  :EqnFormat ("d$Fe/dt = E.n*dA/dt"))
 
 (def-psmclass magnetic-flux-constant-field-change
   (flux-constant-field-change ?surface magnetic ?time ?rot)
@@ -3047,7 +3047,7 @@
   :english ("the time derivative of the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg '(rate-of-change (flux ?surface magnetic :time ?time))))
-  :EqnFormat ("d$FB/dt = B.n*dA/dt"))
+  :EqnFormat ("d$Fb/dt = B.n*dA/dt"))
 
 (defoperator flux-constant-field-change-angle-contains (?sought)
   :preconditions 
@@ -3127,7 +3127,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("Faraday's law")
   :expformat ("applying Faradays law to ~A" (nlg ?surface)) 
-  :EqnFormat ("V = -d$FB/dt"))
+  :EqnFormat ("V = -d$Fb/dt"))
 
 
 (defoperator faradays-law-contains (?sought)
