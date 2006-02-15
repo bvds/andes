@@ -441,6 +441,8 @@ void CVector::DrawLabel(CDC* pDC)
 	// The label is the main visible representation of a zero-length vector.
 	if (IsZeroMag())
 		strLabel += "=0";
+	else if (m_nVectorType == VECTOR_UNITVECTOR) // add =1 to unit vectors
+		strLabel += "=1";
 
 	// Recalc label position from vector position, caching bounding box in member var 
 	// for use in hit testing. Need to update even if empty. Note this member not valid 
