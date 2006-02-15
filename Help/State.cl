@@ -534,7 +534,7 @@
 (defun add-implicit-eqn (mainEntry implicitEntry)
 "add implicit eqn entry to mainEntrys list if non-NULL"
    (when implicitEntry
-      (push (studentEntry-ImplicitEqns mainEntry) ImplicitEntry)))
+      (push ImplicitEntry (studentEntry-ImplicitEqns mainEntry))))
 
 ; unlike implicit equations, which can be represented in systemese,
 ; a given eqn entry is a studentese variable and a studentese expression
