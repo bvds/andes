@@ -533,7 +533,7 @@
 			  (= ?A (* ?l ?w)) algebra) )) )
 
 (def-psmclass area-of-rectangle-change (area-of-rectangle-change ?body)
-  :complexity minor  
+  :complexity definition  
   :english ("the derivative of the formula for the area of a rectangle")
   :ExpFormat ("taking the derivative of the formula for area")
   :EqnFormat ("dA/dt = w*dl/dt")) 

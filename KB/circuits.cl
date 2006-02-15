@@ -1935,7 +1935,7 @@
 	(average-rate-of-change ?quant ?t)) )
  :hint (
 	(point (string "Find the average value of ~A." 
-		        (rate-of-change ?quant)))
+		        ((rate-of-change ?quant) def-np)))
 	(teach (string "The average rate of change is the change in value divided by the change in time."))
  	(bottom-out (string "Write the equation ~A."  
 			    ((= ?qavg (/ (- ?q2-var ?q1-var) ?dt))  algebra)))
