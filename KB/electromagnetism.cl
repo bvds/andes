@@ -2049,7 +2049,8 @@
 (defoperator draw-Bfield-vector (?b ?loc ?t)
   :preconditions ((rdebug "Using draw-Bfield-vector  ~%")
                   (time ?t)
-                  (test (time-pointp ?t))
+		  ; AW: allow intervals for case of constant fields
+                  ; (test (time-pointp ?t))
 		  ; following requires ?loc to be occupied by body
                   (at-place ?b ?loc ?t)
                   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)  
