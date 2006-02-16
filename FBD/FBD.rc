@@ -119,6 +119,7 @@ IDB_CHECKS              BITMAP  DISCARDABLE     "res\\checks.bmp"
 IDR_ROTKINTOOLS         BITMAP  DISCARDABLE     "res\\rotkinto.bmp"
 IDB_ONRLOGO             BITMAP  DISCARDABLE     "res\\onr.bmp"
 IDR_EMTOOLS             BITMAP  DISCARDABLE     "res\\bmp00002.bmp"
+IDR_DIPOLETOOLS         BITMAP  DISCARDABLE     "res\\dipoleto.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -327,6 +328,30 @@ BEGIN
     BUTTON      ID_DRAWVECTOR_EFIELD
     BUTTON      ID_DRAWVECTOR_BFIELD
     BUTTON      ID_DRAWVECTOR_TORQUE
+    BUTTON      ID_DRAWVECTOR_UNITVECTOR
+    BUTTON      ID_ZDIR_MENU
+    SEPARATOR
+    BUTTON      ID_ANGLE
+    BUTTON      ID_LABEL_RADIUS
+    SEPARATOR
+    BUTTON      ID_SELECT
+END
+
+IDR_DIPOLETOOLS TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_SYSTEM
+    BUTTON      ID_DIAGRAM_COORDINATES
+    SEPARATOR
+    BUTTON      ID_DRAWVECTOR_FORCE
+    BUTTON      ID_DRAWVECTOR_VELOCITY
+    BUTTON      ID_DRAWVECTOR_ACCELERATION
+    BUTTON      ID_DRAWVECTOR_DISPLACEMENT
+    BUTTON      ID_DRAWVECTOR_RELPOS
+    BUTTON      ID_DRAWVECTOR_EFIELD
+    BUTTON      ID_DRAWVECTOR_BFIELD
+    BUTTON      ID_DRAWVECTOR_TORQUE
+    BUTTON      ID_DRAWVECTOR_MAGDIPOLE
+    BUTTON      ID_DRAWVECTOR_ELECDIPOLE
     BUTTON      ID_DRAWVECTOR_UNITVECTOR
     BUTTON      ID_ZDIR_MENU
     SEPARATOR
@@ -2904,7 +2929,7 @@ END
 IDD_TIMECONSTANT DIALOGEX 0, 0, 243, 138
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Variable"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LISTBOX         IDC_MULTIPLE_BODY_LIST,114,10,92,65,LBS_MULTIPLESEL | 
                     LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP,0,
@@ -2927,6 +2952,37 @@ BEGIN
     LTEXT           "(Select all that apply)",IDC_STATIC,21,29,66,9
 END
 
+IDD_VECTOR_DIPOLE DIALOGEX 0, 0, 207, 107
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Define vector"
+FONT 10, "MS Sans Serif"
+BEGIN
+    LTEXT           "Electric",IDC_STATIC_VALUE,9,9,31,8
+    LTEXT           "Dipole moment &of",IDC_STATIC_BODY,49,9,57,8
+    COMBOBOX        IDC_BODY,111,7,77,93,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "at &Time",IDC_TIME_LABEL,83,28,24,8
+    COMBOBOX        IDC_TIME,111,26,77,74,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    CTEXT           "&Orientation:",IDC_L2ANGLE,8,46,35,8,0,0,HIDC_L2ANGLE
+    EDITTEXT        IDC_ORIENTATION_TEXT,46,46,30,14,ES_AUTOHSCROLL,0,
+                    HIDC_ORIENTATION_TEXT
+    CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,75,47,9,12,0,0x819003ee
+    LTEXT           "degrees",IDC_LANGLE,81,46,27,8,0,0,HIDC_LANGLE
+    ICON            IDI_ANGLE,IDC_ANGLE,107,44,20,20,0,0,HIDC_ANGLE
+    COMBOBOX        IDC_ZDIR,132,48,69,52,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_BOX_TIMEDIR,7,40,194,22,NOT WS_VISIBLE
+    LTEXT           "&Variable Name",IDC_TXT0,7,72,48,8
+    CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
+                    WS_BORDER | WS_TABSTOP,58,69,48,14
+    GROUPBOX        "",IDC_BOX_LABEL,7,64,146,22,NOT WS_VISIBLE
+    DEFPUSHBUTTON   "OK",IDOK,31,90,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,97,90,50,14
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -2935,8 +2991,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,1,1,9
- PRODUCTVERSION 10,1,1,9
+ FILEVERSION 10,1,1,10
+ PRODUCTVERSION 10,1,1,10
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -2954,14 +3010,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "10, 1, 1, 9\0"
+            VALUE "FileVersion", "10, 1, 1, 10\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "10, 1, 1, 9\0"
+            VALUE "ProductVersion", "10, 1, 1, 10\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3635,6 +3691,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 131
     END
+
+    IDD_VECTOR_DIPOLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 200
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 100
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -3876,6 +3940,17 @@ BEGIN
     IDC_ZDIR, 0x403, 20, 0
 0x6e55, 0x6e6b, 0x776f, 0x206e, 0x205a, 0x6964, 0x6572, 0x7463, 0x6f69, 
 0x006e, 
+    0
+END
+
+IDD_VECTOR_DIPOLE DLGINIT
+BEGIN
+    IDC_ZDIR, 0x403, 13, 0
+0x6e49, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 15, 0
+0x6e49, 0x6f74, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 17, 0
+0x754f, 0x2074, 0x666f, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
     0
 END
 
@@ -4122,6 +4197,9 @@ BEGIN
     ID_DRAWVECTOR_IMPULSE   "Draw an impulse vector\nImpulse tool"
     ID_DRAWVECTOR_UNITVECTOR 
                             "Draw a unit vector in the diagram\nUnit vector tool"
+    ID_DRAWVECTOR_MAGDIPOLE "Draw a magnetic dipole moment vector in the diagram\nMagnetic Dipole tool"
+    ID_DRAWVECTOR_ELECDIPOLE 
+                            "Draw an electric dipole moment vector in the diagram\nElectric Dipole tool"
 END
 
 STRINGTABLE DISCARDABLE 

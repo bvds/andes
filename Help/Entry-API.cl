@@ -406,6 +406,10 @@
 				(t (timeify time-term 
 					    (find-torque-term 
 					     body-term body2-term))))))
+      (mag-dipole  (vec-prop prop `(dipole-moment ,body-term magnetic :time ,time-term)))
+      (elec-dipole (vec-prop prop `(dipole-moment ,body-term electric :time ,time-term)))
+      ; unit-normal, unit-from, unit-towards: assume these will never be soughts so will
+      ; never appear on quantity choice menu.
       ;; unknown:
       (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
 			   quant-type)
@@ -576,11 +580,11 @@
 			     `(unit-vector towards ,(arg-to-body avg-inst) :at ,body-term))
 			((equal vtype 'unit-away-from)
 			     `(unit-vector away-from ,(arg-to-body avg-inst) :at ,body-term))
-	                ;; a two-body vector type:
+	                ;; a two-argument vector type:
 	                ((or (equal vtype 'relative-position) (equal vtype 'relative-vel)
-			     (equal vtype 'impulse))
+			     (equal vtype 'impulse) (equal vtype 'dipole-moment))
 		           `(,vtype ,body-term ,(arg-to-body avg-inst)))
-		        ;; else single body vector: 
+		        ;; else single argument vector: 
 	                (T `(,vtype ,body-term))))
 	(dir-term     (arg-to-dir dir mag)))
 

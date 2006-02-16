@@ -224,70 +224,12 @@ static const PROBLEM_MENUITEMS menuitems[] =
 "Relative Velocity", "relative-vel", ID_PROB_RELVEL,
 "Electric Field", "E-field", ID_PROB_EM,
 "Magnetic Field", "B-field", ID_PROB_EM,
-// If you add vector quantity here, must increment FIRST_SCALAR_INDEX!
-
-//Place separator between vectors and scalars:
-"",		"MF_SEPARATOR",	0xFFFF,	// include for all concept flags
-
-#define FIRST_SCALAR_INDEX  12  // index of first scalar quantity in this table, which follows:
-//
-// !!! Following scalar portion of the table now unused. 
-// Now scalar quants added to menu from quantity table in CVarView::AddScalarVars, 
-// based on feature sets loaded from features.tsv
-//
-"Mass",		"mass",							
-	(ID_PROB_FORCE|ID_PROB_ENERGY|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS), // for mom inertia
-"Radius",	"radius",		  
-	(ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS),
-/* No longer offered in Andes2   
-"Distance-between",	ID_VARIABLE_ADDDISTANCE,		 	ID_PROB_KINEMATICS,
-*/          
-"Distance traveled",   "distance",	 ID_PROB_KINEMATICS,
-"Speed",    "speed", ID_PROB_KINEMATICS,
-"Time",		"duration", 0xFFFFFFFF,  // always on 
-"Period",	"period", (ID_PROB_CIRCMOTION),   
-"Angle",	"angle",                       
-    (ID_PROB_VECTOR|ID_PROB_FORCE|ID_PROB_KINEMATICS|ID_PROB_ENERGY|ID_PROB_CIRCMOTION|ID_PROB_ROTKINEMATICS), 
-"Work",		"work", ID_PROB_WORK|ID_PROB_ENERGY,
-"Power",	"power", ID_PROB_WORK|ID_PROB_ENERGY,
-"Power",    "electric-power", ID_PROB_CIRCUITS,
-"Coefficient of friction", "coef-friction", ID_PROB_FORCE,
-
-// peculiar to rotational problems:
-// Body dimensions needed in angmom, torque, for computing moment of inertia
-// for now, show in all problems labelled rotkin.
-"Moment of Inertia",	"moment-of-inertia",		ID_PROB_ROTKINEMATICS, 	
-"Length",	"length", ID_PROB_ROTKINEMATICS,
-"Width",	"width", ID_PROB_ROTKINEMATICS,
-
-// peculiar to energy problems. KE also needed for momentum (elastic collisions)
-// "",	"MF_SEPARATOR", ID_PROB_ENERGY,
-"Energy",	"energy",    ID_PROB_ENERGY|ID_PROB_MOMENTUM,
-"Compression Distance",		"compression",  ID_PROB_ENERGY,    			                     
-"Spring Constant",   "spring-constant", ID_PROB_ENERGY,      	       
-"Height",	"height",	ID_PROB_ENERGY,
-
-// DC Circuits
-"Current",	"current", ID_PROB_CIRCUITS,
-"Voltage",	"voltage", ID_PROB_CIRCUITS,
-"Resistance", "resistance", ID_PROB_CIRCUITS,
-"Capacitance", "capacitance", ID_PROB_CIRCUITS,
-"Charge",     "charge", ID_PROB_CIRCUITS|ID_PROB_EM,
-"Potential", "potential", ID_PROB_EM,
-"Stored Energy", "stored-energy", ID_PROB_CIRCUITS,
-"Inductance",  "inductance", ID_PROB_CIRCUITS,
-"Current Change Rate", "current-change", ID_PROB_CIRCUITS,
-"Time Constant", "time-constant", ID_PROB_CIRCUITS,
-// Optics
-"Object Distance", "object-distance", ID_PROB_OPTICS,
-"Image Distance", "image-distance", ID_PROB_OPTICS,
-"Focal Length", "focal-length", ID_PROB_OPTICS,    
-"Magnification",  "magnification", ID_PROB_OPTICS,
-"Radius of Curvature", "radius-of-curvature", ID_PROB_OPTICS,
-"Distance between Lenses", "lens-distance", ID_PROB_OPTICS,
+// for now, just turn these on for all EM problems
+"Magnetic Dipole Moment", "mag-dipole", ID_PROB_EM,
+"Electric Dipole Moment", "elec-dipole", ID_PROB_EM,
 };
 
-static const int nMenuItems ARRAY_SIZE(menuitems);
+static const int NVECTOR_ITEMS ARRAY_SIZE(menuitems); // includes trailing separator
 
 IMPLEMENT_DYNCREATE(CVarMenu, CMyMenu);
 
@@ -343,7 +285,7 @@ void CVarMenu::AttachProblemMenu(DWORD dwConceptFlag, BOOL bIncludeVectors/*=FAL
 			// attribute + vec-cmd in one cmd id as attribute base + vec-cmd offset
 			int nBase = vecprops[p].base;
 			vecSubMenu.CreatePopupMenu();
-			for (int v = 0; v < FIRST_SCALAR_INDEX-1; v++) {
+			for (int v = 0; v < NVECTOR_ITEMS; v++) {
 				if (dwConceptFlag & menuitems[v].concept) {
 					int nCmdId = CVarView::LookupId(menuitems[v].strId);
 					ASSERT(nCmdId > ID_VARIABLE_ADDFIRST);

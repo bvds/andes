@@ -190,6 +190,8 @@ static QuantTblEntry vectorQuants[] =
 { ID_VARIABLE_ADDBFIELD,         "B-field",			"B", },
 { ID_VARIABLE_ADDIMPULSE,        "impulse",         "J", },
 { ID_VARIABLE_ADDUNITVECTOR,     "unit-vector",     "n", },
+{ ID_VARIABLE_ADDMAGDIPOLE,      "mag-dipole",      "$m", },
+{ ID_VARIABLE_ADDELECDIPOLE,     "elec-dipole",      "p", },
 };
 const int numVectors ARRAY_SIZE(vectorQuants);
 
@@ -609,6 +611,7 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 		CString str;
 		str = pObj->GetDef();
 		strDef.Format("magnitude of the %s", str);
+		// for unit vectors 
 	}
 	else // not an object we are interested in
 		return;

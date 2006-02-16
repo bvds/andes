@@ -247,6 +247,7 @@
 #define IDD_FIELD                       384
 #define IDR_EMTOOLS                     386
 #define IDR_SPLASH_JPG                  387
+#define IDR_DIPOLETOOLS                 387
 #define IDC_DRAWEFIELD                  388
 #define IDC_DRAWBFIELD                  389
 #define IDR_ONR_LOGO                    390
@@ -256,6 +257,7 @@
 #define IDD_PROBABILITY                 394
 #define IDD_VECTOR_UNIT                 396
 #define IDD_TIMECONSTANT                399
+#define IDD_VECTOR_DIPOLE               400
 #define IDC_SINGLE_BODY                 1000
 #define IDC_STATUS_MSG                  1000
 #define IDC_MULTIPLE_BODIES             1001
@@ -1007,6 +1009,8 @@
 #define ID_VARIABLE_ADDIMPULSE          41050
 #define ID_VARIABLE_ADDPROBABILITY      41051
 #define ID_VARIABLE_ADDUNITVECTOR       41052
+#define ID_VARIABLE_ADDMAGDIPOLE        41053
+#define ID_VARIABLE_ADDELECDIPOLE       41054
 #define ID_VARIABLE_MAX_STATIC          41100
 #define ID_VARIABLE_ADDLAST             41200
 #define ID_DRAWVECTOR_FIRST             45000
@@ -1023,7 +1027,9 @@
 #define ID_DRAWVECTOR_BFIELD            45010
 #define ID_DRAWVECTOR_IMPULSE           45011
 #define ID_DRAWVECTOR_UNITVECTOR        45012
-#define ID_DRAWVECTOR_LAST              45012
+#define ID_DRAWVECTOR_MAGDIPOLE         45013
+#define ID_DRAWVECTOR_ELECDIPOLE        45014
+#define ID_DRAWVECTOR_LAST              45014
 #define ID_DRAWTOOL_FIRST               50000
 #define ID_DRAW_VECTOR                  50000
 #define ID_DIAGRAM_COORDINATES          50001
@@ -1104,8 +1110,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        400
-#define _APS_NEXT_COMMAND_VALUE         33229
+#define _APS_NEXT_RESOURCE_VALUE        402
+#define _APS_NEXT_COMMAND_VALUE         33231
 #define _APS_NEXT_CONTROL_VALUE         1429
 #define _APS_NEXT_SYMED_VALUE           119
 #endif

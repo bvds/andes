@@ -45,7 +45,9 @@ public:
 #define VECTOR_BFIELD       (ID_DRAWVECTOR_BFIELD - ID_DRAWVECTOR_FIRST)
 #define VECTOR_IMPULSE      (ID_DRAWVECTOR_IMPULSE - ID_DRAWVECTOR_FIRST)
 #define VECTOR_UNITVECTOR   (ID_DRAWVECTOR_UNITVECTOR - ID_DRAWVECTOR_FIRST)
-#define VECTYPE_LAST		VECTOR_UNITVECTOR
+#define VECTOR_MAGDIPOLE    (ID_DRAWVECTOR_MAGDIPOLE - ID_DRAWVECTOR_FIRST)
+#define VECTOR_ELECDIPOLE   (ID_DRAWVECTOR_ELECDIPOLE - ID_DRAWVECTOR_FIRST) 
+#define VECTYPE_LAST		(ID_DRAWVECTOR_LAST - ID_DRAWVECTOR_FIRST)
 	BOOL	m_bAngular;			// means type is angular version of specified vec
 
 	CString m_strForceType;		// FORCE: type string
@@ -174,6 +176,7 @@ protected:
 	LPCTSTR CheckForceVector();
 	LPCTSTR CheckTorqueVector();
 	LPCTSTR CheckUnitVector();
+	LPCTSTR CheckDipoleVector();
 	/* LPCTSTR Check2DEntry(); */
 
 	 

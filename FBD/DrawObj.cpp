@@ -45,6 +45,7 @@
 #include "ProbDlg.h"
 #include "UnitVectorDlg.h"
 #include "TimeConstantDlg.h"
+#include "DipoleDlg.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3753,6 +3754,10 @@ CDialog* CVariable::GetPropertyDlg()
 		return new CImpulseDlg(this);
 	else if (m_nType == ID_VARIABLE_ADDUNITVECTOR)
 		return new CUnitVectorDlg(this);
+	else if (m_nType == ID_VARIABLE_ADDMAGDIPOLE)
+		return new CDipoleDlg(this, /*bMagnetic*/TRUE);
+	else if (m_nType == ID_VARIABLE_ADDELECDIPOLE)
+		return new CDipoleDlg(this, /*bMagnetic*/FALSE);
 	else if (IsLinearVector() || IsAngularVector() ||
 			 m_nType == ID_VARIABLE_ADDSPEED) 
 	{
@@ -3843,6 +3848,8 @@ BOOL CVariable::HasComponents()
 	  || (m_nType == ID_VARIABLE_ADDBFIELD)
 	  || (m_nType == ID_VARIABLE_ADDIMPULSE)
 	  || (m_nType == ID_VARIABLE_ADDUNITVECTOR)
+	  || (m_nType == ID_VARIABLE_ADDMAGDIPOLE)
+	  || (m_nType == ID_VARIABLE_ADDELECDIPOLE)
 	);
 }
 

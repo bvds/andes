@@ -34,6 +34,7 @@
 #include "FieldDlg.h"
 #include "ImpulseDlg.h"
 #include "UnitVectorDlg.h"
+#include "DipoleDlg.h"
     
 //////////////////////////////////////////////////////////////////////////
 // Vectors
@@ -101,8 +102,11 @@ void CVector::Serialize(CArchive& ar)
 			|| (m_nVectorType == VECTOR_ACCELERATION) // added v7 for vel, accel
 			|| (m_nVectorType == VECTOR_VELOCITY)
 			|| (m_nVectorType == VECTOR_TORQUE) 	  // added new case v9 for torque
-			|| (m_nVectorType == VECTOR_UNITVECTOR))  // added new case v10 for unit vector
-			ar << m_strForceType;					  // OK, no saved torques < v9
+			|| (m_nVectorType == VECTOR_UNITVECTOR)  // added new case v10 for unit vector
+			|| (m_nVectorType == VECTOR_MAGDIPOLE)    // added new case v10 for dipole vectors
+			|| (m_nVectorType == VECTOR_ELECDIPOLE)
+			)
+			ar << m_strForceType;					 
 		else if (m_nVectorType == VECTOR_COMPONENT){
 			ar << m_strCompDir;
 			ar << m_strCompOf;
@@ -184,7 +188,9 @@ void CVector::Serialize(CArchive& ar)
 						|| (m_nVectorType == VECTOR_TORQUE))
 					&& (nVersion >= 7) ) // avg/inst for accel, vel; Net/Ind for torque
 				ar >> m_strForceType;
-			else if ( (m_nVectorType == VECTOR_UNITVECTOR)
+			else if ( ((m_nVectorType == VECTOR_UNITVECTOR)
+				       || (m_nVectorType == VECTOR_MAGDIPOLE)
+					   || (m_nVectorType == VECTOR_ELECDIPOLE))
 				     && (nVersion >= 10) )
 			    ar >> m_strForceType;
 
@@ -441,8 +447,6 @@ void CVector::DrawLabel(CDC* pDC)
 	// The label is the main visible representation of a zero-length vector.
 	if (IsZeroMag())
 		strLabel += "=0";
-	else if (m_nVectorType == VECTOR_UNITVECTOR) // add =1 to unit vectors
-		strLabel += "=1";
 
 	// Recalc label position from vector position, caching bounding box in member var 
 	// for use in hit testing. Need to update even if empty. Note this member not valid 
@@ -771,6 +775,10 @@ CDialog* CVector::GetPropertyDlg()
 		return new CFieldDlg(this, /*bMagnetic*/TRUE);
 	else if (m_nVectorType == VECTOR_UNITVECTOR)
 		return new CUnitVectorDlg(this);
+	else if (m_nVectorType == VECTOR_ELECDIPOLE)
+		return new CDipoleDlg(this);
+	else if (m_nVectorType == VECTOR_MAGDIPOLE)
+		return new CDipoleDlg(this, /*bMagnetic*/TRUE);
 
 	// else fall through:
 	TRACE("CVector::GetPropertyDlg:: Bad vector type d\n", m_nVectorType); 
@@ -833,6 +841,10 @@ CString CVector::GetDef()
 			strDef.Format("Unit vector normal to %s %s", m_strBody, strTimePart);
 		else strDef.Format("Unit vector at %s pointing %s %s %s",
 			                m_strBody, m_strForceType, m_strAgent, strTimePart);
+	} else if (m_nVectorType == VECTOR_MAGDIPOLE) {
+		strDef.Format("Magnetic dipole moment of %s %s", m_strBody, strTimePart);
+	} else if (m_nVectorType == VECTOR_ELECDIPOLE) {
+		strDef.Format("Electric dipole moment of %s %s", m_strBody, strTimePart);		
 	} else
 		strDef = "Vector";
 	strDef.TrimRight();	
@@ -963,6 +975,8 @@ BOOL CVector::SetFromLogStr(LPCTSTR pszStr)
 	else if (strTypeName == "E-field") m_nVectorType = VECTOR_EFIELD;
 	else if (strTypeName == "B-field") m_nVectorType = VECTOR_BFIELD;
 	else if (strTypeName == "Unit-Vector") m_nVectorType = VECTOR_UNITVECTOR;
+	else if (strTypeName == "Mag-dipole") m_nVectorType = VECTOR_MAGDIPOLE;
+	else if (strTypeName == "Elec-dipole") m_nVectorType = VECTOR_ELECDIPOLE;
 
 	// set the CVector specific stuff 
 	if (m_nVectorType == VECTOR_COMPONENT) {
@@ -1020,6 +1034,8 @@ void CVector::GetTypeName(CString& strType)
 	case VECTOR_EFIELD: strType = "E-field"; break;
 	case VECTOR_BFIELD: strType = "B-field"; break;
 	case VECTOR_UNITVECTOR: strType = "Unit-Vector"; break;
+	case VECTOR_MAGDIPOLE: strType = "Mag-dipole"; break;
+	case VECTOR_ELECDIPOLE: strType = "Elec-dipole"; break;
 	default: strType = "Vector"; break;
 	}
 	if (m_bAngular)
@@ -1043,6 +1059,8 @@ CString CVector::GetLabelPrefix()
 	case VECTOR_EFIELD: return "E";
 	case VECTOR_BFIELD: return "B";
 	case VECTOR_UNITVECTOR: return "n";
+	case VECTOR_MAGDIPOLE: return "$m";
+	case VECTOR_ELECDIPOLE: return "p";
 	default: return "v"; 
 	}
 }
@@ -1127,7 +1145,10 @@ BOOL CVector::HasSameDef(CVariable* pVar)
 		bMatchType = (m_nVectorType == VECTOR_TORQUE); break;
 	case ID_VARIABLE_ADDUNITVECTOR:
 		bMatchType = (m_nVectorType == VECTOR_UNITVECTOR); break;
-	// etc. 
+	case ID_VARIABLE_ADDMAGDIPOLE:
+		bMatchType = (m_nVectorType == VECTOR_MAGDIPOLE); break;
+	case ID_VARIABLE_ADDELECDIPOLE:
+		bMatchType = (m_nVectorType == VECTOR_ELECDIPOLE); break;
 	}
 	if (!bMatchType) return FALSE;
 
@@ -1251,7 +1272,10 @@ void CVector::CheckObject()
 #endif 0
 	else if (m_nVectorType == VECTOR_UNITVECTOR)
 		pszResult = CheckUnitVector();
-	else
+	else if (m_nVectorType == VECTOR_MAGDIPOLE 
+		|| m_nVectorType == VECTOR_ELECDIPOLE) {
+		pszResult = CheckDipoleVector();
+	} else
 		pszResult = CheckMoveVector();	// all others only differ in vector type
 
 	ApplyStatus(pszResult);
@@ -1364,7 +1388,27 @@ LPCTSTR CVector::CheckMoveVector()
 			m_strId							// id
 		);
 }
- 
+
+LPCTSTR CVector::CheckDipoleVector()
+{
+	// convert our type to "dipole-moment" + subtype argument
+	CString strType = "dipole-moment";
+	CString strSubTypeArg = (m_nVectorType == VECTOR_MAGDIPOLE) ? "magnetic" : "electric";
+
+	// For Andes2: bracket body name to preserve case if compound body label.
+	//(lookup-vector label type object direction mag time)
+	return HelpSystemExecf( "(lookup-vector \"%s\" %s %s |%s| %s %s |%s| %s)",
+			STR2ARG(m_strName),				// label
+			STR2ARG(strSubTypeArg),			// instantaneous or average
+			STR2ARG(strType),				// vector type
+			STR2ARG(m_strBody),				// object
+			DirArg(),						// direction
+			MagArg(),						// mag
+			STR2ARG(m_strTime),				// time
+			m_strId							// id
+		);
+}
+
 LPCTSTR CVector::CheckTorqueVector()
 {
 	// For Andes2: bracket body name to preserve case if compound body label.

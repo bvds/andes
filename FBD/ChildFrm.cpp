@@ -1,6 +1,6 @@
 // ChildFrm.cpp : implementation of the CChildFrame class
 //
-// $Id: ChildFrm.cpp,v 1.3 2005/08/01 23:41:37 anders Exp $
+// $Id: ChildFrm.cpp,v 1.4 2006/02/16 22:18:55 anders Exp $
     
 #include "stdafx.h"
 // #include <afxrich.h>
@@ -18,6 +18,7 @@
 #include "ChatView.h"
 #include "PrincView.h"
 #include "ChildFrm.h"
+#include "VarView.h"
 /*    
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -400,6 +401,8 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 	{
 		if (m_pDoc->m_wConcept & ID_PROB_ROTKINEMATICS)
 			nID = IDR_ROTKINTOOLS;	// bar with special tools for rotational probs
+		else if (CVarView::HasFeature(CString("DIPOLE"))) // new: EM problems w/dipole vectors
+			nID = IDR_DIPOLETOOLS;
 		else  if (m_pDoc->m_wConcept & ID_PROB_EM)
 			nID = IDR_EMTOOLS;      // bar with special tools for E&M problems
 		else 
