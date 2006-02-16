@@ -323,6 +323,15 @@
 		     (electric `(electric-energy ,body-term ,body2-term :time ,time-term))
 		     (gravitational `(grav-energy ,body-term ,body2-term :time ,time-term))
 		     (elastic   `(spring-energy ,body-term ,body2-term :time ,time-term))
+		     ; nuisance: for dipoles we have to construct relevant field term from
+		     ; specified body and type. 
+		     (electric-dipole `(dipole-energy ,body-term 
+		                           ,(find-dipole-field body-term 'electric)
+					   :time ,time-term))
+		     (magnetic-dipole `(dipole-energy ,body-term 
+		                           ,(find-dipole-field body-term 'electric)
+					   :time ,time-term))
+
 		     ;; old style: same subtype was sent for all types of P.E:
                   (potential 
 		   ;; URGH, whether PE is elastic or gravitational can only be
@@ -424,6 +433,13 @@
   (if time-term (append quant-expr `(:time ,time-term))
     quant-expr))
 
+(defun find-dipole-field (body type)
+"given dipole name and field type, return term for field dipole is in in this problem, if any"
+  ; temporary hack: point is always 'region, source is always 'unspecified
+  ; could just do a find via unify over all valid dipole-energy quants in variable index 
+  ; still need to construct something if this is problem without dipole-energy, though.
+  `(field region ,type unspecified)
+)
 ;;
 ;; Answer box identifiers
 ;;

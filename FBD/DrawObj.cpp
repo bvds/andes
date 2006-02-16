@@ -3639,17 +3639,20 @@ CString CVariable::GetCheckCmd()
 		strTime.Format("%s to %s", m_strObject, m_strTime);
 		strObject = "";
 	} else if (m_nType == ID_VARIABLE_ADDNRG) {
-		// break out first word in energy type to send subtype:
+		// delete last word in energy type to send subtype:
 		//    Total Mechanical => "Total"; "Translational" [kinetic], "Rotational" [kinetic],
-		//    "Elastic" [potential], "Graviational" [Potential], "Electric" [potential].
+		//    "Elastic" [potential], "Gravtiational" [Potential], "Electric" [potential].
+		//    "Electric Dipole [potential]", "Magnetic Dipole [potential]"
 		CString strBeg;
-		int nPos = strForceType.Find(" ");
+		int nPos = strForceType.ReverseFind(' ');
 		if (nPos > 0) {
 			strBeg = strForceType.Left(nPos);
 			strForceType = strBeg;
 			// for backwards compat, continue to send this as "Kinetic"
 			if (strForceType.CompareNoCase("Translational") == 0)
 				strForceType = "Kinetic";
+			// no spaces in dipole subtypes
+			strForceType.Replace(" ", "-");
 		}
 	} else if (m_nType == ID_VARIABLE_ADDRESISTANCE
 		    || m_nType == ID_VARIABLE_ADDCAPACITANCE){
@@ -3823,6 +3826,10 @@ CString CVariable::GetLabelPrefix()
 				return "Us";
 			else if (m_strForceType.CompareNoCase("Electric Potential") == 0)
 				return "Ue";
+			else if (m_strForceType.CompareNoCase("Electric Dipole Potential") == 0)
+				return "Ue";
+			else if (m_strForceType.CompareNoCase("Magnetic Dipole Potential") == 0)
+				return "Um";
 		}
 		return "";
 	}

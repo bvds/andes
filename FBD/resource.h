@@ -650,6 +650,7 @@
 #define IDC_AT_BTN                      1426
 #define IDC_TOWARDS_AWAY                1427
 #define IDC_AT_BODY                     1428
+#define IDC_STATIC_FIELD                1429
 #define IDC_EQ1                         4000
 #define IDC_EQ2                         4001
 #define IDI_WINHELP                     4001
@@ -1112,7 +1113,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        402
 #define _APS_NEXT_COMMAND_VALUE         33231
-#define _APS_NEXT_CONTROL_VALUE         1429
+#define _APS_NEXT_CONTROL_VALUE         1430
 #define _APS_NEXT_SYMED_VALUE           119
 #endif
 #endif

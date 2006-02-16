@@ -25,6 +25,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CEnergyDlg)
 	enum { IDD = IDD_ENERGY };
+	CStatic	m_stcField;
 	CStatic	m_stcEquals;
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
@@ -48,7 +49,8 @@ protected:
 	virtual void InitVariableDlg();
 
 	// new: NB!: order must parallel order of choices in combo box (not alphabetically sorted)
-    enum EnergyType {TotalMechanical, Kinetic, RotationalKinetic, Gravitational, Elastic, Electric};
+    enum EnergyType {TotalMechanical, Kinetic, RotationalKinetic, 
+		            Gravitational, Elastic, Electric, ElecDipole, MagDipole};
 
 
 // Overrides

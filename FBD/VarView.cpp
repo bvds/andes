@@ -365,7 +365,7 @@ static BOOL FeatureSetContains(CString& strFeatureSet, CString& strFeature)
 	return FALSE;
 }
 
-BOOL CVarView::HasFeature(CString& strTypeId)
+BOOL CVarView::HasFeature(CString strTypeId)
 {
 	// check if it's in feature set specified for this problem
 	CFBDDoc* pDoc = theApp.GetCurrentProblem();

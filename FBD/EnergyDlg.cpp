@@ -5,6 +5,7 @@
 #include "fbd.h"
 #include "EQEDit.h"
 #include "EnergyDlg.h"
+#include "VarView.h"  // for HasFeature
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -29,6 +30,7 @@ void CEnergyDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CEnergyDlg)
+	DDX_Control(pDX, IDC_STATIC_FIELD, m_stcField);
 	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
 	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
 	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
@@ -53,6 +55,12 @@ void CEnergyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);
 	DDX_AddCompoundBodies(pDX, IDC_NRGBODY, &m_pDocument->m_objects);
 	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);
+	// add dipole energy choices where relevant. NB: order in unsorted
+	// list must match energy type codes.
+	if (!pDX->m_bSaveAndValidate && CVarView::HasFeature("dipole")) {
+		m_cboEnergyType.AddString("Electric Dipole Potential");
+		m_cboEnergyType.AddString("Magnetic Dipole Potential");
+	}
 
 	CDrawObjDlg::DoDataExchange(pDX);
 }
@@ -217,7 +225,8 @@ void CEnergyDlg::OnSelchangeNrgType()
 	// Set appropriate prefix based on type, flagging if it's
 	// a type of potential energy:
 	EnergyType type = (EnergyType) m_cboEnergyType.GetCurSel();
-	BOOL bPotential = FALSE;
+	BOOL bShowAgent = FALSE;
+	CString strReadOnlyAgent;
 	if (type == TotalMechanical)
 		m_editName.SetPrefix("ME");
 	else if (type == Kinetic)
@@ -226,22 +235,37 @@ void CEnergyDlg::OnSelchangeNrgType()
 		m_editName.SetPrefix("Kr");
 	else if (type == Gravitational) {
 		m_editName.SetPrefix("Ug");
-		bPotential = TRUE;
+		bShowAgent= TRUE;
 	} else if (type == Elastic) { 
 		m_editName.SetPrefix("Us");
-		bPotential = TRUE;
+		bShowAgent = TRUE;
 	} else if (type == Electric) {
 		m_editName.SetPrefix("Ue");
-		bPotential = TRUE;
+		bShowAgent = TRUE;
+	} else if (type == ElecDipole) {
+		m_editName.SetPrefix("Ue");
+		bShowAgent = TRUE;
+		strReadOnlyAgent = "Electric Field";
+	} else if (type == MagDipole) {
+		m_editName.SetPrefix("Um");
+		bShowAgent = TRUE;
+		strReadOnlyAgent = "Magnetic Field";
 	}
 
 	// KE and Total Mechanical have one body, 
 	// For poential energy we have two bodies:
 	// Energy of type [Potential] "due to interaction" 
 	// "of body" _____ "and" _______
-	m_stcPE.ShowWindow(bPotential ? SW_SHOW : SW_HIDE);
-	m_stcAgent.ShowWindow(bPotential ? SW_SHOW : SW_HIDE);
-	EnableComboBox(&m_cboAgent, bPotential);
+	m_stcPE.ShowWindow(bShowAgent ? SW_SHOW : SW_HIDE);
+	m_stcAgent.ShowWindow(bShowAgent ? SW_SHOW : SW_HIDE);
+	// enable the box if we are using an agent and it is not read-only
+	BOOL bReadOnly = ! strReadOnlyAgent.IsEmpty();
+	EnableComboBox(&m_cboAgent, bShowAgent && ! bReadOnly);
+	// If we want to be fancy:
+	// Set visibility of Agent or static field according as read-only
+	m_cboAgent.ShowWindow(bReadOnly? SW_HIDE : SW_SHOW);
+	m_stcField.ShowWindow(bReadOnly? SW_SHOW : SW_HIDE);
+	m_stcField.SetWindowText(strReadOnlyAgent);
 }
 
 CLabelRichEdit* CEnergyDlg::GetLabelCtrl()
