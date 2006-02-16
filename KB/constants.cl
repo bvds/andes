@@ -15,7 +15,7 @@
 ;;; to be removed from the list of variables in an equation in some contexts
 ;;; we don't change vars-in-eqn since might need all symbols in other contexts.
 (defparameter *phys-constants* 
-    '(|$p| |$P| |eps0| |kelec| |mu0| |c| |hbar| |G| |Iref|))
+    '(|$p| |$P| |eps0| |kelec| |mu0| |kmag| |c| |hbar| |G| |Iref|))
 (defun physconstp (exp) (member exp *phys-constants*))
 
 ;;; enter-predefs -- enter predefined symbols for *cp* into symbol table
@@ -60,6 +60,7 @@
      ;; NB: need some dummy quantity to prevent inverse match to NIL quantity
      (symbols-enter "kelec" 'kelec NIL '|kelec|)
      (symbols-enter "$m0" '(physconst |mu0|) NIL '|mu0|)
+     (symbols-enter "kmag" 'kmag NIL '|kmag|)
      (symbols-enter "$e0" '(physconst |eps0|) NIL '|eps0|))
 
   ; for fluids problems, predefine atmospheric pressure constant
