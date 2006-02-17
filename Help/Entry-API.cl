@@ -859,7 +859,7 @@
    ; don't have to enter equation giving the value. Interface does
    ; show them the value on the dialog box.
     (when (numberp degrees)          ; known xy plane direction
-       (add-implict-eqn entry (make-implicit-assignment-entry label `(dnum ,degrees |deg|))))
+       (add-implicit-eqn entry (make-implicit-assignment-entry label `(dnum ,degrees |deg|))))
 
    ; finally return entry
    entry))
