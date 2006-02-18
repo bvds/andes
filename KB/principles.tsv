@@ -113,8 +113,8 @@ LEAF	$Fe = Q/eps0                   Gauss' law	gauss-law
 LEAF	p = abs(q)*r        electric dipole moment (magnitude)	electric-dipole-moment-mag	Dipoles
 LEAF	p_x = q*r_x        electric dipole moment (x component)	(electric-dipole-moment ((?axis . x)))	Dipoles
 LEAF	p_y = q*r_y        electric dipole moment (y component)	(electric-dipole-moment ((?axis . y)))	Dipoles
-LEAF	$t = p*E*sin($q)        torque for electric dipole (magnitude)	dipole-torque-mag	Dipoles
-LEAF	$t_z = p*E*sin($qE-$qp)  torque for electric dipole (z component)	dipole-torque-zc	Dipoles
+LEAF	$t = p*E*sin($q)        torque for electric dipole (magnitude)	electric-dipole-torque-mag	Dipoles
+LEAF	$t_z = p_x*E_y - p_y*E_x  OR  $t_z = p*E*sin($qE-$qp)  torque for electric dipole (z component)	electric-dipole-torque-zc	Dipoles
 LEAF	Ud = -p.E   [Ud = -p*E*cos($q) or Ud = -(p_x*E_x+p_y*E_y]         potential energy of electric dipole	electric-dipole-energy	Dipoles
 LEAF	F = abs(q)*v*B*sin($q)         Magnetic force (magnitude)	charge-force-Bfield-mag	Magnetic Field
 LEAF	F_x = q*(v_y*B_z - v_z*B_y)   Magnetic force (x component)	charge-force-Bfield-x	Magnetic Field
@@ -132,6 +132,11 @@ LEAF	V = -d$Fb/dt                          Faraday's law	faradays-law	Magnetic F
 LEAF	$m = N*I*A        magnetic dipole moment (magnitude)	magnetic-dipole-moment-mag	Dipoles
 LEAF	$m_x = N*I*A*n_x        magnetic dipole moment (x component)	(magnetic-dipole-moment ((?axis . x)))	Dipoles
 LEAF	$M_y = N*I*A*n_y        magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles
+LEAF	$t = $m*B*sin($q)        torque for magnetic dipole (magnitude)	magnetic-dipole-torque-mag	Dipoles
+LEAF	$t_x = $m_y*B_z - $m_z*B_y  torque for magnetic dipole (x component)	magnetic-dipole-torque-xc	Dipoles
+LEAF	$t_y = $m_z*B_x - $m_x*B_z  torque for magnetic dipole (y component)	magnetic-dipole-torque-yc	Dipoles
+LEAF	$t_z = $m_x*B_y - $m_y*B_x  OR  $t_z = $m*B*sin($qB-$q$m)  torque for magnetic dipole (z component)	magnetic-dipole-torque-zc	Dipoles
+LEAF	Ud = -$m.B   [Ud = -$m*B*cos($q) or Ud = -($m_x*B_x+$m_y*B_y]         potential energy of magnetic dipole	magnetic-dipole-energy	Dipoles
 END_GROUP			
 GROUP	DC Circuits		
 LEAF	+/-V1 +/-V2 +/-V3...=0     Kirchoff's Loop rule	loop-rule	Loop Rule
@@ -185,22 +190,22 @@ END_GROUP
 GROUP	Waves and Oscillations		
 LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
 LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave	
-LEAF	T = 1/f       Period of oscillation	period-of-wave	
-LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave	
-LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal	
-LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed	
-LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string	
-LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave	
-LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
-LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation	
-LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation	
-LEAF	fo = fs*(vw콀o)/(vw콀s)   Frequency shift from doppler effect	doppler-frequency	
-LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of	
-LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency	
-LEAF	E = E0*exp(-2*t/$t)          energy decay	energy-decay	
-LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
-END_GROUP			
-END_GROUP	Write a Principle		
+LEAF	T = 1/f       Period of oscillation	period-of-wave
+LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
+LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
+LEAF	vp = vw               Speed of pulse is wave speed	speed-equals-wave-speed
+LEAF	vw = sqrt(Ft/$m)                  Speed of waves on a string	wave-speed-string
+LEAF	vmax = A*$w                        Maximum speed of oscillation	max-transverse-speed-wave
+LEAF	amax = A*$w^2                     Maximum acceleration of oscillation	max-transverse-abs-acceleration-wave
+LEAF	T = 2*$p*sqrt(m/k)                 Period of a spring-mass system         	spring-mass-oscillation
+LEAF	T = 2*$p*sqrt(L/g)                   Period of a simple pendulum       	pendulum-oscillation
+LEAF	fo = fs*(vw콀o)/(vw콀s)   Frequency shift from doppler effect	doppler-frequency
+LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
+LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
+LEAF	E = E0*exp(-2*t/$t)          energy decay	energy-decay
+LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
+END_GROUP		
+END_GROUP	Write a Principle	
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
 GROUP	Translational		
