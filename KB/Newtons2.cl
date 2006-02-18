@@ -7395,18 +7395,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ;; note vector's axis owner bodies need not be the same
   (vector ?b1 ?vec1 ?dir1)
   (vector ?b2 ?vec2 ?dir2)
-  (test (and (degrees-or-num ?dir1) (degrees-or-num ?dir2)))
-  (bind ?angle1 (convert-dnum-to-number ?dir1))
-  (bind ?angle2 (convert-dnum-to-number ?dir2))
+  (bind ?angle (get-angle-between ?dir1 ?dir2))
+  (test ?angle) ;null indicates an angle can't be determined
   ;; fetch vector mag vars for forming angle variable name only
  (bind ?v1-mag-exp `(mag ,?vec1))
  (bind ?v2-mag-exp `(mag ,?vec2))
  (in-wm (variable ?v1-var ?v1-mag-exp))
  (in-wm (variable ?v2-var ?v2-mag-exp))
  (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
- ;; compute angle between vectors to make it known as side-effect.
- (bind ?angle (min (mod (- ?angle1 ?angle2) 360)
-                   (mod (- ?angle2 ?angle1) 360)))
  (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
  )
  :effects (
