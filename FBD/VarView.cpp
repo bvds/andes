@@ -611,7 +611,10 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 		CString str;
 		str = pObj->GetDef();
 		strDef.Format("magnitude of the %s", str);
-		// for unit vectors 
+		// for unit vectors, add =1 to name
+		if (pObj->IsKindOf(RUNTIME_CLASS(CVector)) && 
+			((CVector*)pObj)->m_nVectorType == VECTOR_UNITVECTOR)
+			strName += "=1";
 	}
 	else // not an object we are interested in
 		return;
@@ -1528,6 +1531,10 @@ void CVarView::UpdateListItem(CCheckedObj * pRealObj, CCheckedObj * pTempObj)
 		CString str;
 		str = pTempObj->GetDef();
 		strDef.Format("magnitude of the %s", str);
+		// for unit vectors, add =1 to name
+		if (pTempObj->IsKindOf(RUNTIME_CLASS(CVector)) && 
+			((CVector*)pTempObj)->m_nVectorType == VECTOR_UNITVECTOR)
+			strName += "=1";
 	}
 	else
 		return;
