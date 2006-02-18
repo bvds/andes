@@ -17,7 +17,7 @@
 (defoperator draw-impulse-given-dir (?b ?agent ?t)
   :preconditions
    ((given (dir (impulse ?b ?agent :time ?t)) ?dir)
-    (test (not (equal ?dir 'unknown)))
+    (test (not (eq ?dir 'unknown)))
     (not (vector ?b (impulse ?b ?agent :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			       (time-abbrev ?t)))
@@ -59,7 +59,7 @@
   (
    (force ?b ?agent ?type ?t ?dir ?action)
    (test (time-intervalp ?t)) ;only impulse for intervals
-   (test (not (equal ?dir 'unknown)))
+   (test (not (eq ?dir 'unknown)))
    (not (vector ?b (impulse ?b ?agent :time ?t) ?dont-care)) ;not already drawn
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			      (time-abbrev ?t)))
@@ -182,10 +182,10 @@
    (test (member ?b ?bodies :test #'equal)) 
    (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b (straight ?dontcare1 ?dir1) :time ?t1)
-   (test (not (equal ?dir1 'unknown)))	;known direction
+   (test (not (eq ?dir1 'unknown)))	;known direction
    (motion ?b (straight ?dontcare2 ?dir2) :time ?t2)
-   (test (not (equal ?dir2 'unknown)))	;known direction
-   (test (equal ?dir2 (opposite ?dir1))) ;momenta in opposite directions
+   (test (not (eq ?dir2 'unknown)))	;known direction
+   (test (same-angle ?dir2 (opposite ?dir1))) ;momenta in opposite directions
    (not (vector ?b (impulse ?b ?agent :time ) ?dontcare3)) ;not already done 
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
@@ -216,8 +216,8 @@
    (test (member ?agent ?bodies :test #'equal)) 
    (motion ?b (straight ?dontcare1 ?dir1) :time ?t1)
    (motion ?b (straight ?dontcare2 ?dir2) :time ?t2)
-   (test (or (equal ?dir1 'unknown) (equal ?dir2 'unknown) ;unknown direction
-	     (not (equal ?dir2 (opposite ?dir1))))) ;momenta not opposite 
+   (test (or (eq ?dir1 'unknown) (eq ?dir2 'unknown) ;unknown direction
+	     (not (same-angle ?dir2 (opposite ?dir1))))) ;momenta not opposite 
    (not (vector ?b (impulse ?b ?agent :time ?t) ?dontcare3)) ;not already done 
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
