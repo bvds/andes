@@ -269,11 +269,11 @@
 
 (defun z-dir-spec (x)
     "returns true if expression is a z-axis direction specifier"
-   (or (eq x 'into) (eq x 'out-of) (eq x 'z-unknown))) 
+   (or (known-z-dir-spec x) (eq x 'z-unknown)))
 
 (defun known-z-dir-spec (x)
     "returns true if expression is a z-axis direction specifier for a known direction"
-   (and (z-dir-spec x) (not (eq x 'z-unknown))))
+   (or (eq x 'into) (eq x 'out-of)))
 
 (defun rotation-zdir (rotate-dir)
    "Convert given rotation ('cw or 'ccw) to z-axis direction specifier by rhr"
@@ -324,23 +324,23 @@
    (if (numberp dir) `(dnum ,dir |deg|) dir))
 
 (defun get-angle-between (dir1-term dir2-term)
-"return dir of angle between two vector direction terms, NIL if unknown"
- (let ((dir1 (term-to-dir dir1-term))
-       (dir2 (term-to-dir dir2-term)))
-  (cond ((eq dir1 'zero) 90)
-        ((eq dir2 'zero) 90) ; treat zero vector as orthogonal to anything
-	; any zdir (incl z-unknown) orthogonal to any xy-plane dir (incl unknown)
-	; test this before checking for unknown.
-        ((and (z-dir-spec dir1) (not (z-dir-spec dir2))) 90)
-        ((and (z-dir-spec dir2) (not (z-dir-spec dir1))) 90)
-	; else both zdir or both xy-dir, but either may be unknown.
-	((or (eq dir1 'z-unknown) (eq dir2 'z-unknown)) NIL) ; can't determine
-	((z-dir-spec dir1) (if (eq dir1 dir2) 0 180))
-	; else both xy-dir, but maybe unknown
-	((or (eq dir1 'unknown) (eq dir2 'unknown)) NIL) ; can't determine
-	; else two known xy-plane angles:
-	(T (min (mod (- dir1 dir2) 360)
-                (mod (- dir2 dir1) 360))))))
+  "return dir of angle between two vector direction terms, NIL if unknown"
+  (let ((dir1 (term-to-dir dir1-term))
+	(dir2 (term-to-dir dir2-term)))
+    (cond ((eq dir1 'zero) nil) ;treat zero vector as unknown direction
+	  ((eq dir2 'zero) nil) 
+	  ;; any zdir (incl z-unknown) orthogonal to any xy-plane dir 
+	  ;; (incl unknown) test this before checking for unknown.
+	  ((and (z-dir-spec dir1) (not (z-dir-spec dir2))) 90)
+	  ((and (z-dir-spec dir2) (not (z-dir-spec dir1))) 90)
+	  ;; else both zdir or both xy-dir, but either may be unknown.
+	  ((or (eq dir1 'z-unknown) (eq dir2 'z-unknown)) NIL) ;can't determine
+	  ((z-dir-spec dir1) (if (eq dir1 dir2) 0 180))
+	  ;; else both xy-dir, but maybe unknown
+	  ((or (eq dir1 'unknown) (eq dir2 'unknown)) NIL) ;can't determine
+	  ;; else two known xy-plane angles:
+	  (T (min (mod (- dir1 dir2) 360)
+		  (mod (- dir2 dir1) 360))))))
 
 ;; For computing cross product direction.
 (defun cross-product-dir (dir-term1 dir-term2)
