@@ -7362,6 +7362,65 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?rot) ))
 
+;;;;===========================================================================
+;;;;
+;;;;   cross product of two vectors
+;;;;
+;;;;===========================================================================
+
+
+;; angle formulation:  only works when direction of cross product
+;; is along an axis
+
+(defoperator cross-using-angle (?a ?b ?compo ?rot)
+  :preconditions 
+  ( (vector ?a-body ?a ?dir-a)
+    (vector ?b-body ?b ?dir-b)
+    (in-wm (variable ?a-var (mag ?a)))
+    (in-wm (variable ?b-var (mag ?b)))
+    (variable ?theta-var (angle-between orderless ?a ?b))
+    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
+    (bind ?dir-axis (axis-dir ?compo ?rot))
+    (bind ?cross (cond
+		((perpendicularp ?dir-cross ?dir-axis) 0)
+		((same-angle ?dir-cross ?dir-axis)
+		 `(* ,?a-var ,?b-var (sin ,?theta-var)))
+		((same-angle ?dir-cross (opposite ?dir-axis))
+		 `(- (* ,?a-var ,?b-var (sin ,?theta-var))))
+		(t nil)))
+    (test ?cross)  ;make sure that direction is along an axis
+    )
+  :effects ( (cross ?cross ?a ?b ?compo ?rot nil) 
+	     ;; nogood rule to so that only one form of cross is chosen
+	     (assume using-cross ?a ?b ?compo ?rot nil) ))
+
+
+;; use vector-PSM
+(defoperator cross-using-components (?a ?b ?compo ?rot)
+  :preconditions 
+  ( 
+   (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
+   (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
+    (variable ?ax (compo x ?rot ?a))
+    (variable ?ay (compo y ?rot ?a))
+    (variable ?az (compo z ?rot ?a))
+    (variable ?bx (compo x ?rot ?b))
+    (variable ?by (compo y ?rot ?b))
+    (variable ?bz (compo z ?rot ?b))
+    (bind ?x-rot (axis-dir 'x ?rot))
+    (bind ?y-rot (axis-dir 'y ?rot))
+    (bind ?z-rot (axis-dir 'z ?rot))
+    (bind ?cross (cond 
+		  ((parallel-or-antiparallelp ?dir-a ?dir-b) 0)
+		  ((eq ?compo 'x) `(- (* ,?ay ,?bz) (* ,?az ,?by)))
+		  ((eq ?compo 'y) `(- (* ,?az ,?bx) (* ,?ax ,?bz)))
+		  ((eq ?compo 'z) `(- (* ,?ax ,?by) (* ,?ay ,?bx))))
+    ))
+  :effects ( (cross ?cross ?a ?b ?compo ?rot t)
+	     ;; nogood rule to so that only one form of cross is chosen
+	     (assume using-cross ?a ?b ?compo ?rot t) ))
+
+
 
 ;;; Following defines a variable for the angle between two vectors
 ;;; for the case where the angle of the two vectors is known.
@@ -7995,6 +8054,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; This operator exactly parallels work, with velocity instead of 
 ;;; displacement.
 ;;;
+
 (defoperator inst-power-contains (?sought)
  :preconditions 
  (
@@ -9910,9 +9970,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
      ;; not known in rotational equilibrium:
      (not (motion ?b ang-at-rest :time ?t-motion) (tinsidep ?t ?t-motion))
-     ;; can't determine as torque on a dipole (see electromagnetism.cl)
-     ;; this is a by-product of using net-torque for torque on a dipole
-     (not  (given (dir (dipole-moment ?b ?torque-type :time ?t)) ?dir-dipole))
       ;; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "NTOR_~A_~A~@[_~A~]" (body-name ?b) ?axis 
                                                  (time-abbrev ?t)))

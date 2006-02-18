@@ -1947,8 +1947,8 @@
 
 ;;  tau_z = p*E*sin(thetaE - thetaP)
 
-(def-psmclass electric-dipole-torque-zc (dipole-torque-zc ?dipole 
-				    (field ?region electric ?source) ?t) 
+(def-psmclass electric-dipole-torque-zc 
+  (dipole-torque ?dipole (field ?region electric ?source) z ?rot ?flag ?t) 
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the ~A on a dipole in an electric field" (moment-name))
   :expformat ((strcat "calculating the z component of the ~A "
@@ -1957,68 +1957,117 @@
   :EqnFormat ((torque-switch "M_z = p*E*sin($qE-$qp)"
 			     "$t_z = p*E*sin($qE-$qp)")))
 
-(def-psmclass magnetic-dipole-torque-zc (dipole-torque-zc ?dipole 
-				    (field ?region magnetic ?source) ?t) 
+(def-psmclass magnetic-dipole-torque-xc 
+  (dipole-torque ?dipole (field ?region magnetic ?source) x ?rot ?flag ?t) 
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the ~A on a dipole in an magnetic field" (moment-name))
+  :expformat ((strcat "calculating the x component of the ~A "
+		      "on ~a ~a due to the magnetic field in ~A")
+	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
+  :EqnFormat ((torque-switch "M_x = $m_y*B_z - $m_z*B_y"
+			     "$t_x = $m_y*B_z - $m_z*B_y")))
+
+(def-psmclass magnetic-dipole-torque-yc
+  (dipole-torque ?dipole (field ?region magnetic ?source) y ?rot ?flag ?t) 
+  :complexity major ; definition, but can be first "principle" for sought
+  :english ("the ~A on a dipole in an magnetic field" (moment-name))
+  :expformat ((strcat "calculating the y component of the ~A "
+		      "on ~a ~a due to the magnetic field in ~A")
+	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
+  :EqnFormat ((torque-switch "M_y = $m_z*B_x - $m_x*B_z"
+			     "$t_y = $m_z*B_x - $m_x*B_z")))
+
+(def-psmclass magnetic-dipole-torque-zc 
+  (dipole-torque ?dipole (field ?region magnetic ?source) z ?rot ?flag ?t) 
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the ~A on a dipole in an magnetic field" (moment-name))
   :expformat ((strcat "calculating the z component of the ~A "
 		      "on ~a ~a due to the magnetic field in ~A")
 	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M_z = $m*B*sin($qB-$q$m)"
-			     "$t_z = $m*B*sin($qB-$q$m)")))
+  :EqnFormat ((torque-switch "M_z = $m*B*sin($qB-$q$m)  OR  M_z = $m_x*B_y - $m_y*B_x"
+			     "$t_z = $m*B*sin($qB-$q$m))  OR  $t_z = $m_x*B_y - $m_y*B_x")))
 
-(defoperator dipole-torque-zc-contains (?sought)
-  :preconditions (
-    (any-member ?sought ( 
-             (compo z 0 (
+
+(defoperator dipole-torque-contains-angle (?sought)
+  :preconditions 
+  (
+   (any-member ?sought 
+	       ( 
+		(compo ?axis ?rot (
+				   ;; Yuck, work-around for missing torque tool
+				   net-torque ?dipole axis
+					      ;; torque ?dipole (field ?region ?type ?source)
+					      :time ?t))
+		(compo mag (field ?region ?type ?source :time ?t))
+		(compo mag (dipole-moment ?dipole ?type :time ?t))
+		(compo dir (field ?region ?type ?source :time ?t))
+		(compo dir (dipole-moment ?dipole ?type :time ?t))
+		))
+   (given-field ?source ?type)
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
+   (axis-for ?dipole ?axis ?rot) ;in case ?compo and ?rot are not bound above
+   )
+  :effects 
+  ( (eqn-contains 
+     (dipole-torque ?dipole (field ?region ?type ?source) ?axis ?rot nil ?t)
+		  ?sought) ))
+
+(defoperator dipole-torque-contains-compo (?sought)
+  :preconditions 
+  (
+   (any-member ?sought 
+	       ( 
+		(compo ?axis ?rot (
+				   ;; Yuck, work-around for missing torque tool
+				   net-torque ?dipole axis
+					      ;; torque ?dipole (field ?region ?type ?source)
+					      :time ?t))
+		(compo ?axis ?rot (field ?region ?type ?source :time ?t))
+		(compo ?axis ?rot (dipole-moment ?dipole ?type :time ?t))
+		))
+   (given-field ?source ?type)
+   (at-place ?dipole ?region ?t-at)
+   (test (tinsidep ?t ?t-at))
+   ;; find axes now, before applying dot product:
+   (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
+   (vector ?dipole (field ?region ?type ?source :time ?t) ?dir-field)
+   (vector ?dipole (
 		    ;; Yuck, work-around for missing torque tool
 		    net-torque ?dipole axis
-		    ;; torque ?dipole (field ?region ?type ?source)
-			        :time ?t))
-             (mag (field ?region ?type ?source :time ?t))
-             (dir (field ?region ?type ?source :time ?t))
-	     (mag (dipole-moment ?dipole ?type :time ?t))
-	     (dir (dipole-moment ?dipole ?type :time ?t))
-	                ))
-    (given-field ?source ?type)
-    (at-place ?dipole ?region ?t-at)
-    (test (tinsidep ?t ?t-at))
-   )
+			       ;; torque ?dipole (field ?region ?type ?source)
+			       :time ?t) ?dir-torque)
+  )
  :effects 
- ( (eqn-contains (dipole-torque-zc ?dipole (field ?region ?type ?source) ?t)
+ ( (eqn-contains (dipole-torque ?dipole 
+				(field ?region ?type ?source) ?axis ?rot t ?t)
 		 ?sought) ))
 
-(defoperator write-dipole-torque-zc (?dipole ?source ?t)
+(defoperator write-dipole-torque (?dipole ?source ?axis ?rot ?flag ?t)
   :preconditions 
-  ( (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dirP)
-    (test (degrees-or-num ?dirP))
-    (vector ?dipole (field ?region ?type ?source :time ?t) ?dirE)
-    (test (degrees-or-num ?dirE))
-    (bind ?torque-dir (torque-zdir (convert-dnum-to-number ?dirE) 
-				   (convert-dnum-to-number ?dirP)))
-    
-    (variable ?tau-zc (compo z 0 (
+  ( 
+   (cross ?cross (dipole-moment ?dipole ?type :time ?t) 
+	  (field ?region ?type ?source :time ?t) ?axis ?rot ?flag)
+    (variable ?tau-zc (compo ?axis ?rot (
 			     net-torque ?dipole axis 
 			     ;; torque ?dipole (field ?region ?type ?source)
 					 :time ?t)))
-    (variable ?E (mag (field ?region ?type ?source :time ?t)))
-    (variable ?theta-E (dir (field ?region ?type ?source :time ?t)))
-    (variable ?p (mag (dipole-moment ?dipole ?type :time ?t)))
-    (variable ?theta-p (dir (dipole-moment ?dipole ?type :time ?t)))
     )
   :effects 
-  ( (eqn (= ?tau-zc (* ?p ?E (sin (- ?theta-E ?theta-p)))) 
-	 (dipole-torque-zc ?dipole (field ?region ?type ?source) ?t))  
+  ( (eqn (= ?tau-zc ?cross)
+	 (dipole-torque ?dipole (field ?region ?type ?source) 
+			?axis ?rot ?flag ?t))
     ;; disallow both component-form and magnitude form in a solution
-    (assume using-compo 
-	    (whatever z 0 (dipole-torque ?dipole 
-					 (field ?region ?type ?source) ?t)))
-    )
+  (assume using-compo 
+	  (compo ?axis ?rot (dipole-torque ?dipole 
+					   (field ?region ?type ?source) ?t)))
+  )
   :hint 
-   ( (point (string "What is the torque produced by ~A due to the ~A field?" ?dipole (?type adj)))
+   ( (point (string "What is the torque produced by ~A due to the ~A field?" 
+		    ?dipole (?type adj)))
      (teach (string "When a a dipole is placed in a field, the field exerts a torque on the dipole."))
      (bottom-out (string "Write the equation ~A" 
-			 ((= ?tau-zc (* ?p ?E (sin (- ?theta-E ?theta-p)))) 
+			 ((= ?tau-zc ?cross) 
 			  algebra)))
   ))
 

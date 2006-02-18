@@ -86,6 +86,13 @@
   :Specs ("Prevents the use of more than form of dot product")
   :message (Only one form of dot for ?a ?b))
 
+(defnogood only-one-form-of-cross
+  ((using-cross ?a ?b ?xyz1 ?rot1 ?flag1)
+   (using-cross ?a ?b ?xyz2 ?rot2 ?flag2)
+   (test (not (and (equal ?flag1 ?flag2) (equal ?rot1 ?rot2)))))
+   :Specs ("Prevents the use of more than form of cross product")
+  :message (Only one form of cross product for ?a ?b))
+
 ;;;
 ;;;  don't use both net-force and explicit versions of Newton's second law
 ;;;
