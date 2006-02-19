@@ -933,7 +933,8 @@
     )
   :effects (
    (draw-axes ?b 0) ; action proposition for help system gives x dir
-   (axis-for ?b x 0) (axis-for ?b y 0) 
+   (axis-for ?b x 0) 
+   (axis-for ?b y 0) 
    (assume axes-for ?b 0)
    ;; added March 2004: also register z axis. 
    ;; Consequences of this for other problems
@@ -954,8 +955,6 @@
 ;; bodies, and need to define compo vars for each via draw-compo2, 
 ;; hence need an axis for each.
 (defoperator reuse-compo-form-axes (?b)
-:effects ( (axis-for ?b x 0) 
-	   (axis-for ?b y 0) )
 :preconditions (
    (component-form)
    (in-wm (draw-axes ?drawn-axes-body 0))
@@ -966,7 +965,10 @@
    ;; use-system-axes will return axes in this case.
    (not (axis-for ?sys . ?dontcare2)
         (part-of-sys ?b ?sys))
-))
+   )
+:effects ( (axis-for ?b x 0) 
+	   (axis-for ?b y 0)
+	   (axis-for ?b z 0) ))
 
 ;; following applies for same purpose when not component-form
 (defoperator reuse-other-body-axes (?b)
@@ -7328,15 +7330,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (test (not (null ?rot)))
    (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
-    (variable ?ax (compo x ?rot ?a))
-    (variable ?ay (compo y ?rot ?a))
-    (variable ?az (compo z ?rot ?a))
-    (variable ?bx (compo x ?rot ?b))
-    (variable ?by (compo y ?rot ?b))
-    (variable ?bz (compo z ?rot ?b))
     (bind ?x-rot (axis-dir 'x ?rot))
     (bind ?y-rot (axis-dir 'y ?rot))
     (bind ?z-rot (axis-dir 'z ?rot))
+    (test (or (perpendicularp ?dir-a ?z-rot)
+	       (perpendicularp ?dir-b ?z-rot)))
+    (variable ?ax (compo x ?rot ?a))
+    (variable ?ay (compo y ?rot ?a))
+    (variable ?bx (compo x ?rot ?b))
+    (variable ?by (compo y ?rot ?b))
     (bind ?dot (cond
 		;; same behavior as dot-using-angle for orthogonal vectors 
 		((perpendicularp ?dir-a ?dir-b) 0)
@@ -7348,16 +7350,32 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		((or (parallel-or-antiparallelp ?dir-a ?y-rot) 
 		     (parallel-or-antiparallelp ?dir-b ?y-rot))
 		 `(* ,?ay ,?by))
-		;; a vector is parallel or anti-parallel to the z-axis
-		((or (parallel-or-antiparallelp ?dir-a ?z-rot) 
-		     (parallel-or-antiparallelp ?dir-b ?z-rot))
-		 `(* ,?az ,?bz))
-		;; vector is in xy-plane
-		((or (perpendicularp ?dir-a ?z-rot)
-		      (perpendicularp ?dir-b ?z-rot))
-		 `(+ (* ,?ax ,?bx) (* ,?ay ,?by)))
-		(t `(+ (* ,?ax ,?bx) (* ,?ay ,?by) (* ,?az ,?bz)))))
+		(t `(+ (* ,?ax ,?bx) (* ,?ay ,?by)))))
     )
+  :effects ( (dot ?dot ?a ?b ?rot)
+	     ;; nogood rule to so that only one form of dot is chosen
+	     (assume using-dot ?a ?b ?rot) ))
+
+(defoperator dot-using-components-z (?a ?b ?rot)
+  :preconditions 
+  ( 
+   (test (not (null ?rot)))
+   (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
+   (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
+   (bind ?z-rot (axis-dir 'z ?rot))
+   (test (not (or (perpendicularp ?dir-a ?z-rot)
+		  (perpendicularp ?dir-b ?z-rot))))
+   (variable ?az (compo z ?rot ?a))
+   (variable ?bz (compo z ?rot ?b))
+   (bind ?dot (cond
+	       ;; same behavior as dot-using-angle for orthogonal vectors 
+	       ((perpendicularp ?dir-a ?dir-b) 0)
+		;; a vector is parallel or anti-parallel to the z-axis
+	       ((or (parallel-or-antiparallelp ?dir-a ?z-rot) 
+		    (parallel-or-antiparallelp ?dir-b ?z-rot))
+		`(* ,?az ,?bz))
+	       (t (error "mixed vectors not working yet"))))
+   )
   :effects ( (dot ?dot ?a ?b ?rot)
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?rot) ))
