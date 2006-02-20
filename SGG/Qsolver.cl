@@ -329,7 +329,7 @@
       ;; Signalling a cerror if they do not.
       (if (not (equal-sets (qsolres-subeqns R) (qsolres-subeqns G)))
 	  (cerror "Continue and merge paths." 
-		  "differences in PSMs~%    subeqns only in first: ~S~%    subeqns only in second: ~S~%" 
+		  "differences in given PSMs~%    subeqns only in first: ~S~%    subeqns only in second: ~S~%" 
 		  (set-difference (qsolres-subeqns R) (qsolres-subeqns G) 
 				  :test #'unify)
 		  (set-difference (qsolres-subeqns G) (qsolres-subeqns R) 

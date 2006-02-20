@@ -1881,7 +1881,7 @@
    :preconditions (
    (any-member ?sought (
 			(mag (
-			 ;; Yuck, work-around for missing torque tool
+			 ;; Yuck, work-around for missing torque tool, Bug #773
 			 net-torque ?dipole axis
 			 ;; torque ?dipole (field ?region ?type ?source)
 				     :time ?t))
@@ -1918,7 +1918,7 @@
    :preconditions 
    (
     (variable ?tau-var (mag (
-			;; Yuck, work-around for missing torque tool
+			;; Yuck, work-around for missing torque tool, Bug #773
 			net-torque ?dipole axis
 			;; torque ?dipole (field ?region ?type ?source)
 				    :time ?t)))
@@ -1994,7 +1994,7 @@
    (any-member ?sought 
 	       ( 
 		(compo ?axis ?rot (
-				   ;; Yuck, work-around for missing torque tool
+				   ;; Yuck, work-around for missing torque tool, Bug #773
 				   net-torque ?dipole axis
 					      ;; torque ?dipole (field ?region ?type ?source)
 					      :time ?t))
@@ -2019,7 +2019,7 @@
    (any-member ?sought 
 	       ( 
 		(compo ?axis ?rot (
-				   ;; Yuck, work-around for missing torque tool
+				   ;; Yuck, work-around for missing torque tool, Bug #773
 				   net-torque ?dipole axis
 					      ;; torque ?dipole (field ?region ?type ?source)
 					      :time ?t))
@@ -2033,7 +2033,7 @@
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
    (vector ?dipole (field ?region ?type ?source :time ?t) ?dir-field)
    (vector ?dipole (
-		    ;; Yuck, work-around for missing torque tool
+		    ;; Yuck, work-around for missing torque tool, Bug #773
 		    net-torque ?dipole axis
 			       ;; torque ?dipole (field ?region ?type ?source)
 			       :time ?t) ?dir-torque)
