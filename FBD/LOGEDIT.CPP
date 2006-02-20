@@ -14,6 +14,7 @@
 #include "LogEdit.h"
 #include "history.h"
 #include "Lgdialog.h"
+#include "GreekOpts.h" // for LogRichCombo
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -304,6 +305,94 @@ int CLogCombo::SelectStringExact(CString strFind )
 		return SetCurSel(nIndex);
 	return -1;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+// CLogRichCombo -- Logging combo enabling Greek text in items
+//
+// duplicates owner-draw handling code from CRichCombo
+
+CLogRichCombo::CLogRichCombo()
+{
+}
+
+CLogRichCombo::~CLogRichCombo()
+{
+}
+
+BEGIN_MESSAGE_MAP(CLogRichCombo, CComboBox)
+	//{{AFX_MSG_MAP(CLogRichCombo)
+		// NOTE - the ClassWizard will add and remove mapping macros here.
+	//}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+/////////////////////////////////////////////////////////////////////////////
+// CLogRichCombo message handlers
+
+void CLogRichCombo::MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct) 
+{
+	lpMeasureItemStruct->itemHeight = 16;
+	
+}
+
+// state codes passed to DrawDropList:
+static const UINT IS_NORMAL =	0x1000;
+static const UINT IS_HIGHLIGHTED =	0x1001;
+
+void CLogRichCombo::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) 
+{
+	if (lpDrawItemStruct->itemID >= 20)
+		return;
+
+	BOOL bFocus = (lpDrawItemStruct->itemAction & ODA_FOCUS);
+	BOOL bSelected = (lpDrawItemStruct->itemState & ODS_SELECTED);
+
+	if (bSelected)
+		DrawDropList(lpDrawItemStruct, IS_HIGHLIGHTED);
+	else
+		DrawDropList(lpDrawItemStruct, IS_NORMAL);	
+}
+
+void CLogRichCombo::DrawDropList(LPDRAWITEMSTRUCT lpdis, UINT nState)
+{
+	CDC* pDC = CDC::FromHandle(lpdis->hDC);
+	CRect rcItem(lpdis->rcItem);
+
+	switch (nState){
+	case IS_HIGHLIGHTED:
+		pDC->SetTextColor(::GetSysColor(COLOR_HIGHLIGHTTEXT));
+		pDC->SetBkColor(::GetSysColor(COLOR_HIGHLIGHT));
+		pDC->FillRect(&lpdis->rcItem, &CBrush(::GetSysColor(COLOR_HIGHLIGHT)) );
+		if (lpdis->itemID >=0)
+			OnDrawThisText(pDC, rcItem, lpdis->itemID);
+		pDC->DrawFocusRect(&rcItem);
+
+		break;
+
+	case IS_NORMAL:
+		pDC->SetTextColor(::GetSysColor(COLOR_WINDOWTEXT));
+		pDC->SetBkColor(::GetSysColor(COLOR_WINDOW));
+		pDC->FillRect(&lpdis->rcItem, &CBrush(::GetSysColor(COLOR_WINDOW)) );
+
+		if (lpdis->itemID >=0)
+			OnDrawThisText(pDC, rcItem, lpdis->itemID);
+
+		break;
+	}
+}
+
+CRect CLogRichCombo::OnDrawThisText(CDC* pDC, CRect rcItem, int itemID)
+{
+	CRect rcText = rcItem;
+	CRect rcBorder = rcItem;
+	rcText.SetRect(rcText.left+3, rcText.top, rcText.right-3, rcText.bottom);
+	rcBorder.SetRect(rcItem.left+1, rcItem.top, rcItem.right-1, rcItem.bottom);
+
+	CString str;
+	GetLBText(itemID, str);
+	return CGreekText::DrawText(pDC, rcText, str);
+
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CLogList
 IMPLEMENT_DYNAMIC(CLogList, CListBox)

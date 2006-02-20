@@ -21,8 +21,8 @@ public:
 	//{{AFX_DATA(CAngleDlg)
 	enum { IDD = IDD_ANGLE };
 	CStatic	m_stcDirLabel;
-	CLogCombo	m_cboSide1;
-	CLogCombo	m_cboSide2;
+	CLogRichCombo	m_cboSide1;
+	CLogRichCombo	m_cboSide2;
 	CLogBtn		m_btnOK;
 	CLogBtn		m_btnCancel;
 	CLabelRichEdit m_ctrlName;

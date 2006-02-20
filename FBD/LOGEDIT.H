@@ -1,7 +1,7 @@
 // 
 // LogEdit.h : definition file for our log-aware control classes
 // 
-// $Id: LOGEDIT.H,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: LOGEDIT.H,v 1.3 2006/02/20 22:19:43 anders Exp $
 //
 // We use MFC subclassed control classes which are instrumented to log significant
 // events to the app's log file by catching reflected control notifications.
@@ -164,6 +164,37 @@ protected:
 	afx_msg BOOL OnSetfocus();
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	//}}AFX_MSG
+
+	DECLARE_MESSAGE_MAP()
+};
+
+// Variant using owner-draw to render Greek text in choice items.
+// Code copied from CRichCombo, which doesn't do logging.
+class CLogRichCombo : public CLogCombo
+{
+// Construction
+public:
+	CLogRichCombo();
+
+// Overrides
+	// ClassWizard generated virtual function overrides
+	//{{AFX_VIRTUAL(CLogRichCombo)
+	public:
+	virtual void MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct);
+	virtual void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
+	//}}AFX_VIRTUAL
+
+// Implementation
+public:	
+	void	DrawDropList(LPDRAWITEMSTRUCT lpdis, UINT nState);
+	CRect	OnDrawThisText(CDC* pDC, CRect rcItem, int itemID);
+
+	virtual ~CLogRichCombo();
+
+	// Generated message map functions
+protected:
+	//{{AFX_MSG(CLogRichCombo)
 	//}}AFX_MSG
 
 	DECLARE_MESSAGE_MAP()
