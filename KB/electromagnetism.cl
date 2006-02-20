@@ -1947,46 +1947,45 @@
 
 ;;  tau_z = p*E*sin(thetaE - thetaP)
 
-(def-psmclass electric-dipole-torque-zc 
-  (dipole-torque ?dipole (field ?region electric ?source) z ?rot ?flag ?t) 
+(def-psmclass electric-dipole-torque 
+  (dipole-torque ?dipole (field ?region electric ?source) ?axis ?rot ?flag ?t) 
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the ~A on a dipole in an electric field" (moment-name))
-  :expformat ((strcat "calculating the z component of the ~A "
+  :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the electric field in ~A")
-	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M_z = p*E*sin($qE-$qp)"
-			     "$t_z = p*E*sin($qE-$qp)")))
+	      (nlg ?axis 'adj) (moment-name) (nlg ?dipole) (nlg ?t 'pp) 
+	      (nlg ?region))
+  :EqnFormat ((electric-dipole-equation ?axis)))
 
-(def-psmclass magnetic-dipole-torque-xc 
-  (dipole-torque ?dipole (field ?region magnetic ?source) x ?rot ?flag ?t) 
+(defun electric-dipole-equation (xyz)
+  (cond ((eq xyz 'x) (torque-switch "M_x = p_y*E_z - p_z*E_y"
+				    "$t_x = p_y*E_z - p_z*E_y"))
+	((eq xyz 'y) (torque-switch "M_y = p_z*E_x - p_x*E_z"
+				    "$t_y = p_z*E_x - p_x*E_z"))
+	((eq xyz 'z) 
+	 (torque-switch 
+	  "M_z = p*E*sin($qE-$qp)  OR  M_z = p_x*E_y - p_y*E_x"
+	  "$t_z = p*E*sin($qE-$qp))  OR  $t_z = p_x*E_y - p_y*E_x"))))
+
+(def-psmclass magnetic-dipole-torque 
+  (dipole-torque ?dipole (field ?region magnetic ?source) ?axis ?rot ?flag ?t) 
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the ~A on a dipole in an magnetic field" (moment-name))
-  :expformat ((strcat "calculating the x component of the ~A "
+  :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the magnetic field in ~A")
-	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M_x = $m_y*B_z - $m_z*B_y"
-			     "$t_x = $m_y*B_z - $m_z*B_y")))
+	      (nlg ?axis 'adj) (moment-name) (nlg ?dipole) (nlg ?t 'pp) 
+	      (nlg ?region))
+  :EqnFormat ((magnetic-dipole-equation ?axis)))
 
-(def-psmclass magnetic-dipole-torque-yc
-  (dipole-torque ?dipole (field ?region magnetic ?source) y ?rot ?flag ?t) 
-  :complexity major ; definition, but can be first "principle" for sought
-  :english ("the ~A on a dipole in an magnetic field" (moment-name))
-  :expformat ((strcat "calculating the y component of the ~A "
-		      "on ~a ~a due to the magnetic field in ~A")
-	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M_y = $m_z*B_x - $m_x*B_z"
-			     "$t_y = $m_z*B_x - $m_x*B_z")))
-
-(def-psmclass magnetic-dipole-torque-zc 
-  (dipole-torque ?dipole (field ?region magnetic ?source) z ?rot ?flag ?t) 
-  :complexity major ; definition, but can be first "principle" for sought
-  :english ("the ~A on a dipole in an magnetic field" (moment-name))
-  :expformat ((strcat "calculating the z component of the ~A "
-		      "on ~a ~a due to the magnetic field in ~A")
-	      (moment-name) (nlg ?dipole) (nlg ?t 'pp) (nlg ?region))
-  :EqnFormat ((torque-switch "M_z = $m*B*sin($qB-$q$m)  OR  M_z = $m_x*B_y - $m_y*B_x"
-			     "$t_z = $m*B*sin($qB-$q$m))  OR  $t_z = $m_x*B_y - $m_y*B_x")))
-
+(defun magnetic-dipole-equation (xyz)
+  (cond ((eq xyz 'x) (torque-switch "M_x = $m_y*B_z - $m_z*B_y"
+				    "$t_x = $m_y*B_z - $m_z*B_y"))
+	((eq xyz 'y) (torque-switch "M_y = $m_z*B_x - $m_x*B_z"
+				    "$t_y = $m_z*B_x - $m_x*B_z"))
+	((eq xyz 'z) 
+	 (torque-switch 
+	  "M_z = $m*B*sin($qB-$q$m)  OR  M_z = $m_x*B_y - $m_y*B_x"
+	  "$t_z = $m*B*sin($qB-$q$m))  OR  $t_z = $m_x*B_y - $m_y*B_x"))))
 
 (defoperator dipole-torque-contains-angle (?sought)
   :preconditions 
