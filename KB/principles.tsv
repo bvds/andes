@@ -114,7 +114,7 @@ LEAF	p = abs(q)*r        electric dipole moment (magnitude)	electric-dipole-mome
 LEAF	p_x = q*r_x        electric dipole moment (x component)	(electric-dipole-moment ((?axis . x)))	Dipoles
 LEAF	p_y = q*r_y        electric dipole moment (y component)	(electric-dipole-moment ((?axis . y)))	Dipoles
 LEAF	$t = p*E*sin($q)        torque for electric dipole (magnitude)	electric-dipole-torque-mag	Dipoles
-LEAF	$t_z = p_x*E_y - p_y*E_x  OR  $t_z = p*E*sin($qE-$qp)  torque for electric dipole (z component)	electric-dipole-torque-zc	Dipoles
+LEAF	$t_z = p_x*E_y - p_y*E_x  OR  $t_z = p*E*sin($qE-$qp)  torque for electric dipole (z component)	(electric-dipole-torque ((?axis . z)))	Dipoles
 LEAF	Ud = -p.E   [Ud = -p*E*cos($q) or Ud = -(p_x*E_x+p_y*E_y]         potential energy of electric dipole	electric-dipole-energy	Dipoles
 LEAF	F = abs(q)*v*B*sin($q)         Magnetic force (magnitude)	charge-force-Bfield-mag	Magnetic Field
 LEAF	F_x = q*(v_y*B_z - v_z*B_y)   Magnetic force (x component)	charge-force-Bfield-x	Magnetic Field
@@ -133,9 +133,9 @@ LEAF	$m = N*I*A        magnetic dipole moment (magnitude)	magnetic-dipole-moment
 LEAF	$m_x = N*I*A*n_x        magnetic dipole moment (x component)	(magnetic-dipole-moment ((?axis . x)))	Dipoles
 LEAF	$M_y = N*I*A*n_y        magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles
 LEAF	$t = $m*B*sin($q)        torque for magnetic dipole (magnitude)	magnetic-dipole-torque-mag	Dipoles
-LEAF	$t_x = $m_y*B_z - $m_z*B_y  torque for magnetic dipole (x component)	magnetic-dipole-torque-xc	Dipoles
-LEAF	$t_y = $m_z*B_x - $m_x*B_z  torque for magnetic dipole (y component)	magnetic-dipole-torque-yc	Dipoles
-LEAF	$t_z = $m_x*B_y - $m_y*B_x  OR  $t_z = $m*B*sin($qB-$q$m)  torque for magnetic dipole (z component)	magnetic-dipole-torque-zc	Dipoles
+LEAF	$t_x = $m_y*B_z - $m_z*B_y  torque for magnetic dipole (x component)	(magnetic-dipole-torque ((?axis . x)))	Dipoles
+LEAF	$t_y = $m_z*B_x - $m_x*B_z  torque for magnetic dipole (y component)	(magnetic-dipole-torque ((?axis . y)))	Dipoles
+LEAF	$t_z = $m_x*B_y - $m_y*B_x  OR  $t_z = $m*B*sin($qB-$q$m)  torque for magnetic dipole (z component)	(magnetic-dipole-torque ((?axis . z)))	Dipoles
 LEAF	Ud = -$m.B   [Ud = -$m*B*cos($q) or Ud = -($m_x*B_x+$m_y*B_y]         potential energy of magnetic dipole	magnetic-dipole-energy	Dipoles
 END_GROUP			
 GROUP	DC Circuits		
