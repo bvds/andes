@@ -124,8 +124,8 @@ LEAF	F = I*L*sin($q)               Magnetic force on a wire (magnitude)	current-
 LEAF	B = $m0*I/(2*$p*r)            Magnetic field of a straight wire	straight-wire-Bfield	
 LEAF	B = $m0*N*I/(2*r)            Magnetic field at center of a coil	center-coil-Bfield	
 LEAF	B = $m0*n*I            Magnetic field inside a long solenoid	inside-solenoid-Bfield	
-LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	Magnetic Field
-LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	Magnetic Field
+LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	
+LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	
 LEAF	$Fb = A*B.n   [$Fb = A*B*cos($q) or $Fb = A*(B_x*n_x+B_y*n_y)]        magnetic flux (constant field)	magnetic-flux-constant-field	
 LEAF	d$Fb/dt = B.n*dA/dt        the rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	
 LEAF	V = -d$Fb/dt                          Faraday's law	faradays-law	
@@ -173,8 +173,8 @@ LEAF	I0 = Vb/R                 LR decay initial current	LR-decay-Imax	LR Circuit
 LEAF	$w = 1/sqrt(L*C)                   LC angular frequency	LC-angular-frequency	LC Circuits
 LEAF	$t = 2*L/R                       RLC time constant	RLC-time-constant	RLC Circuits
 LEAF	$w = sqrt(1/(L*C)-R^2/(2*L)^2)       RLC angular frequency	RLC-angular-frequency	RLC Circuits
-LEAF	V1/N1 = V2/N2                   transformer voltage relation	transformer-voltage	Inductance
-LEAF	P1 = P2                   transformer power relation	transformer-power	Inductance
+LEAF	V1/N1 = V2/N2                   transformer voltage relation	transformer-voltage	
+LEAF	P1 = P2                   transformer power relation	transformer-power	
 END_GROUP			
 END_GROUP			
 GROUP	Optics		
