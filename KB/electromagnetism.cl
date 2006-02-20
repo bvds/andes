@@ -1579,13 +1579,13 @@
 		 (dir (dipole-moment ?current-loop magnetic :time ?t)))
    (given (dir (dipole-moment ?current-loop magnetic :time ?t)) ?dir)
    )  
-  :hint (
-	 (point (string "What is the direction of the unit vector normal to ~A?  What does this tell you about the magnetic dipole moment?" 
-			?surface))
-	 (teach (string "The magnetic dipole moment vector for a loop of current points in the same direction as the unit normal to the surface inside the loop."))
-         (bottom-out (string "Use the magnetic dipole moment drawing tool (labeled $m) to draw the magnetic dipole moment of ~a in the given direction of ~A." 
-			     ?current-loop ?dir))
-         ))
+  :hint 
+  ( (point (string "What is the direction of ~A?  What does this tell you about the magnetic dipole moment?" 
+		   ((unit-vector normal-to ?surface :time ?t) def-np)))
+    (teach (string "The magnetic dipole moment vector for a loop of current is given by the following right hand rule:  the fingers curl around the loop in the direction of the current and the extended thumb points in the direction of $m."))
+    (bottom-out (string "Use the magnetic dipole moment drawing tool (labeled $m) to draw the magnetic dipole moment of ~a in the given direction of ~A." 
+			?current-loop ?dir))
+    ))
 
 ;;;             The electric dipole moment of two charges
 
