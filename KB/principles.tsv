@@ -120,15 +120,15 @@ LEAF	F = abs(q)*v*B*sin($q)         Magnetic force (magnitude)	charge-force-Bfie
 LEAF	F_x = q*(v_y*B_z - v_z*B_y)   Magnetic force (x component)	charge-force-Bfield-x	Magnetic Field
 LEAF	F_y = q*(v_z*B_x - v_x*B_z)   Magnetic force (y component)	charge-force-Bfield-y	Magnetic Field
 LEAF	F_z = q*(v_x*B_y - v_y*B_x)   Magnetic force (z component)	charge-force-Bfield-z	Magnetic Field
-LEAF	F = I*L*sin($q)               Magnetic force on a wire (magnitude)	current-force-Bfield-mag	Magnetic Field
-LEAF	B = $m0*I/(2*$p*r)            Magnetic field of a straight wire	straight-wire-Bfield	Magnetic Field
-LEAF	B = $m0*N*I/(2*r)            Magnetic field at center of a coil	center-coil-Bfield	Magnetic Field
-LEAF	B = $m0*n*I            Magnetic field inside a long solenoid	inside-solenoid-Bfield	Magnetic Field
+LEAF	F = I*L*sin($q)               Magnetic force on a wire (magnitude)	current-force-Bfield-mag	
+LEAF	B = $m0*I/(2*$p*r)            Magnetic field of a straight wire	straight-wire-Bfield	
+LEAF	B = $m0*N*I/(2*r)            Magnetic field at center of a coil	center-coil-Bfield	
+LEAF	B = $m0*n*I            Magnetic field inside a long solenoid	inside-solenoid-Bfield	
 LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield ((?axis . x)))	Magnetic Field
 LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	Magnetic Field
-LEAF	$Fb = A*B.n   [$Fb = A*B*cos($q) or $Fb = A*(B_x*n_x+B_y*n_y)]        magnetic flux (constant field)	magnetic-flux-constant-field	Magnetic Field
-LEAF	d$Fb/dt = B.n*dA/dt        the rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	Magnetic Field
-LEAF	V = -d$Fb/dt                          Faraday's law	faradays-law	Magnetic Field
+LEAF	$Fb = A*B.n   [$Fb = A*B*cos($q) or $Fb = A*(B_x*n_x+B_y*n_y)]        magnetic flux (constant field)	magnetic-flux-constant-field	
+LEAF	d$Fb/dt = B.n*dA/dt        the rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	
+LEAF	V = -d$Fb/dt                          Faraday's law	faradays-law	
 LEAF	$m = N*I*A        magnetic dipole moment (magnitude)	magnetic-dipole-moment-mag	Dipoles
 LEAF	$m_x = N*I*A*n_x        magnetic dipole moment (x component)	(magnetic-dipole-moment ((?axis . x)))	Dipoles
 LEAF	$M_y = N*I*A*n_y        magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles
