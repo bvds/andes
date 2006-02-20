@@ -323,13 +323,13 @@
 		     (electric `(electric-energy ,body-term ,body2-term :time ,time-term))
 		     (gravitational `(grav-energy ,body-term ,body2-term :time ,time-term))
 		     (elastic   `(spring-energy ,body-term ,body2-term :time ,time-term))
-		     ; nuisance: for dipoles we have to construct relevant field term from
-		     ; specified body and type. 
+		     ;; nuisance: for dipoles we have to construct relevant field term from
+		     ;; specified body and type. 
 		     (electric-dipole `(dipole-energy ,body-term 
 		                           ,(find-dipole-field body-term 'electric)
 					   :time ,time-term))
 		     (magnetic-dipole `(dipole-energy ,body-term 
-		                           ,(find-dipole-field body-term 'electric)
+		                           ,(find-dipole-field body-term 'magnetic)
 					   :time ,time-term))
 
 		     ;; old style: same subtype was sent for all types of P.E:

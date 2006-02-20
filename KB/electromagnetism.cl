@@ -1505,7 +1505,7 @@
 	   ;; eqn gets written.  Given value may not be used elsewhere so 
 	   ;; ensure it here.
 	   (implicit-eqn (= ?dir-var ?angle-value) 
-			 (dir (dipole-moment ?dipole electric :time ?t)))
+			 (dir (dipole-moment ?dipole ?type :time ?t)))
 	   )  
   :hint
   ((point (string "The problem specifies the direction of the ~A dipole moment of ~a ~a." 
@@ -2197,19 +2197,21 @@
   :effects ( (ee-var ?dipole ?t ?var) ))
 
 (def-psmclass electric-dipole-energy 
-  (dipole-energy ?dipole (field ?region electric . ?whatever) ?time ?dot-type)
+  (dipole-energy ?dipole (field ?region electric . ?rest) ?time ?dot-type)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of the energy of a dipole in an electric field")
   :expformat ("calculating the energy of ~a in ~A" 
-	      (nlg ?dipole) (nlg ?field 'at-time ?time))
+	      (nlg ?dipole) 
+	      (nlg (set-time `(field ,?region electric ,@?rest) ?time)))
   :EqnFormat ("U = -p*E*cos($qp - $qE) OR U = -(p_x*E_x + p_y*E_y)"))
 
 (def-psmclass magnetic-dipole-energy 
-  (dipole-energy ?dipole (field ?region magnetic . ?whatever) ?time ?dot-type)
+  (dipole-energy ?dipole (field ?region magnetic . ?rest) ?time ?dot-type)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of the energy of a dipole in a magnetic field")
   :expformat ("calculating the energy of ~a in ~A" 
-	      (nlg ?dipole) (nlg ?field 'at-time ?time))
+	      (nlg ?dipole) 
+	      (nlg (set-time `(field ,?region magnetic ,@?rest) ?time)))
   :EqnFormat ("U = -$m*B*cos($q$m - $qB) OR U = -($m_x*B_x + $m_y*B_y)"))
 
 (defoperator dipole-energy-contains (?sought)
@@ -2266,7 +2268,7 @@
    (axis-for ?dipole x ?rot) 
    )
   :effects 
-  ((eqn-contains (dipole-energy ?dipole (field ?region electric ?source) 
+  ((eqn-contains (dipole-energy ?dipole (field ?region ?type ?source) 
 				?t ?rot) ?sought)
    (assume axes-for ?dipole ?rot)
  ))
