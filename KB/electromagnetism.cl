@@ -2200,7 +2200,7 @@
   (dipole-energy ?dipole (field ?region electric . ?whatever) ?time ?dot-type)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of the energy of a dipole in an electric field")
-  :expformat ("calculating the energy of ~a in ~A ~A" 
+  :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) (nlg ?field 'at-time ?time))
   :EqnFormat ("U = -p*E*cos($qp - $qE) OR U = -(p_x*E_x + p_y*E_y)"))
 
@@ -2208,7 +2208,7 @@
   (dipole-energy ?dipole (field ?region magnetic . ?whatever) ?time ?dot-type)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of the energy of a dipole in a magnetic field")
-  :expformat ("calculating the energy of ~a in ~A ~A" 
+  :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) (nlg ?field 'at-time ?time))
   :EqnFormat ("U = -$m*B*cos($q$m - $qB) OR U = -($m_x*B_x + $m_y*B_y)"))
 
