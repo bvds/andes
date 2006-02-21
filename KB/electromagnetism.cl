@@ -3221,7 +3221,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg '(flux ?surface electric :time ?time)))
+	      (nlg `(flux ,?surface electric :time ,?time)))
   :EqnFormat ("$Fe = A*E*cos($qE - $qn) OR $Fe = A*(E_x*n_x + E_y*n_y)"))
 
 (def-psmclass magnetic-flux-constant-field
@@ -3229,7 +3229,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg '(flux ?surface magnetic :time ?time)))
+	      (nlg `(flux ,?surface magnetic :time ,?time)))
   :EqnFormat ("$Fb = A*B*cos($qB - $qn) OR $Fb = A*(B_x*n_x + B_y*n_y)"))
 
 (defoperator flux-constant-field-angle-contains (?sought)
@@ -3310,7 +3310,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the time derivative of the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg '(rate-of-change (flux ?surface electric :time ?time))))
+	      (nlg `(rate-of-change (flux ,?surface electric :time ,?time))))
   :EqnFormat ("d$Fe/dt = E.n*dA/dt"))
 
 (def-psmclass magnetic-flux-constant-field-change
@@ -3318,7 +3318,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the time derivative of the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg '(rate-of-change (flux ?surface magnetic :time ?time))))
+	      (nlg `(rate-of-change (flux ,?surface magnetic :time ,?time))))
   :EqnFormat ("d$Fb/dt = B.n*dA/dt"))
 
 (defoperator flux-constant-field-change-angle-contains (?sought)
