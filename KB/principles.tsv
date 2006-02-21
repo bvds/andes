@@ -44,7 +44,7 @@ LEAF	$t_z = r*F*sin($qF-$qr)  torque defined (z component)	torque-zc	Individual 
 LEAF	$tnet_z = $S $ti_z       Net torque defined	net-torque-zc	Net torque
 END_GROUP			
 END_GROUP			
-GROUP	"Work, Energy and Power"		
+GROUP	Work Energy and Power		
 LEAF	W = F.d  [W = F*d*cos($q) or W = F_x*d_x + F_y*d_y]   work defined	work	Work done by a force
 LEAF	Wnet = $S Wi            Net work defined	net-work	Net work
 LEAF	Wnet = Kf - Ki         work-energy theorem	work-energy	Work-Energy
@@ -131,7 +131,7 @@ LEAF	d$Fb/dt = B.n*dA/dt        the rate of change in magnetic flux (constant fi
 LEAF	V = -d$Fb/dt                          Faraday's law	faradays-law	
 LEAF	$m = N*I*A        magnetic dipole moment (magnitude)	magnetic-dipole-moment-mag	Dipoles
 LEAF	$m_x = N*I*A*n_x        magnetic dipole moment (x component)	(magnetic-dipole-moment ((?axis . x)))	Dipoles
-LEAF	$M_y = N*I*A*n_y        magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles
+LEAF	$m_y = N*I*A*n_y        magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles
 LEAF	$t = $m*B*sin($q)        torque for magnetic dipole (magnitude)	magnetic-dipole-torque-mag	Dipoles
 LEAF	$t_x = $m_y*B_z - $m_z*B_y  torque for magnetic dipole (x component)	(magnetic-dipole-torque ((?axis . x)))	Dipoles
 LEAF	$t_y = $m_z*B_x - $m_x*B_z  torque for magnetic dipole (y component)	(magnetic-dipole-torque ((?axis . y)))	Dipoles
