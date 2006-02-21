@@ -7576,8 +7576,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; ensure it here.
    (implicit-eqn (= ?dir-var ?angle-value) 
 		 (dir (unit-vector ?orientation ?body :at ?loc :time ?t)))
-   (implicit-eqn (= ?mag-var 1) 
-		 (unit-vector-mag ?orientation ?body :at ?loc :time ?t))
    )  
   :hint 
   ( (point (string "You can draw ~A?" 
@@ -7585,6 +7583,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
        (bottom-out (string "Use the unit vector drawing tool (labeled n) to draw a unit vector in the direction ~A." 
 			   ?dir))))
 
+;; It would be better for this to be an effect of the drawing rule itself
+;; since drawing a unit vector entails it having unit length.
+;; However, setting n=1 via implicit equation does not work.
 (def-psmclass unit-vector-mag (unit-vector-mag . ?args)
   :complexity definition
   :english ("the length of a unit vector")
@@ -7597,12 +7598,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 
 (defoperator write-unit-vector-mag (?args)
-  :preconditions ((variable  ?n (mag (unit-vector . ?args))) )
-  :effects ( (eqn  (= ?n 1) (unit-vector-mag . ?args)) )
-  :hint (
-	 (hint (string "What is the length of a unit vector?"))
-	 (bottom-out (string "Write the equation ~A" ((= ?n 1.0)  algebra) ))
-	 ))
+  :preconditions ((variable ?n (mag (unit-vector . ?args))) )
+  :effects ( (eqn (= ?n 1) (unit-vector-mag . ?args)) )
+  :hint ( (point (string "What is the length of a unit vector?"))
+	 (bottom-out (string "Write the equation ~A" ((= ?n 1)  algebra) )) ))
 
 ;;;
 ;;; Following defines a variable for the work done by a force agent
