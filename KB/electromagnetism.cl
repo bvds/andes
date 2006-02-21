@@ -3217,7 +3217,7 @@
  ))
 
 (def-psmclass electric-flux-constant-field
-  (flux-constant-field ?surface electric ?field ?time ?rot)
+  (flux-constant-field ?surface electric ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
