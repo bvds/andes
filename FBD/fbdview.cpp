@@ -5398,10 +5398,12 @@ CDrawObj* CFBDView::CreateNew(LPCSTR pszTypeName)
 		strType = strType.Mid(4);
 
 	if (strType == "Body") return new CSystem();
+	// For vectors, type name comes from CVector::GetTypeName. !!!Centralize table 
 	else if (strType == "Force" || strType == "Velocity" || strType == "Acceleration" 
 		    || strType == "Component" || strType == "Displacement" || strType == "Momentum"
 			|| strType == "Position" || strType == "Torque" || strType == "Relative-Vel"
-			|| strType == "Impulse") 
+			|| strType == "Impulse" || strType == "E-field" || strType == "B-field"
+			|| strType == "Unit-Vector" || strType == "Mag-dipole" || strType == "Elec-dipole") 
 		return new CVector();
 	else if (strType == "Axes") return new CAxes();
 	else if (strType == "Angle") return new CAngle();

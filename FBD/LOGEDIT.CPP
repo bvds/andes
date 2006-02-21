@@ -319,7 +319,7 @@ CLogRichCombo::~CLogRichCombo()
 {
 }
 
-BEGIN_MESSAGE_MAP(CLogRichCombo, CComboBox)
+BEGIN_MESSAGE_MAP(CLogRichCombo, CLogCombo)
 	//{{AFX_MSG_MAP(CLogRichCombo)
 		// NOTE - the ClassWizard will add and remove mapping macros here.
 	//}}AFX_MSG_MAP
