@@ -7578,18 +7578,19 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		 (dir (unit-vector ?orientation ?body :at ?loc :time ?t)))
    )  
   :hint 
-  ( (point (string "You can draw ~A?" 
+  ( (point (string "You can draw ~A" 
 		   ((unit-vector ?orientation ?body :at ?loc :time ?t) def-np)))
        (bottom-out (string "Use the unit vector drawing tool (labeled n) to draw a unit vector in the direction ~A." 
 			   ?dir))))
 
 ;; It would be better for this to be an effect of the drawing rule itself
 ;; since drawing a unit vector entails it having unit length.
-;; However, setting n=1 via implicit equation does not work.
+;; The Help/entry-API.cl handler for unit-vector sets n=1 as a side-effect of
+;; drawing the vector.
 (def-psmclass unit-vector-mag (unit-vector-mag . ?args)
   :complexity definition
   :english ("the length of a unit vector")
-  :ExpFormat("setting length of unit vector to 1")
+  :ExpFormat("introducing a unit vector")
   :EqnFormat("n=1"))
 
 (defoperator unit-vector-mag-contains (?sought)
@@ -7600,6 +7601,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-unit-vector-mag (?args)
   :preconditions ((variable ?n (mag (unit-vector . ?args))) )
   :effects ( (eqn (= ?n 1) (unit-vector-mag . ?args)) )
+  ;; These should never come out:
   :hint ( (point (string "What is the length of a unit vector?"))
 	 (bottom-out (string "Write the equation ~A" ((= ?n 1)  algebra) )) ))
 
