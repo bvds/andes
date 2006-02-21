@@ -7577,7 +7577,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (implicit-eqn (= ?dir-var ?angle-value) 
 		 (dir (unit-vector ?orientation ?body :at ?loc :time ?t)))
    (implicit-eqn (= ?mag-var 1) 
-		 (mag (unit-vector ?orientation ?body :at ?loc :time ?t)))
+		 (unit-vector-mag ?orientation ?body :at ?loc :time ?t))
    )  
   :hint 
   ( (point (string "You can draw ~A?" 
@@ -7598,12 +7598,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator write-unit-vector-mag (?args)
   :preconditions ((variable  ?n (mag (unit-vector . ?args))) )
-  :effects ( (eqn  (= ?n 1.0) (unit-vector-mag . ?args)) )
+  :effects ( (eqn  (= ?n 1) (unit-vector-mag . ?args)) )
   :hint (
 	 (hint (string "What is the length of a unit vector?"))
 	 (bottom-out (string "Write the equation ~A" ((= ?n 1.0)  algebra) ))
 	 ))
-
 
 ;;;
 ;;; Following defines a variable for the work done by a force agent
