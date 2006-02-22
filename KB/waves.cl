@@ -100,6 +100,7 @@
 ;;;
 
 (def-qexp observed-frequency (observed-frequency ?wave ?me :time ?time)
+  :features (OBSERVED-FREQUENCY)
   :units |Hz|
   :restrictions nonnegative 
   :english ("the frequency of ~A as observed by ~A" 
@@ -360,6 +361,7 @@
 ;;;   Wave speed, this is |phase velocity|
 
 (def-qexp wave-speed (wave-speed ?medium)
+  :features (WAVES)
   :units |m/s|
   :restrictions nonnegative
   :english ("the speed of waves in ~A" (nlg ?medium)) ;see entry in errors.cl
@@ -474,6 +476,7 @@
 ;; but we don't have any problems with this yet
 
 (def-qexp index-of-refraction (index-of-refraction ?medium)
+  :features (OPTICS WAVES)
   :units NIL  ;dimensionless
   :restrictions nonnegative
   :english ("the index of refraction of ~A" (nlg ?medium))
@@ -600,6 +603,7 @@
 ;; tension force applied to an object...
 
 (def-qexp string-tension (string-tension ?rope)
+  :features (WAVES)
   :units |N|
   :restrictions nonnegative 
   :english ("the string-tension of ~A" (nlg ?rope))
@@ -966,6 +970,7 @@
 ;;   but none of the problems so far require it.
 
 (def-qexp intensity (intensity ?wave ?agent :time ?time)
+  :features (WORK-QUANTS WORK-QUANTS-OUT)
   :units |W/m^2|
   :restrictions positive
   :english ("the intensity supplied to ~A due to ~A" 
@@ -1043,6 +1048,7 @@
 ;;;  Intensity in decibels.
 
 (def-qexp db-intensity (db-intensity ?wave ?agent :time ?time)
+  :features (WORK-QUANTS WORK-QUANTS-OUT)
   :units |dB|
   :english ("the intensity supplied to ~A due to ~A in decibels" 
 	       (nlg ?wave 'at-time ?time) (nlg ?agent 'agent))

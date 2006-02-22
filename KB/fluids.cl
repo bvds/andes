@@ -9,6 +9,7 @@
 
 ;; Define the quantity mass density. The density defined here is a vouume density.
 (def-qexp mass-density (mass-density ?material)
+  :features (FLUIDS)
    :units |kg/m^3|
    :restrictions nonnegative   
    :english ("the mass density of ~A" (nlg ?material))
@@ -67,6 +68,7 @@
 
 ;;Define the quantity pressure.  The variable of choice is "P".
 (def-qexp pressure (pressure ?position :time ?time)
+  :features (FLUIDS)
    :units |Pa|
    :english ("the pressure at point ~a in the fluid" 
 	     (nlg ?position 'at-time ?time))
@@ -310,6 +312,7 @@
 
 ;;Define the quantity cross-sectional area at a point.  The variable choice is "A".
 (def-qexp area-at (area-at ?position :time ?time)
+     :features (FLUIDS)
      :units |m^2|
      :restrictions positive
      :english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
@@ -326,6 +329,7 @@
 
 ;; area of a shape
 (def-qexp area (area ?shape)
+     :features (FLUIDS RECTANGLE-GEOMETRY CIRCLE-GEOMETRY)
      :units |m^2|
      :restrictions positive
      :english ("the area of ~A" (nlg ?shape))
@@ -333,6 +337,7 @@
 )
 
 (def-qexp area-change (rate-of-change (area ?shape))
+     :features (RECTANGLE-GEOMETRY)
      :units |m^2/s|
      :restrictions positive
      :english ("the rate of change of the area of ~A" (nlg ?shape))
@@ -349,6 +354,7 @@
 
 ;; quantity to represent radius of a circular shape
 (def-qexp radius-of-circle (radius-of-circle ?body)
+     :features (CIRCLE-GEOMETRY)
      :units |m|
      :restrictions positive
      :english ("the radius of ~A" (nlg ?body))
@@ -367,11 +373,12 @@
 
 ;; quantity to represent diameter of a circular shape
 (def-qexp diameter-of-circle (diameter-of-circle ?body)
-     :units |m|
-     :restrictions positive
-     :english ("the diameter of ~A" (nlg ?body))
-     :fromworkbench `(diameter-of-circle ,body)
-   )
+  :features (CIRCLE-GEOMETRY)
+  :units |m|
+  :restrictions positive
+  :english ("the diameter of ~A" (nlg ?body))
+  :fromworkbench `(diameter-of-circle ,body)
+  )
 
 (defoperator define-diameter-of-circle (?body)
      :preconditions((bind ?dc-var (format-sym "dc_~A" (body-name ?body))))
@@ -385,6 +392,7 @@
 
 ;; quantity to represent circumference of a circular shape
 (def-qexp circumference-of-circle (circumference-of-circle ?body)
+     :features (CIRCLE-GEOMETRY)
      :units |m|
      :restrictions positive
      :english ("the circumference of ~A" (nlg ?body))
@@ -690,6 +698,7 @@
 
 ;;Quantity: The volume of a body
 (def-qexp volume (volume ?body :time ?time)
+     :features (FLUIDS)
      :units |m^3|
      :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
      :english ("the volume of ~A" (nlg ?body 'at-time ?time))

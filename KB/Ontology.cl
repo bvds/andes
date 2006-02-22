@@ -172,23 +172,35 @@
 ;;; in the workbench, the time slot is added if feature changing-mass
 ;;; is included.
 (def-qexp mass	(mass ?body :time ?time)
+  :features (STATICS DYNAMICS                       CHANGING-MASS
+                        CIRCULAR
+                        ENERGY
+                        ROTKIN
+                        ANGMOM
+                        TORQUE
+                        FLUIDS
+                        WAVES
+                        OSCILLATIONS)
   :units |kg|
   :restrictions positive
   :fromWorkbench (if time `(mass ,body :time ,time) `(mass ,body))
   :english ("the mass of ~A" (nlg ?body 'at-time ?time)))
 
 (def-qexp mass-change-magnitude	(mass-change-magnitude ?body ?agent :time ?t)
+  :features (CHANGING-MASS)
   :units |kg/s|
   :restrictions nonnegative
   :fromWorkbench `(mass-change-magnitude ,body ,body2 :time ,time)
   :english ("the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 	       (nlg ?body) (nlg ?agent 'agent) (nlg ?t 'pp)))
 (def-qexp mass-per-length (mass-per-length ?rope)
+  :features (WAVES)
   :units |kg/m|
   :restrictions nonnegative 
   :english ("the mass-per-length of ~A" (nlg ?rope))
   :fromworkbench `(mass-per-length ,body))
 (def-qexp distance (distance ?body :time ?time)
+  :features (KINEMATICS WAVES)
   :units |m|
   :fromWorkbench (if time `(distance ,body :time ,time) `(distance ,body))
   :english ("the distance travelled by ~A" (nlg ?body 'at-time ?time)))
@@ -200,16 +212,21 @@
 	    (nlg ?body) (nlg ?body2 'at-time ?time)))
 
 (def-qexp duration (duration (during ?t1 ?t2))
+  :features (KINEMATICS STATICS	DYNAMICS CIRCULAR ENERGY WORK WORK-QUANTS
+			WORK-QUANTS-OUT LINMOM ROTKIN ANGMOM TORQUE CIRCUITS
+			E&M FLUIDS WAVES)
   :units |s|
   :restrictions positive
   :fromWorkbench  `(duration ,time)
   :english ("the duration of the interval from ~A to ~A" 
             (nlg ?t1 'moment) (nlg ?t2 'moment)))
 (def-qexp speed (speed ?body :time ?t)
+  :features (KINEMATICS WAVES)
   :units |m/s|
   :fromWorkbench (if time `(speed ,body :time ,time) `(speed ,body))
   :english ("the speed of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
+  :features (STATICS DYNAMICS)
   :units NIL ;; dimensionless
   :english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) 
@@ -225,12 +242,14 @@
 (def-qexp num-forces (num-forces ?body :time ?time)
   :english ("the number of forces on ~A" (nlg ?body 'at-time ?time)))
 (def-qexp revolution-radius (revolution-radius ?body :time ?time)
+  :features (CIRCULAR ROTKIN)
   :units |m|
   :restrictions positive
   :fromWorkbench `(revolution-radius ,body :time ,time)
   :english ("the radius of the circular motion of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp work (work ?b ?agent :time ?time)
+  :features (ENERGY WORK WORK-QUANTS WORK-QUANTS-OUT)
   :units |J|
   :english ("the work done on ~A by ~A" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
@@ -242,6 +261,7 @@
   :english ("the work done by non-conservative forces on ~A" 
 	    (nlg ?b 'at-time ?time)))
 (def-qexp power (power ?b ?agent :time ?time)
+  :features (ENERGY WORK WORK-QUANTS)
   :units |W|
   :english ("the power supplied to ~a from ~a" 
 	    (nlg ?b) (nlg ?agent 'at-time ?time)))
@@ -249,6 +269,7 @@
   :units |W|
   :english ("the net power supplied to ~a" (nlg ?b 'at-time ?time)))
 (def-qexp net-power-out (net-power-out ?source :time ?time)
+  :features (WORK-QUANTS-OUT)
   :units |W|
   :english ("the total power produced by ~A" 
 	       (nlg ?source 'at-time ?time))
@@ -286,25 +307,30 @@
   :fromWorkbench `(spring-constant ,body)
   :english ("the spring constant of ~A" (nlg ?spring)))
 (def-qexp height (height ?body :time ?time)
+  :features (ENERGY FLUIDS)
   :units |m|
   :fromWorkbench `(height ,body :time ,time)
   :english ("the height of ~A above the zero level" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp moment-of-inertia (moment-of-inertia ?body :time ?time)
+  :features (ROTKIN ANGMOM TORQUE)
   :units |kg.m^2|
   :restrictions positive
   :fromWorkbench (if time `(moment-of-inertia ,body :time ,time) `(moment-of-inertia ,body))
   :english ("the moment of inertia of ~A" (nlg ?body 'at-time ?time)))
 ;; for dimensions of certain rigid bodies:
 (def-qexp length (length ?body)
+  :features (ROTKIN ANGMOM TORQUE E&M RECTANGLE-GEOMETRY WAVES OSCILLATIONS)
   :units |m|
   :fromWorkbench `(length ,body)
   :english ("the length of ~A" (nlg ?body)))
 (def-qexp length-change (rate-of-change (length ?body))
+  :features (RECTANGLE-GEOMETRY)
   :units |m/s|
   :fromWorkbench `(rate-of-change (length ,body))
   :english ("the rate of change of the length of ~A" (nlg ?body)))
 (def-qexp width  (width ?body)
+  :features (ROTKIN ANGMOM TORQUE RECTANGLE-GEOMETRY)
   :units |m|
   :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))

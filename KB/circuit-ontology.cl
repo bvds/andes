@@ -11,8 +11,9 @@
   :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
 
 (def-qexp resistance (resistance ?names)
-	:units |$W|
-	:english ("the resistance of ~A" (conjoined-names ?names)))
+  :features (CIRCUITS)
+  :units |$W|
+  :english ("the resistance of ~A" (conjoined-names ?names)))
 
 (def-qexp current-thru (current-thru ?component :time ?time)
   :units |A|
@@ -25,12 +26,14 @@
   :english ("the current in branch ~A~@[ ~A~]" ?branch (nlg ?time 'pp)))
 
 (def-qexp capacitance (capacitance ?name)
+  :features (CIRCUITS)
   :units |F|
   :english ("the capacitance of ~A" ?name))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
 (def-qexp charge-on (charge-on ?name :time ?time)
+  :features (CIRCUITS E&M)
   :units |C|
   :fromWorkbench (if time `(charge-on ,body :time ,time) `(charge-on ,body))
   :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
@@ -39,20 +42,23 @@
   :units |C|)
 
 (def-qexp inductance (inductance ?inductor)
-          :units |H|
-	  :fromWorkbench `(inductance ,body)
-	  :english ("the inductance of ~A" (nlg ?inductor)))
+  :features (CIRCUITS)
+  :units |H|
+  :fromWorkbench `(inductance ,body)
+  :english ("the inductance of ~A" (nlg ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
-          :units |H|
-	  :fromWorkbench `(mutual-inductance orderless ,body ,body2)
-	  :english ("the mutual inductance of ~A" 
-		    (nlg ?inductor 'conjoined-defnp)))
+  :features (CIRCUITS)
+  :units |H|
+  :fromWorkbench `(mutual-inductance orderless ,body ,body2)
+  :english ("the mutual inductance of ~A" 
+	    (nlg ?inductor 'conjoined-defnp)))
 
 ;;; power as used in circuits problem has slightly different definition
 ;;; than power in mechanics: no agent, and may denote power output (from
 ;;; battery into charges) or power dissipated (through resistor).
 (def-qexp electric-power (electric-power ?b :time ?time)
+  :features (CIRCUITS)
   :units W
   :english ("power transferred through ~a" (nlg ?b 'at-time ?time)))
 ;; We could define a generic rate-of-change function, but we don't have a way 
@@ -60,12 +66,14 @@
 ;; I don't think.  For now just define rate of change of a current 
 ;; thru component
 (def-qexp current-change (rate-of-change (current-thru ?comp :time ?time))
+  :features (CIRCUITS)
   :units |A/s|
   :fromWorkbench `(rate-of-change (current-thru ,body :time ,time))
   :english ("the rate of change of the current through ~a" 
 	    (nlg ?comp 'at-time ?time)))
 
 (def-qexp time-constant (time-constant orderless . ?quants)
+     :features (CIRCUITS)
           :units |s|
 	  ; translated wb body arg is (compound orderless comp1 comp2 ...)
 	  :fromWorkbench `(time-constant orderless ,@(bodyterm-complist body))
@@ -88,6 +96,7 @@
 	    (nlg ?type) (nlg ?region) (nlg ?time 'pp)))
   
 (def-qexp potential (potential ?loc ?source :time ?time)
+  :features (E&M)
   :units |V|
   :fromWorkbench (if (or (null body2) (string-equal body2 '|all sources|))
                      `(net-potential ,body :time ,time)
@@ -106,6 +115,7 @@
 	    (nlg ?body 'at-time ?time)))
 
 (def-qexp stored-energy (stored-energy ?component :time ?time)
+  :features (CIRCUITS)
   :units |J|
   :english ("the electric energy stored in ~a" 
 	    (nlg ?component 'at-time ?time)))
