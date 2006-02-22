@@ -154,6 +154,7 @@
 
 (defmacro def-qexp (type Form 
 		   &key Fields
+		        Features
 			Units
 			restrictions
 			documentation
