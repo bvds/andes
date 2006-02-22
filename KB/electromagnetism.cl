@@ -2202,7 +2202,7 @@
   :english ("the definition of the energy of a dipole in an electric field")
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
-	      (nlg (set-time `(field ,?region electric ,@?rest) ?time)))
+	      (nlg (set-time (append (list 'field ?region 'electric) ?rest) ?time)))
   :EqnFormat ("U = -p*E*cos($qp - $qE) OR U = -(p_x*E_x + p_y*E_y)"))
 
 (def-psmclass magnetic-dipole-energy 
@@ -2211,7 +2211,7 @@
   :english ("the definition of the energy of a dipole in a magnetic field")
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
-	      (nlg (set-time `(field ,?region magnetic ,@?rest) ?time)))
+	      (nlg (set-time (append (list 'field ?region 'magnetic) ?rest) ?time)))
   :EqnFormat ("U = -$m*B*cos($q$m - $qB) OR U = -($m_x*B_x + $m_y*B_y)"))
 
 (defoperator dipole-energy-contains (?sought)
@@ -3109,6 +3109,7 @@
 ;;;  definition of turns and turns per unit length
 
 (def-qexp turns (turns ?body)
+     :features (E&M)
      :units NIL  ;dimensionless
      :restrictions positive
      :english ("the number of turns wrapping around ~A" (nlg ?body))
@@ -3126,6 +3127,7 @@
 
 
 (def-qexp turns-per-length (turns-per-length ?body)
+     :features (E&M)
      :units |m^-1|
      :restrictions positive
      :english ("the number of turns per length wrapping around ~A" (nlg ?body))
@@ -3177,6 +3179,7 @@
 ;;;      the surface in the direction orthogonal to the surface.
 
 (def-qexp electric-flux (flux ?surface electric :time ?t)
+     :features (E&M)
      :units |V.m|
      :fromworkbench `(flux ,body electric :time ,time)
      :english ("electric flux through ~A~@[ ~A~]" 
@@ -3184,12 +3187,14 @@
 
 (def-qexp electric-flux-change (rate-of-change 
 				(flux ?surface electric :time ?t))
+     :features (E&M)
      :units |V.m/s|
      :fromworkbench `(rate-of-change (flux ,body electric :time ,time))
      :english ("rate of change in electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
+     :features (E&M)
      :units |T.m^2|
      :fromworkbench `(flux ,body magnetic :time ,time)
      :english ("magnetic flux through ~A~@[ ~A~]" 
@@ -3197,6 +3202,7 @@
 
 (def-qexp magnetic-flux-change (rate-of-change 
 				(flux ?surface magnetic :time ?t))
+     :features (E&M)
      :units |T.m^2/s|
      :fromworkbench `(rate-of-change (flux ,body magnetic :time ,time))
      :english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
@@ -3221,7 +3227,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg `(flux ,?surface electric :time ,?time)))
+	      (nlg (list 'flux ?surface 'electric :time ?time)))
   :EqnFormat ("$Fe = A*E*cos($qE - $qn) OR $Fe = A*(E_x*n_x + E_y*n_y)"))
 
 (def-psmclass magnetic-flux-constant-field
@@ -3229,7 +3235,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg `(flux ,?surface magnetic :time ,?time)))
+	      (nlg (list 'flux ?surface 'magnetic :time ?time)))
   :EqnFormat ("$Fb = A*B*cos($qB - $qn) OR $Fb = A*(B_x*n_x + B_y*n_y)"))
 
 (defoperator flux-constant-field-angle-contains (?sought)
@@ -3310,7 +3316,8 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the time derivative of the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg `(rate-of-change (flux ,?surface electric :time ,?time))))
+	      (nlg (list 'rate-of-change 
+			 (list 'flux ?surface 'electric :time ?time))))
   :EqnFormat ("d$Fe/dt = E.n*dA/dt"))
 
 (def-psmclass magnetic-flux-constant-field-change
@@ -3318,7 +3325,8 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("the time derivative of the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
-	      (nlg `(rate-of-change (flux ,?surface magnetic :time ,?time))))
+	      (nlg (list 'rate-of-change 
+			 (list 'flux ?surface 'magnetic :time ?time))))
   :EqnFormat ("d$Fb/dt = B.n*dA/dt"))
 
 (defoperator flux-constant-field-change-angle-contains (?sought)
