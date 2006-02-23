@@ -72,8 +72,9 @@
 				     ;; lots of outside dependencies:
 				     (:cl-source-file "errors")
 				     
-				     (:file "features")
+				     ;; must be before any ontology
 				     (:file "reset-KB")
+				     (:file "features")
 				     (:file "constants")
 				     ;; TELL and NLG not defined
 				     (:file "Ontology" )

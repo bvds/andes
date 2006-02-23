@@ -66,7 +66,7 @@
 
 
 ;;--------------------------------------------------------------------
-;; OVerall ontology functions.
+;; Overall ontology functions.
 
 (defun clear-ontology ()
   "Clear out the stores expressions."
@@ -1032,34 +1032,28 @@
 ;;;                 Feature sets
 ;;;
 
-(defstruct feature-set
-  feature ;name of feature set
-  quants  ;list of associated quantitites
-)
+
+(defun define-feature-set (name quants)
+  (postpend *Ontology-features* (list name quants)))
 
 (defmacro def-feature-set (feature quants)
   "define feature sets"
-  (define-feature-set feature quants))
+  (define-feature-set feature quants) 
+  nil)  ;macro return value
 
-(defun define-feature-set (feature quants)
-  (push (make-feature-set :feature feature :quants quants) 
-	*Ontology-features*))
+(defun print-features (str)
+ "express features in the format needed for KB/features.tsv"
+  (dolist (f *Ontology-features*)
+  (format str "~A~C~{~A;~}~%" 
+	  (first f) #\tab (second f))))
 
+(defun features-file ()
+ "construct file KB/features.tsv"
+    (let ((str (open (merge-pathnames  "KB/features.tsv" *Andes-Path*)
+		     :direction :output :if-exists :supersede)))
+		   (print-features str) (close str)))
 
-;; list of all quantities 
-
-; (setf quants (reduce #'union (mapcar #'second x)))
-
-;; find all features that contain the given quantity
-
-;(mapcar #'(lambda (q) (list q (mapcar #'first (remove q x :key #'second :test-not #'member)))) quants)
-
-;; list of all features
-
-;(setf features (mapcar #'first x))
-
-;; input format for adding keyword to def-qexp
-
-;(mapcar #'(lambda (q) (format t "~A~%     :features ~A~%" q (mapcar #'first (remove q x :key #'second :test-not #'member)))) quants)
-
-;; status so-far:
+(defun quant-allowed-by-features (quant x)
+  (when x (or (member quant (second (find (car x) *ontology-features* 
+					  :key #'first)))
+	      (quant-allowed-by-features quant (cdr x)))))
