@@ -637,7 +637,7 @@
 	((eq (car Hint) 'KCD)        (make-kcd-hseq Hint Rest Assoc OpTail))
 	((eq (car Hint) 'Minilesson) (make-minil-hseq Hint Rest Assoc OpTail))
 	((eq (car Hint) 'Eval)       (make-eval-hseq Hint Rest))
-	((eq (car Hint) 'Function)   (make-function-hseq (cdr Hint)))
+	((eq (car Hint) 'Function)   (make-function-hseq (cdr Hint) Prefix))
 	(t (Error "Unrecognized hint type supplied."))))
 
 
@@ -654,7 +654,7 @@
 	((eq (car Hint) 'KCD) 	     (make-kcd-end-hseq (cadr Hint) Assoc))
 	((eq (car Hint) 'Minilesson) (make-minil-end-hseq (cadr Hint) Assoc))
 	((eq (car Hint) 'Eval)       (make-eval-hseq (cadr Hint)))
-	((eq (car Hint) 'function)   (make-function-hseq (cdr Hint)))
+	((eq (car Hint) 'function)   (make-function-hseq (cdr Hint) Prefix))
 	(t (Error "Unrecognized hint type supplied."))))
 
 
@@ -1015,9 +1015,15 @@
 ;; be evaluated at runtime and should return a tutor turn.  
 ;; An optional rest argument can be supplied to continue the 
 ;; sequence of hints.  Note that for printing reasons
-(defun make-function-hseq (Hint)
+(defun make-function-hseq (Hint &optional (Prefix ""))
   "Call the specified function."
-  (safe-apply (car Hint) (cdr Hint)))
+  (let ((result (safe-apply (car Hint) (cdr Hint))))
+    (when (eq (type-of result) 'turn) ; succeeded w/turn
+       ; prepend prefix to existing text in result turn.
+       (setf (turn-text result)
+             (strcat Prefix (turn-text result))))
+    result))  ; return value
+       
 
 
 
