@@ -25,6 +25,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Params
 
+(defparameter *Ontology-features* () "List of feature sets")
 (defparameter *Ontology-ExpTypes* () "List of valid expression types")
 (defparameter *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
 (defparameter *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
@@ -69,6 +70,7 @@
 
 (defun clear-ontology ()
   "Clear out the stores expressions."
+  (setq *Ontology-features* nil)
   (setq *Ontology-ExpTypes* nil)
   (setq *Ontology-EntryProp-Types* nil)
   (setq *Ontology-Equation-Types* nil)
@@ -154,7 +156,6 @@
 
 (defmacro def-qexp (type Form 
 		   &key Fields
-		        Features
 			Units
 			restrictions
 			documentation
@@ -1027,3 +1028,38 @@
 	  (push (lookup Var Binding) R))))
     (remove-duplicates R :test #'unify))) ;could use "equal"
 
+;;;
+;;;                 Feature sets
+;;;
+
+(defstruct feature-set
+  feature ;name of feature set
+  quants  ;list of associated quantitites
+)
+
+(defmacro def-feature-set (feature quants)
+  "define feature sets"
+  (define-feature-set feature quants))
+
+(defun define-feature-set (feature quants)
+  (push (make-feature-set :feature feature :quants quants) 
+	*Ontology-features*))
+
+
+;; list of all quantities 
+
+; (setf quants (reduce #'union (mapcar #'second x)))
+
+;; find all features that contain the given quantity
+
+;(mapcar #'(lambda (q) (list q (mapcar #'first (remove q x :key #'second :test-not #'member)))) quants)
+
+;; list of all features
+
+;(setf features (mapcar #'first x))
+
+;; input format for adding keyword to def-qexp
+
+;(mapcar #'(lambda (q) (format t "~A~%     :features ~A~%" q (mapcar #'first (remove q x :key #'second :test-not #'member)))) quants)
+
+;; status so-far:

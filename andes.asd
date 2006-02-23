@@ -72,6 +72,7 @@
 				     ;; lots of outside dependencies:
 				     (:cl-source-file "errors")
 				     
+				     (:file "features")
 				     (:file "reset-KB")
 				     (:file "constants")
 				     ;; TELL and NLG not defined
