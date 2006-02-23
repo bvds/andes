@@ -128,7 +128,7 @@ LEAF	Bnet_x = B1_x + B2_x + ...    Net Magnetic Field (x component)	(net-Bfield 
 LEAF	Bnet_y = B1_y + B2_y + ...    Net Magnetic Field (y component)	(net-Bfield ((?axis . y)))	
 LEAF	$Fb = A*B.n   [$Fb = A*B*cos($q) or $Fb = A*(B_x*n_x+B_y*n_y)]        magnetic flux (constant field)	magnetic-flux-constant-field	
 LEAF	d$Fb/dt = B.n*dA/dt        the rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	
-LEAF	V = -d$Fb/dt                          Faraday's law	faradays-law	
+LEAF	V = -N*d$Fb/dt                          Faraday's law	faradays-law	
 LEAF	$m = N*I*A        magnetic dipole moment (magnitude)	magnetic-dipole-moment-mag	Dipoles
 LEAF	$m_x = N*I*A*n_x        magnetic dipole moment (x component)	(magnetic-dipole-moment ((?axis . x)))	Dipoles
 LEAF	$m_y = N*I*A*n_y        magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles

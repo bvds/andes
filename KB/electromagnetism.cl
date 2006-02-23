@@ -3109,7 +3109,6 @@
 ;;;  definition of turns and turns per unit length
 
 (def-qexp turns (turns ?body)
-     :features (E&M)
      :units NIL  ;dimensionless
      :restrictions positive
      :english ("the number of turns wrapping around ~A" (nlg ?body))
@@ -3127,7 +3126,6 @@
 
 
 (def-qexp turns-per-length (turns-per-length ?body)
-     :features (E&M)
      :units |m^-1|
      :restrictions positive
      :english ("the number of turns per length wrapping around ~A" (nlg ?body))
@@ -3179,7 +3177,6 @@
 ;;;      the surface in the direction orthogonal to the surface.
 
 (def-qexp electric-flux (flux ?surface electric :time ?t)
-     :features (E&M)
      :units |V.m|
      :fromworkbench `(flux ,body electric :time ,time)
      :english ("electric flux through ~A~@[ ~A~]" 
@@ -3187,14 +3184,12 @@
 
 (def-qexp electric-flux-change (rate-of-change 
 				(flux ?surface electric :time ?t))
-     :features (E&M)
      :units |V.m/s|
      :fromworkbench `(rate-of-change (flux ,body electric :time ,time))
      :english ("rate of change in electric flux through ~A~@[ ~A~]" 
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
-     :features (E&M)
      :units |T.m^2|
      :fromworkbench `(flux ,body magnetic :time ,time)
      :english ("magnetic flux through ~A~@[ ~A~]" 
@@ -3202,7 +3197,6 @@
 
 (def-qexp magnetic-flux-change (rate-of-change 
 				(flux ?surface magnetic :time ?t))
-     :features (E&M)
      :units |T.m^2/s|
      :fromworkbench `(rate-of-change (flux ,body magnetic :time ,time))
      :english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
@@ -3407,7 +3401,7 @@
   :complexity major ; definition, but can be first "principle" for sought
   :english ("Faraday's law")
   :expformat ("applying Faradays law to ~A" (nlg ?surface)) 
-  :EqnFormat ("V = -d$Fb/dt"))
+  :EqnFormat ("V = -N*d$Fb/dt"))
 
 
 (defoperator faradays-law-contains (?sought)
