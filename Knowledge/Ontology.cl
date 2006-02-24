@@ -1034,7 +1034,7 @@
 
 
 (defun define-feature-set (name quants)
-  "Construct feature sets, with inheretance."
+  "Construct feature sets, with inheritance."
   (when (member name *Ontology-features* :key #'first)
     (error "feature set ~A already defined" name))
   (dolist (set *Ontology-features*) 
@@ -1042,7 +1042,8 @@
     (when (and (member (first set) quants) 
 	       (not (member (first set) (second set)))) 
       (setf quants (union (second set) quants)))
-    (when (and (member name (second set)) (not (member name quants))) 
+    (when (and (member name (second set)) 
+	       (not (member name quants))) 
       (setf (second set) (union (second set) quants))))
   (postpend *Ontology-features* (list name quants)))
 
