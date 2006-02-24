@@ -3234,7 +3234,7 @@
 
 (defoperator flux-constant-field-angle-contains (?sought)
   :preconditions 
-  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
    (any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
 		 (mag (field ?surface ?type ?source :time ?t))
@@ -3248,7 +3248,7 @@
 
 (defoperator flux-constant-field-compo-contains (?sought)
   :preconditions 
-  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
    (any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
 		 (area ?surface)
@@ -3295,9 +3295,9 @@
        (flux-constant-field ?surface ?type ?t ?rot))
   )
  :hint (
-	(point (string "Note that the ~A field is constant over ~A." 
+	(point (string "Note that the ~A field is uniform over ~A." 
 		       ?type ?surface))
-	(teach (string "The flux of a constant ~A field over a surface is the area times the dot product of the field and the unit normal to the surface." ?type))
+	(teach (string "For a field that is uniform over a surface, the flux through the surface is the area times the dot product of the field and the unit normal to the surface." ?type))
 	(bottom-out (string "Write the equation ~A."  
 			    ((= ?Phi-var (* ?A ?dot)) algebra)))
 	))
@@ -3325,7 +3325,7 @@
 
 (defoperator flux-constant-field-change-angle-contains (?sought)
   :preconditions 
-  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
 		 (mag (field ?surface ?type ?source :time ?t))
@@ -3339,7 +3339,7 @@
 
 (defoperator flux-constant-field-change-compo-contains (?sought)
   :preconditions 
-  ((constant-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
 		 (rate-of-change (area ?surface))
@@ -3386,9 +3386,9 @@
        (flux-constant-field-change ?surface ?type ?t ?rot))
   )
  :hint (
-	(point (string "Note that the ~A field is constant over ~A." 
+	(point (string "Note that the ~A flux through ~A is changing." 
 		       ?type ?surface))
-	(teach (string "The time derivative of the flux of a constant ~A field over a surface is the time derivative of the area times the dot product of the field and the unit normal to the surface." ?type))
+	(teach (string "For a constant, uniform field, the time derivative of the flux through a surface is the time derivative of the area times the dot product of the field and the unit normal to the surface." ?type))
 	(bottom-out (string "Write the equation ~A."  
 			    ((= ?Phi-var (* ?A ?dot)) algebra)))
 	))
