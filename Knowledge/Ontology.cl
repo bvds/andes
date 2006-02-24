@@ -1041,18 +1041,6 @@
   (define-feature-set feature quants) 
   nil)  ;macro return value
 
-(defun print-features (str)
- "express features in the format needed for KB/features.tsv"
-  (dolist (f *Ontology-features*)
-  (format str "~A~C~{~A;~}~%" 
-	  (first f) #\tab (second f))))
-
-(defun features-file ()
- "construct file KB/features.tsv"
-    (let ((str (open (merge-pathnames  "KB/features.tsv" *Andes-Path*)
-		     :direction :output :if-exists :supersede)))
-		   (print-features str) (close str)))
-
 (defun quant-allowed-by-features (quant x)
   (when x (or (member quant (second (find (car x) *ontology-features* 
 					  :key #'first)))

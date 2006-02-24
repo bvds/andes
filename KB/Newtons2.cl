@@ -90,18 +90,6 @@
    ;; make sure sought quantity actually occurs in equation
    ;; Use "unify" to correctly handle keywords.
    (test (member ?sought ?quantities-in-eqn :test #'unify))
-
-#|
-   ;; Test that quantity is in ontology and can be input by user
-   (bind ?exptype (lookup-expression-struct ?sought))
-   (test (progn (format t "exptype ~A from ~A~%" (exptype-type ?exptype) 
-			?sought) t))
-   (test ?exptype)  ;make sure it is in ontology
-   (test (quant-allowed-by-features (exptype-type ?exptype) 
-				    (problem-features *cp*)))
-   (test (progn (format t "       ~A succeeeded~%" (exptype-type ?exptype) 
-			) t))
-|#
    
    ;; Some quantities in eqn may have become "given" -- known -- as side 
    ;; effects of applying the PSM. Here we call them the new-knowns.
