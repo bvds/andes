@@ -488,7 +488,7 @@
 	       (qvar-exp quant)))
       (when (not (quant-allowed-by-features (exptype-type exptype-struct) 
 				    (problem-features Problem)))
-	(format t "WARNING:  Problem features to not enable ~A.~%" 
+	(format t "WARNING:  Problem features do not enable ~A.~%" 
 	       (exptype-type exptype-struct))))))
 
 

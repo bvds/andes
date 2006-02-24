@@ -15,8 +15,8 @@
 ;; global features
 (def-feature-set Andes2 
   (mag dir compo ;match all vector quantities
-    ;;   gravitational-acceleration atmosphere ;what to do with these?
-))
+       gravitational-acceleration ;predefined constant
+    ))
 
 ;;  Use inheretance to always associate certain features
 (def-feature-set angle (angle-between))
@@ -63,7 +63,9 @@
   (object-distance image-distance lens-distance focal-length magnification 
 		   radius-of-curvature index-of-refraction angle)) 
 (def-feature-set fluids 
-  (mass duration height mass-density pressure area-at area volume))
+  (mass duration height mass-density pressure area-at area volume
+	atmosphere ;predefined constant
+	))
 (def-feature-set rectangle-geometry 
   (area area-change length width length-change))
 (def-feature-set circle-geometry 
@@ -71,8 +73,7 @@
 (def-feature-set waves 
   (frequency distance speed duration mass length mass-per-length wavelength 
 	     wavenumber period angular-frequency wave-speed 
-	     index-of-refraction
-	     string-tension))
+	     index-of-refraction string-tension))
 (def-feature-set observed-frequency (observed-frequency))
 (def-feature-set oscillations 
   (mass length spring-constant compression wavelength wavenumber period 

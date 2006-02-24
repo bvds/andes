@@ -1627,9 +1627,9 @@
    (debug "Using draw-electric-dipole-moment-diagram ~%")
    (not (vector-diagram (dipole-moment ?dipole electric ?t)))
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
-   ;; must draw charges in diagram for this psm
-   (body ?positive-charge)
-   (body ?negative-charge)
+   ;; may draw charges in diagram for this psm
+   (optional (body ?positive-charge))
+   (optional (body ?negative-charge))
    (vector ?dipole (dipole-moment ?dipole electric :time ?t) ?dir1) 
    (vector ?positive-charge (relative-position 
 			     ?positive-charge 
@@ -1699,9 +1699,9 @@
   :preconditions 
   ((debug "Using write-electric-dipole-moment-mag ~%")
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
-   ;; must draw body in diagram for this psm
-   (body ?positive-charge)
-   (body ?negative-charge)
+   ;; may draw body in diagram for this psm
+   (optional (body ?positive-charge))
+   (optional (body ?negative-charge))
    ;; even though this is scalar equation, want axes to be allowed
    (axis-for ?dipole x ?rot)
    (variable ?magP (mag (dipole-moment ?dipole electric :time ?t)))
