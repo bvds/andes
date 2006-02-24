@@ -2810,6 +2810,54 @@
                           (nlg cagent 'agent) (nlg sagent 'agent)))))
 
 
+;;; --------------------- Confusing electric and magnetic ---------------------
+
+(def-error-class field-wrong-type (?stype ?ctype ?loc)
+  ((student    (vector (field ?loc ?stype ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?loc ?stype ?agent2 :time ?time2) ?dir2))
+   (correct    (vector (field ?loc ?ctype ?cagent :time ?stime) ?cdir)))
+  :utility 38)
+
+(defun field-wrong-type (stype ctype loc)
+ (declare (ignore loc))    
+ (make-hint-seq
+   (list
+    (format nil (strcat "Is the field really supposed to be ~A?") 
+                        (nlg stype 'adj) )
+    (format nil (strcat "You probably want the ~A field.")
+                          (nlg ctype 'adj)))))
+
+(def-error-class flux-wrong-type (?stype ?ctype ?loc)
+  ((student    (flux ?loc ?stype :time ?stime))
+   (no-correct (flux ?loc ?stype :time ?time2))
+   (correct    (flux ?loc ?ctype :time ?stime)))
+  :utility 50)
+
+(defun flux-wrong-type (stype ctype loc)
+ (declare (ignore loc))    
+ (make-hint-seq
+   (list
+    (format nil (strcat "Is the flux really supposed to be ~A?") 
+                        (nlg stype 'adj) )
+    (format nil (strcat "You probably want the ~A flux.")
+                          (nlg ctype 'adj)))))
+
+(def-error-class dipole-moment-wrong-type (?stype ?ctype ?loc)
+  ((student    (dipole-moment ?loc ?stype :time ?stime))
+   (no-correct (dipole-moment ?loc ?stype :time ?time2))
+   (correct    (dipole-moment ?loc ?ctype :time ?stime)))
+  :utility 50)
+
+(defun dipole-moment-wrong-type (stype ctype loc)
+ (declare (ignore loc))    
+ (make-hint-seq
+   (list
+    (format nil (strcat "Is the dipole moment really supposed to be ~A?") 
+                        (nlg stype 'adj) )
+    (format nil (strcat "You probably want the ~A dipole moment.")
+                          (nlg ctype 'adj)))))
+
+
 ;;; -------------------------- equation error handlers ------------------------
 
 ;;; ================ substitute similar variable ==============================
