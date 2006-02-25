@@ -799,6 +799,16 @@
 		      "equation: a = v^2/r for ~a ~a")
 	      (nlg ?body) (nlg ?time 'nlg-time))
   :EqnFormat ("ac = v^2/r"))
+(def-psmclass centripetal-accel-compo (?eqn-type definition ?axis ?rot 
+				 (centripetal-accel-vec ?body ?time ?form))
+  :complexity major    
+  :Doc "Definition of Coulomb's law, component form."
+  :english ("centripetal acceleration (component form)") 
+  :ExpFormat ("finding the centripetal acceleration of ~a ~a (component form)"
+	      (nlg ?body) (nlg ?time 'pp))
+  :EqnFormat ("ac_~A = -v^2/r r_~A/r" 
+	      (nlg ?axis 'adj) (nlg ?axis 'adj)))
+
 
 (def-psmclass period-circle (period ?body ?time circular)
    :complexity minor
