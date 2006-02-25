@@ -15,6 +15,8 @@ LEAF	v_y^2 = v0_y^2 + 2*a_y*d_y [a_y is constant]	(lk-no-t ((?axis . y)))	Consta
 LEAF	d_x = v_x * t              [a_x=0; v_x is constant]	(sdd-constvel ((?axis . x)))	Constant velocity component
 LEAF	d_y = v_y * t              [a_y=0; v_y is constant]	(sdd-constvel ((?axis . y)))	Constant velocity component
 LEAF	ac = v^2/r                 Centripetal acceleration (instantaneous)	centripetal-accel	Centripetal acceleration
+LEAF	ac_x = -v^2/r * r_x/r    Centripetal acceleration (x component)	(centripetal-accel-compo ((?axis . x)))	Centripetal acceleration
+LEAF	ac_y = -v^2/r * r_y/r    Centripetal acceleration (y component)	(centripetal-accel-compo ((?axis . y)))	Centripetal acceleration
 LEAF	Vac_x = Vab_x + Vbc_x      Relative velocity	(relative-vel ((?axis . x)))	Relative Velocity
 LEAF	Vac_y = Vab_y + Vbc_y      Relative velocity	(relative-vel ((?axis . y)))	Relative Velocity
 END_GROUP			
@@ -188,8 +190,8 @@ LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction
 LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum	
 END_GROUP			
 GROUP	Waves and Oscillations		
-LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave	
-LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave	
+LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave
+LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave
 LEAF	T = 1/f       Period of oscillation	period-of-wave
 LEAF	vw = $l*f or vw = $w/k      Speed of a wave	speed-of-wave
 LEAF	vw1 = vw2              All waves in a system have same speed	wave-speeds-equal
@@ -204,8 +206,8 @@ LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
 LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
 LEAF	E = E0*exp(-2*t/$t)          energy decay	energy-decay
 LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
-END_GROUP		
-END_GROUP	Write a Principle	
+END_GROUP			
+END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
 GROUP	Translational		
