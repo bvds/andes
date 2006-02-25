@@ -1883,6 +1883,8 @@
 (defoperator define-rate-of-change-var (?quant)
   :preconditions 
   (
+   ;; temporary, see Bug #759
+   (test (not (eq (first ?quant) 'current-thru)))
    ;; getting the base variable name means that student has
    ;; to also define the base variable
    ;;(variable ?var ?quant)
@@ -1898,7 +1900,7 @@
 
 ;;; Generic definition of average rate of change of some quantity
 
-(def-psmclass average-rate-of-change (average-rate-of-change ?quant ?time)
+(def-psmclass average-rate-of-change (average-rate-of-change ?quant)
   ;; This is actually an important equation, but it is often shown
   ;; combined with other equations.
   :complexity definition 
@@ -1917,22 +1919,37 @@
    (any-member ?sought ((rate-of-change ?quant)))
    (test (equal ?t (time-of ?quant)))
    )
-  :effects ((eqn-contains (average-rate-of-change ?quant ?t) ?sought)
+  :effects ((eqn-contains (average-rate-of-change ?quant) ?sought)
   ))
 
-(defoperator write-average-rate-of-change (?quant ?t)
+(defoperator average-rate-of-change-contains2 (?sought)
+  :preconditions 
+  (
+   (time ?t)
+   (test (time-intervalp ?t))
+   (any-member ?sought (?q-end))
+   (test (tendpointp (time-of ?q-end) ?t))
+   (bind ?quant (set-time ?q-end ?t))
+   )
+  :effects ((eqn-contains (average-rate-of-change ?quant) ?sought)
+	    ))
+
+(defoperator write-average-rate-of-change (?quant)
  :preconditions 
  (
-  (variable ?qavg (rate-of-change ?quant))
-  (variable ?dt (duration ?t))
+  ;; temporary test, see Bug #786
+  (test (not (eq (first ?quant) 'current-thru)))
+  (bind ?t (time-of ?quant))
   (bind ?q1 (set-time ?quant (second ?t)))
   (bind ?q2 (set-time ?quant (third ?t)))
+  (variable ?qavg ?quant)
   (variable ?q1-var ?q1)
   (variable ?q2-var ?q2)
+  (variable ?dt (duration ?t))
  )
  :effects 
  ( (eqn (= ?qavg (/ (- ?q2-var ?q1-var) ?dt)) 
-	(average-rate-of-change ?quant ?t)) )
+	(average-rate-of-change ?quant)) )
  :hint (
 	(point (string "Find the average value of ~A." 
 		        ((rate-of-change ?quant) def-np)))
