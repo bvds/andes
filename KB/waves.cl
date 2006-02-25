@@ -923,28 +923,34 @@
    ;; This is in working memory, because the magnitudes were found above.
    (in-wm (vector ?source (relative-vel ?source ?medium :time ?t-s) ?sdir))
    (in-wm (vector ?observer (relative-vel ?observer ?medium :time ?t-o) ?odir))
-   (bind ?scos (cos (* (get-angle-between ?phi ?sdir) 
-		       (/ pi 180))))	;degrees to radians
-   (bind ?ocos (cos (* (get-angle-between ?phi ?odir) 
-		       (/ pi 180))))	;degrees to radians
+   (bind ?sangle (get-angle-between ?phi ?sdir))
+   (bind ?oangle (get-angle-between ?phi ?odir))
    ;; If we had a real smp doing the algebraic simplifications, 
    ;; this nonsense would not be needed:
-   (bind ?sterm (cond ((eql ?sdir 'zero) ?vw)
-		      ((equal ?scos 1.0) `(+ ,?vw ,?vs))
-		      ((equal ?scos -1.0) `(- ,?vw ,?vs))
-		      (t `(+ ,?vw (* ,?scos ,?vs)))))
-   (bind ?oterm (cond ((eql ?odir 'zero) ?vw)
-		      ((equal ?ocos 1.0) `(+ ,?vw ,?vo))
-		      ((equal ?ocos -1.0) `(- ,?vw ,?vo))
-		      (t `(+ ,?vw (* ,?ocos ,?vo)))))
+   (bind ?sterm (cond ((eq ?sdir 'zero) ?vw)
+		      ((equal ?sangle 0) `(+ ,?vw ,?vs))
+		      ((equal ?sangle 180) `(- ,?vw ,?vs))
+		      (?sangle 
+		       `(+ ,?vw (* ,(cos (* ?sangle (/ pi 180))) ,?vs)))
+		      (t nil)))
+   (bind ?oterm (cond ((eq ?odir 'zero) ?vw)
+		      ((equal ?oangle 0) `(+ ,?vw ,?vo))
+		      ((equal ?oangle 180) `(- ,?vw ,?vo))
+		      (?oangle 
+		       `(+ ,?vw (* ,(cos (* ?oangle (/ pi 180))) ,?vo)))
+		      (t nil)))
+   (test ?sterm)
+   (test ?oterm)
    (optional (body ?source))		;allow draw source and observers  
    (optional (body ?observer))		
    (optional (axis-for ?source x 0)) ;allow draw standard axes 
    ;; motion descriptions for fancy hints:
-   (bind ?stea (if (eql ?sdir 'zero) "not moving~*"
-		 (if (< ?scos 0)  "moving towards ~A" "moving away from ~A")))
-   (bind ?otea (if (eql ?odir 'zero) "not moving~*"
-		 (if (> ?ocos 0) "moving towards ~A" "moving away from ~A")))
+   (bind ?stea (cond ((eql ?sdir 'zero) "not moving~*")
+		 ((> ?sangle 90)  "moving towards ~A") 
+		 (t "moving away from ~A")))
+   (bind ?otea (cond ((eql ?odir 'zero) "not moving~*")
+		 ((< ?oangle 90) "moving towards ~A")
+		 (t "moving away from ~A")))
    )
   :effects 
   ( (eqn  (= (* ?fo ?sterm) (* ?fs ?oterm))
