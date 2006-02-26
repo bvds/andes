@@ -1383,7 +1383,11 @@
 
 (defoperator define-stored-energy-var (?b ?t)
   :preconditions 
-  ( (bind ?U-var (format-sym "U_~A~@[_~A~]" (body-name ?b) 
+  (
+   ;; temporary switch, see Bug #761
+   (not (circuit-component ?b capacitor))
+   (not (circuit-component ?b inductor))
+ (bind ?U-var (format-sym "U_~A~@[_~A~]" (body-name ?b) 
 					   (time-abbrev ?t))) ) 
   :effects ( (variable ?U-var (stored-energy ?b :time ?t))
 	     (define-var (stored-energy ?b :time ?t)) ) 
@@ -1886,6 +1890,8 @@
   (
    ;; temporary, see Bug #759
    (test (not (eq (first ?quant) 'current-thru)))
+   ;; test to make sure this quantity is in Ontology
+   (test (lookup-expression-struct `(rate-of-change ,?quant)))
    ;; getting the base variable name means that student has
    ;; to also define the base variable
    ;;(variable ?var ?quant)
@@ -1943,7 +1949,7 @@
   (bind ?t (time-of ?quant))
   (bind ?q1 (set-time ?quant (second ?t)))
   (bind ?q2 (set-time ?quant (third ?t)))
-  (variable ?qavg ?quant)
+  (variable ?qavg (rate-of-change ?quant))
   (variable ?q1-var ?q1)
   (variable ?q2-var ?q2)
   (variable ?dt (duration ?t))
