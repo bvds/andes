@@ -385,6 +385,7 @@
 
 (defoperator define-current-thru-var (?what ?t)
   :preconditions (
+		  (not (circuit-component ?what capacitor))
 		  ;; ?what could be a list naming a compound (equivalent) circuit element.
 		  (bind ?i-what-var (format-sym "I_~A$~A" (comp-name ?what 'R) (time-abbrev ?t)))
 		  )
@@ -2350,7 +2351,7 @@
   ( 
    (any-member ?sought ( (voltage-across ?comp :time ?t) 
 			 (current-thru ?comp :time ?t)
-			 (electric-power ?comp :time ?t) )) 
+			 (electric-power ?comp :time ?t) ))
    ) 
   :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
 
