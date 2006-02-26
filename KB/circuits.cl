@@ -1790,18 +1790,17 @@
 (defoperator define-mutual-inductance-var (?inds)   
   :preconditions 
   (
-   (test (orderless-p ?inds))
-   (bind ?ind1 (second ?inds))
-   (bind ?ind2 (third ?inds))
+   (bind ?ind1 (first ?inds))
+   (bind ?ind2 (second ?inds))
    (bind ?L-var (format-sym "M_~A_~A" (body-name ?ind1) (body-name ?ind2)))
    )
   :effects (
-	    (variable ?L-var (mutual-inductance . ?inds))
-	    (define-var (mutual-inductance . ?inds))
+	    (variable ?L-var (mutual-inductance orderless . ?inds))
+	    (define-var (mutual-inductance orderless . ?inds))
 	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting mutual inductance." 
-			     ((mutual-inductance . ?inds) def-np)))
+			     ((mutual-inductance orderless . ?inds) def-np)))
 	 ))
 
 ;;;              Magnetic field inside a long solenoid
@@ -1865,7 +1864,7 @@
 ;; for these problems.
 (defoperator define-dIdt-var (?comp ?time)
   :preconditions (
-					; might want to require student to define a current var first on Andes interface
+		  ;; might want to require student to define a current var first on Andes interface
 		  (bind ?dIdt-var (format-sym "dI_~A_dt_~A" ?comp (time-abbrev ?time)))
 		  )
   :effects (
