@@ -59,6 +59,7 @@
 ;; to define units as function of units of base ?quant over time, 
 ;; I don't think.  For now just define rate of change of a current 
 ;; thru component
+
 (def-qexp current-change (rate-of-change (current-thru ?comp :time ?time))
   :units |A/s|
   :fromWorkbench `(rate-of-change (current-thru ,body :time ,time))

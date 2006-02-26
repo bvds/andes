@@ -1890,11 +1890,14 @@
   (
    ;; temporary, see Bug #759
    (test (not (eq (first ?quant) 'current-thru)))
-   ;; test to make sure this quantity is in Ontology
-   (test (lookup-expression-struct `(rate-of-change ,?quant)))
    ;; getting the base variable name means that student has
    ;; to also define the base variable
    ;;(variable ?var ?quant)
+   ;;
+   ;; Since we define derivatives explicitly on the Workbench, we need
+   ;; to test to make sure this quantity is in Ontology.
+   (test (lookup-expression-struct `(rate-of-change ,?quant)))
+   ;;
    ;; make unique variable name:  not too pretty, but it works
    (bind ?change-var (format-sym "d~A_~A_dt"  (first ?quant) 
 				 (sxhash (rest ?quant)))))
