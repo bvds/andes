@@ -2012,21 +2012,10 @@
 (defoperator mutual-inductor-emf-contains (?sought)
   :preconditions 
   (
-   (mutual-inductor . ?inds)
-   (any-member ?sought ((mutual-inductance . ?inds)))
-   (bind ?ind2 (second ?inds))
-   (bind ?ind1 (third ?inds))
-   (time ?time)
-   )
-  :effects ( (eqn-contains (mutual-inductor-emf ?ind1 ?ind2 ?time) ?sought) ))
-
-(defoperator mutual-inductor-emf-contains2 (?sought)
-  :preconditions 
-  (
-   (mutual-inductor . ?inds)
-   (bind ?ind1 (second ?inds))
-   (bind ?ind2 (third ?inds))
-   (any-member ?sought ((mutual-inductance orderless ?ind1 ?ind2) 
+   (mutual-inductor orderless . ?inds)
+   ;; can use either order for the two coils
+   (any-member ?inds ((?ind1 ?ind2) (?ind2 ?ind1)))
+   (any-member ?sought ((mutual-inductance orderless . ?inds) 
 			(voltage-across ?ind1 :time ?time)
 			(rate-of-change (current-thru ?ind2 :time ?time)) ))
    (time ?time)
