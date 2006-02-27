@@ -48,13 +48,11 @@
 	    db-intensity net-db-intensity))
 (def-feature-set linmom (energy-set mass duration))
 (def-feature-set rotkin 
-  (mass revolution-radius period duration angle moment-of-inertia 
-	length width))
+  (mass revolution-radius period duration angle moment-of-inertia))
 (def-feature-set angmom 
-  (mass period duration angle moment-of-inertia length width))
+  (mass period duration angle moment-of-inertia))
 (def-feature-set torque 
-  (mass period duration angle moment-of-inertia 
-	length width))
+  (mass period duration angle moment-of-inertia))
 (def-feature-set circuits 
   (electric-power current voltage resistance capacitance charge-on 
 		  stored-energy inductance mutual-inductance current-change 

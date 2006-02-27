@@ -1056,3 +1056,7 @@
   (when x (or (member quant (second (find (car x) *ontology-features* 
 					  :key #'first)))
 	      (quant-allowed-by-features quant (cdr x)))))
+
+(defun test-features (&rest topics)
+    (dolist (P (choose-Andes2-probs topics))
+      (test-quants-against-features P)))
