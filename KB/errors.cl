@@ -2796,7 +2796,7 @@
 (def-error-class field-wrong-agent (?sagent ?cagent ?loc ?type)
   ((student    (vector (field ?loc ?type ?sagent :time ?stime) ?sdir))
    (no-correct (vector (field ?loc ?type ?sagent :time ?time2) ?dir2))
-   (correct    (vector (field ?loc ?type ?cagent :time ?stime) ?cdir)))
+   (correct    (vector (field ?loc ?type ?cagent :time ?ctime) ?cdir)))
   :utility 50)
 
 (defun field-wrong-agent (sagent cagent loc fieldtype)
@@ -2815,7 +2815,7 @@
 (def-error-class field-wrong-type (?stype ?ctype ?loc)
   ((student    (vector (field ?loc ?stype ?sagent :time ?stime) ?sdir))
    (no-correct (vector (field ?loc ?stype ?agent2 :time ?time2) ?dir2))
-   (correct    (vector (field ?loc ?ctype ?cagent :time ?stime) ?cdir)))
+   (correct    (vector (field ?loc ?ctype ?cagent :time ?ctime) ?cdir)))
   :utility 38)
 
 (defun field-wrong-type (stype ctype loc)
@@ -2830,7 +2830,7 @@
 (def-error-class flux-wrong-type (?stype ?ctype ?loc)
   ((student    (flux ?loc ?stype :time ?stime))
    (no-correct (flux ?loc ?stype :time ?time2))
-   (correct    (flux ?loc ?ctype :time ?stime)))
+   (correct    (flux ?loc ?ctype :time ?ctime)))
   :utility 50)
 
 (defun flux-wrong-type (stype ctype loc)
@@ -2843,9 +2843,9 @@
                           (nlg ctype 'adj)))))
 
 (def-error-class dipole-moment-wrong-type (?stype ?ctype ?loc)
-  ((student    (dipole-moment ?loc ?stype :time ?stime))
-   (no-correct (dipole-moment ?loc ?stype :time ?time2))
-   (correct    (dipole-moment ?loc ?ctype :time ?stime)))
+  ((student    (vector (dipole-moment ?loc ?stype :time ?stime) ?sdir))
+   (no-correct (vector (dipole-moment ?loc ?stype :time ?time2) ?dir2))
+   (correct    (vector (dipole-moment ?loc ?ctype :time ?ctime) ?cdir)))
   :utility 50)
 
 (defun dipole-moment-wrong-type (stype ctype loc)
