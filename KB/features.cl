@@ -92,7 +92,7 @@
 (defun print-features (str)
  "express features in the format needed for KB/features.tsv"
   (dolist (f *Ontology-features*)
-  (format str "~A~C~(~{~A;~}~)~%" 
+  (format str "~A~C~(~{~A;~}~)~%"  ;lower case, see Bug #788 
 	  (first f) #\tab (second f))))
 
 (defun features-file ()
