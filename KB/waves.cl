@@ -931,13 +931,13 @@
 		      ((equal ?sangle 0) `(+ ,?vw ,?vs))
 		      ((equal ?sangle 180) `(- ,?vw ,?vs))
 		      (?sangle 
-		       `(+ ,?vw (* ,(cos (* ?sangle (/ pi 180))) ,?vs)))
+		       `(+ ,?vw (* (cos (dnum ,?sangle |deg|)) ,?vs)))
 		      (t nil)))
    (bind ?oterm (cond ((eq ?odir 'zero) ?vw)
 		      ((equal ?oangle 0) `(+ ,?vw ,?vo))
 		      ((equal ?oangle 180) `(- ,?vw ,?vo))
 		      (?oangle 
-		       `(+ ,?vw (* ,(cos (* ?oangle (/ pi 180))) ,?vo)))
+		       `(+ ,?vw (* (cos (dnum ,?oangle |deg|)) ,?vo)))
 		      (t nil)))
    (test ?sterm)
    (test ?oterm)

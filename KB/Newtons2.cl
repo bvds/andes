@@ -2953,10 +2953,11 @@
   then the equation for centripetal acceleration may be used to relate
   the body's acceleration and its velocity and radius of circular motion"
   :preconditions
-  ((any-member ?quantity
-	        ((mag (accel ?b :time       ?t))
-		 (mag (velocity ?b :time    ?t))
-		 (revolution-radius ?b :time ?t)))
+  (
+   (any-member ?quantity
+	       ((mag (accel ?b :time ?t))
+		(mag (velocity ?b :time ?t))
+		(revolution-radius ?b :time ?t)))
    (motion ?body (curved circular ?dontcare) :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
    )
@@ -2974,90 +2975,75 @@
      divided by the radius of circular motion"
   :preconditions
    (
-   (variable ?accel-var    (mag (accel ?b :time ?t)))
-   (variable ?vel-var      (mag (velocity ?b :time ?t)))
-   (variable ?radius-var   (revolution-radius ?b :time ?t))
+   (variable ?accel-var (mag (accel ?b :time ?t)))
+   (variable ?vel-var (mag (velocity ?b :time ?t)))
+   (variable ?radius-var (revolution-radius ?b :time ?t))
    )
   :effects
-  ((eqn (= ?accel-var (/ (^ ?vel-var 2)
-                         ?radius-var)) 
+  ((eqn (= ?accel-var (/ (^ ?vel-var 2) ?radius-var)) 
 	(centripetal-accel ?b ?t)))
   :hint
   ((point (string "Notice that ~a is moving in uniform circular motion." ?b))
    (teach (kcd "centripetal_PSM")
 	  (string "If an object is in uniform circular motion, its acceleration equals the velocity squared divided by the radius of circular motion."))
-   (bottom-out (string "Because ~a is moving in a circle of radius ~a with velocity ~a, its acceleration is ~a = ~a^2/~a."  ?b (?radius-var algebra) (?vel-var algebra) (?accel-var algebra) (?vel-var algebra) (?radius-var algebra)))
+   (bottom-out (string "Because ~a is moving in a circle of radius ~a with velocity ~a, its acceleration is ~a."  ?b (?radius-var algebra) (?vel-var algebra) ((= ?accel-var (/ (^ ?vel-var 2) ?radius-var)) algebra)))
    ))
 
-#|
 (defoperator centripetal-accel-vector-contains (?sought)
   :preconditions 
   (
    (any-member ?sought
-	       ((mag (accel ?b :time       ?t))
-		(mag (velocity ?b :time    ?t))
+	       ((compo ?xy ?rot (accel ?b :time ?t))
+		(mag (velocity ?b :time ?t))
 		(revolution-radius ?b :time ?t)))
-;; if sought is charge, can use either equation for force
-		;; on b1 from b2 or force on b2 from b1, so need both:
-		(charge-on ?b1 :time ?t ?t)
-		(charge-on ?b2 :time ?t ?t)
-		(mag (relative-position ?b1 ?b2 :time ?t))
-		(compo ?xy ?rot (relative-position ?b ?b2 :time ?t))
-		(compo ?xy ?rot (accel ?b :time ?t)))
-	       )
-   (any-member ?form (nil t)) ;switch between forms of r-hat
    (motion ?body (curved circular ?dontcare) :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
-   (object ?b)
-   (time ?t)
    )
   :effects 
-   ((eqn-family-contains (centripetal-accel-vec ?b ?t ?form) ?sought)
+   ((eqn-family-contains (centripetal-accel-vec ?b ?t) ?sought)
     ;; since only one compo-eqn under this vector psm, we can just
     ;; select it now, rather than requiring further operators to do so
-    (compo-eqn-contains (centripetal-accel-vec ?b ?t ?form) definition ?sought)))
+    (compo-eqn-contains (centripetal-accel-vec ?b ?t) definition ?sought)))
 
 (defoperator draw-centripetal-accel-vector-diagram (?b ?t)
   :preconditions 
   (
    (body ?b)
-   (body ?agent) ; draw source as pot and E-field rules do
-   (vector ?b (relative-position ?b ?agent :time ?t) ?dir1)
-   ;; assuming (without checking) only one force between the two bodies.
-   (vector ?b (force ?b ?agent electric :time ?t) ?dir2)
+   (vector ?b (accel ?b :time ?t) ?dir1)
    (axis-for ?b x ?b-rot)
    )
-  :effects (
-	    (vector-diagram (centripetal-accel-vec ?b ?t ?form))
-  ))
+  :effects ( (vector-diagram (centripetal-accel-vec ?b ?t)) ))
 
-(defoperator write-centripetal-accel-compo (?b ?t ?xy ?rot ?form)
+(defoperator write-centripetal-accel-compo (?b ?t ?xy ?rot)
   :preconditions 
   (
    ;; make sure r-hat compo doesn't vanish
-   (in-wm (vector ?b (relative-position ?b :time ?t) ?r-dir))
-   (test (non-zero-projectionp ?r-dir ?xy ?rot))
-   (variable ?q1 (charge-on ?b :time ?t ?t))
-   (variable ?q2 (charge-on :time ?t ?t))
-   (variable ?r  (mag (relative-position ?b :time ?t)))
-   (variable ?F_xy  (compo ?xy ?rot (force ?b electric :time ?t)))
-   (hat ?rhat-compo (relative-position ?b :time ?t) ?xy ?rot ?form)
+   (in-wm (vector ?b (accel ?b :time ?t) ?a-dir))
+   (test (non-zero-projectionp ?a-dir ?xy ?rot))
+   (variable ?a_xy (compo ?xy ?rot (accel ?b :time ?t)))
+   (variable ?vel-var (mag (velocity ?b :time ?t)))
+   (variable ?radius-var (revolution-radius ?b :time ?t))
+   ;; Ideally, the radius direction would be given by relative-position
+   ;; insead, we have revolution-radius.  
+   ;; Thus we are forced to use the direction of the acceleration itself
+   (bind ?angle (get-angle-between (opposite ?a-dir) (axis-dir ?xy ?rot)))
+   (test ?angle)
+   (bind ?rhat-compo `(cos (dnum ,?angle |deg|)))
    )
-  :effects (
-   (eqn (= ?F_xy (* (/ (* |kelec| ?q1 ?q2) (^ ?r 2)) ?rhat-compo))
-            (compo-eqn definition ?xy ?rot 
-		       (centripetal-accel-vec ?b ?t ?form)))
+  :effects 
+  ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) ?rhat-compo))
+	(compo-eqn definition ?xy ?rot (centripetal-accel-vec ?b ?t)))
    (eqn-compos (compo-eqn definition ?xy ?rot 
-		       (centripetal-accel-vec ?b ?t ?form)) (?F_xy))
+			  (centripetal-accel-vec ?b ?t)) (?a_xy))
    )
-  :hint (
-     (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
-     (bottom-out (string "Write the equation ~A" 
-			 ((= ?F (* (/ (* |kelec| ?q1 ?q2)) 
-			     (^ ?r 2) ?rhat-compo))) algebra))
-  ))
-|#
-
+  :hint
+  ((point (string "Notice that ~a is moving in uniform circular motion." ?b))
+   (teach (kcd "centripetal_PSM")
+	  (string "If an object is in uniform circular motion, its acceleration equals the velocity squared divided by the radius of circular motion.  The acceleration is always pointing towards the center of the circle."))
+   (bottom-out (string "Write the equation ~A." 
+		       ((= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) 
+				    ?rhat-compo)) algebra)))
+   ))
 
 ;;; define a variable for the revolution radius = radius of uniform circular
 ;;; motion. Note no time on this quantity in the workbench; OK, all our
@@ -7346,10 +7332,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator hat-using-angle (?vec ?xyz ?rot)
   :preconditions 
   ((variable ?vec-theta (dir ?vec))
-   (bind ?sin-or-cos (cond ((eq ?xyz 'x) 'cos) ((eq ?xyz 'y) 'sin) (t nil)))
-   (bind ?axis-angle (axis-dir 'x ?rot))
-   (test ?sin-or-cos))
-  :effects ((hat (?sin-or-cos (- ?vec-theta ?axis-angle)) ?vec ?xyz ?rot nil)
+   (bind ?axis-angle (axis-dir ?xyz ?rot)))
+  :effects ((hat (cos (- ?vec-theta ?axis-angle)) ?vec ?xyz ?rot nil)
 	  (assume using-hat ?vec ?rot nil)
 	  ))
 

@@ -800,7 +800,7 @@
 	      (nlg ?body) (nlg ?time 'nlg-time))
   :EqnFormat ("ac = v^2/r"))
 (def-psmclass centripetal-accel-compo (?eqn-type definition ?axis ?rot 
-				 (centripetal-accel-vec ?body ?time ?form))
+				 (centripetal-accel-vec ?body ?time))
   :complexity major    
   :Doc "Definition of Coulomb's law, component form."
   :english ("centripetal acceleration (component form)") 
