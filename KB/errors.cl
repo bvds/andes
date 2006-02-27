@@ -264,7 +264,7 @@
 (def-error-class variable-with-wrong-time (?descr ?stime ?ctime)
   ((student (define-var (?descr . ?svar)))
    (correct (define-var (?descr . ?cvar)))
-   (test (equal (remove-time ?svar) (remove-time ?cvar)))
+   (test (unify (remove-time ?svar) (remove-time ?cvar)))
    (bind ?stime (time-of ?svar))
    (bind ?ctime (time-of ?cvar))
    (test (not (equal ?stime ?ctime))))
@@ -311,9 +311,6 @@
 			     "problem by clicking on the light bulb button "
 			     "or 'explain further'.") wrong-body)
 	 '(function next-step-help))))
-
-;;; ============ defining a distance between variable ===============
-;;; Only used on Exkt6a, which isn't solvable yet by the KB
 
 
 ;;; =========== defining a distance-travelled variable ==============
@@ -1513,7 +1510,7 @@
    (bind ?stime (time-of ?b1))
    (correct (vector (?descr . ?b2) ?cdir))
    (bind ?ctime (time-of ?b2))
-   (test (equal (remove-time ?b1) (remove-time ?b2)))
+   (test (unify (remove-time ?b1) (remove-time ?b2)))
    (no-correct (vector (?descr . ?b1) ?dir2))
    (bind ?b4 (set-time ?b1 ?anytime))
    (no-correct (vector (?descr . ?b4) ?sdir)))
@@ -2816,7 +2813,7 @@
   ((student    (vector (field ?loc ?stype ?sagent :time ?stime) ?sdir))
    (no-correct (vector (field ?loc ?stype ?agent2 :time ?time2) ?dir2))
    (correct    (vector (field ?loc ?ctype ?cagent :time ?ctime) ?cdir)))
-  :utility 38)
+  :utility 22) ;low utility since time, direction, and agent are not matched
 
 (defun field-wrong-type (stype ctype loc)
  (declare (ignore loc))    
@@ -2828,10 +2825,10 @@
                           (nlg ctype 'adj)))))
 
 (def-error-class flux-wrong-type (?stype ?ctype ?loc)
-  ((student    (flux ?loc ?stype :time ?stime))
-   (no-correct (flux ?loc ?stype :time ?time2))
-   (correct    (flux ?loc ?ctype :time ?ctime)))
-  :utility 50)
+  ((student    (define-var (flux ?loc ?stype :time ?stime)))
+   (no-correct (define-var (flux ?loc ?stype :time ?time2)))
+   (correct    (define-var (flux ?loc ?ctype :time ?ctime))))
+  :utility 27) ;low utility since time is not matched
 
 (defun flux-wrong-type (stype ctype loc)
  (declare (ignore loc))    
@@ -2846,7 +2843,7 @@
   ((student    (vector (dipole-moment ?loc ?stype :time ?stime) ?sdir))
    (no-correct (vector (dipole-moment ?loc ?stype :time ?time2) ?dir2))
    (correct    (vector (dipole-moment ?loc ?ctype :time ?ctime) ?cdir)))
-  :utility 50)
+  :utility 21) ;low utility since time and direction are not matched
 
 (defun dipole-moment-wrong-type (stype ctype loc)
  (declare (ignore loc))    
