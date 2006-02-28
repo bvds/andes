@@ -139,6 +139,7 @@ LEAF	$t_x = $m_y*B_z - $m_z*B_y  torque for magnetic dipole (x component)	(magne
 LEAF	$t_y = $m_z*B_x - $m_x*B_z  torque for magnetic dipole (y component)	(magnetic-dipole-torque ((?axis . y)))	Dipoles
 LEAF	$t_z = $m_x*B_y - $m_y*B_x  OR  $t_z = $m*B*sin($qB-$q$m)  torque for magnetic dipole (z component)	(magnetic-dipole-torque ((?axis . z)))	Dipoles
 LEAF	Ud = -$m.B   [Ud = -$m*B*cos($q) or Ud = -($m_x*B_x+$m_y*B_y]         potential energy of magnetic dipole	magnetic-dipole-energy	Dipoles
+LEAF	E = B*c           ratio of fields in electromagnetic wave	electromagnetic-wave-field-amplitude	
 END_GROUP			
 GROUP	DC Circuits		
 LEAF	+/-V1 +/-V2 +/-V3...=0     Kirchoff's Loop rule	loop-rule	Loop Rule
@@ -189,7 +190,7 @@ LEAF	1/f12 = 1/f1 + 1/f2     Compound Lens (Touching Lenses)	compound-focal-leng
 LEAF	v1*n1 = v2*n2           Index of refraction	wave-speed-refraction	
 LEAF	n=1                     Index of refraction of vacuum	refraction-vacuum	
 END_GROUP			
-GROUP	Waves and Oscillations		
+GROUP	Waves and Oscillations	
 LEAF	k = 2*$p/$l     Wavenumber	wavenumber-lambda-wave
 LEAF	f = $w/(2*$p)    Frequency	frequency-of-wave
 LEAF	T = 1/f       Period of oscillation	period-of-wave
@@ -205,7 +206,7 @@ LEAF	fo = fs*(vw±vo)/(vw±vs)   Frequency shift from doppler effect	doppler-frequ
 LEAF	fn = n*f1 or $ln = $l1/n   n-th harmonic	harmonic-of
 LEAF	fbeats = abs(f1-f2)/2    Beat Frequency	beat-frequency
 LEAF	E = E0*exp(-2*t/$t)          energy decay	energy-decay
-LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light
+LEAF	v = c = 2.998e8 m/s    Speed of Light	wave-speed-light	
 END_GROUP			
 END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		

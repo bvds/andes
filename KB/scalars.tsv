@@ -66,5 +66,7 @@ string-tension	Ft	tension on a string	tension	on [body:bodies]
 amplitude	A	amplitude		for oscillations of [body:bodies]
 amplitude-max-speed	vmax	maximum speed of oscillation		for oscillations of [body:bodies]
 amplitude-max-abs-acceleration	amax	maximum magnitude of acceleration		for oscillations of [body:bodies]
+amplitude-electric	E	amplitude of electric field		for oscillations of [body:bodies]
+amplitude-magnetic	B	amplitude of magnetic field		for oscillations of [body:bodies]
 probability	p	probability		
 gravitational-acceleration	g	gravitational acceleration		at surface of [body:bodies]
