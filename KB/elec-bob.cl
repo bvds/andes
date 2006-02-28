@@ -1,4 +1,3 @@
-
 (defproblem elec1a
   :statement (
     "An electron (qe = -1.60e-19 C; me = 9.11e-31 kg) is in a region" 
@@ -483,5 +482,61 @@
   )
   :soughts (
     (mag (displacement electron :time (during 1 2)))
+  )
+)
+
+;; Please don't use this problem in Andes bc it is an exam problem. 
+;; To prevent this, 'working' is not included to disable the problem.
+(defproblem elec7a
+  :statement (
+    "An electron enters a region of space where the vector"
+    "electric field is E = (2i + 3j)e+4 N/C. If the initial"
+    "velocity of the electron when it entered the field was"
+    "v0 = 4e+6i m/s what is its velocity 6e-6s after entering"
+    "the field?"
+    "    x-component:  [XXXXXXXXXXXX]"
+    "    y-component:  [XXXXXXXXXXXX]"
+    "In this problem, gravity can be ignored."
+  )
+  ;; :graphic "elec7a.gif"
+  :features (E&M E-field kinematics dynamics energy andes2)
+  :choices (
+    (bodies (electron))
+    (positions (region))
+  )
+  :times ((1 "enters region") (2 "moves to right") (during 1 2))
+  :givens (
+    (time 1) (time 2) (time (during 1 2))
+    (object electron)
+    (at-place electron region :time 1)
+    (at-place electron region :time 2)
+    (at-place electron region (during 1 2))
+    (given (charge-on electron) (dnum -1.60e-19 |C|)) 
+    (given (mass electron) (dnum 9.11E-31 |kg|))
+    (E-field unspecified) ;source of field
+;   (given (compo x 0 (field region electric unspecified :time (during 1 2))) (dnum 2.0E4 |N/C|))
+;   (given (compo y 0 (field region electric unspecified :time (during 1 2))) (dnum 3.0E4 |N/C|))
+    (given (mag (field region electric unspecified :time (during 1 2)))
+      (dnum 3.6055512754639892931192212674705 |N/C|))
+    (given (dir (field region electric unspecified :time (during 1 2)))
+      (dnum 56.30993247402021308647450543834 |deg|))    
+    (given (duration (during 1 2)) (dnum 6E-6 |s|))
+    (given (mag (velocity electron :time 1)) (dnum 4.0E6 |m/s|))
+    (motion electron (curved projectile ((dnum 0 |deg|) nil)) :time 1)
+    ;; in principle, the direction of acceleration should come
+    ;; from the direction of the force
+    (motion electron (curved projectile (unknown nil)) :time (during 1 2))
+    (motion electron (curved projectile (unknown nil)) :time 2)      
+    ;; needed for LK stuff.  One could infer this from the constant
+    ;; force, but that would be hard
+    (constant (accel electron) (during 1 2))
+    (component-form)			;axes should be pre-drawn
+    ;; Although there is an electrostatic potential, we don't 
+    ;; have any rules to derive it.
+    (unknown-potentials)
+  )
+  :soughts (
+    (compo x 0 (velocity electron :time 2))
+    (compo y 0 (velocity electron :time 2))
   )
 )
