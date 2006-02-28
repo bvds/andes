@@ -449,40 +449,38 @@
 
 ;;; Snell's Law
 
-(def-psmclass snells-law (snells-law ?line1 ?line2 ?angle-flag)
+(def-psmclass snells-law (snells-law (orderless . ?lines) ?angle-flag)
   :complexity major
   :english ("Snell's law")
-  :ExpFormat ("using Snell's law for ~A and ~A" (nlg ?line1) (nlg ?line2))
+  :ExpFormat ("using Snell's law for ~A" (nlg ?lines 'conjoined-defnp))
   :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
 
 
 ;; form with angle-between
 (defoperator snells-law-contains (?sought)
   :preconditions 
-  ( (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
-    (any-member ?sought (
-			 (angle-between orderless (line ?line1) 
+  ( (snell-system ?normal-to-surface orderless . ?lists)
+    (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
+			((?line2 ?medium2) (?line1 ?medium1))))
+    (any-member ?sought ((angle-between orderless (line ?line1) 
 					(line ?normal-to-surface))
-			 (angle-between orderless (line ?line2) 
-					(line ?normal-to-surface))
-			 (index-of-refraction ?medium1)		
-			 (index-of-refraction ?medium2)))
+			 (index-of-refraction ?medium1)))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
-  :effects ( (eqn-contains (snells-law ?line1 ?line2 nil) ?sought) ))
+  :effects 
+  ( (eqn-contains (snells-law (orderless ?line1 ?line2) nil) ?sought) ))
 
 ;; form with explicit angles
 (defoperator snells-law-contains2 (?sought)
   :preconditions 
-  ( (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
-    (any-member ?sought (
-			 (dir (line ?line1))
-			 (dir (line ?line2))
-			 (index-of-refraction ?medium1)		
-			 (index-of-refraction ?medium2)))
+  ((snell-system ?normal-to-surface orderless . ?lists)
+   (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
+		       ((?line2 ?medium2) (?line1 ?medium1))))
+    (any-member ?sought ((dir (line ?line1))
+			 (index-of-refraction ?medium1)))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
-  :effects ( (eqn-contains (snells-law ?line1 ?line2 t) ?sought) ))
+  :effects ( (eqn-contains (snells-law (orderless ?line1 ?line2) t) ?sought) ))
 
 ;; construct variable for angle of incidence or angle of refraction.
 (defoperator get-snell-angle1 (?theta)
@@ -496,7 +494,7 @@
 (defoperator get-snell-angle2 (?theta1)
   :preconditions 
   (
-   ;; draw lines for the test
+    ;; draw lines for the test
    (draw-line (line ?line1) ?dir1)
    (draw-line (line ?line2) ?dir2)
    (draw-line (line ?normal-to-surface) ?dirn)
@@ -526,10 +524,12 @@
   ( (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface t)
     ))
  
-(defoperator write-snells-law (?line1 ?line2 ?angle-flag)
+(defoperator write-snells-law (?lines ?angle-flag)
   :preconditions 
   (
-   (snell-system ?line1 ?medium1 ?line2 ?medium2 ?normal-to-surface)
+   (any-member ?lines ((?line1 ?line2)))
+   (snell-system ?normal-to-surface orderless . ?lists)
+   (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))))
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
@@ -540,7 +540,7 @@
    (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
    )
   :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
-		  (snells-law ?line1 ?line2 ?angle-flag))
+		  (snells-law (orderless . ?lines) ?angle-flag))
 	     ;; Implicit equations to enforce the correct root for the sines
 	     ;; This is needed if one wants to calculate one of the angles
 	     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
@@ -556,3 +556,143 @@
 			     ((= (* ?n1 (sin ?theta1)) 
 				 (* ?n2 (sin ?theta2))) algebra)))
 	 ))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;     Formula for total internal reflection
+;;;
+
+;; This is basically a copy of Snell's law
+;; It does not really handle the inequality
+(def-psmclass total-internal-reflection (total-internal-reflection ?line1 ?angle-flag)
+  :complexity major
+  :english ("Formula for angle of total internal reflection")
+  :ExpFormat ("using total internal reflection formula for ~A (minimum angle)" 
+	      (nlg ?line1))
+  :eqnFormat ("n1*sin($q1) = n2"))
+
+
+;; form with angle-between
+(defoperator total-internal-reflection-contains (?sought)
+  :preconditions 
+  ( (total-internal-reflection-system ?normal-to-surface 
+				      ?line1 ?medium1 ?medium2)
+    (any-member ?sought (
+			 (angle-between orderless (line ?line1) 
+					(line ?normal-to-surface))
+			 (index-of-refraction ?medium1)		
+			 (index-of-refraction ?medium2)))
+    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    )
+  :effects ( (eqn-contains (total-internal-reflection ?line1 nil) ?sought) ))
+
+;; form with explicit angles
+(defoperator total-internal-reflection-contains2 (?sought)
+  :preconditions 
+  ( (total-internal-reflection-system ?line1 ?medium1 ?medium2 ?normal-to-surface)
+    (any-member ?sought (
+			 (dir (line ?line1))
+			 (index-of-refraction ?medium1)		
+			 (index-of-refraction ?medium2)))
+    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    )
+  :effects ( (eqn-contains (total-internal-reflection ?line1 t) ?sought) ))
+
+;; construct variable for angle of incidence or angle of refraction.
+(defoperator get-total-internal-reflection-angle1 (?theta)
+  :preconditions 
+  ((variable ?theta (angle-between orderless 
+				   (line ?line) (line ?normal-to-surface))))
+  :effects ((total-internal-reflection-angle ?theta ?line ?normal-to-surface nil)))
+
+;; alternative form of angle for cases where the direction
+;; of the line is sought
+(defoperator get-total-internal-reflection-angle2 (?theta1)
+  :preconditions 
+  (
+   ;; draw lines for the test
+   (draw-line (line ?line1) ?dir1)
+   (draw-line (line ?normal-to-surface) ?dirn)
+
+   ;; All the angles are mod 180 degrees, but this fact should be
+   ;; transparent to the student (and the solver).  Thus, we only 
+   ;; allow directions where the angle can be calculated without 
+   ;; taking the mod.
+   ;; Consequently, we need an explicit angle for the normal.
+   (bind ?normal (when (degrees-or-num ?dirn) (convert-dnum-to-number ?dirn)))
+   (test ?normal)
+
+   (variable ?angle1 (dir (line ?line1)))
+   (variable ?anglen (dir (line ?normal-to-surface)))
+   (bind ?theta1 (if (<= 90 ?normal) `(- ,?anglen ,?angle1) 
+		  `(- ,?angle1 ,?anglen)))
+   )
+  :effects 
+  ( (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface t)
+    ))
+ 
+(defoperator write-total-internal-reflection (?line1 ?angle-flag)
+  :preconditions 
+  (
+   (total-internal-reflection-system ?normal-to-surface 
+				     ?line1 ?medium1 ?medium2)
+   ;;
+   (variable ?n1 (index-of-refraction ?medium1))
+   (variable ?n2 (index-of-refraction ?medium2))
+   (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface ?angle-flag)
+   (variable ?dummy1 (test-var ?line1)) ;?dummy1 is non-negative
+   (debug "total internal reflection for ~A~%" ?line1)
+   )
+  :effects ( (eqn (= (* ?n1 (sin ?theta1)) ?n2) 
+		  (total-internal-reflection ?line1 ?angle-flag))
+	     ;; Implicit equations to enforce the correct root for the sines
+	     ;; This is needed if one wants to calculate one of the angles
+	     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
+			   (angle-constraint ?line1 ?angle-flag))
+    )
+  :hint 
+  ((point (string "What is the direction of ~A if there is to be total internal reflection?"
+		  ?line1))
+   (teach (string "Use the formula for total internal reflection.")) 
+   (bottom-out (string "Write the equation ~A." 
+		       ((= (* ?n1 (sin ?theta1)) ?n2) algebra)))
+   ))
+
+;;;
+;;;                Complimentary and Supplementary angles
+;;;
+
+(def-psmclass complimentary-angles (complimentary-angles orderless . ?angles)
+  :complexity minor
+  :english ("Complimentary angles")
+  :ExpFormat ("using complimentary angles for ~A" 
+	      (nlg ?angles 'conjoined-defnp))
+  :eqnFormat ("$q1 + $q2 = 90 deg"))
+
+(defoperator complimentary-angles-contains (?sought)
+  :preconditions 
+  ( (complimentary-angles orderless . ?angles)
+    (any-member ?sought ?angles)
+    )
+  :effects 
+  ( (eqn-contains (complimentary-angles orderless . ?angles) ?sought) ))
+
+ 
+(defoperator write-complimentary-angles (orderless . ?angles)
+  :preconditions 
+  (
+   (any-member ?angles ((?ang1 ?ang2)))
+   (variable ?angle1 ?ang1)
+   (variable ?angle2 ?ang2)
+   )
+  :effects ( (eqn (= (+ ?angle1 ?angle2) (dnum 90 |deg|)) 
+		  (complimentary-angles orderless . ?angles))
+    )
+  :hint 
+  ((point (string "What is the relation between ~A and ~A?"
+		  (?ang1 def-np) (?ang2 def-np)))
+   (teach (string "If two angles are complimentary, then their measure adds up to 90 degrees.")) 
+   (bottom-out (string "Write the equation ~A." 
+		       ((= (+ ?angle1 ?angle2) (dnum 90 |deg|)) algebra)))
+   ))
