@@ -660,12 +660,16 @@
   :english ("the amplitude of ~A" (nlg ?wave))
   :fromworkbench `(amplitude ,body))
 
-(defoperator define-amplitude (?wave)
-  :preconditions((bind ?lambda-var (format-sym "amp_~A" (body-name ?wave))))
-  :effects ((variable ?lambda-var (amplitude ?wave))
-	    (define-var (amplitude ?wave)))
+(defoperator define-amplitude (?wave ?type)
+  :preconditions((bind ?lambda-var 
+		       (format-sym "amp~@[~A~]_~A" 
+				   (when ?type (subseq (string ?type) 0 1))
+				   (body-name ?wave))))
+  :effects ((variable ?lambda-var (amplitude ?wave :type ?type))
+	    (define-var (amplitude ?wave :type ?type)))
   :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting amplitude."  ((amplitude ?wave) def-np)))))
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting amplitude."  
+		  ((amplitude ?wave :type ?type) def-np)))))
 
 ;;; define maximum speed of transverse motion
 (def-qexp amplitude-max-speed (amplitude-max-speed ?wave)
@@ -1233,3 +1237,51 @@
 				      (exp (/ (- (* 2 ?t-var)) ?tau-var)))) 
 			algebra) ))
    ))
+
+
+;;;    Amplitude of electric and magnetic fields in an electromagnetic wave
+
+(def-qexp amplitude-electric (amplitude ?wave :type electric)
+  :units |V/m|
+  :restrictions nonnegative 
+  :english ("the amplitude of the electric field in ~A" (nlg ?wave))
+  :fromworkbench `(amplitude ,body :type electric))
+
+(def-qexp amplitude-magnetic (amplitude ?wave :type magnetic)
+  :units |T|
+  :restrictions nonnegative 
+  :english ("the amplitude of the magnetic field in ~A" (nlg ?wave))
+  :fromworkbench `(amplitude ,body :type magnetic))
+
+
+(def-psmclass electromagnetic-wave-field-amplitude (electromagnetic-wave-field-amplitude ?wave)
+  :complexity major  ; must explicitly use
+  :english ("Formula for maximum speed of an oscillation")
+  :ExpFormat ("applying the formula for maximum speed of an oscillation")
+  :EqnFormat ("v_max=A $w")) 
+
+
+(defoperator electromagnetic-wave-field-amplitude-contains (?sought)
+  :preconditions ( (sinusoidal ?wave)
+		   (vacuum ?wave)
+		   (any-member ?sought ((amplitude ?wave :type ?whatever))))
+  :effects (
+	    (eqn-contains (electromagnetic-wave-field-amplitude ?wave ) ?sought)))
+
+
+(defoperator write-electromagnetic-wave-field-amplitude (?wave)
+  :preconditions (
+       (variable  ?e  (amplitude ?wave :type electric))
+       (variable  ?b  (amplitude ?wave :type magnetic))
+   )
+   :effects (
+  ;; c is predefined, see file constants.cl
+    (eqn  (= ?e (* |c| ?b))  
+                (electromagnetic-wave-field-amplitude ?wave))
+   )
+   :hint (
+      (point (string "Find a formula the relation beteen the electric and magnetic fields in an electromagnetic wave."))
+      (bottom-out (string "Write the equation ~A." 
+                     ((= ?e (* |c| ?b)) algebra) ))
+      ))
+

@@ -61,6 +61,8 @@
   (charge-on current potential duration length turns turns-per-length angle 
 	     electric-flux magnetic-flux electric-flux-change 
 	     magnetic-flux-change))
+(def-feature-set E&M-waves 
+  (amplitude-electric amplitude-mangetic))
 (def-feature-set optics 
   (object-distance image-distance lens-distance focal-length magnification 
 		   radius-of-curvature index-of-refraction angle)) 
