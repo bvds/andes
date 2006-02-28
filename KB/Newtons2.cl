@@ -2992,10 +2992,10 @@
 (defoperator centripetal-accel-vector-contains (?sought)
   :preconditions 
   (
-   (any-member ?sought
-	       ((compo ?xy ?rot (accel ?b :time ?t))
-		(mag (velocity ?b :time ?t))
-		(revolution-radius ?b :time ?t)))
+   (any-member ?sought ((mag (accel ?b :time ?t))
+			(dir (accel ?b :time ?t))
+			(mag (velocity ?b :time ?t))
+			(revolution-radius ?b :time ?t)))
    (motion ?body (curved circular ?dontcare) :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
    )
@@ -5594,7 +5594,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ((any-member ?sought (
 		 (mag (net-force ?b :time ?t))
 		 (dir (net-force ?b :time ?t))
-		 (compo ?xy ?rot (net-force ?b :time ?t))
 		 (mag (force ?b ?agent ?type :time ?t))
 		 (dir (force ?b ?agent ?type :time ?t))))
     (object ?b)

@@ -90,8 +90,9 @@
 		(charge-on ?b1 :time ?t ?t)
 		(charge-on ?b2 :time ?t ?t)
 		(mag (relative-position ?b1 ?b2 :time ?t))
-		(compo ?xy ?rot (relative-position ?b1 ?b2 :time ?t))
-		(compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
+		(dir (relative-position ?b1 ?b2 :time ?t))
+		(mag (force ?b1 ?b2 electric :time ?t))
+		(dir (force ?b1 ?b2 electric :time ?t)))
 	       )
    (any-member ?form (nil t)) ;switch between forms of r-hat
    (object ?b1)
