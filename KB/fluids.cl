@@ -561,6 +561,40 @@
       (bottom-out (string "Write the equation ~A"  
 			  (= ?A (* ?l ?w)) algebra) )) )
 
+;;; equation for the volume of a cylinder
+(def-psmclass volume-of-cylinder (volume-of-cylinder ?body)
+  :complexity minor  
+  :english ("the formula for the volume of a cylinder")
+  :ExpFormat ("applying the formula for the volume of a cylinder")
+  :EqnFormat ("V = A*l")) 
+
+ (defoperator volume-of-cylinder-contains (?sought)
+   :preconditions 
+   (
+    (shape ?cylinder cylinder :base ?base)
+    (any-member ?sought ( (length ?cylinder)
+			  (volume ?cylinder)
+			  (area ?base)))
+   )
+   :effects ( (eqn-contains (volume-of-cylinder ?cylinder ?base) ?sought) ))
+
+(defoperator volume-of-cylinder (?cylinder ?base)
+   :preconditions (
+       (variable ?V (volume ?cylinder))
+       (variable ?A (area ?base))
+       (varible ?h (length ?cylinder))
+   )
+   :effects (
+    (eqn  (= ?V (* ?A ?l)) (volume-of-cylinder ?cylinder ?base))
+   )
+   :hint 
+   (
+    (point (string "You apply the formula for the volume of a cylinder to ~A."
+		   ?cylinder))
+      (teach (string "The volume of a cylinder is the area times the length."))
+      (bottom-out (string "Write the equation ~A" 
+                     (= ?V (* ?A ?l)) algebra) ))
+   )
 
 ;;;
 ;;; Pressure forces: 

@@ -1141,7 +1141,7 @@
  
 ;;; Relate intensity to net power output in a spherical geometry.  
 
-(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?b1 ?b2)
+(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?bodies)
   :complexity major  ;must explicitly use
   :english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("relating the intensity to power (spherical symmetry)")
@@ -1156,21 +1156,11 @@
 			 (net-power-out ?source :time ?t)
 			 (mag (relative-position ?source ?wave :time ?t))
 			 ))
+    ;; allow both possibilities for relative position
+    (any-member ?bodies ((?source ?wave) (?wave ?source)))
     ) 
   :effects 
-  ( (eqn-contains (intensity-to-power ?wave ?source ?t ?source ?wave) ?sought)))
-
-(defoperator intensity-to-power-contains2 (?sought)
-  :preconditions 
-  ( (spherical-emitting ?wave ?source)	;need spherical symmetry
-    (time ?t)
-    (any-member ?sought ((intensity ?wave ?source :time ?t)
-			 (net-power-out ?source :time ?t)
-			 (mag (relative-position ?wave ?source :time ?t))
-			 ))
-    ) 
-  :effects 
-  ( (eqn-contains (intensity-to-power ?wave ?source ?t ?wave ?source) ?sought)))
+  ( (eqn-contains (intensity-to-power ?wave ?source ?t ?bodies) ?sought)))
 
 (defoperator write-intensity-to-power (?wave ?source ?t ?b1 ?b2)
   :preconditions 
@@ -1183,7 +1173,7 @@
     )
   :effects 
   ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))
-		  (intensity-to-power ?wave ?source ?t ?b1 ?b2)) )
+		  (intensity-to-power ?wave ?source ?t (?b1 ?b2))) )
   :hint 
   ( (point (string "If the power goes out in all directions, the intensity ~A is the power divided by the surface area of the sphere." 
 		   (?wave pp)))
@@ -1191,6 +1181,46 @@
 		   (?source def-np) (?wave def-np)))
     (bottom-out (string "Write the equation ~A" 
 			     ((= ?power (* 4 $p (^ ?r 2) ?int)) algebra) ))
+	 ))
+
+
+(def-psmclass uniform-intensity-to-power 
+  (uniform-intensity-to-power ?wave ?source ?t)
+  :complexity major  ;must explicitly use
+  :english ("relate uniform intensity to power")
+  :ExpFormat ("relating the intensity to power (uniform intensity)")
+  :EqnFormat ("P = I*A")) 
+
+
+(defoperator uniform-intensity-to-power-contains (?sought)
+  :preconditions 
+  ( (uniform-intensity ?surface ?source)	;need uniform intensity
+    (time ?t)
+    (any-member ?sought ((intensity ?surface ?source :time ?t)
+			 (net-power-out ?source :time ?t)
+			 (area ?surface)
+			 ))
+    ) 
+  :effects 
+  ( (eqn-contains (uniform-intensity-to-power ?surface ?source ?t) ?sought)))
+
+(defoperator write-uniform-intensity-to-power (?surface ?source ?t)
+  :preconditions 
+  ( (variable  ?int  (intensity ?surface ?source :time ?t))
+    (variable  ?power  (net-power-out ?source :time ?t))
+    (variable  ?A (area ?surface))
+    (optional (body ?source)) ;allow draw bodies
+    (optional (axis-for ?source x 0)) ;allow draw axes
+    )
+  :effects 
+  ( (eqn  (= ?power (* ?A ?int))
+		  (uniform-intensity-to-power ?surface ?source ?t)) )
+  :hint 
+  ( (point (string "If the power going through ~A is constant, then the intensity is the power divided by the area of ~A." 
+		   ?surface ?surface))
+    (teach (string "The power going through a surface is just the intensity times the area of the surface."))
+    (bottom-out (string "Write the equation ~A" 
+			     ((= ?power (* ?A ?int)) algebra) ))
 	 ))
 
 ;;; Energy dissipation in an oscillator.
