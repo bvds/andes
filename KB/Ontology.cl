@@ -163,10 +163,10 @@
 
 ;; this is only used by implicit-eqns, so it should never be visible
 ;; to the user
-(def-qexp test-var (test-var ?angle)
-:units nil
-:restrictions nonnegative)
-  
+(def-qexp test-var (test-var . ?angle)
+  :units nil
+  :restrictions nonnegative)
+
 ;;;; scalar quantities
 
 ;;; in the workbench, the time slot is added if feature changing-mass

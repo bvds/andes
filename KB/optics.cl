@@ -443,9 +443,9 @@
 
 ;; This is a dummy variable for making restrictions for trig equations
 (defoperator define-test-var (?angle)
-  :preconditions ((bind ?var (format-sym "test_~A" ?angle)))
-  :effects ((variable ?var (test-var ?angle))
-	  (define-var (test-var ?angle))))
+  :preconditions ((bind ?var (format-sym "test~{_~A~}" ?angle)))
+  :effects ((variable ?var (test-var . ?angle))
+	  (define-var (test-var . ?angle))))
 
 ;;; Snell's Law
 
@@ -535,18 +535,20 @@
    (variable ?n2 (index-of-refraction ?medium2))
    (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface ?angle-flag)
    (snell-angle ?theta2 ?line2 ?line1 ?normal-to-surface ?angle-flag)
-   (variable ?dummy1 (test-var ?line1)) ;?dummy1 is non-negative
-   (variable ?dummy2 (test-var ?line2)) ;?dummy2 is non-negative
+   ;; ?dummy1 and ?dummy2 are non-negative
+   (variable ?dummy1 (test-var ?line1 ?normal-to-surface))
+   (variable ?dummy2 (test-var ?line2 ?normal-to-surface))
    (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
    )
-  :effects ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
-		  (snells-law (orderless . ?lines) ?angle-flag))
-	     ;; Implicit equations to enforce the correct root for the sines
-	     ;; This is needed if one wants to calculate one of the angles
-	     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
-			   (angle-constraint ?line1 ?angle-flag))
-	     (implicit-eqn (= ?dummy2 (cos ?theta2)) 
-			   (angle-constraint ?line2 ?angle-flag))
+  :effects 
+  ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
+	 (snells-law (orderless . ?lines) ?angle-flag))
+    ;; Implicit equations to enforce the correct root for the sines
+    ;; This is needed if one wants to calculate one of the angles
+    (implicit-eqn (= ?dummy1 (cos ?theta1)) 
+		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
+    (implicit-eqn (= ?dummy2 (cos ?theta2)) 
+		  (angle-constraint ?line2 ?normal-to-surface ?angle-flag))
     )
   :hint (
 	 (point (string "How is the direction of ~A related to the direction of ~A?"
@@ -590,7 +592,8 @@
 ;; form with explicit angles
 (defoperator total-internal-reflection-contains2 (?sought)
   :preconditions 
-  ( (total-internal-reflection-system ?line1 ?medium1 ?medium2 ?normal-to-surface)
+  ( (total-internal-reflection-system ?normal-to-surface 
+				      ?line1 ?medium1 ?medium2)
     (any-member ?sought (
 			 (dir (line ?line1))
 			 (index-of-refraction ?medium1)		
@@ -640,16 +643,19 @@
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface ?angle-flag)
-   (variable ?dummy1 (test-var ?line1)) ;?dummy1 is non-negative
+   (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface 
+				    ?angle-flag)
+   ;; ?dummy1 is non-negative
+   (variable ?dummy1 (test-var ?line1 ?normal-to-surface)) 
    (debug "total internal reflection for ~A~%" ?line1)
    )
-  :effects ( (eqn (= (* ?n1 (sin ?theta1)) ?n2) 
-		  (total-internal-reflection ?line1 ?angle-flag))
-	     ;; Implicit equations to enforce the correct root for the sines
-	     ;; This is needed if one wants to calculate one of the angles
-	     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
-			   (angle-constraint ?line1 ?angle-flag))
+  :effects 
+  ( (eqn (= (* ?n1 (sin ?theta1)) ?n2) 
+	 (total-internal-reflection ?line1 ?angle-flag))
+    ;; Implicit equations to enforce the correct root for the sines
+    ;; This is needed if one wants to calculate one of the angles
+    (implicit-eqn (= ?dummy1 (cos ?theta1)) 
+		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
     )
   :hint 
   ((point (string "What is the direction of ~A if there is to be total internal reflection?"
@@ -679,20 +685,61 @@
   ( (eqn-contains (complimentary-angles orderless . ?angles) ?sought) ))
 
  
-(defoperator write-complimentary-angles (orderless . ?angles)
+(defoperator write-complimentary-angles (?angles)
   :preconditions 
   (
    (any-member ?angles ((?ang1 ?ang2)))
    (variable ?angle1 ?ang1)
    (variable ?angle2 ?ang2)
    )
-  :effects ( (eqn (= (+ ?angle1 ?angle2) (dnum 90 |deg|)) 
+  :effects ( 
+	     (eqn (= (+ ?angle1 ?angle2) (dnum 90 |deg|)) 
 		  (complimentary-angles orderless . ?angles))
+	     ;; These did not really help:
+	     ;;	     (implicit-eqn (= (sin ?angle1) (cos ?angle2))
+	     ;;			   (angle-constraint ?ang1 ?ang2))
+	     ;;	     (implicit-eqn (= (cos ?angle1) (sin ?angle2))
+	     ;;			   (angle-constraint ?ang2 ?ang1))
     )
   :hint 
   ((point (string "What is the relation between ~A and ~A?"
 		  (?ang1 def-np) (?ang2 def-np)))
    (teach (string "If two angles are complimentary, then their measure adds up to 90 degrees.")) 
+   (bottom-out (string "Write the equation ~A." 
+		       ((= (+ ?angle1 ?angle2) (dnum 90 |deg|)) algebra)))
+   ))
+
+
+(def-psmclass supplementary-angles (supplementary-angles orderless . ?angles)
+  :complexity minor
+  :english ("Supplementary angles")
+  :ExpFormat ("using supplementary angles for ~A" 
+	      (nlg ?angles 'conjoined-defnp))
+  :eqnFormat ("$q1 + $q2 = 180 deg"))
+
+(defoperator supplementary-angles-contains (?sought)
+  :preconditions 
+  ( (supplementary-angles orderless . ?angles)
+    (any-member ?sought ?angles)
+    )
+  :effects 
+  ( (eqn-contains (supplementary-angles orderless . ?angles) ?sought) ))
+
+ 
+(defoperator write-supplementary-angles (?angles)
+  :preconditions 
+  (
+   (any-member ?angles ((?ang1 ?ang2)))
+   (variable ?angle1 ?ang1)
+   (variable ?angle2 ?ang2)
+   )
+  :effects ( (eqn (= (+ ?angle1 ?angle2) (dnum 180 |deg|)) 
+		  (supplementary-angles orderless . ?angles))
+    )
+  :hint 
+  ((point (string "What is the relation between ~A and ~A?"
+		  (?ang1 def-np) (?ang2 def-np)))
+   (teach (string "If two angles are supplementary, then their measure adds up to 90 degrees.")) 
    (bottom-out (string "Write the equation ~A." 
 		       ((= (+ ?angle1 ?angle2) (dnum 90 |deg|)) algebra)))
    ))
