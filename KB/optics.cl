@@ -487,7 +487,7 @@
   :preconditions 
   ((variable ?theta (angle-between orderless 
 				   (line ?line) (line ?normal-to-surface))))
-  :effects ((snell-angle ?theta ?line ?ignore ?normal-to-surface nil)))
+  :effects ((snell-angle ?theta ?line ?normal-to-surface nil)))
 
 ;; alternative form of angle for cases where the direction
 ;; of the line is sought
@@ -496,32 +496,24 @@
   (
     ;; draw lines for the test
    (draw-line (line ?line1) ?dir1)
-   (draw-line (line ?line2) ?dir2)
    (draw-line (line ?normal-to-surface) ?dirn)
 
    ;; All the angles are mod 180 degrees, but this fact should be
    ;; transparent to the student (and the solver).  Thus, we only 
    ;; allow directions where the incident angle and angle of refraction
    ;; can be calculated without taking the mod.
-   ;; Consequently, we need an explicit angle for the normal and one ray.
-   (bind ?ray (cond ((degrees-or-num ?dir1) (convert-dnum-to-number ?dir1))
-		    ((degrees-or-num ?dir2) (convert-dnum-to-number ?dir2))
-		    (t nil)))
-   (test ?ray)
+   ;; For ?normal < 90, both line angles must be larger than ?normal.
+   ;; For ?normal > 90, both line angles must be smaller than ?normal.
    (bind ?normal (when (degrees-or-num ?dirn) (convert-dnum-to-number ?dirn)))
    (test ?normal)
-   ;; the test itself is somewhat redundant with the implicit-eqn below
-   (test (or (and (<= 0 ?normal 90) (<= ?normal ?ray))
-	     (and (<= 90 ?normal 180) (<= ?ray ?normal))
-	   (error "invalid angles for Snell's law")))
 
    (variable ?angle1 (dir (line ?line1)))
    (variable ?anglen (dir (line ?normal-to-surface)))
-   (bind ?theta1 (if (< ?ray ?normal) `(- ,?anglen ,?angle1) 
+   (bind ?theta1 (if (<= 90 ?normal) `(- ,?anglen ,?angle1) 
 		  `(- ,?angle1 ,?anglen)))
    )
   :effects 
-  ( (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface t)
+  ( (snell-angle ?theta1 ?line1 ?normal-to-surface t)
     ))
  
 (defoperator write-snells-law (?lines ?angle-flag)
@@ -533,8 +525,8 @@
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (snell-angle ?theta1 ?line1 ?line2 ?normal-to-surface ?angle-flag)
-   (snell-angle ?theta2 ?line2 ?line1 ?normal-to-surface ?angle-flag)
+   (snell-angle ?theta1 ?line1 ?normal-to-surface ?angle-flag)
+   (snell-angle ?theta2 ?line2 ?normal-to-surface ?angle-flag)
    ;; ?dummy1 and ?dummy2 are non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface))
    (variable ?dummy2 (test-var ?line2 ?normal-to-surface))
