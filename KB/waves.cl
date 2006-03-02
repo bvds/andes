@@ -970,7 +970,7 @@
     ))
 
 
-;;;;   Decibels and intensity
+;;;;   Decibels and intensity and magnitude of Poynting vector
 
 ;;   These quantities can be functions of time,
 ;;   but none of the problems so far require it.
@@ -994,6 +994,26 @@
   :hint ((bottom-out 
 	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		  ((intensity ?wave ?agent :time ?t) def-np)))))
+
+
+(def-qexp poynting-vector-magnitude 
+  (poynting-vector-magnitude ?loc ?agent :time ?time)
+  :units |W/m^2|
+  :restrictions positive
+  :english ("the magnitude of the Poynting vector at ~A due to ~A" 
+	       (nlg ?loc 'at-time ?time) (nlg ?agent 'agent))
+   :fromWorkbench `(poynting-vector-magnitude ,body ,body2 :time ,time))
+
+(defoperator define-poynting-vector-magnitude (?wave ?agent ?t)
+  :preconditions
+  ((bind ?intense-var (format-sym "S_~A_~A_~A" 
+				 (body-name ?wave) (body-name ?agent)
+				 (time-abbrev ?t))))
+  :effects ((variable ?intense-var (poynting-vector-magnitude ?wave ?agent :time ?t))
+	    (define-var (poynting-vector-magnitude ?wave ?agent :time ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Poynting vector magnitude."  
+		  ((poynting-vector-magnitude ?wave ?agent :time ?t) def-np)))))
 
 ;;; Net intensity
 
@@ -1138,6 +1158,39 @@
 						))) algebra)
 			((= ?int (* |Iref| (^ 10 (/ ?intdb 10)))) algebra) ))
     ))
+
+(def-psmclass intensity-to-poynting-vector-magnitude 
+  (intensity-to-poynting-vector-magnitude ?wave ?source ?)
+  :complexity definition  ;want this to be freely substituted into expressions
+  :english ("relate intensity to the magnitude of the Poynting vector")
+  :ExpFormat ("relating the intensity to the magnitude of the Poynting vector")
+  :EqnFormat ("P = S")) 
+
+
+(defoperator intensity-to-poynting-vector-magnitude-contains (?sought)
+  :preconditions 
+  ( (time ?t)
+    (any-member ?sought ((intensity ?wave ?source :time ?t)
+			 (poynting-vector-magnitude ?wave ?source :time ?t)
+			 ))
+    ) 
+  :effects 
+  ( (eqn-contains (intensity-to-poynting-vector-magnitude ?wave ?source ?t) 
+		  ?sought)))
+
+(defoperator write-intensity-to-poynting-vector-magnitude (?wave ?source ?t)
+  :preconditions 
+  ( (variable  ?int  (intensity ?wave ?source :time ?t))
+    (variable  ?S  (poynting-vector-magnitude ?wave ?source :time ?t))
+    )
+  :effects 
+  ( (eqn  (= ?int ?S) 
+	  (intensity-to-poynting-vector-magnitude ?wave ?source ?t)) )
+  :hint 
+  ( (point (string "What is the relation between the Poynting vector and intensity (power per unit area)?"))
+    (bottom-out (string "Write the equation ~A" 
+			     ((= ?int ?S) algebra) ))
+	 ))
  
 ;;; Relate intensity to net power output in a spherical geometry.  
 
@@ -1197,7 +1250,7 @@
   ( (uniform-intensity ?surface ?source)	;need uniform intensity
     (time ?t)
     (any-member ?sought ((intensity ?surface ?source :time ?t)
-			 (net-power-out ?source :time ?t)
+			 (power ?surface ?source :time ?t)
 			 (area ?surface)
 			 ))
     ) 
@@ -1207,7 +1260,7 @@
 (defoperator write-uniform-intensity-to-power (?surface ?source ?t)
   :preconditions 
   ( (variable  ?int  (intensity ?surface ?source :time ?t))
-    (variable  ?power  (net-power-out ?source :time ?t))
+    (variable  ?power  (power ?surface ?source :time ?t))
     (variable  ?A (area ?surface))
     (optional (body ?source)) ;allow draw bodies
     (optional (axis-for ?source x 0)) ;allow draw axes

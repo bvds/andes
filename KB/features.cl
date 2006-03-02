@@ -42,10 +42,10 @@
 		   spring-constant height))
 (def-feature-set work (work-set power net-power duration angle))
 (def-feature-set work-quants 
-  (work-set power net-power duration angle intensity db-intensity))
+  (work-set power net-power duration angle intensity db-intensity area))
 (def-feature-set work-quants-out 
-  (work-set net-power-out duration angle intensity net-intensity 
-	    db-intensity net-db-intensity))
+  (work-set net-power-out duration angle intensity net-intensity
+	    db-intensity net-db-intensity poynting-vector-magnitude))
 (def-feature-set linmom (energy-set mass duration))
 (def-feature-set rotkin 
   (mass revolution-radius period duration angle moment-of-inertia))
