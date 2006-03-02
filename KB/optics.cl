@@ -459,7 +459,7 @@
 ;; form with angle-between
 (defoperator snells-law-contains (?sought)
   :preconditions 
-  ( (snell-system ?normal-to-surface orderless . ?lists)
+  ( (snell-system ?normal-to-surface ?whatever orderless . ?lists)
     (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
 			((?line2 ?medium2) (?line1 ?medium1))))
     (any-member ?sought ((angle-between orderless (line ?line1) 
@@ -473,14 +473,16 @@
 ;; form with explicit angles
 (defoperator snells-law-contains2 (?sought)
   :preconditions 
-  ((snell-system ?normal-to-surface orderless . ?lists)
+  ((snell-system ?normal-to-surface ?order orderless . ?lists)
    (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
 		       ((?line2 ?medium2) (?line1 ?medium1))))
     (any-member ?sought ((dir (line ?line1))
 			 (index-of-refraction ?medium1)))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    (test ?order) ;only use this form if order is specified
     )
-  :effects ( (eqn-contains (snells-law (orderless ?line1 ?line2) t) ?sought) ))
+  :effects 
+  ( (eqn-contains (snells-law (orderless ?line1 ?line2) ?order) ?sought) ))
 
 ;; construct variable for angle of incidence or angle of refraction.
 (defoperator get-snell-angle1 (?theta)
@@ -494,33 +496,28 @@
 (defoperator get-snell-angle2 (?theta1)
   :preconditions 
   (
-    ;; draw lines for the test
-   (draw-line (line ?line1) ?dir1)
-   (draw-line (line ?normal-to-surface) ?dirn)
-
+   (test ?order)
    ;; All the angles are mod 180 degrees, but this fact should be
    ;; transparent to the student (and the solver).  Thus, we only 
    ;; allow directions where the incident angle and angle of refraction
    ;; can be calculated without taking the mod.
-   ;; For ?normal < 90, both line angles must be larger than ?normal.
-   ;; For ?normal > 90, both line angles must be smaller than ?normal.
-   (bind ?normal (when (degrees-or-num ?dirn) (convert-dnum-to-number ?dirn)))
-   (test ?normal)
 
    (variable ?angle1 (dir (line ?line1)))
    (variable ?anglen (dir (line ?normal-to-surface)))
-   (bind ?theta1 (if (<= 90 ?normal) `(- ,?anglen ,?angle1) 
-		  `(- ,?angle1 ,?anglen)))
+   (bind ?theta1 (cond ((eq ?order 'greater-than) `(- ,?anglen ,?angle1)) 
+		       ((eq ?order 'less-than)  `(- ,?angle1 ,?anglen))
+		       (t (error "Must be greater-than or less-than, not ~A" 
+				 ?order))))
    )
   :effects 
-  ( (snell-angle ?theta1 ?line1 ?normal-to-surface t)
+  ( (snell-angle ?theta1 ?line1 ?normal-to-surface ?order)
     ))
  
 (defoperator write-snells-law (?lines ?angle-flag)
   :preconditions 
   (
    (any-member ?lines ((?line1 ?line2)))
-   (snell-system ?normal-to-surface orderless . ?lists)
+   (snell-system ?normal-to-surface ?whatever orderless . ?lists)
    (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))))
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
@@ -535,6 +532,7 @@
   :effects 
   ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
 	 (snells-law (orderless . ?lines) ?angle-flag))
+    (assume using-snells-law ?lines ?angle-flag)
     ;; Implicit equations to enforce the correct root for the sines
     ;; This is needed if one wants to calculate one of the angles
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
@@ -570,7 +568,7 @@
 ;; form with angle-between
 (defoperator total-internal-reflection-contains (?sought)
   :preconditions 
-  ( (total-internal-reflection-system ?normal-to-surface 
+  ( (total-internal-reflection-system ?normal-to-surface ?whatever 
 				      ?line1 ?medium1 ?medium2)
     (any-member ?sought (
 			 (angle-between orderless (line ?line1) 
@@ -584,15 +582,17 @@
 ;; form with explicit angles
 (defoperator total-internal-reflection-contains2 (?sought)
   :preconditions 
-  ( (total-internal-reflection-system ?normal-to-surface 
+  ( (total-internal-reflection-system ?normal-to-surface ?order
 				      ?line1 ?medium1 ?medium2)
     (any-member ?sought (
 			 (dir (line ?line1))
 			 (index-of-refraction ?medium1)		
 			 (index-of-refraction ?medium2)))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    (test ?order) ;only use this form if order is specified
     )
-  :effects ( (eqn-contains (total-internal-reflection ?line1 t) ?sought) ))
+  :effects 
+  ( (eqn-contains (total-internal-reflection ?line1 ?order) ?sought) ))
 
 ;; construct variable for angle of incidence or angle of refraction.
 (defoperator get-total-internal-reflection-angle1 (?theta)
@@ -606,31 +606,26 @@
 (defoperator get-total-internal-reflection-angle2 (?theta1)
   :preconditions 
   (
-   ;; draw lines for the test
-   (draw-line (line ?line1) ?dir1)
-   (draw-line (line ?normal-to-surface) ?dirn)
-
+   (test ?order) 
    ;; All the angles are mod 180 degrees, but this fact should be
    ;; transparent to the student (and the solver).  Thus, we only 
    ;; allow directions where the angle can be calculated without 
    ;; taking the mod.
-   ;; Consequently, we need an explicit angle for the normal.
-   (bind ?normal (when (degrees-or-num ?dirn) (convert-dnum-to-number ?dirn)))
-   (test ?normal)
-
    (variable ?angle1 (dir (line ?line1)))
    (variable ?anglen (dir (line ?normal-to-surface)))
-   (bind ?theta1 (if (<= 90 ?normal) `(- ,?anglen ,?angle1) 
-		  `(- ,?angle1 ,?anglen)))
+   (bind ?theta1 (cond ((eq ?order 'greater-than) `(- ,?anglen ,?angle1)) 
+		       ((eq ?order 'less-than)  `(- ,?angle1 ,?anglen))
+		       (t (error "Most be greater-than or less-than, not ~A" 
+				 ?order))))
    )
   :effects 
-  ( (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface t)
+  ( (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface ?order)
     ))
  
 (defoperator write-total-internal-reflection (?line1 ?angle-flag)
   :preconditions 
   (
-   (total-internal-reflection-system ?normal-to-surface 
+   (total-internal-reflection-system ?normal-to-surface ?whatever 
 				     ?line1 ?medium1 ?medium2)
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
@@ -644,10 +639,12 @@
   :effects 
   ( (eqn (= (* ?n1 (sin ?theta1)) ?n2) 
 	 (total-internal-reflection ?line1 ?angle-flag))
+    (assume using-snells-law ?line1 ?angle-flag)
     ;; Implicit equations to enforce the correct root for the sines
     ;; This is needed if one wants to calculate one of the angles
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
 		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
+
     )
   :hint 
   ((point (string "What is the direction of ~A if there is to be total internal reflection?"

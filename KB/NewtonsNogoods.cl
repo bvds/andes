@@ -116,6 +116,18 @@
   :message (Redundant NTL forms for ?bodies at ?t))
 
 ;;;
+;;;  don't use both forms of Snell's law
+;;;
+
+;; Also used for total internal reflection
+(defnogood only-one-form-of-snells-law
+    ((using-snells-law ?lines ?flag1)
+     (using-snells-law ?lines ?flag2)
+     (test (not (eq ?flag1 ?flag2))))
+  :specs ("Prevent using both forms of Snell's law at once")
+  :message (Redundant Snells law forms for ?lines))
+
+;;;
 ;;;  don't want both component and magnitude form of a vector equation
 ;;;  Also use to disallow both projection and pyth-theorem for a vector
 ;;;
