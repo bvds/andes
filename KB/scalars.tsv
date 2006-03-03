@@ -14,7 +14,6 @@ net-power-out	P	power output	total power	produced by [body:bodies] at time [time
 intensity	I	intensity		supplied to [body:bodies] by [body2:bodies] at time [time:times]
 db-intensity	$b	decibels	intensity (in decibels)	supplied to [body:bodies] by [body2:bodies] at time [time:times]
 electric-power	P	electric power		transferred through [body:bodies] at time [time:times]
-poynting-vector-magnitude	S	Poynting vector magnitude	magnitude of Pointing vector	at [body:bodies] due to [body2:bodies] at time [time:times]
 energy				
 compression	d	compression distance		of [body:bodies] at time [time:times]
 spring-constant	k	spring constant		of [body:bodies]
