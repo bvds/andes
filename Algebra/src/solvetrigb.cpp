@@ -38,9 +38,10 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
   int j, k;
   expr *fact1, *fact2, *coef, *facttry;
   bool iscos, firstiscos;
+  bool found=false;
 
   VEQCHK(eqn);
-  DBG( cout << "Entering undotrigvar with arg " << arg->getInfix() << endl;);
+  DBG( cout << "Entering undotrigvar with arg " << arg->getInfix() << endl);
   for (j = 0; j+1 < eqn->size(); j++) // loop over first equation of pair
     if (trigsearch(arg, coef,(expr *)(*eqn)[j], iscos, fact1))
       {
@@ -71,6 +72,7 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 		  fact2->destroy(); 	// solvetrigvar too?
 		  continue;
 		}
+	      facttry->destroy();  // BvdS:  not used later
 	      DBG( cout << "undotrigvar: k2 is " << k2->getInfix() << endl);
 	      // second equation reads
 	      // k2 * coef * sin arg + fact2 = 0 (if firstiscos),
@@ -82,7 +84,8 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      numvalexp * tempnv = new numvalexp(2);
 	      tempnv->MKS.put(0,0,0,0,0);
 	      tempnop->addarg(copyexpr (k2));
-	      tempnop->addarg(new binopexp(&topow, fact1,copyexpr(tempnv)));
+	      tempnop->addarg(new binopexp(&topow,copyexpr(fact1),
+					   copyexpr(tempnv)));
 		
 	      eqlhs->addarg(tempnop);
 	      eqlhs->addarg(new binopexp(&topow, fact2,copyexpr(tempnv)));
@@ -90,15 +93,16 @@ bool undotrigvar(const expr * const arg, vector<binopexp *> * & eqn)
 	      tempnop = new n_opexp(&mult);
 	      k2->value *= -1;
 	      tempnop->addarg(k2);
-	      tempnop->addarg(new binopexp(&topow, coef,tempnv));
+	      tempnop->addarg(new binopexp(&topow,copyexpr(coef),tempnv));
 	      eqlhs->addarg(tempnop);
 	      eqn->push_back(new binopexp(&equals,eqlhs,new numvalexp(0)));
-	      k = eqn->size();
-	      DBG( cout << "Undotrigvar just output new equation no. "
-		    << k-1<< ": " << (*eqn)[k-1]->getInfix() << endl 
-		    << "undotrigvar returning true " << endl);
-	      return(true);
+	      DBG(int kk = eqn->size()-1;
+		  cout << "Undotrigvar just output new equation no. "
+		  << kk << ": " << (*eqn)[kk]->getInfix() << endl);
+	      found=true;
 	    } // End of checking and implementing matching equations
-      }	// end of loop searching for first of pair
-  return(false);
+	coef->destroy(); 
+	fact1->destroy();
+     }	// end of loop searching for first of pair
+  return(found);
 }
