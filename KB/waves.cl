@@ -995,25 +995,34 @@
 	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		  ((intensity ?wave ?agent :time ?t) def-np)))))
 
+ (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
+   :units |W/m^2|
+   :english ("the Poynting vector at ~A due to ~A"
+              (nlg ?loc) (nlg ?agent 'at-time ?time)))
 
-(def-qexp poynting-vector-magnitude 
-  (poynting-vector-magnitude ?loc ?agent :time ?time)
-  :units |W/m^2|
-  :restrictions positive
-  :english ("the magnitude of the Poynting vector at ~A due to ~A" 
-	       (nlg ?loc 'at-time ?time) (nlg ?agent 'agent))
-   :fromWorkbench `(poynting-vector-magnitude ,body ,body2 :time ,time))
-
-(defoperator define-poynting-vector-magnitude (?wave ?agent ?t)
+(defoperator draw-poynting-vector-given-dir (?b ?agent ?t)
   :preconditions
-  ((bind ?intense-var (format-sym "S_~A_~A_~A" 
-				 (body-name ?wave) (body-name ?agent)
-				 (time-abbrev ?t))))
-  :effects ((variable ?intense-var (poynting-vector-magnitude ?wave ?agent :time ?t))
-	    (define-var (poynting-vector-magnitude ?wave ?agent :time ?t)))
-  :hint ((bottom-out 
-	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Poynting vector magnitude."  
-		  ((poynting-vector-magnitude ?wave ?agent :time ?t) def-np)))))
+   ((given (dir (poynting-vector ?b ?agent :time ?t-given)) ?dir)
+    (test (not (equal ?dir 'unknown)))
+    (test (tinsidep ?t ?t-given))
+    (not (vector ?b (poynting-vector ?b ?agent :time ?t) ?any-dir))
+    (bind ?mag-var (format-sym "S_~A_~A~@[_~A~]" (body-name ?b) 
+			       (body-name ?agent) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :effects
+   ((vector ?b (poynting-vector ?b ?agent :time ?t) ?dir)
+    (variable ?mag-var (mag (poynting-vector ?b ?agent :time ?t)))
+    (variable ?dir-var (dir (poynting-vector ?b ?agent :time ?t)))
+    ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
+    ;; gets written. Given value may not be used elsewhere so ensure it here.
+    (implicit-eqn (= ?dir-var ?dir) (dir (poynting-vector ?b ?agent :time ?t)))
+    ) 
+   :hint
+   ((point (string "The Poynting vector at ~a points in the direction of the flow of energy from ~A." ?b ?agent))
+    (bottom-out (string "At ~A, the energy from ~A is flowing in the direction ~A.  Draw the Poynting vector oriented at ~A." 
+			?b (?agent at-time ?t) ?dir ?dir))
+    ))
+
 
 ;;; Net intensity
 
@@ -1171,7 +1180,7 @@
   :preconditions 
   ( (time ?t)
     (any-member ?sought ((intensity ?wave ?source :time ?t)
-			 (poynting-vector-magnitude ?wave ?source :time ?t)
+			 (mag (poynting-vector ?wave ?source :time ?t))
 			 ))
     ) 
   :effects 
@@ -1181,7 +1190,7 @@
 (defoperator write-intensity-to-poynting-vector-magnitude (?wave ?source ?t)
   :preconditions 
   ( (variable  ?int  (intensity ?wave ?source :time ?t))
-    (variable  ?S  (poynting-vector-magnitude ?wave ?source :time ?t))
+    (variable  ?S  (mag (poynting-vector ?wave ?source :time ?t)))
     )
   :effects 
   ( (eqn  (= ?int ?S) 

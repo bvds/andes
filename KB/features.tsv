@@ -14,7 +14,7 @@ CIRCULAR	angle-between;mass;revolution-radius;period;duration;angle;
 ENERGY	work-nc;net-work;work;electric-energy;spring-energy;rotational-energy;grav-energy;kinetic-energy;total-energy;energy;energy-set;work-set;mass;duration;power;compression;spring-constant;height;
 WORK	work-nc;net-work;work;angle-between;work-set;power;net-power;duration;angle;
 WORK-QUANTS	work-nc;net-work;work;angle-between;work-set;power;net-power;duration;angle;intensity;db-intensity;area;
-WORK-QUANTS-OUT	work-nc;net-work;work;angle-between;work-set;net-power-out;duration;angle;intensity;net-intensity;db-intensity;net-db-intensity;poynting-vector-magnitude;
+WORK-QUANTS-OUT	work-nc;net-work;work;angle-between;work-set;net-power-out;duration;angle;intensity;net-intensity;db-intensity;net-db-intensity;
 LINMOM	electric-energy;spring-energy;rotational-energy;grav-energy;kinetic-energy;total-energy;energy;energy-set;mass;duration;
 ROTKIN	angle-between;mass;revolution-radius;period;duration;angle;moment-of-inertia;
 ANGMOM	angle-between;mass;period;duration;angle;moment-of-inertia;
