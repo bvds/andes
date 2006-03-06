@@ -116,6 +116,10 @@
                 ;; these will be used for type checking later on.
   
   Quantityp     ;; T/nil is this exp a quantity?
+  symbol-base   ;; Base to present for symbol name in dialog box
+  short-name    ;; String with short name for quantity (for use in menu)
+  pre-dialog-text  ;; hack to get starting text in variable definition dialog
+  dialog-text   ;; remaining text in variable definition dialog.
   Units         ;; A function or atom returning the units.
   restrictions  ;; a list of atoms such as nonnegative placing restictions on the value.
   documentation ;; A documentation string for the item
@@ -156,7 +160,11 @@
 
 (defmacro def-qexp (type Form 
 		   &key Fields
-			Units
+                        symbol-base
+                        short-name
+                        pre-dialog-text
+                        dialog-text
+ 			Units
 			restrictions
 			documentation
 			VarFunc
@@ -166,6 +174,10 @@
   (define-exptype :type type 
     :form Form
     :fields Fields
+    :symbol-base symbol-base
+    :short-name short-name
+    :pre-dialog-text pre-dialog-text
+    :dialog-text dialog-text
     :Units Units
     :quantityp t
     :restrictions Restrictions
@@ -186,7 +198,9 @@
 ;;
 ;; This function is not intended to be called directly
 ;; by the users.
-(defun define-exptype (&key type form fields units 
+(defun define-exptype (&key type form fields symbol-base short-name 
+			    pre-dialog-text dialog-text 
+			    units 
 			    quantityp restrictions 
 			    documentation
 			    varfunc english fromWorkbench)
@@ -201,6 +215,10 @@
 	    :fields (fill-field-defs fields form)	
 	    :Quantityp Quantityp
 	    :documentation documentation
+	    :symbol-base symbol-base
+	    :short-name short-name
+	    :pre-dialog-text pre-dialog-text
+	    :dialog-text dialog-text
 	    :units Units
 	    :restrictions restrictions
 	    :Varfunc varfunc
