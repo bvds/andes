@@ -9,6 +9,9 @@
 
 ;; Define the quantity mass density. The density defined here is a vouume density.
 (def-qexp mass-density (mass-density ?material)
+  :symbol-base |$r|     
+  :short-name "mass density"	
+  :dialog-text "of [body:bodies]"
    :units |kg/m^3|
    :restrictions nonnegative   
    :english ("the mass density of ~A" (nlg ?material))
@@ -67,6 +70,9 @@
 
 ;;Define the quantity pressure.  The variable of choice is "P".
 (def-qexp pressure (pressure ?position :time ?time)
+  :symbol-base |P|     
+  :short-name "pressure"	
+  :dialog-text "at [body:positions]  at time [time:times]"
    :units |Pa|
    :english ("the pressure at point ~a in the fluid" 
 	     (nlg ?position 'at-time ?time))
@@ -310,6 +316,9 @@
 
 ;;Define the quantity cross-sectional area at a point.  The variable choice is "A".
 (def-qexp area-at (area-at ?position :time ?time)
+  :symbol-base |A|     
+  :short-name "cross-sectional area"	
+  :dialog-text "at [body:positions]  at time [time:times]"
      :units |m^2|
      :restrictions positive
      :english ("the cross-sectional area at ~A" (nlg ?position 'at-time ?time))
@@ -326,6 +335,9 @@
 
 ;; area of a shape
 (def-qexp area (area ?shape)
+  :symbol-base |A|     
+  :short-name "area"	
+  :dialog-text "of [body:bodies]"
      :units |m^2|
      :restrictions positive
      :english ("the area of ~A" (nlg ?shape))
@@ -333,6 +345,9 @@
 )
 
 (def-qexp area-change (rate-of-change (area ?shape))
+  :symbol-base |dAdt|     
+  :short-name "rate of change in area"	
+  :dialog-text "of [body:bodies]"
      :units |m^2/s|
      :restrictions positive
      :english ("the rate of change of the area of ~A" (nlg ?shape))
@@ -349,6 +364,9 @@
 
 ;; quantity to represent radius of a circular shape
 (def-qexp radius-of-circle (radius-of-circle ?body)
+  :symbol-base |r|     
+  :short-name "radius"	
+  :dialog-text "of [body:bodies]"
      :units |m|
      :restrictions positive
      :english ("the radius of ~A" (nlg ?body))
@@ -367,6 +385,9 @@
 
 ;; quantity to represent diameter of a circular shape
 (def-qexp diameter-of-circle (diameter-of-circle ?body)
+  :symbol-base |d|     
+  :short-name "diameter"	
+  :dialog-text "of [body:bodies]"
   :units |m|
   :restrictions positive
   :english ("the diameter of ~A" (nlg ?body))
@@ -385,6 +406,9 @@
 
 ;; quantity to represent circumference of a circular shape
 (def-qexp circumference-of-circle (circumference-of-circle ?body)
+  :symbol-base |c|     
+  :short-name "circumference"	
+  :dialog-text "of [body:bodies]"
      :units |m|
      :restrictions positive
      :english ("the circumference of ~A" (nlg ?body))
@@ -724,6 +748,9 @@
 
 ;;Quantity: The volume of a body
 (def-qexp volume (volume ?body :time ?time)
+  :symbol-base |V|     
+  :short-name "volume"	
+  :dialog-text "of [body:bodies] at time [time:times]"
      :units |m^3|
      :restrictions nonnegative ; we allow zero-volume for negligible parts of compound bodies
      :english ("the volume of ~A" (nlg ?body 'at-time ?time))

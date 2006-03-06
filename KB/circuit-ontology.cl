@@ -11,6 +11,7 @@
   :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
 
 (def-qexp resistance (resistance ?names)
+  :symbol-base |R|     
   :units |$W|
   :english ("the resistance of ~A" (conjoined-names ?names)))
 
@@ -25,12 +26,16 @@
   :english ("the current in branch ~A~@[ ~A~]" ?branch (nlg ?time 'pp)))
 
 (def-qexp capacitance (capacitance ?name)
+  :symbol-base |C|     
   :units |F|
   :english ("the capacitance of ~A" ?name))
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
 (def-qexp charge-on (charge-on ?name :time ?time)
+  :symbol-base |q|     
+  :short-name "charge"	
+  :dialog-text "on [body:bodies]"
   :units |C|
   :fromWorkbench (if time `(charge-on ,body :time ,time) `(charge-on ,body))
   :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
@@ -39,11 +44,17 @@
   :units |C|)
 
 (def-qexp inductance (inductance ?inductor)
+  :symbol-base |L|     
+  :short-name "inductance"	
+  :dialog-text "of [body:bodies]"
   :units |H|
   :fromWorkbench `(inductance ,body)
   :english ("the inductance of ~A" (nlg ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
+  :symbol-base |M|     
+  :short-name "mutual inductance"	
+  :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |H|
   :fromWorkbench `(mutual-inductance orderless ,body ,body2)
   :english ("the mutual inductance of ~A" 
@@ -53,6 +64,9 @@
 ;;; than power in mechanics: no agent, and may denote power output (from
 ;;; battery into charges) or power dissipated (through resistor).
 (def-qexp electric-power (electric-power ?b :time ?time)
+  :symbol-base |P|     
+  :short-name "electric power"	
+  :dialog-text "transferred through [body:bodies] at time [time:times]"
   :units W
   :english ("power transferred through ~a" (nlg ?b 'at-time ?time)))
 ;; We could define a generic rate-of-change function, but we don't have a way 
@@ -61,16 +75,22 @@
 ;; thru component
 
 (def-qexp current-change (rate-of-change (current-thru ?comp :time ?time))
+  :symbol-base |dIdt|     
+  :short-name "rate of change of current"	
+  :dialog-text "through [body:bodies] at time [time:times]"
   :units |A/s|
   :fromWorkbench `(rate-of-change (current-thru ,body :time ,time))
   :english ("the rate of change of the current through ~a" 
 	    (nlg ?comp 'at-time ?time)))
 
 (def-qexp time-constant (time-constant orderless . ?quants)
-          :units |s|
-	  ; translated wb body arg is (compound orderless comp1 comp2 ...)
-	  :fromWorkbench `(time-constant orderless ,@(bodyterm-complist body))
-	  :english ("the time constant for ~A" 
+  :symbol-base |$t|     
+  :short-name "time constant"	
+  :dialog-text "for circuit elements [body:bodies] and [body2:bodies]"
+  :units |s|
+  ;; translated wb body arg is (compound orderless comp1 comp2 ...)
+  :fromWorkbench `(time-constant orderless ,@(bodyterm-complist body))
+  :english ("the time constant for ~A" 
 		       (nlg ?quants 'conjoined-defnp)))
 
 (def-qexp E-field (field ?region electric ?source :time ?time)
@@ -89,6 +109,9 @@
 	    (nlg ?type) (nlg ?region) (nlg ?time 'pp)))
   
 (def-qexp potential (potential ?loc ?source :time ?time)
+  :symbol-base |V|     
+  :short-name "potential"	
+  :dialog-text "at [body:positions] due to [body2:bodies] at time [time:times]"
   :units |V|
   :fromWorkbench (if (or (null body2) (string-equal body2 '|all sources|))
                      `(net-potential ,body :time ,time)
@@ -107,6 +130,9 @@
 	    (nlg ?body 'at-time ?time)))
 
 (def-qexp stored-energy (stored-energy ?component :time ?time)
+  :symbol-base |U|     
+  :short-name "energy stored"	
+  :dialog-text "in [body:bodies] at time [time:times]"
   :units |J|
   :english ("the electric energy stored in ~a" 
 	    (nlg ?component 'at-time ?time)))

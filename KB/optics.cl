@@ -23,6 +23,9 @@
  
 
 (def-qexp object-distance (object-distance ?lens)
+  :symbol-base |do|     
+  :short-name "object distance"	
+  :dialog-text "with respect to [body:bodies]"
    :units |m|
    :english ("the distance of the object from ~A" (nlg ?lens))
    :fromWorkbench `(object-distance ,body)
@@ -38,6 +41,9 @@
        ))
 
 (def-qexp image-distance (image-distance ?lens)
+  :symbol-base |di|     
+  :short-name "image distance"	
+  :dialog-text "with respect to [body:bodies]"
    :units |m|
    :english ("the distance of the image from ~A" (nlg ?lens))
    :fromWorkbench `(image-distance ,body)
@@ -53,6 +59,9 @@
        ))
 
 (def-qexp focal-length (focal-length ?lens)
+  :symbol-base |f|     
+  :short-name "focal length"	
+  :dialog-text "of [body:bodies]"
    :units |m|
    :english ("the focal length of ~A" (nlg ?lens))
    :fromWorkbench `(focal-length ,body)
@@ -68,6 +77,9 @@
        ))
 
 (def-qexp magnification (magnification ?lens)
+  :symbol-base |m|     
+  :short-name "magnification"	
+  :dialog-text "of [body:bodies]"
   :units NIL
    :english ("the magnification of ~A" (nlg ?lens))
    :fromWorkbench `(magnification ,body)
@@ -83,6 +95,9 @@
        ))
 
 (def-qexp radius-of-curvature (radius-of-curvature ?mirror)
+  :symbol-base |r|     
+  :short-name "radius of curvature"	
+  :dialog-text "of [body:bodies]"
    :units |m|
    :english ("the radius of curvature of ~A" (nlg ?mirror))
    :fromWorkbench `(radius-of-curvature ,body)
@@ -98,6 +113,9 @@
        ))
 
 (def-qexp lens-distance (lens-distance ?lens1 ?lens2)
+  :symbol-base |d|     
+  :short-name "distance"	
+  :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |m|
   :english ("the distance between ~a and ~a" (nlg ?lens1) (nlg ?lens2))
   :fromWorkbench `(lens-distance ,body ,body2) ; might want to canonicalize order!
