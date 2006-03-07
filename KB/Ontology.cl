@@ -24,7 +24,12 @@
 	(special-dialogs '((angle) (energy) (current #\tab |I|) 
 			   (voltage #\tab |V|))))
     (dolist (qexp special-dialogs)
-      (format str "~(~A~)~{~C~A~}~%" (car qexp) (cdr qexp)))
+      (format str "~(~A~)~C~@[~A~]~C~@[~A~]~C~@[~A~]~C~@[~A~]~%"  
+	      (first qexp) #\tab 
+	      (second qexp) #\tab 
+	      (third qexp) #\tab
+	      (fourth qexp) #\tab
+	      (fifth qexp)))
     (dolist (qexp *Ontology-ExpTypes*)
       (format str "~(~A~)~C~@[~A~]~C~@[~A~]~C~@[~A~]~C~@[~A~]~%" 
 	      (exptype-type qexp) #\tab ;downcase, because it looks nicer
