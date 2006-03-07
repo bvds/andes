@@ -115,7 +115,6 @@
   fields        ;; The fields types in the same order as vars in the form
                 ;; these will be used for type checking later on.
   
-  Quantityp     ;; T/nil is this exp a quantity?
   symbol-base   ;; Base to present for symbol name in dialog box
   short-name    ;; String with short name for quantity (for use in menu)
   pre-dialog-text  ;; hack to get starting text in variable definition dialog
@@ -131,32 +130,6 @@
                 ;; expresson.  not used at present.
   )
 
-;;;------------------------------------------------------------
-;;; Expression definition functions.
-;;; Expressions come in two forms, Quantities and non-quantities.
-;;; At a code-level they differ by only a flag but these separate
-;;; function definitions are intended to distinguish them for
-;;; reading purposes.  They both take the same set of arguments.
-
-;; never used
-#|
-(defmacro def-nqexp (type Form 
-		     &key fields Units 
-			  restrictions
-			  documentation
-			  VarFunc
-			  english)
-  "Define and store a non-quantity expression struct."
-  (define-exptype :type type 
-    :form Form
-    :fields Fields
-    :Units Units
-    :quantityp nil
-    :restrictions Restrictions
-    :documentation documentation
-    :varfunc Varfunc
-    :English English))
-|#
 
 (defmacro def-qexp (type Form 
 		   &key Fields
@@ -179,7 +152,6 @@
     :pre-dialog-text pre-dialog-text
     :dialog-text dialog-text
     :Units Units
-    :quantityp t
     :restrictions Restrictions
     :documentation documentation
     :varfunc Varfunc
@@ -201,7 +173,7 @@
 (defun define-exptype (&key type form fields symbol-base short-name 
 			    pre-dialog-text dialog-text 
 			    units 
-			    quantityp restrictions 
+			    restrictions 
 			    documentation
 			    varfunc english fromWorkbench)
   "Define and store the specified expression if possible."
@@ -213,7 +185,6 @@
 	    :type type
 	    :form form
 	    :fields (fill-field-defs fields form)	
-	    :Quantityp Quantityp
 	    :documentation documentation
 	    :symbol-base symbol-base
 	    :short-name short-name
@@ -243,10 +214,12 @@
   "Is the supplied exp a valid expression type."
   (lookup-expression-struct exp))
 
+;; This could be further refined
+;; for instance, dnum is not really a quantity
 (defun quantity-expression-p (exp)
-  "Is the expression a quantity?"
-  (func-lookup-expression-struct
-   exp #'ExpType-quantityp))
+  "Is the supplied exp a valid expression type."
+  (lookup-expression-struct exp))
+
 
 (defun lookup-exptype-struct (type)
   "Lookup the exp struct of ExpType 'TYPE'"
@@ -278,13 +251,6 @@
 	(push E Types)
 	(push tmp Binds)))
     (values Types Binds)))
-
-
-(defun func-lookup-expression-struct (exp Func)
-  "Lookup the expression struct that matches exp and call func."
-  (let ((Struct (lookup-expression-struct exp)))
-    (when struct
-      (funcall func struct))))
 		      
 
 (defun lookup-expression-fieldtype (Field Struct)

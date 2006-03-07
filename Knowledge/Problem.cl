@@ -485,14 +485,6 @@
   "Test if problem is tagged as working"
    (member 'working (problem-features problem)))
 
-
-(defun seeks-quantities-p (Problem)
-  "Return t iff the problem seeks quantity values."
-  (loop for Sought in (Problem-Soughts Problem)
-      when (remove-answer (Quantity-expression-p Sought))
-      return t))
-  
-
 (defun no-quant-problem-p (problem)
   "Return t iff the problem is a no-quant problem."
   (member 'no-quant (problem-features problem)))
