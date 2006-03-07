@@ -18,7 +18,13 @@
 (defun scalars-file ()
   "construct file KB/scalars.tsv"
   (let ((str (open (merge-pathnames  "KB/scalars.tsv" *Andes-Path*)
-		   :direction :output :if-exists :supersede)))
+		   :direction :output :if-exists :supersede))
+	;; These correspond to custom dialog boxes which have
+	;; no direct counterpart in the Ontology
+	(special-dialogs '((angle) (energy) (current #\tab |I|) 
+			   (voltage #\tab |V|))))
+    (dolist (qexp special-dialogs)
+      (format str "~(~A~)~{~C~A~}~%" (car qexp) (cdr qexp)))
     (dolist (qexp *Ontology-ExpTypes*)
       (format str "~(~A~)~C~@[~A~]~C~@[~A~]~C~@[~A~]~C~@[~A~]~%" 
 	      (exptype-type qexp) #\tab ;downcase, because it looks nicer
