@@ -11,7 +11,10 @@
   :english ("the voltage across ~A~@[ ~A~]" ?comp (nlg ?time 'pp)))
 
 (def-qexp resistance (resistance ?names)
-  :symbol-base |R|     
+  :symbol-base |R| 
+  :short-name "resistance"
+  ;; custom dialog box, need something here to make entry in scalars.tsv
+  :dialog-text ""  
   :units |$W|
   :english ("the resistance of ~A" (conjoined-names ?names)))
 
@@ -27,6 +30,9 @@
 
 (def-qexp capacitance (capacitance ?name)
   :symbol-base |C|     
+  :short-name "capacitance"
+  ;; custom dialog box, need something here to make entry in scalars.tsv
+  :dialog-text ""  
   :units |F|
   :english ("the capacitance of ~A" ?name))
 

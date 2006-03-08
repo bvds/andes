@@ -1,124 +1,71 @@
-angle				
-energy				
-current			I		
-voltage			V		
-dnum				
-relative-position				
-displacement				
-velocity				
-relative-vel				
-accel				
-momentum				
-force				
-net-force				
-ang-displacement				
-ang-velocity				
-ang-accel				
-ang-momentum				
-torque				
-net-torque				
-couple				
-compo				
-mag				
-dir				
-test-var				
-mass	m	mass		of [body:bodies]
-mass-change-magnitude	dmdt	magnitude of mass change per unit time		of [body:bodies] due to [body2:bodies] at [time:times]
-mass-per-length	$m	mass per length		of [body:bodies]
-distance	s	distance traveled		by [body:bodies] at time [time:times]
-distance-between	d	distance		between [body:bodies] and [body2:bodies] at [time:times]
-duration	t	duration of time		from [body:times] to [time2:times]
-speed	v			
-coef-friction	$m	coef. of friction		between [body:bodies] and [body2:bodies]
-gravitational-acceleration	g	gravitational acceleration		at surface of [body:bodies]
-num-forces				
-revolution-radius	r	radius of circular motion		of [body:bodies] at [time:times]
-work	W	work		done on [body:bodies] by [body2:bodies] at time [time:times]
-net-work				
-work-nc				
-power	P	power		supplied to [body:bodies] by [body2:bodies] at time [time:times]
-net-power				
-net-power-out	P	power output	total power	produced by [body:bodies] at time [time:times]
-angle-between				
-total-energy				
-kinetic-energy				
-rotational-energy				
-grav-energy				
-spring-energy				
-compression	d	compression distance		of [body:bodies] at time [time:times]
-spring-constant	k	spring constant		of [body:bodies]
-height	h	height		of [body:bodies] at time [time:times]
-moment-of-inertia	I	moment of inertia		of [body:bodies]
-length		length		of [body:bodies]
-length-change		rate of change in length		of [body:bodies]
-width		width		of [body:bodies]
-num-torques				
-compound				
-system				
-during				
-voltage-across				
-resistance	R			
-current-thru				
-current-in				
-capacitance	C			
-charge-on	q	charge		on [body:bodies]
-max-charge				
-inductance	L	inductance		of [body:bodies]
-mutual-inductance	M	mutual inductance		between [body:bodies] and [body2:bodies]
-electric-power	P	electric power		transferred through [body:bodies] at time [time:times]
-current-change	dIdt	rate of change of current		through [body:bodies] at time [time:times]
-time-constant	$t	time constant		for circuit elements [body:bodies] and [body2:bodies]
-e-field				
-b-field				
-net-field				
-potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:times]
-net-potential				
-electric-energy				
-stored-energy	U	energy stored		in [body:bodies] at time [time:times]
-unit-vector				
-mass-density	$r	mass density		of [body:bodies]
-pressure	P	pressure		at [body:positions]  at time [time:times]
-atmosphere				
-area-at	A	cross-sectional area		at [body:positions]  at time [time:times]
-area	A	area		of [body:bodies]
-area-change	dAdt	rate of change in area		of [body:bodies]
-radius-of-circle	r	radius		of [body:bodies]
-diameter-of-circle	d	diameter		of [body:bodies]
-circumference-of-circle	c	circumference		of [body:bodies]
-volume	V	volume		of [body:bodies] at time [time:times]
-wavelength	$l	wavelength		of [body:bodies] moving in [body2:bodies]
-wavenumber	k	wave-number		of [body:bodies] moving in [body2:bodies]
-frequency	f	frequency		of oscillations of [body:bodies]
-observed-frequency	f	frequency (observed)	frequency	of [body:bodies] as observed by [body2:bodies] at time [time:times]
-period	T	period		of oscillations of [body:bodies]
-angular-frequency	$w	angular frequency		for oscillations of [body:bodies]
-wave-speed	v	speed of wave	speed of waves	moving in [body:bodies]
-index-of-refraction	n	index of refraction		of [body:bodies]
-string-tension	Ft	tension on a string	tension	on [body:bodies]
 amplitude	A	amplitude		for oscillations of [body:bodies]
-amplitude-max-speed	vmax	maximum speed of oscillation		for oscillations of [body:bodies]
-amplitude-max-abs-acceleration	amax	maximum magnitude of acceleration		for oscillations of [body:bodies]
-intensity	I	intensity		supplied to [body:bodies] by [body2:bodies] at time [time:times]
-poynting-vector				
-net-intensity				
-db-intensity	$b	decibels	intensity (in decibels)	supplied to [body:bodies] by [body2:bodies] at time [time:times]
-net-db-intensity				
 amplitude-electric	E	amplitude of electric field		for oscillations of [body:bodies]
 amplitude-magnetic	B	amplitude of magnetic field		for oscillations of [body:bodies]
-electric-dipole-moment				
-magnetic-dipole-moment				
-dipole-energy				
+angle		angle		
+angular-frequency	$w	angular frequency		for oscillations of [body:bodies]
+area	A	area		of [body:bodies]
+capacitance	C	capacitance		
+charge-on	q	charge		on [body:bodies]
+circumference-of-circle	c	circumference		of [body:bodies]
+coef-friction	$m	coef. of friction		between [body:bodies] and [body2:bodies]
+compression	d	compression distance		of [body:bodies] at time [time:times]
+area-at	A	cross-sectional area		at [body:positions]  at time [time:times]
+current	I	current		
+db-intensity	$b	decibels	intensity (in decibels)	supplied to [body:bodies] by [body2:bodies] at time [time:times]
+diameter-of-circle	d	diameter		of [body:bodies]
+lens-distance	d	distance		between [body:bodies] and [body2:bodies]
+distance-between	d	distance		between [body:bodies] and [body2:bodies] at [time:times]
+distance	s	distance traveled		by [body:bodies] at time [time:times]
+duration	t	duration of time		from [body:times] to [time2:times]
+electric-flux	$Fe	electric flux		through [body:bodies] at time [time:times]
+electric-power	P	electric power		transferred through [body:bodies] at time [time:times]
+energy		energy		
+stored-energy	U	energy stored		in [body:bodies] at time [time:times]
+focal-length	f	focal length		of [body:bodies]
+frequency	f	frequency		of oscillations of [body:bodies]
+observed-frequency	f	frequency (observed)	frequency	of [body:bodies] as observed by [body2:bodies] at time [time:times]
+gravitational-acceleration	g	gravitational acceleration		at surface of [body:bodies]
+height	h	height		of [body:bodies] at time [time:times]
+image-distance	di	image distance		with respect to [body:bodies]
+index-of-refraction	n	index of refraction		of [body:bodies]
+inductance	L	inductance		of [body:bodies]
+intensity	I	intensity		supplied to [body:bodies] by [body2:bodies] at time [time:times]
+length		length		of [body:bodies]
+magnetic-flux	$Fb	magnetic flux		through [body:bodies] at time [time:times]
+magnification	m	magnification		of [body:bodies]
+mass-change-magnitude	dmdt	magnitude of mass change per unit time		of [body:bodies] due to [body2:bodies] at [time:times]
+mass	m	mass		of [body:bodies]
+mass-density	$r	mass density		of [body:bodies]
+mass-per-length	$m	mass per length		of [body:bodies]
+amplitude-max-abs-acceleration	amax	maximum magnitude of acceleration		for oscillations of [body:bodies]
+amplitude-max-speed	vmax	maximum speed of oscillation		for oscillations of [body:bodies]
+moment-of-inertia	I	moment of inertia		of [body:bodies]
+mutual-inductance	M	mutual inductance		between [body:bodies] and [body2:bodies]
+object-distance	do	object distance		with respect to [body:bodies]
+period	T	period		of oscillations of [body:bodies]
+potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:times]
+power	P	power		supplied to [body:bodies] by [body2:bodies] at time [time:times]
+net-power-out	P	power output	total power	produced by [body:bodies] at time [time:times]
+pressure	P	pressure		at [body:positions]  at time [time:times]
+radius-of-circle	r	radius		of [body:bodies]
+revolution-radius	r	radius of circular motion		of [body:bodies] at [time:times]
+radius-of-curvature	r	radius of curvature		of [body:bodies]
+area-change	dAdt	rate of change in area		of [body:bodies]
+electric-flux-change	d$Fedt	rate of change in electric flux		through [body:bodies] at time [time:times]
+length-change		rate of change in length		of [body:bodies]
+magnetic-flux-change	d$Fbdt	rate of change in magnetic flux		through [body:bodies] at time [time:times]
+current-change	dIdt	rate of change of current		through [body:bodies] at time [time:times]
+resistance	R	resistance		
+speed	v	speed		
+wave-speed	v	speed of wave	speed of waves	moving in [body:bodies]
+spring-constant	k	spring constant		of [body:bodies]
+string-tension	Ft	tension on a string	tension	on [body:bodies]
+time-constant	$t	time constant		for circuit elements [body:bodies] and [body2:bodies]
 turns	N	turns	number of turns	wrapped around [body:bodies]
 turns-per-length	n	turns per unit length	number of turns per unit length	wrapped around [body:bodies]
-electric-flux	$Fe	electric flux		through [body:bodies] at time [time:times]
-electric-flux-change	d$Fedt	rate of change in electric flux		through [body:bodies] at time [time:times]
-magnetic-flux	$Fb	magnetic flux		through [body:bodies] at time [time:times]
-magnetic-flux-change	d$Fbdt	rate of change in magnetic flux		through [body:bodies] at time [time:times]
-object-distance	do	object distance		with respect to [body:bodies]
-image-distance	di	image distance		with respect to [body:bodies]
-focal-length	f	focal length		of [body:bodies]
-magnification	m	magnification		of [body:bodies]
-radius-of-curvature	r	radius of curvature		of [body:bodies]
-lens-distance	d	distance		between [body:bodies] and [body2:bodies]
-line				
-impulse				
+voltage	V	voltage		
+volume	V	volume		of [body:bodies] at time [time:times]
+wavenumber	k	wave-number		of [body:bodies] moving in [body2:bodies]
+wavelength	$l	wavelength		of [body:bodies] moving in [body2:bodies]
+width		width		of [body:bodies]
+work	W	work		done on [body:bodies] by [body2:bodies] at time [time:times]

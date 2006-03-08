@@ -21,24 +21,29 @@
 		   :direction :output :if-exists :supersede))
 	;; These correspond to custom dialog boxes which have
 	;; no direct counterpart in the Ontology
-	(special-dialogs '((angle) (energy) (current #\tab |I|) 
-			   (voltage #\tab |V|))))
-    (dolist (qexp special-dialogs)
-      (format str "~(~A~)~C~@[~A~]~C~@[~A~]~C~@[~A~]~C~@[~A~]~%"  
-	      (first qexp) #\tab 
-	      (second qexp) #\tab 
-	      (third qexp) #\tab
-	      (fourth qexp) #\tab
-	      (fifth qexp)))
+	(dialogs '((angle nil "angle") (energy nil "energy") 
+		   (current |I| "current") (voltage |V| "voltage")))
+	non-scalars)
+    ;; Add all quantities with a non-null :dialog-text to list
     (dolist (qexp *Ontology-ExpTypes*)
-      (format str "~(~A~)~C~@[~A~]~C~@[~A~]~C~@[~A~]~C~@[~A~]~%" 
-	      (exptype-type qexp) #\tab ;downcase, because it looks nicer
-	      (exptype-symbol-base qexp) #\tab
-	      (exptype-short-name qexp) #\tab
-	      (exptype-pre-dialog-text qexp) #\tab
-	      (exptype-dialog-text qexp)))
+      (if (exptype-dialog-text qexp)
+	(push (list (exptype-type qexp)
+		    (exptype-symbol-base qexp)
+		    (exptype-short-name qexp)
+		    (exptype-pre-dialog-text qexp)
+		    (exptype-dialog-text qexp)) dialogs)
+		(push (exptype-type qexp) non-scalars)))
+    ;; This might be useful to know:
+    (format t "Quantities not added to list of scalars:  ~{~W ~}~%" 
+	    (sort non-scalars #'expr<))
+    ;; sort by short name:
+    (dolist (qexp (sort dialogs #'string< :key #'third))
+      ;; File format needs five tab-separated columns.
+      ;; first column is downcased for looks
+      (format str "~(~A~)~C~@[~a~]~C~@[~a~]~C~@[~a~]~C~@[~a~]~%" 
+	      (first qexp) #\tab (second qexp) #\tab (third qexp) 
+	      #\tab (fourth qexp) #\tab (fifth qexp)))
     (close str)))
-
 
 
 ;; should match entries in Algebra/src/units.h
@@ -253,8 +258,8 @@
             (nlg ?t1 'moment) (nlg ?t2 'moment)))
 (def-qexp speed (speed ?body :time ?t)
   :symbol-base |v|     
-  :short-name ""	
-  :dialog-text ""
+  :short-name "speed"	
+  :dialog-text ""  ;custom dialog box
   :units |m/s|
   :fromWorkbench (if time `(speed ,body :time ,time) `(speed ,body))
   :english ("the speed of ~A" (nlg ?body 'at-time ?time)))
