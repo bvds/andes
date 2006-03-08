@@ -474,7 +474,6 @@
 	(zero (format nil "zero length vector for ~a." Quant))))))
 
 (def-entryprop draw-line (draw-line ?line ?dir)
-  :helpform (draw-line ?line)
   :Doc "The line drawing tool"
   :English ("a line ~A representing ~A" 
 	    (draw-line-entryprop ?dir) (nlg ?line)))
