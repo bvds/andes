@@ -328,24 +328,30 @@
   :fromWorkbench (if time `(net-power-out ,body :time ,time) 
 		    `(net-power-out ,body)))
 (def-qexp angle-between (angle-between orderless . ?vecs)
+  ;; custom dialog box "angle"
   :units |deg|
   :english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
 (def-qexp total-energy (total-energy ?system :time ?time) 
+  ;; custom dialog box "energy"
   :units |J|
   :english ("the total mechanical energy of ~A" 
 	    (nlg ?system 'at-time ?time)))
 (def-qexp kinetic-energy (kinetic-energy ?body :time ?time)
+  ;; custom dialog box "energy"
   :units |J|
   :english ("the kinetic energy of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp rotational-energy (rotational-energy ?body :time ?time)
+  ;; custom dialog box "energy"
   :units |J|
   :english ("the rotational kinetic energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp grav-energy (grav-energy ?body ?agent :time ?time)
+  ;; custom dialog box "energy"
   :units |J|
   :english ("the gravitational potential energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 (def-qexp spring-energy (spring-energy ?body ?agent :time ?time) 
+  ;; custom dialog box "energy"
   :units |J|
   :english ("the elastic potential energy transmittable to ~A" 
 	    (nlg ?body 'at-time ?time)))

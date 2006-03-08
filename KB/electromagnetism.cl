@@ -2157,6 +2157,7 @@
 ;; can be either electric or magnetic
 ;; this was borrowed from work
 (def-qexp dipole-energy (dipole-energy ?dipole ?field :time ?time)
+  ;; custom dialog box "energy"
   :units |J|
   :english ("the potential energy of ~A in ~A" 
 	    (nlg ?dipole) (nlg ?field 'at-time ?time)))
