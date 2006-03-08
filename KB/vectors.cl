@@ -23,12 +23,13 @@
 
 (def-psmclass relative-vel (?eq-type relvel ?xy ?rot (relative-vel ?body1 ?b2 ?b3 ?t))
   :complexity major
+  :short-name "relative velocity"
   :english ("relative velocity equation")
   :expformat ((strcat "applying the relative velocity equation to ~a "
                       "in relation to ~a and ~a")
               (nlg ?body1) (nlg ?b2) (nlg ?b3))
   :EqnFormat ("Vac_~a = Vab_~a + Vbc_~a" 
-             (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
+             (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator relative-vel-contains (?sought)
   :preconditions (

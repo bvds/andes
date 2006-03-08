@@ -1305,6 +1305,7 @@
 
 (def-PSMclass given-fraction (given-fraction ?q1 ?q2)
   :complexity connect ;just like (equals ...)
+  :short-name "fraction of"
   :english ("one quantity as given fraction of another")
   :eqnFormat ("val1 = fraction*val2"))
 
@@ -1774,6 +1775,7 @@
 ;;;   
 (def-psmclass rmag-pyth (rmag-pyth ?body ?origin ?time)
   :complexity minor 
+  :short-name "position mag from components"
   :english ("the pythagorean theorem for position magnitudes")
   :ExpFormat ("calculating the magnitude of the position of ~a from its components" (nlg ?body))
   :EqnFormat ("r = sqrt(r_x^2 + r_y^2)"))
@@ -1834,10 +1836,11 @@
 (def-psmclass rdiff
              (?eq-type rdiff ?axis ?rot (rdiff ?p1 ?p2 ?time)) 
   :complexity minor
+  :short-name "relative position from coordinates"
   :english ("the relative position definition")
   :ExpFormat ("computing the ~a component of the relative position of ~a with respect to ~a"
-		 (nlg ?axis 'adj) (nlg ?p2) (nlg ?p1) )
-  :EqnFormat ("r21_~a = ~a2 - ~a1" (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
+		 (axis-name ?axis) (nlg ?p2) (nlg ?p1) )
+  :EqnFormat ("r21_~a = ~a2 - ~a1" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator rdiff-contains (?sought)
   :preconditions (
@@ -4918,6 +4921,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (def-PSMclass thrust-force (thrust-definition ?body ?agent ?time)
     :complexity minor  ;same as definitions of other forces
     :Doc "Definition of thrust force."
+  :short-name "thrust force (magnitudes)"
     :english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
@@ -4958,10 +4962,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 				 (thrust ?body ?agent ?time))
     :complexity minor    ;same as definitions of other forces
     :Doc "Definition of thrust force."
+  :short-name ("thrust force (~A components)" (axis-name ?axis))
     :english ("the definition of thrust force") 
     :ExpFormat ("applying the definition of thrust-force on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("F_~A = -v_~a*dmdt" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+    :EqnFormat ("F_~A = -v_~a*dmdt" (axis-name ?axis) (axis-name ?axis)))
 
 
 (defoperator thrust-force-vector-diagram (?b ?agent ?t)
@@ -5766,6 +5771,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	       
 (def-PSMclass spring-law (spring-law ?body ?time)
   :complexity minor
+  :short-name "Hooke's law"
   :english ("Hooke's Law")
   :expformat ("applying Hooke's Law to ~a " (nlg ?body))
   :EqnFormat ("Fs = k*d" ))
@@ -7642,6 +7648,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; drawing the vector.
 (def-psmclass unit-vector-mag (unit-vector-mag . ?args)
   :complexity definition
+  :short-name "length of unit vector"
   :english ("the length of a unit vector")
   :ExpFormat("introducing a unit vector")
   :EqnFormat("n=1"))
@@ -9399,6 +9406,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (def-PSMclass mass-per-length-eqn (mass-per-length-equation ?b)
   :complexity minor  ;same as the moment of inertia formulas
   :doc "mass per length = mass/length"
+  :short-name "mass per unit length"
   :english ("mass per length = mass/length")
   :expFormat ("using the mass per length of ~A" (nlg ?b))
   :EqnFormat ("$m = m/l"))

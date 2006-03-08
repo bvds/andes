@@ -137,6 +137,7 @@
 ; focal length of spherical mirror = r/2
 (def-psmclass focal-length-mirror (focal-length-mirror ?mirror)
   :complexity major  ; ??
+  :short-name "focal length of mirror"
   :english ("the focal length of spherical mirror")
   :ExpFormat ("applying the formula for the focal length of a spherical mirror")
   :EqnFormat ("f = r/2")) 
@@ -173,6 +174,7 @@
 ;;
 (def-psmclass lens-eqn (lens-eqn ?lens)
   :complexity major
+  :short-name "thin lens/mirror equation"
   :english ("the thin lens/mirror equation")
   :ExpFormat ("applying the thin lens/mirror equation")
   :EqnFormat ("1/do + 1/di = 1/f")) 
@@ -259,6 +261,7 @@
 ; if that form is also a quantity that might be given.
 (def-psmclass magnification-eqn (magnification-eqn ?lens)
   :complexity major
+  :short-name "(lateral) magnification"
   :english ("the formula for (lateral) magnification")
   :ExpFormat ("applying the formula for magnification")
   :EqnFormat ("m = -di/do")) 
@@ -308,6 +311,7 @@
 ;; 
 (def-psmclass lens-combo (lens-combo ?lens1 lens2)
   :complexity major
+  :short-name "combination of lenses"
   :english ("the lens combination relation")
   :ExpFormat ("applying the lens combination relation")
   :EqnFormat ("do2 = d12 - di1")) 
@@ -343,6 +347,7 @@
 
 (def-psmclass combo-magnification (combo-magnification ?sys)
   :complexity major
+  :short-name "combined magnification"
   :english ("combined lens magnification")
   :ExpFormat ("applying the formula for magnification of combined lenses")
   :EqnFormat ("m12 = m1*m2")) 
@@ -383,6 +388,7 @@
 ; Fixed number of two will work for our problems.
 (def-psmclass compound-focal-length (compound-focal-length ?lens-name)
   :complexity major
+  :short-name "compound lens (touching lenses)"
   :english ("the focal length of a compound lens")
   :ExpFormat ("applying the formula for the focal length of a compound lens")
   :EqnFormat ("1/f12 = 1/f1 + 1/f2")) 
@@ -469,6 +475,7 @@
 
 (def-psmclass snells-law (snells-law (orderless . ?lines) ?angle-flag)
   :complexity major
+  :short-name "Snell's law"
   :english ("Snell's law")
   :ExpFormat ("using Snell's law for ~A" (nlg ?lines 'conjoined-defnp))
   :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
@@ -577,6 +584,7 @@
 ;; It does not really handle the inequality
 (def-psmclass total-internal-reflection (total-internal-reflection ?line1 ?angle-flag)
   :complexity major
+  :short-name "total internal reflection (minimum angle)"
   :english ("Formula for angle of total internal reflection")
   :ExpFormat ("using total internal reflection formula for ~A (minimum angle)" 
 	      (nlg ?line1))
@@ -678,6 +686,7 @@
 
 (def-psmclass complimentary-angles (complimentary-angles orderless . ?angles)
   :complexity minor
+  :short-name "complimentary angles"
   :english ("Complimentary angles")
   :ExpFormat ("using complimentary angles for ~A" 
 	      (nlg ?angles 'conjoined-defnp))
@@ -719,6 +728,7 @@
 
 (def-psmclass supplementary-angles (supplementary-angles orderless . ?angles)
   :complexity minor
+  :short-name "supplementary angles"
   :english ("Supplementary angles")
   :ExpFormat ("using supplementary angles for ~A" 
 	      (nlg ?angles 'conjoined-defnp))

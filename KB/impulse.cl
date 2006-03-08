@@ -48,10 +48,11 @@
 				 (impulse-force-vector ?body ?agent ?time))
     :complexity major    
     :Doc "Definition of impulse."
+    :short-name "impulse and force"
     :english ("the definition of impulse") 
     :ExpFormat ("applying the definition of impulse on ~a ~a"
 		(nlg ?body) (nlg ?time 'pp))
-    :EqnFormat ("J_~A = F(avg)_~a*t" (nlg ?axis 'adj) (nlg ?axis 'adj)))
+    :EqnFormat ("J_~A = F(avg)_~a*t" (axis-name ?axis) (axis-name ?axis)))
 
 ;; Draw an impulse if associated force and interval known 
 (defoperator draw-impulse-given-force (?b ?agent ?t)
@@ -150,13 +151,14 @@
 	      (impulse ?body  ?agent (during ?t1 ?t2))) 
      :complexity major
      :doc "equation relating impulse to change in momentum"
+     :short-name "Newton's second law"
      :english ("Relation between impulse and change in momentum")
      :ExpFormat ("relating the impulse to the change in momentum of ~a"
 		 (nlg ?body))
      :EqnFormat ("J1_~a + J2_~a + J3_~a + ...= m*v_~a(~A) - m*v_~a(~A)" 
-                 (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj) 
-		 (nlg ?axis 'adj) (nlg ?t2 'nlg-time) 
-		 (nlg ?axis 'adj) (nlg ?t1 'nlg-time)))
+                 (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
+		 (axis-name ?axis) (nlg ?t2 'nlg-time) 
+		 (axis-name ?axis) (nlg ?t1 'nlg-time)))
 
 (defoperator draw-impulse-momentum-diagram (?b ?t1 ?t2)
   :preconditions 
@@ -305,6 +307,7 @@ impulse ~A." (?b def-np) (?t pp)))
 
 (def-psmclass NTL-impulse (NTL-impulse (?Object0 ?Object1) ?time)
   :complexity major
+  :short-name "Newton's third law (magnitude)"
   :english ("Newton's Third Law applied to impulse")
   :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
 	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
@@ -314,10 +317,11 @@ impulse ~A." (?b def-np) (?t pp)))
 					   (NTL-impulse-vector 
 					    (?Object0 ?Object1) ?time))
   :complexity major
+  :short-name ("Newton's third law (~A component)" (axis-name ?axis))
   :english ("Newton's Third Law applied to impulse")
   :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
 	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
-  :EqnFormat ("J12_~a = - J21_~a" (nlg ?axis 'adj) (nlg ?axis adj)))
+  :EqnFormat ("J12_~a = - J21_~a" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator NTL-impulse-contains (?quantity)
   :preconditions 
@@ -415,10 +419,11 @@ impulse ~A." (?b def-np) (?t pp)))
 
 (def-psmclass center-of-mass-compo (?eq-type definition ?axis ?rot 
 				       (center-of-mass ?com ?time))
+  :short-name "center of mass"
   :english ("definition of center of mass")
   :complexity major ;we want the equation to be used explicitly
   :EqnFormat ("Rcm_~A = (m1*r1_~A + m2*r2_~A + ...)/(m1 + m2 + ...)" 
-	      (nlg ?axis 'adj) (nlg ?axis 'adj) (nlg ?axis 'adj)))
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator center-of-mass-contains (?sought)
   :preconditions 

@@ -735,6 +735,7 @@
   group      ;; The class that this psm is a part of e.g Kinematics.
   Complexity ;; Planning Commplexity clas (simple, link, major)
   help       ;; Help information.
+  short-name ;; String with short name (for use in menu)
   english    ;; Storage for english phrasing.
   ExpFormat  ;; Format string for expressions of this type (with vars).
   EqnFormat  ;; Format string and args for the equation form of this psm.
@@ -750,6 +751,7 @@
   (format Stream "  Group:     ~A~%" (psmclass-group class))
   (format Stream "  Complexity ~A~%" (psmclass-complexity class))
   (format Stream "  Help:      ~A~%" (psmclass-help class))
+  (format Stream "  Short name ~A~%" (psmclass-short-name class))
   (format Stream "  English:   ~A~%" (psmclass-english class))
   (format Stream "  Doc:       ~A]~%" (psmclass-doc class)))
 
@@ -766,11 +768,9 @@
 
 
 (defmacro def-psmclass (name form
-			&key (fields nil) (group nil) 
-			     (complexity nil)
-			     (help nil) (english nil) 
-			     (doc nil) (ExpFormat nil) 
-			     (EqnFormat Nil))
+			&key fields group complexity
+			     help short-name english
+			     doc  ExpFormat EqnFormat)
   "Define and store a psm type."
   (test-defpsmclass-errors name group)
   (let* ((g (lookup-psmgroup-name group))
@@ -782,6 +782,7 @@
 	       :group g
 	       :complexity complexity
 	       :help help
+	       :short-name short-name
 	       :english english
 	       :ExpFormat ExpFormat
 	       :EqnFormat EqnFormat

@@ -50,6 +50,7 @@
 
 (def-psmclass wavenumber-lambda-wave (wavenumber-lambda-wave ?wave ?medium)
   :complexity definition  ;substitute implicitly into major equation
+  :short-name "wavenumber"
   :english ("relation between wavelength and wavenumber")
   :ExpFormat 
   ("applying the equation relating wavenumber and wavelength of ~A in ~A"
@@ -189,6 +190,7 @@
 ;;equation of the frequency of the wave, frequency = angular-frequency/2*pi
 (def-psmclass frequency-of-wave (frequency-of-wave ?object)
   :complexity definition  ;substitute implicitly into major equation
+  :short-name "frequency"
   :english ("the equation for the frequency of a wave")
   :ExpFormat ("applying the definition angular frequency to ~A"
 	      (nlg ?object))
@@ -224,6 +226,7 @@
 ;;equation beat frequency for two waves
 (def-psmclass beat-frequency (beat-frequency ?wbeat ?w1 ?w2 ?me ?t)
   :complexity major 
+  :short-name "beat frequency"
   :english ("the beat frequency of two waves")
   :ExpFormat ("finding the beat frequency of waves ~A and ~A"
 	      (nlg ?w1) (nlg ?w2))
@@ -289,6 +292,7 @@
 ;;equation of the period of the wave, period = 1/frequency
 (def-psmclass period-of-wave (period-of-wave ?object)
   :complexity definition      ;substitute implicitly into major equation
+  :short-name "period of oscillation"
   :english ("the equation for the period")
   :ExpFormat ("applying the definition of period to ~A"
 	      (nlg ?object))
@@ -323,6 +327,7 @@
 ;;
 (def-psmclass harmonic-of (harmonic-of ?waven ?wave1 ?form)
   :complexity minor
+  :short-name "n-th harmonic"
   :english ("harmonic of a standing wave")
   :ExpFormat ("using the fact that ~A is a harmonic of ~A"
 	      (nlg ?waven) (nlg ?wave1))
@@ -404,6 +409,7 @@
 
 (def-psmclass speed-of-wave (speed-of-wave ?object ?medium ?form)
   :complexity major ; must use explicitly 
+  :short-name "speed of a wave"
   :english ("the equation of the speed of a wave")
   :ExpFormat ("relating wavelength and frequency to the speed of wave ~A"
 	      (nlg ?object))
@@ -458,6 +464,7 @@
 ;; speed of object is wave speed
 (def-psmclass speed-equals-wave-speed (speed-equals-wave-speed ?object ?rope ?t)
   :complexity minor ; used implicitly 
+  :short-name "speed of pulse is wave speed"
   :english ("the speed of any wave is the same")
   :ExpFormat ("noting the speed of ~A is the same as the wave speed of ~A"
 	      (nlg ?object) (nlg ?rope))
@@ -519,6 +526,7 @@
 
 (def-psmclass wave-speed-refraction (wave-speed-refraction ?type . ?media)
   :complexity major			; must explicitly use
+  :short-name "index of refraction"
   :english ("the definition of index of refraction")
   :ExpFormat ("relating the speed of waves in ~A to the index of refraction" 
 	      (nlg ?media 'conjoined-defnp))
@@ -570,6 +578,7 @@
 ;; If medium is "light" then set its wave-speed to c
 (def-psmclass wave-speed-light (wave-speed-light ?medium)
   :complexity definition
+  :short-name "speed of light"
   :english ("the speed of a light or radio wave")
   :ExpFormat("setting wave speed to c")
   :EqnFormat("vw=c"))
@@ -597,6 +606,7 @@
 
 (def-psmclass refraction-vacuum (refraction-vacuum ?medium)
   :complexity definition
+  :short-name "index of refraction of vacuum"
   :english ("the index of refraction of a vacuum")
   :ExpFormat("setting the index of refraction to 1")
   :EqnFormat("n=1"))
@@ -649,6 +659,7 @@
 ;;; speed of transverse waves on a string
 (def-psmclass wave-speed-string (wave-speed-string ?wave)
   :complexity major			; must explicitly use
+  :short-name "speed of waves on a string"
   :english ("Transverse wave velocity of a string")
   :ExpFormat ("using formula for transverse wave speed on a string")
   :EqnFormat ("v_wave = sqrt(F_T/mu)")) 
@@ -725,6 +736,7 @@
 ;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-speed-wave (max-transverse-speed-wave ?wave)
   :complexity major  ; must explicitly use
+  :short-name "maximum speed of oscillation"
   :english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
   :EqnFormat ("v_max=A $w")) 
@@ -778,6 +790,7 @@
 ;; Yuck!  In the real world, one would derive this...
 (def-psmclass max-transverse-abs-acceleration-wave (max-transverse-abs-acceleration-wave ?wave)
   :complexity major  ; must explicitly use
+  :short-name "maximum acceleration of oscillation"
   :english ("Formula for |maximum acceleration| of an oscillation")
   :ExpFormat ("applying the formula for |maximum acceleration| of an oscillation")
   :EqnFormat ("v_max=A $w")) 
@@ -816,6 +829,7 @@
 
 (def-psmclass spring-mass-oscillation (spring-mass-oscillation ?block ?spring)
   :complexity major			; must explicitly use
+  :short-name "period of spring-mass system"
   :english ("Formula for period of mass and spring")
   :ExpFormat ("using formula for period of oscillations of a mass and spring")
   :EqnFormat ("T = 2*$p*sqrt(m/k)")) 
@@ -855,6 +869,7 @@
 ;; properly check for other forces on the mass.
 (def-psmclass pendulum-oscillation (pendulum-oscillation ?block ?rod ?planet)
   :complexity major			; must explicitly use
+  :short-name "period of simple pendulum"
   :english ("Formula for period of a simple pendulum")
   :ExpFormat ("using formula for period of a pendulum")
   :EqnFormat ("T = 2*$p*sqrt(l/g)")) 
@@ -901,6 +916,7 @@
 (def-psmclass doppler-frequency (doppler-frequency ?source ?wave ?observer 
 						   ?t-s ?t-o)
   :complexity major			; must explicitly use
+  :short-name "frequency shift from doppler effect"
   :english ("Formula for doppler frequency shift")
   :ExpFormat ("using formula for doppler frequency")
   ;; use implicit format args to insert the plus-minus character code into 
@@ -1174,6 +1190,7 @@
 ;; ?agent=nil marks net-intensity and net-db-intensity
 (def-psmclass intensity-to-decibels (intensity-to-decibels ?wave ?agent ?t)
   :complexity major			;must explicitly use
+  :short-name "intensity & decibels"
   :english ("express intensity in decibels")
   :ExpFormat ("expressing the intensity in decibels")
   :EqnFormat ("$b = 10*log10(I/Iref) or I=Iref*10^($b/10)")) 
@@ -1217,6 +1234,7 @@
 (def-psmclass intensity-to-poynting-vector-magnitude 
   (intensity-to-poynting-vector-magnitude ?wave ?source ?)
   :complexity definition  ;want this to be freely substituted into expressions
+  :short-name "relation of intensity and the magnitude of the Poynting vector"
   :english ("relate intensity to the magnitude of the Poynting vector")
   :ExpFormat ("relating the intensity to the magnitude of the Poynting vector")
   :EqnFormat ("P = S")) 
@@ -1251,6 +1269,7 @@
 
 (def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?bodies)
   :complexity major  ;must explicitly use
+  :short-name "relation of power and intensity (spherical emitter)"
   :english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("relating the intensity to power (spherical symmetry)")
   :EqnFormat ("P = 4*$p*r^2")) 
@@ -1295,6 +1314,7 @@
 (def-psmclass uniform-intensity-to-power 
   (uniform-intensity-to-power ?wave ?source ?t)
   :complexity major  ;must explicitly use
+  :short-name "relation of power and intensity (uniform over surface)"
   :english ("relate uniform intensity to power")
   :ExpFormat ("relating the intensity to power (uniform intensity)")
   :EqnFormat ("P = I*A")) 
@@ -1335,6 +1355,7 @@
 
 (def-psmclass energy-decay (energy-decay ?system ?time) 
   :complexity major
+  :short-name "energy decay"
   :english ("Energy in a damped system")
   :eqnFormat ("E = Ei*exp(-2*t/$t)"))
 
@@ -1400,6 +1421,7 @@
 
 (def-psmclass electromagnetic-wave-field-amplitude (electromagnetic-wave-field-amplitude ?wave)
   :complexity major  ; must explicitly use
+  :short-name "ratio of fields in electromagnetic wave"
   :english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
   :EqnFormat ("v_max=A $w")) 

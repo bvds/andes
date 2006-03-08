@@ -211,6 +211,15 @@
        ((eq xyz 'z) 'out-of)		; ignore rot
        (t (error "invalid axis specification~%"))))
 
+(defun axis-name (xyz)
+ "return string name for each axis"
+ (cond ((eq xyz 'x) "x")
+       ((eq xyz 'y) "y")
+       ((eq xyz 'z) "z")
+       (t (error "invalid axis specification~%"))))
+
+
+
 ; !!! following only applies to known xy plane angles.
 ; calling with zero-length, dir unknown or z-axis dirs will throw error
 (defun convert-dnum-to-number (x)
