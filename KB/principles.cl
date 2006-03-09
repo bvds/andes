@@ -8,7 +8,7 @@
 (group "Translational"			
        (leaf sdd :tutorial "Average speed")
        (leaf avg-velocity :bindings ((?axis . x)) :tutorial "Average velocity")
-       (leaf avg-velocity :bindings ((?axis .y)) :tutorial "Average velocity")
+       (leaf avg-velocity :bindings ((?axis . y)) :tutorial "Average velocity")
        (leaf lk-no-s :bindings ((?axis . x)) :tutorial "Average acceleration")
        (leaf lk-no-s :bindings ((?axis . y)) :tutorial "Average acceleration")
        (leaf lk-no-vf :bindings ((?axis . x)) :tutorial "Constant acceleration")
@@ -361,3 +361,44 @@
  
 (mapcar #'chomp *principle-tree*)
 |#
+
+;;;          Generate file KB/principles.tsv
+
+(defun principles-file ()
+  "construct file KB/principles.tsv"
+  (let ((str t ;(open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
+		;   :direction :output :if-exists :supersede)
+	     ))
+    (dolist (p *principle-tree*)
+      (principle-branch-print str p))
+    (close str)))
+
+(defun eval-print-spec (x &optional (bindings no-bindings))
+  "evaluate, using andes-eval, a printing specification in def-psmclass"
+  (cond ((listp x)
+	 (format nil "~{~@?~}" (mapcar #'andes-eval 
+				       (subst-bindings-quoted bindings x))))
+	((typep x 'string) x)
+	(t (error "invalid print spec ~A" x))))
+
+(defun principle-branch-print (str p)
+  (cond ((eq (car p) 'group)
+	 (format str "GROUP ~A~%" (cadr p))
+	 (dolist (pp (cddr p)) (principle-branch-print str pp))
+	 (format str "END_GROUP~%"))
+	((eq (car p) 'leaf)
+	 (let* ((keys (apply #'(lambda (&key (bindings no-bindings) tutorial) 
+				 (list bindings tutorial)) 
+			     (cddr p)))
+		(bindings (first keys))
+		(tutorial (second keys))
+		(class (lookup-psmclass-name (cadr p))))
+	   (format str "LEAF~C~A    ~A~C~A~C~@[~A~]~%" #\tab 
+		   (eval-print-spec (psmclass-EqnFormat class) bindings)
+		   (eval-print-spec (psmclass-short-name class) bindings)
+		   #\tab
+		   (if (equal bindings no-bindings) (psmclass-name class)
+		     (list (psmclass-name class) bindings))
+		   #\tab
+		   tutorial
+		   )))))

@@ -111,7 +111,9 @@
 
 (defparameter **engineering** nil)
 (defun torque-switch (x y)
-  (if  (member 'engineering-names (problem-features *cp*)) x y))   
+  ;; will need another mechanism to construct principles.tsv
+  ;; for an engineering course
+  (if (and *cp* (member 'engineering-names (problem-features *cp*))) x y))   
 (defun moment-symbol (&optional junk) ;optional arg for use with nlg
   (torque-switch "M" "$t"))
 (defun moment-name (&optional junk) ;optional arg for use with nlg

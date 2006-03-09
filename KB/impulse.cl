@@ -155,10 +155,9 @@
      :english ("Relation between impulse and change in momentum")
      :ExpFormat ("relating the impulse to the change in momentum of ~a"
 		 (nlg ?body))
-     :EqnFormat ("J1_~a + J2_~a + J3_~a + ...= m*v_~a(~A) - m*v_~a(~A)" 
+     :EqnFormat ("J1_~a + J2_~a + J3_~a + ...= m*vf_~a - m*vi_~a" 
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
-		 (axis-name ?axis) (nlg ?t2 'nlg-time) 
-		 (axis-name ?axis) (nlg ?t1 'nlg-time)))
+		 (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator draw-impulse-momentum-diagram (?b ?t1 ?t2)
   :preconditions 
