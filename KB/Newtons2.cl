@@ -3898,6 +3898,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (def-PSMclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
   :complexity minor
+  :short-name "relative position equality"
   :english ("relative position equality")
   :ExpFormat ("applying relative position equality to ~a and ~a ~a"
 	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))

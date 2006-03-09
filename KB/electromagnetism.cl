@@ -1138,16 +1138,22 @@
 (def-psmclass net-field-electric 
   (?eq-type definition ?axis ?rot (net-field ?loc electric ?time))
   :complexity major
+  :short-name ("net electric field (~A component)" (axis-name ?axis))
   :english ("the definition of net electric field")
-  :ExpFormat ("calculating the net electric field at ~a ~a" (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Enet_~a = E1_~a + E2_~a + E3_~a + ..." (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :ExpFormat ("calculating the net electric field at ~a ~a" 
+	      (nlg ?loc) (nlg ?time 'pp))
+  :EqnFormat ("Enet_~a = E1_~a + E2_~a + E3_~a + ..." (axis-name ?axis) 
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (def-psmclass net-field-magnetic 
   (?eq-type definition ?axis ?rot (net-field ?loc magnetic ?time))
   :complexity major
-  :english ("the definition of net electric field")
-  :ExpFormat ("calculating the net electric field at ~a ~a" (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Bnet_~a = B1_~a + B2_~a + B3_~a + ..." (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :short-name ("net magnetic field (~A component)" (axis-name ?axis))
+  :english ("the definition of net magnetic field")
+  :ExpFormat ("calculating the net magnetic field at ~a ~a" 
+	      (nlg ?loc) (nlg ?time 'pp))
+  :EqnFormat ("Bnet_~a = B1_~a + B2_~a + B3_~a + ..." (axis-name ?axis) 
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator net-field-contains (?sought)
  :preconditions (
@@ -3270,7 +3276,7 @@
 (def-psmclass electric-flux-constant-field
   (flux-constant-field ?surface electric ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
-  :short-name "electric flux (constant field)"
+  :short-name "electric flux (uniform field)"
   :english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'flux ?surface 'electric :time ?time)))
@@ -3361,6 +3367,7 @@
 (def-psmclass electric-flux-constant-field-change
   (flux-constant-field-change ?surface electric ?field ?time ?rot)
   :complexity major ; definition, but can be first "principle" for sought
+  :short-name "derivative of electric flux, uniform field"
   :english ("the time derivative of the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'rate-of-change 

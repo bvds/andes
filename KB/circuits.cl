@@ -329,6 +329,7 @@
 ;;;CURRENTS
 (def-psmclass current-thru-what (current-thru-what ?what ?branch ?t) 
   :complexity minor 
+  :short-name "current in branch"
   :english ("Current in branch")
   :Expformat ("Relating the current through ~A to the current in the branch containing it" ?what)
   :eqnFormat ("Icomp = Ibranch"))
@@ -476,6 +477,7 @@
  
 (def-psmclass current-equiv (currents-same-equivalent-branches ?res ?br-res ?t) 
   :complexity minor
+  :short-name "equivalent resistor current"
   :english ("Current in equivalent branches")
   :eqnFormat ("Iequiv = Iorig"))
              

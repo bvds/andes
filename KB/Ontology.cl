@@ -700,6 +700,7 @@
 (def-psmclass displacement-distance (displacement-distance ?body ?time)
   :complexity connect  ;since this is like (equals ...)
   :doc "Distance = Displacement."
+  :short-name "distance & displacement"
   :english ("distance = magnitude of displacment")
   :expFormat ("noting that distance is the magnitude of the displacment")
   :EqnFormat ("|d| = s"))
@@ -734,6 +735,7 @@
 
 (def-psmclass sum-distance (sum-distance ?b1 ?b2 ?b3 ?t)
    :complexity simple
+   :short-name "sum collinear distances"
    :english ("the relationship among the distances between ~a, ~a and ~a" 
               (nlg ?b1) (nlg ?b2) (nlg ?b3))
    :ExpFormat ("relating the total distance between ~a and ~a to the distances from these points to ~a" (nlg ?b1) (nlg ?b3) (nlg ?b2))
@@ -778,7 +780,6 @@
 (def-psmclass lk-no-s-lk (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
   :group lk
   :complexity major
-  :short-name "average acceleration"
   :english ("the definition of average acceleration")
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 		 (nlg ?body) (nlg ?time0 'pp) (nlg ?time1 'pp)))
@@ -789,7 +790,7 @@
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 		 (nlg ?body) (nlg ?time0 'pp) (nlg ?time1 'pp)))
 
-; generic form to match either version of lk-no-s.
+;; generic form to match either version of lk-no-s.
 (def-psmclass lk-no-s (?eq-type lk-no-s ?axis ?rot (?parent-psm ?body (during ?time0 ?time1))) 
   :group Kinematics
   :complexity major
@@ -797,7 +798,8 @@
   :english ("the definition of average acceleration")
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'pp) (nlg ?time1 'pp))
-  :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("a_~a = (vf_~a - vi_~a)/t" 
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
   :english ((strcat "writing an constant acceleration equation in "
@@ -843,6 +845,8 @@
   :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
 
 
+#|
+;; not used
 (def-psmclass lk-no-a (?eq-type lk-no-a ?axis ?rot (lk ?body (during ?time0 ?time1)))
   :group lk
   :complexity major
@@ -854,7 +858,7 @@
 		      "for ~a from ~a to ~a") 
                       (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
 		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time)))
-
+|#
 
 (def-goalprop lk-no-a-eqn 
    (eqn ?algebra (compo-eqn lk-no-a ?axis ?rot (lk ?body ?time)))
@@ -950,7 +954,7 @@
 
 (def-psmclass sum-distances (sum-distances ?b ?tt)
   :complexity connect
-  :short-name "sum of distances"
+  :short-name "sum distance travelled"
   :english ("sac = sab + sbc")
   :ExpFormat ("calculating the sum of distances travelled by ~A during ~A" 
 	      (nlg ?b) (nlg ?tt 'pp))
@@ -992,6 +996,7 @@
 
 (def-psmclass net-force (?eq-type definition ?axis ?rot (net-force ?body ?t))
   :complexity minor 
+  :short-name ("net force (~A component)" (axis-name ?axis))
   :english ("net force")
   :ExpFormat ("calculating the net force acting on ~a ~a" (nlg ?body) (nlg ?t))
   :EqnFormat ("Fnet_~a = F1_~a + F2_~a + F3_~a + ..." 
@@ -1043,10 +1048,12 @@
   :EqnFormat ("Ffs = $u * Fn"))
 
 
-(def-psmclass num-forces (num-forces ?body ?time)		 ; silly, num-forces = <count of the forces>
+;; silly, num-forces = <count of the forces>
+(def-psmclass num-forces (num-forces ?body ?time) 
   :complexity simple
+  :short-name "number of forces" 
   :english ("count forces")
-  :expformat ("counting the total number of forces on ~a ~a"
+  :expformat ("counting the total number of forces acting on ~a ~a"
 		 (nlg ?body) (nlg ?time 'nlg-time)))
 
 (def-psmclass ug (ug ?body ?agent ?time ?distance-quant)
@@ -1174,7 +1181,7 @@
 		      "from ~a to ~a") (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("ME1 = ME2"))
 
-(def-psmclass change-ME  (change-ME ?body ?time0 ?time1)
+(def-psmclass change-ME (change-ME ?body ?time0 ?time1)
   :complexity major
   :short-name "change in mechanical energy"
   :english ("change in mechanical energy")
@@ -1440,6 +1447,7 @@
 
 (def-psmclass NFL-rot (?eq-type z 0 (NFL-rot ?body ?pivot ?time))
   :complexity major
+  :short-name "rotational form of Newtons 1st law"
   :english ("rotational version of Newton's First Law")
   :expformat ("applying rotational version of Newton's First Law to ~a about ~a ~a"
 	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
