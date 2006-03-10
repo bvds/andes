@@ -100,9 +100,9 @@ LEAF	$r = m/V    mass density defined	density	Mass Density
 LEAF	Fb = $rf*V*g    Archimedes principle (buoyant force)	archimedes	Buoyant Force
 END_GROUP			
 GROUP	Electricity and Magnetism		
-LEAF	F = kelec*abs(q1*q2)/r^2    Coulomb's law (magnitude)	coulomb	Electric Field
-LEAF	F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)	(coulomb-compo ((?axis . x)))	Electric Field
-LEAF	F_y = (kelec*q1*q2/r^2) * r_y/r    Coulomb's law (y component)	(coulomb-compo ((?axis . y)))	Electric Field
+LEAF	F = kelec*abs(q1*q2)/r^2    Coulomb's law (magnitude)	coulomb	
+LEAF	F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)	(coulomb-compo ((?axis . x)))	
+LEAF	F_y = (kelec*q1*q2/r^2) * r_y/r    Coulomb's law (y component)	(coulomb-compo ((?axis . y)))	
 LEAF	F = abs(q)*E    electric field (magnitude)	charge-force-efield-mag	Electric Field
 LEAF	F_x = q*E_x    electric field	(charge-force-efield ((?axis . x)))	Electric Field
 LEAF	F_y = q*E_y    electric field	(charge-force-efield ((?axis . y)))	Electric Field

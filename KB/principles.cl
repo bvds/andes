@@ -117,9 +117,9 @@
 	 (leaf archimedes :tutorial "Buoyant Force")
 	 )
  (group "Electricity and Magnetism" 
-	 (leaf coulomb :tutorial "Electric Field")
-	 (leaf coulomb-compo :bindings ((?axis . x)) :tutorial "Electric Field")
-	 (leaf coulomb-compo :bindings ((?axis . y)) :tutorial "Electric Field")
+	 (leaf coulomb)
+	 (leaf coulomb-compo :bindings ((?axis . x)))
+	 (leaf coulomb-compo :bindings ((?axis . y)))
 	 (leaf charge-force-Efield-mag :tutorial "Electric Field")
 	 (leaf charge-force-Efield :bindings ((?axis . x)) :tutorial "Electric Field")
 	 (leaf charge-force-Efield :bindings ((?axis . y)) :tutorial "Electric Field")
