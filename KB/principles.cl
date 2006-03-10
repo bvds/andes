@@ -393,9 +393,10 @@
 
 (defun principle-branch-print (str p)
   (cond ((eq (car p) 'group)
+	 ;; tsv file format is 4 tab-separated columns
 	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
 	 (dolist (pp (cddr p)) (principle-branch-print str pp))
-	 (format str "END_GROUP~%"))
+	 (format str "END_GROUP~C~C~C~%"  #\tab #\tab #\tab))
 	((eq (car p) 'leaf)
 	 (apply #'principle-leaf-print (cons str (cdr p))))))
 
