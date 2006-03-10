@@ -21,7 +21,7 @@
   :short-name "Coulomb's law (magnitude)"
   :english ("Coulomb's Law")
   :expformat ("applying Coulombs's Law for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
-  :EqnFormat ("F = kelec*abs(q1)*abs(q2)/r^2"))
+  :EqnFormat ("F = kelec*abs(q1*q2)/r^2"))
 
 
 ;;; The equation is scalar equation containing vector magnitudes only.

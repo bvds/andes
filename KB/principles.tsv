@@ -66,16 +66,16 @@ LEAF	P = F*v*cos($q) or P = F_x*v_x + F_y*v_y    instantaneous power	inst-power	
 LEAF	P = 4*$p*r^2*I    relation of power and intensity (spherical emitter)	intensity-to-power	Intensity
 LEAF	P = I*A    relation of power and intensity (uniform over surface)	uniform-intensity-to-power	Intensity
 LEAF	$b = 10*log10(I/Iref)    intensity & decibels	intensity-to-decibels	Intensity
-LEAF	I=Iref*10^($b/10)    intensity & decibels	intensity-to-decibels	Intensity
+LEAF	I = Iref*10^($b/10)    intensity & decibels	intensity-to-decibels	Intensity
 LEAF	I = S    intensity & magnitude of the Poynting vector	intensity-to-poynting-vector-magnitude	Intensity
 END_GROUP			
 GROUP	Momentum and Impulse		
 GROUP	Translational		
-LEAF	pi_x = m * v_x    momentum defined (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
-LEAF	pi_y = m * v_y    momentum defined (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
+LEAF	p_x = m*v_x    momentum defined (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
+LEAF	p_y = m*v_y    momentum defined (y component)	(momentum-compo ((?axis . y)))	Conservation of Momentum
 LEAF	p1i_x + p2i_x + ... = p1f_x + p2f_x + ...    conservation of momentum	(cons-linmom ((?axis . x)))	Conservation of Momentum
 LEAF	p1i_y + p2i_y + ... = p1f_y + p2f_y + ...    conservation of momentum	(cons-linmom ((?axis . y)))	Conservation of Momentum
-LEAF	Kf = Ki    elastic collision defined	cons-ke-elastic	Elastic collisions
+LEAF	KEf = KEi    elastic collision defined	cons-ke-elastic	Elastic collisions
 LEAF	J_x = F(avg)_x*t    impulse and force	(impulse-force ((?axis . x)))	Impulse
 LEAF	J_y = F(avg)_y*t    impulse and force	(impulse-force ((?axis . y)))	Impulse
 LEAF	J1_x + J2_x + ... = pf_x - pi_x    Newton's second law	(impulse-momentum ((?axis . x)))	Impulse
@@ -87,7 +87,7 @@ LEAF	Rcm_x = (m1*r1_x + m2*r2_x + ...)/(m1 + m2 + ...)    center of mass	(center
 LEAF	Rcm_y = (m1*r1_y + m2*r2_y + ...)/(m1 + m2 + ...)    center of mass	(center-of-mass-compo ((?axis . y)))	Center of Mass
 END_GROUP			
 GROUP	Rotational		
-LEAF	L_z = I * $w_z    angular momentum defined	ang-momentum	Angular momentum definition
+LEAF	L_z = I*$w_z    angular momentum defined	ang-momentum	Angular momentum definition
 LEAF	L1i_z + L2i_z + ... = L1f_z + L2f_z + ...    conservation of angular momentum	cons-angmom	Conservation of Angular momentum
 END_GROUP			
 END_GROUP			
@@ -100,7 +100,7 @@ LEAF	$r = m/V    mass density defined	density	Mass Density
 LEAF	Fb = $rf*V*g    Archimedes principle (buoyant force)	archimedes	Buoyant Force
 END_GROUP			
 GROUP	Electricity and Magnetism		
-LEAF	F = kelec*abs(q1)*abs(q2)/r^2    Coulomb's law (magnitude)	coulomb	Electric Field
+LEAF	F = kelec*abs(q1*q2)/r^2    Coulomb's law (magnitude)	coulomb	Electric Field
 LEAF	F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)	(coulomb-compo ((?axis . x)))	Electric Field
 LEAF	F_y = (kelec*q1*q2/r^2) * r_y/r    Coulomb's law (y component)	(coulomb-compo ((?axis . y)))	Electric Field
 LEAF	F = abs(q)*E    electric field (magnitude)	charge-force-efield-mag	Electric Field
@@ -172,7 +172,7 @@ END_GROUP
 GROUP	Inductance		
 LEAF	V = -L*dIdt    inductor EMF	inductor-emf	Inductance
 LEAF	V2 = -M12*dI1dt    mutual inductor EMF	mutual-inductor-emf	Inductance
-LEAF	dIdt(avg) = (I2 - I1)/t12    average rate of change	avg-rate-current-change	Inductance
+LEAF	dIdt_avg = (I2 - I1)/(t2 - t1)    average rate of change	avg-rate-current-change	Inductance
 LEAF	U = 0.5*L*I^2    energy stored in inductor	inductor-energy	Inductance
 LEAF	L = $m0*N^2*A/l    self-inductance of long, uniform solenoid	solenoid-self-inductance	Inductance
 LEAF	$t = L/R    LR time constant	lr-time-constant	LR Circuits
@@ -239,9 +239,9 @@ END_GROUP
 GROUP	Newton's Laws		
 GROUP	Translational		
 GROUP	Force Laws		
-LEAF	Fw = m * g    weight law	wt-law	Weight Law
-LEAF	Ffk = $u * Fn    kinetic friction	kinetic-friction	Kinetic Friction
-LEAF	Ffs = $u * Fn    static friction (at max)	static-friction	Static Friction max
+LEAF	Fw = m*g    weight law	wt-law	Weight Law
+LEAF	Ff = $mk*Fn    kinetic friction	kinetic-friction	Kinetic Friction
+LEAF	Ff = $ms*Fn    static friction (at max)	static-friction	Static Friction max
 LEAF	F = k*d    Hooke's law	spring-law	Hooke's Law
 LEAF	Ft1 = Ft2    equal tensions at both ends	tensions-equal	Equal tensions at both ends
 LEAF	F = v*abs(dmdt)    thrust force (magnitudes)	thrust-force	thrust force
@@ -313,10 +313,10 @@ LEAF	p_y = p*sin($qp - $qy)    on y-axis	(proj ((?axis . y) (?vector momentum ?b
 END_GROUP			
 END_GROUP			
 GROUP	Use information specific to this problem		
-LEAF	s1 = s2    equivalent quantities	(equals ((?quant1 distance ?body :time ?time)))	
+LEAF	val1 = val2    equivalent quantities	(equals ((?quant1 distance ?body :time ?time)))	
 LEAF	|d| = s    distance & displacement	displacement-distance	
 LEAF	Icomp = Ibranch    current in branch	current-thru-what	
-LEAF	    number of forces	num-forces	
+LEAF	nf = (count forces)    number of forces	num-forces	
 LEAF	val1 = fraction*val2    fraction of	given-fraction	
 LEAF	R12 = R21    relative position equality	opposite-relative-position	
 LEAF	tac = tab + tbc    sum of times	sum-times	Sum of times

@@ -2070,7 +2070,7 @@
   :complexity major 
   :short-name "average rate of change"
   :english ("the definition of average rate of current change")
-  :eqnFormat ("dIdt(avg) = (I2 - I1)/t12") 
+  :eqnFormat ("dIdt_avg = (I2 - I1)/(t2 - t1)") 
   )
 
 (defoperator avg-rate-current-change-contains (?sought)

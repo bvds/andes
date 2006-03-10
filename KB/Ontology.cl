@@ -1052,7 +1052,7 @@
   :short-name "weight law"
   :english ("Weight law")
   :ExpFormat ("applying the Weight Law on ~a" (nlg ?body))
-  :EqnFormat ("Fw = m * g"))
+  :EqnFormat ("Fw = m*g"))
 
 (def-psmclass kinetic-friction (kinetic-friction ?body ?surface ?time)
   :complexity simple
@@ -1060,7 +1060,7 @@
   :english ("Kinetic Friction Law")
   :ExpFormat ("applying the Kinetic friction law for ~a and ~a ~a"
 	      (nlg ?body) (nlg ?surface) (nlg ?time 'nlg-time))
-  :EqnFormat ("Ffk = $u * Fn"))
+  :EqnFormat ("Ff = $mk*Fn"))
 
 (def-psmclass static-friction (static-friction ?body ?surface ?time) 
   :complexity simple
@@ -1068,7 +1068,7 @@
   :english ("Static Friction at maximum")
   :expformat ("applying the Definition of Static friction for ~a and ~a ~t"
 	      (nlg ?body) (nlg ?surface) (nlg ?time 'nlg-time))
-  :EqnFormat ("Ffs = $u * Fn"))
+  :EqnFormat ("Ff = $ms*Fn"))
 
 
 ;; silly, num-forces = <count of the forces>
@@ -1077,7 +1077,8 @@
   :short-name "number of forces" 
   :english ("count forces")
   :expformat ("counting the total number of forces acting on ~a ~a"
-		 (nlg ?body) (nlg ?time 'nlg-time)))
+		 (nlg ?body) (nlg ?time 'nlg-time))
+  :EqnFormat "nf = (count forces)")
 
 (def-psmclass ug (ug ?body ?agent ?time ?distance-quant)
   :complexity major 
@@ -1320,7 +1321,7 @@
   :expformat ((strcat "applying Conservation of Kinetic Energy to "
 		      "elastic collisions of ~a from ~a to ~a")
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("Kf = Ki"))
+  :EqnFormat ("KEf = KEi"))
 
 ;; ROTATIONAL KINEMATICS
 (def-psmclass ang-sdd (?eq-type z 0 (ang-sdd ?body ?time))
@@ -1431,7 +1432,7 @@
   :english ("definition of angular momentum")
   :expformat ("applying the definition of angular momentum on ~a ~a"
 	      (nlg ?body) (nlg ?time 'nlg-time))
-  :EqnFormat ("L_z = I * $w_z"))
+  :EqnFormat ("L_z = I*$w_z"))
 
 (def-psmclass cons-angmom (?eq-type z 0 (cons-angmom ?bodies ?time))
   :complexity major
@@ -1519,7 +1520,7 @@
   :short-name ("momentum defined (~A component)" (axis-name ?axis))
   :english ("the definition of momentum (component form)")
   :expformat ("applying the definition of momentum to ~A" (nlg ?body))
-  :EqnFormat ("pi_~a = m * v_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("p_~a = m*v_~a" (axis-name ?axis) (axis-name ?axis)))
 
 ;;
 ;; required-identities -- identity equations that must always be written out
