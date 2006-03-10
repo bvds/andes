@@ -509,7 +509,7 @@
   :short-name "area of circle"
   :english ("the formula for the area of a circle")
   :ExpFormat ("Applying the formula for the area of a circle")
-  :EqnFormat ("Ac = $p*r^2")) 
+  :EqnFormat ("A = $p*r^2")) 
 
  (defoperator area-of-circle-contains (?sought)
    :preconditions 

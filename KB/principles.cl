@@ -9,12 +9,20 @@
        (leaf sdd :tutorial "Average speed")
        (leaf avg-velocity :bindings ((?axis . x)) :tutorial "Average velocity")
        (leaf avg-velocity :bindings ((?axis . y)) :tutorial "Average velocity")
-       (leaf lk-no-s :bindings ((?axis . x)) :tutorial "Average acceleration")
-       (leaf lk-no-s :bindings ((?axis . y)) :tutorial "Average acceleration")
+       ;; alternative form of equation
+       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+				 (axis-name ?axis) (axis-name ?axis) 
+				 (axis-name ?axis))
+	     :bindings ((?axis . x)) :tutorial "Average acceleration")
+       ;; alternative form of equation
+       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+				 (axis-name ?axis) (axis-name ?axis) 
+				 (axis-name ?axis))
+	     :bindings ((?axis . y)) :tutorial "Average acceleration")
        (leaf lk-no-vf :bindings ((?axis . x)) :tutorial "Constant acceleration")
        (leaf lk-no-vf :bindings ((?axis . y)) :tutorial "Constant acceleration")
-       (leaf lk-no-s :bindings ((?axis . x) (?sought . vf)) :tutorial "Constant acceleration")
-       (leaf lk-no-s :bindings ((?axis . y) (?sought . vf)) :tutorial "Constant acceleration")
+       (leaf lk-no-s :bindings ((?axis . x)) :tutorial "Constant acceleration")
+       (leaf lk-no-s :bindings ((?axis . y)) :tutorial "Constant acceleration")
        (leaf lk-no-t :bindings ((?axis . x)) :tutorial "Constant acceleration")
        (leaf lk-no-t :bindings ((?axis . y)) :tutorial "Constant acceleration")
        (leaf sdd-constvel :bindings ((?axis . x)) :tutorial "Constant velocity component")
@@ -27,7 +35,9 @@
        )
 (group "Rotational" 
        (leaf ang-sdd :tutorial "Angular velocity")
-       (leaf rk-no-s :bindings ((?sought . vf)) :tutorial "Angular acceleration")
+       ;; alternative form of equation
+       (leaf rk-no-s :EqnFormat "$a(avg) = ($wf - $wi)/t" 
+	     :tutorial "Angular acceleration")
        (leaf rk-no-vf :tutorial "Constant angular acceleration")
        (leaf rk-no-s :tutorial "Constant angular acceleration")
        (leaf rk-no-t :tutorial "Constant angular acceleration")
@@ -71,6 +81,7 @@
 	 (leaf intensity-to-power :tutorial "Intensity")
 	 (leaf uniform-intensity-to-power :tutorial "Intensity")
 	 (leaf intensity-to-decibels :tutorial "Intensity")
+	 (leaf intensity-to-decibels :EqnFormat "I=Iref*10^($b/10)" :tutorial "Intensity")
 	 (leaf intensity-to-poynting-vector-magnitude :tutorial "Intensity")
 	 )
  (group "Momentum and Impulse" 
@@ -228,8 +239,15 @@
 		 (leaf net-disp :bindings ((?axis . y)) :tutorial "Net Displacement")
 		 (leaf avg-velocity :bindings ((?axis . x)) :tutorial "Average velocity")
 		 (leaf avg-velocity :bindings ((?axis . y)) :tutorial "Average velocity")
-		 (leaf lk-no-s :bindings ((?axis . x)) :tutorial "Average acceleration")
-		 (leaf lk-no-s :bindings ((?axis . y)) :tutorial "Average acceleration")
+       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+				 (axis-name ?axis) (axis-name ?axis) 
+				 (axis-name ?axis))
+	     :bindings ((?axis . x)) :tutorial "Average acceleration")
+       ;; alternative form of equation
+       (leaf lk-no-s :EqnFormat ("a(avg)_~a = (vf_~a - vi_~a)/t" 
+				 (axis-name ?axis) (axis-name ?axis) 
+				 (axis-name ?axis))
+	     :bindings ((?axis . y)) :tutorial "Average acceleration")
 		 (leaf free-fall-accel :tutorial "Free fall acceleration")
 		 (leaf std-constant-g :tutorial "Value of g near Earth")
 		 (leaf const-vx :tutorial "Constant velocity component")
@@ -237,7 +255,7 @@
 		)
 	 (group "Rotational" 
 		 (leaf ang-sdd :tutorial "Angular velocity")
-		 (leaf rk-no-vf :tutorial "Angular acceleration")
+		 (leaf rk-no-s :tutorial "Angular acceleration")
 		 )
 	 )
  (group	 "Newton's Laws" 
@@ -366,7 +384,7 @@
 
 (defun principles-file ()
   "construct file KB/principles.tsv"
-  (let ((str (open (merge-pathnames  "KB/principles2.tsv" *Andes-Path*)
+  (let ((str (open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
 		   :direction :output :if-exists :supersede)
 	     ))
     (dolist (p *principle-tree*)
@@ -387,19 +405,18 @@
 	 (dolist (pp (cddr p)) (principle-branch-print str pp))
 	 (format str "END_GROUP~%"))
 	((eq (car p) 'leaf)
-	 (let* ((keys (apply #'(lambda (&key (bindings no-bindings) tutorial) 
-				 (list bindings tutorial)) 
-			     (cddr p)))
-		(bindings (first keys))
-		(tutorial (second keys))
-		(class (lookup-psmclass-name (cadr p))))
-	   (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
-		   (eval-print-spec (psmclass-EqnFormat class) bindings)
-		   (eval-print-spec (psmclass-short-name class) bindings)
-		   #\tab
-		   (if (eq bindings no-bindings) (psmclass-name class)
-		     ;; to discourage line breaks
-		     (write-to-string (list (psmclass-name class) bindings)))
-		   #\tab
-		   tutorial
-		   )))))
+	 (apply #'principle-leaf-print (cons str (cdr p))))))
+
+(defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
+					EqnFormat short-name) 
+  (let ((pc (lookup-psmclass-name class)))
+    (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
+	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
+	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
+	    #\tab
+	    (if (eq bindings no-bindings) (psmclass-name pc)
+	      ;; print now to discourage line breaks
+	      (write-to-string (list (psmclass-name pc) bindings)))
+	    #\tab
+	    tutorial
+	    )))

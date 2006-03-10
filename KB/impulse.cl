@@ -155,9 +155,9 @@
      :english ("Relation between impulse and change in momentum")
      :ExpFormat ("relating the impulse to the change in momentum of ~a"
 		 (nlg ?body))
-     :EqnFormat ("J1_~a + J2_~a + J3_~a + ...= m*vf_~a - m*vi_~a" 
+     :EqnFormat ("J1_~a + J2_~a + ... = pf_~a - pi_~a" 
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
-		 (axis-name ?axis) (axis-name ?axis)))
+		 (axis-name ?axis)))
 
 (defoperator draw-impulse-momentum-diagram (?b ?t1 ?t2)
   :preconditions 
@@ -310,7 +310,7 @@ impulse ~A." (?b def-np) (?t pp)))
   :english ("Newton's Third Law applied to impulse")
   :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
 	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
-  :EqnFormat ("Jof1on2 = Jof2on1"))
+  :EqnFormat ("J12 = J21"))
 
 (def-psmclass NTL-impulse-vector (?eq-type NTL-impulse ?axis ?rot 
 					   (NTL-impulse-vector 
@@ -320,7 +320,7 @@ impulse ~A." (?b def-np) (?t pp)))
   :english ("Newton's Third Law applied to impulse")
   :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
 	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
-  :EqnFormat ("J12_~a = - J21_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("J12_~a = -J21_~a" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator NTL-impulse-contains (?quantity)
   :preconditions 

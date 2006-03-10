@@ -5775,7 +5775,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :short-name "Hooke's law"
   :english ("Hooke's Law")
   :expformat ("applying Hooke's Law to ~a " (nlg ?body))
-  :EqnFormat ("Fs = k*d" ))
+  :EqnFormat ("F = k*d" ))
 
 (defoperator spring-law-contains (?quantity)
   :specifications "
@@ -7652,7 +7652,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :short-name "length of unit vector"
   :english ("the length of a unit vector")
   :ExpFormat("introducing a unit vector")
-  :EqnFormat("n=1"))
+  :EqnFormat("n = 1"))
 
 (defoperator unit-vector-mag-contains (?sought)
   :preconditions ( (any-member ?sought ((mag (unit-vector . ?args)))) )

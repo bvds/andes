@@ -55,7 +55,7 @@
   :ExpFormat 
   ("applying the equation relating wavenumber and wavelength of ~A in ~A"
 	      (nlg ?wave) (nlg ?medium))
-  :EqnFormat ("wavenumber*wavelength = 2*pi")) 
+  :EqnFormat ("k = 2*$p/$l")) 
 
 
  (defoperator wavenumber-lambda-wave-contains (?sought)
@@ -194,7 +194,7 @@
   :english ("the equation for the frequency of a wave")
   :ExpFormat ("applying the definition angular frequency to ~A"
 	      (nlg ?object))
-  :EqnFormat ("frequency = angular-frequency/(2*$p)")) 
+  :EqnFormat ("f = $w/(2*$p)")) 
 
 (defoperator frequency-of-wave-contains (?sought)
   :preconditions (
@@ -230,7 +230,7 @@
   :english ("the beat frequency of two waves")
   :ExpFormat ("finding the beat frequency of waves ~A and ~A"
 	      (nlg ?w1) (nlg ?w2))
-  :EqnFormat ("fbeat = (f1-f2)/2")) 
+  :EqnFormat ("fbeat = abs(f1-f2)/2")) 
 
 (defoperator beat-frequency-contains (?sought)
   :preconditions 
@@ -296,7 +296,7 @@
   :english ("the equation for the period")
   :ExpFormat ("applying the definition of period to ~A"
 	      (nlg ?object))
-  :EqnFormat ("period = 1/frequency")) 
+  :EqnFormat ("T = 1/f")) 
 
 (defoperator period-of-wave-contains (?sought)
   :preconditions (
@@ -331,7 +331,7 @@
   :english ("harmonic of a standing wave")
   :ExpFormat ("using the fact that ~A is a harmonic of ~A"
 	      (nlg ?waven) (nlg ?wave1))
-  :eqnFormat ("fn = n*f1 or $ln = $l1/n)"))
+  :eqnFormat ("fn = n*f1 or $ln = $l1/n"))
 
 (defoperator harmonic-of-contains (?sought)
   :preconditions 
@@ -413,7 +413,7 @@
   :english ("the equation of the speed of a wave")
   :ExpFormat ("relating wavelength and frequency to the speed of wave ~A"
 	      (nlg ?object))
-  :EqnFormat ("v = $l*f or v = $w/k")) 
+  :EqnFormat ("vw = $l*f or vw = $w/k")) 
 
 ;; usual form in terms of wavelength and frequency
 (defoperator speed-of-wave-contains (?sought)
@@ -468,6 +468,7 @@
   :english ("the speed of any wave is the same")
   :ExpFormat ("noting the speed of ~A is the same as the wave speed of ~A"
 	      (nlg ?object) (nlg ?rope))
+  :EqnFormat ("vp = vw")
   ) 
 
 (defoperator speed-equals-wave-speed-contains (?sought)
@@ -581,7 +582,7 @@
   :short-name "speed of light"
   :english ("the speed of a light or radio wave")
   :ExpFormat("setting wave speed to c")
-  :EqnFormat("vw=c"))
+  :EqnFormat("vw = c"))
 
 (defoperator wave-speed-light-contains (?sought)
   :preconditions (
@@ -662,7 +663,7 @@
   :short-name "speed of waves on a string"
   :english ("Transverse wave velocity of a string")
   :ExpFormat ("using formula for transverse wave speed on a string")
-  :EqnFormat ("v_wave = sqrt(F_T/mu)")) 
+  :EqnFormat ("vw = sqrt(Ft/$m)")) 
 
 
 (defoperator wave-speed-string-contains (?sought)
@@ -739,7 +740,7 @@
   :short-name "maximum speed of oscillation"
   :english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
-  :EqnFormat ("v_max=A $w")) 
+  :EqnFormat ("vmax = A*$w")) 
 
 
  (defoperator max-transverse-speed-wave-contains (?sought)
@@ -793,7 +794,7 @@
   :short-name "maximum acceleration of oscillation"
   :english ("Formula for |maximum acceleration| of an oscillation")
   :ExpFormat ("applying the formula for |maximum acceleration| of an oscillation")
-  :EqnFormat ("v_max=A $w")) 
+  :EqnFormat ("amax = A*$w^2")) 
 
  (defoperator max-transverse-abs-acceleration-wave-contains (?sought)
    :preconditions (
@@ -1193,7 +1194,7 @@
   :short-name "intensity & decibels"
   :english ("express intensity in decibels")
   :ExpFormat ("expressing the intensity in decibels")
-  :EqnFormat ("$b = 10*log10(I/Iref) or I=Iref*10^($b/10)")) 
+  :EqnFormat ("$b = 10*log10(I/Iref)")) 
 
 (defoperator intensity-to-decibels-contains (?sought)
   :preconditions 
@@ -1234,10 +1235,10 @@
 (def-psmclass intensity-to-poynting-vector-magnitude 
   (intensity-to-poynting-vector-magnitude ?wave ?source ?)
   :complexity definition  ;want this to be freely substituted into expressions
-  :short-name "relation of intensity and the magnitude of the Poynting vector"
+  :short-name "intensity & magnitude of the Poynting vector"
   :english ("relate intensity to the magnitude of the Poynting vector")
   :ExpFormat ("relating the intensity to the magnitude of the Poynting vector")
-  :EqnFormat ("P = S")) 
+  :EqnFormat ("I = S")) 
 
 
 (defoperator intensity-to-poynting-vector-magnitude-contains (?sought)
@@ -1272,7 +1273,7 @@
   :short-name "relation of power and intensity (spherical emitter)"
   :english ("relate intensity to power in a spherical geometry")
   :ExpFormat ("relating the intensity to power (spherical symmetry)")
-  :EqnFormat ("P = 4*$p*r^2")) 
+  :EqnFormat ("P = 4*$p*r^2*I")) 
 
 
 (defoperator intensity-to-power-contains (?sought)
@@ -1424,7 +1425,7 @@
   :short-name "ratio of fields in electromagnetic wave"
   :english ("Formula for maximum speed of an oscillation")
   :ExpFormat ("applying the formula for maximum speed of an oscillation")
-  :EqnFormat ("v_max=A $w")) 
+  :EqnFormat ("E = B*c")) 
 
 
 (defoperator electromagnetic-wave-field-amplitude-contains (?sought)

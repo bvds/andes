@@ -78,7 +78,7 @@
   :english ("the definition of Coulomb's law (component form)") 
   :ExpFormat ("applying Coulomb's law to ~a and ~A ~a"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-  :EqnFormat ("F_~A = kelec*q1*q2/r^2 r_~A/r" 
+  :EqnFormat ("F_~A = (kelec*q1*q2/r^2) * r_~A/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator coulomb-vector-contains (?sought)
@@ -556,7 +556,7 @@
   :english ("the definition of electric field")
   :ExpFormat ("applying the definition of electric field on ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("F_~a = q * E_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("F_~a = q*E_~a" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator charge-force-Efield-contains (?sought)
   :preconditions 
@@ -656,7 +656,7 @@
   :english ("the definition of electric field magnitude")
   :ExpFormat ("applying the definition of electric field magnitude at ~a ~a"
 		 (nlg ?body) (nlg ?time 'pp) )
-  :EqnFormat ("F = abs(q) * E" ))
+  :EqnFormat ("F = abs(q)*E" ))
 
 (defoperator charge-force-Efield-mag-contains (?sought)
   :preconditions 
@@ -762,7 +762,7 @@
   :english ("the formula for electric field due to a point charge")
   :ExpFormat ("calculating for electric field at ~A due to ~a"
 	      (nlg ?loc) (nlg ?body) )
-  :EqnFormat ("E_~a = (kelec * q / r^2 ) * r_~a/r" 
+  :EqnFormat ("E_~a = (kelec*q/r^2) * r_~a/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator point-charge-Efield-contains (?sought)
@@ -855,7 +855,7 @@
   :english ("the formula for the magnitude of the electric field due to a point charge")
   :ExpFormat ("applying the formula for the magnitude of the electric field due to a point charge to ~a ~a"
 		 (nlg ?loc) (nlg ?time 'pp) )
-  :EqnFormat ("E = kelec * q / r^2" ))
+  :EqnFormat ("E = kelec*abs(q)/r^2" ))
 
 (defoperator point-charge-Efield-mag-contains (?sought)
   :preconditions ((rdebug "Using point-charge-Efield-mag-contains ~%")
@@ -1048,7 +1048,8 @@
   :short-name ("net electric field (~A component)" (axis-name ?axis))
   :english ("the definition of net electric field")
   :ExpFormat ("calculating the net electric field at ~a ~a" (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Enet_~a = E1_~a + E2_~a + E3_~a + ..." (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("Enet_~a = E1_~a + E2_~a + ..." (axis-name ?axis) 
+	      (axis-name ?axis) (axis-name ?axis)))
 
 ;; This is the old version, left in for backwards compatability
 ;; Remove after Spring, 2006 semester.
@@ -1142,8 +1143,8 @@
   :english ("the definition of net electric field")
   :ExpFormat ("calculating the net electric field at ~a ~a" 
 	      (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Enet_~a = E1_~a + E2_~a + E3_~a + ..." (axis-name ?axis) 
-	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("Enet_~a = E1_~a + E2_~a + ..." (axis-name ?axis) 
+	      (axis-name ?axis) (axis-name ?axis)))
 
 (def-psmclass net-field-magnetic 
   (?eq-type definition ?axis ?rot (net-field ?loc magnetic ?time))
@@ -1152,8 +1153,8 @@
   :english ("the definition of net magnetic field")
   :ExpFormat ("calculating the net magnetic field at ~a ~a" 
 	      (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Bnet_~a = B1_~a + B2_~a + B3_~a + ..." (axis-name ?axis) 
-	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("Bnet_~a = B1_~a + B2_~a + ..." (axis-name ?axis) 
+	      (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator net-field-contains (?sought)
  :preconditions (
@@ -1303,7 +1304,7 @@
   :english ("the formula for the electric potential due to a point charge")
   :ExpFormat ("calculating the electric potential at ~a due to ~a"
 		 (nlg ?loc) (nlg ?body))
-  :EqnFormat ("V = kelec * q/r" ))
+  :EqnFormat ("V = kelec*q/r" ))
 
 (defoperator point-charge-potential-contains (?sought)
   :preconditions (
@@ -1410,7 +1411,7 @@
   :english ("the formula for the electric potential energy")
   :ExpFormat ("calculating the electric potential energy of ~a"
 		 (nlg ?body))
-  :EqnFormat ("Ue = q*Vnet" ))
+  :EqnFormat ("U = q*Vnet" ))
 
 (defoperator electric-energy-contains (?sought)
   :preconditions (
@@ -1611,11 +1612,11 @@
 (def-psmclass electric-dipole-moment 
     (?eq-type definition ?axis ?rot (dipole-moment ?dipole electric ?time)) 
   :complexity major
-  :short-name ("electric dipole moment (x component)" (axis-name ?axis))
+  :short-name ("electric dipole moment (~A component)" (axis-name ?axis))
   :english ("the electric dipole moment of two charges")
   :ExpFormat ("finding electric dipole moment for ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
-  :EqnFormat ("p_~a = q * r_~a" (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("p_~a = q*r_~a" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator electric-dipole-moment-contains (?sought)
   :preconditions 
@@ -1697,7 +1698,7 @@
   :english ("the magnitude of the electric dipole moment of two charges")
   :ExpFormat ("finding the magnitude of the electric dipole moment of ~a ~a"
 		 (nlg ?dipole) (nlg ?time 'pp) )
-  :EqnFormat ("p = abs(q) * r" ))
+  :EqnFormat ("p = abs(q)*r" ))
 
 (defoperator electric-dipole-moment-mag-contains (?sought)
   :preconditions 
@@ -1988,8 +1989,8 @@
 				    "$t_y = p_z*E_x - p_x*E_z"))
 	((eq xyz 'z) 
 	 (torque-switch 
-	  "M_z = p*E*sin($qE-$qp)  OR  M_z = p_x*E_y - p_y*E_x"
-	  "$t_z = p*E*sin($qE-$qp))  OR  $t_z = p_x*E_y - p_y*E_x"))))
+	  "M_z = p*E*sin($qE-$qp) or M_z = p_x*E_y - p_y*E_x"
+	  "$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x"))))
 
 (def-psmclass magnetic-dipole-torque 
   (dipole-torque ?dipole (field ?region magnetic ?source) ?axis ?rot ?flag ?t) 
@@ -2009,8 +2010,8 @@
 				    "$t_y = $m_z*B_x - $m_x*B_z"))
 	((eq xyz 'z) 
 	 (torque-switch 
-	  "M_z = $m*B*sin($qB-$q$m)  OR  M_z = $m_x*B_y - $m_y*B_x"
-	  "$t_z = $m*B*sin($qB-$q$m))  OR  $t_z = $m_x*B_y - $m_y*B_x"))))
+	  "M_z = $m*B*sin($qB-$q$m) or M_z = $m_x*B_y - $m_y*B_x"
+	  "$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x"))))
 
 (defoperator dipole-torque-contains-angle (?sought)
   :preconditions 
@@ -2230,7 +2231,7 @@
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'electric) ?rest) ?time)))
-  :EqnFormat ("U = -p*E*cos($qp - $qE) OR U = -(p_x*E_x + p_y*E_y)"))
+  :EqnFormat ("U = -p*E*cos($qp - $qE) or U = -(p_x*E_x + p_y*E_y)"))
 
 (def-psmclass magnetic-dipole-energy 
   (dipole-energy ?dipole (field ?region magnetic . ?rest) ?time ?dot-type)
@@ -2240,7 +2241,7 @@
   :expformat ("calculating the energy of ~a in ~A" 
 	      (nlg ?dipole) 
 	      (nlg (set-time (append (list 'field ?region 'magnetic) ?rest) ?time)))
-  :EqnFormat ("U = -$m*B*cos($q$m - $qB) OR U = -($m_x*B_x + $m_y*B_y)"))
+  :EqnFormat ("U = -$m*B*cos($q$m - $qB) or U = -($m_x*B_x + $m_y*B_y)"))
 
 (defoperator dipole-energy-contains (?sought)
   :preconditions 
@@ -2652,7 +2653,7 @@
   :short-name "magnetic force (magnitude)"
   :english ("force on charge moving in a magnetic field")
   :ExpFormat ("applying the formula for force on charge in a magnetic field")
-  :EqnFormat ("Fb = abs(q)*v*B*sin($q)" ))
+  :EqnFormat ("F = abs(q)*v*B*sin($q)" ))
 
 (defoperator charge-force-Bfield-mag-contains (?sought)
   :preconditions ((debug "Using write-charge-force-Bfield-mag-contains ~%")
@@ -2784,7 +2785,7 @@
   :short-name "magnetic force (x component)"
   :english ("x component of magnetic force on moving charge")
   :ExpFormat ("applying the formula for x component of magnetic force")
-  :EqnFormat ("F_x = q*(V_y*B_z - V_z*B_y" ))
+  :EqnFormat ("F_x = q*(v_y*B_z - v_z*B_y)" ))
 
 (defoperator charge-force-Bfield-x-contains (?sought)
   :preconditions ((component-form)
@@ -2812,7 +2813,7 @@
            )
   :hint (
 	  (point (string "The x component of a vector cross product can be computed from the y and z components of the vectors being multiplied. You can use this to compute the x component of the magnetic force."))
-	  (teach (string "The x component of the cross product of two vectors V and B is equal to V_y*B_z - V_z*B_y. "))
+	  (teach (string "The x component of the cross product of two vectors v and B is equal to v_y*B_z - v_z*B_y. "))
           (bottom-out (string "Write the equation ~A"  
 	                      ((= ?Fx (* ?q (- (* ?Vy ?Bz) (* ?Vz ?By)))) algebra) ))
         ))
@@ -2822,7 +2823,7 @@
   :short-name "magnetic force (y component)"
   :english ("y component of magnetic force on moving charge")
   :ExpFormat ("applying the formula for y component of magnetic force")
-  :EqnFormat ("F_y = q*(V_z*B_x - V_x*B_z" ))
+  :EqnFormat ("F_y = q*(v_z*B_x - v_x*B_z)" ))
 
 (defoperator charge-force-Bfield-y-contains (?sought)
   :preconditions ((component-form)
@@ -2852,7 +2853,7 @@
            )
   :hint (
          (point (string "The y component of a vector cross product can be computed from the x and z components of the vectors being multiplied. You can use this to compute the y component of the magnetic force."))
-	  (teach (string "The y component of the cross product of two vectors V and B is equal to V_z*B_x - V_x*B_z. "))
+	  (teach (string "The y component of the cross product of two vectors v and B is equal to v_z*B_x - v_x*B_z. "))
           (bottom-out (string "Write the equation ~A"  
 	                      ((= ?Fy (* ?q (- (* ?Vz ?Bx) (* ?Vx ?Bz)))) algebra) ))
         ))
@@ -2862,7 +2863,7 @@
   :short-name "magnetic force (z component)"
   :english ("z component of magnetic force on moving charge")
   :ExpFormat ("applying the formula for z component of magnetic force")
-  :EqnFormat ("F_z = q*(V_x*B_y - V_y*B_x" ))
+  :EqnFormat ("F_z = q*(v_x*B_y - v_y*B_x)" ))
 
 (defoperator charge-force-Bfield-z-contains (?sought)
   :preconditions 
@@ -2894,7 +2895,7 @@
            )
   :hint (
           (point (string "The z component of a vector cross product can be computed from the x and y components of the vectors being multiplied. You can use this formula to compute the z component of the magnetic force."))
-	  (teach (string "The z component of the cross product of two vectors V and B is equal to V_x*B_y - V_y*B_x. "))
+	  (teach (string "The z component of the cross product of two vectors v and B is equal to v_x*B_y - v_y*B_x. "))
           (bottom-out (string "Write the equation ~A"  
 	                      ((= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) algebra) ))
         ))
@@ -2907,7 +2908,7 @@
   :short-name "magnetic force on a wire (magnitude)"
   :english ("force on a current carrying wire in a magnetic field")
   :ExpFormat ("finding the force on ~A in a magnetic field" (nlg ?body))
-  :EqnFormat ("Fb = I*B*sin($q)" ))
+  :EqnFormat ("F = I*L*B*sin($q)" ))
 
 (defoperator current-force-Bfield-mag-contains (?sought)
   :preconditions 
@@ -3066,7 +3067,7 @@
   :short-name "magnetic field at center of a coil"
   :english ("the magnetic field at the center of a coil of N turns")
   :ExpFormat ("finding the magnetic field at the center of ~A" (nlg ?coil))
-  :EqnFormat ("B = $m0*N*I" ))
+  :EqnFormat ("B = $m0*N*I/(2*r)" ))
 
 (defoperator center-coil-Bfield-contains (?sought)
   :preconditions 
@@ -3280,7 +3281,7 @@
   :english ("the definition of electric flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'flux ?surface 'electric :time ?time)))
-  :EqnFormat ("$Fe = A*E*cos($qE - $qn) OR $Fe = A*(E_x*n_x + E_y*n_y)"))
+  :EqnFormat ("$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y)"))
 
 (def-psmclass magnetic-flux-constant-field
   (flux-constant-field ?surface magnetic ?time ?rot)
@@ -3289,7 +3290,7 @@
   :english ("the definition of magnetic flux through a surface")
   :expformat ("calculating the ~A" 
 	      (nlg (list 'flux ?surface 'magnetic :time ?time)))
-  :EqnFormat ("$Fb = A*B*cos($qB - $qn) OR $Fb = A*(B_x*n_x + B_y*n_y)"))
+  :EqnFormat ("$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y)"))
 
 (defoperator flux-constant-field-angle-contains (?sought)
   :preconditions 

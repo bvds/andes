@@ -769,7 +769,8 @@
   :short-name "net displacement"
   :english ("net displacement")
   :ExpFormat ("calculating the net displacement of ~a ~a" (nlg ?body) (nlg ?time))
-  :EqnFormat ("dnet_~a = d1_~a + d2_~a + d3_~a + ..." (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("dnet_~a = d1_~a + d2_~a + ..." (axis-name ?axis) 
+	      (axis-name ?axis) (axis-name ?axis)))
 
 (def-goalprop net-disp-eqn 
  (eqn ?algebra (compo-eqn sum-disp ?axis ?rot (sum-disp ?body ?time)))
@@ -820,12 +821,9 @@
   :english ("the definition of average acceleration")
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'pp) (nlg ?time1 'pp))
-  :EqnFormat ((lk-no-s-eqn ?sought) 
-	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
-
-(defun lk-no-s-eqn (switch)
-  (if (eq switch 'vf) "vf_~A = vi_~A + a(avg)_~A*t"
-    "a(avg)_~a = (vf_~a - vi_~a)/t"))
+  ;; alternative form in principles.cl
+  :EqnFormat ("vf_~A = vi_~A + a(avg)_~A*t" (axis-name ?axis) (axis-name ?axis)
+	      (axis-name ?axis)))
 
 (def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
   :english ((strcat "writing an constant acceleration equation in "
@@ -967,7 +965,7 @@
   :english ("find by equivalent quantity")
   :ExpFormat ("applying the fact that ~a is equivalent to ~a"
 	      (nlg ?quant1) (nlg ?quant2))
-  :EqnFormat ("s1 = s2"))
+  :EqnFormat ("val1 = val2"))
 
 
 (def-psmclass sum-times (sum-times ?tt)
@@ -1001,8 +999,8 @@
      :english ("Newton's Second Law")
      :ExpFormat ("applying Newton's Second Law on ~a ~a"
 		 (nlg ?body) (nlg ?time 'nlg-time))
-     :EqnFormat ("F1_~a + F2_~a + F3_~a + ...= m*a_~a" 
-                 (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+     :EqnFormat ("F1_~a + F2_~a + ... = m*a_~a" 
+                 (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 ;; following more specific choices no longer offered to students:
 (def-psmclass NFL (?eq-type NFL ?axis ?rot (NL ?body ?time)) 
@@ -1025,8 +1023,7 @@
   :short-name ("net force (~A component)" (axis-name ?axis))
   :english ("net force")
   :ExpFormat ("calculating the net force acting on ~a ~a" (nlg ?body) (nlg ?t))
-  :EqnFormat ("Fnet_~a = F1_~a + F2_~a + F3_~a + ..." 
-	      (axis-name ?axis) 
+  :EqnFormat ("Fnet_~a = F1_~a + F2_~a + ..." 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 
@@ -1127,7 +1124,7 @@
   :expformat ((strcat "using the fact that the mass of ~a "
 		      "is the sum of the masses of its parts") 
 	      (nlg (cons 'compound (car ?compound))))
-  :EqnFormat ("m_compound = m_part1 + m_part2"))
+  :EqnFormat ("M = m1 + m2 + ..."))
 
 (def-psmclass kine-compound (kine-compound ?vec-type ?bi ?compound ?time) ; part, whole same kinematics
   :complexity connect
@@ -1159,7 +1156,7 @@
   :english ("the definition of work")
   :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("W = F*d*cos($qF - $qd) OR W = F_x*d_x + F_y*d_y"))
+  :EqnFormat ("W = F*d*cos($q) or W = F_x*d_x + F_y*d_y"))
 
 ;; this form can be used to match only the angle form, if needed
 #|
@@ -1181,7 +1178,7 @@
   :english ("the definition of net work")
   :expformat ("calculating the net work done by all forces on ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("Wnet = WF1 + WF2 + WF3 + ..."))
+  :EqnFormat ("Wnet = WF1 + WF2 + ..."))
 
 (def-psmclass work-nc (Wnc ?body (during ?time0 ?time1))
   :complexity minor  ; definition, but *can't* be first "principle" for sought
@@ -1312,7 +1309,9 @@
   :english ("conservation of momentum")
   :expformat ("applying Conservation of Linear Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
-  :EqnFormat ("m1*v1i_~a + m2*v2i_~a = m1*v1f_~a + m2*v2f_~a" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+  :EqnFormat ("p1i_~a + p2i_~a + ... = p1f_~a + p2f_~a + ..." 
+	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
+	      (axis-name ?axis)))
 
 (def-psmclass cons-ke-elastic (cons-ke-elastic ?bodies (during ?time0 ?time1))
   :complexity major
@@ -1321,7 +1320,7 @@
   :expformat ((strcat "applying Conservation of Kinetic Energy to "
 		      "elastic collisions of ~a from ~a to ~a")
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("K1 = K2"))
+  :EqnFormat ("Kf = Ki"))
 
 ;; ROTATIONAL KINEMATICS
 (def-psmclass ang-sdd (?eq-type z 0 (ang-sdd ?body ?time))
@@ -1365,16 +1364,12 @@
      :complexity major
   :short-name "average anglular acceleration"
      :english ("constant angular acceleration kinematics")
-     :EqnFormat ((rk-no-s-eqn ?sought)))
-
-(defun rk-no-s-eqn (switch)
-  (if (eq switch 'vf) "$wf = $wi + $a(avg)*t"
-    "$a(avg) = ($wf - $wi)/t"))
+     :EqnFormat ("$wf = $wi + $a(avg)*t")) ;alternative form in principles.cl
 
 (def-psmclass rk-no-vf (?eq-type z 0 (rk-no-vf ?body (during ?time0 ?time1)))
      :group rk
      :complexity major
-  :short-name "average angular acceleration"
+  :short-name "[$a_z is constant]"
      :english ("constant angular acceleration kinematics")
      :EqnFormat ("$q_z = $w0_z*t + 0.5*$a_z*t^2"))
 (def-psmclass rk-no-t (?eq-type z 0 (rk-no-t ?body (during ?time0 ?time1)))
@@ -1409,7 +1404,8 @@
   :complexity minor
   :short-name "disk about center"
   :english ("moment of inertia of a disk about its center")
-  :expformat ("moment of inertia of the disk ~a about its cm" (nlg ?body)))
+  :expformat ("moment of inertia of the disk ~a about its cm" (nlg ?body))
+  :EqnFormat ("I = 0.5*m*r^2"))
 
 (def-psmclass I-rect-cm (I-rect-cm ?body)
   :complexity minor
@@ -1443,7 +1439,7 @@
   :english ("conservation of angular momentum")
   :expformat ("applying Conservation of Angular Momentum to ~a ~a"
 	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
-  :eqnformat ("Li_z = Lf_z"))
+  :eqnformat ("L1i_z + L2i_z + ... = L1f_z + L2f_z + ..."))
 
 ;;;; ROTATIONAL DYNAMICS (TORQUE)
 
@@ -1483,7 +1479,7 @@
   :expformat ("applying rotational version of Newton's First Law to ~a about ~a ~a"
 	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
   :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
-			    "$0 = $t1_z + $t2_z + ...")))
+			    "0 = $t1_z + $t2_z + ...")))
   
 
 (def-psmclass NSL-rot (?eq-type z 0 (NSL-rot ?body ?pivot ?time))

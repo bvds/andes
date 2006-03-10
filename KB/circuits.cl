@@ -245,7 +245,7 @@
  :complexity major
   :short-name "equivalent resistance parallel"
  :english ("Equivalent resistance of parallel resistors")
- :eqnFormat ("1/Req = 1/R1 + 1/R2 + 1/R3 + ...") )
+ :eqnFormat ("1/Req = 1/R1 + 1/R2 + ...") )
 
 (defoperator equiv-resistance-parallel-contains (?sought)
   :preconditions (
@@ -420,7 +420,7 @@
   :complexity definition
   :short-name "Ohm's Law"
   :english ("Ohm's Law")
-  :eqnFormat ("V = I * R"))
+  :eqnFormat ("V = I*R"))
 
 ;;May need to uncomment (resistance) as a sought to get currents to work
 (defoperator ohms-law-contains-resistor (?sought)
@@ -1352,7 +1352,7 @@
   :short-name "energy stored in a capacitor"
   :english ("The formula for energy stored in a capacitor")
   :expformat("Applying the formula for energy stored in a capacitor to ~A" (nlg ?cap))
-  :eqnFormat ("U = (1/2)*Q*V"))
+  :eqnFormat ("U = 0.5*Q*V"))
 
 (defoperator cap-energy-contains (?sought)
   :preconditions (
@@ -1425,7 +1425,7 @@
   :complexity definition 
   :short-name "RC time constant"
   :english ("RC time constant")
-  :eqnFormat ("$t = RC"))
+  :eqnFormat ("$t = R*C"))
 
 (defoperator RC-time-constant-contains (?sought)
   :preconditions (
@@ -1502,7 +1502,7 @@
   :complexity definition 
   :short-name "LC angular frequency"
   :english ("the angular frequency of an LC circuit")
-  :eqnFormat ("$w = 1/sqrt(LC)"))
+  :eqnFormat ("$w = 1/sqrt(L*C)"))
 
 (defoperator LC-angular-frequency-contains (?sought)
   :preconditions 
@@ -1544,7 +1544,7 @@
   :complexity definition 
   :short-name "RLC angular frequency"
   :english ("the angular frequency of an RLC circuit")
-  :eqnFormat ("$w = sqrt(1/(LC)-R^2/(2*L)^2)"))
+  :eqnFormat ("$w = sqrt(1/(L*C)-R^2/(2*L)^2)"))
 
 (defoperator RLC-angular-frequency-contains (?sought)
   :preconditions 
@@ -1696,7 +1696,7 @@
   :complexity major
   :short-name "current in RC circuit"
   :english ("Current in RC circuit")
-  :eqnFormat ("I = (Vb/R)*exp(-t/$t))"))
+  :eqnFormat ("I = (Vb/R)*exp(-t/$t)"))
 
 (defoperator current-in-RC-at-time-contains (?sought)
   :preconditions
@@ -1747,7 +1747,7 @@
   :complexity minor 
   :short-name "RC charge as fraction of max"
   :english ("the RC circuit charge as percent of maximum")
-  :eqnFormat ("q = percent*C*V"))
+  :eqnFormat ("q = fraction*C*Vb"))
 
 (defoperator charge-on-capacitor-percent-max-contains (?sought)
   :preconditions(
@@ -2068,9 +2068,9 @@
 
 (def-psmclass avg-rate-current-change (avg-rate-current-change ?ind ?time)
   :complexity major 
-  :short-name "constant rate of change (or avg)"
+  :short-name "average rate of change"
   :english ("the definition of average rate of current change")
-  :eqnFormat ("dIdt_avg = (I2 - I1)/t12") 
+  :eqnFormat ("dIdt(avg) = (I2 - I1)/t12") 
   )
 
 (defoperator avg-rate-current-change-contains (?sought)
@@ -2373,7 +2373,7 @@
   :complexity major
   :short-name "electric power"
   :english ("the formula for electric power")
-  :eqnFormat ("P = I*V"))
+  :eqnFormat ("P = V*I"))
 
 (defoperator electric-power-contains (?sought)
   :preconditions 
