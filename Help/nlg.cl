@@ -350,25 +350,6 @@
 	(t (format nil "equation-format:[~A]" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Given a partially bound vector definition convert it to a type for the
-;; nlg of the equation form.  This type will be one of 
-;; Displacement d
-;; Velocity v
-;; accelleration a
-;; force F
-;; relative position r
-;; momentum p
-(defun nlg-vector-var-pref (x &rest args)
-  (if (atom x) (format nil "~A" x)
-    (case (car x)
-      (displacement "d")
-      (velocity "v")
-      (acceleration "a")
-      (force "F")
-      (relative-position "r")
-      (momentum "p")
-      (t (format nil "vec-var:[~a]" x)))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of nlg.cl
 ;; Copyright (C) 2001 by <Linwood H. Taylor's Employer> -- All Rights Reserved.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -13,8 +13,8 @@
        (leaf lk-no-s :bindings ((?axis . y)) :tutorial "Average acceleration")
        (leaf lk-no-vf :bindings ((?axis . x)) :tutorial "Constant acceleration")
        (leaf lk-no-vf :bindings ((?axis . y)) :tutorial "Constant acceleration")
-       (leaf lk-no-s :bindings ((?axis . x)) :tutorial "Constant acceleration")
-       (leaf lk-no-s :bindings ((?axis . y)) :tutorial "Constant acceleration")
+       (leaf lk-no-s :bindings ((?axis . x) (?sought . vf)) :tutorial "Constant acceleration")
+       (leaf lk-no-s :bindings ((?axis . y) (?sought . vf)) :tutorial "Constant acceleration")
        (leaf lk-no-t :bindings ((?axis . x)) :tutorial "Constant acceleration")
        (leaf lk-no-t :bindings ((?axis . y)) :tutorial "Constant acceleration")
        (leaf sdd-constvel :bindings ((?axis . x)) :tutorial "Constant velocity component")
@@ -27,7 +27,7 @@
        )
 (group "Rotational" 
        (leaf ang-sdd :tutorial "Angular velocity")
-       (leaf rk-no-vf :tutorial "Angular acceleration")
+       (leaf rk-no-s :bindings ((?sought . vf)) :tutorial "Angular acceleration")
        (leaf rk-no-vf :tutorial "Constant angular acceleration")
        (leaf rk-no-s :tutorial "Constant angular acceleration")
        (leaf rk-no-t :tutorial "Constant angular acceleration")
@@ -248,9 +248,9 @@
 			 (leaf static-friction :tutorial "Static Friction max")
 			 (leaf spring-law :tutorial "Hooke's Law")
 			 (leaf tensions-equal :tutorial "Equal tensions at both ends")
-			 (leaf thrust-force-vector :tutorial "thrust force")
-			 (leaf thrust :bindings ((?axis . x)) :tutorial "thrust force")
-			 (leaf thrust :bindings ((?axis . y)) :tutorial "thrust force")
+			 (leaf thrust-force :tutorial "thrust force")
+			 (leaf thrust-force-vector :bindings ((?axis . x)) :tutorial "thrust force")
+			 (leaf thrust-force-vector :bindings ((?axis . y)) :tutorial "thrust force")
 			 )
 			 (group "Compound Bodies" 
 				(leaf mass-compound :tutorial "Mass of a compound body")
@@ -334,8 +334,8 @@
  (leaf supplementary-angles)
  (leaf tensions-equal :tutorial "Equal tensions at both ends")
  (leaf rmag-pyth :tutorial "Pythagorean Theorem")
- (leaf rdiff :bindings ((axis . ?x)))
- (leaf rdiff :bindings ((axis . ?y)))
+ (leaf rdiff :bindings ((?axis . x)))
+ (leaf rdiff :bindings ((?axis . y)))
  (leaf area-of-rectangle)
  (leaf area-of-rectangle-change)
  (leaf area-of-circle)
@@ -366,8 +366,8 @@
 
 (defun principles-file ()
   "construct file KB/principles.tsv"
-  (let ((str t ;(open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
-		;   :direction :output :if-exists :supersede)
+  (let ((str (open (merge-pathnames  "KB/principles2.tsv" *Andes-Path*)
+		   :direction :output :if-exists :supersede)
 	     ))
     (dolist (p *principle-tree*)
       (principle-branch-print str p))
@@ -393,12 +393,13 @@
 		(bindings (first keys))
 		(tutorial (second keys))
 		(class (lookup-psmclass-name (cadr p))))
-	   (format str "LEAF~C~A    ~A~C~A~C~@[~A~]~%" #\tab 
+	   (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
 		   (eval-print-spec (psmclass-EqnFormat class) bindings)
 		   (eval-print-spec (psmclass-short-name class) bindings)
 		   #\tab
-		   (if (equal bindings no-bindings) (psmclass-name class)
-		     (list (psmclass-name class) bindings))
+		   (if (eq bindings no-bindings) (psmclass-name class)
+		     ;; to discourage line breaks
+		     (write-to-string (list (psmclass-name class) bindings)))
 		   #\tab
 		   tutorial
 		   )))))

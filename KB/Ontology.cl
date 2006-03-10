@@ -672,14 +672,34 @@
 (def-psmclass proj (projection (compo ?axis ?rot ?vector :time ?time))
   :complexity connect
   :doc "projection equations"
+  :short-name ("on ~A-axis" (axis-name ?axis))
   :english ("projection equations")
   :ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
 	      (nlg ?vector) (axis-name ?axis))
-  :EqnFormat ("~a_~a = ~a*~a($q~a - $q~a)"
-	      (nlg ?vector 'nlg-vector-var-pref)
-	      (axis-name ?axis) (nlg ?vector 'nlg-vector-var-pref)
-	      (nlg ?vector 'nlg-vector-var-pref)
-	      (nlg ?vector 'nlg-vector-var-pref) (axis-name ?axis)))
+  :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
+	      (vector-var-pref ?vector) (axis-name ?axis) 
+	      (vector-var-pref ?vector) (equal ?axis x)
+	      (vector-var-pref ?vector) (axis-name ?axis)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Given a partially bound vector definition convert it to a type for the
+;; nlg of the equation form.  This type will be one of 
+;; Displacement d
+;; Velocity v
+;; accelleration a
+;; force F
+;; relative position r
+;; momentum p
+(defun vector-var-pref (x &rest args)
+  (if (atom x) (format nil "~A" x)
+    (case (car x)
+      (displacement "d")
+      (velocity "v")
+      (acceleration "a")
+      (force "F")
+      (relative-position "r")
+      (momentum "p")
+      (t (format nil "vec-var:[~a]" x)))))
    
    
 ;;-------------------------------------------------------
@@ -697,7 +717,7 @@
   :expFormat ((strcat "applying the \"distance = average speed "
 		      "* time\" principle with ~a as the body ~a")
 	      (nlg ?body) (nlg ?time))
-  :EqnFormat ("vavg = s / t"))
+  :EqnFormat ("v(avg) = s/t"))
 
 (def-psmclass displacement-distance (displacement-distance ?body ?time)
   :complexity connect  ;since this is like (equals ...)
@@ -796,12 +816,16 @@
 (def-psmclass lk-no-s (?eq-type lk-no-s ?axis ?rot (?parent-psm ?body (during ?time0 ?time1))) 
   :group Kinematics
   :complexity major
-  :short-name ("[a_~A is time average]" (axis-name ?axis))
+  :short-name "average acceleration"
   :english ("the definition of average acceleration")
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
 	      (nlg ?body) (nlg ?time0 'pp) (nlg ?time1 'pp))
-  :EqnFormat ("a_~a = (vf_~a - vi_~a)/t" 
+  :EqnFormat ((lk-no-s-eqn ?sought) 
 	      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+
+(defun lk-no-s-eqn (switch)
+  (if (eq switch 'vf) "vf_~A = vi_~A + a(avg)_~A*t"
+    "a(avg)_~a = (vf_~a - vi_~a)/t"))
 
 (def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
   :english ((strcat "writing an constant acceleration equation in "
@@ -925,7 +949,7 @@
   :english ("centripetal acceleration (component form)") 
   :ExpFormat ("finding the centripetal acceleration of ~a ~a (component form)"
 	      (nlg ?body) (nlg ?time 'pp))
-  :EqnFormat ("ac_~A = -v^2/r r_~A/r" 
+  :EqnFormat ("ac_~A = -v^2/r * r_~A/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
 
 
@@ -1206,7 +1230,7 @@
   :english ("the definition of average power")
   :expformat ("applying the definition of average power supplied to ~A by ~A ~A"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
-  :EqnFormat("Pavg = W/t"))
+  :EqnFormat("P(avg) = W/t"))
 
 (def-psmclass net-power (net-power ?body ?time)
    :complexity major ; definition, but can be first "principle" for sought
@@ -1339,9 +1363,14 @@
 (def-psmclass rk-no-s (?eq-type z 0 (rk-no-s ?body (during ?time0 ?time1)))
      :group rk
      :complexity major
-  :short-name "[$a_z is time average]"
+  :short-name "average anglular acceleration"
      :english ("constant angular acceleration kinematics")
-     :EqnFormat ("$w_z = $w0_z + $a_z*t"))
+     :EqnFormat ((rk-no-s-eqn ?sought)))
+
+(defun rk-no-s-eqn (switch)
+  (if (eq switch 'vf) "$wf = $wi + $a(avg)*t"
+    "$a(avg) = ($wf - $wi)/t"))
+
 (def-psmclass rk-no-vf (?eq-type z 0 (rk-no-vf ?body (during ?time0 ?time1)))
      :group rk
      :complexity major
@@ -1483,12 +1512,9 @@
   ;:ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
   ;	      (nlg ?vector) (axis-name ?axis))
   :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
-	      (nlg ?vector 'nlg-vector-var-pref)
-	      (axis-name ?axis) 
-	      (nlg ?vector 'nlg-vector-var-pref)
-	      (equal ?axis X)
-	      (nlg ?vector 'nlg-vector-var-pref) (axis-name ?axis)))
-
+	      (vector-var-pref ?vector) (axis-name ?axis) 
+	      (vector-var-pref ?vector) (equal ?axis x)
+	      (vector-var-pref ?vector) (axis-name ?axis)))
 
 ;; definition of momentum in component form:
 (def-psmclass momentum-compo (?eq-type definition ?axis ?rot 
