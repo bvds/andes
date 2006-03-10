@@ -393,7 +393,7 @@
 
 (defun principle-branch-print (str p)
   (cond ((eq (car p) 'group)
-	 (format str "GROUP ~A~%" (cadr p))
+	 (format str "GROUP~C~A~%" #\tab (cadr p))
 	 (dolist (pp (cddr p)) (principle-branch-print str pp))
 	 (format str "END_GROUP~%"))
 	((eq (car p) 'leaf)
