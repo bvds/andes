@@ -402,6 +402,7 @@
 
 (defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
 					EqnFormat short-name) 
+  "prints a principle to KB/principles.tsv, :short-name & :EqnFormat override Ontology"
   (let ((pc (lookup-psmclass-name class)))
     (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)

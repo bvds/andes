@@ -2206,7 +2206,7 @@
   :complexity major
   :short-name "LR current growth"
   :english ("current growth in an LR circuit")
-  :eqnFormat ("I = Imax*(1 - exp(-t/$t)"))
+  :eqnFormat ("I = Imax*(1 - exp(-t/$t))"))
 
 (defoperator LR-current-growth-contains (?sought)
   :preconditions(
