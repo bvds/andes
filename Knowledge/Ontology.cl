@@ -735,10 +735,10 @@
   group      ;; The class that this psm is a part of e.g Kinematics.
   Complexity ;; Planning Commplexity clas (simple, link, major)
   help       ;; Help information.
-  short-name ;; String with short name (for use in menu)
+  short-name ;; String with short name (for use in menu), see eval-print-spec
   english    ;; Storage for english phrasing.
   ExpFormat  ;; Format string for expressions of this type (with vars).
-  EqnFormat  ;; Format string and args for the equation form of this psm.
+  EqnFormat  ;; Format for the equation form of this psm, see eval-print-spec  
   doc        ;; description of the psm.
   )
 
@@ -842,7 +842,13 @@
   (mapcar #'(lambda (e) (lookup-expression->psmclass e bindings))
 	  exps))
 
-
+(defun eval-print-spec (x &optional (bindings no-bindings))
+  "evaluate, using andes-eval, a printing specification in def-psmclass"
+  (cond ((listp x)
+	 (format nil "~{~@?~}" (mapcar #'andes-eval 
+				       (subst-bindings-quoted bindings x))))
+	((typep x 'string) x)
+	(t (error "invalid print spec ~A" x))))
 
 ;;;---------------------------------------------------------
 ;;; Complexity tests.

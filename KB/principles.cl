@@ -391,14 +391,6 @@
       (principle-branch-print str p))
     (close str)))
 
-(defun eval-print-spec (x &optional (bindings no-bindings))
-  "evaluate, using andes-eval, a printing specification in def-psmclass"
-  (cond ((listp x)
-	 (format nil "~{~@?~}" (mapcar #'andes-eval 
-				       (subst-bindings-quoted bindings x))))
-	((typep x 'string) x)
-	(t (error "invalid print spec ~A" x))))
-
 (defun principle-branch-print (str p)
   (cond ((eq (car p) 'group)
 	 (format str "GROUP ~A~%" (cadr p))
