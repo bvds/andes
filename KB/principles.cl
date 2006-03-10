@@ -1,6 +1,8 @@
+;;;;
+;;;;       list of PSMclasses grouped into catagories
+;;;;   
 
-;;;  Tree from for list of principles to show
-;;;   This is used to generate KB/principles.tsv
+;; Use (principles-file) to generate file KB/principles.tsv
 
 (defparameter *principle-tree* '(
 (group "Write a Principle"
@@ -385,32 +387,32 @@
 (defun principles-file ()
   "construct file KB/principles.tsv"
   (let ((str (open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
-		   :direction :output :if-exists :supersede)
-	     ))
-    (dolist (p *principle-tree*)
-      (principle-branch-print str p))
+		   :direction :output :if-exists :supersede)))
+    (dolist (p *principle-tree*) (principle-branch-print str p))
     (close str)))
 
 (defun principle-branch-print (str p)
+  "prints a group in KB/principles.tsv"
   (cond ((eq (car p) 'group)
-	 ;; tsv file format is 4 tab-separated columns
+	 ;; principles.tsv file format is 4 tab-separated columns
 	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
 	 (dolist (pp (cddr p)) (principle-branch-print str pp))
 	 (format str "END_GROUP~C~C~C~%"  #\tab #\tab #\tab))
 	((eq (car p) 'leaf)
 	 (apply #'principle-leaf-print (cons str (cdr p))))))
 
+;; keywords :short-name and :EqnFormat override definitions in Ontology
 (defun principle-leaf-print (str class &key tutorial (bindings no-bindings)
 					EqnFormat short-name) 
-  "prints a principle to KB/principles.tsv, :short-name & :EqnFormat override Ontology"
+  "prints a principle in KB/principles.tsv"
   (let ((pc (lookup-psmclass-name class)))
     (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
 	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
 	    #\tab
 	    (if (eq bindings no-bindings) (psmclass-name pc)
-	      ;; print now to discourage line breaks
+	      ;; if bindings have been supplied, construct list
+	      ;; print string now to discourage line breaks
 	      (write-to-string (list (psmclass-name pc) bindings)))
 	    #\tab
-	    tutorial
-	    )))
+	    tutorial)))
