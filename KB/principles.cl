@@ -412,7 +412,7 @@
 	    #\tab
 	    (if (eq bindings no-bindings) (psmclass-name pc)
 	      ;; if bindings have been supplied, construct list
-	      ;; print string now to discourage line breaks
-	      (write-to-string (list (psmclass-name pc) bindings)))
+	      ;; turn off pretty-print to prevent line breaks
+	      (write-to-string (list (psmclass-name pc) bindings) :pretty nil))
 	    #\tab
 	    tutorial)))
