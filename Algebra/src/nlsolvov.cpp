@@ -82,8 +82,11 @@ bool nlsolvov(binopexp * & bineq)
 	      {
 	      case sine:
 	      case cose:
+		return(false);	// don't know how to select roots
 	      case tane:
-		return(false);	// don't yet know how to select roots
+		// See Bug #797
+		binrhs->value = atan(binrhs->value); // assume [-pi/2,pi/2]
+		break;
 	      case expe:
 		if (binrhs->value <= 0.) 
 		  throw(string("attempt to take log of nonpositive"));
