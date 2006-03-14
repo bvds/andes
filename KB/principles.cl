@@ -215,6 +215,7 @@
 	 (leaf refraction-vacuum)
 	 (leaf snells-law)
 	 (leaf total-internal-reflection)
+	 (leaf brewsters-law)
 	 )
  (group "Waves and Oscillations" 
 	 (leaf wavenumber-lambda-wave)

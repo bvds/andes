@@ -760,3 +760,110 @@
    (bottom-out (string "Write the equation ~A." 
 		       ((= (+ ?angle1 ?angle2) (dnum 90 |deg|)) algebra)))
    ))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;     Formula for Brewster's law
+;;;
+
+;; This is basically a copy of Snell's law
+(def-psmclass brewsters-law (brewsters-law ?line1 ?angle-flag)
+  :complexity major
+  :short-name "Brewster's law"
+  :english ("Formula for angle of Brewster's law")
+  :ExpFormat ("using Brewster's law formula for ~A" 
+	      (nlg ?line1))
+  :eqnFormat ("n1*tan($q1) = n2"))
+
+
+;; form with angle-between
+(defoperator brewsters-law-contains (?sought)
+  :preconditions 
+  ( (brewsters-law-system ?normal-to-surface ?whatever 
+				      ?line1 ?medium1 ?medium2)
+    (any-member ?sought (
+			 (angle-between orderless (line ?line1) 
+					(line ?normal-to-surface))
+			 (index-of-refraction ?medium1)		
+			 (index-of-refraction ?medium2)))
+    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    )
+  :effects ( (eqn-contains (brewsters-law ?line1 nil) ?sought) ))
+
+;; form with explicit angles
+(defoperator brewsters-law-contains2 (?sought)
+  :preconditions 
+  ( (brewsters-law-system ?normal-to-surface ?order
+				      ?line1 ?medium1 ?medium2)
+    (any-member ?sought (
+			 (dir (line ?line1))
+			 (index-of-refraction ?medium1)		
+			 (index-of-refraction ?medium2)))
+    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
+    (test ?order) ;only use this form if order is specified
+    )
+  :effects 
+  ( (eqn-contains (brewsters-law ?line1 ?order) ?sought) ))
+
+;; construct variable for angle of incidence or angle of refraction.
+(defoperator get-brewsters-law-angle1 (?theta)
+  :preconditions 
+  ((variable ?theta (angle-between orderless 
+				   (line ?line) (line ?normal-to-surface))))
+  :effects ((brewsters-law-angle ?theta ?line ?normal-to-surface nil)))
+
+;; alternative form of angle for cases where the direction
+;; of the line is sought
+(defoperator get-brewsters-law-angle2 (?theta1)
+  :preconditions 
+  (
+   (test ?order) 
+   ;; All the angles are mod 180 degrees, but this fact should be
+   ;; transparent to the student (and the solver).  Thus, we only 
+   ;; allow directions where the angle can be calculated without 
+   ;; taking the mod.
+   (variable ?angle1 (dir (line ?line1)))
+   (variable ?anglen (dir (line ?normal-to-surface)))
+   (bind ?theta1 (cond ((eq ?order 'greater-than) `(- ,?anglen ,?angle1)) 
+		       ((eq ?order 'less-than)  `(- ,?angle1 ,?anglen))
+		       (t (error "Most be greater-than or less-than, not ~A" 
+				 ?order))))
+   )
+  :effects 
+  ( (brewsters-law-angle ?theta1 ?line1 ?normal-to-surface ?order)
+    ))
+ 
+(defoperator write-brewsters-law (?line1 ?angle-flag)
+  :preconditions 
+  (
+   (brewsters-law-system ?normal-to-surface ?whatever 
+				     ?line1 ?medium1 ?medium2)
+   ;;
+   (variable ?n1 (index-of-refraction ?medium1))
+   (variable ?n2 (index-of-refraction ?medium2))
+   (brewsters-law-angle ?theta1 ?line1 ?normal-to-surface 
+				    ?angle-flag)
+   ;; ?dummy1 is non-negative
+   (variable ?dummy1 (test-var ?line1 ?normal-to-surface)) 
+   (debug "Brewster's law for ~A~%" ?line1)
+   )
+  :effects 
+  ( (eqn (= (* ?n1 (tan ?theta1)) ?n2) 
+	 (brewsters-law ?line1 ?angle-flag))
+    (assume using-snells-law ?line1 ?angle-flag)
+    ;; Implicit equations to enforce the correct root for the tangent
+    ;; This is needed if one wants to calculate one of the angles
+    ;; Right now, the routine in Algebra/src/nlsolvov.cpp assumes the
+    ;; root is in [-pi/2,pi/2].  See Bug #797
+    (implicit-eqn (= ?dummy1 (cos ?theta1)) 
+		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
+
+    )
+  :hint 
+  ((point (string "What is the direction of ~A if Brewster's law applies?"
+		  ?line1))
+   (teach (string "Use the formula for Brewster's law.")) 
+   (bottom-out (string "Write the equation ~A." 
+		       ((= (* ?n1 (tan ?theta1)) ?n2) algebra)))
+   ))
