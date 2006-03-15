@@ -867,3 +867,53 @@
    (bottom-out (string "Write the equation ~A." 
 		       ((= (* ?n1 (tan ?theta1)) ?n2) algebra)))
    ))
+
+;;;;             Polarizer
+
+(def-psmclass polarizer-intensity (polarizer-intensity ?incoming ?outgoing ?t)
+  :complexity major
+  :short-name "effect of polarizer on intensity"
+  :english ("the effect of a polarizer on the intensity of a beam of light")
+  :ExpFormat ("using the effect of a polarizer on intensity")
+  :EqnFormat ("If = Ii cos($q)^2")) 
+
+(defoperator polarizer-contains (?sought)
+   :preconditions 
+   (
+    (polarization-triple ?incoming ?polarizer ?outgoing)
+    (any-member ?sought ( (net-intensity ?incoming :time ?t)
+                           (net-intensity ?outgoing :time ?t) ))
+   )
+   :effects (
+     (eqn-contains (polarizer-intensity ?incoming ?outgoing ?t) ?sought)
+   ))
+
+;; find polarization directions.
+;; Currently, the student does not define any quantity representing 
+;; the direction of polarization.
+(defoperator do-polarization (?outgoing)
+  :preconditions 
+  ((polarization-triple ?incoming ?polarizer ?outgoing)
+   (polarization ?polarizer ?dirp))
+  :effects ((polarization ?outgoing ?dirp)))
+
+(defoperator write-polarizer (?incoming ?outgoing ?t)
+  :preconditions 
+  (
+   (polarization ?incoming ?dirin)
+   (polarization ?outgoing ?dirout)
+   (variable ?iin (net-intensity ?incoming :time ?t))
+   (variable ?iout (net-intensity ?outgoing :time ?t))
+   (bind ?angle (when ?dirin (get-angle-between ?dirin ?dirout)))
+   (test (or (null ?dirin) ?angle))
+   (bind ?angle-term (if ?dirin `(^ (cos ,?angle) 2) '0.5))
+   )
+  :effects ( (eqn (= ?iout (* ?iin ?angle-term)) 
+		   (polarizer-intensity ?incoming ?outgoing ?t)) )
+  :hint (
+      (point (string "Relate the net intensity of ~A to the net intensity of ~A." 
+		     ?incoming ?outgoing))
+      (point (string "A polarizer absorbs any light polarized in a direction perpendicular to the direction of polarization of the polarizer.  Any light polarized in the same direction passes through."))
+      (bottom-out (string "Write the equation ~A" 
+                     ((= ?iout (* ?iin ?angle-term)) algebra) ))
+	 ))

@@ -216,6 +216,7 @@
 	 (leaf snells-law)
 	 (leaf total-internal-reflection)
 	 (leaf brewsters-law)
+	 (leaf polarizer-intensity)
 	 )
  (group "Waves and Oscillations" 
 	 (leaf wavenumber-lambda-wave)
