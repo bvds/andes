@@ -218,6 +218,7 @@
 	 (leaf brewsters-law)
 	 (leaf polarizer-intensity)
 	 (leaf slit-interference)
+	 (leaf frauenhofer-diffraction)
 	 )
  (group "Waves and Oscillations" 
 	 (leaf wavenumber-lambda-wave)

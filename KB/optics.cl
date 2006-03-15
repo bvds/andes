@@ -1050,13 +1050,64 @@
     ;; Implicit equation to enforce the correct root for the sine
     ;; This is needed if one wants to calculate the angle
     (implicit-eqn (= ?dummy (cos ?theta)) 
-		  (angle-constraint ?grating ?light ?angle))
+		  (angle-constraint ?grating ?light ?n))
     )
    :hint 
    (
-    (point (string "Waves passing through ~A will interfere ~:[destructively~;constructively~] at certain angles" 
+    (point (string "Waves passing through ~A will interfere ~:[destructively~;constructively~] at certain angles." 
 		   ?grating ?flag))
     (teach (string "At certain angles, the waves will add up and at other angles, they will cancel out."))
       (bottom-out (string "Write the equation ~A" 
-                     ((= (* ?d (sin ?theta)) (* ?n lambda)) algebra) ))
+                     ((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
+   ))
+
+;;;;   Frauenhofer diffraction formula
+
+(def-psmclass frauenhofer-diffraction 
+  (frauenhofer-diffraction ?grating ?light ?angle)
+  :complexity major
+  :short-name "single slit diffraction (minima)"
+  :english ("the interference pattern for waves going through a single slit")
+  :ExpFormat ("finding the angles for destructive interference")
+  :EqnFormat ("w*sin($q) = n*$l")) 
+
+(defoperator frauenhofer-diffraction-contains (?sought)
+   :preconditions (
+     (single-slit-system ?grating ?light ?central-max :minima ?min-list)
+     (any-member ?min ?min-list)
+     (any-member ?sought ( (slit-separation ?grating) 
+			   (wavelength ?light ?medium)
+			   (angle-between orderless ?central-max ?min)))
+  )
+   :effects (
+     (eqn-contains (frauenhofer-diffraction ?grating ?light ?min) ?sought)
+   ))
+
+(defoperator write-frauenhofer-diffraction (?grating ?light ?angle)
+   :preconditions 
+   (
+    (in-wm (single-slit-system ?grating ?light ?central-max 
+				 :minima ?min-list))
+    (wave-medium ?medium)
+    (variable ?lambda (wavelength ?light ?medium))
+    (variable ?d (width ?grating))
+    (variable ?theta (angle-between orderless ?central-max ?angle))
+    (bind ?n (+ 1 (position ?angle ?min-list)))
+    (variable ?dummy (test-var ?grating ?light ?n))
+    )
+   :effects 
+   ((eqn (= (* ?d (sin ?theta)) (* ?n ?lambda)) 
+	 (frauenhofer-diffraction ?grating ?light ?angle))
+    ;; Implicit equation to enforce the correct root for the sine
+    ;; This is needed if one wants to calculate the angle
+    (implicit-eqn (= ?dummy (cos ?theta)) 
+		  (angle-constraint ?grating ?light ?n))
+    )
+   :hint 
+   (
+    (point (string "Waves passing through ~A will interfere destructively at certain angles." 
+		   ?grating))
+    (teach (string "Read about Frauenhofer diffraction in your textbook."))
+      (bottom-out (string "Write the equation ~A" 
+                     ((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
    ))
