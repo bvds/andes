@@ -68,12 +68,12 @@
 		   lens-distance ;see Bug #799
 		   slit-separation focal-length 
 		   magnification radius-of-curvature index-of-refraction 
-		   angle)) 
+		   angle resolution-angle)) 
 ;; Temporary work-around for Bug #799
 (def-feature-set new-optics 
   (object-distance image-distance distance-between slit-separation focal-length
 		   magnification radius-of-curvature index-of-refraction 
-		   angle)) 
+		   angle resolution-angle)) 
 (def-feature-set fluids 
   (mass duration height mass-density pressure area-at area volume
 	atmosphere ;predefined constant

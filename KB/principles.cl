@@ -219,6 +219,7 @@
 	 (leaf polarizer-intensity)
 	 (leaf slit-interference)
 	 (leaf frauenhofer-diffraction)
+	 (leaf resolution-circular-aperture)
 	 )
  (group "Waves and Oscillations" 
 	 (leaf wavenumber-lambda-wave)

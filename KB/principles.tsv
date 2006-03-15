@@ -202,6 +202,7 @@ LEAF	n1*tan($q1) = n2    Brewster's law	brewsters-law
 LEAF	If = Ii cos($q)^2    effect of polarizer on intensity	polarizer-intensity	
 LEAF	d*sin($q) = n*$l    interference for parallel slits	slit-interference	
 LEAF	w*sin($q) = n*$l    single slit diffraction (minima)	frauenhofer-diffraction	
+LEAF	$q = 1.22*$l/d    resolution (circular)	resolution-circular-aperture	
 END_GROUP			
 GROUP	Waves and Oscillations		
 LEAF	k = 2*$p/$l    wavenumber	wavenumber-lambda-wave	

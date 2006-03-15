@@ -168,6 +168,26 @@
 			     ((slit-separation ?grating) def-np)))
 	 ))
 
+(def-qexp resolution-angle (resolution-angle ?grating)
+  :symbol-base |$q|     
+  :short-name "resolution angle"
+  :pre-dialog-text "minimum angle of resolution"	
+  :dialog-text "for [body:bodies]"
+  :units |deg|
+  :restrictions positive
+  :english ("the minimum angle of resolution for ~A" (nlg ?grating))
+  :fromWorkbench `(resolution-angle ,body)
+  )
+
+(defoperator define-resolution-angle (?grating)
+  :preconditions ( (bind ?do-var (format-sym "thetares_~A" (body-name ?grating))) )
+  :effects ( (variable ?do-var (resolution-angle ?grating))
+             (define-var (resolution-angle ?grating)))
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
+			     ((resolution-angle ?grating) def-np)))
+	 ))
+
 ;;
 ;; Optics Equations
 ;;
@@ -1110,4 +1130,46 @@
     (teach (string "Read about Frauenhofer diffraction in your textbook."))
       (bottom-out (string "Write the equation ~A" 
                      ((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
+   ))
+
+;;; Minimum angle of resolution for system with circular aperature
+
+(def-psmclass resolution-circular-aperture 
+  (resolution-circular-aperture ?mirror ?light)
+  :complexity major 
+  :short-name "resolution (circular)"
+  :english ("the minimum angle of resolution for a circular aperture")
+  :ExpFormat ("applying the minimum angle of resoltuon for a system with a circular aperture")
+  :EqnFormat "$q = 1.22*$l/d")
+
+(defoperator resolution-circular-aperture-contains (?sought)
+   :preconditions (
+     (any-member ?sought ( (resolution-angle ?mirror)
+                           (diameter-of-circle ?mirror)
+			   (wavelength ?light ?medium) ))
+     (object ?mirror) ;in case it isn't bound
+     (sinusoidal ?light) ;in case it isn't bound
+     )
+   :effects (
+     (eqn-contains (resolution-circular-aperture ?mirror ?light) ?sought)
+   ))
+
+(defoperator write-resolution-circular-aperture (?mirror ?light)
+   :preconditions 
+   (
+    (wave-medium ?air)
+    (variable ?theta (resolution-angle ?mirror))
+    (variable ?d (diameter-of-circle ?mirror))
+    (variable ?lambda (wavelength ?light ?air))
+    )
+   :effects (
+	     (eqn (= (* ?theta ?d) (* 1.22 ?lambda)) 
+		   (resolution-circular-aperture ?mirror ?light))
+	     )
+   :hint (
+      (point (string "How is ~A determined from the geometry of ~A?" 
+		     ((resolution-angle ?mirror) def-np) ?mirror))
+      (teach (string "In your textbook, find Rayleigh's criterion for the minimum angle of resolution for a circular aperature."))
+      (bottom-out (string "Write the equation ~A" 
+                     ((= ?theta (/ (* 1.22 ?lambda) ?d)) algebra) ))
    ))
