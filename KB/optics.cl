@@ -130,6 +130,44 @@
                            ((lens-distance ?lens1 ?lens2) def-np) ))
        ))
 
+(def-qexp distance-between (distance-between orderless . ?objects)
+  :symbol-base |d|     
+  :short-name "distance"	
+  :dialog-text "between [body:bodies] and [body2:bodies]"
+  :units |m|
+  :english ("the distance between ~a and ~a" (nlg ?objects 'conjoined-defnp))
+  :fromWorkbench `(distance-between orderless ,body ,body2) 
+  ) 
+
+(defoperator define-distance-between (?objects)
+ :preconditions 
+ ( (bind ?d-var (format-sym "d~{_~A~}" (mapcar #'body-name ?objects))))
+ :effects ( (variable ?d-var (distance-between orderless . ?objects))
+            (define-var (distance-between orderless . ?objects)) )
+ :hint (
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Distance between Lenses."  
+                           ((distance-between orderless . ?objects) def-np) ))
+       ))
+
+(def-qexp slit-separation (slit-separation ?grating)
+  :symbol-base |d|     
+  :short-name "slit separation"	
+  :dialog-text "between slits in [body:bodies]"
+  :units |m|
+  :restrictions positive
+  :english ("the distance between slits in ~A" (nlg ?grating))
+  :fromWorkbench `(slit-separation ,body)
+  )
+
+(defoperator define-slit-separation (?grating)
+  :preconditions ( (bind ?do-var (format-sym "ds_~A" (body-name ?grating))) )
+  :effects ( (variable ?do-var (slit-separation ?grating))
+             (define-var (slit-separation ?grating)))
+  :hint (
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
+			     ((slit-separation ?grating) def-np)))
+	 ))
+
 ;;
 ;; Optics Equations
 ;;
@@ -761,6 +799,41 @@
 		       ((= (+ ?angle1 ?angle2) (dnum 90 |deg|)) algebra)))
    ))
 
+(def-psmclass right-triangle-tangent 
+  (right-triangle-tangent ?angle ?opposite ?adjacent)
+  :complexity minor
+  :short-name "tangent for right triangle"
+  :english ("tangent formula for right triangles")
+  :ExpFormat ("using the tangent formula for ~A"  (nlg ?angles))
+  :eqnFormat ("tan($q) = opposite/adjacent"))
+
+(defoperator right-triangle-tangent-contains (?sought)
+  :preconditions 
+  ( (right-triangle ?angle ?opposite ?adjacent . ?whatever)
+    (any-member ?sought (?angle ?opposite ?adjacent))
+    )
+  :effects 
+  ((eqn-contains (right-triangle-tangent ?angle ?opposite ?adjacent) ?sought)))
+
+ 
+(defoperator write-right-triangle-tangent (?angle)
+  :preconditions 
+  (
+   (variable ?angle-var ?angle)
+   (variable ?opp-var ?opposite)
+   (variable ?adj-var ?adjacent)
+   )
+  :effects ( (eqn (= (tan ?angle-var) (/ ?opp-var ?adj-var)) 
+		  (right-triangle-tangent ?angle ?opposite ?adjacent))
+    )
+  :hint 
+  ((point (string "Note that ~A and ~A are two sides of a right triangle."
+		  (?opposite def-np) (?adjacent def-np)))
+   (teach (string "Recall the trigonometric formulas for a right triangle.")) 
+   (bottom-out (string "Write the equation ~A." 
+		       ((= (tan ?angle) (/ ?opp-var ?adj-var)) algebra)))
+   ))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -920,3 +993,70 @@
       (bottom-out (string "Write the equation ~A" 
                      ((= ?iout (* ?iin ?angle-term)) algebra) ))
 	 ))
+
+;;;;   Interference pattern for grating with slits
+
+(def-psmclass slit-interference (slit-interference ?grating ?light ?angle
+						   ?flag)
+  :complexity major
+  :short-name "interference for parallel slits"
+  :english ("the interference pattern for waves going through parallel slits")
+  :ExpFormat ("finding the angles for ~:[destructive~;constructive~] interference"
+	      ?flag)
+  :EqnFormat ("d*sin($q) = n*$l")) 
+
+(defoperator slit-interference-contains-max (?sought)
+   :preconditions (
+     (parallel-slit-system ?grating ?light ?central-max :minima ?min-list 
+			   :maxima ?max-list)
+     (any-member ?max ?max-list)
+     (any-member ?sought ( (slit-separation ?grating) 
+			   (wavelength ?light ?medium)
+			   (angle-between orderless ?central-max ?max)))
+  )
+   :effects (
+     (eqn-contains (slit-interference ?grating ?light ?max t) ?sought)
+   ))
+
+(defoperator slit-interference-contains-min (?sought)
+   :preconditions (
+     (parallel-slit-system ?grating ?light ?central-max :minima ?min-list 
+			   :maxima ?max-list)
+     (any-member ?min ?min-list)
+     (any-member ?sought ( (slit-separation ?grating) 
+			   (wavelength ?light ?medium)
+			   (angle-between orderless ?central-max ?min)))
+  )
+   :effects (
+     (eqn-contains (slit-interference ?grating ?light ?min nil) ?sought)
+   ))
+
+(defoperator write-slit-interference (?grating ?light ?angle)
+   :preconditions 
+   (
+    (in-wm (parallel-slit-system ?grating ?light ?central-max 
+				 :minima ?min-list :maxima ?max-list))
+    (wave-medium ?medium)
+    (variable ?lambda (wavelength ?light ?medium))
+    (variable ?d (slit-separation ?grating))
+    (variable ?theta (angle-between orderless ?central-max ?angle))
+    (bind ?n (if ?flag (+ 1 (position ?angle ?max-list))
+	       (+ 0.5 (position ?angle ?min-list))))
+    (variable ?dummy (test-var ?grating ?light ?n))
+    )
+   :effects 
+   ((eqn (= (* ?d (sin ?theta)) (* ?n ?lambda)) 
+	 (slit-interference ?grating ?light ?angle ?flag))
+    ;; Implicit equation to enforce the correct root for the sine
+    ;; This is needed if one wants to calculate the angle
+    (implicit-eqn (= ?dummy (cos ?theta)) 
+		  (angle-constraint ?grating ?light ?angle))
+    )
+   :hint 
+   (
+    (point (string "Waves passing through ~A will interfere ~:[destructively~;constructively~] at certain angles" 
+		   ?grating ?flag))
+    (teach (string "At certain angles, the waves will add up and at other angles, they will cancel out."))
+      (bottom-out (string "Write the equation ~A" 
+                     ((= (* ?d (sin ?theta)) (* ?n lambda)) algebra) ))
+   ))

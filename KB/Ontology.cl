@@ -239,15 +239,6 @@
   :units |m|
   :fromWorkbench (if time `(distance ,body :time ,time) `(distance ,body))
   :english ("the distance travelled by ~A" (nlg ?body 'at-time ?time)))
-(def-qexp distance-between (distance-between ?body ?body2 :time ?time)
-  :symbol-base |d|     
-  :short-name "distance"	
-  :dialog-text "between [body:bodies] and [body2:bodies] at [time:times]"
-  :units |m|
-  :fromWorkbench (if time `(distance-between ,body ,body2 :time ,time)
-		   `(distance-between ,body ,body2))
-  :english ("the distance between ~A and ~a" 
-	    (nlg ?body) (nlg ?body2 'at-time ?time)))
 
 (def-qexp duration (duration (during ?t1 ?t2))
   :symbol-base |t|     

@@ -217,6 +217,7 @@
 	 (leaf total-internal-reflection)
 	 (leaf brewsters-law)
 	 (leaf polarizer-intensity)
+	 (leaf slit-interference)
 	 )
  (group "Waves and Oscillations" 
 	 (leaf wavenumber-lambda-wave)
@@ -354,6 +355,7 @@
  (leaf connected-velocities :tutorial "Equal velocities")
  (leaf complimentary-angles)
  (leaf supplementary-angles)
+ (leaf right-triangle-tangent)
  (leaf tensions-equal :tutorial "Equal tensions at both ends")
  (leaf rmag-pyth :tutorial "Pythagorean Theorem")
  (leaf rdiff :bindings ((?axis . x)))
