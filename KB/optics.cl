@@ -877,7 +877,7 @@
   :ExpFormat ("using the effect of a polarizer on intensity")
   :EqnFormat ("If = Ii cos($q)^2")) 
 
-(defoperator polarizer-contains (?sought)
+(defoperator polarizer-intensity-contains (?sought)
    :preconditions 
    (
     (polarization-triple ?incoming ?polarizer ?outgoing)
@@ -897,7 +897,7 @@
    (polarization ?polarizer ?dirp))
   :effects ((polarization ?outgoing ?dirp)))
 
-(defoperator write-polarizer (?incoming ?outgoing ?t)
+(defoperator write-polarizer-intensity (?incoming ?outgoing ?t)
   :preconditions 
   (
    (polarization ?incoming ?dirin)
@@ -907,13 +907,16 @@
    (bind ?angle (when ?dirin (get-angle-between ?dirin ?dirout)))
    (test (or (null ?dirin) ?angle))
    (bind ?angle-term (if ?dirin `(^ (cos ,?angle) 2) '0.5))
+   (bind ?help (if ?dirin 
+		   "polarized at an angle of $q relative to the direction of polarization of the polarizer, the transmitted intensity is cos($q)^2 times the incoming intensity." 
+		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
   :effects ( (eqn (= ?iout (* ?iin ?angle-term)) 
 		   (polarizer-intensity ?incoming ?outgoing ?t)) )
   :hint (
       (point (string "Relate the net intensity of ~A to the net intensity of ~A." 
-		     ?incoming ?outgoing))
-      (point (string "A polarizer absorbs any light polarized in a direction perpendicular to the direction of polarization of the polarizer.  Any light polarized in the same direction passes through."))
+		     ?outgoing ?incoming))
+      (point (string "If the incoming beam is ~A" ?help))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?iout (* ?iin ?angle-term)) algebra) ))
 	 ))
