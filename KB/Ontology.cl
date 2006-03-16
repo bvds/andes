@@ -383,21 +383,21 @@
 (def-qexp length (length ?body)
   :symbol-base ||     
   :short-name "length"	
-  :dialog-text "of [body:bodies:positions]"
+  :dialog-text "of [body:bodies]"
   :units |m|
   :fromWorkbench `(length ,body)
   :english ("the length of ~A" (nlg ?body)))
 (def-qexp length-change (rate-of-change (length ?body))
   :symbol-base ||     
   :short-name "rate of change in length"	
-  :dialog-text "of [body:bodies:positions]"
+  :dialog-text "of [body:bodies]"
   :units |m/s|
   :fromWorkbench `(rate-of-change (length ,body))
   :english ("the rate of change of the length of ~A" (nlg ?body)))
 (def-qexp width  (width ?body)
   :symbol-base ||     
   :short-name "width"	  
-  :dialog-text "of [body:bodies:positins]"
+  :dialog-text "of [body:bodies]"
   :units |m|
   :fromWorkbench `(width ,body) 
   :english ("the width of ~A" (nlg ?body)))

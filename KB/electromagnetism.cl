@@ -3225,7 +3225,7 @@
 (def-qexp electric-flux (flux ?surface electric :time ?t)
   :symbol-base |$Fe|     
   :short-name "electric flux"	
-  :dialog-text "through [positions] at time [time:times]"
+  :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m|
      :fromworkbench `(flux ,body electric :time ,time)
      :english ("electric flux through ~A~@[ ~A~]" 
@@ -3235,7 +3235,7 @@
 				(flux ?surface electric :time ?t))
   :symbol-base |d$Fedt|     
   :short-name "rate of change in electric flux"	
-  :dialog-text "through [positions] at time [time:times]"
+  :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m/s|
      :fromworkbench `(rate-of-change (flux ,body electric :time ,time))
      :english ("rate of change in electric flux through ~A~@[ ~A~]" 
@@ -3244,7 +3244,7 @@
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
   :symbol-base |$Fb|     
   :short-name "magnetic flux"	
-  :dialog-text "through [positions] at time [time:times]"
+  :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2|
      :fromworkbench `(flux ,body magnetic :time ,time)
      :english ("magnetic flux through ~A~@[ ~A~]" 
@@ -3254,7 +3254,7 @@
 				(flux ?surface magnetic :time ?t))
   :symbol-base |d$Fbdt|     
   :short-name "rate of change in magnetic flux"	
-  :dialog-text "through [positions] at time [time:times]"
+  :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2/s|
      :fromworkbench `(rate-of-change (flux ,body magnetic :time ,time))
      :english ("rate of change in magnetic flux through ~A~@[ ~A~]" 
