@@ -3475,7 +3475,7 @@
    (faraday-loop ?surface ?R :turns ?turn-flag) 
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface magnetic :time ?t))
-		 (turns ?surface)
+		 (turns ?R)
 		 (voltage-across ?R :time ?t)))
    (time ?t)
    (test (if (eq (first ?sought) 'turns) ?turn-flag t))
@@ -3489,7 +3489,7 @@
   (in-wm (faraday-loop ?surface ?R :turns ?turn-flag))
   (variable ?V (voltage-across ?R :time ?t))
   (variable ?Phi-var (rate-of-change (flux ?surface magnetic :time ?t)))
-  (variable ?turn-var (turns ?surface))
+  (variable ?turn-var (turns ?R))
   (bind ?phi-term (if ?turn-flag `(* ,?turn-var ,?Phi-var) ?Phi-var))
  )
  :effects 
