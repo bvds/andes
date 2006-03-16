@@ -19,7 +19,7 @@ LEAF	ac_x = -v^2/r * r_x/r    centripetal acceleration (x component)	(centripeta
 LEAF	ac_y = -v^2/r * r_y/r    centripetal acceleration (y component)	(centripetal-accel-compo ((?axis . y)))	Centripetal acceleration
 LEAF	Vac_x = Vab_x + Vbc_x    relative velocity	(relative-vel ((?axis . x)))	Relative Velocity
 LEAF	Vac_y = Vab_y + Vbc_y    relative velocity	(relative-vel ((?axis . y)))	Relative Velocity
-END_GROUP			
+END_GROUP	Translational		
 GROUP	Rotational		
 LEAF	$w(avg) = $q/t    average angular velocity	ang-sdd	Angular velocity
 LEAF	$a(avg) = ($wf - $wi)/t    average anglular acceleration	rk-no-s	Angular acceleration
@@ -28,8 +28,8 @@ LEAF	$wf = $wi + $a(avg)*t    average anglular acceleration	rk-no-s	Constant ang
 LEAF	$w_z^2 = $w0_z^2 + 2*$a_z*$q_z    [$a_z is constant]	rk-no-t	Constant angular acceleration
 LEAF	v = $w*r    linear velocity at a certain radius	linear-vel	Linear velocity
 LEAF	v = $w*r    linear velocity of rolling object	rolling-vel	Linear velocity
-END_GROUP			
-END_GROUP			
+END_GROUP	Rotational		
+END_GROUP	Kinematics		
 GROUP	Newton's Laws		
 GROUP	Translational		
 LEAF	F1_x + F2_x + ... = m*a_x    Newton's Second Law	(nsl ((?axis . x)))	Newton's Second Law
@@ -40,15 +40,15 @@ LEAF	Fof1on2 = Fof2on1    Newton's Third Law (magnitudes)	ntl	Newton's Third Law
 LEAF	F12_x = - F21_x    Newton's Third Law (components)	(ntl-vector ((?axis . x)))	Newton's Third Law
 LEAF	F12_y = - F21_y    Newton's Third Law (components)	(ntl-vector ((?axis . y)))	Newton's Third Law
 LEAF	Fg = G*m1*m2/r^2    universal gravitation	ug	Universal Gravitation
-END_GROUP			
+END_GROUP	Translational		
 GROUP	Rotational		
 LEAF	0 = $t1_z + $t2_z + ...    rotational form of Newtons 1st law	nfl-rot	Newton's Law for rotation
 LEAF	$tnet_z = I*$a_z    rotational form of Newton's 2nd Law	nsl-rot	Newton's Law for rotation
 LEAF	$t = r*F*sin($q)    torque defined (magnitude)	mag-torque	Individual torque magnitude
 LEAF	$t_z = r*F*sin($qF-$qr)    torque defined (z component)	torque-zc	Individual torque magnitude
 LEAF	$tnet_z = $t1_z + $t2_z + ...    net torque defined	net-torque-zc	Net torque
-END_GROUP			
-END_GROUP			
+END_GROUP	Rotational		
+END_GROUP	Newton's Laws		
 GROUP	Work Energy and Power		
 LEAF	W = F*d*cos($q) or W = F_x*d_x + F_y*d_y    work defined	work	Work done by a force
 LEAF	Wnet = WF1 + WF2 + ...    net work defined	net-work	Net work
@@ -68,7 +68,7 @@ LEAF	P = I*A    relation of power and intensity (uniform over surface)	uniform-i
 LEAF	$b = 10*log10(I/Iref)    intensity & decibels	intensity-to-decibels	Intensity
 LEAF	I = Iref*10^($b/10)    intensity & decibels	intensity-to-decibels	Intensity
 LEAF	I = S    intensity & magnitude of the Poynting vector	intensity-to-poynting-vector-magnitude	Intensity
-END_GROUP			
+END_GROUP	Work Energy and Power		
 GROUP	Momentum and Impulse		
 GROUP	Translational		
 LEAF	p_x = m*v_x    momentum defined (x component)	(momentum-compo ((?axis . x)))	Conservation of Momentum
@@ -85,12 +85,12 @@ LEAF	J12_x = -J21_x    Newton's third law (x component)	(ntl-impulse-vector ((?a
 LEAF	J12_y = -J21_y    Newton's third law (y component)	(ntl-impulse-vector ((?axis . y)))	Impulse
 LEAF	Rcm_x = (m1*r1_x + m2*r2_x + ...)/(m1 + m2 + ...)    center of mass	(center-of-mass-compo ((?axis . x)))	Center of Mass
 LEAF	Rcm_y = (m1*r1_y + m2*r2_y + ...)/(m1 + m2 + ...)    center of mass	(center-of-mass-compo ((?axis . y)))	Center of Mass
-END_GROUP			
+END_GROUP	Translational		
 GROUP	Rotational		
 LEAF	L_z = I*$w_z    angular momentum defined	ang-momentum	Angular momentum definition
 LEAF	L1i_z + L2i_z + ... = L1f_z + L2f_z + ...    conservation of angular momentum	cons-angmom	Conservation of Angular momentum
-END_GROUP			
-END_GROUP			
+END_GROUP	Rotational		
+END_GROUP	Momentum and Impulse		
 GROUP	Fluids		
 LEAF	P2 - P1 = $r*g*(h1-h2)    pressure in fluid	pressure-height-fluid	Pressure Height
 LEAF	0.5*$r*v1^2 + $r*g*h1 + P1 = 0.5*$r*v2^2 + $r*g*h2 + P2    Bernoulli equation	bernoulli	Bernoulli's Principle
@@ -98,7 +98,7 @@ LEAF	A1*v1 = A2*v2    equation of continuity	equation-of-continuity	Bernoulli's 
 LEAF	Fp = P*A    pressure defined	pressure-force	Pressure
 LEAF	$r = m/V    mass density defined	density	Mass Density
 LEAF	Fb = $rf*V*g    Archimedes principle (buoyant force)	archimedes	Buoyant Force
-END_GROUP			
+END_GROUP	Fluids		
 GROUP	Electricity and Magnetism		
 LEAF	F = kelec*abs(q1*q2)/r^2    Coulomb's law (magnitude)	coulomb	
 LEAF	F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)	(coulomb-compo ((?axis . x)))	
@@ -146,7 +146,7 @@ LEAF	$t_y = $m_z*B_x - $m_x*B_z    torque for magnetic dipole (y component)	(mag
 LEAF	$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x    torque for magnetic dipole (z component)	(magnetic-dipole-torque ((?axis . z)))	Dipoles
 LEAF	U = -$m*B*cos($q$m - $qB) or U = -($m_x*B_x + $m_y*B_y)    potential energy of magnetic dipole	magnetic-dipole-energy	Dipoles
 LEAF	E = B*c    ratio of fields in electromagnetic wave	electromagnetic-wave-field-amplitude	
-END_GROUP			
+END_GROUP	Electricity and Magnetism		
 GROUP	DC Circuits		
 LEAF	V1 + V2 + V3 ... = 0    Kirchoff's loop rule	loop-rule	Loop Rule
 LEAF	Iin = Iout    Kirchoff's junction rule	junction-rule	Junction Rule
@@ -156,7 +156,7 @@ LEAF	Req = R1 + R2 + ...    equivalent resistance series	equiv-resistance-series
 LEAF	1/Req = 1/R1 + 1/R2 + ...    equivalent resistance parallel	equiv-resistance-parallel	Parallel Resistors
 LEAF	Iequiv = Iorig    equivalent resistor current	current-equiv	
 LEAF	V = I*R    Ohm's Law	ohms-law	Ohm's Law
-END_GROUP			
+END_GROUP	Resistance		
 GROUP	Capacitance		
 LEAF	C = q/V    capacitance defined	cap-defn	Capacitance
 LEAF	Ceq = C1 + C2 + ...    equivalent capacitance parallel	equiv-capacitance-parallel	Parallel Capacitors
@@ -168,7 +168,7 @@ LEAF	q = C*Vb*(1 - exp(-t/$t))    charge on capacitor in RC circuit with battery
 LEAF	q = qi*exp(-t/$t)    charge on capacitor in RC circuit	discharging-capacitor-at-time	RC Circuits
 LEAF	I = (Vb/R)*exp(-t/$t)    current in RC circuit	current-in-rc-at-time	RC Circuits
 LEAF	q = fraction*C*Vb    RC charge as fraction of max	charge-on-capacitor-percent-max	RC Circuits
-END_GROUP			
+END_GROUP	Capacitance		
 GROUP	Inductance		
 LEAF	V = -L*dIdt    inductor EMF	inductor-emf	Inductance
 LEAF	V2 = -M12*dI1dt    mutual inductor EMF	mutual-inductor-emf	Inductance
@@ -185,8 +185,8 @@ LEAF	$t = 2*L/R    RLC time constant	rlc-time-constant	RLC Circuits
 LEAF	$w = sqrt(1/(L*C)-R^2/(2*L)^2)    RLC angular frequency	rlc-angular-frequency	RLC Circuits
 LEAF	V1/N1 = V2/N2    transformer voltage relation	transformer-voltage	
 LEAF	P1 = P2    transformer power relation	transformer-power	
-END_GROUP			
-END_GROUP			
+END_GROUP	Inductance		
+END_GROUP	DC Circuits		
 GROUP	Optics		
 LEAF	1/do + 1/di = 1/f    thin lens/mirror equation	lens-eqn	Lens Equation
 LEAF	m = -di/do    (lateral) magnification	magnification-eqn	Magnification
@@ -203,7 +203,8 @@ LEAF	If = Ii cos($q)^2    effect of polarizer on intensity	polarizer-intensity
 LEAF	d*sin($q) = n*$l    interference for parallel slits	slit-interference	
 LEAF	w*sin($q) = n*$l    single slit diffraction (minima)	frauenhofer-diffraction	
 LEAF	$q = 1.22*$l/d    resolution (circular)	resolution-circular-aperture	
-END_GROUP			
+LEAF	Fp = 2*I/c    radiation pressure (reflector)	radiation-pressure	
+END_GROUP	Optics		
 GROUP	Waves and Oscillations		
 LEAF	k = 2*$p/$l    wavenumber	wavenumber-lambda-wave	
 LEAF	f = $w/(2*$p)    frequency	frequency-of-wave	
@@ -220,8 +221,8 @@ LEAF	fn = n*f1 or $ln = $l1/n    n-th harmonic	harmonic-of
 LEAF	fbeat = abs(f1-f2)/2    beat frequency	beat-frequency	
 LEAF	E = Ei*exp(-2*t/$t)    energy decay	energy-decay	
 LEAF	vw = c    speed of light	wave-speed-light	
-END_GROUP			
-END_GROUP			
+END_GROUP	Waves and Oscillations		
+END_GROUP	Write a Principle		
 GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Kinematics		
 GROUP	Translational		
@@ -235,12 +236,12 @@ LEAF	a = g    accel in free-fall	free-fall-accel	Free fall acceleration
 LEAF	g = 9.8 m/s^2    g near Earth	std-constant-g	Value of g near Earth
 LEAF	vf_x = vi_x    [v_x is constant (a_x =0)]	const-vx	Constant velocity component
 LEAF	T = 2*$p*r/v    period of uniform circular motion	period-circle	Period Circular
-END_GROUP			
+END_GROUP	Translational		
 GROUP	Rotational		
 LEAF	$w(avg) = $q/t    average angular velocity	ang-sdd	Angular velocity
 LEAF	$wf = $wi + $a(avg)*t    average anglular acceleration	rk-no-s	Angular acceleration
-END_GROUP			
-END_GROUP			
+END_GROUP	Rotational		
+END_GROUP	Kinematics		
 GROUP	Newton's Laws		
 GROUP	Translational		
 GROUP	Force Laws		
@@ -252,14 +253,14 @@ LEAF	Ft1 = Ft2    equal tensions at both ends	tensions-equal	Equal tensions at b
 LEAF	F = v*abs(dmdt)    thrust force (magnitudes)	thrust-force	thrust force
 LEAF	F_x = -v_x*dmdt    thrust force (x components)	(thrust-force-vector ((?axis . x)))	thrust force
 LEAF	F_y = -v_y*dmdt    thrust force (y components)	(thrust-force-vector ((?axis . y)))	thrust force
-END_GROUP			
+END_GROUP	Force Laws		
 GROUP	Compound Bodies		
 LEAF	M = m1 + m2 + ...    mass of compound	mass-compound	Mass of a compound body
 LEAF	v_compound = v_part    velocity of compound	(kine-compound ((?vec-type . velocity)))	Kinematics of compound same as part
 LEAF	v_compound = v_part    velocity of compound	(kine-compound ((?vec-type . acceleration)))	Kinematics of compound same as part
 LEAF	F_on_part = F_on_compound    force on compound	force-compound	Force on a compound body
-END_GROUP			
-END_GROUP			
+END_GROUP	Compound Bodies		
+END_GROUP	Translational		
 GROUP	Rotational		
 LEAF	$tnet_z = $t1_z + $t2_z + ...    net torque defined	net-torque-zc	Net torque
 LEAF	$t_z = r*F*sin($qF-$qr)    torque defined (z component)	torque-zc	Individual torque magnitude
@@ -271,9 +272,9 @@ LEAF	I = (1/3) m*L^2    rod about end	i-rod-end	Long thin rod about end
 LEAF	I = m*r^2    hoop	i-hoop-cm	Hoop about center of mass
 LEAF	I = (1/12) m*(L^2 + W^2)    rectangular plate	i-rect-cm	Rectangle about center of mass
 LEAF	I12 = I1 + I2    compound body	i-compound	Compound body
-END_GROUP			
-END_GROUP			
-END_GROUP			
+END_GROUP	Moment of Inertia		
+END_GROUP	Rotational		
+END_GROUP	Newton's Laws		
 GROUP	Work and Energy		
 LEAF	Wnet = WF1 + WF2 + ...    net work defined	net-work	Net work
 LEAF	Wnc = Wncf1 + Wncf2 + ...    work by non-conservative	work-nc	Conservation of Energy
@@ -285,38 +286,38 @@ LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
 LEAF	h2 - h1 = d12_y    change in height	height-dy	Height and Displacement
 LEAF	P(avg) = W/t    average power defined	power	Power
 LEAF	Pnet = Wnet/t    average net power defined	net-power	Power
-END_GROUP			
+END_GROUP	Work and Energy		
 GROUP	Fluids		
 LEAF	P = Pr0    point 1 open to atmosphere	pressure-at-open-to-atmosphere	Atmospheric Pressure
 LEAF	Pr0 = 1.013E5 Pa    atmospheric pressure	(std-constant-pr0 0)	Atmospheric Pressure
-END_GROUP			
-END_GROUP			
+END_GROUP	Fluids		
+END_GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Calculate a vector component		
 GROUP	Displacement		
 LEAF	d_x = d*sin($qd - $qx)    on x-axis	(proj ((?axis . x) (?vector displacement ?body)))	Projection Equations
 LEAF	d_y = d*sin($qd - $qy)    on y-axis	(proj ((?axis . y) (?vector displacement ?body)))	Projection Equations
-END_GROUP			
+END_GROUP	Displacement		
 GROUP	Velocity		
 LEAF	v_x = v*sin($qv - $qx)    on x-axis	(proj ((?axis . x) (?vector velocity ?body)))	Projection Equations
 LEAF	v_y = v*sin($qv - $qy)    on y-axis	(proj ((?axis . y) (?vector velocity ?body)))	Projection Equations
-END_GROUP			
+END_GROUP	Velocity		
 GROUP	Acceleration		
 LEAF	a_x = a*sin($qa - $qx)    on x-axis	(proj ((?axis . x) (?vector acceleration ?body)))	Projection Equations
 LEAF	a_y = a*sin($qa - $qy)    on y-axis	(proj ((?axis . y) (?vector acceleration ?body)))	Projection Equations
-END_GROUP			
+END_GROUP	Acceleration		
 GROUP	Force		
 LEAF	F_x = F*sin($qF - $qx)    on x-axis	(proj ((?axis . x) (?vector force . ?args)))	Projection Equations
 LEAF	F_y = F*sin($qF - $qy)    on y-axis	(proj ((?axis . y) (?vector force . ?args)))	Projection Equations
-END_GROUP			
+END_GROUP	Force		
 GROUP	Relative Position		
 LEAF	r_x = r*sin($qr - $qx)    on x-axis	(proj ((?axis . x) (?vector relative-position ?body ?origin)))	Projection Equations
 LEAF	r_y = r*sin($qr - $qy)    on y-axis	(proj ((?axis . y) (?vector relative-position ?body ?origin)))	Projection Equations
-END_GROUP			
+END_GROUP	Relative Position		
 GROUP	Momentum		
 LEAF	p_x = p*sin($qp - $qx)    on x-axis	(proj ((?axis . x) (?vector momentum ?body)))	Projection Equations
 LEAF	p_y = p*sin($qp - $qy)    on y-axis	(proj ((?axis . y) (?vector momentum ?body)))	Projection Equations
-END_GROUP			
-END_GROUP			
+END_GROUP	Momentum		
+END_GROUP	Calculate a vector component		
 GROUP	Use information specific to this problem		
 LEAF	val1 = val2    equivalent quantities	(equals ((?quant1 distance ?body :time ?time)))	
 LEAF	|d| = s    distance & displacement	displacement-distance	
@@ -347,4 +348,4 @@ LEAF	V = A*l    volume of a cylinder	volume-of-cylinder
 LEAF	$m = m/l    mass per unit length	mass-per-length-eqn	
 LEAF	n = N/l    turns per unit length	turns-per-length-definition	
 LEAF	dy/dt_avg = (y2-y1)/(t2-t1)    average rate of change	average-rate-of-change	
-END_GROUP			
+END_GROUP	Use information specific to this problem		

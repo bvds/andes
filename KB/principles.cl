@@ -220,6 +220,7 @@
 	 (leaf slit-interference)
 	 (leaf frauenhofer-diffraction)
 	 (leaf resolution-circular-aperture)
+	 (leaf radiation-pressure)
 	 )
  (group "Waves and Oscillations" 
 	 (leaf wavenumber-lambda-wave)
@@ -403,7 +404,7 @@
 	 ;; principles.tsv file format is 4 tab-separated columns
 	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
 	 (dolist (pp (cddr p)) (principle-branch-print str pp))
-	 (format str "END_GROUP~C~C~C~%"  #\tab #\tab #\tab))
+	 (format str "END_GROUP~C~A~C~C~%"  #\tab (cadr p) #\tab #\tab))
 	((eq (car p) 'leaf)
 	 (apply #'principle-leaf-print (cons str (cdr p))))))
 
