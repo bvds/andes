@@ -73,7 +73,7 @@
 (def-qexp pressure (pressure ?position :time ?time)
   :symbol-base |P|     
   :short-name "pressure"	
-  :dialog-text "at [body:positions]  at time [time:times]"
+  :dialog-text "at [body:positions] at time [time:times]"
    :units |Pa|
    :english ("the pressure at point ~a in the fluid" 
 	     (nlg ?position 'at-time ?time))
@@ -658,10 +658,12 @@
     (force ?body ?fluid pressure ?t ?dir action)
   ))
 
+;; The hints need to be generalized to handle radiation pressure.
 (defoperator draw-pressure (?b ?fluid ?t)
   :preconditions
    ((force ?b ?fluid pressure ?t ?dir action)
-    ; need to get body containing surface for vector statement
+    (test (not (eq ?dir 'unknown)))
+    ;; need to get body containing surface for vector statement
     (in-wm (fluid-contact ?b ?surface ?fluid ?point ?t-pressure ?dir))
     (not (vector ?b (force ?b ?fluid pressure :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fp_~A_~A_~A" (body-name ?b) ?fluid
@@ -676,9 +678,32 @@
     (given (dir (force ?b ?fluid pressure :time ?t)) ?dir))
   :hint
    ((point (string "Notice that ~a is in contact with ~A." ?b (?fluid agent)))
-    (teach (string "When a body in contact with a fluid, the fluid exerts a pressure force on it, acting perpendicular to the surface of contact."))
+    (teach (string "When a body is in contact with a fluid, the fluid exerts a pressure force on it, acting perpendicular to the surface of contact."))
     (bottom-out (string "Because ~a presses against ~a at ~a, draw a pressure force on ~a due to ~a at an angle of ~a degrees." 
 			(?fluid agent) ?b ?surface ?b (?fluid agent) ?dir))
+    ))
+
+;; the hints are designed to work OK with radiation pressure
+(defoperator draw-pressure-unknown (?b ?fluid ?t)
+  :preconditions
+   ((force ?b ?fluid pressure ?t unknown action)
+    ;; need to get body containing surface for vector statement
+    (in-wm (fluid-contact ?b ?surface ?fluid ?point ?t-pressure unknown))
+    (not (vector ?b (force ?b ?fluid pressure :time ?t) ?dont-care))
+    (bind ?mag-var (format-sym "Fp_~A_~A_~A" (body-name ?b) ?fluid
+                                             (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    )
+  :effects
+   ((vector ?b (force ?b ?fluid pressure :time ?t) unknown)
+    (variable ?mag-var (mag (force ?b ?fluid pressure :time ?t)))
+    (variable ?dir-var (dir (force ?b ?fluid pressure :time ?t))))
+  :hint
+   ((point (string "Notice that ~a exerts a pressure on ~A." 
+		   (?fluid agent) ?b))
+    (teach (string "When a something exerts a pressure on a body, this results in a force acting on that body."))
+    (bottom-out (string "Because ~a exerts a pressure against ~a, draw a pressure force on ~a due to ~a acting at an unknown angle." 
+			(?fluid agent) ?b ?b (?fluid agent)))
     ))
 
 ;;;

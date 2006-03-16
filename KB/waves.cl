@@ -1452,3 +1452,41 @@
                      ((= ?e (* |c| ?b)) algebra) ))
       ))
 
+(def-psmclass radiation-pressure 
+  (radiation-pressure ?body ?surface ?wave elastic ?t)
+  :complexity major  
+  :short-name "radiation pressure (reflector)"
+  :english ("the radiation pressure for a reflector")
+  :ExpFormat ("finding the radiation pressure on ~A due to ~A" ?body ?wave)
+  :EqnFormat ("Fp = 2*I/c"))
+
+(defoperator radiation-pressure-contains (?sought)
+  :preconditions
+  (
+   (collision (orderless . ?objects) ?t-collision :type ?type)
+   (any-member ?objects ((?body ?wave) (?wave ?body)))
+   (any-member ?sought ( (intensity ?body ?wave :time ?time)
+			 (pressure ?body :time ?time) ))
+   (test (tinsidep ?time ?t-collision))
+   )
+  :effects (
+	    (eqn-contains (radiation-pressure ?body ?wave ?type ?time) ?sought)
+	    ))
+
+(defoperator write-radiation-pressure (?body ?wave ?type ?t)
+  :preconditions
+  (
+   (test (eq ?type 'elastic)) ;could easily generalize to inelastic case
+   (variable ?I (intensity ?body ?wave :time ?t))
+   (variable ?P  (pressure ?body :time ?t))
+   )
+  :effects (
+     (eqn (= ?P (/ (* 2 ?I) |c|)) (radiation-pressure ?body ?wave ?type ?t))
+  )
+  :hint 
+  (
+   (point (string "~A reflects off ~A." ?wave ?body))
+   (teach (string "Light waves carry a small amount of momentum.  When they reflect off a surface, they exert a force on that surface." ))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?P (/ (* 2 ?I) |c|) algebra))))
+  ))
