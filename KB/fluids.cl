@@ -343,7 +343,7 @@
 (def-qexp area (area ?shape)
   :symbol-base |A|     
   :short-name "area"	
-  :dialog-text "of [body:bodies]"
+  :dialog-text "of [body:bodies:positions]"
      :units |m^2|
      :restrictions positive
      :english ("the area of ~A" (nlg ?shape))
@@ -353,7 +353,7 @@
 (def-qexp area-change (rate-of-change (area ?shape))
   :symbol-base |dAdt|     
   :short-name "rate of change in area"	
-  :dialog-text "of [body:bodies]"
+  :dialog-text "of [body:bodies:positions]"
      :units |m^2/s|
      :restrictions positive
      :english ("the rate of change of the area of ~A" (nlg ?shape))
