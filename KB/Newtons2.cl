@@ -4231,9 +4231,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator find-tension-force (?b ?string ?t)
   :preconditions (
-    (object ?b)
-    (time ?t)
     (tied-to ?string ?b ?t-tied-to ?dir-expr)
+    (time ?t)
     (test (tinsidep ?t ?t-tied-to))
     (not (force ?b ?string tension ?t . ?dont-care))
   )
@@ -6802,7 +6801,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (motion ?body (rotating ?axis . ?dont-care) :time ?t-motion)
     (center-of-mass ?cm (?body))
     (motion ?axis ?rest :time ?t-axis)
-    (test (or (equal ?rest 'at-rest) (equal ?rest 'momentarily-at-rest)))
+    (test (or (eq ?rest 'at-rest) (eq ?rest 'momentarily-at-rest)))
     ;; some time where both are true
     (test (or (null ?t-motion) (null ?t-axis) (tintersect2 ?t-motion ?t-axis)))
     ) 
