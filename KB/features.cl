@@ -15,7 +15,6 @@
 ;; global features
 (def-feature-set Andes2 
   (mag dir compo ;match all vector quantities
-       gravitational-acceleration ;predefined constant
        test-var ;dummy variable for ensuring positivity
     ))
 

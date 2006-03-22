@@ -1,4 +1,4 @@
-ANDES2	mag;dir;compo;gravitational-acceleration;test-var;
+ANDES2	mag;dir;compo;test-var;
 ANGLE	angle-between;
 ENERGY-SET	energy;total-energy;kinetic-energy;grav-energy;rotational-energy;spring-energy;electric-energy;
 POTENTIAL	net-potential;
