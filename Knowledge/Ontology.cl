@@ -26,6 +26,7 @@
 ;; Params
 
 (defparameter *Ontology-features* () "List of feature sets")
+(defparameter *Ontology-features-ignore* () "List of feature sets")
 (defparameter *Ontology-ExpTypes* () "List of valid expression types")
 (defparameter *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
 (defparameter *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
@@ -71,6 +72,7 @@
 (defun clear-ontology ()
   "Clear out the stores expressions."
   (setq *Ontology-features* nil)
+  (setq *Ontology-features-ignore* nil)
   (setq *Ontology-ExpTypes* nil)
   (setq *Ontology-EntryProp-Types* nil)
   (setq *Ontology-Equation-Types* nil)
@@ -1044,7 +1046,8 @@
   nil)  ;macro return value
 
 (defun quant-allowed-by-features (quant x)
-  (when x (or (member quant (second (find (car x) *ontology-features* 
+  (when x (or (member quant *Ontology-features-ignore*) 
+	      (member quant (second (find (car x) *ontology-features* 
 					  :key #'first)))
 	      (quant-allowed-by-features quant (cdr x)))))
 

@@ -13,10 +13,11 @@
 ;;;   duration, probablity, time-constant
 
 ;; global features
-(def-feature-set Andes2 
-  (mag dir compo ;match all vector quantities
-       test-var ;dummy variable for ensuring positivity
-    ))
+(setq *Ontology-features-ignore*  
+      '(mag dir compo ;match all vector quantities
+	    gravitational-acceleration ;pre-defined variable
+	    test-var ;dummy variable for ensuring positivity
+	    ))
 
 ;;  Use inheretance to always associate certain features
 (def-feature-set angle (angle-between))
