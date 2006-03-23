@@ -526,8 +526,8 @@
 ;; This is a dummy variable for making restrictions for trig equations
 (defoperator define-test-var (?angle)
   :preconditions ((bind ?var (format-sym "test~{_~A~}" ?angle)))
-  :effects ((variable ?var (test-var . ?angle)))
-           ; no define-var for this since no student entry required (or possible)
+  ;; no define-var for this since no student entry required (or possible)
+  :effects ((variable ?var (test-var . ?angle))) )
 
 ;;; Snell's Law
 
