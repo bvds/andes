@@ -258,6 +258,8 @@
 #define IDD_VECTOR_UNIT                 396
 #define IDD_TIMECONSTANT                399
 #define IDD_VECTOR_DIPOLE               400
+#define IDD_LINE                        402
+#define IDR_OPTICSTOOLS                 404
 #define IDC_SINGLE_BODY                 1000
 #define IDC_STATUS_MSG                  1000
 #define IDC_MULTIPLE_BODIES             1001
@@ -1111,8 +1113,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        402
-#define _APS_NEXT_COMMAND_VALUE         33231
+#define _APS_NEXT_RESOURCE_VALUE        406
+#define _APS_NEXT_COMMAND_VALUE         33232
 #define _APS_NEXT_CONTROL_VALUE         1430
 #define _APS_NEXT_SYMED_VALUE           119
 #endif

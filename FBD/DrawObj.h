@@ -579,24 +579,6 @@ public:
 	// back pointer to cointaining group?
 };
   
-//
-// "Guide line" -- dotted line added to diagram
-//
-// Originally intended for use to show vector projection lines or project other significant
-// directions, e.g. for angle labelling. Now offered on menu for straight-line 
-// trajectory sketching. Our first problems also used this as a graphic object, 
-// although that is now unnecessary since we have CDrawRect Line objects. 
-//
-class CGuideLine: public CDrawObj
-   {
-protected:
-   	DECLARE_SERIAL(CGuideLine);
-  	CGuideLine();
-public:
-   	CGuideLine(const CRect& position);
-   	virtual void Serialize(CArchive& ar);
-   	virtual void Draw(CDC* pDC);
-};
    
 //
 // Document Areas -- marked out distinguished rectangular regions of the page

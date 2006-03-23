@@ -108,6 +108,13 @@ BOOL CAngleDlg::OnInitDialog()
 			m_cboSide1.AddString(pObj->m_strName);
 			m_cboSide2.AddString(pObj->m_strName);
 		}
+		else if (  pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) &&
+						! pObj->m_strName.IsEmpty()  &&
+						! ((CGuideLine*)pObj)->IsZAxisVector() )
+		{
+			m_cboSide1.AddString(pObj->m_strName);
+			m_cboSide2.AddString(pObj->m_strName);
+		}
 		else if (pObj->IsKindOf(RUNTIME_CLASS(CAxes)) &&
 				 ((CAxes*)pObj)->m_nIndex == 0) // only use first axes if many
 		{
@@ -116,6 +123,7 @@ BOOL CAngleDlg::OnInitDialog()
 				m_cboSide2.AddString(axes[i].strDef);
 			}
 		}
+		
 	}
 	
 	//load sigma/sigma bitmap onto button which pops up the greek menu.
@@ -412,6 +420,9 @@ int CAngleDlg::GetAngleBetween(const CString& strSide1, const CString& strSide2,
 			if (pObj->IsKindOf(RUNTIME_CLASS(CVector)) &&
 				((CVector*)pObj)->UnknownDir())
 				return -1;		// early exit 
+			if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) &&
+				((CGuideLine*)pObj)->UnknownDir())
+				return -1;		// early exit 
 			
 			nAngle1 = pObj->GetDirection();
 			break;
@@ -434,6 +445,9 @@ int CAngleDlg::GetAngleBetween(const CString& strSide1, const CString& strSide2,
 			if (pObj->IsKindOf(RUNTIME_CLASS(CVector)) &&
 				((CVector*)pObj)->UnknownDir())
 				return -1;		// early exit
+			if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) &&
+				((CGuideLine*)pObj)->UnknownDir())
+				return -1;		// early exi
 			
 			nAngle2 = pObj->GetDirection();	
 			break;

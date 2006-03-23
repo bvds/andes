@@ -3481,9 +3481,18 @@ void CFBDView::DoPostTracking(UINT nFlags, CPoint point)
 		// Have type, now set other props: 
 		if (! theApp.m_bAuthorMode){// Let authors draw unlabelled arrows w/o props
 			if (! pVector->OnEditProperties() )// Triggers object check via Check* routine 
-				DeleteSelection();					// cancelled, undo draw.
-				
+				DeleteSelection();					// cancelled, undo draw.	
 		}
+	} break;
+
+	case GuideLine: {	
+		m_drawMode = Selector;
+		ASSERT(m_pCurrentObj->IsKindOf(RUNTIME_CLASS(CGuideLine)));
+		CGuideLine* pLine = (CGuideLine*) m_pCurrentObj;
+		// Initialize direction field from drawing. User may adjust in property dialog.
+		pLine->m_strOrientation.Format("%d", pLine->GetDirection() % 180);
+		if (! pLine->OnEditProperties() )// Triggers object check via Check* routine 
+				DeleteSelection();					// cancelled, undo draw.
 	} break;
 
 /*	case Angle: {				

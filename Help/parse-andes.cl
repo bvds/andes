@@ -431,7 +431,7 @@
        (return-from maybe-forgot-units-error-interp (forgot-units-error-interp se)))
   
   (let ((rem (make-hint-seq
-	      '( "Units are inconsistent. When numbers are used in equations, they must include the appropriate units.  It looks like one of the numbers you've used is lacking the units."))))
+	      '( "The units in this equation are not consistent.  If this is a symbolic equation, there is probably an error:  check all your terms.  Another possibility is that a number has been used without correct associated units."))))
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(maybe-forgot-units)

@@ -120,6 +120,7 @@ IDR_ROTKINTOOLS         BITMAP  DISCARDABLE     "res\\rotkinto.bmp"
 IDB_ONRLOGO             BITMAP  DISCARDABLE     "res\\onr.bmp"
 IDR_EMTOOLS             BITMAP  DISCARDABLE     "res\\bmp00002.bmp"
 IDR_DIPOLETOOLS         BITMAP  DISCARDABLE     "res\\dipoleto.bmp"
+IDR_OPTICSTOOLS         BITMAP  DISCARDABLE     "res\\opticsba.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -207,8 +208,6 @@ BEGIN
     SEPARATOR
     BUTTON      ID_ANGLE
     BUTTON      ID_LABEL_RADIUS
-    SEPARATOR
-    BUTTON      ID_SELECT
 END
 
 IDR_ALLTOOLS TOOLBAR DISCARDABLE  16, 15
@@ -357,6 +356,13 @@ BEGIN
     SEPARATOR
     BUTTON      ID_ANGLE
     BUTTON      ID_LABEL_RADIUS
+    SEPARATOR
+    BUTTON      ID_SELECT
+END
+
+IDR_OPTICSTOOLS TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_GUIDE_LINE
     SEPARATOR
     BUTTON      ID_SELECT
 END
@@ -1767,7 +1773,7 @@ IDD_ANGLE DIALOGEX 0, 0, 206, 87
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "Angle Properties"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     COMBOBOX        IDC_SIDE1,50,6,67,91,CBS_DROPDOWNLIST | 
                     CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | 
@@ -2383,7 +2389,7 @@ END
 IDD_ENERGY DIALOGEX 0, 0, 249, 121
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Declare Energy Variable"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Energy",IDC_STATIC_VALUE,7,7,23,8
     LTEXT           "of &Type",IDC_STC_TYPE,33,7,24,8
@@ -2964,7 +2970,7 @@ BEGIN
     LTEXT           "Dipole moment &of",IDC_STATIC_BODY,49,9,57,8
     COMBOBOX        IDC_BODY,111,7,77,93,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
-    LTEXT           "at &Time",IDC_TIME_LABEL,83,28,24,8
+    LTEXT           "at &Time",IDC_TIME_LABEL,78,28,24,8
     COMBOBOX        IDC_TIME,111,26,77,74,CBS_DROPDOWNLIST | WS_VSCROLL | 
                     WS_TABSTOP
     CTEXT           "&Orientation:",IDC_L2ANGLE,8,46,35,8,0,0,HIDC_L2ANGLE
@@ -2986,6 +2992,36 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,97,90,50,14
 END
 
+IDD_LINE DIALOGEX 0, 0, 209, 93
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Define line"
+FONT 10, "MS Sans Serif"
+BEGIN
+    LTEXT           "&Line of",IDC_STATIC_BODY,9,9,21,8
+    COMBOBOX        IDC_BODY,37,7,88,93,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "at &Time",IDC_TIME_LABEL,128,9,24,8,NOT WS_VISIBLE
+    COMBOBOX        IDC_TIME,156,7,42,74,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
+                    WS_VSCROLL | WS_TABSTOP
+    CTEXT           "&Orientation:",IDC_L2ANGLE,8,31,35,8,0,0,HIDC_L2ANGLE
+    EDITTEXT        IDC_ORIENTATION_TEXT,46,31,30,14,ES_AUTOHSCROLL,0,
+                    HIDC_ORIENTATION_TEXT
+    CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,75,32,9,12,0,0x819203ee
+    LTEXT           "degrees",IDC_LANGLE,81,31,27,8,0,0,HIDC_LANGLE
+    ICON            IDI_ANGLE,IDC_ANGLE,107,29,20,20,0,0,HIDC_ANGLE
+    COMBOBOX        IDC_ZDIR,132,33,69,52,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_BOX_TIMEDIR,7,25,194,22,NOT WS_VISIBLE
+    LTEXT           "&Variable Name",IDC_TXT0,7,57,48,8
+    CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
+                    WS_BORDER | WS_TABSTOP,58,54,48,14
+    GROUPBOX        "",IDC_BOX_LABEL,7,49,146,22,NOT WS_VISIBLE
+    DEFPUSHBUTTON   "OK",IDOK,47,74,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,113,74,50,14
+END
+
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -2994,8 +3030,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,1,2,0
- PRODUCTVERSION 10,1,2,0
+ FILEVERSION 10,1,2,2
+ PRODUCTVERSION 10,1,2,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3013,14 +3049,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "10, 1, 2, 0\0"
+            VALUE "FileVersion", "10, 1, 2, 2\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "10, 1, 2, 0\0"
+            VALUE "ProductVersion", "10, 1, 2, 2\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3702,6 +3738,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 100
     END
+
+    IDD_LINE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 202
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -3957,6 +4001,17 @@ BEGIN
     0
 END
 
+IDD_LINE DLGINIT
+BEGIN
+    IDC_ZDIR, 0x403, 13, 0
+0x6e49, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 15, 0
+0x6e49, 0x6f74, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 17, 0
+0x754f, 0x2074, 0x666f, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -4168,7 +4223,7 @@ BEGIN
     ID_LABEL                "Add a block of text\nText tool"
     ID_ANGLE                "Draw an arc to label an angle\nAngle Tool"
     ID_SELECT               "Select, move, or resize a diagram object\nSelect tool"
-    ID_GUIDE_LINE           "Draw a straight  line trajectory\nStraight line trajectory tool"
+    ID_GUIDE_LINE           "Define a particular line direction\nLine tool"
     ID_RECTANGLE            "Draw a rectangle\nRectangle tool"
     ID_ROUNDRECT            "Draw a rounded rectangle\nRound Rectangle"
     ID_ELLIPSE              "Draw an ellipse\nEllipse tool"

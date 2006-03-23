@@ -627,6 +627,10 @@ SOURCE=.\DemoDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DipoleDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DocPages.cpp
 # End Source File
 # Begin Source File
@@ -847,6 +851,10 @@ SOURCE=.\LabRadDlg.cpp
 # Begin Source File
 
 SOURCE=.\LawDialog.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LineDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -1228,6 +1236,10 @@ SOURCE=.\DemoDlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\DipoleDlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Docpages.h
 # End Source File
 # Begin Source File
@@ -1377,6 +1389,10 @@ SOURCE=.\LawDialog.h
 # Begin Source File
 
 SOURCE=.\Lgdialog.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LineDlg.h
 # End Source File
 # Begin Source File
 
@@ -1680,6 +1696,10 @@ SOURCE=.\res\cursor1.cur
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\dipoleto.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\res\drawacc.cur
 # End Source File
 # Begin Source File
@@ -1885,11 +1905,6 @@ SOURCE=.\res\zvel_o.cur
 # End Group
 # End Target
 # End Project
-# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
-# 	2:5:Class:CWebBrowser
-# 	2:10:HeaderFile:webbrowser.h
-# 	2:8:ImplFile:webbrowser.cpp
-# End Section
 # Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
 # 	1:17:ID_INDICATOR_TIME:105
 # 	2:2:BH:
@@ -1916,4 +1931,9 @@ SOURCE=.\res\zvel_o.cur
 # 	2:10:HeaderName:Splash.h
 # 	2:10:ImplemName:Splash.cpp
 # 	2:7:BmpID16:IDB_SPLASH
+# End Section
+# Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
+# 	2:5:Class:CWebBrowser
+# 	2:10:HeaderFile:webbrowser.h
+# 	2:8:ImplFile:webbrowser.cpp
 # End Section

@@ -837,7 +837,9 @@
 ; Either way this should match a solution graph entry.
 (defun on-angle-between-vectors (label degrees id-vector1 id-vector2 id-angle &key drawn) 
    (declare (ignore drawn)) ; AW: no longer used
-    ; need to map entry id to referent vectors
+    ; need to map entry id to referent vectors. Note this may now be used for drawn line
+    ; entries as well. Code should work without change, because on-lookup-line enters line
+    ; label as symbol for (mag (line ...)) exactly as for vectors.
    (let* ((mag1-term (symbols-entry-referent '(mag ?vector) id-vector1))
           (mag2-term (symbols-entry-referent '(mag ?vector) id-vector2))
 	  ; need time-indexed vector quant terms from (mag ?vector)

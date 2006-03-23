@@ -507,7 +507,7 @@
 (def-qexp index-of-refraction (index-of-refraction ?medium)
   :symbol-base |n|     
   :short-name "index of refraction"	
-  :dialog-text "of [body:bodies]"
+  :dialog-text "of [body:positions]" ; prb should list media as "positions"
   :units NIL  ;dimensionless
   :restrictions nonnegative
   :english ("the index of refraction of ~A" (nlg ?medium))

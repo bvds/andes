@@ -20,7 +20,7 @@ ANGMOM	angle-between;mass;period;duration;angle;moment-of-inertia;
 TORQUE	angle-between;mass;period;duration;angle;moment-of-inertia;
 CIRCUITS	current-in;current-thru;voltage-across;electric-power;current;voltage;resistance;capacitance;charge-on;stored-energy;inductance;mutual-inductance;current-change;time-constant;duration;
 E&M	current-in;current-thru;net-potential;angle-between;charge-on;current;potential;duration;length;turns;turns-per-length;angle;electric-flux;magnetic-flux;electric-flux-change;magnetic-flux-change;
-EM-WAVES	amplitude-electric;amplitude-mangetic;
+EM-WAVES	amplitude-electric;amplitude-magnetic;
 OPTICS	angle-between;object-distance;image-distance;lens-distance;slit-separation;focal-length;magnification;radius-of-curvature;index-of-refraction;angle;resolution-angle;
 NEW-OPTICS	angle-between;object-distance;image-distance;distance-between;slit-separation;focal-length;magnification;radius-of-curvature;index-of-refraction;angle;resolution-angle;
 FLUIDS	mass;duration;height;mass-density;pressure;area-at;area;volume;atmosphere;

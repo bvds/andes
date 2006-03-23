@@ -35,6 +35,7 @@
 #include "ImpulseDlg.h"
 #include "UnitVectorDlg.h"
 #include "DipoleDlg.h"
+#include "LineDlg.h"
     
 //////////////////////////////////////////////////////////////////////////
 // Vectors
@@ -3632,6 +3633,268 @@ void CRadius::UpdateObj(CDrawObj* pObj)
 	// Log the new properties
 	LogEventf(EV_PROPS_RADIUS, "%s name %s body", (LPCTSTR) m_strName, m_strBodies);
 }
+
+
+/////////////////////////////////////////////////////////////////////////
+// Guide lines -- a dotted line used, e.g. for marking angles
+// to be labelled or vector projections.
+/////////////////////////////////////////////////////////////////////////
+IMPLEMENT_SERIAL(CGuideLine, CCheckedObj, VERSIONABLE_SCHEMA | 1);
+CGuideLine::CGuideLine() 
+{
+	m_posLabel = CRect(0, 0, 0, 0);
+}				// used by serialization
+    
+CGuideLine::CGuideLine(const CRect& position)
+   	:CCheckedObj(position)
+{
+	m_posLabel = CRect(0, 0, 0, 0);
+}
+    
+void CGuideLine::Serialize(CArchive& ar)
+{
+   	UINT nClassVersion = ar.IsLoading() ? ar.GetObjectSchema() : 0;
+   	UINT nDocVersion = ((CFBDDoc*) ar.m_pDocument)->m_nVersion;
+   	// document versions >= 1 added serialization of base class descriptor
+   	if (nDocVersion >= 1) {
+   		ar.SerializeClass(RUNTIME_CLASS(CDrawObj));
+   	}
+    
+   	CDrawObj::Serialize(ar);
+
+	if (ar.IsStoring())		// store object specific data
+	{
+		ar << (WORD) m_status;
+		ar << m_strBody; 
+		ar << m_strOrientation;
+		ar << m_strTime;
+		ar << (WORD) m_nZDir;
+	} 
+	else // load object specific data
+	{
+		WORD wTemp;
+		ar >> wTemp; m_status = (Status) wTemp; // !!! ensure valid
+		ar >> m_strBody; 
+		ar >> m_strOrientation;
+		ar >> m_strTime;
+		ar >> wTemp; m_nZDir = (int) wTemp;
+	}
+}
+
+void CGuideLine::GetTypeName(CString & strType)
+{
+	strType = "Line";	
+}
+
+void CGuideLine::LogEntry()
+{
+	CString strDrawObj = GetDrawObjLogPart();
+
+	CString strBody = ValToArg(m_strBody);
+	CString strTime = ValToArg(m_strTime);
+	CString strDir = ValToArg(m_strOrientation);
+	// code Z Axis directions w/negative value (-1, -2, -3) in direction field.
+	// note this only works reliably if these are never used as orientation strings.
+	if (IsZAxisVector())
+			strDir.Format("-%d", (int) m_nZDir);
+
+	LogEventf(EV_FBD_ENTRY, "%s %s %s %s", strDrawObj, strBody, strTime, strDir);
+}
+
+BOOL CGuideLine::SetFromLogStr(LPCTSTR pszStr)
+{
+	LPCSTR pszRest = ParseDrawObjLogPart(pszStr);
+	if (pszRest == NULL) return FALSE;
+
+	char szBody[80]; 
+	char szTime[80]; 
+	char szDir[32];
+	if (sscanf(pszRest, "%s %s %s") != 3) return FALSE;
+	m_strBody = ArgToVal(szBody);
+	m_strTime = ArgToVal(szTime);
+	// orientation string might be a z-axis code
+	// translate negative orientations (-1, -2, -3) into zdir codes
+	// if (szOrientation[0] == '-') {
+	// m_nZDir = atoi(&szOrientation[1]);
+	//} else
+		m_strOrientation = ArgToVal(szDir);
+
+	return TRUE;
+}
+
+CString CGuideLine::GetDef()
+{
+	CString strTimePart; // default empty
+	if (!m_strTime.IsEmpty())
+		strTimePart.Format("at time %s", m_strTime);
+	CString strDef;
+	strDef.Format("Line of %s %s", m_strBody, strTimePart);
+	return strDef;
+    
+}
+    
+void CGuideLine::Draw(CDC* pDC)
+{
+   	CPen penGuide(PS_DOT, 1, StatusColor());
+   	CPen* pOldPen = pDC->SelectObject( &penGuide );
+    
+   	pDC->MoveTo(m_position.TopLeft());
+   	pDC->LineTo(m_position.BottomRight());
+    
+   	pDC->SelectObject(pOldPen);
+
+	DrawLabel(pDC);
+}
+
+void CGuideLine::DrawLabel(CDC* pDC)
+{
+	CString strLabel = m_strName;
+
+	// Recalc label position from vector position, caching bounding box in member var 
+	// for use in hit testing. Need to update even if empty. Note this member not valid 
+	// until vector is drawn.
+	
+	// don't draw anything if no label assigned yet
+	if (strLabel.IsEmpty()) {
+		m_posLabel.SetRectEmpty(); 
+		return;
+	}
+
+	// else have non-empty label:
+	CSize extText = pDC->GetTextExtent(strLabel);	// may contain Greek tags !!!
+	// center text on vector midpoint. Note text bounding box can include a lot
+	// of space on top, if chars don't ascend much, so can appear off center.
+	// !!! should make sure there is enough room for label -- very small arrow can
+	// get completely obscured!
+	int xMid = m_position.left + m_position.Width()/2 ;
+	int yMid = m_position.top + m_position.Height()/2 ;
+	m_posLabel = CRect(CPoint(xMid - extText.cx/2, yMid - extText.cy/2),
+			               extText);
+
+   	if (! strLabel.IsEmpty()) 
+   	{
+   		COLORREF oldColor;
+		// Draw NULL vector labels in color to provide feedback. Otherwise,
+		// draw label in black and show status by shaft color only, for legibility.
+		if (IsZeroMag()) oldColor = pDC->SetTextColor(StatusColor()); 
+
+		// Need special function if it contains greek letters
+		if (strLabel.Find('$') != -1) {
+			CGreekText::DrawText(pDC, m_posLabel, strLabel);
+		} else
+			pDC->TextOut(m_posLabel.left, m_posLabel.top, strLabel);
+
+		if (IsZeroMag()) pDC->SetTextColor(oldColor); 
+	}
+}
+
+// Resize trick for line-like objects: report two resize handles, 
+// and implement operations on handle 2 by generic bounding-rect operations
+// on handle 5, which is diagonally opposite handle 0.
+
+int CGuideLine::GetHandleCount()
+{
+	return (2);
+}
+    
+CPoint CGuideLine::GetHandle(int nHandle)
+{	
+	return CDrawObj::GetHandle(nHandle == 2 ? 5 : nHandle);
+}
+    
+HCURSOR CGuideLine::GetHandleCursor(int nHandle)
+{
+	return CDrawObj::GetHandleCursor(nHandle == 2 ? 5 : nHandle);
+}
+    
+void CGuideLine::MoveHandleTo(int nHandle, CPoint point, CFBDView* pView)
+{
+	CDrawObj::MoveHandleTo(nHandle == 2 ? 5 : nHandle, point, pView);
+}   
+
+
+CDialog* CGuideLine::GetPropertyDlg()
+{
+	return new CLineDlg(this);
+}
+
+// Rotate about midpoint (unlike "set direction") to direction
+void CGuideLine::RotateDirection(int degreesUser)
+{
+  	const double pi = 3.1415926535;
+	int xMid = m_position.left + m_position.Width()/2 ;
+	int yMid = m_position.top + m_position.Height()/2 ;
+   	CPoint ptTo   = m_position.BottomRight();
+   	int dx = ptTo.x - xMid;
+   	int dy = ptTo.y - yMid;
+   	double hypo =sqrt ((dx*dx) + (dy*dy));
+   	
+   	int degreesClockwise = -degreesUser;	
+   	double radiansClockwise = degreesClockwise* ((2.0 * pi )/(360.0));
+   	double newdy =hypo * sin(radiansClockwise);
+  	double newdx =hypo * cos(radiansClockwise);
+    
+   	CRect newPos = m_position;
+   	ptTo.x = xMid + Round(newdx) ;
+   	ptTo.y = yMid + Round(newdy);
+  	newPos.BottomRight() = ptTo;
+	newPos.TopLeft() = CPoint(xMid - Round(newdx), yMid - Round(newdy));
+    
+   	MoveTo(newPos, NULL);
+}
+
+	
+CDrawObj* CGuideLine::Clone()
+{
+// create duplicate w/same properties 
+   	CGuideLine* pClone = new CGuideLine(m_position);
+
+	pClone->m_strId = m_strId;	// Initially, use same id, if added to document, 
+								// different id will be generated
+	pClone->m_pDocument = m_pDocument;
+	pClone->m_strName = m_strName;
+   	pClone->m_status = m_status;
+		
+   	pClone->m_strBody = m_strBody;
+	pClone->m_strTime = m_strTime;
+	pClone->m_strOrientation = m_strOrientation;
+	pClone->m_nZDir = m_nZDir;
+	
+   	return (pClone);
+}
+
+void CGuideLine::UpdateObj(CDrawObj* pObj)	
+{
+	// transfer dlg props into object
+	CGuideLine* pTemp = (CGuideLine*)pObj;
+	m_strName = pTemp->m_strName;
+	m_status = pTemp->m_status;
+
+	m_strBody = pTemp->m_strBody;
+	m_strTime = pTemp->m_strTime;
+	m_strOrientation = pTemp->m_strOrientation;
+	m_nZDir = m_nZDir;
+
+	int nDeg;
+	if (! IsZAxisVector() && sscanf(pTemp->m_strOrientation,"%d", &nDeg) == 1)
+		RotateDirection(nDeg);
+}
+
+void CGuideLine::CheckObject()
+{
+	if (! theApp.CheckDiagram()) return;
+	CString strDirArg = UnknownDir() ? "NIL" : m_strOrientation;				
+
+	// (lookup-line label body-arg dir mag &optional time id)
+	ApplyStatus(HelpSystemExecf( "(lookup-line \"%s\" |%s| %s %d %s %s)", 
+						STR2ARG(m_strName), 
+						STR2ARG(m_strBody),
+						STR2ARG(strDirArg),
+						10,                 // arbitrary non-zero "mag"
+						STR2ARG(m_strTime), 
+						m_strId));
+}
+    
 
 
 

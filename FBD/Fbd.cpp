@@ -468,7 +468,7 @@ void CFBDApp::DoInitialTaskSelect()
 	}
 	// else have helpsys.
 
-#if 0 // to include video prompt in or out
+#ifndef OLI // to include video prompt in or out
 
 	// query helpsys to see if this is a new user
 	LPCSTR pszResult = HelpSystemExecf("(history-get Video)");

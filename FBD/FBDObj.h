@@ -484,4 +484,72 @@ public:
 #endif
 };
 
+//
+// "Guide line" -- line added to diagram to indicate a direction
+//
+// Originally intended for use to show vector projection lines or project other significant
+// directions, e.g. for angle labelling. Now offered on menu for straight-line 
+// trajectory sketching. Our first problems also used this as a graphic object, 
+// although that is now unnecessary since we have CDrawRect Line objects. 
+//
+class CGuideLine: public CCheckedObj
+   {
+protected:
+   	DECLARE_SERIAL(CGuideLine);
+  	CGuideLine();
+public:
+   	CGuideLine(const CRect& position);
+   	virtual void Serialize(CArchive& ar);
+
+	// attributes
+   	CString m_strBody;
+	CString m_strTime;
+	virtual CString GetDef();
+	//virtual CString GetPrintDef();
+
+	// to act like a vector to direction control
+	BOOL IsZeroMag() { return FALSE; }
+	BOOL IsZAxisVector() { return FALSE; }
+	int m_nZDir;
+	CString m_strOrientation;
+
+	// Gets dir told by user in dialog; returns FALSE if unknown, else T.
+	// Differs from GetDirection which always returns the drawn direction,
+	// even for entries representing vectors of unknown orientation.
+	BOOL GetOrientation(int& nDegrees)
+	{
+		return sscanf(m_strOrientation, "%d", &nDegrees) == 1;
+	};
+	BOOL UnknownDir()			// true if represents vec of unknown orientation
+	{
+		int nTemp;
+		return ! GetOrientation(nTemp);
+	};
+
+	// drawable object protocol:
+	virtual void Draw(CDC* pDC);
+	virtual void MoveHandleTo(int nHandle, CPoint point, CFBDView* pView);
+	virtual HCURSOR GetHandleCursor(int nHandle);
+	virtual CPoint GetHandle(int nHandle);
+	virtual int GetHandleCount();
+
+	// Property editing protocol:
+	virtual BOOL CanEditProperties() { return TRUE; }
+	virtual CDialog* GetPropertyDlg();
+	virtual CDrawObj* Clone();
+	virtual void CheckObject();
+	virtual void UpdateObj(CDrawObj* pObj);
+	
+	// log/restore entry
+	virtual void GetTypeName(CString & strType);
+	virtual void LogEntry();
+	virtual BOOL SetFromLogStr(LPCTSTR pszStr);
+
+	//implementation
+	void DrawLabel(CDC* pDC);
+	CRect m_posLabel;
+
+	void RotateDirection(int nDeg);
+};
+
 #endif FBDOBJ_INCLUDED

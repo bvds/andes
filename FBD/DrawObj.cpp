@@ -2570,44 +2570,7 @@ void CDrawPoly::GetTypeName(CString& strType)
 	if (m_bBezier) strType = "Curve";
 	else strType = "Polygon";
 }  
-/////////////////////////////////////////////////////////////////////////
-// Guide lines -- a dotted line used, e.g. for marking angles
-// to be labelled or vector projections.
-/////////////////////////////////////////////////////////////////////////
-IMPLEMENT_SERIAL(CGuideLine, CDrawObj, VERSIONABLE_SCHEMA | 1);
-CGuideLine::CGuideLine() {}				// used by serialization
-    
-CGuideLine::CGuideLine(const CRect& position)
-   	:CDrawObj(position)
-{}
-    
-void CGuideLine::Serialize(CArchive& ar)
-{
-   	UINT nClassVersion = ar.IsLoading() ? ar.GetObjectSchema() : 0;
-   	UINT nDocVersion = ((CFBDDoc*) ar.m_pDocument)->m_nVersion;
-   	// document versions >= 1 added serialization of base class descriptor
-   	if (nDocVersion >= 1) {
-   		ar.SerializeClass(RUNTIME_CLASS(CDrawObj));
-   	}
-    
-   	CDrawObj::Serialize(ar);
-    	
-   	// No class-specific data to serialize, but a routine needed to emit
-   	// base class type info for base class versioning to work.
-}
-    
-void CGuideLine::Draw(CDC* pDC)
-{
-   	CPen penGuide(PS_DOT, 1, RGB(0,0,0));
-   	CPen* pOldPen = pDC->SelectObject( &penGuide );
-    
-   	pDC->MoveTo(m_position.TopLeft());
-   	pDC->LineTo(m_position.BottomRight());
-    
-   	pDC->SelectObject(pOldPen);
-}
-    
-    
+
 ///////////////////////////////////////////////////////////////////////////////
 // Multiple choice question items
 ///////////////////////////////////////////////////////////////////////////////

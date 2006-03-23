@@ -358,8 +358,15 @@ static BOOL FeatureSetContains(CString& strFeatureSet, CString& strFeature)
 {
 	for (int s = 0; s < m_featureSets.GetSize(); s++) {
 		CString strSetName = m_featureSets[s]->strName;
-		if (strSetName.CompareNoCase(strFeatureSet)==0) {
-			return m_featureSets[s]->strFeatureList.Find(strFeature) != NULL;
+		if (strSetName.CompareNoCase(strFeatureSet)==0) { // found set
+			// avoid following to do case-insensitive test.
+			// return m_featureSets[s]->strFeatureList.Find(strFeature) != NULL;
+			CStringList& strFeatureList = m_featureSets[s]->strFeatureList;
+			for (POSITION pos = strFeatureList.GetHeadPosition(); pos != NULL; ) {
+				CString strCandidate= strFeatureList.GetNext(pos);
+				if (strCandidate.CompareNoCase(strFeature) == 0) // found feature
+					return TRUE;
+			}
 		}
 	}
 	return FALSE;
@@ -608,16 +615,16 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 	}
 	else if (pObj->HasComponents())//vectors only(!components)  (variables taken care of above)
 	{
-		CString str;
-		str = pObj->GetDef();
-		strDef.Format("magnitude of the %s", str);
+		strDef.Format("magnitude of the %s", pObj->GetDef());
 		// for unit vectors, add =1 to name
 		if (pObj->IsKindOf(RUNTIME_CLASS(CVector)) && 
 			((CVector*)pObj)->m_nVectorType == VECTOR_UNITVECTOR)
 			strName += "=1";
 	}
-	else // not an object we are interested in
-		return;
+	else if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine))) {
+		strDef = pObj->GetDef();
+	}
+	else return;	// not an object we are interested in
 
 	// For system "x", associated mass variable is named "mx".
 /*	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem)))
@@ -1462,6 +1469,10 @@ void CVarView::OnUpdateVariableAddangle(CCmdUI* pCmdUI)
 			{
 				nSides++;
 			}
+			else if ( pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) ) 
+			{
+				nSides++;
+			}
 			if (nSides > 1)
 			{
 				pCmdUI->Enable(m_bEnabled); // check view enabled
@@ -1536,8 +1547,10 @@ void CVarView::UpdateListItem(CCheckedObj * pRealObj, CCheckedObj * pTempObj)
 			((CVector*)pTempObj)->m_nVectorType == VECTOR_UNITVECTOR)
 			strName += "=1";
 	}
-	else
-		return;
+	else if (pTempObj->IsKindOf(RUNTIME_CLASS(CGuideLine))) {
+		strDef = pTempObj->GetDef();
+	}
+	else return;
 	
 	// For system "x", associated mass variable is named "mx".
 /*	if (pTempObj->IsKindOf(RUNTIME_CLASS(CSystem)))
