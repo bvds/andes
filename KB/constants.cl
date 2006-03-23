@@ -39,7 +39,8 @@
     (symbols-enter "G" 'G NIL '|G|))
   
   ;; Speed of light is "c"
-  (when (member 'waves (problem-features *cp*))
+  (when (or (member 'waves (problem-features *cp*))
+	    (member 'EM-waves (problem-features *cp*)))
   (symbols-enter "c" 'c NIL '|c|))
   
   ;; Iref for defining decibels
