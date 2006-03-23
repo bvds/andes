@@ -62,7 +62,7 @@
 	     electric-flux magnetic-flux electric-flux-change 
 	     magnetic-flux-change))
 (def-feature-set EM-waves 
-  (amplitude-electric amplitude-mangetic))
+  (amplitude-electric amplitude-magnetic))
 (def-feature-set optics 
   (object-distance image-distance 
 		   lens-distance ;see Bug #799
