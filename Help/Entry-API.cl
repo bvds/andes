@@ -861,9 +861,25 @@
    ; show them the value on the dialog box.
     (when (numberp degrees)          ; known xy plane direction
        (add-implicit-eqn entry (make-implicit-assignment-entry label `(dnum ,degrees |deg|))))
+ 
+    ;; Following for angle between lines. Safe if angle between vectors because won't find 
+    ;; angle-constraint in solution.
+    ;; Include implicit equation cos angle = dummy, where dummy is 
+    ;; nonnegative.  This is associated with Snell's law, but it
+    ;; is convenient to add this eqn when drawing the line.
+    ;; Treat this equation as entered by the student so the solve tool can 
+    ;; solve student's system the same way as at sgg time.
+    (let ((eqinfo (find-angle-btwn-constraint v1-term v2-term)))
+      (when eqinfo
+	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqinfo)))))
 
    ; finally return entry
    entry))
+
+(defun find-angle-btwn-constraint (line1-term line2-term) ; returns an equation index record
+"find constraint eqn for angle between line1 and line2, NIL if none"
+     (find `(angle-constraint orderless ,line1-term line2-term) 
+	(Problem-EqnIndex *cp*) :key #'eqn-Exp :test #'equal))
 
 ; Worker routine to handle labelling angle made with an axis. No matching entry ; in solution graph so doesn't 
 ; matter whether angle was drawn or defined as a variable
