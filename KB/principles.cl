@@ -212,7 +212,6 @@
 	 (leaf combo-magnification :tutorial "Magnification")
 	 (leaf compound-focal-length :tutorial "Touching Lenses")
 	 (leaf wave-speed-refraction)
-	 (leaf refraction-vacuum)
 	 (leaf snells-law)
 	 (leaf total-internal-reflection)
 	 (leaf brewsters-law)
