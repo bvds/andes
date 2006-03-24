@@ -667,8 +667,13 @@
 	 (time-term    (arg-to-time time))
 	 (unmod-dir    (arg-to-dir dir mag))
 	 ;; lines defined mod 180 degrees
+	 ;; note dir may be dnum, number or 'unknown (and maybe into/out-of)
 	 (dir-term (if (degrees-or-num unmod-dir) 
-		   (mod (convert-dnum-to-number unmod-dir) 180) unmod-dir))
+		        (mod (convert-dnum-to-number unmod-dir) 180) 
+		     unmod-dir))
+	 ; entry prop uses a naked number, but implicit equation needs a dnum
+         (dir-dnum  (if (degrees-or-num dir-term) `(dnum ,dir-term |deg|)
+	              dir-term))
 	 (line-term `(line ,body-term :time ,time-term))
 	 (action `(draw-line ,line-term ,dir-term)) 
 	 (entry (make-StudentEntry :id id :prop action))
@@ -685,11 +690,11 @@
     (symbols-enter dir-label line-dir-term id)
     
     ;; if direction is known, associate implicit equation dirV = dir deg.
-    (when (dimensioned-numberp dir-term)          ; known xy plane direction
-	 (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
+    (when (dimensioned-numberp dir-dnum)          ; known xy plane direction
+	 (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-dnum)))
     (when (and (z-dir-spec dir-term) 
 	       (not (equal dir-term 'z-unknown))) ; known z axis direction
-      (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
+      (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-dnum))))
     ;; Associated eqns will be entered later if entry is found correct.
 
     ;; Include implicit equation cos angle = dummy, where dummy is 
