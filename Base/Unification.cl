@@ -306,6 +306,8 @@
   "See if x and y match with given bindings."
   (cond ((eq bindings fail) fail)
         ((eql x y) bindings)
+	;; allow 1.0 and 1 to match
+	((and (numberp x) (numberp y) (= x y)) bindings)
         ((variable-p x) (unify-variable x y bindings))
         ((variable-p y) (unify-variable y x bindings))
 	;; this allows for arbitrary matching functions
