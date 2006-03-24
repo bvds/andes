@@ -554,8 +554,8 @@
   :effects ( (eqn  (= (* ?v1 ?n1) (* ?v2 ?n2))
 		   (wave-speed-refraction orderless . ?media)) )
   :hint (
-	 (hint (string "Relate the speed of waves in ~A to those in ~A." ?medium1 ?medium2))
-	 (point (string "The index of refraction relates the speed of waves in a medium to the speed of waves in another medium."))
+	 (point (string "Relate the speed of waves in ~A to those in ~A." ?medium1 ?medium2))
+	 (teach (string "The index of refraction relates the speed of waves in a medium to the speed of waves in another medium."))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= (* ?v1 ?n1) (* ?v2 ?n2)) algebra) ))
 	 ))
