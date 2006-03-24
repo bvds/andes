@@ -496,7 +496,7 @@
     (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "draw line ~A at ~A~%" ?r ?dir) )
-  :effects ( (draw-line (line ?r) ?dir)
+  :effects ( (draw-line (line ?r) (dnum ?dir |deg|))
 	     (variable ?mag-var (mag (line ?r)))
 	     (variable ?dir-var (dir (line ?r))))
   :hint ((bottom-out (string "Use the line tool to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
