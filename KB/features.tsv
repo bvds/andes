@@ -26,7 +26,7 @@ NEW-OPTICS	angle-between;object-distance;image-distance;distance-between;slit-se
 FLUIDS	mass;duration;height;mass-density;pressure;area-at;area;volume;atmosphere;
 RECTANGLE-GEOMETRY	area;area-change;length;width;length-change;
 CIRCLE-GEOMETRY	area;radius-of-circle;diameter-of-circle;circumference-of-circle;
-WAVES	frequency;distance;speed;duration;mass;length;mass-per-length;wavelength;wavenumber;period;angular-frequency;wave-speed;index-of-refraction;string-tension;
+WAVES	frequency;distance;duration;mass;length;mass-per-length;wavelength;wavenumber;period;angular-frequency;wave-speed;index-of-refraction;string-tension;
 OBSERVED-FREQUENCY	observed-frequency;
 OSCILLATIONS	mass;length;spring-constant;compression;wavelength;wavenumber;period;frequency;angular-frequency;amplitude;amplitude-max-speed;amplitude-max-abs-acceleration;
 PROBABILITY	probability;

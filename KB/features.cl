@@ -83,7 +83,7 @@
 (def-feature-set circle-geometry 
   (area radius-of-circle diameter-of-circle circumference-of-circle))
 (def-feature-set waves 
-  (frequency distance speed duration mass length mass-per-length wavelength 
+  (frequency distance duration mass length mass-per-length wavelength 
 	     wavenumber period angular-frequency wave-speed 
 	     index-of-refraction string-tension))
 (def-feature-set observed-frequency (observed-frequency))
