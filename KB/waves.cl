@@ -498,7 +498,6 @@
 			((= ?v1 ?v2) algebra) )) ))
 
 
-
 ;;;         Index of refraction
 
 ;; in principle, this should be a function of frequency, 
@@ -560,28 +559,6 @@
 			     ((= (* ?v1 ?n1) (* ?v2 ?n2)) algebra) ))
 	 ))
 
-#|
-(defoperator wave-speed-refraction-one-contains (?sought)
-  :preconditions 
-  ( (any-member ?sought ((wave-speed ?medium)
-			 (index-of-refraction ?medium)))
-    (wave-medium ?medium) )
-  :effects 
-  ( (eqn-contains (wave-speed-refraction orderless ?medium) ?sought)) )
-
-(defoperator write-wave-speed-refraction-one (?medium)
-  :preconditions 
-  ((variable ?v1 (wave-speed ?medium1))
-    (variable ?n1 (index-of-refraction ?medium1)) )
-  :effects ( (eqn  (= (* ?v1 ?n1) |c|)
-		   (wave-speed-refraction orderless ?medium)) )
-  :hint (
-	 (hint (string "Relate the speed of waves in ~A to the index of refraction." ?medium))
-	 (point (string "The index of refraction relates the speed of waves in a medium to the speed of waves in a vacuum."))
-	 (bottom-out (string "Write the equation ~A" 
-			     ((= (* ?v1 ?n1) |c|) algebra) ))
-	 ))
-|#
 
 ;;;  Wave speed for various objects   
 
@@ -604,7 +581,8 @@
   :preconditions ((variable  ?v (wave-speed ?medium)))
   :effects
   ;; c is predefined, see file constants.cl
-  ( (eqn  (= ?v |c|) (wave-speed-light ?medium)) )
+  ( (eqn  (= ?v |c|) (wave-speed-light ?medium)) 
+    (optionally-given (wave-speed ?medium) |c|) )
   :hint (
 	 (point (string "Light waves and radio waves have a special speed"))
 	 (teach (string "c is defined to be the speed of light."))
@@ -612,6 +590,32 @@
 			     ((= ?v |c|)  algebra) ))
 	 ))
 
+;;; set the index of refraction of vacuum to 1
+
+(def-psmclass refraction-vacuum (refraction-vacuum ?medium)
+  :complexity definition
+  :short-name "index of refraction of vacuum"
+  :english ("the index of refraction of a vacuum")
+  :ExpFormat("setting the index of refraction to 1")
+  :EqnFormat("n=1"))
+
+(defoperator vacuum-refraction-contains (?sought)
+  :preconditions (
+		  (vacuum ?medium)
+		  (any-member ?sought ((index-of-refraction ?medium))))
+  :effects (
+	    (eqn-contains (refraction-vacuum ?medium) ?sought)))
+
+(defoperator write-vacuum-refraction (?medium)
+  :preconditions ((variable  ?n (index-of-refraction ?medium)))
+  :effects ( (eqn  (= ?n 1.0) (refraction-vacuum ?medium)) 
+	     (optionally-given (index-of-refraction ?medium) 1) )
+  :hint (
+	 (hint (string "What is the index of refraction of ~A?" ?medium))
+	 (teach (string "The index of refraction of a vacuum is 1.  Some materials (like air) have an index of refraction that is very close to 1."))
+	 (bottom-out (string "Write the equation ~A"
+			     ((= ?n 1.0)  algebra) ))
+	 ))
 
 ;;; Speed of transverse wave on a string
 
