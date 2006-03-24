@@ -658,6 +658,9 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 	if (pObj->IsKindOf(RUNTIME_CLASS(CVariable)) &&
 	    ((CVariable*)pObj)->m_nType == ID_VARIABLE_ADDANGLE) 
 		UpdateAngleVarDir(pObj);
+	// update line direction, if needed
+	if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)))
+		UpdateLineDir(pObj);
 }
 
 
@@ -1191,6 +1194,27 @@ CString CVarView::GetVecDirString(CVector *pVec)
 	return strResult;
 }
 
+void CVarView::UpdateLineDir(CCheckedObj* pObj)
+{
+	ASSERT_KINDOF(CGuideLine, pObj);
+	CGuideLine* pLine = (CGuideLine*) pObj;
+
+	CString strVar = "$q" + pLine->m_strName;
+	CString strDir = pLine->UnknownDir() ? "?" : pLine->m_strOrientation + szDeg;
+	CString strResult;
+	if (!strVar.IsEmpty())
+		strResult = strVar + "=" + strDir;
+
+
+	// adjust column width to ensure dir var and value are visible
+	// Note string contains non-printing Greek letter tags e.g. $qFw
+	CString strWidth = strResult;
+	strWidth.Remove('$');	// omit tags for better width estimate
+	SizeToFit(2, strWidth);
+
+	GetListCtrl().SetItemText(FindIndex(pLine), 2, strResult);
+}
+
 void CVarView::UpdateAxisDir(CDrawObj *pObj)
 {
 	ASSERT_KINDOF(CAxes, pObj);
@@ -1238,6 +1262,8 @@ void CVarView::UpdateAngleVarDir(CCheckedObj *pObj)
 
 	GetListCtrl().SetItemText(FindIndex(pVar), 0, strDef);
 }
+
+
 
 CVector* CVarView::FindCompOf(CString strCompOf)
 {

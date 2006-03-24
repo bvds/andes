@@ -1,6 +1,6 @@
 // ChildFrm.cpp : implementation of the CChildFrame class
 //
-// $Id: ChildFrm.cpp,v 1.5 2006/03/23 05:57:55 anders Exp $
+// $Id: ChildFrm.cpp,v 1.6 2006/03/24 01:24:02 anders Exp $
     
 #include "stdafx.h"
 // #include <afxrich.h>
@@ -403,7 +403,8 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 			nID = IDR_ROTKINTOOLS;	// bar with special tools for rotational probs
 		else if (CVarView::HasFeature(CString("DIPOLE"))) // new: EM problems w/dipole vectors
 			nID = IDR_DIPOLETOOLS;
-		else if (CVarView::HasFeature(CString("OPTICS"))) // new: EM problems w/dipole vectors
+		else if (CVarView::HasFeature(CString("OPTICS")) ||
+			     CVarView::HasFeature(CString("NEW-OPTICS")) ) 
 			nID = IDR_OPTICSTOOLS;
 		else  if (m_pDoc->m_wConcept & ID_PROB_EM)
 			nID = IDR_EMTOOLS;      // bar with special tools for E&M problems

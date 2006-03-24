@@ -111,6 +111,7 @@ public:
 protected:
 	void UpdateAngleVarDir(CCheckedObj* pObj);
 	void UpdateAxisDir(CDrawObj* pAxes);
+	void CVarView::UpdateLineDir(CCheckedObj* pObj);
 	virtual ~CVarView();
 
 #ifdef _DEBUG
