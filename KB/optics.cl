@@ -1070,7 +1070,7 @@
     ;; Implicit equation to enforce the correct root for the sine
     ;; This is needed if one wants to calculate the angle
     (implicit-eqn (= ?dummy (cos ?theta)) 
-		  (angle-constraint ?grating ?light ?n))
+		  (angle-constraint (angle-between orderless ?central-max ?angle)))
     )
    :hint 
    (
@@ -1121,7 +1121,7 @@
     ;; Implicit equation to enforce the correct root for the sine
     ;; This is needed if one wants to calculate the angle
     (implicit-eqn (= ?dummy (cos ?theta)) 
-		  (angle-constraint ?grating ?light ?n))
+		  (angle-constraint (angle-between orderless ?central-max ?angle)))
     )
    :hint 
    (
