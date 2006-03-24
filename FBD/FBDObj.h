@@ -501,6 +501,11 @@ public:
    	CGuideLine(const CRect& position);
    	virtual void Serialize(CArchive& ar);
 
+	// log line serialization/construction
+	virtual void GetTypeName(CString & strType);
+	virtual void LogEntry();
+	virtual BOOL SetFromLogStr(LPCTSTR pszStr);
+
 	// attributes
    	CString m_strBody;
 	CString m_strTime;
@@ -528,6 +533,9 @@ public:
 
 	// drawable object protocol:
 	virtual void Draw(CDC* pDC);
+	virtual int HitTest(CPoint point, CFBDView* pView, BOOL bSelected);
+	virtual BOOL Intersects(const CRect& rect);
+	virtual CRect GetBoundingBox();
 	virtual void MoveHandleTo(int nHandle, CPoint point, CFBDView* pView);
 	virtual HCURSOR GetHandleCursor(int nHandle);
 	virtual CPoint GetHandle(int nHandle);
@@ -540,15 +548,11 @@ public:
 	virtual void CheckObject();
 	virtual void UpdateObj(CDrawObj* pObj);
 	
-	// log/restore entry
-	virtual void GetTypeName(CString & strType);
-	virtual void LogEntry();
-	virtual BOOL SetFromLogStr(LPCTSTR pszStr);
-
-	//implementation
+	//implementation helpers
+	enum { lineWidth = 2 };
 	void DrawLabel(CDC* pDC);
 	CRect m_posLabel;
-
+	CRgn m_vectorRgn;			// cached GDI region for hit-testing
 	void RotateDirection(int nDeg);
 };
 

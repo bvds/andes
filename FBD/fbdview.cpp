@@ -3638,6 +3638,15 @@ void CFBDView::DoPostTracking(UINT nFlags, CPoint point)
 				if (! pAxes->OnEditProperties())				// if OK'd, notify
 					pAxes->NotifyChange(pAxes->m_strName);		// must check even if cancelled dialog
 			}
+			else if ( m_pCurrentObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) )
+			{
+				CGuideLine* pLine = (CGuideLine*) m_pCurrentObj;
+				// update direction field from drawing (urgh, string-valued).
+				char szDir[10]; sprintf(szDir, "%d", pLine->GetDirection() % 180);
+				pLine->m_strOrientation = szDir;
+				if (! pLine->OnEditProperties())				// if OK'd, does notify
+					pLine->NotifyChange(pLine->m_strName);	// changed even if cancelled
+			}
 			if (m_pCurrentObj->IsKindOf(RUNTIME_CLASS(CMotionDiagram)) )//	MotionRuler::OnResize
 				((CCheckedObj*)m_pCurrentObj)->NotifyChange(m_pCurrentObj->m_strName);
 		} // end post-resize

@@ -3735,7 +3735,7 @@ CString CGuideLine::GetDef()
     
 void CGuideLine::Draw(CDC* pDC)
 {
-   	CPen penGuide(PS_DOT, 1, StatusColor());
+   	CPen penGuide(PS_SOLID, lineWidth, StatusColor());
    	CPen* pOldPen = pDC->SelectObject( &penGuide );
     
    	pDC->MoveTo(m_position.TopLeft());
@@ -3744,6 +3744,15 @@ void CGuideLine::Draw(CDC* pDC)
    	pDC->SelectObject(pOldPen);
 
 	DrawLabel(pDC);
+
+	// As side effect of drawing, update cached GDI region for use when hit-testing.
+	// Hit-test region is slightly wider than the line to make it easier to select.
+	CPoint linePoints[4];
+	CVector::CalcLinePts(m_position.TopLeft(), m_position.BottomRight(), 
+		                 lineWidth + 2, linePoints);
+	// assemble region into vectorRgn from parts: 
+	m_vectorRgn.DeleteObject();		// free any previous region (safe if none)
+	m_vectorRgn.CreatePolygonRgn(linePoints, 4, ALTERNATE);
 }
 
 void CGuideLine::DrawLabel(CDC* pDC)
@@ -3786,6 +3795,55 @@ void CGuideLine::DrawLabel(CDC* pDC)
 
 		if (IsZeroMag()) pDC->SetTextColor(oldColor); 
 	}
+}
+
+CRect CGuideLine::GetBoundingBox()
+{
+	// !!! if valid, could use cached regions to compute bounding rect.
+	// following is approximate, doesn't account for line width -- bad for horiz/vert lines
+	// base class returns fixed up normalized position rect
+	return CDrawObj::GetBoundingBox() | m_posLabel;		// union of the rects
+}
+
+BOOL CGuideLine::Intersects(const CRect& rect) // rect in logical coordinates. 
+{
+	if (CDrawObj::Intersects(rect))
+		return (TRUE);
+	
+	// else check if hit on vector label 
+	if (!m_strName.IsEmpty()) {
+		CRect fixed = m_posLabel;
+		fixed.NormalizeRect();
+		CRect rectT = rect;
+		rectT.NormalizeRect();
+		return !(rectT & fixed).IsRectEmpty();
+	}
+	// get here if no label
+	return (FALSE);
+}
+    
+int CGuideLine::HitTest(CPoint point, CFBDView* pView, BOOL bSelected)
+{
+	if (bSelected) // testing for resize handle grab: 
+		  return CDrawObj::HitTest(point, pView, bSelected);
+	
+	// first check if hit vector label
+	if (!m_strName.IsEmpty()) {
+		CRect posLabel = m_posLabel;
+		posLabel.NormalizeRect();
+		if (posLabel.PtInRect(point))
+			return TRUE;
+	}
+
+	// test if hit line:
+
+	// Ensure region exists and vector hasn't been resized to a point
+	if (m_vectorRgn.m_hObject == NULL)
+		// ??? following was done in existing code, but not clear it's correct -AW
+		return CDrawObj::HitTest(point, pView, bSelected);//handle it in base class
+		
+	// test if hit vector region
+	return m_vectorRgn.PtInRegion(point);
 }
 
 // Resize trick for line-like objects: report two resize handles, 
