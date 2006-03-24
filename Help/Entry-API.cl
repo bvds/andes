@@ -107,7 +107,7 @@
 ;;
 ;; Vector directions
 ;;
-(defun arg-to-dir (dir-arg &optional mag-arg)
+(defun arg-to-dir (dir-arg &optional mag-arg (modulus 360))
  "Convert WB API direction and magnitude argument pair to KB direction term"
   (cond ; zero-mag vectors have no direction: use special atom 'zero
         ((and (numberp mag-arg)
@@ -121,7 +121,7 @@
 	((= dir-arg -2)  'into)
 	((= dir-arg -3)  'z-unknown)
 	; else should be xy plane angle in degrees. 
-	(T  `(dnum ,(mod dir-arg 360) |deg|))))
+	(T  `(dnum ,(mod dir-arg modulus) |deg|))))
 
 ;;
 ;; Bodies
@@ -663,17 +663,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun on-lookup-line (label body-arg dir mag &optional time id)
-  (let* ((body-term    (arg-to-body body-arg))
-	 (time-term    (arg-to-time time))
-	 (unmod-dir    (arg-to-dir dir mag))
-	 ;; lines defined mod 180 degrees
-	 ;; note dir may be dnum, number or 'unknown (and maybe into/out-of)
-	 (dir-term (if (degrees-or-num unmod-dir) 
-		        (mod (convert-dnum-to-number unmod-dir) 180) 
-		     unmod-dir))
-	 ; entry prop uses a naked number, but implicit equation needs a dnum
-         (dir-dnum  (if (degrees-or-num dir-term) `(dnum ,dir-term |deg|)
-	              dir-term))
+  (let* ((body-term (arg-to-body body-arg))
+	 (time-term (arg-to-time time))
+	 ;; note dir may be dnum or 'unknown (and maybe into/out-of)
+	 (dir-term (arg-to-dir dir mag 180)) ;lines defined mod 180 deg
 	 (line-term `(line ,body-term :time ,time-term))
 	 (action `(draw-line ,line-term ,dir-term)) 
 	 (entry (make-StudentEntry :id id :prop action))
@@ -690,11 +683,11 @@
     (symbols-enter dir-label line-dir-term id)
     
     ;; if direction is known, associate implicit equation dirV = dir deg.
-    (when (dimensioned-numberp dir-dnum)          ; known xy plane direction
-	 (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-dnum)))
+    (when (dimensioned-numberp dir-term)          ; known xy plane direction
+	 (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
     (when (and (z-dir-spec dir-term) 
 	       (not (equal dir-term 'z-unknown))) ; known z axis direction
-      (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-dnum))))
+      (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
     ;; Associated eqns will be entered later if entry is found correct.
 
     ;; Include implicit equation cos angle = dummy, where dummy is 
@@ -837,14 +830,15 @@
     (on-angle-between-vectors label degrees id-vector1 id-vector2 id-angle :drawn T))
 )
 
-; Worker routine to handle entry of term for angle between vectors.  
-; "Drawn" argument specifies if drawn as diagram entry or defined as variable
-; Either way this should match a solution graph entry.
+;; Worker routine to handle entry of term for angle between vectors.  
+;; "Drawn" argument specifies if drawn as diagram entry or defined as variable
+;; Either way this should match a solution graph entry.
 (defun on-angle-between-vectors (label degrees id-vector1 id-vector2 id-angle &key drawn) 
    (declare (ignore drawn)) ; AW: no longer used
-    ; need to map entry id to referent vectors. Note this may now be used for drawn line
-    ; entries as well. Code should work without change, because on-lookup-line enters line
-    ; label as symbol for (mag (line ...)) exactly as for vectors.
+   ;; need to map entry id to referent vectors. Note this may now be used for 
+   ;; drawn line entries as well.  Code should work without change, because 
+   ;; on-lookup-line enters line label as symbol for (mag (line ...)) 
+   ;; exactly as for vectors.
    (let* ((mag1-term (symbols-entry-referent '(mag ?vector) id-vector1))
           (mag2-term (symbols-entry-referent '(mag ?vector) id-vector2))
 	  ; need time-indexed vector quant terms from (mag ?vector)
