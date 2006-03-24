@@ -113,10 +113,9 @@
 ;;; (mark-qnode-cancelling-var <Qnode>) - Mark the qnode as **Cancelling-Var**
 ;;; (Qnode-cancelling-varp <Qnode>)     - Is qnode **cancelling-var**?
 ;;;
-;;; (mark-qnode-Given <Qnode>)          - Mark the qnode as **Given**
 ;;; (Qnode-Givenp <Qnode>)              - Is qnode **Given**?
 ;;;
-;;; (add-qnode-mark <Mark> <Qnode>)     - Add MARK to QNODE's markings
+;;; (mark-qnode <Mark> <Qnode>)         - Add MARK to QNODE's markings
 ;;; (remove-qnode-mark <Mark> <Qnode>)  - Remove MARK from QNODE if present.
 ;;; (Qnode-Has-Mark <Qnode> <Mark>)     - Return t iff QNODE has MARK.
 ;;;
@@ -634,19 +633,13 @@
   (and (qnode-parameterp Q)
        (not (qnode-answer-varp Q))))
 
-
-;;; (mark-qnode-cancelling-var <Qnode>) Mark the qnode as a cancelling-var.
-(defun mark-qnode-Given (Q)
-  "Mark the qnode as a cancelling var."
-  (mark-qnode Q **Given**))
-
 ;;; (Qnode-cancelling-varp <Qnode>) Return t iff the qnode is a cancelling var.
 (defun qnode-Givenp (Q)
   "Is the qnode a cancelling-var?"
   (Qnode-has-mark? Q **Given**))
 
 
-;;; (add-qnode-mark <Mark> <Qnode>) Add MARK to QNODE's markings
+;;; (mark-qnode <Mark> <Qnode>) Add MARK to QNODE's markings
 (defun mark-qnode (mark Qnode)
   "Add the specified Marking to the specified qnode."
   (pushnew Mark (Qnode-Marks Qnode)))
