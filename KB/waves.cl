@@ -604,7 +604,7 @@
 	 ))
 
 ;;; set the index of refraction of vacuum to 1
-
+#|
 (def-psmclass refraction-vacuum (refraction-vacuum ?medium)
   :complexity definition
   :short-name "index of refraction of vacuum"
@@ -618,10 +618,11 @@
 		  (any-member ?sought ((index-of-refraction ?medium))))
   :effects (
 	    (eqn-contains (refraction-vacuum ?medium) ?sought)))
-
-(defoperator write-vacuum-refraction (?medium)
-  :preconditions ((variable  ?n (index-of-refraction ?medium)))
-  :effects ( (eqn  (= ?n 1.0) (refraction-vacuum ?medium)) )
+|#
+(defoperator vacuum-refraction (?medium)
+  :preconditions ( (vacuum ?medium) )
+  ;;(variable  ?n (index-of-refraction ?medium)))
+  :effects ( (given (refraction-vacuum ?medium) 1) )
   :hint (
 	 (hint (string "What is the index of refraction of ~A?" ?medium))
 	 (teach (string "The index of refraction of a vacuum is 1.  Some materials (like air) have an index of refraction that is very close to 1."))
