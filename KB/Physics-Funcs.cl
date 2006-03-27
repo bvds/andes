@@ -453,10 +453,12 @@
     '(= + - * / ^ sin cos tan abs ln log10 sqrt exp))
 
 (defun dimensioned-numberp (x)
-  "Non-null if the argument has the form (dnum value ...)"
+  "Non-null if the argument has the form (dnum number ...)"
   (and (unify x '(dnum ?val ?units :error ?err))
-       (or (numberp (second x))
-	   (error "invalid dnum: ~A" x))))
+       (numberp (second x)))) 
+; NB: equations on rotational problems can have (DNUM $p rad/s). 
+; We return NIL to prevent second arg from being used as a number
+; Means this doesn't test just for dnum-termhood.
 
 ;; should test both arguments using dimensioned-numberp
 ;; before calling this routine.
