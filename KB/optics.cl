@@ -1135,7 +1135,7 @@
 ;;; Minimum angle of resolution for system with circular aperature
 
 (def-psmclass resolution-circular-aperture 
-  (resolution-circular-aperture ?mirror ?light)
+  (resolution-circular-aperture ?mirror ?light ?medium)
   :complexity major 
   :short-name "resolution (circular)"
   :english ("the minimum angle of resolution for a circular aperture")
@@ -1147,24 +1147,25 @@
      (any-member ?sought ( (resolution-angle ?mirror)
                            (diameter-of-circle ?mirror)
 			   (wavelength ?light ?medium) ))
-     (object ?mirror) ;in case it isn't bound
+     (shape ?mirror circle)
      (sinusoidal ?light) ;in case it isn't bound
+     (wave-medium ?medium)
      )
    :effects (
-     (eqn-contains (resolution-circular-aperture ?mirror ?light) ?sought)
+     (eqn-contains 
+      (resolution-circular-aperture ?mirror ?light ?medium) ?sought)
    ))
 
-(defoperator write-resolution-circular-aperture (?mirror ?light)
+(defoperator write-resolution-circular-aperture (?mirror ?light ?medium)
    :preconditions 
    (
-    (wave-medium ?air)
     (variable ?theta (resolution-angle ?mirror))
     (variable ?d (diameter-of-circle ?mirror))
-    (variable ?lambda (wavelength ?light ?air))
+    (variable ?lambda (wavelength ?light ?medium))
     )
    :effects (
 	     (eqn (= (* ?theta ?d) (* 1.22 ?lambda)) 
-		   (resolution-circular-aperture ?mirror ?light))
+		   (resolution-circular-aperture ?mirror ?light ?medium))
 	     )
    :hint (
       (point (string "How is ~A determined from the geometry of ~A?" 
