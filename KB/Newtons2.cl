@@ -202,7 +202,7 @@
   :specifications "If a quantity's value is known, then define a variable 
     for it and write an equation giving its value"
   :preconditions 
-  ((in-wm (given ?quantity ?value-expr))
+  ((given ?quantity ?value-expr)
    ;; Make sure expression is usable in equation, not special atom. 
    ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
