@@ -64,7 +64,7 @@
                   ;; be used by the problem solver when it attempts to 
                   ;; solve this problem.
   
-  VariableMarks   ;; A filed containing variable-specific marks that will be used
+  VariableMarks   ;; A field containing variable-specific marks that will be used
                   ;; to set restrictions or other variable-specific information on
                   ;; a problem specific basis.  When Variable restrictions are 
                   ;; looked up then they will also be taken from here.

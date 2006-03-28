@@ -630,11 +630,13 @@
   (and (qnode-parameterp Q)
        (not (qnode-answer-varp Q))))
 
-;;; (Qnode-cancelling-varp <Qnode>) Return t iff the qnode is a cancelling var.
 (defun qnode-Givenp (Q)
-  "Is the qnode a cancelling-var?"
+  "Is the qnode a given?"
   (Qnode-has-mark? Q **Given**))
 
+(defun qnode-optionally-Givenp (Q)
+  "Is the qnode optionally given?"
+  (Qnode-has-mark? Q 'optionally-given))
 
 ;;; (mark-qnode <Mark> <Qnode>) Add MARK to QNODE's markings
 (defun mark-qnode (mark Qnode)
@@ -1597,7 +1599,7 @@
 ;; If The Variable prop in question unifies with the Expression then
 ;; the marks will be appended to the variable for use.  Note that 
 ;; these marks do not supersede those defined in Ontology they will 
-;; onlyy add to it.  
+;; only add to it.  
 (defun generate-bg-vindex (Graph &key (ExpMarks ()))
   "Generate the var index for the graph."
   (let* ((vars (collect-bg-qvars Graph :ExpMarks ExpMarks))
