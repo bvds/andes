@@ -1009,83 +1009,95 @@
       ; finally return result
        result-turn))
 
-; check a given value equation subentry 
-; Fills in subentry state with result of check
-; returns a result-turn to return for this.
+;; check a given value equation subentry 
+;; Fills in subentry state with result of check
+;; returns a result-turn to return for this.
 
 (defun check-given-value-eqn (eqn-entry)
   (let* ((studvar (second (studentEntry-Prop eqn-entry)))
          (value-str (third (studentEntry-Prop eqn-entry)))
 	 (quant    (symbols-referent studvar))
-   ; want to distinguish cases where quantity is not given, so should be left unknown,
-   ; from cases where it is given, but value expression is wrong or bad in some other way.
-   ; first do simple check that quantity is given. given-p defined in errors.cl. It takes
-   ; a sysvar. It treats components as given if vector mag is given and lies along axis 
-   ; (though not the reverse); use given-var-p to avoid this behavior. Note it looks for
-   ; given flag on quantities at the bubble-graph level, not implicit equations, so might not 
-   ; work for those.
+	 ;; want to distinguish cases where quantity is not given, so it 
+	 ;; should be left unknown, from cases where it is given, but
+	 ;; the value expression is wrong or bad in some other way.
+	 ;; first do simple check that quantity is given. given-p defined 
+	 ;; in errors.cl.  It takes a sysvar.  It treats components as given 
+	 ;; if vector mag is given and lies along axis (though not the reverse)
+	 ;; use given-var-p to avoid this behavior. Note it looks for
+	 ;; given flag on quantities at the bubble-graph level, not implicit 
+	 ;; equations, so might not work for those.
 	 (is-given (given-p (student-to-canonical studvar))))
-
-   ; first filter case where student hasn't specified a given value (= unknown)
-  (when (blank-given-value-entry eqn-entry)
+    
+    ;; first filter case where student hasn't specified a given value 
+    (cond 
+     ((blank-given-value-entry eqn-entry)
       (cond (is-given 
-	       (setf (studentEntry-state eqn-entry) 'incorrect)
-               (return-from check-given-value-eqn 
-                     (should-be-given-error-interp eqn-entry quant)))
+	     (setf (studentEntry-state eqn-entry) 'incorrect)
+	     (should-be-given-error-interp eqn-entry quant))
 	    (T ; quant is not given => OK
-	      (setf (studentEntry-state eqn-entry) 'correct)
-	      (return-from check-given-value-eqn (make-green-turn)))))
-
-  ; get here => student specified a given value
-  (when (not is-given)
-     (setf (studentEntry-state eqn-entry) 'incorrect)
-     (return-from check-given-value-eqn (not-given-error-interp eqn-entry quant)))
-
-  ; else the quantity does have a given value:
-  (let* ( ; form a studentese equation and check it like any other equation,
-	 ; as if it were entered in *solver-temp-eqn-slot*. This will us a result turn,
-	 ; and record a (temp) entry struct containing its interp. We remove the temp-entry
-	 ; when done with it. Note temp-entry != eqn-entry above, so we may have to update
-	 ; eqn-entry. (clean this up? If eqn is OK, eqn-entry will just be entered again later.
-	 ; should just return the eqn entry to use, and maybe set its slot before this.)
-	 (studeqn (concatenate 'string studvar "=" value-str))
-	 ; suppress normal eqn entry logging so we can do modified logging here, noting
-	 ; different errors and filling in target entry
-	 (result-turn (do-lookup-eqn-string studeqn *solver-temp-eqn-slot* :log NIL))
-	 (temp-entry (find-entry *solver-temp-eqn-slot*))
-	 (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**))
-	 )
-	 ; copy (provisional!) filled-in eqn check info from temp entry into main entry's 
-	 ; dangling dependent equation subentry. The subentry state will be used later for 
-	 ; logging or entering the correct interpretation later.  Possibly could just substitute
-	 ; temp entry for dangling entry to avoid copying
-	 (setf (studentEntry-State eqn-entry) (studentEntry-State temp-entry))
-	 (setf (studentEntry-ErrInterp eqn-entry) (studentEntry-ErrInterp temp-entry))
-	 (setf (studentEntry-ParsedEqn eqn-entry) (studentEntry-ParsedEqn temp-entry))
-
-         ; if it passed standard equation check, we still have to check it
-	 ; uses only givens. NB: If not, we have to make sure it is removed from
-	 ; algebra, since correct entries get added as side effect of normal eqn processing. 
-	 ; This is OK now, since we *always* delete temp-entry; correct entries
-	 ; are re-added later. But if we change to only add once, must handle this.
-	 (when (and correct-eqn (not (uses-only-given-eqn temp-entry)))
+	     (setf (studentEntry-state eqn-entry) 'correct)
+	     (make-green-turn))))
+     
+     ;; get here => student specified a given value
+     ((not is-given)
+      (setf (studentEntry-state eqn-entry) 'incorrect)
+      (not-given-error-interp eqn-entry quant))
+     
+     ;; else the quantity does have a given value:
+     (t (let*  
+	    ;; form a studentese equation and check it like any other equation,
+	    ;; as if it were entered in *solver-temp-eqn-slot*.  This will us 
+	    ;; a result turn, and record a (temp) entry struct containing its
+	    ;; interp.  We remove the temp-entry when done with it. Note that
+	    ;; the temp-entry != eqn-entry above, so we may have to update
+	    ;; eqn-entry. (clean this up? If eqn is OK, eqn-entry will just 
+	    ;; be entered again later.  Should just return the eqn entry to 
+	    ;; use, and maybe set its slot before this.)
+	    ((studeqn (concatenate 'string studvar "=" value-str))
+	     ;; suppress normal eqn entry logging so we can do modified logging
+	     ;; here, noting different errors and filling in target entry
+	     (result-turn (do-lookup-eqn-string 
+			   studeqn *solver-temp-eqn-slot* :log NIL))
+	     (temp-entry (find-entry *solver-temp-eqn-slot*))
+	     (correct-eqn  (eq (StudentEntry-State temp-entry) **Correct**)))
+	  ;; copy (provisional!) filled-in eqn check info from temp entry into 
+	  ;; the main entry's dangling dependent equation subentry.  
+	  ;; The subentry state will be used later for logging or entering 
+	  ;; the correct interpretation later.  Possibly could just substitute
+	  ;; temp entry for dangling entry to avoid copying.
+	  (setf (studentEntry-State eqn-entry) (studentEntry-State temp-entry))
+	  (setf (studentEntry-ErrInterp eqn-entry) 
+		(studentEntry-ErrInterp temp-entry))
+	  (setf (studentEntry-ParsedEqn eqn-entry) 
+		(studentEntry-ParsedEqn temp-entry))
+	  
+	  ;; if it passed standard equation check, we still have to check it
+	  ;; uses only givens. NB: If not, we have to make sure it is removed 
+	  ;; from algebra, since correct entries get added as side effect of 
+	  ;; normal eqn processing.  This is OK now, since we *always* delete 
+	  ;; temp-entry; correct entries are re-added later.  But if we change 
+	  ;; to only add once, must handle this.
+	  (when (and correct-eqn (not (uses-only-given-eqn temp-entry)))
 	    (setf (studentEntry-State eqn-entry) 'incorrect) ; modify state copied above
 	    (setf result-turn (more-than-given-error-interp eqn-entry quant)))
-	 ; if equation is wrong but no error interpretation (syntax error, missing units, etc)
-	 ; has been set, assume value is just plain wrong, and set that here w/o using wwh
-	 ; Note: it could be a wrong expression that contains variables, we still just say its wrong
-	 ; Might want check to filter first for acceptable form above (as we do for answers).
-	 (when (and (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
+	  ;; if equation is wrong but no error interpretation (syntax error, 
+	  ;; missing units, etc) has been set, assume value is just plain wrong, 
+	  ;; and set that here w/o using wwh
+	  ;; Note: it could be a wrong expression that contains variables, we 
+	  ;; still just say its wrong.
+	  ;; Might want check to filter first for acceptable form above 
+	  ;; (as we do for answers).
+	  (when (and (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
 	    (set-wrong-given-value-error-interp eqn-entry quant))
+	  
+	  ;; don't save the temp equation entry on our main list anymore
+	  ;; if it's correct, caller should add subentry like an implicit equation
+	  (remove-entry *solver-temp-eqn-slot*) ; clears algebra slot automatically
+	  ;; finally return turn
+	  result-turn
+	  )))))
 
-	 ; don't save the temp equation entry on our main list anymore
-	 ; if it's correct, caller should add subentry like an implicit equation
-	 (remove-entry *solver-temp-eqn-slot*) ; clears algebra slot automatically
-	 ; finally return turn
-	 result-turn
-  )))
-
-; verify that correct studententry is an acceptable entry of a given value
+;; verify that correct studententry is an acceptable entry of a given value
 (defun uses-only-given-eqn (studententry)
    (let ((interp (studententry-cinterp studententry)))
      (or (and (= (length interp) 1)
