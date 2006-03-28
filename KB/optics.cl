@@ -170,7 +170,7 @@
 
 (def-qexp resolution-angle (resolution-angle ?grating)
   :symbol-base |$q|     
-  :short-name "resolution angle"
+  :short-name "angle of resolution"
   :pre-dialog-text "minimum angle of resolution"	
   :dialog-text "for [body:bodies]"
   :units |deg|
@@ -1076,10 +1076,9 @@
    (
     (point (string "Waves passing through ~A will interfere ~:[destructively~;constructively~] at certain angles." 
 		   ?grating ?flag))
-    (teach (string "At certain angles, the waves will add up and at other angles, they will cancel out."))
-      (bottom-out (string "Write the equation ~A" 
-                     ((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
-   ))
+    (bottom-out (string "Write the equation ~A" 
+			((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
+    ))
 
 ;;;;   Frauenhofer diffraction formula
 
