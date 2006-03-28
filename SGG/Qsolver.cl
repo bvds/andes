@@ -127,13 +127,10 @@
 			  ;;Collect the assumptions. 
 			  :assumpts (collect-assumptions State)
 			  :wm (st-wm State))))))
-    (cond ((eq 0 (length R))            ;If no values are returned.
-	   (error "No return values specified for given: ~S ~%~S.~%" 
-		  Goal Givens))  ;Signal an error.
-	  
-	  ((< 1 (length R))             ;if more than one is returned
-	   (merge-duplicate-givens R))  ;merge the results
-	  (t (car R)))))                ;Otherwize return it.
+
+    (when (null R) (error "No return values specified for given: ~S ~%~S.~%" 
+			  Goal Givens))
+    (merge-duplicate-givens R)))
 
 
 (defun solve-for-param-var (Param Givens)
