@@ -1629,28 +1629,43 @@
   :probability 0.5)
 
 ;;; The student's line doesn't appear at any angle
-(def-error-class default-non-existent-line (?cline ?sline)
+(def-error-class default-non-existent-line (?sline)
   ((student (draw-line ?sline ?sdir))
-   (no-correct (draw-line ?cline ?cdir))
-   (test (not (equal ?cline ?sline))))
+   (no-correct (draw-line ?cline ?cdir)))
   :probability 0.01)
 
-(defun default-non-existent-line (correct-line wrong-line)
+(defun default-non-existent-line (wrong-line)
   (setf correct-line (nlg correct-line 'def-np))
   (setf wrong-line (nlg wrong-line 'def-np))
   (make-hint-seq
-   (list (format nil "Are you sure you want to draw a line for ~a?" wrong-line)
-	 (format nil "A better choice would be to draw a line for ~a."
-		 correct-line))))
+   (list (format nil "You don't need to draw any lines to solve this problem.")
+	 )))
 
 ;;; If the student's line is correct except
 ;;; for the angle, then just point that out.  This is the default case.
 (def-error-class default-wrong-dir ("line" ?wrong-dir ?correct-dir)
-  ((student (line ?descr ?wrong-dir))
-   (correct (line ?descr ?correct-dir))
+  ((student (draw-line ?descr ?wrong-dir))
+   (correct (draw-line ?descr ?correct-dir))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
    (test (not (equal ?wrong-dir ?correct-dir))))
+  :probability 0.5)
+
+;;; default in case everything but body matches some correct vector
+;;; high probability since close match
+(def-error-class default-wrong-line (?cline ?sline)
+ ((student (draw-line ?sline ?sdir))
+   (correct (draw-line ?cline ?cdir))
+   (test (not (equal ?sline ?cline)))
+   )
   :probability 0.1)
+
+(defun default-wrong-line (correct-line wrong-line)
+ (setf correct-line (nlg correct-line 'def-np))
+  (setf wrong-line (nlg wrong-line 'def-np))
+  (make-hint-seq
+   (list (format nil "Are you sure you want to draw ~a?" 
+		 wrong-line)
+	 (format nil "You should draw ~a." correct-line))))
 
 
 ;;; ==================== velocity drawing ===========================
