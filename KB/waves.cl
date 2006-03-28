@@ -580,7 +580,9 @@
   :effects
   ;; c is predefined, see file constants.cl
   ( (eqn  (= ?v |c|) (wave-speed-light ?medium)) 
-    (optionally-given (wave-speed ?medium) |c|) )
+    ;; See Bug #806
+    ;; (optionally-given (wave-speed ?medium) |c|) 
+    )
   :hint (
 	 (point (string "Light waves and radio waves have a special speed"))
 	 (teach (string "c is defined to be the speed of light."))
@@ -605,9 +607,10 @@
 	    (eqn-contains (refraction-vacuum ?medium) ?sought)))
 
 (defoperator write-vacuum-refraction (?medium)
-  :preconditions ((variable  ?n (index-of-refraction ?medium)))
+  :preconditions ((variable ?n (index-of-refraction ?medium)))
   :effects ( (eqn (= ?n 1.0) (refraction-vacuum ?medium)) 
-	 ;;    (optionally-given (index-of-refraction ?medium) 1) 
+	     ;; See Bug #806
+	     ;;    (optionally-given (index-of-refraction ?medium) 1) 
 	     )
   :hint (
 	 (hint (string "What is the index of refraction of ~A?" ?medium))
