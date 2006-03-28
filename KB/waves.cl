@@ -524,40 +524,38 @@
 
 ;;;; Relate index of refraction to wave-speed
 
-(def-psmclass wave-speed-refraction (wave-speed-refraction orderless . ?media)
+(def-psmclass wave-speed-refraction (wave-speed-refraction ?medium ?vacuum)
   :complexity major			; must explicitly use
   :short-name "index of refraction"
   :english ("the definition of index of refraction")
   :ExpFormat ("relating the speed of waves in ~A to the index of refraction" 
-	      (nlg ?media 'conjoined-defnp))
-  :EqnFormat ("vw1*n1 = vw2*n2")) 
+	      (nlg ?medium 'conjoined-defnp))
+  :EqnFormat ("n = c/v")) 
 
 (defoperator wave-speed-refraction-contains (?sought)
   :preconditions 
-  ( (any-member ?sought ((wave-speed ?medium1)
-			 (index-of-refraction ?medium1)))
-    (wave-medium ?medium1)
-    (wave-medium ?medium2)
-    (test (not (eq ?medium1 ?medium2)))
-    (bind ?media (list ?medium1 ?medium2)) )
+  ( (any-member ?sought ((wave-speed ?medium)
+			 (index-of-refraction ?medium)))
+    (wave-medium ?medium)
+    (not (vacuum ?medium . ?whatever))
+    (vacuum ?vacuum . ?dont-care))
   :effects 
-  ( (eqn-contains (wave-speed-refraction orderless . ?media) ?sought)) )
+  ( (eqn-contains (wave-speed-refraction ?medium ?vacuum) ?sought)) )
 
-(defoperator write-wave-speed-refraction (?medium1 ?medium2)
-  :preconditions 
-  ((any-member ?media ((?medium1 ?medium2)))
-   (variable  ?v1 (wave-speed ?medium1))
-    (variable  ?n1 (index-of-refraction ?medium1))
-    (variable  ?v2 (wave-speed ?medium2))
-    (variable  ?n2 (index-of-refraction ?medium2)) )
-  :effects ( (eqn  (= (* ?v1 ?n1) (* ?v2 ?n2))
-		   (wave-speed-refraction orderless . ?media)) )
-  :hint (
-	 (point (string "Relate the speed of waves in ~A to those in ~A." ?medium1 ?medium2))
-	 (teach (string "The index of refraction relates the speed of waves in a medium to the speed of waves in another medium."))
-	 (bottom-out (string "Write the equation ~A" 
-			     ((= (* ?v1 ?n1) (* ?v2 ?n2)) algebra) ))
-	 ))
+(defoperator write-wave-speed-refraction (?medium ?vacuum)
+  :preconditions
+  ((variable  ?v (wave-speed ?medium))
+   (variable  ?n (index-of-refraction ?medium))
+   (variable  ?c (wave-speed ?vacuum)))
+  :effects ( (eqn  (= (* ?v ?n) ?c)
+		   (wave-speed-refraction ?medium ?vacuum)) )
+  :hint 
+  ( (point (string "Relate the speed waves moving in ~A to the index of refraction." 
+		   ?medium))
+    (teach (string "The index of refraction relates the speed of waves in a medium to the speed of waves outside the medium."))
+    (bottom-out (string "Write the equation ~A" 
+			((= (* ?v ?n) ?c) algebra) ))
+    ))
 
 
 ;;;  Wave speed for various objects   
@@ -608,8 +606,9 @@
 
 (defoperator write-vacuum-refraction (?medium)
   :preconditions ((variable  ?n (index-of-refraction ?medium)))
-  :effects ( (eqn  (= ?n 1.0) (refraction-vacuum ?medium)) 
-	     (optionally-given (index-of-refraction ?medium) 1) )
+  :effects ( (eqn (= ?n 1.0) (refraction-vacuum ?medium)) 
+	 ;;    (optionally-given (index-of-refraction ?medium) 1) 
+	     )
   :hint (
 	 (hint (string "What is the index of refraction of ~A?" ?medium))
 	 (teach (string "The index of refraction of a vacuum is 1.  Some materials (like air) have an index of refraction that is very close to 1."))
