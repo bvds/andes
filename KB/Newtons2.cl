@@ -2891,7 +2891,7 @@
    :preconditions 
    (
     (motion ?b (curved projectile (?vel-dir ?accel-dir)) :time ?t-motion)
-    (test (dimensioned-numberp ?accel-dir))
+    (test (degree-specifierp ?accel-dir))
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     ;; should we test that free-fall is not specified? Assume we won't
@@ -2928,7 +2928,7 @@
     ;; test that all the directions are the same
     (test (= (length ?dirs) 1)) ;setof only gives distinct matches to ?dir
     (bind ?accel-dir (first ?dirs))
-    (test (dimensioned-numberp ?accel-dir)) ;exclude 'zero and 'unknown
+    (test (degree-specifierp ?accel-dir)) ;exclude 'zero and 'unknown
     (not (unknown-forces)) ;only valid if all forces are specified
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))

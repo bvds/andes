@@ -1723,7 +1723,7 @@
 ;;; need a lesson on deceleration.  Common misconception.
 (def-error-class deceleration-bug (?body ?sdir ?cdir)
   ((student (vector (accel ?body :time ?time) ?sdir))
-   (test (dimensioned-numberp ?sdir)) ; not 'zero 'unknown or other atom 
+   (test (degree-specifierp ?sdir)) ; not 'zero 'unknown or other atom 
    (bind ?cdir (opposite ?sdir))
    (correct (vector (accel ?body :time ?time) ?cdir))
    (problem (motion ?body (straight slow-down ?dontcare) :time ?time)))
@@ -3623,12 +3623,9 @@
    If any force lacks a numerical direction, return nil"
   (loop for f in forces with b with dir
       do (setq b (unify-in-wm `(vector ?body ,f ?dir)))
-	 (if (null b) (return nil))
+	 (when (null b) (return nil))
 	 (setq dir (cdr (get-binding '?dir b)))
-	 (if (not (and (dimensioned-numberp dir)
-		       (equal 'DEG (third dir))
-		       (numberp (second dir))))
-	     (return nil))
+	 (when (not (degree-specifierp dir)) (return nil))
      collect (second dir)))
 	       
   
@@ -3672,10 +3669,6 @@
 ;; Can also get simple
 ;;       (- (dnum N units))    from v = -(N units)
 ;;       (- N)                 from v = - N
-
-(defun numvalp (exp) 
-"true if exp is a number with or without units"
-    (or (dimensioned-numberp exp) (numberp exp)))
 
 (defun negative-numvalp (exp)
 "true if exp is negation of a numvalp"

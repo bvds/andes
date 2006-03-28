@@ -241,9 +241,9 @@
 
 (defun degree-specifierp (x)
   "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> DEG)"
-      (and (dimensioned-numberp x)
-           (or (equal (third x) '|deg|)
-	       (equal (third x) 'DEG))))
+  (and (or (unify x '(dnum ?val |deg| :error ?err))
+	   (unify x '(dnum ?val DEG :error ?err)))
+       (numberp (second x))))
 
 ; Following for use in contexts in which arg is either dnum or a plain
 ; number we know to be an angle measure (e.g. an axis rotation).
@@ -453,12 +453,16 @@
     '(= + - * / ^ sin cos tan abs ln log10 sqrt exp))
 
 (defun dimensioned-numberp (x)
-  "Non-null if the argument has the form (dnum number ...)"
+  "Non-null if the argument has the form (dnum number units :error err)"
+  ;; NB: equations on rotational problems can have (DNUM $p rad/s). 
+  ;; We return NIL to prevent second arg from being used as a number
+  ;; Means this doesn't test just for dnum-termhood.
   (and (unify x '(dnum ?val ?units :error ?err))
-       (numberp (second x)))) 
-; NB: equations on rotational problems can have (DNUM $p rad/s). 
-; We return NIL to prevent second arg from being used as a number
-; Means this doesn't test just for dnum-termhood.
+       (numberp (second x))))
+
+(defun numvalp (exp) 
+"true if exp is a number with or without units"
+    (or (numberp exp) (dimensioned-numberp exp)))
 
 ;; should test both arguments using dimensioned-numberp
 ;; before calling this routine.

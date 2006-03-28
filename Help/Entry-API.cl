@@ -602,7 +602,7 @@
 		           `(,vtype ,body-term ,(arg-to-body avg-inst)))
 		        ;; else single argument vector: 
 	                (T `(,vtype ,body-term))))
-	(dir-term     (arg-to-dir dir mag)))
+	(dir-term (arg-to-dir dir mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id)))
 
@@ -646,7 +646,7 @@
     (when (eq (first vector-term) 'unit-vector)
         (add-implicit-eqn entry (make-implicit-assignment-entry label 1)))
     ; if direction is known, associate implicit equation dirV = dir deg.
-    (when (dimensioned-numberp dir-term)          ; known xy plane direction
+    (when (degree-specifierp dir-term)          ; known xy plane direction
        (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
     (when (and (z-dir-spec dir-term) 
                (not (equal dir-term 'z-unknown))) ; known z axis direction
@@ -683,8 +683,9 @@
     (symbols-enter dir-label line-dir-term id)
     
     ;; if direction is known, associate implicit equation dirV = dir deg.
-    (when (dimensioned-numberp dir-term)          ; known xy plane direction
-	 (add-implicit-eqn entry (make-implicit-assignment-entry dir-label dir-term)))
+    (when (degree-specifierp dir-term)          ; known xy plane direction
+	 (add-implicit-eqn entry 
+			   (make-implicit-assignment-entry dir-label dir-term)))
     (when (and (z-dir-spec dir-term) 
 	       (not (equal dir-term 'z-unknown))) ; known z axis direction
       (add-implicit-eqn entry (make-implicit-assignment-entry dir-label (zdir-phi dir-term))))
