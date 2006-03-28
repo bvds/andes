@@ -192,13 +192,10 @@
 ;;;
 ;;; (Enode-dead-pathp <Enode>)            -- Test if ENODE is **Dead-Path**
 ;;;
-;;; (mark-enode-optimal-path <Enode>)     -- Mark Enode **Optimal-Path**
 ;;; (Enode-optimal-pathp <Enode>)         -- Test if Enode is **Optimal-Path**
 ;;;
-;;; (mark-enode-forbidden <Enode>)        -- Mark Enode **Forbidden**
 ;;; (Enode-forbiddenp <Enode>)            -- Test if Enode is **Forbidden**
 ;;;
-;;; (mark-enode-given <Enode>)            -- Mark Enode **Given**
 ;;; (Enode-givenp <Enode>)                -- Test if Enode is **Given**
 ;;;
 ;;;=============================================================================
@@ -854,16 +851,7 @@
 	   (eval (cons 'and (mapcar #'Eqn-Solved (Enode-Subeqns Enode)))))))
 
 ;;---------------------------------------------------------------------
-;; Markings tests and modifications.
-
-(defun mark-enode (Enode mark)
-  "Add the specified mark to the enode."
-  (pushnew mark (Enode-Marks Enode)))
-
-(defun remove-enode-mark (Enode mark)
-  "Remove the specified mark from the enode."
-  (setf (Enode-Marks Enode)
-    (remove Mark (Enode-Marks Enode))))
+;; Markings tests and modifications
 
 (defun enode-has-mark? (Enode mark &key (test #'equal))
   "Does the enode contain the specified Mark?"
@@ -873,22 +861,12 @@
   "Is the Enode on a dead path?"
   (Enode-has-mark? E **Dead-Path**))
 
-(defun mark-enode-optimal-path (E)
-  "Mark the Enode as an optimal path node."
-  (mark-enode E **Optimal-Path**))
-
 (defun enode-optimal-pathp (E)
   "Is the enode on the optimal path?"
   (Enode-has-mark? E **optimal-path**))
 
-(defun mark-enode-forbidden (E)
-  (mark-enode E **Forbidden**))
-
 (defun enode-forbiddenp (E)
   (Enode-has-mark? E **Forbidden**))
-
-(defun mark-enode-given (E)
-  (mark-enode E **Given**))
 
 (defun enode-givenp (E)
   (Enode-has-mark? E **Given**))
