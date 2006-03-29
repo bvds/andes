@@ -152,7 +152,8 @@
 (def-qexp slit-separation (slit-separation ?grating)
   :symbol-base |d|     
   :short-name "slit separation"	
-  :dialog-text "between slits in [body:bodies]"
+  :pre-dialog-text "separation between slits"
+  :dialog-text "in [body:bodies]"
   :units |m|
   :restrictions positive
   :english ("the distance between slits in ~A" (nlg ?grating))

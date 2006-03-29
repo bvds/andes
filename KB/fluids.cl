@@ -133,7 +133,7 @@
 ;;in a problem.  We would like Andes to recognize the pressure at that point is Pr0 Pa.
 ;;Write the expression (open-to-atmosphere ?point) in the givens.
 (def-psmclass pressure-at-open-to-atmosphere (pressure-at-open-to-atmosphere ?point ?time)
-  :complexity minor
+  :complexity definition
   :short-name "point 1 open to atmosphere"
   :english ("the formula for pressure at a point open to the atmosphere")
   :ExpFormat ("setting the pressure at a point open to the atmosphere")

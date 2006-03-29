@@ -57,7 +57,7 @@ length-change		rate of change in length		of [body:bodies]
 magnetic-flux-change	d$Fbdt	rate of change in magnetic flux		through [body:bodies] at time [time:times]
 current-change	dIdt	rate of change of current		through [body:bodies] at time [time:times]
 resistance	R	resistance		
-slit-separation	d	slit separation		between slits in [body:bodies]
+slit-separation	d	slit separation	separation between slits	in [body:bodies]
 speed	v	speed		
 wave-speed	v	speed of wave	speed of waves	moving in [body:bodies]
 spring-constant	k	spring constant		of [body:bodies]
