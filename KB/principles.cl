@@ -344,6 +344,7 @@
  )
 (group "Use information specific to this problem"
  (leaf equals :bindings ((?quant1 . (distance ?body :time ?time))))
+ (leaf angle-direction)
  (leaf displacement-distance)
  (leaf current-thru-what)
  (leaf num-forces)

@@ -633,6 +633,53 @@
 				 (* ?n2 (sin ?theta2))) algebra)))
 	 ))
 
+(def-psmclass angle-direction (angle-direction ?greater ?lesser)
+  :complexity definition
+  :short-name "angle between"
+  :english ("angle between")
+  :ExpFormat ("finding the angle between ~A and ~A" 
+	      (nlg ?greater) (nlg ?lesser))
+  :eqnFormat ("$q12 = $q2 - $q1"))
+
+(defoperator angle-direction-contains (?sought)
+  :preconditions 
+  ;; This proposition implies that one can subtract directions without 
+  ;; needing the modulus (mod 360 for vectors and mod 180 for lines).
+  ((greater-than ?greater ?lesser)
+   (any-member ?sought ((angle-between orderless ?greater ?lesser)
+			(dir ?greater) (dir ?lesser))))
+  :effects 
+  ( (eqn-contains (angle-direction ?greater ?lesser) ?sought) ))
+
+(defoperator relate-inequality (?greater ?lesser)
+  :preconditions ((less-than ?lesser ?greater))
+  :effects ((greater-than ?greater ?lesser)))
+
+(defoperator greater-than-given-directions (?greater ?lesser)
+  :preconditions 
+  ( (given (dir ?greater) ?dg)
+    (given (dir ?lesser) ?dl)
+    (test (and (degrees-or-num ?dg) (degrees-or-num ?dl)))
+    (test (> (convert-dnum-to-number ?dg) (convert-dnum-to-number ?dl))))
+  :effects ((greater-than ?greater ?lesser)))
+
+(defoperator write-angle-direction (?greater ?lesser)
+  :preconditions 
+  (
+   (variable ?dg (dir ?greater))
+   (variable ?dl (dir ?lesser))
+   (variable ?angle (angle-between orderless ?greater ?lesser))
+   )
+  :effects 
+  ( (eqn (= ?angle (- ?dg ?dl)) (angle-direction ?greater ?lesser)))
+  :hint (
+	 (point (string "Express the angle between ~A and ~A in terms of directions."
+			?greater ?lesser))
+	 (teach (string "The angle is simply the difference of the two directions.")) 
+	 (bottom-out (string "Write the equation ~A." 
+			     ((= ?angle (- ?dg ?dl)) algebra)))
+	 ))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
