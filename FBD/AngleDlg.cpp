@@ -79,7 +79,13 @@ BOOL CAngleDlg::OnInitDialog()
 	LogEventf(EV_DLG_ANGLE, "%s |%s|",m_pObj->m_strId, OBJ_NAME(m_pObj));
 
 	CDrawObjDlg::OnInitDialog();//this is where we move the dialog to 
-								//the bottom right
+	
+	// adjust for use as sought quantity
+	if (m_bSought)
+	{
+		Remove(IDC_BOX_LABEL);
+		// now hides all windows within this?
+	}
 	
 	// Prepare the combobox controls
 	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CAngle)))
@@ -115,6 +121,8 @@ BOOL CAngleDlg::OnInitDialog()
 			m_cboSide1.AddString(pObj->m_strName);
 			m_cboSide2.AddString(pObj->m_strName);
 		}
+		// don't add axes if used for a sought:
+		if (m_bSought) continue;
 		else if (pObj->IsKindOf(RUNTIME_CLASS(CAxes)) &&
 				 ((CAxes*)pObj)->m_nIndex == 0) // only use first axes if many
 		{
@@ -163,7 +171,6 @@ void CAngleDlg::OnOK()
 	m_ctrlName.GetRichEditText(strName);
 	m_pTempObj->m_strName = strName;
 
-
 	if (m_pObj->IsKindOf(RUNTIME_CLASS(CVariable)))
 		UpdateTempVariable();
 
@@ -179,12 +186,14 @@ void CAngleDlg::OnOK()
 		return;
 	}
 
-	CString str = m_pTempObj->m_strName;
-	str.Remove('$');
-		
-	if (!IsValidLabel(str))	return;
+	if (! m_bSought) {
+		CString str = m_pTempObj->m_strName;
+		str.Remove('$');
+			
+		if (!IsValidLabel(str))	return;
 
-	if (! m_pTempObj->IsValid()) return;
+		if (! m_pTempObj->IsValid()) return;
+	}
 
 	if (!CheckDialog())	return;
 	

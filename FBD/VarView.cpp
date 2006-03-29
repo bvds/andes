@@ -399,8 +399,8 @@ void CVarView::AddScalarVars(CMenu* pMenu, BOOL bQuantityChoice)
 	for (int i = FIRST_SCALAR_INDEX; i < m_quants.GetSize(); i++)
 	{
 		// hackety hack -- if building all quantity menu, leave out angle
-		if (bQuantityChoice && (strcmp(m_quants[i]->strTypeId, "angle") == 0))
-			continue;
+		//if (bQuantityChoice && (strcmp(m_quants[i]->strTypeId, "angle") == 0))
+		//	continue;
 
 		if (HasFeature(m_quants[i]->strTypeId))
 		{

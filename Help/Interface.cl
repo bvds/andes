@@ -848,60 +848,6 @@
     ;; ((null (turn-text Result))
     ;; (error "Eqn-turn with no -equation text"))
       
-     
-				  
-  
-
-
-
-
-
-
-
-
-
-
-;;;; ===========================================================================
-;;;; wb-quant
-;;;; The workbench was weitten using an older quantity protocol.  In order to
-;;;; make the current help-system communicate appropriately with it this 
-;;;; function is sometimes embedded in a read-macro by the workbench to ensure
-;;;; that its arguments will be translated appropriately before the help system
-;;;; sees them.  I have chosen to locate the code here for conceptual purposes
-;;;; alone.  All of the code that it depends upon can be found in Entry-API.cl
-;;;;
-;;;; Following is used to handle quantity choice results. The two
-;;;; arguments are: first, an unevaluated API call call which is either 
-;;;; define-variable or define-angle-variable. This is the call that would be
-;;;; sent if the student had actually defined a var in the relevant dialog.
-;;;; This is convenient way of packaging the spec because the workbench already 
-;;;; has code to build these api calls at the end of definition dialogs. 
-;;;; The second argument is an optional vector-attribute id, which tells which
-;;;; attribute of the vector is to be used, default mag.
-;;;; Usage examples:
-;;;;    (wb-quant '(define-variable "" average Velocity car T1 NIL NIL) 'mag)
-;;;; or for angle quantities
-;;;;    (wb-quant '(define-angle-variable "" 270 posx "vf" NIL))
-;;;; Return value is the quantity term specified.
-;;;;
-;;;; In fact the workbench is clever and uses this as follows: when the student
-;;;; response is a quantity selection, it sends a command of the form
-;;;; (handle-student-response #.(wb-quant (define-variable ....) mag)
-;;;; When read by the dispatcher, this has the effect of
-;;;;       (handle-student-response <quant-term>)
-;;;; so responder code doesn't have to know about the translation.
-
-(defun wb-quant (api-call &optional (vecprop 'mag))
-  (case (first api-call)
-    ('define-variable (make-quant (third api-call) (fourth api-call) 
-				  (fifth api-call) (seventh api-call)
-				  (sixth api-call) vecprop))
-    ; !!! need routine to handle following case:
-    ; maybe shouldn't be allowed now that have dir vecprop
-    ;('define-angle-variable )
-    (otherwise
-    	(warn "wb-quant: Unrecognized quantity spec: ~A~%" api-call)
-	NIL)))
 
 
 ;;; -----------------------------------------------------------------------------
