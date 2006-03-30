@@ -955,7 +955,7 @@
    (variable ?iout (net-intensity ?outgoing :time ?t))
    (bind ?angle (when ?dirin (get-angle-between ?dirin ?dirout)))
    (test (or (null ?dirin) ?angle))
-   (bind ?angle-term (if ?dirin `(^ (cos ,?angle) 2) '0.5))
+   (bind ?angle-term (if ?dirin `(^ (cos (dnum ,?angle |deg|)) 2) '0.5))
    (bind ?help (if ?dirin 
 		   "polarized at an angle of $q relative to the direction of polarization of the polarizer, the transmitted intensity is cos($q)^2 times the incoming intensity." 
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
@@ -965,7 +965,7 @@
   :hint (
       (point (string "Relate the net intensity of ~A to the net intensity of ~A." 
 		     ?outgoing ?incoming))
-      (point (string "If the incoming beam is ~A" ?help))
+      (point (string "If the incoming beam is ~A" (?help identity)))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?iout (* ?iin ?angle-term)) algebra) ))
 	 ))
