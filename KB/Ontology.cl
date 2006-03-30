@@ -747,7 +747,7 @@
   :eqnFormat ("c^2 = a^2 + b^2"))
 
 (def-psmclass sum-distance (sum-distance ?b1 ?b2 ?b3 ?t)
-   :complexity simple
+   :complexity definition
    :short-name "sum collinear distances"
    :english ("the relationship among the distances between ~a, ~a and ~a" 
               (nlg ?b1) (nlg ?b2) (nlg ?b3))
