@@ -492,8 +492,8 @@
 	    (eqn  (= ?v1 ?v2) 
 		  (speed-equals-wave-speed ?object ?rope ?t) ))
   :hint 
-  ( (point (string "The velocity of any wave on a given string, rope, et cetera is the same."))
-    (point (string "If there are two waves on a string, then they have equal speeds."))
+  ( (point (string "The velocity of any wave in space or on a given string, rope, et cetera is the same."))
+    (point (string "If there are two waves moving through the same medium then they have equal speeds."))
     (bottom-out (string "Write the equation ~A" 
 			((= ?v1 ?v2) algebra) )) ))
 
@@ -561,25 +561,33 @@
 ;;;  Wave speed for various objects   
 
 ;; If medium is "light" then set its wave-speed to c
-(def-psmclass wave-speed-light (wave-speed-light ?medium)
+(def-psmclass wave-speed-light (wave-speed-light ?quant)
   :complexity definition
   :short-name "speed of light"
   :english ("the speed of a light or radio wave")
-  :ExpFormat("setting wave speed to c")
+  :ExpFormat("setting the speed to c")
   :EqnFormat("vw = c"))
+
+(defoperator speed-of-light-contains (?sought)
+  :preconditions 
+  ( (wave-speeds-equal ?object ?medium)
+    (vacuum ?medium)
+    (any-member ?sought ((speed ?object :time ?t))))
+  :effects 
+  ((eqn-contains (wave-speed-light (speed ?object :time ?t)) ?sought)))
 
 (defoperator wave-speed-light-contains (?sought)
   :preconditions (
 		  (vacuum ?medium)
 		  (any-member ?sought ((wave-speed ?medium))))
   :effects (
-	    (eqn-contains (wave-speed-light ?medium) ?sought)))
+	    (eqn-contains (wave-speed-light (wave-speed ?medium)) ?sought)))
 
-(defoperator write-wave-speed-light (?medium)
-  :preconditions ((variable  ?v (wave-speed ?medium)))
+(defoperator write-wave-speed-light (?quant)
+  :preconditions ((variable ?v ?quant))
   :effects
   ;; c is predefined, see file constants.cl
-  ( (eqn  (= ?v |c|) (wave-speed-light ?medium)) 
+  ( (eqn  (= ?v |c|) (wave-speed-light ?quant)) 
     ;; See Bug #806
     ;; (optionally-given (wave-speed ?medium) |c|) 
     )
@@ -1447,7 +1455,8 @@
   :complexity major  
   :short-name "radiation pressure (reflector)"
   :english ("the radiation pressure for a reflector")
-  :ExpFormat ("finding the radiation pressure on ~A due to ~A" ?body ?wave)
+  :ExpFormat ("finding the radiation pressure on ~A due to ~A" 
+	      (nlg ?body) (nlg ?wave))
   :EqnFormat ("Fp = 2*I/c"))
 
 (defoperator radiation-pressure-contains (?sought)
