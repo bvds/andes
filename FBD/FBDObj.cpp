@@ -3953,6 +3953,37 @@ void CGuideLine::CheckObject()
 						m_strId));
 }
     
+void CGuideLine::UpdateVarNames(CString strOldName)
+{
+	// unlike for vectors, we never add line variable names to the var name list.
+	// This list is only used for solve for and they can't be solved for.
+	// So we only have to worry about the direction var
+
+	// Add theta/phi var if it is unknown, so it shows on solve-for list
+	CString strDirVar; 
+	if (IsZAxisVector() && m_nZDir == ZDIR_UNKNOWN) {
+		strDirVar = "$j" + m_strName;
+	} else if (! IsZeroMag() && UnknownDir()) {
+		strDirVar = "$q" + m_strName;
+	}
+	if (!strDirVar.IsEmpty())
+			((CFBDDoc*)theApp.GetDocument())->m_strVarNames.AddTail(strDirVar);		
+}
+
+void CGuideLine::RemoveVarNames(CString strOldName)
+{
+	// Remove theta/phi in case it was added because unknown. Should be safe if
+	// not already defined because was known or was zero-mag, say (except for
+	// pathological case where student defined thetaV as something else!)
+	CString strDirVar; 
+	if (IsZAxisVector()) {
+		strDirVar = "$j" + strOldName;
+	} else {
+		strDirVar = "$q" + strOldName;
+	}
+	RemoveVarName(strDirVar);
+
+}
 
 
 

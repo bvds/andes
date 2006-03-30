@@ -547,6 +547,10 @@ public:
 	virtual CDrawObj* Clone();
 	virtual void CheckObject();
 	virtual void UpdateObj(CDrawObj* pObj);
+
+	// variable list management
+	virtual void	UpdateVarNames(CString strOldName = "");
+	virtual void	RemoveVarNames(CString strOldName);
 	
 	//implementation helpers
 	enum { lineWidth = 2 };
