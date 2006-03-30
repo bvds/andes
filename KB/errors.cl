@@ -1635,7 +1635,6 @@
   :probability 0.01)
 
 (defun default-non-existent-line (wrong-line)
-  (setf correct-line (nlg correct-line 'def-np))
   (setf wrong-line (nlg wrong-line 'def-np))
   (make-hint-seq
    (list (format nil "You don't need to draw any lines to solve this problem.")
