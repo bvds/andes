@@ -558,12 +558,10 @@
   :effects 
   ( (eqn-contains (snells-law (orderless ?line1 ?line2) ?flag) ?sought) ))
 
-;; construct variable for angle of incidence or angle of refraction.
-(defoperator get-snell-angle1 (?theta)
+(defoperator use-angle-between-for-angle (?theta)
   :preconditions 
-  ((variable ?theta (angle-between orderless 
-				   (line ?line) (line ?normal-to-surface))))
-  :effects ((snell-angle ?theta ?line ?normal-to-surface nil)))
+  ((variable ?theta (angle-between orderless ?line ?normal-to-surface)))
+  :effects ((angle-expression ?theta ?line ?normal-to-surface nil)))
 
 ;; alternative form of angle for cases where the direction
 ;; of the line is sought
@@ -571,23 +569,23 @@
 ;; transparent to the student (and the solver).  Thus, we only 
 ;; allow directions where the incident angle and angle of refraction
 ;; can be calculated without taking the mod.
-(defoperator get-snell-angle2 (?theta)
+(defoperator use-directions-for-angle1 (?theta)
   :preconditions 
-  ( (greater-than (line ?line) (line ?normal-to-surface))
-    (variable ?angle (dir (line ?line)))
-    (variable ?anglen (dir (line ?normal-to-surface)))
+  ( (greater-than ?line ?normal-to-surface)
+    (variable ?angle (dir ?line))
+    (variable ?anglen (dir ?normal-to-surface))
     (bind ?theta `(- ,?angle ,?anglen)) )
   :effects 
-  ( (snell-angle ?theta ?line ?normal-to-surface t)))
+  ( (angle-expression ?theta ?line ?normal-to-surface t)))
 
-(defoperator get-snell-angle3 (?theta)
+(defoperator use-directions-for-angle2 (?theta)
   :preconditions 
-  ( (greater-than (line ?normal-to-surface) (line ?line))    
-    (variable ?angle (dir (line ?line)))
-    (variable ?anglen (dir (line ?normal-to-surface)))
-   (bind ?theta `(- ,?anglen ,?angle)) )
+  ( (greater-than ?normal-to-surface ?line)    
+    (variable ?angle (dir ?line))
+    (variable ?anglen (dir ?normal-to-surface))
+    (bind ?theta `(- ,?anglen ,?angle)) )
   :effects 
-  ( (snell-angle ?theta ?line ?normal-to-surface t)))
+  ( (angle-expression ?theta ?line ?normal-to-surface t)))
  
 (defoperator write-snells-law (?lines ?angle-flag)
   :preconditions 
@@ -598,8 +596,10 @@
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (snell-angle ?theta1 ?line1 ?normal-to-surface ?angle-flag)
-   (snell-angle ?theta2 ?line2 ?normal-to-surface ?angle-flag)
+   (angle-expression ?theta1 (line ?line1) (line ?normal-to-surface) 
+		     ?angle-flag)
+   (angle-expression ?theta2 (line ?line2) (line ?normal-to-surface) 
+		     ?angle-flag)
    ;; ?dummy1 and ?dummy2 are non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface))
    (variable ?dummy2 (test-var ?line2 ?normal-to-surface))
@@ -612,9 +612,11 @@
     ;; Implicit equations to enforce the correct root for the sines
     ;; This is needed if one wants to calculate one of the angles
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
-		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
+		  (angle-constraint ?angle-flag orderless 
+				    (line ?line1) (line ?normal-to-surface)))
     (implicit-eqn (= ?dummy2 (cos ?theta2)) 
-		  (angle-constraint ?line2 ?normal-to-surface ?angle-flag))
+		  (angle-constraint ?angle-flag orderless 
+				    (line ?line2) (line ?normal-to-surface)))
     )
   :hint (
 	 (point (string "How is the direction of ~A related to the direction of ~A?"
@@ -693,8 +695,7 @@
   :preconditions 
   ( (total-internal-reflection-system ?normal-to-surface 
 				      ?line1 ?medium1 ?medium2)
-    (any-member ?sought (
-			 (angle-between orderless (line ?line1) 
+    (any-member ?sought ((angle-between orderless (line ?line1) 
 					(line ?normal-to-surface))
 			 (index-of-refraction ?medium1)		
 			 (index-of-refraction ?medium2)
@@ -715,7 +716,7 @@
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (snell-angle ?theta1 ?line1 ?normal-to-surface 
+   (angle-expression ?theta1 (line ?line1) (line ?normal-to-surface)
 				    ?angle-flag)
    ;; ?dummy1 is non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface)) 
@@ -728,7 +729,8 @@
     ;; Implicit equations to enforce the correct root for the sines
     ;; This is needed if one wants to calculate one of the angles
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
-		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
+		  (angle-constraint ?angle-flag orderless 
+				    (line ?line1) (line ?normal-to-surface)))
     )
   :hint 
   ((point (string "What is the direction of ~A if there is to be total internal reflection?"
@@ -766,15 +768,8 @@
    (variable ?angle1 ?ang1)
    (variable ?angle2 ?ang2)
    )
-  :effects ( 
-	     (eqn (= (+ ?angle1 ?angle2) (dnum 90 |deg|)) 
-		  (complimentary-angles orderless . ?angles))
-	     ;; These did not really help:
-	     ;;	     (implicit-eqn (= (sin ?angle1) (cos ?angle2))
-	     ;;			   (angle-constraint ?ang1 ?ang2))
-	     ;;	     (implicit-eqn (= (cos ?angle1) (sin ?angle2))
-	     ;;			   (angle-constraint ?ang2 ?ang1))
-    )
+  :effects ( (eqn (= (+ ?angle1 ?angle2) (dnum 90 |deg|)) 
+		  (complimentary-angles orderless . ?angles)) )
   :hint 
   ((point (string "What is the relation between ~A and ~A?"
 		  (?ang1 def-np) (?ang2 def-np)))
@@ -896,7 +891,7 @@
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (snell-angle ?theta1 ?line1 ?normal-to-surface 
+   (angle-expression ?theta1 (line ?line1) (line ?normal-to-surface)
 				    ?angle-flag)
    ;; ?dummy1 is non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface)) 
@@ -911,7 +906,8 @@
     ;; Right now, the routine in Algebra/src/nlsolvov.cpp assumes the
     ;; root is in [-pi/2,pi/2].  See Bug #797
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
-		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
+		  (angle-constraint ?angle-flag orderless 
+				    (line ?line1) (line ?normal-to-surface)))
     )
   :hint 
   ((point (string "What is the direction of ~A if Brewster's law applies?"
@@ -1029,7 +1025,7 @@
     (wave-medium ?medium)
     (variable ?lambda (wavelength ?light ?medium))
     (variable ?d (slit-separation ?grating))
-    (snell-angle ?theta ?angle ?central-max ?angle-flag)
+    (angle-expression ?theta (line ?angle) (line ?central-max) ?angle-flag)
     (bind ?n (if ?flag (+ 1 (position ?angle ?max-list))
 	       (+ 0.5 (position ?angle ?min-list))))
     (variable ?dummy (test-var ?grating ?light ?n))
@@ -1040,7 +1036,8 @@
     ;; Implicit equation to enforce the correct root for the sine
     ;; This is needed if one wants to calculate the angle
     (implicit-eqn (= ?dummy (cos ?theta)) 
-		  (angle-constraint (angle-between ?angle ?central-max ?angle-flag)))
+		  (angle-constraint ?angle-flag orderless 
+				    (line ?angle) (line ?central-max)))
     )
    :hint 
    (
@@ -1084,7 +1081,7 @@
     (wave-medium ?medium)
     (variable ?lambda (wavelength ?light ?medium))
     (variable ?d (width ?grating))
-    (snell-angle ?theta ?angle ?central-max ?flag)
+    (angle-expression ?theta (line ?angle) (line ?central-max) ?flag)
     (bind ?n (+ 1 (position ?angle ?min-list)))
     (variable ?dummy (test-var ?grating ?light ?n))
     )
@@ -1094,7 +1091,8 @@
    ;; Implicit equation to enforce the correct root for the sine
    ;; This is needed if one wants to calculate the angle
    (implicit-eqn (= ?dummy (cos ?theta)) 
-		 (angle-constraint ?angle ?central-max ?flag))
+		 (angle-constraint ?flag orderless 
+				   (line ?angle) (line ?central-max)))
    )
   :hint 
   (

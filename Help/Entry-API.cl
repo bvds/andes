@@ -732,15 +732,17 @@
     ;; is convenient to add this eqn when drawing the line.
     ;; Treat this equation as entered by the student so the solve tool can 
     ;; solve student's system the same way as at sgg time.
-    (let ((eqinfo (find `(angle-constraint ,body-term . ?whatever) 
-			(Problem-EqnIndex *cp*) :key #'eqn-Exp :test #'equal)))
-      (when eqinfo
-	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqinfo)))))
+    (dolist (eqn (Problem-EqnIndex *cp*))
+      (when (and (unify '(angle-constraint t orderless . ?quants) 
+			(eqn-exp eqn)) (member line-term (eqn-exp eqn) 
+					       :test #'unify))
+	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqn)))))
     
     ;; finally return entry
     entry))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-force - check correctness of a force vector drawn by the student
 ;; argument(s):
 ;;  label: the force label
@@ -893,25 +895,20 @@
     (when (numberp degrees)          ; known xy plane direction
        (add-implicit-eqn entry (make-implicit-assignment-entry label `(dnum ,degrees |deg|))))
  
-    ;; Following for angle between lines. Safe if angle between vectors because won't find 
-    ;; angle-constraint in solution.
+    ;; The following is for angle between lines. 
+    ;; Safe for vectors because we won't find angle-constraint in solution.
     ;; Include implicit equation cos angle = dummy, where dummy is 
-    ;; nonnegative.  This is associated with Snell's law, but it
-    ;; is convenient to add this eqn when drawing the line.
+    ;; nonnegative.  This is associated with Snell's law, etc., but it
+    ;; is convenient to add this eqn when defining the associated quantity.
     ;; Treat this equation as entered by the student so the solve tool can 
     ;; solve student's system the same way as at sgg time.
-    (let ((eqinfo (find-angle-btwn-constraint angle-term)))
-      (when eqinfo
-	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqinfo)))))
+    (dolist (eqn (Problem-EqnIndex *cp*))
+      (when (unify `(angle-constraint nil orderless ,v1-term ,v2-term) 
+		   (eqn-exp eqn))
+	(add-implicit-eqn entry (make-implicit-eqn-entry (eqn-algebra eqn)))))
 
-   ; finally return entry
+   ;; finally return entry
    entry))
-
-(defun find-angle-btwn-constraint (angle-term) ; returns an equation index record
-"find constraint eqn for angle between line1 and line2, NIL if none"
-     ; kb should write eqn id as (angle-constraint ?angle-term) in this case
-     (find `(angle-constraint ,angle-term) 
-	(Problem-EqnIndex *cp*) :key #'eqn-Exp :test #'unify))
 
 ; Worker routine to handle labelling angle made with an axis. No matching entry ; in solution graph so doesn't 
 ; matter whether angle was drawn or defined as a variable
