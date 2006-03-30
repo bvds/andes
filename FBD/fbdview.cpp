@@ -1086,7 +1086,9 @@ void CFBDView::InvalObjInView(CDrawObj* pObj)
 		 pObj->IsKindOf(RUNTIME_CLASS(CSystem)) || 
 		 pObj->IsKindOf(RUNTIME_CLASS(CRadius)) ||
 		 pObj->IsKindOf(RUNTIME_CLASS(CMotionBody)) ||
-		 pObj->IsKindOf(RUNTIME_CLASS(CMotionDiagram))  )
+		 pObj->IsKindOf(RUNTIME_CLASS(CMotionDiagram)) 
+		 // workaround bug redrawing label on vertical line after a widening change
+		 || pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) )
 	{	
 		Invalidate(FALSE);
 	} 
