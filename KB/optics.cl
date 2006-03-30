@@ -540,33 +540,23 @@
   :eqnFormat ("n1*sin($q1) = n2*sin($q2)"))
 
 
-;; form with angle-between
 (defoperator snells-law-contains (?sought)
   :preconditions 
-  ( (snell-system ?normal-to-surface ?whatever orderless . ?lists)
+  ( (snell-system ?normal-to-surface orderless . ?lists)
     (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
 			((?line2 ?medium2) (?line1 ?medium1))))
     (any-member ?sought ((angle-between orderless (line ?line1) 
 					(line ?normal-to-surface))
-			 (index-of-refraction ?medium1)))
+			 (index-of-refraction ?medium1)
+			 (dir (line ?line1))))
+    (any-member ?flag (t nil))
+    ;; can't do directions if ?sought is angle-between, etc.
+    (test (if ?flag (not (eq (first ?sought) 'angle-between))
+	    (not (eq (first ?sought) 'dir))))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
   :effects 
-  ( (eqn-contains (snells-law (orderless ?line1 ?line2) nil) ?sought) ))
-
-;; form with explicit angles
-(defoperator snells-law-contains2 (?sought)
-  :preconditions 
-  ((snell-system ?normal-to-surface ?order orderless . ?lists)
-   (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
-		       ((?line2 ?medium2) (?line1 ?medium1))))
-    (any-member ?sought ((dir (line ?line1))
-			 (index-of-refraction ?medium1)))
-    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
-    (test ?order) ;only use this form if order is specified
-    )
-  :effects 
-  ( (eqn-contains (snells-law (orderless ?line1 ?line2) ?order) ?sought) ))
+  ( (eqn-contains (snells-law (orderless ?line1 ?line2) ?flag) ?sought) ))
 
 ;; construct variable for angle of incidence or angle of refraction.
 (defoperator get-snell-angle1 (?theta)
@@ -577,31 +567,33 @@
 
 ;; alternative form of angle for cases where the direction
 ;; of the line is sought
-(defoperator get-snell-angle2 (?theta1)
+;; All the angles are mod 180 degrees, but this fact should be
+;; transparent to the student (and the solver).  Thus, we only 
+;; allow directions where the incident angle and angle of refraction
+;; can be calculated without taking the mod.
+(defoperator get-snell-angle2 (?theta)
   :preconditions 
-  (
-   (test ?order)
-   ;; All the angles are mod 180 degrees, but this fact should be
-   ;; transparent to the student (and the solver).  Thus, we only 
-   ;; allow directions where the incident angle and angle of refraction
-   ;; can be calculated without taking the mod.
-
-   (variable ?angle1 (dir (line ?line1)))
-   (variable ?anglen (dir (line ?normal-to-surface)))
-   (bind ?theta1 (cond ((eq ?order 'greater-than) `(- ,?anglen ,?angle1)) 
-		       ((eq ?order 'less-than)  `(- ,?angle1 ,?anglen))
-		       (t (error "Must be greater-than or less-than, not ~A" 
-				 ?order))))
-   )
+  ( (greater-than (line ?line) (line ?normal-to-surface))
+    (variable ?angle (dir (line ?line)))
+    (variable ?anglen (dir (line ?normal-to-surface)))
+    (bind ?theta `(- ,?angle ,?anglen)) )
   :effects 
-  ( (snell-angle ?theta1 ?line1 ?normal-to-surface ?order)
-    ))
+  ( (snell-angle ?theta ?line ?normal-to-surface t)))
+
+(defoperator get-snell-angle3 (?theta)
+  :preconditions 
+  ( (greater-than (line ?normal-to-surface) (line ?line))    
+    (variable ?angle (dir (line ?line)))
+    (variable ?anglen (dir (line ?normal-to-surface)))
+   (bind ?theta `(- ,?anglen ,?angle)) )
+  :effects 
+  ( (snell-angle ?theta ?line ?normal-to-surface t)))
  
 (defoperator write-snells-law (?lines ?angle-flag)
   :preconditions 
   (
    (any-member ?lines ((?line1 ?line2)))
-   (snell-system ?normal-to-surface ?whatever orderless . ?lists)
+   (snell-system ?normal-to-surface orderless . ?lists)
    (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))))
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
@@ -688,7 +680,8 @@
 
 ;; This is basically a copy of Snell's law
 ;; It does not really handle the inequality
-(def-psmclass total-internal-reflection (total-internal-reflection ?line1 ?angle-flag)
+(def-psmclass total-internal-reflection 
+  (total-internal-reflection ?line1 ?angle-flag)
   :complexity major
   :short-name "total internal reflection (minimum angle)"
   :english ("Formula for angle of total internal reflection")
@@ -696,73 +689,33 @@
 	      (nlg ?line1))
   :eqnFormat ("n1*sin($q1) = n2"))
 
-
-;; form with angle-between
 (defoperator total-internal-reflection-contains (?sought)
   :preconditions 
-  ( (total-internal-reflection-system ?normal-to-surface ?whatever 
+  ( (total-internal-reflection-system ?normal-to-surface 
 				      ?line1 ?medium1 ?medium2)
     (any-member ?sought (
 			 (angle-between orderless (line ?line1) 
 					(line ?normal-to-surface))
 			 (index-of-refraction ?medium1)		
-			 (index-of-refraction ?medium2)))
+			 (index-of-refraction ?medium2)
+			 (dir (line ?line1))))
+    (any-member ?flag (t nil))
+    ;; can't do directions if ?sought is angle-between, etc.
+    (test (if ?flag (not (eq (first ?sought) 'angle-between))
+	    (not (eq (first ?sought) 'dir))))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
-  :effects ( (eqn-contains (total-internal-reflection ?line1 nil) ?sought) ))
-
-;; form with explicit angles
-(defoperator total-internal-reflection-contains2 (?sought)
-  :preconditions 
-  ( (total-internal-reflection-system ?normal-to-surface ?order
-				      ?line1 ?medium1 ?medium2)
-    (any-member ?sought (
-			 (dir (line ?line1))
-			 (index-of-refraction ?medium1)		
-			 (index-of-refraction ?medium2)))
-    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
-    (test ?order) ;only use this form if order is specified
-    )
-  :effects 
-  ( (eqn-contains (total-internal-reflection ?line1 ?order) ?sought) ))
-
-;; construct variable for angle of incidence or angle of refraction.
-(defoperator get-total-internal-reflection-angle1 (?theta)
-  :preconditions 
-  ((variable ?theta (angle-between orderless 
-				   (line ?line) (line ?normal-to-surface))))
-  :effects ((total-internal-reflection-angle ?theta ?line ?normal-to-surface nil)))
-
-;; alternative form of angle for cases where the direction
-;; of the line is sought
-(defoperator get-total-internal-reflection-angle2 (?theta1)
-  :preconditions 
-  (
-   (test ?order) 
-   ;; All the angles are mod 180 degrees, but this fact should be
-   ;; transparent to the student (and the solver).  Thus, we only 
-   ;; allow directions where the angle can be calculated without 
-   ;; taking the mod.
-   (variable ?angle1 (dir (line ?line1)))
-   (variable ?anglen (dir (line ?normal-to-surface)))
-   (bind ?theta1 (cond ((eq ?order 'greater-than) `(- ,?anglen ,?angle1)) 
-		       ((eq ?order 'less-than)  `(- ,?angle1 ,?anglen))
-		       (t (error "Most be greater-than or less-than, not ~A" 
-				 ?order))))
-   )
-  :effects 
-  ( (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface ?order)
-    ))
+  :effects ( (eqn-contains (total-internal-reflection ?line1 ?flag) ?sought) ))
  
 (defoperator write-total-internal-reflection (?line1 ?angle-flag)
   :preconditions 
   (
-   (total-internal-reflection-system ?normal-to-surface ?whatever 
+   (total-internal-reflection-system ?normal-to-surface 
 				     ?line1 ?medium1 ?medium2)
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (total-internal-reflection-angle ?theta1 ?line1 ?normal-to-surface 
+   (snell-angle ?theta1 ?line1 ?normal-to-surface 
 				    ?angle-flag)
    ;; ?dummy1 is non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface)) 
@@ -776,7 +729,6 @@
     ;; This is needed if one wants to calculate one of the angles
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
 		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
-
     )
   :hint 
   ((point (string "What is the direction of ~A if there is to be total internal reflection?"
@@ -921,69 +873,30 @@
 ;; form with angle-between
 (defoperator brewsters-law-contains (?sought)
   :preconditions 
-  ( (brewsters-law-system ?normal-to-surface ?whatever 
+  ( (brewsters-law-system ?normal-to-surface 
 				      ?line1 ?medium1 ?medium2)
-    (any-member ?sought (
-			 (angle-between orderless (line ?line1) 
+    (any-member ?sought ((angle-between orderless (line ?line1) 
 					(line ?normal-to-surface))
 			 (index-of-refraction ?medium1)		
-			 (index-of-refraction ?medium2)))
+			 (index-of-refraction ?medium2)
+			 (dir (line ?line1))))
+    (any-member ?flag (t nil))
+    ;; can't do directions if ?sought is angle-between, etc.
+    (test (if ?flag (not (eq (first ?sought) 'angle-between))
+	    (not (eq (first ?sought) 'dir))))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
-  :effects ( (eqn-contains (brewsters-law ?line1 nil) ?sought) ))
+  :effects ( (eqn-contains (brewsters-law ?line1 ?flag) ?sought) ))
 
-;; form with explicit angles
-(defoperator brewsters-law-contains2 (?sought)
-  :preconditions 
-  ( (brewsters-law-system ?normal-to-surface ?order
-				      ?line1 ?medium1 ?medium2)
-    (any-member ?sought (
-			 (dir (line ?line1))
-			 (index-of-refraction ?medium1)		
-			 (index-of-refraction ?medium2)))
-    (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
-    (test ?order) ;only use this form if order is specified
-    )
-  :effects 
-  ( (eqn-contains (brewsters-law ?line1 ?order) ?sought) ))
-
-;; construct variable for angle of incidence or angle of refraction.
-(defoperator get-brewsters-law-angle1 (?theta)
-  :preconditions 
-  ((variable ?theta (angle-between orderless 
-				   (line ?line) (line ?normal-to-surface))))
-  :effects ((brewsters-law-angle ?theta ?line ?normal-to-surface nil)))
-
-;; alternative form of angle for cases where the direction
-;; of the line is sought
-(defoperator get-brewsters-law-angle2 (?theta1)
-  :preconditions 
-  (
-   (test ?order) 
-   ;; All the angles are mod 180 degrees, but this fact should be
-   ;; transparent to the student (and the solver).  Thus, we only 
-   ;; allow directions where the angle can be calculated without 
-   ;; taking the mod.
-   (variable ?angle1 (dir (line ?line1)))
-   (variable ?anglen (dir (line ?normal-to-surface)))
-   (bind ?theta1 (cond ((eq ?order 'greater-than) `(- ,?anglen ,?angle1)) 
-		       ((eq ?order 'less-than)  `(- ,?angle1 ,?anglen))
-		       (t (error "Most be greater-than or less-than, not ~A" 
-				 ?order))))
-   )
-  :effects 
-  ( (brewsters-law-angle ?theta1 ?line1 ?normal-to-surface ?order)
-    ))
  
 (defoperator write-brewsters-law (?line1 ?angle-flag)
   :preconditions 
   (
-   (brewsters-law-system ?normal-to-surface ?whatever 
-				     ?line1 ?medium1 ?medium2)
+   (brewsters-law-system ?normal-to-surface ?line1 ?medium1 ?medium2)
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
-   (brewsters-law-angle ?theta1 ?line1 ?normal-to-surface 
+   (snell-angle ?theta1 ?line1 ?normal-to-surface 
 				    ?angle-flag)
    ;; ?dummy1 is non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface)) 
@@ -999,7 +912,6 @@
     ;; root is in [-pi/2,pi/2].  See Bug #797
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
 		  (angle-constraint ?line1 ?normal-to-surface ?angle-flag))
-
     )
   :hint 
   ((point (string "What is the direction of ~A if Brewster's law applies?"
@@ -1065,7 +977,7 @@
 ;;;;   Interference pattern for grating with slits
 
 (def-psmclass slit-interference (slit-interference ?grating ?light ?angle
-						   ?flag)
+						   ?max-flag ?angle-flag)
   :complexity major
   :short-name "interference for parallel slits"
   :english ("the interference pattern for waves going through parallel slits")
@@ -1074,32 +986,42 @@
   :EqnFormat ("d*sin($q) = n*$l")) 
 
 (defoperator slit-interference-contains-max (?sought)
-   :preconditions (
-     (parallel-slit-system ?grating ?light ?central-max :minima ?min-list 
-			   :maxima ?max-list)
-     (any-member ?max ?max-list)
-     (any-member ?sought ( (slit-separation ?grating) 
-			   (wavelength ?light ?medium)
-			   (angle-between orderless ?central-max ?max)))
-  )
-   :effects (
-     (eqn-contains (slit-interference ?grating ?light ?max t) ?sought)
-   ))
+  :preconditions 
+  ( (parallel-slit-system ?grating ?light ?central-max :minima ?min-list 
+			  :maxima ?max-list)
+    (any-member ?max ?max-list)
+    (any-member ?sought ((slit-separation ?grating) 
+			 (wavelength ?light ?medium)
+			 (angle-between orderless (line ?central-max) 
+					(line ?max))
+			 (dir (line ?max))))
+    (any-member ?angle-flag (t nil))
+    ;; can't do directions if ?sought is angle-between, etc.
+    (test (if ?angle-flag (not (eq (first ?sought) 'angle-between))
+	    (not (eq (first ?sought) 'dir))))
+    )
+  :effects ( (eqn-contains (slit-interference ?grating ?light 
+					      ?max t ?angle-flag) ?sought) ))
 
 (defoperator slit-interference-contains-min (?sought)
-   :preconditions (
-     (parallel-slit-system ?grating ?light ?central-max :minima ?min-list 
-			   :maxima ?max-list)
-     (any-member ?min ?min-list)
-     (any-member ?sought ( (slit-separation ?grating) 
-			   (wavelength ?light ?medium)
-			   (angle-between orderless ?central-max ?min)))
-  )
-   :effects (
-     (eqn-contains (slit-interference ?grating ?light ?min nil) ?sought)
-   ))
+  :preconditions 
+  ( (parallel-slit-system ?grating ?light ?central-max :minima ?min-list 
+			  :maxima ?max-list)
+    (any-member ?min ?min-list)
+    (any-member ?sought ( (slit-separation ?grating) 
+			  (wavelength ?light ?medium)
+			  (angle-between orderless (line ?central-max) 
+					 (line ?min))
+			  (dir (line ?min))))
+    (any-member ?angle-flag (t nil))
+    ;; can't do directions if ?sought is angle-between, etc.
+    (test (if ?angle-flag (not (eq (first ?sought) 'angle-between))
+	    (not (eq (first ?sought) 'dir))))
+    )
+  :effects ((eqn-contains (slit-interference ?grating ?light 
+					     ?min nil ?angle-flag) ?sought) ))
 
-(defoperator write-slit-interference (?grating ?light ?angle)
+(defoperator write-slit-interference (?grating ?light ?angle ?angle-flag)
    :preconditions 
    (
     (in-wm (parallel-slit-system ?grating ?light ?central-max 
@@ -1107,18 +1029,18 @@
     (wave-medium ?medium)
     (variable ?lambda (wavelength ?light ?medium))
     (variable ?d (slit-separation ?grating))
-    (variable ?theta (angle-between orderless ?central-max ?angle))
+    (snell-angle ?theta ?angle ?central-max ?angle-flag)
     (bind ?n (if ?flag (+ 1 (position ?angle ?max-list))
 	       (+ 0.5 (position ?angle ?min-list))))
     (variable ?dummy (test-var ?grating ?light ?n))
     )
    :effects 
    ((eqn (= (* ?d (sin ?theta)) (* ?n ?lambda)) 
-	 (slit-interference ?grating ?light ?angle ?flag))
+	 (slit-interference ?grating ?light ?angle ?flag ?angle-flag))
     ;; Implicit equation to enforce the correct root for the sine
     ;; This is needed if one wants to calculate the angle
     (implicit-eqn (= ?dummy (cos ?theta)) 
-		  (angle-constraint (angle-between orderless ?central-max ?angle)))
+		  (angle-constraint (angle-between ?angle ?central-max ?angle-flag)))
     )
    :hint 
    (
@@ -1131,7 +1053,7 @@
 ;;;;   Frauenhofer diffraction formula
 
 (def-psmclass frauenhofer-diffraction 
-  (frauenhofer-diffraction ?grating ?light ?angle)
+  (frauenhofer-diffraction ?grating ?light ?angle ?angle-flag)
   :complexity major
   :short-name "single slit diffraction (minima)"
   :english ("the interference pattern for waves going through a single slit")
@@ -1139,44 +1061,48 @@
   :EqnFormat ("w*sin($q) = n*$l")) 
 
 (defoperator frauenhofer-diffraction-contains (?sought)
-   :preconditions (
-     (single-slit-system ?grating ?light ?central-max :minima ?min-list)
+   :preconditions 
+   ( (single-slit-system ?grating ?light ?central-max :minima ?min-list)
      (any-member ?min ?min-list)
      (any-member ?sought ( (slit-separation ?grating) 
 			   (wavelength ?light ?medium)
-			   (angle-between orderless ?central-max ?min)))
-  )
-   :effects (
-     (eqn-contains (frauenhofer-diffraction ?grating ?light ?min) ?sought)
-   ))
+			   (angle-between orderless 
+					  (line ?central-max) (line ?min))
+			   (dir (line ?min))))
+     (any-member ?flag (t nil))
+     ;; can't do directions if ?sought is angle-between, etc.
+     (test (if ?flag (not (eq (first ?sought) 'angle-between))
+	     (not (eq (first ?sought) 'dir))))
+     )
+   :effects ( (eqn-contains (frauenhofer-diffraction ?grating ?light 
+						     ?min ?flag) ?sought) ))
 
-(defoperator write-frauenhofer-diffraction (?grating ?light ?angle)
-   :preconditions 
-   (
-    (in-wm (single-slit-system ?grating ?light ?central-max 
-				 :minima ?min-list))
+(defoperator write-frauenhofer-diffraction (?grating ?light ?angle ?flag)
+  :preconditions 
+  ( (in-wm (single-slit-system ?grating ?light ?central-max 
+			       :minima ?min-list))
     (wave-medium ?medium)
     (variable ?lambda (wavelength ?light ?medium))
     (variable ?d (width ?grating))
-    (variable ?theta (angle-between orderless ?central-max ?angle))
+    (snell-angle ?theta ?angle ?central-max ?flag)
     (bind ?n (+ 1 (position ?angle ?min-list)))
     (variable ?dummy (test-var ?grating ?light ?n))
     )
-   :effects 
-   ((eqn (= (* ?d (sin ?theta)) (* ?n ?lambda)) 
-	 (frauenhofer-diffraction ?grating ?light ?angle))
-    ;; Implicit equation to enforce the correct root for the sine
-    ;; This is needed if one wants to calculate the angle
-    (implicit-eqn (= ?dummy (cos ?theta)) 
-		  (angle-constraint (angle-between orderless ?central-max ?angle)))
-    )
-   :hint 
-   (
-    (point (string "Waves passing through ~A will interfere destructively at certain angles." 
-		   ?grating))
-    (teach (string "Read about Frauenhofer diffraction in your textbook."))
-      (bottom-out (string "Write the equation ~A" 
-                     ((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
+  :effects 
+  ((eqn (= (* ?d (sin ?theta)) (* ?n ?lambda)) 
+	(frauenhofer-diffraction ?grating ?light ?angle ?flag))
+   ;; Implicit equation to enforce the correct root for the sine
+   ;; This is needed if one wants to calculate the angle
+   (implicit-eqn (= ?dummy (cos ?theta)) 
+		 (angle-constraint ?angle ?central-max ?flag))
+   )
+  :hint 
+  (
+   (point (string "Waves passing through ~A will interfere destructively at certain angles." 
+		  ?grating))
+   (teach (string "Read about Frauenhofer diffraction in your textbook."))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
    ))
 
 ;;; Minimum angle of resolution for system with circular aperature
