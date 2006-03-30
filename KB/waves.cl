@@ -1443,7 +1443,7 @@
       ))
 
 (def-psmclass radiation-pressure 
-  (radiation-pressure ?body ?surface ?wave elastic ?t)
+  (radiation-pressure ?body ?wave elastic ?t)
   :complexity major  
   :short-name "radiation pressure (reflector)"
   :english ("the radiation pressure for a reflector")
@@ -1468,7 +1468,7 @@
   (
    (test (eq ?type 'elastic)) ;could easily generalize to inelastic case
    (variable ?I (intensity ?body ?wave :time ?t))
-   (variable ?P  (pressure ?body :time ?t))
+   (variable ?P (pressure ?body :time ?t))
    )
   :effects (
      (eqn (= ?P (/ (* 2 ?I) |c|)) (radiation-pressure ?body ?wave ?type ?t))
@@ -1478,5 +1478,5 @@
    (point (string "~A reflects off ~A." ?wave ?body))
    (teach (string "Light waves carry a small amount of momentum.  When they reflect off a surface, they exert a force on that surface." ))
    (bottom-out (string "Write the equation ~A" 
-		       ((= ?P (/ (* 2 ?I) |c|) algebra))))
+		       ((= ?P (/ (* 2 ?I) |c|)) algebra)))
   ))
