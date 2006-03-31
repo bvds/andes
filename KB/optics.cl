@@ -919,40 +919,54 @@
 
 ;;;;             Polarizer
 
-(def-psmclass polarizer-intensity (polarizer-intensity ?incoming ?outgoing ?t)
+(def-psmclass polarizer-intensity
+  (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t)
   :complexity major
-  :short-name "effect of polarizer on intensity"
+  :short-name ("polarizer for ~A light" 
+	       (polarization-fraction ?fraction))
   :english ("the effect of a polarizer on the intensity of a beam of light")
-  :ExpFormat ("using the effect of a polarizer on intensity")
-  :EqnFormat ("If = Ii cos($q)^2")) 
+  :ExpFormat ("using the effect of a polarizer on the intensity of ~A light"
+	      (polarization-fraction ?fraction))
+  :EqnFormat ((polarization-intensity-eqn ?fraction))) 
+
+(defun polarization-intensity-eqn (fraction)
+  (cond ((and (numberp fraction) (= fraction 0)) "If = 0.5*Ik")
+	(t "If = Ii cos($q)^2")))
+
+(defun polarization-fraction (fraction)
+  (cond ((and (numberp fraction) (= fraction 0)) "unpolarized")
+	((and (numberp fraction) (= fraction 1)) "polarized")
+	(t "partially polarized")))
 
 (defoperator polarizer-intensity-contains (?sought)
    :preconditions 
    (
-    (polarization-triple ?incoming ?polarizer ?outgoing)
-    (any-member ?sought ( (net-intensity ?incoming :time ?t)
-                           (net-intensity ?outgoing :time ?t) ))
+    (polarization-triple ?beam ?incoming ?polarizer ?outgoing)
+    (polarization ?beam ?incoming ?dir)
+    (bind ?fraction (if ?dir 1 0))
+    (any-member ?sought ((intensity ?beam at ?incoming :time ?t)
+			 (intensity ?beam at ?outgoing :time ?t) ))
    )
-   :effects (
-     (eqn-contains (polarizer-intensity ?incoming ?outgoing ?t) ?sought)
-   ))
+   :effects ((eqn-contains (polarizer-intensity ?beam ?incoming ?outgoing 
+						?fraction ?t) ?sought)
+	     ))
 
 ;; find polarization directions.
 ;; Currently, the student does not define any quantity representing 
 ;; the direction of polarization.
-(defoperator do-polarization (?outgoing)
+(defoperator do-polarization (?beam ?outgoing)
   :preconditions 
-  ((polarization-triple ?incoming ?polarizer ?outgoing)
+  ((polarization-triple ?beam ?incoming ?polarizer ?outgoing)
    (polarization ?polarizer ?dirp))
-  :effects ((polarization ?outgoing ?dirp)))
+  :effects ((polarization ?beam ?outgoing ?dirp)))
 
-(defoperator write-polarizer-intensity (?incoming ?outgoing ?t)
+(defoperator write-polarizer-intensity (?beam ?incoming ?outgoing ?t)
   :preconditions 
   (
-   (polarization ?incoming ?dirin)
-   (polarization ?outgoing ?dirout)
-   (variable ?iin (net-intensity ?incoming :time ?t))
-   (variable ?iout (net-intensity ?outgoing :time ?t))
+   (polarization ?beam ?incoming ?dirin)
+   (polarization ?beam ?outgoing ?dirout)
+   (variable ?iin (intensity ?beam at ?incoming :time ?t))
+   (variable ?iout (intensity ?beam at ?outgoing :time ?t))
    (bind ?angle (when ?dirin (get-angle-between ?dirin ?dirout)))
    (test (or (null ?dirin) ?angle))
    (bind ?angle-term (if ?dirin `(^ (cos (dnum ,?angle |deg|)) 2) '0.5))
@@ -961,7 +975,7 @@
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
   :effects ( (eqn (= ?iout (* ?iin ?angle-term)) 
-		   (polarizer-intensity ?incoming ?outgoing ?t)) )
+		   (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t)) )
   :hint (
       (point (string "Relate the net intensity of ~A to the net intensity of ~A." 
 		     ?outgoing ?incoming))

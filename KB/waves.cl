@@ -1052,6 +1052,27 @@
 	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		  ((intensity ?wave ?agent :time ?t) def-np)))))
 
+(def-qexp intensity-at (intensity ?body at ?position)
+  :symbol-base |I|
+  :short-name "intensity"
+  :dialog-text "of [body:bodies] at [body2:positions]"
+  :units |W/m^2|
+  :restrictions positive
+  :fromWorkbench `(intensity ,body at ,body2 :time ,time)
+  :english ("the intensity of ~A at ~A" (nlg ?body)
+          (nlg ?wave 'at-time ?time)))
+
+(defoperator define-intensity-at (?body ?position ?t)
+  :preconditions
+  ((bind ?intense-var (format-sym "int_~A_~A~@[_~A~]" 
+				 (body-name ?body) (body-name ?position)
+				 (time-abbrev ?t))))
+  :effects ((variable ?intense-var (intensity ?body at ?position :time ?t))
+	    (define-var (intensity ?body at ?position :time ?t)))
+  :hint ((bottom-out 
+	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
+		  ((intensity ?body at ?position :time ?t) def-np)))))
+
 (def-qexp poynting-vector (poynting-vector ?loc ?agent :time ?time)
   :units |W/m^2|
   :english ("the Poynting vector at ~A due to ~A"

@@ -63,6 +63,8 @@
 	     magnetic-flux-change))
 (def-feature-set EM-waves 
   (amplitude-electric amplitude-magnetic))
+(def-feature-set simple-work
+  (intensity-at))
 (def-feature-set optics 
   (object-distance image-distance 
 		   lens-distance ;see Bug #799
