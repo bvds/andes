@@ -1005,9 +1005,7 @@
   :preconditions 
   ((polarization-triple ?beam ?incoming ?polarizer ?outgoing)
    (polarization ?polarizer ?dirp))
-  :effects ((polarization ?beam ?outgoing ?dirp)
-	  ;;  (given (polarization-angle ?beam at ?outgoing) ?dirp)
-	    ))
+  :effects ((polarization ?beam ?outgoing ?dirp) ))
 
 ;; original form with explicit numbers
 (defoperator polarization-intensity-use-numbers (?beam ?incoming ?outgoing)
@@ -1021,23 +1019,35 @@
  :effects ((polarization-angle-term (dnum ?angle |deg|) 
 				    ?beam ?incoming ?outgoing)))
 
- ;; experimental version for ref7
+ ;; experimental version for ref6
 (defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing)
  :preconditions 
- ( (in-wm (use-polarization-angle)) 
+ ( (in-wm (use-polarization-angle))
    (polarization ?beam ?incoming ?dirin)
    (test ?dirin) ;incoming polarized
-   (variable ?thetain (polarization-angle ?beam at ?incoming :time ?t))
-   (variable ?thetaout (polarization-angle ?beam at ?outgoing :time ?t))
-   (bind ?angle `(- ,?thetain ?thetaout))
+   (variable ?thetain (polarization-angle ?beam at ?incoming))
+   (variable ?thetaout (polarization-angle ?beam at ?outgoing))
+   (bind ?angle `(- ,?thetain ,?thetaout))
    )
  :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
 
-;; experimental version for ref7
+ ;; experimental version for ref7
+(defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing)
+ :preconditions 
+ ( (in-wm (use-polarization-angle))
+   (polarization ?beam ?incoming ?dirin)
+   (test ?dirin) ;incoming polarized
+   (polarization-dir-name ?beam ?incoming ?in)
+   (polarization-dir-name ?beam ?outgoing ?out)
+   (variable ?angle (angle-between orderless (line ?in) (line ?out)))
+   )
+ :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
+
+;; experimental version for ref6 and ref7
 (defoperator polarization-intensity-use-angle-null (?beam ?incoming ?outgoing)
  :preconditions 
  ( (in-wm (use-polarization-angle)) 
-   (polarization ?beam ?incoming nil) ;incoming polarized
+   (polarization ?beam ?incoming nil) ;incoming unpolarized
    )
  :effects ((polarization-angle-term nil ?beam ?incoming ?outgoing)))
 
