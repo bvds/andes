@@ -285,6 +285,20 @@
 	 (format nil "Define a variable for ~a ~a instead of ~a."
 		 descr ctime stime))))
 
+;; generic error for the wrong body (second argument)
+(def-error-class only-body-wrong (?sbody ?cbody) 
+  ((student (define-var (?quant ?sbody . ?rest)))
+   (no-correct (define-var (?quant ?sbody . ?other)))
+   (correct (define-var (?quant ?cbody . ?rest))))
+  ;; small probablility because we want quantity-specific hints first
+  :probability .0001)
+
+(defun only-body-wrong (sbody cbody)
+  (make-hint-seq
+   (list (format nil "Are you sure you want to choose ~A?" (nlg sbody 'def-np))
+	 (format nil "Perhaps you should choose ~A instead." 
+		 (nlg cbody 'def-np)))))
+
 ;;; ============= defining a mass variable ==========================
 ;;; The mass variable has only one slot: the body.  Thus, he only
 ;;; mistake one can make is to choose an irrelevant object as the
@@ -675,7 +689,7 @@
 ;;; those special cases.
 
 ;;; default case of wrong body
-(def-error-class wrong-body-for-height (?sbody ?cbody ) 
+(def-error-class wrong-body-for-height (?sbody ?cbody) 
   ((student (define-var (height ?sbody :time ?stime)))
    (no-correct (define-var (height ?sbody :time ?time2)))
    (correct (define-var (height ?cbody :time ?ctime))))
@@ -683,7 +697,7 @@
   (+ 0.1
      (if (equal ?stime ?ctime) 0.2 0.0)))
 
-(defun wrong-body-for-height (sbody cbody )
+(defun wrong-body-for-height (sbody cbody)
   (make-hint-seq
    (list (strcat "You should specify the height of the "
 		 "body whose motion is being analyzed.")
@@ -1055,8 +1069,8 @@
 ;; the student draws a body for an object but another object needs defining
 (def-error-class wrong-object-for-body-tool (?correct-body)
   ((student (body ?wrong-body))
-   (correct (body ?correct-body ))
-   (no-student (body ?correct-body )))
+   (correct (body ?correct-body))
+   (no-student (body ?correct-body)))
   :probability 0.5  
   )
 
@@ -1071,7 +1085,7 @@
 ;; the student draws a body, but it doesn't need defining.
 (def-error-class extra-object-for-body-tool (?wrong-body)
   ((student (body ?wrong-body))
-   (correct (body ?correct-body )))
+   (correct (body ?correct-body)))
   :probability 0.1  ;more general than above
   )
 
@@ -1671,7 +1685,7 @@
 ;;; The default cases (wrong body, wrong time, wrong direction) are
 ;;; handled by the general vector code, so this is all special cases.
 
-(def-error-class speed-not-velocity (?body )
+(def-error-class speed-not-velocity (?body)
   ((student    (vector (velocity ?body :time ?wrong-time) ?dir))
    (no-correct (vector (velocity ?body :time ?time2)      ?dir2))
    (correct (define-var (speed ?body :time ?time))))

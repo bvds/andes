@@ -76,6 +76,8 @@
   (object-distance image-distance distance-between slit-separation focal-length
 		   magnification radius-of-curvature index-of-refraction 
 		   angle resolution-angle)) 
+(def-feature-set polarization-angle
+  (polarization-angle))
 (def-feature-set fluids 
   (mass duration height mass-density pressure area-at area volume
 	atmosphere ;predefined constant

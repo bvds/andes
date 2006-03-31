@@ -189,6 +189,31 @@
 			     ((resolution-angle ?grating) def-np)))
 	 ))
 
+(def-qexp polarization-angle (polarization-angle ?beam at ?position :time ?t)
+  :symbol-base |$q|     
+  :short-name "angle of polarization"
+  :dialog-text "at [body:positions] of [body2:bodies]"
+  :units |deg|
+  :restrictions positive
+  :english ("the angle of polarization of ~A at ~A" 
+	    (nlg ?beam) (nlg ?position))
+  :fromWorkbench `(polarization-angle ,body2 at ,body :time ,time)
+  )
+
+(defoperator define-polarization-angle (?beam at ?position :time ?t)
+  :preconditions 
+  ( (bind ?do-var (format-sym "thetapol_~A_~A~@[_~A~]" 
+			      (body-name ?beam) (body-name ?position)
+			      (time-abbrev ?t))) )
+  :effects 
+  ( (variable ?do-var (polarization-angle ?beam at ?position :time ?t))
+    (define-var (polarization-angle ?beam at ?position :time ?t)))
+  :hint 
+  (
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
+		       ((polarization-angle ?beam at ?position :time ?t) 
+			def-np))) ))
+
 ;;
 ;; Optics Equations
 ;;
@@ -521,6 +546,27 @@
    ((bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
 			?r))
     ))
+
+#|
+(defoperator draw-line-given-polarization (?r)
+  :preconditions
+  ( (not (given (dir (line ?r)) ?whatever))
+    (not (draw-line (line ?r) ?dontcare))
+    (polarization ?beam ?point ?dir)
+    (test ?dir) ;make sure it is polarized
+    (bind ?dir (mod (convert-dnum-to-number ?dir-in) 180))
+    (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "draw line ~A at ~A~%" ?r ?dir) )
+  :effects ( (draw-line (line ?r) (dnum ?dir |deg|))
+	     (variable ?mag-var (mag (line ?r)))
+	     (variable ?dir-var (dir (line ?r))))
+  :hint ((point (string "Use the line tool to indicate ~A" ?r))
+((point 
+(bottom-out (string "Since the beam at ~AUse the line tool to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
+			     ?r ?dir))
+	 ))
+|#
 
 ;;; make trig test variable (for implicit equations only)
 
@@ -944,6 +990,7 @@
     (polarization-triple ?beam ?incoming ?polarizer ?outgoing)
     (polarization ?beam ?incoming ?dir)
     (bind ?fraction (if ?dir 1 0))
+    ;; can't use to find angle
     (any-member ?sought ((intensity ?beam at ?incoming :time ?t)
 			 (intensity ?beam at ?outgoing :time ?t) ))
    )
@@ -958,19 +1005,51 @@
   :preconditions 
   ((polarization-triple ?beam ?incoming ?polarizer ?outgoing)
    (polarization ?polarizer ?dirp))
-  :effects ((polarization ?beam ?outgoing ?dirp)))
+  :effects ((polarization ?beam ?outgoing ?dirp)
+	  ;;  (given (polarization-angle ?beam at ?outgoing) ?dirp)
+	    ))
+
+;; original form with explicit numbers
+(defoperator polarization-intensity-use-numbers (?beam ?incoming ?outgoing)
+ :preconditions 
+ ( (not (use-polarization-angle)) 
+   (polarization ?beam ?incoming ?dirin)
+   (polarization ?beam ?outgoing ?dirout)
+   (bind ?angle (when ?dirin (get-angle-between ?dirin ?dirout)))
+   (test (or (null ?dirin) ?angle))
+   )
+ :effects ((polarization-angle-term (dnum ?angle |deg|) 
+				    ?beam ?incoming ?outgoing)))
+
+ ;; experimental version for ref7
+(defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing)
+ :preconditions 
+ ( (in-wm (use-polarization-angle)) 
+   (polarization ?beam ?incoming ?dirin)
+   (test ?dirin) ;incoming polarized
+   (variable ?thetain (polarization-angle ?beam at ?incoming :time ?t))
+   (variable ?thetaout (polarization-angle ?beam at ?outgoing :time ?t))
+   (bind ?angle `(- ,?thetain ?thetaout))
+   )
+ :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
+
+;; experimental version for ref7
+(defoperator polarization-intensity-use-angle-null (?beam ?incoming ?outgoing)
+ :preconditions 
+ ( (in-wm (use-polarization-angle)) 
+   (polarization ?beam ?incoming nil) ;incoming polarized
+   )
+ :effects ((polarization-angle-term nil ?beam ?incoming ?outgoing)))
 
 (defoperator write-polarizer-intensity (?beam ?incoming ?outgoing ?t)
   :preconditions 
   (
-   (polarization ?beam ?incoming ?dirin)
-   (polarization ?beam ?outgoing ?dirout)
    (variable ?iin (intensity ?beam at ?incoming :time ?t))
    (variable ?iout (intensity ?beam at ?outgoing :time ?t))
-   (bind ?angle (when ?dirin (get-angle-between ?dirin ?dirout)))
-   (test (or (null ?dirin) ?angle))
-   (bind ?angle-term (if ?dirin `(^ (cos (dnum ,?angle |deg|)) 2) '0.5))
-   (bind ?help (if ?dirin 
+   (polarization-angle-term ?angle ?beam ?incoming ?outgoing)
+   (bind ?angle-term (if (= ?fraction 1)
+			 `(^ (cos ,?angle) 2) '0.5))
+   (bind ?help (if (= ?fraction 1) 
 		   "polarized at an angle of $q relative to the direction of polarization of the polarizer, the transmitted intensity is cos($q)^2 times the incoming intensity." 
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
