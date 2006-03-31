@@ -930,7 +930,7 @@
   :EqnFormat ((polarization-intensity-eqn ?fraction))) 
 
 (defun polarization-intensity-eqn (fraction)
-  (cond ((and (numberp fraction) (= fraction 0)) "If = 0.5*Ik")
+  (cond ((and (numberp fraction) (= fraction 0)) "If = 0.5*Ii")
 	(t "If = Ii cos($q)^2")))
 
 (defun polarization-fraction (fraction)
