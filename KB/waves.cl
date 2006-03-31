@@ -1055,7 +1055,7 @@
 (def-qexp intensity-at (intensity ?body at ?position)
   :symbol-base |I|
   :short-name "intensity"
-  :dialog-text "of [body2:bodies] at [body:positions]"
+  :dialog-text "at [body:positions] of [body2:bodies]"
   :units |W/m^2|
   :restrictions positive
   :fromWorkbench `(intensity ,body2 at ,body :time ,time)
