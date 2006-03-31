@@ -1060,7 +1060,7 @@
   :restrictions positive
   :fromWorkbench `(intensity ,body2 at ,body :time ,time)
   :english ("the intensity of ~A at ~A" (nlg ?body)
-          (nlg ?wave 'at-time ?time)))
+          (nlg ?position 'at-time ?time)))
 
 (defoperator define-intensity-at (?body ?position ?t)
   :preconditions

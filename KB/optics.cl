@@ -977,8 +977,8 @@
   :effects ( (eqn (= ?iout (* ?iin ?angle-term)) 
 		   (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t)) )
   :hint (
-      (point (string "Relate the net intensity of ~A to the net intensity of ~A." 
-		     ?outgoing ?incoming))
+      (point (string "Relate the intensity of ~A at ~A to the intensity at ~A." 
+		     ?beam ?outgoing ?incoming))
       (point (string "If the incoming beam is ~A" (?help identity)))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?iout (* ?iin ?angle-term)) algebra) ))
