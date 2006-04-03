@@ -2,7 +2,7 @@ amplitude	A	amplitude		for oscillations of [body:bodies]
 amplitude-electric	E	amplitude of electric field		for oscillations of [body:bodies]
 amplitude-magnetic	B	amplitude of magnetic field		for oscillations of [body:bodies]
 angle		angle		
-polarization-angle	$q	angle of polarization		at [body:positions] of [body2:bodies]
+angle-z-axis	$q	angle in xy-plane		of [body:bodies]
 resolution-angle	$q	angle of resolution	minimum angle of resolution	for [body:bodies]
 angular-frequency	$w	angular frequency		for oscillations of [body:bodies]
 area	A	area		of [body:bodies]

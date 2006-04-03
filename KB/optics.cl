@@ -189,29 +189,29 @@
 			     ((resolution-angle ?grating) def-np)))
 	 ))
 
-(def-qexp polarization-angle (polarization-angle ?beam at ?position :time ?t)
+(def-qexp angle-z-axis (angle-z-axis ?body :time ?t)
   :symbol-base |$q|     
-  :short-name "angle of polarization"
-  :dialog-text "at [body:positions] of [body2:bodies]"
+  :short-name "angle in xy-plane"
+  :dialog-text "of [body:bodies]"
   :units |deg|
   :restrictions positive
-  :english ("the angle of polarization of ~A at ~A" 
-	    (nlg ?beam) (nlg ?position))
-  :fromWorkbench `(polarization-angle ,body2 at ,body :time ,time)
+  :english ("the angle of ~A in the xy-plane" 
+	    (nlg ?body))
+  :fromWorkbench `(angle-z-axis ,body :time ,time)
   )
 
-(defoperator define-polarization-angle (?beam at ?position :time ?t)
+(defoperator define-angle-z-axis (?beam at ?position :time ?t)
   :preconditions 
   ( (bind ?do-var (format-sym "thetapol_~A_~A~@[_~A~]" 
 			      (body-name ?beam) (body-name ?position)
 			      (time-abbrev ?t))) )
   :effects 
-  ( (variable ?do-var (polarization-angle ?beam at ?position :time ?t))
-    (define-var (polarization-angle ?beam at ?position :time ?t)))
+  ( (variable ?do-var (angle-z-axis ?beam at ?position :time ?t))
+    (define-var (angle-z-axis ?beam at ?position :time ?t)))
   :hint 
   (
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
-		       ((polarization-angle ?beam at ?position :time ?t) 
+		       ((angle-z-axis ?beam at ?position :time ?t) 
 			def-np))) ))
 
 ;;
@@ -547,26 +547,6 @@
 			?r))
     ))
 
-#|
-(defoperator draw-line-given-polarization (?r)
-  :preconditions
-  ( (not (given (dir (line ?r)) ?whatever))
-    (not (draw-line (line ?r) ?dontcare))
-    (polarization ?beam ?point ?dir)
-    (test ?dir) ;make sure it is polarized
-    (bind ?dir (mod (convert-dnum-to-number ?dir-in) 180))
-    (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "draw line ~A at ~A~%" ?r ?dir) )
-  :effects ( (draw-line (line ?r) (dnum ?dir |deg|))
-	     (variable ?mag-var (mag (line ?r)))
-	     (variable ?dir-var (dir (line ?r))))
-  :hint ((point (string "Use the line tool to indicate ~A" ?r))
-((point 
-(bottom-out (string "Since the beam at ~AUse the line tool to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
-			     ?r ?dir))
-	 ))
-|#
 
 ;;; make trig test variable (for implicit equations only)
 
@@ -968,7 +948,7 @@
 (def-psmclass polarizer-intensity
   (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t)
   :complexity major
-  :short-name ("polarizer for ~A light" 
+  :short-name ("Malus' law (~A light)" 
 	       (polarization-fraction ?fraction))
   :english ("the effect of a polarizer on the intensity of a beam of light")
   :ExpFormat ("using the effect of a polarizer on the intensity of ~A light"
@@ -1023,11 +1003,13 @@
 (defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing)
  :preconditions 
  ( (in-wm (use-polarization-angle))
-   (polarization ?beam ?incoming ?dirin)
-   (test ?dirin) ;incoming polarized
-   (variable ?thetain (polarization-angle ?beam at ?incoming))
-   (variable ?thetaout (polarization-angle ?beam at ?outgoing))
-   (bind ?angle `(- ,?thetain ,?thetaout))
+   ;; get name of first polarizer
+   (polarization-triple ?beam ?whatever ?p1 ?incoming)
+   (variable ?thetaout (angle-z-axis ?p1))
+   ;; get name of second polarizer
+   (polarization-triple ?beam ?incoming ?p2 ?dontcare)
+   (variable ?theta2 (angle-z-axis ?p2))
+   (bind ?angle `(- ,?theta2 ,?theta1))
    )
  :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
 
@@ -1035,11 +1017,11 @@
 (defoperator polarization-intensity-use-angle2 (?beam ?incoming ?outgoing)
  :preconditions 
  ( (in-wm (use-polarization-angle))
-   (polarization ?beam ?incoming ?dirin)
-   (test ?dirin) ;incoming polarized
-   (polarization-dir-name ?beam ?incoming ?in)
-   (polarization-dir-name ?beam ?outgoing ?out)
-   (variable ?angle (angle-between orderless (line ?in) (line ?out)))
+   ;; get name of first polarizer
+   (polarization-triple ?beam ?whatever ?p1 ?incoming)
+   ;; get name of second polarizer
+   (polarization-triple ?beam ?incoming ?p2 ?dontcare)
+   (variable ?angle (angle-between orderless (line ?p1) (line ?p2)))
    )
  :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
 
