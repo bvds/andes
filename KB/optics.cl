@@ -994,7 +994,7 @@
    (bind ?angle-term (if (= ?fraction 1)
 			 `(^ (cos ,?angle) 2) '0.5))
    (bind ?help (if (= ?fraction 1) 
-		   "polarized at an angle of $q relative to the direction of polarization of the polarizer, the transmitted intensity is cos($q)^2 times the incoming intensity." 
+		   "polarized at an angle of $q relative to the transmission axis of the polarizer, the intensity of the transmitted beam is cos($q)^2 times the incoming intensity." 
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
   :effects ( (eqn (= ?iout (* ?iin ?angle-term)) 
