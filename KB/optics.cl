@@ -1032,7 +1032,7 @@
  :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
 
  ;; experimental version for ref7
-(defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing)
+(defoperator polarization-intensity-use-angle2 (?beam ?incoming ?outgoing)
  :preconditions 
  ( (in-wm (use-polarization-angle))
    (polarization ?beam ?incoming ?dirin)
