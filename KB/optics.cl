@@ -189,30 +189,6 @@
 			     ((resolution-angle ?grating) def-np)))
 	 ))
 
-(def-qexp angle-z-axis (angle-z-axis ?body :time ?t)
-  :symbol-base |$q|     
-  :short-name "angle in xy-plane"
-  :dialog-text "of [body:bodies]"
-  :units |deg|
-  :restrictions positive
-  :english ("the angle of ~A in the xy-plane" 
-	    (nlg ?body))
-  :fromWorkbench `(angle-z-axis ,body :time ,time)
-  )
-
-(defoperator define-angle-z-axis (?beam at ?position :time ?t)
-  :preconditions 
-  ( (bind ?do-var (format-sym "thetapol_~A_~A~@[_~A~]" 
-			      (body-name ?beam) (body-name ?position)
-			      (time-abbrev ?t))) )
-  :effects 
-  ( (variable ?do-var (angle-z-axis ?beam at ?position :time ?t))
-    (define-var (angle-z-axis ?beam at ?position :time ?t)))
-  :hint 
-  (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
-		       ((angle-z-axis ?beam at ?position :time ?t) 
-			def-np))) ))
 
 ;;
 ;; Optics Equations
@@ -543,10 +519,10 @@
     (variable ?mag-var (mag (line ?r)))
     (variable ?dir-var (dir (line ?r))) )
   :hint
-   ((bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
-			?r))
-    ))
-
+  ((hint (string "What is the direction of ~A?" ?r))
+   (bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
+		       ?r))
+   ))
 
 ;;; make trig test variable (for implicit equations only)
 
@@ -948,20 +924,21 @@
 (def-psmclass polarizer-intensity
   (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t)
   :complexity major
-  :short-name ("Malus' law (~A light)" 
-	       (polarization-fraction ?fraction))
+  :short-name ((polarization-intensity-eqn-name ?fraction))
   :english ("the effect of a polarizer on the intensity of a beam of light")
   :ExpFormat ("using the effect of a polarizer on the intensity of ~A light"
 	      (polarization-fraction ?fraction))
   :EqnFormat ((polarization-intensity-eqn ?fraction))) 
 
+(defun polarization-intensity-eqn-name (fraction)
+  (if (unify fraction '0) "polarizer and unpolarized light" "Malus' law"))
+
 (defun polarization-intensity-eqn (fraction)
-  (cond ((and (numberp fraction) (= fraction 0)) "If = 0.5*Ii")
-	(t "If = Ii cos($q)^2")))
+  (if (unify fraction '0) "If = 0.5*Ii"	"If = Ii*cos($q)^2"))
 
 (defun polarization-fraction (fraction)
-  (cond ((and (numberp fraction) (= fraction 0)) "unpolarized")
-	((and (numberp fraction) (= fraction 1)) "polarized")
+  (cond ((unify fraction '0) "unpolarized")
+	((unify fraction '1) "polarized")
 	(t "partially polarized")))
 
 (defoperator polarizer-intensity-contains (?sought)
@@ -978,46 +955,22 @@
 						?fraction ?t) ?sought)
 	     ))
 
-;; find polarization directions.
-;; Currently, the student does not define any quantity representing 
-;; the direction of polarization.
+;; enable line drawing for a polarizer direction
+;; might want to eventually have a separate drawing rule
+(defoperator line-dir-given-polarization (?polarizer)
+  :preconditions ((polarization ?polarizer ?dirp))
+  :effects ((given (dir (line ?polarizer)) ?dirp)))
+
+;; find polarization of beam after going through a polarizer
 (defoperator do-polarization (?beam ?outgoing)
   :preconditions 
   ((polarization-triple ?beam ?incoming ?polarizer ?outgoing)
    (polarization ?polarizer ?dirp))
   :effects ((polarization ?beam ?outgoing ?dirp) ))
 
-;; original form with explicit numbers
-(defoperator polarization-intensity-use-numbers (?beam ?incoming ?outgoing)
- :preconditions 
- ( (not (use-polarization-angle)) 
-   (polarization ?beam ?incoming ?dirin)
-   (polarization ?beam ?outgoing ?dirout)
-   (bind ?angle (when ?dirin (get-angle-between ?dirin ?dirout)))
-   (test (or (null ?dirin) ?angle))
-   )
- :effects ((polarization-angle-term (dnum ?angle |deg|) 
-				    ?beam ?incoming ?outgoing)))
-
- ;; experimental version for ref6
 (defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing)
  :preconditions 
- ( (in-wm (use-polarization-angle))
-   ;; get name of first polarizer
-   (polarization-triple ?beam ?whatever ?p1 ?incoming)
-   (variable ?thetaout (angle-z-axis ?p1))
-   ;; get name of second polarizer
-   (polarization-triple ?beam ?incoming ?p2 ?dontcare)
-   (variable ?theta2 (angle-z-axis ?p2))
-   (bind ?angle `(- ,?theta2 ,?theta1))
-   )
- :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
-
- ;; experimental version for ref7
-(defoperator polarization-intensity-use-angle2 (?beam ?incoming ?outgoing)
- :preconditions 
- ( (in-wm (use-polarization-angle))
-   ;; get name of first polarizer
+ ( ;; get name of first polarizer
    (polarization-triple ?beam ?whatever ?p1 ?incoming)
    ;; get name of second polarizer
    (polarization-triple ?beam ?incoming ?p2 ?dontcare)
@@ -1025,11 +978,9 @@
    )
  :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
 
-;; experimental version for ref6 and ref7
-(defoperator polarization-intensity-use-angle-null (?beam ?incoming ?outgoing)
+(defoperator polarization-intensity-unpolarized (?beam ?incoming ?outgoing)
  :preconditions 
- ( (in-wm (use-polarization-angle)) 
-   (polarization ?beam ?incoming nil) ;incoming unpolarized
+ ( (polarization ?beam ?incoming nil) ;incoming unpolarized
    )
  :effects ((polarization-angle-term nil ?beam ?incoming ?outgoing)))
 
@@ -1038,6 +989,7 @@
   (
    (variable ?iin (intensity ?beam at ?incoming :time ?t))
    (variable ?iout (intensity ?beam at ?outgoing :time ?t))
+   ;; Only force angle-between variable definition when it is needed
    (polarization-angle-term ?angle ?beam ?incoming ?outgoing)
    (bind ?angle-term (if (= ?fraction 1)
 			 `(^ (cos ,?angle) 2) '0.5))
