@@ -501,7 +501,8 @@
   :effects ( (draw-line (line ?r) (dnum ?dir |deg|))
 	     (variable ?mag-var (mag (line ?r)))
 	     (variable ?dir-var (dir (line ?r))))
-  :hint ((bottom-out (string "Use the line tool to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
+  :hint 
+  ( (bottom-out (string "Use the line tool to draw a line for ~A in a direction of ~A degrees with respect to the horizontal." 
 			     ?r ?dir))
 	 ))
 
@@ -519,8 +520,7 @@
     (variable ?mag-var (mag (line ?r)))
     (variable ?dir-var (dir (line ?r))) )
   :hint
-  ((hint (string "What is the direction of ~A?" ?r))
-   (bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
+  ((bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
 		       ?r))
    ))
 
