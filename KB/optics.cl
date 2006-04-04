@@ -955,7 +955,6 @@
     (any-member ?sought ((intensity ?beam at ?incoming :time ?t)
 			 (intensity ?beam at ?outgoing :time ?t) ))
     (any-member ?angle-flag (t nil))
-    (test (or ?dir ?angle-flag))
    )
    :effects 
    ((eqn-contains (polarizer-intensity ?beam ?incoming ?outgoing 
@@ -989,25 +988,24 @@
 
 (defoperator polarization-intensity-unpolarized (?beam ?incoming ?outgoing)
  :preconditions ( (polarization ?beam ?incoming nil) ) ;incoming unpolarized
- :effects 
- ((polarization-angle-term nil ?beam ?incoming ?outgoing ?angle-flag)))
+ :effects ((polarization-angle-term nil ?beam ?incoming ?outgoing nil)))
 
-(defoperator write-polarizer-intensity (?beam ?incoming ?outgoing ?t 
-					      ?angle-flag)
+(defoperator write-polarizer-intensity 
+  (?beam ?incoming ?outgoing ?t ?angle-flag)
   :preconditions 
   (
    (variable ?iin (intensity ?beam at ?incoming :time ?t))
    (variable ?iout (intensity ?beam at ?outgoing :time ?t))
-   ;; Only force angle-between variable definition when it is needed
+   ;; Only force angle variable definitions when they are needed
    (polarization-angle-term ?angle ?beam ?incoming ?outgoing ?angle-flag)
-   (bind ?angle-term (if (= ?fraction 1)
+   (bind ?fraction-term (if (= ?fraction 1)
 			 `(^ (cos ,?angle) 2) '0.5))
    (bind ?help (if (= ?fraction 1) 
 		   "polarized at an angle of $q relative to the transmission axis of the polarizer, the intensity of the transmitted beam is cos($q)^2 times the incoming intensity." 
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
   :effects 
-  ( (eqn (= ?iout (* ?iin ?angle-term)) 
+  ( (eqn (= ?iout (* ?iin ?fraction-term)) 
 	 (polarizer-intensity ?beam ?incoming ?outgoing 
 			      ?fraction ?t ?angle-flag))
     (assume using-snells-law (?beam ?incoming ?outgoing) ?angle-flag) )
@@ -1016,7 +1014,7 @@
 		     ?beam ?outgoing ?incoming))
       (point (string "If the incoming beam is ~A" (?help identity)))
       (bottom-out (string "Write the equation ~A" 
-                     ((= ?iout (* ?iin ?angle-term)) algebra) ))
+                     ((= ?iout (* ?iin ?fraction-term)) algebra) ))
 	 ))
 
 ;;;;   Interference pattern for grating with slits
