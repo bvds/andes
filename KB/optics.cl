@@ -667,7 +667,8 @@
    (variable ?angle (angle-between orderless ?greater ?lesser))
    )
   :effects 
-  ( (eqn (= ?angle (- ?dg ?dl)) (angle-direction ?greater ?lesser)))
+  ( (eqn (= ?angle (- ?dg ?dl)) (angle-direction ?greater ?lesser))
+    (assume using-angle-direction (angle-between orderless ?greater ?lesser)) )
   :hint (
 	 (point (string "Express the angle between ~A and ~A in terms of directions."
 			?greater ?lesser))
@@ -771,7 +772,10 @@
    (variable ?angle2 ?ang2)
    )
   :effects ( (eqn (= (+ ?angle1 ?angle2) (dnum 90 |deg|)) 
-		  (complimentary-angles orderless . ?angles)) )
+		  (complimentary-angles orderless . ?angles)) 
+	     ;; inconsistancies arise in ref3a when used in combination 
+	     ;; with angle-direction
+	     (assume using-complimentary-angles . ?angles))
   :hint 
   ((point (string "What is the relation between ~A and ~A?"
 		  (?ang1 def-np) (?ang2 def-np)))
@@ -922,7 +926,7 @@
 ;;;;             Polarizer
 
 (def-psmclass polarizer-intensity
-  (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t)
+  (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t ?angle-flag)
   :complexity major
   :short-name ((polarization-intensity-eqn-name ?fraction))
   :english ("the effect of a polarizer on the intensity of a beam of light")
@@ -950,9 +954,12 @@
     ;; can't use to find angle
     (any-member ?sought ((intensity ?beam at ?incoming :time ?t)
 			 (intensity ?beam at ?outgoing :time ?t) ))
+    (any-member ?angle-flag (t nil))
+    (test (or ?dir ?angle-flag))
    )
-   :effects ((eqn-contains (polarizer-intensity ?beam ?incoming ?outgoing 
-						?fraction ?t) ?sought)
+   :effects 
+   ((eqn-contains (polarizer-intensity ?beam ?incoming ?outgoing 
+				       ?fraction ?t ?angle-flag) ?sought)
 	     ))
 
 ;; enable line drawing for a polarizer direction
@@ -968,37 +975,42 @@
    (polarization ?polarizer ?dirp))
   :effects ((polarization ?beam ?outgoing ?dirp) ))
 
-(defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing)
+(defoperator polarization-intensity-use-angle (?beam ?incoming ?outgoing 
+						     ?angle-flag)
  :preconditions 
  ( ;; get name of first polarizer
    (polarization-triple ?beam ?whatever ?p1 ?incoming)
    ;; get name of second polarizer
    (polarization-triple ?beam ?incoming ?p2 ?dontcare)
-   (variable ?angle (angle-between orderless (line ?p1) (line ?p2)))
+   (angle-expression ?angle (line ?p1) (line ?p2) ?angle-flag)
    )
- :effects ((polarization-angle-term ?angle ?beam ?incoming ?outgoing)))
+ :effects 
+ ((polarization-angle-term ?angle ?beam ?incoming ?outgoing ?angle-flag)))
 
 (defoperator polarization-intensity-unpolarized (?beam ?incoming ?outgoing)
- :preconditions 
- ( (polarization ?beam ?incoming nil) ;incoming unpolarized
-   )
- :effects ((polarization-angle-term nil ?beam ?incoming ?outgoing)))
+ :preconditions ( (polarization ?beam ?incoming nil) ) ;incoming unpolarized
+ :effects 
+ ((polarization-angle-term nil ?beam ?incoming ?outgoing ?angle-flag)))
 
-(defoperator write-polarizer-intensity (?beam ?incoming ?outgoing ?t)
+(defoperator write-polarizer-intensity (?beam ?incoming ?outgoing ?t 
+					      ?angle-flag)
   :preconditions 
   (
    (variable ?iin (intensity ?beam at ?incoming :time ?t))
    (variable ?iout (intensity ?beam at ?outgoing :time ?t))
    ;; Only force angle-between variable definition when it is needed
-   (polarization-angle-term ?angle ?beam ?incoming ?outgoing)
+   (polarization-angle-term ?angle ?beam ?incoming ?outgoing ?angle-flag)
    (bind ?angle-term (if (= ?fraction 1)
 			 `(^ (cos ,?angle) 2) '0.5))
    (bind ?help (if (= ?fraction 1) 
 		   "polarized at an angle of $q relative to the transmission axis of the polarizer, the intensity of the transmitted beam is cos($q)^2 times the incoming intensity." 
 		 "unpolarized, half the intensity is absorbed by the polarizer."))
    )
-  :effects ( (eqn (= ?iout (* ?iin ?angle-term)) 
-		   (polarizer-intensity ?beam ?incoming ?outgoing ?fraction ?t)) )
+  :effects 
+  ( (eqn (= ?iout (* ?iin ?angle-term)) 
+	 (polarizer-intensity ?beam ?incoming ?outgoing 
+			      ?fraction ?t ?angle-flag))
+    (assume using-snells-law (?beam ?incoming ?outgoing) ?angle-flag) )
   :hint (
       (point (string "Relate the intensity of ~A at ~A to the intensity at ~A." 
 		     ?beam ?outgoing ?incoming))

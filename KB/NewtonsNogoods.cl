@@ -119,7 +119,7 @@
 ;;;  don't use both forms of Snell's law
 ;;;
 
-;; Also used for total internal reflection
+;; Also used for total internal reflection, Brewster's angle
 (defnogood only-one-form-of-snells-law
     ((using-snells-law ?lines ?flag1)
      (using-snells-law ?lines ?flag2)
@@ -136,6 +136,16 @@
     ((using-magnitude ?family-id)
      ;; asserted in apply-vector-PSM* and mag-pyth
      (using-compo (?id ?xyz ?rot ?family-id)) 
+     )
+  :specs ("Prevent both component and magnitude form of a vector equation")
+  :message (Both component and magnitude forms for ?family-id))
+
+;; Get inconsistant solutions in ref3a when both complimentary-angles
+;; and angle-direction are used on the same triangle.
+(defnogood complimentary-or-angle-direction 
+    ((using-complimentary-angles ?ang1 ?ang2)
+     (using-angle-direction ?ang1)
+     (using-angle-direction ?ang2)
      )
   :specs ("Prevent both component and magnitude form of a vector equation")
   :message (Both component and magnitude forms for ?family-id))
