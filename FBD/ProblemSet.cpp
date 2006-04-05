@@ -391,7 +391,8 @@ int HttpCallURL(LPCTSTR szURL, LPCTSTR szCallId) // CallId used to name error pa
 		TRACE("Trying %s\n", szURL);
 		// MFC Wrapper parses https: and sets secure flag in underlying WinInet call 
 		pFile = (CHttpFile*) session.OpenURL(szURL, 1, 
-			      INTERNET_FLAG_TRANSFER_ASCII | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID); 
+			      INTERNET_FLAG_TRANSFER_ASCII | 
+				  INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | INTERNET_FLAG_IGNORE_CERT_CN_INVALID ); 
 		if (pFile) {
 			DWORD dwRet;
 			pFile->QueryInfoStatusCode(dwRet);	
@@ -444,7 +445,7 @@ int HttpGetFile(LPCTSTR szURL, LPCTSTR szPathName, LPCTSTR szCallId)
 	{
 		TRACE("Trying %s\n", szURL);
 		pFile = (CHttpFile*) session.OpenURL(szURL, 1, INTERNET_FLAG_TRANSFER_ASCII
-			                  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
+			                  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | INTERNET_FLAG_IGNORE_CERT_CN_INVALID ); 
 		if (pFile) {
 			DWORD dwRet;
 			pFile->QueryInfoStatusCode(dwRet);
@@ -613,7 +614,7 @@ int HttpPostTextFile(LPCSTR pszURL, CString strStart, LPCSTR szPathName, LPCSTR 
                               /*referrer:*/ NULL, /*context:*/ 1, /*accept type:*/ NULL, 
 							  /*version*/ NULL, /*flags:*/
 							  INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT
-							  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
+							  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | INTERNET_FLAG_IGNORE_CERT_CN_INVALID ); 
 		BOOL result = pFile->SendRequest(strHeaders,
 						(LPVOID)(LPCTSTR)strFormData, strFormData.GetLength());
 		// TRACE("SendRequest success = %d\n", result);
@@ -714,7 +715,7 @@ int HttpPostBinaryFile(LPCSTR pszURL, LPCTSTR strStart, LPCSTR szPathName, LPCST
                               /*referrer:*/ NULL, /*context:*/ 1, /*accept type:*/ NULL, 
 							  /*version*/ NULL, /*flags:*/
 							  INTERNET_FLAG_SECURE | INTERNET_FLAG_EXISTING_CONNECT
-							  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
+							  |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | INTERNET_FLAG_IGNORE_CERT_CN_INVALID  ); 
 		BOOL result = pFile->SendRequest(strHeaders,
 						(LPVOID)(LPCTSTR)strFormData, strFormData.GetLength());
 		// look for error page on failure. Result just indicates request was sent.
@@ -762,7 +763,7 @@ int HttpGetFileBinary(LPCTSTR szURL, LPCTSTR szPathName, LPCTSTR szCallId)
 	{
 		TRACE("Trying %s\n", szURL);
 		pFile = (CHttpFile*) session.OpenURL(szURL, 1, INTERNET_FLAG_TRANSFER_ASCII
-			                     |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID ); 
+			                     |INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | INTERNET_FLAG_IGNORE_CERT_CN_INVALID ); 
 		if (pFile) {
 			DWORD dwRet;
 			pFile->QueryInfoStatusCode(dwRet);
