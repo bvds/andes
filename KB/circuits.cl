@@ -1471,7 +1471,7 @@
    (circuit-component ?cap capacitor)
    (any-member ?sought ((time-constant orderless ?res ?ind ?cap)
 			(resistance ?res)
-			(inductance ?ind)) )
+			(self-inductance ?ind)) )
    )
   :effects (
 	    (eqn-contains (RLC-time-constant ?circuit) ?sought)
@@ -1482,7 +1482,7 @@
   (
    (in-wm (closed-loop (?res ?ind ?cap) :name ?circuit))
    (variable ?tau (time-constant orderless ?res ?ind ?cap))
-   (variable ?l-var (inductance ?ind))
+   (variable ?l-var (self-inductance ?ind))
    (variable ?r-var (resistance ?res))
    )
   :effects (
@@ -1512,7 +1512,7 @@
    (circuit-component ?ind inductor)
    (any-member ?sought ((angular-frequency ?circuit)
 			(capacitance ?cap)
-			(inductance ?ind)))
+			(self-inductance ?ind)))
    )
   :effects (
 	    (eqn-contains (LC-angular-frequency ?circuit) ?sought)
@@ -1524,7 +1524,7 @@
    (in-wm (closed-loop (?ind ?cap) :name ?circuit))  ;should be made cyclic
    (variable ?omega (angular-frequency ?circuit))
    (variable ?c-var (capacitance ?cap))
-   (variable ?l-var (inductance ?ind))
+   (variable ?l-var (self-inductance ?ind))
    )
   :effects (
 	    (eqn (= 1 ( * (^ ?omega 2) ?c-var ?l-var))
@@ -1556,7 +1556,7 @@
    (any-member ?sought ((angular-frequency ?circuit)
 			(capacitance ?cap)
 			(resistance ?res)
-			(inductance ?ind)))
+			(self-inductance ?ind)))
    )
   :effects (
 	    (eqn-contains (RLC-angular-frequency ?circuit) ?sought)
@@ -1568,7 +1568,7 @@
    (in-wm (closed-loop (?res ?ind ?cap) :name ?circuit))
    (variable ?omega (angular-frequency ?circuit))
    (variable ?r-var (resistance ?res))
-   (variable ?l-var (inductance ?ind))
+   (variable ?l-var (self-inductance ?ind))
    (variable ?c-var (capacitance ?cap))
    )
   :effects (
@@ -1792,36 +1792,24 @@
 ;;;;---------------------------------------------------------------------------
 
 ;; define inductance var
-(defoperator define-inductance-var (?ind)   
-  :preconditions (
-		  (circuit-component ?ind inductor)
-		  (bind ?L-var (format-sym "~A" (comp-name ?ind 'L)))
-		  )
-  :effects (
-	    (variable ?L-var (inductance ?ind))
-	    (define-var (inductance ?ind))
-	    )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting inductance." 
-			     ((inductance ?ind) def-np)))
-	 ))
+(defoperator define-self-inductance-var (?ind)   
+  :preconditions ((circuit-component ?ind inductor)
+		  (bind ?L-var (format-sym "~A" (comp-name ?ind 'L))))
+  :effects ((variable ?L-var (self-inductance ?ind))
+	    (define-var (self-inductance ?ind)))
+  :hint 
+  ((bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting inductance." 
+		       ((self-inductance ?ind) def-np)))))
 
 ;; define mutual inductance var
 (defoperator define-mutual-inductance-var (?inds)   
   :preconditions 
-  (
-   (bind ?ind1 (first ?inds))
-   (bind ?ind2 (second ?inds))
-   (bind ?L-var (format-sym "M_~A_~A" (body-name ?ind1) (body-name ?ind2)))
-   )
-  :effects (
-	    (variable ?L-var (mutual-inductance orderless . ?inds))
-	    (define-var (mutual-inductance orderless . ?inds))
-	    )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting mutual inductance." 
-			     ((mutual-inductance orderless . ?inds) def-np)))
-	 ))
+  ( (bind ?L-var (format-sym "M_~{_~A~}" (mapcar #'body-name ?inds))) )
+  :effects ( (variable ?L-var (mutual-inductance orderless . ?inds))
+	    (define-var (mutual-inductance orderless . ?inds)) )
+  :hint 
+  ( (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting mutual inductance." 
+			((mutual-inductance orderless . ?inds) def-np))) ))
 
 ;;;              Magnetic field inside a long solenoid
 
@@ -1841,7 +1829,7 @@
 			(length ?solenoid)
 			(turns ?solenoid)
 			(area ?solenoid)
-			(inductance ?solenoid)
+			(self-inductance ?solenoid)
 			))
    )
   :effects ((eqn-contains (solenoid-self-inductance ?solenoid) ?sought)))
@@ -1852,7 +1840,7 @@
    (variable ?length (length ?solenoid))
    (variable ?N (turns ?solenoid))
    (variable ?A (area ?solenoid))
-   (variable ?L (inductance ?solenoid))
+   (variable ?L (self-inductance ?solenoid))
    )
   :effects ( 
 	    (eqn (= (* ?L ?length) (* |mu0| ?N ?N ?A))
@@ -1969,7 +1957,7 @@
   :preconditions (
 		  (circuit-component ?ind inductor)
 		  (any-member ?sought ( (voltage-across ?ind :time ?time)
-					(inductance ?ind)
+					(self-inductance ?ind)
 					(rate-of-change (current-thru ?ind :time ?time)) ))
 		  (time ?time)
 		  )
@@ -1978,7 +1966,7 @@
 (defoperator inductor-emf (?ind ?time)
   :preconditions (
 		  (variable ?V (voltage-across ?ind :time ?time))
-		  (variable ?L (inductance ?ind))
+		  (variable ?L (self-inductance ?ind))
 		  (variable ?dIdt (rate-of-change (current-thru ?ind :time ?time)))
 		  )
   :effects (
@@ -2090,7 +2078,7 @@
 
 (defoperator inductor-energy-contains (?sought)
   :preconditions (
-		  (any-member ?sought ( (inductance ?inductor)
+		  (any-member ?sought ( (self-inductance ?inductor)
 					(current-thru ?inductor :time ?t)
 					(stored-energy ?inductor :time ?t)))
 		  (time ?t)
@@ -2102,7 +2090,7 @@
 (defoperator write-inductor-energy (?inductor ?t)
   :preconditions (
 		  (variable ?U (stored-energy ?inductor :time ?t))
-		  (variable ?L (inductance ?inductor))
+		  (variable ?L (self-inductance ?inductor))
 		  (variable ?I (current-thru ?inductor :time ?t))
 		  )
   :effects (
@@ -2145,7 +2133,7 @@
 		  (circuit-component ?ind inductor)
 		  (circuit-component ?res resistor)
 		  (any-member ?sought ((time-constant orderless ?ind ?res)
-				       (inductance ?ind)
+				       (self-inductance ?ind)
 				       (resistance ?res)))
 		  )
   :effects (
@@ -2156,7 +2144,7 @@
 (defoperator write-LR-time-constant (?ind ?res)
   :preconditions (
 		  (variable ?tau     (time-constant orderless ?ind ?res))
-		  (variable ?L-var   (inductance ?ind))
+		  (variable ?L-var   (self-inductance ?ind))
 		  (variable ?r-var   (resistance ?res))
 		  )
   :effects (

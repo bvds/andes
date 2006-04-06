@@ -52,12 +52,12 @@
 (def-qexp max-charge (max-charge ?name :time ?time)
   :units |C|)
 
-(def-qexp inductance (inductance ?inductor)
+(def-qexp self-inductance (self-inductance ?inductor)
   :symbol-base |L|     
-  :short-name "inductance"	
+  :short-name "self-inductance"	
   :dialog-text "of [body:bodies]"
   :units |H|
-  :fromWorkbench `(inductance ,body)
+  :fromWorkbench `(self-inductance ,body)
   :english ("the inductance of ~A" (nlg ?inductor)))
 
 (def-qexp mutual-inductance (mutual-inductance orderless . ?inductors)
@@ -67,7 +67,7 @@
   :units |H|
   :fromWorkbench `(mutual-inductance orderless ,body ,body2)
   :english ("the mutual inductance of ~A" 
-	    (nlg ?inductor 'conjoined-defnp)))
+	    (nlg ?inductors 'conjoined-defnp)))
 
 ;;; power as used in circuits problem has slightly different definition
 ;;; than power in mechanics: no agent, and may denote power output (from

@@ -55,8 +55,8 @@
   (mass period duration angle moment-of-inertia))
 (def-feature-set circuits 
   (electric-power current voltage resistance capacitance charge-on 
-		  stored-energy inductance mutual-inductance current-change 
-		  time-constant duration))
+		  stored-energy self-inductance mutual-inductance 
+		  current-change time-constant duration))
 (def-feature-set E&M 
   (charge-on current potential duration length turns turns-per-length angle 
 	     electric-flux magnetic-flux electric-flux-change 

@@ -179,9 +179,12 @@
 			    documentation
 			    varfunc english fromWorkbench)
   "Define and store the specified expression if possible."
-  (when (or (expression-type-p type) 
-	    (lookup-expression-struct Form))
-    (error "A matching exp already exists."))
+  (when (expression-type-p type) 
+    (error "exptype ~A already exists." type))
+
+  (when (lookup-expression-struct Form)
+    (error "exptype ~A matching form already exists." 
+	   (exptype-type (lookup-expression-struct Form))))
   
   (let ((E (make-exptype 
 	    :type type
