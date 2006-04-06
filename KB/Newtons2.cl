@@ -7335,13 +7335,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;; This is a bit of a hack until we get real vectors working in Andes
 
-(defoperator hat-using-angle (?vec ?xyz ?rot)
+;; This gives wrong results if ?vec does not lie entirely in the xy plane.
+(defoperator hat-using-angle (?vec ?xy ?rot)
   :preconditions 
   ((variable ?vec-theta (dir ?vec))
-   (bind ?axis-angle (axis-dir ?xyz ?rot)))
-  :effects ((hat (cos (- ?vec-theta ?axis-angle)) ?vec ?xyz ?rot nil)
-	  (assume using-hat ?vec ?rot nil)
-	  ))
+   (bind ?axis-angle (axis-dir 'x ?rot))
+   (test (numberp ?axis-angle))
+   (bind ?trig (if (eq ?xy 'y) 'sin 'cos))
+   (bind ?term (if (= ?axis-angle 0) 
+		   ?vec-theta `(- ,?vec-theta (dnum ,?axis-angle |deg|)))))
+   :effects ((hat (?trig ?term) ?vec ?xy ?rot nil)
+	     (assume using-hat ?vec ?rot nil)
+	     ))
 
 (defoperator hat-using-compos (?vec ?xyz ?rot)
   :preconditions
