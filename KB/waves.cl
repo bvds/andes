@@ -1287,7 +1287,7 @@
  
 ;;; Relate intensity to net power output in a spherical geometry.  
 
-(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?bodies)
+(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?b-list)
   :complexity major  ;must explicitly use
   :short-name "relation of power and intensity (spherical emitter)"
   :english ("relate intensity to power in a spherical geometry")
