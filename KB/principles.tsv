@@ -109,8 +109,6 @@ LEAF	F_y = q*E_y    electric field	(charge-force-efield ((?axis . y)))	Electric 
 LEAF	E = kelec*abs(q)/r^2    point charge field (magnitude)	point-charge-efield-mag	Point Charge Field
 LEAF	E_x = (kelec*q/r^2) * r_x/r    point charge field (x component)	(point-charge-efield ((?axis . x)))	Point Charge Field
 LEAF	E_y = (kelec*q/r^2) * r_y/r    point charge field (y component)	(point-charge-efield ((?axis . y)))	Point Charge Field
-LEAF	Enet_x = E1_x + E2_x + ...    net electric field (x component)	(net-efield ((?axis . x)))	Electric Field
-LEAF	Enet_y = E1_y + E2_y + ...    net electric field (y component)	(net-efield ((?axis . y)))	Electric Field
 LEAF	Enet_x = E1_x + E2_x + ...    net electric field (x component)	(net-field-electric ((?axis . x)))	Electric Field
 LEAF	Enet_y = E1_y + E2_y + ...    net electric field (y component)	(net-field-electric ((?axis . y)))	Electric Field
 LEAF	$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y)    electric flux (uniform field)	electric-flux-constant-field	

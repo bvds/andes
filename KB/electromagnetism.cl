@@ -1040,102 +1040,6 @@
 ;;   Enet_x = E1_x + E2_x + ...
 ;;-----------------------------------------------------------
 
-
-;; This is the old version, left in for backwards compatability
-;; Remove after Spring, 2006 semester.
-(def-psmclass net-Efield (?eq-type Enet ?axis ?rot (net-Efield ?loc ?time))
-  :complexity major
-  :short-name ("net electric field (~A component)" (axis-name ?axis))
-  :english ("the definition of net electric field")
-  :ExpFormat ("calculating the net electric field at ~a ~a" (nlg ?loc) (nlg ?time 'pp))
-  :EqnFormat ("Enet_~a = E1_~a + E2_~a + ..." (axis-name ?axis) 
-	      (axis-name ?axis) (axis-name ?axis)))
-
-;; This is the old version, left in for backwards compatability
-;; Remove after Spring, 2006 semester.
-(defoperator net-Efield-contains (?sought)
- :preconditions (
-  (any-member ?sought (
-                 (mag (net-field ?loc electric :time ?t))
-                 (dir (net-field ?loc electric :time ?t))
-                 ; need to choose ?loc to apply at when sought is field due 
-                 ; to some source.  Ignore this case for now.
-                 ;(mag (field ?loc electric ?source :time ?t))
-                 ;(dir (field ?loc electric ?source :time ?t))
-                 ))
-  ; Must make sure don't include source at loc. We will filter for this
-  ; when we write the equation.
-  )
-  :effects (
-   (eqn-family-contains (net-Efield ?loc ?t) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (net-Efield ?loc ?t) Enet ?sought)
-  ))
-
-;; This is the old version, left in for backwards compatability
-;; Remove after Spring, 2006 semester.
-(defoperator draw-net-Efield-diagram (?loc ?t)
- :preconditions (
-    ; draw body? which? use the point?
-    (Efield-sources ?loc ?t ?sources)
-    (foreach ?source ?sources
-       (vector ?b (field ?loc electric ?source :time ?t) ?dir)) 
-    ; which body should own the axis to use for these vectors
-    (axis-for ?loc x ?rot)
- )
- :effects (
-    (vector-diagram (net-Efield ?loc ?t))
- ))
-
-;; This is the old version, left in for backwards compatability
-;; Remove after Spring, 2006 semester.
-(defoperator write-net-Efield-compo (?loc ?t ?xy ?rot)
- :preconditions (
-   (variable ?Enet_x (compo ?xy ?rot (net-field ?loc electric :time ?t)))
-   (in-wm (Efield-sources ?loc ?t ?sources))
-   (map ?source ?sources 
-        (variable ?compo-var (compo ?xy ?rot (field ?loc electric ?source :time ?t)))
-        ?compo-var ?Ei_x)
-  )
-  :effects (
-    (eqn (= ?Enet_x (+ . ?Ei_x))
-                 (compo-eqn Enet ?xy ?rot (net-Efield ?loc ?t)))
-     (eqn-compos (compo-eqn Enet ?xy ?rot (net-Efield ?loc ?t))
-                        (?Enet_x . ?Ei_x))
-  )
-  :hint (
-    (point (string "The net electric field at a point can be computed from the fields set up at that point by each of the field sources."))
-    (teach (string "The principle of superposition states that the net electric field at a point is the vector sum of the electric fields due to each of the individual sources. This relation can be applied component-wise to calculate the components of the net electric field due to all sources."))
-    (bottom-out (string "Write the equation ~A" 
-                        ((= ?Enet_x (+ . ?Ei_x)) algebra) ))
-  ))
-
-;; This is the old version, left in for backwards compatability
-;; Remove after Spring, 2006 semester.
-(defoperator draw-net-Efield-unknown (?loc ?t)
- :preconditions (
-  ; make sure field exists -- for now, test Efield-sources
-  ; presume the direction is unknown -- not given.
-  (not (given (dir (net-field ?loc electric :time ?t)) ?val))
-  ; could make sure there is more than one source of an Efield.
-   (in-wm (Efield-sources ?loc ?t ?sources))
-   (test (cdr ?sources)) ; more than one in list
-   (bind ?mag-var (format-sym "Enet_~A~@[_~A~]" (body-name ?loc) (time-abbrev ?t)))
-   (bind ?dir-var (format-sym "O~A" ?mag-var))
-  )
-  :effects (
-            (vector ?loc (net-field ?loc electric :time ?t) unknown)
-            (variable ?mag-var (mag (net-field ?loc electric :time ?t)))
-	    (variable ?dir-var (dir (net-field ?loc electric :time ?t)))
-            )
-  :hint (
-         (point (string "You know there is a net electric field at ~A." ?loc))
-         (teach (string "In this problem the exact direction of the net electric field vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
-         (bottom-out (string "Draw the net electric field at ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?loc))
-  ))
-
-
 (def-psmclass net-field-electric 
   (?eq-type definition ?axis ?rot (net-field ?loc electric ?time))
   :complexity major
@@ -1178,7 +1082,7 @@
 
 (defoperator draw-net-field-diagram (?loc ?type ?t)
  :preconditions (
-    ; draw body? which? use the point?
+    ;; draw body? which? use the point?
     (field-sources ?loc ?type ?t ?sources)
     (foreach ?source ?sources
        (vector ?b (field ?loc ?type ?source :time ?t) ?dir)) 
@@ -1269,17 +1173,17 @@
 	 ))
 
 (defoperator draw-net-field-unknown (?loc ?type ?t)
- :preconditions (
-  ; make sure field exists -- for now, test Efield-sources
-  ; presume the direction is unknown -- not given.
+ :preconditions 
+ (
+  ;; presume the direction is unknown -- not given.
   (not (given (dir (net-field ?loc ?type :time ?t)) ?val))
-  ; could make sure there is more than one source of an Efield.
-   (in-wm (field-sources ?loc ?type ?t ?sources))
-   (test (cdr ?sources)) ; more than one in list
-   (bind ?mag-var (format-sym "~Anet_~A~@[_~A~]" 
-			      (subseq (string ?type) 0 1)
-			      (body-name ?loc) (time-abbrev ?t)))
-   (bind ?dir-var (format-sym "O~A" ?mag-var))
+  ;; make sure field exists -- for now, test field-sources
+  (in-wm (field-sources ?loc ?type ?t ?sources))
+  (test (cdr ?sources)) ; more than one in list
+  (bind ?mag-var (format-sym "~Anet_~A~@[_~A~]" 
+			     (subseq (string ?type) 0 1)
+			     (body-name ?loc) (time-abbrev ?t)))
+  (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
   :effects (
             (vector ?loc (net-field ?loc ?type :time ?t) unknown)
@@ -1373,22 +1277,15 @@
   :EqnFormat ("Vnet = V1 + V2 + ..." ))
 
 (defoperator net-potential-contains (?sought)
-  :preconditions (
-    (any-member ?sought ((net-potential ?loc :time ?t)
-                         (potential ?loc ?source :time ?t) ))
-    ; change, always show this:
-    ; make sure more than one source in this problem
-    ; (in-wm (Efield-sources ?loc ?t ?sources))
-    ;(test (cdr ?sources))
-  )
-  :effects (
-    (eqn-contains (net-potential ?loc ?t) ?sought)
-  ))
+  :preconditions ( (any-member ?sought ((net-potential ?loc :time ?t)
+			 (potential ?loc ?source :time ?t)) ) )
+  :effects ( (eqn-contains (net-potential ?loc ?t) ?sought) ))
 
 (defoperator write-net-potential (?loc ?t)
   :preconditions (
      (variable ?Vnet (net-potential ?loc :time ?t))
-     (in-wm (Efield-sources ?loc ?t ?sources))
+     (in-wm (field-sources ?loc electric ?t ?sources))
+     (test (cdr ?sources)) ;make sure there is more than one source
      (map ?source ?sources 
    	(variable ?V-var (potential ?loc ?source :time ?t))
 	?V-var ?Vi)
@@ -1397,7 +1294,6 @@
     (eqn (= ?Vnet (+ . ?Vi)) (net-potential ?loc ?t))
   )
   :hint (
-    ;(point (string " "  ))
     (teach (string "The net electric potential at a point, a scalar, is the sum of the potentials at that point due to each of the sources." ))
     (bottom-out (string "Write the equation ~A" ((= ?Vnet (+ . ?Vi)) algebra) ))
   ))
@@ -1425,7 +1321,7 @@
     ; if sought is not energy, must bind source for energy quantity
     ; This will be single named source if known, else "electric_field" if more 
     ; than one source or unspecified.
-    (in-wm (Efield-sources ?loc ?t ?sources))
+    (in-wm (field-sources ?loc electric ?t ?sources))
     (bind ?source (cond (?source)    ; no change if already bound
 			; if a single source and not = unspecified, use it
                         ((and (null (cdr ?sources))
@@ -1475,7 +1371,7 @@
   :preconditions 
   ( ;; need to know electric field exists in problem
    (at-place ?b ?loc ?t)
-   (Efield-sources ?loc ?t ?sources)
+   (field-sources ?loc electric ?t ?sources)
    ;; need to bind source. See electric-energy-contains above
    (bind ?source (cond ((and (null (cdr ?sources))
 			     (not (eq (car ?sources) 'unspecified))) 
@@ -2446,71 +2342,6 @@
 		      (?source agent) (?F-dir adj)))
   ))
 
-
-;; Left for backwards compatability, Remove after spring semester 2006
-(defoperator draw-Bforce-rhr-pos (?b ?t ?source)
- :preconditions (
-                  (at-place ?b ?loc ?t)
-                  (sign-charge ?b pos)
-                  (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
-		  ; this may require drawing the velocity vector: 
-                  (given (dir (velocity ?b :time ?t)) ?dir-V)
-		  ; following currently only works for dirs along axis
-		  (bind ?F-dir (cross-product-dir ?dir-V ?dir-B))
-		  ; make sure we have a non-null direction
-		  (test ?F-dir) ; may be NIL on failure
-		  (test (not (eq ?F-dir 'zero)))
-                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
-					     (time-abbrev ?t)))
-                  (bind ?dir-var (format-sym "O~A" ?mag-var))
- )
- :effects (
-            (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
-            (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
-            (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
-            (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
- )
- :hint (
-	(point (string "The magnetic force on a positively charged particle points in the direction of the cross product of its velocity vector and the magnetic field vector at its location.")) 
-	(teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
-        (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
-			    ?b (?dir-V adj) (?dir-B adj) (?F-dir adj) ?b 
-			    (?source agent) (?F-dir adj)))
- ))
-
-;; Left for backwards compatability, Remove after spring semester 2006
-(defoperator draw-Bforce-rhr-neg (?b ?t ?source)
- :preconditions (
-                  (at-place ?b ?loc ?t)
-                  (sign-charge ?b neg)
-                  (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
-		  ; this may draw velocity vector -- OK.
-                  (given (dir (velocity ?b :time ?t)) ?dir-V)
-		  ; following currently only works for dirs along axis
-		  ; we save the rhr direction for mentioning in the hints
-		  (bind ?rhr-dir (cross-product-dir ?dir-V ?dir-B))
-		  ; make sure we have a non-null direction
-		  (test ?rhr-dir) ; may be NIL on failure
-		  (test (not (eq ?rhr-dir 'zero)))
-		  (bind ?F-dir (opposite ?rhr-dir))
-		  (test ?F-dir) ; make sure this succeeded
-                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
-					     (time-abbrev ?t)))
-                  (bind ?dir-var (format-sym "O~A" ?mag-var))
- )
- :effects (
-            (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
-            (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
-            (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
-            (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
- )
- :hint (
-  (point (string "The magnetic force on a negatively charged particle points in the opposite direction to the cross product of its velocity vector and the magnetic field vector at its location.")) 
-	(teach (string "The magnetic force vector on a moving *positive* charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, as determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross-product. In this case the charge is *negative*, so the force will be in the opposite direction."))
-        (bottom-out (string "Because the velocity of ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of the cross-product to be ~a. Because the charge is negative, the force is opposite that direction. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
-			    ?b (?dir-V adj) (?dir-B adj) (?rhr-dir adj) ?b 
-			    (?source agent) (?F-dir adj)))
- ))
 
 (defoperator draw-Bforce-rhr-zero (?b ?t ?source)
  :preconditions (

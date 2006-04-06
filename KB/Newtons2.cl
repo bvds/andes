@@ -7344,9 +7344,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bind ?trig (if (eq ?xy 'y) 'sin 'cos))
    (bind ?term (if (= ?axis-angle 0) 
 		   ?vec-theta `(- ,?vec-theta (dnum ,?axis-angle |deg|)))))
-   :effects ((hat (?trig ?term) ?vec ?xy ?rot nil)
-	     (assume using-hat ?vec ?rot nil)
-	     ))
+  :effects ((hat (?trig ?term) ?vec ?xy ?rot nil)
+	    (assume using-hat ?vec ?rot nil)
+	    ))
 
 (defoperator hat-using-compos (?vec ?xyz ?rot)
   :preconditions

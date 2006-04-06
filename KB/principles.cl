@@ -126,8 +126,6 @@
 	 (leaf point-charge-Efield-mag :tutorial "Point Charge Field")
 	 (leaf point-charge-Efield :bindings ((?axis . x)) :tutorial "Point Charge Field")
 	 (leaf point-charge-Efield :bindings ((?axis . y)) :tutorial "Point Charge Field")
-	 (leaf net-efield :bindings ((?axis . x)) :tutorial "Electric Field")
-	 (leaf net-Efield :bindings ((?axis . y)) :tutorial "Electric Field")
 	 (leaf net-field-electric :bindings ((?axis . x)) :tutorial "Electric Field")
 	 (leaf net-field-electric :bindings ((?axis . y)) :tutorial "Electric Field")
 	 (leaf electric-flux-constant-field)
