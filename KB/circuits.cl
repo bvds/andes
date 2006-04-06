@@ -1866,37 +1866,6 @@
 		       ((= (* ?L ?length) (* |mu0| (^ ?N 2) ?A)) algebra) ))
    ))
 
-;; define variable for time rate-of-change of current, dI/dt
-;; Rate of change may defined over either interval, for average rate of change, or instant,
-;; just like acceleration.  Problems using average rate of change over interval will 
-;; generally use a constant rate of change. 
-;;
-;; The derivative is a function of a function, so the form for this quantity
-;; embeds another quantity form (sans time) as argument:
-;;   (rate-of-change ?quantity-form :time ?time)
-;; This rate-of-change form is thus a perfectly generic time derivative notation --
-;; any time-varying quantity forms could be used as argument.  We don't have any rules 
-;; for dealing generically with derivatives yet, but possibly some could be added in the future.
-;; (Of course velocities and accelerations are names for derivatives with their own notation.)
-;; For now we only apply this to currents.
-;;
-;; Unfortunately we have two current quantities -- (current-thru ?comp) and (current-in ?branch)
-;; For now we always use current-thru ?comp, since current through the inductor is most germane
-;; for these problems.
-(defoperator define-dIdt-var (?comp ?time)
-  :preconditions (
-		  ;; might want to require student to define a current var first on Andes interface
-		  (bind ?dIdt-var (format-sym "dI_~A_dt_~A" ?comp (time-abbrev ?time)))
-		  )
-  :effects (
-	    (variable ?dIdt-var (rate-of-change (current-thru ?comp :time ?time)))
-	    (define-var         (rate-of-change (current-thru ?comp :time ?time)))
-	    )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Current Change Rate." 
-			     ((rate-of-change (current-thru ?comp :time ?time)) var-or-quant) ))
-	 ))
-
 ;; Generic wrapper to define the derivative of a generic quantity
 ;; Partially because these quantities correspond to distinct variable
 ;; choices in the user interface, a unique def-qexp will be needed for
@@ -1908,8 +1877,6 @@
 (defoperator define-rate-of-change-var (?quant)
   :preconditions 
   (
-   ;; temporary, see Bug #759
-   (test (not (eq (first ?quant) 'current-thru)))
    ;; getting the base variable name means that student has
    ;; to also define the base variable
    ;;(variable ?var ?quant)
