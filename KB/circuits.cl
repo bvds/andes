@@ -1380,25 +1380,10 @@
 	 (bottom-out (string "Write the equation ~A" ((= ?U (* 0.5 ?Q ?V)) algebra)))
 	 ))
 
-(defoperator define-stored-energy-cap-var (?cap ?t)
-  :preconditions (
-		  (circuit-component ?cap capacitor)
-		  (bind ?U-var (format-sym "U_~A~@[_~A~]" (comp-name ?cap 'C) 
-					   (time-abbrev ?t)))
-		  ) :effects (
-		  (variable ?U-var (stored-energy ?cap :time ?t))
-		  (define-var (stored-energy ?cap :time ?t))
-		  ) :hint (
-		  (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Stored Energy." 
-				      ((stored-energy ?cap :time ?t) def-np)))
-		  ))
 
 (defoperator define-stored-energy-var (?b ?t)
   :preconditions 
   (
-   ;; temporary switch, see Bug #761
-   (not (circuit-component ?b capacitor))
-   (not (circuit-component ?b inductor))
  (bind ?U-var (format-sym "U_~A~@[_~A~]" (body-name ?b) 
 					   (time-abbrev ?t))) ) 
   :effects ( (variable ?U-var (stored-energy ?b :time ?t))
@@ -2100,20 +2085,6 @@
 	 (teach (string "The electric energy stored in the magnetic field of an a inductor can be calculated as one half times the inductance times the square of the current. ")) 
 	 (bottom-out (string "Write the equation ~A" ((= ?U (* 0.5 ?L (^ ?I 2)) algebra)) ))
 	 ))
-
-(defoperator define-stored-energy-inductor-var (?inductor ?t)
-  :preconditions (
-		  (circuit-component ?inductor inductor)
-		  (bind ?U-var (format-sym "U_~A~@[_~A~]" 
-					   (comp-name ?inductor 'L) 
-					   (time-abbrev ?t)))
-		  ) :effects (
-		  (variable ?U-var (stored-energy ?inductor :time ?t))
-		  (define-var (stored-energy ?inductor :time ?t))
-		  ) :hint (
-		  (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Stored Energy." 
-				      ((stored-energy ?inductor :time ?t) def-np)))
-		  ))
 
 ;;
 ;; LR circuits
