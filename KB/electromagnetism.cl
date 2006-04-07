@@ -166,7 +166,7 @@
 ;;;     (1) a "region" w/field of unspecified source plus a "test" charge 
 ;;;         feeling the force; OR, 
 ;;;     (2) a point-charge source creating a field at an unoccupied point. 
-;;; Some rules exploit this dichotomy, testing (at-place ?b ?loc ?t) to 
+;;; Some rules exploit this dichotomy, testing (at-place ?b ?loc :time ?t) to 
 ;;; distinguish situation in a relevant way.  But this does not generalize, 
 ;;; so has to be changed. 
 ;;;
@@ -198,11 +198,11 @@
 (defoperator draw-Efield-vector (?b ?loc ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Efield-vector  ~%")
-   (time ?t)
    ;; ?b is "test charge" feeling force at loc
    ;; it is only used as axis owner for vector
    ;; !!! what if we're given field at point with no body?
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
    (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
@@ -238,7 +238,8 @@
     ;; make sure direction of force on ?b is given
     (given (dir (force ?b ?source electric :time ?t)) ?F-dir)
     ;; make sure field direction at loc of b not given, directly or via components:
-    (at-place ?b ?loc ?t)
+    (at-place ?b ?loc :time ?t-at)
+    (test (tinsidep ?t ?t-at))
     (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
     (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
     ;; require sign of charge to be given
@@ -273,7 +274,8 @@
    ;; Must be given there is a body at ?loc. ?? Seems to be used to
    ;; indicate this is region field type problem -- should change.
    ;; what if we're asked about field at an unoccupied point?
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?dir))
    ;; make sure field direction not given, directly 
    (not (given (dir (field ?loc ?type ?source :time ?t)) ?dontcare3))
@@ -333,7 +335,8 @@
    (time ?t)
    (E-field ?b)
    ;; Do we need this anymore?
-   ;;(at-place ?b ?loc-source ?t)
+   ;;(at-place ?b ?loc-source :time ?t-at)
+   ;; (test (tinsidep ?t ?t-at))
    (test (time-pointp ?t))
    ;; Make sure source is point-charge
    (point-charge ?b)
@@ -510,7 +513,8 @@
    ;; make sure force direction not given, directly or via components:
    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
    ;; make sure E-field direction not given, directly or via components
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare3))
    ;; check that something else hasn't defined this force.
    (not (force ?b ?source electric ?t . ?dont-care)) 
@@ -567,7 +571,8 @@
 		       (dir (field ?loc electric ?source :time ?t))
 		       ))
    ;; make sure ?b (test-charge) is bound in case sought is field at loc
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (rdebug "Firing charge-force-Efield-contains  ~%")
    )
   :effects (
@@ -581,7 +586,8 @@
   :preconditions 
   ((rdebug "Using charge-force-Efield-contains-charge  ~%")
    (any-member ?sought ( (charge-on ?b :time ?t ?t) ))
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    ;; following will fetch the source of an E-field at loc if we are given
    ;; its direction or component value
    (source-of-Efield ?loc ?t ?source)
@@ -611,7 +617,8 @@
    (not (vector-diagram (charge-force-Efield ?b ?source ?t)))
    ;; ?b is "test charge" feeling force at ?loc 
    (body ?b)
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    ;; need source of field
    (vector ?dontcare (field ?loc electric ?source :time ?t) ?dir1) 
    (vector ?b (force ?b ?source electric :time ?t) ?dir2)
@@ -624,7 +631,8 @@
 
 (defoperator write-charge-force-Efield-compo (?b ?t ?xy ?rot)
   :preconditions ((debug "Using write-charge-force-Efield-compo ~%")
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (variable ?E_x  (compo ?xy ?rot (field ?loc electric ?source :time ?t)))
                   (variable ?F_x  (compo ?xy ?rot (force ?b ?source electric :time ?t)))
                   (variable ?q (charge-on ?b :time ?t ?t))
@@ -665,7 +673,8 @@
    (any-member ?sought ((mag (force ?b ?source electric :time ?t))
 			(mag (field ?loc electric ?source :time ?t))
 			))
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (debug "Using & firing write-charge-force-Efield-mag-contains ~%")
    )
   :effects (
@@ -683,7 +692,8 @@
 (defoperator write-charge-force-Efield-mag (?b ?t)
   :preconditions 
   ((debug "Using write-charge-force-Efield-mag ~%")
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    ;; must draw body in diagram for this psm
    (body ?b)
    ;; even though this is scalar equation, want axes to be drawn
@@ -723,7 +733,8 @@
                   (any-member ?sought ((dir (force ?b ?source electric :time ?t))
                                        (dir (field ?loc electric ?source :time ?t))
                                        (charge-on ?b :time ?t ?t)))
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (rdebug "Using & firing write-charge-force-Efield-dir-contains ~%")
                   )
   :effects(
@@ -733,7 +744,8 @@
 (defoperator write-charge-force-Efield-dir-pos (?b ?t)
   :preconditions ((debug "Using write-charge-force-Efield-dir ~%")
                   (sign-charge ?b pos)
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (variable ?dirE (dir (field ?loc electric ?source :time ?t)))
                   (variable ?dirF (dir (force ?b ?source electric :time ?t)))
                   (variable ?q (charge-on ?b :time ?t ?t))
@@ -776,7 +788,6 @@
 		       ))
    (any-member ?form (nil t)) ;switch between forms of r-hat
    (point-charge ?b)
-					;(at-place ?b ?loc-source ?t)
    (rdebug "Firing point-charge-Efield-compo-contains  ~%")
    )
   :effects 
@@ -792,8 +803,6 @@
                   (not (vector-diagram (point-charge-Efield ?b ?loc ?t)))
                   ;; ?b is point charge source of field at ?loc
                   (body ?b)
-		  ; do we need this?
-                  ;(at-place ?b ?loc2 ?t)
                   (vector ?dontcare (field ?loc electric ?b :time ?t) ?dir1) 
                   (axis-for ?b x ?rot)
                   (rdebug "Fired draw-point-charge-Efield-diagram ~%")
@@ -823,7 +832,6 @@
   (
    (rdebug "Using write-point-charge-Efield-compo ~%")
    ;; b is point-charge source of field
-   ;;(at-place ?b ?loc-source ?t)
    (variable ?E_x  (compo ?xy ?rot (field ?loc electric ?b :time ?t)))
    (variable ?q    (charge-on ?b :time ?t ?t))
    (variable ?r    (mag (relative-position ?loc ?b :time ?t)))
@@ -862,7 +870,6 @@
                   (any-member ?sought ((mag (field ?loc electric ?b :time ?t))
 				       (mag (relative-position ?loc ?loc-source :time ?t))
                                        (charge-on ?b :time ?t ?t)))
-                  ;(at-place ?b ?loc-source ?t)
 		  (point-charge ?b)
                   (rdebug "Firing point-charge-Efield-mag-contains ~%")
                   )
@@ -872,7 +879,6 @@
 
 (defoperator write-point-charge-Efield-mag (?b ?loc ?t)
   :preconditions ((debug "Using write-point-charge-Efield-mag ~%")
-                  ;;(at-place ?b ?loc-source ?t)
 		  ;; need to draw body for this psm. 
 		  ;; ?b is point-charge source of field
 		  (body ?b)
@@ -904,7 +910,6 @@
   :preconditions ((debug "Using write-point-charge-Efield-dir-pos ~%")
 		  ; following was used to distinguish point-charge problem:
 		  ; location of source body mentioned in givens
-                  ;(at-place ?b ?loc2 ?t)
 		  (point-charge ?b)
                   (sign-charge ?b pos)
                   (variable ?dirE (dir (field ?loc electric ?b :time ?t)))
@@ -928,7 +933,6 @@
   :preconditions ((debug "Using write-point-charge-Efield-dir-pos ~%")
 		  ; following was used to distinguish point-charge problem:
 		  ; location of source body mentioned in givens
-                  ;(at-place ?b ?loc2 ?t)
 		  (point-charge ?b)
                   (sign-charge ?b neg)
                   (variable ?dirE (dir (field ?loc electric ?b :time ?t)))
@@ -953,8 +957,7 @@
 ;; of ?b x-component can't be zero
 (defoperator get-sign-charge-from-FE-compos (?b ?t ?xyz ?rot)
   :specifications " "
-  :preconditions ((rdebug "sign-on-charge ~%")
-                  ;(at-place ?b ?loc ?t)                    
+  :preconditions ((rdebug "sign-on-charge ~%")                   
                   (given (compo ?xyz ?rot (force ?b ?source electric :time ?t)) (dnum ?val1 |N|))
                   (given (compo ?xyz ?rot (field ?loc electric ?source :time ?t)) (dnum ?val2 |N/C|))
 		  (test (not (or (= ?val1 0) (= ?val2 0))))
@@ -1123,7 +1126,8 @@
   :preconditions 
   ((time ?t)
    ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (given (dir (net-field ?loc ?type :time ?t)) ?dir-B)  
    (test (not (eq ?dir-B 'zero)))
    (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
@@ -1154,7 +1158,8 @@
   :preconditions 
   ((time ?t)
    ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (given (dir (net-field ?loc ?type :time ?t)) zero)  
    (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
@@ -1244,23 +1249,6 @@
                          ((= ?V (* |kelec| (/ ?q ?r))) algebra) ))
   ))
 
-#| ; this doesn't really solve the problem, since still need p1 and charge1 choices
-; How to define r: If spatial point is occupied by a body, define r to body 
-; Else define r to point. Call on r-var subgoal to get this choice
-(defoperator use-r-to-body (?body ?loc ?t)
-   :preconditions (
-        (in-wm (at-place ?body2 ?loc ?t))
-	(variable ?r (mag (relative-position ?body2 ?body :time ?t)))
-   )
-   :effects  ( (r-var ?r (mag (relative-position ?loc ?body :time ?t))) ))
-
-(defoperator use-r-to-point (?body ?loc ?t)
-   :preconditions (
-        (not (at-place ?body2 ?loc ?t))
-	(variable ?r (mag (relative-position ?loc ?body :time ?t)))
-   )
-   :effects  ( (r-var ?r (mag (relative-position ?loc ?body :time ?t))) ))
-|#
 
 ;;
 ;; Addition principle for net electric potential
@@ -1316,7 +1304,8 @@
 			 (charge-on ?body :time ?t ?t)
 			 ))
     ; if sought is net-potential, must bind body: 
-    (in-wm (at-place ?body ?loc ?t))
+    (in-wm (at-place ?body ?loc :time ?t-at))
+   (test (tinsidep ?t ?t-at))
 
     ; if sought is not energy, must bind source for energy quantity
     ; This will be single named source if known, else "electric_field" if more 
@@ -1334,7 +1323,8 @@
 
 (defoperator write-electric-energy (?body ?source ?t)
   :preconditions (
-     (in-wm (at-place ?body ?loc ?t))
+     (in-wm (at-place ?body ?loc :time ?t-at))
+     (test (tinsidep ?t ?t-at))
      (variable ?Ue (electric-energy ?body ?source :time ?t))
      (variable ?q (charge-on ?body :time ?t ?t))
      (variable ?Vnet (net-potential ?loc :time ?t))
@@ -1370,7 +1360,8 @@
 (defoperator define-electric-ee-var (?b ?t)
   :preconditions 
   ( ;; need to know electric field exists in problem
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (field-sources ?loc electric ?t ?sources)
    ;; need to bind source. See electric-energy-contains above
    (bind ?source (cond ((and (null (cdr ?sources))
@@ -1798,18 +1789,20 @@
   :EqnFormat ((torque-switch "M = $m*B*sin($q)" "$t = $m*B*sin($q)")))
 
 (defoperator dipole-torque-mag-contains (?sought)
-   :preconditions (
-   (any-member ?sought (
-			(mag (
-			 ;; Yuck, work-around for missing torque tool, Bug #773
-			 net-torque ?dipole axis
-			 ;; torque ?dipole (field ?region ?type ?source)
-				     :time ?t))
-		  (mag (field ?region ?type ?source :time ?t))
-		  (mag (dipole-moment ?dipole ?type :time ?t))
-		  ))
+   :preconditions 
+   (
+    (time ?t)
+    (any-member ?sought (
+			 (mag (
+			       ;; Yuck, work-around for missing torque tool, Bug #773
+			       net-torque ?dipole axis
+					  ;; torque ?dipole (field ?region ?type ?source)
+					  :time ?t))
+			 (mag (field ?region ?type ?source :time ?t ?t))
+			 (mag (dipole-moment ?dipole ?type :time ?t))
+			 ))
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
    )
    :effects 
@@ -1825,9 +1818,9 @@
    (any-member ?vecs 
 	       ;; These must be in lexical order:
 	       (((dipole-moment ?dipole ?type :time ?t)
-		 (field ?region ?type ?source :time ?t))))
+		 (field ?region ?type ?source :time ?t ?t))))
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
    )
    :effects 
@@ -1843,10 +1836,10 @@
 			;; torque ?dipole (field ?region ?type ?source)
 				    :time ?t)))
     (variable ?p-var   (mag (dipole-moment ?dipole ?type :time ?t)))
-    (variable ?E-var   (mag (field ?region ?type ?source :time ?t)))
+    (variable ?E-var   (mag (field ?region ?type ?source :time ?t ?t)))
     (variable ?theta-var (angle-between orderless 
 				(dipole-moment ?dipole ?type :time ?t)      
-				(field ?region ?type ?source :time ?t)))
+				(field ?region ?type ?source :time ?t ?t)))
     )
    :effects (
       (eqn (= ?tau-var (* ?p-var ?E-var (sin ?theta-var))) 
@@ -1925,7 +1918,7 @@
 		(compo dir (dipole-moment ?dipole ?type :time ?t))
 		))
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
    (axis-for ?dipole ?axis ?rot) ;in case ?compo and ?rot are not bound above
    )
@@ -1948,7 +1941,7 @@
 		(compo ?axis ?rot (dipole-moment ?dipole ?type :time ?t))
 		))
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
    ;; find axes now, before applying dot product:
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
@@ -2113,7 +2106,7 @@
   :preconditions 
   ( ;; Test for electric field acting on object
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
    (variable ?var (dipole-energy 
 		   ?dipole (field ?region ?type ?source) :time ?t)))
@@ -2148,7 +2141,7 @@
 		 (mag (dipole-moment ?dipole ?type :time ?t))
 		 ))
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
    )
  :effects 
@@ -2164,7 +2157,7 @@
   (any-member ?vecs (((dipole-moment ?dipole ?type :time ?t) 
 		      (field ?region ?type ?source :time ?t))))
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
  )
  :effects 
@@ -2181,7 +2174,7 @@
 		 (compo ?xyz ?rot (dipole-moment ?dipole ?type :time ?t))
 		 ))
    (given-field ?source ?type)
-   (at-place ?dipole ?region ?t-at)
+   (at-place ?dipole ?region :time ?t-at)
    (test (tinsidep ?t ?t-at))
    ;; find axes now, before applying dot product:
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-d)
@@ -2248,7 +2241,8 @@
 		  ; AW: allow intervals for case of constant fields
                   ; (test (time-pointp ?t))
 		  ; following requires ?loc to be occupied by body
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)  
                   (not (vector ?b (field ?loc magnetic ?source :time ?t) ?dir1))     
                   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
@@ -2280,7 +2274,8 @@
           (given (dir (current-length ?wire :time 1)) ?dir-l)
 	  (given (dir (relative-position ?loc ?wire :time 1)) ?dir-r)
 	  ; we require body at loc to be axis owner for vector
-          (at-place ?b ?loc ?t)
+          (at-place ?b ?loc :time ?t-at)
+	  (test (tinsidep ?t ?t-at))
 	  (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
 	  (test ?dir-B)
 	  (test (not (eq ?B-dir 'zero)))
@@ -2309,7 +2304,8 @@
 (defoperator draw-Bforce-charge (?b ?t ?source)
  :preconditions 
  (
-  (at-place ?b ?loc ?t)
+  (at-place ?b ?loc :time ?t-at)
+  (test (tinsidep ?t ?t-at))
   (sign-charge ?b ?pos-or-neg)
   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
   ;; this may require drawing the velocity vector: 
@@ -2345,7 +2341,8 @@
 
 (defoperator draw-Bforce-rhr-zero (?b ?t ?source)
  :preconditions (
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
 		  ; this may require drawing the velocity vector: 
                   (given (dir (velocity ?b :time ?t)) ?dir-V)
@@ -2397,7 +2394,8 @@
   :preconditions ((rdebug "Using draw-Bforce-unknown ~%")
                   (B-field ?source) ; so know there is a Bfield in the problem
 		  (object ?b)
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (not (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B))
                   (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
                   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
@@ -2424,7 +2422,8 @@
   :preconditions ((rdebug "Using draw-Bforce-unknown ~%")
                   (B-field ?source) ;so know there is a Bfield
                   (object ?b)
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
 		  ; Require motion explicitly specified as unknown
 		  ; Not quite right to presume it is "straight", though
 		  (motion ?b (straight ?dontcare unknown) :time ?t ?t)
@@ -2448,7 +2447,8 @@
 
 (defoperator draw-Bforce-current (?b ?t ?source)
  :preconditions (
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)
                   (given (dir (current-length ?b :time ?t)) ?dir-i)
 		  ;; following currently only works for dirs along axis
@@ -2491,7 +2491,8 @@
                   (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
                                        (mag (field ?loc magnetic ?source :time ?t))
                                        (charge-on ?b :time ?t ?t)))
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (rdebug "Firing write-charge-force-Bfield-mag-contains ~%")
                   )
   :effects(
@@ -2500,7 +2501,8 @@
 
 (defoperator write-charge-force-Bfield-mag (?b ?t)
   :preconditions ((debug "Using write-charge-force-Bfield-mag ~%")
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
 		  ;; draw body for this psm
                   (body ?b)
 		  ;; draw the vectors B, v, and F.
@@ -2547,7 +2549,8 @@
                                       (dir (field ?loc magnetic ?source :time ?t))
                                       (charge-on ?b :time ?t ?t)
                                       ))
-                  (at-place ?b region ?t)
+                  (at-place ?b region :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (rdebug "Firing charge-force-Bfield-compo-contains  ~%")
                   )
   :effects (
@@ -2562,7 +2565,8 @@
                   (debug "Using draw-charge-force-Bfield-diagram ~%")
                   (not (vector-diagram (charge-force-Bfield ?b ?t)))
                   (body ?b)
-                  (at-place ?b ?loc ?t)
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                   (vector ?dontcare (field ?loc magnetic ?source :time ?t) ?dir1) 
                   (vector ?b (force ?b ?source magnetic :time ?t) ?dir2)
                   (vector ?b (velocity ?b :time ?t) ?dir3)
@@ -2627,11 +2631,13 @@
                                       (compo y 0 (field ?loc magnetic ?source :time ?t))
                                       (charge-on ?b :time ?t ?t)
                                       ))
-                  (at-place ?b ?loc ?t))
+                  (at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at)))
   :effects ((eqn-contains (charge-force-Bfield-x ?b ?t) ?sought)))
 
 (defoperator charge-force-Bfield-x (?b ?t)
-  :preconditions ((at-place ?b ?loc ?t)
+  :preconditions ((at-place ?b ?loc :time ?t-at)
+		  (test (tinsidep ?t ?t-at))
                  (vector-diagram (charge-force-Bfield ?b ?t))
                  (variable ?Fx (compo x 0 (force ?b ?source magnetic :time ?t)))
 		 (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
@@ -2665,12 +2671,14 @@
                                       (compo z 0 (field ?loc magnetic ?source :time ?t))
                                       (charge-on ?b :time ?t ?t)
 				     ))
-		  (at-place ?b ?loc ?t))
+		  (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at)))
   :effects ((eqn-contains (charge-force-Bfield-y ?b ?t) ?sought)))
 
 (defoperator charge-force-Bfield-y (?b ?t)
   :preconditions ( 
-                 (at-place ?b ?loc ?t)
+                 (at-place ?b ?loc :time ?t-at)
+		 (test (tinsidep ?t ?t-at))
                  (vector-diagram (charge-force-Bfield ?b ?t))
                  (variable ?Fy (compo y 0 (force ?b ?source magnetic :time ?t)))
 		 (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
@@ -2706,13 +2714,15 @@
 			(compo x 0 (field ?loc magnetic ?source :time ?t))
 			(charge-on ?b :time ?t ?t)
 			))
-   (at-place ?b ?loc ?t))
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at)))
   :effects ((eqn-contains (charge-force-Bfield-z ?b ?t) ?sought)))
 
 (defoperator charge-force-Bfield-z (?b ?t)
   :preconditions 
   ( 
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (variable ?Fz (compo z 0 (force ?b ?source magnetic :time ?t)))
    (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
    (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?t)))
@@ -2750,7 +2760,8 @@
 			(current-thru ?b :time ?t ?t)))
    (time ?t)
    (object ?source)  ;this is not bound by most ?sought
-   (at-place ?b ?loc ?t)  ;so that ?b is bound
+   (at-place ?b ?loc :time ?t-at)  ;so that ?b is bound
+   (test (tinsidep ?t ?t-at))
    )
   :effects(
            (eqn-contains (current-force-Bfield-mag ?b ?source ?t) ?sought)
@@ -2759,7 +2770,8 @@
 (defoperator write-current-force-Bfield-mag (?b ?t)
   :preconditions 
   (
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    ;; draw body for this psm
    (body ?b)
    ;; draw the vectors B, and F.
@@ -2805,7 +2817,8 @@
 (defoperator write-force-dir-charge-Bfield-pos (?b ?t)
   :preconditions 
   ((debug "Using write-force-dir-charge-Bfield-pos ~%")
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (variable ?q (charge-on ?b :time ?t ?t))
    (given (dir (field ?loc magnetic ?source :time ?t)) (dnum ?dir1 ?doncare1)) 
    (motion ?b (straight NIL (dnum ?dir2 ?dontcare1)) :time ?t ?t)
@@ -2827,7 +2840,8 @@
 (defoperator write-force-dir-charge-Bfield-neg (?b ?t)
   :preconditions 
   ((debug "Using write-force-dir-charge-Bfield-neg ~%")
-   (at-place ?b ?loc ?t)
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
    (variable ?q (charge-on ?b :time ?t ?t))
    (given (dir (field ?loc magnetic ?source :time ?t)) (dnum ?dir1 ?doncare1)) 
    (motion ?b (straight NIL (dnum ?dir2 ?dontcare1)) :time ?t ?t)

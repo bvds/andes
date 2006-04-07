@@ -1905,9 +1905,9 @@
 
 (defoperator same-relpos(?body ?loc ?origin ?time)
   :preconditions (
-      (in-wm (at-place ?body ?loc ?t-at-loc))
+      (in-wm (at-place ?body ?loc :time ?t-at-loc))
       (test (tinsidep ?time ?t-at-loc))
-      ; ?origin should be bound from sought coming in
+      ;; ?origin should be bound from sought coming in
   )
   :effects (
      ; Assert equality. Equation will be written by generic write-equality 
@@ -3944,8 +3944,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ( 
     (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
     ; make sure this is not known to be zero-length from at-place stmt.
-    (not (at-place ?b1 ?b2 ?t))
-    (not (at-place ?b2 ?b1 ?t))
+    (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep ?t ?t-at))
+    (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep ?t ?t-at))
     ;; make sure not given it's dir, or the opposite dir, so can draw known
     (not (given (dir (relative-position ?b1 ?b2 :time ?t)) (dnum ?dir |deg|)))
     (not (given (dir (relative-position ?b2 ?b1 :time ?t)) (dnum ?dir |deg|)))
@@ -3968,7 +3968,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; draw zero-length relative position if body is at location
 (defoperator draw-zero-relative-position (?b ?loc ?t)
   :preconditions
-  ((in-wm (at-place ?b ?loc ?t-at-place))
+  ((in-wm (at-place ?b ?loc :time ?t-at-place))
    (test (tinsidep ?t ?t-at-place))
    (not (vector ?b (relative-position ?b ?loc :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b ?loc (time-abbrev ?t)))
