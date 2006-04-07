@@ -128,8 +128,9 @@ BOOL CFieldDlg::OnInitDialog()
 		UpdatePlanStrings(&m_cboBody);
 	}
 	
-	// Time choice: hide for static problems (no time list)
-	if (m_pDocument->m_strTimes.IsEmpty()) {
+	// Time choice: hide for static problems (no time list) or constant field problem
+	if (m_pDocument->m_strTimes.IsEmpty() 
+		|| ! CVarView::HasFeature("CHANGING-FIELD")) {
 		m_cboTimeList.ShowWindow(SW_HIDE);
 		m_stcTimeList.ShowWindow(SW_HIDE);
 	}
