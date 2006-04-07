@@ -22,8 +22,7 @@ CIRCUITS	current-in;current-thru;voltage-across;electric-power;current;voltage;r
 E&M	current-in;current-thru;net-potential;angle-between;charge-on;current;potential;duration;length;turns;turns-per-length;angle;electric-flux;magnetic-flux;electric-flux-change;magnetic-flux-change;
 EM-WAVES	amplitude-electric;amplitude-magnetic;
 SIMPLE-WORK	intensity-at;
-OPTICS	angle-between;object-distance;image-distance;lens-distance;slit-separation;focal-length;magnification;radius-of-curvature;index-of-refraction;angle;resolution-angle;
-NEW-OPTICS	angle-between;object-distance;image-distance;distance-between;slit-separation;focal-length;magnification;radius-of-curvature;index-of-refraction;angle;resolution-angle;
+OPTICS	angle-between;object-distance;image-distance;distance-between;slit-separation;focal-length;magnification;radius-of-curvature;index-of-refraction;angle;resolution-angle;
 FLUIDS	mass;duration;height;mass-density;pressure;area-at;area;volume;atmosphere;
 RECTANGLE-GEOMETRY	area;area-change;length;width;length-change;
 CIRCLE-GEOMETRY	area;radius-of-circle;diameter-of-circle;circumference-of-circle;

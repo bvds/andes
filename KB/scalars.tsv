@@ -15,7 +15,6 @@ current	I	current
 db-intensity	$b	decibels	intensity (in decibels)	supplied to [body:bodies] by [body2:bodies] at time [time:times]
 diameter-of-circle	d	diameter		of [body:bodies]
 distance-between	d	distance		between [body:bodies] and [body2:bodies]
-lens-distance	d	distance		between [body:bodies] and [body2:bodies]
 distance	s	distance traveled		by [body:bodies] at time [time:times]
 duration	t	duration of time		from [body:times] to [time2:times]
 electric-flux	$Fe	electric flux		through [body:bodies] at time [time:times]

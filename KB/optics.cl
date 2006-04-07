@@ -112,24 +112,6 @@
 			   ((radius-of-curvature ?mirror) def-np)))
        ))
 
-(def-qexp lens-distance (lens-distance ?lens1 ?lens2)
-  :symbol-base |d|     
-  :short-name "distance"	
-  :dialog-text "between [body:bodies] and [body2:bodies]"
-  :units |m|
-  :english ("the distance between ~a and ~a" (nlg ?lens1) (nlg ?lens2))
-  :fromWorkbench `(lens-distance ,body ,body2) ; might want to canonicalize order!
-) 
-
-(defoperator define-lens-distance (?lens1 lens2)
- :preconditions ( (bind ?d-var (format-sym "d_~A_~A" (body-name ?lens1) (body-name ?lens2))) )
- :effects ( (variable ?d-var (lens-distance ?lens1 ?lens2))
-            (define-var (lens-distance ?lens1 ?lens2)) )
-  :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Distance between Lenses."  
-                           ((lens-distance ?lens1 ?lens2) def-np) ))
-       ))
-
 (def-qexp distance-between (distance-between orderless . ?objects)
   :symbol-base |d|     
   :short-name "distance"	
@@ -378,8 +360,8 @@
 
 (defoperator lens-combo-contains (?sought)
   :preconditions (
-  ; the lens-system statement tells us order of lenses with 
-  ; respect to light source, and gives the distance between them
+  ;; the lens-system statement tells us order of lenses with 
+  ;; respect to light source, and gives the distance between them
   (in-wm (lens-system ?sys (?lens1 ?lens2)) )
   (any-member ?sought ( (image-distance ?lens1)
                         (object-distance ?lens2) ))
@@ -392,7 +374,7 @@
   :preconditions (
      (in-wm (lens-system ?sys (?lens1 ?lens2)))
      (variable ?do2 (object-distance ?lens2))
-     (variable ?d12 (lens-distance ?lens1 ?lens2))
+     (variable ?d12 (distance-between orderless ?lens1 ?lens2))
      (variable ?di1 (image-distance ?lens1))
   )
   :effects (

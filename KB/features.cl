@@ -66,14 +66,8 @@
 (def-feature-set simple-work
   (intensity-at))
 (def-feature-set optics 
-  (object-distance image-distance 
-		   lens-distance ;see Bug #799
+  (object-distance image-distance distance-between
 		   slit-separation focal-length 
-		   magnification radius-of-curvature index-of-refraction 
-		   angle resolution-angle)) 
-;; Temporary work-around for Bug #799
-(def-feature-set new-optics 
-  (object-distance image-distance distance-between slit-separation focal-length
 		   magnification radius-of-curvature index-of-refraction 
 		   angle resolution-angle)) 
 (def-feature-set fluids 
