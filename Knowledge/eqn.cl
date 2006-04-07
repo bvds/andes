@@ -226,30 +226,6 @@
    #'(lambda (E) (recursive-member Elt (eqn-algebra E) :test Test))
    Eqns))
 
-
-
-;;; In order to facilitate contact between the algebra
-;;; system and the help system it is useful to sort the 
-;;; eqn index by type.
-(defun sort-eqn-list (Eqns)
-  "Sort the list of eqns for use."
-  (sort Eqns #'eqn-sort-comp))
-
-;;; Hack that should be located else where in ontology say.
-(defun eqn-sort-comp (e1 e2)
-  "Compare e1 and e2 t if e1 < e2."
-  (or (and (eql (eqn-type e1) (eqn-type e2))
-	   (or (and (eqn-solved e1) (eqn-solved e2))
-	       (and (eqn-solved e1) (not (eqn-solved e2)))))
-      
-      (eq (eqn-type e2) 'implicit-eqn)
-      
-      (and (eq (eqn-type e2) 'derived-eqn)
-	   (not (eq (eqn-type e1) 'implicit-eqn)))
-      
-      (and (eq (eqn-type e2) 'eqn)
-	   (eq (eqn-type e1) 'given-eqn))))
-
   
 ;;----------------------------------------------------
 ;; compare eqn indicies

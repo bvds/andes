@@ -1678,10 +1678,9 @@
   (let* (
 	 ;; Collect all the eqns in graph to be used for indexing.
 	 (collected-eqns (mappend #'Enode-Subeqns (bubblegraph-Enodes Graph)))
-	  ;; Reduce, sort, and number collected eqns.
+	  ;; Reduce and number collected eqns.
 	 (Index (when collected-eqns 
-		  (Index-eqn-list (sort-eqn-list (merge-duplicate-eqns 
-						  collected-eqns))))))
+		  (Index-eqn-list (merge-duplicate-eqns collected-eqns)))))
   ;;  (format t "generate-bg-eindex eqn list length ~A~%" (length Index))
     ;; modify bubblegraph based on index of equations
     (dolist (E (bubblegraph-Enodes Graph))
