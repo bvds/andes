@@ -9,11 +9,11 @@
 (def-qexp wavelength (wavelength ?wave ?medium)
   :symbol-base |$l|     
   :short-name "wavelength"	
-  :dialog-text "in [body:positions] of [body2:bodies]"
+  :dialog-text "in [body:bodies] of [body2:positions]"
   :units |m|
   :restrictions positive  ;needed for harmonics problems to work
   :english ("the wavelength of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
-  :fromworkbench `(wavelength ,body2 ,body))
+  :fromworkbench `(wavelength ,body ,body2))
 
 (defoperator define-wavelength (?wave ?medium)
   :preconditions
@@ -29,11 +29,11 @@
 (def-qexp wavenumber (wavenumber ?wave ?medium)
   :symbol-base |k|     
   :short-name "wave-number"	
-  :dialog-text "in [body:positions] of [body2:bodies]"
+  :dialog-text "in [body:bodies] of [body2:positions]"
   :units |rad/m|
   :restrictions nonnegative  
   :english ("the wavenumber of ~A moving in ~A" (nlg ?wave) (nlg ?medium))
-   :fromWorkbench `(wavenumber ,body2 ,body))
+   :fromWorkbench `(wavenumber ,body ,body2))
 
 (defoperator define-wavenumber (?wave ?medium)
   :preconditions 
