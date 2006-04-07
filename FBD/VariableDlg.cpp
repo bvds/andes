@@ -143,8 +143,7 @@ void CVariableDlg::DoDataExchange(CDataExchange* pDX)
 		// get choice list spec from dialog spec. 
 	    CString strListSpec = GetSlotChoices(GetSpec(), "body");
 		// Allow for union of lists as list1+list2+list3
-		CStringArray strLists;
-		split(strListSpec, "+", strLists);
+		CStringArray strLists; split(strListSpec, "+", strLists);
 		for (int i = 0; i < strLists.GetSize(); i++) {
 			CString strListName = strLists[i];
 			DDX_FillList(pDX, IDC_BODY, m_pDocument->GetChoiceList(strListName));
@@ -153,8 +152,17 @@ void CVariableDlg::DoDataExchange(CDataExchange* pDX)
 		}
 	}
 	// fill "agent" slot with appropriate choices (may wind up hidden)
-	DDX_FillList(pDX, IDC_FORCEAGENT, &m_pDocument->m_strObjects);
-	// !!! must add special agent args where needed, see below
+	// get choice list spec from dialog spec. 
+	CString strListSpec = GetSlotChoices(GetSpec(), "body2");
+	// Allow for union of lists as list1+list2+list3
+	CStringArray strLists; split(strListSpec, "+", strLists);
+	for (int i = 0; i < strLists.GetSize(); i++) {
+		CString strListName = strLists[i];
+		DDX_FillList(pDX, IDC_FORCEAGENT, m_pDocument->GetChoiceList(strListName));
+		if (strListName.CompareNoCase("bodies") == 0)
+				DDX_AddCompoundBodies(pDX, IDC_BODY, &m_pDocument->m_objects);
+		// !!! must add special agent args where needed, see below
+	}
 
 	// file time slot with appropriate choices for quantity
 	DDX_FillList(pDX, IDC_TIME, &m_pDocument->m_strTimes);
