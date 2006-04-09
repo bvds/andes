@@ -536,10 +536,10 @@
   "remove any time from quantity"
   (cond ((atom expr) expr)
 	((member ':time expr) 
-	 (let* ((i (position ':time expr)) 
-		(post (subseq expr (+ i 2))))
+	 (let* ((key (member ':time expr)) 
+		(post (cddr key)))
 	  (get-any-default-value post)	;remove any default value from y
-	  (append (subseq expr 0 i) post))) ;expr with keyword pair removed
+	  (append (ldiff expr key) post))) ;expr with keyword pair removed
 	;; this covers (compo ...), (mag ...), (dir ...):
 	(t (mapcar #'remove-time expr))))
 
