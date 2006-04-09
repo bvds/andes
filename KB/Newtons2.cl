@@ -4071,6 +4071,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
 
+#|
+(defoperator match-timeless-variable (?quant)
+  :preconditions
+  (
+   (test (time-of ?quant))
+   (bind ?timeless-quant (remove-time ?quant))
+;;   (test (unify ?quant ?timeless-quant))
+   (variable ?var ?timeless-quant)
+   )
+  :effects ((variable ?var ?quant)))
+|#
+
 (defoperator define-changing-mass (?b ?t)
   :specifications "If ?b is an object, then you can define a mass for ?b"
   :preconditions
