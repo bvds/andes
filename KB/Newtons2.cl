@@ -1898,16 +1898,19 @@
   ))
 
 
-; Following would enable the equality rba = rpa to be exploited when body b is at p
-; However, it doesn't really help if rpa is sought and rpa compos given, since
-; then nothing allows rba to be calculated, so gets purged as dead-path quant.
-; Might be useable in some problems.
-
+;; Following would enable the equality rba = rpa to be exploited when body 
+;; b is at p.  However, it doesn't really help if rpa is sought and rpa 
+;; compos given, since then nothing allows rba to be calculated, 
+;; so gets purged as dead-path quant.  Might be useable in some problems.
+;; Causes error in dip1a.
+#|
 (defoperator same-relpos(?body ?loc ?origin ?time)
-  :preconditions (
-      (in-wm (at-place ?body ?loc :time ?t-at-loc))
-      (test (tinsidep ?time ?t-at-loc))
-      ;; ?origin should be bound from sought coming in
+  :preconditions 
+  ( (time ?t)
+    (any-member ?time (nil ?t)) ;try either declared time or constant.
+    (in-wm (at-place ?body ?loc :time ?t-at-loc))
+    (test (tinsidep ?time ?t-at-loc))
+    ;; ?origin should be bound from sought coming in
   )
   :effects (
      ; Assert equality. Equation will be written by generic write-equality 
@@ -1915,7 +1918,7 @@
      (equals (mag (relative-position ?body ?origin :time ?time))
              (mag (relative-position ?loc ?origin :time ?time)))
   ))
-
+|#
 
 ;;; =============== bodies =======================================
 
@@ -4050,14 +4053,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; graph builder must construct both solutions.
 ;;;
 ;;; mass can have time in rocket problems, but is left timeless in others
-;;; Which one gets defined is controlled by presence of (changing-mass)
-;;; in the problem definition.
+;;; Which one gets defined is controlled by presence of
+;;; in the problem features.
 
 (defoperator define-constant-mass (?b)
   :specifications "If ?b is an object, then you can define a mass for ?b"
   :preconditions 
   (
-   (not (changing-mass))
+   (test (not (member 'changing-mass (problem-features *cp*))))
    (object ?b)
    (not (variable ?dont-care (mass ?b)))
    (bind ?var (format-sym "m_~A" (body-name ?b))))
@@ -4071,7 +4074,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator define-changing-mass (?b ?t)
   :specifications "If ?b is an object, then you can define a mass for ?b"
   :preconditions
-  ((in-wm (changing-mass))
+  (
+   (test (member 'changing-mass (problem-features *cp*)))
    (object ?b)
    (time ?t)
    (not (variable ?dont-care (mass ?b :time ?t)))
@@ -9336,7 +9340,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;;; Moment of inertia:
 ;;; This is the rotational analog of mass. 
-;;; Like mass, it is timeless unless (changing-mass) is specified.
+;;; Like mass, it is timeless unless feature changing-mass is specified.
 ;;;
 ;;; The moment of inertia of a body also depends on the axis of rotation being
 ;;; considered, e.g. it is different for a stick rotating about its center 
@@ -9348,7 +9352,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-constant-moment-of-inertia (?b)
   :preconditions 
   (
-   (not (changing-mass))
+   (test (not (member 'changing-mass (problem-features *cp*))))
    (object ?b)
    (bind ?I-var (format-sym "I_~A" (body-name ?b)))
   )
@@ -9363,7 +9367,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator define-changing-moment-of-inertia (?b ?t)
   :preconditions 
   (
-   (in-wm (changing-mass))
+   (test (member 'changing-mass (problem-features *cp*)))
    (object ?b)
    (time ?t)
    (bind ?I-var (format-sym "I_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
