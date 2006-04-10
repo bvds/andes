@@ -71,6 +71,7 @@
                    something else is needed & the direction is given, 
                    then draw it at the given direction"
   :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
+		  (time ?t) ;explicit time
 		  ;; this means sub-intervals must be given explicitly
 		  (given (dir (relative-vel ?b1 ?b2 :time ?t)) ?dir)
 		  (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir))
@@ -103,6 +104,7 @@
   :preconditions 
   (
    (rdebug "Using draw-rel-vel-vector-unknown ~%")
+   (time ?t)
    ;; relative velocity can be inferred from thrust force.
    ;; presence of thrust is indicated by specifying direction:
    (not (given (dir (force ?b2 ?b1 thrust :time ?t)) ?dir-force) 
@@ -136,7 +138,8 @@
    ;;(in-wm (dir (force ?b1 ?b2 thrust :time ?t)))
    (force ?b2 ?b1 thrust ?t ?dir-force ?action)
    (test (not (equal ?dir 'unknown)))
-   (not (given (dir (relative-vel ?b1 ?b2 :time 1)) ?whatever))
+   (not (given (dir (relative-vel ?b1 ?b2 :time ?t-given)) ?whatever)
+	(tinsidep ?t ?t-given))
    (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dont-care)) ;not already drawn
    (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1) (body-name ?b2)
 			      (time-abbrev ?t)))

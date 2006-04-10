@@ -373,8 +373,6 @@
 	))
 
 
-
-
 (defoperator current-in-branch-contains (?sought)
   :preconditions (
 		  (any-member ?sought ((current-in ?branch :time ?t)))
@@ -386,12 +384,17 @@
 	    (eqn-contains (equiv-resistance-series ?res-list) ?sought)
 	    ))
 
-(defoperator define-current-thru-var (?what ?t)
-  :preconditions (
-		  (not (circuit-component ?what capacitor))
-		  ;; ?what could be a list naming a compound (equivalent) circuit element.
-		  (bind ?i-what-var (format-sym "I_~A$~A" (comp-name ?what 'R) (time-abbrev ?t)))
-		  )
+(defoperator define-current-thru (?what ?t)
+  :preconditions 
+  (
+   ;; only use time when allowed by feature changing-voltage
+   (test (eq (null ?t) 
+	     (null (member 'changing-voltage (problem-features *cp*)))))
+   (not (circuit-component ?what capacitor))
+   ;; ?what could be a list naming a compound (equivalent) circuit element.
+   (bind ?i-what-var (format-sym "I_~A$~A" (comp-name ?what 'R) 
+				 (time-abbrev ?t)))
+   )
   :effects (
 	    (variable ?i-what-var (current-thru ?what :time ?t))
 	    (define-var  (current-thru ?what :time ?t))
@@ -403,10 +406,14 @@
 		       
 
 ;;If we need time the change the bind
-(defoperator define-current-in-var (?branch ?t)
-  :preconditions (
-		  (bind ?i-br-var (format-sym "I_~A$~A" ?branch (time-abbrev ?t)))
-		  )
+(defoperator define-current-in (?branch ?t)
+  :preconditions 
+  (
+   ;; only use time when allowed by feature changing-voltage
+   (test (eq (null ?t) 
+	     (null (member 'changing-voltage (problem-features *cp*)))))
+   (bind ?i-br-var (format-sym "I_~A$~A" ?branch (time-abbrev ?t)))
+   )
   :effects (
 	    (variable ?i-br-var (current-in ?branch :time ?t))
 	    (define-var (current-in ?branch :time ?t))
@@ -425,8 +432,8 @@
 ;;May need to uncomment (resistance) as a sought to get currents to work
 (defoperator ohms-law-contains-resistor (?sought)
   :preconditions(
-		 (any-member ?sought ((current-thru ?res :time ?t)
-				      (voltage-across ?res :time ?t)))
+		 (any-member ?sought ((current-thru ?res :time ?t ?t)
+				      (voltage-across ?res :time ?t ?t)))
 		 (time ?t)
 		 (circuit-component ?res resistor)
 		 ;;Added mary/Kay 7 May
@@ -519,9 +526,14 @@
 	))
 
 
-(defoperator define-voltage-across-var-resistor (?comp ?t)
+(defoperator define-voltage-across (?comp ?t)
   :preconditions 
-  ((bind ?v-var (format-sym "deltaV_~A~@[_~A~]" (comp-name ?comp 'R)
+  (
+   ;; only use time when allowed by feature changing-voltage
+   (test (eq (null ?t) 
+	     (null (member 'changing-voltage (problem-features *cp*)))))
+   
+   (bind ?v-var (format-sym "deltaV_~A~@[_~A~]" (comp-name ?comp 'R)
 			    (time-abbrev ?t))))
   :effects (
 	    (variable ?v-var (voltage-across ?comp :time ?t))
@@ -541,11 +553,11 @@
 (defoperator loop-rule-contains (?comp ?t)
   :preconditions (
 		  (closed-loop ?branch-list ?p1 ?p2 ?path ?reversed)
-		  (test (member ?comp ?path :test #'equal)))
-  :effects (
-	    (eqn-contains (loop-rule ?branch-list ?t) (voltage-across ?comp :time ?t))
-	    ))
-
+		  (test (member ?comp ?path :test #'equal))
+		  (time ?t)
+		  )
+  :effects ( (eqn-contains (loop-rule ?branch-list ?t) 
+			   (voltage-across ?comp :time ?t ?t)) ))
 
 (defoperator closed-branch-is-loop (?branch)
   :preconditions (
@@ -774,46 +786,47 @@
 
 
 (defoperator write-single-loop-rule (?branch-list ?t)
-  :preconditions (
-		  (in-wm (closed-loop ?branch-list ?p1 ?p1 ?path ?reversed))
-                     
-		  ;;get the set of resistors
-		  (setof (circuit-component ?comp1 resistor)
-			 ?comp1 ?all-res)
-		  ;;get the set of batteries not switched out at t
-		  (setof (active-battery ?comp2 ?t)
-			 ?comp2 ?all-batts)
-		  ;;get the set of capacitors
-		  (setof (circuit-component ?comp3 capacitor)
-			 ?comp3 ?all-caps)
-		  ;;get the set of all inductors
-		  (setof (circuit-component ?comp4 inductor)
-			 ?comp4 ?all-inds)
-
-		  ;;get all the resistor delta variables for ?p1
-		  (map ?comp (intersection ?p1 ?all-res :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
-		       ?v-var ?v-res1-vars)
-
-		  ;;get all the battery delta variables for ?p1
-		  (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
-		       ?v-var ?v-batt1-vars)
-                             
-		  ;;get all the capacitor delta variables for ?p1
-		  (map ?comp (intersection ?p1 ?all-caps :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
-		       ?v-var ?v-cap-vars)
-
-		  ;; get all the inductor delta variables for ?p1
-		  (map ?comp (intersection ?p1 ?all-inds :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
-		       ?v-var ?v-ind-vars)
-		  ;; list batteries and inductors for positive sum
-		  (bind ?emf-vars (append ?v-batt1-vars ?v-ind-vars))
-		  ;; list capacitors and resistors for negative term
-		  (bind ?drop-vars (append ?v-res1-vars ?v-cap-vars))
-		  )
+  :preconditions 
+  (
+   (in-wm (closed-loop ?branch-list ?p1 ?p1 ?path ?reversed))
+   
+   ;;get the set of resistors
+   (setof (circuit-component ?comp1 resistor)
+	  ?comp1 ?all-res)
+   ;;get the set of batteries not switched out at t
+   (setof (active-battery ?comp2 ?t)
+	  ?comp2 ?all-batts)
+   ;;get the set of capacitors
+   (setof (circuit-component ?comp3 capacitor)
+	  ?comp3 ?all-caps)
+   ;;get the set of all inductors
+   (setof (circuit-component ?comp4 inductor)
+	  ?comp4 ?all-inds)
+   
+   ;;get all the resistor delta variables for ?p1
+   (map ?comp (intersection ?p1 ?all-res :test #'equal)
+	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	?v-var ?v-res1-vars)
+   
+   ;;get all the battery delta variables for ?p1
+   (map ?comp (intersection ?p1 ?all-batts :test #'equal)
+	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	?v-var ?v-batt1-vars)
+   
+   ;;get all the capacitor delta variables for ?p1
+   (map ?comp (intersection ?p1 ?all-caps :test #'equal)
+	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	?v-var ?v-cap-vars)
+   
+   ;; get all the inductor delta variables for ?p1
+   (map ?comp (intersection ?p1 ?all-inds :test #'equal)
+	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	?v-var ?v-ind-vars)
+   ;; list batteries and inductors for positive sum
+   (bind ?emf-vars (append ?v-batt1-vars ?v-ind-vars))
+   ;; list capacitors and resistors for negative term
+   (bind ?drop-vars (append ?v-res1-vars ?v-cap-vars))
+   )
   :effects (
 	    (eqn (= 0 (- (+ . ?emf-vars) (+ . ?drop-vars)))
 		 (loop-rule ?branch-list ?t))
@@ -843,7 +856,8 @@
 (defoperator loop-rule-contains (?sought)
   :preconditions (
 		  (closed-loop ?compo-list :time ?tt)
-		  (any-member ?sought ((voltage-across ?compo :time ?t)))
+		  (any-member ?sought ((voltage-across ?compo :time ?t ?t)))
+		  (time ?t)
 		  (test (member ?compo ?compo-list :test #'eql))
 		  (test (tinsidep-include-endpoints ?t ?tt))
 		  )
@@ -851,8 +865,8 @@
 
 (defoperator write-loop-rule-two (?c1 ?c2 ?t)
   :preconditions (
-		  (variable ?v1 (voltage-across ?c1 :time ?t))
-		  (variable ?v2 (voltage-across ?c2 :time ?t))		  
+		  (variable-optional-t ?v1 (voltage-across ?c1 :time ?t))
+		  (variable-optional-t ?v2 (voltage-across ?c2 :time ?t))
 		  )
   :effects ((eqn (= ?v1 ?v2) (loop-rule (?c1 ?c2) ?t)))
   :hint 
@@ -1060,33 +1074,17 @@
 	(bottom-out (string "You need to add the individual capacitances for ~a, and set it equal to the equivalent capacitance ~a" (?parallel-list conjoined-names) (?tot-cap algebra)))  
 	))
 
-
-
-;;;CHARGES ON CAPACITORS
-(defoperator define-constant-charge-on-cap-var (?what)
-  :preconditions (
-		  (not (changing-voltage))
-		  (circuit-component ?what capacitor)
-		  (bind ?q-what-var (format-sym "Q_~A" 
-						(comp-name ?what 'C)))
-		  )
-  :effects (
-	    (variable ?q-what-var (charge-on ?what))
-	    (define-var (charge-on ?what))
-	    )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." ((charge-on ?what) def-np)))
-	 ))
-
-(defoperator define-changing-charge-on-cap-var (?what ?t)
-  :preconditions (
-		  (in-wm (changing-voltage))
-		  (time ?t)
-		  (test (not (eq ?t 'inf)))
-		  (circuit-component ?what capacitor)
-		  (bind ?q-what-var (format-sym "Q_~A_~A" (comp-name ?what 'C) 
-						(time-abbrev ?t)))
-		  )
+(defoperator define-charge-on-cap-var (?what ?t)
+  :preconditions 
+  (
+   ;; only use time when allowed by feature changing-voltage
+   (test (eq (null ?t) 
+	     (null (member 'changing-voltage (problem-features *cp*)))))
+   (test (not (eq ?t 'inf)))
+   (circuit-component ?what capacitor)
+   (bind ?q-what-var (format-sym "Q_~A~@[_~A~]" (comp-name ?what 'C) 
+				 (time-abbrev ?t)))
+   )
   :effects (
 	    (variable ?q-what-var (charge-on ?what :time ?t))
 	    (define-var (charge-on ?what :time ?t))
@@ -1097,7 +1095,7 @@
 	 ))
 
 
-(def-psmclass cap-defn (cap-defn ?cap ?t) 
+(def-psmclass capacitance-definition (capacitance-definition ?cap ?t) 
   :complexity definition
   :short-name "capacitance defined"
   :english ("Definition of capacitance")
@@ -1106,12 +1104,12 @@
 (defoperator capacitor-definition-contains (?sought)
   :preconditions(
 		 (any-member ?sought ((charge-on ?cap :time ?t ?t)
-				      (voltage-across ?cap :time ?t)))
+				      (voltage-across ?cap :time ?t ?t)))
 		 (time ?t)
 		 (circuit-component ?cap capacitor)
 		 )
   :effects(
-	   (eqn-contains (cap-defn ?cap ?t) ?sought)
+	   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
 	   ))
 
 (defoperator capacitor-definition-single-contains (?sought)
@@ -1122,19 +1120,19 @@
 		 (circuit-component ?cap capacitor)
 		 )
   :effects(
-	   (eqn-contains (cap-defn ?cap ?t) ?sought)
+	   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
 	   ))
 
-(defoperator write-cap-defn (?cap ?t)
+(defoperator write-capacitance-definition (?cap ?t)
   :specifications "doc"
   :preconditions(
 		 (variable ?c-var (capacitance ?cap))
-		 (variable ?q-var (charge-on ?cap :time ?t ?t))
-		 (variable ?v-var (voltage-across ?cap :time ?t))
+		 (variable-optional-t ?q-var (charge-on ?cap :time ?t))
+		 (variable-optional-t ?v-var (voltage-across ?cap :time ?t))
 		 )
   :effects(
 	   ;; handles zero charge OK
-	   (eqn (= (* ?c-var ?v-var) ?q-var) (cap-defn ?cap ?t))
+	   (eqn (= (* ?c-var ?v-var) ?q-var) (capacitance-definition ?cap ?t))
 	   )
   :hint(
 	(point (string "Write an equation for the capacitance of ~a." (?cap adj)))
@@ -1164,22 +1162,22 @@
                       
 		  ;;get all the capacitor delta variables for ?p1
 		  (map ?comp (intersection ?p1 ?all-cap :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
+		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
 		       ?v-var ?v-cap1-vars)
 
 		  ;;get all the battery delta variables for ?p1
 		  (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
+		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
 		       ?v-var ?v-batt1-vars)
 
 		  ;;get all the capacitor delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-cap :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
+		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
 		       ?v-var ?v-cap2-vars)
 
 		  ;;get all the battery delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?t))
+		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
 		       ?v-var ?v-batt2-vars)
 
 		  ;;determine whether ?p1 + ?p2 or ?p1 - ?p2
@@ -1238,7 +1236,7 @@
    (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
    (test (not (equal nil ?in-caps)))
    (map ?x ?in-caps  
-	(variable ?q-var (charge-on ?x :time ?t ?t))
+	(variable-optional-t ?q-var (charge-on ?x :time ?t))
 	?q-var ?q-in-path-vars)
    
    ;;find the charge variables for capacitor going into the branch  
@@ -1248,7 +1246,7 @@
 		  (test (not (equal nil ?out-caps)))
 
 		  (map ?x ?out-caps
-		       (variable ?q-var (charge-on ?x :time ?t ?t))
+		       (variable-optional-t ?q-var (charge-on ?x :time ?t))
 		       ?q-var ?q-out-path-vars)
 		  )
   :effects (
@@ -1331,7 +1329,7 @@
   :preconditions (
 		  ;; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
 		  (map ?cap ?temp-caps
-		       (variable ?q-var (charge-on ?cap :time ?t ?t))
+		       (variable-optional-t ?q-var (charge-on ?cap :time ?t))
 		       ?q-var ?q-path-cap-vars)
 		  (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
 		  (bind ?pair (first ?adj-pairs))
@@ -1356,9 +1354,9 @@
 
 (defoperator cap-energy-contains (?sought)
   :preconditions (
-		  (any-member ?sought ( (charge-on ?cap :time ?t ?t)
-					(voltage-across ?cap :time ?t)
-					(stored-energy ?cap :time ?t)))
+		  (any-member ?sought ((charge-on ?cap :time ?t ?t)
+				       (voltage-across ?cap :time ?t ?t)
+				       (stored-energy ?cap :time ?t)))
 		  (circuit-component ?cap capacitor)
 		  (time ?t) ;not always bound
 		  (test (time-pointp ?t))
@@ -1368,8 +1366,8 @@
 
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
-		  (variable ?Q (charge-on ?cap :time ?t ?t))
-		  (variable ?V (voltage-across ?cap :time ?t))
+		  (variable-optional-t ?Q (charge-on ?cap :time ?t))
+		  (variable-optional-t ?V (voltage-across ?cap :time ?t))
 		  (variable ?U (stored-energy ?cap :time ?t))
 		  )
   :effects (
@@ -1755,7 +1753,7 @@
 					; use constant Vb defined across charging interval.
 		  (circuit-component ?bat battery)	 
 		  (variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
-		  (variable ?q-var (charge-on ?cap :time ?t ?t))
+		  (variable ?q-var (charge-on ?cap :time ?t))
 		  (percent-max ?cap ?fraction ?t)
 		  )
   :effects (
@@ -2304,17 +2302,18 @@
 (defoperator electric-power-contains (?sought)
   :preconditions 
   ( 
-   (any-member ?sought ( (voltage-across ?comp :time ?t) 
-			 (current-thru ?comp :time ?t)
+   (any-member ?sought ( (voltage-across ?comp :time ?t ?t) 
+			 (current-thru ?comp :time ?t ?t)
 			 (electric-power ?comp :time ?t) ))
+   (time ?t)
    ) 
   :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
 
 (defoperator electric-power (?comp ?t)
   :preconditions 
   (
-   (variable ?V (voltage-across ?comp :time ?t) )
-   (variable ?I (current-thru ?comp :time ?t))
+   (variable-optional-t ?V (voltage-across ?comp :time ?t) )
+   (variable-optional-t ?I (current-thru ?comp :time ?t))
    (variable ?P  (electric-power ?comp :time ?t)) 
    )
   :effects ( (eqn (= ?P (* ?V ?I)) (electric-power ?comp ?t)) )

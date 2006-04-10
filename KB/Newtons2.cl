@@ -3846,7 +3846,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions ( 
     (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr)
     (test (not (equal ?dir-expr 'unknown)))
-    (time ?t)
+    (time ?t) ;explicit time
     (test (tinsidep-include-endpoints ?t ?t-given))
     ; make sure this vector not already drawn
     (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
@@ -3945,6 +3945,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   another is not given, you can introduce the relative position vector by drawing it with an unknown direction"
   :preconditions 
   ( 
+   (time ?t)  ;explicit time
     (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
     ; make sure this is not known to be zero-length from at-place stmt.
     (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep ?t ?t-at))
@@ -4056,48 +4057,35 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; Which one gets defined is controlled by presence of
 ;;; in the problem features.
 
-(defoperator define-constant-mass (?b)
-  :specifications "If ?b is an object, then you can define a mass for ?b"
-  :preconditions 
-  (
-   (test (not (member 'changing-mass (problem-features *cp*))))
-   (object ?b)
-   (not (variable ?dont-care (mass ?b)))
-   (bind ?var (format-sym "m_~A" (body-name ?b))))
-  :effects
-  ((variable ?var (mass ?b))
-   (define-var (mass ?b)))
-  :hint
-  ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
-   ))
 
-#|
-(defoperator match-timeless-variable (?quant)
+(defoperator define-mass (?b ?t)
   :preconditions
   (
-   (test (time-of ?quant))
-   (bind ?timeless-quant (remove-time ?quant))
-;;   (test (unify ?quant ?timeless-quant))
-   (variable ?var ?timeless-quant)
-   )
-  :effects ((variable ?var ?quant)))
-|#
-
-(defoperator define-changing-mass (?b ?t)
-  :specifications "If ?b is an object, then you can define a mass for ?b"
-  :preconditions
-  (
-   (test (member 'changing-mass (problem-features *cp*)))
+   ;; only use time when allowed by feature changing-mass
+   (test (eq (null ?t) (null (member 'changing-mass (problem-features *cp*)))))
    (object ?b)
-   (time ?t)
    (not (variable ?dont-care (mass ?b :time ?t)))
-   (bind ?var (format-sym "m_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))))
+   (bind ?var (format-sym "m_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+   )
   :effects
   ((variable ?var (mass ?b :time ?t))
    (define-var (mass ?b :time ?t)))
   :hint
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
+
+(defoperator use-timeless-variable (?quant)
+  :preconditions
+  (
+   (bind ?timeless-quant (remove-time ?quant))
+   (test (not (unify ?quant ?timeless-quant))) ;distinct quantities
+   (variable ?var ?timeless-quant)
+   )
+  :effects ((variable-optional-t ?var ?quant)))
+
+(defoperator use-time-variable (?quant)
+  :preconditions ((variable ?var ?quant))
+  :effects ((variable-optional-t ?var ?quant)))
 
 ;;; Magnitude of derivative of mass with respect to time
 ;;; due to agent
@@ -4106,7 +4094,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator define-mass-change-magnitude (?b ?agent ?t)
   :preconditions
-  ((object ?b)
+  (
+   (test (member 'changing-mass (problem-features *cp*)))
+   (object ?b)
    (time ?t)
    (bind ?var (format-sym "dmdt_~A_~A~@[_~A~]" (body-name ?b) (body-name ?agent) 
 			  (time-abbrev ?t))))
@@ -5692,14 +5682,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the mass of the body, and
      the gravitational constant for the planet."
   :preconditions
-  ((any-member ?quantity
-	        ((mag (force ?b ?planet weight :time ?t))
-		 (mass ?b :time ?t ?t) ;can be timeless or changing
-		 (gravitational-acceleration ?planet)))
-   ; make sure this is not case where ?b is cm of rigid body. For that
-   ; we need the mass of the whole body, plus special hint.
-   (not (point-on-body ?b ?rigid-body))
+  (   
    (time ?t)
+   (any-member ?quantity
+	       ((mag (force ?b ?planet weight :time ?t))
+		(mass ?b :time ?t ?t) ;can be timeless or changing
+		(gravitational-acceleration ?planet)))
+   ;; make sure this is not case where ?b is cm of rigid body. For that
+   ;; we need the mass of the whole body, plus special hint.
+   (not (point-on-body ?b ?rigid-body))
    (near-planet ?planet :body ?b ?b)
    (not (massless ?b))) 
   :effects
@@ -5732,7 +5723,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((near-planet ?planet :body ?b ?b)
     (not (massless ?b))
-    (variable ?m-var (mass ?b :time ?t ?t))
+    (variable-optional-t ?m-var (mass ?b :time ?t))
     (variable ?w-var (mag (force ?b ?planet weight :time ?t)))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
@@ -6241,7 +6232,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
-   (variable ?m (mass ?b :time ?t ?t))
+   (variable-optional-t ?m (mass ?b :time ?t))
    ;; see if acceleration compo doesn't vanish
    ;; if it does, we still write equation to give sum of forces = 0
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
@@ -6278,7 +6269,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
    (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
-   (variable ?m (mass ?b :time ?t ?t))
+   (variable-optional-t ?m (mass ?b :time ?t))
     ;; see if acceleration compo doesn't vanish
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a)) ;done in drawing step
    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
@@ -6896,7 +6887,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (motion ?body (rotating ?pivot ?dir ?axis) :time ?t-motion)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
-   (variable ?m-var (moment-of-inertia ?body :time ?t ?t))
+   (variable-optional-t ?m-var (moment-of-inertia ?body :time ?t))
    (variable ?v-var (mag (ang-velocity ?body :time ?t)))
   )
   :effects (
@@ -9711,7 +9702,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      (variable ?L_z     (compo z 0 (ang-momentum ?b :time ?t)))
      (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
-     (variable ?I (moment-of-inertia ?b :time ?t ?t))
+     (variable-optional-t ?I (moment-of-inertia ?b :time ?t))
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
@@ -10444,7 +10435,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    
    :preconditions (
      (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-     (variable ?I (moment-of-inertia ?b :time ?t ?t))
+     (variable-optional-t ?I (moment-of-inertia ?b :time ?t))
      (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
      ; fetch mag variable for implicit equation (defined when drawn)
      (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
