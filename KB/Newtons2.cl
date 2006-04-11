@@ -4074,19 +4074,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((bottom-out (string "You can use the variable definition tools, which are under the variables menu, in order to define a variable for mass."))
    ))
 
-(defoperator use-timeless-variable (?quant)
-  :preconditions
-  (
-   (bind ?timeless-quant (remove-time ?quant))
-   (test (not (unify ?quant ?timeless-quant))) ;distinct quantities
-   (variable ?var ?timeless-quant)
-   )
-  :effects ((variable-optional-t ?var ?quant)))
-
-(defoperator use-time-variable (?quant)
-  :preconditions ((variable ?var ?quant))
-  :effects ((variable-optional-t ?var ?quant)))
-
 ;;; Magnitude of derivative of mass with respect to time
 ;;; due to agent
 ;;; We use the magnitude form because students in a non-calculus
@@ -5723,7 +5710,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
    ((near-planet ?planet :body ?b ?b)
     (not (massless ?b))
-    (variable-optional-t ?m-var (mass ?b :time ?t))
+    (any-member ?tot (?t nil)) 
+    (variable ?m-var (mass ?b :time ?tot))
     (variable ?w-var (mag (force ?b ?planet weight :time ?t)))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
@@ -6232,7 +6220,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
-   (variable-optional-t ?m (mass ?b :time ?t))
+   (any-member ?tot (?t nil)) 
+   (variable ?m (mass ?b :time ?tot))
    ;; see if acceleration compo doesn't vanish
    ;; if it does, we still write equation to give sum of forces = 0
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
@@ -6269,7 +6258,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
    (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
-   (variable-optional-t ?m (mass ?b :time ?t))
+   (any-member ?tot (?t nil)) 
+   (variable ?m (mass ?b :time ?tot))
     ;; see if acceleration compo doesn't vanish
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a)) ;done in drawing step
    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
@@ -6887,7 +6877,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (motion ?body (rotating ?pivot ?dir ?axis) :time ?t-motion)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
-   (variable-optional-t ?m-var (moment-of-inertia ?body :time ?t))
+   (any-member ?tot (?t nil)) 
+   (variable ?m-var (moment-of-inertia ?body :time ?tot))
    (variable ?v-var (mag (ang-velocity ?body :time ?t)))
   )
   :effects (
@@ -8903,7 +8894,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-accelerating (?b ?t)
   :preconditions 
    ((motion ?b (rotating ?axis ?rotate-dir speed-up) :time ?t-motion)
-    (test (not (equal ?rotate-dir 'unknown)))  
+    (test (not (eq ?rotate-dir 'unknown)))
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
@@ -8926,9 +8917,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; and slowing down
 (defoperator draw-ang-decelerating(?b ?t)
   :preconditions (
-    (time ?t)
     (motion ?b (rotating ?axis ?rotate-dir slow-down) :time ?t-motion)
-    (test (not (equal ?rotate-dir 'unknown)))  
+    (test (not (eq ?rotate-dir 'unknown)))
+    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?vel-dir (rotation-zdir ?rotate-dir))
@@ -9702,7 +9693,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions (
      (variable ?L_z     (compo z 0 (ang-momentum ?b :time ?t)))
      (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
-     (variable-optional-t ?I (moment-of-inertia ?b :time ?t))
+     (any-member ?tot (?t nil)) 
+     (variable ?I (moment-of-inertia ?b :time ?tot))
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
@@ -9987,15 +9979,25 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; In some cases this is a cheat for where the direction is obvious because
 ;;; there is only one force, so we have given that the object's rotation is
 ;;; speeding up.
-(defoperator draw-net-torque-from-ang-accel (?b ?axis ?t)
-  :preconditions (
-     (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
-     (given (dir (ang-accel ?b :time ?t)) ?dir)
-     (test (not (equal ?dir 'unknown)))
-     ; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
-                                                 (time-abbrev ?t)))
-     (bind ?dir-var (format-sym "O~A" ?mag-var))
+(defoperator draw-net-torque-from-motion (?b ?axis ?t)
+  :preconditions 
+  (
+   (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
+   ;; we need to bind ?axis
+   (motion ?b (rotating ?axis ?rotate-dir ?accel-motion) :time ?t-motion)
+   (test (not (eq ?rotate-dir 'unknown)))
+   (time ?t)
+   (test (tinsidep ?t ?t-motion))
+   (bind ?dir (cond ((eq ?accel-motion 'slow-down) 
+		     (opposite (rotation-zdir ?rotate-dir))) 
+		    ((eq ?accel-motion 'speed-up) 
+		     (rotation-zdir ?rotate-dir)) 
+		    (t nil)))
+   (test ?dir)
+   ;; var name identifies force by point of application and agent alone
+   (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?b) ?axis 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
      (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
@@ -10435,7 +10437,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    
    :preconditions (
      (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-     (variable-optional-t ?I (moment-of-inertia ?b :time ?t))
+     (any-member ?tot (?t nil)) 
+     (variable ?I (moment-of-inertia ?b :time ?tot))
      (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
      ; fetch mag variable for implicit equation (defined when drawn)
      (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
