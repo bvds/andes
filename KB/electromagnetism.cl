@@ -1104,7 +1104,7 @@
 (defoperator draw-net-field-diagram (?loc ?type ?t)
  :preconditions (
     ;; draw body? which? use the point?
-    (field-sources ?loc ?type ?sources :time ?t)
+    (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
     (foreach ?source ?sources
        (vector ?b (field ?loc ?type ?source :time ?t) ?dir)) 
     ; which body should own the axis to use for these vectors
@@ -1293,7 +1293,6 @@
   :preconditions (
      (variable ?Vnet (net-potential ?loc :time ?t))
      (in-wm (field-sources ?loc electric ?sources :time ?t ?t))
-     (test (cdr ?sources)) ;make sure there is more than one source
      (map ?source ?sources 
    	(variable ?V-var (potential ?loc ?source :time ?t))
 	?V-var ?Vi)
@@ -1380,7 +1379,7 @@
   :preconditions 
   ( ;; need to know electric field exists in problem
    (at-place ?b ?loc :time ?t ?t)
-   (field-sources ?loc electric ?sources :time ?t ?t)
+   (in-wm (field-sources ?loc electric ?sources :time ?t ?t))
    ;; need to bind source. See electric-energy-contains above
    (bind ?source (cond ((and (null (cdr ?sources))
 			     (not (eq (car ?sources) 'unspecified))) 
@@ -1744,9 +1743,10 @@
    (magnetic-dipole ?dipole ?surface)
    ;; because of abs(Q), charge is not a sought
    (any-member ?sought(
-		       (turns ?current-loop)
-		       (area ?current-loop)
-		       (mag (dipole-moment ?current-loop magnetic :time ?t))
+		       (turns ?dipole)
+		       (area ?surface)
+		       (current-thru ?dipole :time ?t ?t)
+		       (mag (dipole-moment ?dipole magnetic :time ?t))
 		       ))
    (time ?t)
    (debug "Using & firing write-magnetic-dipole-moment-mag-contains ~%")
@@ -1761,7 +1761,8 @@
    (magnetic-dipole ?dipole ?surface)
    (variable ?magmu (mag (dipole-moment ?dipole magnetic :time ?t)))
    (variable ?N (turns ?dipole))
-   (variable ?I (current-thru ?dipole :time ?t))
+   (any-member ?tot (?t nil))
+   (variable ?I (current-thru ?dipole :time ?tot))
    (variable ?A (area ?surface))
    (rdebug "fired write-magnetic-dipole-moment-mag  ~%")
    )
@@ -2670,11 +2671,12 @@
    (vector-diagram (charge-force-Bfield ?b ?t))
    (variable ?Fx (compo x 0 (force ?b ?source magnetic :time ?t)))
    (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
-   (in-wm (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?t ?t))))
+   (any-member ?tot (?t nil))
+   (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?tot)))
    (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
-   (in-wm (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?t ?t))))
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge-on ?b :time ?tot)))
+   (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?tot)))
+   (any-member ?tot2 (?t nil)) 
+   (variable ?q (charge-on ?b :time ?tot2)))
   :effects ( (eqn (= ?Fx (* ?q (- (* ?Vy ?Bz) (* ?Vz ?By)))) 
 		  (charge-force-Bfield-x ?b ?t)) )
   :hint (
@@ -2712,11 +2714,12 @@
    (vector-diagram (charge-force-Bfield ?b ?t))
    (variable ?Fy (compo y 0 (force ?b ?source magnetic :time ?t)))
    (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
-   (in-wm (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?t ?t))))
+   (any-member ?tot (?t nil))
+   (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?tot)))
    (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
-   (in-wm (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?t ?t))))
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge-on ?b :time ?tot))
+   (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?tot)))
+   (any-member ?tot2 (?t nil)) 
+   (variable ?q (charge-on ?b :time ?tot2))
    )
   :effects ( (eqn (= ?Fy (* ?q (- (* ?Vz ?Bx) (* ?Vx ?Bz)))) 
 		  (charge-force-Bfield-y ?b ?t)) )
@@ -2756,11 +2759,12 @@
    (vector-diagram (charge-force-Bfield ?b ?t))
    (variable ?Fz (compo z 0 (force ?b ?source magnetic :time ?t)))
    (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
-   (in-wm (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?t ?t))))
+   (any-member ?tot (?t nil))
+   (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?tot)))
    (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
-   (in-wm (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?t ?t))))
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge-on ?b :time ?tot))
+   (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?tot)))
+   (any-member ?tot2 (?t nil)) 
+   (variable ?q (charge-on ?b :time ?tot2))
    )
   :effects ( 
 	    (eqn (= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) 
@@ -3200,9 +3204,9 @@
 		 ))
    (time ?t)
    ;; find axes now, before applying dot product:
-   (vector ?surface (field ?surface ?type ?source :time ?t ?t) ?dir-d)
+   (any-member ?tot (?t nil))
+   (vector ?surface (field ?surface ?type ?source :time ?tot) ?dir-d)
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
-   (time ?t)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
@@ -3235,10 +3239,8 @@
   (variable ?Phi-var (flux ?surface ?type :time ?t))
   (variable ?A (area ?surface))
   )
- :effects 
- ((eqn (= ?Phi-var (* ?A ?dot))
-       (flux-constant-field ?surface ?type ?t ?rot))
-  )
+ :effects ( (eqn (= ?Phi-var (* ?A ?dot))
+		 (flux-constant-field ?surface ?type ?t ?rot)) )
  :hint (
 	(point (string "Note that the ~A field is uniform over ~A." 
 		       ?type ?surface))
@@ -3295,7 +3297,8 @@
 		 ))
    (time ?t) ;in case ?t is not bound
    ;; find axes now, before applying dot product:
-   (vector ?surface (field ?surface ?type ?source :time ?t ?t) ?dir-d)
+   (any-member ?tot (?t nil))
+   (vector ?surface (field ?surface ?type ?source :time ?tot) ?dir-d)
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
    (time ?t)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
