@@ -474,8 +474,10 @@
 (defoperator find-electric-force-given-field-dir (?b ?source ?t)
   :preconditions 
   ((rdebug "Using find-electric-force-given-field-dir~%")
+   (time ?t)
    ;; make sure E-field direction given at loc of ?b
-   (given (dir (field ?loc electric ?source :time ?t ?t)) ?field-dir)
+   ;; needs in-wm or recursion with draw-efield-given-force-dir
+   (in-wm (given (dir (field ?loc electric ?source :time ?t ?t)) ?field-dir))
    ;; make sure force direction not given, directly or via components:
    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
    (not (given (compo ?xy ?rot (force ?b ?source electric :time ?t)) ?dontc2))
@@ -1066,23 +1068,24 @@
 	      (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator net-field-contains (?sought)
- :preconditions (
-		 ;; this may end up timeless
+ :preconditions 
+ (
+  ;; this may end up timeless
   (any-member ?sought (
-		 (mag (net-field ?loc ?type :time ?t))
-		 (dir (net-field ?loc ?type :time ?t))
-                 ;; need to choose ?loc to apply at when sought is field due 
-		 ;; to some source.  Ignore this case for now.
-		 (mag (field ?loc ?type ?source :time ?t))
-		 (dir (field ?loc ?type ?source :time ?t))
+		       (mag (net-field ?loc ?type :time ?t))
+		       (dir (net-field ?loc ?type :time ?t))
+		       ;; need to choose ?loc to apply at when sought is field
+		       ;; due to some source.  Ignore this case for now.
+		       (mag (field ?loc ?type ?source :time ?t))
+		       (dir (field ?loc ?type ?source :time ?t))
 		 ))
   ;; Must make sure don't include source at loc. We will filter for this
   ;; when we write the equation.
   )
-  :effects (
-   (eqn-family-contains (net-field ?loc ?type ?t) ?sought)
-  ; since only one compo-eqn under this vector psm, we can just
-  ; select it now, rather than requiring further operators to do so
+ :effects (
+	   (eqn-family-contains (net-field ?loc ?type ?t) ?sought)
+	   ;; since only one compo-eqn under this vector psm, we can just
+	   ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (net-field ?loc ?type ?t) definition ?sought)
   ))
 
@@ -1160,7 +1163,7 @@
 
 (defoperator draw-net-field-given-zero (?b ?type ?t)
   :preconditions 
-  ((time ?t)
+  (
    ;; following requires ?loc to be occupied by body
    (at-place ?b ?loc :time ?t ?t)
    (given (dir (net-field ?loc ?type :time ?t)) zero)  
@@ -1171,7 +1174,7 @@
   :effects 
   (
    (vector ?b (net-field ?loc ?type :time ?t) zero)
-   (variable-optional-t ?mag-var (mag (net-field ?loc ?type :time ?t)))
+   (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
    )
   :hint (
 	 (point (string "At the point ~A, the ~A fields add up to zero."
@@ -1193,11 +1196,12 @@
 			     (body-name ?loc) (time-abbrev ?t)))
   (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
-  :effects (
-            (vector ?loc (net-field ?loc ?type :time ?t) unknown)
-            (variable-optional-t ?mag-var (mag (net-field ?loc ?type :time ?t)))
-	    (variable-optional-t ?dir-var (dir (net-field ?loc ?type :time ?t)))
-            )
+  :effects 
+  (
+   (vector ?loc (net-field ?loc ?type :time ?t) unknown)
+   (variable-optional-t ?mag-var (mag (net-field ?loc ?type :time ?t)))
+   (variable-optional-t ?dir-var (dir (net-field ?loc ?type :time ?t)))
+   )
   :hint (
          (point (string "You know there is a net ~A field at ~A." 
 			(?type adj) ?loc))
@@ -2266,20 +2270,25 @@
 		     ?loc (?source agent) (?dir-B adj)))
         )) 
 
-; draw Bfield near a straight current-carrying wire
-; problem should give dir of perpendicular distance from wire to ?loc
+;; draw Bfield near a straight current-carrying wire
+;; problem should give dir of perpendicular distance from wire to ?loc
+;; This will probably only work with the feature changing-field
 (defoperator draw-Bfield-straight-current (?loc ?wire ?t)
-  :preconditions (
-          (given (dir (current-length ?wire :time 1)) ?dir-l)
-	  (given (dir (relative-position ?loc ?wire :time 1)) ?dir-r)
-	  ; we require body at loc to be axis owner for vector
-          (at-place ?b ?loc :time ?t ?t)
-	  (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
-	  (test ?dir-B)
-	  (test (not (eq ?B-dir 'zero)))
-          (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc)
-				     (time-abbrev ?t)))
-          (bind ?dir-var (format-sym "O~A" ?mag-var))
+  :preconditions 
+  (
+   (given (dir (current-length ?wire :time ?t)) ?dir-l)
+   (given (dir (relative-position ?loc ?wire :time ?t)) ?dir-r)
+   ;; only use time when allowed by feature changing-field
+   (test (eq (null ?t) 
+	     (null (member 'changing-field (problem-features *cp*)))))
+   ;; we require body at loc to be axis owner for vector
+   (at-place ?b ?loc :time ?t ?t)
+   (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
+   (test ?dir-B)
+   (test (not (eq ?B-dir 'zero)))
+   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
            (vector ?b (field ?loc magnetic ?wire :time ?t) ?dir-B)
@@ -2393,7 +2402,7 @@
    (B-field ?source) ; so know there is a Bfield in the problem
    (object ?b)
    (at-place ?b ?loc :time ?t ?t)
-   (not (given (dir (field ?loc magnetic ?source :time ?t-any)) ?dir-B))
+   (not (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
    (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
    (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
 			      (time-abbrev ?t)))
