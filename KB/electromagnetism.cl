@@ -1840,9 +1840,10 @@
 				    :time ?t)))
     (variable ?p-var (mag (dipole-moment ?dipole ?type :time ?t)))
     (variable-optional-t ?E-var (mag (field ?region ?type ?source :time ?t)))
+    (any-member ?t-field (?t nil))
     (variable ?theta-var (angle-between orderless 
 				(dipole-moment ?dipole ?type :time ?t)      
-				(field ?region ?type ?source :time ?t ?t)))
+				(field ?region ?type ?source :time ?t-field)))
     )
    :effects (
       (eqn (= ?tau-var (* ?p-var ?E-var (sin ?theta-var))) 
@@ -1964,10 +1965,11 @@
 (defoperator write-dipole-torque (?dipole ?source ?axis ?rot ?flag ?t)
   :preconditions 
   ( 
+   (any-member ?t-field (?t nil))
    (cross ?cross (dipole-moment ?dipole ?type :time ?t) 
-	  (field ?region ?type ?source :time ?t ?t) ?axis ?rot ?flag)
-    (variable ?tau-zc (compo ?axis ?rot (
-			     net-torque ?dipole axis 
+	  (field ?region ?type ?source :time ?t-field) ?axis ?rot ?flag)
+   (variable ?tau-zc (compo ?axis ?rot (
+					net-torque ?dipole axis 
 			     ;; torque ?dipole (field ?region ?type ?source)
 					 :time ?t)))
     )
