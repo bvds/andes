@@ -2085,7 +2085,7 @@
 (defoperator inductor-energy-contains (?sought)
   :preconditions (
 		  (any-member ?sought ( (self-inductance ?inductor)
-					(current-thru ?inductor :time ?t)
+					(current-thru ?inductor :time ?t ?t)
 					(stored-energy ?inductor :time ?t)))
 		  (time ?t)
 		  (test (time-pointp ?t))
@@ -2097,7 +2097,8 @@
   :preconditions (
 		  (variable ?U (stored-energy ?inductor :time ?t))
 		  (variable ?L (self-inductance ?inductor))
-		  (variable ?I (current-thru ?inductor :time ?t))
+		  (any-member ?tot (?t nil))
+		  (variable ?I (current-thru ?inductor :time ?tot))
 		  )
   :effects (
 	    (eqn (= ?U (* 0.5 ?L (^ ?I 2))) (inductor-energy ?inductor ?t))

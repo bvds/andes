@@ -634,8 +634,8 @@
    (body ?b)
    (at-place ?b ?loc :time ?t ?t)
    ;; need source of field
-   (vector ?dontcare (field ?loc electric ?source :time ?t-field) ?dir1)
-   (test (tinsidep ?t ?t-field)) 
+   (any-member ?tot (?t nil)) ;may want to extend to other times
+   (vector ?dontcare (field ?loc electric ?source :time ?tot) ?dir1)
    (vector ?b (force ?b ?source electric :time ?t) ?dir2)
    (axis-for ?b x ?rot)
    (rdebug "Fired draw-charge-force-Efield-diagram ~%")
@@ -648,11 +648,11 @@
   :preconditions 
   ((debug "Using write-charge-force-Efield-compo ~%")
    (at-place ?b ?loc :time ?t ?t)
-   (in-wm (variable ?E_x (compo ?xy ?rot 
-				(field ?loc electric ?source :time ?t ?t))))
+   (any-member ?tot (?t nil))
+   (variable ?E_x (compo ?xy ?rot (field ?loc electric ?source :time ?tot)))
    (variable ?F_x (compo ?xy ?rot (force ?b ?source electric :time ?t)))
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge-on ?b :time ?tot))
+   (any-member ?tot2 (?t nil)) 
+   (variable ?q (charge-on ?b :time ?tot2))
    (rdebug "fired write-charge-force-Efield-compo  ~%")
    )
   :effects (
@@ -826,8 +826,8 @@
    (not (vector-diagram (point-charge-Efield ?b ?loc ?t)))
    ;; ?b is point charge source of field at ?loc
    (body ?b)
-   (vector ?dontcare (field ?loc electric ?b :time ?t-field) ?dir1) 
-   (test (tinsidep ?t ?t-field))
+   (any-member ?tot (?t nil)) ;may want to extend to other times
+   (vector ?dontcare (field ?loc electric ?b :time ?tot) ?dir1) 
    (axis-for ?b x ?rot)
    (rdebug "Fired draw-point-charge-Efield-diagram ~%")
    )
@@ -856,10 +856,10 @@
   (
    (rdebug "Using write-point-charge-Efield-compo ~%")
    ;; b is point-charge source of field
-   (in-wm (variable ?E_x  
-			(compo ?xy ?rot (field ?loc electric ?b :time ?t ?t))))
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge-on ?b :time ?tot))
+   (any-member ?tot (?t nil))
+   (variable ?E_x (compo ?xy ?rot (field ?loc electric ?b :time ?tot)))
+   (any-member ?tot2 (?t nil)) 
+   (variable ?q (charge-on ?b :time ?tot2))
    (variable ?r (mag (relative-position ?loc ?b :time ?t)))
    (hat ?rhat-compo (relative-position ?loc ?b :time ?t) ?xy ?rot ?form)
    (rdebug "fired write-point-charge-Efield-compo  ~%")
@@ -1966,8 +1966,8 @@
    (at-place ?dipole ?region :time ?t ?t)
    ;; find axes now, before applying dot product:
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
-   (vector ?dipole (field ?region ?type ?source :time ?t-field) ?dir-field)
-   (test (tinsidep ?t ?t-field))
+   (any-member ?tot (?t nil)) ;may want to extend to all times
+   (vector ?dipole (field ?region ?type ?source :time ?tot) ?dir-field)
    (vector ?dipole (
 		    ;; Yuck, work-around for missing torque tool, Bug #773
 		    net-torque ?dipole axis
@@ -2200,8 +2200,8 @@
    (at-place ?dipole ?region :time ?t ?t)
    ;; find axes now, before applying dot product:
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-d)
-   (vector ?dipole (field ?region ?type ?source :time ?t-field) ?dir-e)
-   (test (tinsidep ?t ?t-field))
+   (any-member ?tot (?t nil)) ;may want to extend to all times
+   (vector ?dipole (field ?region ?type ?source :time ?tot) ?dir-e)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
@@ -2595,8 +2595,8 @@
    (not (vector-diagram (charge-force-Bfield ?b ?t)))
    (body ?b)
    (at-place ?b ?loc :time ?t ?t)
-   (vector ?dontcare (field ?loc magnetic ?source :time ?t-field) ?dir1) 
-   (test (tinsidep ?t ?t-field))
+   (any-member ?tot (?t nil)) ;may want to extend to all times
+   (vector ?dontcare (field ?loc magnetic ?source :time ?tot) ?dir1) 
    (vector ?b (force ?b ?source magnetic :time ?t) ?dir2)
    (vector ?b (velocity ?b :time ?t) ?dir3)
    (axis-for ?b x ?rot)
