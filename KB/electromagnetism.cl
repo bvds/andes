@@ -3230,7 +3230,6 @@
 	 ?source ?sources)
   (test (= 1 (length ?sources))) ;exactly one field at surface
   (bind ?source (first ?sources))
-  (any-member ?tot (?t nil))
   (dot ?dot (field ?surface ?type ?source :time ?tot)
        (unit-vector normal-to ?surface :time ?t)
        ?rot)
@@ -3325,7 +3324,6 @@
 	 ?source ?sources)
   (test (= 1 (length ?sources))) ;exactly one field at surface
   (bind ?source (first ?sources))
-  (any-member ?tot (?t nil))
   (dot ?dot (field ?surface ?type ?source :time ?tot)
        (unit-vector normal-to ?surface :time ?t)
        ?rot)
