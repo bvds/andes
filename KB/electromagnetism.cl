@@ -3225,7 +3225,8 @@
   ;; make sure there is only one field defined on the surface
   ;; if we have multiple fields, this law probably should be expressed
   ;; in terms of the net field.
-  (setof (vector ?dontcare (field ?surface ?type ?source :time ?t-field) ?dir) 
+  (any-member ?tot (?t nil)) ;may eventually want list of all times
+  (setof (vector ?dontcare (field ?surface ?type ?source :time ?tot) ?dir) 
 	 ?source ?sources)
   (test (= 1 (length ?sources))) ;exactly one field at surface
   (bind ?source (first ?sources))
@@ -3319,7 +3320,8 @@
   ;; make sure there is only one field defined on the surface
   ;; if we have multiple fields, this law probably should be expressed
   ;; in terms of the net field.
-  (setof (vector ?dontcare (field ?surface ?type ?source :time ?t-any) ?dir) 
+  (any-member ?tot (?t nil)) ;may eventually want list of all times
+  (setof (vector ?dontcare (field ?surface ?type ?source :time ?tot) ?dir) 
 	 ?source ?sources)
   (test (= 1 (length ?sources))) ;exactly one field at surface
   (bind ?source (first ?sources))
