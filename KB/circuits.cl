@@ -718,10 +718,13 @@
   :effects (
 	    (closed-loop ?branch-list ?path-comps5 ?path-comps6 ?loop-path ?reversed)
 	    ))
-
+;; would rather use (any-member ?tot (?t nil)) to select the
+;; time for the voltages in the map, but it doesn't seem to work
+;;
 ;; Map seems to ignore any bindings in working memory, so
 ;; we have to use a separate operator to branch on whether the
 ;; variable is timeless.
+;;
 ;;
 (defoperator use-timeless-variable (?quant)
   :preconditions
