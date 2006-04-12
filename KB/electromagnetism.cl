@@ -203,10 +203,10 @@
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   ;; ?b is "test charge" feeling force at loc
+   ;; ?b is "test charge" feeling force at loc at some time.
    ;; it is only used as axis owner for vector
    ;; !!! what if we're given field at point with no body?
-   (at-place ?b ?loc :time ?t ?t)
+   (at-place ?b ?loc :time ?t-place)
    (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
    (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
@@ -243,7 +243,10 @@
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-    (at-place ?b ?loc :time ?t ?t)
+   ;; ?b is "test charge" feeling force at loc at some time.
+   ;; it is only used as axis owner for vector
+   ;; !!! what if we're given field at point with no body?
+    (at-place ?b ?loc :time ?t-place)
     ;; make sure direction of force on ?b is given
     (given (dir (force ?b ?source electric :time ?t-force)) ?F-dir)
     (test (tinsidep ?t ?t-force))
@@ -283,10 +286,11 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    (unknown-field-dir ?type ?source) ;field due to ?source has unknown dir.
-   ;; Must be given there is a body at ?loc. ?? Seems to be used to
-   ;; indicate this is region field type problem -- should change.
-   ;; what if we're asked about field at an unoccupied point?
-   (at-place ?b ?loc :time ?t ?t)
+   ;; ?b is "test charge" feeling force at loc at some time.
+   ;; it is only used as axis owner for vector
+   ;; Seems to be used to indicate this is region field type problem -- 
+   ;; should change.  What if we're asked about field at an unoccupied point?
+   (at-place ?b ?loc :time ?t-place)
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?dir))
    ;; make sure field direction not given, directly 
    (not (given (dir (field ?loc ?type ?source :time ?t)) ?dontcare3))
@@ -483,6 +487,8 @@
    ;; make sure force direction not given, directly or via components:
    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
    (not (given (compo ?xy ?rot (force ?b ?source electric :time ?t)) ?dontc2))
+   ;; make sure field is acting on the particle
+   (at-place ?b ?loc :time ?t ?t)
    ;; require sign of charge to be known
    (sign-charge ?b ?pos-neg)
    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
@@ -1147,7 +1153,7 @@
    ;; ?t may be timeless, but it does get bound
    (given (dir (net-field ?loc ?type :time ?t)) ?dir-B)  
    ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc :time ?t ?t)
+   (at-place ?b ?loc :time ?t-place)
    (test (not (eq ?dir-B 'zero)))
    (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
@@ -1177,7 +1183,7 @@
   :preconditions 
   (
    ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc :time ?t ?t)
+   (at-place ?b ?loc :time ?t-place)
    (given (dir (net-field ?loc ?type :time ?t)) zero)  
    (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
@@ -2265,7 +2271,7 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc :time ?t ?t)
+   (at-place ?b ?loc :time ?t-place)
    (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)  
    (not (vector ?b (field ?loc magnetic ?source :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
@@ -2302,7 +2308,7 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    ;; we require body at loc to be axis owner for vector
-   (at-place ?b ?loc :time ?t ?t)
+   (at-place ?b ?loc :time ?t-place)
    (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
    (test ?dir-B)
    (test (not (eq ?B-dir 'zero)))

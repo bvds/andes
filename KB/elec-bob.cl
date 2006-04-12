@@ -188,7 +188,10 @@
     (object electron)
     (given (mass electron) (dnum 9.11E-31 |kg|))
     ;; Electrostatics
-    (at-place electron region)
+    ;; Only in the region during the interval, otherwise we get an equation
+    ;; for the force at time 2.  This causes the solver to find 
+    ;; inconsistancies.
+    (at-place electron region :time (during 1 2))
     (given (charge-on electron) (dnum -1.60E-19 |C|)) 
     (given (mag (field region electric plates)) (dnum 2.0E4 |N/C|))
     (given (dir (field region electric plates)) (dnum 270 |deg|))
@@ -204,6 +207,8 @@
     (unknown-potentials)
     (use-work) 
   )
+;; work around for Bug #
+;  :ignorePSMS (power)
   :soughts (
     (mag (velocity electron :time 2))
   )
