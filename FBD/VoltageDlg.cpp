@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "fbd.h"
 #include "VoltageDlg.h"
+#include "VarView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -74,6 +75,11 @@ BOOL CVoltageDlg::OnInitDialog()
 		m_editName.ShowWindow(SW_HIDE);
 		Remove(IDC_BOX_LABEL);
 		SetWindowText("Define Sought");
+	}
+
+	// no time unless changing circuit
+	if (! CVarView::HasFeature("CHANGING-VOLTAGE")) {
+		Remove(IDC_BOX_TIME);
 	}
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
