@@ -669,7 +669,7 @@
 	      (nlg ?vector) (axis-name ?axis))
   :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
 	      (vector-var-pref ?vector) (axis-name ?axis) 
-	      (vector-var-pref ?vector) (equal ?axis x)
+	      (vector-var-pref ?vector) (eq ?axis 'x)
 	      (vector-var-pref ?vector) (axis-name ?axis)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
