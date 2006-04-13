@@ -1220,10 +1220,10 @@
    (out-paths ?dontcare ?path-list2)
    (branch ?branch-dontcare ?dontcare1 ?dontcare2 ?path)
    (test (or (member ?path ?path-list1) (member ?path ?path-list2)))
-   (any-member ?sought ((charge-on ?cap :time ?t ?t)))
+   ;; ?t may end up timeless (nil)
+   (any-member ?sought ((charge-on ?cap :time ?t)))
    (circuit-component ?cap capacitor)
    (test (member ?cap ?path))
-   (time ?t)
    ;;Stop a=b+c and b+c=a from both coming out
    (test (expr< ?path-list1 ?path-list2))
    )		  
@@ -1243,21 +1243,20 @@
    
    (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
    (test (not (equal nil ?in-caps)))
-   (any-member ?tot (?t nil))
    (map ?x ?in-caps  
-	(variable ?q-var (charge-on ?x :time ?tot))
+	(variable ?q-var (charge-on ?x :time ?t))
 	?q-var ?q-in-path-vars)
    
    ;;find the charge variables for capacitor going into the branch  
    (bind ?p-list2 (modify ?path-list2 ?all-caps))
    
    (bind ?out-caps (intersection ?all-caps (flatten ?p-list2)))
-		  (test (not (equal nil ?out-caps)))
-
-		  (map ?x ?out-caps
-		       (variable-optional-t ?q-var (charge-on ?x :time ?t))
-		       ?q-var ?q-out-path-vars)
-		  )
+   (test (not (equal nil ?out-caps)))
+   
+   (map ?x ?out-caps
+	(variable ?q-var (charge-on ?x :time ?t))
+	?q-var ?q-out-path-vars)
+   )
   :effects (
 	    (eqn (= (+ . ?q-in-path-vars) (+ . ?q-out-path-vars))
 		 (junction-rule-cap ?path-list1 ?path-list2 ?t))
