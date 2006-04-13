@@ -1080,7 +1080,7 @@
     (assume axes-for ?b ?rot)
     )
   :hint
-  ((point (string "Think about what would be a useful direction to set the coordinate axes when using energy principles."))
+  ((point (string "What would be a useful choice for the coordinate axes?"))
    (teach (minilesson "mini_choose_axes.htm")
           (kcd "draw-rotate-axes")
 	  ; Careful with wording: we can't be sure that the axis direction being prompted actually conforms 
