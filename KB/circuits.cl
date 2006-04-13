@@ -346,6 +346,7 @@
 
 (defoperator current-in-branch-same-resistor-contains (?sought)
   :preconditions (
+		  ;; note that ?t may be timeless
 		  (any-member ?sought ((current-in ?branch :time ?t)))
 		  (branch ?branch ?dontcare1 ?dontcare2 ?path)
 		  (circuit-component ?what ?comp-type)
@@ -375,6 +376,7 @@
 
 (defoperator current-in-branch-contains (?sought)
   :preconditions (
+		  ;; note that ?t may be timeless
 		  (any-member ?sought ((current-in ?branch :time ?t)))
 		  (setf ?res-list (explode-resistors ?branch))
 		  (branch ?branch ?dontcare1 ?dontcare2 ?path)
@@ -492,10 +494,10 @@
              
 (defoperator currents-same-equivalent-branches-contains (?sought)
   :preconditions(
+		 ;; note that ?t may be timeless (nil)
 		 (any-member ?sought ((current-in ?br-res :time ?t)
 				      (current-in ?br-res2 :time ?t)))
 		 (solve-using-both-methods)
-		 (time ?t)
 		 (branch ?br-res given ?dontcare1 ?path1)
 		 (branch ?br-res2 combined ?dontcare1 ?path2)
 		 (setof (circuit-component ?comp1 ?dontcare4) ?comp1 ?all-comps)
@@ -718,27 +720,6 @@
   :effects (
 	    (closed-loop ?branch-list ?path-comps5 ?path-comps6 ?loop-path ?reversed)
 	    ))
-;; would rather use (any-member ?tot (?t nil)) to select the
-;; time for the voltages in the map, but it doesn't seem to work
-;;
-;; Map seems to ignore any bindings in working memory, so
-;; we have to use a separate operator to branch on whether the
-;; variable is timeless.
-;;
-;;
-(defoperator use-timeless-variable (?quant)
-  :preconditions
-  (
-   (bind ?timeless-quant (remove-time ?quant))
-   (test (not (unify ?quant ?timeless-quant))) ;distinct quantities
-   (variable ?var ?timeless-quant)
-   )
-  :effects ((variable-optional-t ?var ?quant)))
-
-(defoperator use-time-variable (?quant)
-  :preconditions ((variable ?var ?quant))
-  :effects ((variable-optional-t ?var ?quant)))
-
 
 
 (defoperator write-loop-rule-resistors (?branch-list ?t)
@@ -762,23 +743,24 @@
 			 ?comp2 ?all-batts)
                       
 		  ;;get all the resistor delta variables for ?p1
+		  (any-member ?tot (?t nil))
 		  (map ?comp (intersection ?p1 ?all-res :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+		       (variable ?v-var (voltage-across ?comp :time ?tot))
 		       ?v-var ?v-res1-vars)
 
 		  ;;get all the battery delta variables for ?p1
 		  (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+		       (variable ?v-var (voltage-across ?comp :time ?tot))
 		       ?v-var ?v-batt1-vars)
 
 		  ;;get all the resistor delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-res :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
+		       (variable ?v-var (voltage-across  ?comp :time ?tot))
 		       ?v-var ?v-res2-vars)
 
 		  ;;get all the battery delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
+		       (variable ?v-var (voltage-across  ?comp :time ?tot))
 		       ?v-var ?v-batt2-vars)
 
 		  ;;determine whether ?p1 + ?p2 or ?p1 - ?p2
@@ -825,23 +807,24 @@
 	  ?comp4 ?all-inds)
    
    ;;get all the resistor delta variables for ?p1
+   (any-member ?tot (?t nil))
    (map ?comp (intersection ?p1 ?all-res :test #'equal)
-	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	(variable ?v-var (voltage-across ?comp :time ?tot))
 	?v-var ?v-res1-vars)
    
    ;;get all the battery delta variables for ?p1
    (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	(variable ?v-var (voltage-across ?comp :time ?tot))
 	?v-var ?v-batt1-vars)
    
    ;;get all the capacitor delta variables for ?p1
    (map ?comp (intersection ?p1 ?all-caps :test #'equal)
-	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	(variable ?v-var (voltage-across ?comp :time ?tot))
 	?v-var ?v-cap-vars)
    
    ;; get all the inductor delta variables for ?p1
    (map ?comp (intersection ?p1 ?all-inds :test #'equal)
-	(variable-optional-t ?v-var (voltage-across ?comp :time ?t))
+	(variable ?v-var (voltage-across ?comp :time ?tot))
 	?v-var ?v-ind-vars)
    ;; list batteries and inductors for positive sum
    (bind ?emf-vars (append ?v-batt1-vars ?v-ind-vars))
@@ -918,24 +901,24 @@
   (
    (in-branches ?jun ?br-list1)
    (out-branches ?jun ?br-list2)
+   ;; note that ?t may end up being timeless
    (any-member ?sought ((current-in ?branch :time ?t)))
-   (time ?t)
    (test (or (member ?branch ?br-list1) (member ?branch ?br-list2)))
    )
   :effects (
 	    (eqn-contains (junction-rule ?br-list1 ?br-list2 ?t) ?sought)
 	    ))
 
-(defoperator junction-rule (?br-list1 ?br-list2 ?t )
+(defoperator junction-rule (?br-list1 ?br-list2 ?t)
   :preconditions (
 		  ;;find the in branches current variables
 		  (map ?br ?br-list1
-		       (variable-optional-t ?v-var (current-in ?br :time ?t))
+		       (variable ?v-var (current-in ?br :time ?t))
 		       ?v-var ?v-in-br-vars)
                              
 		  ;;find the out branches current variables
 		  (map ?br ?br-list2
-		       (variable-optional-t ?v-var (current-in ?br :time ?t))
+		       (variable ?v-var (current-in ?br :time ?t))
 		       ?v-var ?v-out-br-vars)
 		  )
   :effects (
@@ -1185,23 +1168,24 @@
 			 ?comp2 ?all-batts)
                       
 		  ;;get all the capacitor delta variables for ?p1
+		  (any-member ?tot (?t nil))
 		  (map ?comp (intersection ?p1 ?all-cap :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
+		       (variable ?v-var (voltage-across ?comp :time ?tot))
 		       ?v-var ?v-cap1-vars)
 		  
 		  ;;get all the battery delta variables for ?p1
 		  (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
+		       (variable ?v-var (voltage-across ?comp :time ?tot))
 		       ?v-var ?v-batt1-vars)
 
 		  ;;get all the capacitor delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-cap :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
+		       (variable ?v-var (voltage-across ?comp :time ?tot))
 		       ?v-var ?v-cap2-vars)
 
 		  ;;get all the battery delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-		       (variable-optional-t ?v-var (voltage-across  ?comp :time ?t))
+		       (variable ?v-var (voltage-across ?comp :time ?tot))
 		       ?v-var ?v-batt2-vars)
 
 		  ;;determine whether ?p1 + ?p2 or ?p1 - ?p2
@@ -1259,8 +1243,9 @@
    
    (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
    (test (not (equal nil ?in-caps)))
+   (any-member ?tot (?t nil))
    (map ?x ?in-caps  
-	(variable-optional-t ?q-var (charge-on ?x :time ?t))
+	(variable ?q-var (charge-on ?x :time ?tot))
 	?q-var ?q-in-path-vars)
    
    ;;find the charge variables for capacitor going into the branch  
@@ -1352,8 +1337,9 @@
 (defoperator charge-same-caps-in-branch (?temp-caps ?t)
   :preconditions (
 		  ;; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
+		  (any-member ?tot (?t nil))
 		  (map ?cap ?temp-caps
-		       (variable-optional-t ?q-var (charge-on ?cap :time ?t))
+		       (variable ?q-var (charge-on ?cap :time ?tot))
 		       ?q-var ?q-path-cap-vars)
 		  (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
 		  (bind ?pair (first ?adj-pairs))
