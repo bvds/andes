@@ -77,7 +77,8 @@
    (map <input-var> <form> <prop> <output-var> <Setvar>) precondition macro"
   (let* ((Input-var (second M))
 	 (prop (fourth M))
-	 (unbound-vars (remove-if #'(lambda (x) (lookup x (st-bindings State)))
+	 (unbound-vars (remove-if #'(lambda (x) 
+				      (get-binding x (st-bindings State)))
 				  (variables-in prop)))
 	 (output-var (fifth M))
 	 (goals)
