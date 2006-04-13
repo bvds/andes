@@ -1235,7 +1235,7 @@
 (defoperator junction-rule-cap (?path-list1 ?path-list2 ?t )
   :preconditions 
   (
-   ;;find the charge variables for capacitor going into the branch                            
+   ;;find the charge variables for capacitor going into the branch
    (setof (in-wm (circuit-component ?cap capacitor))
 	  ?cap ?all-caps)
    
@@ -1247,7 +1247,7 @@
 	(variable ?q-var (charge-on ?x :time ?t))
 	?q-var ?q-in-path-vars)
    
-   ;;find the charge variables for capacitor going into the branch  
+   ;;find the charge variables for capacitor going into the branch
    (bind ?p-list2 (modify ?path-list2 ?all-caps))
    
    (bind ?out-caps (intersection ?all-caps (flatten ?p-list2)))
