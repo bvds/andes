@@ -117,7 +117,7 @@
   :short-name "distance"	
   :dialog-text "between [body:bodies] and [body2:bodies]"
   :units |m|
-  :english ("the distance between ~a and ~a" (nlg ?objects 'conjoined-defnp))
+  :english ("the distance between ~a" (nlg ?objects 'conjoined-defnp))
   :fromWorkbench `(distance-between orderless ,body ,body2) 
   ) 
 
