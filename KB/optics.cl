@@ -147,7 +147,7 @@
   :effects ( (variable ?do-var (slit-separation ?grating))
              (define-var (slit-separation ?grating)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting slit separation."  
 			     ((slit-separation ?grating) def-np)))
 	 ))
 
