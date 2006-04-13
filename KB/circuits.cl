@@ -1320,7 +1320,7 @@
 		 ;; ?t may end up timeless (nil)
 		 (any-member ?sought ((charge-on ?cap1 :time ?t)))
 		 (branch ?br-res given ?dontcare1 ?path)
-		 (test (member ?cap1 ?path) :test #'equal)
+		 (test (member ?cap1 ?path :test #'equal))
 		 ;;Are there other capacitors in path
 		 (setof (in-wm (circuit-component ?cap capacitor))
 			?cap ?all-caps)
