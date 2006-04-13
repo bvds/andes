@@ -1317,8 +1317,8 @@
 
 (defoperator charge-same-caps-in-branch-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge-on ?cap1 :time ?t ?t)))
-		 (time ?t)
+		 ;; ?t may end up timeless (nil)
+		 (any-member ?sought ((charge-on ?cap1 :time ?t)))
 		 (branch ?br-res given ?dontcare1 ?path)
 		 (test (member ?cap1 ?path) :test #'equal)
 		 ;;Are there other capacitors in path
@@ -1337,9 +1337,8 @@
 (defoperator charge-same-caps-in-branch (?temp-caps ?t)
   :preconditions (
 		  ;; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
-		  (any-member ?tot (?t nil))
 		  (map ?cap ?temp-caps
-		       (variable ?q-var (charge-on ?cap :time ?tot))
+		       (variable ?q-var (charge-on ?cap :time ?t))
 		       ?q-var ?q-path-cap-vars)
 		  (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
 		  (bind ?pair (first ?adj-pairs))
