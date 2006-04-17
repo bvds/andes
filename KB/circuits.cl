@@ -2344,7 +2344,7 @@
 		  (variable ?power-var (electric-power ?b :time ?t))
 		  )
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting power." 
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting electric power." 
 			     ((electric-power ?b :time ?t) def-np) ))
 	 ))
 

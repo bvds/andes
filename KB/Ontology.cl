@@ -574,7 +574,7 @@
    :english ("choosing a particular kinematic equation containing ~A" 
              (nlg ?quantity)))
 
-(def-goalprop axes-chosen (axis-for ?body x ?rotation)
+(def-goalprop axes-chosen (axes-for ?body ?rotation)
   ;; !! this goal can be achieved in some cases without drawing 
   ;; by re-using existing axes.
    :english ("setting coordinate axes"))

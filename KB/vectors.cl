@@ -59,7 +59,7 @@
 		  (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir1)    
 		  (vector ?b1 (relative-vel ?b1 ?b3 :time ?t) ?dir3)   
 		  (vector ?dontcare (relative-vel ?b2 ?b3 :time ?t) ?dir2)
-		  (axis-for ?b1 x ?rot)
+		  (axes-for ?b1 ?rot)
 		  (rdebug "Fired draw-rel-vel-diagram-no-axes-problem ~%")
 		  )
   :effects (

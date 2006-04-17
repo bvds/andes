@@ -110,7 +110,7 @@
    (vector ?b (impulse ?b ?agent :time ?t) ?dir1)
    ;; assuming (without checking) only one force between the two bodies.
    (vector ?b (force ?b ?agent ?type :time ?t) ?dir2)
-   (axis-for ?b x ?b-rot)
+   (axes-for ?b ?b-rot)
    )
   :effects (
 	    (vector-diagram (impulse-force-vector ?b ?agent ?t))
@@ -166,7 +166,7 @@
     (vector ?b (impulse ?b ?agent :time (during ?t1 ?t2)) ?dirj)
     (vector ?b (momentum ?b :time ?t1) ?dirm1)
     (vector ?b (momentum ?b :time ?t2) ?dirm2)
-    (axis-for ?b x ?rot) ;maybe a problem for compounds?
+    (axes-for ?b ?rot) ;maybe a problem for compounds?
   )
   :effects (
    (vector-diagram (impulse ?b ?agent (during ?t1 ?t2)))
@@ -384,8 +384,8 @@ impulse ~A." (?b def-np) (?t pp)))
     ;; draw axes only apply once, so there is no danger of drawing two
     ;; axes. In order to reuse the axes drawn for body1 as axes used
     ;; for vectors on body2, we added reuse-other-body-axis in axes section.
-    (axis-for ?b1 x ?x-rot)
-    (axis-for ?b2 x ?x-rot2)
+    (axes-for ?b1 ?rot)
+    (axes-for ?b2 ?rot)
     )
   :effects (
 	    (vector-diagram (NTL-impulse-vector (?b1 ?b2) ?t))
@@ -464,7 +464,7 @@ impulse ~A." (?b def-np) (?t pp)))
    (foreach ?b ?bodies			;make position vector
 	    (vector ?b (relative-position ?b ?origin :time ?t) ?dirb))
    (foreach ?b ?bodies 
-	    (axis-for ?b x ?rot))	;make axes
+	    (axes-for ?b ?rot))	;make axes
    (vector ?com (relative-position ?com ?origin :time ?t) ?dircom)
    )
   :effects (

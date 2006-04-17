@@ -1001,7 +1001,7 @@
    (test ?oterm)
    (optional (body ?source))		;allow draw source and observers  
    (optional (body ?observer))		
-   (optional (axis-for ?source x 0)) ;allow draw standard axes 
+   (optional (axes-for ?source 0)) ;allow draw standard axes 
    ;; motion descriptions for fancy hints:
    (bind ?stea (cond ((eql ?sdir 'zero) "not moving~*")
 		 ((> ?sangle 90)  "moving towards ~A") 
@@ -1316,7 +1316,7 @@
     (variable  ?r (mag (relative-position ?b1 ?b2 :time ?t)))
     (optional (body ?source)) ;allow draw bodies
     (optional (body ?wave))
-    (optional (axis-for ?source x 0)) ;allow draw axes
+    (optional (axes-for ?source 0)) ;allow draw axes
     )
   :effects 
   ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))
@@ -1358,7 +1358,7 @@
     (variable  ?power  (power ?surface ?source :time ?t))
     (variable  ?A (area ?surface))
     (optional (body ?source)) ;allow draw bodies
-    (optional (axis-for ?source x 0)) ;allow draw axes
+    (optional (axes-for ?source 0)) ;allow draw axes
     )
   :effects 
   ( (eqn  (= ?power (* ?A ?int))

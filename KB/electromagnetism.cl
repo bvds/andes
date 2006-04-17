@@ -118,7 +118,7 @@
    (vector ?b (relative-position ?b ?agent :time ?t) ?dir1)
    ;; assuming (without checking) only one force between the two bodies.
    (vector ?b (force ?b ?agent electric :time ?t) ?dir2)
-   (axis-for ?b x ?b-rot)
+   (axes-for ?b ?b-rot)
    )
   :effects (
 	    (vector-diagram (coulomb-vec ?b ?agent ?t ?form))
@@ -643,7 +643,7 @@
    (any-member ?tot (?t nil)) ;may want to extend to other times
    (vector ?dontcare (field ?loc electric ?source :time ?tot) ?dir1)
    (vector ?b (force ?b ?source electric :time ?t) ?dir2)
-   (axis-for ?b x ?rot)
+   (axes-for ?b ?rot)
    (rdebug "Fired draw-charge-force-Efield-diagram ~%")
    )
   :effects (
@@ -719,7 +719,7 @@
    ;; must draw body in diagram for this psm
    (body ?b)
    ;; even though this is scalar equation, want axes to be drawn
-   (axis-for ?b x ?rot)
+   (axes-for ?b ?rot)
    (any-member ?tot (?t nil)) 
    (variable ?magE (mag (field ?loc electric ?source :time ?tot)))
    (variable ?magF (mag (force ?b ?source electric :time ?t)))
@@ -834,7 +834,7 @@
    (body ?b)
    (any-member ?tot (?t nil)) ;may want to extend to other times
    (vector ?dontcare (field ?loc electric ?b :time ?tot) ?dir1) 
-   (axis-for ?b x ?rot)
+   (axes-for ?b ?rot)
    (rdebug "Fired draw-point-charge-Efield-diagram ~%")
    )
   :effects (
@@ -918,7 +918,7 @@
    ;; ?b is point-charge source of field
    (body ?b)
    ;; need to allow axes for this scalar psm. 
-   (axis-for ?b x 0) ; use standard axes only
+   (axes-for ?b 0) ; use standard axes only
    (any-member ?tot (?t nil)) 
    (variable ?magE (mag (field ?loc electric ?b :time ?tot)))
    (any-member ?tot2 (?t nil)) 
@@ -1114,7 +1114,7 @@
     (foreach ?source ?sources
        (vector ?b (field ?loc ?type ?source :time ?t) ?dir)) 
     ; which body should own the axis to use for these vectors
-    (axis-for ?loc x ?rot)
+    (axes-for ?loc ?rot)
  )
  :effects (
     (vector-diagram (net-field ?loc ?type ?t))
@@ -1563,7 +1563,7 @@
    (vector ?positive-charge (relative-position 
 			     ?positive-charge 
 			     ?negative-charge :time ?t) ?dir1) 
-   (axis-for ?dipole x ?rot)
+   (axes-for ?dipole ?rot)
    (rdebug "Fired draw-electric-dipole-moment-diagram ~%")
    )
   :effects (
@@ -1633,7 +1633,7 @@
    (optional (body ?positive-charge))
    (optional (body ?negative-charge))
    ;; even though this is scalar equation, want axes to be allowed
-   (axis-for ?dipole x ?rot)
+   (axes-for ?dipole ?rot)
    (variable ?magP (mag (dipole-moment ?dipole electric :time ?t)))
    (variable ?magd (mag (relative-position ?positive-charge 
 					   ?negative-charge :time ?t)))
@@ -1700,7 +1700,7 @@
    (magnetic-dipole ?dipole ?surface)
    (vector ?dipole (dipole-moment ?dipole magnetic :time ?t) ?dir1) 
    (vector ?dipole (unit-normal ?surface :time ?t) ?dir1) 
-   (axis-for ?dipole x ?rot)
+   (axes-for ?dipole ?rot)
    (rdebug "Fired draw-magnetic-dipole-moment-diagram ~%")
    )
   :effects (
@@ -1947,7 +1947,8 @@
    (time ?t)
    (given-field ?source ?type)
    (at-place ?dipole ?region :time ?t ?t)
-   (axis-for ?dipole ?axis ?rot) ;in case ?compo and ?rot are not bound above
+   (axes-for ?dipole ?rot) ;in case ?rot is not bound
+   (get-axis ?axis ?rot) ;in case ?axis is not bound
    )
   :effects 
   ( (eqn-contains 
@@ -2211,7 +2212,7 @@
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
-   (axis-for ?dipole x ?rot) 
+   (axes-for ?dipole ?rot) 
    )
   :effects 
   ((eqn-contains (dipole-energy ?dipole (field ?region ?type ?source) 
@@ -2605,7 +2606,7 @@
    (vector ?dontcare (field ?loc magnetic ?source :time ?tot) ?dir1) 
    (vector ?b (force ?b ?source magnetic :time ?t) ?dir2)
    (vector ?b (velocity ?b :time ?t) ?dir3)
-   (axis-for ?b x ?rot)
+   (axes-for ?b ?rot)
    (debug "Fired draw-charge-force-Bfield-diagram ~%")
    )
   :effects (
@@ -3216,7 +3217,7 @@
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
-   (axis-for ?surface x ?rot) 
+   (axes-for ?surface ?rot) 
    )
   :effects 
   ((eqn-contains (flux-constant-field ?surface ?type ?t ?rot) ?sought)
@@ -3310,7 +3311,7 @@
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
-   (axis-for ?surface x ?rot) 
+   (axes-for ?surface ?rot) 
    )
   :effects 
   ((eqn-contains (flux-constant-field-change ?surface ?type ?t ?rot) ?sought)
