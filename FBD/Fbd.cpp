@@ -154,6 +154,7 @@ CFBDApp::CFBDApp()
 	m_bPlaySounds = FALSE;
 	m_bShellPrintOnly = FALSE;
 	m_bRegisterOnly = FALSE;
+	m_bExport = FALSE;
 	m_bTerminated = FALSE;
 }	
     
@@ -209,10 +210,31 @@ void CFBDCmdLineInfo::ParseParam(LPCTSTR pszParam, BOOL bFlag, BOOL bLast)
 		theApp.m_bRegisterOnly = TRUE;
 		m_bShowSplash = FALSE;
 	}
+	else if (bFlag && (strcmpi(pszParam, "Export") == 0)) {
+		theApp.m_bExport = TRUE;
+		m_bShowSplash = FALSE;
+	//	m_bShellPrintOnly = TRUE;
+	}
 	else // let base class parse standard args
 		CCommandLineInfo::ParseParam(pszParam, bFlag, bLast);
 }
 
+void DoExport(CString strFileName)
+{
+#if 0
+	OpenDocumentFile(strFileName);
+	CFBDDoc* pDoc = GetCurrentDocument();
+	if (! pDoc) return;
+	CStdioFile fOut(strFileName + ".txt", CFile::modeCreate | CFile::modeWrite);
+	// show features
+	// show choices
+	//  bodies
+	//  positions
+	//  branches
+	// show times
+	// show predefined variables
+#endif 0
+}
 /////////////////////////////////////////////////////////////////////////////
 // CFBDApp initialization
     
@@ -397,6 +419,12 @@ BOOL CFBDApp::InitInstance()
 	// if we were just running to register, we are done
 	if (m_bRegisterOnly)
 		return FALSE;
+
+	if (m_bExport) {
+		// just process the export command, comparable to Shell print command
+		DoExport(cmdInfo.m_strFileName);
+		return(FALSE);
+	}
  	
    	// MFC expects us to call ProcessShellCommand before we show our main window.
    	// If /DDE is set, MFC's ProcessShellCommand changes the show state to SW_HIDE,

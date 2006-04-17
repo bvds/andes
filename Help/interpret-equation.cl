@@ -242,9 +242,12 @@
 ; "trivial" (i.e. allowed to be combined) eqns are removed.
 ; Note! this function is used by grading tests to detect required eqns:
 ; no "trivial" equation can be required explicit. 
+(defun trivial-eqn-p (eqn)
+   (or (zero-eqn-p eqn)
+       (combinable-identity-p eqn)))
+
 (defun trivial-syseqn-p (syseqn)
-   (or (zero-eqn-p (syseqn->eqn syseqn))
-       (combinable-identity-p (syseqn->eqn syseqn))))
+   (trivial-eqn-p (syseqn->eqn syseqn)))
 
 (defun get-nontrivial-eqns (interp)
    (remove-if #'trivial-syseqn-p interp))
@@ -265,10 +268,13 @@
 ; We also allow implicit equations giving known angle values to be combined. This should
 ; allow students to skip defining angle variable in W = F*d(thetaFd) if angle between is known,
 ; or to write it as W = F*d(thetaF - thetaD) if both are known.
+(defun combinable-eqn-p (eqn)
+   (or (trivial-eqn-p eqn)
+       (definition-eqn-p eqn)
+       (known-angle-value-eqn-p eqn)))
+
 (defun combinable-syseqn-p (syseqn)
-   (or (trivial-syseqn-p syseqn)
-       (definition-eqn-p (syseqn->eqn syseqn))
-       (known-angle-value-eqn-p (syseqn->eqn syseqn))))
+   (combinable-eqn-p (syseqn->eqn syseqn)))
      
 (defun get-noncombinable-eqns (interp)
     (remove-if #'combinable-syseqn-p interp))

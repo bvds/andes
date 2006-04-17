@@ -129,8 +129,20 @@
   (format Stream "~A:-----------------~%" Num)
   (format Stream "Equations:~%")
   (dolist (enode (eqnset-eqns Set))
-     (format Stream "~A~%        ~A~%" (enode-algebra enode) (enode-id enode)))
-  (format Stream "~%Nodes:  ~W~2%" (eqnSet-Nodes Set)))
+     (format Stream "~A~%        ~A ~A~%" (enode-algebra enode) (enode-id enode) (enode-note enode)))
+  ; is this useful? -AW
+  ;(format Stream "~%Nodes:  ~W~2%" (eqnSet-Nodes Set))
+  )
+
+
+(defun enode-note (enode)
+; return printable "note" showing if eqnode represents COMBINABLE or MAJOR eqn 
+; NB: this makes use of eqn index in *cp* and predicates in Help/interpret-equation
+  (let ((eqn (find-exp->eqn (enode-id enode) (Problem-EqnIndex *cp*)))) ; find in index
+      (cond ((null eqn) "")
+            ((combinable-eqn-p eqn) "[COMBINABLE]")
+            ((major-eqn-p eqn) "[MAJOR]")
+	    (T ""))))
 
 ;;; For the purporses of answer reporting this code prints
 ;;; out the contents of an eqnset in report fasion I.E.

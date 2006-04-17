@@ -1,6 +1,6 @@
 // FBD.h : main header file for the FBD application
 // 
-// $Id: Fbd.h,v 1.4 2005/10/06 23:22:18 anders Exp $
+// $Id: Fbd.h,v 1.5 2006/04/17 23:30:40 anders Exp $
 
 #ifndef __AFXWIN_H__
 	#error include 'stdafx.h' before including this file for PCH
@@ -116,6 +116,7 @@ public:
 	BOOL CanOpenProblemSet();	// ditto for problem set
 	BOOL m_bShellPrintOnly;		// flag that file opened for shell printing only.
 	BOOL m_bRegisterOnly;		// flag that running to register filetypes only
+	BOOL m_bExport;				// export fbd info
 
 	CString m_strAndesVersion;	// current Andes version as defined in version resource
 
