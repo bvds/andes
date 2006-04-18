@@ -950,7 +950,7 @@
    (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
    ))
 
-;; draw-compo-form axis only applies once to draw axes within a given call to
+;; reuse-other-body-axes only applies once to draw axes within a given call to
 ;; the problem solver, registering those as the "axes-for" vectors on some
 ;; original body. Following operator reports the standard axes as the 
 ;; "axes-for" vectors on *another* body in case draw-compo-form axis has 
@@ -958,25 +958,11 @@
 ;; where we give the equality between components of two vectors on different 
 ;; bodies, and need to define compo vars for each via draw-compo2, 
 ;; hence need an axis for each.
-(defoperator reuse-compo-form-axes (?b)
-:preconditions (
-   (component-form)
-   (in-wm (draw-axes ?drawn-axes-body 0))
-   ;; don't need this in addition if already registered an axis for 
-   ;; vectors on ?b 
-   (not (axes-for ?b . ?dontcare1))
-   ;; don't return axis for system part if system axis already chosen
-   ;; use-system-axes will return axes in this case.
-   (not (axes-for ?sys . ?dontcare2)
-        (part-of-sys ?b ?sys))
-   )
-:effects ( (axes-for ?b 0) ))
 
 ;; following applies for same purpose when not component-form
 (defoperator reuse-other-body-axes (?b)
   :preconditions 
   (
-   (not (component-form))
    (in-wm (draw-axes ?drawn-axes-body ?rot))
    ;; don't need this in addition if already registered an axis for 
    ;; vectors on ?b 
