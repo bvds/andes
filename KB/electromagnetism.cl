@@ -2021,7 +2021,7 @@
 (defoperator draw-torque-dipole-given-dir (?dipole ?t)
   :preconditions 
   (
-   ;; currently just used for dip1a.
+   ;; currently just used for dip1a and dip1b.
    ;; right now, this must be specified in the problem statement
    ;; although the hints assume given dipole moment and given
    ;; field direction.
@@ -2030,7 +2030,8 @@
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
-   (bind ?mag-var (format-sym "TORd_~A_~A_~A" (body-name ?b) ?source 
+   ;; use net-torque variable name for torque on a dipole, Bug #773
+   (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?dipole) 'axis 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
