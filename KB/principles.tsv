@@ -156,7 +156,7 @@ LEAF	Iequiv = Iorig    equivalent resistor current	current-equiv
 LEAF	V = I*R    Ohm's Law	ohms-law	Ohm's Law
 END_GROUP	Resistance		
 GROUP	Capacitance		
-LEAF	C = q/V    capacitance defined	cap-defn	Capacitance
+LEAF	C = q/V    capacitance defined	capacitance-definition	Capacitance
 LEAF	Ceq = C1 + C2 + ...    equivalent capacitance parallel	equiv-capacitance-parallel	Parallel Capacitors
 LEAF	1/Ceq = 1/C1 + 1/C2 + ...    equivalent capacitance series	equiv-capacitance-series	Series Capacitors
 LEAF	q1 = q2    charge on series capacitors	charge-same-caps-in-branch	Series Capacitors
@@ -293,27 +293,27 @@ END_GROUP	Fluids
 END_GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Calculate a vector component		
 GROUP	Displacement		
-LEAF	d_x = d*sin($qd - $qx)    on x-axis	(proj ((?axis . x) (?vector displacement ?body)))	Projection Equations
+LEAF	d_x = d*cos($qd - $qx)    on x-axis	(proj ((?axis . x) (?vector displacement ?body)))	Projection Equations
 LEAF	d_y = d*sin($qd - $qy)    on y-axis	(proj ((?axis . y) (?vector displacement ?body)))	Projection Equations
 END_GROUP	Displacement		
 GROUP	Velocity		
-LEAF	v_x = v*sin($qv - $qx)    on x-axis	(proj ((?axis . x) (?vector velocity ?body)))	Projection Equations
+LEAF	v_x = v*cos($qv - $qx)    on x-axis	(proj ((?axis . x) (?vector velocity ?body)))	Projection Equations
 LEAF	v_y = v*sin($qv - $qy)    on y-axis	(proj ((?axis . y) (?vector velocity ?body)))	Projection Equations
 END_GROUP	Velocity		
 GROUP	Acceleration		
-LEAF	a_x = a*sin($qa - $qx)    on x-axis	(proj ((?axis . x) (?vector acceleration ?body)))	Projection Equations
+LEAF	a_x = a*cos($qa - $qx)    on x-axis	(proj ((?axis . x) (?vector acceleration ?body)))	Projection Equations
 LEAF	a_y = a*sin($qa - $qy)    on y-axis	(proj ((?axis . y) (?vector acceleration ?body)))	Projection Equations
 END_GROUP	Acceleration		
 GROUP	Force		
-LEAF	F_x = F*sin($qF - $qx)    on x-axis	(proj ((?axis . x) (?vector force . ?args)))	Projection Equations
+LEAF	F_x = F*cos($qF - $qx)    on x-axis	(proj ((?axis . x) (?vector force . ?args)))	Projection Equations
 LEAF	F_y = F*sin($qF - $qy)    on y-axis	(proj ((?axis . y) (?vector force . ?args)))	Projection Equations
 END_GROUP	Force		
 GROUP	Relative Position		
-LEAF	r_x = r*sin($qr - $qx)    on x-axis	(proj ((?axis . x) (?vector relative-position ?body ?origin)))	Projection Equations
+LEAF	r_x = r*cos($qr - $qx)    on x-axis	(proj ((?axis . x) (?vector relative-position ?body ?origin)))	Projection Equations
 LEAF	r_y = r*sin($qr - $qy)    on y-axis	(proj ((?axis . y) (?vector relative-position ?body ?origin)))	Projection Equations
 END_GROUP	Relative Position		
 GROUP	Momentum		
-LEAF	p_x = p*sin($qp - $qx)    on x-axis	(proj ((?axis . x) (?vector momentum ?body)))	Projection Equations
+LEAF	p_x = p*cos($qp - $qx)    on x-axis	(proj ((?axis . x) (?vector momentum ?body)))	Projection Equations
 LEAF	p_y = p*sin($qp - $qy)    on y-axis	(proj ((?axis . y) (?vector momentum ?body)))	Projection Equations
 END_GROUP	Momentum		
 END_GROUP	Calculate a vector component		
@@ -336,7 +336,7 @@ LEAF	$q1 + $q2 = 90 deg    complimentary angles	complimentary-angles
 LEAF	$q1 + $q2 = 180 deg    supplementary angles	supplementary-angles	
 LEAF	tan($q) = opposite/adjacent    tangent for right triangle	right-triangle-tangent	
 LEAF	Ft1 = Ft2    equal tensions at both ends	tensions-equal	Equal tensions at both ends
-LEAF	r = sqrt(r_x^2 + r_y^2)    position mag from components	rmag-pyth	Pythagorean Theorem
+LEAF	A = sqrt(A_x^2 + A_y^2)    vector magnitude	vector-magnitude	Pythagorean Theorem
 LEAF	r21_x = x2 - x1    relative position from coordinates	(rdiff ((?axis . x)))	
 LEAF	r21_y = y2 - y1    relative position from coordinates	(rdiff ((?axis . y)))	
 LEAF	A = w*l    area of rectangle	area-of-rectangle	

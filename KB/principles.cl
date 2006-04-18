@@ -173,7 +173,7 @@
 		 (leaf ohms-law :tutorial "Ohm's Law")
 		 )
 	 (group "Capacitance" 
-		 (leaf cap-defn :tutorial "Capacitance")
+		 (leaf capacitance-definition :tutorial "Capacitance")
 		 (leaf equiv-capacitance-parallel :tutorial "Parallel Capacitors")
 		 (leaf equiv-capacitance-series :tutorial "Series Capacitors")
 		 (leaf charge-same-caps-in-branch :tutorial "Series Capacitors")
