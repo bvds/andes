@@ -1726,65 +1726,55 @@
 ;;; The whole treatment of axes needs to be cleaned up and simplified to 
 ;;; avoid this hairiness.
 ;;;   
-(def-psmclass rmag-pyth (rmag-pyth ?body ?origin ?time)
+(def-psmclass vector-magnitude (vector-magnitude ?vector ?rot)
   :complexity minor 
-  :short-name "position mag from components"
-  :english ("the pythagorean theorem for position magnitudes")
-  :ExpFormat ("calculating the magnitude of the position of ~a from its components" (nlg ?body))
-  :EqnFormat ("r = sqrt(r_x^2 + r_y^2)"))
+  :short-name "vector magnitude"
+  :english ("the magnitude of a vector")
+  :ExpFormat ("calculating the magnitude of of ~a" (nlg ?vector))
+  :EqnFormat ("A = sqrt(A_x^2 + A_y^2)"))
 
-(defoperator rmag-pyth-contains (?sought)
-   :preconditions 
-   (
-    (any-member ?sought (
-			 (mag (relative-position ?b ?o :time ?t))
-			 ;; can't use to get components, because of square.
-			 ))
-    )
-   :effects ( 
-	     (eqn-contains (rmag-pyth ?b ?o ?t) ?sought) 
-	     ))
+;; can't use this to get components, because of square.
+(defoperator vector-magnitude-contains ((mag ?vector))
+  ;; ensure axis drawn, to emulate a vector method diagram drawing step. 
+  ;; Reason is hairy: this enables the define-compo to apply as it does for 
+  ;; normal vector methods, since define-compo requires vectors and axes to
+  ;; be in wm.  Since the change to alternative define-compo2, the latter no 
+  ;; longer works if EITHER vector or axis is drawn. 
+  :preconditions ((vector ?b ?vector ?dir)
+		  (axes-for ?b ?rot))
+  :effects ( (eqn-contains (vector-magnitude ?vector ?rot) (mag ?vector)) ))
 
-(defoperator write-rmag-pyth (?b ?o ?t)
-  :preconditions (
-    (variable ?r (mag (relative-position ?b ?o :time ?t)))
-    ; ensure axis drawn, to emulate a vector method diagram drawing step. Reason is hairy: this enables
-    ; the define-compo to apply as it does for normal vector methods, since define-compo requires vectors 
-    ; and axes to have been drawn in wm. Since change to alternative define-compo2, the latter no longer 
-    ; works if EITHER vector or axis is drawn. 
-    (axes-for ?b 0)
-    ; don't apply this rule if vector lies along an axis: it won't be needed
-    ; to calculate magnitude from compos and just multiplies solutions.
-    ; Note: this doesn't test for vector along z-axis (unlikely to occur).
-    (in-wm (vector ?dontcare (relative-position ?b ?o :time ?t) ?dir-r))
-    (test (not (eq ?dir-r 'zero))) ;don't apply to zero length
-    (test (not (horizontal-or-vertical ?dir-r)))
-    (debug "write-rmag-pyth with ~A and ~A at dir=~A~%" ?b ?o ?dir-r)
-    (variable ?r_x (compo x 0  (relative-position ?b ?o :time ?t))) 
-    (variable ?r_y (compo y 0 (relative-position ?b ?o :time ?t))) 
+(defoperator write-vector-magnitude (?vector ?rot)
+  :preconditions 
+  (
+   (variable ?r (mag ?vector))
+   (dot ?dot ?vector ?vector ?rot)
+   ;; Make sure that there is more than one term in sum, else this
+   ;; is redundant with the associated projection equation.
+   (test (eq (first ?dot) '+))
   )
   :effects (
-    (eqn (= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) (rmag-pyth ?b ?o ?t))
+    (eqn (= ?r (sqrt ?dot)) (vector-magnitude ?vector ?rot))
     ;; pyth-theorem xor projections
-    (assume using-magnitude (relative-position ?b ?o :time ?t))
+    (assume using-magnitude ?vector)
   )
   :hint (
-   (point (string "The pythagorean theorem can be used to relate the magnitude of a relative position vector to its components."))
+   (point (string "The pythagorean theorem can be used to relate the magnitude of a vector to its components."))
    (bottom-out (string "Write the equation ~A." 
-		       ((= ?r (sqrt (+ (^ ?r_x 2) (^ ?r_y 2)))) algebra)))
+		       ((= ?r (sqrt ?dot)) algebra)))
   ))
 
-;
-; "rdiff": vector psm for calculating components of r21 from given
-; coordinates of points 1 and 2. Coordinates are given values of 
-; relative-positions wrt the specially named point 'origin.
-; The equation is:
-;   r21_x = r2o_x - r1o_x 
-; However, to keep the solutions simple, we plug the numerical
-; values of the given coordinates directly into the equation, rather 
-; than using variables for the given positions, which would then have
-; to be drawn.  Might have to change this eventually, or add variant
-; that allows them to be drawn.
+
+;; "rdiff": vector psm for calculating components of r21 from given
+;; coordinates of points 1 and 2. Coordinates are given values of 
+;; relative-positions wrt the specially named point 'origin.
+;; The equation is:
+;;   r21_x = r2o_x - r1o_x 
+;; However, to keep the solutions simple, we plug the numerical
+;; values of the given coordinates directly into the equation, rather 
+;; than using variables for the given positions, which would then have
+;; to be drawn.  Might have to change this eventually, or add variant
+;; that allows them to be drawn.
 
 (def-psmclass rdiff
              (?eq-type rdiff ?axis ?rot (rdiff ?p1 ?p2 ?time)) 

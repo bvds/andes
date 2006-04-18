@@ -360,7 +360,7 @@
  (leaf supplementary-angles)
  (leaf right-triangle-tangent)
  (leaf tensions-equal :tutorial "Equal tensions at both ends")
- (leaf rmag-pyth :tutorial "Pythagorean Theorem")
+ (leaf vector-magnitude :tutorial "Pythagorean Theorem")
  (leaf rdiff :bindings ((?axis . x)))
  (leaf rdiff :bindings ((?axis . y)))
  (leaf area-of-rectangle)
