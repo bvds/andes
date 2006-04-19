@@ -121,9 +121,9 @@
 
 ;; Also used for total internal reflection, Brewster's angle
 (defnogood only-one-form-of-snells-law
-    ((using-snells-law ?lines ?flag1)
-     (using-snells-law ?lines ?flag2)
-     (test (not (eq ?flag1 ?flag2))))
+    ((using-snells-law ?lines ?type1 ?flag1)
+     (using-snells-law ?lines ?type2 ?flag2)
+     (test (not (and (eq ?type1 ?type2) (eq ?flag1 ?flag2)))))
   :specs ("Prevent using both forms of Snell's law at once")
   :message (Redundant Snells law forms for ?lines))
 

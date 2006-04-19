@@ -564,7 +564,7 @@
 
 (defoperator use-directions-for-angle2 (?theta)
   :preconditions 
-  ( (greater-than ?normal-to-surface ?line)    
+  ( (greater-than ?normal-to-surface ?line)
     (variable ?angle (dir ?line))
     (variable ?anglen (dir ?normal-to-surface))
     (bind ?theta `(- ,?anglen ,?angle)) )
@@ -587,12 +587,12 @@
    ;; ?dummy1 and ?dummy2 are non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface))
    (variable ?dummy2 (test-var ?line2 ?normal-to-surface))
-   (debug "do Snell's law for ~A and ~A~%" ?line1 ?line2)
+   (debug "do Snell's law for ~A and ~A~%" ?lines ?angle-flag)
    )
   :effects 
   ( (eqn (= (* ?n1 (sin ?theta1)) (* ?n2 (sin ?theta2))) 
 	 (snells-law (orderless . ?lines) ?angle-flag))
-    (assume using-snells-law ?lines ?angle-flag)
+    (assume using-snells-law ?lines snell ?angle-flag)
     ;; Implicit equations to enforce the correct root for the sines
     ;; This is needed if one wants to calculate one of the angles
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
@@ -635,8 +635,9 @@
 
 (defoperator greater-than-given-directions (?greater ?lesser)
   :preconditions 
-  ( (given (dir ?greater) ?dg)
-    (given (dir ?lesser) ?dl)
+  ;; wm-or-derive is cruicial for speed
+  ( (wm-or-derive (given (dir ?greater) ?dg))
+    (wm-or-derive (given (dir ?lesser) ?dl))
     (test (and (degrees-or-num ?dg) (degrees-or-num ?dl)))
     (test (> (convert-dnum-to-number ?dg) (convert-dnum-to-number ?dl))))
   :effects ((greater-than ?greater ?lesser)))
@@ -710,7 +711,7 @@
   :effects 
   ( (eqn (= (* ?n1 (sin ?theta1)) ?n2) 
 	 (total-internal-reflection ?line1 ?angle-flag))
-    (assume using-snells-law ?line1 ?angle-flag)
+    (assume using-snells-law ?line1 total-internal-reflection ?angle-flag)
     ;; Implicit equations to enforce the correct root for the sines
     ;; This is needed if one wants to calculate one of the angles
     (implicit-eqn (= ?dummy1 (cos ?theta1)) 
@@ -844,20 +845,22 @@
 ;;;
 
 ;; This is basically a copy of Snell's law
-(def-psmclass brewsters-law (brewsters-law ?line1 ?angle-flag)
+(def-psmclass brewsters-law (brewsters-law ?normal ?line1 ?angle-flag)
   :complexity major
   :short-name "Brewster's law"
   :english ("Formula for angle of Brewster's law")
   :ExpFormat ("using Brewster's law formula for ~A" 
-	      (nlg ?line1))
+	      (nlg (line ?line1)))
   :eqnFormat ("n1*tan($q1) = n2"))
 
 
 ;; form with angle-between
 (defoperator brewsters-law-contains (?sought)
   :preconditions 
-  ( (brewsters-law-system ?normal-to-surface 
-				      ?line1 ?medium1 ?medium2)
+  ( (snell-system ?normal-to-surface orderless . ?lists)
+    (brewsters-law-system ?normal-to-surface ?line1)
+    (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
+			((?line2 ?medium2) (?line1 ?medium1))))
     (any-member ?sought ((angle-between orderless (line ?line1) 
 					(line ?normal-to-surface))
 			 (index-of-refraction ?medium1)		
@@ -869,13 +872,18 @@
 	    (not (eq (first ?sought) 'dir))))
     (wave-medium ?medium1) (wave-medium ?medium2) ;sanity check
     )
-  :effects ( (eqn-contains (brewsters-law ?line1 ?flag) ?sought) ))
+  :effects 
+  ( (eqn-contains (brewsters-law ?normal-to-surface ?line1 ?flag) ?sought) ))
 
  
 (defoperator write-brewsters-law (?line1 ?angle-flag)
   :preconditions 
   (
-   (brewsters-law-system ?normal-to-surface ?line1 ?medium1 ?medium2)
+   (snell-system ?normal-to-surface orderless . ?lists)
+   (brewsters-law-system ?normal-to-surface ?line1)
+   (any-member ?lists (((?line1 ?medium1) (?line2 ?medium2))
+		       ((?line2 ?medium2) (?line1 ?medium1))))
+   (bind ?lines (sort (list ?line1 ?line2) #'expr<))
    ;;
    (variable ?n1 (index-of-refraction ?medium1))
    (variable ?n2 (index-of-refraction ?medium2))
@@ -883,12 +891,14 @@
 				    ?angle-flag)
    ;; ?dummy1 is non-negative
    (variable ?dummy1 (test-var ?line1 ?normal-to-surface)) 
-   (debug "Brewster's law for ~A~%" ?line1)
+   (debug "Brewster's law for ~A and ~A~%" ?lines ?angle-flag)
    )
   :effects 
   ( (eqn (= (* ?n1 (tan ?theta1)) ?n2) 
-	 (brewsters-law ?line1 ?angle-flag))
-    (assume using-snells-law ?line1 ?angle-flag)
+	 (brewsters-law ?normal-to-surface ?line1 ?angle-flag))
+    ;; We don't want to apply both explicit Brewster's law and 
+    ;; Snell's law to the same system.
+    (assume using-snells-law ?lines brewsters ?angle-flag)
     ;; Implicit equations to enforce the correct root for the tangent
     ;; This is needed if one wants to calculate one of the angles
     ;; Right now, the routine in Algebra/src/nlsolvov.cpp assumes the
