@@ -1992,6 +1992,7 @@
    (any-member ?t-field (?t nil))
    (cross ?cross (dipole-moment ?dipole ?type :time ?t) 
 	  (field ?region ?type ?source :time ?t-field) ?axis ?rot ?flag)
+   (test (not (eq ?cross '0)))  ; handled by write-dipole-torque-mag
    (variable ?tau-zc (compo ?axis ?rot (
 					net-torque ?dipole axis 
 			     ;; torque ?dipole (field ?region ?type ?source)
@@ -2002,18 +2003,18 @@
 	 (dipole-torque ?dipole (field ?region ?type ?source) 
 			?axis ?rot ?flag ?t))
     ;; disallow both component-form and magnitude form in a solution
-  (assume using-compo 
-	  (compo ?axis ?rot (dipole-torque ?dipole 
-					   (field ?region ?type ?source) ?t)))
-  )
+    (assume using-compo 
+	    (compo ?axis ?rot (dipole-torque ?dipole 
+					     (field ?region ?type ?source) ?t)))
+    )
   :hint 
-   ( (point (string "What is the torque produced by ~A due to the ~A field?" 
-		    ?dipole (?type adj)))
-     (teach (string "When a a dipole is placed in a field, the field exerts a torque on the dipole."))
-     (bottom-out (string "Write the equation ~A" 
-			 ((= ?tau-zc ?cross) 
+  ( (point (string "What is the torque produced by ~A due to the ~A field?" 
+		   ?dipole (?type adj)))
+    (teach (string "When a a dipole is placed in a field, the field exerts a torque on the dipole."))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?tau-zc ?cross) 
 			  algebra)))
-  ))
+    ))
 
 
 ;;; Draw torque acting on an electric or magnetic dipole
@@ -2072,7 +2073,8 @@
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
-   (bind ?mag-var (format-sym "TORd_~A_~A_~A" (body-name ?b) ?source 
+   ;; work-around for bug #773
+   (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?dipole) 'axis 
 			      (time-abbrev ?t)))
    )
  :effects 

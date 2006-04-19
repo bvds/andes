@@ -1751,7 +1751,7 @@
    (dot ?dot ?vector ?vector ?rot)
    ;; Make sure that there is more than one term in sum, else this
    ;; is redundant with the associated projection equation.
-   (test (eq (first ?dot) '+))
+   (test (and (listp ?dot) (eq (first ?dot) '+)))
   )
   :effects (
     (eqn (= ?r (sqrt ?dot)) (vector-magnitude ?vector ?rot))
@@ -7330,7 +7330,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ( 
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   ;; same behavior as dot-using-angle for orthogonal vectors 
+   ;; same result as dot-using-angle for orthogonal vectors 
+   ;; so we only need one form
    (test (not (perpendicularp ?dir-a ?dir-b)))
    (get-axis ?xyz ?rot)
    (bind ?xyz-rot (axis-dir ?xyz ?rot))
@@ -7338,8 +7339,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (test (not (perpendicularp ?dir-b ?xyz-rot)))
    (variable ?a-xyz (compo ?xyz ?rot ?a))
    (variable ?b-xyz (compo ?xyz ?rot ?b))
+   (bind ?dot (if (exactly-equal ?a ?b) `(^ ,?a-xyz 2) `(* ,?a-xyz ,?b-xyz)))
     )
-  :effects ( (dot-term (* ?a-xyz ?b-xyz) ?a ?b ?rot) ))
+  :effects ( (dot-term ?dot ?a ?b ?rot) ))
 
 ;; use vector-PSM
 ;; follow cross product, but they just use standard axes
@@ -7373,6 +7375,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   ( (vector ?a-body ?a ?dir-a)
     (vector ?b-body ?b ?dir-b)
+    ;; cross-using-components handles this case
+    (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
     (in-wm (variable ?a-var (mag ?a)))
     (in-wm (variable ?b-var (mag ?b)))
     (variable ?theta-var (angle-between orderless ?a ?b))
