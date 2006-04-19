@@ -2598,6 +2598,39 @@
             (compo-eqn-contains (charge-force-Bfield ?b ?t) qvb ?sought)))
 |#
 
+
+(def-psmclass charge-force-Bfield 
+  (charge-force-Bfield ?axis ?rot ?body ?time)
+  :complexity major
+  :short-name ("magnetic force (~A component)" (axis-name ?axis))
+  :english ("the force on a moving charge due to a magnetic field")
+  :ExpFormat ("finding the force (~A component) on ~A due to the magnetic field"
+	      (axis-name ?axis) (nlg ?body))
+  :EqnFormat ((charge-force-Bfield-equation ?axis) ))
+
+(defun charge-force-Bfield-equation (axis)
+  (cond ((eq axis 'x) "F_x = q*(v_y*B_z - v_z*B_y)")
+	((eq axis 'y) "F_y = q*(v_z*B_x - v_x*B_z)")
+	((eq axis 'z) 
+	 "F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)")))
+
+(defoperator charge-force-Bfield-contains (?sought)
+  :preconditions 
+  ((any-member ?sought ((compo ?axis ?rot (force ?b ?source magnetic :time ?t))
+			(compo ?not-axis ?rot (velocity ?b :time ?t))
+			(compo ?not-axis ?rot 
+			       (field ?loc magnetic ?source :time ?t ?t))
+			(charge-on ?b :time ?t ?t)
+		       ))
+   (at-place ?b ?loc :time ?t ?t)  ;?b is not bound if field is sourght
+   (axes-for ?b ?rot) ;?rot not bound if charge is sought
+   (time ?t); may not be bound if charge is sought
+   (get-axis ?axis ?rot)  ;if ?axis not bound, iterate over components
+   (test (not (exactly-equal ?axis ?not-axis)))
+   )
+  :effects 
+  ((eqn-contains (charge-force-Bfield ?axis ?rot ?b ?t) ?sought)))
+
 (defoperator draw-charge-force-Bfield-diagram (?b ?t)
   :preconditions 
   (
@@ -2621,171 +2654,31 @@
          (bottom-out (string "Draw a diagram showing the force vector on ~a due to the magnetic field at ~a." ?b ?loc))
           ))
 
-; Component equations for F = q*(V X B). This is sometimes called the determinant
-; form, since V X B =
-;   |i  j  k |
-;   |Vx Vy Vz| 
-;   |Bx By Bz|
-; = (Vx*Bz - Vz*Bx) i + (Vz*Bx - Vx*Bz) j + (Vx*By - Vy*Bx) k
-; We treat these as three scalar equations in terms of vector components.
-; These equations only enabled when "component-form" is in the problem,  
-; which enables projection psm to be used, so components can appear at
-; bubble-graph level. As coded, the rules assume use of standard axes, 
-; which "component form" guarantees (could probably avoid this assumption by
-; using variables for the tilt of x and y axes -- making sure they're orthogonal!)
-;
-; The formula works for arbritrary three-dimensional vectors, but we can't
-; draw all of those in Andes.  We will usually be dealing with the following 
-; cases only:
-; 1) V, B in xy plane, which reduces to
-;    Fx = 0 
-;    Fy = 0
-;    Fz = q(Vx*By - Vy*Bx)       
-; 2) V in xy plane, B along z-axis:
-;    Fx = q(Vy*Bz)  
-;    Fy = q(-Vx*Bz)
-;    Fz = 0             
-; 3. V parallel/antiparallel to B => Fx=Fy=Fz=0
-;
-; Vectors will usually be drawn in known directions from the givens and
-; the right hand rule, so projection equations will write equations for zero components.
-; However, these equations write general form in all cases, and don't simplify form
-; for cases where components vanish. !!! That might be a problem, since equation can 
-; then contain a variable that it doesn't determine, which can fool the solution
-; collection algorithm.
 
-(def-psmclass charge-force-Bfield-x (charge-force-Bfield-x ?body ?time)
-  :complexity major
-  :short-name "magnetic force (x component)"
-  :english ("x component of magnetic force on moving charge")
-  :ExpFormat ("applying the formula for x component of magnetic force")
-  :EqnFormat ("F_x = q*(v_y*B_z - v_z*B_y)" ))
-
-(defoperator charge-force-Bfield-x-contains (?sought)
-  :preconditions ((component-form)
-                 (any-member ?sought((compo x 0 (force ?b ?source magnetic :time ?t))
-				      (compo y 0 (velocity ?b :time ?t))
-                                      (compo z 0 (field ?loc magnetic ?source :time ?t ?t))
-				      (compo z 0 (velocity ?b :time ?t))
-                                      (compo y 0 (field ?loc magnetic ?source :time ?t ?t))
-                                      (charge-on ?b :time ?t ?t)
-                                      ))
-		 (time ?t)
-                  (at-place ?b ?loc :time ?t ?t)
-		  )
-  :effects ((eqn-contains (charge-force-Bfield-x ?b ?t) ?sought)))
-
-(defoperator charge-force-Bfield-x (?b ?t)
+(defoperator write-charge-force-Bfield (?axis ?rot ?b ?t )
   :preconditions 
   ((at-place ?b ?loc :time ?t ?t)
    (vector-diagram (charge-force-Bfield ?b ?t))
-   (variable ?Fx (compo x 0 (force ?b ?source magnetic :time ?t)))
-   (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
+   (variable ?F (compo ?axis ?rot (force ?b ?source magnetic :time ?t)))
+   ;; Only do the component version of the cross product
    (any-member ?tot (?t nil))
-   (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?tot)))
-   (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
-   (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?tot)))
+   (cross ?cross (velocity ?b :time ?t) 
+	  (field ?loc magnetic ?source :time ?tot) ?axis ?rot t)
    (any-member ?tot2 (?t nil)) 
    (variable ?q (charge-on ?b :time ?tot2)))
-  :effects ( (eqn (= ?Fx (* ?q (- (* ?Vy ?Bz) (* ?Vz ?By)))) 
-		  (charge-force-Bfield-x ?b ?t)) )
-  :hint (
-	  (point (string "The x component of a vector cross product can be computed from the y and z components of the vectors being multiplied. You can use this to compute the x component of the magnetic force."))
-	  (teach (string "The x component of the cross product of two vectors v and B is equal to v_y*B_z - v_z*B_y. "))
-          (bottom-out (string "Write the equation ~A"  
-	                      ((= ?Fx (* ?q (- (* ?Vy ?Bz) (* ?Vz ?By)))) algebra) ))
-        ))
+  :effects 
+  ( (eqn (= ?F (* ?q ?cross)) (charge-force-Bfield ?axis ?rot ?b ?t)) )
+  :hint 
+  (
+   (point (string "There is a force acting on ~A due to ~A."
+		  ?b ((field ?loc magnetic ?source :time ?tot) def-np)))
+   (teach (string "The ~A component of the magnetic force equation is ~A."
+		  (?axis axis-name) 
+		  (?axis charge-force-Bfield-equation)))
+   (bottom-out (string "Write the equation ~A"  
+		       ((= ?F (* ?q ?cross)) algebra) ))
+   ))
 
-(def-psmclass charge-force-Bfield-y (charge-force-Bfield-y ?body ?time)
-  :complexity major
-  :short-name "magnetic force (y component)"
-  :english ("y component of magnetic force on moving charge")
-  :ExpFormat ("applying the formula for y component of magnetic force")
-  :EqnFormat ("F_y = q*(v_z*B_x - v_x*B_z)" ))
-
-(defoperator charge-force-Bfield-y-contains (?sought)
-  :preconditions ((component-form)
-                  (any-member ?sought((compo y 0 (force ?b ?source magnetic :time ?t))
-				      (compo z 0 (velocity ?b :time ?t))
-                                      (compo x 0 (field ?loc magnetic ?source :time ?t ?t))
-				      (compo x 0 (velocity ?b :time ?t))
-                                      (compo z 0 (field ?loc magnetic ?source :time ?t ?t))
-                                      (charge-on ?b :time ?t ?t)
-				     ))
-		  (time ?t)
-		  (at-place ?b ?loc :time ?t ?t)
-   )
-  :effects ((eqn-contains (charge-force-Bfield-y ?b ?t) ?sought)))
-
-(defoperator charge-force-Bfield-y (?b ?t)
-  :preconditions 
-  ( 
-   (at-place ?b ?loc :time ?t ?t)
-   (vector-diagram (charge-force-Bfield ?b ?t))
-   (variable ?Fy (compo y 0 (force ?b ?source magnetic :time ?t)))
-   (variable ?Vz (compo z 0 (velocity ?b :time ?t)))
-   (any-member ?tot (?t nil))
-   (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?tot)))
-   (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
-   (variable ?Bz (compo z 0 (field ?loc magnetic ?source :time ?tot)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge-on ?b :time ?tot2))
-   )
-  :effects ( (eqn (= ?Fy (* ?q (- (* ?Vz ?Bx) (* ?Vx ?Bz)))) 
-		  (charge-force-Bfield-y ?b ?t)) )
-  :hint (
-         (point (string "The y component of a vector cross product can be computed from the x and z components of the vectors being multiplied. You can use this to compute the y component of the magnetic force."))
-	  (teach (string "The y component of the cross product of two vectors v and B is equal to v_z*B_x - v_x*B_z. "))
-          (bottom-out (string "Write the equation ~A"  
-	                      ((= ?Fy (* ?q (- (* ?Vz ?Bx) (* ?Vx ?Bz)))) algebra) ))
-        ))
-
-(def-psmclass charge-force-Bfield-z (charge-force-Bfield-z ?body ?time)
-  :complexity major
-  :short-name "magnetic force (z component)"
-  :english ("z component of magnetic force on moving charge")
-  :ExpFormat ("applying the formula for z component of magnetic force")
-  :EqnFormat ("F_z = q*(v_x*B_y - v_y*B_x)" ))
-
-(defoperator charge-force-Bfield-z-contains (?sought)
-  :preconditions 
-  ((component-form)
-   (any-member ?sought ((compo z 0 (force ?b ?source magnetic :time ?t))
-			(compo x 0 (velocity ?b :time ?t))
-			(compo y 0 (field ?loc magnetic ?source :time ?t ?t))
-			(compo y 0 (velocity ?b :time ?t))
-			(compo x 0 (field ?loc magnetic ?source :time ?t ?t))
-			(charge-on ?b :time ?t ?t)
-			))
-   (time ?t)
-   (at-place ?b ?loc :time ?t ?t)
-   )
-  :effects ((eqn-contains (charge-force-Bfield-z ?b ?t) ?sought)))
-
-(defoperator charge-force-Bfield-z (?b ?t)
-  :preconditions 
-  ( 
-   (at-place ?b ?loc :time ?t ?t)
-   (vector-diagram (charge-force-Bfield ?b ?t))
-   (variable ?Fz (compo z 0 (force ?b ?source magnetic :time ?t)))
-   (variable ?Vx (compo x 0 (velocity ?b :time ?t)))
-   (any-member ?tot (?t nil))
-   (variable ?By (compo y 0 (field ?loc magnetic ?source :time ?tot)))
-   (variable ?Vy (compo y 0 (velocity ?b :time ?t)))
-   (variable ?Bx (compo x 0 (field ?loc magnetic ?source :time ?tot)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge-on ?b :time ?tot2))
-   )
-  :effects ( 
-	    (eqn (= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) 
-		 (charge-force-Bfield-z ?b ?t)) 
-           )
-  :hint (
-          (point (string "The z component of a vector cross product can be computed from the x and y components of the vectors being multiplied. You can use this formula to compute the z component of the magnetic force."))
-	  (teach (string "The z component of the cross product of two vectors v and B is equal to v_x*B_y - v_y*B_x. "))
-          (bottom-out (string "Write the equation ~A"  
-	                      ((= ?Fz (* ?q (- (* ?Vx ?By) (* ?Vy ?Bx)))) algebra) ))
-        ))
 
 ;;;       Magnetic force on a wire
 

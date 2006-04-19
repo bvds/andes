@@ -826,7 +826,7 @@
    ;; along a different axis is introduced into the solution graph by some 
    ;; other equation, the second eqn contains below should get applied when 
    ;; equations are sought for it.
-   (any-member ?xy (x y z))
+   (get-axis ?xy 0)
    )
   :effects (
    (eqn-contains (projection (compo ?xy 0 ?vector)) ?sought)
@@ -886,6 +886,8 @@
 ;;  But both of these uses ought to have specialized hints.
 
 ;; iterate over axes in a given coordinate system
+;; Right now, this doesn't do much, but it allows for generalization
+;; of the coordinate system.
 (defoperator get-axis-from-coordinate-system (?xyz ?rot)
    :preconditions ( (any-member ?xyz (x y z)) )
    :effects ( (get-axis ?xyz ?rot)))
@@ -7303,8 +7305,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; dot product for two vectors
 (defoperator dot-using-angle (?a ?b)
   :preconditions 
-  ( (vector ?a-body ?a ?dir-a)
-    (vector ?b-body ?b ?dir-b)
+  ( (wm-or-derive (vector ?a-body ?a ?dir-a))
+    (wm-or-derive (vector ?b-body ?b ?dir-b))
+    (test (not (perpendicularp ?dir-a ?dir-b)))
     (in-wm (variable ?a-var (mag ?a)))
     (in-wm (variable ?b-var (mag ?b)))
     (variable ?theta-var (angle-between orderless ?a ?b))
@@ -7330,8 +7333,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ( 
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   ;; same result as dot-using-angle for orthogonal vectors 
-   ;; so we only need one form
+   ;; handled by dot-othogonal
    (test (not (perpendicularp ?dir-a ?dir-b)))
    (get-axis ?xyz ?rot)
    (bind ?xyz-rot (axis-dir ?xyz ?rot))
@@ -7360,6 +7362,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?rot) ))
 
+(defoperator dot-orthogonal (?a ?b)
+  :preconditions 
+  ( (wm-or-derive (vector ?a-body ?a ?dir-a))
+    (wm-or-derive (vector ?b-body ?b ?dir-b))
+    (test (perpendicularp ?dir-a ?dir-b))
+    )
+:effects ( (dot 0 ?a ?b ?angle-flag) 
+	     ;; nogood rule to so that only one form of dot is chosen
+	   (assume using-dot ?a ?b ?angle-flag) ))
+
 
 ;;;;===========================================================================
 ;;;;
@@ -7373,28 +7385,29 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator cross-using-angle (?a ?b ?compo ?rot)
   :preconditions 
-  ( (vector ?a-body ?a ?dir-a)
-    (vector ?b-body ?b ?dir-b)
-    ;; cross-using-components handles this case
-    (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
-    (in-wm (variable ?a-var (mag ?a)))
-    (in-wm (variable ?b-var (mag ?b)))
-    (variable ?theta-var (angle-between orderless ?a ?b))
+  ( (in-wm (vector ?a-body ?a ?dir-a))
+    (in-wm (vector ?b-body ?b ?dir-b))
     (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
     (bind ?dir-axis (axis-dir ?compo ?rot))
-    (bind ?cross (cond
-		((perpendicularp ?dir-cross ?dir-axis) 0)
-		((same-angle ?dir-cross ?dir-axis)
-		 `(* ,?a-var ,?b-var (sin ,?theta-var)))
-		((same-angle ?dir-cross (opposite ?dir-axis))
-		 `(- (* ,?a-var ,?b-var (sin ,?theta-var))))
-		(t nil)))
-    (test ?cross)  ;make sure that direction is along an axis
+    ;; make sure that the direction is along the axis
+    (test (parallel-or-antiparallelp ?dir-cross ?dir-axis))
+    ;; cross-zero handles these cases:
+    (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
+    (test (not (perpendicularp ?dir-cross ?dir-axis)))
+    ;;
+    (in-wm (variable ?a-mag (mag ?a)))
+    (in-wm (variable ?b-mag (mag ?b)))
+    ;; Use angle-between because using the difference of
+    ;; directions does not work outside the xy-plane.
+    ;; Also matches method of finding the magnitude and then
+    ;; using the right hand rule to find the correct direction (and sign).
+    (variable ?theta-var (angle-between orderless ?a ?b))
+    (any-member ?absin ((* ?a-mag ?b-mag (sin ?theta-var))))
+    (bind ?cross (if (same-angle ?dir-cross ?dir-axis) ?absin `(- ,?absin)))
     )
   :effects ( (cross ?cross ?a ?b ?compo ?rot nil) 
 	     ;; nogood rule to so that only one form of cross is chosen
 	     (assume using-cross ?a ?b ?compo ?rot nil) ))
-
 
 ;; use vector-PSM
 (defoperator cross-using-components (?a ?b ?compo ?rot)
@@ -7402,25 +7415,34 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ( 
    (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
-    (variable ?ax (compo x ?rot ?a))
-    (variable ?ay (compo y ?rot ?a))
-    (variable ?az (compo z ?rot ?a))
-    (variable ?bx (compo x ?rot ?b))
-    (variable ?by (compo y ?rot ?b))
-    (variable ?bz (compo z ?rot ?b))
-    (bind ?x-rot (axis-dir 'x ?rot))
-    (bind ?y-rot (axis-dir 'y ?rot))
-    (bind ?z-rot (axis-dir 'z ?rot))
-    (bind ?cross (cond 
-		  ((parallel-or-antiparallelp ?dir-a ?dir-b) 0)
-		  ((eq ?compo 'x) `(- (* ,?ay ,?bz) (* ,?az ,?by)))
-		  ((eq ?compo 'y) `(- (* ,?az ,?bx) (* ,?ax ,?bz)))
-		  ((eq ?compo 'z) `(- (* ,?ax ,?by) (* ,?ay ,?bx))))
-    ))
-  :effects ( (cross ?cross ?a ?b ?compo ?rot t)
-	     ;; nogood rule to so that only one form of cross is chosen
-	     (assume using-cross ?a ?b ?compo ?rot t) ))
+   (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
+   (bind ?dir-axis (axis-dir ?compo ?rot))
+   ;; cross-zero handles these cases:
+   (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
+   (test (not (perpendicularp ?dir-cross ?dir-axis)))
+   ;;
+   (any-member (?compo ?i ?j) ((x y z) (y z x) (z x y)))
+   (variable ?ai (compo ?i ?rot ?a))
+   (variable ?aj (compo ?j ?rot ?a))
+   (variable ?bi (compo ?i ?rot ?b))
+   (variable ?bj (compo ?j ?rot ?b))
+   )
+:effects ( (cross (- (* ?ai ?bj) (* ?aj ?bi)) ?a ?b ?compo ?rot t)
+		  ;; nogood rule to so that only one form of cross is chosen
+		  (assume using-cross ?a ?b ?compo ?rot t) ))
 
+(defoperator cross-zero (?a ?b ?compo ?rot)
+  :preconditions 
+  ( (in-wm (vector ?a-body ?a ?dir-a))
+    (in-wm (vector ?b-body ?b ?dir-b))
+    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
+    (bind ?dir-axis (axis-dir ?compo ?rot))
+    (test (or (parallel-or-antiparallelp ?dir-a ?dir-b)
+	      (perpendicularp ?dir-cross ?dir-axis)))
+    )
+  :effects ( (cross 0 ?a ?b ?compo ?rot ?angle-flag) 
+	     ;; nogood rule to so that only one form of cross is chosen
+	     (assume using-cross ?a ?b ?compo ?rot ?angle-flag) ))
 
 
 ;;; Following defines a variable for the angle between two vectors
@@ -7445,12 +7467,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; This used to be a distinguished sort of entry, with its own entry proposition
 ;;; but now we treat this as just a different gesture for defining an angle var
 ;;; (Same as treatment of revolution-radius, which may be drawn or defined)
-(defoperator define-angle-between-known (?ovecs)
+
+(defoperator define-angle-between-known (?vecs)
  :preconditions 
  (
-  (test (orderless-p ?ovecs))
-  (bind ?vec1 (second ?ovecs))
-  (bind ?vec2 (third ?ovecs))
+  (any-member (?vec1 ?vec2) (?vecs))
   ;; vectors must be drawn first, with known angles
   ;; note vector's axis owner bodies need not be the same
   (vector ?b1 ?vec1 ?dir1)
@@ -7458,17 +7479,17 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (bind ?angle (get-angle-between ?dir1 ?dir2))
   (test ?angle) ;null indicates an angle can't be determined
   ;; fetch vector mag vars for forming angle variable name only
- (bind ?v1-mag-exp `(mag ,?vec1))
- (bind ?v2-mag-exp `(mag ,?vec2))
- (in-wm (variable ?v1-var ?v1-mag-exp))
- (in-wm (variable ?v2-var ?v2-mag-exp))
- (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
- (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
- )
+  (bind ?v1-mag-exp `(mag ,?vec1))
+  (bind ?v2-mag-exp `(mag ,?vec2))
+  (in-wm (variable ?v1-var ?v1-mag-exp))
+  (in-wm (variable ?v2-var ?v2-mag-exp))
+  (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
+  (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
+  )
  :effects (
-	   (define-var (angle-between . ?ovecs))
-	   (variable ?theta-var (angle-between . ?ovecs))
-	   (given (angle-between . ?ovecs) (dnum ?angle |deg|))
+	   (define-var (angle-between orderless . ?vecs))
+	   (variable ?theta-var (angle-between orderless . ?vecs))
+	   (given (angle-between orderless . ?vecs) (dnum ?angle |deg|))
 	   )
  :hint (
 	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
@@ -10167,15 +10188,15 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;  tau_z = F*r*sin(thetaF - thetaR)
 ;;
 
-(defoperator torque-zc-contains (?sought)
-  :preconditions (
-    (any-member ?sought ( 
-             (compo z 0 (torque ?b (force ?pt ?agent ?type) 
-				:axis ?axis :time ?t))
-             (mag (force ?pt ?agent ?type :time ?t))
-             (dir (force ?pt ?agent ?type :time ?t))
-	     (mag (relative-position ?pt ?axis :time ?t))
-	     (dir (relative-position ?pt ?axis :time ?t))
+(defoperator torque-contains-angle (?sought)
+  :preconditions 
+  (
+   ;; don't list angle as sought since it is the sine
+   (any-member ?sought ( 
+			(compo ?xyz ?rot (torque ?b (force ?pt ?agent ?type) 
+					   :axis ?axis :time ?t))
+			(mag (force ?pt ?agent ?type :time ?t))
+			(mag (relative-position ?pt ?axis :time ?t))
 	                ))
    ;; So far this will apply in any problem where any force is sought. 
    ;; Require pt of application to be part of larger rigid body, so that
@@ -10186,32 +10207,74 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; about an axis is defined for any point on the object, but if it's 
    ;; fixed at a pivot or known to be rotating we should pick that axis.
    (rotation-axis ?b ?axis)
+   (axes-for ?b ?rot)
+   (get-axis ?xyz ?rot)
+   ;; draw vectors before doing cross product
+   (vector ?pt (relative-position ?pt ?axis :time ?t) ?dir-v)
+   (vector ?pt (force ?pt ?agent ?type :time ?t) ?dir-f)
+   (vector ?b (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t) ?dir-t)
+   ;;
    )
- :effects (
-    (eqn-contains (torque-zc ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)
+ :effects ( (eqn-contains (torque ?xyz ?rot ?b ?axis 
+				     (force ?pt ?agent ?type) ?t nil) ?sought)
   ))
 
-(defoperator write-torque-zc (?b ?axis ?pt ?agent ?type ?t)
-  :preconditions (
-      (variable ?tau-zc (compo z 0 (torque ?b (force ?pt ?agent ?type)
-					   :axis ?axis :time ?t)))
-      (variable ?f-var      (mag (force ?pt ?agent ?type :time ?t)))
-      (variable ?theta-f    (dir (force ?pt ?agent ?type :time ?t)))
-      (variable ?r-var      (mag (relative-position ?pt ?axis :time ?t)))
-      (variable ?theta-r    (dir (relative-position ?pt ?axis :time ?t)))
+(defoperator torque-contains-compo (?sought)
+  :preconditions 
+  (
+   (any-member ?sought ( 
+			(compo ?xyz ?rot (torque ?b (force ?pt ?agent ?type) 
+					   :axis ?axis :time ?t))
+			(compo ?xy ?rot (force ?pt ?agent ?type :time ?t))
+			(compo ?xy ?rot (relative-position ?pt ?axis :time ?t))
+	                ))
+   ;; So far this will apply in any problem where any force is sought. 
+   ;; Require pt of application to be part of larger rigid body, so that
+   ;; won't apply if dealing only with particles. 
+   (point-on-body ?pt ?b)
+   ;; if sought is not torque, e.g. a force on body part, have to choose 
+   ;; an axis on body about which to consider torque.  In theory the torque 
+   ;; about an axis is defined for any point on the object, but if it's 
+   ;; fixed at a pivot or known to be rotating we should pick that axis.
+   (rotation-axis ?b ?axis)
+   (axes-for ?b ?rot)
+   (get-axis ?xyz ?rot)
+   (test (not (exactly-equal ?xyz ?xy)))
+   ;; draw vectors before doing cross product
+   (vector ?pt (relative-position ?pt ?axis :time ?t) ?dir-v)
+   (vector ?pt (force ?pt ?agent ?type :time ?t) ?dir-f)
+   (vector ?b (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t) ?dir-t)
+   ;;
    )
-   :effects (
-      (eqn (= ?tau-zc (* ?r-var ?f-var (sin (- ?theta-f ?theta-r)))) 
-             (torque-zc ?b ?axis (force ?pt ?agent ?type) ?t))
-   )
-   :hint (
-   (point (string "You need an expression for the z component of the ~A due to the ~A force acting at ~A"  (nil moment-name) (?type adj) ?pt))
-   (teach (string "The z component of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis can be calculated as ~A_z = r * F * sin ($qF - $qr) where $qF and $qr are the orientations of the vectors F and r ."
-		  (nil moment-name) (nil moment-symbol) 
-		  (nil moment-symbol)))
-   (bottom-out (string "Write the equation ~A" 
-          ((= ?tau-zc (* ?r-var ?f-var (sin (- ?theta-f ?theta-r)))) algebra)))
+ :effects ( (eqn-contains (torque ?xyz ?rot ?b ?axis 
+				     (force ?pt ?agent ?type) ?t t) ?sought)
   ))
+
+(defoperator write-torque (?xyz ?rot ?b ?axis ?pt ?agent ?type ?t ?angle-flag)
+  :preconditions 
+  (
+   (variable ?tau (compo ?xyz ?rot (torque ?b (force ?pt ?agent ?type)
+				     :axis ?axis :time ?t)))
+   (cross ?cross (relative-position ?pt ?axis :time ?t)
+	  (force ?pt ?agent ?type :time ?t) z 0 ?angle-flag)
+   )
+  :effects 
+  (
+   (eqn (= ?tau ?cross) 
+	(torque ?xyz ?rot ?b ?axis (force ?pt ?agent ?type) ?t ?angle-flag))
+   )
+  :hint 
+  (
+   (point (string "You need an expression for the ~A component of the ~A due to the ~A force acting at ~A"
+		  (?xyz axis-name)  
+		  (nil moment-name) (?type adj) ?pt))
+   (teach (string "The ~A component of the ~A ~A resulting from a force of magnitude F acting at a point of perpendicular distance r from the axis can be calculated as ~A."
+		  (?xyz axis-name)
+		  (nil moment-name) (nil moment-symbol) 
+		  (?xyz torqu-equation)))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?tau ?cross) algebra)))
+   ))
 
 ;; num-torques mainly for test problems:
 (defoperator num-torques-contains (?b ?t)

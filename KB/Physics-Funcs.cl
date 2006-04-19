@@ -370,7 +370,9 @@
 	;; cross z-dir vector with non-zdir:
 	((eq dir1 'out-of) (mod (+ dir2 90) 360))
 	((eq dir1 'into)   (mod (- dir2 90) 360))
-	;; else must be crossing two non-parallel xy-plane angles
+	;; else must be crossing two non-parallel xy-plane vectors
+	((eq dir1 'unknown) 'z-unknown)
+	((eq dir2 'unknown) 'z-unknown)
 	;; use function for dir torque(fdir rdir), inverting order of args
 	(T  (torque-zdir dir2 dir1))
    ))

@@ -1454,15 +1454,26 @@
 	      (moment-name) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
   :EqnFormat ((torque-switch "M = r*F*sin($q)" "$t = r*F*sin($q)")))
 
-(def-psmclass torque-zc (torque-zc ?body ?pivot (force ?pt ?agent ?type) ?time)
+(def-psmclass torque 
+  (torque ?xyz ?rot ?body ?pivot (force ?pt ?agent ?type) ?time ?angle-flag)
   :complexity major ; definition, but can be first "principle" for sought
-  :short-name ("~A defined (z component)" (moment-name))
+  :short-name ("~A defined (~A component)" (moment-name) (axis-name ?xyz))
   :english ("the definition of ~A" (moment-name))
-  :expformat ((strcat "calculating the z component of the ~A "
+  :expformat ((strcat "calculating the ~A component of the ~A "
 		      "on ~a ~a due to the force acting at ~a")
+	      (axis-name ?xyz)
 	      (moment-name) (nlg ?body) (nlg ?time 'pp) (nlg ?pt))
-  :EqnFormat ((torque-switch "M_z = r*F*sin($qF-$qr)"
-			     "$t_z = r*F*sin($qF-$qr)")))
+  :EqnFormat ((torque-equation ?xyz)))
+
+(defun torque-equation (xyz)
+  (cond ((eq xyz 'x) (torque-switch "M_x = r_y*F_z - r_z*F_y"
+				    "$t_x = r_y*F_z - r_z*F_y"))
+	((eq xyz 'y) (torque-switch "M_y = r_z*F_x - r_x*F_z"
+				    "$t_y = r_z*F_x - r_x*F_z"))
+	((eq xyz 'z) 
+	 (torque-switch 
+	  "M_z = r*F*sin($qF-$qr) or M_z = r_x*F_y - r_y*F_x"
+	  "$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x"))))
 
 (def-psmclass NFL-rot (?eq-type z 0 (NFL-rot ?body ?pivot ?time))
   :complexity major
