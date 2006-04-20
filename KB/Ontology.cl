@@ -1455,7 +1455,7 @@
   :EqnFormat ((torque-switch "M = r*F*sin($q)" "$t = r*F*sin($q)")))
 
 (def-psmclass torque 
-  (torque ?xyz ?rot ?body ?pivot (force ?pt ?agent ?type) ?time ?angle-flag)
+  (torque ?xyz ?rot ?body ?pivot (force ?pt ?agent ?type) ?angle-flag ?time)
   :complexity major ; definition, but can be first "principle" for sought
   :short-name ("~A defined (~A component)" (moment-name) (axis-name ?xyz))
   :english ("the definition of ~A" (moment-name))

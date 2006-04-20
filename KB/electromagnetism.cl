@@ -1971,15 +1971,6 @@
    (given-field ?source ?type)
    (time ?t)
    (at-place ?dipole ?region :time ?t ?t)
-   ;; find axes now, before applying dot product:
-   (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
-   (any-member ?tot (?t nil)) ;may want to extend to all times
-   (vector ?dipole (field ?region ?type ?source :time ?tot) ?dir-field)
-   (vector ?dipole (
-		    ;; Yuck, work-around for missing torque tool, Bug #773
-		    net-torque ?dipole axis
-			       ;; torque ?dipole (field ?region ?type ?source)
-			       :time ?t) ?dir-torque)
   )
  :effects 
  ( (eqn-contains (dipole-torque ?dipole 
@@ -1989,9 +1980,18 @@
 (defoperator write-dipole-torque (?dipole ?source ?axis ?rot ?flag ?t)
   :preconditions 
   ( 
-   (any-member ?t-field (?t nil))
+   (any-member ?tot (?t nil))
+   ;; draw vectors now, before applying cross product
+   (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
+   (vector ?dipole (field ?region ?type ?source :time ?tot) ?dir-field)
+   (vector ?dipole (
+		    ;; Yuck, work-around for missing torque tool, Bug #773
+		    net-torque ?dipole axis
+			       ;; torque ?dipole (field ?region ?type ?source)
+			       :time ?t) ?dir-torque)
+   ;;
    (cross ?cross (dipole-moment ?dipole ?type :time ?t) 
-	  (field ?region ?type ?source :time ?t-field) ?axis ?rot ?flag)
+	  (field ?region ?type ?source :time ?tot) ?axis ?rot ?flag)
    (test (not (eq ?cross '0)))  ; handled by write-dipole-torque-mag
    (variable ?tau-zc (compo ?axis ?rot (
 					net-torque ?dipole axis 
@@ -2600,7 +2600,7 @@
 
 
 (def-psmclass charge-force-Bfield 
-  (charge-force-Bfield ?axis ?rot ?body ?time)
+  (charge-force-Bfield ?axis ?rot ?body ?flag ?time)
   :complexity major
   :short-name ("magnetic force (~A component)" (axis-name ?axis))
   :english ("the force on a moving charge due to a magnetic field")
@@ -2616,20 +2616,34 @@
 
 (defoperator charge-force-Bfield-contains (?sought)
   :preconditions 
-  ((any-member ?sought ((compo ?axis ?rot (force ?b ?source magnetic :time ?t))
-			(compo ?not-axis ?rot (velocity ?b :time ?t))
+  ((any-member ?sought ((compo ?not-axis ?rot (velocity ?b :time ?t))
 			(compo ?not-axis ?rot 
 			       (field ?loc magnetic ?source :time ?t ?t))
+			(mag (velocity ?b :time ?t))
+			(mag (field ?loc magnetic ?source :time ?t ?t))
 			(charge-on ?b :time ?t ?t)
 		       ))
    (at-place ?b ?loc :time ?t ?t)  ;?b is not bound if field is sourght
    (axes-for ?b ?rot) ;?rot not bound if charge is sought
    (time ?t); may not be bound if charge is sought
-   (get-axis ?axis ?rot)  ;if ?axis not bound, iterate over components
+   (get-axis ?axis ?rot)  ;iterate over components
    (test (not (exactly-equal ?axis ?not-axis)))
+   (any-member ?flag (t nil))
+   (test (if ?flag (not (eq (car ?sought) 'mag))
+	   (not (eq (car ?sought) 'compo))))
    )
   :effects 
-  ((eqn-contains (charge-force-Bfield ?axis ?rot ?b ?t) ?sought)))
+  ((eqn-contains (charge-force-Bfield ?axis ?rot ?b ?flag ?t) ?sought)))
+
+(defoperator charge-force-Bfield-contains-force (?sought)
+  :preconditions 
+  ;; the angle is not a valid sought because of the sine.
+  ((any-member ?sought 
+	       ((compo ?axis ?rot (force ?b ?source magnetic :time ?t))))
+   (any-member ?flag (t nil))
+   )
+  :effects 
+  ((eqn-contains (charge-force-Bfield ?axis ?rot ?b ?flag ?t) ?sought)))
 
 (defoperator draw-charge-force-Bfield-diagram (?b ?t)
   :preconditions 
@@ -2645,9 +2659,7 @@
    (axes-for ?b ?rot)
    (debug "Fired draw-charge-force-Bfield-diagram ~%")
    )
-  :effects (
-            (vector-diagram (charge-force-Bfield ?b ?t))
-            )
+  :effects ( (vector-diagram (charge-force-Bfield ?b ?t)) )
   :hint (
          (point (string "Try drawing a diagram."))
          (teach (string "The diagram should show the force vector and the magnetic field vector at ~a." ?b))
@@ -2660,14 +2672,13 @@
   ((at-place ?b ?loc :time ?t ?t)
    (vector-diagram (charge-force-Bfield ?b ?t))
    (variable ?F (compo ?axis ?rot (force ?b ?source magnetic :time ?t)))
-   ;; Only do the component version of the cross product
    (any-member ?tot (?t nil))
    (cross ?cross (velocity ?b :time ?t) 
-	  (field ?loc magnetic ?source :time ?tot) ?axis ?rot t)
+	  (field ?loc magnetic ?source :time ?tot) ?axis ?rot ?flag)
    (any-member ?tot2 (?t nil)) 
    (variable ?q (charge-on ?b :time ?tot2)))
   :effects 
-  ( (eqn (= ?F (* ?q ?cross)) (charge-force-Bfield ?axis ?rot ?b ?t)) )
+  ( (eqn (= ?F (* ?q ?cross)) (charge-force-Bfield ?axis ?rot ?b ?flag ?t)) )
   :hint 
   (
    (point (string "There is a force acting on ~A due to ~A."
