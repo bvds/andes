@@ -10256,7 +10256,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (variable ?tau (compo ?xyz ?rot (torque ?b (force ?pt ?agent ?type)
 				     :axis ?axis :time ?t)))
    (cross ?cross (relative-position ?pt ?axis :time ?t)
-	  (force ?pt ?agent ?type :time ?t) z 0 ?angle-flag)
+	  (force ?pt ?agent ?type :time ?t) ?xyz ?rot ?angle-flag)
    )
   :effects 
   (

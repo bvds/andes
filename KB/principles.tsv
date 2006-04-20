@@ -45,7 +45,9 @@ GROUP	Rotational
 LEAF	0 = $t1_z + $t2_z + ...    rotational form of Newtons 1st law	nfl-rot	Newton's Law for rotation
 LEAF	$tnet_z = I*$a_z    rotational form of Newton's 2nd Law	nsl-rot	Newton's Law for rotation
 LEAF	$t = r*F*sin($q)    torque defined (magnitude)	mag-torque	Individual torque magnitude
-LEAF	$t_z = r*F*sin($qF-$qr)    torque defined (z component)	torque-zc	Individual torque magnitude
+LEAF	$t_x = r_y*F_z - r_z*F_y    torque defined (x component)	(torque ((?xyz . x)))	Individual torque magnitude
+LEAF	$t_y = r_z*F_x - r_x*F_z    torque defined (y component)	(torque ((?xyz . y)))	Individual torque magnitude
+LEAF	$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x    torque defined (z component)	(torque ((?xyz . z)))	Individual torque magnitude
 LEAF	$tnet_z = $t1_z + $t2_z + ...    net torque defined	net-torque-zc	Net torque
 END_GROUP	Rotational		
 END_GROUP	Newton's Laws		
@@ -123,9 +125,9 @@ LEAF	$t = p*E*sin($q)    torque for electric dipole (magnitude)	electric-dipole-
 LEAF	$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x    torque for electric dipole (z component)	(electric-dipole-torque ((?axis . z)))	Dipoles
 LEAF	U = -p*E*cos($qp - $qE) or U = -(p_x*E_x + p_y*E_y)    potential energy of electric dipole	electric-dipole-energy	Dipoles
 LEAF	F = abs(q)*v*B*sin($q)    magnetic force (magnitude)	charge-force-bfield-mag	Magnetic Field
-LEAF	F_x = q*(v_y*B_z - v_z*B_y)    magnetic force (x component)	charge-force-bfield-x	Magnetic Field
-LEAF	F_y = q*(v_z*B_x - v_x*B_z)    magnetic force (y component)	charge-force-bfield-y	Magnetic Field
-LEAF	F_z = q*(v_x*B_y - v_y*B_x)    magnetic force (z component)	charge-force-bfield-z	Magnetic Field
+LEAF	F_x = q*(v_y*B_z - v_z*B_y)    magnetic force (x component)	(charge-force-bfield ((?axis . x)))	Magnetic Field
+LEAF	F_y = q*(v_z*B_x - v_x*B_z)    magnetic force (y component)	(charge-force-bfield ((?axis . y)))	Magnetic Field
+LEAF	F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)    magnetic force (z component)	(charge-force-bfield ((?axis . z)))	Magnetic Field
 LEAF	F = I*L*B*sin($q)    magnetic force on a wire (magnitude)	current-force-bfield-mag	
 LEAF	B = $m0*I/(2*$p*r)    magnetic field of a straight wire	straight-wire-bfield	
 LEAF	B = $m0*N*I/(2*r)    magnetic field at center of a coil	center-coil-bfield	
@@ -262,7 +264,7 @@ END_GROUP	Compound Bodies
 END_GROUP	Translational		
 GROUP	Rotational		
 LEAF	$tnet_z = $t1_z + $t2_z + ...    net torque defined	net-torque-zc	Net torque
-LEAF	$t_z = r*F*sin($qF-$qr)    torque defined (z component)	torque-zc	Individual torque magnitude
+LEAF	$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x    torque defined (z component)	(torque ((?xyz . z)))	Individual torque magnitude
 LEAF	$t = r*F*sin($q)    torque defined (magnitude)	mag-torque	Individual torque magnitude
 GROUP	Moment of Inertia		
 LEAF	I = 0.5*m*r^2    disk about center	i-disk-cm	disk about center of mass

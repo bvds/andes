@@ -291,7 +291,7 @@
 			)
 		 (group "Rotational" 
 			(leaf net-torque-zc :tutorial "Net torque")
-			(leaf torque-zc :tutorial "Individual torque magnitude")
+			(leaf torque :bindings ((?xyz . z)) :tutorial "Individual torque magnitude")
 			(leaf mag-torque :tutorial "Individual torque magnitude")
 			(group "Moment of Inertia" 
 			 (leaf I-disk-cm :tutorial "disk about center of mass")
