@@ -4,9 +4,7 @@
 ;;; sbcl < make-prbs.cl >& make-prbs.log &
 (rkb)
 (defvar t0 (get-internal-run-time))
-(make-prbs '(MAG2A MAG2B MAG3A MAG3B MAG4A MAG5A MAG5B
-DR2A DR2B DR3A DR4A DR5A DR6A DR6B DR7A DR8A
-DIP1A MAGDIP1 MAGDIP2))
+(make-prbs '(DR2A DR2B DR3A DR4A DR5A DR6A DR6B DR7A DR8A EROT1 EROT2 EROT4 KR1A KR1B KR2A KR2B KR3A KR3B KR4A KR5A KR6A MOMR1A MOMR1B MOMR2A MOMR2B MOMR3A MOMR4A))
 ;; time to do this is:
 (format t "~F hours~%" (/ (- (get-internal-run-time) t0) 
 			  (* 3600 internal-time-units-per-second)))
