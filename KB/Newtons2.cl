@@ -537,9 +537,7 @@
     (bind ?compo-free-eqn (subst-parallel-lists ?compo-vars ?compo-exprs ?compo-eqn))
     (debug "wrote compo-free eqn ~a.~%"  ?args)
     )
-  :effects
-  ((assume using-compo-free ?args)
-   (derived-eqn ?compo-free-eqn (compo-free . ?args))))
+  :effects ((derived-eqn ?compo-free-eqn (compo-free . ?args))))
 
 
 ;;; ===================== projections ====================
@@ -8680,6 +8678,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
    :effects (
     (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
+    (assume using-compo (z 0 ?eqn-id))
    ))
 
 ; Following variant writes component-form equations in order to solve
@@ -8711,7 +8710,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
      )
    :effects
-   ((PSM-applied ?sought (compo-eqn z 0 ?eqn-id) ?z-compo-eqn)))
+   ((PSM-applied ?sought (compo-eqn z 0 ?eqn-id) ?z-compo-eqn)
+    (assume using-compo (z 0 ?eqn-id))
+    ))
 
 
 ; draw angular velocity of an object rotating in a known direction 
