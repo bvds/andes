@@ -1287,7 +1287,8 @@
  
 ;;; Relate intensity to net power output in a spherical geometry.  
 
-(def-psmclass intensity-to-power (intensity-to-power ?wave ?source ?t ?b-list)
+(def-psmclass spherical-intensity-to-power 
+  (spherical-intensity-to-power ?wave ?source ?t ?b-list)
   :complexity major  ;must explicitly use
   :short-name "relation of power and intensity (spherical emitter)"
   :english ("relate intensity to power in a spherical geometry")
@@ -1295,7 +1296,7 @@
   :EqnFormat ("P = 4*$p*r^2*I")) 
 
 
-(defoperator intensity-to-power-contains (?sought)
+(defoperator spherical-intensity-to-power-contains (?sought)
   :preconditions 
   ( (spherical-emitting ?wave ?source)	;need spherical symmetry
     (time ?t)
@@ -1307,9 +1308,9 @@
     (any-member ?bodies ((?source ?wave) (?wave ?source)))
     ) 
   :effects 
-  ( (eqn-contains (intensity-to-power ?wave ?source ?t ?bodies) ?sought)))
+  ( (eqn-contains (spherical-intensity-to-power ?wave ?source ?t ?bodies) ?sought)))
 
-(defoperator write-intensity-to-power (?wave ?source ?t ?b1 ?b2)
+(defoperator write-spherical-intensity-to-power (?wave ?source ?t ?b1 ?b2)
   :preconditions 
   ( (variable  ?int  (intensity ?wave ?source :time ?t))
     (variable  ?power  (net-power-out ?source :time ?t))
@@ -1320,7 +1321,7 @@
     )
   :effects 
   ( (eqn  (= ?power (* 4 $p (^ ?r 2) ?int))
-		  (intensity-to-power ?wave ?source ?t (?b1 ?b2))) )
+		  (spherical-intensity-to-power ?wave ?source ?t (?b1 ?b2))) )
   :hint 
   ( (point (string "If the power goes out in all directions, the intensity ~A is the power divided by the surface area of the sphere." 
 		   (?wave pp)))

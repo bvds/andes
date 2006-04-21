@@ -65,7 +65,7 @@ LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
 LEAF	P(avg) = W/t    average power defined	power	Power
 LEAF	Pnet = Wnet/t    average net power defined	net-power	Power
 LEAF	P = F*v*cos($q) or P = F_x*v_x + F_y*v_y    instantaneous power	inst-power	Power
-LEAF	P = 4*$p*r^2*I    relation of power and intensity (spherical emitter)	intensity-to-power	Intensity
+LEAF	P = 4*$p*r^2*I    relation of power and intensity (spherical emitter)	spherical-intensity-to-power	Intensity
 LEAF	P = I*A    relation of power and intensity (uniform over surface)	uniform-intensity-to-power	Intensity
 LEAF	$b = 10*log10(I/Iref)    intensity & decibels	intensity-to-decibels	Intensity
 LEAF	I = Iref*10^($b/10)    intensity & decibels	intensity-to-decibels	Intensity
