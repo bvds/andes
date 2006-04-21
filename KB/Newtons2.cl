@@ -8694,17 +8694,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator apply-angular-PSM-compo-form (?sought ?eqn-id) 
    :preconditions
      ((component-form) ; needed to filter method when sought is duration.
-      (time ?t)
-      (any-member ?sought ((compo z 0 ?vector)
-			   (duration ?t)))
-      ;; if ?vector is bound, match its time to ?t
-      (test (or (not (equal (first ?sought) 'compo)) 
-		(equal (time-of ?vector) ?t)))
-      ;; vector PSMs defined to seek vector magnitudes, so need to 
+      ;; vector PSMs defined to seek vector magnitudes, so may need to 
       ;; pretend we are seeking magnitude to hook into existing vector
-      ;; PSM selecting code.  If sought is duration, just leave it
-      (bind ?vec-sought (if (eql (first ?sought) 'duration) ?sought
-                         `(mag ,?vector))) 
+      ;; PSM selecting code.  If sought is scalar, just leave it
+      (bind ?vec-sought (if (componentp ?sought) 
+                            `(mag ,(compo-base-vector ?sought))
+                          ?sought))
+      ;;
       (angular-eqn-contains ?eqn-id ?vec-sought)
       ;; make sure PSM name not on problem's ignore list:
       (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
