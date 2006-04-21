@@ -315,6 +315,7 @@
 ;;; Because the reasoning done by these opearors is covered by the
 ;;; preamble, they have no hints.
 
+#|
 (defoperator apply-vector-PSM (?sought ?eq-args) 
    :specifications " If the goal is to apply a PSM to find a quantity,
       and there is a vector equation that contains that quantity,
@@ -341,10 +342,10 @@
       (debug "   start compo-free eqn ~a~%" ?eq-args)
       (derived-eqn ?compo-free-eqn (compo-free . ?eq-args))
     )
-   :effects (
-      (PSM-applied ?sought (compo-free . ?eq-args) ?compo-free-eqn)
-      (assume using-compo ?eq-args)
-   ))
+   :effects ((PSM-applied ?sought (compo-free . ?eq-args) ?compo-free-eqn)
+	     (assume using-compo ?eq-args)
+	     ))
+|#
 
 ;;
 ;; Following applies vector PSMs writing compo-equations only.
@@ -359,38 +360,35 @@
 ;; equation-contains stuff.
 ;;
 (defoperator apply-vector-PSM-compo-form (?sought ?eq-args) 
- :specifications " If the goal is to apply a PSM to find a vector component,
+  :specifications " If the goal is to apply a PSM to find a vector component,
       and there is a vector equation that contains the vector magnitude,
       then
       find a component equation that contains the quantity,
       and generate the component equation"
-   :preconditions
-     ((component-form) ; needed to filter method when sought is duration.
-      ;;(any-member ?sought ((compo x 0 ?vector)
-      ;;                     (compo y 0 ?vector)
-      ;;			   (duration ?t)))
-      ;; vector PSMs defined to seek vector magnitudes, so may need to 
-      ;; pretend we are seeking magnitude to hook into existing vector
-      ;; PSM selecting code.  If sought is scalar, just leave it
-      (bind ?vec-sought (if (componentp ?sought) 
-                            `(mag ,(compo-base-vector ?sought))
-                          ?sought))
-      (eqn-family-contains ?vec-eqn-id ?vec-sought)
-      ;; make sure PSM name not on problem's ignore list:
-      (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
-      (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
-      (vector-diagram ?vec-eqn-id)
-      (debug "Vectors drawn for ~a.~%" ?vec-eqn-id)
-      ;; ! if sought is x-comp V, want to make sure we write in x direction
-      ;; not just any direction containing magV
-      (compo-eqn-selected ?vec-eqn-id ?vec-sought (compo-eqn . ?eq-args))
-      (debug "Writing compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
-      (eqn ?compo-eqn (compo-eqn . ?eq-args))
-      (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eq-args)
-     )
-   :effects
-   ((PSM-applied ?sought (compo-eqn . ?eq-args) ?compo-eqn)
-    (assume using-compo ?eq-args)))
+  :preconditions
+  (
+   ;; (component-form) ; needed to filter method when sought is duration.
+   ;; vector PSMs defined to seek vector magnitudes, so may need to 
+   ;; pretend we are seeking magnitude to hook into existing vector
+   ;; PSM selecting code.  If sought is scalar, just leave it
+   (bind ?vec-sought (if (componentp ?sought) 
+			 `(mag ,(compo-base-vector ?sought))
+		       ?sought))
+   (eqn-family-contains ?vec-eqn-id ?vec-sought)
+   ;; make sure PSM name not on problem's ignore list:
+   (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
+   (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
+   (vector-diagram ?vec-eqn-id)
+   (debug "Vectors drawn for ~a.~%" ?vec-eqn-id)
+   ;; ! if sought is x-comp V, want to make sure we write in x direction
+   ;; not just any direction containing magV
+   (compo-eqn-selected ?vec-eqn-id ?vec-sought (compo-eqn . ?eq-args))
+   (debug "Writing compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
+   (eqn ?compo-eqn (compo-eqn . ?eq-args))
+   (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eq-args)
+   )
+  :effects ((PSM-applied ?sought (compo-eqn . ?eq-args) ?compo-eqn)
+	    (assume using-compo ?eq-args)))
 
 ;;;
 ;;; operators for applying vector PSM's
@@ -8662,6 +8660,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; should always be achievable by draw-unrotated-axes. It might fail in
 ;; the future a problem if any linear vectors are drawn on the body.
 
+#|
 (defoperator apply-angular-PSM (?sought ?eqn-id)
    :preconditions (
      (not (component-form)) ; suppress projections unless component-form
@@ -8676,10 +8675,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (derived-eqn ?compo-free-eqn (compo-free z 0 ?eqn-id))
      (debug "Compo-free eqn: ~a. ~%" ?compo-free-eqn)
    )
-   :effects (
-    (PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
-    (assume using-compo (z 0 ?eqn-id))
-   ))
+   :effects ((PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
+	     (assume using-compo (z 0 ?eqn-id))
+	     ))
+|#
 
 ; Following variant writes component-form equations in order to solve
 ; for z components directly, rather than magnitude/direction of z vectors.
@@ -8691,29 +8690,28 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; The reason is that it can't invert cos(phi) = 1 (or -1) to solve for phi
 
 (defoperator apply-angular-PSM-compo-form (?sought ?eqn-id) 
-   :preconditions
-     ((component-form) ; needed to filter method when sought is duration.
-      ;; vector PSMs defined to seek vector magnitudes, so may need to 
-      ;; pretend we are seeking magnitude to hook into existing vector
-      ;; PSM selecting code.  If sought is scalar, just leave it
-      (bind ?vec-sought (if (componentp ?sought) 
-                            `(mag ,(compo-base-vector ?sought))
-                          ?sought))
-      ;;
-      (angular-eqn-contains ?eqn-id ?vec-sought)
-      ;; make sure PSM name not on problem's ignore list:
-      (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
-      (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
-      (vector-diagram ?eqn-id)
-      (debug "Diagram drawn for ~A, writing z-compo eqn~%" ?eqn-id)
-      (eqn ?z-compo-eqn (compo-eqn z 0 ?eqn-id))
-      (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
-     )
-   :effects
-   ((PSM-applied ?sought (compo-eqn z 0 ?eqn-id) ?z-compo-eqn)
-    (assume using-compo (z 0 ?eqn-id))
-    ))
-
+  :preconditions
+  (
+   ;; (component-form) ; needed to filter method when sought is duration.
+   ;; vector PSMs defined to seek vector magnitudes, so may need to 
+   ;; pretend we are seeking magnitude to hook into existing vector
+   ;; PSM selecting code.  If sought is scalar, just leave it
+   (bind ?vec-sought (if (componentp ?sought) 
+			 `(mag ,(compo-base-vector ?sought))
+		       ?sought))
+   ;; 
+   (angular-eqn-contains ?eqn-id ?vec-sought)
+   ;; make sure PSM name not on problem's ignore list:
+   (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
+   (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
+   (vector-diagram ?eqn-id)
+   (debug "Diagram drawn for ~A, writing z-compo eqn~%" ?eqn-id)
+   (eqn ?z-compo-eqn (compo-eqn z 0 ?eqn-id))
+   (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
+   )
+  :effects ((PSM-applied ?sought (compo-eqn z 0 ?eqn-id) ?z-compo-eqn)
+	    (assume using-compo (z 0 ?eqn-id))
+	    ))
 
 ; draw angular velocity of an object rotating in a known direction 
 ; Direction is given as cw or ccw in a motion description statement.
@@ -9275,36 +9273,23 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; to the problem, so the relevant axis can be derived. We don't have 
 ;;; problems where rotation about more than one axis is considered.
 
-(defoperator define-constant-moment-of-inertia (?b)
+(defoperator define-moment-of-inertia (?b)
   :preconditions 
   (
-   (test (not (member 'changing-mass (problem-features *cp*))))
+   ;; only use time when allowed by feature changing-mass
+   (test (eq (null ?t) (null (member 'changing-mass (problem-features *cp*)))))
    (object ?b)
-   (bind ?I-var (format-sym "I_~A" (body-name ?b)))
-  )
-  :effects (
-    (define-var (moment-of-inertia ?b))
-    (variable ?I-var (moment-of-inertia ?b))
-  )
-  :hint (
-   (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A" ?b))
-  ))
-
-(defoperator define-changing-moment-of-inertia (?b ?t)
-  :preconditions 
-  (
-   (test (member 'changing-mass (problem-features *cp*)))
-   (object ?b)
-   (time ?t)
    (bind ?I-var (format-sym "I_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-   )
+  )
   :effects (
-	    (define-var (moment-of-inertia ?b :time ?t))
-	       (variable ?I-var (moment-of-inertia ?b :time ?t))
-	       )
-  :hint (
-	 (bottom-out (string "Use the Add Variable command to define a variable for the moment of inertia of ~A ~A" ?b (?t pp)))
-	 ))
+    (define-var (moment-of-inertia ?b :time ?t))
+    (variable ?I-var (moment-of-inertia ?b :time ?t))
+  )
+  :hint 
+  (
+   (bottom-out (string "Use the Add Variable command to define a variable for ~A."
+		       ((moment-of-inertia ?b :time ?t) def-np)))
+   ))
 
 ;;;; Shape variables: We define special scalar variables for the appropriate
 ;;;; dimensions characterizing certain rigid bodies.

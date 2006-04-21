@@ -61,6 +61,30 @@
   :Specs ("Prevents the use of same compo-free eqn at different x or y axis rotations")
   :message (Max compo eqns per axis ?id ?rot1 ?rot2))
 
+
+
+;; This was an issue for dt5a.
+(defnogood redundant-lk-equations
+  ;; The solver seems to have trouble determining independence.
+  ;; This is problably an issue because lk-no-t and lk-no-vf are non-linear.
+  ((using-compo (lk-no-vf ?xyz1 ?rot (lk . ?args)))
+   (using-compo (lk-no-s ?xyz2 ?rot (lk . ?args)))
+   (using-compo (lk-no-t ?xyz3 ?rot (lk . ?args))))
+  :Specs ("Prevents the application of three lk equations to the same object.")
+  :message (Max lk equations for . ?args))
+
+;; This was an issue for dt5a.
+(defnogood redundant-lk-components
+  ;; Don't apply more than one component of a lk equation.
+  ;; This is redundant since the direction of motion is known.
+  ;; The solver seems to have trouble determining independence.
+  ;; This is problably an issue because lk-no-t and lk-no-vf are non-linear.
+  ((using-compo (?id ?xyz1 ?rot (lk . ?args)))
+   (using-compo (?id ?xyz2 ?rot (lk . ?args)))
+   (test (not (equal ?xyz1 ?xyz2))))
+  :Specs ("Prevents the application of three lk equations to the same object.")
+  :message (Multiple components of lk equations for . ?args))
+
 ;; Following rule limits explosion of solutions where both compound and 
 ;; individual bodies can be used: must use same axes on all of them.  It 
 ;; represents the simple rule of picking the same axes for the whole solution.
