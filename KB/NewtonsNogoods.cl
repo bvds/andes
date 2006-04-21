@@ -52,14 +52,14 @@
 ;; Prevent applying same compo-equation along x [or y] axis with
 ;; different rotations in the same solution. e.g. NSL at x=0 and x=30 deg
 ;; this constraint now probably redundant with multiple-coords-for-body
-(defnogood Max-axis-compo-free
+(defnogood Max-axis-compo
     ;; assumption args are from compo-eqn-id, eg:
     ;;      (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
-    ((using-compo-free (?id ?xyz1 ?rot1 ?family-id))
-     (using-compo-free (?id ?xyz2 ?rot2 ?family-id))
+    ((using-compo (?id ?xyz1 ?rot1 ?family-id))
+     (using-compo (?id ?xyz2 ?rot2 ?family-id))
      (test (not (equal ?rot1 ?rot2))))
   :Specs ("Prevents the use of same compo-free eqn at different x or y axis rotations")
-  :message (Max compo-free eqns per axis ?id ?rot1 ?rot22))
+  :message (Max compo eqns per axis ?id ?rot1 ?rot2))
 
 ;; Following rule limits explosion of solutions where both compound and 
 ;; individual bodies can be used: must use same axes on all of them.  It 
