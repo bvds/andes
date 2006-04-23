@@ -322,8 +322,10 @@ double findroot(const vector<double> * poly,
 {
   double delx;
   double x = 0.5 * (low + high);
-  // Actually, tol=0 would probably work OK
-  double tol = DBL_EPSILON * (fabs(low) + fabs(high));
+  // Since the boundaries are set in an arbitray manner (doubling
+  // until the root is braketed) they cannot be used to estimate
+  // the tolerance.  But zero tolerance will do fine.
+  double tol = 0.0;
   do {
     delx = - evalpoly(poly,x)/evalpoly(polyderiv,x);
     // assume poly is monotonic on [low,high]
