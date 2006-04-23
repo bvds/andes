@@ -312,7 +312,7 @@
 ;;; the student must first draw all the kinematic vectors.  Hope this
 ;;; is OK with the instructors.
 ;;; 
-;;; Because the reasoning done by these opearors is covered by the
+;;; Because the reasoning done by these operators is covered by the
 ;;; preamble, they have no hints.
 
 #|

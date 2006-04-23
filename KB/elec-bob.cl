@@ -149,7 +149,7 @@
     (given (mag (field region electric plates)) (dnum 2.0E4 |N/C|))
     (given (dir (field region electric plates)) (dnum 270 |deg|))
     ;; Kinematics (rectilinear)
-    (motion electron at-rest :time 1)
+    (motion electron momentarily-at-rest :time 1)
     (motion electron (straight speed-up (dnum 90 |deg|)) :time (during 1 2) )
     (motion electron (straight unknown (dnum 90 |deg|)) :time 2)      
     (given (mag (displacement electron :time (during 1 2))) 
@@ -244,7 +244,7 @@
     ;; Kinematics (rectilinear)
     (motion proton momentarily-at-rest :time 1)
     (motion proton (straight speed-up (dnum 0 |deg|)) :time (during 1 2))
-    (motion proton (straight constant (dnum 0 |deg|)) :time 2)      
+    (motion proton (straight nil (dnum 0 |deg|)) :time 2)      
     (given (mag (velocity proton :time 2)) (dnum 1.20E+5 |m/s|))
     (constant (accel proton) (during 1 2))
      ;; Although there is an electrostatic potential, we don't 
@@ -286,7 +286,7 @@
     ;; Kinematics (rectilinear)
     (motion proton momentarily-at-rest :time 1)
     (motion proton (straight speed-up (dnum 0 |deg|)) :time (during 1 2))
-    (motion proton (straight constant (dnum 0 |deg|)) :time 2)      
+    (motion proton (straight nil (dnum 0 |deg|)) :time 2)      
     (given (mag (velocity proton :time 2)) (dnum 1.20E+5 |m/s|))
     (constant (accel proton) (during 1 2))
      ;; Although there is an electrostatic potential, we don't 
@@ -329,7 +329,7 @@
     ;; Kinematics (rectilinear)
     (motion proton momentarily-at-rest :time 1)
     (motion proton (straight speed-up (dnum 180 |deg|)) :time (during 1 2))
-    (motion proton (straight constant (dnum 180 |deg|)) :time 2)      
+    (motion proton (straight nil (dnum 180 |deg|)) :time 2)      
     (given (mag (velocity proton :time 2)) (dnum 7.20E+3 |m/s|))
     (constant (accel proton) (during 1 2))
      ;; Although there is an electrostatic potential, we don't 
@@ -372,7 +372,7 @@
     ;; Kinematics (rectilinear)
     (motion proton momentarily-at-rest :time 1)
     (motion proton (straight speed-up (dnum 180 |deg|)) :time (during 1 2))
-    (motion proton (straight constant (dnum 180 |deg|)) :time 2)      
+    (motion proton (straight nil (dnum 180 |deg|)) :time 2)      
     (given (mag (velocity proton :time 2)) (dnum 7.20E+3 |m/s|))
     (constant (accel proton) (during 1 2))
      ;; Although there is an electrostatic potential, we don't 
