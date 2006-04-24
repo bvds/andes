@@ -5462,7 +5462,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-forces (?b ?t)
   :preconditions 
-  ( (not (does-work-on ?work-agent ?b ?t-work) (tinsidep ?t ?t-work))
+  ( (not (does-work-on ?work-agent ?b :time ?t-work) (tinsidep ?t ?t-work))
     (any-forces ?b ?t ?forces))
   :effects ((forces ?b ?t ?forces)))
 
@@ -6597,7 +6597,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (tintersect2 ?t-drag `(during ,?t1 ,?t2)))
   ;; Also not conserved if a (possibly unknown) external work source is given 
   ;; (the associated force may not be defined, but it is still doing work).
-  (not (does-work-on ?agent ?b ?t-work)
+  (not (does-work-on ?agent ?b :time ?t-work)
        (tintersect2 ?t-work `(during ,?t1 ,?t2)))
   ;; make sure we can determine all forces:
   (not (unknown-forces))
@@ -7705,7 +7705,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ; get the ind work operator to write expr for the non-orthogonal force 
    ; when it is asked to write work done by agent.
    (in-wm (any-forces ?b ?t ?forces))
-   (setof (in-wm (does-work-on ?work-agent ?b ?t))
+   (setof (in-wm (does-work-on ?work-agent ?b :time ?t ?t))
           ?work-agent ?other-agents)
    (bind ?agents (remove-duplicates (append (mapcar #'third ?forces) 
                                             ?other-agents)))
@@ -7764,7 +7764,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?ke1-var (kinetic-energy ?b :time ?t1))
     (variable ?ke2-var (kinetic-energy ?b :time ?t2)))
   :effects 
-  ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2))))
+  ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2)))
+   (assume using-work-energy ?b ?t1 ?t2))
   :hint (
    (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
    (teach (string "The work-energy principle states that the net work done on an object by all forces over an interval is equal to the change in its kinetic energy over that interval"))
@@ -7799,6 +7800,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (derived-eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
     ; post this to make sure we get hint for energy prob axes
     (use-energy-axes)
+    (assume using-change-me ?b ?t1 ?t2)
   ))
 
 (defoperator apply-change-ME (?b ?t1 ?t2)
@@ -7874,14 +7876,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (setof (nc-work-during (work ?b ?agent :time ?t-work) ?t) 
           (work ?b ?agent :time ?t-work) ?work-quants)
    (debug "collect nc-work-during gives:  ~A~%" ?work-quants)
-   ;; this would actually work if no nc work agents, since algebra module
-   ;; accepts (= Wnc (+)) interpreting n-ary sum of zero terms as zero.
-   ;; But is there a problem giving help based on this form?
-   ;; (test (not (null ?agents)))	
    (map ?work-quant ?work-quants
       (variable ?work-var ?work-quant)
       ?work-var ?work-vars)
-   (bind ?rhs (if ?work-vars `(+ ,@?work-vars) 0)) 
+   (bind ?rhs (if ?work-vars (cons '+ ?work-vars) 0)) 
   ) 
   :effects (
     (eqn (= ?Wnc ?rhs) (Wnc ?body ?t))
@@ -7922,11 +7920,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;;; if an entity is declared as a power source transmitting energy to ?b,
 ;;; without details of the force, then it is also an agent of Wnc
-(defoperator get-nc-force-agent2 (?b ?agent ?t-force)
+(defoperator get-nc-force-agent2 (?b ?agent ?t-work)
   :preconditions 
   (
-   (in-wm (does-work-on ?agent ?b ?t-force))
-   (bind ?t-overlap (tintersect2 ?t-force ?t-query))
+   (in-wm (does-work-on ?agent ?b :time ?t-work))
+   (bind ?t-overlap (tintersect2 ?t-work ?t-query))
    (test (time-intervalp ?t-overlap))
    )
    :effects (

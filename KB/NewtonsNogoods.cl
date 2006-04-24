@@ -173,3 +173,11 @@
      )
   :specs ("Prevent both component and magnitude form of a vector equation")
   :message (Both component and magnitude forms for ?family-id))
+
+;; Don't use both work-energy and change-me
+(defnogood work-energy-and-work-nc
+    ((using-work-energy ?b ?t1 ?t2)
+     (using-change-me ?b ?t1 ?t2)
+     )
+  :specs ("Dont use both work-energy and change-me")
+  :message (Both work-energy and change-me for ?b))
