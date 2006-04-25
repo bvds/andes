@@ -7230,16 +7230,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (test (not (eq ?type 'spring)))
     ;; must draw body, force and displacement vectors
     (body ?b)
-    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t)
-	 ?rot)
-    ;; for orthogonal vectors, prohibit dot-using-components
-    ;; in favor of dot-using-angle since it does not require drawing axes
-    ;;
+    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t) ?rot)
     ;; It might make sense to have a seperate operator for the case
     ;; of zero work.  In that case, the displacement and the force can't
     ;; be soughts.  Also, the formula is valid for non-constant forces.
-    ;;
-    (test (not (and (equal ?dot 0) ?rot)))
     ;; Different hints for orthogonal vectors
     (bind ?points (if (equal ?dot 0)  
 		      "Notice that the force exerted on ~A by ~A ~A is perpendicular to the direction of its displacement."
@@ -7337,10 +7331,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (test (not (null ?rot))) ; use component form
    ;; gather all possibly non-zero terms of dot product
    (setof (dot-term ?dot ?a ?b ?rot) ?dot ?terms)
+   (test (not (null ?terms))) ;dot=0 handled by dot-orthogonal
    ;; write out as a sum when appropriate
-   (bind ?dot (cond ((null ?terms) '0)
-		    ((null (cdr ?terms)) (car ?terms))
-		    (t (cons '+ ?terms)))) 
+   (bind ?dot (if (null (cdr ?terms)) (car ?terms)
+		    (cons '+ ?terms)))
    )
   :effects ( (dot ?dot ?a ?b ?rot)
 	     ;; nogood rule to so that only one form of dot is chosen
@@ -7349,8 +7343,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator dot-orthogonal (?a ?b ?angle-flag)
   :preconditions 
   (
-   ;; only use one form since equations are identical
-   (test ?angle-flag)
+   ;; Only use one form since equations are identical.
+   ;; Angle form is preferred because axes are sometimes
+   ;; not demanded in this case.
+   (test (not ?angle-flag))
    (wm-or-derive (vector ?a-body ?a ?dir-a))
    (wm-or-derive (vector ?b-body ?b ?dir-b))
    (test (perpendicularp ?dir-a ?dir-b))
@@ -7421,8 +7417,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator cross-zero (?a ?b ?compo ?rot ?angle-flag)
   :preconditions 
   (
-   ;; only use one form since equations are identical
-   (test ?angle-flag)
+   ;; Only use one form since equations are identical.
+   ;; Angle form is preferred because axes are sometimes
+   ;; not demanded in this case.
+   (test (not ?angle-flag))
    (in-wm (vector ?a-body ?a ?dir-a))
    (in-wm (vector ?b-body ?b ?dir-b))
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
@@ -8135,11 +8133,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; must draw body, force and velocity vectors
     ;; Without a proper dot product, there is no point in drawing axes.
     (body ?b)
-    (dot ?dot (force ?b ?agent ?type :time ?t) (velocity ?b :time ?t)
-	 ?rot)
-    ;; for orthogonal vectors, prohibit dot-using-components
-    ;; in favor of dot-using-angle since it does not require drawing axes
-    (test (not (and (equal ?dot 0) ?rot)))
+    (dot ?dot (force ?b ?agent ?type :time ?t) (velocity ?b :time ?t) ?rot)
     ;; Different hints for orthogonal vectors
     (bind ?teaches (if (equal ?dot 0)
 		       "If a force has no component in the direction of the movement of an object, then the force does no work on that object."

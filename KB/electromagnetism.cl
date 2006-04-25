@@ -2234,23 +2234,18 @@
   (dot ?dot (dipole-moment ?dipole ?type :time ?t)
        (field ?region ?type ?source :time ?tot)
        ?rot)
-    ;; for orthogonal vectors, prohibit dot-using-components
-    ;; in favor of dot-using-angle since it does not require drawing axes
-    ;;
-    ;; It might make sense to have a seperate operator for the case
-    ;; of zero energy.  In that case, the displacement and the force can't
-    ;; be soughts. 
-    ;;
-    (test (not (and (equal ?dot 0) ?rot)))
-    (bind ?teaches 
-	  (if (eq ?type 'electric)
-	      (strcat "The electric dipole energy of a dipole P in an electric field E is given by "
+  ;; It might make sense to have a seperate operator for the case
+  ;; of zero energy.  In that case, the displacement and the force can't
+  ;; be soughts. 
+  (bind ?teaches 
+	(if (eq ?type 'electric)
+	    (strcat "The electric dipole energy of a dipole P in an electric field E is given by "
 		      (if ?rot "- (p_x * E_x + p_y * E_y)." 
 			"- p * E * cos ($q), where $q is the angle between the dipole and electric field vectors."))
-	      (strcat "The magnetic dipole energy of a dipole $m in a magnetic field B is given by "
-		      (if ?rot "- ($m_x * B_x + $m_y * B_y)." 
-			"- $m * B * cos ($q), where $q is the angle between the dipole and magnetic field vectors."))))
-    )
+	  (strcat "The magnetic dipole energy of a dipole $m in a magnetic field B is given by "
+		  (if ?rot "- ($m_x * B_x + $m_y * B_y)." 
+		    "- $m * B * cos ($q), where $q is the angle between the dipole and magnetic field vectors."))))
+  )
  :effects 
  ((eqn (= ?u-var (- ?dot))
        (dipole-energy ?dipole (field ?region ?type ?source) ?t ?rot))
@@ -3148,9 +3143,6 @@
   (dot ?dot (field ?surface ?type ?source :time ?tot)
        (unit-vector normal-to ?surface :time ?t)
        ?rot)
-  ;; for orthogonal vectors, prohibit dot-using-components
-  ;; in favor of dot-using-angle since it does not require drawing axes
-  (test (not (and (equal ?dot 0) ?rot)))
   (variable ?Phi-var (flux ?surface ?type :time ?t))
   (variable ?A (area ?surface))
   )
@@ -3242,9 +3234,6 @@
   (dot ?dot (field ?surface ?type ?source :time ?tot)
        (unit-vector normal-to ?surface :time ?t)
        ?rot)
-  ;; for orthogonal vectors, prohibit dot-using-components
-  ;; in favor of dot-using-angle since it does not require drawing axes
-  (test (not (and (equal ?dot 0) ?rot)))
   (variable ?Phi-var (rate-of-change (flux ?surface ?type :time ?t)))
   (variable ?A (rate-of-change (area ?surface)))
   )
