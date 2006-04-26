@@ -3248,10 +3248,15 @@
     (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?t (duration (during ?t1 ?t2))))
   :effects
-  ((eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
-	 (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-		(?vi-compo ?vf-compo ?a-compo)))
+  (
+   (eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
+	(compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
+   (eqn-compos (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2)))
+	       (?vi-compo ?vf-compo ?a-compo))
+;; experimental: 
+;;   (assume using-lk ?xyz ?rot lk-no-s (velocity ?b :time ?t1) 
+;;	   (velocity ?b :time t2) (accel ?b :time (during ?t1 ?t2)))
+   )
   :hint
    ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
     (teach (kcd "write_lk_without_displacement")
@@ -5576,7 +5581,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
 	(compo-eqn definition ?xyz ?rot (net-force ?b ?t)))
    (eqn-compos (compo-eqn definition ?xyz ?rot (net-force ?b ?t))
-	       (?fnet_xy . ?f-compo-vars)))
+	       (?fnet_xy . ?f-compo-vars))
+   ;; Also, don't use net force definition and explicit version of NSL
+   (assume using-NSL net ?b ?t)
+   )
   :hint
   ((point (string "What is the total force acting on ~A ~A." 
 		  (?b def-np) (?t pp)))

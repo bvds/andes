@@ -441,9 +441,7 @@
   )
   ;; :graphic "elec6.gif"
   :features (E&M E-field andes2 working kinematics dynamics energy)
-  :choices ((bodies 
-    (electron Earth))
-    (positions (region)))
+  :choices ((bodies (electron Earth)) (positions (region)))
   :times ((1 "at 4.3 m/s") (2 "at rest") (during 1 2))
   :givens (
     (time 1) (time 2) (time (during 1 2))

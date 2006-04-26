@@ -61,29 +61,30 @@
   :Specs ("Prevents the use of same compo-free eqn at different x or y axis rotations")
   :message (Max compo eqns per axis ?id ?rot1 ?rot2))
 
-
-
+;;;  Don't allow all three forms of LK since any one can be derived
+;;;  from the other two.
+;;
+;; Also, disallow two components of the same LK along with a second LK:  
+;; This suggests that the two components of the first LK are 
+;; being used to relate the components of one of the vectors
+;; (hence the need for a second LK).
+;;
 ;; This was an issue for dt5a.
 (defnogood redundant-lk-equations
   ;; The solver seems to have trouble determining independence.
   ;; This is problably an issue because lk-no-t and lk-no-vf are non-linear.
-  ((using-compo (lk-no-vf ?xyz1 ?rot (lk . ?args)))
-   (using-compo (lk-no-s ?xyz2 ?rot (lk . ?args)))
-   (using-compo (lk-no-t ?xyz3 ?rot (lk . ?args))))
+  ((using-compo (?id1 ?xyz1 ?rot1 (lk . ?args)))
+   (using-compo (?id2 ?xyz2 ?rot2 (lk . ?args)))
+   (test (not (exactly-equal (list ?id1 ?xyz1 ?rot1) 
+			     (list ?id2 ?xyz2 ?rot2))))
+   (using-compo (?id3 ?xyz3 ?rot3 (lk . ?args)))
+   (test (not (exactly-equal (list ?id1 ?xyz1 ?rot1) 
+			     (list ?id3 ?xyz3 ?rot3))))
+   (test (not (exactly-equal (list ?id2 ?xyz2 ?rot2) 
+			     (list ?id3 ?xyz3 ?rot3))))
+   )
   :Specs ("Prevents the application of three lk equations to the same object.")
   :message (Max lk equations for . ?args))
-
-;; This was an issue for dt5a.
-(defnogood redundant-lk-components
-  ;; Don't apply more than one component of a lk equation.
-  ;; This is redundant since the direction of motion is known.
-  ;; The solver seems to have trouble determining independence.
-  ;; This is problably an issue because lk-no-t and lk-no-vf are non-linear.
-  ((using-compo (?id ?xyz1 ?rot (lk . ?args)))
-   (using-compo (?id ?xyz2 ?rot (lk . ?args)))
-   (test (not (equal ?xyz1 ?xyz2))))
-  :Specs ("Prevents the application of three lk equations to the same object.")
-  :message (Multiple components of lk equations for . ?args))
 
 ;; Following rule limits explosion of solutions where both compound and 
 ;; individual bodies can be used: must use same axes on all of them.  It 
@@ -174,7 +175,8 @@
   :specs ("Prevent both component and magnitude form of a vector equation")
   :message (Both component and magnitude forms for ?family-id))
 
-;; Don't use both work-energy and change-me
+;;; Don't use both work-energy and change-me
+
 (defnogood work-energy-and-work-nc
     ((using-work-energy ?b ?t1 ?t2)
      (using-change-me ?b ?t1 ?t2)

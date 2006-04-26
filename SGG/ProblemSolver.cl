@@ -705,7 +705,7 @@
   (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
     (format Stream "Solution ~A:  ~@[          ignoring ~A~]~%" n ignore)
-    (print-diff-ids (first (Problem-Solutions Problem))
+    (print-diff-ids (nth (- n 1) (Problem-Solutions Problem))
 		    (nth n (Problem-Solutions Problem))
 		    Stream ignore)
     (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
