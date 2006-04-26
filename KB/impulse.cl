@@ -293,7 +293,7 @@
   :hint
   ((point (string "You can relate the change in momentum of ~A to the
 impulse ~A." (?b def-np) (?t pp)))
-    (bottom-out (string "Write the equation using component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= ?f-compo-var (- ?pf-compo ?pi-compo)) algebra)))
+    (bottom-out (string "Write the equation using component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= ?J-compo-var (- ?pf-compo ?pi-compo)) algebra)))
     ))
 
 
