@@ -172,8 +172,6 @@
   :effects (
             (eqn (= ?v13 (+ ?v12 ?v23))
                  (compo-eqn relvel ?xy ?rot (relative-vel ?b1 ?b2 ?b3 ?t)))
-            (eqn-compos (compo-eqn relvel ?xy ?rot (relative-vel ?b1 ?b2 ?b3 ?t))
-                        (?v12 ?v23 ?v13))
             )
   :hint (
 	 (point (string 

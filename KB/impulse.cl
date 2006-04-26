@@ -119,18 +119,17 @@
 ;; This is the impulse from a particular force
 (defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
-   ((variable ?F12_x (compo ?xy ?rot (force ?b ?agent ?dont-care
-					    :time (during ?t1 ?t2))))
-    (variable ?J12_x (compo ?xy ?rot (impulse ?b ?agent 
-					      :time (during ?t1 ?t2))))
-    (variable ?t12 (duration (during ?t1 ?t2))))
-  :effects (
-   (eqn (= ?J12_x (* ?F12_x ?t12))
-            (compo-eqn definition ?xy ?rot 
-		       (impulse-force-vector ?b ?agent (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn definition ?xy ?rot 
-		       (impulse-force-vector ?b ?agent (during ?t1 ?t2)))
-	       (?J12_x ?F12_x)))
+  ((variable ?F12_x (compo ?xy ?rot (force ?b ?agent ?dont-care
+					   :time (during ?t1 ?t2))))
+   (variable ?J12_x (compo ?xy ?rot (impulse ?b ?agent 
+					     :time (during ?t1 ?t2))))
+   (variable ?t12 (duration (during ?t1 ?t2))))
+   :effects 
+   (
+    (eqn (= ?J12_x (* ?F12_x ?t12))
+	 (compo-eqn definition ?xy ?rot 
+		    (impulse-force-vector ?b ?agent (during ?t1 ?t2))))
+    )
   :hint 
   ( (point (string "What is the relationship between average force, impulse and duration?"))
     (teach (string "The impulse vector is defined as the average force vector times the duration.  This can be applied component-wise."))
@@ -279,15 +278,11 @@
    (variable ?J-compo-var (compo ?xyz ?rot (impulse ?b ?agent :time ?t)))
    (variable ?pf-compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
    (variable ?pi-compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
-   ;; Add momentum components to list of variables.
-   (bind ?eqn-compo-vars (list ?pi-compo ?pf-compo ?J-compo-var))
    )
   :effects
   (
    (eqn (= ?J-compo-var (- ?pf-compo ?pi-compo))
 	 (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)))
-    (eqn-compos (compo-eqn imp-momentum ?xyz ?rot (impulse ?b ?agent ?t)) 
-		?eqn-compo-vars)
     (assume using-NSL impulse ?b ?t)
     )
   :hint
@@ -398,8 +393,6 @@ impulse ~A." (?b def-np) (?t pp)))
    )
    :effects (
     (eqn (= ?J12_xy (- ?J21_xy)) (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t)))
-    (eqn-compos (compo-eqn NTL-impulse ?xy ?rot (NTL-impulse-vector (?b1 ?b2) ?t))
-          (?J12_xy ?J21_xy))
     (assume using-NTL-impulse (?b1 ?b2) ?t)
    )
    :hint (
@@ -487,15 +480,11 @@ impulse ~A." (?b def-np) (?t pp)))
 	?mass-var ?mass-vars)
     ;; compute list of products of mass and position for each ?b
     (bind ?rhs (mapcar #'(lambda(a b) (list '* a b)) ?mass-vars ?r-compo-vars))
-    ;; list of all variables we have produced
-    (bind ?variables (cons ?r-com-compo (append ?r-compo-vars ?mass-vars)))
   )
   :effects 
   (
    (eqn (= (* ?r-com-compo (+ . ?mass-vars)) (+ . ?rhs)) 
 	      (compo-eqn definition ?xyz ?rot (center-of-mass ?com ?t)))
-   (eqn-compos (compo-eqn definition ?xyz ?rot (center-of-mass ?com ?t))
-	       ?variables )
    )
   :hint 
   ( (point (string "Find the center of mass of ~A ~A"  

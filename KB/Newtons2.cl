@@ -289,11 +289,7 @@
 ;;; the final equation which is free of component variables.
 ;;; 
 ;;; The component equation is an equation where all the vector
-;;; components are expressed in terms of component variables.  The
-;;; component-free variable replaces each of the component variables
-;;; with an algebraic expression.  The equations of the form
-;;; compo-var>=<expression> are called projection equations.
-;;; 
+;;; components are expressed in terms of component variables. 
 ;;; The author of a vector PSM, such as Newton's law or Kinematics, must 
 ;;; define operators for
 ;;; 
@@ -315,51 +311,15 @@
 ;;; Because the reasoning done by these operators is covered by the
 ;;; preamble, they have no hints.
 
-#|
-(defoperator apply-vector-PSM (?sought ?eq-args) 
-   :specifications " If the goal is to apply a PSM to find a quantity,
-      and there is a vector equation that contains that quantity,
-      then
-      draw the vector diagram (including the axis),
-      find a component equation that contains the quantity,
-      generate the component equation, 
-      and generate a component-free equation"
-   :preconditions 
-   (
-    ;; This chunks projections so they don't appear at the bubble-graph level
-    ;; so don't use it if component-form solution is wanted (see below).
-      (not (component-form)) 
-      (eqn-family-contains ?eqn-family-id ?sought)
-      ;; make sure PSM name not on problem's ignore list:
-      (test (not (member (first ?eqn-family-id) (problem-ignorePSMS *cp*))))
-      (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?eqn-family-id)
-      (vector-diagram ?eqn-family-id)
-      (debug "Vectors drawn for ~a.~%" ?eqn-family-id)
-      (compo-eqn-selected ?eqn-family-id ?sought (compo-eqn . ?eq-args))
-      (debug "Start compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
-      (eqn ?compo-eqn (compo-eqn . ?eq-args))
-      (debug "Wrote compo eqn ~a. ~%" ?compo-eqn)
-      (debug "   start compo-free eqn ~a~%" ?eq-args)
-      (derived-eqn ?compo-free-eqn (compo-free . ?eq-args))
-    )
-   :effects ((PSM-applied ?sought (compo-free . ?eq-args) ?compo-free-eqn)
-	     (assume using-compo ?eq-args)
-	     ))
-|#
-
 ;;
-;; Following applies vector PSMs writing compo-equations only.
-;; This is for use when we want "component-form" solutions, because the
-;; problem is actually seeking a component value along standard axes.
-;; We flag the problem with "(component-form)" proposition
-;; to enable this form of solution.
+;; Following applies vector PSMs writing component equations.
 ;; Note that compo-eqn-contains will be asserted by a vector PSM for
 ;; the *magnitude* of the relevant vector, so we have to temporarily
 ;; pretend we are seeking that when running through the generic equation
 ;; selection code. This avoids having to add new stuff to the existing
 ;; equation-contains stuff.
 ;;
-(defoperator apply-vector-PSM-compo-form (?sought ?eq-args) 
+(defoperator apply-vector-PSM (?sought ?eq-args) 
   :specifications " If the goal is to apply a PSM to find a vector component,
       and there is a vector equation that contains the vector magnitude,
       then
@@ -367,7 +327,6 @@
       and generate the component equation"
   :preconditions
   (
-   ;; (component-form) ; needed to filter method when sought is duration.
    ;; vector PSMs defined to seek vector magnitudes, so may need to 
    ;; pretend we are seeking magnitude to hook into existing vector
    ;; PSM selecting code.  If sought is scalar, just leave it
@@ -501,41 +460,6 @@
   ((compo-eqn-selected (?PSM-id ?b ?t)
 		       ?quantity 
 		       (compo-eqn ?compo-eqn-name ?xyz ?rot (?PSM-id ?b ?t)))))
-
-
-;;; After the compo equation has been written, this operator writes
-;;; the appropriate projection equations, then replaces the component
-;;; variables with their equivalent expressions (from the projection
-;;; equations via the second argument of projection), and writes the
-;;; component-free equation.  One trick here are to get a set of
-;;; component variables from the given equation.  Although we could
-;;; use a fancy version of vars-in-eqn to read the equation, it would
-;;; have to access WM in order to tell which variables denoted
-;;; components.  Thus, we pass the component variables up from the
-;;; equation-writing operator to here via the predicate (eqn-compos
-;;; <compo eqn id> <variables>).  The second trick is to get an list
-;;; of algebraic expressions that matches the list of component
-;;; equations.  These are provided by the predicate (projections
-;;; <variables> <expressions>) which has <varaibles> passed in and
-;;; returns <expressions>.
-
-(defoperator write-compo-free-eqn (?args)
-  :specifications "
-   If the goal is to write the equation without components,
-   then get the component variables from the equation,
-      write projections for all of them,
-      substitute the expressions for the components in the equation,
-      and write the equation."
-  :preconditions
-  ((in-wm (eqn-compos (compo-eqn . ?args) ?compo-vars))
-    (in-wm (eqn ?compo-eqn (compo-eqn . ?args)))
-    (projections ?compo-vars ?compo-exprs)
-    ; (debug "Projections done~%")
-    ; (debug "compo-vars: ~A~%compo-exprs~A~%" ?compo-vars ?compo-exprs)
-    (bind ?compo-free-eqn (subst-parallel-lists ?compo-vars ?compo-exprs ?compo-eqn))
-    (debug "wrote compo-free eqn ~a.~%"  ?args)
-    )
-  :effects ((derived-eqn ?compo-free-eqn (compo-free . ?args))))
 
 
 ;;; ===================== projections ====================
@@ -1826,9 +1750,6 @@
   :effects (
    (eqn (= ?r21_xy (- ?r2o_xy_val ?r1o_xy_val))
          (compo-eqn rdiff ?xy ?rot (rdiff ?p1 ?p2 ?t)) )
-   (eqn-compos 
-         (compo-eqn rdiff ?xy ?rot (rdiff ?p1 ?p2 ?t))
-         (?r21_xy))
   ) 
   :hint (
     (point (string "The components of the relative position of one point wrt another can be computed from the coordinates of the two points"))
@@ -2434,11 +2355,9 @@
     (variable ?v12_x  (compo ?xy ?rot (velocity ?b :time ?t)))
     (variable ?t12    (duration ?t)))
   :effects (
-   (eqn (= ?v12_x (/ ?d12_x ?t12))
-            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
-   (eqn-compos 
-            (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t))
-             (?v12_x ?d12_x)))
+	    (eqn (= ?v12_x (/ ?d12_x ?t12))
+		 (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
+	    )
   :hint (
    (point (string "What is the relationship between average velocity, displacement and duration?"))
     (teach (kcd "write_average_velocity_eqn")
@@ -2980,8 +2899,6 @@
   :effects 
   ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) ?rhat-compo))
 	(compo-eqn definition ?xy ?rot (centripetal-accel-vec ?b ?t)))
-   (eqn-compos (compo-eqn definition ?xy ?rot 
-			  (centripetal-accel-vec ?b ?t)) (?a_xy))
    )
   :hint
   ((point (string "Notice that ~a is moving in uniform circular motion." ?b))
@@ -3251,8 +3168,6 @@
   (
    (eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
 	(compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-	       (?vi-compo ?vf-compo ?a-compo))
 ;; experimental: 
 ;;   (assume using-lk ?xyz ?rot lk-no-s (velocity ?b :time ?t1) 
 ;;	   (velocity ?b :time t2) (accel ?b :time (during ?t1 ?t2)))
@@ -3335,8 +3250,7 @@
   :effects
   ((eqn (= ?vf-term (+ ?vi-term (* 2 ?a-compo ?s-compo)))
 	        (compo-eqn lk-no-t ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn lk-no-t ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-		(?vi-compo ?vf-compo ?a-compo ?s-compo)))
+   )
   :hint (
     (point (string "Do you know an equation relating the components of initial velocity, final velocity, acceleration, and displacement when acceleration is constant?"))
     (bottom-out (string "Write the equation ~A" 
@@ -3405,8 +3319,7 @@
   :effects
   ((eqn (= ?s-compo (+ ?v-term (* 0.5 ?a-compo (^ ?t-var 2))))
 	 (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-		(?vi-compo ?a-compo ?s-compo)))
+   )
   :hint (
     (point (string "Do you know an equation relating the components of displacement to those of initial velocity, time, and acceleration when acceleration is constant?"))
     (bottom-out (string "Write the equation ~A" 
@@ -3472,8 +3385,7 @@
   :effects
   ((eqn (= ?s-compo (*  0.5 (+ ?vi-compo ?vf-compo) ?t-var))
 	 (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-		(?vi-compo ?vf-compo ?s-compo)))
+   )
    :hint (
      (point (string "Do you know an equation relating the components of displacement to that of initial velocity, final velocity and time when acceleration is constant?"))
      (bottom-out (string "Write the equation ~A"
@@ -3559,8 +3471,6 @@
   :effects
   ((eqn (= ?s-compo (* ?vi-compo ?t-var))
 	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2)))
-     (?vi-compo ?s-compo))
     (implicit-eqn (= ?a_x 0)
                   (projection (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))))
   :hint (
@@ -3634,8 +3544,7 @@
   :effects
   ((eqn (= ?v1-compo ?v2-compo) 
                (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk)))
-   (eqn-compos (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk))
-        (?v1-compo ?v2-compo)))
+   )
   :hint
   ((point (string "What do you know about the x component of the velocity of ~A ~A?"  ?b (?t-lk pp)))
    (teach (string "Because the acceleration of ~A ~A is perpendicular to the x axis, is has no component in the x direction. Therefore, the x component of velocity remains constant ~A. You can use this to relate ~A to ~A. " 
@@ -3766,8 +3675,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
   ((eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
 	        (compo-eqn lk-no-s ?xyz ?rot (avg-accel ?b (during ?t1 ?t2))))
-    (eqn-compos (compo-eqn lk-no-s ?xyz ?rot (avg-accel ?b (during ?t1 ?t2)))
-		(?vi-compo ?vf-compo ?a-compo)))
+   )
   :hint
    ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
     (teach (kcd "write_avg_accel")
@@ -3972,20 +3880,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator write-sum-disp-compo (?b ?tt ?xy ?rot)
   :preconditions 
-   ((variable ?dnet_xy (compo ?xy ?rot (displacement ?b :time ?tt)))
+   ((variable ?dnet-xy (compo ?xy ?rot (displacement ?b :time ?tt)))
    (bind ?intervals (successive-intervals ?tt))
    (map ?interval ?intervals
-      (variable ?di_xy (compo ?xy ?rot (displacement ?b :time ?interval)))
-      ?di_xy ?di_compos))
+      (variable ?di-xy (compo ?xy ?rot (displacement ?b :time ?interval)))
+      ?di-xy ?di-compos))
   :effects 
-   ((eqn (= ?dnet_xy (+ . ?di_compos))
+   ((eqn (= ?dnet-xy (+ . ?di-compos))
                (compo-eqn sum-disp ?xy ?rot (sum-disp ?b ?tt)))
-   (eqn-compos (compo-eqn sum-disp ?xy ?rot (sum-disp ?b ?tt))
-          (?dnet_xy . ?di_compos)))
+    )
    :hint
    ((point (string "Think about the relationship between the net displacement of ~A ~A and the individual displacements over each of the times making up the interval." ?b (?tt pp)))
     (point (string "The net displacement vector over a time interval represents the net change in position over that interval. This will be the vector sum of the individual displacements making up the net change. This can be applied component-wise to write an equation for the components of the net displacement in terms of the components of the individual displacements."))
-    (bottom-out (string "Write the equation ~A" ((= ?dnet_xy (+ . ?di_compos)) algebra)))))
+    (bottom-out (string "Write the equation ~A" ((= ?dnet-xy (+ . ?di-compos)) algebra)))))
 
 
 
@@ -4951,8 +4858,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects (
    (eqn (= ?Fth_x (* -1 ?vr_x ?dmdt))
             (compo-eqn definition ?xy ?rot (thrust ?b ?agent ?t)))
-   (eqn-compos (compo-eqn definition ?xy ?rot (thrust ?b ?agent ?t))
-             (?Fth_x ?vr_x)))
+   )
   :hint 
   ( (point (string "What is the relationship between thrust force, the velocity of ~A, and the magnitude of the mass change rate of ~A?"
 ?b ?agent ?b))
@@ -5580,8 +5486,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects 
   ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
 	(compo-eqn definition ?xyz ?rot (net-force ?b ?t)))
-   (eqn-compos (compo-eqn definition ?xyz ?rot (net-force ?b ?t))
-	       (?fnet_xy . ?f-compo-vars))
    ;; Also, don't use net force definition and explicit version of NSL
    (assume using-NSL net ?b ?t)
    )
@@ -6131,7 +6035,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((eqn (= (+ . ?f-compo-vars) 0)
 	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t)))
-    (eqn-compos (compo-eqn NFL ?xyz ?rot (NL ?b ?t)) ?f-compo-vars)
     (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
    ((point (string "Because the acceleration of ~a is zero ~a, you can apply Newton's first law to it." ?b (?t pp)))
@@ -6175,15 +6078,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
 		      `(* ,?m ,?a-compo) 0))
-   ;; add acceleration compo var to form list of all compo vars in equation
-   (bind ?eqn-compo-vars (if (non-zero-projectionp ?dir-a ?xyz ?rot)
-	 (cons ?a-compo ?f-compo-vars) ?f-compo-vars))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    )
   :effects
    ((eqn (= (+ . ?f-compo-vars) ?ma-term)
 	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t)))
-    (eqn-compos (compo-eqn NSL ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars)
     (assume using-NSL forces ?b ?t)
     )
   :hint
@@ -6219,7 +6118,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects (
     (eqn (= ?fnet-compo-var ?ma-term)
 	 (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)))
-    (eqn-compos (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)) ?eqn-compo-vars)
     (assume using-NSL net ?b ?t)
   )
   :hint (
@@ -6324,8 +6222,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
    :effects (
     (eqn (= ?F12_xy (- ?F21_xy)) (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t)))
-    (eqn-compos (compo-eqn NTL ?xy ?rot (NTL-vector (?b1 ?b2) ?type ?t))
-          (?F12_xy ?F21_xy))
     (assume using-NTL (?b1 ?b2) ?type ?t)
    )
    :hint (
@@ -7130,8 +7026,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects (
 	    (eqn (= (- ?h2 ?h1) ?d12_y)
 		 (compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))))
-	    (eqn-compos (compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))) 
-			(?d12_y))
 	    )
   :hint (
 	 (point (string "You should relate the change in height of ~A ~A to the displacement during that period." 
@@ -8216,8 +8110,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (eqn (= ?p_compo (* ?m ?v_compo)) 
 	      (compo-eqn definition ?xyz ?rot (linear-momentum ?b ?t)))
-   (eqn-compos (compo-eqn definition ?xyz ?rot (linear-momentum ?b ?t))
-	       (?p_compo ?v_compo) )
    ;; associated dir equality is done in drawing rules
    ;; include as optional equation: but might be done by compo-equation
    ;; (implicit-eqn (= ?p-var (* ?m ?v-var)) (mag-momentum ?b ?t))
@@ -8424,7 +8316,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (map ?b ?bodies
 	(variable ?p2_compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
 	?p2_compo ?p2_compos)
-   (bind ?vars (append ?p1_compos ?p2_compos))
   ;; allow any zero-valued velocity components to be mentioned, since they
   ;; might not be needed anywhere else in the solution
   (include-zero-vcomps ?xyz ?rot)
@@ -8433,9 +8324,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    (eqn (= (+ . ?p1_compos) (+ . ?p2_compos))
 		 (compo-eqn lm-compo ?xyz ?rot 
 			    (cons-linmom ?bodies (during ?t1 ?t2))))
-  ;; need to collect compos of all terms and list in eqn-compos
-	    (eqn-compos (compo-eqn lm-compo ?xyz ?rot 
-			(cons-linmom ?bodies (during ?t1 ?t2))) ?vars)
   )
   :hint (
   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
@@ -8466,10 +8354,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ( (eqn (= ?pc_compo (+ . ?pf_compos))
 	 (compo-eqn lm-compo ?xyz ?rot 
 		    (cons-linmom ?bodies (during ?t1 ?t2))))
-    ;; need to collect compos of all terms and list in eqn-compos
-    (eqn-compos 
-     (compo-eqn lm-compo ?xyz ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
-     (?pc_compo . ?pf_compos) )
     )
   :hint 
   (
@@ -8499,9 +8383,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects (
   (eqn (= (+ . ?pi_compos) ?pc_compo)
        (compo-eqn lm-compo ?xyz ?rot (cons-linmom ?bodies (during ?t1 ?t2))))
-  (eqn-compos 
-       (compo-eqn lm-compo ?xyz ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
-       (?pc_compo . ?pi_compos) )
   )
   :hint (
    (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
@@ -8660,25 +8541,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; should always be achievable by draw-unrotated-axes. It might fail in
 ;; the future a problem if any linear vectors are drawn on the body.
 
-#|
-(defoperator apply-angular-PSM (?sought ?eqn-id)
-   :preconditions (
-     (not (component-form)) ; suppress projections unless component-form
-     (angular-eqn-contains ?eqn-id ?sought)
-     ;; make sure PSM name not on problem's ignore list:
-     (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
-     (debug "To find ~S~%     trying z-vector eqn ~A~%" ?sought ?eqn-id)
-     (vector-diagram ?eqn-id)
-     (debug "Diagram drawn for ~A, writing z-compo eqn~%" ?eqn-id)
-     (eqn ?z-compo-eqn (compo-eqn z 0 ?eqn-id))
-     (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
-     (derived-eqn ?compo-free-eqn (compo-free z 0 ?eqn-id))
-     (debug "Compo-free eqn: ~a. ~%" ?compo-free-eqn)
-   )
-   :effects ((PSM-applied ?sought (compo-free z 0 ?eqn-id) ?compo-free-eqn)
-	     (assume using-compo (z 0 ?eqn-id))
-	     ))
-|#
 
 ; Following variant writes component-form equations in order to solve
 ; for z components directly, rather than magnitude/direction of z vectors.
@@ -8689,7 +8551,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; with the magnitude of alpha, which can be determined by alpha = abs(alpha_z).
 ; The reason is that it can't invert cos(phi) = 1 (or -1) to solve for phi
 
-(defoperator apply-angular-PSM-compo-form (?sought ?eqn-id) 
+(defoperator apply-angular-PSM (?sought ?eqn-id) 
   :preconditions
   (
    ;; (component-form) ; needed to filter method when sought is duration.
@@ -8941,7 +8803,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?t-var (duration ?t)))
   :effects 
    ((eqn (= ?theta_z (* ?omega_z ?t-var)) (compo-eqn z 0 (ang-sdd ?b ?t)))
-    (eqn-compos (compo-eqn z 0 (ang-sdd ?b ?t)) (?theta_z ?omega_z)))
+    )
   :hint (
   (point (string "Can you write an equation in terms of z components relating average angular velocity to angular displacement and duration?"))
    (teach (string "The average angular velocity of a rotating object over an interval is defined to be the angular displacement divided by the duration of the interval. This gives the rotational counterpart of distance = average speed * time. Writing vector relations like this in terms of the vector components is recommended to avoid sign errors."))
@@ -8989,8 +8851,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects 
   ((eqn (= ?omega2_z (+ ?omega1_z (* ?alpha_z ?t-var))) 
                (compo-eqn z 0 (rk-no-s ?b (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn z 0 (rk-no-s ?b (during ?t1 ?t2))) 
-   	(?omega2_z ?omega1_z ?alpha_z)))
+   )
     :hint
    ((point (string "Can you think of an equation that relates the z component of average angular acceleration to that of the initial angular velocity, final angular velocity, and duration?"))
     (teach (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied in component form to relate ~A, ~A, ~A and ~A" (?omega2_z algebra) (?omega1_z algebra) (?alpha_z algebra) (?t-var algebra)))
@@ -9043,8 +8904,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (eqn (= ?theta_z (+ (* ?omega1_z ?t-var)
                        (* 0.5 ?alpha_z (^ ?t-var 2))) )
                (compo-eqn z 0 (rk-no-vf ?b (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn z 0 (rk-no-vf ?b (during ?t1 ?t2))) 
-   	(?theta_z ?omega1_z ?alpha_z))
    )
   :hint (
     (point (string "Do you know an equation relating the z component of angular displacement to that of initial angular velocity, time, and angular acceleration when angular acceleration is constant?"))
@@ -9053,8 +8912,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                                (* 0.5 ?alpha_z (^ ?t-var 2)))) algebra) ))
   ))
 
-; angular version of lk-no-t 
-;        omega2^2 = omega1^2 + 2 * alpha12 * theta12
+;; angular version of lk-no-t 
+;;        omega2^2 = omega1^2 + 2 * alpha12 * theta12
 (defoperator rk-no-t-contains (?sought)
  :preconditions (
   (any-member ?sought
@@ -9099,8 +8958,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (eqn (= (^ ?omega2_z 2) (+ (^ ?omega1_z 2)
                               (* 2 ?alpha_z ?theta_z)))
                (compo-eqn z 0 (rk-no-t ?b (during ?t1 ?t2))))
-   (eqn-compos (compo-eqn z 0 (rk-no-t ?b (during ?t1 ?t2))) 
-   	(?omega2_z ?omega1_z ?alpha_z ?theta_z))
    )
   :hint (
     (point (string "Do you know an equation relating the z components of initial angular velocity, final angular velocity, angular acceleration, and angular displacement when acceleration is constant?"))
@@ -9616,7 +9473,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
                  (compo-eqn z 0 (ang-momentum ?b ?t)))
-     (eqn-compos (compo-eqn z 0 (ang-momentum ?b ?t)) (?L_z ?omega_z))
   )
   :hint (
     (point (string "Can you write an equation for the z component of the angular momentum of ~A ~A" ?b (?t pp)))
@@ -9704,14 +9560,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (map ?b ?bodies
 	(variable ?L2_compo (compo z 0 (ang-momentum ?b :time ?t2)))
 	?L2_compo ?L2_compos)
-  (bind ?vars (append ?L1_compos ?L2_compos))
   )
   :effects (
   (eqn (= (+ . ?L1_compos) (+ . ?L2_compos))
        (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2))))
-  (eqn-compos 
-       (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2)))
-       ?vars)
 	   )
   :hint (
   (point (string "Can you write an equation relating the z components making up the total angular momentum before and after the change?"))
@@ -9739,9 +9591,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects (
   (eqn (= (+ . ?L1_compos) ?L2_z)
        (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2))))
-  (eqn-compos 
-       (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2)))
-       (?L2_z . ?L1_compos))
 	   )
    :hint (
  (point (string "Can you write an equation relating the z-components making up
@@ -10077,12 +9926,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (debug "net torque components: ~A~%" ?torque-compos)
    ;; define zc net torque variable 
    (variable ?tnet_z (compo z 0 (net-torque ?b ?axis :time ?t)))
-   (bind ?all-compos (cons ?tnet_z ?torque-compos))
   )
   :effects (
    (eqn (= ?tnet_z (+ . ?torque-compos)) 
                (compo-eqn z 0 (net-torque ?b ?axis ?t)))
-   (eqn-compos (compo-eqn z 0 (net-torque ?b ?axis ?t)) ?all-compos)
   )
   :hint (
 	 (point (string "Can you write an equation for the z component of the net ~A in terms of the z components of ~As due to each force?" 
@@ -10324,7 +10171,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (eqn (= ?tau_z (* ?I ?alpha_z)) 
 	(compo-eqn z 0 (NFL-rot ?b ?axis ?t)))
-   (eqn-compos (compo-eqn z 0 (NFL-rot ?b ?axis ?t)) (?tau_z ?alpha_z))
    ;; Don't do this because it can pre-empt projection if it is in fact used
    ;; on a component-form problem for magnitude (tor5a)
    ;; for algebraic completeness: put out equation for mag ang-accel
@@ -10389,7 +10235,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :effects (
      (eqn (= ?tau_z (* ?I ?alpha_z)) 
                  (compo-eqn z 0 (NSL-rot ?b ?axis ?t)))
-     (eqn-compos (compo-eqn z 0 (NSL-rot ?b ?axis ?t)) (?tau_z ?alpha_z))
      ;; Don't do this because it can pre-empt projection if it is in fact used
      ;; on a component-form problem for magnitude (tor5a)
      ;; for algebraic completeness: put out equation for mag ang-accel
