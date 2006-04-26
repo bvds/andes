@@ -694,7 +694,9 @@
 (defun ps ()
   (print-problem-solutions *cp*))
 
-(defun print-problem-solutions (problem &optional (Stream t))
+(defun print-problem-solutions (problem &optional (Stream t) 
+					;; don't write out projections
+					(ignore '(projection . ?whatever)))
   (format Stream "~&~A~%" (make-string 79 :initial-element #\=))
   (format Stream "Problem Solutions: ~A~%" (problem-name Problem))
   (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
@@ -702,21 +704,23 @@
   (print-numbered-report-eqnset (first (Problem-Solutions Problem)) Stream)
   (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
-    (format Stream "Solution ~A: ~%" n)
+    (format Stream "Solution ~A:  ~@[          ignoring ~A~]~%" n ignore)
     (print-diff-ids (first (Problem-Solutions Problem))
 		    (nth n (Problem-Solutions Problem))
-		    Stream)
+		    Stream ignore)
     (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
     ))
 
-(defun print-diff-ids (x y &optional (stream t))
+(defun print-diff-ids (x y &optional (stream t) ignore)
   (format stream "~&+:  ~A~%-:  ~A~%" 
-	  (set-difference (mapcar #'get-node-id (EqnSet-eqns y)) 
+	  (remove-if #'(lambda (x) (unify x ignore))
+		     (set-difference (mapcar #'get-node-id (EqnSet-eqns y)) 
 			  (mapcar #'get-node-id (EqnSet-eqns x)) 
-			  :test #'equalp)
+			  :test #'equalp))
+	  (remove-if #'(lambda (x) (unify x ignore))
 	  (set-difference (mapcar #'get-node-id (EqnSet-eqns x)) 
 			  (mapcar #'get-node-id (EqnSet-eqns y)) 
-			  :test #'equalp)))
+			  :test #'equalp))))
 
 (defun get-node-id (node)
 "Newly generated EqnSet structures, and those read from files have 
