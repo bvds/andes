@@ -433,6 +433,7 @@
 				  `(net-force ,body-term :time ,time-term)
 				`(force ,body-term ,body2-term ,subtype :time ,time-term))))
       (momentum     (vec-prop prop `(momentum ,body-term :time ,time-term)))
+      (impulse      (vec-prop prop `(impulse ,body-term ,body2-term :time ,time-term)))
       ((ang-accel ang-acceleration)	; include workbench type id to be safe
        (vec-prop prop `(ang-accel ,body-term :time ,time-term)))
       (ang-velocity (vec-prop prop `(ang-velocity ,body-term :time ,time-term)))
