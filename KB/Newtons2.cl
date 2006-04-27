@@ -463,36 +463,58 @@
 
 
 ;;; ===================== projections ====================
-;;; This operator writes projection equations for component
-;;; variables, which are passed in via the effect.  It returns
-;;; expressions that are equal to the component variables.  It make
-;;; sure that the ordering of the two lists is the same, as that
-;;; ordering is used later when the expressions are substituted for
-;;; the variables.
 
-(defoperator write-projections (?compo-vars)
-  :specifications "
-   If the goal is to write extra equations for component variables,
-   then create subgoals, one for each, to write the equations,
-   and remember what the expressions corresponding to each variable is."
-  :preconditions
-  (; convert list of compo vars to list of compo quants
-   (map ?var ?compo-vars
-        (in-wm (variable ?var ?quant))
-     ?quant ?compo-quants)
-   ; and generate projection for each component, saving rhs exprs
-   (map ?compo ?compo-quants
-	(eqn (= ?cvar ?expr) (projection ?compo))
-     ?expr ?compo-exprs)
-    )
-  :effects
-   ((projections ?compo-vars ?compo-exprs))
-   :hint
-   ((point (string
-	    "Your next step should be to write equations for each of the component variables that express the variable in simpler form, as an expression of magnitude and direction variables." ))
-    (bottom-out (string
-		 "You need to write projection equations for the components you will use."))
+;;; Following is the projection PSM applied at the bubble-graph level 
+;;; for component-form solutions, in which projections are not chunked as
+;;; subsidiary steps inside vector PSMs. For example, if given mag and dir 
+;;; of v0, need projection to link to v0_x and v0_y which occur in 
+;;; component-form bubble-graph equations.
+;;;
+;;; This just puts out the eqn-contains for the psm. The existing projection 
+;;; writing operators do the work of generating the appropriate equation.
+;;; 
+;;; As a PSM we require standard axes for component-form problems. If we
+;;; used this as a psm in all cases, there would be a difficulty of choosing
+;;; which axes are appropriate to use when sought is magnitude, say. 
+;;;
+
+(defoperator projection-contains (?sought)
+  :preconditions (
+   (any-member ?sought ((mag ?vector) (dir ?vector)))
+   ;; When sought is vector mag or dir, it's tricky to choose all reasonable
+   ;; axes.  In this case, just apply along standard axes.  When a component 
+   ;; along a different axis is introduced into the solution graph by some 
+   ;; other equation, the second eqn contains below should get applied when 
+   ;; equations are sought for it.
+   (get-axis ?xy 0)
+   )
+  :effects (
+   (eqn-contains (projection (compo ?xy 0 ?vector)) ?sought)
+  ))
+
+(defoperator projection-contains-compo (?rot ?vector)
+  :preconditions nil
+  :effects 
+  ( (eqn-contains (projection (compo ?xy ?rot ?vector)) 
+		  (compo ?xy ?rot ?vector))
+   ;; set flag to draw use these axes, even if not vector-aligned or standard.
+    (projection-axis ?rot)
     ))
+
+;; Projection writing rules used within larger psms should not draw a body, 
+;; since it is the psm that decides whether and which body should be drawn. 
+;; However, on simple projection-only problems in our introductory vector set, 
+;; we do want the body to be drawn.  We use a projection-body stmt in problem 
+;; to turn this on. 
+(defoperator draw-body-for-projection (?rot ?vector)
+   :preconditions (
+      (in-wm (projection-body ?problem-body ?problem-time)) 
+      (body ?problem-body)
+   ) :effects ((body-for-projection ?rot ?vector)))
+ 
+(defoperator omit-body-for-projection (?rot ?vector)
+   :preconditions ( (not (projection-body ?problem-body ?problem-time)) )
+   :effects ((body-for-projection ?rot ?vector)))
 
 ;;; This operator represents writing a projection equation for a zero
 ;;; vector.  Obviously, the component along any axis of a zero length
@@ -724,57 +746,6 @@
   ))
 
 
-;;; Following is the projection PSM applied at the bubble-graph level 
-;;; for component-form solutions, in which projections are not chunked as
-;;; subsidiary steps inside vector PSMs. For example, if given mag and dir 
-;;; of v0, need projection to link to v0_x and v0_y which occur in 
-;;; component-form bubble-graph equations.
-;;;
-;;; This just puts out the eqn-contains for the psm. The existing projection 
-;;; writing operators do the work of generating the appropriate equation.
-;;; 
-;;; As a PSM we require standard axes for component-form problems. If we
-;;; used this as a psm in all cases, there would be a difficulty of choosing
-;;; which axes are appropriate to use when sought is magnitude, say. 
-;;;
-
-(defoperator projection-contains (?sought)
-  :preconditions (
-   (any-member ?sought ((mag ?vector) (dir ?vector)))
-   ;; When sought is vector mag or dir, it's tricky to choose all reasonable
-   ;; axes.  In this case, just apply along standard axes.  When a component 
-   ;; along a different axis is introduced into the solution graph by some 
-   ;; other equation, the second eqn contains below should get applied when 
-   ;; equations are sought for it.
-   (get-axis ?xy 0)
-   )
-  :effects (
-   (eqn-contains (projection (compo ?xy 0 ?vector)) ?sought)
-  ))
-
-(defoperator projection-contains-compo (?rot ?vector)
-  :preconditions nil
-  :effects 
-  ( (eqn-contains (projection (compo ?xy ?rot ?vector)) 
-		  (compo ?xy ?rot ?vector))
-   ;; set flag to draw use these axes, even if not vector-aligned or standard.
-    (projection-axis ?rot)
-    ))
-
-;; Projection writing rules used within larger psms should not draw a body, 
-;; since it is the psm that decides whether and which body should be drawn. 
-;; However, on simple projection-only problems in our introductory vector set, 
-;; we do want the body to be drawn.  We use a projection-body stmt in problem 
-;; to turn this on. 
-(defoperator draw-body-for-projection (?rot ?vector)
-   :preconditions (
-      (in-wm (projection-body ?problem-body ?problem-time)) 
-      (body ?problem-body)
-   ) :effects ((body-for-projection ?rot ?vector)))
- 
-(defoperator omit-body-for-projection (?rot ?vector)
-   :preconditions ( (not (projection-body ?problem-body ?problem-time)) )
-   :effects ((body-for-projection ?rot ?vector)))
    
 
 ;;; =============================== axes =========================
@@ -927,8 +898,7 @@
 ;;; that achieve the goal of choosing axes for a body by reusing existing 
 ;;; drawn axes for another body without drawing again.
 
-;; don't be misled by name: really means "draw-vector-aligned-axes"
-(defoperator draw-rotate-axes (?rot)
+(defoperator draw-vector-aligned-axes (?rot)
   :specifications 
    "If the goal is to draw coordinate axes for use on some body's vectors,
        and there are any vectors on that body drawn at known angles
@@ -963,8 +933,8 @@
   ((point (string "What would be a useful choice for the coordinate axes?"))
    (teach (minilesson "mini_choose_axes.htm")
           (kcd "draw-rotate-axes")
-	  ; Careful with wording: we can't be sure that the axis direction being prompted actually conforms 
-	  ; to the recommended heuristic. 
+	  ;; Careful with wording: we can't be sure that the axis direction 
+	  ;; being prompted actually conforms to the recommended heuristic. 
 	  (string "Although you can choose any rotation for the axes and still get a correct answer, the solution is usually simpler if you rotate the axes so at least one vector is parallel to an axis.  Typically, the more vectors that come out parallel to the axes, the better, although which choice is most efficient will depend on the particular problem. "))
    (bottom-out (string "~:[Draw~;Rotate~] the coordinate axes setting the x axis at ~a degrees." (rotate-existing-axes) ?x-rotation))
   ))
