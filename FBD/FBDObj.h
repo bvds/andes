@@ -147,6 +147,10 @@ public:
 	// Agent string used for net field vectors: //
 	static const char* c_szAllSources;
 
+	// get args for help system:
+	CString MagArg();
+	CString DirArg();
+
 	// Implementation:
 protected:
 	CRect m_posLabel;			// position of vector label
@@ -165,10 +169,6 @@ protected:
 	    nVelocityWidth = 2,		// line width for Velocities & accelerations
 		nArrowLineWidth = 2,	// width used for drawing arrowhead lines
 	};
-
-	// get args for help system:
-	CString MagArg();
-	CString DirArg();
 
 	// do type-dependent help system calls:
 	LPCTSTR CheckCompVector();

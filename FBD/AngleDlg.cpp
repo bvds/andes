@@ -108,8 +108,7 @@ BOOL CAngleDlg::OnInitDialog()
 	{
 		CDrawObj* pObj = m_pDocument->m_objects.GetPrev(pos);
 		if (  pObj->IsKindOf(RUNTIME_CLASS(CVector)) &&
-						! pObj->m_strName.IsEmpty()  &&
-						! ((CVector*)pObj)->IsZAxisVector() )
+						! pObj->m_strName.IsEmpty()  )
 		{
 			m_cboSide1.AddString(pObj->m_strName);
 			m_cboSide2.AddString(pObj->m_strName);
@@ -386,6 +385,7 @@ int CAngleDlg::GetAngleBetween(const CString& strSide1, const CString& strSide2,
 {
 	int nAxis1, nAxis2;
 	int nAngle1, nAngle2;
+	int zDir1, zDir2;
 	int nAng = -1;
 	
 	// see if one or other side is an axis spec
@@ -401,8 +401,7 @@ int CAngleDlg::GetAngleBetween(const CString& strSide1, const CString& strSide2,
 			bIsAxis2 = TRUE;
 			nAxis2 = i;
 		}
-	}
-	
+	}	
 	// fill axis flag out parameter if requested
 	if (pbAxis)
 		*pbAxis = bIsAxis1 || bIsAxis2;
@@ -419,60 +418,75 @@ int CAngleDlg::GetAngleBetween(const CString& strSide1, const CString& strSide2,
 		CDrawObj* pObj = pDoc->m_objects.GetPrev(pos);
 		if (bIsAxis1 && pObj->IsKindOf(RUNTIME_CLASS(CAxes)))
 		{
-			nAngle1 = pObj->GetDirection();
+			nAngle1 = (pObj->GetDirection() + ((nAxis1) * 90)) % 360;
 			break;
 		}
-		else if (pObj->m_strName == strSide1)
+		else if (pObj->m_strName == strSide1)  // hit side1 
 		{
 			// vector always has drawn direction, but may represent
 			// vector with unknown orientation.
-			if (pObj->IsKindOf(RUNTIME_CLASS(CVector)) &&
-				((CVector*)pObj)->UnknownDir())
-				return -1;		// early exit 
-			if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) &&
-				((CGuideLine*)pObj)->UnknownDir())
-				return -1;		// early exit 
-			
-			nAngle1 = pObj->GetDirection();
+			if (pObj->IsKindOf(RUNTIME_CLASS(CVector))) {
+				if (((CVector*)pObj)->UnknownDir()) 
+					return -1;		// early exit 
+				zDir1 = ((CVector*)pObj)->m_nZDir;
+				((CVector*)pObj)->GetOrientation(nAngle1);	
+			} 
+			else if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine))){
+				if (((CGuideLine*)pObj)->UnknownDir())
+					return -1;		// early exit 
+				 zDir1 = ((CGuideLine*)pObj)->m_nZDir;
+				 nAngle1 = pObj->GetDirection();
+			}
 			break;
 		}
 	}
-	// search objects to find obj for side1 and get its angle
+	// search objects to find obj for side2 and get its angle
 	pos = pDoc->m_objects.GetTailPosition();
 	while (pos != NULL) 
 	{
 		CDrawObj* pObj = pDoc->m_objects.GetPrev(pos);
 		if (bIsAxis2 && pObj->IsKindOf(RUNTIME_CLASS(CAxes)))
 		{
-			nAngle2 = pObj->GetDirection();
+			nAngle2 = (pObj->GetDirection() + ((nAxis2) * 90)) % 360;
 			break;
 		}
 		else if (pObj->m_strName == strSide2)
 		{
 			// vector always has drawn direction, but may represent
 			// vector with unknown orientation.
-			if (pObj->IsKindOf(RUNTIME_CLASS(CVector)) &&
-				((CVector*)pObj)->UnknownDir())
-				return -1;		// early exit
-			if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine)) &&
-				((CGuideLine*)pObj)->UnknownDir())
-				return -1;		// early exi
-			
-			nAngle2 = pObj->GetDirection();	
+			if (pObj->IsKindOf(RUNTIME_CLASS(CVector))) {
+				if (((CVector*)pObj)->UnknownDir()) 
+					return -1;		// early exit 
+				zDir2 = ((CVector*)pObj)->m_nZDir;
+				((CVector*)pObj)->GetOrientation(nAngle2);	
+			} 
+			else if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine))){
+				if (((CGuideLine*)pObj)->UnknownDir())
+					return -1;		// early exit 		
+				 zDir2 = ((CGuideLine*)pObj)->m_nZDir;
+				 nAngle2 = pObj->GetDirection();
+			}
 			break;
 		}
 	}
 
-	// calculate angle, depending on type of angle it is
-	
+	// first deal with z-axis vector possibilities, coded in zDir1 and zDir2 as one
+	// of {0 [ZDIR_NONE], 1 [ZDIR_INTO], 2 [ZDIR_OUTOF], 3 [ZDIR_UNKNOWN]}
+
+	if ((zDir1==ZDIR_NONE) != (zDir2==ZDIR_NONE)) // not both same type of angle
+		return 90;
+
+	if (zDir1!=ZDIR_NONE && zDir2!=ZDIR_NONE) { // two z-axis vectors
+		if (zDir1 == ZDIR_UNKNOWN || zDir2 == ZDIR_UNKNOWN) // z-unknown
+			return -1;
+		return zDir1 == zDir2 ? 0 : 180;
+	}
+
+	// else two x-y plane angles
+	// calculate angle value depending on type of angle it is
 	if (bIsAxis1 || bIsAxis2) // angle involves an axis:
 	{	
 		// want counterclockwise angle from first to second 
-		if (bIsAxis1)
-			nAngle1 = (nAngle1 + ((nAxis1) * 90)) % 360;
-		if (bIsAxis2)
-			nAngle2 = (nAngle2 + ((nAxis2) * 90)) % 360;
-	
 		if (nAngle1 > nAngle2)
    			nAng = 360 - abs(nAngle1 - nAngle2);
  		else
