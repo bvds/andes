@@ -8554,7 +8554,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator apply-angular-PSM (?sought ?eqn-id) 
   :preconditions
   (
-   ;; (component-form) ; needed to filter method when sought is duration.
    ;; vector PSMs defined to seek vector magnitudes, so may need to 
    ;; pretend we are seeking magnitude to hook into existing vector
    ;; PSM selecting code.  If sought is scalar, just leave it
