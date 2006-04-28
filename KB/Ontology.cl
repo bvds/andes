@@ -542,7 +542,7 @@
   (if (variable-p form) var-text
     (nlg form nlg-type))) 
 
-(def-goalprop lk-fbd (vector-diagram (lk ?body ?time))
+(def-goalprop lk-fbd (vector-diagram ?rot (lk ?body ?time))
    :doc "diagram showing all lk vectors and axes"
    :english ("drawing a diagram showing all of the needed kinematic vectors of ~A ~A and coordinate axes" 
               (nlg ?body ) (nlg ?time 'pp)))
@@ -583,19 +583,19 @@
       (projections ?component-variables ?component-expressions)
     :english ("writing projection equations for all the component variables in the equation you are using"))
 
-(def-goalprop avg-vel-fbd (vector-diagram (avg-velocity ?body ?time))
+(def-goalprop avg-vel-fbd (vector-diagram ?rot (avg-velocity ?body ?time))
    :english ("drawing a diagram showing all of the needed vectors for ~A ~A and coordinate axes" 
              (nlg ?body) (nlg ?time 'pp)))
    
-(def-goalprop avg-accel-fbd (vector-diagram (avg-accel ?body ?time))
+(def-goalprop avg-accel-fbd (vector-diagram ?rot (avg-accel ?body ?time))
    :english ("drawing a diagram showing all of the needed kinematic vectors for ~A ~A and coordinate axes" 
               (nlg ?body) (nlg ?time 'pp)))
 
-(def-goalprop net-disp-fbd (vector-diagram (sum-disp ?body ?time))
+(def-goalprop net-disp-fbd (vector-diagram ?rot (sum-disp ?body ?time))
    :english ("drawing a diagram showing all of the needed displacements of ~A ~A and coordinate axes" 
               (nlg ?body) (nlg ?time 'pp)))
 
-(def-goalprop nl-fbd (vector-diagram (nl ?body ?time))
+(def-goalprop nl-fbd (vector-diagram ?rot (nl ?body ?time))
   :doc "free-body-diagram for applying Newton's Law"
   :english ("drawing a free-body diagram for ~A ~A"
             (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
@@ -609,18 +609,18 @@
 (def-goalprop all-forces (forces ?body ?time ?all-forces)
    :english ("drawing all the forces acting on ~A ~A" (nlg ?body) (nlg ?time 'pp)))
 
-(def-goalprop linmom-fbd (vector-diagram (cons-linmom ?bodies (during ?t1 ?t2)))
+(def-goalprop linmom-fbd (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
    :doc "diagram showing all momentum vectors and axes"
    :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes" ))
 
-(def-goalprop angmom-fbd (vector-diagram (ang-momentum ?b ?t))
+(def-goalprop angmom-fbd (vector-diagram ?rot (ang-momentum ?b ?t))
    :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes"))
 
 (def-goalprop all-torques (torques ?b ?axis ?time ?torques)
   :english ("showing the ~A due to each force acting on ~A ~A" 
 	     (moment-name) (nlg ?b) (nlg ?time 'pp)))
 
-(def-goalprop NSL-rot-fbd  (vector-diagram (NSL-rot ?b ?axis ?t))
+(def-goalprop NSL-rot-fbd  (vector-diagram ?rot (NSL-rot ?b ?axis ?t))
   :doc "diagram for applying the rotational version of Newton's Second Law"
   :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
 	    (moment-name) (nlg ?b) (nlg ?t 'pp))) 

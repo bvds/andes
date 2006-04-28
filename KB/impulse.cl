@@ -108,10 +108,10 @@
    (vector ?b (impulse ?b ?agent :time ?t) ?dir1)
    ;; assuming (without checking) only one force between the two bodies.
    (vector ?b (force ?b ?agent ?type :time ?t) ?dir2)
-   (axes-for ?b ?b-rot)
+   (axes-for ?b ?rot)
    )
   :effects (
-	    (vector-diagram (impulse-force-vector ?b ?agent ?t))
+	    (vector-diagram ?rot (impulse-force-vector ?b ?agent ?t))
   ))
 
 ;; This is the impulse from a particular force
@@ -166,7 +166,7 @@
     (axes-for ?b ?rot) ;maybe a problem for compounds?
   )
   :effects (
-   (vector-diagram (impulse ?b ?agent (during ?t1 ?t2)))
+   (vector-diagram ?rot (impulse ?b ?agent (during ?t1 ?t2)))
   ))
 
 
@@ -377,7 +377,7 @@ impulse ~A." (?b def-np) (?t pp)))
     (axes-for ?b2 ?rot)
     )
   :effects (
-	    (vector-diagram (NTL-impulse-vector (?b1 ?b2) ?t))
+	    (vector-diagram ?rot (NTL-impulse-vector (?b1 ?b2) ?t))
   ))
   
 (defoperator write-NTL-impulse-compo (?b1 ?b2 ?t ?xy ?rot)
@@ -454,7 +454,7 @@ impulse ~A." (?b def-np) (?t pp)))
    (vector ?com (relative-position ?com ?origin :time ?t) ?dircom)
    )
   :effects (
-   (vector-diagram (center-of-mass ?com ?t))
+   (vector-diagram ?rot (center-of-mass ?com ?t))
   ))
 
 

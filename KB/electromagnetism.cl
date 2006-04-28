@@ -116,10 +116,10 @@
    (vector ?b (relative-position ?b ?agent :time ?t) ?dir1)
    ;; assuming (without checking) only one force between the two bodies.
    (vector ?b (force ?b ?agent electric :time ?t) ?dir2)
-   (axes-for ?b ?b-rot)
+   (axes-for ?b ?rot)
    )
   :effects (
-	    (vector-diagram (coulomb-vec ?b ?agent ?t ?form))
+	    (vector-diagram ?rot (coulomb-vec ?b ?agent ?t ?form))
   ))
 
 (defoperator write-coulomb-compo (?b1 ?b2 ?t ?xy ?rot ?form)
@@ -630,7 +630,7 @@
   :preconditions 
   (
    (debug "Using draw-charge-force-Efield-diagram ~%")
-   (not (vector-diagram (charge-force-Efield ?b ?source ?t)))
+   (not (vector-diagram ?rot (charge-force-Efield ?b ?source ?t)))
    ;; ?b is "test charge" feeling force at ?loc 
    (body ?b)
    (at-place ?b ?loc :time ?t ?t)
@@ -642,7 +642,7 @@
    (rdebug "Fired draw-charge-force-Efield-diagram ~%")
    )
   :effects (
-            (vector-diagram (charge-force-Efield ?b ?source ?t))
+            (vector-diagram ?rot (charge-force-Efield ?b ?source ?t))
             ))
 
 (defoperator write-charge-force-Efield-compo (?b ?t ?xy ?rot)
@@ -822,7 +822,7 @@
   :preconditions 
   (
    (rdebug "Using draw-point-charge-Efield-diagram ~%")
-   (not (vector-diagram (point-charge-Efield ?b ?loc ?t)))
+   (not (vector-diagram ?rot (point-charge-Efield ?b ?loc ?t)))
    ;; ?b is point charge source of field at ?loc
    (body ?b)
    (any-member ?tot (?t nil)) ;may want to extend to other times
@@ -831,7 +831,7 @@
    (rdebug "Fired draw-point-charge-Efield-diagram ~%")
    )
   :effects (
-            (vector-diagram (point-charge-Efield ?b ?loc ?t ?form))
+            (vector-diagram ?rot (point-charge-Efield ?b ?loc ?t ?form))
             )
   :hint (
          (point (string "Try drawing a diagram."))
@@ -1107,7 +1107,7 @@
     (axes-for ?loc ?rot)
  )
  :effects (
-    (vector-diagram (net-field ?loc ?type ?t))
+    (vector-diagram ?rot (net-field ?loc ?type ?t))
  ))
 
 (defoperator write-net-field-compo (?loc ?type ?t ?xy ?rot)
@@ -1541,7 +1541,7 @@
   :preconditions 
   (
    (debug "Using draw-electric-dipole-moment-diagram ~%")
-   (not (vector-diagram (dipole-moment ?dipole electric ?t)))
+   (not (vector-diagram ?rot (dipole-moment ?dipole electric ?t)))
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
    ;; may draw charges in diagram for this psm
    (optional (body ?positive-charge))
@@ -1554,7 +1554,7 @@
    (rdebug "Fired draw-electric-dipole-moment-diagram ~%")
    )
   :effects (
-            (vector-diagram (dipole-moment ?dipole electric ?t))
+            (vector-diagram ?rot (dipole-moment ?dipole electric ?t))
             ))
 
 (defoperator write-electric-dipole-moment-compo (?dipole ?t ?xy ?rot)
@@ -1682,7 +1682,7 @@
   :preconditions 
   (
    (debug "Using draw-magnetic-dipole-moment-diagram ~%")
-   (not (vector-diagram (dipole-moment ?dipole magnetic ?t)))
+   (not (vector-diagram ?rot (dipole-moment ?dipole magnetic ?t)))
    (magnetic-dipole ?dipole ?surface)
    (vector ?dipole (dipole-moment ?dipole magnetic :time ?t) ?dir1) 
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir1) 
@@ -1690,7 +1690,7 @@
    (rdebug "Fired draw-magnetic-dipole-moment-diagram ~%")
    )
   :effects (
-            (vector-diagram (dipole-moment ?dipole magnetic ?t))
+            (vector-diagram ?rot (dipole-moment ?dipole magnetic ?t))
             ))
 
 (defoperator write-magnetic-dipole-moment-compo (?dipole ?t ?xy ?rot)
@@ -2629,7 +2629,7 @@
   :preconditions 
   (
    (debug "Using draw-charge-force-Bfield-diagram ~%")
-   (not (vector-diagram (charge-force-Bfield ?b ?t)))
+   (not (vector-diagram ?rot (charge-force-Bfield ?b ?t)))
    (body ?b)
    (at-place ?b ?loc :time ?t ?t)
    (any-member ?tot (?t nil)) ;may want to extend to all times
@@ -2639,7 +2639,7 @@
    (axes-for ?b ?rot)
    (debug "Fired draw-charge-force-Bfield-diagram ~%")
    )
-  :effects ( (vector-diagram (charge-force-Bfield ?b ?t)) )
+  :effects ( (vector-diagram ?rot (charge-force-Bfield ?b ?t)) )
   :hint (
          (point (string "Try drawing a diagram."))
          (teach (string "The diagram should show the force vector and the magnetic field vector at ~a." ?b))
@@ -2650,7 +2650,7 @@
 (defoperator write-charge-force-Bfield (?axis ?rot ?b ?t )
   :preconditions 
   ((at-place ?b ?loc :time ?t ?t)
-   (vector-diagram (charge-force-Bfield ?b ?t))
+   (vector-diagram ?rot (charge-force-Bfield ?b ?t))
    (variable ?F (compo ?axis ?rot (force ?b ?source magnetic :time ?t)))
    (any-member ?tot (?t nil))
    (cross ?cross (velocity ?b :time ?t) 

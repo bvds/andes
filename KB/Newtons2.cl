@@ -327,12 +327,6 @@
       and generate the component equation"
   :preconditions
   (
-   ;; vector PSMs defined to seek vector magnitudes, so may need to 
-   ;; pretend we are seeking magnitude to hook into existing vector
-   ;; PSM selecting code.  If sought is scalar, just leave it
-   (bind ?vec-sought (if (componentp ?sought) 
-			 `(mag ,(compo-base-vector ?sought))
-		       ?sought))
    ;; get any vector associated with ?sought
    (bind ?sought-vec (cond ((componentp ?sought) (compo-base-vector ?sought))
 			   ((eq (first ?sought) 'mag) (second ?sought))
@@ -342,11 +336,11 @@
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
    (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
-   (vector-diagram ?vec-eqn-id)
+   (vector-diagram ?rot ?vec-eqn-id)
    (debug "Vectors drawn for ~a.~%" ?vec-eqn-id)
-   ;; ! if sought is x-comp V, want to make sure we write in x direction
-   ;; not just any direction containing magV
-   (compo-eqn-selected ?vec-eqn-id ?vec-sought (compo-eqn . ?eq-args))
+   ;;  Test that ?sought may actually be in resulting equation.
+   (compo-eqn-selected ?rot ?vec-eqn-id ?sought (compo-eqn . ?eq-args))
+   ;;
    (debug "Writing compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
    (eqn ?compo-eqn (compo-eqn . ?eq-args))
    (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eq-args)
@@ -378,67 +372,26 @@
 ;;; used on an axis and an open interval when used elsewhere.  Thus,
 ;;; we just ignore the times on axes until this can all be sorted out.
 
-(defoperator select-compo-eqn-for-magnitude (?vec-eqn-id ?compo-eqn-name ?vector)
-  :specifications 
-   "If the sought quantity is the magnitude of a vector,
-      and ?compo-eqn-name is a component equation for the given vector equation
-        that could contain that quantity,
-      and ?axis is an axis for the vector
-      such that the axis is not perpendicular to the vector
-   then select the component equation along that axis." 
+
+(defoperator select-compo-eqn-for-vector (?vec-eqn-id ?compo-eqn-name ?vector)
   :preconditions
   (
    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
-   (vector ?b ?vector ?dir)
-   (wm-or-derive (axes-for ?b ?rot)) ;iterate over ?rot
-   (wm-or-derive (get-axis ?xyz ?rot)) ;iterate over ?xyz
+   (in-wm (vector ?b ?vector ?dir))  ;get dir
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
-   ;;(debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
+   ;; (debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
    )
   :effects
-  ((compo-eqn-selected ?vec-eqn-id 
-		       (mag ?vector) 
+  ((compo-eqn-selected ?rot ?vec-eqn-id 
+		       (compo ?xyz ?rot ?vector) 
 		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
-(defoperator select-compo-eqn-for-direction (?vec-eqn-id ?compo-eqn-name ?vector)
-  :specifications "
-   If the sought quantity is the direction of a vector,
-      and ?compo-eqn-name is a component equation for the given vector equation
-        that could contain that quantity,
-      and ?axis is an axis for the vector
-      such that the axis is not perpendicular to the vector
-   then select the component equation along that axis." 
-  :preconditions
-    ((vector ?b ?vector ?dir)
-     (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
-     (wm-or-derive (axes-for ?b ?rot)) ;iterate over ?rot
-     (wm-or-derive (get-axis ?xyz ?rot)) ;iterate over ?xyz
-     (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
-     (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
-     ;;(debug "Selecting ~a rot ~a for direction ~a time ~a~%."  ?xyz ?rot ?vector ?t)
-    )
-  :effects
-  ((compo-eqn-selected ?vec-eqn-id 
-		       (dir ?vector) 
-		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
 ;;; This operator suggests applying a vector equation in order to find
 ;;; a scalar.  
-;;; One issue is how to prevent over-generation in choice of
-;;; axis to apply along.  For instance, on problem k9, the
-;;; problem gives vf, vi and a and asks for t.  One of the choices
-;;; might appear to be to generate lk-no-s along the axis perpendicular 
-;;; to vf, vi and a.  That would yield a compo equation that has t but
-;;; the rest of the terms will be zero.  
-;;; Here we constrain choice of direction by verifying that the body 
-;;; the vector equation is being applied to has at least one vector drawn 
-;;; for it that is not perpendicular to the direction chosen. 
-;;; Note this makes assumption about the form of the vector equation ids: 
-;;; the ids must be body and time so we can pull them out by matching.
-;;; If the time is an interval it should be packaged into a (during ..) term
 
-(defoperator select-compo-eqn-for-scalar (?PSM-id ?b ?t ?compo-eqn-name ?quantity)
+(defoperator select-compo-eqn-for-scalar (?vec-eqn-id ?compo-eqn-name ?quantity)
   :specifications 
    "If the sought quantity is a scalar,
       and ?compo-eqn-name is a component equation for the given vector equation
@@ -446,25 +399,15 @@
    then select the component equation along any axis." 
   :preconditions
    ((test (scalar-quantityp ?quantity))
-    ;; pull out body and time from inside vector eqn id to make sure we pick up
-    ;; axis for that body and vector on that body when testing projection.
-    ;; NB: this requires that main vector eqn ids contain just these args!!
-    (compo-eqn-contains (?PSM-id ?b ?t) ?compo-eqn-name ?quantity)
-    (debug "choosing compo to apply ~A to find scalar ~A~%"   ?compo-eqn-name ?quantity) 
-    (wm-or-derive (axes-for ?b ?rot)) ;iterate over ?rot
-    (wm-or-derive (get-axis ?xyz ?rot)) ;iterate over ?xyz
-    ;; make sure some drawn vector not known to have zero projection along ?rot
-    ;; this is weak, since we don't check if ?vector is relevant
-    (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
-    (test (some #'(lambda (dirarg) (non-zero-projectionp dirarg ?xyz ?rot)) 
-                 ?dirs))
-    (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot (?PSM-id ?b ?t))))
-    ;;(debug "Selecting ~a rot ~a via scalar ~a~%" ?xyz ?rot ?quantity)
+    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?quantity)
+    (debug "choosing compo to apply ~A to find scalar ~A~%"   
+	   ?compo-eqn-name ?quantity) 
+    (get-axis ?xyz ?rot) ;iterate over ?xyz
     )
   :effects
-  ((compo-eqn-selected (?PSM-id ?b ?t)
+  ((compo-eqn-selected ?rot ?vec-eqn-id
 		       ?quantity 
-		       (compo-eqn ?compo-eqn-name ?xyz ?rot (?PSM-id ?b ?t)))))
+		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
 
 ;;; ===================== projections ====================
@@ -1014,8 +957,8 @@
    then define a component variable for the vector along the axis"
   :preconditions
   ((wm-or-derive (vector ?b ?vector ?dir))
-   (wm-or-derive (axes-for ?b ?rot))
-   (wm-or-derive (get-axis ?xyz ?rot))
+   (wm-or-derive (axes-for ?b ?rot))  ;sanity check
+   (wm-or-derive (get-axis ?xyz ?rot)) ;sanity check
    (not (variable ?dont-care (compo ?xyz ?rot ?vector)))
    ;; fetch vector's mag var for building compo var name only. 
    (in-wm (variable ?v-var (mag ?vector)))  
@@ -1051,20 +994,6 @@
   :specifications "let's not and say we did"
    :effects ( (optional ?goal) ))
 
-
-#| ; wm-or-derive now moved into interpreter
-;;; in cases where a goal only need be satisfied once,
-;;; we don't want to continue if it is already in working memory
-
-(defoperator use-wm (?goal)
-  :preconditions ((in-wm ?goal))
-  :effects ((wm-or-derive ?goal)))
-
-(defoperator derive (?goal)
-  :preconditions ((not ?goal) ;not in working memory, that is
-		  ?goal)
-  :effects ((wm-or-derive ?goal)))
-|#
 
 ;;; ================= Generic: Draw each requested vector =====================
 ;;;
@@ -1695,13 +1624,13 @@
 
 (defoperator draw-rdiff-diagram (?p1 ?p2 ?t)
   :preconditions 
-  ((not (vector-diagram (rdiff ?p1 ?p2 ?t)))
+  ((not (vector-diagram ?rot (rdiff ?p1 ?p2 ?t)))
    ;; do we draw a body for this? What body do we call this
    (vector ?p2 (relative-position ?p2 ?p1 :time ?t) ?dir1)
    ;; have to make sure we have an axis for this vector
    (axes-for ?p2 ?rot))
   :effects 
-  ((vector-diagram (rdiff ?p1 ?p2 ?t))))
+  ((vector-diagram ?rot (rdiff ?p1 ?p2 ?t))))
 
 (defoperator write-rdiff-compo (?p1 ?p2 ?t ?xy ?rot)
   :preconditions (
@@ -2301,13 +2230,13 @@
 
 (defoperator draw-avg-vel-diagram (?b ?t)
   :preconditions 
-  ((not (vector-diagram (avg-velocity ?b ?t)))
+  ((not (vector-diagram ?rot (avg-velocity ?b ?t)))
    (body ?b)
    (vector ?b (displacement ?b :time ?t) ?dir2)
    (vector ?b (velocity ?b :time ?t) ?dir1)
    (axes-for ?b ?rot))
   :effects 
-  ((vector-diagram (avg-velocity ?b ?t))))
+  ((vector-diagram ?rot (avg-velocity ?b ?t))))
 
 (defoperator write-avg-vel-compo (?b ?t ?xy ?rot)  
   :preconditions 
@@ -2835,9 +2764,9 @@
   (
    (body ?b)
    (vector ?b (accel ?b :time ?t) ?dir1)
-   (axes-for ?b ?b-rot)
+   (axes-for ?b ?rot)
    )
-  :effects ( (vector-diagram (centripetal-accel-vec ?b ?t)) ))
+  :effects ( (vector-diagram ?rot (centripetal-accel-vec ?b ?t)) ))
 
 (defoperator write-centripetal-accel-compo (?b ?t ?xy ?rot)
   :preconditions 
@@ -3106,7 +3035,7 @@
    (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
 (defoperator write-lk-no-s-compo (?b ?t1 ?t2 ?xyz ?rot)
@@ -3174,7 +3103,7 @@
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
 (defoperator write-lk-no-t-compo (?b ?t1 ?t2 ?xyz ?rot)
@@ -3246,7 +3175,7 @@
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
 (defoperator write-lk-no-vf-compo (?b ?t1 ?t2 ?xyz ?rot)
@@ -3316,7 +3245,7 @@
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
 (defoperator write-lk-no-a-compo (?b ?t1 ?t2 ?xyz ?rot)
@@ -3395,7 +3324,7 @@
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (lk ?b (during ?t1 ?t2))))
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
 (defoperator sdd-constvel-compo (?b ?t1 ?t2 ?xyz ?rot)
@@ -3460,7 +3389,7 @@
    ;(vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (lk ?b ?t-free-fall)))
+   ((vector-diagram ?rot (lk ?b ?t-free-fall)))
 )
 
 (defoperator use-const-vx (?b ?t1 ?t2 ?t-lk)
@@ -3567,14 +3496,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then draw the body, the initial and final velocity, 
       the acceleration and axes"
   :preconditions
-  ((not (vector-diagram (avg-accel ?b (during ?t1 ?t2))))
+  ((not (vector-diagram ?rot (avg-accel ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (velocity ?b :time ?t1) ?dir1)
    (vector ?b (velocity ?b :time ?t2) ?dir2)
    (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (avg-accel ?b (during ?t1 ?t2)))))
+   ((vector-diagram ?rot (avg-accel ?b (during ?t1 ?t2)))))
 
 ;; following writes LK-no-s in context of avg-accel method.
 ;; duplicates lk/lk-no-s pair of operators.
@@ -3808,7 +3737,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (displacement ?b :time ?tt) ?dir-dnet)
    (axes-for ?b ?rot))
   :effects 
-  ((vector-diagram (sum-disp ?b ?tt))))
+  ((vector-diagram ?rot (sum-disp ?b ?tt))))
 
 (defoperator write-sum-disp-compo (?b ?tt ?xy ?rot)
   :preconditions 
@@ -4761,7 +4690,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (axes-for ?b ?rot)
   )
   :effects (
-    (vector-diagram (thrust ?b ?agent ?t))
+    (vector-diagram ?rot (thrust ?b ?agent ?t))
   ))
 
 (defoperator thrust-force-vector-contains (?sought)
@@ -5385,7 +5314,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-net-force-diagram (?b ?t)
   :preconditions
-  ((not (vector-diagram (net-force ?b ?t)))
+  ((not (vector-diagram ?rot (net-force ?b ?t)))
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
    (vector ?b (net-force ?b :time ?t) ?net-force-dir)
@@ -5393,7 +5322,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (debug "Finish draw-net-force-diagram for ?b=~A ?t=~A forces=~A" 
 	  ?b ?t ?forces))
   :effects
-   ((vector-diagram (net-force ?b ?t))))
+   ((vector-diagram ?rot (net-force ?b ?t))))
 
 (defoperator write-net-force-compo (?b ?t ?xyz ?rot)
   :preconditions 
@@ -5775,14 +5704,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then draw a body, draw the forces, the acceleration and the axes,
    in any order."
   :preconditions
-  ((not (vector-diagram (NL ?b ?t)))
+  ((not (vector-diagram ?rot (NL ?b ?t)))
    (not (use-net-force))
    (forces ?b ?t ?forces)
    (test ?forces)	;fail if no forces could be found
    (vector ?b (accel ?b :time ?t) ?accel-dir)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (NL ?b ?t)))
+   ((vector-diagram ?rot (NL ?b ?t)))
   :hint
    ((bottom-out (string "In order to draw a free-body diagram, which is the first step to applying Newton's law, draw (1) a body, (2) the forces on the body, (3) the acceleration of the body, and (4) coordinate axes."))))
 
@@ -5797,7 +5726,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then draw a body, draw the acceleration, draw the net force vector and the axes,
    in any order."
   :preconditions
-  ((not (vector-diagram (NL ?b ?t)))
+  ((not (vector-diagram ?rot (NL ?b ?t)))
    (in-wm (use-net-force))
    (body ?b)
    (vector ?b (accel ?b :time ?t) ?accel-dir)
@@ -5805,7 +5734,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (net-force ?b :time ?t) ?force-dir) 
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram (NL ?b ?t)))
+   ((vector-diagram ?rot (NL ?b ?t)))
   :hint
    ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
 
@@ -6126,7 +6055,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (axes-for ?b2 ?rot)
   )
   :effects (
-    (vector-diagram (NTL-vector (?b1 ?b2) ?type ?t))
+    (vector-diagram ?rot (NTL-vector (?b1 ?b2) ?type ?t))
   ))
   
 (defoperator write-NTL-vector (?b1 ?b2 ?type ?t ?xy ?rot)
@@ -6909,7 +6838,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (axes-for ?b 0) ; Must use standard axes for this. 
 		  )
   :effects (
-	    (vector-diagram (height-dy ?b ?t))
+	    (vector-diagram 0 (height-dy ?b ?t))
 	    ))
 
 (defoperator draw-energy-axes ()
@@ -8002,7 +7931,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (axes-for ?b ?rot) ;maybe a problem for compounds?
   )
   :effects (
-   (vector-diagram (linear-momentum ?b ?t))
+   (vector-diagram ?rot (linear-momentum ?b ?t))
   ))
 
 
@@ -8148,7 +8077,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-linmom-diagram (?bodies ?t1 ?t2)
   :preconditions (
-   (not (vector-diagram (cons-linmom ?bodies (during ?t1 ?t2))))
+   (not (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2))))
    ;; how much to draw? a lot of vectors at issue:
    ;; total system momentum before, total system momentum after
    ;; constituent momenta (normally 2 initial, 2 final)
@@ -8178,7 +8107,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (axes-for ?b ?rot))
   )
   :effects (
-   (vector-diagram (cons-linmom ?bodies (during ?t1 ?t2)))
+   (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
   ))
 
 (defoperator draw-collision-momenta (?bodies ?tt)
@@ -8473,7 +8402,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
    (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
-   (vector-diagram ?eqn-id)
+   (vector-diagram ?rot ?eqn-id)
    (debug "Diagram drawn for ~A, writing z-compo eqn~%" ?eqn-id)
    (eqn ?z-compo-eqn (compo-eqn z 0 ?eqn-id))
    (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
@@ -8689,7 +8618,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-ang-sdd-vectors (?b ?t1 ?t2)
   :preconditions (
-   (not (vector-diagram (ang-sdd ?b (during ?t1 ?t2))))
+   (not (vector-diagram 0 (ang-sdd ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-velocity ?b :time (during ?t1 ?t2)) ?dir-v)
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
@@ -8697,7 +8626,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (axes-for ?b 0)
   )
   :effects (
-    (vector-diagram (ang-sdd ?b (during ?t1 ?t2)))
+    (vector-diagram 0 (ang-sdd ?b (during ?t1 ?t2)))
   )
 )
 
@@ -8738,7 +8667,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-rk-no-s-vectors (?b ?t1 ?t2)
   :preconditions  (
-   (not (vector-diagram (rk-no-s ?b (during ?t1 ?t2))))
+   (not (vector-diagram 0 (rk-no-s ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
    (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-d)
@@ -8746,7 +8675,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (variable ?var (duration (during ?t1 ?t2)))
    (axes-for ?b 0)
   )
-  :effects ( (vector-diagram (rk-no-s ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram 0 (rk-no-s ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-s (?b ?t1 ?t2)
@@ -8789,7 +8718,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-rk-no-vf-vectors (?b ?t1 ?t2)
   :preconditions  (
-   (not (vector-diagram (rk-no-vf ?b (during ?t1 ?t2))))
+   (not (vector-diagram 0 (rk-no-vf ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
    (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
@@ -8797,7 +8726,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (variable ?var (duration (during ?t1 ?t2)))
    (axes-for ?b 0)
   )
-  :effects ( (vector-diagram (rk-no-vf ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram 0 (rk-no-vf ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-vf (?b ?t1 ?t2)
@@ -8843,7 +8772,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-rk-no-t-vectors (?b ?t1 ?t2)
   :preconditions  (
-   (not (vector-diagram (rk-no-t ?b (during ?t1 ?t2))))
+   (not (vector-diagram 0 (rk-no-t ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
    (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
@@ -8851,7 +8780,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
    (axes-for ?b 0)
   )
-  :effects ( (vector-diagram (rk-no-t ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram 0 (rk-no-t ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-t (?b ?t1 ?t2)
@@ -9364,11 +9293,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-ang-momentum-vectors (?b ?t)
   :preconditions 
-     ( (not (vector-diagram (ang-momentum ?b ?t))) 
+     ( (not (vector-diagram 0 (ang-momentum ?b ?t))) 
        (vector ?b (ang-momentum ?b :time ?t) ?dir) 
        (axes-for ?b 0) )
   :effects 
-     ( (vector-diagram (ang-momentum ?b ?t)) ))
+     ( (vector-diagram 0 (ang-momentum ?b ?t)) ))
 
 (defoperator write-ang-momentum (?b ?t)
   :preconditions (
@@ -9416,7 +9345,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :preconditions 
   (
    ;; This follows draw-linmom-diagram closely
-   (not (vector-diagram (cons-angmom ?bodies (during ?t1 ?t2))))
+   (not (vector-diagram ?rot (cons-angmom ?bodies (during ?t1 ?t2))))
    (rotation-collision-momenta-drawn ?bodies ?t1)
    (rotation-collision-momenta-drawn ?bodies ?t2)
    (axes-for (system . ?bodies) ?rot)
@@ -9424,7 +9353,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    (axes-for ?b ?rot))
   )
   :effects (
-   (vector-diagram (cons-angmom ?bodies (during ?t1 ?t2)))
+   (vector-diagram ?rot (cons-angmom ?bodies (during ?t1 ?t2)))
   ))
 
 (defoperator draw-rotation-collision-momenta (?bodies ?tt)
@@ -9792,7 +9721,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (axes-for ?b 0)
   )
   :effects (
-    (vector-diagram (net-torque ?b ?axis ?t))
+    (vector-diagram 0 (net-torque ?b ?axis ?t))
   ))
 
 ;; following draws torque diagram for qualititative problems that ask for 
@@ -10053,7 +9982,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-NFL-rot-diagram (?b ?axis ?t)
   :preconditions (
-		  (not (vector-diagram (NFL-rot ?b ?axis ?t)))
+		  (not (vector-diagram 0 (NFL-rot ?b ?axis ?t)))
 		  ;; (body ?b)
 		  (torques ?b ?axis ?t ?torques)
 		  (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
@@ -10061,7 +9990,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (axes-for ?b 0)
 		  )
   :effects (
-	    (vector-diagram (NFL-rot ?b ?axis ?t))
+	    (vector-diagram 0 (NFL-rot ?b ?axis ?t))
 	    ))
 
 (defoperator write-NFL-rotation (?b ?axis ?t)
@@ -10118,7 +10047,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-NSL-rot-diagram (?b ?axis ?t)
     :preconditions (
-      (not (vector-diagram (NSL-rot ?b ?axis ?t)))
+      (not (vector-diagram 0 (NSL-rot ?b ?axis ?t)))
       ;; (body ?b)
       (torques ?b ?axis ?t ?torques)
       (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
@@ -10126,7 +10055,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
       (axes-for ?b 0)
     )
     :effects (
-      (vector-diagram (NSL-rot ?b ?axis ?t))
+      (vector-diagram 0 (NSL-rot ?b ?axis ?t))
     ))
 
 (defoperator write-NSL-rotation (?b ?axis ?t)

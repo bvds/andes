@@ -45,13 +45,13 @@
 
 ;;; following attaches a hint to the subgoal of drawing this diagram,
 ;;; see ontology.cl for examples
-(def-goalprop rel-vel-fbd (vector-diagram (relative-vel ?b1 ?b2 ?b3 ?t))
+(def-goalprop rel-vel-fbd (vector-diagram ?rot (relative-vel ?b1 ?b2 ?b3 ?t))
    :english ("drawing a diagram showing all of the needed relative velocity vectors and coordinate axes" ))
    
 (defoperator draw-rel-vel-diagram (?b1 ?t)
   :preconditions (
 		  (rdebug "Using draw-rel-vel-diagram-no-axes-problem ~%")
-		  (not (vector-diagram (relative-vel ?b1 ?b2 ?t)))
+		  (not (vector-diagram ?rot (relative-vel ?b1 ?b2 ?t)))
 		  (body ?b1)		; choose b1 as our body to draw:
 		  (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir1)    
 		  (vector ?b1 (relative-vel ?b1 ?b3 :time ?t) ?dir3)   
@@ -60,7 +60,7 @@
 		  (rdebug "Fired draw-rel-vel-diagram-no-axes-problem ~%")
 		  )
   :effects (
-	    (vector-diagram (relative-vel ?b1 ?b2 ?b3 ?t))
+	    (vector-diagram ?rot (relative-vel ?b1 ?b2 ?b3 ?t))
 	    ))
 
 (defoperator draw-relative-vel-given-dir (?b1 ?b2 ?t)
