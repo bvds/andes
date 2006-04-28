@@ -464,32 +464,22 @@
 
 ;;; ===================== projections ====================
 
-;;; Following is the projection PSM applied at the bubble-graph level 
-;;; for component-form solutions, in which projections are not chunked as
-;;; subsidiary steps inside vector PSMs. For example, if given mag and dir 
-;;; of v0, need projection to link to v0_x and v0_y which occur in 
-;;; component-form bubble-graph equations.
-;;;
-;;; This just puts out the eqn-contains for the psm. The existing projection 
-;;; writing operators do the work of generating the appropriate equation.
-;;; 
-;;; As a PSM we require standard axes for component-form problems. If we
-;;; used this as a psm in all cases, there would be a difficulty of choosing
-;;; which axes are appropriate to use when sought is magnitude, say. 
+;;; Following is the projection PSM applied at the bubble-graph level.
+;;; For example, if given mag and dir of v0, need projection to link to 
+;;; v0_x and v0_y which occur in component-form bubble-graph equations.
 ;;;
 
 (defoperator projection-contains (?sought)
   :preconditions (
    (any-member ?sought ((mag ?vector) (dir ?vector)))
+   (vector ?b ?vector ?whatever)    ;Find axis body associated with the vector
    ;; When sought is vector mag or dir, it's tricky to choose all reasonable
-   ;; axes.  In this case, just apply along standard axes.  When a component 
-   ;; along a different axis is introduced into the solution graph by some 
-   ;; other equation, the second eqn contains below should get applied when 
-   ;; equations are sought for it.
-   (get-axis ?xy 0)
+   ;; axes.  So, just find axes based on vectors that are already drawn.
+   (axes-for ?b ?rot)
+   (get-axis ?xy ?rot)
    )
   :effects (
-   (eqn-contains (projection (compo ?xy 0 ?vector)) ?sought)
+   (eqn-contains (projection (compo ?xy ?rot ?vector)) ?sought)
   ))
 
 (defoperator projection-contains-compo (?rot ?vector)
