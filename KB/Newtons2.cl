@@ -340,7 +340,7 @@
    (vector-diagram ?rot ?vec-eqn-id)
    (debug "Vectors drawn for ~a.~%" ?vec-eqn-id)
    ;;  Test that ?sought may actually be in resulting equation.
-   (compo-eqn-selected ?rot ?vec-eqn-id ?sought (compo-eqn . ?eq-args))
+   (compo-eqn-selected ?rot ?vec-eqn-id ?sought (?eq-args))
    ;;
    (debug "Writing compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
    (eqn ?compo-eqn (compo-eqn . ?eq-args))
@@ -386,7 +386,7 @@
   :effects
   ((compo-eqn-selected ?rot ?vec-eqn-id 
 		       (compo ?xyz ?rot ?vector) 
-		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
+		       (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
 
 ;;; This operator suggests applying a vector equation in order to find
@@ -408,7 +408,7 @@
   :effects
   ((compo-eqn-selected ?rot ?vec-eqn-id
 		       ?quantity 
-		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
+		       (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
 
 ;;; ===================== projections ====================
