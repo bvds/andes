@@ -333,7 +333,12 @@
    (bind ?vec-sought (if (componentp ?sought) 
 			 `(mag ,(compo-base-vector ?sought))
 		       ?sought))
-   (eqn-family-contains ?vec-eqn-id ?vec-sought)
+   ;; get any vector associated with ?sought
+   (bind ?sought-vec (cond ((componentp ?sought) (compo-base-vector ?sought))
+			   ((eq (first ?sought) 'mag) (second ?sought))
+			   ((eq (first ?sought) 'dir) (second ?sought))
+			   (t ?sought)))
+   (eqn-family-contains ?vec-eqn-id ?sought-vec)
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
    (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
@@ -383,7 +388,7 @@
    then select the component equation along that axis." 
   :preconditions
   (
-   (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (mag ?vector))
+   (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
    (vector ?b ?vector ?dir)
    (wm-or-derive (axes-for ?b ?rot)) ;iterate over ?rot
    (wm-or-derive (get-axis ?xyz ?rot)) ;iterate over ?xyz
@@ -406,7 +411,7 @@
    then select the component equation along that axis." 
   :preconditions
     ((vector ?b ?vector ?dir)
-     (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name (dir ?vector))
+     (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
      (wm-or-derive (axes-for ?b ?rot)) ;iterate over ?rot
      (wm-or-derive (get-axis ?xyz ?rot)) ;iterate over ?xyz
      (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
@@ -1669,13 +1674,11 @@
 
 (defoperator rdiff-contains (?sought)
   :preconditions (
-    ; only applies in component-form
+    ;; only applies in component-form
     (component-form)
-    (any-member ?sought (
-		 (mag (relative-position ?p2 ?p1 :time ?t))
-		 (dir (relative-position ?p2 ?p1 :time ?t))
-		 ; no other variables in this equation
-		 ))
+    (any-member ?sought ((relative-position ?p2 ?p1 :time ?t)
+			 ;; no other variables in this equation
+			 ))
     (in-wm (given (compo x 0  (relative-position ?p1 origin :time ?t)) ?p1_x))
     (in-wm (given (compo y 0 (relative-position ?p1 origin :time ?t)) ?p1_y))
     (in-wm (given (compo x 0  (relative-position ?p2 origin :time ?t)) ?p2_x))
@@ -2285,12 +2288,9 @@
 
 (defoperator avg-vel-vector-contains (?sought)
   :preconditions 
-    ((any-member ?sought
-	        ((mag (velocity ?b :time ?t))
-		 (dir (velocity ?b :time ?t))
-		 (mag (displacement ?b :time ?t))
-		 (dir (displacement ?b :time ?t))
-		 (duration ?t)))
+    ((any-member ?sought ((velocity ?b :time ?t)
+			  (displacement ?b :time ?t)
+			  (duration ?t)))
     (object ?b)
     (time ?t))
   :effects 
@@ -2818,9 +2818,8 @@
 (defoperator centripetal-accel-vector-contains (?sought)
   :preconditions 
   (
-   (any-member ?sought ((mag (accel ?b :time ?t))
-			(dir (accel ?b :time ?t))
-			(mag (velocity ?b :time ?t))
+   (any-member ?sought ((accel ?b :time ?t)
+			(velocity ?b :time ?t)
 			(revolution-radius ?b :time ?t)))
    (motion ?body (curved circular ?dontcare) :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
@@ -3078,12 +3077,9 @@
    ;; scheme of choosing eqn-family then choosing compo-eqn. 
    (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	       ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2)))
-		 (dir (accel ?b :time (during ?t1 ?t2)))
+	       ((velocity ?b :time ?t1)
+		 (velocity ?b :time ?t2)
+		 (accel ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
    ;; only applies if accel is constant within interval we are using
@@ -3149,14 +3145,10 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	       ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2)))
-		 (dir (accel ?b :time (during ?t1 ?t2)))
-		 (mag (displacement ?b :time (during ?t1 ?t2)))
-		 (dir (displacement ?b :time (during ?t1 ?t2)))
+	       ((velocity ?b :time ?t1)
+		 (velocity ?b :time ?t2)
+		 (accel ?b :time (during ?t1 ?t2))
+		 (displacement ?b :time (during ?t1 ?t2))
 		 ))
    ;; only applies if accel is constant within interval we are using
    ;; sought may not bind t1 & t2, so choose endpoints of interval to try
@@ -3225,12 +3217,9 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (accel ?b :time (during ?t1 ?t2)))
-		 (dir (accel ?b :time (during ?t1 ?t2)))
-		 (mag (displacement ?b :time (during ?t1 ?t2)))
-		 (dir (displacement ?b :time (during ?t1 ?t2)))
+	        ((velocity ?b :time ?t1)
+		 (accel ?b :time (during ?t1 ?t2))
+		 (displacement ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
    ;; only applies if accel is constant within interval we are using
@@ -3297,14 +3286,10 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 ;;(mag (accel ?b :time (during ?t1 ?t2)))
-		 ;;(dir (accel ?b :time (during ?t1 ?t2)))
-		 (mag (displacement ?b :time (during ?t1 ?t2)))
-		 (dir (displacement ?b :time (during ?t1 ?t2)))
+	        ((velocity ?b :time ?t1)
+		 (velocity ?b :time ?t2)
+		 ;; (accel ?b :time (during ?t1 ?t2))
+		 (displacement ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant within interval we are using
@@ -3387,10 +3372,8 @@
   :preconditions
   ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (displacement ?b :time (during ?t1 ?t2)))
-		 (dir (displacement ?b :time (during ?t1 ?t2)))
+	        ((velocity ?b :time ?t1)
+		 (displacement ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant so child of lk.
@@ -3455,10 +3438,8 @@
   :preconditions (
    (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
    (any-member ?quantity 
-	        ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-	         (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
+	        ((velocity ?b :time ?t1)
+	         (velocity ?b :time ?t2)
 		 ))
    ; pick a pair of times:
    (time (during ?t1 ?t2))
@@ -3561,12 +3542,9 @@
 the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((any-member ?quantity
-	       ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2)))
-		 (dir (accel ?b :time (during ?t1 ?t2)))
+	       ((velocity ?b :time ?t1)
+		 (velocity ?b :time ?t2)
+		 (accel ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))))
     (object ?b)
     (time (during ?t1 ?t2))
@@ -3608,15 +3586,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :specifications 
    "Lists the quantities contained in vf = vi + a * t"
   :preconditions
-  ((any-member ?quantity 
-	       ((mag (velocity ?b :time ?t1))
-		 (dir (velocity ?b :time ?t1))
-		 (mag (velocity ?b :time ?t2))
-		 (dir (velocity ?b :time ?t2))
-		 (mag (accel ?b :time (during ?t1 ?t2)))
-		 (dir (accel ?b :time (during ?t1 ?t2)))
-		 (duration (during ?t1 ?t2))
-		 ))
+  ((any-member ?quantity ((velocity ?b :time ?t1)
+			  (velocity ?b :time ?t2)
+			  (accel ?b :time (during ?t1 ?t2))
+			  (duration (during ?t1 ?t2))
+			  ))
    (time (during ?t1 ?t2))
    )
   :effects
@@ -3809,18 +3783,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; 
 (defoperator sum-disp-vector-contains (?sought)
   :preconditions 
-    ((any-member ?sought (
-		 (mag (displacement ?b :time ?t))
-		 (dir (displacement ?b :time ?t))))
-    (object ?b)
-    (time ?tt)
-    (test (proper-subintervalp ?t ?tt)) ;?t equals ?tt or is atomic subinterval
-    )
+  ((any-member ?sought ( (displacement ?b :time ?t) ))
+   (object ?b)
+   (time ?tt)
+   (test (proper-subintervalp ?t ?tt)) ;?t equals ?tt or is atomic subinterval
+   )
   :effects 
   ((eqn-family-contains (sum-disp ?b ?tt) ?sought)
-  ; since only one compo-eqn under this vector PSM, we can just
-  ; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (sum-disp ?b ?tt) sum-disp ?sought)))
+   ;; since only one compo-eqn under this vector PSM, we can just
+   ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (sum-disp ?b ?tt) sum-disp ?sought)))
 
 (defoperator draw-sum-disp-diagram (?b ?tt)
   :preconditions 
@@ -4795,10 +4767,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator thrust-force-vector-contains (?sought)
   :preconditions 
   ( (any-member ?sought
-		((mag (force ?b ?agent thrust :time ?t))
-		 (dir (force ?b ?agent thrust :time ?t))
-		 (mag (relative-vel ?agent ?b :time ?t))
-		 (dir (relative-vel ?agent ?b :time ?t))
+		((force ?b ?agent thrust :time ?t)
+		 (relative-vel ?agent ?b :time ?t)
 		 (mass-change-magnitude ?b ?agent :time ?t)))
     (object ?b)
    (time ?t)
@@ -5402,12 +5372,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator net-force-vector-contains (?sought)
   :preconditions 
     ((any-member ?sought (
-		 (mag (net-force ?b :time ?t))
-		 (dir (net-force ?b :time ?t))
-		 (mag (force ?b ?agent ?type :time ?t))
-		 (dir (force ?b ?agent ?type :time ?t))))
-    (object ?b)
-    (not (unknown-forces)) ;also checked in draw-forces
+		 (net-force ?b :time ?t)
+		 (force ?b ?agent ?type :time ?t)))
+     (object ?b)
+     (not (unknown-forces)) ;also checked in draw-forces
     )  
   :effects 
   ((eqn-family-contains (net-force ?b ?t) ?sought)
@@ -5721,10 +5689,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((any-member ?quantity
 	       ;; assume any mass change described by thrust force
 	        ((mass ?b :time ?t ?t) 
-		 (mag (accel ?b :time ?t))
-		 (dir (accel ?b :time ?t))
-		 (mag (force ?b ?agent ?type :time ?t))
-		 (dir (force ?b ?agent ?type :time ?t))))
+		 (accel ?b :time ?t)
+		 (force ?b ?agent ?type :time ?t)))
    (object ?b)
    (time ?t))
   :effects
@@ -5734,8 +5700,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator NL-vector-point-contains (?Quantity)
   :preconditions 
   ( (any-member ?quantity
-              ((mag (force ?point ?agent ?type :time ?t))
-              (dir (force ?point ?agent ?type :time ?t))))
+              ((force ?point ?agent ?type :time ?t)))
     (point-on-body ?point ?b)
     (object ?b) ;sanity check (not really needed)
     (time ?t))
@@ -5765,10 +5730,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    (any-member ?quantity ((mass ?b :time ?t ?t) 
-			  (mag (accel ?b :time ?t))
-			  (dir (accel ?b :time ?t))
-			  (mag (net-force ?b :time ?t))
-			  (dir (net-force ?b :time ?t))
+			  (accel ?b :time ?t)
+			  (net-force ?b :time ?t)
 			  ))
    (object ?b)
    (time ?t)
@@ -5859,9 +5822,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then NFL applies and it potentially contains
      the magnitude and direction of any force acting on the body"
   :preconditions 
-  ((any-member ?quantity
-	        ((mag (force ?b ?agent ?type :time ?t))
-		 (dir (force ?b ?agent ?type :time ?t))))
+  ((any-member ?quantity ((force ?b ?agent ?type :time ?t)))
    (object ?b)
    (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
    (test (tinsidep ?t ?t-accel)))
@@ -5872,9 +5833,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; variation for points on body
 (defoperator NFL-zero-accel-point (?quantity)
   :preconditions 
-  ((any-member ?quantity
-	        ((mag (force ?pt ?agent ?type :time ?t))
-		 (dir (force ?pt ?agent ?type :time ?t))))
+  ((any-member ?quantity ((force ?pt ?agent ?type :time ?t)))
    (point-on-body ?pt ?b)
    (object ?b)  ;sanity check (not really needed)
    (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
@@ -5894,9 +5853,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    Then NFL applies and it potentially contains
      the magnitude and direction of any force acting on the body"
   :preconditions 
-  ((any-member ?quantity
-	        ((mag (force ?b ?agent ?type :time ?t))
-		 (dir (force ?b ?agent ?type :time ?t))))
+  ((any-member ?quantity ((force ?b ?agent ?type :time ?t)))
    (object ?b)
    (time ?t)
    (massless ?b))
@@ -5931,12 +5888,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the magnitude and direction of its acceleration"
   :preconditions 
   ((any-member ?quantity
-	        ((mag (force ?b ?agent ?type :time ?t))
-		 (dir (force ?b ?agent ?type :time ?t))
+	        ((force ?b ?agent ?type :time ?t)
 		 ;; assume any mass change is subsumed into thrust
 		 (mass ?b :time ?t ?t) 
-		 (mag (accel ?b :time ?t))
-		 (dir (accel ?b :time ?t))))
+		 (accel ?b :time ?t)))
    (object ?b)
    (time ?t)
    (debug "problem~%.")
@@ -6145,8 +6100,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator NTL-vector-contains (?sought)
   :preconditions (
-   (any-member ?sought ( (mag (force ?b1 ?b2 ?type :time ?t))
-  		         (dir (force ?b1 ?b2 ?type :time ?t)) ))
+   (any-member ?sought ( (force ?b1 ?b2 ?type :time ?t)))
    (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
    )
    :effects (
@@ -6927,26 +6881,26 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;;
 ;;; For those reasons we post a compo-eqn-selected result -- see below.
 (defoperator height-dy-contains (?quantity)
-  :preconditions (
-		  (any-member ?quantity (
-					 (mag (displacement ?b :time (during ?t1 ?t2)))
-					 (dir (displacement ?b :time (during ?t1 ?t2)))
-					 (height ?b :time ?t1)
-					 (height ?b :time ?t2)
-					 ))
-		  (time ?t1) (time ?t2)
-		  (time (during ?t1 ?t2))
-		  )
-  :effects (
-	    (eqn-family-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
-	    ;; since we know which compo-eqn we'll be using, we can select
-	    ;; it now, rather than requiring further operators to do so
-	    ;; We also select the axis, normally done by select-compo-eqn* ops
-	    (compo-eqn-selected (height-dy ?b (during ?t1 ?t2)) ?quantity 
-				(compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))))
-	    ;; post this to make sure we will use standard axes
-	    (use-energy-axes)
-	    ))
+  :preconditions 
+  (
+   (any-member ?quantity ((displacement ?b :time (during ?t1 ?t2))
+	       (height ?b :time ?t1)
+	       (height ?b :time ?t2)
+	       ))
+   (time ?t1) (time ?t2)
+   (time (during ?t1 ?t2))
+   )
+  :effects 
+  (
+   (eqn-family-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
+   ;; since we know which compo-eqn we'll be using, we can select
+   ;; it now, rather than requiring further operators to do so
+   ;; We also select the axis, normally done by select-compo-eqn* ops
+   (compo-eqn-selected (height-dy ?b (during ?t1 ?t2)) ?quantity 
+		       (compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))))
+   ;; post this to make sure we will use standard axes
+   (use-energy-axes)
+   ))
 
 (defoperator draw-height-dy-diagram (?b ?t)
   :preconditions (
@@ -8025,11 +7979,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator momentum-contains (?sought)
   :preconditions 
   (
-   (any-member ?sought (
-			(mag (momentum ?b :time ?t)) 
-			(dir (momentum ?b :time ?t))
-			(mag (velocity ?b :time ?t)) 
-			(dir (velocity ?b :time ?t))
+   (any-member ?sought ((momentum ?b :time ?t)
+			(velocity ?b :time ?t)
 			(mass ?b) 
 			))
    (time ?t)
@@ -8184,10 +8135,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    ;; for now only apply if there is a collision 
    (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?type))
-   (any-member ?sought (
-			(mag (momentum ?b :time ?t)) 
-			(dir (momentum ?b :time ?t))
-			))
+   (any-member ?sought ((momentum ?b :time ?t)) )
    (test (or (equal ?t ?t1) (equal ?t ?t2)))
    (test (subsetp (simple-parts ?b) ?bodies))
    )

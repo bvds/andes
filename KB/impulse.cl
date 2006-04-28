@@ -85,10 +85,8 @@
   :preconditions 
   ((collision (orderless . ?bodies) ?t :type ?elastic-dont-care)
    (any-member ?sought
-	       ((mag (impulse ?b ?agent :time ?t))
-		(dir (impulse ?b ?agent :time ?t))
-		(mag (force ?b ?agent ?type :time ?t))
-		(dir (force ?b ?agent ?type :time ?t))
+	       ((impulse ?b ?agent :time ?t)
+		(force ?b ?agent ?type :time ?t)
 		(duration ?t)))
    (object ?b)
    (time ?t)
@@ -242,13 +240,10 @@
   (
    (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?elastic-dont-care)
    (any-member ?sought
-	        ((mag (impulse ?b ?agent :time (during ?t1 ?t2)))
-		 (dir (impulse ?b ?agent :time (during ?t1 ?t2)))
-		 (mag (momentum ?b :time ?t1))
-		 (dir (momentum ?b :time ?t1))
-		 (mag (momentum ?b :time ?t2))
-		 (dir (momentum ?b :time ?t2)))
-		)
+	        ((impulse ?b ?agent :time (during ?t1 ?t2))
+		 (momentum ?b :time ?t1)
+		 (momentum ?b :time ?t2)
+		))
    (object ?b) (object ?agent)
    (test (not (equal ?b ?agent)))
    (test (member ?b ?bodies :test #'equal)) 
@@ -356,8 +351,7 @@ impulse ~A." (?b def-np) (?t pp)))
 
 (defoperator NTL-impulse-vector-contains (?sought)
   :preconditions (
-   (any-member ?sought ( (mag (impulse ?b1 ?b2 :time ?t))
-  		         (dir (impulse ?b1 ?b2 :time ?t)) ))
+   (any-member ?sought ( (impulse ?b1 ?b2 :time ?t) ))
    (bind ?body-pair (sort (list ?b1 ?b2) #'expr<))
    )
    :effects (
@@ -425,8 +419,7 @@ impulse ~A." (?b def-np) (?t pp)))
    ;; their own axis.
    (origin ?origin) ;explicitly specify origin point
    (any-member ?sought (
-			(mag (relative-position ?b ?origin :time ?t)) 
-			(dir (relative-position ?b ?origin :time ?t))
+			(relative-position ?b ?origin :time ?t)
 			(mass ?b) 
 			))
    (test (or (member ?b ?bodies :test #'equal) (equal ?b ?com)))

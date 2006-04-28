@@ -494,10 +494,11 @@
 
 
 (defun scalar-quantityp (q)
-  "Non null if the given quantity is neither a magnitude nor a direction."
+  "True if the given quantity is neither a magnitude nor a direction."
    (not (and (listp q)
-	     (or (equal 'mag (first q))
-		 (equal 'dir (first q))))))
+	     (or (eq 'compo (first q))
+		 (eq 'mag (first q))
+		 (eq 'dir (first q))))))
 	 
 ;; Takes axis-expr of form (axis ?xyz ?rot)
 (defun vector-compo (vec-expr axis-expr)

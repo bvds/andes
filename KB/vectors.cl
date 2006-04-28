@@ -34,12 +34,9 @@
 (defoperator relative-vel-contains (?sought)
   :preconditions (
 		  (in-wm (relvel-triangle ?b1 ?b2 ?b3))
-		  (any-member ?sought ((mag (relative-vel ?b1 ?b3 :time ?t))
-				       (dir (relative-vel ?b1 ?b3 :time ?t))
-				       (mag (relative-vel ?b1 ?b2 :time ?t))
-				       (dir (relative-vel ?b1 ?b2 :time ?t))
-				       (mag (relative-vel ?b2 ?b3 :time ?t))
-				       (dir (relative-vel ?b2 ?b3 :time ?t))))
+		  (any-member ?sought ((relative-vel ?b1 ?b3 :time ?t)
+				       (relative-vel ?b1 ?b2 :time ?t)
+				       (relative-vel ?b2 ?b3 :time ?t)))
 		  )
   :effects (
 	    (eqn-family-contains (relative-vel ?b1 ?b2 ?b3 ?t) ?sought)

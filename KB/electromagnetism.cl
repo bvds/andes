@@ -92,11 +92,9 @@
 		;; on b1 from b2 or force on b2 from b1, so need both:
 		(charge-on ?b1 :time ?t ?t)
 		(charge-on ?b2 :time ?t ?t)
-		(mag (relative-position ?b1 ?b2 :time ?t))
-		(dir (relative-position ?b1 ?b2 :time ?t))
-		(mag (force ?b1 ?b2 electric :time ?t))
-		(dir (force ?b1 ?b2 electric :time ?t)))
-	       )
+		(relative-position ?b1 ?b2 :time ?t)
+		(force ?b1 ?b2 electric :time ?t)
+	       ))
    (time ?t)
    (any-member ?form (nil t)) ;switch between forms of r-hat
    (object ?b1)
@@ -586,11 +584,8 @@
 (defoperator charge-force-Efield-contains (?sought)
   :preconditions 
   ((rdebug "Using charge-force-Efield-contains  ~%")
-   (any-member ?sought((mag (force ?b ?source electric :time ?t))
-		       (dir (force ?b ?source electric :time ?t))
-		       (mag (field ?loc electric ?source :time ?t ?t))
-		       (dir (field ?loc electric ?source :time ?t ?t))
-		       ))
+   (any-member ?sought ((force ?b ?source electric :time ?t)
+		       (field ?loc electric ?source :time ?t ?t)))
    (time ?t)
    ;; make sure ?b (test-charge) is bound in case sought is field at loc
    (at-place ?b ?loc :time ?t ?t)
@@ -807,11 +802,9 @@
 (defoperator point-charge-Efield-contains (?sought)
   :preconditions 
   ((rdebug "Using point-charge-Efield-compo-contains  ~%")
-   (any-member ?sought((mag (field ?loc electric ?b :time ?t ?t))
-		       (dir (field ?loc electric ?b :time ?t ?t))
+   (any-member ?sought ((field ?loc electric ?b :time ?t ?t)
 		       (charge-on ?b :time ?t ?t) 
-		       (mag (relative-position ?loc ?b :time ?t))
-		       (dir (relative-position ?loc ?b :time ?t))
+		       (relative-position ?loc ?b :time ?t)
 		       ))
    (time ?t)
    (any-member ?form (nil t)) ;switch between forms of r-hat
@@ -1089,13 +1082,10 @@
  :preconditions 
  (
   ;; this may end up timeless
-  (any-member ?sought (
-		       (mag (net-field ?loc ?type :time ?t))
-		       (dir (net-field ?loc ?type :time ?t))
+  (any-member ?sought ((net-field ?loc ?type :time ?t)
 		       ;; need to choose ?loc to apply at when sought is field
 		       ;; due to some source.  Ignore this case for now.
-		       (mag (field ?loc ?type ?source :time ?t))
-		       (dir (field ?loc ?type ?source :time ?t))
+		       (field ?loc ?type ?source :time ?t)
 		 ))
   ;; Must make sure don't include source at loc. We will filter for this
   ;; when we write the equation.
@@ -1533,12 +1523,9 @@
   ((rdebug "Using electric-dipole-moment-contains  ~%")
    (electric-dipole ?dipole ?positive-charge ?negative-charge)
    (time ?t)
-   (any-member ?sought((mag (relative-position ?positive-charge
-					       ?negative-charge :time ?t))
-		       (dir (relative-position ?positive-charge
-					       ?negative-charge :time ?t))
-		       (mag (dipole-moment ?dipole electric :time ?t))
-		       (dir (dipole-moment ?dipole electric :time ?t))
+   (any-member ?sought ((relative-position ?positive-charge
+					       ?negative-charge :time ?t)
+		       (dipole-moment ?dipole electric :time ?t)
 		       (charge-on ?positive-charge) ;should be timeless
 		       (charge-on ?negative-charge) ;should be timeless
 		       ))
@@ -1675,13 +1662,12 @@
   ((rdebug "Using magnetic-dipole-moment-contains  ~%")
    (magnetic-dipole ?current-loop ?surface)
    (time ?t)
-   (any-member ?sought(
-		       (turns ?current-loop)
-		       (area ?current-loop)
-		       (dir (unit-vector normal-to ?surface :time ?t))
-		       (mag (dipole-moment ?current-loop magnetic :time ?t))
-		       (dir (dipole-moment ?current-loop magnetic :time ?t))
-		       ))
+   (any-member ?sought (
+			(turns ?current-loop)
+			(area ?current-loop)
+			(unit-vector normal-to ?surface :time ?t)
+			(dipole-moment ?current-loop magnetic :time ?t)
+			))
    (rdebug "Firing magnetic-dipole-moment-contains  ~%")
    )
   :effects 
@@ -2577,10 +2563,8 @@
 #|
 (defoperator charge-force-Bfield-contains (?sought)
   :preconditions ((rdebug "Using charge-force-Bfield-compo-contains  ~%")
-                  (any-member ?sought((mag (force ?b ?source magnetic :time ?t))
-                                      (dir (force ?b ?source magnetic :time ?t))
-                                      (mag (field ?loc magnetic ?source :time ?t))
-                                      (dir (field ?loc magnetic ?source :time ?t))
+                  (any-member ?sought ((force ?b ?source magnetic :time ?t)
+                                      (field ?loc magnetic ?source :time ?t)
                                       (charge-on ?b :time ?t ?t)
                                       ))
 		  (time ?t)
