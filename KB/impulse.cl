@@ -100,7 +100,7 @@
     (compo-eqn-contains (impulse-force-vector ?b ?agent ?t) 
 			definition ?sought)))
 
-(defoperator draw-impulse-force-vector-diagram (?b ?agent ?type ?t)
+(defoperator draw-impulse-force-vector-diagram (?rot ?b ?agent ?type ?t)
   :preconditions 
   (
    ;; ?agent might not be a proper body
@@ -156,7 +156,7 @@
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
 		 (axis-name ?axis)))
 
-(defoperator draw-impulse-momentum-diagram (?b ?t1 ?t2)
+(defoperator draw-impulse-momentum-diagram (?rot ?b ?t1 ?t2)
   :preconditions 
   ( (body ?b)
     ;; ?dirv = ?dirm is set in drawing rules
@@ -361,7 +361,7 @@ impulse ~A." (?b def-np) (?t pp)))
     (compo-eqn-contains (NTL-impulse-vector ?body-pair ?t) NTL-impulse ?sought)
    ))
 
-(defoperator draw-NTL-impulse-vector-diagram (?b1 ?b2 ?t)
+(defoperator draw-NTL-impulse-vector-diagram (?rot ?b1 ?b2 ?t)
   :preconditions (
     ;; Draw both bodies. 
     (body ?b1)
@@ -440,7 +440,7 @@ impulse ~A." (?b def-np) (?t pp)))
 ;;;  see cm3.
 ;;;
 
-(defoperator draw-center-of-mass-diagram (?com ?t)
+(defoperator draw-center-of-mass-diagram (?rot ?com ?t)
   :preconditions 
   ( 
    (in-wm (center-of-mass ?com ?bodies)) ;define objects for cm

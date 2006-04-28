@@ -295,7 +295,8 @@
 ;;; 
 ;;; *  eqn-family-contains -- indicates which quantities might be found 
 ;;;                           with this
-;;; *  vector-diagram -- procedure for drawing the appropriate diagram
+;;; *  vector-diagram -- procedure for drawing the appropriate vectors
+;;;                      and choosing the coordinate system
 ;;; *  compo-eqn-contains -- which quantities various component eqns find
 ;;; 
 ;;; This operator takes care of the rest of the job of applying
@@ -1622,7 +1623,7 @@
   ; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (rdiff ?p1 ?p2 ?t) rdiff ?sought)))
 
-(defoperator draw-rdiff-diagram (?p1 ?p2 ?t)
+(defoperator draw-rdiff-diagram (?rot ?p1 ?p2 ?t)
   :preconditions 
   ((not (vector-diagram ?rot (rdiff ?p1 ?p2 ?t)))
    ;; do we draw a body for this? What body do we call this
@@ -2228,7 +2229,7 @@
   ;; select it now, rather than requiring further operators to do so
   (compo-eqn-contains (avg-velocity ?b ?t) avg-vel ?sought)))
 
-(defoperator draw-avg-vel-diagram (?b ?t)
+(defoperator draw-avg-vel-diagram (?rot ?b ?t)
   :preconditions 
   ((not (vector-diagram ?rot (avg-velocity ?b ?t)))
    (body ?b)
@@ -2759,7 +2760,7 @@
     ;; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (centripetal-accel-vec ?b ?t) definition ?sought)))
 
-(defoperator draw-centripetal-accel-vector-diagram (?b ?t)
+(defoperator draw-centripetal-accel-vector-diagram (?rot ?b ?t)
   :preconditions 
   (
    (body ?b)
@@ -3723,7 +3724,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (sum-disp ?b ?tt) sum-disp ?sought)))
 
-(defoperator draw-sum-disp-diagram (?b ?tt)
+(defoperator draw-sum-disp-diagram (?rot ?b ?tt)
   :preconditions 
   (;; 1. draw body.
    (body ?b)
@@ -4676,7 +4677,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     :EqnFormat ("F_~A = -v_~a*dmdt" (axis-name ?axis) (axis-name ?axis)))
 
 
-(defoperator thrust-force-vector-diagram (?b ?agent ?t)
+(defoperator thrust-force-vector-diagram (?rot ?b ?agent ?t)
   :preconditions (
     ;; Draw only one body 
     (body ?b)
@@ -5312,7 +5313,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (net-force ?b ?t) definition ?sought)))
 
-(defoperator draw-net-force-diagram (?b ?t)
+(defoperator draw-net-force-diagram (?rot ?b ?t)
   :preconditions
   ((not (vector-diagram ?rot (net-force ?b ?t)))
    (forces ?b ?t ?forces)
@@ -5697,7 +5698,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; there are two mutually exclusive operators depending on whether
 ;;; net force is to be shown or not. We only show net force if the
 ;;; problem explicitly mentions it (i.e. seeks it.)
-(defoperator draw-nl-fbd (?b ?t)
+(defoperator draw-nl-fbd (?rot ?b ?t)
   
   :specifications 
    "If the goal is to draw a fbd for newton's law,
@@ -5720,7 +5721,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;
 ;; In the case of known zero acceleration, we have Fnet=0 from general
 ;; vector drawing rules
-(defoperator draw-NL-net-fbd (?b ?t)
+(defoperator draw-NL-net-fbd (?rot ?b ?t)
   :specifications 
    "If the goal is to draw a fbd for newton's law in terms of net force,
    then draw a body, draw the acceleration, draw the net force vector and the axes,
@@ -6039,7 +6040,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (compo-eqn-contains (NTL-vector ?body-pair ?type ?t) NTL ?sought)
    ))
 
-(defoperator draw-NTL-vector-diagram (?b1 ?b2 ?type ?t)
+(defoperator draw-NTL-vector-diagram (?rot ?b1 ?b2 ?type ?t)
   :preconditions (
     ;; Draw both bodies. 
     (body ?b1)
@@ -6831,15 +6832,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (use-energy-axes)
    ))
 
-(defoperator draw-height-dy-diagram (?b ?t)
+(defoperator draw-height-dy-diagram (?rot ?b ?t)
   :preconditions (
 		  (body ?b)
 		  (vector ?b (displacement ?b :time ?t) ?dir)
-		  (axes-for ?b 0) ; Must use standard axes for this. 
+		  (bind ?rot 0)  ; Must use standard axes for this. 
+		  (axes-for ?b ?rot)
 		  )
-  :effects (
-	    (vector-diagram 0 (height-dy ?b ?t))
-	    ))
+  :effects ( (vector-diagram ?rot (height-dy ?b ?t)) ))
 
 (defoperator draw-energy-axes ()
   :preconditions ( 
@@ -7922,7 +7922,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (compo-eqn-contains (linear-momentum ?b ?t) definition ?sought)
   ))
 
-(defoperator draw-momentum-diagram (?b ?t)
+(defoperator draw-momentum-diagram (?rot ?b ?t)
   :preconditions 
   ( (body ?b)
     ;; ?dirv = ?dirm is set in drawing rules
@@ -8075,7 +8075,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (compo-eqn-contains (cons-linmom ?bodies (during ?t1 ?t2)) lm-compo ?sought)
   ))
 
-(defoperator draw-linmom-diagram (?bodies ?t1 ?t2)
+(defoperator draw-linmom-diagram (?rot ?bodies ?t1 ?t2)
   :preconditions (
    (not (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2))))
    ;; how much to draw? a lot of vectors at issue:
@@ -8106,9 +8106,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (foreach ?b ?bodies
       (axes-for ?b ?rot))
   )
-  :effects (
-   (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
-  ))
+  :effects ( (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2))) ))
 
 (defoperator draw-collision-momenta (?bodies ?tt)
   :preconditions (
@@ -8402,7 +8400,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
    (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
-   (vector-diagram ?rot ?eqn-id)
+   (vector-diagram 0 ?eqn-id)
    (debug "Diagram drawn for ~A, writing z-compo eqn~%" ?eqn-id)
    (eqn ?z-compo-eqn (compo-eqn z 0 ?eqn-id))
    (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
@@ -8616,7 +8614,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (angular-eqn-contains (ang-sdd ?b ?t) ?quantity)
   ))
 
-(defoperator draw-ang-sdd-vectors (?b ?t1 ?t2)
+(defoperator draw-ang-sdd-vectors (0 ?b ?t1 ?t2)
   :preconditions (
    (not (vector-diagram 0 (ang-sdd ?b (during ?t1 ?t2))))
    (body ?b)
@@ -8665,7 +8663,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   )
  :effects ( (angular-eqn-contains (rk-no-s ?b (during ?t1 ?t2)) ?sought) ))
 
-(defoperator draw-rk-no-s-vectors (?b ?t1 ?t2)
+(defoperator draw-rk-no-s-vectors (0 ?b ?t1 ?t2)
   :preconditions  (
    (not (vector-diagram 0 (rk-no-s ?b (during ?t1 ?t2))))
    (body ?b)
@@ -8716,17 +8714,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :effects ( (angular-eqn-contains (rk-no-vf ?b (during ?t1 ?t2)) ?sought) )
 )
 
-(defoperator draw-rk-no-vf-vectors (?b ?t1 ?t2)
+(defoperator draw-rk-no-vf-vectors (?rot ?b ?t1 ?t2)
   :preconditions  (
-   (not (vector-diagram 0 (rk-no-vf ?b (during ?t1 ?t2))))
+   (not (vector-diagram ?rot (rk-no-vf ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
    (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
    (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
    (variable ?var (duration (during ?t1 ?t2)))
-   (axes-for ?b 0)
+   (bind ?rot 0)
+   (axes-for ?b ?rot)
   )
-  :effects ( (vector-diagram 0 (rk-no-vf ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram ?rot (rk-no-vf ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-vf (?b ?t1 ?t2)
@@ -8770,17 +8769,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :effects ( (angular-eqn-contains (rk-no-t ?b (during ?t1 ?t2)) ?sought) )
 )
 
-(defoperator draw-rk-no-t-vectors (?b ?t1 ?t2)
+(defoperator draw-rk-no-t-vectors (?rot ?b ?t1 ?t2)
   :preconditions  (
-   (not (vector-diagram 0 (rk-no-t ?b (during ?t1 ?t2))))
+   (not (vector-diagram ?rot (rk-no-t ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
    (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
    (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
-   (axes-for ?b 0)
+   (bind ?rot 0)
+   (axes-for ?b ?rot)
   )
-  :effects ( (vector-diagram 0 (rk-no-t ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram ?rot (rk-no-t ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-t (?b ?t1 ?t2)
@@ -9291,13 +9291,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :effects ((angular-eqn-contains (ang-momentum ?b ?t) ?sought))
 )
 
-(defoperator draw-ang-momentum-vectors (?b ?t)
+(defoperator draw-ang-momentum-vectors (?rot ?b ?t)
   :preconditions 
      ( (not (vector-diagram 0 (ang-momentum ?b ?t))) 
        (vector ?b (ang-momentum ?b :time ?t) ?dir) 
-       (axes-for ?b 0) )
+       (bind ?rot 0)
+       (axes-for ?b ?rot) )
   :effects 
-     ( (vector-diagram 0 (ang-momentum ?b ?t)) ))
+     ( (vector-diagram ?rot (ang-momentum ?b ?t)) ))
 
 (defoperator write-ang-momentum (?b ?t)
   :preconditions (
@@ -9341,7 +9342,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (angular-eqn-contains (cons-angmom ?bodies (during ?t1 ?t2)) ?sought)
     ))
 
-(defoperator draw-cons-angmom-diagram (?bodies ?t1 ?t2)
+(defoperator draw-cons-angmom-diagram (?rot ?bodies ?t1 ?t2)
   :preconditions 
   (
    ;; This follows draw-linmom-diagram closely
@@ -9712,16 +9713,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :effects
     ((torques ?b ?axis ?t ?all-torques)))
 
-(defoperator draw-net-torque-diagram (?b ?axis ?t)
+(defoperator draw-net-torque-diagram (?rot ?b ?axis ?t)
   :preconditions (
    ;; draw all torques due to each force
    (torques ?b ?axis ?t ?torques)
    ;; draw net torque on object 
    (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
-   (axes-for ?b 0)
+   (axes-for ?b ?rot)
   )
   :effects (
-    (vector-diagram 0 (net-torque ?b ?axis ?t))
+    (vector-diagram ?rot (net-torque ?b ?axis ?t))
   ))
 
 ;; following draws torque diagram for qualititative problems that ask for 
@@ -9980,18 +9981,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	    (angular-eqn-contains (NFL-rot ?b ?axis ?t zc) ?sought)
 	    ))
 
-(defoperator draw-NFL-rot-diagram (?b ?axis ?t)
+(defoperator draw-NFL-rot-diagram (?rot ?b ?axis ?t)
   :preconditions (
 		  (not (vector-diagram 0 (NFL-rot ?b ?axis ?t)))
 		  ;; (body ?b)
 		  (torques ?b ?axis ?t ?torques)
 		  (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
 		  (vector ?b (ang-accel ?b :time ?t) ?dir-accel)
-		  (axes-for ?b 0)
+		  (axes-for ?b ?rot)
 		  )
-  :effects (
-	    (vector-diagram 0 (NFL-rot ?b ?axis ?t))
-	    ))
+  :effects ( (vector-diagram ?rot (NFL-rot ?b ?axis ?t)) ))
 
 (defoperator write-NFL-rotation (?b ?axis ?t)
   
@@ -10045,17 +10044,18 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      (angular-eqn-contains (NSL-rot ?b ?axis ?t) ?sought)
    ))
 
-(defoperator draw-NSL-rot-diagram (?b ?axis ?t)
+(defoperator draw-NSL-rot-diagram (?rot ?b ?axis ?t)
     :preconditions (
-      (not (vector-diagram 0 (NSL-rot ?b ?axis ?t)))
+      (not (vector-diagram ?rot (NSL-rot ?b ?axis ?t)))
       ;; (body ?b)
       (torques ?b ?axis ?t ?torques)
       (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
       (vector ?b (ang-accel ?b :time ?t) ?dir-accel)
-      (axes-for ?b 0)
+      (bind ?rot 0)
+      (axes-for ?b ?rot)
     )
     :effects (
-      (vector-diagram 0 (NSL-rot ?b ?axis ?t))
+      (vector-diagram ?rot (NSL-rot ?b ?axis ?t))
     ))
 
 (defoperator write-NSL-rotation (?b ?axis ?t)

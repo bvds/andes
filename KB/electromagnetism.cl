@@ -108,7 +108,7 @@
     ;; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (coulomb-vec ?b1 ?b2 ?t ?form) coulomb-force ?sought)))
 
-(defoperator draw-coulomb-vector-diagram (?b ?agent ?t)
+(defoperator draw-coulomb-vector-diagram (?rot ?b ?agent ?t)
   :preconditions 
   (
    (body ?b)
@@ -626,7 +626,7 @@
   ((in-wm (given (compo x 0 (field ?loc electric ?source :time ?t ?t)) ?value)))
   :effects ((source-of-Efield ?loc ?t ?source)))
 
-(defoperator draw-charge-force-Efield-diagram (?b ?source ?t)
+(defoperator draw-charge-force-Efield-diagram (?rot ?b ?source ?t)
   :preconditions 
   (
    (debug "Using draw-charge-force-Efield-diagram ~%")
@@ -818,7 +818,7 @@
    ;; select it now, her than requiring further operators to do so
    (compo-eqn-contains (point-charge-Efield ?b ?loc ?t ?form) qpe ?sought)))
 
-(defoperator draw-point-charge-Efield-diagram (?b ?loc ?t)
+(defoperator draw-point-charge-Efield-diagram (?rot ?b ?loc ?t)
   :preconditions 
   (
    (rdebug "Using draw-point-charge-Efield-diagram ~%")
@@ -1097,7 +1097,7 @@
    (compo-eqn-contains (net-field ?loc ?type ?t) definition ?sought)
   ))
 
-(defoperator draw-net-field-diagram (?loc ?type ?t)
+(defoperator draw-net-field-diagram (?rot ?loc ?type ?t)
  :preconditions (
     ;; draw body? which? use the point?
     (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
@@ -1537,7 +1537,7 @@
    ;; since only one compo-eqn under this vector psm, we can just
    ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (dipole-moment ?dipole electric ?t) definition ?sought)))
-(defoperator draw-electric-dipole-moment-diagram (?dipole ?t)
+(defoperator draw-electric-dipole-moment-diagram (?rot ?dipole ?t)
   :preconditions 
   (
    (debug "Using draw-electric-dipole-moment-diagram ~%")
@@ -1678,7 +1678,7 @@
    (compo-eqn-contains (dipole-moment ?current-loop magnetic ?t) 
 		       definition ?sought)))
 
-(defoperator draw-magnetic-dipole-moment-diagram (?dipole ?t)
+(defoperator draw-magnetic-dipole-moment-diagram (?rot ?dipole ?t)
   :preconditions 
   (
    (debug "Using draw-magnetic-dipole-moment-diagram ~%")
@@ -2625,7 +2625,7 @@
   :effects 
   ((eqn-contains (charge-force-Bfield ?axis ?rot ?b ?flag ?t) ?sought)))
 
-(defoperator draw-charge-force-Bfield-diagram (?b ?t)
+(defoperator draw-charge-force-Bfield-diagram (?rot ?b ?t)
   :preconditions 
   (
    (debug "Using draw-charge-force-Bfield-diagram ~%")

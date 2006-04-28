@@ -48,7 +48,7 @@
 (def-goalprop rel-vel-fbd (vector-diagram ?rot (relative-vel ?b1 ?b2 ?b3 ?t))
    :english ("drawing a diagram showing all of the needed relative velocity vectors and coordinate axes" ))
    
-(defoperator draw-rel-vel-diagram (?b1 ?t)
+(defoperator draw-rel-vel-diagram (?rot ?b1 ?t)
   :preconditions (
 		  (rdebug "Using draw-rel-vel-diagram-no-axes-problem ~%")
 		  (not (vector-diagram ?rot (relative-vel ?b1 ?b2 ?t)))
