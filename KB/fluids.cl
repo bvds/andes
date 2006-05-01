@@ -650,13 +650,11 @@
 ;;; terms.
 
 (defoperator find-pressure-force (?body ?surface ?fluid ?t)
-   :preconditions (
+   :preconditions 
+   ((time ?t)
     (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
-    (test (tinsidep ?t ?t-pressure))
-  ) 
-  :effects (
-    (force ?body ?fluid pressure ?t ?dir action)
-  ))
+    (test (tinsidep ?t ?t-pressure))) 
+  :effects ( (force ?body ?fluid pressure ?t ?dir action) ))
 
 ;; The hints need to be generalized to handle radiation pressure.
 (defoperator draw-pressure (?b ?fluid ?t)
