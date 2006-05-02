@@ -441,9 +441,8 @@
          ((member eqn *algebraic-operators*) NIL)
 	 ((physconstp eqn) NIL)    ; defined in constants.cl
          ((symbolp eqn) (list eqn))
-         ((not (listp eqn))
-          (error "~&Non-eqn ~a" eqn))
-         (T (union (vars-in-eqn (car eqn)) (vars-in-eqn (cdr eqn))))))
+         ((consp eqn) (union (vars-in-eqn (car eqn)) (vars-in-eqn (cdr eqn))))
+         (T (error "~&Non-eqn ~a" eqn))))
 ;;;
 ;;;  Yuck!  This should match the operators independently re-defined in:
 ;;;  Help/parse-andes.cl
