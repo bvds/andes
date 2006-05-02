@@ -1204,7 +1204,7 @@
 		      "from ~a to ~a") (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat("Wnc = ME2 - ME1"))
 
-(def-psmclass height-dy (?eq-type height-dy ?y ?rot (height-dy ?body ?time))
+(def-psmclass height-dy (height-dy ?body ?time)
   :complexity connect
   :short-name "change in height"
   :english ("the height change-displacement relationship")

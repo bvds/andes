@@ -951,6 +951,25 @@
        ; !!! TODO
    ))
 
+(defoperator draw-energy-axes ()
+  :preconditions ( 
+		  ;; only use this if have chosen energy method
+		  (in-wm (use-energy-axes))
+		  ;; component-form requires standard axes
+		  (not (component-form))
+		  )
+  :effects (
+	    (draw-axes ?b 0)  ;action proposition for help system gives x dir
+	    (axes-for ?b 0)
+	    (assume axes-for ?b 0)
+	    (energy-axes ?b)
+	    )
+  :hint (
+	 (point (string "To find an appropriate direction to set the coordinate axes, think about the sorts of quantities that will be needed for an energy solution."))
+	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because change in height is the vertical component of the displacement, and because energy solutions otherwise involve only scalar quantities, there is no advantage to using rotated coordinate axes. So energy solutions in Andes use only standard horizontal-vertical axes."))
+	 (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
+	 ))
+
 ;;; =================== defining component variables =============
 ;;; When writing a compo equation, the code will call (variable <var>
 ;;; <quantity>) with <quantity> bound in order to fetch a variable
@@ -6834,82 +6853,51 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; We code this as a vector equation so that the projection equation will 
 ;;; automatically be packed into the method. However, it is not really true
 ;;; that it is a vector equation which could be projected along x or y axes.
+;;; Thus we do not handle this as a vector PSM.
 ;;;
-;;; Also, the generic code that chooses axis to apply along (e.g. 
-;;; select-compo-eqn-for-scalar) would prevent this from ever being used to 
-;;; get that change in height is zero in case of horizontal displacement. 
-;;; The reason is that that code will not select a vector equation along 
-;;; the y axis if the vector points along the x axis, to prevent writing 
-;;; degenerate equations that can't be used to solve for the scalar when zero 
-;;; projections are used. 
-;;;
-;;; For those reasons we post a compo-eqn-selected result -- see below.
+
 (defoperator height-dy-contains (?quantity)
   :preconditions 
   (
-   (any-member ?quantity ((displacement ?b :time (during ?t1 ?t2))
+   (any-member ?quantity ((compo y 0 (displacement ?b :time (during ?t1 ?t2)))
 	       (height ?b :time ?t1)
 	       (height ?b :time ?t2)
 	       ))
-   (time ?t1) (time ?t2)
    (time (during ?t1 ?t2))
+   (time ?t1) (time ?t2) ;sanity test
    )
   :effects 
   (
-   (eqn-family-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
-   ;; since we know which compo-eqn we'll be using, we can select
-   ;; it now, rather than requiring further operators to do so
-   ;; We also select the axis, normally done by select-compo-eqn* ops
-   (compo-eqn-selected (height-dy ?b (during ?t1 ?t2)) ?quantity 
-		       (compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))))
+   (eqn-contains (height-dy ?b (during ?t1 ?t2)) ?quantity)
    ;; post this to make sure we will use standard axes
    (use-energy-axes)
    ))
 
-(defoperator draw-height-dy-diagram (?rot ?b ?t)
+(defoperator draw-height-dy-diagram (?b ?t)
   :preconditions (
 		  (body ?b)
 		  (vector ?b (displacement ?b :time ?t) ?dir)
-		  (bind ?rot 0)  ; Must use standard axes for this. 
-		  (axes-for ?b ?rot)
+		  (axes-for ?b 0) ;Must use standard axes for this. 
 		  )
-  :effects ( (vector-diagram ?rot (height-dy ?b ?t)) ))
+  :effects ( (vector-diagram 0 (height-dy ?b ?t)) ))
 
-(defoperator draw-energy-axes ()
-  :preconditions ( 
-		  ;; only use this if have chosen energy method
-		  (in-wm (use-energy-axes))
-		  ;; component-form requires standard axes
-		  (not (component-form))
-		  )
-  :effects (
-	    (draw-axes ?b 0)  ;action proposition for help system gives x dir
-	    (axes-for ?b 0)
-	    (assume axes-for ?b 0)
-	    (energy-axes ?b)
-	    )
-  :hint (
-	 (point (string "To find an appropriate direction to set the coordinate axes, think about the sorts of quantities that will be needed for an energy solution."))
-	 (teach (string "Gravitational potential energy depends on the height above the stipulated zero level. Because change in height is the vertical component of the displacement, and because energy solutions otherwise involve only scalar quantities, there is no advantage to using rotated coordinate axes. So energy solutions in Andes use only standard horizontal-vertical axes."))
-	 (bottom-out (string "Draw standard horizontal-vertical coordinate axes by setting the x axis at 0 degrees." ))
-	 ))
-
-(defoperator write-height-dy-compo (?b ?t1 ?t2)
-  :preconditions (
-		  (variable ?h2 (height ?b :time ?t2))
-		  (variable ?h1 (height ?b :time ?t1))
-		  (variable ?d12_y  (compo y 0 (displacement ?b :time (during ?t1 ?t2))))
-		  )
-  :effects (
-	    (eqn (= (- ?h2 ?h1) ?d12_y)
-		 (compo-eqn height-dy y 0 (height-dy ?b (during ?t1 ?t2))))
-	    )
-  :hint (
-	 (point (string "You should relate the change in height of ~A ~A to the displacement during that period." 
-			?b ((during ?t1 ?t2) pp)))
-	 (teach (string "The change in height will be equal to the vertical component of the displacement."))
-	 (bottom-out (string "Write the equation ~A" ((= (- ?h2 ?h1) ?d12_y) algebra)))
-	 ))
+(defoperator write-height-dy (?b ?t1 ?t2)
+  :preconditions 
+  (
+   ;; Draw body and displacement vector
+   (vector-diagram ?rot (height-dy ?b ?t))
+   (variable ?h2 (height ?b :time ?t2))
+   (variable ?h1 (height ?b :time ?t1))
+   (variable ?d12_y  (compo y ?rot (displacement ?b :time (during ?t1 ?t2))))
+   )
+  :effects ( (eqn (= (- ?h2 ?h1) ?d12_y) (height-dy ?b (during ?t1 ?t2))) )
+  :hint 
+  (
+   (point (string "You should relate the change in height of ~A ~A to the displacement during that period." 
+		  ?b ((during ?t1 ?t2) pp)))
+   (teach (string "The change in height will be equal to the vertical component of the displacement."))
+   (bottom-out (string "Write the equation ~A" ((= (- ?h2 ?h1) ?d12_y) algebra)))
+   ))
 
 
 ;;;============================================================================

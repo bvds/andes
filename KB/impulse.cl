@@ -452,7 +452,8 @@ impulse ~A." (?b def-np) (?t pp)))
    (vector ?com (relative-position ?com ?origin :time ?t) ?dircom)
    ;; branch on possible axes
    (map ?b ?bodies (axes-for ?b ?rotb) ?rotb ?rots)
-   (any-member ?rot ?rots)
+   (bind ?reduced (remove-duplicates ?rots))
+   (any-member ?rot ?reduced)
    )
   :effects (
    (vector-diagram ?rot (center-of-mass ?com ?t))
