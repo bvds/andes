@@ -139,8 +139,6 @@
    (eqn (= ?F_xy (* (/ (* |kelec| ?q1 ?q2) (^ ?r 2)) ?rhat-compo))
             (compo-eqn coulomb-force ?xy ?rot 
 		       (coulomb-vec ?b1 ?b2 ?t ?form)))
-   (eqn-compos (compo-eqn coulomb-force ?xy ?rot 
-		       (coulomb-vec ?b1 ?b2 ?t ?form)) (?F_xy))
    )
   :hint (
      (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
@@ -659,8 +657,6 @@
   :effects (
             (eqn (= ?F_x (* ?q ?E_x))
                  (compo-eqn qfe ?xy ?rot (charge-force-Efield ?b ?source ?t)))
-            (eqn-compos (compo-eqn qfe ?xy ?rot (charge-force-Efield ?b ?source ?t))
-                        (?F_x ?E_x))
             )
   :hint (
          (point (string "What is the relationship between the force, the charge and the electric field?"))
@@ -867,9 +863,6 @@
   (
    (eqn (= ?E_x (* (/ (* |kelec| ?q) (^ ?r 2)) ?rhat-compo))
 	(compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t ?form)))
-   ;; do we need this? do we use this only in component form?
-   (eqn-compos (compo-eqn qpe ?xy ?rot (point-charge-Efield ?b ?loc ?t ?form))
-	       (?E_x))
     )
   :hint 
   (
@@ -1098,14 +1091,16 @@
   ))
 
 (defoperator draw-net-field-diagram (?rot ?loc ?type ?t)
- :preconditions (
-    ;; draw body? which? use the point?
-    (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
-    (foreach ?source ?sources
-       (vector ?b (field ?loc ?type ?source :time ?t) ?dir)) 
-    ; which body should own the axis to use for these vectors
-    (axes-for ?loc ?rot)
- )
+ :preconditions 
+ (
+  (vector ?b (net-field ?loc ?type :time ?t) ?dir-net)
+  ;; draw vectors for field sources
+  (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
+  ;; draw vectors
+  (foreach ?source ?sources
+	   (vector ?sb (field ?loc ?type ?source :time ?t) ?dir))
+  (axes-for ?b ?rot)
+  )
  :effects (
     (vector-diagram ?rot (net-field ?loc ?type ?t))
  ))
@@ -1122,9 +1117,7 @@
   :effects (
     (eqn (= ?Fnet_x (+ . ?Fi_x))
                  (compo-eqn definition ?xy ?rot (net-field ?loc ?type ?t)))
-     (eqn-compos (compo-eqn definition ?xy ?rot (net-field ?loc ?type ?t))
-                        (?Fnet_x . ?Fi_x))
-  )
+    )
   :hint (
     (point (string "The net ~A field at a point can be computed from the fields set up at that point by each of the field sources." 
 		   (?type adj)))
@@ -1576,9 +1569,7 @@
     ;; note this equation is timeless
     (implicit-eqn (= (+ ?qp ?qn) 0) 
 		  (electric-dipole-moment-balance ?dipole))
-    (eqn-compos (compo-eqn definition ?xy ?rot 
-			   (dipole-moment ?dipole electric ?t))
-		(?p_x ?d_x)))
+    )
   :hint 
   ( (point (string "What is the electric dipole moment for two charges?"))
     (teach ;(kcd "write-electric-dipole-moment-compo")
@@ -1708,9 +1699,7 @@
   :effects 
   ( (eqn (= ?mu_x (* ?N ?I ?A ?n_x))
 	 (compo-eqn definition ?xy ?rot (dipole-moment ?dipole magnetic ?t)))
-    (eqn-compos (compo-eqn definition ?xy ?rot 
-			   (dipole-moment ?dipole magnetic ?t))
-		(?mu_x ?n_x)))
+    )
   :hint 
   ( (point (string "What is the magnetic dipole moment for a current loop?"))
     (teach ;(kcd "write-magnetic-dipole-moment-compo")
