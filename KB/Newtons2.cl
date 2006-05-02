@@ -1965,25 +1965,25 @@
 
 (defoperator draw-velocity-at-rest (?b ?t)
   :specifications 
-   "If there is an object,
+  "If there is an object,
      and it is at rest at a certain time,
    then its velocity at that time is zero."
   :preconditions
-   ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
-    (motion ?b at-rest :time ?t-motion)
-    (time ?t)
-    (test (tinsidep ?t ?t-motion))
-    (bind ?mag-var (format-sym "v_~A~@[_~A~]" ?b (time-abbrev ?t))))
+  ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
+   (motion ?b at-rest :time ?t-motion)
+   (time ?t)
+   (test (tinsidep ?t ?t-motion))
+   (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))))
   :effects
-   ((vector ?b (velocity ?b :time ?t) zero)
-    (variable ?mag-var (mag (velocity ?b :time ?t)))
-    (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
+  ((vector ?b (velocity ?b :time ?t) zero)
+   (variable ?mag-var (mag (velocity ?b :time ?t)))
+   (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
   :hint
-   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
-    (teach (kcd "draw_zero_velocity")
-           (string "When an object is at rest, its velocity is zero.")) ; too simple for a kcd
-    (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
-    ))
+  ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
+   (teach (kcd "draw_zero_velocity")
+	  (string "When an object is at rest, its velocity is zero.")) ; too simple for a kcd
+   (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
+   ))
 
 ;; might now be redundant with draw-velocity-at-rest
 (defoperator draw-velocity-rotating-fixed (?b ?t)
@@ -2017,25 +2017,25 @@
 ;;
 (defoperator draw-velocity-momentarily-at-rest (?body ?t)
   :specifications 
-   "If there is an object,
+  "If there is an object,
      and it is momentarily at rest at a certain instant,
    then its velocity at that time is zero."
   :preconditions
-   ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
-    (motion ?b momentarily-at-rest :time ?t-motion)
-    (time ?t)
-    (test (and ?t-motion (tinsidep ?t ?t-motion)))
-    (bind ?mag-var (format-sym "v_~A~@[_~A~]" ?b (time-abbrev ?t))))
+  ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
+   (motion ?b momentarily-at-rest :time ?t-motion)
+   (time ?t)
+   (test (and ?t-motion (tinsidep ?t ?t-motion)))
+   (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))))
   :effects
-   ((vector ?body (velocity ?b :time ?t) zero)
-    (variable ?mag-var (mag (velocity ?b :time ?t)))
-    (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
+  ((vector ?body (velocity ?b :time ?t) zero)
+   (variable ?mag-var (mag (velocity ?b :time ?t)))
+   (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
   :hint
-   ((point (string "Notice that ~a is momentarily at rest ~a." ?b (?t pp)))
-    (teach (string "When an object is at rest even momentarily, its velocity at that moment is zero.")
+  ((point (string "Notice that ~a is momentarily at rest ~a." ?b (?t pp)))
+   (teach (string "When an object is at rest even momentarily, its velocity at that moment is zero.")
 	   (kcd "draw_zero_velocity"))
-    (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
-    ))
+   (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
+   ))
 
 ;; This operator draws a non-zero velocity vector along the line of
 ;; motion because the object is moving in a straight line during a time
@@ -3589,18 +3589,20 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :specifications 
   "if you are given that one body is at a certain direction with respect to another,
   then draw the relative position vector from one to the other in that direction"
-  :preconditions ( 
-    (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr)
-    (test (not (equal ?dir-expr 'unknown)))
-    (time ?t) ;explicit time
-    (test (tinsidep-include-endpoints ?t ?t-given))
-    ; make sure this vector not already drawn
-    (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b1 ?b2 (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" 
-	   ?dir-expr ?b1 ?b2 ?t)
-    )
+  :preconditions 
+  ( 
+   (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr)
+   (test (not (equal ?dir-expr 'unknown)))
+   (time ?t) ;explicit time
+   (test (tinsidep-include-endpoints ?t ?t-given))
+   ;; make sure this vector not already drawn
+   (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
+   (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
+			      (body-name ?b2) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" 
+	  ?dir-expr ?b1 ?b2 ?t)
+   )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
     (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
@@ -3627,7 +3629,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (test (tinsidep-include-endpoints ?t ?t-given))
     ; make sure this vector not already drawn
     (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b1 ?b2 (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
+			       (body-name ?b2) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?dir-expr (opposite ?opp-dir-expr))
     (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)
@@ -3701,7 +3704,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (given (dir (relative-position ?b2 ?b1 :time ?t)) (dnum ?dir |deg|)))
     ;; make sure this vector not already drawn
     (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b1 ?b2 (time-abbrev ?t)))
+    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
+			       (body-name ?b2) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing relative position ~A wrt ~a at ~a at unknown angle.~%" ?b1 ?b2 ?t)
     )
@@ -3721,7 +3725,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((in-wm (at-place ?b ?loc :time ?t-at-place))
    (test (tinsidep ?t ?t-at-place))
    (not (vector ?b (relative-position ?b ?loc :time ?t) ?dont-care))
-   (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" ?b ?loc (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b) ?loc 
+			      (time-abbrev ?t)))
    (debug "~&Drawing zero-length relative position of ~a wrt ~a at ~a.~%" ?b ?loc ?t))
   :effects 
   ((vector ?b (relative-position ?b ?loc :time ?t) zero)
