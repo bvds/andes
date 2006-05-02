@@ -320,7 +320,7 @@
 ;; selection code. This avoids having to add new stuff to the existing
 ;; equation-contains stuff.
 ;;
-(defoperator apply-vector-PSM (?sought ?eq-args) 
+(defoperator apply-vector-PSM (?sought ?eqn-id) 
   :specifications " If the goal is to apply a PSM to find a vector component,
       and there is a vector equation that contains the vector magnitude,
       then
@@ -337,17 +337,16 @@
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
    (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
-   (vector-diagram ?rot ?vec-eqn-id)
-   (debug "Vectors drawn for ~a.~%" ?vec-eqn-id)
+   (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
+   (debug "Vectors drawn for ~a, axes ~A.~%" ?vec-eqn-id ?rot)
    ;;  Test that ?sought may actually be in resulting equation.
-   (compo-eqn-selected ?rot ?vec-eqn-id ?sought ?eq-args)
+   (compo-eqn-selected ?rot ?vec-eqn-id ?sought ?eqn-id)
    ;;
-   (debug "Writing compo eqn ~a ~%  for ~a~%" ?eq-args ?sought)
-   (eqn ?compo-eqn (compo-eqn . ?eq-args))
-   (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eq-args)
+   (eqn ?compo-eqn ?eqn-id)
+   ;;
+   (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eqn-id)
    )
-  :effects ((PSM-applied ?sought (compo-eqn . ?eq-args) ?compo-eqn)
-	    (assume using-compo ?eq-args)))
+  :effects ((PSM-applied ?sought ?eqn-id ?compo-eqn)))
 
 ;;;
 ;;; operators for applying vector PSM's
@@ -386,7 +385,23 @@
   :effects
   ((compo-eqn-selected ?rot ?vec-eqn-id 
 		       (compo ?xyz ?rot ?vector) 
-		       (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
+		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))
+   (assume using-compo (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
+
+(defoperator select-projection-for-magnitude 
+  (?vec-eqn-id ?vector)
+  :preconditions
+  (
+   (in-wm (vector ?b ?vector ?dir))  ;get dir
+   (get-axis ?xyz ?rot)
+   (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
+   (not (eqn ?dont-care (projection (compo ?xyz ?rot ?vector))))
+   ;; (debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
+   )
+  :effects
+  ((compo-eqn-selected ?rot ?vec-eqn-id 
+		       (mag ?vector) 
+		       (projection (compo ?xyz ?rot ?vector)))))
 
 
 ;;; This operator suggests applying a vector equation in order to find
@@ -408,7 +423,9 @@
   :effects
   ((compo-eqn-selected ?rot ?vec-eqn-id
 		       ?quantity 
-		       (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
+		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))
+   (assume using-compo (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
+
 
 
 ;;; ===================== projections ====================
