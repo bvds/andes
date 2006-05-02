@@ -1093,12 +1093,12 @@
 (defoperator draw-net-field-diagram (?rot ?loc ?type ?t)
  :preconditions 
  (
-  (vector ?b (net-field ?loc ?type :time ?t) ?dir-net)
-  ;; draw vectors for field sources
+  ;; list of sources from problem statement
   (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
-  ;; draw vectors
+  ;; draw field vectors
   (foreach ?source ?sources
-	   (vector ?sb (field ?loc ?type ?source :time ?t) ?dir))
+	   (vector ?source-body (field ?loc ?type ?source :time ?t) ?dir))
+  (vector ?b (net-field ?loc ?type :time ?t) ?dir-net)
   (axes-for ?b ?rot)
   )
  :effects (
