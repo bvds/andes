@@ -449,9 +449,10 @@ impulse ~A." (?b def-np) (?t pp)))
 	    (body ?b))			;make object
    (foreach ?b ?bodies			;make position vector
 	    (vector ?b (relative-position ?b ?origin :time ?t) ?dirb))
-   (foreach ?b ?bodies 
-	    (axes-for ?b ?rot))	;make axes
    (vector ?com (relative-position ?com ?origin :time ?t) ?dircom)
+   ;; branch on possible axes
+   (map ?b ?bodies (axes-for ?b ?rotb) ?rotb ?rots)
+   (any-member ?rot ?rots)
    )
   :effects (
    (vector-diagram ?rot (center-of-mass ?com ?t))
