@@ -388,20 +388,31 @@
 		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))
    (assume using-compo (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
-(defoperator select-projection-for-magnitude 
-  (?vec-eqn-id ?vector)
+(defoperator select-projection-for-mag (?vec-eqn-id ?vector)
   :preconditions
   (
    (in-wm (vector ?b ?vector ?dir))  ;get dir
+   ;; make sure this is not acheivable by the ordinary projection equations
+   (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
    (get-axis ?xyz ?rot)
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    (not (eqn ?dont-care (projection (compo ?xyz ?rot ?vector))))
-   ;; (debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
    )
   :effects
-  ((compo-eqn-selected ?rot ?vec-eqn-id 
-		       (mag ?vector) 
+  ((compo-eqn-selected ?rot ?vec-eqn-id (mag ?vector) 
 		       (projection (compo ?xyz ?rot ?vector)))))
+
+(defoperator select-vector-magnitude-for-mag (?vec-eqn-id ?vector)
+  :preconditions
+  (
+   (in-wm (vector ?b ?vector ?dir))  ;get dir
+   ;; verify this is not acheivable by the ordinary vector-magnitude equations
+   (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
+   (not (eqn ?dont-care (vector-magnitude ?vector ?rot)))
+   )
+  :effects
+  ((compo-eqn-selected ?rot ?vec-eqn-id (mag ?vector) 
+		       (vector-magnitude ?vector ?rot))))
 
 
 ;;; This operator suggests applying a vector equation in order to find
