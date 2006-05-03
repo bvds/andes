@@ -337,11 +337,11 @@
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
    (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
-   (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
    (debug "Vectors drawn for ~a, axes ~A.~%" ?vec-eqn-id ?rot)
-   ;;  Test that ?sought may actually be in resulting equation.
-   (compo-eqn-selected ?rot ?vec-eqn-id ?sought ?eqn-id)
-   ;;
+   ;; Different methods depending on type of quantity for ?sought
+   (compo-eqn-selected ?vec-eqn-id ?sought ?eqn-id)
+   ;;  write out equation itself
+   (not (eqn ?whatever ?eqn-id))
    (eqn ?compo-eqn ?eqn-id)
    ;;
    (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eqn-id)
@@ -377,13 +377,12 @@
   :preconditions
   (
    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
+   (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
    (in-wm (vector ?b ?vector ?dir))  ;get dir
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
-   (not (eqn ?dont-care (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id)))
-   ;; (debug "Selecting ~a rot ~a for mag of ~a at ~a.~%" ?xyz ?rot ?vector ?t)
    )
   :effects
-  ((compo-eqn-selected ?rot ?vec-eqn-id 
+  ((compo-eqn-selected ?vec-eqn-id 
 		       (compo ?xyz ?rot ?vector) 
 		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))
    (assume using-compo (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
@@ -391,27 +390,27 @@
 (defoperator select-projection-for-mag (?vec-eqn-id ?vector)
   :preconditions
   (
+   (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
    (in-wm (vector ?b ?vector ?dir))  ;get dir
    ;; make sure this is not acheivable by the ordinary projection equations
    (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
-   (get-axis ?xyz ?rot)
-   (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
-   (not (eqn ?dont-care (projection (compo ?xyz ?rot ?vector))))
+   (get-axis ?xyz ?rot)  ;iterate over directions
+   (test (non-zero-projectionp ?dir ?xyz ?rot)) ;sanity test
    )
   :effects
-  ((compo-eqn-selected ?rot ?vec-eqn-id (mag ?vector) 
+  ((compo-eqn-selected ?vec-eqn-id (mag ?vector) 
 		       (projection (compo ?xyz ?rot ?vector)))))
 
 (defoperator select-vector-magnitude-for-mag (?vec-eqn-id ?vector)
   :preconditions
   (
+   (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
    (in-wm (vector ?b ?vector ?dir))  ;get dir
    ;; verify this is not acheivable by the ordinary vector-magnitude equations
    (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
-   (not (eqn ?dont-care (vector-magnitude ?vector ?rot)))
    )
   :effects
-  ((compo-eqn-selected ?rot ?vec-eqn-id (mag ?vector) 
+  ((compo-eqn-selected ?vec-eqn-id (mag ?vector) 
 		       (vector-magnitude ?vector ?rot))))
 
 
@@ -427,12 +426,13 @@
   :preconditions
    ((test (scalar-quantityp ?quantity))
     (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?quantity)
+    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
     (debug "choosing compo to apply ~A to find scalar ~A~%"   
 	   ?compo-eqn-name ?quantity) 
     (get-axis ?xyz ?rot) ;iterate over ?xyz
     )
   :effects
-  ((compo-eqn-selected ?rot ?vec-eqn-id
+  ((compo-eqn-selected ?vec-eqn-id
 		       ?quantity 
 		       (compo-eqn ?compo-eqn-name ?xyz ?rot ?vec-eqn-id))
    (assume using-compo (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
