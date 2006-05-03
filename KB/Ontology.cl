@@ -660,7 +660,7 @@
   :ExpFormat ("entering the given value of ~A" (nlg ?quantity))
   :EqnFormat ("Var = N units"))
 
-(def-psmclass proj (projection (compo ?axis ?rot ?vector :time ?time))
+(def-psmclass projection (projection (compo ?axis ?rot ?vector))
   :complexity connect
   :doc "projection equations"
   :short-name ("on ~A-axis" (axis-name ?axis))
@@ -1492,28 +1492,6 @@
   :expformat ("applying rotational version of Newton's Second Law to ~a about ~a ~a"
 	      (nlg ?body) (nlg ?pivot) (nlg ?time 'nlg-time))
   :eqnFormat ((torque-switch "Mnet_z = I*$a_z" "$tnet_z = I*$a_z" )))
-
-
-;;
-;; Subsidiary equations that occur inside top-level psm nodes:
-;; In the future, we may be able to rewrite so that some of these
-;; can become top-level psms.
-;;
-
-; Used as sub-equation inside standard vector psms: 
-; also used inside the top-level psm version ("proj" above) which
-; is used in "component-form" solutions
-(def-equation projection (projection (compo ?axis ?rot ?vector :time ?time))
-  :doc "projection equation inside psm"
-  :complexity connect
-  :english ("projection equation")
-  
-  ;:ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
-  ;	      (nlg ?vector) (axis-name ?axis))
-  :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
-	      (vector-var-pref ?vector) (axis-name ?axis) 
-	      (vector-var-pref ?vector) (equal ?axis x)
-	      (vector-var-pref ?vector) (axis-name ?axis)))
 
 ;; definition of momentum in component form:
 (def-psmclass momentum-compo (?eq-type definition ?axis ?rot 
