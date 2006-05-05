@@ -80,6 +80,7 @@
    (setof (in-wm (parameter ?quant ?dont-care)) ?quant ?parameters)
    (bind ?initial-knowns (union ?initial-givens ?parameters :test #'unify))
    
+   (test (or (variable-p ?eqn-id) (format t "find-by-PSM with ?eqn-id = ~A~%" ?eqn-id) t))
    ;; Main step: apply a PSM to generate an equation for sought.
    (PSM-applied ?sought ?eqn-id ?eqn-algebra)
    
@@ -2215,8 +2216,7 @@
    (in-wm (given (dir (displacement ?b :time ?t)) ?dir))
    (test (not (equal ?dir 'unknown)))  
    (not (vector ?b (velocity ?b :time ?t) ?dontcare))
-   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) 
-			      (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
   ((vector ?b (velocity ?b :time ?t) ?dir)
@@ -5724,7 +5724,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (eqn-family-contains (NL ?b ?t) ?quantity)
    ;; since we know which compo-eqn we'll be using, we can 
    ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains  (NL ?b ?t) NSL-net ?quantity)
+   (compo-eqn-contains (NL ?b ?t) NSL-net ?quantity)
    ;; Further nl operators, esp diagram drawing, will test the following
    ;; in wm to tell whether net-force version should be drawn
    (use-net-force)
@@ -6009,9 +6009,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a)) ;done in drawing step
    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
 		      `(* ,?m ,?a-compo) 0))
-   ;; add acceleration compo var to form list of all compo vars in equation
-   (bind ?eqn-compo-vars (if (non-zero-projectionp ?dir-a ?xyz ?rot)
-	 (list ?a-compo ?fnet-compo-var) (list ?fnet-compo-var)))
     )
   :effects (
     (eqn (= ?fnet-compo-var ?ma-term)
