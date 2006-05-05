@@ -79,8 +79,6 @@
    (setof (in-wm (given ?quant ?dont-care)) ?quant ?initial-givens)
    (setof (in-wm (parameter ?quant ?dont-care)) ?quant ?parameters)
    (bind ?initial-knowns (union ?initial-givens ?parameters :test #'unify))
-   
-   (test (or (variable-p ?eqn-id) (format t "find-by-PSM with ?eqn-id = ~A~%" ?eqn-id) t))
    ;; Main step: apply a PSM to generate an equation for sought.
    (PSM-applied ?sought ?eqn-id ?eqn-algebra)
    
