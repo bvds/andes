@@ -6352,6 +6352,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; sought is height at 3 (as in e1a) we want different op-apps for 
 ;;; cons-energy 2 3 and cons-energy 1 3 because these are different equations
 ;;; in the solution graph.
+;;
+;;  cons-energy would be redundant if we had principles relating 
+;;  work done on A by B to the change in the associated potential energy of A.
+;;
+
 (defoperator cons-energy-contains (?sought)
   :preconditions 
   (
@@ -6421,6 +6426,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
  )
  :effects (
   (derived-eqn ?eqn-algebra (cons-energy ?b ?t1 ?t2))
+  (assume using-cons-energy ?b ?t1 ?t2)
  )
  ;; no hints here because effect is summary derived-equation -- students write
  ;; only the subsidiary equations, so only ops for those have hints
@@ -7524,8 +7530,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?ke1-var (kinetic-energy ?b :time ?t1))
     (variable ?ke2-var (kinetic-energy ?b :time ?t2)))
   :effects 
-  ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2)))
-   (assume using-work-energy ?b ?t1 ?t2))
+  ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2))))
   :hint (
    (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
    (teach (string "The work-energy principle states that the net work done on an object by all forces over an interval is equal to the change in its kinetic energy over that interval"))
@@ -7560,29 +7565,29 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (derived-eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
     ; post this to make sure we get hint for energy prob axes
     (use-energy-axes)
-    (assume using-change-me ?b ?t1 ?t2)
   ))
 
 (defoperator apply-change-ME (?b ?t1 ?t2)
- :preconditions (
-  ;; Draw the body and standard axes for principle
-  (body ?b)
-  (axes-for ?b 0)  
-
-  ;; write equation Wnc = ME2 - ME1
-  (eqn (= ?Wnc (- ?te2 ?te1))  (change-ME-top ?b ?t1 ?t2))
-  ;; write equation ME2 = K2 + Ug2 [+ Us2]
-  (eqn (= ?te2 ?te2-exp) (total-energy-top ?b ?t2))
-  ;; write equation ME1 = K1 + Ug1 [+ Us1]
-  (eqn (= ?te1 ?te1-exp) (total-energy-top ?b ?t1))
-  ;; write total mech. energy equivalence with all energy terms plugged in
-  (bind ?eqn-algebra `(= ,?Wnc (- ,?te2-exp ,?te1-exp)))
-  (debug "final change-ME eq: ~A~%" ?eqn-algebra)
- )
- :effects (
-  (derived-eqn ?eqn-algebra (change-ME ?b ?t1 ?t2))
- )
-)
+  :preconditions 
+  (
+   ;; Draw the body and standard axes for principle
+   (body ?b)
+   (axes-for ?b 0)  
+   
+   ;; write equation Wnc = ME2 - ME1
+   (eqn (= ?Wnc (- ?te2 ?te1))  (change-ME-top ?b ?t1 ?t2))
+   ;; write equation ME2 = K2 + Ug2 [+ Us2]
+   (eqn (= ?te2 ?te2-exp) (total-energy-top ?b ?t2))
+   ;; write equation ME1 = K1 + Ug1 [+ Us1]
+   (eqn (= ?te1 ?te1-exp) (total-energy-top ?b ?t1))
+   ;; write total mech. energy equivalence with all energy terms plugged in
+   (bind ?eqn-algebra `(= ,?Wnc (- ,?te2-exp ,?te1-exp)))
+   (debug "final change-ME eq: ~A~%" ?eqn-algebra)
+   )
+  :effects (
+	    (derived-eqn ?eqn-algebra (change-ME ?b ?t1 ?t2))
+	    (assume using-change-me ?b ?t1 ?t2)
+	    ))
 
 ;;; following writes the top-level change in ME equation,
 ;;;       Wnc = ME2 - ME1
