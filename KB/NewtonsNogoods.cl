@@ -58,33 +58,38 @@
     ((using-compo (?id ?xyz1 ?rot1 ?family-id))
      (using-compo (?id ?xyz2 ?rot2 ?family-id))
      (test (not (equal ?rot1 ?rot2))))
-  :Specs ("Prevents the use of same compo-free eqn at different x or y axis rotations")
+  :Specs ("Prevents the use of same compo-free eqn a different x or y axis rotations")
   :message (Max compo eqns per axis ?id ?rot1 ?rot2))
 
 ;;;  Don't allow all three forms of LK since any one can be derived
 ;;;  from the other two.
 ;;
-;; Also, disallow two components of the same LK along with a second LK:  
+;; Disallow two components of the same LK along with a second LK:  
 ;; This suggests that the two components of the first LK are 
 ;; being used to relate the components of one of the vectors
 ;; (hence the need for a second LK).
 ;;
+
 ;; This was an issue for dt5a.
 (defnogood redundant-lk-equations
-  ;; The solver seems to have trouble determining independence.
-  ;; This is problably an issue because lk-no-t and lk-no-vf are non-linear.
-  ((using-compo (?id1 ?xyz1 ?rot1 (lk . ?args)))
-   (using-compo (?id2 ?xyz2 ?rot2 (lk . ?args)))
-   (test (not (exactly-equal (list ?id1 ?xyz1 ?rot1) 
-			     (list ?id2 ?xyz2 ?rot2))))
-   (using-compo (?id3 ?xyz3 ?rot3 (lk . ?args)))
-   (test (not (exactly-equal (list ?id1 ?xyz1 ?rot1) 
-			     (list ?id3 ?xyz3 ?rot3))))
-   (test (not (exactly-equal (list ?id2 ?xyz2 ?rot2) 
-			     (list ?id3 ?xyz3 ?rot3))))
+  ;; the first two equations could be combined
+  ((using-compo (?id1 ?xyz ?rot (lk . ?args)))
+   (test (member ?id1 '(lk-no-s lk-no-t lk-no-vf))) 
+   ;; ?id2 will also be in this set
+   (using-compo (?id2 ?xyz ?rot (lk . ?args)))
+   (test (not (eq ?id1 ?id2)))
+   ;;
+   ;; The third equation must be distinct from the first two.
+   ;; In the case that ?xyz3 is distinct from ?xyz, this is simply
+   ;; removing more complicated, but logically valid, solutions.
+   ;; In the case that ?xyz3 equals ?xyz, this removes truely redundant
+   ;; solutions.
+   (using-compo (?id3 ?xyz3 ?rot (lk . ?args)))
+   (test (member ?id3 '(lk-no-s lk-no-t lk-no-vf))) 
+   (test (not (and (eq ?xyz3 ?xyz) (or (eq ?id3 ?id1) (eq ?id3 ?id2)))))
    )
   :Specs ("Prevents the application of three lk equations to the same object.")
-  :message (Max lk equations for . ?args))
+  :message (lk equations for projection for . ?args))
 
 ;; Following rule limits explosion of solutions where both compound and 
 ;; individual bodies can be used: must use same axes on all of them.  It 
