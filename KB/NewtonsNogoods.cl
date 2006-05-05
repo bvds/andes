@@ -116,10 +116,13 @@
   :Specs ("Prevents the use of more than form of dot product")
   :message (Only one form of dot for ?a ?b))
 
+;; Only one form of cross product for a given component
+;; Can't make this stronger since cross-zero is listed as "angle-form"
+
 (defnogood only-one-form-of-cross
-  ((using-cross ?a ?b ?xyz1 ?rot1 ?flag1)
-   (using-cross ?a ?b ?xyz2 ?rot2 ?flag2)
-   (test (not (and (equal ?flag1 ?flag2) (equal ?rot1 ?rot2)))))
+  ((using-cross ?a ?b ?xyz ?rot ?flag1)
+   (using-cross ?a ?b ?xyz ?rot ?flag2)
+   (test (not (eq ?flag1 ?flag2))))
    :Specs ("Prevents the use of more than form of cross product")
   :message (Only one form of cross product for ?a ?b))
 

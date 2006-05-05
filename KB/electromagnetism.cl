@@ -1362,8 +1362,8 @@
 			     ((electric-energy ?b ?source :time ?t) def-np)))
        ))
 
-; To interact with cons-energy psm: op to tell it that electric pe 
-; exists in this problem by defining a variable when needed
+;; To interact with cons-energy psm: op to tell it that electric pe 
+;; exists in this problem by defining a variable when needed
 (defoperator define-electric-ee-var (?b ?t)
   :preconditions 
   ( ;; need to know electric field exists in problem
