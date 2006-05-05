@@ -2549,24 +2549,6 @@
 ; and the test for non-zero-projection used when selecting axis along which
 ; to apply a vector psm is not appropriate. 
 
-#|
-(defoperator charge-force-Bfield-contains (?sought)
-  :preconditions ((rdebug "Using charge-force-Bfield-compo-contains  ~%")
-                  (any-member ?sought ((force ?b ?source magnetic :time ?t)
-                                      (field ?loc magnetic ?source :time ?t)
-                                      (charge-on ?b :time ?t ?t)
-                                      ))
-		  (time ?t)
-                  (at-place ?b region :time ?t ?t)
-                  (rdebug "Firing charge-force-Bfield-compo-contains  ~%")
-                  )
-  :effects (
-            (eqn-family-contains (charge-force-Bfield ?b ?t) ?sought)
-            ; since only one compo-eqn under this vector psm, we can just
-            ; select it now, rather than requiring further operators to do so
-            (compo-eqn-contains (charge-force-Bfield ?b ?t) qvb ?sought)))
-|#
-
 
 (def-psmclass charge-force-Bfield 
   (charge-force-Bfield ?axis ?rot ?body ?flag ?time)
