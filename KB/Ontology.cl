@@ -1281,13 +1281,13 @@
   :complexity definition
   :EqnFormat ("KE = 0.5*I*$w^2"))
 
-(def-psmclass grav-energy (grav-energy ?body ?time)
-  :short-name "gravitational potential energy [near Earth]"
+(def-psmclass grav-energy (grav-energy ?body ?planet ?time)
+  :short-name "gravitational potential energy"
    :english ("gravitational potential energy")
    :complexity definition
    :EqnFormat ("Ug = m*g*h"))
 
-(def-psmclass spring-energy (spring-energy ?body ?time)
+(def-psmclass spring-energy (spring-energy ?body ?spring ?time)
   :short-name "spring potential energy"
   :english ("spring potential energy")
   :complexity definition
