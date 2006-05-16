@@ -1441,7 +1441,10 @@
    (test (not (equal ?wrong-dir 'zero))) ; either zero handled above
    (test (not (equal ?correct-dir 'zero)))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
-   (test (not (equal ?wrong-dir ?correct-dir)))))
+   (test (not (equal ?wrong-dir ?correct-dir))))
+  :utility 50
+  ;; Low probability since we want any quantity-specific rules to act first
+  :probability 0.01)
 
 (defun default-wrong-dir (object wrong-dir correct-dir)
   (make-hint-seq

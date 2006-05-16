@@ -3630,8 +3630,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a at ~a."
-	  ?b2 ?b1 (?t pp) ?dir-expr))
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position of ~a with respect to ~a ~a at ~a."
+	  ?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
 ; draw rba at direction opposite given dir of rab
