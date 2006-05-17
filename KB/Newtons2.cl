@@ -3662,8 +3662,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a at ~a."
-	  ?b2 ?b1 (?t pp) (?dir-expr adj)))
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position of ~a with respect to ~a ~a at ~a."
+	  ?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
 (def-PSMclass opposite-relative-position (opposite-relative-position (?Object0 ?Object1) ?time)
@@ -3732,8 +3732,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position from ~a to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
-	  ?b2 ?b1 (?t pp)))
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position of ~a with respect to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
+	  ?b1 ?b2 (?t pp)))
   ))
 
 ;;; draw zero-length relative position if body is at location
@@ -3752,7 +3752,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint 
   ( (point (string "Note that ~A is at ~A." ?b ?loc))
     (teach (string "What is the relative position of ~A and ~A?" ?b ?loc))    
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length relative position vector from ~a to ~a ~a."
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length vector representing the relative position of ~a with respect to ~a ~a."
 			?b ?loc (?t pp)))
     ))
 
