@@ -1474,7 +1474,10 @@
    (bind ?bad-time (time-of ?b1))
    (bind ?good-time (time-of ?b2))
    (test (equal (remove-time ?b1) (remove-time ?b2)))
-   (test (not (equal ?bad-time ?good-time)))))
+   (test (not (equal ?bad-time ?good-time))))
+  :utility 50
+  ;; Low probability since we want any quantity-specific rules to act first
+  :probability 0.085)
 
 (defun vector-time (descr bad-time good-time)
   (setf descr (nlg descr 'def-np))
@@ -2755,20 +2758,21 @@
 ;;; from and to points in spec, from case where drew correctly for opposite
 ;;; rel-pos. But many will be unknown, so don't worry about it now.
 (def-error-class opposite-relative-position (?cobj ?cref)
-  ((student (vector (relative-position ?cref ?cobj :time ?stime) ?sdir))
+  ((student (vector (relative-position ?cref ?cobj :time ?time) ?dir))
    ;; In general, the psmclass opposite-relative-position ensures 
    ;; the existance of relative-position vectors containing either order
    ;; of ?cref and ?cobj in a solution.
-   (correct (vector (relative-position ?cobj ?cref :time ?ctime) ?cdir-opp))
+   (correct (vector (relative-position ?cobj ?cref :time ?time) ?dir-opp))
    ;; make sure student hasn't done it already
-   (no-student (vector (relative-position ?cobj ?cref :time ?ctime) ?cdir-opp))
+   (no-student (vector (relative-position ?cobj ?cref :time ?time) ?dir-opp))
    )
   :utility 55
   :probability
-  (+ 0.075
-     (if (equal ?stime ?ctime) 0.14 0.0)
-     (if (equal ?sdir ?cdir-opp) 0.25 0.0)))
-     (if (equal ?sdir (opposite ?cdir-opp)) 0.18 0.0)))
+;; unless one direction matches, it is better handled by 
+;; generic default-wrong-direction help.
+  (+ 0.001 ;less than default-wrong-direction
+     (if (equal ?dir ?dir-opp) 0.22 0.0)
+     (if (equal ?dir (opposite ?dir-opp)) 0.18 0.0)))
 
 (defun opposite-relative-position (cpt cref-pt)
   (make-hint-seq

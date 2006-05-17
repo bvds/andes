@@ -1645,7 +1645,7 @@
   :complexity minor
   :short-name "relative position from coordinates"
   :english ("the relative position definition")
-  :ExpFormat ("computing the ~a component of the relative position of ~a with respect to ~a"
+  :ExpFormat ("computing the ~a component of the position of ~a relative to ~a"
 		 (axis-name ?axis) (nlg ?p2) (nlg ?p1) )
   :EqnFormat ("r21_~a = ~a2 - ~a1" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
@@ -1693,7 +1693,7 @@
   ) 
   :hint (
     (point (string "The components of the relative position of one point wrt another can be computed from the coordinates of the two points"))
-    (teach (string "The relative position vector r21 of a point p2 wrt p1 is the vector difference r2o - r1o of the positions of p2 and p1 with respect to the origin. You can apply this relation component-wise to compute the components of the needed relative position vector from the given coordinates of the two points."))
+    (teach (string "The relative position vector r21 of a point p2 wrt p1 is equal to the vector difference r2o - r1o of the positions of p2 and p1 with respect to the origin.  You can apply this relation component-wise to compute the components of the needed relative position vector from the given coordinates of the two points."))
     (bottom-out (string "Write the equation ~A"
                 ((= ?r21_xy (- ?r2o_xy_val ?r1o_xy_val)) algebra)))
   ))
@@ -3617,8 +3617,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
 			      (body-name ?b2) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" 
-	  ?dir-expr ?b1 ?b2 ?t)
    )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
@@ -3629,8 +3627,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
-    (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position of ~a with respect to ~a ~a at ~a."
+    (point (string "You know the direction of the position of ~a relative to ~a." ?b1 ?b2))
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a relative to ~a ~a at ~a."
 	  ?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
@@ -3662,7 +3660,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position of ~a with respect to ~a ~a at ~a."
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a relative to ~a ~a at ~a."
 	  ?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
@@ -3724,7 +3722,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
 			       (body-name ?b2) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing relative position ~A wrt ~a at ~a at unknown angle.~%" ?b1 ?b2 ?t)
+    (debug "~&Drawing the relative position ~A wrt ~a at ~a at unknown angle.~%" ?b1 ?b2 ?t)
     )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) unknown)
@@ -3732,7 +3730,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the relative position of ~a with respect to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a relative to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
 	  ?b1 ?b2 (?t pp)))
   ))
 
@@ -8910,7 +8908,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
    :hint (
     (point (string "Do you know the relation between the linear velocity of a point on a rotating object and the angular velocity of the rotation?"))
-    (teach (string "The linear velocity of a point on a rotating object is equal to the angular velocity of the rotation times the radius of the point's circular motion = magnitude of relative position of the point from the axis of rotation."))
+    (teach (string "The linear velocity of a point on a rotating object is equal to the angular velocity of the rotation times the radius of the point's circular motion = distance between the point and the axis of rotation.  Use the magnitude of the relative position vector for the distance."))
     (bottom-out (string "Write the equation ~A"
                          ((= ?v-var (* ?omega-var ?r-var)) algebra)))
    )
