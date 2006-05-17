@@ -10,22 +10,19 @@
 "true if this problem is tagged as part of the main Andes2 distribution"
    (member 'Andes2 (problem-features p)))
 
-(defun working-Andes2-prob (p)
-"true if this is both an Andes2 problem and tagged as working"
-  (and (working-problem-p p) (Andes2-prob p)))
-
 (defun listprobs () 
-"list problems in alphabetical problem name order"
-   (let (problist)
-     (map-problems #'(lambda (p)
-        (push p problist)))
-     ; and return sorted list
-     (sort problist #'(lambda (p1 p2) (string< (problem-name p1) 
-                                               (problem-name p2))))))
-(defun choose-Andes2-probs (topics)
+  "list problems in alphabetical problem name order"
+  (let (problist)
+    (map-problems #'(lambda (p)
+		      (push p problist)))
+    ;; and return sorted list
+    (sort problist #'(lambda (p1 p2) (string< (problem-name p1) 
+					      (problem-name p2))))))
+
+(defun choose-working-probs (topics)
   "list of problems with specified features or use given list of problems"
   (remove-if-not #'(lambda (p) 
-		     (and (working-Andes2-prob p)
+		     (and (working-problem-p p)
 			  (or (null topics)
 			      (if (listp (first topics)) 
 				  (member (problem-name p) 
@@ -39,7 +36,7 @@
 ;; Alternatively, one can give an explicit list of problems
 (defun make-prbs (&rest topics)  
  "Dump problem files for all 'working' problems with any of features."
-  (let ((Probs (choose-Andes2-probs topics))
+  (let ((Probs (choose-working-probs topics))
 	;; for minimum of output, clear all trace/debug flags:
 	(*s-print-steps* NIL)		;intermediate results of top-level step
 	(*debug-gg* NIL)		;graph building process steps
@@ -63,7 +60,7 @@
 ;;; test-solve all the problems. Args as for make-prbs
 (defun test-prbs (&rest topics)  
  "Test solve all 'working' problems with any of features."
-  (let ((Probs (choose-Andes2-probs topics))
+  (let ((Probs (choose-working-probs topics))
 	;; for minimum of output, clear all trace/debug flags:
 	(*s-print-steps* NIL)		;intermediate results of top-level
 	(*debug-gg* NIL)		;graph building process steps
@@ -88,7 +85,7 @@
 (defun diff-prbs (path1 path2 &rest topics)  
   "compare prb files in two directories."
   (let (Errs)
-    (dolist (P (choose-Andes2-probs topics))
+    (dolist (P (choose-working-probs topics))
       (format t "Comparing ~A:  " (problem-name P)) 
       (finish-output)			;flush output buffer
       (let (E P1 P2)
@@ -168,7 +165,8 @@
  (dolist (pair *problem-sets*)
   (format outf "LIST\<~A\>~%" (first pair))
   (let ((Probs (remove-if-not #'(lambda(p)
-                                 (and (working-Andes2-prob p)
+                                 (and (working-problem-p p) 
+				      (Andes2-prob p)
 				      (intersection (cdr pair) (problem-features p))))
 		              (listprobs)))
 	(prob))
