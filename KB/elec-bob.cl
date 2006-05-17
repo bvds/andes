@@ -30,13 +30,13 @@
   )
 )
 
-(defproblem elec1b ;not working for charge as sought
+(defproblem elec1b ;not working for charge as sought; see Bug #673
   :statement (
     "A charged particle is in a region where there is an"
     "electric field E of magnitude 16.2 N/C at an angle of"
-    "15 degrees above the positive x-axis. The particle"
+    "15 degrees above the positive x-axis.  The particle"
     "experiences a force, F of magnitude 60.4 N in the opposite"
-    "direction. Find the charge on the particle."
+    "direction.  Find the charge on the particle."
     "    Answer:  [XXXXXXXXXXXXXXX]"
   )
   :features (E&M E-field andes2 kinematics dynamics)
@@ -133,7 +133,7 @@
     "In this problem, gravity can be ignored."
   )
   :graphic "elec3.gif"
-  :features (E&M E-field andes2 working kinematics dynamics)
+  :features (E&M E-field working kinematics dynamics)
   :choices (
     (bodies (electron plates))
     (positions (region))
@@ -225,7 +225,7 @@
     "In this problem, gravity can be ignored."
   )
   ;; :graphic "elec4.gif"
-  :features (E&M E-field andes2 working kinematics dynamics)
+  :features (E&M E-field working kinematics dynamics)
   :choices (
     (bodies (proton))
     (positions (region))
@@ -310,7 +310,7 @@
     "In this problem, gravity can be ignored."
   )
   ;; :graphic "elec5.gif"
-  :features (E&M E-field andes2 working kinematics dynamics)
+  :features (E&M E-field working kinematics dynamics)
   :choices (
     (bodies (proton))
     (positions (region))
@@ -319,7 +319,7 @@
   :givens (
     (time 1) (time 2) (time (during 1 2))
     (object proton)
-    (given (mass proton)      (dnum 1.7E-27 |kg|))
+    (given (mass proton)      (dnum 1.67E-27 |kg|))
     ;; Electrostatics
     (at-place proton region)
     (given (charge-on proton) (dnum 1.60E-19 |C|)) 
@@ -362,7 +362,7 @@
   :givens (
     (time 1) (time 2) (time (during 1 2))
     (object proton)
-    (given (mass proton)      (dnum 1.7E-27 |kg|))
+    (given (mass proton)      (dnum 1.67E-27 |kg|))
     ;; Electrostatics
     (at-place proton region)
     (given (charge-on proton) (dnum 1.60E-19 |C|)) 
@@ -470,8 +470,9 @@
   )
 )
 
-;; Please don't use this problem in Andes bc it is an exam problem. 
-;; To prevent this, 'working' is not included to disable the problem.
+;; Please don't use this problem in the Andes distribution because it 
+;; is an exam problem.  To prevent this, 'Andes2' is not included to 
+;; disable the problem.
 (defproblem elec7a
   :statement (
     "An electron enters a region of space where the vector"
@@ -484,7 +485,7 @@
     "In this problem, gravity can be ignored."
   )
   ;; :graphic "elec7a.gif"
-  :features (E&M E-field kinematics dynamics energy andes2)
+  :features (E&M E-field kinematics dynamics energy working)
   :choices (
     (bodies (electron))
     (positions (region))
