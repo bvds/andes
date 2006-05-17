@@ -1693,7 +1693,7 @@
   ) 
   :hint (
     (point (string "The components of the relative position of one point wrt another can be computed from the coordinates of the two points"))
-    (teach (string "The relative position vector r21 of a point p2 wrt p1 is equal to the vector difference r2o - r1o of the positions of p2 and p1 with respect to the origin.  You can apply this relation component-wise to compute the components of the needed relative position vector from the given coordinates of the two points."))
+    (teach (string "The relative position vector r21 of a point p2 wrt p1 is equal to the vector difference r2o - r1o of the positions of p2 and p1 with respect to the origin.  You can compute the components of the needed relative position vector from the given coordinates of the two points."))
     (bottom-out (string "Write the equation ~A"
                 ((= ?r21_xy (- ?r2o_xy_val ?r1o_xy_val)) algebra)))
   ))
@@ -3628,7 +3628,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
   :hint (
     (point (string "You know the direction of the position of ~a relative to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a relative to ~a ~a at ~a."
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a at ~a."
 	  ?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
@@ -3722,7 +3722,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
 			       (body-name ?b2) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing the relative position ~A wrt ~a at ~a at unknown angle.~%" ?b1 ?b2 ?t)
+    (debug "~&Drawing the relative position ~A with respect to ~a ~a at an unknown angle.~%" ?b1 ?b2 (?t pp))
     )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) unknown)
@@ -3730,7 +3730,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a relative to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
 	  ?b1 ?b2 (?t pp)))
   ))
 
@@ -3749,8 +3749,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (given (mag (relative-position ?b ?loc :time ?t)) (dnum 0 |m|)))
   :hint 
   ( (point (string "Note that ~A is at ~A." ?b ?loc))
-    (teach (string "What is the relative position of ~A and ~A?" ?b ?loc))    
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length vector representing the relative position of ~a with respect to ~a ~a."
+    (teach (string "What is the relative position of ~A with respect to ~A?" 
+		   ?b ?loc))    
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw a zero length vector representing the position of ~a relative to ~a ~a."
 			?b ?loc (?t pp)))
     ))
 
@@ -8908,7 +8909,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
    :hint (
     (point (string "Do you know the relation between the linear velocity of a point on a rotating object and the angular velocity of the rotation?"))
-    (teach (string "The linear velocity of a point on a rotating object is equal to the angular velocity of the rotation times the radius of the point's circular motion = distance between the point and the axis of rotation.  Use the magnitude of the relative position vector for the distance."))
+    (teach (string "The linear velocity of a point on a rotating object is equal to the angular velocity of the rotation times the radius of the point's circular motion.  For the radius, use the magnitude of the position of the point relative to the axis of rotation."))
     (bottom-out (string "Write the equation ~A"
                          ((= ?v-var (* ?omega-var ?r-var)) algebra)))
    )

@@ -152,7 +152,7 @@
     (implicit-eqn (= ?dir-var ?dir) (dir (relative-vel ?b1 ?b2 :time ?t)))
    )
   :hint
-  ((point (string "Notice that ~a is moving with respect to ~a." ?b1 ?b2))
+  ((point (string "Notice that ~a is moving relative to ~a." ?b1 ?b2))
    (teach (string "If ~A induces a thrust force on ~A, it must have a non-zero velocity relative to ~A." 
 		 ?b1 ?b2 ?b2))
     (bottom-out (string "Use the relative velocity drawing tool to draw the relative velocity of ~a with respect to ~a ~a at ~a." ?b1 ?b2 (?t pp) ?dir))
