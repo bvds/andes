@@ -1055,5 +1055,5 @@
 	      (quant-allowed-by-features quant (cdr x)))))
 
 (defun test-features (&rest topics)
-    (dolist (P (choose-Andes2-probs topics))
+    (dolist (P (choose-working-probs topics))
       (test-quants-against-features P)))
