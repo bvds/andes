@@ -472,15 +472,15 @@
           (is-premature-before-compo-eqn-p interp)) 
        (chain-explain-more-green (list 
 	   (format NIL "Although equation ~A is correct, you have not displayed a fundamental vector principle being used in component form on a line by itself." (1+ (studentEntry-ID se)))
-           "It is good practice to identify the fundamental vector principles you are using by writing them purely symbolically in component form before combining them with other equations or given values. Select \"Review Physics Equations\" on the Help menu to view a list of principles and their standard forms."
-	   (format NIL "A good solution would show the following in component form: ~A~{, ~A~}" (car missing) (cdr missing)))))
+           "It is good practice to identify the fundamental vector principles you are using by writing them purely symbolically in component form before combining them with other equations or given values.  Select \"Review Physics Equations\" on the Help menu to view a list of principles and their standard forms."
+	   (format NIL "A good solution would include ~A, written as separate equations." (conjoined-names missing)))))
        
     (missing ; better have at least one missing to mention
        (chain-explain-more-green 
          (list 
           (format NIL "Although equation ~A is correct, you have not displayed a fundamental principle being used in symbolic form all by itself." (1+ (studentEntry-ID se)))
-           "It is good practice to identify the fundamental principles you are using by writing them purely symbolically in standard form before combining them with other equations or given values. Select \"Review Physics Equations\" on the Help Menu to view  a list of principles and their standard forms."
-	  (format NIL "A good solution would show the following in standard form: ~A~{, ~A~} " (car missing) (cdr missing)))))
+           "It is good practice to identify the fundamental principles you are using by writing them purely symbolically in standard form before combining them with other equations or given values.  Select \"Review Physics Equations\" on the Help Menu to view  a list of principles and their standard forms."
+	  (format NIL "A good solution would include ~A, written as separate equations." (conjoined-names missing)))))
        
     (T ; didn't find missing! shouldn't happen
        (format T "get-premature-msg called but couldn't find missing equations!~%")
