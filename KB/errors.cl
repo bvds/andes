@@ -1444,7 +1444,7 @@
    (test (not (equal ?wrong-dir ?correct-dir))))
   :utility 50
   ;; Low probability since we want any quantity-specific rules to act first
-  :probability 0.01)
+  :probability 0.08)
 
 (defun default-wrong-dir (object wrong-dir correct-dir)
   (make-hint-seq
@@ -2754,17 +2754,21 @@
 ;;; Could try to separate case where drew vector in correct direction, but mixed up 
 ;;; from and to points in spec, from case where drew correctly for opposite
 ;;; rel-pos. But many will be unknown, so don't worry about it now.
-(def-error-class opposite-relative-position (?cpt ?cref-pt)
-  ((student    (vector (relative-position ?cref-pt ?cpt :time ?stime) ?sdir))
-   ;; Don't pre-empt direction error like should-be-unknown: make sure there
-   ;; is no possible relative position vector with this sense in the solution
-   (no-correct (vector (relative-position ?cref-pt ?cpt :time ?stime) ?cdir))
-   (correct    (vector (relative-position ?cpt ?cref-pt :time ?ctime) ?cdir-opp)))
+(def-error-class opposite-relative-position (?cobj ?cref)
+  ((student (vector (relative-position ?cref ?cobj :time ?stime) ?sdir))
+   ;; In general, the psmclass opposite-relative-position ensures 
+   ;; the existance of relative-position vectors containing either order
+   ;; of ?cref and ?cobj in a solution.
+   (correct (vector (relative-position ?cobj ?cref :time ?ctime) ?cdir-opp))
+   ;; make sure student hasn't done it already
+   (no-student (vector (relative-position ?cobj ?cref :time ?ctime) ?cdir-opp))
+   )
   :utility 55
   :probability
-  (+ 0.2
-     (if (equal ?stime ?ctime) 0.1 0.0)
-     (if (equal ?sdir ?cdir) 0.1 0.0)))
+  (+ 0.075
+     (if (equal ?stime ?ctime) 0.14 0.0)
+     (if (equal ?sdir ?cdir-opp) 0.25 0.0)))
+     (if (equal ?sdir (opposite ?cdir-opp)) 0.18 0.0)))
 
 (defun opposite-relative-position (cpt cref-pt)
   (make-hint-seq
