@@ -4207,7 +4207,7 @@
  (cond 
   ; missing given
   ((setq eqnode (find-if-not #'nsh-principle-completed-p *nsh-givens*))
-       (format NIL "Unable to solve for ~a. One thing you probably need is an equation specifying the given value of ~a."
+       (format NIL "Unable to solve for ~a.  One thing you probably need is an equation specifying the given value of ~a."
 		 var (var-or-quant (nsh-given-node-quant eqnode))))
 
   ; need value of g -- but should we check that some entered equation mentions g??
