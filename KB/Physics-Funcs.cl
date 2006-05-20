@@ -564,17 +564,6 @@
 	;; this covers (compo ...), (mag ...), (dir ...):
 	((listp (first (last quant))) (axis-of (first (last quant))))))
 
-;;; ===================== hacks ========================================
-
-(defparameter *lk-hack* nil
-  "When true, causes only one lk equation to be generated.")
-
-(defun not-too-many-lk-eqns (N)
-  "If *lk-hack* is non-null, then true when N=0 else true when N=0 or N=1.
-   Use *lk-hack* to prevent generating all 10 possible lk solutions"
-  (if *lk-hack* (zerop N)
-    (< N 2)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; format-sym

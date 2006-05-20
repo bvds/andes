@@ -2800,7 +2800,8 @@
   :probability
   (+ 0.2
      (if (equal ?stime ?ctime) 0.1 0.0)
-     (if (equal ?sdir ?cdir) 0.1 0.0)))
+     (if (equal ?sdir (opposite ?cdir-opp)) 0.1 0.0)
+     (if (equal ?sdir ?cdir-opp) 0.1 0.0)))
 
 (defun opposite-relative-vel (cpt cref-pt)
   (make-hint-seq

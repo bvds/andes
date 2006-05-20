@@ -469,8 +469,7 @@
 
 ;;; ===================== globals ===============================
 
-;;; flag to control tracing (see also *debug* in executable2.cl and
-;;; *lk-hack* in Physics-Funcs.cl)
+;;; flag to control tracing (see also *debug* in executable2.cl)
 
 (defparameter *actions* nil 
   "Controls whether note-action will trace.")
