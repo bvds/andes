@@ -686,7 +686,7 @@
   :hint
    ((point (string ?hint-point ?b (?fluid agent)))
     (teach (string ?hint-teach))
-    (bottom-out (string "Because ~a exerts a force on ~a, draw a pressure force on ~a due to ~a at an angle of ~a degrees." 
+    (bottom-out (string "Because ~a exerts a force on ~a, draw a pressure force on ~a due to ~a at an angle of ~a." 
 			(?fluid agent) ?surface ?b (?fluid agent) ?dir))
     ))
 
