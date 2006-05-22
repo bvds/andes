@@ -281,7 +281,7 @@
    ;; only use time when allowed by feature changing-mass
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   (unknown-field-dir ?type ?source) ;field due to ?source has unknown dir.
+   (given-field ?source ?type) ;field due to ?source has unknown dir.
    ;; ?b is "test charge" feeling force at loc at some time.
    ;; it is only used as axis owner for vector
    ;; Seems to be used to indicate this is region field type problem -- 
@@ -350,7 +350,7 @@
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   (E-field ?b)
+   (given-field ?b electric)
    ;; Make sure source is point-charge
    (point-charge ?b)
    ;; make sure ?loc not equals ?loc-source?
@@ -520,13 +520,13 @@
        ))
 
 ;;  -if given that unknown field exists 
-;;      given by (E-field source) or (B-field source) in problem. 
+;;      given by (given-field ?source ?type) in problem. 
 ;;      Don't use these if field direction given in other ways
 (defoperator find-electric-force-given-field-unknown (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Eforce-unknown ~%")
    (time ?t)
-   (E-field ?source) 
+   (given-field ?source electric) 
    ;; make sure force direction not given, directly or via components:
    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
    ;; make sure E-field direction not given, directly or via components
@@ -2101,15 +2101,6 @@
  :hint (
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting dipole energy" ((dipole-energy ?dipole (field . ?args) :time ?t) def-np)))
  ))
-
-;; see bug #756
-(defoperator get-electric-field-source (?b)
-  :preconditions ((E-field ?b))
-  :effects ((given-field ?b electric)))
-
-(defoperator get-magnetic-field-source (?b)
-  :preconditions ((B-field ?b))
-  :effects ((given-field ?b magnetic)))
   
 (defoperator define-dipole-energy-ee-var (?dipole ?source ?t)
   :preconditions 
@@ -2400,7 +2391,7 @@
   :specifications " "
   :preconditions 
   ((rdebug "Using draw-Bforce-unknown ~%")
-   (B-field ?source) ; so know there is a Bfield in the problem
+   (given-field ?source magnetic) ; so know there is a Bfield in the problem
    (object ?b)
    (at-place ?b ?loc :time ?t ?t)
    (not (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
@@ -2427,7 +2418,7 @@
 ;; For now, we just require problem to tell us velocity is unknown.
 (defoperator draw-Bforce-unknown-velocity (?b ?t)
   :preconditions ((rdebug "Using draw-Bforce-unknown ~%")
-                  (B-field ?source) ;so know there is a Bfield
+                  (given-field ?source magnetic) ;so know there is a Bfield
                   (object ?b)
                   (at-place ?b ?loc :time ?t ?t)
 		  ; Require motion explicitly specified as unknown

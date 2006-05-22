@@ -9537,8 +9537,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions 
    (
     (couple orderless . ?points)
-    (test (member ?pt ?points)) ;sanity test
-    (bind ?agent (first (set-difference ?points (list ?pt))))
+    (any-member ?points ((?pt ?agent) (?agent ?pt)))
     ;; var name identifies force by point of application and agent alone
     (bind ?mag-var (format-sym "TOR_~A_~A~@[_~A~]" (body-name ?pt) 
 			       (body-name ?agent) (time-abbrev ?t)))
