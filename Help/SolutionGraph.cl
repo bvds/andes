@@ -857,17 +857,16 @@
 
 ;;--------------------------------------------------------------
 ;; Get the systementry's op's hints
-(defun sg-map-systementry->hints (entry)
-  "Get operator hint spec list for entry"
-  (collect-step-hints (car (systementry-sources entry)))) 
 
 ; Following returns spec to be used as tail of a list of specs passed
-; to make-hint-seq when appending operator hints. It constructs the spec
-; for a single function hint which, when expanded, will itself call 
-; make-hint-seq (again) on the operator hint spec list. This delay is done 
-; to get a call to make-hint-seq which included the :optail argument,
-; which is needed to log the operator name in an :assoc for these hints.
-(defun sg-map-systementry->hintseqtail (entry)
+; to make-hint-seq when appending operator hints. It returns a spec
+; for a single function hint. When this spec is expanded, make-hint-seq
+; will wind up getting called (again) on the operator hint spec list. 
+; We build this spec for a delayed call so it will include the :optail
+; arg, which is needed to log the operator name in an :assoc.
+; [This technique copied from hint-target-entry in nextstephelp.cl to
+; fix bug 834 AW]
+(defun sg-map-systementry->hints (entry)
   (let ((step (car (systementry-sources entry)))) ; a csdo
     `((function make-hint-seq 
 		       ,(collect-step-hints step)

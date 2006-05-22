@@ -1142,7 +1142,7 @@
 		     "for this problem. "))
 	 ;; delegate to next-step-help hints on the operator, which can say something
 	 ;; about why this axis was chosen
-         (sg-map-systemEntry->hintseqtail *correct-entry*))))
+         (sg-map-systemEntry->hints *correct-entry*))))
 #|
    (list (format nil "Are you sure you want the axes rotated by ~a degrees?" srot)
 
@@ -1415,7 +1415,7 @@
 	    ;        "To draw a zero-length vector, select the appropriate vector tool, then click " 
 	    ;        "and release immediately instead of dragging out an extended arrow.")
             )
-      (sg-map-systemEntry->hintseqtail *correct-entry*)
+      (sg-map-systemEntry->hints *correct-entry*)
 	 )))
 
 (def-error-class default-should-be-non-zero ()
@@ -1430,7 +1430,7 @@
 	         ;"It should have a non-zero magnitude." 
 		 )
            ; delegate to operator hints to explain correct magnitude.
-	   (sg-map-systemEntry->hintseqtail *correct-entry*)
+	   (sg-map-systemEntry->hints *correct-entry*)
 	 )))
 
 ;;; (ref Pitt non-eqn 4-17) If the student's vector is correct except
@@ -1455,7 +1455,7 @@
 	   ; (format nil "It should be ~a." (nlg correct-dir 'adj))
 	   )
      ; delegate to the operator hints to explain correct direction.
-     (sg-map-systemEntry->hintseqtail *correct-entry*))))
+     (sg-map-systemEntry->hints *correct-entry*))))
 
 ;;; !!! want special case message if drawn in the plane when should 
 ;; be into/out-of the plane, explaining this and how to do it.
