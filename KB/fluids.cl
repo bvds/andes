@@ -637,7 +637,8 @@
 ;;;
 
 ;;; Problems involving pressure force require a statement of the form
-;;;   (fluid-contact ?body ?surface ?fluid ?point ?time ?direction)
+;;;   (exerts-pressure ?body ?surface ?fluid ?point ?direction :type ?type 
+;;;                    :time ?time)
 ;;;
 ;;; surface names the surface of the body at which the pressure force acts.
 ;;; direction gives the direction of the force.
@@ -652,7 +653,8 @@
 (defoperator find-pressure-force (?body ?surface ?fluid ?t)
    :preconditions 
    ((time ?t)
-    (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
+    (in-wm (exerts-pressure ?body ?surface ?fluid ?point ?dir 
+			    :type ?type :time ?t-pressure))
     (test (tinsidep ?t ?t-pressure))) 
   :effects ( (force ?body ?fluid pressure ?t ?dir action) ))
 
@@ -662,11 +664,18 @@
    ((force ?b ?fluid pressure ?t ?dir action)
     (test (not (eq ?dir 'unknown)))
     ;; need to get body containing surface for vector statement
-    (in-wm (fluid-contact ?b ?surface ?fluid ?point ?t-pressure ?dir))
+    (in-wm (exerts-pressure ?b ?surface ?fluid ?point ?dir 
+			    :type ?type :time ?t-pressure))
     (not (vector ?b (force ?b ?fluid pressure :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fp_~A_~A_~A" (body-name ?b) ?fluid
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?hint-point (if (eq ?type 'radiation)
+		     "A force is exerted on ~A by ~A" 
+		   "Notice that ~a is in contact with ~A."))
+    (bind ?hint-teach (if (eq ?type 'radiation)
+		 "When radiation is absorbed by (or is reflected off) a body, it exerts a pressure force on that body which is proportional to the intensity of the radiation."
+		 "When a body is in contact with a fluid, the fluid exerts a pressure force on it, acting perpendicular to the surface of contact."))
     (debug "~&Drawing ~a pressure on ~a due to ~a at ~a.~%" ?dir ?b ?fluid ?t)
     )
   :effects
@@ -675,31 +684,36 @@
     (variable ?dir-var (dir (force ?b ?fluid pressure :time ?t)))
     (given (dir (force ?b ?fluid pressure :time ?t)) ?dir))
   :hint
-   ((point (string "Notice that ~a is in contact with ~A." ?b (?fluid agent)))
-    (teach (string "When a body is in contact with a fluid, the fluid exerts a pressure force on it, acting perpendicular to the surface of contact."))
-    (bottom-out (string "Because ~a presses against ~a at ~a, draw a pressure force on ~a due to ~a at an angle of ~a degrees." 
-			(?fluid agent) ?b ?surface ?b (?fluid agent) ?dir))
+   ((point (string ?hint-point ?b (?fluid agent)))
+    (teach (string ?hint-teach))
+    (bottom-out (string "Because ~a exerts a force on ~a, draw a pressure force on ~a due to ~a at an angle of ~a degrees." 
+			(?fluid agent) ?surface ?b (?fluid agent) ?dir))
     ))
 
-;; the hints are designed to work OK with radiation pressure
 (defoperator draw-pressure-unknown (?b ?fluid ?t)
   :preconditions
    ((force ?b ?fluid pressure ?t unknown action)
     ;; need to get body containing surface for vector statement
-    (in-wm (fluid-contact ?b ?surface ?fluid ?point ?t-pressure unknown))
+    (in-wm (exerts-pressure ?b ?surface ?fluid ?point unknown 
+			    :type ?type :time ?t-pressure))
     (not (vector ?b (force ?b ?fluid pressure :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fp_~A_~A_~A" (body-name ?b) ?fluid
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?hint-point (if (eq ?type 'radiation)
+		     "A force is exerted on ~A by ~A" 
+		   "Notice that ~a is in contact with ~A."))
+    (bind ?hint-teach (if (eq ?type 'radiation)
+		 "When radiation is absorbed by (or is reflected off) a body, it exerts a pressure force on that body which is proportional to the intensity of the radiation."
+		 "When a body is in contact with a fluid, the fluid exerts a pressure force on it, acting perpendicular to the surface of contact."))
     )
   :effects
    ((vector ?b (force ?b ?fluid pressure :time ?t) unknown)
     (variable ?mag-var (mag (force ?b ?fluid pressure :time ?t)))
     (variable ?dir-var (dir (force ?b ?fluid pressure :time ?t))))
   :hint
-   ((point (string "Notice that ~a exerts a pressure on ~A." 
-		   (?fluid agent) ?b))
-    (teach (string "When a something exerts a pressure on a body, this results in a force acting on that body."))
+   ((point (string ?hint-point ?b (?fluid agent)))
+    (teach (string ?hint-teach))
     (bottom-out (string "Because ~a exerts a pressure against ~a, draw a pressure force on ~a due to ~a acting at an unknown angle." 
 			(?fluid agent) ?b ?b (?fluid agent)))
     ))
@@ -721,7 +735,8 @@
                           (pressure ?point :time ?time)
 			  (area ?surface)  ))
     (time ?time) ;because area is timeless
-    (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
+    (in-wm (exerts-pressure ?body ?surface ?fluid ?point ?dir 
+			    :type ?type :time ?t-pressure))
     (test (tinsidep ?time ?t-pressure))
   )
   :effects (
@@ -730,7 +745,8 @@
 
 (defoperator pressure-force (?body ?t ?fluid)
   :preconditions(
-    (in-wm (fluid-contact ?body ?surface ?fluid ?point ?t-pressure ?dir))
+    (in-wm (exerts-pressure ?body ?surface ?fluid ?point ?dir 
+			    :type ?type :time ?t-pressure))
     (test (tinsidep ?t ?t-pressure))
     (body ?body)
     (variable ?Fp (mag (force ?body ?fluid pressure :time ?t)))
@@ -749,7 +765,7 @@
 ; Buoyant force. Represents net effect of pressure forces on immersed object, so
 ; we shouldn't use in combination with pressure forces. Will indicate by
 ; proposition of form (buoyant-force ?body ?fluid ?t-buoyant ?dir), instead
-; of fluid-contact form used for pressure forces.
+; of exerts-pressure form used for pressure forces.
 ;
 (defoperator find-buoyant-force (?body ?fluid ?t)
    :preconditions (
