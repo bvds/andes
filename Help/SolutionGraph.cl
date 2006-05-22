@@ -858,10 +858,20 @@
 ;;--------------------------------------------------------------
 ;; Get the systementry's op's hints
 (defun sg-map-systementry->hints (entry)
-  "Systementry hints."
-  (let ((do (car (systementry-sources entry))))
-    (get-op-hints (get-operator-by-tag (csdo-op do)) 
-		  (csdo-varvals do))))
+  "Get operator hint spec list for entry"
+  (collect-step-hints (car (systementry-sources entry)))) 
+
+; Following returns spec to be used as tail of a list of specs passed
+; to make-hint-seq when appending operator hints. It constructs the spec
+; for a single function hint which, when expanded, will itself call 
+; make-hint-seq (again) on the operator hint spec list. This delay is done 
+; to get a call to make-hint-seq which included the :optail argument,
+; which is needed to log the operator name in an :assoc for these hints.
+(defun sg-map-systementry->hintseqtail (entry)
+  (let ((step (car (systementry-sources entry)))) ; a csdo
+    `((function make-hint-seq 
+		       ,(collect-step-hints step)
+		       :OpTail ,(list (csdo-op Step))))))
 
 ; collect tags of operator instances that made this system entry
 ; opinst tag is of form (WRITE-MASS-COMPOUND (BOOK PACKAGE))
