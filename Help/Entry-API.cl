@@ -447,8 +447,12 @@
 				    ((eq subtype 'couple)
 				     `(torque ,body-term
 					      (couple orderless ,body-term 
-							       ,body2-term) 
+						      ,body2-term) 
 					      :time ,time-term))
+				    ((eq subtype 'dipole)
+				     (set-time (find-dipole-torque-term 
+						body-term body2-term) 
+					       :time ,time-term))
 				    (t (set-time (find-torque-term 
 						  body-term body2-term) 
 						 time-term)))))
@@ -786,7 +790,9 @@
 ;; type: net, couple, or other.
 ;; body: Net torque: the label of the whole torqued body. 
 ;;       Individual torque: the point of application of the force
-;; axis: the pt about which the rotation axis is located
+;; axis: dipole torque:  the agent of the field
+;;       couple:  the other body
+;;       the pt about which the rotation axis is located
 ;; dir: angle of the torque vector from horizontal: 0<=dir<360
 ;;       If the vector is out of the screen, value is -1, 
 ;;       if it is into the screen, value is -2
@@ -812,6 +818,8 @@
 		      ((equal type 'couple) 
 		       `(torque ,body-term 
 				(couple orderless ,body-term ,axis-term)))
+		      ((eq type 'dipole)
+		       (find-dipole-torque-term body-term axis-term))
 	               (t (find-torque-term body-term axis-term))))
 	(dir-term (arg-to-dir dir mag)))
 
@@ -825,8 +833,7 @@
 	 (force-matches (sg-fetch-entry-props 
 			 `(vector (force ,pt ?agent ?type :time ?t) ?dir)))
 	 (force-match   (if (= (length force-matches) 1)
-			    ;;drop time
-			    (subseq (second (first force-matches)) 0 4)
+			    (remove-time (second (first force-matches)))
 	                  `(force ,pt unknown unknown)))
 	 ;; get main body by searching problem givens for point-on-body
 	 (body-matches (filter-expressions `(point-on-body ,pt ?b) 
@@ -835,6 +842,18 @@
 	 (body-term    (if body-match (third body-match) 'unknown)))
     ;; return the torque quantity
     `(torque ,body-term ,force-match :axis ,axis) 
+    ))
+
+(defun find-dipole-torque-term (dipole agent)
+  (let* (
+	 ;; get force by searching entries for force at pt of application
+	 (field-matches (sg-fetch-entry-props 
+			 `(vector (field ?loc ?type ,agent :time ?t) ?dir)))
+	 (field-match   (if (length field-matches)
+			    (remove-time (second (first field-matches)))
+	                  `(field nil nil nil))))
+    ;; return the torque quantity
+    `(torque ,dipole ,field-match) 
     ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
