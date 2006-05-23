@@ -549,10 +549,10 @@
   "apply time to quantity"
     (cond  ((null time) (remove-time expr))
 	   ((equal (first expr) 'compo)     ;case (compo xyz axis quant)
-	    (append (subseq expr 0 3) (list (set-time (fourth expr) time))))
+	    (setf (fourth expr) (set-time (fourth expr) time)))
 	   ;; case (mag quant) or (dir quant)
 	   ((or (equal (first expr) 'mag) (equal (first expr) 'dir))
-	    (list (first expr) (set-time (second expr) time)))
+	    (setf (second expr) (set-time (second expr) time)))
 	   ;; all others assumed scalar
 	   ((listp expr) (append (remove-time expr) `(:time ,time)))
 	   (t (error "can't add time ~A to expression ~A~%" time expr))))
