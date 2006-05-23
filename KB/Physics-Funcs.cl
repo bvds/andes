@@ -218,7 +218,11 @@
        ((eq xyz 'z) "z")
        (t (error "invalid axis specification~%"))))
 
-
+(defun rotation-name (z-dir)
+  (cond ((eq z-dir 'into) "clockwise")
+	((eq z-dir 'out-of) "counter-clockwise")
+	((eq z-dir 'z-unknown) "either direction")
+	(t (error "invalid rotation about z-axis: ~A ~%" z-dir))))
 
 ; !!! following only applies to known xy plane angles.
 ; calling with zero-length, dir unknown or z-axis dirs will throw error
@@ -284,12 +288,6 @@
     "returns true if expression is a z-axis direction specifier for a known direction"
    (or (eq x 'into) (eq x 'out-of)))
 
-(defun rotation-zdir (rotate-dir)
-   "Convert given rotation ('cw or 'ccw) to z-axis direction specifier by rhr"
-   (cond ((equal rotate-dir 'cw) 'into)
-         ((equal rotate-dir 'ccw) 'out-of)
-	 (T (error "bad rotation direction for rhr: ~A" rotate-dir))))
-
 (defun zdir-phi (zdir)
   "Convert given z-axis direction (into or out-of) into polar angle degrees"
   (when (known-z-dir-spec zdir)
@@ -297,17 +295,11 @@
 
 ; following assumes f-dir and r-dir are in the plane, 
 ; and also that not parallel nor anti-parallel, so torque is non-zero
-(defun torque-rotate-dir (f-dir r-dir)
- "return rotation tendency ('cw or 'ccw) of force given dir and dir of relative position of point of application from axis (deg)"
- (if (> (- f-dir r-dir) 0) 
-      (if (> (- f-dir r-dir) 180) 'cw
-        'ccw)
-  (if (> (- r-dir f-dir) 180) 'ccw
-    'cw)))
-
 (defun torque-zdir (f-dir r-dir)
  "return torque vector z-axis direction by rhr from force and relpos dirs"
-   (rotation-zdir (torque-rotate-dir f-dir r-dir)))
+ (if (> (- f-dir r-dir) 0) 
+      (if (> (- f-dir r-dir) 180) 'into 'out-of)
+  (if (> (- r-dir f-dir) 180) 'out-of 'into)))
 
 (defun rad-to-deg (radians)
  (* radians (/ 180 pi)))
