@@ -547,7 +547,8 @@
 
 (defun set-time (expr time)
   "apply time to quantity"
-    (cond  ((equal (first expr) 'compo)     ;case (compo xyz axis quant)
+    (cond  ((null time) (remove-time expr))
+	   ((equal (first expr) 'compo)     ;case (compo xyz axis quant)
 	    (append (subseq expr 0 3) (list (set-time (fourth expr) time))))
 	   ;; case (mag quant) or (dir quant)
 	   ((or (equal (first expr) 'mag) (equal (first expr) 'dir))

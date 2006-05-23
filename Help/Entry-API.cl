@@ -449,9 +449,9 @@
 					      (couple orderless ,body-term 
 							       ,body2-term) 
 					      :time ,time-term))
-				(t (timeify time-term 
-					    (find-torque-term 
-					     body-term body2-term))))))
+				    (t (set-time (find-torque-term 
+						  body-term body2-term) 
+						 time-term)))))
       (mag-dipole  (vec-prop prop `(dipole-moment ,body-term magnetic :time ,time-term)))
       (elec-dipole (vec-prop prop `(dipole-moment ,body-term electric :time ,time-term)))
       ; unit-normal, unit-from, unit-towards: assume these will never be soughts so will
@@ -460,15 +460,10 @@
       (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
 			   quant-type)
 		   ;; what the hey, give it our best shot:
-		   (timeify time-term 
+		   (set-time
 			    (if body2-term `(,quant-type ,body-term ,body2-term) 
-			      `(,quant-type ,body-term))))
+			      `(,quant-type ,body-term)) time-term))
       )))
-
-(defun timeify (time-term quant-expr)
-  "Add optional time to quant-expr, returning expr unchanged if time=NIL"
-  (if time-term (append quant-expr `(:time ,time-term))
-    quant-expr))
 
 (defun find-dipole-field (body type)
 "given dipole name and field type, return term for field dipole is in in this problem, if any"
