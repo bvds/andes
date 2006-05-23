@@ -1596,7 +1596,7 @@
   (setf correct-body (nlg correct-body 'def-np))
   (setf wrong-body (nlg wrong-body 'def-np))
   (make-hint-seq
-   (list (format nil "Are you sure you want to analyze the motion of ~a?" 
+   (list (format nil "Are you sure you want to define a vector for ~a?" 
 		 wrong-body)
 	 (format nil (strcat "A better choice of body (but maybe not the "
 			     "only one) would be ~a.") correct-body))))
