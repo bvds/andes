@@ -2964,6 +2964,26 @@
     (bottom-out (string "Choose some scale and draw ~A by moving ~A units horizontally and ~A units vertically." ?vector ?xc ?yc))
    ))
 
+(defoperator use-compos-for-dir (?quant)
+   :preconditions 
+   (
+    (given (compo x 0 ?quant) (dnum ?xc ?units))
+    (given (compo y 0 ?quant) (dnum ?yc ?units))
+    (not (given (dir ?quant) ?dir-given))
+    (bind ?dir (dir-from-compos ?xc ?yc))
+    )
+   ;; Note that the answer is rounded, so the result cannot
+   ;; be used as part of a numerical solution.
+   :effects ((dir-given-or-compos ?quant ?dir)))
+
+(defoperator use-given-for-dir (?quant)
+  :preconditions 
+  ( 
+   ;; in-wm so that it is parallel to above
+   (in-wm (given (dir ?quant) ?dir)) 
+   )
+   :effects ((dir-given-or-compos ?quant ?dir)))
+
 ;; following draws the sought vector in one of these grid-using problems
 ;; NB: As written, only works for one-argument vector types
 (defoperator draw-sought-vector-unknown (?b ?vectype ?t)

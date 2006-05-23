@@ -1988,7 +1988,7 @@
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
    (any-member ?t-field (?t nil))
-   (given (dir (field ?region ?type ?source :time ?t-field)) ?dir-f)
+   (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
@@ -2020,7 +2020,7 @@
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
-   (given (dir (field ?region ?type ?source :time ?t ?t)) ?dir-f)
+   (dir-given-or-compos (field ?region ?type ?source :time ?t ?t) ?dir-f)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
