@@ -190,7 +190,8 @@
       ; filter func to map: Include non-working problems in case we want stubs
       #'andes2-prob))
       
-; list all possible entries for given problem. 
+;;; list all possible entries for given problem. 
+
 (defun show-entries(probname)
  (read-problem-info probname) ; will do sg-setup
  (dolist (e *sg-entries*) 

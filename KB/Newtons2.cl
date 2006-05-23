@@ -9684,9 +9684,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		(not (eq ?rotate-dir 'unknown))
 		(or (eq ?accel-spec 'speed-up)
 		    (eq ?accel-spec 'slow-down))))
-     ;; can't determine as torque on a dipole (see electromagnetism.cl)
-     ;; this is a by-product of using net-torque for torque on a dipole, Bug #773
-     (not (net-torque-dir-known))
      ;; not known in rotational equilibrium:
      (not (motion ?b ang-at-rest :time ?t-motion) (tinsidep ?t ?t-motion))
       ;; var name identifies force by point of application and agent alone

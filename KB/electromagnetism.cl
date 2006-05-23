@@ -1794,10 +1794,7 @@
    :preconditions 
    (
     (any-member ?sought (
-			 (mag (
-			       ;; Yuck, work-around for missing torque tool, Bug #773
-			       net-torque ?dipole axis
-					  ;; torque ?dipole (field ?region ?type ?source)
+			 (mag (torque ?dipole (field ?region ?type ?source)
 					  :time ?t))
 			 (mag (field ?region ?type ?source :time ?t ?t))
 			 (mag (dipole-moment ?dipole ?type :time ?t))
@@ -1831,10 +1828,7 @@
 (defoperator write-dipole-torque-mag (?dipole ?source ?t)
    :preconditions 
    (
-    (variable ?tau-var (mag (
-			;; Yuck, work-around for missing torque tool, Bug #773
-			net-torque ?dipole axis
-			;; torque ?dipole (field ?region ?type ?source)
+    (variable ?tau-var (mag (torque ?dipole (field ?region ?type ?source)
 				    :time ?t)))
     (variable ?p-var (mag (dipole-moment ?dipole ?type :time ?t)))
     (any-member ?tot (?t nil)) 
@@ -1910,10 +1904,7 @@
   (
    (any-member ?sought 
 	       ( 
-		(compo ?axis ?rot (
-				   ;; Yuck, work-around for missing torque tool, Bug #773
-				   net-torque ?dipole axis
-					      ;; torque ?dipole (field ?region ?type ?source)
+		(compo ?axis ?rot (torque ?dipole (field ?region ?type ?source)
 					      :time ?t))
 		(compo mag (field ?region ?type ?source :time ?t ?t))
 		(compo mag (dipole-moment ?dipole ?type :time ?t))
@@ -1936,10 +1927,7 @@
   (
    (any-member ?sought 
 	       ( 
-		(compo ?axis ?rot (
-				   ;; Yuck, work-around for missing torque tool, Bug #773
-				   net-torque ?dipole axis
-					      ;; torque ?dipole (field ?region ?type ?source)
+		(compo ?axis ?rot (torque ?dipole (field ?region ?type ?source)
 					      :time ?t))
 		(compo ?axis ?rot (field ?region ?type ?source :time ?t ?t))
 		(compo ?axis ?rot (dipole-moment ?dipole ?type :time ?t))
@@ -1960,19 +1948,15 @@
    ;; draw vectors now, before applying cross product
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
    (vector ?dipole (field ?region ?type ?source :time ?tot) ?dir-field)
-   (vector ?dipole (
-		    ;; Yuck, work-around for missing torque tool, Bug #773
-		    net-torque ?dipole axis
-			       ;; torque ?dipole (field ?region ?type ?source)
+   (vector ?dipole (torque ?dipole (field ?region ?type ?source)
 			       :time ?t) ?dir-torque)
    ;;
    (cross ?cross (dipole-moment ?dipole ?type :time ?t) 
 	  (field ?region ?type ?source :time ?tot) ?axis ?rot ?flag)
    (test (not (eq ?cross '0)))  ; handled by write-dipole-torque-mag
-   (variable ?tau-zc (compo ?axis ?rot (
-					net-torque ?dipole axis 
-			     ;; torque ?dipole (field ?region ?type ?source)
-					 :time ?t)))
+   (variable ?tau-zc (compo ?axis ?rot 
+			    (torque ?dipole (field ?region ?type ?source)
+				    :time ?t)))
     )
   :effects 
   ( (eqn (= ?tau-zc ?cross)
@@ -2003,29 +1987,20 @@
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
-   (given (dir (field ?region ?type ?source :time ?t ?t)) ?dir-f)
+   (any-member ?t-field (?t nil))
+   (given (dir (field ?region ?type ?source :time ?t-field)) ?dir-f)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
-   ;; use net-torque variable name for torque on a dipole, Bug #773
-   (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?dipole) 'axis 
-			      (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
+			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
  :effects 
  (
-  (vector ?dipole (
-	  net-torque ?dipole axis 
-	  ;; torque ?dipole ?field
-		  :time ?t) ?tau-dir)
-  (variable ?mag-var (mag (
-	  net-torque ?dipole axis 
-	  ;; torque ?dipole ?field
-		      :time ?t)))
-  (variable ?dir-var (dir (
-	  net-torque ?dipole axis 
-	  ;; torque ?dipole ?field 
-		      :time ?t)))
+  (vector ?dipole (torque ?dipole ?field :time ?t) ?tau-dir)
+  (variable ?mag-var (mag (torque ?dipole ?field :time ?t)))
+  (variable ?dir-var (dir (torque ?dipole ?field :time ?t)))
   )
  :hint 
  (
@@ -2049,20 +2024,13 @@
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
-   ;; work-around for bug #773
-   (bind ?mag-var (format-sym "NTOR_~A_~A_~A" (body-name ?dipole) 'axis 
-			      (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
+			      (body-name ?source) (time-abbrev ?t)))
    )
  :effects 
  (
-  (vector ?dipole (
-	  net-torque ?dipole axis 
-	  ;; torque ?dipole ?field
-		  :time ?t) ?tau-dir)
-  (variable ?mag-var (mag (
-	  net-torque ?dipole axis 
-	  ;; torque ?dipole ?field
-		      :time ?t)))
+  (vector ?dipole (torque ?dipole ?field :time ?t) ?tau-dir)
+  (variable ?mag-var (mag (torque ?dipole ?field :time ?t)))
   )
  :hint 
  (
