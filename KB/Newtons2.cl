@@ -2007,7 +2007,7 @@
 (defoperator draw-velocity-rotating-fixed (?b ?t)
   :preconditions
    ((use-point-for-body ?b ?cm ?axis) ;else ?b is sometimes not bound
-    (motion ?b rotating :dir ?wd :accel ?wa :axis ?axis :time ?t-body)
+    (motion ?b rotating :axis ?axis :time ?t-body . ?whatever)
     (time ?t)
     (test (tinsidep ?t ?t-body))
     (motion ?axis ?at-rest :time ?t-axis)
@@ -6547,7 +6547,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ( (center-of-mass ?cm (?body))
     (in-wm (object ?body)) ;sanity test
-    (motion ?body rotating :dir ?wd :accel ?wa :axis ?cm :time ?t-any)
+    (motion ?body rotating :axis ?cm . ?whatever)
     )
   :effects ( (use-point-for-body ?body ?cm ?cm) 
 	     ;; ?cm is kinematic variable for translational motion
@@ -6557,7 +6557,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator use-body-rotating-fixed (?body)
   :preconditions 
   ( (object ?body)
-    (motion ?body rotating :dir ?wd :accel ?wa :axis ?axis :time ?t-motion)
+    (motion ?body rotating :axis ?axis :time ?t-motion . ?whatever)
     (center-of-mass ?cm (?body))
     (motion ?axis ?rest :time ?t-axis)
     (test (or (eq ?rest 'at-rest) (eq ?rest 'momentarily-at-rest)))
@@ -8561,8 +8561,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; and speeding up
 (defoperator draw-ang-accelerating (?b ?t)
   :preconditions 
-   ((motion ?b rotating :dir ?dir :accel-spec ?dir :axis ?axis :time ?t-motion)
-    (test (not (eq ?dir 'z-unknown)))
+   ((motion ?b rotating :dir ?dir :accel ?dir :axis ?axis :time ?t-motion)
+    (test (known-z-dir-spec ?dir))
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
@@ -8575,7 +8575,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (given (dir (ang-accel ?b :time ?t)) ?dir))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is increasing ~a" ?b (?t pp)))
-    (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity. If an object's rate of rotation is speeding up then its angular velocity vector is increasing in magnitude over time, so the angular acceleration will point in the same direction as the angular velocity. By the right-hand rule that will be out of the x-y plane for ccw rotation and into the plane for cw rotation."))
+    (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity.  If an object's rate of rotation is speeding up then its angular velocity vector is increasing in magnitude over time, so the angular acceleration will point in the same direction as the angular velocity.  By the right-hand rule that will be out of the x-y plane for ccw rotation and into the plane for cw rotation."))
     (bottom-out (string "Because ~a is rotating ~a ~a so its angular velocity points ~A, and it's angular velocity is increasing, you should use the acceleration tool to draw an angular acceleration for it pointing ~a." 
     ?b (?dir rotation-name) (?t pp) (?dir adj) (?dir adj)))
     ))
@@ -8584,10 +8584,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; and slowing down
 (defoperator draw-ang-decelerating(?b ?t)
   :preconditions (
-    (motion ?b rotating :dir ?vel-dir :accel ?dir 
-	    :axis ?axis :time ?t-motion)
+    (motion ?b rotating :dir ?vel-dir :accel ?dir :axis ?axis :time ?t-motion)
+    (test (known-z-dir-spec ?dir))
     (test (equal ?vel-dir (opposite ?dir)))
-    (test (not (eq ?vel-dir 'z-unknown)))
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
@@ -8906,8 +8905,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		))
    (point-on-body ?pt ?whole-body)
    (time ?t)
-   (motion ?whole-body rotating :dir ?wd :accel ?wa 
-	   :axis ?axis :time ?t-rotating)
+   (motion ?whole-body rotating :axis ?axis :time ?t-rotating . ?whatever)
    (test (tinsidep ?t ?t-rotating))
    )
    :effects (
@@ -8947,7 +8945,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (time ?t)				;radius-of-circle does not bind ?t
    (object ?body)			;velocity does not bind ?body
    (rolling ?body)  ;only apply when specified
-   (motion ?body rotating :dir ?wd :accel ?wa :axis ?axis :time ?t-motion)
+   (motion ?body rotating :axis ?axis :time ?t-motion . ?whatever)
    (test (tinsidep ?t ?t-motion))
    )
    :effects (
@@ -8981,8 +8979,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    to the magnitude of its relative position from the axis of rotation" 
    :preconditions (
    (point-on-body ?pt ?whole-body)
-   (motion ?whole-body rotating  :dir ?wd :accel ?wa 
-	   :axis ?axis-pt :time ?t-rotating ?t)
+   (motion ?whole-body rotating :axis ?axis-pt :time ?t-rotating . ?whatever)
    (time ?t)
    (test (tinsidep ?t ?t-rotating))
    (given (mag (relative-position ?pt ?axis-pt :time ?t)) ?value)
