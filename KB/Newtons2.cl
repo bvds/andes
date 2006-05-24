@@ -8478,7 +8478,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (?dir rotation-name) ?axis (?t pp)))
    (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. The angular velocity vector lies along the z-axis in Andes problems. By the right hand rule it points out of the x-y plane of the diagram for counter-clockwise rotation and into the x-y plane for clockwise rotation."))
    (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a." 
-		       ?b (?dir adj) (?t pp) (?dir adj)))
+		       ?b (?dir rotation-name) (?t pp) (?dir adj)))
   ))
 
 ;; Draw zero angular velocity for an object that is not rotating.
@@ -8529,8 +8529,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ((point (string "Notice that ~a is rotating ~a ~a." 
 		  ?b (?dir rotation-name) (?t pp)))
    (teach (string "The angular displacement of an object over an interval represents its net change in angular position as it rotates during that interval.  This vector is defined to lie along the z-axis in Andes problems. By the right hand rule, the angular displacment vector points out of the x-y plane of the diagram for net counter-clockwise rotation and into the x-y plane for net clockwise rotation."))
-   (bottom-out (string "Because ~a is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for it in direction ~a" 
-		       ?b (?rotate-dir adj) (?t pp) (?dir adj)))
+   (bottom-out (string "Because it is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for ~A in the direction ~a." 
+		        (?dir rotation-name) (?t pp) ?b (?dir adj)))
    ))
 
 (defoperator draw-ang-displacement-unknown (?b ?t)
@@ -8595,8 +8595,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is changing ~A." ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity."))
-    (bottom-out (string "Because ~a is accelerating in a ~a direction ~a, you should use the acceleration tool to draw an angular acceleration for it pointing ~A." 
-    ?b (?dir rotation-name) (?t pp) (?dir adj) (?dir adj)))
+    (bottom-out (string "Because it is accelerating in a ~a direction ~a, you should use the acceleration tool to draw an angular acceleration for ~A pointing ~A." 
+    (?dir rotation-name) (?t pp) (?dir adj) ?b (?dir adj)))
     ))
 
 (defoperator draw-ang-accel-speed-up (?b ?t)
@@ -9338,8 +9338,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?dir-var (dir (ang-momentum ?b :time ?t))) 
     (given (dir (ang-momentum ?b :time ?t)) ?dir-vel)
    )
-  :hint (
-   (point (string "Notice that ~a is rotating ~a so has a non-zero angular velocity vector directed ~A." ?b  (?t pp) (?dir-vel adj)))
+  :hint 
+  (
+   (point (string "Notice that ~a is rotating ~A ~a.  Consequently, it has a non-zero angular momentum vector." 
+		  ?b (?dir-vel rotation-name)  (?t pp) (?dir-vel adj)))
    (teach (string "In the case of a symmetrical rigid body rotating about a fixed axis, the angular momentum vector will be equal to the moment of inertia -- a scalar-- times the angular velocity vector. The angular momentum will therefore point along the z axis in the same direction as the angular velocity vector."))
    (bottom-out (string "Because ~a has an angular velocity pointing ~a ~A, use the momentum tool to draw a non-zero angular momentum vector with direction ~a ." ?b (?dir-vel adj) (?t pp) (?dir-vel adj)))
   ))
