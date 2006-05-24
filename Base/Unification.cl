@@ -324,7 +324,8 @@
 	((and (valid-keyword-pair y) (listp x) (null (cdr (last x))))
 	 (unify-keyword y x bindings))
 	;; Then test that at least one order did work.
-	((or (valid-keyword-pair x) (valid-keyword-pair y)) fail) 
+	((or (valid-keyword-pair x) (valid-keyword-pair y)) 
+	 (error "Can't unify keyword pairs in ~A~%     and ~A~%" x y)) 
 	;; Recursion for cons
         ((and (consp x) (consp y))
 	 (unify (rest x) (rest y) 
