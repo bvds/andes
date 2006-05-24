@@ -8431,14 +8431,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator apply-angular-PSM (?sought ?eqn-id) 
   :preconditions
   (
-   ;; vector PSMs defined to seek vector magnitudes, so may need to 
-   ;; pretend we are seeking magnitude to hook into existing vector
-   ;; PSM selecting code.  If sought is scalar, just leave it
-   (bind ?vec-sought (if (componentp ?sought) 
-			 `(mag ,(compo-base-vector ?sought))
-		       ?sought))
+   ;; get any vector associated with ?sought
+   (bind ?sought-vec (cond ((componentp ?sought) (compo-base-vector ?sought))
+			   ((eq (first ?sought) 'mag) (second ?sought))
+			   ((eq (first ?sought) 'dir) (second ?sought))
+			   (t ?sought)))
    ;; 
-   (angular-eqn-contains ?eqn-id ?vec-sought)
+   (angular-eqn-contains ?eqn-id ?sought-vec)
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
    (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
@@ -8643,8 +8642,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator ang-sdd-contains (?quantity)
   :preconditions (
    (any-member ?quantity (
-                (mag (ang-velocity ?b :time ?t))
-		(mag (ang-displacement ?b :time ?t))
+                (ang-velocity ?b :time ?t)
+		(ang-displacement ?b :time ?t)
 		(duration ?t)
 		))
    (object ?b)
@@ -8690,12 +8689,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator rk-no-s-contains (?sought)
  :preconditions (
   (any-member ?sought
-	       ( (mag (ang-velocity ?b :time ?t1))
-		 (dir (ang-velocity ?b :time ?t1))
-		 (mag (ang-velocity ?b :time ?t2))
-		 (dir (ang-velocity ?b :time ?t2))
-		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
-		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
+	       ( (ang-velocity ?b :time ?t1)
+		 (ang-velocity ?b :time ?t2)
+		 (ang-accel ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
    (object ?b)
@@ -8738,12 +8734,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator rk-no-vf-contains (?sought)
  :preconditions (
   (any-member ?sought
-	       ( (mag (ang-displacement ?b :time (during ?t1 ?t2)))
-		 (dir (ang-displacement ?b :time (during ?t1 ?t2)))
-		 (mag (ang-velocity ?b :time ?t1))
-		 (dir (ang-velocity ?b :time ?t1))
-		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
-		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
+	       ( (ang-displacement ?b :time (during ?t1 ?t2))
+ 		 (ang-velocity ?b :time ?t1)
+		 (ang-accel ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant within interval we are using
@@ -8792,14 +8785,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator rk-no-t-contains (?sought)
  :preconditions (
   (any-member ?sought
-	       ( (mag (ang-velocity ?b :time ?t1))
-		 (dir (ang-velocity ?b :time ?t1))
-	         (mag (ang-velocity ?b :time ?t2))
-		 (dir (ang-velocity ?b :time ?t2))
-	         (mag (ang-displacement ?b :time (during ?t1 ?t2)))
-		 (dir (ang-displacement ?b :time (during ?t1 ?t2)))
-		 (mag (ang-accel ?b :time (during ?t1 ?t2)))
-		 (dir (ang-accel ?b :time (during ?t1 ?t2)))
+	       ( (ang-velocity ?b :time ?t1)
+	         (ang-velocity ?b :time ?t2)
+	         (ang-displacement ?b :time (during ?t1 ?t2))
+		 (ang-accel ?b :time (during ?t1 ?t2))
 		 ))
    ; only applies if accel is constant within interval we are using
    (time (during ?t1 ?t2))  ; ensure both endpoints bound
@@ -9320,10 +9309,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator ang-momentum-contains (?sought)
    :preconditions (
       (any-member ?sought (
-              (mag (ang-momentum ?b :time ?t))
-              (dir (ang-momentum ?b :time ?t))
-	      (mag (ang-velocity ?b :time ?t))
-	      (dir (ang-velocity ?b :time ?t))
+              (ang-momentum ?b :time ?t)
+	      (ang-velocity ?b :time ?t)
 	      (moment-of-inertia ?b :time ?t ?t)
                           )) 
       (time ?t)
@@ -9371,10 +9358,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; for now only apply if we are given some momentum conserving change:
    (collision (orderless . ?bodies) (during ?t1 ?t2) 
 	      :axis ?axis :type ?split-join)
-   (any-member ?sought (
-			(mag (ang-momentum ?b :time ?t)) 
-			(dir (ang-momentum ?b :time ?t))
-	       ))
+   (any-member ?sought ((ang-momentum ?b :time ?t)))
    (test (or (equal ?t ?t1) (equal ?t ?t2)))   
    (test (subsetp (simple-parts ?b) ?bodies))
    )
@@ -9490,12 +9474,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator net-torque-contains (?sought)
   :preconditions (
     (any-member ?sought (
-                     (mag (net-torque ?b ?axis :time ?t))
-		     (dir (net-torque ?b ?axis :time ?t))
-		     (compo z 0 (net-torque ?b ?axis :time ?t))
-		     (mag (torque ?b ?force :axis ?axis ?axis :time ?t))
-		     (dir (torque ?b ?force :axis ?axis ?axis :time ?t))
-		     (compo z 0 (torque ?b ?force :axis ?axis ?axis :time ?t))
+                     (net-torque ?b ?axis :time ?t)
+		     (torque ?b ?force :axis ?axis ?axis :time ?t)
                         ))
     ;; should be able to do any point-on-body, 
     ;; but choose rotation axis when specified
@@ -9982,9 +9962,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (point-on-body ?axis ?b)
    (not (rotation-axis ?b ?axis))
    (any-member ?sought (
-			(mag (torque ?b ?force :axis ?axis ?axis :time ?t))
-			(dir (torque ?b ?force :axis ?axis ?axis :time ?t))
-			(compo z 0 (net-torque ?b ?axis :time ?t))
+			(torque ?b ?force :axis ?axis ?axis :time ?t)
+			(net-torque ?b ?axis :time ?t)
 			))
    (motion ?b ang-at-rest :time ?t-motion)
    (test (tinsidep ?t ?t-motion))
@@ -9999,8 +9978,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (not (rotation-axis ?b ?axis))
 		  (point-on-body ?axis ?b)
 		  (any-member ?sought (
-			(mag (torque ?b ?force :axis ?axis ?axis :time ?t))
-			(dir (torque ?b ?force :axis ?axis ?axis :time ?t))
+			(torque ?b ?force :axis ?axis ?axis :time ?t)
 			))
 		  (motion ?b ang-at-rest :time ?t-motion)
 		  (test (tinsidep ?t ?t-motion))
@@ -10059,11 +10037,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; need to bind rotation axis if not seeking torque
    (rotation-axis ?b ?axis)
    (any-member ?sought (
-              (mag (ang-accel ?b :time ?t))
-              (dir (ang-accel ?b :time ?t))
-	      (compo z 0 (net-torque ?b ?axis :time ?t)) 
-	      ;(mag (net-torque ?b ?axis :time ?t)) 
-	      ;(dir (net-torque ?b ?axis :time ?t)) 
+              (ang-accel ?b :time ?t)
+	      (net-torque ?b ?axis :time ?t)
 	      (moment-of-inertia ?b :time ?t ?t)
 	               ))
    (time ?t)
