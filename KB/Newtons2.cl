@@ -6635,7 +6635,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (
    ;; if the object is rotating at any time, then this term should be 
    ;; included.
-   (motion ?body rotating :dir ?dir :accel ?axis :axis ?pivot :time ?t-motion)
+   (motion ?body rotating . ?whatever)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
    (any-member ?tot (?t nil)) 
@@ -8458,8 +8458,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-velocity-rotating (?b ?t)
    :preconditions (
     (time ?t)
-    (motion ?b rotating :dir ?dir :accel ?accel-spec 
-	    :axis ?axis :time ?t-motion)
+    (motion ?b rotating :dir ?dir 
+	    :axis ?axis :time ?t-motion . ?whatever)
     (test (not (equal ?dir 'z-unknown)))  
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
@@ -8474,11 +8474,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (vector ?b (ang-velocity ?b :time ?t) ?dir) 
   )
   :hint 
-  ((point (string "Notice that ~a is rotating ~a about an axis ~a." ?b 
-		  (?dir rotation-name) (?t pp)))
+  ((point (string "Notice that ~a is rotating ~a about ~A ~A." ?b 
+		  (?dir rotation-name) ?axis (?t pp)))
    (teach (string "The angular velocity vector represents the rate of change of a rotating object's angular position. The angular velocity vector lies along the z-axis in Andes problems. By the right hand rule it points out of the x-y plane of the diagram for counter-clockwise rotation and into the x-y plane for clockwise rotation."))
    (bottom-out (string "Because ~a is rotating ~a ~A, use the velocity tool to draw a non-zero angular velocity vector with direction ~a." 
-		       ?b (?rotate-dir adj) (?t pp) (?dir adj)))
+		       ?b (?dir adj) (?t pp) (?dir adj)))
   ))
 
 ;; Draw zero angular velocity for an object that is not rotating.
@@ -8512,8 +8512,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-displacement-rotating (?b ?t)
   :preconditions (
     (time ?t)
-    (motion ?b rotating :dir ?dir :accel ?accel-spec 
-	    :axis ?axis :time ?t-motion)
+    (motion ?b rotating :dir ?dir :time ?t-motion . ?whatever)
     (test (not (equal ?dir 'z-unknown)))  
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-displacement ?b :time ?t) ?dir-drawn))
@@ -8532,6 +8531,26 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (teach (string "The angular displacement of an object over an interval represents its net change in angular position as it rotates during that interval.  This vector is defined to lie along the z-axis in Andes problems. By the right hand rule, the angular displacment vector points out of the x-y plane of the diagram for net counter-clockwise rotation and into the x-y plane for net clockwise rotation."))
    (bottom-out (string "Because ~a is rotating ~A ~a, use the displacement tool to draw a non-zero displacement vector for it in direction ~a" 
 		       ?b (?rotate-dir adj) (?t pp) (?dir adj)))
+   ))
+
+(defoperator draw-ang-displacement-unknown (?b ?t)
+  :preconditions (
+    (time ?t)
+    (motion ?b rotating :dir z-unknown :time ?t-motion . ?whatever)
+    (test (tinsidep ?t ?t-motion))
+    (not (vector ?b (ang-displacement ?b :time ?t) ?dir-drawn))
+    (bind ?mag-var (format-sym "theta_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+  )
+  :effects (
+    (vector ?b (ang-displacement ?b :time ?t) z-unknown) 
+    (variable ?mag-var (mag (ang-displacement ?b :time ?t)))
+    (variable ?dir-var (dir (ang-displacement ?b :time ?t)))
+  )
+  :hint 
+  ((point (string "You need to introduce a term for the angular displacement of ~A." ?b))
+   (teach (string "The net rotation of the object is not given in the problem statement.  Whether the angular displacement points into or out of the plane requires calculation to determine.  Since it must lie along the z axis, you should draw it but specify an unknown Z direction."))
+    (bottom-out (string "Use the displacement tool to draw a non-zero angular displacement for ~a ~A and select Unknown Z direction in the dialog box." ?b (?t pp)))
    ))
 
 (defoperator ang-accel-at-rest (?b ?t)
@@ -8556,11 +8575,33 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (bottom-out (string "Because ~a is not rotating ~a, use the acceleration tool to draw a zero-length angular acceleration vector for it." ?b (?t pp)))
    ))
 
-;;; draw angular acceleration of an object rotating in a known direction
-;;; and speeding up
-(defoperator draw-ang-accelerating (?b ?t)
+;;; draw angular acceleration of an object where the direction of rotation
+;;; is indefinite.
+(defoperator draw-ang-accel (?b ?t)
   :preconditions 
-   ((motion ?b rotating :dir ?dir :accel ?dir :axis ?axis :time ?t-motion)
+   ((motion ?b rotating :dir ?vel-dir :accel ?dir :time ?t-motion . ?whatever)
+    (test (not (known-z-dir-spec ?vel-dir)))
+    (test (known-z-dir-spec ?dir))
+    (time ?t)
+    (test (tinsidep ?t ?t-motion))
+    (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
+    (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :effects 
+   ((vector ?b (ang-accel ?b :time ?t) ?dir) 
+    (variable ?mag-var (mag (ang-accel ?b :time ?t)))
+    (variable ?dir-var (dir (ang-accel ?b :time ?t)))
+    (given (dir (ang-accel ?b :time ?t)) ?dir))
+  :hint
+   ((point (string "Notice that the rate at which ~a is rotating is changing ~A." ?b (?t pp)))
+    (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity."))
+    (bottom-out (string "Because ~a is accelerating in a ~a direction ~a, you should use the acceleration tool to draw an angular acceleration for it pointing ~A." 
+    ?b (?dir rotation-name) (?t pp) (?dir adj) (?dir adj)))
+    ))
+
+(defoperator draw-ang-accel-speed-up (?b ?t)
+  :preconditions 
+   ((motion ?b rotating :dir ?dir :accel ?dir :time ?t-motion . ?whatever)
     (test (known-z-dir-spec ?dir))
     (time ?t)
     (test (tinsidep ?t ?t-motion))
@@ -8581,9 +8622,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 ;; draw angular acceleration of an object rotating in a known direction
 ;; and slowing down
-(defoperator draw-ang-decelerating(?b ?t)
+(defoperator draw-ang-accel-slow-down(?b ?t)
   :preconditions (
-    (motion ?b rotating :dir ?vel-dir :accel ?dir :axis ?axis :time ?t-motion)
+    (motion ?b rotating :dir ?vel-dir :accel ?dir :time ?t-motion . ?whatever)
     (test (known-z-dir-spec ?dir))
     (test (equal ?vel-dir (opposite ?dir)))
     (time ?t)
@@ -8615,8 +8656,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator draw-ang-accel-unknown-dir (?b ?t)
   :preconditions (
     (time ?t)
-    (motion ?b rotating :dir ?whatever :accel z-unknown 
-	    :axis ?axis :time ?t-motion)
+    (motion ?b rotating :accel z-unknown :time ?t-motion . ?whatever)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -8869,8 +8909,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :preconditions (
    (point-on-body ?pt ?whole-body)
    (time ?t)
-   (motion ?whole-body rotating :dir ?rotate-dir :accel ?dontcare
-	   :axis ?axis-pt :time ?t-rotating)
+   (motion ?whole-body rotating :dir ?rotate-dir
+	   :axis ?axis-pt :time ?t-rotating . ?whatever)
    (test (not (equal ?rotate-dir 'z-unknown)))
    (test (tinsidep ?t ?t-rotating))
    (given (dir (relative-position ?pt ?axis-pt :time ?t)) (dnum ?r-dir |deg|))
@@ -9606,8 +9646,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (not (vector ?b (net-torque ?b ?axis :time ?t) ?dontcare))
    ;; we need to bind ?axis
-   (motion ?b rotating :dir ?rotate-dir :accel ?dir 
-	   :axis ?axis :time ?t-motion)
+   (motion ?b rotating :accel ?dir :axis ?axis :time ?t-motion . ?whatever)
    (time ?t)
    (test (tinsidep ?t ?t-motion))
    (test (known-z-dir-spec ?dir))
@@ -9672,8 +9711,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
      ;; not given ang-accel dir
      (not (given (dir (ang-accel ?b :time ?t)) ?dir))
      ;;     and dir(ang-accel) not in motion statement
-     (not (motion ?b rotating :dir ?rotate-dir :accel ?a-dir
-		  :axis ?axis :time ?t-motion)
+     (not (motion ?b rotating :accel ?a-dir
+		  :axis ?axis :time ?t-motion . ?whatever)
           (and (tinsidep ?t ?t-motion) (known-z-dir-spec ?a-dir)))
      ;; not known in rotational equilibrium:
      (not (motion ?b ang-at-rest :time ?t-motion) (tinsidep ?t ?t-motion))
