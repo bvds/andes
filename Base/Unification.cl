@@ -317,9 +317,15 @@
 	((and (orderless-p x) (orderless-p y)) 
 	 (unify (orderless-sort (cdr x) bindings) 
 		(orderless-sort (cdr y) bindings) bindings test test-function))
-	;; Match any keyword pairs
-	((valid-keyword-pair x) (unify-keyword x y bindings))
-	((valid-keyword-pair y) (unify-keyword y x bindings))
+	;; Match any keyword pairs; only compare keyword pair against 
+	;; a proper list.  
+	((and (valid-keyword-pair x) (listp y) (null (cdr (last y))))
+	 (unify-keyword x y bindings))
+	((and (valid-keyword-pair y) (listp x) (null (cdr (last x))))
+	 (unify-keyword y x bindings))
+	;; Then test that at least one order did work.
+	((or (valid-keyword-pair x) (valid-keyword-pair y)) fail) 
+	;; Recursion for cons
         ((and (consp x) (consp y))
 	 (unify (rest x) (rest y) 
 			 (unify (first x) (first y) 
@@ -369,7 +375,7 @@
   `(when (and (consp ,x) (not (keywordp (car ,x)))) (pop ,x)))
 
 (defun unify-keyword (x y bindings)
-  "Find match in y for first keyword pair in x"
+  "Find match in y for first keyword pair in x; y must be a proper list."
   ;; keyword pair is removed from x:
   (let* ((ykey (member (pop x) y)) (var (pop x))
 	 ;; remove any default value from x
