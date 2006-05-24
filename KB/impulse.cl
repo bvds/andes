@@ -179,9 +179,9 @@
    (collision (orderless . ?bodies) ?t :type ?elastic-dont-care)
    (test (member ?b ?bodies :test #'equal)) 
    (test (member ?agent ?bodies :test #'equal)) 
-   (motion ?b (straight ?dontcare1 ?dir1) :time ?t1)
+   (motion ?b straight :dir ?dir1 :time ?t1 . ?whatever1)
    (test (not (eq ?dir1 'unknown)))	;known direction
-   (motion ?b (straight ?dontcare2 ?dir2) :time ?t2)
+   (motion ?b straight :dir ?dir2 :time ?t2 . ?whatever2)
    (test (not (eq ?dir2 'unknown)))	;known direction
    (test (same-angle ?dir2 (opposite ?dir1))) ;momenta in opposite directions
    (not (vector ?b (impulse ?b ?agent :time ) ?dontcare3)) ;not already done 
@@ -212,8 +212,8 @@
    (collision (orderless . ?bodies) ?t :type ?elastic-dont-care)
    (test (member ?b ?bodies :test #'equal)) 
    (test (member ?agent ?bodies :test #'equal)) 
-   (motion ?b (straight ?dontcare1 ?dir1) :time ?t1)
-   (motion ?b (straight ?dontcare2 ?dir2) :time ?t2)
+   (motion ?b straight :dir ?dir1 :time ?t1 . ?whatever1)
+   (motion ?b straight :dir ?dir2 :time ?t2 . ?whatever2)
    (test (or (eq ?dir1 'unknown) (eq ?dir2 'unknown) ;unknown direction
 	     (not (same-angle ?dir2 (opposite ?dir1))))) ;momenta not opposite 
    (not (vector ?b (impulse ?b ?agent :time ?t) ?dontcare3)) ;not already done 

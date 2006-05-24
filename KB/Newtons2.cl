@@ -1419,9 +1419,9 @@
 	       ((mag (displacement ?b :time ?t))
 		(distance ?b :time ?t)))
    ;; make sure we ar moving in a straight line.
-   (motion ?b (straight ?type ?dir) :time ?t-motion)
+   (motion ?b straight :accel ?a-dir :dir ?v-dir :time ?t-motion)
    ;; This check for change in direction is rather weak.
-   (test (not (equal ?type 'slow-down)))
+   (test (or (eq ?a-dir zero) (equal ?a-dir ?v-dir)))
    (test (tinsidep ?t ?t-motion))
    (time ?t)
    (test (time-intervalp ?t)) ;sanity check
@@ -1503,7 +1503,7 @@
 (defoperator get-displacement-dir-from-motion (?b ?t1 ?t2)
     :effects ( (displacement-dir ?b (during ?t1 ?t2) ?dir-d12) )
     :preconditions 
-    (  (motion ?b (straight ?dont-care ?dir-d12) :time (during ?t1 ?t2)) ))
+    (  (motion ?b straight :dir ?dir-d12 :time (during ?t1 ?t2) . ?whatever) ))
 
 (defoperator write-pyth-thm (?b ?o ?t1 ?t2)
   
@@ -1785,7 +1785,7 @@
    If an object is moving in a straight line over a time interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((motion ?b (straight ?dontcare ?dir) :time ?t-motion)
+   ((motion ?b straight :dir ?dir :time ?t-motion . ?whatever)
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (time ?t)
     (test (time-intervalp ?t))
@@ -1811,7 +1811,7 @@
    If an object is moving in a straight line over a time interval in an unknown direction,
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((motion ?b (straight ?dontcare unknown) :time ?t-motion)
+   ((motion ?b straight :dir unknown :time ?t-motion . ?whatever)
     (time ?t)
     (test (time-intervalp ?t))
     (test (tinsidep ?t ?t-motion))
@@ -2067,7 +2067,7 @@
      as its motion."
   :preconditions
   ((use-point-for-body ?body ?cm ?b) ;else ?b is sometimes not bound
-   (motion ?b (straight ?dontcare ?dir) :time ?t-motion)
+   (motion ?b straight :dir ?dir :time ?t-motion . ?whatever)
    (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
    (time ?t)
    (test (tinsidep ?t ?t-motion))
@@ -2093,7 +2093,7 @@
      as its motion."
   :preconditions
   ((use-point-for-body ?body ?cm ?b)	;else ?b is sometimes not bound
-   (motion ?b (straight ?dontcare unknown) :time ?t-motion)
+   (motion ?b straight :dir unknown :time ?t-motion . ?whatever)
    (time ?t)
    (test (tinsidep ?t ?t-motion))
    (not (vector ?body (velocity ?b :time ?t) ?dir))
@@ -2345,7 +2345,7 @@
    "If ?body is moving in a straight line with constant speed during ?time,
    then its acceleration during ?time is zero."
   :preconditions
-   ((motion ?b (straight constant ?dontcare) :time ?t-motion)
+   ((motion ?b straight :accel zero :time ?t-motion . ?whatever)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
@@ -2376,7 +2376,7 @@
       and the direction of motion ?direction,
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
-   ((motion ?b (straight speed-up ?dir) :time ?t-motion)
+   ((motion ?b straight :accel ?dir :dir ?dir :time ?t-motion)
     (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
     (time ?t)
     (test (tinsidep ?t ?t-motion))
@@ -2415,7 +2415,7 @@
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
    (;; following tells us forces are not balanced, else would have at-rest
-    (motion ?b (straight speed-up unknown) :time ?t-motion)
+    (motion ?b straight :accel unknown :time ?t-motion . ?whatever)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     ;; find all forces that are acting on ?b (without drawing them)
@@ -2523,14 +2523,14 @@
    "If ?body is moving in a straight line and slowing down during ?time,
    then its acceleration is opposite its direction of motion."
   :preconditions
-   ((motion ?b (straight slow-down ?motion-dir) :time ?t-motion)
-    (test (not (equal ?motion-dir 'unknown)))  ; until conditional effects are implemented
+   ((motion ?b straight :accel ?accel-dir :dir ?motion-dir :time ?t-motion)
+    (test (degree-specifierp ?motion-dir)) 
+    (test (equal ?accel-dir (opposite ?motion-dir)))
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?accel-dir (opposite ?motion-dir))
     (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir ?b ?t)
     )
   :effects
@@ -4194,7 +4194,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator find-kinetic-friction-force (?b ?surface ?t)
   :preconditions (
     (slides-against ?b ?surface ?t-slides)
-    (motion ?b (straight ?dont-care32 ?motion-dir) :time ?t-motion ?t)
+    (motion ?b straight :dir ?motion-dir :time ?t-motion ?t . ?whatever)
     (time ?t)
     (object ?b)
     (not (force ?b ?surface kinetic-friction ?t . ?dont-care))
@@ -4366,7 +4366,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (drag ?b ?medium ?t-slides)
     (test (tinsidep ?t ?t-slides))
     (not (force ?b ?medium drag ?t . ?dont-care))
-    (motion ?b (straight ?dont-care32 ?motion-dir) :time ?t-motion)
+    (motion ?b straight :dir ?motion-dir :time ?t-motion . ?whatever)
     (test (tinsidep ?t ?t-motion))
     (bind ?drag-dir (opposite ?motion-dir))
    )
@@ -6242,9 +6242,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (tinsidep ?t ?t-connected))
    ; this rule doesn't apply to connected points on rotating objects
    ; so make sure both bodies in straight line motion during sought time
-   (in-wm (motion ?b1 (straight . ?dontcare1) :time ?t-straight1))
+   (in-wm (motion ?b1 straight :time ?t-straight1 . ?what1))
    (test (tinsidep ?t ?t-straight1))
-   (in-wm (motion ?b2 (straight . ?dontcare2) :time ?t-straight2))
+   (in-wm (motion ?b2 straight :time ?t-straight2 . ?what2))
    (test (tinsidep ?t ?t-straight2))
   )
   :effects
@@ -8045,7 +8045,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    then its momentum at that time is non-zero and in the same direction
      as its motion."
   :preconditions
-   ((motion ?b (straight ?dontcare ?dir) :time ?t-motion)
+   ((motion ?b straight :dir ?dir :time ?t-motion . ?whatever)
     (test (not (equal ?dir 'unknown)))  ; until conditional effects 
     (time ?t)
     (test (tinsidep ?t ?t-motion))
@@ -8069,7 +8069,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    then its momentum at that time is non-zero and in the same direction
      as its motion."
   :preconditions
-   ((motion ?b (straight ?dontcare unknown) :time ?t-motion)
+   ((motion ?b straight :dir unknown :time ?t-motion . ?whatever)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))

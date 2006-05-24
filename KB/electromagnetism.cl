@@ -2389,9 +2389,9 @@
                   (given-field ?source magnetic) ;so know there is a Bfield
                   (object ?b)
                   (at-place ?b ?loc :time ?t ?t)
-		  ; Require motion explicitly specified as unknown
-		  ; Not quite right to presume it is "straight", though
-		  (motion ?b (straight ?dontcare unknown) :time ?t ?t)
+		  ;; Require motion explicitly specified as unknown
+		  ;; Not quite right to presume it is "straight", though
+		  (motion ?b straight :dir unknown :time ?t ?t . ?whatever)
                   (test (time-pointp ?t))
                   (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
                   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
@@ -2681,7 +2681,7 @@
    (any-member ?tot (?t nil)) 
    (variable ?q (charge-on ?b :time ?tot))
    (given (dir (field ?loc magnetic ?source :time ?t ?t)) (dnum ?dir1 ?doncare1)) 
-   (motion ?b (straight NIL (dnum ?dir2 ?dontcare1)) :time ?t ?t)
+   (motion ?b straight :dir (dnum ?dir2 ?dontcare1) :time ?t ?t)
    (variable ?OF (dir (force ?b ?source magnetic :time ?t)))
    (bind ?in-out (if (>= ?dir1 ?dir2) '(dnum 0 |deg|) '(dnum 180 |deg|)))
    (sign-charge ?b pos)
@@ -2705,7 +2705,7 @@
    (variable ?q (charge-on ?b :time ?tot))
    (given (dir (field ?loc magnetic ?source :time ?t ?t)) 
 	  (dnum ?dir1 ?whever)) 
-   (motion ?b (straight NIL (dnum ?dir2 ?dontcare1)) :time ?t ?t)
+   (motion ?b straight :dir (dnum ?dir2 ?dontcare1) :time ?t ?t)
    (variable ?OF (dir (force ?b ?source magnetic :time ?t)))
    (bind ?in-out (if (>= ?dir1 ?dir2) 180 0))
    (sign-charge ?b neg)
