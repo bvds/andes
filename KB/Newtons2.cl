@@ -2701,7 +2701,7 @@
    ((point (string "Notice that ~a is in uniform circular motion ~a" ?b (?t pp)))
     (teach (kcd "draw_accel_circular_constant_speed")
 	   (string "When a body is in uniform circular motion, its acceleration is directed towards the center of the circle."))
-    (bottom-out (string "Because ~a is in uniform circular motion you should use the acceleration tool to draw an acceleration for it ~a at direction ~A degrees." 
+    (bottom-out (string "Because ~a is in uniform circular motion you should use the acceleration tool to draw an acceleration for it ~a at direction ~A." 
 			?b (?t pp) (?accel-dir adj)))
     ))
 
