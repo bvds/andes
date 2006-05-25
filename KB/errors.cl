@@ -1753,14 +1753,18 @@
 ;;; so these are all special cases.
 
 ;;; If the body is moving in a straight line and slowing down, and the
-;;; student draws the acceleration in the opposite direciton, then the
+;;; student draws the acceleration in the opposite direction, then the
 ;;; need a lesson on deceleration.  Common misconception.
 (def-error-class deceleration-bug (?body ?sdir ?cdir)
   ((student (vector (accel ?body :time ?time) ?sdir))
    (test (degree-specifierp ?sdir)) ; not 'zero 'unknown or other atom 
    (bind ?cdir (opposite ?sdir))
    (correct (vector (accel ?body :time ?time) ?cdir))
-   (problem (motion ?body (straight slow-down ?dontcare) :time ?time)))
+   (problem (motion ?body straight :dir ?motion-dir :accel ?accel-dir 
+		    :time ?time))
+   (test (degree-specifierp ?motion-dir)) 
+   (test (equal ?accel-dir (opposite ?motion-dir)))
+   )
   :utility 100)
 
 (defun deceleration-bug (body sdir cdir)
@@ -2415,18 +2419,21 @@
 ;;; If the student draws a zero net force when the real net force is
 ;;; non-zero, and the body is moving in a straight line, then point,
 ;;; teach and bottom out.
-(def-error-class net-force-straight (?body ?time ?speed-up-or-slow-down )
+(def-error-class net-force-straight (?body ?time ?speed-up-or-slow-down)
   ((student (vector (net-force ?body :time ?time) zero))
    (correct (vector (net-force ?body :time ?time) ?dir1))
    (test (not (equal ?dir1 'zero)))
-   (problem (motion ?body (straight ?speed-up-or-slow-down ?dir2) 
-		    :time ?time)))
+   (problem (motion ?body straight :accel ?accel-dir :dir ?motion-dir
+		    :time ?time))
+   (test (degree-specifierp ?motion-dir)) 
+   (bind ?speed-up-or-slow-down (if (equal ?accel-dir ?motion-dir)
+				    "speeding up" "slowing down"))
+   )
   :utility 100)
 
 (defun net-force-straight (body time speed-up-or-slow-down)
   (setq body (nlg body 'def-np))
   (setq time (nlg time 'pp))
-  (setq speed-up-or-slow-down (nlg speed-up-or-slow-down 'adj))
   (make-hint-seq
    (list
     (format nil "Notice that ~a is ~a while it moves in a straight line ~a."

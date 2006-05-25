@@ -2015,7 +2015,7 @@
     (test (tinsidep ?t ?t-body))
     (motion ?axis ?at-rest :time ?t-axis)
     (test (tinsidep ?t ?t-axis))
-    (test (or (equal ?at-rest 'at-rest) (equal ?at-rest 'momentarily-at-rest)))
+    (test (or (eq ?at-rest 'at-rest) (eq ?at-rest 'momentarily-at-rest)))
     (bind ?mag-var (format-sym "v_~A_~A" ?axis (time-abbrev ?t))))
   :effects
    ((vector ?b (velocity ?axis :time ?t) zero)
@@ -3579,7 +3579,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (free-fall ?b ?t-free)
          (tinsidep `(during ,?t1 ,?t2) ?t-free))
     ;; make sure it is not projectile motion
-    (not (motion ?b  (curved projectile ?whatever) :time ?t-free)
+    (not (motion ?b (curved projectile ?whatever) :time ?t-free)
          (tinsidep `(during ,?t1 ,?t2) ?t-free))
     )
   :effects
@@ -4976,31 +4976,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; However, in some cases these operators are not used because we are either
 ;; given the existence of a compound in the problem statement or are given
 ;; some attribute, e.g. velocity, of a compound in the problem statement.
-;;
-
-;;  selectively enable with (allow-compound) in givens
-(defoperator form-compound-moving (?bodies)
-  :preconditions (
-    (allow-compound)
-    (assume move-together orderless . ?bodies) ; args should be atomic bodies
-    (not (object (compound orderless . ?bodies)))
-    (in-wm (motion ?b1 ?motion-spec :time ?t-motion)) 
-    (test (member ?b1 ?bodies :test #'equal))
-    (test (tinsidep ?t-coupled ?t-motion))
-  )
-  :effects (
-     (object (compound orderless . ?bodies))
-     (motion (compound orderless . ?bodies) ?motion-spec :time ?t-coupled)
-     (body (compound orderless . ?bodies))
-  )
-  :hint
-  ((point (string "Notice that ~A move together as a unit ~A."
-		  (?bodies conjoined-defnp) (?t-coupled pp)))
-   (teach 
-      (kcd "draw_compound_lk_body")
-      (string "When two bodies move together you can often simplify your solution by treating the two of them as a single body. This is called a compound body."))
-   (bottom-out (string "Use the body drawing tool and select a list of bodies to introduce the compound body consisting of ~a ~A." (?bodies conjoined-defnp) (?t-coupled pp)))
-  ))
 
 ;; if two bodies are in contact and both are at rest they may be treated
 ;; as a compound. 
@@ -6548,8 +6523,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator define-kinetic-energy-ee-var (?b ?t)
   :preconditions 
   ( ;; test for translational motion of any axis at any time
-   (in-wm (motion ?axis (?kind . ?whatever) :time ?t-any))
-   (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
+   (in-wm (motion ?axis ?kind . ?whatever))
+   (test (or (equal ?kind 'straight) (equal (first ?kind) 'curved)))
    (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
    (variable ?var (kinetic-energy ?b :time ?t)) )
   :effects ( (ee-var ?b ?t ?var) ))
@@ -6627,8 +6602,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    ;; test for translational motion of body axis at any time
-   (motion ?axis (?kind . ?whatever) :time ?t-motion)
-   (test (or (equal ?kind 'straight) (equal ?kind 'curved)))
+   (motion ?axis ?kind . ?whatever)
+   (test (or (equal ?kind 'straight) (equal (first ?kind) 'curved)))
    (use-point-for-body ?body ?cm ?axis)	;always use axis of rotation
    (variable ?ke-var (kinetic-energy ?body :time ?t))
    (variable ?m-var (mass ?body))
