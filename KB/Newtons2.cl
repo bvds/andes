@@ -2212,10 +2212,10 @@
 (defoperator draw-avg-vel-from-displacement (?b ?t)
   :preconditions 
   (
-   ;; only apply if no other motion spec for object?
-   ;; (not (motion ?b ?motion-spec :time ?t-motion))
    (in-wm (given (dir (displacement ?b :time ?t)) ?dir))
-   (test (not (equal ?dir 'unknown)))  
+   ;; only apply if no motion spec for object
+   (not (motion ?b ?motion-spec :time ?t-motion . ?whatever) 
+	(tinsidep ?t ?t-motion))
    (not (vector ?b (velocity ?b :time ?t) ?dontcare))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
@@ -2224,7 +2224,7 @@
     (variable ?mag-var (mag (velocity ?b :time ?t)))
     (variable ?dir-var (dir (velocity ?b :time ?t)))
     (given (dir (velocity ?b :time ?t)) ?dir)
-    ; ensure implicit eqn comes out when dir is a problem given 
+    ;; ensure implicit eqn comes out when dir is a problem given 
     (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t)))
     )
   :hint
@@ -5037,12 +5037,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; search to derive compound body motion from move-together statement.
 (defoperator get-part-motion-from-compound (?b ?bodies)
   :preconditions (
-     (in-wm (motion (compound orderless . ?bodies) ?c-motion :time ?t))
+     (in-wm (motion (compound orderless . ?bodies) . ?rest))
      (any-member ?b ?bodies)
-     (not (motion ?b ?b-motion :time ?t))
+     (not (motion ?b . ?whatever))
   )
   :effects (
-     (motion ?b ?c-motion :time ?t)
+     (motion ?b . ?rest)
   ))
 
 
