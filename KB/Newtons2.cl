@@ -2478,7 +2478,7 @@
     (test (tinsidep ?t ?t-given))
     ; make sure no other motion specification in problem for time
     ; !! Too strict, some motion specs leave accel dir out.
-    (not (motion ?b ?dontcare :time ?t-motion)
+    (not (motion ?b ?dontcare :time ?t-motion . ?whatever)
          (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
