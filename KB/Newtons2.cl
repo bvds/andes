@@ -343,7 +343,7 @@
    (not (eqn ?whatever ?eqn-id))
    (eqn ?compo-eqn ?eqn-id)
    ;;
-   (debug "Wrote compo eqn ~a. ~a~%" ?compo-eqn ?eqn-id)
+   (debug "Wrote compo eqn ~a.~%    ~a~%" ?compo-eqn ?eqn-id)
    )
   :effects ((PSM-applied ?sought ?eqn-id ?compo-eqn)))
 
@@ -882,8 +882,6 @@
 	 (part-of-sys ?b ?sys))
     ;; (test (atom ?b))	; only for atomic bodies
     (setof (in-wm (vector ?b ?vector ?dir)) ?dir ?dirs)
-    ;; only apply if there are some known vector directions
-    (test (minimal-x-rotations ?dirs))
     ;; add 0 so standard axes always an option:
     (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
     (any-member ?rot ?min-dirs)
@@ -5219,9 +5217,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (object ?b)
      (time ?t)
      (not (vector ?b (net-force ?b :time ?t) ?dont-care))
-     (vector ?b (accel ?b :time ?t-accel) ?dir-accel)
+     (vector ?b (accel ?b :time ?t) ?dir-accel)
      (test (not (eq ?dir-accel 'unknown)))
-     (test (tinsidep ?t ?t-accel))
      (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
      (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
@@ -5239,6 +5236,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-net-force-unknown (?b ?t)
   :preconditions
   (    
+   (object ?b)
+   (time ?t)
    ;; find all forces that are acting on ?b (without drawing them)
    ;; and collect all distinct directions
    (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
