@@ -1421,7 +1421,7 @@
    ;; make sure we ar moving in a straight line.
    (motion ?b straight :accel ?a-dir :dir ?v-dir :time ?t-motion)
    ;; This check for change in direction is rather weak.
-   (test (or (eq ?a-dir zero) (equal ?a-dir ?v-dir)))
+   (test (or (eq ?a-dir 'zero) (equal ?a-dir ?v-dir)))
    (test (tinsidep ?t ?t-motion))
    (time ?t)
    (test (time-intervalp ?t)) ;sanity check
