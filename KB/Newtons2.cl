@@ -6524,7 +6524,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ( ;; test for translational motion of any axis at any time
    (in-wm (motion ?axis ?kind . ?whatever))
-   (test (or (equal ?kind 'straight) (equal (first ?kind) 'curved)))
+   (test (or (eq ?kind 'straight) 
+	     (and (consp ?kind) (eq (first ?kind) 'curved))))
    (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
    (variable ?var (kinetic-energy ?b :time ?t)) )
   :effects ( (ee-var ?b ?t ?var) ))
@@ -6603,7 +6604,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (
    ;; test for translational motion of body axis at any time
    (motion ?axis ?kind . ?whatever)
-   (test (or (equal ?kind 'straight) (equal (first ?kind) 'curved)))
+   (test (or (eq ?kind 'straight) 
+	     (and (consp ?kind) (eq (first ?kind) 'curved))))
    (use-point-for-body ?body ?cm ?axis)	;always use axis of rotation
    (variable ?ke-var (kinetic-energy ?body :time ?t))
    (variable ?m-var (mass ?body))
