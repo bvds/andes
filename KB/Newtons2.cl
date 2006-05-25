@@ -1418,9 +1418,9 @@
   ((any-member ?quantity 
 	       ((mag (displacement ?b :time ?t))
 		(distance ?b :time ?t)))
-   ;; make sure we ar moving in a straight line.
+   ;; make sure we are moving in a straight line.
    (motion ?b straight :accel ?a-dir :dir ?v-dir :time ?t-motion)
-   ;; This check for change in direction is rather weak.
+   ;; this test does not work for the case of slowing down.
    (test (or (eq ?a-dir 'zero) (equal ?a-dir ?v-dir)))
    (test (tinsidep ?t ?t-motion))
    (time ?t)
@@ -2364,12 +2364,37 @@
    (bottom-out (string "Because ~a has constant velocity ~a, use the acceleration tool to draw a zero-length acceleration vector for it." ?b (?t pp)))
    ))
 
+(defoperator draw-accelerating (?b ?t)
+  :preconditions
+   ((motion ?b straight :accel ?dir :dir ?v-dir :time ?t-motion)
+    (test (degree-specifierp ?dir)) 
+    ;; cases handled by draw-accel-speed-up and draw-accel-slow-down
+    (test (not (degree-specifierp ?v-dir)))
+    (time ?t)
+    (test (tinsidep ?t ?t-motion))
+    (not (vector ?b (accel ?b :time ?t) ?any-dir))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    )
+  :effects
+   ((vector ?b (accel ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) ?dir))
+   :hint
+   ((point (string "Notice that the velocity of ~A is changing ~A." 
+		   ?b (?t pp)))
+    (teach (string "When a body is moving in a straight line and accelerating, its acceleration is either parallel or opposite to the line of motion."))
+    (bottom-out (string "Because ~a is accelerating in direction ~a, you should use the acceleration tool to draw an acceleration for it ~a at direction ~a." 
+			?b ?dir (?t pp) ?dir))
+    ))
+
 
 ;;; This operator draws an non-zero acceleration vector for a body that 
 ;;; is moving in a straight line and speeding up.  The motion descriptor's 
 ;;; third argument is the direction of the object's velocity. 
 
-(defoperator draw-accelerating (?b ?t)
+(defoperator draw-accel-speed-up (?b ?t)
   :specifications 
    "If ?body is moving in a straight line during ?time,
       and it is speeding up,
@@ -2518,7 +2543,7 @@
 ;; When we had (vector ... ?dir) this operator would be tried
 ;; with ?accel-dir bound to 'zero coming in, causing error when we 
 ;; attempt to bind ?accel-dir.
-(defoperator draw-decelerating (?b ?t)
+(defoperator draw-accel-slow-down (?b ?t)
  :specifications 
    "If ?body is moving in a straight line and slowing down during ?time,
    then its acceleration is opposite its direction of motion."
