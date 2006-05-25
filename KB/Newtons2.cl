@@ -1886,8 +1886,10 @@
    "If you are given the direction of a net displacement over an interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((given (dir (displacement ?b :time ?t)) ?dir)
-    (test (not (equal ?dir 'unknown)))  
+   ((in-wm (given (dir (displacement ?b :time ?t)) ?dir))
+    ;; no relevant motion statement, direction known, or unknown.
+    (not (motion ?b ?motion-spec :time ?t-motion . ?whatever) 
+	 (tinsidep ?t ?t-motion))
     (test (time-intervalp ?t))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -1950,7 +1952,8 @@
   ( (time ?t)
     (test (time-intervalp ?t))
     ;; motion with unknown direction not handled correctly:
-    (not (motion ?b ?motion-spec :time ?t-motion) (tinsidep ?t ?t-motion))
+    (not (motion ?b ?motion-spec :time ?t-motion . ?whatever) 
+	 (tinsidep ?t ?t-motion))
     ;; dir=unknown not handled correctly:
     (not (given (dir (displacement ?b :time ?t)) ?dir))
     ;; BvdS:  hack to get kt13a to work
