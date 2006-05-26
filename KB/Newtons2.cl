@@ -1419,7 +1419,9 @@
    ;; make sure we are moving in a straight line.
    (motion ?b straight :accel ?a-dir :dir ?v-dir :time ?t-motion)
    ;; this test does not work for the case of slowing down.
-   (test (or (eq ?a-dir 'zero) (equal ?a-dir ?v-dir)))
+   ;; Also, in the case that :accel is unspecified, we assume
+   ;; that it does not change direction.
+   (test (or (eq ?a-dir 'zero) (equal ?a-dir ?v-dir) (null ?a-dir)))
    (test (tinsidep ?t ?t-motion))
    (time ?t)
    (test (time-intervalp ?t)) ;sanity check
@@ -1885,9 +1887,6 @@
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
    ((in-wm (given (dir (displacement ?b :time ?t)) ?dir))
-    ;; no relevant motion statement, direction known, or unknown.
-    (not (motion ?b ?motion-spec :time ?t-motion . ?whatever) 
-	 (tinsidep ?t ?t-motion))
     (test (time-intervalp ?t))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -1917,7 +1916,7 @@
    then draw a displacement vector for it at an unspecified direction"
   :preconditions
    ((motion ?b (curved projectile . ?dontcare) :time ?t)
-    (not (given (dir (displacement ?b :time ?t)) ?dir))
+    (not (given (dir (displacement ?b :time ?t)) ?dir-given))
     (test (time-intervalp ?t))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2151,12 +2150,13 @@
 (defoperator draw-velocity-curved-unknown (?b ?t)
   :preconditions
    (;; don't use this to draw average velocity over an interval. 
-    ;; (Can compete with draw-avg-vel-from-displacement for that on 
-    ;; some projectile problems.)
     (motion ?b (curved ?curve-type (unknown ?dontcare)) :time ?t-motion)
     (time ?t)
     (test (time-pointp ?t))
     (test (tinsidep ?t ?t-motion))
+    ;; direction of displacement is not known
+    ;; This is handled by draw-avg-vel-from-displacement
+    (not (given (dir (displacement ?b :time ?t)) ?disp-dir))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
@@ -2211,9 +2211,6 @@
   :preconditions 
   (
    (in-wm (given (dir (displacement ?b :time ?t)) ?dir))
-   ;; only apply if no motion spec for object
-   (not (motion ?b ?motion-spec :time ?t-motion . ?whatever) 
-	(tinsidep ?t ?t-motion))
    (not (vector ?b (velocity ?b :time ?t) ?dontcare))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var)))
@@ -3398,8 +3395,8 @@
 		 (displacement ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
-   ; only applies if accel is constant so child of lk.
-   ; sought may not bind both times, so must choose endpoints of interval to try
+   ;; only applies if accel is constant so child of lk.
+   ;; sought may not bind both times, so must choose endpoints of interval to try
    (constant (accel ?b) ?t-constant)
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
