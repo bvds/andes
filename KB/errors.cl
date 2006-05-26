@@ -1760,10 +1760,8 @@
    (test (degree-specifierp ?sdir)) ; not 'zero 'unknown or other atom 
    (bind ?cdir (opposite ?sdir))
    (correct (vector (accel ?body :time ?time) ?cdir))
-   (problem (motion ?body straight :dir ?motion-dir :accel ?accel-dir 
+   (problem (motion ?body straight :dir ?sdir :accel ?cdir 
 		    :time ?time))
-   (test (degree-specifierp ?motion-dir)) 
-   (test (equal ?accel-dir (opposite ?motion-dir)))
    )
   :utility 100)
 
