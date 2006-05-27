@@ -2437,13 +2437,14 @@
     (format nil "Notice that ~a is ~a while it moves in a straight line ~a."
 	    body speed-up-or-slow-down time)
     (format nil (strcat "Whenever a body is moving in a straight line and "
-			"~a, it is accelerating.  And whenever a body has "
+			"is ~a, it is accelerating.  And whenever a body has "
 			"a non-zero acceleration, the net force acting on "
 			"it must be non-zero.  This follows directly from "
 			"Newton's law, F=m*a.") speed-up-or-slow-down)
-    (format nil (strcat "Because ~a is ~a ~a, it is accelerating, so you "
-			"should change the net force to make it a non-zero "
-			"vector.") body speed-up-or-slow-down time ))))
+    (format nil (strcat "Because ~a is ~a ~a, it has non-zero acceleration.  "
+			"You should change the net force to make it "
+			"a non-zero vector.") 
+	    body speed-up-or-slow-down time ))))
 
 
 
