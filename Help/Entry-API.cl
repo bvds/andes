@@ -452,7 +452,7 @@
 				    ((eq subtype 'dipole)
 				     (set-time (find-dipole-torque-term 
 						body-term body2-term) 
-					       :time ,time-term))
+					       time-term))
 				    (t (set-time (find-torque-term 
 						  body-term body2-term) 
 						 time-term)))))
@@ -849,7 +849,7 @@
 	 ;; get force by searching entries for force at pt of application
 	 (field-matches (sg-fetch-entry-props 
 			 `(vector (field ?loc ?type ,agent :time ?t) ?dir)))
-	 (field-match   (if (length field-matches)
+	 (field-match   (if field-matches
 			    (remove-time (second (first field-matches)))
 	                  `(field nil nil nil))))
     ;; return the torque quantity
