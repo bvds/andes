@@ -127,7 +127,7 @@
  :effects ( (variable ?d-var (distance-between orderless . ?objects))
             (define-var (distance-between orderless . ?objects)) )
  :hint (
-       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Distance between Lenses."  
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Distance."  
                            ((distance-between orderless . ?objects) def-np) ))
        ))
 
@@ -808,7 +808,7 @@
   :complexity minor
   :short-name "tangent for right triangle"
   :english ("tangent formula for right triangles")
-  :ExpFormat ("using the tangent formula for ~A"  (nlg ?angles))
+  :ExpFormat ("using the tangent formula for ~A"  (nlg ?angle))
   :eqnFormat ("tan($q) = opposite/adjacent"))
 
 (defoperator right-triangle-tangent-contains (?sought)
@@ -835,7 +835,7 @@
 		  (?opposite def-np) (?adjacent def-np)))
    (teach (string "Recall the trigonometric formulas for a right triangle.")) 
    (bottom-out (string "Write the equation ~A." 
-		       ((= (tan ?angle) (/ ?opp-var ?adj-var)) algebra)))
+		       ((= (tan ?angle-var) (/ ?opp-var ?adj-var)) algebra)))
    ))
 
 
@@ -1016,7 +1016,7 @@
   :complexity major
   :short-name "interference for parallel slits"
   :english ("the interference pattern for waves going through parallel slits")
-  :ExpFormat ("finding the angles for ~:[destructive~;constructive~] interference"
+  :ExpFormat ("finding the angles for ~:[constructive~;destructive~] interference"
 	      ?flag)
   :EqnFormat ("d*sin($q) = n*$l")) 
 
