@@ -1006,7 +1006,6 @@
    ;; only use time when allowed by feature changing-voltage
    (test (eq (null ?t) 
 	     (null (member 'changing-voltage (problem-features *cp*)))))
-   (object ?p)
    (bind ?q-var (format-sym "Q~@[s~]_~A~@[_~A~]" ?surface-flag (body-name ?p) 
 			    (time-abbrev ?t)))
    )
