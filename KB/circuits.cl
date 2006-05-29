@@ -1550,14 +1550,14 @@
 	    )
   :hint 
   (
-   (point (string "You need to define the RLC frequency."))
+   (point (string "Use the formula for the frequency of an RLC circuit."))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?omega (sqrt (- (/ 1 (* ?c-var ?l-var)) 
 					   (^ (/ ?r-var (* 2.0 ?l-var)) 2)))) 
 			algebra)))
    ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;  circuit with resistor and capacitor in series.
 ;;;
