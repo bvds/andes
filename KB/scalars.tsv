@@ -6,6 +6,7 @@ resolution-angle	$q	angle of resolution	minimum angle of resolution	for [body:bo
 angular-frequency	$w	angular frequency		for oscillations of [body:bodies]
 area	A	area		of [body:bodies]
 capacitance	C	capacitance		
+charge-in	q	charge		in [body:bodies]
 charge-on	q	charge		on [body:bodies]
 circumference-of-circle	c	circumference		of [body:bodies]
 coef-friction	$m	coef. of friction		between [body:bodies] and [body2:bodies]

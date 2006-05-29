@@ -135,6 +135,7 @@
 	 (leaf point-charge-potential :tutorial "Electric Potential")
 	 (leaf net-potential :tutorial "Electric Potential")
 	 (leaf electric-energy :tutorial "Electric Potential")
+	 (leaf gauss-law)
 	 (leaf electric-dipole-moment-mag :tutorial "Dipoles")
 	 (leaf electric-dipole-moment :bindings ((?axis . x)) :tutorial "Dipoles")
 	 (leaf electric-dipole-moment :bindings ((?axis . y)) :tutorial "Dipoles")
@@ -187,7 +188,7 @@
 		 (leaf charging-capacitor-at-time :tutorial "RC Circuits")
 		 (leaf discharging-capacitor-at-time :tutorial "RC Circuits")
 		 (leaf current-in-RC-at-time :tutorial "RC Circuits")
-		 (leaf charge-on-capacitor-percent-max :tutorial "RC Circuits")
+		 (leaf charge-capacitor-percent-max :tutorial "RC Circuits")
 		 )
 	 (group "Inductance" 
 		 (leaf inductor-emf :tutorial "Inductance")
@@ -322,28 +323,28 @@
  )
 (group "Calculate a vector component" 
  (group "Displacement" 
-	 (leaf proj :bindings ((?axis . x) (?vector . (displacement ?body))) :tutorial "Projection Equations")
-	 (leaf proj :bindings ((?axis . y) (?vector . (displacement ?body))) :tutorial "Projection Equations")
+	 (leaf projection  :bindings ((?axis . x) (?vector . (displacement ?body))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . y) (?vector . (displacement ?body))) :tutorial "Projection Equations")
 	 )
  (group "Velocity" 
-	 (leaf proj :bindings ((?axis . x) (?vector . (velocity ?body))) :tutorial "Projection Equations")
-	 (leaf proj :bindings ((?axis . y) (?vector . (velocity ?body))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . x) (?vector . (velocity ?body))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . y) (?vector . (velocity ?body))) :tutorial "Projection Equations")
 	 )
  (group "Acceleration" 
-	 (leaf proj :bindings ((?axis . x) (?vector . (acceleration ?body))) :tutorial "Projection Equations")
-	 (leaf proj :bindings ((?axis . y) (?vector . (acceleration ?body))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . x) (?vector . (acceleration ?body))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . y) (?vector . (acceleration ?body))) :tutorial "Projection Equations")
 	 )
  (group "Force" 
-	 (leaf proj :bindings ((?axis . x) (?vector . (force . ?args))) :tutorial "Projection Equations")
-	 (leaf proj :bindings ((?axis . y) (?vector . (force . ?args))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . x) (?vector . (force . ?args))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . y) (?vector . (force . ?args))) :tutorial "Projection Equations")
 	 )
  (group "Relative Position"
-	 (leaf proj :bindings ((?axis . x) (?vector . (relative-position ?body ?origin))) :tutorial "Projection Equations")
-	 (leaf proj :bindings ((?axis . y) (?vector . (relative-position ?body ?origin))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . x) (?vector . (relative-position ?body ?origin))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . y) (?vector . (relative-position ?body ?origin))) :tutorial "Projection Equations")
 )
  (group "Momentum"
-	 (leaf proj :bindings ((?axis . x) (?vector . (momentum ?body))) :tutorial "Projection Equations")
-	 (leaf proj :bindings ((?axis . y) (?vector . (momentum ?body))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . x) (?vector . (momentum ?body))) :tutorial "Projection Equations")
+	 (leaf projection :bindings ((?axis . y) (?vector . (momentum ?body))) :tutorial "Projection Equations")
 	 )
  )
 (group "Use information specific to this problem"

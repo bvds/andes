@@ -41,13 +41,24 @@
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
-(def-qexp charge-on (charge-on ?name :time ?time)
+(def-qexp charge-on (charge ?name :time ?time)
   :symbol-base |q|     
   :short-name "charge"	
   :dialog-text "on [body:bodies]"
   :units |C|
-  :fromWorkbench (if time `(charge-on ,body :time ,time) `(charge-on ,body))
+  :fromWorkbench (if time `(charge ,body :time ,time) `(charge ,body))
   :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
+
+;; variation for surface, where "in" is appropriate
+;; see feature gauss
+(def-qexp charge-in (charge ?name :surface t :time ?time)
+  :symbol-base |q|     
+  :short-name "charge"	
+  :dialog-text "in [body:bodies]"
+  :units |C|
+  :fromWorkbench (if time `(charge ,body :surface t :time ,time)
+		   `(charge ,body :surface t))
+  :english ("the charge in ~A" (nlg ?name 'at-time ?time)))
 
 (def-qexp max-charge (max-charge ?name :time ?time)
   :units |C|)

@@ -7997,7 +7997,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; (implicit-eqn (= ?p-var (* ?m ?v-var)) (mag-momentum ?b ?t))
    )
   :hint (
-    (point (string "In order to form an expression for the ~a component of total momentum ~a, you will need an expression for the ~a component of the momentum of ~A ~A"
+    (point (string "In order to form an expression for the ~a component of total momentum ~a, you will need an expression for the ~a component of the momentum of ~A ~A."
      ((axis ?xyz ?rot) symbols-label) (?t pp)
      ((axis ?xyz ?rot) symbols-label)  ?b (?t pp)))
     (teach (string "The linear momentum of a body is a vector defined as its mass times the velocity vector. Therefore, the component of a body's momentum along an axis can be expressed as its mass times the component of the body's velocity along that axis."))
@@ -9382,7 +9382,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                  (compo-eqn z 0 (ang-momentum ?b ?t)))
   )
   :hint (
-    (point (string "Can you write an equation for the z component of the angular momentum of ~A ~A" ?b (?t pp)))
+    (point (string "Can you write an equation for the z component of the angular momentum of ~A ~A?" ?b (?t pp)))
     (teach (string "For a body rotating about a fixed axis, the angular momentum vector will be equal to its moment of inertia (a scalar) times the its angular velocity vector. The angular momentum vector will therefore point in the same direction as the angular velocity vector. You can use this vector relation to write an equation for the z component of angular momentum in terms of the z component of angular velocity and the moment of inertia of the object."))
     (bottom-out (string "Write the equation ~A"
                          ((= ?L_z (* ?I ?omega_z)) algebra)))

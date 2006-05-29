@@ -1079,27 +1079,6 @@
 	(bottom-out (string "You need to add the individual capacitances for ~a, and set it equal to the equivalent capacitance ~a" (?parallel-list conjoined-names) (?tot-cap algebra)))  
 	))
 
-(defoperator define-charge-on-cap-var (?what ?t)
-  :preconditions 
-  (
-   ;; only use time when allowed by feature changing-voltage
-   (test (eq (null ?t) 
-	     (null (member 'changing-voltage (problem-features *cp*)))))
-   (test (not (eq ?t 'inf)))
-   (circuit-component ?what capacitor)
-   (bind ?q-what-var (format-sym "Q_~A~@[_~A~]" (comp-name ?what 'C) 
-				 (time-abbrev ?t)))
-   )
-  :effects (
-	    (variable ?q-what-var (charge-on ?what :time ?t))
-	    (define-var (charge-on ?what :time ?t))
-	    )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting charge." 
-			     ((charge-on ?what :time ?t) def-np)))
-	 ))
-
-
 (def-psmclass capacitance-definition (capacitance-definition ?cap ?t) 
   :complexity definition
   :short-name "capacitance defined"
@@ -1108,7 +1087,7 @@
 
 (defoperator capacitor-definition-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge-on ?cap :time ?t ?t)
+		 (any-member ?sought ((charge ?cap :time ?t ?t)
 				      (voltage-across ?cap :time ?t ?t)))
 		 (time ?t)
 		 (circuit-component ?cap capacitor)
@@ -1133,7 +1112,7 @@
   :preconditions(
 		 (variable ?c-var (capacitance ?cap))
 		 (any-member ?tot (?t nil)) 
-		 (variable ?q-var (charge-on ?cap :time ?tot))
+		 (variable ?q-var (charge ?cap :time ?tot))
 		 (any-member ?tot2 (?t nil)) 
 		 (variable ?v-var (voltage-across ?cap :time ?tot2))
 		 )
@@ -1221,7 +1200,7 @@
    (branch ?branch-dontcare ?dontcare1 ?dontcare2 ?path)
    (test (or (member ?path ?path-list1) (member ?path ?path-list2)))
    ;; ?t may end up timeless (nil)
-   (any-member ?sought ((charge-on ?cap :time ?t)))
+   (any-member ?sought ((charge ?cap :time ?t)))
    (circuit-component ?cap capacitor)
    (test (member ?cap ?path))
    ;;Stop a=b+c and b+c=a from both coming out
@@ -1244,7 +1223,7 @@
    (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
    (test (not (equal nil ?in-caps)))
    (map ?x ?in-caps  
-	(variable ?q-var (charge-on ?x :time ?t))
+	(variable ?q-var (charge ?x :time ?t))
 	?q-var ?q-in-path-vars)
    
    ;;find the charge variables for capacitor going into the branch
@@ -1254,7 +1233,7 @@
    (test (not (equal nil ?out-caps)))
    
    (map ?x ?out-caps
-	(variable ?q-var (charge-on ?x :time ?t))
+	(variable ?q-var (charge ?x :time ?t))
 	?q-var ?q-out-path-vars)
    )
   :effects (
@@ -1317,7 +1296,7 @@
 (defoperator charge-same-caps-in-branch-contains (?sought)
   :preconditions(
 		 ;; ?t may end up timeless (nil)
-		 (any-member ?sought ((charge-on ?cap1 :time ?t)))
+		 (any-member ?sought ((charge ?cap1 :time ?t)))
 		 (branch ?br-res given ?dontcare1 ?path)
 		 (test (member ?cap1 ?path :test #'equal))
 		 ;;Are there other capacitors in path
@@ -1337,7 +1316,7 @@
   :preconditions (
 		  ;; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
 		  (map ?cap ?temp-caps
-		       (variable ?q-var (charge-on ?cap :time ?t))
+		       (variable ?q-var (charge ?cap :time ?t))
 		       ?q-var ?q-path-cap-vars)
 		  (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
 		  (bind ?pair (first ?adj-pairs))
@@ -1362,7 +1341,7 @@
 
 (defoperator cap-energy-contains (?sought)
   :preconditions (
-		  (any-member ?sought ((charge-on ?cap :time ?t ?t)
+		  (any-member ?sought ((charge ?cap :time ?t ?t)
 				       (voltage-across ?cap :time ?t ?t)
 				       (stored-energy ?cap :time ?t)))
 		  (circuit-component ?cap capacitor)
@@ -1375,7 +1354,7 @@
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
 		  (any-member ?tot (?t nil)) 
-		  (variable ?Q (charge-on ?cap :time ?tot))
+		  (variable ?Q (charge ?cap :time ?tot))
 		  (any-member ?tot2 (?t nil)) 
 		  (variable ?V (voltage-across ?cap :time ?tot2))
 		  (variable ?U (stored-energy ?cap :time ?t))
@@ -1598,8 +1577,8 @@
    (closed-loop (?res ?cap) :time (during ?t1 ?t2))
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
-   (any-member ?sought ((charge-on ?cap :time ?t1)
-			(charge-on ?cap :time ?t2)
+   (any-member ?sought ((charge ?cap :time ?t1)
+			(charge ?cap :time ?t2)
 			(duration (during ?t1 ?t2))
 			(time-constant orderless ?res ?cap)
 			))
@@ -1613,8 +1592,8 @@
 (defoperator discharging-capacitor-at-time (?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (variable ?q1-var (charge-on ?cap :time ?t1))
-   (variable ?q2-var (charge-on ?cap :time ?t2))
+   (variable ?q1-var (charge ?cap :time ?t1))
+   (variable ?q2-var (charge ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
    (variable ?t-var (duration (during ?t1 ?t2)))
    (variable ?tau-var (time-constant orderless ?res ?cap))
@@ -1651,12 +1630,12 @@
    (circuit-component ?bat battery)
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
-   (any-member ?sought ((charge-on ?cap :time ?t2)
+   (any-member ?sought ((charge ?cap :time ?t2)
 			(duration (during ?t1 ?t2))
 			(time-constant orderless ?res ?cap)
 			))
    (time (during ?t1 ?t2))		;sanity test
-   (given (charge-on ?cap :time ?t1) 0) ;boundary condition
+   (given (charge ?cap :time ?t1) 0) ;boundary condition
    )
   :effects(
 	   (eqn-contains (charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2)) ?sought)
@@ -1665,7 +1644,7 @@
 (defoperator charging-capacitor-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (variable ?q-var (charge-on ?cap :time ?t2))
+   (variable ?q-var (charge ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?t-var (duration (during ?t1 ?t2)))
@@ -1705,7 +1684,7 @@
 			(time-constant orderless ?res ?cap)
 			))
    (time (during ?t1 ?t2))		;sanity test
-   (given (charge-on ?cap :time ?t1) 0) ;boundary condition
+   (given (charge ?cap :time ?t1) 0) ;boundary condition
    )
   :effects
   ((eqn-contains (current-in-RC-at-time (?bat ?res ?cap) (during ?t1 ?t2)) ?sought)
@@ -1736,39 +1715,39 @@
 ;;;  BvdS:  This could be rewritten in terms of (fraction-of ....)
 ;;;
 
-(def-psmclass charge-on-capacitor-percent-max (charge-on-capacitor-percent-max ?cap ?time) 
+(def-psmclass charge-capacitor-percent-max (charge-capacitor-percent-max ?cap ?time) 
   :complexity minor 
   :short-name "RC charge as fraction of max"
   :english ("the RC circuit charge as percent of maximum")
   :eqnFormat ("q = fraction*C*Vb"))
 
-(defoperator charge-on-capacitor-percent-max-contains (?sought)
+(defoperator charge-capacitor-percent-max-contains (?sought)
   :preconditions(
-		 (any-member ?sought ((charge-on ?cap :time ?t2)
+		 (any-member ?sought ((charge ?cap :time ?t2)
 				      ;;(max-charge ?cap :time inf)
 				      ;; also contains C and V
 				      ))
 		 (percent-max ?cap ?value ?t2)
 		 (circuit-component ?cap capacitor)
-		 (given (charge-on ?cap :time ?t1) 0) ;boundary condition
+		 (given (charge ?cap :time ?t1) 0) ;boundary condition
 		 )
   :effects(
-	   (eqn-contains (charge-on-capacitor-percent-max ?cap ?t1 ?t2) ?sought)
+	   (eqn-contains (charge-capacitor-percent-max ?cap ?t1 ?t2) ?sought)
 	   ))
 
 
-(defoperator charge-on-capacitor-percent-max (?cap ?t)
+(defoperator charge-capacitor-percent-max (?cap ?t)
   :preconditions (
 		  (variable ?C-var (capacitance ?cap))
 					; use constant Vb defined across charging interval.
 		  (circuit-component ?bat battery)	 
 		  (variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
-		  (variable ?q-var (charge-on ?cap :time ?t))
+		  (variable ?q-var (charge ?cap :time ?t))
 		  (percent-max ?cap ?fraction ?t)
 		  )
   :effects (
 	    (eqn (= ?q-var (* ?fraction ?C-var ?V-var))
-		 (charge-on-capacitor-percent-max ?cap ?t0 ?t))  
+		 (charge-capacitor-percent-max ?cap ?t0 ?t))  
 	    )
   :hint(
 	(point (string "Write the equation for the charge on the capacitor ~a ~a in terms of the percentage of the maximum charge." ?cap (?t pp)))
@@ -2272,7 +2251,7 @@
 
 (def-psmclass LR-decay-Imax (LR-growth-Imax ?time)
   :complexity major 
-  :short-name "LR decay initial current"
+  :short-name "LR circuit initial current"
   :english ("LR circuit initial current")
   :eqnFormat ("I0 = Vb/R"))
 

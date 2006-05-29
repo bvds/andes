@@ -59,7 +59,7 @@ LEAF	ME1 = ME2    [Wnc=0] conservation of mechanical energy	cons-energy	Conserva
 LEAF	Wnc = ME2 - ME1    change in mechanical energy	change-me	Conservation of Energy
 LEAF	KE = 0.5*m*v^2    kinetic energy defined	kinetic-energy	Conservation of Energy
 LEAF	KE = 0.5*I*$w^2    rotational kinetic energy defined	rotational-energy	Conservation of Energy
-LEAF	Ug = m*g*h    gravitational potential energy [near Earth]	grav-energy	Conservation of Energy
+LEAF	Ug = m*g*h    gravitational potential energy	grav-energy	Conservation of Energy
 LEAF	Us = 0.5*k*d^2    spring potential energy	spring-energy	Conservation of Energy
 LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
 LEAF	P(avg) = W/t    average power defined	power	Power
@@ -118,6 +118,7 @@ LEAF	d$Fe/dt = E.n*dA/dt    derivative of electric flux, uniform field	electric-
 LEAF	V = kelec*q/r    point charge potential	point-charge-potential	Electric Potential
 LEAF	Vnet = V1 + V2 + ...    net potential	net-potential	Electric Potential
 LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
+LEAF	$FE = Q/eps0    Gauss' law	gauss-law	
 LEAF	p = abs(q)*r    electric dipole moment (magnitude)	electric-dipole-moment-mag	Dipoles
 LEAF	p_x = q*r_x    electric dipole moment (x component)	(electric-dipole-moment ((?axis . x)))	Dipoles
 LEAF	p_y = q*r_y    electric dipole moment (y component)	(electric-dipole-moment ((?axis . y)))	Dipoles
@@ -167,7 +168,7 @@ LEAF	$t = R*C    RC time constant	rc-time-constant	RC Circuits
 LEAF	q = C*Vb*(1 - exp(-t/$t))    charge on capacitor in RC circuit with battery	charging-capacitor-at-time	RC Circuits
 LEAF	q = qi*exp(-t/$t)    charge on capacitor in RC circuit	discharging-capacitor-at-time	RC Circuits
 LEAF	I = (Vb/R)*exp(-t/$t)    current in RC circuit	current-in-rc-at-time	RC Circuits
-LEAF	q = fraction*C*Vb    RC charge as fraction of max	charge-on-capacitor-percent-max	RC Circuits
+LEAF	q = fraction*C*Vb    RC charge as fraction of max	charge-capacitor-percent-max	RC Circuits
 END_GROUP	Capacitance		
 GROUP	Inductance		
 LEAF	V = -L*dIdt    inductor EMF	inductor-emf	Inductance
@@ -179,7 +180,7 @@ LEAF	$t = L/R    LR time constant	lr-time-constant	LR Circuits
 LEAF	I = Imax*(1 - exp(-t/$t))    LR current growth	lr-current-growth	LR Circuits
 LEAF	Imax = Vb/R    LR growth final current	lr-growth-imax	LR Circuits
 LEAF	I = I0*exp(-t/$t)    LR current decay	lr-current-decay	LR Circuits
-LEAF	I0 = Vb/R    LR decay initial current	lr-decay-imax	LR Circuits
+LEAF	I0 = Vb/R    LR circuit initial current	lr-decay-imax	LR Circuits
 LEAF	$w = 1/sqrt(L*C)    LC angular frequency	lc-angular-frequency	LC Circuits
 LEAF	$t = 2*L/R    RLC time constant	rlc-time-constant	RLC Circuits
 LEAF	$w = sqrt(1/(L*C)-R^2/(2*L)^2)    RLC angular frequency	rlc-angular-frequency	RLC Circuits
@@ -281,7 +282,7 @@ LEAF	Wnet = WF1 + WF2 + ...    net work defined	net-work	Net work
 LEAF	Wnc = Wncf1 + Wncf2 + ...    work by non-conservative	work-nc	Conservation of Energy
 LEAF	KE = 0.5*m*v^2    kinetic energy defined	kinetic-energy	Conservation of Energy
 LEAF	KE = 0.5*I*$w^2    rotational kinetic energy defined	rotational-energy	Conservation of Energy
-LEAF	Ug = m*g*h    gravitational potential energy [near Earth]	grav-energy	Conservation of Energy
+LEAF	Ug = m*g*h    gravitational potential energy	grav-energy	Conservation of Energy
 LEAF	Us = 0.5*k*d^2    spring potential energy	spring-energy	Conservation of Energy
 LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
 LEAF	h2 - h1 = d12_y    change in height	height-dy	Height and Displacement
@@ -295,28 +296,28 @@ END_GROUP	Fluids
 END_GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Calculate a vector component		
 GROUP	Displacement		
-LEAF	d_x = d*cos($qd - $qx)    on x-axis	(proj ((?axis . x) (?vector displacement ?body)))	Projection Equations
-LEAF	d_y = d*sin($qd - $qy)    on y-axis	(proj ((?axis . y) (?vector displacement ?body)))	Projection Equations
+LEAF	d_x = d*cos($qd - $qx)    on x-axis	(projection ((?axis . x) (?vector displacement ?body)))	Projection Equations
+LEAF	d_y = d*sin($qd - $qy)    on y-axis	(projection ((?axis . y) (?vector displacement ?body)))	Projection Equations
 END_GROUP	Displacement		
 GROUP	Velocity		
-LEAF	v_x = v*cos($qv - $qx)    on x-axis	(proj ((?axis . x) (?vector velocity ?body)))	Projection Equations
-LEAF	v_y = v*sin($qv - $qy)    on y-axis	(proj ((?axis . y) (?vector velocity ?body)))	Projection Equations
+LEAF	v_x = v*cos($qv - $qx)    on x-axis	(projection ((?axis . x) (?vector velocity ?body)))	Projection Equations
+LEAF	v_y = v*sin($qv - $qy)    on y-axis	(projection ((?axis . y) (?vector velocity ?body)))	Projection Equations
 END_GROUP	Velocity		
 GROUP	Acceleration		
-LEAF	a_x = a*cos($qa - $qx)    on x-axis	(proj ((?axis . x) (?vector acceleration ?body)))	Projection Equations
-LEAF	a_y = a*sin($qa - $qy)    on y-axis	(proj ((?axis . y) (?vector acceleration ?body)))	Projection Equations
+LEAF	a_x = a*cos($qa - $qx)    on x-axis	(projection ((?axis . x) (?vector acceleration ?body)))	Projection Equations
+LEAF	a_y = a*sin($qa - $qy)    on y-axis	(projection ((?axis . y) (?vector acceleration ?body)))	Projection Equations
 END_GROUP	Acceleration		
 GROUP	Force		
-LEAF	F_x = F*cos($qF - $qx)    on x-axis	(proj ((?axis . x) (?vector force . ?args)))	Projection Equations
-LEAF	F_y = F*sin($qF - $qy)    on y-axis	(proj ((?axis . y) (?vector force . ?args)))	Projection Equations
+LEAF	F_x = F*cos($qF - $qx)    on x-axis	(projection ((?axis . x) (?vector force . ?args)))	Projection Equations
+LEAF	F_y = F*sin($qF - $qy)    on y-axis	(projection ((?axis . y) (?vector force . ?args)))	Projection Equations
 END_GROUP	Force		
 GROUP	Relative Position		
-LEAF	r_x = r*cos($qr - $qx)    on x-axis	(proj ((?axis . x) (?vector relative-position ?body ?origin)))	Projection Equations
-LEAF	r_y = r*sin($qr - $qy)    on y-axis	(proj ((?axis . y) (?vector relative-position ?body ?origin)))	Projection Equations
+LEAF	r_x = r*cos($qr - $qx)    on x-axis	(projection ((?axis . x) (?vector relative-position ?body ?origin)))	Projection Equations
+LEAF	r_y = r*sin($qr - $qy)    on y-axis	(projection ((?axis . y) (?vector relative-position ?body ?origin)))	Projection Equations
 END_GROUP	Relative Position		
 GROUP	Momentum		
-LEAF	p_x = p*cos($qp - $qx)    on x-axis	(proj ((?axis . x) (?vector momentum ?body)))	Projection Equations
-LEAF	p_y = p*sin($qp - $qy)    on y-axis	(proj ((?axis . y) (?vector momentum ?body)))	Projection Equations
+LEAF	p_x = p*cos($qp - $qx)    on x-axis	(projection ((?axis . x) (?vector momentum ?body)))	Projection Equations
+LEAF	p_y = p*sin($qp - $qy)    on y-axis	(projection ((?axis . y) (?vector momentum ?body)))	Projection Equations
 END_GROUP	Momentum		
 END_GROUP	Calculate a vector component		
 GROUP	Use information specific to this problem		

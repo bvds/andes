@@ -1517,7 +1517,7 @@
  *required-identities* 
  '( NTL					;Newton's Third Law
    total-energy-cons 			;conservation of energy (top-level subeqn)
-   projection proj			;projection psm and projection equation
+   projection    			;projection psm
    charge-same-caps-in-branch		;want students to show they know this
    ) #+sbcl #'equalp)
 

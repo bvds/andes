@@ -20,7 +20,7 @@
     (near-planet earth)
     (given-field unspecified electric)
     (at-place electron region)
-    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
+    (given (charge electron) (dnum -1.60E-19 |C|)) 
     (given (mass electron) (dnum 9.11E-31 |kg|))
     (given (dir (field region electric unspecified)) (dnum 270 |deg|)) 
     (motion electron at-rest :time 1)
@@ -57,7 +57,7 @@
     (given (dir (field region electric unspecified)) (dnum 15 |deg|)) 
   )
   :soughts (
-    (charge-on particle)
+    (charge particle)
   )
 )
 
@@ -78,7 +78,7 @@
     (time 1)
     (object particle)
     (at-place particle region)
-    (given (charge-on particle) (dnum 8.4 |C|))
+    (given (charge particle) (dnum 8.4 |C|))
     (given (mag (field region electric unspecified)) (dnum 24.4 |V/m|))
     (given (dir (field region electric unspecified)) (dnum 17 |deg|)) 
   )
@@ -110,7 +110,7 @@
     (near-planet earth)
     (given-field unspecified electric)
     (at-place particle region)
-    (given (charge-on particle) (dnum 52.0 |$mC|))
+    (given (charge particle) (dnum 52.0 |$mC|))
     (given (mag (field region electric unspecified)) (dnum 120 |N/C|)) 
     (given (dir (field region electric unspecified)) (dnum 90 |deg|)) 
     (motion particle at-rest :time 1)
@@ -145,7 +145,7 @@
     (given (mass electron) (dnum 9.11E-31 |kg|))
     ;; Electrostatics
     (at-place electron region)
-    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
+    (given (charge electron) (dnum -1.60E-19 |C|)) 
     (given (mag (field region electric plates)) (dnum 2.0E4 |N/C|))
     (given (dir (field region electric plates)) (dnum 270 |deg|))
     ;; Kinematics (rectilinear)
@@ -192,7 +192,7 @@
     ;; for the force at time 2.  This causes the solver to find 
     ;; inconsistancies.
     (at-place electron region :time (during 1 2))
-    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
+    (given (charge electron) (dnum -1.60E-19 |C|)) 
     (given (mag (field region electric plates)) (dnum 2.0E4 |N/C|))
     (given (dir (field region electric plates)) (dnum 270 |deg|))
     ;; Kinematics (rectilinear)
@@ -237,7 +237,7 @@
     (given (mass proton) (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region)
-    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
+    (given (charge proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified)) (dnum 320 |N/C|))
     (given (dir (field region electric unspecified)) (dnum 0 |deg|))
     (given-field unspecified electric)
@@ -279,7 +279,7 @@
     (given (mass proton) (dnum 1.7E-27 |kg|))
     ;; Electrostatics
     (at-place proton region)
-    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
+    (given (charge proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified)) (dnum 320 |N/C|))
     (given (dir (field region electric unspecified)) (dnum 0 |deg|))
     (given-field unspecified electric)
@@ -322,7 +322,7 @@
     (given (mass proton)      (dnum 1.67E-27 |kg|))
     ;; Electrostatics
     (at-place proton region)
-    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
+    (given (charge proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified)) (dnum 920 |N/C|))
     (given (dir (field region electric unspecified)) (dnum 180 |deg|))
     (given-field unspecified electric)
@@ -365,7 +365,7 @@
     (given (mass proton)      (dnum 1.67E-27 |kg|))
     ;; Electrostatics
     (at-place proton region)
-    (given (charge-on proton) (dnum 1.60E-19 |C|)) 
+    (given (charge proton) (dnum 1.60E-19 |C|)) 
     (given (mag (field region electric unspecified)) (dnum 920 |N/C|))
     (given (dir (field region electric unspecified)) (dnum 180 |deg|))
     (given-field unspecified electric)
@@ -408,7 +408,7 @@
     (near-planet earth)
     ;; Electrostatics
     (at-place electron region)
-    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
+    (given (charge electron) (dnum -1.60E-19 |C|)) 
     (given (mass electron)      (dnum 9.11E-31 |kg|)) 
     (given (mag (field region electric unspecified)) (dnum 4.0E-12 |N/C|)) 
     (given (dir (field region electric unspecified)) (dnum 270 |deg|))
@@ -449,7 +449,7 @@
     (near-planet earth)
     ;; Electrostatics
     (at-place electron region)
-    (given (charge-on electron) (dnum -1.60E-19 |C|)) 
+    (given (charge electron) (dnum -1.60E-19 |C|)) 
     (given (mass electron)      (dnum 9.11E-31 |kg|)) 
     (given (mag (field region electric unspecified)) (dnum 4.0E-12 |N/C|)) 
     (given (dir (field region electric unspecified)) (dnum 270 |deg|))
@@ -495,7 +495,7 @@
     (time 1) (time 2) (time (during 1 2))
     (object electron)
     (at-place electron region)
-    (given (charge-on electron) (dnum -1.60e-19 |C|)) 
+    (given (charge electron) (dnum -1.60e-19 |C|)) 
     (given (mass electron) (dnum 9.11E-31 |kg|))
     (given-field unspecified electric) ;source of field
 ;;   (given (compo x 0 (field region electric unspecified)) (dnum 2.0E4 |N/C|))

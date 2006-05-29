@@ -772,14 +772,14 @@
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-lookup-force (label type system agent dir mag &optional time id)
-   (let* ((body-term   (arg-to-body system))
-	  (time-term   (arg-to-time time))
-	  (agent-term  (arg-to-body agent))
-          (type-term   (arg-to-id **force-types** type))
+   (let* ((body-term (arg-to-body system))
+	  (time-term (arg-to-time time))
+	  (agent-term (arg-to-body agent))
+          (type-term (arg-to-id **force-types** type))
 	  ; net force is special:
 	  (vquant-term (if (eq type-term 'Net) `(net-force ,body-term)
 	                 `(force ,body-term ,agent-term ,type-term)))
-	  (dir-term    (arg-to-dir dir mag)))
+	  (dir-term (arg-to-dir dir mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id)))
   
