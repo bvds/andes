@@ -167,7 +167,7 @@
   :effects ( (variable ?do-var (resolution-angle ?grating))
              (define-var (resolution-angle ?grating)))
   :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Object Distance."  
+	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Angle of resolution."  
 			     ((resolution-angle ?grating) def-np)))
 	 ))
 
@@ -1149,7 +1149,7 @@
   :complexity major 
   :short-name "resolution (circular)"
   :english ("the minimum angle of resolution for a circular aperture")
-  :ExpFormat ("applying the minimum angle of resoltuon for a system with a circular aperture")
+  :ExpFormat ("applying the minimum angle of resolution for a system with a circular aperture")
   :EqnFormat "$q = 1.22*$l/d")
 
 (defoperator resolution-circular-aperture-contains (?sought)
