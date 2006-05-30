@@ -43,14 +43,15 @@
   Statement       ;; Text giving the problem statement.  This should be
                   ;; Identical to what the student will see at runtime.
   ; following information is needed to display problem on workbench interface
-  ; can be omitted if a .fbd file has been created for the problem
+  ; can be omitted if a workbench .fbd file has been created for the problem
   Times		  ;; time legend as list of (time point, description) pairs. Ex:
                   ;; Ex: ((1 "car starts moving") (2 "car hits driveway"))
   Choices	  ;; list of choice category members for menus. Ex:
                   ;; ((bodies (car driveway wall Earth))
 		  ;;  (branches (Br1 Br2 Br3)))
   Graphic         ;; name of file containing problem graphic 
-                  ;; end workbench information
+  Predefs         ;; list of predefined solution items in workbench log line notation
+  ;; end workbench information
   Comments        ;; String commenting on the problem for developers.
   Features        ;; An optional list of atomic markings such as 
                   ;; 'Working' that will be queried as needed.
@@ -102,6 +103,8 @@
   (format Stream "  Choices:        ~W~%" (Problem-Choices Problem))
   (pprint-Indent :block Level Stream)
   (format Stream "  Graphic:        ~W~%" (Problem-Graphic Problem))
+  (pprint-Indent :block Level Stream)
+  (format Stream "  Predefs:        ~W~%" (Problem-Predefs Problem))
   (pprint-Indent :block Level Stream)
   (format Stream "  Comments:       ~W~%" (Problem-Comments Problem))
   (pprint-Indent :block Level Stream)
@@ -181,6 +184,7 @@
   (format Stream "Times         ~W~%" (problem-Times Problem))
   (format Stream "Choices       ~W~%" (problem-Choices Problem))
   (format Stream "Graphic       ~W~%" (problem-Graphic Problem))
+  (format Stream "Predefs       ~W~%" (problem-Predefs Problem))
   (format Stream "Comments      ~W~%" (problem-Comments Problem))
   (format Stream "Features      ~W~%" (problem-features Problem))
   (format Stream "Soughts       ~W~%" (problem-Soughts Problem))
@@ -310,6 +314,7 @@
     (Times         (setf (Problem-Times Problem) (mpf-readret Stream)))
     (Choices       (setf (Problem-Choices Problem) (mpf-readret Stream)))
     (Graphic       (setf (Problem-Graphic Problem) (mpf-readret Stream)))
+    (Predefs       (setf (Problem-Predefs Problem) (mpf-readret Stream)))
     (comments      (setf (Problem-comments Problem) (mpf-readret Stream)))
     (features      (setf (Problem-features Problem) (mpf-readret Stream)))
     (soughts       (setf (Problem-soughts Problem) (mpf-readret Stream)))
@@ -379,7 +384,7 @@
 				(ModDate nil) (Version nil) 
 				(ForbiddenPSMS nil) (IgnorePSMS nil)
 				(VariableMarks Nil) (Times nil)
-				(Choices nil) (Graphic nil))
+				(Choices nil) (Graphic nil) (Predefs nil))
   "Define a problem struct and store it."
   (let ((Prob (eval `(make-problem :Name ',name                     ;;Define the problem struct.
 				   :soughts ',(remove-answer
@@ -395,7 +400,8 @@
 				   :Version ',Version
 				   :Times   ',Times
 				   :Choices ',Choices
-				   :Graphic ',Graphic))))
+				   :Graphic ',Graphic
+				   :Predefs ',Predefs))))
     (register-problem Prob)                                          ;;Store the problem for access.
     Prob))                                                           ;;Return the problem.
 
