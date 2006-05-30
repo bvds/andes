@@ -1000,7 +1000,7 @@
 
 ;; Scalar variable definitions:
 
-(defoperator define-charge (?p)
+(defoperator define-charge (?p ?t)
   :preconditions 
   (
    ;; only use time when allowed by feature changing-voltage
