@@ -1015,6 +1015,49 @@
   :effects
   ((variable ?var (compo ?xyz ?rot ?vector))))
 
+;;; Following is a somewhat hairy attempt to allow zero-valued velocity 
+;;; components to be mentioned in student equations, even if they are not 
+;;; formally needed for a conservation of momentum solution. 
+;;; The solution may need p or p_x, but draws p as zero-magnitude immediately 
+;;; from fact that body is at rest, and projection rules put out p_x = 0. 
+;;; Momentum definition p_x = m*v_x never comes out because driver rules don't 
+;;; apply a vector equation for a vector attribute if vector does not have a 
+;;; non-zero projection along axis. (That is desirable because our 
+;;; bubble-collection method depends on counting variables, and we don't want 
+;;; an equation containing m that can't be used to solve for m.)
+;;;
+;;; One way to include equations as optional in the solution is by generating 
+;;; them as "implicit equations."  This was not the intent behind the implicit 
+;;; equation designation, but can be used to achieve that effect.
+;;;
+;;; Another way is to include them on only one of several paths achieving a 
+;;; PSM equation.  We try that here, since we are already splitting a path on 
+;;; the optional v drawing in draw-momentum-at-rest.  This operator should only
+;;; write entries along that path, though the include-zero-vcomps subgoal 
+;;; must still succeed along the other path for the other path to be included 
+;;; in the solution. This happens because on the other path, the setof 
+;;; succeeds but with an empty set of component variables, and the subsequent 
+;;; foreach's then expand to an empty set of new subgoals, so this turns out 
+;;; to be a no-op.
+(defoperator include-zero-vcomps (?xyz ?rot)
+  :effects ((include-zero-vcomps ?xyz ?rot))
+  :preconditions 
+  (
+   ;; Collect component terms from all the drawn zero velocity vectors. 
+   ;; Zero velocities are drawn as an optional step in draw-momentum-at-rest.
+   ;; Since that is optional, this will only find them when in the path 
+   ;; through the containing PSM that actually draws them.
+      (setof (in-wm (vector ?b (velocity . ?rest) zero))
+              (compo ?xyz ?rot (velocity . ?rest))
+	      ?zero-vcomps)
+      ;; for each one, declare its component variable. This is needed because 
+      ;; the  projection writing operators fetch the variables from wm.
+      (foreach ?vcomp ?zero-vcomps
+          (variable ?var ?vcomp))
+      ;; for each one, emit its projection equation.
+      (foreach ?vcomp ?zero-vcomps
+           (eqn (= ?compo-var 0) (projection ?vcomp)))
+  ))
 
 ;;; =================== Generic: Optional steps =============================
 ;;;
@@ -7940,378 +7983,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  ))
 
 
-;;;;===========================================================================
-;;;;                Definition of Linear Momentum p=m*v
-;;;;===========================================================================
-
-;;; Following writes p_x = m * v_x for a single body and time
-;;; body may be a compound body in case of splits or joins.
-
-(defoperator momentum-contains (?sought)
-  :preconditions 
-  (
-   (any-member ?sought ((momentum ?b :time ?t)
-			(velocity ?b :time ?t)
-			(mass ?b) 
-			))
-   (time ?t)
-   (object ?b)
-   )
-  :effects (
-  (eqn-family-contains (linear-momentum ?b ?t) ?sought)
-  ;; since only one compo-eqn under this vector PSM, we can just
-  ;; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (linear-momentum ?b ?t) definition ?sought)
-  ))
-
-(defoperator draw-momentum-diagram (?rot ?b ?t)
-  :preconditions 
-  ( (body ?b)
-    ;; ?dirv = ?dirm is set in drawing rules
-    (vector ?b (velocity ?b :time ?t) ?dirv)
-    (vector ?b (momentum ?b :time ?t) ?dirm)
-    (axes-for ?b ?rot) ;maybe a problem for compounds?
-  )
-  :effects (
-   (vector-diagram ?rot (linear-momentum ?b ?t))
-  ))
-
-
-(defoperator write-momentum-compo (?b ?t ?xyz ?rot)
-  :preconditions (
-    ;; for now, all these preconds satisfied from above
-    (variable ?p_compo (compo ?xyz ?rot (momentum ?b :time ?t)))
-    (variable ?v_compo (compo ?xyz ?rot (velocity ?b :time ?t)))
-    (variable ?m (mass ?b))
-    ;; The magnitude equation can be put out as an optional equation. 
-    ;; But this is now done by the projection equations 
-    ;; (variable ?p-var (mag (momentum ?b :time ?t)))
-    ;; (variable ?v-var (mag (velocity ?b :time ?t)))
-  )
-  :effects 
-  (
-   (eqn (= ?p_compo (* ?m ?v_compo)) 
-	      (compo-eqn definition ?xyz ?rot (linear-momentum ?b ?t)))
-   ;; associated dir equality is done in drawing rules
-   ;; include as optional equation: but might be done by compo-equation
-   ;; (implicit-eqn (= ?p-var (* ?m ?v-var)) (mag-momentum ?b ?t))
-   )
-  :hint (
-    (point (string "In order to form an expression for the ~a component of total momentum ~a, you will need an expression for the ~a component of the momentum of ~A ~A."
-     ((axis ?xyz ?rot) symbols-label) (?t pp)
-     ((axis ?xyz ?rot) symbols-label)  ?b (?t pp)))
-    (teach (string "The linear momentum of a body is a vector defined as its mass times the velocity vector. Therefore, the component of a body's momentum along an axis can be expressed as its mass times the component of the body's velocity along that axis."))
-    (bottom-out (string "Write the equation ~A"  
-                        ((= ?p_compo (* ?m ?v_compo)) algebra)))
-  ))
-
-;;;;===========================================================================
-;;;;                 Draw Linear Momentum
-;;;;===========================================================================
-;;;
-;;; operators for drawing momentum vectors on simple bodies
-;;; these exactly parallel the velocity drawing operators
-
-(defoperator draw-momentum-at-rest (?b ?t)
-  :specifications 
-   "If there is an object,
-     and it is at rest at a certain time,
-   then its momentum at that time is zero."
-  :preconditions
-   ((motion ?b at-rest :time ?t-motion)
-    (time ?t)
-    (test (tinsidep ?t ?t-motion))
-    (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    ;; allow student to draw velocity vector, which might not otherwise
-    ;; be needed for the solution
-    (optional (vector ?b (velocity ?b :time ?t) zero))
-    )
-  :effects
-   ((vector ?b (momentum ?b :time ?t) zero)
-    (variable ?mag-var (mag (momentum ?b :time ?t)))
-    (given (mag (momentum ?b :time ?t)) (dnum 0 |kg.m/s|))
-    )
-  :hint
-   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
-    (teach (string "When an object is at rest, its velocity is zero. Since the momentum vector is defined as mass times the velocity vector, the momentum is also zero at that time."))
-    ;; too simple for a kcd
-    (bottom-out (string "Because ~a is at rest ~a, use the momentum tool to draw a zero-length momentum vector for it." ?b (?t pp)))))
-
-;; we could get momentum direction from velocity direction, but these operators
-;; get it from straight-line motion spec, so that it is not required that 
-;; velocity be drawn first.
-(defoperator draw-momentum-straight (?b ?t)
-  :specifications 
-   "If an object is moving in a straight line at a certain time,
-   then its momentum at that time is non-zero and in the same direction
-     as its motion."
-  :preconditions
-   ((motion ?b straight :dir ?dir :time ?t-motion . ?whatever)
-    (test (not (equal ?dir 'unknown)))  ; until conditional effects 
-    (time ?t)
-    (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (momentum ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
-  :effects
-   ((vector ?b (momentum ?b :time ?t) ?dir)
-    (variable ?mag-var (mag (momentum ?b :time ?t)))
-    (variable ?dir-var (dir (momentum ?b :time ?t)))
-    (given (dir (momentum ?b :time ?t)) ?dir))
-  :hint
-   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
-    (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
-	   (kcd "draw_momentum"))
-    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector in direction ~a." ?b (?t pp) ?dir))))
-
-(defoperator draw-momentum-straight-unknown (?b ?t)
-  :specifications 
-   "If an object is moving in a straight line at a certain time,
-   then its momentum at that time is non-zero and in the same direction
-     as its motion."
-  :preconditions
-   ((motion ?b straight :dir unknown :time ?t-motion . ?whatever)
-    (time ?t)
-    (test (tinsidep ?t ?t-motion))
-    (not (vector ?b (momentum ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    ;; following is for implicit-eqn, assumes velocity vars are named this way
-    (bind ?dir-vel (format-sym "Ov_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    )
-  :effects
-   ((vector ?b (momentum ?b :time ?t) unknown)
-    (variable ?mag-var (mag (momentum ?b :time ?t)))
-    (variable ?dir-var (dir (momentum ?b :time ?t)))
-    ;; following is "optional equation" put out so solver will be able to 
-    ;; determine a value for 0p in case student happens to use it. It isn't
-    ;; needed for m*v form solution we teach, so student doesn't have to 
-    ;; enter it.
-    ;; using this, imp3b does not solve:
-    ;; (implicit-eqn (= ?dir-var ?dir-vel) (dir-momentum ?b ?t))
-    )
-  :hint
-   ((point (string "Notice that ~a is moving in a straight line ~a, although the exact direction is unknown." ?b (?t pp)))
-    (teach (string "Whenever an object is moving in a straight line, it has a non-zero momentum in the same direction as its motion.")
-	   (kcd "draw_nonzero_momentum"))
-    (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
-
-
-;;;;===========================================================================
-;;;;                 Conservation of Linear Momentum
-;;;;===========================================================================
-    
-(defoperator cons-linmom-contains (?sought)
-  :preconditions 
-  (
-   ;; for now only apply if there is a collision 
-   (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?type))
-   (any-member ?sought ((momentum ?b :time ?t)) )
-   (test (or (equal ?t ?t1) (equal ?t ?t2)))
-   (test (subsetp (simple-parts ?b) ?bodies))
-   )
-  :effects (
-  (eqn-family-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
-  ;; since only one compo-eqn under this vector PSM, we can just
-  ;; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (cons-linmom ?bodies (during ?t1 ?t2)) lm-compo ?sought)
-  ))
-
-(defoperator draw-linmom-diagram (?rot ?bodies ?t1 ?t2)
-  :preconditions (
-   (not (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2))))
-   ;; how much to draw? a lot of vectors at issue:
-   ;; total system momentum before, total system momentum after
-   ;; constituent momenta (normally 2 initial, 2 final)
-   ;; and constituent velocities. 
-   ;; Ideally would allow but not require both momenta and velocities. 
-   ;; For now we include both so that both get defined.
-
-   ;; For when we provide tool to allow drawing of many-body systems:
-   ;;     draw system
-   ;;     (body (system ?b1 ?b2))
-   ;; draw initial constituent velocity and momentum
-   (collision-momenta-drawn ?bodies ?t1)
-   ;; draw final constitutent velocity and momentum
-   (collision-momenta-drawn ?bodies ?t2)
-   ;; draw axis to use for many-body system. 
-   ;; ! Because no vectors have been drawn on the system object, will always 
-   ;; get standard horizontal-vertical axes since nothing to align with
-   (axes-for (system . ?bodies) ?rot)
-   ;; must also record axes to use for vectors on system's constituent bodies 
-   ;; so they can be picked up from working wm by compo-eqn choosing operators.
-   ;; Use-system-axis should apply to inherit from the main system axis. 
-   ;; Could also try to do this when drawing axis for many-body system, if we 
-   ;; had a special operator for that case. Note this doesn't register
-   ;; an axis for compound bodies that are constituents of the system in case 
-   ;; of split/join.
-   (foreach ?b ?bodies
-      (axes-for ?b ?rot))
-  )
-  :effects ( (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2))) ))
-
-(defoperator draw-collision-momenta (?bodies ?tt)
-  :preconditions (
-     ;; use this if bodies don't split from initial compound
-     ;; !!! code assumes there's only one collision in problem
-     (in-wm (collision (orderless . ?bodies) ?times :type ?type))
-     ;; make sure this is a time without a compound body
-     (test (or (and (not (eq ?type 'split)) (equal ?tt (second ?times)))
-	       (and (not (eq ?type 'join)) (equal ?tt (third ?times)))))
-     (foreach ?b ?bodies (body ?b))
-     (foreach ?b ?bodies
-   	(vector ?b (momentum ?b :time ?tt) ?dirb))
-  )
-  :effects ( (collision-momenta-drawn ?bodies ?tt) ))
-
-(defoperator draw-collision-momenta-inelastic (?bodies ?tt)
-  :preconditions (
-     ;; use this if collision involves split or join
-     (in-wm (collision (orderless . ?bodies) ?times :type ?type))
-     ;; make sure this is a time with a compound body
-     (test (or (and (equal ?type 'split) (equal ?tt (second ?times)))
-	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
-     (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
-     (body ?c)
-     (axes-for ?c ?rot)
-     (vector ?c (momentum ?c :time ?tt) ?dirc)
-  )
-  :effects ( (collision-momenta-drawn ?bodies ?tt) ))
-
-
-;; following still restricted to two-body collisions, and
-;; doesn't use compound bodies before split or after join
-(defoperator write-cons-linmom-compo (?bodies ?t1 ?t2 ?xyz ?rot)
-  :preconditions 
-  (
-   ;; use these steps if no split or join
-   (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?type))
-   (test (not (or (equal ?type 'join) (equal ?type 'split))))
-   (map ?b ?bodies
-	(variable ?p1_compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
-	?p1_compo ?p1_compos)
-   (map ?b ?bodies
-	(variable ?p2_compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
-	?p2_compo ?p2_compos)
-  ;; allow any zero-valued velocity components to be mentioned, since they
-  ;; might not be needed anywhere else in the solution
-  (include-zero-vcomps ?xyz ?rot)
-  )
-  :effects ( 
-	    (eqn (= (+ . ?p1_compos) (+ . ?p2_compos))
-		 (compo-eqn lm-compo ?xyz ?rot 
-			    (cons-linmom ?bodies (during ?t1 ?t2))))
-  )
-  :hint (
-  (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
-  (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and
- after a collision."))
-  (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
-			((axis ?xyz ?rot) symbols-label)
-			((= (+ . ?p1_compos) (+ . ?p2_compos)) algebra)))
-  ))
-
-
-
-(defoperator write-cons-linmom-compo-split (?bodies ?t1 ?t2 ?xyz ?rot)
-  :preconditions (
-  ;; use these steps if collision involves split 
-  (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type split))
-  ;; write subsidiary equations for all needed momenta components along ?xyz
-  (bind ?c `(compound orderless ,@?bodies))
-  (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?t1)))
-  (map ?b ?bodies
-       (variable ?pf_compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
-       ?pf_compo ?pf_compos)
-  ;; allow any zero-valued velocity components to be mentioned, since they
-  ;; might not be needed anywhere else in the solution
-  (include-zero-vcomps ?xyz ?rot)
-  )
-  :effects 
-  ( (eqn (= ?pc_compo (+ . ?pf_compos))
-	 (compo-eqn lm-compo ?xyz ?rot 
-		    (cons-linmom ?bodies (during ?t1 ?t2))))
-    )
-  :hint 
-  (
-   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and
- after a collision."))
-   (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
-		       ((axis ?xyz ?rot) symbols-label)
-		       ((= ?pc_compo (+ . ?pf_compos)) algebra)))
-   ))
-
-(defoperator write-cons-linmom-compo-join (?bodies ?t1 ?t2 ?xyz ?rot)
-  :preconditions (
-  ;; use these steps if join in inelastic collision
-  (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type join))
-  ;; write subsidiary equations for all needed momenta components along ?xyz
-  (map ?b ?bodies
-       (variable ?pi_compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
-       ?pi_compo ?pi_compos)
-  ;; p_final = pc
-  (bind ?c `(compound orderless ,@?bodies))
-  (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?t2)))
-  ;; allow any zero-valued velocity components to be mentioned, since they
-  ;; might not be needed anywhere else in the solution
-  (include-zero-vcomps ?xyz ?rot)
-  )
-  :effects (
-  (eqn (= (+ . ?pi_compos) ?pc_compo)
-       (compo-eqn lm-compo ?xyz ?rot (cons-linmom ?bodies (during ?t1 ?t2))))
-  )
-  :hint (
-   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
-  (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and after a collision."))
-    (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
-		        ((axis ?xyz ?rot) symbols-label)  
-                        ((= (+ . ?pi_compos) ?pc_compo) algebra)))
-  ))
-
-;;; Following is a somewhat hairy attempt to allow zero-valued velocity 
-;;; components to be mentioned in student equations, even if they are not 
-;;; formally needed for a conservation of momentum solution. 
-;;; The solution may need p or p_x, but draws p as zero-magnitude immediately 
-;;; from fact that body is at rest, and projection rules put out p_x = 0. 
-;;; Momentum definition p_x = m*v_x never comes out because driver rules don't 
-;;; apply a vector equation for a vector attribute if vector does not have a 
-;;; non-zero projection along axis. (That is desirable because our 
-;;; bubble-collection method depends on counting variables, and we don't want 
-;;; an equation containing m that can't be used to solve for m.)
-;;;
-;;; One way to include equations as optional in the solution is by generating 
-;;; them as "implicit equations."  This was not the intent behind the implicit 
-;;; equation designation, but can be used to achieve that effect.
-;;;
-;;; Another way is to include them on only one of several paths achieving a 
-;;; PSM equation.  We try that here, since we are already splitting a path on 
-;;; the optional v drawing in draw-momentum-at-rest.  This operator should only
-;;; write entries along that path, though the include-zero-vcomps subgoal 
-;;; must still succeed along the other path for the other path to be included 
-;;; in the solution. This happens because on the other path, the setof 
-;;; succeeds but with an empty set of component variables, and the subsequent 
-;;; foreach's then expand to an empty set of new subgoals, so this turns out 
-;;; to be a no-op.
-(defoperator include-zero-vcomps (?xyz ?rot)
-  :effects ((include-zero-vcomps ?xyz ?rot))
-  :preconditions 
-  (
-   ;; Collect component terms from all the drawn zero velocity vectors. 
-   ;; Zero velocities are drawn as an optional step in draw-momentum-at-rest.
-   ;; Since that is optional, this will only find them when in the path 
-   ;; through the containing PSM that actually draws them.
-      (setof (in-wm (vector ?b (velocity . ?rest) zero))
-              (compo ?xyz ?rot (velocity . ?rest))
-	      ?zero-vcomps)
-      ;; for each one, declare its component variable. This is needed because 
-      ;; the  projection writing operators fetch the variables from wm.
-      (foreach ?vcomp ?zero-vcomps
-          (variable ?var ?vcomp))
-      ;; for each one, emit its projection equation.
-      (foreach ?vcomp ?zero-vcomps
-           (eqn (= ?compo-var 0) (projection ?vcomp)))
-  ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -9019,11 +8690,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
             (mag (relative-position ?pt ?axis-pt :time ?t)))
    ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;
-;;;; Angular momentum and its conservation
-;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Moment of inertia:
 ;;; This is the rotational analog of mass. 
@@ -9317,193 +8983,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ))
 
 
-;; magnitude of angular momentum: 
-;; following draws the angular momentum direction based on the drawn
-;; angular velocity vector.
-;; !!! could put out equation linking dirL = dirOmega, even if unknown
-(defoperator draw-ang-momentum-rotating (?b ?t)
-   :preconditions (
-    (object ?b)
-    (time ?t)
-    (not (vector ?b (ang-momentum ?b :time ?t)))
-    ; draw the angular velocity
-    (vector ?b (ang-velocity ?b :time ?t-rotating) ?dir-vel)
-    (test (not (equal ?dir-vel 'unknown)))
-    (test (tinsidep ?t ?t-rotating))
-    (bind ?mag-var (format-sym "L_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-  )
-  :effects (
-    (vector ?b (ang-momentum ?b :time ?t) ?dir-vel)
-    (variable ?mag-var (mag (ang-momentum ?b :time ?t)))
-    (variable ?dir-var (dir (ang-momentum ?b :time ?t))) 
-    (given (dir (ang-momentum ?b :time ?t)) ?dir-vel)
-   )
-  :hint 
-  (
-   (point (string "Notice that ~a is rotating ~A ~a.  Consequently, it has a non-zero angular momentum vector." 
-		  ?b (?dir-vel rotation-name)  (?t pp) (?dir-vel adj)))
-   (teach (string "In the case of a symmetrical rigid body rotating about a fixed axis, the angular momentum vector will be equal to the moment of inertia -- a scalar-- times the angular velocity vector. The angular momentum will therefore point along the z axis in the same direction as the angular velocity vector."))
-   (bottom-out (string "Because ~a has an angular velocity pointing ~a ~A, use the momentum tool to draw a non-zero angular momentum vector with direction ~a ." ?b (?dir-vel adj) (?t pp) (?dir-vel adj)))
-  ))
-
-; following writes the equation for angular momentum 
-; compo equation: L_z = I * omega_z
-(defoperator ang-momentum-contains (?sought)
-   :preconditions (
-      (any-member ?sought (
-              (ang-momentum ?b :time ?t)
-	      (ang-velocity ?b :time ?t)
-	      (moment-of-inertia ?b :time ?t ?t)
-                          )) 
-      (time ?t)
-   )
-   :effects ((angular-eqn-contains (ang-momentum ?b ?t) ?sought))
-)
-
-(defoperator draw-ang-momentum-vectors (?rot ?b ?t)
-  :preconditions 
-     ( (not (vector-diagram 0 (ang-momentum ?b ?t))) 
-       (vector ?b (ang-momentum ?b :time ?t) ?dir) 
-       (bind ?rot 0)
-       (axes-for ?b ?rot) )
-  :effects 
-     ( (vector-diagram ?rot (ang-momentum ?b ?t)) ))
-
-(defoperator write-ang-momentum (?b ?t)
-  :preconditions (
-     (variable ?L_z     (compo z 0 (ang-momentum ?b :time ?t)))
-     (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
-     (any-member ?tot (?t nil)) 
-     (variable ?I (moment-of-inertia ?b :time ?tot))
-  )
-  :effects (
-     (eqn (= ?L_z (* ?I ?omega_z)) 
-                 (compo-eqn z 0 (ang-momentum ?b ?t)))
-  )
-  :hint (
-    (point (string "Can you write an equation for the z component of the angular momentum of ~A ~A?" ?b (?t pp)))
-    (teach (string "For a body rotating about a fixed axis, the angular momentum vector will be equal to its moment of inertia (a scalar) times the its angular velocity vector. The angular momentum vector will therefore point in the same direction as the angular velocity vector. You can use this vector relation to write an equation for the z component of angular momentum in terms of the z component of angular velocity and the moment of inertia of the object."))
-    (bottom-out (string "Write the equation ~A"
-                         ((= ?L_z (* ?I ?omega_z)) algebra)))
-   ))
-
-;; conservation of angular momentum
-;;
-;; We use a (collision ... ) statement to indicate that there are no
-;; external forces on the system during the specified time interval
-;; In the special case that there are no torques about a specific
-;; axis, then use the :axis keyword to specify that axis.
-;; 
-(defoperator cons-angmom-contains (?sought)
-  :preconditions 
-  (
-   ;; for now only apply if we are given some momentum conserving change:
-   (collision (orderless . ?bodies) (during ?t1 ?t2) 
-	      :axis ?axis :type ?split-join)
-   (any-member ?sought ((ang-momentum ?b :time ?t)))
-   (test (or (equal ?t ?t1) (equal ?t ?t2)))   
-   (test (subsetp (simple-parts ?b) ?bodies))
-   )
-  :effects (
-    (angular-eqn-contains (cons-angmom ?bodies (during ?t1 ?t2)) ?sought)
-    ))
-
-(defoperator draw-cons-angmom-diagram (?rot ?bodies ?t1 ?t2)
-  :preconditions 
-  (
-   ;; This follows draw-linmom-diagram closely
-   (not (vector-diagram ?rot (cons-angmom ?bodies (during ?t1 ?t2))))
-   (rotation-collision-momenta-drawn ?bodies ?t1)
-   (rotation-collision-momenta-drawn ?bodies ?t2)
-   (axes-for (system . ?bodies) ?rot)
-   (foreach ?b ?bodies
-	    (axes-for ?b ?rot))
-  )
-  :effects (
-   (vector-diagram ?rot (cons-angmom ?bodies (during ?t1 ?t2)))
-  ))
-
-(defoperator draw-rotation-collision-momenta (?bodies ?tt)
-  :preconditions (
-     ;; use this if bodies don't split from initial compound
-     (in-wm (collision (orderless . ?bodies) ?times :axis ?axis :type ?type))
-     ;; make sure this is a time without a compound body
-     (test (or (and (not (equal ?type 'split)) (equal ?tt (second ?times)))
-	       (and (not (equal ?type 'join)) (equal ?tt (third ?times)))))
-     (foreach ?b ?bodies (body ?b))
-     (foreach ?b ?bodies
-   	(vector ?b (ang-momentum ?b :time ?tt) ?dir1))
-  )
-  :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
-
-(defoperator draw-rotation-collision-momenta-inelastic (?bodies ?tt)
-  :preconditions (
-     ;; use this if collision involves split or join
-     (in-wm (collision (orderless . ?bodies) ?times :axis ?axis :type ?type))
-     ;; make sure this is a time with a compound body
-     (test (or (and (equal ?type 'split) (equal ?tt (second ?times)))
-	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
-     (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
-     (body ?c)
-     (axes-for ?c ?rot)
-     (vector ?c (ang-momentum ?c :time ?tt) ?dir1)
-  )
-  :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
-
-(defoperator write-cons-angmom (?bodies ?t1 ?t2)
-  :preconditions (
-   ;; don't use this in case of a join
-   (collision (orderless . ?bodies) (during ?t1 ?t2) :axis ?axis :type ?type)
-   (test (not (or (equal ?type 'join) (equal ?type 'split))))
-   ;; apply single-body ang-momentum method for each to draw vectors and 
-   ;; generate compo equation for each body at initial and final times
-   (map ?b ?bodies
-	(variable ?L1_compo (compo z 0 (ang-momentum ?b :time ?t1)))
-	?L1_compo ?L1_compos)
-   (map ?b ?bodies
-	(variable ?L2_compo (compo z 0 (ang-momentum ?b :time ?t2)))
-	?L2_compo ?L2_compos)
-  )
-  :effects (
-  (eqn (= (+ . ?L1_compos) (+ . ?L2_compos))
-       (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2))))
-	   )
-  :hint (
-  (point (string "Can you write an equation relating the z components making up the total angular momentum before and after the change?"))
-  (teach (string "The law of conservation of angular momentum states that if no external ~A acts on a system, then the total angular momentum in the system remains constant.  Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the z components of the angular momenta of each body is the same before and after any internal change such as change of shape, as long as there is no external ~A."
-		 (nil moment-name) (nil moment-name)))
-  (bottom-out (string "Write the equation ~A" 
-                      ((= (+ . ?L1_compos) (+ . ?L2_compos)) algebra)))
-  ))
-
-;; same as above for case of bodies joining together into compound
-(defoperator write-cons-angmom-join (?bodies ?t1 ?t2)
-  :preconditions (
-   ;; use this only in case of a join
-  (collision (orderless . ?bodies) (during ?t1 ?t2) :axis ?axis :type join)
-  ;; apply single-body ang-momentum method for each to draw vectors and 
-  ;; generate compo equation for each body at initial and final times
-  ;; initial time:
-   (map ?b ?bodies
-	(variable ?L1_compo (compo z 0 (ang-momentum ?b :time ?t1)))
-	?L1_compo ?L1_compos)
-  ; final time is the compound
-  (bind ?c `(compound orderless ,@?bodies)) ; for shorthand
-  (variable ?L2_z (compo z 0 (ang-momentum ?c :time ?t2)))
-  )
-  :effects (
-  (eqn (= (+ . ?L1_compos) ?L2_z)
-       (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2))))
-	   )
-   :hint (
- (point (string "Can you write an equation relating the z-components making up
- the total angular momentum before and after the change?"))
- (teach (string "The law of conservation of angular momentum states that if no external ~A acts on a system, then the total angular momentum in the system constant.  Because the total angular momentum is the vector sum of the angular momenta of each body in the system, this law entails that the sum of the angular momentum components in the z direction is the same before and after a collision."
-		(nil moment-name)))
-  (bottom-out (string "Write the equation ~A" 
-                      ((= (+ . ?L1_compos) ?L2_z) algebra)))	  
-	  ))
 
 
 ;;===================== Torque and Net Torque =========================
