@@ -1191,6 +1191,11 @@
 	))
 
 
+(def-psmclass junction-rule-cap  (junction-rule-cap ?br-list1 ?br-list2 ?t)  
+  :complexity major 
+  :short-name "capacitor junction rule"
+  :english ("junction rule for capacitors")
+  :eqnFormat ("Qin = Qout"))
 
 (defoperator junction-rule-cap-contains (?Sought)
   :preconditions 
@@ -1211,7 +1216,7 @@
    (eqn-contains (junction-rule-cap ?path-list1 ?path-list2 ?t) ?sought)
    ))
 
-(defoperator junction-rule-cap (?path-list1 ?path-list2 ?t )
+(defoperator write-junction-rule-cap (?path-list1 ?path-list2 ?t )
   :preconditions 
   (
    ;;find the charge variables for capacitor going into the branch

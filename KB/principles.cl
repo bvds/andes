@@ -183,6 +183,7 @@
 		 (leaf equiv-capacitance-parallel :tutorial "Parallel Capacitors")
 		 (leaf equiv-capacitance-series :tutorial "Series Capacitors")
 		 (leaf charge-same-caps-in-branch :tutorial "Series Capacitors")
+		 (leaf junction-rule-cap)
 		 (leaf cap-energy :tutorial "Capacitor Energy")
 		 (leaf RC-time-constant :tutorial "RC Circuits")
 		 (leaf charging-capacitor-at-time :tutorial "RC Circuits")

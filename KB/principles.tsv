@@ -163,6 +163,7 @@ LEAF	C = q/V    capacitance defined	capacitance-definition	Capacitance
 LEAF	Ceq = C1 + C2 + ...    equivalent capacitance parallel	equiv-capacitance-parallel	Parallel Capacitors
 LEAF	1/Ceq = 1/C1 + 1/C2 + ...    equivalent capacitance series	equiv-capacitance-series	Series Capacitors
 LEAF	q1 = q2    charge on series capacitors	charge-same-caps-in-branch	Series Capacitors
+LEAF	Qin = Qout    capacitor junction rule	junction-rule-cap	
 LEAF	U = 0.5*Q*V    energy stored in a capacitor	cap-energy	Capacitor Energy
 LEAF	$t = R*C    RC time constant	rc-time-constant	RC Circuits
 LEAF	q = C*Vb*(1 - exp(-t/$t))    charge on capacitor in RC circuit with battery	charging-capacitor-at-time	RC Circuits
