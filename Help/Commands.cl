@@ -146,6 +146,21 @@
   (do-exit-andes))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Check-entries -- start or stop loading saved entries.
+;; argument:
+;;  State: T or nil indicating that the workbench is beginning to or will now
+;;    cease sending saved entries to the help system.
+;;
+;; note(s): This was added to port grading from the cmdreader to the help
+;;  system and will now be used for that purpose.
+;;
+;; This code will set the **checking-entries** flag at runtime.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun check-entries (State)
+  (if (equalp State **checking-entries**)
+      (warn "Unmatched check-entries call made for ~A." State)
+    (setq **Checking-Entries** State)))
 
 ;;; ============================================================================
 ;;; Statistics component.
