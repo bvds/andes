@@ -331,14 +331,18 @@
   (andes-stop))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; do-check-entries -- Set the chck-entries flag.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Check-entries -- start or stop loading saved entries.
 ;; argument:
-;;  State:  T or Nil indicating whether checking is occurring.
+;;  State: T or nil indicating that the workbench is beginning to or will now
+;;    cease sending saved entries to the help system.
+;;
+;; note(s): This was added to port grading from the cmdreader to the help
+;;  system and will now be used for that purpose.
 ;;
 ;; This code will set the **checking-entries** flag at runtime.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun do-check-entries (State)
+(defun check-entries (State)
   (if (equalp State **checking-entries**)
       (warn "Unmatched check-entries calls made.")
     (setq **Checking-Entries** State)))
