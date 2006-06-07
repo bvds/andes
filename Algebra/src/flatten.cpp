@@ -599,6 +599,9 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  for (q = 0; q < newdenom->args->size(); q++)
 		    if (equaleqs((*enop->args)[k],(*newdenom->args)[q]))
 		      {
+			// cancel common terms.  First, adjust the units
+			enop->MKS += (*enop->args)[k]->MKS * -1.;
+			newdenom->MKS += (*newdenom->args)[q]->MKS * -1.;
 			(*enop->args)[k]->destroy();
 			(*newdenom->args)[q]->destroy();
 			(*enop->args)[k] = (*enop->args)[enop->args->size()-1];
