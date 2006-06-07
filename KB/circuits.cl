@@ -407,7 +407,6 @@
 	 ))
 		       
 
-;;If we need time the change the bind
 (defoperator define-current-in (?branch ?t)
   :preconditions 
   (
@@ -415,6 +414,12 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-voltage (problem-features *cp*)))))
    (bind ?i-br-var (format-sym "I_~A~@[_~A~]" ?branch (time-abbrev ?t)))
+   (in-wm (branch ?branch . ?rest))  ; sanity test
+   ;; make sure that the student can define this quantity in the Workbench
+   (test (or (member ?branch 
+		     (second (find 'branches (problem-choices *cp*) 
+				   :key #'first)))
+	     (error "Branch ~A not in list of :choices" ?branch)))
    )
   :effects (
 	    (variable ?i-br-var (current-in ?branch :time ?t))
