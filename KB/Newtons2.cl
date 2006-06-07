@@ -2727,6 +2727,7 @@
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (test (time-pointp ?t))
+    (test (degree-specifierp ?accel-dir))  ;direction is known
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -6455,8 +6456,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (tintersect2 ?t-tension `(during ,?t1 ,?t2)))
   (not (slides-against ?b ?surface1                ?t-friction)
        (tintersect2 ?t-friction `(during ,?t1 ,?t2)))
-  (not (drag    ?b ?medium                         ?t-drag)
+  (not (drag ?b ?medium                         ?t-drag)
        (tintersect2 ?t-drag `(during ,?t1 ,?t2)))
+  ;; no inelastic collisions involving the body
+  (not (collision (orderless . ?objects) ?t-collision :type ?elasticity)
+       (and (member ?b ?objects) (not (eq ?elasticity 'elastic))
+	    (tintersect2 ?t-collision `(during ,?t1 ,?t2))))
   ;; Also not conserved if a (possibly unknown) external work source is given 
   ;; (the associated force may not be defined, but it is still doing work).
   (not (does-work-on ?agent ?b :time ?t-work)

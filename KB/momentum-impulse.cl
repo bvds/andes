@@ -154,6 +154,25 @@
 	   (kcd "draw_nonzero_momentum"))
     (bottom-out (string "Because ~a is moving in a straight line ~a, draw a non-zero momentum vector for it in an approximately correct direction, then erase the number in the direction box to indicate that the exact direction is unknown." ?b (?t pp)))))
 
+(defoperator draw-momentum-curved (?b ?t)
+  :preconditions
+   ((motion ?b (curved ?kind (?dir ?a-dir)) :time ?t-motion . ?whatever)
+    (test (not (equal ?dir 'unknown)))  ; until conditional effects 
+    (time ?t)
+    (test (tinsidep ?t ?t-motion))
+    (not (vector ?b (momentum ?b :time ?t) ?dir))
+    (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  :effects
+   ((vector ?b (momentum ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (momentum ?b :time ?t)))
+    (variable ?dir-var (dir (momentum ?b :time ?t)))
+    (given (dir (momentum ?b :time ?t)) ?dir))
+  :hint
+   ((point (string "Notice that ~a is moving ~a." ?b (?t pp)))
+    (teach (string "Although the the object is moving in a circular path, you can figure out the direction of motion at any given moment.  Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity."))
+    (bottom-out (string "Because ~a is moving in direction ~A ~a, draw a non-zero momentum vector in direction ~a." ?b ?dir (?t pp) ?dir))))
+
 
 ;;;;===========================================================================
 ;;;;                 Conservation of Linear Momentum
