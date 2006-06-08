@@ -8003,7 +8003,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator cons-ke-elastic-contains (?quantity)
   :preconditions 
   (
-   (collision (orderless . ?bodies) (during ?t1 ?t2) :type elastic)
+   (collision (orderless . ?bodies) ?t-collision :type elastic)
+   (time (during ?t1 ?t2))
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-collision))
    (any-member ?quantity (
 			  (mag (velocity ?b :time ?t1))
 			  (mag (velocity ?b :time ?t2))

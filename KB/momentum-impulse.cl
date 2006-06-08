@@ -182,7 +182,9 @@
   :preconditions 
   (
    ;; for now only apply if there is a collision 
-   (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?type))
+   (in-wm (collision (orderless . ?bodies) ?t-collision :type ?type))
+   (time (during ?t1 ?t2))
+   (test (tinsidep `(during ,?t1 ,?t2) ?t-collision))
    (any-member ?sought ((momentum ?b :time ?t)) )
    (test (or (equal ?t ?t1) (equal ?t ?t2)))
    (test (subsetp (simple-parts ?b) ?bodies))
@@ -194,9 +196,9 @@
   (compo-eqn-contains (cons-linmom ?bodies (during ?t1 ?t2)) lm-compo ?sought)
   ))
 
-(defoperator draw-linmom-diagram (?rot ?bodies ?t1 ?t2)
+(defoperator draw-linmom-diagram (?rot ?bodies ?tt)
   :preconditions (
-   (not (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2))))
+   (not (vector-diagram ?rot (cons-linmom ?bodies ?tt)))
    ;; how much to draw? a lot of vectors at issue:
    ;; total system momentum before, total system momentum after
    ;; constituent momenta (normally 2 initial, 2 final)
@@ -208,9 +210,9 @@
    ;;     draw system
    ;;     (body (system ?b1 ?b2))
    ;; draw initial constituent velocity and momentum
-   (collision-momenta-drawn ?bodies ?t1)
+   (collision-momenta-drawn ?bodies nil ?tt)
    ;; draw final constitutent velocity and momentum
-   (collision-momenta-drawn ?bodies ?t2)
+   (collision-momenta-drawn ?bodies t ?tt)
    ;; draw axis to use for many-body system. 
    ;; ! Because no vectors have been drawn on the system object, will always 
    ;; get standard horizontal-vertical axes since nothing to align with
@@ -225,35 +227,35 @@
    (foreach ?b ?bodies
       (axes-for ?b ?rot))
   )
-  :effects ( (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2))) ))
+  :effects ( (vector-diagram ?rot (cons-linmom ?bodies ?tt)) ))
 
 (defoperator draw-collision-momenta (?bodies ?tt)
   :preconditions (
      ;; use this if bodies don't split from initial compound
      ;; !!! code assumes there's only one collision in problem
-     (in-wm (collision (orderless . ?bodies) ?times :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?t-collision :type ?type))
+     (test (tinsidep ?tt ?t-collision))
      ;; make sure this is a time without a compound body
-     (test (or (and (not (eq ?type 'split)) (equal ?tt (second ?times)))
-	       (and (not (eq ?type 'join)) (equal ?tt (third ?times)))))
+     (test (not (if ?after-flag (eq ?type 'join) (eq ?type 'split))))
      (foreach ?b ?bodies (body ?b))
      (foreach ?b ?bodies
    	(vector ?b (momentum ?b :time ?tt) ?dirb))
   )
-  :effects ( (collision-momenta-drawn ?bodies ?tt) ))
+  :effects ( (collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
 (defoperator draw-collision-momenta-inelastic (?bodies ?tt)
   :preconditions (
      ;; use this if collision involves split or join
-     (in-wm (collision (orderless . ?bodies) ?times :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?t-collision :type ?type))
+     (test (tinsidep ?tt ?t-collision))
      ;; make sure this is a time with a compound body
-     (test (or (and (equal ?type 'split) (equal ?tt (second ?times)))
-	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
+     (test (if ?after-flag (eq ?type 'join) (eq ?type 'split)))
      (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
      (body ?c)
      (axes-for ?c ?rot)
      (vector ?c (momentum ?c :time ?tt) ?dirc)
   )
-  :effects ( (collision-momenta-drawn ?bodies ?tt) ))
+  :effects ( (collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
 
 ;; following still restricted to two-body collisions, and
