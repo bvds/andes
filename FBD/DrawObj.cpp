@@ -3513,7 +3513,7 @@ void CVariable::Serialize(CArchive& ar)
 	}
 }
 
-void CVariable::LogEntry()
+CString CVariable::GetLogStr()
 {
 	// Get text type id if available via CVarView table lookup
 	CString strTypeId = CVarView::LookupTypeId(m_nType);
@@ -3531,10 +3531,19 @@ void CVariable::LogEntry()
 	// added (v6 serialization):
 	CString strValue = ValToArg(m_strValue);
 
-	LogEventf(EV_VAR_ENTRY, "%s %s %s %d %s %s %s %s %s %s %s", 
+	CString strResult;
+	// !!! EV_VAR_ENTRY string hardcoded here, not fetched from table in history.cpp
+	strResult.Format("Var-Entry %s %s %s %d %s %s %s %s %s %s %s", 
 		strTypeId, m_strName,  m_strId, m_status, 
 		strForceType, strQuantName, strObject, strAgent, strTime, strDef, strValue);
 	// need to log angle number for angle variables ? 
+
+	return strResult;
+}
+
+void CVariable::LogEntry()
+{
+	Logf(GetLogStr());
 }
 
 BOOL CVariable::SetFromLogStr(LPCTSTR pszStr)
@@ -3554,7 +3563,7 @@ BOOL CVariable::SetFromLogStr(LPCTSTR pszStr)
 	// 11th arg added later, absent from older logs.
 	int nArgs = sscanf(pszStr,"%s %s %s %d %s %s %s %s %s %s %s", 
 		szTypeName, szName, szId, &nStatus,
-		szForceType, szValue, szObject, szAgent, szTime, szDef, szValue);
+		szForceType, szQuantName, szObject, szAgent, szTime, szDef, szValue);
 	if (nArgs < 10)
 		return FALSE;
 	

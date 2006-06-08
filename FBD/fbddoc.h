@@ -278,6 +278,7 @@ public: // counters public so can be set on log playback
 	void GenerateId(CDrawObj* pObj);
 	void GenerateId(CVariable* pVar);
 	void GenerateId(CStageObj* pStage);
+	void SetSafeIdCounter();
 protected:
 	int  GetUnusedId();
 
@@ -285,7 +286,9 @@ public:	// so can be used by event broadcaster to send init entries
 	void RestoreSavedScores();
 	void ImportProblem();
 	BOOL LoadFromPrb(LPCSTR pszFileName);
+	void DoExport();
 	void LogInitEntries();
+	BOOL ExecPredefCmd(LPCTSTR pszCmd);
 
 	CRect LayoutStatement(const CString& strStatement);
 	void LayoutGraphic(const CString& strFileName, const CRect& rcStmt);

@@ -191,12 +191,27 @@
       #'andes2-prob))
       
 ;;; list all possible entries for given problem. 
-
-(defun show-entries(probname)
+(defun show-entries(probname &optional (dst T))
  (read-problem-info probname) ; will do sg-setup
  (dolist (e *sg-entries*) 
-   (format T "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)
+   (format dst "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)
 			     ; show full opinst, not just opname
                              (first (sg-map-systementry->opinsts e)))
     ))
 
+; list all entries in tab-delimited file
+(defun write-entry-file (p)
+   (with-open-file (outf (strcat ".\\Entries\\" (string (problem-name p)) ".txt")
+                         :direction :output :if-exists :supersede)
+    (read-problem-info (problem-name p)) 
+    (dolist (e *sg-entries*)
+     (let ((*print-pretty* NIL))
+        (format outf "~S	~S	~S~%" 
+             (problem-name p) (systementry-prop e) (sg-map-systementry->opname e))))))
+
+(defun write-entry-files (plist)
+   (dolist (p plist)
+     (write-entry-file p)))      
+
+(defun write-all-entry-files (&optional topics)
+  (write-entry-files (choose-working-probs topics)))

@@ -212,29 +212,23 @@ void CFBDCmdLineInfo::ParseParam(LPCTSTR pszParam, BOOL bFlag, BOOL bLast)
 	}
 	else if (bFlag && (strcmpi(pszParam, "Export") == 0)) {
 		theApp.m_bExport = TRUE;
-		m_bShowSplash = FALSE;
-	//	m_bShellPrintOnly = TRUE;
+		theApp.m_bShellPrintOnly = TRUE;	// treat like print only command
 	}
-	else // let base class parse standard args
+	else { // let base class parse standard args
 		CCommandLineInfo::ParseParam(pszParam, bFlag, bLast);
+		// remove splash flag if file arg specified for export only
+		if (theApp.m_bExport) m_bShowSplash = FALSE;
+	}
 }
 
-void DoExport(CString strFileName)
+void CFBDApp::DoExport(CString strFbdFileName)
 {
-#if 0
-	OpenDocumentFile(strFileName);
-	CFBDDoc* pDoc = GetCurrentDocument();
+	OpenDocumentFile(g_strAndesDir + g_szProblemDir + "\\" + strFbdFileName);
+	CFBDDoc* pDoc = GetCurrentProblem();
 	if (! pDoc) return;
-	CStdioFile fOut(strFileName + ".txt", CFile::modeCreate | CFile::modeWrite);
-	// show features
-	// show choices
-	//  bodies
-	//  positions
-	//  branches
-	// show times
-	// show predefined variables
-#endif 0
+	pDoc->DoExport();
 }
+
 /////////////////////////////////////////////////////////////////////////////
 // CFBDApp initialization
     
@@ -1379,7 +1373,9 @@ void CFBDApp::OnFileOpen()
 void CFBDApp::OnFileOpenproblem() 
 {
 	// !! For consistency, should extract parms from template string
-    CPicCtrl dlg(TRUE, "fbd","*.fbd");
+		static const char szFilter[] = "Andes problem files (*.prb, *.fbd)|*.fbd;*.prb||";
+    CPicCtrl dlg(TRUE, "prb", "*.prb", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		          szFilter);
 	//	OFN_HIDEREADONLY | OFN_NOCHANGEDIR /*|OFN_ENABLETEMPLATE | OFN_EXPLORER*/,
     			//	"Andes Physics Problems (.fbd)|*.fbd||");
     // Start the dialog in Problems directory.

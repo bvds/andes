@@ -3643,12 +3643,14 @@ IMPLEMENT_SERIAL(CGuideLine, CCheckedObj, VERSIONABLE_SCHEMA | 1);
 CGuideLine::CGuideLine() 
 {
 	m_posLabel = CRect(0, 0, 0, 0);
+	m_nZDir = ZDIR_NONE;
 }				// used by serialization
     
 CGuideLine::CGuideLine(const CRect& position)
    	:CCheckedObj(position)
 {
 	m_posLabel = CRect(0, 0, 0, 0);
+	m_nZDir = ZDIR_NONE;
 }
     
 void CGuideLine::Serialize(CArchive& ar)

@@ -1176,6 +1176,7 @@ void CFBDDoc::CheckInitEntries()
 	}
 }
 
+
 // send saved persistent scores back to help system
 void CFBDDoc::RestoreSavedScores()
 {
@@ -1320,6 +1321,123 @@ CString CFBDDoc::GetWorkStateStr()
     };
 	return CString(szStates[m_workState]);
 }
+
+// export problem specification info to a file in .prb format
+void CFBDDoc::DoExport()
+{
+	CString strFileName = g_strAndesDir + "Problems/" + m_strProblemId + ".txt";
+	FILE* fp = fopen(strFileName, "w");
+	fprintf(fp, "(defproblem %s\n", m_strProblemId);
+
+
+	// dump statement: 
+	// walk drawobj list to find text pieces and answer boxes	
+	fprintf(fp, "    :statement (\n");
+	for (POSITION pos = GetObjects()->GetHeadPosition(); pos != NULL;) {
+		CDrawObj* pObj = GetObjects()->GetNext(pos);
+		if (pObj->IsKindOf(RUNTIME_CLASS(CLabel))) {	// text label
+			CStringArray strLines;	
+			int nLines = split(pObj->m_strName, "\r\n", strLines);  // can be multi-line
+			for (int i=0; i < nLines; i++) {
+				CString strLine = strLines[i];
+				if (strLine.IsEmpty()) strLine = " "; // fix empty lines
+				fprintf(fp, "        \"%s\"\n", strLine);
+			}
+		}
+
+		if (pObj->IsKindOf(RUNTIME_CLASS(CDrawRect)) &&((CDrawRect*)pObj)->IsAnswerBox()) {
+			fprintf(fp, "        \"	[XXXXXXXXXXXXXXXX]\"\n");
+		}
+
+		// Look for multiple choice question buttons
+		if (CFBDView::IsChoiceGroup(pObj)) {
+			fprintf(fp, "        \"{	");     // begin the group    
+			for (POSITION pos1 = ((CGroup*)pObj)->m_objects.GetHeadPosition(); pos1; ) {
+				CDrawObj* pItem = ((CGroup*)pObj)->m_objects.GetNext(pos1);
+				if ( pItem->IsKindOf(RUNTIME_CLASS(CChoice)) )   // hit a choice
+					fprintf(fp, "[__%s] ", ((CChoice*)pItem)->m_strName);
+			}
+			fprintf(fp, "}\n");	// end the group
+		}
+		// Look for "I'm done" check boxes
+		if (pObj->IsKindOf(RUNTIME_CLASS(CChoice)) && ((CDrawRect*)pObj)->IsAnswerBox()) { // dangerous!! OK, refs CDrawObj::m_strId only
+				fprintf(fp, "\"	[__%s]\"\n", ((CChoice*)pObj)->m_strName);
+		}
+	}
+	fprintf(fp, "    )\n");
+
+	// graphic -- assume same as problem name
+	CString strName = m_strProblemId;
+	strName.MakeLower();
+	fprintf(fp, "    :graphic \"%s.gif\"\n", strName);
+
+	// show features
+	fprintf(fp, "    :features (");
+	for (pos = m_strFeatures.GetHeadPosition(); pos != NULL;) {
+		fprintf(fp, "%s ", m_strFeatures.GetNext(pos));
+	}
+	fprintf(fp, "working Andes2)\n");
+
+	// show choice lists
+	fprintf(fp, "    :choices (\n");
+	if (! m_strObjects.IsEmpty() ) {	// bodies
+		fprintf(fp, "            (bodies (");
+		for (POSITION pos1 = m_strObjects.GetHeadPosition(); pos1 != NULL; ) 
+			fprintf(fp, "%s ", m_strObjects.GetNext(pos1));
+		fprintf(fp, "))\n");
+	}
+	if (! m_strPositions.IsEmpty() ) {	// positions
+		fprintf(fp, "            (positions (");
+		for (POSITION pos1 = m_strPositions.GetHeadPosition(); pos1 != NULL; ) 
+			fprintf(fp, "%s ", m_strPositions.GetNext(pos1));
+		fprintf(fp, "))\n");
+	}
+	if (! m_strBranches.IsEmpty() ) {	// positions
+		fprintf(fp, "            (branches (");
+		for (POSITION pos1 = m_strBranches.GetHeadPosition(); pos1 != NULL; ) 
+			fprintf(fp, "%s ", m_strBranches.GetNext(pos1));
+		fprintf(fp, "))\n");
+	}
+	fprintf(fp, "    )\n");
+
+	// show time legend unless it contains only the single default time value
+	if (! (m_strTimes.GetCount() == 1 && m_strTimes.GetHead() == "T0 = the instant depicted"))
+	{
+		fprintf(fp, "    :times ");
+		if (m_strTimes.IsEmpty())
+			fprintf(fp, "none\n");
+		else { 
+			fprintf (fp, "( ");
+			for (pos = m_strTimes.GetHeadPosition(); pos; ) {
+				CString strTime = m_strTimes.GetNext(pos);
+				if (strTime.Find('=') > 0){  // time point: "T0 = car begins moving"
+					CString strDef = strTime.Mid(strTime.Find('=') + 2); 
+					int nTime = atoi(CString(strTime[1]))+1;
+					fprintf (fp, "(%d \"%s\") ", nTime, strDef);
+				} else { // time interval: T0 to T1
+					fprintf(fp, "(during %d %d) ", atoi(CString(strTime[1]))+1, 
+												   atoi(CString(strTime[7]))+1);
+				}
+			}
+			fprintf (fp, ")\n");
+		}
+	}
+
+	// show predefined variables
+	if (m_Variables.GetCount() != 0) {
+		fprintf (fp, "    :predefs (\n");
+		for (pos = m_Variables.GetHeadPosition(); pos; ) {
+			CVariable* pVar = m_Variables.GetNext(pos);
+			fprintf(fp, "     \"%s\"\n", pVar->GetLogStr());
+		}
+		fprintf(fp, "     )\n");
+	}
+	
+	// finish up
+	fprintf(fp, ")\n");
+	fclose(fp);
+}
+
 
 //
 // Check with help system if can close problem
@@ -1676,7 +1794,7 @@ void CFBDDoc::GenerateId(CStageObj* pStage)
 }
 
 
-int CFBDDoc::GetUnusedId()
+int CFBDDoc::GetUnusedId()   // for plan stages only
 {
 	for (int id=0; id<10; id++)
 	{
@@ -1695,6 +1813,7 @@ int CFBDDoc::GetUnusedId()
 	}
 	return -1;
 }
+
 
     
 // Add -- Add new drawing object to document.
@@ -2740,6 +2859,8 @@ void CFBDDoc::AddConceptsToFeatures()
 // Returns NULL on any error -- doesn't throw exceptions or report!
 BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 {
+	CStringList strPredefs;
+
    // First read the attributes we need from beginning of file
 	FILE* fp = fopen(pszFileName, "r");
 	if (! fp) return NULL;
@@ -2931,6 +3052,16 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 */
 			}
 		}
+		else if (strTag.CompareNoCase("Predefs") == 0 && pValue->IsList()) {
+			CLispReader::List* pList = (CLispReader::List*) pValue;
+			for (POSITION pos = pList->m_objects.GetHeadPosition(); pos; ){
+				CLispReader::Obj* pStr = pList->m_objects.GetNext(pos);
+				if (!pStr->IsAtom()) return FALSE;
+				CLispReader::Atom* pAtom = (CLispReader::Atom*) pStr;
+				strPredefs.AddTail(pAtom->m_strValue);
+			}
+		}
+	
 		if (strTag.CompareNoCase("Soughts") == 0 ||
 			strTag.CompareNoCase("Givens") == 0 ||
 			strTag.CompareNoCase("WorkingMemory") == 0) {
@@ -2947,6 +3078,13 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 	if (! LayoutProblem())
 		return FALSE;
 
+	// make any predefs by executing the commands
+	for (POSITION pos = strPredefs.GetHeadPosition(); pos; ) {
+		if (! ExecPredefCmd(strPredefs.GetNext(pos)))
+			return FALSE;
+	}
+	SetSafeIdCounter();		// because predefs use some ids
+
 	// The dirty bit will have been set on adding graphic to file. In student mode, clear it,
 	// so no prompt to save if no further changes. For authors, leave it, they have created a new
 	// fbd file from a prb and may want to save it (can always cancel anyway).
@@ -2956,6 +3094,44 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 	return TRUE;
 }
 
+BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
+{
+	// Split Command into event name + args
+	char name[64];
+	sscanf(pszCmd, "%s", name);
+	const char * pszArgs = pszCmd + strlen(name) + 1; // just past space after name
+
+	// case name == "Var-Entry" (EV_VAR_ENTRY) 
+	// Following copies code that executes EV_VAR_ENTRY command only (inaccessible at
+	// at this point because it is in VarView, which doesn't now exist).
+	CVariable* pVar = new CVariable();//create a new variable
+	if (! pVar->SetFromLogStr(pszArgs) )
+		return FALSE;
+	m_Variables.AddTail(pVar);	// bypass AddVariable, it generates id
+	pVar->m_pDocument = this;
+	// no need to update views at this point
+
+	return TRUE;
+}
+
+// update ID counter to be higher than that of any existing object.
+// used after adding predefined variables which use up ids.
+void CFBDDoc::SetSafeIdCounter()
+{
+	int nID, nMax=0;
+	CChkObjIter chkObjs(this);
+	while (CCheckedObj* pChkObj = chkObjs.Next()) {
+		int iLastDash = pChkObj->m_strId.ReverseFind('-');
+		if (iLastDash > 0 
+			&& sscanf(pChkObj->m_strId.Right(iLastDash), "%d", &nID) == 1
+			&& nID > nMax)
+			nMax = nID;
+	}
+
+	// make sure nNextID is greater than any value in use
+	nNextID = nMax + 1;
+	TRACE("Setting nNextID to be %d\n", nNextID);
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 //

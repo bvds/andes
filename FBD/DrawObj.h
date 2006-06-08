@@ -809,6 +809,7 @@ public:
 
 	virtual BOOL SetFromLogStr(LPCTSTR pszStr);
 	virtual void LogEntry();
+	CString GetLogStr();
 
 // Class data:
 

@@ -22,6 +22,7 @@ public:
 	public:
 		virtual BOOL IsList() = 0;
 		BOOL         IsAtom() { return ! IsList(); }
+		BOOL         IsNil() { return IsAtom() && ((Atom*)this)->IsNil(); }
 		virtual ~Obj() {};
 	};
 
@@ -30,7 +31,8 @@ public:
 	public:
 		Atom(const CString& strValue) : m_strValue(strValue) {};
 
-		virtual BOOL IsList() { return FALSE; }
+		virtual BOOL IsList() { return FALSE; } // NB: FALSE on NIL
+		BOOL IsNil() { return m_strValue.CompareNoCase("NIL") == 0; }
 		CString m_strValue;
 	};
     
