@@ -182,18 +182,16 @@
   :preconditions 
   (
    ;; for now only apply if there is a collision 
-   (in-wm (collision (orderless . ?bodies) ?t-collision :type ?type))
-   (time (during ?t1 ?t2))
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-collision))
+   (in-wm (collision (orderless . ?bodies) ?tt :type ?type))
    (any-member ?sought ((momentum ?b :time ?t)) )
-   (test (or (equal ?t ?t1) (equal ?t ?t2)))
+   (test (tendpointp ?t ?tt))
    (test (subsetp (simple-parts ?b) ?bodies))
    )
   :effects (
-  (eqn-family-contains (cons-linmom ?bodies (during ?t1 ?t2)) ?sought)
+  (eqn-family-contains (cons-linmom ?bodies ?tt) ?sought)
   ;; since only one compo-eqn under this vector PSM, we can just
   ;; select it now, rather than requiring further operators to do so
-  (compo-eqn-contains (cons-linmom ?bodies (during ?t1 ?t2)) lm-compo ?sought)
+  (compo-eqn-contains (cons-linmom ?bodies ?tt) lm-compo ?sought)
   ))
 
 (defoperator draw-linmom-diagram (?rot ?bodies ?tt)
@@ -233,8 +231,7 @@
   :preconditions (
      ;; use this if bodies don't split from initial compound
      ;; !!! code assumes there's only one collision in problem
-     (in-wm (collision (orderless . ?bodies) ?t-collision :type ?type))
-     (test (tinsidep ?tt ?t-collision))
+     (in-wm (collision (orderless . ?bodies) ?tt :type ?type))
      ;; make sure this is a time without a compound body
      (test (not (if ?after-flag (eq ?type 'join) (eq ?type 'split))))
      (foreach ?b ?bodies (body ?b))
@@ -246,8 +243,7 @@
 (defoperator draw-collision-momenta-inelastic (?bodies ?tt)
   :preconditions (
      ;; use this if collision involves split or join
-     (in-wm (collision (orderless . ?bodies) ?t-collision :type ?type))
-     (test (tinsidep ?tt ?t-collision))
+     (in-wm (collision (orderless . ?bodies) ?tt :type ?type))
      ;; make sure this is a time with a compound body
      (test (if ?after-flag (eq ?type 'join) (eq ?type 'split)))
      (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
@@ -437,51 +433,48 @@
   :preconditions 
   (
    ;; for now only apply if we are given some momentum conserving change:
-   (collision (orderless . ?bodies) (during ?t1 ?t2) 
-	      :axis ?axis :type ?split-join)
+   (collision (orderless . ?bodies) ?tt :axis ?axis :type ?split-join)
    (any-member ?sought ((ang-momentum ?b :time ?t)))
-   (test (or (equal ?t ?t1) (equal ?t ?t2)))   
+   (test (tendpointp ?t ?tt))   
    (test (subsetp (simple-parts ?b) ?bodies))
    )
   :effects (
-    (angular-eqn-contains (cons-angmom ?bodies (during ?t1 ?t2)) ?sought)
+    (angular-eqn-contains (cons-angmom ?bodies ?tt) ?sought)
     ))
 
-(defoperator draw-cons-angmom-diagram (?rot ?bodies ?t1 ?t2)
+(defoperator draw-cons-angmom-diagram (?rot ?bodies ?tt)
   :preconditions 
   (
    ;; This follows draw-linmom-diagram closely
-   (not (vector-diagram ?rot (cons-angmom ?bodies (during ?t1 ?t2))))
-   (rotation-collision-momenta-drawn ?bodies ?t1)
-   (rotation-collision-momenta-drawn ?bodies ?t2)
+   (not (vector-diagram ?rot (cons-angmom ?bodies ?tt)))
+   (rotation-collision-momenta-drawn ?bodies nil ?tt)
+   (rotation-collision-momenta-drawn ?bodies t ?tt)
    (axes-for (system . ?bodies) ?rot)
    (foreach ?b ?bodies
 	    (axes-for ?b ?rot))
   )
   :effects (
-   (vector-diagram ?rot (cons-angmom ?bodies (during ?t1 ?t2)))
+   (vector-diagram ?rot (cons-angmom ?bodies ?tt))
   ))
 
 (defoperator draw-rotation-collision-momenta (?bodies ?tt)
   :preconditions (
      ;; use this if bodies don't split from initial compound
-     (in-wm (collision (orderless . ?bodies) ?times :axis ?axis :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?tt :axis ?axis :type ?type))
      ;; make sure this is a time without a compound body
-     (test (or (and (not (equal ?type 'split)) (equal ?tt (second ?times)))
-	       (and (not (equal ?type 'join)) (equal ?tt (third ?times)))))
+     (test (not (if ?after-flag (eq ?type 'join) (eq ?type 'split))))
      (foreach ?b ?bodies (body ?b))
      (foreach ?b ?bodies
    	(vector ?b (ang-momentum ?b :time ?tt) ?dir1))
   )
-  :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
+  :effects ( (rotation-collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
 (defoperator draw-rotation-collision-momenta-inelastic (?bodies ?tt)
   :preconditions (
      ;; use this if collision involves split or join
-     (in-wm (collision (orderless . ?bodies) ?times :axis ?axis :type ?type))
+     (in-wm (collision (orderless . ?bodies) ?tt :axis ?axis :type ?type))
      ;; make sure this is a time with a compound body
-     (test (or (and (equal ?type 'split) (equal ?tt (second ?times)))
-	       (and (equal ?type 'join) (equal ?tt (third ?times)))))
+     (test (if ?after-flag (eq ?type 'join) (eq ?type 'split)))
      (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
      (body ?c)
      (axes-for ?c ?rot)

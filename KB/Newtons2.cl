@@ -8003,15 +8003,16 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator cons-ke-elastic-contains (?quantity)
   :preconditions 
   (
-   (collision (orderless . ?bodies) ?t-collision :type elastic)
-   (time (during ?t1 ?t2))
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-collision))
+   ;; For elastic collision, we need need the time of the collision
+   ;; to be contained within the time we measure the asymptotic states.
+   (collision (orderless . ?bodies) (during ?t1 ?t2) :type elastic)
    (any-member ?quantity (
 			  (mag (velocity ?b :time ?t1))
 			  (mag (velocity ?b :time ?t2))
 			  (mass ?b)
                 	  ))
    (test (member ?b ?bodies :test #'equal))
+   (time (during ?t1 ?t2)) ;sanity test
   )
   :effects (
     (eqn-contains (cons-ke-elastic ?bodies (during ?t1 ?t2)) ?quantity)
