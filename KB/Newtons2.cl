@@ -6458,9 +6458,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
        (tintersect2 ?t-friction `(during ,?t1 ,?t2)))
   (not (drag ?b ?medium                         ?t-drag)
        (tintersect2 ?t-drag `(during ,?t1 ,?t2)))
-  ;; no inelastic collisions involving the body
-  (not (collision (orderless . ?objects) ?t-collision :type ?elasticity)
-       (and (member ?b ?objects) (not (eq ?elasticity 'elastic))
+  ;; no collisions involving the body
+  ;; cons-ke-elastic handles the case of elastic collisions separately
+  (not (collision (orderless . ?objects) ?t-collision . ?whatever-type)
+       (and (member ?b ?objects) 
 	    (tintersect2 ?t-collision `(during ,?t1 ,?t2))))
   ;; Also not conserved if a (possibly unknown) external work source is given 
   ;; (the associated force may not be defined, but it is still doing work).
@@ -8007,9 +8008,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; to be contained within the time we measure the asymptotic states.
    (collision (orderless . ?bodies) (during ?t1 ?t2) :type elastic)
    (any-member ?quantity (
-			  (mag (velocity ?b :time ?t1))
-			  (mag (velocity ?b :time ?t2))
+
+			  (kinetic-energy ?b :time ?t1)
+			  (kinetic-energy ?b :time ?t2)
+#|
+			  (velocity ?b :time ?t1)
+			  (velocity ?b :time ?t2)
 			  (mass ?b)
+|#
                 	  ))
    (test (member ?b ?bodies :test #'equal))
    (time (during ?t1 ?t2)) ;sanity test
@@ -8021,14 +8027,21 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator write-cons-ke-elastic (?bodies ?t1 ?t2)
   :preconditions (
    ;; !! Not clear if have to write equation for each of these
+
    ;; write sub equation for each initial ke, saving values
-   (map ?b ?bodies
-     (eqn (= ?var ?ke1-val) (kinetic-energy ?b ?t1))
-     ?ke1-val ?ke1-terms)
+   (map ?b ?bodies (variable ?ke1-var (kinetic-energy ?b :time ?t1))
+     ?ke1-var ?ke1-terms)
    ;; write sub equation for each final ke, saving values
-   (map ?b ?bodies
-     (eqn (= ?var ?ke2-val) (kinetic-energy ?b ?t2))
-     ?ke2-val ?ke2-terms)
+   (map ?b ?bodies (variable ?ke2-var (kinetic-energy ?b :time ?t2))
+     ?ke2-var ?ke2-terms)
+#|
+    (map ?b ?bodies
+      (eqn (= ?var ?ke1-val) (kinetic-energy ?b ?t1))
+      ?ke1-val ?ke1-terms)
+    (map ?b ?bodies
+      (eqn (= ?var ?ke2-val) (kinetic-energy ?b ?t2))
+      ?ke2-val ?ke2-terms)
+|#
   )
   :effects (
      ;; final equation sets sum of ke's equal

@@ -227,16 +227,17 @@
   )
   :effects ( (vector-diagram ?rot (cons-linmom ?bodies ?tt)) ))
 
-(defoperator draw-collision-momenta (?bodies ?tt)
+(defoperator draw-collision-momenta (?bodies ?after-flag ?tt)
   :preconditions (
      ;; use this if bodies don't split from initial compound
      ;; !!! code assumes there's only one collision in problem
      (in-wm (collision (orderless . ?bodies) ?tt :type ?type))
      ;; make sure this is a time without a compound body
      (test (not (if ?after-flag (eq ?type 'join) (eq ?type 'split))))
+     (bind ?t (if ?after-flag (third ?tt) (second ?tt)))
      (foreach ?b ?bodies (body ?b))
      (foreach ?b ?bodies
-   	(vector ?b (momentum ?b :time ?tt) ?dirb))
+   	(vector ?b (momentum ?b :time ?t) ?dirb))
   )
   :effects ( (collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
@@ -246,10 +247,11 @@
      (in-wm (collision (orderless . ?bodies) ?tt :type ?type))
      ;; make sure this is a time with a compound body
      (test (if ?after-flag (eq ?type 'join) (eq ?type 'split)))
+     (bind ?t (if ?after-flag (third ?tt) (second ?tt)))
      (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
      (body ?c)
      (axes-for ?c ?rot)
-     (vector ?c (momentum ?c :time ?tt) ?dirc)
+     (vector ?c (momentum ?c :time ?t) ?dirc)
   )
   :effects ( (collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
@@ -463,9 +465,10 @@
      (in-wm (collision (orderless . ?bodies) ?tt :axis ?axis :type ?type))
      ;; make sure this is a time without a compound body
      (test (not (if ?after-flag (eq ?type 'join) (eq ?type 'split))))
+     (bind ?t (if ?after-flag (third ?tt) (second ?tt)))
      (foreach ?b ?bodies (body ?b))
      (foreach ?b ?bodies
-   	(vector ?b (ang-momentum ?b :time ?tt) ?dir1))
+   	(vector ?b (ang-momentum ?b :time ?t) ?dir1))
   )
   :effects ( (rotation-collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
@@ -475,10 +478,11 @@
      (in-wm (collision (orderless . ?bodies) ?tt :axis ?axis :type ?type))
      ;; make sure this is a time with a compound body
      (test (if ?after-flag (eq ?type 'join) (eq ?type 'split)))
+     (bind ?t (if ?after-flag (third ?tt) (second ?tt)))
      (bind ?c `(compound orderless ,@?bodies)) ;for shorthand
      (body ?c)
      (axes-for ?c ?rot)
-     (vector ?c (ang-momentum ?c :time ?tt) ?dir1)
+     (vector ?c (ang-momentum ?c :time ?t) ?dir1)
   )
   :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
 
