@@ -3123,7 +3123,7 @@ void CFBDDoc::SetSafeIdCounter()
 	while (CCheckedObj* pChkObj = chkObjs.Next()) {
 		int iLastDash = pChkObj->m_strId.ReverseFind('-');
 		if (iLastDash > 0 
-			&& sscanf(pChkObj->m_strId.Right(iLastDash), "%d", &nID) == 1
+			&& sscanf(pChkObj->m_strId.Mid(iLastDash+1), "%d", &nID) == 1
 			&& nID > nMax)
 			nMax = nID;
 	}
