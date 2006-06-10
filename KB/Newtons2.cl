@@ -8008,10 +8008,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; to be contained within the time we measure the asymptotic states.
    (collision (orderless . ?bodies) (during ?t1 ?t2) :type elastic)
    (any-member ?quantity (
-
 			  (kinetic-energy ?b :time ?t1)
 			  (kinetic-energy ?b :time ?t2)
 #|
+			  ;; because we first write the kinetic energy 
+			  ;; equations, we can include these in the sought:
 			  (velocity ?b :time ?t1)
 			  (velocity ?b :time ?t2)
 			  (mass ?b)
@@ -8025,35 +8026,43 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   ))
 
 (defoperator write-cons-ke-elastic (?bodies ?t1 ?t2)
-  :preconditions (
-   ;; !! Not clear if have to write equation for each of these
+  :preconditions 
+  (
+;; The solver can solve quadratics in one variable.  
+;; However, it makes poor substitutions so that the resulting quadratics 
+;; are in terms of several variables.
+;; As a work-around, we force the equations to come out in a certain order.
 
-   ;; write sub equation for each initial ke, saving values
+   ;; Ideally, we would just use the kinetic energy variables
+   ;; in the equation:
    (map ?b ?bodies (variable ?ke1-var (kinetic-energy ?b :time ?t1))
      ?ke1-var ?ke1-terms)
-   ;; write sub equation for each final ke, saving values
    (map ?b ?bodies (variable ?ke2-var (kinetic-energy ?b :time ?t2))
      ?ke2-var ?ke2-terms)
 #|
+   ;; Instead, this is a clever work-around where we first write
+   ;; out the equations for kinetic energy of each body, and then
+   ;; write out the conservation of energy equation.
     (map ?b ?bodies
-      (eqn (= ?var ?ke1-val) (kinetic-energy ?b ?t1))
-      ?ke1-val ?ke1-terms)
+	 (eqn (= ?ke1-var ?ke1-val) (kinetic-energy ?b ?t1))
+	 ?ke1-var ?ke1-terms)
+    ;; write equation for each final ke, saving values/variables
     (map ?b ?bodies
-      (eqn (= ?var ?ke2-val) (kinetic-energy ?b ?t2))
-      ?ke2-val ?ke2-terms)
+	 (eqn (= ?ke2-var ?ke2-val) (kinetic-energy ?b ?t2))
+	 ?ke2-var ?ke2-terms)
 |#
-  )
+    )
   :effects (
-     ;; final equation sets sum of ke's equal
-     (eqn (= (+ . ?ke1-terms) (+ . ?ke2-terms)) 
+	    ;; final equation sets sum of ke's equal
+	    (eqn (= (+ . ?ke1-terms) (+ . ?ke2-terms)) 
      	  (cons-ke-elastic ?bodies (during ?t1 ?t2)))
-  )
+	    )
   :hint (
-   (point (string "Notice that the collision is elastic."))
-   (teach (string "An elastic collision is one in which kinetic energy is conserved. You can use this fact to equate the kinetic energy in the system before and after the collision."))
-   (bottom-out (string "Write the equation ~A"  
-                        ((= (+ . ?ke1-terms) (+ . ?ke2-terms)) algebra)))
-  ))
+	 (point (string "Notice that the collision is elastic."))
+	 (teach (string "An elastic collision is one in which kinetic energy is conserved. You can use this fact to equate the kinetic energy in the system before and after the collision."))
+	 (bottom-out (string "Write the equation ~A"  
+			     ((= (+ . ?ke1-terms) (+ . ?ke2-terms)) algebra)))
+	 ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
