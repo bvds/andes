@@ -3207,8 +3207,8 @@
 
 (defun abs-sign-error ()
   (make-hint-seq
-   (list "Normally, this equation is written with an absolute value."
-"Writing the equation using absolute value will lessen the chance that you make a sign error.")))
+   (list "Normally, this equation is written using an absolute value."
+	 "Writing the equation using an absolute value will lessen the chance that you make a sign error.")))
       
 
 ;;; (ref Bob's email of 7/19/01 8:56 am) If the student has makes a
