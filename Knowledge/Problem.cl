@@ -158,7 +158,7 @@
 ;; aids in error detection.  Future versions of a problem can add new fields 
 ;; without invalidating the storage code for the old ones.  
 ;;
-;; Most field contents are stpored using a simple format call.  Some more 
+;; Most field contents are stored using a simple format call.  Some more 
 ;; complex fields such as the graph are written using specialized functions.  
 ;; In all cases the overall format is unchanged.  
 
