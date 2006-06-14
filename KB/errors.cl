@@ -3203,7 +3203,7 @@
      (test (recursive-member 'abs ?ceqn))
      )
     :utility 1
-    :probability 0.2)
+    :probability 0.3)
 
 (defun abs-sign-error ()
   (make-hint-seq
