@@ -164,14 +164,14 @@
 ;;;
 ;;; (expr-loc <loc-var> <pattern>)
 ;;;  If the condition is (expr-loc <loc-var> <pattern>) then
-;;;  find all locations in the equation the unify with <pattern> and
+;;;  find all locations in the student's equation that unify with <pattern> and
 ;;;  bind them to <loc-var>
 ;;;
-;;; (var-loc <eqn> <?loc-var> <?variable-var> <pattern>)
-;;;  If the condition is (var-loc <eqn> <?loc-var> <?variable-var>
-;;;  <pattern>), then find a variable in the student's equation whose
+;;; (var-loc <?loc-var> <?variable-var> <pattern>)
+;;;  If the condition is (var-loc <?loc-var> <?variable-var> <pattern>), 
+;;;  then find a variable in the student's equation whose
 ;;;  definition unifies with <pattern> and bind its location to
-;;;  <?loc-var> and the variable itself to <?variable-var>
+;;;  <?loc-var> and the variable itself to <?variable-pattern>
 ;;;
 ;;; (correct-var <?var> <pattern>)
 ;;;  if the condition is (correct-var <?var> <pattern>), then find a
@@ -3190,6 +3190,25 @@
    (list "Check your signs."
 	 (format nil "Perhaps the sign of the ~a term should be changed." 
 		 (nlg var 'algebra)))))
+
+(def-error-class abs-sign-error ()
+  ;; student equation does not contain an absolute value
+    ((student-eqn ?seqn)
+     (test (not (recursive-member 'abs ?seqn)))
+     ;; student has made a sign error
+     (var-loc ?loc ?var ?defn)
+     (fix-eqn-by-replacing ?loc (- ?var))
+     ;; correct equation does contain an absolute value
+     (correct ?ceqn)
+     (test (recursive-member 'abs ?ceqn))
+     )
+    :utility 1
+    :probability 0.2)
+
+(defun abs-sign-error ()
+  (make-hint-seq
+   (list "Normally, this equation is written with an absolute value."
+"Writing the equation using absolute value will lessen the chance that you make a sign error.")))
       
 
 ;;; (ref Bob's email of 7/19/01 8:56 am) If the student has makes a
@@ -3305,7 +3324,7 @@
 ;;; (ref eq-Pitt A8 2-25-02) Students sometimes think that because the
 ;;; accel due to gravity is downward, there should be a negative sign
 ;;; in Fw=m*g.  This error classes teaches against that misconception.
-;;; We match the exact equation here: Fw = m*(-g).  This avoids firing
+;;; We match the exact equation here: Fg = m*(-g).  This avoids firing
 ;;; the rule when other sign rules would be more appropriate.
 (def-error-class no-negation-in-weight-law1 ((= ?smag (* ?smass ?g)))
   ((student-eqn (= ?smag (* ?smass (- ?g))))
@@ -3330,16 +3349,16 @@
   (make-hint-seq
    (list
     ;; teach wt-law-sign
-    (strcat "You probably recall the vector equation 'W-vec = m * g-vec' "
-	    "where W-vec and g-vec stand for vectors, namely the weight "
-	    "and gravitational acceleration.  This vector equation implied "
-	    "that the two vectors have the same direction (both are downward)."
+    (strcat "You probably recall the vector equation 'Fg = m*g' "
+	    "where Fg and g are vectors, namely the weight "
+	    "and gravitational acceleration.  This vector equation implies "
+	    "that the two vectors have the same direction (both are downward).  "
 	    "It also implies that their magnitudes are proportional, that is, "
 	    "that W=m*g where W and g stand for the MAGNITUDES of the weight "
 	    "and gravitational acceleration.  Your version of this scalar "
 	    "equation has an unnecessary minus sign in it.  Just remember "
-	    "that in the scalar equation W=m*g, everything is positive: mass "
-	    "is a positive number, and because W and g stand for magnitudes, "
+	    "that in the scalar equation Fg = m*g, everything is positive: mass "
+	    "is a positive number, and because Fg and g stand for magnitudes, "
 	    "they are positive numbers, too.")
     (format nil "Change your equation to ~a." (nlg eqn 'algebra)))))
 
@@ -3385,13 +3404,13 @@
      (test (sum-p ?sum))
      (problem (any-forces ?body ?time ?correct-forces)) ; generates bodies and times
      (bind ?student-forces (forces-in-sum ?sum ?body ?time T))
-     (test (not (null ?student-forces))) ; nil means a sum of something other than forces
+     (test ?student-forces) ; nil means a sum of something other than forces
      (bind ?missing-forces (set-difference ?correct-forces ?student-forces :test #'equal))
-     (test (not (null ?missing-forces)))
+     (test ?missing-forces)
      (correct (draw-axes ?rot))		; generate rotations for the possible x-axes
      (bind ?missing-non-zero (vectors-non-zero ?missing-forces 
 					       (axis-dir 'y ?rot)))
-     (test (not (null ?missing-non-zero)))
+     (test ?missing-non-zero)
      (bind ?missing-compo-vars (vectors-to-compo-sysvars 'y ?rot ?missing-non-zero))
      (bind ?new-sum (cons '+ (cons ?sum ?missing-compo-vars)))
      (fix-eqn-by-replacing ?loc ?new-sum))
