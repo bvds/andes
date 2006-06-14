@@ -459,7 +459,7 @@
    (vector-diagram ?rot (cons-angmom ?bodies ?tt))
   ))
 
-(defoperator draw-rotation-collision-momenta (?bodies ?tt)
+(defoperator draw-rotation-collision-momenta (?bodies ?after-flag ?tt)
   :preconditions (
      ;; use this if bodies don't split from initial compound
      (in-wm (collision (orderless . ?bodies) ?tt :axis ?axis :type ?type))
@@ -484,7 +484,7 @@
      (axes-for ?c ?rot)
      (vector ?c (ang-momentum ?c :time ?t) ?dir1)
   )
-  :effects ( (rotation-collision-momenta-drawn ?bodies ?tt) ))
+  :effects ( (rotation-collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
 (defoperator write-cons-angmom (?bodies ?t1 ?t2)
   :preconditions (
