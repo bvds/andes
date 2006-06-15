@@ -75,7 +75,7 @@
   :short-name "pressure"	
   :dialog-text "at [body:positions] at time [time:times]"
    :units |Pa|
-   :english ("the pressure at point ~a in the fluid" 
+   :english ("the pressure at ~a" 
 	     (nlg ?position 'at-time ?time))
    :fromWorkbench `(pressure ,body :time ,time)
 )
