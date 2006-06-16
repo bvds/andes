@@ -372,8 +372,8 @@
 	    (check-err-conditions eh student conditions system
 					  (extend-bindings loc-var L b)))))
 
-;;; If the condition is (var-loc <eqn> <?loc-var> <?variable-var>
-;;; <pattern>), then find a variable in the student's equation whose
+;;; If the condition is (var-loc <?loc-var> <?variable-var> <pattern>), 
+;;; then find a variable in the student's equation whose
 ;;; definition unifies with <pattern> and bind its location to
 ;;; <?loc-var> and the variable itself to <?variable-var>
 (defun check-err-var-loc (loc-var var-var pattern eh student conditions system bindings)

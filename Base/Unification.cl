@@ -3,17 +3,12 @@
 ;; Unification.cl
 ;; This file contains the pattern matching code and unification code
 ;; for the Andes2 project and provides the "Unification" package when
-;; loaded.  At the moment all of this code is taken directly from 
+;; loaded.  This code is modified from
 ;; Peter Norvig's book; Paradigms of AI programming.  
 ;; This code was downloaded from:
 ;; ftp.mkp.com/pub/Norvig on 08/02/2000 
 ;; and is based upon the files patmatch.lisp, Prolog1.lisp and 
-;; unify.lisp In the furture this code may be replaced with a 
-;; custom system for the time being it is all Norvig's code.
-;;
-;; It has since been modified by Collin Lynch to include the
-;; variable-boundp function.
-
+;; unify.lisp
 
 ;;(load "c:/SolutionGraph/Utility.cl")
 
