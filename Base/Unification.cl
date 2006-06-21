@@ -8,7 +8,7 @@
 ;; This code was downloaded from:
 ;; ftp.mkp.com/pub/Norvig on 08/02/2000 
 ;; and is based upon the files patmatch.lisp, Prolog1.lisp and 
-;; unify.lisp
+;; unify.lisp. 
 
 ;;(load "c:/SolutionGraph/Utility.cl")
 
@@ -310,8 +310,14 @@
 	 (funcall test-function x y bindings))
 	;; handle orderless objects
 	((and (orderless-p x) (orderless-p y)) 
-	 (unify (orderless-sort (cdr x) bindings) 
-		(orderless-sort (cdr y) bindings) bindings test test-function))
+	 (unify (order-expr (cdr x) #'orderless-sort bindings) 
+		(order-expr (cdr y) #'orderless-sort bindings) 
+		bindings test test-function))
+	;; handle symmetry under cyclic permutations
+	((and (cyclic-p x) (cyclic-p y)) 
+	 (unify (order-expr (cdr x) #'cyclic-sort bindings) 
+		(order-expr (cdr y) #'cyclic-sort bindings) 
+		bindings test test-function))
 	;; Match any keyword pairs; only compare keyword pair against 
 	;; a proper list.  
 	((and (valid-keyword-pair x) (listp y) (null (cdr (last y))))
@@ -389,28 +395,54 @@
      ;; no match:  bind var to default
      (t (unify x y (unify var default bindings))))))
 
-;;; Orderless lists with (orderless ...)
 
-;; (orderless ...) must be a proper list with no unbound variables
-;; valid expressions include:  (orderless a b c ...)
-;;                             (orderless . ?a)
-;;                             (orderless ?a)      
+;; (symmetry-type ...) must be a proper list with no unbound variables
+;; valid expressions include:  (symmetry-type a b c ...)
+;;                             (symmetry-type . ?a)
+;;                             (symmetry-type ?a)      
 
-(defun orderless-p (x)
-  (and (consp x) (eq (car x) 'orderless)))
 
-(defun orderless-sort (x bindings)
-  (cond ((variable-p x) x)                 ;(orderless . ?a)
-	((and (listp x) (null (cdr x))) x) ;(orderless ?a)
+(defun order-expr (x sort-function bindings)
+  "handle any variables when ordering a list according to symmetry-type"
+  (cond ((variable-p x) x)                 ;(symmetry-type . ?a)
+	((and (listp x) (null (cdr x))) x) ;(symmetry-type ?a)
 	;; (orderless a b c ...)
 	((and (listp x) (null (cdr (last x))) ;check for proper list
 	      ;; In principle, we only need bindings sufficient for the sort
 	      ;; to be unambiguous. 
 	      (all-boundp x bindings))        ;with *all* variables bound
-	 (sort (copy-list (subst-bindings bindings x)) #'expr<))
-	(t (error "Invalid orderless ~A.~%  Need a proper list with all variables bound." 
-		  (cons 'orderless x)))))
+	 (funcall sort-function (copy-list (subst-bindings bindings x))))
+	(t (error "Invalid list ~A.~%  Need a proper list with all variables bound." 
+		  x))))
 
+;;; Orderless lists with (orderless ...)
+
+(defun orderless-p (x)
+  (and (consp x) (eq (car x) 'orderless)))
+
+(defun orderless-sort (x) (sort x #'expr<))
+
+;;; Symmetry under cyclic permutations with (cyclic ...)
+
+(defun cyclic-p (x)
+  (and (consp x) (eq (car x) 'cyclic)))
+
+;; use (setf *print-circle* t) to debug
+(defun cyclic-sort (x)
+  "canonical order under cyclic permutations using expr<, destructive"
+  (let ((lx (length x)) (best x))
+    (setf (cdr (last x)) x) ;make circular list
+    (do ((y (cdr x) (cdr y))) ((eq y x)) ;; iterate over cyclic permutations
+	(when (circular-expr< y best lx) (setf best y))) ;compare with best
+    (setf (cdr (nthcdr (- lx 1) best)) nil)    ;undo circular list
+    best))
+
+(defun circular-expr< (a b n)
+  "version of expr< for use with circular lists"
+  (cond ((< n 1) nil)
+	((expr< (car a) (car b)) t)
+	((expr< (car b) (car a)) nil)
+	((circular-expr< (cdr a) (cdr b) (- n 1)))))
 
 ;;; ===========================================================================
 
