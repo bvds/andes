@@ -52,20 +52,6 @@
   (convert-to-symbol ?temp))
 
 
-;If ?x = R_R123, this returns (R1 R2 R3)
-; Called by current-in-branch-contains
-(defun explode-resistor (?x)
-  (setf ?res (string-left-trim "R_" (string ?x))) ;?res="123"
-  (setf ?len (- (length (string ?x)) 3))
-  (setf ?temp (list))
-  (do ((counter 0 (+ counter 1)))
-      ((= counter ?len) ?temp)
-    (setf ?a (string (char ?res counter)))  ;pull off each number
-    (setf ?b (concatenate 'string "R" ?a))  ; make it "R1"
-    (multiple-value-bind (ans num)
-        (read-from-string ?b)               ; make it R1
-      (setf ?temp (append ?temp (list ans))))))
-
 ;Accepts '(a b c) and returns '((a b) (b c))
 (defun form-adj-pairs (x)
   (setf temp '())
@@ -82,28 +68,6 @@
     (cond ((not (eq nil (intersection (nth c p) r :test #'equal)))
            (setf np (append (list (nth c p)) np)))
           (t (setf np np)))))
-
-;Called by same-elements
-(defun check-list (x y)
-  (cond ((null y) t)
-        ((eq x (car y)) (check-list x (cdr y)))
-        (t nil)))
-
-;Returns t if all the elements of a list are the same
-;Called by find-parallel-resistors
-(defun same-elements (x)
-  (cond ((null x) nil)
-        (t (check-list (car x) (cdr x)))))
-
-
-
-;if ?x = BrR123, this returns BrR_123
-(defun convert-series-branch-name (?x)
-  (setf ?y (string-left-trim "BrR" (string ?x))) ;?y="123"
-  (setf ?b (concatenate 'string "BrR_" ?y))  ; make it "BrR_123"
-  (multiple-value-bind (ans num)
-      (read-from-string ?b)
-    (setf ?temp ans)))
   
 ; if p = (JunA PtB R1 PtC R2 PtD JunE) and res-list = (R1 R2)
 ; it returns (JunA PtB (R1 R2) PtD JunE)
@@ -166,16 +130,6 @@
     (setf x (nth c paths))
     (if (= 1 (length (intersection x caps))) (setf fans (append (list x) fans))
       (setf fans (append (list (strip-cap x)) fans)))))
-
-;y is a list contain x. This returns a list containing x and the element in front or behind it
-(defun shrink (x y)
-  (setf len (length y))
-  (setf loc (position x y))
-  (cond ((= len (+ loc 1)) 
-         (setf a (nth (- loc 1) y))
-         (list a x))
-        (t (setf a (nth (+ loc 1) y))
-           (list x a))))
 
 ;Returns the list of paths coming out of a junction
 (defun get-out-paths (br-list names paths jun)
@@ -1308,38 +1262,35 @@
 		 ;; ?t may end up timeless (nil)
 		 (any-member ?sought ((charge ?cap1 :time ?t)))
 		 (branch ?br-res given ?dontcare1 ?path)
-		 (test (member ?cap1 ?path :test #'equal))
-		 ;;Are there other capacitors in path
-		 (setof (in-wm (circuit-component ?cap capacitor))
-			?cap ?all-caps)
-		 (bind ?path-caps (intersection ?all-caps ?path))
-		 (test (> (length ?path-caps) 1))
-		 ;;Stops a=b coming out twice for when a & b are both sought
-		 (bind ?temp-caps (shrink (second ?sought) ?path-caps))
+		 (test (member ?cap1 ?path))
+		 ;; find another capacitor in that branch
+		 (circuit-component ?cap2 capacitor)
+		 (test (not (eq ?cap2 ?cap1)))
+		 (test (member ?cap2 ?path))
+		 ;; make sure there are only two, otherwise too complicated
+		 (not (circuit-component ?cap3 capacitor)
+		      (and (not (eq ?cap3 ?cap1)) (not (eq ?cap3 ?cap2))
+			   (member ?cap3 ?path)))
+		 (bind ?caps (list orderless ?cap1 cap2))
 		 )
   :effects(
-	   (eqn-contains (charge-same-caps-in-branch ?temp-caps ?t) ?sought)
+	   (eqn-contains (charge-same-caps-in-branch ?caps ?t) ?sought)
 	   ))
 
   
-(defoperator charge-same-caps-in-branch (?temp-caps ?t)
-  :preconditions (
-		  ;; (bind ?temp-caps (shrink (second ?sought) ?path-caps))
-		  (map ?cap ?temp-caps
-		       (variable ?q-var (charge ?cap :time ?t))
-		       ?q-var ?q-path-cap-vars)
-		  (bind ?adj-pairs (form-adj-pairs ?q-path-cap-vars))
-		  (bind ?pair (first ?adj-pairs))
-		  (bind ?first (first ?pair))
-		  (bind ?second (second ?pair))
-		  )
-  :effects (
-	    (eqn (= ?first ?second) (charge-same-caps-in-branch ?temp-caps ?t))
-	    )
+(defoperator write-charge-same-caps-in-branch (?temp-caps ?t)
+  :preconditions 
+  (
+   (bind ?q1 (second ?caps))
+   (bind ?q2 (third ?caps))
+   (variable ?q1 (charge ?cap1 :time ?t))
+   (variable ?q2 (charge ?cap2 :time ?t))
+   )
+  :effects ( (eqn (= ?q1 ?q2) (charge-same-caps-in-branch ?caps ?t)) )
   :hint(
 	(point (string "Find two capacitors in series.  Two capacitors are in series when they occur in the same branch."))
 	(teach (string "When two capacitors are in series their charges are the same."))
-	(bottom-out (string "Set the charge ~a equal to the charge ~a." (?first algebra) (?second algebra)))
+	(bottom-out (string "Set the charge ~a equal to the charge ~a." (?q1 algebra) (?q2 algebra)))
 	))
 
 (def-psmclass cap-energy (cap-energy ?cap ?t) 
