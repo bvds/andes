@@ -7,7 +7,7 @@
 ;;;  and h = negative if lower than reference.
  
 
-;; Define the quantity mass density. The density defined here is a vouume density.
+;; Define the quantity mass density.
 (def-qexp mass-density (mass-density ?material)
   :symbol-base |$r|     
   :short-name "mass density"	
