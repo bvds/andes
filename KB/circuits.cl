@@ -1250,7 +1250,7 @@
 	   ))
 
 
-(def-psmclass charge-same-caps-in-branch (charge-same-caps-in-branch ?cap ?t) 
+(def-psmclass charge-same-caps-in-branch (charge-same-caps-in-branch ?caps ?t) 
   :complexity major
   :short-name "charge on series capacitors"
   :english ("Charge on series capacitors")
@@ -1258,35 +1258,30 @@
   :eqnFormat ("q1 = q2"))
 
 (defoperator charge-same-caps-in-branch-contains (?sought)
-  :preconditions(
-		 ;; ?t may end up timeless (nil)
-		 (any-member ?sought ((charge ?cap1 :time ?t)))
-		 (branch ?br-res given ?dontcare1 ?path)
-		 (test (member ?cap1 ?path))
-		 ;; find another capacitor in that branch
-		 (circuit-component ?cap2 capacitor)
-		 (test (not (eq ?cap2 ?cap1)))
-		 (test (member ?cap2 ?path))
-		 ;; make sure there are only two, otherwise too complicated
-		 (not (circuit-component ?cap3 capacitor)
-		      (and (not (eq ?cap3 ?cap1)) (not (eq ?cap3 ?cap2))
-			   (member ?cap3 ?path)))
-		 (bind ?caps (list orderless ?cap1 cap2))
-		 )
-  :effects(
-	   (eqn-contains (charge-same-caps-in-branch ?caps ?t) ?sought)
-	   ))
+  :preconditions
+  (
+   ;; ?t may end up timeless (nil)
+   (any-member ?sought ((charge ?cap1 :time ?t)
+			(charge ?cap2 :time ?t)))
+   (branch ?br-res given ?dontcare1 ?path)
+   ;; select capacitors
+   (circuit-component ?cap1 capacitor)
+   (circuit-component ?cap2 capacitor)
+   ;; Test capacitors are distinct and ordered on branch
+   ;; There is no test that the capacitors are adjacent.
+   ;; Might add such a test if the number of solutions blows up
+   (test (member ?cap2 (rest (member ?cap1 ?path))))
+   )
+  :effects
+  ( (eqn-contains (charge-same-caps-in-branch (?cap1 ?cap2) ?t) ?sought) ))
 
-  
-(defoperator write-charge-same-caps-in-branch (?temp-caps ?t)
+(defoperator write-charge-same-caps-in-branch (?cap1 ?cap2 ?t)
   :preconditions 
   (
-   (bind ?q1 (second ?caps))
-   (bind ?q2 (third ?caps))
    (variable ?q1 (charge ?cap1 :time ?t))
    (variable ?q2 (charge ?cap2 :time ?t))
    )
-  :effects ( (eqn (= ?q1 ?q2) (charge-same-caps-in-branch ?caps ?t)) )
+  :effects ( (eqn (= ?q1 ?q2) (charge-same-caps-in-branch (?cap1 ?cap2) ?t)) )
   :hint(
 	(point (string "Find two capacitors in series.  Two capacitors are in series when they occur in the same branch."))
 	(teach (string "When two capacitors are in series their charges are the same."))
