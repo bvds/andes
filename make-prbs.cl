@@ -5,7 +5,10 @@
  (rkb)
  (defvar t0 (get-internal-run-time))
  (make-prbs '(
-EMWAVE5 IMP1 IMP2 IMP3A IMP3B IMP3C LMOM1A LMOM1B LMOM2A LMOM2B LMOM3A LMOM4A LMOM5 MOMR3A MOMR4A lmom6
+FOR1 FOR10B
+FOR2 FOR4 FOR4C FOR7 FOR8 FOR9 FOR9B MAG1C MAG2A MAG2B MAG3A MAG5A
+MAG5B POT1A POT2A POT2B POT2C POT3A POT3B POT4 POT5 POT7 
+for1b for10 for2b for4b for7b mag1d mag1e mag3b mag4a pot1b pot6 pot8
 ))
 ;; time to do this is:
 (format t "~F hours~%" (/ (- (get-internal-run-time) t0) 
