@@ -3283,7 +3283,7 @@ total charge inside divided by eps0."))
 		       (?type ?adj)))
    ))
 
-(def-psmclass amperes-law (amperes-law :surface ?S :currents)
+(def-psmclass amperes-law (amperes-law :surface ?S)
   :complexity major                   ; must explicitly use
   :short-name "Ampère's law"
   :english ("Ampère's law")
@@ -3319,4 +3319,5 @@ total charge inside divided by eps0."))
     (teach (string "Ampère's law state that the line integral of the magnetic field around the boundary of a surface S is equal to the
 total current flowing through S times mu0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
     (bottom-out (string "Write the equation ~A ."
-			((= ?int-var (* (+ . ?current-vars) |mu0|)) algebra)))))
+			((= ?lint-var (* (+ . ?current-vars) |mu0|)) 
+			 algebra)))))
