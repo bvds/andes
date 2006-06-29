@@ -3285,9 +3285,13 @@ total charge inside divided by eps0."))
 
 (def-psmclass amperes-law (amperes-law :surface ?S)
   :complexity major                   ; must explicitly use
-  :short-name "Ampère's law"
-  :english ("Ampère's law")
-  :ExpFormat ("applying Ampère's law to ~A" (nlg ?S))
+  ;; Accent character fails on Workbench, see hint sequence below, Bug #870
+  ;;  :short-name "Ampère's law"
+  ;;  :english ("Ampère's law")
+  ;;  :ExpFormat ("applying Ampère's law to ~A" (nlg ?S))
+  :short-name "Ampere's law"
+  :english ("Ampere's law")
+  :ExpFormat ("applying Ampere's law to ~A" (nlg ?S))
   :EqnFormat ("int B = mu0*(I1 + I2 + ...)"))
 
 (defoperator amperes-law-contains (?sought)
@@ -3314,10 +3318,10 @@ total charge inside divided by eps0."))
   ( (eqn  (= ?lint-var (* (+ . ?current-vars) |mu0|))
 	  (amperes-law :surface ?S)) )
   :hint
-  ( (point (string "You can apply Amp~Are's law to surface ~A."
-		   ((code-char 232) identity) ?s))
-    (teach (string "Amp~Are's law state that the line integral of the magnetic field around the boundary of a surface S is equal to the
-total current flowing through S times mu0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow." ((code-char 232) identity)))
+  ( (point (string "You can apply Ampere's law to surface ~A."
+		   ?s))
+    (teach (string "Ampere's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
+total current flowing through S times mu0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
     (bottom-out (string "Write the equation ~A ."
 			((= ?lint-var (* (+ . ?current-vars) |mu0|)) 
 			 algebra)))))
