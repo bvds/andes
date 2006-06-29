@@ -3247,3 +3247,76 @@ total charge inside divided by eps0."))
 			    ((= ?Phi-term (- ?V)) algebra)))
 	))
 
+
+;;;
+;;;    Ampere's law
+;;; 
+
+;; This is a rather primitive first attempt.
+;; ideally, we should have the path and field as separate arguments
+(def-qexp magnetic-line-integral (line-integral 
+				  (net-field ?path magnetic :time ?t))
+  :symbol-base |intB|     
+  :short-name "line integral of B"
+  :pre-dialog-text "line integral of the net magnetic field"
+  :dialog-text "along path [body:positions]"
+  :units |T.m|
+  :fromworkbench `(line-integral (net-field ,body magnetic))
+  :english ("line integral of the net magnetic field along path ~A~@[ ~A~]" 
+	       (nlg ?path) (nlg ?t 'pp)))
+
+(defoperator define-line-integral (?path ?type ?t)
+  :preconditions 
+  ((bind ?int-var (format-sym "int~A_~A~@[_~A~]" 
+			      (subseq (string ?type) 0 1)
+			      (body-name ?path) (time-abbrev ?t))) )
+  :effects 
+  (
+   (define-var (line-integral (net-field ?path ?type :time ?t)))
+   (variable ?int-var (line-integral (net-field ?path ?type :time ?t)))
+   )
+  :hint 
+  (
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting the ~A line integral" 
+		       ((line-integral 
+			 (net-field ?surface ?type :time ?t)) def-np) 
+		       (?type ?adj)))
+   ))
+
+(def-psmclass amperes-law (amperes-law :surface ?S :currents)
+  :complexity major                   ; must explicitly use
+  :short-name "Ampère's law"
+  :english ("Ampère's law")
+  :ExpFormat ("applying Ampère's law to ~A" (nlg ?S))
+  :EqnFormat ("line integral B = mu0*(I1 + I2 + ...)"))
+
+(defoperator amperes-law-contains (?sought)
+  :preconditions
+  (
+   (amperes-law ?line-integral :surface ?S :currents ?wires)
+   (any-member ?sought ((current-thru ?wire)
+			?line-intgral))
+   (test (member ?wire ?wires))
+   )
+  :effects
+  ( (eqn-contains (amperes-law :surface ?S) ?sought)))
+
+(defoperator write-amperes-law (?S)
+  :preconditions
+  ( 
+   (amperes-law ?line-integral :surface ?S :currents ?wires)
+   (map ?wire ?wires
+	   (variable ?current-var (current-thru ?wire))
+	   ?current-var ?current-vars)
+   (variable  ?lint-var ?line-integral)
+   )
+  :effects
+  ( (eqn  (= ?lint-var (* (+ . ?current-vars) |mu0|))
+	  (amperes-law :surface ?S)) )
+  :hint
+  ( (point (string "You can apply Ampère's law to surface ~A."
+		   ?s))
+    (teach (string "Ampère's law state that the line integral of the magnetic field around the boundary of a surface S is equal to the
+total current flowing through S times mu0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
+    (bottom-out (string "Write the equation ~A ."
+			((= ?int-var (* (+ . ?current-vars) |mu0|)) algebra)))))

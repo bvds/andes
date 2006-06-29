@@ -63,6 +63,8 @@
 	     magnetic-flux-change))
 (def-feature-set gauss
   (charge-in electric-flux magnetic-flux))
+(def-feature-set ampere
+  (current magnetic-line-integral))
 (def-feature-set EM-waves 
   (amplitude-electric amplitude-magnetic))
 (def-feature-set simple-work

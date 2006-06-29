@@ -158,6 +158,7 @@
 	 (leaf magnetic-flux-constant-field)
 	 (leaf magnetic-flux-constant-field-change)
 	 (leaf faradays-law)
+	 (leaf amperes-law)
 	 (leaf magnetic-dipole-moment-mag :tutorial "Dipoles")
 	 (leaf magnetic-dipole-moment :bindings ((?axis . x)) :tutorial "Dipoles")
 	 (leaf magnetic-dipole-moment :bindings ((?axis . y)) :tutorial "Dipoles")
