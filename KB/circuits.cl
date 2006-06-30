@@ -44,35 +44,6 @@
              (setf ?temp (append ?temp (list ans)))))
   (convert-to-symbol ?temp))
 
-;; Returns the list of branches coming out of a junction
-(defun get-out-br (br-list names path jun)
-  (setf temp '())
-  (setf len (length br-list))
-  (do ((c 0 (+ c 1)))
-      ((= c len) temp)
-       (setf x (nth c br-list))
-       (setf y (position x names))
-       (setf z (nth y path))
-    (if (equal jun (first z)) 
-        (setf temp (cons (nth c br-list) temp))
-      temp))
-  (reverse temp))
-
-;; Returns the list of branches going into of a junction
-(defun get-in-br (br-list names path jun)
-  (setf temp '())
-  (setf len (length br-list))
-  (do ((c 0 (+ c 1)))
-      ((= c len) temp)
-    (setf x (nth c br-list))
-       (setf y (position x names))
-       (setf z (nth y path))
-    (if (equal jun (first (last z))) 
-        (setf temp (cons (nth c br-list) temp))
-      temp))
-  (reverse temp))
-
-
 ;; Returns the first capacitor in a path 
 ;; Doesn't work if capacitor is in a nested list    
 (defun find-cap (path)
@@ -98,35 +69,6 @@
     (if (= 1 (length (intersection x caps))) (setf fans (append (list x) fans))
       (setf fans (append (list (strip-cap x)) fans)))))
 
-;; Returns the list of paths coming out of a junction
-(defun get-out-paths (br-list names paths jun)
-  (setf temp '())
-  (setf len (length br-list))
-  (do ((c 0 (+ c 1)))
-      ((= c len) temp)
-       (setf x (nth c br-list))
-       (setf y (position x names))
-       (setf z (nth y paths))
-    (if (equal jun (first z)) 
-        (setf temp (append (list z) temp))
-      temp))
-  (reverse temp))
-
-;; Returns the list of paths going into of a junction
-(defun get-in-paths (br-list names paths jun)
-  (setf temp '())
-  (setf len (length br-list))
-  (do ((c 0 (+ c 1)))
-      ((= c len) temp)
-    (setf x (nth c br-list))
-       (setf y (position x names))
-       (setf z (nth y paths))
-    (if (equal jun (first (last z))) 
-        (setf temp (append (list z) temp))
-      temp))
-  (reverse temp))
-
-           
 ;; their intersection won't work on :test #'equal
 (defun our-intersection (x y)
   (intersection (flatten x) (flatten y)))
@@ -248,6 +190,9 @@
 
 
 ;;;CURRENTS
+;;;  We eventually want to get rid of this, but in the mean time,
+;;;  make it work with the new notation.
+
 (def-psmclass current-thru-what (current-thru-what ?what ?branch ?t) 
   :complexity minor 
   :short-name "current in branch"
@@ -255,35 +200,42 @@
   :Expformat ("Relating the current through ~A to the current in the branch containing it" ?what)
   :eqnFormat ("Icomp = Ibranch"))
 
-(defoperator current-pt-or-comp-contains (?sought)
+(defoperator current-thru-what-contains (?sought)
   :preconditions (
-		  (any-member ?sought ((current-thru ?what :time ?t)))
-		  (branch ?branch ?dontcare1 ?dontcare2 ?path)
-		  (test (member ?what ?path :test #'equal) )
+		  ;; note that ?t may be timeless
+		  (any-member ?sought ((current-thru ?branch :time ?t)
+				       (current-thru ?what :time ?t)))
+		  (branch ?name ?dontcare1 ?dontcare2 ?path)
+		  (path-to-branch ?branch ?path)
+		  (circuit-component ?what ?comp-type)
+		  (test (member ?comp-type '(resistor inductor)))
+		  (test (member ?what ?branch :test #'equal))
 		  )
   :effects (
 	    (eqn-contains (current-thru-what ?what ?branch ?t) ?sought)
 	    ))
 
-(defoperator current-in-branch-same-resistor-contains (?sought)
-  :preconditions (
-		  ;; note that ?t may be timeless
-		  (any-member ?sought ((current-in ?branch :time ?t)))
-		  (branch ?branch ?dontcare1 ?dontcare2 ?path)
-		  (circuit-component ?what ?comp-type)
-		  (test (member ?comp-type '(resistor inductor)))
-		  (test (member ?what ?path :test #'equal))
-		  )
-  :effects (
-	    (eqn-contains (current-thru-what ?what ?branch ?t) ?sought)
-	    ))
+(defoperator relate-path-and-branch (?path)
+  :preconditions
+  (
+   ;; the ?path contains junctions and other objects
+   ;; the ?branch contains objects in the path that have been
+   ;; declared components.
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   ;; find all circuit components in ?path to construct the ?branch
+   ;; order of branch is given by order in ?path
+   (setof (circuit-component ?compo ?type) ?compo ?compos)
+   (bind ?branch (remove-if-not #'(lambda (x) (member x ?compos)) ?path))
+   )
+  :effects ((path-to-branch ?branch ?path)))   
 
 (defoperator write-current-thru-what (?what ?branch ?t)
   :specifications "doc"
-  :preconditions (
-		  (variable ?i-what-var (current-thru ?what :time ?t))
-		  (variable ?i-br-var (current-in ?branch :time ?t))
-		  )
+  :preconditions 
+  (
+   (variable ?i-what-var (current-thru ?what :time ?t))
+   (variable ?i-br-var (current-thru ?branch :time ?t))
+   )
   :effects (
 	    (eqn (= ?i-what-var ?i-br-var) (current-thru-what ?what ?branch ?t))
 	    )
@@ -293,19 +245,6 @@
 	(teach (string "The current through a circuit component is equal to the current through the branch of the circuit containing the component."))
 	(bottom-out (string "The current through the component, ~a is the same as the current through the branch of the circuit, ~a." (?i-what-var algebra) (?i-br-var algebra)))
 	))
-
-
-(defoperator current-in-branch-contains (?sought)
-  :preconditions (
-		  ;; note that ?t may be timeless
-		  (any-member ?sought ((current-in ?branch :time ?t)))
-		  (setf ?res-list (explode-resistors ?branch))
-		  (branch ?branch ?dontcare1 ?dontcare2 ?path)
-		  )
-  :effects (
-	    (resistance ?res-list)
-	    (eqn-contains (equiv-resistance-series ?res-list) ?sought)
-	    ))
 
 (defoperator define-current-thru (?what ?t)
   :preconditions 
@@ -326,30 +265,10 @@
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting current." 
 			     ((current-thru ?what :time ?t) def-np)))
 	 ))
-		       
 
-(defoperator define-current-in (?branch ?t)
-  :preconditions 
-  (
-   ;; only use time when allowed by feature changing-voltage
-   (test (eq (null ?t) 
-	     (null (member 'changing-voltage (problem-features *cp*)))))
-   (bind ?i-br-var (format-sym "I_~A~@[_~A~]" ?branch (time-abbrev ?t)))
-   (in-wm (branch ?branch . ?rest))  ; sanity test
-   ;; make sure that the student can define this quantity in the Workbench
-   (test (or (member ?branch 
-		     (second (find 'branches (problem-choices *cp*) 
-				   :key #'first)))
-	     (error "Branch ~A not in list of :choices" ?branch)))
-   )
-  :effects (
-	    (variable ?i-br-var (current-in ?branch :time ?t))
-	    (define-var (current-in ?branch :time ?t))
-	    )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting current." 
-			     ((current-in ?branch :time ?t) def-np)))
-	 ))
+;;;
+;;;     Ohm's law
+;;;		       
 
 (def-psmclass ohms-law (ohms-law ?res ?t) 
   :complexity definition
@@ -393,7 +312,6 @@
 		 ;; if we want to use branch current var:
 		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
 		 ;;(test (member ?res ?path))
-		 ;;(variable ?i-var (current-in ?br-res :time ?t))
 		 (variable ?r-var (resistance ?res))
 		 (any-member ?tot (?t nil)) 
 		 (variable ?i-var (current-thru ?res :time ?tot))
@@ -419,35 +337,37 @@
   :eqnFormat ("Iequiv = Iorig"))
              
 (defoperator currents-same-equivalent-branches-contains (?sought)
-  :preconditions(
-		 ;; note that ?t may be timeless (nil)
-		 (any-member ?sought ((current-in ?br-res :time ?t)
-				      (current-in ?br-res2 :time ?t)))
-		 (solve-using-both-methods)
-		 (branch ?br-res given ?dontcare1 ?path1)
-		 (branch ?br-res2 combined ?dontcare1 ?path2)
-		 (setof (circuit-component ?comp1 ?dontcare4) ?comp1 ?all-comps)
-		 (bind ?path-comps1 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						   ?path1))
-		 (bind ?path-comps2 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						   ?path2))
-		 (test (or (equal (car ?path-comps1) ?path-comps2) 
-			   (equal (car ?path-comps2) ?path-comps1)))
-		 (test (eq (car ?path1) (car ?path2)))
-		 (test (eq (car (reverse ?path1)) (car (reverse ?path2))))          
-		 )
-  :effects(
-	   (eqn-contains (currents-same-equivalent-branches ?br-res ?br-res2 ?t) ?sought)
-	   ))
+  :preconditions
+  (
+   ;; note that ?t may be timeless (nil)
+   (any-member ?sought ((current-thru ?branch1 :time ?t)
+			(current-thru ?branch2 :time ?t)))
+   (solve-using-both-methods)
+   (branch ?name1 given ?dontcare1 ?path1)
+   (branch ?name2 combined ?dontcare1 ?path2)
+   (path-to-branch ?branch1 ?path1)
+   (path-to-branch ?branch2 ?path2)
+   (test (or (equal (car ?branch1) ?branch2) 
+	     (equal (car ?branch2) ?branch1)))
+   (test (eq (car ?path1) (car ?path2)))
+   (test (eq (car (reverse ?path1)) (car (reverse ?path2))))          
+   )
+  :effects
+  (
+   (eqn-contains (currents-same-equivalent-branches ?branch1 ?branch2 ?t) 
+		 ?sought)
+   ))
 
-(defoperator currents-same-equivalent-branches (?br-res ?br-res2 ?t)
+(defoperator currents-same-equivalent-branches (?branch1 ?branch2 ?t)
   :preconditions (
-		  (variable ?i-var1 (current-in ?br-res :time ?t))
-		  (variable ?i-var2 (current-in ?br-res2 :time ?t))
+		  (variable ?i-var1 (current-thru ?branch1 :time ?t))
+		  (variable ?i-var2 (current-thru ?branch2 :time ?t))
 		  )
-  :effects (
-	    (eqn (= ?i-var1 ?i-var2) (currents-same-equivalent-branches ?br-res ?br-res2 ?t))
-	    )
+  :effects 
+  (
+   (eqn (= ?i-var1 ?i-var2) (currents-same-equivalent-branches 
+			     ?branch1 ?branch2 ?t))
+   )
   :hint(
 	(point (string "What do you know about the current through a set of series resistors and the current through the equivalent resistor?"))
 	(point (string "Consider the branch ~a and the branch ~a." (?br-res adj) (?br-res2 adj)))
@@ -504,13 +424,9 @@
   (
    (branch ?br1 ?dontcare1 open ?path1)
    (branch ?br2 ?dontcare2 open ?path2)
-   ;; test not a self loop
-   (setof (circuit-component ?comp1 ?dontcare4) ?comp1 ?all-comps)
-   (bind ?path-comps1 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-				     ?path1))
-   (bind ?path-comps2 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-				     ?path2))
-                       
+   (path-to-branch ?path-comps1 ?path1)
+   (path-to-branch ?path-comps2 ?path2)
+   ;;                       
    (test (null (and (our-intersection ?path-comps1 ?path2)
 		    (our-intersection ?path-comps2 ?path1))))
                              
@@ -538,114 +454,104 @@
 	    ))
 
 (defoperator form-three-branch-loop (?br1 ?br2)
-  :preconditions (
-		  (branch ?br1 ?dontcare1 open ?path1)
-		  (branch ?br2 ?dontcare2 open ?path2)
-		  (branch ?br3 ?dontcare3 open ?path3)
-		  ;; only try if branch names are in loop-id order
-		  (test (and (expr< ?br1 ?br2) (expr< ?br2 ?br3)))
- 
-		  ;;(test (and (not (equal ?br1 ?br2))
-		  ;;               (not (equal ?br2 ?br3))
-		  ;;               (not (equal ?br3 ?br1))))
-		  ;; test not a self loop
-		  (setof (circuit-component ?comp1 ?dontcare4) ?comp1 ?all-comps)
-		  (bind ?path-comps1 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						    ?path1))
-		  (bind ?path-comps2 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						    ?path2))
-		  (bind ?path-comps3 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						    ?path3))
-
-		  (test (null (and (our-intersection ?path-comps1 ?path2)
-				   (our-intersection ?path-comps1 ?path3)
-				   (our-intersection ?path-comps2 ?path3)
-				   )))
+  :preconditions 
+  (
+   (branch ?br1 ?dontcare1 open ?path1)
+   (branch ?br2 ?dontcare2 open ?path2)
+   (branch ?br3 ?dontcare3 open ?path3)
+   ;; only try if branch names are in loop-id order
+   (test (and (expr< ?br1 ?br2) (expr< ?br2 ?br3)))
+   
+   ;;(test (and (not (equal ?br1 ?br2))
+   ;;               (not (equal ?br2 ?br3))
+   ;;               (not (equal ?br3 ?br1))))
+   ;; test not a self loop
+   (path-to-branch ?path-comps1 ?path1)
+   (path-to-branch ?path-comps2 ?path2)
+   (path-to-branch ?path-comps3 ?path3)
+   ;;
+   (test (null (and (our-intersection ?path-comps1 ?path2)
+		    (our-intersection ?path-comps1 ?path3)
+		    (our-intersection ?path-comps2 ?path3)
+		    )))
+   
+   
+   ;; test paths are connected. Two cases, depending on whether
+   ;; path2 or (reverse path2) is needed to make a closed loop
+   (test (and (equal (car (last ?path1)) (first ?path2))
+	      (equal (car (last ?path2)) (first ?path3))
+	      (equal (car (last ?path3)) (first ?path1))))
+   
+   ;; loop-id is sorted branch list
+   (bind ?branch-list (list ?br1 ?br2 ?br3))
+   
+   ;; build loop path. Duplicate starting point at end to ensure all
+   ;; components have two terminal points in path.
+   (bind ?path-comps4 (append ?path-comps1 ?path-comps2))
+   (bind ?loop-path (append ?path1 (subseq ?path2 1) (subseq ?path3 1)))
                              
-                            
-		  ;; test paths are connected. Two cases, depending on whether
-		  ;; path2 or (reverse path2) is needed to make a closed loop
-		  (test (and (equal (car (last ?path1)) (first ?path2))
-			     (equal (car (last ?path2)) (first ?path3))
-			     (equal (car (last ?path3)) (first ?path1))))
-                                        
-		  ;; loop-id is sorted branch list
-		  (bind ?branch-list (list ?br1 ?br2 ?br3))
-                             
-		  ;; build loop path. Duplicate starting point at end to ensure all
-		  ;; components have two terminal points in path.
-		  (bind ?path-comps4 (append ?path-comps1 ?path-comps2))
-		  (bind ?loop-path (append ?path1 (subseq ?path2 1) (subseq ?path3 1)))
-                             
-		  (bind ?reversed 0)	;did not reverse
-		  ;; (bind ?reversed (if (not (equal (first ?path1) (first ?path2))) 0 1))
-		  )
-  :effects (
-	    (closed-loop ?branch-list ?path-comps4 ?path-comps3 ?loop-path ?reversed)
-	    ))
+   (bind ?reversed 0)	;did not reverse
+   ;; (bind ?reversed (if (not (equal (first ?path1) (first ?path2))) 0 1))
+   )
+  :effects 
+  (
+   (closed-loop ?branch-list ?path-comps4 ?path-comps3 ?loop-path ?reversed)
+   ))
 
 (defoperator form-four-branch-loop (?br1 ?br2)
-  :preconditions (
-		  (branch ?br1 ?dontcare1 open ?path1)
-		  (branch ?br2 ?dontcare2 open ?path2)
-		  (branch ?br3 ?dontcare3 open ?path3)
-		  (branch ?br4 ?dontcare4 open ?path4)
-		  ;; only try if branch names are in loop-id order
-		  (test (and (expr< ?br1 ?br2) (expr< ?br2 ?br3) (expr< ?br3 ?br4)))
-
-		  (test (and (= (length (intersection ?path1 ?path2)) 1)
-			     (= (length (intersection ?path2 ?path3)) 1)
-			     (= (length (intersection ?path3 ?path4)) 1)
-			     (= (length (intersection ?path1 ?path4)) 1)
-			     (= (length (intersection ?path2 ?path4)) 0)
-			     (= (length (intersection ?path1 ?path3)) 0)
-			     ))
-
-
-
-		  ;; test not a self loop
-		  (setof (circuit-component ?comp1 ?dontcare5) ?comp1 ?all-comps)
-		  (bind ?path-comps1 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						    ?path1))
-		  (bind ?path-comps2 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						    ?path2))
-		  (bind ?path-comps3 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						    ?path3))
-		  (bind ?path-comps4 (remove-if-not #'(lambda(elt) (member elt ?all-comps :test #'equal)) 
-						    ?path4))
-
-
-
-		  (test (null (and (our-intersection ?path-comps1 ?path2)
-				   (our-intersection ?path-comps1 ?path3)
-				   (our-intersection ?path-comps1 ?path4)
-				   (our-intersection ?path-comps2 ?path3)
-				   (our-intersection ?path-comps2 ?path4)
-				   (our-intersection ?path-comps3 ?path4)
-				   )))
-
-                             
-		  ;; test paths are connected. Two cases, depending on whether
-		  ;; path2 or (reverse path2) is needed to make a closed loop
-		  (test (and (equal (car (last ?path1)) (first ?path2))
-			     (equal (car (last ?path2)) (first ?path3))
-			     (equal (car (last ?path3)) (first ?path4))
-			     (equal (car (last ?path4)) (first ?path1))))
-                                       
-		  ;; loop-id is sorted branch list
-		  (bind ?branch-list (list ?br1 ?br2 ?br3 ?br4))
-                             
-		  ;; build loop path. Duplicate starting point at end to ensure all
-		  ;; components have two terminal points in path.
-		  (bind ?path-comps5 (append ?path-comps1 ?path-comps2))
-		  (bind ?path-comps6 (append ?path-comps3 ?path-comps4))
-		  (bind ?loop-path (append ?path1 (subseq ?path2 1) (subseq ?path3 1) (subseq ?path4 1)))
-                             
-		  (bind ?reversed 0)	;did not reverse
-		  )
-  :effects (
-	    (closed-loop ?branch-list ?path-comps5 ?path-comps6 ?loop-path ?reversed)
-	    ))
+  :preconditions 
+  (
+   (branch ?br1 ?dontcare1 open ?path1)
+   (branch ?br2 ?dontcare2 open ?path2)
+   (branch ?br3 ?dontcare3 open ?path3)
+   (branch ?br4 ?dontcare4 open ?path4)
+   ;; only try if branch names are in loop-id order
+   (test (and (expr< ?br1 ?br2) (expr< ?br2 ?br3) (expr< ?br3 ?br4)))
+   
+   (test (and (= (length (intersection ?path1 ?path2)) 1)
+	      (= (length (intersection ?path2 ?path3)) 1)
+	      (= (length (intersection ?path3 ?path4)) 1)
+	      (= (length (intersection ?path1 ?path4)) 1)
+	      (= (length (intersection ?path2 ?path4)) 0)
+	      (= (length (intersection ?path1 ?path3)) 0)
+	      ))
+   
+   ;; test not a self loop
+   (path-to-branch ?path-comps1 ?path1)
+   (path-to-branch ?path-comps2 ?path2)
+   (path-to-branch ?path-comps3 ?path3)
+   (path-to-branch ?path-comps4 ?path4)
+   
+   (test (null (and (our-intersection ?path-comps1 ?path2)
+		    (our-intersection ?path-comps1 ?path3)
+		    (our-intersection ?path-comps1 ?path4)
+		    (our-intersection ?path-comps2 ?path3)
+		    (our-intersection ?path-comps2 ?path4)
+		    (our-intersection ?path-comps3 ?path4)
+		    )))
+  
+   ;; test paths are connected. Two cases, depending on whether
+   ;; path2 or (reverse path2) is needed to make a closed loop
+   (test (and (equal (car (last ?path1)) (first ?path2))
+	      (equal (car (last ?path2)) (first ?path3))
+	      (equal (car (last ?path3)) (first ?path4))
+	      (equal (car (last ?path4)) (first ?path1))))
+   
+   ;; loop-id is sorted branch list
+   (bind ?branch-list (list ?br1 ?br2 ?br3 ?br4))
+   
+   ;; build loop path. Duplicate starting point at end to ensure all
+   ;; components have two terminal points in path.
+   (bind ?path-comps5 (append ?path-comps1 ?path-comps2))
+   (bind ?path-comps6 (append ?path-comps3 ?path-comps4))
+   (bind ?loop-path (append ?path1 (subseq ?path2 1) (subseq ?path3 1) (subseq ?path4 1)))
+   
+   (bind ?reversed 0)	;did not reverse
+   )
+  :effects 
+  (
+   (closed-loop ?branch-list ?path-comps5 ?path-comps6 ?loop-path ?reversed)
+   ))
 
 
 (defoperator write-loop-rule-resistors (?branch-list ?t)
@@ -816,7 +722,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(def-psmclass junction-rule  (junction-rule ?br-list1 ?br-list2 ?t)  
+(def-psmclass junction-rule  (junction-rule ?junction ?t)  
   :complexity major 
   :short-name "Kirchoff's junction rule"
   :english ("Kirchoff's junction rule")
@@ -825,31 +731,45 @@
 (defoperator junction-rule-contains (?Sought)
   :preconditions 
   (
-   (in-branches ?jun ?br-list1)
-   (out-branches ?jun ?br-list2)
    ;; note that ?t may end up being timeless
-   (any-member ?sought ((current-in ?branch :time ?t)))
-   (test (or (member ?branch ?br-list1) (member ?branch ?br-list2)))
+   (any-member ?sought ((current-thru ?branch :time ?t)))
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   (path-to-branch ?branch ?path)
+   (junction ?junction ?names)
+   (test (member ?name ?names))
+   ;; sanity test
+   (test (or (equal ?junction (car ?path)) 
+	     (equal ?junction (car (last ?path))) 
+	     (error "improperly formed junction")))
    )
   :effects (
-	    (eqn-contains (junction-rule ?br-list1 ?br-list2 ?t) ?sought)
+	    (eqn-contains (junction-rule ?junction ?t) ?sought)
 	    ))
 
-(defoperator junction-rule (?br-list1 ?br-list2 ?t)
-  :preconditions (
-		  ;;find the in branches current variables
-		  (map ?br ?br-list1
-		       (variable ?v-var (current-in ?br :time ?t))
-		       ?v-var ?v-in-br-vars)
-                             
-		  ;;find the out branches current variables
-		  (map ?br ?br-list2
-		       (variable ?v-var (current-in ?br :time ?t))
-		       ?v-var ?v-out-br-vars)
-		  )
+(defoperator write-junction-rule (?junction ?t)
+  :preconditions 
+  (
+   (junction ?junction ?names)
+   (map ?name ?names (branch ?name ?whatever1 ?whatever2 ?path) ?path ?paths)
+   (bind ?in-paths (remove ?junction ?paths :key #'car :test #'equal))
+   (bind ?out-paths (remove ?junction ?paths :key #'(lambda (x) (car (last x))) 
+			    :test #'equal))
+   ;; find the branch names
+   (map ?in-path ?in-paths
+	(path-to-branch ?in-branch ?in-path) ?in-branch ?in-branches)
+   (map ?out-path ?out-paths
+	(path-to-branch ?out-branch ?out-path) ?out-branch ?out-branches)
+   ;; find the variable names
+   (map ?in-branch ?in-branches
+	(variable ?in-var (current-thru ?in-branch :time ?t))
+		       ?in-var ?in-vars)
+   (map ?out-branch ?out-branches
+	(variable ?out-var (current-thru ?out-branch :time ?t))
+		       ?out-var ?out-vars)
+   )
   :effects (
-	    (eqn (= (+ . ?v-in-br-vars) (+ . ?v-out-br-vars))
-		 (junction-rule ?br-list1 ?br-list2 ?t))
+	    (eqn (= (+ . ?in-vars) (+ . ?out-vars))
+		 (junction-rule ?junction ?t))
 	    )
   :hint(
 	(point (string "Apply Kirchhoff's Junction Rule to this circuit."))
@@ -857,45 +777,8 @@
 	(teach (string "The sum of the currents into a junction must equal the sum of the currents out of the junction."))
 	(teach (string "Set the sum of the currents into the junction equal to the sum of the currents out of the junction."))
 	(bottom-out (string "Write the equation ~A"
-			    ((= (+ . ?v-in-br-vars) (+ . ?v-out-br-vars)) algebra) ))
+			    ((= (+ . ?in-vars) (+ . ?out-vars)) algebra) ))
 	))
-
-
-(defoperator find-out-branches ()
-  :preconditions (
-		  (junction ?jun ?br-list)                        
-		  ;; find all branches 
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?name ?all-names)
-
-		  ;; find all the paths
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?path ?all-paths)
-		  (bind ?out-br (get-out-br ?br-list ?all-names ?all-paths ?jun)) 
-		  (test (not (equal nil ?out-br)))
-		  )
-  :effects (
-	    (out-branches ?jun ?out-br)
-	    ))
-
-
-(defoperator find-in-branches ()
-  :preconditions (
-		  (junction ?jun ?br-list)                        
-		  ;; find all branches 
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?name ?all-names)
-
-		  ;; find all the paths
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?path ?all-paths)
-		  (bind ?in-br (get-in-br ?br-list ?all-names ?all-paths ?jun))
-		  (test (not (equal nil ?in-br)))
-		  )
-  :effects(
-	   (in-branches ?jun ?in-br)
-	   ))
-
 
 ;;;EQUIVALENT CAPACITORS
 (defoperator define-capacitance-var (?cap)   
@@ -1180,41 +1063,6 @@
 	))
 
 
-(defoperator find-out-paths ()
-  :preconditions (
-		  (junction ?jun ?br-list)                        
-		  ;; find all branches 
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?name ?all-names)
-
-		  ;; find all the paths
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?path ?all-paths)
-
-		  (bind ?out-path (get-out-paths ?br-list ?all-names ?all-paths ?jun)) 
-		  (test (not (equal nil ?out-path)))
-		  )
-  :effects (
-	    (out-paths ?jun ?out-path)
-	    ))
-
-
-(defoperator find-in-paths ()
-  :preconditions (
-		  (junction ?jun ?br-list)                        
-		  ;; find all branches 
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?name ?all-names)
-
-		  ;; find all the paths
-		  (setof (in-wm (branch ?name given ?dontcare ?path))
-			 ?path ?all-paths)
-		  (bind ?in-path (get-in-paths ?br-list ?all-names ?all-paths ?jun))
-		  (test (not (equal nil ?in-path)))
-		  )
-  :effects(
-	   (in-paths ?jun ?in-path)
-	   ))
 
 
 (def-psmclass charge-same-caps-in-branch (charge-same-caps-in-branch ?caps ?t) 
@@ -2027,9 +1875,9 @@
 
 (defoperator write-LR-time-constant (?ind ?res)
   :preconditions (
-		  (variable ?tau     (time-constant orderless ?ind ?res))
-		  (variable ?L-var   (self-inductance ?ind))
-		  (variable ?r-var   (resistance ?res))
+		  (variable ?tau (time-constant orderless ?ind ?res))
+		  (variable ?L-var (self-inductance ?ind))
+		  (variable ?r-var (resistance ?res))
 		  )
   :effects (
 	    (eqn (= ?tau (/ ?L-var ?R-var)) (LR-time-constant ?ind ?res))
@@ -2041,44 +1889,52 @@
 	 ))
 
 
-(def-psmclass LR-current-growth (LR-current-growth ?ind ?res ?time) 
+(def-psmclass LR-current-growth (LR-current-growth ?branch ?time) 
   :complexity major
   :short-name "LR current growth"
   :english ("current growth in an LR circuit")
   :eqnFormat ("I = Imax*(1 - exp(-t/$t))"))
 
 (defoperator LR-current-growth-contains (?sought)
-  :preconditions(
-					; Following in the givens tells us that circuit and switch
-					; are configured so current grows during this interval.
-		 (LR-current-growth ?branch (during ?t1 ?tf))
-		 (circuit-component ?ind inductor)
-		 (circuit-component ?res resistor)
-		 (any-member ?sought ((current-in ?branch :time ?t2)
-				      (duration (during ?t1 ?t2))
-				      (time-constant orderless ?ind ?res)
-				      ))
-					; this applies to any t2 between t1 and tf
-		 (time ?t2)	       ; have to bind if sought is tau
-		 (test (time-pointp ?t2))
-		 (test (< ?t2 ?tf))
-		 )
+  :preconditions
+  (
+   ;; Following in the givens tells us that circuit and switch
+   ;; are configured so current grows during this interval.
+   (LR-current-growth ?name (during ?t1 ?tf))
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   (path-to-branch ?branch ?path)
+   (circuit-component ?res resistor)
+   (circuit-component ?ind inductor)
+   (test (member ?res ?branch))
+   (test (member ?ind ?branch))
+   (any-member ?sought ((current-thru ?branch :time ?t2)
+			(duration (during ?t1 ?t2))
+			(time-constant orderless ?ind ?res)
+			))
+   ;; this applies to any t2 between t1 and tf
+   (time ?t2)	       ; have to bind if sought is tau
+   (test (time-pointp ?t2))
+   (test (< ?t2 ?tf))
+   )
   :effects(
-	   (eqn-contains (LR-current-growth ?ind ?res (during ?t1 ?t2)) ?sought)
+	   (eqn-contains (LR-current-growth ?branch (during ?t1 ?t2)) ?sought)
 	   ))
 
 (defoperator LR-current-growth (?ind ?res ?t1 ?t2)
-  :preconditions (
-		  (LR-current-growth ?branch (during ?t1 ?tf))
-		  (circuit-component ?bat battery)
-		  (variable ?i-var (current-in ?branch :time ?t2))
-		  (variable ?Imax-var (current-in ?branch :time ?tf))
-		  (variable ?t-var (duration (during ?t1 ?t2)))
-		  (variable ?tau-var (time-constant orderless ?ind ?res))
-		  )
+  :preconditions 
+  (
+   (variable ?i-var (current-thru ?branch :time ?t2))
+   (variable ?Imax-var (current-thru ?branch :time ?tf))
+   (variable ?t-var (duration (during ?t1 ?t2)))
+   (circuit-component ?res resistor)
+   (circuit-component ?ind inductor)
+   (test (member ?res ?branch))
+   (test (member ?ind ?branch))
+   (variable ?tau-var (time-constant orderless ?ind ?res))
+   )
   :effects (
 	    (eqn (= ?i-var (* ?Imax-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
-		 (LR-current-growth ?ind ?res (during ?t1 ?t2)))  
+		 (LR-current-growth ?branch (during ?t1 ?t2)))  
 	    )
   :hint(
 	(point (string "After the battery is switched in, the current in an LR circuit rises towards its maximum value as an exponential function of time"))
@@ -2087,46 +1943,56 @@
 			    ((= ?i-var (* ?Imax-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
 	))
 
-					; Formula Imax = Vb/R is true for both LR growth and decay, but we treat as two psms because we
-					; show different variables in the two cases, "If" for growth vs. "I0" for decay.
-					; Whether it is best to treat as two psms or one w/two ways of writing the equation depends 
-					; mainly on how we want our review page to look.
+;; Formula Imax = Vb/R is true for both LR growth and decay, 
+;; but we treat as two psms because we show different variables in 
+;; the two cases, "If" for growth vs. "I0" for decay.
+;; Whether it is best to treat as two psms or one w/two ways of writing 
+;; the equation depends mainly on how we want our review page to look.
 
-(def-psmclass LR-growth-Imax (LR-growth-Imax ?time)
+(def-psmclass LR-growth-Imax (LR-growth-Imax ?branch ?time)
   :complexity major 
   :short-name "LR growth final current"
   :english ("LR circuit growth final current")
   :eqnFormat ("Imax = Vb/R"))
 
 (defoperator LR-growth-Imax-contains (?sought)
-  :preconditions (
-					; have to be told we have LR-current growth over interval
-		  (LR-current-growth ?branch (during ?ti ?tf))
-		  (any-member ?sought ( (current-in ?branch :time ?tf)
-					(voltage-across ?bat) (during ?ti ?tf))
-			      (resistance ?res) )
-		  )
-  :effects (  (eqn-contains (LR-growth-Imax (during ?ti ?tf)) ?sought) ))
+  :preconditions 
+  (
+   ;; have to be told we have LR-current growth over interval
+   (LR-current-growth ?name (during ?ti ?tf))
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   (path-to-branch ?branch ?path)
+   (any-member ?sought ( (current-thru ?branch :time ?tf)
+			 (voltage-across ?bat :time (during ?ti ?tf))
+			 (resistance ?res) ))
+   (circuit-component ?res resistor)
+   (circuit-component ?bat battery)
+   (test (member ?res ?branch))
+   (test (member ?bat ?branch))
+   )
+  :effects 
+  (  (eqn-contains (LR-growth-Imax ?branch (during ?ti ?tf)) ?sought) ))
 
-(defoperator LR-growth-Imax (?ti ?tf)
+(defoperator LR-growth-Imax (?branch ?ti ?tf)
   :preconditions (
-		  (LR-current-growth ?branch (during ?ti ?tf))
 		  (circuit-component ?res resistor)
 		  (circuit-component ?bat battery)
-		  (variable ?Imax-var (current-in ?branch :time ?tf))
+		  (test (member ?res ?branch))
+		  (test (member ?bat ?branch))
+		  (variable ?Imax-var (current-thru ?branch :time ?tf))
 		  (variable ?v-var (voltage-across ?bat :time (during ?ti ?tf)))
 		  (variable ?r-var (resistance ?res))
 		  )
-  :effects ( (eqn (= ?Imax-var (/ ?v-var ?r-var)) (LR-growth-Imax (during ?ti ?tf))) )
+  :effects ( (eqn (= ?Imax-var (/ ?v-var ?r-var)) 
+		  (LR-growth-Imax ?branch (during ?ti ?tf))) )
   :hint (
 	 (point (string "What must the maximum value of the current be?"))
 	 (point (string "At its maximum value, the current in an LR circuit is nearly constant, so there is no EMF due to the inductor. Since the only source of EMF at this time is the battery, Ohm's Law V = I*R determines the current through the resistor to be the battery voltage divided by resistance."))
 	 (bottom-out (string "Write the equation ~a" ((= ?Imax-var (/ ?v-var ?r-var)) algebra)))
 	 ))
 
-					; LR circuit decay:
-
-(def-psmclass LR-current-decay (LR-current-decay ?ind ?res ?time) 
+;; LR circuit decay:
+(def-psmclass LR-current-decay (LR-current-decay ?branch ?time) 
   :complexity major
   :short-name "LR current decay"
   :english ("current decay in an LR circuit")
@@ -2137,35 +2003,42 @@
   (
    ;; Following in the givens tells us that circuit and switch
    ;; are configured so current decays during this interval.
-   (LR-current-decay ?branch (during ?t1 ?tf))
-   (circuit-component ?res resistor)
+   (LR-current-decay ?name (during ?t1 ?tf))
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   (path-to-branch ?branch ?path)
+   (circuit-comonent ?res resistor)
    (circuit-component ?ind inductor)
-   (any-member ?sought ((current-in ?branch :time ?t2)
+   (test (member ?res ?branch))
+   (test (member ?ind ?branch))
+   (any-member ?sought ((current-thru ?branch :time ?t2)
 			(duration (during ?t1 ?t2))
-			(time-constant orderless ?ind ?res)
+			(time-constant orderless ?res ?ind)
 			;; also contains I0
 			))
    ;; this applies to any t2 between t1 and tf
    (test (time-pointp ?t2))
    (test (<= ?t2 ?tf))
    )
-  :effects(
-	   (eqn-contains (LR-current-decay ?ind ?res (during ?t1 ?t2)) ?sought)
-	   ))
+  :effects
+  (
+   (eqn-contains (LR-current-decay ?branch (during ?t1 ?t2)) ?sought)
+   ))
 
-(defoperator LR-current-decay (?ind ?res ?t1 ?t2)
+(defoperator write-LR-current-decay (?ind ?res ?t1 ?t2)
   :preconditions 
   (
-   (LR-current-decay ?branch (during ?t1 ?tf))
-   (circuit-component ?bat battery)
-   (variable ?i-var (current-in ?branch :time ?t2))
-   (variable ?I0-var (current-in ?branch :time ?t1))
-   (variable ?t-var (duration (during ?t1 ?t2)))
+   (variable ?i-var (current-thru ?branch :time ?t2))
+   (variable ?I0-var (current-thru ?branch :time ?t1))
+   (variable ?t-var (duration (during ?t1 ?t2))) 
+   (circuit-component ?res resistor)
+   (circuit-component ?ind inductor)
+   (test (member ?res ?branch))
+   (test (member ?ind ?branch))
    (variable ?tau-var (time-constant orderless ?ind ?res))
    )
   :effects (
 	    (eqn (= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var))))
-		 (LR-current-decay ?ind ?res (during ?t1 ?t2)))  
+		 (LR-current-decay ?branch (during ?t1 ?t2)))  
 	    )
   :hint(
 	(point (string "When the battery is switched out, the initial current in an LR circuit decays towards zero as an exponential function of time"))
@@ -2174,32 +2047,42 @@
 			    ((= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
 	))
 
-(def-psmclass LR-decay-Imax (LR-growth-Imax ?time)
+(def-psmclass LR-decay-Imax (LR-growth-Imax ?branch ?time)
   :complexity major 
   :short-name "LR circuit initial current"
   :english ("LR circuit initial current")
   :eqnFormat ("I0 = Vb/R"))
 
 (defoperator LR-decay-Imax-contains (?sought)
-  :preconditions (
-					; have to be told we have LR-current decay over interval
-		  (LR-current-decay ?branch (during ?ti ?tf))
-		  (any-member ?sought ( (current-in ?branch :time ?ti)
-					(voltage-across ?bat) (during ?ti ?tf))
-			      (resistance ?res) )
-		  )
-  :effects (  (eqn-contains (LR-decay-Imax (during ?ti ?tf)) ?sought) ))
+  :preconditions 
+  (
+   ;; have to be told we have LR-current decay over interval
+   (LR-current-decay ?name (during ?ti ?tf))
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   (path-to-branch ?branch ?path)
+   (any-member ?sought ( (current-thru ?branch :time ?ti)
+			 (voltage-across ?bat :time (during ?ti ?tf))
+			 (resistance ?res) ))
+   (circuit-component ?res resistor)
+   (circuit-component ?bat battery)
+   (test (member ?res ?branch))
+   (test (member ?bat ?branch))
+   )
+  :effects (  (eqn-contains (LR-decay-Imax ?branch (during ?ti ?tf)) ?sought) ))
 
-(defoperator LR-decay-Imax (?ti ?tf)
+(defoperator LR-decay-Imax (?branch ?ti ?tf)
   :preconditions (
-		  (LR-current-decay ?branch (during ?ti ?tf))
 		  (circuit-component ?res resistor)
 		  (circuit-component ?bat battery)
-		  (variable ?Imax-var (current-in ?branch :time ?ti))
+		  (test (member ?res ?branch))
+		  (test (member ?bat ?branch))
+		  (variable ?Imax-var (current-thru ?branch :time ?ti))
 		  (variable ?v-var (voltage-across ?bat :time (during ?ti ?tf)))
 		  (variable ?r-var (resistance ?res))
 		  )
-  :effects ( (eqn (= ?Imax-var (/ ?v-var ?r-var)) (LR-decay-Imax (during ?ti ?tf))) )
+  :effects 
+  ( (eqn (= ?Imax-var (/ ?v-var ?r-var)) 
+	 (LR-decay-Imax ?branch (during ?ti ?tf))) )
   :hint (
 	 (point (string "What is the initial value of the current when the switch is opened?"))
 	 (point (string "At its maximum value, the current in an LR circuit is nearly constant, so there is no EMF due to the inductor. Since the only source of EMF at this time is the battery, Ohm's Law V = I*R determines the current through the resistor to be the battery voltage divided by resistance."))

@@ -19,17 +19,20 @@
   :units |$W|
   :english ("the resistance of ~A" (conjoined-names ?names)))
 
+;;  The dialog box should look something like the resistance dialog box.
+;;  After the student makes an entry, however, the helpsystem should
+;;  match the student entry to any system entry that contains all of the 
+;;  components selected by the student as a subset.
 (def-qexp current-thru (current-thru ?component :time ?time)
-  ;; custom dialog box "current"
+  :symbol-base |I| 
+  :short-name "current"
+  ;; custom dialog box, need something here to make entry in scalars.tsv
+  :dialog-text ""  
   :units |A|
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
-  :english ("the current through ~A~@[ ~A~]" ?component (nlg ?time 'pp)))
-
-(def-qexp current-in (current-in ?branch :time ?time)
-  ;; custom dialog box "current"
-  :units |A|
-  :english ("the current in branch ~A~@[ ~A~]" ?branch (nlg ?time 'pp)))
+  :english ("the current through ~A~@[ ~A~]" (conjoined-names ?component) 
+	    (nlg ?time 'pp)))
 
 (def-qexp capacitance (capacitance ?name)
   :symbol-base |C|     
