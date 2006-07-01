@@ -262,7 +262,7 @@
    )
   :effects (
 	    (variable ?i-what-var (current-thru ?what :time ?t))
-	    (define-var  (current-thru ?what :time ?t))
+	    (define-var (current-thru ?what :time ?t))
 	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting current." 
@@ -2106,6 +2106,7 @@
    (any-member ?sought ( (voltage-across ?comp :time ?t ?t) 
 			 (current-thru ?comp :time ?t ?t)
 			 (electric-power ?comp :time ?t) ))
+   (test (atom ?comp))
    (time ?t)
    ) 
   :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
