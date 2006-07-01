@@ -206,6 +206,8 @@
    )
   :effects ((path-to-branch ?branch ?path)))   
 
+;; (compo-or-branch ...) fails if ?compo is in ?path for some 
+;; (branch ... ?path) but has not been declared (circuit-component ...)
 (defoperator use-component-for-current (?compo)
   :preconditions ((not (branch ?name ?whatever1 ?whatever2 ?path) 
 		       (member ?compo ?path)))
