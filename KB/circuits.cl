@@ -188,32 +188,9 @@
 	))
 
 
-
-;;;CURRENTS
-;;;  We eventually want to get rid of this, but in the mean time,
-;;;  make it work with the new notation.
-
-(def-psmclass current-thru-what (current-thru-what ?what ?branch ?t) 
-  :complexity minor 
-  :short-name "current in branch"
-  :english ("Current in branch")
-  :Expformat ("Relating the current through ~A to the current in the branch containing it" ?what)
-  :eqnFormat ("Icomp = Ibranch"))
-
-(defoperator current-thru-what-contains (?sought)
-  :preconditions (
-		  ;; note that ?t may be timeless
-		  (any-member ?sought ((current-thru ?branch :time ?t)
-				       (current-thru ?what :time ?t)))
-		  (branch ?name ?dontcare1 ?dontcare2 ?path)
-		  (path-to-branch ?branch ?path)
-		  (circuit-component ?what ?comp-type)
-		  (test (member ?comp-type '(resistor inductor)))
-		  (test (member ?what ?branch :test #'equal))
-		  )
-  :effects (
-	    (eqn-contains (current-thru-what ?what ?branch ?t) ?sought)
-	    ))
+;;;
+;;;                      CURRENTS
+;;;
 
 (defoperator relate-path-and-branch (?path)
   :preconditions
@@ -228,6 +205,32 @@
    (bind ?branch (remove-if-not #'(lambda (x) (member x ?compos)) ?path))
    )
   :effects ((path-to-branch ?branch ?path)))   
+
+
+;; We should eventually get rid of this in favor of using the current
+;; through the branch as the only internal variable
+(def-psmclass current-thru-what (current-thru-what ?what ?branch ?t) 
+  :complexity minor 
+  :short-name "current in branch"
+  :english ("Current in branch")
+  :Expformat ("Relating the current through ~A to the current in the branch containing it" ?what)
+  :eqnFormat ("Icomp = Ibranch"))
+
+(defoperator current-thru-what-contains (?sought)
+  :preconditions 
+  (
+   ;; note that ?t may be timeless
+   (any-member ?sought ((current-thru ?branch :time ?t)
+			(current-thru ?what :time ?t)))
+   (branch ?name ?dontcare1 ?dontcare2 ?path)
+   (path-to-branch ?branch ?path)
+   (any-member ?what ?path)
+   ;; anything that is not a junction is allowed 
+   (not (junction ?what . ?whatever))
+   )
+  :effects (
+	    (eqn-contains (current-thru-what ?what ?branch ?t) ?sought)
+	    ))
 
 (defoperator write-current-thru-what (?what ?branch ?t)
   :specifications "doc"
