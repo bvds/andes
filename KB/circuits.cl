@@ -209,14 +209,16 @@
 (defoperator use-component-for-current (?compo)
   :preconditions
   ((not (branch ?name ?whatever1 ?whatever2 ?path) (member ?compo ?path))
-   (circuit-component ?compo ?type)) ;sanity test
+   (circuit-component ?compo ?type) ;sanity test
+   )
   :effects ((compo-or-branch ?compo ?compo)))
 
 (defoperator use-branch-for-current (?compo ?branch)
   :preconditions
   ((branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
-   (any-member ?compo ?branch))
+   (any-member ?compo ?branch)
+   )
   :effects ((compo-or-branch ?compo ?branch)))
 
 
@@ -237,8 +239,11 @@
 			(current-thru ?what :time ?t)))
    (branch ?name ?dontcare1 ?dontcare2 ?path)
    (path-to-branch ?branch ?path)
-   (any-member ?what ?path)
-   ;; anything that is not a junction is allowed 
+   ;; A loop has the same junction at beginning and end.
+   (bind ?reduced-path (remove-duplicates ?path))
+   ;; If ?what is not bound, iterate over possibilities.
+   (any-member ?what ?reduced-path)
+   ;; Anything that is not a junction is allowed.
    (not (junction ?what . ?whatever))
    )
   :effects (
@@ -2127,13 +2132,13 @@
    ) 
   :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
 
-(defoperator electric-power (?comp ?t)
+(defoperator write-electric-power (?comp ?t)
   :preconditions 
   (
    (any-member ?tot (?t nil)) 
    (variable ?V (voltage-across ?comp :time ?tot) )
    (any-member ?tot2 (?t nil))
-   (compo-or-branch ?compo ?branch) 
+   (compo-or-branch ?comp ?branch) 
    (variable ?I (current-thru ?branch :time ?tot2))
    (variable ?P  (electric-power ?comp :time ?t)) 
    )
