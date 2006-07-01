@@ -206,6 +206,19 @@
    )
   :effects ((path-to-branch ?branch ?path)))   
 
+(defoperator use-component-for-current (?compo)
+  :preconditions
+  ((not (branch ?name ?whatever1 ?whatever2 ?path) (member ?compo ?path))
+   (circuit-component ?compo ?type)) ;sanity test
+  :effects (compo-or-branch ?compo ?compo))
+
+(defoperator use-branch-for-current (?compo ?branch)
+  :preconditions
+  ((branch ?name ?whatever1 ?whatever2 ?path)
+   (path-to-branch ?branch ?path)
+   (any-member ?compo ?branch))
+  :effects (compo-or-branch ?compo ?branch))
+
 
 ;; We should eventually get rid of this in favor of using the current
 ;; through the branch as the only internal variable
@@ -255,6 +268,7 @@
    ;; only use time when allowed by feature changing-voltage
    (test (eq (null ?t) 
 	     (null (member 'changing-voltage (problem-features *cp*)))))
+   ;; Current through a capacitor may be confusing to the student
    (not (circuit-component ?what capacitor))
    ;; ?what could be a list naming a compound (equivalent) circuit element.
    (bind ?i-what-var (format-sym "I_~A~@[_~A~]" (comp-name ?what 'R) 
@@ -282,10 +296,11 @@
 ;;May need to uncomment (resistance) as a sought to get currents to work
 (defoperator ohms-law-contains-resistor (?sought)
   :preconditions(
-		 (any-member ?sought ((current-thru ?res :time ?t ?t)
+		 (any-member ?sought ((current-thru ?branch :time ?t ?t)
 				      (voltage-across ?res :time ?t ?t)))
 		 (time ?t) ;in case ?t is not bound
 		 (circuit-component ?res resistor)
+		 (compo-or-branch ?res ?branch)
 		 ;;Added mary/Kay 7 May
 		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
 		 ;;(test (member ?res ?path :test #'equal))     
@@ -317,7 +332,8 @@
 		 ;;(test (member ?res ?path))
 		 (variable ?r-var (resistance ?res))
 		 (any-member ?tot (?t nil)) 
-		 (variable ?i-var (current-thru ?res :time ?tot))
+		 (compo-or-branch ?res ?branch)
+		 (variable ?i-var (current-thru ?branch :time ?tot))
 		 (any-member ?tot2 (?t nil)) 
 		 (variable ?v-var (voltage-across ?res :time ?tot2))
 		 )
@@ -1702,21 +1718,25 @@
   )
 
 (defoperator inductor-emf-contains (?sought)
-  :preconditions (
-		  (circuit-component ?ind inductor)
-		  (any-member ?sought ( (voltage-across ?ind :time ?time)
-					(self-inductance ?ind)
-					(rate-of-change (current-thru ?ind :time ?time)) ))
-		  (time ?time)
-		  )
+  :preconditions 
+  (
+   (circuit-component ?ind inductor)
+   (any-member ?sought ( (voltage-across ?ind :time ?time)
+			 (self-inductance ?ind)
+			 (rate-of-change (current-thru ?branch :time ?time)) ))
+   (compo-or-branch ?ind ?branch)
+   (time ?time)
+   )
   :effects ( (eqn-contains (inductor-emf ?ind ?time) ?sought) ))
 
 (defoperator inductor-emf (?ind ?time)
-  :preconditions (
-		  (variable ?V (voltage-across ?ind :time ?time))
-		  (variable ?L (self-inductance ?ind))
-		  (variable ?dIdt (rate-of-change (current-thru ?ind :time ?time)))
-		  )
+  :preconditions 
+  (
+   (variable ?V (voltage-across ?ind :time ?time))
+   (variable ?L (self-inductance ?ind))
+   (compo-or-branch ?ind ?branch)
+   (variable ?dIdt (rate-of-change (current-thru ?branch :time ?time)))
+   )
   :effects (
 	    (eqn (= ?V (- (* ?L ?dIdt))) (inductor-emf ?ind ?time))
 	    )
@@ -1780,12 +1800,13 @@
   :preconditions 
   (
    (any-member ?sought ( (rate-of-change 
-			  (current-thru ?ind :time (during ?t1 ?t2)))
-			 (current-thru ?ind :time ?t2)
-			 (current-thru ?ind :time ?t1) 
+			  (current-thru ?branch :time (during ?t1 ?t2)))
+			 (current-thru ?branch :time ?t2)
+			 (current-thru ?branch :time ?t1) 
 			 (duration (during ?t1 ?t2))))
    ;; ?ind is not bound by ?sought = (duration ...)
    (circuit-component ?ind ?whatever-type)
+   (compo-or-branch ?ind ?branch)
    (time (during ?t1 ?t2))
    )
   :effects 
@@ -1797,9 +1818,11 @@
 (defoperator avg-rate-current-change (?ind ?t1 ?t2)
   :preconditions 
   (
-   (variable ?dIdt (rate-of-change (current-thru ?ind :time (during ?t1 ?t2))))
-   (variable ?I2 (current-thru ?ind :time ?t2))
-   (variable ?I1 (current-thru ?ind :time ?t1))
+   (compo-or-branch ?ind ?branch)
+   (variable ?dIdt (rate-of-change 
+		    (current-thru ?branch :time (during ?t1 ?t2))))
+   (variable ?I2 (current-thru ?branch :time ?t2))
+   (variable ?I1 (current-thru ?branch :time ?t1))
    (variable ?t12 (duration (during ?t1 ?t2)))
    )
   :effects (
@@ -1825,22 +1848,27 @@
   :eqnFormat ("U = 0.5*L*I^2"))
 
 (defoperator inductor-energy-contains (?sought)
-  :preconditions (
-		  (any-member ?sought ( (self-inductance ?inductor)
-					(current-thru ?inductor :time ?t ?t)
-					(stored-energy ?inductor :time ?t)))
-		  (time ?t)
-		  (test (time-pointp ?t))
-		  ) :effects ( 
-		  (eqn-contains (inductor-energy ?inductor ?t) ?sought) 
-		  ))
+  :preconditions 
+  (
+   (any-member ?sought ( (self-inductance ?inductor)
+			 (current-thru ?branch :time ?t ?t)
+			 (stored-energy ?inductor :time ?t)))
+   (time ?t)
+   (test (time-pointp ?t))
+   (circuit-element ?inductor inductor)
+   (compo-or-branch ?inductor ?branch)
+   ) 
+  :effects ( 
+	    (eqn-contains (inductor-energy ?inductor ?t) ?sought) 
+	    ))
 
 (defoperator write-inductor-energy (?inductor ?t)
   :preconditions (
 		  (variable ?U (stored-energy ?inductor :time ?t))
 		  (variable ?L (self-inductance ?inductor))
 		  (any-member ?tot (?t nil))
-		  (variable ?I (current-thru ?inductor :time ?tot))
+		  (compo-or-branch ?inductor ?branch)
+		  (variable ?I (current-thru ?branch :time ?tot))
 		  )
   :effects (
 	    (eqn (= ?U (* 0.5 ?L (^ ?I 2))) (inductor-energy ?inductor ?t))
@@ -1892,7 +1920,7 @@
 	 ))
 
 
-(def-psmclass LR-current-growth (LR-current-growth ?branch ?time) 
+(def-psmclass LR-current-growth (LR-current-growth ?ind ?res ?branch ?time) 
   :complexity major
   :short-name "LR current growth"
   :english ("current growth in an LR circuit")
@@ -1912,16 +1940,16 @@
    (test (member ?ind ?branch))
    (any-member ?sought ((current-thru ?branch :time ?t2)
 			(duration (during ?t1 ?t2))
-			(time-constant orderless ?ind ?res)
-			))
+			(time-constant orderless ?ind ?res)))
    ;; this applies to any t2 between t1 and tf
    (time ?t2)	       ; have to bind if sought is tau
    (test (time-pointp ?t2))
    (test (< ?t2 ?tf))
    )
-  :effects(
-	   (eqn-contains (LR-current-growth ?branch (during ?t1 ?t2)) ?sought)
-	   ))
+  :effects
+  (
+   (eqn-contains (LR-current-growth ?ind ?res ?branch (during ?t1 ?t2)) ?sought)
+   ))
 
 (defoperator LR-current-growth (?ind ?res ?t1 ?t2)
   :preconditions 
@@ -1929,15 +1957,11 @@
    (variable ?i-var (current-thru ?branch :time ?t2))
    (variable ?Imax-var (current-thru ?branch :time ?tf))
    (variable ?t-var (duration (during ?t1 ?t2)))
-   (circuit-component ?res resistor)
-   (circuit-component ?ind inductor)
-   (test (member ?res ?branch))
-   (test (member ?ind ?branch))
    (variable ?tau-var (time-constant orderless ?ind ?res))
    )
   :effects (
 	    (eqn (= ?i-var (* ?Imax-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
-		 (LR-current-growth ?branch (during ?t1 ?t2)))  
+		 (LR-current-growth ?ind ?res ?branch (during ?t1 ?t2)))  
 	    )
   :hint(
 	(point (string "After the battery is switched in, the current in an LR circuit rises towards its maximum value as an exponential function of time"))
@@ -1952,7 +1976,7 @@
 ;; Whether it is best to treat as two psms or one w/two ways of writing 
 ;; the equation depends mainly on how we want our review page to look.
 
-(def-psmclass LR-growth-Imax (LR-growth-Imax ?branch ?time)
+(def-psmclass LR-growth-Imax (LR-growth-Imax ?res ?bat ?branch ?time)
   :complexity major 
   :short-name "LR growth final current"
   :english ("LR circuit growth final current")
@@ -1974,20 +1998,17 @@
    (test (member ?bat ?branch))
    )
   :effects 
-  (  (eqn-contains (LR-growth-Imax ?branch (during ?ti ?tf)) ?sought) ))
+  (  (eqn-contains (LR-growth-Imax ?res ?bat ?branch 
+				   (during ?ti ?tf)) ?sought) ))
 
 (defoperator LR-growth-Imax (?branch ?ti ?tf)
   :preconditions (
-		  (circuit-component ?res resistor)
-		  (circuit-component ?bat battery)
-		  (test (member ?res ?branch))
-		  (test (member ?bat ?branch))
 		  (variable ?Imax-var (current-thru ?branch :time ?tf))
 		  (variable ?v-var (voltage-across ?bat :time (during ?ti ?tf)))
 		  (variable ?r-var (resistance ?res))
 		  )
   :effects ( (eqn (= ?Imax-var (/ ?v-var ?r-var)) 
-		  (LR-growth-Imax ?branch (during ?ti ?tf))) )
+		  (LR-growth-Imax ?res ?bat ?branch (during ?ti ?tf))) )
   :hint (
 	 (point (string "What must the maximum value of the current be?"))
 	 (point (string "At its maximum value, the current in an LR circuit is nearly constant, so there is no EMF due to the inductor. Since the only source of EMF at this time is the battery, Ohm's Law V = I*R determines the current through the resistor to be the battery voltage divided by resistance."))
@@ -1995,7 +2016,7 @@
 	 ))
 
 ;; LR circuit decay:
-(def-psmclass LR-current-decay (LR-current-decay ?branch ?time) 
+(def-psmclass LR-current-decay (LR-current-decay ?res ?ind ?branch ?time) 
   :complexity major
   :short-name "LR current decay"
   :english ("current decay in an LR circuit")
@@ -2023,8 +2044,7 @@
    (test (<= ?t2 ?tf))
    )
   :effects
-  (
-   (eqn-contains (LR-current-decay ?branch (during ?t1 ?t2)) ?sought)
+  ((eqn-contains (LR-current-decay ?res ?ind ?branch (during ?t1 ?t2)) ?sought)
    ))
 
 (defoperator write-LR-current-decay (?ind ?res ?t1 ?t2)
@@ -2033,15 +2053,11 @@
    (variable ?i-var (current-thru ?branch :time ?t2))
    (variable ?I0-var (current-thru ?branch :time ?t1))
    (variable ?t-var (duration (during ?t1 ?t2))) 
-   (circuit-component ?res resistor)
-   (circuit-component ?ind inductor)
-   (test (member ?res ?branch))
-   (test (member ?ind ?branch))
    (variable ?tau-var (time-constant orderless ?ind ?res))
    )
   :effects (
 	    (eqn (= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var))))
-		 (LR-current-decay ?branch (during ?t1 ?t2)))  
+		 (LR-current-decay ?ind ?res ?branch (during ?t1 ?t2)))  
 	    )
   :hint(
 	(point (string "When the battery is switched out, the initial current in an LR circuit decays towards zero as an exponential function of time"))
@@ -2050,7 +2066,7 @@
 			    ((= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
 	))
 
-(def-psmclass LR-decay-Imax (LR-growth-Imax ?branch ?time)
+(def-psmclass LR-decay-Imax (LR-growth-Imax ?res ?bat ?branch ?time)
   :complexity major 
   :short-name "LR circuit initial current"
   :english ("LR circuit initial current")
@@ -2071,21 +2087,18 @@
    (test (member ?res ?branch))
    (test (member ?bat ?branch))
    )
-  :effects (  (eqn-contains (LR-decay-Imax ?branch (during ?ti ?tf)) ?sought) ))
+  :effects 
+  ((eqn-contains (LR-decay-Imax ?res ?bat ?branch (during ?ti ?tf)) ?sought) ))
 
 (defoperator LR-decay-Imax (?branch ?ti ?tf)
   :preconditions (
-		  (circuit-component ?res resistor)
-		  (circuit-component ?bat battery)
-		  (test (member ?res ?branch))
-		  (test (member ?bat ?branch))
 		  (variable ?Imax-var (current-thru ?branch :time ?ti))
 		  (variable ?v-var (voltage-across ?bat :time (during ?ti ?tf)))
 		  (variable ?r-var (resistance ?res))
 		  )
   :effects 
   ( (eqn (= ?Imax-var (/ ?v-var ?r-var)) 
-	 (LR-decay-Imax ?branch (during ?ti ?tf))) )
+	 (LR-decay-Imax ?res ?bat ?branch (during ?ti ?tf))) )
   :hint (
 	 (point (string "What is the initial value of the current when the switch is opened?"))
 	 (point (string "At its maximum value, the current in an LR circuit is nearly constant, so there is no EMF due to the inductor. Since the only source of EMF at this time is the battery, Ohm's Law V = I*R determines the current through the resistor to be the battery voltage divided by resistance."))
@@ -2104,8 +2117,11 @@
   :preconditions 
   ( 
    (any-member ?sought ( (voltage-across ?comp :time ?t ?t) 
-			 (current-thru ?comp :time ?t ?t)
+			 (current-thru ?branch :time ?t ?t)
 			 (electric-power ?comp :time ?t) ))
+   (compo-or-branch ?comp ?branch)
+   ;; We might apply this to things not declared to be a
+   ;; circuit element
    (test (atom ?comp))
    (time ?t)
    ) 
@@ -2116,8 +2132,9 @@
   (
    (any-member ?tot (?t nil)) 
    (variable ?V (voltage-across ?comp :time ?tot) )
-   (any-member ?tot2 (?t nil)) 
-   (variable ?I (current-thru ?comp :time ?tot2))
+   (any-member ?tot2 (?t nil))
+   (compo-or-branch ?compo ?branch) 
+   (variable ?I (current-thru ?branch :time ?tot2))
    (variable ?P  (electric-power ?comp :time ?t)) 
    )
   :effects ( (eqn (= ?P (* ?V ?I)) (electric-power ?comp ?t)) )
