@@ -1689,6 +1689,19 @@
   :effects ((eqn-contains (average-rate-of-change ?quant) ?sought)
 	    ))
 
+;;  Backwards chaining fails spectacularly when the 
+;;  sought is the duration.  Here we make use of the fact that the 
+;;  a source of (rate-of-change ...) is the inductor rule.
+(defoperator average-rate-of-change-contains-inductor-current (?sought)
+  :preconditions 
+  (
+   (any-member ?sought ((duration ?tt)))
+   (circuit-component ?compo inductor)
+   (compo-or-branch ?compo ?branch)
+   (any-member ?quant ((current-thru ?branch :time ?tt)))
+   )
+  :effects ((eqn-contains (average-rate-of-change ?quant) ?sought)))
+
 (defoperator write-average-rate-of-change (?quant)
  :preconditions 
  (
@@ -1982,7 +1995,7 @@
    (LR-current-decay ?name (during ?t1 ?tf))
    (branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
-   (circuit-comonent ?res resistor)
+   (circuit-component ?res resistor)
    (circuit-component ?ind inductor)
    (test (member ?res ?branch))
    (test (member ?ind ?branch))
