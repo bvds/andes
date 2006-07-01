@@ -207,10 +207,8 @@
   :effects ((path-to-branch ?branch ?path)))   
 
 (defoperator use-component-for-current (?compo)
-  :preconditions
-  ((not (branch ?name ?whatever1 ?whatever2 ?path) (member ?compo ?path))
-   (circuit-component ?compo ?type) ;sanity test
-   )
+  :preconditions ((not (branch ?name ?whatever1 ?whatever2 ?path) 
+		       (member ?compo ?path)))
   :effects ((compo-or-branch ?compo ?compo)))
 
 (defoperator use-branch-for-current (?compo ?branch)
