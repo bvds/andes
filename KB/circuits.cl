@@ -2124,12 +2124,15 @@
 	 ))
 
 (defoperator define-electric-power-var (?b ?t)
-  :preconditions (
-		  (bind ?power-var (format-sym "power_~A_~A" (body-name ?b) (time-abbrev ?t)))
-		  ) :effects (
-		  (define-var (electric-power ?b :time ?t))
-		  (variable ?power-var (electric-power ?b :time ?t))
-		  )
+  :preconditions 
+  (
+   (bind ?power-var (format-sym "power_~A_~A" (comp-name ?b 'R) 
+				(time-abbrev ?t)))
+   ) 
+  :effects (
+	    (define-var (electric-power ?b :time ?t))
+	    (variable ?power-var (electric-power ?b :time ?t))
+	    )
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting electric power." 
 			     ((electric-power ?b :time ?t) def-np) ))
