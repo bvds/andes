@@ -1860,7 +1860,7 @@
 			 (stored-energy ?inductor :time ?t)))
    (time ?t)
    (test (time-pointp ?t))
-   (circuit-element ?inductor inductor)
+   (circuit-component ?inductor inductor)
    (compo-or-branch ?inductor ?branch)
    ) 
   :effects ( 
