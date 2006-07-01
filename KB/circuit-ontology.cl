@@ -23,6 +23,11 @@
 ;;  After the student makes an entry, however, the helpsystem should
 ;;  match the student entry to any system entry that contains all of the 
 ;;  components selected by the student as a subset.
+;;
+;; In order for the hints to be useful, it is necessary that 
+;; ?component would be a list of names that would mean something
+;; to the student.  For the current through a branch, we take components 
+;; defined by (circuit-element ...) 
 (def-qexp current-thru (current-thru ?component :time ?time)
   :symbol-base |I| 
   :short-name "current"

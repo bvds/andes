@@ -210,14 +210,14 @@
   :preconditions
   ((not (branch ?name ?whatever1 ?whatever2 ?path) (member ?compo ?path))
    (circuit-component ?compo ?type)) ;sanity test
-  :effects (compo-or-branch ?compo ?compo))
+  :effects ((compo-or-branch ?compo ?compo)))
 
 (defoperator use-branch-for-current (?compo ?branch)
   :preconditions
   ((branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
    (any-member ?compo ?branch))
-  :effects (compo-or-branch ?compo ?branch))
+  :effects ((compo-or-branch ?compo ?branch)))
 
 
 ;; We should eventually get rid of this in favor of using the current
