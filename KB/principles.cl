@@ -195,7 +195,6 @@
 	 (group "Inductance" 
 		 (leaf inductor-emf :tutorial "Inductance")
 		 (leaf mutual-inductor-emf :tutorial "Inductance")
-		 (leaf avg-rate-current-change :tutorial "Inductance")
 		 (leaf inductor-energy :tutorial "Inductance")
 		 (leaf solenoid-self-inductance :tutorial "Inductance")
 		 (leaf LR-time-constant :tutorial "LR Circuits")

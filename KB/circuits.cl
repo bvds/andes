@@ -1692,8 +1692,6 @@
 (defoperator write-average-rate-of-change (?quant)
  :preconditions 
  (
-  ;; temporary test, see Bug #786
-  (test (not (eq (first ?quant) 'current-thru)))
   (bind ?t (time-of ?quant))
   (bind ?q1 (set-time ?quant (second ?t)))
   (bind ?q2 (set-time ?quant (third ?t)))
@@ -1792,59 +1790,8 @@
    (bottom-out (string "Write the equation ~A" ((= ?V (- (* ?M ?dIdt))) algebra) ))
    ))
 
-;; need rule that average rate of change dIdt12 = (I2-I1)/t12
 
-(def-psmclass avg-rate-current-change (avg-rate-current-change ?ind ?time)
-  :complexity major 
-  :short-name "average rate of change"
-  :english ("the definition of average rate of current change")
-  :eqnFormat ("dIdt_avg = (I2 - I1)/(t2 - t1)") 
-  )
-
-(defoperator avg-rate-current-change-contains (?sought)
-  :preconditions 
-  (
-   (any-member ?sought ( (rate-of-change 
-			  (current-thru ?branch :time (during ?t1 ?t2)))
-			 (current-thru ?branch :time ?t2)
-			 (current-thru ?branch :time ?t1) 
-			 (duration (during ?t1 ?t2))))
-   ;; ?ind is not bound by ?sought = (duration ...)
-   (circuit-component ?ind ?whatever-type)
-   (compo-or-branch ?ind ?branch)
-   (time (during ?t1 ?t2))
-   )
-  :effects 
-  (
-   (eqn-contains (avg-rate-current-change ?ind (during ?t1 ?t2)) 
-		 ?sought)
-   ))
-
-(defoperator avg-rate-current-change (?ind ?t1 ?t2)
-  :preconditions 
-  (
-   (compo-or-branch ?ind ?branch)
-   (variable ?dIdt (rate-of-change 
-		    (current-thru ?branch :time (during ?t1 ?t2))))
-   (variable ?I2 (current-thru ?branch :time ?t2))
-   (variable ?I1 (current-thru ?branch :time ?t1))
-   (variable ?t12 (duration (during ?t1 ?t2)))
-   )
-  :effects (
-	    (eqn (= ?dIdt (/ (- ?I2 ?I1) ?t12)) 
-		 (avg-rate-current-change ?ind (during ?t1 ?t2)))
-	    )
-  :hint (
-	 (teach (string "The average rate of change of current over a time interval is simply the difference between the final value of the current and the initial value divided by the time. If the rate of change is constant, then the average rate of change will equal the instantaneous rate of change at any point during the time period"))
-	 (bottom-out (string "Write the equation ~a" ((= ?dIdt (/ (- ?I2 ?I1) ?t12)) algebra) ))
-	 ))
-
-;; Perhaps also that instantaneous = average if it is given as constant,
-;; for any point in the interval 
-;; Also possibly need something dIbranch/dt = dIcomp/dt where Ibranch = Icomp
-
-					; energy stored in an inductor
-
+;; energy stored in an inductor
 (def-psmclass inductor-energy (inductor-energy ?ind ?t) 
   :complexity major 
   :short-name "energy stored in inductor"
