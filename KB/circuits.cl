@@ -202,7 +202,8 @@
    ;; find all circuit components in ?path to construct the ?branch
    ;; order of branch is given by order in ?path
    (setof (circuit-component ?compo ?type) ?compo ?compos)
-   (bind ?branch (remove-if-not #'(lambda (x) (member x ?compos)) ?path))
+   (bind ?branch (remove-if-not 
+		  #'(lambda (x) (member x ?compos :test #'equal)) ?path))
    )
   :effects ((path-to-branch ?branch ?path)))   
 
@@ -276,7 +277,7 @@
    ;; Current through a capacitor may be confusing to the student
    (not (circuit-component ?what capacitor))
    ;; ?what could be a list naming a compound (equivalent) circuit element.
-   (bind ?i-what-var (format-sym "I_~A~@[_~A~]" (comp-name ?what 'R) 
+   (bind ?i-what-var (format-sym "I_~A~@[_~A~]" (body-name ?what) 
 				 (time-abbrev ?t)))
    )
   :effects (
@@ -441,7 +442,21 @@
 	    (closed-loop ?branch ?path ?path ?path 0)
 	    ))
 
+#|
+(defoperator branch-is-open-loop (?branch)
+  :preconditions ((branch ?name ?dontcare open ?path))
+  :effects ((open-loop (?path))))
 
+(defoperator concatonate-branch-open-loop (?branch ?loop)
+  :preconditions 
+  ((branch ?name ?dontcare open ?path)
+   (open-loop ?paths)
+   (branch ?n1 ?dontcare open ?p1)
+   (test (equal (first (first ?paths)) (first (last ?path))))
+   (test (not (equal (first (first ?path)) (first (last ?paths)
+   )
+:effects ((open-loop (?path . ?paths)))
+|#
 
 (defoperator form-two-branch-loop (?br1 ?br2)
   :preconditions 
@@ -494,12 +509,10 @@
    (path-to-branch ?path-comps2 ?path2)
    (path-to-branch ?path-comps3 ?path3)
    ;;
-   (test (null (and (our-intersection ?path-comps1 ?path2)
-		    (our-intersection ?path-comps1 ?path3)
-		    (our-intersection ?path-comps2 ?path3)
-		    )))
-   
-   
+   (test (null (our-intersection ?path-comps1 ?path2)))
+   (test (null (our-intersection ?path-comps1 ?path3)))
+   (test (null (our-intersection ?path-comps2 ?path3)))
+      
    ;; test paths are connected. Two cases, depending on whether
    ;; path2 or (reverse path2) is needed to make a closed loop
    (test (and (equal (car (last ?path1)) (first ?path2))
@@ -713,7 +726,7 @@
 		  (not (switched-out ?bat ?t))
 		  ) :effects ( (active-battery ?bat ?t) ))
 
-(defoperator loop-rule-contains (?sought)
+(defoperator loop-rule-two-contains (?sought)
   :preconditions (
 		  (closed-loop ?compo-list :time ?tt)
 		  (any-member ?sought ((voltage-across ?compo :time ?t ?t)))
