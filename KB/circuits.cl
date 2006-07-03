@@ -1885,7 +1885,7 @@
 	 ))
 
 
-(def-psmclass LR-current-growth (LR-current-growth ?ind ?res ?branch ?time) 
+(def-psmclass LR-current-growth (LR-current-growth ?ind ?res ?branch . ?times) 
   :complexity major
   :short-name "LR current growth"
   :english ("current growth in an LR circuit")
@@ -1913,10 +1913,10 @@
    )
   :effects
   (
-   (eqn-contains (LR-current-growth ?ind ?res ?branch (during ?t1 ?t2)) ?sought)
+   (eqn-contains (LR-current-growth ?ind ?res ?branch ?t1 ?t2 ?tf) ?sought)
    ))
 
-(defoperator LR-current-growth (?ind ?res ?t1 ?t2)
+(defoperator LR-current-growth (?ind ?res ?t1 ?t2 ?tf)
   :preconditions 
   (
    (variable ?i-var (current-thru ?branch :time ?t2))
@@ -1926,7 +1926,7 @@
    )
   :effects (
 	    (eqn (= ?i-var (* ?Imax-var (- 1 (exp (/ (- ?t-var) ?tau-var)))))
-		 (LR-current-growth ?ind ?res ?branch (during ?t1 ?t2)))  
+		 (LR-current-growth ?ind ?res ?branch ?t1 ?t2 ?tf))  
 	    )
   :hint(
 	(point (string "After the battery is switched in, the current in an LR circuit rises towards its maximum value as an exponential function of time"))
