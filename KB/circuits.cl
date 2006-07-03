@@ -774,6 +774,8 @@
   :preconditions 
   (
    (junction ?junction ?names)
+   ;; For cases where a junction is also connected to outside world
+   (test (not (member 'unknown ?names)))
    (map ?name ?names (branch ?name ?whatever1 ?whatever2 ?path) ?path ?paths)
    (bind ?in-paths (remove ?junction ?paths :key #'car :test #'equal))
    (bind ?out-paths (remove ?junction ?paths :key #'(lambda (x) (car (last x))) 
