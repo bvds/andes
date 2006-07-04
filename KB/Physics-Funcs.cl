@@ -594,3 +594,14 @@
 					   (body-name (cdr term))))
 	(T term)) ;signal error?
 )
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 
+;;;                   Algebraic formatting
+;;;
+(defun format-plus (x)
+  "x is a (possibly empty) list:  express as a sum"
+  (cond ((null x) 0)
+	((null (cdr x)) (car x))
+	(t (cons '+ x))))
