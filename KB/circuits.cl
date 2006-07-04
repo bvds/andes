@@ -591,10 +591,15 @@
 			    (not (equal ?v-res2-vars nil))))
 		  (test (or (not (equal ?v-batt1-vars ?v-batt2-vars))
 			    (and (equal ?v-batt1-vars nil) (equal ?v-batt2-vars nil))))
+		  ;; improve formatting for sums
+		  (bind ?vb1-terms (format-plus ?v-batt1-vars))
+		  (bind ?vr1-terms (format-plus ?v-res1-vars))
+		  (bind ?vb2-terms (format-plus ?v-batt2-vars))
+		  (bind ?vr2-terms (format-plus ?v-res2-vars))
 		  )
   :effects (
-	    (eqn (= 0 (?sign (- (+ . ?v-batt1-vars) (+ . ?v-res1-vars))
-			     (- (+ . ?v-batt2-vars) (+ . ?v-res2-vars))))
+	    (eqn (= 0 (?sign (- ?vb1-terms ?vr1-terms)
+			     (- ?vb2-terms ?vr2-terms)))
 		 (loop-rule ?branch-list ?t))
 	    )
   :hint(
@@ -605,8 +610,8 @@
 	(teach (string "The sum of the voltage around any closed circuit loop must be equal to zero.  If you are going in the same direction as the current the voltage across a resistor is negative, otherwise it is positive. If you go across the battery from the negative to the positive terminals, the voltage across the battery is positive, otherwise it is negative."))
 	(teach (string "Pick a consistent direction to go around the closed loop. Then write an equation summing the voltage across the battery and the voltages across the resistors, paying attention to whether you are going with or against the current."))
 	(bottom-out (string "Write the equation ~a."
-			    ((= 0 (?sign (- (+ . ?v-batt1-vars) (+ . ?v-res1-vars))
-					 (- (+ . ?v-batt2-vars) (+ . ?v-res2-vars)))) algebra) ))
+			    ((= 0 (?sign (- ?vb1-terms ?vr1-terms)
+					 (- ?vb2-terms ?vr2-terms))) algebra) ))
 	))
 
 

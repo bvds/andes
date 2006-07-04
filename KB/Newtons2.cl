@@ -7170,8 +7170,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (setof (dot-term ?dot ?a ?b ?rot) ?dot ?terms)
    (test (not (null ?terms))) ;dot=0 handled by dot-orthogonal
    ;; write out as a sum when appropriate
-   (bind ?dot (if (null (cdr ?terms)) (car ?terms)
-		    (cons '+ ?terms)))
+   (bind ?dot (format-plus ?terms))
    )
   :effects ( (dot ?dot ?a ?b ?rot)
 	     ;; nogood rule to so that only one form of dot is chosen
@@ -7713,7 +7712,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (map ?work-quant ?work-quants
       (variable ?work-var ?work-quant)
       ?work-var ?work-vars)
-   (bind ?rhs (if ?work-vars (cons '+ ?work-vars) 0)) 
+   (bind ?rhs (format-plus ?work-vars))
   ) 
   :effects (
     (eqn (= ?Wnc ?rhs) (Wnc ?body ?t))
