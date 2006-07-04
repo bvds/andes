@@ -156,7 +156,6 @@ LEAF	P = V*I    electric power	electric-power	Electric Power
 GROUP	Resistance		
 LEAF	Req = R1 + R2 + ...    equivalent resistance series	equiv-resistance-series	Series Resistors
 LEAF	1/Req = 1/R1 + 1/R2 + ...    equivalent resistance parallel	equiv-resistance-parallel	Parallel Resistors
-LEAF	Iequiv = Iorig    equivalent resistor current	current-equiv	
 LEAF	V = I*R    Ohm's Law	ohms-law	Ohm's Law
 END_GROUP	Resistance		
 GROUP	Capacitance		

@@ -176,7 +176,6 @@
 	 (group "Resistance" 
 		 (leaf equiv-resistance-series :tutorial "Series Resistors")
 		 (leaf equiv-resistance-parallel :tutorial "Parallel Resistors")
-		 (leaf current-equiv)
 		 (leaf ohms-law :tutorial "Ohm's Law")
 		 )
 	 (group "Capacitance" 

@@ -354,53 +354,6 @@
 	))
 
 
- 
-(def-psmclass current-equiv (currents-same-equivalent-branches ?res ?br-res ?t) 
-  :complexity minor
-  :short-name "equivalent resistor current"
-  :english ("Current in equivalent branches")
-  :eqnFormat ("Iequiv = Iorig"))
-             
-(defoperator currents-same-equivalent-branches-contains (?sought)
-  :preconditions
-  (
-   ;; note that ?t may be timeless (nil)
-   (any-member ?sought ((current-thru ?branch1 :time ?t)
-			(current-thru ?branch2 :time ?t)))
-   (solve-using-both-methods)
-   (branch ?name1 given ?dontcare1 ?path1)
-   (branch ?name2 combined ?dontcare1 ?path2)
-   (path-to-branch ?branch1 ?path1)
-   (path-to-branch ?branch2 ?path2)
-   (test (or (equal (car ?branch1) ?branch2) 
-	     (equal (car ?branch2) ?branch1)))
-   (test (eq (car ?path1) (car ?path2)))
-   (test (eq (car (reverse ?path1)) (car (reverse ?path2))))          
-   )
-  :effects
-  (
-   (eqn-contains (currents-same-equivalent-branches ?branch1 ?branch2 ?t) 
-		 ?sought)
-   ))
-
-(defoperator currents-same-equivalent-branches (?branch1 ?branch2 ?t)
-  :preconditions (
-		  (variable ?i-var1 (current-thru ?branch1 :time ?t))
-		  (variable ?i-var2 (current-thru ?branch2 :time ?t))
-		  )
-  :effects 
-  (
-   (eqn (= ?i-var1 ?i-var2) (currents-same-equivalent-branches 
-			     ?branch1 ?branch2 ?t))
-   )
-  :hint(
-	(point (string "What do you know about the current through a set of series resistors and the current through the equivalent resistor?"))
-	(point (string "Consider the branch ~a and the branch ~a." (?br-res adj) (?br-res2 adj)))
-	(teach (string "The current through a set of series resistors is equal to the current through the equivalent resistor."))
-	(bottom-out (string "Set the current in branch ~a equal to the current in branch ~a." (?br-res adj) (?br-res2 adj)))
-	))
-
-
 (defoperator define-voltage-across (?comp ?t)
   :preconditions 
   (
