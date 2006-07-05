@@ -223,7 +223,10 @@
    ;; ?compo may be member of more than one ?path
    (branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
-   (any-member ?compo ?path)
+   ;; A loop has the same junction at beginning and end.
+   (bind ?reduced-path (remove-duplicates ?path))
+   ;; If ?compo is not bound, iterate over distinct elements in ?path.
+   (any-member ?compo ?reduced-path)
    )
   :effects ((compo-or-branch ?compo ?branch)))
 
@@ -243,19 +246,11 @@
    ;; note that ?t may be timeless
    (any-member ?sought ((current-thru ?branch :time ?t)
 			(current-thru ?what :time ?t)))
-   (branch ?name ?dontcare1 ?dontcare2 ?path)
-   (path-to-branch ?branch ?path)
-   ;; A loop has the same junction at beginning and end.
-   (bind ?reduced-path (remove-duplicates ?path))
-   ;; If ?what is not bound, iterate over distinct elements in ?path.
-   (any-member ?what ?reduced-path)
+   (compo-or-branch ?what ?branch)
    ;; Anything that is not a junction is allowed.
    (not (junction ?what . ?whatever))
    ;; For a composite object, the current variable is already equal.
    (test (not (equal ?what ?branch)))
-   ;; Try this out before removing current-thru-what entirely:
-   ;; (test (not (compo-or-branch ?what ?branch)))
-
    )
   :effects (
 	    (eqn-contains (current-thru-what ?what ?branch ?t) ?sought)
@@ -405,23 +400,8 @@
 	    (closed-loop ?branch ?path ?path ?path 0)
 	    ))
 
-#|
-(defoperator branch-is-open-loop (?branch)
-  :preconditions ((branch ?name ?dontcare open ?path))
-  :effects ((open-loop (?path))))
-
-(defoperator concatonate-branch-open-loop (?branch ?loop)
-  :preconditions 
-  ((branch ?name ?dontcare open ?path)
-   (open-loop ?paths)
-   (branch ?n1 ?dontcare open ?p1)
-   (test (equal (first (first ?paths)) (first (last ?path))))
-   (test (not (equal (first (first ?path)) (first (last ?paths)
-   )
-:effects ((open-loop (?path . ?paths)))
-|#
-
-(defoperator relate-path-and-branch (?path)
+;; This is quite similar to relate-path-and-branch 
+(defoperator get-compos-for-path (?path)
   :preconditions
   (
    ;; the ?path contains junctions and other objects
@@ -631,7 +611,7 @@
    ;; Due to paths containing composite components, there can be
    ;; multiple versions of loop-rule for a given loop.  Only allow one
    ;; version in a solution.
-   (assume using-loop-rule ?branch-list ?p1 ?p2 ?t)
+   (assume using-loop-rule ?branch-list (?p1 ?p2) ?t)
    )
   :hint
   (
@@ -697,7 +677,7 @@
    ;; Due to paths containing composite components, there can be
    ;; multiple versions of loop-rule for a given loop.  Only allow one
    ;; version in a solution.
-   (assume using-loop-rule ?branch-list ?p1 ?p2 ?t)
+   (assume using-loop-rule ?branch-list ?p1 ?t)
    )
   :hint(
 	;;(point (string "Apply Kirchhoff's Loop Rule to the circuit."))
