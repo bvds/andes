@@ -126,6 +126,16 @@
    :Specs ("Prevents the use of more than form of cross product")
   :message (Only one form of cross product for ?a ?b))
 
+(defnogood only-one-form-of-loop-rule
+  ((using-loop-rule ?b1 ?pa1 ?pb1 ?t)
+   (using-loop-rule ?b2 ?pa2 ?pb2 ?t)
+   (test (not (equal-sets ?b1 ?b2)))
+   (test (equal-sets (flatten (append ?pa1 ?pb1))
+		     (flatten (append ?pa2 ?pb2))))
+   )
+  :Specs ("Prevents mulitiple application of loop rule to a given loop.")
+  :message (Only one form of loop rule for ?b1 ?b2))
+
 ;;;
 ;;;  don't use both net-force and explicit versions of Newton's second law
 ;;;

@@ -586,11 +586,11 @@
 	;; for compound bodies we want body1&body2&body3
 	((compound-bodyp term)
 	 (let ((y (mapcar #'body-name (cddr term))))
-	   (format nil "~A~{&~A~}" (car y) (cdr y))))
+	   (format nil "~A~{$~A~}" (car y) (cdr y))))
 	;; For anything else just concatenate all symbols in the list, 
 	;; recursing down tree in case of nested complex terms, e.g. 
 	;; (foo (end-1 str) block (end-2 str))
-        ((consp term) (concatenate 'string (body-name (car term)) "&"
+        ((consp term) (concatenate 'string (body-name (car term)) "$"
 					   (body-name (cdr term))))
 	(T term)) ;signal error?
 )

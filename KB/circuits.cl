@@ -217,12 +217,13 @@
 		       (member ?compo ?path)))
   :effects ((compo-or-branch ?compo ?compo)))
 
-(defoperator use-branch-for-current (?compo ?path)
+(defoperator use-branch-for-current (?compo ?branch)
   :preconditions
-  ((branch ?name ?whatever1 ?whatever2 ?path)
-   ;; only one ?path should succeed for a given ?branch
-   (any-member ?compo ?path)
+  (
+   ;; ?compo may be member of more than one ?path
+   (branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
+   (any-member ?compo ?path)
    )
   :effects ((compo-or-branch ?compo ?branch)))
 
@@ -246,11 +247,15 @@
    (path-to-branch ?branch ?path)
    ;; A loop has the same junction at beginning and end.
    (bind ?reduced-path (remove-duplicates ?path))
-   ;; If ?what is not bound, iterate over possibilities.
-   ;; At this point, only one ?path for a given ?branch should succeed 
+   ;; If ?what is not bound, iterate over distinct elements in ?path.
    (any-member ?what ?reduced-path)
    ;; Anything that is not a junction is allowed.
    (not (junction ?what . ?whatever))
+   ;; For a composite object, the current variable is already equal.
+   (test (not (equal ?what ?branch)))
+   ;; Try this out before removing current-thru-what entirely:
+   ;; (test (not (compo-or-branch ?what ?branch)))
+
    )
   :effects (
 	    (eqn-contains (current-thru-what ?what ?branch ?t) ?sought)
@@ -416,13 +421,29 @@
 :effects ((open-loop (?path . ?paths)))
 |#
 
+(defoperator relate-path-and-branch (?path)
+  :preconditions
+  (
+   ;; the ?path contains junctions and other objects
+   ;; the ?branch contains objects in the path that have been
+   ;; declared components.
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   ;; find all circuit components in ?path to construct the ?branch
+   ;; order of branch is given by order in ?path
+   (setof (circuit-component ?compo ?type) ?compo ?compos)
+   (bind ?compos-in-path (remove-if-not
+			  #'(lambda (x) (member x ?compos :test #'equal))
+			  ?path))
+   )
+  :effects ((compos-in-path ?compos-in-path ?path)))   
+
 (defoperator form-two-branch-loop (?br1 ?br2)
   :preconditions 
   (
    (branch ?br1 ?dontcare1 open ?path1)
    (branch ?br2 ?dontcare2 open ?path2)
-   (path-to-branch ?path-comps1 ?path1)
-   (path-to-branch ?path-comps2 ?path2)
+   (compos-in-path ?path-comps1 ?path1)
+   (compos-in-path ?path-comps2 ?path2)
    ;;                       
    (test (null (and (our-intersection ?path-comps1 ?path2)
 		    (our-intersection ?path-comps2 ?path1))))
@@ -463,9 +484,9 @@
    ;;               (not (equal ?br2 ?br3))
    ;;               (not (equal ?br3 ?br1))))
    ;; test not a self loop
-   (path-to-branch ?path-comps1 ?path1)
-   (path-to-branch ?path-comps2 ?path2)
-   (path-to-branch ?path-comps3 ?path3)
+   (compos-in-path ?path-comps1 ?path1)
+   (compos-in-path ?path-comps2 ?path2)
+   (compos-in-path ?path-comps3 ?path3)
    ;;
    (test (null (our-intersection ?path-comps1 ?path2)))
    (test (null (our-intersection ?path-comps1 ?path3)))
@@ -512,10 +533,10 @@
 	      ))
    
    ;; test not a self loop
-   (path-to-branch ?path-comps1 ?path1)
-   (path-to-branch ?path-comps2 ?path2)
-   (path-to-branch ?path-comps3 ?path3)
-   (path-to-branch ?path-comps4 ?path4)
+   (compos-in-path ?path-comps1 ?path1)
+   (compos-in-path ?path-comps2 ?path2)
+   (compos-in-path ?path-comps3 ?path3)
+   (compos-in-path ?path-comps4 ?path4)
    
    (test (null (and (our-intersection ?path-comps1 ?path2)
 		    (our-intersection ?path-comps1 ?path3)
@@ -602,22 +623,28 @@
 		  (bind ?vb2-terms (format-plus ?v-batt2-vars))
 		  (bind ?vr2-terms (format-plus ?v-res2-vars))
 		  )
-  :effects (
-	    (eqn (= 0 (?sign (- ?vb1-terms ?vr1-terms)
-			     (- ?vb2-terms ?vr2-terms)))
-		 (loop-rule ?branch-list ?t))
-	    )
-  :hint(
-	(point (string "Find a closed loop in this circuit and apply Kirchhoff's Loop Rule to it."))
-	(point (string "To find the closed loop, pick any point in the circuit and find a path through the circuit that puts you back at the same place."))
-	(point (string "You can apply Kirchoff's Loop Rule to the loop formed by the branches ~A." (?branch-list conjoined-names)))
-	(point (string "Once you have identified the closed loop, write an equation that sets the sum of the voltage across each component around the closed circuit loop to zero."))
-	(teach (string "The sum of the voltage around any closed circuit loop must be equal to zero.  If you are going in the same direction as the current the voltage across a resistor is negative, otherwise it is positive. If you go across the battery from the negative to the positive terminals, the voltage across the battery is positive, otherwise it is negative."))
-	(teach (string "Pick a consistent direction to go around the closed loop. Then write an equation summing the voltage across the battery and the voltages across the resistors, paying attention to whether you are going with or against the current."))
-	(bottom-out (string "Write the equation ~a."
-			    ((= 0 (?sign (- ?vb1-terms ?vr1-terms)
-					 (- ?vb2-terms ?vr2-terms))) algebra) ))
-	))
+  :effects 
+  (
+   (eqn (= 0 (?sign (- ?vb1-terms ?vr1-terms)
+		    (- ?vb2-terms ?vr2-terms)))
+	(loop-rule ?branch-list ?t))
+   ;; Due to paths containing composite components, there can be
+   ;; multiple versions of loop-rule for a given loop.  Only allow one
+   ;; version in a solution.
+   (assume using-loop-rule ?branch-list ?p1 ?p2 ?t)
+   )
+  :hint
+  (
+   (point (string "Find a closed loop in this circuit and apply Kirchhoff's Loop Rule to it."))
+   (point (string "To find the closed loop, pick any point in the circuit and find a path through the circuit that puts you back at the same place."))
+   (point (string "You can apply Kirchoff's Loop Rule to the loop formed by the branches ~A." (?branch-list conjoined-names)))
+   (point (string "Once you have identified the closed loop, write an equation that sets the sum of the voltage across each component around the closed circuit loop to zero."))
+   (teach (string "The sum of the voltage around any closed circuit loop must be equal to zero.  If you are going in the same direction as the current the voltage across a resistor is negative, otherwise it is positive. If you go across the battery from the negative to the positive terminals, the voltage across the battery is positive, otherwise it is negative."))
+   (teach (string "Pick a consistent direction to go around the closed loop. Then write an equation summing the voltage across the battery and the voltages across the resistors, paying attention to whether you are going with or against the current."))
+   (bottom-out (string "Write the equation ~a."
+		       ((= 0 (?sign (- ?vb1-terms ?vr1-terms)
+				    (- ?vb2-terms ?vr2-terms))) algebra) ))
+   ))
 
 
 (defoperator write-single-loop-rule (?branch-list ?t)
@@ -663,10 +690,15 @@
    ;; list capacitors and resistors for negative term
    (bind ?drop-vars (append ?v-res1-vars ?v-cap-vars))
    )
-  :effects (
-	    (eqn (= 0 (- (+ . ?emf-vars) (+ . ?drop-vars)))
-		 (loop-rule ?branch-list ?t))
-	    )
+  :effects 
+  (
+   (eqn (= 0 (- (+ . ?emf-vars) (+ . ?drop-vars)))
+	(loop-rule ?branch-list ?t))
+   ;; Due to paths containing composite components, there can be
+   ;; multiple versions of loop-rule for a given loop.  Only allow one
+   ;; version in a solution.
+   (assume using-loop-rule ?branch-list ?p1 ?p2 ?t)
+   )
   :hint(
 	;;(point (string "Apply Kirchhoff's Loop Rule to the circuit."))
 	(point (string "You can apply Kirchoff's Loop Rule to the loop formed by the branches ~A." (?branch-list conjoined-names)))
