@@ -203,7 +203,10 @@
    ;; order of branch is given by order in ?path
    (setof (circuit-component ?compo ?type) ?compo ?compos)
    (bind ?branch (remove-if-not 
-		  #'(lambda (x) (member x ?compos :test #'equal)) ?path))
+		  #'(lambda (x) (member x ?compos :test #'equal)) 
+		  ;; Express any composite in terms of constituent elements.
+		  ;; There may be multiple ?path for a given ?branch.
+		  (flatten ?path)))
    )
   :effects ((path-to-branch ?branch ?path)))   
 
@@ -214,11 +217,12 @@
 		       (member ?compo ?path)))
   :effects ((compo-or-branch ?compo ?compo)))
 
-(defoperator use-branch-for-current (?compo ?branch)
+(defoperator use-branch-for-current (?compo ?path)
   :preconditions
   ((branch ?name ?whatever1 ?whatever2 ?path)
+   ;; only one ?path should succeed for a given ?branch
+   (any-member ?compo ?path)
    (path-to-branch ?branch ?path)
-   (any-member ?compo ?branch)
    )
   :effects ((compo-or-branch ?compo ?branch)))
 
@@ -243,6 +247,7 @@
    ;; A loop has the same junction at beginning and end.
    (bind ?reduced-path (remove-duplicates ?path))
    ;; If ?what is not bound, iterate over possibilities.
+   ;; At this point, only one ?path for a given ?branch should succeed 
    (any-member ?what ?reduced-path)
    ;; Anything that is not a junction is allowed.
    (not (junction ?what . ?whatever))
