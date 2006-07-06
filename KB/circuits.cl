@@ -264,19 +264,17 @@
 	   (eqn-contains (ohms-law ?res ?t) ?sought)
 	   ))
 
-(defoperator ohms-law (?res ?t)
+(defoperator write-ohms-law (?res ?t)
   :specifications "doc"
-  :preconditions(
-		 ;; if we want to use branch current var:
-		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
-		 ;;(test (member ?res ?path))
-		 (variable ?r-var (resistance ?res))
-		 (any-member ?tot (?t nil)) 
-		 (compo-or-branch ?res ?branch)
-		 (variable ?i-var (current-thru ?branch :time ?tot))
-		 (any-member ?tot2 (?t nil)) 
-		 (variable ?v-var (voltage-across ?res :time ?tot2))
-		 )
+  :preconditions
+  (
+   (variable ?r-var (resistance ?res))
+   (any-member ?tot (?t nil)) 
+   (compo-or-branch ?res ?branch)
+   (variable ?i-var (current-thru ?branch :time ?tot))
+   (any-member ?tot2 (?t nil)) 
+   (variable ?v-var (voltage-across ?res :time ?tot2))
+   )
   :effects(
 	   (eqn (= ?v-var (* ?r-var ?i-var)) (ohms-law ?res ?t))
 	   )
@@ -550,7 +548,7 @@
   (
    (point (string "Find a closed loop in this circuit and apply Kirchhoff's Loop Rule to it."))
    (point (string "To find the closed loop, pick any point in the circuit and find a path through the circuit that puts you back at the same place."))
-   (point (string "You can apply Kirchoff's Loop Rule to the loop formed by the branches ~A." (?branch-list conjoined-names)))
+   (point (string "You can apply Kirchoff's Loop Rule to the loop containing the components ~A and ~A." (?p1 conjoined-names) (?p2 conjoined-names)))
    (point (string "Once you have identified the closed loop, write an equation that sets the sum of the voltage across each component around the closed circuit loop to zero."))
    (teach (string "The sum of the voltage around any closed circuit loop must be equal to zero.  If you are going in the same direction as the current the voltage across a resistor is negative, otherwise it is positive. If you go across the battery from the negative to the positive terminals, the voltage across the battery is positive, otherwise it is negative."))
    (teach (string "Pick a consistent direction to go around the closed loop. Then write an equation summing the voltage across the battery and the voltages across the resistors, paying attention to whether you are going with or against the current."))
@@ -614,7 +612,7 @@
    )
   :hint(
 	;;(point (string "Apply Kirchhoff's Loop Rule to the circuit."))
-	(point (string "You can apply Kirchoff's Loop Rule to the loop formed by the branches ~A." (?branch-list conjoined-names)))
+	(point (string "You can apply Kirchoff's Loop Rule to the loop containing ~A." (?p1 conjoined-names)))
 	;;(point (string "Write an equation that sets the sum of the voltage across each component around the closed circuit loop to zero."))
 	(teach (string "Kirchoff's Loop Rule states that the sum of the voltages around any closed circuit loop must be equal to zero."))
 	(teach (string "Pick a consistent direction to go around the closed loop. Then write an equation summing the voltage across the battery and the voltages across the circuit components, paying attention to whether you are going with or against the current."))
