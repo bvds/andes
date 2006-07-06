@@ -135,8 +135,12 @@
 ;; though all KB names are upcased, so we upcase them as well.
 ;;
 ;; We also handle body arg consisting of a list of simple body names and
-;; form a compound body term for it. Currently this arg form is only sent to
-;; assert-compound-object but might be used elsewhere in the future.
+;; form a compound body term for it. Note: Originally this arg form was only 
+;; sent to assert-compound-object. But it now occurs elsewhere, for example
+;; when defining equivalent resistance of a set of components. So the 
+;; translation of the set into compound body term may have to be undone when 
+;; forming the quantity below in make-quant. 
+;;
 ;; NB: can also get NIL body-arg in some cases, such as agent of net-work.
 ;; should remain NIL for none.
 ;;
@@ -162,10 +166,10 @@
   (intern (string-upcase (substitute #\_ #\- (string body-arg)))))
 
 ; For circuits, we have to handle defined compound component terms as arguments.
-; E.g. if R56 is defined as (resistance (R5 R6)), then body arg sent in, say,
-; (voltage-across R56) will need to be translated. In this case, arg to body
-; will return (resistance (R5 R6)), so make-quant cases will have to be prepared
-; to receive this as a body-term wherever args can be compound equivalents
+; E.g. if student label "foo" has been defined as (resistance (R5 R6)), then body 
+; arg sent in, say,  (voltage-across foo) will need to be translated. In this case, 
+; arg to body will return (resistance (R5 R6)), so make-quant cases will have to be 
+; prepared to receive this as a body-term wherever args can be compound equivalents
 
 (defun compound-object-term (quant)
    (or (compound-bodyp quant)
