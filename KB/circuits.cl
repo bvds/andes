@@ -131,8 +131,11 @@
    ;; find all circuit components in ?path to construct the ?branch
    ;; order of branch is given by order in ?path
    (setof (circuit-component ?compo ?type) ?compo ?compos)
-   (bind ?branch (remove-if-not 
-		  #'(lambda (x) (member x ?compos :test #'equal)) 
+   ;; Find any positions available to the student
+   (bind ?positions (cadr (find 'positions (problem-choices *cp*) :key #'car)))
+   (bind ?branch 
+	 (remove-if-not 
+	  #'(lambda (x) (member x (append ?compos ?positions) :test #'equal))
 		  ;; Express any composite in terms of constituent elements.
 		  ;; There may be multiple ?path for a given ?branch.
 		  (flatten ?path)))
@@ -536,8 +539,7 @@
 		  )
   :effects 
   (
-   (eqn (= 0 (?sign (- ?vb1-terms ?vr1-terms)
-		    (- ?vb2-terms ?vr2-terms)))
+   (eqn (= 0 (?sign (- ?vb1-terms ?vr1-terms) (- ?vb2-terms ?vr2-terms)))
 	(loop-rule ?branch-list ?t))
    ;; Due to paths containing composite components, there can be
    ;; multiple versions of loop-rule for a given loop.  Only allow one
@@ -600,10 +602,13 @@
    (bind ?emf-vars (append ?v-batt1-vars ?v-ind-vars))
    ;; list capacitors and resistors for negative term
    (bind ?drop-vars (append ?v-res1-vars ?v-cap-vars))
+   ;;
+   (bind ?emf-terms (format-plus ?emf-vars))
+   (bind ?drop-terms (format-plus ?drop-vars))
    )
   :effects 
   (
-   (eqn (= 0 (- (+ . ?emf-vars) (+ . ?drop-vars)))
+   (eqn (= 0 (- ?emf-terms ?drop-terms))
 	(loop-rule ?branch-list ?t))
    ;; Due to paths containing composite components, there can be
    ;; multiple versions of loop-rule for a given loop.  Only allow one
@@ -617,7 +622,7 @@
 	(teach (string "Kirchoff's Loop Rule states that the sum of the voltages around any closed circuit loop must be equal to zero."))
 	(teach (string "Pick a consistent direction to go around the closed loop. Then write an equation summing the voltage across the battery and the voltages across the circuit components, paying attention to whether you are going with or against the current."))
 	(bottom-out (string "Write the equation ~A"
-			    ((= 0 (- (+ . ?emf-vars) (+ . ?drop-vars))) algebra) ))
+			    ((= 0 (- ?emf-terms ?drop-terms)) algebra) ))
 	))
 
 ;; filter to use when fetching batteries for loop rule, because a battery 
@@ -697,7 +702,8 @@
    (test (not (member 'unknown ?names)))
    (map ?name ?names (branch ?name ?whatever1 ?whatever2 ?path) ?path ?paths)
    (bind ?in-paths (remove ?junction ?paths :key #'car :test #'equal))
-   (bind ?out-paths (remove ?junction ?paths :key #'(lambda (x) (car (last x))) 
+   (bind ?out-paths (remove ?junction ?paths 
+			    :key #'(lambda (x) (car (last x))) 
 			    :test #'equal))
    ;; find the branch names
    (map ?in-path ?in-paths
@@ -883,69 +889,75 @@
 
 
 (defoperator write-loop-rule-capacitors (?branch-list ?t)
-  :preconditions (
-		  ;;Stop this rule for LC/LRC problems
-		  (not (circuit-component ?dontcare inductor))
-
-		  (in-wm (closed-loop ?branch-list ?p1 ?p2 ?path ?reversed))
-		  ;;Make sure ?p2 is a list
-		  ;;If ?rev ends up nil then ?p2 was reversed in ?path
-		  (bind ?rev (member (second ?p2) (member (first ?p2) ?path :test #'equal) :test #'equal))
-		  (bind ?p3 (if (equal ?rev nil) (reverse ?p2) ?p2))
-
-		  ;;get the set of capacitors
-		  (setof (circuit-component ?comp1 capacitor)
-			 ?comp1 ?all-cap)
-		  ;;get the set of batteries
-		  (setof (circuit-component ?comp2 battery)
-			 ?comp2 ?all-batts)
-                      
+  :preconditions 
+  (
+   ;;Stop this rule for LC/LRC problems
+   (not (circuit-component ?dontcare inductor))
+   
+   (in-wm (closed-loop ?branch-list ?p1 ?p2 ?path ?reversed))
+   ;;Make sure ?p2 is a list
+   ;;If ?rev ends up nil then ?p2 was reversed in ?path
+   (bind ?rev (member (second ?p2) (member (first ?p2) ?path :test #'equal) :test #'equal))
+   (bind ?p3 (if (equal ?rev nil) (reverse ?p2) ?p2))
+   
+   ;;get the set of capacitors
+   (setof (circuit-component ?comp1 capacitor)
+	  ?comp1 ?all-cap)
+   ;;get the set of batteries
+   (setof (circuit-component ?comp2 battery)
+	  ?comp2 ?all-batts)
+   
 		  ;;get all the capacitor delta variables for ?p1
-		  (any-member ?tot (?t nil))
-		  (map ?comp (intersection ?p1 ?all-cap :test #'equal)
-		       (variable ?v-var (voltage-across ?comp :time ?tot))
-		       ?v-var ?v-cap1-vars)
-		  
-		  ;;get all the battery delta variables for ?p1
-		  (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-		       (variable ?v-var (voltage-across ?comp :time ?tot))
+   (any-member ?tot (?t nil))
+   (map ?comp (intersection ?p1 ?all-cap :test #'equal)
+	(variable ?v-var (voltage-across ?comp :time ?tot))
+	?v-var ?v-cap1-vars)
+   
+   ;;get all the battery delta variables for ?p1
+   (map ?comp (intersection ?p1 ?all-batts :test #'equal)
+	(variable ?v-var (voltage-across ?comp :time ?tot))
 		       ?v-var ?v-batt1-vars)
+   
+   ;;get all the capacitor delta variables for ?p2
+   (map ?comp (intersection ?p3 ?all-cap :test #'equal)
+	(variable ?v-var (voltage-across ?comp :time ?tot))
+	?v-var ?v-cap2-vars)
+   
+   ;;get all the battery delta variables for ?p2
+   (map ?comp (intersection ?p3 ?all-batts :test #'equal)
+	(variable ?v-var (voltage-across ?comp :time ?tot))
+	?v-var ?v-batt2-vars)
+   
+   ;;determine whether ?p1 + ?p2 or ?p1 - ?p2
+   (bind ?sign (if (equal ?reversed 0) '+ '-))
+   (test (or (not (equal ?v-cap1-vars nil))
+	     (not (equal ?v-cap2-vars nil))))
+   (test (or (not (equal ?v-batt1-vars ?v-batt2-vars))
+	     (and (equal ?v-batt1-vars nil) (equal ?v-batt2-vars nil))))
 
-		  ;;get all the capacitor delta variables for ?p2
-		  (map ?comp (intersection ?p3 ?all-cap :test #'equal)
-		       (variable ?v-var (voltage-across ?comp :time ?tot))
-		       ?v-var ?v-cap2-vars)
-
-		  ;;get all the battery delta variables for ?p2
-		  (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-		       (variable ?v-var (voltage-across ?comp :time ?tot))
-		       ?v-var ?v-batt2-vars)
-
-		  ;;determine whether ?p1 + ?p2 or ?p1 - ?p2
-		  (bind ?sign (if (equal ?reversed 0) '+ '-))
-		  (test (or (not (equal ?v-cap1-vars nil))
-			    (not (equal ?v-cap2-vars nil))))
-		  (test (or (not (equal ?v-batt1-vars ?v-batt2-vars))
-			    (and (equal ?v-batt1-vars nil) (equal ?v-batt2-vars nil))))
-		  )
+   ;; format terms
+   (bind ?vb1 (format-plus ?v-batt1-vars))
+   (bind ?vc1 (format-plus ?v-cap1-vars))
+   (bind ?vb2 (format-plus ?v-batt2-vars))
+   (bind ?vc2 (format-plus ?v-cap2-vars))
+   )
   :effects (
-	    (eqn (= 0 (?sign (- (+ . ?v-batt1-vars) (+ . ?v-cap1-vars))
-			     (- (+ . ?v-batt2-vars) (+ . ?v-cap2-vars))))
+	    (eqn (= 0 (?sign (- ?vb1 ?vc1) (- ?vb2 ?vc2)))
 		 (loop-rule ?branch-list ?t))
 	    )
-  :hint(
-	(point (string "Find a closed loop in this circuit and apply Kirchhoff's Loop Rule to it.  To find the closed loop, pick any point in the circuit and find a path around the circuit that puts you back at the same place."))
-	(point (string "You can apply Kirchoff's Loop Rule to the loop formed by the branches ~A." (?branch-list conjoined-names)))
-	;;(point (string "Once you have identified the closed loop, write an equation that sets the sum of the voltage across each component around the closed circuit loop to zero."))
-	(teach (string "The sum of the voltages around any closed circuit loop must be zero.  Take the side of the capacitor closest to the positive terminal of the battery to be at high potential. If you reach this side of the capacitor first as you go around the loop, subtract the voltage across the capacitor from the battery voltage, otherwise add it."))
+  :hint
+  (
+   (point (string "Find a closed loop in this circuit and apply Kirchhoff's Loop Rule to it.  To find the closed loop, pick any point in the circuit and find a path around the circuit that puts you back at the same place."))
+   (point (string "You can apply Kirchoff's Loop Rule to the loop formed by the branches ~A." (?branch-list conjoined-names)))
+   ;;(point (string "Once you have identified the closed loop, write an equation that sets the sum of the voltage across each component around the closed circuit loop to zero."))
+   (teach (string "The sum of the voltages around any closed circuit loop must be zero.  Take the side of the capacitor closest to the positive terminal of the battery to be at high potential. If you reach this side of the capacitor first as you go around the loop, subtract the voltage across the capacitor from the battery voltage, otherwise add it."))
 	;;(bottom-out (string "Pick a consistent direction to go around the closed loop. Then write an equation summing the voltage across the battery and the voltages across the capacitors, paying attention to whether you should add or subtract the voltage across each capacitor."))
-	(bottom-out (string "The loop rule for ~A can be written as ~A" (?branch-list conjoined-names)
-			    ((= 0 (?sign (- (+ . ?v-batt1-vars) (+ . ?v-cap1-vars))
-					 (- (+ . ?v-batt2-vars) (+ . ?v-cap2-vars)))) algebra)  ))
-	))
+   (bottom-out (string "The loop rule for ~A can be written as ~A" (?branch-list conjoined-names)
+		       ((= 0 (?sign (- ?vb1 ?vc1) (- ?vb2 ?vc2))) algebra)  ))
+   ))
 
 
-(def-psmclass junction-rule-cap  (junction-rule-cap ?br-list1 ?br-list2 ?t)  
+(def-psmclass junction-rule-cap  (junction-rule-cap ?junction ?t)  
   :complexity major 
   :short-name "capacitor junction rule"
   :english ("junction rule for capacitors")
@@ -954,54 +966,45 @@
 (defoperator junction-rule-cap-contains (?Sought)
   :preconditions 
   (
-   (in-paths ?dontcare ?path-list1)
-   (out-paths ?dontcare ?path-list2)
-   (branch ?branch-dontcare ?dontcare1 ?dontcare2 ?path)
-   (test (or (member ?path ?path-list1) (member ?path ?path-list2)))
    ;; ?t may end up timeless (nil)
    (any-member ?sought ((charge ?cap :time ?t)))
-   (circuit-component ?cap capacitor)
+   (branch ?name ?whatever1 ?whatever2 ?path)
    (test (member ?cap ?path))
-   ;;Stop a=b+c and b+c=a from both coming out
-   (test (expr< ?path-list1 ?path-list2))
+   (junction ?junction ?names)
+   (test (member ?name ?names))
+
+   ;; Test that each branch in the junction contains a capacitor
+   (setof (circuit-component ?cap capacitor) ?cap ?all-caps)
+   (map ?jname ?names (branch ?jname ?w1 ?w2 ?jpath) ?jpath ?paths)
+   (test (every #'(lambda (x) (intersection x ?all-caps))) ?paths))
+   ;; sanity test
+   (test (or (equal ?junction (car ?path)) 
+	     (equal ?junction (car (last ?path))) 
+	     (error "improperly formed junction")))
    )		  
   :effects 
   (
-   (eqn-contains (junction-rule-cap ?path-list1 ?path-list2 ?t) ?sought)
+   (eqn-contains (junction-rule-cap ?junction ?t) ?sought)
    ))
 
-;; Returns the first capacitor in a path 
-;; Doesn't work if capacitor is in a nested list    
-(defun find-cap (path)
-  (setf done nil)
-  (do ((c 0 (+ c 1)))
-      ((or (eq done t) (= c (length path))) ans)
-    (setf ans (nth c path))
-    (if (equal #\C (char (string ans) 0)) (setf done t) (setf ans nil))))
-
-;; Returns a path with only one capacitor
-(defun strip-cap (path)
-  (setf x (first path))
-  (setf y (last path))
-  (setf z (find-cap path))
-  (cons x (cons z y)))
-
-;; Returns a list of paths with no more than one capacitor per path
-(defun modify (paths caps)
-  (setf fans '())
-  (do ((c 0 (+ c 1)))
-      ((= c (length paths)) fans)
-    (setf x (nth c paths))
-    (if (= 1 (length (intersection x caps))) (setf fans (append (list x) fans))
-      (setf fans (append (list (strip-cap x)) fans)))))
 
 (defoperator write-junction-rule-cap (?path-list1 ?path-list2 ?t )
   :preconditions 
   (
+   (junction ?junction ?names)
+   ;; For cases where a junction is also connected to outside world
+   (test (not (member 'unknown ?names)))
+   (map ?name ?names (branch ?name ?whatever1 ?whatever2 ?path) ?path ?paths)
+   (bind ?in-paths (remove ?junction ?paths :key #'car :test #'equal))
+   (bind ?out-paths (remove ?junction ?paths 
+			    :key #'(lambda (x) (car (last x))) 
+			    :test #'equal))
    ;;find the charge variables for capacitor going into the branch
    (setof (in-wm (circuit-component ?cap capacitor))
 	  ?cap ?all-caps)
-   
+
+;;   ================ working here, maybe put contains down here too =====
+
    (bind ?p-list1 (modify ?path-list1 ?all-caps))
    
    (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
