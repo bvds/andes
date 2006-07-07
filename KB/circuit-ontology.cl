@@ -28,11 +28,14 @@
 ;; ?component would be a list of names that would mean something
 ;; to the student.  For the current through a branch, we take components 
 ;; defined by (circuit-element ...) 
+
+;;; in the workbench, the time slot is added if feature changing-voltage
+;;; is included.
 (def-qexp current-thru (current-thru ?component :time ?time)
   :symbol-base |I| 
   :short-name "current"
   ;; custom dialog box, need something here to make entry in scalars.tsv
-  :dialog-text ""  
+  :dialog-text "flowing through [body:bodies] or [body2:positons] (experimental)"  
   :units |A|
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
