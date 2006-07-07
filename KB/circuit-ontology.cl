@@ -23,6 +23,7 @@
 ;;  After the student makes an entry, however, the helpsystem should
 ;;  match the student entry to any system entry that contains all of the 
 ;;  components selected by the student as a subset.
+;;  It should contain the list of bodies and the list of positions.
 ;;
 ;; In order for the hints to be useful, it is necessary that 
 ;; ?component would be a list of names that would mean something
@@ -35,7 +36,7 @@
   :symbol-base |I| 
   :short-name "current"
   ;; custom dialog box, need something here to make entry in scalars.tsv
-  :dialog-text "flowing through [body:bodies] or [body2:positons] (experimental)"  
+  :dialog-text "flowing through [body:bodies] (experimental)"  
   :units |A|
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
