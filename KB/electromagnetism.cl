@@ -3171,7 +3171,7 @@
   :short-name "Gauss' law"
   :english ("Gauss' law")
   :ExpFormat ("using Gauss' law")
-  :EqnFormat ("$FE = Q/eps0"))
+  :EqnFormat ("$FE = Q/$e0"))
 
 (defoperator gauss-law-contains (?sought)
   :preconditions
@@ -3188,15 +3188,15 @@
   ( (variable  ?Q (charge ?surface :surface t))
     (variable  ?phi (flux ?surface electric)) )
   :effects
-  ( (eqn  (= ?phi (/ ?Q eps0))
+  ( (eqn  (= ?phi (/ ?Q |eps0|))
 	  (gauss-law ?surface)) )
   :hint
   ( (point (string "Note that you can relate the flux through ~A to the charge inside ~A."
 		   ?surface ?surface))
     (teach (string "Gauss law states that the electric flux through a closed surface is equal to the
-total charge inside divided by eps0."))
+total charge inside divided by $e0."))
     (bottom-out (string "Write the equation ~A ."
-			((= ?phi (/ ?Q eps0)) algebra) )) ))
+			((= ?phi (/ ?Q |eps0|)) algebra) )) ))
 
 
 ;;;
@@ -3323,7 +3323,7 @@ total charge inside divided by eps0."))
   ( (point (string "You can apply Ampere's law to surface ~A."
 		   ?s))
     (teach (string "Ampere's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
-total current flowing through S times mu0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
+total current flowing through S times $m0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
     (bottom-out (string "Write the equation ~A ."
 			((= ?lint-var (* |mu0| ?current-sum)) 
 			 algebra)))))
