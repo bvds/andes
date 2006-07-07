@@ -3292,7 +3292,7 @@ total charge inside divided by eps0."))
   :short-name "Ampere's law"
   :english ("Ampere's law")
   :ExpFormat ("applying Ampere's law to ~A" (nlg ?S))
-  :EqnFormat ("int B = mu0*(I1 + I2 + ...)"))
+  :EqnFormat ("int B = $m0*(I1 + I2 + ...)"))
 
 (defoperator amperes-law-contains (?sought)
   :preconditions
