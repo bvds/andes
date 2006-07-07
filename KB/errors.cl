@@ -3835,7 +3835,8 @@
 (def-error-class wrong-given-value (?var ?wrongval)
   ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
    (test (assignmentp ?var ?wrongval))
-   (test (given-p ?var))))
+   (test (given-p ?var)))
+  :utility 10)
 
 (defun wrong-given-value (var wrongval) 
  (let* ((studvar (nlg var 'algebra))
@@ -3844,8 +3845,8 @@
 	(rightval (nlg (get-var-value var) 'algebra)))
   (make-hint-seq
    (list 
-	; Be sure to include full quantity def in message, in case problem
-	; is that student thinks var denotes some other quantity.
+	;; Be sure to include full quantity def in message, in case problem
+	;; is that student thinks var denotes some other quantity.
         (format nil "~A is not the correct value for ~A.  Reread the problem statement carefully to find the given value for ~A, ~A." 
 	            studval studvar studvar (nlg quant))
 	;; ?? should we tell them correct given value?
@@ -3853,27 +3854,23 @@
    ))))
 
 ;; Current wrong
-(def-error-class wrong-current-direction (?var ?wrongval)
+(def-error-class wrong-current-direction (?var)
   ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
-   (var-loc ?loc ?var (current-thru . ?whatever))
    (test (assignmentp ?var ?wrongval))
+   (test (given-p ?var))
+   ;; See if the quantity is current and whether the sign is wrong
+   (var-loc ?loc ?var (current-thru . ?whatever))
    (fix-eqn-by-replacing ?loc (- ?var))
-   (test (given-p ?var)))
+  )
   :utility 100)
-
-(defun wrong-current-direction (var wrongval) 
- (let* ((studvar (nlg var 'algebra))
-	(studval (nlg wrongval 'algebra))
-        (quant   (sysvar-to-quant var))
-	(rightval (nlg (get-var-value var) 'algebra)))
-  (make-hint-seq
-   (list 
-	; Be sure to include full quantity def in message, in case problem
-	; is that student thinks var denotes some other quantity.
-        (format nil "~A is not the Fred value for ~A.  Reread the problem statement carefully to find the given value for ~A, ~A." 
-	            studval studvar studvar (nlg quant))
-	;; ?? should we tell them correct given value?
-	(format nil "The correct value for ~A is ~A." studvar rightval)
+(defun wrong-current-direction (var) 
+  (let* ((studvar (nlg var 'algebra)))
+    (make-hint-seq
+     (list 
+      (format nil "When defining current, you need to determine the direction of positive current flow.  This will tell you whether ~A is positive or negative." 
+	      studvar)
+      ;; ?? should we tell them correct given value?
+	(format nil "Change the sign for the value of ~A." studvar)
    ))))
 
 ;; Wrong value for a non-given (i.e. calculated) quantity: 
