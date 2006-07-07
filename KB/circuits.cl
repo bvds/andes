@@ -685,6 +685,8 @@
    (path-to-branch ?branch ?path)
    (junction ?junction ?names)
    (test (member ?name ?names))
+   ;; Exclude cases where a junction is also connected to outside world
+   (test (not (member 'unknown ?names)))
    ;; sanity test
    (test (or (equal ?junction (car ?path)) 
 	     (equal ?junction (car (last ?path))) 
@@ -698,8 +700,6 @@
   :preconditions 
   (
    (junction ?junction ?names)
-   ;; For cases where a junction is also connected to outside world
-   (test (not (member 'unknown ?names)))
    (map ?name ?names (branch ?name ?whatever1 ?whatever2 ?path) ?path ?paths)
    (bind ?in-paths (remove ?junction ?paths :key #'car :test #'equal))
    (bind ?out-paths (remove ?junction ?paths 
@@ -957,7 +957,7 @@
    ))
 
 
-(def-psmclass junction-rule-cap  (junction-rule-cap ?junction ?t)  
+(def-psmclass junction-rule-cap (junction-rule-cap ?junction ?t)  
   :complexity major 
   :short-name "capacitor junction rule"
   :english ("junction rule for capacitors")
@@ -973,69 +973,58 @@
    (junction ?junction ?names)
    (test (member ?name ?names))
 
+   ;; Exclude cases where a junction is also connected to outside world
+   (test (not (member 'unknown ?names)))
+
    ;; Test that each branch in the junction contains a capacitor
-   (setof (circuit-component ?cap capacitor) ?cap ?all-caps)
-   (map ?jname ?names (branch ?jname ?w1 ?w2 ?jpath) ?jpath ?paths)
-   (test (every #'(lambda (x) (intersection x ?all-caps))) ?paths))
+   (setof (circuit-component ?cc capacitor) ?cc ?all-caps)
+   (map ?jname ?names (branch ?jname ?jw1 ?jw2 ?jpath) ?jpath ?paths)
+   (test (every #'(lambda (x) (intersection x ?all-caps)) ?paths))
    ;; sanity test
    (test (or (equal ?junction (car ?path)) 
 	     (equal ?junction (car (last ?path))) 
 	     (error "improperly formed junction")))
    )		  
-  :effects 
-  (
-   (eqn-contains (junction-rule-cap ?junction ?t) ?sought)
+  :effects ((eqn-contains (junction-rule-cap ?junction ?t) ?sought)
    ))
 
 
-(defoperator write-junction-rule-cap (?path-list1 ?path-list2 ?t )
+(defoperator write-junction-rule-cap (?junction ?t )
   :preconditions 
   (
    (junction ?junction ?names)
-   ;; For cases where a junction is also connected to outside world
-   (test (not (member 'unknown ?names)))
    (map ?name ?names (branch ?name ?whatever1 ?whatever2 ?path) ?path ?paths)
+   ;; find paths coming into/out of junction
    (bind ?in-paths (remove ?junction ?paths :key #'car :test #'equal))
    (bind ?out-paths (remove ?junction ?paths 
 			    :key #'(lambda (x) (car (last x))) 
 			    :test #'equal))
-   ;;find the charge variables for capacitor going into the branch
-   (setof (in-wm (circuit-component ?cap capacitor))
-	  ?cap ?all-caps)
-
-;;   ================ working here, maybe put contains down here too =====
-
-   (bind ?p-list1 (modify ?path-list1 ?all-caps))
-   
-   (bind ?in-caps (intersection ?all-caps (flatten ?p-list1)))
-   (test (not (equal nil ?in-caps)))
-   (map ?x ?in-caps  
-	(variable ?q-var (charge ?x :time ?t))
-	?q-var ?q-in-path-vars)
-   
-   ;;find the charge variables for capacitor going into the branch
-   (bind ?p-list2 (modify ?path-list2 ?all-caps))
-   
-   (bind ?out-caps (intersection ?all-caps (flatten ?p-list2)))
-   (test (not (equal nil ?out-caps)))
-   
-   (map ?x ?out-caps
-	(variable ?q-var (charge ?x :time ?t))
-	?q-var ?q-out-path-vars)
+   ;;find the first/last capacitor in each branch
+   (setof (in-wm (circuit-component ?cap capacitor)) ?cap ?all-caps)
+   (bind ?in-caps (mapcar #'(lambda (x) (car (intersection x ?all-caps))) 
+			  (reverse ?in-paths)))
+   (bind ?out-caps (mapcar #'(lambda (x) (car (intersection x ?all-caps))) 
+			  ?out-paths))
+   (test (progn (format t "junction-rule-cap ~A ~A~%" ?in-caps ?out-caps) t))
+   ;; define a variable for each capacitor   
+   (map ?x ?in-caps (variable ?q-var (charge ?x :time ?t))
+	?q-var ?q-in-vars)
+   (map ?x ?out-caps (variable ?q-var (charge ?x :time ?t))
+	?q-var ?q-out-vars)
+   ;; Format the sum
+   (bind ?in-term (format-plus ?q-in-vars))
+   (bind ?out-term (format-plus ?q-out-vars))
    )
-  :effects (
-	    (eqn (= (+ . ?q-in-path-vars) (+ . ?q-out-path-vars))
-		 (junction-rule-cap ?path-list1 ?path-list2 ?t))
-	    )
-  :hint(
-	(point (string "What do you know about the charges on capacitors connected to a junction where two or more branches meet?"))
-	;;(point (string "Find the capacitors closest to the junction on both sides."))
-	(teach (string "The sum of the charges on one side of a junction must equal the sum of the charges on the other side of the junction."))
-	(bottom-out (string "Set the sum of the charges on one side of the junction equal to the sum of the charges on the other side of the junction: Write the equation ~A" ((= (+ . ?q-in-path-vars) (+ . ?q-out-path-vars)) algebra)
-			    ))
+  :effects ((eqn (= ?in-term ?out-term) 
+		 (junction-rule-cap ?junction ?t)))
+  :hint
+  (
+   (point (string "What do you know about the charges on capacitors connected to a junction where two or more branches meet?"))
+   ;;(point (string "Find the capacitors closest to the junction on both sides."))
+   (teach (string "The sum of the charges on one side of a junction must equal the sum of the charges on the other side of the junction."))
+   (bottom-out (string "Set the sum of the charges on one side of the junction equal to the sum of the charges on the other side of the junction: Write the equation ~A" 
+		       ((= ?in-term ?out-term) algebra)))
 	))
-
-
 
 
 (def-psmclass charge-same-caps-in-branch (charge-same-caps-in-branch ?caps ?t) 
