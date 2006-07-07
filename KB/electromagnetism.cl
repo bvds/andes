@@ -3313,9 +3313,11 @@ total charge inside divided by eps0."))
 	   (variable ?current-var (current-thru ?wire))
 	   ?current-var ?current-vars)
    (variable  ?lint-var ?line-integral)
+   ;; format the sum
+   (bind ?current-sum (format-plus ?current-vars))
    )
   :effects
-  ( (eqn  (= ?lint-var (* (+ . ?current-vars) |mu0|))
+  ( (eqn  (= ?lint-var (* |mu0| ?current-sum))
 	  (amperes-law :surface ?S)) )
   :hint
   ( (point (string "You can apply Ampere's law to surface ~A."
@@ -3323,5 +3325,5 @@ total charge inside divided by eps0."))
     (teach (string "Ampere's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
 total current flowing through S times mu0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow."))
     (bottom-out (string "Write the equation ~A ."
-			((= ?lint-var (* (+ . ?current-vars) |mu0|)) 
+			((= ?lint-var (* |mu0| ?current-sum)) 
 			 algebra)))))
