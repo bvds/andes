@@ -692,9 +692,7 @@
 	     (equal ?junction (car (last ?path))) 
 	     (error "improperly formed junction")))
    )
-  :effects (
-	    (eqn-contains (junction-rule ?junction ?t) ?sought)
-	    ))
+  :effects ((eqn-contains (junction-rule ?junction ?t) ?sought)))
 
 (defoperator write-junction-rule (?junction ?t)
   :preconditions 

@@ -3297,7 +3297,7 @@ total charge inside divided by $e0."))
 (defoperator amperes-law-contains (?sought)
   :preconditions
   (
-   (amperes-law ?line-integral :surface ?S :currents ?wires)
+   (amperes-law ?line-integral :surface ?S :currents ?wires . ?rest)
    (any-member ?sought ((current-thru ?wire)
 			?line-intgral))
    (test (member ?wire ?wires))
@@ -3308,13 +3308,20 @@ total charge inside divided by $e0."))
 (defoperator write-amperes-law (?S)
   :preconditions
   ( 
-   (amperes-law ?line-integral :surface ?S :currents ?wires)
+   (amperes-law ?line-integral :surface ?S :currents ?wires 
+		:directions ?directions)
+   (variable  ?lint-var ?line-integral)
    (map ?wire ?wires
 	   (variable ?current-var (current-thru ?wire))
 	   ?current-var ?current-vars)
-   (variable  ?lint-var ?line-integral)
+   ;; include any signs, if specified
+   (bind ?current-terms 
+	 (if ?directions 
+	     (mapcar #'(lambda (x y) (if (eq '+ x) y (list '- y))) 
+		     ?directions ?current-vars)
+	   ?current-vars))
    ;; format the sum
-   (bind ?current-sum (format-plus ?current-vars))
+   (bind ?current-sum (format-plus ?current-terms))
    )
   :effects
   ( (eqn  (= ?lint-var (* |mu0| ?current-sum))
