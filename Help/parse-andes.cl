@@ -1166,12 +1166,8 @@
 ; is called.
 (defun set-wrong-given-value-error-interp (se quant)
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
-  (let (
-	(rem2 (diagnose se))
-	(rem (wrong-given-value (second (studentEntry-ParsedEqn se)) 
-                                (third (studentEntry-ParsedEqn se))))
-	)
-(format t "set-wrong-given-value-error-interp ~A~%    ~A~%" rem rem2)
+  (let ((rem (wrong-given-value (second (studentEntry-ParsedEqn se)) 
+                                (third (studentEntry-ParsedEqn se)))))
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(wrong-given-value)
