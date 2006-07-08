@@ -22,7 +22,7 @@
 	;; These correspond to custom dialog boxes which have
 	;; no direct counterpart in the Ontology
 	(dialogs '((angle nil "angle") (energy nil "energy") 
-		   (current |I| "current") (voltage |V| "voltage")))
+		   (voltage |V| "voltage")))
 	non-scalars)
     ;; Add all quantities with a non-null :dialog-text to list
     (dolist (qexp *Ontology-ExpTypes*)
