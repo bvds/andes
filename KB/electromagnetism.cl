@@ -3292,7 +3292,10 @@ total charge inside divided by $e0."))
   :short-name "Ampere's law"
   :english ("Ampere's law")
   :ExpFormat ("applying Ampere's law to ~A" (nlg ?S))
-  :EqnFormat ("int B = $m0*(I1 + I2 + ...)"))
+  ;; use implicit format args to insert the plus-minus character code into 
+  ;; the EqnFormat string using only standard characters in our source text
+  :EqnFormat ("int B = $m0*(~AI1 ~A I2 ~A ...)" (code-char 177)
+	      (code-char 177) (code-char 177)))
 
 (defoperator amperes-law-contains (?sought)
   :preconditions
