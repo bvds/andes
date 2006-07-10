@@ -3195,12 +3195,17 @@
   ;; student equation does not contain an absolute value
     ((student-eqn ?seqn)
      (test (not (recursive-member 'abs ?seqn)))
+     (bind ?s-vars (vars-in-eqn ?seqn))
      ;; student has made a sign error
      (var-loc ?loc ?var ?defn)
      (fix-eqn-by-replacing ?loc (- ?var))
      ;; correct equation does contain an absolute value
-     (correct ?ceqn)
+     (correct (eqn ?ceqn))
      (test (recursive-member 'abs ?ceqn))
+     (bind ?c-vars (vars-in-eqn ?ceqn))
+     ;; This is a naive test to see if the student
+     ;; equation actually matches this correct equation.
+     (test (equal-sets ?c-vars ?s-vars))
      )
     :utility 1
     :probability 0.3)
