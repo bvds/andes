@@ -656,7 +656,7 @@
 (def-psmclass given (given ?quantity ?value)
   :complexity simple
   :doc "enter given value"
-  :english ("the given value.")
+  :english ("the given value")
   :ExpFormat ("entering the given value of ~A" (nlg ?quantity))
   :EqnFormat ("Var = N units"))
 
