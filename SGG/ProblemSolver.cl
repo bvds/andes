@@ -737,7 +737,7 @@
   (format Stream "<caption>Solution 0</caption>~%")
   (format Stream "~{<tr>~{<td>~A</td>~}</tr>~%~}" 
 	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
-		  (mapcar #'get-node-id 
+		  (mapcar #'soleqn-id 
 			  (EqnSet-Eqns (first (Problem-Solutions Problem))))))
   (format Stream "</table>~%~%")
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
@@ -776,16 +776,29 @@
 
 (defun find-diff-ids (x y &optional ignore)
   (remove-if #'(lambda (match) (unify match ignore))
-		   (set-difference (mapcar #'get-node-id (EqnSet-eqns y)) 
-				   (mapcar #'get-node-id (EqnSet-eqns x)) 
+		   (set-difference (mapcar #'soleqn-id (EqnSet-eqns y)) 
+				   (mapcar #'soleqn-id (EqnSet-eqns x)) 
 				   :test #'equalp)))
 
-(defun get-node-id (node)
-"Newly generated EqnSet structures, and those read from files have 
- different structures.  This is a work-around."
-(cond ((Enode-p node) (Enode-id node))
-      ((Eqn-p node) (Eqn-exp node))
-      (t (format t "help ~A~%" node) node)))
+; The elements in a solution EqnSet are either eqnodes 
+; (for newly generated solutions in memory) or eqn index structs
+; (for solutions after loading in from files).
+; Following let us deal with these "soleqn" items generically.
+; [Maybe better placed where EqnSets are defined]
+(defun soleqn-enode (soleqn)
+"map solution equation item to its enode in the solution graph"
+   ; Some eqn index items  -- implicit equations -- may occur in several
+   ; graph nodes, but eqns in solution sets should always have unique eqnode
+   (if (Eqn-p soleqn) (first (Eqn-nodes soleqn))
+     ; else soleqn should be an enode
+     soleqn)) 
+
+(defun soleqn-id (soleqn)
+   (Enode-id (soleqn-enode soleqn)))
+
+(defun soleqn-algebra (soleqn)
+   (Enode-algebra (soleqn-enode soleqn)))
+
 
 ;;;;============================================================
 (defun trace-solve-problem ()
