@@ -711,16 +711,53 @@
     (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
     ))
 
+(defun print-html-problem-solutions (problem &optional (Stream t))
+  (format Stream 
+	  (strcat
+	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
+	   "<html> <head>~%"
+	   "<style type=\"text/css\">~%"
+	   "</style>~%"
+	   "<title>~A</title>~%"
+	   "</head>~%"
+	   "<body>~%") (problem-name Problem))
+  (format Stream "<h1>Problem Solutions for ~A~%" (problem-name Problem))
+  (format Stream "<h2>Solution 0:</h2> ~%")
+  (format Stream "<table>")
+  (print-html-report-eqnset (first (Problem-Solutions Problem)) Stream)
+  (format Stream "</table>")
+  (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
+    (format Stream "<h2>Solution ~A:</h2>~%" n)
+    (format Stream "<table>")
+    (print-html-report-eqnset (nth n (Problem-Solutions Problem)) Stream)
+    (format Stream "</table>")
+    )
+  (format Stream 
+	  (strcat
+	   "</body>~%"
+	   "</html>~%"))
+)
+
+;;
+;;  (dump-html-prbs #P"/Users/carla/Andes2/Problems/" #P"/Users/carla/solutions/"
+
+(defun dump-html-problem-solutions (problem &optional (path *andes-path*))
+  (let ((str (open (merge-pathnames 
+		    (format nil "~A.html" (problem-name problem)) path)
+		   :direction :output :if-exists :supersede)))
+    (print-html-problem-solutions problem str)
+    (close str)))
+
 (defun print-diff-ids (x y &optional (stream t) ignore)
   (format stream "~&+:  ~A~%-:  ~A~%" 
 	  (remove-if #'(lambda (x) (unify x ignore))
 		     (set-difference (mapcar #'get-node-id (EqnSet-eqns y)) 
-			  (mapcar #'get-node-id (EqnSet-eqns x)) 
-			  :test #'equalp))
+				     (mapcar #'get-node-id (EqnSet-eqns x)) 
+				     :test #'equalp))
 	  (remove-if #'(lambda (x) (unify x ignore))
-	  (set-difference (mapcar #'get-node-id (EqnSet-eqns x)) 
-			  (mapcar #'get-node-id (EqnSet-eqns y)) 
-			  :test #'equalp))))
+		     (set-difference (mapcar #'get-node-id (EqnSet-eqns x)) 
+				     (mapcar #'get-node-id (EqnSet-eqns y)) 
+				     :test #'equalp))))
 
 (defun get-node-id (node)
 "Newly generated EqnSet structures, and those read from files have 

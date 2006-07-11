@@ -158,6 +158,11 @@
   (format Stream "Explicit Equations~%")
   (print-eqnset-explicit-eqns Set Stream Level))
 
+(defun print-html-report-eqnset (Set &optional (Stream t))
+  (format Stream "~{<tr>~{<td>~A</td>~}</tr>~%~}" 
+	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
+		  (mapcar #'get-node-id (EqnSet-Eqns set)))))
+
 (defun print-eqnset-entries (Set Stream Level)
   (declare (ignore Level))
   "Print the eqnset entries."

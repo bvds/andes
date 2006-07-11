@@ -103,6 +103,13 @@
     (format T "Discrepencies:~%")
     (pprint Errs)))
 
+(defun dump-html-prbs (in-path out-path &rest topics)  
+  "write solutions to all problems into a directory"
+  (dolist (P (choose-working-probs topics))
+    (let ((pp (read-problem-file (string (problem-name P)) 
+				 :path in-path)))
+      (when pp (dump-html-problem-solutions pp out-path)))))
+
 ;;; for dealing with problem sets:
 ;;; For each ANDES problem set, there should be some distinguished feature set 
 ;;; that can pick out all and only the problems in that set. Easiest way is to 
