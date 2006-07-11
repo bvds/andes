@@ -351,7 +351,7 @@
 ;; because if we offered a generic distance-between variable students
 ;; might choose it for things like object-distance, and it won't work.
 ;; 
-(def-psmclass lens-combo (lens-combo ?lens1 lens2)
+(def-psmclass lens-combo (lens-combo ?lens1 ?lens2)
   :complexity major
   :short-name "combination of lenses"
   :english ("the lens combination relation")
