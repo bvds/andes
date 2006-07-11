@@ -181,7 +181,7 @@
   :complexity major  ; ??
   :short-name "focal length of mirror"
   :english ("the focal length of spherical mirror")
-  :ExpFormat ("applying the formula for the focal length of a spherical mirror")
+  :ExpFormat ("applying the formula for the focal length of a spherical mirror to ~A" (nlg ?mirror))
   :EqnFormat ("f = r/2")) 
 
 (defoperator focal-length-mirror-contains (?sought)
@@ -218,7 +218,7 @@
   :complexity major
   :short-name "thin lens/mirror equation"
   :english ("the thin lens/mirror equation")
-  :ExpFormat ("applying the thin lens/mirror equation")
+  :ExpFormat ("applying the thin lens/mirror equation to ~A" (nlg ?lens))
   :EqnFormat ("1/do + 1/di = 1/f")) 
 
 (defoperator lens-eqn-contains (?sought)
@@ -305,7 +305,7 @@
   :complexity major
   :short-name "(lateral) magnification"
   :english ("the formula for (lateral) magnification")
-  :ExpFormat ("applying the formula for magnification")
+  :ExpFormat ("applying the formula for magnification to ~A" (nlg ?lens))
   :EqnFormat ("m = -di/do")) 
 
 (defoperator magnification-eqn-contains (?sought)
@@ -355,7 +355,8 @@
   :complexity major
   :short-name "combination of lenses"
   :english ("the lens combination relation")
-  :ExpFormat ("applying the lens combination relation")
+  :ExpFormat ("applying the lens combination relation to ~A and ~A" 
+	      (nlg ?lens1) (nlg ?lens2))
   :EqnFormat ("do2 = d12 - di1")) 
 
 (defoperator lens-combo-contains (?sought)
@@ -387,11 +388,11 @@
         ((= ?do2 (- ?d12 ?di1)) algebra) ))
   ))
 
-(def-psmclass combo-magnification (combo-magnification ?sys)
+(def-psmclass combo-magnification (combo-magnification ?lens1 ?lens2)
   :complexity major
   :short-name "combined magnification"
   :english ("combined lens magnification")
-  :ExpFormat ("applying the formula for magnification of combined lenses")
+  :ExpFormat ("applying the formula for magnification to ~A and ~A" (nlg ?lens1) (nlg ?lens2))
   :EqnFormat ("m12 = m1*m2")) 
 
 (defoperator combo-magnification-contains (?sought)
@@ -402,7 +403,7 @@
                            (magnification ?lens2) ))
    )
    :effects (
-     (eqn-contains (combo-magnification ?sys) ?sought)
+     (eqn-contains (combo-magnification ?lens1 ?lens2) ?sought)
    ))
 
 (defoperator combo-magnification (?sys)
@@ -413,7 +414,7 @@
        (variable ?m2  (magnification ?lens2))
    )
    :effects (
-     (eqn  (= ?m12 (* ?m1 ?m2)) (combo-magnification ?sys))
+     (eqn  (= ?m12 (* ?m1 ?m2)) (combo-magnification ?lens1 ?lens2))
    )
    :hint (
       (point (string "The magnification of a combination of lenses is a simple function of the magnifications of the individual lenses."))

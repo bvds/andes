@@ -234,6 +234,7 @@
   :complexity definition
   :short-name "Ohm's Law"
   :english ("Ohm's Law")
+  :ExpFormat ("applying Ohm's law to ~A" (nlg ?res))
   :eqnFormat ("V = I*R"))
 
 ;;May need to uncomment (resistance) as a sought to get currents to work
@@ -841,6 +842,7 @@
   :complexity definition
   :short-name "capacitance defined"
   :english ("Definition of capacitance")
+  :ExpFormat ("applying the definition of capacitance to ~A" (nlg ?cap))
   :eqnFormat ("C = q/V"))
 
 (defoperator capacitor-definition-contains (?sought)
@@ -1666,6 +1668,8 @@
   :complexity major
   :short-name "inductor EMF"
   :english ("EMF (voltage) across inductor")
+  :ExpFormat ("finding the EMF across inductor ~A ~A" 
+	      (nlg ?inductor) (nlg ?time 'nlg-time))
   :eqnFormat ("V = -L*dIdt") 
   )
 
