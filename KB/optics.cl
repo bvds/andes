@@ -850,7 +850,7 @@
   :short-name "Brewster's law"
   :english ("Formula for angle of Brewster's law")
   :ExpFormat ("using Brewster's law formula for ~A" 
-	      (nlg (line ?line1)))
+	      (nlg (list 'line ?line1)))
   :eqnFormat ("n1*tan($q1) = n2"))
 
 
