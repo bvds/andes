@@ -103,8 +103,10 @@
     (format T "Discrepencies:~%")
     (pprint Errs)))
 
+;; Needs helpsystem loaded to work.
+;; (dump-html-prbs #P"/home/bvds/Andes2/Problems/" #P"/home/bvds/solutions/" 'andes2)
 (defun dump-html-prbs (in-path out-path &rest topics)  
-  "write solutions to all problems into a directory"
+  "write solutions to working problems into a directory"
   (dolist (P (choose-working-probs topics))
     (let ((pp (read-problem-file (string (problem-name P)) 
 				 :path in-path)))

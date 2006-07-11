@@ -158,16 +158,10 @@
   (format Stream "Explicit Equations~%")
   (print-eqnset-explicit-eqns Set Stream Level))
 
-(defun print-html-report-eqnset (Set &optional (Stream t))
-  (format Stream "~{<tr>~{<td>~A</td>~}</tr>~%~}" 
-	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
-		  (mapcar #'get-node-id (EqnSet-Eqns set)))))
-
 (defun print-eqnset-entries (Set Stream Level)
   (declare (ignore Level))
   "Print the eqnset entries."
   (format Stream "~{    ~S~%~}" 
-	  (sort-ascending-string-length
 	   (remove-if-not 
 	    #'(lambda (e) (and (kb-entryprop-p e)
 			       (not (kb-eqn-entryprop-p e))))
@@ -177,34 +171,30 @@
 					((Qnode-p n) (qnode-path n))
 					(t nil))) ;if read from a file
 			      (Eqnset-Nodes Set))
-		      :test #'unify))))) ;could use "equal"
+		      :test #'unify)))) ;could use "equal"
 		     
 
 (defun print-eqnset-implicit-eqns (Set Stream Level)
   "Print the implicit equations in the EqnSet."
   (declare (ignore Level))
   (format Stream "~{    ~A~%~}" 
-	  (sort-ascending-string-length
 	   (mapcar #'eqn-algebra
 		   (remove-if-not
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
 		    (mappend #'Enode-Subeqns 
 			     (remove-if-not #'Enode-p ;for read from file
-					    (EqnSet-Eqns Set))))))))
-   
+					    (EqnSet-Eqns Set))))))) 
      
 (defun print-eqnset-explicit-eqns (Set Stream Level)
   "Print the implicit equations in the EqnSet."
   (declare (ignore Level))
   (format Stream "~{    ~A~%~}" 
-	  (sort-ascending-string-length
 	   (mapcar #'eqn-algebra
 		   (remove-if
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
 		    (mappend #'Enode-Subeqns 
 			     (remove-if-not #'Enode-p ;for read from file
-					    (EqnSet-Eqns Set))))))))
-  
+					    (EqnSet-Eqns Set)))))))  
 
 (defun print-num-eqnset-wsols (Num Set &optional (Stream t) (Level 0))
   "Print out a numbered eqn set."

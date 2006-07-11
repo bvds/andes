@@ -705,41 +705,67 @@
   (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
     (format Stream "Solution ~A:  ~@[          ignoring ~A~]~%" n ignore)
-    (print-diff-ids (nth 0 (Problem-Solutions Problem))
-		    (nth n (Problem-Solutions Problem))
-		    Stream ignore)
+    (format Stream "~&+:  ~A~%-:  ~A~%" 
+	    (find-diff-ids (nth 0 (Problem-Solutions Problem))
+			   (nth n (Problem-Solutions Problem))
+			   ignore)
+	    (find-diff-ids (nth n (Problem-Solutions Problem))
+			   (nth 0 (Problem-Solutions Problem))
+			   ignore))
     (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
     ))
 
-(defun print-html-problem-solutions (problem &optional (Stream t))
+(defun print-html-problem-solutions (problem 
+				     &optional (Stream t)
+				     ;; don't write out projections
+				     (ignore '(projection . ?whatever)))
   (format Stream 
 	  (strcat
 	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
 	   "<html> <head>~%"
 	   "<style type=\"text/css\">~%"
+	   "  th { vertical-align: top}"
+	   "  td { vertical-align: top}"
+	   "  caption {font-size: larger; font-weight: bolder}"
 	   "</style>~%"
 	   "<title>~A</title>~%"
 	   "</head>~%"
-	   "<body>~%") (problem-name Problem))
-  (format Stream "<h1>Problem Solutions for ~A~%" (problem-name Problem))
-  (format Stream "<h2>Solution 0:</h2> ~%")
-  (format Stream "<table>")
-  (print-html-report-eqnset (first (Problem-Solutions Problem)) Stream)
-  (format Stream "</table>")
+	   "<body>~%"
+	   "<h1>Problem Solutions for ~A</h1>~%") 
+	  (problem-name Problem) (problem-name Problem))
+  (format Stream "<table>~%")
+  (format Stream "<caption>Solution 0</caption>~%")
+  (format Stream "~{<tr>~{<td>~A</td>~}</tr>~%~}" 
+	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
+		  (mapcar #'get-node-id 
+			  (EqnSet-Eqns (first (Problem-Solutions Problem))))))
+  (format Stream "</table>~%~%")
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
-    (format Stream "<h2>Solution ~A:</h2>~%" n)
-    (format Stream "<table>")
-    (print-html-report-eqnset (nth n (Problem-Solutions Problem)) Stream)
-    (format Stream "</table>")
-    )
+    (let ((diff1 (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
+			 (find-diff-ids (nth 0 (Problem-Solutions Problem))
+					(nth n (Problem-Solutions Problem))
+					ignore)))
+	  (diff2 (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
+			 (find-diff-ids (nth n (Problem-Solutions Problem))
+					(nth 0 (Problem-Solutions Problem))
+					ignore))))
+      (format Stream "<p><table>~%")
+      (format Stream "  <caption>Solution ~A</caption>~%" n)
+      (format Stream "  <tr><th rowspan=~A>Added:</th>~{<td>~A</td>~}</tr>~%" 
+	      (length diff1) (car diff1))
+      (format Stream "~{  <tr>~{<td>~A</td>~}</tr>~%~}" (rest diff1))
+      (format Stream "  <tr><th rowspan=~A>Removed:</th>~{<td>~A</td>~}</tr>~%" 
+	      (length diff2) (car diff2))
+      (format Stream "~{  <tr>~{<td>~A</td>~}</tr>~%~}" (rest diff2))
+      (format Stream "  <tr><td colspan=3>Ignoring ~A</td></tr>~%" 
+	      (psm-english ignore))
+      (format Stream "</table>~%~%")
+      ))
   (format Stream 
 	  (strcat
 	   "</body>~%"
 	   "</html>~%"))
-)
-
-;;
-;;  (dump-html-prbs #P"/Users/carla/Andes2/Problems/" #P"/Users/carla/solutions/"
+  )
 
 (defun dump-html-problem-solutions (problem &optional (path *andes-path*))
   (let ((str (open (merge-pathnames 
@@ -748,16 +774,11 @@
     (print-html-problem-solutions problem str)
     (close str)))
 
-(defun print-diff-ids (x y &optional (stream t) ignore)
-  (format stream "~&+:  ~A~%-:  ~A~%" 
-	  (remove-if #'(lambda (x) (unify x ignore))
-		     (set-difference (mapcar #'get-node-id (EqnSet-eqns y)) 
-				     (mapcar #'get-node-id (EqnSet-eqns x)) 
-				     :test #'equalp))
-	  (remove-if #'(lambda (x) (unify x ignore))
-		     (set-difference (mapcar #'get-node-id (EqnSet-eqns x)) 
-				     (mapcar #'get-node-id (EqnSet-eqns y)) 
-				     :test #'equalp))))
+(defun find-diff-ids (x y &optional ignore)
+  (remove-if #'(lambda (match) (unify match ignore))
+		   (set-difference (mapcar #'get-node-id (EqnSet-eqns y)) 
+				   (mapcar #'get-node-id (EqnSet-eqns x)) 
+				   :test #'equalp)))
 
 (defun get-node-id (node)
 "Newly generated EqnSet structures, and those read from files have 
