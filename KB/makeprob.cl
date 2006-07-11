@@ -103,8 +103,11 @@
     (format T "Discrepencies:~%")
     (pprint Errs)))
 
-;; Needs helpsystem loaded to work.
-;; (dump-html-prbs #P"/home/bvds/Andes2/Problems/" #P"/home/bvds/solutions/" 'andes2)
+
+;; need helpsystem loaded for this
+;; (dump-html-prbs #P"/home/bvds/Andes2/Problems/" #P"/home/bvds/solutions/")
+;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
+
 (defun dump-html-prbs (in-path out-path &rest topics)  
   "write solutions to working problems into a directory"
   (dolist (P (choose-working-probs topics))
