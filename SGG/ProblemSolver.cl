@@ -724,9 +724,11 @@
 	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
 	   "<html> <head>~%"
 	   "<style type=\"text/css\">~%"
-	   "  th { vertical-align: top}"
-	   "  td { vertical-align: top}"
-	   "  caption {font-size: larger; font-weight: bolder}"
+	   "  th { vertical-align: top; text-align: right; }~%"
+	   "  td { vertical-align: top; }~%"
+	   "  caption {font-size: larger; font-weight: bolder}~%"
+	   "  table,caption {margin-left: auto; margin-right: auto; ~%"
+	   "         border-spacing: 2; margin-bottom: 5; margin-top: 5; }~%"
 	   "</style>~%"
 	   "<title>~A</title>~%"
 	   "</head>~%"
@@ -736,20 +738,23 @@
   (format Stream "<table>~%")
   (format Stream "<caption>Solution 0</caption>~%")
   (format Stream "~{<tr>~{<td>~A</td>~}</tr>~%~}" 
-	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
+	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x) 
+				      (format nil "<code>~S</code>" x)))
 		  (mapcar #'soleqn-id 
 			  (EqnSet-Eqns (first (Problem-Solutions Problem))))))
   (format Stream "</table>~%~%")
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
-    (let ((diff1 (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
+    (let ((diff1 (mapcar #'(lambda (x) (list (psm-english x) 
+					     (format nil "<code>~S</code>" x)))
 			 (find-diff-ids (nth 0 (Problem-Solutions Problem))
 					(nth n (Problem-Solutions Problem))
 					ignore)))
-	  (diff2 (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x)))
+	  (diff2 (mapcar #'(lambda (x) (list (psm-english x) 
+					     (format nil "<code>~S</code>" x)))
 			 (find-diff-ids (nth n (Problem-Solutions Problem))
 					(nth 0 (Problem-Solutions Problem))
 					ignore))))
-      (format Stream "<p><table>~%")
+      (format Stream "<table>~%")
       (format Stream "  <caption>Solution ~A</caption>~%" n)
       (format Stream "  <tr><th rowspan=~A>Added:</th>~{<td>~A</td>~}</tr>~%" 
 	      (length diff1) (car diff1))
@@ -779,7 +784,6 @@
 		   (set-difference (mapcar #'soleqn-id (EqnSet-eqns y)) 
 				   (mapcar #'soleqn-id (EqnSet-eqns x)) 
 				   :test #'equalp)))
-
 
 
 ;;;;============================================================
