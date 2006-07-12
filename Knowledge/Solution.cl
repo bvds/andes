@@ -220,7 +220,7 @@
 		    (mappend #'Enode-Subeqns (EqnSet-Enodes Set)))))) 
      
 (defun print-eqnset-explicit-eqns (Set Stream Level)
-  "Print the implicit equations in the EqnSet."
+  "Print the explicit equations in the EqnSet."
   (declare (ignore Level))
   (format Stream "~{    ~A~%~}" 
 	   (mapcar #'eqn-algebra
