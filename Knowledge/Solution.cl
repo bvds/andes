@@ -123,13 +123,13 @@
   Assumpts
   Solutions)
 
-; The elements in EqnSet-Eqns are eqnodes for newly generated solutions in memory 
-; but are eqn index structs for solutions after loading in from files.
-; soleqn functions are for dealing generically with these elements
+;; The elements in EqnSet-Eqns are eqnodes for newly generated solutions in 
+;; memory but are eqn index structs for solutions after loading in from files.
+;; soleqn functions are for dealing generically with these elements
 (defun soleqn-enode (soleqn)
 "map solution equation item to its enode in the solution graph"
-   ; Some eqn index items  -- implicit equations -- may occur in several
-   ; graph nodes, but eqns in solution sets should always have unique eqnode
+   ;; Some eqn index items  -- implicit equations -- may occur in several
+   ;; graph nodes, but eqns in solution sets should always have unique eqnode
    (cond ((Eqn-p soleqn) (first (Eqn-nodes soleqn)))
          ((Enode-p soleqn) soleqn)
          (T (format T "Bad soleqn ~A~%" soleqn)
@@ -145,21 +145,19 @@
 "get EqnSet equations as enodes regardless of format"
    (mapcar #'soleqn-enode (EqnSet-Eqns EqnSet)))
 
-; EqnSet-Nodes, which lists all solution graph nodes used in the solution
-; (both equation and quantity nodes) appears to be a list of graph nodes at sgg time but
-; a list of node *indices* after loading from file. Following pulls out graph nodes from
-; either form
+;; EqnSet-Nodes, which lists all solution graph nodes used in the solution
+;; (both equation and quantity nodes) appears to be a list of graph nodes at 
+;; sgg time but a list of node *indices* after loading from file.  
+;; The following pulls out graph nodes from either form.
 
 (defun EqnSet-GraphNodes (EqnSet)
 "get EqnSet nodes as graph nodes regardless of format"
  (if (numberp (first (EqnSet-Nodes EqnSet))) ; have indices from file form
         (map-indicies->bgnodes (EqnSet-Nodes EqnSet) (problem-graph *cp*))
- ; else have graph nodes
+   ;; else have graph nodes
   (EqnSet-Nodes EqnSet)))
   
-  
-
-; Following format used by "pe" sgg function
+;; Following format used by "pe" sgg function
 (defun print-numbered-eqnset (Num Set &optional (Stream t) (Level 0))
   "Print a particular eqn set with its number." 
   (pprint-indent :block Level Stream)
@@ -167,13 +165,14 @@
   (format Stream "Equations:~%")
   (dolist (soleqn (eqnset-eqns Set))
      (format Stream "~A~%        ~A ~A~%" (soleqn-algebra soleqn) (soleqn-id soleqn) (enode-note (soleqn-enode soleqn))))
-  ; not useful -AW
-  ;(format Stream "~%Nodes:  ~W~2%" (eqnSet-Nodes Set))
+  ;; not useful -AW
+  ;;(format Stream "~%Nodes:  ~W~2%" (eqnSet-Nodes Set))
   )
 
 (defun enode-note (enode)
-; return printable "note" showing if eqnode represents COMBINABLE or MAJOR eqn 
-; NB: this makes use of eqn index in *cp* and predicates in Help/interpret-equation
+;; return printable "note" showing if eqnode represents COMBINABLE or MAJOR 
+;; eqn  NB: this makes use of eqn index in *cp* and predicates in 
+;; Help/interpret-equation
   (let ((eqn (find-exp->eqn (enode-id enode) (Problem-EqnIndex *cp*)))) ; find in index
       (cond ((null eqn) "")
             ((combinable-eqn-p eqn) "[COMBINABLE]")
