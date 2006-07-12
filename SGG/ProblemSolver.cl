@@ -780,24 +780,6 @@
 				   (mapcar #'soleqn-id (EqnSet-eqns x)) 
 				   :test #'equalp)))
 
-; The elements in a solution EqnSet are either eqnodes 
-; (for newly generated solutions in memory) or eqn index structs
-; (for solutions after loading in from files).
-; Following let us deal with these "soleqn" items generically.
-; [Maybe better placed where EqnSets are defined]
-(defun soleqn-enode (soleqn)
-"map solution equation item to its enode in the solution graph"
-   ; Some eqn index items  -- implicit equations -- may occur in several
-   ; graph nodes, but eqns in solution sets should always have unique eqnode
-   (if (Eqn-p soleqn) (first (Eqn-nodes soleqn))
-     ; else soleqn should be an enode
-     soleqn)) 
-
-(defun soleqn-id (soleqn)
-   (Enode-id (soleqn-enode soleqn)))
-
-(defun soleqn-algebra (soleqn)
-   (Enode-algebra (soleqn-enode soleqn)))
 
 
 ;;;;============================================================
