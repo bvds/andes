@@ -728,7 +728,7 @@
 	   "  td { vertical-align: top; }~%"
 	   "  caption {font-size: larger; font-weight: bolder}~%"
 	   "  table,caption {margin-left: auto; margin-right: auto; ~%"
-	   "         border-spacing: 2; margin-bottom: 5; margin-top: 5; }~%"
+	   "         border-spacing: 4; margin-bottom: 5; margin-top: 5; }~%"
 	   "</style>~%"
 	   "<title>~A</title>~%"
 	   "</head>~%"
