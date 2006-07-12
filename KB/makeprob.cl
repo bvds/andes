@@ -203,10 +203,10 @@
       #'andes2-prob))
       
 ;;; list all possible entries for given problem. 
-(defun show-entries(probname &optional (dst T))
+(defun show-entries(probname &optional (dest T))
  (read-problem-info probname) ; will do sg-setup
  (dolist (e *sg-entries*) 
-   (format dst "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)
+   (format dest "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)
 			     ; show full opinst, not just opname
                              (first (sg-map-systementry->opinsts e)))
     ))

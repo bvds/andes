@@ -740,7 +740,7 @@
   (format Stream "~{<tr>~{<td>~A</td>~}</tr>~%~}" 
 	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x) 
 				      (format nil "<code>~S</code>" x)))
-		  (mapcar #'soleqn-id 
+		  (mapcar #'enode-id 
 			  (EqnSet-Eqns (first (Problem-Solutions Problem))))))
   (format Stream "</table>~%~%")
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
@@ -781,8 +781,8 @@
 
 (defun find-diff-ids (x y &optional ignore)
   (remove-if #'(lambda (match) (unify match ignore))
-		   (set-difference (mapcar #'soleqn-id (EqnSet-eqns y)) 
-				   (mapcar #'soleqn-id (EqnSet-eqns x)) 
+		   (set-difference (mapcar #'enode-id (EqnSet-eqns y)) 
+				   (mapcar #'enode-id (EqnSet-eqns x)) 
 				   :test #'equalp)))
 
 

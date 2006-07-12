@@ -3866,6 +3866,7 @@
 ;;   -if just plain wrong.
 ;; Note that some things we think are "non-given" might actually be obvious 
 ;; from givens, e.g equal and opposite components.
+;; Also, among non-givens, might want different message for problem soughts.
 
 (def-error-class value-for-cancelling-var (?var)
   ((student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
@@ -3933,6 +3934,15 @@
 "true if solver reports equation as inaccurate."
   (eq (solver-equation-redp eqn) 'inaccurate))
  
+;;
+;; !!! Need different case for constants, most importantly value of g.
+;; Also have two cases: "close" value, or way-off value.
+;;
+
+(defun sysvar-g-p (sysvar)
+"true if system variable stands for g on earth"
+   (equal (sysvar-to-quant sysvar) '(gravitational-acceleration earth)))
+
 (def-error-class imprecise-value-non-given (?var ?wrongval)
  ( (student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
    (test (assignmentp ?var ?wrongval))

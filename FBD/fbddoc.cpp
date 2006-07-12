@@ -3109,6 +3109,9 @@ BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 		return FALSE;
 	m_Variables.AddTail(pVar);	// bypass AddVariable, it generates id
 	pVar->m_pDocument = this;
+	// must add name to cached varname list. Normally done in UpdateVarNames after 
+	// dialog box editing of new variables.
+	m_strVarNames.AddTail(pVar->m_strName);
 	// no need to update views at this point
 
 	return TRUE;

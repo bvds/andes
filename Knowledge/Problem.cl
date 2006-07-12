@@ -327,7 +327,8 @@
     (Bubblegraph (setf (problem-Graph Problem) (read-mreadable-bubblegraph Stream)))
     (EqnIndex (setf (Problem-EqnIndex Problem) (read-mreadable-eqns Stream (Problem-Graph Problem))))
     (VarIndex (setf (Problem-VarIndex Problem) (read-mreadable-qvars Stream (Problem-Graph Problem))))
-    (Solutions (setf (Problem-Solutions Problem) (read-mreadable-EqnSets Stream (Problem-EqnIndex Problem))))
+    (Solutions (setf (Problem-Solutions Problem) 
+                  (read-mreadable-EqnSets Stream (Problem-EqnIndex Problem) (Problem-Graph Problem))))
 
     (t (error "Undefined Problem-header tag. ~A" name))))
 

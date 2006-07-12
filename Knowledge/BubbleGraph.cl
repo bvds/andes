@@ -1234,6 +1234,11 @@
 	:key #'enode-ID 
 	:test #'unify))			;could use "equal"
 
+(defun match-algebra->enode (algebra Graph)
+  "Find enode with specified equation algebra"
+   (find algebra (bubblegraph-enodes Graph)
+        :key #'enode-algebra
+	:test #'equal))
 
 (defun match-exp->bgnode (Exp Graph)
   "Given the expression return the node that matches it if any."

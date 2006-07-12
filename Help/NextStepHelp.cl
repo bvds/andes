@@ -628,9 +628,7 @@
   "This lambda func should only be called from above."
   (nsh-sort-node-lists
    (reverse 
-    (remove-if-not 
-     #'bgnode-entries 
-     (map-indicies->bgnodes (Eqnset-Nodes Solution) Graph)))))
+    (remove-if-not #'bgnode-entries (Eqnset-Nodes Solution)))))
 
 
 

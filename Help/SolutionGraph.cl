@@ -74,7 +74,6 @@
 
 (defstruct sgsol
   Num
-  Nodes
   Entries)
 
 
@@ -529,7 +528,7 @@
 (defun sg-add-solution (Num Solution Eqns)
   "Add the numbered solution to the system"
   (let ((Eq))
-    (dolist (E (EqnSet-Eqns Solution))
+    (dolist (E (EqnSet-AllEqns Solution))
       (when (eqn-entry-type-p (eqn-type E)) 
 	(if (setq eq (find (Eqn-Algebra E) Eqns
 			   :key #'cadr :test #'equalp))
@@ -541,10 +540,9 @@
   "Translate elements of the solution for use."
   (make-sgsol 
    :num Num
-   :Nodes (EqnSet-Nodes Solution)
    :Entries (remove-duplicates
 	     (loop for N in (EqnSet-Nodes Solution)
-		 append (BGNode-Entries (get-nth-bgnode N Graph))))))
+		 append (BGNode-Entries N)))))
 
 
 

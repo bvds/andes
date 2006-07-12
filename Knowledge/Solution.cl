@@ -118,45 +118,17 @@
 ;;; listing of solutions for use.
 
 (defstruct (EqnSet (:type list))
-  Eqns
-  Nodes
-  Assumpts
-  Solutions)
+  Eqns		; list of Enodes for solution PSMs
+  Nodes		; list of all bgnodes, quantity + equation, in solution
+  Assumpts	; assumptions used in this solution
+  Solutions)	; used in SGG/SolutionSet.cl, not persisted to file
 
-;; The elements in EqnSet-Eqns are eqnodes for newly generated solutions in 
-;; memory but are eqn index structs for solutions after loading in from files.
-;; soleqn functions are for dealing generically with these elements
-(defun soleqn-enode (soleqn)
-"map solution equation item to its enode in the solution graph"
-   ;; Some eqn index items  -- implicit equations -- may occur in several
-   ;; graph nodes, but eqns in solution sets should always have unique eqnode
-   (cond ((Eqn-p soleqn) (first (Eqn-nodes soleqn)))
-         ((Enode-p soleqn) soleqn)
-         (T (format T "Bad soleqn ~A~%" soleqn)
-	    NIL)))
+(defun EqnSet-AllEqns (Set)
+"return list of all eqns within a solution EqnSet"
+ (remove-duplicates  
+    (list-base-eqns  ; ignores derived
+       (collect-bgnodes->eqns (EqnSet-Eqns Set)))))
 
-(defun soleqn-id (soleqn)
-   (Enode-id (soleqn-enode soleqn)))
-
-(defun soleqn-algebra (soleqn)
-   (Enode-algebra (soleqn-enode soleqn)))
-
-(defun EqnSet-enodes (EqnSet)
-"get EqnSet equations as enodes regardless of format"
-   (mapcar #'soleqn-enode (EqnSet-Eqns EqnSet)))
-
-;; EqnSet-Nodes, which lists all solution graph nodes used in the solution
-;; (both equation and quantity nodes) appears to be a list of graph nodes at 
-;; sgg time but a list of node *indices* after loading from file.  
-;; The following pulls out graph nodes from either form.
-
-(defun EqnSet-GraphNodes (EqnSet)
-"get EqnSet nodes as graph nodes regardless of format"
- (if (numberp (first (EqnSet-Nodes EqnSet))) ; have indices from file form
-        (map-indicies->bgnodes (EqnSet-Nodes EqnSet) (problem-graph *cp*))
-   ;; else have graph nodes
-  (EqnSet-Nodes EqnSet)))
-  
 ;; Following format used by "pe" sgg function
 (defun print-numbered-eqnset (Num Set &optional (Stream t) (Level 0))
   "Print a particular eqn set with its number." 
@@ -164,9 +136,9 @@
   (format Stream "~A:-----------------~%" Num)
   (format Stream "Equations:~%")
   (dolist (soleqn (eqnset-eqns Set))
-     (format Stream "~A~%        ~A ~A~%" (soleqn-algebra soleqn) (soleqn-id soleqn) (enode-note (soleqn-enode soleqn))))
-  ;; not useful -AW
-  ;;(format Stream "~%Nodes:  ~W~2%" (eqnSet-Nodes Set))
+     (format Stream "~A~%        ~A ~A~%" (enode-algebra soleqn) (Enode-id soleqn) (enode-note soleqn)))
+  ; not useful -AW
+  ;(format Stream "~%Nodes:  ~W~2%" (eqnSet-Nodes Set))
   )
 
 (defun enode-note (enode)
@@ -185,7 +157,7 @@
 (defun print-numbered-report-eqnset (Set &optional (Stream t) (level 0))
   (format Stream "Problem Solution Methods.~%") 
   (format Stream "~{    ~S~%~}" 
-	  (mapcar #'soleqn-id (EqnSet-Eqns set)))
+	  (mapcar #'Enode-id (EqnSet-Eqns set)))
   (format Stream "Entries.~%")
   (print-eqnset-entries Set Stream Level)
   (format Stream "Implicit Equations~%")
@@ -205,7 +177,7 @@
 				  (cond ((Enode-p n) (enode-path n))
 					((Qnode-p n) (qnode-path n))
 					(t nil))) ; shouldn't happen now
-			      (Eqnset-GraphNodes Set))
+			      (Eqnset-Nodes Set))
 		      :test #'unify)))) ;could use "equal"
 		     
 
@@ -216,7 +188,7 @@
 	   (mapcar #'eqn-algebra
 		   (remove-if-not
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
-		    (mappend #'Enode-Subeqns (EqnSet-Enodes Set)))))) 
+		    (mappend #'Enode-Subeqns (EqnSet-Eqns Set)))))) 
      
 (defun print-eqnset-explicit-eqns (Set Stream Level)
   "Print the explicit equations in the EqnSet."
@@ -225,7 +197,7 @@
 	   (mapcar #'eqn-algebra
 		   (remove-if
 		    #'(lambda (e) (eql (eqn-type e) 'implicit-eqn))
-		    (mappend #'Enode-Subeqns (EqnSet-Enodes Set))))))  
+		    (mappend #'Enode-Subeqns (EqnSet-Eqns Set))))))  
 
 (defun print-num-eqnset-wsols (Num Set &optional (Stream t) (Level 0))
   "Print out a numbered eqn set."
@@ -243,19 +215,30 @@
 
 (defun print-mreadable-EqnSet (Set Stream)
   (format Stream "(~w ~w ~w)~%"
-	  (mapcar #'Eqn-Index
-	   (remove-duplicates  
-	    (list-base-eqns 
-	     (collect-bgnodes->eqns (EqnSet-Eqns Set)))))
+         ; Historically, what is written to file here is the expansion of the "concise" sgg 
+	 ; solution representation (as list of psm enodes) into the full list of all (non-derived)
+	 ; equations within the nodes, which may include implicit and subsidiary equations. 
+	 ; These must therefore be referenced by equation indices, not enode indices.
+	 ; Since we have changed to read in the same concise representation as the sgg generates,
+	 ; it would be simpler in the future just to write enode indices to the file. But sticking
+	 ; with same file representation mainly so reader code still works on old prb files.
+	  (mapcar #'Eqn-Index  (EqnSet-AllEqns Set))
 	  (collect-nodes->gindicies (EqnSet-Nodes Set))
 	  (EqnSet-Assumpts Set)
 	  ))
 
-(defun read-mreadable-EqnSets (Stream EqnIndex)
+(defun read-mreadable-EqnSets (Stream EqnIndex Graph)
   (loop for S in (read Stream "Error: Malformed Equation Sets.")
       collect (make-EqnSet 
-	       :Eqns (collect-indicies->eqns (car S) EqnIndex)
-	       :Nodes  (second S) 
+	       ; New: restore "concise" sgg representation as list of enodes:
+	       ; map stored eqn indices to eqns, then eqns to Enodes, keeping
+	       ; only elements for which matching enodes are found
+	       ; Urgh: lookup by algebra, since eqn-exp for given-eqn's in eq index is 
+	       ; just the quantity,  which doesn't match the full enode-id (GIVEN ...).
+	       :Eqns (remove-if #'null
+	                (mapcar #'(lambda (eqn) (match-algebra->enode (eqn-algebra eqn) Graph))
+	                  (collect-indicies->eqns (first S) EqnIndex)))
+	       :Nodes  (map-indicies->bgnodes (second S) Graph)
 	       :Assumpts (third S))))
 
  (defun solution-equalp (B1 B2)
