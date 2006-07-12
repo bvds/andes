@@ -317,7 +317,7 @@
 	     (null (member 'changing-field (problem-features *cp*)))))
    ;; Make sure source is point-charge
    (point-charge ?b)
-   (test (time-pointp ?t))
+   (test (or (null ?t) (time-pointp ?t)))
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
    (in-wm (given (dir (relative-position ?loc ?b :time ?t)) ?rdir))
    (sign-charge ?b ?pos-neg)
