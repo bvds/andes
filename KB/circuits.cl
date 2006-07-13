@@ -1448,7 +1448,7 @@
 ;;;  BvdS:  This could be rewritten in terms of (fraction-of ....)
 ;;;
 
-(def-psmclass charge-capacitor-percent-max (charge-capacitor-percent-max ?cap ?time) 
+(def-psmclass charge-capacitor-percent-max (charge-capacitor-percent-max ?cap . ?times) 
   :complexity minor 
   :short-name "RC charge as fraction of max"
   :english ("the RC circuit charge as percent of maximum")
