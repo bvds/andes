@@ -1971,7 +1971,7 @@
 			    ((= ?i-var (* ?I0-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
 	))
 
-(def-psmclass LR-decay-Imax (LR-growth-Imax ?res ?bat ?branch ?time)
+(def-psmclass LR-decay-Imax (LR-decay-Imax ?res ?bat ?branch ?time)
   :complexity major 
   :short-name "LR circuit initial current"
   :english ("LR circuit initial current")
