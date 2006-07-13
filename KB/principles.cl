@@ -84,6 +84,7 @@
 	 (leaf inst-power :tutorial "Power")
 	 (leaf spherical-intensity-to-power :tutorial "Intensity")
 	 (leaf uniform-intensity-to-power :tutorial "Intensity")
+	 (leaf net-intensity :tutorial "Intensity")
 	 (leaf intensity-to-decibels :tutorial "Intensity")
 	 (leaf intensity-to-decibels :EqnFormat "I = Iref*10^($b/10)" :tutorial "Intensity")
 	 (leaf intensity-to-poynting-vector-magnitude :tutorial "Intensity")

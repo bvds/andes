@@ -1123,6 +1123,14 @@
 	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		 ((net-intensity ?wave :time ?t) def-np) ))))
 
+(def-psmclass net-intensity (net-intensity ?body ?time) 
+  :complexity definition
+  :short-name "net intensity defined"
+  :english ("the definition of net intensity")
+  :expformat ("calculating the net intensity on ~a ~a"
+	      (nlg ?body) (nlg ?time 'nlg-time))
+  :EqnFormat ("Inet = I1 + I2 + ..."))
+
 ;; based on net-work-contains
 (defoperator net-intensity-contains (?sought)
   :preconditions 
