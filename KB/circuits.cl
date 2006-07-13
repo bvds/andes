@@ -183,10 +183,11 @@
    (not (junction ?what . ?whatever))
    ;; For a composite object, the current variable is already equal.
    (test (not (equal ?what ?branch)))
+   ;; On the workbench, the student has no way to define both the current
+   ;; through a component and the branch containing only that component
+   (test (not (equal (list ?what) ?branch)))
    )
-  :effects (
-	    (eqn-contains (current-thru-what ?what ?branch ?t) ?sought)
-	    ))
+  :effects ((eqn-contains (current-thru-what ?what ?branch ?t) ?sought)))
 
 (defoperator write-current-thru-what (?what ?branch ?t)
   :specifications "doc"

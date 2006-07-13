@@ -1109,13 +1109,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; COMPOUND BODIES 
-(def-psmclass mass-compound (mass-compound . ?compound)   ; b_i = bodies making up compound
+(def-psmclass mass-compound (mass-compound ?compound)  
   :complexity connect
   :short-name "mass of compound"
   :english ("mass of a compound body is sum of masses of parts")
   :expformat ((strcat "using the fact that the mass of ~a "
 		      "is the sum of the masses of its parts") 
-	      (nlg (cons 'compound (car ?compound))))
+	      (nlg ?compound))
   :EqnFormat ("M = m1 + m2 + ..."))
 
 (def-psmclass kine-compound (kine-compound ?vec-type ?bi ?compound ?time) ; part, whole same kinematics

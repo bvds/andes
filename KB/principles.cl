@@ -286,6 +286,7 @@
 			 )
 			 (group "Compound Bodies" 
 				(leaf mass-compound :tutorial "Mass of a compound body")
+				(leaf volume-compound)
 				(leaf kine-compound :bindings ((?vec-type . velocity)) :tutorial "Kinematics of compound same as part")
 				(leaf kine-compound :bindings ((?vec-type . acceleration)) :tutorial "Kinematics of compound same as part")
 				(leaf force-compound :tutorial "Force on a compound body")

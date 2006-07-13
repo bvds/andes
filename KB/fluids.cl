@@ -826,6 +826,16 @@
 ;; Volume of compound body is sum of volumes of its parts. 
 ;; This parallels mass-compound in Newtons2.cl
 
+(def-psmclass volume-compound (volume-compound ?compound ?t) 
+  :complexity connect
+  :short-name "volume of compound"
+  :english ("volume of a compound body is sum of volumes of parts")
+  :expformat ((strcat "using the fact that the volume of ~a "
+		      "is the sum of the volumes of its parts") 
+	      (nlg ?compound))
+  :EqnFormat ("V = V1 + V2 + ..."))
+
+
 (defoperator volume-compound-contains (?b-sought ?t)
   :preconditions (
    ; compound must exist
@@ -835,18 +845,20 @@
              (equal ?b-sought `(compound orderless ,@?bodies))))
   )
   :effects (
-    (eqn-contains (volume-compound ?bodies ?t) (volume ?b-sought :time ?t))
+    (eqn-contains (volume-compound (compound orderless . ?bodies) ?t) 
+		  (volume ?b-sought :time ?t))
   ))
 
 (defoperator write-volume-compound (?bodies ?t)
   :preconditions (
-    (variable ?Vwhole-var (volume (compound orderless . ?bodies) :time ?t))
+    (variable ?Vwhole-var (volume ?compound :time ?t))
+    (bind ?bodies (cddr ?compound))
     (map ?body ?bodies
          (variable ?Vpart-var (volume ?body :time ?t)) 
 	 ?Vpart-var ?Vpart-vars) 
   )
   :effects (
-     (eqn (= ?Vwhole-var (+ . ?Vpart-vars)) (volume-compound ?bodies ?t))
+     (eqn (= ?Vwhole-var (+ . ?Vpart-vars)) (volume-compound ?compound ?t))
   )
   :hint
   ((point (string "How does the volume of a compound body relate to the volumes of its parts?"))

@@ -259,6 +259,7 @@ LEAF	F_y = -v_y*dmdt    thrust force (y components)	(thrust-force-vector ((?axis
 END_GROUP	Force Laws		
 GROUP	Compound Bodies		
 LEAF	M = m1 + m2 + ...    mass of compound	mass-compound	Mass of a compound body
+LEAF	V = V1 + V2 + ...    volume of compound	volume-compound	
 LEAF	v_compound = v_part    velocity of compound	(kine-compound ((?vec-type . velocity)))	Kinematics of compound same as part
 LEAF	v_compound = v_part    velocity of compound	(kine-compound ((?vec-type . acceleration)))	Kinematics of compound same as part
 LEAF	F_on_part = F_on_compound    force on compound	force-compound	Force on a compound body

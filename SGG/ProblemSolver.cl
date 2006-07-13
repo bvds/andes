@@ -715,6 +715,7 @@
     (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
     ))
 
+;; This really needs to be broken up into a number of subroutines.
 (defun print-html-problem-solutions (problem 
 				     &optional (Stream t)
 				     ;; don't write out projections

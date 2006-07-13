@@ -5070,18 +5070,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
              (equal ?b-sought `(compound orderless ,@?bodies))))
   )
   :effects (
-    (eqn-contains (mass-compound ?bodies) ?sought)
+    (eqn-contains (mass-compound (compound orderless . ?bodies)) ?sought)
   ))
 
 (defoperator write-mass-compound (?bodies)
   :preconditions (
-    (variable ?mwhole-var (mass (compound orderless . ?bodies)))
+    (variable ?mwhole-var (mass ?compound))
+    (bind ?bodies (cddr ?compound))
     (map ?body ?bodies
          (variable ?mpart-var (mass ?body)) 
 	 ?mpart-var ?mpart-vars) 
   )
   :effects (
-     (eqn (= ?mwhole-var (+ . ?mpart-vars)) (mass-compound ?bodies))
+     (eqn (= ?mwhole-var (+ . ?mpart-vars)) (mass-compound ?compound))
   )
   :hint
   ((point (string "How does the mass of a compound body relate to the masses of its parts?"))
