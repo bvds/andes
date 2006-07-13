@@ -724,11 +724,12 @@
 	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
 	   "<html> <head>~%"
 	   "<style type=\"text/css\">~%"
-	   "  th { vertical-align: top; text-align: right; }~%"
-	   "  td { vertical-align: top; }~%"
-	   "  caption {font-size: larger; font-weight: bolder}~%"
+	   "  th {vertical-align: top; text-align: right;}~%"
+	   "  td {vertical-align: top;}~%"
+	   "  td.MAJOR {color: red;}~%"
+	   "  caption {font-size: larger; font-weight: bolder;}~%"
 	   "  table,caption {margin-left: auto; margin-right: auto; ~%"
-	   "         border-spacing: 4; margin-bottom: 5; margin-top: 5; }~%"
+	   "         border-spacing: 4; margin-bottom: 5; margin-top: 5;}~%"
 	   "</style>~%"
 	   "<title>~A</title>~%"
 	   "</head>~%"
@@ -737,8 +738,11 @@
 	  (problem-name Problem) (problem-name Problem))
   (format Stream "<table>~%")
   (format Stream "<caption>Solution 0</caption>~%")
-  (format Stream "~{<tr>~{<td>~A</td>~}</tr>~%~}" 
-	  (mapcar #'(lambda (x) (list (psm-english x) (psm-exp x) 
+  (format Stream "~{<tr>~{<td class=\"~A\">~A</td><td>~A</td><td>~A</td>~}</tr>~%~}" 
+	  (mapcar #'(lambda (x) (list 
+				 (equation-complexity 
+				  (lookup-expression->Equation x))
+				 (psm-english x) (psm-exp x) 
 				      (format nil "<code>~S</code>" x)))
 		  (mapcar #'enode-id 
 			  (EqnSet-Eqns (first (Problem-Solutions Problem))))))
