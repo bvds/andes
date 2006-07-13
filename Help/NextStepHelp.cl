@@ -546,7 +546,9 @@
 (defun nsh-reset-no-quant ()
   "Setup NSH for no-quant use."
   (setq *nsh-problem-type* 'no-quant)
-  (setq *nsh-solution-sets* (list (remove-if #'nsh-given-principle-p *nsh-Nodes*)))
+  ; if problem has several qualitative goals, graph will list their nodes in reverse order, 
+  ; so must reverse order of nodes to parallel order of problem soughts.
+  (setq *nsh-solution-sets*  (list (reverse (remove-if #'nsh-given-principle-p *nsh-Nodes*))))
   (setq *nsh-givens* (remove-if-not #'nsh-given-principle-p *nsh-Nodes*)))
 
 
