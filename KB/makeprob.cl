@@ -113,7 +113,20 @@
   (dolist (P (choose-working-probs topics))
     (let ((pp (read-problem-file (string (problem-name P)) 
 				 :path in-path)))
-      (when pp (dump-html-problem-solutions pp out-path)))))
+      (when pp (dump-html-problem-solutions pp out-path))))
+  ;; Make file with html styles
+  (let ((css (open (merge-pathnames  "main.css" out-path)
+		   :direction :output :if-exists :supersede)))
+    (format css 
+	    (strcat
+	     "  th {vertical-align: top; text-align: right;}~%"
+	     "  td {vertical-align: top;}~%"
+	     "  td.MAJOR {color: red;}~%"
+	     "  caption {font-size: larger; font-weight: bolder;}~%"
+	     "  table,caption {margin-left: auto; margin-right: auto; ~%"
+	     "         border-spacing: 4; margin-bottom: 5; margin-top: 5;}~%"
+	     ))
+    (close css)))
 
 ;;; for dealing with problem sets:
 ;;; For each ANDES problem set, there should be some distinguished feature set 
