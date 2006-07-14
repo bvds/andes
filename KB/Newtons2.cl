@@ -2898,7 +2898,7 @@
    (hat ?rhat-compo (accel ?b :time ?t) ?xy ?rot nil) ;only use angle form
    )
   :effects 
-  ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) ?rhat-compo)
+  ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) ?rhat-compo))
 	(compo-eqn definition ?xy ?rot (centripetal-accel-vec ?b ?t)))
    )
   :hint
