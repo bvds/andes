@@ -2887,7 +2887,6 @@
   (
    ;; make sure r-hat compo doesn't vanish
    (in-wm (vector ?b (accel ?b :time ?t) ?a-dir))
-   (test (degree-specifierp ?a-dir)) ;is a numerical value
    (test (non-zero-projectionp ?a-dir ?xy ?rot))
    (variable ?a_xy (compo ?xy ?rot (accel ?b :time ?t)))
    (variable ?vel-var (mag (velocity ?b :time ?t)))
@@ -2895,10 +2894,14 @@
    ;; Ideally, the radius direction would be given by relative-position
    ;; insead, we have revolution-radius.  
    ;; Thus, we are forced to use the direction of the acceleration itself:
-   (hat ?rhat-compo (accel ?b :time ?t) ?xy ?rot nil) ;only use angle form
+   (bind ?r-dir (opposite ?a-dir))
+   (test (degree-specifierp ?r-dir)) ;is a numerical value
+   (bind ?trig (if (eq ?xy 'y) 'sin 'cos))
+   (bind ?axis-angle (axis-dir 'x ?rot))
+   (bind ?term `(dnum ,(- (second ?r-dir) ?axis-angle) |deg|))
    )
   :effects 
-  ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) ?rhat-compo))
+  ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) (?trig ?term)))
 	(compo-eqn definition ?xy ?rot (centripetal-accel-vec ?b ?t)))
    )
   :hint
@@ -2907,7 +2910,7 @@
 	  (string "If an object is in uniform circular motion, its acceleration equals the velocity squared divided by the radius of circular motion.  The acceleration is always pointing towards the center of the circle."))
    (bottom-out (string "Write the equation ~A." 
 		       ((= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) 
-				    ?rhat-compo)) algebra)))
+				    (?trig ?term))) algebra)))
    ))
 
 ;;; define a variable for the revolution radius = radius of uniform circular
