@@ -491,16 +491,18 @@
    )
    :effects (
 	     ;; no reaction force since field is not an object
-	     (force ?b ?source electric ?t ?F-dir ?pos-neg)
+	     (force ?b ?source electric ?t ?F-dir action)
 	     ))
 
 (defoperator draw-electric-force-given-field-dir (?b ?source ?t)
   :preconditions 
   (
-   (force ?b ?source electric ?t ?F-dir ?pos-neg)
+   (force ?b ?source electric ?t ?F-dir action)
+   (sign-charge ?b ?pos-neg)
    (test (member ?pos-neg '(pos neg)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
-   (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) (body-name ?source)
+   (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" 
+			      (body-name ?b) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "finish find-electric-force-given-field-dir~%")
