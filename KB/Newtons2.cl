@@ -2882,7 +2882,7 @@
    )
   :effects ( (vector-diagram ?rot (centripetal-accel-vec ?b ?t)) ))
 
-(defoperator write-centripetal-accel-compo (?b ?t ?xy ?rot ?form)
+(defoperator write-centripetal-accel-compo (?b ?t ?xy ?rot)
   :preconditions 
   (
    ;; make sure r-hat compo doesn't vanish
