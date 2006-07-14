@@ -1020,6 +1020,15 @@
 			   ((charge ?p :surface ?surface-flag :time ?t) def-np) ))
        ))
 
+(defoperator define-number-of (?p)
+  :preconditions ((bind ?q-var (format-sym "NN_~A" (body-name ?p))))
+  :effects ((variable ?q-var (number-of ?p))
+	    (define-var (number-of ?p)))
+   :hint (
+       (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Number."  
+			   ((number-of ?p) def-np) ))
+       ))
+
 (defoperator define-potential-var (?loc ?source ?t)
   :preconditions 
   (

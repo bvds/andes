@@ -61,6 +61,16 @@
   :fromWorkbench (if time `(charge ,body :time ,time) `(charge ,body))
   :english ("the charge on ~A" (nlg ?name 'at-time ?time)))
 
+;;; in the workbench, the time slot is added if feature changing-voltage
+;;; is included.
+(def-qexp number-of (number-of ?name)
+  :symbol-base |N|     
+  :short-name "number"	
+  :dialog-text "of [body:bodies]"
+  :units nil ;dimensionless
+  :fromWorkbench (if time `(number-of ,body :time ,time) `(number-of ,body))
+  :english ("the number of ~As" (nlg ?name)))
+
 ;; variation for surface, where "in" is appropriate
 ;; see feature gauss
 (def-qexp charge-in (charge ?name :surface t :time ?time)

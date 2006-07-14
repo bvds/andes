@@ -839,6 +839,45 @@
 	(bottom-out (string "You need to add the individual capacitances for ~a, and set it equal to the equivalent capacitance ~a" (?parallel-list conjoined-names) (?tot-cap algebra)))  
 	))
 
+(def-psmclass charged-particles (charged-particles ?b) 
+  :complexity definition
+  :short-name "charged particles"
+  :english ("Number of charged particles")
+  :ExpFormat ("finding the number of charged particles on ~A" (nlg ?b))
+  :eqnFormat ("Q = N*q"))
+
+(defoperator charged-particles-contains (?sought)
+  :preconditions(
+		 (particle-on ?p ?b)
+		 (any-member ?sought ((charge ?p)
+				      (charge ?b)
+				      (number-of ?p)))
+		 )
+  :effects(
+	   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
+	   ))
+
+(defoperator write-capacitance-definition (?cap ?t)
+  :specifications "doc"
+  :preconditions(
+		 (variable ?c-var (capacitance ?cap))
+		 (any-member ?tot (?t nil)) 
+		 (variable ?q-var (charge ?cap :time ?tot))
+		 (any-member ?tot2 (?t nil)) 
+		 (variable ?v-var (voltage-across ?cap :time ?tot2))
+		 )
+  :effects(
+	   ;; handles zero charge OK
+	   (eqn (= (* ?c-var ?v-var) ?q-var) (capacitance-definition ?cap ?t))
+	   )
+  :hint(
+	(point (string "Write an equation for the capacitance of ~a." (?cap adj)))
+	(point (string "The capacitance of the capacitor ~a is defined in terms of its charge and the voltage across it." (?cap adj)))
+	(teach (string "The capacitance is defined as the charge on the capacitor divided by the voltage across the capacitor."))
+	(bottom-out (string "Write the equation defining the capacitance ~a as charge ~a divided by voltage ~a." (?c-var algebra) (?q-var algebra) (?v-var algebra)))
+	))
+
+
 (def-psmclass capacitance-definition (capacitance-definition ?cap ?t) 
   :complexity definition
   :short-name "capacitance defined"
