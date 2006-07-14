@@ -2792,7 +2792,7 @@
     ;; find all forces that are acting on ?b and collect distinct directions
     (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
     ;; test that all the directions are the same
-    (test (= (length ?dirs) 1)) ;setof only gives distinct matches to ?dir
+    (test (null (rest ?dirs))) ;setof only gives distinct matches to ?dir
     (bind ?accel-dir (first ?dirs))
     (test (degree-specifierp ?accel-dir)) ;exclude 'zero and 'unknown
     (not (unknown-forces)) ;only valid if all forces are specified
@@ -2882,24 +2882,23 @@
    )
   :effects ( (vector-diagram ?rot (centripetal-accel-vec ?b ?t)) ))
 
-(defoperator write-centripetal-accel-compo (?b ?t ?xy ?rot)
+(defoperator write-centripetal-accel-compo (?b ?t ?xy ?rot ?form)
   :preconditions 
   (
    ;; make sure r-hat compo doesn't vanish
    (in-wm (vector ?b (accel ?b :time ?t) ?a-dir))
+   (test (degree-specifierp ?a-dir)) ;is a numerical value
    (test (non-zero-projectionp ?a-dir ?xy ?rot))
    (variable ?a_xy (compo ?xy ?rot (accel ?b :time ?t)))
    (variable ?vel-var (mag (velocity ?b :time ?t)))
    (variable ?radius-var (revolution-radius ?b :time ?t))
    ;; Ideally, the radius direction would be given by relative-position
    ;; insead, we have revolution-radius.  
-   ;; Thus we are forced to use the direction of the acceleration itself
-   (bind ?angle (get-angle-between (opposite ?a-dir) (axis-dir ?xy ?rot)))
-   (test ?angle)
-   (bind ?rhat-compo `(cos (dnum ,?angle |deg|)))
+   ;; Thus, we are forced to use the direction of the acceleration itself:
+   (hat ?rhat-compo (accel ?b :time ?t) ?xy ?rot nil) ;only use angle form
    )
   :effects 
-  ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) ?rhat-compo))
+  ((eqn (= ?a_xy (* (- (/ (^ ?vel-var 2) ?radius-var)) ?rhat-compo)
 	(compo-eqn definition ?xy ?rot (centripetal-accel-vec ?b ?t)))
    )
   :hint

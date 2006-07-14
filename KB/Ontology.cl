@@ -1086,7 +1086,7 @@
   :english ("connected bodies have same acceleration")
   :expformat ((strcat "using the fact that ~a and ~a are connected and "
 		      "therefore have the same acceleration")
-	      (nlg ?body0) (nlg ?body1) (nlg ?time 'nlg-time))
+	      (nlg ?body0) (nlg ?body1))
   :EqnFormat ("a1 = a2"))
     
 (def-psmclass connected-velocities (connected-velocities ?body0 ?body1 ?time)
@@ -1095,7 +1095,7 @@
   :english ("connected bodies have same velocity")
   :expformat ((strcat "using the fact that ~a and ~a are connected and "
 		      "therefore have the same velocity")
-	      (nlg ?body0) (nlg ?body1) (nlg ?time 'nlg-time))
+	      (nlg ?body0) (nlg ?body1))
   :EqnFormat ("v1 = v2"))
 
 (def-psmclass tensions-equal (tensions-equal ?string (?body0 ?body1) ?time)
