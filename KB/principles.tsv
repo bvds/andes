@@ -103,6 +103,7 @@ LEAF	$r = m/V    mass density defined	density	Mass Density
 LEAF	Fb = $rf*V*g    Archimedes principle (buoyant force)	archimedes	Buoyant Force
 END_GROUP	Fluids		
 GROUP	Electricity and Magnetism		
+LEAF	Q = N*q    charged particles	charged-particles	
 LEAF	F = kelec*abs(q1*q2)/r^2    Coulomb's law (magnitude)	coulomb	
 LEAF	F_x = (kelec*q1*q2/r^2) * r_x/r    Coulomb's law (x component)	(coulomb-compo ((?axis . x)))	
 LEAF	F_y = (kelec*q1*q2/r^2) * r_y/r    Coulomb's law (y component)	(coulomb-compo ((?axis . y)))	
@@ -139,7 +140,7 @@ LEAF	Bnet_y = B1_y + B2_y + ...    net magnetic field (y component)	(net-field-m
 LEAF	$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y)    magnetic flux (constant field)	magnetic-flux-constant-field	
 LEAF	d$Fb/dt = B.n*dA/dt    rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	
 LEAF	V = -N*d$Fb/dt    Faraday's law	faradays-law	
-LEAF	int B = $m0*(±I1 ± I2 ± ...)    Ampere's law	amperes-law	Ampere's Law
+LEAF	int B = $m0*(Â±I1 Â± I2 Â± ...)    Ampere's law	amperes-law	Ampere's Law
 LEAF	$m = N*I*A    magnetic dipole moment (magnitude)	magnetic-dipole-moment-mag	Dipoles
 LEAF	$m_x = N*I*A*n_x    magnetic dipole moment (x component)	(magnetic-dipole-moment ((?axis . x)))	Dipoles
 LEAF	$m_y = N*I*A*n_y    magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles
@@ -219,7 +220,7 @@ LEAF	vmax = A*$w    maximum speed of oscillation	max-transverse-speed-wave
 LEAF	amax = A*$w^2    maximum acceleration of oscillation	max-transverse-abs-acceleration-wave	
 LEAF	T = 2*$p*sqrt(m/k)    period of spring-mass system	spring-mass-oscillation	
 LEAF	T = 2*$p*sqrt(l/g)    period of simple pendulum	pendulum-oscillation	
-LEAF	fo=fs*(vw±vo)/(vw±vs)    frequency shift from doppler effect	doppler-frequency	
+LEAF	fo=fs*(vwÂ±vo)/(vwÂ±vs)    frequency shift from doppler effect	doppler-frequency	
 LEAF	fn = n*f1 or $ln = $l1/n    n-th harmonic	harmonic-of	
 LEAF	fbeat = abs(f1-f2)/2    beat frequency	beat-frequency	
 LEAF	E = Ei*exp(-2*t/$t)    energy decay	energy-decay	

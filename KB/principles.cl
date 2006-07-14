@@ -119,7 +119,8 @@
 	 (leaf density :tutorial "Mass Density")
 	 (leaf archimedes :tutorial "Buoyant Force")
 	 )
- (group "Electricity and Magnetism" 
+ (group "Electricity and Magnetism"
+         (leaf charged-particles) 
 	 (leaf coulomb)
 	 (leaf coulomb-compo :bindings ((?axis . x)))
 	 (leaf coulomb-compo :bindings ((?axis . y)))

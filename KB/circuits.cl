@@ -839,42 +839,42 @@
 	(bottom-out (string "You need to add the individual capacitances for ~a, and set it equal to the equivalent capacitance ~a" (?parallel-list conjoined-names) (?tot-cap algebra)))  
 	))
 
-(def-psmclass charged-particles (charged-particles ?b) 
+;; This could be generalized to handle any quantity
+(def-psmclass charged-particles (number-of-particles charge ?p ?b) 
   :complexity definition
   :short-name "charged particles"
   :english ("Number of charged particles")
-  :ExpFormat ("finding the number of charged particles on ~A" (nlg ?b))
+  :ExpFormat ("finding the number of ~As on ~A" (nlg ?p) (nlg ?b))
   :eqnFormat ("Q = N*q"))
 
-(defoperator charged-particles-contains (?sought)
+(defoperator number-of-particles-contains (?sought)
   :preconditions(
-		 (particle-on ?p ?b)
-		 (any-member ?sought ((charge ?p)
-				      (charge ?b)
+		 (number-of-particles ?p ?b :quantity ?quant)
+		 (any-member ?sought ((?quant ?p)
+				      (?quant ?b)
 				      (number-of ?p)))
 		 )
   :effects(
-	   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
+	   (eqn-contains (number-of-particles ?quant ?p ?b) ?sought)
 	   ))
 
-(defoperator write-capacitance-definition (?cap ?t)
-  :specifications "doc"
+(defoperator write-number-of-particles (?quant ?b)
   :preconditions(
-		 (variable ?c-var (capacitance ?cap))
-		 (any-member ?tot (?t nil)) 
-		 (variable ?q-var (charge ?cap :time ?tot))
-		 (any-member ?tot2 (?t nil)) 
-		 (variable ?v-var (voltage-across ?cap :time ?tot2))
+		 (variable ?p-var (?quant ?p))
+		 (variable ?b-var (?quant ?b))
+		 (variable ?n-var (number-of ?p))
 		 )
-  :effects(
-	   ;; handles zero charge OK
-	   (eqn (= (* ?c-var ?v-var) ?q-var) (capacitance-definition ?cap ?t))
-	   )
-  :hint(
-	(point (string "Write an equation for the capacitance of ~a." (?cap adj)))
-	(point (string "The capacitance of the capacitor ~a is defined in terms of its charge and the voltage across it." (?cap adj)))
-	(teach (string "The capacitance is defined as the charge on the capacitor divided by the voltage across the capacitor."))
-	(bottom-out (string "Write the equation defining the capacitance ~a as charge ~a divided by voltage ~a." (?c-var algebra) (?q-var algebra) (?v-var algebra)))
+  :effects
+  (
+   (eqn (= (* ?n-var ?p-var) ?b-var) (number-of-particles ?quant ?p ?b))
+   )
+  :hint
+  (
+   (point (string "Relate the ~A of ~A to the ~A of ~A." 
+	(?quant adj) ?p (?quant adj) ?b))
+	(teach (string "The total ~A of an object is equal to the number of ~As times the ~A of each ~A." (?quant adj) ?p (?quant adj) ?p))
+	(bottom-out (string "Write the equation ~a." 
+			    ((= (* ?n-var ?p-var) algebra))))
 	))
 
 

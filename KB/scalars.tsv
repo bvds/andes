@@ -43,6 +43,7 @@ amplitude-max-abs-acceleration	amax	maximum magnitude of acceleration		for oscil
 amplitude-max-speed	vmax	maximum speed of oscillation		for oscillations of [body:bodies]
 moment-of-inertia	I	moment of inertia		of [body:bodies]
 mutual-inductance	M	mutual inductance		between [body:bodies] and [body2:bodies]
+number-of	N	number		of [body:bodies]
 object-distance	do	object distance		with respect to [body:bodies]
 period	T	period		of oscillations of [body:bodies]
 potential	V	potential		at [body:positions] due to [body2:bodies] at time [time:times]
