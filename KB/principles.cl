@@ -411,9 +411,9 @@
   "prints a group in KB/principles.tsv"
   (cond ((eq (car p) 'group)
 	 ;; principles.tsv file format is 4 tab-separated columns
-	 (format str "GROUP~C~A~C~C~%" #\tab (cadr p) #\tab #\tab)
+	 (format str "GROUP~C~S~C~C~%" #\tab (cadr p) #\tab #\tab)
 	 (dolist (pp (cddr p)) (principle-branch-print str pp))
-	 (format str "END_GROUP~C~A~C~C~%"  #\tab (cadr p) #\tab #\tab))
+	 (format str "END_GROUP~C~S~C~C~%"  #\tab (cadr p) #\tab #\tab))
 	((eq (car p) 'leaf)
 	 (apply #'principle-leaf-print (cons str (cdr p))))))
 
@@ -422,7 +422,7 @@
 					EqnFormat short-name) 
   "prints a principle in KB/principles.tsv"
   (let ((pc (lookup-psmclass-name class)))
-    (format str "LEAF~C~A    ~A~C~(~A~)~C~@[~A~]~%" #\tab 
+    (format str "LEAF~C~S    ~S~C~(~S~)~C~@[~S~]~%" #\tab 
 	    (eval-print-spec (or EqnFormat (psmclass-EqnFormat pc)) bindings)
 	    (eval-print-spec (or short-name (psmclass-short-name pc)) bindings)
 	    #\tab
