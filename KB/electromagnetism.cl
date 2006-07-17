@@ -3295,7 +3295,7 @@ total charge inside divided by $e0."))
    ))
 
 (def-psmclass amperes-law (amperes-law :surface ?S)
-  :complexity major			;must explicitly use
+  :complexity major			; must explicitly use
   ;; Allegro lisp character encoding has trouble reading in "`e"
   :short-name ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
   :english ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
