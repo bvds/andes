@@ -147,6 +147,25 @@
 			     (^ ?r 2) ?rhat-compo))) algebra))
   ))
 
+(defoperator write-zero-coulomb-compo (?b1 ?b2 ?t ?xy ?rot)
+  :preconditions 
+  (
+   ;; make sure r-hat compo vanishes
+   (in-wm (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?r-dir))
+   (test (not (non-zero-projectionp ?r-dir ?xy ?rot)))
+   (variable ?F_xy  (compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
+   )
+  :effects ((eqn (= ?F_xy 0)
+		 (compo-eqn coulomb-force ?xy ?rot 
+			    (coulomb-vec ?b1 ?b2 ?t nil))))
+  :hint 
+  ((point (string "Note the ~A component of the separation of ~A and ~A."
+		  (axis-name ?xy) ?b1 ?b2))
+     (teach (string "Since the charges have the same ~A coordinate, the ~A component of the Coulomb force will be zero." (axis-name ?xy) (axis-name ?xy)))
+     (bottom-out (string "Write the equation ~A." 
+			 ((= ?F 0)) algebra))
+  ))
+
 
 
 ;;; We have two main principles for electric fields:
@@ -3295,7 +3314,7 @@ total charge inside divided by $e0."))
    ))
 
 (def-psmclass amperes-law (amperes-law :surface ?S)
-  :complexity major			; must explicitly use
+  :complexity major			;must explicitly use
   ;; Allegro lisp character encoding has trouble reading in "`e"
   :short-name ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
   :english ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
