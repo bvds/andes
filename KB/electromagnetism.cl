@@ -3316,14 +3316,14 @@ total charge inside divided by $e0."))
 (def-psmclass amperes-law (amperes-law :surface ?S)
   :complexity major			;must explicitly use
   ;; Allegro lisp character encoding has trouble reading in "`e"
-  :short-name ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
-  :english ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
+  :short-name ("Amp~Cre's law" (code-char 232))
+  :english ("Amp~Cre's law" (code-char 232))
   :ExpFormat ("applying Amp~Cre's law to ~A"  
-	      #\latin_small_letter_e_with_grave (nlg ?S))
+	      (code-char 232) (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
   :EqnFormat ("int B = $m0*(~CI1 ~C I2 ~C ...)" 
-	      #\plus-minus_sign #\plus-minus_sign #\plus-minus_sign))
+	      (code-char 177) (code-char 177) (code-char 177)))
 
 (defoperator amperes-law-contains (?sought)
   :preconditions
@@ -3360,10 +3360,10 @@ total charge inside divided by $e0."))
   :hint
   ;; Allegro lisp character encoding has trouble reading in "`e"
   ( (point (string "You can apply Amp~Cre's law to surface ~A."
-		   (#\latin_small_letter_e_with_grave identity) ?s))
+		   ((code-char 232) identity) ?s))
     (teach (string "Amp~Cre's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
 total current flowing through S times $m0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow." 
-		   (#\latin_small_letter_e_with_grave identity)))
+		   ((code-char 232) identity)))
     (bottom-out (string "Write the equation ~A ."
 			((= ?lint-var (* |mu0| ?current-sum)) 
 			 algebra)))))

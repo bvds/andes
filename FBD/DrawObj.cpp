@@ -3633,6 +3633,8 @@ CString CVariable::GetCheckCmd()
 		// handled below when command string is built
  		if (m_strForceType == "equiv")
 			strObject = "(" + m_strObject + ")";
+	} else if (m_nType == ID_VARIABLE_ADDCURRENT) { // now listify as for resistance
+		strObject = "(" + m_strObject + ")";
 	} else if (m_nType == ID_VARIABLE_ADDTIMECONSTANT) {
 			strObject = "(" + m_strObject + ")";
 	} else if (m_nType == ID_VARIABLE_ADDPROBABILITY) {

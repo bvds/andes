@@ -21,16 +21,13 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCurrentDlg)
 	enum { IDD = IDD_CURRENT };
+	CLogList	m_listBodies;
 	CStatic	m_stcEquals;
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
 	CLogBtn	m_btnUnknown;
 	CLogEdit m_editValue;
 	CStatic	m_stcLet;
-	CLogBtn	m_btnThrough;
-	CLogBtn m_btnIn;
-	CLogCombo	m_cboComponent;
-	CLogCombo	m_cboBranch;
 	CLogCombo	m_cboTime;
 	CLabelRichEdit	m_editName;
 	CLogBtn	m_btnOK;

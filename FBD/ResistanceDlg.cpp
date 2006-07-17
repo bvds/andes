@@ -173,7 +173,7 @@ void CResistanceDlg::OnOK()
 	// Make sure all visible controls filled in	
 	if (m_listBodies.GetSelCount() == 0)
 	{
-		theApp.DoWarningMessage("Please select one or more bodies", this);
+		theApp.DoWarningMessage("Please select one or more components", this);
 		return;
 	}
 	if (IsEmpty(&m_cboTimeList))

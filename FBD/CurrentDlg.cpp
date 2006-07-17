@@ -14,6 +14,12 @@ static char THIS_FILE[] = __FILE__;
 
 /////////////////////////////////////////////////////////////////////////////
 // CCurrentDlg dialog
+//
+// Generally copied from CSystemDlg, so uses same control names.
+// Differs slightly in that it always defines a variable rather than a drawn object.
+// Note also variable's m_strBody member may contain a space-separated list of body names
+// in case of equivalent resistance; this must be packed/unpacked when transferring
+// to list box selection.
 
 
 CCurrentDlg::CCurrentDlg(CDrawObj* pObj /*=NULL*/, CWnd* pParent /*=NULL*/)
@@ -28,16 +34,13 @@ void CCurrentDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCurrentDlg)
+	DDX_Control(pDX, IDC_MULTIPLE_BODY_LIST, m_listBodies);
 	DDX_Control(pDX, IDC_STATIC_EQUALS, m_stcEquals);
 	DDX_Control(pDX, IDC_GIVEN_BOX, m_stcGiven);
 	DDX_Control(pDX, IDC_STATIC_OR, m_stcOr);
 	DDX_Control(pDX, IDC_CHECK_UNKNOWN, m_btnUnknown);
 	DDX_Control(pDX, IDC_GIVEN_VALUE, m_editValue);
 	DDX_Control(pDX, IDC_LVARIABLE_NAME, m_stcLet);
-	DDX_Control(pDX, IDC_CURRENT_THRU, m_btnThrough);
-	DDX_Control(pDX, IDC_CURRENT_IN, m_btnIn);
-	DDX_Control(pDX, IDC_COMPONENT, m_cboComponent);
-	DDX_Control(pDX, IDC_BRANCH, m_cboBranch);
 	DDX_Control(pDX, IDC_TIME, m_cboTime);
 	DDX_Control(pDX, IDC_CUSTOM_LABEL, m_editName);
 	DDX_Control(pDX, IDOK, m_btnOK);
@@ -46,10 +49,9 @@ void CCurrentDlg::DoDataExchange(CDataExchange* pDX)
 
 	// init choices
 	// "current-through" choices = components + points
-	DDX_FillList(pDX, IDC_COMPONENT, &m_pDocument->m_strObjects);
-	DDX_AddEquivComponents(pDX, IDC_COMPONENT, &m_pDocument->m_Variables);
-	DDX_FillList(pDX, IDC_COMPONENT, &m_pDocument->m_strPositions);
-	DDX_FillList(pDX, IDC_BRANCH, &m_pDocument->m_strBranches);
+	DDX_FillList(pDX, IDC_MULTIPLE_BODY_LIST, &m_pDocument->m_strObjects);
+	DDX_FillList(pDX, IDC_MULTIPLE_BODY_LIST, &m_pDocument->m_strPositions);
+	// DDX_AddEquivComponents(pDX, IDC_MULTIPLE_BODY_LIST, &m_pDocument->m_Variables);
 	DDX_FillList(pDX, IDC_TIME, &m_pDocument->m_strTimes);
 	DDX_AddUserTimes(pDX, IDC_TIME, &m_pDocument->m_Variables);
 
@@ -60,8 +62,6 @@ void CCurrentDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CCurrentDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CCurrentDlg)
-	ON_BN_CLICKED(IDC_CURRENT_THRU, OnUpdateType)
-	ON_BN_CLICKED(IDC_CURRENT_IN, OnUpdateType)
 	ON_BN_CLICKED(IDC_CHECK_UNKNOWN, OnCheckUnknown)
 	ON_EN_CHANGE(IDC_GIVEN_VALUE, OnChangeGivenValue)
 	//}}AFX_MSG_MAP
@@ -86,8 +86,9 @@ BOOL CCurrentDlg::OnInitDialog()
 	if (! CVarView::HasFeature("CHANGING-VOLTAGE")) {
 		Remove(IDC_BOX_TIME);
 	}
-	
-	return TRUE;  // return TRUE unless you set the focus to a control
+
+	m_listBodies.SetFocus();
+	return FALSE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
@@ -95,23 +96,19 @@ void CCurrentDlg::InitVariableDlg()
 {
 	CVariable* pVar = (CVariable*)m_pTempObj;
 	SetWindowText("Variable definition");
-
-	// Init subtype components button:
 	
-	if (pVar->m_strForceType == "through" // current through component
-		|| pVar->m_strForceType.IsEmpty())		// default if unset
-	{
-		m_btnThrough.SetCheck(TRUE);
-		m_cboComponent.SelectStringExact(pVar->m_strObject);
-	} 
-	else if (pVar->m_strForceType == "in") 	// current in branch
-	{
-		m_btnIn.SetCheck(TRUE);
-		m_cboBranch.SelectStringExact(pVar->m_strObject);
+	// select each name in body string
+	if (!pVar->m_strObject.IsEmpty()) {
+		CStringList listBodies;
+		SplitStr(pVar->m_strObject, listBodies);
+		for (POSITION pos = listBodies.GetHeadPosition(); pos != NULL; ) {
+			CString strBody = listBodies.GetNext(pos);
+			m_listBodies.SetSel(m_listBodies.FindString(-1, strBody), TRUE);
+		}
 	}
-	OnUpdateType();
 
 	m_cboTime.SelectStringExact(pVar->m_strTime);
+
 	// Transfer given value/unknown bit from controls to variable
 	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
 	// sync unknown check box with value
@@ -122,14 +119,21 @@ void CCurrentDlg::UpdateTempVariable()
 {
 	CVariable * pTempVar = (CVariable*) m_pTempObj;
 
-	if (m_btnThrough.GetCheck()) {
-		 pTempVar->m_strForceType = "through";
-		 pTempVar->m_strObject = GetCurString(&m_cboComponent);
-	}  else {
-		 pTempVar->m_strForceType = "in";
-		 pTempVar->m_strObject = GetCurString(&m_cboBranch);
-		 
+	 pTempVar->m_strForceType = "through";
+	// in case of multiple bodies, get list of selected strings in multi-sel list box
+	// into single space-separated list for storage into var's m_strObject member
+	int nSelItems = m_listBodies.GetSelCount();// number of items selected
+	int SelectSet[32];						 // holds set of selected indices
+	m_listBodies.GetSelItems(32, SelectSet);
+	CString strBody, strBodyList;	// space separated list of selected bodies					
+	for (int i=0; i < nSelItems; i++){
+		m_listBodies.GetText(SelectSet[i], strBody);
+		strBodyList += strBody + " ";
 	}
+	strBodyList.TrimRight();
+	
+	pTempVar->m_strObject = strBodyList;
+
 	pTempVar->m_strTime = GetCurString(&m_cboTime);
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	CString strValue;
@@ -148,12 +152,9 @@ void CCurrentDlg::UpdateTempVariable()
 void CCurrentDlg::OnOK()
 {
 	// Make sure all visible controls filled in	
-	if (IsEmpty(&m_cboBranch)) {
-		theApp.DoWarningMessage("Please select a branch", this);
-		return;
-	}
-	if (IsEmpty(&m_cboComponent)) {
-		theApp.DoWarningMessage("Please select a component or point", this);
+	if (m_listBodies.GetSelCount() == 0)
+	{
+		theApp.DoWarningMessage("Please select one or more components", this);
 		return;
 	}
 	if (IsEmpty(&m_cboTime)) {
@@ -186,8 +187,8 @@ void CCurrentDlg::OnOK()
 
 void CCurrentDlg::OnUpdateType() 
 {
-	m_cboComponent.EnableWindow(m_btnThrough.GetCheck());
-	m_cboBranch.EnableWindow(m_btnIn.GetCheck());
+//	m_cboComponent.EnableWindow(m_btnThrough.GetCheck());
+//	m_cboBranch.EnableWindow(m_btnIn.GetCheck());
 }
 
 // Keep edit control contents and unknown check box in sync:
