@@ -3295,11 +3295,12 @@ total charge inside divided by $e0."))
    ))
 
 (def-psmclass amperes-law (amperes-law :surface ?S)
-  :complexity major			; must explicitly use
+  :complexity major			;must explicitly use
   ;; Allegro lisp character encoding has trouble reading in "`e"
   :short-name ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
   :english ("Amp~Cre's law" #\latin_small_letter_e_with_grave)
-  :ExpFormat ("applying Amp~Cre's law to ~A"  #\latin_small_letter_e_with_grave (nlg ?S))
+  :ExpFormat ("applying Amp~Cre's law to ~A"  
+	      #\latin_small_letter_e_with_grave (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
   :EqnFormat ("int B = $m0*(~CI1 ~C I2 ~C ...)" 
