@@ -3297,12 +3297,12 @@ total charge inside divided by $e0."))
 (def-psmclass amperes-law (amperes-law :surface ?S)
   :complexity major                   ; must explicitly use
   ;; Accent character fails on Workbench, see hint sequence below, Bug #870
-  ;;  :short-name "Ampère's law"
-  ;;  :english ("Ampère's law")
-  ;;  :ExpFormat ("applying Ampère's law to ~A" (nlg ?S))
-  :short-name "Ampere's law"
-  :english ("Ampere's law")
-  :ExpFormat ("applying Ampere's law to ~A" (nlg ?S))
+    :short-name "Ampère's law"
+    :english ("Ampère's law")
+    :ExpFormat ("applying Ampère's law to ~A" (nlg ?S))
+;;  :short-name "Ampere's law"
+;;  :english ("Ampere's law")
+;;  :ExpFormat ("applying Ampere's law to ~A" (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
   :EqnFormat ("int B = $m0*(~AI1 ~A I2 ~A ...)" (code-char 177)
