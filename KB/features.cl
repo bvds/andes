@@ -108,5 +108,8 @@
 (defun features-file ()
  "construct file KB/features.tsv"
     (let ((str (open (merge-pathnames  "KB/features.tsv" *Andes-Path*)
-		     :direction :output :if-exists :supersede)))
+		     :direction :output :if-exists :supersede
+		     ;; The workbench uses an older windows-specific 
+		     ;; character encoding
+		     :external-format #+sbcl :windows-1252 #+allegro :1252)))
 		   (print-features str) (close str)))

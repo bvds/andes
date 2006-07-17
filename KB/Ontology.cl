@@ -18,7 +18,10 @@
 (defun scalars-file ()
   "construct file KB/scalars.tsv"
   (let ((str (open (merge-pathnames  "KB/scalars.tsv" *Andes-Path*)
-		   :direction :output :if-exists :supersede))
+		   :direction :output :if-exists :supersede
+		   ;; The workbench uses an older windows-specific 
+		   ;; character encoding
+		   :external-format #+sbcl :windows-1252 #+allegro :1252))
 	;; These correspond to custom dialog boxes which have
 	;; no direct counterpart in the Ontology
 	(dialogs '((angle nil "angle") (energy nil "energy") 

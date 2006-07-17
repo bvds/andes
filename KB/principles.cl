@@ -404,7 +404,9 @@
   "construct file KB/principles.tsv"
   (let ((str (open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
 		   :direction :output :if-exists :supersede
-		   :external-format :windows-1252)))
+		   ;; The workbench uses an older windows-specific 
+		   ;; character encoding
+	         :external-format #+sbcl :windows-1252 #+allegro :1252)))
     (dolist (p *principle-tree*) (principle-branch-print str p))
     (close str)))
 
