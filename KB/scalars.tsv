@@ -12,7 +12,7 @@ circumference-of-circle	c	circumference		of [body:bodies]
 coef-friction	$m	coef. of friction		between [body:bodies] and [body2:bodies]
 compression	d	compression distance		of [body:bodies] at time [time:times]
 area-at	A	cross-sectional area		at [body:positions]  at time [time:times]
-current-thru	I	current		flowing through [body:bodies] (experimental)
+current	I	current		flowing through [body:bodies] (experimental)
 db-intensity	$b	decibels	intensity (in decibels)	supplied to [body:bodies] by [body2:bodies] at time [time:times]
 diameter-of-circle	d	diameter		of [body:bodies]
 distance-between	d	distance		between [body:bodies] and [body2:bodies]

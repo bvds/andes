@@ -32,7 +32,7 @@
 
 ;;; in the workbench, the time slot is added if feature changing-voltage
 ;;; is included.
-(def-qexp current-thru (current-thru ?component :time ?time)
+(def-qexp current (current-thru ?component :time ?time)
   :symbol-base |I| 
   :short-name "current"
   ;; custom dialog box, need something here to make entry in scalars.tsv
