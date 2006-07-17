@@ -3295,15 +3295,15 @@ total charge inside divided by $e0."))
    ))
 
 (def-psmclass amperes-law (amperes-law :surface ?S)
-  :complexity major                   ; must explicitly use
-  ;; Allegro lisp character encoding has trouble with "Ampère"
-    :short-name ("Amp~Cre's law" (code-char 232))
-    :english ("Amp~Cre's law" (code-char 232))
-    :ExpFormat ("applying Amp~Cre's law to ~A"  (code-char 232) (nlg ?S))
+  :complexity major			; must explicitly use
+  ;; Allegro lisp character encoding has trouble with "`e"
+  :short-name ("Amp~Cre's law" (code-char 232))
+  :english ("Amp~Cre's law" (code-char 232))
+  :ExpFormat ("applying Amp~Cre's law to ~A"  (code-char 232) (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
-  :EqnFormat ("int B = $m0*(~AI1 ~A I2 ~A ...)" (code-char 177)
-	      (code-char 177) (code-char 177)))
+  :EqnFormat ("int B = $m0*(~AI1 ~A I2 ~A ...)" 
+	      (code-char 177) (code-char 177) (code-char 177)))
 
 (defoperator amperes-law-contains (?sought)
   :preconditions
@@ -3338,7 +3338,7 @@ total charge inside divided by $e0."))
   ( (eqn  (= ?lint-var (* |mu0| ?current-sum))
 	  (amperes-law :surface ?S)) )
   :hint
-  ;; Allegro lisp character encoding has trouble with "Ampère"
+  ;; Allegro lisp character encoding has trouble with "`e"
   ( (point (string "You can apply Amp~Cre's law to surface ~A."
 		   (232 code-char) ?s))
     (teach (string "Amp~Cre's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
