@@ -844,7 +844,8 @@
   :complexity definition
   :short-name "charged particles"
   :english ("Number of charged particles")
-  :ExpFormat ("finding the number of ~As on ~A" (nlg ?p) (nlg ?b))
+  ;; not the right part of speech for ?p, but the desired behavior
+  :ExpFormat ("finding the number of charged ~As in ~A" (nlg ?p 'adj) (nlg ?b))
   :eqnFormat ("Q = N*q"))
 
 (defoperator number-of-particles-contains (?sought)
@@ -871,10 +872,10 @@
   :hint
   (
    (point (string "Relate the ~A of ~A to the ~A of ~A." 
-	(?quant adj) ?p (?quant adj) ?b))
+	(?quant adj) (?p indef-np) (?quant adj) ?b))
 	(teach (string "The total ~A of an object is equal to the number of ~As times the ~A of each ~A." (?quant adj) ?p (?quant adj) ?p))
 	(bottom-out (string "Write the equation ~a." 
-			    ((= (* ?n-var ?p-var) algebra))))
+			    ((= (* ?n-var ?p-var) ?b-var) algebra)))
 	))
 
 
