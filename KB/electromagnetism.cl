@@ -3302,7 +3302,7 @@ total charge inside divided by $e0."))
   :ExpFormat ("applying Amp~Cre's law to ~A"  #\latin_small_letter_e_with_grave (nlg ?S))
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
-  :EqnFormat ("int B = $m0*(~AI1 ~A I2 ~A ...)" 
+  :EqnFormat ("int B = $m0*(~CI1 ~C I2 ~C ...)" 
 	      #\plus-minus_sign #\plus-minus_sign #\plus-minus_sign))
 
 (defoperator amperes-law-contains (?sought)
