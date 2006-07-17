@@ -376,7 +376,10 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 	       (sb-bsd-sockets:socket-file-descriptor *andes-socket* ) :input)
 	  (sb-bsd-sockets:socket-make-stream 
 	   (sb-bsd-sockets:socket-accept  *andes-socket* )
-	   :element-type 'base-char :input t :output t))	
+	   :element-type 'base-char :input t :output t
+	   ;; The workbench uses an older windows-specific 
+	   ;; character encoding
+	   :external-format :windows-1252))	
 	#+openmcl 
 	(ccl:accept-connection *andes-socket* :wait t) 
 	#-(or allegro clisp cmu sbcl openmcl)
