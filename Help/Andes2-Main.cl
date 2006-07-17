@@ -364,7 +364,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   (if 
       (setq *andes-stream* 
 	;; See accept-tcp-connection in sockets.lisp by Kevin M. Rosenberg
-	;; The default character encoding works OK for "Ampère"
+	;; The default character encoding (in *locale*) works for "Amp`ere"
 	#+allegro (socket:accept-connection *andes-socket* :wait t)
 	#+clisp (ext:socket-accept *andes-socket* )
 	#+cmu
@@ -379,7 +379,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 	   (sb-bsd-sockets:socket-accept  *andes-socket* )
 	   :element-type 'base-char :input t :output t
 	   ;; The workbench uses an older windows-specific 
-	   ;; character encoding.  This is an issue for "Ampère"
+	   ;; character encoding.  This is an issue for "Amp`ere"
 	   :external-format :windows-1252))	
 	#+openmcl 
 	(ccl:accept-connection *andes-socket* :wait t) 
