@@ -36,7 +36,7 @@
   :symbol-base |I| 
   :short-name "current"
   ;; custom dialog box, need something here to make entry in scalars.tsv
-  :dialog-text "flowing through [body:bodies] (experimental)"  
+  :dialog-text ""  
   :units |A|
   ;; No sign restriction on this quantity. A few prbs (LR1b,1c,2b) restrict 
   ;; currents to be positive on a per-problem basis with :VariableMarks
