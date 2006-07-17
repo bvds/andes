@@ -920,7 +920,7 @@
   :ExpFormat ("using formula for doppler frequency")
   ;; use implicit format args to insert the plus-minus character code into 
   ;; the EqnFormat string using only standard characters in our source text
-  :EqnFormat ("fo=fs*(vw~Avo)/(vw~Avs)" (code-char 177) (code-char 177)))
+  :EqnFormat ("fo=fs*(vw~Avo)/(vw~Avs)" #\plus-minus_sign #\plus-minus_sign))
 
 ;; velocities should be constant over the interval.  
 ;; We should demand (constant ?quant ?t-s) and (constant ?quant ?t-o) 
