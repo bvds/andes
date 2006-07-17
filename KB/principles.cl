@@ -403,7 +403,8 @@
 (defun principles-file ()
   "construct file KB/principles.tsv"
   (let ((str (open (merge-pathnames  "KB/principles.tsv" *Andes-Path*)
-		   :direction :output :if-exists :supersede)))
+		   :direction :output :if-exists :supersede
+		   :external-format :windows-1252)))
     (dolist (p *principle-tree*) (principle-branch-print str p))
     (close str)))
 
