@@ -404,7 +404,7 @@
 		      (if (atom body-term) `(current-thru ,body-term :time  ,time-term)
 		         ; used to be arg might be (resistance (a b c)) for current through student-defined 
 		         ; equivalent. Not used anymore since we made current take a list. (Needed?)
-		          `(current-thru ,(find-closest-current-list (cddr body-term)) :time ,time-term)))
+		          `(current-thru ,(find-closest-current-list (bodyterm-complist body-term)) :time ,time-term)))
 		     (in        `(current-in ,body-term :time ,time-term))))
       (resistance			; body-term may come here as (compound a b c) for equivalent resistance
        (if (atom body-term) `(resistance ,body-term)
