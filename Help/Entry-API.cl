@@ -400,10 +400,11 @@
 		    (otherwise		; no longer used
 		     `(voltage-btwn ,body-term ,body2-term :time ,time-term))))
       (current     (case subtype
-		     (through		; body-term may come here as (resistance (a b c)) for equiv.
+		     (through		; now body-term now comes as '(compound orderless A B C)
 		      (if (atom body-term) `(current-thru ,body-term :time  ,time-term)
-			`(current-thru ,(second body-term) :time ,time-term)))
-					;`(current-at ,body-term :time ,time-term)
+		         ; used to be arg might be (resistance (a b c)) for current through student-defined 
+		         ; equivalent. Not used anymore since we made current take a list. (Needed?)
+		          `(current-thru ,(find-closest-current-list (cddr body-term)) :time ,time-term)))
 		     (in        `(current-in ,body-term :time ,time-term))))
       (resistance			; body-term may come here as (compound a b c) for equivalent resistance
        (if (atom body-term) `(resistance ,body-term)
@@ -480,6 +481,28 @@
   ; still need to construct something if this is problem without dipole-energy, though.
   `(field region ,type unspecified)
 )
+
+(defun find-closest-current-list (studset)
+"return current variable argument list that best matches comps listed in student definition"
+  (let (bestset 	; initially NIL for empty set
+        bestarg)	
+   ; do for each current variable definition
+   (dolist (cdefprop (sg-fetch-entry-props 
+                     '(define-var (current-thru ?comps :time ?t))))
+      (let* ((sysarg (second (second cdefprop)))
+	     ; urgh, kb uses atomic args in some cases
+             (sysset (if (atom sysarg) (list sysarg) sysarg)))
+	; update best if this has fewer diffs than best match so far
+        (when (and (subsetp studset sysset)
+	           (< (length (set-difference sysset studset))
+		      (length (set-difference sysset bestset))))
+	    (setf bestset sysset)
+	    (setf bestarg sysarg)
+	    )))
+
+   ; finally: return best arg or student's list if no match found
+   (or bestarg studset)))
+
 ;;
 ;; Answer box identifiers
 ;;

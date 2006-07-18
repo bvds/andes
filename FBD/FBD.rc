@@ -2663,6 +2663,9 @@ CAPTION "Define current"
 FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "&Current through:",IDC_STATIC_VALUE,13,27,47,8
+    LISTBOX         IDC_MULTIPLE_BODY_LIST,71,7,91,54,LBS_SORT | 
+                    LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | 
+                    WS_TABSTOP,0,0x817b0407
     GROUPBOX        "",IDC_BOX_TIME,58,62,119,22,NOT WS_VISIBLE
     LTEXT           "&At time",IDC_TIME_LABEL,68,70,21,8,0,0,HIDC_TIME_LABEL
     COMBOBOX        IDC_TIME,100,68,63,62,CBS_DROPDOWNLIST | WS_VSCROLL | 
@@ -2680,9 +2683,6 @@ BEGIN
     LTEXT           "or",IDC_STATIC_OR,206,99,8,8
     CONTROL         "Unknown",IDC_CHECK_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,218,101,40,7
-    LISTBOX         IDC_MULTIPLE_BODY_LIST,71,7,91,54,LBS_SORT | 
-                    LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | 
-                    WS_TABSTOP,0,0x817b0407
 END
 
 IDD_VOLTAGE DIALOGEX 0, 0, 260, 117
@@ -3028,8 +3028,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,1,3,9
- PRODUCTVERSION 10,1,3,9
+ FILEVERSION 10,2,0,0
+ PRODUCTVERSION 10,2,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3047,14 +3047,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "10, 1, 3, 9\0"
+            VALUE "FileVersion", "10, 2, 0, 0\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "10, 1, 3, 9\0"
+            VALUE "ProductVersion", "10, 2, 0, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
