@@ -375,8 +375,8 @@
 (defoperator select-compo-eqn-for-vector (?vec-eqn-id ?compo-eqn-name ?vector)
   :preconditions
   (
-   (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
+   (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
    (in-wm (vector ?b ?vector ?dir))  ;get dir
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    )
