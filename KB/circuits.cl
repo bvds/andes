@@ -873,7 +873,7 @@
   (
    (point (string "Relate the ~A of ~A to the ~A of ~A." 
 	(?quant adj) (?p indef-np) (?quant adj) ?b))
-	(teach (string "The total ~A of an object is equal to the number of ~As times the ~A of each ~A." (?quant adj) ?p (?quant adj) ?p))
+	(teach (string "The total ~A of an object is equal to the number of ~As times the ~A of each ~A." (?quant adj) (?p adj) (?quant adj) (?p adj)))
 	(bottom-out (string "Write the equation ~a." 
 			    ((= (* ?n-var ?p-var) ?b-var) algebra)))
 	))
