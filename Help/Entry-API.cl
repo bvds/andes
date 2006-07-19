@@ -482,6 +482,9 @@
   `(field region ,type unspecified)
 )
 
+(defun ndiffs (set1 set2)
+  (length (set-difference set1 set2)))
+ 
 (defun find-closest-current-list (studset)
 "return current variable argument list that best matches comps listed in student definition"
   (let (bestset 	; initially NIL for empty set
@@ -493,12 +496,13 @@
 	     ; urgh, kb uses atomic args in some cases
              (sysset (if (atom sysarg) (list sysarg) sysarg)))
 	; update best if this has fewer diffs than best match so far
-        (when (and (subsetp studset sysset)
-	           (< (length (set-difference sysset studset))
-		      (length (set-difference sysset bestset))))
-	    (setf bestset sysset)
-	    (setf bestarg sysarg)
-	    )))
+        (when (and (subsetp studset sysset) ; a match!
+	           (or (null bestset) ; first match found
+	               ; or closer match than best so far 
+	               (< (ndiffs sysset studset)
+		          (ndiffs bestset studset)))
+	    (setf bestset sysset) 
+	    (setf bestarg sysarg)))))
 
    ; finally: return best arg or student's list if no match found
    (or bestarg studset)))
