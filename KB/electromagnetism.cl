@@ -212,25 +212,21 @@
 ;;; direction (directly or via compos), can be derived
 ;;; from configuration wrt point particle, or else unknown.
 
-(defoperator draw-Efield-vector (?b ?loc ?source ?t)
+(defoperator draw-Efield-vector (?loc ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Efield-vector  ~%")
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   ;; ?b is "test charge" feeling force at loc at some time.
-   ;; it is only used as axis owner for vector
-   ;; !!! what if we're given field at point with no body?
-   (at-place ?b ?loc :time ?t-place)
    (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
-   (not (vector ?b (field ?loc electric ?source :time ?t) ?dir))     
+   (not (vector ?whatever (field ?loc electric ?source :time ?t) ?dir))     
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Efield-vector   ~%")
    )
   :effects (
-	   (vector ?b (field ?loc electric ?source :time ?t) ?dir)
+	   (vector ?loc (field ?loc electric ?source :time ?t) ?dir)
 	   (variable ?mag-var (mag (field ?loc electric ?source :time ?t)))
 	   (variable ?dir-var (dir (field ?loc electric ?source :time ?t)))
 	   ;; Because dir is problem given, find-by-psm won't ensure implicit 
@@ -259,8 +255,6 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    ;; ?b is "test charge" feeling force at loc at some time.
-   ;; it is only used as axis owner for vector
-   ;; !!! what if we're given field at point with no body?
     (at-place ?b ?loc :time ?t-place)
     ;; make sure direction of force on ?b is given
     (given (dir (force ?b ?source electric :time ?t-force)) ?F-dir)
@@ -280,7 +274,7 @@
     )
    :effects 
    (
-    (vector ?b (field ?loc electric ?source :time ?t) ?Field-dir)
+    (vector ?loc (field ?loc electric ?source :time ?t) ?Field-dir)
     (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
     (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
     (given (dir (field ?loc electric ?source :time ?t)) ?Field-dir)
@@ -294,18 +288,13 @@
 	  ))
 
 
-(defoperator draw-field-unknown (?b ?loc ?type ?source ?t)
+(defoperator draw-field-unknown (?loc ?type ?source ?t)
   :preconditions 
   (
-   ;; only use time when allowed by feature changing-mass
+   ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    (given-field ?source ?type) ;field due to ?source has unknown dir.
-   ;; ?b is "test charge" feeling force at loc at some time.
-   ;; it is only used as axis owner for vector
-   ;; Seems to be used to indicate this is region field type problem -- 
-   ;; should change.  What if we're asked about field at an unoccupied point?
-   (at-place ?b ?loc :time ?t-place)
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?dir))
    ;; make sure field direction not given, directly 
    (not (given (dir (field ?loc ?type ?source :time ?t)) ?dontcare3))
@@ -315,7 +304,7 @@
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
-            (vector ?b (field ?loc ?type ?source :time ?t) unknown)
+            (vector ?loc (field ?loc ?type ?source :time ?t) unknown)
             (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
 	    (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
             )
@@ -347,7 +336,7 @@
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
-            (vector ?b (field ?loc electric ?b :time ?t) ?Field-dir)
+            (vector ?loc (field ?loc electric ?b :time ?t) ?Field-dir)
             (variable ?mag-var (mag (field ?loc electric ?b :time ?t))) 
             (variable ?dir-var (dir (field ?loc electric ?b :time ?t))) 
             (given (dir (field ?loc electric ?b :time ?t)) ?Field-dir)
@@ -382,7 +371,7 @@
    (rdebug "Fired draw-point-Efield-unknown  ~%")
    )
   :effects (
-            (vector ?b (field ?loc electric ?b :time ?t) unknown)
+            (vector ?loc (field ?loc electric ?b :time ?t) unknown)
             (variable ?mag-var (mag (field ?loc electric ?b :time ?t)))
             (variable ?dir-var (dir (field ?loc electric ?b :time ?t)))
             )
@@ -1126,8 +1115,8 @@
   ;; draw field vectors
   (foreach ?source ?sources
 	   (vector ?source-body (field ?loc ?type ?source :time ?t) ?dir))
-  (vector ?b (net-field ?loc ?type :time ?t) ?dir-net)
-  (axes-for ?b ?rot)
+  (vector ?field-axis-owner (net-field ?loc ?type :time ?t) ?dir-net)
+  (axes-for ?field-axis-owner ?rot)
   )
  :effects (
     (vector-diagram ?rot (net-field ?loc ?type ?t))
@@ -1158,15 +1147,13 @@
 ;;; drawing net fields
 
 ; draw net field in given direction:
-(defoperator draw-net-field-given-dir (?b ?type ?t)
+(defoperator draw-net-field-given-dir (?type ?t)
   :preconditions 
   (
    ;; ?t may be timeless, but it does get bound
    (given (dir (net-field ?loc ?type :time ?t)) ?dir-B)  
-   ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc :time ?t-place)
    (test (not (eq ?dir-B 'zero)))
-   (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
+   (not (vector ?whatever (net-field ?loc ?type :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -1175,7 +1162,7 @@
 			?dir-B)))
   :effects 
   (
-   (vector ?b (net-field ?loc ?type :time ?t) ?dir-B)
+   (vector ?loc (net-field ?loc ?type :time ?t) ?dir-B)
    (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
    (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
    ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
@@ -1190,19 +1177,17 @@
 			     (?type adj) (?type adj) ?loc (?dir-B adj)))
 	 )) 
 
-(defoperator draw-net-field-given-zero (?b ?type ?t)
+(defoperator draw-net-field-given-zero (?type ?t)
   :preconditions 
   (
-   ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc :time ?t-place)
    (given (dir (net-field ?loc ?type :time ?t)) zero)  
-   (not (vector ?b (net-field ?loc ?type :time ?t) ?dir1))     
+   (not (vector ?any-body (net-field ?loc ?type :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
 			      (time-abbrev ?t)))
    )
   :effects 
   (
-   (vector ?b (net-field ?loc ?type :time ?t) zero)
+   (vector ?loc (net-field ?loc ?type :time ?t) zero)
    (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
    )
   :hint (
@@ -1975,7 +1960,7 @@
    (any-member ?tot (?t nil))
    ;; draw vectors now, before applying cross product
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
-   (vector ?dipole (field ?region ?type ?source :time ?tot) ?dir-field)
+   (vector ?whatever (field ?region ?type ?source :time ?tot) ?dir-field)
    (vector ?dipole (torque ?dipole (field ?region ?type ?source)
 			       :time ?t) ?dir-torque)
    ;;
@@ -2174,7 +2159,7 @@
    ;; find axes now, before applying dot product:
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-d)
    (any-member ?tot (?t nil)) ;may want to extend to all times
-   (vector ?dipole (field ?region ?type ?source :time ?tot) ?dir-e)
+   (vector ?whatever (field ?region ?type ?source :time ?tot) ?dir-e)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
@@ -2226,16 +2211,14 @@
 ;;--------------------------------------------------
 
 ; draw Bfield in given direction:
-(defoperator draw-Bfield-vector (?b ?loc ?t)
+(defoperator draw-Bfield-vector (?loc ?t)
   :preconditions 
   ((rdebug "Using draw-Bfield-vector  ~%")
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   ;; following requires ?loc to be occupied by body
-   (at-place ?b ?loc :time ?t-place)
    (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)  
-   (not (vector ?b (field ?loc magnetic ?source :time ?t) ?dir1))     
+   (not (vector ?any-body (field ?loc magnetic ?source :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -2244,7 +2227,7 @@
 			?dir-B))
    (rdebug "fired draw-Bfield-vector   ~%"))
   :effects (
-            (vector ?b (field ?loc magnetic ?source :time ?t) ?dir-B)
+            (vector ?loc (field ?loc magnetic ?source :time ?t) ?dir-B)
             (variable ?mag-var (mag (field ?loc magnetic ?source :time ?t)))
             (variable ?dir-var (dir (field ?loc magnetic ?source :time ?t)))
             ;Because dir is problem given, find-by-psm won't ensure implicit eqn
@@ -2269,8 +2252,6 @@
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   ;; we require body at loc to be axis owner for vector
-   (at-place ?b ?loc :time ?t-place)
    (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
    (test ?dir-B)
    (test (not (eq ?B-dir 'zero)))
@@ -2279,7 +2260,7 @@
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
-           (vector ?b (field ?loc magnetic ?wire :time ?t) ?dir-B)
+           (vector ?loc (field ?loc magnetic ?wire :time ?t) ?dir-B)
            (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
            (variable ?dir-var (dir (field ?loc magnetic ?wire :time ?t)))
            (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
@@ -2526,15 +2507,16 @@
 		      ))
           ))
 
-; Charge-force-Bfield vector PSM.
-;
-; This isn't written as a vector psm because it's not clear it can fit into our 
-; general vector PSM framework: it's not a linear vector equation like Newton's Law
-; that resolves into three identical component equations; rather there are three
-; different component equations. Also, it relates components in 3 different
-; directions, so can't directly use the idea of applying it along a given direction,
-; and the test for non-zero-projection used when selecting axis along which
-; to apply a vector psm is not appropriate. 
+;; Charge-force-Bfield vector PSM.
+;;
+;; This isn't written as a vector psm because it's not clear it can fit into 
+;; our general vector PSM framework: it's not a linear vector equation like 
+;; Newton's Law that resolves into three identical component equations; 
+;; rather there are three different component equations.  Also,it relates 
+;; components in 3 different directions, so can't directly use the idea of 
+;; applying it along a given direction, and the test for non-zero-projection 
+;; used when selecting axis along which to apply a vector psm is not 
+;; appropriate. 
 
 
 (def-psmclass charge-force-Bfield 
@@ -2607,14 +2589,16 @@
 
 (defoperator write-charge-force-Bfield (?axis ?rot ?b ?t )
   :preconditions 
-  ((at-place ?b ?loc :time ?t ?t)
+  (
+   (at-place ?b ?loc :time ?t ?t)
    (vector-diagram ?rot (charge-force-Bfield ?b ?t))
    (variable ?F (compo ?axis ?rot (force ?b ?source magnetic :time ?t)))
    (any-member ?tot (?t nil))
    (cross ?cross (velocity ?b :time ?t) 
 	  (field ?loc magnetic ?source :time ?tot) ?axis ?rot ?flag)
    (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge ?b :time ?tot2)))
+   (variable ?q (charge ?b :time ?tot2))
+   )
   :effects 
   ( (eqn (= ?F (* ?q ?cross)) (charge-force-Bfield ?axis ?rot ?b ?flag ?t)) )
   :hint 
@@ -3057,7 +3041,7 @@
    (time ?t)
    ;; find axes now, before applying dot product:
    (any-member ?tot (?t nil))
-   (vector ?surface (field ?surface ?type ?source :time ?tot) ?dir-d)
+   (vector ?any-body (field ?surface ?type ?source :time ?tot) ?dir-d)
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
@@ -3147,7 +3131,7 @@
    (time ?t) ;in case ?t is not bound
    ;; find axes now, before applying dot product:
    (any-member ?tot (?t nil))
-   (vector ?surface (field ?surface ?type ?source :time ?tot) ?dir-d)
+   (vector ?any-body (field ?surface ?type ?source :time ?tot) ?dir-d)
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
    (time ?t)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
