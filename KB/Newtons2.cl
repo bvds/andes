@@ -375,7 +375,7 @@
 (defoperator select-compo-eqn-for-vector (?vec-eqn-id ?compo-eqn-name ?vector)
   :preconditions
   (
-   (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
+   (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
    (in-wm (vector ?b ?vector ?dir))  ;get dir
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
@@ -424,8 +424,8 @@
    then select the component equation along any axis." 
   :preconditions
    ((test (scalar-quantityp ?quantity))
+    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
     (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?quantity)
-    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
     (debug "choosing compo to apply ~A to find scalar ~A~%"   
 	   ?compo-eqn-name ?quantity) 
     (get-axis ?xyz ?rot) ;iterate over ?xyz
