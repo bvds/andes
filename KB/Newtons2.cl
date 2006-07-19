@@ -7235,8 +7235,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator cross-using-components (?a ?b ?compo ?rot)
   :preconditions 
   ( 
-   (in-wm (vector ?axis-body ?a ?dir-a)) ;now done in the eqn-contains
-   (in-wm (vector ?axis-body ?b ?dir-b)) ; ditto
+   (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
+   (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
    (bind ?dir-axis (axis-dir ?compo ?rot))
    ;; cross-zero handles these cases:
