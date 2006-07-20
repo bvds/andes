@@ -506,14 +506,14 @@
   :preconditions 
   (
    (force ?b ?source electric ?t ?F-dir action)
-   (sign-charge ?b ?pos-neg)
+   ;; already found above
+   (in-wm (sign-charge ?b ?pos-neg))
    (test (member ?pos-neg '(pos neg)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" 
 			      (body-name ?b) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (rdebug "finish find-electric-force-given-field-dir~%")
    )
 :effects (
 	  (vector ?b (force ?b ?source electric :time ?t) ?F-dir)

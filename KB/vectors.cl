@@ -38,8 +38,7 @@
 				       (relative-vel ?b1 ?b2 :time ?t)
 				       (relative-vel ?b2 ?b3 :time ?t)))
 		  )
-  :effects (
-	    (eqn-family-contains (relative-vel ?b1 ?b2 ?b3 ?t) ?sought)
+  :effects ((eqn-family-contains (relative-vel ?b1 ?b2 ?b3 ?t) ?sought)
 	    (compo-eqn-contains (relative-vel ?b1 ?b2 ?b3 ?t) relvel ?sought)))
 
 
