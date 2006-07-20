@@ -376,7 +376,7 @@
   :preconditions
   (
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
-   (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector)
+   (wm-or-derive (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector))
    (in-wm (vector ?b ?vector ?dir))  ;get dir
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    )
@@ -425,7 +425,7 @@
   :preconditions
    ((test (scalar-quantityp ?quantity))
     (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
-    (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?quantity)
+    (wm-or-derive (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?quantity))
     (debug "choosing compo to apply ~A to find scalar ~A~%"   
 	   ?compo-eqn-name ?quantity) 
     (get-axis ?xyz ?rot) ;iterate over ?xyz
@@ -3129,18 +3129,8 @@
    "Lists the quantities contained in vf = vi + a * t"
   :preconditions
   (
-   ;; This should apply at first step of apply-vector-PSM where it calls for a 
-   ;; vector-PSM (eqn family).  It will ALSO post the compo-eqn-contains to 
-   ;; choose the particular equation.  At second step, where apply-vector-PSM 
-   ;; where calls for a compo-eqn-contains, the goal will be satisfied by 
-   ;; the WM element.  However, solver will also try to achieve goal via
-   ;; operators.  This operator won't be applied again with the same 
-   ;; parameters, but those for OTHER lk family equations might be.  
-   ;; So: prevent any of them from applying when the compo-eqn-contains 
-   ;; is already in wm. 
-   ;; !!! Should simplify apply-vector-PSM to avoid this whole two-level 
-   ;; scheme of choosing eqn-family then choosing compo-eqn. 
-   (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
+   ;; will only be called once
    (any-member ?quantity 
 	       ((velocity ?b :time ?t1)
 		 (velocity ?b :time ?t2)
@@ -3208,7 +3198,9 @@
   :specifications "
    Lists the quantities contained in vf^2 = vi^2+2*a*s"
   :preconditions
-  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+  (
+   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
+   ;; will only be called once
    (any-member ?quantity 
 	       ((velocity ?b :time ?t1)
 		 (velocity ?b :time ?t2)
@@ -3280,7 +3272,9 @@
   :specifications "
    Lists the quantities contained in s = vi*t + 0.5*a*t^2"
   :preconditions
-  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+  (
+   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
+   ;; will only be called once
    (any-member ?quantity 
 	        ((velocity ?b :time ?t1)
 		 (accel ?b :time (during ?t1 ?t2))
@@ -3349,7 +3343,9 @@
   :specifications "
    Lists the quantities contained in s = 0.5*(vi + vf)*t, which lacks a"
   :preconditions
-  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+  (
+   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
+   ;; will only be called once
    (any-member ?quantity 
 	        ((velocity ?b :time ?t1)
 		 (velocity ?b :time ?t2)
@@ -3435,7 +3431,9 @@
   :specifications 
    "Lists the quantities contained in s_x = v0_x*t when a_x = 0" 
   :preconditions
-  ((not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+  (
+   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
+   ;; will only be called once
    (any-member ?quantity 
 	        ((velocity ?b :time ?t1)
 		 (displacement ?b :time (during ?t1 ?t2))
@@ -3500,8 +3498,10 @@
 (defoperator const-vx-contains (?quantity)
  :specifications 
    "Lists the quantities contained in v1_x = v2_x when a_x = 0"
-  :preconditions (
-   (not (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) ?chosen-eqn ?quantity))
+  :preconditions 
+  (
+   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
+   ;; will only be called once
    (any-member ?quantity 
 	        ((velocity ?b :time ?t1)
 	         (velocity ?b :time ?t2)
