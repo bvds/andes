@@ -46,6 +46,7 @@
 #include "UnitVectorDlg.h"
 #include "TimeConstantDlg.h"
 #include "DipoleDlg.h"
+#include "TorqueDipoleDlg.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3717,6 +3718,8 @@ CDialog* CVariable::GetPropertyDlg()
 	// Vector dialogs are all special:
 	if (m_nType == ID_VARIABLE_ADDFORCE)
 		return new CVectorDlg(this);
+	else if (m_nType == ID_VARIABLE_ADDTORQUE && CVarView::HasFeature("DIPOLE"))
+		return new CTorqueDipoleDlg(this);
 	else if (m_nType == ID_VARIABLE_ADDTORQUE)
 		return new CTorqueDlg(this);
 	else if (m_nType == ID_VARIABLE_ADDRELPOS)

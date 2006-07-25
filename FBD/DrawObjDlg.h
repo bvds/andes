@@ -128,5 +128,7 @@ protected:
 void AFXAPI DDX_AddCompoundBodies(CDataExchange* pDX, int nIDC, CDrawObjList* pObjList);
 void AFXAPI DDX_AddUserTimes(CDataExchange* pDX, int nIDC, CVarList* pObjList);
 void AFXAPI DDX_AddEquivComponents(CDataExchange* pDX, int nIDC, CVarList * pObjList);
+void AFXAPI DDX_AddFieldVectors(CDataExchange* pDX, int nIDC, CDrawObjList* pObjList);
+
 
 #endif DRAWOBJ_DIALOG_INCLUDED

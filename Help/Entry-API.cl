@@ -845,13 +845,13 @@
 	;; for force applied at that point, assumed to be unique.  Note if 
 	;; no such force we can't determine a full quantity spec at all.
 	(vquant-term (cond
-		      ((equal type '|Net|) `(net-torque ,body-term ,axis-term))
-		      ((equal type 'couple) 
+		      ((eq type '|Net|) `(net-torque ,body-term ,axis-term))
+		      ((eq type '|Couple|) 
 		       `(torque ,body-term 
 				(couple orderless ,body-term ,axis-term)))
-		      ((eq type 'dipole)
+		      ((eq type '|Dipole|)
 		       (find-dipole-torque-term body-term axis-term))
-	               (t (find-torque-term body-term axis-term))))
+	              (t (find-torque-term body-term axis-term))))
 	(dir-term (arg-to-dir dir mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id))
@@ -875,17 +875,15 @@
     `(torque ,body-term ,force-match :axis ,axis) 
     ))
 
-(defun find-dipole-torque-term (dipole agent)
-  (let* (
-	 ;; get force by searching entries for force at pt of application
-	 (field-matches (sg-fetch-entry-props 
-			 `(vector (field ?loc ?type ,agent :time ?t) ?dir)))
-	 (field-match   (if field-matches
-			    (remove-time (second (first field-matches)))
+(defun find-dipole-torque-term (dipole field-name)
+  ;; second arg is student's label for field. Find in symbol table
+  ;; referent should be (mag (field ... ... ... :time ...))
+  (let* ((field-match (symbols-referent (string field-name)))
+         (field-term  (if field-match (remove-time (second field-match))
+	               ; else referent not found! shouldn't happen
 	                  `(field nil nil nil))))
     ;; return the torque quantity
-    `(torque ,dipole ,field-match) 
-    ))
+    `(torque ,dipole ,field-term) ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with

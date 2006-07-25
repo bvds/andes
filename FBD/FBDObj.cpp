@@ -36,6 +36,7 @@
 #include "UnitVectorDlg.h"
 #include "DipoleDlg.h"
 #include "LineDlg.h"
+#include "TorqueDipoleDlg.h"
     
 //////////////////////////////////////////////////////////////////////////
 // Vectors
@@ -764,6 +765,8 @@ CDialog* CVector::GetPropertyDlg()
 	//	return new CVectorCompDlg(this);
 	else if (m_nVectorType == VECTOR_IMPULSE) 
 		return new CImpulseDlg(this);
+	else if (m_nVectorType == VECTOR_TORQUE && CVarView::HasFeature("DIPOLE"))
+		return new CTorqueDipoleDlg(this);
 	else if (m_nVectorType == VECTOR_TORQUE)
 		return new CTorqueDlg(this);
 	else if (m_nVectorType == VECTOR_POSITION)
@@ -826,9 +829,11 @@ CString CVector::GetDef()
 		strDef.Format("Relative Velocity %s with respect to %s",  strBodyPart, m_strAgent);
 	} else if (m_nVectorType == VECTOR_TORQUE) {
 		// Like force, may be Net or individual torque
-			if (!m_strForceType.IsEmpty()) 	
+		if (m_strForceType.CompareNoCase("net") == 0) 	
 			strDef.Format("Net Torque on %s about %s %s", m_strBody, m_strAgent, strTimePart);
-		else
+		else if (m_strForceType.CompareNoCase("dipole") == 0)
+			strDef.Format("Torque on %s due to %s %s", m_strBody, m_strAgent, strTimePart);
+		else 
 			strDef.Format("Torque about %s from force at %s %s",  m_strAgent, m_strBody, strTimePart);
 	} else if (m_nVectorType == VECTOR_EFIELD) {
 		strDef.Format("Electric Field at %s due to %s",  m_strBody, m_strAgent);
@@ -886,8 +891,10 @@ CString CVector::GetPrintDef()
 	} else if (m_nVectorType == VECTOR_RELVEL) {
 		strDef.Format("Relative Velocity of %s with respect to %s %s", m_strBody, m_strAgent, strTimePart);
 	} else if (m_nVectorType == VECTOR_TORQUE) {
-		if (!m_strForceType.IsEmpty()) 	
+		if (m_strForceType.CompareNoCase("net") == 0) 	
 			strDef.Format("Net Torque on %s about %s %s", m_strBody, m_strAgent, strTimePart);
+		else if (m_strForceType.CompareNoCase("dipole") == 0)
+			strDef.Format("Torque on %s due to %s %s", m_strBody, m_strAgent, strTimePart);
 		else
 			strDef.Format("Torque about %s from force at %s %s",  m_strAgent, m_strBody, strTimePart);
 	} else if (m_nVectorType == VECTOR_EFIELD) {

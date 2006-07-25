@@ -741,3 +741,38 @@ void AFXAPI DDX_AddEquivComponents(CDataExchange* pDX, int nIDC, CVarList * pObj
 		}
 	}
 }
+
+void AFXAPI DDX_AddFieldVectors(CDataExchange* pDX, int nIDC, CDrawObjList* pObjList)
+{
+	HWND hWndCtrl = pDX->PrepareCtrl(nIDC);
+
+	if (!pDX->m_bSaveAndValidate)
+	{
+		// Run through list so more recently added objects come later, adding compound
+        // body system names to list of possible body choices. Also, for each defined
+        // system of any kind, select it's body name as we walk list, so most recently 
+		// defined system's body name is left as default selection when we're done.
+		POSITION pos = pObjList->GetHeadPosition();
+		while (pos != NULL)
+		{
+			CDrawObj* pObj = pObjList->GetNext(pos);
+			if (pObj->m_flag == TEACHER_OBJECT)
+				continue;
+			if (  pObj->IsKindOf(RUNTIME_CLASS(CVector)) &&	! pObj->m_strName.IsEmpty() )
+			{
+				CVector* pVec= (CVector*)pObj;		
+				if (pVec->m_nVectorType == VECTOR_EFIELD || pVec->m_nVectorType == VECTOR_BFIELD) 
+				{
+					// Add vector label to list of choices in combo box
+					::SendMessage(hWndCtrl, CB_ADDSTRING, 0, (LPARAM)(LPSTR)(LPCTSTR)pVec->m_strName);
+					
+					// Select it by exact label
+					int nSel = ::SendMessage(hWndCtrl, CB_FINDSTRINGEXACT, -1, 
+										(LPARAM)(LPCTSTR)pVec->m_strName);
+					if (nSel >= 0) ::SendMessage(hWndCtrl, CB_SETCURSEL, nSel, 0L);
+		
+				} 
+			}
+		}		
+	}
+}

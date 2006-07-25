@@ -30,11 +30,11 @@
 #define HIDC_LDEGREES                   0x80d404c9    // IDD_ANGLE
 #define HIDC_LMOTION_BODY_LIST          0x80b304d5    // IDD_MOTION_DIAGRAM
 #define HIDC_LSYSTEM_NAME               0x817904cc    // IDD_RESISTANCE
-#define HIDC_LVARIABLE_NAME             0x817b055f    // IDD_CURRENT_EXP
+#define HIDC_LVARIABLE_NAME             0x817b055f    // IDD_CURRENT
 #define HIDC_LVECTOR_NAME_TEXT          0x816d04cf    // IDD_TORQUE
 #define HIDC_MEASURED_TIMES             0x80b30461    // IDD_MOTION_DIAGRAM
 #define HIDC_MOTION_BODY_LIST           0x80b3045f    // IDD_MOTION_DIAGRAM
-#define HIDC_MULTIPLE_BODY_LIST         0x81790407    // IDD_RESISTANCE
+#define HIDC_MULTIPLE_BODY_LIST         0x817b0407    // IDD_CURRENT
 #define HIDC_MULTIPLE_INSTRUCTIONS      0x81790431    // IDD_RESISTANCE
 #define HIDC_NRGBODY                    0x81660561    // IDD_ENERGY
 #define HIDC_NRG_AGENT                  0x81660563    // IDD_ENERGY
@@ -44,7 +44,7 @@
 #define HIDC_PRINCIPLE                  0x8156053c    // IDD_LAW_APPLICATION
 #define HIDC_TIME                       0x8178043f    // IDD_CURRENT_EXP
 #define HIDC_TIME_INTERVAL              0x80b30462    // IDD_MOTION_DIAGRAM
-#define HIDC_TIME_LABEL                 0x817b0464    // IDD_CURRENT_EXP
+#define HIDC_TIME_LABEL                 0x817b0464    // IDD_CURRENT
 #define HIDC_TIME_TEXT                  0x81790408    // IDD_RESISTANCE
 #define HIDC_TIME_UNITS                 0x80b30463    // IDD_MOTION_DIAGRAM
 #define HIDOK                           0x80d40001    // IDD_ANGLE
