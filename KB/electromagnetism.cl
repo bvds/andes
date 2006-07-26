@@ -76,7 +76,7 @@
   :complexity major    
   :Doc "Definition of Coulomb's law, component form."
   :short-name ("Coulomb's law (~A component)" (axis-name ?axis))
-  :english ("the definition of Coulomb's law (component form)") 
+  :english ("Coulomb's law (component form)") 
   :ExpFormat ("applying Coulomb's law to ~a and ~A ~a"
 	      (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
   :EqnFormat ("F_~A = (kelec*q1*q2/r^2) * r_~A/r" 
