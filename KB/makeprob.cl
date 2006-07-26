@@ -116,7 +116,7 @@
       (when pp (dump-html-problem-solutions pp out-path))))
   ;; Make file with html styles
   (let ((css (open (merge-pathnames  "main.css" out-path)
-		   :direction :output :if-exists :supersede)))
+ 		   :direction :output :if-exists :supersede)))
     (format css 
 	    (strcat
 	     "  th {vertical-align: top; text-align: right;}~%"

@@ -728,8 +728,12 @@
 	   "<title>~A</title>~%"
 	   "</head>~%"
 	   "<body>~%"
-	   "<h1>Problem Solutions for ~A</h1>~%") 
+	   "<h1>Problem Solutions for ~A</h1>~%"
+	   "<p>~%") 
 	  (problem-name Problem) (problem-name Problem))
+  (mapcar #'(lambda (x) (format Stream "   ~A<br>~%" x)) 
+	  (problem-statement Problem))
+  (format Stream "</p>~%")
   (format Stream "<table>~%")
   (format Stream "<caption>Solution 0</caption>~%")
   (format Stream "~{<tr>~{<td class=\"~A\">~A</td><td>~A</td><td>~A</td>~}</tr>~%~}" 
