@@ -205,7 +205,19 @@ void CBrowserDlg::OnBeforeNavigateWebBrowser(LPCTSTR URL, long Flags, LPCTSTR Ta
 	// if our code sent the browser here, do nothing more. 
 	if (m_bOurNavigate) 
 		return;
+
+	// see if it's an aps link to launch a problem set
+	if (pLastDot && (_stricmp(pLastDot, ".aps") == 0)) {
+		// set flag to end the dialog
+		EndDialog(IDOK);
+		*Cancel = TRUE;
+		return;
+	}
 	
+
+
+#if 0 // helpsys-computed links no longer used	
+
 	// Extract file title = basename w/o extension.
 	LPCTSTR pLastSlash = strrchr(URL, '\\');
 	LPCTSTR pStart = pLastSlash ? pLastSlash + 1 : URL;
@@ -251,6 +263,7 @@ void CBrowserDlg::OnBeforeNavigateWebBrowser(LPCTSTR URL, long Flags, LPCTSTR Ta
 		// Cancel navigate via out parm
 		*Cancel = TRUE;
 	}
+#endif 0
 }
 
 // Window event: dialog has been resized by user:

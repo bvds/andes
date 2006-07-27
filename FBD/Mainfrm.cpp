@@ -1,6 +1,6 @@
 // MainFrm.cpp : implementation of the CMainFrame class
 //
-// $Id: Mainfrm.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: Mainfrm.cpp,v 1.3 2006/07/27 23:04:06 anders Exp $
     
 #include "stdafx.h"
 #include "dde.h"			// for OnDdeCommand override 
@@ -1935,6 +1935,12 @@ void CMainFrame::MoveDlgToBtmRight(CWnd *pDlg)
 	CWnd* pView = (CWnd*) theApp.GetEQView();
 	if (pView != NULL)
 		pView->GetWindowRect(&eqRect);
+	else if (theApp.GetFBDView() == NULL) {
+		// if no fbd view either, just center the window,
+		// no reason to hide on bottom right
+		pDlg->CenterWindow();
+		return;
+	}
 	int dlgWidth = dlgRect.right-dlgRect.left;
 	int dlgHeight = dlgRect.bottom-dlgRect.top;
 	int eqWidth = eqRect.right - eqRect.left;

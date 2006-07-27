@@ -1449,6 +1449,7 @@ void CFBDApp::OnUpdateFileEditexample(CCmdUI* pCmdUI)
 
 void CFBDApp::OnFileOpenproblemset() 
 {
+#if 0 // old
 	CFileDialog dlg(TRUE, "aps", NULL, OFN_HIDEREADONLY | OFN_NOCHANGEDIR,
     	            "Andes Problem Set (.aps)|*.aps||");
     // Start the dialog in the Problem Dir
@@ -1457,9 +1458,19 @@ void CFBDApp::OnFileOpenproblemset()
     
     if (dlg.DoModal() != IDOK)
     	return;
-    	
-    // open selected file using appropriate doc template
+
+	// open selected file using appropriate doc template
     CString strPathName = dlg.GetPathName();
+#else // new
+
+	// run the html window to select an aps file
+	m_dlgLesson.m_strUrl = g_strAndesDir + g_szProblemDir + "\\" + "index.html";
+    if (m_dlgLesson.DoModal() != IDOK) return;
+	TRACE("Opening path from browser: %s\n", m_dlgLesson.m_strUrl);
+    CString strPathName = m_dlgLesson.m_strUrl;	
+    
+#endif // new
+
     m_ptmplProbSet->OpenDocumentFile(strPathName);
 }
 
