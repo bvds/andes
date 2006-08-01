@@ -269,6 +269,32 @@ BOOL CSetupApp::CheckDiskSpace()
 	return TRUE;
 }
 
+void MyDeleteFile(CString fName)
+{
+	// Ensure read-only attribute is unset
+	DWORD dwAttr = GetFileAttributes(fName);
+	dwAttr = dwAttr & (~FILE_ATTRIBUTE_READONLY);
+	SetFileAttributes(fName, dwAttr);
+	// and delete it
+	DeleteFile(fName);
+}
+
+BOOL CSetupApp::RemoveFbds()
+{
+	CFileFind finder;
+	BOOL bFilesRemaining = finder.FindFile(m_strInstDir + "Problems\\*.fbd");
+	while (bFilesRemaining)
+	{
+		bFilesRemaining = finder.FindNextFile();
+     
+		// skip directories which can be matched with *.*
+		CString strFileName = finder.GetFileName();
+		if (! (finder.IsDirectory() || finder.IsDots() || strFileName.IsEmpty())){
+			MyDeleteFile(finder.GetFilePath());
+		}
+	}
+	return TRUE;
+}
 BOOL CSetupApp::CopyTheFiles()
 {
 	int strlen = m_strInstDir.GetLength();
@@ -278,6 +304,10 @@ BOOL CSetupApp::CopyTheFiles()
 	// Create directories first
 	if (!CreateDirectories())
 		return FALSE;
+
+	// Clear out any old fbds from problems directory
+	// !! No error if fails
+	RemoveFbds();
 
 	// show progress of file copying
 	CProgressDlg* dlg;

@@ -59,6 +59,7 @@ public:
 						//checks space left on disk & compares the two
 						//Also counts # of files and stores in m_nFiles	
 	BOOL CopyTheFiles();
+	BOOL RemoveFbds();
 	void RenameOnStartup(LPCTSTR szNewName, LPCTSTR szOldName);
 
     BOOL FileExists(LPCTSTR lpsz);
