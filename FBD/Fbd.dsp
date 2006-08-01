@@ -1058,6 +1058,10 @@ SOURCE=.\TimeConstantDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TorqueDipoleDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TorqueDlg.cpp
 # End Source File
 # Begin Source File
@@ -1589,6 +1593,10 @@ SOURCE=.\Example\TemplateDlg.h
 # Begin Source File
 
 SOURCE=.\TimeConstantDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TorqueDipoleDlg.h
 # End Source File
 # Begin Source File
 

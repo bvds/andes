@@ -169,6 +169,7 @@ static const char * s_files[] =
 	"Problems\\*.aps",
 	"Problems\\*.gif",
 	"Problems\\*.jpg",
+	"Problems\\*.html", // for index.html
 
 	// Video pseudo-problem for preview image
 	"Problems\\video.fbd",

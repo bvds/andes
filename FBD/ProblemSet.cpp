@@ -1193,6 +1193,17 @@ void CProblemSet::OnCloseDocument()
 	ASSERT(theApp.GetDocument() == NULL); 
 		
 	CDocument::OnCloseDocument();
+
+	// Copied from CFBDDoc::OnCloseDocument:
+	// Done close of problem set, have to decide what app should do next:
+	// For students, we popup the task selection dialog again.
+	// But don't do if the app is in process of shutting down. 
+	// Note: in OLI mode, app would normally be shutting down after problem close. But we
+	// also test and do nothing in OLI case just in case (e.g. if prob never opened)
+	if (! (m_bOli || theApp.m_bAuthorMode || ((CMainFrame*)AfxGetMainWnd())->m_bClosing)) 
+	{
+		theApp.DoTaskSelect();
+	}
 }
 
 CTask* CProblemSet::GetFirstIncompleteTask()
