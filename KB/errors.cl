@@ -3994,6 +3994,7 @@
 ;; var assigned to may be either given or non-given, doesn't matter.
 
 
+
 ;;; ========================== Answer box entries ===========================
 
 (defun get-answer-entry (quant)
@@ -4032,6 +4033,24 @@
    
 |#
 
+;;; ================== Multiple choice entries
+
+;;;
+;;; Following shows a way to associate error handlers with particular
+;;; choices on multiple choice questions in our current simple (problem-specific)
+;;; framework. Might make sense to define a macro for multiple choice
+;;; errors that expands to these, since all they really depend on is problem name
+;;; question id and choice number.
+#|
+(def-error-class mc-wrong-field-direction ()
+   ( (test (eq (problem-name *cp*) 'fara1a))
+     (student (choose-answer MC-1 2))))
+
+
+(defun mc-wrong-field-direction ()
+  (make-hint-seq (list "That is not the correct field direction"))
+)
+|#
 
 ;;; ================= Undiagnosed equation errors ==============
 
