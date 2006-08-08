@@ -849,25 +849,30 @@
   :eqnFormat ("Q = N*q"))
 
 (defoperator number-of-particles-contains (?sought)
-  :preconditions(
-		 (number-of-particles ?p ?b :quantity ?quant)
-		 (any-member ?sought ((?quant ?p)
-				      (?quant ?b)
-				      (number-of ?p)))
-		 )
-  :effects(
-	   (eqn-contains (number-of-particles ?quant ?p ?b) ?sought)
-	   ))
+  :preconditions
+  (
+   (number-of-particles ?p ?b :quantity ?quant . ?rest)
+   (any-member ?sought ((?quant ?p)
+			(?quant ?b)
+			(number-of ?p)))
+   )
+  :effects ((eqn-contains (number-of-particles ?quant ?p ?b) ?sought)
+	    ))
 
 (defoperator write-number-of-particles (?quant ?b)
-  :preconditions(
-		 (variable ?p-var (?quant ?p))
-		 (variable ?b-var (?quant ?b))
-		 (variable ?n-var (number-of ?p))
-		 )
+  :preconditions
+  (
+   ;; The number of particles is generally a magnitude
+   ;; Put in a minus by hand when the quantities don't have the right signs
+   (number-of-particles ?p ?b :quantity ?quant :minus ?flag)
+   (variable ?p-var (?quant ?p))
+   (variable ?b-var (?quant ?b))
+   (variable ?n-var (number-of ?p))
+   (bind ?b-term (if ?flag (list '- ?b-var) ?b-var))
+   )
   :effects
   (
-   (eqn (= (* ?n-var ?p-var) ?b-var) (number-of-particles ?quant ?p ?b))
+   (eqn (= (* ?n-var ?p-var) ?b-term) (number-of-particles ?quant ?p ?b))
    )
   :hint
   (
@@ -875,7 +880,7 @@
 	(?quant adj) (?p indef-np) (?quant adj) ?b))
 	(teach (string "The total ~A of an object is equal to the number of ~As times the ~A of each ~A." (?quant adj) (?p adj) (?quant adj) (?p adj)))
 	(bottom-out (string "Write the equation ~a." 
-			    ((= (* ?n-var ?p-var) ?b-var) algebra)))
+			    ((= (* ?n-var ?p-var) ?b-term) algebra)))
 	))
 
 
