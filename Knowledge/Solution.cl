@@ -231,12 +231,11 @@
   (loop for S in (read Stream "Error: Malformed Equation Sets.")
       collect (make-EqnSet 
 	       ; New: restore "concise" sgg representation as list of enodes:
-	       ; map stored eqn indices to eqns, then eqns to Enodes, keeping
-	       ; only elements for which matching enodes are found
-	       ; Urgh: lookup by algebra, since eqn-exp for given-eqn's in eq index is 
-	       ; just the quantity,  which doesn't match the full enode-id (GIVEN ...).
-	       :Eqns (remove-if #'null
-	                (mapcar #'(lambda (eqn) (match-algebra->enode (eqn-algebra eqn) Graph))
+	       ; map stored eqn indices to eqns, map to list of their node sets
+	       ; ((Enode1 Enode2) (Enode2 Enode3) ....)
+	       ; and form union of all nodes in list of lists
+	       :Eqns (reduce #'union 
+	               (mapcar #'eqn-nodes
 	                  (collect-indicies->eqns (first S) EqnIndex)))
 	       :Nodes  (map-indicies->bgnodes (second S) Graph)
 	       :Assumpts (third S))))
