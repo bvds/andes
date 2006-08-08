@@ -2529,7 +2529,7 @@ CRect CFBDDoc::LayoutStatement(const CString& strStatement)
 			if (strPrefix.Find("{") != -1) {
 				pGroup = new CGroup();
 				pGroup->m_strId.Format("MC-%d", ++nAnswers); // whole group is one answer
-				Add(pGroup, FALSE); pGroup->m_flag = TEACHER_OBJECT;
+				Add(pGroup, FALSE); pGroup->m_flag = STUDENT_OBJECT; // TEACHER_OBJECT;
 				strPrefix.Delete(strPrefix.Find("{"));
 			}
 			// if see a "}" before answer box, finish current choice group, if there is one
@@ -3101,18 +3101,45 @@ BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 	sscanf(pszCmd, "%s", name);
 	const char * pszArgs = pszCmd + strlen(name) + 1; // just past space after name
 
-	// case name == "Var-Entry" (EV_VAR_ENTRY) 
-	// Following copies code that executes EV_VAR_ENTRY command only (inaccessible at
-	// at this point because it is in VarView, which doesn't now exist).
-	CVariable* pVar = new CVariable();//create a new variable
-	if (! pVar->SetFromLogStr(pszArgs) )
+	if (strcmpi(name, "Var-Entry") == 0)	// EV_VAR_ENTRY
+	{
+		// Following copies code that executes EV_VAR_ENTRY command only (inaccessible at
+		// at this point because it is in VarView, which doesn't now exist).
+		CVariable* pVar = new CVariable();//create a new variable
+		if (! pVar->SetFromLogStr(pszArgs) )
+			return FALSE;
+		m_Variables.AddTail(pVar);	// bypass AddVariable, it generates id
+		pVar->m_pDocument = this;
+		// must add name to cached varname list. Normally done in UpdateVarNames after 
+		// dialog box editing of new variables.
+		m_strVarNames.AddTail(pVar->m_strName);
+		// no need to update views at this point
+	} 
+	else if (strcmpi(name, "FBD-Entry") == 0)	// EV_FBD_ENTRY
+	{
+		// Following copies code that executes EV_FBD_ENTRY command only (inaccessible at
+		// at this point because it is in VarView, which doesn't now exist).
+
+		// scan first type arg and create new object of right type
+		char szType[64];
+		if (sscanf(pszArgs, "%s", szType) != 1) return FALSE;
+		CDrawObj* pObj = CFBDView::CreateNew(szType);
+		if (pObj == NULL) return FALSE;
+		// set obj's properties from the string (includes id, status).
+		// (Pass whole string with typename since vectors can use it to determine subtype)
+		if (! pObj->SetFromLogStr(pszArgs)) return FALSE;
+		// add to document and update. Skip Doc->Add since it sets modified flag
+		m_objects.AddTail(pObj);
+		pObj->m_pDocument = this;
+		// must add name to cached solvefor varname list. Normally called after dialog 
+		if (pObj->IsKindOf(RUNTIME_CLASS(CCheckedObj)))
+			((CCheckedObj*)pObj)->UpdateVarNames();
+	}
+	else // unhandled.
+	{
+		TRACE("Unknown predef command %s\n", name);
 		return FALSE;
-	m_Variables.AddTail(pVar);	// bypass AddVariable, it generates id
-	pVar->m_pDocument = this;
-	// must add name to cached varname list. Normally done in UpdateVarNames after 
-	// dialog box editing of new variables.
-	m_strVarNames.AddTail(pVar->m_strName);
-	// no need to update views at this point
+	}
 
 	return TRUE;
 }

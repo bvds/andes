@@ -714,6 +714,13 @@ void CFBDView::OnChoiceClicked(UINT idBtn)
 		pClickedBtn->Invalidate();
 		CStringList strErrs;
 		CCheckedObj::ApplyStatus(pszResult, pClickedBtn->pChoice->m_status, strErrs);
+
+		// Propagate status to ChoiceGroup object which carries the question id, so
+		// whatswrong will be enabled if it is selected. 
+		pGroup->m_status = pClickedBtn->pChoice->m_status;
+
+		// Select the ChoiceGroup object so one can ask whatswrong on it if needed.
+		Select(pGroup);
 	}
 	else // single choice, not part of group: 
 	{
@@ -4165,6 +4172,9 @@ void CFBDView::OnEditDelete()	// user command, separate for logging
 
 void CFBDView::OnUpdateEditDelete(CCmdUI* pCmdUI) 
 {
+	// Run through selection to ensure all objects in it are deletable
+	// !!! should be changed to use CanDelete method on all drawobjects.
+
 	// Can only delete motion diagram entries in certain order.
 	// Here check that all selected objects are currently deletable
 	// !!! should be moved into method in MotionDiagram or use	
@@ -4191,7 +4201,16 @@ void CFBDView::OnUpdateEditDelete(CCmdUI* pCmdUI)
 				return;
 			}
 		}
+
+		// New: can't delete ChoiceGroup items representing multiple choice questions.
+		// now that we have made them student-selectable.
+		if (CFBDView::IsChoiceGroup(pObj)) {
+			pCmdUI->Enable(FALSE);
+			return;
+		}
+
 	}
+
 	// else just enable if have selection.
 	OnUpdateEditCopyCut(pCmdUI);
 }
@@ -4657,7 +4676,10 @@ void CFBDView::OnUngroup()
 void CFBDView::OnUpdateUngroup(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable(SingleSelection() && 
-		           SelectedObj()->IsKindOf(RUNTIME_CLASS(CGroup)) && m_bEnabled);
+		           SelectedObj()->IsKindOf(RUNTIME_CLASS(CGroup)) && 
+				   // don't allow students to ungroup ChoiceGroups
+				   ! IsChoiceGroup(SelectedObj())
+				   && m_bEnabled);
 	
 }
 
@@ -4675,10 +4697,12 @@ void CFBDView::OnUpdateTogglegroup(CCmdUI* pCmdUI)
 {
 	if ( SingleSelection() && SelectedObj()->IsKindOf(RUNTIME_CLASS(CGroup)) ){
 		pCmdUI->SetText("Ungroup");
-		pCmdUI->Enable(m_bEnabled);
+		// disallow ungrouping of choice groups.
+		pCmdUI->Enable(! IsChoiceGroup(SelectedObj()) && m_bEnabled);
 	} 
 	else  {
 		pCmdUI->SetText("Group\tCtrl+G");
+		// !!! Don't want to allow grouping choice groups with others
 		pCmdUI->Enable(m_Selection.GetCount() >= 2 && m_bEnabled);
 	}
 }
@@ -4772,7 +4796,7 @@ void CFBDView::OnContextMenu(CWnd*, CPoint point)
 		LogEventf(EV_FBD_MENU, "%d %d  %d %d", point.x, point.y, local.x, local.y);
 
 		CMenu menu;
-		VERIFY(menu.LoadMenu(IDR_POPUP_FBDVIEW));
+		VERIFY(menu.LoadMenu(theApp.m_bAuthorMode? IDR_POPUP_FBDVIEW_AUTHOR : IDR_POPUP_FBDVIEW));
 		CMenu* pPopup = menu.GetSubMenu(0);
 		ASSERT(pPopup != NULL);
 

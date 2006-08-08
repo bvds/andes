@@ -1064,7 +1064,16 @@ void CGroup::Draw(CDC* pDC)
    		pObj->Draw(pDC);
    	}
 }
-    
+void CGroup::DrawSelectState(CDC* pDC, TrackerState state)
+{
+	// special selection highlighting, mainly for Choice Group objects
+	// used for multiple choice questions.
+	// enlarge to avoid overlapping choice buttons
+	CRect rcDraw = m_position;
+	rcDraw.InflateRect(5,5,5,5);
+	pDC->DrawFocusRect(rcDraw);
+}
+
 void CGroup::MoveHandleTo(int nHandle, CPoint point, CFBDView* pView)
 {
    	// Not implemented. Could try to scale every object in group by the
@@ -1118,7 +1127,11 @@ int CGroup::HitTest(CPoint point, CFBDView* pView, BOOL bSelected)
    	return FALSE;
 }
     
-BOOL CGroup::CanDuplicate() { return TRUE; }
+BOOL CGroup::CanDuplicate() 
+{ 
+	// don't allow duplication of multiple choice question groups
+	return !CFBDView::IsChoiceGroup(this);
+}
     
 CDrawObj* CGroup::Clone()
 {

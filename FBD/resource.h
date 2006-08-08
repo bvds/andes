@@ -11,6 +11,7 @@
 #define IDC_WEIGHT                      102
 #define IDP_FAILED_TO_CREATE            102
 #define IDD_HELPFILES_PAGE              102
+#define IDR_POPUP_FBDVIEW_AUTHOR        103
 #define IDC_NOFILL                      103
 #define IDD_PLAYERBAR                   103
 #define IDS_LABEL_NOTUNIQUE             103

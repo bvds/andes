@@ -274,6 +274,7 @@ public:
 // Operations:
    	void AddObj(CDrawObj* pObj);// use to add elements to group
    	virtual void Draw(CDC* pDC);
+	virtual void DrawSelectState(CDC* pDC, TrackerState state);
    	virtual void MoveHandleTo(int nHandle, CPoint point, CFBDView* pView);
    	virtual void MoveTo(const CRect& position, CFBDView* pView);
    	virtual BOOL Intersects(const CRect& rect);

@@ -700,18 +700,27 @@
   (and (problem-loadedp) 
        (not **Checking-Entries**)))
 
-;; test if student has correctly answered all quantitative parts on a problem
+;;
+;; For detecting completion status
+;;
+(defun answer-entry-p (E)
+"true if given student entry is for an answer submission"
+;; Props in studententry recording answer submissions take the following forms:
+;;    (ANSWER (MASS BLOCK))         Quantitative answer, arg is quantity
+;;    (LOOKUP-MC-ANSWER ANSWER-1)   Done button for qualitative goal
+;;    (CHOOSE-ANSWER MC-4 3)        Multiple-choice question answer
+   (member (first (studententry-prop E)) 
+           '(ANSWER LOOKUP-MC-ANSWER CHOOSE-ANSWER)))
+
+;; test if student has correctly answered all parts on a problem
 ;; This is basically "done-p". 
-;; Note: NIL if there are no quantitative parts on a problem.
 (defun all-answers-done-p ()
- (let ((nparts (length (remove-if-not #'quantity-expression-p (problem-soughts *cp*))))
-       (ncorrect-answer-entries 
+ (let ((ncorrect-answer-entries 
           (length (remove-if-not 
-                     #'(lambda (E) (and (equalp (studententry-state E) **correct**)
-		                   (equalp (car (studententry-prop E)) 'Answer)))
+                     #'(lambda (E) (and (answer-entry-p E) 
+		                        (equalp (studententry-state E) **correct**)))
                      *Studententries*))))
-  (and (> nparts 0)
-       (= nparts ncorrect-answer-entries))))
+  (= ncorrect-answer-entries (length (problem-soughts *cp*)))))
 
 ;; We don't have an "I'm done" button on the interface, but we may need to do
 ;; certain things when problem is completed, as in Sandy Katz followup experiment.

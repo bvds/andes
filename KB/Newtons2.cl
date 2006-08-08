@@ -1100,6 +1100,20 @@
    :effects ( (draw-vectors ?vector-list) ))
 
 
+;;; =================== Generic: planning only problems =====================
+
+; For Sandy Katz planning only preparatory problems, the only goal is
+; to read the problem statement then click a check box when done to trigger
+; a dialog about how to plan the solution. The following trivial operator just 
+; achieves the dummy goal (read-problem) used as sought for these problems. 
+; Note there are no entries in the solution to such a problem.
+(defoperator read-problem ()
+   :effects ((read-problem)))
+
+;; define English for goal used as sought in planning-only problem 
+(def-goalprop read-problem (read-problem)
+  :english ("reading the problem statement then indicating you have done so."))
+
 ;;; =================== Generic: Multiple choice answer ======================
 ;;;
 ;;; This is just a hack to enable simple multiple choice questions within our 

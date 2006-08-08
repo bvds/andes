@@ -819,13 +819,18 @@
   (let* ((Result)
 	 (IDStr (format Nil "~a" ID))
 	 (pos (position #\- IDStr))
-	 (IDPref (subseq IDStr 0 Pos))
-	 (IDEnd (Subseq IDStr (+ 1 Pos))))
+	 (IDPref (subseq IDStr 0 Pos)))
 	 
     (cond
      ;; Handle the Answer case by simply dealing with it directly.
+     ;; wrap in done-change check as for quantitative answers
      ((string-equal IDPref "Answer") 
-      (setq Result (do-check-mc-no-quant-done-answer ID Value))
+      (let ((was-done (all-answers-done-p)))
+      	(setq Result (do-check-mc-no-quant-done-answer ID Value))
+        (when (and (not was-done)
+               (all-answers-done-p)    ; is now done
+	       (not-curr-checking-problemp)) ; ignore if in initial entry check
+          (add-followup-if-needed result)))
       (log-studentaction **last-api-call** Result)
       Result)
      

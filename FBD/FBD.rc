@@ -660,6 +660,18 @@ BEGIN
         MENUITEM "Hint",                        ID_GET_PROC_HELP
         MENUITEM SEPARATOR
         MENUITEM "Delete\tDel",                 ID_EDIT_DELETE
+        MENUITEM "Properties...\tAlt+Enter",    ID_EDIT_PROPERTIES
+    END
+END
+
+IDR_POPUP_FBDVIEW_AUTHOR MENU DISCARDABLE 
+BEGIN
+    POPUP "_POPUP_"
+    BEGIN
+        MENUITEM "&What's wrong with that?",    ID_HELP_WHATSWRONG
+        MENUITEM "Hint",                        ID_GET_PROC_HELP
+        MENUITEM SEPARATOR
+        MENUITEM "Delete\tDel",                 ID_EDIT_DELETE
         MENUITEM "Duplicate",                   ID_EDIT_DUPLICATE
         MENUITEM "Group/Ungroup",               ID_DIAGRAM_TOGGLEGROUP
         MENUITEM SEPARATOR
@@ -667,7 +679,6 @@ BEGIN
         MENUITEM "Properties...\tAlt+Enter",    ID_EDIT_PROPERTIES
     END
 END
-
 IDR_POPUP_EQVIEW MENU DISCARDABLE 
 BEGIN
     POPUP "_POPUP_"
@@ -3067,8 +3078,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,2,1,0
- PRODUCTVERSION 10,2,1,0
+ FILEVERSION 10,2,1,1
+ PRODUCTVERSION 10,2,1,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3086,14 +3097,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "10, 2, 1, 0\0"
+            VALUE "FileVersion", "10, 2, 1, 1\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "10, 2, 1, 0\0"
+            VALUE "ProductVersion", "10, 2, 1, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END

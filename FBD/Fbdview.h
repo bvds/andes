@@ -1,6 +1,6 @@
 // FBDView.h : interface of the CFBDView class
 // 
-// $Id: Fbdview.h,v 1.6 2006/02/16 22:18:55 anders Exp $
+// $Id: Fbdview.h,v 1.7 2006/08/08 01:06:31 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 
 // forward references, so don't need to worry about including 
@@ -200,8 +200,11 @@ public:
 	CString m_strStats;
 	BOOL m_bEnabled;
 	void EnablePane(BOOL bEnable);
-	CDrawObj* CreateNew(LPCSTR pszTypeName);
+
 	BOOL	m_bActive;			// Set if this is active view
+
+	// Factory method is static so can be used even if no view
+	static	CDrawObj* CreateNew(LPCSTR pszTypeName);
 
 	// Training card support:
 	void KillTCard();
