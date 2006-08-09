@@ -26,6 +26,19 @@
 (defparameter **read-old-problemfile-header** nil 
   "Read in oldstyle file headers. (sans forbidden and ignore).")
 
+; We use the version slot in the external prb file to store
+; a version number for the external file format used, in case 
+; problem reading code has to conditionalize on version. Note this is 
+; not a version number for the problem.  
+; The latest version is assigned by default in defproblem so will be 
+; included on writing out the prb. The only time a problem will not carry the 
+; latest version number is if it is read in from an old file.
+; Only file reading code should be sensitive to the file version; file 
+; writing code should just always write out using the latest format.  
+; NB: old files just used NIL.
+(defparameter *latest-file-version* 2)
+
+
 ;;=================================================================
 ;; Problem structure.
 ;; The problem structure defines an individsual problem including 
@@ -328,7 +341,8 @@
     (EqnIndex (setf (Problem-EqnIndex Problem) (read-mreadable-eqns Stream (Problem-Graph Problem))))
     (VarIndex (setf (Problem-VarIndex Problem) (read-mreadable-qvars Stream (Problem-Graph Problem))))
     (Solutions (setf (Problem-Solutions Problem) 
-                  (read-mreadable-EqnSets Stream (Problem-EqnIndex Problem) (Problem-Graph Problem))))
+                  (read-mreadable-EqnSets Stream (Problem-EqnIndex Problem) (Problem-Graph Problem)
+		  (problem-version Problem))))
 
     (t (error "Undefined Problem-header tag. ~A" name))))
 
@@ -382,7 +396,7 @@
 (defmacro defproblem (name &key (soughts ()) (Givens ())
 				(Statement "")
 				(Comments NIL) (Features nil)
-				(ModDate nil) (Version nil) 
+				(ModDate nil) (Version *latest-file-version*) 
 				(ForbiddenPSMS nil) (IgnorePSMS nil)
 				(VariableMarks Nil) (Times nil)
 				(Choices nil) (Graphic nil) (Predefs nil))

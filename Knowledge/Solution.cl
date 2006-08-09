@@ -215,28 +215,35 @@
 
 (defun print-mreadable-EqnSet (Set Stream)
   (format Stream "(~w ~w ~w)~%"
-         ; Historically, what is written to file here is the expansion of the "concise" sgg 
-	 ; solution representation (as list of psm enodes) into the full list of all (non-derived)
-	 ; equations within the nodes, which may include implicit and subsidiary equations. 
-	 ; These must therefore be referenced by equation indices, not enode indices.
-	 ; Since we have changed to read in the same concise representation as the sgg generates,
-	 ; it would be simpler in the future just to write enode indices to the file. But sticking
-	 ; with same file representation mainly so reader code still works on old prb files.
-	  (mapcar #'Eqn-Index  (EqnSet-AllEqns Set))
+          ; In initial Version NIL format, what was written was the expansion of the concise sgg 
+	  ; solution representation (as list of psm enodes) into the full list of all (non-derived)
+	  ; equations within the nodes, which may include implicit and subsidiary equations. 
+	  ; These had to be referenced by equation indices, not enode indices.
+	  ; Version 2 changes to store the same representation as sgg generates, so just 
+	  ; writes enode indices to the file. 
+	  ; (mapcar #'Eqn-Index  (EqnSet-AllEqns Set))  ; writes old format
+	  (collect-nodes->gindicies (EqnSet-Eqns Set))  ; new format
 	  (collect-nodes->gindicies (EqnSet-Nodes Set))
 	  (EqnSet-Assumpts Set)
 	  ))
 
-(defun read-mreadable-EqnSets (Stream EqnIndex Graph)
+(defun eqns-to-enodes (eqns Graph)
+ "collect enodes for psm eqns in list, ignoring all other eqns"
+ ; note this doesn't work for solutions using cons-energy or change-ME because
+ ; their psm equation is a derived-eqn so not included in the set of all soln eqns.
+     (remove-if #'null
+          (mapcar #'(lambda (eqn) 
+		       (match-algebra->enode (eqn-algebra eqn) Graph))
+		  eqns)))
+
+(defun read-mreadable-EqnSets (Stream EqnIndex Graph Version)
   (loop for S in (read Stream "Error: Malformed Equation Sets.")
       collect (make-EqnSet 
-	       ; New: restore "concise" sgg representation as list of enodes:
-	       ; map stored eqn indices to eqns, map to list of their node sets
-	       ; ((Enode1 Enode2) (Enode2 Enode3) ....)
-	       ; and form union of all nodes in list of lists
-	       :Eqns (reduce #'union 
-	               (mapcar #'eqn-nodes
-	                  (collect-indicies->eqns (first S) EqnIndex)))
+	       :Eqns (cond ; switch on file version
+	               ((null Version) ; old format: try to convert
+	                  (eqns-to-enodes (collect-indicies->eqns (first S) EqnIndex) Graph))
+	               ((and (numberp Version) (>= Version 2)) ; new format
+	                 (map-indicies->bgnodes (first S) Graph)))
 	       :Nodes  (map-indicies->bgnodes (second S) Graph)
 	       :Assumpts (third S))))
 
