@@ -361,5 +361,5 @@
 ; disable constraint loss filter
 (setq **Filter-Constraint-losses** NIL)
 
-;(setq *followup-problems* '(s6aplan e1b e2a e2c e4a e5a e7a e8b e9b e10a))
+(setq *followup-problems* '(s1f s2e s4b s6aplan dt1a dt11a dt13b rots1a rots4a rots7a dt7bplan e1b e2b e8b e10a e6a e7aplan pow3a pow4a pow5aplan lmom2a lmom2b lmom3a imp1 imp2 lmom4a))
 

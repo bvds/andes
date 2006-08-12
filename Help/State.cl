@@ -197,12 +197,12 @@
 ;; Student control info.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; read-student-info
-;; argument(s): student name
+;; argument(s): student name, optional condition
 ;; returns: NIL for failure, non-NIL for success
-;; note(s):
+;; note(s): Old ConcHelp arg now used to set experimental condition id
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun do-read-student-info (name &optional (ConcHelp Nil))
-  (declare (ignore ConcHelp))
+(defun do-read-student-info (name &optional (Conchelp Nil))
+  (declare (ignore Conchelp))
   (set-student-name name)
   ;; Lisp errors within API calls like this one are caught by the API call
   ;; dispatcher,  causing a special "call failed" signal to be returned to
@@ -553,6 +553,15 @@
 
 (defun student-name ()
   **Current-Student-Name**)
+
+;;==============================================================
+;; Experimental condition
+;;
+;; In OLI version, workbench may set this somewhere.
+;;
+(defvar **Condition** NIL)
+(defun set-condition (value) (setq **Condition** value))
+(defun get-condition (value) **Condition**)
 
 
 ;;==============================================================
