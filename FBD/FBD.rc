@@ -679,6 +679,7 @@ BEGIN
         MENUITEM "Properties...\tAlt+Enter",    ID_EDIT_PROPERTIES
     END
 END
+
 IDR_POPUP_EQVIEW MENU DISCARDABLE 
 BEGIN
     POPUP "_POPUP_"
@@ -1784,7 +1785,7 @@ IDD_ANGLE DIALOGEX 0, 0, 206, 87
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "Angle Properties"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Angle between",IDC_STATIC,3,6,46,8
     COMBOBOX        IDC_SIDE1,50,6,67,91,CBS_DROPDOWNLIST | 
@@ -2671,7 +2672,7 @@ END
 IDD_CURRENT DIALOGEX 0, 0, 263, 147
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define current"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "&Current through:",IDC_STATIC_VALUE,13,27,47,8
     LISTBOX         IDC_MULTIPLE_BODY_LIST,71,7,91,54,LBS_SORT | 
@@ -2699,7 +2700,7 @@ END
 IDD_VOLTAGE DIALOGEX 0, 0, 260, 117
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Voltage"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Voltage",IDC_STATIC_VALUE,16,14,25,8
     LTEXT           "Across &Component",IDC_ACROSS_LABEL,44,14,58,8
@@ -2973,7 +2974,7 @@ END
 IDD_VECTOR_DIPOLE DIALOGEX 0, 0, 207, 107
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define vector"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Electric",IDC_STATIC_VALUE,9,9,31,8
     LTEXT           "Dipole moment &of",IDC_STATIC_BODY,49,9,57,8
@@ -3004,7 +3005,7 @@ END
 IDD_LINE DIALOGEX 0, 0, 209, 93
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define line"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "&Line of",IDC_STATIC_BODY,9,9,21,8
     COMBOBOX        IDC_BODY,37,7,88,93,CBS_DROPDOWNLIST | WS_VSCROLL | 
@@ -3034,7 +3035,7 @@ END
 IDD_TORQUE_DIPOLE DIALOGEX 0, 0, 207, 124
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Torque Definition"
-FONT 10, "MS Sans Serif"
+FONT 10, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "&on",IDC_LABEL_BODY,29,12,9,8,0,0,HIDC_LABEL_BODY
     COMBOBOX        IDC_BODY_TEXT,43,9,67,107,CBS_DROPDOWNLIST | WS_VSCROLL | 
@@ -3078,8 +3079,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 10,2,1,1
- PRODUCTVERSION 10,2,1,1
+ FILEVERSION 10,2,2,0
+ PRODUCTVERSION 10,2,2,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3097,14 +3098,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "10, 2, 1, 1\0"
+            VALUE "FileVersion", "10, 2, 2, 0\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "10, 2, 1, 1\0"
+            VALUE "ProductVersion", "10, 2, 2, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

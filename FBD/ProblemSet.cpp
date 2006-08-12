@@ -896,13 +896,14 @@ int CProblemSet::GetProblemFiles(CString strProblemId)
 	{
 		if (m_bViewSolution)	// odd, should be a solution file there.
 			// should cancel open. For now, just warn and continue
-			AfxMessageBox("No student solution file found on OLI! Opening new solution file.");	
+			AfxMessageBox("No student solution file found on OLI! Creating fresh solution file.");	
 
+#if 0 // no longer using fbd files        
 		// no solution file to open: look for .fbd file
 		CString strProblemIdLC = strProblemId;	// lower-case
 		strProblemIdLC.MakeLower();
 		strBaseName = strProblemIdLC + ".fbd";
-        
+ 
 		if (HttpGetFile(strProblemUrl + strBaseName, 
 		            strProblemDir + strBaseName, "getFbd") == 0) 
 		{
@@ -915,6 +916,13 @@ int CProblemSet::GetProblemFiles(CString strProblemId)
 				               strProblemDir + strBaseName, "getGif");
 			*/
 		}
+#else // new
+       // delete any saved solution to sync local state with OLI.
+	   // [Risky! May lose work if failed to upload last time. Maybe backup?]
+		::DeleteFile(strSolnPath);
+		
+		// note any fbd file in Problems should have been deleted by new installer
+#endif // new code
 	}
 	SetStatusMsg("");
 	return 0;
