@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html> <head>
+  <style type="text/css">
+  </style>
+  <title>One Dimensional Elastic Collision</title>
+</head>
+
+<body>
+
+<p>Consider a head-on collision between two masses, <var>m1</var> and
+<var>m2</var>, as shown below.&nbsp;  In these collisions, the term head-on
+implies that the initial velocities of both particles lie along a
+common straight line.&nbsp;  This condition simplifies the problem to a one
+dimensional case where we will take the line of their common motion to
+be the <var>x</var> axis.
+
+<p>Let <var>p1i_x</var>, <var>p2i_x</var>, <var>p1f_x</var> and
+<var>p2f_x</var> be the <var>x</var> components of the linear momentum
+of the two particles before and after the collision.&nbsp; Let
+<var>v1i_x</var>, <var>v2i_x</var>, <var>v1f_x</var> and
+<var>v2f_x</var> be the initial and final <var>x</var> components of
+the velocity of the two masses before and after the collision.
+<div align="center">
+<img src="1D_elastic_collision.gif" alt="Elastic collision in one dimension">
+</div>
+Conservation of momentum yields
+<table>
+(1)	p1i_x + p2i_x = p1f_x + p2f_x 
+</table>
+Using the expression for linear momentum
+
+(2)	m1*v1i_x + m2*v2i_x = m1*v1f_x + m2*v2f_x
+
+If the collision is an elastic collision, the total kinetic energy before the collision is equal to the total kinetic energy after the collision.&nbsp;  This yields
+
+(3)	K1i + K2i = K1f + K2f
+
+Using the expression for kinetic energy
+
+(4)	0.5*m1*v1i_x^2 + 0.5*m2*v2i_x^2 =  0.5*m1*v1f_x^2 + 0.5*m2*v2f_x^2.
+
+Equations (2) and (4) can be rearranged and factored as shown below.&nbsp;   By factoring both equations in the forms shown below and dividing (4a) by (2) one gets two linear equations (2a) and (5) that can be solved for the final velocities.
+
+(2a)	m1*(v1i_x-v1f_x) = m2*(v2f_x-v2i_x)  and
+(4a)	m1*(v1i_x-v1f_x)*(v1i_x+v1f_x) = m2*(v2f_x-v2i_x)*(v2f_x+v2f_x)
+Dividing (4a) by (2a) one gets
+(5)	v1f_x + v1f_x = v2f_x + v2i_x
+The two linear equations (2a) and (5) can be solved to get
+
+(6)	v1f_x = {(m1-m2)/(m1+m2)}*v1i_x + {2*m2/(m1*m2)}*v2i_x
+(7)	v2f_x = {(m2-m1)/(m1+m2)}*v2i_x + {2*m1/(m1+m2)}*v1i_x
+
+
+<hr>
+<address></address>
+<!-- hhmts start --> Last modified: Sat Jul  8 22:40:58 EDT 2006 <!-- hhmts end -->
+</body> </html>
