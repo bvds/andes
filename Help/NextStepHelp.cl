@@ -4237,6 +4237,9 @@
   ((problem-has-answer-vars) 
     (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers. Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
   
+  ((or (eq *cp* 'LMOM6A) (eq *cp* 'LMOM7A)) ; advise of special tricks for these
+     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form. See these {\\l special tricks}{\\v Collisions.html} that may help in solving problems like this.\n" var))
+
   (T ; done and not an answer-var problem
        (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form. Try entering algebraic combinations to isolate a calculable expression for ~a yourself. Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve. If not, you will just have to finish the problem on your own."  var var))
          
