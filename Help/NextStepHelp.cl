@@ -4229,19 +4229,22 @@
   ((not (nsh-done?))
       (format NIL "Unable to solve for ~A. Try the light-bulb if you need a hint about a step that still needs to be done." var))
 
-  ; reach here => have done everything 
+  ;; reach here => have done everything 
 
-  ; answer-var problem -- problem seeks partly or wholly symbolic answer, so students must do algebra themselves.  
-  ; We could give this on any use of the solve tool on such a problem, but instead only give it when done so 
-  ; students still get helpful prompts about what they're missing if they try earlier. [appropriate?]
+  ;; answer-var problem -- problem seeks partly or wholly symbolic answer, so 
+  ;; students must do algebra themselves.  
+  ;; We could give this on any use of the solve tool on such a problem, 
+  ;; but instead only give it when done so students still get helpful prompts 
+  ;; about what they're missing if they try earlier. [appropriate?]
   ((problem-has-answer-vars) 
-    (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers. Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
+    (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers.  Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
   
-  ((or (eq *cp* 'LMOM6A) (eq *cp* 'LMOM7A)) ; advise of special tricks for these
-     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form. See these {\\l special tricks}{\\v Collisions.html} that may help in solving problems like this.\n" var))
+  ;; advise of special tricks for these
+  ((member 'elastic-collision-help (problem-features *cp*)) 
+     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the {\\l discussion of elastic collisions in one dimension}{\\v 1D_elastic_collision.html} for further help.\n" var))
 
   (T ; done and not an answer-var problem
-       (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form. Try entering algebraic combinations to isolate a calculable expression for ~a yourself. Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve. If not, you will just have to finish the problem on your own."  var var))
+       (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form.  Try entering algebraic combinations to isolate a calculable expression for ~a yourself.  Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.  If not, you will just have to finish the problem on your own."  var var))
          
  )))
 
