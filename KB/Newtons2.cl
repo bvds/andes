@@ -8037,8 +8037,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; Since the solver doesn't know how to solve this type of system 
 ;; reliably.  In this case, supply an explicit equation to the solver
 ;; for the case of 1-dimensional 2-body elastic collisions.
+;;
 ;; This also means that the solver probably will
 ;; fail when attempting to solve the student's equations.
+;; Special help is given in that case; see Help/NextStepHelp.cl.
 (defoperator solver-eqn-for-1-d-elastic-collision (?b1 ?b2 ?t1 ?t2)
   :preconditions (
 		  (1-d-elastic ?b1 ?b2 (during ?t1 ?t2))
