@@ -27,7 +27,7 @@
 ;;;
 ;;;1. Slect a quantity.
 ;;;2.   If the quantity is known move on.
-;;;3.   Otherwize select an euation containing that quantity and solve it.
+;;;3.   Otherwise select an equation containing that quantity and solve it.
 ;;;4.   
 ;;;
 ;;;1. Place the sought quantitie(s) into a black solution.

@@ -204,14 +204,15 @@
 ;; independence testing system and the help system.
 ;;
 ;; For solution safety reasons the system will not generate solutions using
-;; equations located soley within forbidden nodes.  Therefore eqns marked with
+;; equations located solely within forbidden nodes.  Therefore eqns marked with
 ;; 'forbidden' will be ignored.
 ;;
 ;; If the problem has both qvars and eqns then start by generating the initial 
 ;; problem solutionpoint.  Store the resulting variable values and equation 
-;; markings.  Then, test the results.  If there were unused or unsolved equations
-;; or variables in the solution then generate another solution using only the 
-;; solved values.  Repeat until an acceptable solution point is found.
+;; markings.  Then, test the results.  If there were unused or unsolved 
+;; equations or variables in the solution then generate another solution 
+;; using only the solved values.  Repeat until an acceptable solution point 
+;; is found.
 ;;
 ;; Once that is found and recorded, then move on.
 ;;
@@ -241,20 +242,30 @@
   (gen-problem-sp 
    Problem 
    (qvars->svars (Problem-Varindex Problem))
-   (mapcar #'Eqn-Algebra (Problem-eqnindex Problem))))
+   (append (mapcar #'Eqn-Algebra (Problem-eqnindex Problem))
+	   ;; add special equations for solver
+	   (collect-solver-eqns Problem))))
 
 
 ;;; Generate a problem solution point using only the variables and 
-;;; equations that were solved previously.  This is done to 
+;;; equations that were solved previously.
 (defun generate-nary-problem-sp (Problem)
   "Generate the nth solution point."
   (gen-problem-sp 
    Problem 
    (qvars->svars (collect-solved-qvars 
 		  (Problem-varindex Problem)))
-   (mapcar #'Eqn-Algebra (collect-solved-eqns 
-		   (Problem-eqnindex Problem)))))
+   (append (mapcar #'Eqn-Algebra (collect-solved-eqns 
+				  (Problem-eqnindex Problem)))
+	   ;; add special equations for solver
+	   (collect-solver-eqns Problem))))
 
+;; Sometimes the solver can't solve a set of equations
+;; This is a method for getting some extra equations to the Solver
+(defun collect-solver-eqns (Problem)
+  "Find any (solver-eqn ...) in working memory"
+  (mapcar #'second (filter-expressions '(solver-eqn . ?whatever) 
+				       (problem-WM Problem))))
 
 
 ;;; Given a problem and a set of variables and equations to 
