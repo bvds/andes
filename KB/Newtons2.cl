@@ -8034,8 +8034,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (eqn-contains (cons-ke-elastic ?bodies (during ?t1 ?t2)) ?quantity)
   ))
 
-;; Since the solver doesn't know how to solve this problem,
-;; provide an explicit answer.  This means that the solver probably will
+;; Since the solver doesn't know how to solve this type of system 
+;; reliably.  In this case, supply an explicit equation to the solver
+;; for the case of 1-dimensional 2-body elastic collisions.
+;; This also means that the solver probably will
 ;; fail when attempting to solve the student's equations.
 (defoperator solver-eqn-for-1-d-elastic-collision (?b1 ?b2 ?t1 ?t2)
   :preconditions (
@@ -8047,10 +8049,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (variable ?vi (compo x 0 (velocity ?b1 :time ?t1)))
 		  (variable ?vvi (compo x 0 (velocity ?b2 :time ?t1)))
 		  (variable ?vf (compo x 0 (velocity ?b1 :time ?t2))))
-  ;; This is the full formula without any simplifications
   :effects ((solver-eqn (= ?vf (+ (* (/ (- ?m1 ?m2) (+ ?m1 ?m2)) ?vi)
 				    (* (/ (* 2 ?m2) (+ ?m1 ?m2)) ?vvi)))
-			  (?bodies (during ?t1 ?t2)))))
+			  (1-d-elastic ?bodies (during ?t1 ?t2)))))
 
 (defoperator write-cons-ke-elastic (?bodies ?t1 ?t2)
   :preconditions 
@@ -8059,10 +8060,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 	?ke1-var ?ke1-terms)
    (map ?b ?bodies (variable ?ke2-var (kinetic-energy ?b :time ?t2))
 	?ke2-var ?ke2-terms)
-   ;; Often, the solver isn't quite up to solving this kind of system
-   ;; of equations.  When appropriate, send some extra equations along
-   ;; to help the solver.
-   (setof (solver-eqn ?ans-eqn (?bodies (during ?t1 ?t2))) nil ?dont-care)
+   ;; When appropriate, send some extra equations along to help the solver.
+   (setof (solver-eqn ?ans-eqn (1-d-elastic ?bodies (during ?t1 ?t2))) 
+	  nil ?dont-care)
   )
   :effects (
 	    ;; final equation sets sum of ke's equal
