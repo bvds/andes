@@ -202,18 +202,32 @@ void CBrowserDlg::OnBeforeNavigateWebBrowser(LPCTSTR URL, long Flags, LPCTSTR Ta
 	else // following really just trace info, also backwards compatible w/old logs
 		LogEventf(EV_BROWSER_GO, URL);
 
-	// if our code sent the browser here, do nothing more. 
+
+	// See if link is for start or end of post-problem KCD. If so, update KCD state
+	// Note start event is program-initiated, so do before test below.
+	// Allow disabling by registry entry, for non-implemented KCDs
+	
+		CFBDDoc* pDoc = theApp.GetCurrentProblem();
+		if (m_strUrl.Find("navalkcds") != -1 && pDoc) {
+			pDoc->m_fKcdState |= KCD_STARTED;
+		}
+		if (m_strUrl.Find("completed") != -1 && pDoc) {
+			pDoc->m_fKcdState |= KCD_COMPLETED;
+		}
+
+	// if our code programmatically sent the browser here, do nothing more. [needed?]
 	if (m_bOurNavigate) 
 		return;
 
-	// see if it's an aps link to launch a problem set
+	// see if it's an aps link click to launch a problem set
 	if (pLastDot && (_stricmp(pLastDot, ".aps") == 0)) {
 		// set flag to end the dialog
 		EndDialog(IDOK);
 		*Cancel = TRUE;
 		return;
 	}
-	
+
+
 
 
 #if 0 // helpsys-computed links no longer used	

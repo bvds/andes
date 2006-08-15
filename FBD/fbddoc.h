@@ -200,6 +200,11 @@ public:
 	// counters to keep some basic statistics:
 	int m_nStartTime;				// history time of problem open, for time on task
 	int m_nHelpReqs;				// number of help requests (not implemented).
+
+	// For experiment using post-problem kcds.
+#define	KCD_STARTED			0x01
+#define KCD_COMPLETED		0x02
+	int m_fKcdState;				// state of post-problem kcd activity, 0 if none
 	
 // Operations
 public:

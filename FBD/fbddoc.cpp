@@ -49,7 +49,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFBDDoc construction/destruction
     
-#define DOC_VERSION 24		//latest document format version number
+#define DOC_VERSION 25		//latest document format version number
     
 CFBDDoc::CFBDDoc()
 {
@@ -76,6 +76,9 @@ CFBDDoc::CFBDDoc()
    	// Per-problem Student statistics: Note not persistent across sessions.
    	m_nStartTime = 0;
    	m_nHelpReqs = 0;
+
+	// kcd state flags
+	m_fKcdState = 0;
     
 	// File open reason flags:
 	m_bFilePreview = FALSE;
@@ -86,6 +89,7 @@ CFBDDoc::CFBDDoc()
 
 	// solution state
 	m_workState = workNone;
+
 
 	m_bSaveAsCmd = FALSE;
 }
@@ -208,6 +212,9 @@ void CFBDDoc::Serialize(CArchive& ar)
 		m_principles.Serialize(ar);
 		ar << (LONG) nNextStageID;
 		m_stages.Serialize(ar);
+
+		// added version 25: kcd state
+		ar << m_fKcdState;
 	
 	}
 	else // Loading
@@ -337,6 +344,9 @@ void CFBDDoc::Serialize(CArchive& ar)
 			TRACE("Loading stages for hi-level plan\n");
 			m_stages.Serialize(ar);
 		}
+
+		if (m_nVersion >= 25) 
+			ar >> m_fKcdState;
 
 		// After doc is all loaded: Update doc's version field to the latest one,
 		// so it will be used in any subsequent storing of these objects. 
@@ -756,6 +766,13 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	// if opening for working, try to ensure help system is connected
 	theApp.EnsureHelpSysInit(); // proceed w/o help even if failed
+
+	// If we have an experimental condition, tell help system
+	CString strCondition;
+	CProblemSet* pSet = theApp.GetProblemSet();
+	if (pSet && pSet->m_opts.Lookup("condition", strCondition) && !strCondition.IsEmpty()) {
+		HelpSystemSendf("(set-condition %s)", strCondition);
+	}
 
 	// just to be safe: ensure we are not in TutorMode to start (e.g. from prev problem).
 	theApp.SetTutorMode(FALSE);
@@ -1252,6 +1269,15 @@ WorkState CFBDDoc::UpdateWorkState()
 			}
 		}
 	}
+
+	// if a kcd was started, it must have been completed to be complete.
+	// Allow this check to be disabled by 0 registry setting to get past it in testing.
+	if (theApp.GetProfileInt("Settings", "KCD Check", 1))
+	{
+	  if ((m_fKcdState & KCD_STARTED) && ! (m_fKcdState & KCD_COMPLETED))
+		bCompleted = FALSE;
+	}
+
 	if (bCompleted) 
 		return (m_workState = workCompleted);
 

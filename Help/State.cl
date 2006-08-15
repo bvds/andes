@@ -557,11 +557,15 @@
 ;;==============================================================
 ;; Experimental condition
 ;;
-;; In OLI version, workbench may set this somewhere.
+;; Could be set in config file.
+;; In OLI version, workbench may set this from OLI-sent task
+;; descriptor before opening problem. 
 ;;
 (defvar **Condition** NIL)
-(defun set-condition (value) (setq **Condition** value))
-(defun get-condition (value) **Condition**)
+(defun set-condition (value) 
+ (setq **Condition** value)
+ (format T "Setting condition to ~A~%" value))
+(defun get-condition () **Condition**)
 
 
 ;;==============================================================

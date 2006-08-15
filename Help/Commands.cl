@@ -767,10 +767,17 @@
 ; display followup dialog in browser on done for certain problems in 
 ; Skatz experiment
 ;(defvar *followup-problems* '(e1b e2a e2c e4a e5a e7a e8b e9b e10a))
-(defvar *followup-problems* NIL) ; now disable followups
+(defvar *followup-problems* NIL) ; now disable followups by default
+
+(defun show-kcds ()
+"true if should show post-problem kcds when available"
+  (or (sym-match (get-condition) 'Experiment)
+      (and (sym-match (get-condition) 'Control)
+           (member (problem-name *cp*) '(PRETEST POSTTEST)))))
 
 (defun add-followup-if-needed (result-turn)
   (when (and (member (problem-name *cp*) *followup-problems*)
+	     (show-kcds)
 	     (equal (type-of result-turn) 'Turn))
      ; Add show lesson command to result turn. Gross hackery.
      ; We have to change existing result turn (presumably type dialog turn
