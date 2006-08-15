@@ -8051,7 +8051,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (variable ?vf (compo x 0 (velocity ?b1 :time ?t2))))
   :effects ((solver-eqn (= ?vf (+ (* (/ (- ?m1 ?m2) (+ ?m1 ?m2)) ?vi)
 				    (* (/ (* 2 ?m2) (+ ?m1 ?m2)) ?vvi)))
-			  (1-d-elastic ?bodies (during ?t1 ?t2)))))
+			  (elastic-collision ?bodies (during ?t1 ?t2)))))
 
 (defoperator write-cons-ke-elastic (?bodies ?t1 ?t2)
   :preconditions 
@@ -8061,7 +8061,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (map ?b ?bodies (variable ?ke2-var (kinetic-energy ?b :time ?t2))
 	?ke2-var ?ke2-terms)
    ;; When appropriate, send some extra equations along to help the solver.
-   (setof (solver-eqn ?ans-eqn (1-d-elastic ?bodies (during ?t1 ?t2))) 
+   (setof (solver-eqn ?ans-eqn (elastic-collision ?bodies (during ?t1 ?t2))) 
 	  nil ?dont-care)
   )
   :effects (
