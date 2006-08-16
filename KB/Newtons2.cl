@@ -6442,12 +6442,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; check sought is one of cons-energy quants at timepoint t
    (any-member ?sought ((total-energy ?b :time ?t)))
    (object ?b) ;sanity check
-   (time ?t)  ;sanity check
-   (use-point-for-body ?b ?cm ?axis) ;for rotating objects, use cm
-   (test (time-pointp ?t))
    ;; find time interval containing ?sought time
-   (time (during ?t1 ?t2))
-   (any-member ?t (?t1 ?t2))
+   ;; Here, we allow intervals that are not explicitly declared.
+   (time ?t1) (time ?t2)
+   (test (and (time-pointp ?t1) (time-pointp ?t2) (tearlierp ?t1 ?t2)))
+   (any-member ?t (?t1 ?t2)) 
    ;; need to ensure all forces conservative so energy is in fact conserved.
    ;; Cheap way would be to assert it in problem statement. For now, test no 
    ;; friction or drag, external applied, thrust, or tension force on body. 
@@ -6572,7 +6571,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (motion ?axis ?kind . ?whatever))
    (test (or (eq ?kind 'straight) 
 	     (and (consp ?kind) (eq (first ?kind) 'curved))))
-   (use-point-for-body ?body ?cm ?axis) ;always use axis of rotation
+   (use-point-for-body ?b ?cm ?axis) ;always use axis of rotation
    (variable ?var (kinetic-energy ?b :time ?t)) )
   :effects ( (ee-var ?b ?t ?var) ))
 
