@@ -7617,7 +7617,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator change-ME-contains (?sought)
   :preconditions (
      (in-wm (use-work))
-     (any-member ?sought ((total-energy ?b ?t)
+     (any-member ?sought ((total-energy ?b :time ?t)
                            (work-nc ?b :time (during ?t1 ?t2)) ))
      (time ?t)
      ;; Need to declare interval in problem statement
