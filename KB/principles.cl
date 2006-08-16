@@ -71,9 +71,11 @@
  (group "Work Energy and Power" 
 	 (leaf work :tutorial "Work done by a force")
 	 (leaf net-work :tutorial "Net work")
+	 (leaf work-nc :tutorial "Conservation of Energy")
 	 (leaf work-energy :tutorial "Work-Energy")
-	 (leaf cons-energy :tutorial "Conservation of Energy")
+	 (leaf mechanical-energy :tutorial "Conservation of Energy")
 	 (leaf change-me :tutorial "Conservation of Energy")
+	 (leaf cons-energy :tutorial "Conservation of Energy")
 	 (leaf kinetic-energy :tutorial "Conservation of Energy")
 	 (leaf rotational-energy :tutorial "Conservation of Energy")
 	 (leaf grav-energy :tutorial "Conservation of Energy")

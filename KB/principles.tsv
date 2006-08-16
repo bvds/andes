@@ -54,9 +54,11 @@ END_GROUP	Newton's Laws
 GROUP	Work Energy and Power		
 LEAF	W = F*d*cos($q) or W = F_x*d_x + F_y*d_y    work defined	work	Work done by a force
 LEAF	Wnet = WF1 + WF2 + ...    net work defined	net-work	Net work
+LEAF	Wnc = Wncf1 + Wncf2 + ...    work by non-conservative	work-nc	Conservation of Energy
 LEAF	Wnet = Kf - Ki    work-energy theorem	work-energy	Work-Energy
-LEAF	ME1 = ME2    [Wnc=0] conservation of mechanical energy	cons-energy	Conservation of Energy
+LEAF	ME = KE + $S Ui    mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	Wnc = ME2 - ME1    change in mechanical energy	change-me	Conservation of Energy
+LEAF	ME1 = ME2    [Wnc=0] conservation of mechanical energy	cons-energy	Conservation of Energy
 LEAF	KE = 0.5*m*v^2    kinetic energy defined	kinetic-energy	Conservation of Energy
 LEAF	KE = 0.5*I*$w^2    rotational kinetic energy defined	rotational-energy	Conservation of Energy
 LEAF	Ug = m*g*h    gravitational potential energy	grav-energy	Conservation of Energy
