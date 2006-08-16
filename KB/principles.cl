@@ -308,16 +308,9 @@
 			)
 		)
  (group "Work and Energy" 
-	 (leaf net-work :tutorial "Net work")
 	 (leaf work-nc :tutorial "Conservation of Energy")
-	 (leaf kinetic-energy :tutorial "Conservation of Energy")
-	 (leaf rotational-energy :tutorial "Conservation of Energy")
-	 (leaf grav-energy :tutorial "Conservation of Energy")
-	 (leaf spring-energy :tutorial "Conservation of Energy")
-	 (leaf electric-energy :tutorial "Electric Potential")
+	 (leaf mechanical-energy :tutorial "Conservation of Energy")
 	 (leaf height-dy :tutorial "Height and Displacement")
-	 (leaf power :tutorial "Power")
-	 (leaf net-power :tutorial "Power")
 	 )
  (group "Fluids" 
 	 (leaf pressure-at-open-to-atmosphere :tutorial "Atmospheric Pressure")

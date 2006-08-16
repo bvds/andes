@@ -1153,16 +1153,6 @@
 	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("W = F*d*cos($q) or W = F_x*d_x + F_y*d_y"))
 
-;; this form can be used to match only the angle form, if needed
-#|
-(def-psmclass work-by-angle (work ?body ?agent (during ?time0 ?time1) NIL)     ; by a single force
-  :complexity major ; definition, but can be first "principle" for sought
-  :english ("the definition of work")
-  :expformat ("calculating the work done on ~a by ~a from ~a to ~a" 
-	      (nlg ?body) (nlg ?agent) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("W = F*d*cos($qF - $qd) "))
- |#
-
 ;; No pattern to select only the component form of the work equation, 
 ;; since a variable will match NIL for the angle form as well as the 
 ;; rotation arg for component form
@@ -1191,20 +1181,22 @@
 	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
   :EqnFormat ("Wnet = Kf - Ki"))
 
-(def-psmclass cons-energy (cons-energy ?body ?time0 ?time1)
+(def-psmclass cons-energy (cons-energy ?body ?t1 ?t2)
   :complexity major
   :short-name "[Wnc=0] conservation of mechanical energy"
   :english ("conservation of mechanical energy")
   :ExpFormat ((strcat "applying conservation of mechanical energy to ~a "
-		      "from ~a to ~a") (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
+		      "from ~a to ~a") 
+	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
   :EqnFormat ("ME1 = ME2"))
 
-(def-psmclass change-ME (change-ME ?body ?time0 ?time1)
+(def-psmclass change-ME (change-ME ?body ?t1 ?t2)
   :complexity major
   :short-name "change in mechanical energy"
   :english ("change in mechanical energy")
   :ExpFormat ((strcat "applying change in mechanical energy to ~a "
-		      "from ~a to ~a") (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
+		      "from ~a to ~a") 
+	      (nlg ?body) (nlg ?t1 'time) (nlg ?t2 'time))
   :EqnFormat("Wnc = ME2 - ME1"))
 
 (def-psmclass height-dy (height-dy ?body ?time)
@@ -1240,36 +1232,14 @@
                (nlg ?body) (nlg ?agent) (nlg ?time 'pp))
    :EqnFormat("P = F*v*cos($q) or P = F_x*v_x + F_y*v_y"))
 
-;; Subsidiary equations used inside energy psms:
-;; complexity = major => must be explicit in solution for full credit
-
 ;; !! "total-energy" label used in kb is misleading, it is, in fact,
 ;; total *mechanical* energy.
 
-;; Students don't need the sub-equation cons-energy choice since whole 
-;; cons-energy psm displays the eqn as ME2 = ME1, even though that is only 
-;; the top-level step in the complex psm. Currently, selection  of 
-;; cons-energy in workbench will match the psmclass, not the sub-equation.  
-;; However, it is actually the top-level sub-equation id that is attached 
-;; the equation entry students much match. So we duplicate the psm info in 
-;; declaring the top-level sub equations, and mark them major for grading.
-;; Same structure applies to Wnc = ME2-ME1
-(def-equation tme-cons (total-energy-cons ?b ?t1 ?t2)
-   :english ("the conservation of mechanical energy")
-   :complexity major
-   :EqnFormat ("ME1 = ME2"))
-
-(def-equation change-ME-top  (change-ME-top ?body ?time0 ?time1)
-  :complexity major
-  :english ("change in mechanical energy")
-  :EqnFormat("Wnc = ME2 - ME1"))
-
-;; Following subequations define constituents of top-level energy principles.
-;; all are declared definitions so can be substituted in.
-(def-equation mechanical-energy  (total-energy-top ?body ?time) 
-   :english ("the definition of mechanical energy")
-   :complexity definition
-   :EqnFormat ("ME = KE + $S Ui"))
+(def-psmclass mechanical-energy  (total-energy-top ?body ?time) 
+  :short-name "mechanical energy defined"
+  :english ("the definition of mechanical energy")
+  :complexity definition
+  :EqnFormat ("ME = KE + $S Ui"))
 
 ; These are now top level psms, not subequations:
 (def-psmclass kinetic-energy (kinetic-energy ?body ?time)

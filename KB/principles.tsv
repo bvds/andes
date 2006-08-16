@@ -281,16 +281,9 @@ END_GROUP	Moment of Inertia
 END_GROUP	Rotational		
 END_GROUP	Newton's Laws		
 GROUP	Work and Energy		
-LEAF	Wnet = WF1 + WF2 + ...    net work defined	net-work	Net work
 LEAF	Wnc = Wncf1 + Wncf2 + ...    work by non-conservative	work-nc	Conservation of Energy
-LEAF	KE = 0.5*m*v^2    kinetic energy defined	kinetic-energy	Conservation of Energy
-LEAF	KE = 0.5*I*$w^2    rotational kinetic energy defined	rotational-energy	Conservation of Energy
-LEAF	Ug = m*g*h    gravitational potential energy	grav-energy	Conservation of Energy
-LEAF	Us = 0.5*k*d^2    spring potential energy	spring-energy	Conservation of Energy
-LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
+LEAF	ME = KE + $S Ui    mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	h2 - h1 = d12_y    change in height	height-dy	Height and Displacement
-LEAF	P(avg) = W/t    average power defined	power	Power
-LEAF	Pnet = Wnet/t    average net power defined	net-power	Power
 END_GROUP	Work and Energy		
 GROUP	Fluids		
 LEAF	P = Pr0    point 1 open to atmosphere	pressure-at-open-to-atmosphere	Atmospheric Pressure

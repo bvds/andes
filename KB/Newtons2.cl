@@ -6439,47 +6439,37 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator cons-energy-contains (?sought)
   :preconditions 
   (
-  ;; check sought is one of cons-energy quants at timepoint t
-   (any-member ?sought (
-                (kinetic-energy ?b :time ?t)
-		(rotational-energy ?b :time ?t)
- 		(spring-energy ?body ?spring :time ?t)
- 		(grav-energy ?body ?planet :time ?t)
-		(electric-energy ?body ?source :time ?t)
-	      ))
-   (object ?b)
-   (time ?t)
+   ;; check sought is one of cons-energy quants at timepoint t
+   (any-member ?sought ((total-energy ?b :time ?t)))
+   (object ?b) ;sanity check
+   (time ?t)  ;sanity check
    (use-point-for-body ?b ?cm ?axis) ;for rotating objects, use cm
    (test (time-pointp ?t))
-  ;; choose a distinct time point other-t
-  ;; and bind t1 to earlier, t2 to later of the two times
-  (time ?other-t)
-  (test (and (time-pointp ?other-t)
-   	     (not (equal ?other-t ?t))))
-  (bind ?t1 (min ?t ?other-t))
-  (bind ?t2 (max ?t ?other-t))
-  ;; need to ensure all forces conservative so energy is in fact conserved.
-  ;; Cheap way would be to assert it in problem statement. For now, test no 
-  ;; friction or drag, external applied, thrust, or tension force on body. 
-  ;; We test by testing for the situation descriptions that entail 
-  ;; these forces.
-  ;; An applied force might be conservative, but don't include since
+   ;; find time interval containing ?sought time
+   (time (during ?t1 ?t2))
+   (any-member ?t (?t1 ?t2))
+   ;; need to ensure all forces conservative so energy is in fact conserved.
+   ;; Cheap way would be to assert it in problem statement. For now, test no 
+   ;; friction or drag, external applied, thrust, or tension force on body. 
+   ;; We test by testing for the situation descriptions that entail 
+   ;; these forces.
+   ;; An applied force might be conservative, but don't include since
   ;; there is no corresponding potential
-  (not (given (dir (force ?b ?agent1 applied :time ?t-applied)) ?dir1)
-       (or (null ?t-applied) (tintersect2 ?t-applied `(during ,?t1 ,?t2))))
-  (not (given (dir (force ?b ?agent2 thrust :time ?t-thrust)) ?dir2)
-       (or (null ?t-thrust) (tintersect2 ?t-thrust `(during ,?t1 ,?t2))))
-  (not (tied-to ?string1 ?b                        ?t-tension ?dir3)
-       (tintersect2 ?t-tension `(during ,?t1 ,?t2)))
-  (not (slides-against ?b ?surface1                ?t-friction)
-       (tintersect2 ?t-friction `(during ,?t1 ,?t2)))
-  (not (drag ?b ?medium                         ?t-drag)
-       (tintersect2 ?t-drag `(during ,?t1 ,?t2)))
-  ;; no collisions involving the body
-  ;; cons-ke-elastic handles the case of elastic collisions separately
-  (not (collision (orderless . ?objects) ?t-collision . ?whatever-type)
-       (and (member ?b ?objects) 
-	    (tintersect2 ?t-collision `(during ,?t1 ,?t2))))
+   (not (given (dir (force ?b ?agent1 applied :time ?t-applied)) ?dir1)
+	(or (null ?t-applied) (tintersect2 ?t-applied `(during ,?t1 ,?t2))))
+   (not (given (dir (force ?b ?agent2 thrust :time ?t-thrust)) ?dir2)
+	(or (null ?t-thrust) (tintersect2 ?t-thrust `(during ,?t1 ,?t2))))
+   (not (tied-to ?string1 ?b                        ?t-tension ?dir3)
+	(tintersect2 ?t-tension `(during ,?t1 ,?t2)))
+   (not (slides-against ?b ?surface1                ?t-friction)
+	(tintersect2 ?t-friction `(during ,?t1 ,?t2)))
+   (not (drag ?b ?medium                         ?t-drag)
+	(tintersect2 ?t-drag `(during ,?t1 ,?t2)))
+   ;; no collisions involving the body
+   ;; cons-ke-elastic handles the case of elastic collisions separately
+   (not (collision (orderless . ?objects) ?t-collision . ?whatever-type)
+	(and (member ?b ?objects) 
+	     (tintersect2 ?t-collision `(during ,?t1 ,?t2))))
   ;; Also not conserved if a (possibly unknown) external work source is given 
   ;; (the associated force may not be defined, but it is still doing work).
   (not (does-work-on ?agent ?b :time ?t-work)
@@ -6488,45 +6478,22 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (not (unknown-forces))
   )
  :effects (
-    (derived-eqn-contains (cons-energy ?b ?t1 ?t2) ?sought)
-    ;; set flag to choose standard axes because energy problem
-    (use-energy-axes)
- ))
+	   (eqn-contains (cons-energy ?b ?t1 ?t2) ?sought)
+	   ;; set flag to choose standard axes because energy problem
+	   (use-energy-axes)
+	   ))
 
-(defoperator apply-energy-cons (?b ?t1 ?t2)
- :preconditions (
-  ;; Draw the body for planet y
-  (body ?b)
-  (axes-for ?b 0) ;unrotated axes for gravitational energy
-  ;; write equation ME_i = ME_f 
-  (eqn ?te12eqn (total-energy-cons ?b ?t1 ?t2))
-  ;; write equation ME_i = K_i + Ug_i [+ Us_i]
-  (eqn (= ?te1 ?te1-exp) (total-energy-top ?b ?t1))
-  ;; write equation ME_f = K_f + Ug_f [+ Us_f]
-  (eqn (= ?te2 ?te2-exp) (total-energy-top ?b ?t2))
-  ;; write total mech. energy equivalence with all energy terms plugged in
-  (bind ?eqn-algebra `(= ,?te1-exp ,?te2-exp))
-  (debug "final cons-energy eq: ~A~%" ?eqn-algebra)
- )
- :effects (
-  (derived-eqn ?eqn-algebra (cons-energy ?b ?t1 ?t2))
-  (assume using-cons-energy ?b ?t1 ?t2)
- )
- ;; no hints here because effect is summary derived-equation -- students write
- ;; only the subsidiary equations, so only ops for those have hints
-)
-
-; generate equation TME_1 = TME_2
-; currently only used as subsidiary equation in cons-energy PSM
-; !!! Could also use formulation: K1 + U1 = K2 + U2 
-; !!! where Ui is total potential energy at i
+;; generate equation TME_1 = TME_2
 (defoperator write-energy-cons (?b ?t1 ?t2)
-  :preconditions (
+  :preconditions 
+  (
+   (body ?b)
    (variable ?te1-var (total-energy ?b :time ?t1))
    (variable ?te2-var (total-energy ?b :time ?t2))
   )
   :effects (
-  (eqn (= ?te1-var ?te2-var) (total-energy-cons ?b ?t1 ?t2))
+  (eqn (= ?te1-var ?te2-var) (cons-energy ?b ?t1 ?t2))
+  (assume using-cons-energy ?b ?t1 ?t2)
   )
   :hint (
   (point (string "Think about what you can conclude about the total mechanical energy in the system throughout this problem."))
@@ -6535,6 +6502,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (bottom-out (string "Write ~a" ((= ?te1-var ?te2-var) algebra)))
   ))
 
+
+(defoperator total-energy-top-contains-total-energy (?sought)
+  :preconditions 
+  (
+   (any-member ?sought ((total-energy ?body :time ?t)))
+   )
+  :effects ((eqn-contains (total-energy-top ?body ?t) ?sought)))
+
+(defoperator total-energy-top-contains-ee-var (?sought)
+  :preconditions 
+  (
+   (variable ?var ?sought)
+   (ee-var ?body ?t ?var) 
+   )
+  :effects (
+    (eqn-contains (total-energy-top ?body ?t) ?sought)
+  ))
 
 ;;; equation TME = Translational Kinetic Energy + Rotational KE
 ;;;                    + Grav PE + Spring PE + Electrostatic PE ...
@@ -6545,7 +6529,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    (variable ?te-var (total-energy ?b :time ?t))
-   ;; can't collect potential energy if not all are defined
+   ;; can't collect potential energies if not all are defined
    (not (unknown-potentials))	  
    ;; define variable for each type of energy that applies in this problem
    (setof (ee-var ?b ?t ?var) ?var ?ee-vars)
@@ -6553,7 +6537,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (debug "Set of ee-vars = ~A~%" ?ee-vars)
   )
   :effects (
-  (eqn (= ?te-var (+ . ?ee-vars)) (total-energy-top ?b ?t))
+	    (eqn (= ?te-var (+ . ?ee-vars)) (total-energy-top ?b ?t))
   )
   :hint (
    (point (string "Try writing an equation defining the total mechanical energy of the system containing ~a ~a" (?b def-np) (?t pp)))
@@ -7633,57 +7617,32 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator change-ME-contains (?sought)
   :preconditions (
      (in-wm (use-work))
-     (any-member ?sought ( ; all ME constituents
-			   (kinetic-energy ?b :time ?t)
-		           (rotational-energy ?b :time ?t)
- 			   (spring-energy ?b ?spring :time ?t)
- 		           (grav-energy ?b ?planet :time ?t)
-		           (electric-energy ?b ?source :time ?t)
-		           (dipole-energy ?b ?source :time ?t)
+     (any-member ?sought ((total-energy ?b ?t)
                            (work-nc ?b :time (during ?t1 ?t2)) ))
+     (time ?t)
      ;; Need to declare interval in problem statement
      (time (during ?t1 ?t2))
-     ;; If ?t is not bound, from (any-member ?sought ...) then it is null
-     (test (or (null ?t) (eql ?t ?t1) (eql ?t ?t2)))
+     (any-member ?t (?t1 ?t2))
   )
   :effects (
-    (derived-eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
-    ; post this to make sure we get hint for energy prob axes
+    (eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
+    ;; post this to make sure we get hint for energy prob axes
     (use-energy-axes)
   ))
 
-(defoperator apply-change-ME (?b ?t1 ?t2)
-  :preconditions 
-  (
-   ;; Draw the body and standard axes for principle
-   (body ?b)
-   (axes-for ?b 0)  
-   
-   ;; write equation Wnc = ME2 - ME1
-   (eqn (= ?Wnc (- ?te2 ?te1))  (change-ME-top ?b ?t1 ?t2))
-   ;; write equation ME2 = K2 + Ug2 [+ Us2]
-   (eqn (= ?te2 ?te2-exp) (total-energy-top ?b ?t2))
-   ;; write equation ME1 = K1 + Ug1 [+ Us1]
-   (eqn (= ?te1 ?te1-exp) (total-energy-top ?b ?t1))
-   ;; write total mech. energy equivalence with all energy terms plugged in
-   (bind ?eqn-algebra `(= ,?Wnc (- ,?te2-exp ,?te1-exp)))
-   (debug "final change-ME eq: ~A~%" ?eqn-algebra)
-   )
-  :effects (
-	    (derived-eqn ?eqn-algebra (change-ME ?b ?t1 ?t2))
-	    (assume using-change-me ?b ?t1 ?t2)
-	    ))
-
 ;;; following writes the top-level change in ME equation,
 ;;;       Wnc = ME2 - ME1
-(defoperator write-change-ME-top (?b ?t1 ?t2)
-  :preconditions (
-     (variable ?Wnc (work-nc ?b :time (during ?t1 ?t2)))
-     (variable ?ME1 (total-energy ?b :time ?t1))
-     (variable ?ME2 (total-energy ?b :time ?t2))
-  )
+(defoperator write-change-ME (?b ?t1 ?t2)
+  :preconditions 
+  (
+   (body ?b)
+   (variable ?Wnc (work-nc ?b :time (during ?t1 ?t2)))
+   (variable ?ME1 (total-energy ?b :time ?t1))
+   (variable ?ME2 (total-energy ?b :time ?t2))
+   )
   :effects (
-    (eqn (= ?Wnc (- ?ME2 ?ME1)) (change-ME-top ?b ?t1 ?t2))
+    (eqn (= ?Wnc (- ?ME2 ?ME1)) (change-ME ?b ?t1 ?t2))
+    (assume using-change-me ?b ?t1 ?t2)
   )
   :hint (
    (point (string "Think about what you can conclude about the total mechanical energy in the system throughout this problem."))
