@@ -4188,10 +4188,10 @@
 ;;=============================================================================
 ;; Failure to solve messages:
 ;; 
-;; If student tries to solve and fails, try to detect common and easily overlooked
-;; sources of the error.
-;; Code is in this file because it is akin to giving next-step-help and makes use of
-;; some of the same information about solutions and doneness.
+;; If student tries to solve and fails, try to detect common and easily 
+;; overlooked sources of the error.
+;; Code is in this file because it is akin to giving next-step-help and makes 
+;; use of some of the same information about solutions and doneness.
 ;;
 
 (defun missing-g-value ()
@@ -4205,27 +4205,32 @@
 (defun get-failure-to-solve-hint (var)
  (let (eqnode)
  (cond 
-  ; missing given
+  ;; missing given
   ((setq eqnode (find-if-not #'nsh-principle-completed-p *nsh-givens*))
        (format NIL "Unable to solve for ~a.  One thing you probably need is an equation specifying the given value of ~a."
 		 var (var-or-quant (nsh-given-node-quant eqnode))))
 
-  ; need value of g -- but should we check that some entered equation mentions g??
+  ;; need value of g -- but should we check that some entered equation mentions g??
   ((missing-g-value) 
        (format NIL "Unable to solve for ~a. One thing you need is an equation specifying the appropriate value of g for this problem. You can select 'Constants used in Andes' on the Help menu to find it." var))
   
-  ; missing vector projection -- hard to detect! In most problems these are not at the bubblegraph level
-  ; but subsidiary equations inside nodes. So have to choose solution and get all its equations to find
-  ; this (and make sure solution we look at is compatible with students choice of axis, if they have one!)
-  ; Also: probably don't want to suggest this if they haven't yet drawn vector and defined axes, and maybe 
-  ; also if they haven't entered any component equation using the vector yet.
+  ;; missing vector projection -- hard to detect! In most problems these are 
+  ;; not at the bubblegraph level but subsidiary equations inside nodes. 
+  ;; So have to choose solution and get all its equations to find this 
+  ;; (and make sure solution we look at is compatible with students choice of 
+  ;; axis, if they have one!)
+  ;; Also: probably don't want to suggest this if they haven't yet drawn 
+  ;; vector and defined axes, and maybe also if they haven't entered any 
+  ;; component equation using the vector yet.
 
-  ; missing both sin theta and cos theta expressions when solving for an angle
-
-  ; not done, but don't have any special case message.
-  ; NB: we could be undone because some diagram drawing step is not done (e.g. zero accel in a statics problem)
-  ; even though all equations have been entered. Especially unclear if we want to do this in answer-var problem.
-  ; Maybe really want a predicate like all-equations-done. Still, this does indicate that nsh will give a step.
+  ;; missing both sin theta and cos theta expressions when solving for an angle
+  ;; not done, but don't have any special case message.
+  ;; NB: we could be undone because some diagram drawing step is not done 
+  ;; (e.g. zero accel in a statics problem)
+  ;; even though all equations have been entered. Especially unclear if we 
+  ;; want to do this in answer-var problem.
+  ;; Maybe really want a predicate like all-equations-done. Still, this 
+  ;; does indicate that nsh will give a step.
   ((not (nsh-done?))
       (format NIL "Unable to solve for ~A. Try the light-bulb if you need a hint about a step that still needs to be done." var))
 
