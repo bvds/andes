@@ -7604,8 +7604,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   )
   :effects (
     (eqn-contains (change-ME ?b ?t1 ?t2) ?sought)
-    ;; post this to make sure we get hint for energy prob axes
-    (use-energy-axes)
   ))
 
 ;;; following writes the top-level change in ME equation,
