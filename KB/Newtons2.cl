@@ -6455,8 +6455,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
  :effects (
 	   (eqn-contains (cons-energy ?b ?t1 ?t2) ?sought)
-	   ;; set flag to choose standard axes because energy problem
-	   (use-energy-axes)
 	   ))
 
 ;; generate equation TME_1 = TME_2
@@ -6694,23 +6692,25 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :effects (
     (eqn-contains (grav-energy ?body ?planet ?t) ?sought)
+    ;; set flag to choose standard axes because energy problem
+    (use-energy-axes)
   ))
 
 ;; equation PE_grav = m * g * h
 ;; Note relies on problem statement stipulating zero level. 
 (defoperator write-grav-energy (?body ?planet ?t)
-  :preconditions (
-  ;(near-planet ?planet :body ?body ?body) ; moved to grav-energy-contains
+  :preconditions 
+  (
+  (axes-for ?body 0) ;draw unrotated axes for gravitational energy
   (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (variable ?m-var  (mass ?body))
   (use-point-for-body ?body ?cm ?axis) ;always use cm
   (variable ?h-var (height ?cm :time ?t))
   (variable ?g-var (gravitational-acceleration ?planet))
   )
-  :effects (
-  (eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
-       (grav-energy ?body ?planet ?t))
-  )
+  :effects ((eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
+		 (grav-energy ?body ?planet ?t))
+	    )
   :hint (
    (point (string "Try writing an equation for gravitational potential energy of ~a ~a" (?body def-np) (?t pp)))
    (teach (string "The gravitational potential energy of a body near the surface of a planet is m*g*h, its mass times the gravitational acceleration times its height above the stipulated zero level."))
