@@ -519,8 +519,6 @@
   :English ("the implicit equation ~a for: ~a"
 	     ?Equation (nlg ?quantity 'def-np)))
 
-(def-eqntype 'derived-eqn)
-
 ;;========================================================
 ;; goal proposition forms
 ;;

@@ -388,6 +388,7 @@
 
 ;;; Some of the equation entries are also props.
 ;;; This macro facilitates the definition of both.
+
 (defmacro def-eqn-entryprop (type form
 			   &key (helpform form)
 				(doc nil) (English Nil))
@@ -398,11 +399,12 @@
 	    :doc ,doc
 	    :English ,English)))
 
-
+;;;  This is no longer used in Andes (August 2006)
+#|
 (defun def-eqntype (type)
   "Define an equation type."
   (push type *Ontology-Equation-types*))
-
+|#
 
 (defun eqn-prop-p (prop)
   "Return t iff the prop is an eqn prop."

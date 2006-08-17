@@ -159,29 +159,6 @@
    :effects
    ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
 
-;; For use by the help system, we need to indicate the difference between 
-;; fundamental equations and derived equations that result from combinations 
-;; of the fundamental equations.  This is done by the choice of "eqn" or
-;; "derived-eqn" proposition. The following variant of "apply-scalar-PSM"
-;; searches for scalar PSM's that result in derived eqns, rather than 
-;; fundamental equations.  (Currently this is only the net-work PSM).  These 
-;; PSMs should post a derived-eqn-contains statement instead of eqn-contains.
-(defoperator apply-scalar-PSM2 (?sought ?eqn-id)
-   :specifications "If the goal is to apply a PSM to find a quantity,
-      and there is a scalar equation that contains that quantity,
-      then generate the equation."
-   :preconditions (
-      (derived-eqn-contains ?eqn-id ?sought)
-      ;; make sure PSM name not on problem's ignore list:
-      (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
-      (not (derived-eqn ?dont-care ?eqn-id))
-      (derived-eqn ?eqn-algebra ?eqn-id)
-      (debug "~&To find ~S~%    via ~S, ~%     wrote ~a~%" 
-	     ?sought ?eqn-id ?eqn-algebra)
-   )
-   :effects
-   ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
-
 ;;; ================== entering givens =============================
 ;;; This operator corresponds to the step of entering an "assignment
 ;;; statement" equation for given values.  Note there may be 
