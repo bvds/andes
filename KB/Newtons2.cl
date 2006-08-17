@@ -6567,11 +6567,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator define-kinetic-energy-ee-var (?b ?t)
   :preconditions 
-  ( ;; test for translational motion of any axis at any time
+  (
+   (use-point-for-body ?b ?cm ?axis) ;always use axis of rotation
+   ;; test for translational motion of any axis at any time
+   ;; There may be more than one (motion ...) statement that matches
    (in-wm (motion ?axis ?kind . ?whatever))
    (test (or (eq ?kind 'straight) 
 	     (and (consp ?kind) (eq (first ?kind) 'curved))))
-   (use-point-for-body ?b ?cm ?axis) ;always use axis of rotation
    (variable ?var (kinetic-energy ?b :time ?t)) )
   :effects ( (ee-var ?b ?t ?var) ))
 
