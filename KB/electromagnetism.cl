@@ -1147,7 +1147,7 @@
 ;;; drawing net fields
 
 ; draw net field in given direction:
-(defoperator draw-net-field-given-dir (?type ?t)
+(defoperator draw-net-field-given-dir (?loc ?type ?t)
   :preconditions 
   (
    ;; ?t may be timeless, but it does get bound
