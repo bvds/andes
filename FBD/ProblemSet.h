@@ -83,7 +83,7 @@ public:
 	int PutLog(CString strPathName);
 	int GetProblemFiles(CString strProblemId);
 	int GetProblemGraphic(CString strFileName);
-	int SetScore(CFBDDoc* pDoc);
+	int SetScore(CString strScore, WorkState workState);
 
 // Overrides
 	// ClassWizard generated virtual function overrides

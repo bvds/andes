@@ -1035,12 +1035,12 @@ int CProblemSet::PutSolution(CString strPathName)
 	return result;
 }
 
-int CProblemSet::SetScore(CFBDDoc* pDoc)
+int CProblemSet::SetScore(CString strScore, WorkState workState)
 {
 	// empty score string means unset (maybe helpsys failed to run).
 	// Don't record numerical score in this case. Might still record
 	// status, e.g. partial, if there are some entries, to show some work
-	if (pDoc->m_strScore.IsEmpty())
+	if (strScore.IsEmpty())
 		return TRUE;	// success, because no score to upload
 
 	int result;
@@ -1064,9 +1064,9 @@ int CProblemSet::SetScore(CFBDDoc* pDoc)
 	// indicate non-completion by showing scores in parentheses
 	// Note: for now this means we must use the "status" score,
 	// since that accepts strings ("score" score is typed numeric)
-	CString strScoreArg = pDoc->m_strScore;
-	if (pDoc->m_workState != workCompleted)
-		strScoreArg = "(" + pDoc->m_strScore + ")";
+	CString strScoreArg = strScore;
+	if (workState != workCompleted) 
+		strScoreArg = "(" + strScore + ")";
 
 	CString strCmdScore = strCmdBase +  "&scoreId=status" + 
 		                        "&scoreValue=" + strScoreArg;
@@ -1098,7 +1098,7 @@ void CProblemSet::PreCloseProblem(CFBDDoc* pDoc)
 #if 0 // move to post	
 	// Else do Oli post problem stuff:
 	// set the score variables
-	SetScore(pDoc);
+	SetScore(pDoc->m_strScore, pDoc->m_workState);
 
 	// Upload solution, if it exists: 
 	// OLI version now saves solution always on close, so its OK.
@@ -1129,7 +1129,7 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 		AfxGetApp()->BeginWaitCursor();
 		
 		// Upload the score variables
-		SetScore(pDoc);
+		SetScore(pDoc->m_strScore, pDoc->m_workState);
 
 		// Upload solution, if it exists: 
 		// OLI version workbench now saves solution always on close, so its OK.
@@ -1152,37 +1152,37 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 	}
 	else // just viewed a saved solution
 	{
-/*
-		// following lets us repair a bad history file.
-		if (AfxMessageBox("Update student's history file from this session?", MB_YESNO)
-			== IDYES) {
-			AfxGetApp()->BeginWaitCursor();
-			PutHistory(g_strAndesDir + "Log/" + theApp.m_strUserName + ".dat");
-			AfxGetApp()->EndWaitCursor();
-		}
-*/
-#if 1 // don't give this power to instructors
-
-		// following lets instructor update from this session (!!! but grade is not updated).
-		// The delete option lets us remove a bad solution file, though repair is still a two-stage process
-		// requiring us to load again to create a fresh solution file. Needed since current Andes on the student's 
-		// machine may still find and load the saved local copy even if none exists on OLI.
-		int nChoice =  AfxMessageBox("Update student's solution file from this session?\n[Select Cancel to delete saved solution file]", 
+		CString strSolnPath = FindTask(pDoc->m_strProblemId)->GetSolutionPath();
+		// following gives instructor option to update from this session 
+		// The delete option lets us remove a bad solution file.
+promptagain:
+		int nChoice =  AfxMessageBox("Update student's solution file and score from this session?\n[Select Cancel to delete saved solution file]", 
 			                          MB_YESNOCANCEL|MB_DEFBUTTON2);
-		if (nChoice != IDNO) 
+
+		if (nChoice == IDYES)		// update solution and score
 		{
-			CString strSolnPath = FindTask(pDoc->m_strProblemId)->GetSolutionPath();
-			if (nChoice == IDCANCEL)  // truncate solution file to zero length
-				CFile(strSolnPath, CFile::modeWrite|CFile::modeCreate);
-		
 			AfxGetApp()->BeginWaitCursor();
 			PutSolution(strSolnPath);
-			AfxGetApp()->EndWaitCursor();
-
-			if (nChoice == IDCANCEL)  // delete local copy
-				CFile::Remove(strSolnPath);
+			SetScore(pDoc->m_strScore, pDoc->m_workState);
+			AfxGetApp()->EndWaitCursor();			
 		}
-#endif 1
+		else if (nChoice == IDCANCEL)  
+		{
+			// confirm destructive action
+			if (AfxMessageBox("Really delete student's solution from gradebook?\nThis will reset score to (0).", 
+							  MB_YESNO|MB_DEFBUTTON2) != IDYES)
+				goto promptagain;
+
+			// truncate solution file to zero length before calling upload routine
+			CFile(strSolnPath, CFile::modeWrite|CFile::modeCreate);
+			
+			AfxGetApp()->BeginWaitCursor();
+			PutSolution(strSolnPath);
+			SetScore("0", workNone);	// reset score to incomplete 0
+			AfxGetApp()->EndWaitCursor();
+			
+			CFile::Remove(strSolnPath);	// delete truncated local copy
+		} 
 	}
 
 	// Post message to close the whole application if not already closing. 

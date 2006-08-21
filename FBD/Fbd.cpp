@@ -892,7 +892,8 @@ BOOL CFBDApp::EnsureHelpSysInit()
 	// Set up IPC connection to help system	
    	if (!HelpSystemConnect()) 
 	{
-   		DoWarningMessage("Couldn't connect to Help system.\r\nAlthough you may still work, feedback, hints and solver will not be available");
+   		DoWarningMessage("Couldn't connect to Help system!\r\nFeedback, hints and solver will not be available.  \
+Personal firewall software may be preventing Andes from running correctly.");
    	} 
 	else // try initial call to help system
 	{ 
@@ -904,8 +905,8 @@ BOOL CFBDApp::EnsureHelpSysInit()
    				                    (m_wHelpFlags & fConceptual) ? 1 : 0) ){
 		// are getting unexplained failures here on Win2000 systems, even though appear to be connected
 		// is some other process using the TCP/IP port? Is an orphaned help system not processing events?
-		DoWarningMessage("Failed to initialize Help system!\r\nYou may work, but feedback and hints will not be available.  \
-If this happens repeatedly, restarting your computer may remove the problem.");
+		DoWarningMessage("Couldn't communicate with Help system!\r\nFeedback, hints and solver will not be available.  \
+Close Andes and try again in a few minutes. If this happens repeatedly, restarting your computer might remove the problem.");
 		// shutdown connection so we don't try again on problem open.
 		HelpSystemDisconnect();
 	   }

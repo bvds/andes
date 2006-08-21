@@ -796,9 +796,9 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		pszResult = HelpSystemExecf("(read-example-info \"%s\" %d)", 
 								m_strProblemId, m_nAssessor);	
 	else {
-#ifndef OLI // for Min-Chi experiment: set long timeout on open for large problems.
-		HelpIfcSetCallParms(10*60*1000, "Waiting for tutor to load problem");
-#endif 
+		// in case needed: set long (5min) timeout on open for large problems.
+		HelpIfcSetCallParms(5*60*1000, "Waiting for tutor to load problem");
+ 
 		pszResult = HelpSystemExecf("(read-problem-info \"%s\" %d %d)", 
 								LISPSTR(m_strProblemId), m_nKBType, m_nAssessor);
 	}

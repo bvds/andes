@@ -173,6 +173,7 @@ void CBrowserDlg::OnStatusTextChangeWebBrowser(LPCTSTR Text)
 	// Put it in the message static (now misnamed).
 	GetDlgItem(IDC_TASK_TEXT)->SetWindowText(Text);
 */
+	theApp.GetMainFrame()->SetAngleText(Text);
 }
 
 
