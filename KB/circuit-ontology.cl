@@ -121,7 +121,7 @@
   :short-name "rate of change of current"	
   :dialog-text "through [body:bodies] at time [time:times]"
   :units |A/s|
-  :fromWorkbench `(rate-of-change (current-thru ,body :time ,time))
+  ; :fromWorkbench  custom handling in Entry-API.cl
   :english ("the rate of change of the current through ~a" 
 	    (nlg ?comp 'at-time ?time)))
 

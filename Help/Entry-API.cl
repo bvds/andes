@@ -400,12 +400,14 @@
 		    (otherwise		; no longer used
 		     `(voltage-btwn ,body-term ,body2-term :time ,time-term))))
       (current     (case subtype
-		     (through		; now body-term now comes as '(compound orderless A B C)
+		     (through		; now body-term always comes as '(compound orderless A B C)
 		      (if (atom body-term) `(current-thru ,body-term :time  ,time-term)
 		         ; used to be arg might be (resistance (a b c)) for current through student-defined 
 		         ; equivalent. Not used anymore since we made current take a list. (Needed?)
 		          `(current-thru ,(find-closest-current-list (bodyterm-complist body-term)) :time ,time-term)))
 		     (in        `(current-in ,body-term :time ,time-term))))
+      (current-change `(rate-of-change (current-thru ,(find-closest-current-list (list body-term) 'current-change)
+                                          :time ,time-term)))  ; NB: body-term always comes as atom from old dialog
       (resistance			; body-term may come here as (compound a b c) for equivalent resistance
        (if (atom body-term) `(resistance ,body-term)
 	 `(resistance ,(bodyterm-complist body-term))))
@@ -485,14 +487,23 @@
 (defun ndiffs (set1 set2)
   (length (set-difference set1 set2)))
  
-(defun find-closest-current-list (studset)
+;; For (current-thru ?arg ...) and (rate-of-change (current-thru ?arg ...)), the student
+;; arg is a set of branch components which may be a subset of the full set used in the kb
+;; quantity form. Normally the kb list is maximal (all components in a branch), but it
+;; may be smaller in an introductory problem where we use explicit equality of current 
+;; through point A and point B in the same branch. 
+;; Following expands the student's arg set to the closest matching arg set among the defined
+;; variables. Quant may be 'current-thru or 'current-change
+(defun find-closest-current-list (studset &optional (quant 'current-thru))
 "return current variable argument list that best matches comps listed in student definition"
-  (let (bestset 	; initially NIL for empty set
+  (let ((quantform (if (eq quant 'current-thru) '(current-thru ?comp :time ?t)
+                     '(rate-of-change (current-thru ?comp :time ?t))))
+        bestset 	; initially NIL for empty set
         bestarg)	
    ; do for each current variable definition
-   (dolist (cdefprop (sg-fetch-entry-props 
-                     '(define-var (current-thru ?comps :time ?t))))
-      (let* ((sysarg (second (second cdefprop)))
+   (dolist (cdefprop (sg-fetch-entry-props `(define-var ,quantform)))
+      (let* ((sysarg (if (eq quant 'current-thru) (second (second cdefprop))
+                       (second (second (second cdefprop)))))
 	     ; urgh, kb uses atomic args in some cases
              (sysset (if (atom sysarg) (list sysarg) sysarg)))
 	; update best if this has fewer diffs than best match so far

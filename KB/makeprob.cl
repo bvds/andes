@@ -241,3 +241,23 @@
 
 (defun write-all-entry-files (&optional topics)
   (write-entry-files (choose-working-probs topics)))
+
+; dumping answers
+(defun expr-value (expr)
+ (let ((qvar (find expr (Problem-VarIndex *cp*) :key #'qvar-exp
+                                               :test #'equal)))
+     (when qvar 
+       (if (qvar-units qvar) 
+          (list (qvar-value qvar) (qvar-units qvar))
+	(qvar-value qvar)))))
+
+(defun write-answers (&optional topics)
+(with-open-file (outf "Answers.txt" :direction :output :if-exists :supersede)
+ (dolist (P (choose-working-probs topics))
+   (format T "~S~%" (problem-name p))
+   (ignore-errors
+    (setf *cp* (read-problem-file (string (problem-name p))))
+    (format outf "~A	~A~%" (problem-name p)
+        (mapcar #'expr-value (problem-soughts p)))))
+  (format T "End of problems~%"))
+(format T "Done writing answers~%"))
