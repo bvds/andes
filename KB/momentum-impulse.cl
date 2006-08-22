@@ -839,8 +839,8 @@ impulse ~A." (?b def-np) (?t pp)))
   :complexity major
   :short-name "Newton's third law (magnitude)"
   :english ("Newton's Third Law applied to impulse")
-  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
-	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
+  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a"
+	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12 = J21"))
 
 (def-psmclass NTL-impulse-vector (?eq-type NTL-impulse ?axis ?rot 
@@ -849,8 +849,8 @@ impulse ~A." (?b def-np) (?t pp)))
   :complexity major
   :short-name ("Newton's third law (~A component)" (axis-name ?axis))
   :english ("Newton's Third Law applied to impulse")
-  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a ~a"
-	      (nlg ?Object0) (nlg ?Object1) (nlg ?time 'nlg-time))
+  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a"
+	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12_~a = -J21_~a" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator NTL-impulse-contains (?quantity)

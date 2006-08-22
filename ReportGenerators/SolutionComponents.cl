@@ -107,15 +107,11 @@
   (format Stream "Givens: ~%")
   (dolist (G Givens)
     (case (car G)
-      (Object (format Stream "   There exists an object: ~a~%" (nlg (cadr G))))
+      (Object (format Stream "   There exists an object:  ~a~%" (nlg (cadr G))))
       (Time 
-       (format Stream "   There is a time: ~a~%" 
-	       (if (atom (cadr G))  ;; Just a little hack to deal w times.
-		   (format Nil "T~a" (- (cadr G) 1))
-		 (nlg (cadr G) 'nlg-time))))
+       (format Stream "   There is a time:  ~a~%" (nlg (cadr G) 'moment)))
       (Given (format Stream "   ~a = ~a~%" (nlg (cadr G)) (nlg (caddr G)))))))
   
-
 
 ;;; Print out the problem solutions inorder. 
 (defun solcomp-print-solutions (Problem Stream)

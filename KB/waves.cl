@@ -1127,8 +1127,8 @@
   :complexity definition
   :short-name "net intensity defined"
   :english ("the definition of net intensity")
-  :expformat ("calculating the net intensity on ~a ~a"
-	      (nlg ?body) (nlg ?time 'nlg-time))
+  :expformat ("calculating the net intensity on ~a"
+	      (nlg ?body 'at-time ?time))
   :EqnFormat ("Inet = I1 + I2 + ..."))
 
 ;; based on net-work-contains

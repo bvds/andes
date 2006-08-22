@@ -261,18 +261,12 @@
     (nlg-list-default x args)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Because times can appear either as durations or individual numbers therefore
-;; this nlg-time function is necessary.
-(defun nlg-time (time &rest args)
-  (if (atom time) (format nil "at time ~a" time)
-    (apply #'nlg-exp time args)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun lower-case (x &rest args)
   (if (atom x)
       (format nil "~(~A~)" x)
     (nlg-list-default x args)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun goal (x &rest args)

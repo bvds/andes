@@ -1715,7 +1715,7 @@
   :short-name "inductor EMF"
   :english ("EMF (voltage) across inductor")
   :ExpFormat ("finding the EMF across inductor ~A ~A" 
-	      (nlg ?inductor) (nlg ?time 'nlg-time))
+	      (nlg ?inductor) (nlg ?time 'pp))
   :eqnFormat ("V = -L*dIdt") 
   )
 

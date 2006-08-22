@@ -1951,17 +1951,15 @@
 			     " force vectors on ~a.") (nlg body 'def-np)))))
 
 ;;; In the situation (such as dt5a) where no single forces are 
-;;; defines on a body but the net foce is.
+;;; defined on a body but the net force is.
 (def-error-class net-force-only-on-body (?body ?net-time ?net-dir)
   ((student (vector (force ?body ?agent ?type :time ?time) ?dir))
    (no-correct (vector (force ?body ?nagent ?ntype :time ?ntime) ?ndir))
    (correct (vector (net-force ?body :time ?net-time) ?net-dir)))
   :probability 0.01)
 
-
-
 (defun net-force-only-on-body (body net-time net-dir)
-  (let ((b (nlg body 'def-np)) (nt (nlg net-time 'nlg-time)) 
+  (let ((b (nlg body 'def-np)) (nt (nlg net-time 'pp)) 
 	(nd (nlg net-dir 'adj)))
     (make-hint-seq 
      (list (format nil (strcat "None of the solutions that I know of "
@@ -1972,8 +1970,6 @@
 	   (format nil (strcat "You need to define a net-force on ~a "
 			       "~a at ~a.") b nt nd)))))
 		 
-
-
 
 ;;; ------------------ Right Body and Agent, wrong Type ------------------
 ;;; If the student defines a force vector and gets the body and agent right 
@@ -2088,7 +2084,7 @@
 	 (format nil (strcat "You should draw a ~a force on ~a due to "
 			     "~a ~a at ~a")
 		 (nlg force-type 'adj) (nlg body 'def-np) (nlg agent 'def-np) 
-		 (nlg ctime 'nlg-time) (nlg force-dir 'def-np)))))
+		 (nlg ctime 'pp) (nlg force-dir 'def-np)))))
 
 
 
@@ -2123,7 +2119,7 @@
 	 (format nil (strcat "You should draw a ~a force on ~a due to "
 			     "~a ~a at ~a")
 		 (nlg frict-type 'adj) (nlg body 'def-np) (nlg agent 'def-np) 
-		 (nlg ctime 'nlg-time) (nlg frict-dir 'def-np)))))
+		 (nlg ctime 'pp) (nlg frict-dir 'def-np)))))
 
 
 
