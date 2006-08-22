@@ -160,8 +160,8 @@
 			    (coulomb-vec ?b1 ?b2 ?t nil))))
   :hint 
   ((point (string "Note the ~A component of the separation of ~A and ~A."
-		  (axis-name ?xy) ?b1 ?b2))
-     (teach (string "Since the charges have the same ~A coordinate, the ~A component of the Coulomb force will be zero." (axis-name ?xy) (axis-name ?xy)))
+		  (?xy axis-name) ?b1 ?b2))
+     (teach (string "Since the charges have the same ~A coordinate, the ~A component of the Coulomb force will be zero." (?xy axis-name) (?xy axis-name)))
      (bottom-out (string "Write the equation ~A." 
 			 ((= ?F 0)) algebra))
   ))
@@ -474,7 +474,7 @@
             )
   :hint 
   (
-   (point (string "Note that ~A and ~A are both charged particles." ?b ?agent))
+   (point (string "Note that ~A and ~A are both charged particles." ?b (?source agent)))
    (point (string "Charged particles experience a force due to other charged particles."))
    (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a, direction unknown." ?b (?source agent) (?t pp)))
    ))
