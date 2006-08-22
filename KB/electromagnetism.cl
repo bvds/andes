@@ -163,7 +163,7 @@
 		  (?xy axis-name) ?b1 ?b2))
      (teach (string "Since the charges have the same ~A coordinate, the ~A component of the Coulomb force will be zero." (?xy axis-name) (?xy axis-name)))
      (bottom-out (string "Write the equation ~A." 
-			 ((= ?F 0)) algebra))
+			 ((= ?F_xy 0)) algebra))
   ))
 
 
