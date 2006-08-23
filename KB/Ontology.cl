@@ -177,7 +177,7 @@
   :english ("the angular momentum of ~A" (nlg ?body 'at-time ?time)))
 (def-qexp torque (torque ?body ?agent :axis ?axis :time ?time)
   :units |N.m|
-  :english ("the ~A on ~A ~@[about ~A~] due to ~A" 
+  :english ("the ~A on ~A~@[ about ~A~] due to ~A" 
 	       (moment-name) (nlg ?body) (nlg ?axis)
 	       (nlg ?agent 'at-time ?time)))
 (def-qexp net-torque (net-torque ?body ?axis :time ?time)

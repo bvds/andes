@@ -137,17 +137,17 @@
 
 (def-qexp E-field (field ?region electric ?source :time ?time)
   :units |N/C|
-  :english ("electric field at ~A due to ~A~@[ ~A~]" 
+  :english ("the electric field at ~A due to ~A~@[ ~A~]" 
 	    (nlg ?region 'at-time ?time) (nlg ?source 'agent) (nlg ?time 'pp)))
 
 (def-qexp B-field (field ?region magnetic ?source :time ?time)
   :units |T|
-  :english ("magnetic field at ~A due to ~A~@[ ~A~]" 
+  :english ("the magnetic field at ~A due to ~A~@[ ~A~]" 
 	    (nlg ?region) (nlg ?source 'agent) (nlg ?time 'pp)))
 
 (def-qexp net-field (net-field ?region ?type :time ?time)
   :units |N/C|
-  :english ("net ~A field at ~A from all sources~@[ ~A~]" 
+  :english ("the net ~A field at ~A from all sources~@[ ~A~]" 
 	    (nlg ?type) (nlg ?region) (nlg ?time 'pp)))
   
 (def-qexp potential (potential ?loc ?source :time ?time)
