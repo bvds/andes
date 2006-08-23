@@ -9372,7 +9372,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; Choose an axis on body about which to consider torque.  
    (rotation-axis ?b ?axis)
    (axes-for ?b ?rot)  ;in case ?rot is not bound
-   (get-axis ?xyz ?rot)
+   (get-axis ?xyz ?rot) ;iterate over directions
    ;; find force without drawing it, to get ?agent
    (force ?pt ?agent ?type ?t . ?rest)
    ;;

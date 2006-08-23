@@ -1846,10 +1846,9 @@
     (variable ?p-var (mag (dipole-moment ?dipole ?type :time ?t)))
     (any-member ?tot (?t nil)) 
     (variable ?E-var (mag (field ?region ?type ?source :time ?tot)))
-    (any-member ?t-field (?t nil))
     (variable ?theta-var (angle-between orderless 
 				(dipole-moment ?dipole ?type :time ?t)      
-				(field ?region ?type ?source :time ?t-field)))
+				(field ?region ?type ?source :time ?tot)))
     )
    :effects (
       (eqn (= ?tau-var (* ?p-var ?E-var (sin ?theta-var))) 
@@ -1941,13 +1940,15 @@
    (any-member ?sought 
 	       ( 
 		(compo ?axis ?rot (torque ?dipole (field ?region ?type ?source)
-					      :time ?t))
-		(compo ?axis ?rot (field ?region ?type ?source :time ?t ?t))
-		(compo ?axis ?rot (dipole-moment ?dipole ?type :time ?t))
+					  :time ?t))
+		(compo ?not-axis ?rot (field ?region ?type ?source 
+					     :time ?t ?t))
+		(compo ?not-axis ?rot (dipole-moment ?dipole ?type :time ?t))
 		))
    (given-field ?source ?type)
    (time ?t)
    (at-place ?dipole ?region :time ?t ?t)
+   (get-axis ?axis ?rot) ;in case ?axis is not bound
   )
  :effects 
  ( (eqn-contains (dipole-torque ?dipole 
@@ -1957,20 +1958,20 @@
 (defoperator write-dipole-torque (?dipole ?source ?axis ?rot ?flag ?t)
   :preconditions 
   ( 
-   (any-member ?tot (?t nil))
    ;; draw vectors now, before applying cross product
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
+   (any-member ?tot (?t nil))
    (vector ?whatever (field ?region ?type ?source :time ?tot) ?dir-field)
    (vector ?dipole (torque ?dipole (field ?region ?type ?source)
-			       :time ?t) ?dir-torque)
+			   :time ?t) ?dir-torque)
    ;;
    (cross ?cross (dipole-moment ?dipole ?type :time ?t) 
 	  (field ?region ?type ?source :time ?tot) ?axis ?rot ?flag)
-   (test (not (eq ?cross '0)))  ; handled by write-dipole-torque-mag
+   (test (not (eq ?cross '0)))		; handled by write-dipole-torque-mag
    (variable ?tau-zc (compo ?axis ?rot 
 			    (torque ?dipole (field ?region ?type ?source)
 				    :time ?t)))
-    )
+   )
   :effects 
   ( (eqn (= ?tau-zc ?cross)
 	 (dipole-torque ?dipole (field ?region ?type ?source) 
