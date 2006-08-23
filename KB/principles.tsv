@@ -146,6 +146,7 @@ LEAF	int B = $m0*(±I1 ± I2 ± ...)    Ampère's law	amperes-law	Ampere's Law
 LEAF	$m = N*I*A    magnetic dipole moment (magnitude)	magnetic-dipole-moment-mag	Dipoles
 LEAF	$m_x = N*I*A*n_x    magnetic dipole moment (x component)	(magnetic-dipole-moment ((?axis . x)))	Dipoles
 LEAF	$m_y = N*I*A*n_y    magnetic dipole moment (y component)	(magnetic-dipole-moment ((?axis . y)))	Dipoles
+LEAF	$m_z = N*I*A*n_z    magnetic dipole moment (z component)	(magnetic-dipole-moment ((?axis . z)))	Dipoles
 LEAF	$t = $m*B*sin($q)    torque for magnetic dipole (magnitude)	magnetic-dipole-torque-mag	Dipoles
 LEAF	$t_x = $m_y*B_z - $m_z*B_y    torque for magnetic dipole (x component)	(magnetic-dipole-torque ((?axis . x)))	Dipoles
 LEAF	$t_y = $m_z*B_x - $m_x*B_z    torque for magnetic dipole (y component)	(magnetic-dipole-torque ((?axis . y)))	Dipoles

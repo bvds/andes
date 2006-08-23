@@ -166,6 +166,7 @@
 	 (leaf magnetic-dipole-moment-mag :tutorial "Dipoles")
 	 (leaf magnetic-dipole-moment :bindings ((?axis . x)) :tutorial "Dipoles")
 	 (leaf magnetic-dipole-moment :bindings ((?axis . y)) :tutorial "Dipoles")
+	 (leaf magnetic-dipole-moment :bindings ((?axis . z)) :tutorial "Dipoles")
 	 (leaf magnetic-dipole-torque-mag :tutorial "Dipoles")
 	 (leaf magnetic-dipole-torque :bindings ((?axis . x)) :tutorial "Dipoles")
 	 (leaf magnetic-dipole-torque :bindings ((?axis . y)) :tutorial "Dipoles")
