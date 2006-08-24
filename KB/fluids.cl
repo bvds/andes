@@ -464,7 +464,7 @@
       (point (string "You can use the formula for the circumference of a circle"))
       (teach (string "The circumference of a circle is 2*$p times the radius."))
       (bottom-out (string "Write the equation ~A" 
-                     (= ?Ac (* 2 $P ?rc)) algebra) ))
+                     ((= ?Ac (* 2 $P ?rc)) algebra)) ))
    )
 
 ;; equation of the circumference of a circle c = pi*d
@@ -500,7 +500,7 @@
       (point (string "You can use the formula for the circumference of a circle"))
       (teach (string "The circumference of a circle is $p times the diameter."))
       (bottom-out (string "Write the equation ~A" 
-                     (= ?Ac (* $P ?dc)) algebra) ))
+                     ((= ?Ac (* $P ?dc)) algebra)) ))
    )
 
 ;;; equation of the area of a circle Ac = pi*rc^2
@@ -533,7 +533,7 @@
       (point (string "You can use the formula for the area of a circle"))
       (teach (string "The area of a circle is $p times the radius squared."))
       (bottom-out (string "Write the equation ~A" 
-                     (= ?Ac (* $P (^ ?rc 2))) algebra) ))
+                     ((= ?Ac (* $P (^ ?rc 2))) algebra)) ))
    )
 
 (def-psmclass area-of-rectangle (area-of-rectangle ?body :square ?flag)
@@ -564,7 +564,7 @@
 	 (point (string "You can use the formula for the area of a square"))
 	 (teach (string "The area of a square is the length of one side squared."))
 	 (bottom-out (string "Write the equation ~A"  
-			     (= ?A (^ ?l 2)) algebra) )) )
+			     ((= ?A (^ ?l 2)) algebra)) )) )
 
 (defoperator square-is-kind-of-rectangle (?shape)
   :preconditions ((shape ?shape square ?dontcare))
@@ -593,7 +593,7 @@
       (point (string "You can use the formula for the area of a rectangle"))
       (teach (string "The area of a rectangle is length times width."))
       (bottom-out (string "Write the equation ~A"  
-			  (= ?A (* ?l ?w)) algebra) )) )
+			  ((= ?A (* ?l ?w)) algebra)) )) )
 
 (def-psmclass area-of-rectangle-change (area-of-rectangle-change ?body)
   :complexity definition  
@@ -623,7 +623,7 @@
       (point (string "You can take the time derivative of the formula for the area of a rectangle"))
       (teach (string "The area of a rectangle is length times width.  Take the time derivative, assuming the width is constant."))
       (bottom-out (string "Write the equation ~A"  
-			  (= ?A (* ?l ?w)) algebra) )) )
+			  ((= ?A (* ?l ?w)) algebra)) )) )
 
 ;;; equation for the volume of a cylinder
 (def-psmclass volume-of-cylinder (volume-of-cylinder ?body)
@@ -658,7 +658,7 @@
 		   ?cylinder))
       (teach (string "The volume of a cylinder is the area times the length."))
       (bottom-out (string "Write the equation ~A" 
-                     (= ?V (* ?A ?l)) algebra) ))
+                     ((= ?V (* ?A ?l)) algebra)) ))
    )
 
 ;;;
