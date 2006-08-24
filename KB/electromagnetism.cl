@@ -3260,8 +3260,8 @@ total charge inside divided by $e0."))
 
 (def-psmclass sum-fluxes (sum-fluxes ?b ?parts ?type ?t)
   :complexity minor
-  :short-name "adding flux through surfaces"
-  :english ("add ~A flux through surfaces" ?type)
+  :short-name "adding fluxes"
+  :english ("add ~A flux going through different surfaces" ?type)
   :ExpFormat ("finding the total ~A flux through ~A" ?type (nlg ?b))
   :EqnFormat ("$Fnet = $F1 + $F2 + ..."))
 
