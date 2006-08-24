@@ -1490,7 +1490,7 @@
   ((eqn-contains (sum-distances ?b ?tt) ?sought)))
 
 ;; only handles writing as sum of atomic sub-intervals
-(defoperator write-sum-distances (?tt)
+(defoperator write-sum-distances (?b ?tt)
   :preconditions 
   ((variable ?tt-var (distance ?b :time ?tt))
    (bind ?intervals (successive-intervals ?tt))

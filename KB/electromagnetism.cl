@@ -3028,10 +3028,11 @@
 
 (defoperator flux-constant-field-angle-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
+   (at-place ?surface ?region)
    (any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
-		 (mag (field ?surface ?type ?source :time ?t ?t))
+		 (mag (field ?region ?type ?source :time ?t ?t))
 		 (area ?surface)
 		 ))
    (time ?t)
@@ -3042,17 +3043,18 @@
 
 (defoperator flux-constant-field-compo-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
+   (at-place ?surface ?region)
    (any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
 		 (area ?surface)
-		 (compo ?xyz ?rot (field ?surface ?type ?source :time ?t ?t))
+		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t ?t))
 		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
 		 ))
    (time ?t)
    ;; find axes now, before applying dot product:
    (any-member ?tot (?t nil))
-   (vector ?any-body (field ?surface ?type ?source :time ?tot) ?dir-d)
+   (vector ?any-body (field ?region ?type ?source :time ?tot) ?dir-d)
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
@@ -3072,14 +3074,16 @@
   ;; make sure there is only one field defined on the surface
   ;; if we have multiple fields, this law probably should be expressed
   ;; in terms of the net field.
-  (any-member ?tot (?t nil)) ;may eventually want list of all times
-  (setof (vector ?dontcare (field ?surface ?type ?source :time ?tot) ?dir) 
+  (any-member ?tot (?t nil))		;may eventually want list of all times
+  (at-place ?surface ?region)
+  (setof (vector ?dontcare (field ?region ?type ?source :time ?tot) ?dir) 
 	 ?source ?sources)
   (test (= 1 (length ?sources))) ;exactly one field at surface
   (bind ?source (first ?sources))
-  (dot ?dot (field ?surface ?type ?source :time ?tot)
+  (dot ?dot (field ?region ?type ?source :time ?tot)
        (unit-vector normal-to ?surface :time ?t)
        ?rot)
+  (test (not (equal ?dot 0))) ;zero handled separately
   (variable ?Phi-var (flux ?surface ?type :time ?t))
   (variable ?A (area ?surface))
   )
@@ -3091,6 +3095,33 @@
 	(teach (string "For a field that is uniform over a surface, the flux through the surface is the area times the dot product of the field and the unit normal to the surface." ?type))
 	(bottom-out (string "Write the equation ~A."  
 			    ((= ?Phi-var (* ?A ?dot)) algebra)))
+	))
+
+(defoperator write-flux-constant-field-zero (?surface ?type ?t ?rot)
+ :preconditions 
+ (
+  ;; make sure there is only one field defined on the surface
+  ;; if we have multiple fields, this law probably should be expressed
+  ;; in terms of the net field.
+  (any-member ?tot (?t nil))		;may eventually want list of all times
+  (at-place ?surface ?region)
+  (setof (vector ?dontcare (field ?region ?type ?source :time ?tot) ?dir) 
+	 ?source ?sources)
+  (test (= 1 (length ?sources))) ;exactly one field at surface
+  (bind ?source (first ?sources))
+  (dot 0 (field ?region ?type ?source :time ?tot)
+       (unit-vector normal-to ?surface :time ?t)
+       ?rot)
+  (variable ?Phi-var (flux ?surface ?type :time ?t))
+  )
+ :effects ( (eqn (= ?Phi-var 0)
+		 (flux-constant-field ?surface ?type ?t ?rot)) )
+ :hint (
+	(point (string "Note that the ~A field is parallel to ~A." 
+		       ?type ?surface))
+	(teach (string "If the ~A field is parallel to the surface, the flux through the surface is zero." ?type))
+	(bottom-out (string "Write the equation ~A."  
+			    ((= ?Phi-var 0) algebra)))
 	))
 
 ;;;; This is really clunky, it is just the time derivative of
@@ -3118,10 +3149,11 @@
 
 (defoperator flux-constant-field-change-angle-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
+   (at-place ?surface ?region)
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
-		 (mag (field ?surface ?type ?source :time ?t ?t))
+		 (mag (field ?region ?type ?source :time ?t ?t))
 		 (rate-of-change (area ?surface))
 		 ))
    (time ?t)
@@ -3132,17 +3164,18 @@
 
 (defoperator flux-constant-field-change-compo-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?surface ?type) ;specify by hand whether formula is valid
+  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
+   (at-place ?surface ?region)
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
 		 (rate-of-change (area ?surface))
-		 (compo ?xyz ?rot (field ?surface ?type ?source :time ?t ?t))
+		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t ?t))
 		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
 		 ))
    (time ?t) ;in case ?t is not bound
    ;; find axes now, before applying dot product:
    (any-member ?tot (?t nil))
-   (vector ?any-body (field ?surface ?type ?source :time ?tot) ?dir-d)
+   (vector ?any-body (field ?region ?type ?source :time ?tot) ?dir-d)
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
    (time ?t)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
@@ -3163,8 +3196,9 @@
   ;; make sure there is only one field defined on the surface
   ;; if we have multiple fields, this law probably should be expressed
   ;; in terms of the net field.
-  (any-member ?tot (?t nil)) ;may eventually want list of all times
-  (setof (vector ?dontcare (field ?surface ?type ?source :time ?tot) ?dir) 
+  (any-member ?tot (?t nil))		;may eventually want list of all times
+  (at-place ?surface ?region)
+  (setof (vector ?dontcare (field ?region ?type ?source :time ?tot) ?dir) 
 	 ?source ?sources)
   (test (= 1 (length ?sources))) ;exactly one field at surface
   (bind ?source (first ?sources))
@@ -3191,7 +3225,7 @@
 ;;;                         Gauss' law
 ;;;
 
-(def-psmclass gauss-law (gauss-law ?surface)
+(def-psmclass gauss-law (gauss-law ?surface :time ?t)
   :complexity major                   ; must explicitly use
   :short-name "Gauss' law"
   :english ("Gauss' law")
@@ -3201,20 +3235,21 @@
 (defoperator gauss-law-contains (?sought)
   :preconditions
   (
-   (closed-surface ?surface)
+   (closed-surface ?surface . ?rest)
    (any-member ?sought ((charge ?surface :surface t)
-			(flux ?surface electric)))
+			(flux ?surface electric :time ?t)))
+   (time ?t) ;in case t is not bound
    )
   :effects
-  ( (eqn-contains (gauss-law ?surface) ?sought)))
+  ( (eqn-contains (gauss-law ?surface :time ?t) ?sought)))
 
 (defoperator write-gauss-law (?surface)
   :preconditions
   ( (variable  ?Q (charge ?surface :surface t))
-    (variable  ?phi (flux ?surface electric)) )
+    (variable  ?phi (flux ?surface electric :time ?t)) )
   :effects
   ( (eqn  (= ?phi (/ ?Q |eps0|))
-	  (gauss-law ?surface)) )
+	  (gauss-law ?surface :time ?t)) )
   :hint
   ( (point (string "Note that you can relate the flux through ~A to the charge inside ~A."
 		   ?surface ?surface))
@@ -3223,6 +3258,38 @@ total charge inside divided by $e0."))
     (bottom-out (string "Write the equation ~A ."
 			((= ?phi (/ ?Q |eps0|)) algebra) )) ))
 
+(def-psmclass sum-fluxes (sum-fluxes ?b ?parts ?type ?t)
+  :complexity minor
+  :short-name "adding flux through surfaces"
+  :english ("add ~A flux through surfaces" ?type)
+  :ExpFormat ("finding the total ~A flux through ~A" ?type (nlg ?b))
+  :EqnFormat ("$Fnet = $F1 + $F2 + ..."))
+
+(defoperator sum-fluxes-contains (?sought)
+  :preconditions 
+  (
+   (composite-surface ?s ?parts)
+   (any-member ?sought ( (flux ?b ?type :time ?t)))
+   (test (or (equal ?b ?s) (member ?b ?parts)))
+   (time ?t) ;sanity test
+   )
+  :effects 
+  ((eqn-contains (sum-fluxes ?s ?parts ?type ?t) ?sought)))
+
+;; only handles writing as sum of atomic sub-intervals
+(defoperator write-sum-fluxes (?s ?type ?t)
+  :preconditions 
+  ((variable ?tt-var (flux ?s ?type :time ?t))
+   (map ?part ?parts
+      (variable ?t-var (flux ?part ?type :time ?t))
+      ?t-var ?t-vars))
+  :effects ( (eqn (= ?tt-var (+ . ?t-vars)) (sum-fluxes ?s ?parts ?type ?t)) )
+  :hint
+  ((point (string "Note that surface ~A is made by joining several surfaces together." ?s))
+   (teach (string "The total flux going through a surface is equal to the sum of the flux going through each part of the surface."))
+   (bottom-out (string "Write the equation ~a."
+		        ((= ?tt-var (+ . ?t-vars)) algebra)))
+   ))
 
 ;;;
 ;;;              Faraday's law

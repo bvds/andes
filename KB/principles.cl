@@ -136,6 +136,7 @@
 	 (leaf net-field-electric :bindings ((?axis . y)) :tutorial "Electric Field")
 	 (leaf electric-flux-constant-field)
 	 (leaf electric-flux-constant-field-change)
+	 (leaf sum-fluxes)
 	 (leaf point-charge-potential :tutorial "Electric Potential")
 	 (leaf net-potential :tutorial "Electric Potential")
 	 (leaf electric-energy :tutorial "Electric Potential")
