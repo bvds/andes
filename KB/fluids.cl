@@ -278,7 +278,7 @@
   :complexity major  
   :short-name "equation of continuity"
   :english ("the equation of continuity for incompressible fluid")
-  :ExpFormat ("Applying the equation of continuity")
+  :ExpFormat ("applying the equation of continuity")
   :EqnFormat ("A1*v1 = A2*v2")) 
 
 (defoperator continuity-contains (?sought)
@@ -436,7 +436,7 @@
   :complexity minor  
   :short-name "circumference of circle"
   :english ("the formula for the circumference of a circle")
-  :ExpFormat ("Applying the formula for the circumference of a circle")
+  :ExpFormat ("applying the formula for the circumference of a circle")
   :EqnFormat ("c = 2*$p*r")) 
 
  (defoperator circumference-of-circle-r-contains (?sought)
@@ -472,7 +472,7 @@
   :complexity minor  
   :short-name "circumference of circle"
   :english ("the formula for the circumference of a circle")
-  :ExpFormat ("Applying the formula for the circumference of a circle")
+  :ExpFormat ("applying the formula for the circumference of a circle")
   :EqnFormat ("c = $p*d")) 
 
  (defoperator circumference-of-circle-d-contains (?sought)
@@ -508,7 +508,7 @@
   :complexity minor  
   :short-name "area of circle"
   :english ("the formula for the area of a circle")
-  :ExpFormat ("Applying the formula for the area of a circle")
+  :ExpFormat ("applying the formula for the area of a circle")
   :EqnFormat ("A = $p*r^2")) 
 
  (defoperator area-of-circle-contains (?sought)
@@ -536,20 +536,49 @@
                      (= ?Ac (* $P (^ ?rc 2))) algebra) ))
    )
 
-(def-psmclass area-of-rectangle (area-of-rectangle ?body)
+(def-psmclass area-of-rectangle (area-of-rectangle ?body :square ?flag)
   :complexity minor  
   :short-name "area of rectangle"
   :english ("the formula for the area of a rectangle")
-  :ExpFormat ("Applying the formula for the area of a rectangle")
+  :ExpFormat ("applying the formula for the area of a ~:[rectangle~;square~]" 
+	      ?flag)
   :EqnFormat ("A = w*l")) 
 
- (defoperator area-of-rectangle-contains (?sought)
-   :preconditions (
-		   (in-wm (shape ?shape rectangle ?dontcare))
-		   (any-member ?sought ((width ?shape)
-					(length ?shape)
-					(area ?shape)))  
+(defoperator area-of-square-contains (?sought)
+  :preconditions 
+  (
+    (shape ?shape square ?dontcare)
+    (any-member ?sought ((length ?shape)
+			 (area ?shape)))  
+    )
+   :effects ((eqn-contains (area-of-rectangle ?shape :square t) ?sought)) )
+
+(defoperator write-area-of-square (?rectangle)
+  :preconditions 
+  (
+   (variable  ?l  (length ?rectangle))
+   (variable  ?A  (area ?rectangle))
    )
+  :effects ( (eqn (= ?A (^ ?l 2)) (area-of-rectangle ?rectangle :square t)) )
+  :hint (
+	 (point (string "You can use the formula for the area of a square"))
+	 (teach (string "The area of a square is the length of one side squared."))
+	 (bottom-out (string "Write the equation ~A"  
+			     (= ?A (^ ?l 2)) algebra) )) )
+
+(defoperator square-is-kind-of-rectangle (?shape)
+  :preconditions ((shape ?shape square ?dontcare))
+  :effects ((shape ?shape rectangle ?dontcare))
+)
+
+(defoperator area-of-rectangle-contains (?sought)
+   :preconditions 
+   (
+    (shape ?shape rectangle ?dontcare)
+    (any-member ?sought ((width ?shape)
+			 (length ?shape)
+			 (area ?shape)))  
+    )
    :effects ((eqn-contains (area-of-rectangle ?shape) ?sought)) )
 
 (defoperator write-area-of-rectangle (?rectangle)
