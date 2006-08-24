@@ -172,7 +172,7 @@
 (def-psmclass pressure-height-fluid (pressure-height-fluid ?point ?time)
   :complexity major  
   :short-name "pressure in fluid"
-  :english ("the pressure at a height in a fluid")
+  :english ("the formula for pressure at a height in a fluid")
   :ExpFormat ("finding the pressure at a level in a fluid")
   :EqnFormat ("P2 - P1 = $r*g*(h1-h2)")) 
 
@@ -435,8 +435,8 @@
 (def-psmclass circumference-of-circle-r (circumference-of-circle-r ?body)
   :complexity minor  
   :short-name "circumference of circle"
-  :english ("the formula for the circumference of a circle")
-  :ExpFormat ("applying the formula for the circumference of a circle")
+  :english ("the formula for circumference of a circle")
+  :ExpFormat ("finding the circumference of a circle")
   :EqnFormat ("c = 2*$p*r")) 
 
  (defoperator circumference-of-circle-r-contains (?sought)
@@ -472,7 +472,7 @@
   :complexity minor  
   :short-name "circumference of circle"
   :english ("the formula for the circumference of a circle")
-  :ExpFormat ("applying the formula for the circumference of a circle")
+  :ExpFormat ("finding the circumference of a circle")
   :EqnFormat ("c = $p*d")) 
 
  (defoperator circumference-of-circle-d-contains (?sought)
@@ -508,7 +508,7 @@
   :complexity minor  
   :short-name "area of circle"
   :english ("the formula for the area of a circle")
-  :ExpFormat ("applying the formula for the area of a circle")
+  :ExpFormat ("finding the area of a circle")
   :EqnFormat ("A = $p*r^2")) 
 
  (defoperator area-of-circle-contains (?sought)
@@ -539,8 +539,8 @@
 (def-psmclass area-of-rectangle (area-of-rectangle ?body :square ?flag)
   :complexity minor  
   :short-name "area of rectangle"
-  :english ("the formula for the area of a rectangle")
-  :ExpFormat ("applying the formula for the area of a ~:[rectangle~;square~]" 
+  :english ("the formula for area of a rectangle")
+  :ExpFormat ("finding the area of a ~:[rectangle~;square~]" 
 	      ?flag)
   :EqnFormat ("A = w*l")) 
 
@@ -598,7 +598,7 @@
 (def-psmclass area-of-rectangle-change (area-of-rectangle-change ?body)
   :complexity definition  
   :short-name "derivative of area of rectangle (constant width)"
-  :english ("the derivative of the formula for the area of a rectangle")
+  :english ("the derivative of the area of a rectangle")
   :ExpFormat ("taking the derivative of the formula for area")
   :EqnFormat ("dA/dt = w*dl/dt")) 
 
@@ -630,7 +630,7 @@
   :complexity minor  
   :short-name "volume of a cylinder"
   :english ("the formula for the volume of a cylinder")
-  :ExpFormat ("applying the formula for the volume of a cylinder")
+  :ExpFormat ("finding the volume of a cylinder")
   :EqnFormat ("V = A*l")) 
 
  (defoperator volume-of-cylinder-contains (?sought)
@@ -755,7 +755,7 @@
   :complexity major  
   :short-name "pressure defined"
   :english ("the definition of pressure")
-  :ExpFormat ("applying the definition of pressure")
+  :ExpFormat ("finding the pressure")
   :EqnFormat ("Fp = P*A"))
 
 (defoperator pressure-force-contains (?sought)
