@@ -2957,7 +2957,7 @@
 ;;;      the surface in the direction orthogonal to the surface.
 
 (def-qexp electric-flux (flux ?surface electric :time ?t)
-  :symbol-base |$Fe|     
+  :symbol-base |$F|     
   :short-name "electric flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m|
@@ -2967,7 +2967,7 @@
 
 (def-qexp electric-flux-change (rate-of-change 
 				(flux ?surface electric :time ?t))
-  :symbol-base |d$Fedt|     
+  :symbol-base |d$Fdt|     
   :short-name "rate of change in electric flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |V.m/s|
@@ -2976,7 +2976,7 @@
 	       (nlg ?surface) (nlg ?t 'pp)))
 
 (def-qexp magnetic-flux (flux ?surface magnetic :time ?t)
-  :symbol-base |$Fb|     
+  :symbol-base |$F|     
   :short-name "magnetic flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2|
@@ -2986,7 +2986,7 @@
 
 (def-qexp magnetic-flux-change (rate-of-change 
 				(flux ?surface magnetic :time ?t))
-  :symbol-base |d$Fbdt|     
+  :symbol-base |d$Fdt|     
   :short-name "rate of change in magnetic flux"	
   :dialog-text "through [body:bodies] at time [time:times]"
      :units |T.m^2/s|
@@ -3230,7 +3230,7 @@
   :short-name "Gauss' law"
   :english ("Gauss' law")
   :ExpFormat ("using Gauss' law")
-  :EqnFormat ("$FE = Q/$e0"))
+  :EqnFormat ("$Fe = Q/$e0"))
 
 (defoperator gauss-law-contains (?sought)
   :preconditions
@@ -3263,7 +3263,7 @@ total charge inside divided by $e0."))
   :short-name "adding fluxes"
   :english ("add ~A flux going through different surfaces" ?type)
   :ExpFormat ("finding the total ~A flux through ~A" ?type (nlg ?b))
-  :EqnFormat ("$Fnet = $F1 + $F2 + ..."))
+  :EqnFormat ("$F = $F1 + $F2 + ..."))
 
 (defoperator sum-fluxes-contains (?sought)
   :preconditions 

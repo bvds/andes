@@ -119,11 +119,11 @@ LEAF	Enet_x = E1_x + E2_x + ...    net electric field (x component)	(net-field-e
 LEAF	Enet_y = E1_y + E2_y + ...    net electric field (y component)	(net-field-electric ((?axis . y)))	Electric Field
 LEAF	$Fe = A*E*cos($qE - $qn) or $Fe = A*(E_x*n_x + E_y*n_y)    electric flux (uniform field)	electric-flux-constant-field	
 LEAF	d$Fe/dt = E.n*dA/dt    derivative of electric flux, uniform field	electric-flux-constant-field-change	
-LEAF	$Fnet = $F1 + $F2 + ...    adding fluxes	sum-fluxes	
+LEAF	$F = $F1 + $F2 + ...    adding fluxes	sum-fluxes	
 LEAF	V = kelec*q/r    point charge potential	point-charge-potential	Electric Potential
 LEAF	Vnet = V1 + V2 + ...    net potential	net-potential	Electric Potential
 LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
-LEAF	$FE = Q/$e0    Gauss' law	gauss-law	
+LEAF	$Fe = Q/$e0    Gauss' law	gauss-law	
 LEAF	p = abs(q)*r    electric dipole moment (magnitude)	electric-dipole-moment-mag	Dipoles
 LEAF	p_x = q*r_x    electric dipole moment (x component)	(electric-dipole-moment ((?axis . x)))	Dipoles
 LEAF	p_y = q*r_y    electric dipole moment (y component)	(electric-dipole-moment ((?axis . y)))	Dipoles
