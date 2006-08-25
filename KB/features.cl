@@ -56,7 +56,7 @@
   (electric-power current voltage resistance capacitance charge-on 
 		  stored-energy self-inductance mutual-inductance 
 		  current-change time-constant duration))
-(def-feature-set E&M 
+(def-feature-set E&M-quantities 
   (charge-on current potential duration length turns turns-per-length angle 
 	     electric-flux magnetic-flux electric-flux-change 
 	     magnetic-flux-change))
