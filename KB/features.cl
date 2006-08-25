@@ -63,7 +63,7 @@
 (def-feature-set number-of-particles
   (charge-on mass number-of))
 (def-feature-set gauss
-  (charge-in electric-flux angle-between))
+  (charge-in electric-flux angle))
 (def-feature-set ampere
   (current magnetic-line-integral))
 (def-feature-set EM-waves 
