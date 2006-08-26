@@ -240,6 +240,29 @@
 			     ?loc (?source agent) ?dir))
          ))
 
+(defoperator draw-efield-inside-conductor (?loc ?t)
+  :preconditions 
+  (
+   (inside-conductor ?loc)
+   (time ?t)
+   (not (vector ?any-body (field ?loc electric :time ?t) ?dir1))     
+   (bind ?mag-var (format-sym "E_~A~@[_~A~]" (body-name ?loc) 
+			      (time-abbrev ?t)))
+   )
+  :effects 
+  (
+   (vector ?loc (field ?loc electric :time ?t) zero)
+   (variable ?mag-var (mag (field ?loc electric :time ?t)))
+   ;; Don't need this for flux
+   ;; (given (mag (field ?loc electric :time ?t)) (dnum 0 |V/m|))
+   )
+  :hint (
+	 (point (string "~A is inside a conductor." ?loc)) 
+	 (teach (string "Inside a conductor, the electric field is zero." ?loc)) 
+	 (bottom-out (string "Use the E field drawing tool to draw a zero-length vector for the electric field at ~a ." 
+			     ?loc))
+	 ))
+
 ;; pull out the sign of a given charge
 (defoperator get-sign-given-charge (?b)
   :preconditions ((in-wm (given (charge ?b) (dnum ?val ?units)))
@@ -3117,9 +3140,9 @@
  :effects ( (eqn (= ?Phi-var 0)
 		 (flux-constant-field ?surface ?type ?t ?rot)) )
  :hint (
-	(point (string "Note that the ~A field is parallel to ~A." 
+	(point (string "Note that the ~A field is parallel to ~A or is zero." 
 		       ?type ?surface))
-	(teach (string "If the ~A field is parallel to the surface, the flux through the surface is zero." ?type))
+	(teach (string "If the component of the ~A field perpendicular to a surface is zero, then the flux going through the surface is zero." ?type))
 	(bottom-out (string "Write the equation ~A."  
 			    ((= ?Phi-var 0) algebra)))
 	))
