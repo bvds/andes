@@ -244,15 +244,17 @@
   :preconditions 
   (
    (inside-conductor ?loc)
+   (given-field ?source electric) ;specify the source by hand
    (time ?t)
-   (not (vector ?any-body (field ?loc electric :time ?t) ?dir1))     
-   (bind ?mag-var (format-sym "E_~A~@[_~A~]" (body-name ?loc) 
+   (not (vector ?any-body (field ?loc electric ?source :time ?t) ?dir1))     
+   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" 
+			      (body-name ?loc) (body-name ?source) 
 			      (time-abbrev ?t)))
    )
   :effects 
   (
-   (vector ?loc (field ?loc electric :time ?t) zero)
-   (variable ?mag-var (mag (field ?loc electric :time ?t)))
+   (vector ?loc (field ?loc electric ?source :time ?t) zero)
+   (variable ?mag-var (mag (field ?loc electric ?source :time ?t)))
    ;; Don't need this for flux
    ;; (given (mag (field ?loc electric :time ?t)) (dnum 0 |V/m|))
    )
@@ -3120,7 +3122,7 @@
 			    ((= ?Phi-var (* ?A ?dot)) algebra)))
 	))
 
-(defoperator write-flux-constant-field-zero (?surface ?type ?t ?rot)
+(defoperator write-flux-zero (?surface ?type ?t ?rot)
  :preconditions 
  (
   ;; make sure there is only one field defined on the surface
