@@ -243,9 +243,14 @@
 (defoperator draw-efield-inside-conductor (?loc ?t)
   :preconditions 
   (
+   ;; only use time when allowed by feature changing-field
+   (test (eq (null ?t) 
+	     (null (member 'changing-field (problem-features *cp*)))))
    (inside-conductor ?loc)
+   ;; Since the field is zero, the source is not really well-defined.
+   ;; However, we assume that there is some other region that does have 
+   ;; a given field source.
    (given-field ?source electric) ;specify the source by hand
-   (time ?t)
    (not (vector ?any-body (field ?loc electric ?source :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" 
 			      (body-name ?loc) (body-name ?source) 
