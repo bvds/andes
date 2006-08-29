@@ -368,7 +368,7 @@
   (
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
    (in-wm (vector ?b ?vector ?dir))  ;get dir
-   ;; make sure this is not acheivable by the ordinary projection equations
+   ;; make sure this is not acheivable by the existing projection equations
    (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
    (get-axis ?xyz ?rot)  ;iterate over directions
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ;sanity test
@@ -382,7 +382,7 @@
   (
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
    (in-wm (vector ?b ?vector ?dir))  ;get dir
-   ;; verify this is not acheivable by the ordinary vector-magnitude equations
+   ;; verify this is not acheivable by the existing vector-magnitude equations
    (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
    )
   :effects
@@ -1638,8 +1638,16 @@
   ;; normal vector methods, since define-compo requires vectors and axes to
   ;; be in wm.  Since the change to alternative define-compo2, the latter no 
   ;; longer works if EITHER vector or axis is drawn. 
-  :preconditions ((vector ?b ?vector ?dir)
-		  (axes-for ?b ?rot))
+  :preconditions 
+  ((vector ?b ?vector ?dir)
+   (axes-for ?b ?rot)
+   ;; make sure there can be more than one nonzero term in sum
+   ;; else it is redundant with the projection equations
+   (setof (get-axis ?xyz ?rot) ?xyz ?xyz-list)
+   (test (> (length (remove-if-not 
+		   #'(lambda (x) (non-zero-projectionp ?dir x ?rot)) 
+		   ?xyz-list)) 1))
+   )
   :effects ( (eqn-contains (vector-magnitude ?vector ?rot) (mag ?vector)) ))
 
 (defoperator write-vector-magnitude (?vector ?rot)
@@ -1647,9 +1655,6 @@
   (
    (variable ?r (mag ?vector))
    (dot ?dot ?vector ?vector ?rot)
-   ;; Make sure that there is more than one term in sum, else this
-   ;; is redundant with the associated projection equation.
-   (test (and (listp ?dot) (eq (first ?dot) '+)))
   )
   :effects (
     (eqn (= ?r (sqrt ?dot)) (vector-magnitude ?vector ?rot))
