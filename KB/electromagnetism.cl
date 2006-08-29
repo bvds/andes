@@ -3123,8 +3123,9 @@
 		 (flux-constant-field ?surface ?type ?t ?rot)) )
  :hint (
 	(point (string "Note that the ~A field is uniform over ~A." 
-		       ?type ?surface))
-	(teach (string "For a field that is uniform over a surface, the flux through the surface is the area times the dot product of the field and the unit normal to the surface." ?type))
+		       (?type adj) ?surface))
+	(teach (string "For a field that is uniform over a surface, the ~A flux through the surface is the area times the dot product of the ~A field and the unit normal to the surface."
+		       (?type adj) (?type adj)))
 	(bottom-out (string "Write the equation ~A."  
 			    ((= ?Phi-var (* ?A ?dot)) algebra)))
 	))
@@ -3150,8 +3151,9 @@
 		 (flux-constant-field ?surface ?type ?t ?rot)) )
  :hint (
 	(point (string "Note that the ~A field is parallel to ~A or is zero." 
-		       ?type ?surface))
-	(teach (string "If the component of the ~A field perpendicular to a surface is zero, then the flux going through the surface is zero." ?type))
+		       (?type adj) ?surface))
+	(teach (string "If the component of the ~A field perpendicular to a surface is zero, then the ~A flux going through the surface is zero." 
+		       (?type adj) (?type adj)))
 	(bottom-out (string "Write the equation ~A."  
 			    ((= ?Phi-var 0) algebra)))
 	))
@@ -3293,8 +3295,8 @@ total charge inside divided by $e0."))
 (def-psmclass sum-fluxes (sum-fluxes ?b ?parts ?type ?t)
   :complexity minor
   :short-name "adding fluxes"
-  :english ("add ~A flux going through different surfaces" ?type)
-  :ExpFormat ("finding the total ~A flux through ~A" ?type (nlg ?b))
+  :english ("add ~A flux going through different surfaces" (nlg ?type 'adj))
+  :ExpFormat ("finding the total ~A flux through ~A" (nlg ?type 'adj) (nlg ?b))
   :EqnFormat ("$F = $F1 + $F2 + ..."))
 
 (defoperator sum-fluxes-contains (?sought)
