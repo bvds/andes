@@ -264,8 +264,8 @@
    ;; (given (mag (field ?loc electric :time ?t)) (dnum 0 |V/m|))
    )
   :hint (
-	 (point (string "~A is inside a conductor." ?loc)) 
-	 (teach (string "Inside a conductor, the electric field is zero." ?loc)) 
+	 (point (string "Not that ~A is inside a conductor." ?loc)) 
+	 (teach (string "Inside a good conductor, the electric field is almost zero." ?loc)) 
 	 (bottom-out (string "Use the E field drawing tool to draw a zero-length vector for the electric field at ~a ." 
 			     ?loc))
 	 ))
@@ -328,6 +328,8 @@
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?dir))
    ;; make sure field direction not given, directly 
    (not (given (dir (field ?loc ?type ?source :time ?t)) ?dontcare3))
+   ;; inside a conductor is handled differently
+   (not (inside-conductor ?loc) (eq ?type 'electric))
    (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
 			      (body-name ?loc) (body-name ?source)
 			      (time-abbrev ?t)))
