@@ -290,7 +290,7 @@
   ((student (define-var (?quant ?sbody . ?rest)))
    (no-correct (define-var (?quant ?sbody . ?other)))
    (correct (define-var (?quant ?cbody . ?rest))))
-  ;; small probablility because we want quantity-specific hints first
+  ;; small probability because we want quantity-specific hints first
   :probability .0001)
 
 (defun only-body-wrong (sbody cbody)
@@ -2731,7 +2731,7 @@
 ;;; default case for a correct point but a wrong refernce point.
 ;;; Probably a user-interface confusion, so handled it bluntly.
 ;;; competes with wrong-pt-relative-position if multiple points are
-;;; being measured, so utility and probablity must be higher.
+;;; being measured, so utility and probability must be higher.
 (def-error-class wrong-ref-pt-relative-position (?sref-pt ?cref-pt)
   ((student    (vector (relative-position ?pt ?sref-pt :time ?stime) ?sdir))
    (no-correct (vector (relative-position ?pt ?sref-pt :time ?time2) ?dir2))
@@ -2821,7 +2821,8 @@
   ((student    (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
    (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
    (correct    (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir)))
-  :utility 50)
+  :utility 50
+  :probability 0.15) ;; This tends to be a weak/misleading hint.
 
 (defun field-wrong-loc (correct-loc wrong-loc fieldtype)
   (setf correct-loc (nlg correct-loc 'def-np))
@@ -2831,6 +2832,24 @@
 		      (nlg fieldtype 'adj) wrong-loc)
 	 (format nil (strcat "A better choice of location (but maybe not the "
 			     "only one) would be ~a.") correct-loc))))
+
+(def-error-class field-loc-too-specific (?cloc ?sloc ?type)
+  ((student (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
+   (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
+   (correct (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir))
+   (problem (at-place ?sloc ?cloc))
+   )
+  :utility 75
+  :probability 0.35)
+
+(defun field-loc-too-specific (correct-loc wrong-loc fieldtype)
+  (setf correct-loc (nlg correct-loc 'def-np))
+  (setf wrong-loc (nlg wrong-loc 'def-np))
+  (make-hint-seq
+   (list (format nil "Yes, an ~a field exists at ~a.  However, you can define it for a more general region." 
+		      (nlg fieldtype 'adj) wrong-loc)
+	 (format nil (strcat "A more general choice of location "
+			     "would be ~a.") correct-loc))))
 
 (def-error-class field-wrong-agent (?sagent ?cagent ?loc ?type)
   ((student    (vector (field ?loc ?type ?sagent :time ?stime) ?sdir))
