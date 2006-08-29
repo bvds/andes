@@ -2213,13 +2213,16 @@ void CFBDDoc::MoveToBackStudent(CDrawObj* pObj)
 	pObjects->RemoveAt(pos);
 	
 	// Search forward to find pos of rearmost (first) student-drawn obj
-	// in display list, NULL if none
+	// in display list, NULL if none. 
+	// NB: MC question choice groups are now flagged as student objects so 
+	// they can be selected by student, but should be treated as problem objects 
 	POSITION posRearmostStudentObj = NULL;
 	pos = pObjects->GetHeadPosition();
 	while (pos != NULL) {
 		// NB: Don't use GetNext since that advances pos
 		CDrawObj* pTemp = pObjects->GetAt(pos);
-		if (pTemp->m_flag == STUDENT_OBJECT) {
+		if (pTemp->m_flag == STUDENT_OBJECT && 
+			! CFBDView::IsChoiceGroup(pTemp)) { 
 			// found it:
 			posRearmostStudentObj = pos;
 			break; 
