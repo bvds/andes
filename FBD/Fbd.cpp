@@ -1930,6 +1930,10 @@ CFBDDoc* CFBDApp::GetCurrentProblem() // gets active problem/example document
 	// Search the problem doc template list for open problem document
 	// Documents opened for other purposes (e.g. preview) should not be opened via
 	// doc template so shouldn't be on this list.
+	// !!! This somewhat obsolete, since doesn't work while problem is in process of being 
+	// loaded from problem set selection  -- that also is not opened via document template?
+	// Whatever the reason, can't get current problem while it is being loaded that way.
+	// This caused a bug when called while executing predef commands.
 	POSITION pos = m_ptmplProblem->GetFirstDocPosition();
 	if (pos != NULL) {		// should be only one problem open
 		pDoc = m_ptmplProblem->GetNextDoc(pos);

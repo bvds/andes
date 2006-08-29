@@ -1192,11 +1192,11 @@ void CVector::UpdateVarNames(CString strOldName)
 		{
 			CString strNewXVar = m_strName + "_x";
 			CString strNewYVar = m_strName + "_y";
-			((CFBDDoc*)theApp.GetDocument())->m_strVarNames.AddTail(strNewXVar);
-			((CFBDDoc*)theApp.GetDocument())->m_strVarNames.AddTail(strNewYVar);
+			m_pDocument->m_strVarNames.AddTail(strNewXVar);
+			m_pDocument->m_strVarNames.AddTail(strNewYVar);
 			if (m_pDocument->UseZAxis()) {
 				CString strNewZVar = m_strName + "_z";
-				((CFBDDoc*)theApp.GetDocument())->m_strVarNames.AddTail(strNewZVar);
+				m_pDocument->m_strVarNames.AddTail(strNewZVar);
 			}
 		}
 		// Add theta/phi var if it is unknown, so it shows on solve-for list
@@ -1206,10 +1206,11 @@ void CVector::UpdateVarNames(CString strOldName)
 		} else if (! IsZeroMag() && UnknownDir()) {
 			strDirVar = "$q" + m_strName;
 		}
-		if (!strDirVar.IsEmpty())
-			((CFBDDoc*)theApp.GetDocument())->m_strVarNames.AddTail(strDirVar);		
+		if (!strDirVar.IsEmpty() && m_pDocument)
+			m_pDocument->m_strVarNames.AddTail(strDirVar);		
 	}
-	((CFBDDoc*)theApp.GetDocument())->m_strVarNames.AddTail(m_strName);
+	if (m_pDocument)
+		m_pDocument->m_strVarNames.AddTail(m_strName);
 }
 
 void CVector::RemoveVarNames(CString strOldName)
