@@ -5273,6 +5273,36 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Draw the net force in the same direction as the acceleration"))
   ))
 
+(defoperator draw-net-force-from-forces (?b ?t)
+  :preconditions 
+  (
+   (object ?b)
+   (time ?t)
+   ;; find all forces that are acting on ?b (without drawing them)
+   ;; and collect all distinct directions
+   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
+   ;; all forces acting on ?b have same direction
+   (test (and (not (member 'unknown ?dirs)) (= (length ?dirs) 1)))
+   (bind ?net-dir (first ?dirs))
+   ;; make sure net-force has not already been drawn
+   (not (vector ?b (net-force ?b :time ?t) ?any-dir))
+   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+     (debug "~&Drawing ~a net force for ~a at ~a.~%" ?net-dir ?b ?t)
+     )
+  :effects 
+  (
+   (vector ?b (net-force ?b :time ?t) ?net-dir)
+   (variable ?mag-var (mag (net-force ?b :time ?t)))
+   (variable ?dir-var (dir (net-force ?b :time ?t)))
+   (given (dir (net-force ?b :time ?t)) ?net-dir)
+   )
+  :hint
+  ((point (string "Since the forces acting on ~a ~a are all pointing in the same direction, the direction of the total force is known." 
+		  ?b (?t pp)))
+   (bottom-out (string "Draw a non-zero net force vector for ~A ~A at ~A." 
+		       ?b (?t pp) (?net-dir adj)))))
+
 (defoperator draw-net-force-unknown (?b ?t)
   :preconditions
   (    
