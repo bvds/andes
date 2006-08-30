@@ -5253,15 +5253,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; have any problems of this form; this would require another operator and
 ;; possibly something to determine accel dir as well if not given by motion.
 (defoperator draw-net-force-from-accel (?b ?t)
-  :preconditions (
-     (object ?b)
-     (time ?t)
-     (not (vector ?b (net-force ?b :time ?t) ?dont-care))
-     (vector ?b (accel ?b :time ?t) ?dir-accel)
-     (test (not (eq ?dir-accel 'unknown)))
-     (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-     (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
+  :preconditions 
+  (
+   (object ?b)
+   (time ?t)
+   ;; First, make sure we can't determine the net force directly
+   ;; find all forces that are acting on ?b (without drawing them)
+   ;; and collect all distinct directions
+   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
+   ;; forces with different directions are acting on ?b 
+   (test (or (member 'unknown ?dirs) (> (length ?dirs) 1)))
+   ;; acceleration vector drawn with known direction
+   (vector ?b (accel ?b :time ?t) ?dir-accel)
+   (test (not (eq ?dir-accel 'unknown)))
+   ;;
+   (not (vector ?b (net-force ?b :time ?t) ?dont-care))
+   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
     )
   :effects (
     (vector ?b (net-force ?b :time ?t) ?dir-accel)
