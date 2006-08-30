@@ -446,10 +446,21 @@ consed on if lists or as list otherwize."
 	(list-diff (cdr A) (cdr B) Count)
       (list-diff (cdr A) (cdr B) (+ 1 Count)))))
 
-
-
-
-
+(defun list-difference (A B &key (test #'unify))
+  "like set-difference, except that list order is significant"
+    (cond
+     ((null A) nil)
+     ((null B) A)
+     ((funcall test (car A) (car B)) 
+      (list-difference (cdr a) (cdr b) :test test))
+     ;; handle unambiguous insertions and deletions
+     ((not (member (car a) b :test test))
+      (cons (car A) (list-difference (cdr a) b :test test)))
+     ((not (member (car b) a :test test))
+      (list-difference a (cdr b) :test test))
+      ;; treat everything else as a discrepency
+     (t (cons (car A) (list-difference (cdr a) (cdr b) :test test)))))
+  
 ;;; -------------------------------------------------
 
 ;;; Sort things by the length that they 

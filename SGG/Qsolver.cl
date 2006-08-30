@@ -272,11 +272,15 @@
 	     ;; keep count)
 	     (format t "WARNING: two ways of generating ~s:~%" 
 		     (qsolres-id P))
-	     ;(format t "new path:~%")
-	     ;(pprint (qsolres-path P))
-	     ;(format t "~% existing [merged] path~%")
-             ;(pprint (qsolres-path P2))
-
+	     #|
+	     ;; give some help for source of difference
+	     (format t "  Difference in paths, first path:~%  ~S~%  Versus:~%  ~S~%"
+		     (list-difference (qsolres-path P) 
+				      (qsolres-path P2))
+		     (list-difference (qsolres-path P2) 
+				      (qsolres-path P)))
+	     |#
+	     ;;
 	     (when (setq diff (set-difference (qsolres-subeqns P) 
 					      (qsolres-subeqns P2)
 					      :test #'unify))
