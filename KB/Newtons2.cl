@@ -8034,6 +8034,24 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 				    (* (/ (* 2 ?m2) (+ ?m1 ?m2)) ?vvi)))
 			  (elastic-collision ?bodies (during ?t1 ?t2)))))
 
+;; Help solver with a two body elastic collision, equal masses, where
+;; one body starts at rest.
+(defoperator solver-eqn-for-stationary-equal-mass-elastic-collision 
+  (?b1 ?b2 ?t1 ?t2)
+  :preconditions (
+		  ;; ?b2 is starting at rest
+		  ;; ?b2-angle is the angle between the initial velocity
+		  ;;     of ?b1 and the final velocity of ?b2
+		  (stationary-equal-mass-elastic ?b1 ?b2 ?b2-angle 
+						 (during ?t1 ?t2))
+		  (test (member ?b1 ?bodies))
+		  (test (member ?b2 ?bodies))
+		  (variable ?magv1 (mag (velocity ?b1 :time ?t2)))
+		  (variable ?magv2 (mag (velocity ?b2 :time ?t2)))
+		  )
+  :effects ((solver-eqn (= ?magv1 (* ?magv2 (tan ?b2-angle)))
+			  (elastic-collision ?bodies (during ?t1 ?t2)))))
+
 (defoperator write-cons-ke-elastic (?bodies ?t1 ?t2)
   :preconditions 
   (
