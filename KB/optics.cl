@@ -1001,7 +1001,8 @@
   ( (eqn (= ?iout (* ?iin ?fraction-term)) 
 	 (polarizer-intensity ?beam ?incoming ?outgoing 
 			      ?fraction ?t ?angle-flag))
-    (assume using-snells-law (?beam ?incoming ?outgoing) ?angle-flag) )
+    ;; OK, this really doesn't have anything to do with Snell's law
+    (assume using-snells-law (?beam ?incoming ?outgoing ?t) nil ?angle-flag) )
   :hint (
       (point (string "Relate the intensity of ~A at ~A to the intensity at ~A." 
 		     ?beam ?outgoing ?incoming))
