@@ -1051,7 +1051,6 @@
 			  (reverse ?in-paths)))
    (bind ?out-caps (mapcar #'(lambda (x) (car (intersection x ?all-caps))) 
 			  ?out-paths))
-   (test (progn (format t "junction-rule-cap ~A ~A~%" ?in-caps ?out-caps) t))
    ;; define a variable for each capacitor   
    (map ?x ?in-caps (variable ?q-var (charge ?x :time ?t))
 	?q-var ?q-in-vars)
