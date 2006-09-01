@@ -929,7 +929,7 @@
   :preconditions 
   ((rdebug "Using point-charge-Efield-mag-contains ~%")
    (any-member ?sought ((mag (field ?loc electric ?b :time ?t ?t))
-			(mag (relative-position ?loc ?loc-source :time ?t))
+			(mag (relative-position ?loc ?b :time ?t))
 			(charge ?b :time ?t ?t)))
    (time ?t)
    (point-charge ?b)
