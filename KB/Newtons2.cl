@@ -5261,7 +5261,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 :effects ((net-force-dir ?b ?t ?net-dir)))
 
 (defoperator calculate-net-force-dir-unknown (?b ?t)
-  :preconditions ((unknown-forces))
+  :preconditions ((object ?b) (time ?t) (unknown-forces))
   :effects ((net-force-dir ?b ?t unknown)))
 
 ;; Here we draw the net force in the same direction as the known acceleration
@@ -5274,10 +5274,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-net-force-from-accel (?b ?t)
   :preconditions 
   (
-   (net-force-dir ?b ?t unknown)
    ;; acceleration vector drawn with known direction
    (vector ?b (accel ?b :time ?t) ?dir-accel)
    (test (not (eq ?dir-accel 'unknown)))
+   ;; can't determine direction from forces
+   (net-force-dir ?b ?t unknown)
    ;;
    (not (vector ?b (net-force ?b :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -5320,7 +5321,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-net-force-unknown (?b ?t)
   :preconditions
-  (    
+  (
    (net-force-dir ?b ?t unknown)
    ;; make sure it is not given in the acceleration
    (setof (vector ?b (accel ?b :time ?t) ?a-dir) ?a-dir ?a-dirs)
