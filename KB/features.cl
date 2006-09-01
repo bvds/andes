@@ -64,6 +64,8 @@
   (charge-on mass number-of))
 (def-feature-set gauss
   (charge-in electric-flux angle))
+(def-feature-set gauss-sum
+  (charge-on electric-flux angle))
 (def-feature-set ampere
   (current magnetic-line-integral))
 (def-feature-set EM-waves 
