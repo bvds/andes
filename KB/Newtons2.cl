@@ -5245,6 +5245,25 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ))
 
 
+(defoperator calculate-net-force-dir-from-forces (?b ?t)
+  :preconditions 
+  (
+   (object ?b)
+   (time ?t)
+   ;; find all forces that are acting on ?b (without drawing them)
+   ;; and collect all distinct directions
+   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
+   (not (unknown-forces))
+   ;; if all forces acting on ?b have same direction, return direction
+   (bind ?net-dir (if (and (not (member 'unknown ?dirs)) (= (length ?dirs) 1))
+			   (first ?dirs) 'unknown))
+   )
+:effects ((net-force-dir ?b ?t ?net-dir)))
+
+(defoperator calculate-net-force-dir-unknown (?b ?t)
+  :preconditions ((unknown-forces))
+  :effects ((net-force-dir ?b ?t unknown)))
+
 ;; Here we draw the net force in the same direction as the known acceleration
 ;; direction. 
 ;;
@@ -5255,14 +5274,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-net-force-from-accel (?b ?t)
   :preconditions 
   (
-   (object ?b)
-   (time ?t)
-   ;; First, make sure we can't determine the net force directly
-   ;; find all forces that are acting on ?b (without drawing them)
-   ;; and collect all distinct directions
-   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
-   ;; forces with different directions are acting on ?b 
-   (test (or (member 'unknown ?dirs) (> (length ?dirs) 1)))
+   (net-force-dir ?b ?t unknown)
    ;; acceleration vector drawn with known direction
    (vector ?b (accel ?b :time ?t) ?dir-accel)
    (test (not (eq ?dir-accel 'unknown)))
@@ -5279,20 +5291,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (given (dir (net-force ?b :time ?t)) ?dir-accel)
   )
   :hint (
-    (bottom-out (string "Draw the net force in the same direction as the acceleration"))
+    (bottom-out (string "Draw the net force in the same direction as the acceleration."))
   ))
 
 (defoperator draw-net-force-from-forces (?b ?t)
   :preconditions 
   (
-   (object ?b)
-   (time ?t)
-   ;; find all forces that are acting on ?b (without drawing them)
-   ;; and collect all distinct directions
-   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
-   ;; all forces acting on ?b have same direction
-   (test (and (not (member 'unknown ?dirs)) (= (length ?dirs) 1)))
-   (bind ?net-dir (first ?dirs))
+   (net-force-dir ?b ?t ?net-dir)
+   (test (not (eq ?net-dir 'unknown)))
    ;; make sure net-force has not already been drawn
    (not (vector ?b (net-force ?b :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -5315,13 +5321,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-net-force-unknown (?b ?t)
   :preconditions
   (    
-   (object ?b)
-   (time ?t)
-   ;; find all forces that are acting on ?b (without drawing them)
-   ;; and collect all distinct directions
-   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
-   ;; forces with different directions are acting on ?b 
-   (test (or (member 'unknown ?dirs) (> (length ?dirs) 1)))
+   (net-force-dir ?b ?t unknown)
    ;; make sure it is not given in the acceleration
    (setof (vector ?b (accel ?b :time ?t) ?a-dir) ?a-dir ?a-dirs)
    (test (or (null ?a-dirs) (member 'unknown ?a-dirs)))
