@@ -3259,7 +3259,7 @@
 ;;;                         Gauss' law
 ;;;
 
-(def-psmclass gauss-law (gauss-law ?surface :time ?t)
+(def-psmclass gauss-law (gauss-law ?surface :sum ?flag :time ?t)
   :complexity major                   ; must explicitly use
   :short-name "Gauss' law"
   :english ("Gauss' law")
@@ -3277,20 +3277,47 @@
   :effects
   ( (eqn-contains (gauss-law ?surface :time ?t) ?sought)))
 
-(defoperator write-gauss-law (?surface)
+(defoperator gauss-law-sum-contains (?sought)
   :preconditions
-  ( (variable  ?Q (charge ?surface :surface t))
-    (variable  ?phi (flux ?surface electric :time ?t)) )
+  (
+   (closed-surface ?surface . ?rest)
+   (at-place ?loc ?surface)
+   (any-member ?sought ((charge ?loc)
+			(flux ?surface electric :time ?t)))
+   (time ?t) ;in case t is not bound
+   )
   :effects
-  ( (eqn  (= ?phi (/ ?Q |eps0|))
-	  (gauss-law ?surface :time ?t)) )
+  ( (eqn-contains (gauss-law ?surface :sum t :time ?t) ?sought)))
+
+(defoperator write-charges-as-net (?surface ?t)
+  :preconditions ((variable  ?Q (charge ?surface :surface t)))
+  :effects ((total-charge-term ?Q ?surface ?t nil)))
+
+(defoperator write-charges-as-sum (?surface ?t)
+  :preconditions 
+  (
+   (setof (at-place ?loc ?surface) ?loc ?locs)
+   (map ?loc ?locs (variable ?Q-var (charge ?loc)) ?Q-var ?Q-vars)
+   (bind ?Q-term (format-plus ?Q-vars))
+   )
+  :effects ((total-charge-term ?Q-term ?surface ?t t)))
+
+(defoperator write-gauss-law (?surface ?t)
+  :preconditions
+  (
+   (variable  ?phi (flux ?surface electric :time ?t)) 
+   (total-charge-term ?Q-term ?surface ?t ?flag)
+   )
+  :effects
+  ( (eqn  (= ?phi (/ ?Q-term |eps0|))
+	  (gauss-law ?surface :sum ?flag :time ?t)) )
   :hint
   ( (point (string "Note that you can relate the flux through ~A to the charge inside ~A."
 		   ?surface ?surface))
     (teach (string "Gauss law states that the electric flux through a closed surface is equal to the
 total charge inside divided by $e0."))
     (bottom-out (string "Write the equation ~A ."
-			((= ?phi (/ ?Q |eps0|)) algebra) )) ))
+			((= ?phi (/ ?Q-term |eps0|)) algebra) )) ))
 
 (def-psmclass sum-fluxes (sum-fluxes ?b ?parts ?type ?t)
   :complexity minor
