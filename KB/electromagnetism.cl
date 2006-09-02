@@ -864,7 +864,8 @@
    ;; ?b is point charge source of field at ?loc
    (body ?b)
    (any-member ?tot (?t nil)) ;may want to extend to other times
-   (vector ?dontcare (field ?loc electric ?b :time ?tot) ?dir1) 
+   (vector ?dontcare1 (field ?loc electric ?b :time ?tot) ?dir1) 
+   (vector ?dontcare2 (relative-position ?loc ?b :time ?t) ?dir2)
    (axes-for ?b ?rot)
    (rdebug "Fired draw-point-charge-Efield-diagram ~%")
    )
@@ -892,6 +893,10 @@
   :preconditions 
   (
    (rdebug "Using write-point-charge-Efield-compo ~%")
+   ;; make sure r-hat compo doesn't vanish
+   ;; For vanishing components, the projection equations should be used
+   (in-wm (vector ?whatever (relative-position ?loc ?b :time ?t) ?r-dir))
+   (test (non-zero-projectionp ?r-dir ?xy ?rot))
    ;; b is point-charge source of field
    (any-member ?tot (?t nil))
    (variable ?E_x (compo ?xy ?rot (field ?loc electric ?b :time ?tot)))
