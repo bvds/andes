@@ -147,26 +147,6 @@
 				      ?rhat-compo)) algebra)))
   ))
 
-(defoperator write-zero-coulomb-compo (?b1 ?b2 ?t ?xy ?rot)
-  :preconditions 
-  (
-   ;; make sure r-hat compo vanishes
-   (in-wm (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?r-dir))
-   (test (not (non-zero-projectionp ?r-dir ?xy ?rot)))
-   (variable ?F_xy  (compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
-   )
-  :effects ((eqn (= ?F_xy 0)
-		 (compo-eqn coulomb-force ?xy ?rot 
-			    (coulomb-vec ?b1 ?b2 ?t nil))))
-  :hint 
-  ((point (string "Note the ~A component of the separation of ~A and ~A."
-		  (?xy axis-name) ?b1 ?b2))
-     (teach (string "Since the charges have the same ~A coordinate, the ~A component of the Coulomb force will be zero." (?xy axis-name) (?xy axis-name)))
-     (bottom-out (string "Write the equation ~A." 
-			 ((= ?F_xy 0) algebra)))
-  ))
-
-
 
 ;;; We have two main principles for electric fields:
 ;;; charge-force-Efield: vector equation E_x = F_x/q   (equiv:  F_x = q*E_x)
@@ -219,7 +199,7 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
-   (not (vector ?whatever (field ?loc electric ?source :time ?t) ?dir))     
+   (not (vector ?whatever (field ?loc electric ?source :time ?t) ?any-dir))     
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -251,7 +231,7 @@
    ;; However, we assume that there is some other region that does have 
    ;; a given field source.
    (given-field ?source electric) ;specify the source by hand
-   (not (vector ?any-body (field ?loc electric ?source :time ?t) ?dir1))     
+   (not (vector ?any-body (field ?loc electric ?source :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" 
 			      (body-name ?loc) (body-name ?source) 
 			      (time-abbrev ?t)))
@@ -286,13 +266,15 @@
 	     (null (member 'changing-field (problem-features *cp*)))))
    ;; ?b is "test charge" feeling force at loc at some time.
     (at-place ?b ?loc :time ?t-place)
-    ;; make sure direction of force on ?b is given
-    (given (dir (force ?b ?source electric :time ?t-force)) ?F-dir)
-    (test (tinsidep ?t ?t-force))
     ;; make sure field direction at loc of b not given, directly 
     ;; or via components:
     (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
     (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
+    ;; make sure direction of force on ?b is given
+    ;; (given (dir (force ...)) ...) is a side-effect of several drawing rules;
+    ;; need in-wm to prevent recursion with find-electric-force-given-field-dir
+    (in-wm (given (dir (force ?b ?source electric :time ?t-force)) ?F-dir))
+    (test (tinsidep ?t ?t-force))
     ;; require sign of charge to be given
     (sign-charge ?b ?pos-neg)
     (bind ?Field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
@@ -325,7 +307,7 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    (given-field ?source ?type) ;field due to ?source has unknown dir.
-   (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?dir))
+   (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?any-dir))
    ;; make sure field direction not given, directly 
    (not (given (dir (field ?loc ?type ?source :time ?t)) ?dontcare3))
    ;; inside a conductor is handled differently
@@ -359,10 +341,12 @@
    (point-charge ?b)
    (test (or (null ?t) (time-pointp ?t)))
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
-   (in-wm (given (dir (relative-position ?loc ?b :time ?t)) ?rdir))
+   (given (dir (relative-position ?loc ?b :time ?t)) ?rdir)
    (sign-charge ?b ?pos-neg)
    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?rdir (opposite ?rdir)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
+   ;; make sure it has not already been drawn
+   (not (vector ?any-loc (field ?loc electric ?b :time ?t) ?whatever))
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -394,7 +378,7 @@
    ;; Make sure source is point-charge
    (point-charge ?b)
    ;; make sure ?loc not equals ?loc-source?
-   (not (vector ?dontcare (field ?loc electric ?b :time ?t1) ?dir))
+   (not (vector ?dontcare (field ?loc electric ?b :time ?t1) ?any-dir))
    (not (given (dir (field ?loc electric ?b :time ?t2)) ?dontcare3))
    (not (given (dir (relative-position ?loc ?b :time ?t-any)) ?whatever))
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
@@ -427,9 +411,14 @@
 
 ;; make sure force exists apart from drawing
 (defoperator find-electric-force (?b ?agent ?t)
-  :preconditions (
-		  
+  :preconditions (		  
     (time ?t)
+    (not (given (dir (field ?b electric ?agent :time ?t-field)) ?field-dir)
+	 (tinsidep ?t ?t-field))
+    ;; The direction is a side-effect of draw-coulomb-force and
+    ;; draw-electric-force-given-field-dir
+    ;; Ideally, find-electric-force would only apply when the others don't.
+    ;; As a work-around, use (in-wm ...)
     (in-wm (given (dir (force ?b ?agent electric :time ?t-force)) ?dir-expr))
     (test (tinsidep ?t ?t-force))
     ;; check that something else hasn't defined this force.
@@ -445,7 +434,11 @@
   :preconditions 
   ((rdebug "Using draw-Eforce-given-dir ~%")
    (force ?b ?source electric ?t ?dir action)
-   (not (vector ?b (force ?b ?source electric :time ?t) ?whatever))
+   ;; from find-electric-force above
+   (in-wm (given (dir (force ?b ?source electric :time ?t-force)) ?dir-expr))
+   (test (tinsidep ?t ?t-force))
+   ;;
+   (not (vector ?any-b (force ?b ?source electric :time ?t) ?whatever))
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -466,33 +459,75 @@
     (bottom-out (string "Use the force drawing tool to draw the electric force on ~a due to ~a ~a at ~a." ?b (?source agent) (?t pp) ?dir))
 ))
 
-(defoperator find-electric-force-unknown (?b ?agent ?t)
+;; Force due to a Coulombs law interaction where the electric field
+;; is not used.
+
+(defoperator calculate-coulomb-force-dir (?b ?source ?t)
   :preconditions 
   (
+   (given (dir (relative-position ?b ?source :time ?t)) ?rdir)
+   ;; require sign of both charges to be known
+   (sign-charge ?b ?pos-neg1)
+   (sign-charge ?source ?pos-neg2)
+   (bind ?F-dir (if (eq ?pos-neg1 ?pos-neg2) ?rdir (opposite ?rdir)))
+   )	
+  :effects ((coulomb-force-dir ?F-dir ?b ?source ?t)))
+
+(defoperator find-coulomb-force (?b ?agent ?t)
+  :preconditions (
    (coulomb-bodies . ?bodies)	  
    (time ?t)
    (object ?b)
    (object ?agent)
-   (not (given (dir (force ?b1 ?b2 electric :time ?t-force)) ?dir-expr)
-	(and (member ?b1 (list ?b ?agent) :test #'equal) 
-	     (member ?b2 (list ?b ?agent) :test #'equal) 
-	     (tinsidep ?t ?t-force)))
-   (test (member ?b ?bodies :test #'equal))
-   (test (member ?agent ?bodies :test #'equal))
+   (not (given (dir (force ?b ?agent electric :time ?t-force)) ?dir1-expr)
+	(tinsidep ?t ?t-force))
+   (not (given (dir (force ?agent ?b electric :time ?t-force)) ?dir2-expr)
+	(tinsidep ?t ?t-force))
+   (any-member ?b ?bodies)
+   (any-member ?agent ?bodies)
    (test (not (equal ?b ?agent)))
-   ;; check that something else hasn't defined this force.
+   ;; Find any direction that can be calculated or 'unknown
+   (setof (coulomb-force-dir ?F-dir ?b ?agent ?t) ?F-dir ?F-dirs)
+   (bind ?final (if ?F-dirs (first ?F-dirs) 'unknown))
+    ;; check that something else hasn't defined this force.
    (not (force ?b ?agent electric ?t . ?dont-care)) 
   )
   :effects (
-    (force ?b ?agent electric ?t unknown nil)
-    (force-given-at ?b ?agent electric ?t unknown nil)
+	    ;; We don't want to invoke find-reaction force since the
+	    ;; reaction can be gotten through opposite-relative-position
+    (force ?b ?agent electric ?t ?final coulomb)
+    (force-given-at ?b ?agent electric ?t ?final coulomb)
   ))
 
-
-(defoperator draw-electric-force-unknown (?b ?source ?t)
+(defoperator draw-coulomb-force (?b ?source ?t)
   :preconditions 
-  ((rdebug "Using draw-electric-force-unknown ~%")
-   (force ?b ?source electric ?t unknown nil)
+  (
+   ;; ensure the direction was found based on Coulomb's law
+   (force ?b ?source electric ?t ?F-dir coulomb)
+   (test (not (eq ?F-dir 'unknown)))
+   (not (vector ?any-b (force ?b ?source electric :time ?t) ?any-dir))
+   (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" 
+			      (body-name ?b) (body-name ?source)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   )
+:effects (
+	  (vector ?b (force ?b ?source electric :time ?t) ?F-dir)
+	  (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
+	  (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
+	  (given (dir (force ?b ?source electric :time ?t)) ?F-dir)
+	  )
+:hint (
+       (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the relative position of the two bodies." ?b (?source agent)))
+       (teach (string "Remember that opposite charges attract and like charges repel."))
+       (bottom-out (string "Use the force drawing tool (labeled F) to draw the electric force on ~a due to ~a in the ~a direction." 
+			   ?b (?source agent) (?F-dir adj)))
+       ))
+
+(defoperator draw-coulomb-force-unknown (?b ?source ?t)
+  :preconditions 
+  (
+   (force ?b ?source electric ?t unknown coulomb)
    (not (vector ?b (force ?b ?source electric :time ?t) ?whatever))
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
@@ -517,12 +552,16 @@
   :preconditions 
   ((rdebug "Using find-electric-force-given-field-dir~%")
    (time ?t)
-   ;; make sure E-field direction given at loc of ?b
-   ;; needs in-wm or recursion with draw-efield-given-force-dir
-   (in-wm (given (dir (field ?loc electric ?source :time ?t ?t)) ?field-dir))
    ;; make sure force direction not given, directly or via components:
-   (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
-   (not (given (compo ?xy ?rot (force ?b ?source electric :time ?t)) ?dontc2))
+   (not (given (dir (force ?b ?source electric :time ?t-force)) ?dontcare1) 
+	(tinsidep ?t ?t-force))
+   (not (given (compo ?xy ?rot (force ?b ?source electric :time ?t-force)) 
+	       ?dontc2)
+	(tinsidep ?t ?t-force))
+   ;; make sure E-field direction given at loc of ?b
+   ;; this must be after above test or recursion with 
+   ;; draw-efield-given-force-dir
+   (given (dir (field ?loc electric ?source :time ?t ?t)) ?field-dir)
    ;; make sure field is acting on the particle
    (at-place ?b ?loc :time ?t ?t)
    ;; require sign of charge to be known
@@ -538,10 +577,14 @@
   :preconditions 
   (
    (force ?b ?source electric ?t ?F-dir action)
-   ;; already found above
+   (test (not (eq ?F-dir 'unknown)))
+   ;; found above, make sure this is right situation
+   (in-wm (given (dir (field ?loc electric ?source :time ?t ?t)) ?field-dir))
+   (in-wm (at-place ?b ?loc :time ?t ?t))
+   ;; already found above, use in hints
    (in-wm (sign-charge ?b ?pos-neg))
-   (test (member ?pos-neg '(pos neg)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
+   (not (vector ?any-body (force ?b ?source electric :time ?t) ?whatever))
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" 
 			      (body-name ?b) (body-name ?source)
 			      (time-abbrev ?t)))
@@ -589,7 +632,7 @@
   :preconditions 
   (
    (force ?b ?source electric ?t unknown from-field)
-   (not (vector ?b (force ?b ?source electric :time ?t) ?dir))
+   (not (vector ?any-b (force ?b ?source electric :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "F_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -888,7 +931,6 @@
             (given (compo y 0 (relative-position ?loc origin :time ?t)) ?value2) ))
 
 
-;; This is equation for the component of field, so includes a sort of projection.
 (defoperator write-point-charge-Efield-compo (?b ?loc ?t ?xy ?rot ?form)
   :preconditions 
   (
@@ -1190,7 +1232,7 @@
    ;; ?t may be timeless, but it does get bound
    (given (dir (net-field ?loc ?type :time ?t)) ?dir-B)  
    (test (not (eq ?dir-B 'zero)))
-   (not (vector ?whatever (net-field ?loc ?type :time ?t) ?dir1))     
+   (not (vector ?whatever (net-field ?loc ?type :time ?t) ?any-dir)) 
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
