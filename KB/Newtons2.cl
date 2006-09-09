@@ -1209,10 +1209,10 @@
   :hint
   ((point (string "Time intervals can be added together."))
    (teach (kcd "write-sum-times")
-          (string "Since the time interval [~a,~a] is equal to the union of its subintervals, its duration must be the sum of their durations." 
-		  (?tt second) (?tt third)))
+          (string "Since ~A is equal to the union of its subintervals, its duration must be the sum of their durations." 
+		  ((duration ?tt) indef-np)))
    (bottom-out (string "Write the equation ~a."
-		        ((= ?t02-var (+ . ?t-vars)) algebra)))
+		        ((= ?tt-var (+ . ?t-vars)) algebra)))
    ))
 
 ;;; Following uses constancy of a quantity over a containing interval to
