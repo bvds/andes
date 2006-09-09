@@ -1209,8 +1209,8 @@
   :hint
   ((point (string "Time intervals can be added together."))
    (teach (kcd "write-sum-times")
-          (string "Since ~A is equal to the union of its subintervals, its duration must be the sum of their durations." 
-		  ((duration ?tt) indef-np)))
+          (string "Since the time interval ~A is equal to the union of its subintervals, its duration must be the sum of their durations." 
+		  ?tt))
    (bottom-out (string "Write the equation ~a."
 		        ((= ?tt-var (+ . ?t-vars)) algebra)))
    ))
