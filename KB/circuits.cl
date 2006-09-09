@@ -1386,7 +1386,7 @@
 		       ((= ?q2-var (* ?q1-var (exp (/ (- ?t-var) ?tau-var)))) algebra) ))
    ))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;  circuit with battery, resistor, and capacitor in series.
 ;;;
@@ -1403,25 +1403,37 @@
   (
    ;; in principle, should matching under cyclic permutations
    ;; maybe do this by an extension to unify
-   ;; also, could generalize the time to contain ?t1 and ?t2
+   ;; also could do endpoints that are before ?t2
    (closed-loop (?bat ?res ?cap) :time (during ?t1 ?t2))
    (circuit-component ?bat battery)
    (circuit-component ?res resistor)
    (circuit-component ?cap capacitor)
    (any-member ?sought ((charge ?cap :time ?t2)
+			(capacitance ?cap)
+			(voltage-across ?bat :time (during ?t1 ?t2))
 			(duration (during ?t1 ?t2))
 			(time-constant orderless ?res ?cap)
 			))
-   (time (during ?t1 ?t2))		;sanity test
    (given (charge ?cap :time ?t1) 0) ;boundary condition
+   ;; capacitance cannot be found algebraically except 
+   ;; in the asymptotic case
+   (setof (very-long-time (during ?t1 ?t2)) nil ?very-long)
+   (test (or (not (eq (first ?sought) 'capacitance)) ?very-long))
+   ;; can't find duration or time-constant in asymptotic case
+   (test (not (and (member (first ?sought) '(duration time-constant))
+			   ?very-long)))
    )
-  :effects(
-	   (eqn-contains (charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2)) ?sought)
-	   ))
+  :effects
+  (
+   (eqn-contains (charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))
+		 ?sought)
+   ))
+
 
 (defoperator charging-capacitor-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
+   (not (very-long-time (during ?t1 ?t2)))
    (variable ?q-var (charge ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
@@ -1436,6 +1448,24 @@
    (point (string "Write the equation for the charge on the capacitor ~a at time ~a." ?cap (?t2 time)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q-var (* ?c-var ?v-var (- 1 (exp (/ (- ?t-var) ?tau-var))))) algebra) ))
+   ))
+
+(defoperator write-charging-capacitor-asymptotic (?bat ?res ?cap ?t1 ?t2)
+  :preconditions 
+  (
+   (in-wm (very-long-time (during ?t1 ?t2)))
+   (variable ?q-var (charge ?cap :time ?t2))
+   (variable ?c-var (capacitance ?cap))
+   (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
+   )
+  :effects 
+  ((eqn (= ?q-var (* ?c-var ?v-var))
+	(charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))))
+  :hint
+  (
+   (point (string "Write the equation for the final charge on the capacitor, at time ~a." ?cap (?t2 time)))
+   (bottom-out (string "Write the equation ~a"
+		       ((= ?q-var (* ?c-var ?v-var)) algebra) ))
    ))
 
 ;;;
