@@ -1463,7 +1463,7 @@
 	(charging-capacitor-at-time (?bat ?res ?cap) (during ?t1 ?t2))))
   :hint
   (
-   (point (string "Write the equation for the final charge on capacitor ~A after a long time passes, at time ~a." ?cap (?t2 time)))
+   (point (string "Write the equation for the final charge on capacitor ~A, after a long time has passed, at time ~a." ?cap (?t2 time)))
    (bottom-out (string "Write the equation ~a"
 		       ((= ?q-var (* ?c-var ?v-var)) algebra) ))
    ))
