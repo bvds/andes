@@ -1115,34 +1115,34 @@
   :short-name "energy stored in a capacitor"
   :english ("The formula for energy stored in a capacitor")
   :expformat("Applying the formula for energy stored in a capacitor to ~A" (nlg ?cap))
-  :eqnFormat ("U = 0.5*Q*V"))
+  :eqnFormat ("U = 0.5*C*V^2"))
 
 (defoperator cap-energy-contains (?sought)
-  :preconditions (
-		  (any-member ?sought ((charge ?cap :time ?t ?t)
-				       (voltage-across ?cap :time ?t ?t)
-				       (stored-energy ?cap :time ?t)))
-		  (circuit-component ?cap capacitor)
-		  (time ?t) ;not always bound
-		  (test (time-pointp ?t))
-		  ) :effects ( 
-		  (eqn-contains (cap-energy ?cap ?t) ?sought) 
-		  ))
+  :preconditions 
+  (
+   (any-member ?sought ((capacitance ?cap)
+			(voltage-across ?cap :time ?t ?t)
+			(stored-energy ?cap :time ?t)))
+   (circuit-component ?cap capacitor)
+   (time ?t) ;not always bound
+   (test (time-pointp ?t))
+   ) 
+  :effects ((eqn-contains (cap-energy ?cap ?t) ?sought) ))
 
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
 		  (any-member ?tot (?t nil)) 
-		  (variable ?Q (charge ?cap :time ?tot))
-		  (any-member ?tot2 (?t nil)) 
-		  (variable ?V (voltage-across ?cap :time ?tot2))
+		  (variable ?C (capacitance ?cap))
+		  (variable ?V (voltage-across ?cap :time ?tot))
 		  (variable ?U (stored-energy ?cap :time ?t))
 		  )
   :effects (
-	    (eqn (= ?U (* 0.5 ?Q ?V)) (cap-energy ?cap ?t))
+	    (eqn (= ?U (* 0.5 ?C (^ ?V 2))) (cap-energy ?cap ?t))
 	    )
   :hint (
-	 (teach (string "The electric energy stored in a capacitor can be calculated as one half times the charge on the capacitor times the voltage across the capacitor.  This formula can be combined with the definition of capacitance to calculate the energy from other variables."))
-	 (bottom-out (string "Write the equation ~A" ((= ?U (* 0.5 ?Q ?V)) algebra)))
+	 (teach (string "The electric energy stored in a capacitor is one half time the capacitance times the square of the voltage across the capacitor."))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?U (* 0.5 ?C (^ ?V 2))) algebra)))
 	 ))
 
 
