@@ -875,7 +875,7 @@
   :complexity major
   :short-name ("point charge field (~A component)" (axis-name ?axis))
   :english ("the formula for electric field due to a point charge")
-  :ExpFormat ("calculating for electric field at ~A due to ~a"
+  :ExpFormat ("calculating the electric field at ~A due to ~a"
 	      (nlg ?loc) (nlg ?body) )
   :EqnFormat ("E_~a = (kelec*q/r^2) * r_~a/r" 
 	      (axis-name ?axis) (axis-name ?axis)))
