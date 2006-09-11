@@ -175,7 +175,7 @@
 	 (leaf magnetic-dipole-energy :tutorial "Dipoles")
 	 (leaf electromagnetic-wave-field-amplitude)
 	 )
- (group "DC Circuits" 
+ (group "Circuits" 
 	 (leaf loop-rule :tutorial "Loop Rule")
 	 (leaf junction-rule :tutorial "Junction Rule")
 	 (leaf electric-power :tutorial "Electric Power")

@@ -155,7 +155,7 @@ LEAF	$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x    torque for magn
 LEAF	U = -$m*B*cos($q$m - $qB) or U = -($m_x*B_x + $m_y*B_y)    potential energy of magnetic dipole	magnetic-dipole-energy	Dipoles
 LEAF	E = B*c    ratio of fields in electromagnetic wave	electromagnetic-wave-field-amplitude	
 END_GROUP	Electricity and Magnetism		
-GROUP	DC Circuits		
+GROUP	Circuits		
 LEAF	V1 + V2 + V3 ... = 0    Kirchoff's loop rule	loop-rule	Loop Rule
 LEAF	Iin = Iout    Kirchoff's junction rule	junction-rule	Junction Rule
 LEAF	P = V*I    electric power	electric-power	Electric Power
@@ -193,7 +193,7 @@ LEAF	$w = sqrt(1/(L*C)-R^2/(2*L)^2)    RLC angular frequency	rlc-angular-frequen
 LEAF	V1/N1 = V2/N2    transformer voltage relation	transformer-voltage	
 LEAF	P1 = P2    transformer power relation	transformer-power	
 END_GROUP	Inductance		
-END_GROUP	DC Circuits		
+END_GROUP	Circuits		
 GROUP	Optics		
 LEAF	1/do + 1/di = 1/f    thin lens/mirror equation	lens-eqn	Lens Equation
 LEAF	m = -di/do    (lateral) magnification	magnification-eqn	Magnification
