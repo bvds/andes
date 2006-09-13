@@ -539,8 +539,10 @@
 				      
 	(state (error-interp-state ei)))
     (cond 
+     ;; There is only a small chance that a student would mistakenly
+     ;; define a quantity they have already defined *and* do it incorrectly.
      ((eq state **done-already**)
-      (setq prob (* prob 0.5)))
+      (setq prob (* prob 0.01)))
      ((eq state **premature-entry**)
       (setq prob (* prob 0.3)))
      ((eq state **premature-subst**)
