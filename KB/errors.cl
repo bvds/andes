@@ -121,7 +121,7 @@
 ;;;
 ;;; (no-student <pattern>)
 ;;;  If the <pattern> of a (no-student <pattern>) condition never unifies with
-;;;  the entry proposition of a and existing correct student entry, 
+;;;  the entry proposition of a an existing correct student entry, 
 ;;;  then succeed.
 ;;;
 ;;; (correct <pattern>)
