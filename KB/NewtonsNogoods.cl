@@ -182,6 +182,16 @@
   :specs ("Prevent both component and magnitude form of a vector equation")
   :message (Both component and magnitude forms for ?family-id))
 
+;; Don't use the fact that the magnitude of a vector is constant
+;; along with the fact that its components are constant
+(defnogood component-or-magnitude-constant
+    ((constant-vector ?quant ?t)
+     (constant-compo ?quant ?t)
+     ;; asserted in apply-vector-PSM* and mag-pyth
+     )
+  :specs ("Prevent both component and magnitude of a vector to be constant")
+  :message (Both component and magnitude forms for ?quant))
+
 ;; Get inconsistant solutions in ref3a when both complimentary-angles
 ;; and angle-direction are used on the same triangle.
 (defnogood complimentary-or-angle-direction 

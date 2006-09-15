@@ -1292,6 +1292,7 @@
   :effects (
    (constant (mag ?quant) ?t-constant)
    (constant (dir ?quant) ?t-constant)
+   (assume constant-vector ?quant ?t-constant)
   ))
 
 (defoperator constant-vector-components (?quant ?t-constant)
@@ -1303,7 +1304,10 @@
    (axes-for ?b ?rot)
    (get-axis ?xy ?rot)
    )
-  :effects ((constant (compo ?xy ?rot ?quant) ?t-constant)))
+  :effects (
+	    (constant (compo ?xy ?rot ?quant) ?t-constant)
+	    (assume constant-compo ?quant ?t-constant)
+   ))
 
 ;;;;
 ;;;;  In problems where no time is specified, make a nil
