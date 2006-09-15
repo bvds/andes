@@ -971,7 +971,9 @@
    ;; BvdS:  maybe want to specify that this is as a given so
    ;; that students don't have to draw the vector
    ;;
-   ;; (variable ?phi (dir (relative-position ?source ?observer :time ?t-o)))
+   ;; specify same direction at both times to avoid overlap
+   ;; with "coming" and "going" frequencies
+   (given (dir (relative-position ?source ?observer :time ?t-s)) ?phi)
    (given (dir (relative-position ?source ?observer :time ?t-o)) ?phi)
    ;; Doesn't work:
    ;; (vector ?observer (relative-position ?source ?observer :time ?t-o) ?phi)
