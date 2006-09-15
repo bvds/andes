@@ -1283,22 +1283,27 @@
 		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
    ))
 
-;; Following expands (constant (accel ?b) ?t) to derive constancy of 
-;; magnitude and direction attributes. This rule functions a bit like a macro 
-;; expansion, it exists to let us write more concise statements in terms of 
-;; the vector quantity which are used in constant acceleration preconds and
-;; then make use of it where needed to propagate values of vector magnitude 
-;; or direction. 
-;; Could be revised to work for any vector quantity.
-(defoperator use-constant-accel (?b ?t-constant)
-  :preconditions (
-   (constant (accel ?b) ?t-constant)
-   (object ?b)
-  )
+;; declaring a vector to be constant means it magnitude,
+;; direction and components are all constant.
+
+(defoperator constant-vectors (?quant ?t-constant)
+  ;; in-wm or infinite loop
+  :preconditions ((in-wm (constant ?quant ?t-constant)))
   :effects (
-   (constant (mag (accel ?b)) ?t-constant)
-   (constant (dir (accel ?b)) ?t-constant)
+   (constant (mag ?quant) ?t-constant)
+   (constant (dir ?quant) ?t-constant)
   ))
+
+(defoperator constant-vector-components (?quant ?t-constant)
+  ;; in-wm or infinite loop
+  :preconditions 
+  (
+   (in-wm (constant ?quant ?t-constant))
+   (bind ?b (second ?quant))
+   (axes-for ?b ?rot)
+   (get-axis ?xy ?rot)
+   )
+  :effects ((constant (compo ?xy ?rot ?quant) ?t-constant)))
 
 ;;;;
 ;;;;  In problems where no time is specified, make a nil
