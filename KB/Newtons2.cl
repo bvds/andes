@@ -1265,7 +1265,7 @@
 ;;; Specify (constant ?quant ?time inclusive) in givens for this form.
 (defoperator inherit-constant-value2 (?quant ?t-constant ?t1)
   :preconditions (
-    (in-wm (constant ?quant ?t-constant inclusive))
+    (constant ?quant ?t-constant inclusive)
     (time ?t1)
     (test (and (not (equal ?t1 ?t-constant))
                (tinsidep-include-endpoints ?t1 ?t-constant)))
@@ -1286,27 +1286,27 @@
 ;; declaring a vector to be constant means it magnitude,
 ;; direction and components are all constant.
 
-(defoperator constant-vectors (?quant ?t-constant)
+(defoperator constant-vectors (?quant ?rest)
   ;; in-wm or infinite loop
-  :preconditions ((in-wm (constant ?quant ?t-constant)))
+  :preconditions ((in-wm (constant ?quant . ?rest)))
   :effects (
-   (constant (mag ?quant) ?t-constant)
-   (constant (dir ?quant) ?t-constant)
-   (assume constant-vector ?quant ?t-constant)
+   (constant (mag ?quant) . ?rest)
+   (constant (dir ?quant) . ?rest)
+   (assume constant-vector ?quant . ?rest)
   ))
 
-(defoperator constant-vector-components (?quant ?t-constant)
+(defoperator constant-vector-components (?quant ?rest)
   ;; in-wm or infinite loop
   :preconditions 
   (
-   (in-wm (constant ?quant ?t-constant))
+   (in-wm (constant ?quant . ?rest))
    (bind ?b (second ?quant))
    (axes-for ?b ?rot)
    (get-axis ?xy ?rot)
    )
   :effects (
-	    (constant (compo ?xy ?rot ?quant) ?t-constant)
-	    (assume constant-compo ?quant ?t-constant)
+	    (constant (compo ?xy ?rot ?quant) . ?rest)
+	    (assume constant-compo ?quant . ?rest)
    ))
 
 ;;;;
