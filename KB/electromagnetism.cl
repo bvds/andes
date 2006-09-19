@@ -2331,6 +2331,70 @@
 		     ?loc (?source agent) (?dir-B adj)))
         )) 
 
+(defoperator draw-Bfield-point-particle (?loc ?b ?t)
+  :preconditions 
+  (
+   (point-charge ?b) ;Make sure source is point-charge
+   (given (dir (velocity ?b :time ?t)) ?dir-v)
+   (given (dir (relative-position ?loc ?b :time ?t)) ?dir-r)
+   ;; only use time when allowed by feature changing-field
+   (test (eq (null ?t) 
+	     (null (member 'changing-field (problem-features *cp*)))))
+   (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
+   (test ?cross-dir) ;make sure direction can be determined
+   (test (not (eq ?cross-dir 'zero)))
+   (sign-charge ?b ?pos-neg)    ;require sign of charge to be given
+   (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
+   (bind ?dir-B (if (eq ?pos-neg 'pos) ?cross-dir (opposite ?cross-dir)))
+   (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ;; direction not explicitly given
+   (not (given (dir (field ?loc magnetic ?b :time ?t)) ?any-dir))
+   )
+  :effects (
+           (vector ?loc (field ?loc magnetic ?wire :time ?t) ?dir-B)
+           (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
+           (variable ?dir-var (dir (field ?loc magnetic ?wire :time ?t)))
+           (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
+  )
+  :hint (
+      (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savert law."))
+      ;; This should be replaced by a tutorial.  It is rather cumbersome
+      ;; to explain in word form.
+      (teach (string "Look up the Biot-Savert Law in your textbook."))
+      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Thus, the cross product is in the direction ~A.  Since the charge is ~A, the resulting magnetic field is in the~A direction.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the direction, ~A." 
+           (?dir-v adj) ?loc (?dir-r adj) (?cross-dir adj) (?pos-neg adj)
+	   (?same-or-opposite adj) ?loc ?b (?dir-B adj)))
+  ))
+
+(defoperator draw-Bfield-point-particle-zero (?loc ?b ?t)
+  :preconditions 
+  (
+   (point-charge ?b) ;Make sure source is point-charge
+   (given (dir (velocity ?b :time ?t)) ?dir-v)
+   (given (dir (relative-position ?loc ?b :time ?t)) ?dir-r)
+   ;; only use time when allowed by feature changing-field
+   (test (eq (null ?t) 
+	     (null (member 'changing-field (problem-features *cp*)))))
+   (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
+   (test (eq ?cross-dir 'zero))
+   (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
+			      (time-abbrev ?t)))
+   )
+  :effects (
+           (vector ?loc (field ?loc magnetic ?wire :time ?t) ?dir-B)
+           (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
+  )
+  :hint (
+      (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savert law."))
+      ;; This should be replaced by a tutorial.  It is rather cumbersome
+      ;; to explain in word form.
+      (teach (string "Look up the Biot-Savert Law in your textbook."))
+      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Since these two vectors point in the same (or opposite) direction, the cross product is zero.  Use the magnetic field drawing tool (labeled B) to draw a zero magnetic field at ~a due to ~a." 
+           (?dir-v adj) ?loc (?dir-r adj) ?loc ?b))
+  ))
+
 ;; draw Bfield near a straight current-carrying wire
 ;; problem should give dir of perpendicular distance from wire to ?loc
 ;; This will probably only work with the feature changing-field
