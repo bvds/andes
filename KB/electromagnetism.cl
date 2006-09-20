@@ -2337,9 +2337,6 @@
    (point-charge ?b) ;Make sure source is point-charge
    (given (dir (velocity ?b :time ?t)) ?dir-v)
    (given (dir (relative-position ?loc ?b :time ?t)) ?dir-r)
-   ;; only use time when allowed by feature changing-field
-   (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
    (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
    (test ?cross-dir) ;make sure direction can be determined
    (test (not (eq ?cross-dir 'zero)))
@@ -2374,16 +2371,13 @@
    (point-charge ?b) ;Make sure source is point-charge
    (given (dir (velocity ?b :time ?t)) ?dir-v)
    (given (dir (relative-position ?loc ?b :time ?t)) ?dir-r)
-   ;; only use time when allowed by feature changing-field
-   (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
    (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
    (test (eq ?cross-dir 'zero))
    (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
 			      (time-abbrev ?t)))
    )
   :effects (
-           (vector ?loc (field ?loc magnetic ?wire :time ?t) ?dir-B)
+           (vector ?loc (field ?loc magnetic ?wire :time ?t) zero)
            (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
   )
   :hint (
@@ -2618,8 +2612,9 @@
   :preconditions 
   ((debug "Using write-charge-force-Bfield-mag-contains ~%")
    (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
+			;; can't have charge as sought, due to absolute value
 			(mag (field ?loc magnetic ?source :time ?t ?t))
-			(charge ?b :time ?t ?t)))
+			(mag (velocity ?b :time ?t))))
    (time ?t) ;in case ?t is not bound
    (at-place ?b ?loc :time ?t ?t)
    (rdebug "Firing write-charge-force-Bfield-mag-contains ~%")
@@ -2887,6 +2882,170 @@
          (bottom-out (string "Use the right hand rule using the velocity vector and the magnetic field vector."))
          ))
 |#
+
+
+;;;
+;;;                    Biot-Savert law for a point particle
+;;;
+
+(def-psmclass biot-savert-point-particle-mag 
+  (biot-savert-point-particle-mag ?loc ?b ?time)
+  :complexity major 
+  :short-name "Biot-Savert law for a point charge (magnitude)"
+  :english ("the magnetic field due to a moving point charge")
+  :expformat ((strcat "using the Biot-Savert law to find the magnetic field "
+		      "at ~A due to ~A")
+	      (nlg ?loc) (nlg ?b 'at-time ?time))
+  :EqnFormat "B = $m0*abs(q)*v*sin($q)/(4*$p*r^2)")
+
+(defoperator biot-savert-point-particle-mag-contains (?sought)
+   :preconditions 
+   (
+    (any-member ?sought (
+			 ;; can't find charge as sought.
+			 (mag (field ?loc magnetic ?b :time ?t))
+			 (mag (velocity ?b :time ?t))
+			 (mag (relative-position ?loc ?b :time ?t))
+			 ))
+   (point-charge ?b)
+   (time ?t) ;sanity check
+   )
+   :effects 
+   ((eqn-contains (biot-savert-point-particle-mag ?loc ?b ?t) ?sought)))
+
+(defoperator write-biot-savert-point-particle-mag (?loc ?b ?t)
+  :preconditions 
+  (
+   (variable ?B-var (mag (field ?loc magnetic ?b :time ?t)))
+   (variable ?v-var (mag (velocity ?b :time ?t)))
+   (variable ?r-var (mag (relative-position ?loc ?b :time ?t)))
+   (any-member ?tot (?t nil)) 
+   (variable ?q-var (charge ?b :time ?tot))
+   (variable ?theta-var (angle-between orderless 
+				       (velocity ?b :time ?t)
+				       (unit-vector towards ?loc :at ?b :time ?t)
+				       ))
+   )
+  :effects (
+	    (eqn (= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
+			      (* 4 $p (^ ?r-var)))) 
+		 (biot-savert-point-particle-mag ?loc ?b ?t))
+	    (assume using-magnitude 
+		    (biot-savert-point-particle ?loc ?b ?t))
+   )
+   :hint
+   ( (point (string "What is the magnitude of the magnetic field at ~A due to the moving charge ~A?" ?loc ?b))
+     ;; We really need a tutorial for this
+     (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savert law.  Read about the Biot-Savert law in your textbook."))
+     (bottom-out (string "Write the equation ~A" 
+			 ((= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
+				       (* 4 $p (^ ?r-var)))) algebra)))
+     ))
+
+;; The vector psm is not really set up to handle cross products...
+
+(def-psmclass electric-biot-savert-point-particle 
+  (biot-savert-point-particle ?loc ?b ?axis ?rot ?flag ?t) 
+  :complexity major
+  :short-name ("Biot-Savert law for a point charge (~A component)" 
+	       (axis-name ?axis))
+  :english ("the magnetic field due to a moving charge")
+  :expformat ((strcat "using the Biot-Savert law to find the ~A component "
+		      "of the magnetic field at ~A due to ~A")
+	      (axis-name ?axis) (nlg ?loc) (nlg ?b 'at-time ?time))
+  :EqnFormat ((bio-savert-law-equation ?axis)))
+
+(defun biot-savert-law-equation (xyz)
+  (cond ((eq xyz 'x) "B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)")
+	((eq xyz 'y) "B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2)")
+	((eq xyz 'z) "B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)")))
+
+(defoperator biot-savert-point-particle-contains-angle (?sought)
+  :preconditions 
+  (
+   (any-member ?sought 
+	       ( 
+		(compo ?axis ?rot (field ?loc magnetic ?b :time ?t))
+		(charge ?b :time ?t ?t)
+		(mag (relative-position ?loc ?b :time ?t))
+		(mag (velocity ?b :time ?t))
+		(dir (velocity ?b :time ?t))
+		(dir (unit-vector towards ?loc :at ?b :time ?t))
+		))
+   (time ?t)
+   (point-charge ?b)
+   (axes-for ?b ?rot) ;in case ?rot is not bound
+   (get-axis ?axis ?rot) ;in case ?axis is not bound
+   ;; 
+   ;;  For some ?sought, ?loc is not bound  
+   ;;  Draw vector now, so that ?loc is bound
+   ;;
+   (vector ?any (field ?loc magnetic ?b :time ?t))
+   )
+  :effects 
+  ( (eqn-contains 
+     (biot-savert-point-particle ?loc ?b ?axis ?rot nil ?t) ?sought) ))
+
+(defoperator biot-savert-point-particle-contains-compo (?sought)
+  :preconditions 
+  (
+   (any-member ?sought 
+	       ( 
+		(compo ?axis ?rot (field ?loc magnetic ?b :time ?t))
+		(charge ?b :time ?t ?t)
+		(mag (velocity ?b :time ?t))
+		(compo ?not-axis ?rot (velocity ?b :time ?t))
+		(compo ?not-axis ?rot (unit-vector towards ?loc :at ?b :time ?t))
+		(mag (relative-position ?loc ?b :time ?t))
+		))
+   (time ?t)
+   (point-charge ?b)
+   (axes-for ?b ?rot) ;in case ?rot is not bound
+   (get-axis ?axis ?rot) ;in case ?axis is not bound
+   ;; 
+   ;;  For charge as the ?sought, ?loc is not bound  
+   ;;  Draw vector now, so that ?loc is bound
+   ;;
+   (vector ?any (field ?loc magnetic ?b :time ?t))
+  )
+ :effects 
+ ( (eqn-contains (biot-savert-point-particle ?loc ?b ?axis ?rot t ?t)
+		 ?sought) ))
+
+(defoperator write-biot-savert-point-particle (?loc ?b ?axis ?rot ?flag ?t)
+  :preconditions 
+  ( 
+   ;; draw vectors now, before applying cross product
+   ;; This has been drawn above
+   (in-wm (vector ?any (field ?loc magnetic ?b :time ?t) ?dir-B))
+   (vector ?whatever (field ?loc magnetic ?b :time ?tot) ?dir-field)
+   (vector ?b (velocity ?b :time ?t) ?dir-v)
+   (vector ?what (unit-vector towards ?loc :at ?b :time ?t))
+   ;;
+   (variable ?B-var (compo ?axis ?rot (field ?loc magnetic ?b :time ?t)))
+   (any-member ?tot (?t nil)) 
+   (variable ?q-var (charge ?b :time ?tot))
+   (cross ?cross (velocity ?b :time ?t) 
+	  (unit-vector towards ?loc :at ?b :time ?t) ?axis ?rot ?flag)
+   (test (not (eq ?cross '0)))		; handled by write-biot-savert-point-particle-mag
+   (variable ?r-var (mag (relative-position ?loc ?b :time ?t)))
+   )
+  :effects 
+  ( (eqn (= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ r-var 2))))
+	 (biot-savert-point-particle ?loc ?b ?axis ?rot ?flag ?t))
+    ;; disallow both component-form and magnitude form in a solution
+    (assume using-compo 
+	    (compo ?axis ?rot (biot-savert-point-particle ?loc ?b ?t)))
+    )
+   :hint
+   ( (point (string "What is the magnetic field at ~A due to the moving charge ~A?" ?loc ?b))
+     ;; We really need a tutorial for this
+     (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savert law.  Read about the Biot-Savert law in your textbook."))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ r-var 2))))
+			  algebra)))
+    ))
+
 
 ;;;              Magnetic field of a straight wire
 

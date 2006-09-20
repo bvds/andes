@@ -179,7 +179,3 @@
   :units |J|
   :english ("the electric energy stored in ~a" 
 	    (nlg ?component 'at-time ?time)))
-
-
-
-
