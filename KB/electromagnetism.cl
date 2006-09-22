@@ -2901,7 +2901,8 @@
 (defoperator biot-savert-point-particle-mag-contains (?sought)
    :preconditions 
    (
-    (any-member ?sought (
+(test nil) 
+   (any-member ?sought (
 			 ;; can't find charge as sought.
 			 (mag (field ?loc magnetic ?b :time ?t))
 			 (mag (velocity ?b :time ?t))
@@ -2909,6 +2910,7 @@
 			 ))
    (point-charge ?b)
    (time ?t) ;sanity check
+   (at-place ?loc ?region :time ?t ?t)  ;sometimes ?loc is not bound
    )
    :effects 
    ((eqn-contains (biot-savert-point-particle-mag ?loc ?b ?t) ?sought)))
@@ -2928,7 +2930,7 @@
    )
   :effects (
 	    (eqn (= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
-			      (* 4 $p (^ ?r-var)))) 
+			      (* 4 $p (^ ?r-var 2)))) 
 		 (biot-savert-point-particle-mag ?loc ?b ?t))
 	    (assume using-magnitude 
 		    (biot-savert-point-particle ?loc ?b ?t))
@@ -2939,12 +2941,12 @@
      (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savert law.  Read about the Biot-Savert law in your textbook."))
      (bottom-out (string "Write the equation ~A" 
 			 ((= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
-				       (* 4 $p (^ ?r-var)))) algebra)))
+				       (* 4 $p (^ ?r-var 2)))) algebra)))
      ))
 
 ;; The vector psm is not really set up to handle cross products...
 
-(def-psmclass electric-biot-savert-point-particle 
+(def-psmclass biot-savert-point-particle 
   (biot-savert-point-particle ?loc ?b ?axis ?rot ?flag ?t) 
   :complexity major
   :short-name ("Biot-Savert law for a point charge (~A component)" 
@@ -2953,7 +2955,7 @@
   :expformat ((strcat "using the Biot-Savert law to find the ~A component "
 		      "of the magnetic field at ~A due to ~A")
 	      (axis-name ?axis) (nlg ?loc) (nlg ?b 'at-time ?time))
-  :EqnFormat ((bio-savert-law-equation ?axis)))
+  :EqnFormat ((biot-savert-law-equation ?axis)))
 
 (defun biot-savert-law-equation (xyz)
   (cond ((eq xyz 'x) "B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)")
@@ -2976,11 +2978,7 @@
    (point-charge ?b)
    (axes-for ?b ?rot) ;in case ?rot is not bound
    (get-axis ?axis ?rot) ;in case ?axis is not bound
-   ;; 
-   ;;  For some ?sought, ?loc is not bound  
-   ;;  Draw vector now, so that ?loc is bound
-   ;;
-   (vector ?any (field ?loc magnetic ?b :time ?t))
+   (at-place ?loc ?region :time ?t ?t)  ;sometimes ?loc is not bound
    )
   :effects 
   ( (eqn-contains 
@@ -3002,11 +3000,7 @@
    (point-charge ?b)
    (axes-for ?b ?rot) ;in case ?rot is not bound
    (get-axis ?axis ?rot) ;in case ?axis is not bound
-   ;; 
-   ;;  For charge as the ?sought, ?loc is not bound  
-   ;;  Draw vector now, so that ?loc is bound
-   ;;
-   (vector ?any (field ?loc magnetic ?b :time ?t))
+   (at-place ?loc ?region :time ?t ?t)  ;sometimes ?loc is not bound
   )
  :effects 
  ( (eqn-contains (biot-savert-point-particle ?loc ?b ?axis ?rot t ?t)
@@ -3016,8 +3010,7 @@
   :preconditions 
   ( 
    ;; draw vectors now, before applying cross product
-   ;; This has been drawn above
-   (in-wm (vector ?any (field ?loc magnetic ?b :time ?t) ?dir-B))
+   (vector ?any (field ?loc magnetic ?b :time ?t) ?dir-B)
    (vector ?whatever (field ?loc magnetic ?b :time ?tot) ?dir-field)
    (vector ?b (velocity ?b :time ?t) ?dir-v)
    (vector ?what (unit-vector towards ?loc :at ?b :time ?t))

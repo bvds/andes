@@ -17,14 +17,14 @@
 ;;
 
 ;;; This file provides next-step-help for the andes2 system.  It 
-;;; was based initially on psudocode wroitten by Kurt VanLehn and 
+;;; was based initially on psudocode written by Kurt VanLehn and 
 ;;; has since been adapted by Collin Lynch to provide the necessary
 ;;; interactivity and operability.  The essential algorithm has 
 ;;; remained unchanged however the system itself has changed somewhat
 ;;; in the essential supporting elements.
 
 ;;; The comment below states in more verbose language than here what the
-;;; NSH algorithm is.  In breif we want to guide the students through the
+;;; NSH algorithm is.  In brief, we want to guide the students through the
 ;;; following solution Algorithm:
 ;;;
 ;;; 1. Define Bodies.

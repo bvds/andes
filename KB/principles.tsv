@@ -135,6 +135,10 @@ LEAF	F_x = q*(v_y*B_z - v_z*B_y)    magnetic force (x component)	(charge-force-b
 LEAF	F_y = q*(v_z*B_x - v_x*B_z)    magnetic force (y component)	(charge-force-bfield ((?axis . y)))	Magnetic Field
 LEAF	F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)    magnetic force (z component)	(charge-force-bfield ((?axis . z)))	Magnetic Field
 LEAF	F = I*L*B*sin($q)    magnetic force on a wire (magnitude)	current-force-bfield-mag	
+LEAF	B = $m0*abs(q)*v*sin($q)/(4*$p*r^2)    Biot-Savert law for a point charge (magnitude)	biot-savert-point-particle-mag	
+LEAF	B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)    Biot-Savert law for a point charge (x component)	(biot-savert-point-particle ((?axis . x)))	
+LEAF	B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2)    Biot-Savert law for a point charge (y component)	(biot-savert-point-particle ((?axis . y)))	
+LEAF	B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)    Biot-Savert law for a point charge (z component)	(biot-savert-point-particle ((?axis . z)))	
 LEAF	B = $m0*I/(2*$p*r)    magnetic field of a straight wire	straight-wire-bfield	
 LEAF	B = $m0*N*I/(2*r)    magnetic field at center of a coil	center-coil-bfield	
 LEAF	B = $m0*n*I    magnetic field inside a long solenoid	inside-solenoid-bfield	
