@@ -1487,10 +1487,11 @@
    (circuit-component ?bat battery)
    (circuit-component ?cap capacitor)
    (circuit-component ?res resistor)
-   (any-member ?sought ((current-thru ?res :time ?t2)
+   (any-member ?sought ((current-thru ?branch :time ?t2)
 			;; also contains V, R, C, t
 			(time-constant orderless ?res ?cap)
 			))
+   (compo-or-branch ?res ?branch)
    (time (during ?t1 ?t2))		;sanity test
    (given (charge ?cap :time ?t1) 0) ;boundary condition
    )
@@ -1502,7 +1503,8 @@
 (defoperator write-current-in-RC-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (variable ?i-var (current-thru ?res :time ?t2))
+   (compo-or-branch ?res ?branch)
+   (variable ?i-var (current-thru ?branch :time ?t2))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?r-var (resistance ?res))
    (variable ?t-var (duration (during ?t1 ?t2)))
