@@ -3011,9 +3011,9 @@
   ( 
    ;; draw vectors now, before applying cross product
    (vector ?any (field ?loc magnetic ?b :time ?t) ?dir-B)
-   (vector ?whatever (field ?loc magnetic ?b :time ?tot) ?dir-field)
+   (vector ?whatever (field ?loc magnetic ?b :time ?t) ?dir-field)
    (vector ?b (velocity ?b :time ?t) ?dir-v)
-   (vector ?what (unit-vector towards ?loc :at ?b :time ?t))
+   (vector ?what (unit-vector towards ?loc :at ?b :time ?t) ?dir-r)
    ;;
    (variable ?B-var (compo ?axis ?rot (field ?loc magnetic ?b :time ?t)))
    (any-member ?tot (?t nil)) 
@@ -3024,7 +3024,7 @@
    (variable ?r-var (mag (relative-position ?loc ?b :time ?t)))
    )
   :effects 
-  ( (eqn (= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ r-var 2))))
+  ( (eqn (= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ ?r-var 2))))
 	 (biot-savert-point-particle ?loc ?b ?axis ?rot ?flag ?t))
     ;; disallow both component-form and magnitude form in a solution
     (assume using-compo 
@@ -3035,7 +3035,7 @@
      ;; We really need a tutorial for this
      (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savert law.  Read about the Biot-Savert law in your textbook."))
     (bottom-out (string "Write the equation ~A" 
-			((= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ r-var 2))))
+			((= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ ?r-var 2))))
 			  algebra)))
     ))
 
