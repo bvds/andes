@@ -2911,8 +2911,8 @@
    (time ?t) ;sanity check
    (at-place ?loc ?region :time ?t ?t)  ;sometimes ?loc is not bound
    (any-member ?dir-vec (
-			 ;; (unit-vector towards ?loc :at ?b :time ?t)
-				  (relative-position ?loc ?b :time ?t)))
+			 (unit-vector towards ?loc :at ?b :time ?t)
+			 (relative-position ?loc ?b :time ?t)))
    )
    :effects 
    ((eqn-contains (biot-savert-point-particle-mag ?loc ?b ?dir-vec ?t) 
