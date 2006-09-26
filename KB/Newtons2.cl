@@ -7419,7 +7419,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (given (dir (relative-position ?loc ?body :time ?t)) ?dir)
    (any-member ?orientation (towards away-from))
-   (bind ?n-dir (if (eq ?orientation ?towards) (opposite ?dir) ?dir))
+   (bind ?n-dir (if (eq ?orientation 'towards) (opposite ?dir) ?dir))
    )
   :effects 
   ((given (dir (unit-vector ?orientation ?body :at ?loc :time ?t)) ?n-dir)))
@@ -7429,7 +7429,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    (given (dir (relative-position ?body ?loc :time ?t)) ?dir)
    (any-member ?orientation (towards away-from))
-   (bind ?n-dir (if (eq ?orientation ?towards) ?dir (opposite ?dir)))
+   (bind ?n-dir (if (eq ?orientation 'towards) ?dir (opposite ?dir)))
    )
   :effects 
   ((given (dir (unit-vector ?orientation ?body :at ?loc :time ?t)) ?n-dir)))

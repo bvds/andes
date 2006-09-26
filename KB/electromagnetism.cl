@@ -2889,7 +2889,7 @@
 ;;;
 
 (def-psmclass biot-savert-point-particle-mag 
-  (biot-savert-point-particle-mag ?loc ?b ?time)
+  (biot-savert-point-particle-mag ?loc ?b ?dir-vec ?time)
   :complexity major 
   :short-name "Biot-Savert law for a point charge (magnitude)"
   :english ("the magnetic field due to a moving point charge")
@@ -2901,7 +2901,6 @@
 (defoperator biot-savert-point-particle-mag-contains (?sought)
    :preconditions 
    (
-(test nil) 
    (any-member ?sought (
 			 ;; can't find charge as sought.
 			 (mag (field ?loc magnetic ?b :time ?t))
@@ -2911,11 +2910,15 @@
    (point-charge ?b)
    (time ?t) ;sanity check
    (at-place ?loc ?region :time ?t ?t)  ;sometimes ?loc is not bound
+   (any-member ?dir-vec (
+			 ;; (unit-vector towards ?loc :at ?b :time ?t)
+				  (relative-position ?loc ?b :time ?t)))
    )
    :effects 
-   ((eqn-contains (biot-savert-point-particle-mag ?loc ?b ?t) ?sought)))
+   ((eqn-contains (biot-savert-point-particle-mag ?loc ?b ?dir-vec ?t) 
+		  ?sought)))
 
-(defoperator write-biot-savert-point-particle-mag (?loc ?b ?t)
+(defoperator write-biot-savert-point-particle-mag (?loc ?b ?dir-vec ?t)
   :preconditions 
   (
    (variable ?B-var (mag (field ?loc magnetic ?b :time ?t)))
@@ -2923,15 +2926,13 @@
    (variable ?r-var (mag (relative-position ?loc ?b :time ?t)))
    (any-member ?tot (?t nil)) 
    (variable ?q-var (charge ?b :time ?tot))
-   (variable ?theta-var (angle-between orderless 
-				       (velocity ?b :time ?t)
-				       (unit-vector towards ?loc :at ?b :time ?t)
-				       ))
+   (variable ?theta-var (angle-between orderless
+				       (velocity ?b :time ?t) ?dir-vec))
    )
   :effects (
 	    (eqn (= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
 			      (* 4 $p (^ ?r-var 2)))) 
-		 (biot-savert-point-particle-mag ?loc ?b ?t))
+		 (biot-savert-point-particle-mag ?loc ?b ?dir-vec ?t))
 	    (assume using-magnitude 
 		    (biot-savert-point-particle ?loc ?b ?t))
    )
@@ -3020,7 +3021,7 @@
    (variable ?q-var (charge ?b :time ?tot))
    (cross ?cross (velocity ?b :time ?t) 
 	  (unit-vector towards ?loc :at ?b :time ?t) ?axis ?rot ?flag)
-   (test (not (eq ?cross '0)))		; handled by write-biot-savert-point-particle-mag
+   (test (not (eq ?cross '0)))	   ; handled by write-biot-savert-point-particle-mag
    (variable ?r-var (mag (relative-position ?loc ?b :time ?t)))
    )
   :effects 
