@@ -614,7 +614,8 @@ BOOL HaveShell471()		// true if we have Shell lib version 4.71 or greater
 // menu directory.
 //
 // OUT parameter results are paths, i.e. include trailing backslash.
-void CSetupApp::GetFolderPaths(CString& winPath, CString& progGroupPath)
+void CSetupApp::GetFolderPaths(CString& winPath, CString& progGroupPath, 
+							   CString& desktopPath)
 {
 	// Get the windows directory
 	char szPathTemp[MAX_PATH];
@@ -678,6 +679,9 @@ void CSetupApp::GetFolderPaths(CString& winPath, CString& progGroupPath)
 
 	// Return path to Start Menu Programs under profile directory determined above 
 	progGroupPath = profileDir + "\\Start Menu\\Programs\\";
+
+	// Return presumed path to Desktop.
+	desktopPath = profileDir + "\\Desktop\\";
 }
 
 
@@ -703,8 +707,8 @@ BOOL CSetupApp::CreateShortcuts()
 
 	// Following creates Start Menu shortcuts by direct shell link creation in the
 	// appropriate user profile directories, using the CShortcut helper class.
-	CString winPath, progGroupPath;
-	GetFolderPaths(winPath, progGroupPath);
+	CString winPath, progGroupPath, desktopPath;
+	GetFolderPaths(winPath, progGroupPath, desktopPath);
 	CString groupDir = progGroupPath + "Andes";
 
 #if 0
@@ -748,6 +752,17 @@ BOOL CSetupApp::CreateShortcuts()
 						return FALSE;
 	}
 #endif EXPERIMENT
+
+#ifdef SCOTTY  // For scotty craig experiment
+	CShortcut SC5;
+	strPathObj = desktopPath + "\\Andes Experiment.lnk";
+	strTarget = m_strInstDir + "\\fbd-tcp.exe";
+	if (!SC5.Create(strPathObj, strTarget, m_strInstDir, "Launch Andes for Experiment", "/NoHelp",
+		strTarget, 0, NULL, SW_SHOW)){
+						TRACE("Failed to create Desktop shortcut");
+						return FALSE;
+	}
+#endif 
 
 	return TRUE;
 }

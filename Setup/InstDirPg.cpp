@@ -88,8 +88,12 @@ BOOL CInstDirPg::OnSetActive()
 #else 
 #if USNA_EVAL
 		m_strInstDir = "C:\\Program Files\\Andes";
+#else 
+#if SCOTTY
+		m_strInstDir = "C:\\AndesScotty";
 #else // some public version
 		m_strInstDir = "C:\\AndesDemo";        // "C:\\Program Files\\Andes"; 
+#endif
 #endif 
 #endif  
     }

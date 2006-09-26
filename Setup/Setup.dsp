@@ -24,6 +24,7 @@ CFG=Setup - Win32 Debug
 !MESSAGE "Setup - Win32 Experiment Release" (based on "Win32 (x86) Application")
 !MESSAGE "Setup - Win32 Eval Patch" (based on "Win32 (x86) Application")
 !MESSAGE "Setup - Win32 OLI Release" (based on "Win32 (x86) Application")
+!MESSAGE "Setup - Win32 Scotty Release" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -233,6 +234,35 @@ LINK32=link.exe
 # ADD BASE LINK32 version.lib /nologo /subsystem:windows /machine:I386 /out:"Student_Release/SetupStudent.exe"
 # ADD LINK32 version.lib /nologo /subsystem:windows /machine:I386 /out:"OLI_Release/SetupOLI.exe"
 
+!ELSEIF  "$(CFG)" == "Setup - Win32 Scotty Release"
+
+# PROP BASE Use_MFC 5
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "Setup___Win32_Scotty_Release"
+# PROP BASE Intermediate_Dir "Setup___Win32_Scotty_Release"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 5
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Scotty_Release"
+# PROP Intermediate_Dir "Scotty_Release"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MT /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "STUDENT_INSTALL" /Yu"stdafx.h" /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /MT /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "STUDENT_INSTALL" /D "SCOTTY" /Yu"stdafx.h" /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 version.lib /nologo /subsystem:windows /machine:I386 /out:"Student_Release/SetupStudent.exe"
+# ADD LINK32 version.lib /nologo /subsystem:windows /machine:I386 /out:"Scotty_Release/SetupScotty.exe"
+
 !ENDIF 
 
 # Begin Target
@@ -244,6 +274,7 @@ LINK32=link.exe
 # Name "Setup - Win32 Experiment Release"
 # Name "Setup - Win32 Eval Patch"
 # Name "Setup - Win32 OLI Release"
+# Name "Setup - Win32 Scotty Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"

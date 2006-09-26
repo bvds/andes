@@ -45,7 +45,7 @@ public:
 	CString GetProductVersion(CString strFile);
 	CString GetFileVersion(CString strFile);
 
-	void GetFolderPaths(CString& winPath, CString& progGroupPath);
+	void GetFolderPaths(CString& winPath, CString& progGroupPath, CString& desktopPath);
 
 	BOOL CreateDirectories();
 	BOOL CreateShortcuts();
