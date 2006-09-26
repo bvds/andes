@@ -2360,7 +2360,7 @@
       ;; This should be replaced by a tutorial.  It is rather cumbersome
       ;; to explain in word form.
       (teach (string "Look up the Biot-Savert Law in your textbook."))
-      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Thus, the cross product is in the direction ~A.  Since the charge is ~A, the resulting magnetic field is in the~A direction.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the direction, ~A." 
+      (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Thus, the cross product is in the direction ~A.  Since the charge is ~A, the resulting magnetic field is in the ~A direction.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the direction, ~A." 
            (?dir-v adj) ?loc (?dir-r adj) (?cross-dir adj) (?pos-neg adj)
 	   (?same-or-opposite adj) ?loc ?b (?dir-B adj)))
   ))
@@ -3015,6 +3015,7 @@
    (vector ?whatever (field ?loc magnetic ?b :time ?t) ?dir-field)
    (vector ?b (velocity ?b :time ?t) ?dir-v)
    (vector ?what (unit-vector towards ?loc :at ?b :time ?t) ?dir-r)
+   (optional (body ?b))
    ;;
    (variable ?B-var (compo ?axis ?rot (field ?loc magnetic ?b :time ?t)))
    (any-member ?tot (?t nil)) 
