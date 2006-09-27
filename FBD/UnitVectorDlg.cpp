@@ -164,6 +164,7 @@ void CUnitVectorDlg::InitObjectDlg()
 		m_cboBody.SelectStringExact(pVec->m_strBody );
 	else {
 		m_cboAtBody.SelectStringExact(pVec->m_strBody );
+		m_cboTowardsAway.SelectStringExact(pVec->m_strForceType);
 		m_cboAgent.SelectStringExact(pVec->m_strAgent );
 	}
 	m_cboTimeList.SelectStringExact(pVec->m_strTime) ;
