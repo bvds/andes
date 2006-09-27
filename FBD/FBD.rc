@@ -2779,7 +2779,7 @@ END
 IDD_FIELD DIALOGEX 0, 0, 202, 108
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define Field"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "Electric Field",IDC_STATIC_VALUE,5,9,52,8
     LTEXT           "&At",IDC_STATIC_BODY,62,9,8,8
@@ -3079,8 +3079,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,0,2,0
- PRODUCTVERSION 11,0,2,0
+ FILEVERSION 11,0,2,1
+ PRODUCTVERSION 11,0,2,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3098,14 +3098,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "11, 0, 2, 0\0"
+            VALUE "FileVersion", "11, 0, 2, 1\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "11, 0, 2, 0\0"
+            VALUE "ProductVersion", "11, 0, 2, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3992,6 +3992,9 @@ BEGIN
 0x6e49, 0x6f74, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
     IDC_ZDIR, 0x403, 17, 0
 0x754f, 0x2074, 0x666f, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
+    IDC_ZDIR, 0x403, 20, 0
+0x6e55, 0x6e6b, 0x776f, 0x206e, 0x205a, 0x6944, 0x6572, 0x7463, 0x6f69, 
+0x006e, 
     0
 END
 
