@@ -32,7 +32,7 @@
 ;; 6. Mark-Optimal-Path:  Select and then mark the most optimal path
 ;;    in the bubblegraph for later use.
 ;;
-;; 7. Eliminate Dead-Paths:  Cycle through the graph elimninating all
+;; 7. Eliminate Dead-Paths:  Cycle through the graph eliminating all
 ;;    of the dead-path nodes from the graph.  
 ;;
 ;; If the problem does not seek quantities then the system will generate
