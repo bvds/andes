@@ -1215,13 +1215,38 @@
                  (compo-eqn definition ?xy ?rot (net-field ?loc ?type ?t)))
     )
   :hint (
-    (point (string "The net ~A field at a point can be computed from the fields set up at that point by each of the field sources." 
+    (point (string "The net ~A field at a point can be computed from the fields produced at that point by each of the field sources." 
 		   (?type adj)))
     (teach (string "The principle of superposition states that the net ~A field at a point is the vector sum of the ~A fields due to each of the individual sources. This relation can be applied component-wise to calculate the components of the net ~A field due to all sources."
 		   (?type adj) (?type adj) (?type adj)))
     (bottom-out (string "Write the equation ~A" 
 			((= ?Fnet_x (+ . ?Fi_x)) algebra) ))
   ))
+
+;; see calculate-net-force-dir-from-forces
+(defoperator calculate-net-field-dir-from-fields (?loc ?type ?t)
+  :preconditions 
+  (
+   (time ?t)
+   ;; find all fields that are acting at ?loc, currently
+   ;; this is done by hand in the problem definition
+  ;; (field-sources ?loc ?type ?sources :time ?t ?t)
+   ;; Since this draws vectors, one might be able to forgo
+   ;; the field-sources invocation above and just use setof below:
+  ;; (map ?source ?sources
+   (setof
+	(vector ?body-axis (field ?loc ?type ?source :time ?t) ?dir) 
+	  ?dir ?dirs)
+   ;; if all fields have same direction, return direction
+   (bind ?net-dir (cond
+		   ((= (length ?dirs) 1) (first ?dirs))
+		   ((every #'z-dir-spec ?dirs) 'z-unknown)
+		   ((not-any #'z-dir-spec ?dirs) 'unknown)
+		   (t (error "can't have mixed vectors ~A~%" ?dirs))))
+   ;; (test (progn (format t "calculate-net-field-dir-from-fields ~A net:  ~A~%" ?dirs ?net-dir) t))
+   )
+:effects ((net-field-dir ?loc ?type ?t ?net-dir)))
+
 
 ;;; drawing net fields
 
@@ -1276,31 +1301,68 @@
 			     (?type adj) (?type adj) ?loc))
 	 ))
 
+(defoperator draw-net-field-from-fields (?loc ?type ?t)
+  :preconditions 
+  (
+   ;; the direction is not explicitly given.
+   (not (given (dir (net-field ?loc ?type :time ?t)) ?val))
+   (net-field-dir ?loc ?type ?t ?net-dir)  ;calculate net field direction
+   (test (not (member ?net-dir '(unknown z-unknown))))
+   (bind ?z-axis (known-z-dir-spec ?net-dir))
+   (not (vector ?whatever (net-field ?loc ?type :time ?t) ?any-dir)) 
+   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ;; if dir is z-axis, implicit eqn should give phi angle value
+   (bind ?angle-value (if (z-dir-spec ?net-dir) (zdir-phi ?net-dir) 
+			?net-dir))
+    ;; (test (progn (format t "draw-net-field-from-fields at ~A dir ~A~%" ?loc ?net-dir) t))
+  )
+  :effects 
+  (
+   (vector ?loc (net-field ?loc ?type :time ?t) ?net-dir)
+   (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
+   (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
+   ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
+   ;; gets written.  Given value may not be used elsewhere so ensure it here.
+   (implicit-eqn (= ?dir-var ?angle-value) 
+		 (dir (net-field ?loc ?type :time ?t)))
+   )
+  :hint (
+	 (point (string "Since the ~A fields at ~A are all pointing in the same direction, the direction of the net ~A field is known."
+	                (?type adj) ?loc (?type adj))) 
+	 (bottom-out (string "Use the ~A field drawing tool to draw the net ~A field at ~a in the direction ~A." 
+			     (?type adj) (?type adj) ?loc (?net-dir adj)))
+	 )) 
+
 (defoperator draw-net-field-unknown (?loc ?type ?t)
  :preconditions 
  (
   ;; presume the direction is unknown -- not given.
   (not (given (dir (net-field ?loc ?type :time ?t)) ?val))
-  ;; make sure field exists -- for now, test field-sources
-  (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
-  (test (cdr ?sources)) ; more than one in list
+  (net-field-dir ?loc ?type ?t ?net-dir)  ;calculate net field direction
+  ;; test that it is unknown
+  (any-member ?net-dir (unknown z-unknown))
+  (bind ?xy-plane (eq ?net-dir 'unknown))
   (bind ?mag-var (format-sym "~Anet_~A~@[_~A~]" 
 			     (subseq (string ?type) 0 1)
 			     (body-name ?loc) (time-abbrev ?t)))
   (bind ?dir-var (format-sym "O~A" ?mag-var))
+  ;; (test (progn (format t "draw-net-field-unknown at ~A dir ~A~%" ?loc ?net-dir) t))
   )
   :effects 
   (
-   (vector ?loc (net-field ?loc ?type :time ?t) unknown)
+   (vector ?loc (net-field ?loc ?type :time ?t) ?net-dir)
    (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
    (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
    )
   :hint (
          (point (string "You know there is a net ~A field at ~A." 
 			(?type adj) ?loc))
-         (teach (string "In this problem the exact direction of the net ~A field vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."
-			(?type adj)))
-         (bottom-out (string "Draw the net ~A field at ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." (?type adj) ?loc))
+         (teach (string "In this problem the exact direction of the net ~A field vector requires calculation to determine.  ~:[However, you do know that it lies along the z-axis.~;  Draw the vector at an approximately correct angle and leave the exact angle unspecified.~]"
+			(?type adj) (?xy-plane identity)))
+         (bottom-out (string "Draw the net ~A field at ~a, then ~:[select Unknown Z direction in the dialog box~;erase the number in the direction slot to indicate that the exact direction is not being specified~]." 
+			     (?type adj) ?loc (?xy-plane identity)))
   ))
 
 ;;--------------------------------------------------------------------------
@@ -2403,7 +2465,8 @@
    (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
    (test ?dir-B)
    (test (not (eq ?B-dir 'zero)))
-   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc)
+   (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" 
+			      (body-name ?loc) (body-name ?wire) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
