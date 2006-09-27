@@ -261,3 +261,19 @@
         (mapcar #'expr-value (problem-soughts p)))))
   (format T "End of problems~%"))
 (format T "Done writing answers~%"))
+
+(defun test-prbs (&optional topics)
+"verify that prbs can be loaded"
+ (andes-init)
+ (let (Errs)
+   (dolist (P (choose-working-probs topics))
+    (handler-case 
+         (read-problem-info (string (problem-name p)))
+      (error (E) 
+	     (format T "~&!!! Error loading ~A: ~A~%" (Problem-name P) E)
+	     ; save it for report at end
+	     (push (list (Problem-Name P) (format nil "~A" E)) Errs))))
+  ;; dump list of failures 
+  (format T "~&Failures: ~{~W ~}~%" (mapcar #'first Errs))
+  (format T "Errors:~%")
+  (pprint Errs)))
