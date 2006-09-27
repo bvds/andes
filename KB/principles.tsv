@@ -144,6 +144,7 @@ LEAF	B = $m0*N*I/(2*r)    magnetic field at center of a coil	center-coil-bfield
 LEAF	B = $m0*n*I    magnetic field inside a long solenoid	inside-solenoid-bfield	
 LEAF	Bnet_x = B1_x + B2_x + ...    net magnetic field (x component)	(net-field-magnetic ((?axis . x)))	
 LEAF	Bnet_y = B1_y + B2_y + ...    net magnetic field (y component)	(net-field-magnetic ((?axis . y)))	
+LEAF	Bnet_z = B1_z + B2_z + ...    net magnetic field (z component)	(net-field-magnetic ((?axis . z)))	
 LEAF	$Fb = A*B*cos($qB - $qn) or $Fb = A*(B_x*n_x + B_y*n_y)    magnetic flux (constant field)	magnetic-flux-constant-field	
 LEAF	d$Fb/dt = B.n*dA/dt    rate of change in magnetic flux (constant field)	magnetic-flux-constant-field-change	
 LEAF	V = -N*d$Fb/dt    Faraday's law	faradays-law	

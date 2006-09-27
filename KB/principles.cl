@@ -164,6 +164,7 @@
 	 (leaf inside-solenoid-Bfield)
 	 (leaf net-field-magnetic :bindings ((?axis . x)))
 	 (leaf net-field-magnetic :bindings ((?axis . y)))
+	 (leaf net-field-magnetic :bindings ((?axis . z)))
 	 (leaf magnetic-flux-constant-field)
 	 (leaf magnetic-flux-constant-field-change)
 	 (leaf faradays-law)
