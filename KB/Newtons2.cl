@@ -1146,6 +1146,35 @@
    (bottom-out (string "You can write the equation ~A = ~A." (?v1 algebra) (?v2 algebra)))
   ))
 
+;; relate quantities by symmetry
+
+(defoperator symmetry-contains (?quant)
+  :preconditions 
+   (
+    (symmetry ?even-odd orderless . ?quants)
+    (any-member ?quant ?quants)
+   )
+   :effects
+   ((eqn-contains (symmetry ?even-odd . ?quants) ?quant)))
+
+(defoperator write-symmetry (?quant1 ?quant2)
+  :preconditions 
+  (
+   (variable ?v1 ?quant1)
+   (variable ?v2 ?quant2)
+   (bind ?v2-term (if (eq ?even-odd 'even) ?v2 `(- ,?v2)))
+   (bind ?oddp (eq ?even-odd 'odd))
+   )
+  :effects 
+  ((eqn (= ?v1 ?v2-term) (symmetry ?even-odd ?quant1 ?quant2)))
+  :hint
+  ((point (string "Do you see how ~A and ~A are related?" ?quant1 ?quant2))
+   (teach (string "In this problem, there is a symmetry.  This means that ~A is the ~:[same as~;opposite to~] ~A."
+		  ?quant1 (?oddp identity) ?quant2))
+   (bottom-out (string "You can write the equation ~A = ~A." 
+		       ((= ?v1 ?v2-term) algebra)))
+  ))
+
 ;;; generic principle when given one quantity as a fraction of another
 ;;; Totally generic (like equals), can be used for any quantities
 ;;; Problem givens should specify
@@ -5264,8 +5293,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
    (not (unknown-forces))
    ;; if all forces acting on ?b have same direction, return direction
-   (bind ?net-dir (if (and (not (member 'unknown ?dirs)) (= (length ?dirs) 1))
-			   (first ?dirs) 'unknown))
+   (bind ?net-dir (if (= (length ?dirs) 1) (first ?dirs) 'unknown))
    )
 :effects ((net-force-dir ?b ?t ?net-dir)))
 

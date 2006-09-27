@@ -326,6 +326,7 @@ END_GROUP	Momentum
 END_GROUP	Calculate a vector component		
 GROUP	Use information specific to this problem		
 LEAF	val1 = val2    equivalent quantities	(equals ((?quant1 distance ?body :time ?time)))	
+LEAF	val1 = ±val2    relate quantities by symmetry	symmetry	
 LEAF	$q12 = $q2 - $q1    angle between	angle-direction	
 LEAF	|d| = s    distance & displacement	displacement-distance	
 LEAF	Icomp = Ibranch    current in branch	current-thru-what	

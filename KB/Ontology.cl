@@ -950,6 +950,7 @@
    :EqnFormat ("T = 2*$p*r/v"))
 
 ;; MISCELLANEOUS 
+
 (def-psmclass equals (equals ?quant1 ?quant2)
   :complexity connect
   :short-name "equivalent quantities"
@@ -957,7 +958,6 @@
   :ExpFormat ("applying the fact that ~a is equivalent to ~a"
 	      (nlg ?quant1) (nlg ?quant2))
   :EqnFormat ("val1 = val2"))
-
 
 (def-psmclass sum-times (sum-times ?tt)
   :complexity connect
@@ -975,6 +975,15 @@
 	      (nlg ?b) (nlg ?tt 'pp))
   :EqnFormat ("sac = sab + sbc"))
 
+
+(def-psmclass symmetry (symmetry ?even-odd ?quant1 ?quant2)
+  :complexity major ;this is conceptually non-trivial
+  :short-name "relate quantities by symmetry"
+  :english ("use symmetry to relate quantities")
+  :ExpFormat ("applying the fact that ~a is related to ~a by symmetry"
+	      (nlg ?quant1) (nlg ?quant2))
+  ;; plus/minus
+  :EqnFormat ("val1 = ~Aval2" (code-char 177)))
 
 ;; NEWTONS LAW family of equations.
 (def-psmgroup NL
