@@ -202,9 +202,9 @@
 	   (when (not (find #\[ line)) ;skip answer-box marker lines in stmt
               (format outf "~A~%" line))))))))
 
-; write one text file per problem, containing the problem statement text lines
-; puts into "Statements" directory. This is a convenience for the script that
-; generates OLI learning pages from problem sets.
+;; write one text file per problem, containing the problem statement text lines
+;; puts into "Statements" directory. This is a convenience for the script that
+;; generates OLI learning pages from problem sets.
 (defun write-stmts()
    (map-problems 
       #'(lambda(p) 
@@ -225,7 +225,7 @@
                              (first (sg-map-systementry->opinsts e)))
     ))
 
-; list all entries in tab-delimited file
+;; list all entries in tab-delimited file
 (defun write-entry-file (p)
    (with-open-file (outf (strcat ".\\Entries\\" (string (problem-name p)) ".txt")
                          :direction :output :if-exists :supersede)
@@ -242,7 +242,7 @@
 (defun write-all-entry-files (&optional topics)
   (write-entry-files (choose-working-probs topics)))
 
-; dumping answers
+;; dumping answers
 (defun expr-value (expr)
  (let ((qvar (find expr (Problem-VarIndex *cp*) :key #'qvar-exp
                                                :test #'equal)))
@@ -262,8 +262,9 @@
   (format T "End of problems~%"))
 (format T "Done writing answers~%"))
 
-(defun test-prbs (&optional topics)
-"verify that prbs can be loaded"
+;; need helpsystem loaded for this
+(defun test-load-prbs (&optional topics)
+"verify that prb files can be loaded into helpsystem"
  (andes-init)
  (let (Errs)
    (dolist (P (choose-working-probs topics))
