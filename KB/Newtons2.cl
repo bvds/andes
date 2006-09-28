@@ -1153,7 +1153,8 @@
   ((eqn (= ?v1 ?v2-term) (equals ?quant1 ?quant2 :opposite ?flag 
 				 :hint ?hint "The two quantities are equal.")))
   :hint
-  ((point (string "How are ~A and ~A related to each other?" ?quant1 ?quant2))
+  ((point (string "How are ~A and ~A related to each other?" 
+		  (?v1 algebra) (?v2 algebra)))
    (teach (string ?hint))
    (bottom-out (string "You can write the equation ~A = ~A." 
 		       (?v1 algebra) (?v2-term algebra)))
