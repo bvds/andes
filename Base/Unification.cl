@@ -404,16 +404,22 @@
 
 (defun order-expr (x sort-function bindings)
   "handle any variables when ordering a list according to symmetry-type"
-  (cond ((variable-p x) x)                 ;(symmetry-type . ?a)
-	((and (listp x) (null (cdr x))) x) ;(symmetry-type ?a)
-	;; (orderless a b c ...)
-	((and (listp x) (null (cdr (last x))) ;check for proper list
-	      ;; In principle, we only need bindings sufficient for the sort
-	      ;; to be unambiguous. 
-	      (all-boundp x bindings))        ;with *all* variables bound
-	 (funcall sort-function (copy-list (subst-bindings bindings x))))
-	(t (error "Invalid list ~A.~%  Need a proper list with all variables bound." 
-		  x))))
+  (cond 
+   ((variable-p x) x)                 ;(symmetry-type . ?a)
+   ((and (listp x) (null (cdr x))) x) ;(symmetry-type ?a)
+   ;; (orderless a b c ...)
+   ((and (listp x) (null (cdr (last x))) ;check for proper list
+	 ;; In principle, we only need bindings sufficient for the sort
+	   ;; to be unambiguous. 
+	 (all-boundp x bindings))        ;with *all* variables bound
+    ;; Sort everything before any keywords
+    (let ((keywords (member-if #'keywordp x)))
+      (append 
+       (funcall sort-function 
+		(copy-list (subst-bindings bindings (ldiff x keywords))))
+	 keywords)))
+   (t (error "Invalid list ~A.~%  Need a proper list with all variables bound." 
+	     x))))
 
 ;;; Orderless lists with (orderless ...)
 
