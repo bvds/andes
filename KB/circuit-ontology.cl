@@ -147,12 +147,12 @@
 
 (def-qexp net-E-field (net-field ?region electric :time ?time)
   :units |N/C|
-  :english ("the net electric field at ~A from all sources~@[ ~A~]" 
+  :english ("the net electric field at ~A~@[ ~A~]" 
 	    (nlg ?region) (nlg ?time 'pp)))
 
 (def-qexp net-B-field (net-field ?region magnetic :time ?time)
   :units |T|
-  :english ("the net magnetic field at ~A from all sources~@[ ~A~]" 
+  :english ("the net magnetic field at ~A~@[ ~A~]" 
 	    (nlg ?region) (nlg ?time 'pp)))
   
 (def-qexp potential (potential ?loc ?source :time ?time)
