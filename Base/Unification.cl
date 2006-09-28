@@ -414,7 +414,7 @@
 	 (all-boundp x bindings))        ;with *all* variables bound
     ;; Sort everything before any keywords
     (let ((keywords (member-if #'keywordp x)))
-      (append 
+      (nconc 
        (funcall sort-function 
 		(copy-list (subst-bindings bindings (ldiff x keywords))))
 	 keywords)))
