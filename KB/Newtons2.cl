@@ -1119,60 +1119,41 @@
 ;; made by the student in the head. In cases where the equality is based on a 
 ;; fundamental principle like Newton's Third Law we label it as such and
 ;; do not use the (equals ...) proposition.
+;;
 ;; Although most hints for equations are hung off the operator whose
 ;; effects include (eqn...), in this case, the hints are hung off the operator
 ;; whose effects include (equals ...).
-;;;
-;;;
+;;
+;; On symmetry:  Andes does not really have a method to express symmetries
+;; properly, since that would involve a coordinate transformation (for spatial
+;; symmetries) or a transformation over objects for other symmetries.
+;; Thus, we use (equals orderless ?quant1 ?quant2) to express symmetries, 
+;; with the Keyword :hint to express any special hints and :opposite to express
+;; quantities that are odd under a symmetry.
+
 (defoperator equality-contains (?quant)
   :preconditions 
-   ((equals ?quant1 ?quant2)
-   (test (not (equal ?quant1 ?quant2))) ; i.e. different defs.
-   (any-member ?quant (?quant1 
-                       ?quant2))
-   ; sort quants in id so A=B and B=A get same id.
-   (bind ?quants (sort (list ?quant1 ?quant2) #'expr<)))
+   ((equals orderless . ?rest)
+    (bind ?q1 (first ?rest))
+    (bind ?q2 (second ?rest))
+    (test (not (equal ?q1 ?q2))) ; i.e. different defs.
+    (any-member ?quant (?q1 ?q2)))
    :effects
-   ((eqn-contains (equals . ?quants) ?quant)))
+   ((eqn-contains (equals . ?rest) ?quant)))
 
 (defoperator write-equality (?quant1 ?quant2)
   :preconditions 
   ((variable ?v1 ?quant1)
-   (variable ?v2 ?quant2))
-  :effects 
-  ((eqn (= ?v1 ?v2) (equals ?quant1 ?quant2)))
-  :hint
-  ((point (string "What do you know about the relation of ~A and ~A?" ?quant1 ?quant2))
-   (bottom-out (string "You can write the equation ~A = ~A." (?v1 algebra) (?v2 algebra)))
-  ))
-
-;; relate quantities by symmetry
-
-(defoperator symmetry-contains (?quant)
-  :preconditions 
-   (
-    (symmetry ?even-odd orderless . ?quants)
-    (any-member ?quant ?quants)
-   )
-   :effects
-   ((eqn-contains (symmetry ?even-odd . ?quants) ?quant)))
-
-(defoperator write-symmetry (?quant1 ?quant2)
-  :preconditions 
-  (
-   (variable ?v1 ?quant1)
    (variable ?v2 ?quant2)
-   (bind ?v2-term (if (eq ?even-odd 'even) ?v2 `(- ,?v2)))
-   (bind ?oddp (eq ?even-odd 'odd))
+   (bind ?v2-term (if ?flag `(- ,?v2) ?v2))
    )
   :effects 
-  ((eqn (= ?v1 ?v2-term) (symmetry ?even-odd ?quant1 ?quant2)))
+  ((eqn (= ?v1 ?v2-term) (equals ?quant1 ?quant2 :opposite ?flag :hint ?hint)))
   :hint
-  ((point (string "Do you see how ~A and ~A are related?" ?quant1 ?quant2))
-   (teach (string "In this problem, there is a symmetry.  This means that ~A is the ~:[same as~;opposite to~] ~A."
-		  ?quant1 (?oddp identity) ?quant2))
-   (bottom-out (string "You can write the equation ~A = ~A." 
-		       ((= ?v1 ?v2-term) algebra)))
+  ;; can add custom hint string
+  ((point (string "How are ~A and ~A related?~@[  ~A~]" ?quant1 ?quant2 ?hint))
+   (bottom-out (string "Since the two quantities are ~:[equal~;opposite~], you can write the equation ~A = ~A." 
+		       (?flag identity) (?v1 algebra) (?v2-term algebra)))
   ))
 
 ;;; generic principle when given one quantity as a fraction of another
@@ -1277,10 +1258,9 @@
 	      (tinsidep ?t1 ?t-constant)))
    (bind ?quant1 (set-time ?quant ?t1))
    (bind ?quant2 (set-time ?quant ?t-constant))
+   (any-member ?rest ((?quant1 ?quant2)) )
   )
-  :effects (
-	    (equals ?quant1 ?quant2)
-     )
+  :effects ((equals orderless . ?rest))
   :hint
   ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
    (teach (string "If a quantity is constant over a time interval, then its value at any time inside the interval is equal to its value over the whole interval.")
@@ -1300,9 +1280,10 @@
                (tinsidep-include-endpoints ?t1 ?t-constant)))
    (bind ?quant1 (set-time ?quant ?t1))
    (bind ?quant2 (set-time ?quant ?t-constant))
+   (any-member ?rest ((?quant1 ?quant2)) )
   )
   :effects (
-	    (equals ?quant1 ?quant2)
+	    (equals orderless . ?rest)
      )
   :hint
   ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
@@ -1789,12 +1770,13 @@
     (in-wm (at-place ?body ?loc :time ?t-at-loc))
     (test (tinsidep ?time ?t-at-loc))
     ;; ?origin should be bound from sought coming in
+    (any-member ?quants (((mag (relative-position ?body ?origin :time ?time))
+             (mag (relative-position ?loc ?origin :time ?time)))))
   )
   :effects (
      ; Assert equality. Equation will be written by generic write-equality 
      ; operator without much of a hint, as if equality is given or obvious.
-     (equals (mag (relative-position ?body ?origin :time ?time))
-             (mag (relative-position ?loc ?origin :time ?time)))
+     (equals orderless . ?quants)
   ))
 |#
 
@@ -8783,10 +8765,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (time ?t)
    (test (tinsidep ?t ?t-rotating))
    (given (mag (relative-position ?pt ?axis-pt :time ?t)) ?value)
+   (any-member ?quants (((revolution-radius ?pt :time ?t) 
+		      (mag (relative-position ?pt ?axis-pt :time ?t)) )))
    )
    :effects (
-    (equals (revolution-radius ?pt :time ?t) 
-            (mag (relative-position ?pt ?axis-pt :time ?t)))
+    (equals orderless . ?quants)
    ))
 
 

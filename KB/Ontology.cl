@@ -943,21 +943,22 @@
 
 
 (def-psmclass period-circle (period ?body ?time circular)
-   :complexity minor
+  :complexity minor
   :short-name "period of uniform circular motion"
-   :english ("the formula for the period of uniform circular motion")
-   :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
-   :EqnFormat ("T = 2*$p*r/v"))
+  :english ("the formula for the period of uniform circular motion")
+  :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
+  :EqnFormat ("T = 2*$p*r/v"))
 
 ;; MISCELLANEOUS 
 
-(def-psmclass equals (equals ?quant1 ?quant2)
+(def-psmclass equals (equals ?quant1 ?quant2 :opposite ?flag . ?rest)
   :complexity connect
   :short-name "equivalent quantities"
   :english ("find by equivalent quantity")
-  :ExpFormat ("applying the fact that ~a is equivalent to ~a"
-	      (nlg ?quant1) (nlg ?quant2))
-  :EqnFormat ("val1 = val2"))
+  :ExpFormat ("applying the fact that ~a is ~:[the same as~;opposite to~] ~A"
+	      (nlg ?quant1) ?flag (nlg ?quant2))
+  ;; plus/minus
+  :EqnFormat ("val1 = ~Aval2" (code-char 177)))
 
 (def-psmclass sum-times (sum-times ?tt)
   :complexity connect
@@ -974,16 +975,6 @@
   :ExpFormat ("calculating the sum of distances travelled by ~A during ~A" 
 	      (nlg ?b) (nlg ?tt 'pp))
   :EqnFormat ("sac = sab + sbc"))
-
-
-(def-psmclass symmetry (symmetry ?even-odd ?quant1 ?quant2)
-  :complexity major ;this is conceptually non-trivial
-  :short-name "relate quantities by symmetry"
-  :english ("use symmetry to relate quantities")
-  :ExpFormat ("applying the fact that ~a is related to ~a by symmetry"
-	      (nlg ?quant1) (nlg ?quant2))
-  ;; plus/minus
-  :EqnFormat ("val1 = ~Aval2" (code-char 177)))
 
 ;; NEWTONS LAW family of equations.
 (def-psmgroup NL

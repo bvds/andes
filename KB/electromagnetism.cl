@@ -1241,7 +1241,7 @@
    (bind ?net-dir (cond
 		   ((= (length ?dirs) 1) (first ?dirs))
 		   ((every #'z-dir-spec ?dirs) 'z-unknown)
-		   ((not-any #'z-dir-spec ?dirs) 'unknown)
+		   ((notany #'z-dir-spec ?dirs) 'unknown)
 		   (t (error "can't have mixed vectors ~A~%" ?dirs))))
    ;; (test (progn (format t "calculate-net-field-dir-from-fields ~A net:  ~A~%" ?dirs ?net-dir) t))
    )
