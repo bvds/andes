@@ -943,11 +943,11 @@
 
 
 (def-psmclass period-circle (period ?body ?time circular)
-  :complexity minor
+   :complexity minor
   :short-name "period of uniform circular motion"
-  :english ("the formula for the period of uniform circular motion")
-  :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
-  :EqnFormat ("T = 2*$p*r/v"))
+   :english ("the formula for the period of uniform circular motion")
+   :ExpFormat ("calculating the period of the motion of ~A" (nlg ?body))
+   :EqnFormat ("T = 2*$p*r/v"))
 
 ;; MISCELLANEOUS 
 
@@ -955,10 +955,10 @@
   :complexity connect
   :short-name "equivalent quantities"
   :english ("find by equivalent quantity")
-  :ExpFormat ("applying the fact that ~a is ~:[the same as~;opposite to~] ~A"
-	      (nlg ?quant1) ?flag (nlg ?quant2))
-  ;; plus/minus
-  :EqnFormat ("val1 = ~Aval2" (code-char 177)))
+  :ExpFormat ("applying the fact that ~a is the ~:[same as~;opposite of~] ~A"
+              (nlg ?quant1) ?flag (nlg ?quant2))
+  :EqnFormat ("val1 = ~Aval2" (code-char 177)))   ;plus/minus
+
 
 (def-psmclass sum-times (sum-times ?tt)
   :complexity connect
@@ -975,6 +975,7 @@
   :ExpFormat ("calculating the sum of distances travelled by ~A during ~A" 
 	      (nlg ?b) (nlg ?tt 'pp))
   :EqnFormat ("sac = sab + sbc"))
+
 
 ;; NEWTONS LAW family of equations.
 (def-psmgroup NL
