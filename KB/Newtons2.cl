@@ -1135,23 +1135,27 @@
   (
    ;; BvdS:  Ideally, we would use the form (equals orderless ...) but 
    ;;        this is not a good mid-semester change (Sept. 2006)
-   (equals ?quant1 ?quant2 . ?rest)
+   (equals ?quant1 ?quant2 :opposite ?flag . ?rest)
    (test (not (equal ?quant1 ?quant2))) ; i.e. different defs.
    (any-member ?quant (?quant1 ?quant2))
    ;; sort quants in id so A=B and B=A get same id.
-   (bind ?quants (nconc (sort (list ?quant1 ?quant2) #'expr<) ?rest))
+   (bind ?quants (nconc (sort (list ?quant1 ?quant2) #'expr<) 
+			(list ':opposite ?flag)))
    )
   :effects
   ((eqn-contains (equals . ?quants) ?quant)))
 
 (defoperator write-equality (?quant1 ?quant2)
   :preconditions 
-  ((variable ?v1 ?quant1)
+  (
+   ;; found in equality-contains
+   (in-wm (equals ?quant1 ?quant2 :opposite ?flag 
+		  :hint ?hint "The two quantities are equal."))
+   (variable ?v1 ?quant1)
    (variable ?v2 ?quant2)
    (bind ?v2-term (if ?flag `(- ,?v2) ?v2)))
   :effects 
-  ((eqn (= ?v1 ?v2-term) (equals ?quant1 ?quant2 :opposite ?flag 
-				 :hint ?hint "The two quantities are equal.")))
+  ((eqn (= ?v1 ?v2-term) (equals ?quant1 ?quant2 :opposite ?flag)))
   :hint
   ((point (string "How are ~A and ~A related to each other?" 
 		  (?v1 algebra) (?v2 algebra)))
@@ -1160,6 +1164,45 @@
 		       (?v1 algebra) (?v2-term algebra)))
   ))
 
+;; Rather than make separate vector PSM's, we inherit (equals ...) for
+;; components and magnitudes from (equals ...) of vectors.
+(defoperator vector-component-equality-from-vector-equality (?v1 ?v2)
+  :preconditions 
+  (
+   (equal-vectors ?v1 ?v2 :opposite ?flag :hint ?vector-hint)
+   ;; Draw vectors
+   (vector ?b1 ?v1 ?dir1)
+   (vector ?b2 ?v2 ?dir2)
+   (axes-for ?b1 ?rot) ;make sure both vectors have same coordinates
+   (axes-for ?b2 ?rot)
+   (get-axis ?xyz ?rot) 
+   (bind ?compo-hint 
+	 (format nil "~@[~A  ~]Since the two vectors are ~:[the same~;opposite and equal~], their components are ~:[the same~;opposite and equal~]." 
+			     ?vector-hint ?flag ?flag))
+   )
+  :effects 
+  ((equals (compo ?xyz ?rot ?v1) (compo ?xyz ?rot ?v2) 
+	   :opposite ?flag :hint ?compo-hint)
+   ;; The family-id doesn't match the regular equation id.
+   ;; Since this is purely a side-effect, ?v1 and ?v2 are always bound
+   (assume using-compo (nil ?xyz ?rot 
+			    (equals orderless ?v1 ?v2))) ;mag xor compos
+))
+
+(defoperator vector-mag-equality-from-vector-equality (?v1 ?v2)
+  :preconditions 
+  (
+   (equal-vectors ?v1 ?v2 :opposite ?flag :hint ?vector-hint)
+   (bind ?mag-hint 
+	 (format nil "~@[~A  ~]Since the two vectors are ~:[the same~;opposite and equal~], their magnitudes are equal." 
+			     ?vector-hint ?flag))
+   )
+  :effects 
+  (
+   (equals (mag ?v1) (mag ?v2) :hint ?mag-hint)
+   ;; Since this is purely a side-effect, ?v1 and ?v2 are always bound
+   (assume using-magnitude (equals orderless ?v1 ?v2)) ;mag xor compos
+   ))
 
 ;;; generic principle when given one quantity as a fraction of another
 ;;; Totally generic (like equals), can be used for any quantities
