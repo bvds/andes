@@ -59,7 +59,7 @@
 (def-feature-set E&M-quantities 
   (charge-on current potential duration length turns turns-per-length angle 
 	     electric-flux magnetic-flux electric-flux-change 
-	     magnetic-flux-change))
+	     magnetic-flux-change mass-per-length))
 (def-feature-set number-of-particles
   (charge-on mass number-of))
 (def-feature-set gauss
