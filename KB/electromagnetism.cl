@@ -309,7 +309,8 @@
    (given-field ?source ?type) ;field due to ?source has unknown dir.
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?any-dir))
    ;; make sure field direction not given, directly 
-   (not (given (dir (field ?loc ?type ?source :time ?t)) ?dontcare3))
+   (not (given (dir (field ?loc ?type ?source :time ?t-given)) ?dontcare3)
+	(tinsidep ?t ?t-given))
    ;; inside a conductor is handled differently
    (not (inside-conductor ?loc) (eq ?type 'electric))
    (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
@@ -2861,7 +2862,7 @@
    (test (tinsidep ?t ?t-field))
    (vector ?dontcare3 (force ?b ?source magnetic :time ?t) ?F-dir)
    ;; retrieve vector variables for equation:
-   (in-wm (variable ?magB (mag (field ?loc magnetic ?source :time ?t ?t))))
+   (in-wm (variable ?magB (mag (field ?loc magnetic ?source :time ?t-field))))
    (in-wm (variable ?magF (mag (force ?b ?source magnetic :time ?t))))
    ;; direction of current (problem given)
    (given (dir (current-length ?b :time ?t)) ?dir-i)
