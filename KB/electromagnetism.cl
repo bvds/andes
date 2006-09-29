@@ -2878,7 +2878,8 @@
 		 (current-force-Bfield-mag ?b ?source ?t)))
   :hint 
   (
-   (point (string "You can calculate magnitude of the magnetic force on ~A due to ~A." ?b (field ?loc magnetic ?source :time ?t)))
+   (point (string "You can calculate magnitude of the magnetic force on ~A due to ~A." 
+		  ?b ((field ?loc magnetic ?source :time ?t) def-np)))
    (teach (string "The magnitude of the magnetic force on a wire in a magnetic field is the product of the current, the length of the wire, the magnetic field and the angle between the direction of the current and the magnetic field vector." ))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?magF (* ?i ?l ?magB (sin ?theta))) algebra)))
