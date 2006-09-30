@@ -2484,6 +2484,32 @@
            (?dir-l adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
   ))
 
+(defoperator draw-Bfield-current-loop (?loc ?wire ?t)
+  :preconditions 
+  (
+   (center-of-coil ?loc ?wire :current-axis ?dir-B)
+   ;; only use time when allowed by feature changing-field
+   (test (eq (null ?t) 
+	     (null (member 'changing-field (problem-features *cp*)))))
+   (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" 
+			      (body-name ?loc) (body-name ?wire) 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-i (rotation-name ?dir-B))
+   )
+  :effects (
+           (vector ?loc (field ?loc magnetic ?wire :time ?t) ?dir-B)
+           (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
+           (variable ?dir-var (dir (field ?loc magnetic ?wire :time ?t)))
+           (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
+  )
+  :hint (
+      (point (string "The direction of the magnetic field at the center of a current-carrying coil can be determined by a use of the right-hand rule."))
+      (teach (string "If you grasp the wire with your right hand with the thumb pointing in the direction of the current, your fingers curl around the wire in the direction of the magnetic field lines."))
+      (bottom-out (string "Curling your right hand around the wire with the thumb in the direction of the current, ~a, your fingers at ~a point in the direction ~a.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in that direction, ~A." 
+           (?dir-i adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
+  ))
+
 ;; This draws the magnetic force vector on a charge by right-hand-rule
 ;; given direction of B-field and v. Note dir of v may not be directly given,
 ;; but can be derived in several ways, e.g. straight line or circular or other
@@ -3154,46 +3180,59 @@
 
 ;;;              Magnetic field at the center of a coil
 
-(def-psmclass center-coil-Bfield (center-coil-Bfield ?center ?coil ?t)
+(def-psmclass center-coil-Bfield 
+  (center-coil-Bfield ?center ?coil ?t :loop ?flag)
   :complexity major
-  :short-name "magnetic field at center of a coil"
-  :english ("the magnetic field at the center of a coil of N turns")
+  :short-name "magnetic field at center of a thin coil"
+  :english ("the magnetic field at the center of a ~:[coil of N turns~;single loop~]" 
+	    ?flag)
   :ExpFormat ("finding the magnetic field at the center of ~A" (nlg ?coil))
   :EqnFormat ("B = $m0*N*I/(2*r)" ))
 
 (defoperator center-coil-Bfield-contains (?sought)
   :preconditions 
   (
-   (center-of-coil ?point ?coil)  ;given that there is a coil
+   (center-of-coil ?point ?coil . ?rest)  ;given that there is a coil
    (any-member ?sought (
 			(current-thru ?coil :time ?t ?t)
 			(turns ?coil)
 			(radius-of-circle ?coil)
 			(mag (field ?center magnetic ?coil :time ?t ?t))
 			))
+   ;; determine whether coil is a single loop
+   (setof (given (turns ?coil) 1) 1 ?flag)
    (time ?t) ;not bound by some ?sought
    )
-  :effects ((eqn-contains (center-coil-Bfield ?point ?coil ?t) ?sought)))
+  :effects ((eqn-contains (center-coil-Bfield ?point ?coil ?t :loop ?flag) ?sought)))
 
-(defoperator write-center-coil-Bfield (?point ?coil ?t)
+(defoperator use-turns-for-turns (?coil)
+  :preconditions ((variable ?N (turns ?coil)))
+  :effects ((use-for-turns ?N ?coil :loop nil)))
+
+(defoperator use-no-turns (?coil)
+  :preconditions ((test ?flag))
+  :effects ((use-for-turns nil ?coil :loop ?flag)))
+
+(defoperator write-center-coil-Bfield (?point ?coil ?t ?flag)
   :preconditions 
   ( 
    (any-member ?tot (?t nil)) 
    (variable ?I (current-thru ?coil :time ?tot))
-   (variable ?N (turns ?coil))
+   (use-for-turns ?N ?coil :loop ?flag)
    (variable ?r	(radius-of-circle ?coil))
    (any-member ?tot2 (?t nil)) 
    (variable ?B (mag (field ?point magnetic ?coil :time ?tot2)))
+   (bind ?rhs (if ?N `(* |mu0| ,?N ,?I) `(* |mu0| ,?I)))
    )
   :effects ( 
-	    (eqn (= (* 2 ?r ?B) (* |mu0| ?N ?I))
-		 (center-coil-Bfield ?point ?coil ?t))
+	    (eqn (= (* 2 ?r ?B) ?rhs)
+		 (center-coil-Bfield ?point ?coil ?t :loop ?flag))
 	    )
   :hint (
 	 (point (string "What is the magnetic field at ~A due to the current flowing in ~A?" ?point ?coil))
-	 (teach (string "Find the formula for the magnetic field at the center of a coil of N turns."))
+	 (teach (string "Find the formula for the magnetic field at the center of a ~:[coil of N turns~;loop of current~]." (?flag identity)))
 	 (bottom-out (string "Write the equation ~A"  
-			     ((= ?B (/ (* |mu0| ?N ?I) (* 2 ?r))) algebra) ))
+			     ((= ?B (/ ?rhs (* 2 ?r))) algebra) ))
 	 ))
 
 ;;;              Magnetic field inside a long solenoid
