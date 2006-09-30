@@ -3150,10 +3150,11 @@
    (given (dir (relative-position ?point ?wire :time ?t)) ?dir-r)
    (test (perpendicularp ?dir-i ?dir-r))
    (any-member ?sought (
-			(current-thru ?wire :time ?t ?t)
+			(current-thru ?branch :time ?t ?t)
 			(mag (relative-position ?point ?wire :time ?t))
 			(mag (field ?point magnetic ?wire :time ?t ?t))
 			))
+   (compo-or-branch ?wire ?branch)
    (time ?t) ;sanity test
    )
   :effects ((eqn-contains (straight-wire-Bfield ?point ?wire ?t) ?sought)))
@@ -3161,8 +3162,9 @@
 (defoperator write-straight-wire-Bfield (?point ?wire ?t)
   :preconditions 
   ( 
-   (any-member ?tot (?t nil)) 
-   (variable ?I (current-thru ?wire :time ?tot))
+   (any-member ?tot (?t nil))
+   (in-wm (compo-or-branch ?wire ?branch))
+   (variable ?I (current-thru ?branch :time ?tot))
    (variable ?r	(mag (relative-position ?point ?wire :time ?t)))
    (any-member ?tot2 (?t nil)) 
    (variable ?B (mag (field ?point magnetic ?wire :time ?tot2)))
@@ -3194,11 +3196,12 @@
   (
    (center-of-coil ?point ?coil . ?rest)  ;given that there is a coil
    (any-member ?sought (
-			(current-thru ?coil :time ?t ?t)
+			(current-thru ?branch :time ?t ?t)
 			(turns ?coil)
 			(radius-of-circle ?coil)
 			(mag (field ?center magnetic ?coil :time ?t ?t))
 			))
+   (compo-or-branch ?coil ?branch)
    ;; determine whether coil is a single loop
    (setof (given (turns ?coil) 1) 1 ?flag)
    (time ?t) ;not bound by some ?sought
@@ -3217,7 +3220,8 @@
   :preconditions 
   ( 
    (any-member ?tot (?t nil)) 
-   (variable ?I (current-thru ?coil :time ?tot))
+   (compo-or-branch ?coil ?branch)
+   (variable ?I (current-thru ?branch :time ?tot))
    (use-for-turns ?N ?coil :loop ?flag)
    (variable ?r	(radius-of-circle ?coil))
    (any-member ?tot2 (?t nil)) 
