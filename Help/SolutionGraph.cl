@@ -778,7 +778,12 @@
 ;; fields of the System Entries in its cinterp.  
 (defun sg-delete-StudentEntry (Entry)
   "Remove the markings from each node in the Entrie's CInterp."
-  (dolist (E (sg-unmark-interp (StudentEntry-Cinterp Entry)))
+  ; AW: unneeded variable check will mark define-var sysentries
+  ; as entered by some student equation entries, even though 
+  ; the define-vars are NOT saved in the studentEntry's Cinterp.
+  ; Change to loop over ALL system entries to allow for this case.
+  ; Hairy technique, probably should be changed.
+  (dolist (E *sg-entries*) ; was: (E (studentEntry-Cinterp Entry))
     (setf (SystemEntry-Entered E)
       (remove Entry (SystemEntry-Entered E)))))
 

@@ -199,12 +199,52 @@
 	(setf tmp (interpret-equation result location)))
       (cond
        ((equal **Color-Green** (turn-coloring tmp))
-	(sg-Enter-StudentEntry se))
+	(sg-Enter-StudentEntry se)
+
+	; also enter scalar variables whose only uses are in this entry's interp
+	(let ((eqn-interp (studentEntry-Cinterp se))
+	      unneeded-vardefs)
+	  ; collect list of variable entries no longer needed
+	  (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
+	                                            (vars-in-eqn (sysent-algebra sysent)))
+						eqn-interp)))
+	     (when (subsetp (syseqns-containing-var var) eqn-interp)
+	        (pushnew (var-to-sysentry var) unneeded-vardefs)))
+	  (when unneeded-vardefs
+	     ; temporarily munge this entry's interpretations to get variable definition entries 
+	     ; associated with it to be marked as entered by this student entry, restore when done. 
+	     ; !!! Need to make sg handle deletions for this.  If not, need to either add these to this
+	     ; entry's interp -- which could cause problems with code that assumes eqn
+	     ; entries have only eqn entries in interp -- or else make this a dependent
+	     ; entry like an implicit eqn. 
+	     (format T "entering unneeded vardefs: ~s~%" unneeded-vardefs)
+	     (setf (studentEntry-Cinterp se) unneeded-vardefs)
+	     (sg-Enter-StudentEntry se)
+	     (setf (studentEntry-Cinterp se) eqn-interp)))
+       )
        (t
 	;; empty slot since it failed
 	(solver-studentEmptySlot (studentEntry-Id se))))))
     ;;(format t "*(*(*( ~A~%" tmp)
     tmp))
+
+(defun sysent-algebra (sysent)
+"return algebra for a system equation entry; NIL if not an eqn entry"
+  (when (help-eqn-entryprop-p (systemEntry-prop sysent))) ; is an equation entry
+    (second (systemEntry-prop sysent)))
+
+(defun syseqns-containing-var (var)
+"get all system entries for eqns containing var"
+   (remove-if-not #'(lambda (sysent) 
+                        (member var (vars-in-eqn (sysent-algebra sysent))))
+		  *sg-entries*))
+
+(defun var-to-sysentry (var)
+"given system variable, find the systementry for its definition step"
+ (let ((quant (sysvar-to-quant var)))
+  (when quant ; look for matching define-var prop
+    (find `(define-var ,quant) *sg-entries* 
+           :key #'systementry-prop :test #'equal))))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -733,6 +773,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun grammar-add-variable (varin)
+  (declare (ignore varin))
   ;;(grammar-add-identifier '**grammar** varin 'variable)
   )
 ;;
