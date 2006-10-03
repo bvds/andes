@@ -2487,7 +2487,7 @@
 (defoperator draw-Bfield-current-loop (?loc ?wire ?t)
   :preconditions 
   (
-   (center-of-coil ?loc ?wire :current-axis ?dir-B)
+   (center-of-coil ?loc ?wire :current-axis ?dir-B :time ?t)
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
@@ -2495,6 +2495,7 @@
 			      (body-name ?loc) (body-name ?wire) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (test (or ?dir-B (error "must supply value for :current-axis")))
    (bind ?dir-i (rotation-name ?dir-B))
    )
   :effects (
@@ -2506,8 +2507,8 @@
   :hint (
       (point (string "The direction of the magnetic field at the center of a current-carrying coil can be determined by a use of the right-hand rule."))
       (teach (string "If you grasp the wire with your right hand with the thumb pointing in the direction of the current, your fingers curl around the wire in the direction of the magnetic field lines."))
-      (bottom-out (string "Curling your right hand around the wire with the thumb in the direction of the current, ~a, your fingers at ~a point in the direction ~a.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in that direction, ~A." 
-           (?dir-i adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
+      (bottom-out (string "Curling your right hand around ~A with the thumb in the direction of the current, ~a.  At ~A, your fingers point in the direction ~a.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in that direction, ~A." 
+           ?wire (?dir-i adj) ?loc (?dir-B adj) ?loc ?wire (?dir-B adj)))
   ))
 
 ;; This draws the magnetic force vector on a charge by right-hand-rule

@@ -218,11 +218,15 @@
        ((eq xyz 'z) "z")
        (t (error "invalid axis specification~%"))))
 
-(defun rotation-name (z-dir)
-  (cond ((eq z-dir 'into) "clockwise")
-	((eq z-dir 'out-of) "counter-clockwise")
-	((eq z-dir 'z-unknown) "either direction")
-	(t (error "invalid rotation about z-axis: ~A ~%" z-dir))))
+(defun rotation-name (dir)
+  (cond ((eq dir 'into) "clockwise")
+	((eq dir 'out-of) "counter-clockwise")
+	((eq dir 'z-unknown) "either direction in the xy-plane")
+	;; There is not a good way to describe the direction for
+	;; rotations about the x and y axis:
+	((parallel-or-antiparallelp dir '(dnum 90 |deg|)) "about the y-axis")
+	((parallel-or-antiparallelp dir '(dnum 0 |deg|)) "about the x-axis")
+	(t (error "invalid rotation specification: ~A ~%" dir))))
 
 ; !!! following only applies to known xy plane angles.
 ; calling with zero-length, dir unknown or z-axis dirs will throw error
