@@ -207,7 +207,8 @@
 	  ; collect list of variable entries no longer needed
 	  (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
 	                                            (vars-in-eqn (sysent-algebra sysent)))
-						eqn-interp)))
+					       eqn-interp)))
+	    (format t "bvds var ~s var-to-sysentry ~s~%" var (var-to-sysentry var))
 	     (when (subsetp (syseqns-containing-var var) eqn-interp)
 	        (pushnew (var-to-sysentry var) unneeded-vardefs)))
 	  (when unneeded-vardefs
