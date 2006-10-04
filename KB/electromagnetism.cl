@@ -1328,7 +1328,7 @@
 		 (dir (net-field ?loc ?type :time ?t)))
    )
   :hint (
-	 (point (string "Since the ~A fields at ~A are all pointing in the same direction, the direction of the net ~A field is known."
+	 (point (string "Since the ~A field at ~A due to each source is pointing in the same direction, the direction of the net ~A field is known."
 	                (?type adj) ?loc (?type adj))) 
 	 (bottom-out (string "Use the ~A field drawing tool to draw the net ~A field at ~a in the direction ~A." 
 			     (?type adj) (?type adj) ?loc (?net-dir adj)))
