@@ -750,7 +750,7 @@
   :hint
   (;;(point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, there are no vectors on the system of interest with known directions in the x-y plane."))
    ;;(teach (string "When you don't have any vectors in the x-y plane with which to align your coordinate system, you might as well draw a standard horizontal-vertical coordinate system."))
-   (teach (string "In this problem there is no strong reason not to use a standard horizontal-vertical coordinate system."))
+   (teach (string "In this problem, there is no strong reason not to use a standard horizontal-vertical coordinate system."))
    (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
    ))
 
@@ -1933,7 +1933,7 @@
   ((point (string
 	 "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
    (teach (string
-	 "Whenever an object is moving in a straight line over a time interval, it has a displacement which is parallel to the direction of motion.  In this problem the exact direction of the displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
+	 "Whenever an object is moving in a straight line over a time interval, it has a displacement which is parallel to the direction of motion.  In this problem, the exact direction of the displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
    (bottom-out (string
 		 "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified." ?b (?t pp)))
     ))
@@ -2034,7 +2034,7 @@
     (variable ?dir-var (dir (displacement ?b :time ?t))))
    :hint
    ((point (string "You need to introduce a term for the displacement of ~a ~a." ?b (?t pp)))
-    (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter. In this problem the exact direction of the net displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
+    (teach (string "The displacement of an object is a vector from its starting point to its ending point.  It doesn't matter what path the object took.  Only the two points matter. In this problem, the exact direction of the net displacement vector requires calculation to determine, so you can draw the vector at an approximately correct angle and leave the exact angle unspecified."))
     (bottom-out (string "Draw the displacement of ~a ~a at an approximately correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified."
 			?b (?t pp)))
     ))
@@ -3146,7 +3146,7 @@
     (variable ?dir-var (dir (?vectype ?b :time ?t)))
    )
    :hint
-   ((teach (string "In this problem the exact direction of the sought vector, ~A, requires calculation to determine. When a vector angle is not given, you should draw the vector at an unspecified angle. You do this by drawing the vector making your best approximation to the correct angle, then erasing the number in the direction slot of the subsequent dialog box to indicate that the exact angle is being sought." ?vector))
+   ((teach (string "In this problem, the exact direction of the sought vector, ~A, requires calculation to determine. When a vector angle is not given, you should draw the vector at an unspecified angle. You do this by drawing the vector making your best approximation to the correct angle, then erasing the number in the direction slot of the subsequent dialog box to indicate that the exact angle is being sought." ?vector))
     (bottom-out (string "Draw ~a ~a at your best approximation to the correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified."
 			?b (?t pp)))
     ))
