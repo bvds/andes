@@ -240,32 +240,34 @@
 
 ;;May need to uncomment (resistance) as a sought to get currents to work
 (defoperator ohms-law-contains-resistor (?sought)
-  :preconditions
-  (
-   (any-member ?sought ((current-thru ?branch :time ?t ?t)
-			(voltage-across ?res :time ?t ?t)))
-   (time-or-timeless ?t) ;in case ?t is not bound
-   (circuit-component ?res resistor)
-   (compo-or-branch ?res ?branch)
-   ;;Added mary/Kay 7 May
-   ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
-   ;;(test (member ?res ?path :test #'equal))     
-   )
-  :effects ((eqn-contains (ohms-law ?res ?t) ?sought)))
+  :preconditions(
+		 (any-member ?sought ((current-thru ?branch :time ?t ?t)
+				      (voltage-across ?res :time ?t ?t)))
+		 (time ?t) ;in case ?t is not bound
+		 (circuit-component ?res resistor)
+		 (compo-or-branch ?res ?branch)
+		 ;;Added mary/Kay 7 May
+		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
+		 ;;(test (member ?res ?path :test #'equal))     
+		 )
+  :effects(
+	   (eqn-contains (ohms-law ?res ?t) ?sought)
+	   ))
 
 (defoperator single-resistance-contains (?sought)
-  :preconditions
-  (
-   (any-member ?sought ((resistance ?res)))
-   ;; only apply for resistance of atomic resistor:
-   ;; (Why? -- AW)
-   (test (atom ?res))
-   (time-or-timeless ?t)
-   (circuit-component ?res resistor)
-   ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
-   ;;(test (member ?res ?path))
-   )
-  :effects ( (eqn-contains (ohms-law ?res ?t) ?sought) ))
+  :preconditions(
+		 (any-member ?sought ((resistance ?res)))
+		 ;; only apply for resistance of atomic resistor:
+		 ;; (Why? -- AW)
+		 (test (atom ?res))
+		 (time ?t)
+		 (circuit-component ?res resistor)
+		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
+		 ;;(test (member ?res ?path))
+		 )
+  :effects(
+	   (eqn-contains (ohms-law ?res ?t) ?sought)
+	   ))
 
 (defoperator write-ohms-law (?res ?t)
   :specifications "doc"
@@ -317,7 +319,7 @@
   :preconditions (
 		  (closed-loop ?branch-list ?p1 ?p2 ?path ?reversed)
 		  (test (member ?comp ?path :test #'equal))
-		  (time-or-timeless ?t) ;in case ?t is not bound
+		  (time ?t)
 		  )
   :effects ( (eqn-contains (loop-rule ?branch-list ?t) 
 			   (voltage-across ?comp :time ?t ?t)) ))
