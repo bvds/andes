@@ -1228,13 +1228,11 @@
 (defoperator calculate-net-field-dir-from-fields (?loc ?type ?t)
   :preconditions 
   (
-   (time ?t)
+   (time-or-timeless ?t)
    ;; find all fields that are acting at ?loc, currently
    ;; this is done by hand in the problem definition
-  ;; (field-sources ?loc ?type ?sources :time ?t ?t)
-   ;; Since this draws vectors, one might be able to forgo
-   ;; the field-sources invocation above and just use setof below:
-  ;; (map ?source ?sources
+   ;; (field-sources ?loc ?type ?sources :time ?t ?t)
+   ;; Instead, we use vector drawing to get the set of fields:
    (setof
 	(vector ?body-axis (field ?loc ?type ?source :time ?t) ?dir) 
 	  ?dir ?dirs)
@@ -2487,8 +2485,9 @@
 (defoperator draw-Bfield-current-loop (?loc ?wire ?t)
   :preconditions 
   (
-   (center-of-coil ?loc ?wire :current-axis ?dir-B :time ?t)
+   (center-of-coil ?loc ?wire :current-axis ?dir-B)
    ;; only use time when allowed by feature changing-field
+   (time-or-timeless ?t)
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" 

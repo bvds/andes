@@ -1367,18 +1367,19 @@
 	    (assume constant-compo ?quant . ?rest)
    ))
 
-;;;;
-;;;;  In problems where no time is specified, make a nil
-;;;;  value for time.
-;;;;
+;;
+;;  Return any times plus timeless
+;;  This is better than adding the effect (time nil) which 
+;;  would break backwards compatability
 
-#|  ;for now, put in explicitly in problem statement
-(defoperator timeless-time ()
-  :preconditions (
-   (not (time ?t))
-  )
-  :effects ( (time null) ))
-|# 
+
+(defoperator time-is-time (?t)
+  :preconditions ((time ?t))
+  :effects ((time-or-timeless ?t)))
+
+(defoperator time-is-timeless ()
+  :preconditions ()
+  :effects ((time-or-timeless nil)))
 
 ;;; ================= speed distance duration ===================
 ;;; These operators represent knowledge of the speed=distance/duration
