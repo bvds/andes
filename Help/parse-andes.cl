@@ -208,8 +208,8 @@
 	  (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
 	                                            (vars-in-eqn (sysent-algebra sysent)))
 					       eqn-interp)))
-	    (format t "bvds var ~s var-to-sysentry ~s~%" var (var-to-sysentry var))
-	     (when (subsetp (syseqns-containing-var var) eqn-interp)
+	    (when (and (var-to-sysentry var) ;nil for vector quantities, ignore
+		       (subsetp (syseqns-containing-var var) eqn-interp))
 	        (pushnew (var-to-sysentry var) unneeded-vardefs)))
 	  (when unneeded-vardefs
 	     ; temporarily munge this entry's interpretations to get variable definition entries 
