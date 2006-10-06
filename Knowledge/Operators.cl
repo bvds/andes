@@ -285,9 +285,9 @@
   (or (if (null vals) no-bindings) 
       (unify (operator-variables op) vals)
       (unless  (and (null vals) (null (operator-variables op)))
-	(format t "Operator variables don't match operator values: ~a. May need to regenerate problem file." 
-		(operator-name op))
-	NIL)))
+	(format t "Operator variables don't match operator values: ~a~%    May need to regenerate problem file.~%    operator-variables:  ~A~%    values:  ~A~%" 
+		(operator-name op) (operator-variables op) vals)
+	nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Resgister-operator
