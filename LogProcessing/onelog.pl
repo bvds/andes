@@ -59,9 +59,13 @@ while (<>) { # loop over andes sessions
     if ($student ne $session_userid) {
 	warn "warning: session label $session_userid doesn't match $student\n";
     }
-    $prob{$student}{$problem} += $time_used;
+    $prob{$student}{$problem} += $time_used; #accumulate time used
     push @{ $sessions{$student}{$problem}}, $date;
- #   print "student $student problem $problem at $date for $time_used s\n";
+#    if(scalar( @{ $sessions{$student}{$problem}}) > 1) {
+#	print "student $student problem $problem at $date for $prob{$student}{$problem} s\n";
+#	print "      @{ $sessions{$student}{$problem}}\n";
+#    }
+#   print "student $student problem $problem at $date for $time_used s\n";
 
 }
 
