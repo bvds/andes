@@ -32,13 +32,31 @@
 #
 # We pull out contents between the Andes header line and the END-LOG line.
 
+$max_pause=0;
 
 while (<>) { # loop over andes sessions
     # find (and discard) database header
     next unless /^.* Log of Andes session begun/;  
     
+    $last_time=0;
+    $dt_max=0;
+    $score=0;
     while (<>) {   # loop over lines in Andes session
 	last if /\tEND-LOG/;  # end of Andes session
+	
+	if (/^(\d+):(\d+)\t/) {
+	    $this_time = $1*60+$2; # total time in seconds
+	    $dt = $this_time - $last_time;
+	    $last_time = $this_time;
+	    
+	    next if /\tApp-activate/;  # ignore pauses associated with sleep
+
+	    if($dt > $dt_max) { $dt_max = $dt; }
+	    if($dt>$max_pause) { $max_pause=$dt;}
+             # make a histogram of the pauses
+             #	    @hist_pause[]++;
+	}
+
 	next unless /\tDDE/;  # skip non DDE lines
 	if (/read-student-info .(\w+)/) {
 	    $student = $1;  # session label should start with student id
@@ -54,6 +72,9 @@ while (<>) { # loop over andes sessions
 	elsif (/^(\d+):(\d+)\tDDE.*close-problem/) {
 	    $time_used = $1*60+$2; #total time in seconds
 	}
+	elsif (/\t DDE-COMMAND set-score (\d+)/) {
+	    $score = $1; # we want the final score
+	}
     }
 
     unless ($_) {
@@ -64,21 +85,27 @@ while (<>) { # loop over andes sessions
 	warn "warning: session label $session_userid doesn't match $student\n";
     }
 
-    $prob{$student}{$problem} += $time_used; #accumulate time used
-    push @{ $sessions{$student}{$problem}}, $date; #accumulate sessions
-#    if(scalar( @{ $sessions{$student}{$problem}}) > 1) {
-#	print "student $student problem $problem at $date for $prob{$student}{$problem} s\n";
-#	print "      @{ $sessions{$student}{$problem}}\n";
-#    }
-#   print "student $student problem $problem at $date for $time_used s\n";
-#    if($sessioncount++) {
-#	print "Processed $sessioncount logs\n";
-#    }
+    $times{$student}{$problem} += $time_used; # accumulate time used
+    $scores{$student}{$problem} = $score; # want final score
+
+    unless($pause{$student}{$problem} and 
+	   $dt_max < $pause{$student}{$problem}) {
+	$pause{$student}{$problem}=$dt_max; # record largest pause
+    }
+    push @{ $sessions{$student}{$problem}}, $date; # accumulate session times
 
 }
 
-foreach $student (keys %prob) {
-    foreach $problem (keys %{$prob{$student}}) {
-	print "$student $problem $prob{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
+foreach $student (keys %times) {
+    foreach $problem (keys %{$times{$student}}) {
+#	print "$student $problem $times{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
+#	print "$student $problem $times{$student}{$problem} $scores{$student}{$problem} $pause{$student}{$problem}\n";
+	if($pause{$student}{$problem} > 0.5*$max_pause) {
+	    print "$student $problem $times{$student}{$problem} $pause{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
+	}
     }
 }
+
+print "\nMaximum pause found is $max_pause s\n";
+
+
