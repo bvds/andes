@@ -35,11 +35,11 @@
 
 while (<>) { # loop over andes sessions
     # find (and discard) database header
-    unless(/^.* Log of Andes session begun/){next;}  
+    next unless /^.* Log of Andes session begun/;  
     
-    while (<>) {   #loop over lines in Andes Session
-	if(/END-LOG/) {last;}    
-	unless(/DDE/) {next;} # skip non DDE lines
+    while (<>) {   # loop over lines in Andes session
+	last if /\tEND-LOG/;  # end of Andes session
+	next unless /\tDDE/;  # skip non DDE lines
 	if (/read-student-info .(\w+)/) {
 	    $student = $1;  # session label should start with student id
 	}
@@ -51,14 +51,19 @@ while (<>) { # loop over andes sessions
 	    $problem = $1;
 	    $problem  =~ tr/A-Z/a-z/;  #set to lower case
 	}
-	elsif (/^(\d+):(\d+)\s+DDE.*close-problem/) {
+	elsif (/^(\d+):(\d+)\tDDE.*close-problem/) {
 	    $time_used = $1*60+$2; #total time in seconds
 	}
     }
 
+    unless ($_) {
+	warn "End of file encountered during Andes session\n";
+	last;
+    }
     if ($student ne $session_userid) {
 	warn "warning: session label $session_userid doesn't match $student\n";
     }
+
     $prob{$student}{$problem} += $time_used; #accumulate time used
     push @{ $sessions{$student}{$problem}}, $date; #accumulate sessions
 #    if(scalar( @{ $sessions{$student}{$problem}}) > 1) {
@@ -66,11 +71,14 @@ while (<>) { # loop over andes sessions
 #	print "      @{ $sessions{$student}{$problem}}\n";
 #    }
 #   print "student $student problem $problem at $date for $time_used s\n";
+#    if($sessioncount++) {
+#	print "Processed $sessioncount logs\n";
+#    }
 
 }
 
 foreach $student (keys %prob) {
     foreach $problem (keys %{$prob{$student}}) {
-	print "$student $problem $prob{$student}{$problem} @{ $sessions{$student}{$problem}}";
+	print "$student $problem $prob{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
     }
 }
