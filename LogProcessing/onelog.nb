@@ -41,9 +41,9 @@ Wolfram Research.
 
 (*NotebookFileLineBreakTest
 NotebookFileLineBreakTest*)
-(*NotebookOptionsPosition[     59053,       1547]*)
-(*NotebookOutlinePosition[     59684,       1569]*)
-(*  CellTagsIndexPosition[     59640,       1565]*)
+(*NotebookOptionsPosition[     59216,       1556]*)
+(*NotebookOutlinePosition[     59847,       1578]*)
+(*  CellTagsIndexPosition[     59803,       1574]*)
 (*WindowFrame->Normal*)
 
 
@@ -71,6 +71,15 @@ Cell[BoxData[
             242}, {91, 263}, {92, 527}, {93, 639}, {94, 705}, {95, 273}, {96, 
             421}, {97, 793}, {98, 1232}, {99, 2260}, {100, 2348}};\)\(\n\)
     \)\)], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Apply[Plus, \(Transpose[scorehistogram]\)[\([2]\)]]\)], "Input"],
+
+Cell[BoxData[
+    \(16774\)], "Output"]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -1572,17 +1581,22 @@ Cell[1754, 51, 54, 1, 27, "Input"],
 Cell[1811, 54, 1311, 18, 363, "Input"],
 
 Cell[CellGroupData[{
-Cell[3147, 76, 57, 1, 27, "Input"],
-Cell[3207, 79, 20384, 505, 186, 4770, 308, "GraphicsData", "PostScript", \
-"Graphics"],
-Cell[23594, 586, 130, 3, 27, "Output"]
+Cell[3147, 76, 84, 1, 27, "Input"],
+Cell[3234, 79, 39, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[23761, 594, 60, 1, 27, "Input"],
-Cell[23824, 597, 35080, 942, 238, 15175, 692, "GraphicsData", "PostScript", \
+Cell[3310, 85, 57, 1, 27, "Input"],
+Cell[3370, 88, 20384, 505, 186, 4770, 308, "GraphicsData", "PostScript", \
 "Graphics"],
-Cell[58907, 1541, 130, 3, 27, "Output"]
+Cell[23757, 595, 130, 3, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[23924, 603, 60, 1, 27, "Input"],
+Cell[23987, 606, 35080, 942, 238, 15175, 692, "GraphicsData", "PostScript", \
+"Graphics"],
+Cell[59070, 1550, 130, 3, 27, "Output"]
 }, Open  ]]
 }
 ]
