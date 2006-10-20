@@ -115,11 +115,11 @@ foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
 }
 
 # print out score histogram in Mathematica notation
-print "\nscorehistogram={\n";
+print "\nscorehistogram={";
 foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
-    print "{$score,$score_histogram{$score}},";
+    print "{$score,$score_histogram{$score}}",$score<100?",":"";
 }
-print "\n};\n";
+print "};\n";
 
 # make a log-log histogram
 $step = 4;  #number of steps per decade
