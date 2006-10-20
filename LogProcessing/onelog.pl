@@ -49,7 +49,7 @@ while (<>) { # loop over andes sessions
 	    $dt = $this_time - $last_time;
 	    $last_time = $this_time;
 	    
-	    next if /\tApp-activate/;  # ignore pauses associated with sleep
+	   # next if /\tApp-activate/;  # ignore pauses associated with sleep
 
 	    $dt_histogram{$dt}++;
 	    if($dt > $dt_max) { $dt_max = $dt; }
@@ -97,13 +97,10 @@ while (<>) { # loop over andes sessions
 
 foreach $student (keys %times) {
     foreach $problem (keys %{$times{$student}}) {
-	    $score_histogram[$scores{$student}{$problem}]++;
+	    $score_histogram{$scores{$student}{$problem}}++;
 #	print "$student $problem $times{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
-#	print "$student $problem $times{$student}{$problem} $scores{$student}{$problem} $pause{$student}{$problem}\n";
-	if($pause{$student}{$problem} > 0.5*$max_pause) {
-	    print "$student $problem $times{$student}{$problem} $pause{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
+	    print "$student $problem $times{$student}{$problem} $scores{$student}{$problem} $pause{$student}{$problem}\n";
 	}
-    }
 }
 
 print "\nMaximum pause found is $max_pause s\n";
@@ -112,12 +109,18 @@ foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
     print "$delay $dt_histogram{$delay}\n";
 }
 
+print "\nscore_histogram={\n";
+foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
+    print "{$score,$score_histogram{$score}},";
+}
+print "\n};\n";
+
 # make a log-log histogram
 $step = 4;  #number of steps per decade
 foreach $delay (keys %dt_histogram) {
-    $bin[int (0.5 + log($delay)/($step*log(10.0)))] += $dt_histogram{$delay}/
-	(exp(;
-    print "$delay $dt_histogram{$delay}\n";
+#    $bin[int (0.5 + log($delay)/($step*log(10.0)))] += $dt_histogram{$delay}
+#/	(exp(;
+#    print "$delay $dt_histogram{$delay}\n";
 }
 foreach $y (@bin) {
     $y = log($y)/log(10.0);
