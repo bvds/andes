@@ -40,7 +40,7 @@ while (<>) { # loop over andes sessions
     
     $last_time=0;
     $dt_max=0;
-    $score;
+    $score=0;
     while (<>) {   # loop over lines in Andes session
 	last if /\tEND-LOG/;  # end of Andes session
 	
@@ -108,12 +108,6 @@ foreach $student (keys %times) {
 	}
 }
 
-print "\nMaximum pause found is $global_dt_max s\n";
-#print "\n@dt_histogram\n";
-foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
-#    print "$delay $dt_histogram{$delay}\n";
-}
-
 # print out score histogram in Mathematica notation
 print "\nscorehistogram={";
 foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
@@ -121,13 +115,29 @@ foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
 }
 print "};\n";
 
+print "\nMaximum pause found is $global_dt_max s\n";
+print "pausehistogram={";
+foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
+    print "{$delay,$dt_histogram{$delay}},";
+}
+print "};\n";
+
 # make a log-log histogram
-$step = 4;  #number of steps per decade
+$step = 10;  #number of steps per decade
 foreach $delay (keys %dt_histogram) {
-#    $bin[int (0.5 + log($delay)/($step*log(10.0)))] += $dt_histogram{$delay}
-#/	(exp(;
-#    print "$delay $dt_histogram{$delay}\n";
+    next if $delay<1;
+    $log_dt_hist{int (0.5 + log($delay)*$step/log(10.0))} += 
+	$dt_histogram{$delay};
 }
-foreach $y (@bin) {
-    $y = log($y)/log(10.0);
+# find bin centers and renormalize to compensate for bin widths
+foreach $i (keys %log_dt_hist) {
+    $log_dt_bin{$i}=exp($i*log(10.0)/$step);
+    # simplify sinh assuming $step is large
+    $log_dt_hist{$i} /= $log_dt_bin{$i}*log(10.0)/$step;
 }
+# print out log binned pause histogram in Mathematica notation
+print "\nlogpausehistogram={";
+foreach $i (sort {$a <=> $b} (keys %log_dt_hist)) {
+    print "{$log_dt_bin{$i},$log_dt_hist{$i}},";
+}
+print "};\n";
