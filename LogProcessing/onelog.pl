@@ -116,13 +116,16 @@ foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
 print "};\n";
 
 print "\nMaximum pause found is $global_dt_max s\n";
+# printout histogram of pauses
 print "pausehistogram={";
 foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
     print "{$delay,$dt_histogram{$delay}},";
 }
 print "};\n";
 
-# make a log-log histogram
+# make a log-log histogram of the pauses
+# This doesn't do any better than the raw plot of the data,
+# except for delays above 1000 seconds.
 $step = 10;  #number of steps per decade
 foreach $delay (keys %dt_histogram) {
     next if $delay<1;
