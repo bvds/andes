@@ -32,7 +32,7 @@
 #
 # We pull out contents between the Andes header line and the END-LOG line.
 
-$max_pause=0;
+$global_dt_max=0;
 
 while (<>) { # loop over andes sessions
     # find (and discard) database header
@@ -40,20 +40,24 @@ while (<>) { # loop over andes sessions
     
     $last_time=0;
     $dt_max=0;
-    $score=0;
+    $score;
     while (<>) {   # loop over lines in Andes session
 	last if /\tEND-LOG/;  # end of Andes session
 	
-	if (/^(\d+):(\d+)\t/) {
-	    $this_time = $1*60+$2; # total time in seconds
+	if(/^(\d+):(\d+)\t/ or /^(\d+):(\d+):(\d+)\t/) {
+           # total time in seconds
+	    $this_time = $3 ? $1*3600+$2*60+$3 : $1*60+$2; 
 	    $dt = $this_time - $last_time;
 	    $last_time = $this_time;
-	    
-	   # next if /\tApp-activate/;  # ignore pauses associated with sleep
 
+	   # next if /\tApp-activate/;  # ignore pauses associated with sleep
 	    $dt_histogram{$dt}++;
 	    if($dt > $dt_max) { $dt_max = $dt; }
-	    if($dt>$max_pause) { $max_pause=$dt;}
+	    if($dt>$global_dt_max) { $global_dt_max=$dt;}
+	} else {
+            # silently ignore header lines
+	    warn "Time stamp missing for $_\n" unless /^#/;
+	    next;
 	}
 
 	next unless /\tDDE/;  # skip non DDE lines
@@ -68,11 +72,12 @@ while (<>) { # loop over andes sessions
 	    $problem = $1;
 	    $problem  =~ tr/A-Z/a-z/;  #set to lower case
 	}
-	elsif (/^(\d+):(\d+)\tDDE.*close-problem/) {
-	    $time_used = $1*60+$2; #total time in seconds
+	elsif (/\tDDE .close-problem/) {
+	    $time_used = $this_time;   # calculated above
+	    $final_score = $score;     # want most recent score
 	}
-	elsif (/\t DDE-COMMAND set-score (\d+)/) {
-	    $score = $1; # we want the final score
+	elsif (/\tDDE-COMMAND set-score (\d+)/) {
+	    $score = $1; 
 	}
     }
 
@@ -85,7 +90,7 @@ while (<>) { # loop over andes sessions
     }
 
     $times{$student}{$problem} += $time_used; # accumulate time used
-    $scores{$student}{$problem} = $score; # want final score (don't use max)
+    $scores{$student}{$problem} = $final_score;
 
     unless($pause{$student}{$problem} and 
 	   $dt_max < $pause{$student}{$problem}) {
@@ -99,17 +104,18 @@ foreach $student (keys %times) {
     foreach $problem (keys %{$times{$student}}) {
 	    $score_histogram{$scores{$student}{$problem}}++;
 #	print "$student $problem $times{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
-	    print "$student $problem $times{$student}{$problem} $scores{$student}{$problem} $pause{$student}{$problem}\n";
+#	    print "$student $problem $times{$student}{$problem} $scores{$student}{$problem} $pause{$student}{$problem}\n";
 	}
 }
 
-print "\nMaximum pause found is $max_pause s\n";
+print "\nMaximum pause found is $global_dt_max s\n";
 #print "\n@dt_histogram\n";
 foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
-    print "$delay $dt_histogram{$delay}\n";
+#    print "$delay $dt_histogram{$delay}\n";
 }
 
-print "\nscore_histogram={\n";
+# print out score histogram in Mathematica notation
+print "\nscorehistogram={\n";
 foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
     print "{$score,$score_histogram{$score}},";
 }
