@@ -32,15 +32,13 @@
 #
 # We pull out contents between the Andes header line and the END-LOG line.
 
-$global_dt_max=0;
-
 while (<>) { # loop over andes sessions
     # find (and discard) database header
     next unless /^.* Log of Andes session begun/;  
     
     $last_time=0;
-    $dt_max=0;
     $score=0;
+    $loss_of_focus=0;  #accumulate pauses associated with loss of focus
     while (<>) {   # loop over lines in Andes session
 	last if /\tEND-LOG/;  # end of Andes session
 	
@@ -50,10 +48,12 @@ while (<>) { # loop over andes sessions
 	    $dt = $this_time - $last_time;
 	    $last_time = $this_time;
 
-	   # next if /\tApp-activate/;  # ignore pauses associated with sleep
+            # ignore pauses associated with loss of focus
+	    #next if /\tApp-activate/ or /\tApp-deactivate/;  
 	    $dt_histogram{$dt}++;
-	    if($dt > $dt_max) { $dt_max = $dt; }
-	    if($dt>$global_dt_max) { $global_dt_max=$dt;}
+	    if ((/\tApp-activate/ or /\tApp-deactivate/) and $dt>0) {
+		$loss_of_focus += $dt;
+	    }
 	} else {
             # silently ignore header lines
 	    warn "Time stamp missing for $_\n" unless /^#/;
@@ -91,22 +91,21 @@ while (<>) { # loop over andes sessions
 
     # Can't do too much analysis here since a problem might
     # be solved over mulitple sessions
-    $times{$student}{$problem} += $time_used; # accumulate time used
+    # accumulate time used, throwing out time where Andes is not in focus
+    # for over 0 s.
+    $times{$student}{$problem} += $time_used-$loss_of_focus; 
     $scores{$student}{$problem} = $final_score;
     if($final_score > 10) {$problems{$problem} = 1}; # problems attempted
-    unless ($pause{$student}{$problem} and 
-	   $dt_max < $pause{$student}{$problem}) {
-	$pause{$student}{$problem}=$dt_max; # record largest pause
-    }
-    push @{ $sessions{$student}{$problem}}, $date; # accumulate session times
-
+    push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
 
 #
 #                        Problem times
 #
 # print out problem time matrix as comma separated lists.
-print "student", sort keys %problems, "\n";
+print "student";
+foreach $problem (sort keys %problems) {print ",$problem";}
+print "\n";
 foreach $student (sort keys %times) {
     print "$student";
     foreach $problem (sort keys %problems) {
@@ -122,13 +121,15 @@ foreach $student (sort keys %times) {
 
 # average time for each student, histogram of average times
 # problem average, student histogram
-print "student", sort keys %problems, "\n";
-foreach $student (sort keys %times) {
-    $s_time=0;
-    $s_count=0;
-    print "$student";
-    foreach $problem (sort keys %problems) {
-	# only record problems with scores above cutoff
+
+if(0) {
+    print "student", sort keys %problems, "\n";
+    foreach $student (sort keys %times) {
+	$s_time=0;
+	$s_count=0;
+	print "$student";
+	foreach $problem (sort keys %problems) {
+	    # only record problems with scores above cutoff
 	    if ($times{$student}{$problem} and $scores{$student}{$problem} > 10) {
 		$s_time += $times{$student}{$problem};
 		$s_count++;
@@ -136,49 +137,53 @@ foreach $student (sort keys %times) {
 		print ",";
 	    } 
 	}
-    print "\n";
-    print "{$student, $s_time/$s_count},";
+	print "\n";
+	print "{$student, $s_time/$s_count},";
+    }
 }
 
 # print out score histogram in Mathematica notation
-foreach $student (keys %times) {
-    foreach $problem (keys %{$times{$student}}) {
+
+if(0) {
+    foreach $student (keys %times) {
+	foreach $problem (keys %{$times{$student}}) {
 	    $score_histogram{$scores{$student}{$problem}}++;
 	}
-}
-print "\nscorehistogram={";
-foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
-    print "{$score,$score_histogram{$score}}",$score<100?",":"";
-}
-print "};\n";
-
-print "\nMaximum pause found is $global_dt_max s\n";
+    }
+    print "\nscorehistogram={";
+    foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
+	print "{$score,$score_histogram{$score}}",$score<100?",":"";
+    }
+    print "};\n";
+}    
+ 
 # printout histogram of pauses
-print "pausehistogram={";
-foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
-    print "{$delay,$dt_histogram{$delay}},";
-}
-print "};\n";
 
-# make a log-log histogram of the pauses
-# This doesn't do any better than the raw plot of the data,
-# except for delays above 1000 seconds.
-$step = 10;  #number of steps per decade
-foreach $delay (keys %dt_histogram) {
-    next if $delay<1;
-    $log_dt_hist{int (0.5 + log($delay)*$step/log(10.0))} += 
-	$dt_histogram{$delay};
+if(0) {
+    print "pausehistogram={";
+    foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
+	print "{$delay,$dt_histogram{$delay}},";
+    }
+    print "};\n";
+    
+    # make a log-log histogram of the pauses
+    $step = 10;  #number of steps per decade
+    foreach $delay (keys %dt_histogram) {
+	next if $delay<1;
+	$log_dt_hist{int (0.5 + log($delay)*$step/log(10.0))} += 
+	    $dt_histogram{$delay};
+    }
+    # find bin centers and renormalize to compensate for bin widths
+    foreach $i (keys %log_dt_hist) {
+	$log_dt_bin{$i}=exp($i*log(10.0)/$step);
+	# calculate the number of bins that have been merged.
+	$log_dt_hist{$i} /= int(exp(($i+0.5)*log(10.0)/$step))-
+	    int(exp(($i-0.5)*log(10.0)/$step));
+    }
+    # print out log binned pause histogram in Mathematica notation
+    print "\nlogpausehistogram={";
+    foreach $i (sort {$a <=> $b} (keys %log_dt_hist)) {
+	print "{$log_dt_bin{$i},$log_dt_hist{$i}},";
+    }
+    print "};\n";
 }
-# find bin centers and renormalize to compensate for bin widths
-foreach $i (keys %log_dt_hist) {
-    $log_dt_bin{$i}=exp($i*log(10.0)/$step);
-    # calculate the number of bins that have been merged.
-    $log_dt_hist{$i} /= int(exp(($i+0.5)*log(10.0)/$step))-
-		        int(exp(($i-0.5)*log(10.0)/$step));
-}
-# print out log binned pause histogram in Mathematica notation
-print "\nlogpausehistogram={";
-foreach $i (sort {$a <=> $b} (keys %log_dt_hist)) {
-    print "{$log_dt_bin{$i},$log_dt_hist{$i}},";
-}
-print "};\n";
