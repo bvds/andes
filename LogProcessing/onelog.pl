@@ -89,10 +89,12 @@ while (<>) { # loop over andes sessions
 	warn "warning: session label $session_userid doesn't match $student\n";
     }
 
+    # Can't do too much analysis here since a problem might
+    # be solved over mulitple sessions
     $times{$student}{$problem} += $time_used; # accumulate time used
     $scores{$student}{$problem} = $final_score;
-
-    unless($pause{$student}{$problem} and 
+    if($final_score > 10) {$problems{$problem} = 1}; # problems attempted
+    unless ($pause{$student}{$problem} and 
 	   $dt_max < $pause{$student}{$problem}) {
 	$pause{$student}{$problem}=$dt_max; # record largest pause
     }
@@ -100,15 +102,50 @@ while (<>) { # loop over andes sessions
 
 }
 
-foreach $student (keys %times) {
-    foreach $problem (keys %{$times{$student}}) {
-	    $score_histogram{$scores{$student}{$problem}}++;
-#	print "$student $problem $times{$student}{$problem} @{ $sessions{$student}{$problem}}\n";
-#	    print "$student $problem $times{$student}{$problem} $scores{$student}{$problem} $pause{$student}{$problem}\n";
+#
+#                        Problem times
+#
+# print out problem time matrix as comma separated lists.
+print "student", sort keys %problems, "\n";
+foreach $student (sort keys %times) {
+    print "$student";
+    foreach $problem (sort keys %problems) {
+	    if ($times{$student}{$problem} and 
+		$scores{$student}{$problem} > 10) {
+		print ",$times{$student}{$problem}";
+	    } else {
+		print ",";
+	    } 
 	}
+    print "\n";
+}
+
+# average time for each student, histogram of average times
+# problem average, student histogram
+print "student", sort keys %problems, "\n";
+foreach $student (sort keys %times) {
+    $s_time=0;
+    $s_count=0;
+    print "$student";
+    foreach $problem (sort keys %problems) {
+	# only record problems with scores above cutoff
+	    if ($times{$student}{$problem} and $scores{$student}{$problem} > 10) {
+		$s_time += $times{$student}{$problem};
+		$s_count++;
+	    } else {
+		print ",";
+	    } 
+	}
+    print "\n";
+    print "{$student, $s_time/$s_count},";
 }
 
 # print out score histogram in Mathematica notation
+foreach $student (keys %times) {
+    foreach $problem (keys %{$times{$student}}) {
+	    $score_histogram{$scores{$student}{$problem}}++;
+	}
+}
 print "\nscorehistogram={";
 foreach $score (sort {$a <=> $b} (keys %score_histogram)) {
     print "{$score,$score_histogram{$score}}",$score<100?",":"";
@@ -135,8 +172,9 @@ foreach $delay (keys %dt_histogram) {
 # find bin centers and renormalize to compensate for bin widths
 foreach $i (keys %log_dt_hist) {
     $log_dt_bin{$i}=exp($i*log(10.0)/$step);
-    # simplify sinh assuming $step is large
-    $log_dt_hist{$i} /= $log_dt_bin{$i}*log(10.0)/$step;
+    # calculate the number of bins that have been merged.
+    $log_dt_hist{$i} /= int(exp(($i+0.5)*log(10.0)/$step))-
+		        int(exp(($i-0.5)*log(10.0)/$step));
 }
 # print out log binned pause histogram in Mathematica notation
 print "\nlogpausehistogram={";
