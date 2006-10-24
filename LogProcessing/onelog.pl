@@ -32,6 +32,10 @@
 #
 # We pull out contents between the Andes header line and the END-LOG line.
 
+$score_cut_off=10;  # minimum score to count a problem as attempted
+$minimum_problem_attempts=15;   # cutoff on list of students
+$minimum_student_attempts=15;  # cutoff on list of problems
+
 while (<>) { # loop over andes sessions
     # find (and discard) database header
     next unless /^.* Log of Andes session begun/;  
@@ -51,7 +55,7 @@ while (<>) { # loop over andes sessions
             # ignore pauses associated with loss of focus
 	    #next if /\tApp-activate/ or /\tApp-deactivate/;  
 	    $dt_histogram{$dt}++;
-	    if ((/\tApp-activate/ or /\tApp-deactivate/) and $dt>0) {
+	    if (/\tApp-activate/ or /\tApp-deactivate/) {
 		$loss_of_focus += $dt;
 	    }
 	} else {
@@ -90,14 +94,44 @@ while (<>) { # loop over andes sessions
     }
 
     # Can't do too much analysis here since a problem might
-    # be solved over multiple sessions
-    # accumulate time used, throwing out time where Andes is not in focus
-    # for over 0 s.
+    # be solved over multiple sessions.
+    # Accumulate time used, throwing out time where Andes is not in focus.
     $times{$student}{$problem} += $time_used-$loss_of_focus; 
     $scores{$student}{$problem} = $final_score;
-    if($final_score > 10) {$problems{$problem} = 1}; # problems attempted
+    if($final_score > $score_cut_off) {$problems{$problem} = 1}; # problems attempted
     push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
+
+#    
+#  Remove students that solved only a few problems.
+foreach $student (sort keys %times) {
+    $i=0;
+    foreach $problem (sort keys %problems) {
+	 if ($times{$student}{$problem} and 
+	     $scores{$student}{$problem} > $score_cut_off) {$i++;}
+     }
+    $problem_attempts{$i}++;
+    if($i<$minimum_problem_attempts) {delete $times{$student};}
+}
+#  Number of students that attempted to solve a given number of problems.
+print "problemattempts={";
+foreach $i (sort {$a <=> $b} keys %problem_attempts) {print "{$i,$problem_attempts{$i}},";}
+print "};\n";
+#
+#     Remove problems that were solved by only a few students
+foreach $problem (sort keys %problems) {
+    $i=0;
+    foreach $student (sort keys %times) {
+	 if ($times{$student}{$problem} and 
+	     $scores{$student}{$problem} > $score_cut_off) {$i++;}
+     }
+    $student_attempts{$i}++;
+    if($i<$minimum_student_attempts) {delete $problems{$problem};}
+}
+#  Number of problems that were solved by a given number of students
+print "studentattempts={";
+foreach $i (sort {$a <=> $b} keys %student_attempts) {print "{$i,$student_attempts{$i}},";}
+print "};\n";
 
 #
 #                        Problem times
@@ -107,16 +141,10 @@ print "student";
 foreach $problem (sort keys %problems) {print ",$problem";}
 print "\n";
 foreach $student (sort keys %times) {
-    $i=0;
-    foreach $problem (sort keys %problems) {
-	    if ($times{$student}{$problem} and 
-		$scores{$student}{$problem} > 10) {i$++;}
-	}
-    next if i<15;   #cutoff on the students
     print "$student";
     foreach $problem (sort keys %problems) {
 	    if ($times{$student}{$problem} and 
-		$scores{$student}{$problem} > 10) {
+		$scores{$student}{$problem} > $score_cut_off) {
 		print ",$times{$student}{$problem}";
 	    } else {
 		print ",";
@@ -136,7 +164,8 @@ if(0) {
 	print "$student";
 	foreach $problem (sort keys %problems) {
 	    # only record problems with scores above cutoff
-	    if ($times{$student}{$problem} and $scores{$student}{$problem} > 10) {
+	    if ($times{$student}{$problem} and 
+		$scores{$student}{$problem} > $score_cut_off) {
 		$s_time += $times{$student}{$problem};
 		$s_count++;
 	    } else {
