@@ -90,7 +90,7 @@ while (<>) { # loop over andes sessions
     }
 
     # Can't do too much analysis here since a problem might
-    # be solved over mulitple sessions
+    # be solved over multiple sessions
     # accumulate time used, throwing out time where Andes is not in focus
     # for over 0 s.
     $times{$student}{$problem} += $time_used-$loss_of_focus; 
@@ -107,6 +107,12 @@ print "student";
 foreach $problem (sort keys %problems) {print ",$problem";}
 print "\n";
 foreach $student (sort keys %times) {
+    $i=0;
+    foreach $problem (sort keys %problems) {
+	    if ($times{$student}{$problem} and 
+		$scores{$student}{$problem} > 10) {i$++;}
+	}
+    next if i<15;   #cutoff on the students
     print "$student";
     foreach $problem (sort keys %problems) {
 	    if ($times{$student}{$problem} and 
