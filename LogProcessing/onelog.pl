@@ -32,9 +32,16 @@
 #
 # We pull out contents between the Andes header line and the END-LOG line.
 
+#
+#  Impose cutoffs on accepted data points.
+#
 $score_cut_off=10;  # minimum score to count a problem as attempted
-$minimum_problem_attempts=15;   # cutoff on list of students
-$minimum_student_attempts=15;  # cutoff on list of problems
+# doesn't contribute
+$minimum_problem_attempts=0.5;   # cutoff on list of students
+# there is a significant number of problems (not assigned)
+# that were only attempted by a few students.  Including these
+# might introduce a selection bias.
+$minimum_student_attempts=20.5;  # cutoff on list of problems
 
 while (<>) { # loop over andes sessions
     # find (and discard) database header
@@ -52,8 +59,9 @@ while (<>) { # loop over andes sessions
 	    $dt = $this_time - $last_time;
 	    $last_time = $this_time;
 
-            # ignore pauses associated with loss of focus
-	    #next if /\tApp-activate/ or /\tApp-deactivate/;  
+            # in pause histogram, might ignore pauses associated with 
+	    # loss of focus:
+	    # next if /\tApp-activate/ or /\tApp-deactivate/;  
 	    $dt_histogram{$dt}++;
 	    if (/\tApp-activate/ or /\tApp-deactivate/) {
 		$loss_of_focus += $dt;
@@ -89,6 +97,7 @@ while (<>) { # loop over andes sessions
 	warn "End of file encountered during Andes session\n";
 	last;
     }
+    # next unless $time_used and $final_score and $student and $problem;
     if ($student ne $session_userid) {
 	warn "warning: session label $session_userid doesn't match $student\n";
     }
@@ -102,83 +111,14 @@ while (<>) { # loop over andes sessions
     push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
 
-#    
-#  Remove students that solved only a few problems.
-foreach $student (sort keys %times) {
-    $i=0;
-    foreach $problem (sort keys %problems) {
-	 if ($times{$student}{$problem} and 
-	     $scores{$student}{$problem} > $score_cut_off) {$i++;}
-     }
-    $problem_attempts{$i}++;
-    if($i<$minimum_problem_attempts) {delete $times{$student};}
-}
-#  Number of students that attempted to solve a given number of problems.
-print "problemattempts={";
-foreach $i (sort {$a <=> $b} keys %problem_attempts) {print "{$i,$problem_attempts{$i}},";}
-print "};\n";
 #
-#     Remove problems that were solved by only a few students
-foreach $problem (sort keys %problems) {
-    $i=0;
-    foreach $student (sort keys %times) {
-	 if ($times{$student}{$problem} and 
-	     $scores{$student}{$problem} > $score_cut_off) {$i++;}
-     }
-    $student_attempts{$i}++;
-    if($i<$minimum_student_attempts) {delete $problems{$problem};}
-}
-#  Number of problems that were solved by a given number of students
-print "studentattempts={";
-foreach $i (sort {$a <=> $b} keys %student_attempts) {print "{$i,$student_attempts{$i}},";}
-print "};\n";
-
+#          Analysis of accumulated data
 #
-#                        Problem times
 #
-# print out problem time matrix as comma separated lists.
-print "student";
-foreach $problem (sort keys %problems) {print ",$problem";}
-print "\n";
-foreach $student (sort keys %times) {
-    print "$student";
-    foreach $problem (sort keys %problems) {
-	    if ($times{$student}{$problem} and 
-		$scores{$student}{$problem} > $score_cut_off) {
-		print ",$times{$student}{$problem}";
-	    } else {
-		print ",";
-	    } 
-	}
-    print "\n";
-}
 
-# average time for each student, histogram of average times
-# problem average, student histogram
-
-if(0) {
-    print "student", sort keys %problems, "\n";
-    foreach $student (sort keys %times) {
-	$s_time=0;
-	$s_count=0;
-	print "$student";
-	foreach $problem (sort keys %problems) {
-	    # only record problems with scores above cutoff
-	    if ($times{$student}{$problem} and 
-		$scores{$student}{$problem} > $score_cut_off) {
-		$s_time += $times{$student}{$problem};
-		$s_count++;
-	    } else {
-		print ",";
-	    } 
-	}
-	print "\n";
-	print "{$student, $s_time/$s_count},";
-    }
-}
 
 # print out score histogram in Mathematica notation
-
+# This is not affected by any of the cutoffs
 if(0) {
     foreach $student (keys %times) {
 	foreach $problem (keys %{$times{$student}}) {
@@ -193,6 +133,7 @@ if(0) {
 }    
  
 # printout histogram of pauses
+# This is not affected by any of the cutoffs
 
 if(0) {
     print "pausehistogram={";
@@ -221,4 +162,93 @@ if(0) {
 	print "{$log_dt_bin{$i},$log_dt_hist{$i}},";
     }
     print "};\n";
+}
+
+#    
+#  Remove students that solved only a few problems.
+#  This should be done semester-wise
+foreach $student (sort keys %times) {
+    $i=0;
+    foreach $problem (sort keys %problems) {
+	 if ($times{$student}{$problem} and 
+	     $scores{$student}{$problem} > $score_cut_off) {$i++;}
+     }
+    $problem_attempts{$i}++;
+    if($i<=$minimum_problem_attempts) {delete $times{$student};}
+}
+#  Print number of students that attempted to solve a given number of problems.
+if (0) {
+    print "problemattempts={";
+    foreach $i (sort {$a <=> $b} keys %problem_attempts) {
+	print "{$i,$problem_attempts{$i}},";}
+    print "};\n";
+}
+#
+#     Remove problems that were solved by only a few students
+#  This should be done semester-wise
+foreach $problem (sort keys %problems) {
+    $i=0;
+    foreach $student (sort keys %times) {
+	 if ($times{$student}{$problem} and 
+	     $scores{$student}{$problem} > $score_cut_off) {$i++;}
+     }
+    $student_attempts{$i}++;
+    if($i<=$minimum_student_attempts) {delete $problems{$problem};}
+}
+#  Print number of problems solved by a given number of students
+if (0) {
+    print "studentattempts={";
+    foreach $i (sort {$a <=> $b} keys %student_attempts) {
+	print "{$i,$student_attempts{$i}},";}
+    print "};\n";
+}
+#
+#                        Problem times
+#
+# print out problem time matrix in CSV format
+#
+# I used:
+#   onelog.pl Fall2005-treacy.dat Fall2005-wintersgill.dat > times-Fall2005.csv
+#   onelog.pl Spring2006-treacy.dat Spring2006-wintersgill.dat > times-Spring2006.csv
+#
+if (1) {
+    print " ";
+    foreach $problem (sort keys %problems) {print ",$problem";}
+    print "\n";
+    foreach $student (sort keys %times) {
+	print "$student";
+	foreach $problem (sort keys %problems) {
+	    if ($times{$student}{$problem} and 
+		$scores{$student}{$problem} > $score_cut_off) {
+		print ",$times{$student}{$problem}";
+	    } else {
+		print ",";
+	    } 
+	}
+	print "\n";
+    }
+}
+
+# average time for each student, histogram of average times
+# problem average, student histogram
+
+if(0) {
+    print "student", sort keys %problems, "\n";
+    foreach $student (sort keys %times) {
+	$s_time=0;
+	$s_count=0;
+	print "$student";
+	foreach $problem (sort keys %problems) {
+	    # only record problems with scores above cutoff
+	    if ($times{$student}{$problem} and 
+		$scores{$student}{$problem} > $score_cut_off) {
+		$s_time += $times{$student}{$problem};
+		$s_count++;
+	    } else {
+		print ",";
+	    } 
+	}
+	print "\n";
+	print "{$student, $s_time/$s_count},";
+    }
 }
