@@ -205,12 +205,13 @@
 	(let ((eqn-interp (studentEntry-Cinterp se))
 	      unneeded-vardefs)
 	  ; collect list of variable entries no longer needed
-	  (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
+	  (when eqn-interp ; if interp is empty, don't reduce #'union NIL, Bug 949
+	    (dolist (var (reduce #'union (mapcar #'(lambda (sysent) 
 	                                            (vars-in-eqn (sysent-algebra sysent)))
-					       eqn-interp)))
-	    (when (and (var-to-sysentry var) ;nil for vector quantities, ignore
-		       (subsetp (syseqns-containing-var var) eqn-interp))
-	        (pushnew (var-to-sysentry var) unneeded-vardefs)))
+					         eqn-interp)))
+	      (when (and (var-to-sysentry var) ;nil for vector quantities, ignore
+		         (subsetp (syseqns-containing-var var) eqn-interp))
+	          (pushnew (var-to-sysentry var) unneeded-vardefs))))
 	  (when unneeded-vardefs
 	     ; temporarily munge this entry's interpretations to get variable definition entries 
 	     ; associated with it to be marked as entered by this student entry, restore when done. 
