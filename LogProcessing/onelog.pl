@@ -43,11 +43,14 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 # might introduce a selection bias.
 $minimum_student_attempts=20.5;  # cutoff on list of problems
 
-$last_header="";
 while (<>) { # loop over andes sessions
     # find (and discard) database header
+    if (/^time,info/) {$last_header="";}  # beginning of new file
     next unless /^.* Log of Andes session begun/;  
 
+    # Test that sessions have been sorted by date
+    # If the beginning of the file was not marked, could have a
+    # false error.
     # use sort-by-time.pl to create a sorted version of the log file.
     $last_header lt $_ or die "Sessions in log file are not sorted.\n";
     $last_header = $_;
@@ -55,6 +58,9 @@ while (<>) { # loop over andes sessions
     $last_time=0;
     $score=0;
     $loss_of_focus=0;  #accumulate pauses associated with loss of focus
+    $intervening_errors=0;
+    $intervening_hints=0;
+    $last_adjusted_time=0;
     while (<>) {   # loop over lines in Andes session
 	last if /\tEND-LOG/;  # end of Andes session
 	
@@ -78,6 +84,11 @@ while (<>) { # loop over andes sessions
 	}
 
 	next unless /\tDDE/;  # skip non DDE lines
+	# reset operator list and record time
+	if (/\t DDE /) { # student action sent to help system
+	    $#operator_list = -1;
+	    $adjusted_time = $this_time - $loss_of_focus;
+	}
 	if (/read-student-info .(\w+)/) {
 	    $student = $1;  # session label should start with student id
 	}
@@ -96,6 +107,29 @@ while (<>) { # loop over andes sessions
 	elsif (/\tDDE-COMMAND set-score (\d+)/) {
 	    $score = $1; 
 	}
+	elsif (/\tDDE-COMMAND assoc op (.*)/) {
+	    @operator_list = split(/,/,$1);
+	}
+	# This way of doing things does not address the case where 
+	# a student tries one thing, fails, and then does (successfully)
+	# something else.
+	elsif (/\tDDE-RESULT \|NIL\|/) {
+	    $intervening_errors++;
+	}
+	elsif (/\tDDE-RESULT \|!show-hint .*\|/) {
+	    $intervening_hints++;
+	}
+	elsif (/\tDDE-RESULT \|T\|/) {
+	 #   print "DDE-RESULT for $student and operators @operator_list\n";
+	    foreach $operator (@operator_list) {
+		push @{$mastery{$student}{$operator}},
+		($intervening_errors,$intervening_hints,
+		 $adjusted_time-$last_adjusted_time);
+	    }
+	    $intervening_errors=0;
+	    $intervening_hints=0;
+	    $last_adjusted_time = $adjusted_time;
+	}	    
     }
 
     unless ($_) {
@@ -216,7 +250,7 @@ if (0) {
 #   onelog.pl Fall2005-treacy.dat Fall2005-wintersgill.dat > times-Fall2005.csv
 #   onelog.pl Spring2006-treacy.dat Spring2006-wintersgill.dat > times-Spring2006.csv
 #
-if (1) {
+if (0) {
     print " ";
     foreach $problem (sort keys %problems) {print ",$problem";}
     print "\n";
@@ -234,26 +268,15 @@ if (1) {
     }
 }
 
-# average time for each student, histogram of average times
-# problem average, student histogram
+# Print out time, errors, hints for each application of a principle.
 
-if(0) {
-    print "student", sort keys %problems, "\n";
-    foreach $student (sort keys %times) {
-	$s_time=0;
-	$s_count=0;
-	print "$student";
-	foreach $problem (sort keys %problems) {
-	    # only record problems with scores above cutoff
-	    if ($times{$student}{$problem} and 
-		$scores{$student}{$problem} > $score_cut_off) {
-		$s_time += $times{$student}{$problem};
-		$s_count++;
-	    } else {
-		print ",";
-	    } 
+if(1) {
+    foreach $student (keys %mastery) {
+	foreach $operator (keys %{$mastery{$student}}) {
+	    foreach $application (@{$mastery{$student}{$operator}}) {
+		# need to figure out syntax for this
+	#	print "@{$appliation} \n";
+	    }
 	}
-	print "\n";
-	print "{$student, $s_time/$s_count},";
     }
 }
