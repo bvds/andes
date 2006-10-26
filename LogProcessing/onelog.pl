@@ -43,10 +43,15 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 # might introduce a selection bias.
 $minimum_student_attempts=20.5;  # cutoff on list of problems
 
+$last_header="";
 while (<>) { # loop over andes sessions
     # find (and discard) database header
     next unless /^.* Log of Andes session begun/;  
-    
+
+    # use sort-by-time.pl to create a sorted version of the log file.
+    $last_header lt $_ or die "Sessions in log file are not sorted.\n";
+    $last_header = $_;
+
     $last_time=0;
     $score=0;
     $loss_of_focus=0;  #accumulate pauses associated with loss of focus
