@@ -298,10 +298,12 @@ if(1) {
 		# next unless $problems{$mastery{$operator}{$student}[$i][3]};
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
 		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
+		# make sure there are no "holes" in the array
+		$op_error_free[$i] or $op_error_free[$i]=0;
 		if($mastery{$operator}{$student}[$i][0] == 0 and
 		   $mastery{$operator}{$student}[$i][1] == 0) {
 		    $op_error_free[$i]++;
-		}
+		} 
 		$op_time[$i]+=$mastery{$operator}{$student}[$i][2];
 		$op_students[$i]+= 1;
 	    }
@@ -309,7 +311,7 @@ if(1) {
 	for ($i=0; $i<scalar(@op_students); $i++) {
 	    $op_errors[$i] /= $op_students[$i];
 	    $op_hints[$i] /= $op_students[$i];
-	    $op_error_free[$i] and $op_error_free[$i] /= $op_students[$i]; 
+	    $op_error_free[$i] /= $op_students[$i]; 
 	    $op_time[$i] /= $op_students[$i]; 
 	}
 	local $"=",";
