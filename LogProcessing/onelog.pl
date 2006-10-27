@@ -298,10 +298,15 @@ if(1) {
 		$op_students[$i]+= 1;
 	    }
 	}
+	for ($i=0; $i<scalar(@op_students); $i++) {
+	    $op_errors[$i] /= $op_students[$i];
+	    $op_hints[$i] /= $op_students[$i];
+	    $op_time[$i] /= $op_students[$i]; 
+	}
 	$"=",";
-	print " errors={@op_errors};\n";
-	print " hints={@op_hints};\n";
-	print " nettime={@op_time};\n";
+	print " avgerrors={@op_errors};\n";
+	print " avghints={@op_hints};\n";
+	print " avgtime={@op_time};\n";
 	print " nostudents={@op_students};\n";
 	print " opportunitieshistogram={";
 	foreach $i (sort {$a <=> $b} (keys %opportunities)) {
