@@ -85,7 +85,7 @@ while (<>) { # loop over andes sessions
 
 	next unless /\tDDE/;  # skip non DDE lines
 	# reset operator list and record time
-	if (/\t DDE /) { # student action sent to help system
+	if (/\tDDE /) { # student action sent to help system
 	    $#operator_list = -1;
 	    $adjusted_time = $this_time - $loss_of_focus;
 	}
@@ -108,7 +108,7 @@ while (<>) { # loop over andes sessions
 	    $score = $1; 
 	}
 	elsif (/\tDDE-COMMAND assoc op (.*)/) {
-	    @operator_list = split(/,/,$1);
+	    @operator_list = split /,/,$1;
 	}
 	# This way of doing things does not address the case where 
 	# a student tries one thing, fails, and then does (successfully)
@@ -120,11 +120,11 @@ while (<>) { # loop over andes sessions
 	    $intervening_hints++;
 	}
 	elsif (/\tDDE-RESULT \|T\|/) {
-	 #   print "DDE-RESULT for $student and operators @operator_list\n";
 	    foreach $operator (@operator_list) {
-		push @{$mastery{$student}{$operator}},
-		($intervening_errors,$intervening_hints,
-		 $adjusted_time-$last_adjusted_time);
+		# this would more naturally be a hash table
+		@facts=($intervening_errors,$intervening_hints,
+			$adjusted_time-$last_adjusted_time);
+		push @{$mastery{$operator}{$student}}, [ @facts ];
 	    }
 	    $intervening_errors=0;
 	    $intervening_hints=0;
@@ -146,7 +146,9 @@ while (<>) { # loop over andes sessions
     # Accumulate time used, throwing out time where Andes is not in focus.
     $times{$student}{$problem} += $time_used-$loss_of_focus; 
     $scores{$student}{$problem} = $final_score;
-    if($final_score > $score_cut_off) {$problems{$problem} = 1}; # problems attempted
+    # problems attempted. Don't bother counting here because
+    # a problem might be solved over multiple sessions.
+    if($final_score > $score_cut_off) {$problems{$problem}=1}; 
     push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
 
@@ -271,11 +273,14 @@ if (0) {
 # Print out time, errors, hints for each application of a principle.
 
 if(1) {
-    foreach $student (keys %mastery) {
-	foreach $operator (keys %{$mastery{$student}}) {
-	    foreach $application (@{$mastery{$student}{$operator}}) {
+    foreach $operator (keys %mastery) {
+	print "$operator\n";
+	foreach $student (keys %times) { #include any cutoff
+	    next unless $mastery{$operator}{$student};
+	    print "  $student\n";
+	    for $application (@{$mastery{$operator}{$student}}) {
 		# need to figure out syntax for this
-	#	print "@{$appliation} \n";
+		print "    @$application\n";
 	    }
 	}
     }
