@@ -123,7 +123,7 @@ while (<>) { # loop over andes sessions
 	    foreach $operator (@operator_list) {
 		# this would more naturally be a hash table
 		@facts=($intervening_errors,$intervening_hints,
-			$adjusted_time-$last_adjusted_time);
+			$adjusted_time-$last_adjusted_time,$problem);
 		push @{$mastery{$operator}{$student}}, [ @facts ];
 	    }
 	    $intervening_errors=0;
@@ -273,7 +273,7 @@ if (0) {
 # Print out time, errors, hints for each application of a principle.
 
 if(1) {
-    foreach $operator (keys %mastery) {
+    foreach $operator (sort keys %mastery) {
 	print "$operator\n";
 	@op_time=();
 	@op_hints=();
@@ -291,8 +291,9 @@ if(1) {
 		}
 	    }
 
-	    $nopp=scalar(@{$mastery{$operator}{$student}});
-	    for ($i=0; $i<$nopp; $i++) {
+	    for ($i=0; $i<@{$mastery{$operator}{$student}}; $i++) {
+                # include any cutoff on set of allowed problems
+		next unless $problems{$mastery{$operator}{$student}[$i][3]};
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
 		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
 		$op_time[$i]+=$mastery{$operator}{$student}[$i][2];
