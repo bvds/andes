@@ -275,13 +275,38 @@ if (0) {
 if(1) {
     foreach $operator (keys %mastery) {
 	print "$operator\n";
-	foreach $student (keys %times) { #include any cutoff
+	%opportunities=();
+	@op_time=();
+	@op_hints=();
+	@op_errors=();
+	@op_students=();
+	# using %times includes any cutoff in students
+	foreach $student (keys %times) {
 	    next unless $mastery{$operator}{$student};
-	    print "  $student\n";
+	 #   print "  $student\n";
 	    for $application (@{$mastery{$operator}{$student}}) {
-		# need to figure out syntax for this
-		print "    @$application\n";
+		# print "    @$application\n";
+	    }
+	    $nopp=scalar(@{$mastery{$operator}{$student}});
+	    # accumulate histogram of opportunities
+	    $opportunities{$nopp}++;
+	    $op_students++;
+	    for ($i=0; $i<$nopp; $i++) {
+		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
+		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
+		$op_time[$i]+=$mastery{$operator}{$student}[$i][2];
+		$op_students[$i]+= 1;
 	    }
 	}
+	$"=",";
+	print " errors={@op_errors};\n";
+	print " hints={@op_hints};\n";
+	print " nettime={@op_time};\n";
+	print " nostudents={@op_students};\n";
+	print " opportunitieshistogram={";
+	foreach $i (sort {$a <=> $b} (keys %opportunities)) {
+	    print "{$i,$opportunities{$i}},";
+	}
+	print "\b};\n";
     }
 }
