@@ -278,6 +278,7 @@ if(1) {
 	@op_time=();
 	@op_hints=();
 	@op_errors=();
+	@op_error_free=();
 	@op_students=();
 	# using %times includes any cutoff in students
 	foreach $student (keys %times) {
@@ -297,6 +298,10 @@ if(1) {
 		# next unless $problems{$mastery{$operator}{$student}[$i][3]};
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
 		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
+		if($mastery{$operator}{$student}[$i][0] == 0 and
+		   $mastery{$operator}{$student}[$i][1] == 0) {
+		    $op_error_free[$i]++;
+		}
 		$op_time[$i]+=$mastery{$operator}{$student}[$i][2];
 		$op_students[$i]+= 1;
 	    }
@@ -304,12 +309,14 @@ if(1) {
 	for ($i=0; $i<scalar(@op_students); $i++) {
 	    $op_errors[$i] /= $op_students[$i];
 	    $op_hints[$i] /= $op_students[$i];
+	    $op_error_free[$i] and $op_error_free[$i] /= $op_students[$i]; 
 	    $op_time[$i] /= $op_students[$i]; 
 	}
 	local $"=",";
 	print " avgerrors={@op_errors};\n";
 	print " avghints={@op_hints};\n";
 	print " avgtime={@op_time};\n";
+	print " noassistance={@op_error_free};\n";
 	print " nostudents={@op_students};\n";
     }
 }
