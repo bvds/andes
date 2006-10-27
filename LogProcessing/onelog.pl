@@ -282,10 +282,15 @@ if(1) {
 	# using %times includes any cutoff in students
 	foreach $student (keys %times) {
 	    next unless $mastery{$operator}{$student};
-	    #   print "  $student\n";
-	    for $application (@{$mastery{$operator}{$student}}) {
-		# print "    @$application\n";
+
+	    # Debug print of raw data
+	    if(0) {
+		print "  $student\n";
+		for $application (@{$mastery{$operator}{$student}}) {
+		    print "    @$application\n";
+		}
 	    }
+
 	    $nopp=scalar(@{$mastery{$operator}{$student}});
 	    for ($i=0; $i<$nopp; $i++) {
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
