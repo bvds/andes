@@ -304,7 +304,7 @@ if(1) {
 	    $op_hints[$i] /= $op_students[$i];
 	    $op_time[$i] /= $op_students[$i]; 
 	}
-	$"=",";
+	local $"=",";
 	print " avgerrors={@op_errors};\n";
 	print " avghints={@op_hints};\n";
 	print " avgtime={@op_time};\n";
