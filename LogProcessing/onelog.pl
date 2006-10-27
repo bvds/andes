@@ -293,7 +293,8 @@ if(1) {
 
 	    for ($i=0; $i<@{$mastery{$operator}{$student}}; $i++) {
                 # include any cutoff on set of allowed problems
-		next unless $problems{$mastery{$operator}{$student}[$i][3]};
+		# removing certain problems can cause a "hole" in the arrays.
+		# next unless $problems{$mastery{$operator}{$student}[$i][3]};
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
 		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
 		$op_time[$i]+=$mastery{$operator}{$student}[$i][2];
