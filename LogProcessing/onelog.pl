@@ -319,6 +319,8 @@ if(1) {
 	print " avgerrors={@op_errors};\n";
 	print " avghints={@op_hints};\n";
 	print " avgtime={@op_time};\n";
+	# fraction of students who completed this step without using
+	# hints or making errors
 	print " noassistance={@op_error_free};\n";
 	print " nostudents={@op_students};\n";
     }
