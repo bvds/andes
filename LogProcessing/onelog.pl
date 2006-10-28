@@ -107,8 +107,9 @@ while (<>) { # loop over andes sessions
 	elsif (/\tDDE-COMMAND set-score (\d+)/) {
 	    $score = $1; 
 	}
-	elsif (/\tDDE-COMMAND assoc op (.*)/) {
-	    @operator_list = split /,/,$1;
+	# use \S so we don't include newline in names
+	elsif (/\tDDE-COMMAND assoc op (\S+)/) {
+	  @operator_list = split /,/,$1;
 	}
 	# This way of doing things does not address the case where 
 	# a student tries one thing, fails, and then does (successfully)
