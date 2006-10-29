@@ -44,9 +44,15 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 $minimum_student_attempts=20.5;  # cutoff on list of problems
 
 while (<>) { # loop over andes sessions
-    # find (and discard) database header
-    if (/^time,info/) {$last_header="";}  # beginning of new file
-    next unless /^.* Log of Andes session begun/;  
+  #  unless ($ARGV eq $last_ARGV) {
+  #    print "Start reading $ARGV\n";
+  #    $last_ARGV=$ARGV;
+  #  }
+
+  # beginning of new file
+    if (/^time,info/) {$last_header="";}
+  # find (and discard) database header
+  next unless /^.* Log of Andes session begun/;  
 
     # Test that sessions have been sorted by date
     # If the beginning of the file was not marked, could have a
@@ -61,8 +67,13 @@ while (<>) { # loop over andes sessions
     $intervening_errors=0;
     $intervening_hints=0;
     $last_adjusted_time=0;
+    $check_entries=0;
     while (<>) {   # loop over lines in Andes session
 	last if /\tEND-LOG/;  # end of Andes session
+
+	# skip evaluation of any pre-defined quantities/equations
+	if (/\tCheck-Entries (\d)/) {$check_entries=$1;}
+	next if $check_entries;
 	
 	if(/^(\d+):(\d+)\t/ or /^(\d+):(\d+):(\d+)\t/) {
            # total time in seconds
@@ -114,18 +125,39 @@ while (<>) { # loop over andes sessions
 	# This way of doing things does not address the case where 
 	# a student tries one thing, fails, and then does (successfully)
 	# something else.
+	# Sometimes Andes has a guess for the associated operator, but
+	# it is not very reliable.
 	elsif (/\tDDE-RESULT \|NIL\|/) {
 	    $intervening_errors++;
 	}
 	elsif (/\tDDE-RESULT \|!show-hint .*\|/) {
 	    $intervening_hints++;
 	}
-	elsif (/\tDDE-RESULT \|T\|/) {
+	# This condition arises from either not expressing a vector
+	# equation in terms of its components or from combining equations
+	# pre-maturely.  Many students go and do something else, some
+        # ignore the hint, and a few try to fix the equation. 
+	#
+	# Even though the equation turns green, we will treat it 
+	# as an error.  We will ignore the guesses Andes gives
+	# for the operator because the list is too large
+	elsif (/\tDDE-RESULT \|T!show-hint .*\|/) {
+	    $intervening_hints++;
+	    $intervening_errors++;
+	  }
+	# error with unsolicited hint.  
+	# It is not clear how to count this
+	elsif (/\tDDE-RESULT \|NIL!show-hint .*\|/) {
+	    $intervening_hints++;
+	    $intervening_errors++;
+	}
+	elsif (/\tDDE-RESULT \|T\|/) { 
+	    # this would more naturally be a hash table
+	    @facts=($intervening_errors,$intervening_hints,
+		    $adjusted_time-$last_adjusted_time,$problem);
+
 	    foreach $operator (@operator_list) {
-		# this would more naturally be a hash table
-		@facts=($intervening_errors,$intervening_hints,
-			$adjusted_time-$last_adjusted_time,$problem);
-		push @{$mastery{$operator}{$student}}, [ @facts ];
+	        push @{$mastery{$operator}{$student}}, [ @facts ];
 	    }
 	    $intervening_errors=0;
 	    $intervening_hints=0;
@@ -281,6 +313,8 @@ if(1) {
 	@op_errors=();
 	@op_error_free=();
 	@op_students=();
+	%first_mastery_attempts=();
+	@first_mastery_times=();
 	# using %times includes any cutoff in students
 	foreach $student (keys %times) {
 	    next unless $mastery{$operator}{$student};
@@ -293,6 +327,8 @@ if(1) {
 		}
 	    }
 
+	    $previous_error_free=0;
+	    $total_time_spent=0;
 	    for ($i=0; $i<@{$mastery{$operator}{$student}}; $i++) {
                 # include any cutoff on set of allowed problems
 		# removing certain problems can cause a "hole" in the arrays.
@@ -301,15 +337,24 @@ if(1) {
 		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
 		# make sure there are no "holes" in the array
 		$op_error_free[$i] or $op_error_free[$i]=0;
+		$total_time_spent += $mastery{$operator}{$student}[$i][2];
 		if($mastery{$operator}{$student}[$i][0] == 0 and
 		   $mastery{$operator}{$student}[$i][1] == 0) {
 		    $op_error_free[$i]++;
+		    unless ($previous_error_free) {
+		      $first_mastery_attempts{$i}++;
+		      push @first_mastery_times, $total_time_spent;
+		      $previous_error_free=1;
+		    }
 		} 
-		$op_time[$i]+=$mastery{$operator}{$student}[$i][2];
-		$op_students[$i]+= 1;
+		$op_time[$i] += $mastery{$operator}{$student}[$i][2];
+		$op_students[$i] += 1;
+	    }
+	    unless ($previous_error_free) {
+	      $first_mastery_attempts{-1}++; # student never gets it right
 	    }
 	}
-	for ($i=0; $i<scalar(@op_students); $i++) {
+	for ($i=0; $i<@op_students; $i++) {
 	    $op_errors[$i] /= $op_students[$i];
 	    $op_hints[$i] /= $op_students[$i];
 	    $op_error_free[$i] /= $op_students[$i]; 
@@ -323,5 +368,12 @@ if(1) {
 	# hints or making errors
 	print " noassistance={@op_error_free};\n";
 	print " nostudents={@op_students};\n";
+	# print out histogram for first mastery
+	print " attemptsbeforenoassistance={";
+	foreach $attempt (sort {$a <=> $b} (keys %first_mastery_attempts)) {
+	  print "{$attempt,$first_mastery_attempts{$attempt}},";
+	}
+	print "\b};\n";
+	print " timebeforenoassistance={@first_mastery_times};\n";
     }
 }
