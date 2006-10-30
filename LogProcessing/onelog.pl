@@ -306,13 +306,13 @@ if (0) {
 # Print out time, errors, hints for each application of a principle.
 
 if(1) {
-    @ol=sort keys %mastery;
-    local $"=",";
-    print "operators={@ol};\n";
     print "(* In the following, FNA (first no assistance) means that\n",
     "the student has, for the first time, successfully applied\n",
       "the principle without any assistance (hints given or errors made\n", 
 	"since the last successful entry. *)\n";
+    print "operators={";
+    foreach $op (sort keys %mastery) {print "\"$op\",";}
+    print "\b};\n";
     foreach $operator (sort keys %mastery) {
 	print "(* $operator  *)\n";  # print as mathematica comment
 	@op_time=();
@@ -368,6 +368,8 @@ if(1) {
 	    $op_error_free[$i] /= $op_students[$i]; 
 	    $op_time[$i] /= $op_students[$i]; 
 	}
+
+	local $"=",";
 	print " avgerrors[$operator]={@op_errors};\n";
 	print " avghints[$operator]={@op_hints};\n";
 	print " avgtime[$operator]={@op_time};\n";
