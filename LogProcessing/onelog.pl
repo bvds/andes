@@ -306,13 +306,21 @@ if (0) {
 # Print out time, errors, hints for each application of a principle.
 
 if(1) {
+    @ol=sort keys %mastery;
+    local $"=",";
+    print "operators={@ol};\n";
+    print "(* In the following, FNA (first no assistance) means that\n",
+    "the student has, for the first time, successfully applied\n",
+      "the principle without any assistance (hints given or errors made\n", 
+	"since the last successful entry. *)\n";
     foreach $operator (sort keys %mastery) {
-	print "$operator\n";
+	print "(* $operator  *)\n";  # print as mathematica comment
 	@op_time=();
 	@op_hints=();
 	@op_errors=();
 	@op_error_free=();
 	@op_students=();
+	$nevermastery=0;
 	%first_mastery_attempts=();
 	@first_mastery_times=();
 	# using %times includes any cutoff in students
@@ -330,7 +338,7 @@ if(1) {
 	    $previous_error_free=0;
 	    $total_time_spent=0;
 	    for ($i=0; $i<@{$mastery{$operator}{$student}}; $i++) {
-                # include any cutoff on set of allowed problems
+                # Include any cutoff on set of allowed problems.  However,
 		# removing certain problems can cause a "hole" in the arrays.
 		# next unless $problems{$mastery{$operator}{$student}[$i][3]};
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
@@ -351,7 +359,7 @@ if(1) {
 		$op_students[$i] += 1;
 	    }
 	    unless ($previous_error_free) {
-	      $first_mastery_attempts{-1}++; # student never gets it right
+	      $nevermastery++; # student never gets it right
 	    }
 	}
 	for ($i=0; $i<@op_students; $i++) {
@@ -360,20 +368,20 @@ if(1) {
 	    $op_error_free[$i] /= $op_students[$i]; 
 	    $op_time[$i] /= $op_students[$i]; 
 	}
-	local $"=",";
-	print " avgerrors={@op_errors};\n";
-	print " avghints={@op_hints};\n";
-	print " avgtime={@op_time};\n";
+	print " avgerrors[$operator]={@op_errors};\n";
+	print " avghints[$operator]={@op_hints};\n";
+	print " avgtime[$operator]={@op_time};\n";
 	# fraction of students who completed this step without using
 	# hints or making errors
-	print " noassistance={@op_error_free};\n";
-	print " nostudents={@op_students};\n";
-	# print out histogram for first mastery
-	print " attemptsbeforenoassistance={";
+	print " noassistance[$operator]={@op_error_free};\n";
+	print " numberstudents[$operator]={@op_students};\n";
+	# print out histogram for first no assistance
+	print " neverFNA[$operator]=$nevermastery;\n";
+	print " attemptsbeforeFNA[$operator]={";
 	foreach $attempt (sort {$a <=> $b} (keys %first_mastery_attempts)) {
 	  print "{$attempt,$first_mastery_attempts{$attempt}},";
 	}
 	print "\b};\n";
-	print " timebeforenoassistance={@first_mastery_times};\n";
+	print " timebeforeFNA[$operator]={@first_mastery_times};\n";
     }
 }
