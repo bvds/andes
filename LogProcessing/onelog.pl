@@ -370,20 +370,21 @@ if(1) {
 	}
 
 	local $"=",";
-	print " avgerrors[$operator]={@op_errors};\n";
-	print " avghints[$operator]={@op_hints};\n";
-	print " avgtime[$operator]={@op_time};\n";
+	print " avgerrors[\"$operator\"]={@op_errors};\n";
+	print " avghints[\"$operator\"]={@op_hints};\n";
+	print " avgtime[\"$operator\"]={@op_time};\n";
 	# fraction of students who completed this step without using
 	# hints or making errors
-	print " noassistance[$operator]={@op_error_free};\n";
-	print " numberstudents[$operator]={@op_students};\n";
+	print " noassistance[\"$operator\"]={@op_error_free};\n";
+	print " numberstudents[\"$operator\"]={@op_students};\n";
 	# print out histogram for first no assistance
-	print " neverFNA[$operator]=$nevermastery;\n";
-	print " attemptsbeforeFNA[$operator]={";
+	print " neverFNA[\"$operator\"]=$nevermastery;\n";
+	print " attemptsbeforeFNA[\"$operator\"]={";
 	foreach $attempt (sort {$a <=> $b} (keys %first_mastery_attempts)) {
 	  print "{$attempt,$first_mastery_attempts{$attempt}},";
 	}
 	print "\b};\n";
-	print " timebeforeFNA[$operator]={@first_mastery_times};\n";
+	# Map[{Mean[N[timebeforeFNA[#]]],#}&,operators]
+	print " timebeforeFNA[\"$operator\"]={@first_mastery_times};\n";
     }
 }
