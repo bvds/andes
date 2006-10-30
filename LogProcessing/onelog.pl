@@ -211,8 +211,10 @@ if(0) {
 
 if(0) {
     print "pausehistogram={";
+    $sep="";
     foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
-	print "{$delay,$dt_histogram{$delay}},";
+	print $sep,"{$delay,$dt_histogram{$delay}}";
+	$sep=",";
     }
     print "};\n";
     
@@ -232,8 +234,10 @@ if(0) {
     }
     # print out log binned pause histogram in Mathematica notation
     print "\nlogpausehistogram={";
+    $count=0;
     foreach $i (sort {$a <=> $b} (keys %log_dt_hist)) {
-	print "{$log_dt_bin{$i},$log_dt_hist{$i}},";
+        if ($count++) { print ",";}
+	print "{$log_dt_bin{$i},$log_dt_hist{$i}}";
     }
     print "};\n";
 }
@@ -253,8 +257,10 @@ foreach $student (sort keys %times) {
 #  Print number of students that attempted to solve a given number of problems.
 if (0) {
     print "problemattempts={";
+    $count=0;
     foreach $i (sort {$a <=> $b} keys %problem_attempts) {
-	print "{$i,$problem_attempts{$i}},";}
+        if ($count++) {print ",";}
+	print "{$i,$problem_attempts{$i}}";}
     print "};\n";
 }
 #
@@ -272,8 +278,10 @@ foreach $problem (sort keys %problems) {
 #  Print number of problems solved by a given number of students
 if (0) {
     print "studentattempts={";
+    $count=0;
     foreach $i (sort {$a <=> $b} keys %student_attempts) {
-	print "{$i,$student_attempts{$i}},";}
+        if ($count++) { print ",";}
+	print "{$i,$student_attempts{$i}}";}
     print "};\n";
 }
 #
@@ -311,8 +319,12 @@ if(1) {
       "the principle without any assistance (hints given or errors made\n", 
 	"since the last successful entry. *)\n";
     print "operators={";
-    foreach $op (sort keys %mastery) {print "\"$op\",";}
-    print "\b};\n";
+    $count=0;
+    foreach $op (sort keys %mastery) {
+        $count++ or print ",";
+        print "\"$op\"";
+    }
+    print "};\n";
     foreach $operator (sort keys %mastery) {
 	print "(* $operator  *)\n";  # print as mathematica comment
 	@op_time=();
@@ -380,10 +392,12 @@ if(1) {
 	# print out histogram for first no assistance
 	print " neverFNA[\"$operator\"]=$nevermastery;\n";
 	print " attemptsbeforeFNA[\"$operator\"]={";
+	$count=0;
 	foreach $attempt (sort {$a <=> $b} (keys %first_mastery_attempts)) {
-	  print "{$attempt,$first_mastery_attempts{$attempt}},";
+	  if ($count++) {print ",";}
+	  print "{$attempt,$first_mastery_attempts{$attempt}}";
 	}
-	print "\b};\n";
+	print "};\n";
 	# Map[{Mean[N[timebeforeFNA[#]]],#}&,operators]
 	print " timebeforeFNA[\"$operator\"]={@first_mastery_times};\n";
     }
