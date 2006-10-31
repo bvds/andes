@@ -314,17 +314,13 @@ if (0) {
 # Print out time, errors, hints for each application of a principle.
 
 if(1) {
+    local $"=",";  # for Mathematica formatted lists
     print "(* In the following, FNA (first no assistance) means that\n",
     "the student has, for the first time, successfully applied\n",
       "the principle without any assistance (hints given or errors made\n", 
 	"since the last successful entry. *)\n";
-    print "operators={";
-    $count=0;
-    foreach $op (sort keys %mastery) {
-        $count++ or print ",";
-        print "\"$op\"";
-    }
-    print "};\n";
+    @op_quoted = map {"\"" . $_ . "\""} (sort keys %mastery);
+    print "operators={@op_quoted};\n";
     foreach $operator (sort keys %mastery) {
 	print "(* $operator  *)\n";  # print as mathematica comment
 	@op_time=();
@@ -381,17 +377,17 @@ if(1) {
 	    $op_time[$i] /= $op_students[$i]; 
 	}
 
-	local $"=",";
-	print " avgerrors[\"$operator\"]={@op_errors};\n";
-	print " avghints[\"$operator\"]={@op_hints};\n";
-	print " avgtime[\"$operator\"]={@op_time};\n";
+	$op_arg="\"" . $operator . "\"";
+	print " avgerrors[$op_arg]={@op_errors};\n";
+	print " avghints[$op_arg]={@op_hints};\n";
+	print " avgtime[$op_arg]={@op_time};\n";
 	# fraction of students who completed this step without using
 	# hints or making errors
-	print " noassistance[\"$operator\"]={@op_error_free};\n";
-	print " numberstudents[\"$operator\"]={@op_students};\n";
+	print " noassistance[$op_arg]={@op_error_free};\n";
+	print " numberstudents[$op_arg]={@op_students};\n";
 	# print out histogram for first no assistance
-	print " neverFNA[\"$operator\"]=$nevermastery;\n";
-	print " attemptsbeforeFNA[\"$operator\"]={";
+	print " neverFNA[$op_arg]=$nevermastery;\n";
+	print " attemptsbeforeFNA[$op_arg]={";
 	$count=0;
 	foreach $attempt (sort {$a <=> $b} (keys %first_mastery_attempts)) {
 	  if ($count++) {print ",";}
@@ -399,6 +395,6 @@ if(1) {
 	}
 	print "};\n";
 	# Map[{Mean[N[timebeforeFNA[#]]],#}&,operators]
-	print " timebeforeFNA[\"$operator\"]={@first_mastery_times};\n";
+	print " timebeforeFNA[$op_arg]={@first_mastery_times};\n";
     }
 }
