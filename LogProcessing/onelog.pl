@@ -141,7 +141,7 @@ while (<>) { # loop over andes sessions
 	# Even though the equation turns green, we will treat it 
 	# as an error.  We will ignore the guesses Andes gives
 	# for the operator because the list is too large
-	elsif (0 and /\tDDE-RESULT \|T!show-hint .*\|/) {
+	elsif (1 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
 	  }
@@ -151,7 +151,8 @@ while (<>) { # loop over andes sessions
 	    $intervening_hints++;
 	    $intervening_errors++;
 	}
-	elsif (/\tDDE-RESULT \|T\|/ or /\tDDE-RESULT \|T!show-hint .*\|/) { 
+	elsif (/\tDDE-RESULT \|T\|/ or 
+	       (0 and /\tDDE-RESULT \|T!show-hint .*\|/)) { 
 	    if (/\tDDE-RESULT \|T!show-hint .*\|/) {
 		$intervening_hints++;
 		$intervening_errors++;
@@ -332,6 +333,7 @@ if(1) {
 	@op_errors=();
 	@op_error_free=();
 	@op_students=();
+	@op_problems=();
 	$nevermastery=0;
 	%first_mastery_attempts=();
 	@first_mastery_times=();
@@ -353,6 +355,8 @@ if(1) {
                 # Include any cutoff on set of allowed problems.  However,
 		# removing certain problems can cause a "hole" in the arrays.
 		# next unless $problems{$mastery{$operator}{$student}[$i][3]};
+		#push @{$op_problems[$i]}, $mastery{$operator}{$student}[$i][3];
+		$op_problems[$i]{$mastery{$operator}{$student}[$i][3]} += 1;
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
 		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
 		# make sure there are no "holes" in the array
@@ -382,6 +386,22 @@ if(1) {
 	}
 
 	$op_arg="\"" . $operator . "\"";
+	print " problemlist[$op_arg]={";
+	for($count=0; $count<@op_problems; $count++) {
+	    if ($count) {print ",";}
+#	    @op_quoted = map {"\"" . $_ . "\""} @{$op_problems[$count]};
+#	    @op_quoted = map {"\"" . $_ . "\""} @{$op_problems[$count]};
+	    print "{";
+	    $count2=0;
+	    foreach $prob (sort keys %{$op_problems[$count]}) {
+		if($count2++) {print ",";}
+		print "{\"$prob\",$op_problems[$count]{$prob}}";
+#	    print "{@op_quoted}";
+	    }
+	    print "}";
+	}
+
+	print "};\n";
 	print " avgerrors[$op_arg]={@op_errors};\n";
 	print " avghints[$op_arg]={@op_hints};\n";
 	print " avgtime[$op_arg]={@op_time};\n";
