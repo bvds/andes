@@ -139,8 +139,9 @@ while (<>) { # loop over andes sessions
         # ignore the hint, and a few try to fix the equation. 
 	#
 	# Even though the equation turns green, we will treat it 
-	# as an error.  We will ignore the guesses Andes gives
-	# for the operator because the list is too large
+	# as an error since the student is not given full credit for 
+	# the entry.  We will ignore the guesses Andes gives
+	# for the operator because the list is often too large
 	elsif (1 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
