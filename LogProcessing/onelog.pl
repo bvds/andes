@@ -43,17 +43,37 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 # might introduce a selection bias.
 $minimum_student_attempts=20.5;  # cutoff on list of problems
 
+
+# read in file with meta-operators
+# the format of the file is that each line begins with the meta-operator 
+# and then all regular operators that it contains 
+use Getopt::Long;
+&GetOptions("meta=s" => \$meta_operator_file);
+if ($meta_operator_file) {
+    open(META,$meta_operator_file) or die "Can't open $meta_operators.\n";
+    while ($line=<META>) {
+	@normals = reverse split / /,$line;
+	$meta = pop @normals;
+	foreach $normal (@normals) {
+	    push @{$meta_operators{$normal}}, $meta;
+	}
+    }
+    foreach $op (keys %meta_operators) {
+	print "$op with $meta_operators{$op}\n";
+    }
+}
+
 while (<>) { # loop over andes sessions
-  #  unless ($ARGV eq $last_ARGV) {
-  #    print "Start reading $ARGV\n";
-  #    $last_ARGV=$ARGV;
-  #  }
-
-  # beginning of new file
+    #  unless ($ARGV eq $last_ARGV) {
+    #    print "Start reading $ARGV\n";
+    #    $last_ARGV=$ARGV;
+    #  }
+    
+    # beginning of new file
     if (/^time,info/) {$last_header="";}
-  # find (and discard) database header
-  next unless /^.* Log of Andes session begun/;  
-
+    # find (and discard) database header
+    next unless /^.* Log of Andes session begun/;  
+    
     # Test that sessions have been sorted by date
     # If the beginning of the file was not marked, could have a
     # false error.
@@ -76,11 +96,11 @@ while (<>) { # loop over andes sessions
 	next if $check_entries;
 	
 	if(/^(\d+):(\d+)\t/ or /^(\d+):(\d+):(\d+)\t/) {
-           # total time in seconds
+	    # total time in seconds
 	    $this_time = $3 ? $1*3600+$2*60+$3 : $1*60+$2; 
 	    $dt = $this_time - $last_time;
 	    $last_time = $this_time;
-
+	    
             # in pause histogram, might ignore pauses associated with 
 	    # loss of focus:
 	    # next if /\tApp-activate/ or /\tApp-deactivate/;  
