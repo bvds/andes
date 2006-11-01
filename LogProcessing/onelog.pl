@@ -58,7 +58,7 @@ while (<>) { # loop over andes sessions
     # If the beginning of the file was not marked, could have a
     # false error.
     # use sort-by-time.pl to create a sorted version of the log file.
-    $last_header lt $_ or die "Sessions in log file are not sorted.\n";
+    $last_header le $_ or die "Sessions in log file are not sorted.\n";
     $last_header = $_;
 
     $last_time=0;
@@ -141,7 +141,7 @@ while (<>) { # loop over andes sessions
 	# Even though the equation turns green, we will treat it 
 	# as an error.  We will ignore the guesses Andes gives
 	# for the operator because the list is too large
-	elsif (/\tDDE-RESULT \|T!show-hint .*\|/) {
+	elsif (0 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
 	  }
@@ -151,7 +151,11 @@ while (<>) { # loop over andes sessions
 	    $intervening_hints++;
 	    $intervening_errors++;
 	}
-	elsif (/\tDDE-RESULT \|T\|/) { 
+	elsif (/\tDDE-RESULT \|T\|/ or /\tDDE-RESULT \|T!show-hint .*\|/) { 
+	    if (/\tDDE-RESULT \|T!show-hint .*\|/) {
+		$intervening_hints++;
+		$intervening_errors++;
+	    }
 	    # this would more naturally be a hash table
 	    @facts=($intervening_errors,$intervening_hints,
 		    $adjusted_time-$last_adjusted_time,$problem);
