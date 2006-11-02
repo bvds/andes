@@ -152,7 +152,7 @@ while (<>) { # loop over andes sessions
 	# it is not very reliable.
 	elsif (/\tDDE-RESULT \|NIL\|/) {
 	    $intervening_errors++;
-	    push @error_interp,  ($error_name or "no-assoc-error");
+	    push @error_interp,  ($error_name or "assoc-error");
 	}
 	elsif (/\tDDE-RESULT \|!show-hint .*\|/) {
 	    $intervening_hints++;
@@ -169,23 +169,23 @@ while (<>) { # loop over andes sessions
 	elsif (1 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
-	    push @error_interp, ($error_name or "no-assoc-error-t-show-hint");
+	    push @error_interp, ($error_name or "assoc-error-t-show-hint");
 	  }
 	# error with unsolicited hint.  
 	# It is not clear how to count this
 	elsif (/\tDDE-RESULT \|NIL!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
-	    push @error_interp, ($error_name or "no-assoc-error-nil-show-hint");
+	    push @error_interp, ($error_name or "assoc-error-nil-show-hint");
 	}
 	elsif (/\tDDE-RESULT \|T\|/ or 
 	       (0 and /\tDDE-RESULT \|T!show-hint .*\|/)) { 
 	    if (/\tDDE-RESULT \|T!show-hint .*\|/) {
 		$intervening_hints++;
 		$intervening_errors++;
-		push @error_interp, ($error_name or "no-assoc-error-t-show-hint");
+		push @error_interp, ($error_name or "assoc-error-t-show-hint");
 	    }
-	    $facts={errors => $intervening_errors,
+	    my $facts={errors => $intervening_errors,
 		       error_names => [@error_interp],
 		       hints => $intervening_hints,
 		       time => $adjusted_time-$last_adjusted_time,
@@ -356,8 +356,8 @@ if(1) {
     local $"=",";  # for Mathematica formatted lists
     print "(* In the following, FNA (first no assistance) means that\n",
     "the student has, for the first time, successfully applied\n",
-      "the principle without any assistance (hints given or errors made\n", 
-	"since the last successful entry. *)\n";
+    "the principle without any assistance (hints given or errors made\n", 
+    "since the last successful entry. *)\n";
     @op_quoted = map {"\"" . $_ . "\""} (sort keys %mastery);
     print "operators={@op_quoted};\n";
     foreach $operator (sort keys %mastery) {
@@ -375,7 +375,7 @@ if(1) {
 	# using %times includes any cutoff in students
 	foreach $student (keys %times) {
 	    next unless $mastery{$operator}{$student};
-
+	    
 	    # Debug print of raw data
 	    if(0) {
 		print "  $student\n";
@@ -383,7 +383,7 @@ if(1) {
 		    print "    @$application\n";
 		}
 	    }
-
+	    
 	    $previous_error_free=0;
 	    $total_time_spent=0;
 	    for ($i=0; $i<@{$mastery{$operator}{$student}}; $i++) {
@@ -391,11 +391,12 @@ if(1) {
 		# removing certain problems can cause a "hole" in the arrays.
 		# next unless $problems{$mastery{$operator}{$student}[$i]{problem}};
 		#push @{$op_problems[$i]}, $mastery{$operator}{$student}[$i]{problem};
-		$op_problems[$i]{$mastery{$operator}{$student}[$i]{problem}} += 1;
+		$op_problems[$i]{$mastery{$operator}{$student}[$i]{problem}}++;
 		$op_errors[$i]+=$mastery{$operator}{$student}[$i]{errors};
 		if (@{$mastery{$operator}{$student}[$i]{error_names}}) {
-		    foreach $err (@{$mastery{$operator}{$student}[$i]{error_names}}) {
-			$op_error_names[$i]{$err} += 1;
+		    foreach $err 
+			(@{$mastery{$operator}{$student}[$i]{error_names}}) {
+			$op_error_names[$i]{$err}++;
 		    }
 		}
 		$op_hints[$i]+=$mastery{$operator}{$student}[$i]{hints};
@@ -412,7 +413,7 @@ if(1) {
 		    }
 		} 
 		$op_time[$i] += $mastery{$operator}{$student}[$i]{time};
-		$op_students[$i] += 1;
+		$op_students[$i]++;
 	    }
 	    unless ($previous_error_free) {
 	      $nevermastery++; # student never gets it right
