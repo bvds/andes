@@ -58,6 +58,7 @@ if ($meta_operator_file) {
 	    push @{$meta_operators{$normal}}, $meta;
 	}
     }
+    close(META);
 }
 
 while (<>) { # loop over andes sessions
@@ -82,6 +83,7 @@ while (<>) { # loop over andes sessions
     my $score=0;
     my $loss_of_focus=0;  #accumulate pauses associated with loss of focus
     my $intervening_errors=0;
+    my @error_interp=();
     my $intervening_hints=0;
     my $last_adjusted_time=0;
     my $check_entries=0;
@@ -116,6 +118,7 @@ while (<>) { # loop over andes sessions
 	if (/\tDDE /) { # student action sent to help system
 	    $#operator_list = -1;
 	    $adjusted_time = $this_time - $loss_of_focus;
+	    $error_name = 0;  #delete any old error names
 	}
 	if (/read-student-info .(\w+)/) {
 	    $student = $1;  # session label should start with student id
@@ -137,7 +140,10 @@ while (<>) { # loop over andes sessions
 	}
 	# use \S so we don't include newline in names
 	elsif (/\tDDE-COMMAND assoc op (\S+)/) {
-	  @operator_list = split /,/,$1;
+	    @operator_list = split /,/,$1;
+	}
+	elsif (/\tDDE-COMMAND assoc error (\S+)/) {
+	    $error_name = $1;
 	}
 	# This way of doing things does not address the case where 
 	# a student tries one thing, fails, and then does (successfully)
@@ -146,6 +152,7 @@ while (<>) { # loop over andes sessions
 	# it is not very reliable.
 	elsif (/\tDDE-RESULT \|NIL\|/) {
 	    $intervening_errors++;
+	    push @error_interp,  ($error_name or "no-assoc-error");
 	}
 	elsif (/\tDDE-RESULT \|!show-hint .*\|/) {
 	    $intervening_hints++;
@@ -162,32 +169,38 @@ while (<>) { # loop over andes sessions
 	elsif (1 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
+	    push @error_interp, ($error_name or "no-assoc-error-t-show-hint");
 	  }
 	# error with unsolicited hint.  
 	# It is not clear how to count this
 	elsif (/\tDDE-RESULT \|NIL!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
+	    push @error_interp, ($error_name or "no-assoc-error-nil-show-hint");
 	}
 	elsif (/\tDDE-RESULT \|T\|/ or 
 	       (0 and /\tDDE-RESULT \|T!show-hint .*\|/)) { 
 	    if (/\tDDE-RESULT \|T!show-hint .*\|/) {
 		$intervening_hints++;
 		$intervening_errors++;
+		push @error_interp, ($error_name or "no-assoc-error-t-show-hint");
 	    }
-	    # this would more naturally be a hash table
-	    my @facts=($intervening_errors,$intervening_hints,
-		    $adjusted_time-$last_adjusted_time,$problem);
+	    $facts={errors => $intervening_errors,
+		       error_names => [@error_interp],
+		       hints => $intervening_hints,
+		       time => $adjusted_time-$last_adjusted_time,
+                       problem => $problem};
 
 	    foreach $operator (@operator_list) {
-	        push @{$mastery{$operator}{$student}}, [ @facts ];
+	        push @{$mastery{$operator}{$student}}, $facts;
 		foreach $meta_op (@{$meta_operators{$operator}}) {
-	            push @{$mastery{$meta_op}{$student}}, [ @facts ];
+	            push @{$mastery{$meta_op}{$student}}, $facts;
 	        }
 	    }
 	    $intervening_errors=0;
 	    $intervening_hints=0;
 	    $last_adjusted_time = $adjusted_time;
+	    @error_interp=();
 	}	    
     }
 
@@ -355,6 +368,7 @@ if(1) {
 	@op_error_free=();
 	@op_students=();
 	@op_problems=();
+	@op_error_names=();
 	$nevermastery=0;
 	%first_mastery_attempts=();
 	@first_mastery_times=();
@@ -375,16 +389,21 @@ if(1) {
 	    for ($i=0; $i<@{$mastery{$operator}{$student}}; $i++) {
                 # Include any cutoff on set of allowed problems.  However,
 		# removing certain problems can cause a "hole" in the arrays.
-		# next unless $problems{$mastery{$operator}{$student}[$i][3]};
-		#push @{$op_problems[$i]}, $mastery{$operator}{$student}[$i][3];
-		$op_problems[$i]{$mastery{$operator}{$student}[$i][3]} += 1;
-		$op_errors[$i]+=$mastery{$operator}{$student}[$i][0];
-		$op_hints[$i]+=$mastery{$operator}{$student}[$i][1];
+		# next unless $problems{$mastery{$operator}{$student}[$i]{problem}};
+		#push @{$op_problems[$i]}, $mastery{$operator}{$student}[$i]{problem};
+		$op_problems[$i]{$mastery{$operator}{$student}[$i]{problem}} += 1;
+		$op_errors[$i]+=$mastery{$operator}{$student}[$i]{errors};
+		if (@{$mastery{$operator}{$student}[$i]{error_names}}) {
+		    foreach $err (@{$mastery{$operator}{$student}[$i]{error_names}}) {
+			$op_error_names[$i]{$err} += 1;
+		    }
+		}
+		$op_hints[$i]+=$mastery{$operator}{$student}[$i]{hints};
 		# make sure there are no "holes" in the array
 		$op_error_free[$i] or $op_error_free[$i]=0;
-		$total_time_spent += $mastery{$operator}{$student}[$i][2];
-		if($mastery{$operator}{$student}[$i][0] == 0 and
-		   $mastery{$operator}{$student}[$i][1] == 0) {
+		$total_time_spent += $mastery{$operator}{$student}[$i]{time};
+		if($mastery{$operator}{$student}[$i]{errors} == 0 and
+		   $mastery{$operator}{$student}[$i]{hints} == 0) {
 		    $op_error_free[$i]++;
 		    unless ($previous_error_free) {
 		      $first_mastery_attempts{$i}++;
@@ -392,7 +411,7 @@ if(1) {
 		      $previous_error_free=1;
 		    }
 		} 
-		$op_time[$i] += $mastery{$operator}{$student}[$i][2];
+		$op_time[$i] += $mastery{$operator}{$student}[$i]{time};
 		$op_students[$i] += 1;
 	    }
 	    unless ($previous_error_free) {
@@ -410,19 +429,29 @@ if(1) {
 	print " problemlist[$op_arg]={";
 	for($count=0; $count<@op_problems; $count++) {
 	    if ($count) {print ",";}
-#	    @op_quoted = map {"\"" . $_ . "\""} @{$op_problems[$count]};
-#	    @op_quoted = map {"\"" . $_ . "\""} @{$op_problems[$count]};
 	    print "{";
 	    $count2=0;
 	    foreach $prob (sort keys %{$op_problems[$count]}) {
 		if($count2++) {print ",";}
 		print "{\"$prob\",$op_problems[$count]{$prob}}";
-#	    print "{@op_quoted}";
 	    }
 	    print "}";
 	}
-
 	print "};\n";
+
+	print " errornames[$op_arg]={";
+	for ($count=0; $count<@op_error_names; $count++) {
+	    if ($count) {print ",";}
+	    print "{";
+	    $count2=0;
+	    foreach $error_name (sort keys %{$op_error_names[$count]}) {
+		if($count2++) {print ",";}
+		print "{$error_name,$op_error_names[$count]{$error_name}}";
+	    }
+	    print "}";
+	}
+	print "};\n";
+
 	print " avgerrors[$op_arg]={@op_errors};\n";
 	print " avghints[$op_arg]={@op_hints};\n";
 	print " avgtime[$op_arg]={@op_time};\n";
