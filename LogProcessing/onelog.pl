@@ -51,15 +51,12 @@ use Getopt::Long;
 &GetOptions("meta=s" => \$meta_operator_file);
 if ($meta_operator_file) {
     open(META,$meta_operator_file) or die "Can't open $meta_operators.\n";
-    while ($line=<META>) {
-	@normals = reverse split / /,$line;
-	$meta = pop @normals;
+    while (chomp($line=<META>)) {
+	my @normals = reverse split / /,$line;
+        my $meta = pop @normals;
 	foreach $normal (@normals) {
 	    push @{$meta_operators{$normal}}, $meta;
 	}
-    }
-    foreach $op (keys %meta_operators) {
-	print "$op with $meta_operators{$op}\n";
     }
 }
 
@@ -81,13 +78,13 @@ while (<>) { # loop over andes sessions
     $last_header le $_ or die "Sessions in log file are not sorted.\n";
     $last_header = $_;
 
-    $last_time=0;
-    $score=0;
-    $loss_of_focus=0;  #accumulate pauses associated with loss of focus
-    $intervening_errors=0;
-    $intervening_hints=0;
-    $last_adjusted_time=0;
-    $check_entries=0;
+    my $last_time=0;
+    my $score=0;
+    my $loss_of_focus=0;  #accumulate pauses associated with loss of focus
+    my $intervening_errors=0;
+    my $intervening_hints=0;
+    my $last_adjusted_time=0;
+    my $check_entries=0;
     while (<>) {   # loop over lines in Andes session
 	last if /\tEND-LOG/;  # end of Andes session
 
@@ -179,11 +176,14 @@ while (<>) { # loop over andes sessions
 		$intervening_errors++;
 	    }
 	    # this would more naturally be a hash table
-	    @facts=($intervening_errors,$intervening_hints,
+	    my @facts=($intervening_errors,$intervening_hints,
 		    $adjusted_time-$last_adjusted_time,$problem);
 
 	    foreach $operator (@operator_list) {
 	        push @{$mastery{$operator}{$student}}, [ @facts ];
+		foreach $meta_op (@{$meta_operators{$operator}}) {
+	            push @{$mastery{$meta_op}{$student}}, [ @facts ];
+	        }
 	    }
 	    $intervening_errors=0;
 	    $intervening_hints=0;
