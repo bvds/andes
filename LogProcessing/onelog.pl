@@ -447,7 +447,7 @@ if(1) {
 	    $count2=0;
 	    foreach $error_name (sort keys %{$op_error_names[$count]}) {
 		if($count2++) {print ",";}
-		print "{$error_name,$op_error_names[$count]{$error_name}}";
+		print "{\"$error_name\",$op_error_names[$count]{$error_name}}";
 	    }
 	    print "}";
 	}
