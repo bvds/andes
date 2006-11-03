@@ -1225,11 +1225,30 @@ CTask* CProblemSet::GetFirstIncompleteTask()
 	return NULL;
 }
 
+// urgh, we included the "." in the extension value assigned for problems, whose
+// names normally occur in the problems without the extension. But the dot is NOT
+// included in the "wmv" value for videos since it is parsed by splitting at the dot. 
 
 // Video watching tasks identified by "wmv" extension (w/o period!)
 BOOLEAN CTask::IsVideo()
 {
 	return m_strExt.CompareNoCase("wmv") == 0;
+}
+
+// Problem tasks identified by ".fbd" extension (including period).
+BOOL CTask::IsProblem()
+{
+
+	return m_strExt.CompareNoCase(".fbd") == 0;
+}
+
+BOOL CTask::IsProblemStub()
+{
+	// Stub is a problem task for which no prb file exists in Problems directory
+	CString strPrbPath = g_strAndesDir + g_szProblemDir + "\\" + m_strName + ".prb";
+	CFileStatus statPrb;
+
+	return IsProblem() && ! CFile::GetStatus(strPrbPath, statPrb);
 }
 
 // Set the status message for this problem set
@@ -1241,3 +1260,6 @@ void CProblemSet::SetStatusMsg(LPCTSTR pszText)
 	// also forward it to the view
 	UpdateAllViews(NULL, HINT_UPDATE_STATUS_MSG, (CObject*) pszText);
 }
+
+
+

@@ -158,8 +158,11 @@ void CProbSetView::UpdateProblemList()
 	POSITION pos = pSet->m_tasks.GetHeadPosition();
 	while (pos != NULL) {
 		CTask* pTask = pSet->m_tasks.GetNext(pos);
-		CString strText = pTask->m_strName + '\t' + szStates[pTask->m_work];
-		m_lstProblems.AddString(strText);
+		// don't include unimplemented problem stubs in list
+		if (! pTask->IsProblemStub() ) {
+			CString strText = pTask->m_strName + '\t' + szStates[pTask->m_work];
+			m_lstProblems.AddString(strText);
+		}
 	}
 }
 

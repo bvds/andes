@@ -25,6 +25,8 @@ class CTask : public CObject {
 protected:
 	DECLARE_SERIAL( CTask )
 public:
+	BOOL IsProblem();
+	BOOL IsProblemStub();
 	BOOLEAN IsVideo();
 	CTask() { m_pSet = NULL; m_work = workNone; m_strExt = ".fbd"; };
 	void Serialize( CArchive& ar );
