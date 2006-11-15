@@ -204,7 +204,7 @@ while (<>) { # loop over andes sessions
 	    # is attached only to an IMPLICIT-EQN unless the operator is
 	    # WRITE-IMPLICIT-EQN
 	    if (@step_list == 1 and $step_list[0] =~ /\(IMPLICIT-EQN / 
-		and ! $operator_list[0] =~ /WRITE-IMPLICIT-EQN/) {
+		and $operator_list[0] !~ /WRITE-IMPLICIT-EQN/) {
 		die "implicit-eqn is only step @step_list and @operator_list\n";
 	    }
 
