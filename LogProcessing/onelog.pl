@@ -195,10 +195,14 @@ while (<>) { # loop over andes sessions
 		       time => $adjusted_time-$last_adjusted_time,
                        problem => $problem};
 
+	    # Sanity test
 	    unless(@operator_list == @step_list) {
-		die "assoc op and assoc step don't match for @operator_list\n";
+		die "assoc op and assoc step don't match\n";
 	    }
 
+            # As shown by this test, one never has an entry that 
+	    # is attached only to an IMPLICIT-EQN unless the operator is
+	    # WRITE-IMPLICIT-EQN
 	    if (@step_list == 1 and $step_list[0] =~ /\(IMPLICIT-EQN / 
 		and ! $operator_list[0] =~ /WRITE-IMPLICIT-EQN/) {
 		die "implicit-eqn is only step @step_list and @operator_list\n";
@@ -208,8 +212,8 @@ while (<>) { # loop over andes sessions
 		my $operator = pop @operator_list;
 		my $step = pop @step_list;
 		# skip implicit eqn's unless associated operator is 
-		# WRITE-IMPLICIT-EQN.  There are always other operators that
-		# are associated with the step.
+		# WRITE-IMPLICIT-EQN.  In such cases, there are always 
+		# other operators that are associated with the step.
 		next if $step =~ /^\(IMPLICIT-EQN / 
 		    and $operator !~ /^WRITE-IMPLICIT-EQN/;
 
@@ -246,10 +250,11 @@ while (<>) { # loop over andes sessions
     push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
 
+#############################################################################
 #
-#          Analysis of accumulated data
+#                     Analysis of accumulated data
 #
-#
+#############################################################################
 
 
 # print out score histogram in Mathematica notation
@@ -295,7 +300,7 @@ if(0) {
     }
     # print out log binned pause histogram in Mathematica notation
     print "\nlogpausehistogram={";
-    $count=0;
+    my $count=0;
     foreach $i (sort {$a <=> $b} (keys %log_dt_hist)) {
         if ($count++) { print ",";}
 	print "{$log_dt_bin{$i},$log_dt_hist{$i}}";
@@ -318,7 +323,7 @@ foreach $student (sort keys %times) {
 #  Print number of students that attempted to solve a given number of problems.
 if (0) {
     print "problemattempts={";
-    $count=0;
+    my $count=0;
     foreach $i (sort {$a <=> $b} keys %problem_attempts) {
         if ($count++) {print ",";}
 	print "{$i,$problem_attempts{$i}}";}
@@ -339,7 +344,7 @@ foreach $problem (sort keys %problems) {
 #  Print number of problems solved by a given number of students
 if (0) {
     print "studentattempts={";
-    $count=0;
+    my $count=0;
     foreach $i (sort {$a <=> $b} keys %student_attempts) {
         if ($count++) { print ",";}
 	print "{$i,$student_attempts{$i}}";}
@@ -453,7 +458,7 @@ if(0) {
 	for($count=0; $count<@op_problems; $count++) {
 	    if ($count) {print ",";}
 	    print "{";
-	    $count2=0;
+	    my $count2=0;
 	    foreach $prob (sort keys %{$op_problems[$count]}) {
 		if($count2++) {print ",";}
 		print "{\"$prob\",$op_problems[$count]{$prob}}";
@@ -466,7 +471,7 @@ if(0) {
 	for ($count=0; $count<@op_error_names; $count++) {
 	    if ($count) {print ",";}
 	    print "{";
-	    $count2=0;
+	    my $count2=0;
 	    foreach $error_name (sort keys %{$op_error_names[$count]}) {
 		if($count2++) {print ",";}
 		print "{\"$error_name\",$op_error_names[$count]{$error_name}}";
@@ -485,7 +490,7 @@ if(0) {
 	# print out histogram for first no assistance
 	print " neverFNA[$op_arg]=$nevermastery;\n";
 	print " attemptsbeforeFNA[$op_arg]={";
-	$count=0;
+	my $count=0;
 	foreach $attempt (sort {$a <=> $b} (keys %first_mastery_attempts)) {
 	  if ($count++) {print ",";}
 	  print "{$attempt,$first_mastery_attempts{$attempt}}";
@@ -496,12 +501,16 @@ if(0) {
     }
 }
 
-# print problem times and an operator list for linear model.
+# For each problem solution, print problem times and a list of operators
+# applied.  This can be used to construct a linear model.
 # Include student cutoff, score cut-off, but not problem cut-off.
-# Express in Mathematica format.
-if (0) {
+# Express in Mathematica format as a list containing each 
+# problem solution.  Each member of the list is of the format:
+#  {student, problem, time, {{op1,n1},{op2,n2}, ...}}
+# where ni is the number of distinct instances of opi in that solution.
+if (1) {
     print "operatorinstances={";
-    $count2=0;
+    my $count=0;
     # %times includes the cut-off on the list of students
     foreach $student (sort keys %times) {
 	# no cut-off on problems
@@ -509,16 +518,17 @@ if (0) {
 	    if ($op_inst{$student}{$problem} and
 		$times{$student}{$problem} and
 		$scores{$student}{$problem} > $score_cut_off) {
-		if($count++){ print ",";}		
+		if($count++){ print ",\n";}		
 		print "{\"$student\",\"$problem\",$times{$student}{$problem},{";
-		$count=0;
-		foreach $op (sort keys %{$op_inst{$student}{$problem})) {
-		    $inst=scalar(%{$op_inst{$student}{$problem}{$op}});
-		    if($count++){ print ",";}
+		my $count2=0;
+		foreach $op (sort keys %{$op_inst{$student}{$problem}}) {
+		    $inst=scalar(keys %{$op_inst{$student}{$problem}{$op}});
+		    if($count2++){ print ",";}
 		    print "{\"$op\",$inst}";
-		} 
-		print "}\n";
+		}
+		print "}}";
 	    }
+	}
     }
-	print "};\n";
+    print "};\n";
 }
