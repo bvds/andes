@@ -213,7 +213,7 @@ while (<>) { # loop over andes sessions
 		next if $step =~ /^\(IMPLICIT-EQN / 
 		    and $operator !~ /^WRITE-IMPLICIT-EQN/;
 
-		push @{$op_inst{$student}{$problem}{$operator}}, $step;
+		$op_inst{$student}{$problem}{$operator}{$step} += 1;
 	        push @{$mastery{$operator}{$student}}, $facts;
 		foreach $meta_op (@{$meta_operators{$operator}}) {
 	            push @{$mastery{$meta_op}{$student}}, $facts;
@@ -500,17 +500,25 @@ if(0) {
 # Include student cutoff, score cut-off, but not problem cut-off.
 # Express in Mathematica format.
 if (0) {
-    print linear
+    print "operatorinstances={";
+    $count2=0;
+    # %times includes the cut-off on the list of students
     foreach $student (sort keys %times) {
-	print "
-	foreach $problem (sort keys %problems) {
-	    if ($times{$student}{$problem} and 
+	# no cut-off on problems
+	foreach $problem (sort keys %{$op_inst{$student}}) {
+	    if ($op_inst{$student}{$problem} and
+		$times{$student}{$problem} and
 		$scores{$student}{$problem} > $score_cut_off) {
-		print ",$times{$student}{$problem}";
-	    } else {
-		print ",";
-	    } 
-	}
-	print "\n";
+		if($count++){ print ",";}		
+		print "{\"$student\",\"$problem\",$times{$student}{$problem},{";
+		$count=0;
+		foreach $op (sort keys %{$op_inst{$student}{$problem})) {
+		    $inst=scalar(%{$op_inst{$student}{$problem}{$op}});
+		    if($count++){ print ",";}
+		    print "{\"$op\",$inst}";
+		} 
+		print "}\n";
+	    }
     }
+	print "};\n";
 }
