@@ -116,6 +116,7 @@ while (<>) { # loop over andes sessions
 	next unless /\tDDE/;  # skip non DDE lines
 	# reset operator list and record time
 	if (/\tDDE /) { # student action sent to help system
+	    $#step_list = -1;
 	    $#operator_list = -1;
 	    $adjusted_time = $this_time - $loss_of_focus;
 	    $error_name = 0;  #delete any old error names
@@ -138,11 +139,14 @@ while (<>) { # loop over andes sessions
 	elsif (/\tDDE-COMMAND set-score (\d+)/) {
 	    $score = $1; 
 	}
-	# use \S so we don't include newline in names
-	elsif (/\tDDE-COMMAND assoc op (\S+)/) {
+	# use ^\r so we don't include CR in names
+	elsif (/\tDDE-COMMAND assoc step ([^\r]+)/) {
+	    @step_list = split /,/,$1;
+	}
+	elsif (/\tDDE-COMMAND assoc op ([^\r]+)/) {
 	    @operator_list = split /,/,$1;
 	}
-	elsif (/\tDDE-COMMAND assoc error (\S+)/) {
+	elsif (/\tDDE-COMMAND assoc error ([^\r]+)/) {
 	    $error_name = $1;
 	}
 	# This way of doing things does not address the case where 
@@ -191,7 +195,25 @@ while (<>) { # loop over andes sessions
 		       time => $adjusted_time-$last_adjusted_time,
                        problem => $problem};
 
-	    foreach $operator (@operator_list) {
+	    unless(@operator_list == @step_list) {
+		die "assoc op and assoc step don't match for @operator_list\n";
+	    }
+
+	    if (@step_list == 1 and $step_list[0] =~ /\(IMPLICIT-EQN / 
+		and ! $operator_list[0] =~ /WRITE-IMPLICIT-EQN/) {
+		die "implicit-eqn is only step @step_list and @operator_list\n";
+	    }
+
+	    while (@operator_list) {
+		my $operator = pop @operator_list;
+		my $step = pop @step_list;
+		# skip implicit eqn's unless associated operator is 
+		# WRITE-IMPLICIT-EQN.  There are always other operators that
+		# are associated with the step.
+		next if $step =~ /^\(IMPLICIT-EQN / 
+		    and $operator !~ /^WRITE-IMPLICIT-EQN/;
+
+		push @{$op_inst{$student}{$problem}{$operator}}, $step;
 	        push @{$mastery{$operator}{$student}}, $facts;
 		foreach $meta_op (@{$meta_operators{$operator}}) {
 	            push @{$mastery{$meta_op}{$student}}, $facts;
@@ -352,7 +374,7 @@ if (0) {
 
 # Print out time, errors, hints for each application of a principle.
 
-if(1) {
+if(0) {
     local $"=",";  # for Mathematica formatted lists
     print "(* In the following, FNA (first no assistance) means that\n",
     "the student has, for the first time, successfully applied\n",
@@ -471,5 +493,24 @@ if(1) {
 	print "};\n";
 	# Map[{Mean[N[timebeforeFNA[#]]],#}&,operators]
 	print " timebeforeFNA[$op_arg]={@first_mastery_times};\n";
+    }
+}
+
+# print problem times and an operator list for linear model.
+# Include student cutoff, score cut-off, but not problem cut-off.
+# Express in Mathematica format.
+if (0) {
+    print linear
+    foreach $student (sort keys %times) {
+	print "
+	foreach $problem (sort keys %problems) {
+	    if ($times{$student}{$problem} and 
+		$scores{$student}{$problem} > $score_cut_off) {
+		print ",$times{$student}{$problem}";
+	    } else {
+		print ",";
+	    } 
+	}
+	print "\n";
     }
 }
