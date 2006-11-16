@@ -202,21 +202,14 @@ while (<>) { # loop over andes sessions
 		die "assoc op and assoc step don't match\n";
 	    }
 
-            # As shown by this test, one never has an entry that 
-	    # is attached only to an IMPLICIT-EQN unless the operator is
-	    # WRITE-IMPLICIT-EQN
-	    if (@step_list == 1 and $step_list[0] =~ /\(IMPLICIT-EQN / 
-		and $operator_list[0] !~ /WRITE-IMPLICIT-EQN/) {
-		die "implicit-eqn is only step @step_list and @operator_list\n";
-	    }
-
 	    while (@operator_list) {
 		my $operator = pop @operator_list;
 		my $step = pop @step_list;
 		# skip implicit eqn's unless associated operator is 
-		# WRITE-IMPLICIT-EQN.  In such cases, there are always 
-		# other operators that are associated with the step.
-		next if $step =~ /^\(IMPLICIT-EQN / 
+		# WRITE-IMPLICIT-EQN.  In a few cases, it is the only
+		# operator (and is redundant with a previous step) in
+		# whic case, we associate it with that operator
+		next if @step_list > 1 and $step =~ /^\(IMPLICIT-EQN / 
 		    and $operator !~ /^WRITE-IMPLICIT-EQN/;
 
 		$op_inst{$student}{$problem}{$operator}{$step} += 1;
@@ -511,6 +504,10 @@ if(0) {
 #  {student, problem, time, {{op1,n1},{op2,n2}, ...}}
 # where ni is the number of distinct instances of opi in that solution.
 if (1) {
+    local $"=",";  # for Mathematica formatted lists
+    my @op_list=sort keys %mastery;
+    my @op_quoted = map {"\"" . $_ . "\""} (sort keys %mastery);
+    print "operators={@op_quoted};\n";
     print "operatorinstances={";
     my $count=0;
     # %times includes the cut-off on the list of students
@@ -522,11 +519,21 @@ if (1) {
 		$scores{$student}{$problem} > $score_cut_off) {
 		if($count++){ print ",\n";}		
 		print "{\"$student\",\"$problem\",$times{$student}{$problem},{";
-		my $count2=0;
-		foreach $op (sort keys %{$op_inst{$student}{$problem}}) {
-		    my $inst=scalar(keys %{$op_inst{$student}{$problem}{$op}});
-		    if($count2++){ print ",";}
-		    print "{\"$op\",$inst}";
+		if (0) {
+		    # sparse version
+		    my $count2=0;
+		    foreach $op (sort keys %{$op_inst{$student}{$problem}}) {
+			my $inst=scalar(keys 
+					%{$op_inst{$student}{$problem}{$op}});
+			if($count2++){ print ",";}
+			print "{\"$op\",$inst}";
+		    }
+		} else {
+		    # dense version
+		    my @inst_list = map {scalar keys 
+					     %{$op_inst{$student}
+					       {$problem}{$_}}} @op_list;
+		    print "@inst_list";
 		}
 		print "}}";
 	    }
