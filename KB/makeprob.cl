@@ -216,13 +216,14 @@
       ; filter func to map: Include non-working problems in case we want stubs
       #'andes2-prob))
       
-;;; list all possible entries for given problem. 
+;;; list all possible entries for given problem.
+;; helpsystem must be loaded for this to work 
 (defun show-entries(probname &optional (dest T))
  (read-problem-info probname) ; will do sg-setup
  (dolist (e *sg-entries*) 
-   (format dest "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)
+   (format dest "~S~%     ~S~%" (systementry-prop e) (sg-map-systementry->opname e)
 			     ; show full opinst, not just opname
-                             (first (sg-map-systementry->opinsts e)))
+                            ;(first (sg-map-systementry->opinsts e)))
     ))
 
 ;; list all entries in tab-delimited file

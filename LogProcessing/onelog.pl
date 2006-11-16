@@ -182,6 +182,8 @@ while (<>) { # loop over andes sessions
 	    $intervening_errors++;
 	    push @error_interp, ($error_name or "assoc-error-nil-show-hint");
 	}
+	# Helpsystem returns a "green" for this entry, now we record 
+	# parameters that have been collected
 	elsif (/\tDDE-RESULT \|T\|/ or 
 	       (0 and /\tDDE-RESULT \|T!show-hint .*\|/)) { 
 	    if (/\tDDE-RESULT \|T!show-hint .*\|/) {
@@ -277,7 +279,7 @@ if(0) {
 
 if(0) {
     print "pausehistogram={";
-    $sep="";
+    my $sep="";
     foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
 	print $sep,"{$delay,$dt_histogram{$delay}}";
 	$sep=",";
@@ -285,7 +287,7 @@ if(0) {
     print "};\n";
     
     # make a log-log histogram of the pauses
-    $step = 10;  #number of steps per decade
+    my $step = 10;  #number of steps per decade
     foreach $delay (keys %dt_histogram) {
 	next if $delay<1;
 	$log_dt_hist{int (0.5 + log($delay)*$step/log(10.0))} += 
@@ -385,7 +387,7 @@ if(0) {
     "the student has, for the first time, successfully applied\n",
     "the principle without any assistance (hints given or errors made\n", 
     "since the last successful entry. *)\n";
-    @op_quoted = map {"\"" . $_ . "\""} (sort keys %mastery);
+    my @op_quoted = map {"\"" . $_ . "\""} (sort keys %mastery);
     print "operators={@op_quoted};\n";
     foreach $operator (sort keys %mastery) {
 	print "(* $operator  *)\n";  # print as mathematica comment
@@ -522,7 +524,7 @@ if (1) {
 		print "{\"$student\",\"$problem\",$times{$student}{$problem},{";
 		my $count2=0;
 		foreach $op (sort keys %{$op_inst{$student}{$problem}}) {
-		    $inst=scalar(keys %{$op_inst{$student}{$problem}{$op}});
+		    my $inst=scalar(keys %{$op_inst{$student}{$problem}{$op}});
 		    if($count2++){ print ",";}
 		    print "{\"$op\",$inst}";
 		}
