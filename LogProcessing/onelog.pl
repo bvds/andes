@@ -505,11 +505,19 @@ if(0) {
 # where ni is the number of distinct instances of opi in that solution.
 if (1) {
     local $"=",";  # for Mathematica formatted lists
+    my @each_student=();
+    my @each_time=();
     my @op_list=sort keys %mastery;
     my @op_quoted = map {"\"" . $_ . "\""} (sort keys %mastery);
+    my %opindex=();
+    my $i=1;  # Mathematica/Fortran indexing starts at one
+    foreach $op (sort keys %mastery) {
+	$opindex{$op}=$i++;
+    }
     print "operators={@op_quoted};\n";
     print "operatorinstances={";
     my $count=0;
+    my $stprob=1;  # Mathematica style indexing
     # %times includes the cut-off on the list of students
     foreach $student (sort keys %times) {
 	# no cut-off on problems
@@ -517,16 +525,18 @@ if (1) {
 	    if ($op_inst{$student}{$problem} and
 		$times{$student}{$problem} and
 		$scores{$student}{$problem} > $score_cut_off) {
+		push @each_student, $student;
+		push @each_time, $times{$student}{$problem};
 		if($count++){ print ",\n";}		
-		print "{\"$student\",\"$problem\",$times{$student}{$problem},{";
-		if (0) {
+		print "{";
+		if (1) {
 		    # sparse version
 		    my $count2=0;
 		    foreach $op (sort keys %{$op_inst{$student}{$problem}}) {
 			my $inst=scalar(keys 
 					%{$op_inst{$student}{$problem}{$op}});
 			if($count2++){ print ",";}
-			print "{\"$op\",$inst}";
+			print "{$stprob,$opindex{$op},$inst}";
 		    }
 		} else {
 		    # dense version
@@ -535,9 +545,12 @@ if (1) {
 					       {$problem}{$_}}} @op_list;
 		    print "@inst_list";
 		}
-		print "}}";
+		print "}";
+		$stprob++;
 	    }
 	}
     }
     print "};\n";
+    print "eachstudent={@each_student};\n";
+    print "eachtime={@each_time};\n";
 }

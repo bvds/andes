@@ -41,9 +41,9 @@ Wolfram Research.
 
 (*NotebookFileLineBreakTest
 NotebookFileLineBreakTest*)
-(*NotebookOptionsPosition[   2133336,      56402]*)
-(*NotebookOutlinePosition[   2134268,      56431]*)
-(*  CellTagsIndexPosition[   2134224,      56427]*)
+(*NotebookOptionsPosition[   2142144,      56612]*)
+(*NotebookOutlinePosition[   2143075,      56641]*)
+(*  CellTagsIndexPosition[   2143031,      56637]*)
 (*WindowFrame->Normal*)
 
 
@@ -55288,25 +55288,33 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Length[operators]\)], "Input"],
+    \(mat = 
+      SparseArray[
+        Map[\((Take[#, 2] \[Rule] #[\([\(-1\)]\)])\) &, 
+          Flatten[operatorinstances, 1]], {Length[operatorinstances], 
+          Length[operators]}]; tmat = Transpose[mat];\)], "Input"],
 
 Cell[BoxData[
-    \(244\)], "Output"]
+    RowBox[{\(General::"spell1"\), \(\(:\)\(\ \)\), "\<\"Possible spelling \
+error: new symbol name \\\"\\!\\(tmat\\)\\\" is similar to existing symbol \\\
+\"\\!\\(mat\\)\\\". \\!\\(\\*ButtonBox[\\\"More\[Ellipsis]\\\", ButtonStyle->\
+\\\"RefGuideLinkText\\\", ButtonFrame->None, \
+ButtonData:>\\\"General::spell1\\\"]\\)\"\>"}]], "Message"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(MatrixRank[Map[#[\([4]\)] &, operatorinstances]]\)], "Input"],
+    \({Length[operators], MatrixRank[mat]}\)], "Input"],
 
 Cell[BoxData[
-    \(237\)], "Output"]
+    \({244, 237}\)], "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(NullSpace[Map[#[\([4]\)] &, operatorinstances]] . operators\)], "Input"],
+    \(NullSpace[mat] . operators\)], "Input"],
 
 Cell[BoxData[
     \({\(-"DEFINE-ROTATIONAL-ENERGY"\) - 2\ "WRITE-I-ROD-END" - 
@@ -55326,9 +55334,8 @@ Cell[CellGroupData[{
 Cell[BoxData[
     \(pt = 
       ParameterTable /. 
-        Regress[Map[Append[#[\([4]\)], #[\([3]\)]] &, operatorinstances], 
-          Map[t, operators], Map[t, operators], 
-          IncludeConstant \[Rule] False]\)], "Input"],
+        Regress[Transpose[Append[tmat, eachtime]], Map[t, operators], 
+          Map[t, operators], IncludeConstant \[Rule] False]\)], "Input"],
 
 Cell[BoxData[
     \(DesignedRegress::"rank" \(\(:\)\(\ \)\) 
@@ -56323,7 +56330,7 @@ Cell[BoxData[
           t[ "WT-LAW"], 
           t[ "WT-LAW-CM"]}, {"Estimate", "SE", "TStat", 
           "PValue"}}]]]], "Output"]
-}, Open  ]],
+}, Closed]],
 
 Cell["List of significant operators.", "Text"],
 
@@ -56397,13 +56404,216 @@ Cell[BoxData[
       t["WRITE-VALUE-OF-ATMOSPHERE"], t["WRITE-VOLUME-COMPOUND"], 
       t["WRITE-WAVE-SPEED-LIGHT"], t["WRITE-WORK-DELTA-KE"], t["WT-LAW"], 
       t["WT-LAW-CM"]}\)], "Output"]
+}, Closed]],
+
+Cell["\<\
+Find pairs of operators where a quadratic term might be significant \
+(this takes a while)\
+\>", "Text"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(\(\(\ \)\(Timing[\(quads = 
+          Select[Flatten[
+              Table[{i, j}, {i, Length[operators]}, {j, i, 
+                  Length[operators]}], 1], 
+            Block[{i, j}, {i, j} = #; 
+                If[i \[Equal] j, Length[Union[Normal[tmat[\([i]\)]]]] > 2, 
+                  Length[Union[Transpose[Normal[tmat[\([#]\)]]]]] > 
+                    Length[Union[Normal[tmat[\([i]\)]]]] + 
+                      Length[Union[Normal[tmat[\([j]\)]]]] - 
+                      1]] &];\)]\)\)\)], "Input"],
+
+Cell[BoxData[
+    \({507.780806`\ Second, Null}\)], "Output"]
+}, Open  ]],
+
+Cell[BoxData[
+    \(<< "\<~/log/quads.m\>"\)], "Input"],
+
+Cell[BoxData[
+    \(\(\(\ \)\(\(newops = Map[Apply[t, operators[\([#]\)]] &, quads];\)\n
+    \(allops = Join[Map[t, operators], newops];\)\n
+    \(moremat = Map[Apply[Times, tmat[\([#]\)]] &, quads];\)\n
+    \(allmat = Transpose[Join[tmat, moremat]];\)\)\)\)], "Input"],
+
+Cell["This takes a while", "Text"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Timing[MatrixRank[allmat]]\)], "Input"],
+
+Cell[BoxData[
+    \({387.778048`\ Second, 2446}\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Dimensions[allmat]\)], "Input"],
+
+Cell[BoxData[
+    \({9539, 4111}\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Length[Union[allmat]]\)], "Input"],
+
+Cell[BoxData[
+    \(3500\)], "Output"]
+}, Open  ]],
+
+Cell["\<\
+Fortran needs a final newline, hence the \"END\" line at the \
+end\
+\>", "Text"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Block[{els = Apply[Append, Drop[ArrayRules[mat], \(-1\)], {1}]}, 
+      Export["\<~/log/mat.out\>", 
+        Append[Prepend[els, 
+            Append[Dimensions[mat], 
+              Length[els]]], {"\<END\>"}], "\<Table\>"]]\)], "Input"],
+
+Cell[BoxData[
+    \("~/log/mat.out"\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Block[{els = Apply[Append, Drop[ArrayRules[allmat], \(-1\)], {1}]}, 
+      Export["\<~/log/allmat.out\>", 
+        Append[Prepend[els, 
+            Append[Dimensions[allmat], 
+              Length[els]]], {"\<END\>"}], "\<Table\>"]]\)], "Input"],
+
+Cell[BoxData[
+    \("~/log/allmat.out"\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Export["\<~/log/eachtime.out\>", 
+      Append[Prepend[eachtime, 
+          Length[eachtime]], "\<END\>"], "\<Table\>"]\)], "Input"],
+
+Cell[BoxData[
+    \("~/log/eachtime.out"\)], "Output"]
+}, Open  ]],
+
+Cell[BoxData[
+    \(\({u, b, v} = SingularValueDecomposition[N[Normal[mat]]];\)\)], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Dimensions[v]\)], "Input"],
+
+Cell[BoxData[
+    \({244, 244}\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Table[b[\([i, i]\)], {i, Length[v]}]\)], "Input"],
+
+Cell[BoxData[
+    \({271.77389694683296`, 157.55069692419684`, 141.77465451107045`, 
+      117.7053554961361`, 105.18169829223591`, 94.67704649330412`, 
+      93.07784448647138`, 82.23194574980856`, 78.9328696119192`, 
+      71.96089205438294`, 70.16743555734615`, 68.13563606801681`, 
+      62.94279100769005`, 61.87197621079911`, 56.03635157624919`, 
+      53.37912187887976`, 52.18500375480737`, 51.004518392508565`, 
+      50.59279725080486`, 48.01873885080223`, 44.79583958250725`, 
+      43.68697359311748`, 42.70690361173485`, 41.64326985846088`, 
+      40.71314494778706`, 40.27135625563935`, 39.843221320007885`, 
+      38.155420137138755`, 37.084767981445374`, 36.010375758201114`, 
+      34.808848520389276`, 34.047306620662745`, 32.93606220814109`, 
+      31.835182290587642`, 30.929124065612655`, 30.349419840081215`, 
+      30.1647655737063`, 29.230973298938018`, 28.078210906801193`, 
+      27.776911708935007`, 27.350610741733945`, 26.453437838232354`, 
+      25.23296983693151`, 25.119664229325007`, 23.779907373616645`, 
+      23.38153439782689`, 22.57743804825562`, 22.44222242521144`, 
+      21.73438458088936`, 21.073332146873604`, 20.77692308358635`, 
+      20.37666980262872`, 19.917993905100086`, 19.3863161282199`, 
+      19.287772616953735`, 19.190884482127952`, 18.536649983833392`, 
+      18.379237427862563`, 18.061950998954583`, 17.777370148684554`, 
+      17.649713591620007`, 17.366297099341832`, 16.96329975247624`, 
+      16.70168782291037`, 16.422136031814357`, 16.101975504382576`, 
+      15.757369216236906`, 15.19143824735733`, 15.03064227778822`, 
+      14.921438244975054`, 14.504433689275366`, 14.390328027570268`, 
+      14.128224749815523`, 13.982197084039006`, 13.759205196759984`, 
+      13.57853024716558`, 13.458921539393558`, 13.08086425656285`, 
+      12.971057694240796`, 12.849743525096859`, 12.508716389451951`, 
+      12.395003745005893`, 12.161153246308317`, 11.930616682874678`, 
+      11.57098904793306`, 11.36497575906906`, 11.048331433874386`, 
+      10.909744192936673`, 10.788934216327451`, 10.53768567659222`, 
+      10.497678278355604`, 10.414625384345323`, 10.237175957858465`, 
+      10.128820398505724`, 9.977361208638897`, 9.776619801773599`, 
+      9.64408473145268`, 9.602593984608873`, 9.473304292446013`, 
+      9.382109304318375`, 9.164394883211882`, 9.102162133654078`, 
+      9.014005526884409`, 8.837815389106675`, 8.69194986488628`, 
+      8.632341716688556`, 8.569622042281447`, 8.536309843373974`, 
+      8.405029434678148`, 8.253358365738261`, 8.217035408825604`, 
+      8.145061671693561`, 8.024191695225921`, 7.935613126571892`, 
+      7.82121137085772`, 7.762660925265149`, 7.61620469934646`, 
+      7.555076250864546`, 7.400541923688709`, 7.328001477877276`, 
+      7.232463108928083`, 7.202173817879825`, 7.08227764728368`, 
+      7.01397113089592`, 6.857442977218843`, 6.733564587786579`, 
+      6.71226306102422`, 6.6694552846710335`, 6.604059482949503`, 
+      6.494380865760756`, 6.4347960591585585`, 6.245693737230365`, 
+      6.074956008893713`, 6.055846922892139`, 6.006137381131493`, 
+      5.889923748286216`, 5.843968216282894`, 5.721095177989245`, 
+      5.662265327864059`, 5.630943930339961`, 5.610968157574819`, 
+      5.527866019315889`, 5.429896023855094`, 5.378358431699382`, 
+      5.30274113409967`, 5.2680214733946436`, 5.1520810581439465`, 
+      5.138266643754735`, 5.076357608941375`, 4.959328885697117`, 
+      4.9384721287826405`, 4.864763140492464`, 4.83558930993295`, 
+      4.78704128972475`, 4.763787159582884`, 4.73935557728152`, 
+      4.6960618112839585`, 4.6094468915842315`, 4.519711834337835`, 
+      4.454133020872102`, 4.436468846543212`, 4.385195941163744`, 
+      4.312299285834319`, 4.288724421319364`, 4.17614707802826`, 
+      4.137593735190336`, 4.114911828238623`, 4.049021829654136`, 
+      3.9758463335580547`, 3.935421479211818`, 3.9030242141050913`, 
+      3.8628014429925597`, 3.8430373349811573`, 3.801506064926188`, 
+      3.77463574830928`, 3.7349864259684336`, 3.7038415494244603`, 
+      3.6606345800213083`, 3.6386509955561244`, 3.5926771308132035`, 
+      3.5523724487200226`, 3.4615250426486828`, 3.411811345953591`, 
+      3.366910668124303`, 3.3555969864108497`, 3.2550872077051305`, 
+      3.2357286644814813`, 3.226448287148461`, 3.1814234153495264`, 
+      3.156391891614087`, 3.1227953639668145`, 3.1155853949593526`, 
+      3.054508793758661`, 2.9988638830563947`, 2.9683910708931127`, 
+      2.957293383276339`, 2.9297948444827533`, 2.921988949142956`, 
+      2.860914627559483`, 2.8591390510552617`, 2.833118769978728`, 
+      2.7898725496505596`, 2.7764398313527843`, 2.63595519689172`, 
+      2.601308941301009`, 2.5901580744522357`, 2.5546803713751505`, 
+      2.5148039805820788`, 2.4598657104884967`, 2.4392744745984145`, 
+      2.4045903906066197`, 2.3531594240392892`, 2.2868417854644965`, 
+      2.2749054846336665`, 2.241452486541`, 2.2181687100548713`, 
+      2.217717258177783`, 2.2031230738891687`, 2.088591927889585`, 
+      2.036232505001698`, 1.9409139359726393`, 1.6358158150236437`, 
+      1.5933489917549077`, 1.4347829122649776`, 1.4096016064763968`, 
+      1.3687750217257222`, 1.336437427678315`, 1.335196285866783`, 
+      1.1753848617693285`, 0.9991549202400053`, 0.9886504483599291`, 
+      0.9854661917388009`, 0.9560241824674757`, 0.8486225703151912`, 
+      0.83270459817109`, 0.7491722145374631`, 0.6909759128374002`, 0.`, 0.`, 
+      0.`, 0.`, 0.`, 0.`, 0.`}\)], "Output"]
 }, Open  ]]
 }, Open  ]]
 },
 FrontEndVersion->"5.1 for X",
 ScreenRectangle->{{0, 1024}, {0, 768}},
 WindowSize->{847, 670},
-WindowMargins->{{68, Automatic}, {24, Automatic}},
+WindowMargins->{{Automatic, 74}, {6, Automatic}},
 PrintingPageRange->{Automatic, Automatic},
 PrintingOptions->{"PaperSize"->{612, 792},
 "PaperOrientation"->"Portrait",
@@ -56995,32 +57205,83 @@ Cell[2077668, 55281, 67, 1, 27, "Input"],
 Cell[2077738, 55284, 56, 1, 27, "Input"],
 
 Cell[CellGroupData[{
-Cell[2077819, 55289, 50, 1, 27, "Input"],
-Cell[2077872, 55292, 37, 1, 27, "Output"]
+Cell[2077819, 55289, 240, 5, 59, "Input"],
+Cell[2078062, 55296, 355, 5, 20, "Message"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2077946, 55298, 81, 1, 27, "Input"],
-Cell[2078030, 55301, 37, 1, 27, "Output"]
+Cell[2078454, 55306, 69, 1, 27, "Input"],
+Cell[2078526, 55309, 44, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2078104, 55307, 92, 1, 27, "Input"],
-Cell[2078199, 55310, 586, 10, 91, "Output"]
+Cell[2078607, 55315, 59, 1, 27, "Input"],
+Cell[2078669, 55318, 586, 10, 91, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2078822, 55325, 228, 5, 43, "Input"],
-Cell[2079053, 55332, 313, 5, 46, "Message"],
-Cell[2079369, 55339, 261, 4, 33, "Message"],
-Cell[2079633, 55345, 199, 3, 33, "Message"],
-Cell[2079835, 55350, 49334, 974, 4464, "Output"]
-}, Open  ]],
-Cell[2129184, 56327, 46, 0, 32, "Text"],
+Cell[2079292, 55333, 194, 4, 43, "Input"],
+Cell[2079489, 55339, 313, 5, 46, "Message"],
+Cell[2079805, 55346, 261, 4, 33, "Message"],
+Cell[2080069, 55352, 199, 3, 33, "Message"],
+Cell[2080271, 55357, 49334, 974, 4464, "Output"]
+}, Closed]],
+Cell[2129620, 56334, 46, 0, 29, "Text"],
 
 Cell[CellGroupData[{
-Cell[2129255, 56331, 177, 4, 27, "Input"],
-Cell[2129435, 56337, 3873, 61, 571, "Output"]
+Cell[2129691, 56338, 177, 4, 27, "Input"],
+Cell[2129871, 56344, 3873, 61, 571, "Output"]
+}, Closed]],
+Cell[2133759, 56408, 114, 3, 29, "Text"],
+
+Cell[CellGroupData[{
+Cell[2133898, 56415, 533, 10, 91, "Input"],
+Cell[2134434, 56427, 61, 1, 27, "Output"]
+}, Open  ]],
+Cell[2134510, 56431, 55, 1, 27, "Input"],
+Cell[2134568, 56434, 269, 4, 75, "Input"],
+Cell[2134840, 56440, 34, 0, 32, "Text"],
+
+Cell[CellGroupData[{
+Cell[2134899, 56444, 59, 1, 27, "Input"],
+Cell[2134961, 56447, 61, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2135059, 56453, 51, 1, 27, "Input"],
+Cell[2135113, 56456, 46, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2135196, 56462, 54, 1, 27, "Input"],
+Cell[2135253, 56465, 38, 1, 27, "Output"]
+}, Open  ]],
+Cell[2135306, 56469, 90, 3, 32, "Text"],
+
+Cell[CellGroupData[{
+Cell[2135421, 56476, 256, 5, 43, "Input"],
+Cell[2135680, 56483, 49, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2135766, 56489, 265, 5, 59, "Input"],
+Cell[2136034, 56496, 52, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2136123, 56502, 152, 3, 27, "Input"],
+Cell[2136278, 56507, 54, 1, 27, "Output"]
+}, Open  ]],
+Cell[2136347, 56511, 92, 1, 27, "Input"],
+
+Cell[CellGroupData[{
+Cell[2136464, 56516, 46, 1, 27, "Input"],
+Cell[2136513, 56519, 44, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2136594, 56525, 69, 1, 27, "Input"],
+Cell[2136666, 56528, 5450, 80, 363, "Output"]
 }, Open  ]]
 }, Open  ]]
 }
