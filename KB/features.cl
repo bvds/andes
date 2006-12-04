@@ -97,6 +97,22 @@
 (def-feature-set probability (probability))
 (def-feature-set multiple-planets (gravitational-acceleration))
 
+;;;  ============================================================
+;;;  Make sure that problem features allow all quantities to be
+;;;  defined on the workbench.
+
+(post-process test-quants-against-features (Problem)
+  "test that all quantities can be found in the problem features"
+  (dolist (quant (problem-varindex problem))
+    (let ((exptype-struct (lookup-expression-struct (qvar-exp quant))))
+      (when (null exptype-struct) 
+	(error "The quantity ~A does not match anything in ontology." 
+	       (qvar-exp quant)))
+      (when (not (quant-allowed-by-features (exptype-type exptype-struct) 
+				    (problem-features Problem)))
+	(format t "WARNING:  Problem features do not enable ~A.~%" 
+	       (exptype-type exptype-struct))))))
+
 
 ;;;             Utilities for constructing features file
 

@@ -95,7 +95,7 @@
   (mark-forbidden-nodes Problem)
   (generate-problem-eqn-sets Problem)
   (mark-problem-graph Problem)
-  (test-quants-against-features Problem)
+  (run-post-processing Problem)
   )
 
 
@@ -484,24 +484,6 @@
     
     (setf (Problem-VarIndex Problem) 
       (Index-Qvar-List Vars))))
-
-;;;  ============================================================
-;;;  Make sure that problem features allow all quantities to be
-;;;  defined on the workbench.
-
-(defun test-quants-against-features (Problem)
-  "test that all quantities can be found in the problem features"
-  (ps-bp "test that features allow quantities: ~A" (Problem-Name Problem))
-  (dolist (quant (problem-varindex problem))
-    (let ((exptype-struct (lookup-expression-struct (qvar-exp quant))))
-      (when (null exptype-struct) 
-	(error "The quantity ~A does not match anything in ontology." 
-	       (qvar-exp quant)))
-      (when (not (quant-allowed-by-features (exptype-type exptype-struct) 
-				    (problem-features Problem)))
-	(format t "WARNING:  Problem features do not enable ~A.~%" 
-	       (exptype-type exptype-struct))))))
-
 
 ;;; ============================================================
 ;;; Solve Non-quantity problems

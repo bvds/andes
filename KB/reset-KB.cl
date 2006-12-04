@@ -11,6 +11,8 @@
   (clear-ontology)
   ;; reset NewtonsNogoods list
   (clear-nogoods)		
+  ;; reset post-processing operations
+  (clear-post-processing)
 
 ;;;
 ;;; It may be convenient to define this in the initialization file

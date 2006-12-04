@@ -59,7 +59,8 @@
 				     ;; NLG not defined
 				     (:no-compile-file "Ontology")  
 				     (:file "Problem") ;depends on HelpStructs
-				     (:file "Solution")))	       
+				     (:file "Solution")
+				     (:file "post-processing")))	       
 	       (:module "KB"
 ;;;	    	:description "Knowledge Base"
 			:depends-on ("Knowledge" "Base")
