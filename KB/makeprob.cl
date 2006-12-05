@@ -41,6 +41,7 @@
 	(*s-print-steps* NIL)		;intermediate results of top-level step
 	(*debug-gg* NIL)		;graph building process steps
 	(*debug-sp* NIL)		;solution point generation detail
+	(*debug-pp* nil)                ;post-processing functions
 	(*debug* NIL)			;debugging messages inside operators
 	(*actions* NIL)			;traces all problem-solver actions
         (Errs))
@@ -65,6 +66,7 @@
 	(*s-print-steps* NIL)		;intermediate results of top-level
 	(*debug-gg* NIL)		;graph building process steps
 	(*debug-sp* NIL)		;solution point generation detail
+	(*debug-pp* nil)                ;post-processing functions
 	(*debug* NIL)			;debugging messages inside operators
 	(*actions* NIL)			;traces all problem-solver actions
         (Errs))
