@@ -1148,9 +1148,11 @@
 (defoperator write-equality (?quant1 ?quant2)
   :preconditions 
   (
-   ;; found in equality-contains
-   (in-wm (equals ?quant1 ?quant2 :opposite ?flag 
+   ;; found in equality-contains above
+   (in-wm (equals ?qa ?qb :opposite ?flag 
 		  :hint ?hint "The two quantities are equal."))
+   ;; since we are not using orderless, check both orders
+   (any-member (?quant1 ?quant2) ((?qa ?qb) (?qb ?qa)))
    (variable ?v1 ?quant1)
    (variable ?v2 ?quant2)
    (bind ?v2-term (if ?flag `(- ,?v2) ?v2)))
