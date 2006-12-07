@@ -278,6 +278,19 @@
   :fromWorkbench `(gravitational-acceleration ,body)
   :english ("the gravitational acceleration due to ~A" (nlg ?planet)))
 
+(post-process add-gravitational-acceleration (problem)
+  "if only the earth's gravity is used, add gravitational acceleration"
+  ;; test whether other planets are involved in problem
+  (when (and (every #'(lambda (x) (eq (second x) 'earth)) 
+		    (Filter-expressions '(near-planet ?p :body ?b)
+						 (problem-givens problem))) 
+	     ;; test whether acceleration for earth is neede
+	     (member '(gravitational-acceleration earth) 
+		     (problem-varindex problem) :test #'unify :key #'qvar-exp))
+    ;; in principle, should also test if it already has been defined
+    (push "Var-Entry gravitational-acceleration Pr0 Var-998 _ _ gravitational-acceleration ???" 
+	  (problem-predefs problem))))
+
 (def-qexp num-forces (num-forces ?body :time ?time)
   :english ("the number of forces on ~A" (nlg ?body 'at-time ?time)))
 (def-qexp revolution-radius (revolution-radius ?body :time ?time)

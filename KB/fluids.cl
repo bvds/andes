@@ -107,6 +107,15 @@
 (defoperator define-atmosphere-var ()
  :effects ( (variable |Pr0| (atmosphere)) ))
 
+(post-process add-standard-atmosphere (problem)
+  "In fluids problems, add Pr0 to list of pre-defined scalars"
+  ;; for fluids problems, predefine atmospheric pressure constant
+  ;; in principle, should test it is not already present
+  ;; and test for the Var-number
+  (when (member 'fluids (problem-features problem))
+    (push "Var-Entry atmosphere Pr0 Var-999 _ _ atmosphere " 
+	  (problem-predefs problem))))
+
 (def-psmclass std-constant-Pr0 (std-constant atmosphere)
   :complexity simple 
   :short-name "atmospheric pressure"
@@ -128,6 +137,7 @@
    (teach (string "You can use 1.013E5 |Pa| as the value of Pr0."))
    (bottom-out (string "Write the equation ~A" ((= ?Pr0-var (dnum 1.013E5 |Pa|)) algebra)))
     ))
+
 
 ;;Assign a value to the pressure that is listed in the givens as "open-to-atmosphere"
 ;;in a problem.  We would like Andes to recognize the pressure at that point is Pr0 Pa.

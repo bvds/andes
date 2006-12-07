@@ -15,7 +15,6 @@
 ;; global features
 (setq *Ontology-features-ignore*  
       '(mag dir compo ;match all vector quantities
-	    gravitational-acceleration ;pre-defined variable
 	    test-var ;dummy variable for ensuring positivity
 	    ))
 
@@ -30,7 +29,8 @@
   (work net-work work-nc))
 
 (def-feature-set dipole (dipole-energy))
-(def-feature-set kinematics (distance speed duration angle))
+(def-feature-set kinematics (distance speed duration angle 
+				      gravitational-acceleration))
 (def-feature-set statics 
   (mass angle coef-friction duration spring-constant compression))
 (def-feature-set dynamics (mass angle coef-friction duration))
@@ -95,7 +95,6 @@
 	frequency angular-frequency amplitude amplitude-max-speed 
 	amplitude-max-abs-acceleration))
 (def-feature-set probability (probability))
-(def-feature-set multiple-planets (gravitational-acceleration))
 
 ;;;  ============================================================
 ;;;  Make sure that problem features allow all quantities to be

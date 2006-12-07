@@ -25,13 +25,6 @@
 ;;;
 
 (defun enter-predefs ()
-  ;; if there is exactly one planet specified, predefine g for this planet 
-  (let* ((planet-props (filter-expressions '(near-planet ?p :body ?whatever) 
-					   (problem-givens *cp*)))
-	 (planet   (when (= (length planet-props) 1) 
-		     (second (first planet-props)))))
-    (when planet
-      (symbols-enter "g" `(gravitational-acceleration ,planet) NIL)))
   
   ;; If prob involves universal gravitation, predefine G. This is marked
   ;; by a proposition beginning with 'gravity in the givens
@@ -63,10 +56,6 @@
      (symbols-enter "$m0" '(physconst |mu0|) NIL '|mu0|)
      (symbols-enter "kmag" 'kmag NIL '|kmag|)
      (symbols-enter "$e0" '(physconst |eps0|) NIL '|eps0|))
-
-  ; for fluids problems, predefine atmospheric pressure constant
-  (when (member 'fluids (problem-features *cp*))
-      (symbols-enter "Pr0" '(atmosphere) NIL))
 
   ;; add conditions for further predefs here:
 )
