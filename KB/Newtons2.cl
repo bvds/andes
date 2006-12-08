@@ -1133,26 +1133,18 @@
 (defoperator equality-contains (?quant)
   :preconditions 
   (
-   ;; BvdS:  Ideally, we would use the form (equals orderless ...) but 
-   ;;        this is not a good mid-semester change (Sept. 2006)
-   (equals ?quant1 ?quant2 :opposite ?flag . ?rest)
-   (test (not (equal ?quant1 ?quant2))) ; i.e. different defs.
+   (equals ?quant1 ?quant2 :opposite ?flag . ?whatever)
    (any-member ?quant (?quant1 ?quant2))
-   ;; sort quants in id so A=B and B=A get same id.
-   (bind ?quants (nconc (sort (list ?quant1 ?quant2) #'expr<) 
-			(list ':opposite ?flag)))
    )
   :effects
-  ((eqn-contains (equals . ?quants) ?quant)))
+  ((eqn-contains (equals ?quant1 ?quant2 :opposite ?flag) ?quant)))
 
 (defoperator write-equality (?quant1 ?quant2)
   :preconditions 
   (
    ;; found in equality-contains above
-   (in-wm (equals ?qa ?qb :opposite ?flag 
-		  :hint ?hint "The two quantities are equal."))
-   ;; since we are not using orderless, check both orders
-   (any-member (?quant1 ?quant2) ((?qa ?qb) (?qb ?qa)))
+   (in-wm (equals ?quant1 ?quant2 :opposite ?flag 
+			       :hint ?hint "The two quantities are equal."))
    (variable ?v1 ?quant1)
    (variable ?v2 ?quant2)
    (bind ?v2-term (if ?flag `(- ,?v2) ?v2)))
@@ -5773,33 +5765,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (bottom-out (string "Write the equation ~A" ((= ?g-var (dnum 9.8 |m/s^2|)) algebra)))
     ))
 
-;; This models defining a variable for gravitational acceleration. In
-;; current Andes this step is not needed since g is predefined as a
-;; student variable in problems that need it, however we expect to
-;; use something like this in the future for consistency. We could model 
-;; the ability to use terms for certain predefined constants without defining
-;; them by adding a (variable g ...) in the problem statement for any problem
-;; that uses them. Perhaps a pre-processing phase could add the set of 
-;; predefined constants to every problem's givens. But until we sort out
-;; how to handle predefined terms, this is the consistent method to use.
-
 (defoperator define-grav-accel (?planet)
   :preconditions 
-  ( ;; for one planet, variable is already defined
-   (setof (in-wm (near-planet ?aplanet :body ?whatever)) ?aplanet ?planets)
-   (test (= (length (remove-duplicates ?planets :test #'equal)) 1))
+  (
+   (near-planet ?planet :body ?whatever)
    (bind ?g-var (format-sym "g_~A" ?planet)) )
-  :effects ( (variable ?g-var (gravitational-acceleration ?planet)) ))
-
-(defoperator define-grav-accel-explicitly (?planet)
-  :preconditions 
-  (  ;; for more than one planet, student must explicitly define variable
-   (setof (in-wm (near-planet ?aplanet :body ?whatever)) ?aplanet ?planets)
-   (test (> (length (remove-duplicates ?planets :test #'equal)) 1))
-   (bind ?g-var (format-sym "g_~A" ?planet)) )
-  :effects 
-  ( (variable ?g-var (gravitational-acceleration ?planet))
-    (define-var (gravitational-acceleration ?planet)) )
+  :effects ( (variable ?g-var (gravitational-acceleration ?planet)) 
+	     (define-var (gravitational-acceleration ?planet)) )
   :hint 
   ((bottom-out 
     (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting gravitational acceleration." 
