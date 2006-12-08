@@ -41,9 +41,9 @@ Wolfram Research.
 
 (*NotebookFileLineBreakTest
 NotebookFileLineBreakTest*)
-(*NotebookOptionsPosition[   2456571,      62506]*)
-(*NotebookOutlinePosition[   2457502,      62535]*)
-(*  CellTagsIndexPosition[   2457458,      62531]*)
+(*NotebookOptionsPosition[   2471515,      62863]*)
+(*NotebookOutlinePosition[   2472446,      62892]*)
+(*  CellTagsIndexPosition[   2472402,      62888]*)
 (*WindowFrame->Normal*)
 
 
@@ -55304,6 +55304,363 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
+    \(Map[\((# \[GreaterEqual] 0)\) &, Map[t, operators]]\)], "Input"],
+
+Cell[BoxData[
+    \({t["ACCEL-AT-REST"] \[GreaterEqual] 0, 
+      t["ACCEL-CONSTANT-SPEED"] \[GreaterEqual] 0, 
+      t["APPLY-NET-WORK"] \[GreaterEqual] 0, 
+      t["AREA-OF-CIRCLE"] \[GreaterEqual] 0, 
+      t["AVG-ACCEL-UNKNOWN"] \[GreaterEqual] 0, 
+      t["BERNOULLI"] \[GreaterEqual] 0, 
+      t["CIRCUMFERENCE-OF-CIRCLE-R"] \[GreaterEqual] 0, 
+      t["COMPO-GENERAL-CASE"] \[GreaterEqual] 0, 
+      t["COMPO-GENERAL-CASE-UNKNOWN"] \[GreaterEqual] 0, 
+      t["COMPO-PARALLEL-AXIS"] \[GreaterEqual] 0, 
+      t["COMPO-PERPENDICULAR"] \[GreaterEqual] 0, 
+      t["COMPO-Z-AXIS"] \[GreaterEqual] 0, 
+      t["COMPO-ZERO-VECTOR"] \[GreaterEqual] 0, 
+      t["CONTINUITY"] \[GreaterEqual] 0, 
+      t["DEFINE-AMPLITUDE"] \[GreaterEqual] 0, 
+      t["DEFINE-AMPLITUDE-MAX-ABS-ACCELERATION"] \[GreaterEqual] 0, 
+      t["DEFINE-AMPLITUDE-MAX-SPEED"] \[GreaterEqual] 0, 
+      t["DEFINE-ANGLE-BETWEEN-KNOWN"] \[GreaterEqual] 0, 
+      t["DEFINE-ANGULAR-FREQUENCY"] \[GreaterEqual] 0, 
+      t["DEFINE-AREA"] \[GreaterEqual] 0, 
+      t["DEFINE-AREA-AT"] \[GreaterEqual] 0, 
+      t["DEFINE-CHANGING-MASS"] \[GreaterEqual] 0, 
+      t["DEFINE-CHANGING-MOMENT-OF-INERTIA"] \[GreaterEqual] 0, 
+      t["DEFINE-CIRCUMFERENCE-OF-CIRCLE"] \[GreaterEqual] 0, 
+      t["DEFINE-COEF-FRICTION"] \[GreaterEqual] 0, 
+      t["DEFINE-COMPRESSION"] \[GreaterEqual] 0, 
+      t["DEFINE-DB-INTENSITY"] \[GreaterEqual] 0, 
+      t["DEFINE-DISTANCE"] \[GreaterEqual] 0, 
+      t["DEFINE-DURATION"] \[GreaterEqual] 0, 
+      t["DEFINE-FREQUENCY"] \[GreaterEqual] 0, 
+      t["DEFINE-GRAV-ENERGY"] \[GreaterEqual] 0, 
+      t["DEFINE-HEIGHT"] \[GreaterEqual] 0, 
+      t["DEFINE-INTENSITY"] \[GreaterEqual] 0, 
+      t["DEFINE-KINETIC-ENERGY"] \[GreaterEqual] 0, 
+      t["DEFINE-MASS"] \[GreaterEqual] 0, 
+      t["DEFINE-MASS-CHANGE-MAGNITUDE"] \[GreaterEqual] 0, 
+      t["DEFINE-MASS-DENSITY"] \[GreaterEqual] 0, 
+      t["DEFINE-MOMENT-OF-INERTIA"] \[GreaterEqual] 0, 
+      t["DEFINE-NET-DB-INTENSITY"] \[GreaterEqual] 0, 
+      t["DEFINE-NET-INTENSITY"] \[GreaterEqual] 0, 
+      t["DEFINE-NET-POWER-OUT"] \[GreaterEqual] 0, 
+      t["DEFINE-NET-POWER-VAR"] \[GreaterEqual] 0, 
+      t["DEFINE-NET-WORK"] \[GreaterEqual] 0, 
+      t["DEFINE-OBSERVED-FREQUENCY"] \[GreaterEqual] 0, 
+      t["DEFINE-PERIOD-VAR"] \[GreaterEqual] 0, 
+      t["DEFINE-POWER-VAR"] \[GreaterEqual] 0, 
+      t["DEFINE-PRESSURE"] \[GreaterEqual] 0, 
+      t["DEFINE-RADIUS-OF-CIRCLE"] \[GreaterEqual] 0, 
+      t["DEFINE-REVOLUTION-RADIUS"] \[GreaterEqual] 0, 
+      t["DEFINE-ROTATIONAL-ENERGY"] \[GreaterEqual] 0, 
+      t["DEFINE-SHAPE-LENGTH"] \[GreaterEqual] 0, 
+      t["DEFINE-SPEED"] \[GreaterEqual] 0, 
+      t["DEFINE-SPRING-CONSTANT"] \[GreaterEqual] 0, 
+      t["DEFINE-SPRING-ENERGY"] \[GreaterEqual] 0, 
+      t["DEFINE-STRING-TENSION"] \[GreaterEqual] 0, 
+      t["DEFINE-TOTAL-ENERGY"] \[GreaterEqual] 0, 
+      t["DEFINE-VOLUME"] \[GreaterEqual] 0, 
+      t["DEFINE-WAVE-SPEED"] \[GreaterEqual] 0, 
+      t["DEFINE-WAVELENGTH"] \[GreaterEqual] 0, 
+      t["DEFINE-WAVENUMBER"] \[GreaterEqual] 0, 
+      t["DEFINE-WIDTH"] \[GreaterEqual] 0, t["DEFINE-WNC"] \[GreaterEqual] 0, 
+      t["DEFINE-WORK"] \[GreaterEqual] 0, 
+      t["DRAW-ACCEL-CURVED-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-ACCEL-FREE-FALL"] \[GreaterEqual] 0, 
+      t["DRAW-ACCEL-GIVEN-DIR"] \[GreaterEqual] 0, 
+      t["DRAW-ACCEL-UNKNOWN-NET-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-ACCELERATING"] \[GreaterEqual] 0, 
+      t["DRAW-ANG-ACCEL-UNKNOWN-DIR"] \[GreaterEqual] 0, 
+      t["DRAW-ANG-ACCELERATING"] \[GreaterEqual] 0, 
+      t["DRAW-ANG-DECELERATING"] \[GreaterEqual] 0, 
+      t["DRAW-ANG-DISPLACEMENT-ROTATING"] \[GreaterEqual] 0, 
+      t["DRAW-ANG-MOMENTUM-ROTATING"] \[GreaterEqual] 0, 
+      t["DRAW-ANG-VELOCITY-AT-REST"] \[GreaterEqual] 0, 
+      t["DRAW-ANG-VELOCITY-ROTATING"] \[GreaterEqual] 0, 
+      t["DRAW-APPLIED-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-AVG-VEL-FROM-DISPLACEMENT"] \[GreaterEqual] 0, 
+      t["DRAW-AVG-VEL-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-BODY"] \[GreaterEqual] 0, 
+      t["DRAW-BUOYANT-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-CENTRIPETAL-ACCELERATION"] \[GreaterEqual] 0, 
+      t["DRAW-COMPO-FORM-AXES"] \[GreaterEqual] 0, 
+      t["DRAW-DECELERATING"] \[GreaterEqual] 0, 
+      t["DRAW-DISPLACEMENT-GIVEN-DIR"] \[GreaterEqual] 0, 
+      t["DRAW-DISPLACEMENT-PROJECTILE"] \[GreaterEqual] 0, 
+      t["DRAW-DISPLACEMENT-STRAIGHT"] \[GreaterEqual] 0, 
+      t["DRAW-DISPLACEMENT-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-DISPLACEMENT-ZERO"] \[GreaterEqual] 0, 
+      t["DRAW-DRAG"] \[GreaterEqual] 0, 
+      t["DRAW-ENERGY-AXES"] \[GreaterEqual] 0, 
+      t["DRAW-FORCE-COMPOUND"] \[GreaterEqual] 0, 
+      t["DRAW-GRAV-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-IMPULSE-GIVEN-DIR"] \[GreaterEqual] 0, 
+      t["DRAW-IMPULSE-GIVEN-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-IMPULSE-GIVEN-MOMENTA-UNKNOWN-DIR"] \[GreaterEqual] 0, 
+      t["DRAW-KINETIC-FRICTION"] \[GreaterEqual] 0, 
+      t["DRAW-MOMENTUM-AT-REST"] \[GreaterEqual] 0, 
+      t["DRAW-MOMENTUM-STRAIGHT"] \[GreaterEqual] 0, 
+      t["DRAW-MOMENTUM-STRAIGHT-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-NET-FORCE-FROM-ACCEL"] \[GreaterEqual] 0, 
+      t["DRAW-NET-TORQUE-FROM-ANG-ACCEL"] \[GreaterEqual] 0, 
+      t["DRAW-NET-TORQUE-NON-ROTATING"] \[GreaterEqual] 0, 
+      t["DRAW-NET-TORQUE-UNKNOWN-DIR"] \[GreaterEqual] 0, 
+      t["DRAW-NORMAL"] \[GreaterEqual] 0, 
+      t["DRAW-OPPOSITE-RELATIVE-POSITION"] \[GreaterEqual] 0, 
+      t["DRAW-PRESSURE"] \[GreaterEqual] 0, 
+      t["DRAW-REACTION-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-REL-VEL-VECTOR-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-RELATIVE-POSITION"] \[GreaterEqual] 0, 
+      t["DRAW-RELATIVE-POSITION-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-RELATIVE-VEL-GIVEN-DIR"] \[GreaterEqual] 0, 
+      t["DRAW-ROTATE-AXES"] \[GreaterEqual] 0, 
+      t["DRAW-SOUGHT-VECTOR-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-SPRING-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-STATIC-FRICTION"] \[GreaterEqual] 0, 
+      t["DRAW-TENSION"] \[GreaterEqual] 0, 
+      t["DRAW-THRUST-FORCE"] \[GreaterEqual] 0, 
+      t["DRAW-THRUST-FORCE-GIVEN-RELATIVE-VEL"] \[GreaterEqual] 0, 
+      t["DRAW-TORQUE"] \[GreaterEqual] 0, 
+      t["DRAW-UNROTATED-AXES"] \[GreaterEqual] 0, 
+      t["DRAW-UNROTATED-AXES-FOR-ZCOMPS"] \[GreaterEqual] 0, 
+      t["DRAW-VECTOR-GIVEN-COMPOS"] \[GreaterEqual] 0, 
+      t["DRAW-VELOCITY-AT-REST"] \[GreaterEqual] 0, 
+      t["DRAW-VELOCITY-CURVED"] \[GreaterEqual] 0, 
+      t["DRAW-VELOCITY-CURVED-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-VELOCITY-MOMENTARILY-AT-REST"] \[GreaterEqual] 0, 
+      t["DRAW-VELOCITY-STRAIGHT"] \[GreaterEqual] 0, 
+      t["DRAW-VELOCITY-STRAIGHT-UNKNOWN"] \[GreaterEqual] 0, 
+      t["DRAW-WEIGHT"] \[GreaterEqual] 0, 
+      t["DRAW-WEIGHT-AT-CM"] \[GreaterEqual] 0, 
+      t["DRAW-ZERO-RELATIVE-POSITION"] \[GreaterEqual] 0, 
+      t["DRAW-ZERO-RELATIVE-VEL"] \[GreaterEqual] 0, 
+      t["FREQUENCY-OF-WAVE"] \[GreaterEqual] 0, 
+      t["GIVEN-FRACTION"] \[GreaterEqual] 0, 
+      t["KINETIC-FRICTION-LAW"] \[GreaterEqual] 0, 
+      t["MAKE-DOPPLER-FREQUENCY"] \[GreaterEqual] 0, 
+      t["MASS-PER-LENGTH"] \[GreaterEqual] 0, 
+      t["MASS-PER-LENGTH-EQUATION"] \[GreaterEqual] 0, 
+      t["MAX-TRANSVERSE-ABS-ACCELERATION-WAVE"] \[GreaterEqual] 0, 
+      t["MAX-TRANSVERSE-SPEED-WAVE"] \[GreaterEqual] 0, 
+      t["NTL"] \[GreaterEqual] 0, 
+      t["OPPOSITE-RELATIVE-POSITION"] \[GreaterEqual] 0, 
+      t["PENDULUM-OSCILLATION"] \[GreaterEqual] 0, 
+      t["PERIOD-OF-WAVE"] \[GreaterEqual] 0, 
+      t["PRESSURE-AT-OPEN-TO-ATMOSPHERE"] \[GreaterEqual] 0, 
+      t["PRESSURE-FORCE"] \[GreaterEqual] 0, 
+      t["PRESSURE-HEIGHT-FLUID"] \[GreaterEqual] 0, 
+      t["SDD-CONSTVEL-COMPO"] \[GreaterEqual] 0, 
+      t["SELECT-MC-ANSWER"] \[GreaterEqual] 0, 
+      t["SPEED-EQUALS-WAVE-SPEED"] \[GreaterEqual] 0, 
+      t["SPRING-LAW-COMPRESSION"] \[GreaterEqual] 0, 
+      t["SPRING-MASS-OSCILLATION"] \[GreaterEqual] 0, 
+      t["STATIC-FRICTION-LAW"] \[GreaterEqual] 0, 
+      t["USE-CONST-VX"] \[GreaterEqual] 0, 
+      t["WAVE-SPEED-STRING"] \[GreaterEqual] 0, 
+      t["WAVENUMBER-LAMBDA-WAVE"] \[GreaterEqual] 0, 
+      t["WRITE-ANG-MOMENTUM"] \[GreaterEqual] 0, 
+      t["WRITE-ANG-SDD"] \[GreaterEqual] 0, 
+      t["WRITE-ARCHIMEDES"] \[GreaterEqual] 0, 
+      t["WRITE-AVG-ACCEL-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-AVG-VEL-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-BEAT-FREQUENCY"] \[GreaterEqual] 0, 
+      t["WRITE-CENTER-OF-MASS-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-CENTRIPETAL-ACCEL"] \[GreaterEqual] 0, 
+      t["WRITE-CHANGE-ME-TOP"] \[GreaterEqual] 0, 
+      t["WRITE-CONNECTED-ACCELS"] \[GreaterEqual] 0, 
+      t["WRITE-CONNECTED-VELOCITIES"] \[GreaterEqual] 0, 
+      t["WRITE-CONS-ANGMOM"] \[GreaterEqual] 0, 
+      t["WRITE-CONS-ANGMOM-JOIN"] \[GreaterEqual] 0, 
+      t["WRITE-CONS-KE-ELASTIC"] \[GreaterEqual] 0, 
+      t["WRITE-CONS-LINMOM-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-CONS-LINMOM-COMPO-JOIN"] \[GreaterEqual] 0, 
+      t["WRITE-CONS-LINMOM-COMPO-SPLIT"] \[GreaterEqual] 0, 
+      t["WRITE-DENSITY"] \[GreaterEqual] 0, 
+      t["WRITE-DISPLACEMENT-DISTANCE"] \[GreaterEqual] 0, 
+      t["WRITE-ENERGY-CONS"] \[GreaterEqual] 0, 
+      t["WRITE-EQUALITY"] \[GreaterEqual] 0, 
+      t["WRITE-FORCE-COMPOUND"] \[GreaterEqual] 0, 
+      t["WRITE-FREE-FALL-ACCEL"] \[GreaterEqual] 0, 
+      t["WRITE-G-ON-EARTH"] \[GreaterEqual] 0, 
+      t["WRITE-GRAV-ENERGY"] \[GreaterEqual] 0, 
+      t["WRITE-HARMONIC-OF"] \[GreaterEqual] 0, 
+      t["WRITE-HEIGHT-DY-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-I-COMPOUND"] \[GreaterEqual] 0, 
+      t["WRITE-I-HOOP-CM"] \[GreaterEqual] 0, 
+      t["WRITE-I-RECT-CM"] \[GreaterEqual] 0, 
+      t["WRITE-I-ROD-CM"] \[GreaterEqual] 0, 
+      t["WRITE-I-ROD-END"] \[GreaterEqual] 0, 
+      t["WRITE-IMPLICIT-EQN"] \[GreaterEqual] 0, 
+      t["WRITE-IMPULSE-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-IMPULSE-MOMENTUM-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-INST-POWER"] \[GreaterEqual] 0, 
+      t["WRITE-INTENSITY-TO-DECIBELS"] \[GreaterEqual] 0, 
+      t["WRITE-INTENSITY-TO-POWER"] \[GreaterEqual] 0, 
+      t["WRITE-KINETIC-ENERGY"] \[GreaterEqual] 0, 
+      t["WRITE-KNOWN-VALUE-EQN"] \[GreaterEqual] 0, 
+      t["WRITE-LINEAR-VEL"] \[GreaterEqual] 0, 
+      t["WRITE-LK-NO-S-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-LK-NO-T-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-LK-NO-VF-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-MAG-TORQUE"] \[GreaterEqual] 0, 
+      t["WRITE-MASS-COMPOUND"] \[GreaterEqual] 0, 
+      t["WRITE-MOMENTUM-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-NET-INTENSITY"] \[GreaterEqual] 0, 
+      t["WRITE-NET-POWER"] \[GreaterEqual] 0, 
+      t["WRITE-NET-TORQUE"] \[GreaterEqual] 0, 
+      t["WRITE-NFL-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-NL-ROTATION"] \[GreaterEqual] 0, 
+      t["WRITE-NSL-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-NSL-NET-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-NTL-VECTOR"] \[GreaterEqual] 0, 
+      t["WRITE-NULL-SPRING-ENERGY"] \[GreaterEqual] 0, 
+      t["WRITE-PERIOD-CIRCULAR"] \[GreaterEqual] 0, 
+      t["WRITE-POWER"] \[GreaterEqual] 0, 
+      t["WRITE-PYTH-THM"] \[GreaterEqual] 0, 
+      t["WRITE-RELATIVE-VEL-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-RK-NO-S"] \[GreaterEqual] 0, 
+      t["WRITE-RK-NO-T"] \[GreaterEqual] 0, 
+      t["WRITE-RK-NO-VF"] \[GreaterEqual] 0, 
+      t["WRITE-ROLLING-VEL"] \[GreaterEqual] 0, 
+      t["WRITE-ROTATIONAL-ENERGY"] \[GreaterEqual] 0, 
+      t["WRITE-SDD"] \[GreaterEqual] 0, 
+      t["WRITE-SPEED-OF-WAVE"] \[GreaterEqual] 0, 
+      t["WRITE-SPRING-ENERGY"] \[GreaterEqual] 0, 
+      t["WRITE-SUM-DISP-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-SUM-DISTANCES"] \[GreaterEqual] 0, 
+      t["WRITE-SUM-TIMES"] \[GreaterEqual] 0, 
+      t["WRITE-TENSIONS-EQUAL"] \[GreaterEqual] 0, 
+      t["WRITE-THRUST-FORCE"] \[GreaterEqual] 0, 
+      t["WRITE-THRUST-FORCE-COMPO"] \[GreaterEqual] 0, 
+      t["WRITE-TIMELESS-BEAT-FREQUENCY"] \[GreaterEqual] 0, 
+      t["WRITE-TORQUE-ZC"] \[GreaterEqual] 0, 
+      t["WRITE-TOTAL-ENERGY-TOP"] \[GreaterEqual] 0, 
+      t["WRITE-UG"] \[GreaterEqual] 0, 
+      t["WRITE-UG-CIRCULAR"] \[GreaterEqual] 0, 
+      t["WRITE-VALUE-OF-ATMOSPHERE"] \[GreaterEqual] 0, 
+      t["WRITE-VOLUME-COMPOUND"] \[GreaterEqual] 0, 
+      t["WRITE-WAVE-SPEED-LIGHT"] \[GreaterEqual] 0, 
+      t["WRITE-WNC"] \[GreaterEqual] 0, t["WRITE-WORK"] \[GreaterEqual] 0, 
+      t["WRITE-WORK-DELTA-KE"] \[GreaterEqual] 0, 
+      t["WRITE-ZERO-WORK"] \[GreaterEqual] 0, t["WT-LAW"] \[GreaterEqual] 0, 
+      t["WT-LAW-CM"] \[GreaterEqual] 0}\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(Block[{tt = Map[t, operators], expr, 
+        expr2}, \[IndentingNewLine]NMinimize[{expr = mat . tt - N[eachtime]; 
+          expr2 = expr . expr, Map[\((# \[GreaterEqual] 0)\) &, tt]}, tt, 
+        StepMonitor \[RuleDelayed] Print[expr2]]]\)], "Input"],
+
+Cell[BoxData[
+    \(5.885366031579585`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \(5.821129815004961`*^9\)], "Print"],
+
+Cell[BoxData[
+    \($Aborted\)], "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
     \(Length[mat] - 9295\)], "Input"],
 
 Cell[BoxData[
@@ -60284,7 +60641,7 @@ Cell[BoxData[
         ",", \(RSquared \[Rule] 0.698070054375956`\), 
         ",", \(EstimatedVariance \[Rule] 136486.03754533114`\)}], 
       "}"}]], "Output"]
-}, Closed]],
+}, Open  ]],
 
 Cell["\<\
 Find pairs of operators where a quadratic term might be significant \
@@ -62501,8 +62858,8 @@ Cell[BoxData[
         662.148995`, 
         311.375304`}, {t["WRITE-WORK", 
           "WRITE-WORK-ENERGY"], \(-147.348493`\), 50.798941`}}\)], "Output"]
-}, Open  ]]
-}, Open  ]]
+}, Closed]]
+}, Closed]]
 },
 FrontEndVersion->"5.1 for X",
 ScreenRectangle->{{0, 1024}, {0, 768}},
@@ -63105,158 +63462,200 @@ Cell[2078134, 55299, 44, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2078215, 55305, 51, 1, 27, "Input"],
-Cell[2078269, 55308, 37, 1, 27, "Output"]
+Cell[2078215, 55305, 84, 1, 27, "Input"],
+Cell[2078302, 55308, 12641, 241, 1211, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2078343, 55314, 59, 1, 27, "Input"],
-Cell[2078405, 55317, 586, 10, 91, "Output"]
+Cell[2090980, 55554, 273, 4, 59, "Input"],
+Cell[2091256, 55560, 54, 1, 25, "Print"],
+Cell[2091313, 55563, 54, 1, 25, "Print"],
+Cell[2091370, 55566, 54, 1, 25, "Print"],
+Cell[2091427, 55569, 54, 1, 25, "Print"],
+Cell[2091484, 55572, 54, 1, 25, "Print"],
+Cell[2091541, 55575, 54, 1, 25, "Print"],
+Cell[2091598, 55578, 54, 1, 25, "Print"],
+Cell[2091655, 55581, 54, 1, 25, "Print"],
+Cell[2091712, 55584, 54, 1, 25, "Print"],
+Cell[2091769, 55587, 54, 1, 25, "Print"],
+Cell[2091826, 55590, 54, 1, 25, "Print"],
+Cell[2091883, 55593, 54, 1, 25, "Print"],
+Cell[2091940, 55596, 54, 1, 25, "Print"],
+Cell[2091997, 55599, 54, 1, 25, "Print"],
+Cell[2092054, 55602, 54, 1, 25, "Print"],
+Cell[2092111, 55605, 54, 1, 25, "Print"],
+Cell[2092168, 55608, 54, 1, 25, "Print"],
+Cell[2092225, 55611, 54, 1, 25, "Print"],
+Cell[2092282, 55614, 54, 1, 25, "Print"],
+Cell[2092339, 55617, 54, 1, 25, "Print"],
+Cell[2092396, 55620, 54, 1, 25, "Print"],
+Cell[2092453, 55623, 54, 1, 25, "Print"],
+Cell[2092510, 55626, 54, 1, 25, "Print"],
+Cell[2092567, 55629, 54, 1, 25, "Print"],
+Cell[2092624, 55632, 54, 1, 25, "Print"],
+Cell[2092681, 55635, 54, 1, 25, "Print"],
+Cell[2092738, 55638, 54, 1, 25, "Print"],
+Cell[2092795, 55641, 54, 1, 25, "Print"],
+Cell[2092852, 55644, 54, 1, 25, "Print"],
+Cell[2092909, 55647, 54, 1, 25, "Print"],
+Cell[2092966, 55650, 54, 1, 25, "Print"],
+Cell[2093023, 55653, 54, 1, 25, "Print"],
+Cell[2093080, 55656, 42, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2079028, 55332, 241, 4, 43, "Input"],
-Cell[2079272, 55338, 313, 5, 46, "Message"],
-Cell[2079588, 55345, 199, 3, 33, "Message"],
-Cell[2079790, 55350, 55635, 999, 4451, "Output"]
+Cell[2093159, 55662, 51, 1, 27, "Input"],
+Cell[2093213, 55665, 37, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2093287, 55671, 59, 1, 27, "Input"],
+Cell[2093349, 55674, 586, 10, 91, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2093972, 55689, 241, 4, 43, "Input"],
+Cell[2094216, 55695, 313, 5, 46, "Message"],
+Cell[2094532, 55702, 199, 3, 33, "Message"],
+Cell[2094734, 55707, 55635, 999, 4451, "Output"]
 }, Closed]],
 
 Cell[CellGroupData[{
-Cell[2135462, 56354, 194, 4, 40, "Input"],
-Cell[2135659, 56360, 313, 5, 46, "Message"],
-Cell[2135975, 56367, 261, 4, 33, "Message"],
-Cell[2136239, 56373, 199, 3, 33, "Message"],
-Cell[2136441, 56378, 49334, 974, 4464, "Output"]
+Cell[2150406, 56711, 194, 4, 40, "Input"],
+Cell[2150603, 56717, 313, 5, 46, "Message"],
+Cell[2150919, 56724, 261, 4, 33, "Message"],
+Cell[2151183, 56730, 199, 3, 33, "Message"],
+Cell[2151385, 56735, 49334, 974, 4464, "Output"]
 }, Closed]],
-Cell[2185790, 57355, 46, 0, 29, "Text"],
+Cell[2200734, 57712, 46, 0, 29, "Text"],
 
 Cell[CellGroupData[{
-Cell[2185861, 57359, 177, 4, 27, "Input"],
-Cell[2186041, 57365, 3873, 61, 571, "Output"]
+Cell[2200805, 57716, 177, 4, 27, "Input"],
+Cell[2200985, 57722, 3873, 61, 571, "Output"]
 }, Closed]],
-Cell[2189929, 57429, 114, 3, 29, "Text"],
+Cell[2204873, 57786, 114, 3, 29, "Text"],
 
 Cell[CellGroupData[{
-Cell[2190068, 57436, 533, 10, 91, "Input"],
-Cell[2190604, 57448, 61, 1, 27, "Output"]
+Cell[2205012, 57793, 533, 10, 91, "Input"],
+Cell[2205548, 57805, 61, 1, 27, "Output"]
 }, Open  ]],
-Cell[2190680, 57452, 69, 1, 27, "Input"],
-Cell[2190752, 57455, 59, 1, 27, "Input"],
-Cell[2190814, 57458, 269, 4, 75, "Input"],
-Cell[2191086, 57464, 34, 0, 32, "Text"],
+Cell[2205624, 57809, 69, 1, 27, "Input"],
+Cell[2205696, 57812, 59, 1, 27, "Input"],
+Cell[2205758, 57815, 269, 4, 75, "Input"],
+Cell[2206030, 57821, 34, 0, 32, "Text"],
 
 Cell[CellGroupData[{
-Cell[2191145, 57468, 59, 1, 27, "Input"],
-Cell[2191207, 57471, 61, 1, 27, "Output"]
-}, Open  ]],
-
-Cell[CellGroupData[{
-Cell[2191305, 57477, 51, 1, 27, "Input"],
-Cell[2191359, 57480, 46, 1, 27, "Output"]
+Cell[2206089, 57825, 59, 1, 27, "Input"],
+Cell[2206151, 57828, 61, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2191442, 57486, 54, 1, 27, "Input"],
-Cell[2191499, 57489, 38, 1, 27, "Output"]
-}, Open  ]],
-Cell[2191552, 57493, 90, 3, 32, "Text"],
-
-Cell[CellGroupData[{
-Cell[2191667, 57500, 256, 5, 43, "Input"],
-Cell[2191926, 57507, 49, 1, 27, "Output"]
-}, Open  ]],
-Cell[2191990, 57511, 266, 5, 59, "Input"],
-Cell[2192259, 57518, 75, 0, 32, "Text"],
-Cell[2192337, 57520, 152, 3, 27, "Input"],
-Cell[2192492, 57525, 139, 3, 27, "Input"],
-
-Cell[CellGroupData[{
-Cell[2192656, 57532, 188, 5, 27, "Input"],
-Cell[2192847, 57539, 37, 1, 27, "Output"]
+Cell[2206249, 57834, 51, 1, 27, "Input"],
+Cell[2206303, 57837, 46, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2192921, 57545, 45, 1, 27, "Input"],
-Cell[2192969, 57548, 84761, 1586, 13371, "Output"]
+Cell[2206386, 57843, 54, 1, 27, "Input"],
+Cell[2206443, 57846, 38, 1, 27, "Output"]
+}, Open  ]],
+Cell[2206496, 57850, 90, 3, 32, "Text"],
+
+Cell[CellGroupData[{
+Cell[2206611, 57857, 256, 5, 43, "Input"],
+Cell[2206870, 57864, 49, 1, 27, "Output"]
+}, Open  ]],
+Cell[2206934, 57868, 266, 5, 59, "Input"],
+Cell[2207203, 57875, 75, 0, 32, "Text"],
+Cell[2207281, 57877, 152, 3, 27, "Input"],
+Cell[2207436, 57882, 139, 3, 27, "Input"],
+
+Cell[CellGroupData[{
+Cell[2207600, 57889, 188, 5, 27, "Input"],
+Cell[2207791, 57896, 37, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2207865, 57902, 45, 1, 27, "Input"],
+Cell[2207913, 57905, 84761, 1586, 13371, "Output"]
 }, Open  ]]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2277779, 59140, 41, 0, 38, "Subsection"],
-Cell[2277823, 59142, 64, 1, 27, "Input"],
-Cell[2277890, 59145, 69, 1, 27, "Input"],
-Cell[2277962, 59148, 240, 5, 59, "Input"],
+Cell[2292723, 59497, 41, 0, 38, "Subsection"],
+Cell[2292767, 59499, 64, 1, 27, "Input"],
+Cell[2292834, 59502, 69, 1, 27, "Input"],
+Cell[2292906, 59505, 240, 5, 59, "Input"],
 
 Cell[CellGroupData[{
-Cell[2278227, 59157, 69, 1, 27, "Input"],
-Cell[2278299, 59160, 44, 1, 27, "Output"]
+Cell[2293171, 59514, 69, 1, 27, "Input"],
+Cell[2293243, 59517, 44, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2278380, 59166, 59, 1, 27, "Input"],
-Cell[2278442, 59169, 1252, 21, 203, "Output"]
+Cell[2293324, 59523, 59, 1, 27, "Input"],
+Cell[2293386, 59526, 1252, 21, 203, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2279731, 59195, 241, 4, 43, "Input"],
-Cell[2279975, 59201, 313, 5, 46, "Message"],
-Cell[2280291, 59208, 199, 3, 33, "Message"],
-Cell[2280493, 59213, 60184, 1072, 4715, "Output"]
-}, Closed]],
-Cell[2340692, 60288, 114, 3, 29, "Text"],
-
-Cell[CellGroupData[{
-Cell[2340831, 60295, 533, 10, 91, "Input"],
-Cell[2341367, 60307, 61, 1, 27, "Output"]
+Cell[2294675, 59552, 241, 4, 43, "Input"],
+Cell[2294919, 59558, 313, 5, 46, "Message"],
+Cell[2295235, 59565, 199, 3, 33, "Message"],
+Cell[2295437, 59570, 60184, 1072, 4715, "Output"]
 }, Open  ]],
-Cell[2341443, 60311, 71, 1, 27, "Input"],
-Cell[2341517, 60314, 66, 1, 27, "Input"],
-Cell[2341586, 60317, 269, 4, 75, "Input"],
-Cell[2341858, 60323, 34, 0, 32, "Text"],
+Cell[2355636, 60645, 114, 3, 32, "Text"],
 
 Cell[CellGroupData[{
-Cell[2341917, 60327, 59, 1, 27, "Input"],
-Cell[2341979, 60330, 61, 1, 27, "Output"]
+Cell[2355775, 60652, 533, 10, 91, "Input"],
+Cell[2356311, 60664, 61, 1, 27, "Output"]
 }, Open  ]],
+Cell[2356387, 60668, 71, 1, 27, "Input"],
+Cell[2356461, 60671, 66, 1, 27, "Input"],
+Cell[2356530, 60674, 269, 4, 75, "Input"],
+Cell[2356802, 60680, 34, 0, 32, "Text"],
 
 Cell[CellGroupData[{
-Cell[2342077, 60336, 51, 1, 27, "Input"],
-Cell[2342131, 60339, 46, 1, 27, "Output"]
+Cell[2356861, 60684, 59, 1, 27, "Input"],
+Cell[2356923, 60687, 61, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2342214, 60345, 54, 1, 27, "Input"],
-Cell[2342271, 60348, 38, 1, 27, "Output"]
-}, Open  ]],
-Cell[2342324, 60352, 90, 3, 32, "Text"],
-
-Cell[CellGroupData[{
-Cell[2342439, 60359, 268, 5, 59, "Input"],
-Cell[2342710, 60366, 55, 1, 27, "Output"]
-}, Open  ]],
-Cell[2342780, 60370, 75, 0, 32, "Text"],
-
-Cell[CellGroupData[{
-Cell[2342880, 60374, 154, 3, 27, "Input"],
-Cell[2343037, 60379, 56, 1, 27, "Output"]
+Cell[2357021, 60693, 51, 1, 27, "Input"],
+Cell[2357075, 60696, 46, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2343130, 60385, 47, 1, 27, "Input"],
-Cell[2343180, 60388, 38, 1, 27, "Output"]
+Cell[2357158, 60702, 54, 1, 27, "Input"],
+Cell[2357215, 60705, 38, 1, 27, "Output"]
 }, Open  ]],
-Cell[2343233, 60392, 139, 3, 27, "Input"],
+Cell[2357268, 60709, 90, 3, 32, "Text"],
 
 Cell[CellGroupData[{
-Cell[2343397, 60399, 186, 5, 27, "Input"],
-Cell[2343586, 60406, 38, 1, 27, "Output"]
+Cell[2357383, 60716, 268, 5, 59, "Input"],
+Cell[2357654, 60723, 55, 1, 27, "Output"]
+}, Open  ]],
+Cell[2357724, 60727, 75, 0, 32, "Text"],
+
+Cell[CellGroupData[{
+Cell[2357824, 60731, 154, 3, 27, "Input"],
+Cell[2357981, 60736, 56, 1, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[2343661, 60412, 45, 1, 27, "Input"],
-Cell[2343709, 60415, 112834, 2087, 17435, "Output"]
-}, Open  ]]
-}, Open  ]]
+Cell[2358074, 60742, 47, 1, 27, "Input"],
+Cell[2358124, 60745, 38, 1, 27, "Output"]
+}, Open  ]],
+Cell[2358177, 60749, 139, 3, 27, "Input"],
+
+Cell[CellGroupData[{
+Cell[2358341, 60756, 186, 5, 27, "Input"],
+Cell[2358530, 60763, 38, 1, 27, "Output"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[2358605, 60769, 45, 1, 27, "Input"],
+Cell[2358653, 60772, 112834, 2087, 17435, "Output"]
+}, Closed]]
+}, Closed]]
 }
 ]
 *)
