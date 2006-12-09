@@ -157,7 +157,7 @@
   
 (def-qexp potential (potential ?loc ?source :time ?time)
   :symbol-base |V|     
-  :short-name "potential"	
+  :short-name "electric potential"	
   :dialog-text "at [body:positions] due to [body2:bodies] at time [time:times]"
   :units |V|
   :fromWorkbench (if (or (null body2) (string-equal body2 '|all sources|))
