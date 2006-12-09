@@ -39,22 +39,24 @@
 
 
 (defstruct (StudentEntry (:print-function print-StudentEntry))
-  Id	               ;; Workbench assigned Identifier.
-  Prop                 ;; Entry proposition (Equalp to System entry.)
-  State                ;; One of correct, inefficient, dead-path, forbidden, incorrect.
-  CInterp              ;; The Selected set of entires that constitute the final
-                       ;; Interpretation of this entry (if any).
-  PossibleCInterps     ;; A list of all the sets of possible correct interpretations (if any).
-  Verbatim             ;; The student's entry as they typed it.
-  ParsedEqn            ;; will contain the lisp (prefixed) form of the parsed equation
-  ErrInterp            ;; nil or an error interpretation
-  ; Some non-eqn student entries carry associated equation entries with them. These
-  ; associated entries are dependent in that they must be deleted if the main entry is deleted.
-  ; Dependent equation entries hang off the following fields in the main entry:
-  ImplicitEqns         ;; list of associated implicit equation entries, if any
-  GivenEqns	       ;; list of associated given value equation entries, if any
-  (Time (get-current-htime))  ;;  The entry's time.  Typically the time it was created
-                               ;;  But not necessarily.
+  Id	               ;Workbench assigned Identifier.
+  Prop                 ;Entry proposition (Equalp to System entry.)
+  State                ;One of correct, inefficient, dead-path, forbidden, incorrect.
+  CInterp              ;The Selected set of entires that constitute the final
+                       ;Interpretation of this entry (if any).
+  PossibleCInterps     ;A list of all the sets of possible correct interpretations (if any).
+  Verbatim             ;The student's entry as they typed it.
+  ParsedEqn            ;will contain the lisp (prefixed) form of the parsed equation
+  ErrInterp            ;nil or an error interpretation
+  ;; Some non-eqn student entries carry associated equation entries with them. 
+  ;; These associated entries are dependent in that they must be deleted if 
+  ;; the main entry is deleted.
+  ;; Dependent equation entries hang off the following fields in 
+  ;; the main entry:
+  ImplicitEqns         ;list of associated implicit equation entries, if any
+  GivenEqns	       ;list of associated given value equation entries, if any
+  (Time (get-current-htime))  ;The entry's time.  Typically the time it was created
+					;But not necessarily.
   )
 
 (defun print-StudentEntry (Entry &optional (Stream t) (Level 0))
