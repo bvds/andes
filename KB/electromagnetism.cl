@@ -26,24 +26,18 @@
 
 ;;; The equation is scalar equation containing vector magnitudes only.
 (defoperator coulomb-contains (?sought)
-   :preconditions (
-     ;; first make sure a coulomb interaction exists in problem
-     (coulomb-bodies . ?coul-bodies)
-     (any-member ?sought 
+  :preconditions 
+  (
+   (point-charge ?b1) (point-charge ?b2)
+   (any-member ?sought 
 		 (
 		  ;; because of the abs(q1)*abs(q2), don't include charge
 		  (mag (force ?b1 ?b2 electric :time ?t))
 		  (mag (relative-position ?b1 ?b2 :time ?t))
 		  ))
-     (object ?b1)
-     (object ?b2)
-     (time ?t)
-     (test (member ?b1 ?coul-bodies))
-     (test (member ?b2 ?coul-bodies))
+   (time ?t)
    )
-   :effects (
-    (eqn-contains (coulomb ?b1 ?b2 ?t) ?sought)
-   ))
+  :effects ( (eqn-contains (coulomb ?b1 ?b2 ?t) ?sought) ))
 
 (defoperator write-coulomb (?b1 ?b2 ?t) 
   :preconditions 
@@ -85,8 +79,8 @@
 (defoperator coulomb-vector-contains (?sought)
   :preconditions 
   (
-   ;; first make sure a coulomb interaction exists in problem
-   (coulomb-bodies . ?coul-bodies)
+   (point-charge ?b1)
+   (point-charge ?b2)
    (any-member ?sought
 	       (;; if sought is charge, can use either equation for force
 		;; on b1 from b2 or force on b2 from b1, so need both:
@@ -97,10 +91,6 @@
 	       ))
    (time ?t)
    (any-member ?form (nil t)) ;switch between forms of r-hat
-   (object ?b1)
-   (object ?b2)
-   (test (member ?b1 ?coul-bodies))
-   (test (member ?b2 ?coul-bodies))
    )
   :effects 
    ((eqn-family-contains (coulomb-vec ?b1 ?b2 ?t ?form) ?sought)
@@ -475,17 +465,15 @@
   :effects ((coulomb-force-dir ?F-dir ?b ?source ?t)))
 
 (defoperator find-coulomb-force (?b ?agent ?t)
-  :preconditions (
-   (coulomb-bodies . ?bodies)	  
+  :preconditions 
+  (
+   (point-charge ?b)
+   (point-charge ?agent)
    (time ?t)
-   (object ?b)
-   (object ?agent)
    (not (given (dir (force ?b ?agent electric :time ?t-force)) ?dir1-expr)
 	(tinsidep ?t ?t-force))
    (not (given (dir (force ?agent ?b electric :time ?t-force)) ?dir2-expr)
 	(tinsidep ?t ?t-force))
-   (any-member ?b ?bodies)
-   (any-member ?agent ?bodies)
    (test (not (equal ?b ?agent)))
    ;; Find any direction that can be calculated or 'unknown
    (setof (coulomb-force-dir ?F-dir ?b ?agent ?t) ?F-dir ?F-dirs)
