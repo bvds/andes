@@ -5594,15 +5594,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   (   
    (time ?t)
+   (object ?b)
    (any-member ?quantity
 	       ((mag (force ?b ?planet weight :time ?t))
 		(mass ?b :time ?t ?t) ;can be timeless or changing
-		(gravitational-acceleration ?planet)))
+		(gravitational-acceleration ?planet)
+		))
    ;; make sure this is not case where ?b is cm of rigid body. For that
    ;; we need the mass of the whole body, plus special hint.
    (not (point-on-body ?b ?rigid-body))
    (near-planet ?planet :body ?b ?b)
-   (not (massless ?b))) 
+   (not (massless ?b))
+   ) 
   :effects
   ((eqn-contains (wt-law ?b ?t) ?quantity)))
   
@@ -5749,21 +5752,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator g-on-earth-contains(?quantity)
   :preconditions 
     ( (any-member ?quantity ((gravitational-acceleration earth))) )
-  :effects
-    ( (eqn-contains (std-constant g) ?quantity) )
-    )
+    :effects ( (eqn-contains (std-constant (gravitational-acceleration earth))
+			     ?quantity) ))
 
 (defoperator write-g-on-earth ()
   :preconditions 
     ( (variable ?g-var (gravitational-acceleration earth)) )
-  :effects ( 
-    (eqn (= ?g-var (dnum 9.8 |m/s^2|)) (std-constant g)) 
-   )
+  :effects ( (eqn (= ?g-var (dnum 9.8 |m/s^2|)) 
+		  (std-constant (gravitationa-acceleration earth))) )
   :hint
   ((point (string "You should know the value of g for the Earth"))
    (teach (string "You can use 9.8 m/s^2 for the value of g near the surface of the Earth"))
-   (bottom-out (string "Write the equation ~A" ((= ?g-var (dnum 9.8 |m/s^2|)) algebra)))
-    ))
+   (bottom-out (string "Write the equation ~A" ((= ?g-var (dnum 9.8 |m/s^2|)) algebra))) ))
 
 (defoperator define-grav-accel (?planet)
   :preconditions 

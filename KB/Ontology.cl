@@ -288,7 +288,7 @@
 	     (member '(gravitational-acceleration earth) 
 		     (problem-varindex problem) :test #'unify :key #'qvar-exp))
     ;; in principle, should also test if it already has been defined
-    (push "Var-Entry gravitational-acceleration Pr0 Var-998 _ _ gravitational-acceleration ???" 
+    (push "Var-Entry gravitational-acceleration g Var-666 1 _ gravitational#acceleration earth _ _ gravitational#acceleration#at#surface#of#earth 9.8#m/s^2"
 	  (problem-predefs problem))))
 
 (def-qexp num-forces (num-forces ?body :time ?time)
@@ -926,7 +926,7 @@
 	      (nlg ?body 'at-time ?time))
   :EqnFormat ("a = g"))
 
-(def-psmclass std-constant-g (std-constant g)
+(def-psmclass std-constant-g (std-constant (gravitational-acceleration earth))
   :complexity simple 
   :short-name "g near Earth"
   :english ("value of g on Earth")

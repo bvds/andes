@@ -100,8 +100,8 @@
 (def-qexp atmosphere (atmosphere)
   :units |Pa|
   :restrictions positive
-  :short-name "atmospheric pressure"
-  :dialog-text "at surface of earth"
+  :short-name "standard atmosphere"
+  :dialog-text ""
   :english ("the pressure of one standard atmosphere")
   :fromWorkbench `(atmosphere)
 )
@@ -116,12 +116,12 @@
   "In fluids problems, add Pr0 to list of pre-defined scalars"
   ;; for fluids problems, predefine atmospheric pressure constant
   ;; in principle, should test it is not already present
-  ;; and test for the Var-number
+  ;; and test for the next available Var-number
   (when (member 'fluids (problem-features problem))
-    (push "Var-Entry gravitational-acceleration g Var-666 1 _ gravitational#acceleration earth _ _ gravitational#acceleration#at#surface#of#earth 9.8#m/s^2"
+    (push "Var-Entry atmosphere Pr0 Var-667 2 _ atmospheric#pressure _ _ _ atmospheric#pressure 1.013e5#Pa"
 	  (problem-predefs problem))))
 
-(def-psmclass std-constant-Pr0 (std-constant atmosphere)
+(def-psmclass std-constant-Pr0 (std-constant (atmosphere))
   :complexity simple 
   :short-name "atmospheric pressure"
   :english ("value of the atmospheric pressure Pr0 ")
@@ -129,13 +129,13 @@
   :EqnFormat ("Pr0 = 1.013E5 Pa"))
 
 (defoperator atmosphere-contains()
-  :effects ( (eqn-contains (std-constant atmosphere) (atmosphere)) ))
+  :effects ( (eqn-contains (std-constant (atmosphere)) (atmosphere)) ))
 
 (defoperator write-value-of-atmosphere ()
   :preconditions 
     ( (variable ?Pr0-var (atmosphere)) )
   :effects ( 
-    (eqn (= ?Pr0-var (dnum 1.013E5 |Pa|)) (std-constant atmosphere)) 
+    (eqn (= ?Pr0-var (dnum 1.013E5 |Pa|)) (std-constant (atmosphere))) 
    )
   :hint
   ((point (string "You can find the value of a standard atmosphere in your textbook. The value to four significant figures should be used in Andes problems."))
