@@ -65,7 +65,7 @@
 (defun solve-for-Constant-Quantity (Goal Givens)
   "Solve for the quantity iff it is a Constant."
   (let ((R (merge-duplicate-PSMS
-	    (loop for State in (qsolve-for (list `(psm ,Goal (STD-Constant ?V) 
+	    (loop for State in (qsolve-for (list `(psm ,Goal (std-constant ?V) 
 						       ?eqn-algebra ?unknowns))
 					   Givens)
 		  collect (let ((PSM (find 'psm (St-WM State)
@@ -73,6 +73,7 @@
 					   :test #'equal)))
 			    (setq **wm** (union (st-wm state) **wm** 
 						:test #'unify))
+			    (format t "solve-for-Constant-Quantity PSM ~A~%" PSM)
 			    (make-qsolres
 			     :id (nth 2 PSM)
 			     :algebra (nth 3 PSM)

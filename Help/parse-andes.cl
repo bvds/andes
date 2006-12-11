@@ -1069,7 +1069,10 @@
 	 ;; use given-var-p to avoid this behavior. Note it looks for
 	 ;; given flag on quantities at the bubble-graph level, not implicit 
 	 ;; equations, so might not work for those.
-	 (is-given (given-p (student-to-canonical studvar))))
+	 (is-given (given-p (student-to-canonical studvar)))
+;	 (is-known-constant (known-constantp (sysvar-to-quant 
+;					      (student-to-canonical studvar))))
+	 )
     
     ;; first filter case where student hasn't specified a given value 
     (cond 
