@@ -4,7 +4,7 @@ POTENTIAL	net-potential;
 VOLTAGE	voltage-across;
 WORK-SET	work;net-work;work-nc;
 DIPOLE	dipole-energy;
-KINEMATICS	angle-between;distance;speed;duration;angle;
+KINEMATICS	angle-between;distance;speed;duration;angle;gravitational-acceleration;
 STATICS	angle-between;mass;angle;coef-friction;duration;spring-constant;compression;
 DYNAMICS	angle-between;mass;angle;coef-friction;duration;
 CHANGING-MASS	mass;mass-change-magnitude;
@@ -33,4 +33,3 @@ WAVES	frequency;distance;duration;mass;length;mass-per-length;wavelength;wavenum
 OBSERVED-FREQUENCY	observed-frequency;
 OSCILLATIONS	mass;length;spring-constant;compression;wavelength;wavenumber;period;frequency;angular-frequency;amplitude;amplitude-max-speed;amplitude-max-abs-acceleration;
 PROBABILITY	probability;
-MULTIPLE-PLANETS	gravitational-acceleration;

@@ -98,9 +98,11 @@
 ;; See constants.cl, function enter-predefs
 
 (def-qexp atmosphere (atmosphere)
-   :units |Pa|
-   :english ("the pressure of one standard atmosphere")
-   :fromWorkbench `(atmosphere)
+  :units |Pa|
+  :restrictions positive
+  :short-name "atmospheric pressure"
+  :english ("the pressure of one standard atmosphere")
+  :fromWorkbench `(atmosphere)
 )
 
 ; should normally be predefined in fluids problems:
