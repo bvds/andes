@@ -107,7 +107,9 @@
 
 ; should normally be predefined in fluids problems:
 (defoperator define-atmosphere-var ()
- :effects ( (variable |Pr0| (atmosphere)) ))
+  :effects ( (variable |Pr0| (atmosphere))
+	     (define-var (atmosphere)) ))
+   
 
 (post-process add-standard-atmosphere (problem)
   "In fluids problems, add Pr0 to list of pre-defined scalars"
@@ -115,7 +117,7 @@
   ;; in principle, should test it is not already present
   ;; and test for the Var-number
   (when (member 'fluids (problem-features problem))
-    (push "Var-Entry atmosphere Pr0 Var-999 _ _ atmosphere " 
+    (push "Var-Entry gravitational-acceleration g Var-666 1 _ gravitational#acceleration earth _ _ gravitational#acceleration#at#surface#of#earth 9.8#m/s^2"
 	  (problem-predefs problem))))
 
 (def-psmclass std-constant-Pr0 (std-constant atmosphere)
