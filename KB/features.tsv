@@ -26,7 +26,7 @@ AMPERE	current;magnetic-line-integral;
 EM-WAVES	amplitude-electric;amplitude-magnetic;
 SIMPLE-WORK	intensity-at;
 OPTICS	angle-between;object-distance;image-distance;distance-between;slit-separation;focal-length;magnification;radius-of-curvature;index-of-refraction;angle;resolution-angle;
-FLUIDS	mass;duration;height;mass-density;pressure;area-at;area;volume;atmosphere;
+FLUIDS	mass;duration;height;mass-density;pressure;area-at;area;volume;gravitational-acceleration;atmosphere;
 RECTANGLE-GEOMETRY	area;area-change;length;width;length-change;
 CIRCLE-GEOMETRY	area;radius-of-circle;diameter-of-circle;circumference-of-circle;
 WAVES	frequency;distance;duration;mass;length;mass-per-length;wavelength;wavenumber;period;angular-frequency;wave-speed;index-of-refraction;string-tension;

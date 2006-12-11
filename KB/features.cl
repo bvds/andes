@@ -29,8 +29,10 @@
   (work net-work work-nc))
 
 (def-feature-set dipole (dipole-energy))
-(def-feature-set kinematics (distance speed duration angle 
-				      gravitational-acceleration))
+(def-feature-set kinematics 
+    (distance speed duration angle 
+	      gravitational-acceleration ;sometimes predefined constant
+	      ))
 (def-feature-set statics 
   (mass angle coef-friction duration spring-constant compression))
 (def-feature-set dynamics (mass angle coef-friction duration))
@@ -79,6 +81,7 @@
 		   angle resolution-angle)) 
 (def-feature-set fluids 
   (mass duration height mass-density pressure area-at area volume
+	gravitational-acceleration	;sometimes predefined constant
 	atmosphere ;predefined constant
 	))
 (def-feature-set rectangle-geometry 
