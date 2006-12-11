@@ -101,6 +101,7 @@
   :units |Pa|
   :restrictions positive
   :short-name "atmospheric pressure"
+  :dialog-text "at surface of earth"
   :english ("the pressure of one standard atmosphere")
   :fromWorkbench `(atmosphere)
 )

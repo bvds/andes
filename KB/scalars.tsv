@@ -5,6 +5,7 @@ angle		angle
 resolution-angle	$q	angle of resolution	minimum angle of resolution	for [body:bodies]
 angular-frequency	$w	angular frequency		for oscillations of [body:bodies]
 area	A	area		of [body:bodies]
+atmosphere		atmospheric pressure		at surface of earth
 capacitance	C	capacitance		
 charge-in	q	charge		in [body:bodies]
 charge-on	q	charge		on [body:bodies]
