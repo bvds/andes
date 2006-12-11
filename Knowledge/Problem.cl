@@ -553,7 +553,7 @@
 
 (defmacro post-process (name args &rest body)
   (when (or (not (consp args))(cdr args))
-    (error "post-process takes one arguement, the problem name."))
+    (error "post-process functions take one arguement, the problem name."))
   (when (find name *post-processing* :key #'postoperator-name)
     (error "post-processing function ~A already exists." name))
   ;; Here, one might want to define a regular "defun" function 
