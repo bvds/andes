@@ -34,13 +34,15 @@
 	      gravitational-acceleration ;sometimes predefined constant
 	      ))
 (def-feature-set statics 
-  (mass angle coef-friction duration spring-constant compression))
-(def-feature-set dynamics (mass angle coef-friction duration))
+  (mass angle coef-friction duration spring-constant compression 
+	gravitational-acceleration))
+(def-feature-set dynamics 
+  (mass angle coef-friction duration gravitational-acceleration))
 (def-feature-set changing-mass (mass mass-change-magnitude))
 (def-feature-set circular (mass revolution-radius period duration angle)) 
 (def-feature-set energy 
   (energy-set work-set mass duration power compression 
-		   spring-constant height))
+		   spring-constant height gravitational-acceleration))
 (def-feature-set work (work-set power net-power duration angle))
 (def-feature-set work-quants 
   (work-set power net-power duration angle intensity db-intensity area))
@@ -96,7 +98,7 @@
 (def-feature-set oscillations 
   (mass length spring-constant compression wavelength wavenumber period 
 	frequency angular-frequency amplitude amplitude-max-speed 
-	amplitude-max-abs-acceleration))
+	amplitude-max-abs-acceleration gravitational-acceleration))
 (def-feature-set probability (probability))
 
 ;;;  ============================================================
