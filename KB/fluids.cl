@@ -109,7 +109,12 @@
 ; should normally be predefined in fluids problems:
 (defoperator define-atmosphere-var ()
   :effects ( (variable |Pr0| (atmosphere))
-	     (define-var (atmosphere)) ))
+	     (define-var (atmosphere)) )
+  :hint 
+  ((bottom-out 
+    (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting standard atmosphere." 
+	    ((atmosphere) def-np)))))
+
    
 
 (post-process add-standard-atmosphere (problem)

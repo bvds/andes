@@ -5,7 +5,6 @@ angle		angle
 resolution-angle	$q	angle of resolution	minimum angle of resolution	for [body:bodies]
 angular-frequency	$w	angular frequency		for oscillations of [body:bodies]
 area	A	area		of [body:bodies]
-atmosphere		atmospheric pressure		at surface of earth
 capacitance	C	capacitance		
 charge-in	q	charge		in [body:bodies]
 charge-on	q	charge		on [body:bodies]
@@ -65,6 +64,7 @@ slit-separation	d	slit separation	separation between slits	in [body:bodies]
 speed	v	speed		
 wave-speed	v	speed of wave	speed of waves	moving in [body:positions]
 spring-constant	k	spring constant		of [body:bodies]
+atmosphere		standard atmosphere		
 string-tension	Ft	tension on a string	tension	on [body:bodies]
 time-constant	$t	time constant		for circuit elements [body:bodies] and [body2:bodies]
 turns	N	turns	number of turns	wrapped around [body:bodies]

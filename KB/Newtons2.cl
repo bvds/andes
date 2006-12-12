@@ -5769,7 +5769,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    (near-planet ?planet :body ?whatever)
-   (bind ?g-var (format-sym "g_~A" ?planet)) )
+   (bind ?g-var (format-sym "g_~A" ?planet)) 
+   (test (or (member ?planet (cadr (find 'bodies (problem-choices *cp*) 
+					:key #'car)))
+	     (error "Body ~A missing from choices." ?planet)))
+   )
   :effects ( (variable ?g-var (gravitational-acceleration ?planet)) 
 	     (define-var (gravitational-acceleration ?planet)) )
   :hint 

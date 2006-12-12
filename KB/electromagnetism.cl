@@ -876,6 +876,9 @@
 		       (charge ?b :time ?t ?t) 
 		       (relative-position ?loc ?b :time ?t)
 		       ))
+   ;; only needed if ?loc is not bound
+   (field-sources ?loc electric ?sources :time ?t)
+   (any-member ?b ?sources)
    (time ?t)
    (any-member ?form (nil t)) ;switch between forms of r-hat
    (point-charge ?b)
@@ -964,9 +967,9 @@
 (defoperator point-charge-Efield-mag-contains (?sought)
   :preconditions 
   ((rdebug "Using point-charge-Efield-mag-contains ~%")
+   ;; charge can't be sought, since absolute value is taken
    (any-member ?sought ((mag (field ?loc electric ?b :time ?t ?t))
-			(mag (relative-position ?loc ?b :time ?t))
-			(charge ?b :time ?t ?t)))
+			(mag (relative-position ?loc ?b :time ?t))))
    (time ?t)
    (point-charge ?b)
    (rdebug "Firing point-charge-Efield-mag-contains ~%")

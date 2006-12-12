@@ -1070,8 +1070,8 @@
 	 ;; given flag on quantities at the bubble-graph level, not implicit 
 	 ;; equations, so might not work for those.
 	 (is-given (given-p (student-to-canonical studvar)))
-;	 (is-known-constant (known-constantp (sysvar-to-quant 
-;					      (student-to-canonical studvar))))
+	 (is-known-constant (known-constantp (sysvar-to-quant 
+					      (student-to-canonical studvar))))
 	 )
     
     ;; first filter case where student hasn't specified a given value 
@@ -1080,12 +1080,15 @@
       (cond (is-given 
 	     (setf (studentEntry-state eqn-entry) 'incorrect)
 	     (should-be-given-error-interp eqn-entry quant))
+	    (is-known-constant
+	     (setf (studentEntry-state eqn-entry) 'incorrect)
+	     (should-be-known-error-interp eqn-entry quant))
 	    (T ; quant is not given => OK
 	     (setf (studentEntry-state eqn-entry) 'correct)
 	     (make-green-turn))))
      
      ;; get here => student specified a given value
-     ((not is-given)
+     ((not (or is-given is-known-constant))
       (setf (studentEntry-state eqn-entry) 'incorrect)
       (not-given-error-interp eqn-entry quant))
      
@@ -1123,7 +1126,8 @@
 	  ;; normal eqn processing.  This is OK now, since we *always* delete 
 	  ;; temp-entry; correct entries are re-added later.  But if we change 
 	  ;; to only add once, must handle this.
-	  (when (and correct-eqn (not (uses-only-given-eqn temp-entry)))
+	  (when (and correct-eqn (not (uses-only-given-eqn temp-entry)) 
+		     (not is-known-constant))
 	    (setf (studentEntry-State eqn-entry) 'incorrect) ; modify state copied above
 	    (setf result-turn (more-than-given-error-interp eqn-entry quant)))
 	  ;; if equation is wrong but no error interpretation (syntax error, 
@@ -1191,7 +1195,7 @@
 (defun should-be-given-error-interp (se quant)
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
-	      (list (format nil "The value of ~a can be determined from the problem statement. It should be entered in the dialog box when defining the relevant variable." 
+	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered in the dialog box when defining the relevant variable." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
     (setf (studentEntry-ErrInterp se)
@@ -1202,6 +1206,27 @@
        ; state is state of intended systementry -- premature, forbidden. Most now unused; we can just
        ; assume correct.  Might check for change donealready like wwh does, but that would give a prolog
        ; in whatswrong help, and we don't want that on givens in the dialog box, which do need to be done.
+       :state **correct**	
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
+
+(defun get-known-interp (quant)
+  (let ((eqn (find quant (problem-eqnIndex *cp*) :key #'eqn-exp 
+		      :test #'exactly-equal)))
+    (if eqn (list (eqn-algebra->sysent (eqn-algebra eqn))))))
+
+(defun should-be-known-error-interp (se quant)
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  (let ((rem (make-hint-seq
+	      (list (format nil "The value of ~a is a well known constant.  Its value should be entered in the dialog box when defining the relevant variable." 
+	                             (nlg (quant-to-sysvar quant) 'algebra))
+	         ))))
+    (setf (studentEntry-ErrInterp se)
+      (make-error-interp
+       :diagnosis '(should-be-known)
+       :bindings no-bindings
+       :intended (get-known-interp quant)
        :state **correct**	
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)

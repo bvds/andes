@@ -630,6 +630,10 @@
   (and (qnode-parameterp Q)
        (not (qnode-answer-varp Q))))
 
+(defun known-constantp (quant)
+  (let ((qnode (match-exp->qnode quant (problem-graph *cp*))))
+  (and qnode (Qnode-has-mark? qnode 'constant))))
+
 (defun qnode-Givenp (Q)
   "Is the qnode a given?"
   (Qnode-has-mark? Q **Given**))
