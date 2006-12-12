@@ -284,9 +284,12 @@
   (when (and (every #'(lambda (x) (eq (second x) 'earth)) 
 		    (Filter-expressions '(near-planet ?p :body ?b)
 						 (problem-givens problem))) 
-	     ;; test whether acceleration for earth is neede
+	     ;; test whether acceleration for earth is needed
 	     (member '(gravitational-acceleration earth) 
-		     (problem-varindex problem) :test #'unify :key #'qvar-exp))
+		     (problem-varindex problem) :test #'unify :key #'qvar-exp)
+	     ;; test whether it has been done already
+	     (notany #'(lambda (x) (search "gravitational-acceleration" x))
+		     (problem-predefs problem)))
     ;; in principle, should also test if it already has been defined
     (push "Var-Entry gravitational-acceleration g Var-666 1 _ gravitational#acceleration earth _ _ gravitational#acceleration#at#surface#of#earth 9.8#m/s^2"
 	  (problem-predefs problem))))

@@ -117,7 +117,10 @@
   ;; for fluids problems, predefine atmospheric pressure constant
   ;; in principle, should test it is not already present
   ;; and test for the next available Var-number
-  (when (member 'fluids (problem-features problem))
+  (when (and (member 'fluids (problem-features problem))
+	     ;; test whether it has been done already
+	     (notany #'(lambda (x) (search "atmosphere" x))
+		     (problem-predefs problem)))
     (push "Var-Entry atmosphere Pr0 Var-667 2 _ atmospheric#pressure _ _ _ atmospheric#pressure 1.013e5#Pa"
 	  (problem-predefs problem))))
 
