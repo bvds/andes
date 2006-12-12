@@ -1137,9 +1137,12 @@
 	  ;; still just say its wrong.
 	  ;; Might want check to filter first for acceptable form above 
 	  ;; (as we do for answers).
-	  (when (and (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
+ 	  (when (and is-given (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
 	    (set-wrong-given-value-error-interp eqn-entry quant))
-	  
+
+	  (when (and is-known-constant (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
+	    (should-be-known-error-interp eqn-entry quant))
+
 	  ;; don't save the temp equation entry on our main list anymore
 	  ;; if it's correct, caller should add subentry like an implicit equation
 	  (remove-entry *solver-temp-eqn-slot*) ; clears algebra slot automatically
@@ -1219,8 +1222,9 @@
 (defun should-be-known-error-interp (se quant)
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
-	      (list (format nil "The value of ~a is a well known constant.  Its value should be entered in the dialog box when defining the relevant variable." 
-	                             (nlg (quant-to-sysvar quant) 'algebra))
+	      (list (format nil "You need to enter an appropriate value for ~a."  
+			    (nlg quant))
+		    (format nil "Select 'Constants used in Andes' on the Help menu to find the value used in Andes.  This value should be entered in the dialog box when defining the relevant variable.")
 	         ))))
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
