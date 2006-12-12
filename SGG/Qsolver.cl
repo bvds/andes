@@ -73,7 +73,6 @@
 					   :test #'equal)))
 			    (setq **wm** (union (st-wm state) **wm** 
 						:test #'unify))
-			    (format t "solve-for-Constant-Quantity PSM ~A~%" PSM)
 			    (make-qsolres
 			     :id (nth 2 PSM)
 			     :algebra (nth 3 PSM)
