@@ -873,15 +873,15 @@
   :preconditions 
   ((rdebug "Using point-charge-Efield-compo-contains  ~%")
    (any-member ?sought ((field ?loc electric ?b :time ?t ?t)
-		       (charge ?b :time ?t ?t) 
-		       (relative-position ?loc ?b :time ?t)
+			(charge ?b :time ?t ?t)
+			(relative-position ?loc ?b :time ?t)
 		       ))
-   ;; only needed if ?loc is not bound
-   (field-sources ?loc electric ?sources :time ?t)
-   (any-member ?b ?sources)
-   (time ?t)
+   ;; only *needed* if ?loc is not bound (when charge is ?sought)
+   (field-sources ?loc electric ?sources :time ?t ?t)
+   (any-member ?b ?sources) 
+   (time ?t)  ;sometimes ?t is not bound
    (any-member ?form (nil t)) ;switch between forms of r-hat
-   (point-charge ?b)
+   (point-charge ?b)    
    (rdebug "Firing point-charge-Efield-compo-contains  ~%")
    )
   :effects 
