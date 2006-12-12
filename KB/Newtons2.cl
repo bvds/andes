@@ -5749,7 +5749,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; can give this special treatment: if a quantity is determined because
 ;;; it is a standard constant, there is no need to try to seek it by any
 ;;; other equations.
-(defoperator g-on-earth-contains(?quantity)
+(defoperator g-on-earth-contains (?quantity)
   :preconditions 
     ( (any-member ?quantity ((gravitational-acceleration earth))) )
     :effects ( (eqn-contains (std-constant (gravitational-acceleration earth))
@@ -5759,7 +5759,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
     ( (variable ?g-var (gravitational-acceleration earth)) )
   :effects ( (eqn (= ?g-var (dnum 9.8 |m/s^2|)) 
-		  (std-constant (gravitationa-acceleration earth))) )
+		  (std-constant (gravitational-acceleration earth))) )
   :hint
   ((point (string "You should know the value of g for the Earth"))
    (teach (string "You can use 9.8 m/s^2 for the value of g near the surface of the Earth"))
