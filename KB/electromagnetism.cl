@@ -178,37 +178,42 @@
 ;;;             (e.g. it's sought)
 ;;;
 ;;; Exactly corresponding set applies to drawing E-force vector:  dir can 
-;;; be given (directly or via compos) or can be derived from given E-field 
+;;; be given (directly or via compos) or can be derived from the given field 
 ;;; direction (directly or via compos), can be derived
 ;;; from configuration wrt point particle, or else unknown.
 
-(defoperator draw-Efield-vector (?loc ?source ?t)
+; draw field in given direction:
+(defoperator draw-field-vector (?loc ?type ?t)
   :preconditions 
-  ((rdebug "Using draw-Efield-vector  ~%")
+  ((rdebug "Using draw-field-vector  ~%")
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   (given (dir (field ?loc electric ?source :time ?t)) ?dir)  
-   (not (vector ?whatever (field ?loc electric ?source :time ?t) ?any-dir))     
-   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
-			      (body-name ?source) (time-abbrev ?t)))
+   (given (dir (field ?loc ?type ?source :time ?t)) ?dir-f)  
+   (not (vector ?any-body (field ?loc ?type ?source :time ?t) ?dir1))     
+   (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1)
+			      (body-name ?loc) (body-name ?source) 
+			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (rdebug "fired draw-Efield-vector   ~%")
-   )
+   ;; if dir is z-axis, implicit eqn should give phi angle value
+   (bind ?angle-value (if (z-dir-spec ?dir-f) (zdir-phi ?dir-f) 
+			?dir-f))
+   (rdebug "fired draw-Bfield-vector   ~%"))
   :effects (
-	   (vector ?loc (field ?loc electric ?source :time ?t) ?dir)
-	   (variable ?mag-var (mag (field ?loc electric ?source :time ?t)))
-	   (variable ?dir-var (dir (field ?loc electric ?source :time ?t)))
-	   ;; Because dir is problem given, find-by-psm won't ensure implicit 
-	   ;; eqn gets written.  Given value may not be used elsewhere so 
-	   ;; ensure it here.
-	   (implicit-eqn (= ?dir-var ?dir) (dir (field ?loc electric ?source :time ?t)))
-	   )  
+            (vector ?loc (field ?loc ?type ?source :time ?t) ?dir-f)
+            (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
+            (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
+            ;Because dir is problem given, find-by-psm won't ensure implicit eqn
+            ;gets written.  Given value may not be used elsewhere so ensure it here.
+            (implicit-eqn (= ?dir-var ?angle-value) (dir (field ?loc ?type ?source :time ?t)))
+            )
   :hint (
-	 (point (string "You were given the direction of the electric field at ~a due to ~a." ?loc (?source agent)))
-         (bottom-out (string "Use the electric field drawing tool (labeled E) to draw the electric field at ~a due to ~a in the given direction of ~A." 
-			     ?loc (?source agent) ?dir))
-         ))
+	(point (string "You can determine the direction of the ~A field at ~a due to ~a from the problem statement"
+	               (?type adj) ?loc (?source agent))) 
+	(bottom-out (string "Use the ~A field drawing tool to draw the ~A field at ~a due to ~a in the given direction of ~A." 
+		     (?type adj) (?type adj) ?loc (?source agent) (?dir-f adj)))
+        )) 
+
 
 (defoperator draw-efield-inside-conductor (?loc ?t)
   :preconditions 
@@ -1245,18 +1250,18 @@
   :preconditions 
   (
    ;; ?t may be timeless, but it does get bound
-   (given (dir (net-field ?loc ?type :time ?t)) ?dir-B)  
-   (test (not (eq ?dir-B 'zero)))
+   (given (dir (net-field ?loc ?type :time ?t)) ?dir-f)  
+   (test (not (eq ?dir-f 'zero)))
    (not (vector ?whatever (net-field ?loc ?type :time ?t) ?any-dir)) 
-   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
-			      (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
+			      (body-name ?loc) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    ;; if dir is z-axis, implicit eqn should give phi angle value
-   (bind ?angle-value (if (z-dir-spec ?dir-B) (zdir-phi ?dir-B) 
-			?dir-B)))
+   (bind ?angle-value (if (z-dir-spec ?dir-f) (zdir-phi ?dir-f) 
+			?dir-f)))
   :effects 
   (
-   (vector ?loc (net-field ?loc ?type :time ?t) ?dir-B)
+   (vector ?loc (net-field ?loc ?type :time ?t) ?dir-f)
    (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
    (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
    ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
@@ -1268,7 +1273,7 @@
 	 (point (string "You can determine the direction of the net ~A field at ~a from the problem statement."
 	                (?type adj) ?loc)) 
 	 (bottom-out (string "Use the ~A field drawing tool to draw the net ~A field at ~a in the given direction of ~A." 
-			     (?type adj) (?type adj) ?loc (?dir-B adj)))
+			     (?type adj) (?type adj) ?loc (?dir-f adj)))
 	 )) 
 
 (defoperator draw-net-field-given-zero (?type ?t)
@@ -2351,37 +2356,6 @@
 ;;--------------------------------------------------
 ;;  Magnetic fields and forces 
 ;;--------------------------------------------------
-
-; draw Bfield in given direction:
-(defoperator draw-Bfield-vector (?loc ?t)
-  :preconditions 
-  ((rdebug "Using draw-Bfield-vector  ~%")
-   ;; only use time when allowed by feature changing-field
-   (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
-   (given (dir (field ?loc magnetic ?source :time ?t)) ?dir-B)  
-   (not (vector ?any-body (field ?loc magnetic ?source :time ?t) ?dir1))     
-   (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
-			      (time-abbrev ?t)))
-   (bind ?dir-var (format-sym "O~A" ?mag-var))
-   ;; if dir is z-axis, implicit eqn should give phi angle value
-   (bind ?angle-value (if (z-dir-spec ?dir-B) (zdir-phi ?dir-B) 
-			?dir-B))
-   (rdebug "fired draw-Bfield-vector   ~%"))
-  :effects (
-            (vector ?loc (field ?loc magnetic ?source :time ?t) ?dir-B)
-            (variable ?mag-var (mag (field ?loc magnetic ?source :time ?t)))
-            (variable ?dir-var (dir (field ?loc magnetic ?source :time ?t)))
-            ;Because dir is problem given, find-by-psm won't ensure implicit eqn
-            ;gets written.  Given value may not be used elsewhere so ensure it here.
-            (implicit-eqn (= ?dir-var ?angle-value) (dir (field ?loc magnetic ?source :time ?t)))
-            )
-  :hint (
-	(point (string "You can determine the direction of the magnetic field at ~a due to ~a from the problem statement"
-	                ?loc (?source agent))) 
-	(bottom-out (string "Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the given direction of ~A." 
-		     ?loc (?source agent) (?dir-B adj)))
-        )) 
 
 (defoperator draw-Bfield-point-particle (?loc ?b ?t)
   :preconditions 
