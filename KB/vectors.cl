@@ -67,9 +67,9 @@
                    something else is needed & the direction is given, 
                    then draw it at the given direction"
   :preconditions ((rdebug "Using draw-rel-vel-vector-given-dir ~%")
+		  (given (dir (relative-vel ?b1 ?b2 :time ?t-given)) ?dir)
 		  (time ?t) ;explicit time
-		  ;; this means sub-intervals must be given explicitly
-		  (given (dir (relative-vel ?b1 ?b2 :time ?t)) ?dir)
+		  (test (tinsidep ?t ?t-given))
 		  (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir))
 		  (bind ?mag-var (format-sym "V_~A_~A_~A" 
 					     (body-name ?b1) 
@@ -181,8 +181,9 @@
 ;;; This is from draw-zero-displacement.
 (defoperator draw-zero-relative-vel (?b1 ?b2 ?t)
   :preconditions
-  ;; this means sub-intervals must be given explicitly
-  ((in-wm (given (mag (relative-vel ?b1 ?b2 :time ?t)) (dnum 0 ?units)))
+  ((given (mag (relative-vel ?b1 ?b2 :time ?t-given)) (dnum 0 ?units))
+   (time ?t)
+   (test (tinsidep ?t ?t-given))
    (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dontcare))
    (bind ?mag-var (format-sym "V_~A_~A_~A" (body-name ?b1)
 			      (body-name ?b2) (time-abbrev ?t)))

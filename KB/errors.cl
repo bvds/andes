@@ -2822,16 +2822,16 @@
    (test (member ?pt (list ?source ?observer))))
   :utility 50
   :probability
-  (+ 0.2
+  (+ 0.25
      (if (equal ?stime ?ctime) 0.1 0.0)
      (if (equal ?sdir ?cdir) 0.1 0.0)))
 
 (defun wrong-ref-pt-relative-vel (cpt pt)
   (make-hint-seq
    (list
-    (format nil (strcat "For doppler problems, you should define the velocities  "
-			"with respect to the medium that the wave are moving in "
-			"(~A).") (nlg cpt 'def-np))
+    (format nil (strcat "For doppler problems, you should define velocities  "
+			"with respect to the wave medium (~A).") 
+	    (nlg cpt 'def-np))
     (format nil (strcat "Define the velocity of ~A with respect to ~A.")
 	    (nlg pt 'def-np) (nlg cpt 'def-np)))))
 
