@@ -5123,9 +5123,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator mass-compound-contains (?sought)
   :preconditions (
    (any-member ?sought ((mass ?b-sought)))
-   ; compound must exist
+   ;; compound must exist
    (object (compound orderless . ?bodies))
-   ; applies if sought is mass of compound or one of its parts
+   ;; applies if sought is mass of compound or one of its parts
    (test (or (member ?b-sought ?bodies :test #'equal)
              (equal ?b-sought `(compound orderless ,@?bodies))))
   )
@@ -5134,25 +5134,26 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
 (defoperator write-mass-compound (?bodies)
-  :preconditions (
-    (variable ?mwhole-var (mass ?compound))
-    (bind ?bodies (cddr ?compound))
-    (map ?body ?bodies
-         (variable ?mpart-var (mass ?body)) 
-	 ?mpart-var ?mpart-vars) 
-  )
-  :effects (
-     (eqn (= ?mwhole-var (+ . ?mpart-vars)) (mass-compound ?compound))
-  )
+  :preconditions 
+  (
+   ;; make sure compound body is drawn, else it can't be defined.
+   (body ?compound)	
+   (variable ?mwhole-var (mass ?compound))
+   (bind ?bodies (cddr ?compound))
+   (map ?body ?bodies
+	(variable ?mpart-var (mass ?body)) 
+	?mpart-var ?mpart-vars) 
+   )
+  :effects ((eqn (= ?mwhole-var (+ . ?mpart-vars)) (mass-compound ?compound)))
   :hint
   ((point (string "How does the mass of a compound body relate to the masses of its parts?"))
    (teach (string "The mass of a compound body is equal to the sum of the masses of its parts."))
    (bottom-out (string "Write the equation ~A" ((= ?mwhole-var (+ . ?mpart-vars)) algebra)))
    ))
  
-; mag of kinematic vector (displacement, velocity, acceleration) of compound 
-; is same as vector on parts. mag equal ; equation
-; This also applies to rotational vectors
+;; mag of kinematic vector (displacement, velocity, acceleration) of compound 
+;; is same as vector on parts. mag equal ; equation
+;; This also applies to rotational vectors
 (defoperator kine-compound-contains (?sought)
    :preconditions (
    (any-member ?sought ( 
