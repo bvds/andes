@@ -2812,6 +2812,29 @@
                         "of ~a with respect to ~a, instead of the other way around.")
 			 (nlg cpt) (nlg cref-pt)))))
 
+;;;
+;;;  In doppler problems, velocity is specified relative to the medium.
+;;;
+(def-error-class wrong-ref-pt-relative-vel (?cref-pt ?pt)
+  ((student (vector (relative-vel ?pt ?sref-pt :time ?stime) ?sdir))
+   (correct (vector (relative-vel ?pt ?cref-pt :time ?ctime) ?cdir))
+   (problem (doppler-system ?source ?cref-pt ?observer))
+   (test (member ?pt (list ?source ?observer))))
+  :utility 50
+  :probability
+  (+ 0.2
+     (if (equal ?stime ?ctime) 0.1 0.0)
+     (if (equal ?sdir ?cdir) 0.1 0.0)))
+
+(defun wrong-ref-pt-relative-vel (cpt pt)
+  (make-hint-seq
+   (list
+    (format nil (strcat "For doppler problems, you should define the velocities  "
+			"with respect to the medium that the wave are moving in "
+			"(~A).") (nlg cpt 'def-np))
+    (format nil (strcat "Define the velocity of ~A with respect to ~A.")
+	    (nlg pt 'def-np) (nlg cpt 'def-np)))))
+
 ;;; ============= drawing electric/magnetic field vectors ================
 ;;; quantity has location, agent and time.
 ;;; location looks like "body" to default rules, but is not a body.
