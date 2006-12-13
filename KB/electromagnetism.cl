@@ -183,7 +183,7 @@
 ;;; from configuration wrt point particle, or else unknown.
 
 ; draw field in given direction:
-(defoperator draw-field-vector (?loc ?type ?t)
+(defoperator draw-field-given-dir (?loc ?type ?t)
   :preconditions 
   ((rdebug "Using draw-field-vector  ~%")
    ;; only use time when allowed by feature changing-field
@@ -203,8 +203,9 @@
             (vector ?loc (field ?loc ?type ?source :time ?t) ?dir-f)
             (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
             (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
-            ;Because dir is problem given, find-by-psm won't ensure implicit eqn
-            ;gets written.  Given value may not be used elsewhere so ensure it here.
+            ;; Because dir is problem given, find-by-psm won't ensure 
+	    ;; implicit eqn gets written.  Given value may not be used 
+	    ;; elsewhere so ensure it here.
             (implicit-eqn (= ?dir-var ?angle-value) (dir (field ?loc ?type ?source :time ?t)))
             )
   :hint (
