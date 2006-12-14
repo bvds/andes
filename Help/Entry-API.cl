@@ -713,8 +713,12 @@
         (symbols-enter compo-var compo-term (list id axis-entry-id))))
 
     ; if vector is zero-length, associate implicit equation magV = 0
+    ; also add component eqns vc = 0 for all component variables in solution.
     (when (equal dir-term 'zero)
-       (add-implicit-eqn entry (make-implicit-assignment-entry label 0)))
+       (add-implicit-eqn entry (make-implicit-assignment-entry label 0))
+       (dolist (syscomp (get-soln-compo-vars vector-term))
+            ; skip make-implicit-assignment-entry since we have sysvar, not studvar
+            (add-implicit-eqn entry (make-implicit-eqn-entry `(= ,syscomp 0)))))
  
     ; if vector is a unit vector, associate equation magV = 1 
     ; !!! We are stuffing this into the entry's associated "given" equation list, 
@@ -735,6 +739,13 @@
     ; finally return entry
     entry))
 
+; fetch list of system vars denoting components of vector term
+(defun get-soln-compo-vars (vector-term)
+  (let ((compo-pattern `(compo ?axis ?rot ,vector-term)))
+   (mapcar #'qvar-var
+     (remove-if-not #'(lambda (qvar) 
+                           (unify (qvar-exp qvar) compo-pattern))
+                    (problem-varIndex *cp*)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-line -- check the correctness of a line drawn by the student.
