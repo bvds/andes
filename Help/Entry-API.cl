@@ -741,7 +741,7 @@
 
 ; fetch list of system vars denoting components of vector term
 (defun get-soln-compo-vars (vector-term)
-  (let ((compo-pattern `(compo ?axis ?rot ,vector-term)))
+  (let ((compo-pattern (vector-compo vector-term '(axis ?xyz ?rot))))
    (mapcar #'qvar-var
      (remove-if-not #'(lambda (qvar) 
                            (unify (qvar-exp qvar) compo-pattern))
