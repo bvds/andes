@@ -137,7 +137,7 @@
 ;; We also handle body arg consisting of a list of simple body names and
 ;; form a compound body term for it. Note: Originally this arg form was only 
 ;; sent to assert-compound-object. But it now occurs elsewhere, for example
-;; when defining equivalent resistance of a set of components. So the 
+;; when defining a variable for resistance of a set of components. So the 
 ;; translation of the set into compound body term may have to be undone when 
 ;; forming the quantity below in make-quant. 
 ;;
@@ -166,10 +166,18 @@
   (intern (string-upcase (substitute #\_ #\- (string body-arg)))))
 
 ; For circuits, we have to handle defined compound component terms as arguments.
-; E.g. if student label "foo" has been defined as (resistance (R5 R6)), then body 
-; arg sent in, say,  (voltage-across foo) will need to be translated. In this case, 
-; arg to body will return (resistance (R5 R6)), so make-quant cases will have to be 
-; prepared to receive this as a body-term wherever args can be compound equivalents
+; E.g. say student variable "foo" has earlier been defined as (resistance (R5 R6)), meaning
+; the resistance of the compound of R5 and R6. The workbench now allows "foo" to be used as a 
+; name for the compound resistor in OTHER variable definitions.  For example, student may define 
+; a variable for voltage-across with body 'foo. This is a form of overloading: "foo" officially 
+; stands for the resistance of a compound component, but is overloaded to stand for the compound
+; component itself. The body arg "foo" in *this* context will need ultimately to be translated to
+; (R1 R2) get us to (voltage-across (R1 R2)) to match the form used in the knowledge base. 
+;
+; In this case, (arg-to-body 'foo) will simply lookup the definition of "foo" and return 
+; (resistance (R5 R6)).  The make-quant cases for circuit component attributes below have been
+; coded to be prepared to receive such a quantity form as the body-term and pull out the constituents
+; appropriately wherever variable args can be compound equivalents. 
 
 (defun compound-object-term (quant)
    (or (compound-bodyp quant)
@@ -402,8 +410,9 @@
       (current     (case subtype
 		     (through		; now body-term always comes as '(compound orderless A B C)
 		      (if (atom body-term) `(current-thru ,body-term :time  ,time-term)
-		         ; used to be arg might be (resistance (a b c)) for current through student-defined 
-		         ; equivalent. Not used anymore since we made current take a list. (Needed?)
+		         ; used to be arg might come here (resistance (a b c)) for current through student-defined 
+		         ; equivalent Rabc. Can't happen any more since revised current dialog no longer includes named
+			 ; equivalents as choices.
 		          `(current-thru ,(find-closest-current-list (bodyterm-complist body-term)) :time ,time-term)))
 		     (in        `(current-in ,body-term :time ,time-term))))
       (current-change `(rate-of-change (current-thru ,(find-closest-current-list (list body-term) 'current-change)
