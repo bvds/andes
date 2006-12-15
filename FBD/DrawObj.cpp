@@ -902,40 +902,15 @@ BOOL CDrawObj::HasSameName(CDrawObj* pObj)
 
 	CString strName = pObj->m_strName;
 
-	if (strcmp(strName, m_strName) == 0){//AW: no longer case sensitive
+	if (strcmp(strName, m_strName) == 0){//AW: no longer case insensitive
 	//if same name, check if different id
 		if (strcmp(m_strId, pObj->m_strId)!=0)  // not same obj [as one being edited].
 			return TRUE;
 	}
-/*
-	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem))){//check system mass label
-		strName = "m" + strName;
-		if (_stricmp(strName, m_strName) == 0){//case insensitive
-			//if same name, check if same id
-			if (strcmp(m_strId, pObj->m_strId)!=0)
-				return TRUE;
-		}
-	}
-*/
 
 	return FALSE;
-
 }
  
-/*   
-BOOL CDrawObj::HasSameName(CVariable* pVar)
-{
-	if (_stricmp(m_strName, pVar->m_strName) == 0){//case insensitive
-	//if same name, check if same id
-		if (strcmp(m_strId, pVar->m_strId)==0)
-			return FALSE;//we are editing this variable
-		else
-			return TRUE;
-	}
-	return FALSE;
-}
-
-*/
 
 BOOL CDrawObj::HasSameDef(CDrawObj* pObj)
 {

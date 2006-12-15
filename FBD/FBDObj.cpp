@@ -2522,37 +2522,17 @@ BOOL CSystem::HasSameName(CDrawObj* pObj)
 {
 	//Check object list to see if we already have drawn an object with the
 	//same label
-	CString strName = pObj->m_strName;
-//	CString strMassName = "m" + m_strName;
 
-	if (strcmp(strName, m_strName) == 0){//AW: change to be case sensitive
-		//if same name, check if same id
-		if (strcmp(m_strId, pObj->m_strId)!=0)
-			return TRUE;
-	}
-/*
-	if (_stricmp(strName, strMassName) == 0){//case insensitive
-		//if same name, check if same id
+	// AW: treat bodies as in their own namespace: their names can only conflict with 
+	// those of other bodies
+	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem))
+		&& strcmp(pObj->m_strName, m_strName) == 0){//AW: change to be case sensitive
+		//if same name, make sure not same id [as temp copy being edited in dialog]
 		if (strcmp(m_strId, pObj->m_strId)!=0)
 			return TRUE;
 	}
 
-	if (pObj->IsKindOf(RUNTIME_CLASS(CSystem))){
-		strName = "m" + strName;
-		if (_stricmp(strName, m_strName) == 0){//case insensitive
-			//if same name, check if same id
-			if (strcmp(m_strId, pObj->m_strId)!=0)
-				return TRUE;
-		}
-		if (_stricmp(strName, strMassName) == 0){//case insensitive
-			//if same name, check if same id
-			if (strcmp(m_strId, pObj->m_strId)!=0)
-				return TRUE;
-			}
-	}
-*/
 	return FALSE;
-
 }
 
 BOOL CSystem::HasSameDef(CDrawObj* pObj)

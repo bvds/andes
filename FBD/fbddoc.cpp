@@ -2015,7 +2015,10 @@ CDrawObj* CFBDDoc::GetMatchingObj(CDrawObj* pObj, BOOL bMatchName)
 			continue;
 		if (bMatchName)
 		{
-			if (pObj->HasSameName(pListObj))
+			// pObj may be a CVariable (a subclass of CDrawObj). Call pListObj's method to 
+			// be sure to get custom method which implements separate namespace in case of 
+			// CSystem objects
+			if (pListObj->HasSameName(pObj)) 
 				return pListObj;
 		}
 		else
