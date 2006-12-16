@@ -2227,7 +2227,7 @@
    then its velocity is tangent to the curve at that time."
   :preconditions
    ((motion ?b (curved ?dontcare (?dir ?dont-care)) :time ?t)
-    (test (not (equal ?dir 'unknown)))  ;until conditional effects are implemented
+    (test (not (eq ?dir 'unknown)))  
     (time ?t) ;sanity test
     (test (time-pointp ?t))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
@@ -2250,23 +2250,23 @@
 ;;; velocity direction is not given.
 (defoperator draw-velocity-curved-unknown (?b ?t)
   :preconditions
-   (;; don't use this to draw average velocity over an interval. 
-    (motion ?b (curved ?curve-type ?dir-spec) :time ?t-motion)
-    (time ?t)
-    (test (time-pointp ?t))
-    (test (tinsidep ?t ?t-motion))
-    ;; Test for unknown
-     (test (or (null ?dir-spec) (null (first ?dir-spec)) 
-	      (eq (first ?dir-spec) 'unknown)))   
-    ;; direction of displacement is not known
-    ;; This is handled by draw-avg-vel-from-displacement
-    (not (given (dir (displacement ?b :time ?t)) ?disp-dir))
-    (not (vector ?b (velocity ?b :time ?t) ?dir))
-    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+  (;; don't use this to draw average velocity over an interval.
+   (motion ?b (curved ?curve-type ?dir-spec) :time ?t-motion)
+   (time ?t)
+   (test (time-pointp ?t))
+   (test (tinsidep ?t ?t-motion))
+   ;; Test for unknown
+   (test (or (null ?dir-spec) (null (first ?dir-spec)) 
+	     (eq (first ?dir-spec) 'unknown)))   
+   ;; direction of displacement is not known
+   ;; This is handled by draw-avg-vel-from-displacement
+   (not (given (dir (displacement ?b :time ?t)) ?disp-dir))
+   (not (vector ?b (velocity ?b :time ?t) ?dir))
+   (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var)))
   :effects
-   ((vector ?b (velocity ?b :time ?t) unknown)
-    (variable ?mag-var (mag (velocity ?b :time ?t)))
+  ((vector ?b (velocity ?b :time ?t) unknown)
+   (variable ?mag-var (mag (velocity ?b :time ?t)))
     (variable ?dir-var (dir (velocity ?b :time ?t))))
   :hint
    ((point (string "You need to draw a vector for the velocity of ~a ~a." ?b (?t pp)))
@@ -3114,40 +3114,6 @@
    )
    :effects ((dir-given-or-compos ?quant ?dir)))
 
-
-;; following draws the sought vector in one of these grid-using problems
-;; NB: As written, only works for one-argument vector types
-(defoperator draw-sought-vector-unknown (?b ?vectype ?t)
-   :preconditions (
-    (vector-grid)
-    (component-form)
-    ;; build expressions for vector and its attributes:
-    (bind ?vector `(,?vectype ,?b :time ,?t))
-    (bind ?vector-dir `(dir ,?vector))
-    ;; we test whether xc of vector is a problem sought. NOTE: This relies
-    ;; on *cp* as always holding the current problem. This is not guaranteed
-    ;; if problem solver is not invoked through sgg interface functions.
-    ;; But there should be some way to access this info from the environment.
-    (bind ?vector-xc `(compo x 0 ,?vector))
-    (test (member ?vector-xc (problem-soughts *cp*) :test #'unify))
-    ; make sure no motion spec that might enable vector to be drawn
-    ; tighter test than actually correct, but should work for our problems.
-    (not (motion ?b . ?dontcare))
-    ; make sure vector dir not given, as in simple projection-only problems
-    (not (given ?vector-dir (dnum ?dir |deg|)))
-    (bind ?mag-var (format-sym "~A_~A~@[_~A~]" ?vectype (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   )
-   :effects (
-    (vector ?b (?vectype ?b :time ?t) unknown)
-    (variable ?mag-var (mag (?vectype ?b :time ?t)))
-    (variable ?dir-var (dir (?vectype ?b :time ?t)))
-   )
-   :hint
-   ((teach (string "In this problem, the exact direction of the sought vector, ~A, requires calculation to determine. When a vector angle is not given, you should draw the vector at an unspecified angle. You do this by drawing the vector making your best approximation to the correct angle, then erasing the number in the direction slot of the subsequent dialog box to indicate that the exact angle is being sought." ?vector))
-    (bottom-out (string "Draw ~a ~a at your best approximation to the correct angle, then erase the number in the direction slot to indicate that the exact direction is not specified."
-			?b (?t pp)))
-    ))
 
 
 
