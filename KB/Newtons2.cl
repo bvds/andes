@@ -2251,10 +2251,13 @@
 (defoperator draw-velocity-curved-unknown (?b ?t)
   :preconditions
    (;; don't use this to draw average velocity over an interval. 
-    (motion ?b (curved ?curve-type (unknown ?dontcare)) :time ?t-motion)
+    (motion ?b (curved ?curve-type ?dir-spec) :time ?t-motion)
     (time ?t)
     (test (time-pointp ?t))
     (test (tinsidep ?t ?t-motion))
+    ;; Test for unknown
+     (test (or (null ?dir-spec) (null (first ?dir-spec)) 
+	      (eq (first ?dir-spec) 'unknown)))   
     ;; direction of displacement is not known
     ;; This is handled by draw-avg-vel-from-displacement
     (not (given (dir (displacement ?b :time ?t)) ?disp-dir))
@@ -2266,8 +2269,8 @@
     (variable ?mag-var (mag (velocity ?b :time ?t)))
     (variable ?dir-var (dir (velocity ?b :time ?t))))
   :hint
-   ((point (string "You need to introduce a term for the velocity of ~a ~a." ?b (?t pp)))
-    (teach (string "The velocity of an object is tangential to its path of motion.  In this problem, the exact direction of the velocity vector is not given, so you should draw the vector at any angle and leave the exact angle unspecified."))
+   ((point (string "You need to draw a vector for the velocity of ~a ~a." ?b (?t pp)))
+    (teach (string "In this problem, the exact direction of the velocity vector is not given, so you should draw the vector at any angle and leave the exact angle unspecified."))
     (bottom-out (string "Draw the velocity of ~a ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?t pp)))
     ))
 
@@ -2609,11 +2612,11 @@
     ;; However, the direction is known for projectile motion.
     ;; This should also be clear from the ?dir-spec but the 
     ;; ?dir-spec is not specified consistantly on all problems.
-    (test (not (equal ?type 'projectile)))
+    (test (not (eq ?type 'projectile)))
     ;; the acceleration direction is nil or 'unknown
     ;; may conflict for cases where nil != unknown; see problem kt12a
     (test (or (null ?dir-spec) (null (second ?dir-spec)) 
-	      (equal (second ?dir-spec) 'unknown)))
+	      (eq (second ?dir-spec) 'unknown)))
     (object ?b) ;sanity test
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -3110,6 +3113,7 @@
    (in-wm (given (dir ?quant) ?dir)) 
    )
    :effects ((dir-given-or-compos ?quant ?dir)))
+
 
 ;; following draws the sought vector in one of these grid-using problems
 ;; NB: As written, only works for one-argument vector types
@@ -9717,4 +9721,3 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))
-
