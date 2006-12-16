@@ -2139,11 +2139,12 @@
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
    (any-member ?t-field (?t nil))
+   ;; vector direction is 'unknown if compos are given, use this
+   ;; to determine direction (and bind ?region and ?source)
+   (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
    ;; workbench requires field vector to be labelled as prerequisite for 
    ;; defining a dipole torque, so ensure it is drawn here.
    (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-drawn)
-   ;; ?dir-drawn is 'unknown if compos are given, so we use this:
-   (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
@@ -2177,11 +2178,12 @@
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
    ;; AW: for magtor1d, changed t-field to match draw-torque-dipole-given-dir
    (any-member ?t-field (?t nil))
+   ;; vector direction is 'unknown if compos are given, use this
+   ;; to determine direction (and bind ?region and ?source)
+   (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
    ;; workbench requires field vector to be labelled as prerequisite for 
    ;; defining a dipole torque, so ensure it is drawn here.
    (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-drawn)
-   ;; ?dir-drawn is 'unknown if compos are given, so we use this:
-   (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
