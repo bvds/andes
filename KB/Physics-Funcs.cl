@@ -310,7 +310,7 @@
 
 (defun dir-from-compos (xc yc)
  "return nearest integral direction given vector components"
-  (dir-to-dnum (round (mod (rad-to-deg (atan yc xc)) 360))))
+  (dir-to-dnum (mod (rad-to-deg (atan yc xc)) 360)))
 
 ;;; In following, a a "dir" is either a plain number representing xy angle 
 ;;; in degrees or one of the special atoms: unknown, zero, into, out-of, 
