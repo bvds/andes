@@ -2139,11 +2139,11 @@
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
    (any-member ?t-field (?t nil))
+   ;; workbench requires field vector to be labelled as prerequisite for 
+   ;; defining a dipole torque, so ensure it is drawn here.
+   (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-drawn)
+   ;; ?dir-drawn is 'unknown if compos are given, so we use this:
    (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
-   ; workbench requires field vector to be labelled as prerequisite for defining
-   ; a dipole torque, so ensure it is drawn here. Note this means we could just fetch
-   ; field direction from the drawn vector rather than using dir-given-or-compos
-   (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-f-drawn)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
@@ -2175,13 +2175,13 @@
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
-   ; AW: for magtor1d, changed t-field to match draw-torque-dipole-given-dir
+   ;; AW: for magtor1d, changed t-field to match draw-torque-dipole-given-dir
    (any-member ?t-field (?t nil))
+   ;; workbench requires field vector to be labelled as prerequisite for 
+   ;; defining a dipole torque, so ensure it is drawn here.
+   (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-drawn)
+   ;; ?dir-drawn is 'unknown if compos are given, so we use this:
    (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
-   ; workbench requires field vector to be labelled as prerequisite for defining
-   ; a dipole torque, so ensure it is drawn here. Note this means we could just fetch
-   ; field direction from the drawn vector rather than using dir-given-or-compos
-   (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-f-drawn)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
