@@ -2227,7 +2227,7 @@
    then its velocity is tangent to the curve at that time."
   :preconditions
    ((motion ?b (curved ?dontcare (?dir ?dont-care)) :time ?t)
-    (test (not (eq ?dir 'unknown)))  
+    (test (not (eqe ?dir 'unknown)))  
     (time ?t) ;sanity test
     (test (time-pointp ?t))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
@@ -3039,60 +3039,6 @@
                           ((= ?T-var (/ (* 2 $P ?r) ?v)) algebra)))
    )
 )
-
-
-;;; =========== For Simple Vector Arithmetic problems =========================
-;;;
-;;; Following apply to any vectors for the purpose of our simple vector 
-;;; arithmetic problems, which give vectors by components in unit vector
-;;; notation and show a grid to enable drawing them at the right orientation 
-;;; by counting grid boxes.  We have to put the numerical degree value in the 
-;;; entry rounded to nearest integral degrees because the workbench sends that.
-;;;
-;;; It can be tricky to write reliable generic rules to operate on any 
-;;; vector quantity if we need to destructure the vector term because 
-;;; different quantities have different numbers of arguments. 
-;;; We are pretty consistent in putting the principal body in the first 
-;;; position, though, so (?vectype ?body . ?rest :time ?time) should work
-;;; with possibly empty ?rest, though it will also match non-vectors as well.  
-;;; The following code works for kinematic properties of a body at 
-;;; a time as used in our problems (velocity and accel), could have problems
-;;; on other vectors if body is not in first position.
-;;; The first arg of the vector proposition associates a vector with a body
-;;; for the purposes of choosing axes to use for that vector's components.
-;;;
-(defoperator draw-vector-given-compos (?b ?vectype ?args)
-   :specifications "if you are given the components of a vector property of a body at a time and the vector grid is on in this problem, then draw it at atan2(vy, vx)"
-   :preconditions (
-     (vector-grid)
-     (component-form)
-     (given (compo x 0 (?vectype ?b . ?args)) (dnum ?xc ?units))
-     (given (compo y 0 (?vectype ?b . ?args)) (dnum ?yc ?units))
-     ; note we can only apply to vector attributes of body and time.
-     (bind ?vector `(,?vectype ,?b . ,?args)) ; for use in hints
-     (bind ?t (time-of ?args))
-     (not (vector ?b ?vector ?dir))
-     ; !!! variable name may not be consistent with those generated elsewhere
-     ; problem if this has to match up with name generated anywhere else.
-     ; Also, generated name makes no use of ?args. 
-     (bind ?mag-var (format-sym "~A_~A~@[_~A~]" ?vectype (body-name ?b) 
-				(time-abbrev ?t)))
-     (bind ?dir-var (format-sym "O~A" ?mag-var))
-     (bind ?dir (dir-from-compos ?xc ?yc))
-   )
-   :effects (
-    (vector ?b (?vectype ?b . ?args) ?dir)
-    (variable ?mag-var (mag (?vectype ?b . ?args)))
-    (variable ?dir-var (dir (?vectype ?b . ?args)))
-    ;; Don't put out equation for thetaV since value is not exact, could 
-    ;; lead to errors if given to algebraic solver with other equations.
-    ;;(given (dir (?vectype ?b . ?args)) ?dir)
-   )
-   :hint (
-    (point (string "You were given ~A in terms of its components." ?vector))
-    (teach (string " Andes checks the direction of a drawn vector if it should be known.  The direction $qV of any vector V is related to its components by the formula tan($qV) = V_y / V_x.  Since you were given the horizontal and vertical components of the vector, can choose a scale and count lines on the grid to draw the vector with a slope equal to the ratio of the y component to the x component."))
-    (bottom-out (string "Choose some scale and draw ~A by moving ~A units horizontally and ~A units vertically." ?vector ?xc ?yc))
-   ))
 
 (defoperator use-compos-for-dir (?quant)
    :preconditions 
