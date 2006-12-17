@@ -2227,7 +2227,7 @@
    then its velocity is tangent to the curve at that time."
   :preconditions
    ((motion ?b (curved ?dontcare (?dir ?dont-care)) :time ?t)
-    (test (not (eqe ?dir 'unknown)))  
+    (test (not (eq ?dir 'unknown)))  
     (time ?t) ;sanity test
     (test (time-pointp ?t))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
