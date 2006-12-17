@@ -191,7 +191,7 @@
 (def-qexp compo	(compo ?xyz ?rot ?vector)
   :units ?vector
   :english ("the ~A component of ~A" (nlg ?xyz 'adj) (nlg ?vector)))
-(def-qexp mag	(mag ?vector)
+(def-qexp mag (mag ?vector)
   :units ?vector
   :restrictions nonnegative
   :english ("the magnitude of ~A" (nlg ?vector)))
@@ -267,6 +267,10 @@
   :english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) 
 	    (nlg ?body2 'at-time ?time))) 
+
+(def-qexp std-constant (std-constant ?quant)
+  :units ?quant
+  :english ("~A (the value used in Andes)" (nlg ?quant 'indef-np)))
 
 ;; see constants.cl, function enter-predefs
 (def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
