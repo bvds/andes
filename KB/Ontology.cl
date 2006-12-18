@@ -268,10 +268,6 @@
             (nlg ?static-or-kinetic NIL) (nlg ?body1) 
 	    (nlg ?body2 'at-time ?time))) 
 
-(def-qexp std-constant (std-constant ?quant)
-  :units ?quant
-  :english ("~A (the value used in Andes)" (nlg ?quant 'indef-np)))
-
 ;; see constants.cl, function enter-predefs
 (def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
   :symbol-base |g|     
@@ -537,6 +533,11 @@
   :Doc "An implicit equation entry."
   :English ("the implicit equation ~a for: ~a"
 	     ?Equation (nlg ?quantity 'def-np)))
+
+(def-eqn-entryprop std-constant (std-constant ?quant)
+  :helpform (std-constant ?quant)
+  :Doc "A standard constant like g or Pr0"
+  :English ("the value for ~A used in Andes" (nlg ?quant 'def-np)))
 
 ;;========================================================
 ;; goal proposition forms
