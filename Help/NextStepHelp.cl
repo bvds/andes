@@ -4195,13 +4195,6 @@
 ;; use of some of the same information about solutions and doneness.
 ;;
 
-(defun missing-std-constant (problem)
-  (let ((std-eqnode (find '(std-constant . ?rest) 
-			  (bubblegraph-enodes (problem-graph problem))
-			  :key #'enode-id :test #'unify)))
-    (when (and std-eqnode (nsh-principle-uncompleted-p std-eqnode)) 
-      std-eqnode)))
-
 (defun problem-has-answer-vars ()
   (some #'qnode-answer-varp (bubblegraph-qnodes (problem-graph *cp*))))
 
@@ -4212,10 +4205,7 @@
      ((setq eqnode (find-if-not #'nsh-principle-completed-p *nsh-givens*))
       (format NIL "Unable to solve for ~a.  One thing you probably need is an equation specifying the given value of ~a."
 	      var (var-or-quant (nsh-given-node-quant eqnode))))
-     
-     ((setq eqnode (missing-std-constant *cp*))
-      (format NIL "Unable to solve for ~a.  You might need ~A; select 'Constants used in Andes' on the Help menu." var (nlg (enode-id eqnode) 'def-np)))
-     
+          
      ;; missing vector projection -- hard to detect! In most problems these are 
      ;; not at the bubblegraph level but subsidiary equations inside nodes. 
      ;; So have to choose solution and get all its equations to find this 
