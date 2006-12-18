@@ -4195,55 +4195,67 @@
 ;; use of some of the same information about solutions and doneness.
 ;;
 
+(defun missing-std-constant (problem)
+  (find '(std-constant . ?rest)
+	;; get list of uncompleded eqnodes
+	(remove-if #'nsh-principle-completed-p 
+		   (bubblegraph-enodes (problem-graph problem)))
+	:key #'enode-id :test #'unify))
+
 (defun problem-has-answer-vars ()
   (some #'qnode-answer-varp (bubblegraph-qnodes (problem-graph *cp*))))
 
 (defun get-failure-to-solve-hint (var)
-  (let (eqnode)
-    (cond 
-     ;; missing given
-     ((setq eqnode (find-if-not #'nsh-principle-completed-p *nsh-givens*))
-      (format NIL "Unable to solve for ~a.  One thing you probably need is an equation specifying the given value of ~a."
-	      var (var-or-quant (nsh-given-node-quant eqnode))))
-          
-     ;; missing vector projection -- hard to detect! In most problems these are 
-     ;; not at the bubblegraph level but subsidiary equations inside nodes. 
-     ;; So have to choose solution and get all its equations to find this 
-     ;; (and make sure solution we look at is compatible with students choice of 
-     ;; axis, if they have one!)
-     ;; Also: probably don't want to suggest this if they haven't yet drawn 
-     ;; vector and defined axes, and maybe also if they haven't entered any 
-     ;; component equation using the vector yet.
-     
-     ;; missing both sin theta and cos theta expressions when solving for an angle
-     ;; not done, but don't have any special case message.
-     ;; NB: we could be undone because some diagram drawing step is not done 
-     ;; (e.g. zero accel in a statics problem)
-     ;; even though all equations have been entered. Especially unclear if we 
-     ;; want to do this in answer-var problem.
-     ;; Maybe really want a predicate like all-equations-done. Still, this 
-     ;; does indicate that nsh will give a step.
-     ((not (nsh-done?))
+ (let (eqnode)
+ (cond 
+  ;; missing given
+  ((setq eqnode (find-if-not #'nsh-principle-completed-p *nsh-givens*))
+       (format NIL "Unable to solve for ~a.  One thing you probably need is an equation specifying the given value of ~a."
+		 var (var-or-quant (nsh-given-node-quant eqnode))))
+
+  ((setq eqnode (missing-std-constant *cp*))
+   (format NIL "Unable to solve for ~a.  You may be missing a value for ~A." 
+	   ;; pick out the quantity itself for the hint
+	   var (nlg (second (enode-id eqnode)) 'def-np)))
+  
+  ;; missing vector projection -- hard to detect! In most problems these are 
+  ;; not at the bubblegraph level but subsidiary equations inside nodes. 
+  ;; So have to choose solution and get all its equations to find this 
+  ;; (and make sure solution we look at is compatible with students choice of 
+  ;; axis, if they have one!)
+  ;; Also: probably don't want to suggest this if they haven't yet drawn 
+  ;; vector and defined axes, and maybe also if they haven't entered any 
+  ;; component equation using the vector yet.
+
+  ;; missing both sin theta and cos theta expressions when solving for an angle
+  ;; not done, but don't have any special case message.
+  ;; NB: we could be undone because some diagram drawing step is not done 
+  ;; (e.g. zero accel in a statics problem)
+  ;; even though all equations have been entered. Especially unclear if we 
+  ;; want to do this in answer-var problem.
+  ;; Maybe really want a predicate like all-equations-done. Still, this 
+  ;; does indicate that nsh will give a step.
+  ((not (nsh-done?))
       (format NIL "Unable to solve for ~A. Try the light-bulb if you need a hint about a step that still needs to be done." var))
-     
-     ;; reach here => have done everything 
-     
-     ;; answer-var problem -- problem seeks partly or wholly symbolic answer, so 
-     ;; students must do algebra themselves.  
-     ;; We could give this on any use of the solve tool on such a problem, 
-     ;; but instead only give it when done so students still get helpful prompts 
-     ;; about what they're missing if they try earlier. [appropriate?]
-     ((problem-has-answer-vars) 
-      (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers.  Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
-     
-     ;; advise of special tricks for these
-     ((member 'elastic-collision-help (problem-features *cp*)) 
-      (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the {\\l discussion of elastic collisions in one dimension}{\\v 1D_elastic_collision.html} for further help." var))
-     
-     (T ; done and not an answer-var problem
-      (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form.  Try entering algebraic combinations to isolate a calculable expression for ~a yourself.  Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.  If not, you will just have to finish the problem on your own."  var var))
-     
-     )))
+
+  ;; reach here => have done everything 
+
+  ;; answer-var problem -- problem seeks partly or wholly symbolic answer, so 
+  ;; students must do algebra themselves.  
+  ;; We could give this on any use of the solve tool on such a problem, 
+  ;; but instead only give it when done so students still get helpful prompts 
+  ;; about what they're missing if they try earlier. [appropriate?]
+  ((problem-has-answer-vars) 
+    (format NIL "Although you seem to have entered enough equations, the Andes solver can only be used to calculate purely numerical answers.  Because this problem seeks an answer in terms of one or more variables, you must do the necessary algebra to obtain an answer expression yourself.")) 
+  
+  ;; advise of special tricks for these
+  ((member 'elastic-collision-help (problem-features *cp*)) 
+     (format NIL "Although you seem to have entered enough equations, the Andes solver is unable to solve them for ~A in their current form.  See the {\\l discussion of elastic collisions in one dimension}{\\v 1D_elastic_collision.html} for further help." var))
+
+  (T ; done and not an answer-var problem
+       (format NIL "Although you seem to have enough equations, the Andes solver is unable to solve them for ~a in their current form.  Try entering algebraic combinations to isolate a calculable expression for ~a yourself.  Combining equations and plugging in numbers for variables, solving for intermediate unknowns if needed, might get you closer to a form that Andes can solve.  If not, you will just have to finish the problem on your own."  var var))
+         
+ )))
 
 
 
