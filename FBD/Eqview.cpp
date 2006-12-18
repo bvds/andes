@@ -500,6 +500,8 @@ void CEQView::CheckEquation(UINT idEq)
 	// Else check equation by calling help server
 	if (theApp.m_nFeedback == FEEDBACK_WAIT) // Synchronous communication
 	{
+		// Hide eqn review sheet on equation submission
+		theApp.GetMainFrame()->HideEqnReview();
 		LPCTSTR pszResult = HelpSystemExecf("(lookup-eqn-string \"%s\" %d)", LISPSTR(strEq), nEq);
 		
 		// set status for coloring

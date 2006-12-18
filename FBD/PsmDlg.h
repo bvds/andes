@@ -27,6 +27,11 @@ public:
 	
 	CPsmDlg(CWnd* pParent = NULL);   // standard constructor
 
+	// Custom window creation func for modeless dialogs of this class.
+	BOOL Create(CWnd* pParent = NULL) {
+		return CDialog::Create(CPsmDlg::IDD, pParent);
+	}
+
 	static void LoadPsmInfo(LPCSTR pszPathName);
 	static void AddInfo(CString strType, CString strText, CString strHelpID, CString strName, int nLine);
 	static void InitPsmInfo();
@@ -67,6 +72,7 @@ protected:
 	afx_msg void OnDblclkPsmTree(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnItemexpandedPsmTree(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

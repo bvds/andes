@@ -2550,6 +2550,8 @@ PRIVATE const EvInfo g_evmap [] =
 	"Help-Cmd",		EVH_APP,	EV_HELP_LINK,
 	"Textbook",		EVH_APP,	EV_SHOW_TEXTBOOK,
 	"Comment",		EVH_APP,	EV_COMMENT,
+	"Help-Review-Eqn",   EVH_APP,    EV_HELP_REVIEW_EQN,
+	"Hide-Review-Eqn",     EVH_APP,    EV_HIDE_REVIEW_EQN,
 	// Common to both hint panes:
 	"Hint-Hide",	EVH_APP,	EV_HINT_HIDE,
 
@@ -3134,6 +3136,12 @@ BOOL CAppEventHandler::DispatchEvent(EventID nEvent, LPCTSTR pszArgs)
 		break;
 	case EV_HELP_LINK:	// unused; for helpsys extensibility of link mechanism
 		theApp.GetMainFrame()->DoHelpRequest(pszArgs);
+		break;
+	case EV_HELP_REVIEW_EQN:
+		theApp.GetMainFrame()->SendMessage(WM_COMMAND, ID_PHYS_REVIEW_EQN);
+		break;
+	case EV_HIDE_REVIEW_EQN:
+		theApp.GetMainFrame()->HideEqnReview();
 		break;
 
 	case EV_COMMENT: {		// show comment recorded

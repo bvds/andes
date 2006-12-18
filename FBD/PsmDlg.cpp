@@ -23,9 +23,10 @@ CPsmDlg::CPsmDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CPsmDlg)
 	//}}AFX_DATA_INIT
 	m_nSelected = -1;
-	// default is show all equations and select
+	// default is for modeless equation review: show all equations, not for selection.
+	// must alter one of these before using modally to select.
 	m_bPrinciples = FALSE;
-	m_bSelect = TRUE;
+	m_bSelect = FALSE;
 }
 
 
@@ -49,6 +50,7 @@ BEGIN_MESSAGE_MAP(CPsmDlg, CLogDialog)
 	ON_NOTIFY(NM_DBLCLK, IDC_PSM_TREE, OnDblclkPsmTree)
 	ON_NOTIFY(TVN_ITEMEXPANDED, IDC_PSM_TREE, OnItemexpandedPsmTree)
 	ON_WM_SIZE()
+	ON_WM_SHOWWINDOW()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -926,3 +928,15 @@ void CPsmDlg::OnSize(UINT nType, int cx, int cy)
 
 
 
+
+void CPsmDlg::OnShowWindow(BOOL bShow, UINT nStatus) 
+{
+	CLogDialog::OnShowWindow(bShow, nStatus);
+	
+	// In modeless dialog, log hiding of window
+	if (! m_bSelect) // now only true for modeless use
+	{ 
+		if (! bShow)
+			LogEventf(EV_HIDE_REVIEW_EQN, "");
+	}
+}

@@ -1,6 +1,6 @@
 // MainFrm.h : interface of the CMainFrame class
 // 
-// $Id: Mainfrm.h,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: Mainfrm.h,v 1.3 2006/12/18 20:12:19 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 #ifndef MAINFRAME_INCLUDED
 #define MAINFRAME_INCLUDED 1
@@ -9,6 +9,7 @@
 #include "BrowsDlg.h"	// for CBrowserDlg
 #include "PtrDlg.h"		// for CPtrDlg::PtrDir
 #include "SymbolMenu.h"	// for CSymbolMenu
+#include "PsmDlg.h"		// for CPsmDlg
 
 class CPlayDlg;			// forward declaration for pointer classes
 class CDemoDlg;	
@@ -100,9 +101,13 @@ protected:
 /*	CHintDlg*	m_pHintWnd;			// popup hint window */
 	CBrowserDlg   m_dlgTextbook;	// html textbook viewer
 	CSymbolMenu m_dlgSymbolMenu;	// modeless dlg with menu of greek symbols
+	CPsmDlg     m_dlgEqnReview;		// "cheat sheet" of physics equations
 public:
 	BOOL GreekMenuIsVisible() { return m_dlgSymbolMenu.IsWindowVisible(); }
 	void HideGreekMenu() { m_dlgSymbolMenu.ShowWindow(SW_HIDE); }
+
+	void HideEqnReview() 
+	{ if (::IsWindow(m_dlgEqnReview.m_hWnd)) m_dlgEqnReview.ShowWindow(SW_HIDE); }
 
 protected:
 	// status bar clock:

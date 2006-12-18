@@ -286,6 +286,8 @@ enum EventID
 	EV_HELP_EXPLAIN,
 	EV_HELP_WHY,
 	EV_HELP_LINK,		// non-standard help-command hyperlink in hint
+	EV_HELP_REVIEW_EQN,	// show eqn review cheat sheet
+	EV_HIDE_REVIEW_EQN,	// something hid modeless eqn review sheet
 
 	// Hint pane commands
 	EV_HINT_HIDE,

@@ -1,6 +1,6 @@
 // MainFrm.cpp : implementation of the CMainFrame class
 //
-// $Id: Mainfrm.cpp,v 1.3 2006/07/27 23:04:06 anders Exp $
+// $Id: Mainfrm.cpp,v 1.4 2006/12/18 20:12:19 anders Exp $
     
 #include "stdafx.h"
 #include "dde.h"			// for OnDdeCommand override 
@@ -1132,14 +1132,21 @@ void CMainFrame::DoHelpRequest(LPCTSTR pszHelpCmd)
 //
 void CMainFrame::OnPhysReviewEqn() 
 {
-	// Goto Winhelp page.
-	//AfxGetApp()->WinHelp((ID_PHYS_REVIEW_EQN + 0x00010000), HELP_CONTEXT);
-	// Now show in our minilesson viewer.
-	// theApp.ShowLesson("Principles.html");
-	// now run the psm dialog, and let them use the Help command
+#if 0
 	CChatView* pChatView = theApp.GetChatView();
 	if (pChatView)
 		pChatView->GetEquation(/*bSubmit*/ FALSE);
+#endif 0
+
+	// Log the user command
+	LogEventf(EV_HELP_REVIEW_EQN, "");
+
+	// create modeless dialog if not already created
+	if (!::IsWindow(m_dlgEqnReview.m_hWnd)) {
+		m_dlgEqnReview.Create(this);
+	}
+	// show it as needed
+	m_dlgEqnReview.ShowWindow(SW_SHOWNORMAL);
 }
 
 // Review physics equation enabled by same function:

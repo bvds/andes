@@ -1240,6 +1240,7 @@ void CChatView::GetQuantityType()
 	mnuVar.AttachProblemMenu(theApp.GetDocument()->m_wConcept, TRUE);
 
 	// Run popup menu with flag to return selected ID, not send WM_COMMAND.	
+	theApp.GetMainFrame()->HideEqnReview();  // hide modeless cheat sheet before menu
 	CPoint point = GetMenuPos();
 	int nResult = mnuVar.TrackPopupMenu(TPM_RETURNCMD | TPM_NONOTIFY| TPM_LEFTALIGN | 
 		                                TPM_LEFTBUTTON | TPM_RIGHTBUTTON, 
@@ -1320,9 +1321,12 @@ static CPsmDlg psmDlg;
 // Collect a principle definition and submit to help system as student response
 void CChatView::GetPrinciple()
 {
+
 	LPCTSTR pszResult;
 	psmDlg.m_bPrinciples = TRUE;
 	psmDlg.m_bSelect = TRUE;
+	// Hide any modeless instance before opening modal one
+	theApp.GetMainFrame()->HideEqnReview();
 	if (psmDlg.DoModal() != IDOK) {
 		AddText(m_strPrompt + "[Cancelled]\r\n");
 		pszResult = HelpSystemExecf("(handle-student-response Cancel)");
@@ -1341,6 +1345,8 @@ void CChatView::GetEquation(BOOL bSubmit /*=TRUE*/)
 {
 	psmDlg.m_bPrinciples = FALSE;
 	psmDlg.m_bSelect = bSubmit;
+	// Hide any modeless instance before opening modal one
+	theApp.GetMainFrame()->HideEqnReview();
 	int nResult = psmDlg.DoModal();
 	// if not submitting choice, don't do anything more
 	if (! bSubmit) return;
