@@ -3670,7 +3670,7 @@
   (loop for v in vectors collect
 	(quant-to-sysvar `(compo ,xyz ,rot ,v))))
 
-;;; (ref eq-Pitt A10 47-02) Students often try to write Newton's first
+;;; (ref eq-Pitt A10 47-02) Students often try to write Newton's
 ;;; law as <sum of left forces> = <sum of right forces>, where the
 ;;; left and right forces point in different directions along some
 ;;; axis.  Their equation works if the forces are all parallel and one
@@ -3698,7 +3698,7 @@
     (make-hint-seq
      (list
       ;; teach NLF-as-2-force-sums
-      (strcat "You seem to be applying Newton's first law here with an "
+      (strcat "You seem to be applying Newton's second law here with an "
 	      "equation of the form <leftward-forces>=<rightward-forces>, "
 	      "where <leftward-forces> is the sum of forces going one directon "
 	      "(e.g., leftward) and <rightward-forces> is the sum of forces "
@@ -3707,7 +3707,7 @@
 	      "forces being parallel.  You shouldn't use it at all.  You should "
 	      "use the general version of the law, which has the form <all-forces>=0,"
 	      "where <all-forces> is the sum of ALL the force COMPONENTS.")
-      (format nil (strcat "As an example of the <all-forces>=0 form of Newton's first "
+      (format nil (strcat "As an example of the <all-forces>=0 form of Newton's second "
 			  "law, instead of your equation, you could write ~a, where the "
 			  "s subscript stands for either the x or y component of the "
 			  "force in some coordinate system.  There may be other errors "
@@ -3748,7 +3748,7 @@
 
 (defun vectors-to-NFL (vectors time)
   "Given a list of vector descriptions, returns an string showing an equation in the 
-   student's variables that looks like Newton's first law along the s axis."
+   student's variables that looks like Newton's second law along the s axis."
   (loop for v in vectors 
       with result = "=0"
       do (setq result (concatenate 'string

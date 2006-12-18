@@ -42,7 +42,7 @@ LEAF	F12_y = - F21_y    Newton's Third Law (components)	(ntl-vector ((?axis . y)
 LEAF	Fg = G*m1*m2/r^2    universal gravitation	ug	Universal Gravitation
 END_GROUP	Translational		
 GROUP	Rotational		
-LEAF	0 = $t1_z + $t2_z + ...    rotational form of Newtons 1st law	nfl-rot	Newton's Law for rotation
+LEAF	0 = $t1_z + $t2_z + ...    rotational form of Newtons 2nd law ($a =0)	nfl-rot	Newton's Law for rotation
 LEAF	$tnet_z = I*$a_z    rotational form of Newton's 2nd Law	nsl-rot	Newton's Law for rotation
 LEAF	$t = r*F*sin($q)    torque defined (magnitude)	mag-torque	Individual torque magnitude
 LEAF	$t_x = r_y*F_z - r_z*F_y    torque defined (x component)	(torque ((?xyz . x)))	Individual torque magnitude
@@ -140,7 +140,7 @@ LEAF	B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)    Biot-Savert law for a point c
 LEAF	B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2)    Biot-Savert law for a point charge (y component)	(biot-savert-point-particle ((?axis . y)))	
 LEAF	B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)    Biot-Savert law for a point charge (z component)	(biot-savert-point-particle ((?axis . z)))	
 LEAF	B = $m0*I/(2*$p*r)    magnetic field of a straight wire	straight-wire-bfield	
-LEAF	B = $m0*N*I/(2*r)    magnetic field at center of a coil	center-coil-bfield	
+LEAF	B = $m0*N*I/(2*r)    magnetic field at center of a thin coil	center-coil-bfield	
 LEAF	B = $m0*n*I    magnetic field inside a long solenoid	inside-solenoid-bfield	
 LEAF	Bnet_x = B1_x + B2_x + ...    net magnetic field (x component)	(net-field-magnetic ((?axis . x)))	
 LEAF	Bnet_y = B1_y + B2_y + ...    net magnetic field (y component)	(net-field-magnetic ((?axis . y)))	

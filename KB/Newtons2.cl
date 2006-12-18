@@ -2869,7 +2869,7 @@
     (given (dir (accel ?b :time ?t)) ?accel-dir))
    :hint
     ((point (string "The force(s) acting on ~A ~A point(s) in the direction ~A." ?b (?t pp) (?accel-dir adj)))
-    (teach (string "Newton's second law F=ma relates the net force and acceleration vectors.  If you know the direction of the net force, then you can find the direction of the acceleration.")) 
+    (teach (string "Newton's Second Law F=ma relates the net force and acceleration vectors.  If you know the direction of the net force, then you can find the direction of the acceleration.")) 
     (bottom-out (string "Draw the acceleration of ~a ~a at an angle of ~a." 
                       ?b (?t pp) (?accel-dir adj)))
     ))
@@ -5857,7 +5857,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; an NL equation and writing the NL in component form.  An operator
 ;;; defined earlier draws the fbd.  These operators just select a
 ;;; component equation.  There are just two to select from: Newton's
-;;; first and second law.  This operator selects NFL.
+;;; second law for zero (NFL) and nonzero (NSL) acceleration.  
   
 (defoperator NFL-zero-accel (?quantity)
   :specifications "
@@ -5996,11 +5996,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t)))
     (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
-   ((point (string "Because the acceleration of ~a is zero ~a, you can apply Newton's first law to it." ?b (?t pp)))
+   ((point (string "You can apply Newton's second law to ~A.  Note that ~A is not accelerating ~A." 
+		   ?b ?b (?t pp)))
     (teach (string 
-    "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. In this case the acceleration is zero so you know the sum of all forces on the object must be zero. This vector principle can be applied component-wise to require that the force components in any direction sum to zero."
+    "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  In this case the acceleration is zero so you know the sum of all forces on the object must be zero.  This vector principle can be applied component-wise to require that the force components in any direction sum to zero."
     ))
-    (bottom-out (string "Because ~a is not accelerating ~a, write Newton's first law as ~A" ?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
+    (bottom-out (string "Because ~a is not accelerating ~a, write Newton's Second Law as ~A" 
+			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
 
 
 ;;; This operator writes Newton's second law in component form.  It
@@ -6045,9 +6047,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (assume using-NSL forces ?b ?t)
     )
   :hint
-   ((point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law to it." (?b def-np) (?t pp)))
-    (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
-    (bottom-out (string "Write Newton's Second Law in terms of component variables along the ~A axis as ~A" ((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?ma-term) algebra)))
+   ((point (string "You can apply Newton's second law to ~A.  Note that ~A is accelerating ~A." 
+		   ?b ?b (?t pp)))
+    (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
+    (bottom-out (string "Write Newton's Second Law in terms of component variables along the ~A axis as ~A" 
+			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?ma-term) algebra)))
     ))
 
 ;;; 
@@ -9566,7 +9570,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint (
 	 (point (string "Can you relate the z components of the net ~A and angular acceleration?"
 			(nil moment-name)))
-	 (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration. This vector relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
+	 (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
 			(nil moment-name) (nil moment-name)))
 	 (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
 			     ((= ?tau_z (* ?I ?alpha_z)) algebra)))
@@ -9628,7 +9632,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :hint (
 	  (point (string "Can you relate the z components of the net ~A and angular acceleration?"
 			  (nil moment-name)))
-	  (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration. This vector relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
+	  (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
 			 (nil moment-name) (nil moment-name)))
     (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))

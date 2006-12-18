@@ -534,11 +534,6 @@
   :English ("the implicit equation ~a for: ~a"
 	     ?Equation (nlg ?quantity 'def-np)))
 
-(def-eqn-entryprop std-constant (std-constant ?quant)
-  :helpform (std-constant ?quant)
-  :Doc "A standard constant like g or Pr0"
-  :English ("the value for ~A used in Andes" (nlg ?quant 'def-np)))
-
 ;;========================================================
 ;; goal proposition forms
 ;;
@@ -1015,15 +1010,6 @@
      :EqnFormat ("F1_~a + F2_~a + ... = m*a_~a" 
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
-;; following more specific choices no longer offered to students:
-(def-psmclass NFL (?eq-type NFL ?axis ?rot (NL ?body ?time)) 
-     :group NL
-     :complexity major
-     :doc "Newton's Second Law when accel is zero"
-     :english ("Newton's first law")
-     :ExpFormat ("applying Newton's First Law to ~a"
-		 (nlg ?body 'at-time ?time)))
-
 (def-psmclass NSL-net (?eq-type NSL-net ?axis ?rot (NL ?body ?time))
      :group NL
      :complexity major
@@ -1468,9 +1454,9 @@
 
 (def-psmclass NFL-rot (?eq-type z 0 (NFL-rot ?body ?pivot ?time))
   :complexity major
-  :short-name "rotational form of Newtons 1st law"
-  :english ("rotational version of Newton's First Law")
-  :expformat ("applying rotational version of Newton's First Law to ~a about ~A"
+  :short-name "rotational form of Newton's 2nd law ($a =0)"
+  :english ("rotational version of Newton's Second Law ($a=0)")
+  :expformat ("applying rotational version of Newton's Second Law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
 			    "0 = $t1_z + $t2_z + ...")))
