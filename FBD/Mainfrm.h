@@ -1,6 +1,6 @@
 // MainFrm.h : interface of the CMainFrame class
 // 
-// $Id: Mainfrm.h,v 1.3 2006/12/18 20:12:19 anders Exp $
+// $Id: Mainfrm.h,v 1.4 2006/12/19 02:01:04 anders Exp $
 /////////////////////////////////////////////////////////////////////////////
 #ifndef MAINFRAME_INCLUDED
 #define MAINFRAME_INCLUDED 1
@@ -101,8 +101,9 @@ protected:
 /*	CHintDlg*	m_pHintWnd;			// popup hint window */
 	CBrowserDlg   m_dlgTextbook;	// html textbook viewer
 	CSymbolMenu m_dlgSymbolMenu;	// modeless dlg with menu of greek symbols
-	CPsmDlg     m_dlgEqnReview;		// "cheat sheet" of physics equations
 public:
+	CPsmDlg     m_dlgEqnReview;		// "cheat sheet" of physics equations
+
 	BOOL GreekMenuIsVisible() { return m_dlgSymbolMenu.IsWindowVisible(); }
 	void HideGreekMenu() { m_dlgSymbolMenu.ShowWindow(SW_HIDE); }
 

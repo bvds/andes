@@ -2721,7 +2721,7 @@ PRIVATE const char* GetEventName(EventID id)
 // map event handler code to actual object, implicitly cast to an IEventHandler*,
 // returns NULL if specified handler not found.
 // !!! Could be made into App-level method
-PRIVATE IEventHandler* GetHandlerObj(HandlerID id)
+PRIVATE IEventHandler* GetHandlerObj(HandlerID id, EventID event)
 {
 	switch (id) 
 	{
@@ -2752,9 +2752,18 @@ PRIVATE IEventHandler* GetHandlerObj(HandlerID id)
 
 	case EVH_DIALOG:
 		if (g_pDlg == NULL) {
+			// if modeless equation dialog is up, see if maybe this is event for it.
+			if (theApp.GetMainFrame() && theApp.GetMainFrame()->m_dlgEqnReview.IsWindowVisible()) 
+			{
+				if (event == EV_PSM_SELECT || event == EV_PSM_EXPAND || 
+					event == EV_DLG_MOVE || event == EV_BTN_CLICK) 
+					return (CLogDialog*) &(theApp.GetMainFrame()->m_dlgEqnReview);
+			}
 			TRACE("No dialog up to playback dlg event -- ignoring\n");
 			return NULL;
 		} 
+		// if it's a browser dialog event, then could ensure it is open here.
+
 		// Make sure dialog is one of ours, since we're downcasting it
 		if (g_pDlg->IsKindOf(RUNTIME_CLASS(CLogDialog)) ) {
 				CString strTitle; 
@@ -2806,7 +2815,7 @@ PRIVATE BOOL PlayEvent(LPCTSTR pszCmd)	// Dispatch event to object that can hand
 		handler = evp->handler;
 	
 	// Fetch object to invoke handler proc
-	IEventHandler* pHandlerObj = GetHandlerObj(handler);
+	IEventHandler* pHandlerObj = GetHandlerObj(handler, evp->id);
 	
 	// and dispatch it:
 	BOOL bSucceeded = TRUE;	// default true ignores errors
