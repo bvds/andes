@@ -2979,10 +2979,11 @@
        (cquant   (sysvar-to-quant cvar)))
   (make-hint-seq
    (list
-    ; include definition in msg, since student might be confused on that. (Easy to do with
-    ; default most-recently drawn body if you intend to draw a vector on another body.)
-    ; would be nice if we could emphasize differing slot(s) in the definition. 
-    (format nil "Did you really mean to use ~a in this equation? ~a is defined as ~a." 
+    ;; include definition in msg, since student might be confused on that. 
+    ;; (Easy to do with default most-recently drawn body if you intend to 
+    ;; draw a vector on another body.)  It would be nice if we could emphasize 
+    ;; differing slot(s) in the definition. 
+    (format nil "Did you really mean to use ~a in this equation?  ~a is defined as ~a." 
                 (nlg svar 'algebra) (nlg svar 'algebra) (nlg squant))
     ; use var-or-quant for cvar since might not be any student var for it yet
     (format nil (strcat "I am not sure this is what you intended, but "
@@ -3670,7 +3671,7 @@
   (loop for v in vectors collect
 	(quant-to-sysvar `(compo ,xyz ,rot ,v))))
 
-;;; (ref eq-Pitt A10 47-02) Students often try to write Newton's
+;;; (ref eq-Pitt A10 47-02) Students sometimes try to write Newton's
 ;;; law as <sum of left forces> = <sum of right forces>, where the
 ;;; left and right forces point in different directions along some
 ;;; axis.  Their equation works if the forces are all parallel and one
@@ -3685,48 +3686,47 @@
 ;;; trigger if necessary.  Moreover, we can't construct a correct
 ;;; version of NFL as a bottom out hint because the student might not have defined
 ;;; variables for all the forces yet or drawn the axes.
-(def-error-class two-force-sums (?Lforces ?Rforces ?time)
+(def-error-class two-force-sums (?Lhs ?Rhs ?ldir ?rdir)
   ((student-eqn (= ?lhs ?rhs))
    (problem (vector ?body (accel ?body :time ?time) zero)) ; NFL applies
    (bind ?Lforces (forces-in-sum ?lhs ?body ?time))
-   (test (not (null ?Lforces)))
+   (test ?Lforces)
    (bind ?Rforces (forces-in-sum ?rhs ?body ?time))
-   (test (not (null ?Rforces)))
-   (test (opposing-forces ?Lforces ?Rforces ?time)))
+   (test ?Rforces)
+   (bind ?ldir (directed-forces (force-directions ?Lforces)))
+   (test ?ldir)
+   (bind ?rdir (directed-forces (force-directions ?Rforces)))
+   (test ?rdir))
   :utility 200)
-(defun two-force-sums (Lforces Rforces time)
+(defun two-force-sums (lhs rhs ldir rdir)
     (make-hint-seq
      (list
       ;; teach NLF-as-2-force-sums
-      (strcat "You seem to be applying Newton's second law here with an "
-	      "equation of the form <leftward-forces>=<rightward-forces>, "
-	      "where <leftward-forces> is the sum of forces going one directon "
-	      "(e.g., leftward) and <rightward-forces> is the sum of forces "
-	      "going the opposite direction (e.g., rightward).  That way of "
-	      "writing the law only works in special cases, such as all the "
-	      "forces being parallel.  You shouldn't use it at all.  You should "
-	      "use the general version of the law, which has the form <all-forces>=0,"
-	      "where <all-forces> is the sum of ALL the force COMPONENTS.")
-      (format nil (strcat "As an example of the <all-forces>=0 form of Newton's second "
-			  "law, instead of your equation, you could write ~a, where the "
-			  "s subscript stands for either the x or y component of the "
-			  "force in some coordinate system.  There may be other errors "
-			  "in your equation, but this will make it closer to correct.")
-	      (vectors-to-NFL (union Lforces Rforces :test #'equal) time)))))
+      (format nil 
+	      (strcat "You have written an equation of the form "
+		      "<~Award forces>=<~Award forces>.  This is not "
+		      "a good strategy for applying Newton's Second Law.  "
+		      "When the acceleration is zero, you should always write "
+		      "Newton's Second Law in the form <all-forces>=0.") 
+	      ldir rdir)
+      (format nil (strcat "You can rewrite your equation as ~a=0.  There may "
+			  "be other errors in your equation, but this form will be "
+			  "an improvement.")
+	      (nlg (cons '+ (append (if (and (consp lhs) (eq (first lhs) '+)) 
+				      (cdr lhs) (list lhs)) 
+				    (if (and (consp rhs) (eq (first rhs) '+)) 
+					(cdr rhs) (list rhs)))) 'algebra)))))
 
-(defun opposing-forces (Lforces Rforces time)
-  "t if there is a direction such that all the Lforces are greater than it and all the Rforces are less than it, modulo 360."
-  (let ((Ldirs (force-directions Lforces time))
-	(Rdirs (force-directions Rforces time)))
-    (and Ldirs
-	 Rdirs
-	 (loop for x from 0 to 179 as y from 180 thereis
-	      (or (and (all-between x Ldirs y)
-		       (all-between y Rdirs x))
-		  (and (all-between x Rdirs y)
-		       (all-between y Ldirs x)))))))
+(defun directed-forces (dirs)
+  "Are all the forces pointing in the same direction?"
+  (cond ((null dirs) nil)
+	((every #'(lambda (x) (< 90 x 270)) dirs) '|left|)
+	((every #'(lambda (x) (or (< x 90) (< 270 x))) dirs) '|right|)
+	((every #'(lambda (x) (< 0 x 180)) dirs) '|up|)
+	((every #'(lambda (x) (< 180 x 360)) dirs) '|down|)
+	(t nil)))
 
-(defun force-directions (forces time)
+(defun force-directions (forces)
   "Given a list of force descriptions, returns their directions (numbers between 0 and 360).  
    If any force lacks a numerical direction, return nil"
   (loop for f in forces with b with dir
@@ -3734,30 +3734,8 @@
 	 (when (null b) (return nil))
 	 (setq dir (cdr (get-binding '?dir b)))
 	 (when (not (degree-specifierp dir)) (return nil))
-     collect (second dir)))
+     collect (mod (second dir) 360)))
 	       
-  
-
-(defun all-between (low dirs high)
-  "True if all the directions are between the low and high values, mod 360"
-  (if (< low high)
-      (loop for d in dirs always (< low d high))
-    (loop for d in dirs always
-	  (or (< low d 360)
-	      (< 0 d high)))))
-
-(defun vectors-to-NFL (vectors time)
-  "Given a list of vector descriptions, returns an string showing an equation in the 
-   student's variables that looks like Newton's second law along the s axis."
-  (loop for v in vectors 
-      with result = "=0"
-      do (setq result (concatenate 'string
-			"+"
-			(nlg (quant-to-sysvar `(mag ,v)) 'algebra)
-			"_s"
-			result))
-     finally (return (subseq result 1))))
-
 
 ;======================Assignment statements ===========================
 
