@@ -19,8 +19,8 @@
 (def-psmclass coulomb (coulomb ?body ?agent ?time)
   :complexity major 
   :short-name "Coulomb's law (magnitude)"
-  :english ("Coulomb's Law")
-  :expformat ("applying Coulombs's Law for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
+  :english ("Coulomb's law")
+  :expformat ("applying Coulombs's law for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
   :EqnFormat ("F = kelec*abs(q1*q2)/r^2"))
 
 
@@ -59,7 +59,7 @@
     (assume using-magnitude (coulomb-vec ?b1 ?b2 ?t nil))
     )
   :hint (
-	 (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
+	 (teach (string "Coulombs's law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
 	 (bottom-out (string "Write the equation ~A" 
 			     ((= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) 
 				 (^ ?r 2))) algebra))
@@ -131,7 +131,7 @@
 		       (coulomb-vec ?b1 ?b2 ?t ?form)))
    )
   :hint (
-     (teach (string "Coulombs's Law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
+     (teach (string "Coulombs's law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
 			 ((= ?F_xy (* (/ (* |kelec| ?q1 ?q2) (^ ?r 2)) 
 				      ?rhat-compo)) algebra)))
@@ -144,7 +144,7 @@
 ;;; in component form. We also have scalar variants for magnitude only.
 ;;;
 ;;; point-charge-Efield: E-field at a distance r from a single point charge 
-;;; derived from definition + Coulomb's Law:  E = k*q/r^2.  We have a vector
+;;; derived from definition + Coulomb's law:  E = k*q/r^2.  We have a vector
 ;;; form for components in terms of thetar, as well as a magnitude only 
 ;;; scalar form.
 ;;;
@@ -399,7 +399,7 @@
 ;;
 ;; !!! TODO -- should factor out proposition that electric force exists that 
 ;; fires without drawing vector, as we do for other forces in Newton's 
-;; Law problems.  (See force-finding rules in Newtons2.cl for examples). 
+;; law problems.  (See force-finding rules in Newtons2.cl for examples). 
 ;; This won't matter until we have mechanics problems with electric forces
 ;; and have to reason about all forces in the problem (e.g. whether they are 
 ;; all conservative) without drawing vectors.
@@ -2388,7 +2388,7 @@
       (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savert law."))
       ;; This should be replaced by a tutorial.  It is rather cumbersome
       ;; to explain in word form.
-      (teach (string "Look up the Biot-Savert Law in your textbook."))
+      (teach (string "Look up the Biot-Savert law in your textbook."))
       (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Thus, the cross product is in the direction ~A.  Since the charge is ~A, the resulting magnetic field is in the ~A direction.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the direction, ~A." 
            (?dir-v adj) ?loc (?dir-r adj) (?cross-dir adj) (?pos-neg adj)
 	   (?same-or-opposite adj) ?loc ?b (?dir-B adj)))
@@ -2413,7 +2413,7 @@
       (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savert law."))
       ;; This should be replaced by a tutorial.  It is rather cumbersome
       ;; to explain in word form.
-      (teach (string "Look up the Biot-Savert Law in your textbook."))
+      (teach (string "Look up the Biot-Savert law in your textbook."))
       (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Since these two vectors point in the same (or opposite) direction, the cross product is zero.  Use the magnetic field drawing tool (labeled B) to draw a zero magnetic field at ~a due to ~a." 
            (?dir-v adj) ?loc (?dir-r adj) ?loc ?b))
   ))
@@ -2718,7 +2718,7 @@
 ;;
 ;; This isn't written as a vector psm because it's not clear it can fit into 
 ;; our general vector PSM framework: it's not a linear vector equation like 
-;; Newton's Law that resolves into three identical component equations; 
+;; Newton's law that resolves into three identical component equations; 
 ;; rather there are three different component equations.  Also,it relates 
 ;; components in 3 different directions, so can't directly use the idea of 
 ;; applying it along a given direction, and the test for non-zero-projection 

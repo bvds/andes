@@ -838,8 +838,8 @@ impulse ~A." (?b def-np) (?t pp)))
 (def-psmclass NTL-impulse (NTL-impulse (?Object0 ?Object1) ?time)
   :complexity major
   :short-name "Newton's third law (magnitude)"
-  :english ("Newton's Third Law applied to impulse")
-  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a"
+  :english ("Newton's third law applied to impulse")
+  :ExpFormat ("applying Newton's third law to impulse between ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12 = J21"))
 
@@ -848,8 +848,8 @@ impulse ~A." (?b def-np) (?t pp)))
 					    (?Object0 ?Object1) ?time))
   :complexity major
   :short-name ("Newton's third law (~A component)" (axis-name ?axis))
-  :english ("Newton's Third Law applied to impulse")
-  :ExpFormat ("applying Newton's Third Law to impulse between ~a and ~a"
+  :english ("Newton's third law applied to impulse")
+  :ExpFormat ("applying Newton's third law to impulse between ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("J12_~a = -J21_~a" (axis-name ?axis) (axis-name ?axis)))
 
@@ -877,8 +877,8 @@ impulse ~A." (?b def-np) (?t pp)))
    (assume using-magnitude (NTL-impulse-vector (?b2 ?b1) ?t)) ;max xor compos
   )
   :hint
-  ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
-  (teach (string "Newton's Third Law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A.  The same is true for impulse.  You can use that to equate the magnitudes of this pair of impulses."))
+  ((point (string "What does Newton's third law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
+  (teach (string "Newton's third law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A.  The same is true for impulse.  You can use that to equate the magnitudes of this pair of impulses."))
    (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
   ))
 
@@ -932,8 +932,8 @@ impulse ~A." (?b def-np) (?t pp)))
    )
    :hint (
      ;; !!! TODO
-     (point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?J12_xy algebra) (?J21_xy algebra)))
-    (teach (string "Newton's Third Law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction.  The same must be true for impulse.  This entails that the components of each impulse vector are the negations of the corresponding components of the other: J12_x = -J21_x and J12_y = -J21_y."))
+     (point (string "What does Newton's third law tell you about the relation of ~A and ~A" (?J12_xy algebra) (?J21_xy algebra)))
+    (teach (string "Newton's third law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction.  The same must be true for impulse.  This entails that the components of each impulse vector are the negations of the corresponding components of the other: J12_x = -J21_x and J12_y = -J21_y."))
      (bottom-out (string "Write the equation ~A" 
                          ((= ?J12_xy (- ?J21_xy)) algebra)))
    ))

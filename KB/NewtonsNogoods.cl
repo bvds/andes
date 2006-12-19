@@ -143,7 +143,7 @@
     ((using-NSL ?type1 ?b ?t)
      (using-NSL ?type2 ?b ?t)
      (test (not (eq ?type1 ?type2))))
-  :specs ("Prevent combining different ways of writing Newton's second Law")
+  :specs ("Prevent combining different ways of writing Newton's second law")
   :message (Redundant NSL forms for ?b at ?t))
 
 
@@ -154,7 +154,7 @@
 (defnogood only-one-form-of-NTL
     ((using-NTL ?bodies ?type ?t)
      (using-NTL-impulse ?bodies ?t))
-  :specs ("Prevent combining different ways of writing Newton's third Law -- net force and impulse form -- on two bodies at a time")
+  :specs ("Prevent combining different ways of writing Newton's third law -- net force and impulse form -- on two bodies at a time")
   :message (Redundant NTL forms for ?bodies at ?t))
 
 ;;;

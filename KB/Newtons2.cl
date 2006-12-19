@@ -1117,7 +1117,7 @@
 ;; first, so this info can be put in the givens; and second, so that it can
 ;; be used to mark cases where the substitution of equal quantities may be 
 ;; made by the student in the head. In cases where the equality is based on a 
-;; fundamental principle like Newton's Third Law we label it as such and
+;; fundamental principle like Newton's third law we label it as such and
 ;; do not use the (equals ...) proposition.
 ;; Although most hints for equations are hung off the operator whose
 ;; effects include (eqn...), in this case, the hints are hung off the operator
@@ -2869,7 +2869,7 @@
     (given (dir (accel ?b :time ?t)) ?accel-dir))
    :hint
     ((point (string "The force(s) acting on ~A ~A point(s) in the direction ~A." ?b (?t pp) (?accel-dir adj)))
-    (teach (string "Newton's Second Law F=ma relates the net force and acceleration vectors.  If you know the direction of the net force, then you can find the direction of the acceleration.")) 
+    (teach (string "Newton's second law F=ma relates the net force and acceleration vectors.  If you know the direction of the net force, then you can find the direction of the acceleration.")) 
     (bottom-out (string "Draw the acceleration of ~a ~a at an angle of ~a." 
                       ?b (?t pp) (?accel-dir adj)))
     ))
@@ -3934,11 +3934,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; operators, because that is where we will have to give help if the 
 ;;; student fails to draw a needed force. 
 ;;; The 'action or 'reaction tag is for heuristic purposes: 'reaction forces
-;;; are those the explanation of which should appeal to Newton's Third Law.
+;;; are those the explanation of which should appeal to Newton's third law.
 ;;; We have a single rule that derives the existence of a "reaction" force 
 ;;; from any "action" force, so this tag also limits the search to find action
 ;;; forces and so prevents looping which caused problems with other ways of
-;;; writing Newton's Third Law.
+;;; writing Newton's third law.
 ;;; Forces on a compound body are also derived from these basic forces on
 ;;; the simple bodies without having to draw the basic forces.
 
@@ -4445,10 +4445,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;; Spring force
 ;;
-;; Spring forces by Hooke's Law not fully implemented in Andes (no deep
+;; Spring forces by Hooke's law not fully implemented in Andes (no deep
 ;; reason for this). We currently only use springs in energy problems.
 ;; We need to know that a spring force exists so that we can include it
-;; in the net work done on an object. Can add Hooke's Law problems later
+;; in the net work done on an object. Can add Hooke's law problems later
 ;;
 ;; spring-contact statement includes direction of the force. Note we may
 ;; include this statement even for times at which compression is zero,
@@ -4488,7 +4488,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 			(?force-dir adj)))
     ))
 
-;;; UG -- Newton's Law of Universal Gravitation
+;;; UG -- Newton's law of Universal Gravitation
 ;;;
 ;;; We use "near-planet" statements when problem takes place within a region 
 ;;; near the surface of a planet throughout which gravitational force can be 
@@ -4554,7 +4554,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ;; G is predefined, see file constants.cl
   ( (eqn (= ?F (/ (* |G| ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t rel-pos)) )
   :hint (
-     (teach (string "Newton's Law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
+     (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
                           ((= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) algebra)))
   ))
@@ -4600,7 +4600,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
       (eqn (= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) (ug ?b1 ?b2 ?t radius))
   )
   :hint (
-     (teach (string "Newton's Law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
+     (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies is equal to the gravitational constant G times the masses of the bodies divided by the square of the distance between the bodies."))
      (bottom-out (string "Write the equation ~A" 
                           ((= ?F (/ (* G ?m1 ?m2) (^ ?r 2))) algebra)))
   ))
@@ -4620,7 +4620,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; to report the existence of a force without drawing it. Because the
 ;; force-inferring rule for gravity is symmetrical, we don't declare either
 ;; force the "action" force for an action-reaction pair, but just put NIL
-;; in that slot in the force proposition. Thus Newton's Third Law will never
+;; in that slot in the force proposition. Thus Newton's third law will never
 ;; be cited in inferring the existence of a gravitational force. 
 
 (defoperator find-grav-force (?b1 ?b2 ?t)
@@ -4864,7 +4864,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; A conceptually purer alternative would be to make all our force-inferring 
 ;;; rules symmetrical, so an interaction statement would directly entail 
 ;;; *both* forces in the action-reaction pair.  The asymmetrical method used 
-;;; here implicates Newton's Third Law in one direction only.  This seems to 
+;;; here implicates Newton's third law in one direction only.  This seems to 
 ;;; correspond more to the reasoning we want to tutor on the forces: If a 
 ;;; table supports a block, we probably want a different hint or dialog for 
 ;;; the Normal force the table exerts on the block than for the Normal force 
@@ -4872,7 +4872,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;
 ;;; Another way to achieve this heuristic goal would be to write a pair of 
 ;;; rules for each force, one for each direction, but the current method is 
-;;; more economical in treating Newton's Third Law with a single rule.
+;;; more economical in treating Newton's third law with a single rule.
 ;;;
 ;;; A question is whether the "action" force ought to be drawn before 
 ;;; drawing the "reaction" force. If we are analyzing the forces on block1 
@@ -4885,7 +4885,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; table. The table exerts a normal force on the lower block and also on
 ;;; the compound. Therefore two reaction forces will be found on the table:
 ;;; one from the lower block and one from the table.  If we were interested in
-;;; all forces on the table for applying Newton's Law, this would give us 
+;;; all forces on the table for applying Newton's law, this would give us 
 ;;; the wrong set of forces on the table -- we don't want to count both 
 ;;; the force from the compound and the one from its part.  This will have to 
 ;;; be fixed, but for now we just don't apply NTL to compound bodies.  
@@ -4945,7 +4945,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (point (string "Notice that ~a and ~a are exerting forces on each other." ?b1 ?b2))
     (teach 
         (kcd "third_law_PSM")
-        (string "Newton's Third Law states that forces always come in pairs: whenever one body exerts a force on a second body, the second body exerts a force of the same type back on the first body. The members of these action/reaction pairs are equal in magnitude and opposite in direction"))
+        (string "Newton's third law states that forces always come in pairs: whenever one body exerts a force on a second body, the second body exerts a force of the same type back on the first body. The members of these action/reaction pairs are equal in magnitude and opposite in direction"))
     (bottom-out (string "Because there is a ~A force on ~A due to ~a, draw the reaction force, namely, a ~A force on ~A due to ~A at ~A" 
 			(?type adjective) (?b1 agent) ?b2 (?type adjective) 
 			?b2 (?b1 agent) (?dir adj)))
@@ -5379,7 +5379,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;;; The "num-forces" scalar equation exists to put out an equation answering 
 ;;; the question "how many forces on ?b at ?t". This will likely be one part of
-;;; a larger Newton's Law problem though it could be asked all alone.
+;;; a larger Newton's law problem though it could be asked all alone.
 
 (defoperator num-forces-contains (?b ?t)
   :preconditions ()
@@ -5407,7 +5407,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; The following draws a standard free-body-diagram, for qualititative 
 ;;; problems that ask for fbd's only.  This shows a body and all forces on it.
 ;;; It differs from the "NL" vector diagram preparatory to applying 
-;;; Newton's Laws in that NL diagram also includes acceleration and axes.
+;;; Newton's laws in that NL diagram also includes acceleration and axes.
 ;;; we make axes optional here.
 (defoperator draw-standard-fbd (?b ?t)
    :preconditions 
@@ -5611,8 +5611,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (def-PSMclass spring-law (spring-law ?body ?time)
   :complexity minor
   :short-name "Hooke's law"
-  :english ("Hooke's Law")
-  :expformat ("applying Hooke's Law to ~a " (nlg ?body))
+  :english ("Hooke's law")
+  :expformat ("applying Hooke's law to ~a " (nlg ?body))
   :EqnFormat ("F = k*d" ))
 
 (defoperator spring-law-contains (?quantity)
@@ -5916,7 +5916,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;;
 ;;; Also, to handle cases where a problem describes an acceleration 
 ;;; but does not determine the forces causing it, we test for the
-;;; statement "unknown-forces" to block the attempt to apply Newton's Law.
+;;; statement "unknown-forces" to block the attempt to apply Newton's law.
 ;;;
 ;;; Time may be an interval or an instant. In case of interval, we
 ;;; make sure endpoints are consecutive, to avoid applying this accross
@@ -5947,7 +5947,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (or (null ?t) (time-pointp ?t) (time-consecutivep ?t)))
    ;; Force from expanding spring will be variable.  NSL would still apply 
    ;; over interval for average spring force, though we have no way to 
-   ;; compute that if it isn't given. For now we just rule out Newton's Law 
+   ;; compute that if it isn't given. For now we just rule out Newton's law 
    ;; if there's any spring contact during time of application.  This would 
    ;; have to change if we wanted to handle spring forces at an instant as 
    ;; for objects in static equilibrium.
@@ -6001,7 +6001,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (teach (string 
     "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  In this case the acceleration is zero so you know the sum of all forces on the object must be zero.  This vector principle can be applied component-wise to require that the force components in any direction sum to zero."
     ))
-    (bottom-out (string "Because ~a is not accelerating ~a, write Newton's Second Law as ~A" 
+    (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
 			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
 
 
@@ -6050,7 +6050,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is accelerating ~A." 
 		   ?b ?b (?t pp)))
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
-    (bottom-out (string "Write Newton's Second Law in terms of component variables along the ~A axis as ~A" 
+    (bottom-out (string "Write Newton's second law in terms of component variables along the ~A axis as ~A" 
 			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?ma-term) algebra)))
     ))
 
@@ -6081,9 +6081,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (assume using-NSL net ?b ?t)
   )
   :hint (
-    (point (string "Because the acceleration of ~a is non-zero ~a, you can apply Newton's Second law." (?b def-np) (?t pp)))
+    (point (string "You can apply Newton's second law to ~A.  Note that the acceleration of ~a is non-zero ~A." 
+		   ?b ?b (?t pp)))
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. This can be applied component-wise to relate the net force in any direction to the mass times the component of acceleration in that direction."))
-    (bottom-out (string "Write Newton's Second Law along the ~a axis in terms of component variables, namely, ~a" ((axis ?xyz ?rot) symbols-label) ((= ?fnet-compo-var ?ma-term) algebra)))
+    (bottom-out (string "Write Newton's second law along the ~a axis in terms of component variables, namely, ~a" 
+			((axis ?xyz ?rot) symbols-label) 
+			((= ?fnet-compo-var ?ma-term) algebra)))
    )
 )
 
@@ -6126,11 +6129,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (assume using-magnitude (NTL-vector (?b2 ?b1) ?type ?t)) ;mag xor compos
    )
   :hint
-  ((point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?mag1-var algebra) (?mag2-var algebra)))
+  ((point (string "What does Newton's third law tell you about the relation of ~A and ~A" 
+		  (?mag1-var algebra) (?mag2-var algebra)))
    (teach 
       (kcd "third_law_PSM")
-      (string "Newton's Third Law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A. You can use that to equate the magnitudes of this pair of forces."))
-   (bottom-out (string "Write the equation ~A" ((= ?mag1-var ?mag2-var) algebra)))
+      (string "Newton's third law states that forces come in pairs: whenever A exerts a force of some type on B, B exerts a force of equal magnitude and opposite direction on A. You can use that to equate the magnitudes of this pair of forces."))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?mag1-var ?mag2-var) algebra)))
   ))
 
 
@@ -6185,10 +6190,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
    )
    :hint (
      ;; !!! TODO
-     (point (string "What does Newton's Third Law tell you about the relation of ~A and ~A" (?F12_xy algebra) (?F21_xy algebra)))
+     (point (string "What does Newton's third law tell you about the relation of ~A and ~A" (?F12_xy algebra) (?F21_xy algebra)))
    (teach 
     (kcd "third_law_PSM")
-    (string "Newton's Third Law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction. This entails that the components of each force vector are the negations of the corresponding components of the other: F12_x = -F21_x and F12_y = -F21_y."))
+    (string "Newton's third law states that the members of an action/reaction pair of forces are equal in magnitude and opposite in direction. This entails that the components of each force vector are the negations of the corresponding components of the other: F12_x = -F21_x and F12_y = -F21_y."))
      (bottom-out (string "Write the equation ~A" 
                          ((= ?F12_xy (- ?F21_xy)) algebra)))
    ))
@@ -7503,7 +7508,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; we could find the force magnitude.
 ;;
 ;; Either way the net work PSM requires drawing a free body diagram showing 
-;; all the forces on an object as for Newton's Law problems (but w/o accel).
+;; all the forces on an object as for Newton's law problems (but w/o accel).
 ;; Forces orthogonal to the displacement contribute nothing to 
 ;; the net work done so could in principle be left out of the computation 
 ;; entirely. For now we leave the forces in the diagram to teach the general 
@@ -7581,7 +7586,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; work-energy PSM -- net-work = change in kinetic energy
 ;;;
 ;;; In almost all Andes problems where net work can be computed the forces are
-;;; constant so an equivalent solution using Newton's Law + constant 
+;;; constant so an equivalent solution using Newton's law + constant 
 ;;; acceleration kinematics can also be found.  This principle will also 
 ;;; apply in cases where conservation of mechanical energy can be used, 
 ;;; although it is intended for use with a non-conservative force.
@@ -9174,7 +9179,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :hint 
    (
     (point (string "You should be able to determine the direction of the angular acceleration of ~a ~a from the problem description.  You can use that to determine the direction of the net ~A." ?b (?t pp) (nil moment-name)))
-    (teach (string "Newton's Second Law for rotation says that the net ~A on an object is proportional to its angular acceleration.  This is a vector relation, therefore the net ~A will point in the same direction as the angular acceleration vector." 
+    (teach (string "Newton's second law for rotation says that the net ~A on an object is proportional to its angular acceleration.  This is a vector relation, therefore the net ~A will point in the same direction as the angular acceleration vector." 
 		   (nil moment-name) (nil moment-name)))
     (bottom-out (string "Since the angular acceleration is known to be directed ~A, use the ~A vector drawing tool (labelled ~A) to draw the net ~A on ~a about ~a ~A and set the direction to point ~A" 
 			(?dir adj) (nil moment-name) (nil moment-symbol)
@@ -9570,9 +9575,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint (
 	 (point (string "Can you relate the z components of the net ~A and angular acceleration?"
 			(nil moment-name)))
-	 (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
+	 (teach (string "Just as Newton's second law says that Fnet = m*a, Newton's law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
 			(nil moment-name) (nil moment-name)))
-	 (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
+	 (bottom-out (string "Write Newton's law for rotation in terms of component variables along the z axis, namely ~A." 
 			     ((= ?tau_z (* ?I ?alpha_z)) algebra)))
 	 ))
 |#
@@ -9632,8 +9637,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    :hint (
 	  (point (string "Can you relate the z components of the net ~A and angular acceleration?"
 			  (nil moment-name)))
-	  (teach (string "Just as Newton's Second Law says that Fnet = m*a, Newton's Law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
+	  (teach (string "Just as Newton's second law says that Fnet = m*a, Newton's law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
 			 (nil moment-name) (nil moment-name)))
-    (bottom-out (string "Write Newton's Law for rotation in terms of component variables along the z axis, namely ~A." 
+    (bottom-out (string "Write Newton's law for rotation in terms of component variables along the z axis, namely ~A." 
                         ((= ?tau_z (* ?I ?alpha_z)) algebra)))
    ))

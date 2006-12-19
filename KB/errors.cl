@@ -3705,9 +3705,9 @@
       (format nil 
 	      (strcat "You have written an equation of the form "
 		      "<~Award forces>=<~Award forces>.  This is not "
-		      "a good strategy for applying Newton's Second Law.  "
+		      "a good strategy for applying Newton's second law.  "
 		      "When the acceleration is zero, you should always write "
-		      "Newton's Second Law in the form <all-forces>=0.") 
+		      "Newton's second law in the form <all-forces>=0.") 
 	      ldir rdir)
       (format nil (strcat "You can rewrite your equation as ~a=0.  There may "
 			  "be other errors in your equation, but this form will be "

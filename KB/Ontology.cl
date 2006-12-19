@@ -112,7 +112,6 @@
 ;;;;  Hints generally are evaluated using andes-eval, which can handle
 ;;;;  ordinary functions but not special forms.
 
-(defparameter **engineering** nil)
 (defun torque-switch (x y)
   ;; will need another mechanism to construct principles.tsv
   ;; for an engineering course
@@ -121,6 +120,7 @@
   (torque-switch "M" "$t"))
 (defun moment-name (&optional junk) ;optional arg for use with nlg
   (torque-switch "moment" "torque"))
+
 
 ;;;             Quantity Terms:
 
@@ -612,7 +612,7 @@
               (nlg ?body) (nlg ?time 'pp)))
 
 (def-goalprop nl-fbd (vector-diagram ?rot (nl ?body ?time))
-  :doc "free-body-diagram for applying Newton's Law"
+  :doc "free-body-diagram for applying Newton's law"
   :english ("drawing a free-body diagram for ~A ~A"
             (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
 
@@ -637,7 +637,7 @@
 	     (moment-name) (nlg ?b) (nlg ?time 'pp)))
 
 (def-goalprop NSL-rot-fbd  (vector-diagram ?rot (NSL-rot ?b ?axis ?t))
-  :doc "diagram for applying the rotational version of Newton's Second Law"
+  :doc "diagram for applying the rotational version of Newton's second law"
   :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
 	    (moment-name) (nlg ?b) (nlg ?t 'pp))) 
 
@@ -1002,10 +1002,10 @@
 (def-psmclass NSL (?eq-type ?compo-eqn-id ?axis ?rot (NL ?body ?time)) 
      :group NL
      :complexity major
-     :doc "Newton's Second Law when accel is non-zero"
-  :short-name "Newton's Second Law"
-     :english ("Newton's Second Law")
-     :ExpFormat ("applying Newton's Second Law to ~a"
+     :doc "Newton's second law when accel is non-zero"
+  :short-name "Newton's second law"
+     :english ("Newton's second law")
+     :ExpFormat ("applying Newton's second law to ~a"
 		 (nlg ?body 'at-time ?time))
      :EqnFormat ("F1_~a + F2_~a + ... = m*a_~a" 
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
@@ -1013,8 +1013,8 @@
 (def-psmclass NSL-net (?eq-type NSL-net ?axis ?rot (NL ?body ?time))
      :group NL
      :complexity major
-     :english ("Newton's Second law, net force version")
-     :ExpFormat ("applying Newton's Second Law for net forces to ~a"
+     :english ("Newton's second law, net force version")
+     :ExpFormat ("applying Newton's second law for net forces to ~a"
 		 (nlg ?body 'at-time ?time)))
 
 (def-psmclass net-force (?eq-type definition ?axis ?rot (net-force ?body ?t))
@@ -1031,17 +1031,17 @@
 ;;; draw I use the ?Object variables.  ?Body variables imply drawn bodies.
 (def-psmclass NTL (NTL (?Object0 ?Object1) ?force-type ?time)
   :complexity major
-  :short-name "Newton's Third Law (magnitudes)"
-  :english ("Newton's Third Law")
-  :ExpFormat ("applying Newton's Third Law to ~a and ~a"
+  :short-name "Newton's Third law (magnitudes)"
+  :english ("Newton's Third law")
+  :ExpFormat ("applying Newton's Third law to ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("Fof1on2 = Fof2on1"))
 
 (def-psmclass NTL-vector (?eq-type NTL ?axis ?rot (NTL-vector (?Object0 ?Object1) ?force-type ?time))
   :complexity major
-  :short-name "Newton's Third Law (components)"
-  :english ("Newton's Third Law")
-  :ExpFormat ("applying Newton's Third Law to ~a and ~a"
+  :short-name "Newton's Third law (components)"
+  :english ("Newton's Third law")
+  :ExpFormat ("applying Newton's Third law to ~a and ~a"
 	      (nlg ?Object0) (nlg ?Object1 'at-time ?time))
   :EqnFormat ("F12_~a = - F21_~a" (axis-name ?axis) (axis-name ?axis)))
 
@@ -1050,13 +1050,13 @@
   :complexity minor
   :short-name "weight law"
   :english ("Weight law")
-  :ExpFormat ("applying the Weight Law on ~a" (nlg ?body))
+  :ExpFormat ("applying the Weight law on ~a" (nlg ?body))
   :EqnFormat ("Fw = m*g"))
 
 (def-psmclass kinetic-friction (kinetic-friction ?body ?surface ?time)
   :complexity simple
   :short-name "kinetic friction"
-  :english ("Kinetic Friction Law")
+  :english ("Kinetic Friction law")
   :ExpFormat ("applying the Kinetic friction law for ~a and ~a"
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
   :EqnFormat ("Ff = $mk*Fn"))
@@ -1082,8 +1082,8 @@
 (def-psmclass ug (ug ?body ?agent ?time ?distance-quant)
   :complexity major 
   :short-name "universal gravitation"
-  :english ("Newton's Law of Universal Gravitation")
-  :expformat ("applying Newton's Law of Universal Gravitation for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
+  :english ("Newton's law of Universal Gravitation")
+  :expformat ("applying Newton's law of Universal Gravitation for the force on ~a due to ~a" (nlg ?body) (nlg ?agent))
   :EqnFormat ("Fg = G*m1*m2/r^2"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1455,8 +1455,8 @@
 (def-psmclass NFL-rot (?eq-type z 0 (NFL-rot ?body ?pivot ?time))
   :complexity major
   :short-name "rotational form of Newton's 2nd law ($a =0)"
-  :english ("rotational version of Newton's Second Law ($a=0)")
-  :expformat ("applying rotational version of Newton's Second Law to ~a about ~A"
+  :english ("rotational version of Newton's second law ($a=0)")
+  :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
 			    "0 = $t1_z + $t2_z + ...")))
@@ -1464,9 +1464,9 @@
 
 (def-psmclass NSL-rot (?eq-type z 0 (NSL-rot ?body ?pivot ?time))
   :complexity major
-  :short-name "rotational form of Newton's 2nd Law"
-  :english ("rotational version of Newton's Second Law")
-  :expformat ("applying rotational version of Newton's Second Law to ~a about ~A"
+  :short-name "rotational form of Newton's 2nd law"
+  :english ("rotational version of Newton's second law")
+  :expformat ("applying rotational version of Newton's second law to ~a about ~A"
 	      (nlg ?body) (nlg ?pivot 'at-time ?time))
   :eqnFormat ((torque-switch "Mnet_z = I*$a_z" "$tnet_z = I*$a_z" )))
 
@@ -1492,7 +1492,7 @@
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
  *required-identities* 
- '( NTL					;Newton's Third Law
+ '( NTL					;Newton's Third law
    total-energy-cons 			;conservation of energy (top-level subeqn)
    projection    			;projection psm
    charge-same-caps-in-branch		;want students to show they know this
