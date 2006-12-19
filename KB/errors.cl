@@ -2387,27 +2387,25 @@
 ;;; The default cases are handled by the general vector code, so this
 ;;; is all special cases.
 
-;;; When the problem doesn't either give or seek a net force for a
-;;; certain body and time, Andes will not use net force in its
-;;; solution.  This is a pretty common error.
-(def-error-class net-force-not-used (?sbody ?stime)
+;;; Handle case where student defines net-force in a problem that uses
+;;; only explicit forces.
+(def-error-class net-force-not-used (?sbody)
   ((student (vector (net-force ?sbody :time ?stime) ?sdir))
-   (problem (any-forces ?sbody ?stime ?set)))
-  :utility 100
-  :probability 0.5)
+   (no-correct (vector (net-force ?sbody . ?rest) ?cdir))
+   (correct (vector (force ?sbody . ?rest) ?ccdir)))
+  :utility 10
+  :probability 0.1)
 
-(defun net-force-not-used (body time)
+(defun net-force-not-used (body)
   (make-hint-seq
    (list 
-    (strcat "If a problem can be solved by drawing only forces, and a net "
-	    "force is neither sought nor given, then it is better not to "
-	    "draw a net force because it can be easily confused with an "
-	    "individual force.")
-    (strcat "Unless a problem specifically seeks the net force or gives "
-	    "a value for the net force, you shouldn't bother to draw one.")
-    (format nil (strcat "Delete this net force and instead draw all the "
-			"individual forces acting on ~a ~a.") 
-	    (nlg body 'def-np) (nlg time 'pp)))))
+    (format nil (strcat "Although you can always define a net force vector, "
+			"this problem can be solved without defining the "
+			"net force acting on ~A.")
+	    (nlg body 'def-np))
+    (format nil (strcat "Delete the net force vector and instead draw all the "
+			"individual forces acting on ~a.") 
+	    (nlg body 'def-np)))))
 
 
 ;;; If the student draws a zero net force when the real net force is
@@ -3950,15 +3948,6 @@
 "true if solver reports equation as inaccurate."
   (eq (solver-equation-redp eqn) 'inaccurate))
  
-;;
-;; !!! Need different case for constants, most importantly value of g.
-;; Also have two cases: "close" value, or way-off value.
-;;
-
-(defun sysvar-g-p (sysvar)
-"true if system variable stands for g on earth"
-   (equal (sysvar-to-quant sysvar) '(gravitational-acceleration earth)))
-
 (def-error-class imprecise-value-non-given (?var ?wrongval)
  ( (student-eqn (= ?var ?wrongval)) ; so far matches any eqn entry
    (test (assignmentp ?var ?wrongval))
@@ -3991,9 +3980,10 @@
    (test (not (sysvar-parameter-p ?var)))
    ; make sure it's not close:
    (test (not (inaccuratep `(= ,?var ,?wrongval))))
-   ; our advice to use the symbol throughout is a little odd for problem soughts
-   ; since they do have to enter an equation for the answer somewhere. Could check:
-   ; (test (not (problem-sought-var-p ?var)))
+   ;; our advice to use the symbol throughout is a little odd for problem
+   ;; soughts since they do have to enter an equation for the answer somewhere.
+   ;; Could check:
+   ;; (test (not (problem-sought-var-p ?var)))
    ))
 
 (defun wrong-value-non-given (var wrongval) 
@@ -4002,13 +3992,8 @@
         (quant   (sysvar-to-quant var)))
   (make-hint-seq
    (list 
-        (format nil "~A is not the correct value for ~A, ~A.  It will usually be easier to leave the symbol ~A in your solution equations and let Andes do all calculations. Use the 'Solve For' command to compute the final answer when you have entered enough equations to determine it." studval studvar (nlg quant) studvar) 
+        (format nil "~A is not the correct value for ~A, ~A.  It will usually be easier to leave the symbol ~A in your solution equations and let Andes do all calculations.  Use the 'Solve For' command to compute the final answer when you have entered enough equations to determine it." studval studvar (nlg quant) studvar) 
    ))))
-
-
-;; when wrong value matches given value of similar var (e.g different time)
-;; var assigned to may be either given or non-given, doesn't matter.
-
 
 
 ;;; ========================== Answer box entries ===========================
