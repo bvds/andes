@@ -1541,7 +1541,7 @@
    (list (strcat "Both the time specification and the direction of "
 		 "that vector look odd to me.")
 	 (format nil (strcat "None of the solutions that I know of "
-			     "contain a vector for the ~a at that "
+			     "contain a vector for ~a at that "
 			     "time or in that direction.") (nlg descr))
 	 (strcat "If you are unsure of what to do you can call "
 		 "Next-Step-Help and it will guide you in "
