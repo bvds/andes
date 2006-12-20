@@ -272,6 +272,7 @@
    (dolist (P (choose-working-probs topics))
     (handler-case 
          (read-problem-info (string (problem-name p)))
+	  (check-entry-opvars)
       (error (E) 
 	     (format T "~&!!! Error loading ~A: ~A~%" (Problem-name P) E)
 	     ; save it for report at end
@@ -280,3 +281,18 @@
   (format T "~&Failures: ~{~W ~}~%" (mapcar #'first Errs))
   (format T "Errors:~%")
   (pprint Errs)))
+
+(defun check-entry-opvars ()
+"check all entry operators for variable list mismatch"
+  ; for each solution entry in current problem 
+  (dolist (sysent *sg-entries*)  ; NB: requires sg-setup done by read-problem-info
+   ; check that its opinst's variable value-list is congruent with kb operator list
+   (let* ((step (first (systemEntry-sources sysent))) ; csdo struct for the DO stmt
+          (vals (csdo-varvals step))		      ; value list in psm graph (i.e. prb file)
+	  (op   (get-operator-by-tag (csdo-op step))) ; operator obj in current kb
+	  (opvars (operator-variables op))	      ; variable list in current kb
+	  errlist)
+      (when (not (= (length vals) (length opvars)))
+	(format NIL "Operator variables don't match operator values: ~a~%    May need to regenerate problem file.~%    operator-variables:  ~A~%    values:  ~A~%" 
+		(operator-name op) opvars vals)))))
+   
