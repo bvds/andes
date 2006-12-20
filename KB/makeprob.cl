@@ -271,8 +271,8 @@
  (let (Errs)
    (dolist (P (choose-working-probs topics))
     (handler-case 
-         (read-problem-info (string (problem-name p)))
-	  (check-entry-opvars)
+     (progn (read-problem-info (string (problem-name p)))
+	    (check-entry-opvars))
       (error (E) 
 	     (format T "~&!!! Error loading ~A: ~A~%" (Problem-name P) E)
 	     ; save it for report at end
@@ -292,7 +292,9 @@
 	  (op   (get-operator-by-tag (csdo-op step))) ; operator obj in current kb
 	  (opvars (operator-variables op))	      ; variable list in current kb
 	  errlist)
-      (when (not (= (length vals) (length opvars)))
-	(format NIL "Operator variables don't match operator values: ~a~%    May need to regenerate problem file.~%    operator-variables:  ~A~%    values:  ~A~%" 
+;;     (format t "op ~A vals (~A) opvars (~A)~%   ~A~%" (operator-name op) 
+;;            (length vals) (length opvars) (mapcar #'cons vals opvars))
+      (unless (= (length vals) (length opvars))
+	(error "Operator variables don't match operator values: ~a~%    May need to regenerate problem file.~%    operator-variables:  ~A~%    values:  ~A~%" 
 		(operator-name op) opvars vals)))))
    
