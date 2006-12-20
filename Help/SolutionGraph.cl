@@ -825,6 +825,12 @@
   "See if x and y match with given bindings, treating dnum special."
   (unify x y bindings #'dimensioned-numberp #'compare-dnums))
 
+;; helper to find entry for a given vector quantity
+;; Depends on structure of vector entry proposition
+(defun sg-find-vector-entry (vector-quant)
+ (find `(vector ,vector-quant ?dont-care) *sg-entries* 
+        :test #'unify :key #'systemEntry-prop))
+
 
 ;;-------------------------------------------------------------
 ;; given a canonical equation number match it with a system

@@ -2572,11 +2572,11 @@
 	    (moment-name) (set-difference missing-torques undrawn-torques 
 		      :test #'equal)))
 	  ((null (cdr undrawn-torques))	; only one undrawn force to hint
-	   (hint-undrawn-torque 
-	    "There is a ~A acting on ~a ~a that you have not yet drawn."
+	   (hint-undrawn-vector 
+	    (strcat "There is a " (moment-name) " acting on ~a ~a that you have not yet drawn.")
 	    (car undrawn-torques)))
-	  (t (hint-undrawn-torque	; Hint all of the undrawn ones.
-	      "Two or more ~As acting on ~a ~a have not yet been drawn."
+	  (t (hint-undrawn-vector	; Hint all of the undrawn ones.
+	      (strcat "Two or more " (moment-name) "s acting on ~a ~a have not yet been drawn.")
 	      (car undrawn-torques))))))
 	   
 ;;; Given a set of torque vectors such as 
@@ -2588,7 +2588,7 @@
   (loop for v in torques
       with at
       do (setq at (match-exp->qvar `(mag ,v) (problem-varindex *cp*)))
-      (format t "!!! torques-non-zero ~a ~A~%" at (qvar-value at))
+      ;(format t "!!! torques-non-zero ~a ~A~%" at (qvar-value at))
       unless (or (null at) 
 		 (null (qvar-value at))
 		 (= 0 (qvar-value at)))
@@ -3463,6 +3463,8 @@
 (defun missing-forces-in-y-axis-sum (missing-forces)
   (missing-forces-in-sum missing-forces))
 
+
+
 ;;; If there are missing forces in a sum then there are three possible 
 ;;; situations firstly the student has failed to draw all of the necessary 
 ;;; forces.  In that case they will be hinted to draw them.  Else, if they 
@@ -3476,10 +3478,10 @@
 	    "force" (set-difference missing-forces undrawn-forces 
 		     :test #'equal)))
 	  ((null (cdr undrawn-forces)) ; only one undrawn force to hint
-	   (hint-undrawn-force 
+	   (hint-undrawn-vector
 	    "There is a force acting on ~a ~a that you have not yet drawn."
 	    (car undrawn-forces)))
-	  (t (hint-undrawn-force 
+	  (t (hint-undrawn-vector
 	      "Two or more forces acting on ~a ~a have not yet been drawn."
 	      (car undrawn-forces))))))
 
@@ -3506,73 +3508,16 @@
 	   (format nil "You left several ~As out: ~a"
 		   quant (nlg forces 'conjoined-defnp))))))
 
-(defun hint-undrawn-force (msg force)
-  "Return a hint sequence for a force that has not yet been drawn by
+(defun hint-undrawn-vector (msg vector-quant)
+  "Return a hint sequence for a vector that has not yet been drawn by
     the student.  Msg is a format string with two ~a in it for the
-    body and time.  It indicates whether one or mulple forces are
+    body and time.  It indicates whether one or mulple vectors are
     missing from the diagram."
-  (let ((type (fourth force))
-	(body (second force))
-	(agent (third force))
-	(time (time-of force)))
+  (let ((body (second vector-quant))
+	(time (time-of vector-quant)))
     (make-hint-seq
-     (cons (format nil msg
-		   (nlg body 'def-np)
-		   (nlg  time 'pp))
-	   (hint-sequence-from-op-ap
-	    (case type		  ;create an operator application to pass in
-	      (applied (list 'draw-applied-force body agent time))
-	      (kinetic-friction (list 'draw-kinetic-friction body agent time))
-	      (static-friction (list 'draw-static-friction body agent time))
-	      (normal (list 'draw-normal body agent time))
-	      (spring (list 'draw-spring-force body agent time))
-	      (tension (list 'draw-tension body agent time))
-	      (weight (list 'draw-weight body time agent))))))))
-
-(defun hint-undrawn-torque (msg torque)
-  "Return a hint sequence for a torque that has not yet been drawn by
-   the student.  Msg is a format string with three ~a in it for the
-   moment name, the body, and the time.  It indicates whether one or mulple
-  forces are missing from the diagram."
-  (let ((force (third torque))
-	(body (second torque))
-	(time (time-of torque))
-	(axis (axis-of torque)))
-    (make-hint-seq
-     (cons (format nil msg
-		   (moment-name)
-		   (nlg body 'def-np)
-		   (nlg  time 'pp))
-	   (hint-sequence-from-op-ap
-	    (list 'draw-torque body axis 
-		  (second force) (third force) (fourth force) 
-		  time))))))
-
-;;; If NIL is passed in, then the force type was unknown and its an
-;;; error. Stubbed out.
-(defun hint-sequence-from-op-ap (op-ap)
-  "Given an operator application, return the hint sequence associated
-   with it via the operators :hint field."
-  (get-op-hints (get-operator-by-tag op-ap)
-		(csdo-varvals (Find-cog-step-for-op-ap op-ap))))
-
-(defun find-cog-step-for-op-ap (op-ap)
-  "Returns a DO cognitive step whose op ap equals the given one, 
-   or NIL if none can be found."
-  (loop for e in (second (problem-graph *cp*)) thereis
-	(find-cog-step-for-op-ap-in-path (enode-path e) op-ap)))
-
-(defun find-cog-step-for-op-ap-in-path (path op-ap)
-  "Given a path, return a DO cognitive step in it whose op applications 
-   equals the given one, or NIL if none can be found."
-  (cond ((null path) NIL)
-	((and (csdo-p (car path))
-	      (equal op-ap (csdo-op (car path))))
-	 (car path))
-	((cschoose-p (car path))
-	 (loop for p in (cdr (car path)) thereis
-	       (find-cog-step-for-op-ap-in-path p op-ap)))
-	(T (find-cog-step-for-op-ap-in-path (cdr path) op-ap))))
+     (cons (format nil msg (nlg body 'def-np) (nlg  time 'pp))
+           (sg-map-systemEntry->hints (sg-find-vector-entry vector-quant))))))
 
 
 #|
