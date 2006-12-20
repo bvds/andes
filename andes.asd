@@ -82,6 +82,7 @@
 				     (:file "circuit-ontology")  
 				     ;; AXES-DRAWNP not defined
 				     (:file "Newtons2")
+				     (:file kinematics)
 				     (:file "vectors")
 				     (:file "NewtonsNogoods")  
 				     (:file "kinematics-problems")
