@@ -1857,7 +1857,8 @@
 	    )
   :hint (
 	 (teach (string "The electric energy stored in the magnetic field of an a inductor can be calculated as one half times the inductance times the square of the current. ")) 
-	 (bottom-out (string "Write the equation ~A" ((= ?U (* 0.5 ?L (^ ?I 2)) algebra)) ))
+	 (bottom-out (string "Write the equation ~A" 
+			     ((= ?U (* 0.5 ?L (^ ?I 2))) algebra)))
 	 ))
 
 ;;

@@ -61,8 +61,8 @@
   :hint (
 	 (teach (string "Coulombs's law states that electrostatic force between two charges is proportional to the charges of the bodies divided by the square of the distance between the bodies."))
 	 (bottom-out (string "Write the equation ~A" 
-			     ((= ?F (/ (* |kelec| (abs ?q1) (abs ?q2))) 
-				 (^ ?r 2))) algebra))
+			     ((= ?F (/ (* |kelec| (abs ?q1) (abs ?q2)) 
+				 (^ ?r 2))) algebra)))
 	 ))
 
 (def-psmclass coulomb-compo (?eqn-type coulomb-force ?axis ?rot 
