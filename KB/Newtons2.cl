@@ -1075,8 +1075,6 @@
    :preconditions ( (foreach ?vector ?vector-list
                          (vector ?b ?vector ?dir)) )
    :effects ( (draw-vectors ?vector-list) ))
-
-
 ;;; =================== Generic: planning only problems =====================
 
 ; For Sandy Katz planning only preparatory problems, the only goal is
@@ -5735,7 +5733,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	        ((mass ?b :time ?t ?t) 
 		 (accel ?b :time ?t)
 		 (force ?b ?agent ?type :time ?t)))
-   (object ?b)
+   (object ?b) ;; sanity check
    (time ?t))
   :effects
    ((eqn-family-contains (NL ?b ?t) ?quantity)))
@@ -5744,53 +5742,27 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator NL-vector-point-contains (?Quantity)
   :preconditions 
   ( (any-member ?quantity
-              ((force ?point ?agent ?type :time ?t)))
+		;; in principle, we could also have net force here?
+		((force ?point ?agent ?type :time ?t)))
     (point-on-body ?point ?b)
     (object ?b) ;sanity check (not really needed)
     (time ?t))
   :effects
    ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
-;;; We have to define a special NL-net variant PSM to use net force rather 
-;;; than sum F1 + F2 ...  for those few problems that work in terms of net 
-;;; force only without determining how net force is decomposed into individual
-;;; forces. Net force is the sought in these; it could be given as well.
-;;; In other problems net force is not introduced. This is not just a
-;;; a specific choice of component equation under the NL method, on par 
-;;; with choice of NFL or NSL, since it also requires a slightly different 
-;;; type of free body diagram. 
-;;;
-;;; Note that as we have it NSL can't find net force and NSL-net can't find
-;;; anything *but* net force, so should be mutually exclusive: 
-;;;      if zero accel => NL/NFL
-;;;      else if not net force => NL/NSL
-;;;      else net force => NL/NSL-net
-;;;
-(defoperator NSL-net-vector-contains (?quantity)
+(defoperator NL-net-vector-contains (?quantity)
   :specifications 
   "Newton's law potentially contains the body's mass, 
      the magnitude of its acceleration, and
      the direction of its acceleration"
   :preconditions 
-  (
-   (any-member ?quantity ((mass ?b :time ?t ?t) 
-			  (accel ?b :time ?t)
-			  (net-force ?b :time ?t)
+  ( (any-member ?quantity ((mass ?b :time ?t ?t) 
+			   (accel ?b :time ?t)
+			   (net-force ?b :time ?t)
 			  ))
-   (object ?b)
-   (time ?t)
-   )
-  :effects 
-  (
-   (eqn-family-contains (NL ?b ?t) ?quantity)
-   ;; since we know which compo-eqn we'll be using, we can 
-   ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (NL ?b ?t) NSL-net ?quantity)
-   ;; Further nl operators, esp diagram drawing, will test the following
-   ;; in wm to tell whether net-force version should be drawn
-   (use-net-force)
-   ))
-
+   (object ?b) ;sanity check
+   (time ?t))
+  :effects ((eqn-family-contains (NL ?b ?t :net t) ?quantity)))
 
 ;; This operator draws a free-body diagram consisting of the forces,
 ;;; acceleration and axes. Unlike draw-fbd-lk (linear kinematics), it
@@ -5819,9 +5791,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then draw a body, draw the forces, the acceleration and the axes,
    in any order."
   :preconditions
-  ((not (vector-diagram ?rot (NL ?b ?t)))
-   (not (use-net-force))
-   (forces ?b ?t ?forces)
+  ((forces ?b ?t ?forces)
    (test ?forces)	;fail if no forces could be found
    (vector ?b (accel ?b :time ?t) ?accel-dir)
    (axes-for ?b ?rot))
@@ -5833,23 +5803,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; 
 ;; Following draws a free-body diagram for the net-force variant of NL
 ;;
-;; In the case of known zero acceleration, we have Fnet=0 from general
-;; vector drawing rules
 (defoperator draw-NL-net-fbd (?rot ?b ?t)
   :specifications 
    "If the goal is to draw a fbd for newton's law in terms of net force,
    then draw a body, draw the acceleration, draw the net force vector and the axes,
    in any order."
   :preconditions
-  ((not (vector-diagram ?rot (NL ?b ?t)))
-   (in-wm (use-net-force))
+  ((test ?netp)
    (body ?b)
    (vector ?b (accel ?b :time ?t) ?accel-dir)
-   (test (not (eq ?accel-dir 'zero))) ;make sure accel is nonzero
    (vector ?b (net-force ?b :time ?t) ?force-dir) 
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram ?rot (NL ?b ?t)))
+   ((vector-diagram ?rot (NL ?b ?t :net ?netp)))
   :hint
    ((bottom-out (string "In order to draw a free-body diagram when working in terms of Net force, draw (1) a body, (2) the acceleration of the body (3) the net force on the body, and (4) coordinate axes."))))
 
@@ -5870,9 +5836,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)
    (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
    (test (tinsidep ?t ?t-accel)))
-  :effects
-   ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
-)
+  :effects ((compo-eqn-contains (NL ?b ?t) NFL ?quantity)))
 
 ;; variation for points on body
 (defoperator NFL-zero-accel-point (?quantity)
@@ -5882,28 +5846,17 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)  ;sanity check (not really needed)
    (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
    (test (tinsidep ?t ?t-accel)))
-  :effects
-   ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
-)
+  :effects ((compo-eqn-contains (NL ?b ?t) NFL ?quantity)))
 
-
-;;; I've never seen a problem where NL is applied to a massless object
-;;; but it could occur, so here is an operator to select NFL for that
-;;; case.
-
-(defoperator NFL-massless (?quantity)
-  :specifications "
-   If a body is massless,
-   Then NFL applies and it potentially contains
-     the magnitude and direction of any force acting on the body"
+(defoperator NFL-net (?quantity)
   :preconditions 
-  ((any-member ?quantity ((force ?b ?agent ?type :time ?t)))
-   (object ?b)
-   (time ?t)
-   (massless ?b))
-  :effects
-   ((compo-eqn-contains (NL ?b ?t) NFL ?quantity))
-)
+  ((test ?netp)
+   (any-member ?quantity ((net-force ?b :time ?t)))
+   (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
+   (test (tinsidep ?t ?t-accel))
+   (object ?b))
+  :effects ((compo-eqn-contains (NL ?b ?t :net ?netp) NFL ?quantity)))
+
 
 ;;; This operator indicates when Newton's second law (NSL) is
 ;;; applicable.  It should be applicable exactly when NFL is not applicable.
@@ -5931,20 +5884,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the mass of the body,
      the magnitude and direction of its acceleration"
   :preconditions 
-  ((any-member ?quantity
-	        ((force ?b ?agent ?type :time ?t)
-		 ;; assume any mass change is subsumed into thrust
-		 (mass ?b :time ?t ?t) 
-		 (accel ?b :time ?t)))
-   (object ?b)
-   (time ?t)
-   (debug "problem~%.")
+  (
    (not (unknown-forces)) ;also checked in draw-forces
    ;; Can't apply over interval if variable forces during interval.
    ;; if time is an interval, make sure endpoints are consecutive,
    ;; else forces might be different between sub-segments
-   ;; In timeless problems, can apply at any instant.
-   (test (or (null ?t) (time-pointp ?t) (time-consecutivep ?t)))
    ;; Force from expanding spring will be variable.  NSL would still apply 
    ;; over interval for average spring force, though we have no way to 
    ;; compute that if it isn't given. For now we just rule out Newton's law 
@@ -5960,8 +5904,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((compo-eqn-contains (NL ?b ?t) NSL ?quantity))
  )
-
-
  
 ;;; This operator writes newton's first law in component form for all
 ;;; forces.  This operator expects to get the body, time, axis label,
@@ -5994,7 +5936,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((eqn (= (+ . ?f-compo-vars) 0)
 	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t)))
-    (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
+    (assume using-NL forces ?b ?t)
+    (implicit-eqn (= ?a-compo 0) 
+		  (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is not accelerating ~A." 
 		   ?b ?b (?t pp)))
@@ -6003,6 +5947,31 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ))
     (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
 			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
+
+
+(defoperator write-NFL-net-compo (?b ?t ?xyz ?rot)
+  :preconditions
+  (
+   (test ?netp)
+   (variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
+   ;; we want Fi = m * a to be accepted if it is written. But also
+   ;; need to write Sum Fi = 0 as final eqn so won't appear to contain m, a
+   ;; so we make sure we have a compo var and put implicit eqn in effects.
+    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
+    )
+  :effects (
+    (eqn (= ?fnet-compo-var 0)
+	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t :net ?test)))
+    (assume using-NL net ?b ?t)
+    (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
+  :hint
+   ((point (string "You can apply Newton's second law to ~A.  Note that ~A is not accelerating ~A." 
+		   ?b ?b (?t pp)))
+    (teach (string 
+    "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  In this case, the acceleration is zero so you know the net force on the object must be zero."
+    ))
+    (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
+			?b (?t pp) ((= ?fnet-compo-var 0) algebra)))))
 
 
 ;;; This operator writes Newton's second law in component form.  It
@@ -6044,7 +6013,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects
    ((eqn (= (+ . ?f-compo-vars) ?ma-term)
 	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t)))
-    (assume using-NSL forces ?b ?t)
+    (assume using-NL forces ?b ?t)
     )
   :hint
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is accelerating ~A." 
@@ -6065,7 +6034,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
       define component variables for the net force and acceleration,
    then write ?fnet_c = ?m * ?ac"
   :preconditions
-  ((variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
+  (
+   (test ?netp)
+   (variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
    (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
    (any-member ?tot (?t nil)) 
@@ -6077,8 +6048,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
     )
   :effects (
     (eqn (= ?fnet-compo-var ?ma-term)
-	 (compo-eqn NSL-net ?xyz ?rot (NL ?b ?t)))
-    (assume using-NSL net ?b ?t)
+	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t :net ?netp)))
+    (assume using-NL net ?b ?t)
   )
   :hint (
     (point (string "You can apply Newton's second law to ~A.  Note that the acceleration of ~a is non-zero ~A." 

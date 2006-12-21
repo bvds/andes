@@ -139,12 +139,12 @@
 ;;;  don't use both net-force and explicit versions of Newton's second law
 ;;;
 
-(defnogood only-one-form-of-NSL
-    ((using-NSL ?type1 ?b ?t)
-     (using-NSL ?type2 ?b ?t)
+(defnogood only-one-form-of-NL
+    ((using-NL ?type1 ?b ?t)
+     (using-NL ?type2 ?b ?t)
      (test (not (eq ?type1 ?type2))))
   :specs ("Prevent combining different ways of writing Newton's second law")
-  :message (Redundant NSL forms for ?b at ?t))
+  :message (Redundant NL forms for ?b at ?t))
 
 
 ;;;
