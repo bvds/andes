@@ -995,11 +995,11 @@
 
 ;; NEWTONS LAW family of equations.
 (def-psmgroup NL
-    :form (?eq-type ?compo-eqn-id ?axis ?rot (NL ?body ?time))
+    :form (?eq-type ?compo-eqn-id ?axis ?rot (NL ?body ?time :net ?netp))
     :english ("Newton's second law"))
 
 ;; NSL now stands for all versions, same as group id:
-(def-psmclass NSL (?eq-type ?compo-eqn-id ?axis ?rot (NL ?body ?time)) 
+(def-psmclass NSL (?eq-type ?c-eqn-id ?axis ?rot (NL ?body ?time :net ?netp)) 
      :group NL
      :complexity major
      :doc "Newton's second law when accel is non-zero"
@@ -1009,13 +1009,6 @@
 		 (nlg ?body 'at-time ?time))
      :EqnFormat ("F1_~a + F2_~a + ... = m*a_~a" 
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
-
-(def-psmclass NSL-net (?eq-type NSL-net ?axis ?rot (NL ?body ?time))
-     :group NL
-     :complexity major
-     :english ("Newton's second law, net force version")
-     :ExpFormat ("applying Newton's second law for net forces to ~a"
-		 (nlg ?body 'at-time ?time)))
 
 (def-psmclass net-force (?eq-type definition ?axis ?rot (net-force ?body ?t))
   :complexity minor 
