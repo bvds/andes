@@ -5250,14 +5250,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-net-force-from-accel (?b ?t)
   :preconditions 
   (
-   ;; acceleration vector drawn with known direction
+   ;; non-zero acceleration vector drawn with known direction
    (vector ?b (accel ?b :time ?t) ?dir-accel)
-   (test (not (eq ?dir-accel 'unknown)))
+   (test (not (or (eq ?dir-accel 'zero) (eq ?dir-accel 'unknown))))
    ;; can't determine direction from forces
    (net-force-dir ?b ?t unknown)
    ;;
    (not (vector ?b (net-force ?b :time ?t) ?dont-care))
-   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" 
+			      (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
     )
@@ -5270,6 +5271,35 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint (
     (bottom-out (string "Draw the net force in the same direction as the acceleration."))
   ))
+
+(defoperator draw-net-force-zero (?b ?t)
+  :preconditions 
+  (
+   ;; directly from motion statements so we don't *have* to also draw
+   ;; the acceleration vector
+   (motion ?b ?type :accel ?adir :time ?t-motion . ?whatever)
+   (test (or (eq ?type 'at-rest) (eq ?adir 'zero)))
+   (time ?t)
+   (test (tinsidep ?t ?t-motion))
+   ;;
+   (not (vector ?b (net-force ?b :time ?t) ?dont-care))
+   (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" 
+			      (body-name ?b) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?rest-string (if (eq ?type 'at-rest) "at rest" "not accelerating"))
+   (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
+    )
+  :effects (
+    (vector ?b (net-force ?b :time ?t) zero)
+    (variable ?mag-var (mag (net-force ?b :time ?t)))
+    (given (mag (net-force ?b :time ?t)) (dnum 0 |N|))
+  )
+  :hint 
+  ((point (string "Notice that ~a is ~A ~a.  What does this imply about the net force acting on ~A?" 
+		  ?b ?rest-string (?t pp) ?b))
+   (bottom-out (string "Draw a zero-length net force vector acting on ~A ~A." 
+		       ?b (?t pp)))
+   ))
 
 (defoperator draw-net-force-from-forces (?b ?t)
   :preconditions 
@@ -5459,8 +5489,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; Test that this component of the net force may be nonzero.
    ;; Otherwise, we have NSL to set the sum of forces to zero, and 
    ;; vector drawing will set this component of net-force to zero.
-   (in-wm (vector ?b (net-force ?b :time ?t) ?net-force-dir))
-   (test (non-zero-projectionp ?net-force-dir ?xyz ?rot))
+  ;; (in-wm (vector ?b (net-force ?b :time ?t) ?net-force-dir))
+  ;; (test (non-zero-projectionp ?net-force-dir ?xyz ?rot))
    (in-wm (forces ?b ?t ?forces))	;found in vector-diagram
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
@@ -5473,7 +5503,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
 	(compo-eqn definition ?xyz ?rot (net-force ?b ?t)))
    ;; Also, don't use net force definition and explicit version of NSL
-   (assume using-NSL net ?b ?t)
+   (assume using-NL net ?b ?t)
    )
   :hint
   ((point (string "What is the total force acting on ~A ~A." 
