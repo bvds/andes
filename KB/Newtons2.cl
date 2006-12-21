@@ -5296,7 +5296,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
   :hint 
   ((point (string "Notice that ~a is ~A ~a.  What does this imply about the net force acting on ~A?" 
-		  ?b ?rest-string (?t pp) ?b))
+		  ?b (?rest-string identity) (?t pp) ?b))
    (bottom-out (string "Draw a zero-length net force vector acting on ~A ~A." 
 		       ?b (?t pp)))
    ))
