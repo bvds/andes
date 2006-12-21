@@ -2410,11 +2410,14 @@ void CSystem::CheckObject()
 	
 	// (assert-object label object-name)
 	if (m_nSystemType == SYSTEM_SINGLE_BODY) {
-		pszResult = HelpSystemExecf( "(assert-object \"%s\" %s |%s| %s)", 
+		pszResult = HelpSystemExecf( "(assert-object \"%s\" %s |%s| %s %d %d)", 
 						STR2ARG(m_strName), 
 						STR2ARG(m_strBodies),
 						STR2ARG(m_strTime), 
-						m_strId);
+						m_strId,
+						m_position.CenterPoint().x,
+						m_position.CenterPoint().y
+						);
 	} else {// compound body
 		// dialog loads body list into m_strBodies.
 		//!!! need to iterate to do EARTHCHECK on each body

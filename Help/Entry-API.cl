@@ -594,7 +594,7 @@
 ;; note(s):
 ;;  Defines a mass variable whose name has "m" concatenated to the given label.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-assert-object (label name &optional time id)
+(defun on-assert-object (label name &optional time id xpos ypos)
   (let* ((body-term (arg-to-body name))
 	 (action   `(body ,body-term))
 	 (entry     (make-StudentEntry :id id :prop action))

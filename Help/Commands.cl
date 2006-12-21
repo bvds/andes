@@ -237,8 +237,8 @@
 ;;  whose name has "m" concatenated to the given label. Enters into the symbol
 ;;  table this name paired with the system's name for the same quantity.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun assert-object (label name &optional time id)
-  (handle-non-eq (on-assert-object label name time id)))
+(defun assert-object (label name &optional time id xpos ypos)
+  (handle-non-eq (on-assert-object label name time id xpos ypos)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assert-compound-object - checks the correctness of a student defined com-
