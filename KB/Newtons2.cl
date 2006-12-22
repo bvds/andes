@@ -5287,7 +5287,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 			      (body-name ?b) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (bind ?rest-string (if (eq ?type 'at-rest) "at rest" "not accelerating"))
-   (debug "~&Drawing ~a net force for ~a at ~a.~%" ?dir-accel ?b ?t)
+   (debug "~&Drawing zero net force for ~a at ~a.~%" ?b ?t)
     )
   :effects (
     (vector ?b (net-force ?b :time ?t) zero)
@@ -5882,15 +5882,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (tinsidep ?t ?t-accel)))
   :effects ((compo-eqn-contains (NL ?b ?t) NFL ?quantity)))
 
-(defoperator NFL-net (?quantity)
-  :preconditions 
-  ((test ?netp)
-   (any-member ?quantity ((net-force ?b :time ?t)))
-   (in-wm (vector ?b (accel ?b :time ?t-accel) zero)) ;done in drawing step
-   (test (tinsidep ?t ?t-accel))
-   (object ?b))
-  :effects ((compo-eqn-contains (NL ?b ?t :net ?netp) NFL ?quantity)))
-
+;; The case NFL-net, or Fnet=0, never occurs.  The choice NFL vs. NSL is made by
+;; testing if the acceleration vector is known to be zero.  If the acceleration
+;; is known to be zero, then the drawing rules for net force should 
+;; also draw the net force as a zero-length vector.  The vector PSM routine 
+;; SELECT-COMPO-EQN-FOR-VECTOR finds that the equation Fnet=0 has no non-zero 
+;; component and quits.
 
 ;;; This operator indicates when Newton's second law (NSL) is
 ;;; applicable.  It should be applicable exactly when NFL is not applicable.
@@ -5984,31 +5981,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
     ))
     (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
 			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
-
-
-(defoperator write-NFL-net-compo (?b ?t ?xyz ?rot)
-  :preconditions
-  (
-   (test ?netp)
-   (variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
-   ;; we want Fi = m * a to be accepted if it is written. But also
-   ;; need to write Sum Fi = 0 as final eqn so won't appear to contain m, a
-   ;; so we make sure we have a compo var and put implicit eqn in effects.
-    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
-    )
-  :effects (
-    (eqn (= ?fnet-compo-var 0)
-	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t :net ?netp)))
-    (assume using-NL net ?b ?t)
-    (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
-  :hint
-   ((point (string "You can apply Newton's second law to ~A.  Note that ~A is not accelerating ~A." 
-		   ?b ?b (?t pp)))
-    (teach (string 
-    "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  In this case, the acceleration is zero so you know the net force on the object must be zero."
-    ))
-    (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
-			?b (?t pp) ((= ?fnet-compo-var 0) algebra)))))
 
 
 ;;; This operator writes Newton's second law in component form.  It
