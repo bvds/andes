@@ -5502,7 +5502,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects 
   ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
 	(compo-eqn definition ?xyz ?rot (net-force ?b ?t)))
-   ;; Also, don't use net force definition and explicit version of NSL
+   ;; Also, don't use net force definition and explicit forces version of NL
    (assume using-NL net ?b ?t)
    )
   :hint
@@ -5998,7 +5998,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     )
   :effects (
     (eqn (= ?fnet-compo-var 0)
-	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t :net ?test)))
+	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t :net ?netp)))
     (assume using-NL net ?b ?t)
     (implicit-eqn (= ?a-compo 0) (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
