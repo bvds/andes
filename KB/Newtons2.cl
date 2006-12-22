@@ -5839,11 +5839,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then draw a body, draw the acceleration, draw the net force vector and the axes,
    in any order."
   :preconditions
-  ((test ?netp)
+  (
+   (debug "start draw-NL-net-fbd~%")
+   (test ?netp)
    (body ?b)
    (vector ?b (accel ?b :time ?t) ?accel-dir)
    (vector ?b (net-force ?b :time ?t) ?force-dir) 
-   (axes-for ?b ?rot))
+   (axes-for ?b ?rot)
+   (debug "finish draw-NL-net-fbd~%")
+   )
   :effects
    ((vector-diagram ?rot (NL ?b ?t :net ?netp)))
   :hint
@@ -5915,6 +5919,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
      the magnitude and direction of its acceleration"
   :preconditions 
   (
+   (debug "start  NSL~%")
    (not (unknown-forces)) ;also checked in draw-forces
    ;; Can't apply over interval if variable forces during interval.
    ;; if time is an interval, make sure endpoints are consecutive,
@@ -5930,9 +5935,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
    (not (vector ?b (accel ?b :time ?t-accel) zero)
         (tinsidep ?t ?t-accel))
-   (not (massless ?b)))
+   (not (massless ?b))
+   (debug "finish  NSL~%")
+   )
   :effects
-   ((compo-eqn-contains (NL ?b ?t) NSL ?quantity))
+   ((compo-eqn-contains (NL ?b ?t :net ?netp) NSL ?quantity))
  )
  
 ;;; This operator writes newton's first law in component form for all
@@ -6065,6 +6072,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then write ?fnet_c = ?m * ?ac"
   :preconditions
   (
+   (debug "start  write-NSL-net-compo~%")
    (test ?netp)
    (variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
    (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
@@ -6075,6 +6083,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a)) ;done in drawing step
    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
 		      `(* ,?m ,?a-compo) 0))
+   (debug "finish write-NSL-net-compo~%")
     )
   :effects (
     (eqn (= ?fnet-compo-var ?ma-term)
