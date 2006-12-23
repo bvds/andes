@@ -5221,16 +5221,30 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write ~a" ((= ?f-compound (+ . ?f-parts)) algebra)))
     ))
 
+;; collect directions of forces acting on points on body, without drawing them.
+;; see collect-forces-on-points
+(defoperator collect-force-dirs-on-point (?b ?pt ?agent ?type ?t ?dir ?action)
+  :preconditions ((point-on-body ?pt ?b)
+		  (force ?pt ?agent ?type ?t ?dir ?action))
+  :effects ((force-dirs-on-point ?b ?dir)))
 
+
+;; find all forces that are acting on ?b (without drawing them)
+;; and collect all distinct directions.
+;; see draw-any-force
 (defoperator calculate-net-force-dir-from-forces (?b ?t)
   :preconditions 
   (
    (object ?b)
    (time ?t)
-   ;; find all forces that are acting on ?b (without drawing them)
-   ;; and collect all distinct directions
-   (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
+   (setof (force ?b ?agent ?type ?t ?body-dir ?action) ?body-dir ?body-dirs)
    (not (unknown-forces))
+   ;; in the case of compound bodies, test for forces acting on points
+   (setof (force-dirs-on-point ?b ?point-dir) ?point-dir ?point-dirs)
+   ;; only one case should apply:
+   (test (or (null ?body-dirs) (null ?point-dirs) 
+	     (error "calculate-net-force-dir-from-forces erros:  can't have forces acting on both body and point on body.")))
+   (bind ?dirs (or ?body-dirs ?point-dirs))
    ;; if all forces acting on ?b have same direction, return direction
    (bind ?net-dir (if (= (length ?dirs) 1) (first ?dirs) 'unknown))
    )
@@ -5396,7 +5410,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects ((forces ?b ?t ?forces)))
 
 ;; this is used by draw-forces to collect all forces acting on
-;; points on body
+;; points on body, draws each force.
 (defoperator collect-forces-on-points (?pt ?agent ?type ?t)
   :preconditions (
 		  (point-on-body ?pt ?b)
