@@ -5221,37 +5221,41 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Write ~a" ((= ?f-compound (+ . ?f-parts)) algebra)))
     ))
 
-;; collect directions of forces acting on points on body, without drawing them.
-;; see collect-forces-on-points
-(defoperator collect-force-dirs-on-point (?b ?pt ?agent ?type ?t ?dir ?action)
-  :preconditions ((point-on-body ?pt ?b)
-		  (force ?pt ?agent ?type ?t ?dir ?action))
-  :effects ((force-dirs-on-point ?b ?dir)))
+;; collect directions of forces acting on compound
+(defoperator calculate-net-force-dirs-compound (?b ?t)
+  :preconditions 
+  (
+   (any-member ?b ((compound orderless . ?bodies)))
+   (map ?body ?bodies
+	;; For a compound body, we want to exclude any internal forces.
+	;; Thus, we exclude any force whose agent is also in the compound.
+	(net-force-dir ?body ?t ?dir :no-agent ?bodies) ?dir ?dirs)
+   (bind ?net-dir (if (= (length ?dirs) 1) (first ?dirs) 'unknown))
+   )
+  :effects ((net-force-dir ?b ?t ?net-dir)))
 
 
 ;; find all forces that are acting on ?b (without drawing them)
 ;; and collect all distinct directions.
-;; see draw-any-force
 (defoperator calculate-net-force-dir-from-forces (?b ?t)
   :preconditions 
   (
-   (object ?b)
-   (time ?t)
-   (setof (force ?b ?agent ?type ?t ?body-dir ?action) ?body-dir ?body-dirs)
+   (test (not (compound-bodyp ?b)))
+   ;; find list distinct of agent-direction pairs
+   (setof (force ?b ?agent ?type ?t ?dir ?action) (?agent ?dir) ?ad)
    (not (unknown-forces))
-   ;; in the case of compound bodies, test for forces acting on points
-   (setof (force-dirs-on-point ?b ?point-dir) ?point-dir ?point-dirs)
-   ;; only one case should apply:
-   (test (or (null ?body-dirs) (null ?point-dirs) 
-	     (error "calculate-net-force-dir-from-forces erros:  can't have forces acting on both body and point on body.")))
-   (bind ?dirs (or ?body-dirs ?point-dirs))
+   ;; remove any pair where the agent is on the list of excluded agents
+   (bind ?ad-ok (remove-duplicates
+		 (remove-if #'(lambda (a) (member a ?agents)) 
+			    ?ad :key #'car)
+		 :key #'second :test #'exactly-equal))
    ;; if all forces acting on ?b have same direction, return direction
-   (bind ?net-dir (if (= (length ?dirs) 1) (first ?dirs) 'unknown))
+   (bind ?net-dir (if (= (length ?ad-ok) 1) (second (car ?ad-ok)) 'unknown))
    )
-:effects ((net-force-dir ?b ?t ?net-dir)))
+:effects ((net-force-dir ?b ?t ?net-dir :no-agent ?agents)))
 
 (defoperator calculate-net-force-dir-unknown (?b ?t)
-  :preconditions ((object ?b) (time ?t) (unknown-forces))
+  :preconditions ((unknown-forces))
   :effects ((net-force-dir ?b ?t unknown)))
 
 ;; Here we draw the net force in the same direction as the known acceleration
@@ -5318,6 +5322,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-net-force-from-forces (?b ?t)
   :preconditions 
   (
+   (object ?b)
+   (time ?t)
    (net-force-dir ?b ?t ?net-dir)
    (test (not (eq ?net-dir 'unknown)))
    ;; make sure net-force has not already been drawn
