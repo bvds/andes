@@ -2484,41 +2484,57 @@
 ;; but can be derived in several ways, e.g. straight line or circular or other
 ;; motion spec, by draw-velocity* operators. This may draw v as well to get
 ;; the direction from givens.
+(defoperator find-magnetic-force-charge (?b ?t ?source)
+  :preconditions 
+  (
+   (at-place ?b ?loc :time ?t ?t)
+   (sign-charge ?b ?pos-or-neg)
+   (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B)
+   ;; this may require drawing the velocity vector: 
+   (given (dir (velocity ?b :time ?t)) ?dir-V)
+   ;; following currently only works for dirs along axis
+   (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
+   (test ?cross-dir) ; may be NIL on failure
+   (test (not (eq ?cross-dir 'zero)))
+   (bind ?F-dir (if (eq ?pos-or-neg 'pos) ?cross-dir (opposite ?cross-dir)))
+   ;; make sure we have a non-null direction
+   (test ?F-dir) ; may be NIL on failure
+   )
+  :effects (
+	    (force ?b ?source magnetic ?t ?F-dir action)
+	    (force-given-at ?b ?source magnetic ?t ?F-dir action)
+	    ))
+
+
 (defoperator draw-Bforce-charge (?b ?t ?source)
- :preconditions 
- (
-  (at-place ?b ?loc :time ?t ?t)
-  (sign-charge ?b ?pos-or-neg)
-  (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B)
-  ;; this may require drawing the velocity vector: 
-  (given (dir (velocity ?b :time ?t)) ?dir-V)
-  ;; following currently only works for dirs along axis
-  (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
-  (test ?cross-dir) ; may be NIL on failure
-  (test (not (eq ?cross-dir 'zero)))
-  (bind ?F-dir (if (eq ?pos-or-neg 'pos) ?cross-dir (opposite ?cross-dir)))
-  ;; make sure we have a non-null direction
-  (test ?F-dir) ; may be NIL on failure
-  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
-			     (time-abbrev ?t)))
-  (bind ?dir-var (format-sym "O~A" ?mag-var))
-  (bind ?porn (if (eq ?pos-or-neg 'pos) "positive" "negative"))
-  (bind ?saop (if (eq ?pos-or-neg 'pos) "same" "opposite"))
-  )
- :effects (
-	   (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
+  :preconditions 
+  (
+   (force ?b ?source magnetic ?t ?F-dir action)
+   ;; from find-magnetic-force above
+   (in-wm (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
+   ;; this may require drawing the velocity vector: 
+   (in-wm (given (dir (velocity ?b :time ?t)) ?dir-V))
+   ;;
+   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?porn (if (eq ?pos-or-neg 'pos) "positive" "negative"))
+   (bind ?saop (if (eq ?pos-or-neg 'pos) "same" "opposite"))
+   )
+  :effects (
+	    (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
             (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
             (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
             (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
 	    )
- :hint 
- (
-  (point (string "The magnetic force on a ~Aly charged particle points in the ~A direction as the cross product of its velocity vector and the magnetic field vector at that location." ?porn ?saop)) 
-  (teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross product.  For a ~A charge, the force is in the ~A direction." ?porn ?saop))
-  (bottom-out (string "Because the velocity of ~a has direction ~a, the magnetic field direction is ~a, and the charge is ~A, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
-		      ?b (?dir-V adj) (?dir-B adj) ?porn (?F-dir adj) ?b 
-		      (?source agent) (?F-dir adj)))
-  ))
+  :hint 
+  (
+   (point (string "The magnetic force on a ~Aly charged particle points in the ~A direction as the cross product of its velocity vector and the magnetic field vector at that location." ?porn ?saop)) 
+   (teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross product.  For a ~A charge, the force is in the ~A direction." ?porn ?saop))
+   (bottom-out (string "Because the velocity of ~a has direction ~a, the magnetic field direction is ~a, and the charge is ~A, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
+		       ?b (?dir-V adj) (?dir-B adj) ?porn (?F-dir adj) ?b 
+		       (?source agent) (?F-dir adj)))
+   ))
 
 
 (defoperator draw-Bforce-rhr-zero (?b ?t ?source)
@@ -2626,9 +2642,11 @@
          (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
   ))
 
-(defoperator draw-Bforce-current (?b ?t ?source)
- :preconditions 
- (
+
+(defoperator find-magnetic-force-current (?b ?t ?source)
+  :preconditions 
+  (
+
   (at-place ?b ?loc :time ?t ?t)
   (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B)
   (given (dir (current-length ?b :time ?t)) ?dir-i)
@@ -2637,9 +2655,23 @@
   ;; make sure we have a non-null direction
   (test ?F-dir) ; may be NIL on failure
   (test (not (eq ?F-dir 'zero)))
-  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
-			     (time-abbrev ?t)))
-  (bind ?dir-var (format-sym "O~A" ?mag-var))
+   )
+  :effects (
+	    (force ?b ?source magnetic ?t ?F-dir action)
+	    (force-given-at ?b ?source magnetic ?t ?F-dir action)
+	    ))
+
+(defoperator draw-Bforce-current (?b ?t ?source)
+ :preconditions 
+ (
+   (force ?b ?source magnetic ?t ?F-dir action)
+   ;; This is found in find-magnetic-force-current above
+   (in-wm (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
+   (in-wm (given (dir (current-length ?b :time ?t)) ?dir-i))
+   ;;
+   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
  :effects (
             (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
