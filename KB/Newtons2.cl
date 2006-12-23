@@ -5299,6 +5299,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (or (eq ?type 'at-rest) (eq ?adir 'zero)))
    (time ?t)
    (test (tinsidep ?t ?t-motion))
+   ;; Sanity test:  if a definite direction has been found, then 
+   ;; it is likely that a force is missing.
+   (net-force-dir ?b ?t ?net-force-dir)
+   (test (or (eq ?net-force-dir 'unknown) 
+	     (error "draw-net-force-zero error:  also found definite direction ~A for net force." 
+		    ?net-force-dir)))
    ;;
    (not (vector ?b (net-force ?b :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" 

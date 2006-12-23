@@ -198,7 +198,7 @@
    ;; if dir is z-axis, implicit eqn should give phi angle value
    (bind ?angle-value (if (z-dir-spec ?dir-f) (zdir-phi ?dir-f) 
 			?dir-f))
-   (rdebug "fired draw-Bfield-vector   ~%"))
+   (rdebug "fired draw-field-vector   ~%"))
   :effects (
             (vector ?loc (field ?loc ?type ?source :time ?t) ?dir-f)
             (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
@@ -410,6 +410,7 @@
 (defoperator find-field-force (?b ?agent ?type ?t)
   :preconditions (		  
     (time ?t)
+    (any-member ?type (electric magnetic))
     (not (given (dir (field ?b ?type ?agent :time ?t-field)) ?field-dir)
 	 (tinsidep ?t ?t-field))
     ;; The direction is a side-effect of draw-coulomb-force and
