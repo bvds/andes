@@ -407,23 +407,23 @@
 ;; - if given E force vector dir --
 
 ;; make sure force exists apart from drawing
-(defoperator find-electric-force (?b ?agent ?t)
+(defoperator find-field-force (?b ?agent ?type ?t)
   :preconditions (		  
     (time ?t)
-    (not (given (dir (field ?b electric ?agent :time ?t-field)) ?field-dir)
+    (not (given (dir (field ?b ?type ?agent :time ?t-field)) ?field-dir)
 	 (tinsidep ?t ?t-field))
     ;; The direction is a side-effect of draw-coulomb-force and
-    ;; draw-electric-force-given-field-dir
-    ;; Ideally, find-electric-force would only apply when the others don't.
+    ;; draw-electric-force-given-dir
+    ;; Ideally, find-field-force would only apply when the others don't.
     ;; As a work-around, use (in-wm ...)
-    (in-wm (given (dir (force ?b ?agent electric :time ?t-force)) ?dir-expr))
+    (in-wm (given (dir (force ?b ?agent ?type :time ?t-force)) ?dir-expr))
     (test (tinsidep ?t ?t-force))
     ;; check that something else hasn't defined this force.
-    (not (force ?b ?agent electric ?t . ?dont-care)) 
+    (not (force ?b ?agent ?type ?t . ?dont-care)) 
   )
   :effects (
-    (force ?b ?agent electric ?t ?dir-expr action)
-    (force-given-at ?b ?agent electric ?t-force ?dir-expr action)
+    (force ?b ?agent ?type ?t ?dir-expr action)
+    (force-given-at ?b ?agent ?type ?t-force ?dir-expr action)
   ))
 
  
