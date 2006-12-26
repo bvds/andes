@@ -352,6 +352,13 @@
 (defoperator select-compo-eqn-for-vector (?vec-eqn-id ?compo-eqn-name ?vector)
   :preconditions
   (
+   ;; Test code.  
+   (setof (in-wm (vector ?bq ?quant ?dir)) ?quant ?quants)
+   (setof (in-wm (vector ?bq ?quant ?dir)) ?dir ?dirs)
+   (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
+   (test (or (null ?rot) (member ?rot ?min-dirs) 
+	     (format t "WARNING:  select-compo-eqn-for-vector axis direction not in wm~%    ~A~%" ?quants)))
+   ;;
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
    (wm-or-derive (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector))
    (in-wm (vector ?b ?vector ?dir))  ;get dir
@@ -5499,24 +5506,20 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-net-force-diagram (?rot ?b ?t)
   :preconditions
-  ((not (vector-diagram ?rot (net-force ?b ?t)))
+  ((debug "start draw-net-force-diagram~%")
+   (not (vector-diagram ?rot (net-force ?b ?t)))
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
    (vector ?b (net-force ?b :time ?t) ?net-force-dir)
    (axes-for ?b ?rot)
-   (debug "Finish draw-net-force-diagram for ?b=~A ?t=~A forces=~A" 
-	  ?b ?t ?forces))
-  :effects
-   ((vector-diagram ?rot (net-force ?b ?t))))
+   (debug "finish draw-net-force-diagram at ~A for ?b=~A ?t=~A:~%~{     ~S~%~}" 
+	  ?rot ?b ?t ?forces))
+  :effects ((vector-diagram ?rot (net-force ?b ?t))))
 
 (defoperator write-net-force-compo (?b ?t ?xyz ?rot)
   :preconditions 
   (
-   ;; Test that this component of the net force may be nonzero.
-   ;; Otherwise, we have NSL to set the sum of forces to zero, and 
-   ;; vector drawing will set this component of net-force to zero.
-  ;; (in-wm (vector ?b (net-force ?b :time ?t) ?net-force-dir))
-  ;; (test (non-zero-projectionp ?net-force-dir ?xyz ?rot))
+   (debug "start write-net-force-compo~%")
    (in-wm (forces ?b ?t ?forces))	;found in vector-diagram
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
@@ -5524,6 +5527,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	(variable ?f-compo-var (compo ?xyz ?rot ?f))
 	?f-compo-var ?f-compo-vars)
    (variable ?fnet_xy (compo ?xyz ?rot (net-force ?b :time ?t)))
+   (debug "finish write-net-force-compo~%")
    )
   :effects 
   ((eqn (= (+ . ?f-compo-vars) ?fnet_xy)
@@ -5847,7 +5851,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then draw a body, draw the forces, the acceleration and the axes,
    in any order."
   :preconditions
-  ((forces ?b ?t ?forces)
+  (
+   (not (unknown-forces)) ;test that all forces can be drawn
+   (forces ?b ?t ?forces)
    (test ?forces)	;fail if no forces could be found
    (vector ?b (accel ?b :time ?t) ?accel-dir)
    (axes-for ?b ?rot))
@@ -5943,7 +5949,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    (debug "start  NSL~%")
-   (not (unknown-forces)) ;also checked in draw-forces
    ;; Can't apply over interval if variable forces during interval.
    ;; if time is an interval, make sure endpoints are consecutive,
    ;; else forces might be different between sub-segments
