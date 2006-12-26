@@ -2529,11 +2529,11 @@
 	    )
   :hint 
   (
-   (point (string "The magnetic force on a ~Aly charged particle points in the ~A direction as the cross product of its velocity vector and the magnetic field vector at that location." ?porn ?saop)) 
-   (teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross product.  For a ~A charge, the force is in the ~A direction." ?porn ?saop))
+   (point (string "The magnetic force on a ~Aly charged particle points in the ~A direction as the cross product of the velocity and magnetic field vectors." (?porn adj) (?saop adj))) 
+   (teach (string "The magnetic force vector on a moving charge points in a direction perpendicular to the plane formed by the velocity and magnetic field vectors, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the velocity and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the cross product.  For a ~A charge, the force is in the ~A direction." (?porn adj) (?saop adj)))
    (bottom-out (string "Because the velocity of ~a has direction ~a, the magnetic field direction is ~a, and the charge is ~A, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
-		       ?b (?dir-V adj) (?dir-B adj) ?porn (?F-dir adj) ?b 
-		       (?source agent) (?F-dir adj)))
+		       ?b (?dir-V adj) (?dir-B adj) (?porn adj) (?F-dir adj) 
+		       ?b (?source agent) (?F-dir adj)))
    ))
 
 
@@ -2680,7 +2680,7 @@
             (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
  )
  :hint (
-	(point (string "The magnetic force on a wire points in the direction of the cross product of the direction of the current and the magnetic field.")) 
+	(point (string "Let n_w to be a unit vector pointing in the direction of the current flow.  The magnetic force on ~A points is equal to the current times the cross product of n_w and the magnetic field." ?b)) 
 	(teach (string "The magnetic force vector on a current carrying wire points in a direction perpendicular to the plane formed by the wire and the magnetic field vector, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the current and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
         (bottom-out (string "Because the current in ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 			    ?b (?dir-i adj) (?dir-B adj) (?F-dir adj) ?b 
