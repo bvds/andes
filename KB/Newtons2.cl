@@ -352,9 +352,9 @@
   :preconditions
   (
    (debug "start vector diagram for ~A at coord ~A~%" ?vec-eqn-id ?rot)
-   ;; if the sought vector already has a definite coordinate system
-   ;; attached to it, then force that coordinate system to be 
-   ;; among the allowed coordinate choices.
+   ;; The sought vector component has a coordinate system associated
+   ;; with it.  Force that coordinate system to be among the allowed 
+   ;; coordinate choices.
    (add-to-wm (projection-axis ?rot))
    ;;
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
