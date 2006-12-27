@@ -5506,7 +5506,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator draw-net-force-diagram (?rot ?b ?t)
   :preconditions
-  ((debug "start draw-net-force-diagram~%")
+  ((debug "start draw-net-force-diagram at ~A~%" ?rot)
    (not (vector-diagram ?rot (net-force ?b ?t)))
    (forces ?b ?t ?forces)
    (test ?forces)	; fail if no forces could be found
@@ -5519,7 +5519,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-net-force-compo (?b ?t ?xyz ?rot)
   :preconditions 
   (
-   (debug "start write-net-force-compo~%")
+   (debug "start write-net-force-compo at ~A~%" ?rot)
    (in-wm (forces ?b ?t ?forces))	;found in vector-diagram
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
@@ -5852,8 +5852,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    in any order."
   :preconditions
   (
-   (not (unknown-forces)) ;test that all forces can be drawn
-   (forces ?b ?t ?forces)
+   (forces ?b ?t ?forces) 
    (test ?forces)	;fail if no forces could be found
    (vector ?b (accel ?b :time ?t) ?accel-dir)
    (axes-for ?b ?rot))
