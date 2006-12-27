@@ -348,21 +348,20 @@
 ;;; used on an axis and an open interval when used elsewhere.  Thus,
 ;;; we just ignore the times on axes until this can all be sorted out.
 
-
 (defoperator select-compo-eqn-for-vector (?vec-eqn-id ?compo-eqn-name ?vector)
   :preconditions
   (
-   ;; Test code.  
-   (setof (in-wm (vector ?bq ?quant ?dir)) ?quant ?quants)
-   (setof (in-wm (vector ?bq ?quant ?dir)) ?dir ?dirs)
-   (bind ?min-dirs (adjoin 0 (minimal-x-rotations ?dirs)))
-   (test (or (null ?rot) (member ?rot ?min-dirs) 
-	     (format t "WARNING:  select-compo-eqn-for-vector axis direction not in wm~%    ~A~%" ?quants)))
+   (debug "start vector diagram for ~A at coord ~A~%" ?vec-eqn-id ?rot)
+   ;; if the sought vector already has a definite coordinate system
+   ;; attached to it, then force that coordinate system to be 
+   ;; among the allowed coordinate choices.
+   (add-to-wm (projection-axis ?rot))
    ;;
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
    (wm-or-derive (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector))
    (in-wm (vector ?b ?vector ?dir))  ;get dir
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
+   (debug "finish vector diagram for ~A at coord ~A~%" ?vec-eqn-id ?rot)
    )
   :effects
   ((compo-eqn-selected ?vec-eqn-id 
@@ -444,13 +443,10 @@
 
 
 (defoperator projection-contains-compo (?rot ?vector)
-  :preconditions nil
-  :effects 
-  ( (eqn-contains (projection (compo ?xy ?rot ?vector)) 
-		  (compo ?xy ?rot ?vector))
-   ;; set flag to draw use these axes, even if not vector-aligned or standard.
-    (projection-axis ?rot)
-    ))
+  ;; set flag to draw use these axes, even if not vector-aligned or standard.
+  :preconditions ((add-to-wm (projection-axis ?rot)))
+  :effects ( (eqn-contains (projection (compo ?xy ?rot ?vector)) 
+			   (compo ?xy ?rot ?vector)) ))
 
 ;; Projection writing rules used within larger psms should not draw a body, 
 ;; since it is the psm that decides whether and which body should be drawn. 
@@ -458,11 +454,13 @@
 ;; we do want the body to be drawn.  We use a projection-body stmt in problem 
 ;; to turn this on. 
 (defoperator draw-body-for-projection (?rot ?vector)
-   :preconditions (
-      (in-wm (projection-body ?problem-body ?problem-time)) 
-      (body ?problem-body)
-   ) :effects ((body-for-projection ?rot ?vector)))
- 
+   :preconditions 
+   (
+    (in-wm (projection-body ?problem-body ?problem-time)) 
+    (body ?problem-body)
+    )
+   :effects ((body-for-projection ?rot ?vector)))
+
 (defoperator omit-body-for-projection (?rot ?vector)
    :preconditions ( (not (projection-body ?problem-body ?problem-time)) )
    :effects ((body-for-projection ?rot ?vector)))
