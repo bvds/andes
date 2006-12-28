@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; ENTRY-API -- "adapter" functions to handle the Andes Workbench API calls
 ;;              for non-EQ student entries
@@ -596,7 +596,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-assert-object (label name &optional time id xpos ypos)
   (let* ((body-term (arg-to-body name))
-	 (action   `(body ,body-term))
+	 (action   `(body ,body-term :time ,time))
 	 (entry     (make-StudentEntry :id id :prop action))
 	 ;; this entry automatically defines a mass variable named m+label
 	 ;; we build an implicit entry for this to mark it done as well.

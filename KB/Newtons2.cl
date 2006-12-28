@@ -1850,19 +1850,19 @@
 ;;; compound bodies that checks to make sure the time is not ruled out by 
 ;;; specificiation of a split or join collision (see linmom).
 
-(defoperator draw-body (?b)
-   :specifications " 
-    If ?b is an object, 
-       ?t is a time, 
-       and there is no mass variable for ?b at ?t yet,
-    then let ?b at ?t be a body"
-  :preconditions
-    ((object ?b))
-    :effects ((body ?b)) 	
-    :hint
-    ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
+(defoperator draw-body (?b ?t)
+  :preconditions 
+  (
+   (object ?b)
+   ;; only use time when allowed by feature body-time
+   (test (eq (null ?t) 
+	     (null (member 'body-time (problem-features *cp*)))))
+   )
+  :effects ((body ?b :time ?t)) 	
+  :hint
+  ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
-   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
+   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." (?b at-time ?t)))
    ))
 
 ;;; ========================= Displacement ====================================

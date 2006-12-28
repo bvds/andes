@@ -9,7 +9,7 @@
 (defoperator do-motion-diagram (?b)
   :preconditions 
   ( 
-;   (foreach ?time ?times (body ?b :time ?time)) 
+   (foreach ?time ?times (body ?b :time ?time)) 
    (bind ?intervals (mapcar #'(lambda (a b) `(during ,a ,b)) 
 			  ?times (cdr ?times)))
    (foreach ?interval ?intervals 
