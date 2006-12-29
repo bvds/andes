@@ -596,7 +596,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-assert-object (label name &optional time id xpos ypos)
   (let* ((body-term (arg-to-body name))
-	 (action   `(body ,body-term :time ,time))
+	 (time-term (arg-to-time time))
+	 (action   `(body ,body-term :time ,time-term))
 	 (entry     (make-StudentEntry :id id :prop action))
 	 ;; this entry automatically defines a mass variable named m+label
 	 ;; we build an implicit entry for this to mark it done as well.
@@ -1328,7 +1329,7 @@
     (return-from Check-NonEq-Entry (make-green-turn)))
     
   ;; else have a real student entry to check
-  (format T "~&checking entry: ~A~%" (StudentEntry-prop entry))
+  (format T "~&Checking entry: ~S~%" (StudentEntry-prop entry))
   (let (cand		; candidate (state . interpretation) pair
         match 		; correct system entry matched
         result) 	; final result to return
