@@ -152,7 +152,7 @@
 ;;;  next proposition.
 ;;;
 ;;; (any-member <var> <lisp form>)
-;;;  If the condition is (any-member <var> <lisp form>), then evlauate
+;;;  If the condition is (any-member <var> <lisp form>), then evaluate
 ;;;  the lisp form, and try binding <var> to each member of the
 ;;;  resulting set.
 ;;;
