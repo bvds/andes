@@ -1895,16 +1895,45 @@
 ;;; supplied, and it  will only work when the direction value is known.
 ;;; 
 
+(defoperator inherit-motion-from-interval (?b ?t ?rest)
+  :preconditions 
+  (
+   (motion ?b ?type :time ?t-motion . ?rest)
+   (time ?t)
+   (test (time-intervalp ?t))
+   (test (tinsidep ?t ?t-motion))
+   (object ?b) ;sanity test
+   )
+:effects ((inherit-motion ?b ?type :time ?t . ?rest)))
+
+
+(defoperator inherit-motion-from-subintervals (?b ?t ?rest)
+  :preconditions 
+  (
+   (time ?t)
+   (test (and (time-intervalp ?t) (not (time-consecutivep ?t))))
+   (bind ?tt (successive-intervals ?t))
+   ;; choose one sub-interval and get the direction
+   (motion ?b ?type :time ?tin . ?ri)
+   (test (and (time-intervalp ?tin) (tinstidep ?tin ?t)))
+   ;; test that all sub-intevals have the same direction
+   (map ?ti ?tt (motion ?b ?type :time ?ti . ?rr) ?rr ?rrs)
+;   (?bind ?rest (let ((keys ?ri)) ;not sure if we can manipulate ?ri directly
+;		  (loop while keys do
+;			when (every #'(lambda (x) (unify `(,(pop keys) ,(pop keys) . ?whatever) x) ?rrs)
+;			keep keyword pair in keys)
+)
+   )
+  :effects ((inherit-motion ?b ?type :time ?t . ?rest)))
+
 (defoperator draw-displacement-straight (?b ?t)
   :specifications "
    If an object is moving in a straight line over a time interval
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
-   ((motion ?b straight :dir ?dir :time ?t-motion . ?whatever)
+   (
+    (inherit-motion ?b straight :dir ?dir :time ?t)
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
-    (time ?t)
-    (test (time-intervalp ?t))
-    (test (tinsidep ?t ?t-motion))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
