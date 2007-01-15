@@ -184,7 +184,7 @@
 ;;; given the student entry, returns an error analysis for each error
 ;;; handler whose conditions are true.
 (defun applicable-error-analyses (student)
-  (loop for eh in **error-classes** append
+  (loop for eh in **entry-tests** append
 	(if (watch-this-error-class-p eh)
 	    (check-err-conds-watched eh student)
 	  (check-err-conds eh student))))
@@ -197,7 +197,7 @@
     r))
 
 (defun check-err-conds (error student)
-  (let ((tmp (check-err-conditions error student (error-class-conditions error) nil no-bindings)))
+  (let ((tmp (check-err-conditions error student (entry-test-conditions error) nil no-bindings)))
     tmp))
 
 ;;; given a student entry and an error class, returns a list of error
@@ -216,8 +216,7 @@
   (cond
    ((null conditions)
     (list (make-Error-Interp
-	   :diagnosis (cons (error-class-name eh) 
-			    (subst-bindings bindings (error-class-arguments eh)))
+	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
 	   :intended sy
 	   :bindings bindings
 	   :class eh)))
@@ -532,10 +531,10 @@
    interpretation fits into the current solution state."
   (let ((prob 
 	 (eval (subst-bindings-quoted (error-interp-bindings ei)
-				      (error-class-probability (error-interp-class ei)))))
+				      (entry-test-probability (error-interp-class ei)))))
 	(utility
 	 (eval (subst-bindings-quoted (error-interp-bindings ei)
-				      (error-class-utility (error-interp-class ei)))))
+				      (entry-test-utility (error-interp-class ei)))))
 				      
 	(state (error-interp-state ei)))
     (cond 
@@ -711,7 +710,7 @@
 
 (defun watch-this-error-class-p (class)
   (and **Watch-error-classes**
-       (member (error-class-name class) **Watched-error-classes**)))
+       (member (entry-test-name class) **Watched-error-classes**)))
 
 
 (defun trace-wwh ()

@@ -69,14 +69,14 @@
 				     ;; treat these as normal lisp files
 				     (:cl-source-file "Physics-Funcs")
 				     (:cl-source-file "makeprob")        
-				     ;; lots of outside dependencies:
-				     (:cl-source-file "errors")
 				     
 				     ;; must be before any ontology
 				     (:file "reset-KB")
 				     (:file "features")
 				     (:file "principles")
 				     (:file "constants")
+				     ;; lots of outside dependencies:
+				     (:cl-source-file "errors")
 				     ;; TELL and NLG not defined
 				     (:file "Ontology" )
 				     (:file "circuit-ontology")  
