@@ -529,14 +529,19 @@
 (defun expected-utility-given-context (ei)
   "Given an error interpretation, returns its expected utility given the way its 
    interpretation fits into the current solution state."
-  (let ((prob 
-	 (eval (subst-bindings-quoted (error-interp-bindings ei)
-				      (entry-test-probability (error-interp-class ei)))))
+  (let ((prob
+	 (eval (subst-bindings-quoted 
+		(error-interp-bindings ei)
+		(cdr (assoc 'probability (entry-test-order 
+					  (error-interp-class ei)))))))
 	(utility
-	 (eval (subst-bindings-quoted (error-interp-bindings ei)
-				      (entry-test-utility (error-interp-class ei)))))
-				      
+	 (eval (subst-bindings-quoted 
+		(error-interp-bindings ei)
+		(cdr (assoc 'utility (entry-test-order 
+				      (error-interp-class ei)))))))
+
 	(state (error-interp-state ei)))
+
     (cond 
      ;; There is only a small chance that a student would mistakenly
      ;; define a quantity they have already defined *and* do it incorrectly.
