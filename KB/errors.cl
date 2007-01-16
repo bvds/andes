@@ -4013,12 +4013,12 @@
   :correct t
   )
 
-(def-entry-test match-with error
+(def-entry-test match-with-error
   :conditions ((given ?quant ?val1)
 	       (correct ?quant ?val2)
 	       (test (and (dimensioned-numberp ?val1) 
 			  (dimensioned-numberp ?val2)
-			  (compare-dnums ?val1 ?val2)))
+			  (compare-dnums ?val1 ?val2))))
   :correct t
   )
 

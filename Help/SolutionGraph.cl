@@ -627,10 +627,6 @@
 ;; When the eqn interps are marked in addition to the usual markings for 
 ;; premature substitutions of values and set activity.
 
-;;; For backwards compatability this code exists but needs to be removed.
-(defun sg-match-eqn (Eqn)
-  (sg-match-eqn-num eqn))
-
 (defun sg-match-eqn-num (Eqn)
   "Check the eqn number student Entry."
   (loop for S in *SG-Solutions*
