@@ -24,16 +24,14 @@
 
 ;;; top level call is do-whats-wrong (identifier for student entry)
 (defun do-whats-wrong (id)
-  "Given the id selected by the student in what's wrong help, returns a tutor turn.
-   Changes the ErrInterp field of the student entry corresponding to this id."
-  (let ((student (find-entry id))
-	(ei nil))
-    (cond
-     ((not student)
-      (no-error-interpretation))
-     (t (setf ei (diagnose student))
-	(setf (StudentEntry-ErrInterp student) ei)
-	(Error-Interp-Remediation ei)))))
+  "Given the id selected by the student in what's wrong help, returns a 
+   tutor turn containing the associated error interpretation."
+  (let ((student (find-entry id)))
+    (if student 
+	(progn (diagnose student)
+	       (Error-Interp-Remediation (StudentEntry-ErrInterp student)))
+      (no-error-interpretation))))
+
 
 ;;; Given a student entry, returns a error interpretation.  If the
 ;;; entry has been diagnosed before, or is an equation entry (in which
@@ -46,28 +44,29 @@
 ;;; but not relevant to the solution (a yellow error), then say so.
 ;;; These are the only student entry states that should occur.
 (defun diagnose (student)
-  "Given a student entry, returns an error interpretation."
-  (let ((state (StudentEntry-State student)))
-    (cond
-     ((StudentEntry-ErrInterp student)
-      ;; Even if the error interpretation originally caused the entry to turn colors
-      ;; make sure that this time it is just a plain dialog turn; does not coloring
-      (setf (turn-coloring (Error-Interp-Remediation (studentEntry-ErrInterp student)))
-	NIL)
-      (StudentEntry-ErrInterp student))
-     ((eq state **premature-entry**)
-      (explain-premature-entry student))
-     ((eq state **premature-subst**)
-      (explain-premature-subst student))
-     ((eq state **forbidden**)
-      (explain-forbidden student))
-     ((not (eq state **Incorrect**))
-      (make-failed-error-interpretation))
-     ((and (eq 'eqn (car (StudentEntry-Prop student)))
-	   (not (solver-equation-redp (studentEntry-ParsedEqn student))))
-      (yellow-error student))
-     (T	(new-error student)))))
-
+  "Given a student entry, sets the error interpretation."
+  (if (StudentEntry-ErrInterp student)
+      ;; Even if the error interpretation originally caused the entry to 
+      ;; turn colors make sure that this time it is just a plain dialog 
+      ;; turn and does no coloring
+      (setf (turn-coloring (Error-Interp-Remediation 
+			    (studentEntry-ErrInterp student)))  NIL)
+    (setf (StudentEntry-ErrInterp student)
+	  (let ((state (StudentEntry-State student)))
+	    (cond
+	     ((eq state **premature-entry**)
+	      (explain-premature-entry student))
+	     ((eq state **premature-subst**)
+	      (explain-premature-subst student))
+	     ((eq state **forbidden**)
+	      (explain-forbidden student))
+	     ((not (eq state **Incorrect**))
+	      (make-failed-error-interpretation))
+	     ((and (eq 'eqn (car (StudentEntry-Prop student)))
+		   (not (solver-equation-redp 
+			 (studentEntry-ParsedEqn student))))
+	      (yellow-error student))
+	     (T	(new-error student)))))))
 
 
 (defun make-failed-error-interpretation (&optional (fn-msg 'no-error-interpretation))

@@ -1350,13 +1350,13 @@
 	(setf (StudentEntry-state entry) 'incorrect)
 	; run whatswrong help to set error interp now, so diagnosis
 	; can be included in log even if student never asks whatswrong
-        (setf (StudentEntry-ErrInterp entry) (diagnose Entry))
-        ; For now, log error tag and target info here. Really should be recorded in 
-        ; result turn for inserting with other assocs though. 
+        (diagnose Entry)
+        ;; For now, log error tag and target info here.  Really should be 
+	;; recorded in result turn for inserting with other assocs though. 
 	(log-entry-info Entry)
 	(return-from Check-NonEq-Entry (make-red-turn))) ; go no further
 
-    ; else got a match: set state and correctness from candidate
+    ;; else got a match: set state and correctness from candidate
     (setf (StudentEntry-State entry) (car cand))
     (setf (StudentEntry-CInterp entry) (cdr cand))
     (setf match (first (StudentEntry-CInterp entry)))
@@ -1430,8 +1430,7 @@
     (cond ((eq (StudentEntry-state entry) 'incorrect)
 	    ; if needed, run whatswrong help to set error interp now, so diagnosis
 	    ; can be included in log even if student never asks whatswrong
-            (unless (StudentEntry-ErrInterp entry)
-	        (setf (StudentEntry-ErrInterp entry) (diagnose Entry)))
+            (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
 	    (setf target-entries (Error-Interp-Intended (StudentEntry-ErrInterp Entry))))
 
 	  ((eq (StudentEntry-state entry) 'correct)
