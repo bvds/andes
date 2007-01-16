@@ -196,9 +196,8 @@
     (untrace-class-checking)
     r))
 
-(defun check-err-conds (error student)
-  (let ((tmp (check-err-conditions error student (entry-test-conditions error) nil no-bindings)))
-    tmp))
+(defun check-err-conds (test student)
+  (check-err-conditions test student (entry-test-conditions test)))
 
 ;;; given a student entry and an error class, returns a list of error
 ;;; interpreations, one for each way of making the conditions of the
@@ -212,7 +211,8 @@
 ;;; only the (correct <pattern>) and (fix-eqn-by-replacing <old> <new>)
 ;;; will set the sy to the equation and will use that until changed by 
 ;;; a later entry.
-(defun check-err-conditions (eh st conditions sy bindings)
+(defun check-err-conditions (eh st conditions &optional sy 
+				(bindings no-bindings))
   (cond
    ((null conditions)
     (list (make-Error-Interp
@@ -262,14 +262,14 @@
 ;;; If not, then fail by returning NIL.
 (defun check-err-old-student (pattern eh student conditions system bindings)
   (loop for s in *StudentEntries* with b nconc
-	(if (and (equal (studentEntry-state s) **Correct**)
+	(when (and (equal (studentEntry-state s) **Correct**)
 		 (setq b (unify (studentEntry-prop s) pattern bindings)))
 	    (check-err-conditions eh student conditions system b))))
 
 ;;; If the <pattern> of a (no-student <pattern>) condition never unifies with
 ;;; the entry proposition of an existing correct student entry, then succeed.
 (defun check-err-no-student (pattern eh student conditions system bindings)
-  (if (loop for se in *StudentEntries*
+  (when (loop for se in *StudentEntries*
 	  never (unify pattern (studentEntry-prop se) bindings))
       (check-err-conditions eh student conditions system bindings)))
 
@@ -302,7 +302,7 @@
 ;;; If the <pattern> of a (no-correct <pattern>) condition never unifies with
 ;;; the entry proposition of a system entry, then succeed.
 (defun check-err-no-correct (pattern eh student conditions system bindings)
-  (if (loop for se in *sg-entries*
+  (when (loop for se in *sg-entries*
 	  never (unify pattern (systementry-prop se) bindings))
       (check-err-conditions eh student conditions system bindings)))
 
@@ -310,7 +310,7 @@
 ;;; if the form in a (test <form>) condition is non-NIL after bindings
 ;;; have been substituted for the ?variables, then continue.
 (defun check-err-test (form eh student conditions system bindings)
-  (if (eval (subst-bindings-quoted bindings form))
+  (when (eval (subst-bindings-quoted bindings form))
       (check-err-conditions eh student conditions system bindings)))
 
 
