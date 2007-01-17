@@ -669,7 +669,7 @@
 ;;;;       All body variables should be of the form ?body or [?body0 ... ?bodyn]
 ;;;;       Times should be ?time or [?time0, ... ?timen]
 
-(def-psmclass given (given ?quantity ?value)
+(def-psmclass given (given ?quantity ?value . ?rest)
   :complexity simple
   :doc "enter given value"
   :english ("the given value")

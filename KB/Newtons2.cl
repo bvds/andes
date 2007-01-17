@@ -191,8 +191,8 @@
   :hint
   ((point (string "You can find the value of ~A ~A."  
 		  ?quantity (?given-loc identity)))
-   (point (string "~@[~A  ]The value of ~A is given as ~A." 
-		  ?more ?quantity (?value-expr algebra)))
+   (point (string "~@[~A  ~]The value of ~A is given as ~A." 
+		  (?more identity) ?quantity (?value-expr algebra)))
    (bottom-out (string "Enter the equation ~A = ~A." 
 		       (?var-name algebra) (?value-expr algebra)))
    ))
@@ -1291,14 +1291,15 @@
   ))
 
 ;; sum of two sub-intervals
-(defoperator write-sum-times2 (?t1 ?ti ?t2)
+(defoperator write-sum-times2 (?tt ?ti)
   :preconditions 
-  ((variable ?tt-var (duration (during ?t1 ?t2)))
+  ((variable ?tt-var (duration ?tt))
+   (any-member ?tt ((during ?t1 ?t2)))
    (variable ?ta-var (duration (during ?t1 ?ti)))
    (variable ?tb-var (duration (during ?ti ?t2)))
       )
   :effects ( (eqn (= ?tt-var (+ ?ta-var ?tb-var)) 
-		  (sum-times (during ?t1 ?t2) :middle ?ti)) )
+		  (sum-times ?tt :middle ?ti)) )
   :hint
   ((point (string "Time intervals can be added together."))
    (teach (kcd "write-sum-times")
@@ -2022,14 +2023,16 @@
    "If an object has no net change of position over an interval, then
    draw a zero displacement vector"
   :preconditions
-   ((in-wm (given (mag (displacement ?b :time ?t)) (dnum 0 ?units)))
+   ((in-wm (given (mag (displacement ?b :time ?t)) (dnum 0 ?units) 
+		  :hint (?wherefrom ?motion) (nil nil)))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
    ((vector ?b (displacement ?b :time ?t) zero)
     (variable ?mag-var (mag (displacement ?b :time ?t))))
    :hint
-   ((bottom-out (string "Since the problem specifies that the displacement of ~a is zero, just draw a zero-length vector for it." ?b))
+   ((bottom-out (string "~@[~A  ~]The displacement of ~a is zero, just draw a zero-length vector for it."
+			(?motion identity) ?b))
     ))
 
 ;; This operator draws displacement at a given direction. This is needed
@@ -2108,8 +2111,8 @@
 	 (tinsidep ?t ?t-motion))
     ;; dir=unknown not handled correctly:
     (not (given (dir (displacement ?b :time ?t)) ?dir))
-    ;; BvdS:  hack to get kt13a to work
-    (not (given (mag (displacement ?b :time ?t)) (dnum 0 ?units)))
+    ;; BvdS:  hack to get kt13a and kgraph9 to work
+    (not (given (mag (displacement ?b :time ?t)) (dnum 0 ?units) . ?dont-care))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
