@@ -250,7 +250,7 @@
   :units |s|
   :restrictions positive
   :fromWorkbench  `(duration ,time)
-  :english ("the duration of the interval from ~A to ~A" 
+  :english ("the duration of time between ~A and ~A" 
             (nlg ?t1 'moment) (nlg ?t2 'moment)))
 (def-qexp speed (speed ?body :time ?t)
   :symbol-base |v|     

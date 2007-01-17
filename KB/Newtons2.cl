@@ -1441,7 +1441,8 @@
     (define-var (duration ?interval))
   )
   :hint
-  ((bottom-out (string "Use the variable definition tool (under 'variable' on the top menu bar) to define a variable for the duration of ~A." ?interval))
+  ((bottom-out (string "Use the variable definition tool (under 'variable' on the top menu bar) to define a variable for ~A." 
+		       ((duration ?interval) def-np)))
    ))
 
 ;;; This operator defines a speed variable.  Its only restriction is
@@ -2024,7 +2025,8 @@
    draw a zero displacement vector"
   :preconditions
    ((in-wm (given (mag (displacement ?b :time ?t)) (dnum 0 ?units) 
-		  :hint (?wherefrom ?motion) (nil nil)))
+		  :hint (?wherefrom ?motion) 
+		  (nil "Look at the problem statement.")))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
