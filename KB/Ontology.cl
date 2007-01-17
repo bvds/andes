@@ -976,7 +976,7 @@
   :EqnFormat ("val1 = ~Aval2" (code-char 177)))   ;plus/minus
 
 
-(def-psmclass sum-times (sum-times ?tt)
+(def-psmclass sum-times (sum-times ?tt :middle ?ti)
   :complexity connect
   :short-name "sum of times"
   :english ("tac = tab + tbc")

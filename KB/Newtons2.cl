@@ -76,8 +76,8 @@
   (
    ;; save initially known quants for detecting changes below
    ;; This is initial givens plus quantities given as parameters
-   (setof (in-wm (given ?quant ?dont-care)) ?quant ?initial-givens)
-   (setof (in-wm (parameter ?quant ?dont-care)) ?quant ?parameters)
+   (setof (in-wm (given ?quant . ?dont-care)) ?quant ?initial-givens)
+   (setof (in-wm (parameter ?quant . ?dont-care)) ?quant ?parameters)
    (bind ?initial-knowns (union ?initial-givens ?parameters :test #'unify))
    ;; Main step: apply a PSM to generate an equation for sought.
    (PSM-applied ?sought ?eqn-id ?eqn-algebra)
@@ -93,7 +93,7 @@
    ;; Some quantities in eqn may have become "given" -- known -- as side 
    ;; effects of applying the PSM. Here we call them the new-knowns.
    ;; We get what's known now and figure out what's changed.
-   (setof (in-wm (given ?quant ?dont-care))
+   (setof (in-wm (given ?quant . ?dont-care))
 	  ?quant ?given-now)
    (bind ?known-now (union ?given-now ?parameters :test #'unify))
    (bind ?new-knowns
@@ -179,7 +179,9 @@
     for it and write an equation giving its value"
   :preconditions 
   ;; right now, bubblegraph generator stops once it has found a given value
-  ((wm-or-derive (given ?quantity ?value-expr))
+  ((wm-or-derive (given ?quantity ?value-expr 
+			:hint (?given-loc ?more) 
+			("in the problem statement" nil)))
    ;; Make sure expression is usable in equation, not special atom. 
    ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
@@ -187,10 +189,10 @@
   :effects 
   ((given-eqn (= ?var-name ?value-expr) ?quantity))
   :hint
-  ((point (string "You can find the value of ~A in the problem statement." 
-		  ?quantity))
-   (point (string "The value of ~A is given as ~A." 
-		  ?quantity (?value-expr algebra)))
+  ((point (string "You can find the value of ~A ~A."  
+		  ?quantity (?given-loc identity)))
+   (point (string "~@[~A  ]The value of ~A is given as ~A." 
+		  ?more ?quantity (?value-expr algebra)))
    (bottom-out (string "Enter the equation ~A = ~A." 
 		       (?var-name algebra) (?value-expr algebra)))
    ))
@@ -202,7 +204,7 @@
 (defoperator write-known-zdir-eqn (?vector ?t)
   :preconditions
   (
-   (in-wm (given (dir ?vector) ?dir))
+   (in-wm (given (dir ?vector) ?dir . ?rest))
    (test (and (z-dir-spec ?dir)
 	      (not (equal ?dir 'z-unknown))))
    (bind ?t (time-of ?vector))
@@ -230,7 +232,7 @@
 (defoperator write-implicit-eqn (?quantity)
   :specifications "If a quantity's value becomes known as a side effect of some other step, then define a variable for it and write an equation giving its value"
   :preconditions 
-  ((in-wm (given ?quantity ?value-expr))
+  ((in-wm (given ?quantity ?value-expr . ?rest))
    ;; Make sure expression is usable in equation, not special atom. 
    ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
@@ -245,7 +247,7 @@
 ;; of zero or 180 degrees. The phi angle is used in writing projections.
 (defoperator write-implicit-zdir-eqn (?vector ?t)
    :preconditions (
-     (in-wm (given (dir ?vector) ?dir))
+     (in-wm (given (dir ?vector) ?dir . ?rest))
      (bind ?t (time-of ?vector))
      (test (and (z-dir-spec ?dir)
 	        (not (equal ?dir 'z-unknown))))
@@ -1252,7 +1254,7 @@
     (eqn-contains (sum-times ?tt) ?quant)
   ))
 
-;; only handles writing as sum of atomic sub-intervals
+;; handles writing as sum of atomic sub-intervals
 (defoperator write-sum-times (?tt)
   :preconditions 
   ((variable ?tt-var (duration ?tt))
@@ -1268,6 +1270,42 @@
 		  ?tt))
    (bottom-out (string "Write the equation ~a."
 		        ((= ?tt-var (+ . ?t-vars)) algebra)))
+   ))
+
+(defoperator sum-times-contains2 (?quant)
+  :preconditions 
+  (
+   (any-member ?quant ((duration ?t)))
+   ;; This is what keeps the number of solutions from blowing up:
+   ;; only consider intervals declared in the problem declaration
+   (time (during ?t1 ?t2))
+   (time (during ?t1 ?ti))
+   (time (during ?ti ?t2))
+   (any-member ?t ((during ?t1 ?ti) (during ?ti ?t2) (during ?t1 ?t2)))
+   ;; so we don't overlap the other version of the rule
+   (test (not (and (time-consecutivep `(during ,?t1 ,?ti))
+		   (time-consecutivep `(during ,?ti ,?t2)))))
+   )
+  :effects (
+    (eqn-contains (sum-times (during ?t1 ?t2) :middle ?ti) ?quant)
+  ))
+
+;; sum of two sub-intervals
+(defoperator write-sum-times2 (?t1 ?ti ?t2)
+  :preconditions 
+  ((variable ?tt-var (duration (during ?t1 ?t2)))
+   (variable ?ta-var (duration (during ?t1 ?ti)))
+   (variable ?tb-var (duration (during ?ti ?t2)))
+      )
+  :effects ( (eqn (= ?tt-var (+ ?ta-var ?tb-var)) 
+		  (sum-times (during ?t1 ?t2) :middle ?ti)) )
+  :hint
+  ((point (string "Time intervals can be added together."))
+   (teach (kcd "write-sum-times")
+          (string "Since the time interval ~A is equal to the union of its subintervals, its duration must be the sum of their durations." 
+		  ?tt))
+   (bottom-out (string "Write the equation ~a."
+		        ((= ?tt-var (+ ?ta-var ?tb-var)) algebra)))
    ))
 
 ;;; Following uses constancy of a quantity over a containing interval to
@@ -1587,7 +1625,7 @@
        (mag (displacement ?b :time (during ?t1 ?t2)))
                          ))
      ;; angle r1 must be given, and must be able to determine angle d12
-     (given (dir (relative-position ?b ?o :time ?t1)) ?dir-r1)
+     (given (dir (relative-position ?b ?o :time ?t1)) ?dir-r1 . ?rest)
      (displacement-dir ?b (during ?t1 ?t2) ?dir-d12)
      (test (perpendicularp ?dir-r1 ?dir-d12))
    )
@@ -1597,7 +1635,8 @@
 
 (defoperator get-displacement-dir-from-given (?b ?t1 ?t2)
     :effects ( (displacement-dir ?b (during ?t1 ?t2) ?dir-d12) )
-    :preconditions ( (given (dir (displacement ?b :time (during ?t1 ?t2))) ?dir-d12) ))
+    :preconditions ( (given (dir (displacement ?b :time (during ?t1 ?t2))) 
+			    ?dir-d12 . ?rest) ))
 
 (defoperator get-displacement-dir-from-motion (?b ?t1 ?t2)
     :effects ( (displacement-dir ?b (during ?t1 ?t2) ?dir-d12) )
