@@ -221,6 +221,8 @@
 	   :class eh)))
    (t (let ((c (first conditions))  (r (rest conditions)))
 	(case (first c)
+	  (not (when (null (check-err-conditions eh st (second c) sy bindings))
+		 (check-err-conditions eh st r sy bindings)))
 	  (student (check-err-student (second c) eh st r sy bindings))
 	  (old-student (check-err-old-student (second c) eh st r sy bindings))
 	  (no-student (check-err-no-student (second c) eh st r sy bindings))
@@ -244,7 +246,7 @@
 	  (bind (check-err-bind (second c) (third c)
 				eh st r sy bindings))
 	  (debug (check-err-debug (cdr c) eh st r sy bindings))
-	  (t ))))))
+	  (t nil))))))
 
 
 ;;; If the <pattern> of a (student <pattern>) condition unifies with
