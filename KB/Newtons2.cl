@@ -1946,6 +1946,8 @@
     (motion ?b straight :dir ?dir :time ?t-motion . ?rest)
     (time ?t)
     (test (and (time-intervalp ?t) (tinsidep ?t ?t-motion)))
+    ;; work-around for kgraph9, Bug #977
+    (not (motion ?b at-rest :time ?t . ?rest-at-rest))
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -2637,8 +2639,8 @@
    ((in-wm (given (dir (accel ?b :time ?t-given)) ?dir))
     (test (not (equal ?dir 'unknown)))  
     (test (tinsidep ?t ?t-given))
-    ; make sure no other motion specification in problem for time
-    ; !! Too strict, some motion specs leave accel dir out.
+    ;; make sure no other motion specification in problem for time
+    ;; !! Too strict, some motion specs leave accel dir out.
     (not (motion ?b ?dontcare :time ?t-motion . ?whatever)
          (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
