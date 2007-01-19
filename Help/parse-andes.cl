@@ -1069,6 +1069,8 @@
 	 ;; use given-var-p to avoid this behavior. Note it looks for
 	 ;; given flag on quantities at the bubble-graph level, not implicit 
 	 ;; equations, so might not work for those.
+	 (is-optionally-given (optionally-given-p 
+			       (student-to-canonical studvar)))
 	 (is-given (given-p (student-to-canonical studvar)))
 	 (is-known-constant (known-constantp (sysvar-to-quant 
 					      (student-to-canonical studvar))))
@@ -1077,7 +1079,10 @@
     ;; first filter case where student hasn't specified a given value 
     (cond 
      ((blank-given-value-entry eqn-entry)
-      (cond (is-given 
+      (cond (is-optionally-given 
+	     (setf (studentEntry-state eqn-entry) 'correct)
+	     (make-green-turn))
+	    (is-given 
 	     (setf (studentEntry-state eqn-entry) 'incorrect)
 	     (should-be-given-error-interp eqn-entry quant))
 	    (is-known-constant
@@ -1088,7 +1093,7 @@
 	     (make-green-turn))))
      
      ;; get here => student specified a given value
-     ((not (or is-given is-known-constant))
+     ((not (or is-given is-optionally-given is-known-constant))
       (setf (studentEntry-state eqn-entry) 'incorrect)
       (not-given-error-interp eqn-entry quant))
      

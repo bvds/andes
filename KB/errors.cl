@@ -3742,6 +3742,13 @@
 "true if var should be treated as a given"
   (or (given-var-p var) (given-component-p var)))
 
+(defun optionally-given-p (var)
+  "true if var should be treated as optionally given"
+  (format t "optionally-given-p ~A~%" (sysvar-to-quant var))
+  (and (or (given-var-p var) (given-component-p var))
+       (member `(optionally-given ,(sysvar-to-quant var)) 
+	       (Problem-wm *cp*) :test #'unify)))
+
 ;; following could be helpers in solution graph module:
 (defun get-var-value (var)
 "return DNUM term giving system variable's value and units"
