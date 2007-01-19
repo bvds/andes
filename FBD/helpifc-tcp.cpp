@@ -343,17 +343,26 @@ PUBLIC void HelpSystemDisconnect()
 	// shut down connection from our side. Not strictly necessary anymore, since 
     // exit-andes causes remote end to close, but good style to do so anyway. 
 	TRACE("Closing connection to help system\n");
-	
-	// Close socket. We shutdown for receiving as well as sending since no more data
-	// is expected from the helpsys. Note this may cause a reset -- abortive connection termination --
-	// rather than the normal TCP close sequence, but we don't care since we know the session
-	// is done and no more data can come to us. Although it's considered inelegant to slam the connection
-	// shut this way, it's acutally more efficient for us since this way the TCP layer won't linger for some 
-	// time in the FIN_WAIT states and the socket addresses can be immediately reused in a subsequent session 
+#if 0
+	// Shutdown our end of the pipe before releasing the socket. This sends a FIN which can be read as EOF by the other
+	// end. We shutdown for receiving as well as sending since no more data is expected from the helpsys. 
+	s_sockMsgs.ShutDown(2);
+#else	
+	// Do an abortive close of the socket (sends reset message, normally used for error),
+	// rather than the normal TCP close sequence. This is OK since we know the session
+	// is done and no more data can come to us. Although it's considered inelegant to "slam the connection
+	// shut" this way, it's acutally more efficient for us since this way the socket won't persist at the TCP layer
+	// for some time in the FIN_WAIT states. That means socket addresses can be immediately reused in a subsequent session 
 	// without problems. One might worry that help system could fall behind in  processing requests queued 
 	// in the pipe, but our interactions are now all synchronous -- we wait for a reply -- so this shouldn't happen. 
-	// We could synchronize on a reply to the final exit-andes call above as well if we needed to.
-	s_sockMsgs.ShutDown(2);
+	// The only outstanding message is the somewhat unnecessary final exit-andes call (though it is nice to see in the 
+	// logs that it took place.) The helpsys will exit in the same way on receiving a reset error. 
+
+	 // following option settings make the Close call do a "hard" close (resets connection).
+	// Don't do shutdown in this case.
+	{ struct linger l = { /*l_onoff:*/ 1, /*l_linger:*/ 0};
+		s_sockMsgs.SetSockOpt(SO_LINGER, &l, sizeof(l)); }
+#endif 0		
 	s_sockMsgs.Close();
 
 	// if we started helpsys, ensure process is terminated when we're done.

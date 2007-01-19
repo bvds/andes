@@ -1918,9 +1918,6 @@ SOURCE=.\res\zvel_o.cur
 # 	2:2:BH:
 # 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
 # End Section
-# Section OLE Controls
-# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
-# End Section
 # Section FBD : {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # 	0:14:WebBrowser.cpp:C:\Msdev\Projects\Fbd\WebBrowser.cpp
 # 	0:12:WebBrowser.h:C:\Msdev\Projects\Fbd\WebBrowser.h
@@ -1944,4 +1941,7 @@ SOURCE=.\res\zvel_o.cur
 # 	2:5:Class:CWebBrowser
 # 	2:10:HeaderFile:webbrowser.h
 # 	2:8:ImplFile:webbrowser.cpp
+# End Section
+# Section OLE Controls
+# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # End Section
