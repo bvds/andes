@@ -3801,15 +3801,26 @@
  (let* ((studvar (nlg var 'algebra))
 	(studval (nlg wrongval 'algebra))
         (quant   (sysvar-to-quant var))
-	(rightval (nlg (get-var-value var) 'algebra)))
+	(rightval (nlg (get-var-value var) 'algebra))
+	(given-enode (find `(given ,quant . ?rest)
+			(second (problem-graph *cp*))
+			:key #'enode-id :test #'unify))
+	(bindings (or
+		      (when given-enode 
+			(unify (enode-id given-enode) 
+			       '(given ?qant ?val :hint (?given-loc ?more))))
+		    '((?given-loc . "from the problem statement") 
+		      (?more . nil)))))
   (make-hint-seq
    (list 
 	; Be sure to include full quantity def in message, in case problem
 	; is that student thinks var denotes some other quantity.
-        (format nil "~A is not the correct value for ~A.  Reread the problem statement carefully to find the given value for ~A, ~A." 
-	            studval studvar studvar (nlg quant))
+        (format nil "~A is not the correct value for ~A, ~A.  ~A can be determined ~A." 
+	            studval studvar (nlg quant) studvar
+		    (cdr (assoc '?given-loc bindings)))
 	;; ?? should we tell them correct given value?
-	(format nil "The correct value for ~A is ~A." studvar rightval)
+	(format nil "~@[~A  ~]The correct value for ~A is ~A." 
+		(cdr (assoc '?more bindings)) studvar rightval)
    ))))
 
 ;; Wrong value for a non-given (i.e. calculated) quantity: 
