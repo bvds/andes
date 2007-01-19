@@ -1392,7 +1392,9 @@
 (def-error-class default-should-be-zero ()
   ((student (vector ?descr ?dir))
    (correct (vector ?descr zero))
-   (test (not (equal ?dir 'zero)))))
+   (test (not (equal ?dir 'zero))))
+  :utility 2  ;increase so hint for d06 in kgraph9 comes out right.
+  )
 
 (defun default-should-be-zero ()
  (make-hint-seq
@@ -1463,7 +1465,7 @@
    (bind ?good-time (time-of ?b2))
    (test (equal (remove-time ?b1) (remove-time ?b2)))
    (test (not (equal ?bad-time ?good-time))))
-  :utility 50
+  :utility 25 ; made half as big for good hint for d06 in kgraph9
   ;; Low probability since we want any quantity-specific rules to act first
   :probability 0.085)
 
