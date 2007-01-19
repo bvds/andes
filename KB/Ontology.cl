@@ -669,11 +669,12 @@
 ;;;;       All body variables should be of the form ?body or [?body0 ... ?bodyn]
 ;;;;       Times should be ?time or [?time0, ... ?timen]
 
-(def-psmclass given (given ?quantity ?value . ?rest)
+(def-psmclass given (given ?quantity ?value :hint ?hint)
   :complexity simple
   :doc "enter given value"
   :english ("the given value")
-  :ExpFormat ("entering the given value of ~A" (nlg ?quantity))
+  :ExpFormat ("~:[entering the given value of~;finding~] ~A" 
+	      ?hint (nlg ?quantity))
   :EqnFormat ("Var = N units"))
 
 (def-psmclass projection (projection (compo ?axis ?rot ?vector))
