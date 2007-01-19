@@ -109,7 +109,7 @@
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     ;; work-around for kgraph9, Bug #977
-    (not (motion ?b at-rest :time ?t . ?rest-at-rest))
+    (not (motion ?b at-rest :time ?t))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var)))
