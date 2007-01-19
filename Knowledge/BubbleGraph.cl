@@ -638,10 +638,6 @@
   "Is the qnode a given?"
   (Qnode-has-mark? Q **Given**))
 
-(defun qnode-optionally-Givenp (Q)
-  "Is the qnode optionally given?"
-  (Qnode-has-mark? Q 'optionally-given))
-
 ;;; (mark-qnode <Mark> <Qnode>) Add MARK to QNODE's markings
 (defun mark-qnode (mark Qnode)
   "Add the specified Marking to the specified qnode."
