@@ -3802,9 +3802,13 @@
 	(studval (nlg wrongval 'algebra))
         (quant   (sysvar-to-quant var))
 	(rightval (nlg (get-var-value var) 'algebra))
+	;; BvdS:  I am not sure that this is the most appropriate
+	;; way of accessing the hints associated with a given.
+	;; Find any (given ...) associated with the quantity
 	(given-enode (find `(given ,quant . ?rest)
 			(second (problem-graph *cp*))
 			:key #'enode-id :test #'unify))
+	;; if the (given ...) has custom hints, grab the hints
 	(bindings (or
 		      (when given-enode 
 			(unify (enode-id given-enode) 
@@ -3813,8 +3817,8 @@
 		      (?more . nil)))))
   (make-hint-seq
    (list 
-	; Be sure to include full quantity def in message, in case problem
-	; is that student thinks var denotes some other quantity.
+	;; Be sure to include full quantity def in message, in case problem
+	;; is that student thinks var denotes some other quantity.
         (format nil "~A is not the correct value for ~A, ~A.  ~A can be determined ~A." 
 	            studval studvar (nlg quant) studvar
 		    (cdr (assoc '?given-loc bindings)))
