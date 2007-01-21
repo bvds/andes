@@ -216,9 +216,9 @@
    ((null conditions)
     (list (make-Error-Interp
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
+	   :correct (eval (subst-bindings bindings (entry-test-correct eh)))
 	   :intended sy
-	   :bindings bindings
-	   :class eh)))
+	   :order (subst-bindings bindings (entry-test-order eh)))))
    (t (let ((c (first conditions))  (r (rest conditions)))
 	(case (first c)
 	  (not (when (null (check-err-conditions eh st (second c) sy bindings))
@@ -530,17 +530,8 @@
 (defun expected-utility-given-context (ei)
   "Given an error interpretation, returns its expected utility given the way its 
    interpretation fits into the current solution state."
-  (let ((prob
-	 (eval (subst-bindings-quoted 
-		(error-interp-bindings ei)
-		(cdr (assoc 'probability (entry-test-order 
-					  (error-interp-class ei)))))))
-	(utility
-	 (eval (subst-bindings-quoted 
-		(error-interp-bindings ei)
-		(cdr (assoc 'utility (entry-test-order 
-				      (error-interp-class ei)))))))
-
+  (let ((prob (eval (cdr (assoc 'probability (error-interp-order ei)))))
+	(utility (eval (cdr (assoc 'utility (error-interp-order ei)))))
 	(state (error-interp-state ei)))
 
     (cond 
