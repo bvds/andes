@@ -215,6 +215,7 @@
   (cond
    ((null conditions)
     (list (make-Error-Interp
+	   ;; Maybe just put the entry-test struct itself here?
 	   :test (entry-test-name eh)
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
 	   :correct (eval (subst-bindings bindings (entry-test-correct eh)))
