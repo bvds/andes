@@ -170,14 +170,14 @@
     (when (cdr candidates) ; trace conflicts, so we can vet the results
        (format T "Error candidates: ~W~%" (sort (mapcar #'ei-info candidates) #'> :key #'second)))
     (setf best (select-error-interpretation candidates))
-    (format t "Error interpretation: ~A~%" (ei-name best))
+    (format t "Error interpretation: ~A~%" (error-interp-test best))
     ;; (format t "Best candidate is ~W" best)
     (setf (Error-Interp-Remediation best) (generate-ww-turn best))
     best))
 
 ; for tracing:
-(defun ei-name(ei) (car (Error-Interp-diagnosis ei)))
-(defun ei-info(ei) (list (ei-name ei) (Error-Interp-expected-utility ei)))
+(defun ei-info(ei) (list (error-interp-test ei) 
+			 (Error-Interp-expected-utility ei)))
 
 ;;; ------------ Phase 1: Testing whether error conditions apply ------------
 ;;; given the student entry, returns an error analysis for each error
@@ -215,6 +215,7 @@
   (cond
    ((null conditions)
     (list (make-Error-Interp
+	   :test (entry-test-name eh)
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
 	   :correct (eval (subst-bindings bindings (entry-test-correct eh)))
 	   :intended sy

@@ -5,14 +5,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defstruct (Error-Interp (:print-function write-Error-Interp))
-  Intended      ;; interpretation of student's intended action
-  Remediation   ;; a non-empty list of tutor turns
-  Diagnosis     ;; a list whose car is the atom that names the error-handler
-  Order         ;; alist of specifications to determine priority
-  State         ;; One of forbidden, premature, premature-subst, done-already, inefficient or none
-  Correct       ;; Boolean if test returns student entry correct.
+  test          ; name of test that provided this interp
+  Intended      ; interpretation of student's intended action
+  Remediation   ; a non-empty list of tutor turns
+  Diagnosis     ; lisp expression whose evaluation returns a list of hints.
+  Order         ; alist of specifications to determine priority
+  State         ; (The following list is obsolete) 
+;;; One of forbidden, premature, premature-subst, done-already, inefficient or none
+  Correct       ; Boolean if test returns student entry correct.
   ;; to be removed in favor of method using ranking
-  Expected-Utility ;; a floating point number
+  Expected-Utility ; a floating point number
   )
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

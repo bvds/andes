@@ -323,7 +323,7 @@
 ;;; that's first element of diagnosis form in entry's errinterp.
 (defun te-error-tag (te-pair)
    (when (StudentEntry-ErrInterp (second te-pair))
-     (car (Error-Interp-diagnosis (StudentEntry-ErrInterp (second te-pair))))))
+     (Error-Interp-test (StudentEntry-ErrInterp (second te-pair)))))
 
 (defun simpler-parse (cand1 cand2)
   (let ((parse1 (StudentEntry-parsedEqn (second cand1)))
@@ -344,6 +344,9 @@
   (if (or (eq (te-error-tag te-pair) 'undefined-variables)
           (eq (te-error-tag te-pair) 'unused-variables))
       ;; error diagnosis should hold (undefined-variables v1 v2 v3...)
+      ;; BvdS:  This is completely wrong.  The number of slots in the
+      ;; function call has nothing to do with the number of slots unmatched
+      ;; in the student entry. See Bug #981.
       (length (cdr (Error-Interp-diagnosis (studentEntry-ErrInterp (second te-pair)))))
     0))
 ;;
