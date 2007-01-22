@@ -30,14 +30,15 @@
 (defun clear-entry-tests ()
   (setf **entry-tests** nil))
 
-(defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) (Utility 1.0))
+(defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) 
+				(Utility 1.0))
   `(push (make-entry-test :name (quote ,name)
 			   :conditions (quote ,conditions)
 			   :apply 'no-match
 			   :correct nil  ;never matches for errors
 			   :hint (quote ,(cons name arguments))
-			   :order (quote ((probability ,@probability) 
-				    (utility ,@utility)))
+			   :order (quote ((expected-utility .
+					   (* ,probability ,utility))))
 			   )
 	 **entry-tests**))
 

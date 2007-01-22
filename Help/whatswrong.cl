@@ -532,8 +532,7 @@
 (defun expected-utility-given-context (ei)
   "Given an error interpretation, returns its expected utility given the way its 
    interpretation fits into the current solution state."
-  (let ((prob (eval (cdr (assoc 'probability (error-interp-order ei)))))
-	(utility (eval (cdr (assoc 'utility (error-interp-order ei)))))
+  (let ((prob (eval (cdr (assoc 'expected-utility (error-interp-order ei)))))
 	(state (error-interp-state ei)))
 
     (cond 
@@ -549,7 +548,7 @@
       (setq prob (* prob 0.3)))
      ((eq state **dead-path**)
       (setq prob (* prob 0.001))))
-    (* prob utility)))
+    prob))
      
 
 ;;; -------- Phase 3: Selecting an error interpretation -------------

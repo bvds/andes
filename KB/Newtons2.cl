@@ -1108,7 +1108,12 @@
 ;;; Used on qualitative magnetism problems mag1a, mag1b
 (defoperator draw-required-vectors (?vector-list)
    :preconditions ( (foreach ?vector ?vector-list
-                         (vector ?b ?vector ?dir)) )
+                         (vector ?b ?vector ?dir)) 
+		    (in-wm (vector ?b . ?rest)) ;grab a body name
+		    ;; Drawing axes and body allowed.
+		    (optional (body ?b))
+		    (optional (axes-for ?b))
+		    )
    :effects ( (draw-vectors ?vector-list) ))
 ;;; =================== Generic: planning only problems =====================
 

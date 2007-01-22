@@ -1393,7 +1393,9 @@
   ((student (vector ?descr ?dir))
    (correct (vector ?descr zero))
    (test (not (equal ?dir 'zero))))
-  :utility 2  ;increase so hint for d06 in kgraph9 comes out right.
+  ;; increase so hints for d01 & d06 in kgraph9 come out right.
+  :probability 0.5  
+  :utility 10
   )
 
 (defun default-should-be-zero ()
