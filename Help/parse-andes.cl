@@ -154,7 +154,6 @@
     (make-error-interp
      :diagnosis '(Syntax-error-in-eqn)
      :intended NIL
-     :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
@@ -571,7 +570,6 @@
     (make-error-interp
      :diagnosis (cons 'Undefined-variables undef-vars)
      :intended NIL
-     :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
@@ -591,7 +589,6 @@
     (make-error-interp
      :diagnosis (cons 'Unused-variables undef-vars)
      :intended NIL
-     :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
@@ -926,7 +923,6 @@
     (make-error-interp
      :diagnosis '(answer-sought-is-undefined)
      :intended NIL
-     :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
@@ -942,7 +938,6 @@
     (make-error-interp
      :diagnosis '(answer-is-not-sought)
      :intended NIL
-     :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
@@ -957,7 +952,6 @@
     (make-error-interp
      :diagnosis '(answer-is-malformed)
      :intended NIL
-     :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
@@ -976,7 +970,6 @@
     (make-error-interp
      :diagnosis '(using-variables-in-answer)
      :intended NIL
-     :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
 
@@ -1201,9 +1194,11 @@
       (make-error-interp
        :diagnosis '(should-be-given)
        :intended (get-given-interp quant)
-       ; state is state of intended systementry -- premature, forbidden. Most now unused; we can just
-       ; assume correct.  Might check for change donealready like wwh does, but that would give a prolog
-       ; in whatswrong help, and we don't want that on givens in the dialog box, which do need to be done.
+       ;; state is state of intended systementry -- premature, forbidden. 
+       ;; Most now unused; we can just assume correct.  Might check for 
+       ;; change donealready like wwh does, but that would give a prolog
+       ;; in whatswrong help, and we don't want that on givens in the dialog 
+       ;; box, which do need to be done.
        :state **correct**	
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)

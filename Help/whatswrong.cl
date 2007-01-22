@@ -76,8 +76,7 @@
    :state **no-corresponding-correct-entry**
    :remediation (apply fn-msg nil)
    :diagnosis (list fn-msg)
-   :Expected-Utility 0.0
-   :class nil))
+   :Expected-Utility 0.0))
 
 
 (defun no-error-interpretation ()
