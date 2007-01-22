@@ -76,7 +76,6 @@
    :state **no-corresponding-correct-entry**
    :remediation (apply fn-msg nil)
    :diagnosis (list fn-msg)
-   :bindings no-bindings
    :Expected-Utility 0.0
    :class nil))
 

@@ -1108,12 +1108,14 @@
 ;;; Used on qualitative magnetism problems mag1a, mag1b
 (defoperator draw-required-vectors (?vector-list)
    :preconditions (
-		   ;; draw vectors, saving a list of axis owners
+		   ;; draw vectors, saving a list of distinct axis owners
 		   (map ?vector ?vector-list
 			(vector ?b ?vector ?dir) ?b ?bbb)
 		   (bind ?bb (remove-duplicates ?bbb))
 		   ;; Drawing axes allowed, see draw-standard-fbd
 		   (foreach ?b ?bb (optional (fbd-axes-drawn ?b)))
+		   ;; Allow drawing of any body in problem
+		   (foreach ?b ?bb (optional (body ?b)))
 		   )
    :effects ( (draw-vectors ?vector-list) ))
 

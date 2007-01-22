@@ -154,7 +154,6 @@
     (make-error-interp
      :diagnosis '(Syntax-error-in-eqn)
      :intended NIL
-     :bindings no-bindings
      :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
@@ -445,7 +444,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(forgot-units)
-       :bindings no-bindings
        :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
@@ -480,7 +478,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(maybe-forgot-units)
-       :bindings no-bindings
        :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
@@ -499,7 +496,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(wrong-units)
-       :bindings no-bindings
        :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
@@ -513,7 +509,6 @@
      (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(internal-error)
-       :bindings no-bindings
        :state **no-corresponding-correct-entry**
        :remediation rem))
     rem))
@@ -576,7 +571,6 @@
     (make-error-interp
      :diagnosis (cons 'Undefined-variables undef-vars)
      :intended NIL
-     :bindings no-bindings
      :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
@@ -597,7 +591,6 @@
     (make-error-interp
      :diagnosis (cons 'Unused-variables undef-vars)
      :intended NIL
-     :bindings no-bindings
      :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
@@ -933,7 +926,6 @@
     (make-error-interp
      :diagnosis '(answer-sought-is-undefined)
      :intended NIL
-     :bindings no-bindings
      :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
@@ -950,7 +942,6 @@
     (make-error-interp
      :diagnosis '(answer-is-not-sought)
      :intended NIL
-     :bindings no-bindings
      :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
@@ -966,7 +957,6 @@
     (make-error-interp
      :diagnosis '(answer-is-malformed)
      :intended NIL
-     :bindings no-bindings
      :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
@@ -986,7 +976,6 @@
     (make-error-interp
      :diagnosis '(using-variables-in-answer)
      :intended NIL
-     :bindings no-bindings
      :class NIL
      :state **no-corresponding-correct-entry**
      :remediation rem)))
@@ -1174,7 +1163,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(should-be-unknown)
-       :bindings no-bindings
        :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
@@ -1212,7 +1200,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(should-be-given)
-       :bindings no-bindings
        :intended (get-given-interp quant)
        ; state is state of intended systementry -- premature, forbidden. Most now unused; we can just
        ; assume correct.  Might check for change donealready like wwh does, but that would give a prolog
@@ -1237,7 +1224,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(should-be-known)
-       :bindings no-bindings
        :intended (get-known-interp quant)
        :state **correct**	
        :remediation rem))
@@ -1254,7 +1240,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(wrong-given-value)
-       :bindings no-bindings
        :intended (get-given-interp quant)
        :state **correct**       ; of the intended systementry. 
        :remediation rem))
@@ -1272,7 +1257,6 @@
     (setf (studentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(more-than-given)
-       :bindings no-bindings
        :intended (get-given-interp quant)
        :state **correct**	; state of the intended systementry. Shouldn't matter
        :remediation rem))
