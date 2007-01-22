@@ -1107,14 +1107,17 @@
 ;;; understand a button meaning "done-all-parts".
 ;;; Used on qualitative magnetism problems mag1a, mag1b
 (defoperator draw-required-vectors (?vector-list)
-   :preconditions ( (foreach ?vector ?vector-list
-                         (vector ?b ?vector ?dir)) 
-		    (in-wm (vector ?b . ?rest)) ;grab a body name
-		    ;; Drawing axes and body allowed.
-		    (optional (body ?b))
-		    (optional (axes-for ?b))
-		    )
+   :preconditions (
+		   ;; draw vectors, saving a list of axis owners
+		   (map ?vector ?vector-list
+			(vector ?b ?vector ?dir) ?b ?bbb)
+		   (bind ?bb (remove-duplicates ?bbb))
+		   ;; Drawing axes allowed, see draw-standard-fbd
+		   (foreach ?b ?bb (optional (fbd-axes-drawn ?b)))
+		   )
    :effects ( (draw-vectors ?vector-list) ))
+
+
 ;;; =================== Generic: planning only problems =====================
 
 ; For Sandy Katz planning only preparatory problems, the only goal is
