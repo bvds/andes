@@ -662,8 +662,6 @@
 ;; goal propositions for writing psm equations are included here as well.
 ;; ??? do we need these ? should be able to get from equation-writing ops.
 ;;
-;; ?eq-type may be 'compo-free or 'compo-eqn
-
 ;;;; NOTE: For the purposes of the NSH code I am imposing some naming conventions here.
 ;;;;       All axes names should be of the form ?axis or (?axis0 ... ?axisn) if multiple axes.
 ;;;;       All body variables should be of the form ?body or [?body0 ... ?bodyn]

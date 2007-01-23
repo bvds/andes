@@ -1701,7 +1701,7 @@
   (let ((Q (nsh-convert-response->quantity response)))                           ;; uses *current graph*
     (cond ((member response past :test #'equal) (nsh-sought-resp-rep past))      ;; have they tried this before.
 	  ((null Q) (nsh-sought-resp-nil (cons response past)))                  ;; is the quantity valid?
-	  ((not (nsh-quantity-soughtp Q)) (nsh-sought-resp-ns (cons response past))) ;; Is the quantity sought?
+	  ((not (qnode-soughtp Q)) (nsh-sought-resp-ns (cons response past))) ;; Is the quantity sought?
 	  (t (nsh-ask-first-principle (random-positive-feedback) Q)))))          ;; Else use the value and move on.
 
 
@@ -3406,10 +3406,6 @@
 (defun nsh-quantity-parameter-p (Q)
   "Get the expression form of a quantity."
   (qnode-parameterp Q))
-
-(defun nsh-quantity-soughtp (Q)
-  "Is the specified quantity sought?"
-  (qnode-soughtp Q))
 
 (defun nsh-quantity-answer-enteredp (Q)
   "Has the specified quantitry been entered in an answer box?"

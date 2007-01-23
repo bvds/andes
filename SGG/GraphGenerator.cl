@@ -230,7 +230,7 @@
 ;;;-------------------------------------------------------------------
 ;;; Solve givens.
 ;;; Given nodes are solved for by solving for a given psm for the 
-;;; sought itself.  Once that has been done then the enode qill be 
+;;; sought itself.  Once that has been done then the enode will be 
 ;;; connected to a qnode representing the sought and added to the 
 ;;; graph itself.  
 ;;;

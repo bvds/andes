@@ -523,14 +523,15 @@
    (when implicitEntry
       (push ImplicitEntry (studentEntry-ImplicitEqns mainEntry))))
 
-; unlike implicit equations, which can be represented in systemese,
-; a given eqn entry is a studentese variable and a studentese expression
-; string (which may be empty string if no value set). So this winds up
-; almost like an equation entry. However, for these entries, we split studvar 
-; and value string into separate arguments in the proposition, for easy access.
-; We still begin prop with eqn so sg-entering code can recognize it as an equation 
-; entry. That's OK, because that code only uses the car of the prop, the difference
-; in the rest of it should not matter since it's never used (check).
+;; unlike implicit equations, which can be represented in systemese,
+;; a given eqn entry is a studentese variable and a studentese expression
+;; string (which may be empty string if no value set). So this winds up
+;; almost like an equation entry. However, for these entries, we split studvar 
+;; and value string into separate arguments in the proposition, for easy access.
+;; We still begin prop with eqn so sg-entering code can recognize it as an 
+;; equation entry.  That's OK, because that code only uses the car of 
+;; the prop, the difference in the rest of it should not matter since it's
+;; never used (check).
 
 (defun make-given-eqn-entry (studvar value)
 "make equation entry setting student var to given value"
