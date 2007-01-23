@@ -326,7 +326,7 @@
 	 (unify-keyword y x bindings))
 	;; Then test that at least one order did work.
 	((or (valid-keyword-pair x) (valid-keyword-pair y)) 
-	 (error "Can't unify keyword pairs in ~A~%     and ~A~%" x y)) 
+	 (error "Can't unify keyword pairs in ~S~%     and ~S~%" x y)) 
 	;; Recursion for cons
         ((and (consp x) (consp y))
 	 (unify (rest x) (rest y) 
