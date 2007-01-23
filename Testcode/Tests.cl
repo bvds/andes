@@ -159,7 +159,7 @@
 ;;;; classified as optional equations, and it is possible to derive some of
 ;;;; the optional equations to avoid others.  
 ;;;;
-;;;; Since we have determined that trhe student should write all of the eqns 
+;;;; Since we have determined that the student should write all of the eqns 
 ;;;; in symbolic form and that those equations appear at the top of nodes we
 ;;;; can classify them as necessary.  Given equations are in the same position
 ;;;; they cannot *really* be eliminated from the problems.  We have an 
@@ -318,8 +318,12 @@
   (let (Class (Eqn (match-systementry->eqn Entry (problem-Eqnindex *cp*))))
     (when Eqn
       (cond 
-       ;; If it is a given equation then we will add it to the given-eqns cache.
-       ((equalp (eqn-type Eqn) 'given-eqn)
+       ;; If entry is a given equation, and the associated quantity is not 
+       ;; a sought, then add it to the given-eqns cache.  In the case where
+       ;; it is a sought, we are already giving points for the final answer.
+       ((and (equalp (eqn-type Eqn) 'given-eqn)
+	     (not (qnode-soughtp (match-exp->qnode (eqn-exp Eqn) 
+						   (problem-graph *cp*)))))
 	     (push Entry (nth Solution *test-cache-given-eqn-entries*)))
 	    
        ;; If it is an eqn and it is not a trivial system equation, and it is 
