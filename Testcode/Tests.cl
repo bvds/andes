@@ -206,7 +206,7 @@
 
 ;;; On the multiple choice problems the student can only make 
 ;;; check-answer entries.  We want to flag these problems so
-;;; that we will not penalize the studetns for not writing 
+;;; that we will not penalize the students for not writing 
 ;;; equations on them.  Because the testing task is so time-consuming
 ;;; I will cache the value here.  In the future it would (again) be
 ;;; nice to hang some of these values on the problem struct itself
@@ -583,16 +583,24 @@
 
 ;;; --------------------------------------------------------------------
 ;;; Test for nonanswer entries.
+;;; The only problems on which this is an issue are those where the student 
+;;; is asked to select from several multiple choice questions, or if 
+;;; the final answers are all given.  
+;;;
 ;;; Test the problem to determine if there are any non check-answer 
 ;;; entries within it and set the cache flag appropriately.  
+;;;
+;;; As discussed in Bug #983, it might be better to turn on 
+;;; Correct_Entries_V_Entries after the student has made a non-answer entry.
 
 (defun test-problem-nonanswer-entries ()
   "Test the problem for nonanswer entries."
-  (if (remove-if 
-       #'(lambda (S) (unify (Systementry-prop S) '(choose-answer ?a ?b)))
-       *sg-entries*)
-      (setq **Current-Prob-Has-nonanswer-entries** t)
-    (setq **Current-Prob-Has-nonanswer-entries** Nil)))
+  (setq **Current-Prob-Has-nonanswer-entries**
+	(and (remove-if 
+	      #'(lambda (S) (unify (Systementry-prop S) '(choose-answer . ?a)))
+	      *sg-entries*)
+	     ;; Specify that there are no non-answer entries; see Bug #983.
+	     (not (member 'final-answer-only (problem-features *cp*))))))
 
 
 ;;;; =========================================================================
@@ -1284,9 +1292,9 @@
 ;;; Calculate the ratio of correct entries to total 
 ;;; entries that the student made.  In order for this test to be viable 
 ;;; we need to ensure that there is at least one non-answer entry that
-;;; the student can make.  The only problems on which this is an issue 
-;;; are those where the student is asked to select from several multiple
-;;; choice questions.  
+;;; the student can make.  
+
+(defparameter **entry-entered** nil)
 
 (defun art-correctent-ent-test (Score)
   "The Correct entries v entries overall."
