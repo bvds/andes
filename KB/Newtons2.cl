@@ -3771,7 +3771,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   ( 
    (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr)
-   (test (not (equal ?dir-expr 'unknown)))
    (time ?t) ;explicit time
    (test (tinsidep-include-endpoints ?t ?t-given))
    ;; make sure this vector not already drawn
@@ -3877,8 +3876,10 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep ?t ?t-at))
     (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep ?t ?t-at))
     ;; make sure not given it's dir, or the opposite dir, so can draw known
-    (not (given (dir (relative-position ?b1 ?b2 :time ?t)) (dnum ?dir |deg|)))
-    (not (given (dir (relative-position ?b2 ?b1 :time ?t)) (dnum ?dir |deg|)))
+    (not (given (dir (relative-position ?b1 ?b2 :time ?t-given)) 
+		(dnum ?dir |deg|)) (tinsidep ?t ?t-given))
+    (not (given (dir (relative-position ?b2 ?b1 :time ?t)) 
+		(dnum ?dir |deg|)) (tinsidep ?t ?t-given))
     ;; make sure this vector not already drawn
     (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
