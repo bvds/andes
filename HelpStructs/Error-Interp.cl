@@ -23,9 +23,6 @@
 ;;
 (defun write-Error-Interp (E &optional (Stream t) (level 0))
   (declare (ignore level))
-  (format Stream "[Error-Interp state: ~a expected utility: ~,2f ~%diagnosis: ~a~ correct ~A~%"
-	  (error-interp-state e)
-	  (or (error-interp-Expected-Utility e) 0)
-	  (error-interp-diagnosis e)
-	  (error-interp-intended e)))
+  (format Stream "[Error-Interp name:~A~%]" 
+          (car (error-interp-diagnosis e))))
 
