@@ -174,8 +174,7 @@
     best))
 
 ; for tracing:
-(defun ei-name(ei) (or (error-interp-test ei) (car (Error-Interp-diagnosis ei))))
-(defun ei-info(ei) (list (error-interp-test ei) 
+(defun ei-info(ei) (list (error-interp-name ei) 
 			 (Error-Interp-expected-utility ei)))
 
 ;;; ------------ Phase 1: Testing whether error conditions apply ------------

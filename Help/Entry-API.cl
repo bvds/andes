@@ -1455,7 +1455,7 @@
        ; log the error tag if one was found
        (when (StudentEntry-ErrInterp entry)
            (send-fbd-command (format nil "assoc error ~A" 
-				     (ei-name (StudentEntry-ErrInterp Entry)))))
+				     (error-interp-name (StudentEntry-ErrInterp Entry)))))
 
         ; log the target entry info if we have any. This shows comma-separated lists of entry props
 	; ("steps") and parallel list of opnames

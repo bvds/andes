@@ -24,5 +24,9 @@
 (defun write-Error-Interp (E &optional (Stream t) (level 0))
   (declare (ignore level))
   (format Stream "[Error-Interp name:~A~%]" 
-          (car (error-interp-diagnosis e))))
+          (error-interp-name e)))
 
+(defun error-interp-name(ei) 	; maybe temporary until old/new are reconciled
+"return the name of the error handler"
+ (or (error-interp-test ei)  		 ; new style built by whatswrong 
+     (car (Error-Interp-diagnosis ei)))) ; old style custom built in eqn checking
