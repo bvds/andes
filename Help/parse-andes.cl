@@ -260,6 +260,7 @@
   (let ((choice nil) (wrong nil) (unk nil) (uni nil) (mis nil) (err nil) (unused nil))
     (dolist (te badlist)
       ; collect sets of results of each distinguished class
+      ; (format T "choose-ambiguous: parse w/tag ~a~%" (te-error-tag te))
       (case (te-error-tag te)
         (undefined-variables
 	   (setf unk (append unk (list te))))
@@ -321,7 +322,7 @@
 ;;; that's first element of diagnosis form in entry's errinterp.
 (defun te-error-tag (te-pair)
    (when (StudentEntry-ErrInterp (second te-pair))
-     (Error-Interp-test (StudentEntry-ErrInterp (second te-pair)))))
+     (car (Error-Interp-diagnosis (StudentEntry-ErrInterp (second te-pair))))))
 
 (defun simpler-parse (cand1 cand2)
   (let ((parse1 (StudentEntry-parsedEqn (second cand1)))

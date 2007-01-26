@@ -174,6 +174,7 @@
     best))
 
 ; for tracing:
+(defun ei-name(ei) (or (error-interp-test ei) (car (Error-Interp-diagnosis ei))))
 (defun ei-info(ei) (list (error-interp-test ei) 
 			 (Error-Interp-expected-utility ei)))
 
@@ -218,7 +219,7 @@
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
 	   :correct (eval (subst-bindings bindings (entry-test-correct eh)))
 	   :intended sy
-	   :order (subst-bindings bindings (entry-test-order eh)))))
+	   :order (subst-bindings-quoted bindings (entry-test-order eh)))))
    (t (let ((c (first conditions))  (r (rest conditions)))
 	(case (first c)
 	  (not (when (null (check-err-conditions eh st (second c) sy bindings))
