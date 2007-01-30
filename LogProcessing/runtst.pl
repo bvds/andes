@@ -87,7 +87,6 @@ sub Do_DDE()		# send given Lisp cmd as DDE
 sub Do_DDE_Post ()	# send given lisp cmd as DDE-POST
 {
     my ($lispcmd) = @_;
-   
     &Send_Msg("!$lispcmd");
 }
 
@@ -100,15 +99,14 @@ while (<>)
     chomp();	# remove trailing newline
     s/\r//;	# remove any trailing CR if present
 
-    # ensure we have a DDE line, ignoring others (maybe blanks?)
-    next if (! (/^(DDE[-PSTO]*) (.+)/));
+    # skip non-DDE call lines (DDE-RESULT, DDE-COMMAND, DDE-FAILED)
+    next if (! (/^(DDE|DDE-POST) (.+)/));
 
-    # get here -> we just matched a DDE line
+    # get here -> we just matched a DDE/DDE-POST call
+    print "$_\n";
     if ($1 eq "DDE") {
-	   print "$_\n";
 	   &Do_DDE($2);
     } elsif ($1 eq "DDE-POST") {
-	   print "$_\n";
 	   &Do_DDE_Post($2);
     }
 
