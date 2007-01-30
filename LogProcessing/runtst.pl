@@ -67,12 +67,12 @@ sub Do_DDE()		# send given Lisp cmd as DDE
 	 print STDERR "receive: |$_|\n";
 	 if (/^!(.*)$/)      # command from help sys
 	 {
-		 print "DDE-COMMAND\t$1\n";
+		 print "DDE-COMMAND $1\n";
 	 }
 	 elsif (/^\<[\d]+:(.*)$/) # returned result
 	 {  
 		 # !! verify id matches nCalls
-		 print "DDE-RESULT\t|$1|\n";
+		 print "DDE-RESULT |$1|\n";
 		 return;
 	 } 
 	 elsif (/\*[\d]+:(.*)$/)  # 
@@ -100,16 +100,15 @@ while (<>)
     chomp();	# remove trailing newline
     s/\r//;	# remove any trailing CR if present
 
-    # echo all input lines
-    print "$_\n";
-
     # ensure we have a DDE line, ignoring others (maybe blanks?)
-    next if (! (/^(DDE[-A-Z]*) (.+)/));
+    next if (! (/^(DDE[-PSTO]*) (.+)/));
 
     # get here -> we just matched a DDE line
     if ($1 eq "DDE") {
+	   print "$_\n";
 	   &Do_DDE($2);
     } elsif ($1 eq "DDE-POST") {
+	   print "$_\n";
 	   &Do_DDE_Post($2);
     }
 
