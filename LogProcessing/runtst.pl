@@ -7,10 +7,10 @@
 # An Andes test file contains just the sequence of DDE call records from an ANDES
 # log file, with no timestamps, as extracted by log2tst.pl
 #
-# reads log from stdin, writes new log to stdout.
-# usage:  runtst < oldlog.tst > newlog.tst
+# reads log from stdin, writes new log to stdout, traces to stderr
+# usage:  runtst <oldlog.tst  >newlog.tst  2>trace-output.txt
 #
-# Diff'ing the two logs can be used for regression testing. 
+# Diff'ing the old and new test files can be used for regression testing. 
 #
 # A similar process could also be used to repair omissions in information in the old logs, 
 # by playing back to an enhanced version of the original help system. Would have to 
@@ -64,7 +64,7 @@ sub Do_DDE()		# send given Lisp cmd as DDE
     # !!! call blocks w/no provision for timeout here
     while (<$sock>) {
 	 chomp();
-	 print STDERR "read: |$_|\n";
+	 print STDERR "receive: |$_|\n";
 	 if (/^!(.*)$/)      # command from help sys
 	 {
 		 print "DDE-COMMAND\t$1\n";
@@ -100,18 +100,18 @@ while (<>)
     chomp();	# remove trailing newline
     s/\r//;	# remove any trailing CR if present
 
-    # echo the line
+    # echo all input lines
     print "$_\n";
 
     # ensure we have a DDE line, ignoring others (maybe blanks?)
-    next if (! (/^(DDE.*)\t(.*)/));
+    next if (! (/^(DDE[-A-Z]*) (.+)/));
 
     # get here -> we just matched a DDE line
-   if ($1 eq "DDE") {
+    if ($1 eq "DDE") {
 	   &Do_DDE($2);
-   } elsif ($1 eq "DDE-POST") {
+    } elsif ($1 eq "DDE-POST") {
 	   &Do_DDE_Post($2);
-   }
+    }
 
 } # end while (<>)
 
