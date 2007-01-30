@@ -13,8 +13,12 @@ while (<>)
      # Workaround this by removing any \r's left in the line.
      s/\r//;
 
-     # copy only DDE lines minus timestamp
+     # ignore the final exit-andes call since it would shuts down the other end, and
+     # don't want that in a help sequence.
+     next if (/\tDDE-POST \(exit-andes\)/); 
+
+     # copy all other DDE* lines minus timestamp
      if (/^.*\t(DDE.*)/) {
-	  print "$1\n";
+	 print "$1\n";
      }
 }
