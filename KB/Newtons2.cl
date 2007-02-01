@@ -5577,8 +5577,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	    (optional (fbd-axes-drawn ?b)))
    :effects ((fbd ?b ?t))
    :hint
-   ((point (string "Draw a free body diagram for ~A." ?b))
-    (teach (string "Use the body tool to draw the body.  Then draw a vector for each force acting on that body."))))
+   ((teach (string "Use the body tool to draw the body.  Then draw a vector for each force acting on that body."))))
 
 (defoperator choose-axes-for-fbd (?b)
     :effects ( (fbd-axes-drawn ?b) )
