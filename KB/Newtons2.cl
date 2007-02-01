@@ -5569,13 +5569,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
    :preconditions 
            ((body ?b)
 	    (forces ?b ?t ?forces)
-	    ; axes are optional, but still want to allow any valid rotation
-	    ; Our 'optional' statement requires a fully bound goal forms, for
-	    ; case where step is skipped and goal is just posted to wm.
-	    ; So we can't use unbound axis rotation inside optional; instead, 
-	    ; have to break out call to another operator.
+	    ;; axes are optional, but still want to allow any valid rotation
+	    ;; Our 'optional' statement requires a fully bound goal forms, for
+	    ;; case where step is skipped and goal is just posted to wm.
+	    ;; So we can't use unbound axis rotation inside optional; instead, 
+	    ;; have to break out call to another operator.
 	    (optional (fbd-axes-drawn ?b)))
-   :effects ((fbd ?b ?t)))
+   :effects ((fbd ?b ?t))
+   :hint
+   ((point (string "Draw a free body diagram for ~A." ?b))
+    (teach (string "Use the body tool to draw the body.  Then draw a vector for each force acting on that body."))))
 
 (defoperator choose-axes-for-fbd (?b)
     :effects ( (fbd-axes-drawn ?b) )
