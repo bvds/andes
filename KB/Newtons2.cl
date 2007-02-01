@@ -5575,9 +5575,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 	    ;; So we can't use unbound axis rotation inside optional; instead, 
 	    ;; have to break out call to another operator.
 	    (optional (fbd-axes-drawn ?b)))
-   :effects ((fbd ?b ?t))
-   :hint
-   ((teach (string "Use the body tool to draw the body.  Then draw a vector for each force acting on that body."))))
+   :effects ((fbd ?b ?t)))
 
 (defoperator choose-axes-for-fbd (?b)
     :effects ( (fbd-axes-drawn ?b) )
