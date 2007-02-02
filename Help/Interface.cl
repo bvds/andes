@@ -12,7 +12,7 @@
 ;;; State.cl.  
 ;;;
 ;;; This code will form the requisite cmd struct and then dispatch
-;;; the api command with arguments by fincalling it with the 
+;;; the api command with arguments by calling it with the 
 ;;; safe-apply function.  
 ;;;
 ;;; The result of the safe-apply is assumed to be an error trap, nil,

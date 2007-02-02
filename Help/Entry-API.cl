@@ -45,7 +45,8 @@
 	; or may be time point name of form T1
         ((wb-time-pt-namep time-arg) (get-wb-time-pt time-arg)) 
 	(T (warn "unrecognized time argument:~A" time-arg)
-	   NIL)))
+	   `(unrecognized ,time-arg)) ;need error handler
+	))
 
 (defun get-default-time () 
   "return the default KB time for the problem"
@@ -116,7 +117,8 @@
         ((NULL dir-arg) 'unknown)
 	; else should be a number
 	((not (numberp dir-arg)) 
-	 (warn "non-numeric direction arg:~A" dir-arg) dir-arg)
+	 (warn "non-numeric direction arg:~A" dir-arg) 
+	 `(unrecognized ,dir-arg)) ;an error handler can look for this
         ; negative numbers code z-axis directions, use special atoms
         ((= dir-arg -1)  'out-of)
 	((= dir-arg -2)  'into)
@@ -320,7 +322,7 @@
                                               (fifth api-call)))
     (otherwise
     	(warn "wb-quant: Unrecognized quantity spec: ~A~%" api-call)
-	NIL)))
+	`(unrecognized ,api-call))))
 
 
 ;;; make-quant -- Build a quantity expr from define-variable arg list. 
