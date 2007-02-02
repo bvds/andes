@@ -1708,7 +1708,7 @@
 (defun nsh-convert-response->quantity (Q)
   "Convert the kb-style quantity expression response to a quantity (qnode.)"
   (cond ((not (quantity-expression-p Q))
-	 (error "Non-quantity-expression returned as response."))
+	 (error "Non-quantity-expression ~A returned as response." Q))
 	(t (match-exp->qnode Q (problem-graph *cp*)))))
 
 

@@ -187,7 +187,7 @@
 ;;;   the time between the entries and the total time will be close enough
 ;;;   for our purposes.
 ;;;
-;;; NOTE:: In order for the times top be rendered interms of the distance from 
+;;; NOTE:: In order for the times to be rendered interms of the distance from 
 ;;;   the beginning of this session (as they are in the logfiles) it is necessary
 ;;;   to set the **base-htime** to the time when Andes is initialized.  Therefore
 ;;;   this will be done below.

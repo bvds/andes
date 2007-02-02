@@ -90,7 +90,7 @@ while (<>) # loop over Andes sessions
       # do nothing
     # match timestamp and end of line, including newline
     } elsif (/^([\d:]+)\tDDE-(RESULT|FAILED) [^\r]+(.*)/s) {
-      &get_reply($1,$3);  #should check return value against $nCalls
+	&get_reply($1,$3);  #should check return value against $nCalls
     } else {
       print $_;  #just echo anything else
     }    
