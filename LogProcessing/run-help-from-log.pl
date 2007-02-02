@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 #
+# Start up helpsystem:
+# echo "(rhelp)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl > run-help.log
 # Read an Andes log file through the help system.
 #
 # run-help-from-log.pl -v [-h hostname] < input.log > output.log
@@ -73,18 +75,18 @@ sub get_reply()		# send given Lisp cmd as DDE
 while (<>) # loop over Andes sessions
 {
   unless (/\tSTART-HELP/) {   # echo header lines
-    print $_;
+    print;
     next;
   }  
-  print $_; # print START-HELP line
+  print; # print START-HELP line
   while (<>) {   # loop over lines in Andes session
     last if /\tEND-LOG/;  # end of Andes session
     if (/^([\d:]+)\tDDE ([^\r]+)/){
-      print $_;
+      print;
       $nCalls=($nCalls+1) % 10;      # just use one-digit id for brevity
       &Send_Msg("?$nCalls:$2");  
     } elsif (/^([\d:]+)\tDDE-POST ([^\r]+)/) {
-      print $_;
+      print;
       &Send_Msg("!$2");
     } elsif (/^([\d:]+)\tDDE-COMMAND /) {
       # do nothing
@@ -92,10 +94,10 @@ while (<>) # loop over Andes sessions
     } elsif (/^([\d:]+)\tDDE-(RESULT|FAILED) [^\r]+(.*)/s) {
 	&get_reply($1,$3);  #should check return value against $nCalls
     } else {
-      print $_;  #just echo anything else
+      print;  #just echo anything else
     }    
   } #loop over lines in session
-  print $_; #just echo END-LOG line
+  print; #just echo END-LOG line
 } #end loop over sessions
 
 # finish up
