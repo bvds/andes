@@ -115,7 +115,8 @@
         ; else may be NIL if unspecified -- use special atom 'unknown
         ((NULL dir-arg) 'unknown)
 	; else should be a number
-	((not (numberp dir-arg)) (error "non-numeric direction arg:~A" dir-arg))
+	((not (numberp dir-arg)) 
+	 (warn "non-numeric direction arg:~A" dir-arg) dir-arg)
         ; negative numbers code z-axis directions, use special atoms
         ((= dir-arg -1)  'out-of)
 	((= dir-arg -2)  'into)
