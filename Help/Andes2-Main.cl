@@ -48,6 +48,9 @@
 (defvar *andes-stream* nil
 "The stream that represents the character socket that serves help requests.")
 
+(defvar *debug-help* t
+"The stream showing help system runtime activities.")
+
 (defparameter &andes-port& 12345 ;; default port number from workbench code.
 "The port where the help system listens for help requests.")
 
@@ -126,7 +129,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 	#-(or allegro clisp cmu sbcl openmcl)
 	(warn "create-inet-listener not supported on this implementation")
 	))
-  (format *debug-io* "~&Opened socket: ~S~%" *andes-socket*) t)
+  (format *debug-help* "~&Opened socket: ~S~%" *andes-socket*) t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; terminate-server -- closes the open stream and socket to the workbench
@@ -159,7 +162,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 
 (defun andes-run ()
   "Executes delayed tasks and listens for new events on the stream to process."
-  (format *debug-io* "~&Running server event processing loop~%")
+  (format *debug-help* "~&Running server event processing loop~%")
   (unwind-protect
       ;; outer loop just repeats forever until server termination flag gets 
       ;; set or connection no longer exists.
@@ -186,7 +189,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
     ;; out of error to continue.
     #-allegro-cl-runtime 
     (if (not *andes-stop*)
-       (format *debug-io* 
+       (format *debug-help* 
               "~&Exited server event loop! Call \"andes-run\" to resume event processing~%")
      (andes-terminate)))) 
 
@@ -276,7 +279,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 
 (defun do-dispatch-stream-event (command-string dde)
   (let ((cmd-obj (read-from-string command-string))) 
-    (format *debug-io* "~&~%Executing ~A~%(Apply ~W ~W)~%" command-string (first cmd-obj) (rest cmd-obj))
+    (format *debug-help* "~&~%Executing ~A~%(Apply ~W ~W)~%" command-string (first cmd-obj) (rest cmd-obj))
     ;; Pass parsed call to to the main dispatch wrapper in interface.cl
     (execute-andes-command (first cmd-obj) (rest cmd-obj) dde)))
 
@@ -325,11 +328,11 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 	 ;; Dispatch-stream-event call.
 	 (results (dispatch-stream-event cmd :DDE t)))
     (cond ((eq results :error) ;; If there was a problem executing the string
-	   (format *debug-io* "~&Returned: ~A~A: for ~A~%"
+	   (format *debug-help* "~&Returned: ~A~A: for ~A~%"
 		   &nack& id command-string)
 	   (format *andes-stream* "~A~A:~%" &nack& id)) ;; return negative ack
 	  (t ;; otherwise, simply print the results to the stream.
-	   (format *debug-io* "~&Returned: ~A~A:~A~%" &reply& id results)
+	   (format *debug-help* "~&Returned: ~A~A:~A~%" &reply& id results)
 	   (format *andes-stream* "~A~A:~A~%" &reply& id results)))
     ;; push the text onto the stream to prevent buffering
     (force-output *andes-stream*)))
@@ -350,7 +353,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun send-fbd-command (command)
   "Sends a command to the workbench using *andes-stream*."
-  (format *debug-io* "Sending: ~A~A~%" &cmd& command)
+  (format *debug-help* "Sending: ~A~A~%" &cmd& command)
   (format *andes-stream* "~A~A~%" &cmd& command)
   (finish-output *andes-stream*))
 
@@ -387,7 +390,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 	(warn "accept-tcp-connection not supported on this implementation")
 	)
       (progn 
-	(format *debug-io* "~&Opened stream: ~S~%" *andes-stream*) 
+	(format *debug-help* "~&Opened stream: ~S~%" *andes-stream*) 
 	;; try to close the listening socket immediately, 
 	;; since we only handle one connection -- you have to 
 	;; start-andes again to run another session
@@ -491,7 +494,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 "terminate this instance of the help server on session end"
   (terminate-server)
   (solver-unload)
-  (format *debug-io* "~&Andes session finished!~%")
+  (format *debug-help* "~&Andes session finished!~%")
   ; in runtime version only: exit Lisp when session is done
   #+allegro-cl-runtime (exit 0))
 
