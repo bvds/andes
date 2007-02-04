@@ -74,30 +74,31 @@ sub get_reply()		# send given Lisp cmd as DDE
 
 while (<>) # loop over Andes sessions
 {
-  unless (/\tSTART-HELP/) {   # echo header lines
-    print;
-    next;
-  }  
-  print; # print START-HELP line
-  while (<>) {   # loop over lines in Andes session
-    last if /\tEND-LOG/;  # end of Andes session
-    if (/^([\d:]+)\tDDE ([^\r]+)/){
-      print;
-      $nCalls=($nCalls+1) % 10;      # just use one-digit id for brevity
-      &Send_Msg("?$nCalls:$2");  
-    } elsif (/^([\d:]+)\tDDE-POST ([^\r]+)/) {
-      print;
-      &Send_Msg("!$2");
-    } elsif (/^([\d:]+)\tDDE-COMMAND /) {
-      # do nothing
-    # match timestamp and end of line, including newline
-    } elsif (/^([\d:]+)\tDDE-(RESULT|FAILED) [^\r]+(.*)/s) {
-	&get_reply($1,$3);  #should check return value against $nCalls
-    } else {
-      print;  #just echo anything else
-    }    
-  } #loop over lines in session
-  print; #just echo END-LOG line
+    print; #echo header lines
+    next unless /^.* Log of Andes session begun/;  
+    $debug && warn "Starting work on:  $_";
+
+    while (<>) {   # loop over lines in Andes session
+        # note that we don't do any thing special for START-HELP
+	last if /\tEND-LOG/;  # end of Andes session
+	if (/^([\d:]+)\tDDE ([^\r]+)/){
+	    print;
+	    $nCalls=($nCalls+1) % 10;      # just use one-digit id for brevity
+	    &Send_Msg("?$nCalls:$2");  
+	} elsif (/^([\d:]+)\tDDE-POST ([^\r]+)/) {
+	    print;
+            # skip any (exit-andes) message, since we don't start it up, either
+	    unless ($2 =~ /\(exit-andes\)/){&Send_Msg("!$2");}
+	} elsif (/^([\d:]+)\tDDE-COMMAND /) {
+	    # do nothing
+	    # match timestamp and end of line, including newline
+	} elsif (/^([\d:]+)\tDDE-(RESULT|FAILED) [^\r]+(.*)/s) {
+	    &get_reply($1,$3);  #should check return value against $nCalls
+	} else {
+	    print;  #just echo anything else
+	}    
+    } #loop over lines in session
+    print; #just echo END-LOG line
 } #end loop over sessions
 
 # finish up
