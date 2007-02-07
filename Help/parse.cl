@@ -70,8 +70,11 @@
   (clear-memoize 'grammar-get-rhs-with-first)
   (parse grammar words))
 
-(defun mappend (fn & rest lsts)
-  (apply #'nconc (apply #'mapcar fn lsts)))
+;; This is a work-around for some undetermined sbcl bug
+;; that causes a stack overflow when running log files through
+;; the helpsystem.
+#+sbcl (defun my-mapcan (fn &rest lsts)
+	 (apply #'append (apply #'mapcar fn lsts)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -81,11 +84,11 @@
 ;; this character
 (defun parse (grammar input)
   (when (> (length input) 0)
-      (mappend
-       #'(lambda (rule)
-	   (parse-support grammar (rule-lhs rule) (list (char input 0))
-			  (subseq input 1) nil))
-       (grammar-get-rhs grammar (char input 0)))))
+    (#+sbcl my-mapcan #-sbcl mapcan
+	#'(lambda (rule)
+	    (parse-support grammar (rule-lhs rule) (list (char input 0))
+			   (subseq input 1) nil))
+	(grammar-get-rhs grammar (char input 0)))))
 
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -96,18 +99,18 @@
   (if (null needed)
       (let ((parse (make-parse :tree (new-tree lhs rhs) :rem rem)))
 	(cons parse
-	      (mappend
-	       #'(lambda (rule)
-		   (parse-support grammar (rule-lhs rule)
-				  (list (parse-tree parse))
-				  rem (rest (rule-rhs rule))))
-	       (grammar-get-rhs-with-first grammar lhs))))
-    (mappend
-     #'(lambda (p)
-	 (when (eq (parse-lhs p) (first needed))
-	     (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
-			    (parse-rem p) (rest needed))))
-     (parse grammar rem))))
+	      (#+sbcl my-mapcan #-sbcl mapcan
+		  #'(lambda (rule)
+		      (parse-support grammar (rule-lhs rule)
+				     (list (parse-tree parse))
+				     rem (rest (rule-rhs rule))))
+		  (grammar-get-rhs-with-first grammar lhs))))
+    (#+sbcl my-mapcan #-sbcl mapcan
+	#'(lambda (p)
+	    (when (eq (parse-lhs p) (first needed))
+	      (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
+			     (parse-rem p) (rest needed))))
+	(parse grammar rem))))
 
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
