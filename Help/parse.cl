@@ -69,45 +69,48 @@
   (clear-memoize 'grammar-get-rhs)
   (clear-memoize 'grammar-get-rhs-with-first)
   (parse grammar words))
+
+(defun mappend (fn & rest lsts)
+  (apply #'nconc (apply #'mapcar fn lsts)))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; the essential parse routine is to (beginning with first letter of string) find all terminal
-;;    rules that match the character and then get the next character and find all of the pre-
-;;    viously found rules that have a match with this character
+;; the essential parse routine is to (beginning with first letter of string) 
+;; find all terminal rules that match the character and then get the next 
+;; character and find all of the previously found rules that have a match with 
+;; this character
 (defun parse (grammar input)
-  (if (> (length input) 0)
-      (mapcan
+  (when (> (length input) 0)
+      (mappend
        #'(lambda (rule)
 	   (parse-support grammar (rule-lhs rule) (list (char input 0))
 			  (subseq input 1) nil))
        (grammar-get-rhs grammar (char input 0)))))
+
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; pass the left hand side of a rule, the current character (rhs), the rest of the string to be
-;;    parsed and what is needed to complete the current rule
+;; pass the left hand side of a rule, the current character (rhs), the rest of 
+;; the string to be parsed and what is needed to complete the current rule
 (defun parse-support (grammar lhs rhs rem needed)
   (if (null needed)
       (let ((parse (make-parse :tree (new-tree lhs rhs) :rem rem)))
 	(cons parse
-	      (mapcan
+	      (mappend
 	       #'(lambda (rule)
 		   (parse-support grammar (rule-lhs rule)
 				  (list (parse-tree parse))
 				  rem (rest (rule-rhs rule))))
 	       (grammar-get-rhs-with-first grammar lhs))))
-    (mapcan
+    (mappend
      #'(lambda (p)
-	 (if (eq (parse-lhs p) (first needed))
-	     (parse-support grammar lhs (append-atom rhs (parse-tree p)) (parse-rem p)
-			    (rest needed))))
+	 (when (eq (parse-lhs p) (first needed))
+	     (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
+			    (parse-rem p) (rest needed))))
      (parse grammar rem))))
+
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun parse-remove-lhs (lhs parse)
