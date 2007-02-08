@@ -205,7 +205,9 @@
 (defun clear-memoize (fn-name)
   "Clear the hash table from a memo function."
   (let ((table (get fn-name :memo)))
-    (when table (clrhash table))))
+    (when table (format t "hash table size for ~A ~A~%" 
+			fn-name (hash-table-size table))
+			(clrhash table))))
 ;;(defun memo (fn name key test)
 ;;  "Return a memo-function of fn."
 ;;  (let ((table (make-hash-table :test test)))
