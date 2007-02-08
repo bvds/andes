@@ -182,8 +182,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; adding memoize routines from norvig's text 274-275 "Paradigms or Artificial
 ;;  Intelligence Programming (Case studies in LISP)"
-;; NOTE: many apparent bugs can be avoided by paing careful attention to the :key of the memoize
+;; NOTE: many apparent bugs can be avoided by paying careful 
+;; attention to the :key of the memoize
 ;;  function and to the :test of the memoize function
+
 (defun memo (fn &key (key #'first) (test #'eql) name)
   "Return a memo-function of fn."
   (let ((table-2 (make-hash-table :test test)))
@@ -205,8 +207,9 @@
 (defun clear-memoize (fn-name)
   "Clear the hash table from a memo function."
   (let ((table (get fn-name :memo)))
-    (when table (format t "hash table size for ~A ~A~%" 
-			fn-name (hash-table-size table))
+    (when table (format t "hash table size for ~A ~A ~A~%" 
+			fn-name (hash-table-size table) 
+			(hash-table-count table))
 			(clrhash table))))
 ;;(defun memo (fn name key test)
 ;;  "Return a memo-function of fn."

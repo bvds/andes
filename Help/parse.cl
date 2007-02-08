@@ -56,7 +56,7 @@
 ;;
 (defun parse-initialize ()
   ;; makes parser act like chart parser (memoize does this)
-  (memoize 'parse :key #'second :test #'equal)
+;  (memoize 'parse :key #'second :test #'equal)
   (memoize 'grammar-get-rhs :key #'second :test #'equal)
   (memoize 'grammar-get-rhs-with-first :key #'second :test #'equal))
 ;;
@@ -65,7 +65,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun parse-equation (grammar words)
-  (clear-memoize 'parse)
+ ; (clear-memoize 'parse)
   (clear-memoize 'grammar-get-rhs)
   (clear-memoize 'grammar-get-rhs-with-first)
   (parse grammar words))
@@ -73,8 +73,10 @@
 ;; This is a work-around for some undetermined sbcl bug
 ;; that causes a stack overflow when running log files through
 ;; the helpsystem.
-#+sbcl (defun my-mapcan (fn &rest lsts)
-	 (apply #'append (apply #'mapcar fn lsts)))
+;; memoize does not work well with recursive functions if 
+;; inlining is allowed.
+(declaim (notinline parse grammar-get-rhs
+			   grammar-get-rhs-with-first))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -84,11 +86,11 @@
 ;; this character
 (defun parse (grammar input)
   (when (> (length input) 0)
-    (#+sbcl my-mapcan #-sbcl mapcan
-	#'(lambda (rule)
-	    (parse-support grammar (rule-lhs rule) (list (char input 0))
-			   (subseq input 1) nil))
-	(grammar-get-rhs grammar (char input 0)))))
+    (mapcan
+     #'(lambda (rule)
+	 (parse-support grammar (rule-lhs rule) (list (char input 0))
+			(subseq input 1) nil))
+     (grammar-get-rhs grammar (char input 0)))))
 
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -99,18 +101,18 @@
   (if (null needed)
       (let ((parse (make-parse :tree (new-tree lhs rhs) :rem rem)))
 	(cons parse
-	      (#+sbcl my-mapcan #-sbcl mapcan
-		  #'(lambda (rule)
-		      (parse-support grammar (rule-lhs rule)
-				     (list (parse-tree parse))
-				     rem (rest (rule-rhs rule))))
-		  (grammar-get-rhs-with-first grammar lhs))))
-    (#+sbcl my-mapcan #-sbcl mapcan
-	#'(lambda (p)
-	    (when (eq (parse-lhs p) (first needed))
-	      (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
-			     (parse-rem p) (rest needed))))
-	(parse grammar rem))))
+	      (mapcan
+	       #'(lambda (rule)
+		   (parse-support grammar (rule-lhs rule)
+				  (list (parse-tree parse))
+				  rem (rest (rule-rhs rule))))
+	       (grammar-get-rhs-with-first grammar lhs))))
+    (mapcan
+     #'(lambda (p)
+	 (when (eq (parse-lhs p) (first needed))
+	   (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
+			  (parse-rem p) (rest needed))))
+     (parse grammar rem))))
 
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
