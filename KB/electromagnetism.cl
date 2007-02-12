@@ -2134,7 +2134,6 @@
 (defoperator draw-torque-dipole-given-dir (?dipole ?t)
   :preconditions 
   (
-   ;; currently just used for dip1a and dip1b.
    ;; right now, this must be specified in the problem statement
    ;; although the hints assume given dipole moment and given
    ;; field direction.
@@ -2172,7 +2171,6 @@
 (defoperator draw-torque-dipole-zero (?dipole ?t)
   :preconditions 
   (
-   ;; currently just used for dip1a.
    ;; right now, this must be specified in the problem statement
    ;; although the hints assume given dipole moment and given
    ;; field direction.
