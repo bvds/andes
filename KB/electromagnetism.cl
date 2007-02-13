@@ -2384,10 +2384,10 @@
            (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
   )
   :hint (
-      (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savert law."))
+      (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savart law."))
       ;; This should be replaced by a tutorial.  It is rather cumbersome
       ;; to explain in word form.
-      (teach (string "Look up the Biot-Savert law in your textbook."))
+      (teach (string "Look up the Biot-Savart law in your textbook."))
       (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Thus, the cross product is in the direction ~A.  Since the charge is ~A, the resulting magnetic field is in the ~A direction.  Use the magnetic field drawing tool (labeled B) to draw the magnetic field at ~a due to ~a in the direction, ~A." 
            (?dir-v adj) ?loc (?dir-r adj) (?cross-dir adj) (?pos-neg adj)
 	   (?same-or-opposite adj) ?loc ?b (?dir-B adj)))
@@ -2409,10 +2409,10 @@
            (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
   )
   :hint (
-      (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savert law."))
+      (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savart law."))
       ;; This should be replaced by a tutorial.  It is rather cumbersome
       ;; to explain in word form.
-      (teach (string "Look up the Biot-Savert law in your textbook."))
+      (teach (string "Look up the Biot-Savart law in your textbook."))
       (bottom-out (string "The velocity vector points in the direction ~A.  The relative position of ~A is in the direction ~A.  Since these two vectors point in the same (or opposite) direction, the cross product is zero.  Use the magnetic field drawing tool (labeled B) to draw a zero magnetic field at ~a due to ~a." 
            (?dir-v adj) ?loc (?dir-r adj) ?loc ?b))
   ))
@@ -2975,15 +2975,15 @@
 
 
 ;;;
-;;;                    Biot-Savert law for a point particle
+;;;                    Biot-Savart law for a point particle
 ;;;
 
 (def-psmclass biot-savert-point-particle-mag 
   (biot-savert-point-particle-mag ?loc ?b ?dir-vec ?time)
   :complexity major 
-  :short-name "Biot-Savert law for a point charge (magnitude)"
+  :short-name "Biot-Savart law for a point charge (magnitude)"
   :english ("the magnetic field due to a moving point charge")
-  :expformat ((strcat "using the Biot-Savert law to find the magnetic field "
+  :expformat ((strcat "using the Biot-Savart law to find the magnetic field "
 		      "at ~A due to ~A")
 	      (nlg ?loc) (nlg ?b 'at-time ?time))
   :EqnFormat "B = $m0*abs(q)*v*sin($q)/(4*$p*r^2)")
@@ -3029,7 +3029,7 @@
    :hint
    ( (point (string "What is the magnitude of the magnetic field at ~A due to the moving charge ~A?" ?loc ?b))
      ;; We really need a tutorial for this
-     (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savert law.  Read about the Biot-Savert law in your textbook."))
+     (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savart law.  Read about the Biot-Savart law in your textbook."))
      (bottom-out (string "Write the equation ~A" 
 			 ((= ?B-var (/ (* |mu0| (abs ?q-var) ?v-var (sin ?theta-var)) 
 				       (* 4 $p (^ ?r-var 2)))) algebra)))
@@ -3040,10 +3040,10 @@
 (def-psmclass biot-savert-point-particle 
   (biot-savert-point-particle ?loc ?b ?axis ?rot ?flag ?t) 
   :complexity major
-  :short-name ("Biot-Savert law for a point charge (~A component)" 
+  :short-name ("Biot-Savart law for a point charge (~A component)" 
 	       (axis-name ?axis))
   :english ("the magnetic field due to a moving charge")
-  :expformat ((strcat "using the Biot-Savert law to find the ~A component "
+  :expformat ((strcat "using the Biot-Savart law to find the ~A component "
 		      "of the magnetic field at ~A due to ~A")
 	      (axis-name ?axis) (nlg ?loc) (nlg ?b 'at-time ?time))
   :EqnFormat ((biot-savert-law-equation ?axis)))
@@ -3125,7 +3125,7 @@
    :hint
    ( (point (string "What is the magnetic field at ~A due to the moving charge ~A?" ?loc ?b))
      ;; We really need a tutorial for this
-     (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savert law.  Read about the Biot-Savert law in your textbook."))
+     (teach (string "The magnetic field produced by a moving point charge is given by the Biot-Savart law.  Read about the Biot-Savart law in your textbook."))
     (bottom-out (string "Write the equation ~A" 
 			((= ?B-var (/ (* |mu0| ?q-var ?cross) (* 4 $p (^ ?r-var 2))))
 			  algebra)))
