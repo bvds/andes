@@ -32,18 +32,18 @@ END_GROUP	Rotational
 END_GROUP	Kinematics		
 GROUP	Newton's Laws		
 GROUP	Translational		
-LEAF	F1_x + F2_x + ... = m*a_x    Newton's Second Law	(nsl ((?axis . x)))	Newton's Second Law
-LEAF	F1_y + F2_y + ... = m*a_y    Newton's Second Law	(nsl ((?axis . y)))	Newton's Second Law
+LEAF	F1_x + F2_x + ... = m*a_x    Newton's second law	(nsl ((?axis . x)))	Newton's Second Law
+LEAF	F1_y + F2_y + ... = m*a_y    Newton's second law	(nsl ((?axis . y)))	Newton's Second Law
 LEAF	Fnet_x = F1_x + F2_x + ...    net force (x component)	(net-force ((?axis . x)))	Newton's Second Law
 LEAF	Fnet_y = F1_y + F2_y + ...    net force (y component)	(net-force ((?axis . y)))	Newton's Second Law
-LEAF	Fof1on2 = Fof2on1    Newton's Third Law (magnitudes)	ntl	Newton's Third Law
-LEAF	F12_x = - F21_x    Newton's Third Law (components)	(ntl-vector ((?axis . x)))	Newton's Third Law
-LEAF	F12_y = - F21_y    Newton's Third Law (components)	(ntl-vector ((?axis . y)))	Newton's Third Law
+LEAF	Fof1on2 = Fof2on1    Newton's Third law (magnitudes)	ntl	Newton's Third Law
+LEAF	F12_x = - F21_x    Newton's Third law (components)	(ntl-vector ((?axis . x)))	Newton's Third Law
+LEAF	F12_y = - F21_y    Newton's Third law (components)	(ntl-vector ((?axis . y)))	Newton's Third Law
 LEAF	Fg = G*m1*m2/r^2    universal gravitation	ug	Universal Gravitation
 END_GROUP	Translational		
 GROUP	Rotational		
-LEAF	0 = $t1_z + $t2_z + ...    rotational form of Newtons 2nd law ($a =0)	nfl-rot	Newton's Law for rotation
-LEAF	$tnet_z = I*$a_z    rotational form of Newton's 2nd Law	nsl-rot	Newton's Law for rotation
+LEAF	0 = $t1_z + $t2_z + ...    rotational form of Newton's 2nd law ($a =0)	nfl-rot	Newton's Law for rotation
+LEAF	$tnet_z = I*$a_z    rotational form of Newton's 2nd law	nsl-rot	Newton's Law for rotation
 LEAF	$t = r*F*sin($q)    torque defined (magnitude)	mag-torque	Individual torque magnitude
 LEAF	$t_x = r_y*F_z - r_z*F_y    torque defined (x component)	(torque ((?xyz . x)))	Individual torque magnitude
 LEAF	$t_y = r_z*F_x - r_x*F_z    torque defined (y component)	(torque ((?xyz . y)))	Individual torque magnitude
@@ -353,7 +353,7 @@ LEAF	A = $p*r^2    area of circle	area-of-circle
 LEAF	c = 2*$p*r    circumference of circle	circumference-of-circle-r	
 LEAF	c = $p*d    circumference of circle	circumference-of-circle-d	
 LEAF	V = A*l    volume of a cylinder	volume-of-cylinder	
-LEAF	$m = m/l    mass per unit length	mass-per-length-eqn	
+LEAF	$l = m/L    mass per unit length	mass-per-length-eqn	
 LEAF	n = N/l    turns per unit length	turns-per-length-definition	
 LEAF	dy/dt_avg = (y2-y1)/(t2-t1)    average rate of change	average-rate-of-change	
 END_GROUP	Use information specific to this problem		

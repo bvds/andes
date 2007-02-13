@@ -8899,7 +8899,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :short-name "mass per unit length"
   :english ("mass per length = mass/length")
   :expFormat ("using the mass per length of ~A" (nlg ?b))
-  :EqnFormat ("$m = m/l"))
+  :EqnFormat ("$l = m/L"))
 
 (defoperator mass-per-length-eqn-contains (?quantity)
   :preconditions (

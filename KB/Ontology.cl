@@ -228,7 +228,7 @@
   :english ("the magnitude of the change of mass of ~A per unit time due to ~A~@[ ~A~]" 
 	       (nlg ?body) (nlg ?agent 'agent) (nlg ?t 'pp)))
 (def-qexp mass-per-length (mass-per-length ?rope)
-  :symbol-base |$m|     
+  :symbol-base |$l|     
   :short-name "mass per length"	
   :dialog-text "of [body:bodies]"
   :units |kg/m|
