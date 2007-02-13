@@ -56,7 +56,7 @@
 ;;
 (defun parse-initialize ()
   ;; makes parser act like chart parser (memoize does this)
-;  (memoize 'parse :key #'second :test #'equal)
+  (memoize 'parse :key #'second :test #'equal)
   (memoize 'grammar-get-rhs :key #'second :test #'equal)
   (memoize 'grammar-get-rhs-with-first :key #'second :test #'equal))
 ;;
@@ -65,18 +65,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun parse-equation (grammar words)
- ; (clear-memoize 'parse)
+  (clear-memoize 'parse)
   (clear-memoize 'grammar-get-rhs)
   (clear-memoize 'grammar-get-rhs-with-first)
   (parse grammar words))
 
-;; This is a work-around for some undetermined sbcl bug
-;; that causes a stack overflow when running log files through
-;; the helpsystem.
-;; memoize does not work well with recursive functions if 
-;; inlining is allowed.
-(declaim (notinline parse grammar-get-rhs
-			   grammar-get-rhs-with-first))
+;; memoize does not work well with self-recursive functions if 
+;; inlining is allowed.  See http://www.tfeb.org/programs/memoize.lisp
+(declaim (notinline parse grammar-get-rhs grammar-get-rhs-with-first))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

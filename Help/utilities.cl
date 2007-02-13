@@ -207,7 +207,9 @@
 (defun clear-memoize (fn-name)
   "Clear the hash table from a memo function."
   (let ((table (get fn-name :memo)))
-    (when table (format t "hash table size for ~A ~A ~A~%" 
+    (when table 
+      ;; try to find problem with sbcl
+      #+ sbcl (format t "hash table size for ~A ~A ~A~%" 
 			fn-name (hash-table-size table) 
 			(hash-table-count table))
 			(clrhash table))))
