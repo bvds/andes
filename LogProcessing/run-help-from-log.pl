@@ -1,5 +1,16 @@
 #!/usr/bin/perl
 #
+#  using bvds-tests.dat as benchmark.  Runs without error on acl, output bvds-tests-acl.out
+#  used this to generate a solver log file, run solver log file through solver under
+#  valgrind.  No errors.
+#  on sbcl, increased stack limit by factor of ten using "limit stacksize ...",
+#      no effect seen.
+#  on sbcl, replaced mapcan in parse and parse-support with custom mappend, no effect seen.
+#  on sbcl, added (declaim (noinline parse ...)) , no effect seen.
+#  on sbcl, added (declaim (optimze (debug 3) (safety 3))), no effect seen.
+#  on sbcl, added print to memoize, did not see any blow-up of hash table before error.
+#  on sbcl, just running log on problem where error occurs, causes no error.
+#  on sbcl, disabling memoize for parse function, causes error to occur much sooner.
 #  Working on sbcl bug:
 #   on andes2:  limit stacksize 100000
 #  (declaim (optimize (safety 3) (debug 3)))
