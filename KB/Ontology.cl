@@ -274,6 +274,7 @@
   :short-name "coef. of drag"	
   :dialog-text "of [body:bodies] due to [body2:bodies] at [time:times]"
   :units |kg/m|
+  :fromWorkbench `(coef-drag ,body ,body2 turbulent :time ,time)
   :english ("coefficient of drag for ~A moving through ~A" 
             (nlg ?b) (nlg ?medium 'at-time ?time))) 
 
