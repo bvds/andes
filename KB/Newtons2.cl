@@ -4573,8 +4573,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :hint 
   (
    (point (string "~A produces a drag force on ~A ~A" ?medium ?b (?t pp)))
-   (teach (minilesson "DragForce.html") 
-	  (string "When a body is moving at high speed through a fluid medium (like air), the drag force is proportional to the velocity squared."))
+   (teach (string "When a body is moving at high speed through a fluid medium (like air), the {\\l drag force is proportional to the velocity squared}{\\v DragForce.html}."))
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?f-var (* ?k-var (^ ?v-var 2))) algebra)))
   ))
@@ -4588,7 +4587,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects (
     (define-var (coef-drag ?b ?medium :type ?type :time ?t))
     (variable ?K-var (coef-drag ?b ?medium :type ?type :time ?t))
-  ))
+  )
+  :hint 
+  (
+   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Coef. drag."
+		       ((coef-drag ?b ?medium :type ?type :time ?t) def-np)))
+   ))
+
 
 ;; Spring force
 ;;

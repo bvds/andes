@@ -274,7 +274,7 @@
   :short-name "coef. of drag"	
   :dialog-text "of [body:bodies] due to [body2:bodies] at [time:times]"
   :units |kg/m|
-  :fromWorkbench `(coef-drag ,body ,body2 turbulent :time ,time)
+  :fromWorkbench `(coef-drag ,body ,body2 :type turbulent :time ,time)
   :english ("coefficient of drag for ~A moving through ~A" 
             (nlg ?b) (nlg ?medium 'at-time ?time))) 
 
@@ -1075,7 +1075,7 @@
   :complexity simple
   :short-name "drag force"
   :english ("drag force")
-  :ExpFormat ("finding the drag force on ~a moving at high speed through ~A."
+  :ExpFormat ("finding the drag force on ~a moving at high speed through ~A"
 	      (nlg ?body) (nlg ?medium 'at-time ?time))
   :EqnFormat ("F = K*v^2"))
 
