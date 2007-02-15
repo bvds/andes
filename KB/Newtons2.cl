@@ -4580,13 +4580,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator define-coef-drag-force (?b ?medium ?type ?t)
   :preconditions (
-   (bind ?mu-var (format-sym "K~A_~A_~A~@[_~A~]" 
+   (bind ?K-var (format-sym "K~A_~A_~A~@[_~A~]" 
 			     (if (equal ?type 'turbulent) "2" "1") ;power
                                   ?b ?medium (time-abbrev ?t)))
   )
   :effects (
-    (define-var (coef-friction ?b ?medium :type ?type :time ?t))
-    (variable ?mu-var (coef-friction ?b ?medium :type ?type :time ?t))
+    (define-var (coef-drag ?b ?medium :type ?type :time ?t))
+    (variable ?K-var (coef-drag ?b ?medium :type ?type :time ?t))
   ))
 
 ;; Spring force
