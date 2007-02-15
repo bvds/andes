@@ -266,6 +266,7 @@ LEAF	Ft1 = Ft2    equal tensions at both ends	tensions-equal	Equal tensions at b
 LEAF	F = v*abs(dmdt)    thrust force (magnitudes)	thrust-force	thrust force
 LEAF	F_x = -v_x*dmdt    thrust force (x components)	(thrust-force-vector ((?axis . x)))	thrust force
 LEAF	F_y = -v_y*dmdt    thrust force (y components)	(thrust-force-vector ((?axis . y)))	thrust force
+LEAF	F = K*v^2    drag force	drag-force-turbulent	drag force
 END_GROUP	Force Laws		
 GROUP	Compound Bodies		
 LEAF	M = m1 + m2 + ...    mass of compound	mass-compound	Mass of a compound body

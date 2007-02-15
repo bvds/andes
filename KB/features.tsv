@@ -6,7 +6,7 @@ WORK-SET	work;net-work;work-nc;
 DIPOLE	dipole-energy;
 KINEMATICS	angle-between;distance;speed;duration;angle;gravitational-acceleration;
 STATICS	angle-between;mass;angle;coef-friction;duration;spring-constant;compression;gravitational-acceleration;
-DYNAMICS	angle-between;mass;angle;coef-friction;duration;gravitational-acceleration;
+DYNAMICS	angle-between;mass;angle;coef-friction;coef-drag-turbulent;duration;gravitational-acceleration;
 CHANGING-MASS	mass;mass-change-magnitude;
 CIRCULAR	angle-between;mass;revolution-radius;period;duration;angle;
 ENERGY	work-nc;net-work;work;electric-energy;spring-energy;rotational-energy;grav-energy;kinetic-energy;total-energy;energy;energy-set;work-set;mass;duration;power;compression;spring-constant;height;gravitational-acceleration;

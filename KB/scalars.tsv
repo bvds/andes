@@ -9,6 +9,7 @@ capacitance	C	capacitance
 charge-in	q	charge		in [body:bodies]
 charge-on	q	charge		on [body:bodies]
 circumference-of-circle	c	circumference		of [body:bodies]
+coef-drag-turbulent	K	coef. of drag		of [body:bodies] due to [body2:bodies] at [time:times]
 coef-friction	$m	coef. of friction		between [body:bodies] and [body2:bodies]
 compression	d	compression distance		of [body:bodies] at time [time:times]
 area-at	A	cross-sectional area		at [body:positions]  at time [time:times]
