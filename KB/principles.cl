@@ -293,6 +293,7 @@
 			 (leaf thrust-force :tutorial "thrust force")
 			 (leaf thrust-force-vector :bindings ((?axis . x)) :tutorial "thrust force")
 			 (leaf thrust-force-vector :bindings ((?axis . y)) :tutorial "thrust force")
+			 (leaf drag-force-turbulent :tutorial "drag force")
 			 )
 			 (group "Compound Bodies" 
 				(leaf mass-compound :tutorial "Mass of a compound body")

@@ -259,6 +259,7 @@
   :units |m/s|
   :fromWorkbench (if time `(speed ,body :time ,time) `(speed ,body))
   :english ("the speed of ~A" (nlg ?body 'at-time ?time)))
+
 (def-qexp coef-friction (coef-friction ?body1 ?body2 ?static-or-kinetic :time ?time)
   :symbol-base |$m|     
   :short-name "coef. of friction"	
@@ -267,6 +268,14 @@
   :english ("coefficient of ~(~A~) friction between ~A and ~A" 
             (nlg ?static-or-kinetic NIL) (nlg ?body1) 
 	    (nlg ?body2 'at-time ?time))) 
+
+(def-qexp coef-drag-turbulent (coef-drag ?b ?medium :type turbulent :time ?time)
+  :symbol-base |K|     
+  :short-name "coef. of drag"	
+  :dialog-text "of [body:bodies] due to [body2:bodies] at [time:times]"
+  :units |kg/m|
+  :english ("coefficient of drag for ~A moving through ~A" 
+            (nlg ?b) (nlg ?medium 'at-time ?time))) 
 
 ;; see constants.cl, function enter-predefs
 (def-qexp gravitational-acceleration (gravitational-acceleration ?planet)
@@ -1061,6 +1070,13 @@
 	      (nlg ?body) (nlg ?surface 'at-time ?time))
   :EqnFormat ("Ff = $ms*Fn"))
 
+(def-psmclass drag-force-turbulent (drag-force ?body ?medium turbulent ?time)
+  :complexity simple
+  :short-name "drag force"
+  :english ("drag force")
+  :ExpFormat ("finding the drag force on ~a moving at high speed through ~A."
+	      (nlg ?body) (nlg ?medium 'at-time ?time))
+  :EqnFormat ("F = K*v^2"))
 
 ;; silly, num-forces = <count of the forces>
 (def-psmclass num-forces (num-forces ?body ?time) 

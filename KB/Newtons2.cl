@@ -4543,6 +4543,52 @@ the magnitude and direction of the initial and final velocity and acceleration."
 			?b (?medium agent) ?b (?medium agent) (?drag-dir adj)))
     ))
 
+(defoperator drag-force-turbulent-contains (?quantity)
+  :preconditions
+  (
+   (drag ?b ?medium ?t-drag)
+   (any-member ?quantity (
+	           (mag (force ?b ?medium drag :time ?t))
+		   (mag (velocity ?b :time ?t))
+		   (coef-drag ?b ?medium :type turbulent :time ?t)
+		   ))
+    (time ?t)
+    (test (tinsidep ?t ?t-drag))
+  )
+  :effects(
+    (eqn-contains (drag-force ?b ?medium turbulent ?t) ?quantity)
+  ))
+
+(defoperator write-drag-force-turbulent (?b ?medium ?t)
+  
+  :preconditions (
+    (variable ?f-var (mag (force ?b ?medium drag :time ?t)))
+    (variable ?v-var (mag (velocity ?b :time ?t)))
+    (variable ?k-var (coef-drag ?b ?medium :type turbulent :time ?t))
+  )
+  :effects (
+    (eqn (= ?f-var (* ?k-var (^ ?v-var 2))) 
+	 (drag-force ?b ?medium turbulent ?t))
+    )
+  :hint (
+	 (point (string "You know that the static friction takes on its maximum value in this problem"))
+    (teach (minilesson "DragForce.html") 
+	   (string "When a body is moving at high speed through a fluid medium (like air), the drag force is proportional to the velocity squared."))
+    (bottom-out (string "Write the equation ~A" 
+			((= ?f-var (* ?k-var (^ ?v-var 2))) algebra)))
+  ))
+
+(defoperator define-coef-drag-force (?b ?medium ?type ?t)
+  :preconditions (
+   (bind ?mu-var (format-sym "K~A_~A_~A~@[_~A~]" 
+			     (if (equal ?type 'turbulent) "2" "1") ;power
+                                  ?b ?medium (time-abbrev ?t)))
+  )
+  :effects (
+    (define-var (coef-friction ?b ?medium :type ?type :time ?t))
+    (variable ?mu-var (coef-friction ?b ?medium :type ?type :time ?t))
+  ))
+
 ;; Spring force
 ;;
 ;; Spring forces by Hooke's law not fully implemented in Andes (no deep
