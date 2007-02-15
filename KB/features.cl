@@ -37,7 +37,8 @@
   (mass angle coef-friction duration spring-constant compression 
 	gravitational-acceleration))
 (def-feature-set dynamics 
-  (mass angle coef-friction duration gravitational-acceleration))
+  (mass angle coef-friction coef-drag-turbulent duration 
+	gravitational-acceleration))
 (def-feature-set changing-mass (mass mass-change-magnitude))
 (def-feature-set circular (mass revolution-radius period duration angle)) 
 (def-feature-set energy 
