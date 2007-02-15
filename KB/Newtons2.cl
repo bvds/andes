@@ -4570,12 +4570,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (eqn (= ?f-var (* ?k-var (^ ?v-var 2))) 
 	 (drag-force ?b ?medium turbulent ?t))
     )
-  :hint (
-	 (point (string "You know that the static friction takes on its maximum value in this problem"))
-    (teach (minilesson "DragForce.html") 
-	   (string "When a body is moving at high speed through a fluid medium (like air), the drag force is proportional to the velocity squared."))
-    (bottom-out (string "Write the equation ~A" 
-			((= ?f-var (* ?k-var (^ ?v-var 2))) algebra)))
+  :hint 
+  (
+   (point (string "~A produces a drag force on ~A ~A" ?medium ?b (?t pp)))
+   (teach (minilesson "DragForce.html") 
+	  (string "When a body is moving at high speed through a fluid medium (like air), the drag force is proportional to the velocity squared."))
+   (bottom-out (string "Write the equation ~A" 
+		       ((= ?f-var (* ?k-var (^ ?v-var 2))) algebra)))
   ))
 
 (defoperator define-coef-drag-force (?b ?medium ?type ?t)
