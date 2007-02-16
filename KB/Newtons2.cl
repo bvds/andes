@@ -5781,6 +5781,23 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; have to add a means to the interface to define it or to specify predefined
 ;;; variables in the problem statement somehow.
 
+;; Use this to help fix up Bug #999
+(defoperator weight-is-constant (?b ?t ?planet)
+  :preconditions 
+  (
+   (object ?b)
+   (time ?t)  ;select a time
+   ;; get list of all time intervals
+   (setof (time (during ?t1 ?t2)) (during ?t1 ?t2) ?tlist)
+   ;; make sure the selected time is not included in any time interval
+   (test (notany #'(lambda (tt) (tinsidep-include-endpoints ?t tt)) 
+		(remove ?t ?tlist :test #'equal)))
+   (test (null (member 'changing-mass (problem-features *cp*))))
+   (near-planet ?planet :body ?b ?b)
+   )
+  ;; Can't do vector directly, because it uses in-wm
+  :effects ((constant (mag (force ?b ?planet weight)) ?t inclusive)))
+
 (defoperator wt-law (?b ?t)
   :specifications "
    If a body is near a planet,
@@ -5791,6 +5808,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
      acceleration of the planet."
   :preconditions
    ((near-planet ?planet :body ?b ?b)
+    ;; Use this to help fix up Bug #999
+    (constant (mag (force ?b ?planet weight)) ?t inclusive)
     (not (massless ?b))
     (any-member ?tot (?t nil)) 
     (variable ?m-var (mass ?b :time ?tot))
