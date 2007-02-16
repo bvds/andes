@@ -3893,7 +3893,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown. "
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a, at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown."
 	  ?b1 ?b2 (?t pp)))
   ))
 
@@ -4317,9 +4317,43 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Use the force drawing tool to draw the applied force on ~a due to ~a ~a at ~a." ?b (?agent agent) (?t pp) ?dir-expr))
     ))
 
-;; draw-applied-force-unknown-dir -- would be needed if wanted to
-;; solve for the angle of an applied force -- reasonable, but
-;; not currently used in any of our problems.
+(defoperator find-applied-force-unknown-dir (?b ?agent ?t)
+  :preconditions 
+  (
+   ;; energy conservation law also checks for this to not exist:
+   (in-wm (unknown-applied-force ?b ?agent :time ?t-force))
+   (time ?t)
+   (test (tinsidep ?t ?t-force))
+   ;; check that something else hasn't defined this force.
+   (not (force ?b ?agent applied ?t . ?dont-care)) 
+   )
+  :effects (
+	    (force ?b ?agent applied ?t unknown action)
+	    (force-given-at ?b ?agent applied ?t-force unknown action)
+  ))
+
+(defoperator draw-applied-force-unknown (?b ?agent ?t)
+  :specifications 
+  "if you are given that there is an applied force on an object at a time
+   at a certain direction,
+  then draw the force at that direction"
+  :preconditions
+  ( (force ?b ?agent applied ?t unknown action)
+    (not (vector ?b (force ?b ?agent applied :time ?t) ?dont-care))
+    (bind ?mag-var (format-sym "Fa_~A_~A~@[_~A~]" 
+			       (body-name ?b) ?agent (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    )
+  :effects
+   ((vector ?b (force ?b ?agent applied :time ?t) unknown)
+    (variable ?mag-var (mag (force ?b ?agent applied :time ?t)))
+    (variable ?dir-var (dir (force ?b ?agent applied :time ?t)))
+   )
+  :hint
+   ((point (string "You were given that there is an applied force on ~a." ?b))
+    (bottom-out (string "Use the force drawing tool to draw the applied force on ~a due to ~a ~a at an approximately correct angle, then erase the number in the direction box to indicate that its exact direction is unknown." 
+			?b (?agent agent) (?t pp)))
+    ))
 
 ;; draw kinetic friction force on ?b due to ?surface
 ;; requires a (slides-against ?surface ?b ?t) statement in the problem 
