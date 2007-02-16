@@ -131,6 +131,29 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 	))
   (format *debug-help* "~&Opened socket: ~S~%" *andes-socket*) t)
 
+(defun await-passive-connection ()
+"start listening server and wait until a connection"
+    (initiate-server)
+    (connection-started))
+
+(defun make-active-connection (port)
+"connect actively to the given port"
+  (setq *andes-stop* nil) ;; so it doesn't immediately shutdown
+  (format *debug-help* "~&Attempting connection to workbench on port ~A~%" port)
+  (handler-case		; socket calls throw errors on failure to connect
+     (setq *andes-stream*
+	   #+allegro
+	   (socket:make-socket :remote-host "127.0.0.1" :remote-port port)
+	   #-allegro 
+	   (error "Andes2-main.cl: make-active-connection only implemented for Allegro"))
+   (error (c) 
+    	(error-message (format nil "~A Quitting" c))
+	(andes-stop))  ; set flag to quit event loop immediately
+   (:no-error (c)
+         (declare (ignore c))
+         (format *debug-help* "~&Opened stream: ~S~%" *andes-stream*))))
+	
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; terminate-server -- closes the open stream and socket to the workbench
 ;;    as gracefully as we can.
@@ -162,7 +185,8 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 
 (defun andes-run ()
   "Executes delayed tasks and listens for new events on the stream to process."
-  (format *debug-help* "~&Running server event processing loop~%")
+  (unless *andes-stop*
+     (format *debug-help* "~&Running server event processing loop~%"))
   (unwind-protect
       ;; outer loop just repeats forever until server termination flag gets 
       ;; set or connection no longer exists.
@@ -434,15 +458,25 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
       into newstring
       finally (return (concatenate 'string newstring))))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; dummy 'main' or begin function
+;;
+;; if wb-port is specified, make an active connection to that port on
+;; local host so as to attach to a running workbench listening on that port. 
+;; Otherwise we listen for connections as a server on the default port
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-start (&key solver-logging)
+(defun andes-start (&key solver-logging wb-port)
   "initialize the andes help system server state"
   (andes-init)
   (solver-logging solver-logging)
-  (initiate-server)
-  (connection-started)
+  ; in runtime version: wb can pass a port number in to us on command line
+  ; in which case we will actively connect to that port
+  #+allegro-cl-runtime (setf wb-port 
+                           (read-from-string (sys:command-line-argument 1)))
+  (if wb-port (make-active-connection wb-port)
+     (await-passive-connection))
   (andes-run)
   ;; andes-run should always call andes-terminate when done so following shouldn't be 
   ;; necessary, but shouldn't hurt to be safe just in case
@@ -463,6 +497,11 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ; into doubles, no matter what setting had been in effect before.
   (setq *read-default-float-format* 'double-float)
   
+  ; Allegro socket operations will start its multiprocessing system. Initialize it 
+  ; early just in case this helps with intermittent connection startup failures seen
+  ; on some systems, which might be due to race conditions.
+  #+allegro (mp:start-scheduler)
+
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			 (make-pathname :host (pathname-host *default-pathname-defaults*)

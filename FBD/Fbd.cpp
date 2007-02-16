@@ -753,10 +753,15 @@ BOOL CFBDApp::EnsureUserInit()
    	HistoryFileBegin();
 
 	// Make sure help system is running, if required
-	// We can ensure connected and initialized later.
-	if (! m_bNoHelp && ! HelpSystemEnsureRunning()) 
-		// Session aborts, should notify user here!
+	// !!! We used to defer connection attempt until needed for a problem, but now we
+	// make the connection attempt here as well. So routine name is a misnomer. Note can't distinguish
+	// failure to start help system from failure to make connection.
+	if (! m_bNoHelp && ! HelpSystemEnsureRunning()) {
+		DoWarningMessage("Couldn't connect to Help system!\r\n\
+Personal firewall software may be preventing Andes from running correctly.");
+		// this exits the app
 		return FALSE;
+	}
     
 	// Unless we've already set student name from elsewhere 
 	// (mainly OLI-sent task document, maybe command line)

@@ -52,6 +52,7 @@ public:
 		{ return m_bConnected; };
 protected:
 	BOOL m_bConnected;			// remembers whether connected
+	friend class CServerSock;   // can set m_bConnected flag
 
 // Operations
 public:
@@ -135,12 +136,121 @@ PUBLIC BOOL HelpSystemIsConnected()
 	return (SockIsConnected());
 }
 
+
+// CServerSocket: Listening server socket class: 
+// Once started, just accepts 1 connection into CMsgSock
+//
+class CServerSock : public CSocket
+{
+public:
+	UINT m_nPort;
+	UINT m_nTimerID;
+
+	BOOL ListenForConnection()	// starts listening for connection requests
+	{
+		m_nPort = 0;
+		if (! (Create() && Listen(1)) ) {
+		   TRACE("Failed To Init Listening Server Socket!");
+		    return FALSE;
+		} // else success:
+		CString strAddr; ;
+		GetSockName(strAddr, m_nPort);
+		TRACE("Listening for connection at port :%d\n", m_nPort);
+		return TRUE;
+	}
+
+	void DoAccept();
+
+protected:
+     virtual BOOL OnMessagePending();
+
+};
+
+PRIVATE CServerSock s_sockServer;		// listening server socket
+
+void CServerSock::DoAccept()
+{
+	TRACE("Server socket: Waiting to accept connection request\n");
+
+	// make sure this is free to accept connection into.
+	s_sockMsgs.Close();
+
+	// Set timer to give up waiting for connection after certain time (ms)
+	m_nTimerID = ::SetTimer(NULL, 0, 20000, NULL);
+	TRACE("Set accept timer %d\n",m_nTimerID);
+
+	// set timeout around this.
+	if (Accept(s_sockMsgs)) 
+	{
+		// flag msg sock as connected
+		s_sockMsgs.m_bConnected = TRUE;
+
+		// Stop listening, only one subscriber allowed (but might want to 
+		// allow help re-attaching while developing)
+		Close();
+	
+		// Get peer address for diagnostic.
+		CString strAddr; 
+		s_sockMsgs.GetPeerName(strAddr, m_nPort);
+		TRACE("Server sock: connected to %s at %d\n", strAddr, m_nPort);
+// TEMP: for debugging, note when connection was made in log
+		//Logf("ATTACHED %s", inet_ntoa(inPeer));
+// END TEMP
+	} 
+	else {
+		TRACE("Server Socket: Connection Accept failed!\n");
+	}
+	::KillTimer(NULL, m_nTimerID);
+}
+
+// CSocket pumps windows messages during blocking calls. By default it does not
+// process any messages but WM_PAINT's to redraw user interface when needed, plus its
+// own internal timer set to keep processing going. We have to override this function 
+// in order to process the WM_TIMER message scheduled by our failure timeout and set 
+// flag to break out of the model loop and fail the accept. See MS KB article 138692
+//
+// NOTE: Two other WM_TIMER messages also arise in the queue at this point: Since the
+// connection is made while the splash screen is up, there is its dismissal timer 
+// (id = 1). There is also the mainframe update timer (id = 0x1000) set to trigger 
+// periodic UI updates for the sake of the status bar clock. Since the default
+// OnMessagePending in the base class doesn't process these, we have to make sure 
+// these other timer msgs are consumed from the queue in order to get our failure 
+// timeout processed.
+// We could remove and dispatch other timer messages with DispatchMessage(&msg), but 
+// we do want to suppress the splash screen dismissal while waiting for connection. 
+// And there is no need to update the mainframe UI before mainframe is shown. So we 
+// just eat the other application timers during this loop. The code diverges from
+// from the KB 138692 example code by setting the PM_REMOVE flag when peeking 
+// for timer messages, which removes them from the queue.
+// 
+// Note also: default does not call PreTranslateMessage either, which means modeless
+// splash screen does not receive keyboard or mouse message through its PreTranslate
+// hook. So can't dismiss it with a click during this wait either, which is also
+// what we want.
+BOOL CServerSock::OnMessagePending()
+{
+	 // Remove all timer messages during blocking call
+     MSG msg;
+     if(::PeekMessage(&msg, NULL, WM_TIMER, WM_TIMER, PM_REMOVE))
+     {
+	   TRACE("Peeking at WM_TIMER id=%d\n", msg.wParam);
+       if (msg.wParam == (UINT) m_nTimerID) // our failure timeout
+       {     
+         CancelBlockingCall();
+         return FALSE;  // No need for idle time processing.
+       }
+	 };
+
+     return CSocket::OnMessagePending();
+}
+
+
+
 // Helper to launch application given command line
 // RETURNS process handle, NULL on failure
 // Arg is passed as command line to StartProcess: Best if program name has 
 // quoted full path in case path has spaces, e.g as follows: 
 //		"C:\Program Files\Andes.exe"
-
 PUBLIC HANDLE StartProcess(LPCTSTR pszCmdLine, LPCTSTR pszWorkingDir=NULL)
 {
 	STARTUPINFO si;
@@ -207,6 +317,12 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 		case WSAENETDOWN:
 		{
 			// Failed to connect, try starting local copy help system.
+
+			// NEW: Create server socket for it to call us back on
+			s_sockServer.ListenForConnection();
+			// NEW: form callback port argument part for lisp command line
+			CString strPortArg;
+			strPortArg.Format(" -- %d", s_sockServer.m_nPort);
 			
 			// quote path arg since AndesDir may have spaces, e.g. C:\Program Files\Andes\ 
 #ifndef ATLAS // ANDES VERSION
@@ -222,6 +338,9 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 			CString strLispArgs = theApp.GetProfileString("Settings", "LispArgs", "");
 			if (!strLispArgs.IsEmpty())
 				strExePath += " " + strLispArgs;
+			// NEW: add callback port arg
+			strExePath += strPortArg;
+
 			TRACE("Helpsys connect failed, trying to exec %s \n", strExePath);
 			hHelpSysProcess =  StartProcess(strExePath, strExeDir);
 			if (hHelpSysProcess == NULL) {
@@ -232,9 +351,10 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 			// Else launched it OK. Note in log:
 			LogEventf(EV_START_HELP, strExePath); // added Andes 7.0.0.2.
 		
+			
 			// Wait until child process is ready for input to give it time to init.
 			//::WaitForInputIdle(hHelpSysProcess, 1000 ); 
-
+#if 0
 			// try connecting again on local machine. Loop makes multiple attempts 
 			// with pauses in case helpsys needs more time before ready to accept
 			int nTimeStart = HistTime();	// session time we started trying (secs)
@@ -249,6 +369,10 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 				TRACE("Local helpsys connection attempt %d\n", nTries);
 				HelpSystemConnect("localhost");
 			}
+#else
+			s_sockServer.DoAccept();
+#endif 
+			
 			// Logf("END_ATTEMPT_CONNECT %d %d", nTries, SockIsConnected());
 			return SockIsConnected();
 			break; 
@@ -343,7 +467,7 @@ PUBLIC void HelpSystemDisconnect()
 	// shut down connection from our side. Not strictly necessary anymore, since 
     // exit-andes causes remote end to close, but good style to do so anyway. 
 	TRACE("Closing connection to help system\n");
-#if 0
+#if 1
 	// Shutdown our end of the pipe before releasing the socket. This sends a FIN which can be read as EOF by the other
 	// end. We shutdown for receiving as well as sending since no more data is expected from the helpsys. 
 	s_sockMsgs.ShutDown(2);
