@@ -57,7 +57,7 @@ punit( "ozW",        0.278,  1,  1,  -2,  0,  0,  0), // ounce of weight
 punit( "ozVUS",  2.9578E-5,  3,  0,  0,   0,  0,  0), // US ounce of volume
 punit( "knot",  0.5144444,   1,  0,  -1,  0,  0,  0), // knot (not Admiralty) 
 punit( "psi", 6894.4137888276, -1, 1, -2, 0,  0,  0), // pounds/sq in 
-punit( "rpm", 0.10471975511966, 0, 0, -1, 0,  0,  0), // revs/min
+punit( "rpm", 0.0166666666666666666, 0, 0, -1, 0,  0,  0), // revs/min
 punit( "blocks", 80.45,      1,  0,  0,   0,  0,  0), // NYC block
 punit( "block",  80.45,      1,  0,  0,   0,  0,  0), // NYC block
 punit( "dB",        1.0,     0,  0,  0,   0,  0,  0),  // decibels
