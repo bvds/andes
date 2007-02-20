@@ -4072,6 +4072,53 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (force-given-at ?b ?planet weight NIL (dnum 270 |deg|) action)
   ))
 
+;; Ideally, weight force should be timeless, but it is not
+;; clear how to represent this on the user interface.
+;; Instead, we use the largest defined interval.
+(defoperator inherit-weight (?b ?t ?planet)
+  :preconditions 
+  (
+   (time ?t-big)
+   (setof (time (during ?t1 ?t2)) (during ?t1 ?t2) ?tlist)	
+   (test (notany #'(lambda (x) (tinsidep-include-endpoints ?t-big x))
+		 (remove ?t-big ?tlist :test #'equal)))
+   (time ?t)
+   (test (tinsidep-include-endpoints ?t ?t-big))
+   )
+  :effects 
+  ((inherit-quantity (force ?b ?planet weight :time ?t) 
+		     (force ?b ?planet weight :time ?t-big))))
+
+(defoperator draw-vector-itself (?vec)
+:preconditions ( ;test that there are no parents
+		(setof (inherit-quantity ?vec ?parent) ?parent ?parents)
+		(test (null ?parents))
+		(vector ?b ?vec ?dir) ;draw the vector itself
+		)
+:effects ((inherit-vector ?b ?vec ?dir))
+
+(defoperator draw-inherited-vector (?vec ?parent)
+  :preconditions (
+		  (inherit-quantity ?vec ?parent)
+		  (vector ?b ?parent ?dir) ;draw the parent vector
+		  )
+  :effects ((inherit-vector ?b ?vec ?dir))
+
+(defoperator define-variable-itself (?quant)
+:preconditions ( ;test that there are no parents
+		(setof (inherit-quantity ?quant ?parent) ?parent ?parents)
+		(test (null ?parents))
+		(variable ?q-var ?quant) ;variable for quantity itself
+		)
+:effects ((inherit-variable ?q-var ?quant))
+
+(defoperator define-inherited-variable (?vec ?parent)
+  :preconditions (
+		  (inherit-quantity ?quant ?parent)
+		  (vector ?q-var ?parent) ;draw the parent vector
+		  )
+  :effects ((inherit-variable ?q-var ?quant))
+  
 (defoperator draw-weight (?b ?t ?planet)
   :specifications "
     If ?body is not massless, and
