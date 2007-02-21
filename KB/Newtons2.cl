@@ -5581,6 +5581,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
      then make them the set of forces on ?body at ?time"
    :preconditions
    ( (time ?t)
+     ;; If the time covers more than two consecutive points, then we
+     ;; cannot be assured that there are no forces defined for a subset. 
+     (test (or (time-pointp ?t) (time-consecutivep ?t)))
      (body ?b)
      (not (unknown-forces)) ;can't collect forces if some are unknown
      ;; list of forces acting on entire body (particle)
