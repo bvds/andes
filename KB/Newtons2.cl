@@ -4072,53 +4072,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (force-given-at ?b ?planet weight NIL (dnum 270 |deg|) action)
   ))
 
-;; Ideally, weight force should be timeless, but it is not
-;; clear how to represent this on the user interface.
-;; Instead, we use the largest defined interval.
-(defoperator inherit-weight (?b ?t ?planet)
-  :preconditions 
-  (
-   (time ?t-big)
-   (setof (time (during ?t1 ?t2)) (during ?t1 ?t2) ?tlist)	
-   (test (notany #'(lambda (x) (tinsidep-include-endpoints ?t-big x))
-		 (remove ?t-big ?tlist :test #'equal)))
-   (time ?t)
-   (test (tinsidep-include-endpoints ?t ?t-big))
-   )
-  :effects 
-  ((inherit-quantity (force ?b ?planet weight :time ?t) 
-		     (force ?b ?planet weight :time ?t-big))))
-
-(defoperator draw-vector-itself (?vec)
-:preconditions ( ;test that there are no parents
-		(setof (inherit-quantity ?vec ?parent) ?parent ?parents)
-		(test (null ?parents))
-		(vector ?b ?vec ?dir) ;draw the vector itself
-		)
-:effects ((inherit-vector ?b ?vec ?dir))
-
-(defoperator draw-inherited-vector (?vec ?parent)
-  :preconditions (
-		  (inherit-quantity ?vec ?parent)
-		  (vector ?b ?parent ?dir) ;draw the parent vector
-		  )
-  :effects ((inherit-vector ?b ?vec ?dir))
-
-(defoperator define-variable-itself (?quant)
-:preconditions ( ;test that there are no parents
-		(setof (inherit-quantity ?quant ?parent) ?parent ?parents)
-		(test (null ?parents))
-		(variable ?q-var ?quant) ;variable for quantity itself
-		)
-:effects ((inherit-variable ?q-var ?quant))
-
-(defoperator define-inherited-variable (?vec ?parent)
-  :preconditions (
-		  (inherit-quantity ?quant ?parent)
-		  (vector ?q-var ?parent) ;draw the parent vector
-		  )
-  :effects ((inherit-variable ?q-var ?quant))
-  
 (defoperator draw-weight (?b ?t ?planet)
   :specifications "
     If ?body is not massless, and
@@ -5828,23 +5781,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; have to add a means to the interface to define it or to specify predefined
 ;;; variables in the problem statement somehow.
 
-;; Use this to help fix up Bug #999
-(defoperator weight-is-constant (?b ?t ?planet)
-  :preconditions 
-  (
-   (object ?b)
-   (time ?t)  ;select a time
-   ;; get list of all time intervals
-   (setof (time (during ?t1 ?t2)) (during ?t1 ?t2) ?tlist)
-   ;; make sure the selected time is not included in any time interval
-   (test (notany #'(lambda (tt) (tinsidep-include-endpoints ?t tt)) 
-		(remove ?t ?tlist :test #'equal)))
-   (test (null (member 'changing-mass (problem-features *cp*))))
-   (near-planet ?planet :body ?b ?b)
-   )
-  ;; Can't do vector directly, because it uses in-wm
-  :effects ((constant (mag (force ?b ?planet weight)) ?t inclusive)))
-
 (defoperator wt-law (?b ?t)
   :specifications "
    If a body is near a planet,
@@ -5855,8 +5791,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
      acceleration of the planet."
   :preconditions
    ((near-planet ?planet :body ?b ?b)
-    ;; Use this to help fix up Bug #999
-    (constant (mag (force ?b ?planet weight)) ?t inclusive)
     (not (massless ?b))
     (any-member ?tot (?t nil)) 
     (variable ?m-var (mass ?b :time ?tot))
