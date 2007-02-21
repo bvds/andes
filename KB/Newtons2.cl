@@ -6132,18 +6132,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions 
   (
    (debug "start  NSL~%")
-   ;; Can't apply over interval if variable forces during interval.
-   ;; if time is an interval, make sure endpoints are consecutive,
-   ;; else forces might be different between sub-segments
-   ;; Force from expanding spring will be variable.  NSL would still apply 
-   ;; over interval for average spring force, though we have no way to 
-   ;; compute that if it isn't given. For now we just rule out Newton's law 
-   ;; if there's any spring contact during time of application.  This would 
-   ;; have to change if we wanted to handle spring forces at an instant as 
-   ;; for objects in static equilibrium.
-   ;;  (not (spring-contact ?b ?spring ?t-contact (dnum ?sforce-dir |deg|)) 
-   ;;       (tintersect2 ?t-contact ?t))
-   ;; accel would have been drawn when drew NL fbd. Make sure it's non-zero
    (not (vector ?b (accel ?b :time ?t-accel) zero)
         (tinsidep ?t ?t-accel))
    (not (massless ?b))
