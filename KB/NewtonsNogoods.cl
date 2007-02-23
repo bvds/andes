@@ -184,7 +184,7 @@
 
 ;; Don't use the fact that the magnitude of a vector is constant
 ;; along with the fact that its components are constant
-(defnogood component-or-magnitude-constant
+(defnogood component-or-magnitude-constant ;see Bug #1002
     ((constant-vector ?quant . ?rest)
      (constant-compo ?quant . ?rest)
      ;; asserted in apply-vector-PSM* and mag-pyth
