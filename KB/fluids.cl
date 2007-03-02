@@ -822,6 +822,7 @@
 (defoperator find-buoyant-force (?body ?fluid ?t)
    :preconditions (
     (in-wm (buoyant-force ?body ?fluid ?t-buoyant ?dir))
+    (time ?t)
     (test (tinsidep ?t ?t-buoyant))
   ) 
   :effects (
@@ -836,7 +837,7 @@
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a buoyant force on ~a due to ~a at ~a.~%" 
-	   ?dir ?b (?fluid agent) ?t)
+	   ?dir ?b ?fluid ?t)
     )
   :effects
    ((vector ?b (force ?b ?fluid buoyant :time ?t) ?dir)
