@@ -74,30 +74,22 @@
     ))
 
 ;;; This executable precondition should have the form (bind <variable>
-;;; <form>).  If the variable is already bound, returns an empty set
-;;; of successor states.  If the variable is not yet bound, it
-;;; evaluates the Lisp form, after first making the every ?variables
-;;; is "bound" to its value from the given state by replacing it in
-;;; the Lisp form with (quote <value>).  The result of evaluating the
-;;; form in Lisp is bound to the given variable in the given state.
+;;; <form>).  It evaluates the Lisp form, after first substituting in 
+;;; bindings for any varibles in <form>.  The result of evaluating the
+;;; form in Lisp is unified with the variable expression.
+;;; The variable expression may be unbound, partially bound.
 ;;; Since the state was copied by the caller and this is the only
-;;; function to get it, it is safe to modify the binding slot of the
-;;; state.  A singleton set consisting of the given state is returned.
+;;; function to get it, it is safe to modify the bindings of the
+;;; state.  On success, the given state, with any new bindings, is returned.
 
 (defun execute-bind (E State)
   "Implements the (bind <variable> <function>) condition of operators.
-   Returns a possibly empty set of states."
+   Returns zero or one state."
   (let* ((Variable (second E))
-	 (Existing-Binding (get-binding Variable (St-Bindings State))) 
-         (New-Value  (eval (subst-bindings-quoted (St-Bindings State) 
-	                                          (third E)))))
-    (cond (Existing-Binding  ; already bound 
-	     (if (unify (binding-val Existing-Binding) New-Value) 
-	        (list State) ; values match, succeed
-	       NIL))         ; values incompatible, fail
-	  (t
-	     (push-binding Variable New-Value state)
-	     (list State)))))  
+         (New-Value (eval (subst-bindings-quoted (St-Bindings State) 
+						 (third E))))
+	 (new-bindings (unify Variable New-Value (St-Bindings State))))
+    (when new-bindings (setf (st-bindings state) new-bindings) (list State))))
 	   
 ;;; The executable precondition (test <form>) succeeds if
 ;;; evaluating the given form in Lisp returns non-nil.  ?variables in
@@ -258,7 +250,7 @@
    in the given state unify with <prop>."
     (push-binding (second Exp)
 		  (loop for wme in (st-wm State) 
-		      count (unify (third Exp) wme))
+		      count (unify (third Exp) wme (st-bindings State)))
 		  State)
     (list State))
 
