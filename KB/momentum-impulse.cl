@@ -26,8 +26,8 @@
   :preconditions 
   ( (body ?b)
     ;; ?dirv = ?dirm is set in drawing rules
-    (inherit-vector ?b (velocity ?b :time ?t) ?dirv)
-    (inherit-vector ?b (momentum ?b :time ?t) ?dirm)
+    (vector ?b (velocity ?b :time ?t) ?dirv)
+    (vector ?b (momentum ?b :time ?t) ?dirm)
     (axes-for ?b ?rot) ;maybe a problem for compounds?
   )
   :effects (
@@ -38,8 +38,8 @@
 (defoperator write-momentum-compo (?b ?t ?xyz ?rot)
   :preconditions (
     ;; for now, all these preconds satisfied from above
-    (inherit-variable ?p_compo (compo ?xyz ?rot (momentum ?b :time ?t)))
-    (inherit-variable ?v_compo (compo ?xyz ?rot (velocity ?b :time ?t)))
+    (variable ?p_compo (compo ?xyz ?rot (momentum ?b :time ?t)))
+    (variable ?v_compo (compo ?xyz ?rot (velocity ?b :time ?t)))
     (variable ?m (mass ?b))
     ;; The magnitude equation can be put out as an optional equation. 
     ;; But this is now done by the projection equations 
@@ -412,8 +412,8 @@
   :preconditions (
      (variable ?L_z     (compo z 0 (ang-momentum ?b :time ?t)))
      (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
-     (bind ?tot nil) ;remove at end of semester
-     (variable ?I (moment-of-inertia ?b :time ?t))
+     (any-member ?tot (?t nil)) 
+     (variable ?I (moment-of-inertia ?b :time ?tot))
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 

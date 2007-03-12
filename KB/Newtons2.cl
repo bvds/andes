@@ -144,23 +144,20 @@
 ;;; preamble, it has no hints.
 
 (defoperator apply-scalar-PSM (?sought ?eqn-id)
-  :specifications "If the goal is to apply a PSM to find a quantity,
+   :specifications "If the goal is to apply a PSM to find a quantity,
       and there is a scalar equation  that contains that quantity,
       then generate the equation."
-  :preconditions 
-  (
-   (debug "~&Start apply-scalar-psm for ~S~%" ?sought)
-   (inherit-or-quantity ?quant ?sought :and t) ;looking for children
-   (eqn-contains ?eqn-id ?quant)
-    ;; make sure PSM name not on problem's ignore list:
-   (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
-   (not (eqn ?dont-care ?eqn-id))
-   (eqn ?eqn-algebra ?eqn-id)
-   (debug "~&To find ~S~%    using ~S~%    via ~S,~%    wrote ~a~%"
-	  ?sought ?quant ?eqn-id ?eqn-algebra)
+   :preconditions (
+      (eqn-contains ?eqn-id ?sought)
+      ;; make sure PSM name not on problem's ignore list:
+      (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
+      (not (eqn ?dont-care ?eqn-id))
+      (eqn ?eqn-algebra ?eqn-id)
+      (debug "~&To find ~S~%    via ~S,~%    wrote ~a~%"
+	     ?sought ?eqn-id ?eqn-algebra)
    )
-:effects
-  ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
+   :effects
+   ((PSM-applied ?sought ?eqn-id ?eqn-algebra)))
 
 ;;; ================== entering givens =============================
 ;;; This operator corresponds to the step of entering an "assignment
@@ -337,20 +334,18 @@
       and generate the component equation"
   :preconditions
   (
-   (inherit-or-quantity ?quant ?sought :and t) ;looking for children
    ;; get any vector associated with ?sought
-   (bind ?sought-vec (cond ((componentp ?quant) (compo-base-vector ?quant))
-			   ((eq (first ?quant) 'mag) (second ?quant))
-			   ((eq (first ?quant) 'dir) (second ?quant))
-			   (t ?quant)))
+   (bind ?sought-vec (cond ((componentp ?sought) (compo-base-vector ?sought))
+			   ((eq (first ?sought) 'mag) (second ?sought))
+			   ((eq (first ?sought) 'dir) (second ?sought))
+			   (t ?sought)))
    (eqn-family-contains ?vec-eqn-id ?sought-vec)
    ;; make sure PSM name not on problem's ignore list:
    (test (not (member (first ?vec-eqn-id) (problem-ignorePSMS *cp*))))
-   (debug "~&To find ~S~%    using ~S,~%    drawing vectors ~S.~%" 
-	  ?sought ?quant ?vec-eqn-id)
+   (debug "~&To find ~a,~%   drawing vectors ~a.~%" ?sought ?vec-eqn-id)
    (debug "Vectors drawn for ~a, axes ~A.~%" ?vec-eqn-id ?rot)
    ;; Different methods depending on type of quantity for ?sought
-   (compo-eqn-selected ?vec-eqn-id ?quant ?eqn-id)
+   (compo-eqn-selected ?vec-eqn-id ?sought ?eqn-id)
    ;;  write out equation itself
    (not (eqn ?whatever ?eqn-id))
    (eqn ?compo-eqn ?eqn-id)
@@ -394,8 +389,7 @@
    ;;
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes first
    (wm-or-derive (compo-eqn-contains ?vec-eqn-id ?compo-eqn-name ?vector))
-   (wm-or-derive (inherit-or-quantity ?vector ?parent))
-   (in-wm (vector ?b ?parent ?dir))  ;get dir
+   (in-wm (vector ?b ?vector ?dir))  ;get dir
    (test (non-zero-projectionp ?dir ?xyz ?rot)) ; = not known zero-projectionp
    (debug "finish vector diagram for ~A at coord ~A~%" ?vec-eqn-id ?rot)
    )
@@ -409,8 +403,7 @@
   :preconditions
   (
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
-   (wm-or-derive (inherit-or-quantity ?vector ?parent))
-   (in-wm (vector ?b ?parent ?dir))  ;get dir
+   (in-wm (vector ?b ?vector ?dir))  ;get dir
    ;; make sure this is not acheivable by the existing projection equations
    (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
    (get-axis ?xyz ?rot)  ;iterate over directions
@@ -424,8 +417,7 @@
   :preconditions
   (
    (vector-diagram ?rot ?vec-eqn-id) ;draw vectors and axes.
-   (wm-or-derive (inherit-or-quantity ?vector ?parent))
-   (in-wm (vector ?b ?parent ?dir))  ;get dir
+   (in-wm (vector ?b ?vector ?dir))  ;get dir
    ;; verify this is not acheivable by the existing vector-magnitude equations
    (test (not (member ?rot (cons 0 (minimal-x-rotations (list ?dir))))))
    )
@@ -458,112 +450,6 @@
    (assume using-compo (?compo-eqn-name ?xyz ?rot ?vec-eqn-id))))
 
 
-;;; =================  Inheritance of quantities =============================
-;;;
-;;;  When a quantity is constant over a larger interval of time,
-;;;  it should also be used over shorter time intervals.
-;;;  Also, quantities are sometimes timeless.
-;;;  Likewise for spatial homogeneity and for currents in a circuit.
-;;;
-;;;  Such inheritance is achieved via the (inherit-quantity ?child ?parent)
-;;;  proposition.  There are two places where this is invoked.
-;;;  First, in find-by-PSM and apply-vector-PSM, one looks for equations  
-;;;  that contain the ?sought or contain any ?child of the sought.
-;;;  Second, when a variable is defined or a vector is drawn, we
-;;;  want the parent quantity to be used.
-
-(defoperator return-inherit-quantity (?child)
-  :preconditions 
-  ((inherit-quantity ?child ?parent)
-   ;; Test that parent has no further ancestors
-   (setof (inherit-quantity ?parent ?ancestor) ?ancestor ?ancestors)
-   (test (null ?ancestors))
-;   (test (progn (format t "return-inherit-quantity for ~S~%    and ~S~%" 
-;			?child ?parent) t))
-   )
-  :effects ((inherit-or-quantity ?child ?parent :and ?flag)))
-
-;; Rule applies when ?quant has children.
-(defoperator return-quantity-no-inherit (?quant ?flag)
-  :preconditions 
-  (
-   ;; Apply rule if ?flag or ?quant has no parent.
-   (setof (inherit-quantity ?quant ?parent) ?parent ?list1)
-   (test (or ?flag (null ?list1)))
-   )
-  :effects ((inherit-or-quantity ?quant ?quant :and ?flag)))
-
-(defoperator composite-inherit-quantity (?child ?parent)
-  :preconditions 
-  ((inherit-quantity ?child ?parent)
-   (inherit-quantity ?parent ?grandparent)
-   ;; For efficiency, make sure ?grandparent has no further ancestors
-   ;; This test removes a proliferation of geneologies.
-   (setof (inherit-quantity ?grandparent ?ancestor) ?ancestor ?ancestors)
-   (test (null ?ancestors)))
-   :effects ((inherit-quantity ?child ?grandparent)))
-
-(defoperator inherit-proposition (?prop ?child)
-  :preconditions (?prop ;may not be fully bound, must come first
-		  (inherit-or-quantity ?child ?parent))
-  :effects ((inherit-proposition ?child ?parent ?prop)))
-
-(defoperator draw-inherit-vector (?vec)
-  :preconditions ((inherit-or-quantity ?vec ?vec-parent)
-		  (vector ?b ?vec-parent ?dir))
-  :effects ((inherit-vector ?b ?vec ?dir)))
-
-(defoperator define-inherit-variable (?quant)
-  :preconditions 
-   ;; When defining a variable, ?quant is already fully bound.
-  ((wm-or-derive (inherit-or-quantity ?quant ?parent))
-   (variable ?q-var ?parent))
-  :effects ((inherit-variable ?q-var ?quant)))
-
-(defoperator inherit-vector-mag (?child)
-  :preconditions ((inherit-quantity ?child ?parent))
-  :effects ((inherit-quantity (mag ?child) (mag ?parent))))
-
-(defoperator inherit-vector-dir (?child)
-  :preconditions ((inherit-quantity ?child ?parent))
-  :effects ((inherit-quantity (dir ?child) (dir ?parent))))
-
-(defoperator inherit-vector-compo (?xyz ?rot ?child)
-  :preconditions ((inherit-quantity ?child ?parent))
-  :effects ((inherit-quantity (compo ?xyz ?rot ?child) 
-			      (compo ?xyz ?rot ?parent))))
-
-;; Inheritance is appropriate if a quantiy is declared constant
-;; This should render inherit-constant-value obsolete
-(defoperator inherit-when-constant (?quant1)
-  :preconditions 
-  (
-   ;; Here we assume ?t-constant is widest possible interval
-   (constant ?quant ?t-constant)
-   (time ?t-constant)	  ; sanity test
-   (time ?t1)
-   (test (and (not (equal ?t1 ?t-constant))
-	      (tinsidep ?t1 ?t-constant)))
-   (bind ?quant1 (set-time ?quant ?t1))
-   (bind ?quant2 (set-time ?quant ?t-constant))
-   )
-:effects ((inherit-quantity ?quant1 ?quant2)))
-
-;; the inclusive should be done via a keyword and this
-;; should be merged with inherit-when-constant; see Bug #1001
-(defoperator inherit-when-constant2 (?quant)
-  :preconditions 
-  (
-   ;; Here we assume ?t-constant is widest possible interval
-   (constant ?quant ?t-constant inclusive) ;see Bug #1001
-   (time ?t-constant)	  ; sanity test
-   (time ?t1)
-   (test (and (not (equal ?t1 ?t-constant))
-	      (tinsidep-include-endpoints ?t1 ?t-constant)))
-   (bind ?quant1 (set-time ?quant ?t1))
-   (bind ?quant2 (set-time ?quant ?t-constant))
-   )
-:effects ((inherit-quantity ?quant1 ?quant2)))
 
 ;;; ===================== projections ====================
 
@@ -1484,8 +1370,7 @@
 ;;; Currently, there is nothing in the user interface corresponding
 ;;; to setting a quantity to something constant.
 ;;;
-;; To be removed
-(defoperator inherit-constant-value (?quant ?t-constant ?t1) ;Bug #1002
+(defoperator inherit-constant-value (?quant ?t-constant ?t1)
   :preconditions 
   (
    (constant ?quant ?t-constant)
@@ -1510,13 +1395,12 @@
 ;;; this variant allows us to include endpoints in the interval over 
 ;;; which the value is declared constant
 ;;; Specify (constant ?quant ?time inclusive) in givens for this form.
-(defoperator inherit-constant-value2 (?quant ?t-constant ?t1) ;Bug #1002
-  :preconditions 
-  (
-   (constant ?quant ?t-constant inclusive) ;See Bug #1001
-   (time ?t1)
-   (test (and (not (equal ?t1 ?t-constant))
-	      (tinsidep-include-endpoints ?t1 ?t-constant)))
+(defoperator inherit-constant-value2 (?quant ?t-constant ?t1)
+  :preconditions (
+    (constant ?quant ?t-constant inclusive)
+    (time ?t1)
+    (test (and (not (equal ?t1 ?t-constant))
+               (tinsidep-include-endpoints ?t1 ?t-constant)))
    (bind ?quant1 (set-time ?quant ?t1))
    (bind ?quant2 (set-time ?quant ?t-constant))
   )
@@ -1531,20 +1415,19 @@
 		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
    ))
 
-;; declaring a vector to be constant means its magnitude,
+;; declaring a vector to be constant means it magnitude,
 ;; direction and components are all constant.
 
-(defoperator constant-vectors (?quant ?rest) ;Bug #1002
+(defoperator constant-vectors (?quant ?rest)
   ;; in-wm or infinite loop
-  :preconditions (
-		  (in-wm (constant ?quant . ?rest)))
+  :preconditions ((in-wm (constant ?quant . ?rest)))
   :effects (
    (constant (mag ?quant) . ?rest)
    (constant (dir ?quant) . ?rest)
    (assume constant-vector ?quant . ?rest)
   ))
 
-(defoperator constant-vector-components (?quant ?rest) ;Bug #1002
+(defoperator constant-vector-components (?quant ?rest)
   ;; in-wm or infinite loop
   :preconditions 
   (
@@ -1614,6 +1497,7 @@
    ((time ?t)
     (test (time-intervalp ?t))
     (object ?b)
+    (not (variable ?dont-care (speed ?b :time ?t)))
     (bind ?var (format-sym "sp_~A_~A" (body-name ?b) (time-abbrev ?t))))
   :effects
   ((variable ?var (speed ?b :time ?t))
@@ -1678,7 +1562,7 @@
    then the subgoals are to define variables for speed, distance and duration,
    then write speed = distance / duration. "
   :preconditions
-  ((inherit-variable ?s-var (speed ?b :time ?t))
+  ((variable ?s-var (speed ?b :time ?t))
    (variable ?d-var (distance ?b :time ?t))
    (variable ?t-var (duration ?t))
    ;; nsh now requires body and axes if you ask for help, so there's 
@@ -2045,14 +1929,6 @@
 ;;; compound bodies that checks to make sure the time is not ruled out by 
 ;;; specificiation of a split or join collision (see linmom).
 
-(defoperator inherit-timeless-body (?b ?t)
-  :preconditions
-  (
-   (test (not (member 'body-time (problem-features *cp*))))
-   (time ?t)
-   )
-  :effects ((inherit-quantity (body ?b :time ?t) (body ?b))))
-
 (defoperator draw-body (?b)
   :preconditions  ((object ?b))
   :effects ((body ?b)) 	
@@ -2069,10 +1945,8 @@
    (test ?t) ;if this test is removed, the operator can handle both cases
    (object ?b)
    ;; only use time when allowed by feature body-time
-   ;; This is a sanity test to ensure inherit-quantity is working OK.
-   (test (or (eq (null ?t) 
-	     (null (member 'body-time (problem-features *cp*))))
-	     (error "time slot ~A not consistant with problem features" ?t)))
+   (test (eq (null ?t) 
+	     (null (member 'body-time (problem-features *cp*)))))
    )
   :effects ((body ?b :time ?t)) 	
   :hint
@@ -2802,7 +2676,6 @@
   :preconditions
    ((in-wm (given (dir (accel ?b :time ?t-given)) ?dir))
     (test (not (equal ?dir 'unknown)))  
-    (time ?t)
     (test (tinsidep ?t ?t-given))
     ;; make sure no other motion specification in problem for time
     ;; !! Too strict, some motion specs leave accel dir out.
@@ -3073,7 +2946,6 @@
     ;; we have special rules to handle straight line and circular motion
     ;; This motion statement implies all other possibilities
     (motion ?b (curved projectile ?dirstuff) :time ?t-motion)
-    (time ?t)
     (test (tinsidep ?t ?t-motion))
     ;; we have special rules for the case of gravitational acceleration
     (not (free-fall ?b ?t-freefall) (tinsidep ?t ?t-freefall))
@@ -3165,7 +3037,7 @@
   :preconditions 
   (
    (body ?b)
-   (inherit-vector ?b (accel ?b :time ?t) ?dir1)
+   (vector ?b (accel ?b :time ?t) ?dir1)
    (axes-for ?b ?rot)
    )
   :effects ( (vector-diagram ?rot (centripetal-accel-vec ?b ?t)) ))
@@ -3174,9 +3046,9 @@
   :preconditions 
   (
    ;; make sure r-hat compo doesn't vanish
-   (in-wm (inherit-vector ?b (accel ?b :time ?t) ?a-dir))
+   (in-wm (vector ?b (accel ?b :time ?t) ?a-dir))
    (test (non-zero-projectionp ?a-dir ?xy ?rot))
-   (inherit-variable ?a_xy (compo ?xy ?rot (accel ?b :time ?t)))
+   (variable ?a_xy (compo ?xy ?rot (accel ?b :time ?t)))
    (variable ?vel-var (mag (velocity ?b :time ?t)))
    (variable ?radius-var (revolution-radius ?b :time ?t))
    ;; Ideally, the radius direction would be given by relative-position
@@ -3357,9 +3229,9 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity))
    (body ?b)
-   (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
-   (inherit-vector ?b (velocity ?b :time ?t2) ?dir2)
-   (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (axes-for ?b ?rot))
   :effects
    ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
@@ -3370,12 +3242,11 @@
    writes vf=vi+a*t.  That is, it leaves out displacement (s)."
   :preconditions
    (;; for 2D case, make sure accel compo doesn't vanish
-    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (inherit-variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-    (inherit-variable ?a-compo  (compo ?xyz ?rot 
-				       (accel ?b :time (during ?t1 ?t2))))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?t (duration (during ?t1 ?t2))))
   :effects
   (
@@ -3427,9 +3298,9 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-t ?quantity))
    (body ?b)
-   (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
-   (inherit-vector ?b (velocity ?b :time ?t2) ?dir2)
-   (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
@@ -3442,18 +3313,18 @@
   :preconditions
    (
     ;; make sure accel compo doesn't vanish
-    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (inherit-variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-    (inherit-variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     ;; see if initial velocity compo doesn't vanish
-    (in-wm (inherit-vector ?b (velocity ?b :time ?t1) ?dir-vi))
+    (in-wm (vector ?b (velocity ?b :time ?t1) ?dir-vi))
     (bind ?vi-term (if (non-zero-projectionp ?dir-vi ?xyz ?rot)
 		      `(^ ,?vi-compo 2) 0))
     ;; see if final velocity compo doesn't vanish
-    (in-wm (inherit-vector ?b (velocity ?b :time ?t2) ?dir-vf))
+    (in-wm (vector ?b (velocity ?b :time ?t2) ?dir-vf))
     (bind ?vf-term (if (non-zero-projectionp ?dir-vf ?xyz ?rot)
 		      `(^ ,?vf-compo 2) 0))
 
@@ -3502,8 +3373,8 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-vf ?quantity))
    (body ?b)
-   (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
-   (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
@@ -3515,14 +3386,14 @@
   "Writes the equation s = vi*t + 0.5*a*t^2 (which lacks vf)"
   :preconditions
    (;; make sure accel compo doesn't vanish
-    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (inherit-variable ?a-compo (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     (variable ?t-var (duration (during ?t1 ?t2)))
     ;; see if initial velocity compo doesn't vanish
-    (in-wm (inherit-vector ?b (velocity ?b :time ?t1) ?dir-vi))
+    (in-wm (vector ?b (velocity ?b :time ?t1) ?dir-vi))
     (bind ?v-term (if (non-zero-projectionp ?dir-vi ?xyz ?rot)
 		      `(* ,?vi-compo ,?t-var) 0))
     )
@@ -3655,8 +3526,8 @@
   :preconditions
   ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) sdd-constvel ?quantity))
    (body ?b)
-   (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
-   (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
@@ -3668,21 +3539,19 @@
   "Writes the component equation s_x = vi_x*t when a_x = 0"
   :preconditions
   ( ;; make sure accel compo vanishes
-   (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+   (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
    (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
    ;; and write it 
-   (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-   (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-   (variable ?t-var (duration (during ?t1 ?t2)))
+   (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+   (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
+   (variable ?t-var    (duration (during ?t1 ?t2)))
    ;; following only used for implicit eqn so a_x can be accepted if used
-   (inherit-or-quantity (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))
-			?a-compo)
-   (variable ?a_x ?a-compo)
-   )
+   (variable ?a_x   (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2)))))
   :effects
   ((eqn (= ?s-compo (* ?vi-compo ?t-var))
 	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (implicit-eqn (= ?a_x 0) (projection ?a-compo)))
+    (implicit-eqn (= ?a_x 0)
+                  (projection (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))))
   :hint (
     (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
     (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
@@ -3838,9 +3707,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((not (vector-diagram ?rot (avg-accel ?b (during ?t1 ?t2))))
    (body ?b)
-   (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
-   (inherit-vector ?b (velocity ?b :time ?t2) ?dir2)
-   (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
+   (vector ?b (velocity ?b :time ?t1) ?dir1)
+   (vector ?b (velocity ?b :time ?t2) ?dir2)
+   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
    (axes-for ?b ?rot))
   :effects
    ((vector-diagram ?rot (avg-accel ?b (during ?t1 ?t2)))))
@@ -3869,11 +3738,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :specifications " writes vf=vi+a*t where accel not constant"
   :preconditions
    (; for 2D case, make sure accel compo not known to vanish
-    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (inherit-variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-    (inherit-variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
+    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+    (variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+    (variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?t (duration (during ?t1 ?t2))))
   :effects
   ((eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
@@ -4032,7 +3901,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator draw-zero-relative-position (?b ?loc ?t)
   :preconditions
   ((in-wm (at-place ?b ?loc :time ?t-at-place))
-   (time ?t)
    (test (tinsidep ?t ?t-at-place))
    (not (vector ?b (relative-position ?b ?loc :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b) ?loc 
@@ -4116,22 +3984,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; Which one gets defined is controlled by presence of
 ;;; in the problem features.
 
-(defoperator inherit-timeless-mass (?b ?t)
-  :preconditions
-  (
-   (test (not (member 'changing-mass (problem-features *cp*))))
-   (time ?t)
-   )
-  :effects ((inherit-quantity (mass ?b :time ?t) (mass ?b))))
 
 (defoperator define-mass (?b ?t)
   :preconditions
   (
    ;; only use time when allowed by feature changing-mass
-   ;; This is a sanity test to ensure inherit-quantity is working OK.
-   (test (or (eq (null ?t) 
-		 (null (member 'changing-mass (problem-features *cp*))))
-	     (error "define-mass time slot ~A not consistant with problem features" ?t)))
+   (test (eq (null ?t) (null (member 'changing-mass (problem-features *cp*)))))
    (object ?b)
    (not (variable ?dont-care (mass ?b :time ?t)))
    (bind ?var (format-sym "m_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -4214,25 +4072,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (force-given-at ?b ?planet weight NIL (dnum 270 |deg|) action)
   ))
 
-;; Ideally, weight force should be timeless, but it is not
-;; clear how to represent this on the user interface.
-;; Instead, we use the largest defined interval.
-(defoperator inherit-weight (?b ?t ?planet)
-  :preconditions 
-  (
-   (time ?t-big)
-   (setof (time (during ?t1 ?t2)) (during ?t1 ?t2) ?tlist)	
-   (test (notany #'(lambda (x) (tinsidep-include-endpoints ?t-big x))
-		 (remove ?t-big ?tlist :test #'equal)))
-   (time ?t)
-   (test (tinsidep-include-endpoints ?t ?t-big))
-   ;; test force exists and bind ?planet, if needed
-   (force ?b ?planet weight ?t-big . ?rest)
-   )
-  :effects 
-  ((inherit-quantity (force ?b ?planet weight :time ?t) 
-		     (force ?b ?planet weight :time ?t-big))))
- 
 (defoperator draw-weight (?b ?t ?planet)
   :specifications "
     If ?body is not massless, and
@@ -4415,8 +4254,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bind ?mag-var (format-sym "Fn_~A_~A~@[_~A~]" (body-name ?b) ?surface 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing ~a normal on ~a due to ~a at ~a.~%" 
-	   ?normal-dir ?b ?surface ?t)
+    (debug "~&Drawing ~a normal on ~a due to ~a at ~a.~%" ?normal-dir ?b ?surface ?t)
     )
   :effects
    ((vector ?b (force ?b ?surface normal :time ?t) ?normal-dir)
@@ -4991,33 +4829,28 @@ the magnitude and direction of the initial and final velocity and acceleration."
   ))
 
 (defoperator grav-dir-from-rel-pos (?b1 ?b2 ?t)
-  :preconditions 
-  (
-   (in-wm (center-of-mass ?c1 (?b1)))
-   (in-wm (center-of-mass ?c2 (?b2)))
-   (in-wm (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir))
-   (test (not (equal ?r-dir 'unknown)))
-   (time ?t)
-   (test (tinsidep ?t ?t-given))
+  :preconditions (
+		  (in-wm (center-of-mass ?c1 (?b1)))
+		  (in-wm (center-of-mass ?c2 (?b2)))
+    (in-wm (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir))
+    (test (not (equal ?r-dir 'unknown)))
+    (test (tinsidep ?t ?t-given))
     (bind ?grav-dir (opposite ?r-dir))
-    )
+  )
   :effects ((grav-direction ?b1 ?b2 ?t ?grav-dir)))
      
 (defoperator grav-dir-from-inverse-rel-pos (?b1 ?b2 ?t)
-  :preconditions 
-  (
-   (in-wm (center-of-mass ?c1 (?b1)))
-   (in-wm (center-of-mass ?c2 (?b2)))
-   (in-wm (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir))
-   (test (not (equal ?r-dir 'unknown)))
-   (time ?t) 
-   (test (tinsidep ?t ?t-given))
+  :preconditions (
+		  (in-wm (center-of-mass ?c1 (?b1)))
+		  (in-wm (center-of-mass ?c2 (?b2)))
+    (in-wm (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir))
+    (test (not (equal ?r-dir 'unknown)))
+    (test (tinsidep ?t ?t-given))
   )
   :effects ((grav-direction ?b1 ?b2 ?t ?r-dir)))
 
 (defoperator draw-grav-force (?b1 ?b2 ?t)
-  :preconditions 
-  (
+  :preconditions (
     (force ?b1 ?b2 gravitational ?t ?dir NIL)
     (bind ?mag-var (format-sym "Fg_~A_~A~@[_~A~]" (body-name ?b1) (body-name ?b2)
                                              (time-abbrev ?t)))
@@ -5754,16 +5587,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
      (body ?b)
      (not (unknown-forces)) ;can't collect forces if some are unknown
      ;; list of forces acting on entire body (particle)
-     (setof (inherit-proposition (force ?b ?agent ?type :time ?t)
-				 (force ?b . ?rest) 
-				 (vector ?b (force ?b . ?rest) ?dir))
-	    (force ?b . ?rest)
+     (setof (vector ?b (force ?b ?agent ?type :time ?t) ?dir)
+	    (force ?b ?agent ?type :time ?t)
 	    ?body-forces)
      ;; list of forces acting on points on extended body
      (setof (force-on-point ?b ?force) ?force ?point-forces)
      ;; only one case should apply
      (test (or (null ?body-forces) (null ?point-forces)
-	       (error "draw-forces error: can't act both on entire body and on point of body:~%    ~S~%    ~S~%"
+	       (error "draw-forces error: can't act both on entire body and on point of body:~%    ~A~%    ~A"
 		      ?body-forces ?point-forces)))
      (bind ?forces (or ?body-forces ?point-forces))
      (debug "Finish draw-forces for ?b=~A ?t=~A:~%~{     ~S~%~}"
@@ -5877,7 +5708,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
    (map ?f ?forces 
-	(inherit-variable ?f-compo-var (compo ?xyz ?rot ?f))
+	(variable ?f-compo-var (compo ?xyz ?rot ?f))
 	?f-compo-var ?f-compo-vars)
    (variable ?fnet_xy (compo ?xyz ?rot (net-force ?b :time ?t)))
    (debug "finish write-net-force-compo~%")
@@ -5911,7 +5742,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; quantities (w, m and g) are certain to be in the equation, but things 
 ;;; are not so certain for other equations.  At any rate, the second operator 
 ;;; does the actual process of preparing to write the equation then writing it.
-   
+
 (defoperator wt-law-contains (?quantity)
   :specifications "
    If a body is near a planet,
@@ -5933,10 +5764,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (not (point-on-body ?b ?rigid-body))
    (near-planet ?planet :body ?b ?b)
    (not (massless ?b))
-   ;; Determine what time to use when labeling equation.
-   ;; otherwise, one gets several identical equations, with different labels.
-   (inherit-or-quantity (force ?b ?planet weight :time ?t) 
-			(force ?b ?planet weight :time ?t))
    ) 
   :effects
   ((eqn-contains (wt-law ?b ?t) ?quantity)))
@@ -5957,33 +5784,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; have to add a means to the interface to define it or to specify predefined
 ;;; variables in the problem statement somehow.
 
-;; Ideally, weight force would be timeless; as a work-around,
-;; choose largest possible time interval Bug #999.
-
-(defoperator largest-time-interval (?t)
-  :preconditions 
-  (
-   ;; get list of all time intervals
-   (setof (time (during ?t1 ?t2)) (during ?t1 ?t2) ?tlist)
-   (time ?t)  ;select a time
-   ;; make sure the selected time is not included in any time interval
-   (test (notany #'(lambda (tt) (tinsidep-include-endpoints ?t tt)) 
-		(remove ?t ?tlist :test #'equal)))
-   )
-  :effects ((largest-time ?t)))
-
-(defoperator inherit-weight-force (?b ?t-child ?planet)
-  :preconditions 
-  (
-   (largest-time ?t)
-   (test (not (member 'changing-mass (problem-features *cp*))))
-   (time ?t-child)
-   (test (tinsidep ?t-child ?t))
-   (test (not (equal ?t-child ?t)))
-   )
-  :effects ((inherit-quantity (force ?b ?planet weight :time ?t-child)
-				(force ?b ?planet weight :time ?t))))
-
 (defoperator wt-law (?b ?t)
   :specifications "
    If a body is near a planet,
@@ -5993,10 +5793,11 @@ the magnitude and direction of the initial and final velocity and acceleration."
      on the body, m is the body's mass and g is the gravitational
      acceleration of the planet."
   :preconditions
-   ((in-wm (near-planet ?planet :body ?b ?b))
-    (bind ?tot nil) ; remove at end of semester
-    (inherit-variable ?m-var (mass ?b :time ?t))
-    (inherit-variable ?w-var (mag (force ?b ?planet weight :time ?t)))
+   ((near-planet ?planet :body ?b ?b)
+    (not (massless ?b))
+    (any-member ?tot (?t nil)) 
+    (variable ?m-var (mass ?b :time ?tot))
+    (variable ?w-var (mag (force ?b ?planet weight :time ?t)))
     (variable ?g-var (gravitational-acceleration ?planet))
     )
   :effects
@@ -6361,7 +6162,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :preconditions
   ((in-wm (forces ?b ?t ?forces))
    (map ?f ?forces 
-   	(inherit-variable ?compo-var (compo ?xyz ?rot ?f))
+   	(variable ?compo-var (compo ?xyz ?rot ?f))
 	?compo-var ?f-compo-vars)
    ;; we want Fi = m * a to be accepted if it is written. But also
    ;; need to write Sum Fi = 0 as final eqn so won't appear to contain m, a
@@ -6401,19 +6202,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
       are the appropriate component variables for ?fi and ?a,
       respectively."
   :preconditions
-  (
-   (bind ?tot nil)  ;for backwards compatibility, remove at end of semester 
-   (in-wm (forces ?b ?t ?forces)) ;done in drawing step
+  ((in-wm (forces ?b ?t ?forces)) ;done in drawing step
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
    (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
    (map ?f ?forces 
-    (inherit-variable ?f-compo-var (compo ?xyz ?rot ?f))
+    (variable ?f-compo-var (compo ?xyz ?rot ?f))
    	?f-compo-var ?f-compo-vars)
    (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
-   (inherit-variable ?m (mass ?b :time ?t))
+   (any-member ?tot (?t nil)) 
+   (variable ?m (mass ?b :time ?tot))
    ;; see if acceleration compo doesn't vanish
    ;; if it does, we still write equation to give sum of forces = 0
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
@@ -6446,13 +6246,13 @@ the magnitude and direction of the initial and final velocity and acceleration."
    then write ?fnet_c = ?m * ?ac"
   :preconditions
   (
-   (bind ?tot nil) ; for backwards compatibility, remove at end of semester
    (debug "start  write-NSL-net-compo~%")
    (test ?netp)
    (variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
-   (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
+   (variable ?a-compo        (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
-   (inherit-variable ?m (mass ?b :time ?t))
+   (any-member ?tot (?t nil)) 
+   (variable ?m (mass ?b :time ?tot))
     ;; see if acceleration compo doesn't vanish
    (in-wm (vector ?b (accel ?b :time ?t) ?dir-a)) ;done in drawing step
    (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
@@ -7065,9 +6865,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (motion ?body rotating . ?whatever)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
-   (any-member ?tot (?t nil))
-   (bind ?tot nil) ;remove at end of semester 
-   (inherit-variable ?m-var (moment-of-inertia ?body :time ?t))
+   (any-member ?tot (?t nil)) 
+   (variable ?m-var (moment-of-inertia ?body :time ?tot))
    (variable ?v-var (mag (ang-velocity ?body :time ?t)))
   )
   :effects (
@@ -7512,9 +7311,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; dot product for two vectors
 (defoperator dot-using-angle (?a ?b)
   :preconditions 
-  ( (inherit-or-quantity ?a-in ?a)
-    (inherit-or-quantity ?b-in ?b)
-    (wm-or-derive (vector ?a-body ?a ?dir-a))
+  ( (wm-or-derive (vector ?a-body ?a ?dir-a))
     (wm-or-derive (vector ?b-body ?b ?dir-b))
     (test (not (perpendicularp ?dir-a ?dir-b))) ;see dot-orthogonal
     (in-wm (variable ?a-var (mag ?a)))
@@ -7524,7 +7321,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		   `(^ ,?a-var 2) ;dot of a vector with itself
 		 `(* ,?a-var ,?b-var (cos ,?theta-var))))
     )
-  :effects ( (dot ?dot ?a-in ?b-in nil) 
+  :effects ( (dot ?dot ?a ?b nil) 
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b nil) ))
 
@@ -7547,8 +7344,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator dot-using-components (?a ?b ?rot)
   :preconditions 
   ( 
-   (inherit-or-quantity ?a-in ?a)
-   (inherit-or-quantity ?b-in ?b)
    (test (not (null ?rot))) ; use component form
    ;; gather all possibly non-zero terms of dot product
    (setof (dot-term ?dot ?a ?b ?rot) ?dot ?terms)
@@ -7556,15 +7351,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; write out as a sum when appropriate
    (bind ?dot (format-plus ?terms))
    )
-  :effects ( (dot ?dot ?a-in ?b-in ?rot)
+  :effects ( (dot ?dot ?a ?b ?rot)
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?rot) ))
 
 (defoperator dot-orthogonal (?a ?b ?angle-flag)
   :preconditions 
   (
-   (inherit-or-quantity ?a-in ?a)
-   (inherit-or-quantity ?b-in ?b)
    ;; Only use one form since equations are identical.
    ;; Angle form is preferred because axes are sometimes
    ;; not demanded in this case.
@@ -7573,7 +7366,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (wm-or-derive (vector ?b-body ?b ?dir-b))
    (test (perpendicularp ?dir-a ?dir-b))
    )
-  :effects ( (dot 0 ?a-in ?b-in ?angle-flag) 
+  :effects ( (dot 0 ?a ?b ?angle-flag) 
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?angle-flag) ))
 
@@ -7590,11 +7383,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator cross-using-angle (?a ?b ?compo ?rot)
   :preconditions 
-  ( 
-   (inherit-or-quantity ?a-in ?a)
-   (inherit-or-quantity ?b-in ?b)
-   (in-wm (vector ?a-body ?a ?dir-a))
-   (in-wm (vector ?b-body ?b ?dir-b))
+  ( (in-wm (vector ?a-body ?a ?dir-a))
+    (in-wm (vector ?b-body ?b ?dir-b))
     (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
     (bind ?dir-axis (axis-dir ?compo ?rot))
     ;; make sure that the direction is along the axis
@@ -7613,7 +7403,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (any-member ?absin ((* ?a-mag ?b-mag (sin ?theta-var))))
     (bind ?cross (if (same-angle ?dir-cross ?dir-axis) ?absin `(- ,?absin)))
     )
-  :effects ( (cross ?cross ?a-in ?b-in ?compo ?rot nil) 
+  :effects ( (cross ?cross ?a ?b ?compo ?rot nil) 
 	     ;; nogood rule to so that only one form of cross is chosen
 	     (assume using-cross ?a ?b ?compo ?rot nil) ))
 
@@ -7621,8 +7411,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator cross-using-components (?a ?b ?compo ?rot)
   :preconditions 
   ( 
-   (inherit-or-quantity ?a-in ?a)
-   (inherit-or-quantity ?b-in ?b)
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
@@ -7637,15 +7425,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (variable ?bi (compo ?i ?rot ?b))
    (variable ?bj (compo ?j ?rot ?b))
    )
-:effects ( (cross (- (* ?ai ?bj) (* ?aj ?bi)) ?a-in ?b-in ?compo ?rot t)
+:effects ( (cross (- (* ?ai ?bj) (* ?aj ?bi)) ?a ?b ?compo ?rot t)
 		  ;; nogood rule to so that only one form of cross is chosen
 		  (assume using-cross ?a ?b ?compo ?rot t) ))
 
 (defoperator cross-zero (?a ?b ?compo ?rot ?angle-flag)
   :preconditions 
   (
-   (inherit-or-quantity ?a-in ?a)
-   (inherit-or-quantity ?b-in ?b)
    ;; Only use one form since equations are identical.
    ;; Angle form is preferred because axes are sometimes
    ;; not demanded in this case.
@@ -7657,7 +7443,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (test (or (parallel-or-antiparallelp ?dir-a ?dir-b)
 	     (perpendicularp ?dir-cross ?dir-axis)))
    )
-  :effects ( (cross 0 ?a-in ?b-in ?compo ?rot ?angle-flag) 
+  :effects ( (cross 0 ?a ?b ?compo ?rot ?angle-flag) 
 	     ;; nogood rule to so that only one form of cross is chosen
 	     (assume using-cross ?a ?b ?compo ?rot ?angle-flag) ))
 
@@ -7685,24 +7471,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; but now we treat this as just a different gesture for defining an angle var
 ;;; (Same as treatment of revolution-radius, which may be drawn or defined)
 
-(defoperator inherit-angle-between (?children)
-  :preconditions 
-  (
-   (any-member (?c1 ?c2) (?children))
-   (any-member (?p1 ?p2) (?parents)) 
-   ;; assume parents have same lexical ordering
-   (inherit-or-quantity ?c1 ?p1)
-   (inherit-or-quantity ?c2 ?p2)
-   ;; test that at least one quantity is actually inherited
-   (test (not (and (unify (?c1 ?p1)) (unify ?c2 ?p2))))
-   )
-  :effects ((inherit-quantity (angle-between orderless . ?children)
-			      (angle-between orderless . ?parents))))
-
 (defoperator define-angle-between-known (?vecs)
  :preconditions 
  (
-  ;; assume that ?vec1 and ?vec2 are parent quantities
   (any-member (?vec1 ?vec2) (?vecs))
   ;; vectors must be drawn first, with known angles
   ;; note vector's axis owner bodies need not be the same
@@ -8575,10 +8346,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ; corresponds to draw-velocity-straight
 (defoperator draw-ang-velocity-rotating (?b ?t)
    :preconditions (
+    (time ?t)
     (motion ?b rotating :dir ?dir 
 	    :axis ?axis :time ?t-motion . ?whatever)
     (test (not (equal ?dir 'z-unknown)))  
-    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "omega_~A~@[_~A~]" (body-name ?b) 
@@ -8604,9 +8375,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; ang-momentarily-at-rest motion specifier. 
 (defoperator draw-ang-velocity-at-rest (?b ?t)
    :preconditions (
+    (time ?t)
     (motion ?b ?ar :time ?t-motion)
     (test (or (equal ?ar 'ang-at-rest) (equal ?ar 'ang-momentarily-at-rest)))
-    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-velocity ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "omega_~A~@[_~A~]" (body-name ?b) 
@@ -8629,9 +8400,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;; over an interval. 
 (defoperator draw-ang-displacement-rotating (?b ?t)
   :preconditions (
+    (time ?t)
     (motion ?b rotating :dir ?dir :time ?t-motion . ?whatever)
     (test (not (equal ?dir 'z-unknown)))  
-    (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-displacement ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "theta_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -8653,8 +8424,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 
 (defoperator draw-ang-displacement-unknown (?b ?t)
   :preconditions (
-    (motion ?b rotating :dir z-unknown :time ?t-motion . ?whatever)
     (time ?t)
+    (motion ?b rotating :dir z-unknown :time ?t-motion . ?whatever)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-displacement ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "theta_~A_~A" (body-name ?b) (time-abbrev ?t)))
@@ -9148,24 +8919,11 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; to the problem, so the relevant axis can be derived. We don't have 
 ;;; problems where rotation about more than one axis is considered.
 
-(defoperator inherit-timeless-moment-of-inertia (?b ?t)
-  :preconditions
-  (
-   (test (not (member 'changing-mass (problem-features *cp*))))
-   (time ?t)
-   )
-  :effects 
-  ((inherit-quantity (moment-of-inertia ?b :time ?t) (moment-of-inertia ?b))))
-
-
 (defoperator define-moment-of-inertia (?b)
   :preconditions 
   (
    ;; only use time when allowed by feature changing-mass
-    ;; This is a sanity test to ensure inherit-quantity is working OK.
-   (test (or (eq (null ?t) 
-		 (null (member 'changing-mass (problem-features *cp*))))
-	     (error "time slot ~A not consistant with problem features" ?t)))
+   (test (eq (null ?t) (null (member 'changing-mass (problem-features *cp*)))))
    (object ?b)
    (bind ?I-var (format-sym "I_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
   )
@@ -10045,8 +9803,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    
    :preconditions (
      (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-     (bind ?tot nil) ;remove at end of semester
-     (inherit-variable ?I (moment-of-inertia ?b :time ?t))
+     (any-member ?tot (?t nil)) 
+     (variable ?I (moment-of-inertia ?b :time ?tot))
      (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
      ; fetch mag variable for implicit equation (defined when drawn)
      (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
