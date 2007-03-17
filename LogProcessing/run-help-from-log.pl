@@ -18,7 +18,7 @@
 #  (setf *ignore-errors* t)
 #  (andes-start :solver-logging t)
 # Start up helpsystem:
-# echo "(rhelp)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl > run-help.log
+# printf "(rhelp)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl > run-help.log
 # Read an Andes log file through the help system.
 #
 # run-help-from-log.pl -v [-h hostname] < input.log > output.log
