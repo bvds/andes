@@ -264,8 +264,8 @@
 ;;; of the derivations are merged into its wm and history.  The path
 ;;; is strange (see setof-paths). For instance,
 
-;; (setof (vector ?b (force ?b ?agent ?type :time ?dir))
-;;        (force ?b ?agent ?type) 
+;; (setof (vector ?b (force ?b . ?rest) ?dir)
+;;        (force ?b . ?rest) 
 ;;        ?forces)
 
 ;;; will generate all force vectors for ?b, and return a state which
