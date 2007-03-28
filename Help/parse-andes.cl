@@ -21,7 +21,6 @@
 ;; do-lookup-equation-string is the special case kludge covered above.
 ;; Called from Entry-API.
 (defun do-lookup-equation-answer-string (eq id)
-  (format t "Before {~A} After {~A}~%" eq (trim-eqn (fix-eqn-string eq)))
   (do-lookup-equation-string (trim-eqn (fix-eqn-string eq)) id 'answer))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -192,6 +192,9 @@
     (setf (get name :memo) table-2)
     #'(lambda (&rest args)
         (let ((k (funcall key args)) (table (get name :memo)))
+	  #+sbcl (when (> (hash-table-size table) 100)
+		   (format t "hash table size for ~A is ~A ~A~%" 
+	       name (hash-table-size table) (hash-table-count table)))
           (multiple-value-bind (val found-p)
               (gethash k table)
             (if found-p val
@@ -209,7 +212,7 @@
   (let ((table (get fn-name :memo)))
     (when table 
       ;; try to find problem with sbcl
-      #+ sbcl (format t "hash table size for ~A ~A ~A~%" 
+      #+sbcl (format t "hash table size for ~A is ~A ~A, clearing~%" 
 			fn-name (hash-table-size table) 
 			(hash-table-count table))
 			(clrhash table))))
