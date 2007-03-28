@@ -15,8 +15,9 @@
 #   on andes2:  limit stacksize 100000
 #  (declaim (optimize (safety 3) (debug 3)))
 #  (rhelp)
+#  (setf *debug-help* nil)
 #  (setf *ignore-errors* t)
-#  (andes-start :solver-logging t)
+#  (andes-start)
 # Start up helpsystem:
 # printf "(rhelp)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl > run-help.log
 # Read an Andes log file through the help system.

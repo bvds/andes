@@ -45,7 +45,6 @@
 				     
                                      (:file "utilities")
 				     (:file "lrdc-errors")
-				     (:file "History")
 				     (:file "StudentFile")
 				     				     
 				     ;; Entry Intepreter: generic + non-eq
