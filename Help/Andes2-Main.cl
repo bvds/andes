@@ -518,7 +518,6 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ;; problem, so that don't have to restart helpsys to test kb changes.
   ;(load-kb)
   (doSafety :in2pre)
-  #-allegro-cl-runtime (history-new "Log/Andes")
   (enable-errors)
   (physics-algebra-rules-initialize)
   (parse-initialize)
