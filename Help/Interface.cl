@@ -140,6 +140,9 @@
   (let* (Tmp (NewCmd (iface-generate-log-cmd DDE Command Arguments))
 	 (Result (iface-internal-exec-andes-command Command Arguments))
 	 (Str (if (turn-p Result) (safe-apply 'return-turn (list Result)))))
+
+    ;; log result of command
+    (format *debug-help* "Execute ~A~%" Result)
     
     ;; Once the command has been executed and any result parsed then we
     ;; need to add the cmdresult to the current cmd iff the cmd was a 
@@ -161,7 +164,8 @@
     (setq Tmp (safe-apply 'iface-handle-Statistics (list NewCmd)))
     (if (equalp Tmp :Error) (pprint "Error in Statistics."))
 
-    (pprint Result)
+    (format *debug-help* "Result ~A~%" Result)
+
     (if Str Str Result)))
 
 
@@ -224,11 +228,9 @@
 (defun iface-internal-exec-andes-command (Command Arguments)
   "Call the command itself with in a safe-apply and return the results."
   (if **Alternate-command-interpreter**
-      (history-log (safe-apply **Alternate-command-Interpreter** 
-			       (list Command Arguments)))
-    (history-log (safe-apply command arguments))))
-
-
+      (safe-apply **Alternate-command-Interpreter** 
+		  (list Command Arguments))
+      (safe-apply command arguments)))
 
 
 ;;; ===================================================================

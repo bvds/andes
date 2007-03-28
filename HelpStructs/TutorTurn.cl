@@ -133,11 +133,11 @@
 (defconstant **Free-Text** 'Free-text "Calls for a typed student response.") 
 (defconstant **Equation-Menu** 'Equation-menu)
     
-(defun print-turn (Turn &optional (Stream t) (Level 0))
+(defun print-turn (Turn &optional Stream (Level 0))
   "Print out the turn to the user."
   (pprint-indent :block Level Stream)
-  (format Stream "~%Turn: ~A ~A~%" (Turn-Coloring Turn) (Turn-Type Turn))
-  
+  (format Stream "Turn: ~A ~A~%" (Turn-Coloring Turn) (Turn-Type Turn))
+
   (when (Turn-Text Turn)
     (pprint-indent :block Level Stream)
     (format Stream "      ~A~%" (Turn-Text Turn)))

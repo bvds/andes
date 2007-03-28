@@ -217,7 +217,8 @@
 	     ; entry's interp -- which could cause problems with code that assumes eqn
 	     ; entries have only eqn entries in interp -- or else make this a dependent
 	     ; entry like an implicit eqn. 
-	     (format T "entering unneeded vardefs: ~s~%" unneeded-vardefs)
+	     (format *debug-help* "entering unneeded vardefs: ~s~%" 
+		     unneeded-vardefs)
 	     (setf (studentEntry-Cinterp se) unneeded-vardefs)
 	     (sg-Enter-StudentEntry se)
 	     (setf (studentEntry-Cinterp se) eqn-interp)))

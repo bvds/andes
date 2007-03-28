@@ -270,7 +270,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun execute-stream-event (str)
   "Determines from the 1st char of string how to handle the message"
-  (history-log str)
+  (format *debug-help* "Stream-event ~A~%" str)
   (cond ((string= str &notify& :end1 1)	;Workbench does not expect a reply
 	 (dispatch-stream-event (remove &notify& str :count 1)))
 	((string= str &exec& :end1 1)	;Workbench expects reply

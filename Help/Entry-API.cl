@@ -1332,7 +1332,7 @@
     (return-from Check-NonEq-Entry (make-green-turn)))
     
   ;; else have a real student entry to check
-  (format T "~&Checking entry: ~S~%" (StudentEntry-prop entry))
+  (format *debug-help* "Checking entry: ~S~%" (StudentEntry-prop entry))
   (let (cand		; candidate (state . interpretation) pair
         match 		; correct system entry matched
         result) 	; final result to return
@@ -1363,7 +1363,7 @@
     (setf (StudentEntry-State entry) (car cand))
     (setf (StudentEntry-CInterp entry) (cdr cand))
     (setf match (first (StudentEntry-CInterp entry)))
-    (format T "Matched ~A system entry: ~A~%" (car cand) match)
+    (format *debug-help* "Matched ~A system entry: ~S~%" (car cand) match)
     ; For now, write this log info here. Note for variables with given equations, we are
     ; logging correctness of the variable definition substep, but the given value substep, 
     ; hence whole entry, might still be wrong.
