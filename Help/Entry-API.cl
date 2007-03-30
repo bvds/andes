@@ -1349,7 +1349,7 @@
     ;; Interp itself should contain exactly one sysent.
     (sg-match-StudentEntry Entry)
     (unless  (setf cand (first (StudentEntry-PossibleCInterps Entry))) 
-        (format T "No matching system entry found~%")
+        (format *debug-help* "No matching system entry found~%")
 	(setf (StudentEntry-state entry) 'incorrect)
 	; run whatswrong help to set error interp now, so diagnosis
 	; can be included in log even if student never asks whatswrong

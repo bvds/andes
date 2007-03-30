@@ -192,9 +192,11 @@
     (setf (get name :memo) table-2)
     #'(lambda (&rest args)
         (let ((k (funcall key args)) (table (get name :memo)))
+#|
 	  #+sbcl (when (> (hash-table-size table) 100)
 		   (format t "hash table size for ~A is ~A ~A~%" 
 	       name (hash-table-size table) (hash-table-count table)))
+|#
           (multiple-value-bind (val found-p)
               (gethash k table)
             (if found-p val
@@ -202,20 +204,26 @@
 
 (defun memoize (fn-name &key (key #'first) (test #'eql))
   "Replace fn-name's global definition with a memoized version."
-  (clear-memoize fn-name)
-  (setf (symbol-function fn-name)
-        (memo (symbol-function fn-name)
-              :name fn-name :key key :test test)))
+ ; (clear-memoize fn-name)
+  (unless (get fn-name :memo)
+    ;; try to find problem with sbcl
+      #+sbcl (format t "new hash table for ~A~%" fn-name)
+      (setf (symbol-function fn-name)
+	    (memo (symbol-function fn-name)
+		  :name fn-name :key key :test test))))
 
 (defun clear-memoize (fn-name)
   "Clear the hash table from a memo function."
   (let ((table (get fn-name :memo)))
     (when table 
+#|
       ;; try to find problem with sbcl
       #+sbcl (format t "hash table size for ~A is ~A ~A, clearing~%" 
-			fn-name (hash-table-size table) 
-			(hash-table-count table))
-			(clrhash table))))
+		     fn-name (hash-table-size table) 
+		     (hash-table-count table))
+|#
+      (clrhash table))))
+
 ;;(defun memo (fn name key test)
 ;;  "Return a memo-function of fn."
 ;;  (let ((table (make-hash-table :test test)))

@@ -267,7 +267,7 @@
 ;; that and conclude by returning a color-green-turn.
 (defun do-read-problem-info-setup ()
   "Setup the loaded problem."
-  (format T "~&Current Problem now ~A~%" (problem-name *cp*))
+  (format *debug-help* "Current Problem now ~A~%" (problem-name *cp*))
   
   ;; Initialize sg structures
   (sg-setup *cp*)
@@ -566,8 +566,8 @@
 ;;
 (defvar **Condition** NIL)
 (defun set-condition (value) 
- (setq **Condition** value)
- (format T "Setting condition to ~A~%" value))
+  (format *debug-help* "Setting **condition** to ~A~%" value)
+  (setq **Condition** value))
 (defun get-condition () **Condition**)
 
 

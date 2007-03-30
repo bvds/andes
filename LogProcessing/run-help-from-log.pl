@@ -15,9 +15,7 @@
 #   on andes2:  limit stacksize 100000
 #  (declaim (optimize (safety 3) (debug 3)))
 #  (rhelp)
-#  (setf *debug-help* nil)
-#  (setf *ignore-errors* t)
-#  (andes-start)
+#  (progn (setf *debug-help* nil) (setf *ignore-errors* t) (andes-start :solver-logging t))
 # Start up helpsystem:
 # printf "(rhelp)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl > run-help.log
 # Read an Andes log file through the help system.
@@ -27,6 +25,15 @@
 # The default hostname is 'localhost' and -v is verbose output.
 # Diff'ing the old and new log files can be used for regression testing. 
 #
+# Adding a test for previously memoized seems to fix the problem.
+# However, there is some remaining memory leak.  Need to see if it
+# is associated with the solver or with SBCL.
+#
+# Excessive calls to parse initialize.
+# Excessive calls to clear-memoize?
+# Are there other entries to the memoized functions other than parse-equation?
+#    PARSE GRAMMAR-GET-RHS GRAMMAR-GET-RHS-WITH-FIRST SG-SYSTEMENTRY-OPTIONAL-P
+
 
 use Getopt::Long;
 &GetOptions("h=s" => \$help_host,"v" => \$debug);

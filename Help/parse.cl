@@ -65,10 +65,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 (defun parse-equation (grammar words)
+;;  #+sbcl (format t "parse-equation start with ~A~%" words)
   (clear-memoize 'parse)
   (clear-memoize 'grammar-get-rhs)
   (clear-memoize 'grammar-get-rhs-with-first)
-  (parse grammar words))
+  (let ((x (parse grammar words)))
+ ;;   #+sbcl (format t "parse-equation stop~%")
+    x))
 
 ;; memoize does not work well with self-recursive functions if 
 ;; inlining is allowed.  See http://www.tfeb.org/programs/memoize.lisp
@@ -103,12 +106,12 @@
 				  (list (parse-tree parse))
 				  rem (rest (rule-rhs rule))))
 	       (grammar-get-rhs-with-first grammar lhs))))
-    (mapcan
-     #'(lambda (p)
+      (mapcan
+       #'(lambda (p)
 	 (when (eq (parse-lhs p) (first needed))
 	   (parse-support grammar lhs (append-atom rhs (parse-tree p)) 
 			  (parse-rem p) (rest needed))))
-     (parse grammar rem))))
+       (parse grammar rem))))
 
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
