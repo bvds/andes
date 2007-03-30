@@ -33,6 +33,7 @@
 # Excessive calls to clear-memoize?
 # Are there other entries to the memoized functions other than parse-equation?
 #    PARSE GRAMMAR-GET-RHS GRAMMAR-GET-RHS-WITH-FIRST SG-SYSTEMENTRY-OPTIONAL-P
+# sg-systementry-optional-p is memoized, but the memo is never cleared.
 
 
 use Getopt::Long;
