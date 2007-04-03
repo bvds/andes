@@ -84,18 +84,6 @@
 	((member (car lst) elts) (remove-duplicates-order-preserve (cdr lst) elts))
 	(t (remove-duplicates-order-preserve (cdr lst) (append elts (list (car lst)))))))
 
-(defun random-elts (Seq Count &optional (elts ()))
-  "Get Count Random elts from Seq, exclusive."
-  (if (= 0 Count) elts
-    (let ((n (random (length Seq))))
-      (random-elts 
-       (append (subseq Seq 0 N) (subseq Seq (+ 1 N)))
-       (- Count 1) (cons (nth n Seq) Elts)))))
-
-(defun random-elt (seq) 
-  "Pick a random element out of a sequence."
-  (elt seq (random (length seq))))
-
 
 (defun reuse-cons (x y x-y)
   "Return (cons x y), or reuse x-y if it is equal to (cons x y)"

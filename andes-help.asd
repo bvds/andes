@@ -24,6 +24,11 @@
   :description "Andes physics tutor system: helpsystem"
   :depends-on (andes)
   :components (
+	       (:module "Base"
+			;; mt19937 had its own asd file, but we don't use it
+			:components ((:file "mt19937") 
+				     (:file "random" 
+					    :depends-on ("mt19937"))))
 	       (:module "HelpStructs"
 			;; PSMgraph and SystemEntry are defined in "andes"
 			:components ((:file "StudentEntry")
