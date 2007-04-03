@@ -1,8 +1,8 @@
 ;;; Need a platform-independent random number generator
 
-(defun initialize-random-elt (problem-name)
-"Turn a symbol into a vector of unsigned 32 bit integers and use this to seed the random number generator."
-  (set-mt19937 (coerce (loop for char across (symbol-name problem-name) 
+(defun initialize-random-elt (name)
+"Turn a string into a vector of unsigned 32 bit integers and use this to seed the random number generator."
+  (set-mt19937 (coerce (loop for char across name 
      collect (char-code char)) '(vector (unsigned-byte 32)))))
 
 (defun random-elt (seq) 
