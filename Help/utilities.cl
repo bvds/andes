@@ -179,39 +179,6 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; adding memoize routines from norvig's text 274-275 "Paradigms or Artificial
-;;  Intelligence Programming (Case studies in LISP)"
-;; NOTE: many apparent bugs can be avoided by paying careful 
-;; attention to the :key of the memoize
-;;  function and to the :test of the memoize function
-
-(defun memo (fn &key (key #'first) (test #'eql) name)
-  "Return a memo-function of fn."
-  (let ((table-2 (make-hash-table :test test)))
-    (setf (get name :memo) table-2)
-    #'(lambda (&rest args)
-        (let ((k (funcall key args)) (table (get name :memo)))
-          (multiple-value-bind (val found-p)
-              (gethash k table)
-            (if found-p val
-                (setf (gethash k table) (apply fn args))))))))
-
-(defun memoize (fn-name &key (key #'first) (test #'eql))
-  "Replace fn-name's global definition with a memoized version."
-  (unless (get fn-name :memo)
-      (setf (symbol-function fn-name)
-	    (memo (symbol-function fn-name)
-		  :name fn-name :key key :test test))))
-
-(defun clear-memoize (fn-name)
-  "Clear the hash table from a memo function."
-  (let ((table (get fn-name :memo)))
-    (when table 
-      (clrhash table))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; list-begins-with-p - predicate to test if a list starts with a certain item (uses equal)

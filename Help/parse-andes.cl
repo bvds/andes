@@ -37,7 +37,7 @@
 ;; eq:  The raw equation string.
 ;; id:  The entry id itself.
 ;; keyword :log  -- log entry info (default T)
-(defun do-lookup-eqn-string(eq id &key (log T))
+(defun do-lookup-eqn-string (eq id &key (log T))
     (prog1 ; first form gets our return value
        (do-lookup-equation-string (fix-eqn-string (trim-eqn eq)) id 'equation)
        (when log (log-entry-info (find-entry id)))))

@@ -519,8 +519,8 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ;(load-kb)
   (doSafety :in2pre)
   (enable-errors)
+  (parse-initialize) ; initialize memoization
   (physics-algebra-rules-initialize)
-  (parse-initialize)
   (symbols-reset)
   )
 
