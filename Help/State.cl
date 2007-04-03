@@ -238,7 +238,8 @@
   (parse-initialize) 	;; re-initialize parser
   (symbols-reset)   	;; clear out symbol table
   (clear-entries)	;; clear out student entry list
-  (initialize-random-elt name) ;use problem name as seed for random elt
+  ;; use problem name as seed for random elt
+  (initialize-random-elt (string-downcase name)) 
 
   ;; Set the Problem Instance time for this work on the problem.
   (setq *Current-Problem-Instant-Start-UTime* (get-universal-time))
