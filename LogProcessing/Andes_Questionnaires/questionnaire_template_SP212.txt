@@ -1,7 +1,11 @@
 To: andes2@pitt.edu
 Subject: Andes Questionnaire [required-name]
 
-Semester=2
+School=[school]
+Year=[year]
+Semester=[semester]
+CourseID=[courseID]
+
 Name=[required-name]
 Section=[required-section]
 Question_1=[Q1]

@@ -1,16 +1,7 @@
 # !/usr/bin/perl
 # Copyright (c) 2006 Robert G.M. Hausmann
 #
-# The purpose of this script is to generate an Andes Questionnaires for second semester physics 
-# that is customizable to a particular school. Once run, the script will prompt the user to enter
-# the name of the school, the year, the semester, the name of the course and the name that use
-# used to refer to the students.
-#
-# The output is an html file that needs to be posted on a pitt unix server that contains a cgi script
-# that generates and email from an online form (http://www.pitt.edu/~nisg/cis/web/cgi/). The html file
-# requires a template (see: questionnaire_template_SP212.txt) to generate the formatted responses. In
-# the past, we have posted the questionnaires to: ssh andes2@unix.cis.pitt.edu in the public/html directory.
-#
+# The purpose of this script is to generate an Andes Questionnaires that is customizable to a particular school.
 # Usage: perl gen_questionnaire_semester2.plx
 use strict;
 
@@ -21,7 +12,8 @@ my $semester  = &promptUser("Enter the semester ");
 my $courseID  = &promptUser("Enter the course number ");
 my $name      = &promptUser("Enter the student ID name ");
 
-my $file = "andes_questionnaire_" . $school . "_" . $semester . "_" . "$year.html";
+#my $file = "andes_questionnaire_" . $school . "_" . $semester . "_" . "$year.html";
+my $file = "index.html";
 
 open HTML_OUT, "> $file" or die "Can't open $file : $!";
 
@@ -37,6 +29,11 @@ print HTML_OUT <<HTMLEND;
   </head>
   <body>
     <form method="post" action="http://www.pitt.edu/htbin/cgiemail/~andes2/questionnaire_template_SP212.txt">
+
+<INPUT TYPE=HIDDEN NAME="school" VALUE="$school" type="text"
+<INPUT TYPE=HIDDEN NAME="year" VALUE="$year" type="text"
+<INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester" type="text"
+<INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID" type="text"
 
 <table align=center><tr><td><b><font size="+2">ANDES QUESTIONNAIRE - $semester $year</font></b></td></tr></table><br>
 
