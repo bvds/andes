@@ -3,17 +3,8 @@
 #  using bvds-tests.dat as benchmark.  Runs without error on acl, output bvds-tests-acl.out
 #  used this to generate a solver log file, run solver log file through solver under
 #  valgrind.  No errors.
-#  on sbcl, increased stack limit by factor of ten using "limit stacksize ...",
-#      no effect seen.
-#  on sbcl, replaced mapcan in parse and parse-support with custom mappend, no effect seen.
-#  on sbcl, added (declaim (noinline parse ...)) , no effect seen.
-#  on sbcl, added (declaim (optimze (debug 3) (safety 3))), no effect seen.
-#  on sbcl, added print to memoize, did not see any blow-up of hash table before error.
-#  on sbcl, just running log on problem where error occurs, causes no error.
-#  on sbcl, disabling memoize for parse function, causes error to occur much sooner.
-#  Working on sbcl bug:
-#   on andes2:  limit stacksize 100000
-#  (declaim (optimize (safety 3) (debug 3)))
+$
+$
 #  (rhelp)
 #  (progn (setf *debug-help* nil) (setf *ignore-errors* t) (andes-start :solver-logging t))
 # Start up helpsystem:
@@ -28,12 +19,6 @@
 # Adding a test for previously memoized seems to fix the problem.
 # However, there is some remaining memory leak.  Need to see if it
 # is associated with the solver or with SBCL.
-#
-# Excessive calls to parse initialize.
-# Excessive calls to clear-memoize?
-# Are there other entries to the memoized functions other than parse-equation?
-#    PARSE GRAMMAR-GET-RHS GRAMMAR-GET-RHS-WITH-FIRST SG-SYSTEMENTRY-OPTIONAL-P
-# sg-systementry-optional-p is memoized, but the memo is never cleared.
 
 
 use Getopt::Long;
