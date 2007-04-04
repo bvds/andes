@@ -3,8 +3,6 @@
 #  using bvds-tests.dat as benchmark.  Runs without error on acl, output bvds-tests-acl.out
 #  used this to generate a solver log file, run solver log file through solver under
 #  valgrind.  No errors.
-$
-$
 #  (rhelp)
 #  (progn (setf *debug-help* nil) (setf *ignore-errors* t) (andes-start :solver-logging t))
 # Start up helpsystem:
