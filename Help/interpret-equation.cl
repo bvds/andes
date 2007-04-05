@@ -35,7 +35,7 @@
     (cond
      ((null interps)
       (setf (StudentEntry-CInterp se) nil)
-      (warn "interpret-equation: no candidates for ~A" se)
+      (warn "interpret-equation: can't find interpretations for ~A" se)
       (setf (StudentEntry-State se) **Incorrect**)
       (setf result (make-red-turn)))
      (correct1
@@ -61,7 +61,8 @@
       (setf (StudentEntry-State se) **NOGOOD**)
       (setf result (chain-explain-more **NOGOOD-Help**)))
      (t
-      (warn "interpret-equation: no interps for candidates ~A" interps)
+      (warn "interpret-equation: no interpretation for ~A" 
+	    (StudentEntry-ParsedEqn se))
       (setf (StudentEntry-CInterp se) shortest)
       (setf (StudentEntry-State se) **Correct**)
       (setf result (make-green-turn))))
