@@ -4,7 +4,7 @@
 #  used this to generate a solver log file, run solver log file through solver under
 #  valgrind.  No errors.
 #  (rhelp)
-#  (progn (setf *debug-help* nil) (setf *ignore-errors* t) (andes-start :solver-logging t))
+#  (progn (setf *debug-help* nil) (setf *ignore-errors* t) (andes-start))
 # Start up helpsystem:
 # printf "(rhelp)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl > run-help.log
 # Read an Andes log file through the help system.
