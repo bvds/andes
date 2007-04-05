@@ -36,8 +36,7 @@
 ;;;			:description "Common Utilities"
 			:components ((:file "Htime")
 				     (:file "Unification")
-				     (:file "Utility")
-				     (:file "memoize")))
+				     (:file "Utility")))
 	       (:module "Solver_Release"
 			:depends-on ("andes-path")
 			:components ((:file "solver")))

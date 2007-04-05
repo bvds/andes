@@ -25,11 +25,14 @@
   :depends-on (andes)
   :components (
 	       (:module "Base"
-			;; mt19937 had its own asd file, but we don't use it
-			:components ((:file "mt19937") 
+			:components ((:file "memoize")
+				     ;; mt19937 had its own asd file, 
+				     ;; but we don't use it
+				     (:file "mt19937") 
 				     (:file "random" 
 					    :depends-on ("mt19937"))))
 	       (:module "HelpStructs"
+			:depends-on ("Base")
 			;; PSMgraph and SystemEntry are defined in "andes"
 			:components ((:file "StudentEntry")
 				     (:file "TutorTurn"
@@ -43,7 +46,7 @@
 				     (:file "RuntimeTest")
 				     ))
 	       (:module "Help"
-			:depends-on ("HelpStructs")
+			:depends-on ("HelpStructs" "Base")
 			:components (
  				     ;; Solution graph
 	 			     (:file "SolutionGraph")
