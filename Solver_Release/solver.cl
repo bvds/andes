@@ -154,7 +154,7 @@
   (let ((path (merge-pathnames *DLL-NAME* *Andes-Path*)))
     ;; uffi doesn't have an unload command, so we are stuck with reloading.
     #+uffi (setf force-reload t)
-    #-uffi(when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
+    #-uffi (when (member *DLL-NAME* (ff:list-all-foreign-libraries) 
 		  :key #'file-namestring :test #'string-equal)
        (format T "~&UnLoading solver from ~A~%" path)
        (ff::unload-foreign-library path))))

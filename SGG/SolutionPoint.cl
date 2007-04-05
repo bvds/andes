@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Solution.cl
 ;; 03/06/2001
 ;; Collin Lynch
@@ -14,6 +14,7 @@
 ;; that would otherwize be sent to the dll.  This code is 
 ;; located at the end of this file.
 
+#|
 for later update.
 The solver,
  *   After giving all the solutions, it lists, if any,                  *

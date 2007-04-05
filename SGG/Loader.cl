@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Loader.cl
 ;; Collin Lynch
 ;; 2/7/2001
@@ -7,7 +7,6 @@
 ;; Andes 2 solution graph generator in the process it
 ;; loads the load-me.cl file for the sgg module.
 ;;
-|#
 
 
 ; Ensure Lisp will read given values into double-precision floating points.
