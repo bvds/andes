@@ -835,13 +835,10 @@
 			  (let ((nvar (subst-canonical-vars (list lhs))))
 				  (cond
 				   ((contains-strings nvar) ; lhs expr is (or contains) undefined var
-				    (format t "bad var far<~W><~W><~W>!!!~%" lhs stud-var nvar)
 				    (setf why (list 'bad-var lhs))
 				    (setf valid nil))
-				   ((and stud-var (equalp lhs stud-var)) ; lhs = student's var for sought 
-				    (format t "Okay so far!!!~%"))
+				   ((and stud-var (equalp lhs stud-var))) ; lhs = student's var for sought 
 				   (t (setf why (list 'bad-sought lhs))
-				      (format t "bad sought far<~W><~W><~W>!!!~%" lhs stud-var nvar)
 				      (setf valid nil))))
 			;; else eqn has empty lhs, e.g. student typed "= 5 N". Allow it.
 			(setf lhs (if stud-var stud-var "Answer")))

@@ -66,8 +66,8 @@
 ;; note(s):
 ;;  will initialize to nil if initial-rules is an atom
 (defun grammar-initialize (grammar &optional other-grammar)
-  (clear-memoize 'grammar-get-rhs)
-  (clear-memoize 'grammar-get-rhs-with-first)
+  (memoize 'grammar-get-rhs :key #'second :test #'equal)
+  (memoize 'grammar-get-rhs-with-first :key #'second :test #'equal)
   (cond
    ((or (null other-grammar) (not (consp other-grammar)))
     (grammar-set grammar nil))

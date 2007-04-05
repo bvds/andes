@@ -65,6 +65,11 @@
 (defvar *task-list* nil)		;queue of background tasks -- unused in Andes2
 (defvar *andes-stop* nil		;exit flag to shut down event loop
   "startAll will loop main-event-loop until this is true")
+
+(defvar *solver-logging* nil
+  "Flag for turning on solver logging, for debugging purposes.")
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function Definitions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -513,6 +518,9 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
   (doSafety :in2pre)
+  (solver-load)
+  (solver-logging *solver-logging*)
+  (physics-algebra-rules-initialize) ;initialize grammar
   (enable-errors)
   )
 
@@ -523,6 +531,7 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 (defun andes-terminate ()
 "terminate this instance of the help server on session end"
   (terminate-server)
+  (solver-unload)
   (format *debug-help* "~&Andes session finished!~%")
   ; in runtime version only: exit Lisp when session is done
   #+allegro-cl-runtime (exit 0))

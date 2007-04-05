@@ -86,10 +86,6 @@
 ;;; runtimetest.cl
 (defvar *Current-Problem-Instance-Start-UTime* Nil "The Current PITime.")
 
-
-(defvar *solver-logging* nil
-  "Flag for turning on solver logging, for debugging purposes.")
-
 ;------------------------------------------------------------------------------
 ; Overall Session structure bracketed as follows:
 ;
@@ -237,15 +233,11 @@
   (declare (ignore kb-type bn-alg))
 
   (parse-initialize) 	;clear out hash tables in parser
-  (physics-algebra-rules-initialize) ;initialize grammar
   ;; reset run-time data structures for new problem:
   (symbols-reset)   	;clear out symbol table
   (clear-entries)	;clear out student entry list
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
-
-  (solver-load)         ;reload solver (since it is full of memory leaks)
-  (solver-logging *solver-logging*)  ;must do after loading solver
 
   ;; Set the Problem Instance time for this work on the problem.
   (setq *Current-Problem-Instant-Start-UTime* (get-universal-time))
@@ -301,13 +293,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-close-problem (name Done)
    (declare (ignore name)) 
-   ;; for now, leave this state around for debugging
    ;; empty symbol table and entry list
-   ;; (symbols-reset) 
-   ;; (clear-entries)
-
-   ;; unload at solver end of problem since it is full of memory leaks.
-   (solver-unload)  
+   (symbols-reset) 
+   (clear-entries)
 
    ;; Clear the record of the students actions.
    ;; Note that this may change to a record of this act.

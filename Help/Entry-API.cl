@@ -480,7 +480,7 @@
       ; unit-normal, unit-from, unit-towards: assume these will never be soughts so will
       ; never appear on quantity choice menu.
       ;; unknown:
-      (otherwise   (format T "~&Warning!! unknown type to make-quant: ~A~%" 
+      (otherwise (warn "~&Warning!! unknown type to make-quant: ~A~%" 
 			   quant-type)
 		   ;; what the hey, give it our best shot:
 		   (set-time
