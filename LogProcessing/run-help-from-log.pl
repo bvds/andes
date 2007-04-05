@@ -6,7 +6,7 @@
 #  (rhelp)
 #  (progn (setf *debug-help* nil) (setf *ignore-errors* t) (andes-start))
 # Start up helpsystem:
-# printf "(rhelp)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl > run-help.log
+# printf "(rhelp)\n(setf *debug-help* nil)\n(setf *ignore-errors* t)\n(andes-start)\n" | sbcl >& run-help.log
 # Read an Andes log file through the help system.
 #
 # run-help-from-log.pl -v [-h hostname] < input.log > output.log
