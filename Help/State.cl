@@ -87,7 +87,8 @@
 (defvar *Current-Problem-Instance-Start-UTime* Nil "The Current PITime.")
 
 
-
+(defvar *solver-logging* nil
+  "Flag for turning on solver logging, for debugging purposes.")
 
 ;------------------------------------------------------------------------------
 ; Overall Session structure bracketed as follows:
@@ -235,7 +236,9 @@
 (defun do-read-problem-info (name &optional kb-type (bn-alg 0))
   (declare (ignore kb-type bn-alg))
   ; reset run-time data structures for new problem:
-  (parse-initialize) 	;; re-initialize parser
+  (solver-load)         ;; reload solver (since it is full of memory leaks)
+  (solver-logging *solver-logging*)  ;; andes-start can specify this
+  (parse-initialize) 	;; clear out hash tables in parser
   (symbols-reset)   	;; clear out symbol table
   (clear-entries)	;; clear out student entry list
   ;; use problem name as seed for random elt
@@ -299,6 +302,9 @@
    ;; empty symbol table and entry list
    ;; (symbols-reset) 
    ;; (clear-entries)
+
+   ;; unload at solver end of problem since it is full of memory leaks.
+   (solver-unload)  
 
    ;; Clear the record of the students actions.
    ;; Note that this may change to a record of this act.
