@@ -235,14 +235,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-read-problem-info (name &optional kb-type (bn-alg 0))
   (declare (ignore kb-type bn-alg))
+
+  (parse-initialize) 	;clear out hash tables in parser
+  (physics-algebra-rules-initialize) ;initialize grammar
   ;; reset run-time data structures for new problem:
   (symbols-reset)   	;clear out symbol table
   (clear-entries)	;clear out student entry list
-  (solver-load)         ;reload solver (since it is full of memory leaks)
-  (solver-logging *solver-logging*)  ;must do after loading solver
-  (parse-initialize) 	;clear out hash tables in parser
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
+
+  (solver-load)         ;reload solver (since it is full of memory leaks)
+  (solver-logging *solver-logging*)  ;must do after loading solver
 
   ;; Set the Problem Instance time for this work on the problem.
   (setq *Current-Problem-Instant-Start-UTime* (get-universal-time))

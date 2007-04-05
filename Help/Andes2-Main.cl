@@ -514,8 +514,6 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
   (doSafety :in2pre)
   (enable-errors)
-  (physics-algebra-rules-initialize)
-  (symbols-reset)
   )
 
 (defun andes-stop ()
