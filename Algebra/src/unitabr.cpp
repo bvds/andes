@@ -14,7 +14,6 @@ using namespace std;
 
 #define Asize(arr) (sizeof(arr)/sizeof(arr[0]))
 
-extern unitabrs unittable;
 numvalexp * parseunit(stack<string> *toklist);          // in getaneqn.cpp
 
 struct punit {
@@ -34,6 +33,8 @@ struct punit {
 #include "units.h"
 };
 
+
+
 struct pfx {
   string name;
   double value;
@@ -45,6 +46,7 @@ struct pfx {
 #include "prefixes.h"
 };
 
+unitabrs unittable;
 
 unitabrs::unitabrs()   // fill up tables from utab
 {			     

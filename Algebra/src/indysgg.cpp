@@ -37,7 +37,8 @@ int numvars;
 vector<vector<int> > * listsetrefs;
 vector<int> *lasttriedeq;
 
-unitabrs unittable;
+extern unitabrs unittable;
+
 void constsfill();
 
 //
