@@ -99,7 +99,7 @@
   ; modified entry.  Workbench should prevent a brand new entry to redefine any 
   ; existing def of same label, but we make sure to be on the safe side
   (when (symbols-lookup label)
-     (warn "Warning!: new entry replacing existing def for ~A~%" label)
+     (warn "symbols-enter: new entry replacing existing def for ~A~%" label)
      (symbols-delete label))
 
   ; if no special sysvar specified, look up matching quantity as default
