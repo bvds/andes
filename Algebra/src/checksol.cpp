@@ -210,7 +210,7 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     return(retval);
   }
   case n_op: {
-    answitherr* argval = new answitherr;
+    answitherr* argval;
     switch(((n_opexp*)ex)->op->opty) {
     case pluse: {
       retval->value = 0;

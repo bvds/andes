@@ -45,8 +45,9 @@ struct pfx {
 #include "prefixes.h"
 };
 
-void unitabrs::fill()		// INCONSISTENT with above, no value or takepfx
-{				// exploring static data struct instead of fill
+
+unitabrs::unitabrs()   // fill up tables from utab
+{			     
   string abr;
   dimens dim;
   {for (int k = 0; k < Asize(utab); k++) {

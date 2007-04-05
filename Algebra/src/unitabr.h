@@ -17,8 +17,7 @@ class unitabrs
   vector<string> pfxs;
   vector<double> pfxvals;
 public:
-  unitabrs() { }
-  void fill();
+  unitabrs(void); 
   string match(dimens);
   //   int size();
   numvalexp * unitget(const string & unitname);

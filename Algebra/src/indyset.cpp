@@ -142,6 +142,7 @@ bool indyset::placelast()
       printdv(*temp); cout << endl;
       cout << "           Its pivot is variable " 
       << ordervar[ordervar.size()-1] << endl);
+  delete temp;
   return(true);
 }
 

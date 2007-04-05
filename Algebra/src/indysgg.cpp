@@ -135,7 +135,6 @@ void indyEmpty() {
     }
   } else {// end of recalled indyEmpty
     DBG(cout << "IndyEmpty called to initialize everything" << endl; );
-    unittable.fill();
     constsfill();
     canonvars = new vector<physvar *>;
     canoneqf = new vector<binopexp *>;
