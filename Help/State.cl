@@ -235,12 +235,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun do-read-problem-info (name &optional kb-type (bn-alg 0))
   (declare (ignore kb-type bn-alg))
-  ; reset run-time data structures for new problem:
-  (solver-load)         ;; reload solver (since it is full of memory leaks)
-  (solver-logging *solver-logging*)  ;; andes-start can specify this
-  (parse-initialize) 	;; clear out hash tables in parser
-  (symbols-reset)   	;; clear out symbol table
-  (clear-entries)	;; clear out student entry list
+  ;; reset run-time data structures for new problem:
+  (symbols-reset)   	;clear out symbol table
+  (clear-entries)	;clear out student entry list
+  (solver-load)         ;reload solver (since it is full of memory leaks)
+  (solver-logging *solver-logging*)  ;must do after loading solver
+  (parse-initialize) 	;clear out hash tables in parser
   ;; use problem name as seed for random elt
   (initialize-random-elt (string-downcase name)) 
 

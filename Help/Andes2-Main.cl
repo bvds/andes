@@ -43,16 +43,16 @@
 ; Global Variables -- TCP socket and stream variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defvar *andes-socket* nil
-"The TCP/IP socket that this application sets up to service help requests.")
+  "The TCP/IP socket that this application sets up to service help requests.")
 
 (defvar *andes-stream* nil
-"The stream that represents the character socket that serves help requests.")
+  "The stream that represents the character socket that serves help requests.")
 
 (defvar *debug-help* t
-"The stream showing help system runtime activities.")
+  "The stream showing help system runtime activities.")
 
 (defparameter &andes-port& 12345 ;; default port number from workbench code.
-"The port where the help system listens for help requests.")
+  "The port where the help system listens for help requests.")
 
 ;; Command designators on the TCP stream
 (defparameter &exec& #\?) ;; client -> server, want result
@@ -467,19 +467,18 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 ;; local host so as to attach to a running workbench listening on that port. 
 ;; Otherwise we listen for connections as a server on the default port
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun andes-start (&key solver-logging wb-port)
+(defun andes-start (&key wb-port)
   "initialize the andes help system server state"
   (andes-init)
-  (solver-logging solver-logging)
-  ; in runtime version: wb can pass a port number in to us on command line
-  ; in which case we will actively connect to that port
+  ;; in runtime version: wb can pass a port number in to us on command line
+  ;; in which case we will actively connect to that port
   #+allegro-cl-runtime (setf wb-port 
                            (read-from-string (sys:command-line-argument 1)))
   (if wb-port (make-active-connection wb-port)
      (await-passive-connection))
   (andes-run)
-  ;; andes-run should always call andes-terminate when done so following shouldn't be 
-  ;; necessary, but shouldn't hurt to be safe just in case
+  ;; andes-run should always call andes-terminate when done so following 
+  ;; shouldn't be necessary, but shouldn't hurt to be safe just in case
   #+allegro-cl-runtime (exit 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -493,33 +492,28 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ;; Set the base help system time
   (setq **base-Htime** (universal-time->htime (get-universal-time)))
   
-  ; Mainly for safety in runtime image: ensure Lisp reads floating point numbers 
-  ; into doubles, no matter what setting had been in effect before.
+  ;; Mainly for safety in runtime image: ensure Lisp reads floating point 
+  ;; numbers into doubles, no matter what setting had been in effect before.
   (setq *read-default-float-format* 'double-float)
   
-  ; Allegro socket operations will start its multiprocessing system. Initialize it 
-  ; early just in case this helps with intermittent connection startup failures seen
-  ; on some systems, which might be due to race conditions.
+  ;; Allegro socket operations will start its multiprocessing system. 
+  ;; Initialize it early just in case this helps with intermittent connection 
+  ;; startup failures seen on some systems, which might be due to race conditions.
   #+allegro (mp:start-scheduler)
 
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
-			 (make-pathname :host (pathname-host *default-pathname-defaults*)
-					:device (pathname-device *default-pathname-defaults*)
-					:directory (pathname-directory *default-pathname-defaults*)
-					:name nil :type nil))
+			     (make-pathname :host (pathname-host *default-pathname-defaults*)
+					    :device (pathname-device *default-pathname-defaults*)
+					    :directory (pathname-directory *default-pathname-defaults*)
+					    :name nil :type nil))
   ;; We also fix up the AndesModule system's compiled-in base-name var 
   ;; (set when helpsys was built) so runtime use loads from the runtime 
   ;; Andes directory.
   #-asdf (setf *Base-Andes-Module-Path* (namestring *andes-path*))
   (format T "Starting Andes, *andes-path* = ~A~%" *andes-path*)
-  (solver-load)
-  ;; Dynamically load kb on startup. Might want to move to load on each 
-  ;; problem, so that don't have to restart helpsys to test kb changes.
-  ;(load-kb)
   (doSafety :in2pre)
   (enable-errors)
-  (parse-initialize) ; initialize memoization
   (physics-algebra-rules-initialize)
   (symbols-reset)
   )
@@ -531,7 +525,6 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 (defun andes-terminate ()
 "terminate this instance of the help server on session end"
   (terminate-server)
-  (solver-unload)
   (format *debug-help* "~&Andes session finished!~%")
   ; in runtime version only: exit Lisp when session is done
   #+allegro-cl-runtime (exit 0))
