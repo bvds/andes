@@ -35,7 +35,7 @@
     (cond
      ((null interps)
       (setf (StudentEntry-CInterp se) nil)
-      (format t "****HEY!!!! NO INTERPRETATIONS FROM ~W" se)
+      (warn "interpret-equation: no interpretations for ~W" se)
       (setf (StudentEntry-State se) **Incorrect**)
       (setf result (make-red-turn)))
      (correct1
@@ -52,8 +52,8 @@
       (setf result (chain-explain-more **Forbidden-Help**)))
      (premature1
       (setf (StudentEntry-CInterp se) premature1)
-      ; changed to treat as correct, but with a warning message -- AW
-      ;(setf (StudentEntry-State se) **Premature-Entry**)
+      ;; changed to treat as correct, but with a warning message -- AW
+      ;; (setf (StudentEntry-State se) **Premature-Entry**)
       (setf (StudentEntry-State se) **Correct**)
       (setf result (get-premature-msg se))) ; now returns green + message turn
      (nogood1
@@ -61,7 +61,7 @@
       (setf (StudentEntry-State se) **NOGOOD**)
       (setf result (chain-explain-more **NOGOOD-Help**)))
      (t
-      (format t "Don't know what to do with ~W~%" shortest)
+      (warn "interpret-equation: no interpretations for ~A~%" interps)
       (setf (StudentEntry-CInterp se) shortest)
       (setf (StudentEntry-State se) **Correct**)
       (setf result (make-green-turn))))
