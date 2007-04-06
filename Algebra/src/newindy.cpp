@@ -88,7 +88,6 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   for (k = 0; k < expcoefs.size(); k++) 
     if (fabs(expcoefs[k]) > 0.0) // for debugging
       linexpand->push_back((*listsetrefs)[setID][k]);
-  delete &expcoefs;
 
   // linexpand now has canonical equation indices of equations on which 
   // there is a dependence in the linear approximation
