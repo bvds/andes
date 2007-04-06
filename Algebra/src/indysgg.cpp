@@ -9,7 +9,6 @@
 #include "dbg.h"
 #include "extstruct.h"
 #include "indyset.h"
-#include "unitabr.h"
 #include <math.h>
 #include "indysgg.h"
 
@@ -37,8 +36,6 @@ int numvars;
 vector<vector<int> > * listsetrefs;
 vector<int> *lasttriedeq;
 
-extern unitabrs unittable;
-
 void constsfill();
 
 //
@@ -65,7 +62,7 @@ void constsfill();
  *     setupdone = true							*
  *     gotthevars = false   (to be set by indyDoneAddVar later)		*
  *     numparams = 0        (to be incremented by parameter statements) *
- *     unittable and table of constants get filled			*
+ *     table of constants get filled			*
  *     new empty vectors are created for 				*
  *       canonvars, canoneqf, canongrads, paramasgn, numsols, 		*
  *       listofsets, listsetrefs, lasttriedeq				*
