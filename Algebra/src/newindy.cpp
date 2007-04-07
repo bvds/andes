@@ -80,7 +80,8 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   if ((mightdepend != 0L) && mightdepend != (vector<int> *)NULL) // added 6/6
     delete mightdepend;
   // expcoefs is the set of coefs of the equation in linear approx in setID eqs
-  vector<double> *expcoefs=(*listofsets)[setID].expandlast();
+  vector<double> *expcoefs;
+  expcoefs=(*listofsets)[setID].expandlast();
   DBGM(cout << "in indyHowIndy expcoefs = "; printdv(*expcoefs));
 
   // See Bug #736 for details on the zero test that was removed from here
