@@ -152,10 +152,10 @@ bool indyset::placelast()
  *	already entered in the set. Must be first call following the 
  *	isindy call.
  ************************************************************************/
-vector<double> indyset::expandlast()
+vector<double> *indyset::expandlast()
 {
   DBG(cout << "Entering indyset::expandlast" << endl);
-  vector<double> ret = *new vector<double>(numinset,0.0);
+  vector<double> *ret = new vector<double>(numinset,0.0);
   for (int k = 0; k < numinset; k++) 
     {
       // AW: add check for addition result that should be set to zero.
@@ -168,21 +168,21 @@ vector<double> indyset::expandlast()
 	  double addend = candexpand[q] * basexpand[q][k];
 	  // the errors for candexpand and basexpand are actually much larger
 	  ret_err += 2*RELERR*fabs(addend);
-	  ret[k] += addend;
+	  (*ret)[k] += addend;
 	}
-      if (fabs(ret[k]) < ret_err) {
-	ret[k] = 0;
-	if(fabs(ret[k]) > 0.){
-	  DBG ( cout << "|ret[" << k << "]| = " << fabs(ret[k]) << " < " 
+      if (fabs((*ret)[k]) < ret_err) {
+	(*ret)[k] = 0;
+	if(fabs((*ret)[k]) > 0.){
+	  DBG ( cout << "|ret[" << k << "]| = " << fabs((*ret)[k]) << " < " 
 	      << ret_err << " set to 0" << endl);
 	}
-      } else if(fabs(ret[k]) > 0.) {
-	DBG ( cout << "|ret[" << k << "]| = " << fabs(ret[k]) << " > " 
+      } else if(fabs((*ret)[k]) > 0.) {
+	DBG ( cout << "|ret[" << k << "]| = " << fabs((*ret)[k]) << " > " 
 	      << ret_err << endl);
       }
     }
   DBG(    cout << "Leaving indyset::expandlast with vector ";
-	  printdv(ret); cout << endl);
+	  printdv(*ret); cout << endl);
   lastisvalid = false;
   return(ret);
 }

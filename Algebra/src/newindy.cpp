@@ -80,14 +80,15 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   if ((mightdepend != 0L) && mightdepend != (vector<int> *)NULL) // added 6/6
     delete mightdepend;
   // expcoefs is the set of coefs of the equation in linear approx in setID eqs
-  vector<double> expcoefs((*listofsets)[setID].expandlast());
-  DBGM(cout << "in indyHowIndy expcoefs = "; printdv(expcoefs));
+  vector<double> *expcoefs=(*listofsets)[setID].expandlast();
+  DBGM(cout << "in indyHowIndy expcoefs = "; printdv(*expcoefs));
 
   // See Bug #736 for details on the zero test that was removed from here
   linexpand = new vector<int>;
-  for (k = 0; k < expcoefs.size(); k++) 
-    if (fabs(expcoefs[k]) > 0.0) // for debugging
+  for (k = 0; k < expcoefs->size(); k++) 
+    if (fabs((*expcoefs)[k]) > 0.0) // for debugging
       linexpand->push_back((*listsetrefs)[setID][k]);
+  delete expcoefs;
 
   // linexpand now has canonical equation indices of equations on which 
   // there is a dependence in the linear approximation

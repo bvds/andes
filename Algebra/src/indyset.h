@@ -36,7 +36,7 @@ public:
   bool isindy(const expr * const candex);
   bool isindy(const valander * const candval);
   bool placelast();
-  vector<double> expandlast();
+  vector<double> *expandlast();
   bool keepn(int n);
   ~indyset() { keepn(0); }
   int size() { return(numinset); }
