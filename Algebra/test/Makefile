@@ -1,7 +1,7 @@
 #
 #  Make Solver test program
 #
-CPPFLAGS = -Wall -I../src -DWITHDBG -g -pg
+CPPFLAGS = -Wall -I../src -DWITHDBG -g
 #
 #  For OS X, do things a bit differently:
 #
