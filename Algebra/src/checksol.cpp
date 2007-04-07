@@ -180,8 +180,6 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
       retval->value = lhsval->value/rhsval->value;
       retval->abserr = lhsval->abserr/fabs(rhsval->value) 
 	+ rhsval->abserr * fabs(lhsval->value/pow(rhsval->value,2));
-      delete lhsval;
-      delete rhsval;
       break;
     case topowe:
       retval->value = pow(lhsval->value,rhsval->value);
@@ -193,8 +191,6 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
       } else {
 	retval->abserr = pow(lhsval->abserr, rhsval->value - rhsval->abserr);
       }
-      delete lhsval;
-      delete rhsval;
       break;
     case equalse:
       retval->value = lhsval->value - rhsval->value;
@@ -205,6 +201,8 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     default:
       throw(string("I can't return eval of >=, >, or unknown expr"));
     }
+    delete lhsval;
+    delete rhsval;
     DBG(cout << "evalexpr call " << thiscall << " binop returning " 
 	<< retval->value << "+-" << retval->abserr << endl;);
     return(retval);
