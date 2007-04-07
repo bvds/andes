@@ -74,7 +74,7 @@ void expr::destroy()
     case n_op:
       for (int k=0; k < ((n_opexp *) this)->args->size(); k++)
 	(*(((n_opexp *) this)->args))[k]->destroy();
-      delete (((n_opexp *) this)->args);
+      delete ((n_opexp *) this)->args;
       delete ((n_opexp *) this);
       return;
     }
