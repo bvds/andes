@@ -79,6 +79,7 @@
 	 (leaf kinetic-energy :tutorial "Conservation of Energy")
 	 (leaf rotational-energy :tutorial "Conservation of Energy")
 	 (leaf grav-energy :tutorial "Conservation of Energy")
+	 (leaf gravitational-energy-point)
 	 (leaf spring-energy :tutorial "Conservation of Energy")
 	 (leaf electric-energy :tutorial "Electric Potential")
 	 (leaf power :tutorial "Power")

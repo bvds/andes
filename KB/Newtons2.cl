@@ -4733,8 +4733,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
       ;; b1 wrt center of b2. 
       (center-of-mass ?c1 (?b1))
       (center-of-mass ?c2 (?b2))
-      (variable ?r  (mag (relative-position ?c1 ?c2 :time ?t)))
-      (variable ?F  (mag (force ?b1 ?b2 gravitational :time ?t)))
+      (variable ?r (mag (relative-position ?c1 ?c2 :time ?t)))
+      (variable ?F (mag (force ?b1 ?b2 gravitational :time ?t)))
   )
   :effects 
   ;; G is predefined, see file constants.cl
@@ -4869,6 +4869,66 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (bottom-out (string "Draw the gravitational force on ~a due to ~a at a direction of ~a" ?b1 (?b2 agent) ?dir))
   )
 )
+
+;;--------------------------------------------------------------------------
+;;               gravitational potential energy for point
+;;--------------------------------------------------------------------------
+
+(def-psmclass gravitational-energy-point
+  (gravitational-energy-point ?body ?agent ?time)
+  :complexity major
+  :short-name "gravitational potential energy, spherical source"
+  :english ("the gravitational potential energy due to a spherical object")
+  :ExpFormat ("calculating the gravitational potential of ~a due to ~a"
+		 (nlg ?body) (nlg ?agent))
+  :EqnFormat ("Ug = -G*m1*m2/r" ))
+
+(defoperator gravitational-energy-point-contains (?sought)
+  :preconditions 
+  (
+   (gravity ?grav-bodies :time ?t-gravity)
+   (any-member ?sought ( (grav-energy ?body ?agent :time ?t)
+			 (mag (relative-position ?cm-body ?cm-agent :time ?t))
+			 (mass ?body)
+			 (mass ?agent)
+			 ))
+   ;; in case sought is relative position:
+   (center-of-mass ?cm-body (?body))
+   (center-of-mass ?cm-agent (?agent))
+   (time ?t)
+   (test (tinsidep ?t ?t-gravity))
+   ;; NB: have to make sure body is a gravitational, or else this will apply
+   ;; for any relative positions in any problem.
+  (any-member ?body ?grav-bodies)
+  (any-member ?agent ?grav-bodies)
+  )
+  :effects (
+   (eqn-contains (gravitational-energy-point ?body ?agent ?t) ?sought)
+  ))
+
+(defoperator write-gravitational-energy-point (?body ?agent ?t)
+  :preconditions 
+  (
+   (body ?body)   ;this psm draws ?body
+   (variable ?m1 (mass ?body))
+   (variable ?m2 (mass ?agent))
+   (variable ?Ug (grav-energy ?body ?agent :time ?t))
+   ;; force is on b1 due to b2, so want relative position of center of
+   ;; b1 wrt center of b2. 
+   (center-of-mass ?cm-body (?body))
+   (center-of-mass ?cm-agent (?agent))
+   (variable ?r (mag (relative-position ?cm-body ?cm-agent :time ?t)))
+   )
+  :effects (
+    (eqn (= ?Ug (- (/ (* |G| ?m1 ?m2) ?r))) 
+	 (gravitational-energy-point ?body ?agent ?t))
+    )
+  :hint (
+    (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies, masses m1 and m2, is equal to G*m1*m2/r^2.  If we integrate this over r, with r going from r=infinity to r=r1, we get the potential energy -G*m1*m2/r.  This applies to either m1 or m2."))
+    (bottom-out (string "Write the equation ~A" 
+                         ((= ?Ug (- (/ (* G ?m1 ?m2) ?r))) algebra) ))
+  ))
+
 
 ;;;;===========================================================================
 ;;;;
@@ -7880,7 +7940,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    ;; find or draw a force.
    (setof (nc-work-during (work ?b ?agent :time ?t-work) ?t) 
           (work ?b ?agent :time ?t-work) ?work-quants)
-   (debug "collect nc-work-during gives:  ~A~%" ?work-quants)
+   (debug "collect nc-work-during gives:  ~S~%" ?work-quants)
    (map ?work-quant ?work-quants
       (variable ?work-var ?work-quant)
       ?work-var ?work-vars)

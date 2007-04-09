@@ -62,6 +62,7 @@ LEAF	ME1 = ME2    [Wnc=0] conservation of mechanical energy	cons-energy	Conserva
 LEAF	KE = 0.5*m*v^2    kinetic energy defined	kinetic-energy	Conservation of Energy
 LEAF	KE = 0.5*I*$w^2    rotational kinetic energy defined	rotational-energy	Conservation of Energy
 LEAF	Ug = m*g*h    gravitational potential energy	grav-energy	Conservation of Energy
+LEAF	Ug = -G*m1*m2/r    gravitational potential energy, spherical source	gravitational-energy-point	
 LEAF	Us = 0.5*k*d^2    spring potential energy	spring-energy	Conservation of Energy
 LEAF	U = q*Vnet    electric potential energy	electric-energy	Electric Potential
 LEAF	P(avg) = W/t    average power defined	power	Power
