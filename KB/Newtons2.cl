@@ -4875,7 +4875,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;--------------------------------------------------------------------------
 
 (def-psmclass gravitational-energy-point
-  (gravitational-energy-point ?body ?agent ?time)
+  (gravitational-energy-point ?body ?agent ?zerop ?time)
   :complexity major
   :short-name "gravitational potential energy, spherical source"
   :english ("the gravitational potential energy due to a spherical object")
@@ -4903,7 +4903,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   (any-member ?agent ?grav-bodies)
   )
   :effects (
-   (eqn-contains (gravitational-energy-point ?body ?agent ?t) ?sought)
+   (eqn-contains (gravitational-energy-point ?body ?agent t ?t) ?sought)
   ))
 
 (defoperator write-gravitational-energy-point (?body ?agent ?t)
@@ -4917,17 +4917,42 @@ the magnitude and direction of the initial and final velocity and acceleration."
    ;; b1 wrt center of b2. 
    (center-of-mass ?cm-body (?body))
    (center-of-mass ?cm-agent (?agent))
-   (variable ?r (mag (relative-position ?cm-body ?cm-agent :time ?t)))
+   (inherit-variable ?r (mag (relative-position ?cm-body ?cm-agent :time ?t)))
    )
   :effects (
     (eqn (= ?Ug (- (/ (* |G| ?m1 ?m2) ?r))) 
-	 (gravitational-energy-point ?body ?agent ?t))
+	 (gravitational-energy-point ?body ?agent t ?t))
     )
   :hint (
     (teach (string "Newton's law of universal gravitation states that the magnitude of the gravitational force between two bodies, masses m1 and m2, is equal to G*m1*m2/r^2.  If we integrate this over r, with r going from r=infinity to r=r1, we get the potential energy -G*m1*m2/r.  This applies to either m1 or m2."))
     (bottom-out (string "Write the equation ~A" 
                          ((= ?Ug (- (/ (* G ?m1 ?m2) ?r))) algebra) ))
   ))
+
+(defoperator gravitational-energy-zero-contains (?sought)
+  :preconditions 
+  (
+   (gravity ?grav-bodies :time ?t-gravity)
+   (any-member ?sought ( (grav-energy ?body ?agent :time ?t) ))
+   (time ?t) ;sanity test
+   (test (not (and (tinsidep ?t ?t-gravity) (member ?body ?grav-bodies))))
+   ;; NB: have to make sure body is a gravitational, or else this will apply
+   ;; for any relative positions in any problem.
+   (any-member ?agent ?grav-bodies)
+  )
+  :effects (
+   (eqn-contains (gravitational-energy-point ?body ?agent nil ?t) ?sought)
+  ))
+
+(defoperator write-gravitational-energy-zero (?body ?agent ?t)
+  :preconditions ((variable ?Ug (grav-energy ?body ?agent :time ?t)))
+  :effects ((eqn (= ?Ug 0) (gravitational-energy-point ?body ?agent nil ?t)))
+  :hint (
+	(teach (string "We define the gravitational potential energy of widely separated bodies to be zero."))
+    (bottom-out (string "Write the equation ~A" 
+                         ((= ?Ug 0) algebra) ))
+  ))
+
 
 
 ;;;;===========================================================================
@@ -6784,11 +6809,24 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; for applicable constituents of the energy of body at t in this 
 ;;; problem
 (defoperator define-grav-ee-var (?b ?t)
-    :preconditions (
-	  ;; use this for gravity near surface of a planet only
-          (near-planet ?planet :body ?b ?b)  
-	  (variable ?var (grav-energy ?b ?planet :time ?t))
-    )
+    :preconditions 
+    (
+     ;; use this for gravity near surface of a planet
+     (near-planet ?planet :body ?body ?body)
+     (variable ?var (grav-energy ?b ?planet :time ?t))
+     )
+    :effects ( (ee-var ?b ?t ?var) ))
+
+(defoperator define-grav-point-ee-var (?b ?agent ?t)
+    :preconditions 
+    (
+     ;; use this for gravitational potential force defined at any time
+     (gravity ?bodies :time ?tt)
+     (any-member ?b ?bodies)
+     (any-member ?agent ?bodies)
+     (test (not (equal ?b ?agent))) ;no self-energy
+     (variable ?var (grav-energy ?b ?agent :time ?t))
+     )
     :effects ( (ee-var ?b ?t ?var) ))
 
 (defoperator define-spring-ee-var (?b ?t)
