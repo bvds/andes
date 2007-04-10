@@ -2842,7 +2842,8 @@
     (test (not (equal ?dir 'zero))) 
     (time ?t)
     (test (tinsidep ?t ?t-motion))
-    (bind ?opp (opposite ?dir))
+    (bind ?slope (if (< (get-angle-between '(dnum 0 |deg|) ?dir) '90) 
+		     'increasing 'decreasing))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
@@ -2853,9 +2854,10 @@
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir))
    :hint
-   ((point (string "Notice that the potential is increasing in direction ~A ~A." ?b ?dir (?t pp)))
-    (teach (string "If the potential is increasing in a given direction, then the force is in the opposite direction."))
-    (bottom-out (string "You should use the acceleration tool to draw an acceleration for ~A ~a at direction ~a." ?b (?t pp) ?dir))
+   ((point (string "Notice that the potential is ~A in the x direction ~A."
+		   (?slope adj) (?t pp)))
+    (teach (string "If the potential is increasing in a given direction, then the associated force is in the opposite direction."))
+    (bottom-out (string "You should use the acceleration tool to draw an acceleration for ~A ~a in the direction ~a." ?b (?t pp) ?dir))
     ))
 
 ;;; This draws an acceleration vector at an unknown direction for an object 
