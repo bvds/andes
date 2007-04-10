@@ -2756,6 +2756,26 @@
    (bottom-out (string "Because ~a has constant velocity ~a, use the acceleration tool to draw a zero-length acceleration vector for it." ?b (?t pp)))
    ))
 
+(defoperator draw-accel-potential-zero (?b ?t)
+  :specifications 
+   "If a body is a rest, then it has zero acceleration."
+  :preconditions
+   ((potential ?b :dir zero :time ?t-motion)
+    (time ?t)
+    (test (tinsidep ?t ?t-motion))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+    (debug "~&Drawing zero accel for potential ~a at ~a.~%" ?b ?t)
+    )
+  :effects
+  ((vector ?b (accel ?b :time ?t) zero)        
+   (variable ?mag-var (mag (accel ?b :time ?t)))
+   (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
+  :hint
+  ((point (string "Notice that the potential has zero slope ~A." (?t pp)))
+   (teach (string "If a potential has zero slope, then it exerts no force."))
+   (bottom-out (string "Use the acceleration tool to draw a zero-length acceleration vector for ~A ~A." ?b (?t pp)))
+   ))
+
 (defoperator draw-accelerating (?b ?t)
   :preconditions
    ((motion ?b straight :accel ?dir :dir ?v-dir :time ?t-motion)
@@ -2813,6 +2833,29 @@
            (kcd "draw_accel_straight_speeding_up")
 	   (string "When a body is moving in a straight line and speeding up, its acceleration is parallel to the line of motion."))
     (bottom-out (string "Because ~a is speeding up while moving in a straight line with direction ~a, you should use the acceleration tool to draw an acceleration for it ~a at direction ~a." ?b ?dir (?t pp) ?dir))
+    ))
+
+(defoperator draw-accel-potential (?b ?t)
+  :preconditions
+   (
+    (potential ?b :dir ?dir :time ?t-motion)
+    (test (not (equal ?dir 'zero))) 
+    (time ?t)
+    (test (tinsidep ?t ?t-motion))
+    (bind ?opp (opposite ?dir))
+    (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
+    )
+  :effects
+   ((vector ?b (accel ?b :time ?t) ?dir)
+    (variable ?mag-var (mag (accel ?b :time ?t)))
+    (variable ?dir-var (dir (accel ?b :time ?t)))
+    (given (dir (accel ?b :time ?t)) ?dir))
+   :hint
+   ((point (string "Notice that the potential is increasing in direction ~A ~A." ?b ?dir (?t pp)))
+    (teach (string "If the potential is increasing in a given direction, then the force is in the opposite direction."))
+    (bottom-out (string "You should use the acceleration tool to draw an acceleration for ~A ~a at direction ~a." ?b (?t pp) ?dir))
     ))
 
 ;;; This draws an acceleration vector at an unknown direction for an object 
