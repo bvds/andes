@@ -5066,22 +5066,22 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; be cited in inferring the existence of a gravitational force. 
 
 (defoperator find-grav-force (?b1 ?b2 ?t)
-  :preconditions (
-    (gravity . ?grav-bodies) ;see Bug #1138
-    ;; ?b1 probably bound coming in if finding all forces on it,
-    ;; but agent ?b2 is probably not bound:
-    (any-member ?b1 ?grav-bodies)
-    (any-member ?b2 ?grav-bodies)
-    ;; We get force direction as oppposite of relative position direction. 
-    ;; Don't require r to be drawn -- ug-circular form doesn't use it.
-    (grav-direction ?b1 ?b2 ?t ?dir)
-    (time ?t)
-  )
-  :effects ( 
-    (force ?b1 ?b2 gravitational ?t ?dir NIL)
-    ;; NIL given time should be translated to sought interval
-    (force-given-at ?b1 ?b2 gravitational NIL ?dir NIL)
-  ))
+  :preconditions 
+  (
+   (gravity . ?grav-bodies) ;see Bug #1138
+   ;; ?b1 probably bound coming in if finding all forces on it,
+   ;; but agent ?b2 is probably not bound:
+   (any-member ?b1 ?grav-bodies)
+   (any-member ?b2 ?grav-bodies)
+   ;; We get force direction as oppposite of relative position direction. 
+   ;; Don't require r to be drawn -- ug-circular form doesn't use it.
+   (grav-direction ?b1 ?b2 ?t ?dir)
+   (test (not (unify ?b1 ?b2))) ;forbid self-action of force (sanity test)
+   )
+  :effects ((force ?b1 ?b2 gravitational ?t ?dir NIL)
+	    ;; NIL given time should be translated to sought interval
+	    (force-given-at ?b1 ?b2 gravitational NIL ?dir NIL)
+	    ))
 
 (defoperator grav-dir-from-rel-pos (?b1 ?b2 ?t)
   :preconditions 
@@ -5089,7 +5089,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (center-of-mass ?c1 (?b1)))
    (in-wm (center-of-mass ?c2 (?b2)))
    (in-wm (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir))
-   (test (not (equal ?r-dir 'unknown)))
    (time ?t)
    (test (tinsidep ?t ?t-given))
     (bind ?grav-dir (opposite ?r-dir))
@@ -5102,11 +5101,26 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (in-wm (center-of-mass ?c1 (?b1)))
    (in-wm (center-of-mass ?c2 (?b2)))
    (in-wm (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir))
-   (test (not (equal ?r-dir 'unknown)))
    (time ?t) 
    (test (tinsidep ?t ?t-given))
   )
   :effects ((grav-direction ?b1 ?b2 ?t ?r-dir)))
+
+;; In grav3, this is needed to make the net-work PSM to fail at (during 1 2).
+;; This makes a gravitational force, but no work can be calculated from it. 
+(defoperator grav-dir-unknown (?b1 ?b2 ?t)
+  :preconditions 
+  (
+   (in-wm (center-of-mass ?c1 (?b1)))
+   (in-wm (center-of-mass ?c2 (?b2)))
+   (test (not (unify ?c1 ?c2))) ;forbid self-action of force (needed test)
+   (time ?t) 
+   (not (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir1)
+	(tinsidep ?t ?t-given))
+   (not (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir2)
+	(tinsidep ?t ?t-given))
+  )
+  :effects ((grav-direction ?b1 ?b2 ?t unknown)))
 
 (defoperator draw-grav-force (?b1 ?b2 ?t)
   :preconditions 
@@ -5196,7 +5210,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (gravity (orderless . ?grav-bodies) :time ?t-grav)
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t) ))
    (time ?t) ;sanity test
-   (test (not (and (tinsidep ?t ?t-zero) 
+   (test (not (and (tinsidep ?t ?t-grav) 
 		   (member ?body ?grav-bodies :test #'unify)
 		   (member ?agent ?grav-bodies :test #'unify))))
   )
@@ -7564,10 +7578,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; component-wise as F_x * d_x + F_y * d_y.  We will have to define another 
 ;;; PSM to calculate the work done by a single force in this way.
 ;;;
-;;; !!! This only applies if the force is constant over the interval. That is
-;;; true of almost all forces in Andes problems except the force from a
-;;; compressed spring. We test against spring forces, but otherwise just
-;;; assume force defined over interval is constant. 
 (defoperator work-contains (?sought)
  :preconditions (
     (in-wm (use-work))
@@ -7633,9 +7643,13 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
                            (remove 'Normal ?agent-force-types))))
     (debug "write-work: choosing force of type ~A for work by ~A~%" 
 	   ?type ?agent)
-    ;; don't apply this to spring force which varies over interval
-    ;; more correctly, we should test for the force to be constant...
-    (test (not (eq ?type 'spring)))
+    ;; Formula for work only applies if the force is constant. 
+    ;; That is true of almost all forces in Andes problems except the force 
+    ;; from a compressed spring and gravitational (not weight) force.
+    ;; 
+    ;; We assume all other forces are constant over the interval.  
+    ;; It would be better to test for this explicitly.
+    (test (not (member ?type '(spring gravitation))))
     ;; must draw body, force and displacement vectors
     (body ?b)
     (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t) ?rot)
