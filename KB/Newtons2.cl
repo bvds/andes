@@ -2760,7 +2760,7 @@
   :specifications 
    "If a body is a rest, then it has zero acceleration."
   :preconditions
-   ((potential ?b :dir zero :time ?t-motion)
+   ((potential ?b :force-dir zero :time ?t-motion)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2838,12 +2838,12 @@
 (defoperator draw-accel-potential (?b ?t)
   :preconditions
    (
-    (potential ?b :dir ?dir :time ?t-motion)
+    (potential ?b :force-dir ?dir :time ?t-motion)
     (test (not (equal ?dir 'zero))) 
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (bind ?slope (if (< (get-angle-between '(dnum 0 |deg|) ?dir) '90) 
-		     'increasing 'decreasing))
+		     'decreasing 'increasing))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
