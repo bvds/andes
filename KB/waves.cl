@@ -961,8 +961,13 @@
 
 (defoperator make-doppler-frequency (?source ?medium ?observer ?t-s ?t-o)
   :preconditions 
-  ((variable ?vs (mag (relative-vel ?source ?medium :time ?t-s)))
-   (variable ?vo (mag (relative-vel ?observer ?medium :time ?t-o)))
+  (
+   ;; draw vectors (directions needed below)
+   (inherit-vector ?source (relative-vel ?source ?medium :time ?t-s) ?sdir)
+   (inherit-vector ?observer (relative-vel ?observer ?medium :time ?t-o) ?odir)
+   ;;
+   (inherit-variable ?vs (mag (relative-vel ?source ?medium :time ?t-s)))
+   (inherit-variable ?vo (mag (relative-vel ?observer ?medium :time ?t-o)))
    (variable ?vw (wave-speed ?medium))		  
    (variable ?fs (frequency ?source))		  
    (variable ?fo (observed-frequency ?source ?observer :time ?t-o))
@@ -981,8 +986,6 @@
    ;; use vector statements so that zero velocity can be handled correctly.  
    ;; This might prevent relative-vel from being the sought.
    ;; This is in working memory, because the magnitudes were found above.
-   (in-wm (vector ?source (relative-vel ?source ?medium :time ?t-s) ?sdir))
-   (in-wm (vector ?observer (relative-vel ?observer ?medium :time ?t-o) ?odir))
    (bind ?sangle (get-angle-between ?phi ?sdir))
    (bind ?oangle (get-angle-between ?phi ?odir))
    ;; If we had a real smp doing the algebraic simplifications, 

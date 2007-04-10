@@ -142,29 +142,9 @@
    )
   :effects ((path-to-branch ?branch ?path)))   
 
-;; (compo-or-branch ...) fails if ?compo is in ?path for some 
-;; (branch ... ?path) but has not been declared (circuit-component ...)
-(defoperator use-component-for-current (?compo)
-  :preconditions ((not (branch ?name ?whatever1 ?whatever2 ?path) 
-		       (member ?compo ?path :test #'equal)))
-  :effects ((compo-or-branch ?compo ?compo)))
 
-(defoperator use-branch-for-current (?compo ?branch)
-  :preconditions
-  (
-   ;; ?compo may be member of more than one ?path
-   (branch ?name ?whatever1 ?whatever2 ?path)
-   (path-to-branch ?branch ?path)
-   ;; A loop has the same junction at beginning and end.
-   (bind ?reduced-path (remove-duplicates ?path))
-   ;; If ?compo is not bound, iterate over distinct elements in ?path.
-   (any-member ?compo ?reduced-path)
-   )
-  :effects ((compo-or-branch ?compo ?branch)))
-
-
-;; We should eventually get rid of this in favor of using the current
-;; through the branch as the only internal variable
+;; There are some problems where a sought or a given is for a child
+;; quantity and not the parent.  In this case, we need explicit equivalence.
 (def-psmclass current-thru-what (current-thru-what ?what ?branch ?t) 
   :complexity minor 
   :short-name "current in branch"
@@ -178,11 +158,17 @@
    ;; note that ?t may be timeless
    (any-member ?sought ((current-thru ?branch :time ?t)
 			(current-thru ?what :time ?t)))
-   (compo-or-branch ?what ?branch)
+   ;; Since we are not using inherit-quantity below, make sure time slot is OK
+   (test (eq (null ?t) 
+	     (null (member 'changing-voltage (problem-features *cp*)))))
+   ;; inheritance mechanism assumes one quantity is grounded
+   (test (or (and ?what (groundp ?what)) (and ?branch (groundp ?branch))
+	     (error "current-thru-what:  child ~A or parent ~A must be grounded" 
+		    ?what ?branch)))
+   (inherit-quantity (current-thru ?what :time ?t) 
+		     (current-thru ?branch :time ?t))
    ;; Anything that is not a junction is allowed.
    (not (junction ?what . ?whatever))
-   ;; For a composite object, the current variable is already equal.
-   (test (not (equal ?what ?branch)))
    ;; On the workbench, the student has no way to define both the current
    ;; through a component and the branch containing only that component
    (test (not (equal (list ?what) ?branch)))
@@ -190,28 +176,60 @@
   :effects ((eqn-contains (current-thru-what ?what ?branch ?t) ?sought)))
 
 (defoperator write-current-thru-what (?what ?branch ?t)
-  :specifications "doc"
   :preconditions 
   (
+   ;; Since we are not using inherit-quantity here, make sure time slot is
+   ;; consistant with what is on the workbench.
+   (test (eq (null ?t) 
+	     (null (member 'changing-voltage (problem-features *cp*)))))
    (variable ?i-what-var (current-thru ?what :time ?t))
    (variable ?i-br-var (current-thru ?branch :time ?t))
    )
   :effects (
 	    (eqn (= ?i-what-var ?i-br-var) (current-thru-what ?what ?branch ?t))
 	    )
-  :hint(
-	(point (string "Write an equation relating the current through a circuit component to the current through a branch of the circuit containing the component."))
-	(point (string "Consider the current through the circuit component ~a" (?what adj)))
-	(teach (string "The current through a circuit component is equal to the current through the branch of the circuit containing the component."))
-	(bottom-out (string "The current through the component, ~a is the same as the current through the branch of the circuit, ~a." (?i-what-var algebra) (?i-br-var algebra)))
-	))
+  :hint (
+	 (point (string "Write an equation relating the current through a circuit component to the current through a branch of the circuit containing the component."))
+	 (point (string "Consider the current through the circuit component ~a" (?what adj)))
+	 (teach (string "The current through a circuit component is equal to the current through the branch of the circuit containing the component."))
+	 (bottom-out (string "The current through the component, ~a is the same as the current through the branch of the circuit, ~a." (?i-what-var algebra) (?i-br-var algebra)))
+	 ))
+
+;; we don't have any automatic method to do multiple inheritance.
+;; so we do both at once in the following two operators.
+
+(defoperator inherit-current-thru-component (?compo ?t)
+  :preconditions
+  (
+   ;; ?compo may be member of more than one ?path
+   (branch ?name ?whatever1 ?whatever2 ?path)
+   (path-to-branch ?branch ?path)
+   ;; A loop has the same junction at beginning and end.
+   (bind ?reduced-path (remove-duplicates ?path))
+   ;; If ?compo is not bound, iterate over distinct elements in ?path.
+   (any-member ?compo ?reduced-path)
+   ;; test the quantities are distinct
+   (test (not (unify ?compo ?branch)))
+;; (test (or (format t "inherit-current-comp ~A and ~A at ~A~%" ?compo ?branch ?t) t))
+   )
+  :effects ((inherit-quantity (current-thru ?compo :time ?t) 
+			      (current-thru ?branch :time ?t))))
+
+(defoperator inherit-current-thru-time (?compo ?t)
+  :preconditions 
+  ((test (not (member 'changing-voltage (problem-features *cp*))))
+   (time ?t))
+  :effects ((inherit-quantity (current-thru ?compo :time ?t) 
+			      (current-thru ?compo))))
 
 (defoperator define-current-thru (?what ?t)
   :preconditions 
   (
    ;; only use time when allowed by feature changing-voltage
-   (test (eq (null ?t) 
-	     (null (member 'changing-voltage (problem-features *cp*)))))
+    ;; This is a sanity test to ensure inherit-quantity is working OK.
+   (test (or (eq (null ?t) 
+		 (null (member 'changing-voltage (problem-features *cp*))))
+	     (error "define-current-thru for ~A time slot ~A not consistant with problem features" ?what ?t)))
    ;; Current through a capacitor may be confusing to the student
    (not (circuit-component ?what capacitor))
    ;; ?what could be a list naming a compound (equivalent) circuit element.
@@ -240,22 +258,19 @@
 
 ;;May need to uncomment (resistance) as a sought to get currents to work
 (defoperator ohms-law-contains-resistor (?sought)
-  :preconditions(
-		 (any-member ?sought ((current-thru ?branch :time ?t ?t)
-				      (voltage-across ?res :time ?t ?t)))
-		 (time ?t) ;in case ?t is not bound
+  :preconditions (
+		 (any-member ?sought ((current-thru ?res :time ?t)
+				      (voltage-across ?res :time ?t)))
+		 (time ?t) ;sanity test
 		 (circuit-component ?res resistor)
-		 (compo-or-branch ?res ?branch)
 		 ;;Added mary/Kay 7 May
 		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
 		 ;;(test (member ?res ?path :test #'equal))     
 		 )
-  :effects(
-	   (eqn-contains (ohms-law ?res ?t) ?sought)
-	   ))
+  :effects ((eqn-contains (ohms-law ?res ?t) ?sought)))
 
 (defoperator single-resistance-contains (?sought)
-  :preconditions(
+  :preconditions (
 		 (any-member ?sought ((resistance ?res)))
 		 ;; only apply for resistance of atomic resistor:
 		 ;; (Why? -- AW)
@@ -265,39 +280,43 @@
 		 ;;(branch ?br-res ?dontcare1 ?dontcare2 ?path)
 		 ;;(test (member ?res ?path))
 		 )
-  :effects(
-	   (eqn-contains (ohms-law ?res ?t) ?sought)
-	   ))
+  :effects ((eqn-contains (ohms-law ?res ?t) ?sought)))
 
 (defoperator write-ohms-law (?res ?t)
   :specifications "doc"
   :preconditions
   (
    (variable ?r-var (resistance ?res))
-   (any-member ?tot (?t nil)) 
-   (compo-or-branch ?res ?branch)
-   (variable ?i-var (current-thru ?branch :time ?tot))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?v-var (voltage-across ?res :time ?tot2))
+   (bind ?tot nil) ;remove at end of semester
+   (bind ?branch nil) ;remove at end of semester
+   (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?i-var (current-thru ?res :time ?t))
+   (inherit-variable ?v-var (voltage-across ?res :time ?t))
    )
-  :effects(
-	   (eqn (= ?v-var (* ?r-var ?i-var)) (ohms-law ?res ?t))
-	   )
-  :hint(
+  :effects ((eqn (= ?v-var (* ?r-var ?i-var)) (ohms-law ?res ?t)))
+  :hint (
 	(point (string "Apply Ohm's Law to the resistor, ~a." ?res))
 	(point (string "Write an equation relating the voltage across the resistor ~a to the current through the resistor ~a and the resistance ~a." (?v-var algebra) (?i-var algebra) (?r-var algebra)))
 	(teach (string "The voltage across the resistor is equal to product of the current through the resistor and the resistance."))
 	(bottom-out (string "The voltage across the resistor ~a is equal to the current through the resistor ~a times the resistance ~a." (?v-var algebra) (?i-var algebra) (?r-var algebra)))
 	))
 
+(defoperator inherit-timeless-voltage-across (?what ?t)
+  :preconditions 
+  ((test (not (member 'changing-voltage (problem-features *cp*))))
+   (time ?t))
+  :effects 
+  ((inherit-quantity (voltage-across ?what :time ?t) (voltage-across ?what))))
 
 (defoperator define-voltage-across (?comp ?t)
   :preconditions 
   (
    ;; only use time when allowed by feature changing-voltage
-   (test (eq (null ?t) 
-	     (null (member 'changing-voltage (problem-features *cp*)))))
-   
+   ;; Sanity test for inherit-quantity working OK
+   (test (or (eq (null ?t) 
+		 (null (member 'changing-voltage (problem-features *cp*))))
+	     (error "define-voltage-across for ~S bad time slot ~A" 
+		    ?comp ?t)))
    (bind ?v-var (format-sym "deltaV_~A~@[_~A~]" (body-name ?comp)
 			    (time-abbrev ?t))))
   :effects (
@@ -322,15 +341,11 @@
 		  (time ?t)
 		  )
   :effects ( (eqn-contains (loop-rule ?branch-list ?t) 
-			   (voltage-across ?comp :time ?t ?t)) ))
+			   (voltage-across ?comp :time ?t)) ))
 
 (defoperator closed-branch-is-loop (?branch)
-  :preconditions (
-		  (branch  ?branch ?dontcare  closed ?path)
-		  )
-  :effects (
-	    (closed-loop ?branch ?path ?path ?path 0)
-	    ))
+  :preconditions ((branch  ?branch ?dontcare  closed ?path))
+  :effects ((closed-loop ?branch ?path ?path ?path 0)))
 
 ;; This is quite similar to relate-path-and-branch 
 (defoperator get-compos-for-path (?path)
@@ -383,9 +398,8 @@
 		      (append ?path1 (subseq (reverse ?path2) 1))))
    (bind ?reversed (if (not (equal (first ?path1) (first ?path2))) 0 1))
    )
-  :effects (
-	    (closed-loop ?branch-list ?path-comps1 ?path-comps2 ?loop-path ?reversed)
-	    ))
+  :effects 
+  ((closed-loop ?branch-list ?path-comps1 ?path-comps2 ?loop-path ?reversed)))
 
 (defoperator form-three-branch-loop (?br1 ?br2)
   :preconditions 
@@ -507,24 +521,24 @@
 			 ?comp2 ?all-batts)
                       
 		  ;;get all the resistor delta variables for ?p1
-		  (any-member ?tot (?t nil))
+     (bind ?tot nil) ;remove at end of semester
 		  (map ?comp (intersection ?p1 ?all-res :test #'equal)
-		       (variable ?v-var (voltage-across ?comp :time ?tot))
+		       (inherit-variable ?v-var (voltage-across ?comp :time ?t))
 		       ?v-var ?v-res1-vars)
 
 		  ;;get all the battery delta variables for ?p1
 		  (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-		       (variable ?v-var (voltage-across ?comp :time ?tot))
+		       (inherit-variable ?v-var (voltage-across ?comp :time ?t))
 		       ?v-var ?v-batt1-vars)
 
 		  ;;get all the resistor delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-res :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?tot))
+		       (inherit-variable ?v-var (voltage-across  ?comp :time ?t))
 		       ?v-var ?v-res2-vars)
 
 		  ;;get all the battery delta variables for ?p2
 		  (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-		       (variable ?v-var (voltage-across  ?comp :time ?tot))
+		       (inherit-variable ?v-var (voltage-across  ?comp :time ?t))
 		       ?v-var ?v-batt2-vars)
 
 		  ;;determine whether ?p1 + ?p2 or ?p1 - ?p2
@@ -581,24 +595,24 @@
 	  ?comp4 ?all-inds)
    
    ;;get all the resistor delta variables for ?p1
-   (any-member ?tot (?t nil))
+     (bind ?tot nil) ;remove at end of semester
    (map ?comp (intersection ?p1 ?all-res :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-res1-vars)
    
    ;;get all the battery delta variables for ?p1
    (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-batt1-vars)
    
    ;;get all the capacitor delta variables for ?p1
    (map ?comp (intersection ?p1 ?all-caps :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-cap-vars)
    
    ;; get all the inductor delta variables for ?p1
    (map ?comp (intersection ?p1 ?all-inds :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-ind-vars)
    ;; list batteries and inductors for positive sum
    (bind ?emf-vars (append ?v-batt1-vars ?v-ind-vars))
@@ -642,8 +656,8 @@
 (defoperator loop-rule-two-contains (?sought)
   :preconditions (
 		  (closed-loop ?compo-list :time ?tt)
-		  (any-member ?sought ((voltage-across ?compo :time ?t ?t)))
-		  (time ?t)
+		  (any-member ?sought ((voltage-across ?compo :time ?t)))
+		  (time ?t) ;sanity test
 		  (test (member ?compo ?compo-list :test #'eql))
 		  (test (tinsidep-include-endpoints ?t ?tt))
 		  )
@@ -651,9 +665,9 @@
 
 (defoperator write-loop-rule-two (?c1 ?c2 ?t)
   :preconditions (
-		  (any-member ?tot (?t nil)) 
-		  (variable ?v1 (voltage-across ?c1 :time ?tot))
-		  (variable ?v2 (voltage-across ?c2 :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+		  (inherit-variable ?v1 (voltage-across ?c1 :time ?t))
+		  (inherit-variable ?v2 (voltage-across ?c2 :time ?t))
 		  )
   :effects ((eqn (= ?v1 ?v2) (loop-rule (?c1 ?c2) ?t)))
   :hint 
@@ -681,8 +695,9 @@
 (defoperator junction-rule-contains (?Sought)
   :preconditions 
   (
-   ;; note that ?t may end up being timeless
    (any-member ?sought ((current-thru ?branch :time ?t)))
+   ;; Can't have rule applied more than once for a given set of equations
+   (time ?t) ;rule applied at definite time, could be timeless instead...
    (branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
    (junction ?junction ?names)
@@ -712,10 +727,10 @@
 	(path-to-branch ?out-branch ?out-path) ?out-branch ?out-branches)
    ;; find the variable names
    (map ?in-branch ?in-branches
-	(variable ?in-var (current-thru ?in-branch :time ?t))
+	(inherit-variable ?in-var (current-thru ?in-branch :time ?t))
 		       ?in-var ?in-vars)
    (map ?out-branch ?out-branches
-	(variable ?out-var (current-thru ?out-branch :time ?t))
+	(inherit-variable ?out-var (current-thru ?out-branch :time ?t))
 		       ?out-var ?out-vars)
    )
   :effects (
@@ -892,45 +907,51 @@
   :eqnFormat ("C = q/V"))
 
 (defoperator capacitor-definition-contains (?sought)
-  :preconditions(
-		 (any-member ?sought ((charge ?cap :time ?t ?t)
-				      (voltage-across ?cap :time ?t ?t)))
-		 (time ?t)
-		 (circuit-component ?cap capacitor)
-		 )
-  :effects(
-	   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
-	   ))
+  :preconditions
+  (
+   (any-member ?sought ((charge ?cap :time ?t)
+			(voltage-across ?cap :time ?t)))
+   (time ?t)
+   (circuit-component ?cap capacitor)
+   )
+  :effects
+  (
+   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
+   ))
 
 (defoperator capacitor-definition-single-contains (?sought)
-  :preconditions(
-		 (any-member ?sought ((capacitance ?cap) ))
-		 (test (atom ?cap))
-		 (time ?t)
-		 (circuit-component ?cap capacitor)
-		 )
-  :effects(
-	   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
-	   ))
+  :preconditions
+  (
+   (any-member ?sought ((capacitance ?cap) ))
+   (test (atom ?cap))
+   (time ?t)
+   (circuit-component ?cap capacitor)
+   )
+  :effects
+  (
+   (eqn-contains (capacitance-definition ?cap ?t) ?sought)
+   ))
 
 (defoperator write-capacitance-definition (?cap ?t)
   :specifications "doc"
-  :preconditions(
-		 (variable ?c-var (capacitance ?cap))
-		 (any-member ?tot (?t nil)) 
-		 (variable ?q-var (charge ?cap :time ?tot))
-		 (any-member ?tot2 (?t nil)) 
-		 (variable ?v-var (voltage-across ?cap :time ?tot2))
-		 )
-  :effects(
-	   ;; handles zero charge OK
-	   (eqn (= (* ?c-var ?v-var) ?q-var) (capacitance-definition ?cap ?t))
-	   )
-  :hint(
-	(point (string "Write an equation for the capacitance of ~a." (?cap adj)))
-	(point (string "The capacitance of the capacitor ~a is defined in terms of its charge and the voltage across it." (?cap adj)))
-	(teach (string "The capacitance is defined as the charge on the capacitor divided by the voltage across the capacitor."))
-	(bottom-out (string "Write the equation defining the capacitance ~a as charge ~a divided by voltage ~a." (?c-var algebra) (?q-var algebra) (?v-var algebra)))
+  :preconditions
+  (
+   (variable ?c-var (capacitance ?cap))
+   (bind ?tot nil) ;remove at end of semester
+   (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?q-var (charge ?cap :time ?t))
+   (inherit-variable ?v-var (voltage-across ?cap :time ?t))
+   )
+  :effects
+  (
+   ;; handles zero charge OK
+   (eqn (= (* ?c-var ?v-var) ?q-var) (capacitance-definition ?cap ?t))
+   )
+  :hint (
+	 (point (string "Write an equation for the capacitance of ~a." (?cap adj)))
+	 (point (string "The capacitance of the capacitor ~a is defined in terms of its charge and the voltage across it." (?cap adj)))
+	 (teach (string "The capacitance is defined as the charge on the capacitor divided by the voltage across the capacitor."))
+	 (bottom-out (string "Write the equation defining the capacitance ~a as charge ~a divided by voltage ~a." (?c-var algebra) (?q-var algebra) (?v-var algebra)))
 	))
 
 
@@ -954,24 +975,24 @@
 	  ?comp2 ?all-batts)
    
 		  ;;get all the capacitor delta variables for ?p1
-   (any-member ?tot (?t nil))
+     (bind ?tot nil) ;remove at end of semester
    (map ?comp (intersection ?p1 ?all-cap :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-cap1-vars)
    
    ;;get all the battery delta variables for ?p1
    (map ?comp (intersection ?p1 ?all-batts :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 		       ?v-var ?v-batt1-vars)
    
    ;;get all the capacitor delta variables for ?p2
    (map ?comp (intersection ?p3 ?all-cap :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-cap2-vars)
    
    ;;get all the battery delta variables for ?p2
    (map ?comp (intersection ?p3 ?all-batts :test #'equal)
-	(variable ?v-var (voltage-across ?comp :time ?tot))
+	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-batt2-vars)
    
    ;;determine whether ?p1 + ?p2 or ?p1 - ?p2
@@ -1012,8 +1033,9 @@
 (defoperator junction-rule-cap-contains (?Sought)
   :preconditions 
   (
-   ;; ?t may end up timeless (nil)
    (any-member ?sought ((charge ?cap :time ?t)))
+   ;; Can't have rule applied more than once for a given set of equations
+   (time ?t) ;rule applied at definite time, could be timeless instead...
    (branch ?name ?whatever1 ?whatever2 ?path)
    (test (member ?cap ?path))
    (junction ?junction ?names)
@@ -1052,9 +1074,9 @@
    (bind ?out-caps (mapcar #'(lambda (x) (car (intersection x ?all-caps))) 
 			  ?out-paths))
    ;; define a variable for each capacitor   
-   (map ?x ?in-caps (variable ?q-var (charge ?x :time ?t))
+   (map ?x ?in-caps (inherit-variable ?q-var (charge ?x :time ?t))
 	?q-var ?q-in-vars)
-   (map ?x ?out-caps (variable ?q-var (charge ?x :time ?t))
+   (map ?x ?out-caps (inherit-variable ?q-var (charge ?x :time ?t))
 	?q-var ?q-out-vars)
    ;; Format the sum
    (bind ?in-term (format-plus ?q-in-vars))
@@ -1082,9 +1104,10 @@
 (defoperator charge-same-caps-in-branch-contains (?sought)
   :preconditions
   (
-   ;; ?t may end up timeless (nil)
    (any-member ?sought ((charge ?cap1 :time ?t)
 			(charge ?cap2 :time ?t)))
+   ;; in principle, this could be timeless, instead
+   (time ?t) ;sanity test
    (branch ?br-res given ?dontcare1 ?path)
    ;; select capacitors
    (circuit-component ?cap1 capacitor)
@@ -1100,8 +1123,8 @@
 (defoperator write-charge-same-caps-in-branch (?cap1 ?cap2 ?t)
   :preconditions 
   (
-   (variable ?q1 (charge ?cap1 :time ?t))
-   (variable ?q2 (charge ?cap2 :time ?t))
+   (inherit-variable ?q1 (charge ?cap1 :time ?t))
+   (inherit-variable ?q2 (charge ?cap2 :time ?t))
    )
   :effects ( (eqn (= ?q1 ?q2) (charge-same-caps-in-branch (?cap1 ?cap2) ?t)) )
   :hint(
@@ -1121,7 +1144,7 @@
   :preconditions 
   (
    (any-member ?sought ((capacitance ?cap)
-			(voltage-across ?cap :time ?t ?t)
+			(voltage-across ?cap :time ?t)
 			(stored-energy ?cap :time ?t)))
    (circuit-component ?cap capacitor)
    (time ?t) ;not always bound
@@ -1131,9 +1154,9 @@
 
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
-		  (any-member ?tot (?t nil)) 
+     (bind ?tot nil) ;remove at end of semester
 		  (variable ?C (capacitance ?cap))
-		  (variable ?V (voltage-across ?cap :time ?tot))
+		  (inherit-variable ?V (voltage-across ?cap :time ?t))
 		  (variable ?U (stored-energy ?cap :time ?t))
 		  )
   :effects (
@@ -1487,11 +1510,10 @@
    (circuit-component ?bat battery)
    (circuit-component ?cap capacitor)
    (circuit-component ?res resistor)
-   (any-member ?sought ((current-thru ?branch :time ?t2)
+   (any-member ?sought ((current-thru ?res :time ?t2)
 			;; also contains V, R, C, t
 			(time-constant orderless ?res ?cap)
 			))
-   (compo-or-branch ?res ?branch)
    (time (during ?t1 ?t2))		;sanity test
    (given (charge ?cap :time ?t1) 0) ;boundary condition
    )
@@ -1503,8 +1525,8 @@
 (defoperator write-current-in-RC-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (compo-or-branch ?res ?branch)
-   (variable ?i-var (current-thru ?branch :time ?t2))
+   (bind ?branch nil) ;remove at end of semester
+   (inherit-variable ?i-var (current-thru ?res :time ?t2))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?r-var (resistance ?res))
    (variable ?t-var (duration (during ?t1 ?t2)))
@@ -1712,14 +1734,14 @@
   (
    (any-member ?sought ((duration ?tt)))
    (circuit-component ?compo inductor)
-   (compo-or-branch ?compo ?branch)
-   (any-member ?quant ((current-thru ?branch :time ?tt)))
+   (any-member ?quant ((current-thru ?compo :time ?tt)))
    )
   :effects ((eqn-contains (average-rate-of-change ?quant) ?sought)))
 
 (defoperator write-average-rate-of-change (?quant)
  :preconditions 
  (
+  ;; no inheritance, since this involves only one quantity
   (bind ?t (time-of ?quant))
   (bind ?q1 (set-time ?quant (second ?t)))
   (bind ?q2 (set-time ?quant (third ?t)))
@@ -1756,8 +1778,7 @@
    (circuit-component ?ind inductor)
    (any-member ?sought ( (voltage-across ?ind :time ?time)
 			 (self-inductance ?ind)
-			 (rate-of-change (current-thru ?branch :time ?time)) ))
-   (compo-or-branch ?ind ?branch)
+			 (rate-of-change (current-thru ?ind :time ?time)) ))
    (time ?time)
    )
   :effects ( (eqn-contains (inductor-emf ?ind ?time) ?sought) ))
@@ -1765,10 +1786,10 @@
 (defoperator inductor-emf (?ind ?time)
   :preconditions 
   (
-   (variable ?V (voltage-across ?ind :time ?time))
+   (bind ?branch nil)  ;remove at end of semester
+   (inherit-variable ?V (voltage-across ?ind :time ?time))
    (variable ?L (self-inductance ?ind))
-   (compo-or-branch ?ind ?branch)
-   (variable ?dIdt (rate-of-change (current-thru ?branch :time ?time)))
+   (inherit-variable ?dIdt (rate-of-change (current-thru ?ind :time ?time)))
    )
   :effects (
 	    (eqn (= ?V (- (* ?L ?dIdt))) (inductor-emf ?ind ?time))
@@ -1833,12 +1854,11 @@
   :preconditions 
   (
    (any-member ?sought ( (self-inductance ?inductor)
-			 (current-thru ?branch :time ?t ?t)
+			 (current-thru ?inductor :time ?t)
 			 (stored-energy ?inductor :time ?t)))
    (time ?t)
    (test (time-pointp ?t))
    (circuit-component ?inductor inductor)
-   (compo-or-branch ?inductor ?branch)
    ) 
   :effects ( 
 	    (eqn-contains (inductor-energy ?inductor ?t) ?sought) 
@@ -1848,9 +1868,9 @@
   :preconditions (
 		  (variable ?U (stored-energy ?inductor :time ?t))
 		  (variable ?L (self-inductance ?inductor))
-		  (any-member ?tot (?t nil))
-		  (compo-or-branch ?inductor ?branch)
-		  (variable ?I (current-thru ?branch :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?branch nil) ;remove at end of semester
+		  (inherit-variable ?I (current-thru ?inductor :time ?t))
 		  )
   :effects (
 	    (eqn (= ?U (* 0.5 ?L (^ ?I 2))) (inductor-energy ?inductor ?t))
@@ -2099,10 +2119,9 @@
 (defoperator electric-power-contains (?sought)
   :preconditions 
   ( 
-   (any-member ?sought ( (voltage-across ?comp :time ?t ?t) 
-			 (current-thru ?branch :time ?t ?t)
+   (any-member ?sought ( (voltage-across ?comp :time ?t) 
+			 (current-thru ?comp :time ?t)
 			 (electric-power ?comp :time ?t) ))
-   (compo-or-branch ?comp ?branch)
    ;; We might apply this to things not declared to be a
    ;; circuit element
    (test (atom ?comp))
@@ -2113,11 +2132,11 @@
 (defoperator write-electric-power (?comp ?t)
   :preconditions 
   (
-   (any-member ?tot (?t nil)) 
-   (variable ?V (voltage-across ?comp :time ?tot) )
-   (any-member ?tot2 (?t nil))
-   (compo-or-branch ?comp ?branch) 
-   (variable ?I (current-thru ?branch :time ?tot2))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+     (bind ?branch nil) ;remove at end of semester
+   (inherit-variable ?V (voltage-across ?comp :time ?t) )
+   (inherit-variable ?I (current-thru ?comp :time ?t))
    (variable ?P  (electric-power ?comp :time ?t)) 
    )
   :effects ( (eqn (= ?P (* ?V ?I)) (electric-power ?comp ?t)) )

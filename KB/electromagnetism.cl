@@ -44,9 +44,9 @@
   (
    (body ?b1)
    (body ?b2) ; draw source as pot and E-field rules do
-   (any-member ?tot (?t nil)) 
-   (variable ?q1 (charge ?b1 :time ?tot))
-   (variable ?q2 (charge ?b2 :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?q1 (charge ?b1 :time ?t))
+   (inherit-variable ?q2 (charge ?b2 :time ?t))
    (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
    (variable ?F  (mag (force ?b1 ?b2 electric :time ?t)))
    )
@@ -84,8 +84,8 @@
    (any-member ?sought
 	       (;; if sought is charge, can use either equation for force
 		;; on b1 from b2 or force on b2 from b1, so need both:
-		(charge ?b1 :time ?t ?t)
-		(charge ?b2 :time ?t ?t)
+		(charge ?b1 :time ?t)
+		(charge ?b2 :time ?t)
 		(relative-position ?b1 ?b2 :time ?t)
 		(force ?b1 ?b2 electric :time ?t)
 	       ))
@@ -118,9 +118,9 @@
    ;; make sure r-hat compo doesn't vanish
    (in-wm (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?r-dir))
    (test (non-zero-projectionp ?r-dir ?xy ?rot))
-   (any-member ?tot (?t nil)) 
-   (variable ?q1 (charge ?b1 :time ?tot))
-   (variable ?q2 (charge ?b2 :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?q1 (charge ?b1 :time ?t))
+   (inherit-variable ?q2 (charge ?b2 :time ?t))
    (variable ?r  (mag (relative-position ?b1 ?b2 :time ?t)))
    (variable ?F_xy  (compo ?xy ?rot (force ?b1 ?b2 electric :time ?t)))
    (hat ?rhat-compo (relative-position ?b1 ?b2 :time ?t) ?xy ?rot ?form)
@@ -182,14 +182,24 @@
 ;;; direction (directly or via compos), can be derived
 ;;; from configuration wrt point particle, or else unknown.
 
+(defoperator timeless-field (?loc ?type ?source ?t)
+  :preconditions ((test (not (member 'changing-field (problem-features *cp*))))
+		  (time ?t))
+  :effects 
+  ((inherit-quantity (field ?loc ?type ?source :time ?t)
+		     (field ?loc ?type ?source))))
+
+
 ; draw field in given direction:
 (defoperator draw-field-given-dir (?loc ?type ?t)
   :preconditions 
   ((rdebug "Using draw-field-vector  ~%")
-   ;; only use time when allowed by feature changing-field
-   (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
    (given (dir (field ?loc ?type ?source :time ?t)) ?dir-f)  
+   ;; only use time when allowed by feature changing-field
+   ;; Sanity test for inherit-quantity working OK
+   (test (or (eq (null ?t) 
+		 (null (member 'changing-field (problem-features *cp*))))
+	     (error "draw-field-given-dir bad time slot ~A" ?t)))
    (not (vector ?any-body (field ?loc ?type ?source :time ?t) ?dir1))     
    (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1)
 			      (body-name ?loc) (body-name ?source) 
@@ -219,14 +229,14 @@
 (defoperator draw-efield-inside-conductor (?loc ?t)
   :preconditions 
   (
+   ;; Since the field is zero, the source is not really well-defined.
+   ;; However, we assume that there is some other region that does have 
+   ;; a given field source.
+   (given-field ?source electric :time ?t) ;specify the source by hand
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
    (inside-conductor ?loc)
-   ;; Since the field is zero, the source is not really well-defined.
-   ;; However, we assume that there is some other region that does have 
-   ;; a given field source.
-   (given-field ?source electric) ;specify the source by hand
    (not (vector ?any-body (field ?loc electric ?source :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" 
 			      (body-name ?loc) (body-name ?source) 
@@ -255,54 +265,56 @@
 ;; Can draw field vector if E force dir is given directly
 ;; Generally, this will only work when the feature changing-field is on
 (defoperator draw-Efield-given-force-dir (?b ?t)
-   :preconditions 
-   ((rdebug "Using draw-Efield-given-force-dir ~%")
+  :preconditions 
+  ((rdebug "Using draw-Efield-given-force-dir ~%")
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
+		 (null (member 'changing-field (problem-features *cp*)))))
    ;; ?b is "test charge" feeling force at loc at some time.
-    (at-place ?b ?loc :time ?t-place)
-    ;; make sure field direction at loc of b not given, directly 
-    ;; or via components:
+   (at-place ?b ?loc :time ?t-place)
+   ;; make sure field direction at loc of b not given, directly 
+   ;; or via components:
     (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
-    (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
-    ;; make sure direction of force on ?b is given
-    ;; (given (dir (force ...)) ...) is a side-effect of several drawing rules;
-    ;; need in-wm to prevent recursion with find-electric-force-given-field-dir
-    (in-wm (given (dir (force ?b ?source electric :time ?t-force)) ?F-dir))
-    (test (tinsidep ?t ?t-force))
-    ;; require sign of charge to be given
-    (sign-charge ?b ?pos-neg)
-    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
-    (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
-    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?b) 
-			       (body-name ?source) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (rdebug "fired draw-Efield-given-force-dir  ~%")
-    )
-   :effects 
-   (
-    (vector ?loc (field ?loc electric ?source :time ?t) ?Field-dir)
-    (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
-    (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
+   (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
+   ;; make sure direction of force on ?b is given
+   ;; (given (dir (force ...)) ...) is a side-effect of several drawing rules;
+   ;; need in-wm to prevent recursion with find-electric-force-given-field-dir
+   (in-wm (given (dir (force ?b ?source electric :time ?t-force)) ?F-dir))
+   (test (tinsidep ?t ?t-force))
+   ;; require sign of charge to be given
+   (sign-charge ?b ?pos-neg)
+   (bind ?Field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
+   (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
+   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?b) 
+			      (body-name ?source) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (rdebug "fired draw-Efield-given-force-dir  ~%")
+   )
+  :effects 
+  (
+   (vector ?loc (field ?loc electric ?source :time ?t) ?Field-dir)
+   (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
+   (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
     (given (dir (field ?loc electric ?source :time ?t)) ?Field-dir)
-    )
-   :hint (
-	  (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
-	  (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
-	  (bottom-out (string "Because the charge of ~a is ~a,  use the electric field drawing tool (labeled E) to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A." 
-			      ?b (?pos-neg adj) ?loc (?source agent) 
-			      (?same-or-opposite adj) ?b (?field-dir adj)))
-	  ))
+   )
+  :hint (
+	 (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
+	 (teach (string "The electric field vector points in the same direction as the electric force experienced by a positive charge, or in the opposite direction for a negative charge."))
+	 (bottom-out (string "Because the charge of ~a is ~a,  use the electric field drawing tool (labeled E) to draw the electric field vector at ~a due to ~a in the ~a direction as the electric force that ~A undergoes, namely ~A." 
+			     ?b (?pos-neg adj) ?loc (?source agent) 
+			     (?same-or-opposite adj) ?b (?field-dir adj)))
+	 ))
 
 
 (defoperator draw-field-unknown (?loc ?type ?source ?t)
   :preconditions 
   (
+   (given-field ?source ?type :time ?t) ;field due to ?source has unknown dir.
    ;; only use time when allowed by feature changing-field
-   (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
-   (given-field ?source ?type) ;field due to ?source has unknown dir.
+   ;; Sanity test for inherit-quantity working OK
+   (test (or (eq (null ?t) 
+		 (null (member 'changing-field (problem-features *cp*))))
+	     (error "draw-field-unknown bad time slot ~A" ?t)))
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?any-dir))
    ;; make sure field direction not given, directly 
    (not (given (dir (field ?loc ?type ?source :time ?t-given)) ?dontcare3)
@@ -331,9 +343,9 @@
 (defoperator draw-point-Efield-given-relpos-dir (?b ?loc ?t)
   :preconditions 
   (
-   ;; only use time when allowed by feature changing-field
+   ;; Only include time when appropriate
    (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
+		 (null (member 'changing-field (problem-features *cp*)))))
    ;; Make sure source is point-charge
    (point-charge ?b)
    (test (or (null ?t) (time-pointp ?t)))
@@ -368,9 +380,10 @@
 (defoperator draw-point-Efield-unknown (?b ?loc ?t)
   :preconditions 
   ((rdebug "Using draw-point-Efield-unknown ~%")
-   ;; only use time when allowed by feature changing-field
-   (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
+   ;; Sanity test for inherit-quantity working OK
+   (test (or (eq (null ?t) 
+		 (null (member 'changing-field (problem-features *cp*))))
+	     (error "draw-point-efield-unknown bad time slot ~A" ?t)))
    (given-field ?b electric)
    ;; Make sure source is point-charge
    (point-charge ?b)
@@ -664,7 +677,7 @@
   :preconditions 
   ((rdebug "Using charge-force-Efield-contains  ~%")
    (any-member ?sought ((force ?b ?source electric :time ?t)
-		       (field ?loc electric ?source :time ?t ?t)))
+		       (field ?loc electric ?source :time ?t)))
    (time ?t)
    ;; make sure ?b (test-charge) is bound in case sought is field at loc
    (at-place ?b ?loc :time ?t ?t)
@@ -680,7 +693,7 @@
 (defoperator charge-force-Efield-contains-charge (?sought)
   :preconditions 
   ((rdebug "Using charge-force-Efield-contains-charge  ~%")
-   (any-member ?sought ( (charge ?b :time ?t ?t) ))
+   (any-member ?sought ( (charge ?b :time ?t) ))
    (time ?t)
    (at-place ?b ?loc :time ?t ?t)
    ;; following will fetch the source of an E-field at loc if we are given
@@ -714,8 +727,8 @@
    (body ?b)
    (at-place ?b ?loc :time ?t ?t)
    ;; need source of field
-   (any-member ?tot (?t nil)) ;may want to extend to other times
-   (vector ?dontcare (field ?loc electric ?source :time ?tot) ?dir1)
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-vector ?dontcare (field ?loc electric ?source :time ?t) ?dir1)
    (vector ?b (force ?b ?source electric :time ?t) ?dir2)
    (axes-for ?b ?rot)
    (rdebug "Fired draw-charge-force-Efield-diagram ~%")
@@ -728,11 +741,11 @@
   :preconditions 
   ((debug "Using write-charge-force-Efield-compo ~%")
    (at-place ?b ?loc :time ?t ?t)
-   (any-member ?tot (?t nil))
-   (variable ?E_x (compo ?xy ?rot (field ?loc electric ?source :time ?tot)))
-   (variable ?F_x (compo ?xy ?rot (force ?b ?source electric :time ?t)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge ?b :time ?tot2))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?E_x (compo ?xy ?rot (field ?loc electric ?source :time ?t)))
+   (inherit-variable ?F_x (compo ?xy ?rot (force ?b ?source electric :time ?t)))
+   (inherit-variable ?q (charge ?b :time ?t))
    (rdebug "fired write-charge-force-Efield-compo  ~%")
    )
   :effects (
@@ -766,7 +779,7 @@
   (
    ;; because of abs(Q), charge is not a sought
    (any-member ?sought ((mag (force ?b ?source electric :time ?t))
-			(mag (field ?loc electric ?source :time ?t ?t))
+			(mag (field ?loc electric ?source :time ?t))
 			))
    (time ?t)  ;in case ?t is not bound
    (at-place ?b ?loc :time ?t ?t)
@@ -792,11 +805,11 @@
    (body ?b)
    ;; even though this is scalar equation, want axes to be drawn
    (axes-for ?b ?rot)
-   (any-member ?tot (?t nil)) 
-   (variable ?magE (mag (field ?loc electric ?source :time ?tot)))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?magE (mag (field ?loc electric ?source :time ?t)))
    (variable ?magF (mag (force ?b ?source electric :time ?t)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge ?b :time ?tot2))
+   (inherit-variable ?q (charge ?b :time ?t))
    (rdebug "fired write-charge-force-Efield-mag  ~%")
    )
   :effects 
@@ -828,8 +841,8 @@
   :preconditions 
   (
    (any-member ?sought ((dir (force ?b ?source electric :time ?t))
-			(dir (field ?loc electric ?source :time ?t ?t))
-			(charge ?b :time ?t ?t)))
+			(dir (field ?loc electric ?source :time ?t))
+			(charge ?b :time ?t)))
    (time ?t) ;in case ?t is not bound
    (at-place ?b ?loc :time ?t ?t)
    (rdebug "Using & firing write-charge-force-Efield-dir-contains ~%")
@@ -843,11 +856,11 @@
   ((debug "Using write-charge-force-Efield-dir ~%")
    (sign-charge ?b pos)
    (at-place ?b ?loc :time ?t ?t)
-   (any-member ?tot (?t nil)) 
-   (variable ?dirE (dir (field ?loc electric ?source :time ?tot)))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?dirE (dir (field ?loc electric ?source :time ?t)))
    (variable ?dirF (dir (force ?b ?source electric :time ?t)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge ?b :time ?tot2))
+   (inherit-variable ?q (charge ?b :time ?t))
    (rdebug "fired write-charge-force-Efield-dir  ~%")
    )
   :effects (
@@ -879,8 +892,8 @@
 (defoperator point-charge-Efield-contains (?sought)
   :preconditions 
   ((rdebug "Using point-charge-Efield-compo-contains  ~%")
-   (any-member ?sought ((field ?loc electric ?b :time ?t ?t)
-			(charge ?b :time ?t ?t)
+   (any-member ?sought ((field ?loc electric ?b :time ?t)
+			(charge ?b :time ?t)
 			(relative-position ?loc ?b :time ?t)
 		       ))
    ;; only *needed* if ?loc is not bound (when charge is ?sought)
@@ -905,8 +918,8 @@
    (not (vector-diagram ?rot (point-charge-Efield ?b ?loc ?t)))
    ;; ?b is point charge source of field at ?loc
    (body ?b)
-   (any-member ?tot (?t nil)) ;may want to extend to other times
-   (vector ?dontcare1 (field ?loc electric ?b :time ?tot) ?dir1) 
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-vector ?dontcare1 (field ?loc electric ?b :time ?t) ?dir1) 
    (vector ?dontcare2 (relative-position ?loc ?b :time ?t) ?dir2)
    (axes-for ?b ?rot)
    (rdebug "Fired draw-point-charge-Efield-diagram ~%")
@@ -939,10 +952,10 @@
    (in-wm (vector ?whatever (relative-position ?loc ?b :time ?t) ?r-dir))
    (test (non-zero-projectionp ?r-dir ?xy ?rot))
    ;; b is point-charge source of field
-   (any-member ?tot (?t nil))
-   (variable ?E_x (compo ?xy ?rot (field ?loc electric ?b :time ?tot)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge ?b :time ?tot2))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?E_x (compo ?xy ?rot (field ?loc electric ?b :time ?t)))
+   (inherit-variable ?q (charge ?b :time ?t))
    (variable ?r (mag (relative-position ?loc ?b :time ?t)))
    (hat ?rhat-compo (relative-position ?loc ?b :time ?t) ?xy ?rot ?form)
    (rdebug "fired write-point-charge-Efield-compo  ~%")
@@ -975,7 +988,7 @@
   :preconditions 
   ((rdebug "Using point-charge-Efield-mag-contains ~%")
    ;; charge can't be sought, since absolute value is taken
-   (any-member ?sought ((mag (field ?loc electric ?b :time ?t ?t))
+   (any-member ?sought ((mag (field ?loc electric ?b :time ?t))
 			(mag (relative-position ?loc ?b :time ?t))))
    (time ?t)
    (point-charge ?b)
@@ -993,10 +1006,10 @@
    (body ?b)
    ;; need to allow axes for this scalar psm. 
    (axes-for ?b 0) ; use standard axes only
-   (any-member ?tot (?t nil)) 
-   (variable ?magE (mag (field ?loc electric ?b :time ?tot)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge ?b :time ?tot2))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?magE (mag (field ?loc electric ?b :time ?t)))
+   (inherit-variable ?q (charge ?b :time ?t))
    (variable ?r (mag (relative-position ?loc ?b :time ?t)))
    (rdebug "fired write-point-charge-Efield-mag  ~%")
    )
@@ -1024,8 +1037,8 @@
    ;; location of source body mentioned in givens
    (point-charge ?b)
    (sign-charge ?b pos)
-   (any-member ?tot (?t nil)) 
-   (variable ?dirE (dir (field ?loc electric ?b :time ?tot)))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?dirE (dir (field ?loc electric ?b :time ?t)))
    (variable ?xpos (compo x 0 (relative-position ?loc ?b :time ?t)))
    (variable ?ypos (compo y 0 (relative-position ?loc ?b :time ?t)))
    (rdebug "fired write-point-charge-Efield-dir-pos  ~%")
@@ -1048,8 +1061,8 @@
 		  ; location of source body mentioned in givens
 		  (point-charge ?b)
                   (sign-charge ?b neg)
-                  (any-member ?tot (?t nil)) 
-		  (variable ?dirE (dir (field ?loc electric ?b :time ?tot)))
+     (bind ?tot nil) ;remove at end of semester
+		  (inherit-variable ?dirE (dir (field ?loc electric ?b :time ?t)))
 		  (variable ?xpos (compo x 0 (relative-position ?loc ?b :time ?t)))
 		  (variable ?ypos (compo y 0 (relative-position ?loc ?b :time ?t)))
                   (rdebug "fired write-point-charge-Efield-dir-neg  ~%")
@@ -1088,12 +1101,20 @@
 
 ;; Scalar variable definitions:
 
+(defoperator timeless-charge (?what ?t)
+  :preconditions 
+  ((test (not (member 'changing-voltage (problem-features *cp*))))
+   (time ?t))
+  :effects 
+  ((inherit-quantity (charge ?what :time ?t) (charge ?what))))
+
 (defoperator define-charge (?p ?t)
   :preconditions 
   (
-   ;; only use time when allowed by feature changing-voltage
-   (test (eq (null ?t) 
-	     (null (member 'changing-voltage (problem-features *cp*)))))
+   ;; Sanity test for inherit-quantity working OK
+   (test (or (eq (null ?t) 
+		 (null (member 'changing-voltage (problem-features *cp*))))
+	     (error "define-charge bad time slot ~A" ?t)))
    (bind ?q-var (format-sym "Q~@[s~]_~A~@[_~A~]" ?surface-flag (body-name ?p) 
 			    (time-abbrev ?t)))
    )
@@ -1380,7 +1401,7 @@
                         (mag (relative-position ?loc ?body :time ?t))
 			; if sought is charge, have to choose a location
 			; for now, just don't apply for charge
-                        ;(charge ?body :time ?t ?t)
+                        ;(charge ?body :time ?t)
                       ))
   ; NB: have to make sure body is a point-charge, or else this will apply
   ; for any relative positions in any problem.
@@ -1395,8 +1416,8 @@
      ;; this psm draws source charge as body:
      (body ?body)
      (variable ?V (potential ?loc ?body :time ?t))
-     (any-member ?tot (?t nil)) 
-     (variable ?q (charge ?body :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+     (inherit-variable ?q (charge ?body :time ?t))
      (variable ?r (mag (relative-position ?loc ?body :time ?t)))
   )
   :effects (
@@ -1460,7 +1481,7 @@
   :preconditions (
     (any-member ?sought ((electric-energy ?body ?source :time ?t) 
                          (net-potential ?loc :time ?t)
-			 (charge ?body :time ?t ?t)
+			 (charge ?body :time ?t)
 			 ))
     (time ?t)
     ; if sought is net-potential, must bind body: 
@@ -1483,8 +1504,8 @@
   :preconditions (
      (in-wm (at-place ?body ?loc :time ?t ?t))
      (variable ?Ue (electric-energy ?body ?source :time ?t))
-     (any-member ?tot (?t nil)) 
-     (variable ?q (charge ?body :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+     (inherit-variable ?q (charge ?body :time ?t))
      (variable ?Vnet (net-potential ?loc :time ?t))
      ;; this psm may be the only one to draw body 
      ;; NB: this goal fails if part of cons-energy psm, since
@@ -1766,9 +1787,9 @@
    (variable ?magP (mag (dipole-moment ?dipole electric :time ?t)))
    (variable ?magd (mag (relative-position ?positive-charge 
 					   ?negative-charge :time ?t)))
-   (any-member ?tot (?t nil)) 
-   (variable ?qp (charge ?positive-charge :time ?tot))
-   (variable ?qn (charge ?negative-charge :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?qp (charge ?positive-charge :time ?t))
+   (inherit-variable ?qn (charge ?negative-charge :time ?t))
    (rdebug "fired write-electric-dipole-moment-mag  ~%")
    )
   :effects 
@@ -1842,8 +1863,8 @@
    (variable ?mu_x (compo ?xy ?rot (dipole-moment ?dipole magnetic :time ?t)))
    (variable ?n_x (compo ?xy ?rot (unit-vector normal-to ?surface :time ?t)))
    (variable ?N (turns ?dipole))
-   (any-member ?tot (?t nil))
-   (variable ?I (current-thru ?dipole :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?I (current-thru ?dipole :time ?t))
    (variable ?A (area ?surface))
    (rdebug "fired write-magnetic-dipole-moment-compo  ~%")
    )
@@ -1878,7 +1899,7 @@
    (any-member ?sought(
 		       (turns ?dipole)
 		       (area ?surface)
-		       (current-thru ?dipole :time ?t ?t)
+		       (current-thru ?dipole :time ?t)
 		       (mag (dipole-moment ?dipole magnetic :time ?t))
 		       ))
    (time ?t)
@@ -1894,8 +1915,8 @@
    (magnetic-dipole ?dipole ?surface)
    (variable ?magmu (mag (dipole-moment ?dipole magnetic :time ?t)))
    (variable ?N (turns ?dipole))
-   (any-member ?tot (?t nil))
-   (variable ?I (current-thru ?dipole :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?I (current-thru ?dipole :time ?t))
    (variable ?A (area ?surface))
    (rdebug "fired write-magnetic-dipole-moment-mag  ~%")
    )
@@ -1947,7 +1968,7 @@
     (any-member ?sought (
 			 (mag (torque ?dipole (field ?region ?type ?source)
 					  :time ?t))
-			 (mag (field ?region ?type ?source :time ?t ?t))
+			 (mag (field ?region ?type ?source :time ?t))
 			 (mag (dipole-moment ?dipole ?type :time ?t))
 			 ))
     (time ?t)
@@ -1967,7 +1988,7 @@
    (any-member ?vecs 
 	       ;; These must be in lexical order:
 	       (((dipole-moment ?dipole ?type :time ?t)
-		 (field ?region ?type ?source :time ?t ?t))))
+		 (field ?region ?type ?source :time ?t))))
    (time ?t)
    (given-field ?source ?type)
    (at-place ?dipole ?region :time ?t ?t)
@@ -1982,11 +2003,12 @@
     (variable ?tau-var (mag (torque ?dipole (field ?region ?type ?source)
 				    :time ?t)))
     (variable ?p-var (mag (dipole-moment ?dipole ?type :time ?t)))
-    (any-member ?tot (?t nil)) 
-    (variable ?E-var (mag (field ?region ?type ?source :time ?tot)))
-    (variable ?theta-var (angle-between orderless 
-				(dipole-moment ?dipole ?type :time ?t)      
-				(field ?region ?type ?source :time ?tot)))
+     (bind ?tot nil) ;remove at end of semester
+    (inherit-variable ?E-var (mag (field ?region ?type ?source :time ?t)))
+    (inherit-variable ?theta-var 
+		      (angle-between orderless 
+				     (dipole-moment ?dipole ?type :time ?t)
+				     (field ?region ?type ?source :time ?t)))
     )
    :effects (
       (eqn (= ?tau-var (* ?p-var ?E-var (sin ?theta-var))) 
@@ -2056,9 +2078,9 @@
 	       ( 
 		(compo ?axis ?rot (torque ?dipole (field ?region ?type ?source)
 					      :time ?t))
-		(mag (field ?region ?type ?source :time ?t ?t))
+		(mag (field ?region ?type ?source :time ?t))
 		(mag (dipole-moment ?dipole ?type :time ?t))
-		(dir (field ?region ?type ?source :time ?t ?t))
+		(dir (field ?region ?type ?source :time ?t))
 		(dir (dipole-moment ?dipole ?type :time ?t))
 		))
    (time ?t)
@@ -2080,7 +2102,7 @@
 		(compo ?axis ?rot (torque ?dipole (field ?region ?type ?source)
 					  :time ?t))
 		(compo ?not-axis ?rot (field ?region ?type ?source 
-					     :time ?t ?t))
+					     :time ?t))
 		(compo ?not-axis ?rot (dipole-moment ?dipole ?type :time ?t))
 		))
    (given-field ?source ?type)
@@ -2098,17 +2120,18 @@
   ( 
    ;; draw vectors now, before applying cross product
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-mom)
-   (any-member ?tot (?t nil))
-   (vector ?whatever (field ?region ?type ?source :time ?tot) ?dir-field)
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-vector ?whatever (field ?region ?type ?source :time ?t) ?dir-field)
    (vector ?dipole (torque ?dipole (field ?region ?type ?source)
 			   :time ?t) ?dir-torque)
    ;;
    (cross ?cross (dipole-moment ?dipole ?type :time ?t) 
-	  (field ?region ?type ?source :time ?tot) ?axis ?rot ?flag)
+	  (field ?region ?type ?source :time ?t) ?axis ?rot ?flag)
    (test (not (eq ?cross '0)))		; handled by write-dipole-torque-mag
    (variable ?tau-zc (compo ?axis ?rot 
 			    (torque ?dipole (field ?region ?type ?source)
 				    :time ?t)))
+   (debug "write-dipole-torque firing with ?cross=~A, ?axis=~A~%" ?cross ?axis)
    )
   :effects 
   ( (eqn (= ?tau-zc ?cross)
@@ -2138,13 +2161,16 @@
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
-   (any-member ?t-field (?t nil))
    ;; vector direction is 'unknown if compos are given, use this
    ;; to determine direction (and bind ?region and ?source)
    (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
+   ;; test inheritance only for time:  should be more general
+   (inherit-or-quantity (field ?region ?type ?source :time ?t)
+			(field ?region ?type ?source :time ?t-field))
    ;; workbench requires field vector to be labelled as prerequisite for 
    ;; defining a dipole torque, so ensure it is drawn here.
-   (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-drawn)
+   (vector ?dontcare (field ?region ?type ?source :time ?t-field) 
+		   ?dir-drawn)
    (bind ?field (list 'field ?region ?type ?source))
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
@@ -2176,10 +2202,12 @@
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
    ;; AW: for magtor1d, changed t-field to match draw-torque-dipole-given-dir
-   (any-member ?t-field (?t nil))
    ;; vector direction is 'unknown if compos are given, use this
    ;; to determine direction (and bind ?region and ?source)
    (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
+   ;; test inheritance only for time:  should be more general
+   (inherit-or-quantity (field ?region ?type ?source :time ?t)
+			(field ?region ?type ?source :time ?t-field))
    ;; workbench requires field vector to be labelled as prerequisite for 
    ;; defining a dipole torque, so ensure it is drawn here.
    (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-drawn)
@@ -2266,7 +2294,7 @@
   ((any-member ?sought 
 	       ( (dipole-energy ?dipole (field ?region ?type ?source) 
 					  :time ?t)
-		 (mag (field ?region ?type ?source :time ?t ?t))
+		 (mag (field ?region ?type ?source :time ?t))
 		 (mag (dipole-moment ?dipole ?type :time ?t))
 		 ))
    (time ?t) ;in case ?t is not bound
@@ -2284,7 +2312,7 @@
  ((any-member ?sought ((angle-between orderless ?vecs)))
   ;; must be in canonical order
   (any-member ?vecs (((dipole-moment ?dipole ?type :time ?t) 
-		      (field ?region ?type ?source :time ?t ?t))))
+		      (field ?region ?type ?source :time ?t))))
   (time ?t) ;in case ?t is not bound
    (given-field ?source ?type)
    (at-place ?dipole ?region :time ?t ?t)
@@ -2299,7 +2327,7 @@
   ((any-member ?sought 
 	       ( (dipole-energy ?dipole (field ?region ?type ?source) 
 				:time ?t)
-		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t ?t))
+		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t))
 		 (compo ?xyz ?rot (dipole-moment ?dipole ?type :time ?t))
 		 ))
    (time ?t)
@@ -2307,8 +2335,8 @@
    (at-place ?dipole ?region :time ?t ?t)
    ;; find axes now, before applying dot product:
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-d)
-   (any-member ?tot (?t nil)) ;may want to extend to all times
-   (vector ?whatever (field ?region ?type ?source :time ?tot) ?dir-e)
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-vector ?whatever (field ?region ?type ?source :time ?t) ?dir-e)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
@@ -2326,9 +2354,9 @@
  :preconditions 
  ((variable ?u-var (dipole-energy ?dipole (field ?region ?type ?source) 
 					  :time ?t))
-  (any-member ?tot (?t nil))
+     (bind ?tot nil) ;remove at end of semester
   (dot ?dot (dipole-moment ?dipole ?type :time ?t)
-       (field ?region ?type ?source :time ?tot)
+       (field ?region ?type ?source :time ?t)
        ?rot)
   ;; It might make sense to have a seperate operator for the case
   ;; of zero energy.  In that case, the displacement and the force can't
@@ -2425,9 +2453,10 @@
   (
    (given (dir (current-length ?wire :time ?t)) ?dir-l)
    (given (dir (relative-position ?loc ?wire :time ?t)) ?dir-r)
-   ;; only use time when allowed by feature changing-field
-   (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
+   ;; Sanity test for inherit-quantity working OK
+   (test (or (eq (null ?t) 
+		 (null (member 'changing-field (problem-features *cp*))))
+	     (error "draw-bfield-straight-current bad time slot ~A" ?t)))
    (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
    (test ?dir-B)
    (test (not (eq ?B-dir 'zero)))
@@ -2455,8 +2484,10 @@
    (center-of-coil ?loc ?wire :current-axis ?dir-B)
    ;; only use time when allowed by feature changing-field
    (time-or-timeless ?t)
+   ;; if time is bound above, make sure it is consistant with
+   ;; what student can define
    (test (eq (null ?t) 
-	     (null (member 'changing-field (problem-features *cp*)))))
+		 (null (member 'changing-field (problem-features *cp*)))))
    (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" 
 			      (body-name ?loc) (body-name ?wire) 
 			      (time-abbrev ?t)))
@@ -2644,10 +2675,9 @@
 (defoperator find-magnetic-force-current (?b ?t ?source)
   :preconditions 
   (
-
+  (given (dir (current-length ?b :time ?t)) ?dir-i)
   (at-place ?b ?loc :time ?t ?t)
   (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B)
-  (given (dir (current-length ?b :time ?t)) ?dir-i)
   ;; following currently only works for dirs along axis
   (bind ?F-dir (cross-product-dir ?dir-i ?dir-B))
   ;; make sure we have a non-null direction
@@ -2702,7 +2732,7 @@
   ((debug "Using write-charge-force-Bfield-mag-contains ~%")
    (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
 			;; can't have charge as sought, due to absolute value
-			(mag (field ?loc magnetic ?source :time ?t ?t))
+			(mag (field ?loc magnetic ?source :time ?t))
 			(mag (velocity ?b :time ?t))))
    (time ?t) ;in case ?t is not bound
    (at-place ?b ?loc :time ?t ?t)
@@ -2714,22 +2744,24 @@
 
 (defoperator write-charge-force-Bfield-mag (?b ?t)
   :preconditions 
-  ((debug "Using write-charge-force-Bfield-mag ~%")
+  (
+   (debug "Using write-charge-force-Bfield-mag ~%")
    (at-place ?b ?loc :time ?t ?t)
    ;; draw body for this psm
    (body ?b)
    ;; draw the vectors B, v, and F.
    (vector ?dontcare1 (field ?loc magnetic ?source :time ?t-field) ?B-dir)
-   (test (tinsidep ?t ?t-field))
+   (inherit-or-quantity (field ?loc magnetic ?source :time ?t)
+			(field ?loc magnetic ?source :time ?t-field))
    (vector ?dontcare2 (velocity ?b :time ?t) ?V-dir)
    (vector ?dontcare3 (force ?b ?source magnetic :time ?t) ?F-dir)
    ;; retrieve vector variables for equation:
-   (in-wm (variable ?magB (mag (field ?loc magnetic ?source :time ?t ?t))))
+   (in-wm (variable ?magB (mag (field ?loc magnetic ?source :time ?t-field))))
    (in-wm (variable ?magV (mag (velocity ?b :time ?t))))
    (in-wm (variable ?magF (mag (force ?b ?source magnetic :time ?t))))
    ;; define charge variable
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge ?b :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?q (charge ?b :time ?t))
    ;; calculate angle between. Put it directly into eqn w/o variable.
    (bind ?theta `(dnum ,(get-angle-between ?V-dir ?B-dir) |deg|))
    (test ?theta) ; make sure it was determinable
@@ -2776,14 +2808,14 @@
   :preconditions 
   ((any-member ?sought ((compo ?not-axis ?rot (velocity ?b :time ?t))
 			(compo ?not-axis ?rot 
-			       (field ?loc magnetic ?source :time ?t ?t))
+			       (field ?loc magnetic ?source :time ?t))
 			(mag (velocity ?b :time ?t))
-			(mag (field ?loc magnetic ?source :time ?t ?t))
-			(charge ?b :time ?t ?t)
+			(mag (field ?loc magnetic ?source :time ?t))
+			(charge ?b :time ?t)
 		       ))
    (at-place ?b ?loc :time ?t ?t)  ;?b is not bound if field is sourght
    (axes-for ?b ?rot) ;?rot not bound if charge is sought
-   (time ?t); may not be bound if charge is sought
+   (time ?t) ;sanity test
    (get-axis ?axis ?rot)  ;iterate over components
    (test (not (exactly-equal ?axis ?not-axis)))
    (any-member ?flag (t nil))
@@ -2810,9 +2842,10 @@
    (not (vector-diagram ?rot (charge-force-Bfield ?b ?t)))
    (body ?b)
    (at-place ?b ?loc :time ?t ?t)
-   (any-member ?tot (?t nil)) ;may want to extend to all times
-   (vector ?dontcare (field ?loc magnetic ?source :time ?tot) ?dir1) 
-   (vector ?b (force ?b ?source magnetic :time ?t) ?dir2)
+     (bind ?tot nil) ;remove at end of semester
+   (vector ?b (force ?b ?source magnetic :time ?t) ?dir2) ;this binds ?source
+   ;; ?source needs to be bound for this to work
+   (inherit-vector ?dontcare (field ?loc magnetic ?source :time ?t) ?dir1) 
    (vector ?b (velocity ?b :time ?t) ?dir3)
    (axes-for ?b ?rot)
    (debug "Fired draw-charge-force-Bfield-diagram ~%")
@@ -2828,14 +2861,16 @@
 (defoperator write-charge-force-Bfield (?axis ?rot ?b ?t )
   :preconditions 
   (
+   (bind ?tot nil) ;remove at end of semester
+   ;; at end of semester, ?tot2 -> ?any-dir
    (at-place ?b ?loc :time ?t ?t)
    (vector-diagram ?rot (charge-force-Bfield ?b ?t))
+   ;; already drawn in vector-diagram, this binds ?source
+   (in-wm  (vector ?b (force ?b ?source magnetic :time ?t) ?tot2))
    (variable ?F (compo ?axis ?rot (force ?b ?source magnetic :time ?t)))
-   (any-member ?tot (?t nil))
    (cross ?cross (velocity ?b :time ?t) 
-	  (field ?loc magnetic ?source :time ?tot) ?axis ?rot ?flag)
-   (any-member ?tot2 (?t nil)) 
-   (variable ?q (charge ?b :time ?tot2))
+	  (field ?loc magnetic ?source :time ?t) ?axis ?rot ?flag)
+   (inherit-variable ?q (charge ?b :time ?t))
    )
   :effects 
   ( (eqn (= ?F (* ?q ?cross)) (charge-force-Bfield ?axis ?rot ?b ?flag ?t)) )
@@ -2865,9 +2900,9 @@
   :preconditions 
   (
    (any-member ?sought ((mag (force ?b ?source magnetic :time ?t))
-			(mag (field ?loc magnetic ?source :time ?t ?t))
+			(mag (field ?loc magnetic ?source :time ?t))
 			(length ?b)
-			(current-thru ?b :time ?t ?t)))
+			(current-thru ?b :time ?t)))
    (time ?t)
    (object ?source)  ;this is not bound by most ?sought
    (at-place ?b ?loc :time ?t ?t)  ;so that ?b is bound
@@ -2892,8 +2927,8 @@
    ;; direction of current (problem given)
    (given (dir (current-length ?b :time ?t)) ?dir-i)
    ;; define current variable
-   (any-member ?tot (?t nil)) 
-   (variable ?i (current-thru ?b :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?i (current-thru ?b :time ?t))
    (variable ?l (length ?b))
    ;; calculate angle between. Put it directly into eqn w/o variable.
    (bind ?theta `(dnum ,(get-angle-between ?dir-i ?B-dir) |deg|))
@@ -2917,7 +2952,7 @@
   ((debug "Using write-charge-force-Bfield-dir-contains ~%")
    (any-member ?sought ((dir (force ?b ?source magnetic :time ?t))
 			(dir (field ?loc magnetic ?source :time ?t))
-			(charge ?b :time ?t ?t)))
+			(charge ?b :time ?t)))
    (body ?b)
    (rdebug "Firing write-charge-force-Bfield-dir-contains ~%")
    )
@@ -2929,8 +2964,8 @@
   :preconditions 
   ((debug "Using write-force-dir-charge-Bfield-pos ~%")
    (at-place ?b ?loc :time ?t ?t)
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge ?b :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?q (charge ?b :time ?t))
    (given (dir (field ?loc magnetic ?source :time ?t ?t)) (dnum ?dir1 ?doncare1)) 
    (motion ?b straight :dir (dnum ?dir2 ?dontcare1) :time ?t ?t)
    (variable ?OF (dir (force ?b ?source magnetic :time ?t)))
@@ -2952,8 +2987,8 @@
   :preconditions 
   ((debug "Using write-force-dir-charge-Bfield-neg ~%")
    (at-place ?b ?loc :time ?t ?t)
-   (any-member ?tot (?t nil)) 
-   (variable ?q (charge ?b :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?q (charge ?b :time ?t))
    (given (dir (field ?loc magnetic ?source :time ?t ?t)) 
 	  (dnum ?dir1 ?whever)) 
    (motion ?b straight :dir (dnum ?dir2 ?dontcare1) :time ?t ?t)
@@ -3014,8 +3049,8 @@
    (variable ?B-var (mag (field ?loc magnetic ?b :time ?t)))
    (variable ?v-var (mag (velocity ?b :time ?t)))
    (variable ?r-var (mag (relative-position ?loc ?b :time ?t)))
-   (any-member ?tot (?t nil)) 
-   (variable ?q-var (charge ?b :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?q-var (charge ?b :time ?t))
    (variable ?theta-var (angle-between orderless
 				       (velocity ?b :time ?t) ?dir-vec))
    )
@@ -3059,7 +3094,7 @@
    (any-member ?sought 
 	       ( 
 		(compo ?axis ?rot (field ?loc magnetic ?b :time ?t))
-		(charge ?b :time ?t ?t)
+		(charge ?b :time ?t)
 		(mag (relative-position ?loc ?b :time ?t))
 		(mag (velocity ?b :time ?t))
 		(dir (velocity ?b :time ?t))
@@ -3081,7 +3116,7 @@
    (any-member ?sought 
 	       ( 
 		(compo ?axis ?rot (field ?loc magnetic ?b :time ?t))
-		(charge ?b :time ?t ?t)
+		(charge ?b :time ?t)
 		(mag (velocity ?b :time ?t))
 		(compo ?not-axis ?rot (velocity ?b :time ?t))
 		(compo ?not-axis ?rot (unit-vector towards ?loc :at ?b :time ?t))
@@ -3108,8 +3143,8 @@
    (optional (body ?b))
    ;;
    (variable ?B-var (compo ?axis ?rot (field ?loc magnetic ?b :time ?t)))
-   (any-member ?tot (?t nil)) 
-   (variable ?q-var (charge ?b :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+   (inherit-variable ?q-var (charge ?b :time ?t))
    (cross ?cross (velocity ?b :time ?t) 
 	  (unit-vector towards ?loc :at ?b :time ?t) ?axis ?rot ?flag)
    (test (not (eq ?cross '0)))	   ; handled by write-biot-savert-point-particle-mag
@@ -3149,11 +3184,10 @@
    (given (dir (relative-position ?point ?wire :time ?t)) ?dir-r)
    (test (perpendicularp ?dir-i ?dir-r))
    (any-member ?sought (
-			(current-thru ?branch :time ?t ?t)
+			(current-thru ?wire :time ?t)
 			(mag (relative-position ?point ?wire :time ?t))
-			(mag (field ?point magnetic ?wire :time ?t ?t))
+			(mag (field ?point magnetic ?wire :time ?t))
 			))
-   (compo-or-branch ?wire ?branch)
    (time ?t) ;sanity test
    )
   :effects ((eqn-contains (straight-wire-Bfield ?point ?wire ?t) ?sought)))
@@ -3161,12 +3195,12 @@
 (defoperator write-straight-wire-Bfield (?point ?wire ?t)
   :preconditions 
   ( 
-   (any-member ?tot (?t nil))
-   (in-wm (compo-or-branch ?wire ?branch))
-   (variable ?I (current-thru ?branch :time ?tot))
-   (variable ?r	(mag (relative-position ?point ?wire :time ?t)))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?B (mag (field ?point magnetic ?wire :time ?tot2)))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+     (bind ?branch nil) ;remove at end of semester
+   (inherit-variable ?I (current-thru ?wire :time ?t))
+   (variable ?r (mag (relative-position ?point ?wire :time ?t)))
+   (inherit-variable ?B (mag (field ?point magnetic ?wire :time ?t)))
    )
   :effects ( 
 	    (eqn (= (* 2 $p ?r ?B) (* |mu0| ?I))
@@ -3195,12 +3229,11 @@
   (
    (center-of-coil ?point ?coil . ?rest)  ;given that there is a coil
    (any-member ?sought (
-			(current-thru ?branch :time ?t ?t)
+			(current-thru ?coil :time ?t)
 			(turns ?coil)
 			(radius-of-circle ?coil)
-			(mag (field ?center magnetic ?coil :time ?t ?t))
+			(mag (field ?center magnetic ?coil :time ?t))
 			))
-   (compo-or-branch ?coil ?branch)
    ;; determine whether coil is a single loop
    (setof (given (turns ?coil) 1) 1 ?flag)
    (time ?t) ;not bound by some ?sought
@@ -3218,13 +3251,13 @@
 (defoperator write-center-coil-Bfield (?point ?coil ?t ?flag)
   :preconditions 
   ( 
-   (any-member ?tot (?t nil)) 
-   (compo-or-branch ?coil ?branch)
-   (variable ?I (current-thru ?branch :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+     (bind ?branch nil) ;remove at end of semester
+   (inherit-variable ?I (current-thru ?coil :time ?t))
    (use-for-turns ?N ?coil :loop ?flag)
    (variable ?r	(radius-of-circle ?coil))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?B (mag (field ?point magnetic ?coil :time ?tot2)))
+   (inherit-variable ?B (mag (field ?point magnetic ?coil :time ?t)))
    (bind ?rhs (if ?N `(* |mu0| ,?N ,?I) `(* |mu0| ,?I)))
    )
   :effects ( 
@@ -3252,9 +3285,9 @@
   (
    (inside-solenoid ?point ?solenoid)  ;given that there is a solenoid
    (any-member ?sought (
-			(current-thru ?solenoid :time ?t ?t)
+			(current-thru ?solenoid :time ?t)
 			(turns-per-length ?solenoid)
-			(mag (field ?center magnetic ?solenoid :time ?t ?t))
+			(mag (field ?center magnetic ?solenoid :time ?t))
 			))
    (time ?t) ;not bound by some ?sought
    )
@@ -3263,11 +3296,11 @@
 (defoperator write-inside-solenoid-Bfield (?point ?solenoid ?t)
   :preconditions 
   ( 
-   (any-member ?tot (?t nil)) 
-   (variable ?I (current-thru ?solenoid :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+     (bind ?tot2 nil) ;remove at end of semester
+   (inherit-variable ?I (current-thru ?solenoid :time ?t))
    (variable ?n (turns-per-length ?solenoid))
-   (any-member ?tot2 (?t nil)) 
-   (variable ?B (mag (field ?point magnetic ?solenoid :time ?tot2)))
+   (inherit-variable ?B (mag (field ?point magnetic ?solenoid :time ?t)))
    )
   :effects ( 
 	    (eqn (= ?B (* |mu0| ?n ?I))
@@ -3436,7 +3469,7 @@
    (at-place ?surface ?region)
    (any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
-		 (mag (field ?region ?type ?source :time ?t ?t))
+		 (mag (field ?region ?type ?source :time ?t))
 		 (area ?surface)
 		 ))
    (time ?t)
@@ -3452,13 +3485,14 @@
    (any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
 		 (area ?surface)
-		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t ?t))
+		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t))
 		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
 		 ))
    (time ?t)
    ;; find axes now, before applying dot product:
-   (any-member ?tot (?t nil))
    (vector ?any-body (field ?region ?type ?source :time ?tot) ?dir-d)
+   (inherit-or-quantity (field ?region ?type ?source :time ?t)
+			(field ?region ?type ?source :time ?tot))
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
@@ -3470,58 +3504,71 @@
    (assume axes-for ?surface ?rot)
  ))
 
+;; make sure there is only one field defined in region
+;; if we have multiple fields, the associated law probably should be expressed
+;; in terms of the net field.
+(defoperator collect-one-field (?region ?type ?source ?t)
+  :preconditions 
+  (
+   (setof (inherit-proposition (field ?region ?type ?any-source :time ?t)
+			       (field ?region ?type . ?rest)
+			       (vector ?dontcare (field ?region ?type . ?rest) 
+				       ?any-dir))
+	  ?any-source ?sources)
+   (test (= 1 (length ?sources))) ;exactly one field at surface
+   (bind ?source (first ?sources))
+   )
+  :effects 
+  ((collect-one-source (field ?region ?type ?source :time ?t))))
+
 ;; This can write either the component or the angle form of the 
 ;; electric dipole energy equation, depending on ?rot.  
 (defoperator write-flux-constant-field (?surface ?type ?t ?rot)
- :preconditions 
- (
-  ;; make sure there is only one field defined on the surface
-  ;; if we have multiple fields, this law probably should be expressed
-  ;; in terms of the net field.
-  (any-member ?tot (?t nil))		;may eventually want list of all times
-  (at-place ?surface ?region)
-  (setof (vector ?dontcare (field ?region ?type ?source :time ?tot) ?dir) 
-	 ?source ?sources)
-  (test (= 1 (length ?sources))) ;exactly one field at surface
-  (bind ?source (first ?sources))
-  (dot ?dot (field ?region ?type ?source :time ?tot)
-       (unit-vector normal-to ?surface :time ?t)
-       ?rot)
-  (test (not (equal ?dot 0))) ;zero handled separately
-  (variable ?Phi-var (flux ?surface ?type :time ?t))
-  (variable ?A (area ?surface))
-  )
- :effects ( (eqn (= ?Phi-var (* ?A ?dot))
-		 (flux-constant-field ?surface ?type ?t ?rot)) )
- :hint (
-	(point (string "Note that the ~A field is uniform over ~A." 
-		       (?type adj) ?surface))
-	(teach (string "For a field that is uniform over a surface, the ~A flux through the surface is the area times the dot product of the ~A field and the unit normal to the surface."
-		       (?type adj) (?type adj)))
-	(bottom-out (string "Write the equation ~A."  
-			    ((= ?Phi-var (* ?A ?dot)) algebra)))
-	))
+  :preconditions 
+  (
+   (bind ?tot nil) ;remove at end of semester
+   (bind ?sources nil) ;remove at end of semester
+   (bind ?dir nil) ;remove at end of semester
+   (bind ?dontcare nil) ;remove at end of semester
+   (at-place ?surface ?region)
+   (collect-one-source (field ?region ?type ?source :time ?t))
+   ;;
+   (dot ?dot (field ?region ?type ?source :time ?t)
+	(unit-vector normal-to ?surface :time ?t)
+	?rot)
+   (test (not (equal ?dot 0))) ;zero handled separately
+   (variable ?Phi-var (flux ?surface ?type :time ?t))
+   (variable ?A (area ?surface))
+   )
+  :effects ( (eqn (= ?Phi-var (* ?A ?dot))
+		  (flux-constant-field ?surface ?type ?t ?rot)) )
+  :hint (
+	 (point (string "Note that the ~A field is uniform over ~A." 
+			(?type adj) ?surface))
+	 (teach (string "For a field that is uniform over a surface, the ~A flux through the surface is the area times the dot product of the ~A field and the unit normal to the surface."
+			(?type adj) (?type adj)))
+	 (bottom-out (string "Write the equation ~A."  
+			     ((= ?Phi-var (* ?A ?dot)) algebra)))
+	 ))
 
 (defoperator write-flux-zero (?surface ?type ?t ?rot)
- :preconditions 
- (
-  ;; make sure there is only one field defined on the surface
-  ;; if we have multiple fields, this law probably should be expressed
-  ;; in terms of the net field.
-  (any-member ?tot (?t nil))		;may eventually want list of all times
-  (at-place ?surface ?region)
-  (setof (vector ?dontcare (field ?region ?type ?source :time ?tot) ?dir) 
-	 ?source ?sources)
-  (test (= 1 (length ?sources))) ;exactly one field at surface
-  (bind ?source (first ?sources))
-  (dot 0 (field ?region ?type ?source :time ?tot)
-       (unit-vector normal-to ?surface :time ?t)
-       ?rot)
-  (variable ?Phi-var (flux ?surface ?type :time ?t))
-  )
- :effects ( (eqn (= ?Phi-var 0)
-		 (flux-constant-field ?surface ?type ?t ?rot)) )
- :hint (
+  :preconditions 
+  (
+   (bind ?tot nil) ;remove at end of semester
+   (bind ?sources nil) ;remove at end of semester
+   (bind ?dir nil) ;remove at end of semester
+   (bind ?dontcare nil) ;remove at end of semester
+   (at-place ?surface ?region)
+   (collect-one-source (field ?region ?type ?source :time ?t))
+   ;;
+   (dot 0 (field ?region ?type ?source :time ?t)
+	(unit-vector normal-to ?surface :time ?t)
+	?rot)
+   (variable ?Phi-var (flux ?surface ?type :time ?t))
+   )
+  :effects ( (eqn (= ?Phi-var 0)
+		  (flux-constant-field ?surface ?type ?t ?rot)) )
+  :hint (
 	(point (string "Note that the ~A field is parallel to ~A or is zero." 
 		       (?type adj) ?surface))
 	(teach (string "If the component of the ~A field perpendicular to a surface is zero, then the ~A flux going through the surface is zero." 
@@ -3559,7 +3606,7 @@
    (at-place ?surface ?region)
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
-		 (mag (field ?region ?type ?source :time ?t ?t))
+		 (mag (field ?region ?type ?source :time ?t))
 		 (rate-of-change (area ?surface))
 		 ))
    (time ?t)
@@ -3575,15 +3622,16 @@
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
 		 (rate-of-change (area ?surface))
-		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t ?t))
+		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t))
 		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
 		 ))
    (time ?t) ;in case ?t is not bound
    ;; find axes now, before applying dot product:
-   (any-member ?tot (?t nil))
+   ;; (draw vectors before finding axis)
    (vector ?any-body (field ?region ?type ?source :time ?tot) ?dir-d)
+   (inherit-or-quantity (field ?region ?type ?source :time ?t)
+			(field ?region ?type ?source :time ?tot))
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir-e)
-   (time ?t)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
@@ -3599,16 +3647,14 @@
 (defoperator write-flux-constant-field-change (?surface ?type ?t ?rot)
  :preconditions 
  (
-  ;; make sure there is only one field defined on the surface
-  ;; if we have multiple fields, this law probably should be expressed
-  ;; in terms of the net field.
-  (any-member ?tot (?t nil))		;may eventually want list of all times
+  (bind ?tot nil) ;remove at end of semester
+   (bind ?sources nil) ;remove at end of semester
+   (bind ?dir nil) ;remove at end of semester
+   (bind ?dontcare nil) ;remove at end of semester
   (at-place ?surface ?region)
-  (setof (vector ?dontcare (field ?region ?type ?source :time ?tot) ?dir) 
-	 ?source ?sources)
-  (test (= 1 (length ?sources))) ;exactly one field at surface
-  (bind ?source (first ?sources))
-  (dot ?dot (field ?surface ?type ?source :time ?tot)
+  (collect-one-source (field ?region ?type ?source :time ?t))
+  ;;
+  (dot ?dot (field ?surface ?type ?source :time ?t)
        (unit-vector normal-to ?surface :time ?t)
        ?rot)
   (variable ?Phi-var (rate-of-change (flux ?surface ?type :time ?t)))
@@ -3744,7 +3790,7 @@
    (any-member ?sought 
 	       ( (rate-of-change (flux ?surface magnetic :time ?t))
 		 (turns ?R)
-		 (voltage-across ?R :time ?t ?t)))
+		 (voltage-across ?R :time ?t)))
    (time ?t)
    (test (if (eq (first ?sought) 'turns) ?turn-flag t))
    )
@@ -3755,8 +3801,8 @@
  :preconditions 
  (
   (in-wm (faraday-loop ?surface ?R :turns ?turn-flag))
-  (any-member ?tot (?t nil)) 
-  (variable ?V (voltage-across ?R :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+  (inherit-variable ?V (voltage-across ?R :time ?t))
   (variable ?Phi-var (rate-of-change (flux ?surface magnetic :time ?t)))
   (variable ?turn-var (turns ?R))
   (bind ?phi-term (if ?turn-flag `(* ,?turn-var ,?Phi-var) ?Phi-var))

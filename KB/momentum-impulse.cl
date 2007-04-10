@@ -26,8 +26,8 @@
   :preconditions 
   ( (body ?b)
     ;; ?dirv = ?dirm is set in drawing rules
-    (vector ?b (velocity ?b :time ?t) ?dirv)
-    (vector ?b (momentum ?b :time ?t) ?dirm)
+    (inherit-vector ?b (velocity ?b :time ?t) ?dirv)
+    (inherit-vector ?b (momentum ?b :time ?t) ?dirm)
     (axes-for ?b ?rot) ;maybe a problem for compounds?
   )
   :effects (
@@ -38,9 +38,9 @@
 (defoperator write-momentum-compo (?b ?t ?xyz ?rot)
   :preconditions (
     ;; for now, all these preconds satisfied from above
-    (variable ?p_compo (compo ?xyz ?rot (momentum ?b :time ?t)))
-    (variable ?v_compo (compo ?xyz ?rot (velocity ?b :time ?t)))
-    (variable ?m (mass ?b))
+    (inherit-variable ?p_compo (compo ?xyz ?rot (momentum ?b :time ?t)))
+    (inherit-variable ?v_compo (compo ?xyz ?rot (velocity ?b :time ?t)))
+    (inherit-variable ?m (mass ?b :time ?t))
     ;; The magnitude equation can be put out as an optional equation. 
     ;; But this is now done by the projection equations 
     ;; (variable ?p-var (mag (momentum ?b :time ?t)))
@@ -392,7 +392,7 @@
       (any-member ?sought (
               (ang-momentum ?b :time ?t)
 	      (ang-velocity ?b :time ?t)
-	      (moment-of-inertia ?b :time ?t ?t)
+	      (moment-of-inertia ?b :time ?t)
                           )) 
       (time ?t)
    )
@@ -410,10 +410,10 @@
 
 (defoperator write-ang-momentum (?b ?t)
   :preconditions (
-     (variable ?L_z     (compo z 0 (ang-momentum ?b :time ?t)))
+     (variable ?L_z (compo z 0 (ang-momentum ?b :time ?t)))
      (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
-     (any-member ?tot (?t nil)) 
-     (variable ?I (moment-of-inertia ?b :time ?tot))
+     (bind ?tot nil) ;remove at end of semester
+     (inherit-variable ?I (moment-of-inertia ?b :time ?t))
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
@@ -657,10 +657,37 @@
 	    (vector-diagram ?rot (impulse-force-vector ?b ?agent ?t))
   ))
 
-;; This is the impulse from a particular force
+;; remove at end of semester
 (defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
-  ((variable ?F12_x (compo ?xy ?rot (force ?b ?agent ?dont-care
+  (
+   (test nil)
+   (variable ?F12_x (compo ?xy ?rot (force ?b ?agent ?type
+					   :time (during ?t1 ?t2))))
+   (variable ?J12_x (compo ?xy ?rot (impulse ?b ?agent 
+					     :time (during ?t1 ?t2))))
+   (variable ?t12 (duration (during ?t1 ?t2))))
+   :effects 
+   (
+    (eqn (= ?J12_x (* ?F12_x ?t12))
+	 (compo-eqn definition ?xy ?rot 
+		    (impulse-force-vector ?b ?agent (during ?t1 ?t2))))
+    )
+  :hint 
+  ( (point (string "What is the relationship between average force, impulse and duration?"))
+    (teach (string "The impulse vector is defined as the average force vector times the duration.  This can be applied component-wise."))
+    (bottom-out (string "Write the equation ~a"
+			((= ?J12_x (* ?F12_x ?t12)) algebra)))
+  ))
+
+;; after semester over, remove -new suffix
+(defoperator write-impulse-compo-new (?b ?agent ?t1 ?t2 ?xy ?rot)
+  :preconditions 
+  (
+   ;; drawn above, use this to bind ?type
+   (in-wm (vector ?b (force ?b ?agent ?type 
+				    :time (during ?t1 ?t2)) ?any-dir))
+   (variable ?F12_x (compo ?xy ?rot (force ?b ?agent ?type
 					   :time (during ?t1 ?t2))))
    (variable ?J12_x (compo ?xy ?rot (impulse ?b ?agent 
 					     :time (during ?t1 ?t2))))
