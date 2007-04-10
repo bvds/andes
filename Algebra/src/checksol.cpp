@@ -53,6 +53,7 @@ int checksol(const binopexp* const eqn, const vector<double>* const sols,
   } 
   catch (string &err){
     eqexpr->destroy();
+    delete value;
     DBG(cout << " ERROR " << err << endl);
     if(FPE_handler==err.substr(0,FPE_handler.length()))  //if beginning matches
       return(3);
@@ -66,13 +67,16 @@ int checksol(const binopexp* const eqn, const vector<double>* const sols,
        << " and absolute error " << value->abserr << endl);
   if ((fabs(value->value) <= value->abserr)) {
     DBG(cout << " seems OK" << endl);
+    delete value;
     return(0);
   } else if ((fabs(value->value) <= 100 * value->abserr)) {
     DBG(cout << " NOT REALLY OK" << endl);
+    delete value;
     return(1);
   } else {
     DBG(cout << " seems VERY NOT OK on" << endl; cout << eqn->getInfix() 
 	<< endl);
+    delete value;
     return(2);
   }
 }
