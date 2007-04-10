@@ -4941,11 +4941,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; near the surface of a planet throughout which gravitational force can be 
 ;;; treated as m*g.  For greater distances we need the general law of UG in 
 ;;; terms of the gravitational constant G.  This is enabled by a statement
-;;;   (gravity ?body1 ?body2 ...)
+;;;   (gravity (orderless ?body1 ?body2 ...) :time ?t)
 ;;; to mean there is a gravitational interaction between any pair of bodies
-;;; in the list.  No time on this statement, significant gravity is assumed 
-;;; to exist throughout the problem (though it may have different values at
-;;; different times if relative position of bodies changes, of course.)
+;;; in the list.  
 ;;;
 ;;; We normally treat the r in the law of universal gravitation as the
 ;;; magnitude of the relative position vector from the center of the body 
@@ -4964,7 +4962,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator ug-contains (?sought)
    :preconditions (
      ;; first make sure a gravitational interaction exists in problem
-     (gravity . ?grav-bodies)
+     (gravity . ?grav-bodies) ;see Bug #1138
      (any-member ?sought (
 		    ;; if sought is a mass, can use either equation for force
 		    ;; on b1 from b2 or force on b2 from b1, so need both:
@@ -4972,10 +4970,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		    (mag (force ?b1 ?b2 gravitational :time ?t))
 		    (mag (relative-position ?c1 ?c2 :time ?t))
                          ))
-     (object ?b1)
-     (object ?b2)
-     (test (and (member ?b1 ?grav-bodies :test #'equal) 
-                (member ?b2 ?grav-bodies :test #'equal)))
+     (any-member ?b1 ?grav-bodies)
+     (any-member ?b2 ?grav-bodies)
      ;; in case sought is relative position:
      (center-of-mass ?c1 (?b1))
      (center-of-mass ?c2 (?b2))
@@ -5014,20 +5010,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator ug-circular-contains (?sought)
    :preconditions (
-     (time ?t)
      ; first make sure gravitational interaction exists in problem
-     (gravity . ?grav-bodies)
+     (gravity . ?grav-bodies) ;see Bug #1138
      ; make sure body1 is in circular motion for this form
      (motion ?b1 (curved circular ?dontcare) :time ?t-circular)
      (any-member ?sought (
-                    (mass ?b1) (mass ?b2) ;only timeless mass
+                    (mass ?b1) (mass ?b2)
 		    (mag (force ?b1 ?b2 gravitational :time ?t))
 		    (revolution-radius ?b1 :time ?t)
 			 ))
-     (object ?b2)
+     (any-member ?b1 ?grav-bodies)
+     (any-member ?b2 ?grav-bodies)
+     (time ?t)
      (test (tinsidep ?t ?t-circular))
-     (test (and (member ?b1 ?grav-bodies :test #'equal) 
-                (member ?b2 ?grav-bodies :test #'equal)))
    )
    :effects (
     (eqn-contains (ug ?b1 ?b2 ?t radius) ?sought)
@@ -5036,8 +5031,8 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator write-ug-circular (?b1 ?t ?b2) 
   :preconditions (
       (body ?b1)
-      (variable ?m1 (mass ?b1))
-      (variable ?m2 (mass ?b2))
+      (variable ?m1 (mass ?b1)) ;only timeless mass
+      (variable ?m2 (mass ?b2)) ;only timeless mass
       ; force is on b1 due to b2, so want relative position of center of
       ; b1 wrt center of b2. Implicit for now that positions are wrt centers.
       (variable ?r  (revolution-radius ?b1 :time ?t))
@@ -5072,16 +5067,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator find-grav-force (?b1 ?b2 ?t)
   :preconditions (
-    (gravity . ?grav-bodies)
-    ; ?b1 probably bound coming in if finding all forces on it,
-    ; but agent ?b2 is probably not bound:
-    (object ?b1)
-    (object ?b2)
-    (test (and (member ?b1 ?grav-bodies :test #'equal)
-               (member ?b2 ?grav-bodies :test #'equal)))
-    ; We get force direction as oppposite of relative position direction. 
-    ; Don't require r to be drawn -- ug-circular form doesn't use it.
+    (gravity . ?grav-bodies) ;see Bug #1138
+    ;; ?b1 probably bound coming in if finding all forces on it,
+    ;; but agent ?b2 is probably not bound:
+    (any-member ?b1 ?grav-bodies)
+    (any-member ?b2 ?grav-bodies)
+    ;; We get force direction as oppposite of relative position direction. 
+    ;; Don't require r to be drawn -- ug-circular form doesn't use it.
     (grav-direction ?b1 ?b2 ?t ?dir)
+    (time ?t)
   )
   :effects ( 
     (force ?b1 ?b2 gravitational ?t ?dir NIL)
@@ -5152,7 +5146,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator gravitational-energy-point-contains (?sought)
   :preconditions 
   (
-   (gravity ?grav-bodies :time ?t-gravity)
+   (gravity (orderless . ?grav-bodies) :time ?t-grav)
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t)
 			 (mag (relative-position ?cm-body ?cm-agent :time ?t))
 			 (mass ?body)
@@ -5162,11 +5156,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (center-of-mass ?cm-body (?body))
    (center-of-mass ?cm-agent (?agent))
    (time ?t)
-   (test (tinsidep ?t ?t-gravity))
+   (test (tinsidep ?t ?t-grav))
    ;; NB: have to make sure body is a gravitational, or else this will apply
    ;; for any relative positions in any problem.
-  (any-member ?body ?grav-bodies)
-  (any-member ?agent ?grav-bodies)
+   (any-member ?body ?grav-bodies)
+   (any-member ?agent ?grav-bodies)
+   (test (not (unify ?body ?agent))) ;no self-energy
   )
   :effects (
    (eqn-contains (gravitational-energy-point ?body ?agent t ?t) ?sought)
@@ -5198,13 +5193,12 @@ the magnitude and direction of the initial and final velocity and acceleration."
 (defoperator gravitational-energy-zero-contains (?sought)
   :preconditions 
   (
-   (gravity ?grav-bodies :time ?t-gravity)
+   (gravity (orderless . ?grav-bodies) :time ?t-grav)
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t) ))
    (time ?t) ;sanity test
-   (test (not (and (tinsidep ?t ?t-gravity) (member ?body ?grav-bodies))))
-   ;; NB: have to make sure body is a gravitational, or else this will apply
-   ;; for any relative positions in any problem.
-   (any-member ?agent ?grav-bodies)
+   (test (not (and (tinsidep ?t ?t-zero) 
+		   (member ?body ?grav-bodies :test #'unify)
+		   (member ?agent ?grav-bodies :test #'unify))))
   )
   :effects (
    (eqn-contains (gravitational-energy-point ?body ?agent nil ?t) ?sought)
@@ -7121,10 +7115,9 @@ the magnitude and direction of the initial and final velocity and acceleration."
     :preconditions 
     (
      ;; use this for gravitational potential force defined at any time
-     (gravity ?bodies :time ?tt)
-     (any-member ?b ?bodies)
+     (gravity (orderless . ?bodies) :time ?t-grav)
      (any-member ?agent ?bodies)
-     (test (not (equal ?b ?agent))) ;no self-energy
+     (test (not (unify ?b ?agent))) ;no self-energy
      (variable ?var (grav-energy ?b ?agent :time ?t))
      )
     :effects ( (ee-var ?b ?t ?var) ))
