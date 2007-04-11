@@ -2763,6 +2763,7 @@
    ((potential ?b :force-dir zero :time ?t-motion)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
+    (at-place ?b ?loc :time ?t)
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (debug "~&Drawing zero accel for potential ~a at ~a.~%" ?b ?t)
     )
@@ -2771,7 +2772,7 @@
    (variable ?mag-var (mag (accel ?b :time ?t)))
    (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
   :hint
-  ((point (string "Notice that the potential has zero slope ~A." (?t pp)))
+  ((point (string "Notice that the potential has zero slope at ~A." ?loc))
    (teach (string "If a potential has zero slope, then it exerts no force."))
    (bottom-out (string "Use the acceleration tool to draw a zero-length acceleration vector for ~A ~A." ?b (?t pp)))
    ))
@@ -2842,6 +2843,7 @@
     (test (not (equal ?dir 'zero))) 
     (time ?t)
     (test (tinsidep ?t ?t-motion))
+    (at-place ?b ?loc :time ?t)
     (bind ?slope (if (< (get-angle-between '(dnum 0 |deg|) ?dir) '90) 
 		     'decreasing 'increasing))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
@@ -2854,8 +2856,8 @@
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir))
    :hint
-   ((point (string "Notice that the potential is ~A in the x direction ~A."
-		   (?slope adj) (?t pp)))
+   ((point (string "Notice that the potential at ~A is ~A in the x direction."
+		   ?loc (?slope adj)))
     (teach (string "If the potential is increasing in a given direction, then the associated force is in the opposite direction."))
     (bottom-out (string "You should use the acceleration tool to draw an acceleration for ~A ~a in the direction ~a." ?b (?t pp) ?dir))
     ))
