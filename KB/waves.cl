@@ -78,7 +78,7 @@
    :hint (
       (point (string "You can use the definition of wavenumber."))
       (bottom-out (string "Write the equation ~A" 
-			  ((= (* ?kwave   ?lamb) (*2 $p)) algebra) ))
+			  ((= (* ?kwave   ?lamb) (* 2 $p)) algebra) ))
       ))
 
 ;;;
