@@ -1199,7 +1199,9 @@ void CProblemSet::OnCloseDocument()
 {
 	TRACE("Closing problem set\n");
 	ASSERT(theApp.GetDocument() == NULL); 
-		
+
+	// save flag over autodelete of document on close
+	BOOL bOli = m_bOli;
 	CDocument::OnCloseDocument();
 
 	// Copied from CFBDDoc::OnCloseDocument:
@@ -1208,7 +1210,7 @@ void CProblemSet::OnCloseDocument()
 	// But don't do if the app is in process of shutting down. 
 	// Note: in OLI mode, app would normally be shutting down after problem close. But we
 	// also test and do nothing in OLI case just in case (e.g. if prob never opened)
-	if (! (m_bOli || theApp.m_bAuthorMode || ((CMainFrame*)AfxGetMainWnd())->m_bClosing)) 
+	if (! (bOli || theApp.m_bAuthorMode || ((CMainFrame*)AfxGetMainWnd())->m_bClosing)) 
 	{
 		theApp.DoTaskSelect();
 	}

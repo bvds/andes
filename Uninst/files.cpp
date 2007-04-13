@@ -86,10 +86,20 @@ static const char * s_files[] =
 	"fbd-tcp.exe",		// workbench executable for Andes2
 	"fbd-tcp.hlp",		// workbench help file for Andes2
 	"fbd.cnt",			// workbench help contents file, name compiled into .hlp file
-	"andes2.dxl",		// helpsys Lisp image
-	"andes2.exe",		// renamed lisp driver program for helpsys
-	"acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
-	"solver.dll",		// Solver dll 
+
+	//"andes2.dxl",		// helpsys Lisp image
+	//"andes2.exe",		// renamed lisp driver program for helpsys
+	//"acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
+
+	// New DLL-based helpsys using ACL 8.0.1
+	"HelpSys.dxl",
+	"HelpSys.lic",
+	"helpifc.dll",
+	"acli8010.dll",
+	"lnkacl.dll",
+
+	"solver.dll",		// Solver dll
+	
 #ifdef USNA_EVAL
 	"upload.exe",		// upload utility
 #endif 
@@ -103,6 +113,12 @@ static const char * s_files[] =
 #endif 
 
 #ifdef UNINSTALL		// include old files in list if removing
+
+	// Andes2 exe-based files:
+	"andes2.dxl",		// helpsys Lisp image
+	"andes2.exe",		// renamed lisp driver program for helpsys
+	"acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
+
 	// Andes1 helpsys files
 	"andes.exe",
 	"andes.dxl",
@@ -132,6 +148,7 @@ static const char * s_files[] =
 #else // ! EXPERIMENT, i.e. normal ANDES
 
 #ifndef OLI	// no problems in OLI installation
+/*
 	"Problems\\Angular Momentum.aps",
 	"Problems\\Circular Motion.aps",
 	"Problems\\Energy-Work.aps",
@@ -159,33 +176,16 @@ static const char * s_files[] =
 	"Problems\\Oscillations.aps",
 	"Problems\\Waves.aps",
 	"Problems\\Work_Energy.aps",
+*/
+	"Problems\\*.aps",
 
-	// Problems that use the new system (prb and maybe gif, but no .fbd)
-	// are specified here. Problems that still use .fbd files listed below.
-	"Problems\\for*.prb",
-	"Problems\\for*.gif",
-	"Problems\\pot*.prb",
-	"Problems\\pot*.gif",
-	"Problems\\mag*.prb",
-	"Problems\\mag*.gif",
-	"Problems\\mirror*.prb",
-	"Problems\\mirror*.gif",
-	"Problems\\lens*.prb",
-	"Problems\\lens*.gif",
-	"Problems\\fluids*.prb",
-	"Problems\\fluids*.gif",
-	"Problems\\OSC*.prb",
-	"Problems\\OSC*.gif",
-	"Problems\\WAVE*.prb",
-	"Problems\\WAVE*.gif",
-	"Problems\\WE*.prb",
-	"Problems\\WE*.gif",
-
-	// Other recently added batches of problems, not enumerated below.
-	"Problems\\kgraph*.prb",
-	"Problems\\kgraph*.fbd",
-	"Problems\\pgraph*.prb",
-	"Problems\\pgraph*.fbd",
+	// Now just copy all of these
+	"Problems\\*.fbd",
+	"Problems\\*.prb",
+	"Problems\\*.aps",
+	"Problems\\*.gif",
+	"Problems\\*.jpg",
+	"Problems\\*.html", // for index.html
 
 	// Video pseudo-problem for preview image
 	"Problems\\video.fbd",
@@ -259,7 +259,10 @@ static const char *s_problems[] =
 	"swimmer",
 
 #else // ! EXPERIMENT, i.e. standard full ANDES installation
-  
+
+	"NULL",
+
+/* just install everything in zip for ease of changes
   // "gs00",
   // "gs01",
   "dr1a",
@@ -528,7 +531,7 @@ static const char *s_problems[] =
   "LRC*",
   // Electric power
   "epow*",
-  
+*/ 
 #endif // ! EXPERIMENT, i.e. standard Andes
 
 #ifdef UNINSTALL

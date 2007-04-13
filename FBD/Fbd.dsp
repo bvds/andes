@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
-CFG=FBD - Win32 OLI Debug
+CFG=FBD - Win32 DLL Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,7 +13,7 @@ CFG=FBD - Win32 OLI Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Fbd.mak" CFG="FBD - Win32 OLI Debug"
+!MESSAGE NMAKE /f "Fbd.mak" CFG="FBD - Win32 DLL Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -30,6 +30,8 @@ CFG=FBD - Win32 OLI Debug
 !MESSAGE "FBD - Win32 Physics Lite Release" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 OLI Release" (based on "Win32 (x86) Application")
 !MESSAGE "FBD - Win32 OLI Debug" (based on "Win32 (x86) Application")
+!MESSAGE "FBD - Win32 DLL Debug" (based on "Win32 (x86) Application")
+!MESSAGE "FBD - Win32 DLL Release" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -445,6 +447,77 @@ LINK32=link.exe
 # ADD LINK32 winmm.lib version.lib wininet.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\OLI_Debug/Fbd-tcp.exe"
 # SUBTRACT LINK32 /profile
 
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Debug"
+
+# PROP BASE Use_MFC 6
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "FBD___Win32_DLL_Debug"
+# PROP BASE Intermediate_Dir "FBD___Win32_DLL_Debug"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 6
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir ".\DLL_Debug"
+# PROP Intermediate_Dir ".\DLL_Debug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "Example" /D "_DEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x409 /d "_DEBUG" /d "_AFXDLL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib version.lib wininet.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Debug/Fbd-tcp.exe"
+# SUBTRACT BASE LINK32 /profile
+# ADD LINK32 winmm.lib version.lib wininet.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\Dll_Debug/Fbd-dll.exe"
+# SUBTRACT LINK32 /profile
+# Begin Special Build Tool
+OutDir=.\DLL_Debug
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
+# End Special Build Tool
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
+
+# PROP BASE Use_MFC 6
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "FBD___Win32_DLL_Release"
+# PROP BASE Intermediate_Dir "FBD___Win32_DLL_Release"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 6
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\DLL_Release"
+# PROP Intermediate_Dir ".\DLL_Release"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
+# ADD RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib version.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\TCP_Release/Fbd-tcp.exe"
+# SUBTRACT BASE LINK32 /pdb:none
+# ADD LINK32 winmm.lib version.lib wininet.lib ../helpifc.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\DLL_Release/Fbd-dll.exe"
+# SUBTRACT LINK32 /pdb:none
+# Begin Special Build Tool
+OutDir=.\DLL_Release
+SOURCE="$(InputPath)"
+PostBuild_Desc=copying into parent directory
+PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
+# End Special Build Tool
+
 !ENDIF 
 
 # Begin Target
@@ -462,12 +535,79 @@ LINK32=link.exe
 # Name "FBD - Win32 Physics Lite Release"
 # Name "FBD - Win32 OLI Release"
 # Name "FBD - Win32 OLI Debug"
+# Name "FBD - Win32 DLL Debug"
+# Name "FBD - Win32 DLL Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
 # Begin Group "Global objs (History, HelpIfc)"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=".\helpifc-dll.cpp"
+
+!IF  "$(CFG)" == "FBD - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 Atlas Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 TCP Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 WOZ Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 Roving Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 Physics Lite Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Debug"
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
+
+# PROP BASE Exclude_From_Build 1
+
+!ENDIF 
+
+# End Source File
 # Begin Source File
 
 SOURCE=".\helpifc-tcp.cpp"
@@ -505,6 +645,15 @@ SOURCE=".\helpifc-tcp.cpp"
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Release"
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Debug"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
+
+# PROP Intermediate_Dir ".\DLL_Debug"
+# PROP Exclude_From_Build 1
 
 !ENDIF 
 
@@ -560,6 +709,16 @@ SOURCE=.\HelpIfc.cpp
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Debug"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
@@ -747,6 +906,16 @@ SOURCE=.\Example\expmenu.rc
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Debug"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
@@ -1119,6 +1288,16 @@ SOURCE=.\TransferDlg.cpp
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "FBD - Win32 OLI Debug"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Debug"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "FBD - Win32 DLL Release"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
@@ -1820,6 +1999,10 @@ SOURCE=.\res\onr.bmp
 # End Source File
 # Begin Source File
 
+SOURCE=.\res\opticsba.bmp
+# End Source File
+# Begin Source File
+
 SOURCE=.\res\pointer.ico
 # End Source File
 # Begin Source File
@@ -1913,16 +2096,14 @@ SOURCE=.\res\zvel_o.cur
 # End Group
 # End Target
 # End Project
-# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
-# 	1:17:ID_INDICATOR_TIME:105
-# 	2:2:BH:
-# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
-# End Section
 # Section FBD : {EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # 	0:14:WebBrowser.cpp:C:\Msdev\Projects\Fbd\WebBrowser.cpp
 # 	0:12:WebBrowser.h:C:\Msdev\Projects\Fbd\WebBrowser.h
 # 	2:21:DefaultSinkHeaderFile:webbrowser.h
 # 	2:16:DefaultSinkClass:CWebBrowser
+# End Section
+# Section OLE Controls
+# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # End Section
 # Section FBD : {2B6C9470-6704-11CF-BC04-0000C037C67D}
 # 	0:8:Splash.h:C:\Msdev\Projects\Fbd\Splash.h
@@ -1942,6 +2123,8 @@ SOURCE=.\res\zvel_o.cur
 # 	2:10:HeaderFile:webbrowser.h
 # 	2:8:ImplFile:webbrowser.cpp
 # End Section
-# Section OLE Controls
-# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
+# Section FBD : {2B6C9472-6704-11CF-BC04-0000C037C67D}
+# 	1:17:ID_INDICATOR_TIME:105
+# 	2:2:BH:
+# 	2:17:ID_INDICATOR_TIME:ID_INDICATOR_TIME
 # End Section

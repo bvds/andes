@@ -4,8 +4,12 @@
 ;;               quantity expressions.
 ;;
 ;; This is needed to handle the ids sent as arguments in the check-answer API
-;; from Andes1 problem files. The id was of the form Answer-CLIPSVAR where 
-;; the CLIPSVAR part was the solution variable denoting the relevant sought.
+;; from old Andes1 fbd files which were not updated to the newer answer id format.
+;; In these the id was of the form Answer-CLIPSVAR where the CLIPSVAR part was the 
+;; solution variable denoting the relevant sought.
+;;
+;; This code is not used now that there are no fbd-based problems anymore. 
+;; The split-sym routine might be a useful utility.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (in-package :user)
 

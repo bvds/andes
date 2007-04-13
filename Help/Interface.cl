@@ -141,9 +141,6 @@
 	 (Result (iface-internal-exec-andes-command Command Arguments))
 	 (Str (if (turn-p Result) (safe-apply 'return-turn (list Result)))))
 
-    ;; log result of command
-    (format *debug-help* "Execute ~A~%" Result)
-    
     ;; Once the command has been executed and any result parsed then we
     ;; need to add the cmdresult to the current cmd iff the cmd was a 
     ;; DDE (and will therefore get a reply.  This occurs here.  The pprint

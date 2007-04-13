@@ -475,10 +475,11 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
 (defun andes-start (&key wb-port)
   "initialize the andes help system server state"
   (andes-init)
-  ;; in runtime version: wb can pass a port number in to us on command line
-  ;; in which case we will actively connect to that port
-  #+allegro-cl-runtime (setf wb-port 
-                           (read-from-string (sys:command-line-argument 1)))
+  ; in runtime version: wb can pass a port number in to us on command line
+  ; in which case we will actively connect to that port. 
+  #+allegro-cl-runtime (when (>= (sys:command-line-argument-count) 2)
+                         (setf wb-port
+                           (read-from-string (sys:command-line-argument 1))))
   (if wb-port (make-active-connection wb-port)
      (await-passive-connection))
   (andes-run)
@@ -501,11 +502,6 @@ setsockopt SO_REUSEADDR if :reuse is not nil"
   ;; numbers into doubles, no matter what setting had been in effect before.
   (setq *read-default-float-format* 'double-float)
   
-  ;; Allegro socket operations will start its multiprocessing system. 
-  ;; Initialize it early just in case this helps with intermittent connection 
-  ;; startup failures seen on some systems, which might be due to race conditions.
-  #+allegro (mp:start-scheduler)
-
   ;; in runtime version only: set *andes-path* to process working directory
   #+allegro-cl-runtime (setf *andes-path* 
 			     (make-pathname :host (pathname-host *default-pathname-defaults*)
