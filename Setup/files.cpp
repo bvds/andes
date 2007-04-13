@@ -86,10 +86,20 @@ static const char * s_files[] =
 	"fbd-tcp.exe",		// workbench executable for Andes2
 	"fbd-tcp.hlp",		// workbench help file for Andes2
 	"fbd.cnt",			// workbench help contents file, name compiled into .hlp file
-	"andes2.dxl",		// helpsys Lisp image
-	"andes2.exe",		// renamed lisp driver program for helpsys
-	"acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
-	"solver.dll",		// Solver dll 
+
+	//"andes2.dxl",		// helpsys Lisp image
+	//"andes2.exe",		// renamed lisp driver program for helpsys
+	//"acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
+
+	// New DLL-based helpsys using ACL 8.0.1
+	"HelpSys.dxl",
+	"HelpSys.lic",
+	"helpifc.dll",
+	"acli8010.dll",
+	"lnkacl.dll",
+
+	"solver.dll",		// Solver dll
+	
 #ifdef USNA_EVAL
 	"upload.exe",		// upload utility
 #endif 
@@ -103,6 +113,12 @@ static const char * s_files[] =
 #endif 
 
 #ifdef UNINSTALL		// include old files in list if removing
+
+	// Andes2 exe-based files:
+	"andes2.dxl",		// helpsys Lisp image
+	"andes2.exe",		// renamed lisp driver program for helpsys
+	"acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
+
 	// Andes1 helpsys files
 	"andes.exe",
 	"andes.dxl",
