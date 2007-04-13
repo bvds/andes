@@ -41,9 +41,9 @@ Wolfram Research.
 
 (*NotebookFileLineBreakTest
 NotebookFileLineBreakTest*)
-(*NotebookOptionsPosition[     53480,       1335]*)
-(*NotebookOutlinePosition[     54139,       1358]*)
-(*  CellTagsIndexPosition[     54095,       1354]*)
+(*NotebookOptionsPosition[     53451,       1333]*)
+(*NotebookOutlinePosition[     54110,       1356]*)
+(*  CellTagsIndexPosition[     54066,       1352]*)
 (*WindowFrame->Normal*)
 
 
@@ -311,12 +311,10 @@ Cell[BoxData[
     \("../Problems/wave6.gif"\)], "Output"]
 }, Open  ]],
 
-Cell["wave24", "Text"],
-
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(pp24 = 
+    \(pp = 
       Plot[2.67\ Cos[8/3\ Pi\ x], {x, 0, \ 2.5}, 
         AxesLabel \[Rule] {"\<t (s)\>", "\<D (cm)\>"}]\)], "Input"],
 
@@ -1327,7 +1325,7 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<Andes2/Problems/wave24.gif\>", pp24]\)], "Input"],
+    \(Export["\<Andes2/Problems/wave24.gif\>", pp]\)], "Input"],
 
 Cell[BoxData[
     \("Andes2/Problems/wave24.gif"\)], "Output"]
@@ -1370,18 +1368,17 @@ Cell[CellGroupData[{
 Cell[8469, 306, 72, 1, 27, "Input"],
 Cell[8544, 309, 57, 1, 27, "Output"]
 }, Open  ]],
-Cell[8616, 313, 22, 0, 30, "Text"],
 
 Cell[CellGroupData[{
-Cell[8663, 317, 145, 3, 43, "Input"],
-Cell[8811, 322, 44339, 996, 186, 10078, 568, "GraphicsData", "PostScript", \
+Cell[8638, 315, 143, 3, 43, "Input"],
+Cell[8784, 320, 44339, 996, 186, 10078, 568, "GraphicsData", "PostScript", \
 "Graphics"],
-Cell[53153, 1320, 130, 3, 27, "Output"]
+Cell[53126, 1318, 130, 3, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[53320, 1328, 79, 1, 27, "Input"],
-Cell[53402, 1331, 62, 1, 27, "Output"]
+Cell[53293, 1326, 77, 1, 27, "Input"],
+Cell[53373, 1329, 62, 1, 27, "Output"]
 }, Open  ]]
 }
 ]
