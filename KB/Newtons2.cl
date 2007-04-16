@@ -2856,9 +2856,9 @@
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir))
    :hint
-   ((point (string "Notice that the potential at ~A is ~A in the x direction."
+   ((point (string "Notice that the potential at ~A is ~A as x increases."
 		   ?loc (?slope adj)))
-    (teach (string "If the potential is increasing in a given direction, then the associated force is in the opposite direction."))
+    (teach (string "The force is minus the derivative of the potential energy.  Thus, if the potential energy increases in a given direction, then the associated force vector points in the opposite direction.  "))
     (bottom-out (string "You should use the acceleration tool to draw an acceleration for ~A ~a in the direction ~a." ?b (?t pp) ?dir))
     ))
 
