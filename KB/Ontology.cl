@@ -781,7 +781,7 @@
 
 
 (def-psmclass net-disp (?eq-type sum-disp ?axis ?rot (sum-disp ?body ?time))
-  :complexity minor 
+  :complexity minor   ;See Bug #1144
   :short-name "net displacement"
   :english ("net displacement")
   :ExpFormat ("calculating the net displacement of ~a ~a" (nlg ?body) (nlg ?time))
@@ -1020,7 +1020,7 @@
                  (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
 
 (def-psmclass net-force (?eq-type definition ?axis ?rot (net-force ?body ?t))
-  :complexity minor 
+  :complexity minor ;See Bug #1144
   :short-name ("net force (~A component)" (axis-name ?axis))
   :english ("net force")
   :ExpFormat ("calculating the net force acting on ~a ~a" (nlg ?body) (nlg ?t))
@@ -1172,7 +1172,7 @@
 ;; rotation arg for component form
 
 (def-psmclass net-work (net-work ?body (during ?time0 ?time1)) ; by all forces
-  :complexity major ; definition, but can be first "principle" for sought
+  :complexity major   ;See Bug #1144
   :short-name "net work defined"
   :english ("the definition of net work")
   :expformat ("calculating the net work done by all forces on ~a from ~a to ~a"
@@ -1231,7 +1231,7 @@
   :EqnFormat("P(avg) = W/t"))
 
 (def-psmclass net-power (net-power ?body ?time)
-   :complexity major ; definition, but can be first "principle" for sought
+   :complexity major  ;See Bug #1144
   :short-name "average net power defined"
    :english ("the definition of net power")
    :expformat ("applying the definition of net power supplied to ~A ~A"
@@ -1423,7 +1423,7 @@
 ;;;; ROTATIONAL DYNAMICS (TORQUE)
 
 (def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time))
-  :complexity major ; definition, but can be first "principle" for sought
+  :complexity major ;See Bug #1144
   :short-name ("net ~A defined" (moment-name))
   :english ("the definition of net ~A" (moment-name))
   :expformat ("applying the definition of net ~A on ~a about ~A"
