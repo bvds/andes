@@ -41,9 +41,9 @@ Wolfram Research.
 
 (*NotebookFileLineBreakTest
 NotebookFileLineBreakTest*)
-(*NotebookOptionsPosition[     53386,       1325]*)
-(*NotebookOutlinePosition[     54045,       1348]*)
-(*  CellTagsIndexPosition[     54001,       1344]*)
+(*NotebookOptionsPosition[     53510,       1329]*)
+(*NotebookOutlinePosition[     54169,       1352]*)
+(*  CellTagsIndexPosition[     54125,       1348]*)
 (*WindowFrame->Normal*)
 
 
@@ -311,7 +311,10 @@ Cell[BoxData[
     \("../Problems/wave6.gif"\)], "Output"]
 }, Open  ]],
 
-Cell["wave24", "Text"],
+Cell["\<\
+wave24,  I didn't use this plot because the mathematica format for \
+the ticks is too small.\
+\>", "Text"],
 
 Cell[CellGroupData[{
 
@@ -1317,7 +1320,8 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
-    \(Export["\<Andes2/Problems/wave24.gif\>", pp24]\)], "Input"],
+    \(Export["\<Andes2/Problems/wave24.gif\>", pp24, 
+      ImageSize \[Rule] 400]\)], "Input"],
 
 Cell[BoxData[
     \("Andes2/Problems/wave24.gif"\)], "Output"]
@@ -1360,18 +1364,18 @@ Cell[CellGroupData[{
 Cell[8469, 306, 72, 1, 27, "Input"],
 Cell[8544, 309, 57, 1, 27, "Output"]
 }, Open  ]],
-Cell[8616, 313, 22, 0, 30, "Text"],
+Cell[8616, 313, 116, 3, 30, "Text"],
 
 Cell[CellGroupData[{
-Cell[8663, 317, 157, 3, 43, "Input"],
-Cell[8823, 322, 44233, 986, 186, 9920, 558, "GraphicsData", "PostScript", \
+Cell[8757, 320, 157, 3, 43, "Input"],
+Cell[8917, 325, 44233, 986, 186, 9920, 558, "GraphicsData", "PostScript", \
 "Graphics"],
-Cell[53059, 1310, 130, 3, 27, "Output"]
+Cell[53153, 1313, 130, 3, 27, "Output"]
 }, Open  ]],
 
 Cell[CellGroupData[{
-Cell[53226, 1318, 79, 1, 27, "Input"],
-Cell[53308, 1321, 62, 1, 27, "Output"]
+Cell[53320, 1321, 109, 2, 43, "Input"],
+Cell[53432, 1325, 62, 1, 27, "Output"]
 }, Open  ]]
 }
 ]
