@@ -52,8 +52,8 @@ int checksol(const binopexp* const eqn, const vector<double>* const sols,
     value = evalexpr(eqexpr, sols, reltverr);
   } 
   catch (string &err){
+    // don't delete value, it has never been assigned.
     eqexpr->destroy();
-    delete value;
     DBG(cout << " ERROR " << err << endl);
     if(FPE_handler==err.substr(0,FPE_handler.length()))  //if beginning matches
       return(3);
@@ -150,12 +150,18 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
       retval->abserr = fabs(argval->abserr / retval->value);
       break;
     case log10e:
-      if(argval->value<=0)throw(FPE_handler + string("log of negative"));
+      if(argval->value<=0){\
+	delete retval;
+	throw(FPE_handler + string("log of negative"));
+      }
       retval->value = log10(argval->value);
       retval->abserr = fabs(argval->abserr / (retval->value * log(10.0)));
       break;
     case sqrte:
-      if(argval->value<=0)throw(FPE_handler + string("sqrt of negative"));
+      if(argval->value<=0){
+	delete retval;
+	throw(FPE_handler + string("sqrt of negative"));
+      }
       retval->value = sqrt(argval->value);
       if (retval->value > reltverr) {
 	retval->abserr = (argval->abserr / (2.0 * retval->value));
@@ -180,7 +186,10 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     answitherr* rhsval = evalexpr(((binopexp*)ex)->rhs,sols,reltverr);
     switch(((binopexp*)ex)->op->opty) {
     case divbye:
-      if(rhsval->value==0.0) throw(FPE_handler + string("divide by zero"));
+      if(rhsval->value==0.0){
+	delete retval;
+	throw(FPE_handler + string("divide by zero"));
+      }
       retval->value = lhsval->value/rhsval->value;
       retval->abserr = lhsval->abserr/fabs(rhsval->value) 
 	+ rhsval->abserr * fabs(lhsval->value/pow(rhsval->value,2));
