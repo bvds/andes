@@ -216,18 +216,18 @@ string functexp::getInfix() const {
 
 string n_opexp::getInfix() const {
   int k;
-  string *ans = new string("( ");
+  string ans = "( ";
 
   DBG(cout << "getInfix on n_op" << endl);
   if (this->args->size() == 0) {
-    ans->append( op->printname + ")");
-    return (*ans);
+    ans.append( op->printname + ")");
+    return ans;
   }
   for (k = 0; k+1 < this->args->size(); k++)
-    ans->append((*(this->args))[k]->getInfix() + " " + op->printname + " ");
-  ans->append((*(this->args))[k]->getInfix() + ")");
+    ans.append((*(this->args))[k]->getInfix() + " " + op->printname + " ");
+  ans.append((*(this->args))[k]->getInfix() + ")");
 
-  return (*ans);		// memory leak?
+  return ans;	 
 }
 
 
