@@ -396,10 +396,10 @@ string functexp::getLisp(bool withbarp) const {
 string n_opexp::getLisp(bool withbarp) const {
   DBG( cout << "getLisp on n_op" << endl;);
   int k;
-  string *ans = new string("(");
-ans->append( op->printname + " ");
+  string ans = "(";
+ans.append( op->printname + " ");
   for (k = 0; k+1 < this->args->size(); k++)
-    ans->append((*(this->args))[k]->getLisp(withbarp) + " ");
-  ans->append((*(this->args))[k]->getLisp(withbarp) + ")");
-  return (*ans);		// memory leak?
+    ans.append((*(this->args))[k]->getLisp(withbarp) + " ");
+  ans.append((*(this->args))[k]->getLisp(withbarp) + ")");
+  return ans;
 }
