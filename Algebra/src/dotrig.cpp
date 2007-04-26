@@ -89,5 +89,6 @@ int dotrig(vector<binopexp *> * & eqn)
       for (k = 0; k < eqn->size(); k++) 
       cout << "          " << (*eqn)[k]->getInfix() << endl);
   VEQCHK(eqn);
+  delete trigvars;
   return(answer);
 }
