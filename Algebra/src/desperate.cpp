@@ -232,7 +232,6 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 		<< ", " << (int) (((*simpeqs)[k]>>10) & 0x7f) << ", " 
 		<< ((int) ((*simpeqs)[k] & 0x3ff)) << endl; } } ) ;
   int lastonevar = -2;		// last equation with just one var. maybe -1
-  int lasttwovars;		// last equation with only two vars. Care?
   for (k = 0; k+1 < simpeqs->size(); k++) // changed -2 -> -1, 3/5/01, side 3/7
     {
       if ((thissimpeq = (*simpeqs)[k]) < 131072) // 2 ^ 17, one vars + eqn
@@ -255,7 +254,7 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	} // end of has justonevar
     if (lastonevar == -2) lastonevar = k-1;
     if ((thissimpeq = (*simpeqs)[k]) >= 16777216) // 2 ^ 24, two vars + eqn
-      { lasttwovars = k-1; break; }
+      { break; }
     if (((thissimpeq ^ (*simpeqs)[k+1]) & 0xfffc00) == 0) // same two vars
       {
 	DBG( cout << "calling solvetwoquads in variables vars number "
@@ -284,7 +283,6 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
     } // end of k loop on simpeqs list of equations.
   DBG(cout << "Returning from desperate " << thisdbg << " with doagain = " 
       << doagain << " after looking at " << lastonevar +1 
-      << " eqs in one var and "
-      << lasttwovars - lastonevar << " eqs in two vars" << endl);
+      << " eqs in one var" << endl);
   return(doagain>=0);
 }

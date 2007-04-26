@@ -452,7 +452,8 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	      n_opexp * temp = new n_opexp(&mult);
 	      temp->addarg(elhs->rhs);
 	      temp->addarg(ebin->rhs);
-	      ebin->rhs = elhs->lhs;
+	      ebin->lhs = elhs->lhs;
+	      ebin->rhs = temp;
 	      delete elhs;			// still have: 	    e = ebin;
 	      answer = true;
 	    }
