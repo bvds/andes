@@ -25,7 +25,7 @@ using namespace std;
 #define DBGM(A) DBGFM(CHKEQS,A)
 #define DBGEQ(A) DBGF(CHKEQS,A)
 
-void recassign( vector<binopexp *> * & eqn, // equations remaining to be slvd
+void recassign( vector<binopexp *> * eqn, // equations remaining to be slvd
 	       vector<varindx> * & vars,	// variables left to be solved
 	       vector<binopexp *> * soleqs) 		// file for solutions
 {

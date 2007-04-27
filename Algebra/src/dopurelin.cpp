@@ -52,7 +52,7 @@ using namespace std;
   //   incremented (not conclusively??)
   // This ends at END OF PURELINSOLV
 
-vector<binopexp *> * dopurelin(vector<binopexp *> * & eqn, 
+vector<binopexp *> * dopurelin(vector<binopexp *> * eqn, 
 			       vector<varindx> * & vars, 
 			       vector<binopexp *> * soleqs, int & doagain )
 {

@@ -15,7 +15,7 @@ using namespace std;
 #define DBG(A) DBGF(NEWCKEQSOUT,A)
 #define NEWDTL(A) DBGFM(NEWCKEQSOUT,A)
 
-bool donlsolv(vector<binopexp *> * & eqn)
+bool donlsolv(vector<binopexp *> * eqn)
 {
   bool answer = false;
   for (int k = 0; k < eqn->size(); k++)

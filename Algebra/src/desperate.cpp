@@ -39,7 +39,7 @@ int twoonevareqs(binopexp * & eq1,  binopexp * & eq2, const varindx v);
 //   only the same two unknowns, and if they are independent, solves them,
 //   and returns true. The three variable equations are currently ignored.
 
-bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
+bool desperate(vector<binopexp *> * eqn, vector<varindx> * & vars)
 {
   vector<expr *> * lininthis = new vector<expr *>(vars->size(),NULL);
   vector<int> * besthardness = new vector<int>(vars->size(),100000);

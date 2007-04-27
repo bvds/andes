@@ -16,7 +16,7 @@ using namespace std;
        1: if undotrigvar worked, adding one or more eqs (had ret false)
        0: neither worked
 */
-int dotrig(vector<binopexp *> * & eqn)
+int dotrig(vector<binopexp *> * eqn)
 {
   unsigned int k;
   int answer = 0;

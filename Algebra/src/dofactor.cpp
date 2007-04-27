@@ -18,7 +18,7 @@ using namespace std;
  * returns true if a factor has been extracted. One might argue it 	*
  *	should only do so if the resultant equation is linear		*
  ************************************************************************/ 
-bool dofactor(vector<binopexp *> * & eqn, vector<varindx> * & vars)
+bool dofactor(vector<binopexp *> * eqn, vector<varindx> * & vars)
 {
   int j, k, q;
   bool answer = false;

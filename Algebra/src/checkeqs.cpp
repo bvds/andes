@@ -302,7 +302,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 
 // clean up equations and remove any obvious duplicates
 
-void remove_duplicates (vector<binopexp *> * & eqn, int & doagain )
+void remove_duplicates (vector<binopexp *> *  eqn, int & doagain )
 {
   int k, q;
   DBG( { cout << "Just before elimination of redundant eqs, we have" << endl;

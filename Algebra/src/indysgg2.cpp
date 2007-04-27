@@ -10,6 +10,7 @@
 #include "unitabr.h"
 #include <math.h>
 #include "indysgg.h"
+#include "binopfunctions.h"
 
 using namespace std;
 
@@ -17,8 +18,6 @@ using namespace std;
 
 // in extstruct: canonvars, canoneqf, studeqf
 extern vector<valander *> studgrads;
-void recassign( vector<binopexp *> * & eqn, vector<varindx> * & vars,
-		vector<binopexp *> * soleqs);		       // recassign.cpp
 int indyAddStudEq(int slot, const char* const equation);	// in indysgg
 
 /************************************************************************

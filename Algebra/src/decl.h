@@ -29,7 +29,7 @@ int cleanup(n_opexp * &);					// cleanup
 expr * copyexpr(const expr *);					// copyexpr
 expr * dimenchk(const bool fix, expr * & ex);			// dimenchk
 void delminus (string * p);					// parseclipseq
-bool desperate(vector<binopexp *> * & eqn, 			// desperate
+bool desperate(vector<binopexp *> * eqn, 			// desperate
 	       vector<varindx> * & vars);
 bool doesnthave(const expr * ex, const varindx var);		// slvlinonev
 string dtostr(double val);					// utils
@@ -101,7 +101,7 @@ bool purelinsolv(const vector<binopexp *> * const eqs,		// purelin
 	vector<binopexp *> * & sols);
 void qsrtexpr(vector<expr *> *Vptr);				// qsrtexpr
 bool rationalize(binopexp * & eq);				// rationalize
-void remove_duplicates (vector<binopexp *> * & eqn, int & doagain);
+void remove_duplicates (vector<binopexp *> *eqn, int & doagain);
 bool signisknown(const expr * const ex);			// solvetrig
 bool slvlinonev(binopexp * & eq, const varindx var);		// slvlinonev
 bool slvlinvar(const expr * ex, const varindx var, 		// slvlinvar
