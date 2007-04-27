@@ -227,10 +227,14 @@ string powersolve(const int howstrong, const varindx sought,
     }
   else answer = ansexpr->getLisp(true);
  cleanup:
-  for (q = eqn->size(); q > 0; q--) (*eqn)[q-1]->destroy();
-  for (q = soleqs->size(); q > 0; q--) (*soleqs)[q-1]->destroy();
+  for (q =0; q < eqn->size(); q++) (*eqn)[q]->destroy();
   delete eqn;
+  for (q =0; q < soleqs->size(); q++) (*soleqs)[q]->destroy();
   delete soleqs;
+  for (q =0; q < partsols->size(); q++) (*partsols)[q]->destroy();
+  delete partsols;
+
+
   delete vars;
   DBG(cout << "powersolve returning " << answer << endl);
   return answer;

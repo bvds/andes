@@ -33,6 +33,7 @@ bool substin(expr * & target, const binopexp * assign)
       return(false);
     case physvart:
       if (((physvarptr *)target)->varindex == replace) {
+	((physvarptr *)target)->destroy();  //remove previous quantity
 	target = copyexpr(value);
 	return(true); }
       else return(false);

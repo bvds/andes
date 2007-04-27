@@ -177,6 +177,7 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 				<< (*canonvars)[pv]->clipsname << endl; } );
 	      } // end of ifhasjustonevar ...
 	    else DBGM( cout << "failed hasjust... test" << endl; );
+	    trythis->destroy();
 	  } // end of this equation, k, is not the one I linvarcoefed
     } // end of if there was a linear variable found (bestq > 0)
   delete lininthis;
@@ -197,7 +198,7 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	<< doagain << endl);
     return(false);
   }
-  vector<int> *simpeqs = new vector<int>;  
+  vector<int>  simpeqs;  
   int thissimpeq;
   for (k = 0; k < eqn->size(); k++) {
     if (ordunknowns((*eqn)[k], false) !=2) continue; // only looking at quadrcs
@@ -210,35 +211,34 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	    thissimpeq = (thissimpeq << 7) | (q+1);
 	  else { thissimpeq = 0; break; } // can't handle more than 3 vars
 	}
-    if (thissimpeq != 0) simpeqs->push_back((thissimpeq << 10) | (k+1));
+    if (thissimpeq != 0) simpeqs.push_back((thissimpeq << 10) | (k+1));
     delete ordsinthis;
     ordsinthis = NULL;
   } // end of k loop over equations.
-  if (simpeqs->size() < 2) { 
-    delete simpeqs; 
+  if (simpeqs.size() < 2) { 
     DBG(cout << "desperate " << thisdbg << " returning false, doagain="
 	<< doagain << endl);
     return(false); 
   }
   DBGM( { cout << "Here is simpeqs, together and by part" << endl;
-	 for (k = 0; k < simpeqs->size(); k++) {
-	   cout << (*simpeqs)[k] << ": " << ((*simpeqs)[k]>>17) 
-		<< ", " << (int) (((*simpeqs)[k]>>10) & 0x7f) << ", " 
-		<< (int) ((*simpeqs)[k] & 0x3ff) << endl; } } ) ;
-  sort(simpeqs->begin(),simpeqs->end());
+	 for (k = 0; k < simpeqs.size(); k++) {
+	   cout << simpeqs[k] << ": " << (simpeqs[k]>>17) 
+		<< ", " << (int) ((simpeqs[k]>>10) & 0x7f) << ", " 
+		<< (int) (simpeqs[k] & 0x3ff) << endl; } } ) ;
+  sort(simpeqs.begin(),simpeqs.end());
   DBGM( { cout << "simpeqs after sort, together and by part" << endl;
-	 for (k = 0; k < simpeqs->size(); k++) {
-	   cout << (*simpeqs)[k] << ": " << ((*simpeqs)[k]>>17) 
-		<< ", " << (int) (((*simpeqs)[k]>>10) & 0x7f) << ", " 
-		<< ((int) ((*simpeqs)[k] & 0x3ff)) << endl; } } ) ;
+	 for (k = 0; k < simpeqs.size(); k++) {
+	   cout << simpeqs[k] << ": " << (simpeqs[k]>>17) 
+		<< ", " << (int) ((simpeqs[k]>>10) & 0x7f) << ", " 
+		<< ((int) (simpeqs[k] & 0x3ff)) << endl; } } ) ;
   int lastonevar = -2;		// last equation with just one var. maybe -1
-  for (k = 0; k+1 < simpeqs->size(); k++) // changed -2 -> -1, 3/5/01, side 3/7
+  for (k = 0; k+1 < simpeqs.size(); k++) // changed -2 -> -1, 3/5/01, side 3/7
     {
-      if ((thissimpeq = (*simpeqs)[k]) < 131072) // 2 ^ 17, one vars + eqn
+      if ((thissimpeq = simpeqs[k]) < 131072) // 2 ^ 17, one vars + eqn
 	{
-	  if (((thissimpeq ^ (*simpeqs)[k+1]) & 0xfffc00) == 0) // same vars
+	  if (((thissimpeq ^ simpeqs[k+1]) & 0xfffc00) == 0) // same vars
 	    switch(twoonevareqs((*eqn)[(thissimpeq & 0x3ff)-1],	// eq1
-			     (*eqn)[((*simpeqs)[k+1] & 0x3ff)-1],	// eq2
+			     (*eqn)[(simpeqs[k+1] & 0x3ff)-1],	// eq2
 			     (*vars)[((thissimpeq>>10) & 0x7f) -1]))	// var
 	      {
 	      case 0:		// Equations inconsistent
@@ -253,15 +253,15 @@ bool desperate(vector<binopexp *> * & eqn, vector<varindx> * & vars)
 	  continue;
 	} // end of has justonevar
     if (lastonevar == -2) lastonevar = k-1;
-    if ((thissimpeq = (*simpeqs)[k]) >= 16777216) // 2 ^ 24, two vars + eqn
+    if ((thissimpeq = simpeqs[k]) >= 16777216) // 2 ^ 24, two vars + eqn
       { break; }
-    if (((thissimpeq ^ (*simpeqs)[k+1]) & 0xfffc00) == 0) // same two vars
+    if (((thissimpeq ^ simpeqs[k+1]) & 0xfffc00) == 0) // same two vars
       {
 	DBG( cout << "calling solvetwoquads in variables vars number "
 	     << (int)((thissimpeq>>17) -1) << " and "
 	     << (int)(((thissimpeq>>10) & 0x7f) -1) << endl);
 	switch(solvetwoquads((*eqn)[(thissimpeq & 0x3ff)-1], 		// eq1
-			     (*eqn)[((*simpeqs)[k+1] & 0x3ff)-1],	// eq2
+			     (*eqn)[(simpeqs[k+1] & 0x3ff)-1],	// eq2
 			     (*vars)[(thissimpeq>>17) -1],		// v1
 			     (*vars)[((thissimpeq>>10) & 0x7f) -1]))	// v2
 	{
