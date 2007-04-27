@@ -116,6 +116,7 @@ vector<double> *twoqcfex(expr *ex, const varindx v1, const varindx v2)
 		if (thterm == (vector<double> *) NULL)
 		  { delete retval; return thterm; }
 		for (q = 0; q < 6; q++) (*retval)[q] += (*thterm)[q];
+		thterm->destroy();
 	      }
 	    if (thterm != (vector<double> *) NULL) delete thterm;
 	    return(retval);
