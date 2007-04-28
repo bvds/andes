@@ -120,6 +120,7 @@ n_opexp::n_opexp(oper *op) : op(op)
 { 
   etype=n_op;
   args = new vector<expr *>;
+  // cout << "n_opexp create " << args << endl;
   if (op->opty == multe) { 
     MKS.put(0,0,0,0,0);   // to be activated after addarg replaces arg->push
     return; }

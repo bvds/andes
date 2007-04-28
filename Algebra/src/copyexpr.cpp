@@ -38,13 +38,12 @@ expr * copyexpr(const expr * old )
       break;
     case n_op:
       {
-	vector<expr *> *newl = new vector<expr *>
-        	(((n_opexp *) old)->args->size());
+	ret = new n_opexp(((n_opexp *) old)->op);
 	for (int k=0; k < ((n_opexp *) old)->args->size(); k++)
-	  (*newl)[k]=copyexpr((*((n_opexp *) old)->args)[k]);
-	n_opexp * newn = new n_opexp(((n_opexp *) old)->op);
-	newn->args = newl;
-	ret = newn;
+	  ((n_opexp *) ret)->args->
+	    push_back(copyexpr((*((n_opexp *) old)->args)[k]));
+	cout << "n_opexp copy   " << ((n_opexp *) ret)->args << " for " 
+	     << ret->getInfix() << endl;
 	break;
       }
     default:
@@ -72,6 +71,7 @@ void expr::destroy()
       delete((functexp *) this);
       return;
     case n_op:
+      cout << "n_opexp delete " << ((n_opexp *) this)->args << endl;
       for (int k=0; k < ((n_opexp *) this)->args->size(); k++)
 	(*(((n_opexp *) this)->args))[k]->destroy();
       delete ((n_opexp *) this)->args;
