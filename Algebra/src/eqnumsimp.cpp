@@ -376,6 +376,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	{
 	  e = (*th->args)[0];
 	  th->args->pop_back();
+	  delete th->args;
 	  delete th;
 	  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
 	       << e->getInfix() << endl);
@@ -397,6 +398,7 @@ void eqnumsimp(expr * & e, const bool flok)		// shown as comments
 	    e = new numvalexp(1);
 	    e->MKS.put(0,0,0,0,0);
 	  }
+	  delete th->args;
 	  delete th;
 	  DBG( cout << "eqnumsimp " << thisdbg << " returning " 
 	       << e->getInfix() << endl);
