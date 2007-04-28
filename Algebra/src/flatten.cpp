@@ -65,7 +65,6 @@ bool multsort(expr * & ex);
 bool flatten(expr * & e)	// flattens expr e wrt n_ops
 {
   int k, q;
-  bool found;
   expr * tempexp;
   EQCHK(e);
 
@@ -634,18 +633,13 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 	    }
 	      // if no longer an n_op, cant continue here.
 	      // Now try to distribute + args.
-	    found = false;
 	    for (k=0; k < enop->args->size(); k++)
 	      {			
 		n_opexp *repla;
 		if (((*enop->args)[k]->etype == n_op)  &&
 		    (((n_opexp *)(*enop->args)[k])->op->opty == pluse))
 		  {
-		    if (!found)
-		      {
-			found = true;
-			repla = new n_opexp(&myplus);
-		      }
+		    repla = new n_opexp(&myplus);
 		    n_opexp * plusfact = (n_opexp *)(*enop->args)[k];
 		    for (q=0; q < plusfact->args->size(); q++)
 		      {
@@ -656,30 +650,24 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 			    temp->addarg(copyexpr((*enop->args)[r]));
 			repla->addarg(temp);
 		      }
-		    if (found)
-		      {
-			bool flattened; // diag
-			// rmed 2/4/01 need to check	delete enop->args;
-			delete enop;
-			DBGM(cout << "flatten " << thisdbg
-			    << " found and fixed a term in * +:" << endl
-			    << "        " << repla->getInfix() << endl);
-			expr *replaexp = (expr *) repla;
-			flattened = flatten(replaexp);
-			e = replaexp;
-			DBG(cout << "flatten " << thisdbg  << ", flattened="
-			    << (flattened?"true":"false") << ", return " 
-			    << e->getInfix() << endl);
-			return(true);
-		      }
+		    bool flattened; // diag
+		    enop->destroy();
+		    DBGM(cout << "flatten " << thisdbg
+			 << " found and fixed a term in * +:" << endl
+			 << "        " << repla->getInfix() << endl);
+		    expr *replaexp = (expr *) repla;
+		    flattened = flatten(replaexp);
+		    e = replaexp;
+		    DBG(cout << "flatten " << thisdbg  << ", flattened="
+			<< (flattened?"true":"false") << ", return " 
+			<< e->getInfix() << endl);
+		    return(true);
 		  }  // end of what to do on found plus inside mult
 	      } // end of loop over args of mult
-	    if (!found) {
 	      DBGM(cout << "flatten " << thisdbg << ": " 
 		     << e->getInfix() << ", returning "
 		     << ((answer) ? "true" : "false") << endl;);
 	      return(answer);
-	    }
 	  } // end of case n_op e is a mult
       throw(string("unknown n_op expr sent to flatten"));
     }  // end of e = n_op  block
