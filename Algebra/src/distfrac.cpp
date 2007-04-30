@@ -150,13 +150,14 @@ bool distfrac(expr * & ex)
       if (lcd->args->size() == 1) // we are in a loop that knows lcdsize > 0
 	{
 	  ((binopexp *)ex)->rhs = (*lcd->args)[0];
-	  // rmed 2/4/01 need to check		  delete lcd->args;
+	  delete lcd->args;
 	  delete lcd;
 	}
       DBG(cout << "distfrac " << thisdbg << " returns true with " 
 	   << ex->getInfix() << endl);
       return(true);
     }
+  delete lcd->args;
   delete lcd;
   DBG(cout << "distfrac " << thisdbg 
        << ": did nothing, returns false " << ex->getInfix() << endl);
