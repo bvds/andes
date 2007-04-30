@@ -26,12 +26,8 @@ extern vector<vector<int> > * listsetrefs;
 extern bool gotthevars;
 extern vector<int> *lasttriedeq;
 
-int indyCanonHowIndy(int setID, int eqnID, vector<int> * & linexpand,
-		     vector<int> * & mightdepend );
-int indyStudHowIndy(int setID, int eqnID, vector<int> * & linexpand,
-		     vector<int> * & mightdepend );
-int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
-		vector<int> * & mightdepend );
+int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * linexpand,
+		vector<int> * mightdepend );
 
 /************************************************************************
  * indyCanonHowIndy							*
@@ -67,24 +63,20 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
  *      isindy has returned false (ie linear approx shows dependency)   *
  ************************************************************************/
 
-int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
-		vector<int> * & mightdepend )
+int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * linexpand,
+		vector<int> * mightdepend )
 {
   int k;
   DBG( cout << "entering indyHowIndy on set " << setID << " and equation "
        << eq->getInfix() << endl;
        cout << "Valander " << val->print() <<endl);
-  // avoid memory leak if linexpand or mightdepend, as new ones will be made
-  if ((linexpand != 0L) && linexpand != (vector<int> *)NULL) // was reversed???
-    delete linexpand;
-  if ((mightdepend != 0L) && mightdepend != (vector<int> *)NULL) // added 6/6
-    delete mightdepend;
+  mightdepend->clear();
+  linexpand->clear();
   // expcoefs is the set of coefs of the equation in linear approx in setID eqs
   vector<double> *expcoefs=(*listofsets)[setID].expandlast();
   DBGM(cout << "in indyHowIndy expcoefs = "; printdv(*expcoefs));
 
   // See Bug #736 for details on the zero test that was removed from here
-  linexpand = new vector<int>;
   for (k = 0; k < expcoefs->size(); k++) 
     if (fabs((*expcoefs)[k]) > 0.0) // for debugging
       linexpand->push_back((*listsetrefs)[setID][k]);
@@ -191,8 +183,8 @@ int indyHowIndy(int setID, expr * eq, valander * val,vector<int> * & linexpand,
   return(4);
 }
 
-int indyCanonHowIndy(int setID, int eqnID, vector<int> * & linexpand,
-	vector<int> * & mightdepend )
+int indyCanonHowIndy(int setID, int eqnID, vector<int> * linexpand,
+	vector<int> * mightdepend )
 { 
   DBG(cout << "indyCanonHowIndy asked if ";);
   if (!gotthevars) 
@@ -212,8 +204,8 @@ int indyCanonHowIndy(int setID, int eqnID, vector<int> * & linexpand,
 		      linexpand, mightdepend));
 }
   
-int indyStudHowIndy(int setID, int eqnID, vector<int> * & linexpand,
-	vector<int> * & mightdepend )
+int indyStudHowIndy(int setID, int eqnID, vector<int> * linexpand,
+	vector<int> * mightdepend )
 { 
   DBG(cout << "entering indyStudHowIndy" << endl);
   if (!gotthevars) 

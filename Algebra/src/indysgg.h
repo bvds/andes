@@ -1,4 +1,7 @@
+
 // indysgg.h	functions defined in indysgg.cpp
+
+using namespace std;
 
 void indyEmpty();
 void indyAddVar(const char* const name, double value, const char* const units);
@@ -16,6 +19,8 @@ std::string solveOneEqn(const char * const varName, const int sourceSlot,
 		   const int destSlot);
 std::string simplifyEqn(const int sourceSlot, const int destSlot);
 std::string subInOneEqn(int sourceSlot,int targetSlot,int destSlot);
+int indyCanonHowIndy(int setID, int eqnID, vector<int>* linexpand, vector<int>* mightdepend);
+int indyStudHowIndy(int setID, int eqnID, vector<int>* linexpand, vector<int>* mightdepend);
 void closeupshop();
 
 enum OkayAns {

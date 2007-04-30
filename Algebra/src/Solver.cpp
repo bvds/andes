@@ -60,8 +60,6 @@ double myTan(double x) {
 
 //////////////////////////////////////////////////////////////////////////////
 // catch all for code in coldriver.cpp (should enter in .h)
-int indyCanonHowIndy(int setID, int eqnID, vector<int>*& linexpand, vector<int>*& mightdepend);
-int indyStudHowIndy(int setID, int eqnID, vector<int>*& linexpand, vector<int>*& mightdepend);
 string powersolve(const int howstrong, const string varname, 
 		       const int destslot);
 bool handleInput(string& aLine);
@@ -394,14 +392,14 @@ RETURN_CSTRING c_indyHowIndy(const int which, const char* const data) {
     copyToResult(data, p + 1, strlen(data) - 2);
     int equationID = atoi(result);
     copyToResult(data, 1, p - 1);
-    vector<int>* linexpand = 0L;
-    vector<int>* mightdepend = 0L;
+    vector<int> linexpand;
+    vector<int> mightdepend;
     switch (which) {
     case 0:
-      p = indyCanonHowIndy(atoi(result), equationID, linexpand, mightdepend);
+      p = indyCanonHowIndy(atoi(result), equationID, &linexpand, &mightdepend);
       break;
     case 1:
-      p = indyStudHowIndy(atoi(result), equationID, linexpand, mightdepend);
+      p = indyStudHowIndy(atoi(result), equationID, &linexpand, &mightdepend);
       break;
     default:
       throw string("No third option in indyHowIndy");
@@ -409,15 +407,13 @@ RETURN_CSTRING c_indyHowIndy(const int which, const char* const data) {
     string retstr("(");
     retstr += (itostr(p) + " (");
     if (p != 0) {
-      for (int k=0; k<linexpand->size(); k++) {
-        retstr += (itostr((*linexpand)[k]) + " ");
+      for (int k=0; k<linexpand.size(); k++) {
+        retstr += (itostr(linexpand[k]) + " ");
       }
     }
     retstr += ") (";
-    if (mightdepend != 0L) {
-      for (int k=0; k<mightdepend->size(); k++) {
-        retstr += (itostr((*mightdepend)[k]) + " ");
-      }
+    for (int k=0; k<mightdepend.size(); k++) {
+      retstr += (itostr(mightdepend[k]) + " ");
     }
     retstr += "))";
     setResult(retstr.c_str());
