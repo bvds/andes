@@ -620,10 +620,10 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		    << e->getInfix()<< endl);
 		return(true);	// can't continue as e no longer n_op
 	      }
-	    else delete newdenom;
+	    else newdenom->destroy();
 
 	    // sort and look for factors to combine into topow.	    
-	    e = enop;		// just in case its changed - don't see how
+	    e = enop;	     // enop has changed if denominator was cancelled.
 	    if (multsort(e)) answer = true;
 	    if (e->etype == n_op) enop =(n_opexp *) e; 	// if multplus didn't
 	    else {
