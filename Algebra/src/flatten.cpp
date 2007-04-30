@@ -589,6 +589,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		    newdenom->addarg(tempbin->rhs);
 		    (*enop->args)[k]=tempbin->lhs;
 		    enop->MKS += tempbin->rhs->MKS; // added 6/7
+		    answer = true;
 		    delete tempbin;
 		  }
 	      }
@@ -607,7 +608,6 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 			  =(*newdenom->args)[newdenom->args->size()-1];
 		    enop->args->pop_back();
 		    newdenom->args->pop_back();
-		    answer = true;
 		    k--;  // since the term has changed, do over
 		    break;
 		  }
