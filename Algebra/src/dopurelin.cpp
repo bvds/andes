@@ -52,9 +52,11 @@ using namespace std;
   //   incremented (not conclusively??)
   // This ends at END OF PURELINSOLV
 
-vector<binopexp *> * dopurelin(vector<binopexp *> * eqn, 
-			       vector<varindx> * & vars, 
-			       vector<binopexp *> * soleqs, int & doagain )
+void dopurelin(vector<binopexp *> * eqn, 
+	       vector<varindx> * & vars, 
+	       vector<binopexp *> * soleqs,
+	       vector<binopexp *> *partsols,
+	       int & doagain )
 {
   int k, q;
 #if WITHDBG
@@ -92,7 +94,7 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * eqn,
 	      << " equations for purelinsolv and " << eqn->size() 
 	      << " equations left over" << endl; );
 
-  vector<binopexp *> *partsols = new vector<binopexp *>;
+  partsols = new vector<binopexp *>;
   doagain = 0;
   if (trylineqs->size() > 0) 
     {
@@ -166,9 +168,9 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * eqn,
 	  for (k = 0; k < eqn->size(); k++)
 	    cout << (*eqn)[k]->getInfix() << endl;
 	});
-      vector<binopexp *> *sols = new vector<binopexp *>;
+      vector<binopexp *> sols;
       // DO PURELINSOLV
-      if (!purelinsolv(trylineqs,linvars,sols))
+      if (!purelinsolv(trylineqs,linvars,&sols))
 	{
 	  cerr << "purelinsolv failed" << endl;
 	  cout << "purelinsolv failed" << endl;
@@ -178,18 +180,18 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * eqn,
 	  throw(string("Purelinsolv found inconsistent equations"));
 	}
       DBG( cout << "purelinsolv reported success on "
-	        << sols->size() << " of " << linvars->size() 
+	        << sols.size() << " of " << linvars->size() 
 	        << " variables" << endl;);
       DBGEQ( { cout << "Purelinsolv: The solutions found are :" << endl;
-	       for (k = 0; k < sols->size(); k++) 
-		 cout << (*sols)[k]->getInfix()<<endl; } );
+	       for (k = 0; k < sols.size(); k++) 
+		 cout << sols[k]->getInfix()<<endl; } );
 
       // substitute in for solved variables in remaining eqs?
-      for (k = 0; k < sols->size(); k++)
+      for (k = 0; k < sols.size(); k++)
 	for (q = 0; q < eqn->size(); q++)
 	  {
 	    expr * eqexpr = (*eqn)[q];
-	    subexpin(eqexpr,(*sols)[k]);
+	    subexpin(eqexpr,sols[k]);
 	    eqnumsimp(eqexpr,true);
 	    while(flatten(eqexpr)); // while added 2/11
 	    if (eqexpr->etype != binop) throw(string(
@@ -204,14 +206,14 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * eqn,
 		   cout << (*eqn)[q]->getInfix() << endl; } } );
       // remove solved-for variables from remaining variable list
       doagain = 0;
-      for (k = 0; k < sols->size(); k++)
+      for (k = 0; k < sols.size(); k++)
 	{
-	  if ((*sols)[k]->rhs->etype == numval)
+	  if (sols[k]->rhs->etype == numval)
 	    {
-	      doagain = sols->size(); // large enough to stay positive
+	      doagain = sols.size(); // large enough to stay positive
 	      for (q = 0; q < vars->size(); q++)
-		if (( (*sols)[k]->lhs->etype == physvart) &&
-		    ( ((physvarptr *)((*sols)[k]->lhs))
+		if (( sols[k]->lhs->etype == physvart) &&
+		    ( ((physvarptr *)(sols[k]->lhs))
 		      ->varindex  == (*vars)[q]))
 		  {
 		    (*vars)[q]=(*vars)[vars->size()-1];
@@ -223,11 +225,11 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * eqn,
       DBG( cout << "Checkeqs: after rm solved-for, doagain = " 
 		<< doagain << endl;);
       // write out those fully solved, and save partially solved
-      for (; sols->size() > 0;)
+      while (sols.size() > 0)
 	{
-	  if ((*sols)[0]->rhs->etype == numval)
+	  if (sols[0]->rhs->etype == numval)
 	    {
-	      expr *thiseq = (*sols)[0];
+	      expr *thiseq = sols[0];
 	      expr *troub = dimenchk(true,thiseq);
 	      DBG( if (troub != (expr *) NULL) 
 		   cout << "Dimenchk before write-out had trouble with "
@@ -237,13 +239,12 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * eqn,
 	    }
 	  else 
 	    {
-	      partsols->push_back((*sols)[0]);
+	      partsols->push_back(sols[0]);
 	      doagain--;	// compensate for adding 1 later for linear eq
 	    }
-	  (*sols)[0] = (*sols)[sols->size()-1];
-	  sols->pop_back();
+	  sols[0] = sols[sols.size()-1];
+	  sols.pop_back();
 	}
-      delete sols;
       DBG( { cout << "Checkeqs " << thisdbg 
 		  << ": after writing out fully solved, " 
 		  << "and saving partially solved, doagain = "
@@ -286,5 +287,5 @@ vector<binopexp *> * dopurelin(vector<binopexp *> * eqn,
       delete linvars;
     } // end of if trylineqs->size() > 0
   delete trylineqs;
-  return(partsols);
+  return;
 }

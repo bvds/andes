@@ -139,7 +139,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 #if WITHDBG
   unsigned long thisdbg = ++dbgnum;	// recursive calls for debug
 #endif
-  vector<binopexp *> * partsols; // partially solved vars in purelin
+  vector<binopexp *> partsols; // partially solved vars in purelin
   vector<binopexp *> * soleqs = new vector<binopexp *>;
   
   numpasses++;
@@ -148,7 +148,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   recassign(eqn,vars,soleqs);
 
   // Simultaneous linear equations solved
-  partsols = dopurelin(eqn, vars, soleqs, doagain);
+  dopurelin(eqn, vars, soleqs, &partsols, doagain);
   for (k = 0; k < soleqs->size(); k++) {
     solfile << (*soleqs)[k]->solprint(false) << endl;
     (*soleqs)[k]->destroy();
@@ -163,7 +163,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	 for (k = 0; k < eqn->size(); k++) 
 	   cout << (*eqn)[k]->getInfix()<<endl; 
 	 cout << "Before factoring, we have doagain = "<< doagain << endl; });
-  if (dofactor(eqn,vars)) doagain = partsols->size() +1;  // force redo
+  if (dofactor(eqn,vars)) doagain = partsols.size() +1;  // force redo
 	      // This setting of doagain below had been conditioned on 
 	      //	      if (ordunknowns(eqexpr, false) == 1) 
 
@@ -180,7 +180,7 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   //    but also with polysolve. 
   // First nlsolvov
 
-  if (donlsolv(eqn)) doagain = partsols->size() +1; // force redo
+  if (donlsolv(eqn)) doagain = partsols.size() +1; // force redo
   DBG( cout << "We now have doagain = "<< doagain << endl;);
 
   // Try polysolve
@@ -237,12 +237,12 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 
   VEQCHK(eqn);
   // now place the partially solved variables back on the eqn list
-  for (k = 0; k < partsols->size(); k++)
+  for (k = 0; k < partsols.size(); k++)
     {
-      eqn->push_back((*partsols)[k]);
-      DBG(cout << "partsols "<< k << " of " << partsols->size() 
+      eqn->push_back(partsols[k]);
+      DBG(cout << "partsols "<< k << " of " << partsols.size() 
 	  << " put on equation list:  " << 
-	  (*partsols)[k]->getInfix() << endl);
+	  partsols[k]->getInfix() << endl);
     }
 	
   // clean up equations and remove any obvious duplicates
@@ -267,16 +267,16 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
   else				// giving up, might as well write out
     {				// partially solved variables and eliminate 
       DBG(cout << "not repeating checkeqs" << endl);
-      if (partsols->size() > 0) solfile << "<PARTSLVV>" << endl;
-      for (k=0; k < partsols->size(); k++)
+      if (partsols.size() > 0) solfile << "<PARTSLVV>" << endl;
+      for (k=0; k < partsols.size(); k++)
 	{
-	  NEWDBGM(cout << "partsols "<< k << " of " << partsols->size() 
+	  NEWDBGM(cout << "partsols "<< k << " of " << partsols.size() 
 		  << " output to solfile" << endl);
-	  solfile << (*partsols)[k]->getInfix() << endl;
+	  solfile << partsols[k]->getInfix() << endl;
 	  for (q=0; q < vars->size(); q++)
 	    if (
-		((*partsols)[k]->lhs->etype == physvart) &&
-		(((physvarptr *)((*partsols)[k]->lhs))->varindex
+		(partsols[k]->lhs->etype == physvart) &&
+		(((physvarptr *)(partsols[k]->lhs))->varindex
 		 == (*vars)[q]))
 	      {
 		NEWDBGM( cout << "partsols["<< k 
@@ -286,17 +286,17 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 		break;
 	      }
 	}
-      for (q = 0; q < partsols->size(); q++)
-	for (k = 0; k < eqn->size(); k++)
-	  if ((*partsols)[q] == (*eqn)[k])
-	    {
-	      (*eqn)[k]->destroy();
+      for (q = 0; q < partsols.size(); q++)
+	{
+	  for (k = 0; k < eqn->size(); k++)
+	    if (partsols[q] == (*eqn)[k])
+	      {
+		(*eqn)[k]->destroy();
 	      (*eqn)[k] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();
 	      break;
-	    }
-      delete partsols;
-      NEWDBGM(cout << "deleted partsols" << endl);
+	      }
+	}
     }
 }
 

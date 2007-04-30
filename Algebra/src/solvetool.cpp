@@ -92,7 +92,7 @@ string powersolve(const int howstrong, const varindx sought,
       
   // start the solution process. This will repeat if doagain winds up
   // positive
-  vector<binopexp *> * partsols; // partially solved vars in purelin
+  vector<binopexp *> partsols; // partially solved vars in purelin
   vector<binopexp *> soleqs;
   binopexp * ansexpr;		// will hold answer
   int doagain = 1;			// should we repeat
@@ -110,25 +110,27 @@ string powersolve(const int howstrong, const varindx sought,
 	for (q = 0; q < soleqs.size(); q++) 
 	cout << "          " << soleqs[q]->getLisp(false) << endl);
     if (checkifdone(sought, ansexpr, &soleqs)) goto success;
+    // remove any previous equations from partsols
+    for (q =0; q < partsols.size(); q++) partsols[q]->destroy();
+    partsols.clear();
     if (howstrong & 1) {
       DBG(cout << "About to try dopurelin" << endl;);
-      partsols = dopurelin(&eqn,vars,&soleqs,doagain);
+      dopurelin(&eqn,vars,&soleqs,&partsols,doagain);
       if (checkifdone(sought, ansexpr,&soleqs)) goto success;
       DBG(cout << "After dopurelin, soleqs =" << endl;
 	  for (q = 0; q < soleqs.size();q++) 
 	  cout << "          " << soleqs[q]->getLisp(false) << endl;
 	  cout << "          and partsols =" << endl;
-	  for (q = 0; q < partsols->size(); q++) 
-	  cout << "          " << (*partsols)[q]->getLisp(false) << endl);
+	  for (q = 0; q < partsols.size(); q++) 
+	  cout << "          " << partsols[q]->getLisp(false) << endl);
     }
     else {
       doagain = 0;
-      partsols = new vector<binopexp *>;
     }
     if (howstrong & 2) {
-      if (dofactor(&eqn,vars)) doagain = partsols->size() +1;  // force redo
+      if (dofactor(&eqn,vars)) doagain = partsols.size() +1;  // force redo
       DBG(cout << "after dofactor, doagain is " << doagain << endl;);
-      if (donlsolv(&eqn)) doagain = partsols->size() +1; // force redo
+      if (donlsolv(&eqn)) doagain = partsols.size() +1; // force redo
       DBG(cout << "after donlsolv, doagain is " << doagain << endl;);
     }
     if (howstrong & 4) {
@@ -151,8 +153,8 @@ string powersolve(const int howstrong, const varindx sought,
 
     // now, if we are going to try over, put partsols back into eqn list.
     if (doagain > 0) {
-      for (q = 0; q < partsols->size(); q++) eqn.push_back((*partsols)[q]);
-      while (partsols->size() > 0) partsols->pop_back();
+      for (q = 0; q < partsols.size(); q++) eqn.push_back(partsols[q]);
+      while (partsols.size() > 0) partsols.pop_back();
     }
 
     // clean up equations and remove any obvious duplicates
@@ -161,20 +163,21 @@ string powersolve(const int howstrong, const varindx sought,
     DBG(cout << "********** doagain loop " << ++loopcount 
 	<< " done **********" << endl);
   } // end of while doagain > 0
+
   // check partsols for solution to student variable
   DBG(cout << "Exited doagain loop." << endl);
 #if 0 // AW: take out check for partial solutions
-  if (partsols->size() > 0) 
+  if (partsols.size() > 0) 
     {
-      for (q = 0; q < partsols->size(); q++)
-	if (exprcontains((*partsols)[q],sought)) break;
-      if (q == partsols->size()) { // failed to solve for variable at all
+      for (q = 0; q < partsols.size(); q++)
+	if (exprcontains(partsols[q],sought)) break;
+      if (q == partsols.size()) { // failed to solve for variable at all
 	DBG(cout << "powersolve failed" << endl);
 	return(string(""));		// AW: this skips cleanup -- OK?
       }
       // partsols are only made by purelin, so must be linear
       expr * denom = (expr *)NULL;
-      if (!linvarcoefs((*partsols)[q],sought,denom,numer))
+      if (!linvarcoefs(partsols[q],sought,denom,numer))
 	throw string("impossible got nonlinear in partsols in solvetool");
       if (denom->etype != numval) {
 	DBG(cout << "in solvetool linvarcoefs bad coef: " << denom->getInfix()
@@ -229,8 +232,7 @@ string powersolve(const int howstrong, const varindx sought,
  cleanup:
   for (q =0; q < eqn.size(); q++) eqn[q]->destroy();
   for (q =0; q < soleqs.size(); q++) soleqs[q]->destroy();
-  for (q =0; q < partsols->size(); q++) (*partsols)[q]->destroy();
-  delete partsols;
+  for (q =0; q < partsols.size(); q++) partsols[q]->destroy();
 
   delete vars;
   DBG(cout << "powersolve returning " << answer << endl);

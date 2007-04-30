@@ -98,7 +98,7 @@ int powonev(const expr * eq, const varindx var);		// powonev
 void printdv(const vector<double> & vec);			// utils
 bool purelinsolv(const vector<binopexp *> * const eqs,		// purelin
 	const vector<varindx> * const vars, 
-	vector<binopexp *> * & sols);
+	vector<binopexp *> * sols);
 void qsrtexpr(vector<expr *> *Vptr);				// qsrtexpr
 bool rationalize(binopexp * & eq);				// rationalize
 void remove_duplicates (vector<binopexp *> *eqn, int & doagain);

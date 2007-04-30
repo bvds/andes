@@ -20,8 +20,8 @@ using namespace std;
  *	  numerical coefficients only, in the form 			*
  *	  (+ (* numval var) ...) = numval				*
  *	if purelinsolv returns true, it also returns in sols a set	*
- *	  of assignment equations (but with rhs containing undetermined *
- *	  unknowns) which contains all the info in eqs			*
+ *	  of new assignment equations (but with rhs containing          *
+ *	  undetermined unknowns) which contains all the info in eqs	*
  *	  (but this may be fewer equations than in eqs)			*
  *	sols should be empty vector on call				*
  *   									*
@@ -34,7 +34,7 @@ int findwhichvar(expr const * v, const vector<varindx> * vars);
 
 bool purelinsolv(vector<binopexp *> const * eqs,
 		 vector<varindx> const * vars,
-		 vector<binopexp *> * & sols)
+		 vector<binopexp *> * sols)
 {
   int numeqs = eqs->size();
   int numvars = vars->size();
