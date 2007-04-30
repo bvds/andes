@@ -593,25 +593,25 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  }
 	      }
 
-	    if (newdenom->args->size() > 0)
-	      {
-		for (k=0; k < enop->args->size(); k++)
-		  for (q = 0; q < newdenom->args->size(); q++)
-		    if (equaleqs((*enop->args)[k],(*newdenom->args)[q]))
-		      {
-			// cancel common terms.  First, adjust the units
-			enop->MKS += (*enop->args)[k]->MKS * -1.;
-			newdenom->MKS += (*newdenom->args)[q]->MKS * -1.;
-			(*enop->args)[k]->destroy();
-			(*newdenom->args)[q]->destroy();
-			(*enop->args)[k] = (*enop->args)[enop->args->size()-1];
-			(*newdenom->args)[q] 
+	    for (k=0; k < enop->args->size(); k++)
+	      for (q = 0; q < newdenom->args->size(); q++)
+		if (equaleqs((*enop->args)[k],(*newdenom->args)[q]))
+		  {
+		    // cancel common terms.  First, adjust the units
+		    enop->MKS += (*enop->args)[k]->MKS * -1.;
+		    newdenom->MKS += (*newdenom->args)[q]->MKS * -1.;
+		    (*enop->args)[k]->destroy();
+		    (*newdenom->args)[q]->destroy();
+		    (*enop->args)[k] = (*enop->args)[enop->args->size()-1];
+		    (*newdenom->args)[q] 
 			  =(*newdenom->args)[newdenom->args->size()-1];
-			enop->args->pop_back();
-			newdenom->args->pop_back();
-		      }
-		answer = true;
-	      }
+		    enop->args->pop_back();
+		    newdenom->args->pop_back();
+		    answer = true;
+		    k--;  // since the term has changed, do over
+		    break;
+		  }
+
 	    if (newdenom->args->size() > 0) // need new if as may have shrunk
 	      {
 		e = new binopexp(&divby, enop, newdenom);
