@@ -221,15 +221,16 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
     return(retval);
   }
   case n_op: {
-    answitherr* argval;
     switch(((n_opexp*)ex)->op->opty) {
     case pluse: {
       retval->value = 0;
       retval->abserr = 0;
       for (k=0; k<((n_opexp*)ex)->args->size(); k++) {
-	argval = evalexpr((*((n_opexp *)ex)->args)[k], sols,reltverr);
+	answitherr* argval 
+	  = evalexpr((*((n_opexp *)ex)->args)[k], sols,reltverr);
 	retval->value += argval->value;
 	retval->abserr += argval->abserr;
+	delete argval;
       }
       break;
     }
@@ -237,17 +238,18 @@ answitherr* evalexpr(const expr* const ex, const vector<double>* const sols,
       retval->value = 1;
       retval->abserr = 0;
       for (k=0; k<((n_opexp*)ex)->args->size(); k++)  {
-	argval = evalexpr((*((n_opexp*)ex)->args)[k],sols,reltverr);
+	answitherr* argval
+	  = evalexpr((*((n_opexp*)ex)->args)[k],sols,reltverr);
 	retval->abserr = fabs(argval->value*retval->abserr) 
 	  + fabs(argval->abserr * retval->value);
 	retval->value *= argval->value;
+	delete argval;
       }
       break;
     }
     default:
       throw(string("unknown n_op in evalexpr"));
     }
-    delete argval;
   }
     DBG(cout << "evalexpr call " << thiscall << " n_op returning " 
 	<< retval->value << "+-" << retval->abserr << endl);
