@@ -99,6 +99,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
         throw(string("getAnEqn found ( with only one item on stack"));
       }
       if (exprstack.top()->etype == fake) {
+        exprstack.top()->destroy();
         exprstack.pop();
         exprstack.push(save);
         continue;
@@ -146,7 +147,7 @@ binopexp* getAnEqn(const string bufst, bool tight) {
         temp->addarg(lhs);
         exprstack.push(temp);
       } else {
-        exprstack.pop();
+	exprstack.pop();
         n_opexp *temp = new n_opexp(&mult);
         numvalexp *nvtemp = new numvalexp(-1);
         nvtemp->MKS.put(0,0,0,0,0);
