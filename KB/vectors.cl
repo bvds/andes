@@ -35,22 +35,10 @@
 		  (time ?t))
   :effects ((inherit-quantity (body ?b :time ?t) (body ?b))))
 
-(defoperator draw-body (?b)
-  :preconditions  
-  ((test (not (member 'body-time (problem-features *cp*))))
-   (object ?b))
-  :effects ((body ?b)) 	
-  :hint
-  ((point (string "It is a good idea to begin by choosing the body or system of bodies you are going to focus on."))
-   (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
-   (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." ?b))
-   ))
-
 ;; this should be merged with draw-body at the end of the semester.
-(defoperator draw-body-with-time (?b ?t)
+(defoperator draw-body (?b ?t)
   :preconditions 
   (
-   (test ?t) ;if this test is removed, the operator can handle both cases
    (object ?b)
    ;; only use time when allowed by feature body-time
    ;; This is a sanity test to ensure inherit-quantity is working OK.
@@ -64,7 +52,6 @@
    (teach (string "First figure out which object you want to apply the principle to, and if necessary, what time or time interval to analyze.  Then use the body tool (looks like a dot) to indicate your selections."))
    (bottom-out (string "You should use the body tool to draw a body choosing ~a as the body." (?b at-time ?t)))
    ))
-
 
 
 ;;
