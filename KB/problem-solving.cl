@@ -180,30 +180,7 @@
 ;;; of how to define the variables.
 ;;;
 
-;; To be removed, Bug #979
 (defoperator write-known-value-eqn (?quantity)
-  :specifications "If a quantity's value is known, then define a variable 
-    for it and write an equation giving its value"
-  :preconditions 
-  ;; right now, bubblegraph generator stops once it has found a given value
-  ((wm-or-derive (given ?quantity ?value-expr))
-   ;; Make sure expression is usable in equation, not special atom. 
-   ;; Assume if a list its an algebraic expression
-   (test (or (numberp ?value-expr) (listp ?value-expr)))
-   (variable ?var-name ?quantity))
-  :effects 
-  ((given-eqn (= ?var-name ?value-expr) ?quantity))
-  :hint
-  ((point (string "You can find the value of ~A in the problem statement." 
-		  ?quantity))
-   (point (string "The value of ~A is given as ~A." 
-		  ?quantity (?value-expr algebra)))
-   (bottom-out (string "Enter the equation ~A = ~A." 
-		       (?var-name algebra) (?value-expr algebra)))
-   ))
-
-;; to be renamed, Bug #979
-(defoperator write-known-value-eqn2 (?quantity)
   :specifications "If a quantity's value is known, then define a variable 
     for it and write an equation giving its value"
   :preconditions 
@@ -211,9 +188,6 @@
   ((wm-or-derive (given ?quantity ?value-expr 
 			:hint (?given-loc ?more) 
 			("in the problem statement" nil)))
-  ;; special test to be removed, Bug #979
-  (wm-or-derive (given ?quantity ?value-expr :hint ?hhh))
-  (test ?hhh)
    ;; Make sure expression is usable in equation, not special atom. 
    ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
@@ -264,8 +238,7 @@
 (defoperator write-implicit-eqn (?quantity)
   :specifications "If a quantity's value becomes known as a side effect of some other step, then define a variable for it and write an equation giving its value"
   :preconditions 
-  ;; add . ?rest, Bug #979
-  ((in-wm (given ?quantity ?value-expr))
+  ((in-wm (given ?quantity ?value-expr . ?rest))
    ;; Make sure expression is usable in equation, not special atom. 
    ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
@@ -280,8 +253,7 @@
 ;; of zero or 180 degrees. The phi angle is used in writing projections.
 (defoperator write-implicit-zdir-eqn (?vector ?t)
    :preconditions (
-  ;; add . ?rest, Bug #979
-     (in-wm (given (dir ?vector) ?dir))
+     (in-wm (given (dir ?vector) ?dir . ?rest))
      (bind ?t (time-of ?vector))
      (test (and (z-dir-spec ?dir)
 	        (not (equal ?dir 'z-unknown))))
