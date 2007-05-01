@@ -244,7 +244,7 @@
 
 (defoperator find-tension-force (?b ?string ?t)
   :preconditions (
-    (tied-to ?string ?b ?t-tied-to ?dir-expr)
+    (tied-to ?string ?b :time ?t-tied-to :dir ?dir-expr)
     (time ?t)
     (test (tinsidep ?t ?t-tied-to))
     (not (force ?b ?string tension ?t . ?dont-care))
@@ -324,7 +324,7 @@
    :preconditions (
     (object ?b)
     (time ?t)
-    (supports ?surface ?b ?t-supports (dnum ?dir |deg|))
+    (supports ?surface ?b :time ?t-supports :dir (dnum ?dir |deg|))
     (test (tinsidep ?t ?t-supports))
     (not (force ?b ?surface normal ?t . ?dont-care))
     (bind ?normal-dir (mod (+ ?dir 90) 360))
@@ -449,7 +449,7 @@
     ))
 
 ;; draw kinetic friction force on ?b due to ?surface
-;; requires a (slides-against ?surface ?b ?t) statement in the problem 
+;; requires a (slides-against ?surface ?b :time ?t) statement in the problem 
 ;; This form is only to be used where there is a frictional interaction, 
 ;; just leave it out for frictionless contact.
 ;; ! might still want to include "frictionless/frictional" tag somewhere
@@ -463,7 +463,7 @@
 ;; velocity vector before you could draw the friction direction.
 (defoperator find-kinetic-friction-force (?b ?surface ?t)
   :preconditions (
-    (slides-against ?b ?surface ?t-slides)
+    (slides-against ?b ?surface :time ?t-slides)
     (motion ?b straight :dir ?motion-dir :time ?t-motion ?t . ?whatever)
     (time ?t)
     (object ?b)
@@ -513,7 +513,7 @@
 		   (mag (force ?b ?surface normal :time ?t))
 		   (coef-friction ?b ?surface kinetic)
                  	  ))
-    (slides-against ?b ?surface ?t-slides)
+    (slides-against ?b ?surface :time ?t-slides)
     (time ?t)
     (test (tinsidep ?t ?t-slides))
   )
@@ -626,14 +626,14 @@
   ))
 
 ; draw drag force on ?b due to ?medium
-; requires a (drag ?b ?medium ?t) statement in the problem 
+; requires a (drag ?b ?medium :time ?t) statement in the problem 
 ; Drawing rules essentially similar to kinetic-friction force. 
 ; Drag force opposes straight-line motion direction.
 (defoperator find-drag-force (?b ?medium ?t)
   :preconditions (
     (object ?b)
     (time ?t)
-    (drag ?b ?medium ?t-slides)
+    (drag ?b ?medium :time ?t-slides)
     (test (tinsidep ?t ?t-slides))
     (not (force ?b ?medium drag ?t . ?dont-care))
     (motion ?b straight :dir ?motion-dir :time ?t-motion . ?whatever)
@@ -673,7 +673,7 @@
 (defoperator drag-force-turbulent-contains (?quantity)
   :preconditions
   (
-   (drag ?b ?medium ?t-drag)
+   (drag ?b ?medium :time ?t-drag)
    (any-member ?quantity (
 	           (mag (force ?b ?medium drag :time ?t))
 		   (mag (velocity ?b :time ?t))
@@ -2336,8 +2336,9 @@
   :preconditions
   ((any-member ?quantity
 	        ((mag (force ?b1 ?string tension :time ?t))))
-   ; can apply if string is connected to another body
-   (tied-to ?string ?b2 ?t ?dir2)
+   ;; can apply if string is connected to another body
+   (tied-to ?string ?b2 :time ?t-other :dir ?dir2)
+   (test (tinsidep ?t ?t-other))
    (test (not (equal ?b2 ?b1)))
    ; sort bodies in id so we don't generate both Tb = Tb2 and Tb2 = Tb
    (bind ?bodies (sort (list ?b1 ?b2) #'expr<))

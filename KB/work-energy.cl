@@ -159,11 +159,11 @@
 	(or (null ?t-applied) (tintersect2 ?t-applied `(during ,?t1 ,?t2))))
    (not (given (dir (force ?b ?agent2 thrust :time ?t-thrust)) ?dir2)
 	(or (null ?t-thrust) (tintersect2 ?t-thrust `(during ,?t1 ,?t2))))
-   (not (tied-to ?string1 ?b                        ?t-tension ?dir3)
+   (not (tied-to ?string1 ?b :time ?t-tension :dir ?dir3)
 	(tintersect2 ?t-tension `(during ,?t1 ,?t2)))
-   (not (slides-against ?b ?surface1                ?t-friction)
+   (not (slides-against ?b ?surface1 :time ?t-friction)
 	(tintersect2 ?t-friction `(during ,?t1 ,?t2)))
-   (not (drag ?b ?medium                         ?t-drag)
+   (not (drag ?b ?medium :time ?t-drag)
 	(tintersect2 ?t-drag `(during ,?t1 ,?t2)))
    ;; no collisions involving the body
    ;; cons-ke-elastic handles the case of elastic collisions separately

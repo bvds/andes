@@ -101,7 +101,7 @@
 (defoperator form-compound-at-rest (?bodies)
   :preconditions (
    (in-wm (motion ?b1 at-rest :time ?t))
-   (supports ?b1 ?b2 ?t ?dont-care) ; should only be written for atomic b1, b2 
+   (supports ?b1 ?b2 . ?dont-care) ;should only be written for atomic b1, b2 
    (in-wm (motion ?b2 at-rest :time ?t))
    (bind ?bodies (sort (list ?b1 ?b2) #'expr<))
    (not (object (compound orderless . ?bodies)))

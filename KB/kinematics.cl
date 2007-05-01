@@ -2954,11 +2954,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
   then they are connected."
   :preconditions
   (
+   (time ?t)
    ;;(debug "Trying connections ~a ~a ~a~%" ?b1 ?b2 ?t)
-   (tied-to ?string ?b1 ?t ?dir1)
-   (tied-to ?string ?b2 ?t ?dir2)
-   ; Only apply to bodies in canonical order. 
-   ; Note this test ensures they are distinct as well.
+   (tied-to ?string ?b1 :time ?t1 :dir ?dir1)
+   (tied-to ?string ?b2 :time ?t2 :dir ?dir2)
+   (test (tinsidep ?t ?t1))
+   (test (tinsidep ?t ?t2))
+   ;; Only apply to bodies in canonical order. 
+   ;; Note this test ensures they are distinct as well.
    (test (expr< ?b1 ?b2))   
    (not (connected ?b1 ?b2 ?t))
    (debug "found connected ~A %" ?bodies)
