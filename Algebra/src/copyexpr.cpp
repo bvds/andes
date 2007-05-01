@@ -53,6 +53,9 @@ expr * copyexpr(const expr * old )
   return(ret);
 }
 
+// must provide definition for destructor
+expr::~expr() { }
+
 void expr::destroy()
 {
   switch (this->etype)

@@ -28,6 +28,8 @@ class expr			/* intended to be abstract, inherited by */
   expr() : known(false), etype(unknown) { }
   expr( exprtype type ) : known(false), etype(type) { }
   expr(expr &);
+  // add pure virtual destructor.
+  virtual ~expr() = 0;
   // functions:
   bool isknown();
   void setknown();
