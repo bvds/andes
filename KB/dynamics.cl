@@ -1777,7 +1777,6 @@
      acceleration of the planet."
   :preconditions
    ((in-wm (near-planet ?planet :body ?b ?b))
-    (bind ?tot nil) ; remove at end of semester
     (inherit-variable ?m-var (mass ?b :time ?t))
     (inherit-variable ?w-var (mag (force ?b ?planet weight :time ?t)))
     (variable ?g-var (gravitational-acceleration ?planet))
@@ -2143,7 +2142,6 @@
       respectively."
   :preconditions
   (
-   (bind ?tot nil)  ;for backwards compatibility, remove at end of semester 
    (in-wm (forces ?b ?t ?forces)) ;done in drawing step
    ;; for each force on b at t, define a component variable, 
    ;; collecting variable names into ?f-compo-vars
@@ -2187,7 +2185,6 @@
    then write ?fnet_c = ?m * ?ac"
   :preconditions
   (
-   (bind ?tot nil) ; for backwards compatibility, remove at end of semester
    (debug "start  write-NSL-net-compo~%")
    (test ?netp)
    (variable ?fnet-compo-var (compo ?xyz ?rot (net-force ?b :time ?t)))
@@ -3016,7 +3013,6 @@
    
    :preconditions (
      (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-     (bind ?tot nil) ;remove at end of semester
      (inherit-variable ?I (moment-of-inertia ?b :time ?t))
      (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
      ; fetch mag variable for implicit equation (defined when drawn)

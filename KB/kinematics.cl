@@ -223,7 +223,6 @@
    then you can define a speed of the object"
   :preconditions
    (
-    (bind ?dont-care nil)  ;remove at end of semester
     (time ?t)
     (test (time-intervalp ?t))
     (object ?b)
@@ -2395,41 +2394,7 @@
    ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
-;; old version, remove at end of semester, new version below
 (defoperator sdd-constvel-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications 
-  "Writes the component equation s_x = vi_x*t when a_x = 0"
-  :preconditions
-  ((test nil)
-   ;; make sure accel compo vanishes
-   (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-   (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
-   ;; and write it 
-   (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-   (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-   (variable ?t-var (duration (during ?t1 ?t2)))
-   ;; following only used for implicit eqn so a_x can be accepted if used
-   (inherit-variable ?a_x (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
-   )
-  :effects
-  ((eqn (= ?s-compo (* ?vi-compo ?t-var))
-	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (implicit-eqn 
-     (= ?a_x 0) 
-     (projection (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))))
-  :hint (
-    (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
-    (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
-    (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction. Therefore, the ~A component of velocity remains constant ~A. You can use this to relate ~A to ~A and ~A." 
-		   ?b ((during ?t1 ?t2) pp) ((axis ?xyz ?rot) symbols-label) ((axis ?xyz ?rot) symbols-label) 
-		   ((axis ?xyz ?rot) symbols-label) ((during ?t1 ?t2) pp) 
-		   (?s-compo algebra) (?vi-compo algebra) (?t-var algebra)))
-    (bottom-out (string  "Write the equation ~A"
-		   ((= ?s-compo (* ?vi-compo ?t-var)) algebra)))
-  ))
-
-;; at send of semester, remove the -new
-(defoperator sdd-constvel-compo-new (?b ?t1 ?t2 ?xyz ?rot)
   :specifications 
   "Writes the component equation s_x = vi_x*t when a_x = 0"
   :preconditions

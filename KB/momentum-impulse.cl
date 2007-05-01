@@ -412,7 +412,6 @@
   :preconditions (
      (variable ?L_z (compo z 0 (ang-momentum ?b :time ?t)))
      (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
-     (bind ?tot nil) ;remove at end of semester
      (inherit-variable ?I (moment-of-inertia ?b :time ?t))
   )
   :effects (
@@ -657,31 +656,7 @@
 	    (vector-diagram ?rot (impulse-force-vector ?b ?agent ?t))
   ))
 
-;; remove at end of semester
 (defoperator write-impulse-compo (?b ?agent ?t1 ?t2 ?xy ?rot)
-  :preconditions 
-  (
-   (test nil)
-   (variable ?F12_x (compo ?xy ?rot (force ?b ?agent ?type
-					   :time (during ?t1 ?t2))))
-   (variable ?J12_x (compo ?xy ?rot (impulse ?b ?agent 
-					     :time (during ?t1 ?t2))))
-   (variable ?t12 (duration (during ?t1 ?t2))))
-   :effects 
-   (
-    (eqn (= ?J12_x (* ?F12_x ?t12))
-	 (compo-eqn definition ?xy ?rot 
-		    (impulse-force-vector ?b ?agent (during ?t1 ?t2))))
-    )
-  :hint 
-  ( (point (string "What is the relationship between average force, impulse and duration?"))
-    (teach (string "The impulse vector is defined as the average force vector times the duration.  This can be applied component-wise."))
-    (bottom-out (string "Write the equation ~a"
-			((= ?J12_x (* ?F12_x ?t12)) algebra)))
-  ))
-
-;; after semester over, remove -new suffix
-(defoperator write-impulse-compo-new (?b ?agent ?t1 ?t2 ?xy ?rot)
   :preconditions 
   (
    ;; drawn above, use this to bind ?type

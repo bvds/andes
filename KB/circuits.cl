@@ -287,9 +287,6 @@
   :preconditions
   (
    (variable ?r-var (resistance ?res))
-   (bind ?tot nil) ;remove at end of semester
-   (bind ?branch nil) ;remove at end of semester
-   (bind ?tot2 nil) ;remove at end of semester
    (inherit-variable ?i-var (current-thru ?res :time ?t))
    (inherit-variable ?v-var (voltage-across ?res :time ?t))
    )
@@ -521,7 +518,6 @@
 			 ?comp2 ?all-batts)
                       
 		  ;;get all the resistor delta variables for ?p1
-     (bind ?tot nil) ;remove at end of semester
 		  (map ?comp (intersection ?p1 ?all-res :test #'equal)
 		       (inherit-variable ?v-var (voltage-across ?comp :time ?t))
 		       ?v-var ?v-res1-vars)
@@ -595,7 +591,6 @@
 	  ?comp4 ?all-inds)
    
    ;;get all the resistor delta variables for ?p1
-     (bind ?tot nil) ;remove at end of semester
    (map ?comp (intersection ?p1 ?all-res :test #'equal)
 	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-res1-vars)
@@ -665,7 +660,6 @@
 
 (defoperator write-loop-rule-two (?c1 ?c2 ?t)
   :preconditions (
-     (bind ?tot nil) ;remove at end of semester
 		  (inherit-variable ?v1 (voltage-across ?c1 :time ?t))
 		  (inherit-variable ?v2 (voltage-across ?c2 :time ?t))
 		  )
@@ -937,8 +931,6 @@
   :preconditions
   (
    (variable ?c-var (capacitance ?cap))
-   (bind ?tot nil) ;remove at end of semester
-   (bind ?tot2 nil) ;remove at end of semester
    (inherit-variable ?q-var (charge ?cap :time ?t))
    (inherit-variable ?v-var (voltage-across ?cap :time ?t))
    )
@@ -975,7 +967,6 @@
 	  ?comp2 ?all-batts)
    
 		  ;;get all the capacitor delta variables for ?p1
-     (bind ?tot nil) ;remove at end of semester
    (map ?comp (intersection ?p1 ?all-cap :test #'equal)
 	(inherit-variable ?v-var (voltage-across ?comp :time ?t))
 	?v-var ?v-cap1-vars)
@@ -1154,7 +1145,6 @@
 
 (defoperator write-cap-energy (?cap ?t)
   :preconditions (
-     (bind ?tot nil) ;remove at end of semester
 		  (variable ?C (capacitance ?cap))
 		  (inherit-variable ?V (voltage-across ?cap :time ?t))
 		  (variable ?U (stored-energy ?cap :time ?t))
@@ -1525,7 +1515,6 @@
 (defoperator write-current-in-RC-at-time (?bat ?res ?cap ?t1 ?t2)
   :preconditions 
   (
-   (bind ?branch nil) ;remove at end of semester
    (inherit-variable ?i-var (current-thru ?res :time ?t2))
    (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?r-var (resistance ?res))
@@ -1786,7 +1775,6 @@
 (defoperator inductor-emf (?ind ?time)
   :preconditions 
   (
-   (bind ?branch nil)  ;remove at end of semester
    (inherit-variable ?V (voltage-across ?ind :time ?time))
    (variable ?L (self-inductance ?ind))
    (inherit-variable ?dIdt (rate-of-change (current-thru ?ind :time ?time)))
@@ -1868,8 +1856,6 @@
   :preconditions (
 		  (variable ?U (stored-energy ?inductor :time ?t))
 		  (variable ?L (self-inductance ?inductor))
-     (bind ?tot nil) ;remove at end of semester
-     (bind ?branch nil) ;remove at end of semester
 		  (inherit-variable ?I (current-thru ?inductor :time ?t))
 		  )
   :effects (
@@ -2132,9 +2118,6 @@
 (defoperator write-electric-power (?comp ?t)
   :preconditions 
   (
-     (bind ?tot nil) ;remove at end of semester
-     (bind ?tot2 nil) ;remove at end of semester
-     (bind ?branch nil) ;remove at end of semester
    (inherit-variable ?V (voltage-across ?comp :time ?t) )
    (inherit-variable ?I (current-thru ?comp :time ?t))
    (variable ?P  (electric-power ?comp :time ?t)) 

@@ -35,7 +35,6 @@
 		  (time ?t))
   :effects ((inherit-quantity (body ?b :time ?t) (body ?b))))
 
-;; this should be merged with draw-body at the end of the semester.
 (defoperator draw-body (?b ?t)
   :preconditions 
   (

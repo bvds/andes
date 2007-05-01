@@ -401,8 +401,6 @@
    (motion ?body rotating . ?whatever)
    (variable ?kr-var (rotational-energy ?body :time ?t))
    ;; definition of energy at a given moment is ok with changing mass...
-   (any-member ?tot (?t nil))
-   (bind ?tot nil) ;remove at end of semester 
    (inherit-variable ?m-var (moment-of-inertia ?body :time ?t))
    (variable ?v-var (mag (ang-velocity ?body :time ?t)))
   )
