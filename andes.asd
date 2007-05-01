@@ -81,8 +81,9 @@
 				     (:file "Ontology" )
 				     (:file "circuit-ontology")  
 				     ;; AXES-DRAWNP not defined
-				     (:file "Newtons2")
-				     (:file kinematics)
+				     (:file "problem-solving")
+				     (:file "kinematics")
+				     (:file "dynamics")
 				     (:file "vectors")
 				     (:file "NewtonsNogoods")  
 				     (:file "kinematics-problems")
@@ -91,6 +92,7 @@
 				     (:file "fluids-problems")
 				     (:file "waves")
 				     (:file "waves-problems")
+				     (:file "work-energy")
 				     (:file "work-energy-problems")
 				     ;; depends on "waves":
 				     (:file "oscillations-problems")
