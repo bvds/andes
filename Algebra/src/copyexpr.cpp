@@ -54,6 +54,7 @@ expr * copyexpr(const expr * old )
 }
 
 // must provide definition for destructor
+// the derived classes will use their built-in destructors, for now.
 expr::~expr() { }
 
 void expr::destroy()
