@@ -148,9 +148,9 @@ class physvar
   double gettimed() const;
   double getcharged() const;
   double gettempd() const;
-  void physvar::putdimens(int lengthd, int massd, int timed, int charged,
+  void putdimens(int lengthd, int massd, int timed, int charged,
 			  int tempd);
-  void physvar::putdimens(double lengthd, double massd, double timed, 
+  void putdimens(double lengthd, double massd, double timed, 
 			  double charged, double tempd);
 
   string getInfix() const;
