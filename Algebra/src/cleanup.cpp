@@ -59,6 +59,8 @@ int cleanup(n_opexp * & a)
 	      }			// if one of the daughter's children is
 	    DBG( { cout << "after adding term " << k  << endl; // also of the 
 	           a->dbgprint(4); } ) ; 		// same type of n_op,
+	    // don't destroy because contents are back in a.
+	    delete temp->args;  
 	    delete temp;				// need to repeat while
 	    k--;
 	  } 			// didn't use addarg above because overall dim

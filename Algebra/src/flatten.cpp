@@ -631,7 +631,7 @@ bool flatten(expr * & e)	// flattens expr e wrt n_ops
 		  << e->getInfix()<< endl);
 	      return(answer);			// or did change type
 	    }
-	      // if no longer an n_op, cant continue here.
+	      // if no longer an n_op, won't get here.
 	      // Now try to distribute + args.
 	    for (k=0; k < enop->args->size(); k++)
 	      {			
