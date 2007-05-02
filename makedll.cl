@@ -13,7 +13,7 @@
  :allow-existing-directory T
  
  ;; The following are needed to override defaults set by the IDE.
- :restart-init-function nil
+ :restart-init-function 'cl-user::andes-init 
  :restart-app-function nil
  :include-compiler T
  :discard-compiler T

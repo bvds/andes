@@ -1586,6 +1586,89 @@ BEGIN
                     NOT WS_VISIBLE | WS_TABSTOP,185,79,40,7
 END
 
+IDD_VECTOR_MOVE_NEW DIALOGEX 0, 0, 258, 212
+STYLE DS_MODALFRAME | DS_CONTEXTHELP | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_CONTEXTHELP
+CAPTION "Vector definition"
+FONT 10, "MS Sans Serif"
+BEGIN
+    COMBOBOX        IDC_ANGULAR,6,6,37,44,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Angular Displacement",IDC_STATIC_TEXT,7,6,67,8
+    LTEXT           "of &Body",IDC_LABEL_AVBODY,76,6,23,8,0,0,
+                    HIDC_LABEL_AVBODY
+    COMBOBOX        IDC_AVBODY_TEXT,101,6,61,53,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_AVBODY_TEXT
+    ICON            IDI_ANGLE,IDC_ANGLE,37,103,20,20,NOT WS_VISIBLE,0,
+                    HIDC_ANGLE
+    LTEXT           "of &Type",IDC_STC_TYPE,7,27,24,8
+    COMBOBOX        IDC_MOVEMENT_TYPE,37,26,61,62,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&At time",IDC_TIME_LABEL,112,27,23,8,0,0,
+                    HIDC_TIME_LABEL
+    COMBOBOX        IDC_TIME_TEXT,139,26,61,108,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP,0,HIDC_TIME_TEXT
+    GROUPBOX        "",IDC_BOX_LABEL,6,48,194,21,NOT WS_VISIBLE
+    LTEXT           "&Variable Name",IDC_LVECTOR_NAME_TEXT,7,54,47,8,0,0,
+                    HIDC_LVECTOR_NAME_TEXT
+    CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
+                    WS_BORDER | WS_TABSTOP,56,53,40,14
+    GROUPBOX        "Given Value",IDC_GIVEN_BOX,95,42,133,28,NOT WS_VISIBLE
+    LTEXT           "=",IDC_STATIC_EQUALS,99,56,8,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_GIVEN_VALUE,107,54,63,13,ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE
+    LTEXT           "or",IDC_STATIC_OR,173,55,8,8,NOT WS_VISIBLE
+    CONTROL         "Unknown",IDC_CHECK_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    NOT WS_VISIBLE | WS_TABSTOP,185,57,40,7
+    GROUPBOX        "",IDC_VECTOR_GIVEN_BOX,2,69,255,113,NOT WS_VISIBLE
+    LTEXT           "Magnitude:",IDC_STATIC,8,92,34,8
+    LTEXT           "V=",IDC_MAGVAR,52,92,31,8
+    EDITTEXT        IDC_MAG_VALUE,91,90,63,13,ES_AUTOHSCROLL
+    LTEXT           "or",IDC_STATIC_OR2,157,91,8,8
+    CONTROL         "Unknown",IDC_CHECK_MAG_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,169,93,40,7
+    GROUPBOX        "",IDC_BOX_TYPE,6,99,241,20,NOT WS_VISIBLE
+    LTEXT           "Direction:",IDC_STATIC,8,106,29,8
+    LTEXT           "0V=",IDC_L2ANGLE,53,105,30,8,0,0,HIDC_L2ANGLE
+    EDITTEXT        IDC_ORIENTATION_TEXT,91,103,24,14,ES_AUTOHSCROLL,0,
+                    HIDC_ORIENTATION_TEXT
+    CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,114,104,9,12,0,0x80bb03ee
+    LTEXT           "deg",IDC_LANGLE,118,104,13,8,0,0,HIDC_LANGLE
+    COMBOBOX        IDC_ZDIR,135,104,62,60,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "or",IDC_STATIC_OR6,198,106,8,8
+    CONTROL         "Unknown",IDC_CHECK_DIR_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,210,108,40,7
+    LTEXT           "or",IDC_STATIC,113,122,25,8
+    GROUPBOX        "",IDC_COMPONENTS_BOX,5,128,247,50
+    LTEXT           "x component:",IDC_STATIC,8,137,41,8
+    LTEXT           "v_x =",IDC_XCVAR,53,137,30,8
+    EDITTEXT        IDC_XC_VALUE,91,135,63,13,ES_AUTOHSCROLL
+    LTEXT           "or",IDC_STATIC_OR3,157,136,8,8
+    CONTROL         "Unknown",IDC_CHECK_XC_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,169,138,40,7
+    LTEXT           "y component:",IDC_STATIC,8,151,41,8
+    LTEXT           "v_y =",IDC_YCVAR,53,150,30,8
+    EDITTEXT        IDC_YC_VALUE,91,149,63,13,ES_AUTOHSCROLL
+    LTEXT           "or",IDC_STATIC_OR4,157,150,8,8
+    CONTROL         "Unknown",IDC_CHECK_YC_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,169,152,40,7
+    GROUPBOX        "",IDC_BOX_ZCOMP,7,159,224,16,NOT WS_VISIBLE
+    LTEXT           "z component:",IDC_STATIC,8,165,41,8
+    LTEXT           "v_z =",IDC_ZCVAR,53,164,30,8
+    EDITTEXT        IDC_ZC_VALUE,91,163,63,13,ES_AUTOHSCROLL
+    LTEXT           "or",IDC_STATIC_OR5,157,164,8,8
+    CONTROL         "Unknown",IDC_CHECK_ZC_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,169,166,40,7
+    DEFPUSHBUTTON   "OK",IDOK,71,188,50,14,0,0,HIDOK
+    PUSHBUTTON      "Cancel",IDCANCEL,137,188,50,14,0,0,HIDCANCEL
+    LTEXT           "",IDC_COMP,139,49,79,27,NOT WS_VISIBLE
+    GROUPBOX        "",IDC_BOX_MAGDIR,5,83,247,39
+    LTEXT           "Given Values:",IDC_STATIC,8,74,79,11
+END
+
 IDD_SYSTEM DIALOGEX 0, 0, 172, 167
 STYLE DS_MODALFRAME | DS_CONTEXTHELP | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
@@ -3080,8 +3163,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,1,5,1
- PRODUCTVERSION 11,1,5,1
+ FILEVERSION 11,1,6,0
+ PRODUCTVERSION 11,1,6,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3099,14 +3182,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "11, 1, 5, 1\0"
+            VALUE "FileVersion", "11, 1, 6, 0\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "11, 1, 5, 1\0"
+            VALUE "ProductVersion", "11, 1, 6, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END

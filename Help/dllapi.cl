@@ -40,9 +40,14 @@
   #+(version>= 7) (mp:start-scheduler)
   (c_set_lisp_entrypoint (ff:register-function #'helpsys-execute nil t))
 
-  ; initialize help system data structures and load solver
-  (andes-init)
-  (format *debug-help* "Andes Initialized~%")
+  ; When building the dll image, we set andes-init as the :restart-init-function
+  ; to be called in the course of the Lisp startup routine. It seems to be necessary 
+  ; to adjust the crucial-for-us control variable *read-default-float-format* there to 
+  ; be sure it takes effect; attempting to set it here didn't seem to work for later (perhaps
+  ; because later code runs in a different Lisp thread with its own thread-local value?)
+  ; That routine will also load the solver and initialize help system data structures, so 
+  ; there is no further initialization for us to do here.
+  (format *debug-help* "Attached help system to workbench~%")
 )
 
 ; helpsys-execute -- main API for client calls to the help system

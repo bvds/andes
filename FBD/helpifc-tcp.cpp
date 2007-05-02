@@ -334,9 +334,12 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 #else  // ATLAS VERSION
 			strExePath = "\"" + strExeDir + "AndesAtlas.exe" + "\"";
 #endif // ATLAS VERSION
-			// allow Lisp cmdline args for showing console to be configured in registry
+			// allow registry setting to modify Lisp cmdline args for showing console 
+			// default if unset or empty is to suppress console with +c
 			CString strLispArgs = theApp.GetProfileString("Settings", "LispArgs", "");
-			if (!strLispArgs.IsEmpty())
+			// if unset or empty string, default is to not suppress console
+			if (strLispArgs.IsEmpty()) strLispArgs = "+c";
+			if (! strLispArgs.IsEmpty())
 				strExePath += " " + strLispArgs;
 			// NEW: add callback port arg
 			strExePath += strPortArg;

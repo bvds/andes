@@ -247,7 +247,7 @@
   
   ;; clear flag for detecting when problem done
   (reset-done-flag)
-  
+
   ;; Load the current problem and set into global *cp* 
   ;; NB: for case-sensitive filesystems, ensure we convert the problem name, 
   ;; passed as a string, to canonical upper case used for problem ids.

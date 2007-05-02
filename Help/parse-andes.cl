@@ -983,6 +983,9 @@
       ;;(format t "variable ~A~%" c-var)
       (if (or (stringp c-var) ; not translated 
 	      (not (or (canonical-var-answer-var-p c-var)
+		       ; Allow variables equivalent to declared answer-vars to be used as well.
+		       ; For probs like rots8b which use relpos and radius of circular motion
+	      	       ; (answer-var-equivalent-p c-var)
 	               ; always allow physical constants like G in answer expression
 	               ; since they are like numbers. (?Would we have a way to specify
 	               ; exactly which constants are allowed in answer if we wanted?)

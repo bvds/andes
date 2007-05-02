@@ -25,7 +25,7 @@
 
 (generate-application 
  "Andes2"
- "c:\\cygwin\\home\\andersw\\Andes2\\dist\\"
+ "c:\\cygwin\\home\\andersw\\Andes2\\"
  ; list copied from Andes1, not clear if all of these are needed
  '(:defctype :ffcompat :foreign :list2 :loop :seq2 :sock :defftype 
    ; new in 8.0: multiprocessing functions
@@ -37,7 +37,7 @@
  :autoload-warning t
 ; :application-files '("c:\\Andes2\\Solver_Release\\solver.dll")
  :application-type :exe
- :copy-shared-libraries t
+ :copy-shared-libraries nil
  ; deprecated
  ; :exit-after-image-build nil
  :discard-source-file-info t
@@ -70,7 +70,7 @@
 
 #| ; following patches default command line args into resource segment of a Windows executable
  #+windows
-  (win:set-default-command-line-arguments "default/Andes2.exe" '("-c"))
+  (win:set-default-command-line-arguments "Andes2.exe" '("+c"))
 |#
 
 ; OK, recompile this file to leave a development version

@@ -87,16 +87,24 @@ static const char * s_files[] =
 	"fbd-tcp.hlp",		// workbench help file for Andes2
 	"fbd.cnt",			// workbench help contents file, name compiled into .hlp file
 
-	//"andes2.dxl",		// helpsys Lisp image
-	//"andes2.exe",		// renamed lisp driver program for helpsys
-	//"acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
+	// TCP based helpsys 
+	"Andes2.dxl",		// helpsys Lisp image
+	"Andes2.exe",		// renamed lisp driver program for helpsys
+	// New in ACL 8.0.1
+	"Andes2.lic", 
 
+/*
 	// New DLL-based helpsys using ACL 8.0.1
 	"HelpSys.dxl",
 	"HelpSys.lic",
 	"helpifc.dll",
-	"acli8010.dll",
 	"lnkacl.dll",
+*/
+	
+	// OLD ACL 5.01 files
+	// "acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
+	// New ACL 8.01 support:
+	"acli8010.dll",
 
 	"solver.dll",		// Solver dll
 	

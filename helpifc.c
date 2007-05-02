@@ -34,10 +34,15 @@ Dllexport void c_set_lisp_entrypoint( int (*pfi) (char *, char *, int) )
 /* Export to Lisp:
  * Lisp side will use this function to fill result string buffer */
 int Dllexport
-c_copy_result( char *str1, char *str2, int n )
+c_copy_result( char *buf, char *result, int bufsiz )
 {
-  strncpy( str1, str2, n - 1 );
-  *(str2 + n) = '\0';
+  int nLen = strlen(result);
+  if (nLen > (bufsiz - 1)) {  // result too large!
+	  buf[0] = '\0';
+	  return 0;
+  }
+  strncpy( buf, result, nLen );
+  buf[nLen] = '\0';
   return 1;
 }
 

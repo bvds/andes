@@ -498,7 +498,7 @@ PostBuild_Cmds=copy $(OutDir)\fbd-dll.exe ..
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Zi /O1 /I "Example" /D "NDEBUG" /D "_AFXDLL" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "FBD_SCROLL_VIEW" /D "EX_SCROLL_VIEW" /D "EQ_RICHEDIT" /D "HELPIFC_TCP" /Yu"stdafx.h" /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
@@ -2102,9 +2102,6 @@ SOURCE=.\res\zvel_o.cur
 # 	2:21:DefaultSinkHeaderFile:webbrowser.h
 # 	2:16:DefaultSinkClass:CWebBrowser
 # End Section
-# Section OLE Controls
-# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
-# End Section
 # Section FBD : {2B6C9470-6704-11CF-BC04-0000C037C67D}
 # 	0:8:Splash.h:C:\Msdev\Projects\Fbd\Splash.h
 # 	0:10:Splash.cpp:C:\Msdev\Projects\Fbd\Splash.cpp
@@ -2117,6 +2114,9 @@ SOURCE=.\res\zvel_o.cur
 # 	2:10:HeaderName:Splash.h
 # 	2:10:ImplemName:Splash.cpp
 # 	2:7:BmpID16:IDB_SPLASH
+# End Section
+# Section OLE Controls
+# 	{EAB22AC3-30C1-11CF-A7EB-0000C05BAE0B}
 # End Section
 # Section FBD : {EAB22AC1-30C1-11CF-A7EB-0000C05BAE0B}
 # 	2:5:Class:CWebBrowser
