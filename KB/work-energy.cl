@@ -68,7 +68,7 @@
   (
    (gravity (orderless . ?grav-bodies) :time ?t-grav)
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t) ))
-   (time ?t) ;sanity test
+   (time ?t)
    (test (not (and (tinsidep ?t ?t-grav) 
 		   (member ?body ?grav-bodies :test #'unify)
 		   (member ?agent ?grav-bodies :test #'unify))))

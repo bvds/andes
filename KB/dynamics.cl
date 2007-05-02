@@ -794,7 +794,7 @@
 (defoperator ug-contains (?sought)
    :preconditions (
      ;; first make sure a gravitational interaction exists in problem
-     (gravity . ?grav-bodies) ;see Bug #1138
+     (gravity (orderless . ?grav-bodies) :time ?t-grav)
      (any-member ?sought (
 		    ;; if sought is a mass, can use either equation for force
 		    ;; on b1 from b2 or force on b2 from b1, so need both:
@@ -808,6 +808,7 @@
      (center-of-mass ?c1 (?b1))
      (center-of-mass ?c2 (?b2))
      (time ?t)
+     (test (tinsidep ?t ?t-grav))
    )
    :effects (
     (eqn-contains (ug ?b1 ?b2 ?t rel-pos) ?sought)
@@ -843,7 +844,7 @@
 (defoperator ug-circular-contains (?sought)
    :preconditions (
      ; first make sure gravitational interaction exists in problem
-     (gravity . ?grav-bodies) ;see Bug #1138
+     (gravity (orderless . ?grav-bodies) :time ?t-grav)
      ; make sure body1 is in circular motion for this form
      (motion ?b1 (curved circular ?dontcare) :time ?t-circular)
      (any-member ?sought (
@@ -855,6 +856,7 @@
      (any-member ?b2 ?grav-bodies)
      (time ?t)
      (test (tinsidep ?t ?t-circular))
+     (test (tinsidep ?t ?t-grav))
    )
    :effects (
     (eqn-contains (ug ?b1 ?b2 ?t radius) ?sought)
@@ -900,7 +902,7 @@
 (defoperator find-grav-force (?b1 ?b2 ?t)
   :preconditions 
   (
-   (gravity . ?grav-bodies) ;see Bug #1138
+   (gravity (orderless . ?grav-bodies) :time ?t-grav)
    ;; ?b1 probably bound coming in if finding all forces on it,
    ;; but agent ?b2 is probably not bound:
    (any-member ?b1 ?grav-bodies)
@@ -909,6 +911,8 @@
    ;; Don't require r to be drawn -- ug-circular form doesn't use it.
    (grav-direction ?b1 ?b2 ?t ?dir)
    (test (not (unify ?b1 ?b2))) ;forbid self-action of force (sanity test)
+   (time ?t)
+   (test (tinsidep ?t ?t-grav))
    )
   :effects ((force ?b1 ?b2 gravitational ?t ?dir NIL)
 	    ;; NIL given time should be translated to sought interval
