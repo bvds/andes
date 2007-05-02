@@ -95,39 +95,15 @@
 ;;; Currently, there is nothing in the user interface corresponding
 ;;; to setting a quantity to something constant.
 ;;;
-;; To be removed
 (defoperator inherit-constant-value (?quant ?t-constant ?t1) ;Bug #1002
   :preconditions 
   (
-   (constant ?quant ?t-constant)
-   (time ?t-constant)	  ; sanity test
+   (constant ?quant ?t-constant :inclusive ?flag) 
    (time ?t1)
    (test (and (not (equal ?t1 ?t-constant))
-	      (tinsidep ?t1 ?t-constant)))
-   (bind ?quant1 (set-time ?quant ?t1))
-   (bind ?quant2 (set-time ?quant ?t-constant))
-  )
-  :effects (
-	    (equals ?quant1 ?quant2)
-     )
-  :hint
-  ((point (string "Notice that ~a is constant ~a." ?quant ?t-constant))
-   (teach (string "If a quantity is constant over a time interval, then its value at any time inside the interval is equal to its value over the whole interval.")
-	  (kcd "inherit-constant-value"))
-   (bottom-out (string "Since ~a is constant ~a, and ~a is inside ~a, write the equation ~a=~a" 
-		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
-   ))
-
-;;; this variant allows us to include endpoints in the interval over 
-;;; which the value is declared constant
-;;; Specify (constant ?quant ?time inclusive) in givens for this form.
-(defoperator inherit-constant-value2 (?quant ?t-constant ?t1) ;Bug #1002
-  :preconditions 
-  (
-   (constant ?quant ?t-constant inclusive) ;See Bug #1001
-   (time ?t1)
-   (test (and (not (equal ?t1 ?t-constant))
-	      (tinsidep-include-endpoints ?t1 ?t-constant)))
+	      (if ?flag
+		  (tinsidep-include-endpoints ?t1 ?t-constant)
+		  (tinsidep ?t1 ?t-constant))))
    (bind ?quant1 (set-time ?quant ?t1))
    (bind ?quant2 (set-time ?quant ?t-constant))
   )

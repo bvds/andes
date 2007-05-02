@@ -557,33 +557,19 @@
   :effects ((inherit-quantity (compo ?xyz ?rot ?child) 
 			      (compo ?xyz ?rot ?parent))))
 
-;; Inheritance is appropriate if a quantity is declared constant
-;; This should render inherit-constant-value obsolete
+;; Inheritance is appropriate if a quantity is declared constant,
+;; This may render inherit-constant-value obsolete; see Bug #1002.
 (defoperator inherit-when-constant (?quant1)
   :preconditions 
   (
    ;; Here we assume ?t-constant is widest possible interval
-   (constant ?quant ?t-constant)
-   (time ?t-constant)	  ; sanity test
-   (time ?t1)
-   (test (and (not (unify ?t1 ?t-constant))
-	      (tinsidep ?t1 ?t-constant)))
-   (bind ?quant1 (set-time ?quant ?t1))
-   (bind ?quant2 (set-time ?quant ?t-constant))
-   )
-:effects ((inherit-quantity ?quant1 ?quant2)))
-
-;; the inclusive should be done via a keyword and this
-;; should be merged with inherit-when-constant; see Bug #1001
-(defoperator inherit-when-constant2 (?quant1)
-  :preconditions 
-  (
-   ;; Here we assume ?t-constant is widest possible interval
-   (constant ?quant ?t-constant inclusive) ;see Bug #1001
+   (constant ?quant ?t-constant :inclusive ?flag)
    (time ?t-constant)	  ; sanity test
    (time ?t1)
    (test (and (not (equal ?t1 ?t-constant))
-	      (tinsidep-include-endpoints ?t1 ?t-constant)))
+	      (if ?flag
+		  (tinsidep-include-endpoints ?t1 ?t-constant)
+		  (tinsidep ?t1 ?t-constant))))
    (bind ?quant1 (set-time ?quant ?t1))
    (bind ?quant2 (set-time ?quant ?t-constant))
    )
