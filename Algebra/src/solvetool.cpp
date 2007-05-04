@@ -92,7 +92,8 @@ string powersolve(const int howstrong, const varindx sought,
       
   // start the solution process. This will repeat if doagain winds up
   // positive
-  vector<binopexp *> partsols; // partially solved vars in purelin
+
+  vector<binopexp *> partsols;   // partially solved vars in purelin
   vector<binopexp *> soleqs;
   binopexp * ansexpr;		// will hold answer
   int doagain = 1;			// should we repeat
@@ -110,9 +111,6 @@ string powersolve(const int howstrong, const varindx sought,
 	for (q = 0; q < soleqs.size(); q++) 
 	cout << "          " << soleqs[q]->getLisp(false) << endl);
     if (checkifdone(sought, ansexpr, &soleqs)) goto success;
-    // remove any previous equations from partsols
-    for (q =0; q < partsols.size(); q++) partsols[q]->destroy();
-    partsols.clear();
     if (howstrong & 1) {
       DBG(cout << "About to try dopurelin" << endl;);
       dopurelin(&eqn,vars,&soleqs,&partsols,doagain);

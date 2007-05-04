@@ -55,7 +55,7 @@ using namespace std;
 void dopurelin(vector<binopexp *> * eqn, 
 	       vector<varindx> * & vars, 
 	       vector<binopexp *> * soleqs,
-	       vector<binopexp *> *partsols,
+	       vector<binopexp *> * partsols,
 	       int & doagain )
 {
   int k, q;
@@ -94,7 +94,13 @@ void dopurelin(vector<binopexp *> * eqn,
 	      << " equations for purelinsolv and " << eqn->size() 
 	      << " equations left over" << endl; );
 
-  partsols = new vector<binopexp *>;
+  // check for any existing equations
+  if(partsols->size()>0)
+    {
+      cerr << "parsols has nonzero length" << endl;
+      throw(string("Purelinsolv called with non-empty partsols"));
+    }
+  
   doagain = 0;
   if (trylineqs->size() > 0) 
     {

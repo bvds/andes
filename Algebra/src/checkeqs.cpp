@@ -288,14 +288,16 @@ void checkeqs( vector<binopexp *> * & eqn, // equations remaining to be slvd
 	}
       for (q = 0; q < partsols.size(); q++)
 	{
+	  // remove any link to this parsol in eqn
 	  for (k = 0; k < eqn->size(); k++)
 	    if (partsols[q] == (*eqn)[k])
 	      {
-		(*eqn)[k]->destroy();
 	      (*eqn)[k] = (*eqn)[eqn->size()-1];
 	      eqn->pop_back();
 	      break;
 	      }
+	  // delete equation itself
+	  partsols[q]->destroy();
 	}
     }
 }
