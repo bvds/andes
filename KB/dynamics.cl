@@ -1946,9 +1946,10 @@
   ( (any-member ?quantity ((mass ?b :time ?t) 
 			   (accel ?b :time ?t)
 			   (net-force ?b :time ?t)
-			  ))
-   (object ?b) ;sanity check
-   (time ?t))
+			   ))
+    (not (point-on-body ?b ?bb))
+    (object ?b) ;sanity check
+    (time ?t))
   :effects ((eqn-family-contains (NL ?b ?t :net t) ?quantity)))
 
 ;; This operator draws a free-body diagram consisting of the forces,
@@ -2761,6 +2762,8 @@
    ;; at a pivot or known to be rotating we should pick that axis.
    ;; So might want rotation-axis statement ala CLIPs to tell this. 
    (rotation-axis ?b ?axis)
+   ;; find force without drawing it, to get ?agent and ?type
+   (force ?pt ?agent ?type ?t . ?rest)
    )
    :effects 
    ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
@@ -2777,6 +2780,8 @@
 		 (relative-position ?pt ?axis :time ?t))))
    (point-on-body ?pt ?b)
    (rotation-axis ?b ?axis)
+   ;; find force without drawing it, to get ?agent and ?type
+   (force ?pt ?agent ?type ?t . ?rest)
    )
    :effects 
    ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
