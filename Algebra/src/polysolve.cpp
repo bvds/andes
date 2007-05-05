@@ -73,6 +73,11 @@ bool polysolve(vector<binopexp *> * eqn, const vector<varindx> *vars)
 		  DBG( cout << "polysolve found "
 		       << (*eqn)[k]->getInfix() << endl;);
 		  doagain = true;
+		} 
+	      else 
+		{
+		  DBG( cout <<"polysove found " << solth->size() 
+		       << " acceptable roots, can't decide which." << endl);
 		}
 	    }
 	  if (solth != (vector<double> *) NULL) 
