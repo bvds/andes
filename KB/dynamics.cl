@@ -127,15 +127,17 @@
 (defoperator find-weight-force (?b ?t ?planet)
   :preconditions 
    ((object ?b)
-    ;; We don't want to apply this rule to parts of 
-    ;; a larger rigid body, or to the whole rigid body.  Rather an alt op 
-    ;; will treat weight of whole body as force acting at cm
+    ;; We can apply this to a point or a whole rigid body, if center
+    ;; of mass is not specified.  Don't want to apply it to a part
+    ;; of a rigid body.
     (not (point-on-body ?b ?rigid-body))
-    (not (point-on-body ?part ?b))
+    (not (center-of-mass ?b (?bb)))  ;center of mass handled below
+    (not (center-of-mass ?cm (?b)))  ;center of mass handled below
     (time ?t)
     (not (massless ?b))
     (near-planet ?planet :body ?b ?b)
-    (not (force ?b ?planet weight ?t . ?dont-care)))
+    (not (force ?b ?planet weight ?t . ?dont-care))
+    (add-to-wm (non-cm-mass ?b ?planet ?t)))
   :effects (
      (force ?b ?planet weight ?t (dnum 270 |deg|) action)
      ;; NIL time here should be translated into sought time interval
@@ -172,7 +174,7 @@
        define a magnitude variable and an direction variable for it."
   :preconditions
    ((force ?b ?planet weight ?t ?dir action)
-    (not (center-of-mass ?b (?bb)))  ;center of mass handled below
+    (in-wm (non-cm-mass ?b ?planet ?t))  ; select correct force
     (not (vector ?b (force ?b ?planet weight :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" (body-name ?b) ?planet 
                                              (time-abbrev ?t)))
@@ -198,13 +200,13 @@
     ;; We don't want to apply this rule to parts of 
     ;; a larger rigid body, or to the whole rigid body.  Rather an alt op 
     ;; will treat weight of whole body as force acting at cm
-    (point-on-body ?cm ?rigid-body)
     (center-of-mass ?cm (?rigid-body))
     (not (point-on-body ?part ?cm))
     (time ?t)
     (not (massless ?cm))
     (near-planet ?planet :body ?cm ?cm)
-    (not (force ?cm ?planet weight ?t . ?dont-care)))
+    (not (force ?cm ?planet weight ?t . ?dont-care))
+    (add-to-wm (use-cm-mass ?cm ?planet ?t)))
   :effects (
      (force ?cm ?planet weight ?t (dnum 270 |deg|) action)
      ;; NIL time here should be translated into sought time interval
@@ -219,7 +221,7 @@
   :preconditions
    ( 
     (force ?cm ?planet weight ?dir action)
-    (in-wm (center-of-mass ?cm (?b)))  ;acheived when force found
+    (in-wm (use-cm-mass ?cm ?planet ?t))
     (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" ?cm ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
