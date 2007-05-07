@@ -270,12 +270,14 @@ bool desperate(vector<binopexp *> * eqn, vector<varindx> * & vars)
 	  DBG(cout << "desperate " << thisdbg << " returning true" << endl);
 	  return(true);
 	case 2:			
-	  // both equations used, and both vars partially solved.
-	  // but this is only progress if it leads to a solution
-	  bool polyresult=polysolve(eqn,vars); 
-	  DBG(cout << "desperate " << thisdbg << " returning " 
-	      << polyresult << endl);
-	  return(polyresult);		
+	  {
+	    // both equations used, and both vars partially solved.
+	    // but this is only progress if it leads to a solution
+	    bool polyresult=polysolve(eqn,vars); 
+	    DBG(cout << "desperate " << thisdbg << " returning " 
+		<< polyresult << endl);
+	    return(polyresult);
+	  }		
 	case 1:			// equations not independent. First made taut.
 	  continue;		//   (what if inconsistent?)
 	case 0:			// equations didn't live up to promise
