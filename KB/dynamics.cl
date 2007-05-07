@@ -172,6 +172,7 @@
        define a magnitude variable and an direction variable for it."
   :preconditions
    ((force ?b ?planet weight ?t ?dir action)
+    (not (center-of-mass ?b (?bb)))  ;center of mass handled below
     (not (vector ?b (force ?b ?planet weight :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" (body-name ?b) ?planet 
                                              (time-abbrev ?t)))
@@ -190,21 +191,35 @@
 
 ;; For rigid body problems: treat weight of body as force acting at body's
 ;; center of mass
-;; note this operator bypasses the (force ...) statement, so won't contribute
-;; to operators that use that to collect all forces on a body. Should
-;; be OK, if those uses all involve treating object as particle.
+
+(defoperator find-weight-cm (?cm ?t ?planet)
+  :preconditions 
+   ((object ?cm)
+    ;; We don't want to apply this rule to parts of 
+    ;; a larger rigid body, or to the whole rigid body.  Rather an alt op 
+    ;; will treat weight of whole body as force acting at cm
+    (point-on-body ?cm ?rigid-body)
+    (center-of-mass ?cm (?rigid-body))
+    (not (point-on-body ?part ?cm))
+    (time ?t)
+    (not (massless ?cm))
+    (near-planet ?planet :body ?cm ?cm)
+    (not (force ?cm ?planet weight ?t . ?dont-care)))
+  :effects (
+     (force ?cm ?planet weight ?t (dnum 270 |deg|) action)
+     ;; NIL time here should be translated into sought time interval
+     (force-given-at ?cm ?planet weight NIL (dnum 270 |deg|) action)
+  ))
+
 (defoperator draw-weight-at-cm (?b ?t ?planet)
   :specifications "
     If rigid body is not massless, and it is near a planet,
     then draw a weight force vector acting at the center of mass, pointing straight down,
        define a magnitude variable and an direction variable for it."
   :preconditions
-   ( (object ?b)
-    (in-wm (center-of-mass ?cm (?b)))
-    (time ?t)
-    (not (massless ?b))
-    (near-planet ?planet :body ?b ?b)
-    (not (vector ?cm (force ?cm ?planet weight :time ?t) ?dont-care))
+   ( 
+    (force ?cm ?planet weight ?dir action)
+    (in-wm (center-of-mass ?cm (?b)))  ;acheived when force found
     (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" ?cm ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -1911,19 +1926,18 @@
 
 (defoperator NL-vector-contains (?quantity)
   :specifications 
-   "Newton's law potentially contains the body's mass, 
+  "Newton's law potentially contains the body's mass, 
      the magnitude of its acceleration, and
      the direction of its acceleration"
   :preconditions 
   ((any-member ?quantity
 	       ;; assume any mass change described by thrust force
-	        ((mass ?b :time ?t) 
-		 (accel ?b :time ?t)
-		 (force ?b ?agent ?type :time ?t)))
+	       ((mass ?b :time ?t) 
+		(accel ?b :time ?t)
+		(force ?b ?agent ?type :time ?t)))
    (object ?b) ;; sanity check
    (time ?t))
-  :effects
-   ((eqn-family-contains (NL ?b ?t) ?quantity)))
+  :effects ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
 ;; version for rigid bodies
 (defoperator NL-vector-point-contains (?Quantity)
@@ -1934,8 +1948,7 @@
     (point-on-body ?point ?b)
     (object ?b) ;sanity check (not really needed)
     (time ?t))
-  :effects
-   ((eqn-family-contains (NL ?b ?t) ?quantity)))
+  :effects ((eqn-family-contains (NL ?b ?t) ?quantity)))
 
 (defoperator NL-net-vector-contains (?quantity)
   :specifications 
@@ -1943,13 +1956,13 @@
      the magnitude of its acceleration, and
      the direction of its acceleration"
   :preconditions 
-  ( (any-member ?quantity ((mass ?b :time ?t) 
-			   (accel ?b :time ?t)
-			   (net-force ?b :time ?t)
-			   ))
-    (not (point-on-body ?b ?bb))
-    (object ?b) ;sanity check
-    (time ?t))
+  ((any-member ?quantity ((mass ?b :time ?t) 
+			  (accel ?b :time ?t)
+			  (net-force ?b :time ?t)
+			  ))
+   (not (point-on-body ?b ?bb)) ;make sure this is not just a part
+   (object ?b) ;sanity check
+   (time ?t))
   :effects ((eqn-family-contains (NL ?b ?t :net t) ?quantity)))
 
 ;; This operator draws a free-body diagram consisting of the forces,
@@ -1972,8 +1985,8 @@
 ;;; there are two mutually exclusive operators depending on whether
 ;;; net force is to be shown or not. We only show net force if the
 ;;; problem explicitly mentions it (i.e. seeks it.)
+
 (defoperator draw-nl-fbd (?rot ?b ?t)
-  
   :specifications 
    "If the goal is to draw a fbd for newton's law,
    then draw a body, draw the forces, the acceleration and the axes,
@@ -2076,8 +2089,7 @@
   :preconditions 
   (
    (debug "start  NSL~%")
-   (not (vector ?b (accel ?b :time ?t-accel) zero)
-        (tinsidep ?t ?t-accel))
+   (not (vector ?b (accel ?b :time ?t) zero))
    (not (massless ?b))
    (debug "finish  NSL~%")
    )
@@ -2116,7 +2128,7 @@
   :effects
    ((eqn (= (+ . ?f-compo-vars) 0)
 	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t)))
-    (assume using-NL forces ?b ?t)
+    (assume using-NL no-net ?b ?t)
     (implicit-eqn (= ?a-compo 0) 
 		  (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
@@ -2168,7 +2180,7 @@
   :effects
    ((eqn (= (+ . ?f-compo-vars) ?ma-term)
 	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t)))
-    (assume using-NL forces ?b ?t)
+    (assume using-NL no-net ?b ?t)
     )
   :hint
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is accelerating ~A." 
@@ -2421,28 +2433,6 @@
 ;;===================== Torque and Net Torque =========================
 
 
-;; Net torque PSM -- for computing net torque on an object as sum of
-;; torques produced by individual forces on parts of object.
-;;
-
-
-(defoperator net-torque-contains (?sought)
-  :preconditions (
-    (any-member ?sought (
-                     (net-torque ?b ?axis :time ?t)
-		     (torque ?b ?force :axis ?axis ?axis :time ?t)
-                        ))
-    ;; should be able to do any point-on-body, 
-    ;; but choose rotation axis when specified
-    (rotation-axis ?b ?axis) ;?axis is not bound by couples
-    ;; make sure there aren't unknown forces, as in basic rotational kinematics
-    ;; problems with unexplained accelerations
-   (not (unknown-forces :time ?t ?t))
-   )
-   :effects (
-     (angular-eqn-contains (net-torque ?b ?axis ?t) ?sought)
-   ))
-
 ;;; draw an individual torque due to a force with at known direction
 ;;; acting on a point with a known relative position
 (defoperator draw-torque (?b ?axis ?pt ?agent ?type ?t)
@@ -2675,6 +2665,41 @@
    :effects
     ((torques ?b ?axis ?t ?all-torques)))
 
+
+;; following draws torque diagram for qualititative problems that ask for 
+;; all torques only.  This shows a body and all torques on it. 
+;; We make axes optional here. Counterpart to draw-standard-fbd
+(defoperator draw-torque-fbd (?b ?axis ?t)
+   :preconditions 
+           ((body ?b)
+	    (torques ?b ?axis ?t ?torques)
+	    (optional (axes-for ?b 0)))
+   :effects ((torque-fbd ?b ?axis ?t)))
+
+;; Net torque PSM -- for computing net torque on an object as sum of
+;; torques produced by individual forces on parts of object.
+;;
+
+(defoperator net-torque-contains (?sought)
+  :preconditions (
+    (any-member ?sought (
+                     (net-torque ?b ?axis :time ?t)
+		     (torque ?b ?force :axis ?axis ?axis :time ?t)
+                        ))
+    ;; should be able to do any point-on-body, 
+    ;; but choose rotation axis when specified
+    (rotation-axis ?b ?axis) ;?axis is not bound by couples
+    ;; make sure there aren't unknown forces, as in basic rotational kinematics
+    ;; problems with unexplained accelerations
+   (not (unknown-forces :time ?t ?t))
+   )
+   :effects (
+   (eqn-family-contains (net-torque ?b ?axis ?t) ?sought)
+  ;; since only one compo-eqn under this vector PSM, we can just
+  ;; select it now, rather than requiring further operators to do so
+   (compo-eqn-contains (net-torque ?b ?axis ?t) definition ?sought)
+   ))
+
 (defoperator draw-net-torque-diagram (?rot ?b ?axis ?t)
   :preconditions (
    ;; draw all torques due to each force
@@ -2686,16 +2711,6 @@
   :effects (
     (vector-diagram ?rot (net-torque ?b ?axis ?t))
   ))
-
-;; following draws torque diagram for qualititative problems that ask for 
-;; all torques only.  This shows a body and all torques on it. 
-;; We make axes optional here. Counterpart to draw-standard-fbd
-(defoperator draw-torque-fbd (?b ?axis ?t)
-   :preconditions 
-           ((body ?b)
-	    (torques ?b ?axis ?t ?torques)
-	    (optional (axes-for ?b 0)))
-   :effects ((torque-fbd ?b ?axis ?t)))
 
 ;; generate equation for net torque:
 ;; Tnet_z = Tau1_z + Tau2_z + Tau3_z
@@ -2714,21 +2729,22 @@
 ;; Following asks for projection for net torque. For use when dir is known. 
 ;; This can now be used with generic component-form flag as well.
 ;;
-(defoperator write-net-torque (?b ?axis ?t)
+(defoperator write-net-torque (?b ?axis ?t ?z ?rot)
   :preconditions (
    ;; fetch list of individual torques
    (in-wm (torques ?b ?axis ?t ?torques))
    ;; define component variables for each of the contributing torques
    (map ?torque ?torques
-      (variable ?ti_z (compo z 0 ?torque))
+      (variable ?ti_z (compo ?z ?rot ?torque))
       ?ti_z ?torque-compos) 
    (debug "net torque components: ~A~%" ?torque-compos)
    ;; define zc net torque variable 
-   (variable ?tnet_z (compo z 0 (net-torque ?b ?axis :time ?t)))
+   (variable ?tnet_z (compo ?z ?rot (net-torque ?b ?axis :time ?t)))
   )
   :effects (
    (eqn (= ?tnet_z (+ . ?torque-compos)) 
-               (compo-eqn z 0 (net-torque ?b ?axis ?t)))
+               (compo-eqn definition ?z ?rot (net-torque ?b ?axis ?t)))
+   (assume using-NL net ?b ?t)
   )
   :hint (
 	 (point (string "Can you write an equation for the z component of the net ~A in terms of the z components of ~As due to each force?" 
@@ -2910,132 +2926,175 @@
 ;;;;                  Rotational version of NFL
 ;;;;
 ;;;;===========================================================================
+;;;
+;;;   This should be a copy of the translational version of Newton's laws
+;;;   In principle, the rotational and translational versions should be merged.
+;;;
 
-
-#| ;not working yet
-(defoperator NFL-rotation-contains (?sought)
+(defoperator NL-rot-contains (?quantity)
+  :specifications 
+  "Newton's law potentially contains the body's mass, 
+     the magnitude of its acceleration, and
+     the direction of its acceleration"
   :preconditions 
   (
-   ;; need to bind rotation axis if not seeking torque
-   (point-on-body ?axis ?b)
-   (not (rotation-axis ?b ?axis))
-   (any-member ?sought (
-			(torque ?b ?force :axis ?axis ?axis :time ?t)
-			(net-torque ?b ?axis :time ?t)
-			))
-   (motion ?b ang-at-rest :time ?t-motion)
-   (test (tinsidep ?t ?t-motion))
-   (bind ?type (first ?sought))
-   )
-  :effects (
-	    (angular-eqn-contains (NFL-rot ?b ?axis ?t ?type) ?sought)
-	    ))
-
-(defoperator NFL-rotation-zc-contains (?sought)
-  :preconditions (
-		  (not (rotation-axis ?b ?axis))
-		  (point-on-body ?axis ?b)
-		  (any-member ?sought (
-			(torque ?b ?force :axis ?axis ?axis :time ?t)
-			))
-		  (motion ?b ang-at-rest :time ?t-motion)
-		  (test (tinsidep ?t ?t-motion))
-		  )
-  :effects (
-	    (angular-eqn-contains (NFL-rot ?b ?axis ?t zc) ?sought)
-	    ))
-
-(defoperator draw-NFL-rot-diagram (?rot ?b ?axis ?t)
-  :preconditions (
-		  (not (vector-diagram 0 (NFL-rot ?b ?axis ?t)))
-		  ;; (body ?b)
-		  (torques ?b ?axis ?t ?torques)
-		  (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
-		  (vector ?b (ang-accel ?b :time ?t) ?dir-accel)
-		  (axes-for ?b ?rot)
-		  )
-  :effects ( (vector-diagram ?rot (NFL-rot ?b ?axis ?t)) ))
-
-(defoperator write-NFL-rotation (?b ?axis ?t)
-  
-  :preconditions 
-  (
-   (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-   (variable ?I (moment-of-inertia ?b)
-   (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
-   ;; fetch mag variable for implicit equation (defined when drawn)
-   (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
-   )
-  :effects 
-  (
-   (eqn (= ?tau_z (* ?I ?alpha_z)) 
-	(compo-eqn z 0 (NFL-rot ?b ?axis ?t)))
-   ;; Don't do this because it can pre-empt projection if it is in fact used
-   ;; on a component-form problem for magnitude (tor5a)
-   ;; for algebraic completeness: put out equation for mag ang-accel
-   ;; in terms of component, so gets determined from alpha_z if dir is unknown
-   ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (mag (ang-accel ?b :time ?t)))
-   )
-  :hint (
-	 (point (string "Can you relate the z components of the net ~A and angular acceleration?"
-			(nil moment-name)))
-	 (teach (string "Just as Newton's second law says that Fnet = m*a, Newton's law for rotation states that the net ~A on an object equals the object's moment of inertia times its angular acceleration.  This relation can be applied along the z axis to relate the z-components of net ~A and angular acceleration." 
-			(nil moment-name) (nil moment-name)))
-	 (bottom-out (string "Write Newton's law for rotation in terms of component variables along the z axis, namely ~A." 
-			     ((= ?tau_z (* ?I ?alpha_z)) algebra)))
-	 ))
-|#
-
-;;;;
-;;;;            NSL for rotation tau_net = I * alpha
-;;;;
-
-(defoperator NSL-rotation-contains (?sought)
-   :preconditions (
-   ;; need to bind rotation axis if not seeking torque
    (rotation-axis ?b ?axis)
-   (any-member ?sought (
-              (ang-accel ?b :time ?t)
-	      (net-torque ?b ?axis :time ?t)
-	      (moment-of-inertia ?b :time ?t)
-	               ))
-   (time ?t)
-   )
-   :effects (
-     (angular-eqn-contains (NSL-rot ?b ?axis ?t) ?sought)
-   ))
+   (any-member ?quantity
+	       ((moment-of-inertiam ?b :time ?t) 
+		(ang-accel ?b :time ?t)
+		(torque ?b ?force :axis ?axis :time ?t)))
+   (object ?b) ;; sanity check
+   (time ?t))
+  :effects ((eqn-family-contains (NL-rot ?b ?axis ?t) ?quantity)))
 
-(defoperator draw-NSL-rot-diagram (?rot ?b ?axis ?t)
-    :preconditions (
-      (not (vector-diagram ?rot (NSL-rot ?b ?axis ?t)))
-      ;; (body ?b)
-      (torques ?b ?axis ?t ?torques)
-      (vector ?b (net-torque ?b ?axis :time ?t) ?dir)
-      (vector ?b (ang-accel ?b :time ?t) ?dir-accel)
-      (bind ?rot 0)
-      (axes-for ?b ?rot)
+(defoperator NL-rot-net-vector-contains (?quantity)
+  :preconditions 
+  (
+   (rotation-axis ?b ?axis)
+   (any-member ?quantity ((moment-of-inertia ?b :time ?t) 
+			  (ang-accel ?b :time ?t)
+			  (net-torque ?b ?axis :time ?t)
+			  ))
+   (not (point-on-body ?b ?bb))
+   (object ?b) ;sanity check
+   (time ?t))
+  :effects ((eqn-family-contains (NL-rot ?b ?axis ?t :net t) ?quantity)))
+
+
+(defoperator draw-nl-rot-fbd (?rot ?b ?t)
+  :preconditions
+  (
+   (torques ?b ?axis ?t ?forces)   ;; this also draws the torques
+   (test ?forces)	;fail if no forces could be found
+   (inherit-vector ?b (ang-accel ?b :time ?t) ?accel-dir)
+   (axes-for ?b ?rot))
+  :effects
+   ((vector-diagram ?rot (NL-rot ?b ?axis ?t))))
+
+;; 
+;; Following draws a free-body diagram for the net-force variant of NL
+;;
+(defoperator draw-NL-rot-net-fbd (?rot ?b ?t)
+  :preconditions
+  (
+   (debug "start draw-NL-rot-net-fbd~%")
+   (test ?netp)
+   (inherit-vector ?b (ang-accel ?b :time ?t) ?accel-dir)
+   (vector ?b (net-torque ?b ?axis :time ?t) ?force-dir) 
+   (axes-for ?b ?rot)
+   (debug "finish draw-NL-rot-net-fbd~%")
+   )
+  :effects
+   ((vector-diagram ?rot (NL-rot ?b ?axis ?t :net ?netp))))
+  
+(defoperator NFL-rot-zero-accel (?quantity)
+  :preconditions 
+  ((any-member ?quantity ((torque ?b ?force :axis ?axis :time ?t)))
+   (object ?b)
+   ;;done in drawing step
+   (in-wm (inherit-vector ?b (ang-accel ?b :time ?t) zero)) )
+  :effects ((compo-eqn-contains (NL-rot ?b ?axis ?t) NFL ?quantity)))
+
+(defoperator NSL-rot (?quantity)
+  :preconditions 
+  (
+   (debug "start  NSL~%")
+   (not (vector ?b (ang-accel ?b :time ?t) zero))
+   (not (massless ?b))
+   (debug "finish  NSL~%")
+   )
+  :effects
+   ((compo-eqn-contains (NL-rot ?b ?axis ?t :net ?netp) NSL ?quantity))
+ )
+
+(defoperator write-NFL-rot (?b ?t ?xyz ?rot)
+  :preconditions
+  ((in-wm (torques ?b ?axis ?t ?forces)) ;from drawing step
+   (map ?f ?forces 
+   	(inherit-variable ?compo-var (compo ?xyz ?rot ?f))
+	?compo-var ?f-compo-vars)
+   ;; we want Fi = m * a to be accepted if it is written. But also
+   ;; need to write Sum Fi = 0 as final eqn so won't appear to contain m, a
+   ;; so we make sure we have a compo var and put implicit eqn in effects.
+    (variable ?a-compo (compo ?xyz ?rot (ang-accel ?b :time ?t)))
+  )
+  :effects
+   ((eqn (= (+ . ?f-compo-vars) 0)
+	 (compo-eqn NFL ?xyz ?rot (NL-rot ?b ?axis ?t)))
+    (assume using-NL no-net ?b ?t)
+    (implicit-eqn (= ?a-compo 0) 
+		  (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
+  :hint
+   ((point (string "You can apply the rotational version Newton's second law to ~A.  Note that ~A has no angular acceleration ~A." 
+		   ?b ?b (?t pp)))
+    (teach (string 
+    "The rotational version of Newton's second law $t = I*$a states that the net torque on an object = the object's moment of inertia times its angular acceleration.  In this case the angular acceleration is zero so you know the sum of all torques on the object must be zero."
+    ))
+    (bottom-out (string "Because ~a is not accelerating ~a, write Newton's second law as ~A" 
+			?b (?t pp) ((= (+ . ?f-compo-vars) 0) algebra)))))
+
+
+(defoperator write-NSL-rot-compo (?b ?axis ?t ?xyz ?rot)
+  :specifications 
+   "If the goal is to write newton's second law in component form,
+      ensure there are component variables ?compo-vars for the components 
+      of each of the forces on ?b at ?t,
+   then write ?f1c + ?f2c + ... = ?m * ?ac, where ?fic and ?ac
+      are the appropriate component variables for ?fi and ?a,
+      respectively."
+  :preconditions
+  (
+   (in-wm (torques ?b ?axis ?t ?forces)) ;done in drawing step
+   ;; for each force on b at t, define a component variable, 
+   ;; collecting variable names into ?f-compo-vars
+   (debug "write-NSL-compo(~A ~A ~A): defining force compo vars~%" ?b ?xyz ?rot)
+   (map ?f ?forces 
+    (inherit-variable ?f-compo-var (compo ?xyz ?rot ?f))
+   	?f-compo-var ?f-compo-vars)
+   (debug "write-NSL-compo: set of force compo-vars = ~A~%" ?force-compo-vars)
+   (variable ?a-compo (compo ?xyz ?rot (ang-accel ?b :time ?t)))
+   ;; assume any mass change is described by thrust force
+   (inherit-variable ?m (moment-of-inertia ?b :time ?t))
+   ;; see if acceleration compo doesn't vanish
+   ;; if it does, we still write equation to give sum of forces = 0
+   (in-wm (vector ?b (ang-accel ?b :time ?t) ?dir-a))
+   (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
+		      `(* ,?m ,?a-compo) 0))
+   (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
+   )
+  :effects
+   ((eqn (= (+ . ?f-compo-vars) ?ma-term)
+	 (compo-eqn NSL ?xyz ?rot (NL-rot ?b ?axis ?t)))
+    (assume using-NL no-net ?b ?t)
     )
-    :effects (
-      (vector-diagram ?rot (NSL-rot ?b ?axis ?t))
+  :hint
+   ((point (string "You can apply the rotational version of Newton's second law to ~A.  Note that ~A has angular acceleration ~A." 
+		   ?b ?b (?t pp)))
+    (teach (string "The rotation version of Newton's second law is $t = m*$a.  The net torque $t is the vector sum of all torques acting on the object.  This can be applied component-wise."))
+    (bottom-out (string "Write the rotational version of Newton's second law in terms of component variables along the ~A axis as ~A" 
+			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?ma-term) algebra)))
     ))
 
-(defoperator write-NSL-rotation (?b ?axis ?t)
+(defoperator write-NSL-rot-net (?b ?axis ?t ?z ?rot)
    
-   :preconditions (
-     (variable ?tau_z   (compo z 0 (net-torque ?b ?axis :time ?t)))
-     (inherit-variable ?I (moment-of-inertia ?b :time ?t))
-     (variable ?alpha_z (compo z 0 (ang-accel ?b :time ?t)))
-     ; fetch mag variable for implicit equation (defined when drawn)
-     (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
-   )
+   :preconditions 
+   (
+    (test ?netp)
+    (variable ?tau_z  (compo ?z ?rot (net-torque ?b ?axis :time ?t)))
+    (inherit-variable ?I (moment-of-inertia ?b :time ?t))
+    (variable ?alpha_z (compo ?z ?rot (ang-accel ?b :time ?t)))
+    ;; fetch mag variable for implicit equation (defined when drawn)
+    (in-wm (variable ?mag-var (mag (ang-accel ?b :time ?t))))
+    )
    :effects (
      (eqn (= ?tau_z (* ?I ?alpha_z)) 
-                 (compo-eqn z 0 (NSL-rot ?b ?axis ?t)))
+                 (compo-eqn NSL ?z ?rot (NL-rot ?b ?axis ?t :net ?netp)))
      ;; Don't do this because it can pre-empt projection if it is in fact used
      ;; on a component-form problem for magnitude (tor5a)
      ;; for algebraic completeness: put out equation for mag ang-accel
      ;; in terms of component, so gets determined from alpha_z if dir is unknown
      ;; (implicit-eqn (= ?mag-var (abs (?alpha_z))) (mag (ang-accel ?b :time ?t)))
+     (assume using-NL net ?b ?t)
      )
    :hint (
 	  (point (string "Can you relate the z components of the net ~A and angular acceleration?"

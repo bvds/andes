@@ -292,16 +292,18 @@
 
 
 
-(defoperator write-cons-linmom-compo-split (?bodies ?t1 ?t2 ?xyz ?rot)
+(defoperator write-cons-linmom-compo-join-split (?bodies ?t1 ?t2 ?xyz ?rot)
   :preconditions (
   ;; use these steps if collision involves split 
-  (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type split))
+  (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type ?flag))
+  (any-member ?flag (join split))
+  (bind (?t ?tt) (if (eq ?flag 'join) (list ?t1 ?t2) (list ?t2 ?t1)))
   ;; write subsidiary equations for all needed momenta components along ?xyz
-  (bind ?c `(compound orderless ,@?bodies))
-  (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?t1)))
   (map ?b ?bodies
-       (variable ?pf_compo (compo ?xyz ?rot (momentum ?b :time ?t2)))
+       (variable ?pf_compo (compo ?xyz ?rot (momentum ?b :time ?t)))
        ?pf_compo ?pf_compos)
+  (bind ?c `(compound orderless ,@?bodies))
+  (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?tt)))
   ;; allow any zero-valued velocity components to be mentioned, since they
   ;; might not be needed anywhere else in the solution
   (include-zero-vcomps ?xyz ?rot)
@@ -320,33 +322,6 @@
 		       ((axis ?xyz ?rot) symbols-label)
 		       ((= ?pc_compo (+ . ?pf_compos)) algebra)))
    ))
-
-(defoperator write-cons-linmom-compo-join (?bodies ?t1 ?t2 ?xyz ?rot)
-  :preconditions (
-  ;; use these steps if join in inelastic collision
-  (in-wm (collision (orderless . ?bodies) (during ?t1 ?t2) :type join))
-  ;; write subsidiary equations for all needed momenta components along ?xyz
-  (map ?b ?bodies
-       (variable ?pi_compo (compo ?xyz ?rot (momentum ?b :time ?t1)))
-       ?pi_compo ?pi_compos)
-  ;; p_final = pc
-  (bind ?c `(compound orderless ,@?bodies))
-  (variable ?pc_compo (compo ?xyz ?rot (momentum ?c :time ?t2)))
-  ;; allow any zero-valued velocity components to be mentioned, since they
-  ;; might not be needed anywhere else in the solution
-  (include-zero-vcomps ?xyz ?rot)
-  )
-  :effects (
-  (eqn (= (+ . ?pi_compos) ?pc_compo)
-       (compo-eqn lm-compo ?xyz ?rot (cons-linmom ?bodies (during ?t1 ?t2))))
-  )
-  :hint (
-   (point (string "Can you write an equation relating the ~a components of total momentum before and after the collision?" ((axis ?xyz ?rot) symbols-label)))
-  (teach (string "The law of conservation of momentum states that if no external force acts on a system, then the total momentum remains constant. Because the total momentum is the vector sum of the momenta of each body in the system, this law entails that the sum of the momentum components in any direction is the same before and after a collision."))
-    (bottom-out (string "Write conservation of momentum along the ~A axis as ~A"  
-		        ((axis ?xyz ?rot) symbols-label)  
-                        ((= (+ . ?pi_compos) ?pc_compo) algebra)))
-  ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -396,27 +371,30 @@
                           )) 
       (time ?t)
    )
-   :effects ((angular-eqn-contains (ang-momentum ?b ?t) ?sought))
-)
+   :effects 
+   (
+    (eqn-family-contains (ang-momentum ?b ?t) ?sought)
+    ;; since only one compo-eqn under this vector PSM, we can just
+    ;; select it now, rather than requiring further operators to do so
+    (compo-eqn-contains (ang-momentum ?b ?t) definition ?sought)
+    ))
 
 (defoperator draw-ang-momentum-vectors (?rot ?b ?t)
   :preconditions 
-     ( (not (vector-diagram 0 (ang-momentum ?b ?t))) 
-       (vector ?b (ang-momentum ?b :time ?t) ?dir) 
-       (bind ?rot 0)
+     ((vector ?b (ang-momentum ?b :time ?t) ?dir) 
        (axes-for ?b ?rot) )
   :effects 
      ( (vector-diagram ?rot (ang-momentum ?b ?t)) ))
 
 (defoperator write-ang-momentum (?b ?t)
   :preconditions (
-     (variable ?L_z (compo z 0 (ang-momentum ?b :time ?t)))
-     (variable ?omega_z (compo z 0 (ang-velocity ?b :time ?t)))
+     (variable ?L_z (compo ?z ?rot (ang-momentum ?b :time ?t)))
+     (variable ?omega_z (compo ?z ?rot (ang-velocity ?b :time ?t)))
      (inherit-variable ?I (moment-of-inertia ?b :time ?t))
   )
   :effects (
      (eqn (= ?L_z (* ?I ?omega_z)) 
-                 (compo-eqn z 0 (ang-momentum ?b ?t)))
+                 (compo-eqn definition ?z ?rot (ang-momentum ?b ?t)))
   )
   :hint (
     (point (string "Can you write an equation for the z component of the angular momentum of ~A ~A?" ?b (?t pp)))
@@ -442,7 +420,10 @@
    (test (subsetp (simple-parts ?b) ?bodies))
    )
   :effects (
-    (angular-eqn-contains (cons-angmom ?bodies ?tt) ?sought)
+  (eqn-family-contains (cons-angmom ?bodies ?tt) ?sought)
+  ;; since only one compo-eqn under this vector PSM, we can just
+  ;; select it now, rather than requiring further operators to do so
+  (compo-eqn-contains (cons-angmom ?bodies ?tt) angmom-id ?sought)
     ))
 
 (defoperator draw-cons-angmom-diagram (?rot ?bodies ?tt)
@@ -487,7 +468,7 @@
   )
   :effects ( (rotation-collision-momenta-drawn ?bodies ?after-flag ?tt) ))
 
-(defoperator write-cons-angmom (?bodies ?t1 ?t2)
+(defoperator write-cons-angmom (?bodies ?t1 ?t2 ?z ?rot)
   :preconditions (
    ;; don't use this in case of a join
    (collision (orderless . ?bodies) (during ?t1 ?t2) :axis ?axis :type ?type)
@@ -495,15 +476,15 @@
    ;; apply single-body ang-momentum method for each to draw vectors and 
    ;; generate compo equation for each body at initial and final times
    (map ?b ?bodies
-	(variable ?L1_compo (compo z 0 (ang-momentum ?b :time ?t1)))
+	(variable ?L1_compo (compo ?z ?rot (ang-momentum ?b :time ?t1)))
 	?L1_compo ?L1_compos)
    (map ?b ?bodies
-	(variable ?L2_compo (compo z 0 (ang-momentum ?b :time ?t2)))
+	(variable ?L2_compo (compo ?z ?rot (ang-momentum ?b :time ?t2)))
 	?L2_compo ?L2_compos)
   )
   :effects (
   (eqn (= (+ . ?L1_compos) (+ . ?L2_compos))
-       (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2))))
+       (compo-eqn angmom-id ?z ?rot (cons-angmom ?bodies (during ?t1 ?t2))))
 	   )
   :hint (
   (point (string "Can you write an equation relating the z components making up the total angular momentum before and after the change?"))
@@ -514,23 +495,24 @@
   ))
 
 ;; same as above for case of bodies joining together into compound
-(defoperator write-cons-angmom-join (?bodies ?t1 ?t2)
+(defoperator write-cons-angmom-join-split (?bodies ?t1 ?t2)
   :preconditions (
    ;; use this only in case of a join
-  (collision (orderless . ?bodies) (during ?t1 ?t2) :axis ?axis :type join)
+  (collision (orderless . ?bodies) (during ?t1 ?t2) :axis ?axis :type ?flag)
+  (any-member ?flag (join split))
+  (bind (?t ?tt) (if (eq ?flag 'join) (list ?t1 ?t2) (list ?t2 ?t1)))
   ;; apply single-body ang-momentum method for each to draw vectors and 
   ;; generate compo equation for each body at initial and final times
   ;; initial time:
    (map ?b ?bodies
-	(variable ?L1_compo (compo z 0 (ang-momentum ?b :time ?t1)))
+	(variable ?L1_compo (compo ?z ?rot (ang-momentum ?b :time ?t)))
 	?L1_compo ?L1_compos)
-  ; final time is the compound
   (bind ?c `(compound orderless ,@?bodies)) ; for shorthand
-  (variable ?L2_z (compo z 0 (ang-momentum ?c :time ?t2)))
+  (variable ?L2_z (compo ?z ?rot (ang-momentum ?c :time ?tt)))
   )
   :effects (
   (eqn (= (+ . ?L1_compos) ?L2_z)
-       (compo-eqn z 0 (cons-angmom ?bodies (during ?t1 ?t2))))
+       (compo-eqn angmom-id ?z ?rot (cons-angmom ?bodies (during ?t1 ?t2))))
 	   )
    :hint (
  (point (string "Can you write an equation relating the z-components making up
@@ -540,6 +522,7 @@
   (bottom-out (string "Write the equation ~A" 
                       ((= (+ . ?L1_compos) ?L2_z) algebra)))	  
 	  ))
+
 
 ;;;;===========================================================================
 ;;;;

@@ -3086,53 +3086,6 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;; and an equation we can use algebraically to specify it; and, it may help 
 ;; to teach general vector concepts.
 ;;
-;; There is a special driver for angular PSMs because they operate slightly 
-;; differently from the vector PSMs. Mainly we know the axis is going
-;; to be the z-axis, so don't have to go to the trouble of drawing axes and
-;; choosing directions based on drawn vectors to apply.  Independently,
-;; we don't go through the step of grouping different component equations
-;; under a single PSM with a common diagram here; we just associate the
-;; diagram with the equation and only draw the vectors we need.
-;;
-;; Note: In current Andes you can't use z-component variables until you draw a
-;; coordinate axis, even though the z axis is not settable and the xy rotation
-;; doesn't matter. We expect to change Andes so that this becomes unnecessary; 
-;; for now we include the axis drawing step to achieve a z axis at 0. This 
-;; should always be achievable by draw-unrotated-axes. It might fail in
-;; the future a problem if any linear vectors are drawn on the body.
-
-
-; Following variant writes component-form equations in order to solve
-; for z components directly, rather than magnitude/direction of z vectors.
-; This is especially necessary on problems where the direction of some
-; angular vector like net torque or angular acceleration is unknown,
-; since our algebra solver cannot currently solve for unknown phi angles 
-; from projection equations like alpha_z = alpha * cos(phi_alpha) together 
-; with the magnitude of alpha, which can be determined by alpha = abs(alpha_z).
-; The reason is that it can't invert cos(phi) = 1 (or -1) to solve for phi
-
-(defoperator apply-angular-PSM (?sought ?eqn-id) 
-  :preconditions
-  (
-   (inherit-or-quantity ?quant ?sought :and t) ;looking for children
-   ;; get any vector associated with ?quant
-   (bind ?sought-vec (cond ((componentp ?quant) (compo-base-vector ?quant))
-			   ((eq (first ?quant) 'mag) (second ?quant))
-			   ((eq (first ?quant) 'dir) (second ?quant))
-			   (t ?quant)))
-   ;; 
-   (angular-eqn-contains ?eqn-id ?sought-vec)
-   ;; make sure PSM name not on problem's ignore list:
-   (test (not (member (first ?eqn-id) (problem-ignorePSMS *cp*))))
-   (debug "To find ~a trying z-vector eqn ~A~%" ?sought ?eqn-id)
-   (vector-diagram 0 ?eqn-id)
-   (debug "Diagram drawn for ~A, writing z-compo eqn~%" ?eqn-id)
-   (eqn ?z-compo-eqn (compo-eqn z 0 ?eqn-id))
-   (debug "Wrote z-compo eqn ~a ~%" (list ?z-compo-eqn ?eqn-id))
-   )
-  :effects ((PSM-applied ?sought (compo-eqn z 0 ?eqn-id) ?z-compo-eqn)
-	    (assume using-compo (z 0 ?eqn-id))
-	    ))
 
 ; draw angular velocity of an object rotating in a known direction 
 ; Direction is given as cw or ccw in a motion description statement.
@@ -3373,21 +3326,19 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)
    (time ?t)
    (test (time-intervalp ?t)))
-  :effects (
-  (angular-eqn-contains (ang-sdd ?b ?t) ?quantity)
-  ))
+  :effects 
+  ((eqn-family-contains (ang-sdd ?b ?t) ?quantity)
+   (compo-eqn-contains (ang-sdd ?b ?t) ang-sdd-constvel ?quantity)))
 
-(defoperator draw-ang-sdd-vectors (0 ?b ?t1 ?t2)
+(defoperator draw-ang-sdd-vectors (?b ?t ?rot)
   :preconditions (
-   (not (vector-diagram 0 (ang-sdd ?b (during ?t1 ?t2))))
    (body ?b)
-   (vector ?b (ang-velocity ?b :time (during ?t1 ?t2)) ?dir-v)
-   (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
-   (variable ?var (duration (during ?t1 ?t2)))
-   (axes-for ?b 0)
+   (inherit-vector ?b (ang-velocity ?b :time ?t) ?dir-v)
+   (vector ?b (ang-displacement ?b :time ?t) ?dir-d)
+   (axes-for ?b ?rot)
   )
   :effects (
-    (vector-diagram 0 (ang-sdd ?b (during ?t1 ?t2)))
+    (vector-diagram ?rot (ang-sdd ?b ?t))
   )
 )
 
@@ -3395,16 +3346,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ; to produce the compo-free equation.
 (defoperator write-ang-sdd (?b ?t)
   :preconditions
-   ((variable ?theta_z  (compo z 0 (ang-displacement ?b :time ?t)))
-    (variable ?omega_z  (compo z 0 (ang-velocity ?b :time ?t)))
+   ((variable ?theta_z  (compo ?z ?rot (ang-displacement ?b :time ?t)))
+    (inherit-variable ?omega_z  (compo ?z ?rot (ang-velocity ?b :time ?t)))
     (variable ?t-var (duration ?t)))
   :effects 
-   ((eqn (= ?theta_z (* ?omega_z ?t-var)) (compo-eqn z 0 (ang-sdd ?b ?t)))
+   ((eqn (= ?theta_z (* ?omega_z ?t-var)) 
+	 (compo-eqn ang-sdd-constvel ?z ?rot (ang-sdd ?b ?t)))
     )
   :hint (
-  (point (string "Can you write an equation in terms of z components relating average angular velocity to angular displacement and duration?"))
+  (point (string "Can you write an equation in terms of components relating average angular velocity to angular displacement and duration?"))
    (teach (string "The average angular velocity of a rotating object over an interval is defined to be the angular displacement divided by the duration of the interval. This gives the rotational counterpart of distance = average speed * time. Writing vector relations like this in terms of the vector components is recommended to avoid sign errors."))
-   (bottom-out (string "Write the equation ~a=~a * ~a." (?theta_z algebra) (?omega_z algebra) (?t-var algebra)))
+   (bottom-out (string "Write the equation ~a=~a * ~a." 
+		       (?theta_z algebra) (?omega_z algebra) (?t-var algebra)))
   ))
 
 ;; angular version of lk-no-s: omega_f = omega_i + alpha_avg * t
@@ -3421,30 +3374,34 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (object ?b)
    (time (during ?t1 ?t2))
   )
- :effects ( (angular-eqn-contains (rk-no-s ?b (during ?t1 ?t2)) ?sought) ))
+ :effects 
+ (
+  (eqn-family-contains (rk-no-s ?b (during ?t1 ?t2)) ?sought)
+    (compo-eqn-contains  (rk-no-s ?b (during ?t1 ?t2)) rk-no-s-id ?sought)
+))
 
-(defoperator draw-rk-no-s-vectors (0 ?b ?t1 ?t2)
-  :preconditions  (
-   (not (vector-diagram 0 (rk-no-s ?b (during ?t1 ?t2))))
+(defoperator draw-rk-no-s-vectors (?b ?t1 ?t2 ?rot)
+  :preconditions  
+  (
    (body ?b)
    (inherit-vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
-   (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-d)
+   (inherit-vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-d)
    (inherit-vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
    (variable ?var (duration (during ?t1 ?t2)))
-   (axes-for ?b 0)
+   (axes-for ?b ?rot)
   )
-  :effects ( (vector-diagram 0 (rk-no-s ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram ?rot (rk-no-s ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-s (?b ?t1 ?t2)
  :preconditions
-  ((inherit-variable ?omega2_z (compo z 0 (ang-velocity ?b :time ?t2)))
-   (inherit-variable ?omega1_z (compo z 0 (ang-velocity ?b :time ?t1)))
-   (variable ?alpha_z  (compo z 0 (ang-accel ?b :time (during ?t1 ?t2))))
+  ((inherit-variable ?omega2_z (compo ?z ?rot (ang-velocity ?b :time ?t2)))
+   (inherit-variable ?omega1_z (compo ?z ?rot (ang-velocity ?b :time ?t1)))
+   (inherit-variable ?alpha_z  (compo ?z ?rot (ang-accel ?b :time (during ?t1 ?t2))))
    (variable ?t-var (duration (during ?t1 ?t2))))
   :effects 
   ((eqn (= ?omega2_z (+ ?omega1_z (* ?alpha_z ?t-var))) 
-               (compo-eqn z 0 (rk-no-s ?b (during ?t1 ?t2))))
+               (compo-eqn rk-no-s-id ?z ?rot (rk-no-s ?b (during ?t1 ?t2))))
    )
     :hint
    ((point (string "Can you think of an equation that relates the z component of average angular acceleration to that of the initial angular velocity, final angular velocity, and duration?"))
@@ -3468,18 +3425,18 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (constant (ang-accel ?b) ?t-constant)
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
   )
- :effects ( (angular-eqn-contains (rk-no-vf ?b (during ?t1 ?t2)) ?sought) )
-)
+ :effects 
+ ((eqn-family-contains (rk-no-vf ?b (during ?t1 ?t2)) ?sought)
+  (compo-eqn-contains  (rk-no-vf ?b (during ?t1 ?t2)) rk-no-vf-id ?sought)
+  ))
 
 (defoperator draw-rk-no-vf-vectors (?rot ?b ?t1 ?t2)
   :preconditions  (
    (not (vector-diagram ?rot (rk-no-vf ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
-   (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
-   (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
-   (variable ?var (duration (during ?t1 ?t2)))
-   (bind ?rot 0)
+   (inherit-vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
+   (inherit-vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
    (axes-for ?b ?rot)
   )
   :effects ( (vector-diagram ?rot (rk-no-vf ?b (during ?t1 ?t2))) )
@@ -3487,15 +3444,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator write-rk-no-vf (?b ?t1 ?t2)
  :preconditions(
-   (variable ?theta_z  (compo z 0 (ang-displacement ?b :time (during ?t1 ?t2))))
-   (variable ?omega1_z (compo z 0 (ang-velocity ?b :time ?t1)))
-   (variable ?alpha_z  (compo z 0 (ang-accel ?b :time (during ?t1 ?t2))))
+   (variable ?theta_z  (compo ?z ?rot (ang-displacement ?b :time (during ?t1 ?t2))))
+   (inherit-variable ?omega1_z (compo ?z ?rot (ang-velocity ?b :time ?t1)))
+   (inherit-variable ?alpha_z  (compo ?z ?rot (ang-accel ?b :time (during ?t1 ?t2))))
    (variable ?t-var    (duration (during ?t1 ?t2)))
   )
   :effects (
    (eqn (= ?theta_z (+ (* ?omega1_z ?t-var)
                        (* 0.5 ?alpha_z (^ ?t-var 2))) )
-               (compo-eqn z 0 (rk-no-vf ?b (during ?t1 ?t2))))
+               (compo-eqn rk-no-vf-id ?z ?rot (rk-no-vf ?b (during ?t1 ?t2))))
    )
   :hint (
     (point (string "Do you know an equation relating the z component of angular displacement to that of initial angular velocity, time, and angular acceleration when angular acceleration is constant?"))
@@ -3519,18 +3476,20 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (constant (ang-accel ?b) ?t-constant)
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
   )
- :effects ( (angular-eqn-contains (rk-no-t ?b (during ?t1 ?t2)) ?sought) )
-)
+ :effects 
+ (
+ (eqn-family-contains (rk-no-t ?b (during ?t1 ?t2)) ?sought)
+    (compo-eqn-contains  (rk-no-t ?b (during ?t1 ?t2)) rk-no-t-id ?sought)
+ ))
 
 (defoperator draw-rk-no-t-vectors (?rot ?b ?t1 ?t2)
   :preconditions  (
    (not (vector-diagram ?rot (rk-no-t ?b (during ?t1 ?t2))))
    (body ?b)
-   (vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
-   (vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
-   (vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
+   (inherit-vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
+   (inherit-vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
+   (inherit-vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-a)
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
-   (bind ?rot 0)
    (axes-for ?b ?rot)
   )
   :effects ( (vector-diagram ?rot (rk-no-t ?b (during ?t1 ?t2))) )
@@ -3538,15 +3497,15 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 (defoperator write-rk-no-t (?b ?t1 ?t2)
  :preconditions(
-   (variable ?omega2_z (compo z 0 (ang-velocity ?b :time ?t2)))
-   (variable ?omega1_z (compo z 0 (ang-velocity ?b :time ?t1)))
-   (variable ?alpha_z  (compo z 0 (ang-accel ?b :time (during ?t1 ?t2))))
-   (variable ?theta_z  (compo z 0 (ang-displacement ?b :time (during ?t1 ?t2))))
+   (inherit-variable ?omega2_z (compo ?z ?rot (ang-velocity ?b :time ?t2)))
+   (inherit-variable ?omega1_z (compo ?z ?rot (ang-velocity ?b :time ?t1)))
+   (inherit-variable ?alpha_z  (compo ?z ?rot (ang-accel ?b :time (during ?t1 ?t2))))
+   (variable ?theta_z  (compo ?z ?rot (ang-displacement ?b :time (during ?t1 ?t2))))
   )
   :effects (
    (eqn (= (^ ?omega2_z 2) (+ (^ ?omega1_z 2)
                               (* 2 ?alpha_z ?theta_z)))
-               (compo-eqn z 0 (rk-no-t ?b (during ?t1 ?t2))))
+               (compo-eqn rk-no-t-id ?z ?rot (rk-no-t ?b (during ?t1 ?t2))))
    )
   :hint (
     (point (string "Do you know an equation relating the z components of initial angular velocity, final angular velocity, angular acceleration, and angular displacement when acceleration is constant?"))
