@@ -189,7 +189,7 @@
   (generate-problem-indicies *cp*))
 
 (defun pge ()
-  (pprint (Problem-EqnIndex *cp*)))
+  (pprint (sort (copy-list (Problem-EqnIndex *cp*)) #'expr< :key #'eqn-exp)))
 
 (defun pgv ()
   (pprint (Problem-VarIndex *cp*)))
