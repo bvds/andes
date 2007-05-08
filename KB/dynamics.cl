@@ -561,7 +561,7 @@
    :preconditions
    ((object ?b)
     (time ?t)
-    (static-friction ?b ?surface ?t-friction ?friction-dir ?max)
+    (static-friction ?b ?surface :time ?t-friction :dir ?friction-dir . ?any)
     (test (tinsidep ?t ?t-friction))
     (not (force ?b ?surface static-friction ?t . ?dont-care)))
    :effects (
@@ -596,7 +596,8 @@
 ; requires we are given that static friction takes on its max value
 (defoperator static-friction-law-contains (?quantity)
   :preconditions(
-    (static-friction ?b ?surface ?t-friction ?dir max)
+    (static-friction ?b ?surface :time ?t-friction :max ?max . ?rest)
+    (test ?max)
     (time ?t)
     (test (tinsidep ?t ?t-friction))
     (any-member ?quantity (
