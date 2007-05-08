@@ -66,13 +66,12 @@
 (defoperator gravitational-energy-zero-contains (?sought)
   :preconditions 
   (
-   (gravity (orderless . ?grav-bodies) :time ?t-grav)
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t) ))
-   (time ?t)
-   (test (not (and (tinsidep ?t ?t-grav) 
-		   (member ?body ?grav-bodies :test #'unify)
-		   (member ?agent ?grav-bodies :test #'unify))))
-  )
+   (time ?t) ;sanity test
+   (not (gravity (orderless . ?grav-bodies) :time ?t-grav) 
+	(and (member ?body ?grav-bodies) (member ?agent ?grav-bodies) 
+	     (tinsidep ?t ?t-grav)))
+   )
   :effects (
    (eqn-contains (gravitational-energy-point ?body ?agent nil ?t) ?sought)
   ))
