@@ -655,11 +655,11 @@
 		   )
    :effects ( (draw-vectors ?vector-list) ))
 
-(defoperator draw-bodies (?bb)
+(defoperator draw-bodies (?bb) ;operator for optional step
 :preconditions ((foreach ?b ?bb (body ?b)))
 :effects ((draw-list-of-bodies ?bb)))
 
-(defoperator draw-axes-for-owners (?bb)
+(defoperator draw-axes-for-owners (?bb) ;operator for optional step
 :preconditions ((foreach ?b ?bb (axes-for ?b ?rot)))
 :effects ((draw-axes-for-list-of-owners ?bb)))
 
