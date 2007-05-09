@@ -68,9 +68,12 @@
   (
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t) ))
    (time ?t) ;sanity test
+   ;; make sure Newton's law of gravitation should be zero
    (not (gravity (orderless . ?grav-bodies) :time ?t-grav) 
 	(and (member ?body ?grav-bodies) (member ?agent ?grav-bodies) 
 	     (tinsidep ?t ?t-grav)))
+   ;; make sure there is no constant gravitational field
+   (not (near-planet ?agent :body ?body ?body))
    )
   :effects (
    (eqn-contains (gravitational-energy-point ?body ?agent nil ?t) ?sought)
@@ -250,7 +253,7 @@
     :preconditions 
     (
      ;; use this for gravity near surface of a planet
-     (near-planet ?planet :body ?body ?body)
+     (near-planet ?planet :body ?b ?b)
      (variable ?var (grav-energy ?b ?planet :time ?t))
      )
     :effects ( (ee-var ?b ?t ?var) ))
@@ -260,6 +263,7 @@
     (
      ;; use this for gravitational potential force defined at any time
      (gravity (orderless . ?bodies) :time ?t-grav)
+     (any-member ?b ?bodies)
      (any-member ?agent ?bodies)
      (test (not (unify ?b ?agent))) ;no self-energy
      (variable ?var (grav-energy ?b ?agent :time ?t))
