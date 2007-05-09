@@ -194,10 +194,9 @@
 ;; For rigid body problems: treat weight of body as force acting at body's
 ;; center of mass
 
-(defoperator find-weight-cm (?cm ?t ?planet)
+(defoperator find-weight-cm (?cm ?planet ?t)
   :preconditions 
-   ((object ?cm)
-    ;; We don't want to apply this rule to parts of 
+   (;; We don't want to apply this rule to parts of 
     ;; a larger rigid body, or to the whole rigid body.  Rather an alt op 
     ;; will treat weight of whole body as force acting at cm
     (center-of-mass ?cm (?rigid-body))
@@ -206,6 +205,7 @@
     (not (massless ?cm))
     (near-planet ?planet :body ?cm ?cm)
     (not (force ?cm ?planet weight ?t . ?dont-care))
+    ;; activate associated drawing rule.
     (add-to-wm (use-cm-mass ?cm ?planet ?t)))
   :effects (
      (force ?cm ?planet weight ?t (dnum 270 |deg|) action)
@@ -213,21 +213,21 @@
      (force-given-at ?cm ?planet weight NIL (dnum 270 |deg|) action)
   ))
 
-(defoperator draw-weight-at-cm (?b ?t ?planet)
+(defoperator draw-weight-at-cm (?cm ?planet ?t)
   :specifications "
     If rigid body is not massless, and it is near a planet,
     then draw a weight force vector acting at the center of mass, pointing straight down,
        define a magnitude variable and an direction variable for it."
   :preconditions
    ( 
-    (force ?cm ?planet weight ?dir action)
+    (force ?cm ?planet weight ?t ?dir action)
     (in-wm (use-cm-mass ?cm ?planet ?t))
     (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" ?cm ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing weight of ~a~@[ at ~a~] acting at cm.~%" ?b ?t))
+    (debug "~&Drawing weight of ~a~@[ at ~a~] acting at cm.~%" ?cm ?t))
   :effects
-   ((vector ?b (force ?cm ?planet weight :time ?t) (dnum 270 |deg|))
+   ((vector ?cm (force ?cm ?planet weight :time ?t) (dnum 270 |deg|))
     (variable ?mag-var (mag (force ?cm ?planet weight :time ?t)))
     (variable ?dir-var (dir (force ?cm ?planet weight :time ?t)))
     (given (dir (force ?cm ?planet weight :time ?t)) (dnum 270 |deg|)))
