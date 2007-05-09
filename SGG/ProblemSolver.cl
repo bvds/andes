@@ -107,9 +107,10 @@
 ;; solving the problem equations, for regression testing of the solver.
 ;; Doesn't mark graph, so don't use graph remaining after exit.
 (defun test-solve (Problem)
-  (Generate-Problem-Bubblegraph Problem)
-  (Generate-Problem-Indicies Problem)
-  (generate-problem-Solutionpoint Problem))
+  (setq *cp* (get-problem Problem))
+  (Generate-Problem-Bubblegraph *cp*)
+  (Generate-Problem-Indicies *cp*)
+  (generate-problem-Solutionpoint *cp*))
 
 
 ;;-------------------------------------------------------------------
