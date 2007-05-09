@@ -646,11 +646,24 @@
 			(vector ?b ?vector ?dir) ?b ?bbb)
 		   (bind ?bb (remove-duplicates ?bbb))
 		   ;; Drawing axes allowed, see draw-standard-fbd
-		   (foreach ?b ?bb (optional (fbd-axes-drawn ?b)))
-		   ;; Allow drawing of any body in problem
-		   (foreach ?b ?bb (optional (body ?b)))
+		   ;; but optional requires a fully bound goal
+		   (optional (draw-axes-for-list-of-owners ?bb))
+		   ;; Allow drawing of any (object ...) in problem
+		   ;; but optional requires a fully bound goal
+		   (setof (object ?obj) ?obj ?objs)
+		   (optional (draw-list-of-bodies ?objs))
 		   )
    :effects ( (draw-vectors ?vector-list) ))
+
+(defoperator draw-bodies (?bb)
+:preconditions ((foreach ?b ?bb (body ?b)))
+:effects ((draw-list-of-bodies ?bb)))
+
+(defoperator draw-axes-for-owners (?bb)
+:preconditions ((foreach ?b ?bb (axes-for ?b ?rot)))
+:effects ((draw-axes-for-list-of-owners ?bb)))
+
+
 
 ;;;;
 ;;;;   Do motion diagrams as described in the first Chapter of Knight
