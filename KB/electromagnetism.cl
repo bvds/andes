@@ -2504,6 +2504,7 @@
    (bind ?F-dir (if (eq ?pos-or-neg 'pos) ?cross-dir (opposite ?cross-dir)))
    ;; make sure we have a non-null direction
    (test ?F-dir) ; may be NIL on failure
+   (add-to-wm (magnetic-force-charge ?b ?loc ?t ?source))
    )
   :effects (
 	    (force ?b ?source magnetic ?t ?F-dir action)
@@ -2515,7 +2516,9 @@
   :preconditions 
   (
    (force ?b ?source magnetic ?t ?F-dir action)
-   ;; from find-magnetic-force above
+   ;; bind ?loc, make sure we are connected to right find
+   (in-wm (magnetic-force-charge ?b ?loc ?t ?source))
+   ;; from find-magnetic-force-charge above
    (in-wm (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
    ;; this may require drawing the velocity vector: 
    (in-wm (given (dir (velocity ?b :time ?t)) ?dir-V))
@@ -2659,6 +2662,7 @@
   ;; make sure we have a non-null direction
   (test ?F-dir) ; may be NIL on failure
   (test (not (eq ?F-dir 'zero)))
+  (add-to-wm (magnetic-force-current ?b ?loc ?t ?source))
    )
   :effects (
 	    (force ?b ?source magnetic ?t ?F-dir action)
@@ -2669,6 +2673,8 @@
  :preconditions 
  (
    (force ?b ?source magnetic ?t ?F-dir action)
+   ;; bind ?loc, make sure we are connected to right find
+   (in-wm (magnetic-force-current ?b ?loc ?t ?source))
    ;; This is found in find-magnetic-force-current above
    (in-wm (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
    (in-wm (given (dir (current-length ?b :time ?t)) ?dir-i))
