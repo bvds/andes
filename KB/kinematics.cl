@@ -2438,9 +2438,9 @@
   :complexity simple
   :short-name "[v_x is constant (a_x =0)]"
   :english ("constant velocity component")
-  :ExpFormat ("using the constancy of the x-component of the velocity of ~a from ~a to ~a"
-	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("vf_x = vi_x"))
+  :ExpFormat ("using the constancy of the ~A component of the velocity of ~a from ~a to ~a"
+	     (axis-name ?axis) (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
+  :EqnFormat ("vf_~a = vi_~a" (axis-name ?axis) (axis-name ?axis)))
 
 (defoperator const-vx-contains (?quantity)
  :specifications 
