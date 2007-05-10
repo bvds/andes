@@ -1989,6 +1989,11 @@
 ;;; net force is to be shown or not. We only show net force if the
 ;;; problem explicitly mentions it (i.e. seeks it.)
 
+(def-goalprop nl-fbd (vector-diagram ?rot (nl ?body ?time))
+  :doc "free-body-diagram for applying Newton's law"
+  :english ("drawing a free-body diagram for ~A ~A"
+            (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
+
 (defoperator draw-nl-fbd (?rot ?b ?t)
   :specifications 
    "If the goal is to draw a fbd for newton's law,
@@ -2683,6 +2688,16 @@
 ;; torques produced by individual forces on parts of object.
 ;;
 
+(def-psmclass net-torque-zc (?eq-type definition ?xyz ?rot 
+				      (net-torque ?body ?pivot ?time))
+  :complexity major ;See Bug #1144
+  :short-name ("net ~A defined" (moment-name))
+  :english ("the definition of net ~A" (moment-name))
+  :expformat ("applying the definition of net ~A on ~a about ~A"
+	      (moment-name) (nlg ?body) (nlg ?pivot 'at-time ?time))
+  :eqnformat ((torque-switch "Mnet_z = M1_z + M2_z + ..."
+			     "$tnet_z = $t1_z + $t2_z + ...")))
+
 (defoperator net-torque-contains (?sought)
   :preconditions (
     (any-member ?sought (
@@ -2963,6 +2978,10 @@
    (time ?t))
   :effects ((eqn-family-contains (NL-rot ?b ?axis ?t :net t) ?quantity)))
 
+(def-goalprop NL-rot-fbd  (vector-diagram ?rot (NL-rot ?b ?axis ?t))
+  :doc "diagram for applying the rotational version of Newton's second law"
+  :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
+	    (moment-name) (nlg ?b) (nlg ?t 'pp))) 
 
 (defoperator draw-nl-rot-fbd (?rot ?b ?t)
   :preconditions
@@ -2990,6 +3009,15 @@
   :effects
    ((vector-diagram ?rot (NL-rot ?b ?axis ?t :net ?netp))))
   
+(def-psmclass NFL-rot (?eqn-type NFL ?xyz ?rot (NL-rot ?body ?pivot ?time))
+  :complexity major
+  :short-name "rotational form of Newton's 2nd law ($a =0)"
+  :english ("rotational version of Newton's second law ($a=0)")
+  :expformat ("applying rotational version of Newton's second law to ~a about ~A"
+	      (nlg ?body) (nlg ?pivot 'at-time ?time))
+  :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
+			    "0 = $t1_z + $t2_z + ...")))
+  
 (defoperator NFL-rot-zero-accel (?quantity)
   :preconditions 
   ((any-member ?quantity ((torque ?b ?force :axis ?axis :time ?t)))
@@ -2997,6 +3025,14 @@
    ;;done in drawing step
    (in-wm (inherit-vector ?b (ang-accel ?b :time ?t) zero)) )
   :effects ((compo-eqn-contains (NL-rot ?b ?axis ?t) NFL ?quantity)))
+
+(def-psmclass NSL-rot (?eqn-type NSL ?xyz ?rot (NL-rot ?body ?pivot ?time))
+  :complexity major
+  :short-name "rotational form of Newton's 2nd law"
+  :english ("rotational version of Newton's second law")
+  :expformat ("applying rotational version of Newton's second law to ~a about ~A"
+	      (nlg ?body) (nlg ?pivot 'at-time ?time))
+  :eqnFormat ((torque-switch "Mnet_z = I*$a_z" "$tnet_z = I*$a_z" )))
 
 (defoperator NSL-rot (?quantity)
   :preconditions 

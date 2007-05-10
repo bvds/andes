@@ -5,6 +5,15 @@
 ;;; Following writes p_x = m * v_x for a single body and time
 ;;; body may be a compound body in case of splits or joins.
 
+;; definition of momentum in component form:
+(def-psmclass momentum-compo (?eq-type definition ?axis ?rot 
+				       (linear-momentum ?body ?time))
+  :complexity definition ;so it can be substituted into momentum conservation
+  :short-name ("momentum defined (~A component)" (axis-name ?axis))
+  :english ("the definition of momentum (component form)")
+  :expformat ("applying the definition of momentum to ~A" (nlg ?body))
+  :EqnFormat ("p_~a = m*v_~a" (axis-name ?axis) (axis-name ?axis)))
+
 (defoperator momentum-contains (?sought)
   :preconditions 
   (
@@ -196,6 +205,10 @@
   (compo-eqn-contains (cons-linmom ?bodies ?tt) lm-compo ?sought)
   ))
 
+(def-goalprop linmom-fbd (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
+   :doc "diagram showing all momentum vectors and axes"
+   :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes" ))
+
 (defoperator draw-linmom-diagram (?rot ?bodies ?tt)
   :preconditions (
    (not (vector-diagram ?rot (cons-linmom ?bodies ?tt)))
@@ -362,6 +375,15 @@
 
 ; following writes the equation for angular momentum 
 ; compo equation: L_z = I * omega_z
+(def-psmclass ang-momentum (?eq-type definition ?xyz ?rot 
+				     (ang-momentum ?body ?time))
+  :complexity definition ;definition, but can be first "principle" for sought
+  :short-name "angular momentum defined"
+  :english ("definition of angular momentum")
+  :expformat ("applying the definition of angular momentum on ~a"
+	      (nlg ?body 'at-time ?time))
+  :EqnFormat ("L_z = I*$w_z"))
+
 (defoperator ang-momentum-contains (?sought)
    :preconditions (
       (any-member ?sought (
@@ -378,6 +400,9 @@
     ;; select it now, rather than requiring further operators to do so
     (compo-eqn-contains (ang-momentum ?b ?t) definition ?sought)
     ))
+
+(def-goalprop angmom-fbd (vector-diagram ?rot (ang-momentum ?b ?t))
+   :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes"))
 
 (defoperator draw-ang-momentum-vectors (?rot ?b ?t)
   :preconditions 
@@ -410,6 +435,16 @@
 ;; In the special case that there are no torques about a specific
 ;; axis, then use the :axis keyword to specify that axis.
 ;; 
+
+(def-psmclass cons-angmom (?eq-type angmom-id ?xyz ?rot 
+				    (cons-angmom ?bodies ?ti))
+  :complexity major
+  :short-name "conservation of angular momentum"
+  :english ("conservation of angular momentum")
+  :expformat ("applying Conservation of Angular Momentum to ~a ~a"
+	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
+  :eqnformat ("L1i_z + L2i_z + ... = L1f_z + L2f_z + ..."))
+
 (defoperator cons-angmom-contains (?sought)
   :preconditions 
   (

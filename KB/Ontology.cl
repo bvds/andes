@@ -621,11 +621,6 @@
    :english ("drawing a diagram showing all of the needed displacements of ~A ~A and coordinate axes" 
               (nlg ?body) (nlg ?time 'pp)))
 
-(def-goalprop nl-fbd (vector-diagram ?rot (nl ?body ?time))
-  :doc "free-body-diagram for applying Newton's law"
-  :english ("drawing a free-body diagram for ~A ~A"
-            (nlg ?body) (nlg ?time 'pp))) ; time may be interval or instant
-
 ;; next goal used as sought in fbd-only problem:
 (def-goalprop standard-fbd (fbd ?body ?time)
   :doc "free-body-diagram on its own."
@@ -635,21 +630,11 @@
 (def-goalprop all-forces (forces ?body ?time ?all-forces)
    :english ("drawing all the forces acting on ~A ~A" (nlg ?body) (nlg ?time 'pp)))
 
-(def-goalprop linmom-fbd (vector-diagram ?rot (cons-linmom ?bodies (during ?t1 ?t2)))
-   :doc "diagram showing all momentum vectors and axes"
-   :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes" ))
-
-(def-goalprop angmom-fbd (vector-diagram ?rot (ang-momentum ?b ?t))
-   :english ("drawing a diagram showing all of the needed kinematic vectors and coordinate axes"))
 
 (def-goalprop all-torques (torques ?b ?axis ?time ?torques)
   :english ("showing the ~A due to each force acting on ~A ~A" 
 	     (moment-name) (nlg ?b) (nlg ?time 'pp)))
 
-(def-goalprop NSL-rot-fbd  (vector-diagram ?rot (NSL-rot ?b ?axis ?t))
-  :doc "diagram for applying the rotational version of Newton's second law"
-  :english ("drawing a diagram showing all the ~As on ~A ~A, the angular acceleration, and coordinate axes"
-	    (moment-name) (nlg ?b) (nlg ?t 'pp))) 
 
 ;; this goal used as sought in vector-drawing-only problem (magtor*)
 (def-goalprop draw-vectors (draw-vectors ?vector-list)
@@ -797,136 +782,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 	Linear kinematic family of equations.
-;; For a vector psm with subsidiary compo-eqns, we use major
-;; vector psm id as group id
-(def-psmgroup lk	
-    :form (?eq-type ?Eqn-ID ?axis ?rot (lk ?body ?time))
-    :supergroup Kinematics
-    :doc "Equations for one dimensional motion with constant acceleration."
-    :english ("a constant acceleration equation"))
-
-;; lk-no-s = average acceleration def-- can occur under different methods as 
-;; lk/lk-no-s if accel is constant or avg-accel/lk-no-s if it is not.
-;; if student selects specific "average accel" equation as opposed to "constant
-;; acceleration" group we want to match whichever instance is in use
 ;;
-;; In order to deal with that and to meet the single-line parents that we 
-;; require for the ontology we have defined two lk-no-s* psms one is 
-;; 'lk-no-s-lk' which is part of the linear kinematics group.  The other is 
-;; 'lk-no-s-avg-accel' which is part of the average accel form.
-;; lk-no-s matches either
+;; special-case constant-velocity equations for x component of 2D projectile:
+;; We treat these as members of const accel group (0 accel is constant!), 
+;; though it might not be obvious to the students what to choose.
+;; Might also use a constant-velocity group, though only component is constant
 
-(def-psmclass lk-no-s-lk (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
-  :group lk
-  :complexity major
-  :english ("the definition of average acceleration")
-  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
-		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment)))
-
-(def-psmclass lk-no-s-avg-accel (?eq-type lk-no-s ?axis ?rot (avg-accel ?body (during ?time0 ?time1))) 
-  :complexity major
-  :english ("the definition of average acceleration")
-  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
-		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment)))
-
-;; generic form to match either version of lk-no-s.
-(def-psmclass lk-no-s (?eq-type lk-no-s ?axis ?rot (?parent-psm ?body (during ?time0 ?time1))) 
-  :group Kinematics
-  :complexity major
-  :short-name "average acceleration"
-  :english ("the definition of average acceleration")
-  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
-	      (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment))
-  ;; alternative form in principles.cl
-  :EqnFormat ("vf_~A = vi_~A + a(avg)_~A*t" (axis-name ?axis) (axis-name ?axis)
-	      (axis-name ?axis)))
-
-(def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
-  :english ((strcat "writing an constant acceleration equation in "
-		    "terms of vector components along the ~A axis") ?axis))
-
-
-(def-psmclass lk-no-t (?eq-type lk-no-t ?axis ?rot (lk ?body (during ?time0 ?time1)))
-  :group lk
-  :complexity major
-  :short-name ("[a_~A is constant]" (axis-name ?axis))
-  :doc "Linear kinematics eqn w/o time."
-  :english ("the constant acceleration equation v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" 
-               (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis))
-  :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "v_~a^2 = v0_~a^2 + 2*a_~a*d_~a "
-		      "for ~a from ~a to ~a") 
-                      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)
-		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" (axis-name ?axis) (axis-name ?axis)
-					       (axis-name ?axis) (axis-name ?axis)))
-
-(def-goalprop lk-no-t-eqn 
-   (eqn ?algebra (compo-eqn lk-no-t ?axis ?rot (lk ?body ?time)))
-   :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
-
-
-(def-psmclass lk-no-vf (?eq-type lk-no-vf ?axis ?rot (lk ?body (during ?time0 ?time1)))
-  :group lk
-  :complexity major
-  :short-name ("[a_~A is constant]" (axis-name ?axis))
-  :Doc "Linear kinematics eqn sans final velocity."
-  :english ("the constant acceleration equation d_~a = v0_~a*t + 0.5*a_~a*t^2"
-                            (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) )
-  :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "d_~a = v0_~a*t + 0.5*a_~a*t^2 "
-		      "for ~a from ~a to ~a") 
-                      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
-		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("d_~a = v0_~a*t + 0.5*a_~a*t^2" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
-
-(def-goalprop lk-no-vf-eqn 
-   (eqn ?algebra (compo-eqn lk-no-vf ?axis ?rot (lk ?body ?time)))
-  :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
-
-
-#|
-;; not used
-(def-psmclass lk-no-a (?eq-type lk-no-a ?axis ?rot (lk ?body (during ?time0 ?time1)))
-  :group lk
-  :complexity major
-  :doc "Linear Kinematics sans acceleration."
-  :english ("the constant acceleration equation d_~a = 0.5*(vi_~a + vf_~a)*t" 
-             (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) )
-  :ExpFormat ((strcat "writing the constant acceleration equation "
-                      "d_~a = 0.5*(vi_~a + vf_~a)*t "
-		      "for ~a from ~a to ~a") 
-                      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
-		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time)))
-|#
-
-(def-goalprop lk-no-a-eqn 
-   (eqn ?algebra (compo-eqn lk-no-a ?axis ?rot (lk ?body ?time)))
-   :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
-
-
-; special-case constant-velocity equations for x component of 2D projectile:
-; We treat these as members of const accel group (0 accel is constant!), 
-; though it might not be obvious to the students what to choose.
-; Might also use a constant-velocity group, though only component is constant
-(def-psmclass const-vx (compo-eqn (const-vx ?time0 ?time1) x 0 (lk ?body ?t-lk))
-  :group lk
-  :complexity simple
-  :short-name "[v_x is constant (a_x =0)]"
-  :english ("constant velocity component")
-  :ExpFormat ("using the constancy of the x-component of the velocity of ~a from ~a to ~a"
-	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("vf_x = vi_x"))
-
-(def-psmclass sdd-constvel (compo-eqn sdd-constvel ?axis ?rot (lk ?body (during ?time0 ?time1)))
-  :group lk
-  :complexity major
-  :short-name ("[a_~A=0; v_~A is constant]" (axis-name ?axis) (axis-name ?axis))
-  :english ("displacement component = constant velocity component * time")
-  :ExpFormat ((strcat "calculating the ~a component of displacement as constant "
-		      "velocity component * time for ~a from ~a to ~a") 
-	      (axis-name ?axis) (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("d_~a = v_~a * t" (axis-name ?axis) (axis-name ?axis)))
 
 
 ; FREELY FALLING BODIES
@@ -1302,13 +1163,6 @@
   :EqnFormat ("KEf = KEi"))
 
 ;; ROTATIONAL KINEMATICS
-(def-psmclass ang-sdd (?eq-type z 0 (ang-sdd ?body ?time))
-  :complexity major
-  :short-name "average angular velocity"
-  :english ("the definition of average angular velocity")
-  :expformat ((strcat "applying the definition of Average Angular Velocity "
-		  "to ~a ~a") (nlg ?body) (nlg ?time 'time))
-  :EqnFormat ("$w(avg) = $q/t"))
 
 (def-psmclass linear-vel (linear-vel ?pt ?time ?axis)
   :complexity major
@@ -1328,35 +1182,6 @@
 
 
 ;; ROTATIONAL KINEMATICS: CONSTANT ANGULAR ACCELERATION EQUATIONS
-(def-psmgroup rk	
-    ; !!! following matches any angular vector psm equation id, including, e.g.
-    ; ang-momentum. Currently the rk equations proper lack any common pattern
-    ; -- should fix that
-    :form (?eq-type z 0 (?eqn-name ?body ?time)) 
-    :supergroup Kinematics
-    :doc "Equations for rotational motion with constant angular acceleration."
-    :english ("a constant angular acceleration equation" )
-    :expformat ("writing a constant angular acceleration equation for ~a"
-		(nlg ?body 'at-time ?time)))
-(def-psmclass rk-no-s (?eq-type z 0 (rk-no-s ?body (during ?time0 ?time1)))
-     :group rk
-     :complexity major
-  :short-name "average anglular acceleration"
-     :english ("constant angular acceleration kinematics")
-     :EqnFormat ("$wf = $wi + $a(avg)*t")) ;alternative form in principles.cl
-
-(def-psmclass rk-no-vf (?eq-type z 0 (rk-no-vf ?body (during ?time0 ?time1)))
-     :group rk
-     :complexity major
-  :short-name "[$a_z is constant]"
-     :english ("constant angular acceleration kinematics")
-     :EqnFormat ("$q_z = $w0_z*t + 0.5*$a_z*t^2"))
-(def-psmclass rk-no-t (?eq-type z 0 (rk-no-t ?body (during ?time0 ?time1)))
-     :group rk
-     :complexity major
-  :short-name "[$a_z is constant]"
-     :english ("constant angular acceleration kinematics")
-     :EqnFormat ("$w_z^2 = $w0_z^2 + 2*$a_z*$q_z"))
 ;; MOMENT OF INERTIA
 (def-psmclass I-rod-cm (I-rod-cm ?body)
   :complexity minor
@@ -1404,32 +1229,9 @@
 
 
 ;; ANGULAR MOMENTUM
-(def-psmclass ang-momentum (?eq-type z 0 (ang-momentum ?body ?time))
-  :complexity definition ;definition, but can be first "principle" for sought
-  :short-name "angular momentum defined"
-  :english ("definition of angular momentum")
-  :expformat ("applying the definition of angular momentum on ~a"
-	      (nlg ?body 'at-time ?time))
-  :EqnFormat ("L_z = I*$w_z"))
 
-(def-psmclass cons-angmom (?eq-type z 0 (cons-angmom ?bodies ?time))
-  :complexity major
-  :short-name "conservation of angular momentum"
-  :english ("conservation of angular momentum")
-  :expformat ("applying Conservation of Angular Momentum to ~a ~a"
-	      (nlg ?bodies 'conjoined-defnp) (nlg ?time 'time))
-  :eqnformat ("L1i_z + L2i_z + ... = L1f_z + L2f_z + ..."))
 
 ;;;; ROTATIONAL DYNAMICS (TORQUE)
-
-(def-psmclass net-torque-zc (?eq-type z 0 (net-torque ?body ?pivot ?time))
-  :complexity major ;See Bug #1144
-  :short-name ("net ~A defined" (moment-name))
-  :english ("the definition of net ~A" (moment-name))
-  :expformat ("applying the definition of net ~A on ~a about ~A"
-	      (moment-name) (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnformat ((torque-switch "Mnet_z = M1_z + M2_z + ..."
-			     "$tnet_z = $t1_z + $t2_z + ...")))
 
 (def-psmclass mag-torque (mag-torque ?body ?pivot (force ?pt ?agent ?type) ?time)
   :complexity major ; definition, but can be first "principle" for sought
@@ -1461,32 +1263,6 @@
 	  "M_z = r*F*sin($qF-$qr) or M_z = r_x*F_y - r_y*F_x"
 	  "$t_z = r*F*sin($qF-$qr)) or $t_z = r_x*F_y - r_y*F_x"))))
 
-(def-psmclass NFL-rot (?eq-type z 0 (NFL-rot ?body ?pivot ?time))
-  :complexity major
-  :short-name "rotational form of Newton's 2nd law ($a =0)"
-  :english ("rotational version of Newton's second law ($a=0)")
-  :expformat ("applying rotational version of Newton's second law to ~a about ~A"
-	      (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnFormat ((torque-switch "0 = M1_z + M2_z + ..." 
-			    "0 = $t1_z + $t2_z + ...")))
-  
-
-(def-psmclass NSL-rot (?eq-type z 0 (NSL-rot ?body ?pivot ?time))
-  :complexity major
-  :short-name "rotational form of Newton's 2nd law"
-  :english ("rotational version of Newton's second law")
-  :expformat ("applying rotational version of Newton's second law to ~a about ~A"
-	      (nlg ?body) (nlg ?pivot 'at-time ?time))
-  :eqnFormat ((torque-switch "Mnet_z = I*$a_z" "$tnet_z = I*$a_z" )))
-
-;; definition of momentum in component form:
-(def-psmclass momentum-compo (?eq-type definition ?axis ?rot 
-				       (linear-momentum ?body ?time))
-  :complexity definition ;so it can be substituted into momentum conservation
-  :short-name ("momentum defined (~A component)" (axis-name ?axis))
-  :english ("the definition of momentum (component form)")
-  :expformat ("applying the definition of momentum to ~A" (nlg ?body))
-  :EqnFormat ("p_~a = m*v_~a" (axis-name ?axis) (axis-name ?axis)))
 
 ;;
 ;; required-identities -- identity equations that must always be written out

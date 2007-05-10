@@ -2003,6 +2003,12 @@
 ;;; expressed with two operators each.  One lists the quantities
 ;;; contained in the equation, and the other writes the equation.
 
+(def-psmgroup lk	
+    :form (?eq-type ?Eqn-ID ?axis ?rot (lk ?body ?time))
+    :supergroup Kinematics
+    :doc "Equations for one dimensional motion with constant acceleration."
+    :english ("a constant acceleration equation"))
+
 
 ;;; This operator writes vf=vi+a*t.  That is, it leaves out displacement (s).
 
@@ -2031,6 +2037,46 @@
 ;;; a child compo-eqn of two different vector PSMs -- as a child of the
 ;;; lk PSM when accel is known constant, and as a child of the avg-accel PSM
 ;;; when accel is not known constant.
+
+;; lk-no-s = average acceleration def-- can occur under different methods as 
+;; lk/lk-no-s if accel is constant or avg-accel/lk-no-s if it is not.
+;; if student selects specific "average accel" equation as opposed to "constant
+;; acceleration" group we want to match whichever instance is in use
+;;
+;; In order to deal with that and to meet the single-line parents that we 
+;; require for the ontology we have defined two lk-no-s* psms one is 
+;; 'lk-no-s-lk' which is part of the linear kinematics group.  The other is 
+;; 'lk-no-s-avg-accel' which is part of the average accel form.
+;; lk-no-s matches either
+
+(def-psmclass lk-no-s-lk (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
+  :group lk
+  :complexity major
+  :english ("the definition of average acceleration")
+  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
+		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment)))
+
+(def-psmclass lk-no-s-avg-accel (?eq-type lk-no-s ?axis ?rot (avg-accel ?body (during ?time0 ?time1))) 
+  :complexity major
+  :english ("the definition of average acceleration")
+  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
+		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment)))
+
+;; generic form to match either version of lk-no-s.
+(def-psmclass lk-no-s (?eq-type lk-no-s ?axis ?rot (?parent-psm ?body (during ?time0 ?time1))) 
+  :group Kinematics
+  :complexity major
+  :short-name "average acceleration"
+  :english ("the definition of average acceleration")
+  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
+	      (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment))
+  ;; alternative form in principles.cl
+  :EqnFormat ("vf_~A = vi_~A + a(avg)_~A*t" (axis-name ?axis) (axis-name ?axis)
+	      (axis-name ?axis)))
+
+(def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
+  :english ((strcat "writing an constant acceleration equation in "
+		    "terms of vector components along the ~A axis") ?axis))
 
 (defoperator LK-no-s-contains (?quantity)
   :specifications 
@@ -2062,7 +2108,7 @@
    then draw the body, the initial and final velocity, 
       the acceleration, and axes"
   :preconditions
-  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity))
+  ((in-wm (compo-eqn-contains (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity))
    (body ?b)
    (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
    (inherit-vector ?b (velocity ?b :time ?t2) ?dir2)
@@ -2099,9 +2145,28 @@
     (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
     ))
 
-;#| ; NOT in physics-lite  used in Pyrenees eval
 
 ;;; Writes the equation vf^2 = vi^2 + 2*a*s, which is lacking a duration.
+
+
+(def-psmclass lk-no-t (?eq-type lk-no-t ?axis ?rot (lk ?body (during ?time0 ?time1)))
+  :group lk
+  :complexity major
+  :short-name ("[a_~A is constant]" (axis-name ?axis))
+  :doc "Linear kinematics eqn w/o time."
+  :english ("the constant acceleration equation v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" 
+               (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis))
+  :ExpFormat ((strcat "writing the constant acceleration equation "
+                      "v_~a^2 = v0_~a^2 + 2*a_~a*d_~a "
+		      "for ~a from ~a to ~a") 
+                      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)
+		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
+  :EqnFormat ("v_~a^2 = v0_~a^2 + 2*a_~a*d_~a" (axis-name ?axis) (axis-name ?axis)
+					       (axis-name ?axis) (axis-name ?axis)))
+
+(def-goalprop lk-no-t-eqn 
+   (eqn ?algebra (compo-eqn lk-no-t ?axis ?rot (lk ?body ?time)))
+   :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
 
 (defoperator LK-no-t-contains (?quantity)
   :specifications "
@@ -2177,6 +2242,24 @@
 
 ;;; Writes the equation s = vi*t + 0.5*a*t^2, which lacks vf
 
+(def-psmclass lk-no-vf (?eq-type lk-no-vf ?axis ?rot (lk ?body (during ?time0 ?time1)))
+  :group lk
+  :complexity major
+  :short-name ("[a_~A is constant]" (axis-name ?axis))
+  :Doc "Linear kinematics eqn sans final velocity."
+  :english ("the constant acceleration equation d_~a = v0_~a*t + 0.5*a_~a*t^2"
+                            (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) )
+  :ExpFormat ((strcat "writing the constant acceleration equation "
+                      "d_~a = v0_~a*t + 0.5*a_~a*t^2 "
+		      "for ~a from ~a to ~a") 
+                      (axis-name ?axis) (axis-name ?axis) (axis-name ?axis) 
+		      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
+  :EqnFormat ("d_~a = v0_~a*t + 0.5*a_~a*t^2" (axis-name ?axis) (axis-name ?axis) (axis-name ?axis)))
+
+(def-goalprop lk-no-vf-eqn 
+   (eqn ?algebra (compo-eqn lk-no-vf ?axis ?rot (lk ?body ?time)))
+  :english ("writing a constant acceleration equation in terms of vector components along the ~A axis" ?axis))
+
 (defoperator LK-no-vf-contains (?quantity)
   :specifications "
    Lists the quantities contained in s = vi*t + 0.5*a*t^2"
@@ -2244,74 +2327,6 @@
 						 algebra)))
   ))
 
-#| ;; for commenting out LK-no-a since USNA instructors don't consider it fundamental
-   
-;;; Writes the equation s = 0.5*(vi + vf)*t, which lacks a
-
-(defoperator LK-no-a-contains (?quantity)
-  :specifications "
-   Lists the quantities contained in s = 0.5*(vi + vf)*t, which lacks a"
-  :preconditions
-  (
-   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
-   ;; will only be called once
-   (any-member ?quantity 
-	        ((velocity ?b :time ?t1)
-		 (velocity ?b :time ?t2)
-		 ;; (accel ?b :time (during ?t1 ?t2))
-		 (displacement ?b :time (during ?t1 ?t2))
-		 (duration (during ?t1 ?t2))
-		 ))
-   ; only applies if accel is constant within interval we are using
-   ; sought may not bind both times, so must choose endpoints of interval to try
-   (constant (accel ?b) ?t-constant)
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
-   )
-  :effects
-   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
-    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity)))
-
-(defoperator draw-lk-no-a-fbd (?b ?t1 ?t2 ?rot)
-  :specifications "
-   If the goal is to draw a lk fbd for lk-no-s
-   then draw the body, the initial and final velocity, 
-      the acceleration, and axes"
-  :preconditions
-  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-a ?quantity))
-   (body ?b)
-   (vector ?b (velocity ?b :time ?t1) ?dir1)
-   (vector ?b (velocity ?b :time ?t2) ?dir2)
-   ;(vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
-   (vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
-   (axes-for ?b ?rot))
-  :effects
-   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
-)
-
-(defoperator write-lk-no-a-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications "
-   Writes the equation s = 0.5*(vi + vf)*t, which lacks a"
-  :preconditions
-   ((variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-    (variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-    (variable ?t-var    (duration (during ?t1 ?t2))))
-  :effects
-  ((eqn (= ?s-compo (*  0.5 (+ ?vi-compo ?vf-compo) ?t-var))
-	 (compo-eqn lk-no-a ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-   )
-   :hint (
-     (point (string "Do you know an equation relating the components of displacement to that of initial velocity, final velocity and time when acceleration is constant?"))
-     (bottom-out (string "Write the equation ~A"
-			 ((= ?s-compo (* 0.5 (+ ?vi-compo ?vf-compo) ?t-var))
-			  algebra)))
-   ))
-
-|# ;; end possibly commented-out lk-no-a
-
-;|# ;; end not in physics-lite used in Pyrenees eval
-
 ;;
 ;; LK equations special to projectile motion
 ;;
@@ -2336,6 +2351,17 @@
 ;; could be a nuisance if you wish to apply it over a sub-interval of 
 ;; projectile motion but for now it suffices. The const-vx shows how to
 ;; work around it if we need to.
+
+(def-psmclass sdd-constvel (compo-eqn sdd-constvel ?axis ?rot (lk ?body (during ?time0 ?time1)))
+  :group lk
+  :complexity major
+  :short-name ("[a_~A=0; v_~A is constant]" (axis-name ?axis) (axis-name ?axis))
+  :english ("displacement component = constant velocity component * time")
+  :ExpFormat ((strcat "calculating the ~a component of displacement as constant "
+		      "velocity component * time for ~a from ~a to ~a") 
+	      (axis-name ?axis) (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
+  :EqnFormat ("d_~a = v_~a * t" (axis-name ?axis) (axis-name ?axis)))
+
 (defoperator sdd-constvel-compo-contains (?quantity)
   :specifications 
    "Lists the quantities contained in s_x = v0_x*t when a_x = 0" 
@@ -2406,6 +2432,16 @@
 ;; application, e.g. from given v2_x at apex of flight (Exkt17a) to v_x3 
 ;; end of flight, without having to draw all lk vectors such as d for the 
 ;; sub-segment. Thus we need both the two times and the containing lk time
+
+(def-psmclass const-vx (compo-eqn const-vx ?xyz ?rot (lk ?body (during ?time0 ?time1)))
+  :group lk
+  :complexity simple
+  :short-name "[v_x is constant (a_x =0)]"
+  :english ("constant velocity component")
+  :ExpFormat ("using the constancy of the x-component of the velocity of ~a from ~a to ~a"
+	      (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
+  :EqnFormat ("vf_x = vi_x"))
+
 (defoperator const-vx-contains (?quantity)
  :specifications 
    "Lists the quantities contained in v1_x = v2_x when a_x = 0"
@@ -2423,12 +2459,12 @@
    )
    :effects (
     (eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
-    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) (const-vx ?t1 ?t2) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) const-vx ?quantity)
    ))
 
 (defoperator draw-const-vx-fbd (?b ?t1 ?t2 ?rot)
   :preconditions
-  ((in-wm (compo-eqn-contains  (lk ?b ?t-free-fall) (const-vx ?t1 ?t2) ?quantity))
+  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) const-vx ?quantity))
    (body ?b)
    (vector ?b (velocity ?b :time ?t1) ?dir1)
    (vector ?b (velocity ?b :time ?t2) ?dir2)
@@ -2436,10 +2472,10 @@
    ;(vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram ?rot (lk ?b ?t-free-fall)))
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
-(defoperator use-const-vx (?b ?t1 ?t2 ?t-lk)
+(defoperator use-const-vx (?b ?t1 ?t2 ?xyz ?rot)
   :specifications "Writes the component equation v1_x = v2_x when a_x = 0"
   ;; if time is inside lk time, then vector may not have been drawn on the lk 
   ;; diagram. Can give hairy problems defining compo vars -- define-compo 
@@ -2452,15 +2488,15 @@
   (
    (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
    (test (not (eq ?accel-dir 'zero)))
-   (test (perpendicularp (axis-dir 'x 0) ?accel-dir))
+   (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
    (vector ?b (velocity ?b :time ?t1) ?dir1)
    (vector ?b (velocity ?b :time ?t2) ?dir2)
-   (variable ?v1-compo (compo x 0 (velocity ?b :time ?t1)))
-   (variable ?v2-compo (compo x 0 (velocity ?b :time ?t2)))
+   (variable ?v1-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+   (variable ?v2-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
    )
   :effects
   ((eqn (= ?v1-compo ?v2-compo) 
-               (compo-eqn (const-vx ?t1 ?t2) x 0 (lk ?b ?t-lk)))
+               (compo-eqn const-vx ?xyz ?rot (lk ?b (during ?t1 ?t2))))
    )
   :hint
   ((point (string "What do you know about the x component of the velocity of ~A ~A?"  ?b (?t-lk pp)))
@@ -2469,30 +2505,6 @@
    (bottom-out (string "Write the equation ~A" ((= ?v1-compo ?v2-compo) algebra)))
    ))
 
-;; TODO: Need some principles for problems like Exkt17a. Which?
-;;
-;; 1. Could add principle that v_y = 0 at max-height.
-;; 2. Could use s12_y = -s23_y if (same-height ?b ?t1 ?t3)
-;; 3. Could use more general vector relation s12 + s23 = s13
-;; for case where s13_y = 0. 
-;; 4. Could add principle about v1_y = -v3_y if (same-height ?b ?t1 ?t3)
-;; although this should be derivable from lk equations.
-
-#|
-(defoperator vy-apex-contains (?sought)
-  :preconditions 
-    ((any-member ?sought ((compo y 0 (velocity ?b :time ?t))))
-    (apex ?b ?t))
-  :effects ((eqn-contains (vy-apex ?b ?t) ?sought)))
-
-(defoperator write-vy-apex(?b ?t)
-  :preconditions 
-  ((variable ?v_y (compo y 0 (velocity ?b :time ?t))))
-  :effects ((eqn (= ?v_y 0) (vy-apex ?b ?t)))
-  :hint
-  ((bottom-out (string "Write the equation ~A" ((= ?v_y 0) algebra)))
-   ))
-|#
 
 ;;; ===================== average acceleration =================
 ;;;
@@ -3316,6 +3328,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
 ;;; Because this uses average angular velocity it does not require
 ;;; that the velocity be constant. It could also be called the definition
 ;;; of average angular velocity, as scalar sdd is definition of average speed.
+
+(def-psmclass ang-sdd (?eq-type ang-sdd-constvel ?xyz ?rot 
+				(rk ?body ?time))
+  :complexity major
+  :short-name "average angular velocity"
+  :english ("the definition of average angular velocity")
+  :expformat ((strcat "applying the definition of Average Angular Velocity "
+		  "to ~a ~a") (nlg ?body) (nlg ?time 'time))
+  :EqnFormat ("$w(avg) = $q/t"))
+
 (defoperator ang-sdd-contains (?quantity)
   :preconditions (
    (any-member ?quantity (
@@ -3327,18 +3349,20 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (time ?t)
    (test (time-intervalp ?t)))
   :effects 
-  ((eqn-family-contains (ang-sdd ?b ?t) ?quantity)
-   (compo-eqn-contains (ang-sdd ?b ?t) ang-sdd-constvel ?quantity)))
+  ((eqn-family-contains (rk ?b ?t) ?quantity)
+   (compo-eqn-contains (rk ?b ?t) ang-sdd-constvel ?quantity)))
 
 (defoperator draw-ang-sdd-vectors (?b ?t ?rot)
-  :preconditions (
+  :preconditions 
+  (
+   (in-wm (compo-eqn-contains (rk ?b ?t) ang-sdd-constvel ?quantity))
    (body ?b)
    (inherit-vector ?b (ang-velocity ?b :time ?t) ?dir-v)
    (vector ?b (ang-displacement ?b :time ?t) ?dir-d)
    (axes-for ?b ?rot)
   )
   :effects (
-    (vector-diagram ?rot (ang-sdd ?b ?t))
+    (vector-diagram ?rot (rk ?b ?t))
   )
 )
 
@@ -3351,7 +3375,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
     (variable ?t-var (duration ?t)))
   :effects 
    ((eqn (= ?theta_z (* ?omega_z ?t-var)) 
-	 (compo-eqn ang-sdd-constvel ?z ?rot (ang-sdd ?b ?t)))
+	 (compo-eqn ang-sdd-constvel ?z ?rot (rk ?b ?t)))
     )
   :hint (
   (point (string "Can you write an equation in terms of components relating average angular velocity to angular displacement and duration?"))
@@ -3360,9 +3384,25 @@ the magnitude and direction of the initial and final velocity and acceleration."
 		       (?theta_z algebra) (?omega_z algebra) (?t-var algebra)))
   ))
 
+;;; ================ Rotational kinematics equations ========================
+
+(def-psmgroup rk	
+    :form (?eq-type ?Eqn-ID ?axis ?rot (rk ?body ?time))
+    :supergroup Kinematics
+    :doc "Equations for one dimensional motion with constant acceleration."
+    :english ("a constant acceleration equation"))
+
 ;; angular version of lk-no-s: omega_f = omega_i + alpha_avg * t
 ;; Because this uses average angular acceleration, it doesn't require
 ;; acceleration to be constant
+
+(def-psmclass rk-no-s (?eq-type rk-no-s ?xy ?rot (rk ?body (during ?t0 ?t1)))
+     :group rk
+     :complexity major
+  :short-name "average anglular acceleration"
+     :english ("constant angular acceleration kinematics")
+     :EqnFormat ("$wf = $wi + $a(avg)*t")) ;alternative form in principles.cl
+
 (defoperator rk-no-s-contains (?sought)
  :preconditions (
   (any-member ?sought
@@ -3376,13 +3416,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
  :effects 
  (
-  (eqn-family-contains (rk-no-s ?b (during ?t1 ?t2)) ?sought)
-    (compo-eqn-contains  (rk-no-s ?b (during ?t1 ?t2)) rk-no-s-id ?sought)
+  (eqn-family-contains (rk ?b (during ?t1 ?t2)) ?sought)
+    (compo-eqn-contains  (rk ?b (during ?t1 ?t2)) rk-no-s ?sought)
 ))
 
 (defoperator draw-rk-no-s-vectors (?b ?t1 ?t2 ?rot)
   :preconditions  
   (
+   (in-wm (compo-eqn-contains (rk ?b (during ?t1 ?t2)) rk-no-s ?sought))
    (body ?b)
    (inherit-vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
    (inherit-vector ?b (ang-accel ?b :time (during ?t1 ?t2)) ?dir-d)
@@ -3390,7 +3431,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?var (duration (during ?t1 ?t2)))
    (axes-for ?b ?rot)
   )
-  :effects ( (vector-diagram ?rot (rk-no-s ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram ?rot (rk ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-s (?b ?t1 ?t2)
@@ -3401,7 +3442,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (variable ?t-var (duration (during ?t1 ?t2))))
   :effects 
   ((eqn (= ?omega2_z (+ ?omega1_z (* ?alpha_z ?t-var))) 
-               (compo-eqn rk-no-s-id ?z ?rot (rk-no-s ?b (during ?t1 ?t2))))
+               (compo-eqn rk-no-s ?z ?rot (rk ?b (during ?t1 ?t2))))
    )
     :hint
    ((point (string "Can you think of an equation that relates the z component of average angular acceleration to that of the initial angular velocity, final angular velocity, and duration?"))
@@ -3410,8 +3451,16 @@ the magnitude and direction of the initial and final velocity and acceleration."
                         (?omega2_z algebra) (?omega1_z algebra) 
 			(?alpha_z algebra) (?t-var algebra)))))
 
-; angular version of lk-no-vf: 
-;        theta12 = omega1 * t + 0.5 * alpha12 * t12^2
+;; angular version of lk-no-vf: 
+;;        theta12 = omega1 * t + 0.5 * alpha12 * t12^2
+
+(def-psmclass rk-no-vf (?eq-type rk-no-vf ?xyz ?rot (rk ?body (during ?t0 ?t1)))
+     :group rk
+     :complexity major
+  :short-name "[$a_z is constant]"
+     :english ("constant angular acceleration kinematics")
+     :EqnFormat ("$q_z = $w0_z*t + 0.5*$a_z*t^2"))
+
 (defoperator rk-no-vf-contains (?sought)
  :preconditions (
   (any-member ?sought
@@ -3426,12 +3475,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
   )
  :effects 
- ((eqn-family-contains (rk-no-vf ?b (during ?t1 ?t2)) ?sought)
-  (compo-eqn-contains  (rk-no-vf ?b (during ?t1 ?t2)) rk-no-vf-id ?sought)
+ ((eqn-family-contains (rk ?b (during ?t1 ?t2)) ?sought)
+  (compo-eqn-contains (rk ?b (during ?t1 ?t2)) rk-no-vf ?sought)
   ))
 
 (defoperator draw-rk-no-vf-vectors (?rot ?b ?t1 ?t2)
-  :preconditions  (
+  :preconditions  
+  (
+   (in-wm (compo-eqn-contains (rk ?b (during ?t1 ?t2)) rk-no-vf ?sought))
    (not (vector-diagram ?rot (rk-no-vf ?b (during ?t1 ?t2))))
    (body ?b)
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
@@ -3439,7 +3490,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (inherit-vector ?b (ang-velocity ?b :time ?t1) ?dir-v1)
    (axes-for ?b ?rot)
   )
-  :effects ( (vector-diagram ?rot (rk-no-vf ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram ?rot (rk ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-vf (?b ?t1 ?t2)
@@ -3452,7 +3503,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects (
    (eqn (= ?theta_z (+ (* ?omega1_z ?t-var)
                        (* 0.5 ?alpha_z (^ ?t-var 2))) )
-               (compo-eqn rk-no-vf-id ?z ?rot (rk-no-vf ?b (during ?t1 ?t2))))
+               (compo-eqn rk-no-vf ?z ?rot (rk ?b (during ?t1 ?t2))))
    )
   :hint (
     (point (string "Do you know an equation relating the z component of angular displacement to that of initial angular velocity, time, and angular acceleration when angular acceleration is constant?"))
@@ -3463,6 +3514,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
 
 ;; angular version of lk-no-t 
 ;;        omega2^2 = omega1^2 + 2 * alpha12 * theta12
+
+(def-psmclass rk-no-t (?eq-type rk-no-t ?xyz ?rot (rk ?body (during ?t0 ?t1)))
+     :group rk
+     :complexity major
+  :short-name "[$a_z is constant]"
+     :english ("constant angular acceleration kinematics")
+     :EqnFormat ("$w_z^2 = $w0_z^2 + 2*$a_z*$q_z"))
+
 (defoperator rk-no-t-contains (?sought)
  :preconditions (
   (any-member ?sought
@@ -3478,12 +3537,14 @@ the magnitude and direction of the initial and final velocity and acceleration."
   )
  :effects 
  (
- (eqn-family-contains (rk-no-t ?b (during ?t1 ?t2)) ?sought)
-    (compo-eqn-contains  (rk-no-t ?b (during ?t1 ?t2)) rk-no-t-id ?sought)
+ (eqn-family-contains (rk ?b (during ?t1 ?t2)) ?sought)
+    (compo-eqn-contains (rk ?b (during ?t1 ?t2)) rk-no-t ?sought)
  ))
 
 (defoperator draw-rk-no-t-vectors (?rot ?b ?t1 ?t2)
-  :preconditions  (
+  :preconditions  
+  (
+   (in-wm  (compo-eqn-contains (rk ?b (during ?t1 ?t2)) rk-no-t ?sought))
    (not (vector-diagram ?rot (rk-no-t ?b (during ?t1 ?t2))))
    (body ?b)
    (inherit-vector ?b (ang-velocity ?b :time ?t2) ?dir-v2)
@@ -3492,7 +3553,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
    (vector ?b (ang-displacement ?b :time (during ?t1 ?t2)) ?dir-d)
    (axes-for ?b ?rot)
   )
-  :effects ( (vector-diagram ?rot (rk-no-t ?b (during ?t1 ?t2))) )
+  :effects ( (vector-diagram ?rot (rk ?b (during ?t1 ?t2))) )
 )
 
 (defoperator write-rk-no-t (?b ?t1 ?t2)
@@ -3505,7 +3566,7 @@ the magnitude and direction of the initial and final velocity and acceleration."
   :effects (
    (eqn (= (^ ?omega2_z 2) (+ (^ ?omega1_z 2)
                               (* 2 ?alpha_z ?theta_z)))
-               (compo-eqn rk-no-t-id ?z ?rot (rk-no-t ?b (during ?t1 ?t2))))
+               (compo-eqn rk-no-t ?z ?rot (rk ?b (during ?t1 ?t2))))
    )
   :hint (
     (point (string "Do you know an equation relating the z components of initial angular velocity, final angular velocity, angular acceleration, and angular displacement when acceleration is constant?"))
