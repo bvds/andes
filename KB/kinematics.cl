@@ -2433,7 +2433,7 @@
 ;; end of flight, without having to draw all lk vectors such as d for the 
 ;; sub-segment. Thus we need both the two times and the containing lk time
 
-(def-psmclass const-vx (compo-eqn const-vx ?xyz ?rot (lk ?body (during ?time0 ?time1)))
+(def-psmclass const-vx (compo-eqn const-vx ?axis ?rot (lk ?body (during ?time0 ?time1)))
   :group lk
   :complexity simple
   :short-name "[v_x is constant (a_x =0)]"
