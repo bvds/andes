@@ -276,7 +276,9 @@
 		 (leaf free-fall-accel :tutorial "Free fall acceleration")
 		 (leaf std-constant-g :tutorial "Value of g near Earth")
 		 (leaf const-vx :bindings ((?axis . x))  
-		       :tutorial "Constant velocity component")
+		       :tutorial "Constant velocity x-component")
+		 (leaf const-vx :bindings ((?axis . y))  
+		       :tutorial "Constant velocity y-component")
 		 (leaf period-circle :tutorial "Period Circular")
 		)
 	 (group "Rotational" 

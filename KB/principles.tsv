@@ -248,7 +248,8 @@ LEAF	a(avg)_x = (vf_x - vi_x)/t    average acceleration	(lk-no-s ((?axis . x)))	
 LEAF	a(avg)_y = (vf_y - vi_y)/t    average acceleration	(lk-no-s ((?axis . y)))	Average acceleration
 LEAF	a = g    accel in free-fall	free-fall-accel	Free fall acceleration
 LEAF	g = 9.8 m/s^2    g near Earth	std-constant-g	Value of g near Earth
-LEAF	vf_x = vi_x    [v_x is constant (a_x =0)]	(const-vx ((?axis . x)))	Constant velocity component
+LEAF	vf_x = vi_x    [v_x is constant (a_x =0)]	(const-vx ((?axis . x)))	Constant velocity x-component
+LEAF	vf_y = vi_y    [v_x is constant (a_x =0)]	(const-vx ((?axis . y)))	Constant velocity y-component
 LEAF	T = 2*$p*r/v    period of uniform circular motion	period-circle	Period Circular
 END_GROUP	Translational		
 GROUP	Rotational		

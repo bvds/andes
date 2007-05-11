@@ -2049,6 +2049,7 @@
 ;; 'lk-no-s-avg-accel' which is part of the average accel form.
 ;; lk-no-s matches either
 
+;; Should merge these two, Bug #1197
 (def-psmclass lk-no-s-lk (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
   :group lk
   :complexity major
@@ -2140,7 +2141,7 @@
    )
   :hint
    ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
-    (teach (kcd "write_lk_without_displacement")
+    (teach (kcd "write_lk_without_displacement") ;; what is this? Bug #1197
 	   (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied component-wise to relate ~A, ~A, ~A and ~A" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
     (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
     ))
@@ -2436,6 +2437,7 @@
 (def-psmclass const-vx (compo-eqn const-vx ?axis ?rot (lk ?body (during ?time0 ?time1)))
   :group lk
   :complexity simple
+  ;; bad hints, Bug # 1196 (need to regenerate principles file).
   :short-name "[v_x is constant (a_x =0)]"
   :english ("constant velocity component")
   :ExpFormat ("using the constancy of the ~A component of the velocity of ~a from ~a to ~a"
@@ -2498,6 +2500,7 @@
   ((eqn (= ?v1-compo ?v2-compo) 
                (compo-eqn const-vx ?xyz ?rot (lk ?b (during ?t1 ?t2))))
    )
+  ;; Bad hints, Bug #1196
   :hint
   ((point (string "What do you know about the x component of the velocity of ~A ~A?"  ?b (?t-lk pp)))
    (teach (string "Because the acceleration of ~A ~A is perpendicular to the x axis, is has no component in the x direction. Therefore, the x component of velocity remains constant ~A. You can use this to relate ~A to ~A. " 
@@ -2524,6 +2527,8 @@
 ;;; But the only ways we can currently derive that accel is constant is 
 ;;; if it's or free-fall is given, so we just test for the absence of those.
 ;;;
+
+;; should merge with lk-no-s, Bug #1197.
 (defoperator avg-accel-contains (?quantity)
   :specifications
 "The average acceleration equation potentially contains the duration and the
