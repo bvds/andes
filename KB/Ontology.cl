@@ -595,10 +595,6 @@
 (def-goalprop other-var (variable ?var ?quantity)
    :english ("introducing a variable for ~A" (nlg ?quantity)))
 
-(def-goalprop lk-eqn-chosen
-      (compo-eqn-selected (LK ?body ?time) ?quantity (compo-eqn . ?eq-args))
-   :english ("choosing a particular kinematic equation containing ~A" 
-             (nlg ?quantity)))
 
 (def-goalprop axes-chosen (axes-for ?body ?rotation)
   ;; !! this goal can be achieved in some cases without drawing 
@@ -613,10 +609,6 @@
    :english ("drawing a diagram showing all of the needed vectors for ~A ~A and coordinate axes" 
              (nlg ?body) (nlg ?time 'pp)))
    
-(def-goalprop avg-accel-fbd (vector-diagram ?rot (avg-accel ?body ?time))
-   :english ("drawing a diagram showing all of the needed kinematic vectors for ~A ~A and coordinate axes" 
-              (nlg ?body) (nlg ?time 'pp)))
-
 (def-goalprop net-disp-fbd (vector-diagram ?rot (sum-disp ?body ?time))
    :english ("drawing a diagram showing all of the needed displacements of ~A ~A and coordinate axes" 
               (nlg ?body) (nlg ?time 'pp)))

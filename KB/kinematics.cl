@@ -2009,68 +2009,27 @@
     :doc "Equations for one dimensional motion with constant acceleration."
     :english ("a constant acceleration equation"))
 
+(def-goalprop lk-eqn-chosen
+      (compo-eqn-selected (LK ?body ?time) ?quantity (compo-eqn . ?eq-args))
+   :english ("choosing a particular kinematic equation containing ~A" 
+             (nlg ?quantity)))
 
 ;;; This operator writes vf=vi+a*t.  That is, it leaves out displacement (s).
 
 ;;; Acceleration over an interval is interpreted as average acceleration.
 ;;; This is consistent with the labels in the Andes dialog boxes.
 ;;; We use the proposition (constant (accel ?b) (during ?t1 ?t2)) to 
-;;; assert that the *instantaneous* acceleration is constant over each instant 
-;;; in an interval. This can be deduced from the fact that the object is given 
-;;; to be free-fall during an interval. In other cases it must often be given. 
+;;; assert that the acceleration is constant over each instant 
+;;; in an interval.  In the case of free-fall, this is inferred. 
+;;; In other cases it must be given. 
 ;;;
-;;; Where acceleration is known to be constant, as in most kinematics problems,
-;;; the average acceleration will of course equal the constant instantaneous 
-;;; acceleration at each point in the interval. However a few problems test the 
-;;; application of the definition of average acceleration over intervals where 
-;;; it is not known to be constant.
-;;;
-;;; All the other "lk" equations only apply where acceleration is constant thus 
-;;; have to test for constancy of the acceleration over the interval before 
-;;; applying.  But this equation defines average acceleration so can be applied 
-;;; even if acceleration is not constant over interval, hence does not use any 
-;;; such test. 
-;;; 
-;;; We have to be able to apply this equation in either case. However, if we
-;;; are just using it to find average acceleration we shouldn't draw the
-;;; displacement as required for an "lk" diagram. Therefore we use it as
-;;; a child compo-eqn of two different vector PSMs -- as a child of the
-;;; lk PSM when accel is known constant, and as a child of the avg-accel PSM
-;;; when accel is not known constant.
 
-;; lk-no-s = average acceleration def-- can occur under different methods as 
-;; lk/lk-no-s if accel is constant or avg-accel/lk-no-s if it is not.
-;; if student selects specific "average accel" equation as opposed to "constant
-;; acceleration" group we want to match whichever instance is in use
-;;
-;; In order to deal with that and to meet the single-line parents that we 
-;; require for the ontology we have defined two lk-no-s* psms one is 
-;; 'lk-no-s-lk' which is part of the linear kinematics group.  The other is 
-;; 'lk-no-s-avg-accel' which is part of the average accel form.
-;; lk-no-s matches either
-
-;; Should merge these two, Bug #1197
 (def-psmclass lk-no-s-lk (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
   :group lk
   :complexity major
   :english ("the definition of average acceleration")
   :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
-		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment)))
-
-(def-psmclass lk-no-s-avg-accel (?eq-type lk-no-s ?axis ?rot (avg-accel ?body (during ?time0 ?time1))) 
-  :complexity major
-  :english ("the definition of average acceleration")
-  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
-		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment)))
-
-;; generic form to match either version of lk-no-s.
-(def-psmclass lk-no-s (?eq-type lk-no-s ?axis ?rot (?parent-psm ?body (during ?time0 ?time1))) 
-  :group Kinematics
-  :complexity major
-  :short-name "average acceleration"
-  :english ("the definition of average acceleration")
-  :ExpFormat ("applying the definition of average acceleration on ~a from ~a to ~a"
-	      (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment))
+		 (nlg ?body) (nlg ?time0 'moment) (nlg ?time1 'moment))
   ;; alternative form in principles.cl
   :EqnFormat ("vf_~A = vi_~A + a(avg)_~A*t" (axis-name ?axis) (axis-name ?axis)
 	      (axis-name ?axis)))
@@ -2086,21 +2045,16 @@
   (
    ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
    ;; will only be called once
-   (any-member ?quantity 
-	       ((velocity ?b :time ?t1)
-		 (velocity ?b :time ?t2)
-		 (accel ?b :time (during ?t1 ?t2))
-		 (duration (during ?t1 ?t2))
-		 ))
-   ;; only applies if accel is constant within interval we are using
-   ;; sought may not bind both times, so must choose endpoints of interval 
-   ;; to try
-   (constant (accel ?b) ?t-constant)
+   (any-member ?quantity  ((velocity ?b :time ?t1)
+			   (velocity ?b :time ?t2)
+			   (accel ?b :time (during ?t1 ?t2))
+			   (duration (during ?t1 ?t2))
+			   ))
+   (object ?b) ;in case ?b is not bound
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
-   ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+  ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
     (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) lk-no-s ?quantity)))
 
 (defoperator draw-lk-no-s-fbd (?b ?t1 ?t2 ?rot)
@@ -2135,16 +2089,35 @@
   (
    (eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
 	(compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-;; experimental: 
-;;   (assume using-lk ?xyz ?rot lk-no-s (velocity ?b :time ?t1) 
-;;	   (velocity ?b :time t2) (accel ?b :time (during ?t1 ?t2)))
    )
   :hint
    ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
-    (teach (kcd "write_lk_without_displacement") ;; what is this? Bug #1197
-	   (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied component-wise to relate ~A, ~A, ~A and ~A" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
+    (teach (string "Acceleration is the rate of change of velocity.  The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration."))
     (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
     ))
+
+(defoperator write-lk-no-s-zero (?b ?t1 ?t2 ?xyz ?rot)
+  :preconditions 
+  (
+   (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
+   (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
+   (inherit-variable ?v1-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
+   (inherit-variable ?v2-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
+   )
+  :effects
+  ((eqn (= ?v1-compo ?v2-compo) 
+               (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
+   )
+  :hint
+  ((point (string "What happens to the ~A-component of the velocity of ~A ~A?"
+		  ((axis ?xyz ?rot) symbols-label) ?b (?t-lk pp)))
+   (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction. Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
+		  ?b (?t-lk pp)  ((axis ?xyz ?rot) symbols-label) 
+		  ((axis ?xyz ?rot) symbols-label) 
+		  ((axis ?xyz ?rot) symbols-label)
+		  (?t-lk pp) (?v1-compo algebra) (?v2-compo algebra)))
+   (bottom-out (string "Write the equation ~A" ((= ?v1-compo ?v2-compo) algebra)))
+   ))
 
 
 ;;; Writes the equation vf^2 = vi^2 + 2*a*s, which is lacking a duration.
@@ -2350,8 +2323,7 @@
 ;; Because this is defined as a subsdiary compo-eqn under the lk method
 ;; writing it will require drawing all the lk vectors over the interval. This 
 ;; could be a nuisance if you wish to apply it over a sub-interval of 
-;; projectile motion but for now it suffices. The const-vx shows how to
-;; work around it if we need to.
+;; projectile motion but for now it suffices. 
 
 (def-psmclass sdd-constvel (compo-eqn sdd-constvel ?axis ?rot (lk ?body (during ?time0 ?time1)))
   :group lk
@@ -2428,187 +2400,8 @@
 		   ((= ?s-compo (* ?vi-compo ?t-var)) algebra)))
   ))
 
-;; Following writes vi_x = vj_x when v_x is constant because a_x = 0
-;; Note we may need to apply this within a sub-interval of a larger lk 
-;; application, e.g. from given v2_x at apex of flight (Exkt17a) to v_x3 
-;; end of flight, without having to draw all lk vectors such as d for the 
-;; sub-segment. Thus we need both the two times and the containing lk time
-
-(def-psmclass const-vx (compo-eqn const-vx ?axis ?rot (lk ?body (during ?time0 ?time1)))
-  :group lk
-  :complexity simple
-  ;; bad hints, Bug # 1196 (need to regenerate principles file).
-  :short-name "[v_x is constant (a_x =0)]"
-  :english ("constant velocity component")
-  :ExpFormat ("using the constancy of the ~A component of the velocity of ~a from ~a to ~a"
-	     (axis-name ?axis) (nlg ?body) (nlg ?time0 'time) (nlg ?time1 'time))
-  :EqnFormat ("vf_~a = vi_~a" (axis-name ?axis) (axis-name ?axis)))
-
-(defoperator const-vx-contains (?quantity)
- :specifications 
-   "Lists the quantities contained in v1_x = v2_x when a_x = 0"
-  :preconditions 
-  (
-   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
-   ;; will only be called once
-   (any-member ?quantity 
-	        ((velocity ?b :time ?t1)
-	         (velocity ?b :time ?t2)
-		 ))
-   ; pick a pair of times:
-   (time (during ?t1 ?t2))
-   ;; test for zero component takes place after vector diagram is drawn
-   )
-   :effects (
-    (eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
-    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) const-vx ?quantity)
-   ))
-
-(defoperator draw-const-vx-fbd (?b ?t1 ?t2 ?rot)
-  :preconditions
-  ((in-wm (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) const-vx ?quantity))
-   (body ?b)
-   (vector ?b (velocity ?b :time ?t1) ?dir1)
-   (vector ?b (velocity ?b :time ?t2) ?dir2)
-   (vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
-   ;(vector ?b (displacement ?b :time (during ?t1 ?t2)) ?dir4)
-   (axes-for ?b ?rot))
-  :effects
-   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
-)
-
-(defoperator use-const-vx (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications "Writes the component equation v1_x = v2_x when a_x = 0"
-  ;; if time is inside lk time, then vector may not have been drawn on the lk 
-  ;; diagram. Can give hairy problems defining compo vars -- define-compo 
-  ;; only works if vector and axes both drawn.  Define-compo2 was added to
-  ;; work in other cases, but can fail if it has has already been applied 
-  ;; once to draw axes for body at different time!
-  ;; Ensuring vector is drawn allows define-compo to work, since axes have
-  ;; been drawn on the body in the containing lk application.  
-  :preconditions 
-  (
-   (in-wm (vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-   (test (not (eq ?accel-dir 'zero)))
-   (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
-   (vector ?b (velocity ?b :time ?t1) ?dir1)
-   (vector ?b (velocity ?b :time ?t2) ?dir2)
-   (variable ?v1-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-   (variable ?v2-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-   )
-  :effects
-  ((eqn (= ?v1-compo ?v2-compo) 
-               (compo-eqn const-vx ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-   )
-  ;; Bad hints, Bug #1196
-  :hint
-  ((point (string "What do you know about the x component of the velocity of ~A ~A?"  ?b (?t-lk pp)))
-   (teach (string "Because the acceleration of ~A ~A is perpendicular to the x axis, is has no component in the x direction. Therefore, the x component of velocity remains constant ~A. You can use this to relate ~A to ~A. " 
-		  ?b (?t-lk pp)  (?t-lk pp) (?v1-compo algebra) (?v2-compo algebra)))
-   (bottom-out (string "Write the equation ~A" ((= ?v1-compo ?v2-compo) algebra)))
-   ))
 
 
-;;; ===================== average acceleration =================
-;;;
-;;; This is a vector PSM to find average acceleration when the
-;;; acceleration is not known to be constant. It uses the same
-;;; compo equation lk-no-s that is used under the constant acceleration
-;;; equation method "lk". We want avg-accel/lk-no-s to apply only 
-;;; when lk/lk-no-s doesn't to keep down multiplication of solutions.
-;;; Since we use the same child equation id lk-no-s in both cases, 
-;;; if the student ever selects avg-accel as a PSM when accel is constant
-;;; we can match on the child id only to find it as part of the appropriate
-;;; containing parent method.
-;;; 
-;;; LK attempts to prove that acceleration is constant. Since we don't 
-;;; have true negation-by-failure we can't complement that with 
-;;; (not (constant (accel ?b) ?t)) which only means "not-in-wm". 
-;;; But the only ways we can currently derive that accel is constant is 
-;;; if it's or free-fall is given, so we just test for the absence of those.
-;;;
-
-;; should merge with lk-no-s, Bug #1197.
-(defoperator avg-accel-contains (?quantity)
-  :specifications
-"The average acceleration equation potentially contains the duration and the
-the magnitude and direction of the initial and final velocity and acceleration."
-  :preconditions
-  ((any-member ?quantity
-	       ((velocity ?b :time ?t1)
-		 (velocity ?b :time ?t2)
-		 (accel ?b :time (during ?t1 ?t2))
-		 (duration (during ?t1 ?t2))))
-    (object ?b)
-    (time (during ?t1 ?t2))
-    ;; only apply this method if lk/lk-no-s doesn't apply
-    (not (constant (accel ?b) ?t-constant)
-         (tinsidep `(during ,?t1 ,?t2) ?t-constant))
-    ;; make sure that it is not in free-fall
-    (not (free-fall ?b ?t-free)
-         (tinsidep `(during ,?t1 ,?t2) ?t-free))
-    ;; make sure it is not projectile motion
-    (not (motion ?b (curved projectile ?whatever) :time ?t-free)
-         (tinsidep `(during ,?t1 ,?t2) ?t-free))
-    )
-  :effects
-   ((eqn-family-contains (avg-accel ?b (during ?t1 ?t2)) ?quantity)))
-
-(defoperator draw-avg-accel-diagram (?b ?t1 ?t2 ?rot)
-  :specifications 
-   "If the goal is to draw vectors for average acceleration,
-   then draw the body, the initial and final velocity, 
-      the acceleration and axes"
-  :preconditions
-  ((not (vector-diagram ?rot (avg-accel ?b (during ?t1 ?t2))))
-   (body ?b)
-   (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
-   (inherit-vector ?b (velocity ?b :time ?t2) ?dir2)
-   (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir3)
-   (axes-for ?b ?rot))
-  :effects
-   ((vector-diagram ?rot (avg-accel ?b (during ?t1 ?t2)))))
-
-;; following writes LK-no-s in context of avg-accel method.
-;; duplicates lk/lk-no-s pair of operators.
-;; We could generalize them with variables in place of parent-PSM-id, since
-;; id is always bound coming in.  Then the same operators would apply in
-;; both instances.  These are separate for now only so don't have to 
-;; regenerate existing problem files for the change.
-(defoperator avg-accel-compo-contains (?quantity)
-  :specifications 
-   "Lists the quantities contained in vf = vi + a * t"
-  :preconditions
-  ((any-member ?quantity ((velocity ?b :time ?t1)
-			  (velocity ?b :time ?t2)
-			  (accel ?b :time (during ?t1 ?t2))
-			  (duration (during ?t1 ?t2))
-			  ))
-   (time (during ?t1 ?t2))
-   )
-  :effects
-   ((compo-eqn-contains (avg-accel ?b (during ?t1 ?t2)) lk-no-s ?quantity)))
-
-(defoperator write-avg-accel-compo (?b ?t1 ?t2 ?xyz ?rot)
-  :specifications " writes vf=vi+a*t where accel not constant"
-  :preconditions
-   (; for 2D case, make sure accel compo not known to vanish
-    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-    (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
-    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
-    (inherit-variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
-    (inherit-variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
-    (variable ?t (duration (during ?t1 ?t2))))
-  :effects
-  ((eqn (= ?vf-compo (+ ?vi-compo (* ?a-compo ?t)))
-	        (compo-eqn lk-no-s ?xyz ?rot (avg-accel ?b (during ?t1 ?t2))))
-   )
-  :hint
-   ((point (string "Can you think of an equation that relates the components of average acceleration to those of the initial velocity, final velocity, and duration?"))
-    (teach (kcd "write_avg_accel")
-	   (string "Acceleration is the rate of change of velocity. The average acceleration vector over some time is defined as the difference between initial and final velocity vectors divided by the duration. This definition can be be applied component-wise to relate ~A, ~A, ~A and ~A" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
-    (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
-    ))
 
  
 ;;; Following draws a relative position vector of ?b1 from ?b2 at ?t
