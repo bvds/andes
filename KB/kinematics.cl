@@ -2024,7 +2024,7 @@
 ;;; In other cases it must be given. 
 ;;;
 
-(def-psmclass lk-no-s-lk (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
+(def-psmclass lk-no-s (?eq-type lk-no-s ?axis ?rot (lk ?body (during ?time0 ?time1))) 
   :group lk
   :complexity major
   :english ("the definition of average acceleration")

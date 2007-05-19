@@ -578,7 +578,8 @@
 ;; 
 ;; Subgoal hint for goal of drawing a vector:
 ;; We assume first argument is relevant body to mention
-(def-goalprop vec-drawn (vector ?axis-body (?vec-type . (?body . ?args)) ?direction)
+(def-goalprop vec-drawn (vector ?axis-body (?vec-type . (?body . ?args)) 
+				?direction)
    :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
 
 ;; Subgoal hint for goal of defining a variable: We use one hint for vector 
@@ -589,12 +590,12 @@
 ;; (which may be given)
 ;; -- maybe should insert another variant for that case.
 (def-goalprop vector-var (variable ?var (mag (?vec-type . (?body . ?args) )))
-   :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) (nlg ?body 'def-np)))
+   :english ("drawing a ~a vector for ~a." (nlg ?vec-type 'adjective) 
+					   (nlg ?body 'def-np)))
 |# ;; end experimental
 
 (def-goalprop other-var (variable ?var ?quantity)
    :english ("introducing a variable for ~A" (nlg ?quantity)))
-
 
 (def-goalprop axes-chosen (axes-for ?body ?rotation)
   ;; !! this goal can be achieved in some cases without drawing 
