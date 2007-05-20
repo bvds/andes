@@ -29,6 +29,8 @@
        (leaf lk-no-t :bindings ((?axis . y)) :tutorial "Constant acceleration")
        (leaf sdd-constvel :bindings ((?axis . x)) :tutorial "Constant velocity component")
        (leaf sdd-constvel :bindings ((?axis . y)) :tutorial "Constant velocity component")
+       (leaf const-v :bindings ((?axis . x)) :tutorial "Constant velocity component")
+       (leaf const-v :bindings ((?axis . y)) :tutorial "Constant velocity component")
        (leaf centripetal-accel :tutorial "Centripetal acceleration")
        (leaf centripetal-accel-compo :bindings ((?axis . x)) :tutorial "Centripetal acceleration")
        (leaf centripetal-accel-compo :bindings ((?axis . y)) :tutorial "Centripetal acceleration")

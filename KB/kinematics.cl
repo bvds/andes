@@ -2035,8 +2035,9 @@
 	      (axis-name ?axis)))
 
 (def-goalprop lk-no-s-eqn (eqn ?algebra (compo-eqn lk-no-s ?axis ?rot (lk ?body ?time)))
-  :english ((strcat "writing an constant acceleration equation in "
-		    "terms of vector components along the ~A axis") ?axis))
+  :english ((strcat "writing the definition of average acceleration equation "
+		    "in terms of vector components along the ~A axis") 
+	    (axis-name ?axis)))
 
 (defoperator LK-no-s-contains (?quantity)
   :specifications 
@@ -2077,7 +2078,7 @@
   :specifications "
    writes vf=vi+a*t.  That is, it leaves out displacement (s)."
   :preconditions
-   (;; for 2D case, make sure accel compo doesn't vanish
+   (;; make sure accel compo doesn't vanish
     (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
     (test (non-zero-projectionp ?accel-dir ?xyz ?rot))
     (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
@@ -2096,7 +2097,50 @@
     (bottom-out (string "Write the equation ~a = ~a + ~a*~a" (?vf-compo algebra) (?vi-compo algebra) (?a-compo algebra) (?t algebra)))
     ))
 
-(defoperator write-lk-no-s-zero (?b ?t1 ?t2 ?xyz ?rot)
+;;; zero component of non-zero acceleration
+(def-psmclass const-v (?eq-type const-v ?axis ?rot (lk ?body (during ?time0 ?te1))) 
+  :group lk
+  :complexity minor
+  :english ("constant velocity")
+  :ExpFormat ("noting that the accelaration ~A has no ~A component between ~a to ~a, so the ~A component of velocity remains constant"
+	      (nlg ?body) (axis-name ?axis) (nlg ?time0 'moment) 
+	      (nlg ?time1 'moment) (axis-name ?axis))
+  ;; alternative form in principles.cl
+  :EqnFormat ("vf_~A = vi_~A" (axis-name ?axis) (axis-name ?axis)))
+
+(defoperator const-v-contains (?quantity)
+  :preconditions
+  (
+   ;; vector PSM uses wm-or-derive for compo-eqn-contains so this operator
+   ;; will only be called once
+   (any-member ?quantity  ((velocity ?b :time ?t1)
+			   (velocity ?b :time ?t2)
+			   ))
+   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
+   )
+  :effects
+  ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
+    (compo-eqn-contains  (lk ?b (during ?t1 ?t2)) const-v ?quantity)))
+
+(defoperator draw-const-v-fbd (?b ?t1 ?t2 ?rot)
+  :specifications "
+   If the goal is to draw a lk fbd for lk-no-s
+   then draw the body, the initial and final velocity, 
+      the acceleration, and axes"
+  :preconditions
+  ((in-wm (compo-eqn-contains (lk ?b (during ?t1 ?t2)) const-v ?quantity))
+   (body ?b)
+   (inherit-vector ?b (velocity ?b :time ?t1) ?dir1)
+   (inherit-vector ?b (velocity ?b :time ?t2) ?dir2)
+   (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?dir-a)
+   ;; the case of zero acceleration is better handled by inheritance
+   (test (not (eq ?dir-a 'zero)))
+   (axes-for ?b ?rot))
+  :effects
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
+)
+
+(defoperator write-const-v (?b ?t1 ?t2 ?xyz ?rot)
   :preconditions 
   (
    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
@@ -2106,12 +2150,12 @@
    )
   :effects
   ((eqn (= ?v1-compo ?v2-compo) 
-               (compo-eqn lk-no-s ?xyz ?rot (lk ?b (during ?t1 ?t2))))
+               (compo-eqn const-v ?xyz ?rot (lk ?b (during ?t1 ?t2))))
    )
   :hint
   ((point (string "What happens to the ~A-component of the velocity of ~A ~A?"
 		  ((axis ?xyz ?rot) symbols-label) ?b (?t-lk pp)))
-   (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction. Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
+   (teach (string "Because the acceleration of ~A ~A is perpendicular to the ~A axis, is has no component in the ~A direction.  Therefore, the ~A component of velocity remains constant. You can use this to relate ~A to ~A. " 
 		  ?b (?t-lk pp)  ((axis ?xyz ?rot) symbols-label) 
 		  ((axis ?xyz ?rot) symbols-label) 
 		  ((axis ?xyz ?rot) symbols-label)
@@ -2347,8 +2391,8 @@
 		 (displacement ?b :time (during ?t1 ?t2))
 		 (duration (during ?t1 ?t2))
 		 ))
+   (object ?b) ;in case ?b is not bound
    ;; only applies if accel is constant so child of lk.
-   ;; sought may not bind both times, so must choose endpoints of interval to try
    (constant (accel ?b) ?t-constant)
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
@@ -2399,9 +2443,6 @@
     (bottom-out (string  "Write the equation ~A"
 		   ((= ?s-compo (* ?vi-compo ?t-var)) algebra)))
   ))
-
-
-
 
  
 ;;; Following draws a relative position vector of ?b1 from ?b2 at ?t

@@ -14,6 +14,8 @@ LEAF	v_x^2 = v0_x^2 + 2*a_x*d_x    [a_x is constant]	(lk-no-t ((?axis . x)))	Con
 LEAF	v_y^2 = v0_y^2 + 2*a_y*d_y    [a_y is constant]	(lk-no-t ((?axis . y)))	Constant acceleration
 LEAF	d_x = v_x * t    [a_x=0; v_x is constant]	(sdd-constvel ((?axis . x)))	Constant velocity component
 LEAF	d_y = v_y * t    [a_y=0; v_y is constant]	(sdd-constvel ((?axis . y)))	Constant velocity component
+LEAF	vf_x = vi_x    	(const-v ((?axis . x)))	Constant velocity component
+LEAF	vf_y = vi_y    	(const-v ((?axis . y)))	Constant velocity component
 LEAF	ac = v^2/r    centripetal acceleration (instantaneous)	centripetal-accel	Centripetal acceleration
 LEAF	ac_x = -v^2/r * r_x/r    centripetal acceleration (x component)	(centripetal-accel-compo ((?axis . x)))	Centripetal acceleration
 LEAF	ac_y = -v^2/r * r_y/r    centripetal acceleration (y component)	(centripetal-accel-compo ((?axis . y)))	Centripetal acceleration

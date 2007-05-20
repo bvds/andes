@@ -339,9 +339,8 @@
 
 (defoperator find-normal-force (?b ?surface ?t)
    :preconditions (
-    (object ?b)
-    (time ?t)
     (supports ?surface ?b :time ?t-supports :dir (dnum ?dir |deg|))
+    (time ?t)
     (test (tinsidep ?t ?t-supports))
     (not (force ?b ?surface normal ?t . ?dont-care))
     (bind ?normal-dir (mod (+ ?dir 90) 360))
