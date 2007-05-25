@@ -55,7 +55,7 @@ sub Send_Msg ()    	# send given msg string over socket. Adds trailing \n
     print $sock "$msg\n" or die "Socket write failed\n";
 }
 
-sub get_replies()		# send given Lisp cmd as DDE
+sub get_replies()   # get all replies from helpsystem after command.
   {
     my @replies=();
     while(<$sock>)
@@ -71,7 +71,7 @@ sub get_replies()		# send given Lisp cmd as DDE
 	    push @replies, "DDE-RESULT |$2|";
 	    last;
 	  } 
-	elsif (/\*(\d+):(.*)/)  # 
+	elsif (/\*(\d+):(.*)/)  # error condition
 	  { 
 	     push @replies, "DDE-FAILED";
 	     last;
@@ -101,12 +101,13 @@ while (<>) # loop over Andes sessions
 	# but we don't expect a reply
 	unless ($2 =~ /\(exit-andes\)/){&Send_Msg("!$2");}
       } elsif (/^([\d:]+)\tDDE-COMMAND [^\r]+(.*)/s) {
-	# try to print this now, so we get the right time stamp
+	# try to print one line now, so we get the right time stamp
 	if(@replies){
 	  my $reply=shift @replies;
 	  print "$1\t$reply$2";
 	}
       } elsif (/^([\d:]+)\t(DDE-RESULT|DDE-FAILED) [^\r]+(.*)/s) {
+	# print whatever is left, using final timestamp
 	foreach $reply (@replies) {
 	  print "$1\t$reply$3";
 	}
