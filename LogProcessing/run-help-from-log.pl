@@ -55,60 +55,67 @@ sub Send_Msg ()    	# send given msg string over socket. Adds trailing \n
     print $sock "$msg\n" or die "Socket write failed\n";
 }
 
-sub get_reply()		# send given Lisp cmd as DDE
-{
-    my $timestamp = shift;  # time stamp from beginning of line
-    my $end = shift;  # end of line, including newline
-    # read lines from socket until we get the result
-    # !!! call blocks w/no provision for timeout here
-    while (<$sock>) {
-      chomp();
-      $debug && warn "receive: |$_|\n";
-	 if (/^!(.*)/)      # command from help sys
-	 {
-		 print "$timestamp\tDDE-COMMAND $1$end";
-	 }
-	 elsif (/^\<(\d+):(.*)/) # returned result
-	 {  
-		 print "$timestamp\tDDE-RESULT |$2|$end";
-		 return $1;
-	 } 
-	 elsif (/\*(\d+):(.*)/)  # 
-	 { 
-		 print "$timestamp\tDDE-FAILED$end";
-		 return $1;
-	 }
-   }
-}
+sub get_replies()		# send given Lisp cmd as DDE
+  {
+    my @replies=();
+    while(<$sock>)
+      {
+	chomp();
+	$debug && warn "receive: |$_|\n";
+	if (/^!(.*)/)   # command from help sys
+	  {
+	    push @replies, "DDE-COMMAND $1";
+	  }
+	elsif (/^\<(\d+):(.*)/) # returned result
+	  {  
+	    push @replies, "DDE-RESULT |$2|";
+	    last;
+	  } 
+	elsif (/\*(\d+):(.*)/)  # 
+	  { 
+	     push @replies, "DDE-FAILED";
+	     last;
+	   }
+      }
+    return @replies;
+  }
 
 while (<>) # loop over Andes sessions
-{
+  {
+    my @replies;
     print; #echo header lines
     next unless /^.* Log of Andes session begun/;  
-    $debug && warn "Starting work on:  $_";
-
+    
     while (<>) {   # loop over lines in Andes session
-        # note that we don't do any thing special for START-HELP
-	last if /\tEND-LOG/;  # end of Andes session
-	if (/^([\d:]+)\tDDE ([^\r]+)/){
-	    print;
-	    $nCalls=($nCalls+1) % 10;      # just use one-digit id for brevity
-	    &Send_Msg("?$nCalls:$2");  
-	} elsif (/^([\d:]+)\tDDE-POST ([^\r]+)/) {
-	    print;
-            # skip any (exit-andes) message, since we don't start it up, either
-	    unless ($2 =~ /\(exit-andes\)/){&Send_Msg("!$2");}
-	} elsif (/^([\d:]+)\tDDE-COMMAND /) {
-	    # do nothing
-	    # match timestamp and end of line, including newline
-	} elsif (/^([\d:]+)\tDDE-(RESULT|FAILED) [^\r]+(.*)/s) {
-	    &get_reply($1,$3);  #should check return value against $nCalls
-	} else {
-	    print;  #just echo anything else
-	}    
+      # note that we don't do any thing special for START-HELP
+      last if /\tEND-LOG/;  # end of Andes session
+      if (/^([\d:]+)\tDDE ([^\r]+)/){
+	print;
+	$nCalls=($nCalls+1) % 10;      # just use one-digit id for brevity
+	&Send_Msg("?$nCalls:$2");  
+	@replies=&get_replies($nCalls);
+      } elsif (/^([\d:]+)\tDDE-POST ([^\r]+)/) {
+	#echo and send to helpsystem
+	print;
+	# skip any (exit-andes) message, since we don't start it up, either
+	# but we don't expect a reply
+	unless ($2 =~ /\(exit-andes\)/){&Send_Msg("!$2");}
+      } elsif (/^([\d:]+)\tDDE-COMMAND [^\r]+(.*)/s) {
+	# try to print this now, so we get the right time stamp
+	if(@replies){
+	  my $reply=shift @replies;
+	  print "$1\t$reply$2";
+	}
+      } elsif (/^([\d:]+)\t(DDE-RESULT|DDE-FAILED) [^\r]+(.*)/s) {
+	foreach $reply (@replies) {
+	  print "$1\t$reply$3";
+	}
+      } else {
+	print;  #just echo anything else
+      }    
     } #loop over lines in session
     print; #just echo END-LOG line
-} #end loop over sessions
+  } #end loop over sessions
 
 # finish up
 close($sock);
