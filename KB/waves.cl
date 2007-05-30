@@ -888,8 +888,7 @@
 	    (eqn-contains (pendulum-oscillation ?block ?rod ?planet
 						) ?sought)))
 
-(defoperator pendulum-oscillation (?block ?rod ?planet
-				   )
+(defoperator pendulum-oscillation (?block ?rod ?planet)
   :preconditions (
 		  (variable  ?t (period ?block))
 		  (variable  ?g-var (gravitational-acceleration ?planet))

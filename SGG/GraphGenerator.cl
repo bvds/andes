@@ -273,7 +273,7 @@
       (setq Q (make-qnode :exp Sought
 			  :var (caar (Qsolres-nodes R))
 			  :marks '(constant)))
-      (Setq P (gg-Qsolres->enode R :Qnodes Q))
+      (Setq P (gg-qsolres->Enode R :Qnodes Q))
       (setf (qnode-eqns Q) (list P))
       (cons Q (add-nodes-to-bubblegraph Graph Q P)))))
 
@@ -325,7 +325,7 @@
 ;;; Once we have a complex sought node it is necessary to generate all of the 
 ;;; psms that are attatched to it.  This function will cycle through the psms
 ;;; list that is provided to it.  (the contents of results from above) and
-;;; test each pssm.  If the psm in question has already been generated then
+;;; test each PSM.  If the psm in question has already been generated then
 ;;; it will simply be added to the node.  Otherwize it will be generated
 ;;; recursively using gg-solve-complex-psm to produce the psm and will  add that
 ;;; to the updated graph.
@@ -349,7 +349,7 @@
 (defun gg-solve-complex-psm (Result Givens Graph)
   "Solve for the specified psm result."
   (let ((R) (PSM))
-    (setq PSM (gg-qsolres->enode Result))
+    (setq PSM (gg-qsolres->Enode Result))
     (when (setq R (gg-collect-psm-qnodes 
 		   (Qsolres-Nodes Result) 
 		   Givens (add-nodes-to-bubblegraph Graph PSM)))
@@ -382,7 +382,7 @@
        (cons (car Result) Nodes))))) 
 
 
-;;; gg-Qsolres->Enode
+;;; gg-qsolres->Enode
 ;;; Given a Qsolres it is necessary to generate an enode for it
 ;;; This function does so including setting up the subvars and
 ;;; subeqns properly and settng the contents as specified.

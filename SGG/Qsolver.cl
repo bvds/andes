@@ -187,10 +187,11 @@
 
 (defun collect-Path (State)
   "Collect the path of actions from State and it's preceeding states."
-  (when (not (null State))
-    (append (collect-path (St-Predecessor State))
-	    (remove-if #'removable-actionp 
-		       (st-actions State)))))
+  (when State
+    ;; Substitute any new bindings in to the predecssors.
+    (append (subst-bindings (st-bindings state)
+			    (collect-path (St-Predecessor State)))
+	    (remove-if #'removable-actionp (st-actions State)))))
 
 ;; Some of the actions do not need to be recorded in the 
 ;; solution path.  Operators like 'not, 'in-wm, 'bind and
