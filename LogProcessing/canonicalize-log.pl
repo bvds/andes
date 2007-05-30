@@ -6,6 +6,7 @@
 #
 
 while (<>) {   # loop over lines in all Andes sessions
+
     # canonicalize unbound variables that should have
     # been bound, fixed May 2007
     if(m/^([\d:]+)\tDDE-COMMAND assoc \(GOAL /) {
@@ -18,13 +19,12 @@ while (<>) {   # loop over lines in all Andes sessions
         s/\(VECTOR-DIAGRAM [^ ]+ /\(VECTOR-DIAGRAM \*VAR\* /;
     }
 
-
     # canonicalize randomized phrases.  This should be fixed
     # by explicit problem-specific seed to random-elt, March 2007.
     if(m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
-        # random-positive-feedback
-	s/Good!|Right\.|Correct\.|Yes\.|Yep\.|That's right\.|Very good\.|Right indeed\./\*YES\*/;
-        # random-goal prefix
+        # created by random-positive-feedback
+	s/Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed\./\*YES\*/;
+        # created by random-goal prefix
         s/Try |You should be |A good step would be |Your goal should be /\*TRY\* /;
     }
 
