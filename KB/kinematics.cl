@@ -2104,6 +2104,11 @@
     ))
 
 ;;; zero component of non-zero acceleration
+;;
+;; This is given a separate psmclass from lk-no-s to make it
+;; parallel with sdd-constvel.  It might be better to group this
+;; with lk-no-s as part of a common eqn-family (like NFL and NSL
+;; are parts of NL). 
 (def-psmclass const-v (?eq-type const-v ?axis ?rot (lk ?body (during ?time0 ?te1))) 
   :group lk
   :complexity minor
@@ -2302,7 +2307,7 @@
    ;; sought may not bind both times, so must choose endpoints of interval 
    ;; to try
    (constant (accel ?b) ?t-constant)
-   (time (during ?t1 ?t2))	; ensure both endpoints to try bound
+   (time (during ?t1 ?t2))	;ensure both endpoints to try bound
    (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
    )
   :effects
