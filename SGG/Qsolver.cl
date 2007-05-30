@@ -188,7 +188,7 @@
 (defun collect-Path (State)
   "Collect the path of actions from State and it's preceeding states."
   (when State
-    ;; Substitute any new bindings in to the predecssors.
+    ;; Substitute any new bindings in to the predecessors.
     (append (subst-bindings (st-bindings state)
 			    (collect-path (St-Predecessor State)))
 	    (remove-if #'removable-actionp (st-actions State)))))
