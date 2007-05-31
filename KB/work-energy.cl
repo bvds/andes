@@ -211,14 +211,24 @@
   :effects ((eqn-contains (total-energy-top ?body ?t) ?sought)))
 
 (defoperator total-energy-top-contains-ee-var (?sought)
+  :preconditions ((ee-var ?body ?t ?sought))
+  :effects ((eqn-contains (total-energy-top ?body ?t) ?sought)))
+
+(defoperator define-energy-var (?b ?t ?quant)
   :preconditions 
-  (
-   (inherit-variable ?var ?sought)
-   (ee-var ?body ?t ?var) 
-   )
-  :effects (
-    (eqn-contains (total-energy-top ?body ?t) ?sought)
-  ))
+  ( 
+   (ee-var ?b ?t ?quant) ;test that quantity is allowed (appropriate)
+   (bind ?ge-var (format-sym "U~A_~A~@[_~A~]" 
+			      (subseq (string (car ?quant)) 0 2) 
+			      (body-name ?b) (time-abbrev ?t))))
+ :effects ( 
+	   (define-var ?quant) 
+	   (variable ?ge-var ?quant) 
+  )
+ :hint (
+	 (bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
+			     (?quant def-np)))
+       ))
 
 ;;; equation TME = Translational Kinetic Energy + Rotational KE
 ;;;                    + Grav PE + Spring PE + Electrostatic PE ...
@@ -231,9 +241,12 @@
    (variable ?te-var (total-energy ?b :time ?t))
    ;; can't collect potential energies if not all are defined
    (not (unknown-potentials))	  
-   ;; define variable for each type of energy that applies in this problem
-   (setof (ee-var ?b ?t ?var) ?var ?ee-vars)
-   (test ?ee-vars)  ;make sure there is something
+   ;; collect energy quantities that can be defined
+   (setof (ee-var ?b ?t ?quant) ?quant ?quants)
+   (test ?quants)  ;make sure there is something
+   ;; define a variable for each quantity
+   (map ?quant ?quants
+	(inherit-variable ?ee-var ?quant) ?ee-var ?ee-vars)
    (debug "Set of ee-vars = ~A~%" ?ee-vars)
   )
   :effects (
@@ -254,9 +267,8 @@
     (
      ;; use this for gravity near surface of a planet
      (near-planet ?planet :body ?b ?b)
-     (variable ?var (grav-energy ?b ?planet :time ?t))
      )
-    :effects ( (ee-var ?b ?t ?var) ))
+    :effects ( (ee-var ?b ?t (grav-energy ?b ?planet :time ?t)) ))
 
 (defoperator define-grav-point-ee-var (?b ?agent ?t)
     :preconditions 
@@ -266,18 +278,16 @@
      (any-member ?b ?bodies)
      (any-member ?agent ?bodies)
      (test (not (unify ?b ?agent))) ;no self-energy
-     (variable ?var (grav-energy ?b ?agent :time ?t))
      )
-    :effects ( (ee-var ?b ?t ?var) ))
+    :effects ( (ee-var ?b ?t (grav-energy ?b ?agent :time ?t)) ))
 
-(defoperator define-spring-ee-var (?b ?t)
+(defoperator define-spring-ee-var (?b ?spring ?t)
     :preconditions (
        ;; use this form if spring contact present anywhere in problem -- 
        ;; spring pe may be zero at some times but still use a term for it.
        (in-wm (spring-contact ?b ?spring . ?dontcare))
-       (variable ?var (spring-energy ?b ?spring :time ?t))
     )
-    :effects ( (ee-var ?b ?t ?var) ))
+    :effects ( (ee-var ?b ?t (spring-energy ?b ?spring :time ?t) ) ))
 
 (defoperator define-kinetic-energy-ee-var (?b ?t)
   :preconditions 
@@ -288,8 +298,8 @@
    (in-wm (motion ?axis ?kind . ?whatever))
    (test (or (eq ?kind 'straight) 
 	     (and (consp ?kind) (eq (first ?kind) 'curved))))
-   (variable ?var (kinetic-energy ?b :time ?t)) )
-  :effects ( (ee-var ?b ?t ?var) ))
+    )
+  :effects ( (ee-var ?b ?t (kinetic-energy ?b :time ?t)) ))
 
 (defoperator define-rotational-energy-ee-var (?b ?t)
   :preconditions 
@@ -298,7 +308,7 @@
    (in-wm (motion ?b rotating . ?whatever))
    (variable ?var (rotational-energy ?b :time ?t))
    )
-  :effects ( (ee-var ?b ?t ?var) ))
+  :effects ( (ee-var ?b ?t (rotational-energy ?b :time ?t)) ))
 
 ;;; For an object that is rotating, we define linear 
 ;;; kinematic quantities using the center of mass or the fixed axis.
@@ -481,7 +491,7 @@
 ;;; would block use in write-null-spring-energy below.
 (defoperator write-spring-energy (?body ?spring ?t)
   :preconditions (
-  (spring-contact ?body ?spring ?t-contact ?sforce-dir)
+  (in-wm (spring-contact ?body ?spring ?t-contact ?sforce-dir))
   (test (tinsidep ?t ?t-contact))
   (variable ?PE-var (spring-energy ?body ?spring :time ?t))
   (variable ?k-var  (spring-constant ?spring))
@@ -505,7 +515,7 @@
 (defoperator write-null-spring-energy (?b ?spring ?t)
   :preconditions (
 		  ;; must be spring-contact at some time in problem:
-		  (spring-contact ?body ?spring ?sometime ?dontcare)
+		  (in-wm (spring-contact ?body ?spring ?sometime ?dontcare))
 		  ;; but must NOT be spring-contact at time we are called for
 		  (not (spring-contact ?body ?spring ?t-contact ?s-force-dir) 
 		       (tinsidep ?t ?t-contact))
@@ -537,61 +547,6 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :hint (
 	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Energy."
 			     ((total-energy ?b :time ?t) def-np)))
-	 ))
-
-(defoperator define-kinetic-energy (?b ?t)
-  :preconditions (
-		  (object ?b)
-		  (bind ?ke-var (format-sym "KE_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-		  ) 
-  :effects ( 
-	    (define-var (kinetic-energy ?b :time ?t))
-	       (variable ?ke-var (kinetic-energy ?b :time ?t))
-	       )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Energy."
-			     ((kinetic-energy ?b :time ?t) def-np)))
-	 ))
-
-(defoperator define-rotational-energy (?b ?t)
-  :preconditions (
-		  (object ?b)
-		  (bind ?re-var (format-sym "RE_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-		  ) 
-  :effects ( 
-	    (define-var (rotational-energy ?b :time ?t))
-	       (variable ?re-var (rotational-energy ?b :time ?t))
-	       )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting Energy."
-			     ((rotational-energy ?b :time ?t) def-np)))
-	 ))
-
-(defoperator define-grav-energy (?b ?planet ?t)
- :preconditions 
- ( (object ?b)
-   (bind ?ge-var (format-sym "Ug_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))) ) 
- :effects ( 
-	   (define-var (grav-energy ?b ?planet :time ?t)) 
-	      (variable ?ge-var (grav-energy ?b ?planet :time ?t)) 
-	      )
- :hint (
-	(bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
-((grav-energy ?b ?planet :time ?t) def-np)))
-	))
-
-(defoperator define-spring-energy (?b ?spring ?t)
-  :preconditions ( 
-		  (object ?b)
-		  (bind ?se-var (format-sym "Us_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-		  ) 
-  :effects ( 
-	    (define-var (spring-energy ?b ?spring :time ?t))
-	       (variable ?se-var (spring-energy ?b ?spring :time ?t))
-	       )
-  :hint (
-	 (bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
-((spring-energy ?b ?spring :time ?t) def-np)))
 	 ))
 
 (defoperator define-height (?body ?time)

@@ -1503,22 +1503,9 @@
     (bottom-out (string "Write the equation ~A" ((= ?Ue (* q ?Vnet)) algebra) ))
   ))
 
-(defoperator define-electric-energy (?b ?t)
-  :preconditions 
-  ( (object ?b)
-    (bind ?ge-var (format-sym "Ue_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t))) ) 
- :effects ( 
-	   (define-var (electric-energy ?b ?source :time ?t)) 
-	   (variable ?ge-var (electric-energy ?b ?source :time ?t)) 
-  )
- :hint (
-	 (bottom-out (string "Define a variable for ~A by selecting Energy from the Variables menu on the top menu bar."
-			     ((electric-energy ?b ?source :time ?t) def-np)))
-       ))
-
 ;; To interact with cons-energy psm: op to tell it that electric pe 
 ;; exists in this problem by defining a variable when needed
-(defoperator define-electric-ee-var (?b ?t)
+(defoperator define-electric-ee-var (?b ?source ?t)
   :preconditions 
   ( ;; need to know electric field exists in problem
    (at-place ?b ?loc :time ?t ?t)
@@ -1528,9 +1515,8 @@
 			     (not (eq (car ?sources) 'unspecified))) 
 			(car ?sources))
 		       (T 'electric_field)))
-   (variable ?var (electric-energy ?b ?source :time ?t))
    )
-  :effects ( (ee-var ?b ?t ?var) ))
+  :effects ( (ee-var ?b ?t (electric-energy ?b ?source :time ?t)) ))
 
 ;;;;---------------------------------------------------------------------------
 ;;;;
@@ -2242,9 +2228,9 @@
   ( ;; Test for electric field acting on object
    (given-field ?source ?type)
    (at-place ?dipole ?region :time ?t ?t)
-   (variable ?var (dipole-energy 
-		   ?dipole (field ?region ?type ?source) :time ?t)))
-  :effects ( (ee-var ?dipole ?t ?var) ))
+   )
+  :effects ( (ee-var ?dipole ?t (dipole-energy 
+		   ?dipole (field ?region ?type ?source) :time ?t)) ))
 
 (def-psmclass electric-dipole-energy 
   (dipole-energy ?dipole (field ?region electric . ?rest) ?time ?dot-type)
