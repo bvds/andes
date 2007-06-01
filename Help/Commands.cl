@@ -540,42 +540,6 @@
   (find eqn-str *StudentEntries* :key #'StudentEntry-Verbatim
 		                 :test #'eqn-match))
 
-#|;;; Note, I have modified this from its original form (here in the comment)
-  ;;; To the form below for the purposes of dealing with *studentactions* logging.
-  (defun calculate-equation-string (eqn-str new-id)
-  ;; need to map equation string to slot number
-  (let ((eqn-entry (find-eqn-entry eqn-str)))
-  
-  (unless eqn-entry 
-  (return-from calculate-equation-string "!Internal error: entry for equation not found!"))
-  (unless (equal (StudentEntry-state eqn-entry) 'Correct)
-  (return-from calculate-equation-string "!Only correct equations may be simplified."))
-  (let ((result (solver-eqn-simplify (StudentEntry-id eqn-entry) new-id)))
-  (cond ; result may be equation s-expr, NIL or error message string 
-  ((and result (listp result)) ; an equation
-  ;; just return eqn text until appropriate turns are implemented
-  (let* ((studEqn  (subst-student-vars (pre2in result)))
-  ;; suppress *print-pretty* since it could insert newlines 
-  ;; into long result, and WB requires single-line eqn string
-  (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
-  ;; strip outer parens from equation string
-  (studText (subseq infixStr 1 (- (length infixStr) 1)))) 
-  ;; save final result as if it were a new student entry. We need to 
-  ;; remember slot is occupied for add-entry to trigger automatic
-  ;; cleanup of equation in algebra on new entry.
-  (add-entry (make-StudentEntry :id new-id
-  :verbatim studText
-  :prop `(eqn ,studText)
-  :parsedEqn result
-  :state **Correct**))
-  ;; finally return student equation 
-  studText
-  ))
-  ((stringp result) ; error message
-  (format NIL "!Unable to simplify ~A: ~A" eqn-str result))
-  (T (format NIL "!Unable to simplify ~A." eqn-str))))))
-|#
-
 (defun calculate-equation-string (eqn-str new-id)
  ;; No longer needed. (return-turn 
   ;; need to map equation string to slot number

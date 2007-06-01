@@ -355,11 +355,11 @@
 	(send-fbd-command (turn-commands Turn))
       (mapcar #'send-fbd-command (turn-commands turn))))
   ;; if there is assoc info in the turn, send async command to record it in
-  ;; the workbench log. Note: must make sure no newlines in string.
-  ;;(pprint (turn-assoc turn))
+  ;; the workbench log. 
   (when (and turn (turn-assoc turn))
     (send-fbd-command 
-     (strcat "assoc " (remove-newlines (write-to-string (turn-assoc turn) :pretty NIL)))))
+     (strcat "assoc " (prin1-to-string (turn-assoc turn)
+				       :pretty NIL))))   ;turn off line breaks 
   (turn->WB-Reply turn))    
 
 
