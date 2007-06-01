@@ -358,7 +358,8 @@
   ;; the workbench log. 
   (when (and turn (turn-assoc turn))
     (send-fbd-command 
-     (strcat "assoc " (prin1-to-string (turn-assoc turn)
+     (strcat "assoc " (write-to-string (turn-assoc turn)
+				       :escape t ;make it lisp-readable
 				       :pretty NIL))))   ;turn off line breaks 
   (turn->WB-Reply turn))    
 
