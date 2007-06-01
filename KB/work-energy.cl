@@ -306,7 +306,6 @@
   (
    ;; include if it rotates at any time
    (in-wm (motion ?b rotating . ?whatever))
-   (variable ?var (rotational-energy ?b :time ?t))
    )
   :effects ( (ee-var ?b ?t (rotational-energy ?b :time ?t)) ))
 
