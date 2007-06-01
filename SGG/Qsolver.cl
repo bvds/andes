@@ -191,7 +191,8 @@
     ;; Substitute any new bindings in to the predecessors.
     (append (subst-bindings (st-bindings state)
 			    (collect-path (St-Predecessor State)))
-	    (remove-if #'removable-actionp (st-actions State)))))
+	    (subst-bindings (st-bindings state)
+			    (remove-if #'removable-actionp (st-actions State))))))
 
 ;; Some of the actions do not need to be recorded in the 
 ;; solution path.  Operators like 'not, 'in-wm, 'bind and
