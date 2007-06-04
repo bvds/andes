@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html> <head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Data Structures</title>
+<STYLE type="text/css">
+    table.struct { border: 1px solid black }
+  </STYLE>
+</head>
+<body>
+
+<table>
+<tr valign="top">
+
+<td>
+<table id="Problem" class="struct">
+<Caption>Problem</caption>
+<tr> <td>Name  </td> </tr>
+<tr> <td>Statement  </td> </tr>
+<tr> <td>...  </td> </tr>
+<tr> <td>Graph </td> <td> ((<a href="#qnode">qnode</a>)
+                            (<a href="#enode">enode</a>))</td></tr>
+<tr> <td>VarIndex </td> <td> (<a href="#qvar">qvar</a>)</td></tr>
+<tr> <td>EqnIndex  </td> <td> (<a href="#eqn">eqn</a>)</td></tr>
+<tr> <td>Solutions  </td> <td> (<a href="#eqnset">Eqnset</a>)</td> </tr>
+<tr> <td>wm  </td> </tr>
+</table>
+</td>
+
+<td>
+<table id="Qnode" class="struct">
+<Caption>Qnode</caption>
+<tr> <td>Symbol</td> </tr>
+<tr> <td>Gindex</td> </tr>
+<tr> <td>Vindex</td> </tr>
+<tr> <td>Exp</td> </tr>
+<tr> <td>Var</td> </tr>
+<tr> <td>Eqns</td> </tr>
+<tr> <td>Marks</td> </tr>
+<tr> <td>Path</td> </tr>
+<tr> <td>Assumptions</td> </tr>
+<tr> <td>Entries</td> </tr>
+</table>
+</td>
+
+<td>
+<table id="Enode" class="struct">
+<Caption>Enode</caption>
+<tr> <td>Symbol</td> </tr>
+<tr> <td>ID</td> </tr>
+<tr> <td>Gindex </td> </tr>
+<tr> <td>Eindex</td><td> (<a href="#eqn">eqn</a>)</td> </tr>
+<tr> <td>Algebra</td> </tr>
+<tr> <td>Path</td> </tr>
+<tr> <td>Assumptions</td> </tr>
+<tr> <td>Qnodes</td> <td>(<a href="#Qnode">Qnode</a>)</td> </tr>
+<tr> <td>Marks</td> </tr>
+<tr> <td>Subeqns</td> <td> (<a href="#eqn">eqn</a>)</td></tr>
+<tr> <td>Subvars</td> </tr>
+<tr> <td>State</td> </tr>
+</table>
+</td>
+
+<td>
+<table id="EqnSet" class="struct">
+<Caption>EqnSet</caption>
+<tr> <td>Eqns</td> <td> (<a href="#Enode">Enode</a>)</td> </tr>
+<tr> <td>Nodes</td> </tr>
+<tr> <td>Assumpts</td> </tr>
+<tr> <td>Solutions</td> </tr>
+</table>
+</td>
+
+
+<td>
+<table id="Eqn" class="struct">
+<Caption>Eqn</caption>
+<tr> <td>index</td> </tr>
+<tr> <td>type</td> </tr>
+<tr> <td>Algebra</td> </tr>
+<tr> <td>Exp</td> </tr>
+<tr> <td>nodes</td> <td> (<a href="#Eqn">Eqn</a>)</td> </tr>
+<tr> <td>Solved</td> </tr>
+</table>
+</td>
+
+<td>
+<table id="Qvar" class="struct">
+<Caption>Qvar</caption>
+<tr> <td>index</td> </tr>
+<tr> <td>var</td> </tr>
+<tr> <td>Exp</td> </tr>
+<tr> <td>value</td> </tr>
+<tr> <td>units</td> </tr>
+<tr> <td>marks</td> </tr>
+<tr> <td>nodes</td> </tr>
+</table>
+</td>
+
+</tr>
+</table>
+
+</body>
+</html>
