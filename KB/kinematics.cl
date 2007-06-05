@@ -1050,22 +1050,21 @@
 
 (defoperator avg-vel-vector-contains (?sought)
   :preconditions 
-  (
-   (any-member ?sought ((velocity ?b :time ?t)
-			(displacement ?b :time ?t)
-			(duration ?t)))
-   (object ?b) ;in case ?b is not bound
-   (time ?t) ;sanity test
-   )
+    ((any-member ?sought ((velocity ?b :time ?t)
+			  (displacement ?b :time ?t)
+			  (duration ?t)))
+    (object ?b)
+    (time ?t))
   :effects 
   ((eqn-family-contains (avg-velocity ?b ?t) ?sought)
   ;; since only one compo-eqn under this vector PSM, we can just
   ;; select it now, rather than requiring further operators to do so
-   (compo-eqn-contains (avg-velocity ?b ?t) avg-vel ?sought)))
+  (compo-eqn-contains (avg-velocity ?b ?t) avg-vel ?sought)))
 
 (defoperator draw-avg-vel-diagram (?rot ?b ?t)
   :preconditions 
-  ((body ?b)
+  ((not (vector-diagram ?rot (avg-velocity ?b ?t)))
+   (body ?b)
    (vector ?b (displacement ?b :time ?t) ?dir2)
    (vector ?b (velocity ?b :time ?t) ?dir1)
    (axes-for ?b ?rot))
@@ -1074,25 +1073,20 @@
 
 (defoperator write-avg-vel-compo (?b ?t ?xy ?rot)  
   :preconditions 
-  (
-   ;; test that component axis is not known to be perpendicular to the vectors
-   (in-wm (vector ?b (displacement ?b :time ?t) ?dir2)) ;found above
-   (test (not (perpendicularp (axis-dir ?xy ?rot) ?dir2)))
-   (variable ?d12_x  (compo ?xy ?rot (displacement ?b :time ?t)))
-   (variable ?v12_x  (compo ?xy ?rot (velocity ?b :time ?t)))
-   (variable ?t12    (duration ?t)))
+   ((variable ?d12_x  (compo ?xy ?rot (displacement ?b :time ?t)))
+    (variable ?v12_x  (compo ?xy ?rot (velocity ?b :time ?t)))
+    (variable ?t12    (duration ?t)))
   :effects (
 	    (eqn (= ?v12_x (/ ?d12_x ?t12))
 		 (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
 	    )
-  :hint 
-  (
+  :hint (
    (point (string "What is the relationship between average velocity, displacement and duration?"))
-   (teach (kcd "write_average_velocity_eqn")
-	  (string "The average velocity vector is defined as the displacement vector divided by the duration. This can be applied component-wise to relate the components of average velocity to the components of displacement."))
-   (bottom-out (string "Write the equation ~a"
-		       ((= ?v12_x (/ ?d12_x ?t12)) algebra)))
-   ))
+    (teach (kcd "write_average_velocity_eqn")
+	   (string "The average velocity vector is defined as the displacement vector divided by the duration. This can be applied component-wise to relate the components of average velocity to the components of displacement."))
+    (bottom-out (string "Write the equation ~a"
+			((= ?v12_x (/ ?d12_x ?t12)) algebra)))
+  ))
 
 
 ;;; Relative velocity relation V13 = V12 + V23
@@ -2148,13 +2142,13 @@
    (test (not (eq ?dir-a 'zero)))
    (axes-for ?b ?rot))
   :effects
-   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
+   ((vector-diag
+ram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
 (defoperator write-const-v (?b ?t1 ?t2 ?xyz ?rot)
   :preconditions 
   (
-   ;; test that we are perpendicular to (a nonzero) acceleration ...
    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
    (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
    (inherit-variable ?v1-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
