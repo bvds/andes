@@ -39,8 +39,6 @@
 
 ;;;; ===================================================================
 ;;;; CMD Struct
-;;;; The CMD struct is an internal storage device for the DDE's.  This 
-;;;; allows calls to be stored efficiently along with their log results
 ;;;; when they exists and the current result.  In theory the results 
 ;;;; should be identical.
 
@@ -121,6 +119,11 @@
 ;;; Deletions remove an entry either equations or nonequations from the 
 ;;; screen.  Deletions are distributed as dde-posts and get no return
 ;;; value.  If noe is found as a dde then an error will be thrown.
+;;; !!! [Bug 1254]] (lookup-eqn-string "") is a deletion when it comes via a 
+;;; DDE-POST (and effectively a deletion if it comes otherwise as well). 
+;;; But it doesn't get the 'Delete class tag set in its Class field 
+;;; (see make-cmd call which uses lookup-command->class).  So this won't 
+;;; detect those deletions. See delete-equation-cmdp below.
 (defun Delete-cmdp (Cmd)
   "Is this cmd a deletion?"
   (equalp (cmd-Class CMD) 'Delete))
@@ -275,11 +278,15 @@
   (and (delete-cmdp CMD) 
        (equalp (cmd-call-func CMD) 'DELETE-OBJECT)))
 
+; Note: delete-cmdp does not work for equation deletions
+; sent as DDE-POST of (lookup-eqn-string "" id) [Bug 1254]
 (defun delete-equation-cmdp (CMD)
   "Test whether this is a delete-equation or lookup-eqn-string \"\""
   (and (equal (cmd-type CMD) 'DDE-POST)
-       (delete-cmdp CMD)
-       (or (equalp (cmd-call-func CMD) 'LOOKUP-EQN-STRING)
+       (or (and (equalp (cmd-call-func CMD) 'LOOKUP-EQN-STRING)
+                (equalp (first (cmd-call-args CMD)) ""))
+	   ; following call no longer sent by workbench. Possibly was 
+	   ; used in some old logs.
 	   (equalp (cmd-call-func CMD) 'DELETE-EQUATION))))
 
 
