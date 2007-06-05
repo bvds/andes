@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SystemEntry.cl
 ;; Collin Lynch
 ;; 4/9/2001
@@ -7,7 +7,6 @@
 ;; IO operatons for it and indexing operations.
 ;; Tjis struct is used by the help system to compare entries.
 ;;
-|#
 
 (defvar **Debug-prematurity-tests** NIL "Debugging flag.")
 

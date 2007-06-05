@@ -113,7 +113,8 @@
 (defun dump-html-prbs (in-path out-path &rest topics)  
   "write solutions to working problems into a directory"
   (dolist (P (choose-working-probs topics))
-    (let ((pp (read-problem-file (string (problem-name P)) 
+    ;; also initializes *sg-entries*
+    (let ((pp (read-problem-info (string (problem-name P)) 
 				 :path in-path)))
       (when pp (dump-html-problem-solutions pp out-path))))
   ;; Make file with html styles

@@ -605,7 +605,7 @@
 
 (defun nsh-given-node-quant (enode)
   "return quantity for a GIVEN enode"
-    (second (nsh-principle-expression enode))) ; form is (GIVEN ?quant)
+    (second (enode-id enode))) ; form is (GIVEN ?quant)
 
 ;;; For now, very simple sort only ensures earlier time quants come before 
 ;;; later in list.  More sophisticated sort to be added later.
@@ -783,7 +783,7 @@
   (let* (class Bindings)
     (setq Class (nsh-lookup-principle-class principle))
     (when Class
-      (setq bindings (unify (nsh-principle-expression principle)
+      (setq bindings (unify (enode-id principle)
 			    (psmclass-form Class)))
       (append (nsh-filter-single-body-vars Bindings)
 	      (nsh-filter-compound-body-vars Bindings)
@@ -1269,7 +1269,7 @@
 	   "the given quantities.  Why don't you start by doing "
 	   "that now.  Why don't you work on ")
    (car *nsh-givens*)
-   :Assoc `(nsh new-start-givens ,(nsh-principle-expression (car *nsh-givens*)))))
+   :Assoc `(nsh new-start-givens ,(enode-id (car *nsh-givens*)))))
 
 
 (defun nsh-prompt-start-givens ()
@@ -1289,7 +1289,7 @@
      (strcat "You should finish entering all of the useful given "
 	     "quantities in the problem.  Why don't you work on ")
      Given
-     :Assoc `(nsh prompt-continue-givens ,(nsh-principle-expression Given)))))
+     :Assoc `(nsh prompt-continue-givens ,(enode-id Given)))))
 
 
 
@@ -2088,7 +2088,7 @@
   "Collect the principles that fit the form."
   (remove-if-not 
    #'(lambda (P) 
-       (unify (nsh-principle-expression P) form Bindings))
+       (unify (enode-id P) form Bindings))
    (bubblegraph-enodes (problem-Graph *cp*))))
   
 
@@ -2645,7 +2645,7 @@
   (setq *nsh-current-solutions* (nsh-cfp-match-fp-sol Best))
   (make-dialog-turn
    (strcat Prefix "  You have already finished "
-	   (nlg (nsh-principle-expression Best) 'psm-exp) 
+	   (nlg (enode-id Best) 'psm-exp) 
 	   ".  You can move on to the next step in the solution.")
    **explain-more**
    :Responder #'(lambda (Resp)
@@ -2742,14 +2742,14 @@
   "Prompt the solution."
   (make-dialog-turn
    (strcat Message "  You have already finished "
-	   (nlg (nsh-principle-expression Principle) 'psm-exp)
+	   (nlg (enode-id Principle) 'psm-exp)
 	   ".  This is acceptable as an initial principle application.  "
 	   "Why don't you start on the next principle?")
    **Explain-More**
    :Responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
 		    (nsh-prompt-solution "Why don't you work on " Solution)))
-   :Assoc `(nsh prompt-done-fp ,Case ,(nsh-principle-expression Principle))))
+   :Assoc `(nsh prompt-done-fp ,Case ,(enode-id Principle))))
 
 
 
@@ -2761,7 +2761,7 @@
   (nsh-prompt-principle 
    (strcat Message "  Lets just assume that you will work on ")
    Principle
-   :Assoc `(nsh prompt-fp-solution ,Case ,(nsh-principle-expression Principle))))
+   :Assoc `(nsh prompt-fp-solution ,Case ,(enode-id Principle))))
 
 
 
@@ -3049,7 +3049,7 @@
   "Prompt the specified major principle."
   (setq *nsh-last-node* Principle)
   (make-dialog-turn 
-   (strcat prefix (nlg (nsh-principle-expression principle) 'goal) ".  ")
+   (strcat prefix (nlg (enode-id principle) 'goal) ".  ")
    **Explain-More**
    :responder #'(lambda (response)
 		  (when (equal response **Explain-More**)
@@ -3087,7 +3087,7 @@
 (defun nsh-prompt-principle-final (prefix principle Assoc)
   (setq *nsh-last-node* Principle)
   (make-dialog-turn 
-   (strcat prefix (nlg (nsh-principle-expression principle) 'psm-exp) ".  ")
+   (strcat prefix (nlg (enode-id principle) 'psm-exp) ".  ")
    **Explain-More**
    :responder #'(lambda (response)
 		  (when (equal response **Explain-More**)
@@ -3508,9 +3508,6 @@
 (defun nsh-principle-p (principle)
   (enode-p principle))
 
-(defun nsh-principle-expression (principle)
-  (enode-id principle))
-
 (defun nsh-principle-entries (principle)
   (enode-Entries principle))
 
@@ -3537,7 +3534,6 @@
 	 nsh-major-principle-p
 	 nsh-goal-principle-p
 	 nsh-principle-p
-	 nsh-principle-expression
 	 nsh-principle-entries
 	 nsh-lookup-principle-class
 	 nsh-principle-quantities))
