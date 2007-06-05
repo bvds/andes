@@ -92,10 +92,13 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; elements below this point are set by solve-problem
   
-  Graph              ;;Storage for the bubblegraph. 
-  VarIndex           ;;List of variable-values indicating solution point.
-  EqnIndex           ;;Index of equations in the system.
-  Solutions          ;; Set of solution bubbles. The first of these will always be the best.
+  Graph              ;Storage for the bubblegraph. 
+                     ; ((list of Qnode) (list of Enode))
+  VarIndex           ;Variable-values indicating solution point.
+                     ; (list of qvar)
+  EqnIndex           ;Index of equations in the system. (list of eqn)
+  Solutions          ;Set of solution bubbles.  The first will always be
+                     ;the best.  (list of Eqnset)
   wm                 ;; Collection of the solver working memory.
   )
 

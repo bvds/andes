@@ -38,14 +38,14 @@
 
 
 
-;;;; =============================================================================
+;;;; ==========================================================================
 ;;;; Generalized stack tests.
 ;;;; The code in this section is used to run generic tests on the stack such as
 ;;;; collecting the number of entries that pass a set predicate and so on.  
 
-;;; ------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; similar uni-rep
-;;; Given a stack of entries and a test function return the number of in sequence
+;;; Given a stack of entries and a test function return the number of in
 ;;; sequence from the topmost cmd in the stack that match the test.
 ;;;
 ;;; This will be a stack in oldest-first order or nil.  It may contain only 
@@ -144,7 +144,7 @@
 
 
 
-;;;; ==============================================================================
+;;;; ==========================================================================
 ;;;; Help Stacks
 ;;;; The code in this section is used to identify and process help stacks. 
 
@@ -191,7 +191,7 @@
 	      (help-cmdp (car Stack)))
 	 (help-stackc-test (car Stack) (cdr Stack) Result 1))
 
-	(t (error "badly formed Help stack: ~a" CMD))))
+	(t (error "badly formed Help stack: ~S" CMD))))
 
 
 
@@ -288,18 +288,19 @@
 
 
 
-;;; ------------------------------------------------------------------------------
+;;; ---------------------------------------------------------------------------
 ;;; Max-Diff-Help-Stackc
-;;; Return t if the topmost cmd is part of a help stack and if the student passed
-;;; through it without pausing for more than a set amount of time between each
-;;; call.  If both of these conditions are met then the entry capping the help
-;;; stack will be returned  If not Nil will be returned.  
+;;; Return t if the topmost cmd is part of a help stack and if the student 
+;;; passed through it without pausing for more than a set amount of time 
+;;; between each call.  If both of these conditions are met then the entry 
+;;; capping the help stack will be returned  If not Nil will be returned.  
 ;;;
 ;;; This code is used to test for help abuse and can also be used to detect 
 ;;; points where the students are pausing for inordinately long times when
 ;;; reading through the help calls.
 ;;;
-;;; The citeria for being a viable help stack are the same as those listed above.
+;;; The citeria for being a viable help stack are the same as those listed 
+;;; above.
 ;;;
 ;;; The max-threshold helpstack takes a stack of entries in lifo order (the top is the
 ;;; newest entry) and returns a help stack or nil in fifo order (top is oldest).
@@ -550,10 +551,4 @@
 (defun get-stack-subseq (Stack Base)
   "Get all the items between The Top of Stack and Base."
   (subseq Stack 0 (position Base Stack)))
-
-
-
-
-
-
 
