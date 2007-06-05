@@ -4,15 +4,19 @@
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <title>Data Structures</title>
 <STYLE type="text/css">
-    table.struct { border: 1px solid black }
-  </STYLE>
+    table.struct { border: 1px solid black; margin: 2px;
+                   vertical-align: top;
+                   display: inline-block;  /* this should work by itself */
+                   display: -moz-inline-box; /* firefox work-around */
+}
+</STYLE>
 </head>
 <body>
 
-<table>
-<tr valign="top">
+<h1>Knowledge Base related structures<h1>
 
-<td>
+<div class="wrap">
+<!-- add div as work-around for Firefox inline-block bug -->
 <table id="Problem" class="struct">
 <Caption><a href="../Knowledge/Problem.cl">Problem</a></caption>
 <tr> <td>Name  </td> </tr>
@@ -25,9 +29,7 @@
 <tr> <td>Solutions  </td> <td> (<a href="#eqnset">Eqnset</a>)</td> </tr>
 <tr> <td>wm  </td> </tr>
 </table>
-</td>
 
-<td>
 <table id="Qnode" class="struct">
 <Caption><a href="../Knowledge/BubbleGraph.cl">Qnode</a></caption>
 <tr> <td>Symbol</td> </tr>
@@ -41,9 +43,7 @@
 <tr> <td>Assumptions</td> </tr>
 <tr> <td>Entries</td> </tr>
 </table>
-</td>
 
-<td>
 <table id="Enode" class="struct">
 <Caption><a href="../Knowledge/BubbleGraph.cl">Enode</a></caption>
 <tr> <td>Symbol</td> </tr>
@@ -59,9 +59,7 @@
 <tr> <td>Subvars</td> </tr>
 <tr> <td>State</td> </tr>
 </table>
-</td>
 
-<td>
 <table id="EqnSet" class="struct">
 <Caption><a href="../Knowledge/Solution.cl">EqnSet</a></caption>
 <tr> <td>Eqns</td> <td> (<a href="#Enode">Enode</a>)</td> </tr>
@@ -69,11 +67,8 @@
 <tr> <td>Assumpts</td> </tr>
 <tr> <td>Solutions</td> </tr>
 </table>
-</td>
 
-
-<td>
-<table id="Eqn" class="struct">
+<table id="eqn" class="struct">
 <Caption><a href="../Knowledge/eqn.cl">Eqn</a></caption>
 <tr> <td>index</td> </tr>
 <tr> <td>type</td> </tr>
@@ -82,9 +77,7 @@
 <tr> <td>nodes</td> <td> (<a href="#Eqn">Eqn</a>)</td> </tr>
 <tr> <td>Solved</td> </tr>
 </table>
-</td>
 
-<td>
 <table id="Qvar" class="struct">
 <Caption><a href="../Knowledge/qvar.cl">Qvar</a></caption>
 <tr> <td>index</td> </tr>
@@ -95,10 +88,29 @@
 <tr> <td>marks</td> </tr>
 <tr> <td>nodes</td> </tr>
 </table>
-</td>
+</div>
 
-</tr>
+<h1>Help System related structures</h1>
+
+<div class="wrap">
+<table id="SystemEntry" class="struct">
+<Caption><a href="../HelpStructs/SystemEntry.cl">SystemEntry</a></caption>
+<tr> <td>Index</td> </tr>
+<tr> <td>Prop</td> </tr>
+<tr> <td>Sources</td> <td> (<a href="#csdo">csdo</a>)</td>  </tr>
+<tr> <td>State</td> </tr>
+<tr> <td>Prereqs</td> </tr>
+<tr> <td>CogLoad</td> </tr>
+<tr> <td>Entered</td> </tr>
 </table>
 
+<table id="csdo" class="struct">
+<Caption><a href="../HelpStructs/PSMGraph.cl">csdo</a></caption>
+<tr> <td>op</td> </tr>
+<tr> <td>effects</td> </tr>
+<tr> <td>varvals</td> </tr>
+<tr> <td>entries</td><td> (<a href="#SystemEntry">SystemEntry</a>)</td> </tr>
+</table>
+</div>
 </body>
 </html>
