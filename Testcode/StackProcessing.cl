@@ -186,12 +186,23 @@
 	 (help-stackc-test 
 	  (car Stack) (cdr Stack) (cons CMD Result) Deletions))
 	
+	; allow for an automatic equation delete notification right
+	; after a help request (sent if focus leaves a deleted eqn's box)
 	((and (delete-equation-cmdp CMD) 
 	      (= 0 Deletions)
 	      (help-cmdp (car Stack)))
 	 (help-stackc-test (car Stack) (cdr Stack) Result 1))
 
-	(t (error "badly formed Help stack: ~S" CMD))))
+	; [Bug 1268] Allow for an automatic deletion notification for an 
+        ; earlier variable. This can be sent just after the variable definition 
+	; in the case where a new variable entry redefines a previously-defined label.
+	; if the entry triggers unsolicited help (e.g. for the given value), then
+	; this will occur inside a hint sequence
+	((delete-cmdp CMD)   ; general, allows any object deletion.  
+	    (help-stackc-test (car Stack) (cdr Stack) Result 1))
+
+	(t (warn "unexpected event within hint sequence ~S" CMD)
+	   NIL)))
 
 
 
