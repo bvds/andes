@@ -340,16 +340,21 @@
 
 
 (defun kb-entryprop-p (Prop)
-  "Return t iff Prop is a valid entry prop type."
+  "Return t iff Prop is a valid kb form entry prop type."
   (loop for P in *Ontology-EntryProp-types*
       when (unify (EntryProp-kbform P) Prop)
       return P))
 
 (defun help-entryprop-p (Prop)
-  "Is the specified entry proposition valid."
+  "Is the specified prop a valid helpsys form entry proposition."
   (loop for P in *Ontology-EntryProp-types*
       when (unify (EntryProp-helpform P) Prop)
       return P))
+
+;;; to match either help or kb forms, as for reporting:
+(defun any-entryprop-p (Prop)
+  "True if either help or kb form entry prop"
+   (or (kb-entryprop-p prop) (help-entryprop-p prop)))
 
 (defun help-entryprop-type (Prop)
   "Return the type of the help entryprop or nil if it isn't one."
@@ -407,18 +412,20 @@
   "Return t iff the prop is an eqn prop."
   (find (car prop) *Ontology-Equation-types*))
 
-
 (defun kb-eqn-entryprop-p (prop)
-  "Is the prop an eqn and an enttyprop?"
+  "Is the prop an eqn and a kb form enttyprop?"
   (and (eqn-prop-p prop)
        (kb-entryprop-p prop)))
 
+;;; to match either help or kb forms, as for reporting:
+(defun any-eqn-entryprop-p (prop)
+  "True if either kb or helpsys eqn entry prop"
+  (or (help-eqn-entryprop-p prop) (kb-eqn-entryprop-p prop)))
 
 (defun help-eqn-entryprop-p (prop)
-  "Is the prop an eqn and an enttyprop?"
+  "Is the prop an eqn and a helpsys form enttyprop?"
   (and (eqn-prop-p prop)
        (help-entryprop-p prop)))
-
 
 (defun eqn-entry-type-p (type)
   "Is the specified type an eqn and an entry type."

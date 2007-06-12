@@ -165,13 +165,14 @@
   (format Stream "Explicit Equations~%")
   (print-eqnset-explicit-eqns Set Stream Level))
 
+
 (defun print-eqnset-entries (Set Stream Level)
   (declare (ignore Level))
   "Print the eqnset entries."
   (format Stream "~{    ~S~%~}" 
 	   (remove-if-not 
-	    #'(lambda (e) (and (kb-entryprop-p e)
-			       (not (kb-eqn-entryprop-p e))))
+	    #'(lambda (e) (and (any-entryprop-p e)
+			       (not (any-eqn-entryprop-p e))))
 	    (mapunion #'collect-psmgraph-csdo-effects
 		      (mapcar #'(lambda (n) 
 				  (cond ((Enode-p n) (enode-path n))
@@ -180,7 +181,6 @@
 			      (Eqnset-Nodes Set))
 		      :test #'unify)))) ;could use "equal"
 		     
-
 (defun print-eqnset-implicit-eqns (Set Stream Level)
   "Print the implicit equations in the EqnSet."
   (declare (ignore Level))
