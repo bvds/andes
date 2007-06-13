@@ -696,8 +696,6 @@
   Marks					; Markings for this equation similar to quantity marks.
   Subeqns				; The subequations present in all of the paths of this PSM.
   subvars				; The subvars present in the psm.
-  State					; One of: Correct, Incorrect, Forbidden, Dead-path 
-					;  or Inefficient. Not used until help time.
   Entries				; EntryProps that appear in this node's path.
   )
 
@@ -741,7 +739,6 @@
    (pprint-indent :block (+ Level 1) Stream)
    (format Stream "  Marks: ~A~%" (Enode-Marks Equation))
    (pprint-indent :block (+ Level 1) Stream)
-   (format Stream "  State: ~A~%" (Enode-State Equation))
    (pprint-indent :block (+ Level 1) Stream)
    (format Stream "  Subeqns: ~A~%" (Enode-Subeqns Equation))
    (pprint-indent :block (+ Level 1) Stream)
@@ -777,7 +774,6 @@
   (format S "~W~%" (if (Enode-Qnodes E) (collect-qnodes->gindicies 
 					 (Enode-Qnodes E))))
   (format S "~W~%" (Enode-Marks E))
-  (format S "~W~%" (Enode-State E))
   (format S "~W~%" (Enode-Entries E))  
   (format S "~W~%" (if (Enode-Subeqns E) (mapcar #'Eqn-Index 
 					  (Enode-Subeqns E))))
@@ -796,7 +792,7 @@
 
 
 (defun read-mreadable-Enode (S)
-  "Read an Mreadable qnode from the stream."
+  "Read an Mreadable enode from the stream."
   (when (not (equal (mg-srt2 S '<Enode> '</Enodes>) '</Enodes>))
     (let ((N (make-enode :Symbol (mg-sr S)
 			 :id (mg-sr S)
@@ -807,7 +803,6 @@
 			 :assumptions (mg-sr S)
 			 :Qnodes (mg-sr S)
 			 :marks (mg-sr S)
-			 :state (mg-sr S)
 			 :entries (mg-sr S)
 			 :subeqns (mg-sr S)
 			 :subvars (mg-sr S))))
