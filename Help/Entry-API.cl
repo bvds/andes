@@ -1474,21 +1474,14 @@
 ; entry, assuming the principal entry is correct. Arg is implicit entry.
 (defun enter-implicit-entry (entry)
    (cond ((eq (first (studentEntry-prop entry)) 'implicit-eqn) 
-          (enter-implicit-eqn entry))
+	  ;; enter an implicit equation defined by correct non-eqn entry
+          (enter-subentry-eqn entry (second (StudentEntry-prop entry))))
 	 (T ; other type, i.e. auto mass variable
 	    (when (sg-match-studententry entry)  ; correct
 	      (setf (studententry-cinterp entry) 
 	          (cdr (first (studententry-PossibleCinterps entry))))
 	      (setf (studentEntry-state entry) 'correct)
 	      (sg-enter-StudentEntry entry)))))
-
-;;
-;; enter-implicit-eqn -- do the work of entering an implicit equation
-;; Intended to be called for correct non-eqn entries only
-;;
-(defun enter-implicit-eqn (eqn-entry)
-"enter implicit equation defined by correct non-eqn entry"
-  (enter-subentry-eqn eqn-entry (second (StudentEntry-prop eqn-entry))))
 
 (defun enter-given-eqn (eqn-entry)
 "enter given value equation defined by correct non-eqn entry"
