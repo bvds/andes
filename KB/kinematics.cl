@@ -2142,8 +2142,7 @@
    (test (not (eq ?dir-a 'zero)))
    (axes-for ?b ?rot))
   :effects
-   ((vector-diag
-ram ?rot (lk ?b (during ?t1 ?t2))))
+   ((vector-diagram ?rot (lk ?b (during ?t1 ?t2))))
 )
 
 (defoperator write-const-v (?b ?t1 ?t2 ?xyz ?rot)
