@@ -566,23 +566,18 @@
 ;;
 ;; Once the prop has been matched it will be returned with the state of each
 ;; interp marked on the interp itself
+
 (defun sg-match-studententry (Entry)
   (let ((Prop (StudentEntry-Prop Entry)))
     (setf (StudentEntry-PossibleCInterps Entry)
-      (if (help-eqn-entryprop-p (subseq Prop 0 2))
-	   (sg-match-eqn-num (StudentEntry-ID Entry))
-	(sg-match-entry Prop)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; sg-match-entry
-;; Given a help entry prop locate the SystemEntry that matches it from the
-;; *sg-entries* index and return it in a list.  If none is found return null.
-
-(defun sg-match-Entry (prop)
-  "Match the specified StudentEntry Prop to a System Entry."
-  (let ((match (sg-EntryProp->SystemEntry Prop)))
-    (when match
-      (list (sg-mark-interp (list match))))))
+	  (if (help-eqn-entryprop-p (subseq Prop 0 2))
+	      (sg-match-eqn-num (StudentEntry-ID Entry))
+	      ;; Given a help entry prop locate the SystemEntry that matches 
+	      ;; it from the *sg-entries* index and return it in a list.  
+	      ;; If none is found return null.
+	      (let ((match (sg-EntryProp->SystemEntry Prop)))
+		(when match
+		  (list (sg-mark-interp (list match)))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -68,53 +68,6 @@
       (setf result (make-green-turn))))
     result))
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-(defun interpret-error (se) ;; student-entry
-  (sg-match-StudentEntry se)
-  (let* ((interps (StudentEntry-PossibleCInterps se))
-	 (correct-or-premature (find-all-correct-interpretations interps))
-	 (correct1 (find-most-cognitive-interpretation (car correct-or-premature)))
-	 (premature1 (find-most-cognitive-interpretation (second correct-or-premature)))
-	 (deadpath (find-all-interpretations 'dead-path interps))
-	 (deadpath1 (find-most-cognitive-interpretation deadpath))
-	 (forbidden (find-all-interpretations 'forbidden interps))
-	 (forbidden1 (find-most-cognitive-interpretation forbidden))
-	 (nogood (find-all-interpretations 'nogood interps))
-	 (nogood1 (find-most-cognitive-interpretation nogood))
-	 (shortest (find-most-cognitive-interpretation (get-all-interpretations interps))))
-    (setf (StudentEntry-PossibleCInterps se) correct-or-premature)
-    (cond
-     ((null interps)
-      (setf (StudentEntry-CInterp se) nil)
-      (format t "****HEY!!!! NO INTERPRETATIONS FROM ~W" se)
-      (setf (StudentEntry-State se) **Incorrect**))
-     (correct1
-      (setf (StudentEntry-CInterp se) correct1)
-      (setf (StudentEntry-State se) **Correct**))
-     (deadpath1
-      (setf (StudentEntry-CInterp se) deadpath1)
-      (setf (StudentEntry-State se) **Dead-Path**))
-     (forbidden1
-      (setf (StudentEntry-CInterp se) forbidden1)
-      (setf (StudentEntry-State se) **Forbidden**))
-     (premature1
-      (setf (StudentEntry-CInterp se) premature1)
-      (setf (StudentEntry-State se) **Premature-Entry**))
-     ;;(prematures1
-     ;; (setf (StudentEntry-CInterp se) prematures1)
-     ;; (setf (StudentEntry-State se) **Premature-Subst**))
-     (nogood1
-      (setf (StudentEntry-CInterp se) nogood1)
-      (setf (StudentEntry-State se) **NOGOOD**))
-     (t
-      (setf (StudentEntry-CInterp se) shortest)
-      (setf (StudentEntry-State se) **Incorrect**)))
-    ;;(setf (ErrorEntry-Intended ee) se)
-    ))
-;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
