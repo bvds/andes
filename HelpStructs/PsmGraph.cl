@@ -243,6 +243,15 @@
    (mappend #'csdo-effects (collect-psmgraph-csdos graph))
    :test #'equalp))
 
-
+;;; "Effect-Opinst pair" -- two-element list whose first element is 
+;;; a list of effect proposition and whose second entry is the instance
+;;; form for the op that has those effects. Utility for reporting.
+;;; NB: effects are lists and might not all be entry propositions. So 
+;;; still must filter to find entry props
+(defun collect-psmgraph-effect-op-pairs (graph)
+  (psmgraph-mapcar 
+      #'(lambda (d) (when (csdo-p d) 
+                       (list (csdo-effects d) (csdo-op d))))
+      graph))
 
 
