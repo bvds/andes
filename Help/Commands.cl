@@ -283,9 +283,11 @@
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-vector (label avg-inst type system dir mag &optional time id)
+(defun lookup-vector (label avg-inst type system dir mag time id 
+                       &key given-mag given-xc given-yc given-zc)
   (handle-non-eq 
-     (on-lookup-vector label avg-inst type system dir mag time id)))
+     (on-lookup-vector label avg-inst type system dir mag time id
+                        given-mag given-xc given-yc given-zc)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -341,9 +343,11 @@
 ;;   tem entry as "entered" it also defines magnitude and direction variables
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-force (label type system agent dir mag &optional time id)
+(defun lookup-force (label type system agent dir mag &optional time id
+                     &key given-mag given-xc given-yc given-z)
   (handle-non-eq 
-    (on-lookup-force label type system agent dir mag time id)))
+    (on-lookup-force label type system agent dir mag time id
+                     given-mag given-xc given-yc given-z)))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-torque - check correctness of a torque vector drawn by student
@@ -365,9 +369,11 @@
 ;; 
 ;; Side Effects: Updates state as for other vector entries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-torque (label net body axis dir mag time id)
+(defun lookup-torque (label net body axis dir mag time id
+                      &key given-mag given-xc given-yc given-z)
  (handle-non-eq  
-   (on-lookup-torque label net body axis dir mag time id)))
+   (on-lookup-torque label net body axis dir mag time id
+                     given-mag given-xc given-yc given-z)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with

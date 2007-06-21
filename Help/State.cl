@@ -543,6 +543,14 @@
 "true if given value entry is blank for unknown"
   (= (length (trim-eqn (third (StudentEntry-Prop eqn-entry)))) 0))
 
+;; Note attempt to build a given equation entry above may fail w/NIL
+;; Use following when adding to protect against adding a NULL given eqn
+(defun add-given-eqn (mainEntry givenEntry)
+"add implicit eqn entry to mainEntrys list if non-NULL"
+   (when givenEntry
+      (push givenEntry (studentEntry-GivenEqns mainEntry))))
+
+
 ;;===========================================================================
 ;; Student Name
 ;; The Student-name is stored at startup time in the 

@@ -663,7 +663,8 @@
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-vector (label avg-inst type system dir mag &optional time id)
+(defun on-lookup-vector (label avg-inst type system dir drawn-mag time id 
+                          &optional given-mag given-xc given-yc given-zc)
  (let* ((vtype        (arg-to-id **vector-types** type))
         (body-term    (arg-to-body system))
         (time-term    (arg-to-time time))
@@ -693,13 +694,15 @@
 		           `(,vtype ,body-term ,(arg-to-body avg-inst)))
 		        ;; else single argument vector: 
 	                (T `(,vtype ,body-term))))
-	(dir-term (arg-to-dir dir mag)))
+	(dir-term (arg-to-dir dir drawn-mag)))
 
-    (make-vector-entry label vquant-term time-term dir-term id)))
+    (make-vector-entry label vquant-term time-term dir-term id 
+                       given-mag given-xc given-yc given-zc)))
 
 ;; worker routine to do generic tasks common to vector entries 
 ;; once the vector quantity has been formed
-(defun make-vector-entry (label vquant-term time-term dir-term id)
+(defun make-vector-entry (label vquant-term time-term dir-term id 
+                          &optional given-mag given-xc given-yc given-zc)
    (let* ((vector-term (append vquant-term `(:time ,time-term)))
           (action      `(vector ,vector-term ,dir-term))
           (entry        (make-StudentEntry :id id :prop action))
@@ -725,6 +728,17 @@
 	    )
         (symbols-enter compo-var compo-term (list id axis-entry-id))))
 
+    ; Different given values are handled in different ways:
+    ; 1. Direction value or unknown or zero-mag values get checked automatically as part 
+    ; of the vector entry proposition. These continue to use the implicit equation 
+    ; machinery so as to record their equations as side effects, but not to check them. 
+    ; 2. For non-zero-mag vectors, given mag or compos handled via the given
+    ; equation mechanism, which checks their values.
+
+    ; Note we currently rely on drawn-mag argument to detect zero-mag vector, not given-mag. 
+    ; This might have to change. Or workbench could be required to synch them wrt 0/non-zero 
+    ; status.
+
     ; if vector is zero-length, associate implicit equation magV = 0
     ; also add component eqns vc = 0 for all component variables in solution.
     (when (equal dir-term 'zero)
@@ -732,12 +746,20 @@
        (dolist (syscomp (get-soln-compo-vars vector-term))
             ; skip make-implicit-assignment-entry since we have sysvar, not studvar
             (add-implicit-eqn entry (make-implicit-eqn-entry `(= ,syscomp 0)))))
+
+    ; if vector not zero-length, record given equations for any specified magnitude 
+    ; or component values. Note given eqn maker takes student variable args.
+    (when (not (equal dir-term 'zero))
+       (when given-mag
+           (add-given-eqn entry (make-given-eqn-entry label given-mag)))  
+       (when given-xc
+           (add-given-eqn entry (make-given-eqn-entry (strcat label "_x") given-xc)))  
+       (when given-yc
+           (add-given-eqn entry (make-given-eqn-entry (strcat label "_y") given-yc)))  
+       (when given-zc
+           (add-given-eqn entry (make-given-eqn-entry (strcat label "_z") given-zc))))
  
-    ; if vector is a unit vector, associate equation magV = 1 
-    ; !!! We are stuffing this into the entry's associated "given" equation list, 
-    ; because there is currently only one implicit equation slot for the entry 
-    ; and that might be needed for direction. Should clean this up, perhaps use one
-    ; list for both sorts of associated equation entries.
+    ; if vector is a unit vector, associate implicit equation magV = 1 
     (when (eq (first vector-term) 'unit-vector)
         (add-implicit-eqn entry (make-implicit-assignment-entry label 1)))
     ; if direction is known, associate implicit equation dirV = dir deg.
@@ -837,7 +859,8 @@
 ;;   tem entry as "entered" it also defines magnitude and direction variables
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-force (label type system agent dir mag &optional time id)
+(defun on-lookup-force (label type system agent dir mag &optional time id
+                        &optional given-mag given-xc given-yc given-zc)
    (let* ((body-term (arg-to-body system))
 	  (time-term (arg-to-time time))
 	  (agent-term (arg-to-body agent))
@@ -847,7 +870,8 @@
 	                 `(force ,body-term ,agent-term ,type-term)))
 	  (dir-term (arg-to-dir dir mag)))
 
-    (make-vector-entry label vquant-term time-term dir-term id)))
+    (make-vector-entry label vquant-term time-term dir-term id
+                       given-mag given-xc given-yc given-zc)))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-torque - check correctness of a torque vector drawn by student
@@ -871,7 +895,8 @@
 ;; 
 ;; Side Effects: Updates state as for other vector entries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-torque (label type body axis dir mag time id)
+(defun on-lookup-torque (label type body axis dir mag time id
+                         &optional given-mag given-xc given-yc given-zc)
  (let* ((body-term   (arg-to-body body))
 	(time-term   (arg-to-time time))
 	(axis-term   (arg-to-body axis))
@@ -889,7 +914,8 @@
 	              (t (find-torque-term body-term axis-term))))
 	(dir-term (arg-to-dir dir mag)))
 
-    (make-vector-entry label vquant-term time-term dir-term id))
+    (make-vector-entry label vquant-term time-term dir-term id
+                       given-mag given-xc given-yc given-zc))
 )
 
 (defun find-torque-term (pt axis)
@@ -1122,13 +1148,11 @@
   (symbols-enter var quant-term id)
 
   ; record associated given value equation entry
-  (when value  ; NIL => unspecified. (use empty string => unknown)
-    (let ((given-eqn (make-given-eqn-entry var value)))
-    ; NB! make-given-eqn-entry returns NIL if no system var found for studvar
-    ; Should mean bad var def in this case. But maybe better to change to always
-    ; have a dangling given eqn entry in this case?
-    (when given-eqn
-       (setf (studentEntry-GivenEqns entry) (list given-eqn)))))
+  (when value  ; NIL => unspecified. (Empty string => unknown)
+    (add-given-eqn entry (make-given-eqn-entry var value)))
+    ; NB! make-given-eqn-entry can return NIL if no system var found for studvar.
+    ; Normally means var def will be incorrect. No given-eqn added in this case.
+    ; But maybe better have a dangling given eqn entry anyway?
 
   ; finally return entry 
   entry))
