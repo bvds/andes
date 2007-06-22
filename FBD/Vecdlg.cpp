@@ -117,6 +117,21 @@ END_MESSAGE_MAP()
 BOOL CVectorDlg::OnInitDialog() 
 {
 	LogEventf(EV_VECTOR_DLG, "%s |%s|",m_pObj->m_strId, OBJ_NAME(m_pObj));
+
+	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVector)) && ! m_bSought) {
+			// create vector value sub-dialog and place it
+			m_pDlgValues = new CValueDlg((CVector*)m_pTempObj, this);
+			m_pDlgValues->Create(CValueDlg::IDD, this);
+			CRect rcValues;
+			GetDlgItem( IDC_STATIC_PLACEHOLDER)->GetWindowRect( &rcValues );
+			ScreenToClient(rcValues);
+			m_pDlgValues->SetWindowPos( NULL, rcValues.left + 7, rcValues.top + 7, 0, 0,
+				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
+			
+			// Hide old direction controls
+			Remove(IDC_BOX_TIMEDIR);
+			
+	}
 	
 	// Base class will load mapped data member values 
 	// into controls via DDX and bind control member vars.
@@ -274,6 +289,8 @@ void CVectorDlg::InitObjectDlg()
 	m_cboBodyList.SelectStringExact(pVec->m_strBody);
 	m_cboTimeList.SelectStringExact(pVec->m_strTime);
 
+	m_pDlgValues->TransferValues(FALSE);
+
 	// Initialize direction 
 	if (pVec->IsZeroMag()) {
 		// no direction for zero magnitude vectors
@@ -340,6 +357,7 @@ void CVectorDlg::UpdateTempVector()
 	((CVector*)m_pTempObj)->m_strTime = GetCurString(&m_cboTimeList);
 	m_editOrientation.GetWindowText(((CVector*)m_pTempObj)->m_strOrientation);
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
+	m_pDlgValues->TransferValues(/*bSaving=*/ TRUE);
 }
 
 void CVectorDlg::UpdateTempVariable()
@@ -409,7 +427,7 @@ void CVectorDlg::UpdateComponents()
 
 	// need to force redraw to invoke control's custom paint function to render 
 	// Greek, not sure why SetWindowText isn't sufficient.
-	m_stcVecAng2.ShowWindow(SW_SHOWNA);
+	// m_stcVecAng2.ShowWindow(SW_SHOWNA);
 	m_stcVecAng2.SetRichText(strAngVar);
 }
 
@@ -422,6 +440,9 @@ void CVectorDlg::OnChangeVectorNameText()
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
 
 	UpdateComponents();	
+
+	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
+
 }
 
 void CVectorDlg::OnNetbtn() 

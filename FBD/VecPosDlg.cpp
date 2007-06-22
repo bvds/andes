@@ -81,6 +81,7 @@ END_CTL_TBL(CVecPosDlg)
 BEGIN_MESSAGE_MAP(CVecPosDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CVecPosDlg)
 	ON_CBN_SELCHANGE(IDC_ZDIR, OnSelchangeZdir)
+	ON_EN_CHANGE(IDC_CUSTOM_LABEL, OnChangeVectorNameText)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 	
@@ -91,9 +92,23 @@ BOOL CVecPosDlg::OnInitDialog()
 {
 	// LogEventf(EV_POSITION_DLG, "%s |%s|",m_pObj->m_strId, m_pObj->m_strName);
 	
+	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVector)) && ! m_bSought) {
+			// create vector value sub-dialog and place it
+			m_pDlgValues = new CValueDlg((CVector*)m_pTempObj, this);
+			m_pDlgValues->Create(CValueDlg::IDD, this);
+			CRect rcValues;
+			GetDlgItem( IDC_STATIC_PLACEHOLDER)->GetWindowRect( &rcValues );
+			ScreenToClient(rcValues);
+			m_pDlgValues->SetWindowPos( NULL, rcValues.left + 7, rcValues.top + 7, 0, 0,
+				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
+
+			Remove(IDC_BOX_TIMEDIR);
+	}
+
 	// Base class inits lists via DDX. Calls InitDlg=>InitObjectDlg/InitVarDlg 
 	// to transfer values from tempobj to controls.
 	CDrawObjDlg::OnInitDialog();
+
 	
 	// Adjust visibility of controls here
 	
@@ -132,7 +147,7 @@ BOOL CVecPosDlg::OnInitDialog()
 		m_stcVecAng2.ShowWindow(SW_HIDE);
 		Remove(IDC_BOX_TIMEDIR);	// resize dlg to take out row, moving rest up
 	} else if (m_pDocument->UseZAxis()) {
-		m_cboZDir.ShowWindow(SW_SHOWNORMAL);
+		// m_cboZDir.ShowWindow(SW_SHOWNORMAL);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -148,6 +163,7 @@ void CVecPosDlg::InitObjectDlg()
 	m_cboBody.SelectStringExact(pVec->m_strBody );
 	m_cboFrom.SelectStringExact(pVec->m_strAgent );
 	m_cboTimeList.SelectStringExact(pVec->m_strTime) ;
+	m_pDlgValues->TransferValues(FALSE);
 
 	// initialize direction
 	if (pVec->IsZeroMag() && !pVec->IsZAxisVector()) {
@@ -192,6 +208,7 @@ void CVecPosDlg::UpdateTempVector()
 		if (nZDir >= 0 && nZDir <= ZDIR_MAX)
 			pTempVec->m_nZDir = nZDir;
 	 }
+	 m_pDlgValues->TransferValues(/*bSaving=*/ TRUE);
 	
 	m_editName.GetRichEditText(pTempVec->m_strName);
 }
@@ -266,8 +283,20 @@ void CVecPosDlg::OnSelchangeZdir()
 
 	// enable degree edit accordingly
 	if (nZDir == ZDIR_NONE) {
-		m_editOrientation.EnableWindow(TRUE);
+		// m_editOrientation.EnableWindow(TRUE);
 	} else {
 		m_editOrientation.EnableWindow(FALSE);
 	}
+}
+
+void CVecPosDlg::OnChangeVectorNameText() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	// TODO: Add your control notification handler code here
+	m_editName.GetRichEditText(m_pTempObj->m_strName);
+	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }

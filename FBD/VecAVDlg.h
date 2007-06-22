@@ -7,6 +7,7 @@
 #include "DrawObjDlg.h"
 #include "RichCombo.h"
 #include "EQEdit.h"			// for rich edit label of angle
+#include "ValueDlg.h"
 
 class CFBDDoc;
 
@@ -63,6 +64,8 @@ public:
 	CLogBtn	m_Ok;
 	CLogBtn	m_Cancel;
 	//}}AFX_DATA
+	CValueDlg* m_pDlgValues;
+
 	CString m_strDescription;
 	BOOL	m_bAddGrav;
 

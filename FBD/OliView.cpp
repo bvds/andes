@@ -120,10 +120,8 @@ void COliView::OnOpenProblem()
 	CTask* pTask = GetDocument()->m_tasks.GetHead();
 	ASSERT(pTask);
 
-	// See if solution file already exists in standard location:
-	CString strSolnPath =pTask->GetSolutionPath();
-	CString strOpenPath = strSolnPath;
-	CFileStatus statSolution;
+
+
 	// For OLI version, download what we need, then proceed same as if
 	// everything was local.
 	if (GetDocument()->m_bOli) 
@@ -134,17 +132,17 @@ void COliView::OnOpenProblem()
 		GetDocument()->GetHistory();
 	*/
 		// download problem components into local files. This should download
-		// solution if it exists.
+		// solution into standard location if it exists. Otherwise it will
+		// delete any local solution to avoid picking up old copies.
 		GetDocument()->GetProblemFiles(pTask->m_strName);
 
-		// Note!!!: can be weirdness if no OLI solution found, but
-		// a local solution exists (maybe saved locally, then crashed before could
-		// upload. Maybe should delete or rename local solution before
-		// trying to download? Or change Save to do upload in OLI mode?
 		AfxGetApp()->EndWaitCursor();
 	}
 	
-	 // open local solution if it exists
+	// See if solution file exists in standard location:
+	CString strSolnPath =pTask->GetSolutionPath();
+	CString strOpenPath = strSolnPath;
+	CFileStatus statSolution;
 	if (! CFile::GetStatus(strSolnPath, statSolution))  // doesn't exist
 	{
 		// Else starting new solution: get fullpath of problem to open in ANDES dir.

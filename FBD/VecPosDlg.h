@@ -8,6 +8,7 @@
 //
 
 #include "DrawObjDlg.h"
+#include "ValueDlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CVecPosDlg dialog
@@ -36,6 +37,7 @@ public:
 	CLogBtn	m_Ok;
 	CLogBtn	m_Cancel;
 	//}}AFX_DATA
+	CValueDlg* m_pDlgValues;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -58,6 +60,7 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CVecPosDlg)
 	afx_msg void OnSelchangeZdir();
+	afx_msg void OnChangeVectorNameText();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

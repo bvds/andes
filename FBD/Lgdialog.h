@@ -1,7 +1,7 @@
 // 
 // LogDialog.h : declarations for CLogDialog, our log-aware dialog class
 // 
-// $Id: Lgdialog.h,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: Lgdialog.h,v 1.3 2007/06/22 01:10:40 anders Exp $
 //
 // Base class for dialogs instrumented to interface with our logging system.
 // During recording, these dialogs log startup and size changes. During playback
@@ -136,6 +136,9 @@ public:
 	BOOL m_bModeless;				// true if running "modeless" i.e. with hints
 	BOOL m_bEndModalLoop;
 	int  m_nResult;
+
+	void AllowMessages(HWND hwnd) { m_hwndCtrl = hwnd; };
+
 protected:
 	//any control of the dialog that needs to receive messages
 	//but is not a child of the dialog

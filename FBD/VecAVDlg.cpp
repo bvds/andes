@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.3 2005/06/28 22:53:19 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.4 2007/06/22 01:10:40 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -68,6 +68,7 @@ void CVectorMoveDlg::DoDataExchange(CDataExchange* pDX)
 		DDX_AddCompoundBodies(pDX, IDC_AVBODY_TEXT, &m_pDocument->m_objects);
 		DDX_AddUserTimes(pDX, IDC_TIME_TEXT, &m_pDocument->m_Variables);
 	}
+
 	//Initializes controls from temporary object
 	CDrawObjDlg::DoDataExchange(pDX);
 }
@@ -116,6 +117,21 @@ END_MESSAGE_MAP()
 BOOL CVectorMoveDlg::OnInitDialog() 
 {
 	LogEventf(EV_VECTOR_DLG, "%s |%s|",m_pObj->m_strId, OBJ_NAME(m_pObj));
+
+	// create the value sub-dialog early so it exists before property
+	// transfers in the base class
+	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVector)) && ! m_bSought) {
+			// create vector value sub-dialog and place it
+			m_pDlgValues = new CValueDlg((CVector*)m_pTempObj, this);
+			m_pDlgValues->Create(CValueDlg::IDD, this);
+			CRect rcValues;
+			GetDlgItem( IDC_STATIC_PLACEHOLDER)->GetWindowRect( &rcValues );
+			ScreenToClient(rcValues);
+			m_pDlgValues->SetWindowPos( NULL, rcValues.left + 7, rcValues.top + 7, 0, 0,
+				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
+
+			Remove(IDC_BOX_TIMEDIR);
+	}
 	
 	// Base class will load mapped data member values 
 	// into controls via DDX and bind control member vars.
@@ -153,7 +169,6 @@ BOOL CVectorMoveDlg::OnInitDialog()
 		UpdatePlanStrings(&m_cboBodyList);
 	}
 
-
 	// Angular/linear choice: show in rotational problems
 	BOOL bShowAngular = FALSE;
 	if (m_pDocument->m_wConcept & ID_PROB_ROTKINEMATICS) {
@@ -190,17 +205,20 @@ BOOL CVectorMoveDlg::OnInitDialog()
 	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVariable))) {
 		Remove(IDC_BOX_TIMEDIR);	// remove whole row moving rest up
 	} else if (m_pDocument->UseZAxis()) {
-		m_cboZDir.ShowWindow(SW_SHOWNORMAL);
+		// m_cboZDir.ShowWindow(SW_SHOWNORMAL);
 	}
 
 	// Given value box: enable for any variable if not being used to define sought
 	// Really for speed variable only.
-	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVariable)) && ! m_bSought) {
-		m_stcEquals.ShowWindow(SW_SHOW);
-	    m_stcGiven.ShowWindow(SW_SHOW);
-		m_stcOr.ShowWindow(SW_SHOW);
-		m_btnUnknown.ShowWindow(SW_SHOW);
-		m_editValue.ShowWindow(SW_SHOW);
+	if (!m_bSought) 
+	{
+		if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVariable))) {
+			m_stcEquals.ShowWindow(SW_SHOW);
+			m_stcGiven.ShowWindow(SW_SHOW);
+			m_stcOr.ShowWindow(SW_SHOW);
+			m_btnUnknown.ShowWindow(SW_SHOW);
+			m_editValue.ShowWindow(SW_SHOW);
+		} 
 	}
 
 	// Move top-line static and combo box controls so that they line up nicely without
@@ -452,7 +470,9 @@ void CVectorMoveDlg::InitObjectDlg()
 	m_cboBodyList.SelectStringExact(pVec->m_strBody);
 	m_cboTimeList.SelectStringExact(pVec->m_strTime);
 	m_cboAngular.SelectStringExact(pVec->m_bAngular ? szAngular : szLinear);
-	
+
+	m_pDlgValues->TransferValues(FALSE);
+
 	// initialize direction
 	if (pVec->IsZeroMag() && !pVec->IsZAxisVector()) {
 		// no direction for zero magnitude vectors
@@ -554,6 +574,7 @@ void CVectorMoveDlg::UpdateTempVector()
 		if (nZDir >= 0 && nZDir <= ZDIR_MAX)
 			pTempVec->m_nZDir = nZDir;
 	 }
+	 m_pDlgValues->TransferValues(/*bSaving=*/ TRUE);
 	 // For md vectors, must sync drawing direction with told exact direction
 	 // here, *before checking*, since MDVector checking normally uses drawn direction.
 	 // (for mdvec's, don't normally use dialog to specify an exact direction.)
@@ -673,7 +694,7 @@ void CVectorMoveDlg::UpdateComponents()
 
 	// need to force redraw to invoke control's custom paint function to render 
 	// Greek, not sure why SetWindowText isn't sufficient.
-	m_stcVecAng2.ShowWindow(SW_SHOWNA);
+	//m_stcVecAng2.ShowWindow(SW_SHOWNA);
 	m_stcVecAng2.SetRichText(strAngVar);
 }
 
@@ -686,6 +707,7 @@ void CVectorMoveDlg::OnChangeVectorNameText()
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
 	
 	UpdateComponents();	
+	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }
 
 void CVectorMoveDlg::OnSelchangeMovementType() 
@@ -766,9 +788,9 @@ void CVectorMoveDlg::OnSelchangeZdir()
 
 	// enable degree edit accordingly
 	if (nZDir == ZDIR_NONE) {
-		m_editOrientation.EnableWindow(TRUE);
+		//m_editOrientation.EnableWindow(TRUE);
 		// static icon showing ccw orientation
-		m_stcVecAng.ShowWindow(SW_SHOW);	
+		//m_stcVecAng.ShowWindow(SW_SHOW);	
 		// !!!if had been showing zdir direction, probably should resync displayed 
 		// degree value with drawn x-y plane direction. For now, too bad if you change
 	} else {

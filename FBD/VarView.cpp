@@ -620,6 +620,10 @@ void CVarView::InsertListItem(CCheckedObj * pObj)
 		if (pObj->IsKindOf(RUNTIME_CLASS(CVector)) && 
 			((CVector*)pObj)->m_nVectorType == VECTOR_UNITVECTOR)
 			strName += "=1";
+		if ( pObj->IsKindOf(RUNTIME_CLASS(CVector)) && 
+			! ((CVector*)pObj)->m_strMag.IsEmpty() && ! ((CVector*)pObj)->m_bCompoForm) {
+			strName += "=" + ((CVector*)pObj)->m_strMag;
+		}
 	}
 	else if (pObj->IsKindOf(RUNTIME_CLASS(CGuideLine))) {
 		strDef = pObj->GetDef();

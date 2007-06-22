@@ -8,6 +8,7 @@
 //
 
 #include "DrawObjDlg.h"
+#include "ValueDlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CUnitVectorDlg dialog
@@ -40,6 +41,7 @@ public:
 	CLogBtn	m_Ok;
 	CLogBtn	m_Cancel;
 	//}}AFX_DATA
+	CValueDlg* m_pDlgValues;
 
 
 // Overrides
@@ -64,6 +66,7 @@ protected:
 	//{{AFX_MSG(CUnitVectorDlg)
 	afx_msg void OnSelchangeZdir();
 	afx_msg void OnNormalBtn();
+	afx_msg void OnChangeVectorNameText();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

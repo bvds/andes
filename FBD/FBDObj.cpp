@@ -47,7 +47,7 @@
 //
 // Currently use one class for all vector types.
 //////////////////////////////////////////////////////////////////////////
-IMPLEMENT_SERIAL(CVector, CCheckedObj, VERSIONABLE_SCHEMA | 10);
+IMPLEMENT_SERIAL(CVector, CCheckedObj, VERSIONABLE_SCHEMA | 11);
 CVector::CVector()			//used by serialization only
    	: CCheckedObj()
 { 
@@ -57,6 +57,8 @@ CVector::CVector()			//used by serialization only
 	m_posLabel= CRect(0, 0, 0, 0);
 	m_nZDir = ZDIR_NONE;
 //	m_pAngle = NULL;
+	m_bHaveValues = FALSE;
+	m_bCompoForm = FALSE;
 }					
     
 CVector::CVector(const CRect& position)
@@ -68,6 +70,8 @@ CVector::CVector(const CRect& position)
 	m_posLabel = CRect(0, 0, 0, 0);
 	m_nZDir = ZDIR_NONE;
 //   	m_pAngle = NULL;
+	m_bHaveValues = FALSE;
+	m_bCompoForm = FALSE;
 }
     
 CVector::~CVector()
@@ -121,6 +125,13 @@ void CVector::Serialize(CArchive& ar)
 		ar << (WORD) m_nZDir;
 		// added version 9
 		ar << (WORD) m_bAngular;
+		// added version 11
+		ar << (WORD) m_bHaveValues;
+		ar << (WORD) m_bCompoForm;
+		ar << m_strMag;
+		ar << m_strXC;
+		ar << m_strYC;
+		ar << m_strZC;
 	} 
 	else // load object specific data
 	{
@@ -207,6 +218,14 @@ void CVector::Serialize(CArchive& ar)
 			} 
 			if (nVersion >= 9) {
 				ar >> wTemp; m_bAngular = (BOOL) wTemp;
+			}
+			if (nVersion >= 11) {
+				ar >> wTemp; m_bHaveValues = (BOOL) wTemp;
+				ar >> wTemp; m_bCompoForm = (BOOL) wTemp;
+				ar >> m_strMag;
+				ar >> m_strXC;
+				ar >> m_strYC;
+				ar >> m_strZC;
 			}
 		}else {		// assume some earlier version, nothing saved
 			m_bDecomposed = FALSE;
@@ -445,6 +464,11 @@ void CVector::PlaceLabel(CDC* pDC)
 void CVector::DrawLabel(CDC* pDC)
 {
 	CString strLabel = m_strName;
+/* this string can be rather long 
+	if (! m_strMag.IsEmpty())
+		strLabel += "=" + m_strMag;
+	else 
+*/
 	// To show degenerate NULL vectors, we add "=0" to the label when drawn.
 	// The label is the main visible representation of a zero-length vector.
 	if (IsZeroMag())
@@ -1315,6 +1339,21 @@ CString CVector::MagArg()	// returns magnitude arg for helpsys calls (as string!
 	return strMag;
 }
 
+CString CVector::GetTailArgs()
+{
+	CString strTailArgs;
+	if (m_bHaveValues && ! m_bCompoForm) {
+		strTailArgs.Format(":given-mag \"%s\"", LISPSTR(m_strMag));
+	} else if (m_bHaveValues && m_bCompoForm) {
+		strTailArgs.Format(":given-xc \"%s\" :given-yc \"%s\"",  
+			LISPSTR(m_strXC),
+			LISPSTR(m_strYC));
+		if (m_pDocument->UseZAxis())
+			strTailArgs += " :given-zc \"" + LISPSTR(m_strZC) + "\"";
+	}
+	return strTailArgs;
+}
+
 LPCTSTR CVector::CheckForceVector()
 {
 	// Translate our ForceType strings to Lisp's
@@ -1326,7 +1365,7 @@ LPCTSTR CVector::CheckForceVector()
 	
 	// For Andes2: bracket body name to preserve case if compound body label.
 	// (lookup-force label type object agent direction mag time id)
-	return HelpSystemExecf( "(lookup-force \"%s\" |%s| |%s| %s %s %s |%s| %s)",
+	return HelpSystemExecf( "(lookup-force \"%s\" |%s| |%s| %s %s %s |%s| %s %s)",
 			STR2ARG(m_strName),					// label
 			STR2ARG(strForceType),				// force type
 			STR2ARG(m_strBody),					// object
@@ -1334,7 +1373,8 @@ LPCTSTR CVector::CheckForceVector()
 			DirArg(),							// direction
 			MagArg(),							// mag
 			STR2ARG(m_strTime),					// time  
-			m_strId								// id
+			m_strId,							// id
+			GetTailArgs()
 		);
 }
     
@@ -1384,9 +1424,12 @@ LPCTSTR CVector::CheckMoveVector()
 		m_strAgent == c_szAllSources)
 			strSubTypeArg = "NIL";
 
+	// Build optional trailing arguments for given values
+
+
 	// For Andes2: bracket body name to preserve case if compound body label.
 	//(lookup-vector label type object direction mag time)
-	return HelpSystemExecf( "(lookup-vector \"%s\" %s %s |%s| %s %s |%s| %s)",
+		return HelpSystemExecf( "(lookup-vector \"%s\" %s %s |%s| %s %s |%s| %s %s)",
 			STR2ARG(m_strName),				// label
 			STR2ARG(strSubTypeArg),			// instantaneous or average
 			strType,						// vector type
@@ -1394,7 +1437,8 @@ LPCTSTR CVector::CheckMoveVector()
 			DirArg(),						// direction
 			MagArg(),						// mag
 			STR2ARG(m_strTime),				// time
-			m_strId							// id
+			m_strId,						// id
+			GetTailArgs()                    // optional given values or empty
 		);
 }
 
@@ -1406,7 +1450,7 @@ LPCTSTR CVector::CheckDipoleVector()
 
 	// For Andes2: bracket body name to preserve case if compound body label.
 	//(lookup-vector label type object direction mag time)
-	return HelpSystemExecf( "(lookup-vector \"%s\" %s %s |%s| %s %s |%s| %s)",
+	return HelpSystemExecf( "(lookup-vector \"%s\" %s %s |%s| %s %s |%s| %s %s)",
 			STR2ARG(m_strName),				// label
 			STR2ARG(strSubTypeArg),			// instantaneous or average
 			STR2ARG(strType),				// vector type
@@ -1414,7 +1458,8 @@ LPCTSTR CVector::CheckDipoleVector()
 			DirArg(),						// direction
 			MagArg(),						// mag
 			STR2ARG(m_strTime),				// time
-			m_strId							// id
+			m_strId,						// id
+			GetTailArgs()
 		);
 }
 
@@ -1422,7 +1467,7 @@ LPCTSTR CVector::CheckTorqueVector()
 {
 	// For Andes2: bracket body name to preserve case if compound body label.
 	// (lookup-torque label type object axis direction mag time id)
-	return HelpSystemExecf( "(lookup-torque \"%s\" |%s| |%s| %s %s %s |%s| %s)",
+	return HelpSystemExecf( "(lookup-torque \"%s\" |%s| |%s| %s %s %s |%s| %s %s)",
 			STR2ARG(m_strName),					// label
 			STR2ARG(m_strForceType),			// Net or empty
 			STR2ARG(m_strBody),					// object
@@ -1430,7 +1475,8 @@ LPCTSTR CVector::CheckTorqueVector()
 			DirArg(),							// direction
 			MagArg(),							// mag
 			STR2ARG(m_strTime),					// time  
-			m_strId								// id
+			m_strId,							// id
+			GetTailArgs()
 		);
 }
 
@@ -1443,7 +1489,7 @@ LPCTSTR CVector::CheckUnitVector()
 	strSubType.Replace(" ", "-");  
 	CString strType = "unit-" + strSubType;
 	//(lookup-vector label type object direction mag time)
-	return HelpSystemExecf( "(lookup-vector \"%s\" %s |%s| |%s| %s %s |%s| %s)",
+	return HelpSystemExecf( "(lookup-vector \"%s\" %s |%s| |%s| %s %s |%s| %s %s)",
 			STR2ARG(m_strName),				// label
 			STR2ARG(m_strAgent),			// instantaneous or average
 			strType,						// vector type
@@ -1451,7 +1497,8 @@ LPCTSTR CVector::CheckUnitVector()
 			DirArg(),						// direction
 			MagArg(),						// mag
 			STR2ARG(m_strTime),				// time
-			m_strId							// id
+			m_strId,							// id
+			GetTailArgs()
 		);
 }
  
@@ -1479,6 +1526,12 @@ CDrawObj* CVector::Clone()
 	pClone->m_strTime = m_strTime;
 	pClone->m_strOrientation = m_strOrientation;
 	pClone->m_nZDir = m_nZDir;
+	pClone->m_bHaveValues = m_bHaveValues;
+	pClone->m_bCompoForm = m_bCompoForm;
+	pClone->m_strMag = m_strMag;
+	pClone->m_strXC = m_strXC;
+	pClone->m_strYC = m_strYC;
+	pClone->m_strZC = m_strZC;
 	
     //Needed to add because checking temporary cloned object refers to its
 	//m_pDocument during EARTHCHECK
@@ -1551,17 +1604,7 @@ void CVector::UpdateObj(CDrawObj* pObj)
 	ASSERT(pTempVec->m_nVectorType == m_nVectorType);
 	// but angular bit *can* be changed in dialog
 	m_bAngular = pTempVec->m_bAngular;
-
 	m_strName = pTempVec->m_strName;
-	m_strOrientation = pTempVec->m_strOrientation;
-
-	// If orientation/ZDir changed, use methods to update drawing to reflect.
-	// Note possible direction m_strOrientation not a number if dir is unset.
-	SetZDir(pTempVec->m_nZDir);
-	int nDeg;
-	if (! IsZAxisVector() && sscanf(pTempVec->m_strOrientation,"%d", &nDeg) == 1)
-		SetDirection(nDeg);
-	
 	m_strBody = pTempVec->m_strBody;
 	m_strTime = pTempVec->m_strTime;
 	m_status = pTempVec->m_status;
@@ -1569,6 +1612,24 @@ void CVector::UpdateObj(CDrawObj* pObj)
 	// transfer the values in all cases anyway (garbage values should remain unused.)
 	m_strForceType = pTempVec->m_strForceType;	// force type or avg vs. instantaneous
 	m_strAgent = pTempVec->m_strAgent;
+
+	// given value expressions
+	m_bHaveValues = pTempVec->m_bHaveValues;
+	m_bCompoForm = pTempVec->m_bCompoForm;
+	m_strMag = pTempVec->m_strMag;
+	m_strOrientation = pTempVec->m_strOrientation;
+	m_strXC = pTempVec->m_strXC;
+	m_strYC = pTempVec->m_strYC;
+	m_strZC = pTempVec->m_strZC;
+
+	// If orientation/ZDir changed, use methods to update drawing to reflect.
+	// Note possible direction m_strOrientation not a number if dir is unset.
+	SetZDir(pTempVec->m_nZDir);
+	int nDeg;
+	if (! IsZAxisVector() && sscanf(pTempVec->m_strOrientation,"%d", &nDeg) == 1)
+		SetDirection(nDeg);
+
+	// !!! Check if zero/non-zero mag status changed and update glyph accordingly.
 
 	if (m_nVectorType == VECTOR_COMPONENT)
 	{
@@ -3977,6 +4038,8 @@ void CGuideLine::RemoveVarNames(CString strOldName)
 	RemoveVarName(strDirVar);
 
 }
+
+
 
 
 

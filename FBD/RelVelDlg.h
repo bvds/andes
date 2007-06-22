@@ -8,6 +8,7 @@
 //
 
 #include "DrawObjDlg.h"
+#include "ValueDlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CRelVelDlg dialog
@@ -36,7 +37,7 @@ public:
 	CLogBtn	m_Ok;
 	CLogBtn	m_Cancel;
 	//}}AFX_DATA
-
+	CValueDlg* m_pDlgValues;
 
 // Overrides
 	// ClassWizard generated virtual function overrides

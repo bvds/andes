@@ -57,6 +57,13 @@ public:
 	CString m_strCompDir;		// COMPONENT: name of axis of projection
 	CString m_strOrientation;	// FORCE|MOTION: user-specified direction (as string)
 	CString m_strTime;			// FORCE|MOTION: time for multi-time-pt probs
+	// user-specified given value expressions:
+	BOOL m_bHaveValues;			// true => have some user-specified given values
+	BOOL m_bCompoForm;          // true => values are given by compos.
+	CString m_strMag;	
+	CString m_strXC;
+	CString m_strYC;
+	CString m_strZC;
 	
 	int		m_nZDir;			// Z-axis direction used for rotational motion vectors
 	// NB: Code order should parallel that of ID_ZDIR* commands
@@ -150,6 +157,7 @@ public:
 	// get args for help system:
 	CString MagArg();
 	CString DirArg();
+	CString GetTailArgs();
 
 	// Implementation:
 protected:

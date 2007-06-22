@@ -7,6 +7,7 @@
 // FieldDlg.h : header file
 //
 #include "DrawObjDlg.h"
+#include "ValueDlg.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,7 @@ public:
 	CLogBtn	    m_Ok;
 	CLogBtn	    m_Cancel;
 	//}}AFX_DATA
+	CValueDlg* m_pDlgValues;
 
 	BOOL m_bMagnetic;		// set if this is magnetic field
 
@@ -62,6 +64,7 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CFieldDlg)
 		afx_msg void OnSelchangeZdir();
+	afx_msg void OnChangeVectorNameText();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

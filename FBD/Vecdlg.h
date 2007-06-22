@@ -7,6 +7,7 @@
 #include "DrawObjDlg.h"
 #include "RichCombo.h"
 #include "EQEdit.h"			// for rich edit label of angle
+#include "ValueDlg.h"
 
 class CFBDDoc;
 
@@ -40,6 +41,7 @@ public:
 	CSpinButtonCtrl	m_spinDirection;
 	//}}AFX_DATA
 	CLogBtn m_btnForce;
+	CValueDlg* m_pDlgValues;
 
 	int m_nType;
 

@@ -262,6 +262,7 @@
 #define IDD_LINE                        402
 #define IDR_OPTICSTOOLS                 404
 #define IDD_TORQUE_DIPOLE               406
+#define IDD_VECTOR_VALUES               408
 #define IDC_SINGLE_BODY                 1000
 #define IDC_STATUS_MSG                  1000
 #define IDC_MULTIPLE_BODIES             1001
@@ -657,6 +658,7 @@
 #define IDC_STATIC_FIELD                1429
 #define IDC_MAGVAR                      1430
 #define IDC_COMPONENTS_BOX              1431
+#define IDC_MAGDIR_BTN                  1431
 #define IDC_XCVAR                       1432
 #define IDC_YCVAR                       1433
 #define IDC_ZCVAR                       1434
@@ -674,9 +676,25 @@
 #define IDC_STATIC_OR6                  1446
 #define IDC_CHECK_DIR_UNKNOWN           1447
 #define IDC_VECTOR_GIVEN_BOX            1448
+#define IDC_COMPO_BTN                   1448
 #define IDC_BOX_ZCOMP                   1449
 #define IDC_BOX_MAGDIR                  1450
-#define IDC_MAG_VALUE			1451
+#define IDC_MAG_VALUE                   1451
+#define IDC_BOX_COMPOS                  1452
+#define IDC_STATIC_PLACEHOLDER          1453
+#define IDC_DIRVAR                      1454
+#define IDC_STATIC_XC_OR                1455
+#define IDC_STATIC_YC_OR                1456
+#define IDC_STATIC_ZC_OR                1457
+#define IDC_STATIC_MAG_OR               1458
+#define IDC_STATIC_DIR_OR               1459
+#define IDC_STATIC_DIR                  1460
+#define IDC_STATIC_MAG                  1461
+#define IDC_STATIC_XC                   1462
+#define IDC_STATIC_YC                   1463
+#define IDC_STATIC_ZC                   1464
+#define IDC_STATIC_DEG                  1465
+#define IDC_STATIC_AXES_MSG             1466
 #define IDC_EQ1                         4000
 #define IDC_EQ2                         4001
 #define IDI_WINHELP                     4001
@@ -1137,9 +1155,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        408
+#define _APS_NEXT_RESOURCE_VALUE        410
 #define _APS_NEXT_COMMAND_VALUE         33232
-#define _APS_NEXT_CONTROL_VALUE         1431
+#define _APS_NEXT_CONTROL_VALUE         1467
 #define _APS_NEXT_SYMED_VALUE           119
 #endif
 #endif

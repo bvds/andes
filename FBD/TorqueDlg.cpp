@@ -97,6 +97,18 @@ BOOL CTorqueDlg::OnInitDialog()
 {
 	//LogEventf(EV_TORQUE_DLG, "%s |%s|",m_pObj->m_strId, m_pObj->m_strName);
 	
+	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVector)) && ! m_bSought) {
+			// create vector value sub-dialog and place it
+			m_pDlgValues = new CValueDlg((CVector*)m_pTempObj, this);
+			m_pDlgValues->Create(CValueDlg::IDD, this);
+			CRect rcValues;
+			GetDlgItem( IDC_STATIC_PLACEHOLDER)->GetWindowRect( &rcValues );
+			ScreenToClient(rcValues);
+			m_pDlgValues->SetWindowPos( NULL, rcValues.left + 7, rcValues.top + 7, 0, 0,
+				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
+
+			Remove(IDC_BOX_TIMEDIR);
+	}
 	// Base class inits lists via DDX. Calls InitDlg/InitObjectDlg to init values
 	CDrawObjDlg::OnInitDialog();
 
@@ -169,6 +181,7 @@ void CTorqueDlg::InitObjectDlg()	// Set Control values from temp object
 	// agent is axis
 	m_cboAgent.SelectStringExact(pVec->m_strAgent);
 	m_cboTimeList.SelectStringExact(pVec->m_strTime);
+	m_pDlgValues->TransferValues(FALSE);
 
 	// initialize direction
 	if (pVec->IsZeroMag() && !pVec->IsZAxisVector()) {
@@ -235,6 +248,7 @@ void CTorqueDlg::UpdateTempVector() // Update Temp object from control values
 		if (nZDir >= 0 && nZDir <= ZDIR_MAX)
 			pTempVec->m_nZDir = nZDir;
 	 }
+	 m_pDlgValues->TransferValues(/*bSaving=*/ TRUE);
 	
 	m_editName.GetRichEditText(pTempVec->m_strName);
 }
@@ -320,9 +334,9 @@ void CTorqueDlg::OnSelchangeZdir()
 
 		// enable degree edit accordingly
 	if (nZDir == ZDIR_NONE) {
-		m_editOrientation.EnableWindow(TRUE);
+		// m_editOrientation.EnableWindow(TRUE);
 		// static icon showing ccw orientation
-		m_stcVecAng.ShowWindow(SW_SHOW);	
+		// m_stcVecAng.ShowWindow(SW_SHOW);	
 		// !!!if had been showing zdir direction, probably should resync displayed 
 		// degree value with drawn x-y plane direction. For now, too bad if you change
 	} else {
@@ -362,6 +376,7 @@ void CTorqueDlg::OnChangeVectorNameText()
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
 	
 	UpdateComponents();	
+	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }
 
 void CTorqueDlg::UpdateComponents()
@@ -428,7 +443,7 @@ void CTorqueDlg::UpdateComponents()
 
 	// need to force redraw to invoke control's custom paint function to render 
 	// Greek, not sure why SetWindowText isn't sufficient.
-	m_stcVecAng2.ShowWindow(SW_SHOWNA);
+	// m_stcVecAng2.ShowWindow(SW_SHOWNA);
 	m_stcVecAng2.SetRichText(strAngVar);
 }
 

@@ -8,6 +8,7 @@
 //
 #include "DrawObjDlg.h"
 #include "RichCombo.h"
+#include "ValueDlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CTorqueDlg dialog
@@ -40,6 +41,7 @@ public:
 	CLogCombo	m_cboBody;
 	CLogCombo	m_cboAgent;
 	//}}AFX_DATA
+	CValueDlg* m_pDlgValues;
 
 
 // Overrides

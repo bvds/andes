@@ -89,6 +89,7 @@ BEGIN_MESSAGE_MAP(CUnitVectorDlg, CDrawObjDlg)
 	ON_CBN_SELCHANGE(IDC_ZDIR, OnSelchangeZdir)
 	ON_BN_CLICKED(IDC_NORMAL_BTN, OnNormalBtn)
 	ON_BN_CLICKED(IDC_AT_BTN, OnNormalBtn)
+	ON_EN_CHANGE(IDC_CUSTOM_LABEL, OnChangeVectorNameText)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 	
@@ -99,10 +100,23 @@ BOOL CUnitVectorDlg::OnInitDialog()
 {
 	// LogEventf(EV_IMPULSE_DLG, "%s |%s|",m_pObj->m_strId, m_pObj->m_strName);
 	
+	
+/* No given values for unit vector
+	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVector)) && ! m_bSought) {
+			// create vector value sub-dialog and place it
+			m_pDlgValues = new CValueDlg((CVector*)m_pTempObj, this);
+			m_pDlgValues->Create(CValueDlg::IDD, this);
+			CRect rcValues;
+			GetDlgItem( IDC_STATIC_PLACEHOLDER)->GetWindowRect( &rcValues );
+			ScreenToClient(rcValues);
+			m_pDlgValues->SetWindowPos( NULL, rcValues.left + 7, rcValues.top + 7, 0, 0,
+				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
+	}
+*/	
 	// Base class inits lists via DDX. Calls InitDlg=>InitObjectDlg/InitVarDlg 
 	// to transfer values from tempobj to controls.
 	CDrawObjDlg::OnInitDialog();
-	
+
 	// Adjust visibility of controls here
 	
 	// Remove fields for special-purpose uses
@@ -168,6 +182,7 @@ void CUnitVectorDlg::InitObjectDlg()
 		m_cboAgent.SelectStringExact(pVec->m_strAgent );
 	}
 	m_cboTimeList.SelectStringExact(pVec->m_strTime) ;
+	//m_pDlgValues->TransferValues(FALSE);
 
 	// initialize direction
 	if (pVec->IsZeroMag() && !pVec->IsZAxisVector()) {
@@ -234,6 +249,7 @@ void CUnitVectorDlg::UpdateTempVector()
 		if (nZDir >= 0 && nZDir <= ZDIR_MAX)
 			pTempVec->m_nZDir = nZDir;
 	 }
+	 //m_pDlgValues->TransferValues(/*bSaving=*/ TRUE);
 	
 	m_editName.GetRichEditText(pTempVec->m_strName);
 }
@@ -344,4 +360,17 @@ void CUnitVectorDlg::OnNormalBtn()
 	m_cboAtBody.EnableWindow(! bNormal);
 	m_cboAgent.EnableWindow(! bNormal);
 	m_cboTowardsAway.EnableWindow(! bNormal);
+}
+
+
+void CUnitVectorDlg::OnChangeVectorNameText() 
+{
+	// TODO: If this is a RICHEDIT control, the control will not
+	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
+	// function and call CRichEditCtrl().SetEventMask()
+	// with the ENM_CHANGE flag ORed into the mask.
+	
+	// TODO: Add your control notification handler code here
+	m_editName.GetRichEditText(m_pTempObj->m_strName);
+	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }
