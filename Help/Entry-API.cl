@@ -859,8 +859,8 @@
 ;;   tem entry as "entered" it also defines magnitude and direction variables
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun on-lookup-force (label type system agent dir mag &optional time id
-                        &optional given-mag given-xc given-yc given-zc)
+(defun on-lookup-force (label type system agent dir mag time id
+                         given-mag given-xc given-yc given-zc)
    (let* ((body-term (arg-to-body system))
 	  (time-term (arg-to-time time))
 	  (agent-term (arg-to-body agent))
