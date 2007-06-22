@@ -191,7 +191,7 @@
       ;; testing)
       ;; NB: If we later reject it for some reason (because forbidden, 
       ;; premature, etc), algebra slot should be cleared.
-      (if (stringp (solver-studentAddOkay (studentEntry-Id se) (studentEntry-ParsedEqn se)))
+      (if (stringp (solver-studentAddOkay (StudentEntry-Id se) (StudentEntry-ParsedEqn se)))
 	  (setf tmp (make-red-turn)) ;; to trap exceptions
 	(setf tmp (interpret-equation result location)))
       (cond
@@ -199,7 +199,7 @@
 	(sg-Enter-StudentEntry se)
 
 	; also enter scalar variables whose only uses are in this entry's interp
-	(let ((eqn-interp (studentEntry-Cinterp se))
+	(let ((eqn-interp (StudentEntry-Cinterp se))
 	      unneeded-vardefs)
 	  ; collect list of variable entries no longer needed
 	  (when eqn-interp ; if interp is empty, don't reduce #'union NIL, Bug 949
@@ -218,13 +218,13 @@
 	     ; entry like an implicit eqn. 
 	     (format *debug-help* "entering unneeded vardefs: ~s~%" 
 		     unneeded-vardefs)
-	     (setf (studentEntry-Cinterp se) unneeded-vardefs)
+	     (setf (StudentEntry-Cinterp se) unneeded-vardefs)
 	     (sg-Enter-StudentEntry se)
-	     (setf (studentEntry-Cinterp se) eqn-interp)))
+	     (setf (StudentEntry-Cinterp se) eqn-interp)))
        )
        (t
 	;; empty slot since it failed
-	(solver-studentEmptySlot (studentEntry-Id se))))))
+	(solver-studentEmptySlot (StudentEntry-Id se))))))
     ;;(format t "*(*(*( ~A~%" tmp)
     tmp))
 
@@ -346,7 +346,7 @@
       ;; BvdS:  This is completely wrong.  The number of slots in the
       ;; function call has nothing to do with the number of slots unmatched
       ;; in the student entry. See Bug #981.
-      (length (cdr (Error-Interp-diagnosis (studentEntry-ErrInterp (second te-pair)))))
+      (length (cdr (Error-Interp-diagnosis (StudentEntry-ErrInterp (second te-pair)))))
     0))
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -441,7 +441,7 @@
   (let ((rem (make-hint-seq
 	      '("Forgot to put units on a number."
 		"This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units.  It looks like one of the numbers you've used is lacking the units."))))
-    (setf (studentEntry-ErrInterp se)
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(forgot-units)
        :state **no-corresponding-correct-entry**
@@ -470,12 +470,12 @@
    put it in the student entry's err interp field."
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   ; in case of a simple assignment statement, change to forgot-units error interpretation
-  (when (assignment-eqn (studentEntry-ParsedEqn se))
+  (when (assignment-eqn (StudentEntry-ParsedEqn se))
        (return-from maybe-forgot-units-error-interp (forgot-units-error-interp se)))
   
   (let ((rem (make-hint-seq
 	      '( "The units in this equation are not consistent.  If this is a symbolic equation, there is probably an error:  check all your terms.  Another possibility is that a number has been used without correct associated units."))))
-    (setf (studentEntry-ErrInterp se)
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(maybe-forgot-units)
        :state **no-corresponding-correct-entry**
@@ -493,7 +493,7 @@
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      '("Units are inconsistent."))))
-    (setf (studentEntry-ErrInterp se)
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(wrong-units)
        :state **no-corresponding-correct-entry**
@@ -506,7 +506,7 @@
   ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
   (let ((rem (make-hint-seq '("Internal error: could not process equation."))))
     (setf (turn-coloring rem) NIL) ; leaves black. Not red, since not known wrong
-     (setf (studentEntry-ErrInterp se)
+     (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(internal-error)
        :state **no-corresponding-correct-entry**
@@ -867,12 +867,12 @@
 			  ;; whatswrong  -- into real answer entry and remove temp.
 			  ;;(format t "Result Answer is <~W>~%" result-turn)
 			  (let ((temp-entry (find-entry *solver-temp-eqn-slot*)))
-			    (setf (studentEntry-State entry)
-			      (studentEntry-State temp-entry))
-			    (setf (studentEntry-ErrInterp entry)
-			      (studentEntry-ErrInterp temp-entry))
-			    (setf (studentEntry-ParsedEqn entry) ; parse maybe useful
-			      (studentEntry-ParsedEqn temp-entry))
+			    (setf (StudentEntry-State entry)
+			      (StudentEntry-State temp-entry))
+			    (setf (StudentEntry-ErrInterp entry)
+			      (StudentEntry-ErrInterp temp-entry))
+			    (setf (StudentEntry-ParsedEqn entry) ; parse maybe useful
+			      (StudentEntry-ParsedEqn temp-entry))
 			    ;; remove temp from saved entry list
 			    (remove-entry *solver-temp-eqn-slot*)) ; clears algebra slot
 			  (symbols-delete "Answer"))
@@ -908,7 +908,7 @@
     (cond (result-turn) ;; if we got result from check above return it
           (T ;; else failed somewhere. !!! Should process syntax errors same as eqn.
 	     ;;(format T "~&failed to get result for answer~%")
-	     (setf (studentEntry-state entry) **incorrect**)
+	     (setf (StudentEntry-state entry) **incorrect**)
 	     (make-red-turn)))))
 
 (defun bad-answer-bad-lhs-error-interp (equation why)
@@ -1033,8 +1033,8 @@
       ; log the subentry details
       (log-entry-info eqn-entry)
       ;  copy relevant info from subentry into main student entry
-      (setf (studentEntry-State main-entry) (studentEntry-State eqn-entry))
-      (setf (studentEntry-ErrInterp main-entry) (studentEntry-ErrInterp eqn-entry))
+      (setf (StudentEntry-State main-entry) (StudentEntry-State eqn-entry))
+      (setf (StudentEntry-ErrInterp main-entry) (StudentEntry-ErrInterp eqn-entry))
       ; finally return result
        result-turn))
 
@@ -1043,8 +1043,8 @@
 ;; returns a result-turn to return for this.
 
 (defun check-given-value-eqn (eqn-entry)
-  (let* ((studvar (second (studentEntry-Prop eqn-entry)))
-         (value-str (third (studentEntry-Prop eqn-entry)))
+  (let* ((studvar (second (StudentEntry-Prop eqn-entry)))
+         (value-str (third (StudentEntry-Prop eqn-entry)))
 	 (quant    (symbols-referent studvar))
 	 ;; want to distinguish cases where quantity is not given, so it 
 	 ;; should be left unknown, from cases where it is given, but
@@ -1066,21 +1066,21 @@
     (cond 
      ((blank-given-value-entry eqn-entry)
       (cond (is-optionally-given 
-	     (setf (studentEntry-state eqn-entry) 'correct)
+	     (setf (StudentEntry-state eqn-entry) 'correct)
 	     (make-green-turn))
 	    (is-given 
-	     (setf (studentEntry-state eqn-entry) 'incorrect)
+	     (setf (StudentEntry-state eqn-entry) 'incorrect)
 	     (should-be-given-error-interp eqn-entry quant))
 	    (is-known-constant
-	     (setf (studentEntry-state eqn-entry) 'incorrect)
+	     (setf (StudentEntry-state eqn-entry) 'incorrect)
 	     (should-be-known-error-interp eqn-entry quant))
 	    (T ; quant is not given => OK
-	     (setf (studentEntry-state eqn-entry) 'correct)
+	     (setf (StudentEntry-state eqn-entry) 'correct)
 	     (make-green-turn))))
      
      ;; get here => student specified a given value
      ((not (or is-given is-optionally-given is-known-constant))
-      (setf (studentEntry-state eqn-entry) 'incorrect)
+      (setf (StudentEntry-state eqn-entry) 'incorrect)
       (not-given-error-interp eqn-entry quant))
      
      ;; else the quantity does have a given value:
@@ -1105,11 +1105,11 @@
 	  ;; The subentry state will be used later for logging or entering 
 	  ;; the correct interpretation later.  Possibly could just substitute
 	  ;; temp entry for dangling entry to avoid copying.
-	  (setf (studentEntry-State eqn-entry) (studentEntry-State temp-entry))
-	  (setf (studentEntry-ErrInterp eqn-entry) 
-		(studentEntry-ErrInterp temp-entry))
-	  (setf (studentEntry-ParsedEqn eqn-entry) 
-		(studentEntry-ParsedEqn temp-entry))
+	  (setf (StudentEntry-State eqn-entry) (StudentEntry-State temp-entry))
+	  (setf (StudentEntry-ErrInterp eqn-entry) 
+		(StudentEntry-ErrInterp temp-entry))
+	  (setf (StudentEntry-ParsedEqn eqn-entry) 
+		(StudentEntry-ParsedEqn temp-entry))
 	  
 	  ;; if it passed standard equation check, we still have to check it
 	  ;; uses only givens. NB: If not, we have to make sure it is removed 
@@ -1119,7 +1119,7 @@
 	  ;; to only add once, must handle this.
 	  (when (and correct-eqn (not (uses-only-given-eqn temp-entry)) 
 		     (not is-known-constant))
-	    (setf (studentEntry-State eqn-entry) 'incorrect) ; modify state copied above
+	    (setf (StudentEntry-State eqn-entry) 'incorrect) ; modify state copied above
 	    (setf result-turn (more-than-given-error-interp eqn-entry quant)))
 	  ;; if equation is wrong but no error interpretation (syntax error, 
 	  ;; missing units, etc) has been set, assume value is just plain wrong, 
@@ -1128,10 +1128,10 @@
 	  ;; still just say its wrong.
 	  ;; Might want check to filter first for acceptable form above 
 	  ;; (as we do for answers).
- 	  (when (and is-given (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
+ 	  (when (and is-given (not correct-eqn) (not (StudentEntry-ErrInterp temp-entry)))
 	    (set-wrong-given-value-error-interp eqn-entry quant))
 
-	  (when (and is-known-constant (not correct-eqn) (not (studentEntry-ErrInterp temp-entry)))
+	  (when (and is-known-constant (not correct-eqn) (not (StudentEntry-ErrInterp temp-entry)))
 	    (should-be-known-error-interp eqn-entry quant))
 
 	  ;; don't save the temp equation entry on our main list anymore
@@ -1154,7 +1154,7 @@
 	      (list (format nil "The value of ~a is not given in this problem. It should be marked unknown." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
-    (setf (studentEntry-ErrInterp se)
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(should-be-unknown)
        :state **no-corresponding-correct-entry**
@@ -1191,7 +1191,7 @@
 	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered in the dialog box when defining the relevant variable." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
-    (setf (studentEntry-ErrInterp se)
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(should-be-given)
        :intended (get-given-interp quant)
@@ -1217,7 +1217,7 @@
 			    (nlg quant))
 		    (format nil "Select 'Constants used in Andes' on the Help menu to find the value used in Andes.  This value should be entered in the dialog box when defining the relevant variable.")
 	         ))))
-    (setf (studentEntry-ErrInterp se)
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(should-be-known)
        :intended (get-known-interp quant)
@@ -1231,9 +1231,9 @@
 ; is called.
 (defun set-wrong-given-value-error-interp (se quant)
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
-  (let ((rem (wrong-given-value (second (studentEntry-ParsedEqn se)) 
-                                (third (studentEntry-ParsedEqn se)))))
-    (setf (studentEntry-ErrInterp se)
+  (let ((rem (wrong-given-value (second (StudentEntry-ParsedEqn se)) 
+                                (third (StudentEntry-ParsedEqn se)))))
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(wrong-given-value)
        :intended (get-given-interp quant)
@@ -1250,7 +1250,7 @@
 	      (list (format nil "Although this equation is a correct expression for the value of ~a, it does not simply state the given value." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
 	         ))))
-    (setf (studentEntry-ErrInterp se)
+    (setf (StudentEntry-ErrInterp se)
       (make-error-interp
        :diagnosis '(more-than-given)
        :intended (get-given-interp quant)

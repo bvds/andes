@@ -16,7 +16,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun interpret-equation (se		;student-entry
+(defun interpret-equation (se		;struct StudentEntry
                            &optional (location 'equation)) ; vs 'answer if answer-box entry
   (declare (special **Dead-Path-Help** **Forbidden-Help** **Nogood-Help**))
   (sg-match-StudentEntry se) ;; fills in PossibleCInterps

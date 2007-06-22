@@ -33,11 +33,11 @@
 (defparameter *Runtime-Score-Testset* () "The Scored autocalc tests.")
 
 ;;; In some cases it is necessary to execute some functions before the tests
-;;; themselves are setup.  Such preperatory work is often used to cache 
+;;; themselves are setup.  Such preparatory work is often used to cache 
 ;;; data or carry out other steps.  When the runtime tests are reset then
 ;;; any functions listed in this parameter (see the registration func below)
 ;;; will be called first.  
-(defparameter *runtime-testset-prep-funcs* NIL "The preperatory funcs.")
+(defparameter *runtime-testset-prep-funcs* NIL "The preparatory funcs.")
 
 
 ;;; For many problems we will have several tests that have solution-specific
