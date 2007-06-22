@@ -4,6 +4,7 @@
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <title>Data Structures</title>
 <STYLE type="text/css">
+  *.choice { color: green; }
   table.struct { border: 1px solid black; margin: 2px;
                  vertical-align: top; 
                  display: inline-block;  /* this should work by itself */
@@ -97,16 +98,32 @@
 
 <h1>Help System related structures</h1>
 
+<p><span id="state" class="choice">State</span> can be (Correct, Incorrect, Forbidden, Dead-Path)</p>
 <div class="wrap">
 <table id="SystemEntry" class="struct">
 <Caption><a href="../HelpStructs/SystemEntry.cl">SystemEntry</a></caption>
 <tr> <td>Index</td> </tr>
 <tr> <td>Prop</td> </tr>
 <tr> <td>Sources</td> <td> (<a href="#csdo">csdo</a>)</td>  </tr>
-<tr> <td>State</td> </tr>
+<tr> <td>State</td> <td><a href="#state" class="choice">state</a></td></tr>
 <tr> <td>Prereqs</td> </tr>
 <tr> <td>CogLoad</td> </tr>
 <tr> <td>Entered</td> </tr>
+</table>
+
+<table id="StudentEntry" class="struct">
+<Caption><a href="../HelpStructs/StudentEntry.cl">StudentEntry</a></caption>
+<tr> <td>Id</td> </tr>
+<tr> <td>Prop</td> </tr>
+<tr> <td>State</td> <td><a href="#state" class="choice">state</a></td></tr>
+<tr> <td>CInterp</td> <td> (<a href="#SystemEntry">SystemEntry</a>)</td> </tr>
+<tr> <td>PossibleCInterps</td> <td> ((<a href="#state" class="choice">state</a> <a href="#SystemEntry">SystemEntry</a>))</td> </tr>
+<tr> <td>Verbatim</td> </tr>
+<tr> <td>ParsedEqn</td> </tr>
+<tr> <td>ErrInterp</td> </tr>
+<tr> <td>ImplicitEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a>)</td>  </tr>
+<tr> <td>GivenEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a>)</td>  </tr>
+<tr> <td>Time</td> </tr>
 </table>
 
 <table id="csdo" class="struct">
