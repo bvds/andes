@@ -12,12 +12,23 @@
 ;; will be automatically loaded by the caller.
 ;;
 
+;;; Sometimes it is inconvenient to specify an ordering for a set of objects using
+;;; a single number.  Thus we define an order specification consisting of an alist
+;;; ((class . rank) ...) where rank is a number showing the position of the object
+;;;; in that class.
 
-;;;;===========================================================================
+(defun alist< (x y)
+  "True if x is less than y, where x and y are alists of class-rank pairs."
+  ;; not very efficient since the assoc of each member is calculated twice
+  (and (some #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (< (cdr xi) (cdr yi))))) x)
+       (notany #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (> (cdr xi) (cdr yi))))) x))
+  )
+
+;;;;================================ =====================
 ;;;;
 ;;;;             expr< 
 ;;;;
-;;;;===========================================================================
+;;;;===============================  ======================
 
 ;;; expr< is needed in order to generates sets where the elements are ordered.
 ;;; Otherwise the code will generate all possible orderings of the elements
@@ -25,7 +36,7 @@
 ;;; string<.
 
 (defun expr< (expr1 expr2)
-   "True if first arg comes before second in lexicographic ordering"
+   "True if first arg comes before second in lexicographic ordering."
    (cond ((consp expr1)
           (cond ((consp expr2)
                  (or (expr< (car expr1) (car expr2))
