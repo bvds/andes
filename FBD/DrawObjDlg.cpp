@@ -341,7 +341,7 @@ void CDrawObjDlg::Remove(int nIDBox)
 		pCtrl->GetWindowRect(&rcCtrl);
 		if (rcOverlap.IntersectRect(rcBox, rcCtrl)) {
 			pCtrl->ShowWindow(SW_HIDE);
-			TRACE("Hiding ctrl %d\n", pCtrl->GetDlgCtrlID());
+			// TRACE("Hiding ctrl %d\n", pCtrl->GetDlgCtrlID());
 		}
 		pCtrl = pCtrl->GetNextWindow(GW_HWNDNEXT );
 	}
@@ -356,7 +356,7 @@ void CDrawObjDlg::UpdateControls(CWnd* pCtrlBegin, int xDist)
 {
 	CWnd* pCtrl = pCtrlBegin->GetNextWindow(GW_HWNDNEXT );
 	while (pCtrl != NULL){
-		TRACE("Moving up ctrl %d\n", pCtrl->GetDlgCtrlID());
+		// TRACE("Moving up ctrl %d\n", pCtrl->GetDlgCtrlID());
 		CRect rect;
 		pCtrl->GetWindowRect(&rect);
 		ScreenToClient(&rect);

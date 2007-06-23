@@ -255,6 +255,8 @@ BOOL CVector::IsZeroMag()
 	return  (abs(m_position.Width()) <= MIN_SIZE && 
 		     abs(m_position.Height()) <= MIN_SIZE);
 }
+
+
     
 // Return drawn magnitude in logical units.
 int CVector::GetDrawnMagnitude()
@@ -617,10 +619,9 @@ void CVector::SetZDir(int nZDir)
 	// if changed between nonZDir and ZDir, also update position rect to reflect
 	if (bWasZAxisVector && !IsZAxisVector())		// Z to non-Z
 	{		
-		Invalidate();
 		// make it zero-length at old origin 
-		m_position.right = m_position.left;
-		m_position.bottom = m_position.top;
+		Invalidate();
+		MakeZeroMag();
 	} 
 	else if (!bWasZAxisVector && IsZAxisVector()) // non-Z to Z
 	{
@@ -635,7 +636,13 @@ void CVector::SetZDir(int nZDir)
 	// redraw new vector
 	Invalidate();
 }
-  
+
+void CVector::MakeZeroMag()
+{
+	m_position.right = m_position.left;
+	m_position.bottom = m_position.top;
+}
+
 void CVector::DrawSelectState(CDC* pDC, TrackerState state)
 {
 	if (state == normal)	// not selected, nothing to do
@@ -1593,6 +1600,30 @@ CPoint CVector::GetBtnPos(CRect btnPos)
  	return ptNew;
 }
 
+// Sync zero/non-zero status with told mag value
+void CVector::SyncDrawnMag()
+{
+	// only do if we have a told magnitude value
+	if (! (m_bHaveValues && !m_bCompoForm)) return;
+
+	// scan told value from beginning of expression (which may have units)
+	float fToldMag; // scan as float to allow 0.0
+	BOOL bToldZero = (sscanf(m_strMag, "%f", &fToldMag) == 1) 
+					  && fToldMag == 0.0;
+	// if told zero-mag, ensure drawing is zero mag
+	if (bToldZero && !IsZeroMag() && !IsZAxisVector())
+		MakeZeroMag();
+
+	// if told non-zero-mag, ensure drawing is not zero mag
+	if (IsZeroMag() && !IsZAxisVector() && !bToldZero) {
+			// Set drawn magnitude to one inch
+			m_position.right = m_position.left + 96;
+			m_position.bottom = m_position.top;
+		// if there's a told direction, it's going to be set
+		// anyway by caller 
+	}
+}
+
 // Transfer all property values from those of given object. 
 // Used to apply changes on close of dialog.
 void CVector::UpdateObj(CDrawObj* pObj)
@@ -1622,14 +1653,15 @@ void CVector::UpdateObj(CDrawObj* pObj)
 	m_strYC = pTempVec->m_strYC;
 	m_strZC = pTempVec->m_strZC;
 
+	// make sure drawn magnitude matches zero/non-zero status
+	SyncDrawnMag();
+
 	// If orientation/ZDir changed, use methods to update drawing to reflect.
 	// Note possible direction m_strOrientation not a number if dir is unset.
 	SetZDir(pTempVec->m_nZDir);
 	int nDeg;
 	if (! IsZAxisVector() && sscanf(pTempVec->m_strOrientation,"%d", &nDeg) == 1)
 		SetDirection(nDeg);
-
-	// !!! Check if zero/non-zero mag status changed and update glyph accordingly.
 
 	if (m_nVectorType == VECTOR_COMPONENT)
 	{
@@ -4038,6 +4070,9 @@ void CGuideLine::RemoveVarNames(CString strOldName)
 	RemoveVarName(strDirVar);
 
 }
+
+
+
 
 
 

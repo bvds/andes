@@ -1055,11 +1055,11 @@
 	 ;; use given-var-p to avoid this behavior. Note it looks for
 	 ;; given flag on quantities at the bubble-graph level, not implicit 
 	 ;; equations, so might not work for those.
-	 (is-optionally-given (optionally-given-p 
-			       (student-to-canonical studvar)))
-	 (is-given (given-p (student-to-canonical studvar)))
-	 (is-known-constant (known-constantp (sysvar-to-quant 
-					      (student-to-canonical studvar))))
+	 (sysvar   (student-to-canonical studvar))
+	 ; NB: sysvar may be NIL, e.g for unused vector attribute
+	 (is-optionally-given (and sysvar (optionally-given-p sysvar)))
+	 (is-given (and sysvar (given-p sysvar)))
+	 (is-known-constant (and sysvar (known-constantp (sysvar-to-quant sysvar))))
 	 )
     
     ;; first filter case where student hasn't specified a given value 
@@ -1152,7 +1152,7 @@
   (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list (format nil "The value of ~a is not given in this problem. It should be marked unknown." 
-	                             (nlg (quant-to-sysvar quant) 'algebra))
+	                             (nlg quant 'var-or-quant)) ; use studvar if exists, else quant
 	         ))))
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp

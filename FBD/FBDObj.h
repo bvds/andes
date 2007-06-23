@@ -82,6 +82,8 @@ public:
 	// Helper to derive:
 	int GetDrawnMagnitude();			// Drawn magnitude in logical units
 	BOOL IsZeroMag();			// true if this is NULL (zero-mag) vector
+	void MakeZeroMag();
+	void SyncDrawnMag();
 
 	// Gets dir told by user in dialog; returns FALSE if unknown, else T.
 	// Differs from GetDirection which always returns the drawn direction,

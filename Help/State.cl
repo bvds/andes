@@ -536,8 +536,11 @@
 
 (defun make-given-eqn-entry (studvar value)
 "make equation entry setting student var to given value"
-   (when (student-to-canonical studvar)
-     (make-StudentEntry :prop `(eqn ,studvar ,value))))
+   ; construct this even if it is an unused variable.
+   ; will fail when checked.
+   ; (when (student-to-canonical studvar)
+       (make-StudentEntry :prop `(eqn ,studvar ,value)))
+   ;  )
 
 (defun blank-given-value-entry (eqn-entry)
 "true if given value entry is blank for unknown"
