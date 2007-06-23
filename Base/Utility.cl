@@ -22,7 +22,12 @@
   ;; not very efficient since the assoc of each member is calculated twice
   (and (some #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (< (cdr xi) (cdr yi))))) x)
        (or (notany #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (> (cdr xi) (cdr yi))))) x)
-	   (error "Inconsistent order specifications for ~A and ~A" x y)))
+	   ;; There is a question of what to do when the order for x and y is not
+	   ;; well-defined  (different classes indicate different orders).
+	   ;; One can either define x and y to be equivalent or give an error/warning
+	   ;; by commenting/uncommenting the following:
+	   ;; (error "Inconsistent order specifications for ~A and ~A" x y)
+	   ))
   )
 
 ;;;;================================ =====================
