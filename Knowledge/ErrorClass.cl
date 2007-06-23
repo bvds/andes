@@ -16,6 +16,7 @@
 (defstruct entry-test
   Name        ;atom
   Conditions  ;ordered list of conditons (see whatswrong.cl)
+              ;this determines a match
   apply       ;Conditions of application
 					;no-match:  use after no match found
 					;match:  use after match found

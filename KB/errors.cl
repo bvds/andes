@@ -86,11 +86,11 @@
 ;;;
 ;;;
 ;;; --------------------- Use of Error Classes ------------------------
-;;; When Whats-Wrong-Help Andes2\Help\whatswrong.cl is called it will
+;;; When Whats-Wrong-Help Andes2/Help/whatswrong.cl is called it will
 ;;; iterate over each error handler in the set of **Entry-Tests**
 ;;; and testing the conditions on each one.  As the conditions are 
 ;;; tested a set of bindings will be generated.  If the conditions are
-;;; all satisfied then a error-interprewtation will be generated based
+;;; all satisfied then a error-interpretation will be generated based
 ;;; upon the entry-test and using the bindings that were generated.
 ;;;
 ;;; The set of possible conditions are:
@@ -4036,14 +4036,15 @@
   :conditions ((student ?quant)
 	       (correct ?quant))
   :correct t
+  :order ((correct . 1))
   )
 
 (def-entry-test match-with-error
-  :conditions ((given ?quant ?val1)
-	       (correct ?quant ?val2)
+  :conditions ((student (given ?quant ?val1)) ; this is probably wrong?
+	       (correct (given ?quant ?val2))
 	       (test (and (dimensioned-numberp ?val1) 
 			  (dimensioned-numberp ?val2)
 			  (compare-dnums ?val1 ?val2))))
   :correct t
+  :order ((correct . 2))
   )
-

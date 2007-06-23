@@ -29,8 +29,8 @@
   (let ((student (find-entry id)))
     (if student 
 	(progn (diagnose student)
-	       (Error-Interp-Remediation (StudentEntry-ErrInterp student)))
-      (no-error-interpretation))))
+	       (ErrorInterp-Remediation (StudentEntry-ErrInterp student)))
+      (no-ErrorInterpretation))))
 
 
 ;;; Given a student entry, returns a error interpretation.  If the
@@ -49,7 +49,7 @@
       ;; Even if the error interpretation originally caused the entry to 
       ;; turn colors make sure that this time it is just a plain dialog 
       ;; turn and does no coloring
-      (setf (turn-coloring (Error-Interp-Remediation 
+      (setf (turn-coloring (ErrorInterp-Remediation 
 			    (studentEntry-ErrInterp student)))  NIL)
     (setf (StudentEntry-ErrInterp student)
 	  (let ((state (StudentEntry-State student)))
@@ -61,7 +61,7 @@
 	     ((eq state **forbidden**)
 	      (explain-forbidden student))
 	     ((not (eq state **Incorrect**))
-	      (make-failed-error-interpretation))
+	      (make-failed-ErrorInterpretation))
 	     ((and (eq 'eqn (car (StudentEntry-Prop student)))
 		   (not (solver-equation-redp 
 			 (studentEntry-ParsedEqn student))))
@@ -69,9 +69,9 @@
 	     (T	(new-error student)))))))
 
 
-(defun make-failed-error-interpretation (&optional (fn-msg 'no-error-interpretation))
+(defun make-failed-ErrorInterpretation (&optional (fn-msg 'no-ErrorInterpretation))
  "Returns an error interpretaton indicate that Andes could not understand the student's error"
-  (make-Error-Interp
+  (make-ErrorInterp
    :intended NIL
    :state **no-corresponding-correct-entry**
    :remediation (apply fn-msg nil)
@@ -79,7 +79,7 @@
    :Expected-Utility 0.0))
 
 
-(defun no-error-interpretation ()
+(defun no-ErrorInterpretation ()
   "Returns a hint sequence indicating that Andes can't figure out the student's error."
   (make-hint-seq
    (list (strcat "I cannot determine what's wrong with this entry.  Try "
@@ -96,7 +96,7 @@
 (defun explain-premature-entry (student)
   "Given a premature student entry, return an error interpretation"
   (declare (ignore student))
-  (make-failed-error-interpretation #'ww-premature-entry))
+  (make-failed-ErrorInterpretation #'ww-premature-entry))
 
 (defun ww-premature-entry ()
   "Returns a hint sequence indicating that the student's entry is premature."
@@ -110,7 +110,7 @@
   "Given a premature student entry due to substituting numbers,
    return an error interpretation"
   (declare (ignore student))
-  (make-failed-error-interpretation #'ww-premature-subst))
+  (make-failed-ErrorInterpretation #'ww-premature-subst))
 
 (defun ww-premature-subst ()
   "Returns a hint sequence indicating that the student's entry has numbers in it too early."
@@ -123,7 +123,7 @@
 
 (defun explain-forbidden (student)
   (declare (ignore student))
-  (make-failed-error-interpretation #'ww-forbidden))
+  (make-failed-ErrorInterpretation #'ww-forbidden))
 
 (defun ww-forbidden ()
   (make-hint-seq
@@ -137,7 +137,7 @@
   "If the student's equation balances according to color by number but is not
    a combination of correct primitive equations, then it's not needed for solution"
   (declare (ignore student))
-  (make-failed-error-interpretation #'ww-irrelevant))
+  (make-failed-ErrorInterpretation #'ww-irrelevant))
 
 (defun ww-irrelevant ()
   (make-hint-seq
@@ -168,15 +168,15 @@
     (when (cdr candidates) ; trace conflicts, so we can vet the results
        (format *debug-help* "  Error candidates: ~W~%" 
 	       (sort (mapcar #'ei-info candidates) #'> :key #'second)))
-    (setf best (select-error-interpretation candidates))
-    (format *debug-help* "  Choose: ~A~%" (error-interp-test best))
+    (setf best (select-ErrorInterpretation candidates))
+    (format *debug-help* "  Choose: ~A~%" (ErrorInterp-test best))
     ;; (format t "Best candidate is ~W" best)
-    (setf (Error-Interp-Remediation best) (generate-ww-turn best))
+    (setf (ErrorInterp-Remediation best) (generate-ww-turn best))
     best))
 
 (defun ei-info (ei) 
   ;; pairs of interpretations and weights
-  (list (error-interp-name ei) (Error-Interp-expected-utility ei)))
+  (list (ErrorInterp-name ei) (ErrorInterp-expected-utility ei)))
 
 ;;; ------------ Phase 1: Testing whether error conditions apply ------------
 ;;; given the student entry, returns an error analysis for each error
@@ -213,7 +213,7 @@
 				(bindings no-bindings))
   (cond
    ((null conditions)
-    (list (make-Error-Interp
+    (list (make-ErrorInterp
 	   ;; Maybe just put the entry-test struct itself here?
 	   :test (entry-test-name eh)
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
@@ -294,7 +294,7 @@
 ;;; If not, then skip this system entry proposition and try the next one.
 ;;;
 ;;; Note, unlike correct the selected entry here will not be used for 
-;;; the intended entry in the error-interp.
+;;; the intended entry in the ErrorInterp.
 (defun check-err-correct-nointent (pattern eh student conditions system bindings)
   (loop for se in *sg-entries* with b nconc
 	(and (setf b (unify pattern (systementry-prop se) bindings))
@@ -456,19 +456,19 @@
 
 
 ;;;  Setting the state:  The error interp state is set based upon the
-;;;   supplied error-interp intended entries.  There are three possible
-;;;   error-interp states to deal with: 1) There is no intended entry
+;;;   supplied ErrorInterp intended entries.  There are three possible
+;;;   ErrorInterp states to deal with: 1) There is no intended entry
 ;;;   in which case the state is set to **no-corresponding-correct-entry**
 ;;;   2) It exists and there is only 1 (non-eqn-entry
 (defun contextualize (candidates)
   "Given error interpretations, adjusts their state and expected-utility fields 
    to reflect the context of the interpretation in the solution."
   (dolist (ei candidates)
-    (let ((interp (Error-Interp-intended ei)))
+    (let ((interp (ErrorInterp-intended ei)))
       ;; (format t "~%+++++++++++ Testing Intended +++++++++++++++++~%")
       (cond 
        ;; There is no correct system entry so set the default state.
-       ((null interp) (setf (Error-Interp-state ei) **no-corresponding-correct-entry**))
+       ((null interp) (setf (ErrorInterp-state ei) **no-corresponding-correct-entry**))
 
        ;; The entry is a non-eqn so use the single entry state.
        ((null (cdr interp)) (context-set-non-eq-interp ei interp))	 
@@ -477,27 +477,27 @@
        (t (context-set-eq-interp ei interp)))
       
       
-      (setf (error-interp-expected-utility ei)
+      (setf (ErrorInterp-expected-utility ei)
 	(expected-utility-given-context ei)))))
 
 
 ;;; For non-eqn entries there is only one supplied systementry in the
 ;;; interp therefore we use it as below to set the interpretation and
-;;; other values.  First we set the error-interp-state based upon the
+;;; other values.  First we set the ErrorInterp-state based upon the
 ;;; intended's state and then if the state is **correct** and the 
-;;; entry in the error-interp-intended has been done then the error 
+;;; entry in the ErrorInterp-intended has been done then the error 
 ;;; interp will be marked **done-already** else it will be left alone.
 (defun context-set-non-eq-interp (ei Interp)
-  "Set the non-eqn error-interp's state."
-  (setf (Error-Interp-state ei) (SystemEntry-State (car interp)))
-  (if (and (eq **correct** (error-interp-state ei))
+  "Set the non-eqn ErrorInterp's state."
+  (setf (ErrorInterp-state ei) (SystemEntry-State (car interp)))
+  (if (and (eq **correct** (ErrorInterp-state ei))
 	   (systementry-entered (car Interp)))
-      (setf (error-interp-state ei) **done-already**)))
+      (setf (ErrorInterp-state ei) **done-already**)))
 
 
 ;;; If an equation entry is supplied then the intended error interp
 ;;; will be a list whose car is a state and whose cdr is a list of 
-;;; eqn entries.  This function sets the error-interp's state and
+;;; eqn entries.  This function sets the ErrorInterp's state and
 ;;; intended based upon the car value.  The intended is then set
 ;;; such that the value is removed.  Then if the state is correct 
 ;;; and all of the entries have been made then the interp is marked
@@ -505,13 +505,13 @@
 (defun context-set-eq-interp (ei Interp)
   "Contextually set the eqn error interp info."
   ;; (format t "~%+++++++++++ Eqn Intended +++++++++++++++++~%")
-  (setf (Error-Interp-state ei) (car interp))
-  (setf (Error-Interp-intended ei) (cdr interp))
-  ;; (format t "~%+++++++++++ Eqn done +++++++++++++++++~%~a~%" (error-interp-intended ei))
+  (setf (ErrorInterp-state ei) (car interp))
+  (setf (ErrorInterp-intended ei) (cdr interp))
+  ;; (format t "~%+++++++++++ Eqn done +++++++++++++++++~%~a~%" (ErrorInterp-intended ei))
 
-  (if (and (eq **correct** (error-interp-state ei))
-	   (loop for se in (error-interp-intended ei) always (SystemEntry-entered se)))
-      (setf (error-interp-state ei) **done-already**)))
+  (if (and (eq **correct** (ErrorInterp-state ei))
+	   (loop for se in (ErrorInterp-intended ei) always (SystemEntry-entered se)))
+      (setf (ErrorInterp-state ei) **done-already**)))
 
 
 
@@ -531,8 +531,8 @@
 (defun expected-utility-given-context (ei)
   "Given an error interpretation, returns its expected utility given the way its 
    interpretation fits into the current solution state."
-  (let ((prob (eval (cdr (assoc 'expected-utility (error-interp-order ei)))))
-	(state (error-interp-state ei)))
+  (let ((prob (eval (cdr (assoc 'expected-utility (ErrorInterp-order ei)))))
+	(state (ErrorInterp-state ei)))
 
     (cond 
      ;; There is only a small chance that a student would mistakenly
@@ -554,23 +554,23 @@
 
 ;;; Given a possibly empty set of error interpretations, return the
 ;;; best one.
-(defun select-error-interpretation (candidates)
+(defun select-ErrorInterpretation (candidates)
   (cond ((null candidates)
-	 (make-failed-error-interpretation))
+	 (make-failed-ErrorInterpretation))
 	((null (cdr candidates))
 	 (car candidates))
-	(t (select-best-error-interp candidates))))
+	(t (select-best-ErrorInterp candidates))))
 
-(defun select-best-error-interp (candidates)
+(defun select-best-ErrorInterp (candidates)
   "Given a list of candidate error interpetations with two or more members,
    pick the best ones then choose randomly among them."
   (let ((best (list (car candidates)))
-	(best-eu (error-interp-expected-utility (car candidates))))
+	(best-eu (ErrorInterp-expected-utility (car candidates))))
     (loop for c in (cdr candidates) do
-	  (cond ((approx-equal best-eu (error-interp-expected-utility c))
+	  (cond ((approx-equal best-eu (ErrorInterp-expected-utility c))
 		 (push c best))
-		((< best-eu (error-interp-expected-utility c))
-		 (setq best-eu (error-interp-expected-utility c))
+		((< best-eu (ErrorInterp-expected-utility c))
+		 (setq best-eu (ErrorInterp-expected-utility c))
 		 (setq best (list c)))))
     (cond ((cdr best)
 	   ;; NOTE: when we choose randomly to break a tie, the "intended" entry may be very unreliable. 
@@ -600,36 +600,36 @@
   "Given an error interpretation, returns a tutor turn.  If the closest
    matching correct entry is weird, wraps a prefix around the tutor
    turn that would otherwise be generated."
- (let ((*correct-entry* (first (Error-Interp-intended ei))))
-  (cond ((eq **forbidden** (Error-Interp-state ei)) 
+ (let ((*correct-entry* (first (ErrorInterp-intended ei))))
+  (cond ((eq **forbidden** (ErrorInterp-state ei)) 
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry is forbidden by "
 		     "the problem statement, so you shouldn't bother to "
 		     "generate it.  If you want to anyway, click on Explain more.")))
-	((eq **dead-path** (Error-Interp-state ei))
+	((eq **dead-path** (ErrorInterp-state ei))
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry is does not lead "
 		     "toward a solution, so you shouldn't bother to generate "
 		     "it.  If you want to anyway, click on Explain more.")))
-	((eq **premature-entry** (Error-Interp-state ei))
+	((eq **premature-entry** (ErrorInterp-state ei))
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry is premature, so you "
 		     "need to enter the skipped steps before you enter this one.  "
 		     "But you want help on generating this one anyway, click on "
 		     "Explain more.")))
-	((eq **premature-subst** (Error-Interp-state ei))
+	((eq **premature-subst** (ErrorInterp-state ei))
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry would contain given "
 		     "values, but you have not yet finished applying all the "
 		     "principles necessary for solving this problem, so Andes "
 		     "will not accept it.  If you want to try entering it "
 		     "anyway, click on Explain more.")))
-        ((eq **done-already** (error-interp-state ei))
+        ((eq **done-already** (ErrorInterp-state ei))
 	 (dont-bother-but 
 	  ei (strcat "The closest matching CORRECT entry seems to be done "
 		     "already, so you really don't need to generate it again.  "
 		     "If you want to anyway, click on Explain more.")))
-	(T (call-ww-turn-generator (Error-Interp-diagnosis ei))))))
+	(T (call-ww-turn-generator (ErrorInterp-diagnosis ei))))))
 
 
 ;;; Given an error interpretation and a string, it warns the studen by
@@ -642,7 +642,7 @@
 		    :responder
 		    #'(lambda (r)
 			(if (equal r 'explain-more)
-			    (call-ww-turn-generator (Error-Interp-diagnosis ei))))))
+			    (call-ww-turn-generator (ErrorInterp-diagnosis ei))))))
 
 ;;; Used to be more complicated
 (defun call-ww-turn-generator (form)
@@ -712,8 +712,8 @@
 
 (defun trace-wwh ()
   (trace diagnose do-whats-wrong
-	 make-failed-error-interpretation
-	 no-error-interpretation
+	 make-failed-ErrorInterpretation
+	 no-ErrorInterpretation
 	 explain-premature-entry
 	 explain-premature-subst
 	 explain-forbidden

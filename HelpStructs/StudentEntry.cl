@@ -73,7 +73,7 @@
     (pprint-indent :block Level Stream)
   (format Stream "PossibleCorrectInterps:   ~A~%" (StudentEntry-PossibleCInterps Entry))
   (pprint-indent :block Level Stream)
-  (format Stream "ErrorInterp: ~A~%" (StudentEntry-ErrInterp Entry))
+  (format Stream "ErrInterp: ~A~%" (StudentEntry-ErrInterp Entry))
   (pprint-indent :block Level Stream)
   (format Stream "ParsedEqn: ~A~%" (StudentEntry-ParsedEqn Entry)))
 

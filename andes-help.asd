@@ -37,7 +37,7 @@
 			:components ((:file "StudentEntry")
 				     (:file "TutorTurn"
 					    :depends-on ("CMD"))
-				     (:file "Error-Interp")
+				     (:file "ErrorInterp")
 				     (:file "StudentAction"
 					    :depends-on ("TutorTurn")
 					    :depends-on ("StudentEntry"))

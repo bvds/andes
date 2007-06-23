@@ -4,7 +4,7 @@
 ;;;  Copyright Kurt VanLehn 2001
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defstruct (Error-Interp (:print-function write-Error-Interp))
+(defstruct (ErrorInterp (:print-function write-ErrorInterp))
   test          ; name of test that provided this interp
   Intended      ; interpretation of student's intended action
   Remediation   ; a non-empty list of tutor turns
@@ -21,12 +21,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun write-Error-Interp (E &optional (Stream t) (level 0))
+(defun write-ErrorInterp (E &optional (Stream t) (level 0))
   (declare (ignore level))
-  (format Stream "[Error-Interp name:~A~%]" 
-          (error-interp-name e)))
+  (format Stream "[ErrorInterp name:~A~%]" 
+          (ErrorInterp-name e)))
 
-(defun error-interp-name(ei) 	; maybe temporary until old/new are reconciled
+(defun ErrorInterp-name(ei) 	; maybe temporary until old/new are reconciled
 "return the name of the error handler"
- (or (error-interp-test ei)  		 ; new style built by whatswrong 
-     (car (Error-Interp-diagnosis ei)))) ; old style custom built in eqn checking
+ (or (ErrorInterp-test ei)  		 ; new style built by whatswrong 
+     (car (ErrorInterp-diagnosis ei)))) ; old style custom built in eqn checking

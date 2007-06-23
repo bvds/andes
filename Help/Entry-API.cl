@@ -1458,7 +1458,7 @@
 	    ; if needed, run whatswrong help to set error interp now, so diagnosis
 	    ; can be included in log even if student never asks whatswrong
             (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
-	    (setf target-entries (Error-Interp-Intended (StudentEntry-ErrInterp Entry))))
+	    (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
 
 	  ((eq (StudentEntry-state entry) 'correct)
 	     (setf target-entries (studententry-Cinterp entry))))
@@ -1482,7 +1482,7 @@
        ; log the error tag if one was found
        (when (StudentEntry-ErrInterp entry)
            (send-fbd-command (format nil "assoc error ~A" 
-				     (error-interp-name (StudentEntry-ErrInterp Entry)))))
+				     (ErrorInterp-name (StudentEntry-ErrInterp Entry)))))
 
         ; log the target entry info if we have any. This shows comma-separated lists of entry props
 	; ("steps") and parallel list of opnames
