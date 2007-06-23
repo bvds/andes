@@ -24,12 +24,12 @@
 <Caption><a href="../Knowledge/Problem.cl">Problem</a></caption>
 <tr> <td>Name  </td> </tr>
 <tr> <td>Statement  </td> </tr>
-<tr> <td>...  </td> </tr>
-<tr> <td>Graph </td> <td> ((<a href="#qnode">qnode</a>)
-                            (<a href="#enode">enode</a>))</td></tr>
-<tr> <td>VarIndex </td> <td> (<a href="#qvar">qvar</a>)</td></tr>
-<tr> <td>EqnIndex  </td> <td> (<a href="#eqn">eqn</a>)</td></tr>
-<tr> <td>Solutions  </td> <td> (<a href="#eqnset">Eqnset</a>)</td> </tr>
+<tr> <td> &#8230; </td> </tr>
+<tr> <td>Graph </td> <td> ((<a href="#qnode">qnode</a> &#8230;)
+                            (<a href="#enode">enode</a> &#8230;))</td></tr>
+<tr> <td>VarIndex </td> <td> (<a href="#qvar">qvar</a> &#8230;)</td></tr>
+<tr> <td>EqnIndex  </td> <td> (<a href="#eqn">eqn</a> &#8230;)</td></tr>
+<tr> <td>Solutions  </td> <td> (<a href="#eqnset">Eqnset</a> &#8230;)</td> </tr>
 <tr> <td>wm  </td> </tr>
 </table>
 
@@ -52,24 +52,24 @@
 <tr> <td>Symbol</td> </tr>
 <tr> <td>ID</td> </tr>
 <tr> <td>Gindex </td> </tr>
-<tr> <td>Eindex</td><td> (<a href="#eqn">eqn</a>)</td> </tr>
+<tr> <td>Eindex</td><td> (<a href="#eqn">eqn</a> &#8230;)</td> </tr>
 <tr> <td>Algebra</td> </tr>
 <tr> <td>Path</td> </tr>
 <tr> <td>Assumptions</td> </tr>
-<tr> <td>Qnodes</td> <td>(<a href="#Qnode">Qnode</a>)</td> </tr>
+<tr> <td>Qnodes</td> <td>(<a href="#Qnode">Qnode</a> &#8230;)</td> </tr>
 <tr> <td>Marks</td> </tr>
-<tr> <td>Subeqns</td> <td> (<a href="#eqn">eqn</a>)</td></tr>
+<tr> <td>Subeqns</td> <td> (<a href="#eqn">eqn</a> &#8230;)</td></tr>
 <tr> <td>Subvars</td> </tr>
-<tr> <td>Entries</td> <td>(<a href="#SystemEntry">SystemEntry</a>)
+<tr> <td>Entries</td> <td>(<a href="#SystemEntry">SystemEntry</a> &#8230;)
        <br>by <a href="../Help/SolutionGraph.cl">sg-setup-systementries</a>
 </td></tr>
 </table>
 
 <table id="EqnSet" class="struct">
 <Caption><a href="../Knowledge/Solution.cl">EqnSet</a></caption>
-<tr> <td>Eqns</td> <td> (<a href="#Enode">Enode</a>)</td> </tr>
-<tr> <td>Nodes</td> <td> (<a href="#Enode">Enode</a> and
-                                                 <a href="#Qnode">Qnode</a>)</td></tr>
+<tr> <td>Eqns</td> <td> (<a href="#Enode">Enode</a> &#8230;)</td> </tr>
+<tr> <td>Nodes</td> <td> (<a href="#Enode">Enode</a> or
+                                                 <a href="#Qnode">Qnode</a> &#8230;)</td></tr>
 <tr> <td>Assumpts</td> </tr>
 <tr> <td>Solutions</td> </tr>
 </table>
@@ -80,7 +80,7 @@
 <tr> <td>type</td> </tr>
 <tr> <td>Algebra</td> </tr>
 <tr> <td>Exp</td> </tr>
-<tr> <td>nodes</td> <td> (<a href="#Eqn">Eqn</a>)</td> </tr>
+<tr> <td>nodes</td> <td> (<a href="#Eqn">Eqn</a> &#8230;)</td> </tr>
 <tr> <td>Solved</td> </tr>
 </table>
 
@@ -104,7 +104,7 @@
 <Caption><a href="../HelpStructs/SystemEntry.cl">SystemEntry</a></caption>
 <tr> <td>Index</td> </tr>
 <tr> <td>Prop</td> </tr>
-<tr> <td>Sources</td> <td> (<a href="#csdo">csdo</a>)</td>  </tr>
+<tr> <td>Sources</td> <td> (<a href="#csdo">csdo</a> &#8230;)</td>  </tr>
 <tr> <td>State</td> <td><a href="#state" class="choice">state</a></td></tr>
 <tr> <td>Prereqs</td> </tr>
 <tr> <td>CogLoad</td> </tr>
@@ -116,13 +116,13 @@
 <tr> <td>Id</td> </tr>
 <tr> <td>Prop</td> </tr>
 <tr> <td>State</td> <td><a href="#state" class="choice">state</a></td></tr>
-<tr> <td>CInterp</td> <td> (<a href="#SystemEntry">SystemEntry</a>)</td> </tr>
-<tr> <td>PossibleCInterps</td> <td> ((<a href="#state" class="choice">state</a> <a href="#SystemEntry">SystemEntry</a>))</td> </tr>
+<tr> <td>CInterp</td> <td> (<a href="#SystemEntry">SystemEntry</a> &#8230;)</td> </tr>
+<tr> <td>PossibleCInterps</td> <td> ((<a href="#state" class="choice">state</a> <a href="#SystemEntry">SystemEntry</a>) &#8230;)</td> </tr>
 <tr> <td>Verbatim</td> </tr>
 <tr> <td>ParsedEqn</td> </tr>
 <tr> <td>ErrInterp</td> </tr>
-<tr> <td>ImplicitEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a>)</td>  </tr>
-<tr> <td>GivenEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a>)</td>  </tr>
+<tr> <td>ImplicitEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a> &#8230;)</td>  </tr>
+<tr> <td>GivenEqns</td> <td> (<a href="#StudentEntry">StudentEntry</a> &#8230;)</td>  </tr>
 <tr> <td>Time</td> </tr>
 </table>
 
@@ -131,7 +131,7 @@
 <tr> <td>op</td> </tr>
 <tr> <td>effects</td> </tr>
 <tr> <td>varvals</td> </tr>
-<tr> <td>entries</td><td> (<a href="#SystemEntry">SystemEntry</a>)</td> </tr>
+<tr> <td>entries</td><td> (<a href="#SystemEntry">SystemEntry</a> &#8230;)</td> </tr>
 </table>
 </div>
 </body>
