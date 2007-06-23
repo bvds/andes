@@ -15,13 +15,14 @@
 ;;; Sometimes it is inconvenient to specify an ordering for a set of objects using
 ;;; a single number.  Thus we define an order specification consisting of an alist
 ;;; ((class . rank) ...) where rank is a number showing the position of the object
-;;;; in that class.
+;;; in that class.
 
 (defun alist< (x y)
   "True if x is less than y, where x and y are alists of class-rank pairs."
   ;; not very efficient since the assoc of each member is calculated twice
   (and (some #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (< (cdr xi) (cdr yi))))) x)
-       (notany #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (> (cdr xi) (cdr yi))))) x))
+       (or (notany #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (> (cdr xi) (cdr yi))))) x)
+	   (error "Inconsistent order specifications for ~A and ~A" x y)))
   )
 
 ;;;;================================ =====================
