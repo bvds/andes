@@ -13,8 +13,6 @@
   State         ; (The following list is obsolete) 
 ;;; One of forbidden, premature, premature-subst, done-already, inefficient or none
   Correct       ; Boolean if test returns student entry correct.
-  ;; to be removed in favor of method using ranking
-  Expected-Utility ; a floating point number
   )
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -76,7 +76,7 @@
    :state **no-corresponding-correct-entry**
    :remediation (apply fn-msg nil)
    :diagnosis (list fn-msg)
-   :Expected-Utility 0.0))
+   :order '((expected-utility . 0))))
 
 
 (defun no-ErrorInterpretation ()
@@ -166,17 +166,16 @@
     (contextualize candidates)
     ;; (format t "Contextualized Candidates are: ~% ~a~%" candidates)
     (when (cdr candidates) ; trace conflicts, so we can vet the results
-       (format *debug-help* "  Error candidates: ~W~%" 
-	       (sort (mapcar #'ei-info candidates) #'> :key #'second)))
+      (format *debug-help* "  Error candidates: ~W~%" 
+	      (mapcar #'(lambda (x) (cons (ErrorInterp-name x) 
+					  (ErrorInterp-order x))) 
+		      (sort (copy-list candidates) #'alist< 
+			    :key #'ErrorInterp-order))))
     (setf best (select-ErrorInterpretation candidates))
     (format *debug-help* "  Choose: ~A~%" (ErrorInterp-test best))
     ;; (format t "Best candidate is ~W" best)
     (setf (ErrorInterp-Remediation best) (generate-ww-turn best))
     best))
-
-(defun ei-info (ei) 
-  ;; pairs of interpretations and weights
-  (list (ErrorInterp-name ei) (ErrorInterp-expected-utility ei)))
 
 ;;; ------------ Phase 1: Testing whether error conditions apply ------------
 ;;; given the student entry, returns an error analysis for each error
@@ -219,7 +218,12 @@
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
 	   :correct (eval (subst-bindings bindings (entry-test-correct eh)))
 	   :intended sy
-	   :order (subst-bindings-quoted bindings (entry-test-order eh)))))
+	   ;; evaluate the cdr of each pair as a lisp expression
+	   :order (mapcar #'(lambda (pair) 
+			      (cons (car pair) 
+				    (eval (subst-bindings-quoted bindings 
+								 (cdr pair))))) 
+			  (entry-test-order eh)))))
    (t (let ((c (first conditions))  (r (rest conditions)))
 	(case (first c)
 	  (not (when (null (check-err-conditions eh st (second c) sy bindings))
@@ -446,8 +450,7 @@
 
 ;;; Given a possibly empty list of error interpretation, set their
 ;;; State fields to reflect whether the intended entry is premature,
-;;; forbidden, etc.  Set the expected-utility field to reflect the
-;;; context.  Don't bother to change the remediation field now.  That
+;;; forbidden, etc.  Don't bother to change the remediation field now.  That
 ;;; will be done in generate-ww-turn.  If interpretation field of the
 ;;; ei is a singleton then must be a nonequation else the second of
 ;;; field is the equations interpretation and the car is the status
@@ -476,9 +479,7 @@
        ;; The entry is an equation so use the car of the entry states.
        (t (context-set-eq-interp ei interp)))
       
-      
-      (setf (ErrorInterp-expected-utility ei)
-	(expected-utility-given-context ei)))))
+      	(expected-utility-given-context ei))))
 
 
 ;;; For non-eqn entries there is only one supplied systementry in the
@@ -531,14 +532,13 @@
 (defun expected-utility-given-context (ei)
   "Given an error interpretation, returns its expected utility given the way its 
    interpretation fits into the current solution state."
-  (let ((prob (eval (cdr (assoc 'expected-utility (ErrorInterp-order ei)))))
+  (let ((prob (cdr (assoc 'expected-utility (ErrorInterp-order ei))))
 	(state (ErrorInterp-state ei)))
-
     (cond 
      ;; There is only a small chance that a student would mistakenly
-     ;; define a quantity they have already defined *and* do it incorrectly.
-     ;; This must distiguish between error interpretations that have vastly
-     ;; different utilities.
+      ;; define a quantity they have already defined *and* do it incorrectly.
+      ;; This must distiguish between error interpretations that have vastly
+      ;; different utilities.
      ((eq state **done-already**)
       (setq prob (* prob 0.05)))
      ((eq state **premature-entry**)
@@ -546,8 +546,8 @@
      ((eq state **premature-subst**)
       (setq prob (* prob 0.3)))
      ((eq state **dead-path**)
-      (setq prob (* prob 0.001))))
-    prob))
+      (setq prob (* prob 0.001)))))
+)
      
 
 ;;; -------- Phase 3: Selecting an error interpretation -------------
@@ -555,38 +555,22 @@
 ;;; Given a possibly empty set of error interpretations, return the
 ;;; best one.
 (defun select-ErrorInterpretation (candidates)
-  (cond ((null candidates)
-	 (make-failed-ErrorInterpretation))
-	((null (cdr candidates))
-	 (car candidates))
-	(t (select-best-ErrorInterp candidates))))
-
-(defun select-best-ErrorInterp (candidates)
-  "Given a list of candidate error interpetations with two or more members,
-   pick the best ones then choose randomly among them."
-  (let ((best (list (car candidates)))
-	(best-eu (ErrorInterp-expected-utility (car candidates))))
-    (loop for c in (cdr candidates) do
-	  (cond ((approx-equal best-eu (ErrorInterp-expected-utility c))
-		 (push c best))
-		((< best-eu (ErrorInterp-expected-utility c))
-		 (setq best-eu (ErrorInterp-expected-utility c))
-		 (setq best (list c)))))
-    (cond ((cdr best)
-	   ;; NOTE: when we choose randomly to break a tie, the "intended" entry may be very unreliable. 
-	   ; Ex: solution has three axis rotations, and student picks none. Three wrong-axis-rotation
-	   ; instances will tie and one will be randomly chosen. This may not be the one nsh would
-	   ; prompt. Possibly we should clear "intended" field if it differs among tied interps?
-	   (random-elt best))
-	  (t (car best)))))
-	
-(defun approx-equal (A B &optional (factor 0.01))
-  "True if A and B are both numbers and are within the given factor of each other"
-  (and (numberp A)
-       (numberp B)
-       (let ((fudge (* a factor)))
-	 (< (- A fudge) B (+ A fudge)))))
-
+  (if candidates
+      (let ((best (reverse (sort candidates #'alist<  :key #'ErrorInterp-order))))
+	;; select the set of optimal interpretations and make a random choice
+	;;
+	;; NOTE: when we choose randomly to break a tie, the "intended" entry may be 
+	;; very unreliable. 
+	;; Ex: solution has three axis rotations, and student picks none.  Three 
+	;; wrong-axis-rotation instances will tie and one will be randomly chosen. 
+	;; This may not be the one nsh would prompt.  Possibly we should clear 
+	;; "intended" field if it differs among tied interps?
+	(random-elt (remove-if
+		     #'(lambda (x) (alist< x (ErrorInterp-order (car best)))) 
+		     best :key #'ErrorInterp-order)))
+      ;; Case where no match was found
+      (make-failed-ErrorInterpretation))
+)
 
 ;;; ---------- Phase 4: Generating the dialog turn --------------------
 
