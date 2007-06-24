@@ -19,9 +19,10 @@
 
 (defun alist< (x y)
   "True if x is less than y, where x and y are alists of class-rank pairs."
-  ;; not very efficient since the assoc of each member is calculated twice
-  (and (some #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (< (cdr xi) (cdr yi))))) x)
-       (or (notany #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (> (cdr xi) (cdr yi))))) x)
+  ;; Not very efficient since the assoc of each member is calculated twice.
+  ;; Since ranks are sometimes calculated via floating point, we use eps<.
+  (and (some #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (eps< (cdr xi) (cdr yi))))) x)
+       (or (notany #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (eps< (cdr yi) (cdr xi))))) x)
 	   ;; There is a question of what to do when the order for x and y is not
 	   ;; well-defined  (different classes indicate different orders).
 	   ;; One can either define x and y to be equivalent or give an error/warning
@@ -29,6 +30,10 @@
 	   ;; (error "Inconsistent order specifications for ~A and ~A" x y)
 	   ))
   )
+
+(defun eps< (x y &key (roundoff 1.0e-8))
+  "Version of < that allows for possible roundoff errors."
+  (unless (< (abs (- x y)) (* roundoff (+ (abs x) (abs y)))) (< x y)))
 
 ;;;;================================ =====================
 ;;;;
