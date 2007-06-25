@@ -2506,6 +2506,7 @@
    (in-wm (magnetic-force-charge ?b ?loc ?t ?source))
    ;; from find-magnetic-force-charge above
    (in-wm (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
+   (in-wm (sign-charge ?b ?pos-or-neg))
    ;; this may require drawing the velocity vector: 
    (in-wm (given (dir (velocity ?b :time ?t)) ?dir-V))
    ;;
