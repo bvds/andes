@@ -556,18 +556,23 @@
 ;;; best one.
 (defun select-error-interpretation (candidates)
   (if candidates
-      (let ((best (reverse (sort candidates #'alist<  :key #'ErrorInterp-order))))
+      (let ((best (ErrorInterp-order (car candidates))))
+	;; Find the largest order specification.
+	(dolist (b (mapcar #'ErrorInterp-order candidates))
+	  (when (alist< best b) (setf best b)))
 	;; select the set of optimal interpretations and make a random choice
 	;;
-	;; NOTE: when we choose randomly to break a tie, the "intended" entry may be 
-	;; very unreliable. 
-	;; Ex: solution has three axis rotations, and student picks none.  Three 
-	;; wrong-axis-rotation instances will tie and one will be randomly chosen. 
+	;; NOTE: when we choose randomly to break a tie, the "intended" entry 
+	;; may be very unreliable. 
+	;; Ex: solution has three axis rotations, and student picks none.  
+	;; Three wrong-axis-rotation instances will tie and one will be 
+	;; randomly chosen. 
 	;; This may not be the one nsh would prompt.  Possibly we should clear 
 	;; "intended" field if it differs among tied interps?
-	(random-elt (remove-if
-		     #'(lambda (x) (alist< x (ErrorInterp-order (car best)))) 
-		     best :key #'ErrorInterp-order)))
+	(random-elt 
+	 (reverse ;for backwards compatibility, useful for log regression tests
+		     (remove-if #'(lambda (x) (alist< x best)) candidates
+				:key #'ErrorInterp-order))))
       ;; Case where no match was found
       (make-failed-error-interpretation))
 )
