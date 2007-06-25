@@ -30,7 +30,7 @@
     (if student 
 	(progn (diagnose student)
 	       (ErrorInterp-Remediation (StudentEntry-ErrInterp student)))
-      (no-ErrorInterpretation))))
+      (no-error-interpretation))))
 
 
 ;;; Given a student entry, returns a error interpretation.  If the
@@ -61,7 +61,7 @@
 	     ((eq state **forbidden**)
 	      (explain-forbidden student))
 	     ((not (eq state **Incorrect**))
-	      (make-failed-ErrorInterpretation))
+	      (make-failed-error-interpretation))
 	     ((and (eq 'eqn (car (StudentEntry-Prop student)))
 		   (not (solver-equation-redp 
 			 (studentEntry-ParsedEqn student))))
@@ -69,7 +69,7 @@
 	     (T	(new-error student)))))))
 
 
-(defun make-failed-ErrorInterpretation (&optional (fn-msg 'no-ErrorInterpretation))
+(defun make-failed-error-interpretation (&optional (fn-msg 'no-error-interpretation))
  "Returns an error interpretaton indicate that Andes could not understand the student's error"
   (make-ErrorInterp
    :intended NIL
@@ -79,7 +79,7 @@
    :order '((expected-utility . 0))))
 
 
-(defun no-ErrorInterpretation ()
+(defun no-error-interpretation ()
   "Returns a hint sequence indicating that Andes can't figure out the student's error."
   (make-hint-seq
    (list (strcat "I cannot determine what's wrong with this entry.  Try "
@@ -96,7 +96,7 @@
 (defun explain-premature-entry (student)
   "Given a premature student entry, return an error interpretation"
   (declare (ignore student))
-  (make-failed-ErrorInterpretation #'ww-premature-entry))
+  (make-failed-error-interpretation #'ww-premature-entry))
 
 (defun ww-premature-entry ()
   "Returns a hint sequence indicating that the student's entry is premature."
@@ -110,7 +110,7 @@
   "Given a premature student entry due to substituting numbers,
    return an error interpretation"
   (declare (ignore student))
-  (make-failed-ErrorInterpretation #'ww-premature-subst))
+  (make-failed-error-interpretation #'ww-premature-subst))
 
 (defun ww-premature-subst ()
   "Returns a hint sequence indicating that the student's entry has numbers in it too early."
@@ -123,7 +123,7 @@
 
 (defun explain-forbidden (student)
   (declare (ignore student))
-  (make-failed-ErrorInterpretation #'ww-forbidden))
+  (make-failed-error-interpretation #'ww-forbidden))
 
 (defun ww-forbidden ()
   (make-hint-seq
@@ -137,7 +137,7 @@
   "If the student's equation balances according to color by number but is not
    a combination of correct primitive equations, then it's not needed for solution"
   (declare (ignore student))
-  (make-failed-ErrorInterpretation #'ww-irrelevant))
+  (make-failed-error-interpretation #'ww-irrelevant))
 
 (defun ww-irrelevant ()
   (make-hint-seq
@@ -171,7 +171,7 @@
 					  (ErrorInterp-order x))) 
 		      (sort (copy-list candidates) #'alist< 
 			    :key #'ErrorInterp-order))))
-    (setf best (select-ErrorInterpretation candidates))
+    (setf best (select-error-interpretation candidates))
     (format *debug-help* "  Choose: ~A~%" (ErrorInterp-test best))
     ;; (format t "Best candidate is ~W" best)
     (setf (ErrorInterp-Remediation best) (generate-ww-turn best))
@@ -554,7 +554,7 @@
 
 ;;; Given a possibly empty set of error interpretations, return the
 ;;; best one.
-(defun select-ErrorInterpretation (candidates)
+(defun select-error-interpretation (candidates)
   (if candidates
       (let ((best (reverse (sort candidates #'alist<  :key #'ErrorInterp-order))))
 	;; select the set of optimal interpretations and make a random choice
@@ -569,7 +569,7 @@
 		     #'(lambda (x) (alist< x (ErrorInterp-order (car best)))) 
 		     best :key #'ErrorInterp-order)))
       ;; Case where no match was found
-      (make-failed-ErrorInterpretation))
+      (make-failed-error-interpretation))
 )
 
 ;;; ---------- Phase 4: Generating the dialog turn --------------------
@@ -696,8 +696,8 @@
 
 (defun trace-wwh ()
   (trace diagnose do-whats-wrong
-	 make-failed-ErrorInterpretation
-	 no-ErrorInterpretation
+	 make-failed-error-interpretation
+	 no-error-interpretation
 	 explain-premature-entry
 	 explain-premature-subst
 	 explain-forbidden
