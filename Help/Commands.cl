@@ -344,10 +344,10 @@
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-force (label type system agent dir mag &optional time id
-                     &key given-mag given-xc given-yc given-z)
+                     &key given-mag given-xc given-yc given-zc)
   (handle-non-eq 
     (on-lookup-force label type system agent dir mag time id
-                     given-mag given-xc given-yc given-z)))
+                     given-mag given-xc given-yc given-zc)))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-torque - check correctness of a torque vector drawn by student
@@ -370,10 +370,10 @@
 ;; Side Effects: Updates state as for other vector entries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lookup-torque (label net body axis dir mag time id
-                      &key given-mag given-xc given-yc given-z)
+                      &key given-mag given-xc given-yc given-zc)
  (handle-non-eq  
    (on-lookup-torque label net body axis dir mag time id
-                     given-mag given-xc given-yc given-z)))
+                     given-mag given-xc given-yc given-zc)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with
