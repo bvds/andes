@@ -194,7 +194,7 @@
     r))
 
 (defun check-err-conds (test student)
-  (check-err-conditions test student (entry-test-conditions test)))
+  (check-err-conditions test student (entry-test-preconditions test)))
 
 ;;; given a student entry and an error class, returns a list of error
 ;;; interpreations, one for each way of making the conditions of the
@@ -214,9 +214,9 @@
    ((null conditions)
     (list (make-ErrorInterp
 	   ;; Maybe just put the entry-test struct itself here?
-	   :test (entry-test-name eh)
+	   :test (subst-bindings bindings (entry-test-name eh))
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
-	   :correct (eval (subst-bindings bindings (entry-test-correct eh)))
+	   :correct (subst-bindings bindings (entry-test-correct eh))
 	   :intended sy
 	   ;; evaluate the cdr of each pair as a lisp expression
 	   :order (mapcar #'(lambda (pair) 

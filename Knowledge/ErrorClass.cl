@@ -14,8 +14,8 @@
 ;;
 
 (defstruct entry-test
-  Name        ;atom
-  Conditions  ;ordered list of conditons (see whatswrong.cl)
+  Name        ;unique identifier of an instance of a test
+  preconditions  ;ordered list of conditons (see whatswrong.cl)
               ;this determines a match
   apply       ;Conditions of application
 					;no-match:  use after no match found
@@ -31,10 +31,15 @@
 (defun clear-entry-tests ()
   (setf **entry-tests** nil))
 
+;;;
+;;;  Make tests associated with errors.  This is mostly
+;;;  for backwards compatibility.
+;;;
+
 (defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) 
 				(Utility 1.0))
-  `(push (make-entry-test :name (quote ,name)
-			   :conditions (quote ,conditions)
+  `(push (make-entry-test :name (quote ,(cons name arguments))
+			   :preconditions (quote ,conditions)
 			   :apply 'no-match
 			   :correct nil  ;never matches for errors
 			   :hint (quote ,(cons name arguments))
@@ -48,12 +53,13 @@
 ;;;
 
 
-(defmacro def-entry-test (name &key conditions apply correct hint
-			       (order '((global 1))))
-  (when (find name **entry-tests** :key #'entry-test-name)
+(defmacro def-entry-test (name arguments &key preconditions apply correct hint
+			       (order '((global . 1))))
+  (when (member (cons name arguments) **entry-tests** 
+		:key #'entry-test-name :test #'unify)
     (error "entry test ~A already exists." name))
-  (let ((e (make-entry-test :name name
-			    :conditions conditions  
+  (let ((e (make-entry-test :name (cons name arguments)
+			    :preconditions preconditions  
 			    :apply apply
 			    :correct correct
 			    :hint `(make-hint-seq ,hint) 
