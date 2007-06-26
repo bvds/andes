@@ -220,7 +220,7 @@
       #'andes2-prob))
       
 ;;; list all possible entries for given problem. 
-(defun show-entries(probname &optional (dest T))
+(defun show-entries (probname &optional (dest T))
  (read-problem-info probname) ; will do sg-setup
  (dolist (e *sg-entries*) 
    (format dest "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)

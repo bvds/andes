@@ -40,7 +40,7 @@
   (mass angle coef-friction coef-drag-turbulent duration 
 	gravitational-acceleration))
 (def-feature-set changing-mass (mass mass-change-magnitude))
-(def-feature-set circular (mass revolution-radius period duration angle)) 
+(def-feature-set circular (mass revolution-radius period duration angle 3D)) 
 (def-feature-set energy 
   (energy-set work-set mass duration power compression 
 		   spring-constant height gravitational-acceleration))
@@ -52,11 +52,11 @@
 	    db-intensity net-db-intensity))
 (def-feature-set linmom (energy-set mass duration))
 (def-feature-set rotkin 
-  (mass revolution-radius period duration angle moment-of-inertia))
+  (mass revolution-radius period duration angle moment-of-inertia 3D))
 (def-feature-set angmom 
-  (mass period duration angle moment-of-inertia))
+  (mass period duration angle moment-of-inertia 3D))
 (def-feature-set torque 
-  (mass period duration angle moment-of-inertia))
+  (mass period duration angle moment-of-inertia 3D))
 (def-feature-set circuits 
   (electric-power current voltage resistance capacitance charge-on 
 		  stored-energy self-inductance mutual-inductance 
@@ -65,6 +65,7 @@
   (charge-on current potential duration length turns turns-per-length angle 
 	     electric-flux magnetic-flux electric-flux-change 
 	     magnetic-flux-change mass-per-length))
+(def-feature-set mag (3D))
 (def-feature-set number-of-particles
   (charge-on mass number-of))
 (def-feature-set gauss
