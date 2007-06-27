@@ -532,22 +532,24 @@
 (defun expected-utility-given-context (ei)
   "Given an error interpretation, returns its expected utility given the way its 
    interpretation fits into the current solution state."
-  (let ((prob (cdr (assoc 'expected-utility (ErrorInterp-order ei))))
-	(state (ErrorInterp-state ei)))
+  (let* ((expu (assoc 'expected-utility (ErrorInterp-order ei)))
+	 (prob (cdr expu))
+	 (state (ErrorInterp-state ei)))
     (cond 
-     ;; There is only a small chance that a student would mistakenly
+      ;; There is only a small chance that a student would mistakenly
       ;; define a quantity they have already defined *and* do it incorrectly.
       ;; This must distiguish between error interpretations that have vastly
       ;; different utilities.
-     ((eq state **done-already**)
-      (setq prob (* prob 0.05)))
-     ((eq state **premature-entry**)
-      (setq prob (* prob 0.3)))
-     ((eq state **premature-subst**)
-      (setq prob (* prob 0.3)))
-     ((eq state **dead-path**)
-      (setq prob (* prob 0.001)))))
-)
+      ((eq state **done-already**)
+       (setq prob (* prob 0.05)))
+      ((eq state **premature-entry**)
+       (setq prob (* prob 0.3)))
+      ((eq state **premature-subst**)
+       (setq prob (* prob 0.3)))
+      ((eq state **dead-path**)
+       (setq prob (* prob 0.001))))
+    (setf (cdr expu) prob)
+    ))
      
 
 ;;; -------- Phase 3: Selecting an error interpretation -------------
