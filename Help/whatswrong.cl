@@ -167,8 +167,7 @@
     ;; (format t "Contextualized Candidates are: ~% ~a~%" candidates)
     (when (cdr candidates) ; trace conflicts, so we can vet the results
       (format *debug-help* "  Error candidates: ~W~%" 
-	      (mapcar #'(lambda (x) (list (ErrorInterp-name x)
-(mapcar #'SystemEntry-prop (ErrorInterp-intended x))
+	      (mapcar #'(lambda (x) (cons (ErrorInterp-name x)
 					  (ErrorInterp-order x))) 
 		      (sort (copy-list candidates) #'alist< 
 			    :key #'ErrorInterp-order))))
@@ -214,7 +213,6 @@
   (cond
    ((null conditions)
     (list (make-ErrorInterp
-	   ;; Maybe just put the entry-test struct itself here?
 	   :test (subst-bindings bindings (entry-test-name eh))
 	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
 	   :correct (subst-bindings bindings (entry-test-correct eh))
