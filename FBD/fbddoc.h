@@ -130,7 +130,7 @@ public:
 	void AddConceptsToFeatures();	// for old-style docs, sets feature list from concepts
 
 	// whether to present choices for Z Axis vectors:
-	BOOL	UseZAxis() { return m_wConcept & (ID_PROB_ROTKINEMATICS | ID_PROB_CIRCMOTION | ID_PROB_EM); }
+	BOOL	UseZAxis(); 
 
 	CString		m_strCreator;		// Solution files: id of student who created it
 

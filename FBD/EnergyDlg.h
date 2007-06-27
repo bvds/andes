@@ -10,6 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // CEnergyDlg dialog
 #include "DrawObjDlg.h"
+#include "EQEdit.h"
 
 class CEnergyDlg : public CDrawObjDlg
 {
@@ -30,7 +31,7 @@ public:
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
 	CLogBtn	m_btnUnknown;
-	CLogEdit m_editValue;
+	CEQRichEdit m_editValue;
 	CStatic	m_stcLet;
 	CStatic	m_stcPE;
 	CLogBtn	m_btnOk;

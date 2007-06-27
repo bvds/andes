@@ -75,6 +75,8 @@ BOOL CVoltageDlg::OnInitDialog()
 		m_editName.ShowWindow(SW_HIDE);
 		Remove(IDC_BOX_LABEL);
 		SetWindowText("Define Sought");
+	} else {
+		m_editValue.SetEventMask(ENM_CHANGE);
 	}
 
 	// no time unless changing circuit
@@ -96,7 +98,7 @@ void CVoltageDlg::InitVariableDlg()
 	m_cboComponent.SelectStringExact(pVar->m_strObject);
 	m_cboTime.SelectStringExact(pVar->m_strTime);
 	// Transfer given value/unknown bit from controls to variable
-	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	m_editValue.SetRichEditText(((CVariable*)m_pTempObj)->m_strValue);
 	// sync unknown check box with value
 	OnChangeGivenValue();
 }
@@ -111,7 +113,7 @@ void CVoltageDlg::UpdateTempVariable()
 	pTempVar->m_strTime = GetCurString(&m_cboTime);
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	CString strValue;
-	m_editValue.GetWindowText(strValue);
+	m_editValue.GetRichEditText(strValue);
 	((CVariable*)m_pTempObj)->m_strValue= strValue;
 	
 	// for vars, also need to set variable quant type and definition strings

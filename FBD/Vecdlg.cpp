@@ -131,6 +131,9 @@ BOOL CVectorDlg::OnInitDialog()
 			// Hide old direction controls
 			Remove(IDC_BOX_TIMEDIR);
 			
+	} else {
+		Remove(IDC_STATIC_PLACEHOLDER);
+		m_pDlgValues = NULL;
 	}
 	
 	// Base class will load mapped data member values 
@@ -441,8 +444,7 @@ void CVectorDlg::OnChangeVectorNameText()
 
 	UpdateComponents();	
 
-	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
-
+	if (m_pDlgValues) m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }
 
 void CVectorDlg::OnNetbtn() 

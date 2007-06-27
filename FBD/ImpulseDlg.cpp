@@ -100,6 +100,9 @@ BOOL CImpulseDlg::OnInitDialog()
 				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
 
 			Remove(IDC_BOX_TIMEDIR);
+	} else {
+		Remove(IDC_STATIC_PLACEHOLDER);
+		m_pDlgValues = NULL;
 	}
 	
 	// Base class inits lists via DDX. Calls InitDlg=>InitObjectDlg/InitVarDlg 
@@ -295,5 +298,5 @@ void CImpulseDlg::OnChangeVectorNameText()
 	
 	// TODO: Add your control notification handler code here
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
-	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
+	if (m_pDlgValues) m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }

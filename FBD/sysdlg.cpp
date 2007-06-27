@@ -1,6 +1,6 @@
 // SystemDlg.cpp : implementation file
 // 
-// $Id: sysdlg.cpp,v 1.4 2006/12/21 18:30:40 anders Exp $
+// $Id: sysdlg.cpp,v 1.5 2007/06/27 01:53:03 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -80,7 +80,7 @@ BOOL CSystemDlg::OnInitDialog()
 		m_cboTimeList.ShowWindow(SW_HIDE);
 		m_stcTimeList.ShowWindow(SW_HIDE);
 		//remove space taken by these hidden controls
-		Remove(IDC_BOX_TIMEDIR);
+		Remove(IDC_BOX_TIME);
 	}
 
 	// set initial choice values 

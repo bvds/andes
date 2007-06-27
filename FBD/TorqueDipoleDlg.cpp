@@ -6,7 +6,7 @@
 #include "history.h"
 #include "FBDDoc.h"
 #include "FBDObj.h"
-#include "TorqueDlg.h"
+#include "TorqueDipoleDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -14,16 +14,16 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-static const char szNet[] = "Net";	// m_strForceType value for Net Torque
+static const char szDipole[] = "Dipole";	// m_strForceType value for Dipole Torque
 
 /////////////////////////////////////////////////////////////////////////////
-// CTorqueDlg dialog
+// CTorqueDipoleDlg dialog
 
 
-CTorqueDlg::CTorqueDlg(CDrawObj* pObj/*= NULL*/, CWnd* pParent /*=NULL*/)
-	: CDrawObjDlg(CTorqueDlg::IDD, pObj, pParent)
+CTorqueDipoleDlg::CTorqueDipoleDlg(CDrawObj* pObj/*= NULL*/, CWnd* pParent /*=NULL*/)
+	: CDrawObjDlg(CTorqueDipoleDlg::IDD, pObj, pParent)
 {
-	//{{AFX_DATA_INIT(CTorqueDlg)
+	//{{AFX_DATA_INIT(CTorqueDipoleDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	//}}AFX_DATA_INIT
 
@@ -31,18 +31,16 @@ CTorqueDlg::CTorqueDlg(CDrawObj* pObj/*= NULL*/, CWnd* pParent /*=NULL*/)
 }
 
 
-void CTorqueDlg::DoDataExchange(CDataExchange* pDX)
+void CTorqueDipoleDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
-	//{{AFX_DATA_MAP(CTorqueDlg)
+	//{{AFX_DATA_MAP(CTorqueDipoleDlg)
 	DDX_Control(pDX, IDC_LVECTOR_NAME_TEXT, m_stcLet);
 	DDX_Control(pDX, IDC_LANGLE, m_stcVecAng1);
 	DDX_Control(pDX, IDC_ANGLE, m_stcVecAng);
 	DDX_Control(pDX, IDC_COMP, m_stcComp);
 	DDX_Control(pDX, IDC_L2ANGLE, m_stcVecAng2);
 	DDX_Control(pDX, IDC_TIME_LABEL, m_stcTimeList);
-	DDX_Control(pDX, IDC_NETBTN, m_btnNet);
-	DDX_Control(pDX, IDC_FORCEBTN, m_btnForce);
 	DDX_Control(pDX, IDC_TIME_TEXT, m_cboTimeList);
 	DDX_Control(pDX, IDC_ORIENTATION_TEXT, m_editOrientation);
 	DDX_Control(pDX, IDC_DIRECTION_SPIN, m_spinDir);
@@ -50,16 +48,14 @@ void CTorqueDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDOK, m_Ok);
 	DDX_Control(pDX, IDCANCEL, m_Cancel);
 	DDX_Control(pDX, IDC_ZDIR, m_cboZDir);
-	DDX_Control(pDX, IDC_BODY_TEXT2, m_cboForcePt);
+	DDX_Control(pDX, IDC_BODY_TEXT2, m_cboField);
 	DDX_Control(pDX, IDC_BODY_TEXT, m_cboBody);
-	DDX_Control(pDX, IDC_AGENT, m_cboAgent);
 	//}}AFX_DATA_MAP
 	//Fill dialog boxes with data from doc (string lists)
 	DDX_FillList(pDX, IDC_BODY_TEXT, &m_pDocument->m_strObjects);
 	DDX_AddCompoundBodies(pDX, IDC_BODY_TEXT, &m_pDocument->m_objects);
-	DDX_FillList(pDX, IDC_BODY_TEXT2, &m_pDocument->m_strObjects);
-	// Force pts in body2 don't need compound bodies
-	DDX_FillList(pDX, IDC_AGENT, &m_pDocument->m_strObjects);
+	// Second arg is list of student-named field vectors.
+	DDX_AddFieldVectors(pDX, IDC_BODY_TEXT2, &m_pDocument->m_objects);
 	DDX_FillList(pDX, IDC_TIME_TEXT, &m_pDocument->m_strTimes);
 	DDX_AddUserTimes(pDX, IDC_TIME_TEXT, &m_pDocument->m_Variables);
 
@@ -69,34 +65,31 @@ void CTorqueDlg::DoDataExchange(CDataExchange* pDX)
 	CDrawObjDlg::DoDataExchange(pDX);
 }
 
-BEGIN_CTL_TBL(CTorqueDlg)
+BEGIN_CTL_TBL(CTorqueDipoleDlg)
 	"name",		IDC_CUSTOM_LABEL,
 	"time",		IDC_TIME_TEXT,
-	"body",		IDC_BODY_TEXT,		// for net torque
-	"force-pt",	IDC_BODY_TEXT2,		// for individual torque !!! helpsys will send "body"
-	"axis",		IDC_AGENT,
+	"body",		IDC_BODY_TEXT,		
+	"field",	IDC_BODY_TEXT2,		
 	"dir",		IDC_ORIENTATION_TEXT,
 	"zdir",		IDC_ZDIR,
 	"OK",		IDOK,
 	"Cancel",	IDCANCEL,
-END_CTL_TBL(CTorqueDlg)
+END_CTL_TBL(CTorqueDipoleDlg)
 
-BEGIN_MESSAGE_MAP(CTorqueDlg, CDrawObjDlg)
-	//{{AFX_MSG_MAP(CTorqueDlg)
+BEGIN_MESSAGE_MAP(CTorqueDipoleDlg, CDrawObjDlg)
+	//{{AFX_MSG_MAP(CTorqueDipoleDlg)
 	ON_CBN_SELCHANGE(IDC_ZDIR, OnSelchangeZdir)
-	ON_BN_CLICKED(IDC_NETBTN, OnUpdateNet)
-	ON_BN_CLICKED(IDC_FORCEBTN, OnUpdateNet)
 	ON_EN_CHANGE(IDC_CUSTOM_LABEL, OnChangeVectorNameText)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
-// CTorqueDlg message handlers
+// CTorqueDipoleDlg message handlers
 
-BOOL CTorqueDlg::OnInitDialog() 
+BOOL CTorqueDipoleDlg::OnInitDialog() 
 {
 	//LogEventf(EV_TORQUE_DLG, "%s |%s|",m_pObj->m_strId, m_pObj->m_strName);
-	
+
 	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CVector)) && ! m_bSought) {
 			// create vector value sub-dialog and place it
 			m_pDlgValues = new CValueDlg((CVector*)m_pTempObj, this);
@@ -112,8 +105,10 @@ BOOL CTorqueDlg::OnInitDialog()
 		Remove(IDC_STATIC_PLACEHOLDER);
 		m_pDlgValues = NULL;
 	}
+		
 	// Base class inits lists via DDX. Calls InitDlg/InitObjectDlg to init values
 	CDrawObjDlg::OnInitDialog();
+
 
 	// Adjust visibility of controls here
 	
@@ -137,7 +132,6 @@ BOOL CTorqueDlg::OnInitDialog()
 
 
 	// Time choice: hide for static problems (no time list)
-	// !!! never happens anymore. All problems have at least one default time point
 	if (m_pDocument->m_strTimes.IsEmpty()) {
 		m_cboTimeList.ShowWindow(SW_HIDE);
 		m_stcTimeList.ShowWindow(SW_HIDE);
@@ -154,35 +148,31 @@ BOOL CTorqueDlg::OnInitDialog()
 		m_stcVecAng2.ShowWindow(SW_HIDE);
 		Remove(IDC_BOX_TIMEDIR);	// take out row moving following ctrls up
 	} else if (m_pDocument->UseZAxis()) {
-		m_cboZDir.ShowWindow(SW_SHOWNORMAL);
+		// m_cboZDir.ShowWindow(SW_SHOWNORMAL);
 	}
+
+	// make sure we have some field choices
+	if (m_cboField.GetCount() < 1) {
+		theApp.DoWarningMessage("You must draw a field vector before the torque due to the field can be defined", this);
+		// Don't know how to safely cancel the dialog at this point, so try to
+		// queue up a cancel button click for ourselves.
+		PostMessage(WM_COMMAND, MAKELONG(IDCANCEL, BN_CLICKED));
+	}
+
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-// !!! Also need to support using for non-drawn torque variable !!!
+// NB: Also need to support using for non-drawn torque variable
 // Will happen when defining sought quantity. 
 
-void CTorqueDlg::InitObjectDlg()	// Set Control values from temp object
+void CTorqueDipoleDlg::InitObjectDlg()	// Set Control values from temp object
 {
 	CVector* pVec = (CVector*)m_pTempObj;
 
-	// Init Net vs. Individual button:
-	BOOL bNet = ! pVec->m_strForceType.IsEmpty();
-	m_btnNet.SetCheck(bNet);
-	m_btnForce.SetCheck(! bNet);
-	OnUpdateNet();
-
-	if (bNet){// Net Torque
-		// Body is body;
-		m_cboBody.SelectStringExact(pVec->m_strBody);
-	} else {	// individual torque
-		// body is force point, 
-		m_cboForcePt.SelectStringExact(pVec->m_strBody);
-	}
-	// agent is axis
-	m_cboAgent.SelectStringExact(pVec->m_strAgent);
+	m_cboBody.SelectStringExact(pVec->m_strBody);
+	m_cboField.SelectStringExact(pVec->m_strAgent);
 	m_cboTimeList.SelectStringExact(pVec->m_strTime);
 	m_pDlgValues->TransferValues(FALSE);
 
@@ -207,42 +197,23 @@ void CTorqueDlg::InitObjectDlg()	// Set Control values from temp object
 	}
 }
 
-void CTorqueDlg::InitVariableDlg()
+void CTorqueDipoleDlg::InitVariableDlg()
 {
 	CVariable* pVar = (CVariable*)m_pTempObj;
 	SetWindowText("Variable definition");
 
-	// Init Net vs. Individual button:
-	BOOL bNet = ! pVar->m_strForceType.IsEmpty();
-	m_btnNet.SetCheck(bNet);
-	m_btnForce.SetCheck(! bNet);
-	OnUpdateNet();
-
-	if (bNet){// Net Torque
-		// Body is body;
-		m_cboBody.SelectStringExact(pVar->m_strObject);
-	} else {	// individual torque
-		// body is force point, 
-		m_cboForcePt.SelectStringExact(pVar->m_strObject);
-	}
-	// agent is axis
-	m_cboAgent.SelectStringExact(pVar->m_strAgent);
+	m_cboBody.SelectStringExact(pVar->m_strObject);
+	m_cboField.SelectStringExact(pVar->m_strObject);
 	m_cboTimeList.SelectStringExact(pVar->m_strTime);
 }
 
-void CTorqueDlg::UpdateTempVector() // Update Temp object from control values
+void CTorqueDipoleDlg::UpdateTempVector() // Update Temp object from control values
 {
 	 CVector* pTempVec = (CVector*) m_pTempObj;
-
-	 if (m_btnNet.GetCheck()) {
-		 pTempVec->m_strBody = GetCurString(&m_cboBody);
-		 pTempVec->m_strForceType = szNet;
-	 } else {
-		 pTempVec->m_strBody = GetCurString(&m_cboForcePt);
-		 pTempVec->m_strForceType.Empty();
-		 
-	 }
-	 pTempVec->m_strAgent = GetCurString(&m_cboAgent);
+	 
+	 pTempVec->m_strForceType = szDipole;
+	 pTempVec->m_strBody = GetCurString(&m_cboBody);
+	 pTempVec->m_strAgent= GetCurString(&m_cboField);	
 	 pTempVec->m_strTime = GetCurString(&m_cboTimeList);
 	
 	 m_editOrientation.GetWindowText(pTempVec->m_strOrientation);
@@ -256,18 +227,13 @@ void CTorqueDlg::UpdateTempVector() // Update Temp object from control values
 	m_editName.GetRichEditText(pTempVec->m_strName);
 }
 
-void CTorqueDlg::UpdateTempVariable()
+void CTorqueDipoleDlg::UpdateTempVariable()
 {
 	CVariable * pTempVar = (CVariable*) m_pTempObj;
 
-	if (m_btnNet.GetCheck()) {
-		 pTempVar->m_strObject = GetCurString(&m_cboBody);
-		 pTempVar->m_strForceType = szNet;
-	} else {
-		 pTempVar->m_strObject = GetCurString(&m_cboForcePt);
-		 pTempVar->m_strForceType.Empty();
-	}
-	pTempVar->m_strAgent = GetCurString(&m_cboAgent);
+	pTempVar->m_strForceType = szDipole;
+	pTempVar->m_strObject = GetCurString(&m_cboBody);
+	pTempVar->m_strAgent = GetCurString(&m_cboField);
 	pTempVar->m_strTime = GetCurString(&m_cboTimeList);
 	m_editName.GetRichEditText(pTempVar->m_strName);
 	
@@ -276,27 +242,20 @@ void CTorqueDlg::UpdateTempVariable()
 	CString strTime;
 	if (! pTempVar->m_strTime.IsEmpty())
 		strTime = " at time " + pTempVar->m_strTime;
-	if (pTempVar->m_strForceType.IsEmpty()) {
-		pTempVar->m_strDef = "Torque about " + pTempVar->m_strAgent + 
-				             " from force at " + pTempVar->m_strObject + strTime;
-	} else {
-		pTempVar->m_strDef = "Net Torque on " + pTempVar->m_strObject + strTime;
-	}
+
+	pTempVar->m_strDef = "Torque on " + pTempVar->m_strObject +  
+				         " due to " + pTempVar->m_strAgent + strTime;
 }
 
-void CTorqueDlg::OnOK()		// Check on Ok and update if correct.
+void CTorqueDipoleDlg::OnOK()		// Check on Ok and update if correct.
 {
 	// Make sure all visible controls filled in	
 	if (IsEmpty(&m_cboBody)) {
 		theApp.DoWarningMessage("Please select a body", this);
 		return;
 	}
-	if (IsEmpty(&m_cboForcePt)) {
-		theApp.DoWarningMessage("Please select the point of application of the force", this);
-		return;
-	}
-	if (IsEmpty(&m_cboAgent)) {
-		theApp.DoWarningMessage("Please select the rotation axis", this);
+	if (IsEmpty(&m_cboField)) {
+		theApp.DoWarningMessage("Please select the field giving rise to the torque", this);
 		return;
 	}
 	if (IsEmpty(&m_cboTimeList)) {
@@ -330,7 +289,7 @@ void CTorqueDlg::OnOK()		// Check on Ok and update if correct.
 	CDrawObjDlg::OnOK();	
 }
 
-void CTorqueDlg::OnSelchangeZdir() 
+void CTorqueDipoleDlg::OnSelchangeZdir() 
 {
 	int nZDir = m_cboZDir.GetCurSel();
 	if (nZDir < 0 || nZDir > ZDIR_MAX) return;
@@ -356,21 +315,8 @@ void CTorqueDlg::OnSelchangeZdir()
 	UpdateComponents();
 }
 
-void CTorqueDlg::OnUpdateNet()
-{
-	BOOL bNet = m_btnNet.GetCheck();
-	// hairy: we don't just enable relevant control, but also set child control id on 
-	// active choice box to IDC_BODY_TEXT, using IDC_BODY_TEXT2 for the other one.
-	// This is done so control table will map "body" slot name from helpsys on errors
-	// to the right dialog control, specified child control ID.
-	m_cboBody.EnableWindow(bNet);
-	m_cboBody.SetDlgCtrlID( bNet ? IDC_BODY_TEXT : IDC_BODY_TEXT2);
-	
-	m_cboForcePt.EnableWindow(! bNet);
-	m_cboForcePt.SetDlgCtrlID( ! bNet ? IDC_BODY_TEXT : IDC_BODY_TEXT2);
-}
 
-void CTorqueDlg::OnChangeVectorNameText() 
+void CTorqueDipoleDlg::OnChangeVectorNameText() 
 {
 	// TODO: If this is a RICHEDIT control, the control will not
 	// send this notification unless you override the CDrawObjDlg::OnInitDialog()
@@ -382,7 +328,7 @@ void CTorqueDlg::OnChangeVectorNameText()
 	if (m_pDlgValues) m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }
 
-void CTorqueDlg::UpdateComponents()
+void CTorqueDipoleDlg::UpdateComponents()
 {
 	// copied from general vector dialog, not all needed for torque
 	if (m_bSought || m_bProp)

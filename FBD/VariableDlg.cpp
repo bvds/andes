@@ -223,6 +223,8 @@ BOOL CVariableDlg::OnInitDialog()
 		if 	(nType != ID_VARIABLE_ADDTIME) {
 			UpdatePlanStrings(&m_cboBody);
 		}
+	} else {
+		m_editValue.SetEventMask(ENM_CHANGE);
 	}
 		
 	// Adjust controls and labels based on main quantity type
@@ -406,7 +408,7 @@ void CVariableDlg::InitVariableDlg()
 	m_cboTime.SelectStringExact(pTempVar->m_strTime) ;
 	m_cboSubtype.SelectStringExact(pTempVar->m_strForceType);
 	// Transfer given value/unknown bit from controls to variable
-	m_editValue.SetWindowText(pTempVar->m_strValue);
+	m_editValue.SetRichEditText(pTempVar->m_strValue);
 	OnChangeGivenValue();	// to sync unknown check box with value
 }
 
@@ -422,7 +424,7 @@ void CVariableDlg::UpdateTempVariable()
 	pTempVar->m_strAgent = GetCurString(&m_cboAgent);
 	pTempVar->m_strTime = GetCurString(&m_cboTime);
 	pTempVar->m_strForceType = GetCurString(&m_cboSubtype);
-	m_editValue.GetWindowText(pTempVar->m_strValue);	
+	m_editValue.GetRichEditText(pTempVar->m_strValue);	
 	m_editName.GetRichEditText(pTempVar->m_strName);
 }
 
@@ -602,7 +604,7 @@ void CVariableDlg::OnChangeGivenValue()
 	// with the ENM_CHANGE flag ORed into the mask.
 	
 	CString strText;
-	m_editValue.GetWindowText(strText);
+	m_editValue.GetRichEditText(strText);
 	strText.Remove(' ');
 	m_btnUnknown.SetCheck(strText.IsEmpty());
 }

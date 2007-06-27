@@ -105,6 +105,9 @@ BOOL CRelVelDlg::OnInitDialog()
 				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
 
 			Remove(IDC_BOX_TIMEDIR);
+	} else {
+		Remove(IDC_STATIC_PLACEHOLDER);
+		m_pDlgValues = NULL;
 	}
 	// Base class inits lists via DDX. Calls InitDlg=>InitObjectDlg/InitVarDlg 
 	// to transfer values from tempobj to controls.

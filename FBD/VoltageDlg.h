@@ -8,6 +8,7 @@
 //
 
 #include "DrawObjDlg.h"
+#include "EQEdit.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CVoltageDlg dialog
@@ -25,7 +26,7 @@ public:
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
 	CLogBtn	m_btnUnknown;
-	CLogEdit m_editValue;
+	CEQRichEdit m_editValue;
 	CStatic	m_stcLet;
 	CLogCombo	m_cboTime;
 	CLogCombo	m_cboComponent;

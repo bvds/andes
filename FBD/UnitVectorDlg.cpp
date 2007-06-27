@@ -111,6 +111,9 @@ BOOL CUnitVectorDlg::OnInitDialog()
 			ScreenToClient(rcValues);
 			m_pDlgValues->SetWindowPos( NULL, rcValues.left + 7, rcValues.top + 7, 0, 0,
 				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
+	} else {
+		Remove(IDC_STATIC_PLACEHOLDER);
+		m_pDlgValues = NULL;
 	}
 */	
 	// Base class inits lists via DDX. Calls InitDlg=>InitObjectDlg/InitVarDlg 
@@ -372,5 +375,5 @@ void CUnitVectorDlg::OnChangeVectorNameText()
 	
 	// TODO: Add your control notification handler code here
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
-	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
+	if (m_pDlgValues) m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }

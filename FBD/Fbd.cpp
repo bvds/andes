@@ -43,6 +43,7 @@
 #include "PictCtrl.h"
 #include "VideoDlg.h"
 #include "OliView.h"
+#include "DocManagerEx.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -231,7 +232,9 @@ void CFBDApp::DoExport(CString strFbdFileName)
 
 /////////////////////////////////////////////////////////////////////////////
 // CFBDApp initialization
-    
+
+
+
 BOOL CFBDApp::InitInstance()
 {
 	// Before anything else, see if there's another instance running. If so, 
@@ -308,6 +311,11 @@ BOOL CFBDApp::InitInstance()
    	LoadStdProfileSettings();   // Load standard INI file options (including MRU)
    	LoadAndesSettings();		// Load our app-specific settings.
 	InitVersion();				// get the fixed product version info
+
+	// CDocManager is an internal MFC class considered an "advanced overridable".
+	// We set a custom doc manager to let us override MFC's built-in registration
+	// See MS KB Article ID : 198538 
+	m_pDocManager = new CDocManagerEx();
     	
    	// Register the application's document templates.  
 	// NOTE: document type icons are registered with the shell as indices into the exe's resources.

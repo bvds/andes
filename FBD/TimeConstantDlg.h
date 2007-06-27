@@ -9,6 +9,7 @@
 //
 
 #include "DrawObjDlg.h"
+#include "EQEdit.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CTimeConstantDlg dialog
@@ -26,7 +27,7 @@ public:
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
 	CLogBtn	m_btnUnknown;
-	CLogEdit m_editValue;
+	CEQRichEdit m_editValue;
 	CStatic	m_stcInstructions;
 	CStatic	m_stcLet;
 	CLogList	m_listBodies;

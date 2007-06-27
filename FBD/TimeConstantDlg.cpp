@@ -73,6 +73,8 @@ BOOL CTimeConstantDlg::OnInitDialog()
 		m_editName.ShowWindow(SW_HIDE);
 		Remove(IDC_BOX_LABEL);
 		SetWindowText("Define Sought");
+	} else {
+		m_editValue.SetEventMask(ENM_CHANGE);
 	}
 
 	m_listBodies.SetFocus();
@@ -97,7 +99,7 @@ void CTimeConstantDlg::InitVariableDlg()
 	}
 
 	// Transfer given value/unknown bit from controls to variable
-	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	m_editValue.SetRichEditText(((CVariable*)m_pTempObj)->m_strValue);
 	// sync unknown check box with value
 	OnChangeGivenValue();
 }
@@ -124,7 +126,7 @@ void CTimeConstantDlg::UpdateTempVariable()
 	m_editName.GetRichEditText(pVar->m_strName);
 
 	CString strValue;
-	m_editValue.GetWindowText(strValue);
+	m_editValue.GetRichEditText(strValue);
 	((CVariable*)m_pTempObj)->m_strValue= strValue;
 	
 	// for vars, also need to set variable quant type and definition strings

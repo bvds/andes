@@ -43,7 +43,7 @@ public:
 	CButton	m_stcGiven;
 	CStatic	m_stcOr;
 	CLogBtn	m_btnUnknown;
-	CLogEdit m_editValue;
+	CEQRichEdit m_editValue;
 	CLogCombo	m_cboAngular;
 	CStatic	m_txtDescription;
 	CStatic	m_stcBody;

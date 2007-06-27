@@ -115,6 +115,8 @@ BOOL CEnergyDlg::OnInitDialog()
 			SetWindowText("Define Property");
 		}
 		UpdatePlanStrings(&m_cboBody);
+	} else {
+		m_editValue.SetEventMask(ENM_CHANGE);
 	}
 	
 	// Adjust for appropriate type
@@ -134,7 +136,7 @@ void CEnergyDlg::InitVariableDlg()
 	m_cboTime.SelectStringExact(((CVariable*)m_pTempObj)->m_strTime) ;
 	m_cboEnergyType.SelectStringExact(((CVariable*)m_pTempObj)->m_strForceType) ;
 	// Transfer given value/unknown bit from controls to variable
-	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	m_editValue.SetRichEditText(((CVariable*)m_pTempObj)->m_strValue);
 	// sync unknown check box with value
 	OnChangeGivenValue();
 }
@@ -191,7 +193,7 @@ void CEnergyDlg::UpdateTempVariable()
 	((CVariable*)m_pTempObj)->m_strForceType = GetCurString(&m_cboEnergyType);
 	((CVariable*)m_pTempObj)->m_strQuantName = "Energy";
 	CString strValue;
-	m_editValue.GetWindowText(strValue);
+	m_editValue.GetRichEditText(strValue);
 	((CVariable*)m_pTempObj)->m_strValue= strValue;
 
 	CString str;

@@ -64,6 +64,8 @@ END_MESSAGE_MAP()
 // Need special care to enable input to the current popup window (m_hWndCtrl) which
 // may be the dropdown list for a combo box or a popup definition in the hint window.
 //
+BOOL AFXAPI AfxIsDescendant(HWND hWndParent, HWND hWndChild); // MFC internal func
+
 int CCheckedDlg::DoModalWithHints()
 {
 	// Flag that dialog is running as modeless (with hints) for OK/Cancel processing.
@@ -112,32 +114,33 @@ int CCheckedDlg::DoModalWithHints()
 		// intercept custom popup def notification to remember hwnd of current popup
 		if (msg.message == WM_POPUPDEF) 
 			m_hwndCtrl = (HWND) msg.lParam;
-
-		// ignore messages for windows other than dialog or hint
-		if (!IsDialogMessage(&msg))	// msg not handled by this dialog
+	
+		// ignore input messages for windows other than current dialog, its descendants,
+		// hint window, or currently active popup (remembered in m_hWnd):
+		if (! (
+			    (::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd))
+				|| (m_hwndCtrl && (msg.hwnd == m_hwndCtrl))	// current popup wnd
+				|| (msg.hwnd == hwndHint) 					// hint wnd
+			   ))
 		{
-			if (! (   (msg.hwnd == m_hWnd)						// this dlg 
-				   || (::IsChild(m_hWnd, msg.hwnd))				// child of this dlg
-				   || (m_hwndCtrl && (msg.hwnd == m_hwndCtrl))	// current popup wnd
-				   || (msg.hwnd == hwndHint) ) )				// hint wnd
-			{
-				// For all other windows: ignore all key and mouse strokes 
-				if ((msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST) 
+			// not for an allowed window: ignore all key and mouse strokes 
+			if ((msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST) 
 				 || (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST) 
 				 || (msg.message >= WM_NCMOUSEMOVE && msg.message <= WM_NCMBUTTONDBLCLK)
 				 /* No good, MOUSEACTIVATE is *sent* to wndproc, not posted to msg queue!
 				 || (msg.message == WM_MOUSEACTIVATE) */) {
-					continue;	// eat message without processing
-				}
+					continue;	// eat message without dispatching it
 			}
-
-			// otherwise, translate and dispatch message normally
-			if (!AfxGetThread()->PreTranslateMessage(&msg)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+		} 
+		// get here => not eaten, translate and dispatch normally. Note PreTranslateMessage
+		// is necessary to allow keyboard shortcuts for Greek character insertion
+		// to be processed by controls in the dialog. The dialog's PreTranslateMessage 
+		// will also handle dialog keyboard interface messages via IsDialogMessage
+		if (!AfxGetThread()->PreTranslateMessage(&msg)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
-	} // end loop
+	} // end message handling loop
 
 	if (bQuit)					// Got end of input notification !
 		AfxPostQuitMessage(0);	// repost QUIT message so containing message pump will see it

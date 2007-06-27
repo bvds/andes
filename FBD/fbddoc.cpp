@@ -14,6 +14,7 @@
 #include "EQView.h"
 #include "EXView.h"
 #include "EXPlanVw.h"
+#include "VarView.h"
 //#include "HiLevelVw.h"
 #include "HelpIfc.h"
 #include "DocPages.h"
@@ -2885,6 +2886,11 @@ void CFBDDoc::AddConceptsToFeatures()
 			wConcepts &= ~(featureMap[i].wConcepts);
 		}
 	}
+}
+
+BOOL CFBDDoc::UseZAxis()
+{
+	return CVarView::HasFeature("3d");
 }
 
 // Set problem attributes from given .prb file (full path).

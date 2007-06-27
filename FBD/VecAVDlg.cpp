@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.4 2007/06/22 01:10:40 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.5 2007/06/27 01:53:03 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -27,6 +27,7 @@ CVectorMoveDlg::CVectorMoveDlg(CDrawObj* pObj, CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CVectorMoveDlg)
 	m_bAddGrav = FALSE;
 	//}}AFX_DATA_INIT
+	m_pDlgValues = NULL;
 }
 
 // macro to test if being used for motion diagram vector (special case)
@@ -131,6 +132,9 @@ BOOL CVectorMoveDlg::OnInitDialog()
 				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
 
 			Remove(IDC_BOX_TIMEDIR);
+	} else {
+		Remove(IDC_STATIC_PLACEHOLDER);
+		m_pDlgValues = NULL;
 	}
 	
 	// Base class will load mapped data member values 
@@ -167,6 +171,8 @@ BOOL CVectorMoveDlg::OnInitDialog()
 		}
 
 		UpdatePlanStrings(&m_cboBodyList);
+	} else {
+		m_editValue.SetEventMask(ENM_CHANGE);
 	}
 
 	// Angular/linear choice: show in rotational problems
@@ -471,7 +477,7 @@ void CVectorMoveDlg::InitObjectDlg()
 	m_cboTimeList.SelectStringExact(pVec->m_strTime);
 	m_cboAngular.SelectStringExact(pVec->m_bAngular ? szAngular : szLinear);
 
-	m_pDlgValues->TransferValues(FALSE);
+	if (m_pDlgValues) m_pDlgValues->TransferValues(FALSE);
 
 	// initialize direction
 	if (pVec->IsZeroMag() && !pVec->IsZAxisVector()) {
@@ -512,7 +518,7 @@ void CVectorMoveDlg::InitVariableDlg()
 	m_txtDescription.SetWindowText(m_strDescription);//string set coming in
 
 	// Transfer given value/unknown bit from controls to variable
-	m_editValue.SetWindowText(((CVariable*)m_pTempObj)->m_strValue);
+	m_editValue.SetRichEditText(((CVariable*)m_pTempObj)->m_strValue);
 	// sync unknown check box with value
 	OnChangeGivenValue();
 
@@ -574,7 +580,7 @@ void CVectorMoveDlg::UpdateTempVector()
 		if (nZDir >= 0 && nZDir <= ZDIR_MAX)
 			pTempVec->m_nZDir = nZDir;
 	 }
-	 m_pDlgValues->TransferValues(/*bSaving=*/ TRUE);
+	 if (m_pDlgValues) m_pDlgValues->TransferValues(/*bSaving=*/ TRUE);
 	 // For md vectors, must sync drawing direction with told exact direction
 	 // here, *before checking*, since MDVector checking normally uses drawn direction.
 	 // (for mdvec's, don't normally use dialog to specify an exact direction.)
@@ -601,7 +607,7 @@ void CVectorMoveDlg::UpdateTempVariable()
 	pTempVar->m_strQuantName = pTempVar->IsAngularVector() ? "Angular " + m_strDescription
 										         : m_strDescription;
 	CString strValue;
-	m_editValue.GetWindowText(strValue);
+	m_editValue.GetRichEditText(strValue);
 	((CVariable*)m_pTempObj)->m_strValue= strValue;
 	
 						
@@ -707,7 +713,8 @@ void CVectorMoveDlg::OnChangeVectorNameText()
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
 	
 	UpdateComponents();	
-	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
+	if (m_pDlgValues)  // doesn't exist when used for speed variable!
+		m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }
 
 void CVectorMoveDlg::OnSelchangeMovementType() 
