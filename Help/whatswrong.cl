@@ -541,13 +541,13 @@
       ;; This must distiguish between error interpretations that have vastly
       ;; different utilities.
       ((eq state **done-already**)
-       (setq prob (* prob 0.05)))
+       (setf prob (* prob 0.05)))
       ((eq state **premature-entry**)
-       (setq prob (* prob 0.3)))
+       (setf prob (* prob 0.3)))
       ((eq state **premature-subst**)
-       (setq prob (* prob 0.3)))
+       (setf prob (* prob 0.3)))
       ((eq state **dead-path**)
-       (setq prob (* prob 0.001))))
+       (setf prob (* prob 0.001))))
     (setf (cdr expu) prob)
     ))
      
