@@ -167,7 +167,8 @@
     ;; (format t "Contextualized Candidates are: ~% ~a~%" candidates)
     (when (cdr candidates) ; trace conflicts, so we can vet the results
       (format *debug-help* "  Error candidates: ~W~%" 
-	      (mapcar #'(lambda (x) (cons (ErrorInterp-name x) 
+	      (mapcar #'(lambda (x) (list (ErrorInterp-name x)
+(mapcar #'SystemEntry-prop (ErrorInterp-intended x))
 					  (ErrorInterp-order x))) 
 		      (sort (copy-list candidates) #'alist< 
 			    :key #'ErrorInterp-order))))
