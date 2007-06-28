@@ -19,3 +19,7 @@ Winter2007-USNA-treacywintersgill.dat:  original log file
 Winter2007-USNA-treacywintersgill.June-8-2007
 
 Winter2007-USNA-treacywintersgill.June-27-2007
+
+Diff between June 8 & June 27:
+  Bug #1297
+  Bug #1299

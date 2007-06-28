@@ -69,7 +69,7 @@
 (def-feature-set number-of-particles
   (charge-on mass number-of))
 (def-feature-set gauss
-  (charge-in electric-flux angle))
+  (charge-in electric-flux angle 3D))
 (def-feature-set gauss-sum
   (charge-on electric-flux angle))
 (def-feature-set ampere
