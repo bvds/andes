@@ -1,0 +1,21 @@
+
+This is a record of the regression analyses obtained by running the logs through
+the help system.
+The actual log files themselves are not stored in CVS since they are very long.
+
+Fall2006-anon.dat:  original log file
+Fall2006-anon.dat.can:  canonicalized version
+
+Fall2006-anon.June-7-2007.can.diff:  This has not been analyzed.
+
+Fall2006-anon.June-7-2007
+Fall2006-anon.June-7-2007.can
+
+Fall2006-anon.June-27-2007
+
+
+Winter2007-USNA-treacywintersgill.dat:  original log file
+
+Winter2007-USNA-treacywintersgill.June-8-2007
+
+Winter2007-USNA-treacywintersgill.June-27-2007
