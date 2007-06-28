@@ -1488,7 +1488,7 @@
 	; ("steps") and parallel list of opnames
        (when target-entries
            (send-fbd-command (format nil "assoc step ~{~A~^,~}" 
-	                                  (mapcar #'systementry-prop target-entries)))
+	                                  (mapcar #'SystemEntry-prop target-entries)))
            (send-fbd-command (format nil "assoc op ~{~A~^,~}" 
                                          (mapcar #'sg-map-systementry->opname target-entries))))
      )))

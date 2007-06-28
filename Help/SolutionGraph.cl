@@ -391,7 +391,7 @@
 
 (defun sg-defvar-entryp (entry)
   "Return t iff the entry is a defvar entry."
-  (eq (help-entryprop-type (systementry-prop entry))
+  (eq (help-entryprop-type (SystemEntry-Prop entry))
       'define-var))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -694,7 +694,7 @@
 ;; Given a student entry that has had its cinterp set by external
 ;; code the process of entering it involves pushing the 
 ;; StudentEntry is pushed onto the Entered field
-;; of each systemEntry in the Cinterp.  
+;; of each SystemEntry in the Cinterp.  
 (defun sg-enter-StudentEntry (Entry)
   "For each system entry in the cinterps mark it with entry."
 	     
@@ -715,7 +715,7 @@
 
 ;;---------------------------------------------------------------------
 ;; Filter-constraint-losses
-;; When the student makes an eqn systementry they may combine several
+;; When the student makes an eqn SystemEntry they may combine several
 ;; equations into a single one and in so doing lose some of the factors
 ;; that will be necessary later.  Thus they may walk themselves into 
 ;; a situation where the help system thinks that they are done but the
@@ -761,7 +761,7 @@
   (calc-exp-set-dimensions 
    #'sysvar-p 
    (remove-if 
-    #'null (mapcar #'get-eqn-systementry-algebra 
+    #'null (mapcar #'get-eqn-SystemEntry-algebra 
 		   (sg-unmark-interp Interp)))))
 
 ;;---------------------------------------------------------------------
@@ -822,7 +822,7 @@
 ;; Depends on structure of vector entry proposition
 (defun sg-find-vector-entry (vector-quant)
  (find `(vector ,vector-quant ?dont-care) *sg-entries* 
-        :test #'unify :key #'systemEntry-prop))
+        :test #'unify :key #'SystemEntry-Prop))
 
 
 ;;-------------------------------------------------------------
@@ -841,7 +841,7 @@
 ;;-------------------------------------------------------------
 ;; Remove the marking from an interp if it is present. 
 (defun sg-unmark-interp (interp)
-  (if (systemEntry-P (car Interp))
+  (if (SystemEntry-P (car Interp))
       Interp
     (cdr Interp)))
 
@@ -854,11 +854,11 @@
 ;;-------------------------------------------------------------
 ;; Get the marking from an interp.
 (defun sg-get-interp-mark (Interp)
-  (when (not (systementry-p (car Interp)))
+  (when (not (SystemEntry-p (car Interp)))
     (car Interp)))
 
 ;;--------------------------------------------------------------
-;; Get the systementry's op's hints
+;; Get the SystemEntry's op's hints
 
 ; Following returns spec to be used as tail of a list of specs passed
 ; to make-hint-seq when appending operator hints. It returns a spec
@@ -869,7 +869,7 @@
 ; [This technique copied from hint-target-entry in nextstephelp.cl to
 ; fix bug 834 AW]
 (defun sg-map-systementry->hints (entry)
-  (let ((step (car (systementry-sources entry)))) ; a csdo
+  (let ((step (car (SystemEntry-sources entry)))) ; a csdo
     `((function make-hint-seq 
 		       ,(collect-step-hints step)
 		       :OpTail ,(list (csdo-op Step))))))
@@ -877,7 +877,7 @@
 ; collect tags of operator instances that made this system entry
 ; opinst tag is of form (WRITE-MASS-COMPOUND (BOOK PACKAGE))
 (defun sg-map-systementry->opinsts (entry)
- (remove-duplicates (mapcar #'csdo-op (systementry-sources entry))
+ (remove-duplicates (mapcar #'csdo-op (SystemEntry-sources entry))
                     :test #'equalp))
 
 ; collect set of names of operators that made this system entry
@@ -909,7 +909,7 @@
 (defun some-path-through-omits (path entry)
    (cond ((null path) T)
          ((and (csdo-p (car path)) ; hit a CSDO for this entry
-               (member (car path) (systementry-sources entry)))
+               (member (car path) (SystemEntry-sources entry)))
 	     NIL)
 	 ((cschoose-p (car path)) 
 	   ;; car path is (CHOOSE ((step 1) (step 2)) ((step1 step2)))

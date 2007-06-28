@@ -677,7 +677,7 @@
 (defun nsh-filter-valid-entries (filter)
   (remove-if-not 
    #'(lambda (E) 
-       (unify filter (systementry-prop E)))
+       (unify filter (SystemEntry-prop E)))
    *nsh-valid-entries*))
 
 
@@ -846,7 +846,7 @@
 	       (entryprop-helpform 
 		(lookup-entryprop-type 'Body)))))
 ;;    (pprint form)
-    (find-if #'(lambda (E) (unify (systementry-prop E) Form))
+    (find-if #'(lambda (E) (unify (SystemEntry-prop E) Form))
 	     Entries)))
 
 
@@ -1088,7 +1088,7 @@
   (and *nsh-bodysets*
        ; NOT Exists a per-solution bodyset S s.t. all body entries in S entered
        (not (member-if #'(lambda (S) 
-			   (null (remove-if #'systementry-entered S)))
+			   (null (remove-if #'SystemEntry-entered S)))
 		       *nsh-bodysets*))))
 
 
@@ -1104,7 +1104,7 @@
 	     "the bodies at work within it.  Doing so helps to frame "
 	     "later principle applications.  Why don't you do so now.")
      Body
-     :Assoc `(nsh start-bodies ,(nsh-entry-prop Body)))))
+     :Assoc `(nsh start-bodies ,(SystemEntry-prop Body)))))
 
 
 
@@ -1120,7 +1120,7 @@
 ;;; Return t if any one of the bodyentries in any of the sets
 ;;; has been made.
 (defun nsh-bodyentry-made? ()
-  (member-if #'(lambda (E) (member-if #'systementry-entered E))
+  (member-if #'(lambda (E) (member-if #'SystemEntry-entered E))
 	     *nsh-bodysets*))
 
 ;;; If the student is continuing bodies then we want to remind them 
@@ -1132,7 +1132,7 @@
      (strcat "You should continue enumerating all of "
 	     "the necessary bodies for this problem.")
      Body
-     :Assoc `(nsh continue-bodies ,(nsh-entry-prop Body)))))
+     :Assoc `(nsh continue-bodies ,(SystemEntry-prop Body)))))
 
 
 ;;; As with solutions, we want to favor the ideal activity possible
@@ -1143,9 +1143,9 @@
 (defun nsh-pick-body-to-hint ()
   "Pick the body to hint."
   (or (find-if-not 
-       #'systementry-entered
+       #'SystemEntry-entered
        (find-if #'(lambda (S) 
-		    (member-if #'systementry-entered S))
+		    (member-if #'SystemEntry-entered S))
 		*nsh-bodysets*))
       (caar *nsh-bodysets*)))
 
@@ -1166,7 +1166,7 @@
 ;;; make it and so we will prompt them to do so.
 (defun nsh-prompt-axis? ()
   (and *nsh-axis-entries*
-       (not (member-if #'systementry-entered *nsh-axis-entries*))))
+       (not (member-if #'SystemEntry-entered *nsh-axis-entries*))))
 
 
 ;;; Once we have established that there is an axis, then we want 
@@ -1219,9 +1219,9 @@
 
 
 (defun nsh-get-axis-rot ()
-  (if (member 0 *nsh-axis-entries* :key #'(lambda (E) (cadr (systementry-prop E))))
+  (if (member 0 *nsh-axis-entries* :key #'(lambda (E) (cadr (SystemEntry-prop E))))
       0
-    (cadr (systementry-prop (car *nsh-axis-entries*)))))
+    (cadr (SystemEntry-prop (car *nsh-axis-entries*)))))
     
 
 
@@ -3124,7 +3124,7 @@
 ;;; solution has no axes in it at all.
 (defun nsh-1solution-axis-enteredp (Solution)
   (let ((Axes (nsh-collect-solution-axes-entries Solution)))
-    (or (null Axes) (member-if #'systementry-entered Axes))))
+    (or (null Axes) (member-if #'SystemEntry-entered Axes))))
 	     
 
 
@@ -3224,7 +3224,7 @@
   (remove-if-not
    #'(lambda (S) 
        (member Axis (nsh-collect-solution-axes-entries S) 
-	       :key #'(lambda (E) (cadr (systementry-prop E)))))
+	       :key #'(lambda (E) (cadr (SystemEntry-prop E)))))
    Solutions))
 
 
@@ -3253,7 +3253,7 @@
    (mapcan
     #'(lambda (P)
 	(remove-if-not 
-	 #'(lambda (E) (equalp (car (systementry-prop E)) 'draw-axes))
+	 #'(lambda (E) (equalp (car (SystemEntry-prop E)) 'draw-axes))
 	 (nsh-Node-entries P)))
     Solution)))
 
@@ -3261,7 +3261,7 @@
 ;;; ---------------------------------------------------------------------------
 ;;; Collect all of the individual axes located in each solution.
 (defun nsh-collect-solution-axes (Solution)
-  (mapcar #'(lambda (E) (cadr (systementry-prop E)))
+  (mapcar #'(lambda (E) (cadr (SystemEntry-prop E)))
 	  (nsh-collect-solution-axes-entries Solution)))
 
 
@@ -3330,14 +3330,6 @@
 	 ))
 
 
-;;; ========================== Entries ======================================
-;;; NSh rarely deals with entries directly but when information is needed from
-;;; them that is done here.
-(defun nsh-entry-prop (Entry)
-  (Systementry-prop Entry))
-
-
-
 ;;; =========================== Nodes =======================================
 ;;; It is possible for the quantities as well as principles to contain paths
 ;;; and entries.  This code generalizes accessing the two to make it possible
@@ -3364,7 +3356,7 @@
 (defun nsh-node-started-p (Node)
   "Has the student begiun working on the principle or not?"
   (and (bgnode-entries Node)
-       (member-if #'systementry-entered (bgnode-entries Node))))
+       (member-if #'SystemEntry-entered (bgnode-entries Node))))
 
 
 ;;; Has the student begun working on the node at 
@@ -3372,8 +3364,8 @@
 (defun nsh-node-only-started-p (Node)
   "Has the student begiun working on the principle but not completed it?"
   (and (bgnode-entries Node)
-       (member-if #'systementry-entered (bgnode-entries Node))
-       (member-if-not #'systementry-entered (bgnode-entries Node))))
+       (member-if #'SystemEntry-entered (bgnode-entries Node))
+       (member-if-not #'SystemEntry-entered (bgnode-entries Node))))
 
 
 ;;; Collect the node's entries
@@ -3459,7 +3451,7 @@
 (defun nsh-principle-started-p (principle)
   "Has the student begiun working on the principle or not?"
   (and (enode-entries principle)
-       (member-if #'systementry-entered (enode-entries principle))))
+       (member-if #'SystemEntry-entered (enode-entries principle))))
 
 
 ;;; nsh-principle-only-started-p
@@ -3468,8 +3460,8 @@
 (defun nsh-principle-only-started-p (principle)
   "Has the student begiun working on the principle but not completed it?"
   (and (enode-entries principle)
-       (member-if #'systementry-entered (enode-entries principle))
-       (member-if-not #'systementry-entered (enode-entries principle))))
+       (member-if #'SystemEntry-entered (enode-entries principle))
+       (member-if-not #'SystemEntry-entered (enode-entries principle))))
 
 
 
@@ -3888,7 +3880,7 @@
 ;;; increment the count and recurse.  Otherwize return 1 (path entered.)
 (defun path-entered-csdo? (path count)
   "Has the csdo been entered or not?"
-  (cond ((null (remove-if #'systementry-implicit-eqnp
+  (cond ((null (remove-if #'SystemEntry-implicit-eqnp
 			  (csdo-entries (car path))))  ;; If there is no entry
 	 (path-entered? (cdr path) count))             ;; then recurse.
 	((not (csdo-enteredp (car path)))              ;; If the entry has not been
@@ -3947,7 +3939,7 @@
 ;;; At some time I should collapse these two branches into one thing.
 (defun path-completed-csdo? (path count)
   "Has the csdo been completed?"
-  (cond ((null (remove-if #'systementry-implicit-eqnp
+  (cond ((null (remove-if #'SystemEntry-implicit-eqnp
 			  (csdo-entries (car path))))  ;; If no entry then move on
 	 (path-completed? (cdr path) count))           ;; using the cdr of the path.
 	((csdo-enteredp (car path))                    ;; If entered then increment
@@ -4133,7 +4125,7 @@
    Initial **Explain-More**
    :Responder #'(lambda (Response)
 		  (when (equal Response **Explain-More**)
-		    (let ((source (car (systementry-Sources step))))
+		    (let ((source (car (SystemEntry-Sources step))))
 		    (make-hint-seq 
 		     (collect-step-hints Source :type 'bottom-out)
 		     :OpTail (list (csdo-op Source))))))
