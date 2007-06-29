@@ -1707,7 +1707,7 @@
 
 (defun nsh-convert-response->quantity (Q)
   "Convert the kb-style quantity expression response to a quantity (qnode.)"
-  (cond ((not (quantity-expression-p Q))
+  (cond ((not (lookup-expression-struct Q))
 	 (error "Non-quantity-expression ~A returned as response." Q))
 	(t (match-exp->qnode Q (problem-graph *cp*)))))
 
@@ -1767,7 +1767,8 @@
 (defun nsh-tell-sought (message Case)
   "Tell the student what the problem is seeking and move on."
   ; for Bug 678 - ignore possible multiple choice questions before quantity soughts
-  (let ((Sought (car (remove-if-not #'quantity-expression-p (problem-soughts *cp*)))))
+  (let ((Sought (car (remove-if-not #'lookup-expression-struct 
+				    (problem-soughts *cp*)))))
     (make-dialog-turn
      (strcat message "  Let's just assume that you are seeking "
 	     (nlg Sought 'def-np) ".")

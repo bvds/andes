@@ -1174,7 +1174,7 @@
 		      &optional id (x-label "x") (y-label "y") (z-label "z"))
   (declare (ignore body))
   ;; workbench doesn't associate axes with bodies yet, so we leave this
-  ;; out of the entry proposition we match (see kb/ontology.cl).
+  ;; out of the entry proposition we match (see KB/Ontology.cl).
   ;; !! need to make sure axis between zero and 90 and canonicalize if
   ;; not
   (let* ((action  `(draw-axes ,dir)) ; dir is naked degree value

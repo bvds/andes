@@ -304,7 +304,7 @@
   "Test for errors in the solution after storing it in the problem."
   (let ((Err (remove-if #'qvar-value
 			(match-qexps->qvars 
-			 (remove-if-not #'quantity-expression-p (problem-soughts Problem))
+			 (remove-if-not #'lookup-expression-struct (problem-soughts Problem))
 			 (problem-varindex Problem)))))
     (when Err
       (error "~2%Some of the sought quantities did not receive a value. ~%~A~%" Err))))

@@ -215,16 +215,6 @@
   "Is type a valid exp type?"
   (lookup-exptype-struct type))
 
-(defun valid-expression-p (exp)
-  "Is the supplied exp a valid expression type."
-  (lookup-expression-struct exp))
-
-;; This could be further refined
-;; for instance, dnum is not really a quantity
-(defun quantity-expression-p (exp)
-  "Is the supplied exp a valid expression type."
-  (lookup-expression-struct exp))
-
 
 (defun lookup-exptype-struct (type)
   "Lookup the exp struct of ExpType 'TYPE'"
@@ -234,6 +224,10 @@
 
 (defun lookup-expression-struct (exp &optional (bindings no-bindings))
   "Lookup the first exp with the specified-form."
+;; This could work as a replacement, not tested yet
+;;  (let ((type (find exp *Ontology-ExpTypes* :key #'exptype-form 
+;;		   :test #'(lambda (x y) (unify x y bindings)))))
+;; (values type (unify exp (exptype-form exp) bindings))) 
   (lookup-expression-struct-chain exp bindings *Ontology-ExpTypes*))
 
 (defun lookup-expression-struct-chain (exp binds types)
@@ -245,17 +239,6 @@
       (if b (values (car types) b)
 	(lookup-expression-struct-chain 
 	 exp binds (cdr Types))))))
-
-
-(defun unify-expression->exptypes (exp)
-  "collect the exptypes that unify with form."
-  (let ((Types) (Binds) (tmp))
-    (dolist (E *Ontology-ExpTypes*)
-      (setq tmp (unify (ExpType-Form E) exp))
-      (when tmp
-	(push E Types)
-	(push tmp Binds)))
-    (values Types Binds)))
 		      
 
 (defun lookup-expression-fieldtype (Field Struct)
@@ -978,11 +961,6 @@
 	    (t (setq Class (cons (psmclass-complexity P) (list P)))
 	       (push Class Result))))
     Result))
-
-;;; Map the list of psms to psm names.
-(defun map-psmclasses->names (psmclasses)
-  "Map the list of psmclasses to psmclass names."
-  (mapcar #'psmclass-name psmclasses))
 
 
 ;;; --------------------------------------------------------------

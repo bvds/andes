@@ -108,7 +108,7 @@
 
 (defun var->qvar (V &key (ExpMarks Nil))
   "Convert a var to a qvar."
-  (valid-expression-p (caddr V))
+  (lookup-expression-struct (caddr V))
   (make-qvar 
    :var (cadr V) 
    :exp (caddr V)

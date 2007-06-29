@@ -118,8 +118,8 @@
 ;;; listing of solutions for use.
 
 (defstruct (EqnSet (:type list))
-  Eqns		; list of Enodes for solution PSMs
-  Nodes		; list of all bgnodes, quantity + equation, in solution
+  Eqns		; list of all Enodes for solution PSMs
+  Nodes		; list of all Enodes and Qnodes in solution
   Assumpts	; assumptions used in this solution
   Solutions)	; used in SGG/SolutionSet.cl, not persisted to file
 

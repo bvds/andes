@@ -649,12 +649,12 @@
  :Func #'(lambda (X) (update-rt-score-value X #'art-count-correct-answer-ents))
  :InitFunc #'(lambda () 
 	       (make-rt-fract-num-score 
-		0 (length (remove-if-not #'quantity-expression-p (problem-soughts *cp*)))))
+		0 (length (remove-if-not #'lookup-expression-struct (problem-soughts *cp*)))))
  :Weight 0.20
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
-		      (member-if #'Quantity-expression-p (problem-soughts *cp*))))
+		      (member-if #'lookup-expression-struct (problem-soughts *cp*))))
 ;;		      (not (no-quant-problem-p *cp*))))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -707,7 +707,7 @@
 		0 (length 
 		   (remove-if-not 
 		    #'(lambda (S) 
-			(and (not (quantity-expression-p S))
+			(and (not (lookup-expression-struct S))
 			     (not (equalp (car S) 'choose-answer))))
 		    (problem-soughts *cp*)))))
  :Weight 0.20
@@ -715,7 +715,7 @@
  :ActiveCond #'(lambda ()
 		 (and (problem-loadedp)
 		      (member-if #'(lambda (S) 
-				     (and (not (quantity-expression-p S))
+				     (and (not (lookup-expression-struct S))
 					  (not (equalp (car S) 'choose-answer))))
 				 (problem-soughts *cp*))))
  :Loadable Nil

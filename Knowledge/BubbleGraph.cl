@@ -1631,7 +1631,7 @@
 
 (defun qnode->qvar (Q &key (ExpMarks Nil))
   "convert Qnode Q to Qvar form including parameter info."
-  (valid-expression-p (qnode-exp Q))
+  (lookup-expression-struct (qnode-exp Q))
   (make-qvar :Var (Qnode-Var Q)
 	     :Exp (Qnode-exp Q)
 	     :units (lookup-expression-units (Qnode-Exp Q))

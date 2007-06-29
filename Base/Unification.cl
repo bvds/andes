@@ -470,11 +470,7 @@
 ;;             Bindings:  An optional set of bindings to use.
 
 (defun filter-expressions (Filter Exps &optional (Bindings no-bindings))
-  (let ((R))
-    (dolist (E Exps)
-      (if (unify Filter E Bindings)
-	  (push E R)))
-    R))
+  (remove-if-not #'(lambda (e) (unify e filter bindings)) Exps))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; generate-bindings
