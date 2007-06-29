@@ -117,7 +117,8 @@ BOOL CWarningMsg::OnInitDialog()
 	m_stcMessage.SetReadOnly();
 	// set it to use the dialog's font
 	m_stcMessage.SetFont(GetFont());
-	m_stcMessage.EnableWindow(FALSE);// (no caret)
+// AW: leave it enabled to avoid hard-to-read gray text. 
+//	m_stcMessage.EnableWindow(FALSE);// (no caret)
 	m_stcMessage.SetRichEditText(m_message);
 	// make same color as dlg
 	m_stcMessage.SetBackgroundColor(FALSE, ::GetSysColor(COLOR_BTNFACE));

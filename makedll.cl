@@ -18,3 +18,8 @@
  :include-compiler T
  :discard-compiler T
  :include-ide nil)
+
+; Must recompile this file to leave a development version fasl in place
+(format T "Recompiling runtime-conditional files for development use~%")
+(compile-file "Help/Andes2-main.cl")
+(compile-file "Help/Commands.cl")

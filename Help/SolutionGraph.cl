@@ -344,14 +344,25 @@
   (loop for E in (csdo-effects do)
       when (help-entryprop-p E)
       collect (sg-generate-sysent Do E Stack State)))
-  
+
+; custom condition subclass to be signalled on apparent version errors
+; This inherits from the simple-error class which defines initargs 
+; :format-control and :format-arguments, used in the report function
+; to format an error message. The "error" function can take a class
+; name and init arguments to construct a condition object (see below)
+(define-condition wrong-version-prb (simple-error)
+   ())    ; no custom slots added to this subclass
+
 (defun sg-generate-sysent (Do Entry Stack State)
   "Given a help entry prop generate the system entry for it and return."
-  ; show helpful error message for this error: 
+  ; include helpful message for this error: 
   (when (not (get-operator-by-tag (csdo-op Do)))
-    (error "Solution operator ~A not found in current KB. Maybe need to regenerate .prb" 
-           (first (csdo-op Do))))
-  ; else didn't throw error above:
+    (format T "Solution operator ~A not found in current KB. Maybe need to regenerate .prb~%" 
+            (first (csdo-op Do)))
+    (error 'wrong-version-prb 
+             :format-control "Solution operator ~A not found in current KB. Maybe need to regenerate .prb"
+	     :format-arguments (list (first (csdo-op Do)))))
+  ; else didn't signal error above:
   (make-systementry 
    :Prop Entry
    :State State

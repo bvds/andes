@@ -4,6 +4,7 @@
 
 ; recompile this file to include runtime-version-only code
 (compile-file "Help/Andes2-main.cl")
+(compile-file "Help/Commands.cl")
 
 ; Following no longer has IDE-specific code:
 

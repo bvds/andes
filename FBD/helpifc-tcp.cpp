@@ -377,7 +377,7 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 #endif 
 			
 			// Logf("END_ATTEMPT_CONNECT %d %d", nTries, SockIsConnected());
-			return SockIsConnected();
+ 			return SockIsConnected();
 			break; 
 		}
 

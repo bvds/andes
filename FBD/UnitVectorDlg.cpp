@@ -375,5 +375,4 @@ void CUnitVectorDlg::OnChangeVectorNameText()
 	
 	// TODO: Add your control notification handler code here
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
-	if (m_pDlgValues) m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }

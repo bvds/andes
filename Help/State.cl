@@ -252,12 +252,11 @@
   ;; NB: for case-sensitive filesystems, ensure we convert the problem name, 
   ;; passed as a string, to canonical upper case used for problem ids.
   (setf *cp* (read-problem-file (string-upcase name) :path (andes-path "Problems/")))
+
   ;; If the problem failed to load then we will submit a color-red turn
   ;; to the workbench in order to make the case known.  If not then the 
   ;; code will set up the problem for use and then return a color-green
-  ;; turn.  Previously we returned NIL in the case of failue and relied
-  ;; upon the server code to recognize it as such.  Using the color-red
-  ;; turn is more pedagogically sound.
+  ;; turn.  
   (if (null *cp*) (make-red-turn)
     (do-read-problem-info-setup)))
 

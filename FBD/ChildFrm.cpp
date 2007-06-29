@@ -1,6 +1,6 @@
 // ChildFrm.cpp : implementation of the CChildFrame class
 //
-// $Id: ChildFrm.cpp,v 1.6 2006/03/24 01:24:02 anders Exp $
+// $Id: ChildFrm.cpp,v 1.7 2007/06/29 21:43:19 anders Exp $
     
 #include "stdafx.h"
 // #include <afxrich.h>
@@ -399,10 +399,10 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 	else if (m_pDoc->m_nProblemType == PROB_QUANT				// Quantitative problem
 		     && !(m_pDoc->m_wConcept & ID_PROB_PROBABILITY))    // but no drawing tools for probability
 	{
-		if (m_pDoc->m_wConcept & ID_PROB_ROTKINEMATICS)
-			nID = IDR_ROTKINTOOLS;	// bar with special tools for rotational probs
-		else if (CVarView::HasFeature(CString("DIPOLE"))) // new: EM problems w/dipole vectors
+		if (CVarView::HasFeature(CString("DIPOLE"))) // new: EM problems w/dipole vectors
 			nID = IDR_DIPOLETOOLS;
+		else if (m_pDoc->m_wConcept & ID_PROB_ROTKINEMATICS)
+			nID = IDR_ROTKINTOOLS;	// bar with special tools for rotational probs
 		else if (CVarView::HasFeature(CString("OPTICS")) ||
 			     CVarView::HasFeature(CString("NEW-OPTICS")) ) 
 			nID = IDR_OPTICSTOOLS;

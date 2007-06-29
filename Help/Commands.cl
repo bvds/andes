@@ -117,7 +117,15 @@
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun read-problem-info (name &optional kb-type (bn-alg 0))
-  (do-read-problem-info name kb-type bn-alg))
+  ; trap wrong version error and return special code to user
+  (handler-case
+        (do-read-problem-info name kb-type bn-alg)
+    ; in help system: trap version errors and return custom code
+    #+allegro-cl-runtime (wrong-version-prb (e)  
+        (format T "read-problem-info: caught error wrong-version-prb~%")
+    	'wrong-version-prb)
+  ))
+   
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 

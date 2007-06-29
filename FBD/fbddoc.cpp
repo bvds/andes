@@ -810,6 +810,18 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 "Help System couldn't load problem information for this problem\nFeedback will not be available" 
 		);
 		theApp.m_bFeedback = FALSE;
+	} else if (strcmp(pszResult, "WRONG-VERSION-PRB") == 0) {
+#ifdef OLI
+		theApp.DoWarningMessage( 
+"This problem appears to require a different version of Andes. Feedback and help cannot be provided.\nRun the Andes installer from your OLI course introduction page to be sure you have the version required for this course."
+		);		
+		return FALSE; // no point continuing? Maybe they can still try to make solution.
+#else //! OLI
+		theApp.DoWarningMessage( 
+"This problem appears to require a different version of Andes. Feedback and help cannot be provided."
+		);	
+		return FALSE; // no point continuing? Maybe they can still try to make solution.
+#endif //! OLI
 	} else if (strcmp(pszResult, "NO-HINTS") == 0) {
 		theApp.m_bNoHints = TRUE;
 	} else	// any other non-NIL return:
