@@ -60,57 +60,65 @@ use Time::Local;
 
 $time_zone = "US/Eastern";	# fixed, hardcoded time_zone for now
 
+$CD1 = "<![CDATA[";
+$CD2 = "]]>";
+
 ############################################################################
 # Processing begins here:
 ############################################################################
 
 # Process command line args:
 # for now, require exactly one filename argument. 
-$srcfile = $ARGV[0];
-$outfile = substr($srcfile, 0, rindex($srcfile, ".")) . ".xml";
-open(OUT, ">$outfile") || die "Couldn't open $outfile for writing. $!";
-select(OUT);
+#$srcfile = $ARGV[0];
+#if ($srcfile) {
+#   $outfile = substr($srcfile, 0, rindex($srcfile, ".")) . ".xml";
+#   open(OUT, ">$outfile") || die "Couldn't open $outfile for writing. $!";
+#   select(OUT);
+#}
 
 # print "Source Log: $srcfile\n\n"; 
 
-# print header information
-print <<END_HEADER;
-<?xml version="1.0" encoding="UTF-8"?>
+
+
+# main loop over each line 
+while (<>) {
+    chomp($_); 
+    s/\r$//;   # delete dangling CR's remaining from Unix to DOS conversion
+
+    next if /^#/;  # skip log header lines 
+
+   # the first DDE call in any session should be set-session-id. Use this to start new file
+   # pick up the Andes-generated session id. Extract start time from it.
+   if (/DDE-POST \(set-session-id "([^"]*)"/) {
+	      $session_id = $1;
+	      # reset state vars at each new session until we see a problem open
+	      $problem = undef;  
+	      $condition = undef; 
+              $call_counter = 0;
+
+	      # start new output file
+	      # finish previous file if we have one.
+	      if ($outfile) {
+	      	print "</tutor_related_message_sequence>\n";
+	      	close(OUT);	
+	      }
+	      $outfile = $session_id . ".xml";
+	      open(OUT, "> $outfile") || die "Couldn't open $outfile for writing.$!\n";
+	      select OUT;
+	      print <<END_HEADER;
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE tutor_related_message_sequence SYSTEM 
 "http://learnlab.web.cmu.edu/dtd/tutor_message_v4.dtd">
 
 <tutor_related_message_sequence version_number="4">
 END_HEADER
 
-# main loop over each line 
-while (<>) {
-    next if /^#/;  # skip log header lines 
-    chomp($_); 
-    s/\r$//;   # delete dangling CR's remaining from Unix to DOS conversion
-
-    # use flag to ignore calls within Check-Entries block 
-    if (/Check-Entries ([01])/) { $rechecking = $1; }
-    next if ($rechecking);
-
-    # skip a line before start of each new helpsys "transaction"
-    if ((/DDE /) or (/DDE-POST /)) { print "\n"; } # remote function or procedure call
-
-    # for debugging, list ALL DDE-related source lines as comments. Includes commands from helpsys to
-    # workbench marked DDE-COMMAND, and also DDE-FAILED notifications. 
-    if (/DDE/) { print "<!-- $_ -->\n"; }
- 
-   # for convenience, split line into global timestamp, event name, and event argument string
-   ($timestamp, $event, $argstr) = split("[\t ]", $_, 3); 
-
-   # pick up the Andes-generated session id from appropriate call. Extract start time from it.
-   if (/set-session-id "([^"]*)"/) {
-	      $session_id = $1;
-              # id is of form m081122-Sep27-13-21-48
+	      # extract start time from id of form m081122-Sep27-13-21-48
 	      ($user, $monthdate, $hours, $min, $sec) = split('-', $session_id);
 	      ($monthabbr, $mday) = ($monthdate =~ m/([A-Z][a-z]+)([\d]+)/); 
 	      #print STDERR "$session_id => $user, $monthabbr, $day_of_month, $hour, $min, $sec\n";
 	      # get start time in time() format seconds since the epoch
-	      $year = 2005; # !!! need to get log year, perhaps from header line
+	      $year = 2006; # !!! need to get log year, perhaps from header line
 	      # treat this as a local time zone spec and canonicalize to epoch seconds GMT.
 	      # NOTE: any variable named *_time is in this canonical format.
 	      $start_time = timelocal($sec,$min,$hours,$mday,$month2num{$monthabbr},$year-1900);
@@ -120,8 +128,24 @@ while (<>) {
 	      print STDERR "start time: " . localtime($start_time) . " = $start_date\n";
    }
 
+    # pick up experiment condition if it's set
+    if (/DDE-POST \(set-condition ([\w]*)\)/) {
+	    $condition = $1;
+    }
+
+    # use flag to ignore DDE calls within Check-Entries block 
+    if (/Check-Entries ([01])/) { $rechecking = $1; }
+    next if ($rechecking);
+
+    # for debugging, list ALL DDE-related source lines as comments. Includes commands from helpsys to
+    # workbench marked DDE-COMMAND, and also DDE-FAILED notifications. 
+    # skip a line before start of each new helpsys "transaction"
+    if ((/DDE /) or (/DDE-POST /)) { print "\n"; } # remote function or procedure call
+    # if (/DDE/) { print "<!-- $_ -->\n"; }
+
+   # NB: include DDE in pattern to avoid picking up DDE-FAILED
    # pick up the problem name from the read-problem-info call
-   if (/read-problem-info "([^"]*)"/) {
+   if (/DDE \(read-problem-info "([^"]*)"/) {
        # Standalone Andes can have multiple problems in a single Andes session log
        # Looks like we need a new context message id for each of these, since context message 
        # includes problem [check if this is correct?]. 
@@ -139,7 +163,7 @@ while (<>) {
        # !!! time_zone is hardcoded
        print <<END_CONTEXT_HDR;
   <context_message context_message_id="$context_id" name="START_PROBLEM">
-      <meta> <user_id>$user</user_id> <session_id>$session_id</session_id> 
+      <meta> <user_id anonFlag="true">$user</user_id> <session_id>$session_id</session_id> 
              <time>$start_date</time> <time_zone>$time_zone</time_zone></meta>
 END_CONTEXT_HDR
       # copy course information element from external file, if it exists
@@ -151,22 +175,48 @@ END_CONTEXT_HDR
 	   }
            close CLASSINFO;
       }
-      # copy dataset element from external file
+
+      # copy dataset name from external file
       open (DATASET, '<', 'dataset.txt') or die "Could not open dataset.txt: $!";
       $DataSet= <DATASET>;      
       chomp($DataSet);
       $DataSet =~ s/\r//;   
+      # include conversion date
+      ($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
+      $Year += 1900;
+      $Month++;
       print <<END_DATASET;
-      <dataset> <name>$DataSet</name>
+      <dataset> 
+           <conversion_date>$Month/$Day/$Year $Hour:$Minute</conversion_date>
+	   <converter_info>log2xml.pl</converter_info>
+           <name>$DataSet</name>
 	   <level><name>Problem</name>
 	       <problem><name>$problem</name></problem>
 	    </level>
       </dataset>
 END_DATASET
       close DATASET;
+     
+      # add student's experiment condition if we have one.
+      # we may get a condition from a conditionmap file, or else from set-condition
+      # above. If both are set, condition map overrides.
+      if (open CONDITIONS, "<conditions.txt") {
+		%conditionmap = map /(.*)\t(.*)\r/, <CONDITIONS>;
+		close CONDITIONS;
+		$condition = $conditionmap{$user};
+                if (! $condition) {
+		      print STDERR "!!! no condition found for $user\n"; 
+		}
+       }
+      if ($condition) {
+ 	       print "      <condition><name>$condition</name></condition>\n"; 
+      }
       print "    </context_message>\n";
    }
    # end of log header cases.
+
+   # for convenience, split line into global timestamp, event name, and event argument string
+   ($timestamp, $event, $argstr) = split("[\t ]", $_, 3); 
 
   # following switches on log event. Not really necessary to code it this way. 
   for ($event)    # binds $_ to event name only for matching. NB want exact matches
@@ -357,7 +407,7 @@ END_DATASET
 	# if ($checkreq) { &print_entry_event(); }
 	# show evaluation and possible hint text
 	print "        <action_evaluation $hint_attrs>$evaluation</action_evaluation>\n";
-	if ($hint) {print "        <tutor_advice>$hint</tutor_advice>\n"; }
+	if ($hint) {print "        <tutor_advice>$CD1$hint$CD2</tutor_advice>\n"; }
 
 	# list the skills used if we know them
 	if ($assocs{"op"}) {
@@ -504,7 +554,7 @@ CALC_RESULT_HDR
 		# leave off the result selection, it may confuse things
 		#print "        <event_descriptor> <selection>$calcdst</selection>\n";
 		print "        <event_descriptor> "; 
-		print "               <input>$result</input>\n";
+		print "               <input>$CD1$result$CD2</input>\n";
 		print "         </event_descriptor>\n";
                 print "        <action_evaluation $hint_attrs>CORRECT</action_evaluation>\n";    
 	}
@@ -513,7 +563,7 @@ CALC_RESULT_HDR
 	}
 
 	if ($hint) {
-		print "        <tutor_advice>$hint</tutor_advice>\n"; 
+		print "        <tutor_advice>$CD1$hint$CD2</tutor_advice>\n"; 
 	}
 	# !!! some place to log success/failure difference.
 	print "    </tutor_message>";
@@ -573,7 +623,7 @@ sub print_context_hdr
     my $msgtype = $_[0];
     print <<END_TOOL_MSG_HDR;
     <$msgtype context_message_id="$context_id"> 
-        <meta> <user_id>$user</user_id> <session_id>$session_id</session_id> 
+        <meta> <user_id anonFlag="true">$user</user_id> <session_id>$session_id</session_id> 
                <time>$date</time> <time_zone>$time_zone</time_zone></meta>
 	<problem><name>$problem</name></problem>
 END_TOOL_MSG_HDR
@@ -665,7 +715,7 @@ sub print_tool_msg
 {	    
         if ($id ne "") { $SelectionXML = "<selection>$id</selection>"; } 
 	else { $SelectionXML = ""; }
-	if ($input ne "") { $InputXML = "<input>$input</input>"; }
+	if ($input ne "") { $InputXML = "<input>$CD1$input$CD2</input>"; }
 	else {$InputXML = ""; }
 
 	# all tool messages begin with the context header:
@@ -777,11 +827,12 @@ sub ParseAPICall {
 	# use $t to avoid conflicts w/global $timestamp.
   for ($api_call) {
    if (/^define-variable$/) {
-		($label, $subtype, $quant, $body, $t, $agent, $id) = @args;
+	        # $value argument added in more recent versions of Andes
+		($label, $subtype, $quant, $body, $t, $agent, $id, $value) = @args;
 		if ($quant eq "Force") {
 			$type =~ s/\s+$//;  # trailing white space due to bug
 		} 
-		$input = "label=$label;quant=$quant;subtype=$subtype;body=$body;agent=$agent";
+		$input = "label=$label;quant=$quant;subtype=$subtype;body=$body;agent=$agent;time=$t;value=$value";
    } elsif (/^assert-object$/ or /^assert-compound-object$/){
 		($label, $body, $t, $id) = @args;
 		$input = "label=$label;body=$body;time=$t";
@@ -809,11 +860,12 @@ sub ParseAPICall {
 	($input, $id) = @args;
    } elsif (/^Why-wrong-object$/) {
 	($label, $id) = @args;
-	#$input = "";  # no "input" for a help request
+	# For S/A/I on whatswrong help, selection will be entry-id. 
+	# Here show object label as "input"
 	$input = "label=$label";
    } elsif (/^Why-wrong-equation$/) {
          ($id) = @args;
-	 $input = ""; # no "input" for a help request
+	 $input = ""; # no further "input" for equation help request
    } else { # any other help system call
 	 #print STDERR "Unparsed API call: $timestamp $api_call $params\n";
 	 $id = "";
