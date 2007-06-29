@@ -25,6 +25,7 @@
 <tr> <td>Name  </td> </tr>
 <tr> <td>Statement  </td> </tr>
 <tr> <td> &#8230; </td> </tr>
+<tr> <td id="Problem-Soughts"> Soughts </td> </tr>
 <tr> <td>Graph </td> <td> ((<a href="#qnode">qnode</a> &#8230;)
                             (<a href="#enode">enode</a> &#8230;))</td></tr>
 <tr> <td>VarIndex </td> <td> (<a href="#qvar">qvar</a> &#8230;)</td></tr>
@@ -38,7 +39,7 @@
 <tr> <td>Symbol</td> </tr>
 <tr> <td>Gindex</td> </tr>
 <tr> <td>Vindex</td> </tr>
-<tr> <td>Exp</td> </tr>
+<tr> <td id="Qnode-Exp">Exp</td> </tr>
 <tr> <td>Var</td> </tr>
 <tr> <td>Eqns</td> </tr>
 <tr> <td>Marks</td> </tr>
@@ -50,7 +51,7 @@
 <table id="Enode" class="struct">
 <Caption><a href="../Knowledge/BubbleGraph.cl">Enode</a></caption>
 <tr> <td>Symbol</td> </tr>
-<tr> <td>ID</td> </tr>
+<tr> <td nid="Enode-ID">ID</td> </tr>
 <tr> <td>Gindex </td> </tr>
 <tr> <td>Eindex</td><td> (<a href="#eqn">eqn</a> &#8230;)</td> </tr>
 <tr> <td>Algebra</td> </tr>
@@ -88,7 +89,7 @@
 <Caption><a href="../Knowledge/qvar.cl">Qvar</a></caption>
 <tr> <td>index</td> </tr>
 <tr> <td>var</td> </tr>
-<tr> <td>Exp</td> </tr>
+<tr> <td id="Qvar-Exp">Exp</td> </tr>
 <tr> <td>value</td> </tr>
 <tr> <td>units</td> </tr>
 <tr> <td>marks</td> </tr>
@@ -140,10 +141,42 @@
 <table id="csdo" class="struct">
 <Caption><a href="../HelpStructs/PSMGraph.cl">csdo</a></caption>
 <tr> <td>op</td> </tr>
-<tr> <td>effects</td> </tr>
+<tr> <td id="csdo-effects">effects</td> </tr>
 <tr> <td>varvals</td> </tr>
 <tr> <td>entries</td><td> (<a href="#SystemEntry">SystemEntry</a> &#8230;)</td> </tr>
 </table>
 </div>
+
+<h1>Ontology  structures</h1>
+
+<div class="wrap">
+
+ <table id="ExpType" class="struct">
+<Caption><a href="../Knowledge/Ontology.cl">ExpType</a></caption>
+<tr> <td>form</td> <td>matches <a href="#Problem-Soughts">Problem-Soughts</a> <br> <a href="#Qnode-Exp">Qnode-Exp</a> <a href="#Qvar-Exp">Qvar-Exp</a></td></tr>
+<tr> <td>&#8230;</td> </tr>
+</table>
+
+
+<table id="EntryProp" class="struct">
+<Caption><a href="../Knowledge/Ontology.cl">EntryProp</a></caption>
+<tr> <td>kbform</td> <td>matches <a href="#csdo-effects">csdo-effects</a></td></tr>
+<tr> <td>&#8230;</td> </tr>
+</table>
+
+<table id="GoalProp" class="struct">
+<Caption><a href="../Knowledge/Ontology.cl">GoalProp</a></caption>
+<tr> <td>form</td> </tr>
+<tr> <td>&#8230;</td> </tr>
+</table>
+
+<table id="PSMclass" class="struct">
+<Caption><a href="../Knowledge/Ontology.cl">PSMclass</a></caption>
+<tr> <td>form</td> <td>matches <a href="#Enode-ID">Enode-ID</a>  qsolres-id</td></tr>
+<tr> <td>&#8230;</td> </tr>
+</table>
+
+</div>
+
 </body>
 </html>
