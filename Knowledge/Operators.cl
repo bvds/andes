@@ -174,7 +174,7 @@
 	  (operator-arguments Operator)))
 
 
-;;-------------------------------------------------------------------------------
+;;-----------------------------------------------------------------------------
 ;; Operator Definition.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; defoperator (public) 
@@ -288,6 +288,8 @@
 	(format t "Operator variables don't match operator values: ~a~%    May need to regenerate problem file.~%    operator-variables:  ~A~%    values:  ~A~%" 
 		(operator-name op) (operator-variables op) vals)
 	nil)))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Resgister-operator
@@ -451,6 +453,18 @@
   (remove-if-not 
    #'(lambda (H) (member (car H) Types :test #'equalp))
    Hints))
+
+
+;;; Hinting the step itself involves collecting the hint specs
+;;; from the operator and returning the result.
+(defun collect-step-hints (step &key (type nil))
+  "Collect the hints from an op step."
+  (let ((hints (get-op-hints 
+		(get-operator-by-tag (csdo-op step))
+		(csdo-varvals step))))
+    (if (null Type) Hints
+      (filter-ophints-by-type Hints Type))))
+
 
 ;;--------------------------------------------------------------------
 ;; HintSpecs

@@ -4101,19 +4101,6 @@
     hints))
 
 
-
-
-;;; Hinting the step itself involves collecting the hint specs
-;;; from the operator and returning the result.
-(defun collect-step-hints (step &key (type nil))
-  "Collect the hints from an op step."
-  (let ((hints (get-op-hints 
-		(get-operator-by-tag (csdo-op step))
-		(csdo-varvals step))))
-    (if (null Type) Hints
-      (filter-ophints-by-type Hints Type))))
-
-
 ;;; ------------------------------------------------------------
 ;;; As a special case on some hints, we want to tell the student
 ;;; to make a specified entry but only want to give them the 
