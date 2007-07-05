@@ -114,9 +114,12 @@
   "write solutions to working problems into a directory"
   (dolist (P (choose-working-probs topics))
     ;; also initializes *sg-entries*
-    (let ((pp (read-problem-info (string (problem-name P)) 
+    (let ((pp (read-problem-file (string (problem-name P))
 				 :path in-path)))
-      (when pp (dump-html-problem-solutions pp out-path))))
+       (when pp       
+	 (sg-setup pp)
+	 (dump-html-problem-solutions pp out-path)))
+
   ;; Make file with html styles
   (let ((css (open (merge-pathnames  "main.css" out-path)
  		   :direction :output :if-exists :supersede)))
