@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+`>;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TutorTurn.cl
 ;; Collin Lynch
 ;; 04/05/2001
@@ -176,27 +176,6 @@
 	     :Assoc Assoc
 	     :Commands Commands))
 		  
-(defun make-red-dialog-turn (text menu &key (Responder #'nil-turn-resp) 
-					    (Assoc nil) (Commands Nil))
-  "Produce a red coloring dialog type tutor turn."
-  (make-turn :coloring **Color-Red**
-	     :type **Dialog-Turn**
-	     :text text 
-	     :menu menu 
-	     :Responder Responder
-	     :Assoc Assoc
-	     :Commands Commands))
-
-(defun make-del-dialog-turn (text menu &key (Responder #'nil-turn-resp) 
-					    (Assoc nil) (Commands Nil))
-  "Produce a delete dialog type tutor turn."
-  (make-turn :coloring **Delete-Entry**
-	     :type **Dialog-Turn** 
-	     :text text 
-	     :menu menu  
-	     :Responder Responder
-	     :Assoc Assoc
-	     :Commands Commands))
 
 (defun make-dialog-turn (text menu &key (color nil) (Responder #'nil-turn-resp) 
 					(Assoc nil) (Commands Nil))
@@ -218,25 +197,6 @@
 	     :Assoc Assoc
 	     :Commands Commands))
 	     
-(defun make-hint-turn (text &key (menu **OK-Menu**) (responder #'nil-turn-resp) 
-				 (Assoc nil)  (Commands Nil))
-  "Make a hint turn with no coloring."
-  (make-turn :type **Dialog-Turn**
-	     :text text
-	     :menu Menu
-	     :responder responder
-	     :Assoc Assoc
-	     :Commands Commands))
-  
-(defun make-tcard-turn (url &key (color nil) (Responder #'nil-turn-resp) 
-				 (Assoc nil) (Commands Nil))
-  "Produce a training-card type tutor turn."
-  (make-turn :coloring color
-	     :type **TCard-Turn**
-	     :text url
-	     :responder Responder
-	     :Assoc Assoc
-	     :Commands Commands))
 			    
 (defun make-minil-turn (url &key (color nil) (Responder #'nil-turn-resp) 
 				 (Assoc nil) (Commands Nil))
@@ -288,20 +248,10 @@
 	     :type (if message **Dialog-Turn**)
 	     :text message))
 
-(defun make-del-turn (&key (Responder nil) (Assoc nil) (Commands Nil))
-  (make-turn :coloring **Delete-Entry**
-	     :responder Responder
-	     :Assoc Assoc
-	     :Commands Commands))
-
 (defun nil-turn-resp (x)
   "A function used for non-response turns."
   (declare (ignore x))
   nil)
-
-
-(defun make-noop-turn ()
-  (make-turn :Type **No-Op-Turn**))
 
 
 ;;; ----------------------------------------------------------------------
@@ -498,7 +448,7 @@
     (loop while (turn-responder k)
 	do (format t "~A~%" (turn-text k))
 	   (setq x (read-line))
-	   (format t"~A~%" x)
+	   (format t "~A~%" x)
 	   (setq k (funcall (turn-responder k) x)))
     (pprint (turn-text k))))
 
@@ -714,6 +664,7 @@
 	   (make-minil-ophseq S Rest Assoc (OpHint-Type Hint) OpTail))
 	  ((setq S (pick-other-spec (OpHint-HintSpecs Hint)))
 	   (if (or (stringp S) (equalp (Hintspec-type S) 'String))
+
 	       (make-string-Ophseq S Rest Prefix Assoc (OpHint-Type Hint)  OpTail)
 	     (make-next-hseq S Rest Prefix Assoc OpTail)))
 	  (t (make-error-hseq Rest)))))
