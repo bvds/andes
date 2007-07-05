@@ -83,8 +83,13 @@
   (and (listp wm)
        (equalp (car wm) 'do)))
 
-;; Note this violates the strict separation of the 
-;; systementries and other help structs.
+;; SystemEntry and csdo are interdependent structures
+
+(defun SystemEntries->csdos (entries)
+  "return all distinct csdos associated with a list of SystemEntries"
+  (sort (remove-duplicates (mappend #'SystemEntry-Sources entries)
+			   :key #'csdo-op :test #'unify) 
+	#'expr< :key #'csdo-op))
 
 (defun csdo-enteredp (do)
   "Return t iff the entry attatched to the do has been entered."

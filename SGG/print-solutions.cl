@@ -46,8 +46,88 @@
     (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
     ))
 
+(defun any-turn-text (x) (when x (turn-text x)))
+
+
 ;; This really needs to be broken up into a number of subroutines.
 (defun print-html-problem-solutions (problem 
+				     &optional (Stream t))
+  (format Stream 
+	  (strcat
+	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
+	   "<html> <head>~%"
+	   "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
+	   "<title>~A</title>~%"
+	   "</head>~%"
+	   "<body>~%"
+	   "<h1>Problem Solutions for ~A</h1>~%"
+	   "<p>~%") 
+	  (problem-name Problem) (problem-name Problem))
+  (mapcar #'(lambda (x) (format Stream "   ~A<br>~%" x)) 
+	  (problem-statement Problem))
+  (format Stream "</p>~%")
+
+  (do ((n 0 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
+    (format Stream "<h2>Solution ~A</h2>~%" n)
+    (let ((soln (nth n (problem-solutions problem))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+      (format Stream "<table>~%")
+      (format Stream "<caption>Entries</caption>~%")
+      (dolist (eqn (Eqnset-Eqns soln))
+	(format Stream "<tr><td><code>~A</code></td><td class=\"~A\">~A</td><td>~A</td>~%" 
+		(enode-id eqn)
+		(equation-complexity (lookup-expression->Equation 
+				      (Enode-id eqn)))
+		(psm-english (enode-id eqn))
+		(psm-exp (enode-id eqn)))
+	(dolist (opinst (SystemEntries->csdos (bgnode-entries eqn)))
+	  (format stream "      <td><a href=\"#~D~A\"><code>~{~A~^<br>~}</code></a></td>~%"
+		  n (sxhash (csdo-op opinst)) (csdo-op opinst)))
+	(format Stream "</tr>~%"))
+      (format Stream "</table>~%~%")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      
+      (format Stream "<table>~%")
+      (format Stream "<caption>Quantities</caption>~%")
+      (dolist (eqn (remove-if-not #'Qnode-p (EqnSet-nodes soln)))
+	(format Stream "<tr><td><code>~A</code></td><td>~A</td><td>~A</td>~:{~%        <td><code>~@{~A~^<br>~}</code></td>~}</tr>~%" 
+		(qnode-exp eqn)
+		(nlg (qnode-exp eqn))
+		(qnode-var eqn)
+		(mapcar #'csdo-op (SystemEntries->csdos 
+				   (bgnode-entries eqn)))))
+      (format Stream "</table>~%~%")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      
+      (format Stream "<table>~%")
+      (format Stream "<caption>Operators</caption>~%")
+      (dolist (opinst (SystemEntries->csdos  
+		       (mappend #'bgnode-entries (EqnSet-nodes soln))))
+	(format Stream "<tr><td id=\"~D~A\"><code>~{~A~^<br>~}</code></td>~{<td>~A</td>~}</tr>~%" 
+		n (sxhash (csdo-op opinst))
+		(csdo-op opinst)
+		(mapcar #'any-turn-text 
+			(mapcar #'(lambda (type) 
+				    (make-hint-seq 
+				     (collect-step-hints opinst :type type))) 
+				'(point bottom-out)))
+		) 
+	)
+      (format Stream "</table>~%~%")
+      
+      ))
+  (format Stream 
+	  (strcat
+	   "</body>~%"
+	   "</html>~%"))
+  )
+
+;; This really needs to be broken up into a number of subroutines.
+(defun print-html-problem-diffs (problem 
 				     &optional (Stream t)
 				     ;; don't write out projections
 				     (ignore '(projection . ?whatever)))
@@ -125,34 +205,3 @@
 				   :test #'equalp)))
 
 
-
-(defun SystemEntries->csdos (entries)
-  (sort (remove-duplicates (mappend #'SystemEntry-Sources entries)
-			   :key #'csdo-op :test #'unify) #'expr< :key #'csdo-op))
-
-(defun any-turn-text (x) (when x (turn-text x)))
-
-;; This depends on stuff in Help
-(progn (andes-init) (read-problem-info (string 'kt10a)))
-
-(dolist (soln (problem-solutions *cp*))
-  (format t "solution:~%  Eqn Nodes:~%")
-  (dolist (eqn (EqnSet-Eqns soln)) 
-   (let ((opinsts (SystemEntries->csdos  (bgnode-entries eqn))))
-    (format t "    ~S ~A~%~{      ~S~%~}" (Enode-id eqn) (psm-exp (enode-id eqn)) 
-	    (mapcar #'csdo-op opinsts))))
-  (format t "  Quant Nodes:~%")
-  (dolist (eqn (remove-if-not #'Qnode-p (EqnSet-nodes soln)))
-   (let ((opinsts (SystemEntries->csdos  (bgnode-entries eqn))))
-      (format t "    ~S ~A ~A~%~{      ~S~%~}" 
-	      (Qnode-exp eqn) (nlg (qnode-exp eqn)) (qnode-var eqn)
-	      (mapcar #'csdo-op opinsts))))
-  (format t "  Operator instances:~%")
-  (dolist (opinst (SystemEntries->csdos  
-		   (mappend #'bgnode-entries (EqnSet-nodes soln))))
-    (let ((turn (mapcar #'(lambda (type) (make-hint-seq 
-					  (collect-step-hints opinst 
-						  :type type)))
-			'(point bottom-out))))
-      (format t "    ~S~%~{      ~S~%~}" 
-	      (csdo-op opinst)  (mapcar #'any-turn-text turn)))))

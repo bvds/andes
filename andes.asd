@@ -121,7 +121,7 @@
 				     (:file "SolutionPoint")
 				     (:file "GraphGenerator")
 				     (:file "ProblemSolver")
-				     (:file "rpint-solutions")
+				     (:file "print-solutions")
 				     (:file "SolutionSets")))
 ))
 
