@@ -112,13 +112,13 @@
 
 (defun dump-html-prbs (in-path out-path &rest topics)  
   "write solutions to working problems into a directory"
+  (andes-init)
   (dolist (P (choose-working-probs topics))
     ;; also initializes *sg-entries*
-    (let ((pp (read-problem-file (string (problem-name P))
-				 :path in-path)))
-       (when pp       
-	 (sg-setup pp)
-	 (dump-html-problem-solutions pp out-path))))  
+    (read-problem-info (string (problem-name P))
+		       :path in-path)
+       (if *cp* (dump-html-problem-solutions *cp* out-path)
+	   (format t "Error:  Can't load ~A~%" (problem-name p))))
   (dump-style-file out-path))
 
 ;;; for dealing with problem sets:
@@ -210,11 +210,11 @@
       
 ;;; list all possible entries for given problem. 
 (defun show-entries (probname &optional (dest T))
- (read-problem-info probname) ; will do sg-setup
- (dolist (e *sg-entries*) 
-   (format dest "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)
-			     ; show full opinst, not just opname
-                             (first (sg-map-systementry->opinsts e)))
+  (read-problem-info probname) ; will do sg-setup
+  (dolist (e *sg-entries*) 
+    (format dest "~S~%     ~S~%" (systementry-prop e) ;(sg-map-systementry->opname e)
+					; show full opinst, not just opname
+	    (first (sg-map-systementry->opinsts e)))
     ))
 
 ;; list all entries in tab-delimited file
