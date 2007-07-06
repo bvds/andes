@@ -666,7 +666,7 @@
   :effects ((eqn (= ?v1 ?v2) (loop-rule (?c1 ?c2) ?t)))
   :hint 
   (
-   (point (string "The components ~A and ~A are in parallel~@[~A]." 
+   (point (string "The components ~A and ~A are in parallel~@[ ~A~]." 
 		  ?c1 ?c2 (?t time))) 
    (teach (string "The voltage across any components in parallel is equal."))
    (bottom-out (string "Write the equation ~A." ((= ?v1 ?v2) algebra)))

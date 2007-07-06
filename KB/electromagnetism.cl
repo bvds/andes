@@ -2739,7 +2739,7 @@
             (eqn (= ?magF (* (abs ?q) ?magV ?magB (sin ?theta))) (charge-force-Bfield-mag ?b ?t))
             )
   :hint (
-         (point (string "You can find the magnitude of the magnetic force on ~A due to ~A" ?b (field ?loc magnetic ?source :time ?t)))
+         (point (string "You can find the magnitude of the magnetic force on ~A due to ~A" ?b ((field ?loc magnetic ?source :time ?t) def-np)))
          (teach (string "The magnitude of the magnetic force on a particle moving in a magnetic field is the product of the absolute value of the charge, the velocity, the magnetic field and the angle theta between the velocity and magnetic field vectors." ))
          (bottom-out (string "Write the equation ~a" ((= ?magF (* (abs ?q) ?magV ?magB (sin ?theta))) algebra)
 		      ))
@@ -3789,7 +3789,7 @@
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting the ~A line integral" 
 		       ((line-integral 
 			 (net-field ?surface ?type :time ?t)) def-np) 
-		       (?type ?adj)))
+		       (?type adj)))
    ))
 
 (def-psmclass amperes-law (amperes-law :surface ?S)
@@ -3839,7 +3839,7 @@
   :hint
   ;; Allegro lisp character encoding has trouble reading in "`e"
   ( (point (string "You can apply Amp~Cre's law to surface ~A."
-		   ((code-char 232) identity) ?s))
+		   (#\LATIN_SMALL_LETTER_E_WITH_GRAVE identity) ?s))
     (teach (string "Amp~Cre's law states that the line integral of the magnetic field around the boundary of a surface S is equal to the
 total current flowing through S times $m0.  The direction of positive current flow is given by the following right hand rule:  wrap you fingers around the boundary of the surface in the direction of the line integral; your thumb will be pointing in the direction of positive current flow." 
 		   ((code-char 232) identity)))

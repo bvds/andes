@@ -3025,7 +3025,8 @@
    (in-wm (inherit-vector ?b (ang-accel ?b :time ?t) zero)) )
   :effects ((compo-eqn-contains (NL-rot ?b ?axis ?t) NFL ?quantity)))
 
-(def-psmclass NSL-rot (?eqn-type NSL ?xyz ?rot (NL-rot ?body ?pivot ?time))
+(def-psmclass NSL-rot (?eqn-type NSL ?xyz ?rot 
+				 (NL-rot ?body ?pivot ?time :net ?netp))
   :complexity major
   :short-name "rotational form of Newton's 2nd law"
   :english ("rotational version of Newton's second law")

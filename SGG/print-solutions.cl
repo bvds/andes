@@ -46,8 +46,15 @@
     (format Stream "~&~A~%" (make-string 79 :initial-element #\-))
     ))
 
+
 (defun any-turn-text (x) (when x (turn-text x)))
 
+
+(defun distinct-SystemEntries (entries)
+  "Make sorted list of distinct entries"
+  (sort (remove-duplicates (copy-list entries) 
+			   :key #'SystemEntry-prop :test #'unify)
+	#'expr< :key #'SystemEntry-prop))
 
 ;; This really needs to be broken up into a number of subroutines.
 (defun print-html-problem-solutions (problem 
@@ -56,6 +63,7 @@
 	  (strcat
 	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
 	   "<html> <head>~%"
+	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
 	   "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
 	   "<title>~A</title>~%"
 	   "</head>~%"
@@ -72,19 +80,49 @@
     (let ((soln (nth n (problem-solutions problem))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      
+      (format Stream "<table>~%")
+      (format Stream "<caption>Entries and Operators</caption>~%")
+      (dolist (entry (distinct-SystemEntries 
+		      (mappend #'bgnode-entries (EqnSet-nodes soln))))
+	(let ((ops (remove-duplicates (copy-list (SystemEntry-Sources entry))
+				      :key #'csdo-op :test #'unify)))
+	  (loop for opinst in ops
+	     and firstcol = t then nil
+	     do
+	       (format Stream  "<tr>")
+	       (when firstcol
+		   (format Stream "<td id=\"~D.~A\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"
+			   
+			   n (sxhash (SystemEntry-prop entry))
+			   (length ops)
+			   (SystemEntry-prop entry)))
+	       (format Stream "        <td><code>~{~A~^<br>~}</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 
+		       
+		       (csdo-op opinst)
+		       (mapcar #'any-turn-text
+			       (mapcar #'(lambda (type) 
+					 (make-hint-seq 
+					  (collect-step-hints opinst :type type))) 
+				       '(point bottom-out))))
+	       )))
+      (format Stream "</table>~%~%")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       (format Stream "<table>~%")
       (format Stream "<caption>Entries</caption>~%")
       (dolist (eqn (Eqnset-Eqns soln))
-	(format Stream "<tr><td><code>~A</code></td><td class=\"~A\">~A</td><td>~A</td>~%" 
-		(enode-id eqn)
+	(format Stream "<tr><td class=\"~A\"><code>~A</code></td><td>~A</td><td>~A</td>~%" 
 		(equation-complexity (lookup-expression->Equation 
 				      (Enode-id eqn)))
+		(enode-id eqn)
 		(psm-english (enode-id eqn))
 		(psm-exp (enode-id eqn)))
-	(dolist (opinst (SystemEntries->csdos (bgnode-entries eqn)))
-	  (format stream "      <td><a href=\"#~D~A\"><code>~{~A~^<br>~}</code></a></td>~%"
-		  n (sxhash (csdo-op opinst)) (csdo-op opinst)))
+	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
+	  (format stream "      <td><a href=\"#~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
+		  n (sxhash (SystemEntry-prop entry)) 
+		  (SystemEntry-prop entry)))
 	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
 
@@ -93,32 +131,19 @@
       (format Stream "<table>~%")
       (format Stream "<caption>Quantities</caption>~%")
       (dolist (eqn (remove-if-not #'Qnode-p (EqnSet-nodes soln)))
-	(format Stream "<tr><td><code>~A</code></td><td>~A</td><td>~A</td>~:{~%        <td><code>~@{~A~^<br>~}</code></td>~}</tr>~%" 
+	(format Stream "<tr><td><code>~A</code></td><td>~A</td><td>~A</td>~%" 
 		(qnode-exp eqn)
 		(nlg (qnode-exp eqn))
-		(qnode-var eqn)
-		(mapcar #'csdo-op (SystemEntries->csdos 
-				   (bgnode-entries eqn)))))
+		(qnode-var eqn))
+	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
+	  (format stream "      <td><a href=\"#~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
+		  n (sxhash (SystemEntry-prop entry)) 
+		  (SystemEntry-prop entry)))
+	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      
-      (format Stream "<table>~%")
-      (format Stream "<caption>Operators</caption>~%")
-      (dolist (opinst (SystemEntries->csdos  
-		       (mappend #'bgnode-entries (EqnSet-nodes soln))))
-	(format Stream "<tr><td id=\"~D~A\"><code>~{~A~^<br>~}</code></td>~{<td>~A</td>~}</tr>~%" 
-		n (sxhash (csdo-op opinst))
-		(csdo-op opinst)
-		(mapcar #'any-turn-text 
-			(mapcar #'(lambda (type) 
-				    (make-hint-seq 
-				     (collect-step-hints opinst :type type))) 
-				'(point bottom-out)))
-		) 
-	)
-      (format Stream "</table>~%~%")
-      
+
       ))
   (format Stream 
 	  (strcat
@@ -197,6 +222,22 @@
 		   :direction :output :if-exists :supersede)))
     (print-html-problem-solutions problem str)
     (close str)))
+
+(defun dump-style-file (&optional (path *andes-path*))
+  ;; Make file with html styles
+  (let ((css (open (merge-pathnames  "main.css" path)
+ 		   :direction :output :if-exists :supersede)))
+    (format css 
+	    (strcat
+	     "  th {vertical-align: top; text-align: right;}~%"
+	     "  td {vertical-align: top;}~%"
+	     "  td.MAJOR {color: red;}~%"
+	     "  td.DEFINITION {color: green;}~%"
+	     "  caption {font-size: larger; font-weight: bolder;}~%"
+	     "  table,caption {margin-left: auto; margin-right: auto; ~%"
+	     "         border-spacing: 4; margin-bottom: 5; margin-top: 5;}~%"
+	     ))
+    (close css)))
 
 (defun find-diff-ids (x y &optional ignore)
   (remove-if #'(lambda (match) (unify match ignore))

@@ -281,7 +281,7 @@
      (eqn  (= ?do ?f) (lens-eqn ?lens))
    )
    :hint (
-     (point (string "Because the image-forming rays from ~A are effectively parallel, there is a very simple relation between the object distance and focal length of ~a." ?lens))
+     (point (string "Because the image-forming rays from ~A are effectively parallel, there is a very simple relation between the object distance and focal length of ~a." ?lens ?lens))
       (point (string "Parallel rays mean the image distance is effectively infinite, so the term 1/di in the lens/mirror equation may be treated as zero. Toproduce this situation, the object must therefore be situated at the focal point."))
       (bottom-out (string "Write the equation ~A" 
                      ((= ?do ?f)  algebra) ))
