@@ -1667,8 +1667,8 @@
    (test (lookup-expression-struct `(rate-of-change ,?quant)))
    ;;
    ;; make unique variable name:  not too pretty, but it works
-   (bind ?change-var (format-sym "d~A_~A_dt~@[_~a~]"  (first ?quant) 
-				 (sxhash (rest (remove-time ?quant)))
+   (bind ?change-var (format-sym "d~A~A_dt~@[_~a~]"  (first ?quant) 
+				 (my-sxhash (rest (remove-time ?quant)))
 				 (time-abbrev (time-of ?quant))))
    )
   :effects ((variable ?change-var (rate-of-change ?quant))

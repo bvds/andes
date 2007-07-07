@@ -63,7 +63,8 @@
 	  (strcat
 	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
 	   "<html> <head>~%"
-	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
+;;	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
+	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">~%"
 	   "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
 	   "<title>~A</title>~%"
 	   "</head>~%"
@@ -92,9 +93,9 @@
 	     do
 	       (format Stream  "<tr>")
 	       (when firstcol
-		   (format Stream "<td id=\"~D.~A\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"
+		   (format Stream "<td id=\"p~D.~A\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"
 			   
-			   n (sxhash (SystemEntry-prop entry))
+			   n (my-sxhash (SystemEntry-prop entry))
 			   (length ops)
 			   (SystemEntry-prop entry)))
 	       (format Stream "        <td><code>~{~A~^<br>~}</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 
@@ -120,8 +121,8 @@
 		(psm-english (enode-id eqn))
 		(psm-exp (enode-id eqn)))
 	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
-	  (format stream "      <td><a href=\"#~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
-		  n (sxhash (SystemEntry-prop entry)) 
+	  (format stream "      <td><a href=\"#p~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
+		  n (my-sxhash (SystemEntry-prop entry)) 
 		  (SystemEntry-prop entry)))
 	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
@@ -136,8 +137,8 @@
 		(nlg (qnode-exp eqn))
 		(qnode-var eqn))
 	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
-	  (format stream "      <td><a href=\"#~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
-		  n (sxhash (SystemEntry-prop entry)) 
+	  (format stream "      <td><a href=\"#p~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
+		  n (my-sxhash (SystemEntry-prop entry)) 
 		  (SystemEntry-prop entry)))
 	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
