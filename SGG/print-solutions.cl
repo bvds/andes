@@ -59,6 +59,14 @@
 ;; This really needs to be broken up into a number of subroutines.
 (defun print-html-problem-solutions (problem 
 				     &optional (Stream t))
+;;  Assume stream has UTF-8 encoding (default for sbcl)
+;;  Should test this is actually true or change the charset to match
+;;  the actual character code being used by the stream
+;;  something like:
+  (when (streamp Stream) 
+    #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
+	     (error "Wrong character code ~A, should be UTF-8" 
+		    (stream-external-format Stream))))
   (format Stream 
 	  (strcat
 	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
@@ -93,13 +101,11 @@
 	     do
 	       (format Stream  "<tr>")
 	       (when firstcol
-		   (format Stream "<td id=\"p~D.~A\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"
-			   
+		   (format Stream "<td id=\"p~D.~A\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"			   
 			   n (my-sxhash (SystemEntry-prop entry))
 			   (length ops)
 			   (SystemEntry-prop entry)))
-	       (format Stream "        <td><code>~{~A~^<br>~}</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 
-		       
+	       (format Stream "        <td><code>~{~A~^<br>~}</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
 		       (csdo-op opinst)
 		       (mapcar #'any-turn-text
 			       (mapcar #'(lambda (type) 
@@ -112,7 +118,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
       (format Stream "<table>~%")
-      (format Stream "<caption>Entries</caption>~%")
+      (format Stream "<caption>Principles (Problem Solving Methods)</caption>~%")
       (dolist (eqn (Eqnset-Eqns soln))
 	(format Stream "<tr><td class=\"~A\"><code>~A</code></td><td>~A</td><td>~A</td>~%" 
 		(equation-complexity (lookup-expression->Equation 
@@ -120,6 +126,8 @@
 		(enode-id eqn)
 		(psm-english (enode-id eqn))
 		(psm-exp (enode-id eqn)))
+	;; should make into separate function, since it is duplicated for
+	;; qnodes below.
 	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
 	  (format stream "      <td><a href=\"#p~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
 		  n (my-sxhash (SystemEntry-prop entry)) 
