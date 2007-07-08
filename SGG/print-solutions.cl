@@ -101,8 +101,8 @@
 	     do
 	       (format Stream  "<tr>")
 	       (when firstcol
-		   (format Stream "<td id=\"p~D.~A\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"			   
-			   n (my-sxhash (SystemEntry-prop entry))
+		   (format Stream "<td id=\"p~D.~D\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"			   
+			   n (SystemEntry-index entry)
 			   (length ops)
 			   (SystemEntry-prop entry)))
 	       (format Stream "        <td><code>~{~A~^<br>~}</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
@@ -129,8 +129,8 @@
 	;; should make into separate function, since it is duplicated for
 	;; qnodes below.
 	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
-	  (format stream "      <td><a href=\"#p~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
-		  n (my-sxhash (SystemEntry-prop entry)) 
+	  (format stream "      <td><a href=\"#p~D.~D\"><code>(~{~A~^<br>~})</code></a></td>~%"
+		  n (SystemEntry-index entry)
 		  (SystemEntry-prop entry)))
 	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
@@ -145,8 +145,8 @@
 		(nlg (qnode-exp eqn))
 		(qnode-var eqn))
 	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
-	  (format stream "      <td><a href=\"#p~D.~A\"><code>(~{~A~^<br>~})</code></a></td>~%"
-		  n (my-sxhash (SystemEntry-prop entry)) 
+	  (format stream "      <td><a href=\"#p~D.~D\"><code>(~{~A~^<br>~})</code></a></td>~%"
+		  n (SystemEntry-index entry)
 		  (SystemEntry-prop entry)))
 	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
