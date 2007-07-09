@@ -50,15 +50,28 @@
 (defun any-turn-text (x) (when x (turn-text x)))
 
 
+(defun print-html-entry-pointers (bgnode n &optional (Stream t))
+  "print html td giving pointers to entries associated with a given bgnode"
+  (format stream "      </td>")
+  (loop for entry in (distinct-SystemEntries (bgnode-entries bgnode))
+	and firstcol = t then nil 
+	do
+	(unless firstcol (format stream "<br>~%      "))
+	(format stream 
+		"<a href=\"#p~D.~D\"><code>~S</code></a>"
+		n (SystemEntry-index entry)
+		(SystemEntry-prop entry)))
+  (format stream "</td>~%"))
+
+
 (defun distinct-SystemEntries (entries)
   "Make sorted list of distinct entries"
   (sort (remove-duplicates (copy-list entries) 
 			   :key #'SystemEntry-prop :test #'unify)
 	#'expr< :key #'SystemEntry-prop))
 
-;; This really needs to be broken up into a number of subroutines.
-(defun print-html-problem-solutions (problem 
-				     &optional (Stream t))
+
+(defun print-html-problem-solutions (problem &optional (Stream t))
 ;;  Assume stream has UTF-8 encoding (default for sbcl)
 ;;  Should test this is actually true or change the charset to match
 ;;  the actual character code being used by the stream
@@ -92,6 +105,7 @@
       
       (format Stream "<table>~%")
       (format Stream "<caption>Entries and Operators</caption>~%")
+      (format Stream "<tr><th>Entry</th><th>Operator</th><th colspan=\"0\">Hints</th></tr>~%")
       (dolist (entry (distinct-SystemEntries 
 		      (mappend #'bgnode-entries (EqnSet-nodes soln))))
 	(let ((ops (remove-duplicates (copy-list (SystemEntry-Sources entry))
@@ -101,11 +115,11 @@
 	     do
 	       (format Stream  "<tr>")
 	       (when firstcol
-		   (format Stream "<td id=\"p~D.~D\" rowspan=\"~A\"><code>(~{~A~^<br>~})</code></td>~%"			   
+		   (format Stream "<td id=\"p~D.~D\" rowspan=\"~A\" class=\"entry\"><code>~S</code></td>~%"			   
 			   n (SystemEntry-index entry)
 			   (length ops)
 			   (SystemEntry-prop entry)))
-	       (format Stream "        <td><code>~{~A~^<br>~}</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
+	       (format Stream "        <td class=\"op\"><code>~S</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
 		       (csdo-op opinst)
 		       (mapcar #'any-turn-text
 			       (mapcar #'(lambda (type) 
@@ -119,19 +133,15 @@
 
       (format Stream "<table>~%")
       (format Stream "<caption>Principles (Problem Solving Methods)</caption>~%")
+      (format Stream "<tr><th>Id</th><th>Name</th><th>Action</th><th colspan=\"0\">Entries</th></tr>~%")
       (dolist (eqn (Eqnset-Eqns soln))
-	(format Stream "<tr><td class=\"~A\"><code>~A</code></td><td>~A</td><td>~A</td>~%" 
+	(format Stream "<tr><td class=\"~A\"><code>~S</code></td><td>~A</td><td>~A</td>~%" 
 		(equation-complexity (lookup-expression->Equation 
 				      (Enode-id eqn)))
 		(enode-id eqn)
 		(psm-english (enode-id eqn))
 		(psm-exp (enode-id eqn)))
-	;; should make into separate function, since it is duplicated for
-	;; qnodes below.
-	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
-	  (format stream "      <td><a href=\"#p~D.~D\"><code>(~{~A~^<br>~})</code></a></td>~%"
-		  n (SystemEntry-index entry)
-		  (SystemEntry-prop entry)))
+	(print-html-entry-pointers eqn n stream)
 	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
 
@@ -139,15 +149,13 @@
       
       (format Stream "<table>~%")
       (format Stream "<caption>Quantities</caption>~%")
+      (format Stream "<tr><th>Id</th><th>Name</th><th>Symbol</th><th colspan=\"0\">Entries</th></tr>~%")
       (dolist (eqn (remove-if-not #'Qnode-p (EqnSet-nodes soln)))
-	(format Stream "<tr><td><code>~A</code></td><td>~A</td><td>~A</td>~%" 
+	(format Stream "<tr><td><code>~S</code></td><td>~A</td><td>~A</td>~%" 
 		(qnode-exp eqn)
 		(nlg (qnode-exp eqn))
 		(qnode-var eqn))
-	(dolist (entry (distinct-SystemEntries (bgnode-entries eqn)))
-	  (format stream "      <td><a href=\"#p~D.~D\"><code>(~{~A~^<br>~})</code></a></td>~%"
-		  n (SystemEntry-index entry)
-		  (SystemEntry-prop entry)))
+	(print-html-entry-pointers eqn n stream)
 	(format Stream "</tr>~%"))
       (format Stream "</table>~%~%")
 
@@ -226,7 +234,8 @@
   )
 
 (defun dump-html-problem-solutions (problem &optional (path *andes-path*))
-  (let ((str (open (merge-pathnames 
+  (let ((*print-pretty* NIL) ;disble line breaks
+	(str (open (merge-pathnames 
 		    (format nil "~A.html" (problem-name problem)) path)
 		   :direction :output :if-exists :supersede)))
     (print-html-problem-solutions problem str)
@@ -238,13 +247,14 @@
  		   :direction :output :if-exists :supersede)))
     (format css 
 	    (strcat
-	     "  th {vertical-align: top; text-align: right;}~%"
+;	     "  th {vertical-align: top; text-align: right;}~%"
 	     "  td {vertical-align: top;}~%"
 	     "  td.MAJOR {color: red;}~%"
 	     "  td.DEFINITION {color: green;}~%"
 	     "  caption {font-size: larger; font-weight: bolder;}~%"
 	     "  table,caption {margin-left: auto; margin-right: auto; ~%"
-	     "         border-spacing: 4; margin-bottom: 5; margin-top: 5;}~%"
+	     "         border: 1px solid black; margin: 2px; }~%"
+;	     "         border-spacing: 4; margin-bottom: 5; margin-top: 5;}~%"
 	     ))
     (close css)))
 
