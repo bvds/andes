@@ -8,5 +8,5 @@
 (defun my-sxhash (expr)
   "Modification of sxhash that works for long lists and sublists"
   (if (consp expr)
-      (sxhash (mapcar #'my-sxhash expr))
+      (sxhash (cons (my-sxhash (car expr)) (my-sxhash (cdr expr))))
       (sxhash expr)))
