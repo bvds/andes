@@ -71,11 +71,68 @@
 	#'expr< :key #'SystemEntry-prop))
 
 
+(defun print-html-entries (entries n &optional (Stream t))
+  (format Stream "<table>~%")
+  (format Stream "<caption>Entries and Operators</caption>~%")
+  (format Stream "<tr><th>Entry</th><th>Operator</th><th colspan=\"0\">Hints</th></tr>~%")
+  (dolist (entry entries)
+    (let ((ops (remove-duplicates (copy-list (SystemEntry-Sources entry))
+				  :key #'csdo-op :test #'unify)))
+      (loop for opinst in ops
+	 and firstcol = t then nil
+	 do
+	   (format Stream  "<tr>")
+	   (when firstcol
+	     (format Stream "<td id=\"p~D.~D\" rowspan=\"~A\" class=\"entry\"><code>~S</code></td>~%"			   
+		     n (SystemEntry-index entry)
+		     (length ops)
+		     (SystemEntry-prop entry)))
+	   (format Stream "        <td class=\"op\"><code>~S</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
+		   (csdo-op opinst)
+		   (mapcar #'any-turn-text
+			   (mapcar #'(lambda (type) 
+				       (make-hint-seq 
+					(collect-step-hints opinst :type type))) 
+				   '(point bottom-out))))
+	   )))
+  (format Stream "</table>~%~%"))
+
+
+(defun print-html-psms (eqns n &optional (Stream t))
+  (format Stream "<table>~%")
+  (format Stream "<caption>Principles (Problem Solving Methods)</caption>~%")
+  (format Stream "<tr><th>Id</th><th>Name</th><th>Action</th><th colspan=\"0\">Entries</th></tr>~%")
+  (dolist (eqn eqns)
+    (format Stream "<tr><td class=\"~A\"><code>~S</code></td><td class=\"~A\">~A</td><td>~A</td>~%" 
+	    (PSMClass-complexity (lookup-expression->PSMClass
+				  (Enode-id eqn)))
+	    (enode-id eqn)
+	    (PSMClass-complexity (lookup-expression->PSMClass
+				  (Enode-id eqn)))
+	    (psm-english (enode-id eqn))
+	    (psm-exp (enode-id eqn)))
+    (print-html-entry-pointers eqn n stream)
+    (format Stream "</tr>~%"))
+  (format Stream "</table>~%~%"))
+
+(defun print-html-quantities (eqns n &optional (Stream t))
+  (format Stream "<table>~%")
+  (format Stream "<caption>Quantities</caption>~%")
+  (format Stream "<tr><th>Id</th><th>Name</th><th>Symbol</th><th colspan=\"0\">Entries</th></tr>~%")
+  (dolist (eqn eqns)
+    (format Stream "<tr><td><code>~S</code></td><td>~A</td><td>~A</td>~%" 
+	    (qnode-exp eqn)
+	    (nlg (qnode-exp eqn))
+	    (qnode-var eqn))
+    (print-html-entry-pointers eqn n stream)
+    (format Stream "</tr>~%"))
+  (format Stream "</table>~%~%"))
+
 (defun print-html-problem-solutions (problem &optional (Stream t))
-;;  Assume stream has UTF-8 encoding (default for sbcl)
-;;  Should test this is actually true or change the charset to match
-;;  the actual character code being used by the stream
-;;  something like:
+  ;;  Assume stream has UTF-8 encoding (default for sbcl)
+  ;;  Should test this is actually true or change the charset to match
+  ;;  the actual character code being used by the stream
+  ;;  something like:
   (when (streamp Stream) 
     #+sbcl (unless (eq (stream-external-format Stream) ':utf-8)
 	     (error "Wrong character code ~A, should be UTF-8" 
@@ -84,7 +141,7 @@
 	  (strcat
 	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
 	   "<html> <head>~%"
-;;	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
+	   ;;	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">~%"
 	   "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">~%"
 	   "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
 	   "<title>~A</title>~%"
@@ -96,74 +153,48 @@
   (mapcar #'(lambda (x) (format Stream "   ~A<br>~%" x)) 
 	  (problem-statement Problem))
   (format Stream "</p>~%")
-
-  (do ((n 0 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
+  
+  (dotimes (n (length (Problem-Solutions Problem)))
     (format Stream "<h2>Solution ~A</h2>~%" n)
     (let ((soln (nth n (problem-solutions problem))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      
-      (format Stream "<table>~%")
-      (format Stream "<caption>Entries and Operators</caption>~%")
-      (format Stream "<tr><th>Entry</th><th>Operator</th><th colspan=\"0\">Hints</th></tr>~%")
-      (dolist (entry (distinct-SystemEntries 
-		      (mappend #'bgnode-entries (EqnSet-nodes soln))))
-	(let ((ops (remove-duplicates (copy-list (SystemEntry-Sources entry))
-				      :key #'csdo-op :test #'unify)))
-	  (loop for opinst in ops
-	     and firstcol = t then nil
-	     do
-	       (format Stream  "<tr>")
-	       (when firstcol
-		   (format Stream "<td id=\"p~D.~D\" rowspan=\"~A\" class=\"entry\"><code>~S</code></td>~%"			   
-			   n (SystemEntry-index entry)
-			   (length ops)
-			   (SystemEntry-prop entry)))
-	       (format Stream "        <td class=\"op\"><code>~S</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
-		       (csdo-op opinst)
-		       (mapcar #'any-turn-text
-			       (mapcar #'(lambda (type) 
-					 (make-hint-seq 
-					  (collect-step-hints opinst :type type))) 
-				       '(point bottom-out))))
-	       )))
-      (format Stream "</table>~%~%")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-      (format Stream "<table>~%")
-      (format Stream "<caption>Principles (Problem Solving Methods)</caption>~%")
-      (format Stream "<tr><th>Id</th><th>Name</th><th>Action</th><th colspan=\"0\">Entries</th></tr>~%")
-      (dolist (eqn (Eqnset-Eqns soln))
-	(format Stream "<tr><td class=\"~A\"><code>~S</code></td><td>~A</td><td>~A</td>~%" 
-		(PSMClass-complexity (lookup-expression->PSMClass
-				      (Enode-id eqn)))
-		(enode-id eqn)
-		(psm-english (enode-id eqn))
-		(psm-exp (enode-id eqn)))
-	(print-html-entry-pointers eqn n stream)
-	(format Stream "</tr>~%"))
-      (format Stream "</table>~%~%")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      
-      (format Stream "<table>~%")
-      (format Stream "<caption>Quantities</caption>~%")
-      (format Stream "<tr><th>Id</th><th>Name</th><th>Symbol</th><th colspan=\"0\">Entries</th></tr>~%")
-      (dolist (eqn (remove-if-not #'Qnode-p (EqnSet-nodes soln)))
-	(format Stream "<tr><td><code>~S</code></td><td>~A</td><td>~A</td>~%" 
-		(qnode-exp eqn)
-		(nlg (qnode-exp eqn))
-		(qnode-var eqn))
-	(print-html-entry-pointers eqn n stream)
-	(format Stream "</tr>~%"))
-      (format Stream "</table>~%~%")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+      (print-html-entries (distinct-SystemEntries 
+			   (mappend #'bgnode-entries (EqnSet-nodes soln)))
+			  n Stream)
+      (print-html-psms (Eqnset-Eqns soln) n stream)
+      (print-html-quantities (remove-if-not #'Qnode-p (EqnSet-nodes soln)) 
+			     n Stream)
       ))
-  (format Stream 
-	  (strcat
+;;; Working on diff form
+#|
+  (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
+    (format Stream "<h2>Solution ~A</h2>~%" n)
+    (let ((sol0 (first (problem-solutions problem)))
+	  (soln (nth n (problem-solutions problem))))
+      (distinct-SystemEntries 
+       (set-difference 
+	(mapcon #'SystemEntry-Sources (mappend #'bgnode-entries 
+					       (EqnSet-nodes sol0)))
+	(mapcon #'SystemEntry-Sources (mappend #'bgnode-entries 
+					       (EqnSet-nodes soln)))
+	:key SystemEntry-prop :test unify))
+      (print-html-entries (distinct-SystemEntries 
+			   (mappend #'bgnode-entries (EqnSet-nodes soln)))
+			  n Stream)
+      (print-html-psms (Eqnset-Eqns soln) n stream)
+      (print-html-quantities (remove-if-not #'Qnode-p (EqnSet-nodes soln)) 
+			     n Stream)
+      ))
+
+    (format Stream "<h2>All Solutions</h2>~%")
+    (let ((n (length (problem-solutions problem))))
+      (print-html-entries (distinct-SystemEntries 
+			   (mappend #'bgnode-entries 
+				    (flatten1 (problem-graph problem))))
+			  n Stream)
+      (print-html-psms (second (problem-graph problem)) n stream)
+      (print-html-quantities (first (problem-graph problem)) n Stream))
+|#    
+  (format Stream (strcat
 	   "</body>~%"
 	   "</html>~%"))
   )
