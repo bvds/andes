@@ -446,27 +446,6 @@
   )
 
 
-;;; Generate an equation definition and add it to the list of 
-;;; *ontology-equations*.  This is intended to be used for 
-;;; the purposes of KB construction.
-(defmacro def-equation (Name Form &key (Fields Nil) (English Nil) (EqnFormat Nil) (Doc "") 
-                                       (Complexity Nil))
-  "Define an equation type and store its value."
-  (let (tmp (E (make-equation
-		:Name Name
-		:Form Form
-		:Fields (fill-field-defs fields form)
-		:Complexity Complexity
-		:English English
-		:EqnFormat EqnFormat
-		:Doc Doc)))
-    (cond ((setq tmp (lookup-name->equation Name))
-	   (error "The equation ~a has already been specified here: ~a" Name tmp))
-	;;  ((setq tmp (lookup-expression->equation Form))
-	;;   (error "An equation matching ~a has already been defined here: ~a" Form tmp))
-	  (t (push E *Ontology-Equations*)
-	     E))))
-
 ;;; This function is called by the psmclass definition code to
 ;;; generate the equation definition for that PSMClass
 (defun add-equation-definition (Name Form Fields English EqnFormat Doc Complexity)
