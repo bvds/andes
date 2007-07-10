@@ -23,3 +23,12 @@ Winter2007-USNA-treacywintersgill.June-27-2007
 Diff between June 8 & June 27:
   Bug #1297
   Bug #1299
+
+Winter2007-USNA-treacywintersgill.July-9-2007
+
+Diff between June 27 & July 9:
+  fix to code-char
+  typos in write-loop-rule2 WRITE-CHARGE-FORCE-BFIELD-MAG define-line-integral
+           LENS-EQN-IMAGE-AT-INFINITY 
+  add z-component given to problems where vectors specified component-wise  
+  control plus-minus printed out differently
