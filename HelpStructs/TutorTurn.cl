@@ -253,6 +253,9 @@
   (declare (ignore x))
   nil)
 
+(defun make-noop-turn ()
+  (make-turn :Type **No-Op-Turn**))
+
 
 ;;; ----------------------------------------------------------------------
 ;;; Make-stat-turn
@@ -267,8 +270,7 @@
 
 (defun make-stat-turn (Stats)
   "Make a statistics turn."
-  (make-turn :Type **stat-turn**
-	     :Value Stats))
+  (make-turn :Type **stat-turn** :Value Stats))
 
 ;;; ----------------------------------------------------------------------
 ;;; Make Error Turn
