@@ -52,7 +52,7 @@
 
 (defun print-html-entry-pointers (bgnode n &optional (Stream t))
   "print html td giving pointers to entries associated with a given bgnode"
-  (format stream "      </td>")
+  (format stream "      <td>")
   (loop for entry in (distinct-SystemEntries (bgnode-entries bgnode))
 	and firstcol = t then nil 
 	do
