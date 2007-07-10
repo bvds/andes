@@ -136,7 +136,7 @@
       (format Stream "<tr><th>Id</th><th>Name</th><th>Action</th><th colspan=\"0\">Entries</th></tr>~%")
       (dolist (eqn (Eqnset-Eqns soln))
 	(format Stream "<tr><td class=\"~A\"><code>~S</code></td><td>~A</td><td>~A</td>~%" 
-		(equation-complexity (lookup-expression->Equation 
+		(PSMClass-complexity (lookup-expression->PSMClass
 				      (Enode-id eqn)))
 		(enode-id eqn)
 		(psm-english (enode-id eqn))
@@ -191,8 +191,8 @@
   (format Stream "<caption>Solution 0</caption>~%")
   (format Stream "~{<tr>~{<td class=\"~A\">~A</td><td>~A</td><td>~A</td>~}</tr>~%~}" 
 	  (mapcar #'(lambda (x) (list 
-				 (equation-complexity 
-				  (lookup-expression->Equation x))
+				 (PSMClass-complexity 
+				  (lookup-expression->PSMClass x))
 				 (psm-english x) (psm-exp x) 
 				      (format nil "<code>~S</code>" x)))
 		  (mapcar #'enode-id 
@@ -200,16 +200,16 @@
   (format Stream "</table>~%~%")
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
     (let ((diff1 (mapcar #'(lambda (x) (list 
-					(equation-complexity 
-					 (lookup-expression->Equation x))
+					(PSMClass-complexity 
+					 (lookup-expression->PSMClass x))
 					(psm-english x) 
 					(format nil "<code>~S</code>" x)))
 			 (find-diff-ids (nth 0 (Problem-Solutions Problem))
 					(nth n (Problem-Solutions Problem))
 					ignore)))
 	  (diff2 (mapcar #'(lambda (x) (list 
-					(equation-complexity 
-					 (lookup-expression->Equation x))
+					(PSMClass-complexity 
+					 (lookup-expression->PSMClass x))
 					(psm-english x) 
 					(format nil "<code>~S</code>" x)))
 			 (find-diff-ids (nth n (Problem-Solutions Problem))

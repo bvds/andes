@@ -332,13 +332,9 @@
        ;; The trivial-syseqn-p predicate is defined in interpret-equation.cl
        ((and (equalp (eqn-type Eqn) 'Eqn)
 	     (not (trivial-syseqn-p Entry))
-	     (or (and (setq Class (lookup-Expression->psmclass (eqn-exp Eqn)))
-		      (psmclass-major-p Class))
-		 (and (setq Class (lookup-expression->equation (eqn-exp Eqn)))
-		      (equation-major-p Class))))
-	
+	     (and (setq Class (lookup-Expression->psmclass (eqn-exp Eqn)))
+		      (psmclass-major-p Class)))
 	(push Entry (nth Solution *test-cache-eqn-entries*)))))))
-
 	 
 
 ;;; -------------------------------------------------------------------

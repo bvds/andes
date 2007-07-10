@@ -333,15 +333,8 @@
 ;; Given an Equation nlg it resulting in the appropriate form.
 (defun nlg-equation (x &rest args)
   (cond ((atom x) (format nil "~A" x))
-	((nlg-find x *Ontology-Equations* #'Equation-form #'Equation-English))
+	((nlg-find x *Ontology-PSMClasses* #'PSMClass-form #'PSMClass-English))
 	(t (format nil "equation:[~A]" x))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Given an equation nlg its equation form.
-(defun nlg-equation-format (x &rest args)
-  (cond ((atom x) (format nil "~A" x))
-	((nlg-find x *Ontology-Equations* #'Equation-form #'Equation-EqnFormat))
-	(t (format nil "equation-format:[~A]" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; end of nlg.cl

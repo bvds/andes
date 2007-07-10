@@ -143,7 +143,7 @@
 ;;; move on to filtering.  
 (defun iea-check-name (name &optional (Bindings no-bindings))
   "Check the supplied iea-name."
-  (let (Tmp (equation (lookup-name->equation name)))
+  (let (Tmp (equation (lookup-psmclass-name name)))
     (cond ((null equation) (error "Unknown equation name ~a supplied." name))
 	  ((iea-filter-equations-by-form Equation Bindings)
 	   (iea-platonic-prompt Equation Bindings))
@@ -158,7 +158,7 @@
 ;;; supplied form given the bindings.  
 (defun iea-filter-equations-by-form (Equation Bindings 
 				     &optional (Eqns (problem-eqnindex *cp*)))
-  (let ((form (subst-bindings Bindings (equation-form Equation))))
+  (let ((form (subst-bindings Bindings (PSMClass-form Equation))))
     (remove-if-not 
      #'(lambda (E) 
 	 (and (not (equal (eqn-type E) 'Derived-eqn)) 
@@ -182,9 +182,10 @@
 
 (defun iea-platonic-prompt (Equation Bindings)
   (make-dialog-turn
-   (format Nil **IEA-platonic-form** (nlg-bind Equation #'Equation-eqnformat Bindings)) 
+   (format Nil **IEA-platonic-form** 
+	   (nlg-bind Equation #'PSMClass-eqnformat Bindings)) 
     Nil ;; Menu is nil so that no response wil occur.
-   :Assoc `(IEA platonic-prompt ,(Equation-name Equation))))
+   :Assoc `(IEA platonic-prompt ,(PSMClass-name Equation))))
 
 
 
@@ -239,7 +240,7 @@
 		  (if (String-equal Response "Yes")
 		      (iea-prompt-alt-axes-yes Equation Bindings NewAxis)
 		    (iea-prompt-alt-axes-no)))
-   :Assoc `(IEA prompt-alternate-axes ,(equation-name equation) ,Bindings ,NewAxis)))
+   :Assoc `(IEA prompt-alternate-axes ,(PSMClass-name equation) ,Bindings ,NewAxis)))
 
 
 
@@ -248,9 +249,10 @@
 (defun iea-prompt-alt-axes-yes (Equation Bindings NewAxis)
   (let ((NewBinds (change-bindings '?Axis NewAxis Bindings)))
     (make-dialog-turn 
-     (format Nil **IEA-alt-axes-yes** (nlg-bind Equation #'Equation-eqnformat NewBinds))
+     (format Nil **IEA-alt-axes-yes** 
+	     (nlg-bind Equation #'PSMClass-eqnformat NewBinds))
      Nil ;; Menu is nil so no excess entry is sent.
-     :Assoc `(IEA prompt-alt-axes-yes ,(Equation-Name Equation) ,Bindings ,NewAxis))))
+     :Assoc `(IEA prompt-alt-axes-yes ,(PSMClass-name Equation) ,Bindings ,NewAxis))))
 
 
 
@@ -286,7 +288,7 @@
 	       **IEA-Incorrect-Multi**
 	     **IEA-Incorrect-Single**))
    Nil ;; Menu is nil so that no response will occur.
-   :Assoc `(IEA Incorrect ,(Equation-name Equation))))
+   :Assoc `(IEA Incorrect ,(PSMClass-name Equation))))
 
 
 

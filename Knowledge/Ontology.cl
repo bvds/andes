@@ -31,7 +31,6 @@
 (defparameter *Ontology-EntryProp-Types* () "List of valid entry proposition prefixes.")
 (defparameter *Ontology-GoalProp-Types* () "List of valid Goal proposition prefixes.")
 (defparameter *Ontology-Equation-Types* () "List of valid equation types.")
-(defparameter *Ontology-Equations* () "List of equation-definitions.")
 (defparameter *Ontology-EqnMerge-Lists* () "List of valid type pairs for eqn merging.")
 (defparameter *Ontology-PSMGroups* () "List of valid psm groups.")
 (defparameter *Ontology-PSMClasses* () "List of valid psm classes.")
@@ -76,7 +75,6 @@
   (setq *Ontology-ExpTypes* nil)
   (setq *Ontology-EntryProp-Types* nil)
   (setq *Ontology-Equation-Types* nil)
-  (setq *Ontology-Equations* Nil)
   (setq *Ontology-PSMGroups* nil)
   (setq *Ontology-PSMClasses* nil)
   (setq *Ontology-GoalProp-Types* nil))
@@ -416,76 +414,6 @@
        (entryprop-type-p type)))
 
 
-;;;;=============================================================
-;;;; Equations
-;;;; Equation entries are defined using the entryprop format.  
-;;;; However it is necessary to keep track of individual equations
-;;;; by type and form for later use.  The code in this section is
-;;;; used to define equations by proposition for later use.
-;;;;
-;;;; The equations themselves are generated as entries by the 
-;;;; problem solver at runtime.  The propositions are encoded 
-;;;; within the Newtons2 and other kb files.  What this list does
-;;;; is index those values.  There is no programmatic location
-;;;; that enforces consistency between what is supplied for equation
-;;;; prfopositions in that file and what is listed here but it is
-;;;; our hope that the consistency will be maintained by the KB
-;;;; writer.
-;;;;
-;;;; In the end more programmatic linking for all of these would 
-;;;; be ideal.
-
-(defstruct equation
-  Name   ;; The equation's atomic name
-  Form   ;; The equation's expression form with variables.
-  Fields ;; The fields within the form.
-  Complexity ;; major, minor, etc as for psmclass
-  English ;; Englishification code.
-  EqnFormat ;; A format string and vars for the platonic equation form.
-  Doc    ;; Documentation.
-  )
-
-
-;;; This function is called by the psmclass definition code to
-;;; generate the equation definition for that PSMClass
-(defun add-equation-definition (Name Form Fields English EqnFormat Doc Complexity)
- (let (tmp (E (make-equation
-	       :Name Name
-	       :Form Form
-	       :Fields (fill-field-defs fields form)
-	       :Complexity Complexity
-	       :English English
-	       :EqnFormat EqnFormat
-	       :Doc Doc)))
-    (cond ((setq tmp (lookup-name->equation Name))
-	   (error "The equation ~a has already been specified here: ~a" Name tmp))
-	 ;; ((setq tmp (lookup-expression->equation Form))
-	 ;;  (error "An equation matching ~a has already been defined here: ~a" Form tmp))
-	  (t (push E *Ontology-Equations*)
-	     E))))
-
-;;; -------------------------------------------------------
-;;; Searching for equations by values.
-
-(defun lookup-name->equation (Name)
-  (find Name *Ontology-Equations* :key #'Equation-Name))
-
-
-(defun lookup-expression->Equation (Exp &optional (Bindings no-bindings))
-  (find-if #'(lambda (E) (unify Exp (equation-form E) Bindings))
-	   *Ontology-Equations*))
-
-
-(defun equation-major-p (Equation)
-  "Return t iff the equation's complexity is Major."
-  (eq 'major (equation-complexity Equation)))
-
-
-
-
-
-
-
 ;;;;============================================================
 ;;;; Goal propositions.
 ;;;; Goal props are located within the sg subsections of the 
@@ -761,11 +689,7 @@
 	       :EqnFormat EqnFormat
 	       :doc doc)))
     (if g (push New (psmgroup-members g)))
-    (postpend *Ontology-PSMClasses* New)
-    
-    ;;; Add the psmclass to the equations as well.
-    (add-equation-definition Name Form FieldDefs English EqnFormat Doc Complexity) 
-    
+    (postpend *Ontology-PSMClasses* New)    
     New))
 
 

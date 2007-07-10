@@ -95,14 +95,15 @@
 
 ;; predicates of eqns (equation index entries):
 (defun major-eqn-p (eqn)
-"true if eqn struct represents a major principle" ; includes many that are definitions
-   (let ((eqinfo (lookup-expression->equation (eqn-exp eqn))))
-	 (and eqinfo (eq (equation-complexity eqinfo) 'major))))
+  "true if eqn struct represents a major principle" 
+  ;; includes many that are actually definitions
+  (let ((eqinfo (lookup-expression->PSMClass (eqn-exp eqn))))
+	 (and eqinfo (eq (PSMClass-complexity eqinfo) 'major))))
 
 (defun definition-eqn-p (eqn)
 "true if eqn struct represents a definition"
-   (let ((eqinfo (lookup-expression->equation (eqn-exp eqn))))
-	 (and eqinfo (eq (equation-complexity eqinfo) 'definition))))
+   (let ((eqinfo (lookup-expression->PSMClass (eqn-exp eqn))))
+	 (and eqinfo (eq (PSMClass-complexity eqinfo) 'definition))))
 
 (defun compo-eqn-p (eqn)
 "true if eqn struct represents a component-form vector equation"
@@ -120,9 +121,6 @@
 
 (defun eqn-English (eqn)
 "return English name for eqn index entry, NULL if not found."
-   ; wrong way to do it:
-   ;(let ((eqinfo (lookup-expression->equation (eqn-exp eqn))))
-   ;    (when eqinfo (equation-English eqinfo)))
    (nlg-equation (eqn-exp eqn)))
 
 ;; We want to allow implicit removal of zero values at any time, so we 
