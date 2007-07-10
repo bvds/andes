@@ -49,6 +49,7 @@
 
 (defun any-turn-text (x) (when x (turn-text x)))
 
+(defun any-psmclass-complexity (x) (when x (PSMClass-complexity x)))
 
 (defun print-html-entry-pointers (bgnode n &optional (Stream t))
   "print html td giving pointers to entries associated with a given bgnode"
@@ -103,16 +104,18 @@
   (format Stream "<caption>Principles (Problem Solving Methods)</caption>~%")
   (format Stream "<tr><th>Id</th><th>Name</th><th>Action</th><th colspan=\"0\">Entries</th></tr>~%")
   (dolist (eqn eqns)
-    (format Stream "<tr><td class=\"~A\"><code>~S</code></td><td class=\"~A\">~A</td><td>~A</td>~%" 
-	    (PSMClass-complexity (lookup-expression->PSMClass
-				  (Enode-id eqn)))
-	    (enode-id eqn)
-	    (PSMClass-complexity (lookup-expression->PSMClass
-				  (Enode-id eqn)))
-	    (psm-english (enode-id eqn))
-	    (psm-exp (enode-id eqn)))
-    (print-html-entry-pointers eqn n stream)
-    (format Stream "</tr>~%"))
+    ;; see Bug #1305: some enodes have no associated PSMClass
+    (let ((class (any-psmclass-complexity
+		  (lookup-expression->PSMClass (Enode-id eqn)))))
+      (format Stream "<tr><td id=\"e~D.~D\" class=\"~A\"><code>~S</code></td><td class=\"~A\">~A</td><td>~A</td>~%" 
+	      n (enode-Gindex eqn)
+	      class
+	      (enode-id eqn)
+	      class
+	      (psm-english (enode-id eqn))
+	      (psm-exp (enode-id eqn)))
+      (print-html-entry-pointers eqn n stream)
+      (format Stream "</tr>~%")))
   (format Stream "</table>~%~%"))
 
 (defun print-html-quantities (eqns n &optional (Stream t))
@@ -120,7 +123,8 @@
   (format Stream "<caption>Quantities</caption>~%")
   (format Stream "<tr><th>Id</th><th>Name</th><th>Symbol</th><th colspan=\"0\">Entries</th></tr>~%")
   (dolist (eqn eqns)
-    (format Stream "<tr><td><code>~S</code></td><td>~A</td><td>~A</td>~%" 
+    (format Stream "<tr><td id=\"q~D.~D\"><code>~S</code></td><td>~A</td><td>~A</td>~%" 
+	    n (qnode-GIndex eqn)
 	    (qnode-exp eqn)
 	    (nlg (qnode-exp eqn))
 	    (qnode-var eqn))
@@ -154,7 +158,7 @@
 	  (problem-statement Problem))
   (format Stream "</p>~%")
   
-  (dotimes (n (length (Problem-Solutions Problem)))
+  (dotimes (n 1) ;(length (Problem-Solutions Problem)))
     (format Stream "<h2>Solution ~A</h2>~%" n)
     (let ((soln (nth n (problem-solutions problem))))
       (print-html-entries (distinct-SystemEntries 
@@ -164,27 +168,95 @@
       (print-html-quantities (remove-if-not #'Qnode-p (EqnSet-nodes soln)) 
 			     n Stream)
       ))
-;;; Working on diff form
-#|
-  (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
-    (format Stream "<h2>Solution ~A</h2>~%" n)
-    (let ((sol0 (first (problem-solutions problem)))
-	  (soln (nth n (problem-solutions problem))))
-      (distinct-SystemEntries 
-       (set-difference 
-	(mapcon #'SystemEntry-Sources (mappend #'bgnode-entries 
-					       (EqnSet-nodes sol0)))
-	(mapcon #'SystemEntry-Sources (mappend #'bgnode-entries 
-					       (EqnSet-nodes soln)))
-	:key SystemEntry-prop :test unify))
-      (print-html-entries (distinct-SystemEntries 
-			   (mappend #'bgnode-entries (EqnSet-nodes soln)))
-			  n Stream)
-      (print-html-psms (Eqnset-Eqns soln) n stream)
-      (print-html-quantities (remove-if-not #'Qnode-p (EqnSet-nodes soln)) 
-			     n Stream)
-      ))
+;;; Tthis should be broken up into different functions
 
+  (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
+    (let ((nn (length (Problem-Solutions Problem)))
+	  (sol0 (first (problem-solutions problem)))
+	  (soln (nth n (problem-solutions problem))))
+    (format Stream "<h2>Solution ~A versus Solution 0</h2>~%" n)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (format Stream "<table>~%")
+    (format Stream "<caption>Entries and Operators</caption>~%")
+    (format Stream "<tr><th>added</th><th>removed</th>~%")
+    (format Stream "  <tr><td>~%")
+    (dolist (entry (distinct-SystemEntries
+		    (set-difference 
+		     (mappend #'bgnode-entries (EqnSet-nodes soln))
+		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
+		     :key #'SystemEntry-prop :test #'unify)))
+            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
+		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
+    (format Stream "  </td><td>~%")
+    (dolist (entry (distinct-SystemEntries
+		    (set-difference 
+		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
+		     (mappend #'bgnode-entries (EqnSet-nodes soln))
+		     :key #'SystemEntry-prop :test #'unify)))
+            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
+		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
+    (format Stream "  </tr>~%")
+    (format Stream "</table>~%")
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (format Stream "<table>~%")
+    (format Stream "<caption>Principles (problem solving methods)</caption>~%")
+    (format Stream "<tr><th>added</th><th>removed</th>~%")
+    (format Stream "  <tr><td>~%")
+    (dolist (eqn (set-difference 
+		  (EqnSet-eqns soln)
+		  (EqnSet-eqns sol0)
+		  :key #'Enode-id :test #'unify))
+      (format Stream "    <a href=\"#e~D.~D\" class=\"~A\"><code>~S</code></a><br>~%" 
+	      nn (Enode-GIndex eqn)
+	      ;; see Bug #1305: some enodes have no associated PSMClass
+	      (any-psmclass-complexity
+		 (lookup-expression->PSMClass (Enode-id eqn)))
+	      (Enode-id eqn)))
+    (format Stream "  </td><td>~%")
+    (dolist (eqn (set-difference 
+		     (EqnSet-eqns sol0)
+		     (EqnSet-eqns soln)
+		     :key #'Enode-id :test #'unify))
+      (format Stream "    <a href=\"#e~D.~D\" class=\"~A\"><code>~S</code></a><br>~%" 
+	      nn (Enode-GIndex eqn) 
+	      ;; see Bug #1305: some enodes have no associated PSMClass
+	      (any-psmclass-complexity
+	       (lookup-expression->PSMClass (Enode-id eqn)))
+	      (Enode-id eqn)))
+    (format Stream "  </tr>~%")
+    (format Stream "</table>~%")
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+    (format Stream "<table>~%")
+    (format Stream "<caption>Quantities</caption>~%")
+    (format Stream "<tr><th>added</th><th>removed</th>~%")
+    (format Stream "  <tr><td>~%")
+    (dolist (qnode (set-difference 
+		  (remove-if-not #'Qnode-p (EqnSet-nodes soln))
+		  (remove-if-not #'Qnode-p (EqnSet-nodes sol0))
+		  :key #'Qnode-exp :test #'unify))
+      (format Stream "    <a href=\"#q~D.~D\"><code>~S</code></a><br>~%" 
+	      nn (Qnode-GIndex qnode) (Qnode-exp qnode)))
+    (format Stream "  </td><td>~%")
+    (dolist (qnode (set-difference 
+		  (remove-if-not #'Qnode-p (EqnSet-nodes sol0))
+		  (remove-if-not #'Qnode-p (EqnSet-nodes soln))
+		  :key #'Qnode-GIndex :test #'unify))
+      (format Stream "    <a href=\"#q~D.~D\"><code>~S</code></a><br>~%" 
+	      nn (Qnode-GIndex qnode) (Qnode-exp qnode)))
+    (format Stream "  </tr>~%")
+    (format Stream "</table>~%")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    
+    ))
+
+  (when (> (length (problem-solutions problem)) 1)
     (format Stream "<h2>All Solutions</h2>~%")
     (let ((n (length (problem-solutions problem))))
       (print-html-entries (distinct-SystemEntries 
@@ -192,77 +264,13 @@
 				    (flatten1 (problem-graph problem))))
 			  n Stream)
       (print-html-psms (second (problem-graph problem)) n stream)
-      (print-html-quantities (first (problem-graph problem)) n Stream))
-|#    
-  (format Stream (strcat
+      (print-html-quantities (first (problem-graph problem)) n Stream)))
+    
+    (format Stream (strcat
 	   "</body>~%"
 	   "</html>~%"))
   )
 
-;; This really needs to be broken up into a number of subroutines.
-(defun print-html-problem-diffs (problem 
-				     &optional (Stream t)
-				     ;; don't write out projections
-				     (ignore '(projection . ?whatever)))
-  (format Stream 
-	  (strcat
-	   "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">~%"
-	   "<html> <head>~%"
-	   "<link rel=\"stylesheet\" type=\"text/css\" href=\"main.css\">~%"
-	   "<title>~A</title>~%"
-	   "</head>~%"
-	   "<body>~%"
-	   "<h1>Problem Solutions for ~A</h1>~%"
-	   "<p>~%") 
-	  (problem-name Problem) (problem-name Problem))
-  (mapcar #'(lambda (x) (format Stream "   ~A<br>~%" x)) 
-	  (problem-statement Problem))
-  (format Stream "</p>~%")
-  (format Stream "<table>~%")
-  (format Stream "<caption>Solution 0</caption>~%")
-  (format Stream "~{<tr>~{<td class=\"~A\">~A</td><td>~A</td><td>~A</td>~}</tr>~%~}" 
-	  (mapcar #'(lambda (x) (list 
-				 (PSMClass-complexity 
-				  (lookup-expression->PSMClass x))
-				 (psm-english x) (psm-exp x) 
-				      (format nil "<code>~S</code>" x)))
-		  (mapcar #'enode-id 
-			  (EqnSet-Eqns (first (Problem-Solutions Problem))))))
-  (format Stream "</table>~%~%")
-  (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
-    (let ((diff1 (mapcar #'(lambda (x) (list 
-					(PSMClass-complexity 
-					 (lookup-expression->PSMClass x))
-					(psm-english x) 
-					(format nil "<code>~S</code>" x)))
-			 (find-diff-ids (nth 0 (Problem-Solutions Problem))
-					(nth n (Problem-Solutions Problem))
-					ignore)))
-	  (diff2 (mapcar #'(lambda (x) (list 
-					(PSMClass-complexity 
-					 (lookup-expression->PSMClass x))
-					(psm-english x) 
-					(format nil "<code>~S</code>" x)))
-			 (find-diff-ids (nth n (Problem-Solutions Problem))
-					(nth 0 (Problem-Solutions Problem))
-					ignore))))
-      (format Stream "<table>~%")
-      (format Stream "  <caption>Solution ~A</caption>~%" n)
-      (format Stream "  <tr><th rowspan=~A>Added:</th>~{<td class=\"~A\">~A</td><td>~A</td>~}</tr>~%" 
-	      (length diff1) (car diff1))
-      (format Stream "~{  <tr>~{<td class=\"~A\">~A</td><td>~A</td>~}</tr>~%~}" (rest diff1))
-      (format Stream "  <tr><th rowspan=~A>Removed:</th>~{<td class=\"~A\">~A</td><td>~A</td>~}</tr>~%" 
-	      (length diff2) (car diff2))
-      (format Stream "~{  <tr>~{<td class=\"~A\">~A</td><td>~A</td>~}</tr>~%~}" (rest diff2))
-      (format Stream "  <tr><td colspan=3>Ignoring ~A</td></tr>~%" 
-	      (psm-english ignore))
-      (format Stream "</table>~%~%")
-      ))
-  (format Stream 
-	  (strcat
-	   "</body>~%"
-	   "</html>~%"))
-  )
 
 (defun dump-html-problem-solutions (problem &optional (path *andes-path*))
   (let ((*print-pretty* NIL) ;disble line breaks
@@ -280,8 +288,8 @@
 	    (strcat
 ;	     "  th {vertical-align: top; text-align: right;}~%"
 	     "  td {vertical-align: top;}~%"
-	     "  td.MAJOR {color: red;}~%"
-	     "  td.DEFINITION {color: green;}~%"
+	     "  *.MAJOR {color: red;}~%"
+	     "  *.DEFINITION {color: green;}~%"
 	     "  caption {font-size: larger; font-weight: bolder;}~%"
 	     "  table,caption {margin-left: auto; margin-right: auto; ~%"
 	     "         border: 1px solid black; margin: 2px; }~%"
