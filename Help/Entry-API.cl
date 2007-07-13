@@ -1362,11 +1362,14 @@
         match 		; correct system entry matched
         result) 	; final result to return
     
-    ;; Special for vector entries: Ensure the form of the givens is
-    ;; correct before we do any other checking. This avoids bad 
-    ;; error handlers when source is now really wrong form.
-    (when (eq (first (StudentEntry-prop Entry)) 'vector)
-       (setf result (Check-Vector-Given-Form Entry))
+    ;; Special for vector entries: If any given eqns are set, ensure the 
+    ;; form of the givens is correct before we do any other checking. 
+    ;; This avoids bad error handlers when source is now really wrong form.
+    ;; Testing for the presence of GivenEqns is just to make this backwards 
+    ;; compatible with old logs which never set any.
+    (when (and (eq (first (StudentEntry-prop Entry)) 'vector)
+               (StudentEntry-GivenEqns Entry))
+        (setf result (Check-Vector-Given-Form Entry))
 	(when (not (eq (turn-coloring result) **color-green**))
 	     (return-from Check-NonEq-Entry result))) ; early exit
 
