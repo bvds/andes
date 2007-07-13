@@ -160,11 +160,10 @@
 (defun new-error (student)
   "Given an incorrect student entry that has not been given before,
    return an error interpretation"
-  (let ((candidates nil) (best nil))
-    (setf candidates (applicable-error-analyses student))
+  (let ((candidates (applicable-error-analyses student))
+	best)
     ;; (format t "Candidates are ~W" candidates)
     (contextualize candidates)
-    ;; (format t "Contextualized Candidates are: ~% ~a~%" candidates)
     (when (cdr candidates) ; trace conflicts, so we can vet the results
       (format *debug-help* "  Error candidates: ~W~%" 
 	      (mapcar #'(lambda (x) (cons (ErrorInterp-name x)
@@ -491,7 +490,7 @@
   "Set the non-eqn ErrorInterp's state."
   (setf (ErrorInterp-state ei) (SystemEntry-State (car interp)))
   (if (and (eq **correct** (ErrorInterp-state ei))
-	   (systementry-entered (car Interp)))
+	   (SystemEntry-Entered (car Interp)))
       (setf (ErrorInterp-state ei) **done-already**)))
 
 
@@ -510,7 +509,7 @@
   ;; (format t "~%+++++++++++ Eqn done +++++++++++++++++~%~a~%" (ErrorInterp-intended ei))
 
   (if (and (eq **correct** (ErrorInterp-state ei))
-	   (loop for se in (ErrorInterp-intended ei) always (SystemEntry-entered se)))
+	   (loop for se in (ErrorInterp-intended ei) always (SystemEntry-Entered se)))
       (setf (ErrorInterp-state ei) **done-already**)))
 
 

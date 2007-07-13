@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SolutionGraph.cl
 ;; Collin Lynch
 ;; 04/19/2001
@@ -692,7 +692,8 @@
 
 (defun sg-check-interp (Interp)
   "Mark the state of the interp not accounting for sets."
-  (let ((State (Systementries->State (sg-unmark-interp Interp)))) ;; Check for **Forbidden** **Dead-path**
+  (let ((State (Systementries->State (sg-unmark-interp Interp)))) 
+    ;; Check for **Forbidden** **Dead-path**
     (if (and **Test-For-Prematurity**
 	     (eq **Correct** State)
 	     (SystemEntries-Prematurep (sg-unmark-interp Interp)))
@@ -936,15 +937,6 @@
 
 (defun ploop ()
   (loop for S in *SG-Entries* do (print-full-SystemEntry S)))
-
-(defun debug-mse (&rest Props)
-  (dolist (Prop Props)
-    (let ((entry (sg-EntryProp->SystemEntry prop)))
-      (if entry 
-	  (if (SystemEntry-Entered Entry)
-	      (setf (SystemEntry-Entered Entry) nil)
-	    (setf (SystemEntry-Entered Entry) t))
-	(error "No Matching entry found.")))))
 
 (defun sg-trace ()
   (sg-trace-setup)

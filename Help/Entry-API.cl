@@ -1306,22 +1306,22 @@
 ;; entry effects are always undone when a student entry is removed.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun undo-entry (entry)
-  ; undo entry effects specific to correct entries:
+  ;; undo entry effects specific to correct entries:
   (when (equal (StudentEntry-state entry) 'Correct)
-	; unmark entry interpretations as done in solution graph
+	;; unmark entry interpretations as done in solution graph
   	(sg-delete-StudentEntry entry)
-        ; undo any implicit eqn entry associated with this
+        ;; undo any implicit eqn entry associated with this
   	(dolist (ie (StudentEntry-ImplicitEqns entry))
            (undo-entry ie))
-        ; undo any given eqn entry associated with this
+        ;; undo any given eqn entry associated with this
 	(dolist (ge (StudentEntry-GivenEqns entry))
 	  (when (not (blank-given-value-entry ge))
 	    (undo-entry ge))))
 
-  ; remove all labels dependent on it from symbol table
+  ;; remove all labels dependent on it from symbol table
   (symbols-delete-dependents (StudentEntry-ID entry))
 
-  ; special to equation entries: remove from algebra system
+  ;; special to equation entries: remove from algebra system
   (when (or (equal (first (StudentEntry-prop entry)) 'eqn)
             (equal (first (StudentEntry-prop entry)) 'implicit-eqn))
 	(undo-eqn-entry entry))
