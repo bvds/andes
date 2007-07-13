@@ -152,8 +152,6 @@
     (setf (turn-coloring rem) **color-red**)
     (make-ErrorInterp
      :diagnosis '(Syntax-error-in-eqn)
-     :intended NIL
-     :state **no-corresponding-correct-entry**
      :remediation rem)))
 
 
@@ -444,41 +442,6 @@
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(forgot-units)
-       :state **no-corresponding-correct-entry**
-       :remediation rem))
-    (setf (turn-coloring rem) **color-red**)
-    rem))
-
-(defun assignment-eqn (parsed-eqn)
-"true if given prefix eqn parse is a numerical assignment statement"
-   (and (consp parsed-eqn)           ; just sanity checks on argument
-	(eq (first parsed-eqn) '=)   
-        (= (length parsed-eqn) 3)
-	; predicate defined in errors.cl takes (lhs rhs)
-	(assignmentp (second parsed-eqn) (third parsed-eqn))))
-
-; maybe-forgot units is returned when equation is dimensionally inconsistent but
-; could be dimensionally OK if numbers are treated as having unknown units -- though
-; it STILL fails to balance acceptably. So we are unsure what the true cause of the
-; inconsistency is, but can suggest maybe they forgot units. If this occurs for a simple 
-; numerical assignment statement we promote the response to the more definite "forgot units" 
-; message: The value may be wrong but we are still sure they have forgotten the units on a number.
-(defun maybe-forgot-units-ErrorInterp (se)
-  "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
-   the student appears to have left units off at least one number.
-   Also create an error interpreation in case the student asks a follow-up question, and
-   put it in the student entry's err interp field."
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
-  ; in case of a simple assignment statement, change to forgot-units error interpretation
-  (when (assignment-eqn (StudentEntry-ParsedEqn se))
-       (return-from maybe-forgot-units-ErrorInterp (forgot-units-ErrorInterp se)))
-  
-  (let ((rem (make-hint-seq
-	      '( "The units in this equation are not consistent.  If this is a symbolic equation, there is probably an error:  check all your terms.  Another possibility is that a number has been used without correct associated units."))))
-    (setf (StudentEntry-ErrInterp se)
-      (make-ErrorInterp
-       :diagnosis '(maybe-forgot-units)
-       :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
@@ -496,7 +459,6 @@
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(wrong-units)
-       :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
@@ -509,7 +471,6 @@
      (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(internal-error)
-       :state **no-corresponding-correct-entry**
        :remediation rem))
     rem))
 
@@ -570,8 +531,6 @@
     (setf (turn-coloring rem) **color-red**)
     (make-ErrorInterp
      :diagnosis (cons 'Undefined-variables undef-vars)
-     :intended NIL
-     :state **no-corresponding-correct-entry**
      :remediation rem)))
 
 (defun unused-variables-ErrorInterp (undef-vars)
@@ -589,8 +548,6 @@
     ;(setf (turn-coloring rem) NIL)  ; NIL color => leave black
     (make-ErrorInterp
      :diagnosis (cons 'Unused-variables undef-vars)
-     :intended NIL
-     :state **no-corresponding-correct-entry**
      :remediation rem)))
 
 
@@ -920,8 +877,6 @@
     (setf (turn-coloring rem) **color-red**)
     (make-ErrorInterp
      :diagnosis '(answer-sought-is-undefined)
-     :intended NIL
-     :state **no-corresponding-correct-entry**
      :remediation rem)))
 
 (defun bad-answer-bad-sought-ErrorInterp (equation why)
@@ -935,8 +890,6 @@
     (setf (turn-coloring rem) **color-red**)
     (make-ErrorInterp
      :diagnosis '(answer-is-not-sought)
-     :intended NIL
-     :state **no-corresponding-correct-entry**
      :remediation rem)))
 
 (defun bad-answer-syntax-ErrorInterp (equation)
@@ -949,8 +902,6 @@
     (setf (turn-coloring rem) **color-red**)
     (make-ErrorInterp
      :diagnosis '(answer-is-malformed)
-     :intended NIL
-     :state **no-corresponding-correct-entry**
      :remediation rem)))
 
 ;;; Build interpretation for disallowed variables in answer
@@ -967,8 +918,6 @@
     (setf (turn-coloring rem) **color-red**)
     (make-ErrorInterp
      :diagnosis '(using-variables-in-answer)
-     :intended NIL
-     :state **no-corresponding-correct-entry**
      :remediation rem)))
 
 ;;; check a single parse tree for disallowed variables in answer
@@ -1157,7 +1106,6 @@
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(should-be-unknown)
-       :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
@@ -1195,12 +1143,6 @@
       (make-ErrorInterp
        :diagnosis '(should-be-given)
        :intended (get-given-interp quant)
-       ;; state is state of intended systementry -- premature, forbidden. 
-       ;; Most now unused; we can just assume correct.  Might check for 
-       ;; change donealready like wwh does, but that would give a prolog
-       ;; in whatswrong help, and we don't want that on givens in the dialog 
-       ;; box, which do need to be done.
-       :state **correct**	
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
@@ -1221,7 +1163,6 @@
       (make-ErrorInterp
        :diagnosis '(should-be-known)
        :intended (get-known-interp quant)
-       :state **correct**	
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
@@ -1237,7 +1178,6 @@
       (make-ErrorInterp
        :diagnosis '(wrong-given-value)
        :intended (get-given-interp quant)
-       :state **correct**       ; of the intended systementry. 
        :remediation rem))
     ; don't return this as unsolicited hint -- leave it as whatswrong help
     ;(setf (turn-coloring rem) **color-red**)
@@ -1254,7 +1194,6 @@
       (make-ErrorInterp
        :diagnosis '(more-than-given)
        :intended (get-given-interp quant)
-       :state **correct**	; state of the intended systementry. Shouldn't matter
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))

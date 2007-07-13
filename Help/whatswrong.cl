@@ -72,8 +72,6 @@
 (defun make-failed-error-interpretation (&optional (fn-msg 'no-error-interpretation))
  "Returns an error interpretaton indicate that Andes could not understand the student's error"
   (make-ErrorInterp
-   :intended NIL
-   :state **no-corresponding-correct-entry**
    :remediation (apply fn-msg nil)
    :diagnosis (list fn-msg)
    :order '((expected-utility . 0))))
@@ -508,8 +506,8 @@
   (setf (ErrorInterp-intended ei) (cdr interp))
   ;; (format t "~%+++++++++++ Eqn done +++++++++++++++++~%~a~%" (ErrorInterp-intended ei))
 
-  (if (and (eq **correct** (ErrorInterp-state ei))
-	   (loop for se in (ErrorInterp-intended ei) always (SystemEntry-Entered se)))
+  (when (and (eq **correct** (ErrorInterp-state ei))
+	   (every #'SystemEntry-Entered (ErrorInterp-intended ei)))
       (setf (ErrorInterp-state ei) **done-already**)))
 
 

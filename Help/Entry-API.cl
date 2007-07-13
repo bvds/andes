@@ -1524,7 +1524,6 @@
        :diagnosis '(should-be-compo-form)
        ; unclear what intended should be
        ; :intended (get-given-interp quant)
-       :state **correct**	; of intended entry. Shouldn't matter
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
@@ -1538,7 +1537,6 @@
        :diagnosis '(should-be-magdir-form)
        ; unclear what intended should be, maybe eqn for one given compo
        ; :intended (get-given-interp `(compo x 0 ,quant)
-       :state **correct**	; of intended entry. Shouldn't matter
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
