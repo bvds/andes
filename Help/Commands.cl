@@ -117,15 +117,7 @@
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun read-problem-info (name &optional kb-type (bn-alg 0))
-  ; trap wrong version error and return special code to user
-  (handler-case
-        (do-read-problem-info name kb-type bn-alg)
-    ; in help system: trap version errors and return custom code
-    #+allegro-cl-runtime (wrong-version-prb (e)  
-        (format T "read-problem-info: caught error wrong-version-prb~%")
-    	'wrong-version-prb)
-  ))
-   
+  (do-read-problem-info name kb-type bn-alg))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; close-problem -- close the specified problem 
@@ -291,11 +283,9 @@
 ;;  entry as "entered", defines the magnitude and direction variables, and
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-vector (label avg-inst type system dir mag time id 
-                       &key given-mag given-xc given-yc given-zc)
+(defun lookup-vector (label avg-inst type system dir mag &optional time id)
   (handle-non-eq 
-     (on-lookup-vector label avg-inst type system dir mag time id
-                        given-mag given-xc given-yc given-zc)))
+     (on-lookup-vector label avg-inst type system dir mag time id)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -351,11 +341,9 @@
 ;;   tem entry as "entered" it also defines magnitude and direction variables
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-force (label type system agent dir mag &optional time id
-                     &key given-mag given-xc given-yc given-zc)
+(defun lookup-force (label type system agent dir mag &optional time id)
   (handle-non-eq 
-    (on-lookup-force label type system agent dir mag time id
-                     given-mag given-xc given-yc given-zc)))
+    (on-lookup-force label type system agent dir mag time id)))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-torque - check correctness of a torque vector drawn by student
@@ -377,11 +365,9 @@
 ;; 
 ;; Side Effects: Updates state as for other vector entries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lookup-torque (label net body axis dir mag time id
-                      &key given-mag given-xc given-yc given-zc)
+(defun lookup-torque (label net body axis dir mag time id)
  (handle-non-eq  
-   (on-lookup-torque label net body axis dir mag time id
-                     given-mag given-xc given-yc given-zc)))
+   (on-lookup-torque label net body axis dir mag time id)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; label-angle -- assigns the given label to the angle between two objects with
@@ -553,6 +539,42 @@
 (defun find-eqn-entry (eqn-str) 
   (find eqn-str *StudentEntries* :key #'StudentEntry-Verbatim
 		                 :test #'eqn-match))
+
+#|;;; Note, I have modified this from its original form (here in the comment)
+  ;;; To the form below for the purposes of dealing with *studentactions* logging.
+  (defun calculate-equation-string (eqn-str new-id)
+  ;; need to map equation string to slot number
+  (let ((eqn-entry (find-eqn-entry eqn-str)))
+  
+  (unless eqn-entry 
+  (return-from calculate-equation-string "!Internal error: entry for equation not found!"))
+  (unless (equal (StudentEntry-state eqn-entry) 'Correct)
+  (return-from calculate-equation-string "!Only correct equations may be simplified."))
+  (let ((result (solver-eqn-simplify (StudentEntry-id eqn-entry) new-id)))
+  (cond ; result may be equation s-expr, NIL or error message string 
+  ((and result (listp result)) ; an equation
+  ;; just return eqn text until appropriate turns are implemented
+  (let* ((studEqn  (subst-student-vars (pre2in result)))
+  ;; suppress *print-pretty* since it could insert newlines 
+  ;; into long result, and WB requires single-line eqn string
+  (infixStr (write-to-string studEqn :pretty NIL :escape NIL))
+  ;; strip outer parens from equation string
+  (studText (subseq infixStr 1 (- (length infixStr) 1)))) 
+  ;; save final result as if it were a new student entry. We need to 
+  ;; remember slot is occupied for add-entry to trigger automatic
+  ;; cleanup of equation in algebra on new entry.
+  (add-entry (make-StudentEntry :id new-id
+  :verbatim studText
+  :prop `(eqn ,studText)
+  :parsedEqn result
+  :state **Correct**))
+  ;; finally return student equation 
+  studText
+  ))
+  ((stringp result) ; error message
+  (format NIL "!Unable to simplify ~A: ~A" eqn-str result))
+  (T (format NIL "!Unable to simplify ~A." eqn-str))))))
+|#
 
 (defun calculate-equation-string (eqn-str new-id)
  ;; No longer needed. (return-turn 
