@@ -2858,7 +2858,7 @@ const struct fInfo {
 featureMap[] = 
 {
 	// For inverse mapping from flag to string, only first string is used
-	"vector-grid",ID_PROB_VECTOR,
+	"vector-grid",ID_PROB_VECTOR_GRID,
 	"kinematics", ID_PROB_KINEMATICS,
 	"dynamics",   ID_PROB_FORCE,
 	"statics",    ID_PROB_FORCE,

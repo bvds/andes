@@ -1,6 +1,6 @@
 // ChildFrm.cpp : implementation of the CChildFrame class
 //
-// $Id: ChildFrm.cpp,v 1.7 2007/06/29 21:43:19 anders Exp $
+// $Id: ChildFrm.cpp,v 1.8 2007/07/13 00:48:38 anders Exp $
     
 #include "stdafx.h"
 // #include <afxrich.h>
@@ -394,7 +394,7 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 	if (m_pDoc->m_nProblemType == PROB_QUAL)	// Qualitative problem
 	{
 	// In Andes2 qual problem, no tools.
-	/*	nID = IDR_QUALTOOLS;		// bar with motion diagram tools. */
+/*		nID = IDR_QUALTOOLS;		// bar with motion diagram tools. */
 	}
 	else if (m_pDoc->m_nProblemType == PROB_QUANT				// Quantitative problem
 		     && !(m_pDoc->m_wConcept & ID_PROB_PROBABILITY))    // but no drawing tools for probability

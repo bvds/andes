@@ -38,6 +38,7 @@ void CValueDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_XCVAR, m_stcXCLabel);
 	DDX_Control(pDX, IDC_ZDIR, m_cboZDir);
 	DDX_Control(pDX, IDC_ORIENTATION_TEXT, m_editDirValue);
+	DDX_Control(pDX, IDC_COMPO_BTN, m_btnCompo);
 	DDX_Control(pDX, IDC_MAGDIR_BTN, m_btnMagDir);
 	DDX_Control(pDX, IDC_ZC_VALUE, m_editZCValue);
 	DDX_Control(pDX, IDC_YC_VALUE, m_editYCValue);

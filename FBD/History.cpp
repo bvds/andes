@@ -2753,7 +2753,8 @@ PRIVATE IEventHandler* GetHandlerObj(HandlerID id, EventID event)
 	case EVH_DIALOG:
 		if (g_pDlg == NULL) {
 			// if modeless equation dialog is up, see if maybe this is event for it.
-			if (theApp.GetMainFrame() && theApp.GetMainFrame()->m_dlgEqnReview.IsWindowVisible()) 
+			if (theApp.GetMainFrame() && ::IsWindow(theApp.GetMainFrame()->m_dlgEqnReview.m_hWnd) 
+				                      && theApp.GetMainFrame()->m_dlgEqnReview.IsWindowVisible()) 
 			{
 				if (event == EV_PSM_SELECT || event == EV_PSM_EXPAND || 
 					event == EV_DLG_MOVE || event == EV_BTN_CLICK) 
@@ -3425,7 +3426,10 @@ CWnd* CLogDialog::GetCtlArg(LPCTSTR pszArgs, const char* &pszRest)
 	
 	// try to parse as an integer ctl id
 	if (sscanf(szArg, "%d", &nCtlID) == 1)
-		pCtl = GetDlgItem(nCtlID);
+		// pCtl = GetDlgItem(nCtlID);
+        // Following MFC function recurses into subwindows, needed
+		// in case of nested dialogs
+		pCtl = GetDescendantWindow(m_hWnd, nCtlID, /*bOnlyPerm:*/FALSE);
 	else // try parsing as control name from table
 	{
 		nCtlID = CtlNameToID(szArg);

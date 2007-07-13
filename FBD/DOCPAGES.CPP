@@ -40,7 +40,7 @@ extern const PROBLEM_CONCEPT concepts[] =
 	ID_PROB_GRAVITATION, "Gravitation",
 	ID_PROB_ROTKINEMATICS, "Rotation",
 	ID_PROB_WORK,		"Work",
-	ID_PROB_VECTOR,		"Vector Grid",
+	ID_PROB_VECTOR_GRID,"Vector Grid",
 	ID_PROB_MOMENTUM,	"Momentum",
     ID_PROB_RELVEL,     "Relative velocity",
 	ID_PROB_CIRCUITS,	"Circuits",

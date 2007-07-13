@@ -382,7 +382,7 @@ void CFBDView::OnInitialUpdate()
 	// We use fine-grained 16ths of an inch normally, so that find gradations
 	// of vector angles can easily be drawn. But we use a coarse-grained grid
 	// in the vector problems so it is easy to count boxes for components.
-	if (GetDocument()->m_wConcept & ID_PROB_VECTOR) {
+	if (GetDocument()->m_wConcept & ID_PROB_VECTOR_GRID) {
 		m_cxGrid = nLUsPerInch/nVectorGridPerInch;
 		m_cyGrid = nLUsPerInch/nVectorGridPerInch;
 	} else {
@@ -405,9 +405,9 @@ void CFBDView::OnInitialUpdate()
 	// also show for vector arithmetic problems. 
 	// AW -- no need to whow grid for Andes2 qual problems.
 	if (/*GetDocument()->m_nProblemType == PROB_QUAL || */ 
-		(GetDocument()->m_wConcept & ID_PROB_VECTOR)) {
+		(GetDocument()->m_wConcept & ID_PROB_VECTOR_GRID)) {
 		m_bShowGrid = TRUE;
-		m_bAlignGrid = TRUE;
+		// m_bAlignGrid = TRUE;   // AW: alignment can be annoying
 	}
 
 	// In student mode: create any run-time controls in the problem.
@@ -1376,7 +1376,7 @@ void CFBDView::DrawGrid(CDC* pDC)
 	// Draw unit lines. For normal fine-grained grid, we draw line at every 
 	// other grid interval so it's not too busy. For coarse-grained vector grid 
 	// we draw at every division so it's easy to draw while counting boxes.
-	int nFactor = (GetDocument()->m_wConcept & ID_PROB_VECTOR) ? 1 : 2;
+	int nFactor = (GetDocument()->m_wConcept & ID_PROB_VECTOR_GRID) ? 1 : 2;
 	for (int x = rect.left ; x < rect.right; x += nFactor*m_cxGrid)
 	{
 		if (x != 0)

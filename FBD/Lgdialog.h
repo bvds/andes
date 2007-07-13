@@ -1,7 +1,7 @@
 // 
 // LogDialog.h : declarations for CLogDialog, our log-aware dialog class
 // 
-// $Id: Lgdialog.h,v 1.3 2007/06/22 01:10:40 anders Exp $
+// $Id: Lgdialog.h,v 1.4 2007/07/13 00:48:38 anders Exp $
 //
 // Base class for dialogs instrumented to interface with our logging system.
 // During recording, these dialogs log startup and size changes. During playback
@@ -75,7 +75,7 @@ protected:
 protected:
 	CString m_strCboSel;
 	BOOL m_bShown;			// set on first show so don't log program moves in init.
-	CWnd* GetCtlArg(LPCTSTR szArgs, const char* &pszRest);
+	virtual	CWnd* GetCtlArg(LPCTSTR szArgs, const char* &pszRest);
 
 	// Generated message map functions
 	//{{AFX_MSG(CLogDialog)

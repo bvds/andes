@@ -37,6 +37,7 @@ public:
 	CLogCombo	m_cboZDir;
 	CLogEdit	m_editDirValue;
 	CLogBtn	m_btnMagDir;
+	CLogBtn m_btnCompo;
 	CEQRichEdit	m_editZCValue;
 	CEQRichEdit	m_editYCValue;
 	CEQRichEdit	m_editXCValue;

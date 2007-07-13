@@ -1044,7 +1044,7 @@
 
 (defun check-given-value-eqn (eqn-entry)
   (let* ((studvar (second (StudentEntry-Prop eqn-entry)))
-         (value-str (third (StudentEntry-Prop eqn-entry)))
+         (value-str(third (StudentEntry-Prop eqn-entry)))
 	 (quant    (symbols-referent studvar))
 	 ;; want to distinguish cases where quantity is not given, so it 
 	 ;; should be left unknown, from cases where it is given, but

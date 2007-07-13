@@ -1123,6 +1123,7 @@
    (test (not (zerop ?srot)))))
 
 (defun wrong-axis-rotation (srot)
+  (declare (ignore srot))
   (make-hint-seq
     (append
       (list (strcat "Although you could in principle solve the problem with any "
@@ -1439,6 +1440,7 @@
   :probability 0.08)
 
 (defun default-wrong-dir (object wrong-dir correct-dir)
+  (declare (ignore correct-dir))
   (make-hint-seq
    (append
      (list (format nil "Do you really want the direction of that ~A to be ~A?"

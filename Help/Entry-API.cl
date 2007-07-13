@@ -734,10 +734,11 @@
     ; machinery so as to record their equations as side effects, but not to check them. 
     ; 2. For non-zero-mag vectors, given mag or compos handled via the given
     ; equation mechanism, which checks their values.
+    ; We currently rely on drawn-mag argument to detect zero-mag vector, not :given-mag. 
+    ; This is OK because workbench updates drawn-mag if non-zero mag is specified.
 
-    ; Note we currently rely on drawn-mag argument to detect zero-mag vector, not given-mag. 
-    ; This might have to change. Or workbench could be required to synch them wrt 0/non-zero 
-    ; status.
+    ; !!! Now if student specifies values by components, workbench automatically
+    ; sends dir as unknown. This could be a problem if dir represented as known.
 
     ; if vector is zero-length, associate implicit equation magV = 0
     ; also add component eqns vc = 0 for all component variables in solution.
@@ -1360,6 +1361,14 @@
   (let (cand		; candidate (state . interpretation) pair
         match 		; correct system entry matched
         result) 	; final result to return
+    
+    ;; Special for vector entries: Ensure the form of the givens is
+    ;; correct before we do any other checking. This avoids bad 
+    ;; error handlers when source is now really wrong form.
+    (when (eq (first (StudentEntry-prop Entry)) 'vector)
+       (setf result (Check-Vector-Given-Form Entry))
+	(when (not (eq (turn-coloring result) **color-green**))
+	     (return-from Check-NonEq-Entry result))) ; early exit
 
     ;; Get set of candidate interpretations into PossibleCInterps.  
     ;; For generality needed for equation entries, an "interpretation" 
@@ -1397,13 +1406,13 @@
     (case (StudentEntry-State entry)
      ('correct 
       ; check any given value equations associated. At first one that is wrong, its
-      ; result turn becomes the result for the whole entry. If wrong, checking routine 
-      ; updates main entry record with error interp of equation.
-      (dolist (e (StudentEntry-GivenEqns entry))
-         (setf result (Check-Given-Value-Entry entry e))
-	 (when (not (eq (turn-coloring result) **color-green**))
-	     (return-from Check-NonEq-Entry result)))
-          
+      ; result turn becomes the result for the main entry; checking routine 
+      ; updates main entry record with error interp of the bad equation.
+       (dolist (e (StudentEntry-GivenEqns entry))
+        (let ((result (Check-Given-Value-Entry entry e)))
+          (when (not (eq (turn-coloring result) **color-green**))
+	       (return-from Check-NonEq-Entry result))))
+
       ; enter step as done in solution graph
        (sg-enter-StudentEntry Entry)
       ; if entry has associated implicit equations, enter them as done well
@@ -1428,6 +1437,111 @@
 
     ;; finally return result
     result))
+
+#|
+(defun Check-Given-Values (entry)
+"check the given value eqns associated with an entry, returning turn"
+  ; check vector givens specially for custom error messages
+  (when (eq (first (StudentEntry-prop  entry)) 'vector)
+     (return-from Check-Given-Values (Check-Vector-Givens entry))) 
+
+  ;else non-vector:
+   ; check each eqn in list. early return at first bad one found
+   (dolist (e (StudentEntry-GivenEqns entry))
+       (let ((result (Check-Given-Value-Entry entry e)))
+         (when (not (eq (turn-coloring result) **color-green**))
+	       (return-from Check-Given-Values result))))
+   ; get here=> no errors. Signal with green turn
+   (make-green-turn))
+|#
+
+
+(defun sol-gives-magdir (vector-quant)
+"non-nil if magnitude or direction or vector are given in current problem"
+  ; fetch vector entry prop to see if drawn with known direction
+  (let ((vector-entry (sg-find-vector-entry vector-quant)))
+    ; true if either drawn non-unknown... 
+    (or (and vector-entry    ; prop form is (vector ?quant ?dir)
+             (not (eq (third (systemEntry-prop vector-entry)) 
+	               'unknown)))
+	; ... or mag has a given value
+        (given-quant-p `(mag ,vector-quant)))))
+
+(defun sol-gives-component (vector-quant)
+"non-nil if some component of vector is given in current problem"
+  ; !!! 0 rotation assumes given compos always along standard axes. 
+  ; True for now but could change in future
+  (some #'given-quant-p
+	 `((compo x 0 ,vector-quant)
+	   (compo y 0 ,vector-quant)
+	   (compo z 0 ,vector-quant))))
+
+ ; Code below uses 'compo and 'magdir as form codes
+(defun sol-has-givens (vector-quant form)
+ "true if solution has given values of specified form"
+ (if (eq form 'compo) (sol-gives-component vector-quant)
+   (sol-gives-magdir vector-quant)))
+
+(defun other-form (form)
+   (if (eq form 'compo) 'magdir 'compo))
+
+(defun compo-assignment-p (entry)
+  "true if given student eqn entry states value of a component variable" 
+    (and (eq (first (StudentEntry-prop entry)) 'eqn)
+         (componentp  (symbols-referent (second (StudentEntry-prop entry))))))
+	
+; Give special message if student chooses wrong form (mag/dir vs.
+; components) for given values of vector attributes.
+(defun Check-Vector-Given-Form (entry)
+"check given values sent with a vector entry"
+  (let ((stud-form   (if (some #'compo-assignment-p
+                                (StudentEntry-GivenEqns entry)) 'compo
+	               'magdir))
+	(vector-quant (second (StudentEntry-prop entry))))
+    ; Check for mismatch in form of givens.
+    ; NB: if system gives nothing, either form should be OK for unknown.
+    ; A student's form is incorrect iff no attribute of the student form 
+    ; is given AND some attribute of the other form is given. 
+    (when (and (not (sol-has-givens vector-quant stud-form))
+               (sol-has-givens vector-quant (other-form stud-form)))
+          (format T "mismatch: student form: ~A system form: ~A~%" 
+                     stud-form (other-form stud-form))
+          ; flag main entry as wrong and fill in error interp
+          (setf (StudentEntry-state entry) 'incorrect)
+	  (return-from Check-Vector-Given-Form
+	   (if (eq stud-form 'compo) (should-be-magdir-form entry vector-quant)
+	     (should-be-compo-form entry vector-quant)))))
+
+   ; get here=> no errors. Signal with green turn
+   (make-green-turn))
+
+(defun should-be-compo-form (se quant)
+  (declare (ignore quant))
+  (let ((rem (make-hint-seq
+	      (list (format nil "Use component form for this vector.")))))
+    (setf (StudentEntry-ErrInterp se)
+      (make-ErrorInterp
+       :diagnosis '(should-be-compo-form)
+       ; unclear what intended should be
+       ; :intended (get-given-interp quant)
+       :state **correct**	; of intended entry. Shouldn't matter
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
+
+(defun should-be-magdir-form (se quant)
+  (declare (ignore quant))
+  (let ((rem (make-hint-seq
+	      (list (format nil "Use mag/dir form for this vector.")))))
+    (setf (StudentEntry-ErrInterp se)
+      (make-ErrorInterp
+       :diagnosis '(should-be-magdir-form)
+       ; unclear what intended should be, maybe eqn for one given compo
+       ; :intended (get-given-interp `(compo x 0 ,quant)
+       :state **correct**	; of intended entry. Shouldn't matter
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
 
 ; 
 ; log-entry-info -- insert extra info for entry into Andes log
@@ -1492,6 +1606,8 @@
            (send-fbd-command (format nil "assoc op ~{~A~^,~}" 
                                          (mapcar #'sg-map-systementry->opname target-entries))))
      )))
+
+
 
 ; following does the work of entering an implicit entry associated with
 ; a principal entry, either an implicit equation or an implicit variable
