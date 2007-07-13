@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; SolutionGraph.cl
 ;; Collin Lynch
 ;; 04/19/2001
@@ -344,14 +344,25 @@
   (loop for E in (csdo-effects do)
       when (help-entryprop-p E)
       collect (sg-generate-sysent Do E Stack State)))
-  
+
+; custom condition subclass to be signalled on apparent version errors
+; This inherits from the simple-error class which defines initargs 
+; :format-control and :format-arguments, used in the report function
+; to format an error message. The "error" function can take a class
+; name and init arguments to construct a condition object (see below)
+(define-condition wrong-version-prb (simple-error)
+   ())    ; no custom slots added to this subclass
+
 (defun sg-generate-sysent (Do Entry Stack State)
   "Given a help entry prop generate the system entry for it and return."
-  ; show helpful error message for this error: 
+  ; include helpful message for this error: 
   (when (not (get-operator-by-tag (csdo-op Do)))
-    (error "Solution operator ~A not found in current kb. Maybe need to regenerate .prb" 
-           (first (csdo-op Do))))
-  ; else didn't throw error above:
+    (format T "Solution operator ~A not found in current KB. Maybe need to regenerate .prb~%" 
+            (first (csdo-op Do)))
+    (error 'wrong-version-prb 
+             :format-control "Solution operator ~A not found in current KB. Maybe need to regenerate .prb"
+	     :format-arguments (list (first (csdo-op Do)))))
+  ; else didn't signal error above:
   (make-systementry 
    :Prop Entry
    :State State
@@ -391,7 +402,7 @@
 
 (defun sg-defvar-entryp (entry)
   "Return t iff the entry is a defvar entry."
-  (eq (help-entryprop-type (systementry-prop entry))
+  (eq (help-entryprop-type (SystemEntry-Prop entry))
       'define-var))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -566,23 +577,18 @@
 ;;
 ;; Once the prop has been matched it will be returned with the state of each
 ;; interp marked on the interp itself
+
 (defun sg-match-studententry (Entry)
   (let ((Prop (StudentEntry-Prop Entry)))
     (setf (StudentEntry-PossibleCInterps Entry)
-      (if (help-eqn-entryprop-p (subseq Prop 0 2))
-	   (sg-match-eqn-num (StudentEntry-ID Entry))
-	(sg-match-entry Prop)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; sg-match-entry
-;; Given a help entry prop locate the SystemEntry that matches it from the
-;; *sg-entries* index and return it in a list.  If none is found return null.
-
-(defun sg-match-Entry (prop)
-  "Match the specified StudentEntry Prop to a System Entry."
-  (let ((match (sg-EntryProp->SystemEntry Prop)))
-    (when match
-      (list (sg-mark-interp (list match))))))
+	  (if (help-eqn-entryprop-p (subseq Prop 0 2))
+	      (sg-match-eqn-num (StudentEntry-ID Entry))
+	      ;; Given a help entry prop locate the SystemEntry that matches 
+	      ;; it from the *sg-entries* index and return it in a list.  
+	      ;; If none is found return null.
+	      (let ((match (sg-EntryProp->SystemEntry Prop)))
+		(when match
+		  (list (sg-mark-interp (list match)))))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -626,10 +632,6 @@
 ;;
 ;; When the eqn interps are marked in addition to the usual markings for 
 ;; premature substitutions of values and set activity.
-
-;;; For backwards compatability this code exists but needs to be removed.
-(defun sg-match-eqn (Eqn)
-  (sg-match-eqn-num eqn))
 
 (defun sg-match-eqn-num (Eqn)
   "Check the eqn number student Entry."
@@ -690,7 +692,8 @@
 
 (defun sg-check-interp (Interp)
   "Mark the state of the interp not accounting for sets."
-  (let ((State (Systementries->State (sg-unmark-interp Interp)))) ;; Check for **Forbidden** **Dead-path**
+  (let ((State (Systementries->State (sg-unmark-interp Interp)))) 
+    ;; Check for **Forbidden** **Dead-path**
     (if (and **Test-For-Prematurity**
 	     (eq **Correct** State)
 	     (SystemEntries-Prematurep (sg-unmark-interp Interp)))
@@ -703,7 +706,7 @@
 ;; Given a student entry that has had its cinterp set by external
 ;; code the process of entering it involves pushing the 
 ;; StudentEntry is pushed onto the Entered field
-;; of each systemEntry in the Cinterp.  
+;; of each SystemEntry in the Cinterp.  
 (defun sg-enter-StudentEntry (Entry)
   "For each system entry in the cinterps mark it with entry."
 	     
@@ -712,9 +715,11 @@
              (eqn-prop-p (StudentEntry-Prop Entry))) ; it's an eqn entry
     (sg-filter-constraint-losses Entry))
   
+  ;; Print out Entry and Interps
   (when (sg-unmark-interp (StudentEntry-Cinterp Entry))
-    (format t "Entering Interp:=====================================~%")
-    (format t "~A~%" (StudentEntry-Cinterp Entry)))
+    (format *debug-help* 
+	    "Entering Interp:=====================================~%")
+    (format *debug-help* "~A~%" (StudentEntry-Cinterp Entry)))
   
   (dolist (E (sg-unmark-interp (studentEntry-Cinterp Entry)))
     (push Entry (SystemEntry-Entered E))))
@@ -722,7 +727,7 @@
 
 ;;---------------------------------------------------------------------
 ;; Filter-constraint-losses
-;; When the student makes an eqn systementry they may combine several
+;; When the student makes an eqn SystemEntry they may combine several
 ;; equations into a single one and in so doing lose some of the factors
 ;; that will be necessary later.  Thus they may walk themselves into 
 ;; a situation where the help system thinks that they are done but the
@@ -768,7 +773,7 @@
   (calc-exp-set-dimensions 
    #'sysvar-p 
    (remove-if 
-    #'null (mapcar #'get-eqn-systementry-algebra 
+    #'null (mapcar #'get-eqn-SystemEntry-algebra 
 		   (sg-unmark-interp Interp)))))
 
 ;;---------------------------------------------------------------------
@@ -829,7 +834,7 @@
 ;; Depends on structure of vector entry proposition
 (defun sg-find-vector-entry (vector-quant)
  (find `(vector ,vector-quant ?dont-care) *sg-entries* 
-        :test #'unify :key #'systemEntry-prop))
+        :test #'unify :key #'SystemEntry-Prop))
 
 
 ;;-------------------------------------------------------------
@@ -848,7 +853,7 @@
 ;;-------------------------------------------------------------
 ;; Remove the marking from an interp if it is present. 
 (defun sg-unmark-interp (interp)
-  (if (systemEntry-P (car Interp))
+  (if (SystemEntry-P (car Interp))
       Interp
     (cdr Interp)))
 
@@ -861,11 +866,11 @@
 ;;-------------------------------------------------------------
 ;; Get the marking from an interp.
 (defun sg-get-interp-mark (Interp)
-  (when (not (systementry-p (car Interp)))
+  (when (not (SystemEntry-p (car Interp)))
     (car Interp)))
 
 ;;--------------------------------------------------------------
-;; Get the systementry's op's hints
+;; Get the SystemEntry's op's hints
 
 ; Following returns spec to be used as tail of a list of specs passed
 ; to make-hint-seq when appending operator hints. It returns a spec
@@ -876,7 +881,7 @@
 ; [This technique copied from hint-target-entry in nextstephelp.cl to
 ; fix bug 834 AW]
 (defun sg-map-systementry->hints (entry)
-  (let ((step (car (systementry-sources entry)))) ; a csdo
+  (let ((step (car (SystemEntry-sources entry)))) ; a csdo
     `((function make-hint-seq 
 		       ,(collect-step-hints step)
 		       :OpTail ,(list (csdo-op Step))))))
@@ -884,7 +889,7 @@
 ; collect tags of operator instances that made this system entry
 ; opinst tag is of form (WRITE-MASS-COMPOUND (BOOK PACKAGE))
 (defun sg-map-systementry->opinsts (entry)
- (remove-duplicates (mapcar #'csdo-op (systementry-sources entry))
+ (remove-duplicates (mapcar #'csdo-op (SystemEntry-sources entry))
                     :test #'equalp))
 
 ; collect set of names of operators that made this system entry
@@ -916,7 +921,7 @@
 (defun some-path-through-omits (path entry)
    (cond ((null path) T)
          ((and (csdo-p (car path)) ; hit a CSDO for this entry
-               (member (car path) (systementry-sources entry)))
+               (member (car path) (SystemEntry-sources entry)))
 	     NIL)
 	 ((cschoose-p (car path)) 
 	   ;; car path is (CHOOSE ((step 1) (step 2)) ((step1 step2)))
@@ -932,15 +937,6 @@
 
 (defun ploop ()
   (loop for S in *SG-Entries* do (print-full-SystemEntry S)))
-
-(defun debug-mse (&rest Props)
-  (dolist (Prop Props)
-    (let ((entry (sg-EntryProp->SystemEntry prop)))
-      (if entry 
-	  (if (SystemEntry-Entered Entry)
-	      (setf (SystemEntry-Entered Entry) nil)
-	    (setf (SystemEntry-Entered Entry) t))
-	(error "No Matching entry found.")))))
 
 (defun sg-trace ()
   (sg-trace-setup)
