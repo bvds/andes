@@ -13,7 +13,7 @@
 ;;  Thus, correct returns only a Boolean value.
 ;;
 
-(defstruct entry-test
+(defstruct EntryTest
   Name        ;name of the test
   preconditions  ;ordered list of conditons (see whatswrong.cl)
               ;this determines a match
@@ -38,7 +38,7 @@
 
 (defmacro def-Error-Class (name arguments conditions &key (Probability 0.1) 
 				(Utility 1.0))
-  `(push (make-entry-test :name (quote ,name)
+  `(push (make-EntryTest :name (quote ,name)
 			   :preconditions (quote ,conditions)
 			   :apply 'no-match
 			   :correct nil  ;never matches for errors
@@ -56,9 +56,9 @@
 (defmacro def-entry-test (name arguments &key preconditions apply correct hint
 			       (order '((global . 1))))
   (when (member (cons name arguments) **entry-tests** 
-		:key #'entry-test-name :test #'unify)
+		:key #'EntryTest-name :test #'unify)
     (error "entry test ~A already exists." name))
-  (let ((e (make-entry-test :name name
+  (let ((e (make-EntryTest :name name
 			    :preconditions preconditions  
 			    :apply apply
 			    :correct correct

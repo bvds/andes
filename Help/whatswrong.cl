@@ -193,7 +193,7 @@
     r))
 
 (defun check-err-conds (test student)
-  (check-err-conditions test student (entry-test-preconditions test)))
+  (check-err-conditions test student (EntryTest-preconditions test)))
 
 ;;; given a student entry and an error class, returns a list of error
 ;;; interpreations, one for each way of making the conditions of the
@@ -212,16 +212,16 @@
   (cond
    ((null conditions)
     (list (make-ErrorInterp
-	   :test (subst-bindings bindings (entry-test-name eh))
-	   :diagnosis (subst-bindings bindings (entry-test-hint eh))
-	   :correct (subst-bindings bindings (entry-test-correct eh))
+	   :test (subst-bindings bindings (EntryTest-name eh))
+	   :diagnosis (subst-bindings bindings (EntryTest-hint eh))
+	   :correct (subst-bindings bindings (EntryTest-correct eh))
 	   :intended sy
 	   ;; evaluate the cdr of each pair as a lisp expression
 	   :order (mapcar #'(lambda (pair) 
 			      (cons (car pair) 
 				    (eval (subst-bindings-quoted bindings 
 								 (cdr pair))))) 
-			  (entry-test-order eh)))))
+			  (EntryTest-order eh)))))
    (t (let ((c (first conditions))  (r (rest conditions)))
 	(case (first c)
 	  (not (when (null (check-err-conditions eh st (second c) sy bindings))
@@ -696,7 +696,7 @@
 
 (defun watch-this-error-class-p (class)
   (and **Watch-error-classes**
-       (member (entry-test-name class) **Watched-error-classes**)))
+       (member (EntryTest-name class) **Watched-error-classes**)))
 
 
 (defun trace-wwh ()
