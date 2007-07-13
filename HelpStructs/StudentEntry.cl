@@ -1,4 +1,4 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Student Entry.cl
 ;; Collin Lynch
 ;; 4/25/2002
@@ -11,40 +11,16 @@
 ;; Student entry -- represents a workbench action where the student made a 
 ;;                  problem solving entry, such as writing an equation or 
 ;;                  drawing a vector.  Fields are
-;;     Identifier     -- atom assigned by the workbench.  When the workbench says 
-;;                       something is deleted, this is the ID that it uses. 
-;;     Proposition    -- an entry proposition built by the Entry interpreter. 
-;;     Correctness    -- whether the entry is correct, inefficient, dead-path, 
-;;                       forbidden or incorrect 
-;;     Interpretation -- If the entry is correct, this is a set of system entries, 
-;;                       this is the set of the system entries that correspond to it.  
-;;                       Its a set because a compound student equation corresponds to 
-;;                       a set of primitive equations.  If the entry is incorrect, this 
-;;                       is NIL or an error interpretation produced by an error handler. 
-;;     Correct-interpretations -- If the entry is correct, all logically possible 
-;;                                interpretations are stored here.  One of these 
-;;                                is selected by the cognitive load procedure and 
-;;                                put into the Interpretation slot by the Entry Interpreter. 
-;;     Error-interpretations -- If the entry is incorrect, all interpretations produced by 
-;;                              the error handlers are stored here.  One of these is 
-;;                              selected by What's wrong help and put in the 
-;;                              Interpretation slot. 
-;;     Verbatim -- If the entry is an equation, this records the student's string exactly 
-;;                 as they typed it before it was parsed.  This is useful for some error
-;;          	   handlers, such as Equation-used-as-method-name. 
-;;
-;;     Time -- An Htime recording (typically) when the entry was created 
-;;             although it may be set manually if the necessary.
-|#
 
 
 (defstruct (StudentEntry (:print-function print-StudentEntry))
-  Id	               ;Workbench assigned Identifier.
-  Prop                 ;Entry proposition (Equalp to System entry.)
-  State                ;One of correct, inefficient, dead-path, forbidden, incorrect.
-  CInterp              ;The Selected set of entires that constitute the final
-                       ;Interpretation of this entry (if any).
-  PossibleCInterps     ;A list of all the sets of possible correct interpretations (if any).
+  Id	 ;Workbench assigned Identifier.
+  ;; When the workbench says something is deleted, this is the ID that it uses.
+  Prop   ;Entry proposition (Equalp to SystemEntry-prop.)
+  State           ;One of correct, inefficient, dead-path, forbidden, incorrect.
+  CInterp         ;The Selected set of any SystemEntries that constitute 
+  ;; the final Interpretation of the student entry.
+  PossibleCInterps ;A list of all the sets of possible correct interpretations.
   Verbatim             ;The student's entry as they typed it.
   ParsedEqn            ;will contain the lisp (prefixed) form of the parsed equation
   ErrInterp            ;nil or an error interpretation
@@ -53,10 +29,10 @@
   ;; the main entry is deleted.
   ;; Dependent equation entries hang off the following fields in 
   ;; the main entry:
-  ImplicitEqns         ;list of associated implicit equation entries, if any
-  GivenEqns	       ;list of associated given value equation entries, if any
-  (Time (get-current-htime))  ;The entry's time.  Typically the time it was created
-					;But not necessarily.
+  ImplicitEqns         ;list of any associated implicit equation entries
+  GivenEqns	       ;list of any associated given value equation entries
+  (Time (get-current-htime))  ;The entry's time.  
+  ;; Typically the time it was create, but not necessarily.
   )
 
 (defun print-StudentEntry (Entry &optional (Stream t) (Level 0))
