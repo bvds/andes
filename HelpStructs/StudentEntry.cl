@@ -54,16 +54,6 @@
   (format Stream "ParsedEqn: ~A~%" (StudentEntry-ParsedEqn Entry)))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; define a student entry with no interpretations.
-
-(defun defentry (ID Prop Verbatim)
-  (make-Studententry 
-   :ID ID
-   :Prop Prop
-   :Verbatim Verbatim))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Student entry list functions.
 
