@@ -254,13 +254,9 @@
 
 (defun sg-Marks->State (Marks)
   "Collect the specified marks from the list if they are present or return **Correct**."
-  (let ((S (loop for M in '(Dead-Path Invalid Forbidden)
-	       when (find M Marks :test #'equalp)
-	       return M)))
-    (if S
-	S
-      **Correct**)))
-
+  (or (loop for M in '(Dead-Path Invalid Forbidden)
+	      when (find M Marks :test #'equalp) return M) 
+      **Correct**))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sg-psmg->sysents
@@ -339,7 +335,7 @@
 	    (subseq Stack (+ Loc 1)))))
 
 
-(defun sg-generate-sysents (Do Stack &optional (State ()))
+(defun sg-generate-sysents (Do Stack State)
   "Generate the sysnts for a csdo and return them."
   (loop for E in (csdo-effects do)
       when (help-entryprop-p E)
@@ -363,7 +359,7 @@
              :format-control "Solution operator ~A not found in current KB. Maybe need to regenerate .prb"
 	     :format-arguments (list (first (csdo-op Do)))))
   ; else didn't signal error above:
-  (make-systementry 
+  (make-SystemEntry 
    :Prop Entry
    :State State
    :CogLoad (operator-CogLoad (get-operator-by-tag (csdo-op Do)))

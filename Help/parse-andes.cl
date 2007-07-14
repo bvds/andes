@@ -446,6 +446,31 @@
     (setf (turn-coloring rem) **color-red**)
     rem))
 
+; maybe-forgot units is returned when equation is dimensionally inconsistent but
+; could be dimensionally OK if numbers are treated as having unknown units -- though
+; it STILL fails to balance acceptably. So we are unsure what the true cause of the
+; inconsistency is, but can suggest maybe they forgot units. If this occurs for a simple 
+; numerical assignment statement we promote the response to the more definite "forgot units" 
+; message: The value may be wrong but we are still sure they have forgotten the units on a number.
+(defun maybe-forgot-units-ErrorInterp (se)
+  "Given a student entry, return a tutor turn that gives unsolicited feedback saying that
+   the student appears to have left units off at least one number.
+   Also create an error interpreation in case the student asks a follow-up question, and
+   put it in the student entry's err interp field."
+  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
+  ; in case of a simple assignment statement, change to forgot-units error interpretation
+  (when (assignment-eqn (StudentEntry-ParsedEqn se))
+       (return-from maybe-forgot-units-ErrorInterp (forgot-units-ErrorInterp se)))
+  
+  (let ((rem (make-hint-seq
+	      '( "The units in this equation are not consistent.  If this is a symbolic equation, there is probably an error:  check all your terms.  Another possibility is that a number has been used without correct associated units."))))
+    (setf (StudentEntry-ErrInterp se)
+      (make-ErrorInterp
+       :diagnosis '(maybe-forgot-units)
+       :remediation rem))
+    (setf (turn-coloring rem) **color-red**)
+    rem))
+
 ; If this is a simple numerical assignment statement, we can say more specifically
 ; that units are wrong.
 (defun wrong-units-ErrorInterp (se)
