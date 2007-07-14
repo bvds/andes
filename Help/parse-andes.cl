@@ -442,9 +442,20 @@
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(forgot-units)
+       :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
+
+
+(defun assignment-eqn (parsed-eqn)
+  "true if given prefix eqn parse is a numerical assignment statement"
+  (and (consp parsed-eqn)           ; just sanity checks on argument
+       (eq (first parsed-eqn) '=)   
+       (= (length parsed-eqn) 3)
+       ;; predicate defined in errors.cl takes (lhs rhs)
+       (assignmentp (second parsed-eqn) (third parsed-eqn))))
+
 
 ; maybe-forgot units is returned when equation is dimensionally inconsistent but
 ; could be dimensionally OK if numbers are treated as having unknown units -- though
