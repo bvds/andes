@@ -1,4 +1,3 @@
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Operators.cl
 ;; Collin Lynch
@@ -146,12 +145,12 @@
   HintVars         ;; Argument elements used to compare two opapps at help time for use by 
                    ;; the comparison system.  
   
-  order        ;if two instances of an operator produce a given effect, 
-					; use alist<
-					; to determine which gets applied
   specifications   ;;The operaor specifications.
 
   Variables        ;;A list consisting of all the variables in this operator.
+  
+  Features         ;;A list of operator features e.g. PSM, and Ordered which
+                   ;;are used to determine aspects of the operator.
   
   (CogLoad 1 :type real)      ;;The 'cognitive load' of this operator used for min searching.
                               ;; Needs to be edded into the loop.
@@ -195,7 +194,7 @@
 
 (defmacro defoperator (Name Arguments 
 		       &key Preconditions Effects 
-			    Hint Specifications order
+			    Hint Specifications Features
 			    Load)
   
   "Define a new operator with the specified values and add it to *operators*."
@@ -206,12 +205,17 @@
 		    :Preconditions ',Preconditions 
 		    :Effects ',Effects
 		    :Hint ',(subst-nlgs-hints Hint) ;Substitute the NLG functions into the system.
-		    :order ',order
 		    :Specifications ',Specifications
 		    :CogLoad ',(if Load 
 				   Load
 				 1)))))
-    	                                                                
+    
+    (if (not (list-of-atoms-p Features)) ;Ensure that the features list is valid.
+	(error "The specified Features list for ~A is invalid ~A." ;if not signal an error. 
+	       Name Features) 
+      (setf (Operator-Features Op) Features)) ;otherwize set the features.
+	
+                                                                 
     (setf (Operator-Variables Op)	;Set the variables list.
       (get-operator-variables Op))
 
@@ -372,15 +376,14 @@
 		       (Operator-Preconditions Op)
 		       (Operator-Effects Op)
 		       (Operator-Variables Op)
-		       (Operator-hintvars Op)
-		       (Operator-order Op))))
+		       (Operator-hintvars Op))))
+    
     (setq oplist (rename-variables oplist))            ;;replace all the variables with new vars.
     (setf (operator-arguments Op) (nth 0 Oplist))      ;;Set the new Operator-arguments.
     (setf (operator-preconditions Op) (nth 1 Oplist))  ;;Set the new preconditions.
     (setf (operator-effects Op) (nth 2 Oplist))        ;;set the new effects.
     (setf (Operator-Variables Op) (nth 3 Oplist))
     (setf (Operator-hintvars Op) (nth 4 Oplist))
-    (setf (Operator-order Op) (nth 5 Oplist))
     Op))                                               ;;return the new form of Op
   
 
