@@ -865,6 +865,39 @@
    (assume using-magnitude (equals orderless ?v1 ?v2)) ;mag xor compos
    ))
 
+#|
+(defoperator draw-vector-given-compos (?vec)
+  :preconditions 
+  ( 
+   (object ?b)
+   (given (compo x 0 ?vec (dnum ?vx ?units)))
+   (given (compo y 0 ?vec (dnum ?vy ?units)))
+   (test (or (= ?vx 0) (= ?vy 0)))
+   (bind ?dir-expr (dir-from-compos ?vx ?vy))
+   (bind ?mag-var (format-sym "v_~A" (my-hast ?vec))) 
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?x-var (format-sym "Xc_~A" (my-hast ?vec))) 
+   (bind ?y-var (format-sym "Yc_~A" (my-hast ?vec)))  
+   (bind ?mag-expr `(dnum ,(sqrt (+ (* vx vx) (*vy vy)))))
+  )
+  :order ((relative-position . 1))
+  :effects (
+    (vector ?b ?vec ?dir-expr)
+    (variable ?mag-var (mag ?vec))
+    (variable ?dir-var (dir ?vec))
+    (variable ?x-var (compo x 0 ?vec))
+    (variable ?y-var (compo y 0 ?vec))
+    ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
+    ;; gets written. Given value may not be used elsewhere so ensure it here.
+    (implicit-eqn (= ?dir-var ?dir-expr) (dir ?vec))
+    (implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
+   )
+  :hint (
+    (point (string "You know the position of ~a relative to ~a." ?b1 ?b2))
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a at ~a."
+	  ?b1 ?b2 (?t pp) ?dir-expr))
+  ))
+|#
 
 
 ;;;;===========================================================================
