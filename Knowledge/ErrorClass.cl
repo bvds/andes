@@ -15,14 +15,15 @@
 
 (defstruct EntryTest
   Name        ;name of the test
-  preconditions  ;ordered list of conditons (see whatswrong.cl)
+  preconditions  ;ordered list of conditions (see whatswrong.cl)
               ;this determines a match
   apply       ;Conditions of application
 					;no-match:  use after no match found
 					;match:  use after match found
 					;nil:  always apply
-  correct         ;boolean for match.  Match contained in last match
-					; with (correct ...)
+  correct         ;boolean for correctness of student entry.  
+					;Match itself is contained in last
+					;math with (correct ...)
   hint            ;Lisp evaluable form giving resulting hint sequence
 					;to replace function call
   order           ;List of dotted pairs giving order specification

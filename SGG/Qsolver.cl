@@ -247,7 +247,7 @@
 
 (defun merge-duplicate-psms (PSMS)
   "Merge the identical psms into a single list.."
-  (let ((tmp) (R (list (car psms))))
+  (let (tmp (R (list (car psms))))
     (dolist (P (cdr psms))
       (setq tmp (merge-psm P R))
       (if tmp (setq R tmp)
@@ -262,7 +262,7 @@
       do (when (not (and (equal-sets (qsolres-subeqns P) (qsolres-subeqns P2)) 
 			 (equal-sets (qsolres-subvars P) (qsolres-subvars P2)) 
 			 (equal-sets (qsolres-assumpts P) (qsolres-assumpts P2))))
-	   (let ((diff))
+	   (let (diff)
 	     ;; If paths differ in eqns, vars, or assumptions, it may indicate 
 	     ;; coding error (perhaps only one path was intended) or it may be 
 	     ;; OK (most common case: where axes and body w/mass var are 
@@ -330,7 +330,7 @@
     (dolist (G (cdr Givens))		;For each G in the rest of givens.
       ;; Ensure that they match in subeqns, subvars, assumpts:
       ;; Signalling a cerror if they do not.
-      (if (not (equal-sets (qsolres-subeqns R) (qsolres-subeqns G)))
+      (unless (equal-sets (qsolres-subeqns R) (qsolres-subeqns G))
 	  (cerror "Continue and merge paths." 
 		  "differences in given PSMs~%    subeqns only in first: ~S~%    subeqns only in second: ~S~%" 
 		  (set-difference (qsolres-subeqns R) (qsolres-subeqns G) 
@@ -338,7 +338,7 @@
 		  (set-difference (qsolres-subeqns G) (qsolres-subeqns R) 
 				  :test #'unify) ))
 
-      (if (not (equal-sets (qsolres-subvars R) (qsolres-subvars G)))
+      (unless (equal-sets (qsolres-subvars R) (qsolres-subvars G))
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    subvars only in first: ~S~%    subvars only in second: ~S~%" 
 		  (set-difference (qsolres-subvars R) (qsolres-subvars G) 
@@ -346,7 +346,7 @@
 		  (set-difference (qsolres-subvars G) (qsolres-subvars R) 
 				  :test #'unify) ))
       
-      (if (not (equal-sets (qsolres-assumpts R) (qsolres-assumpts G)))
+      (unless (equal-sets (qsolres-assumpts R) (qsolres-assumpts G))
 	  (cerror "Continue and merge paths." 
 		  "differences in PSMs~%    assumpts only in first: ~S~%    assumpts only in second: ~S~%" 
 		  (set-difference (qsolres-assumpts R) (qsolres-assumpts G) 
@@ -536,6 +536,7 @@
   history	 ; a list of operator instance identifiers
   predecessor    ; the preceding state (represented as a st struct)
   actions	 ; list of s-expression recording the actions taken here
+  order ;if more than one state is generated, remove any that are lower alist< rank
   )
 
 ;;; This is called by the Lisp system whenever it wants to print a st
@@ -588,7 +589,7 @@
 ;;; The operator instance (opinst for short) struct represents an
 ;;; operator that is in the process of being satisfied.  It starts
 ;;; life as a sort of copy of the operator, with the variables
-;;; standardized apart.  Teh subgoals slot holds a copy of the
+;;; standardized apart.  The subgoals slot holds a copy of the
 ;;; operator's preconditions.  The effects slot holds a copy of the
 ;;; operator's effects.  As the operator instance is repeatedly
 ;;; processed by the interpreter, the list of subgoals is popped.
@@ -606,6 +607,8 @@
   effects	     ;a set of effects (atomic propositions)
   identifier	     ;the name of the operator plus its arguments
   variables	     ;a list of the operats's help variables.
+  order              ;use alist< to determine which operator to apply when 
+					;several produce a given effect
   )
 
 ;;; This is called by the Lisp system whenever it wants to print an
@@ -708,6 +711,7 @@
     (cond ((opinst-p top)
 	   (opinst-successors top new-state))
 	  ((executable-p top)
+	   ;; this is where setof, bind, test, etc are evaluated
 	   (executable-successors top new-state))
 	  (T
 	   (goal-successors top new-state)))))
@@ -858,7 +862,7 @@
 	(new-bindings)
 	(successors))
     (dolist (wme (st-wm state))
-      (if (setq new-bindings (unify goal wme bindings))
+      (when (setq new-bindings (unify goal wme bindings))
 	  (push (wm-unified new-bindings wme state action-flag) successors)))
     successors))
 
@@ -897,14 +901,25 @@
    with an effect of an operator."
   (let ((bound-goal (rename-variables 
 		     (subst-bindings (st-bindings state) goal)))
-	(successors)
-	(n))
+	successors n)
     (dolist (op (get-operators-by-effect (car bound-goal)))
       (setq n 0)
       (dolist (effect (operator-effects op))
-	(if (unify bound-goal effect no-bindings)
-	    (push (effect-unified goal N op state) successors))
+	(when (unify bound-goal effect no-bindings)
+	  (push (effect-unified goal N op state) successors))
 	(incf N)))
+
+    ;; go through successors and remove any that are definitely higher rank.
+    ;; Since this is a partially ordered list, we need to test all pairs
+    (let ((orders (mapcar #'st-order successors))) ;since we are modifying successors
+      (dolist (s successors)
+	(when (some #'(lambda (y) (and y (alist< y (st-order s))))
+		    orders)
+	(format t "removing ~A due to ~A~%" (st-order s) orders)))
+      (remove-if #'(lambda (x) (and x (some #'(lambda (y) (and y (alist< y x)))
+					    orders))) 
+		 successors
+		 :key #'st-order))
     successors))
 
 ;;; this is called when the goal has unified with the effect of an
@@ -916,7 +931,7 @@
 ;;; noted in the new state.
 
 (defun effect-unified (goal effect-position op state)
-  "Returns a new state with a new operator instance push onto its stack."
+  "Returns a new state with a new operator instance pushed onto its stack."
   (let* ((new-state (copy-st state))
 	 (new-op (operator-var-copy op))
 	 (effect (nth effect-position (operator-effects new-op)))
@@ -928,6 +943,13 @@
 		:identifier (cons (operator-name op) 
 				  (operator-arguments new-op))
 		:variables (operator-variables new-op)))
+    (setf (st-order new-state) 
+	  (append 
+	   (mapcar #'(lambda (pair) 
+		       (cons (car pair) 
+			     (eval (subst-bindings-quoted bindings  (cdr pair)))))
+		   (operator-order new-op))
+	  (st-order new-state)))
     (push inst (st-stack new-state))
     (setf (st-bindings new-state) bindings)
     (note-action new-state 
@@ -937,7 +959,7 @@
 
 
 
-;;; ==================== solution graph ============================
+;;; ================== solution graph ==========================
 ;;; The solution is basically a tree of solution paths.  This code
 ;;; generates a printable version of the solution graph.  Other code
 ;;; can worry about reading it back in and making objects.  The
@@ -966,29 +988,11 @@
 (defun note-action (state action)
   "Sets the actions field of the state to the action plus split/next/join 
    markers.  Prints trace if *actions* is true.  Use for its side-effects."
-  (let ((act-type (car action)))
-    (setf (st-actions state)
-      (cond ((and (eql act-type *goal-unified-with-effect*)
-		  (unordered-op-id (first (second action))))
-	     (list action *split*))
-	    ((and (eql act-type *next-operator*)
-		  (unordered-op-id (second action)))
-	     (list *next* action))
-	    ((and (eql act-type *do-operator*)
-		  (unordered-op-id (first (second action))))
-	     (list *join* action))
-	    (T  (list action))))
-    (qs-debug-print-action State)
-    ))
-
-(defun unordered-op-id (op-name)
-  "Non-null if the given operator instance identifier comes from an 
-   unordered operator"
-  (let ((op (get-operator-by-name op-name)))
-    (and op (member 'unordered (operator-features op)))))
+    (setf (st-actions state) (list action))
+    (qs-debug-print-action State))
 
 
-;;; ============================ QS-Debug Printing ========================
+;;; ================= QS-Debug Printing ========================
 ;;; The qs-debug-print-* functions allow for debug printing
 ;;; of only those states that are at or below a desired 
 ;;; operator.  The three functions below print relevant
