@@ -12,24 +12,21 @@
 ;; will be automatically loaded by the caller.
 ;;
 
-;;; Sometimes it is inconvenient to specify an ordering for a set of objects using
-;;; a single number.  Thus we define an order specification consisting of an alist
-;;; ((class . rank) ...) where rank is a number showing the position of the object
-;;; in that class.
+;;; Sometimes it is inconvenient to specify an ordering for a set of objects 
+;;; using a single number.  Thus we define an order specification consisting 
+;;; of an alist ((class . rank) ...) where rank is a number showing the 
+;;; position of the object in that class.  The classes earlier in the alist 
+;;; are have higher weight.
 
 (defun alist< (x y)
-  "True if x is less than y, where x and y are alists of class-rank pairs."
-  ;; Not very efficient since the assoc of each member is calculated twice.
+  "True if x is less than y, where x and y are alists of class-rank pairs.  Result is based on first member of x which has a matching class in y of different rank."
   ;; Since ranks are sometimes calculated via floating point, we use eps<.
-  (and (some #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (eps< (cdr xi) (cdr yi))))) x)
-       (or (notany #'(lambda (xi) (let ((yi (assoc (car xi) y))) (and yi (eps< (cdr yi) (cdr xi))))) x)
-	   ;; There is a question of what to do when the order for x and y is not
-	   ;; well-defined  (different classes indicate different orders).
-	   ;; One can either define x and y to be equivalent or give an error/warning
-	   ;; by commenting/uncommenting the following:
-	   ;; (error "Inconsistent order specifications for ~A and ~A" x y)
-	   ))
-  )
+  (dolist (xi x nil)
+    (let ((yi (assoc (car xi) y))) ;find any class matching xi
+      (when yi 
+	(when (eps< (cdr xi) (cdr yi)) (return-from alist< t))
+	(when (eps< (cdr yi) (cdr xi)) (return-from alist< nil))))))
+
 
 (defun eps< (x y &key (roundoff 1.0e-8))
   "Version of < that allows for possible roundoff errors."
