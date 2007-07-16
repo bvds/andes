@@ -4037,7 +4037,7 @@
 (def-entry-test exact-match (?quant)
   :preconditions ((student ?quant)
 	       (correct ?quant))
-  :correct t
+  :state **correct**
   :order ((correct . 1))
   )
 
@@ -4047,6 +4047,6 @@
 		  (test (and (dimensioned-numberp ?val1) 
 			     (dimensioned-numberp ?val2)
 			     (compare-dnums ?val1 ?val2))))
-  :correct t
+  :state **correct**
   :order ((correct . 2))
   )

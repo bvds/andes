@@ -6,11 +6,6 @@
 ;;  Collin Lynch <collinl@pitt.edu>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defparameter **no-corresponding-correct-entry**
-    'none
-    "A state (like dead-path, forbidden, premature...) for when there is 
-     no correct entry corresponding to the student's entry.")
-
 (defparameter **done-already**
     'done
   "A state (like dead-path, forbidden, premature...) for when the
@@ -209,16 +204,19 @@
 				(bindings no-bindings))
   (cond
    ((null conditions)
+    (when (cdr sy) (format t "check-err-conditions ~S~%" sy))
     (list (make-ErrorInterp
 	   :test (subst-bindings bindings (EntryTest-name eh))
 	   :diagnosis (subst-bindings bindings (EntryTest-hint eh))
-	   :correct (subst-bindings bindings (EntryTest-correct eh))
-	   :intended sy
+	   :state (subst-bindings bindings (EntryTest-state eh))
+	   ;; for fix-eqn-by-replacing, sy has form (state . SystemEntries) 
+	   ;; for correct, sy has form (SystemEntry)
+	   :intended (or (cdr sy) sy)
 	   ;; evaluate the cdr of each pair as a lisp expression
 	   :order (mapcar #'(lambda (pair) 
 			      (cons (car pair) 
-				    (eval (subst-bindings-quoted bindings 
-								 (cdr pair))))) 
+				    (eval (subst-bindings-quoted 
+					   bindings (cdr pair))))) 
 			  (EntryTest-order eh)))))
    (t (let ((c (first conditions))  (r (rest conditions)))
 	(case (first c)
@@ -427,9 +425,10 @@
 	 (new2 (subst-bindings bindings new))
 	 (neqn (subst-car new2 old2 (studentEntry-ParsedEqn student)))
 	 (interps (sg-decompose-eqn neqn))
-	 (best nil))
-    (if (setf best (find-most-cognitive-interpretation interps))
-	(check-err-conditions eh student conditions best bindings))))
+	 best)
+    (when (setf best (find-most-cognitive-interpretation interps))
+      (format t "check-err-fix-eqn-by-replacing ~A~%" interps)
+      (check-err-conditions eh student conditions best bindings))))
 
 ;;; returns a copy of the given expression with <new> substituted for
 ;;; the car of <old>
@@ -444,110 +443,34 @@
 
 ;;; --------- Phase 2: Determining the status of intended entry -----
 
-;;; Given a possibly empty list of error interpretation, set their
+;;; Given a possibly empty list of error interpretation, adjust the
 ;;; State fields to reflect whether the intended entry is premature,
-;;; forbidden, etc.  Don't bother to change the remediation field now.  That
-;;; will be done in generate-ww-turn.  If interpretation field of the
+;;; forbidden, etc.  Don't bother to change the remediation field now.  
+;;; That will be done in generate-ww-turn.  If interpretation field of the
 ;;; ei is a singleton then must be a nonequation else the second of
 ;;; field is the equations interpretation and the car is the status
-;;;
-;;;
 
 
-;;;  Setting the state:  The error interp state is set based upon the
-;;;   supplied ErrorInterp intended entries.  There are three possible
-;;;   ErrorInterp states to deal with: 1) There is no intended entry
-;;;   in which case the state is set to **no-corresponding-correct-entry**
-;;;   2) It exists and there is only 1 (non-eqn-entry
 (defun contextualize (candidates)
-  "Given error interpretations, adjusts their state and expected-utility fields 
-   to reflect the context of the interpretation in the solution."
+  "Given error interpretations, adjust their states and order fields
+   based on the SystemEntries matched."
   (dolist (ei candidates)
-    (let ((interp (ErrorInterp-intended ei)))
-      ;; (format t "~%+++++++++++ Testing Intended +++++++++++++++++~%")
-      (cond 
-       ;; There is no correct system entry so set the default state.
-       ((null interp) (setf (ErrorInterp-state ei) **no-corresponding-correct-entry**))
+    
+    ;; Test whether all corresponding systementries have already been done
+    (let ((done (and (eq **correct** 
+			 (SystemEntries->state (ErrorInterp-intended ei)))
+		     (every #'SystemEntry-Entered (ErrorInterp-intended ei)))))
 
-       ;; The entry is a non-eqn so use the single entry state.
-       ((null (cdr interp)) (context-set-non-eq-interp ei interp))	 
-              
-       ;; The entry is an equation so use the car of the entry states.
-       (t (context-set-eq-interp ei interp)))
-      
-      	(expected-utility-given-context ei))))
+      ;; mark the state accordingly.
+      (when done (setf (ErrorInterp-state ei) **done-already**))
+            
+      ;; If entry has been done already, then associated interpretation
+      ;; is rather unlikely.  Add to the beginning of of the order specification
+      ;; a class associated with this.
+      (setf (ErrorInterp-order ei) 
+	    (cons (cons 'done-already (if done 0 1)) (ErrorInterp-order ei))))))
 
-
-;;; For non-eqn entries there is only one supplied systementry in the
-;;; interp therefore we use it as below to set the interpretation and
-;;; other values.  First we set the ErrorInterp-state based upon the
-;;; intended's state and then if the state is **correct** and the 
-;;; entry in the ErrorInterp-intended has been done then the error 
-;;; interp will be marked **done-already** else it will be left alone.
-(defun context-set-non-eq-interp (ei Interp)
-  "Set the non-eqn ErrorInterp's state."
-  (setf (ErrorInterp-state ei) (SystemEntry-State (car interp)))
-  (if (and (eq **correct** (ErrorInterp-state ei))
-	   (SystemEntry-Entered (car Interp)))
-      (setf (ErrorInterp-state ei) **done-already**)))
-
-
-;;; If an equation entry is supplied then the intended error interp
-;;; will be a list whose car is a state and whose cdr is a list of 
-;;; eqn entries.  This function sets the ErrorInterp's state and
-;;; intended based upon the car value.  The intended is then set
-;;; such that the value is removed.  Then if the state is correct 
-;;; and all of the entries have been made then the interp is marked
-;;; as **done-already**
-(defun context-set-eq-interp (ei Interp)
-  "Contextually set the eqn error interp info."
-  ;; (format t "~%+++++++++++ Eqn Intended +++++++++++++++++~%")
-  (setf (ErrorInterp-state ei) (car interp))
-  (setf (ErrorInterp-intended ei) (cdr interp))
-  ;; (format t "~%+++++++++++ Eqn done +++++++++++++++++~%~a~%" (ErrorInterp-intended ei))
-
-  (when (and (eq **correct** (ErrorInterp-state ei))
-	   (every #'SystemEntry-Entered (ErrorInterp-intended ei)))
-      (setf (ErrorInterp-state ei) **done-already**)))
-
-
-
-;;; The expected utility is just the probability of that
-;;; interpretation being correct times the utility of adopting that
-;;; interpretation if it is correct.  The probability computed by the
-;;; error class does not depend on the solution context, so eventually,
-;;; this should estimated the probability that the student would try
-;;; to make the entries given in the intended field of the ei.  For
-;;; instance, if interpretation is that the student is trying to enter
-;;; an equation that corresponds to the final answer but the student
-;;; has just gotten started on the problem, then the probability
-;;; should be low.  For now, it just takes the probabilities in the
-;;; error classes, which ignore the solution context, and modifies
-;;; them only if the interpretation is not correct.  The modification
-;;; factors are pure guesswork.
-(defun expected-utility-given-context (ei)
-  "Given an error interpretation, returns its expected utility given the way its 
-   interpretation fits into the current solution state."
-  (let* ((expu (assoc 'expected-utility (ErrorInterp-order ei)))
-	 (prob (cdr expu))
-	 (state (ErrorInterp-state ei)))
-    (cond 
-      ;; There is only a small chance that a student would mistakenly
-      ;; define a quantity they have already defined *and* do it incorrectly.
-      ;; This must distiguish between error interpretations that have vastly
-      ;; different utilities.
-      ((eq state **done-already**)
-       (setf prob (* prob 0.05)))
-      ((eq state **premature-entry**)
-       (setf prob (* prob 0.3)))
-      ((eq state **premature-subst**)
-       (setf prob (* prob 0.3)))
-      ((eq state **dead-path**)
-       (setf prob (* prob 0.001))))
-    (setf (cdr expu) prob)
-    ))
-     
-
+  
 ;;; -------- Phase 3: Selecting an error interpretation -------------
 
 ;;; Given a possibly empty set of error interpretations, return the

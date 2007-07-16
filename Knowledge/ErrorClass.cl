@@ -21,11 +21,14 @@
 					;no-match:  use after no match found
 					;match:  use after match found
 					;nil:  always apply
-  correct         ;boolean for match.  Match contained in last match
-					; with (correct ...)
+  state       ;state of student entry **correct** or **incorrect**  
+					;Match contained in last match
+					;with (correct ...)
   hint            ;Lisp evaluable form giving resulting hint sequence
 					;to replace function call
   order           ;List of dotted pairs giving order specification
+					;when several tests are apply
+					;choose those with maximal order
   )
 
 (defun clear-entry-tests ()
@@ -41,7 +44,7 @@
   `(push (make-EntryTest :name (quote ,name)
 			   :preconditions (quote ,conditions)
 			   :apply 'no-match
-			   :correct nil  ;never matches for errors
+			   :state **incorrect** ;these are all errors
 			   :hint (quote ,(cons name arguments))
 			   :order (quote ((expected-utility .
 					   (* ,probability ,utility))))
@@ -53,7 +56,7 @@
 ;;;
 
 
-(defmacro def-entry-test (name arguments &key preconditions apply correct hint
+(defmacro def-entry-test (name arguments &key preconditions apply state hint
 			       (order '((global . 1))))
   (when (member (cons name arguments) **entry-tests** 
 		:key #'EntryTest-name :test #'unify)
@@ -61,7 +64,7 @@
   (let ((e (make-EntryTest :name name
 			    :preconditions preconditions  
 			    :apply apply
-			    :correct correct
+			    :state state
 			    :hint `(make-hint-seq ,hint) 
 			    :order order
 			    )))

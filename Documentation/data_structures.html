@@ -62,7 +62,7 @@
 <tr> <td>Subeqns</td> <td> (<a href="#eqn">eqn</a> &#8230;)</td></tr>
 <tr> <td>Subvars</td> </tr>
 <tr> <td>Entries</td> <td>(<a href="#SystemEntry">SystemEntry</a> &#8230;)
-       <br>by <a href="../Help/SolutionGraph.cl">sg-setup-systementries</a>
+       by <br> <a href="../Help/SolutionGraph.cl">sg-setup-systementries</a>
 </td></tr>
 </table>
 
@@ -133,12 +133,17 @@
 <table id="ErrorInterp" class="struct">
 <Caption><a href="../HelpStructs/ErrorInterp.cl">ErrorInterp</a></caption>
 <tr> <td>test</td> </tr>
-<tr> <td>Intended</td> <td>(<a href="#SystemEntry">SystemEntry</a> &#8230;) </td> </tr>
+<tr> <td>Intended</td> <td>(<a href="#SystemEntry">SystemEntry</a> &#8230;)
+      <!-- or <br>
+             (<a href="#state1" class="choice">state1</a> . 
+              (<a href="#SystemEntry">SystemEntry</a> &#8230;))-->
+        </td> </tr>
 <tr> <td>Remediation</td> </tr>
 <tr> <td>Diagnosis</td>  </tr>
 <tr> <td>Order</td> <td> ((class . rank) &#8230;)</td> </tr>
-<tr> <td>State</td> <td><a href="#state" class="choice">state</a> or <span class="choice">done-already</span></td></tr>
-<tr> <td>Correct</td> <td>Boolean</td></tr>
+<tr> <td>State</td> <td><a href="#state" class="choice">state</a>
+  or <span class="choice">done-already</span>
+</td></tr>
 </table>
 
 <table id="csdo" class="struct">

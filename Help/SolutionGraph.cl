@@ -589,7 +589,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sg-decompose-eqn
-;; Occasionally for the purposes of the what's worng help the system
+;; Occasionally for the purposes of the what's wrong help, the system
 ;; will need to decompose an arbitrary equation.  The code here passes
 ;; the equation into joel's algebra dll occupying the next availible space
 ;; above the student slots (out of the student's sight).  If it can be
@@ -600,7 +600,7 @@
   (when (not (solver-equation-redp algebra))
     (let ((R (solver-studentaddokay 
 	    *Solver-temp-eqn-slot* Algebra)))    
-      (setq R (if (and (not (stringp R)) (= 0 R))
+      (setq R (when (and (not (stringp R)) (= 0 R))
 		  (remove nil (sg-match-eqn-num *Solver-temp-eqn-slot*))))
       (solver-studentemptyslot *Solver-temp-eqn-slot*)
       R)))
@@ -626,7 +626,7 @@
 ;; correspond to the indicies of the canonical equation system entries
 ;; in the *sg-Entries* index.
 ;;
-;; When the eqn interps are marked in addition to the usual markings for 
+;; Then the eqn interps are marked in addition to the usual markings for 
 ;; premature substitutions of values and set activity.
 
 (defun sg-match-eqn-num (Eqn)
