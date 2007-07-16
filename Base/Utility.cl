@@ -70,10 +70,10 @@
 ;;;; Programming auxfns.lisp file.
 ;;;;
 
-(defun mappend (fn list)
+(defun mappend (fn &rest lists)
   "Append the results of calling fn on each element of list.
-  Like mapcon, but uses append instead of nconc."
-  (apply #'append (mapcar fn list)))
+  Like mapcan, but uses append instead of nconc."
+  (apply #'append (apply #'mapcar fn lists)))
 
 (defun mapunion (fn list &key (test #'eql))
   "Union the results of calling fn on each list element."
