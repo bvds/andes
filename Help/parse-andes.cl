@@ -11,7 +11,7 @@
 ;;  5 July 2003 (c?l) removing depreciated definition of and calls to replace-greek.
 ;;  12 July 2003 (c?l) added declarations:
 ;;   ignored some instances of unused variables to suppress warnings.
-;;   declared used of **Grammar** and **No-Corresponding-Correct-Entry** special
+;;   declared used of **Grammar** special
 ;;   commented out setting of Result and Tmp in Bad-Vars-In-Answer as they were unused.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -117,7 +117,6 @@
 ; This returns a plain ErrorInterp:
 (defun bad-syntax-ErrorInterp (equation)
   "Given a syntactically ill-formed equation, returns an error interpretation for it."
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let (rem)				; remediation hint seq to be assigned
     ;; cheap tests for a few common sources of errors
     (cond				
@@ -435,14 +434,12 @@
    the student forgot to put units on at least one number.
    Also create an error interpreation in case the student asks a follow-up question, and
    put it in the student entry's err interp field."
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      '("Forgot to put units on a number."
 		"This equation is dimensionally inconsistent. When numbers are used in equations, they must include the appropriate units.  It looks like one of the numbers you've used is lacking the units."))))
     (setf (StudentEntry-ErrInterp se)
       (make-ErrorInterp
        :diagnosis '(forgot-units)
-       :state **no-corresponding-correct-entry**
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
     rem))
@@ -468,7 +465,6 @@
    the student appears to have left units off at least one number.
    Also create an error interpreation in case the student asks a follow-up question, and
    put it in the student entry's err interp field."
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   ; in case of a simple assignment statement, change to forgot-units error interpretation
   (when (assignment-eqn (StudentEntry-ParsedEqn se))
        (return-from maybe-forgot-units-ErrorInterp (forgot-units-ErrorInterp se)))
@@ -489,7 +485,6 @@
    the student equation has a dimensional inconsistency
    Also create an error interpreation in case the student asks a follow-up question, and
    put it in the student entry's err interp field."
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      '("Units are inconsistent."))))
     (setf (StudentEntry-ErrInterp se)
@@ -500,7 +495,6 @@
     rem))
 
 (defun solver-exception-interp (se)
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   ;; To tag buggy unprocessable parse so can prefer others. Hopefully won't ever show this to students.
   (let ((rem (make-hint-seq '("Internal error: could not process equation."))))
     (setf (turn-coloring rem) NIL) ; leaves black. Not red, since not known wrong
@@ -545,7 +539,6 @@
 
 (defun undef-variables-ErrorInterp (undef-vars)
   "Given a list of undefined vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let* ((is-comp-var (has-comp-vars-p undef-vars))
 	 (tmp-msg "Variables must be defined before being used in an equation.  Vectors are defined by the drawing tools (the buttons along the left edge of the window) and scalars are defined by the clicking on the 'Variable' button at the top of the window.\\n  If all variables have been defined, the problem may be incorrect unit symbols, including case errors.  For example, 'N', not 'n', is the symbol for Newtons.")
 	 (near-misses (mapcar #'near-miss-var undef-vars))	; parallels undef-vars, e.g. (NIL v1 NIL v2 NIL)
@@ -571,7 +564,6 @@
 
 (defun unused-variables-ErrorInterp (undef-vars)
   "Given a list of unused vars (as strings), returns the error interpretation that will be both stored in the student entry and used to give the student an unsolicited warning."
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 		 (list
 		  (if (null (cdr undef-vars))
@@ -906,7 +898,6 @@
 
 (defun bad-answer-bad-lhs-ErrorInterp (equation why)
   "LHS of equation is not a variable."
-  (declare (ignore equation) (special **no-corresponding-correct-entry**)) ;; suppressing warning.
   (let ((rem (make-hint-seq
 	      (list
 	       (format nil "'~A' is not a defined variable." (second why))))))
@@ -917,8 +908,7 @@
 
 (defun bad-answer-bad-sought-ErrorInterp (equation why)
   "Answer is malformed"
-  (declare (ignore Equation) ;suppressing warning.
-	   (special **no-corresponding-correct-entry**)) 
+  (declare (ignore Equation)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list
 	       "Answers can be expressed as a simple equation with the name of the variable for the quantity that the problem asks you to find on the left hand side of equation."
@@ -930,7 +920,6 @@
 
 (defun bad-answer-syntax-ErrorInterp (equation)
   "Answer is malformed"
-  (declare (special **no-corresponding-correct-entry**)) ;;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list
 	       (format nil "Answers can be expressed as an explicit equation assigning a value to the sought, or by giving a single value only. (~a)" equation)
@@ -946,7 +935,6 @@
 ;;; some parameters (so only some vars illegal and we can say which are legal.)
 (defun bad-variables-vs-parameters-ErrorInterp (equation badvars)
   "Equation has non-parameter variables in answer"
-  (declare (ignore equation) (special **no-corresponding-correct-entry**)) ;;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list
 	       (format NIL "This expression contains variables not allowed in the answer: ~a" badvars)
@@ -1134,7 +1122,6 @@
 	 (allowed-compo-mag-combo interp))))
 
 (defun not-given-ErrorInterp (se quant)
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list (format nil "The value of ~a is not given in this problem. It should be marked unknown." 
 	                             (nlg quant 'var-or-quant)) ; use studvar if exists, else quant
@@ -1170,7 +1157,6 @@
     (if sysent (list sysent))))
 
 (defun should-be-given-ErrorInterp (se quant)
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list (format nil "The value of ~a can be determined from the problem statement.  It should be entered in the dialog box when defining the relevant variable." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
@@ -1189,7 +1175,6 @@
     (if eqn (list (eqn-algebra->sysent (eqn-algebra eqn))))))
 
 (defun should-be-known-ErrorInterp (se quant)
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list (format nil "You need to enter an appropriate value for ~a."  
 			    (nlg quant))
@@ -1207,7 +1192,6 @@
 ; params are lhs and rhs of a systemese equation -- we better have gotten one if this
 ; is called.
 (defun set-wrong-given-value-ErrorInterp (se quant)
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (wrong-given-value (second (StudentEntry-ParsedEqn se)) 
                                 (third (StudentEntry-ParsedEqn se)))))
     (setf (StudentEntry-ErrInterp se)
@@ -1221,7 +1205,6 @@
     ))
 
 (defun more-than-given-ErrorInterp (se quant)
-  (declare (special **no-corresponding-correct-entry**)) ;suppressing warning.
   (let ((rem (make-hint-seq
 	      (list (format nil "Although this equation is a correct expression for the value of ~a, it does not simply state the given value." 
 	                             (nlg (quant-to-sysvar quant) 'algebra))
