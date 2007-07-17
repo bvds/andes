@@ -204,7 +204,6 @@
 				(bindings no-bindings))
   (cond
    ((null conditions)
-    (when (cdr sy) (format t "check-err-conditions ~S~%" sy))
     (list (make-ErrorInterp
 	   :test (subst-bindings bindings (EntryTest-name eh))
 	   :diagnosis (subst-bindings bindings (EntryTest-hint eh))
@@ -427,7 +426,6 @@
 	 (interps (sg-decompose-eqn neqn))
 	 best)
     (when (setf best (find-most-cognitive-interpretation interps))
-      (format t "check-err-fix-eqn-by-replacing ~A~%" interps)
       (check-err-conditions eh student conditions best bindings))))
 
 ;;; returns a copy of the given expression with <new> substituted for
