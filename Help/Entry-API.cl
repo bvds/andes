@@ -752,13 +752,16 @@
     ; or component values. Note given eqn maker takes student variable args.
     (when (not (equal dir-term 'zero))
        (when given-mag
-           (add-given-eqn entry (make-given-eqn-entry label given-mag)))  
+           (add-given-eqn entry (make-given-eqn-entry label given-mag 'given-mag)))  
        (when given-xc
-           (add-given-eqn entry (make-given-eqn-entry (strcat label "_x") given-xc)))  
+           (add-given-eqn entry 
+	       (make-given-eqn-entry (strcat label "_x") given-xc 'given-xc)))  
        (when given-yc
-           (add-given-eqn entry (make-given-eqn-entry (strcat label "_y") given-yc)))  
+           (add-given-eqn entry 
+	       (make-given-eqn-entry (strcat label "_y") given-yc 'given-yc)))  
        (when given-zc
-           (add-given-eqn entry (make-given-eqn-entry (strcat label "_z") given-zc))))
+           (add-given-eqn entry 
+	       (make-given-eqn-entry (strcat label "_z") given-zc 'given-zc))))
  
     ; if vector is a unit vector, associate implicit equation magV = 1 
     (when (eq (first vector-term) 'unit-vector)
@@ -1150,7 +1153,7 @@
 
   ; record associated given value equation entry
   (when value  ; NIL => unspecified. (Empty string => unknown)
-    (add-given-eqn entry (make-given-eqn-entry var value)))
+    (add-given-eqn entry (make-given-eqn-entry var value 'value)))
     ; NB! make-given-eqn-entry can return NIL if no system var found for studvar.
     ; Normally means var def will be incorrect. No given-eqn added in this case.
     ; But maybe better have a dangling given eqn entry anyway?

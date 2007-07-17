@@ -385,7 +385,8 @@
 	responses)  ; codes menu of responses to offer student
     (case (turn-coloring turn)
       (color-green  (setf result "T"))
-      (color-red    (setf result "NIL"))
+      (color-red    (setf result ; may append list of slots to flag
+		        (format NIL "NIL~{;~A~}" (turn-flag-slots turn))))
       ((no-op NIL)  (setf result ""))
       ; delete turn not implemented yet
       ; for delete response, turn text must be entry ID

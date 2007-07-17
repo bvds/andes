@@ -473,22 +473,28 @@ BOOL CDrawObjDlg::CheckDialog()
 		// apply updated slot statuses to dialog controls 
 		bCorrect = UpdateStatuses(m_pTempObj->m_errors);
 
-		// done updating, user can interact again
-		EnableWindow(TRUE);	
-
-		if (!bCorrect)
+		// !!! if unsolicited hint given, shouldn't do the following until
+		// the student dismisses the mode:
+		if (! theApp.m_bTutorMode)
 		{
-			// Warn if definition is unchanged since last OK, and still bad.
-			// Note we need to empty the id string after we update the saved previous 
-			// object below. Otherwise HasSameDef function will not return an accurate 
-			// comparison because it will think we are comparing an object to itself, 
-			// which it ignores (it really means "distinct instance w/same def").
-			if (m_pPrevObj && m_pTempObj->HasSameDef(m_pPrevObj) 
-				&& m_pTempObj->HasSameName(m_pPrevObj) && m_pTempObj->HasSameDir(m_pPrevObj))
+			// done updating, user can interact again
+			EnableWindow(TRUE);	
+
+			if (!bCorrect)
 			{
-				CString str = "You still have errors inside this dialog. Are you sure you want to exit?";
-				if (theApp.DoWarningMessage(str, this, MB_YESNO) != IDCANCEL)
-					return TRUE;
+				// Warn if definition is unchanged since last OK, and still bad.
+				// Note we need to empty the id string after we update the saved previous 
+				// object below. Otherwise HasSameDef function will not return an accurate 
+				// comparison because it will think we are comparing an object to itself, 
+				// which it ignores (it really means "distinct instance w/same def").
+				if (m_pPrevObj && m_pTempObj->HasSameDef(m_pPrevObj) 
+					&& m_pTempObj->HasSameName(m_pPrevObj) && m_pTempObj->HasSameDir(m_pPrevObj)
+					&& m_pTempObj->HasSameValues(m_pPrevObj))
+				{
+					CString str = "You still have errors inside this dialog. Are you sure you want to exit?";
+					if (theApp.DoWarningMessage(str, this, MB_YESNO) != IDCANCEL)
+						return TRUE;
+				}
 			}
 		}
 	}

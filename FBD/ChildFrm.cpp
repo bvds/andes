@@ -1,6 +1,6 @@
 // ChildFrm.cpp : implementation of the CChildFrame class
 //
-// $Id: ChildFrm.cpp,v 1.8 2007/07/13 00:48:38 anders Exp $
+// $Id: ChildFrm.cpp,v 1.9 2007/07/17 18:56:32 anders Exp $
     
 #include "stdafx.h"
 // #include <afxrich.h>
@@ -391,13 +391,13 @@ void CChildFrame::ActivateFrame(int nCmdShow)
 	// doc in the OnCreateClient method called earlier in the sequence.
 	ASSERT(m_pDoc);
 	int nID = 0;
+/*  for ANDES2, qual probs may need regular vector drawing tools enabled by features
 	if (m_pDoc->m_nProblemType == PROB_QUAL)	// Qualitative problem
 	{
-	// In Andes2 qual problem, no tools.
-/*		nID = IDR_QUALTOOLS;		// bar with motion diagram tools. */
+		nID = IDR_QUALTOOLS;		// bar with motion diagram tools. 
 	}
-	else if (m_pDoc->m_nProblemType == PROB_QUANT				// Quantitative problem
-		     && !(m_pDoc->m_wConcept & ID_PROB_PROBABILITY))    // but no drawing tools for probability
+	else */ if (/*m_pDoc->m_nProblemType == PROB_QUANT				// Quantitative problem
+		     && */!(m_pDoc->m_wConcept & ID_PROB_PROBABILITY))    // but no drawing tools for probability
 	{
 		if (CVarView::HasFeature(CString("DIPOLE"))) // new: EM problems w/dipole vectors
 			nID = IDR_DIPOLETOOLS;

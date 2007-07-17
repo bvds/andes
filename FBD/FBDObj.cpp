@@ -1211,6 +1211,23 @@ BOOL  CVector::HasSameDir(CDrawObj* pObj)
 		(IsZAxisVector() || pVec->m_strOrientation == m_strOrientation) );
 }
 
+BOOL CVector::HasSameValues(CDrawObj* pObj)
+{
+	ASSERT_KINDOF(CVector, pObj);
+	CVector* pVec = (CVector*) pObj;
+
+	if (m_bCompoForm)
+		   return pVec->m_bCompoForm 
+		          && m_strXC == pVec->m_strXC 
+			      && m_strYC == pVec->m_strYC 
+				  && m_strZC == pVec->m_strZC;
+	// else not compo form.
+	// don't have to worry about direction, handled by old HasSameDir
+	return !pVec->m_bCompoForm
+		    && m_strMag == pVec->m_strMag;
+}
+
+
 void CVector::UpdateVarNames(CString strOldName)
 {
 	if (strOldName.IsEmpty())

@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.5 2007/06/27 01:53:03 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.6 2007/07/17 18:56:32 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -84,6 +84,11 @@ BEGIN_CTL_TBL(CVectorMoveDlg)
 	"zdir",	IDC_ZDIR,
 	"OK",			IDOK,
 	"Cancel",		IDCANCEL,
+	// from value control
+	"given-mag",IDC_MAG_VALUE,
+	"given-xc", IDC_XC_VALUE,
+	"given-yc", IDC_YC_VALUE,
+	"given-zc", IDC_ZC_VALUE,
 	// to read old long names for backwards compatibility:
 	"vector-name", IDC_CUSTOM_LABEL,
 	"vector-time",	IDC_TIME_TEXT,

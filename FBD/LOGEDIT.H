@@ -1,7 +1,7 @@
 // 
 // LogEdit.h : definition file for our log-aware control classes
 // 
-// $Id: LOGEDIT.H,v 1.3 2006/02/20 22:19:43 anders Exp $
+// $Id: LOGEDIT.H,v 1.4 2007/07/17 18:56:32 anders Exp $
 //
 // We use MFC subclassed control classes which are instrumented to log significant
 // events to the app's log file by catching reflected control notifications.
@@ -87,6 +87,35 @@ public:
 
 // Attributes
 public:
+	Status  GetStatus() {return m_status;}
+	void	SetStatus(Status status) 
+	{ 
+		m_status = status; 
+		if (status == statusCorrect)
+			SetTextColor(RGB(0, 128, 0));
+		else if (status == statusError)
+			SetBkColor(RGB(255, 0, 0));
+		else SetTextColor(RGB(0, 0, 0));
+		Invalidate(); 
+	}
+	// Flag used for special gray enabled/disabled appearance
+	// Note this appearance is independent of windows enabled state.
+	// Processing depends on OnCtlColor handling in parent dialog.
+	BOOL	GetEnabled() { return m_bEnabled; };
+	void	SetEnabled(BOOL bEnable) { 
+		m_bEnabled = bEnable; 
+		if (bEnable) {
+			SetSysBkColor(); // sets to system color
+			SetStatus(m_status); // in case this affects bk color
+		} else
+			SetBkColor(::GetSysColor(COLOR_3DFACE));
+		// Invalidate();
+	}
+
+protected:
+	Status  m_status;
+	BOOL	m_bEnabled;
+
 
 // Operations
 public:

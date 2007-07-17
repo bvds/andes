@@ -3093,13 +3093,13 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 					if (strFeature.CompareNoCase(featureMap[i].szName) == 0)
 						m_wConcept |= featureMap[i].wConcepts;
 				}
-/* don't do: PROB_QUAL in effect assumes multiple choice -- suppresses equation pane AND drawing toolbars. 
- * But some 'no-quant prbs are drawing problems, such as fbd-only problems.
-
+				// Now PROB_QUAL suppresses equation/variable pane. But leaves drawing tools
+				// since some qual problems involve drawing.
+ 
 				// check for purely qualitative problem.
 				if (strFeature.CompareNoCase("no-quant") == 0)
 					m_nProblemType = PROB_QUAL;
-*/
+
 			}
 		}
 		else if (strTag.CompareNoCase("Predefs") == 0 && pValue->IsList()) {

@@ -64,17 +64,11 @@ public:
 
 // Attributes
 public:
-	void SetTextColor(COLORREF color);
-	void SetBkColor(COLORREF color) { SetBackgroundColor(FALSE, color); }
-	void SetSysBkColor() { SetBackgroundColor(TRUE, 0); }
-	
 	CString m_strId;	// string object id set by client
 	BOOL m_bParentMenu;  // set to forward WM_CONTEXTMENU to parent (default FALSE)
 	int m_nMenuId;		// if !bParentMenu: custom context menu resource id to use 
 	
 protected:
-
-	COLORREF m_colorText;
 	BOOL	 m_bFormatChange;
 
 	// Operations

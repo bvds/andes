@@ -224,7 +224,9 @@ BOOL CVariableDlg::OnInitDialog()
 			UpdatePlanStrings(&m_cboBody);
 		}
 	} else {
+		// set up the custom richedit control for given value
 		m_editValue.SetEventMask(ENM_CHANGE);
+		m_editValue.m_nMenuId = IDR_POPUP_DIALOG;
 	}
 		
 	// Adjust controls and labels based on main quantity type

@@ -111,6 +111,7 @@ public:
 	virtual BOOL HasSameDef(CDrawObj* pObj);
 	virtual BOOL HasSameDef(CVariable* pVar);
 	virtual BOOL HasSameDir(CDrawObj* pObj);
+	virtual BOOL HasSameValues(CDrawObj* pObj);
 	CString GetBodies();
 	
 	virtual void	UpdateVarNames(CString strOldName = "");

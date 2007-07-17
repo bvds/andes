@@ -35,6 +35,10 @@ public:
 
 	void InsertGreekText(CString strText);
 
+	void SetBkColor(COLORREF color) { SetBackgroundColor(FALSE, color); }
+	void SetSysBkColor() { SetBackgroundColor(TRUE, 0); }
+	void SetTextColor(COLORREF color);
+
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CRichEditEx)

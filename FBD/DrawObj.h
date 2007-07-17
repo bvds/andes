@@ -72,6 +72,7 @@ public:
 	virtual BOOL HasSameDef(CDrawObj* pObj);
 	virtual BOOL HasSameDef(CVariable* pVar);
 	virtual BOOL HasSameDir(CDrawObj* pObj);
+	virtual BOOL HasSameValues(CDrawObj* pObj) { return TRUE; };
 
 // Operations
 	// For drawing object
@@ -800,6 +801,7 @@ public:
 
 	virtual BOOL HasSameDef(CDrawObj* pObj);
 	virtual BOOL HasSameDef(CVariable* pVar);
+	virtual BOOL HasSameValues(CDrawObj* pObj);
 
 	virtual BOOL IsValid();//checking for uniqueness, valid label, etc.
 	virtual void UpdateObj(CDrawObj* pObj);//called from dialog to update object props

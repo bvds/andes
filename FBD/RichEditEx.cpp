@@ -207,6 +207,33 @@ void CRichEditEx::InsertGreekText(CString strText)
 	SetSel(nEndText, nEndText);	// leave sel at insertion pt after inserted text
 }
 
+void CRichEditEx::SetTextColor(COLORREF color)
+{
+	// Use char formatting to set color for all text in control
+	CHARFORMAT cf;
+	cf.cbSize = sizeof(CHARFORMAT);
+	cf.dwMask = CFM_COLOR;	// NB: validates crTextColor *plus* CFE_AUTOCOLOR bit in dwEffects
+	cf.crTextColor = color;
+	cf.dwEffects = 0;		// so must clear CFE_AUTOCOLOR bit (fixes earlier bug).		
+
+	// select everything in control and set its color
+	CHARRANGE crOldSel;		// saves current selection
+	GetSel(crOldSel);
+	HideSelection(TRUE, FALSE);		// temp. turns off selection highlighting
+	SetSel(0, -1);					// selects all 
+	SetSelectionCharFormat (cf);
+	SetSel(crOldSel);				// restores old selection
+	HideSelection(FALSE, FALSE);	// restores selection highlighting
+
+	//????????????????
+	//Commented out following lines because whenever 
+	//a greek letter was at place zero on the line
+	//the default formatting changed it back to regular font
+
+	// also set default color to use for new test.
+//	SetDefaultCharFormat(cf);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CHintRichEdit
 

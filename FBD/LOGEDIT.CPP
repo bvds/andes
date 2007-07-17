@@ -107,7 +107,10 @@ void CLogEdit::OnRButtonDown(UINT nFlags, CPoint point)
 IMPLEMENT_DYNAMIC(CLogRichEdit, CRichEditCtrl)
 
 CLogRichEdit::CLogRichEdit()
-{}
+{
+	m_status = statusUnknown;
+	m_bEnabled = TRUE;
+}
 
 CLogRichEdit::~CLogRichEdit()
 {}

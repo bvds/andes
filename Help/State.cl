@@ -533,13 +533,11 @@
 ;; the prop, the difference in the rest of it should not matter since it's
 ;; never used (check).
 
-(defun make-given-eqn-entry (studvar value)
+(defun make-given-eqn-entry (studvar value id)
 "make equation entry setting student var to given value"
    ; construct this even if it is an unused variable.
    ; will fail when checked.
-   ; (when (student-to-canonical studvar)
-       (make-StudentEntry :prop `(eqn ,studvar ,value)))
-   ;  )
+   (make-StudentEntry :prop `(eqn ,studvar ,value) :id id))
 
 (defun blank-given-value-entry (eqn-entry)
 "true if given value entry is blank for unknown"

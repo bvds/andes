@@ -117,11 +117,10 @@ int CCheckedDlg::DoModalWithHints()
 	
 		// ignore input messages for windows other than current dialog, its descendants,
 		// hint window, or currently active popup (remembered in m_hWnd):
-		if (! (
-			    (::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd))
-				|| (m_hwndCtrl && (msg.hwnd == m_hwndCtrl))	// current popup wnd
-				|| (msg.hwnd == hwndHint) 					// hint wnd
-			   ))
+		if (! ( (::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd) /*&& !theApp.m_bTutorMode*/)
+			  || (m_hwndCtrl && (msg.hwnd == m_hwndCtrl))	// current popup wnd
+			  || (msg.hwnd == hwndHint) 					// hint wnd
+			  ))
 		{
 			// not for an allowed window: ignore all key and mouse strokes 
 			if ((msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST) 
@@ -156,15 +155,21 @@ int CCheckedDlg::DoModalWithHints()
 
 LRESULT CCheckedDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
 {
-	if ( WM_CTLCOLORLISTBOX == message ) // 32 bits has new message
+	// HACK: the dropdown list of a combobox is a window that needs to 
+	// receive messages when the dialog is active, but the wnd is a popup
+	// window parented to the desktop. Since it is not a child of the dialog
+	// our custom message loop will not recognize it as a window that should receive
+	// messages in dialog-with-hints mode. The following technique from MS KB article
+	// 131845 exploits the fact that the dropdown list window sends WM_CTLCOLORLISTBOX 
+	// to the combo box and to the parent window. We use this to find its hwnd and
+	// remember it so our custom msg loop can still know to let messages through to 
+	// this window. 
+	if ( WM_CTLCOLORLISTBOX == message ) // new message in 32 bit windows
     {
-        // Get the list box handle (combo box drop down list)
-        // The parent of the list box is the desktop window
-	
-		// the drop list of a combobox is a control of the dialog that needs to 
-		// receive messages, but the wnd is not a child of the dialog
-		// We need to save its hwnd so we can explicitly pass messages along 
-		m_hwndCtrl = (HWND) lParam ;     // HWND is 32 bits
+		// Just to  be safe, make sure this is not from a listbox control on the dialog 
+		// (Body and Resistance dialogs have multi-selection listboxes).
+		if (! AfxIsDescendant(m_hWnd, (HWND) lParam))
+			m_hwndCtrl = (HWND) lParam ;    
 	}
 
 	return CLogDialog::DefWindowProc(message, wParam, lParam);
@@ -210,6 +215,7 @@ BOOL CCheckedDlg::IsCheckedCtrl(CWnd *pCtrl)
 	return pCtrl && (   pCtrl->IsKindOf(RUNTIME_CLASS(CLogEdit))
 		             || pCtrl->IsKindOf(RUNTIME_CLASS(CLogCombo))
 		             || pCtrl->IsKindOf(RUNTIME_CLASS(CLogList)) 
+					 || pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit))
 		            );
 }
 
@@ -224,6 +230,8 @@ Status CCheckedDlg::GetCtrlStatus(CWnd *pCtrl)
 		return ((CLogEdit*)pCtrl)->GetStatus();
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogList)))
 		return ((CLogList*)pCtrl)->GetStatus();
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
+		return ((CLogRichEdit*)pCtrl)->GetStatus();
 
 	TRACE("GetCtrlStatus -- bad control type (id=%d hwnd=%s\n)", pCtrl->GetDlgCtrlID(), pCtrl->m_hWnd);
 	return statusUnknown;
@@ -240,6 +248,8 @@ void CCheckedDlg::SetCtrlStatus(CWnd* pCtrl, Status status)
 		 ((CLogEdit*)pCtrl)->SetStatus(status);
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogList)))
 		((CLogList*)pCtrl)->SetStatus(status);
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
+		((CLogRichEdit*)pCtrl)->SetStatus(status);
 }
 
 BOOL CCheckedDlg::GetCtrlEnabled(CWnd *pCtrl)
@@ -253,6 +263,8 @@ BOOL CCheckedDlg::GetCtrlEnabled(CWnd *pCtrl)
 		return ((CLogEdit*)pCtrl)->GetEnabled();
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogList)))
 		return ((CLogList*)pCtrl)->GetEnabled();
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
+		return ((CLogRichEdit*)pCtrl)->GetEnabled();
 
 	TRACE("GetCtrlEnabled -- bad control type (id=%d hwnd=%s\n)", pCtrl->GetDlgCtrlID(), pCtrl->m_hWnd);
 	return TRUE;
@@ -269,6 +281,8 @@ void CCheckedDlg::SetCtrlEnabled(CWnd* pCtrl, BOOL bEnable)
 		((CLogEdit*)pCtrl)->SetEnabled(bEnable);
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogList)))
 		((CLogList*)pCtrl)->SetEnabled(bEnable);
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
+		((CLogRichEdit*)pCtrl)->SetEnabled(bEnable);
 }
 
 HBRUSH CCheckedDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
@@ -333,10 +347,14 @@ BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 			CString strSlotName = errors.GetNext(pos);
 			int nID = CtlNameToID(strSlotName);
 			ASSERT(nID != -1);	// bug somewhere if slot name not in table
-			if (nID != -1)		// but be safe in release build
-				errWnds.AddTail(GetDlgItem(nID));
+			if (nID != -1)	{	// but be safe in release build
+				// was GetDlgItem
+				CWnd* pCtl = GetDescendantWindow(m_hWnd, nID, /*bOnlyPerm:*/FALSE);
+				if (pCtl)
+					errWnds.AddTail(pCtl);
+			}
 		}
-
+/*
 		// Walk all child window controls, coloring checked ctrls appropriately
 		for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow())
 		{
@@ -346,10 +364,21 @@ BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 
 			// color red or green according as control is in error list
 			if (errWnds.Find(pCtl)){
-				SetCtrlStatus(pCtl, statusError);
-				bAllCorrect = FALSE;
+				// SetCtrlStatus(pCtl, statusError);
+				// bAllCorrect = FALSE;
 			} else {
 				SetCtrlStatus(pCtl, statusCorrect);
+			}
+		}
+*/
+		// Color all the error controls red. Works even on descendants
+		for (pos = errWnds.GetHeadPosition(); pos !=NULL; ) {
+			CWnd* pCtl = errWnds.GetNext(pos);
+			if (IsCheckedCtrl(pCtl)) {
+				SetCtrlStatus(pCtl, statusError);
+				// only return this if we have succeeded in flagging
+				// a control
+				bAllCorrect = FALSE;
 			}
 		}
 	}
@@ -364,6 +393,10 @@ BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 //I seem to need to update within the dialog.
 void CCheckedDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu) 
 {
+	// AW: this gets the commands on the menu updated through a "state" object
+	// which carries their command IDS through the normal command routing chain.
+	// The current dialog is hooked into that chain so OnUpdateDialogWhatswrong 
+	// below gets called through this mechanism.
 	CLogDialog::OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
 	CCmdUI state;
 	state.m_nIndexMax = pPopupMenu->GetMenuItemCount();
@@ -375,7 +408,7 @@ void CCheckedDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
 	}
 }
 
-// base class provides standard enabling, but derived classes must
+// base class provides standard enabling, but derived classes might have to
 // override with appropriate handler for "ID_DIALOG_WHATSWRONG" command, since
 // help system commands vary for different types of objects.
 void CCheckedDlg::OnUpdateDialogWhatswrong(CCmdUI* pCmdUI) 
@@ -400,6 +433,8 @@ BOOL CCheckedDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 //
 void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 {
+	// !!! this doesn't seem to be working. Now handle in message loop.
+
 	// Enable/Disable input to this window
 	EnableWindow(! bTutorMode);
 
@@ -423,15 +458,6 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 void CCheckedDlg::GreyCtrl(CWnd *pCtrl, BOOL bEnable)
 {
 	ASSERT(pCtrl != NULL);
-	
-	// special case for richedit, which has method to set background color.
-	if (pCtrl->IsKindOf(RUNTIME_CLASS(CRichEditCtrl))) {
-		if (bEnable)
-			((CRichEditCtrl*)pCtrl)->SetBackgroundColor(TRUE, NULL); // sets to system color
-		else
-			((CRichEditCtrl*)pCtrl)->SetBackgroundColor(FALSE, ::GetSysColor(COLOR_3DFACE));
-		return;
-	}
 
 	// Set flag if one of our checked controls
 	if (IsCheckedCtrl(pCtrl)) {

@@ -3873,6 +3873,11 @@ BOOL CVariable::HasSameDef(CDrawObj* pObj)
 	return FALSE;
 }
 
+BOOL CVariable::HasSameValues(CDrawObj* pObj)
+{
+	ASSERT(pObj->IsKindOf(RUNTIME_CLASS(CVariable)));
+	return m_strValue == ((CVariable*)pObj)->m_strValue;
+}
 
 BOOL CVariable::IsValid()
 {

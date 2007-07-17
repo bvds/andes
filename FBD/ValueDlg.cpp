@@ -88,6 +88,11 @@ BOOL CValueDlg::OnInitDialog()
 	m_editXCValue.SetEventMask(ENM_CHANGE);
 	m_editYCValue.SetEventMask(ENM_CHANGE);
 	m_editZCValue.SetEventMask(ENM_CHANGE);
+	// set the context menuse for the richedits
+	m_editMagValue.m_nMenuId = IDR_POPUP_DIALOG;
+	m_editXCValue.m_nMenuId = IDR_POPUP_DIALOG;
+	m_editYCValue.m_nMenuId = IDR_POPUP_DIALOG;
+	m_editZCValue.m_nMenuId = IDR_POPUP_DIALOG;
 
 	// First time through must update attribute labels based on prefix used in label 
 	// control, not object's name which is initially empty.

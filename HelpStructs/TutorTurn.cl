@@ -103,6 +103,7 @@
   responder
   Assoc    
   Commands 
+  flag-slots  ; list of workbench dialog slot ids to flag on error
   )
 
 (defconstant **Color-Red** 'Color-Red)
