@@ -6,10 +6,10 @@
 #
 
 while (<>) {   # loop over lines in all Andes sessions
-
+    
     # canonicalize unbound variables that should have
     # been bound, fixed May 2007
-    if(m/^([\d:]+)\tDDE-COMMAND assoc \(GOAL /) {
+    if(0 && m/^([\d:]+)\tDDE-COMMAND assoc \(GOAL /) {
 	s/\(VARIABLE [^ ]+ /\(VARIABLE \*VAR\* /;
 	s/\(FORCES ([^ ]+ [^ ]+) [^ )]+/\(FORCES $1 \*VAR\*/;
         s/\(TORQUES ([^ ]+ [^ ]+ [^ ]+) [^ )]+/\(TORQUES $1 \*VAR\*/;
@@ -21,12 +21,16 @@ while (<>) {   # loop over lines in all Andes sessions
 
     # canonicalize randomized phrases.  This should be fixed
     # by explicit problem-specific seed to random-elt, March 2007.
-    if(m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
         # created by random-positive-feedback
 	s/Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed\./\*YES\*/;
-        # created by random-goal prefix
-        s/Try |You should be |A good step would be |Your goal should be /\*TRY\* /;
+	# created by random-goal prefix
+	s/Try |You should be |A good step would be |Your goal should be /\*TRY\* /;
     }
+
+    #  Anders change to workbench API on August 17
+    #  DDE-RESULT |NIL;VALUE -> DDE-RESULT |NIL
+    if(m/^([\d:]+)\tDDE-RESULT /) {s/NIL;VALUE/NIL/; }    
 
     print;
 } #loop over lines in all sessions
