@@ -1,7 +1,7 @@
 // 
 // LogDialog.h : declarations for CLogDialog, our log-aware dialog class
 // 
-// $Id: Lgdialog.h,v 1.4 2007/07/13 00:48:38 anders Exp $
+// $Id: Lgdialog.h,v 1.5 2007/07/19 17:52:39 anders Exp $
 //
 // Base class for dialogs instrumented to interface with our logging system.
 // During recording, these dialogs log startup and size changes. During playback
@@ -145,6 +145,8 @@ protected:
 	//We need to save its hwnd so we can explicitly pass messages along 
 	HWND m_hwndCtrl;
 
+	CBrush m_brRed;   // red background brush when drawing error controls.
+
 	
 public:
 	// helpers for dealing with status-bearing colorable controls:
@@ -154,8 +156,12 @@ public:
 	BOOL   GetCtrlEnabled(CWnd* pCtrl);
 	void   SetCtrlEnabled(CWnd* pCtrl, BOOL bEnabled);
 
+	typedef CTypedPtrList<CObList, CWnd*> WndList;
 	BOOL   UpdateStatuses(const CStringList& lstErrors);
+protected:
+	BOOL UpdateStatus(CWnd* pCtl, WndList& errWnds);
 
+public:
 	// Get current printable object def for annotating "snapshot" printout
 	virtual CString GetPrintDef() { return "???"; }; // must override
 	
@@ -174,7 +180,7 @@ public:
 	virtual void OnCancel();
 
 // Implementation
-protected:
+
 	// Generated message map functions
 	//{{AFX_MSG(CCheckedDlg)
 		afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);

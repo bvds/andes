@@ -1,4 +1,4 @@
-;;
+;;)
 ;;                 Table of contents
 ;;
 ;; HOWTO
@@ -256,6 +256,7 @@
    (bind ?stime (time-of ?svar))
    (bind ?ctime (time-of ?cvar))
    (test (not (equal ?stime ?ctime))))
+  :flag (time)
   :utility .1)
 
 (defun variable-with-wrong-time (descr stime ctime)
@@ -278,6 +279,7 @@
   ((student (define-var (?quant ?sbody . ?rest)))
    (no-correct (define-var (?quant ?sbody . ?other)))
    (correct (define-var (?quant ?cbody . ?rest))))
+  :flag (body)
   ;; small probability because we want quantity-specific hints first
   :probability .0001)
 
@@ -299,7 +301,8 @@
 ;;;
 (def-error-class irrelevant-mass (?wrong-body)
   ((student (define-var (mass ?wrong-body)))
-   (no-correct (body ?wrong-body))))
+   (no-correct (body ?wrong-body)))
+  :flag (body))
 
 (defun irrelevant-mass (wrong-body)
   (setq wrong-body (nlg wrong-body 'def-np))
@@ -332,7 +335,8 @@
 						?time3)
   ((student (define-var (distance ?wrong-body :time ?time1)))
    (no-correct (define-var (distance ?wrong-body :time ?time2)))
-   (correct (define-var (distance ?correct-body :time ?time3)))))
+   (correct (define-var (distance ?correct-body :time ?time3)))
+  :flag (body)))
 
 (defun distance-travelled-wrong-body (wrong-body correct-body correct-time)
   (make-hint-seq
@@ -391,6 +395,7 @@
   ((student (define-var (speed ?sbody :time ?stime)))
    (no-correct (define-var (speed ?sbody :time ?time2)))
    (correct (define-var (speed ?cbody :time ?ctime))))
+  :flag (body)
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -1016,6 +1021,7 @@
    (correct (body ?body2))
    (no-student (body ?body2))
    (test (not (equal ?body1 ?body2))))
+  :flag (body)
   :utility 100)
 
 (defun body-tool-multiple-correct ()
@@ -1039,6 +1045,7 @@
    (correct (body ?correct-body))
    (problem (massless ?correct-body))
    (problem (given (mass ?wrong-body) ?dontcare)))
+  :flag (body)
   :Utility 50)
 
 (defun massless-body (correct-body time wrong-body)
@@ -1059,8 +1066,8 @@
   ((student (body ?wrong-body))
    (correct (body ?correct-body))
    (no-student (body ?correct-body)))
-  :probability 0.5  
-  )
+  :flag (body)
+  :probability 0.5)
 
 (defun wrong-object-for-body-tool (correct-body)
   (setf correct-body (nlg correct-body 'def-np))
@@ -1074,6 +1081,7 @@
 (def-error-class extra-object-for-body-tool (?wrong-body)
   ((student (body ?wrong-body))
    (correct (body ?correct-body)))
+  :flag (body)
   :probability 0.1  ;more general than above
   )
 
@@ -1349,11 +1357,12 @@
   ((student (vector ?descr ?dir))
    (correct (vector ?descr unknown))
    (test (not (equal ?dir 'unknown))))
+  :flag (dir)
 ;; High probability since close match
   :probability 0.75)
 
 (defun default-should-be-unknown (object)
- (make-hint-seq
+  (make-hint-seq
    (list 
     (format nil (strcat "When the direction of a ~A is not given or easily "
 			"inferred from the problem statement, you should mark "
@@ -1369,10 +1378,11 @@
 (def-error-class default-should-be-z-unknown ()
   ((student (vector ?descr ?dir))
    (correct (vector ?descr z-unknown))
-   (test (not (equal ?dir 'z-unknown)))))
+   (test (not (equal ?dir 'z-unknown))))
+   :flag (dir))
 
 (defun default-should-be-z-unknown ()
- (make-hint-seq
+  (make-hint-seq
    (list 
     (strcat "When the direction of a vector is not given or easily "
 	        "inferred from the problem statement, you should mark "
@@ -1394,6 +1404,7 @@
   ((student (vector ?descr ?dir))
    (correct (vector ?descr zero))
    (test (not (equal ?dir 'zero))))
+  :flag (given-mag)
   ;; increase so hints for d01 & d06 in kgraph9 come out right.
   :probability 0.5  
   :utility 10
@@ -1414,10 +1425,11 @@
 (def-error-class default-should-be-non-zero ()
   ((student (vector ?descr zero))
    (correct (vector ?descr ?dir))
-   (test (not (equal ?dir 'zero)))))
+   (test (not (equal ?dir 'zero))))
+  :flag (given-mag))
 
 (defun default-should-be-non-zero ()
- (make-hint-seq
+  (make-hint-seq
    (append (list "Do you really want that vector to have a zero magnitude?"
 		 ; don't give bottom-out hint prematurely
 	         ;"It should have a non-zero magnitude." 
@@ -1435,6 +1447,7 @@
    (test (not (equal ?correct-dir 'zero)))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
    (test (not (equal ?wrong-dir ?correct-dir))))
+  :flag (dir)
   :utility 50
   ;; Low probability since we want any quantity-specific rules to act first
   :probability 0.08)
@@ -1469,6 +1482,7 @@
    (bind ?good-time (time-of ?b2))
    (test (equal (remove-time ?b1) (remove-time ?b2)))
    (test (not (equal ?bad-time ?good-time))))
+  :flag (time)
   :utility 25 ; made half as big for good hint for d06 in kgraph9
   ;; Low probability since we want any quantity-specific rules to act first
   :probability 0.085)
@@ -1556,6 +1570,7 @@
    (test (not (eq ?vector-type 'field)))
    (test (not (eq ?vector-type 'unit-vector)))
    )
+  :flag (body)
   :probability 0.5)
 
 (defun default-wrong-body (correct-body wrong-body)
@@ -1656,11 +1671,14 @@
 
 ;;; If the student's line is correct except
 ;;; for the angle, then just point that out.  This is the default case.
+;;; !!! note there are two different error classes with this name, sharing
+;;; a single function to generate the hint sequence
 (def-error-class default-wrong-dir ("line" ?wrong-dir ?correct-dir)
   ((student (draw-line ?descr ?wrong-dir))
    (correct (draw-line ?descr ?correct-dir))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
    (test (not (equal ?wrong-dir ?correct-dir))))
+  :flag (dir)
   :probability 0.5)
 
 ;;; default in case everything but body matches some correct vector
@@ -1884,6 +1902,7 @@
  ( (student (vector (force ?sbody ?agent ?type :time ?time) ?dir))
    (correct (vector (force ?cbody ?agent ?type :time ?time) ?dir))
    (problem (point-on-body ?cbody ?sbody)))
+  :flag (body)
   :probability 0.9
   :utility 100)
 
@@ -1902,6 +1921,7 @@
   ((student (vector (force ?body ?sagent ?type :time ?stime) ?sdir))
    (no-correct (vector (force ?body ?sagent ?type :time ?time2) ?dir2))
    (correct (vector (force ?body ?cagent ?type :time ?ctime) ?cdir)))
+  :flag (agent)
   :probability
   (+ 0.1
 	(if (equal ?stime ?ctime) 0.2 0.0)
@@ -1986,6 +2006,7 @@
   ((student (vector (force ?body ?agent ?stype :time ?stime) ?sdir))
    (no-correct (vector (force ?body ?agent ?stype :time ?time2) ?dir2))
    (correct (vector (force ?body ?agent ?ctype :time ?ctime) ?cdir)))
+  :flag (type)
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
@@ -2016,7 +2037,7 @@
    (correct-nointent (vector (force ?body ?agent ?frict-type :time ?ctime) ?frict-dir))
    (any-member ?force-type '(applied normal))
    (correct-nointent (vector (force ?body ?agent ?force-type :time ?ctime) ?force-dir)))
-   
+  :flag (type) 
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
@@ -2132,6 +2153,7 @@
    ;; no force with student's type
    (no-correct (vector (force ?body ?agent3 ?stype :time ?time3) ?dir3)) 
    (correct (vector (force ?body ?cagent ?ctype :time ?ctime) ?cdir)))
+  :flag (agent type)
   :utility 0.1 
   :probability
   (+ 0.3
@@ -2163,6 +2185,7 @@
 (def-error-class weight-due-to-object (?object ?planet)
   ((student (vector (force ?object ?object weight :time ?stime) ?dir))
    (correct (vector (force ?body ?planet weight :time ?ctime) ?cdir)))
+  :flag (agent)
   :utility 200)
 
 (defun weight-due-to-object (object planet)
@@ -2261,6 +2284,7 @@
   ((student (vector (force ?body ?surface ?badtype :time ?time) ?dir))
    (test (not (equal ?badtype 'normal)))
    (correct (vector (force ?body ?surface normal :time ?time) ?dir)))
+  :flag (type)
   :utility 100)
 
 (defun normal-force-mistyped (badtype)
@@ -2282,6 +2306,7 @@
 (def-error-class switched-objects-for-force (?sbody ?sagent)
   ((student (vector (force ?sbody ?sagent ?type :time ?stime) ?sdir))
    (correct (vector (force ?sagent ?sbody ?type :time ?stime) ?sdir)))
+  :flag (body agent)
   :utility 100)
 
 (defun switched-objects-for-force (sbody sagent)
@@ -2304,6 +2329,7 @@
   ((student (vector (force ?body ?surface normal :time ?time) (dnum 90 |deg|)))
    (correct (vector (force ?body ?surface normal :time ?time) ?dir))
    (test (not (equal ?dir '(dnum 90 |deg|)))))
+  :flag (dir)
   :utility 100)
 (defun normal-force-direction (body surface dir)
   (make-hint-seq
@@ -2326,6 +2352,7 @@
    (test (member ?type '(static-friction kinetic-friction)))
    (correct (vector (force ?body ?surface ?type :time ?time) ?cdir))
    (test (not (parallel-or-antiparallelp ?sdir ?cdir))))
+  :flag (dir)
   :utility 100)
 
 (defun friction-force-not-parallel (sdir cdir)
@@ -2343,6 +2370,7 @@
    (correct (vector (force ?body ?surface static-friction :time ?time) ?cdir))
    (test (parallel-or-antiparallelp ?sdir ?cdir))
    (test (not (equal ?sdir ?cdir))))
+  :flag (dir)
   :utility 100)
 
 (defun static-friction-force-sense (sdir cdir)
@@ -2363,6 +2391,7 @@
    (correct (vector (force ?body ?surface kinetic-friction :time ?time) ?cdir))
    (test (parallel-or-antiparallelp ?sdir ?cdir))
    (test (not (equal ?sdir ?cdir))))
+  :flag (dir)
   :utility 100)
 
 (defun kinetic-friction-force-sense (sdir cdir)
@@ -2728,6 +2757,7 @@
   ((student    (vector (relative-position ?pt ?sref-pt :time ?stime) ?sdir))
    (no-correct (vector (relative-position ?pt ?sref-pt :time ?time2) ?dir2))
    (correct    (vector (relative-position ?pt ?cref-pt :time ?ctime) ?cdir)))
+  :flag (from)
   :utility 50
   :probability
   (+ 0.2
@@ -2760,6 +2790,7 @@
    ;; make sure student hasn't done it already
    (no-student (vector (relative-position ?cobj ?cref :time ?time) ?dir-opp))
    )
+  :flag (body from)
   :utility 55
   :probability
 ;; unless one direction matches, it is better handled by 
@@ -2790,6 +2821,7 @@
    ; is no possible relative velocity vector with this sense in the solution
    (no-correct (vector (relative-vel ?cref-pt ?cpt :time ?stime) ?cdir))
    (correct    (vector (relative-vel ?cpt ?cref-pt :time ?ctime) ?cdir-opp)))
+  :flag (body from)
   :utility 55
   :probability
   (+ 0.2
@@ -2812,6 +2844,7 @@
    (correct (vector (relative-vel ?pt ?cref-pt :time ?ctime) ?cdir))
    (problem (doppler-system ?source ?cref-pt ?observer))
    (test (member ?pt (list ?source ?observer))))
+  :flag (agent)  ; second arg in var defs is named 'agent
   :utility 50
   :probability
   (+ 0.25
@@ -2836,6 +2869,7 @@
   ((student    (vector (field ?sloc ?type ?sagent :time ?stime) ?sdir))
    (no-correct (vector (field ?sloc ?type ?agent2 :time ?time2) ?dir2))
    (correct    (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir)))
+  :flag (body)
   :utility 50
   :probability 0.15) ;; This tends to be a weak/misleading hint.
 
@@ -2854,6 +2888,7 @@
    (correct (vector (field ?cloc ?type ?cagent :time ?ctime) ?cdir))
    (problem (at-place ?sloc ?cloc))
    )
+  :flag (body)
   :utility 75
   :probability 0.35)
 
@@ -2870,6 +2905,7 @@
   ((student    (vector (field ?loc ?type ?sagent :time ?stime) ?sdir))
    (no-correct (vector (field ?loc ?type ?sagent :time ?time2) ?dir2))
    (correct    (vector (field ?loc ?type ?cagent :time ?ctime) ?cdir)))
+  :flag (agent)
   :utility 50)
 
 (defun field-wrong-agent (sagent cagent loc fieldtype)

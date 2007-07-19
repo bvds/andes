@@ -35,6 +35,7 @@ public:
 	CLogBtn	m_btnCancel;
 	//}}AFX_DATA
 
+	DECLARE_CTL_TBL()
 
 // Overrides
 	// ClassWizard generated virtual function overrides

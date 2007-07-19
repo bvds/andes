@@ -77,6 +77,11 @@ BEGIN_CTL_TBL(CUnitVectorDlg)
 	"agent", IDC_AGENT,
 	"dir",	IDC_ORIENTATION_TEXT,
 	"zdir",	IDC_ZDIR,
+	// from value control
+	"given-mag",IDC_MAG_VALUE,
+	"given-xc", IDC_XC_VALUE,
+	"given-yc", IDC_YC_VALUE,
+	"given-zc", IDC_ZC_VALUE,
 	// alternate names:
 	// alt name for dir field:
 	"orientation",	IDC_ORIENTATION_TEXT,

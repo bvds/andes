@@ -7,7 +7,7 @@
 (defstruct (ErrorInterp (:print-function write-ErrorInterp))
   test          ; name of test that provided this interp
   Intended      ; interpretation of student's intended action
-  Remediation   ; a non-empty list of tutor turns
+  Remediation   ; a tutor turn. Typically contains a hint sequence
   Diagnosis     ; lisp expression whose evaluation returns a list of hints.
   Order         ; alist of specifications to determine priority
   State         ; (The following list is obsolete) 

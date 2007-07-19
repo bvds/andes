@@ -329,6 +329,7 @@
 #define IDC_LIGHTEN                     1085
 #define IDC_GREYLEVEL                   1086
 #define IDC_TIME                        1087
+#define IDC_ORIENTATION_OLD             1088
 #define IDC_TASK_TEXT                   1090
 #define IDC_EDIT_ITEM                   1091
 #define IDC_LOGTIME_TEXT                1092

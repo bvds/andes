@@ -1,6 +1,6 @@
 // SystemDlg.cpp : implementation file
 // 
-// $Id: sysdlg.cpp,v 1.5 2007/06/27 01:53:03 anders Exp $
+// $Id: sysdlg.cpp,v 1.6 2007/07/19 17:52:39 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -48,7 +48,7 @@ void CSystemDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_CTL_TBL(CSystemDlg)
 	"name",	 IDC_CUSTOM_LABEL,
-	"bodies", IDC_MULTIPLE_BODY_LIST,
+	"body", IDC_MULTIPLE_BODY_LIST,
 	"time",	 IDC_TIME_TEXT,
 	// to accept old long names for backwards compatibility:
 	"system-name",	 IDC_CUSTOM_LABEL,

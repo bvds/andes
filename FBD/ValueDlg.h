@@ -78,6 +78,7 @@ protected:
 	afx_msg void OnChangeZCValue();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSelchangeZdir();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

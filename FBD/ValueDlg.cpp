@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(CValueDlg, CLogDialog)
 	ON_EN_CHANGE(IDC_YC_VALUE, OnChangeYCValue)
 	ON_EN_CHANGE(IDC_ZC_VALUE, OnChangeZCValue)
 	ON_CBN_SELCHANGE(IDC_ZDIR, OnSelchangeZdir)
+	ON_WM_CTLCOLOR()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -258,10 +259,12 @@ void CValueDlg::OnChangeDirValue()
 	// this event can be received in initialization before 
 	if (! m_editDirValue.m_hWnd) return; 
 
-	CString strText;
+	CString strText; int nDegrees;
 	m_editDirValue.GetWindowText(strText);
 	strText.Remove(' ');
-	m_btnDirUnknown.SetCheck(strText.IsEmpty());
+	// unlike others, this is unknown if we can't parse an integer from it.
+	// !!! doesn't handle garbage after integer (maybe floating point).
+	m_btnDirUnknown.SetCheck( sscanf(strText, "%d", &nDegrees) != 1 );
 	
 }
 
@@ -465,4 +468,18 @@ void CValueDlg::OnSelchangeZdir()
 	
 	// mainly to change phi/theta label if needed:
 	//UpdateComponents();
+}
+
+
+HBRUSH CValueDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
+{
+	// HBRUSH hbr = CLogDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+	
+	// TODO: Change any attributes of the DC here
+	
+	// TODO: Return a different brush if the default is not desired
+
+	// Handle in containing parent.
+	const MSG* pMsg = GetCurrentMessage();
+	return (HBRUSH) GetParent()->SendMessage(pMsg->message, pMsg->wParam, pMsg->lParam);
 }

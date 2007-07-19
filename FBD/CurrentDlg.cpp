@@ -59,6 +59,14 @@ void CCurrentDlg::DoDataExchange(CDataExchange* pDX)
 	CDrawObjDlg::DoDataExchange(pDX);
 }
 
+BEGIN_CTL_TBL(CCurrentDlg)
+	"body", IDC_MULTIPLE_BODY_LIST,
+	"time", IDC_TIME,
+	"name", IDC_CUSTOM_LABEL,
+	"value", IDC_GIVEN_VALUE,
+	"OK",			IDOK,
+	"Cancel",		IDCANCEL,
+END_CTL_TBL(CCurrentDlg)
 
 BEGIN_MESSAGE_MAP(CCurrentDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CCurrentDlg)

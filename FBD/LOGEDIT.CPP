@@ -76,6 +76,7 @@ void CLogEdit::SetStatus(Status status)
 {
 	m_status = status;
 	Invalidate();
+	UpdateWindow();
 }
 
 void CLogEdit::OnContextMenu(CWnd* pWnd, CPoint point) 
@@ -510,6 +511,8 @@ IMPLEMENT_DYNAMIC(CLogBtn, CButton)
 
 CLogBtn::CLogBtn()
 {
+	m_status = statusUnknown;
+	m_bEnabled = TRUE;
 }
 
 CLogBtn::~CLogBtn()

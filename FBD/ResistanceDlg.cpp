@@ -66,6 +66,14 @@ void CResistanceDlg::DoDataExchange(CDataExchange* pDX)
 	CDrawObjDlg::DoDataExchange(pDX);
 }
 
+BEGIN_CTL_TBL(CResistanceDlg)
+	"body", IDC_MULTIPLE_BODY_LIST,
+	"time", IDC_TIME_TEXT,
+	"name", IDC_CUSTOM_LABEL,
+	"value", IDC_GIVEN_VALUE,
+	"OK",			IDOK,
+	"Cancel",		IDCANCEL,
+END_CTL_TBL(CResistanceDlg)
 
 BEGIN_MESSAGE_MAP(CResistanceDlg, CDrawObjDlg)
 	//{{AFX_MSG_MAP(CResistanceDlg)

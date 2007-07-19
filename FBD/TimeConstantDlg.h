@@ -35,6 +35,7 @@ public:
 	CLogBtn		m_Cancel;
 	CLabelRichEdit	m_editName;
 	//}}AFX_DATA
+	DECLARE_CTL_TBL()
 
 // Overrides
 	// ClassWizard generated virtual function overrides

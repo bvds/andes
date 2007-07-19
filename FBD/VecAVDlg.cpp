@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.6 2007/07/17 18:56:32 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.7 2007/07/19 17:52:39 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -59,7 +59,7 @@ void CVectorMoveDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDCANCEL, m_Cancel);
 	DDX_Control(pDX, IDC_STATIC_TEXT, m_txtDescription);
 	DDX_Control(pDX, IDC_DIRECTION_SPIN, m_spinDirection);
-	DDX_Control(pDX, IDC_ORIENTATION_TEXT, m_editOrientation);
+	DDX_Control(pDX, IDC_ORIENTATION_OLD, m_editOrientation);
 	DDX_Control(pDX, IDC_CUSTOM_LABEL, m_editName);
 	DDX_Control(pDX, IDC_AVBODY_TEXT, m_cboBodyList);
 	//}}AFX_DATA_MAP
@@ -82,25 +82,17 @@ BEGIN_CTL_TBL(CVectorMoveDlg)
 	"type",	IDC_MOVEMENT_TYPE,
 	"ang",	IDC_ANGULAR,
 	"zdir",	IDC_ZDIR,
-	"OK",			IDOK,
-	"Cancel",		IDCANCEL,
 	// from value control
+	"compo", IDC_COMPO_BTN,
+	"magdir", IDC_MAGDIR_BTN,
 	"given-mag",IDC_MAG_VALUE,
 	"given-xc", IDC_XC_VALUE,
 	"given-yc", IDC_YC_VALUE,
 	"given-zc", IDC_ZC_VALUE,
-	// to read old long names for backwards compatibility:
-	"vector-name", IDC_CUSTOM_LABEL,
-	"vector-time",	IDC_TIME_TEXT,
-	"vector-body",	IDC_AVBODY_TEXT,
-	"orientation",	IDC_ORIENTATION_TEXT,
-	"vector-type",	IDC_MOVEMENT_TYPE,
-	// to replay var def ctl events from old logs which used generic variable dialog: 
-	// also map relevant ctl names from generic var dcl dialog to our ctls
-//	"variable-name", IDC_VECTOR_NAME_TEXT,
-//	"variable-time", IDC_TIME_TEXT,
-//	"variable-object", IDC_AVBODY_TEXT,
-	/* "variable-agent", IDC_AGENT, */
+	// when used for scalar speed variable
+	"value", IDC_GIVEN_VALUE,
+	"OK",			IDOK,
+	"Cancel",		IDCANCEL,
 END_CTL_TBL(CVectorMoveDlg)
 
 IMPLEMENT_DYNAMIC(CVectorMoveDlg, CDrawObjDlg)

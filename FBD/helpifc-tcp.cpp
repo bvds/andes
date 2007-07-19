@@ -301,7 +301,7 @@ PUBLIC BOOL HelpSystemEnsureRunning()
 	CString strExeDir = g_strAndesDir; // path of helpys exe's directory
 	CString strExePath;				   // full path of helpsys exe
 	
-	int nTries;
+//	int nTries;
 
 	// if we can connect or are already connected, do nothing.
 	if (HelpSystemConnect()) 

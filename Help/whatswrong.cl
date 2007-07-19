@@ -545,7 +545,7 @@
 	  ei (strcat "The closest matching CORRECT entry seems to be done "
 		     "already, so you really don't need to generate it again.  "
 		     "If you want to anyway, click on Explain more.")))
-	(T (call-ww-turn-generator (ErrorInterp-diagnosis ei))))))
+	(T (call-ww-turn-generator ei)))))
 
 
 ;;; Given an error interpretation and a string, it warns the studen by
@@ -558,14 +558,19 @@
 		    :responder
 		    #'(lambda (r)
 			(if (equal r 'explain-more)
-			    (call-ww-turn-generator (ErrorInterp-diagnosis ei))))))
+			    (call-ww-turn-generator ei)))))
 
 ;;; Used to be more complicated
-(defun call-ww-turn-generator (form)
+(defun call-ww-turn-generator (ei)
   ; wrapper attaches function name as assoc info to turn
-  (let ((result-turn 
-           (apply (car form) (cdr form))))
+  (let ((form (ErrorInterp-diagnosis ei))
+        ; need to fetch the EntryTest class to get its flag slots
+        (test (find (ErrorInterp-name ei) **entry-tests** :key #'EntryTest-name))
+         result-turn)
+     (setf result-turn (apply (car form) (cdr form)))
      (setf (turn-assoc result-turn) (car form))
+     (when test
+        (setf (turn-flag-slots result-turn) (EntryTest-flag-slots test)))
      result-turn))
 
 ;;; ================ called inside errors.cl functions =================

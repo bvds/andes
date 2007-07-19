@@ -216,6 +216,7 @@ BOOL CCheckedDlg::IsCheckedCtrl(CWnd *pCtrl)
 		             || pCtrl->IsKindOf(RUNTIME_CLASS(CLogCombo))
 		             || pCtrl->IsKindOf(RUNTIME_CLASS(CLogList)) 
 					 || pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit))
+					 || pCtrl->IsKindOf(RUNTIME_CLASS(CLogBtn))
 		            );
 }
 
@@ -232,6 +233,8 @@ Status CCheckedDlg::GetCtrlStatus(CWnd *pCtrl)
 		return ((CLogList*)pCtrl)->GetStatus();
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
 		return ((CLogRichEdit*)pCtrl)->GetStatus();
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogBtn)))
+		return ((CLogBtn*)pCtrl)->GetStatus();
 
 	TRACE("GetCtrlStatus -- bad control type (id=%d hwnd=%s\n)", pCtrl->GetDlgCtrlID(), pCtrl->m_hWnd);
 	return statusUnknown;
@@ -250,6 +253,8 @@ void CCheckedDlg::SetCtrlStatus(CWnd* pCtrl, Status status)
 		((CLogList*)pCtrl)->SetStatus(status);
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
 		((CLogRichEdit*)pCtrl)->SetStatus(status);
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogBtn)))
+		((CLogBtn*)pCtrl)->SetStatus(status);
 }
 
 BOOL CCheckedDlg::GetCtrlEnabled(CWnd *pCtrl)
@@ -265,6 +270,8 @@ BOOL CCheckedDlg::GetCtrlEnabled(CWnd *pCtrl)
 		return ((CLogList*)pCtrl)->GetEnabled();
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
 		return ((CLogRichEdit*)pCtrl)->GetEnabled();
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogBtn)))
+		return ((CLogBtn*)pCtrl)->GetEnabled();
 
 	TRACE("GetCtrlEnabled -- bad control type (id=%d hwnd=%s\n)", pCtrl->GetDlgCtrlID(), pCtrl->m_hWnd);
 	return TRUE;
@@ -283,39 +290,27 @@ void CCheckedDlg::SetCtrlEnabled(CWnd* pCtrl, BOOL bEnable)
 		((CLogList*)pCtrl)->SetEnabled(bEnable);
 	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogRichEdit)))
 		((CLogRichEdit*)pCtrl)->SetEnabled(bEnable);
+	else if (pCtrl->IsKindOf(RUNTIME_CLASS(CLogBtn)))
+		((CLogBtn*)pCtrl)->SetEnabled(bEnable);
 }
 
 HBRUSH CCheckedDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) 
 {
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
-	if (!((nCtlColor == CTLCOLOR_EDIT) || (nCtlColor == CTLCOLOR_LISTBOX)))
+	
+	if (! (nCtlColor == CTLCOLOR_EDIT 
+		   || nCtlColor == CTLCOLOR_LISTBOX
+		   || nCtlColor == CTLCOLOR_STATIC) ) // STATIC sent for radio buttons
 		return hbr;
 
+	// TRACE("CTL_COLOR %d for %s %x\n", nCtlColor, GetCtlName(pWnd), pWnd->m_hWnd);  
 	// do nothing if not one of our status-bearing controls
 	if (! IsCheckedCtrl(pWnd))
 		return hbr;
 
-	// Set appropriate text foreground color
-	Status status = GetCtrlStatus(pWnd);
-	switch (status)
-	{
-	case statusCorrect:
-		pDC->SetTextColor(RGB(0, 128, 0));	// green
-		break;
-
-	case statusError:
-		pDC->SetTextColor(RGB(255, 0, 0));  // red
-		break;
-
-	default:
-		TRACE("OnCtlColor: Bad status value, pWnd = %d\n", pWnd);
-		// fall through ...
-	case statusUnknown:
-		break;								// leave in default color
-	}
-
-	// TODO: Return a different brush if the default is not desired
+	// For disabled appearance, set grey background. 
+	// Note status setting below may override if it uses background coloring
 
 	// We do this in the case of grayed list/combo/edit boxes to draw colored text 
 	// against grey background. (Just disabling won't draw colored text).
@@ -331,18 +326,44 @@ HBRUSH CCheckedDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		hbr = ::GetSysColorBrush(COLOR_3DFACE);
 	}
 
+	// Set appropriate color to indicate status. 
+	Status status = GetCtrlStatus(pWnd);
+	// TRACE("Status = %d\n", status);
+	switch (status)
+	{
+	case statusCorrect:
+		pDC->SetTextColor(RGB(0, 128, 0));	// green
+		break;
+
+	case statusError:
+#if 0   // set red text
+		pDC->SetTextColor(RGB(255, 0, 0));  // red
+#else // set red background for control, rather than red text
+		pDC->SetBkColor(RGB(255, 0, 0));
+		if ((HBRUSH) m_brRed == NULL) m_brRed.CreateSolidBrush(RGB(255, 0, 0));
+		hbr = m_brRed;
+#endif 
+		break;
+
+	default:
+		TRACE("OnCtlColor: Bad status value, pWnd = %d\n", pWnd);
+		// fall through ...
+	case statusUnknown:
+		break;								// leave in default color
+	}
+
 	return hbr;
 }
 
 // update all checked control statuses given list of error slot names.
-// Returns T if no errors
+// Returns T if no errors got flagged. 
 BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 {
 	BOOL bAllCorrect = TRUE;// until error found
 	if (! errors.IsEmpty())	// must have at least one error spec
 	{
 		// map list of error slot names to list of error ctl CWnd*'s
-		CTypedPtrList<CObList, CWnd*> errWnds;
+	    WndList errWnds;
 		for (POSITION pos = errors.GetHeadPosition(); pos != NULL; ) {
 			CString strSlotName = errors.GetNext(pos);
 			int nID = CtlNameToID(strSlotName);
@@ -354,23 +375,17 @@ BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 					errWnds.AddTail(pCtl);
 			}
 		}
-/*
+
 		// Walk all child window controls, coloring checked ctrls appropriately
 		for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow())
 		{
-			// skip non-checked controls
-			if (! IsCheckedCtrl(pCtl))
-				continue;
-
-			// color red or green according as control is in error list
-			if (errWnds.Find(pCtl)){
-				// SetCtrlStatus(pCtl, statusError);
-				// bAllCorrect = FALSE;
-			} else {
-				SetCtrlStatus(pCtl, statusCorrect);
-			}
+			// first loop through grandchildren, if any. NB: one level of recursion only!
+			for (CWnd* pChild = pCtl->GetTopWindow(); pChild != NULL; pChild = pChild->GetNextWindow()) 
+					bAllCorrect &= UpdateStatus(pChild, errWnds);
+			// now this one
+			bAllCorrect &= UpdateStatus(pCtl, errWnds);
 		}
-*/
+/*
 		// Color all the error controls red. Works even on descendants
 		for (pos = errWnds.GetHeadPosition(); pos !=NULL; ) {
 			CWnd* pCtl = errWnds.GetNext(pos);
@@ -380,9 +395,27 @@ BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 				// a control
 				bAllCorrect = FALSE;
 			}
-		}
+		} */
 	}
 	return bAllCorrect;
+}
+
+BOOL CCheckedDlg::UpdateStatus(CWnd *pCtl, WndList &errWnds)
+{
+	BOOL bAllCorrect = TRUE;
+
+	// skip non-checked controls
+	if (! IsCheckedCtrl(pCtl))
+		return TRUE;
+
+	// color red or green according as control is in error list
+	if (errWnds.Find(pCtl)){
+		SetCtrlStatus(pCtl, statusError);
+		return FALSE;
+	} else {
+		SetCtrlStatus(pCtl, statusUnknown);
+	}
+	return TRUE;
 }
 
 // To provide update handlers for cmds on control context menus 
@@ -442,8 +475,13 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 	// For now we limit this to ANDES log-aware controls (and not, e.g. static
 	// labels, buttons, or radio-buttons.) That should include all editable 
 	// choice fields which should be sufficient visual cue.
-	for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow())
+	for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow()) {
+		// first loop through grandchildren, if any. NB: one level of recursion only!
+		for (CWnd* pChild = pCtl->GetTopWindow(); pChild != NULL; pChild = pChild->GetNextWindow()) 
+				GreyCtrl(pChild, !bTutorMode);
+		// now this one
 		GreyCtrl(pCtl, !bTutorMode);
+	}
 
 	// Trigger an IDLE update, to update toolbars. Needed because
 	// idle processing is not triggered during our modal message loop.
@@ -465,5 +503,7 @@ void CCheckedDlg::GreyCtrl(CWnd *pCtrl, BOOL bEnable)
 	}
 	// else do nothing.
 }
+
+
 
 

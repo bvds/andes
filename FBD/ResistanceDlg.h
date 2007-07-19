@@ -38,6 +38,8 @@ public:
 	CLabelRichEdit	m_editName;
 	//}}AFX_DATA
 
+	DECLARE_CTL_TBL()
+
 	// Same basic dialog for resistance or capacitance. 
 	BOOL m_bCapacitance;		// T => capacitance; F = resistance
 

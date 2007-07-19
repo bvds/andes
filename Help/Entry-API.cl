@@ -1374,7 +1374,9 @@
                (StudentEntry-GivenEqns Entry))
         (setf result (Check-Vector-Given-Form Entry))
 	(when (not (eq (turn-coloring result) **color-green**))
-	     (return-from Check-NonEq-Entry result))) ; early exit
+            (setf (turn-flag-slots result) ;; copy from remediation turn
+	   	(turn-flag-slots (ErrorInterp-Remediation (StudentEntry-ErrInterp Entry))))
+	    (return-from Check-NonEq-Entry result))) ; early exit
 
     ;; Get set of candidate interpretations into PossibleCInterps.  
     ;; For generality needed for equation entries, an "interpretation" 
@@ -1396,7 +1398,11 @@
         ;; For now, log error tag and target info here.  Really should be 
 	;; recorded in result turn for inserting with other assocs though. 
 	(log-entry-info Entry)
-	(return-from Check-NonEq-Entry (make-red-turn))) ; go no further
+	; build turn to return, copying flag-slots from remediation field
+	(setf result (make-red-turn))
+	(setf (turn-flag-slots result)
+	   (turn-flag-slots (ErrorInterp-Remediation (StudentEntry-ErrInterp Entry))))
+	(return-from Check-NonEq-Entry result)) ; go no further
 
     ;; else got a match: set state and correctness from candidate
     (setf (StudentEntry-State entry) (car cand))
@@ -1532,7 +1538,7 @@
        ; :intended (get-given-interp quant)
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
-    rem))
+    (flag 'magdir rem)))
 
 (defun should-be-magdir-form (se quant)
   (declare (ignore quant))
@@ -1542,10 +1548,10 @@
       (make-ErrorInterp
        :diagnosis '(should-be-magdir-form)
        ; unclear what intended should be, maybe eqn for one given compo
-       ; :intended (get-given-interp `(compo x 0 ,quant)
+       ; :intended (get-given-interp `(compo x 0 ,quant))
        :remediation rem))
     (setf (turn-coloring rem) **color-red**)
-    rem))
+    (flag 'compo rem)))
 
 ; 
 ; log-entry-info -- insert extra info for entry into Andes log

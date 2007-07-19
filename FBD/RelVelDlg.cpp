@@ -40,7 +40,7 @@ void CRelVelDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TIME_LABEL, m_stcTimeList);
 	DDX_Control(pDX, IDC_TIME, m_cboTimeList);
 	DDX_Control(pDX, IDC_DIRECTION_SPIN, m_spinDir);
-	DDX_Control(pDX, IDC_ORIENTATION_TEXT, m_editOrientation);
+	DDX_Control(pDX, IDC_ORIENTATION_OLD, m_editOrientation);
 	DDX_Control(pDX, IDC_ZDIR, m_cboZDir);
 	DDX_Control(pDX, IDC_CUSTOM_LABEL, m_editName);
 	DDX_Control(pDX, IDOK, m_Ok);
@@ -70,6 +70,11 @@ BEGIN_CTL_TBL(CRelVelDlg)
 	"from", IDC_FORCEAGENT,
 	"dir",	IDC_ORIENTATION_TEXT,
 	"zdir",	IDC_ZDIR,
+	// from value control
+	"given-mag",IDC_MAG_VALUE,
+	"given-xc", IDC_XC_VALUE,
+	"given-yc", IDC_YC_VALUE,
+	"given-zc", IDC_ZC_VALUE,
 	// alternate names:
 	// alt name for dir field:
 	"orientation",	IDC_ORIENTATION_TEXT,

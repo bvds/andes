@@ -35,7 +35,7 @@ public:
 	CLogBtn	m_btnOk;
 	int		m_nType;
 	//}}AFX_DATA
-
+	DECLARE_CTL_TBL()
 
 // Overrides
 	// ClassWizard generated virtual function overrides

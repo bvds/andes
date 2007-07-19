@@ -71,6 +71,7 @@ BEGIN_CTL_TBL(CEnergyDlg)
 	"body", IDC_NRGBODY,
 	"time", IDC_TIME,
 	"agent", IDC_NRG_AGENT,
+	"value", IDC_GIVEN_VALUE,
 	// accept alternate names for backwards compatibility:
 	// earlier name for body slot:
 	"object", IDC_NRGBODY,
