@@ -465,8 +465,16 @@
       ;; If entry has been done already, then associated interpretation
       ;; is rather unlikely.  Add to the beginning of of the order specification
       ;; a class associated with this.
+
+      ;; test if things work the same if we do it the old way:
+      (let* ((expu (assoc 'expected-utility (ErrorInterp-order ei)))
+	     (prob (cdr expu)))
+	(when done (setf prob  (* prob 0.005)))
+	     (setf (cdr expu) prob))
+      ;;
       (setf (ErrorInterp-order ei) 
-	    (cons (cons 'done-already (if done 0 1)) (ErrorInterp-order ei))))))
+	    ;;         disable new way         0 1
+	    (cons (cons 'done-already (if done 0 0)) (ErrorInterp-order ei))))))
 
   
 ;;; -------- Phase 3: Selecting an error interpretation -------------
