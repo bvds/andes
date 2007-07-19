@@ -1,18 +1,24 @@
-# log2xml -- convert ANDES log file into PSLC Datashop XML format
+#####################################################################
+# log2xml -- convert ANDES log files into PSLC Datashop XML format
 #
-# USAGE:
-# Reads one log file argument; generates one event file.  
-# USAGE:  perl log2xml.pl filename.log
-#       => filename.xml
+# USAGE:  perl log2xml.pl filename.log [file2.log ...]
+#
+# Reads possibly concatenated series of logs from file arguments 
+# or stdin; writes one xml log file for each Andes session log it 
+# encounters.  Creates one subdirectory for each student id to hold
+# output files for that student's work.  For each session log, the 
+# output file is found in:
+#              student-id/session-id.xml
 #
 # Uses the following files from its working directory:
-#   class.xml -- class element to copy into logs
-#   dataset.txt -- contains dataset name
+# Required:
+#   dataset.txt -- contains dataset name 
+# Optional:
+#   class.xml -- class information element to copy into logs
+#   conditions.txt -- student to condition mapping
+#   unitmap.txt  -- problem to unit mapping
 ######################################################################
 
-# set the following variable to include only learning-curve related
-# events. For Adaeze's program.
-$lc_events_only = 0;
 
 # globals for current log line
 my ($timestamp, $event, $argstr); 
@@ -78,12 +84,54 @@ $CD2 = "]]>";
 
 # print "Source Log: $srcfile\n\n"; 
 
+#--------------------------------------------------------------------------------------
+#        Load info from external files
+#--------------------------------------------------------------------------------------
 
+# copy dataset name from external file
+open (DATASET, '<', 'dataset.txt') or die "Could not open dataset.txt: $!";
+$DataSet= <DATASET>;      
+chomp($DataSet);
+$DataSet =~ s/\r//;   
 
-# main loop over each line 
+# save the conversion date for inclusion
+($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
+$Year += 1900;
+$Month++;
+$conversion_date = "$Month/$Day/$Year " . sprintf("%02d:%02d", $Hour, $Minute);
+      
+# load the problem to unit mapping table, if it exists
+if (open UNITMAP, "<unitmap.txt") {
+     %unitmap = map /(.*)\t(.*)\r/, <UNITMAP>;
+     close UNITMAP;
+     $have_unitmap = 1;
+     #print STDERR "loaded unit map\n";
+}
+
+# load the student to condition mapping table, ifit exists
+# we may get a condition from a conditionmap file, or else from set-condition
+# above. If both are set, condition map overrides.
+if (open CONDITIONMAP, "<conditions.txt") {
+	%conditionmap = map /(.*)\t(.*)\r/, <CONDITIONMAP>;
+        close CONDITIONS;
+	$have_conditionmap = 1;
+     #print STDERR "loaded condition map\n";
+}
+
+#--------------------------------------------------------------------------------
+# main loop over each log line 
+#--------------------------------------------------------------------------------
 while (<>) {
     chomp($_); 
     s/\r$//;   # delete dangling CR's remaining from Unix to DOS conversion
+
+    # Log header line begins a new log. We could reset and get date from this, but
+    # in fact we get it from initial set-session-id call below. However, need to 
+    # get the year from here since it's not in the session id.
+    if (/# Log of Andes session begun [\w]+, [\w]+ [\d]+, ([\d]+) [\d:]+ by/) {
+        # Example:                   Monday, October 22, 2005 02:13:52
+    	$year = $1;
+    }
 
     next if /^#/;  # skip log header lines 
 
@@ -91,18 +139,25 @@ while (<>) {
    # pick up the Andes-generated session id. Extract start time from it.
    if (/DDE-POST \(set-session-id "([^"]*)"/) {
 	      $session_id = $1;
+	      # extract start time pieces from id of form m081122-Sep27-13-21-48
+	      ($user, $monthdate, $hours, $min, $sec) = split('-', $session_id);
+	      ($monthabbr, $mday) = ($monthdate =~ m/([A-Z][a-z]+)([\d]+)/); 
+
 	      # reset state vars at each new session until we see a problem open
 	      $problem = undef;  
 	      $condition = undef; 
               $call_counter = 0;
 
-	      # start new output file
 	      # finish previous file if we have one.
 	      if ($outfile) {
 	      	print "</tutor_related_message_sequence>\n";
 	      	close(OUT);	
 	      }
-	      $outfile = $session_id . ".xml";
+	      # start new output file
+	      if (! -d $user) { # create per-user directory if needed
+		     mkdir $user or die "Couldn't create directory $d: $!\n";
+	      }
+	      $outfile = "$user/$session_id" . ".xml";
 	      open(OUT, "> $outfile") || die "Couldn't open $outfile for writing.$!\n";
 	      select OUT;
 	      print <<END_HEADER;
@@ -113,12 +168,8 @@ while (<>) {
 <tutor_related_message_sequence version_number="4">
 END_HEADER
 
-	      # extract start time from id of form m081122-Sep27-13-21-48
-	      ($user, $monthdate, $hours, $min, $sec) = split('-', $session_id);
-	      ($monthabbr, $mday) = ($monthdate =~ m/([A-Z][a-z]+)([\d]+)/); 
 	      #print STDERR "$session_id => $user, $monthabbr, $day_of_month, $hour, $min, $sec\n";
 	      # get start time in time() format seconds since the epoch
-	      $year = 2006; # !!! need to get log year, perhaps from header line
 	      # treat this as a local time zone spec and canonicalize to epoch seconds GMT.
 	      # NOTE: any variable named *_time is in this canonical format.
 	      $start_time = timelocal($sec,$min,$hours,$mday,$month2num{$monthabbr},$year-1900);
@@ -176,23 +227,36 @@ END_CONTEXT_HDR
            close CLASSINFO;
       }
 
-      # copy dataset name from external file
-      open (DATASET, '<', 'dataset.txt') or die "Could not open dataset.txt: $!";
-      $DataSet= <DATASET>;      
-      chomp($DataSet);
-      $DataSet =~ s/\r//;   
-      # include conversion date
-      ($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
-      $Year += 1900;
-      $Month++;
+      # try to include the "unit", if we have it
+      if ($have_unitmap) {
+	      $problem_key = $problem;
+	      $problem_key =~ tr/a-z/A-Z/; # canonicalize case to upper for lookup
+	      $unit = $unitmap{$problem_key};
+	      if (! $unit) {
+		      print STDERR "!! no unit found for $problem_key\n";
+	      } 
+      }
+      if ($unit) { # what we call "unit" is actually module in OLI course
+           $unit_level_begin = "<level type=\'module\'><name>$unit</name>";
+	   $unit_level_end = "</level>";
+      } else { $unit_level_begin = $unit_level_end = "" };
+      # try to include a group level using name prefix, if we find one 
+      # e.g. cm1a => CM*, roc2a => ROC*, etc.
+      $group = $problem;   # default if name doesn't include a number
+      ($group) =  ($problem =~ m/([A-Za-z-]+)[\d]+.*/); 
+      $group =~ tr[a-z][A-Z];
+      $group .= "*";
+
       print <<END_DATASET;
       <dataset> 
-           <conversion_date>$Month/$Day/$Year $Hour:$Minute</conversion_date>
+           <conversion_date>$conversion_date</conversion_date>
 	   <converter_info>log2xml.pl</converter_info>
            <name>$DataSet</name>
-	   <level><name>Problem</name>
-	       <problem><name>$problem</name></problem>
-	    </level>
+	      $unit_level_begin
+	        <level type='group'><name>$group</name>
+	           <problem><name>$problem</name></problem>
+		</level>
+	      $unit_level_end
       </dataset>
 END_DATASET
       close DATASET;
@@ -200,9 +264,7 @@ END_DATASET
       # add student's experiment condition if we have one.
       # we may get a condition from a conditionmap file, or else from set-condition
       # above. If both are set, condition map overrides.
-      if (open CONDITIONS, "<conditions.txt") {
-		%conditionmap = map /(.*)\t(.*)\r/, <CONDITIONS>;
-		close CONDITIONS;
+      if ($have_conditionmap) {
 		$condition = $conditionmap{$user};
                 if (! $condition) {
 		      print STDERR "!!! no condition found for $user\n"; 
@@ -336,21 +398,18 @@ END_DATASET
 		$evaluation = "CORRECT";
 	} elsif ($status eq "NIL") {
 		$evaluation = "INCORRECT";
-	} elsif ($cmdmsg =~ /^show-hint/) {
+	} elsif ($cmdmsg =~ /^show-hint/ || $cmdmsg =~ /^show-lesson/) {
 		$evaluation = "HINT";
 	} else { $evaluation = "" };
-	# set event type for tutor reply based on type of initiating student request
-	if ($helpreq) { 
-		$event_type = "HINT_MSG";
-		$evaluation = "HINT";
-	} elsif ($query_response) { # treat non-cancel query response like Explain-More
-		$event_type = "HINT_MSG";
-		$evaluation = "HINT";
-	}
-	else { $event_type = "RESULT"; }
 
-	# check for hint message in result. Note hint may be attached to submission result, OR the
-	# result of an explicit hint request.
+	# set event type for tutor reply based on type of initiating student request
+	if ($helpreq || $query_response) { # treat non-cancel query response like Explain-More
+		$event_type = "HINT_MSG";
+		$evaluation = "HINT";
+	} else { $event_type = "RESULT"; } # $checkreq = entry submission result
+
+	# check for hint message in result. Note hint may be attached to submission result 
+	# (unsolicited), OR the result of an explicit hint request.
 	$hint = $followups = $last_query_type = $subtype_attr = ""; # clear defaults until hint found
 	if ($cmdmsg) { 
 	    ($cmd, $cmdargstr) = split(' ', $cmdmsg, 2);
@@ -373,7 +432,7 @@ END_DATASET
 		}
 		fixhint();
 	    } elsif ($cmd eq "show-lesson") {
-		$event_type = "MINILESSON";
+		$subtype_attr = "subtype=\"MINILESSON\"";
 		$hint = $cmdargstr;
 	    } else { print "<!-- WARNING! $timestamp: unprocessed result cmd: $cmd $cmdargstr-->\n"; }
         }
@@ -573,30 +632,26 @@ CALC_RESULT_HDR
     ####################################################################
     elsif (/^DDE-POST$/ and $argstr =~ m/\(delete-object ([^ ]*) (.*)\)/) {
  	($label, $id) = ($1, $2);
-	if (! $lc_events_only) {
- 		&print_context_hdr("tool_message");
- 		print <<END_DELETION;
+ 	&print_context_hdr("tool_message");
+ 	print <<END_DELETION;
  	<semantic_event transaction_id="$call_counter" name="DELETION"/>
          <event_descriptor><selection>$id</selection>
  	   <action>Delete</action><input>label=$label</input>
  	 </event_descriptor>
      </tool_message>
 END_DELETION
-	}
 	#&remove_step_entry($id);
      }
      # equation deletions sent as post of empty string. Note we are not sure this is
      # really a deletion of anything, i.e. we don't know if there was any text there before.
      elsif (/^DDE-POST$/ and $argstr =~ m/\(lookup-eqn-string "" ([\d]+)\)/) {
  	$id = $1;
-	if (! $lc_events_only) {
- 		&print_context_hdr("tool_message");
- 		print <<END_EQ_DELETION;
+ 	&print_context_hdr("tool_message");
+ 	print <<END_EQ_DELETION;
  	<semantic_event transaction_id="$call_counter" name="DELETION"/>
          <event_descriptor><selection>$id</selection><action>Delete</action></event_descriptor>
      </tool_message>
 END_EQ_DELETION
-	}
  	# &remove_step_entry($id);
      }
     ####################################################################
@@ -625,7 +680,6 @@ sub print_context_hdr
     <$msgtype context_message_id="$context_id"> 
         <meta> <user_id anonFlag="true">$user</user_id> <session_id>$session_id</session_id> 
                <time>$date</time> <time_zone>$time_zone</time_zone></meta>
-	<problem><name>$problem</name></problem>
 END_TOOL_MSG_HDR
 }
 
@@ -765,11 +819,7 @@ END_QUERY_RESPONSE
 	} 
 	elsif ($cancel_response) 	# cancel dialog at a help sys query
 	{
-		if (! $lc_events_only) { # for lc-only, ignore CANCEL events
-			print "	<semantic_event transaction_id=\"$call_counter\" name=\"CANCEL\"/>";
-		} else {
-			# !!! tool-message containing empty event will be printed around this
-		}
+		print "	<semantic_event transaction_id=\"$call_counter\" name=\"CANCEL\"/>";
 	} # end case response to helpsys query
 
     	# close the tool message
@@ -856,6 +906,8 @@ sub ParseAPICall {
 	 $input = "label=$label;degrees=$degrees;side1=$label1;side2=$label2";
    } elsif (/^check-answer$/) {
         ($input, $id) = @args;
+   } elsif (/^lookup-mc-answer$/) {
+        ($id, $input) = @args;
    } elsif (/^lookup-eqn-string$/) {
 	($input, $id) = @args;
    } elsif (/^Why-wrong-object$/) {
