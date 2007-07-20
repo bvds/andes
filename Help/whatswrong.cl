@@ -280,6 +280,7 @@
 ;;; Note that this will recurse the call with system set to the correct
 ;;; entry if found.  This will 
 (defun check-err-correct (pattern eh student conditions system bindings)
+  (declare (ignore system))
   (loop for se in *sg-entries* with b nconc
 	(and (setf b (unify pattern (systementry-prop se) bindings))
 	     (check-err-conditions eh student conditions (list se) b))))
@@ -453,7 +454,7 @@
   "Given error interpretations, adjust their states and order fields
    based on the SystemEntries matched."
   (dolist (ei candidates)
-    
+   (when (ErrorInterp-intended ei)  ; NB: may be no intended entry
     ;; Test whether all corresponding systementries have already been done
     (let ((done (and (eq **correct** 
 			 (SystemEntries->state (ErrorInterp-intended ei)))
@@ -474,7 +475,7 @@
       ;;
       (setf (ErrorInterp-order ei) 
 	    ;;         disable new way         0 1
-	    (cons (cons 'done-already (if done 0 0)) (ErrorInterp-order ei))))))
+	    (cons (cons 'done-already (if done 0 0)) (ErrorInterp-order ei)))))))
 
   
 ;;; -------- Phase 3: Selecting an error interpretation -------------
