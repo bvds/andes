@@ -637,6 +637,8 @@ void CPsmDlg::OnPsmHelp()
 	if (strLessonName.IsEmpty()) 
 		return;
 
+	// Log it by psm id. (Really want it by KC, i.e. operator name). 
+
 	// show it in our lesson browser
 	theApp.ShowLesson(strLessonName);
 }

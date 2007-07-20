@@ -335,8 +335,8 @@
 						?time3)
   ((student (define-var (distance ?wrong-body :time ?time1)))
    (no-correct (define-var (distance ?wrong-body :time ?time2)))
-   (correct (define-var (distance ?correct-body :time ?time3)))
-  :flag (body)))
+   (correct (define-var (distance ?correct-body :time ?time3))))
+  :flag (body))
 
 (defun distance-travelled-wrong-body (wrong-body correct-body correct-time)
   (make-hint-seq
@@ -506,7 +506,8 @@
 ;;; student can get the wrong type (kinetic vs static)
 (def-error-class wrong-type-coef-friction (?stype ?ctype)
   ((student (define-var (coef-friction ?body ?agent ?stype)))
-   (correct (define-var (coef-friction ?body ?agent ?ctype)))))
+   (correct (define-var (coef-friction ?body ?agent ?ctype))))
+  :flag (type))
 
 (defun wrong-type-coef-friction (stype ctype)
   (make-hint-seq
@@ -539,6 +540,7 @@
    (test (member ?energy-type '(total-energy kinetic-energy)))
    (no-correct (define-var (?energy-type ?sbody :time ?time2)))
    (correct (define-var (?energy-type ?cbody :time ?ctime))))
+  :flag (body)
   :probability
   (+ 0.1
      (if (equal ?stime ?ctime) 0.2 0.0)))
@@ -561,6 +563,7 @@
   ((student (define-var (?energy-type ?sbody ?sagent :time ?stime)))
    (test (member ?energy-type '(grav-energy spring-energy 'electric-energy)))
    (correct (define-var (?energy-type ?sagent ?sbody :time ?ctime))))
+  :flag (body agent)
   :utility 10   ; higher, we want students to learn this
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
@@ -581,6 +584,7 @@
    (test (not (listp ?sbody)))  ; obsolete given WB/entry-API change
    (no-correct (define-var (?energy-type ?sbody ?agent2 :time ?stime2)))
    (correct (define-var (?energy-type ?cbody ?cagent :time ?ctime))))
+  :flag (body)
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -600,7 +604,8 @@
   ((student    (define-var (?energy-type ?body ?sagent :time ?stime)))
    (test (member ?energy-type '(grav-energy spring-energy electric-energy)))
    (no-correct (define-var (?energy-type ?body ?sagent :time ?time2)))
-   (correct    (define-var (?energy-type ?body ?cagent :time ?ctime)))))
+   (correct    (define-var (?energy-type ?body ?cagent :time ?ctime))))
+  :flag (agent))
 
 (defun wrong-agent-for-energy (energy-type sagent cagent body)
   (make-hint-seq
@@ -623,6 +628,7 @@
   ((student (define-var (compression ?sspring :time ?stime)))
    (no-correct (define-var (compression ?sspring :time ?time2)))
    (correct (define-var (compression ?cspring :time ?ctime))))
+  :flag (body)
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -645,7 +651,8 @@
 (def-error-class wrong-spring-for-spring-constant (?sspring ?cspring)
   ((student (define-var (spring-constant ?sspring)))
    (correct (define-var (spring-constant ?cspring)))
-   (test (not (equal ?sspring ?cspring)))))
+   (test (not (equal ?sspring ?cspring))))
+  :flag (body))
 
 (defun wrong-spring-for-spring-constant (sspring cspring)
   (make-hint-seq
@@ -686,6 +693,7 @@
   ((student (define-var (height ?sbody :time ?stime)))
    (no-correct (define-var (height ?sbody :time ?time2)))
    (correct (define-var (height ?cbody :time ?ctime))))
+  :flag (body)
   :probability
   (+ 0.1
      (if (equal ?stime ?ctime) 0.2 0.0)))
@@ -711,6 +719,7 @@
    (correct (define-var (height ?body :time ?ctime)))
    (test (time-pointp ?ctime))
    (problem (given (height ?body :time ?t-zero) (dnum 0 ?unit))))
+  :flag (time)
   :utility 100
   :probability
   (+ 0.1
@@ -747,6 +756,7 @@
   ((student (define-var (moment-of-inertia ?sbody :time ?t)))
    (no-correct (define-var (moment-of-inertia ?sbody :time ?t)))
    (correct (define-var (moment-of-inertia ?cbody :time ?t))))
+  :flag (body)
   :probability
   (+ 0.3))
 
@@ -776,6 +786,7 @@
   ((student (define-var (revolution-radius ?sbody :time ?stime)))
    (no-correct (define-var (revolution-radius ?sbody :time ?time2)))
    (correct (define-var (revolution-radius ?cbody :time ?ctime))))
+  :flag (body)
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -801,6 +812,7 @@
   ((student    (define-var (radius-of-circle ?sbody)))
    (no-correct (define-var (radius-of-circle ?sbody)))
    (correct    (define-var (radius-of-circle ?cbody))))
+  :flag (body)
   :probability 0.303  )
 
 (defun wrong-body-radius-of-circle (sbody cbody)
@@ -839,6 +851,7 @@
    (test (or (equal ?type 'length) (equal ?type 'width)))
    (no-correct (define-var (?type ?sbody :time ?time2)))
    (correct (define-var (?type ?cbody :time ?ctime))))
+  :flag (body)
   :probability
   (+ 0.1 (if (equal ?stime ?ctime) 0.2 0.0)))
 
@@ -897,7 +910,8 @@
 (def-error-class wrong-body-for-work (?sbody ?cbody ?cagent)
   ((student    (define-var (work ?sbody ?sagent :time ?stime)))
    (no-correct (define-var (work ?sbody ?agent2 :time ?time2)))
-   (correct    (define-var (work ?cbody ?cagent :time ?ctime)))))
+   (correct    (define-var (work ?cbody ?cagent :time ?ctime))))
+  :flag (body))
 
 (defun wrong-body-for-work (sbody cbody cagent)
   (make-hint-seq
@@ -917,7 +931,8 @@
 (def-error-class wrong-agent-for-work (?sagent ?cagent ?body)
   ((student    (define-var (work ?body ?sagent :time ?stime)))
    (no-correct (define-var (work ?body ?sagent :time ?time2)))
-   (correct    (define-var (work ?body ?cagent :time ?ctime)))))
+   (correct    (define-var (work ?body ?cagent :time ?ctime))))
+  :flag (agent))
 
 (defun wrong-agent-for-work (sagent cagent body)
   (make-hint-seq
@@ -940,7 +955,8 @@
 (def-error-class wrong-body-net-work (?sbody ?cbody)
   ((student    (define-var (net-work ?sbody :time ?stime)))
    (no-correct (define-var (net-work ?sbody :time ?time2)))
-   (correct    (define-var (net-work ?cbody :time ?ctime)))))
+   (correct    (define-var (net-work ?cbody :time ?ctime))))
+  :flag (body))
 
 (defun wrong-body-net-work (sbody cbody)
   (make-hint-seq
@@ -1128,7 +1144,8 @@
   ((student (draw-axes ?srot))
    (correct (draw-axes ?crot))
    (test (not (equal ?srot ?crot)))
-   (test (not (zerop ?srot)))))
+   (test (not (zerop ?srot))))
+  :flag (dir))
 
 (defun wrong-axis-rotation (srot)
   (declare (ignore srot))
@@ -1171,10 +1188,12 @@
 
 ;;; Special case: If the student draws unrotated axes when rotated ones are 
 ;;; correct, then teach about rotated axes.
+;;; AW -- this probably never occurs now, std axes should always be OK
 (def-error-class need-to-rotate-axes (?rot)
   ((student (draw-axes 0))
    (correct (draw-axes ?rot))
    (test (not (equal ?rot 0))))
+  :flag (dir)
   :utility 100)
 
 (defun need-to-rotate-axes (rot)
@@ -1353,6 +1372,17 @@
 ;;; known/unknown error. Need several defaults under (1) to give special 
 ;;; messages for these.
 
+;;; Workbench dialogs have two slots available for flagging: 
+;;;    dir:  xy plane degree box, disabled if z axis dir is chosen
+;;;    zdir: into/outof/in/z-unknown choice shown on 3D problems.
+;;; We may have problem knowing what to flag in case direction is
+;;; of the wrong type (xy plane vs z-axis) e.g. they choose
+;;; 'into and correct is 30 degrees in the xy plane. When in doubt,
+;;; flag dir for a general direction error, and zdir only if we know
+;;; we want to highlight that box. Maybe make workbench interpret 
+;;; 'dir more intelligently: could flag only the substantive one, 
+;;; or treat dir as a composite entry and flag both.)
+
 (def-error-class default-should-be-unknown ("vector")
   ((student (vector ?descr ?dir))
    (correct (vector ?descr unknown))
@@ -1379,7 +1409,7 @@
   ((student (vector ?descr ?dir))
    (correct (vector ?descr z-unknown))
    (test (not (equal ?dir 'z-unknown))))
-   :flag (dir))
+   :flag (zdir))    
 
 (defun default-should-be-z-unknown ()
   (make-hint-seq
@@ -1514,6 +1544,7 @@
    (test (equal (remove-time ?b1) (remove-time ?b2)))
    (test (and (tinsidep-include-endpoints  ?wrong-time ?correct-time)
 	      (not (equal ?wrong-time ?correct-time)))))
+  :flag (time)
   :utility 10)
 
 (defun vector-time-inside-correct-time (descr wrong-time correct-time)
@@ -1542,6 +1573,7 @@
    (no-correct (vector (?descr . ?b1) ?dir2))
    (bind ?b4 (set-time ?b1 ?anytime))
    (no-correct (vector (?descr . ?b4) ?sdir)))
+  :flag (time dir)
   :probability 0.01)
 
 (defun vector-wrong-time-and-direction (descr stime ctime sdir cdir)
@@ -1568,8 +1600,7 @@
    (test (not (equal ?sbody ?cbody)))
    ; first arg not a body for following vector types
    (test (not (eq ?vector-type 'field)))
-   (test (not (eq ?vector-type 'unit-vector)))
-   )
+   (test (not (eq ?vector-type 'unit-vector))))
   :flag (body)
   :probability 0.5)
 
@@ -1593,8 +1624,8 @@
    (correct (vector (?vector-type ?cbody . ?cargs) ?cdir))
    ; first arg not a body for the following vector types:
    (test (not (eq ?vector-type 'field)))
-   (test (not (eq ?vector-type 'unit-vector)))
-   )
+   (test (not (eq ?vector-type 'unit-vector))))
+  :flag (body)
   :probability
   (+ 0.1 
      (if (equal ?sargs ?cargs) 0.2 0.0)
@@ -1650,10 +1681,15 @@
 
 ;;; ==================== line drawing ===============================
 
+
+;;;  !!! default-should-be-unknown and default-wrong-dir also name
+;;; vector error classes which share a common turn-generating function.
+
 (def-error-class default-should-be-unknown ("line")
   ((student (draw-line ?descr ?dir))
    (correct (draw-line ?descr unknown))
    (test (not (equal ?dir 'unknown))))
+  :flag (dir)
 ;; High probability since close match
   :probability 0.5)
 
@@ -1671,8 +1707,6 @@
 
 ;;; If the student's line is correct except
 ;;; for the angle, then just point that out.  This is the default case.
-;;; !!! note there are two different error classes with this name, sharing
-;;; a single function to generate the hint sequence
 (def-error-class default-wrong-dir ("line" ?wrong-dir ?correct-dir)
   ((student (draw-line ?descr ?wrong-dir))
    (correct (draw-line ?descr ?correct-dir))
@@ -1681,13 +1715,13 @@
   :flag (dir)
   :probability 0.5)
 
-;;; default in case everything but body matches some correct vector
+;;; default in case everything but body matches some correct line
 ;;; high probability since close match
 (def-error-class default-wrong-line (?cline ?sline)
  ((student (draw-line ?sline ?sdir))
    (correct (draw-line ?cline ?cdir))
-   (test (not (equal ?sline ?cline)))
-   )
+   (test (not (equal ?sline ?cline))))
+  :flag (body)
   :probability 0.1)
 
 (defun default-wrong-line (correct-line wrong-line)
@@ -1723,6 +1757,7 @@
   ((student (vector (velocity ?body :time ?time) zero))
    (correct (vector (velocity ?body :time ?time) ?dir))
    (test (not (equal ?dir 'zero))))
+  :flag (given-mag)
   :utility 10)
 
 (defun velocity-should-be-non-zero (body time)
@@ -1744,6 +1779,7 @@
     ((student (vector (velocity ?body :time ?time) ?dir))
      (test (not (equal ?dir 'zero)))
      (correct (vector (velocity ?body :time ?time) zero)))
+    :flag (given-mag)
     :utility 25)
 
 (defun velocity-should-be-zero (body time)
@@ -1773,8 +1809,8 @@
    (bind ?cdir (opposite ?sdir))
    (correct (vector (accel ?body :time ?time) ?cdir))
    (problem (motion ?body straight :dir ?sdir :accel ?cdir 
-		    :time ?time))
-   )
+		    :time ?time)))
+  :flag (dir)
   :utility 100)
 
 (defun deceleration-bug (body sdir cdir)
@@ -1957,6 +1993,7 @@
   ((student (vector (force ?body ?agent ?type :time ?time) ?dir))
    (no-correct (vector (force ?body ?ncagent ?nctype :time ?nctime) ?ncdir))
    (no-correct (vector (net-force ?body :time ?ntime) ?ndir)))
+  :flag (body)
   :probability 0.005)
 
 (defun no-forces-on-body (body)
@@ -1970,6 +2007,7 @@
   ((student (vector (force ?body ?agent ?type :time ?time) ?dir))
    (no-correct (vector (force ?body ?nagent ?ntype :time ?ntime) ?ndir))
    (correct (vector (net-force ?body :time ?net-time) ?net-dir)))
+  :flag (individual)
   :probability 0.01)
 
 (defun net-force-only-on-body (body net-time net-dir)
@@ -2076,7 +2114,7 @@
    (old-student (vector (force ?body ?agent ?frict-type :time ?ctime) ?frict-dir))
    (any-member ?force-type '(applied normal))
    (correct (vector (force ?body ?agent ?force-type :time ?ctime) ?force-dir)))
-  
+  :flag (type) 
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
@@ -2111,7 +2149,7 @@
    (correct (vector (force ?body ?agent ?frict-type :time ?ctime) ?frict-dir))
    (any-member ?force-type '(applied normal))
    (old-student (vector (force ?body ?agent ?force-type :time ?ctime) ?force-dir)))
-  
+  :flag (type) 
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
@@ -2246,6 +2284,7 @@
    ((student (vector (force ?object ?object ?type :time ?time) ?dir))
     (correct (vector (force ?cbody ?cagent ?ctype :time ?ctime) ?cdir))
     (no-correct (vector (net-force ?net-body :time ?net-time) ?net-accel)))
+   :flag (body agent) ; maybe confusing, one could be correct.
    :utility 100)
 
 (defun same-body-and-agent-of-a-force-no-net (object)
@@ -2262,6 +2301,7 @@
 (def-error-class same-body-and-agent-of-a-force-net-ok (?object)
   ((student (vector (force ?object ?object ?type :time ?time) ?dir))
    (correct-nointent (vector (net-force ?object :time ?net-time) ?net-accel)))
+  :flag (body agent)
   :utility 150)
 
 (defun same-body-and-agent-of-a-force-net-ok (object)
@@ -2442,8 +2482,8 @@
 		    :time ?time))
    (test (degree-specifierp ?motion-dir)) 
    (bind ?speed-up-or-slow-down (if (equal ?accel-dir ?motion-dir)
-				    "speeding up" "slowing down"))
-   )
+				    "speeding up" "slowing down")))
+  :flag (given-mag)
   :utility 100)
 
 (defun net-force-straight (body time speed-up-or-slow-down)
@@ -2494,6 +2534,7 @@
 			       :axis ?pivot2 :time ?time2) ?dir2)) 
    (correct    (vector (torque ?cbody (force ?cpt . ?junk3)
 			       :axis ?cpivot :time ?ctime) ?cdir)))
+  :flag (force-pt) ; wb dlg quirk, body tag means net torque body
   :utility 10
   :probability
   (+ 0.1 
@@ -2524,6 +2565,7 @@
 			      :axis ?spt :time ?time2) ?dir2)) 
   (correct    (vector (torque ?body ?cpt (force ?pt ?agt ?type3)
 			      :axis ?cpt :time ?ctime) ?cdir)))
+  :flag (axis)
   :utility 10
   :probability
   (+ 0.1
@@ -2702,6 +2744,7 @@
   ((student    (vector (net-torque ?body ?spt :time ?stime) ?sdir))
    (no-correct (vector (net-torque ?body ?spt :time ?time2) ?dir2))
    (correct    (vector (net-torque ?body ?cpt :time ?ctime) ?cdir)))
+  :flag (axis)
   :utility 10
   :probability
   (+ 0.1
@@ -2734,6 +2777,7 @@
   ((student    (vector (relative-position ?spt ?spivot :time ?stime) ?sdir))
    (no-correct (vector (relative-position ?spt ?pivot2 :time ?time2) ?dir2))
    (correct    (vector (relative-position ?cpt ?cpivot :time ?ctime) ?cdir)))
+  :flag (body)
   :utility 10
   :probability
   (+ 0.1 

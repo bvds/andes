@@ -24,6 +24,7 @@ public:
 	enum { IDD = IDD_VECTOR_FORCE };
 	CLogBtn	m_stcGroup;
 	CLogBtn	m_btnNet;
+	CLogBtn m_btnForce;
 	CStatic	m_stcLet;
 	CRichStatic	m_stcComp;
 	CStatic	m_stcVecAng;
@@ -40,7 +41,7 @@ public:
 	CLabelRichEdit	m_editName;
 	CSpinButtonCtrl	m_spinDirection;
 	//}}AFX_DATA
-	CLogBtn m_btnForce;
+
 	CValueDlg* m_pDlgValues;
 
 	int m_nType;

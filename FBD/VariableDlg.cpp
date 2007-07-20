@@ -173,7 +173,7 @@ void CVariableDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_CTL_TBL(CVariableDlg)
 	"name", IDC_CUSTOM_LABEL,
-	"type", IDC_STATIC_VALUE,
+	"type", IDC_SUBTYPE,      // main quant type is static quant name from menu choice
 	"body", IDC_BODY,
 	"time", IDC_TIME,
 	"agent", IDC_FORCEAGENT,

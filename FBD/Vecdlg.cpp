@@ -41,6 +41,7 @@ void CVectorDlg::DoDataExchange(CDataExchange* pDX)
 	//{{AFX_DATA_MAP(CVectorDlg)
 	DDX_Control(pDX, IDC_STC_GROUP, m_stcGroup);
 	DDX_Control(pDX, IDC_NETBTN, m_btnNet);
+	DDX_Control(pDX, IDC_FORCEBTN, m_btnForce);
 	DDX_Control(pDX, IDC_LVECTOR_NAME_TEXT, m_stcLet);
 	DDX_Control(pDX, IDC_COMP, m_stcComp);
 	DDX_Control(pDX, IDC_ANGLE, m_stcVecAng);
@@ -57,7 +58,7 @@ void CVectorDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CUSTOM_LABEL, m_editName);
 	DDX_Control(pDX, IDC_DIRECTION_SPIN, m_spinDirection);
 	//}}AFX_DATA_MAP
-	DDX_Control(pDX, IDC_FORCEBTN, m_btnForce);
+
 	DDX_Radio(pDX, IDC_NETBTN, m_nType);
 	// Fill dialog boxes with data from doc (string lists)
 	DDX_FillList(pDX, IDC_AGENT, &m_pDocument->m_strObjects);
@@ -84,6 +85,8 @@ BEGIN_CTL_TBL(CVectorDlg)
 	"body",		IDC_BODY_TEXT,
 	"agent",	IDC_AGENT,
 	"dir",		IDC_ORIENTATION_TEXT,
+	"net",      IDC_NETBTN,
+	"individual",IDC_FORCEBTN,
 	// from value control
 	"given-mag",IDC_MAG_VALUE,
 	"given-xc", IDC_XC_VALUE,
