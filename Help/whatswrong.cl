@@ -454,28 +454,29 @@
   "Given error interpretations, adjust their states and order fields
    based on the SystemEntries matched."
   (dolist (ei candidates)
-   (when (ErrorInterp-intended ei)  ; NB: may be no intended entry
-    ;; Test whether all corresponding systementries have already been done
-    (let ((done (and (eq **correct** 
+    ;; Test for a corresponding systementry and that
+    ;; all corresponding systementries have already been done.
+    (let ((done (and (ErrorInterp-intended ei)
+		     (eq **correct** 
 			 (SystemEntries->state (ErrorInterp-intended ei)))
 		     (every #'SystemEntry-Entered (ErrorInterp-intended ei)))))
-
+      
       ;; mark the state accordingly.
-      (when done (setf (ErrorInterp-state ei) **done-already**))
-            
+      (when done (setf (ErrorInterp-state ei) **done-already**))            
+      
       ;; If entry has been done already, then associated interpretation
       ;; is rather unlikely.  Add to the beginning of of the order specification
       ;; a class associated with this.
-
+      
       ;; test if things work the same if we do it the old way:
       (let* ((expu (assoc 'expected-utility (ErrorInterp-order ei)))
 	     (prob (cdr expu)))
 	(when done (setf prob  (* prob 0.005)))
-	     (setf (cdr expu) prob))
-      ;;
+	(setf (cdr expu) prob))
+      
       (setf (ErrorInterp-order ei) 
 	    ;;         disable new way         0 1
-	    (cons (cons 'done-already (if done 0 0)) (ErrorInterp-order ei)))))))
+	    (cons (cons 'done-already (if done 0 0)) (ErrorInterp-order ei))))))
 
   
 ;;; -------- Phase 3: Selecting an error interpretation -------------
