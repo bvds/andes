@@ -28,9 +28,12 @@ while (<>) {   # loop over lines in all Andes sessions
 	s/Try |You should be |A good step would be |Your goal should be /\*TRY\* /;
     }
 
-    #  Anders change to workbench API on August 17
+    #  Anders change to workbench API on July 17, 2007
     #  DDE-RESULT |NIL;VALUE -> DDE-RESULT |NIL
-    if(m/^([\d:]+)\tDDE-RESULT /) {s/NIL;VALUE/NIL/; }    
+    if(m/^([\d:]+)\tDDE-RESULT /) {
+	s/NIL;VALUE/NIL/; 
+	s/\|NIL;[A-Z;\-]+\|/\|NIL\|/;
+    }    
 
     print;
 } #loop over lines in all sessions
