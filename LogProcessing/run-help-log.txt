@@ -32,3 +32,27 @@ Diff between June 27 & July 9:
            LENS-EQN-IMAGE-AT-INFINITY 
   add z-component given to problems where vectors specified component-wise  
   control plus-minus printed out differently
+
+Winter2007-USNA-treacywintersgill.July-14-2007
+
+Diff between July 9 and 14:  
+   didn't do complete check, but differences appear to be due only
+   to changes to problem definitions (POT4* etc.)
+
+Winter2007-USNA-treacywintersgill.July-16-2007
+
+Diff was too messy
+
+temporarily undo changes to reweighting in (contextualize ...).
+Winter2007-USNA-treacywintersgill.July-18-2007
+
+Diff between July 14 and July 18:
+     change in Help/Entry-API by Anders (NIL -> NIL;VALUE)
+     lots of other stuff ..
+
+fix bug in testing for done-already:
+Winter2007-USNA-treacywintersgill.July-20-2007
+
+Diff between July 14 and July 20:  
+     none, after canonicalization
+
