@@ -464,21 +464,16 @@
       ;; mark the state accordingly.
       (when done (setf (ErrorInterp-state ei) **done-already**))            
       
-      ;; If entry has been done already, then associated interpretation
-      ;; is rather unlikely.  Add to the beginning of of the order specification
-      ;; a class associated with this.
-      
-      ;; test if things work the same if we do it the old way:
-      (let* ((expu (assoc 'expected-utility (ErrorInterp-order ei)))
-	     (prob (cdr expu)))
-	(when done (setf prob  (* prob 0.05)))
-	(setf (cdr expu) prob))
-      
-      (setf (ErrorInterp-order ei) 
-	    ;;         disable new way         0 1
-	    (cons (cons 'done-already (if done 0 0)) (ErrorInterp-order ei))))))
+      ;; If entry is being ranked with expected-utility and has been done 
+      ;; already, then associated interpretation is rather unlikely.
+      ;; Here, we adjust expected-utility.
+      ;; This is not a good strategy, because the numerical factor must
+      ;; be fine-tuned, in a non-obvious way.
+      (let ((expu (assoc 'expected-utility (ErrorInterp-order ei))))
+	(when (and expu done)
+	  (setf (cdr expu) (* 0.05 (cdr expu))))))))
 
-  
+
 ;;; -------- Phase 3: Selecting an error interpretation -------------
 
 ;;; Given a possibly empty set of error interpretations, return the
