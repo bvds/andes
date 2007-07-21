@@ -15,7 +15,7 @@
 
 (defstruct EntryTest
   Name        ;name of the test
-  preconditions  ;ordered list of conditons (see whatswrong.cl)
+  preconditions  ;ordered list of conditions (see whatswrong.cl)
               ;this determines a match
   apply       ;Conditions of application
 					;no-match:  use after no match found
