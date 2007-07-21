@@ -471,7 +471,7 @@
       ;; test if things work the same if we do it the old way:
       (let* ((expu (assoc 'expected-utility (ErrorInterp-order ei)))
 	     (prob (cdr expu)))
-	(when done (setf prob  (* prob 0.005)))
+	(when done (setf prob  (* prob 0.05)))
 	(setf (cdr expu) prob))
       
       (setf (ErrorInterp-order ei) 
