@@ -12,7 +12,6 @@
   Order         ; alist of specifications to determine priority
   State         ; (The following list is obsolete) 
 ;;; One of forbidden, premature, premature-subst, done-already, inefficient or none
-  Correct       ; Boolean if test returns student entry correct.
   )
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

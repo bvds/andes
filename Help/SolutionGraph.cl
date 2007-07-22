@@ -575,17 +575,30 @@
 ;; interp marked on the interp itself
 
 (defun sg-match-studententry (Entry)
-  (let ((Prop (StudentEntry-Prop Entry)))
-    (setf (StudentEntry-PossibleCInterps Entry)
-	  (if (help-eqn-entryprop-p (subseq Prop 0 2))
-	      (sg-match-eqn-num (StudentEntry-ID Entry))
-	      ;; Given a help entry prop locate the SystemEntry that matches 
-	      ;; it from the *sg-entries* index and return it in a list.  
-	      ;; If none is found return null.
-	      (let ((match (sg-EntryProp->SystemEntry Prop)))
-		(when match
-		  (list (sg-mark-interp (list match)))))))))
+  (setf (StudentEntry-PossibleCInterps Entry)
+	(if (help-eqn-entryprop-p (subseq (StudentEntry-prop entry) 0 2))
+	    (sg-match-eqn-num (StudentEntry-ID Entry))
+	    ;; Given a help entry prop locate the SystemEntry that matches 
+	    ;; it from the *sg-entries* index and return it in a list.  
+	    ;; If none is found return null.
+	    (let ((match (find-ErrorInterp-correct entry)))
+	      (when match
+		(list (sg-mark-interp (ErrorInterp-intended match))))))))
 
+
+(defun find-ErrorInterp-correct (entry)
+  (let (tests)
+    ;; select tests that always apply 
+    (dolist (eh (remove 'nil **entry-tests** :key #'EntryTest-apply 
+			:test-not #'eql))
+      (dolist (test (check-err-conds eh entry))
+	;; each successful test will be either correct or incorrect
+	(if (eq (ErrorInterp-state test) **correct**)
+		       (push test tests)
+		       (return-from find-ErrorInterp-correct nil))))
+    ;; select best result from all applicable tests
+    (when tests (select-error-interpretation tests))))
+    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; sg-decompose-eqn
@@ -809,28 +822,6 @@
 (defun sg-fetch-entry-props (prop-pat) 
   "fetch all entry propositions that match given proposition form"
   (filter-expressions prop-pat (mapcar #'SystemEntry-Prop *SG-Entries*)))
-
-
-;;--------------------------------------------------------------
-;; Match a proposition to the SystemEntry that enters it.
-;;
-;; Uses unify-with-dnum rather than equal to correctly match lists 
-;; tagged 'orderless. Could also be required for multiple keyword lists.
-;; Also handles error flag in dnum match.
-(defun sg-EntryProp->SystemEntry (Prop)
-  "Match a proposition to the SystemEntry that enters it."
-  (find Prop *SG-Entries*
-	:test #'unify-with-dnum :key #'SystemEntry-Prop))
-
-(defun unify-with-dnum (x y &optional (bindings no-bindings))
-  "See if x and y match with given bindings, treating dnum special."
-  (unify x y bindings #'dimensioned-numberp #'compare-dnums))
-
-;; helper to find entry for a given vector quantity
-;; Depends on structure of vector entry proposition
-(defun sg-find-vector-entry (vector-quant)
- (find `(vector ,vector-quant ?dont-care) *sg-entries* 
-        :test #'unify :key #'SystemEntry-Prop))
 
 
 ;;-------------------------------------------------------------

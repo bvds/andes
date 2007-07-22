@@ -1,4 +1,4 @@
-;;)
+;;
 ;;                 Table of contents
 ;;
 ;; HOWTO
@@ -4121,6 +4121,7 @@
   :order ((correct . 1))
   )
 
+
 (def-entry-test match-with-error (?quant)
   :preconditions ((student (given ?quant ?val1)) ; this is probably wrong?
 		  (correct (given ?quant ?val2))
@@ -4129,4 +4130,11 @@
 			     (compare-dnums ?val1 ?val2))))
   :state **correct**
   :order ((correct . 2))
+  )
+
+(def-entry-test match-vector (?quant)
+  :preconditions ((student (vector ?quant))
+		  (correct (vector ?quant ?val2)))
+  :state **correct**
+  :order ((correct . 3))
   )

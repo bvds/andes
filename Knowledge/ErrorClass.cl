@@ -45,7 +45,7 @@
   `(push (make-EntryTest :name (quote ,name)
 			   :preconditions (quote ,conditions)
 			   :apply 'no-match
-			   :state **incorrect** ;these are all errors
+			   :state '**incorrect** ;these are all errors
 			   :hint (quote ,(cons name arguments))
 			   :order (quote ((expected-utility .
 					   (* ,probability ,utility))))

@@ -163,7 +163,9 @@
 					  (ErrorInterp-order x))) 
 		      (sort (copy-list candidates) #'alist< 
 			    :key #'ErrorInterp-order))))
-    (setf best (select-error-interpretation candidates))
+    (setf best (if candidates 
+		   (select-error-interpretation candidates)
+		   (make-failed-error-interpretation)))
     (format *debug-help* "  Choose: ~A~%" (ErrorInterp-test best))
     ;; (format t "Best candidate is ~W" best)
     (setf (ErrorInterp-Remediation best) (generate-ww-turn best))
@@ -173,10 +175,13 @@
 ;;; given the student entry, returns an error analysis for each error
 ;;; handler whose conditions are true.
 (defun applicable-error-analyses (student)
-  (loop for eh in **entry-tests** append
-	(if (watch-this-error-class-p eh)
-	    (check-err-conds-watched eh student)
-	  (check-err-conds eh student))))
+  ;; only use tests of type 'no-match since we have already determined
+  ;; no match is there
+  (loop for eh in (remove 'no-match **entry-tests** :key #'EntryTest-apply
+			  :test-not #'eql) append
+       (if (watch-this-error-class-p eh)
+	   (check-err-conds-watched eh student)
+	   (check-err-conds eh student))))
 
 (defun check-err-conds-watched (error student)
   "Check the error conds with watching."
@@ -207,7 +212,7 @@
     (list (make-ErrorInterp
 	   :test (subst-bindings bindings (EntryTest-name eh))
 	   :diagnosis (subst-bindings bindings (EntryTest-hint eh))
-	   :state (subst-bindings bindings (EntryTest-state eh))
+	   :state (eval (subst-bindings-quoted bindings (EntryTest-state eh)))
 	   ;; for fix-eqn-by-replacing, sy has form (state . SystemEntries) 
 	   ;; for correct, sy has form (SystemEntry)
 	   :intended (or (cdr sy) sy)
@@ -479,27 +484,23 @@
 ;;; Given a possibly empty set of error interpretations, return the
 ;;; best one.
 (defun select-error-interpretation (candidates)
-  (if candidates
-      (let ((best (ErrorInterp-order (car candidates))))
-	;; Find the largest order specification.
-	(dolist (b (mapcar #'ErrorInterp-order candidates))
-	  (when (alist< best b) (setf best b)))
-	;; select the set of optimal interpretations and make a random choice
-	;;
-	;; NOTE: when we choose randomly to break a tie, the "intended" entry 
-	;; may be very unreliable. 
-	;; Ex: solution has three axis rotations, and student picks none.  
-	;; Three wrong-axis-rotation instances will tie and one will be 
-	;; randomly chosen. 
-	;; This may not be the one nsh would prompt.  Possibly we should clear 
-	;; "intended" field if it differs among tied interps?
-	(random-elt 
-	 (reverse ;for backwards compatibility, useful for log regression tests
+  (let ((best (ErrorInterp-order (car candidates))))
+    ;; Find the largest order specification.
+    (dolist (b (mapcar #'ErrorInterp-order candidates))
+      (when (alist< best b) (setf best b)))
+    ;; select the set of optimal interpretations and make a random choice
+    ;;
+    ;; NOTE: when we choose randomly to break a tie, the "intended" entry 
+    ;; may be very unreliable. 
+    ;; Ex: solution has three axis rotations, and student picks none.  
+    ;; Three wrong-axis-rotation instances will tie and one will be 
+    ;; randomly chosen. 
+    ;; This may not be the one nsh would prompt.  Possibly we should clear 
+    ;; "intended" field if it differs among tied interps?
+    (random-elt 
+     (reverse ;for backwards compatibility, useful for log regression tests
 		     (remove-if #'(lambda (x) (alist< x best)) candidates
-				:key #'ErrorInterp-order))))
-      ;; Case where no match was found
-      (make-failed-error-interpretation))
-)
+				:key #'ErrorInterp-order)))))
 
 ;;; ---------- Phase 4: Generating the dialog turn --------------------
 
