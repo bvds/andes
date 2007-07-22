@@ -569,7 +569,7 @@
       (make-eqn-failure-turn "Internal error: entry for equation not found!"))
      
      ;; If the selected equation is not correct then send an error. 
-     ((not (equal (StudentEntry-state eqn-entry) 'correct))
+     ((not (equal (StudentEntry-state eqn-entry) **correct**))
       (setf (studentaction-result action) 'error)
       (setf (studentaction-assoc action) "Only correct equations may be simplified.")
       (make-eqn-failure-turn "Only correct equations may be simplified."))

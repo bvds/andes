@@ -1042,21 +1042,21 @@
     (cond 
      ((blank-given-value-entry eqn-entry)
       (cond (is-optionally-given 
-	     (setf (StudentEntry-state eqn-entry) 'correct)
+	     (setf (StudentEntry-state eqn-entry) **correct**)
 	     (make-green-turn))
 	    (is-given 
-	     (setf (StudentEntry-state eqn-entry) 'incorrect)
+	     (setf (StudentEntry-state eqn-entry) **Incorrect**)
 	     (should-be-given-ErrorInterp eqn-entry quant))
 	    (is-known-constant
-	     (setf (StudentEntry-state eqn-entry) 'incorrect)
+	     (setf (StudentEntry-state eqn-entry) **Incorrect**)
 	     (should-be-known-ErrorInterp eqn-entry quant))
 	    (T ; quant is not given => OK
-	     (setf (StudentEntry-state eqn-entry) 'correct)
+	     (setf (StudentEntry-state eqn-entry) **correct**)
 	     (make-green-turn))))
      
      ;; get here => student specified a given value
      ((not (or is-given is-optionally-given is-known-constant))
-      (setf (StudentEntry-state eqn-entry) 'incorrect)
+      (setf (StudentEntry-state eqn-entry) **Incorrect**)
       (not-given-ErrorInterp eqn-entry quant))
      
      ;; else the quantity does have a given value:
@@ -1095,7 +1095,7 @@
 	  ;; to only add once, must handle this.
 	  (when (and correct-eqn (not (uses-only-given-eqn temp-entry)) 
 		     (not is-known-constant))
-	    (setf (StudentEntry-State eqn-entry) 'incorrect) ; modify state copied above
+	    (setf (StudentEntry-State eqn-entry) **Incorrect**) ; modify state copied above
 	    (setf result-turn (more-than-given-ErrorInterp eqn-entry quant)))
 	  ;; if equation is wrong but no error interpretation (syntax error, 
 	  ;; missing units, etc) has been set, assume value is just plain wrong, 

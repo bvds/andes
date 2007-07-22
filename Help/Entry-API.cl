@@ -1310,7 +1310,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun undo-entry (entry)
   ;; undo entry effects specific to correct entries:
-  (when (equal (StudentEntry-state entry) 'Correct)
+  (when (equal (StudentEntry-state entry) **correct**)
 	;; unmark entry interpretations as done in solution graph
   	(sg-delete-StudentEntry entry)
         ;; undo any implicit eqn entry associated with this
@@ -1391,7 +1391,7 @@
     (sg-match-StudentEntry Entry)
     (unless  (setf cand (first (StudentEntry-PossibleCInterps Entry))) 
         (format *debug-help* "No matching system entry found~%")
-	(setf (StudentEntry-state entry) 'incorrect)
+	(setf (StudentEntry-state entry) **Incorrect**)
 	; run whatswrong help to set error interp now, so diagnosis
 	; can be included in log even if student never asks whatswrong
         (diagnose Entry)
@@ -1437,13 +1437,13 @@
       ; Everything is OK!
       (setf result (make-green-turn)))
 
-     ; give special messages for some varieties of incorrectness:
-     ('forbidden (setf result (chain-explain-more **Forbidden-Help**)))
-     ('premature-entry 
+     ;; give special messages for some varieties of incorrectness:
+     ('Forbidden (setf result (chain-explain-more **Forbidden-Help**)))
+     ('Premature-Entry 
      		 (setf result (chain-explain-more **Premature-Entry-Help**)))
-     ('dead-path (setf result (chain-explain-more **Dead-Path-Help**)))
-     ('nogood    (setf result (chain-explain-more **Nogood-Help**)))
-     (otherwise  (error "Unrecognized interp state! ~A~%" 
+     ('Dead-Path (setf result (chain-explain-more **Dead-Path-Help**)))
+     ('Nogood' (setf result (chain-explain-more **Nogood-Help**)))
+     (otherwise (error "Unrecognized interp state! ~A~%" 
                         (StudentEntry-state entry))
                  (setf result (make-red-turn))))
 
@@ -1519,7 +1519,7 @@
           (format T "mismatch: student form: ~A system form: ~A~%" 
                      stud-form (other-form stud-form))
           ; flag main entry as wrong and fill in error interp
-          (setf (StudentEntry-state entry) 'incorrect)
+          (setf (StudentEntry-state entry) **Incorrect**)
 	  (return-from Check-Vector-Given-Form
 	   (if (eq stud-form 'compo) (should-be-magdir-form entry vector-quant)
 	     (should-be-compo-form entry vector-quant)))))
@@ -1578,13 +1578,13 @@
   (let ((target-entries)
         (parse (StudentEntry-ParsedEqn entry)))
     ; fetch target entry list for correct or incorrect entries 
-    (cond ((eq (StudentEntry-state entry) 'incorrect)
+    (cond ((eq (StudentEntry-state entry) **Incorrect**)
 	    ; if needed, run whatswrong help to set error interp now, so diagnosis
 	    ; can be included in log even if student never asks whatswrong
             (unless (StudentEntry-ErrInterp entry) (diagnose Entry))
 	    (setf target-entries (ErrorInterp-Intended (StudentEntry-ErrInterp Entry))))
 
-	  ((eq (StudentEntry-state entry) 'correct)
+	  ((eq (StudentEntry-state entry) **correct**)
 	     (setf target-entries (studententry-Cinterp entry))))
    
     ; OK, do the logging
@@ -1600,7 +1600,7 @@
        ; For non-eq entries, show entry prop in our notation, so we can identify common errors.
        ; For correct non-eq entries, it will be the step, but for errors we add it.
        (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
-                  (eq (StudentEntry-state entry) 'incorrect))
+                  (eq (StudentEntry-state entry) **Incorrect**))
             (send-fbd-command (format nil "assoc entry ~A" (studentEntry-prop entry))))
 
        ; log the error tag if one was found
@@ -1630,7 +1630,7 @@
 	    (when (sg-match-studententry entry)  ; correct
 	      (setf (studententry-cinterp entry) 
 	          (cdr (first (studententry-PossibleCinterps entry))))
-	      (setf (studentEntry-state entry) 'correct)
+	      (setf (studentEntry-state entry) **correct**)
 	      (sg-enter-StudentEntry entry)))))
 
 (defun enter-given-eqn (eqn-entry)
@@ -1654,7 +1654,7 @@
                   (or (= result 0) (= result 7)))
          (warn "Implicit eqn ~A judged bad by algebra!! (result=~A)~%" 
 	        eqn result)) 
-     (setf (StudentEntry-State eqn-entry) 'correct)
+     (setf (StudentEntry-State eqn-entry) **correct**)
  
      ; To choose interpretation for solution graph marking, delegate to 
      ; interpret equation. This routine knows how to process the tagged

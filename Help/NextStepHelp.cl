@@ -1407,7 +1407,7 @@
 (defun nsh-mc-only-done-correct-p-rec (Soughts)
   "Recursively deal with the correctness."
   (let ((Ent (nsh-mc-only-match-SE (car Soughts))))
-    (when (and Ent (equalp (studententry-state Ent) 'correct))
+    (when (and Ent (equalp (studententry-state Ent) **correct**))
       (if (= 1 (length Soughts)) t
 	(nsh-mc-only-done-correct-p-rec (cdr Soughts))))))
 
@@ -1503,7 +1503,7 @@
   (remove-if-not 
    #'(lambda (E) 
        (and (unify (studententry-prop E) '(CHOOSE-ANSWER ?A ?B))
-	    (not (equalp (studententry-state E) 'correct))))
+	    (not (equalp (studententry-state E) **correct**))))
    *Studententries*))
 
 
@@ -1960,7 +1960,7 @@
    (strcat "That principle application is forbidden by the problem "
 	   "statement.  Why don't you re-read it and try again.")
    Sought past
-   :Case 'Forbidden))
+   :Case **Forbidden**))
 
 
 
