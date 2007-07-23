@@ -824,6 +824,13 @@
   (filter-expressions prop-pat (mapcar #'SystemEntry-Prop *SG-Entries*)))
 
 
+;; utility function to find system entry for a given vector quantity
+;; Depends on structure of vector entry proposition
+(defun sg-find-vector-entry (vector-quant)
+ "return the system entry for a vector quantity"
+ (find `(vector ,vector-quant ?dont-care) *sg-entries* 
+        :test #'unify :key #'systemEntry-prop))
+
 ;;-------------------------------------------------------------
 ;; given a canonical equation number match it with a system
 ;; entry as necessary.
