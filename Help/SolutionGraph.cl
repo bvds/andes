@@ -505,7 +505,7 @@
   "Find the matching entry for eqn if one exists."
   (find eqn Entries
 	:key #'(lambda (e) (cadr (SystemEntry-Prop E)))
-	:test #'equalp))
+	:test #'unify))  ;handle keywords properly
 
 ;;-------------------------------------------------------------------------
 ;; Setup Solutions
