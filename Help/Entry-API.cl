@@ -1594,7 +1594,7 @@
        ; containing partial parse tree printed as (#S(PARSE :TREE (LM m) :REM =x8*/7))
        ; print parse of ? for this
        (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
-           (send-fbd-command (format nil "assoc parse ~A" 
+           (send-fbd-command (format nil "assoc parse ~S" 
 	                               (if (eq (type-of (first parse)) 'parse) "?" parse))))
 
        ; For non-eq entries, show entry prop in our notation, so we can identify common errors.
@@ -1605,7 +1605,7 @@
 
        ; log the error tag if one was found
        (when (StudentEntry-ErrInterp entry)
-           (send-fbd-command (format nil "assoc error ~A" 
+           (send-fbd-command (format nil "assoc error ~S" 
 				     (ErrorInterp-name (StudentEntry-ErrInterp Entry)))))
 
         ; log the target entry info if we have any. This shows comma-separated lists of entry props
@@ -1613,7 +1613,7 @@
        (when target-entries
            (send-fbd-command (format nil "assoc step ~{~S~^,~}" 
 	                                  (mapcar #'SystemEntry-prop target-entries)))
-           (send-fbd-command (format nil "assoc op ~{~A~^,~}" 
+           (send-fbd-command (format nil "assoc op ~{~S~^,~}" 
                                          (mapcar #'sg-map-systementry->opname target-entries))))
      )))
 
