@@ -153,7 +153,9 @@
 (defun new-error (student)
   "Given an incorrect student entry that has not been given before,
    return an error interpretation"
-  (let ((candidates (applicable-error-analyses student))
+  (let ((candidates (remove **correct** 
+			    (applicable-error-analyses student) 
+			    :key #'ErrorInterp-state))
 	best)
     ;; (format t "Candidates are ~W" candidates)
     (contextualize candidates)
