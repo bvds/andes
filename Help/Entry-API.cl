@@ -1595,7 +1595,7 @@
        ; print parse of ? for this
        (when (consp parse)  ; non-NIL => either prefix eqn or list of parse trees
            (send-fbd-command (format nil "assoc parse ~S" 
-	                               (if (eq (type-of (first parse)) 'parse) "?" parse))))
+	                               (if (eq (type-of (first parse)) 'parse) '? parse))))
 
        ; For non-eq entries, show entry prop in our notation, so we can identify common errors.
        ; For correct non-eq entries, it will be the step, but for errors we add it.
