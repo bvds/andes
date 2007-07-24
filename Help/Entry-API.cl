@@ -1601,7 +1601,7 @@
        ; For correct non-eq entries, it will be the step, but for errors we add it.
        (when (and (not (eq (first (studentEntry-prop entry)) 'eqn))
                   (eq (StudentEntry-state entry) **Incorrect**))
-            (send-fbd-command (format nil "assoc entry ~A" (studentEntry-prop entry))))
+            (send-fbd-command (format nil "assoc entry ~S" (studentEntry-prop entry))))
 
        ; log the error tag if one was found
        (when (StudentEntry-ErrInterp entry)
