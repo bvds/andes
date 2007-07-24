@@ -36,9 +36,9 @@ while (<>) {   # loop over lines in all Andes sessions
     }    
 
     # fix to print keywords properly in assoc entry, July 23, 2007
-    if(m/^([\d:]+)\tDDE-COMMAND assoc /) {
+    if(m/^([\d:]+)\tDDE-COMMAND assoc (step|entry)/) {
       s/ :/ /g;
-      s/\|([^\|]+)\|/\1/g;
+      s/\|([^|]+)\|/\1/g;
     }
 
     print;
