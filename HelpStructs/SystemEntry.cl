@@ -38,7 +38,7 @@
 (defun print-SystemEntry (Entry &optional (Stream t) (level 0))
   "Print out the system entry."
   (pprint-indent :block Level Stream)
-  (format Stream "[SystemEntry: ~A ~A ~A ~A ~A]~%" 
+  (format Stream "[SystemEntry: ~A ~S ~A ~A ~A]~%" 
 	  (SystemEntry-Index Entry) (SystemEntry-Prop Entry) 
 	  (SystemEntry-State Entry) (if (SystemEntry-Entered Entry) t nil)
 	  (SystemEntry-CogLoad Entry)))
@@ -48,7 +48,7 @@
   (pprint-indent :block Level Stream)
   (format Stream "[SystemEntry: ~A~%" (SystemEntry-Index Entry))
   (pprint-indent :block Level Stream)
-  (format Stream "  Prop:    ~A~%" (SystemEntry-Prop Entry))
+  (format Stream "  Prop:    ~S~%" (SystemEntry-Prop Entry))
   (pprint-indent :block Level Stream)
   (format Stream "  Sources: ~A~%" (SystemEntry-Sources Entry))
   (pprint-indent :block Level Stream)
@@ -61,7 +61,8 @@
 
 (defun SystemEntries-PropEqualp (X Y)
   "Return t iff X and Y are equalp in all elements save state and Sources."
-  (equalp (SystemEntry-Prop X) (SystemEntry-Prop Y)))
+  ;; need unify to handle keywords properly
+  (unify (SystemEntry-Prop X) (SystemEntry-Prop Y)))
 
 (defun SystemEntry-Sets-propequalp (X Y)
   "Are sets X and Y Prop Equalp."
@@ -69,10 +70,6 @@
       unless (find E Y :test #'SystemEntries-PropEqualp)
       return nil
       finally (return t)))
-
-(defun SystemEntries->props (Entries)
-  (loop for E in Entries
-      collect (SystemEntry-Prop E)))
 
 
 (defun merge-duplicate-systementries (Ents)
