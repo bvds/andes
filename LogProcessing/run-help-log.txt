@@ -59,4 +59,7 @@ Diff between July 14 and July 20:
 Use EntryTests to determine matches to student entries:
 Winter2007-USNA-treacywintersgill.July-23-2007
 
+Fix bug:  use unify for equivalence of SystemEntry-prop
+Winter2007-USNA-treacywintersgill.July-24-2007
+
 
