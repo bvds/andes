@@ -35,5 +35,10 @@ while (<>) {   # loop over lines in all Andes sessions
 	s/\|NIL;[A-Z;\-]+\|/\|NIL\|/;
     }    
 
+    # fix to print keywords properly in assoc entry, July 23, 2007
+    if(m/^([\d:]+)\tDDE-COMMAND assoc entry /) {
+      s/ :/ /;
+    }
+
     print;
 } #loop over lines in all sessions
