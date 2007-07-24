@@ -587,6 +587,7 @@
 
 
 (defun find-ErrorInterp-correct (entry)
+  "Returns best match if correct, nil if incorrect or no match"
   (let (tests)
     ;; select tests that always apply 
     (dolist (eh (remove 'nil **entry-tests** :key #'EntryTest-apply 
@@ -829,7 +830,8 @@
 (defun sg-find-vector-entry (vector-quant)
  "return the system entry for a vector quantity"
  (find `(vector ,vector-quant ?dont-care) *sg-entries* 
-        :test #'unify :key #'systemEntry-prop))
+        :test #'unify :key #'SystemEntry-Prop))
+
 
 ;;-------------------------------------------------------------
 ;; given a canonical equation number match it with a system

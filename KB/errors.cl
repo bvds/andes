@@ -4133,8 +4133,11 @@
   )
 
 (def-entry-test match-vector (?quant)
-  :preconditions ((student (vector ?quant))
-		  (correct (vector ?quant ?val2)))
+  :preconditions ((student (vector ?quant ?dir1))
+		  (correct (vector ?quant ?dir2))
+		  (test (and (dimensioned-numberp ?dir1) 
+			     (dimensioned-numberp ?dir2)
+			     (compare-dnums ?dir1 ?dir2))))
   :state **correct**
-  :order ((correct . 3))
+  :order ((correct . 2))
   )
