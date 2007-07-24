@@ -1611,7 +1611,7 @@
         ; log the target entry info if we have any. This shows comma-separated lists of entry props
 	; ("steps") and parallel list of opnames
        (when target-entries
-           (send-fbd-command (format nil "assoc step ~{~A~^,~}" 
+           (send-fbd-command (format nil "assoc step ~{~S~^,~}" 
 	                                  (mapcar #'SystemEntry-prop target-entries)))
            (send-fbd-command (format nil "assoc op ~{~A~^,~}" 
                                          (mapcar #'sg-map-systementry->opname target-entries))))

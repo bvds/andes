@@ -175,10 +175,9 @@
 ;;; given the student entry, returns an error analysis for each error
 ;;; handler whose conditions are true.
 (defun applicable-error-analyses (student)
-  ;; only use tests of type 'no-match since we have already determined
+  ;; only use tests of type nil and 'no-match since we have already determined
   ;; no match is there
-  (loop for eh in (remove 'no-match **entry-tests** :key #'EntryTest-apply
-			  :test-not #'eql) append
+  (loop for eh in (remove 'match **entry-tests** :key #'EntryTest-apply) append
        (if (watch-this-error-class-p eh)
 	   (check-err-conds-watched eh student)
 	   (check-err-conds eh student))))

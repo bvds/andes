@@ -56,3 +56,7 @@ Winter2007-USNA-treacywintersgill.July-20-2007
 Diff between July 14 and July 20:  
      none, after canonicalization
 
+Use EntryTests to determine matches to student entries:
+Winter2007-USNA-treacywintersgill.July-23-2007
+
+
