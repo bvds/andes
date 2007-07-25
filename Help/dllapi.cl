@@ -55,12 +55,17 @@
 (ff:defun-c-callable (helpsys-execute :c)
     ((c_cmdstr :unsigned-long) (resultbuf :unsigned-long) (bufsize :unsigned-long))
     :long
-  (let ((cmdstr (native-to-string c_cmdstr)))
+  (let ((cmdstr (native-to-string c_cmdstr))
+         result)
     (format *debug-help* "helpsys-execute: ~A~%" cmdstr)
     (handler-case
       (progn
+        (setf result (do-execute cmdstr))
+	(when (eq result :error)
+	    (return-from helpsys-execute 0)) ; return 0 on error
+	; else no Lisp error: copy result as string
 	(c_copy_result resultbuf
-		       (format nil "~A" (do-execute cmdstr))
+		       (format nil "~A" result)
 		       bufsize)
 	1) ;; return 1 if successful
       (serious-condition ()

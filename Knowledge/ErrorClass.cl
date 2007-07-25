@@ -72,3 +72,6 @@
 			    )))
     (push e **entry-tests**)
     t))
+
+(defun get-error-class-by-name (name)
+ (find name **entry-tests** :key #'EntryTest-name))

@@ -180,6 +180,8 @@ void CValueDlg::OnCompoBtn()
 	////////////////////////////
 
 	// if no axes drawn, just show message on form
+	// compo form controls should default to invisible, 
+	// so no need to hide them.
 	if (!theApp.GetCurrentProblem()->IsAxesDrawn()) {
 		GetDlgItem(IDC_STATIC_AXES_MSG)->ShowWindow(SW_SHOW);
 		return;

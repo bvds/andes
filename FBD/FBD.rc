@@ -1519,7 +1519,7 @@ BEGIN
     LTEXT           "&Orientation:",IDC_L2ANGLE,7,66,33,8,NOT WS_VISIBLE,0,
                     HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,41,64,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,68,65,7,12,0,HIDC_DIRECTION_SPIN
@@ -1561,7 +1561,7 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,6,45,200,22,NOT WS_VISIBLE
     LTEXT           "",IDC_L2ANGLE,11,54,30,8,NOT WS_VISIBLE,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,45,51,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,74,52,6,12,0,HIDC_DIRECTION_SPIN
@@ -1631,7 +1631,7 @@ BEGIN
     LTEXT           "Direction:",IDC_STATIC,8,106,29,8
     LTEXT           "0V=",IDC_L2ANGLE,53,105,30,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_TEXT,91,103,24,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,114,104,9,12,0,HIDC_DIRECTION_SPIN
@@ -2534,7 +2534,7 @@ END
 IDD_TORQUE DIALOGEX 0, 0, 255, 212
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Torque Definition"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     GROUPBOX        "Type",IDC_STC_GROUP,4,3,199,47
     CONTROL         "&Net Torque",IDC_NETBTN,"Button",BS_AUTORADIOBUTTON | 
@@ -2558,8 +2558,8 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,3,66,201,26,NOT WS_VISIBLE
     LTEXT           "&Orientation:",IDC_L2ANGLE,4,76,33,8,NOT WS_VISIBLE,0,
                     HIDC_L2ANGLE
-    EDITTEXT        IDC_ORIENTATION_TEXT,38,74,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+    EDITTEXT        IDC_ORIENTATION_OLD,38,74,30,14,ES_AUTOHSCROLL,0,
+                    0x816d0440
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,65,75,8,12,0,HIDC_DIRECTION_SPIN
@@ -2597,7 +2597,7 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,7,35,194,22,NOT WS_VISIBLE
     CTEXT           "&Orientation:",IDC_L2ANGLE,8,41,35,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,46,41,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,75,42,8,12,0,HIDC_DIRECTION_SPIN
@@ -2851,7 +2851,7 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,5,40,195,22,NOT WS_VISIBLE
     CTEXT           "&Orientation:",IDC_L2ANGLE,6,46,35,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,44,46,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,73,47,9,12,0,HIDC_DIRECTION_SPIN
@@ -2886,7 +2886,7 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,4,40,194,22,NOT WS_VISIBLE
     CTEXT           "&Orientation:",IDC_L2ANGLE,5,46,35,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,43,46,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,72,47,9,12,0,HIDC_DIRECTION_SPIN
@@ -2947,7 +2947,7 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,6,40,194,22,NOT WS_VISIBLE
     CTEXT           "&Orientation:",IDC_L2ANGLE,7,46,35,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,45,46,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,74,47,9,12,0,HIDC_DIRECTION_SPIN
@@ -3020,7 +3020,7 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,8,63,201,26,NOT WS_VISIBLE
     LTEXT           "&Orientation:",IDC_L2ANGLE,9,73,33,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_TEXT,43,71,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,70,72,9,12,0,HIDC_DIRECTION_SPIN
@@ -3081,7 +3081,7 @@ BEGIN
     GROUPBOX        "",IDC_BOX_TIMEDIR,7,40,194,22,NOT WS_VISIBLE
     CTEXT           "&Orientation:",IDC_L2ANGLE,8,46,35,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,46,46,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,75,47,9,12,0,HIDC_DIRECTION_SPIN
@@ -3111,7 +3111,7 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
     CTEXT           "&Orientation:",IDC_L2ANGLE,8,31,35,8,0,0,HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_TEXT,46,31,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,75,32,9,12,0,HIDC_DIRECTION_SPIN
@@ -3148,7 +3148,7 @@ BEGIN
     LTEXT           "&Orientation:",IDC_L2ANGLE,4,56,33,8,NOT WS_VISIBLE,0,
                     HIDC_L2ANGLE
     EDITTEXT        IDC_ORIENTATION_OLD,38,54,30,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,65,55,8,12,0,HIDC_DIRECTION_SPIN
@@ -3171,7 +3171,7 @@ END
 IDD_VECTOR_VALUES DIALOGEX 0, 0, 242, 74
 STYLE DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "or",IDC_STATIC_DIR_OR,179,38,8,8
     ICON            IDI_ANGLE,IDC_ANGLE,154,35,20,20,0,WS_EX_TRANSPARENT,
@@ -3191,29 +3191,29 @@ BEGIN
     LTEXT           "Direction:",IDC_STATIC_DIR,6,40,45,10
     LTEXT           "0V=",IDC_DIRVAR,52,39,40,10,0,0,HIDC_DIRVAR
     EDITTEXT        IDC_ORIENTATION_TEXT,94,37,22,14,ES_AUTOHSCROLL,0,
-                    HIDC_ORIENTATION_TEXT
+                    HIDC_ORIENTATION_OLD
     CONTROL         "Spin1",IDC_DIRECTION_SPIN,"msctls_updown32",UDS_WRAP | 
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,121,37,12,15,0,HIDC_DIRECTION_SPIN
-    LTEXT           "deg",IDC_STATIC_DEG,121,38,13,8,0,0,HIDC_STATIC_DEG
+    LTEXT           "deg",IDC_STATIC_DEG,116,38,13,8,0,0,HIDC_STATIC_DEG
     COMBOBOX        IDC_ZDIR,132,38,59,60,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
                     WS_VSCROLL | WS_TABSTOP
     CONTROL         "Unknown",IDC_CHECK_DIR_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,193,39,39,10
-    LTEXT           "x component:",IDC_STATIC_XC,6,23,45,10
-    LTEXT           "v_x =",IDC_XCVAR,52,23,40,10
-    CONTROL         "",IDC_XC_VALUE,"RICHEDIT",ES_AUTOHSCROLL | WS_BORDER | 
-                    WS_TABSTOP,99,20,76,14
-    LTEXT           "or",IDC_STATIC_XC_OR,181,23,8,8
+    LTEXT           "x component:",IDC_STATIC_XC,6,23,45,10,NOT WS_VISIBLE
+    LTEXT           "v_x =",IDC_XCVAR,52,23,40,10,NOT WS_VISIBLE
+    CONTROL         "",IDC_XC_VALUE,"RICHEDIT",ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE | WS_BORDER | WS_TABSTOP,99,20,76,14
+    LTEXT           "or",IDC_STATIC_XC_OR,181,23,8,8,NOT WS_VISIBLE
     CONTROL         "Unknown",IDC_CHECK_XC_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,192,24,44,10
-    LTEXT           "y component:",IDC_STATIC_YC,6,40,45,10
-    LTEXT           "v_y =",IDC_YCVAR,52,40,40,10
-    CONTROL         "",IDC_YC_VALUE,"RICHEDIT",ES_AUTOHSCROLL | WS_BORDER | 
-                    WS_TABSTOP,99,37,76,14
-    LTEXT           "or",IDC_STATIC_YC_OR,181,41,8,8
+                    NOT WS_VISIBLE | WS_TABSTOP,192,24,44,10
+    LTEXT           "y component:",IDC_STATIC_YC,6,40,45,10,NOT WS_VISIBLE
+    LTEXT           "v_y =",IDC_YCVAR,52,40,40,10,NOT WS_VISIBLE
+    CONTROL         "",IDC_YC_VALUE,"RICHEDIT",ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE | WS_BORDER | WS_TABSTOP,99,37,76,14
+    LTEXT           "or",IDC_STATIC_YC_OR,181,41,8,8,NOT WS_VISIBLE
     CONTROL         "Unknown",IDC_CHECK_YC_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,192,41,44,10
+                    NOT WS_VISIBLE | WS_TABSTOP,192,41,44,10
     GROUPBOX        "",IDC_BOX_ZCOMP,4,50,230,20,NOT WS_VISIBLE
     LTEXT           "z component:",IDC_STATIC_ZC,6,57,41,8,NOT WS_VISIBLE
     LTEXT           "v_z =",IDC_ZCVAR,52,56,40,10,NOT WS_VISIBLE
@@ -3236,8 +3236,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,2,5,0
- PRODUCTVERSION 11,2,5,0
+ FILEVERSION 11,2,6,1
+ PRODUCTVERSION 11,2,6,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3255,14 +3255,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "11, 2, 5, 0\0"
+            VALUE "FileVersion", "11, 2, 6, 1\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "11, 2, 5, 0\0"
+            VALUE "ProductVersion", "11, 2, 6, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END

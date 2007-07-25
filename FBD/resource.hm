@@ -39,6 +39,7 @@
 #define HIDC_MULTIPLE_INSTRUCTIONS      0x81790431    // IDD_RESISTANCE
 #define HIDC_NRGBODY                    0x81660561    // IDD_ENERGY
 #define HIDC_NRG_AGENT                  0x81660563    // IDD_ENERGY
+#define HIDC_ORIENTATION_OLD            0xffff040b    // IDD_FIELD
 #define HIDC_ORIENTATION_TEXT           0xffff040b    // "IDD_VECTOR_MOVE_NEW"
 #define HIDC_POINT1                     0x81780572    // IDD_CURRENT_EXP
 #define HIDC_POINT2                     0x81780573    // IDD_CURRENT_EXP

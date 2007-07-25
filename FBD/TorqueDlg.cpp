@@ -111,8 +111,11 @@ BOOL CTorqueDlg::OnInitDialog()
 			ScreenToClient(rcValues);
 			m_pDlgValues->SetWindowPos( NULL, rcValues.left + 7, rcValues.top + 7, 0, 0,
 				SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW );
-
-			Remove(IDC_BOX_TIMEDIR);
+		
+			// Do this after base class initialization to block unexplained
+			// calls to OnNetBtn
+			// Remove(IDC_BOX_TIMEDIR);
+	
 	} else {
 		Remove(IDC_STATIC_PLACEHOLDER);
 		m_pDlgValues = NULL;
@@ -120,8 +123,10 @@ BOOL CTorqueDlg::OnInitDialog()
 	// Base class inits lists via DDX. Calls InitDlg/InitObjectDlg to init values
 	CDrawObjDlg::OnInitDialog();
 
-	// Adjust visibility of controls here
-	
+	// Adjust visibility of controls here	
+	// hide old orientation controls if using new value subdialog
+	if (m_pDlgValues) Remove(IDC_BOX_TIMEDIR);
+
 	// Remove fields for special-purpose uses
 	if (m_bSought || m_bProp)
 	{
@@ -159,7 +164,7 @@ BOOL CTorqueDlg::OnInitDialog()
 		m_stcVecAng2.ShowWindow(SW_HIDE);
 		Remove(IDC_BOX_TIMEDIR);	// take out row moving following ctrls up
 	} else if (m_pDocument->UseZAxis()) {
-		m_cboZDir.ShowWindow(SW_SHOWNORMAL);
+		// m_cboZDir.ShowWindow(SW_SHOWNORMAL);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -363,6 +368,14 @@ void CTorqueDlg::OnSelchangeZdir()
 
 void CTorqueDlg::OnUpdateNet()
 {
+	// This seems to be getting fired from within the SetWindowPos on the dialog 
+	// inside initial Remove of old orientation control box, before button is subclassed 
+	// by base class init dialog. No idea why a button click message would be fired from
+	// that. Following protects against it. Maybe will go away when we get rid of old
+	// orientation controls entirely.
+	if (! m_btnNet.GetSafeHwnd()) 
+		return;
+
 	BOOL bNet = m_btnNet.GetCheck();
 	// hairy: we don't just enable relevant control, but also set child control id on 
 	// active choice box to IDC_BODY_TEXT, using IDC_BODY_TEXT2 for the other one.

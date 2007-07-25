@@ -378,44 +378,36 @@ BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 
 		// Walk all child window controls, coloring checked ctrls appropriately
 		for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow())
-		{
-			// first loop through grandchildren, if any. NB: one level of recursion only!
-			for (CWnd* pChild = pCtl->GetTopWindow(); pChild != NULL; pChild = pChild->GetNextWindow()) 
-					bAllCorrect &= UpdateStatus(pChild, errWnds);
-			// now this one
 			bAllCorrect &= UpdateStatus(pCtl, errWnds);
-		}
-/*
-		// Color all the error controls red. Works even on descendants
-		for (pos = errWnds.GetHeadPosition(); pos !=NULL; ) {
-			CWnd* pCtl = errWnds.GetNext(pos);
-			if (IsCheckedCtrl(pCtl)) {
-				SetCtrlStatus(pCtl, statusError);
-				// only return this if we have succeeded in flagging
-				// a control
-				bAllCorrect = FALSE;
-			}
-		} */
+
 	}
 	return bAllCorrect;
 }
 
 BOOL CCheckedDlg::UpdateStatus(CWnd *pCtl, WndList &errWnds)
 {
-	BOOL bAllCorrect = TRUE;
+	BOOL bAllCorrect = TRUE;	// until we find an error
 
+	// first recurse through any children of this control
+	for (CWnd* pChild = pCtl->GetTopWindow(); pChild != NULL; pChild = pChild->GetNextWindow()) 
+			bAllCorrect &= UpdateStatus(pChild, errWnds);
+	// now do this one
+	
 	// skip non-checked controls
 	if (! IsCheckedCtrl(pCtl))
-		return TRUE;
+		return bAllCorrect;
 
 	// color red or green according as control is in error list
-	if (errWnds.Find(pCtl)){
+	// Safety precaution: don't update a control whose window is disabled 
+	// e.g. disabled dir box on a zero-length vector
+	if (errWnds.Find(pCtl) && pCtl->IsWindowEnabled()){
 		SetCtrlStatus(pCtl, statusError);
 		return FALSE;
-	} else {
-		SetCtrlStatus(pCtl, statusUnknown);
-	}
-	return TRUE;
+	} 
+	// get here -> not in error list: 
+	// Reset to unknown for normal appearance
+	SetCtrlStatus(pCtl, statusUnknown);
+	return bAllCorrect;
 }
 
 // To provide update handlers for cmds on control context menus 
@@ -476,10 +468,6 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 	// labels, buttons, or radio-buttons.) That should include all editable 
 	// choice fields which should be sufficient visual cue.
 	for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow()) {
-		// first loop through grandchildren, if any. NB: one level of recursion only!
-		for (CWnd* pChild = pCtl->GetTopWindow(); pChild != NULL; pChild = pChild->GetNextWindow()) 
-				GreyCtrl(pChild, !bTutorMode);
-		// now this one
 		GreyCtrl(pCtl, !bTutorMode);
 	}
 
@@ -496,6 +484,11 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 void CCheckedDlg::GreyCtrl(CWnd *pCtrl, BOOL bEnable)
 {
 	ASSERT(pCtrl != NULL);
+
+	// first recurse through any children of this control
+	for (CWnd* pChild = pCtrl->GetTopWindow(); pChild != NULL; pChild = pChild->GetNextWindow()) 
+				GreyCtrl(pChild, bEnable);
+	// now do this one
 
 	// Set flag if one of our checked controls
 	if (IsCheckedCtrl(pCtrl)) {

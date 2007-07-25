@@ -1,7 +1,7 @@
 // 
 // LogEdit.h : definition file for our log-aware control classes
 // 
-// $Id: LOGEDIT.H,v 1.5 2007/07/19 17:52:39 anders Exp $
+// $Id: LOGEDIT.H,v 1.6 2007/07/25 03:45:13 anders Exp $
 //
 // We use MFC subclassed control classes which are instrumented to log significant
 // events to the app's log file by catching reflected control notifications.
@@ -91,31 +91,37 @@ public:
 	void	SetStatus(Status status) 
 	{ 
 		m_status = status; 
-		if (status == statusCorrect)
-			SetTextColor(RGB(0, 128, 0));
-		else if (status == statusError)
-			SetBkColor(RGB(255, 0, 0));
-		else SetTextColor(RGB(0, 0, 0));
-		Invalidate(); 
+		UpdateColors();
 	}
-	// Flag used for special gray enabled/disabled appearance
+	// Flag used for special gray disabled appearance in tutor mode.
 	// Note this appearance is independent of windows enabled state.
-	// Processing depends on OnCtlColor handling in parent dialog.
 	BOOL	GetEnabled() { return m_bEnabled; };
-	void	SetEnabled(BOOL bEnable) { 
+	void	SetEnabled(BOOL bEnable) 
+	{ 
 		m_bEnabled = bEnable; 
-		if (bEnable) {
-			SetSysBkColor(); // sets to system color
-			SetStatus(m_status); // in case this affects bk color
-		} else
-			SetBkColor(::GetSysColor(COLOR_3DFACE));
-		// Invalidate();
+		UpdateColors();
 	}
 
 protected:
 	Status  m_status;
 	BOOL	m_bEnabled;
+	
+	void UpdateColors()  // reset colors to reflect curent state
+	{
+		// flag error with red background in both enabled/disabled mode
+		if (m_status == statusError)
+			SetBkColor(RGB(255, 0, 0));
+		else if (!m_bEnabled)	// else gray background when disabled
+			SetBkColor(::GetSysColor(COLOR_3DFACE)); 
+		else 
+			SetSysBkColor();     // use system default when enabled
 
+		// text color: green for correct, black for both error or unknown.
+		if (m_status == statusCorrect)
+			SetTextColor(RGB(0, 128, 0));
+		else	
+			SetTextColor(RGB(0, 0, 0));
+	}
 
 // Operations
 public:

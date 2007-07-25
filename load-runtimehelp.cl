@@ -2,10 +2,11 @@
 ; part of the lisp installation:
 (require "asdf") 
 
-; force these to be recompiled on load to include runtime-version
+; force these to be recompiled on load in a context that defines
+; feature allegro-cl-runtime so as to include runtime-version
 ; conditional code
-(delete-file "Help/Andes2-main.fasl")
-(delete-file "Help/Commands.fasl")
+(compile-file "Help/Andes2-main.cl")
+(compile-file "Help/Commands.cl")
 
 ; Following no longer has IDE-specific code:
 

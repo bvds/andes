@@ -805,9 +805,9 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	}
 	// NB: NIL return means help system does not get a "close-problem" notification on 
 	// finish, since it failed to open the problem (correct behavior?)
-	if (! pszResult || (strcmp(pszResult, "NIL") == 0) ){
+	if (! pszResult || (strcmp(pszResult, "NIL")==0) || (strcmp(pszResult, "ERROR")==0)){
 		theApp.DoWarningMessage( 
-"Help System couldn't load problem information for this problem\nFeedback will not be available" 
+"Help System couldn't load problem information for this problem\nFeedback and help cannot be provided." 
 		);
 		theApp.m_bFeedback = FALSE;
 	} else if (strcmp(pszResult, "WRONG-VERSION-PRB") == 0) {

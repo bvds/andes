@@ -1386,6 +1386,7 @@
 (def-error-class default-should-be-unknown ("vector")
   ((student (vector ?descr ?dir))
    (correct (vector ?descr unknown))
+   (test (not (equal ?dir 'zero)))  ; use should-be-non-zero below
    (test (not (equal ?dir 'unknown))))
   :flag (dir)
 ;; High probability since close match
@@ -1396,12 +1397,9 @@
    (list 
     (format nil (strcat "When the direction of a ~A is not given or easily "
 			"inferred from the problem statement, you should mark "
-			"it unknown.  Since drawing the ~A automatically "
-			"fills in a value for the ~A's orientation angle, "
-			"you have to erase this value in the dialog box to "
-			"mark the direction unknown.") object object object)
+			"it unknown. ") object)
     (format nil 
-	    "Double-click on the ~A in order to bring up its properties, then erase the number in the direction box to mark the direction unknown."
+	    "Double-click on the ~A in order to bring up its properties if necessary, then erase the number in the direction box to mark the direction unknown."
 	    object))))
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
@@ -2284,7 +2282,10 @@
    ((student (vector (force ?object ?object ?type :time ?time) ?dir))
     (correct (vector (force ?cbody ?cagent ?ctype :time ?ctime) ?cdir))
     (no-correct (vector (net-force ?net-body :time ?net-time) ?net-accel)))
-   :flag (body agent) ; maybe confusing, one could be correct.
+   ; flagging both is confusing if only one has to change to correct
+   ; really need different handlers depending on which one could
+   ; be correct. These would be special cases of  
+   ; :flag (body agent) 
    :utility 100)
 
 (defun same-body-and-agent-of-a-force-no-net (object)
@@ -2301,7 +2302,7 @@
 (def-error-class same-body-and-agent-of-a-force-net-ok (?object)
   ((student (vector (force ?object ?object ?type :time ?time) ?dir))
    (correct-nointent (vector (net-force ?object :time ?net-time) ?net-accel)))
-  :flag (body agent)
+  :flag (agent)
   :utility 150)
 
 (defun same-body-and-agent-of-a-force-net-ok (object)
@@ -2534,7 +2535,7 @@
 			       :axis ?pivot2 :time ?time2) ?dir2)) 
    (correct    (vector (torque ?cbody (force ?cpt . ?junk3)
 			       :axis ?cpivot :time ?ctime) ?cdir)))
-  :flag (force-pt) ; wb dlg quirk, body tag means net torque body
+  :flag (body) 
   :utility 10
   :probability
   (+ 0.1 
