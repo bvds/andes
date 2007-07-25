@@ -14,11 +14,22 @@
 # Required:
 #   dataset.txt -- contains dataset name 
 # Optional:
-#   class.xml -- class information element to copy into logs
-#   conditions.txt -- student to condition mapping
+#   classmap.txt -- student to class id mapping. 
+#   class-XXX.xml -- class XML element for class w/id XXX
+#   conditionmap.txt -- student to condition id mapping
+#   condition-XXX.xml -- condition element for id XXX
 #   unitmap.txt  -- problem to unit mapping
+#
+# The class and condition ids in the map may be any shorthand,
+# they are not used in the logs.
+#
+# If all logs are from the same class, can omit classmap.txt and
+# provide only the single file class.xml
+#
+# Condition ids may come from set-condition statement in log
+# or from condition-map. There may be no conditions to set.
+#
 ######################################################################
-
 
 # globals for current log line
 my ($timestamp, $event, $argstr); 
@@ -88,34 +99,41 @@ $CD2 = "]]>";
 #        Load info from external files
 #--------------------------------------------------------------------------------------
 
-# copy dataset name from external file
-open (DATASET, '<', 'dataset.txt') or die "Could not open dataset.txt: $!";
-$DataSet= <DATASET>;      
-chomp($DataSet);
-$DataSet =~ s/\r//;   
-
-# save the conversion date for inclusion
+# save the conversion date for inclusion in output
 ($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
 $Year += 1900;
 $Month++;
 $conversion_date = "$Month/$Day/$Year " . sprintf("%02d:%02d", $Hour, $Minute);
       
+# copy dataset name from external file
+open (DATASET, '<', 'Info/dataset.txt') or die "Could not open dataset.txt: $!";
+$DataSet= <DATASET>;      
+chomp($DataSet);
+$DataSet =~ s/\r//;   
+
 # load the problem to unit mapping table, if it exists
-if (open UNITMAP, "<unitmap.txt") {
+if (open UNITMAP, "<Info/unitmap.txt") {
      %unitmap = map /(.*)\t(.*)\r/, <UNITMAP>;
      close UNITMAP;
      $have_unitmap = 1;
      #print STDERR "loaded unit map\n";
 }
 
-# load the student to condition mapping table, ifit exists
+# load the student to condition mapping table, if it exists
 # we may get a condition from a conditionmap file, or else from set-condition
-# above. If both are set, condition map overrides.
-if (open CONDITIONMAP, "<conditions.txt") {
+# above. If both are set, condition map will override.
+if (open CONDITIONMAP, "<Info/conditionmap.txt") {
 	%conditionmap = map /(.*)\t(.*)\r/, <CONDITIONMAP>;
         close CONDITIONS;
 	$have_conditionmap = 1;
      #print STDERR "loaded condition map\n";
+}
+
+# load the student to class mapping table, if it exists
+if (open CLASSMAP, "<Info/classmap.txt") {
+	%classmap = map /(.*)\t(.*)\r/, <CLASSMAP>;
+        close CLASSMAP;
+	$have_classmap = 1;
 }
 
 #--------------------------------------------------------------------------------
@@ -179,9 +197,11 @@ END_HEADER
 	      print STDERR "start time: " . localtime($start_time) . " = $start_date\n";
    }
 
-    # pick up experiment condition if it's set
+    # pick up experiment condition if it's set in log
     if (/DDE-POST \(set-condition ([\w]*)\)/) {
+	  if ($1 ne "none") {
 	    $condition = $1;
+	  }
     }
 
     # use flag to ignore DDE calls within Check-Entries block 
@@ -211,18 +231,26 @@ END_HEADER
 
        # OK, we now have enough to put out the context (formerly "dataset") message. 
        # We can also include the class information, which we have to get from an external file.
-       # !!! time_zone is hardcoded
        print <<END_CONTEXT_HDR;
   <context_message context_message_id="$context_id" name="START_PROBLEM">
       <meta> <user_id anonFlag="true">$user</user_id> <session_id>$session_id</session_id> 
              <time>$start_date</time> <time_zone>$time_zone</time_zone></meta>
 END_CONTEXT_HDR
       # copy course information element from external file, if it exists
-      if ( open (CLASSINFO, "class.xml")) {
+      $classfile = "Info/class.xml";   # default if no map
+      if ($have_classmap) {
+		$class = $classmap{$user};
+                if (! $class) {
+		      print STDERR "!!! no class found for $user\n"; 
+		} else {
+		     $classfile = "Info/class-$class.xml";
+		} 
+      } 
+      if ( open (CLASSINFO, $classfile)) {
 	   while ($line = <CLASSINFO>) {
 			 # for consistent Unix style output, change DOS CRLF to LF alone
 			 $line =~ s/\r//;   
-			 print OUT "        $line";
+			 print "        $line";
 	   }
            close CLASSINFO;
       }
@@ -269,9 +297,15 @@ END_DATASET
                 if (! $condition) {
 		      print STDERR "!!! no condition found for $user\n"; 
 		}
-       }
+      }
       if ($condition) {
- 	       print "      <condition><name>$condition</name></condition>\n"; 
+ 	   open (CONDITION, "Info/condition-$condition.xml") || die "Couldn't open condition-$condition.xml. $!";
+	   while ($line = <CONDITION>) {
+			 # for consistent Unix style output, change DOS CRLF to LF alone
+			 $line =~ s/\r//;   
+			 print "        $line";
+	   }
+           close CONDITION;
       }
       print "    </context_message>\n";
    }
@@ -396,6 +430,11 @@ END_DATASET
 	($status, $error_fields) = split(/;/, $result);
 	if ($status eq "T") {
 		$evaluation = "CORRECT";
+		# odd case: if we have no interp of a correct non-answer entry, 
+		# flag it # TRUE_BUT_IRRELEVANT
+		if (! $assocs{"step"} && $checkreq && $checkreq ne "Answer") {
+			$evaluation = "TRUE_BUT_IRRELEVANT";
+		}
 	} elsif ($status eq "NIL") {
 		$evaluation = "INCORRECT";
 	} elsif ($cmdmsg =~ /^show-hint/ || $cmdmsg =~ /^show-lesson/) {
@@ -514,6 +553,15 @@ END_DATASET
 	    #	print "            </step>\n";
 	    #	print "          </correct_step_sequence>\n";  
 	    #}
+	    if ($evaluation eq "TRUE_BUT_IRRELEVANT") { # correct but no interp 
+	    print <<UNKNOWN_INTERP;
+        <interpretation chosen=\"true\">
+	   <correct_step_sequence>
+		<step><step_info>No Intepretation</step_info></step>
+	   </correct_step_sequence>
+	</interpretation>
+UNKNOWN_INTERP
+	    }
 	    if ($assocs{"error"}) # have an error handler, at least.
 	    {
 		    print "          <incorrect_step_sequence>\n";
@@ -624,6 +672,14 @@ CALC_RESULT_HDR
 	if ($hint) {
 		print "        <tutor_advice>$CD1$hint$CD2</tutor_advice>\n"; 
 	}
+	# fill in a dummy interpretation for calc requests
+	print <<CALC_RESULT_INTERP;
+        <interpretation chosen=\"true\">
+	   <correct_step_sequence>
+		<step><step_info>CALC_REQUEST</step_info></step>
+	   </correct_step_sequence>
+	</interpretation>
+CALC_RESULT_INTERP
 	# !!! some place to log success/failure difference.
 	print "    </tutor_message>";
     }
@@ -667,6 +723,11 @@ END_EQ_DELETION
 # end of file processing 
 print "</tutor_related_message_sequence>\n";
 close(OUT);
+
+sub copy_to_ouput 
+{
+    my $filename = $_[0];
+}
 
 #--------------------------------------------------------------
 # print message header with context info boilerplate
