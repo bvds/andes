@@ -524,7 +524,7 @@
 ;; next choice.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Operator Hints 
-;; Operator hints are attatched to each operator in the 
+;; Operator hints are attached to each operator in the 
 ;; Knowledge base.  At runtime those hints are translated 
 ;; into tutor turn sequences for the students.  The hints 
 ;; are of the form: (<Type> . <Specs>) where: 
@@ -535,7 +535,7 @@
 ;;     <Class> is one of STRING KCD MINILESSON or EVAL or FUNCTION
 ;;     <String> is a format string complete with ~A's.
 ;;     <Vars> is alist of operator vars that will be
-;;            subsituted into the string via a format.
+;;            substituted into the string via a format.
 ;;
 ;; When an operator hint is passed into the make-hint-seq
 ;; code it will be turned into one or more of the appropriate
@@ -666,7 +666,7 @@
 
 ;; Ultimately I want this to dynamically build an assoc if one is 
 ;; not supplied by the system.  For now it does not work with KCDs.
-;; Otherwize the code will use a separate assoc 
+;; Otherwise the code will use a separate assoc 
 
 (defun make-ophint-hseq (Hint Rest Prefix &optional Assoc OpTail)
   (let (S)

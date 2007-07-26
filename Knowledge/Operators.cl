@@ -435,7 +435,7 @@
 
 (defun OpHint-type (hint)
   "One of (Point, Teach apply, etc.)."
-  (nth 0 hint))
+  (car hint))
 
 (defun OpHint-Hintspecs (hint)
   "Get the individual hint-specs from the hint."
@@ -446,24 +446,19 @@
        (member (car Hint) **OpHint-Types**)
        (null (remove-if #'HintSpec-P (cdr Hint)))))
 
-
-;;; Given a set of operator hints, filter them 
-;;; out by type and return the resulting values.
-(defun filter-ophints-by-type (hints &rest types)
-  (remove-if-not 
-   #'(lambda (H) (member (car H) Types :test #'equalp))
-   Hints))
-
+(defun filter-hints-by-type (hints types)
+  (remove-if-not #'(lambda (x) (member x types :test #'eql))
+		 hints :key #'OpHint-type))
 
 ;;; Hinting the step itself involves collecting the hint specs
 ;;; from the operator and returning the result.
-(defun collect-step-hints (step &key (type nil))
+(defun collect-step-hints (step &key (types nil))
   "Collect the hints from an op step."
   (let ((hints (get-op-hints 
 		(get-operator-by-tag (csdo-op step))
 		(csdo-varvals step))))
-    (if (null Type) Hints
-      (filter-ophints-by-type Hints Type))))
+    (if Types (filter-hints-by-type hints types)
+      hints)))
 
 
 ;;--------------------------------------------------------------------

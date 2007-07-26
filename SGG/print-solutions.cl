@@ -90,11 +90,12 @@
 		     (SystemEntry-prop entry)))
 	   (format Stream "        <td class=\"op\"><code>~S</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
 		   (csdo-op opinst)
-		   (mapcar #'any-turn-text
-			   (mapcar #'(lambda (type) 
-				       (make-hint-seq 
-					(collect-step-hints opinst :type type))) 
-				   '(point bottom-out))))
+		   (mapcar #'(lambda (hint) 
+			       (format-hintspec 
+				(pick-other-spec ;pick a string hint
+				 (OpHint-hintspecs hint))))
+			   (collect-step-hints 
+			    opinst :types '(point apply bottom-out))))
 	   )))
   (format Stream "</table>~%~%"))
 
@@ -161,14 +162,14 @@
   (dotimes (n 1) ;(length (Problem-Solutions Problem)))
     (format Stream "<h2>Solution ~A</h2>~%" n)
     (let ((soln (nth n (problem-solutions problem))))
-      (print-html-entries (distinct-SystemEntries 
-			   (mappend #'bgnode-entries (EqnSet-nodes soln)))
-			  n Stream)
       (print-html-psms (Eqnset-Eqns soln) n stream)
       (print-html-quantities (remove-if-not #'Qnode-p (EqnSet-nodes soln)) 
 			     n Stream)
+      (print-html-entries (distinct-SystemEntries 
+			   (mappend #'bgnode-entries (EqnSet-nodes soln)))
+			  n Stream)
       ))
-;;; Tthis should be broken up into different functions
+;;; This should be broken up into different functions
 
   (do ((n 1 (+ n 1))) ((>= n (length (Problem-Solutions Problem))))
     (let ((nn (length (Problem-Solutions Problem)))
@@ -176,30 +177,6 @@
 	  (soln (nth n (problem-solutions problem))))
     (format Stream "<h2>Solution ~A versus Solution 0</h2>~%" n)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-    (format Stream "<table>~%")
-    (format Stream "<caption>Entries and Operators</caption>~%")
-    (format Stream "<tr><th>added</th><th>removed</th>~%")
-    (format Stream "  <tr><td>~%")
-    (dolist (entry (distinct-SystemEntries
-		    (set-difference 
-		     (mappend #'bgnode-entries (EqnSet-nodes soln))
-		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
-		     :key #'SystemEntry-prop :test #'unify)))
-            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
-		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
-    (format Stream "  </td><td>~%")
-    (dolist (entry (distinct-SystemEntries
-		    (set-difference 
-		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
-		     (mappend #'bgnode-entries (EqnSet-nodes soln))
-		     :key #'SystemEntry-prop :test #'unify)))
-            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
-		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
-    (format Stream "  </tr>~%")
-    (format Stream "</table>~%")
-    
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     (format Stream "<table>~%")
@@ -253,18 +230,42 @@
     (format Stream "</table>~%")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    (format Stream "<table>~%")
+    (format Stream "<caption>Entries and Operators</caption>~%")
+    (format Stream "<tr><th>added</th><th>removed</th>~%")
+    (format Stream "  <tr><td>~%")
+    (dolist (entry (distinct-SystemEntries
+		    (set-difference 
+		     (mappend #'bgnode-entries (EqnSet-nodes soln))
+		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
+		     :key #'SystemEntry-prop :test #'unify)))
+            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
+		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
+    (format Stream "  </td><td>~%")
+    (dolist (entry (distinct-SystemEntries
+		    (set-difference 
+		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
+		     (mappend #'bgnode-entries (EqnSet-nodes soln))
+		     :key #'SystemEntry-prop :test #'unify)))
+            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
+		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
+    (format Stream "  </tr>~%")
+    (format Stream "</table>~%")
+    
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     
     ))
 
   (when (> (length (problem-solutions problem)) 1)
     (format Stream "<h2>All Solutions</h2>~%")
     (let ((n (length (problem-solutions problem))))
+      (print-html-psms (second (problem-graph problem)) n stream)
+      (print-html-quantities (first (problem-graph problem)) n Stream)
       (print-html-entries (distinct-SystemEntries 
 			   (mappend #'bgnode-entries 
 				    (flatten1 (problem-graph problem))))
-			  n Stream)
-      (print-html-psms (second (problem-graph problem)) n stream)
-      (print-html-quantities (first (problem-graph problem)) n Stream)))
+			  n Stream)))
     
     (format Stream (strcat
 	   "</body>~%"

@@ -3662,7 +3662,7 @@
   (if (or (null (csdo-entries (car path))) ;If there is no entry in this op,
 	  (csdo-enteredp (car path)))	;or if the step has been entered.
       (walk-psm-path prefix (cdr path) (cdr stack)) ;pop sg and continue search
-    (hint-target-entry prefix (car path) stack))) ;Otherwize hint this step.
+    (hint-target-entry prefix (car path) stack))) ;Otherwise hint this step.
 
 
 
@@ -4115,7 +4115,7 @@
 		  (when (equal Response **Explain-More**)
 		    (let ((source (car (SystemEntry-Sources step))))
 		    (make-hint-seq 
-		     (collect-step-hints Source :type 'bottom-out)
+		     (collect-step-hints Source :types '(bottom-out))
 		     :OpTail (list (csdo-op Source))))))
    
    :Assoc Assoc))
