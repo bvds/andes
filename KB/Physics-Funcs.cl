@@ -528,7 +528,7 @@
 	((member ':time quant) (second (member ':time quant)))
 	;; angle-between has time buried in the two quantities.
 	((eq (car quant) 'angle-between) 
-	 (tintersect2 (time-of (third quant)) (time-of (fourth quant))))
+	 (or (time-of (third quant)) (time-of (fourth quant))))
 	;; this covers (compo ...), (mag ...), (dir ...):
 	((listp (first (last quant))) (time-of (first (last quant))))))
 
