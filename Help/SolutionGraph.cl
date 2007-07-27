@@ -360,7 +360,7 @@
 	     :format-arguments (list (first (csdo-op Do)))))
   ; else didn't signal error above:
   (make-SystemEntry 
-   :Prop Entry
+   :Prop (remove-nil-keywords Entry)
    :State State
    :CogLoad (operator-CogLoad (get-operator-by-tag (csdo-op Do)))
    :Sources (list Do)

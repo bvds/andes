@@ -395,6 +395,12 @@
      ;; no match:  bind var to default
      (t (unify x y (unify var default bindings))))))
 
+(defun remove-nil-keywords (x)
+  "Remove any nil keyword pairs from x, since we have equivalence under unify."
+  (cond ((atom x) x)
+	((and (keywordp (car x)) (null (cadr x))) (cddr x))
+	(t (cons (remove-nil-keywords (car x)) 
+		 (remove-nil-keywords (cdr x))))))
 
 ;; (symmetry-type ...) must be a proper list with no unbound variables
 ;; valid expressions include:  (symmetry-type a b c ...)

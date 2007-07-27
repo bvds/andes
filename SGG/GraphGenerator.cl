@@ -323,7 +323,7 @@
     R))
 
 ;;; Once we have a complex sought node it is necessary to generate all of the 
-;;; psms that are attatched to it.  This function will cycle through the psms
+;;; psms that are attached to it.  This function will cycle through the psms
 ;;; list that is provided to it.  (the contents of results from above) and
 ;;; test each PSM.  If the psm in question has already been generated then
 ;;; it will simply be added to the node.  Otherwize it will be generated

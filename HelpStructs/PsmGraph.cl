@@ -75,7 +75,7 @@
 
 (defun do->csdo (do)
   "Convert a four element do into the five element csdo."
-  (make-csdo :op (nth 1 do)
+  (make-csdo :op (remove-nil-keywords (nth 1 do))
 	     :effects (nth 2 do)
 	     :varvals (nth 3 do)))
   
