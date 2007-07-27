@@ -545,7 +545,7 @@
   ((point (string "Since ~A ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~A ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A*~A($q~A - $q~A)."
+   (bottom-out (string "Since the direction of ~A ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A * ~A($q~A - $q~A)."
 	       ?vector (?t pp) (?mag-var algebra) (?degrees adj)
 	       ;; symbols-label gets x axis label -- could be x, x1, x2
 	       ((axis x ?rot) symbols-label) (?x-rot adjective)
@@ -583,7 +583,7 @@
   ((point (string "Since ~a ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~a ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a*~a(~a - $q~A)." 
+   (bottom-out (string "Since the direction of ~a ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a * ~a(~a - $q~A)." 
 		       ?vector (?t pp) (?dir-var algebra) 
 		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)

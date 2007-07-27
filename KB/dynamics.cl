@@ -1808,8 +1808,9 @@
   ((point (string "Try applying the weight law."))
    (teach 
        (kcd "write_w_is_mg")
-       (string "The weight law for a body is W=m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration at the surface of the planet."))
-   (bottom-out (string "Write ~a=~a*~a" (?w-var algebra) (?m-var algebra) (?g-var algebra)))))
+       (string "The weight law for a body is W = m*g, where W is the magnitude of the weight force acting on the body, m is the body's mass and g is the gravitational acceleration at the surface of the planet."))
+   (bottom-out (string "Write ~a = ~a*~a" (?w-var algebra) 
+		       (?m-var algebra) (?g-var algebra)))))
 
 ;; variant applies weight to a rigid body. In this case the quantity is
 ;; specified as a force acting on the cm, not on the whole body.
