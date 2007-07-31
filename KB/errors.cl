@@ -3124,7 +3124,10 @@
    (bind ?c-xyz (if (equal ?s-xyz 'x) 'y 'x))
    (correct-var ?cvar (compo ?c-xyz ?rot ?s-vector))
    (fix-eqn-by-replacing ?svar-loc ?cvar)
-   (problem (vector ?body ?s-vector (dnum ?v-dir Deg))))
+   ; !!! fetching vector dir this way means this can't apply
+   ; if vector drawn unknown, even though slip is just as
+   ; likely on unknown angle vector
+   (problem (vector ?body ?s-vector (dnum ?v-dir |deg|))))
   :probability (if (equalp 45 (mod (- ?v-dir ?rot) 90))
 		   0.001
 		 0.1))
