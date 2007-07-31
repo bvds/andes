@@ -53,13 +53,13 @@
 
 (defun print-html-entry-pointers (bgnode n &optional (Stream t))
   "print html td giving pointers to entries associated with a given bgnode"
-  (format stream "      <td>")
+  (format stream "      <td class=\"entry\">")
   (loop for entry in (distinct-SystemEntries (bgnode-entries bgnode))
 	and firstcol = t then nil 
 	do
-	(unless firstcol (format stream "<br>~%      "))
+	(unless firstcol (format stream "~%      "))
 	(format stream 
-		"<a href=\"#p~D.~D\"><code>~S</code></a>"
+		"<p><a href=\"#p~D.~D\"><code>~S</code></a>"
 		n (SystemEntry-index entry)
 		(SystemEntry-prop entry)))
   (format stream "</td>~%"))
@@ -184,12 +184,12 @@
     (format Stream "<table>~%")
     (format Stream "<caption>Principles (problem solving methods)</caption>~%")
     (format Stream "<tr><th>added</th><th>removed</th>~%")
-    (format Stream "  <tr><td>~%")
+    (format Stream "  <tr><td class=\"entry\">~%")
     (dolist (eqn (set-difference 
 		  (EqnSet-eqns soln)
 		  (EqnSet-eqns sol0)
 		  :key #'Enode-id :test #'unify))
-      (format Stream "    <a href=\"#e~D.~D\" class=\"~A\"><code>~S</code></a><br>~%" 
+      (format Stream "    <p><a href=\"#e~D.~D\" class=\"~A\"><code>~S</code></a>~%" 
 	      nn (Enode-GIndex eqn)
 	      ;; see Bug #1305: some enodes have no associated PSMClass
 	      (any-psmclass-complexity
@@ -200,7 +200,7 @@
 		     (EqnSet-eqns sol0)
 		     (EqnSet-eqns soln)
 		     :key #'Enode-id :test #'unify))
-      (format Stream "    <a href=\"#e~D.~D\" class=\"~A\"><code>~S</code></a><br>~%" 
+      (format Stream "    <p><a href=\"#e~D.~D\" class=\"~A\"><code>~S</code></a>~%" 
 	      nn (Enode-GIndex eqn) 
 	      ;; see Bug #1305: some enodes have no associated PSMClass
 	      (any-psmclass-complexity
@@ -214,19 +214,19 @@
     (format Stream "<table>~%")
     (format Stream "<caption>Quantities</caption>~%")
     (format Stream "<tr><th>added</th><th>removed</th>~%")
-    (format Stream "  <tr><td>~%")
+    (format Stream "  <tr><td class=\"entry\">~%")
     (dolist (qnode (set-difference 
 		  (remove-if-not #'Qnode-p (EqnSet-nodes soln))
 		  (remove-if-not #'Qnode-p (EqnSet-nodes sol0))
 		  :key #'Qnode-exp :test #'unify))
-      (format Stream "    <a href=\"#q~D.~D\"><code>~S</code></a><br>~%" 
+      (format Stream "    <p><a href=\"#q~D.~D\"><code>~S</code></a>~%" 
 	      nn (Qnode-GIndex qnode) (Qnode-exp qnode)))
-    (format Stream "  </td><td>~%")
+    (format Stream "  </td><td class=\"entry\">~%")
     (dolist (qnode (set-difference 
 		  (remove-if-not #'Qnode-p (EqnSet-nodes sol0))
 		  (remove-if-not #'Qnode-p (EqnSet-nodes soln))
 		  :key #'Qnode-GIndex :test #'unify))
-      (format Stream "    <a href=\"#q~D.~D\"><code>~S</code></a><br>~%" 
+      (format Stream "    <p><a href=\"#q~D.~D\"><code>~S</code></a>~%" 
 	      nn (Qnode-GIndex qnode) (Qnode-exp qnode)))
     (format Stream "  </tr>~%")
     (format Stream "</table>~%")
@@ -236,21 +236,21 @@
     (format Stream "<table>~%")
     (format Stream "<caption>Entries and Operators</caption>~%")
     (format Stream "<tr><th>added</th><th>removed</th>~%")
-    (format Stream "  <tr><td>~%")
+    (format Stream "  <tr><td class=\"entry\">~%")
     (dolist (entry (distinct-SystemEntries
 		    (set-difference 
 		     (mappend #'bgnode-entries (EqnSet-nodes soln))
 		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
 		     :key #'SystemEntry-prop :test #'unify)))
-            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
+            (format Stream "    <p><a href=\"#p~D.~D\"><code>~S</code></a>~%" 
 		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
-    (format Stream "  </td><td>~%")
+    (format Stream "  </td><td class=\"entry\">~%")
     (dolist (entry (distinct-SystemEntries
 		    (set-difference 
 		     (mappend #'bgnode-entries (EqnSet-nodes sol0))
 		     (mappend #'bgnode-entries (EqnSet-nodes soln))
 		     :key #'SystemEntry-prop :test #'unify)))
-            (format Stream "    <a href=\"#p~D.~D\"><code>~S</code></a><br>~%" 
+            (format Stream "    <p><a href=\"#p~D.~D\"><code>~S</code></a>~%" 
 		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
     (format Stream "  </tr>~%")
     (format Stream "</table>~%")
@@ -291,12 +291,14 @@
 	    (strcat
 ;	     "  th {vertical-align: top; text-align: right;}~%"
 	     "  td {vertical-align: top;}~%"
+             "  td.entry > p {margin:  0 0 0.75ex;}~%"
 	     "  *.MAJOR {color: red;}~%"
 	     "  *.DEFINITION {color: green;}~%"
 	     "  caption {font-size: larger; font-weight: bolder;}~%"
 	     "  table,caption {margin-left: auto; margin-right: auto; ~%"
-	     "         border: 1px solid black; margin: 2px; }~%"
-;	     "         border-spacing: 4; margin-bottom: 5; margin-top: 5;}~%"
+	     "         border: 1px solid black; margin: 2px;"
+;	     "         border-spacing: 4; margin-bottom: 5; margin-top: 5;
+	     "  }~%"
 	     ))
     (close css)))
 
