@@ -2058,7 +2058,7 @@
 
 ;;; When there are two forces on same body given a specific time and
 ;;; the student has done neither of them then we want to hint that 
-;;; explicitly.  This is more specific than the warng-force-type-single
+;;; explicitly.  This is more specific than the wrong-force-type-single
 ;;; and therefore has a higher utility.
 ;;;
 ;;; If the student has drawn a force vector of type ?stype
@@ -2066,6 +2066,11 @@
 ;;; and there are correct vetors of ?ctypes 1 and 2 at ?ctime
 ;;; and if ?ctype1 is either a kinetic or static friction vector.
 ;;; and if ?ctype2 is either normal or applied. 
+;;;
+;;; AW -- if direction is parallel to correct friction direction,
+;;; would be natural to assume friction was intended. Maybe
+;;; add error handler for wrong friction force type for this 
+;;; competing case, presumably a common error.
 (def-error-class wrong-force-type-dual-undone (?body ?agent ?stype ?frict-type ?force-type)
   ((student (vector (force ?body ?agent ?stype :time ?stime) ?sdir))    
    (no-correct (vector (force ?body ?agent ?stype :time ?time2) ?dir2))
@@ -2077,22 +2082,24 @@
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
-     (if (equal ?sdir ?cdir) 0.1 0.0))
+     (if (or (equal ?sdir ?frict-dir)
+             (equal ?sdir ?force-dir)) 0.1 0.0))
   :utility 10)
 
 (defun wrong-force-type-dual-undone (body agent stype frict-type force-type)
   (make-hint-seq
    (list (format nil (strcat "There are indeed forces on ~a due to ~a, "
-			     "but the ~a force is not one of them.")
+			     "but a ~a force is not one of them.")
 		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj))
 	 (format nil (strcat "There are two forces on ~a due to ~a, "
 			     "a ~a force and a ~a force.  You should "
-			     "draw one of them.")
-		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj)
+			     "define one of them.")
+		 (nlg body 'def-np) (nlg agent 'agent) 
 		 (nlg frict-type 'adj) (nlg force-type 'adj))
-	 (strcat "If you are unsure of what to do you can click on "
-		 "explain-more or the Lightbulb button for guidance.")
-	 '(function next-step-help))))
+	 (format nil (strcat "Change the force type to either ~a or ~a, "
+	                     "adjusting the direction if necessary to "
+			     "match your choice.")
+		 (nlg frict-type 'adj) (nlg force-type 'adj)))))
 
 
 
@@ -2116,7 +2123,8 @@
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
-     (if (equal ?sdir ?cdir) 0.1 0.0))
+     (if (or (equal ?sdir ?frict-dir)
+             (equal ?sdir ?force-dir)) 0.1 0.0))
   :utility 20)
 
 (defun wrong-force-type-dual-frict-done (body agent stype ctime 
@@ -2151,7 +2159,8 @@
   :probability
   (+ 0.3
      (if (equal ?stime ?ctime) 0.2 0.0)
-     (if (equal ?sdir ?cdir) 0.1 0.0))
+     (if (or (equal ?sdir ?frict-dir)
+             (equal ?sdir ?force-dir)) 0.1 0.0))
   :utility 20)
 
 (defun wrong-force-type-dual-other-done (body agent stype ctime 
@@ -2163,7 +2172,7 @@
 	 (format nil (strcat "There are two forces on ~a due to ~a, "
 			     "a ~a force and a ~a force.  You have "
 			     "already completed the ~a force.")
-		 (nlg body 'def-np) (nlg agent 'agent) (nlg stype 'adj)
+		 (nlg body 'def-np) (nlg agent 'agent) 
 		 (nlg frict-type 'adj) (nlg force-type 'adj) 
 		 (nlg force-type 'adj))
 	 *dyi*
@@ -2441,8 +2450,8 @@
     "Think about the direction of the force."
     ;; teach kinetic-friction-sense
     (strcat "Kinetic friction opposes the direction of relative motion.  "
-	    "So if an object is move leftward across a surface, the "
-	    "kinetic friction points rightward.")
+	    "For example, if an object is moving leftward across a surface, "
+	    "the kinetic friction points rightward.")
     (format nil "The direction of the force should be ~a instead of ~a."
 	    (nlg cdir 'adj) (nlg sdir 'adj)))))
 
