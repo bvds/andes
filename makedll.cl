@@ -20,6 +20,5 @@
  :include-ide nil)
 
 ; Must recompile these files for development
-(format T "Deleting runtime-conditional object files for development use~%")
-(compile-file "Help/Andes2-main.cl")
-(compile-file "Help/Commands.cl")
+(format T "Deleting runtime-conditional object files~%")
+(delete-file "Help/Andes2-main.fasl")

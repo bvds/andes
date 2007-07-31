@@ -254,7 +254,7 @@
 #define HID_FILE_EDIT_PROBSET                   0x1817E
 #define HID_DELETE_SOLUTION                     0x1817E
 #define HID_VARIABLE_SOLVEFOR                   0x18180
-#define HID_DIALOG_WHATSWRONG                   0x18181
+#define HID_CONTROL_WHATSWRONG                   0x18181
 #define HID_PRINCIPLE_CHECK                     0x18182
 #define HID_PRINCIPLE_UNCHECK                   0x18183
 #define HID_PRINCIPLE_MODIFY                    0x18184

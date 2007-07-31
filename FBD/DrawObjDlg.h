@@ -112,12 +112,14 @@ protected:
 
 // Implementation
 protected:
+	HBITMAP m_hBitmap;
 	BOOL CheckDialog();
 
 	// Generated message map functions
 	//{{AFX_MSG(CDrawObjDlg)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnDialogWhatswrong();
+	afx_msg void OnUpdateDialogWhatswrong(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

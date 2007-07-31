@@ -3626,7 +3626,7 @@ BOOL CLogDialog::DispatchEvent(EventID nEvent, LPCTSTR pszArgs)
 			theApp.GetMainFrame()->ShowHint(pszResult, WhatsWrong); 
 		} else {
 			// Just replay the command handler:
-			SendMessage(WM_COMMAND, ID_DIALOG_WHATSWRONG);
+			SendMessage(WM_COMMAND, ID_CONTROL_WHATSWRONG);
 		}
 	} break;
 

@@ -72,7 +72,7 @@ END_CTL_TBL(CLawDialog)
 
 BEGIN_MESSAGE_MAP(CLawDialog, CCheckedDlg)
 	//{{AFX_MSG_MAP(CLawDialog)
-	ON_COMMAND(ID_DIALOG_WHATSWRONG, OnDialogWhatswrong)
+	ON_COMMAND(ID_CONTROL_WHATSWRONG, OnControlWhatswrong)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -173,7 +173,7 @@ BOOL CLawDialog::CheckDialog()
 	return bCorrect;
 }
 
-void CLawDialog::OnDialogWhatswrong() 
+void CLawDialog::OnControlWhatswrong() 
 {
 	// normal args are label, id. But principles don't have labels
 	// just include law-name (conc'd with bodylist?) for readability

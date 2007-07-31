@@ -1,7 +1,7 @@
 // 
 // LogDialog.h : declarations for CLogDialog, our log-aware dialog class
 // 
-// $Id: Lgdialog.h,v 1.5 2007/07/19 17:52:39 anders Exp $
+// $Id: Lgdialog.h,v 1.6 2007/07/31 03:40:09 anders Exp $
 //
 // Base class for dialogs instrumented to interface with our logging system.
 // During recording, these dialogs log startup and size changes. During playback
@@ -149,6 +149,9 @@ protected:
 
 	
 public:
+	// Status of the current entry
+	Status m_status;
+
 	// helpers for dealing with status-bearing colorable controls:
 	BOOL   IsCheckedCtrl(CWnd* pCtrl);
 	Status GetCtrlStatus(CWnd* pCtrl);
@@ -169,6 +172,8 @@ public:
 	void OnTutorModeChange(BOOL bTutorMode);
 	void GreyCtrl(CWnd* pCtrl, BOOL bEnable);
 
+	void UpdateUI();
+
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CCheckedDlg)
@@ -185,9 +190,10 @@ public:
 	//{{AFX_MSG(CCheckedDlg)
 		afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
-	afx_msg void OnUpdateDialogWhatswrong(CCmdUI* pCmdUI);
-	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+	    afx_msg void OnUpdateControlWhatswrong(CCmdUI* pCmdUI);
+	    afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	//}}AFX_MSG
+
 	DECLARE_MESSAGE_MAP()
 };
 

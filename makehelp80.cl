@@ -1,9 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Makehelp -- build runtime image of Andes2 help system
 ;;
-;; !!!! ONLY WORKS FOR ACL 5.0.* !!!! Needs to be changed to work with
-;; newer versions of Allegro Common Lisp.
-;;
 ;; In a console lisp do
 ;;
 ;;      :cd <this directory>
@@ -58,7 +55,7 @@
  ; causes spawned lisp to enter debugger on error
  :build-debug :interactive
  ; use the following to also debug on warnings
- ; :pre-load-form '(setf *break-on-signals* t). 
+ :pre-load-form '(setf *break-on-signals* t) 
  :include-ide nil
  ; note: setting include-tpl as attempt to avoid startup crash (because 
  ; Franz advised this to work around a (different) startup bug in the past)
@@ -74,6 +71,5 @@
 |#
 
 ; OK, recompile this file to leave a development version
-(format T "Recompiling runtime-conditional files for development use~%")
-(compile-file "Help/Andes2-main.cl")
-(compile-file "Help/Commands.cl")
+(format T "Deleting runtime-conditional files~%")
+(delete-file "Help/Andes2-main.fasl")

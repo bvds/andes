@@ -113,18 +113,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; read-problem-info open a new problem
 ;; argument(s): problem id
-;; returns: NIL for failure, non-NIL for success
+;; returns: T for success, NIL or 'WRONG-VERSION-PRB for error
 ;; note(s):
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun read-problem-info (name &optional kb-type (bn-alg 0))
   ; trap wrong version error and return special code to user
   (handler-case
         (do-read-problem-info name kb-type bn-alg)
-    ; in help system: trap version errors and return custom code
-    #+allegro-cl-runtime (wrong-version-prb (e)  
+    ; in help system: trap version error and return custom code so
+    ; workbench can give a good message. Note any other error on load
+    ; will just unwind through here.
+    (wrong-version-prb (e)  
         (format T "read-problem-info: caught error wrong-version-prb~%")
-    	'wrong-version-prb)
-  ))
+	; If trapping Lisp errors as in rutime help system, convert this 
+	; condition to special return code for workbench.
+	(if *ignore-errors* 'wrong-version-prb
+	  ; else let it through as any other error
+	  (error e)))))
    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

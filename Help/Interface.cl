@@ -74,6 +74,11 @@
 ;;; used to detect when score has not changed so no need to send
 (defvar *last-score* NIL "last score reported to workbench")
 
+;;; value between 0 = never and 1.0 = always giving frequency (probability)
+;;; with which we should flag dialog slots on errors. Only applies to
+;;; cases in which we have a slot to flag.
+(defvar *slot-flag-frequency* 1.0)
+
 ;;;; =========================================================================
 ;;;; Central Dispatch call.
 ;;;; The Execute-andes-command function is the central dispatch call for the 
@@ -386,7 +391,8 @@
     (case (turn-coloring turn)
       (color-green  (setf result "T"))
       (color-red    (setf result ; may append list of slots to flag
-		        (format NIL "NIL~{;~A~}" (turn-flag-slots turn))))
+		        (format NIL "NIL~{;~A~}" 
+			    (decide-slot-flags turn))))
       ((no-op NIL)  (setf result ""))
       ; delete turn not implemented yet
       ; for delete response, turn text must be entry ID
@@ -448,6 +454,13 @@
     ;; assemble final result string from parts and return it
     (concatenate 'string result cmd)))
   
+(defun decide-slot-flags (turn)
+"return effective list of slots to flag for this turn, NIL if none"
+  ; in cases in which we have a slot to flag, apply random
+  ; process to use them with *flag-frequency* probability
+  (when (and (turn-flag-slots turn)
+             (> *slot-flag-frequency* (random 1.0)))
+      (turn-flag-slots turn)))
 
 (defun wb-text (turn)
 "return adjust text from turn by replacing any disallowed newlines with spaces"

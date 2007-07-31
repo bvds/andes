@@ -45,9 +45,9 @@ BEGIN_MESSAGE_MAP(CCheckedDlg, CLogDialog)
 	//{{AFX_MSG_MAP(CCheckedDlg)
 		ON_WM_CTLCOLOR()
 		ON_WM_INITMENUPOPUP()
-	ON_UPDATE_COMMAND_UI(ID_DIALOG_WHATSWRONG, OnUpdateDialogWhatswrong)
+	    ON_UPDATE_COMMAND_UI(ID_CONTROL_WHATSWRONG, OnUpdateControlWhatswrong)
 		ON_WM_CONTEXTMENU()
-	ON_WM_SETCURSOR()
+	    ON_WM_SETCURSOR()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -152,6 +152,10 @@ int CCheckedDlg::DoModalWithHints()
 
 	return m_nResult;
 }
+
+
+
+
 
 LRESULT CCheckedDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
 {
@@ -298,11 +302,16 @@ HBRUSH CCheckedDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
-	
 	if (! (nCtlColor == CTLCOLOR_EDIT 
 		   || nCtlColor == CTLCOLOR_LISTBOX
 		   || nCtlColor == CTLCOLOR_STATIC) ) // STATIC sent for radio buttons
 		return hbr;
+	
+	// For "incorrect" status text, show in red.
+	if (pWnd->GetDlgCtrlID() == IDC_INCORRECT) {
+		pDC->SetTextColor(RGB(255, 0, 0));  // red
+		return hbr;
+	}
 
 	// TRACE("CTL_COLOR %d for %s %x\n", nCtlColor, GetCtlName(pWnd), pWnd->m_hWnd);  
 	// do nothing if not one of our status-bearing controls
@@ -411,7 +420,7 @@ BOOL CCheckedDlg::UpdateStatus(CWnd *pCtl, WndList &errWnds)
 }
 
 // To provide update handlers for cmds on control context menus 
-// In particular, ID_DIALOG_WHATSWRONG for asking whats wrong on control
+// In particular, ID_CONTROL_WHATSWRONG for asking whats wrong on control
 
 //had to force an update here, wasn't updating on its own
 //Although I am calling the context menus from inside the controls,
@@ -420,7 +429,7 @@ void CCheckedDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
 {
 	// AW: this gets the commands on the menu updated through a "state" object
 	// which carries their command IDS through the normal command routing chain.
-	// The current dialog is hooked into that chain so OnUpdateDialogWhatswrong 
+	// The current dialog is hooked into that chain so OnUpdateControlWhatswrong 
 	// below gets called through this mechanism.
 	CLogDialog::OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
 	CCmdUI state;
@@ -434,10 +443,12 @@ void CCheckedDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
 }
 
 // base class provides standard enabling, but derived classes might have to
-// override with appropriate handler for "ID_DIALOG_WHATSWRONG" command, since
+// override with appropriate handler for "ID_CONTROL_WHATSWRONG" command, since
 // help system commands vary for different types of objects.
-void CCheckedDlg::OnUpdateDialogWhatswrong(CCmdUI* pCmdUI) 
+void CCheckedDlg::OnUpdateControlWhatswrong(CCmdUI* pCmdUI) 
 {
+	// this enables the command when focus is on an error slot only.
+	// Might also want to enable on whole dialog on error.
 	CWnd* pWnd = GetFocus();
 	pCmdUI->Enable(pWnd && IsCheckedCtrl(pWnd) && GetCtrlStatus(pWnd) == statusError);
 }
@@ -471,11 +482,39 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 		GreyCtrl(pCtl, !bTutorMode);
 	}
 
-	// Trigger an IDLE update, to update toolbars. Needed because
-	// idle processing is not triggered during our modal message loop.
-	// Could try to fix this in modal loop, or use the timer events (which 
-	// trigger updates for status bar clock during DDE waits) for this.
-	AfxGetMainWnd()->PostMessage(WM_ENTERIDLE); // our handler calls OnIdle
+	UpdateUI();
+}
+
+void CCheckedDlg::UpdateUI()
+{
+	// Simulate an idle time update, to update UI for the application (toolbars, etc).
+	// Needed because MFC's normal idle processing is not triggered during our own
+	// modal message loop.  
+	
+	// Could try to fix this in our modal loop following model from  MFC source 
+	// In MFC CWnd modal loop (used by CDialogs) WM_KICKIDLE is posted to the
+	// dialog and WM_ENTERIDLE notification is sent to dialog's owner in the idle state.
+	// WM_KICKIDLE is never handled anywhere in MFC, but it can be trapped in a CWnd derived
+	// class like a CDialog-derivative that is interested in doing idle time procesing.
+	// Mainframe handles WM_ENTERIDLE and ultimately thread's OnIdle. This does a 
+	// SendMessageToDescendants of WM_IDLEUPDATECMDUI to main windows children and frames to 
+	// trigger their idle time updating. Unclear how floating tools participate in this
+	// message.
+	
+	// invoke handler for dialog idle notification to parent to update mainframe controls.
+	// Not clear if this really is necessary
+	theApp.GetMainFrame()->SendMessage(WM_ENTERIDLE, MSGF_DIALOGBOX, (LPARAM)m_hWnd);
+
+	// show/hide incorrect marker and whatswrong button on error
+	CWnd* pWW = GetDlgItem(ID_DIALOG_WHATSWRONG);
+	if (pWW) 
+		pWW->ShowWindow(m_status == statusError ? SW_SHOW : SW_HIDE);
+	CWnd* pInc = GetDlgItem(IDC_INCORRECT);
+	if (pInc)
+		pInc->ShowWindow(m_status == statusError ? SW_SHOW : SW_HIDE);
+
+	// update controls in the dialog
+	UpdateDialogControls(this, TRUE);
 }
 
 // Visibly enable/disable control

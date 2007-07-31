@@ -572,6 +572,14 @@ void CFBDApp::LoadAndesSettings()
 			g_strAndesDir = szPathBuf;
 		}
 	}
+	// Set our Current Directory to avoid any issues about finding files
+	if (!::SetCurrentDirectory(g_strAndesDir)) {
+		DWORD dwErrorCode = ::GetLastError();
+		CString strMsg;
+		strMsg.Format("Couldn't set directory to %s!\nError Code %d", g_strAndesDir, dwErrorCode);
+		AfxMessageBox(strMsg);
+	}
+
    	// Ensure it ends in backslash so can just prefix it to filenames
    	if (!g_strAndesDir.IsEmpty() && g_strAndesDir.Right(1) != "\\" )
    		g_strAndesDir += "\\";

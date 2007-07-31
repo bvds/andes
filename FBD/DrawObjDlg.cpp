@@ -103,10 +103,20 @@ IMPLEMENT_DYNAMIC(CDrawObjDlg, CCheckedDlg)
 
 BEGIN_MESSAGE_MAP(CDrawObjDlg, CCheckedDlg)
 	//{{AFX_MSG_MAP(CDrawObjDlg)
+	ON_COMMAND(ID_CONTROL_WHATSWRONG, OnDialogWhatswrong)
 	ON_COMMAND(ID_DIALOG_WHATSWRONG, OnDialogWhatswrong)
+	ON_UPDATE_COMMAND_UI(ID_DIALOG_WHATSWRONG, OnUpdateDialogWhatswrong)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
+// ID_CONTROL_WHATSWRONG is fired from popup menu on flagged control
+// Update UI for this is handled in CCheckedDlg base class. 
+// ID_DIALOG_WHATSWRONG fired from button in dialog and handled here
+// because need to know it is a drawobj dialog (includes variables) and
+// not a checked dialog for some other sort of object.
+// Need separate enabling for the two because control version is only used
+// over flagged slot. But both commands now mapped to the same handler, which 
+// just asks whatswrong onthe whole object. 
 
 /////////////////////////////////////////////////////////////////////////////
 // CDrawObjDlg message handlers
@@ -164,6 +174,22 @@ void CDrawObjDlg::PrepareLabelCtrl(CLabelRichEdit* pLabelCtrl)
 BOOL CDrawObjDlg::OnInitDialog() 
 {
 	CCheckedDlg::OnInitDialog();
+
+	// force whatswrong button to update
+	//load whatswrong bitmap onto button 
+	if (GetDlgItem(ID_DIALOG_WHATSWRONG))
+	{
+#if 1 // use bitmap for button
+		m_hBitmap = (HBITMAP) ::LoadImage(AfxGetInstanceHandle(),
+					MAKEINTRESOURCE(IDB_WHATSWRONG), IMAGE_BITMAP, 0, 0, LR_LOADTRANSPARENT|LR_LOADMAP3DCOLORS);
+		((CButton*)GetDlgItem(ID_DIALOG_WHATSWRONG))->SetBitmap(m_hBitmap); 
+#else // use icon 
+		((CButton*)GetDlgItem(ID_DIALOG_WHATSWRONG))->SetIcon(AfxGetApp()->LoadIcon(IDI_WHATSWRONG));
+#endif 
+	}
+	// set global dialog status from temp obj
+	m_status = m_pTempObj->m_status;
+	UpdateUI();
 	
 	MoveDlgToBtmRight();
 	
@@ -455,6 +481,7 @@ void CDrawObjDlg::DroplistToDropdown(CComboBox* pBox)
 BOOL CDrawObjDlg::CheckDialog()
 {
 	BOOL bCorrect = TRUE;	// until error found
+	BOOL bFlaggedCtrl = FALSE; 
 	
 	// don't verify if checking has been suppressed 
 	if (! m_bNoCheck)
@@ -469,32 +496,35 @@ BOOL CDrawObjDlg::CheckDialog()
 		// Check obj with help system.  Updates its status and error list
 		((CCheckedObj*)m_pTempObj)->CheckObject();
 		m_pDocument->UpdateAllViews(NULL, HINT_UPDATE_TEMPOBJ, &pList);
+		bCorrect = m_pTempObj->m_status == statusCorrect;
+
+		// Update global dialog status
+		m_status = m_pTempObj->m_status;
+		UpdateUI();
 
 		// apply updated slot statuses to dialog controls 
-		bCorrect = UpdateStatuses(m_pTempObj->m_errors);
+		bFlaggedCtrl = ! UpdateStatuses(m_pTempObj->m_errors);
 
-		// !!! if unsolicited hint given, shouldn't do the following until
-		// the student dismisses the mode:
+		// if unsolicited hint given on submission, don't enable the window 
+		// until the student dismisses the dialog mode:
 		if (! theApp.m_bTutorMode)
+				EnableWindow(TRUE);	// done updating, user can interact again
+		
+		// check if bad definition is resubmission of previous def.
+		if (!bCorrect)
 		{
-			// done updating, user can interact again
-			EnableWindow(TRUE);	
-
-			if (!bCorrect)
-			{
-				// Warn if definition is unchanged since last OK, and still bad.
-				// Note we need to empty the id string after we update the saved previous 
-				// object below. Otherwise HasSameDef function will not return an accurate 
-				// comparison because it will think we are comparing an object to itself, 
-				// which it ignores (it really means "distinct instance w/same def").
-				if (m_pPrevObj && m_pTempObj->HasSameDef(m_pPrevObj) 
+			// Warn if definition is unchanged since last OK, and still bad.
+			// Note we need to empty the id string after we update the saved previous 
+			// object below. Otherwise HasSameDef function will not return an accurate 
+			// comparison because it will think we are comparing an object to itself, 
+			// which it ignores (it really means "distinct instance w/same def").
+			if (m_pPrevObj && m_pTempObj->HasSameDef(m_pPrevObj) 
 					&& m_pTempObj->HasSameName(m_pPrevObj) && m_pTempObj->HasSameDir(m_pPrevObj)
 					&& m_pTempObj->HasSameValues(m_pPrevObj))
-				{
+			{
 					CString str = "You still have errors inside this dialog. Are you sure you want to exit?";
-					if (theApp.DoWarningMessage(str, this, MB_YESNO) != IDCANCEL)
-						return TRUE;
-				}
+					// if (theApp.DoWarningMessage(str, this, MB_YESNO) != IDCANCEL)
+						return TRUE;	// close the dialog
 			}
 		}
 	}
@@ -508,6 +538,7 @@ BOOL CDrawObjDlg::CheckDialog()
 	return bCorrect;
 }
 
+
 void CDrawObjDlg::OnDialogWhatswrong() 
 {
 	LogEventf(EV_DLG_WHATSWRONG, "%s %s", m_pTempObj->m_strName, m_pTempObj->m_strId);
@@ -520,14 +551,20 @@ void CDrawObjDlg::OnDialogWhatswrong()
 	theApp.GetMainFrame()->ShowHint(pszResult, WhatsWrong);
 }
 
+void CDrawObjDlg::OnUpdateDialogWhatswrong(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable(m_pTempObj && m_pTempObj->m_status == statusError);
+}
 
 void CDrawObjDlg::PostNcDestroy() // cleanup after window destroyed:
 {
 	if (m_pPrevObj)
 		delete m_pPrevObj;
-	
 	if (m_pTempObj)
 		delete	m_pTempObj;
+	if (m_hBitmap)
+		::DeleteObject(m_hBitmap);
+
 	CCheckedDlg::PostNcDestroy();
 }
 
@@ -784,3 +821,4 @@ void AFXAPI DDX_AddFieldVectors(CDataExchange* pDX, int nIDC, CDrawObjList* pObj
 		}		
 	}
 }
+

@@ -263,6 +263,8 @@
 #define IDR_OPTICSTOOLS                 404
 #define IDD_TORQUE_DIPOLE               406
 #define IDD_VECTOR_VALUES               408
+#define IDB_WHATSWRONG                  410
+#define IDI_WHATSWRONG                  411
 #define IDC_SINGLE_BODY                 1000
 #define IDC_STATUS_MSG                  1000
 #define IDC_MULTIPLE_BODIES             1001
@@ -455,6 +457,7 @@
 #define IDC_BROWSE                      1223
 #define IDC_PROB_BTN_FIRST              1223
 #define IDC_BTN_TILDE                   1223
+#define ID_DLG_WHATSWRONG               1223
 #define IDC_DELETE_PRINCIPLE            1224
 #define IDC_BUTTON2                     1224
 #define IDC_BTN_AND                     1224
@@ -696,6 +699,9 @@
 #define IDC_STATIC_ZC                   1464
 #define IDC_STATIC_DEG                  1465
 #define IDC_STATIC_AXES_MSG             1466
+#define ID_DIALOG_WHATSWRONG            1467
+#define ID_DIALOG_WHATSWRONG2           1468
+#define IDC_INCORRECT                   1470
 #define IDC_EQ1                         4000
 #define IDC_EQ2                         4001
 #define IDI_WINHELP                     4001
@@ -964,7 +970,7 @@
 #define ID_FILE_EDIT_PROBSET            33150
 #define ID_DELETE_SOLUTION              33150
 #define ID_VARIABLE_SOLVEFOR            33152
-#define ID_DIALOG_WHATSWRONG            33153
+#define ID_CONTROL_WHATSWRONG           33153
 #define ID_PRINCIPLE_CHECK              33154
 #define ID_PRINCIPLE_UNCHECK            33155
 #define ID_PRINCIPLE_MODIFY             33156
@@ -1156,9 +1162,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        410
+#define _APS_NEXT_RESOURCE_VALUE        412
 #define _APS_NEXT_COMMAND_VALUE         33232
-#define _APS_NEXT_CONTROL_VALUE         1467
+#define _APS_NEXT_CONTROL_VALUE         1471
 #define _APS_NEXT_SYMED_VALUE           119
 #endif
 #endif

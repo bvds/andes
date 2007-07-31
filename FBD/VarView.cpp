@@ -997,7 +997,7 @@ void CVarView::OnVariableWhatswrong()
 	// get selected object
 	int index = GetListCtrl().GetNextItem(-1, LVNI_ALL|LVNI_SELECTED);
 	if (index==-1){
-		theApp.DoWarningMessage("Nothing selected!");
+		theApp.DoWarningMessage("No variable selected for whats wrong command!");
 		return;
 	}
 	LONG dwData = GetListCtrl().GetItemData(index);
