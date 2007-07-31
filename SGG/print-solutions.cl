@@ -91,11 +91,13 @@
 	   (format Stream "        <td class=\"op\"><code>~S</code></td>~{<td>~@[~A~]</td>~}</tr>~%" 		       
 		   (csdo-op opinst)
 		   (mapcar #'(lambda (hint) 
-			       (format-hintspec 
-				(pick-other-spec ;pick a string hint
-				 (OpHint-hintspecs hint))))
-			   (collect-step-hints 
-			    opinst :types '(point apply bottom-out))))
+			       ;; don't display hints of type teach
+			       (if (eql (OpHint-type hint) 'teach)
+				   "&#8230;"
+				 (format-hintspec 
+				  (pick-other-spec ;pick a string hint
+				   (OpHint-hintspecs hint)))))
+			   (collect-step-hints opinst)))
 	   )))
   (format Stream "</table>~%~%"))
 
