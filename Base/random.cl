@@ -11,11 +11,7 @@
 
 (defun random-choice (probability)
   "Return T randomly with given probability"
-  ; avoid use of constant argument since compiler macro in mt19937 
-  ; produces code that can't be compiled on Allegro due to lack of 
-  ; make-load-form method for objects of class mt19937:random-state. 
-  (let ((unity 1.0))
-    (> probability (mt19937:random unity))))
+    (> probability (mt19937:random 1.0)))
 
 ;; seeding mt19937 is not obvious.  Copied the following from a Maxima page  
 (defun set-mt19937 (seed)
