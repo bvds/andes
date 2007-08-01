@@ -16,8 +16,7 @@
 ;; seeding mt19937 is not obvious.  Copied the following from a Maxima page  
 (defun set-mt19937 (seed)
   (setq mt19937::*random-state* 
-	(mt19937::make-random-state 
 	 (mt19937::make-random-object 
-	  :state (mt19937::init-random-state seed))))
+	  :state (mt19937::init-random-state seed)))
   t)
 
