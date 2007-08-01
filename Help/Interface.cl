@@ -459,7 +459,7 @@
   ; in cases in which we have a slot to flag, apply random
   ; process to use them with *flag-frequency* probability
   (when (and (turn-flag-slots turn)
-             (> *slot-flag-frequency* (random-choice 1.0)))
+             (random-choice *slot-flag-frequency*))
       (turn-flag-slots turn)))
 
 (defun wb-text (turn)
