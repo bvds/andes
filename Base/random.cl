@@ -11,8 +11,9 @@
 
 (defun random-choice (probability)
   "Return T randomly with given probability"
-  ; avoid macro inlining constant arg calls since ACL seems to fold the
-  ; compile-time value of *random-state* into the code in this case.
+  ; Macro attempting to inline constant arg calls had bug causing
+  ; inlining of compile-time *random-state* value. Now fixed, but
+  ; safest to avoid dubious macro.
    (let ((one 1.0)) 
     (> probability (mt19937:random one))))
 
@@ -23,13 +24,15 @@
 	  :state (mt19937::init-random-state seed)))
   t)
 
-#| 
-; following shows undesired results of inlining on ACL.
+#|
+; following shows undesired results of bad macro def: 
 (defun testrand (seed)
  (let ((one 1.0))
   (set-mt19937 seed)
+  ;(format T "mt19937:*random-state* = ~A~%" mt19937:*random-state*)
   (format T "random one: ~A~%" (mt19937:random one))
   (set-mt19937 seed)
+  ;(format T "mt19937*random-state* = ~A~%" mt19937:*random-state*)
   (format T "random 1.0: ~A~%" (mt19937:random 1.0))))
 
 CL-USER(12): (testrand 13)
