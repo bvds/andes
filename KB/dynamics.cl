@@ -188,7 +188,7 @@
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When an object is near a planet, the planet exerts a weight force on the object."))
-   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it, so use the force drawing tool to draw a force on ~a due to ~a of type weight ~a." ?b ?planet ?b (?planet agent) (?t pp)))
+   (bottom-out (string "Because ~a is near the planet ~a, the planet exerts a weight force on it, so use the force drawing tool to draw a force on ~a due to ~a of type weight ~a pointing straight down (270 deg)." ?b ?planet ?b (?planet agent) (?t pp)))
    ))
 
 ;; For rigid body problems: treat weight of body as force acting at body's
