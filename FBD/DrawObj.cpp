@@ -3836,6 +3836,7 @@ CDrawObj* CVariable::Clone()
 
 	pClone->m_strName = m_strName;
 	pClone->m_status = m_status;
+	CopyStringList(pClone->m_errors, m_errors);
 
 	pClone->m_nType = m_nType;
 	pClone->m_strForceType = m_strForceType;
@@ -3968,6 +3969,7 @@ void CVariable::UpdateObj(CDrawObj* pObj)
 	m_strTime = pTempVar->m_strTime;
 	m_strAgent = pTempVar->m_strAgent;
 	m_status = pTempVar->m_status;
+	CopyStringList(m_errors, pTempVar->m_errors);
 	m_strValue = pTempVar->m_strValue;
 
 	/*

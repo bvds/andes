@@ -5,7 +5,7 @@
 ; force these to be recompiled on load in a context that defines
 ; feature allegro-cl-runtime so as to include runtime-version
 ; conditional code
-(delete-file "Help/Andes2-main.fasl")
+(compile-file "Help/Andes2-main.cl")
 
 ; now do the load
 (asdf:operate 'asdf:load-op 'andes-help)

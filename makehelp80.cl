@@ -35,6 +35,7 @@
 ; :application-files '("c:\\Andes2\\Solver_Release\\solver.dll")
  :application-type :exe
  :copy-shared-libraries nil
+ :debug T
  ; deprecated
  ; :exit-after-image-build nil
  :discard-source-file-info t
@@ -52,10 +53,11 @@
  ; deprecated:
  ; :debug-on-error nil
  ; following is to debug build process:
- ; causes spawned lisp to enter debugger on error
+ ; :build-debug :interactive causes spawned lisp to enter debugger on Lisp error
  :build-debug :interactive
+ :build-input "input.txt" :verbose t :build-output "output.txt"
  ; use the following to also debug on warnings
- :pre-load-form '(setf *break-on-signals* t) 
+ ; :pre-load-form '(setf *break-on-signals* t) 
  :include-ide nil
  ; note: setting include-tpl as attempt to avoid startup crash (because 
  ; Franz advised this to work around a (different) startup bug in the past)

@@ -1,7 +1,7 @@
 // 
 // LogDialog.h : declarations for CLogDialog, our log-aware dialog class
 // 
-// $Id: Lgdialog.h,v 1.6 2007/07/31 03:40:09 anders Exp $
+// $Id: Lgdialog.h,v 1.7 2007/08/03 02:04:32 anders Exp $
 //
 // Base class for dialogs instrumented to interface with our logging system.
 // During recording, these dialogs log startup and size changes. During playback
@@ -151,6 +151,7 @@ protected:
 public:
 	// Status of the current entry
 	Status m_status;
+	void UpdateDlgStatus(Status status, const CStringList& errors);
 
 	// helpers for dealing with status-bearing colorable controls:
 	BOOL   IsCheckedCtrl(CWnd* pCtrl);
@@ -161,6 +162,7 @@ public:
 
 	typedef CTypedPtrList<CObList, CWnd*> WndList;
 	BOOL   UpdateStatuses(const CStringList& lstErrors);
+
 protected:
 	BOOL UpdateStatus(CWnd* pCtl, WndList& errWnds);
 

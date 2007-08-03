@@ -188,8 +188,7 @@ BOOL CDrawObjDlg::OnInitDialog()
 #endif 
 	}
 	// set global dialog status from temp obj
-	m_status = m_pTempObj->m_status;
-	UpdateUI();
+	UpdateDlgStatus(m_pTempObj->m_status, m_pTempObj->m_errors);
 	
 	MoveDlgToBtmRight();
 	
@@ -483,9 +482,34 @@ BOOL CDrawObjDlg::CheckDialog()
 	BOOL bCorrect = TRUE;	// until error found
 	BOOL bFlaggedCtrl = FALSE; 
 	
-	// don't verify if checking has been suppressed 
+	// skip verification protocol if checking has been suppressed 
 	if (! m_bNoCheck)
 	{
+		// Don't resubmit if definition unchanged since last error submission,
+		// want to avoid getting change in flagging on resubmission which is
+		// not shown to user.
+		// !!! Risky. Could be bad if our comparison is flawed. Note also: user
+		// could make lots of changes before coming back to bad definition. If we
+		// reset status on change this could be bad.
+
+		// Note we need to empty the id string after we update the saved previous 
+		// object below. Otherwise HasSameDef function will not return an accurate 
+		// comparison because it will think we are comparing an object to itself, 
+		// which it ignores (it really means "distinct instance w/same def").
+		if (m_pPrevObj && m_pPrevObj->m_status == statusError
+			        && m_pTempObj->HasSameDef(m_pPrevObj) 
+					&& m_pTempObj->HasSameName(m_pPrevObj) 
+					&& m_pTempObj->HasSameDir(m_pPrevObj)
+					&& m_pTempObj->HasSameValues(m_pPrevObj))
+		{
+					CString str = "You have not changed the incorrect entry in this dialog. Are you sure you want to exit?";
+					// if (theApp.DoWarningMessage(str, this, MB_YESNO) != IDCANCEL)
+					// Should be true from last submission, but just to be safe:
+					m_pTempObj->m_status = statusError;
+					// No view updates, everything should be valid from last submission.
+					return TRUE;	// close the dialog
+		}
+	
 		//do not want re-entrant DDE calls
 		EnableWindow(FALSE);
 
@@ -498,38 +522,19 @@ BOOL CDrawObjDlg::CheckDialog()
 		m_pDocument->UpdateAllViews(NULL, HINT_UPDATE_TEMPOBJ, &pList);
 		bCorrect = m_pTempObj->m_status == statusCorrect;
 
-		// Update global dialog status
-		m_status = m_pTempObj->m_status;
-		UpdateUI();
-
-		// apply updated slot statuses to dialog controls 
-		bFlaggedCtrl = ! UpdateStatuses(m_pTempObj->m_errors);
+		// Update global dialog status. This applies error flagging
+		// to dialog controls.
+		UpdateDlgStatus(m_pTempObj->m_status, m_pTempObj->m_errors);
 
 		// if unsolicited hint given on submission, don't enable the window 
 		// until the student dismisses the dialog mode:
 		if (! theApp.m_bTutorMode)
 				EnableWindow(TRUE);	// done updating, user can interact again
 		
-		// check if bad definition is resubmission of previous def.
-		if (!bCorrect)
-		{
-			// Warn if definition is unchanged since last OK, and still bad.
-			// Note we need to empty the id string after we update the saved previous 
-			// object below. Otherwise HasSameDef function will not return an accurate 
-			// comparison because it will think we are comparing an object to itself, 
-			// which it ignores (it really means "distinct instance w/same def").
-			if (m_pPrevObj && m_pTempObj->HasSameDef(m_pPrevObj) 
-					&& m_pTempObj->HasSameName(m_pPrevObj) && m_pTempObj->HasSameDir(m_pPrevObj)
-					&& m_pTempObj->HasSameValues(m_pPrevObj))
-			{
-					CString str = "You still have errors inside this dialog. Are you sure you want to exit?";
-					// if (theApp.DoWarningMessage(str, this, MB_YESNO) != IDCANCEL)
-						return TRUE;	// close the dialog
-			}
-		}
+
 	}
 	// update prev obj with saved copy of current obj, 
-	// clearing id so prev will trip HasSameDef if unchanged.
+	// clearing id so prev will satisfy HasSameDef if unchanged.
 	if (m_pPrevObj)
 		delete m_pPrevObj;
 	m_pPrevObj = (CCheckedObj*)m_pTempObj->Clone();

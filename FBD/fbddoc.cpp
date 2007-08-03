@@ -539,6 +539,15 @@ void SplitStr(CString& str, CStringArray& strs, LPCTSTR seps /*=" \t\n\r,"*/)
 	free((void*)buf);
 }
 
+// utility to copy string list. Arg order mimics assignment statement
+void CopyStringList(CStringList& dstList, const CStringList& srcList)
+{
+	dstList.RemoveAll();
+	for (POSITION pos = srcList.GetHeadPosition(); pos;) {
+		dstList.AddTail(srcList.GetNext(pos));
+	}
+}
+
 CStringList* CFBDDoc::GetChoiceList(const CString& strName)
 {
 	// for now, just have fixed set of choices. Later will make extensible.

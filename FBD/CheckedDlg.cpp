@@ -369,27 +369,28 @@ HBRUSH CCheckedDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 BOOL CCheckedDlg::UpdateStatuses(const CStringList& errors)
 {
 	BOOL bAllCorrect = TRUE;// until error found
-	if (! errors.IsEmpty())	// must have at least one error spec
-	{
-		// map list of error slot names to list of error ctl CWnd*'s
-	    WndList errWnds;
-		for (POSITION pos = errors.GetHeadPosition(); pos != NULL; ) {
-			CString strSlotName = errors.GetNext(pos);
-			int nID = CtlNameToID(strSlotName);
-			ASSERT(nID != -1);	// bug somewhere if slot name not in table
-			if (nID != -1)	{	// but be safe in release build
-				// was GetDlgItem
-				CWnd* pCtl = GetDescendantWindow(m_hWnd, nID, /*bOnlyPerm:*/FALSE);
-				if (pCtl)
-					errWnds.AddTail(pCtl);
-			}
+	WndList errWnds;
+	
+	// map list of error slot names to list of error ctl CWnd*'s
+	// This is just for convenience in UpdateStatus. Note doing lookup from
+	// name to id lets us have many names for same control.
+	for (POSITION pos = errors.GetHeadPosition(); pos != NULL; ) {
+		CString strSlotName = errors.GetNext(pos);
+		int nID = CtlNameToID(strSlotName);
+		ASSERT(nID != -1);	// bug somewhere if slot name not in table
+		if (nID != -1)	{	// but be safe in release build
+			// was GetDlgItem
+			CWnd* pCtl = GetDescendantWindow(m_hWnd, nID, /*bOnlyPerm:*/FALSE);
+			if (pCtl)
+				errWnds.AddTail(pCtl);
 		}
-
-		// Walk all child window controls, coloring checked ctrls appropriately
-		for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow())
-			bAllCorrect &= UpdateStatus(pCtl, errWnds);
-
 	}
+
+	// Walk all child window controls, updating checked ctrls appropriately
+	// Need to do this even if no error to reset state from previous error
+	for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow())
+		bAllCorrect &= UpdateStatus(pCtl, errWnds);
+
 	return bAllCorrect;
 }
 
@@ -408,7 +409,8 @@ BOOL CCheckedDlg::UpdateStatus(CWnd *pCtl, WndList &errWnds)
 
 	// color red or green according as control is in error list
 	// Safety precaution: don't update a control whose window is disabled 
-	// e.g. disabled dir box on a zero-length vector
+	// e.g. disabled dir box on a zero-length vector, since it can't be
+	// changed. 
 	if (errWnds.Find(pCtl) && pCtl->IsWindowEnabled()){
 		SetCtrlStatus(pCtl, statusError);
 		return FALSE;
@@ -418,6 +420,8 @@ BOOL CCheckedDlg::UpdateStatus(CWnd *pCtl, WndList &errWnds)
 	SetCtrlStatus(pCtl, statusUnknown);
 	return bAllCorrect;
 }
+
+
 
 // To provide update handlers for cmds on control context menus 
 // In particular, ID_CONTROL_WHATSWRONG for asking whats wrong on control
@@ -483,6 +487,14 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 	}
 
 	UpdateUI();
+}
+
+// update whole state of the dialog (error vs non-error)
+void CCheckedDlg::UpdateDlgStatus(Status status, const CStringList& errors)
+{
+	m_status = status;
+	UpdateUI();		// incorrect indicator and whatswrong button
+	UpdateStatuses(errors);
 }
 
 void CCheckedDlg::UpdateUI()

@@ -328,6 +328,8 @@ protected:
 //
 extern void SplitStr(CString& str, CStringList& list, LPCTSTR pszSeps = " \t\n\r,");
 
+extern void CopyStringList(CStringList& dstList, const CStringList& srcList);
+
 // 
 // Hints available for use by view for UpdateAllViews/OnUpdate
 //

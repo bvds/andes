@@ -244,6 +244,7 @@ LPCTSTR HelpSystemExecf(LPCTSTR lpszFormat, ...)
 
 	// Log the call
 	LogEventf(EV_DDE_EXEC, "%s", szCmd);
+	TRACE("Calling %s\n", szCmd);
 
 	// Update UI to show visible wait state, message
 	if (theApp.GetMainFrame())
@@ -262,10 +263,13 @@ LPCTSTR HelpSystemExecf(LPCTSTR lpszFormat, ...)
 	RestoreDefaultParms();
 
 	// Log the result
-	if (bSuccess)
+	if (bSuccess) {
+		TRACE("Got result %s\n", s_szResult);
 		LogEventf(EV_DDE_RESULT, "|%s|", s_szResult);
-	else
+	} else {
+		TRACE("Exec failed\n");
 		LogEventf(EV_DDE_FAILED, "%s", szCmd);
+	}
 
 	return bSuccess ?  s_szResult : NULL;
 }

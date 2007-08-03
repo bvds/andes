@@ -1540,6 +1540,7 @@ CDrawObj* CVector::Clone()
 								// different id will be generated
 	pClone->m_strName = m_strName;
    	pClone->m_status = m_status;
+	CopyStringList(pClone->m_errors, m_errors);
     pClone->m_nVectorType = m_nVectorType;
 	pClone->m_bAngular = m_bAngular;
 	pClone->m_strForceType = m_strForceType;
@@ -1656,6 +1657,7 @@ void CVector::UpdateObj(CDrawObj* pObj)
 	m_strBody = pTempVec->m_strBody;
 	m_strTime = pTempVec->m_strTime;
 	m_status = pTempVec->m_status;
+	CopyStringList(m_errors , pTempVec->m_errors);
 	// Following not valid for all subtypes, but should be harmless to 
 	// transfer the values in all cases anyway (garbage values should remain unused.)
 	m_strForceType = pTempVec->m_strForceType;	// force type or avg vs. instantaneous
@@ -2292,6 +2294,7 @@ void CAxes::UpdateObj(CDrawObj* pObj)
 	SetDirection(pTempAxes->m_nDirection);	
 	m_strSystem = pTempAxes->m_strSystem;
 	m_status = pTempAxes->m_status;
+	CopyStringList(m_errors, pTempAxes->m_errors);
 
 	LogEventf(EV_PROPS_AXES, "%s dir %d", m_strId, m_nDirection);
 
@@ -2304,6 +2307,7 @@ CDrawObj* CAxes::Clone()
 	pClone->m_strId = m_strId;
   	pClone->m_strName = m_strName;
    	pClone->m_status = m_status;
+	CopyStringList(pClone->m_errors, m_errors);
 	pClone->m_nDirection = m_nDirection; 
 	pClone->m_strSystem = m_strSystem;
 	pClone->m_nIndex = m_nIndex;
@@ -2715,6 +2719,7 @@ CDrawObj* CSystem::Clone()
 								// different id will be generated
 	pClone->m_strName = m_strName;
 	pClone->m_status = m_status;
+	CopyStringList(pClone->m_errors, m_errors);
 
 	pClone->m_nSystemType = m_nSystemType;
 	pClone->m_strBodies = m_strBodies;
@@ -2754,6 +2759,7 @@ void CSystem::UpdateObj(CDrawObj* pObj)	// transfer new props into object
 	m_nSystemType = pTempSys->m_nSystemType; // set in OnOK
 	m_strBodies = pTempSys->m_strBodies;	// set in OnOK
 	m_status = pTempSys->m_status;	// set in OnOK
+	CopyStringList(m_errors, pTempSys->m_errors);
 
 	// Log the new properties
 	LogEventf(EV_PROPS_SYSTEM, "%s name |%s| type %d time |%s| bodies |%s|", m_strId, 
@@ -3373,6 +3379,7 @@ void CAngle::UpdateObj(CDrawObj* pObj)
 	m_pAngSide1 = pTempAng->m_pAngSide1;
 	m_pAngSide2 = pTempAng->m_pAngSide2;
 	m_status = pTempAng->m_status;
+	CopyStringList(m_errors, pTempAng->m_errors);
 
 	//need to log these properties
 
@@ -3730,6 +3737,7 @@ void CRadius::UpdateObj(CDrawObj* pObj)
 	m_strName = pTempRad->m_strName;
 	m_strBodies = pTempRad->m_strBodies;
 	m_status = pTempRad->m_status;
+	CopyStringList(m_errors, pTempRad->m_errors);
 	
 	// Log the new properties
 	LogEventf(EV_PROPS_RADIUS, "%s name %s body", (LPCTSTR) m_strName, m_strBodies);
@@ -4015,6 +4023,7 @@ CDrawObj* CGuideLine::Clone()
 	pClone->m_pDocument = m_pDocument;
 	pClone->m_strName = m_strName;
    	pClone->m_status = m_status;
+	CopyStringList(pClone->m_errors, m_errors);
 		
    	pClone->m_strBody = m_strBody;
 	pClone->m_strTime = m_strTime;
