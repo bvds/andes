@@ -749,12 +749,13 @@
 
 ; display followup dialog in browser on done for certain problems in 
 ; Skatz experiment
-;(defvar *followup-problems* '(e1b e2a e2c e4a e5a e7a e8b e9b e10a))
 (defvar *followup-problems* NIL) ; now disable followups by default
 
 (defun show-kcds ()
 "true if should show post-problem kcds when available"
   (or (sym-match (get-condition) 'Experiment)
+      (sym-match (get-condition) 'Experiment1)
+      (sym-match (get-condition) 'Experiment2)
       (and (sym-match (get-condition) 'Control)
            (member (problem-name *cp*) '(PRETEST POSTTEST)))))
 

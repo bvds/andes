@@ -3726,7 +3726,9 @@
    (bind ?ldir (directed-forces (force-directions ?Lforces)))
    (test ?ldir)
    (bind ?rdir (directed-forces (force-directions ?Rforces)))
-   (test ?rdir))
+   (test ?rdir)
+   (test (not (equal ?ldir ?rdir))) ; AW: make sure dirs differ, bug 1329
+   )
   :utility 200)
 (defun two-force-sums (lhs rhs ldir rdir)
     (make-hint-seq
