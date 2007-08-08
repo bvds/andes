@@ -435,7 +435,7 @@
 	     (moment-name) (nlg ?body) (nlg ?axis 'at-time ?time)))
 
 (def-qexp compound (compound orderless . ?bodies)
-  :english ("a compound of ~A" (nlg ?bodies 'conjoined-defnp)))
+  :english ("the compound of ~A" (nlg ?bodies 'conjoined-defnp)))
 
 (def-qexp system (system . ?bodies)
   :english ("a system of ~A" (nlg ?bodies 'conjoined-defnp)))
@@ -1002,9 +1002,8 @@
   :short-name "force on compound"
   :english ("external force on a compound")
   :expformat ((strcat "applying the fact that there is an external force "
-		      "on the compound body consisting of ~a due to ~a ~a"
-		      "of type ~a")
-	      (nlg ?compund) (nlg ?agent 'agent) (nlg ?time) (nlg ?type))
+		      "on ~a due to ~a ~a of type ~a")
+	      (nlg ?compound) (nlg ?agent 'agent) (nlg ?time 'pp) (nlg ?type))
   :EqnFormat ("F_on_part = F_on_compound"))
 
 

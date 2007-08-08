@@ -250,11 +250,13 @@
 ;;; If the student defines a variable but not for a relevant time,
 ;;; then give a hint then bottom out.
 (def-error-class variable-with-wrong-time (?descr ?stime ?ctime)
-  ((student (define-var (?descr . ?svar)))
-   (correct (define-var (?descr . ?cvar)))
-   (test (unify (remove-time ?svar) (remove-time ?cvar)))
-   (bind ?stime (time-of ?svar))
-   (bind ?ctime (time-of ?cvar))
+  ((student (define-var (?descr . ?sargs)))
+   (correct (define-var (?descr . ?cargs)))
+   (test (unify (remove-time ?sargs) (remove-time ?cargs)))
+   ; rebuild whole quant form in case angle-between
+   ; !!! better to have a separate handler for this case
+   (bind ?stime (time-of (cons ?descr ?sargs))) 
+   (bind ?ctime (time-of (cons ?descr ?cargs)))
    (test (not (equal ?stime ?ctime))))
   :flag (time)
   :utility .1)

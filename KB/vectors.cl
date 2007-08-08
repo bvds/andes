@@ -439,16 +439,16 @@
     ;; This causes the vector to be drawn
     (variable ?compo-var (compo ?xyz ?rot ?vector))
     (in-wm (vector ?b ?vector zero))
-    (bind ?t (time-of ?vector))
+    (bind ?t (time-of ?vector))  
     )
   :effects
    ((eqn (= ?compo-var 0)
 	 (projection (compo ?xyz ?rot ?vector))))
   :hint
-  ((point (string "Notice that the ~a has zero length ~a." ?vector (?t pp)))
+  ((point (string "Notice that the ~a has zero length." ?vector ))
    (teach (string "When a vector has zero length, then all its components are zero, too.")
 	  (kcd "write_v_x=zero"))
-   (bottom-out (string "Because ~a is a zero-length vector ~a, write an equation stating that its component along the ~a axis is zero: ~A" ?vector (?t pp) 
+   (bottom-out (string "Because ~a is a zero-length vector, write an equation stating that its component along the ~a axis is zero: ~A" ?vector 
    ((axis ?xyz ?rot) symbols-label) ((= ?compo-var 0) algebra)))
    ))
 
@@ -475,17 +475,17 @@
    ;; Following gets the variable we need
    (bind ?o-axis (if (eql ?xyz 'x) 'y 'x))
    (variable ?o-var (compo ?o-axis ?rot ?vector))
-   (bind ?t (time-of ?vector))
+   (bind ?t (time-of ?vector))	; no longer needed but must regen prb if opvar removed
    )
   :effects
   ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
    (implicit-eqn (= ?o-var 0) (projection (compo ?o-axis ?rot ?vector)))
    )
   :hint
-  ((point (string "Since ~A ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
+  ((point (string "Since ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
    (teach (string "You can use general {\\l projection equations}{\\v ProjectionEquations.html} that will work in all cases, but when a vector V lies along an axis x, the component of the vector V_x along the axis is simply equal to plus or minus the magnitude of the vector: V_x = +/- V. The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
-   (bottom-out (string "Since ~A ~A lies along the ~a axis and points in the ~a ~a direction, write the equation ~A." 
-		       ?vector (?t pp) (?xyz adj) (?sign adj) (?xyz adj)
+   (bottom-out (string "Since ~A lies along the ~a axis and points in the ~a ~a direction, write the equation ~A." 
+		       ?vector  (?xyz adj) (?sign adj) (?xyz adj)
 		       ((= ?compo-var (?sign ?mag-var)) algebra)))
    ))
 
@@ -534,7 +534,7 @@
    ;; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot (axis-dir 'x ?rot))
-   (bind ?t (time-of ?vector))
+   (bind ?t (time-of ?vector))	; no longer needed but must regen prb if opvar removed
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- (dnum ?degrees |deg|) (dnum ?x-rot |deg|)))))
@@ -542,11 +542,11 @@
    (assume using-compo (compo ?xyz ?rot ?vector)) ;projection xor pyth-theorem
    )
   :hint
-  ((point (string "Since ~A ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
+  ((point (string "Since ~A is not perpendicular to the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~A ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A * ~A($q~A - $q~A)."
-	       ?vector (?t pp) (?mag-var algebra) (?degrees adj)
+   (bottom-out (string "Since the direction of ~A is $q~A (~A deg) and the orientation of the x axis is $q~A (~A deg), you can write the general formula ~A = ~A * ~A($q~A - $q~A)."
+	       ?vector (?mag-var algebra) (?degrees adj)
 	       ;; symbols-label gets x axis label -- could be x, x1, x2
 	       ((axis x ?rot) symbols-label) (?x-rot adjective)
 	       (?compo-var algebra) (?mag-var algebra) (?cos-or-sin adjective) 
@@ -572,7 +572,7 @@
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot  (axis-dir 'x ?rot))
-   (bind ?t (time-of ?vector))
+   (bind ?t (time-of ?vector)) 	; no longer needed but must regen prb if opvar removed
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
@@ -580,11 +580,11 @@
    (assume using-compo (compo ?xyz ?rot ?vector)) ;projection xor pyth-theorem
    )
   :hint
-  ((point (string "Since ~a ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector (?t pp) ((axis ?xyz ?rot) symbols-label)))
+  ((point (string "Since ~a is not known to be perpendicular to the ~A axis, you should use a general formula for its component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
    (teach (string "In general, if a vector V is oriented at $qV and the positive x axis is oriented at $qx ccw from horizontal, the components of the vector along the axes are given by the {\\l projection equations}{\\v ProjectionEquations.html}\\n   V_x = V * cos($qV - $qx)\\n   V_y = V * sin($qv - $qx)" )
 	  (kcd "write_x_trig_projection_equation"))
-   (bottom-out (string "Since the direction of ~a ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a * ~a(~a - $q~A)." 
-		       ?vector (?t pp) (?dir-var algebra) 
+   (bottom-out (string "Since the direction of ~a is ~a, and the rotation of the x axis is $q~A (~a deg), you can write the general formula ~a = ~a * ~a(~a - $q~A)." 
+		       ?vector (?dir-var algebra) 
 		       ((axis ?x ?rot) symbols-label) (?x-rot adj)
 		       (?compo-var algebra)
 		       (?mag-var algebra)  (?cos-or-sin adj) 
@@ -614,11 +614,11 @@
    ((eqn (= ?compo-var 0)
 	 (projection (compo ?xyz ?rot ?vector))))
   :hint
-  ((point (string  "Notice that ~a, ~a is perpendicular to the ~a axis." (?t pp) ?vector ((axis ?xyz ?rot) symbols-label)))
+  ((point (string  "Notice that ~a is perpendicular to the ~a axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
    (teach (kcd "write_v_x=v_zero")
 	  (string "When a vector is perpendicular to an axis, its component along that axis is zero."))
-   (bottom-out (string "Because ~a is perpendicular to the ~a axis ~a, write the equation ~a=0"
-		       ?vector ((axis ?xyz ?rot) symbols-label) (?t pp) (?compo-var algebra)))
+   (bottom-out (string "Because ~a is perpendicular to the ~a axis, write the equation ~a=0"
+		       ?vector ((axis ?xyz ?rot) symbols-label) (?compo-var algebra)))
    ))
 
 ;; projection equations for z-axis vectors, which are guaranteed to
@@ -642,16 +642,16 @@
    (in-wm (variable ?mag-var (mag ?vector)))
    ;; rhs is plus or minus mag:
    (bind ?rhs (if (eq ?dir 'out-of) ?mag-var `(- ,?mag-var)))
-   (bind ?t (time-of ?vector))
+   (bind ?t (time-of ?vector))  ; no longer used, but must regen prb if opvar removed
    )
   :effects
   ((eqn (= ?compo-var ?rhs) (projection (compo z ?rot ?vector))))
   :hint
-  ((point (string "You should write an equation relating the ~A component of ~A ~A to its magnitude."  
-                  ((axis z ?rot) symbols-label) ?vector (?t pp)))
+  ((point (string "You should write an equation relating the ~A component of ~A to its magnitude."  
+                  ((axis z ?rot) symbols-label) ?vector ))
    (teach (string "If a vector V lies entirely along an axis, its component along that axis will be + or - its magnitude, depending on whether the vector points in the positive or negative direction.  In a right-handed coordinate system, the positive z axis points out of the x-y plane of the diagram, and the negative z axis points into the plane.  Thus V_z = V if V points out of the plane and V_z = -V if into the plane." ))
-  (bottom-out (string "Since ~A ~A points ~A, write the equation ~A" 
-                      ?vector (?t pp) (?dir adj) 
+  (bottom-out (string "Since ~A points ~A, write the equation ~A" 
+                      ?vector (?dir adj) 
 		      ((= ?compo-var ?rhs) algebra)))
   ))
 

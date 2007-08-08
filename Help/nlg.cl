@@ -140,8 +140,9 @@
     (nlg-list-default x args)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-(defun pp (x &rest args)
-  (cond ((null x) nil)
+(defun pp (x &rest args) 
+"return a temporal prepositional phrase for the given time"
+  (cond ((null x) NIL) ; NB: must be prepared for NIL for timeless things.
 	((listp x) (nlg-list-default x args)) ;handles (during ...)
 	((numberp x) (format nil "at T~D" (- x 1)))
 	(t (format nil "at ~(~A~)" x))))
