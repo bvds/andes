@@ -528,7 +528,7 @@ BOOL CDrawObjDlg::CheckDialog()
 
 		// if unsolicited hint given on submission, don't enable the window 
 		// until the student dismisses the dialog mode:
-		if (! theApp.m_bTutorMode)
+		// if (! theApp.m_bTutorMode)
 				EnableWindow(TRUE);	// done updating, user can interact again
 		
 

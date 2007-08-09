@@ -88,6 +88,8 @@ BEGIN_CTL_TBL(CVectorDlg)
 	"net",      IDC_NETBTN,
 	"individual",IDC_FORCEBTN,
 	// from value control
+	"compo", IDC_COMPO_BTN,
+	"magdir", IDC_MAGDIR_BTN,
 	"given-mag",IDC_MAG_VALUE,
 	"given-xc", IDC_XC_VALUE,
 	"given-yc", IDC_YC_VALUE,

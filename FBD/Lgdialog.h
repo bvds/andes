@@ -1,7 +1,7 @@
 // 
 // LogDialog.h : declarations for CLogDialog, our log-aware dialog class
 // 
-// $Id: Lgdialog.h,v 1.7 2007/08/03 02:04:32 anders Exp $
+// $Id: Lgdialog.h,v 1.8 2007/08/09 03:42:41 anders Exp $
 //
 // Base class for dialogs instrumented to interface with our logging system.
 // During recording, these dialogs log startup and size changes. During playback
@@ -195,7 +195,7 @@ public:
 	    afx_msg void OnUpdateControlWhatswrong(CCmdUI* pCmdUI);
 	    afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	//}}AFX_MSG
-
+	afx_msg UINT	OnNcHitTest(CPoint point);
 	DECLARE_MESSAGE_MAP()
 };
 

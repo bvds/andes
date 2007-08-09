@@ -49,6 +49,7 @@ BEGIN_MESSAGE_MAP(CCheckedDlg, CLogDialog)
 		ON_WM_CONTEXTMENU()
 	    ON_WM_SETCURSOR()
 	//}}AFX_MSG_MAP
+	ON_WM_NCHITTEST()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -83,7 +84,7 @@ int CCheckedDlg::DoModalWithHints()
 	// We need to pass all messages to hint window, this dialog,
 	// and any popup windows. Popup wnds for dropdown lists are not 
 	// children of the dialog. Also includes popups for hint window defs.
-	HWND hwndHint = NULL;
+	HWND hwndHint = NULL; 
 	if (theApp.GetChatView())
 		hwndHint = theApp.GetChatView()->GetRichEditCtrl().GetSafeHwnd();
 	else if (theApp.GetHintView())
@@ -91,6 +92,7 @@ int CCheckedDlg::DoModalWithHints()
 		CHintRichEdit* pHint = &theApp.GetHintView()->m_editHint;
 		hwndHint = pHint->GetSafeHwnd();
 	}
+	HWND hwndHintParent = ::GetParent(hwndHint);
 
 	MSG msg;
 	m_bEndModalLoop = FALSE;
@@ -115,11 +117,17 @@ int CCheckedDlg::DoModalWithHints()
 		if (msg.message == WM_POPUPDEF) 
 			m_hwndCtrl = (HWND) msg.lParam;
 	
-		// ignore input messages for windows other than current dialog, its descendants,
-		// hint window, or currently active popup (remembered in m_hWnd):
+		// ignore input messages for windows other than current dialog, its descendant controls,
+		// hint window, or currently active popup (remembered in m_hWnd). This is to effectively 
+		// disable the rest of the app. Can't do it by disabling mainframe since that would disable
+		// all children including the hint window.
+		// Really have two mutually exclusive modes: In tutorial dialog mode, the dialog will be 
+		// disabled (though would like to be able to move it!) In dialog editing mode, hint window 
+		// is not disabled but has no response to input. These are not switched here.
 		if (! ( (::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd) /*&& !theApp.m_bTutorMode*/)
 			  || (m_hwndCtrl && (msg.hwnd == m_hwndCtrl))	// current popup wnd
 			  || (msg.hwnd == hwndHint) 					// hint wnd
+			  || (msg.hwnd == hwndHintParent)               // hint's parent = splitter bar
 			  ))
 		{
 			// not for an allowed window: ignore all key and mouse strokes 
@@ -131,6 +139,14 @@ int CCheckedDlg::DoModalWithHints()
 					continue;	// eat message without dispatching it
 			}
 		} 
+
+		// In tutor mode, dialog should ignore mouse and keyboard input. But allow NC mouse messages
+		// so dialog can be moved. Dialog itself will suppress close button.
+		if (theApp.m_bTutorMode && ::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd)
+			&& ((msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST) 
+				 || (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST)) )
+				 continue;
+
 		// get here => not eaten, translate and dispatch normally. Note PreTranslateMessage
 		// is necessary to allow keyboard shortcuts for Greek character insertion
 		// to be processed by controls in the dialog. The dialog's PreTranslateMessage 
@@ -489,6 +505,15 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 	UpdateUI();
 }
 
+UINT CCheckedDlg::OnNcHitTest(CPoint point)
+{
+	// in tutor mode, treat all hits as caption hits so can be moved but not closed.
+	if (theApp.m_bTutorMode) return HTCAPTION;
+
+	return CLogDialog::OnNcHitTest(point);
+}
+
+
 // update whole state of the dialog (error vs non-error)
 void CCheckedDlg::UpdateDlgStatus(Status status, const CStringList& errors)
 {
@@ -547,6 +572,7 @@ void CCheckedDlg::GreyCtrl(CWnd *pCtrl, BOOL bEnable)
 	}
 	// else do nothing.
 }
+
 
 
 
