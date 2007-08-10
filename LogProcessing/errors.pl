@@ -190,7 +190,7 @@ if (1) {
   }
   print "eventually={";
   my $sep="";
-  foreach $nhint (sort keys %time_histogram) {
+  foreach $nhint (sort {$a <=> $b} keys %time_histogram) {
     print "${sep}{$nhint,{@{$time_histogram{$nhint}}}}";
     $sep=",";
   }
@@ -203,7 +203,7 @@ if (1) {
   }
   print "notcorrected={";
   $sep="";
-  foreach $nhint (sort keys %not_histogram) {
+  foreach $nhint (sort {$a <=> $b} keys %not_histogram) {
     print "${sep}{$nhint,{@{$not_histogram{$nhint}}}}";
     $sep=",";
   }
