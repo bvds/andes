@@ -36,7 +36,7 @@ void CValueDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ZCVAR, m_stcZCLabel);
 	DDX_Control(pDX, IDC_YCVAR, m_stcYCLabel);
 	DDX_Control(pDX, IDC_XCVAR, m_stcXCLabel);
-	DDX_Control(pDX, IDC_ZDIR, m_cboZDir);
+	DDX_Control(pDX, IDC_ZDIR_VALUE, m_cboZDir);
 	DDX_Control(pDX, IDC_ORIENTATION_TEXT, m_editDirValue);
 	DDX_Control(pDX, IDC_COMPO_BTN, m_btnCompo);
 	DDX_Control(pDX, IDC_MAGDIR_BTN, m_btnMagDir);
@@ -68,7 +68,7 @@ BEGIN_MESSAGE_MAP(CValueDlg, CLogDialog)
 	ON_EN_CHANGE(IDC_XC_VALUE, OnChangeXCValue)
 	ON_EN_CHANGE(IDC_YC_VALUE, OnChangeYCValue)
 	ON_EN_CHANGE(IDC_ZC_VALUE, OnChangeZCValue)
-	ON_CBN_SELCHANGE(IDC_ZDIR, OnSelchangeZdir)
+	ON_CBN_SELCHANGE(IDC_ZDIR_VALUE, OnSelchangeZdir)
 	ON_WM_CTLCOLOR()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()

@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.7 2007/07/19 17:52:39 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.8 2007/08/10 21:34:30 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -81,7 +81,7 @@ BEGIN_CTL_TBL(CVectorMoveDlg)
 	"dir",	IDC_ORIENTATION_TEXT,
 	"type",	IDC_MOVEMENT_TYPE,
 	"ang",	IDC_ANGULAR,
-	"zdir",	IDC_ZDIR,
+	"zdir",	IDC_ZDIR_VALUE,
 	// from value control
 	"compo", IDC_COMPO_BTN,
 	"magdir", IDC_MAGDIR_BTN,

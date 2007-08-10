@@ -76,7 +76,7 @@ BEGIN_CTL_TBL(CTorqueDlg)
 	"force-pt",	IDC_BODY_TEXT2,		// for individual torque !!! helpsys will send "body"
 	"axis",		IDC_AGENT,
 	"dir",		IDC_ORIENTATION_TEXT,
-	"zdir",		IDC_ZDIR,
+	"zdir",		IDC_ZDIR_VALUE,
 	// from value control
 	"compo", IDC_COMPO_BTN,
 	"magdir", IDC_MAGDIR_BTN,

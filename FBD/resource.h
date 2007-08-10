@@ -702,6 +702,7 @@
 #define ID_DIALOG_WHATSWRONG            1467
 #define ID_DIALOG_WHATSWRONG2           1468
 #define IDC_INCORRECT                   1470
+#define IDC_ZDIR_VALUE                  1471
 #define IDC_EQ1                         4000
 #define IDC_EQ2                         4001
 #define IDI_WINHELP                     4001
@@ -1164,7 +1165,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        412
 #define _APS_NEXT_COMMAND_VALUE         33232
-#define _APS_NEXT_CONTROL_VALUE         1471
+#define _APS_NEXT_CONTROL_VALUE         1472
 #define _APS_NEXT_SYMED_VALUE           119
 #endif
 #endif

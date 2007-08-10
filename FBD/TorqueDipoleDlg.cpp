@@ -71,7 +71,7 @@ BEGIN_CTL_TBL(CTorqueDipoleDlg)
 	"body",		IDC_BODY_TEXT,		
 	"field",	IDC_BODY_TEXT2,		
 	"dir",		IDC_ORIENTATION_TEXT,
-	"zdir",		IDC_ZDIR,
+	"zdir",		IDC_ZDIR_VALUE,
 	// from value control
 	"compo", IDC_COMPO_BTN,
 	"magdir", IDC_MAGDIR_BTN,

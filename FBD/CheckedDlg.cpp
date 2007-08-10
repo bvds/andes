@@ -489,10 +489,9 @@ BOOL CCheckedDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 //
 void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 {
-	// !!! this doesn't seem to be working. Now handle in message loop.
-
-	// Enable/Disable input to this window
-	EnableWindow(! bTutorMode);
+	// We want to effectively disable the window during tutor mode but don't use 
+	// EnableWindow to allow it to still be moved.
+	// Effective disabling is handled in message loop dispatching.
 
 	// Grey/ungrey all child controls to represent enabled state visually.
 	// For now we limit this to ANDES log-aware controls (and not, e.g. static

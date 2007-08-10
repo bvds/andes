@@ -68,7 +68,7 @@ BEGIN_CTL_TBL(CImpulseDlg)
 	"time", IDC_TIME,
 	"agent", IDC_FORCEAGENT,
 	"dir",	IDC_ORIENTATION_TEXT,
-	"zdir",	IDC_ZDIR,
+	"zdir",	IDC_ZDIR_VALUE,
 	// from value control
 	"compo", IDC_COMPO_BTN,
 	"magdir", IDC_MAGDIR_BTN,

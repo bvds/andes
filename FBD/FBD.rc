@@ -1605,7 +1605,7 @@ IDD_VECTOR_MOVE_NEW DIALOGEX 0, 0, 258, 212
 STYLE DS_MODALFRAME | DS_CONTEXTHELP | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "Vector definition"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "Displacement",IDC_STATIC_TEXT,48,6,43,8
     COMBOBOX        IDC_ANGULAR,6,6,37,44,CBS_DROPDOWNLIST | WS_VSCROLL | 
@@ -1677,7 +1677,7 @@ BEGIN
     CONTROL         "Unknown",IDC_CHECK_ZC_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,169,166,40,7
     DEFPUSHBUTTON   "OK",IDOK,71,188,50,14,0,0,HIDOK
-    PUSHBUTTON      "Cancel",IDCANCEL,137,188,50,14,0,0,HIDCANCEL
+    PUSHBUTTON      "Cancel",IDCANCEL,137,188,50,14,WS_DISABLED,0,HIDCANCEL
     LTEXT           "",IDC_COMP,139,49,79,27,NOT WS_VISIBLE
     GROUPBOX        "",IDC_BOX_MAGDIR,5,83,247,39
     LTEXT           "Given Values:",IDC_STATIC,8,74,79,11
@@ -3257,7 +3257,7 @@ END
 IDD_VECTOR_VALUES DIALOGEX 0, 0, 242, 74
 STYLE DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "or",IDC_STATIC_DIR_OR,179,38,8,8
     ICON            IDI_ANGLE,IDC_ANGLE,154,35,20,20,0,WS_EX_TRANSPARENT,
@@ -3282,8 +3282,8 @@ BEGIN
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,121,37,12,15,0,HIDC_DIRECTION_SPIN
     LTEXT           "deg",IDC_STATIC_DEG,116,38,13,8,0,0,HIDC_STATIC_DEG
-    COMBOBOX        IDC_ZDIR,132,38,59,60,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ZDIR_VALUE,132,38,59,60,CBS_DROPDOWNLIST | NOT 
+                    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Unknown",IDC_CHECK_DIR_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,193,39,39,10
     LTEXT           "x component:",IDC_STATIC_XC,6,23,45,10,NOT WS_VISIBLE
@@ -3322,8 +3322,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 11,2,9,1
- PRODUCTVERSION 11,2,9,1
+ FILEVERSION 11,2,10,0
+ PRODUCTVERSION 11,2,10,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3341,14 +3341,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "11, 2, 9, 1\0"
+            VALUE "FileVersion", "11, 2, 10, 0\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "11, 2, 9, 1\0"
+            VALUE "ProductVersion", "11, 2, 10, 0\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -4339,13 +4339,13 @@ END
 
 IDD_VECTOR_VALUES DLGINIT
 BEGIN
-    IDC_ZDIR, 0x403, 13, 0
+    IDC_ZDIR_VALUE, 0x403, 13, 0
 0x6e49, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
-    IDC_ZDIR, 0x403, 15, 0
+    IDC_ZDIR_VALUE, 0x403, 15, 0
 0x6e49, 0x6f74, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
-    IDC_ZDIR, 0x403, 17, 0
+    IDC_ZDIR_VALUE, 0x403, 17, 0
 0x754f, 0x2074, 0x666f, 0x7420, 0x6568, 0x7020, 0x616c, 0x656e, "\000" 
-    IDC_ZDIR, 0x403, 20, 0
+    IDC_ZDIR_VALUE, 0x403, 20, 0
 0x6e55, 0x6e6b, 0x776f, 0x206e, 0x205a, 0x6964, 0x6572, 0x7463, 0x6f69, 
 0x006e, 
     0

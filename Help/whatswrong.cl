@@ -568,8 +568,11 @@
          result-turn)
      (setf result-turn (apply (car form) (cdr form)))
      (setf (turn-assoc result-turn) (car form))
-     (when test
-        (setf (turn-flag-slots result-turn) (EntryTest-flag-slots test)))
+     ; Unless custom slot flags dynamically attached by error handler, 
+     ; default to the static slot flags listed for the test. 
+     (unless (turn-flag-slots result-turn) ; slots already specified
+        (setf (turn-flag-slots result-turn) 
+	      (when test (EntryTest-flag-slots test))))
      result-turn))
 
 ;;; ================ called inside errors.cl functions =================

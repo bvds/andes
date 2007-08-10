@@ -1381,20 +1381,21 @@
 ;;; of the wrong type (xy plane vs z-axis) e.g. they choose
 ;;; 'into and correct is 30 degrees in the xy plane. When in doubt,
 ;;; flag dir for a general direction error, and zdir only if we know
-;;; we want to highlight that box. Maybe make workbench interpret 
+;;; we want to highlight that box. (Could make workbench interpret 
 ;;; 'dir more intelligently: could flag only the substantive one, 
-;;; or treat dir as a composite entry and flag both.)
+;;; or treat dir as a composite control and flag both.)
 
-(def-error-class default-should-be-unknown ("vector")
-  ((student (vector ?descr ?dir))
+(def-error-class default-should-be-unknown ("vector" ?wrong-dir)
+  ((student (vector ?descr ?wrong-dir))
    (correct (vector ?descr unknown))
-   (test (not (equal ?dir 'zero)))  ; use should-be-non-zero below
-   (test (not (equal ?dir 'unknown))))
-  :flag (dir)
+   (test (not (equal ?wrong-dir 'zero)))  ; use should-be-non-zero below
+   (test (not (equal ?wrong-dir 'unknown))))
+  ; :flag (dir)  ; use dynamic choice in case zdir control used
 ;; High probability since close match
   :probability 0.75)
 
-(defun default-should-be-unknown (object)
+(defun default-should-be-unknown (object wrong-dir) ; used for both vectors and lines
+ (flag (if (z-dir-spec wrong-dir) 'zdir 'dir)
   (make-hint-seq
    (list 
     (format nil (strcat "When the direction of a ~A is not given or easily "
@@ -1402,14 +1403,14 @@
 			"it unknown. ") object)
     (format nil 
 	    "Double-click on the ~A in order to bring up its properties if necessary, then erase the number in the direction box to mark the direction unknown."
-	    object))))
+	    object)))))
 
 ;;; need should-be-z-unknown for unknown but in the z direction.
 (def-error-class default-should-be-z-unknown ()
   ((student (vector ?descr ?dir))
    (correct (vector ?descr z-unknown))
    (test (not (equal ?dir 'z-unknown))))
-   :flag (zdir))    
+   :flag (zdir))    ; flag zdir choice, not xy angle box
 
 (defun default-should-be-z-unknown ()
   (make-hint-seq
@@ -1477,13 +1478,14 @@
    (test (not (equal ?correct-dir 'zero)))
    (test (not (equal ?correct-dir 'unknown))) ; should-be-unknown above
    (test (not (equal ?wrong-dir ?correct-dir))))
-  :flag (dir)
+  ; :flag (dir)  ; use dynamic choice in case zdir control used
   :utility 50
   ;; Low probability since we want any quantity-specific rules to act first
   :probability 0.08)
 
 (defun default-wrong-dir (object wrong-dir correct-dir)
   (declare (ignore correct-dir))
+ (flag (if (z-dir-spec wrong-dir) 'zdir 'dir)
   (make-hint-seq
    (append
      (list (format nil "Do you really want the direction of that ~A to be ~A?"
@@ -1492,7 +1494,7 @@
 	   ; (format nil "It should be ~a." (nlg correct-dir 'adj))
 	   )
      ; delegate to the operator hints to explain correct direction.
-     (sg-map-systemEntry->hints *correct-entry*))))
+     (sg-map-systemEntry->hints *correct-entry*)))))
 
 ;;; !!! want special case message if drawn in the plane when should 
 ;; be into/out-of the plane, explaining this and how to do it.
@@ -1682,14 +1684,14 @@
 ;;; ==================== line drawing ===============================
 
 
-;;;  !!! default-should-be-unknown and default-wrong-dir also name
+;;; NB: default-should-be-unknown and default-wrong-dir also name
 ;;; vector error classes which share a common turn-generating function.
 
-(def-error-class default-should-be-unknown ("line")
-  ((student (draw-line ?descr ?dir))
+(def-error-class default-should-be-unknown ("line" ?wrong-dir)
+  ((student (draw-line ?descr ?wrong-dir))
    (correct (draw-line ?descr unknown))
-   (test (not (equal ?dir 'unknown))))
-  :flag (dir)
+   (test (not (equal ?wrong-dir 'unknown))))
+  ; :flag (dir)  ; use dynamic choice in case zdir control used
 ;; High probability since close match
   :probability 0.5)
 

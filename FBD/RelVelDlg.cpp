@@ -69,7 +69,7 @@ BEGIN_CTL_TBL(CRelVelDlg)
 	"time", IDC_TIME,
 	"from", IDC_FORCEAGENT,
 	"dir",	IDC_ORIENTATION_TEXT,
-	"zdir",	IDC_ZDIR,
+	"zdir",	IDC_ZDIR_VALUE,
 	// from value control
 	"compo", IDC_COMPO_BTN,
 	"magdir", IDC_MAGDIR_BTN,
