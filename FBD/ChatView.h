@@ -54,6 +54,9 @@ public:
 	// Enable/Disable whole pane
 	void EnablePane(BOOL bEnable);
 
+	int GetIdealHeight();
+	void ScrollToCurrentMsg();
+
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CChatView)

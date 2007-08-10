@@ -507,7 +507,8 @@ void CCheckedDlg::OnTutorModeChange(BOOL bTutorMode)
 
 UINT CCheckedDlg::OnNcHitTest(CPoint point)
 {
-	// in tutor mode, treat all hits as caption hits so can be moved but not closed.
+	// in tutor mode, treat all hits as caption hits so dlg can be moved but not closed
+	// with a hit anywhere in it (including client-area).
 	if (theApp.m_bTutorMode) return HTCAPTION;
 
 	return CLogDialog::OnNcHitTest(point);

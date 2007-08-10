@@ -314,9 +314,78 @@ void CChatView::AddSystemText(LPCTSTR pszHint, HintType type/*=Msg*/)
 	// else if no followups specified (including OK to dismiss Msg), end tutor mode
 	else if (strAddLinks.IsEmpty())
 		theApp.SetTutorMode(FALSE);
-	
+
+	// request size adjustment from parent. It will 
+	theApp.GetChildFrame()->ShowHintPane();
 }
 
+// return desired height in pixels. Called back from ShowHintPane to ensure
+// window is large enough to include current message.
+int CChatView::GetIdealHeight() 
+{
+	if (! GetSafeHwnd() ) return 0;	// none if controls not created yet
+
+#ifdef SIMPLE_SIZING	// simpler code just opens to some default size.
+
+	// get text metrics
+	CClientDC dc(this);
+	TEXTMETRIC tm;
+	dc.GetTextMetrics(&tm);
+	int cyLine = tm.tmHeight + tm.tmExternalLeading;
+	// request space for 8 text lines minimum plus 1 blank. Should be enough 
+	// to hold most of our messages.
+	return 9 * cyLine;
+
+#else // try to set based on exact message size
+
+	// get screen points in message start line and last line.
+	CPoint ptStartMsg = GetRichEditCtrl().GetCharPos(m_lCurMsgStartIndex);
+	CPoint ptEndMsg = GetRichEditCtrl().GetCharPos(GetTextLength());
+	// count lines between points
+	int nLineStart = GetRichEditCtrl().LineFromChar(m_lCurMsgStartIndex);
+	int nLineEnd = GetRichEditCtrl().LineFromChar(GetTextLength());
+	int nLineHeight = (ptEndMsg.y - ptStartMsg.y)/(nLineEnd - nLineStart);
+	// points are tops of lines, so have to add 1 to difference to include all lines.
+	// We add another one just for nice spacing at bottom.
+	int nLinesToShow = nLineEnd - nLineStart + 2;
+	return (nLinesToShow * nLineHeight);
+
+#endif 
+
+}
+
+// Called by frame to adjust scrolling after resizing was required (and only then)
+void CChatView::ScrollToCurrentMsg()
+{
+#ifndef SIMPLE_SIZING
+	// scroll as needed so top line of message is visible.
+	int nLineStart = GetRichEditCtrl().LineFromChar(m_lCurMsgStartIndex);
+	int nTopVis = GetRichEditCtrl().GetFirstVisibleLine();
+	// seems that process of appending text to a too-small window then
+	// resizing it results in last line at top of the window no matter where 
+	// scroll position was when it started. This is blank line at end of message. 
+	// So after a resize we seem to have to scroll up (backwards) to get start of 
+	// message in view  at the top of the window. Example:
+	//              ...
+	//              17    Previous message
+	//              18      OK
+	//              19
+	// nLineStart = 20:   This is my current message
+	//              21:      Explain Further  OK.
+	//                   -----------------------------  Window top
+	//    nTopVis = 22:   |
+	//              23:
+	//                   -----------------------------
+	// Scroll by -2 lines. Add more if we want to show context lines.
+	// We don't ever seem to have to scroll the other way, but code
+	// to do it is included just to be safe.
+	if (nLineStart < nTopVis) {
+		GetRichEditCtrl().LineScroll(nLineStart - nTopVis);
+	} else if (nLineStart < nTopVis) { // never seen this
+		GetRichEditCtrl().LineScroll(nTopVis - nLineStart);
+	}
+#endif
+}
 
 /***********************************************************************
  * Method: AddText
@@ -1472,6 +1541,7 @@ BOOL CChatView::IsSelected(const CObject* pDocItem) const
 	// return CRichEditView::IsSelected(pDocItem);
 	return FALSE;	
 }
+
 
 
 

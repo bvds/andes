@@ -1,6 +1,6 @@
 // ChildFrm.cpp : implementation of the CChildFrame class
 //
-// $Id: ChildFrm.cpp,v 1.9 2007/07/17 18:56:32 anders Exp $
+// $Id: ChildFrm.cpp,v 1.10 2007/08/10 02:47:45 anders Exp $
     
 #include "stdafx.h"
 // #include <afxrich.h>
@@ -641,15 +641,15 @@ void CChildFrame::HideHintPane()
 void CChildFrame::ShowHintPane()
 {
 	// Query Hint pane for its desired height.
-	CHintView* pHint = (CHintView*) theApp.FindView(RUNTIME_CLASS(CHintView));
+	CChatView* pHint = theApp.GetChatView();
 	if (! pHint) return;
 	int cyHintIdeal = pHint->GetIdealHeight();
 
 	// Check current size of pane, since user might have sized it arbitrarily.
-//	CRect rcHint;
-//	pHint->GetWindowRect(rcHint);
-//	if (rcHint.Height() >= cyHintIdeal)// it's big enough, no need to resize.
-//		return;
+	CRect rcHint;
+	pHint->GetWindowRect(rcHint);
+	if (rcHint.Height() >= cyHintIdeal)// it's big enough, no need to resize.
+		return;
 
 	// Get total splitter pane height in pixels (estimate from frame client size?)
 	// int cyTotal = ?;
@@ -663,6 +663,9 @@ void CChildFrame::ShowHintPane()
 	m_splitTopBotLeft.SetRowInfo(0, cyTotal - cyHintIdeal, 100);
 	// and force layout update
 	m_splitTopBotLeft.RecalcLayout();
+
+	// May have to scroll after resize to show message
+	pHint->ScrollToCurrentMsg();
 }  
 
 // Hide the EQ Pane by reducing its height to zero. 

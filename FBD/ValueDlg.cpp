@@ -231,20 +231,26 @@ void CValueDlg::OnChangeMagValue()
 	// typing 0.05, and don't want to clobber. (Could change on kill focus)
 	int fToldMag;
 	if (sscanf(strText, "%f", &fToldMag) == 1 && fToldMag == 0.0) {
-			// no direction for zero magnitude vectors
+			// no direction for zero magnitude vectors: disable all
+			// direction controls
 			m_editDirValue.EnableWindow(FALSE);
 			m_spinDirection.EnableWindow(FALSE);
 			m_cboZDir.EnableWindow(FALSE);
 	} 
 	else // not a zero length vector (maybe unknown)
 	{ 
-			m_editDirValue.EnableWindow(TRUE);
-			m_spinDirection.EnableWindow(TRUE);
+		    // in case this has changed from zero mag, make sure direction
+			// controls are enabled as appropriate for non-zero vectors.
+			// Enable XY plan direction if not currently specified as a zdir:
+			int nZDir = m_cboZDir.GetCurSel();
+			if (nZDir < 0 || nZDir == ZDIR_NONE) {
+				 m_editDirValue.EnableWindow(TRUE);
+				m_spinDirection.EnableWindow(TRUE);
+			}
+			// If ZDIR is unused, zdir choice will be (and stay) invisible, 
+			// so safe to just make call to enable it.
 			m_cboZDir.EnableWindow(TRUE);
 	}
-
-	// if this has changed to non-zero mag, enable direction as
-	// appropriate
 }
 
 // Direction
@@ -392,20 +398,6 @@ void CValueDlg::TransferValues(BOOL bSaving)
 			m_editXCValue.SetWindowText("0");
 			m_editYCValue.SetWindowText("0");
 			m_editZCValue.SetWindowText("0");
-		
-/*
-			// for now, disable controls to disallow changes if drawn as zero
-			m_editMagValue.EnableWindow(FALSE);
-			m_editDirValue.EnableWindow(FALSE);
-			m_editXCValue.EnableWindow(FALSE);
-			m_editYCValue.EnableWindow(FALSE);
-			m_editZCValue.EnableWindow(FALSE);
-			m_btnMagUnknown.EnableWindow(FALSE);
-			m_btnDirUnknown.EnableWindow(FALSE);
-			m_btnXCUnknown.EnableWindow(FALSE);
-			m_btnYCUnknown.EnableWindow(FALSE);
-			m_btnZCUnknown.EnableWindow(FALSE);
-*/
 		}
 		else // drawn non-zero mag
 		{
