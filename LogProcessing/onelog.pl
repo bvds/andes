@@ -24,7 +24,7 @@
 # 	0:00	Andes-Version 10.1.3
 # 	0:00	FBD-Version 04 05 06^M
 #         ... rest of log1 ...
-# 	18:19	END-LOG 
+# 	18:19	END-LOG
 #	
 # 	2006-05-04 11:31:34.0,# Log of Andes session begun Thursday, May 04, 2006 11:30:13 by m094530 on 09MOORE-CJ30A
 #         ... rest of log2 ...
@@ -61,6 +61,8 @@ if ($meta_operator_file) {
     close(META);
 }
 
+my $last_header="";  #first line of the most recent Andes session.
+
 while (<>) { # loop over andes sessions
     #  unless ($ARGV eq $last_ARGV) {
     #    print "Start reading $ARGV\n";
@@ -79,7 +81,7 @@ while (<>) { # loop over andes sessions
     $last_header le $_ or die "Sessions in log file are not sorted.\n";
     $last_header = $_;
 
-    my $last_time=0;
+    my $last_time=0;  #timestamp (seconds) of most recent line in session
     my $score=0;
     my $loss_of_focus=0;  #accumulate pauses associated with loss of focus
     my $intervening_errors=0;
@@ -87,7 +89,8 @@ while (<>) { # loop over andes sessions
     my $intervening_hints=0;
     my $last_adjusted_time=0;
     my $check_entries=0;
-    while (<>) {   # loop over lines in Andes session
+
+    while (<>) {   # loop over lines within an Andes session
 	last if /\tEND-LOG/;  # end of Andes session
 
 	# skip evaluation of any pre-defined quantities/equations
@@ -197,10 +200,9 @@ while (<>) { # loop over andes sessions
 		       time => $adjusted_time-$last_adjusted_time,
                        problem => $problem};
 
-	    # Sanity test
-	    unless(@operator_list == @step_list) {
+	    # Sanity test:  these should have the same length
+	    @operator_list == @step_list or
 		die "assoc op and assoc step don't match\n";
-	    }
 
 	    while (@operator_list) {
 		my $operator = pop @operator_list;
@@ -315,7 +317,10 @@ foreach $student (sort keys %times) {
     $problem_attempts{$i}++;
     if($i<=$minimum_problem_attempts) {delete $times{$student};}
 }
+
+#
 #  Print number of students that attempted to solve a given number of problems.
+#
 if (0) {
     print "problemattempts={";
     my $count=0;
@@ -336,7 +341,10 @@ foreach $problem (sort keys %problems) {
     $student_attempts{$i}++;
     if($i<=$minimum_student_attempts) {delete $problems{$problem};}
 }
+
+#
 #  Print number of problems solved by a given number of students
+#
 if (0) {
     print "studentattempts={";
     my $count=0;
