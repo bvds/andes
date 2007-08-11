@@ -9,12 +9,13 @@ punit( "kg",         1.,     0,  1,  0,   0,  0,  0), // kilogram
 punit( "s",          1.,     0,  0,  1,   0,  0,  1), // seconds, sec
 punit( "C",          1.,     0,  0,  0,   1,  0,  1), // Coulombs
 punit( "K",          1.,     0,  0,  0,   0,  1,  1), // degrees Kelvin
-punit( "g",        0.001,    0,  1,  0,   0,  0,  1), // grams
+punit( "g",       0.001,     0,  1,  0,   0,  0,  1), // grams
 punit( "N",          1.,     1,  1,  -2,  0,  0,  1), // Newtons
 punit( "J",          1.,     2,  1,  -2,  0,  0,  1), // Joules
 punit( "V",          1.,     2,  1,  -2,  -1, 0,  1), // Volt
 punit( "A",          1.,     0,  0,  -1,  1,  0,  1), // amps, Amperes
 punit( "T",          1.,     0,  1,  -1,  -1, 0,  1), // tesla
+punit( "G",      1.0e-4,     0,  1,  -1,  -1, 0,  1), // gauss
 punit( "Wb",         1.,     2,  1,  -1,  -1, 0,  1), // webers
 punit( "$W",         1.,     2,  1,  -1,  -2, 0,  1), // ohm (as capital omega)
 punit( "ohm",        1.,     2,  1,  -1,  -2, 0,  1), // ohm

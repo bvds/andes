@@ -63,6 +63,7 @@
       (|V| . "volts")
       (|A| . "amperes")
       (|T| . "teslas")
+      (|G| . "gauss")
       (|Wb| . "webers")
       (|ohm| . "ohms")
       (|Hz| . "hertz")
