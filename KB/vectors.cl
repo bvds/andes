@@ -475,7 +475,7 @@
    ;; Following gets the variable we need
    (bind ?o-axis (if (eql ?xyz 'x) 'y 'x))
    (variable ?o-var (compo ?o-axis ?rot ?vector))
-   (bind ?t (time-of ?vector))	; no longer needed but must regen prb if opvar removed
+   (bind ?t nil)	;remove after semester over but must regen prb if opvar removed
    )
   :effects
   ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
@@ -534,7 +534,7 @@
    ;; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot (axis-dir 'x ?rot))
-   (bind ?t (time-of ?vector))	; no longer needed but must regen prb if opvar removed
+   (bind ?t nil)	;remove after semester over but must regen prb if opvar removed
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- (dnum ?degrees |deg|) (dnum ?x-rot |deg|)))))
@@ -572,7 +572,7 @@
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot  (axis-dir 'x ?rot))
-   (bind ?t (time-of ?vector)) 	; no longer needed but must regen prb if opvar removed
+   (bind ?t nil) 	;remove after semester over but must regen prb if opvar removed
    )
   :effects
   ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
