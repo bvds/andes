@@ -261,8 +261,13 @@
  (let (Errs)
    (dolist (P (choose-working-probs topics))
     (handler-case 
-     (progn (read-problem-info (string (problem-name p)))
-	    (check-entry-opvars))
+     (let ((t0 (get-internal-run-time))) 
+       (read-problem-info (string (problem-name p)))
+	    (check-entry-opvars)
+	    (format t "~A: ~A solution~:p loaded in ~,2F seconds.~%"
+		    (problem-name *cp*) (length (problem-solutions *cp*))
+		    (/ (- (get-internal-run-time) t0) 
+		       internal-time-units-per-second)))
       (error (E) 
 	     (format T "~&!!! Error loading ~A: ~A~%" (Problem-name P) E)
 	     ; save it for report at end
