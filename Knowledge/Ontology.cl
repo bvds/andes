@@ -701,35 +701,14 @@
 	 (error "Designated group ~A does not exist." group))))
 
 
-
 (defun lookup-psmclass-name (name)
   "Lookup psm classes by name."
   (find name *Ontology-PSMClasses*
 	:key #'PsmClass-Name))
 
-
-(defun lookup-psmclass-exp (exp)
-  (car (lookup-psmclasses-exp exp)))
-
-
-(defun lookup-psmclasses-exp (exp)
-  "Lookup the psm classes that unify with exp."
-  (let ((Classes) (Binds) (tmp))
-  (dolist (c *Ontology-PSMClasses*)
-    (when (setq tmp (unify (psmclass-form c) exp))
-      (push c Classes)
-      (push tmp Binds)))
-  (values Classes Binds)))
-
-
-(defun lookup-expression->psmclasses (exp)
-  "Find all psmgroups matching expression exp."
-  (remove-if-not #'(lambda (c) (unify exp c))
-                   *Ontology-PSMClasses*))
-
 (defun lookup-expression->psmclass (exp)
+"return first psmclass whose form unifies with expression"
   (find exp *Ontology-PSMClasses* :test #'unify))
-
 
 ;;; Lookup the psmclasses that match the expression.
 (defun lookup-expressions->psmclasses (exps &optional (bindings no-bindings))
