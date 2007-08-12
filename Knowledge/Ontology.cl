@@ -708,13 +708,9 @@
 
 (defun lookup-expression->psmclass (exp)
 "return first psmclass whose form unifies with expression"
-  (find exp *Ontology-PSMClasses* :test #'unify))
+  (find exp *Ontology-PSMClasses* 
+        :key #'psmclass-form :test 'unify))
 
-;;; Lookup the psmclasses that match the expression.
-(defun lookup-expressions->psmclasses (exps &optional (bindings no-bindings))
-  "Lookup the matching psmclasses for the set of expressions provided."
-  (mapcar #'(lambda (e) (lookup-expression->psmclass e bindings))
-	  exps))
 
 (defun eval-print-spec (x &optional (bindings no-bindings))
   "evaluate, using andes-eval, a printing specification in def-psmclass"
