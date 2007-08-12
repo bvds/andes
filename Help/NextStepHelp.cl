@@ -634,7 +634,6 @@
     (remove-if-not #'bgnode-entries (Eqnset-Nodes Solution)))))
 
 
-
 ;;; sort-node-lists
 ;;; When presented with a list of bgnodes sort them into three
 ;;; sets, Givens, Major psm nodes (the first of which will be 
@@ -648,13 +647,16 @@
 ;;; Note: "major" in this comment must mean "acceptable first principle" = 
 ;;; = 'major or 'definition
 (defun nsh-sort-node-lists (nodes)
-  "Sort the suppliued nodes into (<Givens> <Major> . <Rest>)"
-  (list (remove-if-not #'nsh-given-principle-p nodes)
-	(append (remove-if-not #'nsh-acceptable-fp-typep Nodes)
-		(remove-if #'(lambda (N) (or (nsh-given-principle-p N)
-					     (nsh-acceptable-fp-typep N)))
-			   nodes))))
-
+  "Partition nodes into (<Givens> <Major or definition> . <Rest>)"
+  ;; since looking up the class is expensive, only do it once per node
+  (let (givens acceptable rest)
+    (dolist (node (reverse nodes)) ;preserve order as much as possible
+      (let ((class (nsh-lookup-principle-class node)))
+	(case (and class (psmclass-complexity class))
+	  (given (push node givens))
+	  ((major definition) (push node acceptable))
+	  (t (push node rest)))))
+    (list givens (nconc acceptable rest))))
 
 
 ;;;------------------------- Entries ---------------------------------
@@ -3496,27 +3498,19 @@
 (defun nsh-goal-principle-p (node)
   (and (enode-P Node) (goalprop-exp-p (enode-id Node))))
 
-
-
-(defun nsh-principle-p (principle)
-  (enode-p principle))
-
 (defun nsh-principle-entries (principle)
   (enode-Entries principle))
 
 
 ;;; Lookup the psmclass that matches the principle supplied.
 (defun nsh-lookup-principle-class (principle)
-  (lookup-expression->psmclass (enode-ID Principle)))
-
+  (and (enode-p principle)
+       (lookup-expression->psmclass (enode-ID Principle))))
 
 ;;; Given a principle collect the quantities within it.
 (defun nsh-principle-quantities (Principle)
   "Given a principle collect the quantities within it."
   (enode-qnodes Principle))
-
-
-
 
 (defun trace-nsh-principles ()
   (trace nsh-principle-completed-p
@@ -3526,7 +3520,6 @@
 	 nsh-given-principle-p
 	 nsh-major-principle-p
 	 nsh-goal-principle-p
-	 nsh-principle-p
 	 nsh-principle-entries
 	 nsh-lookup-principle-class
 	 nsh-principle-quantities))
