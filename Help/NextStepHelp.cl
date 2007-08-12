@@ -596,6 +596,9 @@
 (defun nsh-reset-quant ()
   "Setup the appropriate settings for the quant problem."
   (setq *nsh-problem-type* 'quant)
+  ; following will be called on nodes repeatedly during setup:
+  (memoize 'nsh-acceptable-fp-typep)
+  (memoize 'nsh-given-principle-p)
   (let ((nodes (nsh-collect-quant-snodes *cp*)))
     (setq *nsh-givens* (sort (remove-duplicates (mapcan #'car nodes))
                              #'earlier-given :key #'nsh-given-node-quant))
