@@ -597,8 +597,6 @@
   "Setup the appropriate settings for the quant problem."
   (setq *nsh-problem-type* 'quant)
   ; following will be called on nodes repeatedly during setup:
-  (memoize 'nsh-acceptable-fp-typep)
-  (memoize 'nsh-given-principle-p)
   (let ((nodes (nsh-collect-quant-snodes *cp*)))
     (setq *nsh-givens* (sort (remove-duplicates (mapcan #'car nodes))
                              #'earlier-given :key #'nsh-given-node-quant))
@@ -1053,8 +1051,7 @@
 
 
 
-;;;; ====================== Prompt Bodies ========================================
-;;;; We want the students to begin all problems by defining all of the "necessary"
+;;;; ====================== Prompt Bodies ======================================;;;; We want the students to begin all problems by defining all of the "necessary"
 ;;;; bodies in for a solution.  If they ask NSH will prompt them to make all of 
 ;;;; the necessary body entries for the ideal solution.  Bodies are considered
 ;;;; necessary if they appear in the top level of a PSMclass.  
@@ -2187,7 +2184,7 @@
 
 ;;; Is this an aceptable fp type?
 (defun nsh-acceptable-fp-typep (Principle)
-  "IS the specified principle an accpetable type for an fp?"
+  "Is the specified principle an accpetable type for an fp?"
   (or (nsh-major-principle-p Principle) 
       (nsh-definition-principle-p Principle)))
 
