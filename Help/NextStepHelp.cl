@@ -623,11 +623,11 @@
 ;;; later.
 (defun nsh-collect-quant-snodes (Problem)
   "Collect the solution nodes from the nsh-problem."
-  (mapcar #'(lambda (S) (nsh-cqsnodes-lambda S (Problem-graph Problem))) 
+  (mapcar #'nsh-get-soln-nodelist
    	  (problem-solutions Problem)))
 
-(defun nsh-cqsnodes-lambda (Solution Graph)
-  "This lambda func should only be called from above."
+(defun nsh-get-soln-nodelist (Solution) ; only called above
+  "Collect sorted list of nodes from given solution"
   (nsh-sort-node-lists
    (reverse 
     (remove-if-not #'bgnode-entries (Eqnset-Nodes Solution)))))
@@ -3507,7 +3507,7 @@
 
 ;;; Lookup the psmclass that matches the principle supplied.
 (defun nsh-lookup-principle-class (principle)
-  (lookup-psmclass-exp (enode-ID Principle)))
+  (lookup-expression->psmclass (enode-ID Principle)))
 
 
 ;;; Given a principle collect the quantities within it.

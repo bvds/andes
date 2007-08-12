@@ -722,15 +722,13 @@
   (values Classes Binds)))
 
 
-(defun lookup-expression->psmclasses (exp &optional (bindings no-bindings))
+(defun lookup-expression->psmclasses (exp)
   "Find all psmgroups matching expression exp."
-  (loop for C in *Ontology-PSMClasses*
-      when (unify (PSMClass-form C) exp bindings)
-      collect C))
+  (remove-if-not #'(lambda (c) (unify exp c))
+                   *Ontology-PSMClasses*))
 
-
-(defun lookup-expression->psmclass (exp &optional (bindings no-bindings))
-  (car (lookup-expression->psmclasses exp bindings)))
+(defun lookup-expression->psmclass (exp)
+  (find exp *Ontology-PSMClasses* :test #'unify))
 
 
 ;;; Lookup the psmclasses that match the expression.
