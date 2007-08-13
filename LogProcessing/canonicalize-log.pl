@@ -21,7 +21,8 @@ while (<>) {   # loop over lines in all Andes sessions
 
     # canonicalize randomized phrases.  This should be fixed
     # by explicit problem-specific seed to random-elt, March 2007.
-    if(0 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+    # Added use of random seed for flagging bad slot, August 1, 2007.
+    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
         # created by random-positive-feedback
 	s/Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed\./\*YES\*/;
 	# created by random-goal prefix
@@ -35,10 +36,31 @@ while (<>) {   # loop over lines in all Andes sessions
 	s/\|NIL;[A-Z;\-]+\|/\|NIL\|/;
     }    
 
-    # fix to print keywords properly in assoc entry, July 23, 2007
-    if(m/^([\d:]+)\tDDE-COMMAND assoc (step|entry|parse) /) {
-      s/ :/ /g;
-      s/\|([^|]+)\|/\1/g;
+    # fix to print keywords properly in assoc entries, July 23, 2007
+    # fix bug in remove-nil-keywords, August 13, 2007
+    # remove nil keyword pairs
+    if(m/^([\d:]+)\tDDE-COMMAND assoc /) {
+	s/ :[A-Z]+ NIL//g;  
+        s/ :/ /g;
+        s/\|([^|]+)\|/\1/g;
+    }
+
+    # bad hints fixed early August 2007.
+    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+        s/at T0 at T0/at T0/;
+        s/(When the direction of a vector is not given or easily inferred from the problem statement, you should mark it unknown.) .*/$1/;
+        s/(Double-click on the vector in order to bring up its properties) if necessary/$1/;
+        s/Notice that at T[0-9], (.* is perpendicular to .* axis.)/Notice that $1/;
+        s/(Because .* is perpendicular to .* axis) at T[0-9]/$1/;
+        s/Since the .* (lies along the .* axis)/\*compo-parallel-axis-hint\* $1/;
+        s/(due to the earth of type weight at T[0-9]) pointing straight down \(270 deg\)/$1/;
+        s/ = /=/;  #F=m*g -> F = m*g
+    }
+
+    # result equations
+    if(1 && m/^([\d:]+)\tDDE-RESULT |.*=.*|/) {
+        s/ = /=/;     #I don't know where this came from (August 13, 2007)
+        s/([\.0-8]{1,6})[0-9]+ /$1\*digits\* /; #take care of roundoff
     }
 
     print;

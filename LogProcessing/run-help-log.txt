@@ -13,6 +13,9 @@ Fall2006-anon.June-7-2007.can
 
 Fall2006-anon.June-27-2007
 
+Fall2006-anon.August-11-2007
+Fall2006-anon.August-11-2007.can
+Diff against Fall2006-anon.dat.can has 769736 lines and has not been analyzed.
 
 Winter2007-USNA-treacywintersgill.dat:  original log file
 
@@ -62,6 +65,15 @@ Winter2007-USNA-treacywintersgill.July-23-2007
 Fix bug:  use unify for equivalence of SystemEntry-prop
 Winter2007-USNA-treacywintersgill.July-24-2007
    
-Diff between July 14 and July 14
+Diff between July 24 and July 14:
      after canonicalization, all diffences due to
      fix of the SytemEntry equivalence.
+
+Winter2007-USNA-treacywintersgill.August-11-2007
+Winter2007-USNA-treacywintersgill.August-11-2007.can
+
+Diff between July 24 and August 11:
+     differences from additional use of random in determining slot.
+     need to check for removal of keyword pairs (test it works with 2 slots,
+     is used for assoc (NSH START-BODIES (BODY PARTICLE :TIME NIL)) and 
+     canonicalize using.
