@@ -2526,6 +2526,7 @@ PRIVATE const EvInfo g_evmap [] =
 	"Open-Example", EVH_APP,	EV_OPEN_EXAMPLE,	// open by id
 	"Check-Entries", EVH_APP,	EV_CHECK_ENTRIES,
 	"FBD-Entry",	EVH_FBDVIEW,	EV_FBD_ENTRY,	// logs an initial FBD entry
+	"Vector-Values", EVH_FBDVIEW,   EV_VECTOR_VALUES, // given values for a vector entry
 	"Var-Entry",	EVH_VARVIEW,	EV_VAR_ENTRY,	// logs an initial Variable entry
 	"EQ-Entry",		EVH_EQVIEW,		EV_EQ_ENTRY,	// logs an initial equation entry
 	"Answer-Entry", EVH_FBDVIEW,	EV_ANSWER_ENTRY,// logs an initial answer entry

@@ -141,6 +141,8 @@ public:
 	virtual void UpdateObj(CDrawObj* pObj);
 	virtual void LogEntry();
 	virtual BOOL SetFromLogStr(LPCTSTR pszStr);
+	// not virtual, only vectors use this one:
+	BOOL SetValsFromLogStr(LPCTSTR pszArgs);
 
 	
 	virtual BOOL GetLabelRect(CRect& posLabel) { posLabel = m_posLabel; return TRUE; }

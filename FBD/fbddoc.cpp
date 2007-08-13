@@ -3194,6 +3194,13 @@ BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 		if (pObj->IsKindOf(RUNTIME_CLASS(CCheckedObj)))
 			((CCheckedObj*)pObj)->UpdateVarNames();
 	}
+	else if (strcmpi(name, "Vector-Values") == 0) { // EV_VECTOR_VALUES
+		char szName[80];
+		if (sscanf(pszArgs, "%s", szName) != 1) return FALSE;
+		CDrawObj* pObj = FindByName(ArgToVal(szName));
+		if (pObj == NULL || !pObj->IsKindOf(RUNTIME_CLASS(CVector))) return FALSE;
+		return ((CVector*)pObj)->SetValsFromLogStr(pszArgs);
+	}
 	else // unhandled.
 	{
 		TRACE("Unknown predef command %s\n", name);

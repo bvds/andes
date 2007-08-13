@@ -182,6 +182,7 @@ enum EventID
 	EV_OPEN_EXAMPLE,	// open given example by id
 	EV_CHECK_ENTRIES,	// logs re-check of initial entries in solution
 	EV_FBD_ENTRY,		// logs an initial FBD entry
+	EV_VECTOR_VALUES,   // logs vector's given values
 	EV_VAR_ENTRY,		// logs an initial Variable entry
 	EV_EQ_ENTRY,		// logs an initial equation entry
 	EV_ANSWER_ENTRY,	// logs an initial answer entry

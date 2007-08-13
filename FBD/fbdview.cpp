@@ -5250,6 +5250,13 @@ BOOL CFBDView::DispatchEvent(EventID nEvent, LPCTSTR pszArgs)
 		pObj->Invalidate();
 		break;
 
+	case EV_VECTOR_VALUES:
+		if (sscanf(pszArgs, "%s", szObjID) != 1) return FALSE;
+		pObj = GetDocument()->FindByName(ArgToVal(szObjID)); // name, not id
+		if (pObj == NULL || !pObj->IsKindOf(RUNTIME_CLASS(CVector))) return FALSE;
+		return ((CVector*)pObj)->SetValsFromLogStr(pszArgs);
+		break;
+
 	case EV_ANSWER_ENTRY:
 		// Parse id, status, text from arguments
 		if (sscanf(pszArgs, "%s", szObjID) != 1) return FALSE;	

@@ -980,6 +980,10 @@ void CVector::LogEntry()
 			strDir, m_bDecomposed);
 	}
 	LogEventf(EV_FBD_ENTRY, "%s %s", strDrawObj, strRest);
+	// Put values on another log line
+	LogEventf(EV_VECTOR_VALUES, "%s %d %s %s %s %s", ValToArg(m_strName), 
+		          m_bCompoForm, ValToArg(m_strMag),
+		          ValToArg(m_strXC), ValToArg(m_strYC), ValToArg(m_strZC));
 }
 
 // Set object state from entry log line; inverse of LogEntry
@@ -1055,7 +1059,21 @@ BOOL CVector::SetFromLogStr(LPCTSTR pszStr)
 	}
 	return TRUE;
 }
-   
+
+BOOL CVector::SetValsFromLogStr(LPCTSTR pszArgs)
+{
+	char szName[80]; BOOL bCompoForm;
+	char szMag[80]; char szXC[80]; char szYC[80]; char szZC[80];
+	if (sscanf(pszArgs, "%s %d %s %s %s %s", szName, &bCompoForm, 
+		                 szMag, szXC, szYC, szZC) != 6) return FALSE;
+	m_bCompoForm = bCompoForm;
+	m_strMag = ArgToVal(szMag);
+	m_strXC = ArgToVal(szXC);
+	m_strYC = ArgToVal(szYC);
+	m_strZC = ArgToVal(szZC);
+	return TRUE;
+}
+
 void CVector::GetTypeName(CString& strType)
 {
 	switch (m_nVectorType) 
