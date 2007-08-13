@@ -69,10 +69,10 @@ Diff between July 24 and July 14:
      after canonicalization, all diffences due to
      fix of the SytemEntry equivalence.
 
-Winter2007-USNA-treacywintersgill.August-11-2007
-Winter2007-USNA-treacywintersgill.August-11-2007.can
+Winter2007-USNA-treacywintersgill.August-13-2007
+Winter2007-USNA-treacywintersgill.August-13-2007.can
 
-Diff between July 24 and August 11:
+Diff between July 24 and August 13:
      differences from additional use of random in determining slot.
      need to check for removal of keyword pairs (test it works with 2 slots,
      is used for assoc (NSH START-BODIES (BODY PARTICLE :TIME NIL)) and 
