@@ -398,7 +398,8 @@
 (defun remove-nil-keywords (x)
   "Remove any nil keyword pairs from x, since we have equivalence under unify."
   (cond ((atom x) x)
-	((and (keywordp (car x)) (null (cadr x))) (cddr x))
+	((and (keywordp (car x)) (null (cadr x))) 
+	 (remove-nil-keywords (cddr x)))
 	(t (cons (remove-nil-keywords (car x)) 
 		 (remove-nil-keywords (cdr x))))))
 
