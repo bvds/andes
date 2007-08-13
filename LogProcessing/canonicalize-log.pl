@@ -60,7 +60,8 @@ while (<>) {   # loop over lines in all Andes sessions
     # result equations
     if(1 && m/^([\d:]+)\tDDE-RESULT |.*=.*|/) {
         s/ = /=/;     #I don't know where this came from (August 13, 2007)
-        s/([\.0-8]{1,6})[0-9]+ /$1\*digits\* /; #take care of roundoff
+        s/([0-9]+\.[0-9]*)([0-8])9+ (?{$co=$2+1})/$1$co /; #round up trailing 9999's
+        s/([0-9]+\.[0-9]{6})[0-9]+ /$1\*digits\* /; #take care of roundoff
     }
 
     print;
