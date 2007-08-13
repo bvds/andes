@@ -1120,9 +1120,14 @@
 ;; verify that correct studententry is an acceptable entry of a given value
 (defun uses-only-given-eqn (studententry)
    (let ((interp (studententry-cinterp studententry)))
-     (or (and (= (length interp) 1)
+     (or (null interp)  
+         (and (= (length interp) 1)
               (given-eqn-entry-p (first interp))) ; singleton given eqn
-	 (allowed-compo-mag-combo interp))))
+	 (allowed-compo-mag-combo interp)
+	 ; If passed the test for givenness but gets an empty interp, assume it's
+	 ; the value of an unused given. However, we are not verifying that the
+	 ; rhs is a purely arithmetic expression in this case. 
+	 (null interp))))
 
 (defun not-given-ErrorInterp (se quant)
   (let ((rem (make-hint-seq

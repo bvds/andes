@@ -3812,14 +3812,22 @@
            (negative-numvalp rhs))))
 
 ;; functions for detecting "givens":
+;; Note these may not detect givens in the problem statement
+;; that don't wind up used in the solution
 (defun given-quant-p (quant)
-"true if quantity is a problem given"
+"true if quantity is tagged as a problem given"
  (let ((qnode (match-exp->qnode quant (Problem-Graph *cp*))))
      (and qnode (qnode-givenp qnode))))
 
 (defun given-var-p (var)
 "true if system var has a given value in current problem"
  (given-quant-p (sysvar-to-quant var)))
+
+(defun unused-given-var-p (var)
+"true if system var is for an unused given included in the var index"
+  (let ((qvar (find var (problem-varIndex *cp*) :key #'qvar-var)))
+    (when qvar 
+      (member 'UNUSED-GIVEN (qvar-marks qvar)))))
 
 ;; For vectors along axis, if vector mag is given then instructors
 ;; think of components as given. This detects such component vars
@@ -3841,9 +3849,11 @@
 ;; a non-zero value for mag would be inconsistent with equation from drawing, 
 ;; so we don't worry about it. Could include special message for that 
 ;; inconsistency, though.
-(defun given-p (var)
+(defun given-p (var)	; more liberal than given-var-p
 "true if var should be treated as a given"
-  (or (given-var-p var) (given-component-p var)))
+  (or (given-var-p var) 
+      (unused-given-var-p var)
+      (given-component-p var)))
 
 (defun optionally-given-p (var)
   "true if var should be treated as optionally given"

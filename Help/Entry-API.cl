@@ -753,15 +753,17 @@
     (when (not (equal dir-term 'zero))
        (when given-mag
            (add-given-eqn entry (make-given-eqn-entry label given-mag 'given-mag)))  
-       (when given-xc
+       ; Components in reverse order because add-given-eqn pushes at front. 
+       ; Want xc to wind up first so error there gets reported first.
+       (when given-zc
            (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat label "_x") given-xc 'given-xc)))  
+	       (make-given-eqn-entry (strcat label "_z") given-zc 'given-zc)))
        (when given-yc
            (add-given-eqn entry 
 	       (make-given-eqn-entry (strcat label "_y") given-yc 'given-yc)))  
-       (when given-zc
+       (when given-xc
            (add-given-eqn entry 
-	       (make-given-eqn-entry (strcat label "_z") given-zc 'given-zc))))
+	       (make-given-eqn-entry (strcat label "_x") given-xc 'given-xc))))
  
     ; if vector is a unit vector, associate implicit equation magV = 1 
     (when (eq (first vector-term) 'unit-vector)

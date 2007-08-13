@@ -1087,6 +1087,46 @@
 	     ;; nogood rule to so that only one form of cross is chosen
 	     (assume using-cross ?a ?b ?compo ?rot ?angle-flag) ))
 
+;; post processing to ensure unused given vector components
+;; get into the variable index with values. They will be tagged
+;; with the mark 'UNUSED-GIVEN in the index. There are no
+;; qnodes for them and no equations stating their values in
+;; the solution, but the solver will have a value for them.
+(post-process add-unused-given-compos (problem)
+  "if only the earth's gravity is used, add gravitational acceleration"
+  ;; do for each given vector component
+  (dolist (prop (Filter-expressions 
+                       '(given (compo ?xyz ?rot ?vector) ?value)
+		        (problem-givens problem))) 
+   (let ((quant (second prop)))
+     ; if it's not already in the index
+     (when (not (find quant (problem-varindex problem) 
+                      :key #'qvar-exp :test #'unify))
+       (let ((axis (second quant))
+	     (rot (third quant))
+	     (vector (fourth quant))
+             (value (third prop)))
+       ; append qvar item for it to end of varindex
+       (setf (problem-varindex problem)
+         (append (problem-varindex problem)
+	    (list (make-qvar 
+                   ; need to form compo variable name
+                   :var (format-sym "~Ac_~A_~A" 
+			    axis
+			    ; find vector mag var from index
+			    ; Lisp error if it's not found
+                            (qvar-var 
+			        (match-exp->qvar `(mag ,vector)
+			            (problem-varindex problem)))
+			    rot)
+		   :exp quant
+		   ; requiring value to be dnum, not plain 0:
+		   :value (second value)
+		   :units (third value)
+		   :marks '(unused-given)
+		   ; new element's index = length of old index
+		   :index (length (problem-varindex problem))
+		   :nodes NIL)))))))))
 
 ;;; Following defines a variable for the angle between two vectors
 ;;; for the case where the angle of the two vectors is known.
