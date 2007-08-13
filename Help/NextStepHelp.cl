@@ -648,15 +648,11 @@
 ;;; = 'major or 'definition
 (defun nsh-sort-node-lists (nodes)
   "Partition nodes into (<Givens> <Major or definition> . <Rest>)"
-  ;; since looking up the class is expensive, only do it once per node
-  (let (givens acceptable rest)
-    (dolist (node (reverse nodes)) ;preserve order as much as possible
-      (let ((class (nsh-lookup-principle-class node)))
-	(case (and class (psmclass-complexity class))
-	  (given (push node givens))
-	  ((major definition) (push node acceptable))
-	  (t (push node rest)))))
-    (list givens (nconc acceptable rest))))
+  (list (remove-if-not #'nsh-given-principle-p nodes)
+	(append (remove-if-not #'nsh-acceptable-fp-typep Nodes)
+		(remove-if #'(lambda (N) (or (nsh-given-principle-p N)
+					     (nsh-acceptable-fp-typep N)))
+			   nodes))))
 
 
 ;;;------------------------- Entries ---------------------------------
