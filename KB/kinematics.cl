@@ -1539,7 +1539,7 @@
    (
     (time ?t)
     ;; this is redundant with excluding (curved projectile ...)
-    (not (free-fall ?b ?tfree) (tinsidep ?t ?tfree))		
+    (not (free-fall ?b :time ?tfree) (tinsidep ?t ?tfree))		
     (motion ?b (curved ?type ?dir-spec) :time ?t-motion)
     (test (tinsidep ?t ?t-motion))
     ;; However, the direction is known for projectile motion.
@@ -1609,7 +1609,7 @@
   
 
 ;; This operator draws the acceleration vector for a freely falling body. 
-;; This must be given in the problem statement as (free-fall body time)
+;; This must be given in the problem statement as (free-fall body :time time)
 ;; The acceleration is non-zero straight down, on the assumption that
 ;; the relevant planet is always straight down in the diagram.
 ;; The free-fall law will specify an equation for the magnitude of the 
@@ -1620,7 +1620,7 @@
    "If ?body is in free-fall during ?time,
    then draw a non-zero acceleration straight down during ?time."
   :preconditions
-   ((free-fall ?b ?t-motion)
+   ((free-fall ?b :time ?t-motion)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
@@ -1655,7 +1655,7 @@
   :preconditions ((motion ?b (curved projectile ?whatever) :time ?t)
 		  (test (time-intervalp ?t)))
   :effects
-   ((free-fall ?b ?t)))
+   ((free-fall ?b :time ?t)))
 |#
 
 ;;;
@@ -1671,7 +1671,9 @@
   ((any-member ?quantity
 	       ((mag (accel ?b :time ?t))
 		(gravitational-acceleration ?planet)))
-   (free-fall ?b ?t)
+   (free-fall ?b :time ?t-free)
+   (time ?t)
+   (test (tinsidep ?t ?t-free))
    (near-planet ?planet :body ?b ?b))
   :effects
   ((eqn-contains (free-fall-accel ?b ?t) ?quantity)))
@@ -1680,16 +1682,13 @@
 ;;; acceleration of the body. g is a variable for the gravitational accel
 ;;; of the relevant planet.
 (defoperator write-free-fall-accel (?b ?t)
-  
   :specifications 
   "if an object is in free-fall near a planet during an interval, 
   then for any interior time period,
      the magnitude of its acceleration equals the gravitational acceleration for
      that planet"
   :preconditions
-  ((free-fall ?b ?t)
-   (near-planet ?planet :body ?b ?b)
-   (variable ?accel-var (mag (accel ?b :time ?t)))
+  ((variable ?accel-var (mag (accel ?b :time ?t)))
    (variable ?g-var (gravitational-acceleration ?planet))
    )
   :effects
@@ -1783,7 +1782,7 @@
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     ;; we have special rules for the case of gravitational acceleration
-    (not (free-fall ?b ?t-freefall) (tinsidep ?t ?t-freefall))
+    (not (free-fall ?b :time ?t-freefall) (tinsidep ?t ?t-freefall))
     ;; find all forces that are acting on ?b and collect distinct directions
     (setof (force ?b ?agent ?type ?t ?dir ?action) ?dir ?dirs)
     ;; test that all the directions are the same
