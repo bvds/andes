@@ -1112,7 +1112,7 @@
               (value (third prop)))
        ; make sure we found a mag var
        (if (null magvar) 
-             (warn "Unused given ~A not added because mag unused also.~%"
+             (warn "Unused given ~A not added because mag unused also."
 	              `(compo ,axis ,rot ,vector))
        ;else:
        ;  make qvar item for it and append to end of varindex
