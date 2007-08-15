@@ -1093,7 +1093,7 @@
 ;; qnodes for them and no equations stating their values in
 ;; the solution, but the solver will have a value for them.
 (post-process add-unused-given-compos (problem)
-  "if only the earth's gravity is used, add gravitational acceleration"
+  "add unused given vector components with values to variable index"
   ;; do for each given vector component
   (dolist (prop (Filter-expressions 
                        '(given (compo ?xyz ?rot ?vector) ?value)
@@ -1102,31 +1102,33 @@
      ; if it's not already in the index
      (when (not (find quant (problem-varindex problem) 
                       :key #'qvar-exp :test #'unify))
-       (let ((axis (second quant))
-	     (rot (third quant))
-	     (vector (fourth quant))
-             (value (third prop)))
-       ; append qvar item for it to end of varindex
-       (setf (problem-varindex problem)
-         (append (problem-varindex problem)
-	    (list (make-qvar 
-                   ; need to form compo variable name
-                   :var (format-sym "~Ac_~A_~A" 
-			    axis
-			    ; find vector mag var from index
-			    ; Lisp error if it's not found
-                            (qvar-var 
-			        (match-exp->qvar `(mag ,vector)
-			            (problem-varindex problem)))
-			    rot)
-		   :exp quant
-		   ; requiring value to be dnum, not plain 0:
-		   :value (second value)
-		   :units (third value)
-		   :marks '(unused-given)
-		   ; new element's index = length of old index
-		   :index (length (problem-varindex problem))
-		   :nodes NIL)))))))))
+       (let* ((axis (second quant))
+	      (rot (third quant))
+	      (vector (fourth quant))
+	      ; find vector mag var in index for naming compo
+	      ; var. May not be there if mag unused also
+	      (magvar (match-exp->qvar `(mag ,vector)
+	                    (problem-varindex problem)))
+              (value (third prop)))
+       ; make sure we found a mag var
+       (if (null magvar) 
+             (warn "Unused given ~A not added because mag unused also.~%"
+	              `(compo ,axis ,rot ,vector))
+       ;else:
+       ;  make qvar item for it and append to end of varindex
+         (setf (problem-varindex problem)
+           (append (problem-varindex problem)
+	      (list (make-qvar 
+                     ; need to form compo variable name
+                     :var (format-sym "~Ac_~A_~A" axis magvar rot)
+		     :exp quant
+		     ; requiring value to be dnum, not plain 0:
+		     :value (second value)
+		     :units (third value)
+		     :marks '(unused-given)
+		     ; new element's index = length of old index
+		     :index (length (problem-varindex problem))
+		     :nodes NIL))))))))))
 
 ;;; Following defines a variable for the angle between two vectors
 ;;; for the case where the angle of the two vectors is known.
