@@ -2721,8 +2721,10 @@ void CFBDDoc::LayoutGraphic(const CString &strPathName, const CRect &rcStmt)
 	{ 	
 		// scale uniformly if needed
 		if (pPic->m_position.Width() > maxWidth) {
+			// NB: use current width for scale factor before adjusting it!
+			double factor = ((double)maxWidth)/pPic->m_position.Width();
 			pPic->m_position.right =  maxWidth;
-			pPic->m_position.bottom = (maxWidth/pPic->m_position.Width())*pPic->m_position.bottom;
+			pPic->m_position.bottom = Round(factor*pPic->m_position.bottom);
 		}
 		pPic->m_position += CSize((maxWidth - pPic->m_position.Width())/2, rcStmt.Height());
 	}

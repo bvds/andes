@@ -173,7 +173,9 @@ void CBrowserDlg::OnStatusTextChangeWebBrowser(LPCTSTR Text)
 	// Put it in the message static (now misnamed).
 	GetDlgItem(IDC_TASK_TEXT)->SetWindowText(Text);
 */
+	//TRACE("Setting status bar text: %s\n", Text);
 	theApp.GetMainFrame()->SetAngleText(Text);
+
 }
 
 

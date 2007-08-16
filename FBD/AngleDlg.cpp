@@ -419,6 +419,7 @@ int CAngleDlg::GetAngleBetween(const CString& strSide1, const CString& strSide2,
 		if (bIsAxis1 && pObj->IsKindOf(RUNTIME_CLASS(CAxes)))
 		{
 			nAngle1 = (pObj->GetDirection() + ((nAxis1) * 90)) % 360;
+			zDir1 = ZDIR_NONE; // only x and y axes in dialog
 			break;
 		}
 		else if (pObj->m_strName == strSide1)  // hit side1 
@@ -448,6 +449,7 @@ int CAngleDlg::GetAngleBetween(const CString& strSide1, const CString& strSide2,
 		if (bIsAxis2 && pObj->IsKindOf(RUNTIME_CLASS(CAxes)))
 		{
 			nAngle2 = (pObj->GetDirection() + ((nAxis2) * 90)) % 360;
+			zDir2 = ZDIR_NONE; // only x and y axes in dialog
 			break;
 		}
 		else if (pObj->m_strName == strSide2)
