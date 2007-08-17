@@ -9,6 +9,10 @@ coul2a
 coul2b
 coul2c
 coul3
+ediag1:  efield where student only draws forces
+ediag2:  efield where student only draws forces
+ediag3:  efield where student only draws forces
+ediag4:  efield where student only draws forces
 efield1a
 efield1b
 efield1c
@@ -18,6 +22,8 @@ efield2
 efield3
 efield4a
 efield4b
+efield5
+efield6
 for1a
 for1b-DEMO.wmv
 for1b
@@ -40,11 +46,18 @@ for11b
 for11c
 elec1a
 elec1b
+elec1c
+elec1d
 elec2
 elec3b
 elec4b
 elec5b
 elec6b
+elec7
+elec8
+elec9
+elec10
+elec11
 gauss1
 gauss3
 gauss4
