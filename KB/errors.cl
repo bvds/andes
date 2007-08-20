@@ -4163,8 +4163,8 @@
 (def-entry-test match-vector (?quant)
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant ?dir2))
-		  (test (get-angle-between ?dir ?dir2))
-		  (test (<= (get-angle-between ?dir ?dir2)
+		  (test (get-angle-between ?dir1 ?dir2))
+		  (test (<= (get-angle-between ?dir1 ?dir2)
 			    (+ (error-of ?dir1) (error-of ?dir2)))))
   :state **correct**
   :order ((correct . 2))
