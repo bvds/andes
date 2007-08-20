@@ -43,6 +43,8 @@ while (<>) {   # loop over lines in all Andes sessions
 	s/ :[A-Z]+ NIL//g;  
         s/ :/ /g;
         s/\|([^|]+)\|/\1/g;
+        # hash function for derivatives changed, July 7, 2007
+        s/( d[A-Z-]+)[_0-9]+dt/$1\*hash\*dt/g;
     }
 
     # bad hints fixed early August 2007.
@@ -57,7 +59,7 @@ while (<>) {   # loop over lines in all Andes sessions
         s/ = /=/;  #F=m*g -> F = m*g
     }
 
-    # result equations
+    # result equations, fix up floating point issues
     if(1 && m/^([\d:]+)\tDDE-RESULT |.*=.*|/) {
         s/ = /=/;     #I don't know where this came from (August 13, 2007)
         s/([0-9]+\.[0-9]*)([0-8])9+ (?{$co=$2+1})/$1$co /; #round up trailing 9999's

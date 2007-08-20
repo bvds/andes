@@ -13,8 +13,8 @@ Fall2006-anon.June-7-2007.can
 
 Fall2006-anon.June-27-2007
 
-Fall2006-anon.August-11-2007
-Fall2006-anon.August-11-2007.can
+Fall2006-anon.August-14-2007
+Fall2006-anon.August-14-2007.can
 Diff against Fall2006-anon.dat.can has 769736 lines and has not been analyzed.
 
 Winter2007-USNA-treacywintersgill.dat:  original log file
@@ -73,7 +73,17 @@ Winter2007-USNA-treacywintersgill.August-13-2007
 Winter2007-USNA-treacywintersgill.August-13-2007.can
 
 Diff between July 24 and August 13:
-     differences from additional use of random in determining slot.
-     need to check for removal of keyword pairs (test it works with 2 slots,
-     is used for assoc (NSH START-BODIES (BODY PARTICLE :TIME NIL)) and 
-     canonicalize using.
+     differences from additional use of random in determining slot,
+     fix error with remove-nil-keywords, changing blank space around "=",
+     remove superfluous time slots in various hints (in KB/vectors.cl)
+     change to hash function used in defining derivatives.
+     fix bug in SWITCHED-X-AND-Y-SUBSCRIPT (so it now applies)
+     Student equations setting unused zero components of vector equation to zero no longer flagged as error.
+     Other changes that are not necessarily good:
+         WRONG-TRIG-FUNCTION instead of USED-MAGNITUDE-INSTEAD-OF-COMPONENT
+         Suggestion to enter B field magnitude instead of z-component of velocity
+         UNDIAGNOSED-EQN-ERROR instead of MISSING-NEGATION-ON-VECTOR-MAGNITUDE
+         DEFAULT-SHOULD-BE-NON-ZERO instead of DEFAULT-SHOULD-BE-UNKNOWN
+         Also, there seems to be a number of error interpretations that have been
+         changed due to the changes in the use of the random number generator for tie-breaking.
+     
