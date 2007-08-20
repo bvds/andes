@@ -4163,6 +4163,7 @@
 (def-entry-test match-vector (?quant)
   :preconditions ((student (vector ?quant ?dir1))
 		  (correct (vector ?quant ?dir2))
+		  ;; test that angle can indeed be determined
 		  (test (get-angle-between ?dir1 ?dir2))
 		  (test (<= (get-angle-between ?dir1 ?dir2)
 			    (+ (error-of ?dir1) (error-of ?dir2)))))
