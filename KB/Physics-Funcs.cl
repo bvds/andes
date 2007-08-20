@@ -475,6 +475,10 @@
 	(unify (third x) (third y) bindings)
       fail)))
 
+(defun error-of (x) 
+  "find any error associated with expression"
+  (or (and (member ':error x) (second (member ':error x))) 0))
+
 ;;; This is used in Newton's laws to convert a component equation 
 ;;; into an equation with the component variables replaced by expressions.
 
