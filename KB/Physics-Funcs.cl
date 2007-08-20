@@ -461,19 +461,15 @@
 "true if exp is a number with or without units"
     (or (numberp exp) (dimensioned-numberp exp)))
 
-;; should test both arguments using dimensioned-numberp
-;; before calling this routine.
+;; This does not properly handle disparate units.
 (defun compare-dnums (x y &optional (bindings no-bindings))
   "Compare two dnums, properly handling :error keyword."
-  (let* ((dnum-expr '(dnum ?val ?units :error ?err))
-	 (x-err (or (cdr (get-binding '?err (unify x dnum-expr))) 0))
-	 (y-err (or (cdr (get-binding '?err (unify y dnum-expr))) 0))
-	 (x-val (second x))
-	 (y-val (second y)))
-    (if (and (>= (+ x-val x-err) (- y-val y-err))
-	     (<= (- x-val x-err) (+ y-val y-err)))
-	(unify (third x) (third y) bindings)
-      fail)))
+  (if (and (dimensioned-numberp x)
+	   (dimensioned-numberp y) 
+	   (<= (abs (- (second x) (second y))) 
+	       (+ (error-of x) (error-of y))))
+      (unify (third x) (third y) bindings)
+    fail))
 
 (defun error-of (x) 
   "find any error associated with expression"

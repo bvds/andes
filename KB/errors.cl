@@ -4154,9 +4154,8 @@
 (def-entry-test match-with-error (?quant)
   :preconditions ((student (given ?quant ?val1)) ; this is probably wrong?
 		  (correct (given ?quant ?val2))
-		  (test (and (dimensioned-numberp ?val1) 
-			     (dimensioned-numberp ?val2)
-			     (compare-dnums ?val1 ?val2))))
+		  ;; compare-dnums does not properly handle disparate units.
+		  (test (compare-dnums ?val1 ?val2)))
   :state **correct**
   :order ((correct . 2))
   )
