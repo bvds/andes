@@ -475,25 +475,6 @@
 	   *Problem-Registry*))
 
 
-;; Load the problem files as stored on the disk in the default
-;; problemfile path loading each (if present) and calling the 
-;; specified function on the struct.
-(defun map-problem-files (Function &key (working t) (features Nil) (old-format nil))
-  "Map the specified function onto each problem file in turn."
-  (let (P R)
-    (maphash #'(lambda (Name Problem)
-		 (when (and (or (null Working) (working-problem-p Problem))
-			    (or (null Features) (problem-has-features-p Problem Features))
-			    (problem-file-exists (format nil "~A" Name)))
-		   (format t "Mapping File: ~A~%" Name)
-		   (handler-case (progn 
-				   (setq P (read-problem-file (format nil "~A" Name) 
-							      :Read-Old-Format old-format))
-				   (push (funcall Function P) R))
-		     (error (E) (format t "~A~%" E)))))
-	     *Problem-Registry*)
-    R))
-
 (defun collect-func-problems (Function)
   "Collect all problems for which Function returns t."
   (let ((Storage))
@@ -526,14 +507,6 @@
 (defun problem-has-feature-p (Problem Feature)
   "Return t if the specified problem has the specified feature."
   (member Feature (problem-features Problem)))
-
-(defun problem-has-features-p (Problem Features)
-  "Return t if the problem has all the specified features."
-  (when (null (remove-if 
-	       #'(lambda (F) (member F (problem-features Problem) 
-				     :test #'equalp))
-	       Features))
-    t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
@@ -608,22 +581,6 @@
 ;;; Problem-queries.
 ;;; For reporting purposes these functions can query specified info
 ;;; from the problem struct and return it as necessary.
-
-;;; collect-kcd-uses 
-;;; collect the kcds being used by each problem 0
-;;; according to the problem name.
-(defun collect-kcd-uses (&optional (stream t))
-  "Collect the kcds being used by each problem."
-  (let ((l (map-problem-files
-	   #'(lambda (P) (cons (problem-Name P)
-			       (collect-problem-kcds P))))))
-    (dolist (lp l)
-      (format stream "~A~%" (car lp))
-      (dolist (lpp (cdr lp))
-	(format stream "  ~A~%" lpp))
-      (format stream "~2%"))))
-   
-   
 
 ;;; collect-problem-kcds
 ;;; collect all of the kcds that might be hinted inside the
