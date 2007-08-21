@@ -75,9 +75,9 @@
 ;;;; dummy graph for it.  If not then solve it normally.
 (defun solve-problem (Problem)
   "Solve the specified problem returining the results."
-  (cond ((member 'no-quant (problem-features Problem))
-	 (solve-no-quant-problem Problem))
-	(t (solve-quant-problem Problem)))
+  (if (no-quant-problem-p Problem) 
+	(solve-no-quant-problem Problem)
+    (solve-quant-problem Problem))
   Problem)
 
 
