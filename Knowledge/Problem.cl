@@ -511,7 +511,10 @@
 
 (defun no-quant-problem-p (problem)
   "Return t iff the problem is a no-quant problem."
-  (member 'no-quant (problem-features problem)))
+  (or ; old way left in for now to be safe: look for no-quant tag
+      (member 'no-quant (problem-features problem))
+      ; new way: no sought is a declared quantity expression
+      (notany #'lookup-expression-struct (problem-soughts problem))))
 
 
 (defun multi-sought-problem-p (Problem)
