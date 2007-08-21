@@ -119,6 +119,14 @@
 	(error "Problem features do not enable ~A." 
 	       (exptype-type exptype-struct))))))
 
+;; With feature no-quant, the workbench does not show the variable or
+;; the equation pane.
+(post-process no-quant (Problem)
+  "add feature no-quant to problems with no variables or equations"
+  (unless (or (problem-varindex problem) (problem-eqnindex problem) 
+	      (member 'no-quant (problem-features problem)))
+    (push 'no-quant (problem-features problem))))
+
 
 ;;;             Utilities for constructing features file
 
