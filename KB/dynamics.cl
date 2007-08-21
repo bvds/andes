@@ -1555,7 +1555,8 @@
     ;; If the time covers more than two consecutive points, then we
     ;; cannot be assured that there are no forces defined for a subset. 
     (test (or (time-pointp ?t) (time-consecutivep ?t)))
-    (body ?b)
+    (inherit-or-quantity (body ?b :time ?t) (body ?b :time ?tt))
+    (body ?b :time ?tt)
     (not (unknown-forces :time ?t ?t)) ;can't collect forces if some are unknown
     ;; list of forces acting on entire body (particle)
     (setof (inherit-proposition (force ?b ?agent ?type :time ?t)
@@ -1628,21 +1629,23 @@
 ;;; Newton's laws in that NL diagram also includes acceleration and axes.
 ;;; we make axes optional here.
 (defoperator draw-standard-fbd (?b ?t)
-   :preconditions 
-           ((body ?b)
-	    (forces ?b ?t ?forces)
-	    ;; axes are optional, but still want to allow any valid rotation
-	    ;; Our 'optional' statement requires a fully bound goal forms, for
-	    ;; case where step is skipped and goal is just posted to wm.
-	    ;; So we can't use unbound axis rotation inside optional; instead, 
-	    ;; have to break out call to another operator.
-	    (optional (fbd-axes-drawn ?b)))
-   :effects ((fbd ?b ?t)))
+  :preconditions 
+  (
+   (inherit-or-quantity (body ?b :time ?t) (body ?b :time ?tt))
+   (body ?b :time ?tt)
+   (forces ?b ?t ?forces)
+   ;; axes are optional, but still want to allow any valid rotation
+   ;; Our 'optional' statement requires a fully bound goal forms, for
+   ;; case where step is skipped and goal is just posted to wm.
+   ;; So we can't use unbound axis rotation inside optional; instead, 
+   ;; have to break out call to another operator.
+   (optional (fbd-axes-drawn ?b)))
+  :effects ((fbd ?b ?t)))
 
 (defoperator choose-axes-for-fbd (?b)
-    :effects ( (fbd-axes-drawn ?b) )
-    ; choose any legal rotation:
-    :preconditions ( (axes-for ?b ?x-rot) ))
+  :effects ( (fbd-axes-drawn ?b) )
+  ;; choose any legal rotation:
+  :preconditions ( (axes-for ?b ?x-rot) ))
 
 
 ;;;                  Net Force
