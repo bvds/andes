@@ -1105,13 +1105,13 @@
        (let* ((axis (second quant))
 	      (rot (third quant))
 	      (vector (fourth quant))
-	      ; find vector mag var in index for naming compo
-	      ; var. May not be there if mag unused also
-	      (magvar (match-exp->qvar `(mag ,vector)
+	      ; find vector mag's entry in var index for naming
+	      ; compo var. May not be there if mag unused also
+	      (mag-qvar (match-exp->qvar `(mag ,vector)
 	                    (problem-varindex problem)))
               (value (third prop)))
        ; make sure we found a mag var
-       (if (null magvar) 
+       (if (null mag-qvar) 
              (warn "Unused given ~A not added because mag unused also."
 	              `(compo ,axis ,rot ,vector))
        ;else:
@@ -1120,7 +1120,7 @@
            (append (problem-varindex problem)
 	      (list (make-qvar 
                      ; need to form compo variable name
-                     :var (format-sym "~Ac_~A_~A" axis magvar rot)
+                     :var (format-sym "~Ac_~A_~A" axis (qvar-var mag-qvar) rot)
 		     :exp quant
 		     ; requiring value to be dnum, not plain 0:
 		     :value (second value)

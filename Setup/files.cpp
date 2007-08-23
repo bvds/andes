@@ -87,6 +87,9 @@ static const char * s_files[] =
 	"fbd-tcp.hlp",		// workbench help file for Andes2
 	"fbd.cnt",			// workbench help contents file, name compiled into .hlp file
 
+	// Temp: for WME version. Profile for encoding
+	// "Log\\hausmann.prx",
+
 #if 0 // old TCP based helpsys 
 	"Andes2.dxl",		// helpsys Lisp image
 	"Andes2.exe",		// renamed lisp driver program for helpsys
@@ -155,35 +158,6 @@ static const char * s_files[] =
 #else // ! EXPERIMENT, i.e. normal ANDES
 
 #ifndef OLI	// no problems in OLI installation
-/*
-	"Problems\\Angular Momentum.aps",
-	"Problems\\Circular Motion.aps",
-	"Problems\\Energy-Work.aps",
-	"Problems\\Free Body Diagrams.aps",
-	// "Problems\\Getting Started.aps",
-	"Problems\\Graphical Kinematics.aps",
-	"Problems\\Linear Momentum.aps",
-	"Problems\\Power.aps",
-	"Problems\\Rotational Dynamics.aps",
-	"Problems\\Rotational Kinematics.aps",
-	"Problems\\Statics.aps",
-	"Problems\\Translational Dynamics.aps",
-	"Problems\\Translational Kinematics.aps",
-	"Problems\\Vectors.aps",
-	"Problems\\Electric Field.aps",
-	"Problems\\Electric Potential.aps",
-	"Problems\\DC Circuits.aps",
-	"Problems\\Capacitance.aps",
-	"Problems\\Resistance.aps",
-	"Problems\\Magnetic Field.aps",
-	"Problems\\Electromagnetic Induction.aps",
-	"Problems\\Inductance.aps",
-	"Problems\\Optics.aps",
-	"Problems\\Fluids.aps",
-	"Problems\\Oscillations.aps",
-	"Problems\\Waves.aps",
-	"Problems\\Work_Energy.aps",
-*/
 	"Problems\\*.aps",
 
 	// Now just copy all of these

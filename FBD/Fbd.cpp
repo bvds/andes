@@ -800,7 +800,7 @@ Personal firewall software may be preventing Andes from running correctly.");
 	// as unique Andes session id, for easy correlation with logs
    	m_strSessionId = HistoryFileSetStudent(m_strUserName);
 
-#ifdef EXP // For experiment: record screen movie
+#if EXP // For experiment: record screen movie
 	extern BOOL BeginRecordScreen(LPCSTR pszOutputPath, LPCTSTR pszProfileName, LPCTSTR pszProfileDir=NULL);
 	if (! BeginRecordScreen(g_strAndesDir + "Log/" + m_strSessionId + ".wmv", "Hausmann Experiment", g_strAndesDir + "Log"))
 		AfxMessageBox("Failed to start screen recorder. ");
