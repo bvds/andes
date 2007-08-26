@@ -124,6 +124,7 @@
 (post-process no-quant (Problem)
   "add feature no-quant to problems with no variables or equations"
   (unless (or (problem-varindex problem) (problem-eqnindex problem) 
+	      (consp (problem-times problem))
 	      (member 'no-quant (problem-features problem)))
     (push 'no-quant (problem-features problem))))
 

@@ -568,7 +568,6 @@
    (
     (motion ?b straight :stops ?sflag :dir ?dir :time ?t-motion . ?rest)
     (time ?t)
-    (any-member ?t ((during ?t1 ?t2))) ;get times
     (test (and (time-intervalp ?t) (tinsidep ?t ?t-motion)))
     ;; work-around for kgraph9, Bug #977
     (not (motion ?b at-rest :time ?t))
@@ -585,7 +584,7 @@
     (variable ?dir-var (dir (displacement ?b :time ?t)))
     (given (dir (displacement ?b :time ?t)) ?dir)) 
   :hint
-  ((point (string "Notice that, ~A, ~A along a straight line." 
+  ((point (string "Notice that ~A, ~A along a straight line." 
 		  (?t pp) (?any-motion identity)))
    (teach (string "Whenever an object moves in a straight line, the displacement vector is parallel to the direction of motion.")
 	  (kcd "draw_displacement"))
