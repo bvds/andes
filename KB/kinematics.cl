@@ -298,7 +298,7 @@
 	       ((mag (displacement ?b :time ?t))
 		(distance ?b :time ?t)))
    ;; make sure we are moving in a straight line.
-   (motion ?b straight :accel ?a-dir :dir ?v-dir :time ?t-motion)
+   (motion ?b straight :accel ?a-dir :dir ?v-dir :time ?t-motion . ?whatever)
    ;; this test does not work for the case of slowing down.
    ;; Also, in the case that :accel is unspecified, we assume
    ;; that it does not change direction.
@@ -1380,7 +1380,7 @@
 
 (defoperator draw-accelerating (?b ?t)
   :preconditions
-   ((motion ?b straight :accel ?dir :dir ?v-dir :time ?t-motion)
+   ((motion ?b straight :accel ?dir :dir ?v-dir :time ?t-motion . ?whatever) 
     (test (degree-specifierp ?dir)) 
     ;; cases handled by draw-accel-speed-up and draw-accel-slow-down
     (test (not (degree-specifierp ?v-dir)))
@@ -1415,7 +1415,7 @@
       and the direction of motion ?direction,
    then draw a non-zero acceleration in ?direction during ?time."
   :preconditions
-   ((motion ?b straight :accel ?dir :dir ?dir :time ?t-motion)
+   ((motion ?b straight :accel ?dir :dir ?dir :time ?t-motion . ?whatever)
     (test (not (equal ?dir 'unknown)))  ; until conditional effects are implemented
     (time ?t)
     (test (tinsidep ?t ?t-motion))
@@ -1589,7 +1589,7 @@
    "If ?body is moving in a straight line and slowing down during ?time,
    then its acceleration is opposite its direction of motion."
   :preconditions
-   ((motion ?b straight :accel ?accel-dir :dir ?motion-dir :time ?t-motion)
+   ((motion ?b straight :accel ?accel-dir :dir ?motion-dir :time ?t-motion . ?rest)
     (test (degree-specifierp ?motion-dir)) 
     (test (equal ?accel-dir (opposite ?motion-dir)))
     (time ?t)
