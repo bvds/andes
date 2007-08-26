@@ -566,25 +566,31 @@
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
    (
-    (motion ?b straight :dir ?dir :time ?t-motion . ?rest)
+    (motion ?b straight :stops ?sflag :dir ?dir :time ?t-motion . ?rest)
     (time ?t)
+    (any-member ?t ((during ?t1 ?t2))) ;get times
     (test (and (time-intervalp ?t) (tinsidep ?t ?t-motion)))
     ;; work-around for kgraph9, Bug #977
     (not (motion ?b at-rest :time ?t))
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?any-motion (format nil (if ?sflag  "any motion of ~A is" 
+				      "~a is moving") (nlg ?b)))
+    )
   :effects
    ((vector ?b (displacement ?b :time ?t) ?dir)
     (variable ?mag-var (mag (displacement ?b :time ?t)))
     (variable ?dir-var (dir (displacement ?b :time ?t)))
     (given (dir (displacement ?b :time ?t)) ?dir)) 
   :hint
-  ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
-   (teach (string "Whenever an object is moving in a straight line over a time interval, it has a displacement which is parallel to the direction of motion.")
+  ((point (string "Notice that, ~A, ~A along a straight line." 
+		  (?t pp) (?any-motion identity)))
+   (teach (string "Whenever an object moves in a straight line, the displacement vector is parallel to the direction of motion.")
 	  (kcd "draw_displacement"))
-   (bottom-out (string "Because ~a is moving in a straight line ~a, use the displacement tool to draw a displacement vector for it in direction ~a" ?b (?t pp) ?dir))
+   (bottom-out (string "Because ~A in the direction ~A, use the displacement tool to draw a displacement vector in the direction ~a ~A" 
+		       (?any-motion identity) ?dir ?dir (?t pp)))
    ))
 
 
