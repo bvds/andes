@@ -569,7 +569,8 @@
     (motion ?b straight :stops ?sflag :dir ?dir :time ?t-motion . ?rest)
     (time ?t)
     (test (and (time-intervalp ?t) (tinsidep ?t ?t-motion)))
-    ;; work-around for kgraph9, Bug #977
+    ;; choose smallest interval for which there is a motion statement
+    ;; Work around for kgraph9, Bug #977
     (not (motion ?b at-rest :time ?t))
     (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
     (not (vector ?b (displacement ?b :time ?t) ?dir))
