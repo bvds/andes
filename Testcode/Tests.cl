@@ -206,13 +206,14 @@
 
 ;;; On the multiple choice problems the student can only make 
 ;;; check-answer entries.  We want to flag these problems so
-;;; that we will not penalize the students for not writing 
-;;; equations on them.  Because the testing task is so time-consuming
-;;; I will cache the value here.  In the future it would (again) be
-;;; nice to hang some of these values on the problem struct itself
-;;; so that they can be tested more directly there.
-(defparameter **Current-Prob-Has-nonanswer-entries** t)
-
+;;; that we do not penalize the students on the correct entry
+;;; rate component for not making any other entries like 
+;;; equations or drawings on them. This now generalized
+;;; to apply to problems tagged with feature 'Final-Answer-only, 
+;;; (e.g. kinematics graph reading problems that call only for
+;;; entering "given" values in answer boxes).  These problems may
+;;; have entries in the solution graph but they are effectively optional. 
+(defparameter **Current-Prob-Requires-nonanswer-entries** t)
 
 
 ;;;; -------------------------------------------------------------------------
@@ -591,7 +592,7 @@
 
 (defun test-problem-nonanswer-entries ()
   "Test the problem for nonanswer entries."
-  (setq **Current-Prob-Has-nonanswer-entries**
+  (setq **Current-Prob-Requires-nonanswer-entries**
 	(and (remove-if 
 	      #'(lambda (S) (unify (Systementry-prop S) '(choose-answer . ?a)))
 	      *sg-entries*)
@@ -776,7 +777,7 @@
 ;;;; =========================================================================
 ;;;; Equation Subscore.
 ;;;; The student's equation subscore is based upon the number of required
-;;;; equations that they write and the number of that set that are written
+;;;; equations that they make use of and the number of that set that are written
 ;;;; "explicitly".  In order to asess this we need to determine how many
 ;;;; equations of each type are necessary for each solution set, and then 
 ;;;; to determine which among those we want the students to use.  
@@ -807,6 +808,7 @@
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
+                      **Current-Prob-Requires-nonanswer-entries**
 		      (car *test-cache-eqn-entries*)))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -837,6 +839,7 @@
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
+                      **Current-Prob-Requires-nonanswer-entries**
 		      (car *test-cache-eqn-entries*)))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -865,6 +868,7 @@
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
+                      **Current-Prob-Requires-nonanswer-entries**
 		      (car *test-cache-given-eqn-entries*))) 
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -894,6 +898,7 @@
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
+                      **Current-Prob-Requires-nonanswer-entries**
 		      (car *test-cache-given-eqn-entries*))) 
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -940,6 +945,7 @@
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
+                      **Current-Prob-Requires-nonanswer-entries**
 		      (car *test-cache-objects*))) 
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -949,7 +955,7 @@
 
 
 ;;; ----------------------------------------------------------------------------
-;;; Count the percentage of Axers entries that the student has made. 
+;;; Count the percentage of Axes entries that the student has made. 
 
 (add-runtime-test
  Axis_Entry_Subscore
@@ -968,6 +974,7 @@
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
+		      **Current-Prob-Requires-nonanswer-entries**
 		      (car *test-cache-axis-entries*))) 
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -1308,7 +1315,7 @@
  :Weight 0.05
  :ActiveCond #'(lambda () 
 		 (and *cp* (not-curr-checking-problemp)
-		      **Current-Prob-Has-nonanswer-entries**))
+		      **Current-Prob-Requires-nonanswer-entries**))
  :MergeFunc #'mergefunc-sum-values
  )
 
