@@ -118,7 +118,7 @@
   (let ((graph) (Q) (qualpart-graph))
 
     (dolist (S Soughts)
-      (cond ((not (lookup-expression-struct S))
+      (cond ((not (quantity-expression-p S))
 	     (format t "WARNING: Non quantity ~S being treated as qualitative part.~%" S)
 	     ;; generate a bubblegraph as if this part were a non-quant 
 	     ;; problem. Such a graph contains one pseudo enode per sought 
@@ -171,7 +171,7 @@
 ;;; quantity adding the resulting nodes to the supplied graph.
 (defun gg-solve-for-sought (Sought Givens &key (Graph Nil) (IgnorePSMS nil))
   "Solve for the sought with the givens and optional Graph."
-  (when (not (lookup-expression-struct Sought))
+  (when (not (quantity-expression-p Sought))
     (Error "Non-quantity sought supplied ~S." Sought))
   ;; AW -- moved this case up so no trace output for preexisting sought
   (or (gg-solve-preexisting-sought Sought Graph)

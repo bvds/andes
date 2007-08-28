@@ -238,6 +238,10 @@
 	(lookup-expression-struct-chain 
 	 exp binds (cdr Types))))))
 		      
+; For readability when used as a predicate:
+(defun quantity-expression-p (exp)
+ "Non-null if given form is a declared quantity expression"
+  (lookup-expression-struct exp))
 
 (defun lookup-expression-fieldtype (Field Struct)
   "Lookup the struct corresponding to the field."

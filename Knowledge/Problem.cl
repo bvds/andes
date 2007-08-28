@@ -492,7 +492,7 @@
 
 (defun no-quant-problem-p (problem)
   "Return t iff the problem is a no-quant problem."
-  (notany #'lookup-expression-struct (problem-soughts problem)))
+  (notany #'quantity-expression-p (problem-soughts problem)))
 
 
 (defun multi-sought-problem-p (Problem)

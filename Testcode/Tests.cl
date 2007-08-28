@@ -615,7 +615,7 @@
 
 ;;;; =========================================================================
 ;;;; Answer Subscore
-;;;; The answer subscore is used to compute how many of the required scores
+;;;; The answer subscore is used to compute how many of the required answers
 ;;;; that the student has entered.  This code will be used at runtime to 
 ;;;; set the number of required Answers that the student has made.  
 ;;;; This is a fractional score result and will be used (most likely) as
@@ -646,12 +646,12 @@
  :Func #'(lambda (X) (update-rt-score-value X #'art-count-correct-answer-ents))
  :InitFunc #'(lambda () 
 	       (make-rt-fract-num-score 
-		0 (length (remove-if-not #'lookup-expression-struct (problem-soughts *cp*)))))
+		0 (length (remove-if-not #'quantity-expression-p (problem-soughts *cp*)))))
  :Weight 0.20
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
-		      (member-if #'lookup-expression-struct (problem-soughts *cp*))))
+		      (member-if #'quantity-expression-p (problem-soughts *cp*))))
 ;;		      (not (no-quant-problem-p *cp*))))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -704,7 +704,7 @@
 		0 (length 
 		   (remove-if-not 
 		    #'(lambda (S) 
-			(and (not (lookup-expression-struct S))
+			(and (not (quantity-expression-p S))
 			     (not (equalp (car S) 'choose-answer))))
 		    (problem-soughts *cp*)))))
  :Weight 0.20
@@ -712,7 +712,7 @@
  :ActiveCond #'(lambda ()
 		 (and (problem-loadedp)
 		      (member-if #'(lambda (S) 
-				     (and (not (lookup-expression-struct S))
+				     (and (not (quantity-expression-p S))
 					  (not (equalp (car S) 'choose-answer))))
 				 (problem-soughts *cp*))))
  :Loadable Nil
