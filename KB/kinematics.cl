@@ -576,7 +576,7 @@
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?any-motion (if ?sflag  "any motion of ~A is" ))
+    (bind ?any-motion (if ?sflag "any motion of ~A is" "~A is moving"))
     )
   :effects
    ((vector ?b (displacement ?b :time ?t) ?dir)
