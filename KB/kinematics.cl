@@ -566,7 +566,7 @@
    then draw a displacement vector for it in the direction of its motion."
   :preconditions
    (
-    (motion ?b straight :stops ?sflag :dir ?dir :time ?t-motion . ?rest)
+    (motion ?b straight :may-stop ?sflag :dir ?dir :time ?t-motion . ?rest)
     (time ?t)
     (test (and (time-intervalp ?t) (tinsidep ?t ?t-motion)))
     ;; choose smallest interval for which there is a motion statement
@@ -576,8 +576,7 @@
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?any-motion (format nil (if ?sflag  "any motion of ~A is" 
-				      "~a is moving") (nlg ?b)))
+    (bind ?any-motion (if ?sflag  "any motion of ~A is" ))
     )
   :effects
    ((vector ?b (displacement ?b :time ?t) ?dir)
@@ -585,8 +584,8 @@
     (variable ?dir-var (dir (displacement ?b :time ?t)))
     (given (dir (displacement ?b :time ?t)) ?dir)) 
   :hint
-  ((point (string "Notice that ~A, ~A along a straight line." 
-		  (?t pp) (?any-motion identity)))
+  ((point (string "Notice that ~A, ~@? along a straight line." 
+		  (?t pp) (?any-motion identity) ~A))
    (teach (string "Whenever an object moves in a straight line, the displacement vector is parallel to the direction of motion.")
 	  (kcd "draw_displacement"))
    (bottom-out (string "Because ~A in the direction ~A, use the displacement tool to draw a displacement vector in the direction ~a ~A" 
@@ -859,7 +858,7 @@
   :preconditions
   ((use-point-for-body ?body ?cm ?b) ;else ?b is sometimes not bound
    (motion ?b straight :dir ?dir :time ?t-motion . ?whatever)
-   (test (not (equal ?dir 'unknown)))	;until conditional effects are implemented
+   (test (and ?dir (not (equal ?dir 'unknown))))
    (time ?t)
    (test (tinsidep ?t ?t-motion))
    (not (vector ?body (velocity ?b :time ?t) ?dir))
@@ -1338,7 +1337,7 @@
    "If ?body is moving in a straight line with constant speed during ?time,
    then its acceleration during ?time is zero."
   :preconditions
-   ((motion ?b straight :accel zero :time ?t-motion . ?whatever)
+   ((motion ?b straight :accel zero :may-stop ?sflag :time ?t-motion . ?whatever)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
@@ -1350,11 +1349,13 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
   :hint
-  ((point (string "Notice that ~a is moving in a straight line at constant speed ~a" ?b (?t pp)))
+  ((point (string "Notice that ~a is moving in a straight line at constant speed ~a~@[ or is at rest~]."
+		  ?b (?t pp) (?sflag identity)))
    (teach (minilesson "mini_zero_accel.htm")
           (kcd "draw_accel_straight_constant_speed")
-	  (string "When a body is moving in a straight line at constant speed, then it has constant velocity, and thus it has zero acceleration."))
-   (bottom-out (string "Because ~a has constant velocity ~a, use the acceleration tool to draw a zero-length acceleration vector for it." ?b (?t pp)))
+	  (string "When a body is moving in a straight line at ~@[constant speed, then it has constant velocity, and thus~; velocity or is at rest,~] it has zero acceleration." 
+		  (?sflag identity)))
+   (bottom-out (string "Because ~a has constant~@[ (or zero)~] velocity ~a, use the acceleration tool to draw a zero-length acceleration vector for it." ?b (?sflag identity) (?t pp)))
    ))
 
 (defoperator draw-accel-potential-zero (?b ?t)
