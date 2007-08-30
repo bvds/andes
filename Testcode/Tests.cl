@@ -658,10 +658,25 @@
  )
 
 
-
+;;;
+;;; For non-quantitative problem parts, the workbench uses two sorts of 
+;;; controls instead of quantitative answer boxes:
+;;;   1. "I'm Done" check boxes for qualitative parts like fbd drawing
+;;;   2.  Multiple choice question buttons.
+;;; The existing lookup-mc-answer API was overloaded to handle both cases, 
+;;; treating the check box as a degenerate case of a multiple choice 
+;;; question. (Probably would be better to handle differently.)
+;;; That explains why the following refers to I'm Done check boxes by the 
+;;; misleading term of "MC-answers". (Should change at some point.) True
+;;; multiple choice answers are referred to as "multiple-choice-answers".
+;;;
+;;; The answer entry for done checks has prop (lookup-mc-answer ...)
+;;; The answer entry for multiple choice q's has (choose-answer ...) 
+;;; 
 
 ;;; ----------------------------------------------------------------------
 ;;; MC-answers
+;;;
 ;;; This test is used to keep track of the number of mc-answers that 
 ;;; the student has entered.  MC-answers are multiple-choice dialogs
 ;;; that (at present) are used on no-quant problems.  The student is
@@ -784,7 +799,7 @@
 
 
 ;;; --------------------------------------------------------------------------
-;;; Count the number of Equations that the student has written 
+;;; Count the number of Equations that the student has applied
 ;;; versus the number that they need to for each solution set.  This gets
 ;;; stored as a single set list the result of which is taken later.
 ;;;
@@ -848,7 +863,7 @@
 
 
 ;;; ---------------------------------------------------------------------------
-;;; Count the number of given-equations that the student has written in some
+;;; Count the number of given-equations that the student has applied in some
 ;;; form or another.
 
 (add-runtime-test
