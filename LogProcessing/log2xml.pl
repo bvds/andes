@@ -338,18 +338,27 @@ END_DATASET
 	    $terms = substr($argstr, 1, rindex($argstr, ")")-1); #extract text between ()'s
 	    ($api_call, $params) = split(" ", $terms, 2);
 
-	    # classify the Helpsys call and remember.
+	    # classify interesting Helpsys call types and remember.
             $helpreq = $helprequests{$api_call};
-	    $checkreq = $checkrequests{$api_call};
+            # lookup-eqn-string is check req unless empty eqn submitted. Will
+	    # be treated as deletion. NB helpsys result, normally empty, gets ignored here.
+	    $checkreq = $checkrequests{$api_call} 
+	                && ! ($argstr =~ m/\(lookup-eqn-str \"\"/); 
 	    $calcreq = $calcrequests{$api_call};
-	    if ($api_call eq "handle-student-response") {
-	        $cancel_response = $params =~ /Cancel/;
-	        $query_response =  not $cancel_response;
+	    if ($api_call eq "handle-student-response") {  	# response to helpsys query. 
+	        $cancel_response = $params =~ /Cancel/;		# non-Cancel continues sequence, so like
+	        $query_response =  not $cancel_response; 	# Explain-More for most purposes
 	    } else { $cancel_response = $query_response = ""; }
 	    # must save query type (sought, principle, equation) for which this student submission is a response at time of submssion event, 
 	    # since help sys reply to this may contain a new query of different type, e.g. principle, overwriting $last_query_type. We are
 	    # printing this transaction after both request and reply are complete, so need the original. 
 	    $responses_query_type = $query_response ? $last_query_type : "";
+	    # if this initiates a hint sequence, remember it for subtype tagging below
+	    if ($helpreq && $helpreq ne "Explain-Further") {
+		    $cur_hint_sequence_type = $helpreq;
+	    } elsif (! ($helpreq || $query_response)) { # not continuing current sequence
+		    $cur_hint_sequence_type = "";
+	    }
 
 	    # clear records for current transaction
 	    %assocs = ();  # hash in which we collect tagged assocs, plus other attributes
@@ -445,10 +454,13 @@ END_DATASET
 	if ($helpreq || $query_response) { # treat non-cancel query response like Explain-More
 		$event_type = "HINT_MSG";
 		$evaluation = "HINT";
-	} else { $event_type = "RESULT"; } # $checkreq = entry submission result
+	} else { # $checkreq = entry submission result
+		$event_type = "RESULT"; 
+	} 
 
 	# check for hint message in result. Note hint may be attached to submission result 
-	# (unsolicited), OR the result of an explicit hint request.
+	# (unsolicited), OR the result of an explicit hint request. We will attach hint
+	# type of sequence initiator as subtype of the hint-returning semantic event
 	$hint = $followups = $last_query_type = $subtype_attr = ""; # clear defaults until hint found
 	if ($cmdmsg) { 
 	    ($cmd, $cmdargstr) = split(' ', $cmdmsg, 2);
@@ -480,6 +492,14 @@ END_DATASET
 	    $hint_attrs = "current_hint_number=\"$hint_number\"";
 	    if ($assocs{"hint_id"}) { 
 	        $hint_attrs .= ' hint_id="' . $assocs{"hint_id"} . '"'; 
+	    }
+	    if ($event_type eq "RESULT") {
+		 $cur_hint_sequence_type = "Unsolicited"; # starts sequence here
+	    }
+	    # if no special subtype set, then use current hint sequence type
+	    # !!! might not want Ask-Sought Ask-Principle Ask-Equation as subtypes in sequence?
+	    if (! $subtype_attr) {
+		    $subtype_attr = "subtype=\"$cur_hint_sequence_type\"";
 	    }
 	    # if no followups, then indicate terminal hint by setting hints_available to hint_number.
 	    # NOTE: not all terminal hints are giveaway hints, only those in response to help requests are.
@@ -698,9 +718,11 @@ CALC_RESULT_INTERP
 END_DELETION
 	#&remove_step_entry($id);
      }
-     # equation deletions sent as post of empty string. Note we are not sure this is
-     # really a deletion of anything, i.e. we don't know if there was any text there before.
-     elsif (/^DDE-POST$/ and $argstr =~ m/\(lookup-eqn-string "" ([\d]+)\)/) {
+     # On tabbing out of now-empty equation, deletion notifications is sent as 
+     # post of empty string. Note we are not sure this is really a deletion of 
+     # anything, i.e. we don't know if there was any text there before.
+     # We will also treat submit (by hitting enter) of empty eqn the same way
+     elsif ($argstr =~ m/\(lookup-eqn-string "" ([\d]+)\)/) {
  	$id = $1;
  	&print_context_hdr("tool_message");
  	print <<END_EQ_DELETION;
