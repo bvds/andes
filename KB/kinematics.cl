@@ -1294,7 +1294,6 @@
    ))
 
 
-
 ;;; ============================ acceleration =================================
 ;;; This section contains operators that determine whether acceleration is zero
 ;;; or non-zero, and what direction the non-zero accelerations are.
@@ -1325,6 +1324,36 @@
    (teach (kcd "draw_accel_when_at_rest")
           (string "If a body is at rest throughout some time interval, its average acceleration during that interval is zero."))
    (bottom-out (string "Because ~a is at rest ~a, use the acceleration tool to draw a zero-length acceleration vector for it." ?b (?t pp)))
+   ))
+
+(defoperator draw-accel-given-zero-net-force (?b ?t)
+  :preconditions 
+  (
+   (given (mag (net-force ?b :time ?t-given)) (dnum 0 ?units))
+   (time ?t)
+   (test (tinsidep ?t ?t-given))
+   ;; test for absence of motion statement
+   (not (motion ?b ?type :time ?t-motion . ?rest-motion) 
+	(tinsidep ?t ?t-motion))
+   (bind ?mag-var (format-sym "a_~A~@[_~A~]" 
+			      (body-name ?b) (time-abbrev ?t)))
+    )
+  :effects (
+    (vector ?b (accel ?b :time ?t) zero)
+    (variable ?mag-var (mag (net-force ?b :time ?t)))
+   ;; Because mag is problem given, find-by-psm won't ensure 
+   ;; implicit eqn gets written.  Given value may not be used 
+   ;; elsewhere so ensure it here.
+   ;; see draw-rel-vel-vector-given-dir
+   (implicit-eqn (= ?mag-var (dnum 0 ?units)) 
+   		 (mag (net-force ?b :time ?t)))
+  )
+  :hint 
+  ((point (string "What do you know about the total force acting on ~A ~A?" 
+		  ?b (?t pp)))
+   (teach (string "If all of the forces acting on an object balance out, the total (net) force acting on that object is zero."))
+   (bottom-out (string "Draw a zero-length net force vector acting on ~A ~A." 
+		       ?b (?t pp)))
    ))
 
 
