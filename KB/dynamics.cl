@@ -1464,7 +1464,7 @@
 	     (error "draw-net-force-zero error:  also found definite direction ~A for net force." 
 		    ?net-force-dir)))
    ;;  make sure it is not given directly
-   (not (given (mag (net-force ?b :time ?t)) ?given-mag))
+   (not (net-force-zero ?b :time ?t-given) (tinsidep ?t ?t-given))
    ;;
    (not (vector ?b (net-force ?b :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" 
@@ -1488,7 +1488,7 @@
 (defoperator draw-net-force-given-zero (?b ?t)
   :preconditions 
   (
-   (given (mag (net-force ?b :time ?t-given)) (dnum 0 ?units))
+   (net-force-zero ?b :time ?t-given)
    (time ?t)
    (test (tinsidep ?t ?t-given))
    (bind ?mag-var (format-sym "Fnet_~A~@[_~A~]" 
@@ -1497,12 +1497,7 @@
   :effects (
     (vector ?b (net-force ?b :time ?t) zero)
     (variable ?mag-var (mag (net-force ?b :time ?t)))
-   ;; Because mag is problem given, find-by-psm won't ensure 
-   ;; implicit eqn gets written.  Given value may not be used 
-   ;; elsewhere so ensure it here.
-   ;; see draw-rel-vel-vector-given-dir
-   (implicit-eqn (= ?mag-var (dnum 0 ?units)) 
-   		 (mag (net-force ?b :time ?t)))
+    (given (mag (net-force ?b :time ?t)) (dnum 0 |N|))
   )
   :hint 
   ((point (string "What do you know about the total force acting on ~A ~A?" 

@@ -588,8 +588,8 @@
 		  (?t pp) (?any-motion identity) ~A))
    (teach (string "Whenever an object moves in a straight line, the displacement vector is parallel to the direction of motion.")
 	  (kcd "draw_displacement"))
-   (bottom-out (string "Because ~A in the direction ~A, use the displacement tool to draw a displacement vector in the direction ~a ~A" 
-		       (?any-motion identity) ?dir ?dir (?t pp)))
+   (bottom-out (string "Because ~@? in the direction ~A, use the displacement tool to draw a displacement vector in the direction ~a ~A" 
+		       (?any-motion identity) ?b ?dir ?dir (?t pp)))
    ))
 
 
@@ -1329,30 +1329,24 @@
 (defoperator draw-accel-given-zero-net-force (?b ?t)
   :preconditions 
   (
-   (given (mag (net-force ?b :time ?t-given)) (dnum 0 ?units))
+   (net-force-zero ?b :time ?t-given)
    (time ?t)
    (test (tinsidep ?t ?t-given))
-   ;; test for absence of motion statement
-   (not (motion ?b ?type :time ?t-motion . ?rest-motion) 
-	(tinsidep ?t ?t-motion))
+   ;; test for absence of applicable motion statement
+   (not (motion ?b ?type :accel ?accel-motion :time ?t-motion . ?rest-motion) 
+	(and (tinsidep ?t ?t-motion) 
+	     (or (eq ?type 'at-rest) (eq ?accel-motion 'zero))))
    (bind ?mag-var (format-sym "a_~A~@[_~A~]" 
 			      (body-name ?b) (time-abbrev ?t)))
     )
-  :effects (
-    (vector ?b (accel ?b :time ?t) zero)
-    (variable ?mag-var (mag (net-force ?b :time ?t)))
-   ;; Because mag is problem given, find-by-psm won't ensure 
-   ;; implicit eqn gets written.  Given value may not be used 
-   ;; elsewhere so ensure it here.
-   ;; see draw-rel-vel-vector-given-dir
-   (implicit-eqn (= ?mag-var (dnum 0 ?units)) 
-   		 (mag (net-force ?b :time ?t)))
-  )
+  :effects ((vector ?b (accel ?b :time ?t) zero)
+	    (variable ?mag-var (mag (accel ?b :time ?t)))
+	    (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
   :hint 
-  ((point (string "What do you know about the total force acting on ~A ~A?" 
+  ((point (string "What do you know about the acceleration of ~A ~A?" 
 		  ?b (?t pp)))
-   (teach (string "If all of the forces acting on an object balance out, the total (net) force acting on that object is zero."))
-   (bottom-out (string "Draw a zero-length net force vector acting on ~A ~A." 
+   (teach (string "If the total (net) force acting on an object is zero, according to Newton's second law, the acceleration of that object must also be zero."))
+   (bottom-out (string "Draw a zero-length acceleration vector for ~A ~A." 
 		       ?b (?t pp)))
    ))
 
@@ -1366,7 +1360,7 @@
    "If ?body is moving in a straight line with constant speed during ?time,
    then its acceleration during ?time is zero."
   :preconditions
-   ((motion ?b straight :accel zero :may-stop ?sflag :time ?t-motion . ?whatever)
+   ((motion ?b straight :accel zero :time ?t-motion . ?whatever)
     (time ?t)
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) zero))
@@ -1378,13 +1372,13 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
   :hint
-  ((point (string "Notice that ~a is moving in a straight line at constant speed ~a~@[ or is at rest~]."
-		  ?b (?t pp) (?sflag identity)))
+  ((point (string "Notice that ~a is moving in a straight line at constant speed ~A."
+		  ?b (?t pp)))
    (teach (minilesson "mini_zero_accel.htm")
           (kcd "draw_accel_straight_constant_speed")
-	  (string "When a body is moving in a straight line at ~@[constant speed, then it has constant velocity, and thus~; velocity or is at rest,~] it has zero acceleration." 
-		  (?sflag identity)))
-   (bottom-out (string "Because ~a has constant~@[ (or zero)~] velocity ~a, use the acceleration tool to draw a zero-length acceleration vector for it." ?b (?sflag identity) (?t pp)))
+	  (string "When a body is moving in a straight line at constant speed, then it has constant velocity and it has zero acceleration."))
+   (bottom-out (string "Because ~a has constant velocity ~a, use the acceleration tool to draw a zero-length acceleration vector for it." 
+		       ?b (?t pp)))
    ))
 
 (defoperator draw-accel-potential-zero (?b ?t)
