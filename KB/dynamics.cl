@@ -541,7 +541,7 @@
   
   :preconditions (
     (variable ?ff-var (mag (force ?b ?surface kinetic-friction :time ?t)))
-    (variable ?N-var   (mag (force ?b ?surface normal :time ?t)))
+    (variable ?N-var (mag (force ?b ?surface normal :time ?t)))
     (variable ?mu-var (coef-friction ?b ?surface kinetic))
   )
   :effects (
