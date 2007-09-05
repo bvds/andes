@@ -185,7 +185,8 @@
 
 (defparameter *test-cache-objects* ())
 ;;(defparameter *test-cache-body-entries* ())
-
+; for drawing-only problems:
+(defparameter *test-cache-drawing-entries* ())
 
 
 ;;; This parameter is used in the test-cbe-get-object function below 
@@ -243,6 +244,7 @@
        (memoize 'sg-systementry-optional-p :test #'eq)
        (test-cache-solution-entries)
        (test-cache-solution-objects)
+       (test-cache-drawing-entries)
        ;(format T "required axes: ~A~%" *test-cache-axis-entries*)
        ;(format T "required bodies: ~A~%" *test-cache-objects*)
        (test-problem-nonanswer-entries))))
@@ -337,6 +339,18 @@
 		      (psmclass-major-p Class)))
 	(push Entry (nth Solution *test-cache-eqn-entries*)))))))
 	 
+;;
+;; For qualitatitve steps: collect all required drawing entries
+;; Merged over all such steps so is a single score.
+;; !!! Not checking if optional
+(defun test-cache-drawing-entries ()
+  (setf *test-cache-drawing-entries*
+     (reduce #'union ; !!! maybe need :test equalp
+        (mapcar #'enode-required-entries ; in solutiongraph.cl
+	   (mapcar #'(lambda(exp) 
+	              (match-exp->enode exp (problem-graph *cp*)))
+	     (remove-if-not #'qual-sought-p (problem-soughts *cp*))))
+	     :initial-value NIL))) ; in case no args to reduce #'union
 
 ;;; -------------------------------------------------------------------
 ;;; SolSet Entry Updates.
@@ -623,8 +637,8 @@
 
 ;;; -----------------------------------------------------------------------
 ;;; Answer_Entries
-;;; This code is used to calculate the number of Normal answers that the 
-;;; student must enter at runtime.  This is a fractional value and will
+;;; This code is used to calculate the number of quantitative answers that 
+;;; the student must enter at runtime.  This is a fractional value and will
 ;;; be used on all non-quant problems.
 
 (defun art-count-correct-answer-ents (V)
@@ -642,7 +656,7 @@
 (add-runtime-test
  Answer_Entry_Subscore
  :PrintStr "Answer_Entry_Subscore"
- :ValType rt-fract-num-score
+ ; :ValType rt-fract-num-score
  :Func #'(lambda (X) (update-rt-score-value X #'art-count-correct-answer-ents))
  :InitFunc #'(lambda () 
 	       (make-rt-fract-num-score 
@@ -696,6 +710,13 @@
 ;;; made, decrementing the count each time an incorrect or color-black
 ;;; response is made.  
 
+
+;; following applies to problem sought expressions:
+(defun qual-sought-p (expr)
+"true if this sought is neither a quantity nor a multiple choice"
+   (and (not (quantity-expression-p expr))
+        (not (eq (first expr) 'choose-answer))))
+
 (defun count-correct-mc-answer-subscore (Count)
   (declare (ignore Count))
   (length 
@@ -704,7 +725,7 @@
 		       (equalp (car (studententry-prop E)) 'lookup-mc-Answer)))
     *Studententries*)))
 
-   
+
 ;;(cond ((not (equalp (car (cmd-call **current-cmd**)) 'lookup-mc-answer)) Count)
 ;;((correct-cmdp **current-cmd**) (+ 1 Count))
 ;;(t (if (= 0 Count) 0 (- Count 1)))))
@@ -712,38 +733,60 @@
 (add-runtime-test
  MC_Answer_Entry_Subscore
  :PrintStr "MC_Answer_Entry_Subscore"
- :ValType rt-solset
+ ; :ValType rt-fract-num-score
  :Func #'(lambda (X) (update-rt-score-value X #'count-correct-mc-answer-subscore))
  :InitFunc #'(lambda () 
 	       (make-rt-fract-num-score 
-		0 (length 
-		   (remove-if-not 
-		    #'(lambda (S) 
-			(and (not (quantity-expression-p S))
-			     (not (equalp (car S) 'choose-answer))))
-		    (problem-soughts *cp*)))))
+		0 (length (remove-if-not #'qual-sought-p 
+		              (problem-soughts *cp*)))))
  :Weight 0.20
  :CreditType Credit
  :ActiveCond #'(lambda ()
 		 (and (problem-loadedp)
-		      (member-if #'(lambda (S) 
-				     (and (not (quantity-expression-p S))
-					  (not (equalp (car S) 'choose-answer))))
-				 (problem-soughts *cp*))))
+		      (member-if #'qual-sought-p (problem-soughts *cp*))))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
  )
 
+;; For partial credit on drawing problems: score for number of required
+;; diagram entries made. This is like equation/axis/body scores in that
+;; it is the fraction done of a cached list of entries in which only the
+;; numerator is updated. But it is not a per-solution ("rt-solset") score
+;; so can't use the general functions for handling such a score.
+
+(defun count-correct-diagram-ents (CurrVal)
+  (declare (ignore CurrVal))
+  (loop for E in *test-cache-drawing-entries*
+     count (systementry-entered E)))
+
+
+(add-runtime-test
+ Diagram_Entry_Subscore
+ :PrintStr "Diagram_Entry_Subscore"
+ ; :ValType rt-fract-num-score
+ :Func #'(lambda (X) (update-rt-score-value X #'count-correct-diagram-ents))
+ :InitFunc #'(lambda () 
+	       (make-rt-fract-num-score 0 (length *test-cache-drawing-entries*)))
+ :Weight 0.20
+ :CreditType Credit
+ :ActiveCond #'(lambda () 
+		 (and (problem-loadedp) 
+		      (member-if #'qual-sought-p (problem-soughts *cp*))
+		      ; make sure have some entries. Obviates prev test?
+		      *test-cache-drawing-entries* ))
+ :Loadable Nil
+ :MergeFunc #'mergefunc-pick-newest
+ )
 
 ;;; ----------------------------------------------------------------------
-;;; MC-problems
+;;; Multiple-choice questions
 ;;; Multiple choice problems are problems in which the students are given 
-;;; a set of radio-byutton answers to define.  Our goal in these problems
+;;; a set of radio-button answers to define.  Our goal in these problems
 ;;; is to have them answer general or conceptual questions about the 
 ;;; topic at hand.  
 ;;;
-;;; This test will keep track of the number of multiple choice problems 
-;;; that they have solved correctly within the problem.  These are the 
+;;; This test will keep track of the number of multiple choice questions
+;;; that they have answered correctly within the problem.  These are the 
 ;;; distinct entries for which a correct entry has been made.  
 ;;;
 ;;; This code counts the number of soughts in the problem (there should
@@ -764,7 +807,7 @@
 (add-runtime-test
  Multiple_Choice_Answer_Entry_Subscore
  :PrintStr "Multiple_Choice_Answer_Entry_Subscore"
- :ValType rt-solset
+ ; :ValType rt-fract-num-score
  :Func #'(lambda (X) 
 	   (update-rt-score-value 
 	    X #'count-correct-multiple-choice-answer-subscore))
@@ -810,7 +853,7 @@
 (add-runtime-test
  Equation_entry_Subscore
  :PrintStr "Equation_entry_Subscore"
- :ValType rt-solset
+ ;:ValType rt-solset
 
  :Func #'(lambda (S) 
 	   (test-cache-update-fract-SolSet
@@ -839,7 +882,7 @@
 (add-runtime-test
  Explicit_Equation_Entry_Subscore
  :PrintStr "Explicit_Equation_Entry_Subscore"
- :ValType rt-solset
+ ;:ValType rt-solset
  
  :Func #'(lambda (S) 
 	   (test-cache-test-update-fract-SolSet
@@ -869,7 +912,7 @@
 (add-runtime-test
  Given_Equation_Entry_Subscore
  :PrintStr "Given_Equation_Entry_Subscore"
- :ValType rt-solset
+ ;:ValType rt-solset
 
  :Func #'(lambda (S) 
 	   (test-cache-update-fract-SolSet
@@ -898,7 +941,7 @@
 (add-runtime-test
  Explicit_Given_Equation_entry_Subscore
  :PrintStr "Explicit_Given_Equation_entry_Subscore"
- :ValType rt-solset
+ ;:ValType rt-solset
  
  :Func #'(lambda (S) 
 	   (test-cache-test-update-fract-SolSet
@@ -948,7 +991,7 @@
 (add-runtime-test
  Body_Entry_Subscore10
  :PrintStr "Body_Entry_Subscore"
- :ValType rt-solset
+ ;:ValType rt-solset
  
  :Func #'test-cache-update-body-fract-solset
 
@@ -975,7 +1018,7 @@
 (add-runtime-test
  Axis_Entry_Subscore
  :PrintStr "Axis_Entry_Subscore"
- :ValType rt-solset
+ ;:ValType rt-solset
  
  :Func #'(lambda (S) 
 	   (test-cache-update-fract-SolSet
@@ -1007,7 +1050,7 @@
 (add-runtime-test
  NSH_Call_Count
  :PrintStr "NSH_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S) 
 	   (if (get-proc-help-cmdp **current-cmd**)
 	       (inc-rt-sum-score-value S)))
@@ -1024,7 +1067,7 @@
 (add-runtime-test
  NSH_BO_Call_Count
  :PrintStr "NSH_BO_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (proc-bottom-out-hintp **Current-cmd-Stack**)
 	       (inc-rt-sum-score-value S)))
@@ -1051,7 +1094,7 @@
 (add-runtime-test
  NSH_BO_V_NSH
  :PrintStr "NSH_BO_V_NSH"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-nshbovnsh-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :MergeFunc #'mergefunc-sum-values
@@ -1066,7 +1109,7 @@
 (add-runtime-test
  WWH_Call_Count
  :PrintStr "WWH_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (why-wrong-cmdp **Current-cmd**)
 	       (inc-rt-sum-score-value S)))
@@ -1083,7 +1126,7 @@
 (add-runtime-test
  WWH_BO_Call_Count
  :PrintStr "WWH_BO_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (wwh-bottom-out-hintp **Current-cmd-Stack**)
 	       (inc-rt-sum-score-value S)))
@@ -1112,7 +1155,7 @@
 (add-runtime-test
  WWH_BO_V_WWH
  :PrintStr "WWH_BO_V_WWH"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-wwhbo-wwh-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :MergeFunc #'mergefunc-sum-values
@@ -1126,7 +1169,7 @@
 (add-runtime-test
  WWO_Call_Count
  :PrintStr "WWO_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (why-wrong-obj-cmdp **Current-cmd**)
 	       (inc-rt-sum-score-value S)))
@@ -1142,7 +1185,7 @@
 (add-runtime-test
  WWO_BO_Call_Count
  :PrintStr "WWO_BO_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (wwo-bottom-out-hintp **Current-cmd-Stack**)
 	       (inc-rt-sum-score-value S)))
@@ -1168,7 +1211,7 @@
 (add-runtime-test
  WWO_BO_V_WWO
  :PrintStr "WWO_BO_V_WWO"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-wwobo-wwo-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  ;;:Weight 0
@@ -1183,7 +1226,7 @@
 (add-runtime-test
  WWE_Call_Count 
  :PrintStr "WWE_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (why-wrong-eqn-cmdp **Current-cmd**)
 	       (inc-rt-sum-score-value S)))
@@ -1200,7 +1243,7 @@
 (add-runtime-test
  WWE_BO_Call_Count
  :PrintStr "WWE_BO_Call_Count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (wwe-bottom-out-hintp **Current-cmd-Stack**)
 	       (inc-rt-sum-score-value S)))
@@ -1227,7 +1270,7 @@
 (add-runtime-test
  WWE_BO_V_WWE
  :PrintStr "WWE_BO_V_WWE"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-wwebo-wwe-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :MergeFunc #'mergefunc-sum-values
@@ -1242,7 +1285,7 @@
 (add-runtime-test
  Unsol_Help_count
  :PrintStr "Unsol_Help_count"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (unsolicited-hint-cmdp **Current-cmd**)
 	       (inc-rt-sum-score-value S)))
@@ -1272,7 +1315,7 @@
 (add-runtime-test
  Num_Entries 
  :PrintStr "Num_Entries"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (X) (art-cmd-predicate-inc #'entry-cmdp X))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond  #'not-curr-checking-problemp 
@@ -1286,7 +1329,7 @@
 (add-runtime-test
  Num_Correct_Entries
  :PrintStr "Num_Correct_Entries"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (S) (art-cmd-predicate-inc #'correct-entry-cmdp S))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond #'not-curr-checking-problemp 
@@ -1299,7 +1342,7 @@
 (add-runtime-test
  Num_Incorrect_Entries
  :PrintStr "Num_Incorrect_Entries"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (X) (art-cmd-predicate-inc #'incorrect-entry-cmdp X))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond #'not-curr-checking-problemp  
@@ -1324,7 +1367,7 @@
 (add-runtime-test
  Correct_Entries_V_Entries
  :PrintStr "Correct_Entries_V_Entries"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-correctent-ent-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :Weight 0.05
@@ -1340,7 +1383,7 @@
 (add-runtime-test
  Num_Eq_Entries
  :PrintStr "Num_Eq_Entries"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (X) (art-cmd-predicate-inc #'eq-entry-cmdp X))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond #'not-curr-checking-problemp 
@@ -1361,7 +1404,7 @@
 (add-runtime-test
  Correct_EQ_Entries_V_EQ_Entries
  :PrintStr "Correct_EQ_Entries_V_EQ_Entries"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-correcteqent-eqent-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :ActiveCond #'not-curr-checking-problemp 
@@ -1375,7 +1418,7 @@
 (add-runtime-test
  Num_noneq_Entries
  :PrintStr "Num_noneq_Entries"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (X) (art-cmd-predicate-inc #'noneq-entry-cmdp X))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond #'not-curr-checking-problemp
@@ -1396,7 +1439,7 @@
 (add-runtime-test
  Correct_NonEQ_Entries_V_NonEQ_Entries
  :PrintStr "Correct_NonEQ_Entries_V_NonEQ_Entries"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-correctnoneqent-noneqent-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :ActiveCond #'not-curr-checking-problemp
@@ -1409,7 +1452,7 @@
 (add-runtime-test
  Num_Answer_Entries
  :PrintStr "Num_Answer_Entries"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (X) (art-cmd-predicate-inc #'answer-cmdp X))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond #'not-curr-checking-problemp 
@@ -1430,7 +1473,7 @@
 (add-runtime-test
  Correct_Answer_Entries_V_Answer_Entries
  :PrintStr "Correct_Answer_Entries_V_Answer_Entries"
- :ValType rt-fract-sum-score
+ ;:ValType rt-fract-sum-score
  :Func #'art-canswerents-answerents-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
  :Weight 0.05
@@ -1446,7 +1489,7 @@
 (add-runtime-test
  Num_Algebra_calls
  :PrintStr "Num_Algebra_calls"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (X) (art-cmd-predicate-inc #'algebra-cmdp X))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond #'not-curr-checking-problemp 
@@ -1461,7 +1504,7 @@
 (add-runtime-test
  Num_Deletions
  :PrintStr "Num_Deletions"
- :ValType rt-int-sum-score
+ ;:ValType rt-int-sum-score
  :Func #'(lambda (X) (art-cmd-predicate-inc #'delete-cmdp X))
  :InitFunc #'make-rt-int-sum-score
  :ActiveCond #'not-curr-checking-problemp ;; Will be uncom,mented once score storage is up.
@@ -1504,7 +1547,7 @@
 (add-runtime-test
  Total_Open_Time
  :PrintStr "Total_Open_Time"
- :ValType rt-htime-sum-score
+ ;:ValType rt-htime-sum-score
  :Func #'art-add-last-time
  :InitFunc #'make-rt-htime-sum-score 
  :ActiveCond #'not-curr-checking-problemp
@@ -1540,7 +1583,7 @@
 (add-runtime-test
  Total_Non_Pause_Open_Time
  :PrintStr "Total_Non_Pause_Open_Time"
- :ValType rt-htime-sum-score
+ ;:ValType rt-htime-sum-score
  :Func #'art-add-last-non-pause-time
  :InitFunc #'make-rt-htime-sum-score 
  :ActiveCond #'not-curr-checking-problemp 
@@ -1571,7 +1614,7 @@
 (add-runtime-test
  Total_Pause_Open_Time
  :PrintStr "Total_Pause_Open_Time"
- :ValType rt-htime-sum-score
+ ;:ValType rt-htime-sum-score
  :Func #'art-add-last-pause-time
  :InitFunc #'make-rt-htime-sum-score 
  :ActiveCond #'not-curr-checking-problemp 

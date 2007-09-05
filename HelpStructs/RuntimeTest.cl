@@ -79,9 +79,6 @@
 (defstruct runtime-test ;;(:Print-function print-runtime-test))
   name     ;; A symbolic id for the test.
   printstr ;; A nicely formatted string for the printout. (no spaces at present).
-  ValType  ;; A lisp type name indicating the type of the value.  This must be
-           ;; a runtime-test-val type name.  This will be used in loading or
-           ;; otherwize storing the scores.
   func     ;; The single-arg function that will be evaluated at runtime.
            ;; this func takes the current value as arg and produces a new one.
   CurrVal  ;; The current test value.
@@ -153,7 +150,7 @@
 ;;; This function is used to register new tests at runtime.  It
 ;;; should be called in the appropriate knowledge file and used
 ;;; to define the usable tests.
-(defmacro add-runtime-test (name &key PrintStr ValType (Func #'(lambda (X) X)) 
+(defmacro add-runtime-test (name &key PrintStr (Func #'(lambda (X) X)) 
 				      InitFunc InitVal 
 				      (Weight 0) (CreditType 'Credit)
 				      (ActiveCond t) (Loadable t) (MergeFunc Nil))
@@ -161,7 +158,6 @@
    (let ((Test (eval `(make-runtime-test 
 		       :Name ',name
 		       :PrintStr ,PrintStr
-		       :ValType ',ValType
 		       :Func ,Func
 		       :InitFunc ,InitFunc
 		       :InitVal ,InitVal
@@ -170,9 +166,6 @@
 		       :Activecond ,ActiveCond
 		       :Loadable ,Loadable
 		       :MergeFunc ,MergeFunc))))
-     ;; Test to ensure that an appropriate value type has been supplied.
-     (when (not (rt-val-p (funcall #'make-instance ValType)))
-       (error "Improper runtime test val type supplied."))
      (if (not (= 0 (runtime-test-Weight Test)))
 	 (push Test *Runtime-Score-Testset*))
      (push Test *Runtime-Testset*)
@@ -786,14 +779,19 @@
 ;;; will then be translated appropriately to obtain the requisite 
 ;;; database format.  
 
+;;; AW: this routine currently unused. It had the only substantive 
+;;; use of the old ValType slot, now replaced by type-of. 
+
 (defun map-testset->names-externtype-lst ()
   "Map the teset to names and external types."
   (mapcar 
    #'(lambda (Test)
        ;;(pprint test)
+       (unless (runtime-test-CurrVal test)
+          (runtime-test-init-value Test))
        (list (runtime-test-printstr Test)
 	     (map-rt-val-classname->externtype 
-	      (runtime-test-ValType Test))))
+	      (type-of (runtime-test-CurrVal Test)))))
    *Runtime-testset*))
        
 

@@ -928,6 +928,12 @@
 	 ;; generate them any more
 	 (T (some-path-through-omits (cdr path) entry))))
 
+; utility func to pull out only required entries in an enode
+(defun enode-required-entries (enode)
+   (remove-if #'(lambda (entry) 
+                   (does-not-require enode entry))
+              (enode-entries enode)))
+
 ;;-------------------------------------------------------------
 ;; debugging code.
 
