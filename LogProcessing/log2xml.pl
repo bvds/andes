@@ -30,6 +30,7 @@
 # or from condition-map. There may be no conditions to set.
 #
 ######################################################################
+my $cvs_version = "$Revision: 1.7 $ ";
 
 # globals for current log line
 my ($timestamp, $event, $argstr); 
