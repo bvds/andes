@@ -342,8 +342,9 @@ END_DATASET
             $helpreq = $helprequests{$api_call};
             # lookup-eqn-string is check req unless empty eqn submitted. Will
 	    # be treated as deletion. NB helpsys result, normally empty, gets ignored here.
-	    $checkreq = $checkrequests{$api_call} 
-	                && ! ($argstr =~ m/\(lookup-eqn-str \"\"/); 
+	    unless ($argstr =~ m/\(lookup-eqn-str \"\"/){
+	       $checkreq = $checkrequests{$api_call};
+	    }
 	    $calcreq = $calcrequests{$api_call};
 	    if ($api_call eq "handle-student-response") {  	# response to helpsys query. 
 	        $cancel_response = $params =~ /Cancel/;		# non-Cancel continues sequence, so like
@@ -363,9 +364,9 @@ END_DATASET
 	    # clear records for current transaction
 	    %assocs = ();  # hash in which we collect tagged assocs, plus other attributes
 	    $hint = "";    # hint associated with this call
-	    # anything other than explain more command resets the hint sequence counter
-	    # !!! what about responses to next step help prompts? handle-student-response
-	    if ($api_call ne "Explain-More") {
+	    # anything that doesn't continue hint sequence resets the hint sequence counter
+	    # NB: nsh prolog questions continued by handle-student-response 
+	    if (! ($api_call eq "Explain-More" || $api_call eq "handle-student-response")) {
 		    # print "event=$api_call so hint_number=0\n";
 		    $hint_number = 0;
 	    }
