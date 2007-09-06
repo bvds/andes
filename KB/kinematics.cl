@@ -118,19 +118,6 @@
 		       ?quant ?t-constant (?t1 pp) ?quant1 ?quant2))
    ))
 
-;; declaring a vector to be constant means its magnitude,
-;; direction and components are all constant.
-
-(defoperator constant-vectors (?quant ?rest) ;Bug #1002
-  ;; in-wm or infinite loop
-  :preconditions (
-		  (in-wm (constant ?quant . ?rest)))
-  :effects (
-   (constant (mag ?quant) . ?rest)
-   (constant (dir ?quant) . ?rest)
-   (assume constant-vector ?quant . ?rest)
-  ))
-
 (defoperator constant-vector-components (?quant ?rest) ;Bug #1002
   ;; in-wm or infinite loop
   :preconditions 
