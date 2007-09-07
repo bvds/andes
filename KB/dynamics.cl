@@ -2476,11 +2476,10 @@
      ;;(force ?pt ?agent ?type ?t (dnum ?dir-f |deg|) action) 
      ;; draw the force on the point of application
      ;; sometimes the axis owner is ?b and sometimes ?pt
-     (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) (dnum ?dir-f |deg|))
+     (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) ?f-dir)
      ;; fetch the relative position vector and calculate torque direction
-     (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) 
-                   (dnum ?dir-r |deg|)))
-     (bind ?torque-dir (torque-zdir ?dir-f ?dir-r))
+     (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) ?r-dir))
+     (bind ?torque-dir (cross-product-dir ?r-dir ?f-dir))
      ;; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "TOR_~A_~A_~A~@[_~A~]" (body-name ?b) ?pt 
 				?agent (time-abbrev ?t)))
