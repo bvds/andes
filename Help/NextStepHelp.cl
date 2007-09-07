@@ -4180,6 +4180,7 @@
 	   ;; pick out the quantity itself for the hint
 	   var (nlg (second (enode-id eqnode)) 'def-np)))
   
+  ;; TODO:
   ;; missing vector projection -- hard to detect! In most problems these are 
   ;; not at the bubblegraph level but subsidiary equations inside nodes. 
   ;; So have to choose solution and get all its equations to find this 
@@ -4189,7 +4190,9 @@
   ;; vector and defined axes, and maybe also if they haven't entered any 
   ;; component equation using the vector yet.
 
+  ;; TODO:
   ;; missing both sin theta and cos theta expressions when solving for an angle
+
   ;; not done, but don't have any special case message.
   ;; NB: we could be undone because some diagram drawing step is not done 
   ;; (e.g. zero accel in a statics problem)

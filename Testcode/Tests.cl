@@ -340,16 +340,19 @@
 	(push Entry (nth Solution *test-cache-eqn-entries*)))))))
 	 
 ;;
-;; For qualitatitve steps: collect all required drawing entries
-;; Merged over all such steps so is a single score.
-;; !!! Not checking if optional
+;; For qualitatitve soughts: collect all required entries
+;; Merged over all such soughts to allow a single score.
+;; Normally these are drawing entries as for fbd-only or
+;; vector-drawing problems. But no filtering is done here, 
+;; so other entry types (e.g eqns) could get included.
 (defun test-cache-drawing-entries ()
   (setf *test-cache-drawing-entries*
-     (reduce #'union ; !!! maybe need :test equalp
+     (reduce #'union ; merge all node entries into one set
         (mapcar #'enode-required-entries ; in solutiongraph.cl
+	   ; map list of qual soughts to list of their enodes:
 	   (mapcar #'(lambda(exp) 
 	              (match-exp->enode exp (problem-graph *cp*)))
-	     (remove-if-not #'qual-sought-p (problem-soughts *cp*))))
+	       (remove-if-not #'qual-sought-p (problem-soughts *cp*))))
 	     :initial-value NIL))) ; in case no args to reduce #'union
 
 ;;; -------------------------------------------------------------------
@@ -611,8 +614,11 @@
 	      #'(lambda (S) (unify (Systementry-prop S) '(choose-answer . ?a)))
 	      *sg-entries*)
 	     ;; Specify that there are no non-answer entries; see Bug #983.
-	     (not (member 'final-answer-only (problem-features *cp*))))))
+	     (not (answer-only-quant-problem-p)))))
 
+(defun answer-only-quant-problem-p () 
+  "true if current problem is an answer-only quantitative problem"
+   (member 'final-answer-only (problem-features *cp*)))
 
 ;;;; =========================================================================
 ;;;; General Mergefunc code.
@@ -635,11 +641,45 @@
 ;;;; This is a fractional score result and will be used (most likely) as
 ;;;; part of the students scores.  
 
+;;;
+;;; Quantitative problem parts use answer boxes for numerical or symbolic
+;;; answers.  For non-quantitative problem parts, the workbench uses two 
+;;; sorts of controls instead of quantitative answer boxes:
+;;;   1. "I'm Done" check boxes for qualitative parts like fbd drawing
+;;;   2.  Multiple choice question buttons.
+;;; The existing lookup-mc-answer API was overloaded to handle both cases, 
+;;; treating the check box as a degenerate case of a multiple choice 
+;;; question. (Probably would be better to handle differently.)
+;;; That explains why code below refers to I'm Done check boxes by the 
+;;; misleading label of "MC-answers". (Should change at some point.) True
+;;; multiple choice answers are referred to as "multiple-choice-answers".
+;;;
+;;; Student entries for answer submissions carry propositions of the 
+;;; following forms:
+;;;     quantitative answer boxes:  (Answer ...)
+;;;     done check boxes:           (lookup-mc-answer ...)
+;;;     multiple choice q's:        (choose-answer ...) 
+
+;;; following predicates classify problem sought expressions:
+(defun multiple-choice-sought-p (expr)
+"true if this sought is a multiple choice question"
+   (eq (first expr) 'choose-answer))
+
+(defun qual-sought-p (expr)
+"true if this sought is neither a quantity nor a multiple choice"
+   (not (or (quantity-expression-p expr)
+            (multiple-choice-sought-p expr))))
+
+
 ;;; -----------------------------------------------------------------------
 ;;; Answer_Entries
-;;; This code is used to calculate the number of quantitative answers that 
-;;; the student must enter at runtime.  This is a fractional value and will
-;;; be used on all non-quant problems.
+;;; Fraction of required quantitative answer boxes correctly filled in.
+;;; Active on any problem containing quantitative answers, even if
+;;; it also has other non-quantitative parts.
+;;;
+;;; For answer-only quantitative problems, we include any multiple choice
+;;; answers in this score, so that all parts count equally. The normal
+;;; multiple choice score is not used in this case.
 
 (defun art-count-correct-answer-ents (V)
   "Count the number of correct answer entries the student has made."
@@ -647,11 +687,12 @@
   (length 
    (remove-if-not 
     #'(lambda (E) (and (equalp (studententry-state E) **correct**)
-		       (equalp (car (studententry-prop E)) 'Answer)))
+		       (or ; quantitative answer:
+		           (eq (car (studententry-prop E)) 'Answer)
+			   ; multiple choice answer on answer-only quant probs
+		           (and (answer-only-quant-problem-p)
+			        (eq (car (studententry-prop E)) 'choose-answer)))))
     *Studententries*)))
-
-
-
 
 (add-runtime-test
  Answer_Entry_Subscore
@@ -660,36 +701,25 @@
  :Func #'(lambda (X) (update-rt-score-value X #'art-count-correct-answer-ents))
  :InitFunc #'(lambda () 
 	       (make-rt-fract-num-score 
-		0 (length (remove-if-not #'quantity-expression-p (problem-soughts *cp*)))))
+		0 (length (remove-if-not #'(lambda (exp)
+		              (or (quantity-expression-p exp)
+			          (and (answer-only-quant-problem-p)
+				       (multiple-choice-sought-p exp))))
+			                 (problem-soughts *cp*)))))
  :Weight 0.20
  :CreditType Credit
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
 		      (member-if #'quantity-expression-p (problem-soughts *cp*))))
-;;		      (not (no-quant-problem-p *cp*))))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
  )
 
 
-;;;
-;;; For non-quantitative problem parts, the workbench uses two sorts of 
-;;; controls instead of quantitative answer boxes:
-;;;   1. "I'm Done" check boxes for qualitative parts like fbd drawing
-;;;   2.  Multiple choice question buttons.
-;;; The existing lookup-mc-answer API was overloaded to handle both cases, 
-;;; treating the check box as a degenerate case of a multiple choice 
-;;; question. (Probably would be better to handle differently.)
-;;; That explains why the following refers to I'm Done check boxes by the 
-;;; misleading term of "MC-answers". (Should change at some point.) True
-;;; multiple choice answers are referred to as "multiple-choice-answers".
-;;;
-;;; The answer entry for done checks has prop (lookup-mc-answer ...)
-;;; The answer entry for multiple choice q's has (choose-answer ...) 
-;;; 
+
 
 ;;; ----------------------------------------------------------------------
-;;; MC-answers
+;;; MC-answers [Done check boxes]
 ;;;
 ;;; This test is used to keep track of the number of mc-answers that 
 ;;; the student has entered.  MC-answers are multiple-choice dialogs
@@ -708,14 +738,7 @@
 ;;; be one per mc-answer) to define the denominator.  It also keeps track
 ;;; of the number of correct mc-answer submissions that the student has 
 ;;; made, decrementing the count each time an incorrect or color-black
-;;; response is made.  
-
-
-;; following applies to problem sought expressions:
-(defun qual-sought-p (expr)
-"true if this sought is neither a quantity nor a multiple choice"
-   (and (not (quantity-expression-p expr))
-        (not (eq (first expr) 'choose-answer))))
+;;; response is made. AW: no longer done; see commented out code below.
 
 (defun count-correct-mc-answer-subscore (Count)
   (declare (ignore Count))
@@ -724,7 +747,6 @@
     #'(lambda (E) (and (equalp (studententry-state E) **correct**)
 		       (equalp (car (studententry-prop E)) 'lookup-mc-Answer)))
     *Studententries*)))
-
 
 ;;(cond ((not (equalp (car (cmd-call **current-cmd**)) 'lookup-mc-answer)) Count)
 ;;((correct-cmdp **current-cmd**) (+ 1 Count))
@@ -749,16 +771,15 @@
  )
 
 ;; For partial credit on drawing problems: score for number of required
-;; diagram entries made. This is like equation/axis/body scores in that
-;; it is the fraction done of a cached list of entries in which only the
-;; numerator is updated. But it is not a per-solution ("rt-solset") score
-;; so can't use the general functions for handling such a score.
+;; entries (presumably diagram entries) made. This is like equation/axis/body 
+;; scores in that it it is the fraction done of a cached list of entries 
+;; in which only the numerator is updated. But it is not a per-solution 
+;; ("rt-solset") score so can't use the general functions for such scores.
 
 (defun count-correct-diagram-ents (CurrVal)
   (declare (ignore CurrVal))
   (loop for E in *test-cache-drawing-entries*
      count (systementry-entered E)))
-
 
 (add-runtime-test
  Diagram_Entry_Subscore
@@ -772,7 +793,7 @@
  :ActiveCond #'(lambda () 
 		 (and (problem-loadedp) 
 		      (member-if #'qual-sought-p (problem-soughts *cp*))
-		      ; make sure have some entries. Obviates prev test?
+		      ; make sure have some entries to make.
 		      *test-cache-drawing-entries* ))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
@@ -815,15 +836,17 @@
  :InitFunc #'(lambda () 
 	       (make-rt-fract-num-score 
 		0 (length 
-		   (remove-if-not 
-		    #'(lambda (S) (equalp (car S) 'choose-answer))
-		    (problem-soughts *cp*)))))
+		   (remove-if-not #'multiple-choice-sought-p
+		                  (problem-soughts *cp*)))))
  :Weight 0.25
  :CreditType Credit
  :ActiveCond #'(lambda ()
 		 (and (problem-loadedp)
-		      (member-if #'(lambda (S) (equalp (car S) 'choose-answer))
-				 (problem-soughts *cp*))))
+		      (member-if #'multiple-choice-sought-p 
+				 (problem-soughts *cp*))
+		       ; use regular answer score if mc question 
+		       ; is part of a final answer only quant problem.
+		       (not (answer-only-quant-problem-p))))
  :Loadable Nil
  :MergeFunc #'mergefunc-pick-newest
  )
