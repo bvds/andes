@@ -1375,6 +1375,7 @@
 			))
    ;; make sure we have a time interval:
    (time (during ?t1 ?t2))
+   (not (very-long-time (during ?t1 ?t2)))  ;can't do asymptotic
    )
   :effects(
 	   (eqn-contains (discharging-capacitor-at-time (?res ?cap) (during ?t1 ?t2)) ?sought)
@@ -1449,7 +1450,7 @@
    (not (very-long-time (during ?t1 ?t2)))
    (variable ?q-var (charge ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
-   (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
+   (inherit-variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?t-var (duration (during ?t1 ?t2)))
    (variable ?tau-var (time-constant orderless ?res ?cap))
    )
@@ -1469,7 +1470,7 @@
    (in-wm (very-long-time (during ?t1 ?t2)))
    (variable ?q-var (charge ?cap :time ?t2))
    (variable ?c-var (capacitance ?cap))
-   (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
+   (inherit-variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    )
   :effects 
   ((eqn (= ?q-var (* ?c-var ?v-var))
@@ -1505,6 +1506,7 @@
 			(time-constant orderless ?res ?cap)
 			))
    (time (during ?t1 ?t2))		;sanity test
+   (not (very-long-time (during ?t1 ?t2)))  ;can't do asymptotic
    (given (charge ?cap :time ?t1) 0) ;boundary condition
    )
   :effects
@@ -1516,7 +1518,7 @@
   :preconditions 
   (
    (inherit-variable ?i-var (current-thru ?res :time ?t2))
-   (variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
+   (inherit-variable ?v-var (voltage-across ?bat :time (during ?t1 ?t2)))
    (variable ?r-var (resistance ?res))
    (variable ?t-var (duration (during ?t1 ?t2)))
    (variable ?tau-var (time-constant orderless ?res ?cap))
@@ -1558,14 +1560,15 @@
 
 
 (defoperator charge-capacitor-percent-max (?cap ?t)
-  :preconditions (
-		  (variable ?C-var (capacitance ?cap))
-					; use constant Vb defined across charging interval.
-		  (circuit-component ?bat battery)	 
-		  (variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
-		  (variable ?q-var (charge ?cap :time ?t))
-		  (percent-max ?cap ?fraction ?t)
-		  )
+  :preconditions 
+  (
+   (variable ?C-var (capacitance ?cap))
+   ;; use constant Vb defined across charging interval.
+   (circuit-component ?bat battery)	 
+   (inherit-variable ?V-var (voltage-across ?bat :time (during ?t0 ?t)))
+   (variable ?q-var (charge ?cap :time ?t))
+   (percent-max ?cap ?fraction ?t)
+   )
   :effects (
 	    (eqn (= ?q-var (* ?fraction ?C-var ?V-var))
 		 (charge-capacitor-percent-max ?cap ?t0 ?t))  
@@ -1697,6 +1700,7 @@
   (
    (time ?t)
    (test (time-intervalp ?t))
+   (not (very-long-time ?t)) ;only do finite, for now
    (any-member ?sought ((rate-of-change ?quant)))
    (test (equal ?t (time-of ?quant)))
    )
@@ -1708,6 +1712,7 @@
   (
    (time ?t)
    (test (time-intervalp ?t))
+   (not (very-long-time ?t)) ;only do finite, for now
    (any-member ?sought (?q-end))
    (test (tendpointp (time-of ?q-end) ?t))
    (bind ?quant (set-time ?q-end ?t))
