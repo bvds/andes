@@ -183,7 +183,7 @@
 
     (format Stream "<table>~%")
     (format Stream "<caption>Principles (problem solving methods)</caption>~%")
-    (format Stream "<tr><th>added</th><th>removed</th>~%")
+    (format Stream "<tr><th>added</th><th>removed</th></tr>~%")
     (format Stream "  <tr><td class=\"entry\">~%")
     (dolist (eqn (set-difference 
 		  (EqnSet-eqns soln)
@@ -195,7 +195,7 @@
 	      (any-psmclass-complexity
 		 (lookup-expression->PSMClass (Enode-id eqn)))
 	      (Enode-id eqn)))
-    (format Stream "  </td><td>~%")
+    (format Stream "  </td><td class=\"entry\">~%")
     (dolist (eqn (set-difference 
 		     (EqnSet-eqns sol0)
 		     (EqnSet-eqns soln)
@@ -206,7 +206,7 @@
 	      (any-psmclass-complexity
 	       (lookup-expression->PSMClass (Enode-id eqn)))
 	      (Enode-id eqn)))
-    (format Stream "  </tr>~%")
+    (format Stream "  </td></tr>~%")
     (format Stream "</table>~%")
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -228,7 +228,7 @@
 		  :key #'Qnode-GIndex :test #'unify))
       (format Stream "    <p><a href=\"#q~D.~D\"><code>~S</code></a>~%" 
 	      nn (Qnode-GIndex qnode) (Qnode-exp qnode)))
-    (format Stream "  </tr>~%")
+    (format Stream "  </td></tr>~%")
     (format Stream "</table>~%")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -252,7 +252,7 @@
 		     :key #'SystemEntry-prop :test #'unify)))
             (format Stream "    <p><a href=\"#p~D.~D\"><code>~S</code></a>~%" 
 		    nn (SystemEntry-index entry) (SystemEntry-prop entry)))
-    (format Stream "  </tr>~%")
+    (format Stream "  </td></tr>~%")
     (format Stream "</table>~%")
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
