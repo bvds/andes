@@ -852,7 +852,7 @@
   :complexity connect
   :short-name "sum distance travelled"
   :english ("sac = sab + sbc")
-  :ExpFormat ("calculating the sum of distances travelled by ~A during ~A" 
+  :ExpFormat ("calculating the sum of distances travelled by ~A ~A" 
 	      (nlg ?b) (nlg ?tt 'pp))
   :EqnFormat ("sac = sab + sbc"))
 

@@ -123,12 +123,11 @@
 	    (eqn (= ?v1 ?v2) (equals ?quant1 ?quant2 :constant t))
 	    )
   :hint
-  ((point (string "Notice that ~a is constant ~a." ?quant2 ?t-constant))
+  ((point (string "Notice that ~a is constant." ?quant2))
    (teach (string "If a quantity is constant over a time interval, then its value at any time inside the interval is equal to its value over the whole interval.")
 	  (kcd "inherit-constant-value"))
-   (bottom-out (string "Since ~a is constant, and ~a is inside ~a, write the equation ~a=~a" 
-		       ?quant2 (?t1 pp) (?t-constant pp) 
-		       (?v1 algebra) (?v2 algebra)))
+   (bottom-out (string "Since ~a is constant, you can write the equation ~a=~a." 
+		       (?v2 algebra) (?v1 algebra) (?v2 algebra)))
    ))
 
 
