@@ -266,8 +266,10 @@ bool makepar(const string bufst, bool keep_algebraic)
 	if(!(*canonvars)[k]->keepalgebraic && !(*canonvars)[k]->isparam)
 	  {
 	    numparams++;
+	    // Bug #1374, a random choice can sometimes cause problems
+	    // As a work-around, fine-tune function so that kt7b works.
 	    binopexp *eq = new binopexp(&equals,new physvarptr(k),
-					new numvalexp(exp((double) numparams)/M_PI));
+					new numvalexp(sin(88.3*((double) numparams)+72.0)+1.0));
 	    paramasgn->push_back(eq);
 	    DBG ( cout << "variable |" << newvar << "| set param, no. "
 		  << numparams << endl
