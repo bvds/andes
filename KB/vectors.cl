@@ -800,7 +800,7 @@
    (axes-for ?b ?rot)
    ;; make sure there can be more than one nonzero term in sum
    ;; else it is redundant with the projection equations
-   ;; This test is not sufficient for problem coul3
+   ;; This test is not sufficient for problem coul3, Bug #1375.
    (setof (get-axis ?xyz ?rot) ?xyz ?xyz-list)
    (test (> (length (remove-if-not 
 		   #'(lambda (x) (non-zero-projectionp ?dir x ?rot)) 
