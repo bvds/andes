@@ -191,6 +191,8 @@
    ;; Make sure expression is usable in equation, not special atom. 
    ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
+   ;; fail if it is not definite or has an associated error
+   (test (not (parameter-or-unknownp ?value-expr)))
    (variable ?var-name ?quantity))
   :effects 
   ((given-eqn (= ?var-name ?value-expr) ?quantity))
