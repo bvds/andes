@@ -2481,8 +2481,8 @@
      (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) ?r-dir))
      (bind ?torque-dir (cross-product-dir ?r-dir ?f-dir))
      ;; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "TOR_~A_~A_~A~@[_~A~]" (body-name ?b) ?pt 
-				?agent (time-abbrev ?t)))
+     (bind ?mag-var (format-sym "TOR_~A_~A_~A~@[_~A~]" (body-name ?b) 
+				(body-name ?agent) ?axis (time-abbrev ?t)))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
@@ -2922,8 +2922,8 @@
   :preconditions 
   (
    ;; draw vectors before doing cross product
-   (vector ?pt (relative-position ?pt ?axis :time ?t) ?dir-v)
-   (vector ?pt (force ?pt ?agent ?type :time ?t) ?dir-f)
+   (vector ?pt-owner (relative-position ?pt ?axis :time ?t) ?dir-v)
+   (vector ?pt-owner (force ?pt ?agent ?type :time ?t) ?dir-f)
    (vector ?b (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t) ?dir-t)
    (variable ?tau (compo ?xyz ?rot (torque ?b (force ?pt ?agent ?type)
 				     :axis ?axis :time ?t)))
