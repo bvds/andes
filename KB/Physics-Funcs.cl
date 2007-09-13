@@ -188,8 +188,8 @@
 
 ;; Note that the behavior for 'unknown and 'z-unknown are rather different
 (defun parallel-or-antiparallelp (x1 x2)
-   "true if the two angles are known to be parallel or anti-parallel"
-   (cond 
+  "true if the two angles are known to be parallel or anti-parallel"
+  (cond
     ((equal x1 'zero) NIL)
     ((equal x2 'zero) NIL)
     ;; if first is zdir vec, it's parallel if second is zdir
@@ -244,8 +244,9 @@
            (null (cddr x))))
 
 (defun parameter-or-unknownp (x)
-  "Non-null if argument is parameter or 'unknown or 'z-unknown"
-   (or (eq x 'unknown) (eq x 'z-unknown) (parameterp x)))
+  "Non-null if argument has an associated error, is a parameter or is 'unknown or 'z-unknown"
+  (or (and (dimensioned-numberp x) (member ':error x)) 
+      (eq x 'unknown) (eq x 'z-unknown) (parameterp x)))
 
 (defun degree-specifierp (x)
   "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> DEG)"
