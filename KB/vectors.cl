@@ -526,7 +526,7 @@
    ;; following makes sure has a known dir so we can plug in the numerical
    ;; degree value (this is important for generating the right equation).
    ;; Another operator will handle unknowns in terms of angle variables
-   (test (not (or (equal ?dir 'unknown) (equal ?dir 'z-unknown))))
+   (test (not (parameter-or-unknownp ?dir)))
    ;; Note ?dir may be a z-axis spec or a (dnum n deg)
    (bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) 
 			    ?dir)))
@@ -561,21 +561,27 @@
       where ?mag is the magnitude of the vector,
       ?dir is the variable for the direction of the vector,
       and ?rot is the rotation of the axes."
-  :preconditions (
-  ; use different special case op for z axis projections:
+  :preconditions 
+  (
+   ;; use different special case op for z axis projections:
    (test (not (equal ?xyz 'z)))
    (body-for-projection ?rot ?vector)
    (variable ?compo-var (compo ?xyz ?rot ?vector))
-   (in-wm (vector ?b ?vector unknown))
+   (in-wm (vector ?b ?vector ?dir))
+   ;; z-direction vectors handled separately
+   (test (not (z-dir-spec ?dir)))
+   (test (parameter-or-unknownp ?dir))
    (in-wm (variable ?dir-var (dir ?vector)))
    (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
    (bind ?cos-or-sin (if (equal ?xyz 'y) 'sin 'cos))
    (bind ?x-rot  (axis-dir 'x ?rot))
+   (bind ?dir-term (if (eq ?x-rot 0) ?dir-var 
+		       `(- ,?dir-var (dnum ,?x-rot |deg|))))
    (bind ?t nil) 	;remove after semester over but must regen prb if opvar removed
    )
   :effects
-  ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin (- ?dir-var (dnum ?x-rot |deg|)))))
+  ((eqn (= ?compo-var (* ?mag-var (?cos-or-sin ?dir-term)))
 	(projection (compo ?xyz ?rot ?vector)))
    (assume using-compo (compo ?xyz ?rot ?vector)) ;projection xor pyth-theorem
    )
