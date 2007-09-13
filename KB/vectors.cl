@@ -1047,6 +1047,33 @@
 	     ;; nogood rule to so that only one form of cross is chosen
 	     (assume using-cross ?a ?b ?compo ?rot nil) ))
 
+(defoperator cross-product-term (?a ?b ?i ?j ?rot)
+  :preconditions 
+  (
+   (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
+   (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
+   (bind ?i-dir (axis-dir ?i ?rot))
+   (bind ?j-dir (axis-dir ?j ?rot))
+   (test (not (or (perpendicularp ?dir-a ?i-dir)
+		  (perpendicularp ?dir-b ?j-dir)) ))
+   (variable ?ai (compo ?i ?rot ?a))
+   (variable ?bj (compo ?j ?rot ?b))
+   )
+  :effects ((cross-term (* ?ai ?bj) ?a ?b ?i ?j ?rot)))
+
+;; this should only apply when cross-product-term fails
+(defoperator cross-product-term-zero (?a ?b ?i ?j ?rot)
+  :preconditions 
+  (
+   (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
+   (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
+   (bind ?i-dir (axis-dir ?i ?rot))
+   (bind ?j-dir (axis-dir ?j ?rot))
+   (test (or (perpendicularp ?dir-a ?i-dir)
+	     (perpendicularp ?dir-b ?j-dir)))
+   )
+  :effects ((cross-term 0 ?a ?b ?i ?j ?rot)))
+
 ;; use vector-PSM
 (defoperator cross-using-components (?a ?b ?compo ?rot)
   :preconditions 
@@ -1062,14 +1089,12 @@
    (test (not (perpendicularp ?dir-cross ?dir-axis)))
    ;;
    (any-member (?compo ?i ?j) ((x y z) (y z x) (z x y)))
-   (variable ?ai (compo ?i ?rot ?a))
-   (variable ?aj (compo ?j ?rot ?a))
-   (variable ?bi (compo ?i ?rot ?b))
-   (variable ?bj (compo ?j ?rot ?b))
+   (cross-term ?ai-bj ?a ?b ?i ?j ?rot)
+   (cross-term ?aj-bi ?a ?b ?j ?i ?rot) 
    )
-:effects ( (cross (- (* ?ai ?bj) (* ?aj ?bi)) ?a-in ?b-in ?compo ?rot t)
-		  ;; nogood rule to so that only one form of cross is chosen
-		  (assume using-cross ?a ?b ?compo ?rot t) ))
+  :effects ( (cross (- ?ai-bj ?aj-bi) ?a-in ?b-in ?compo ?rot t)
+	     ;; nogood rule to so that only one form of cross is chosen
+	     (assume using-cross ?a ?b ?compo ?rot t) ))
 
 (defoperator cross-zero (?a ?b ?compo ?rot ?angle-flag)
   :preconditions 
