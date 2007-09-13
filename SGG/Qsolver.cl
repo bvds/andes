@@ -101,36 +101,33 @@
 (defun solve-for-given-eqn (Goal Givens)
   "Solve for the general goal expression given Givens."
   
-  (let ((R 
-	 (loop for State in 
-	       (qsolve-for (list `(Given-eqn ?eqn ,Goal)) Givens)
-	       ;;For each returned state.
-	       collect (let ((Eqn (find 'Given-eqn (st-wm State)             
-					:key #'car
-					:test #'unify)))
-			 (setq **wm** 
-			       (union (st-wm state) **wm** :test #'unify))
-			 (make-qsolres
-			  :id (nth 1 Eqn)       ;collect the eqn algebra
-			  ;;Get the quantity variable.
-			  :nodes (find-if #'(lambda (V) (and (eql (car V) 
-								  'Variable)
-							     (unify (caddr V) 
-								    Goal)))
-					  (st-wm State))
-			  ;;collect the paths.
-			  :path (collect-path State)
-			  ;;Collect the subequations
-			  :subeqns (collect-subeqns State)
-			  ;;Collect the variables.
-			  :subvars (collect-subvars State (list Goal))
-			  ;;Collect the assumptions. 
-			  :assumpts (collect-assumptions State)
-			  :wm (st-wm State))))))
-
-    (when (null R) (error "No return values specified for given: ~S ~%~S.~%" 
-			  Goal Givens))
-    (merge-duplicate-givens R)))
+  (merge-duplicate-givens 
+   (loop for State in 
+      ;; generate given-eqn
+	(qsolve-for (list `(Given-eqn ?eqn ,Goal)) Givens)
+      ;;For each returned state.
+      collect (let ((Eqn (find 'Given-eqn (st-wm State)             
+			       :key #'car
+			       :test #'unify)))
+		(setq **wm** 
+		      (union (st-wm state) **wm** :test #'unify))
+		(make-qsolres
+		 :id (nth 1 Eqn)       ;collect the eqn algebra
+		 ;;Get the quantity variable.
+		 :nodes (find-if #'(lambda (V) (and (eql (car V) 
+							 'Variable)
+						    (unify (caddr V) 
+							   Goal)))
+				 (st-wm State))
+		 ;;collect the paths.
+		 :path (collect-path State)
+		 ;;Collect the subequations
+		 :subeqns (collect-subeqns State)
+		 ;;Collect the variables.
+		 :subvars (collect-subvars State (list Goal))
+		 ;;Collect the assumptions. 
+		 :assumpts (collect-assumptions State)
+		 :wm (st-wm State))))))
 
 
 (defun solve-for-param-var (Param Givens)

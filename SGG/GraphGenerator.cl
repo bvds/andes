@@ -238,27 +238,25 @@
 ;;; as that is the ID expression for the enode.  This might be
 ;;; nice to remove but is not necessary.
 (defun gg-solve-given-sought (Sought Givens Graph)
-  (let ((Q) (P) (R) (G (gg-find-matching-given Sought Givens)))
+  (let ((G (gg-find-matching-given Sought Givens)) P Q R)
     (when G 
-      (gg-debug "Sought is given, adding PSM") 
-      (gg-debug "  ~S" G)
-
+      ;; make sure we can come up with an equation for this
       (Setq R (solve-for-given-eqn Sought Givens))
-
-      (setq Q (make-qnode :exp Sought
-			  :var (nth 1 (Qsolres-Nodes R))
-			  :marks '(Given)))
-      (setq P (gg-qsolres->Enode R :ID G :Algebra (Qsolres-ID R)
-			     :marks 'Given :Qnodes Q))
-      (setf (qnode-eqns Q) (list P))
-      (cons Q (add-nodes-to-bubblegraph Graph Q P)))))
-					
+      (cond ((null R) (gg-debug "Sought is given, but cannot make given-eqn."))
+	    (t
+	     (gg-debug "Sought is given, adding PSM") 
+	     (gg-debug "  ~S" G)
+	     (setq Q (make-qnode :exp Sought
+				 :var (nth 1 (Qsolres-Nodes R))
+				 :marks '(Given)))
+	     (setq P (gg-qsolres->Enode R :ID G :Algebra (Qsolres-ID R)
+					:marks 'Given :Qnodes Q))
+	     (setf (qnode-eqns Q) (list P))
+	     (cons Q (add-nodes-to-bubblegraph Graph Q P)))
+	    ))))
 
 (defun gg-find-matching-given (Sought Givens)
-  (find-if #'(lambda (G) (and (eq (car G) 'Given)
-			      (unify (cadr G) Sought)))
-	   Givens))
-
+  (find `(given ,Sought . ?rest) Givens :test #'unify))
 
 
 ;;;------------------------------------------------------------------------
