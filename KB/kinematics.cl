@@ -2494,7 +2494,7 @@
   then draw the relative position vector from one to the other in that direction"
   :preconditions 
   ( 
-   (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr)
+   (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr . ?rest)
    (time ?t) ;explicit time
    (test (tinsidep-include-endpoints ?t ?t-given))
    ;; make sure this is an exact value (no :error term)
