@@ -2617,7 +2617,7 @@ BEGIN
                     NOT WS_GROUP
 END
 
-IDD_VECTOR_POS DIALOGEX 0, 0, 260, 172
+IDD_VECTOR_POS DIALOGEX 0, 0, 260, 178
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Vector Definition"
 FONT 10, "MS Sans Serif"
@@ -2643,16 +2643,16 @@ BEGIN
     ICON            IDI_ANGLE,IDC_ANGLE,107,39,20,20,0,0,HIDC_ANGLE
     COMBOBOX        IDC_ZDIR,132,43,69,52,CBS_DROPDOWNLIST | NOT WS_VISIBLE | 
                     WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "",IDC_BOX_LABEL,7,59,146,22,NOT WS_VISIBLE
-    LTEXT           "&Variable Name",IDC_TXT0,7,67,48,8
+    GROUPBOX        "",IDC_BOX_LABEL,7,57,146,22,NOT WS_VISIBLE
+    LTEXT           "&Variable Name",IDC_TXT0,7,65,48,8
     CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
-                    WS_BORDER | WS_TABSTOP,58,64,48,14
+                    WS_BORDER | WS_TABSTOP,58,62,48,14
     GROUPBOX        "",IDC_STATIC_PLACEHOLDER,6,77,253,76,NOT WS_VISIBLE
-    DEFPUSHBUTTON   "OK",IDOK,65,156,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,129,156,50,14
-    PUSHBUTTON      "What's Wrong?",ID_DIALOG_WHATSWRONG,184,156,59,14,
+    DEFPUSHBUTTON   "OK",IDOK,65,159,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,159,50,14
+    PUSHBUTTON      "What's Wrong?",ID_DIALOG_WHATSWRONG,184,159,59,14,
                     BS_BITMAP | WS_DISABLED
-    LTEXT           "Incorrect",IDC_INCORRECT,9,158,31,8,NOT WS_VISIBLE | 
+    LTEXT           "Incorrect",IDC_INCORRECT,9,161,31,8,NOT WS_VISIBLE | 
                     NOT WS_GROUP
 END
 
@@ -3322,8 +3322,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 12,0,1,0
- PRODUCTVERSION 12,0,1,0
+ FILEVERSION 12,0,1,1
+ PRODUCTVERSION 12,0,1,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3341,14 +3341,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "12, 0, 1, 0\0"
+            VALUE "FileVersion", "12, 0, 1, 1\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "12, 0, 1, 0\0"
+            VALUE "ProductVersion", "12, 0, 1, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
@@ -3884,7 +3884,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 253
         TOPMARGIN, 7
-        BOTTOMMARGIN, 165
+        BOTTOMMARGIN, 171
     END
 
     IDD_WORK, DIALOG

@@ -219,7 +219,7 @@ static const PROBLEM_MENUITEMS menuitems[] =
 "Impulse", "impulse", 
              (ID_PROB_MOMENTUM),
 "Relative Position", "position",
-			(ID_PROB_ROTKINEMATICS|ID_PROB_KINEMATICS),
+			(ID_PROB_ROTKINEMATICS|ID_PROB_KINEMATICS|ID_PROB_EM),
 "Torque",	"torque", (ID_PROB_ROTKINEMATICS | ID_PROB_EM),
 "Relative Velocity", "relative-vel", ID_PROB_RELVEL,
 "Electric Field", "E-field", ID_PROB_EM,
