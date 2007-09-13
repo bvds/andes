@@ -206,7 +206,7 @@
     (near-planet ?planet :body ?cm ?cm)
     (not (force ?cm ?planet weight ?t . ?dont-care))
     ;; activate associated drawing rule.
-    (add-to-wm (use-cm-mass ?cm ?planet ?t)))
+    (add-to-wm (use-cm-mass ?cm ?rigid-body ?planet ?t)))
   :effects (
      (force ?cm ?planet weight ?t (dnum 270 |deg|) action)
      ;; NIL time here should be translated into sought time interval
@@ -221,7 +221,7 @@
   :preconditions
    ( 
     (force ?cm ?planet weight ?t ?dir action)
-    (in-wm (use-cm-mass ?cm ?planet ?t))
+    (in-wm (use-cm-mass ?cm ?b ?planet ?t))
     (bind ?mag-var (format-sym "Fw_~A_~A~@[_~A~]" ?cm ?planet 
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
