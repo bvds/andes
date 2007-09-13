@@ -2179,7 +2179,7 @@
   :preconditions 
   (
    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-   (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
+   (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
    (inherit-variable ?v1-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
    (inherit-variable ?v2-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
    )
@@ -2454,7 +2454,7 @@
   :preconditions
   ( ;; make sure accel compo vanishes
    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
-   (test (perpendicularp (axis-dir ?xyz ?rot) ?accel-dir))
+   (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
    ;; and write it 
    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
    (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))

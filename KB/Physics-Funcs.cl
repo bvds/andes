@@ -183,7 +183,7 @@
 			      (convert-dnum-to-number x2)) 180)))))
 
 (defun non-zero-projectionp (vector-dir xyz axis-rot)
-   "non-null if the vector is not known to be orthogonal to the given axis."
+   "true if the vector is not known to be orthogonal to the given axis."
    (not (perpendicularp vector-dir (axis-dir xyz axis-rot))))
 
 ;; Note that the behavior for 'unknown and 'z-unknown are rather different

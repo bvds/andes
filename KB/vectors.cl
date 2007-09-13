@@ -610,7 +610,7 @@
     (in-wm (vector ?b ?vector ?dir))
     (in-wm (variable ?dir-var (dir ?vector)))
     ;; known to be orthogonal
-    (test (perpendicularp (axis-dir ?xyz ?rot) ?dir)) 
+    (test (not (non-zero-projectionp ?dir ?xyz ?rot)))
     (bind ?t (time-of ?vector))
     )
   :effects
@@ -965,9 +965,9 @@
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (test (not (perpendicularp ?dir-a ?dir-b))) ;see dot-orthogonal
    (get-axis ?xyz ?rot)
-   (bind ?xyz-rot (axis-dir ?xyz ?rot))
-   (test (not (perpendicularp ?dir-a ?xyz-rot)))
-   (test (not (perpendicularp ?dir-b ?xyz-rot)))
+   ;; fail if any component is known to be zero
+   (test (non-zero-projectionp ?dir-a ?xyz ?rot))
+   (test (non-zero-projectionp ?dir-b ?xyz ?rot))
    (variable ?a-xyz (compo ?xyz ?rot ?a))
    (variable ?b-xyz (compo ?xyz ?rot ?b))
    (bind ?dot (if (exactly-equal ?a ?b) `(^ ,?a-xyz 2) `(* ,?a-xyz ,?b-xyz)))
@@ -1025,24 +1025,24 @@
    (inherit-or-quantity ?b-in ?b)
    (in-wm (vector ?a-body ?a ?dir-a))
    (in-wm (vector ?b-body ?b ?dir-b))
-    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
-    (bind ?dir-axis (axis-dir ?compo ?rot))
-    ;; make sure that the direction is along the axis
-    (test (parallel-or-antiparallelp ?dir-cross ?dir-axis))
-    ;; cross-zero handles these cases:
-    (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
-    (test (not (perpendicularp ?dir-cross ?dir-axis)))
-    ;;
-    (in-wm (variable ?a-mag (mag ?a)))
-    (in-wm (variable ?b-mag (mag ?b)))
-    ;; Use angle-between because using the difference of
-    ;; directions does not work outside the xy-plane.
+   (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
+   (bind ?dir-axis (axis-dir ?compo ?rot))
+   ;; make sure that the direction is along the axis
+   (test (parallel-or-antiparallelp ?dir-cross ?dir-axis))
+   ;; cross-zero handles these cases:
+   (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
+   (test (non-zero-projectionp ?dir-cross ?compo ?rot))
+   ;;
+   (in-wm (variable ?a-mag (mag ?a)))
+   (in-wm (variable ?b-mag (mag ?b)))
+   ;; Use angle-between because using the difference of
+   ;; directions does not work outside the xy-plane.
     ;; Also matches method of finding the magnitude and then
-    ;; using the right hand rule to find the correct direction (and sign).
-    (variable ?theta-var (angle-between orderless ?a ?b))
-    (any-member ?absin ((* ?a-mag ?b-mag (sin ?theta-var))))
-    (bind ?cross (if (same-angle ?dir-cross ?dir-axis) ?absin `(- ,?absin)))
-    )
+   ;; using the right hand rule to find the correct direction (and sign).
+   (variable ?theta-var (angle-between orderless ?a ?b))
+   (any-member ?absin ((* ?a-mag ?b-mag (sin ?theta-var))))
+   (bind ?cross (if (same-angle ?dir-cross ?dir-axis) ?absin `(- ,?absin)))
+   )
   :effects ( (cross ?cross ?a-in ?b-in ?compo ?rot nil) 
 	     ;; nogood rule to so that only one form of cross is chosen
 	     (assume using-cross ?a ?b ?compo ?rot nil) ))
@@ -1052,10 +1052,8 @@
   (
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   (bind ?i-dir (axis-dir ?i ?rot))
-   (bind ?j-dir (axis-dir ?j ?rot))
-   (test (not (or (perpendicularp ?dir-a ?i-dir)
-		  (perpendicularp ?dir-b ?j-dir)) ))
+   (test (non-zero-projectionp ?dir-a ?i ?rot))
+   (test (non-zero-projectionp ?dir-b ?j ?rot))
    (variable ?ai (compo ?i ?rot ?a))
    (variable ?bj (compo ?j ?rot ?b))
    )
@@ -1067,10 +1065,9 @@
   (
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   (bind ?i-dir (axis-dir ?i ?rot))
-   (bind ?j-dir (axis-dir ?j ?rot))
-   (test (or (perpendicularp ?dir-a ?i-dir)
-	     (perpendicularp ?dir-b ?j-dir)))
+   ;; negation of the above tests
+   (test (not (and (non-zero-projectionp ?dir-a ?i ?rot)
+		   (non-zero-projectionp ?dir-b ?j ?rot))))
    )
   :effects ((cross-term 0 ?a ?b ?i ?j ?rot)))
 
@@ -1083,10 +1080,9 @@
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
-   (bind ?dir-axis (axis-dir ?compo ?rot))
    ;; cross-zero handles these cases:
    (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
-   (test (not (perpendicularp ?dir-cross ?dir-axis)))
+   (test (non-zero-projectionp ?dir-cross ?compo ?rot))
    ;;
    (any-member (?compo ?i ?j) ((x y z) (y z x) (z x y)))
    (cross-term ?ai-bj ?a ?b ?i ?j ?rot)
@@ -1108,9 +1104,9 @@
    (in-wm (vector ?a-body ?a ?dir-a))
    (in-wm (vector ?b-body ?b ?dir-b))
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
-   (bind ?dir-axis (axis-dir ?compo ?rot))
+   ;; negative of above test
    (test (or (parallel-or-antiparallelp ?dir-a ?dir-b)
-	     (perpendicularp ?dir-cross ?dir-axis)))
+	     (not (non-zero-projectionp ?dir-cross ?compo ?rot))))
    )
   :effects ( (cross 0 ?a-in ?b-in ?compo ?rot ?angle-flag) 
 	     ;; nogood rule to so that only one form of cross is chosen
@@ -1128,23 +1124,23 @@
                        '(given (compo ?xyz ?rot ?vector) ?value)
 		        (problem-givens problem))) 
    (let ((quant (second prop)))
-     ; if it's not already in the index
+     ;; if it's not already in the index
      (when (not (find quant (problem-varindex problem) 
                       :key #'qvar-exp :test #'unify))
        (let* ((axis (second quant))
 	      (rot (third quant))
 	      (vector (fourth quant))
-	      ; find vector mag's entry in var index for naming
-	      ; compo var. May not be there if mag unused also
+	      ;; find vector mag's entry in var index for naming
+	      ;; compo var. May not be there if mag unused also
 	      (mag-qvar (match-exp->qvar `(mag ,vector)
 	                    (problem-varindex problem)))
               (value (third prop)))
-       ; make sure we found a mag var
+       ;; make sure we found a mag var
        (if (null mag-qvar) 
              (warn "Unused given ~A not added because mag unused also."
 	              `(compo ,axis ,rot ,vector))
-       ;else:
-       ;  make qvar item for it and append to end of varindex
+       ;;else:
+       ;;  make qvar item for it and append to end of varindex
          (setf (problem-varindex problem)
            (append (problem-varindex problem)
 	      (list (make-qvar 
