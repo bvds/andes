@@ -2497,6 +2497,8 @@
    (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr)
    (time ?t) ;explicit time
    (test (tinsidep-include-endpoints ?t ?t-given))
+   ;; make sure this is an exact value (no :error term)
+   (test (not (parameter-or-unknownp ?dir-expr)))
    ;; make sure this vector not already drawn
    (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
@@ -2517,17 +2519,46 @@
 	  ?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
-; draw rba at direction opposite given dir of rab
+(defoperator draw-relative-position-approximate (?b1 ?b2 ?t)
+  :preconditions 
+  ( 
+   (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr
+	  :hint (?loc ?more) ("using the problem statement" nil))
+   (time ?t) ;explicit time
+   (test (tinsidep-include-endpoints ?t ?t-given))
+   ;; make sure there is an error term
+   (test (and (parameter-or-unknownp ?dir-expr) (member ':error ?dir-expr)))
+   ;; make sure this vector not already drawn
+   (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
+   (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
+			      (body-name ?b2) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   )
+  :effects (
+    (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
+    (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
+    (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
+   )
+  :hint (
+    (point (string "Draw the position of ~a relative to ~a in an approximate direction ~A." 
+		   ?b1 ?b2 (?loc identity)))
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~A at an approximate angle ~A."
+	  ?b1 ?b2 (?t pp) ?dir-expr))
+  ))
+
+;; draw rba at direction opposite given dir of rab
 (defoperator draw-opposite-relative-position (?b1 ?b2 ?t)
   :specifications 
   "if you are given that one body is at a certain direction with respect to another,
   then draw the relative position vector from one to the other in that direction"
   :preconditions ( 
-    (given (dir (relative-position ?b2 ?b1 :time ?t-given)) ?opp-dir-expr)
-    (test (not (equal ?opp-dir-expr 'unknown)))
+    (given (dir (relative-position ?b2 ?b1 :time ?t-given)) ?opp-dir-expr
+	   . ?whatever)
+    ;; make sure that the direction is known, without error
+    (test (not (parameter-or-unknownp ?opp-dir-expr)))
     (time ?t)
     (test (tinsidep-include-endpoints ?t ?t-given))
-    ; make sure this vector not already drawn
+    ;; make sure this vector not already drawn
     (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
 			       (body-name ?b2) (time-abbrev ?t)))
@@ -2595,22 +2626,23 @@
   :preconditions 
   ( 
    (time ?t)  ;explicit time
-    (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
-    ; make sure this is not known to be zero-length from at-place stmt.
-    (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep ?t ?t-at))
-    (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep ?t ?t-at))
-    ;; make sure not given it's dir, or the opposite dir, so can draw known
-    (not (given (dir (relative-position ?b1 ?b2 :time ?t-at)) 
-		(dnum ?dir |deg|)) (tinsidep ?t ?t-at))
-    (not (given (dir (relative-position ?b2 ?b1 :time ?t)) 
-		(dnum ?dir |deg|)) (tinsidep ?t ?t-at))
-    ;; make sure this vector not already drawn
-    (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
-    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
-			       (body-name ?b2) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "~&Drawing the relative position ~A with respect to ~a ~a at an unknown angle.~%" ?b1 ?b2 (?t pp))
-    )
+   (test (not (equal ?b1 ?b2))) ;make sure the objects are distinct.
+   ;; make sure this is not known to be zero-length from at-place stmt.
+   (not (at-place ?b1 ?b2 :time ?t-at) (tinsidep ?t ?t-at))
+   (not (at-place ?b2 ?b1 :time ?t-at) (tinsidep ?t ?t-at))
+   ;; Make sure we are not given the direction, or the opposite direction,
+   ;; when other drawing rules would apply
+   (not (given (dir (relative-position ?b1 ?b2 :time ?t-at)) . ?whatever) 
+	(tinsidep ?t ?t-at))
+   (not (given (dir (relative-position ?b2 ?b1 :time ?t-at)) . ?whatever) 
+	(tinsidep ?t ?t-at))
+   ;; make sure this vector not already drawn
+   (not (vector ?b2 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
+   (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
+			      (body-name ?b2) (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (debug "~&Drawing the relative position ~A with respect to ~a ~a at an unknown angle.~%" ?b1 ?b2 (?t pp))
+   )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) unknown)
     (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
@@ -3491,7 +3523,8 @@
 	   :axis ?axis-pt :time ?t-rotating . ?whatever)
    (test (not (equal ?rotate-dir 'z-unknown)))
    (test (tinsidep ?t ?t-rotating))
-   (given (dir (relative-position ?pt ?axis-pt :time ?t)) (dnum ?r-dir |deg|))
+   (given (dir (relative-position ?pt ?axis-pt :time ?t)) (dnum ?r-dir |deg|)
+	  . ?any-hint)
    (bind ?v-dir (if (equal ?rotate-dir 'ccw) (mod (+ ?r-dir 90) 360)
                   (mod (- ?r-dir 90) 360)))
    (bind ?a-dir (opposite ?r-dir))  

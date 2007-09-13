@@ -941,7 +941,8 @@
   (
    (in-wm (center-of-mass ?c1 (?b1)))
    (in-wm (center-of-mass ?c2 (?b2)))
-   (in-wm (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir))
+   (in-wm (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir 
+		 . ?rest))
    (time ?t)
    (test (tinsidep ?t ?t-given))
     (bind ?grav-dir (opposite ?r-dir))
@@ -953,7 +954,8 @@
   (
    (in-wm (center-of-mass ?c1 (?b1)))
    (in-wm (center-of-mass ?c2 (?b2)))
-   (in-wm (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir))
+   (in-wm (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir
+		 . ?rest))
    (time ?t) 
    (test (tinsidep ?t ?t-given))
   )
@@ -968,9 +970,9 @@
    (in-wm (center-of-mass ?c2 (?b2)))
    (test (not (unify ?c1 ?c2))) ;forbid self-action of force (needed test)
    (time ?t) 
-   (not (given (dir (relative-position ?c1 ?c2 :time ?t-given)) ?r-dir1)
+   (not (given (dir (relative-position ?c1 ?c2 :time ?t-given)) . ?r-dir1)
 	(tinsidep ?t ?t-given))
-   (not (given (dir (relative-position ?c2 ?c1 :time ?t-given)) ?r-dir2)
+   (not (given (dir (relative-position ?c2 ?c1 :time ?t-given)) . ?r-dir2)
 	(tinsidep ?t ?t-given))
   )
   :effects ((grav-direction ?b1 ?b2 ?t unknown)))
@@ -2478,7 +2480,7 @@
      ;; sometimes the axis owner is ?b and sometimes ?pt
      (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) ?f-dir)
      ;; fetch the relative position vector and calculate torque direction
-     (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) ?r-dir))
+     (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) ?r-dir . ?rest))
      (bind ?torque-dir (cross-product-dir ?r-dir ?f-dir))
      ;; var name identifies force by point of application and agent alone
      (bind ?mag-var (format-sym "TOR_~A_~A_~A~@[_~A~]" (body-name ?b) 
