@@ -2523,7 +2523,7 @@
   :preconditions 
   ( 
    (given (dir (relative-position ?b1 ?b2 :time ?t-given)) ?dir-expr
-	  :hint (?loc ?more) ("using the problem statement" nil))
+	  :hint (?loc ?more) ("based upon the problem statement" nil))
    (time ?t) ;explicit time
    (test (tinsidep-include-endpoints ?t ?t-given))
    ;; make sure there is an error term
@@ -2542,7 +2542,7 @@
   :hint (
     (point (string "Draw the position of ~a relative to ~a in an approximate direction ~A." 
 		   ?b1 ?b2 (?loc identity)))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~A at an approximate angle ~A."
+    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~A at an approximate angle of ~A."
 	  ?b1 ?b2 (?t pp) ?dir-expr))
   ))
 
