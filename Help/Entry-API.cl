@@ -664,7 +664,7 @@
 ;;  enters the variables in the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-lookup-vector (label avg-inst type system dir drawn-mag time id 
-                          &optional given-mag given-xc given-yc given-zc)
+                         &optional given-mag given-xc given-yc given-zc drawn-dir)
  (let* ((vtype        (arg-to-id **vector-types** type))
         (body-term    (arg-to-body system))
         (time-term    (arg-to-time time))
@@ -697,12 +697,12 @@
 	(dir-term (arg-to-dir dir drawn-mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id 
-                       given-mag given-xc given-yc given-zc)))
+                       given-mag given-xc given-yc given-zc drawn-dir)))
 
 ;; worker routine to do generic tasks common to vector entries 
 ;; once the vector quantity has been formed
 (defun make-vector-entry (label vquant-term time-term dir-term id 
-                          &optional given-mag given-xc given-yc given-zc)
+                          &optional given-mag given-xc given-yc given-zc drawn-dir)
    (let* ((vector-term (append vquant-term `(:time ,time-term)))
           (action      `(vector ,vector-term ,dir-term))
           (entry        (make-StudentEntry :id id :prop action))
@@ -866,7 +866,7 @@
 ;;   for the force, and enters them into the symbol table.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-lookup-force (label type system agent dir mag time id
-                         given-mag given-xc given-yc given-zc)
+                         given-mag given-xc given-yc given-zc drawn-dir)
    (let* ((body-term (arg-to-body system))
 	  (time-term (arg-to-time time))
 	  (agent-term (arg-to-body agent))
@@ -877,7 +877,7 @@
 	  (dir-term (arg-to-dir dir mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id
-                       given-mag given-xc given-yc given-zc)))
+                       given-mag given-xc given-yc given-zc drawn-dir)))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lookup-torque - check correctness of a torque vector drawn by student
@@ -902,7 +902,7 @@
 ;; Side Effects: Updates state as for other vector entries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun on-lookup-torque (label type body axis dir mag time id
-                         &optional given-mag given-xc given-yc given-zc)
+                         &optional given-mag given-xc given-yc given-zc drawn-dir)
  (let* ((body-term   (arg-to-body body))
 	(time-term   (arg-to-time time))
 	(axis-term   (arg-to-body axis))
@@ -921,7 +921,7 @@
 	(dir-term (arg-to-dir dir mag)))
 
     (make-vector-entry label vquant-term time-term dir-term id
-                       given-mag given-xc given-yc given-zc))
+                       given-mag given-xc given-yc given-zc drawn-dir))
 )
 
 (defun find-torque-term (pt axis)
