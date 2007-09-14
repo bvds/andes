@@ -235,7 +235,12 @@
 ;; First form matches time-dependent quantities:
 (def-error-class non-existent-variable (?type)
   ((student (define-var (?type . ?sargs)))
-   (no-correct (define-var (?type . ?cargs)))))
+   (no-correct (define-var (?type . ?cargs)))
+   ; make sure net form also unused, so message below makes sense. 
+   ; NB: relies on net quantity naming convention. Maybe use func 
+   ; in physics-funcs to lookup net form?
+   (bind ?net-quant (format-sym "NET-~A" ?type))
+   (no-correct (define-var (?net-quant . ?args)))))
 
 (defun non-existent-variable (type)
   (make-hint-seq
@@ -243,6 +248,24 @@
 			     "~a variable, none are needed for "
 			     "any solution I know of this problem.")
 		 (nlg type 'adj))
+	 (strcat "Click on the light bulb button or 'explain further' "
+		 "for suggestions on how to solve this problem.")
+	 '(function next-step-help))))
+
+(def-error-class need-net-variable (?net-quant)
+  ((student (define-var (?type . ?sargs)))
+   (no-correct (define-var (?type . ?cargs)))
+   ; relies on net quantity naming convention
+   (bind ?net-quant (format-sym "NET-~A" ?type))
+   (correct (define-var (?net-quant . ?args)))))
+
+(defun need-net-variable (net-quant)
+  (make-hint-seq
+   ; !!! some net quants use "due to all sources" on interface.
+   ; We should use that here.
+   (list (format nil (strcat "Andes solutions only use a "
+			     "~a variable." )
+		 (nlg net-quant 'adj))
 	 (strcat "Click on the light bulb button or 'explain further' "
 		 "for suggestions on how to solve this problem.")
 	 '(function next-step-help))))
