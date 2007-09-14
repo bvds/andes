@@ -239,6 +239,7 @@
    ; make sure net form also unused, so message below makes sense. 
    ; NB: relies on net quantity naming convention. Maybe use func 
    ; in physics-funcs to lookup net form?
+   ; !!! Note work-nc is a type of work.
    (bind ?net-quant (format-sym "NET-~A" ?type))
    (no-correct (define-var (?net-quant . ?args)))))
 
@@ -252,20 +253,23 @@
 		 "for suggestions on how to solve this problem.")
 	 '(function next-step-help))))
 
-(def-error-class need-net-variable (?net-quant)
+(def-error-class should-be-net-variable (?type)
   ((student (define-var (?type . ?sargs)))
    (no-correct (define-var (?type . ?cargs)))
    ; relies on net quantity naming convention
    (bind ?net-quant (format-sym "NET-~A" ?type))
    (correct (define-var (?net-quant . ?args)))))
 
-(defun need-net-variable (net-quant)
+(defun should-be-net-variable (type)
   (make-hint-seq
-   ; !!! some net quants use "due to all sources" on interface.
-   ; We should use that here.
-   (list (format nil (strcat "Andes solutions only use a "
-			     "~a variable." )
-		 (nlg net-quant 'adj))
+   ; Most net quants are defined as quant "due to all sources" 
+   ; on interface, so we include that phrase in the message. 
+   ; Work and power actually use "all forces", but message
+   ; should still be understood in this case.
+   (list (format nil (strcat "In this problem you should use a "
+			     "variable to represent the " 
+			     "net ~a resulting from all sources.")
+		 (nlg type 'adj) (nlg type 'adj))
 	 (strcat "Click on the light bulb button or 'explain further' "
 		 "for suggestions on how to solve this problem.")
 	 '(function next-step-help))))
