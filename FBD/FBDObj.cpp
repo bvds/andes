@@ -1393,6 +1393,14 @@ CString CVector::GetTailArgs()
 		if (m_pDocument->UseZAxis())
 			strTailArgs += " :given-zc \"" + LISPSTR(m_strZC) + "\"";
 	}
+
+	// include drawn direction for unknown orientation vectors (unless zero mag)
+	if (DirArg() == "NIL" && ! IsZeroMag() ) {
+		CString strDrawnDirArg;
+		strDrawnDirArg.Format(" :drawn-dir %d", GetDirection());
+		strTailArgs += strDrawnDirArg;
+	}
+
 	return strTailArgs;
 }
 
