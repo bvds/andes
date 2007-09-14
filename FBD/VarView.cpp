@@ -192,6 +192,9 @@ static QuantTblEntry vectorQuants[] =
 { ID_VARIABLE_ADDUNITVECTOR,     "unit-vector",     "n", },
 { ID_VARIABLE_ADDMAGDIPOLE,      "mag-dipole",      "$m", },
 { ID_VARIABLE_ADDELECDIPOLE,     "elec-dipole",      "p", },
+ // Lines are not really vectors but are treated like them
+ // for some purposes. 
+{ ID_VARIABLE_ADDLINE,            "line",            "",},
 };
 const int numVectors ARRAY_SIZE(vectorQuants);
 

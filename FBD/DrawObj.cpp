@@ -47,6 +47,7 @@
 #include "TimeConstantDlg.h"
 #include "DipoleDlg.h"
 #include "TorqueDipoleDlg.h"
+#include "LineDlg.h"
     
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -3745,6 +3746,9 @@ CDialog* CVariable::GetPropertyDlg()
 		else if (m_nType == ID_VARIABLE_ADDSPEED)
 			pDlg->m_strDescription = "Speed";
 		return pDlg;
+	}
+	else if (m_nType == ID_VARIABLE_ADDLINE) {
+		return new CLineDlg(this);
 	}
 	// some scalar variables use built-in custom dialogs:
 	//else if (m_nType == ID_VARIABLE_ADDRADIUS)

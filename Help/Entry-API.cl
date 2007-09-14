@@ -477,6 +477,7 @@
 						 time-term)))))
       (mag-dipole  (vec-prop prop `(dipole-moment ,body-term magnetic :time ,time-term)))
       (elec-dipole (vec-prop prop `(dipole-moment ,body-term electric :time ,time-term)))
+      (line        (vec-prop prop  `(line ,body-term :time ,time-term)))
       ; unit-normal, unit-from, unit-towards: assume these will never be soughts so will
       ; never appear on quantity choice menu.
       ;; unknown:

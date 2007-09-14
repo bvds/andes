@@ -281,8 +281,9 @@ void CVarMenu::AttachProblemMenu(DWORD dwConceptFlag, BOOL bIncludeVectors/*=FAL
 		// only include final z-axis item if problem uses z-axis vectors
 		int nProps = theApp.GetCurrentProblem()->UseZAxis() ? nVecProps : nVecProps - 1;
 		for (int p = 0; p < nProps; p++) {
-			// Build the appropriate sub-menu using displaced command ids coding
-			// attribute + vec-cmd in one cmd id as attribute base + vec-cmd offset
+			// Build the appropriate sub-menu listing possible vector quantities
+			// attach displaced command ids coding attribute + vec-cmd in one 
+			// cmd id as attribute base + vec-cmd offset
 			int nBase = vecprops[p].base;
 			vecSubMenu.CreatePopupMenu();
 			for (int v = 0; v < NVECTOR_ITEMS; v++) {
@@ -292,6 +293,13 @@ void CVarMenu::AttachProblemMenu(DWORD dwConceptFlag, BOOL bIncludeVectors/*=FAL
 					int nDisplacedId = nBase + (nCmdId - ID_VARIABLE_ADDFIRST);
 					vecSubMenu.AppendMenu(MF_STRING, nDisplacedId, menuitems[v].str);
 				}
+			}
+			// if this is the direction submenu, also add item for lines if needed
+			// line tool only shown on optics problems (grep IDR_OPTICSTOOLS)
+			if (nBase == VEC_DIR_BASE && CVarView::HasFeature(CString("OPTICS"))) {
+					// No need to look this up in VarView tables
+					int nDisplacedId = nBase + (ID_VARIABLE_ADDLINE - ID_VARIABLE_ADDFIRST);
+					vecSubMenu.AppendMenu(MF_STRING, nDisplacedId, "Line");
 			}
 
 			// detach hMenu and add it to parent menu (safe?)
