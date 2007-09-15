@@ -2479,7 +2479,7 @@
      ;; draw the force on the point of application
      ;; sometimes the axis owner is ?b and sometimes ?pt
      (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) ?f-dir)
-     ;; fetch symbol name for force mag
+     ;; fetch symbol name for force to use in torque symbol name
      (in-wm (variable ?force-mag-var (mag (force ?pt ?agent ?type :time ?t))))
      ;; fetch the relative position vector and calculate torque direction
      (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) ?r-dir . ?rest))
