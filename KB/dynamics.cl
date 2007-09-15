@@ -2479,12 +2479,12 @@
      ;; draw the force on the point of application
      ;; sometimes the axis owner is ?b and sometimes ?pt
      (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) ?f-dir)
+     ;; fetch symbol name for force mag
+     (in-wm (variable ?force-mag-var (mag (force ?pt ?agent ?type :time ?t))))
      ;; fetch the relative position vector and calculate torque direction
      (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) ?r-dir . ?rest))
      (bind ?torque-dir (cross-product-dir ?r-dir ?f-dir))
-     ;; var name identifies force by point of application and agent alone
-     (bind ?mag-var (format-sym "TOR_~A_~A_~A~@[_~A~]" (body-name ?b) 
-				(body-name ?agent) ?axis (time-abbrev ?t)))
+     (bind ?mag-var (format-sym "TOR_~A_~A" ?axis ?force-mag-var))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
    :effects (
@@ -2924,8 +2924,8 @@
   :preconditions 
   (
    ;; draw vectors before doing cross product
-   (vector ?pt-owner (relative-position ?pt ?axis :time ?t) ?dir-v)
-   (vector ?pt-owner (force ?pt ?agent ?type :time ?t) ?dir-f)
+   (vector ?pt (relative-position ?pt ?axis :time ?t) ?dir-v)
+   (vector ?pt (force ?pt ?agent ?type :time ?t) ?dir-f)
    (vector ?b (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t) ?dir-t)
    (variable ?tau (compo ?xyz ?rot (torque ?b (force ?pt ?agent ?type)
 				     :axis ?axis :time ?t)))
