@@ -589,7 +589,7 @@
     (given (dir (displacement ?b :time ?t)) ?dir)) 
   :hint
   ((point (string "Notice that ~A, ~@? along a straight line." 
-		  (?t pp) (?any-motion identity) ~A))
+		  (?t pp) (?any-motion identity) ?b))
    (teach (string "Whenever an object moves in a straight line, the displacement vector is parallel to the direction of motion.")
 	  (kcd "draw_displacement"))
    (bottom-out (string "Because ~@? in the direction ~A, use the displacement tool to draw a displacement vector in the direction ~a ~A" 
