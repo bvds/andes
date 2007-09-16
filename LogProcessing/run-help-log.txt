@@ -87,3 +87,33 @@ Diff between July 24 and August 13:
          Also, there seems to be a number of error interpretations that have been
          changed due to the changes in the use of the random number generator for tie-breaking.
      
+Diff between September 15 and August 13  
+         Lots of changes in scores due to changes in the grading code.
+         (BvdS did not check these for correctness.)
+        Drop known zero terms from cross product:  changes explicit equations
+        in hints and hints for missing projections (remove hints to write zero projections
+        of components involved in cross products).
+        Drop :error keywords from givens in int* problems.
+       Problem:  now, if a student does explicitly give a cross product term
+       that is zero, the help system may complain that they have used 
+       an unneeded variable.
+       New operator draw-accel-given-zero-net-force.
+      New hints in displacement vector drawing rule.
+Need to investigate: 
+        348972c348913
+< 14:45 DDE-RESULT |F_y=-2.688e-5 N|
+---
+> 14:45 DDE-RESULT |!Unable to solve for F_y.  One thing you probably need is an equation specifying the g
+iven value of B.|
+348981c348922
+< 14:50 DDE-RESULT |E_y=-8.4 N/C|
+---
+> 14:50 DDE-RESULT |!Unable to solve for E_y.  One thing you probably need is an equation specifying the g
+iven value of B.|
+
+Also, there are a number of problems which no longer solve:
+6920429c6919098
+< 10:48 DDE-RESULT |V2=-14979.252979*digits* V|
+---
+> 10:48 DDE-RESULT |!Unable to solve for V2.  One thing you probably need is an equation specifying the gi
+
