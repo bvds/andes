@@ -1062,6 +1062,9 @@
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (variable ?ai (compo ?i ?rot ?a))
    (variable ?bj (compo ?j ?rot ?b))
+   ;; One could argue whether the general form of the equation
+   ;; should be written, but this is consistant with what we
+   ;; are doing for the dot product.
    (bind ?term (if (and (non-zero-projectionp ?dir-a ?i ?rot)
 			(non-zero-projectionp ?dir-b ?j ?rot))
 		   `(* ,?ai ,?bj)
