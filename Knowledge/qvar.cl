@@ -249,7 +249,7 @@
 ;;;===================================================================
 ;;; At help time it is necessary to test whether a given canonical
 ;;; var (qvar) is a parameter, answer-var etc.  The functions in this
-;;; section provide predicated to answer trhat information.
+;;; section provide predicated to answer that information.
 
 (defun qvar-parameterp (Q)
   (member 'Parameter (Qvar-Marks Q)))

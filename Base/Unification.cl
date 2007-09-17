@@ -288,6 +288,10 @@
         ((and (variable-p x) (get-binding x bindings))
          (subst-bindings bindings (lookup x bindings)))
         ((atom x) x)
+	;; remove null keyword pairs
+	((and (valid-keyword-pair x)
+	      (null (subst-bindings bindings (cadr x))))
+	 (subst-bindings bindings (cddr x)))
         (t (reuse-cons (subst-bindings bindings (car x))
                        (subst-bindings bindings (cdr x))
                        x))))
@@ -395,15 +399,7 @@
      ;; no match:  bind var to default
      (t (unify x y (unify var default bindings))))))
 
-(defun remove-nil-keywords (x)
-  "Remove any nil keyword pairs from x, since we have equivalence under unify."
-  (cond ((atom x) x)
-	((and (keywordp (car x)) (null (cadr x))) 
-	 (remove-nil-keywords (cddr x)))
-	(t (cons (remove-nil-keywords (car x)) 
-		 (remove-nil-keywords (cdr x))))))
 
-;; (symmetry-type ...) must be a proper list with no unbound variables
 ;; valid expressions include:  (symmetry-type a b c ...)
 ;;                             (symmetry-type . ?a)
 ;;                             (symmetry-type ?a)      
