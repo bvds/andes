@@ -2842,7 +2842,7 @@
   :hint 
   (
    (point (string "There is a force acting on ~A due to ~A."
-		  ?b ((field ?loc magnetic ?source :time ?tot) def-np)))
+		  ?b ((field ?loc magnetic ?source :time ?t) def-np)))
    (teach (string "The ~A component of the magnetic force equation is ~A."
 		  (?axis axis-name) 
 		  (?axis charge-force-Bfield-equation)))
