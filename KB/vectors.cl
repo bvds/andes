@@ -475,10 +475,12 @@
    ;; Following gets the variable we need
    (bind ?o-axis (if (eql ?xyz 'x) 'y 'x))
    (variable ?o-var (compo ?o-axis ?rot ?vector))
+   (variable ?z-var (compo z ?rot ?vector))
    )
   :effects
   ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
    (implicit-eqn (= ?o-var 0) (projection (compo ?o-axis ?rot ?vector)))
+   (implicit-eqn (= ?z-var 0) (projection (compo z ?rot ?vector)))
    )
   :hint
   ((point (string "Since ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
@@ -646,9 +648,15 @@
    ;; rhs is plus or minus mag:
    (bind ?rhs (if (eq ?dir 'out-of) ?mag-var `(- ,?mag-var)))
    (bind ?t (time-of ?vector))  ; no longer used, but must regen prb if opvar removed
+   (variable ?x-var (compo x ?rot ?vector))
+   (variable ?y-var (compo y ?rot ?vector))
    )
   :effects
-  ((eqn (= ?compo-var ?rhs) (projection (compo z ?rot ?vector))))
+  (
+   (eqn (= ?compo-var ?rhs) (projection (compo z ?rot ?vector)))
+   (implicit-eqn (= ?x-var 0) (projection (compo x ?rot ?vector)))
+   (implicit-eqn (= ?y-var 0) (projection (compo y ?rot ?vector)))
+)
   :hint
   ((point (string "You should write an equation relating the ~A component of ~A to its magnitude."  
                   ((axis z ?rot) symbols-label) ?vector ))
@@ -1052,24 +1060,14 @@
   (
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   (test (non-zero-projectionp ?dir-a ?i ?rot))
-   (test (non-zero-projectionp ?dir-b ?j ?rot))
    (variable ?ai (compo ?i ?rot ?a))
    (variable ?bj (compo ?j ?rot ?b))
+   (bind ?term (if (and (non-zero-projectionp ?dir-a ?i ?rot)
+			(non-zero-projectionp ?dir-b ?j ?rot))
+		   `(* ,?ai ,?bj)
+		 0))
    )
-  :effects ((cross-term (* ?ai ?bj) ?a ?b ?i ?j ?rot)))
-
-;; this should only apply when cross-product-term fails
-(defoperator cross-product-term-zero (?a ?b ?i ?j ?rot)
-  :preconditions 
-  (
-   (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
-   (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   ;; negation of the above tests
-   (test (not (and (non-zero-projectionp ?dir-a ?i ?rot)
-		   (non-zero-projectionp ?dir-b ?j ?rot))))
-   )
-  :effects ((cross-term 0 ?a ?b ?i ?j ?rot)))
+  :effects ((cross-term ?term ?a ?b ?i ?j ?rot)))
 
 ;; use vector-PSM
 (defoperator cross-using-components (?a ?b ?compo ?rot)
@@ -1121,7 +1119,7 @@
   "add unused given vector components with values to variable index"
   ;; do for each given vector component
   (dolist (prop (Filter-expressions 
-                       '(given (compo ?xyz ?rot ?vector) ?value)
+                       '(given (compo ?xyz ?rot ?vector) . ?rest)
 		        (problem-givens problem))) 
    (let ((quant (second prop)))
      ;; if it's not already in the index
