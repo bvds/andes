@@ -479,12 +479,14 @@
    )
   :effects
   ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
+   ;; The other camponents may not be needed for a solution, but
+   ;; the student should be allowed to write them.
    (implicit-eqn (= ?o-var 0) (projection (compo ?o-axis ?rot ?vector)))
    (implicit-eqn (= ?z-var 0) (projection (compo z ?rot ?vector)))
    )
   :hint
   ((point (string "Since ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
-   (teach (string "You can use general {\\l projection equations}{\\v ProjectionEquations.html} that will work in all cases, but when a vector V lies along an axis x, the component of the vector V_x along the axis is simply equal to plus or minus the magnitude of the vector: V_x = +/- V. The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
+   (teach (string "You can use general {\\l projection equations}{\\v ProjectionEquations.html} that will work in all cases.  but when a vector V lies along an axis x, the component of the vector V_x along the axis is simply equal to plus or minus the magnitude of the vector: V_x = +/- V. The sign is positive if the vector points in the positive axis direction, and negative otherwise. "))
    (bottom-out (string "Since ~A lies along the ~a axis and points in the ~a ~a direction, write the equation ~A." 
 		       ?vector  (?xyz adj) (?sign adj) (?xyz adj)
 		       ((= ?compo-var (?sign ?mag-var)) algebra)))
@@ -654,6 +656,8 @@
   :effects
   (
    (eqn (= ?compo-var ?rhs) (projection (compo z ?rot ?vector)))
+   ;; The other camponents may not be needed for a solution, but
+   ;; the student should be allowed to write them.
    (implicit-eqn (= ?x-var 0) (projection (compo x ?rot ?vector)))
    (implicit-eqn (= ?y-var 0) (projection (compo y ?rot ?vector)))
 )
