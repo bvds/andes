@@ -1690,22 +1690,6 @@
 			     "another approach.") (nlg type 'adj))
 	 '(function next-step-help))))
 
-(def-error-class default-non-existent-vector (?vector-type)
-  ((student (vector (?vector-type . ?sargs) ?sdir))
-   (no-correct (vector (?vector-type . ?cargs) ?cdir))
-   ; make sure net variant also unused, so message below makes sense. 
-   ; cf. non-existent-variable
-   (bind ?net-vector-type (get-net-quant-name ?vector-type)) ; may be NIL if none 
-   (no-correct (vector (?net-vector-type . ?cargs2) ?cdir2)))
-  :probability 0.001)
-
-(defun default-non-existent-vector (type)
-  (make-hint-seq
-   (list (format nil (strcat "None of the solutions that I know include a ~a "
-			     "vector.  Try clicking on the light bulb button "
-			     "or 'explain further' for suggestions about "
-			     "another approach.") (nlg type 'adj))
-	 '(function next-step-help))))
 
 ;; We don't use a generic should-be-net-vector ala should-be-net-variable, because:
 ;;   1. There are already special handlers for net-force/individual force errors.
