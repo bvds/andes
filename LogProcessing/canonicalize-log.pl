@@ -22,7 +22,7 @@ while (<>) {   # loop over lines in all Andes sessions
     # canonicalize randomized phrases.  This should be fixed
     # by explicit problem-specific seed to random-elt, March 2007.
     # Added use of random seed for flagging bad slot, August 1, 2007.
-    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
         # created by random-positive-feedback
 	s/Good!|Right\.|Correct\.|Yes\.|Yep\.|That.s right\.|Very good\.|Right indeed\./\*YES\*/;
 	# created by random-goal prefix
@@ -31,24 +31,31 @@ while (<>) {   # loop over lines in all Andes sessions
 
     #  Anders change to workbench API on July 17, 2007
     #  DDE-RESULT |NIL;VALUE -> DDE-RESULT |NIL
-    if(m/^([\d:]+)\tDDE-RESULT /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT /) {
 	s/NIL;VALUE/NIL/; 
 	s/\|NIL;[A-Z;\-]+\|/\|NIL\|/;
     }    
 
-    # fix to print keywords properly in assoc entries, July 23, 2007
-    # fix bug in remove-nil-keywords, August 13, 2007
-    # remove nil keyword pairs
     if(m/^([\d:]+)\tDDE-COMMAND assoc /) {
+	# fix to print keywords properly in assoc entries, July 23, 2007
+        # s/ :/ /g;
+
+	# remove nil keyword pairs
+	# fix bug in remove-nil-keywords, August 13, 2007
+        # remove nil keyword pairs via subst-bindings, Sept 17, 2007
 	s/ :[A-Z]+ NIL//g;  
-        s/ :/ /g;
-        s/\|([^|]+)\|/\1/g;
+
+        # s/\|([^|]+)\|/\1/g;
+
         # hash function for derivatives changed, July 7, 2007
-        s/( d[A-Z-]+)[_0-9]+dt/$1\*hash\*dt/g;
+        #  s/( d[A-Z-]+)[_0-9]+dt/$1\*hash\*dt/g;
+
+        # Remove unused error in givens, September 14, 2007
+        s/ :ERROR [0-9.e\-]+//;
     }
 
     # bad hints fixed early August 2007.
-    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+    if(0 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
         s/at T0 at T0/at T0/;
         s/(When the direction of a vector is not given or easily inferred from the problem statement, you should mark it unknown.) .*/$1/;
         s/(Double-click on the vector in order to bring up its properties) if necessary/$1/;
@@ -59,11 +66,19 @@ while (<>) {   # loop over lines in all Andes sessions
         s/ = /=/;  #F=m*g -> F = m*g
     }
 
+    # beginning of Sept. 2007:  Anders changes to scoring
+    if(m/^([\d:]+)\tDDE-COMMAND set-score /){
+	s/set-score [\d-]+/set-score \*score\*/;
+    }
+    if(m/^([\d:]+)\tDDE-RESULT \|NSH_BO_Call_Count /){
+        s/ [0-9.]+([ ;])/ \*score\*$1/g;
+    }
+
     # result equations, fix up floating point issues
     if(1 && m/^([\d:]+)\tDDE-RESULT |.*=.*|/) {
         s/ = /=/;     #I don't know where this came from (August 13, 2007)
-        s/([0-9]+\.[0-9]*)([0-8])9+ (?{$co=$2+1})/$1$co /; #round up trailing 9999's
-        s/([0-9]+\.[0-9]{6})[0-9]+ /$1\*digits\* /; #take care of roundoff
+        s/([0-9]+\.[0-9]*)([0-8])9+ (?{$co=$2+1})/$1$co /g; #round up trailing 9999's
+        s/([0-9]+\.[0-9]{6})[0-9]+ /$1\*digits\* /g; #take care of roundoff
     }
 
     print;
