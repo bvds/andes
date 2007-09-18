@@ -2167,7 +2167,7 @@
 	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t)))
     (assume using-NL no-net ?b ?t)
     (implicit-eqn (= ?a-compo 0) 
-		  (projection (compo ?xyz ?rot (accel ?b :time ?t)) :zero t)))
+		  (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is not accelerating ~A." 
 		   ?b ?b (?t pp)))
@@ -3083,7 +3083,7 @@
 	 (compo-eqn NFL ?xyz ?rot (NL-rot ?b ?axis ?t)))
     (assume using-NL no-net ?b ?t)
     (implicit-eqn (= ?a-compo 0) 
-		  (projection (compo ?xyz ?rot (accel ?b :time ?t)) :zero t)))
+		  (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
   :hint
    ((point (string "You can apply the rotational version Newton's second law to ~A.  Note that ~A has no angular acceleration ~A." 
 		   ?b ?b (?t pp)))

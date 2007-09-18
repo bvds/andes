@@ -404,9 +404,8 @@
    ;; Projection does not use inheritance, since it involves only one quantity.
    (inherit-or-quantity ?vector ?vector) ;test ?vector has no parents
    (add-to-wm (projection-axis ?rot))
-   (any-member ?flag (nil t))
    )
-  :effects ( (eqn-contains (projection (compo ?xy ?rot ?vector) :zero ?flag) 
+  :effects ( (eqn-contains (projection (compo ?xy ?rot ?vector)) 
 			   (compo ?xy ?rot ?vector)) ))
 
 ;; Projection writing rules used within larger psms should not draw a body, 
@@ -444,7 +443,7 @@
     )
   :effects
    ((eqn (= ?compo-var 0)
-	 (projection (compo ?xyz ?rot ?vector) :flag t)))
+	 (projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string "Notice that the ~a has zero length." ?vector ))
    (teach (string "When a vector has zero length, then all its components are zero, too.")
@@ -609,7 +608,7 @@
     )
   :effects
    ((eqn (= ?compo-var 0)
-	 (projection (compo ?xyz ?rot ?vector) :zero t)))
+	 (projection (compo ?xyz ?rot ?vector))))
   :hint
   ((point (string  "Notice that ~a is perpendicular to the ~a axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
    (teach (kcd "write_v_x=v_zero")

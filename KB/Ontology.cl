@@ -677,17 +677,6 @@
 	      (vector-var-pref ?vector) (axis-name ?axis)))
 
 
-;;  Allow the student to substitute zero for  zero components of a vector
-(def-psmclass zero-projection (projection (compo ?axis ?rot ?vector) :zero t)
-  :complexity definition
-  :doc "zero projection"
-  :short-name ("on ~A-axis" (axis-name ?axis))
-  :english ("zero projection")
-  :ExpFormat ("setting the ~A component of ~a to zero" 
-	      (axis-name ?axis) (nlg ?vector))
-  :EqnFormat ("~a_~a = 0"
-	      (vector-var-pref ?vector)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given a partially bound vector definition convert it to a type for the
 ;; nlg of the equation form.  This type will be one of 
