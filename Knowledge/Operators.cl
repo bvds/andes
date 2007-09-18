@@ -55,30 +55,6 @@
 ;;    (Difficulty) of the operator and, in-turn the likelyhood that the 
 ;;    students would be to use it.  
 ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; SAMPLE
-;;
-;; (defoperator write-projections (?compo-vars)
-;;  :features (unordered)
-;;  :specifications "
-;;   If the goal is to write extra equations for component variables,
-;;   then create subgoals, one for each, to write the equations,
-;;   and remember what the expressions corresponding to each variable is."
-;;  :preconditions  ((map ?var ?compo-vars
-;;	              (eqn (= ?var ?expr) (projection ?var))
-;;                    ?expr ?compo-exprs))
-;;  :effects ((projections ?compo-vars ?compo-exprs))
-;;  :hint
-;;   ((point (string 
-;;            "Your next step should be to write equations for each of the 
-;;             component variables that express the variable in simpler form, 
-;;             as an expression of magnitude and direction variables." ))
-;;    (bottom-out (string
-;;	           "You need to write projection equations for the components 
-;;                 you will use."))))
-;;
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; At problem solution time, the system will backward-chain using the operators.  
 ;; Given the current sought it will select the subset of operators containing 
 ;; effects that match it.  For each operator it will split the search and attempt
