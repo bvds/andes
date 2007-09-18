@@ -2167,7 +2167,7 @@
 	 (compo-eqn NFL ?xyz ?rot (NL ?b ?t)))
     (assume using-NL no-net ?b ?t)
     (implicit-eqn (= ?a-compo 0) 
-		  (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
+		  (projection (compo ?xyz ?rot (accel ?b :time ?t)) :zero t)))
   :hint
    ((point (string "You can apply Newton's second law to ~A.  Note that ~A is not accelerating ~A." 
 		   ?b ?b (?t pp)))
@@ -2207,15 +2207,10 @@
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
    (inherit-variable ?m (mass ?b :time ?t))
-   ;; see if acceleration compo doesn't vanish
-   ;; if it does, we still write equation to give sum of forces = 0
-   (in-wm (vector ?b (accel ?b :time ?t) ?dir-a))
-   (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
-		      `(* ,?m ,?a-compo) 0))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    )
   :effects
-   ((eqn (= (+ . ?f-compo-vars) ?ma-term)
+   ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
 	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t)))
     (assume using-NL no-net ?b ?t)
     )
@@ -2224,7 +2219,8 @@
 		   ?b ?b (?t pp)))
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration.  Because the net force is the vector sum of all forces on the object, this can be applied component-wise to relate the sum of the force components in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law in terms of component variables along the ~A axis as ~A" 
-			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?ma-term) algebra)))
+			((axis ?xyz ?rot) symbols-label) 
+			((= (+ . ?f-compo-vars) (* ?m ?a-compo)) algebra)))
     ))
 
 ;;; 
@@ -2245,14 +2241,10 @@
    (variable ?a-compo (compo ?xyz ?rot (accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
    (inherit-variable ?m (mass ?b :time ?t))
-    ;; see if acceleration compo doesn't vanish
-   (in-wm (vector ?b (accel ?b :time ?t) ?dir-a)) ;done in drawing step
-   (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
-		      `(* ,?m ,?a-compo) 0))
    (debug "finish write-NSL-net-compo~%")
     )
   :effects (
-    (eqn (= ?fnet-compo-var ?ma-term)
+    (eqn (= ?fnet-compo-var (* ?m ?a-compo))
 	 (compo-eqn NSL ?xyz ?rot (NL ?b ?t :net ?netp)))
     (assume using-NL net ?b ?t)
   )
@@ -2262,7 +2254,7 @@
     (teach (string "Newton's second law F = m*a states that the net force on an object = the object's mass times its acceleration. This can be applied component-wise to relate the net force in any direction to the mass times the component of acceleration in that direction."))
     (bottom-out (string "Write Newton's second law along the ~a axis in terms of component variables, namely, ~a" 
 			((axis ?xyz ?rot) symbols-label) 
-			((= ?fnet-compo-var ?ma-term) algebra)))
+			((= ?fnet-compo-var  (* ?m ?a-compo)) algebra)))
    )
 )
 
@@ -3091,7 +3083,7 @@
 	 (compo-eqn NFL ?xyz ?rot (NL-rot ?b ?axis ?t)))
     (assume using-NL no-net ?b ?t)
     (implicit-eqn (= ?a-compo 0) 
-		  (projection (compo ?xyz ?rot (accel ?b :time ?t)))))
+		  (projection (compo ?xyz ?rot (accel ?b :time ?t)) :zero t)))
   :hint
    ((point (string "You can apply the rotational version Newton's second law to ~A.  Note that ~A has no angular acceleration ~A." 
 		   ?b ?b (?t pp)))
@@ -3123,15 +3115,10 @@
    (variable ?a-compo (compo ?xyz ?rot (ang-accel ?b :time ?t)))
    ;; assume any mass change is described by thrust force
    (inherit-variable ?m (moment-of-inertia ?b :time ?t))
-   ;; see if acceleration compo doesn't vanish
-   ;; if it does, we still write equation to give sum of forces = 0
-   (in-wm (vector ?b (ang-accel ?b :time ?t) ?dir-a))
-   (bind ?ma-term (if (non-zero-projectionp ?dir-a ?xyz ?rot)
-		      `(* ,?m ,?a-compo) 0))
    (debug "write-NSL-compo: eqn-compo-vars = ~A~%" ?eqn-compo-vars)
    )
   :effects
-   ((eqn (= (+ . ?f-compo-vars) ?ma-term)
+   ((eqn (= (+ . ?f-compo-vars) (* ?m ?a-compo))
 	 (compo-eqn NSL ?xyz ?rot (NL-rot ?b ?axis ?t)))
     (assume using-NL no-net ?b ?t)
     )
@@ -3140,7 +3127,7 @@
 		   ?b ?b (?t pp)))
     (teach (string "The rotation version of Newton's second law is $t = m*$a.  The net torque $t is the vector sum of all torques acting on the object.  This can be applied component-wise."))
     (bottom-out (string "Write the rotational version of Newton's second law in terms of component variables along the ~A axis as ~A" 
-			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars) ?ma-term) algebra)))
+			((axis ?xyz ?rot) symbols-label) ((= (+ . ?f-compo-vars)  (* ?m ?a-compo)) algebra)))
     ))
 
 (defoperator write-NSL-rot-net (?b ?axis ?t ?z ?rot)

@@ -404,8 +404,9 @@
    ;; Projection does not use inheritance, since it involves only one quantity.
    (inherit-or-quantity ?vector ?vector) ;test ?vector has no parents
    (add-to-wm (projection-axis ?rot))
+   (any-member ?flag (nil t))
    )
-  :effects ( (eqn-contains (projection (compo ?xy ?rot ?vector)) 
+  :effects ( (eqn-contains (projection (compo ?xy ?rot ?vector) :zero ?flag) 
 			   (compo ?xy ?rot ?vector)) ))
 
 ;; Projection writing rules used within larger psms should not draw a body, 
@@ -443,7 +444,7 @@
     )
   :effects
    ((eqn (= ?compo-var 0)
-	 (projection (compo ?xyz ?rot ?vector))))
+	 (projection (compo ?xyz ?rot ?vector) :flag t)))
   :hint
   ((point (string "Notice that the ~a has zero length." ?vector ))
    (teach (string "When a vector has zero length, then all its components are zero, too.")
@@ -470,19 +471,9 @@
    ;; should fail if ?dir is 'unknown (this test does not work for z-axis)
    (test (parallel-or-antiparallelp (axis-dir ?xyz ?rot) ?dir))
    (bind ?sign (if (same-angle (axis-dir ?xyz ?rot) ?dir) '+ '-))
-   ;; We want off-axis 0 components to be referenced, even if solution doesn't 
-   ;; use them so we put out an implicit equation for them as well. 
-   ;; Following gets the variable we need
-   (bind ?o-axis (if (eql ?xyz 'x) 'y 'x))
-   (variable ?o-var (compo ?o-axis ?rot ?vector))
-   (variable ?z-var (compo z ?rot ?vector))
    )
   :effects
   ((eqn (= ?compo-var (?sign ?mag-var)) (projection (compo ?xyz ?rot ?vector)))
-   ;; The other camponents may not be needed for a solution, but
-   ;; the student should be allowed to write them.
-   (implicit-eqn (= ?o-var 0) (projection (compo ?o-axis ?rot ?vector)))
-   (implicit-eqn (= ?z-var 0) (projection (compo z ?rot ?vector)))
    )
   :hint
   ((point (string "Since ~A lies along the ~A axis, it has a non-zero component along that axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
@@ -615,11 +606,10 @@
     (in-wm (variable ?dir-var (dir ?vector)))
     ;; known to be orthogonal
     (test (not (non-zero-projectionp ?dir ?xyz ?rot)))
-    (bind ?t (time-of ?vector))
     )
   :effects
    ((eqn (= ?compo-var 0)
-	 (projection (compo ?xyz ?rot ?vector))))
+	 (projection (compo ?xyz ?rot ?vector) :zero t)))
   :hint
   ((point (string  "Notice that ~a is perpendicular to the ~a axis."  ?vector ((axis ?xyz ?rot) symbols-label)))
    (teach (kcd "write_v_x=v_zero")
@@ -649,18 +639,11 @@
    (in-wm (variable ?mag-var (mag ?vector)))
    ;; rhs is plus or minus mag:
    (bind ?rhs (if (eq ?dir 'out-of) ?mag-var `(- ,?mag-var)))
-   (bind ?t (time-of ?vector))  ; no longer used, but must regen prb if opvar removed
-   (variable ?x-var (compo x ?rot ?vector))
-   (variable ?y-var (compo y ?rot ?vector))
    )
   :effects
   (
    (eqn (= ?compo-var ?rhs) (projection (compo z ?rot ?vector)))
-   ;; The other camponents may not be needed for a solution, but
-   ;; the student should be allowed to write them.
-   (implicit-eqn (= ?x-var 0) (projection (compo x ?rot ?vector)))
-   (implicit-eqn (= ?y-var 0) (projection (compo y ?rot ?vector)))
-)
+   )
   :hint
   ((point (string "You should write an equation relating the ~A component of ~A to its magnitude."  
                   ((axis z ?rot) symbols-label) ?vector ))
@@ -977,9 +960,6 @@
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (test (not (perpendicularp ?dir-a ?dir-b))) ;see dot-orthogonal
    (get-axis ?xyz ?rot)
-   ;; fail if any component is known to be zero
-   (test (non-zero-projectionp ?dir-a ?xyz ?rot))
-   (test (non-zero-projectionp ?dir-b ?xyz ?rot))
    (variable ?a-xyz (compo ?xyz ?rot ?a))
    (variable ?b-xyz (compo ?xyz ?rot ?b))
    (bind ?dot (if (exactly-equal ?a ?b) `(^ ,?a-xyz 2) `(* ,?a-xyz ,?b-xyz)))
@@ -1066,15 +1046,8 @@
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (variable ?ai (compo ?i ?rot ?a))
    (variable ?bj (compo ?j ?rot ?b))
-   ;; One could argue whether the general form of the equation
-   ;; should be written, but this is consistant with what we
-   ;; are doing for the dot product.
-   (bind ?term (if (and (non-zero-projectionp ?dir-a ?i ?rot)
-			(non-zero-projectionp ?dir-b ?j ?rot))
-		   `(* ,?ai ,?bj)
-		 0))
    )
-  :effects ((cross-term ?term ?a ?b ?i ?j ?rot)))
+  :effects ((cross-term (* ?ai ?bj) ?a ?b ?i ?j ?rot)))
 
 ;; use vector-PSM
 (defoperator cross-using-components (?a ?b ?compo ?rot)

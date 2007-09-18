@@ -2273,24 +2273,16 @@
     (inherit-variable ?vf-compo (compo ?xyz ?rot (velocity ?b :time ?t2)))
     (inherit-variable ?a-compo  (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?s-compo  (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
-    ;; see if initial velocity compo doesn't vanish
-    (in-wm (inherit-vector ?b (velocity ?b :time ?t1) ?dir-vi))
-    (bind ?vi-term (if (non-zero-projectionp ?dir-vi ?xyz ?rot)
-		      `(^ ,?vi-compo 2) 0))
-    ;; see if final velocity compo doesn't vanish
-    (in-wm (inherit-vector ?b (velocity ?b :time ?t2) ?dir-vf))
-    (bind ?vf-term (if (non-zero-projectionp ?dir-vf ?xyz ?rot)
-		      `(^ ,?vf-compo 2) 0))
-
-)
+    )
   :effects
-  ((eqn (= ?vf-term (+ ?vi-term (* 2 ?a-compo ?s-compo)))
+  ((eqn (= (^ ?vf-compo 2) (+ (^ ?vi-compo 2) (* 2 ?a-compo ?s-compo)))
 	        (compo-eqn lk-no-t ?xyz ?rot (lk ?b (during ?t1 ?t2))))
    )
   :hint (
     (point (string "Do you know an equation relating the components of initial velocity, final velocity, acceleration, and displacement when acceleration is constant?"))
     (bottom-out (string "Write the equation ~A" 
-			((= ?vf-term (+ ?vi-term (* 2 ?a-compo ?s-compo))) algebra)))
+			((= (^ ?vf-compo 2) (+ (^ ?vi-compo 2) 
+					       (* 2 ?a-compo ?s-compo))) algebra)))
   ))
 
 ;;; Writes the equation s = vi*t + 0.5*a*t^2, which lacks vf
@@ -2364,19 +2356,16 @@
     (inherit-variable ?a-compo (compo ?xyz ?rot (accel ?b :time (during ?t1 ?t2))))
     (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
     (variable ?t-var (duration (during ?t1 ?t2)))
-    ;; see if initial velocity compo doesn't vanish
-    (in-wm (inherit-vector ?b (velocity ?b :time ?t1) ?dir-vi))
-    (bind ?v-term (if (non-zero-projectionp ?dir-vi ?xyz ?rot)
-		      `(* ,?vi-compo ,?t-var) 0))
     )
   :effects
-  ((eqn (= ?s-compo (+ ?v-term (* 0.5 ?a-compo (^ ?t-var 2))))
+  ((eqn (= ?s-compo (+ (* ?vi-compo ?t-var) (* 0.5 ?a-compo (^ ?t-var 2))))
 	 (compo-eqn lk-no-vf ?xyz ?rot (lk ?b (during ?t1 ?t2))))
    )
   :hint (
     (point (string "Do you know an equation relating the components of displacement to those of initial velocity, time, and acceleration when acceleration is constant?"))
     (bottom-out (string "Write the equation ~A" 
-			((= ?s-compo (+ ?v-term	(* 0.5 ?a-compo (^ ?t-var 2))))
+			((= ?s-compo (+ (* ?vi-compo ?t-var)
+					(* 0.5 ?a-compo (^ ?t-var 2))))
 						 algebra)))
   ))
 
@@ -2467,7 +2456,7 @@
   :effects
   ((eqn (= ?s-compo (* ?vi-compo ?t-var))
 	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (implicit-eqn (= ?a_x 0) (projection ?a-compo)))
+    (implicit-eqn (= ?a_x 0) (projection ?a-compo :zero t)))
   :hint (
     (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
     (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
