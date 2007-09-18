@@ -959,6 +959,12 @@
    (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
    (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
    (test (not (perpendicularp ?dir-a ?dir-b))) ;see dot-orthogonal
+   ;; Want to allow for zero components to be written.
+   ;; However, we don't want all three directions if a problem is
+   ;; restricted to one or two dimensions.  As a compromise,
+   ;; drop any term where both vectors known to have zero components.
+   (test (or (non-zero-projectionp ?dir-a ?xyz ?rot)
+	     (non-zero-projectionp ?dir-b ?xyz ?rot)))
    (get-axis ?xyz ?rot)
    (variable ?a-xyz (compo ?xyz ?rot ?a))
    (variable ?b-xyz (compo ?xyz ?rot ?b))
