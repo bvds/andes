@@ -809,7 +809,7 @@
   :preconditions 
   (
    (variable ?r (mag ?vector))
-   (dot ?dot ?vector ?vector ?rot)
+   (dot ?dot ?vector ?vector ?rot :nonzero ?nonzero)
   )
   :effects (
     (eqn (= ?r (sqrt ?dot)) (vector-magnitude ?vector ?rot))
@@ -819,7 +819,7 @@
   :hint (
    (point (string "The pythagorean theorem can be used to relate the magnitude of a vector to its components."))
    (bottom-out (string "Write the equation ~A." 
-		       ((= ?r (sqrt ?dot)) algebra)))
+		       ((= ?r (sqrt ?nonzero)) algebra)))
   ))
 
 
@@ -948,22 +948,13 @@
 		   `(^ ,?a-var 2) ;dot of a vector with itself
 		 `(* ,?a-var ,?b-var (cos ,?theta-var))))
     )
-  :effects ( (dot ?dot ?a-in ?b-in nil) 
+  :effects ( (dot ?dot ?a-in ?b-in nil :nonzero ?dot) 
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b nil) ))
 
-(defoperator dot-term-nonzero (?a ?b ?xyz ?rot)
+(defoperator dot-term (?a ?b ?xyz ?rot)
   :preconditions 
   ( 
-   (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
-   (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   (test (not (perpendicularp ?dir-a ?dir-b))) ;see dot-orthogonal
-   ;; Want to allow for zero components to be written.
-   ;; However, we don't want all three directions if a problem is
-   ;; restricted to one or two dimensions.  As a compromise,
-   ;; drop any term where both vectors known to have zero components.
-   (test (or (non-zero-projectionp ?dir-a ?xyz ?rot)
-	     (non-zero-projectionp ?dir-b ?xyz ?rot)))
    (get-axis ?xyz ?rot)
    (variable ?a-xyz (compo ?xyz ?rot ?a))
    (variable ?b-xyz (compo ?xyz ?rot ?b))
@@ -971,19 +962,40 @@
     )
   :effects ( (dot-term ?dot ?a ?b ?rot) ))
 
+(defoperator dot-term-nonzero (?a ?b ?xyz ?rot)
+  :preconditions 
+  ( 
+   (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
+   (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
+   (test (not (perpendicularp ?dir-a ?dir-b))) ;see dot-orthogonal
+   (get-axis ?xyz ?rot)
+   ;; drop any zero term
+   (test (non-zero-projectionp ?dir-a ?xyz ?rot))
+   (test (non-zero-projectionp ?dir-b ?xyz ?rot))
+   (variable ?a-xyz (compo ?xyz ?rot ?a))
+   (variable ?b-xyz (compo ?xyz ?rot ?b))
+   (bind ?dot (if (exactly-equal ?a ?b) `(^ ,?a-xyz 2) `(* ,?a-xyz ,?b-xyz)))
+    )
+  :effects ( (dot-term-nonzero ?dot ?a ?b ?rot) ))
+
 (defoperator dot-using-components (?a ?b ?rot)
   :preconditions 
   ( 
    (inherit-or-quantity ?a-in ?a)
    (inherit-or-quantity ?b-in ?b)
    (test (not (null ?rot))) ; use component form
-   ;; gather all possibly non-zero terms of dot product
+   ;; gather all terms of dot product
    (setof (dot-term ?dot ?a ?b ?rot) ?dot ?terms)
-   (test (not (null ?terms))) ;dot=0 handled by dot-orthogonal
+   ;; gather all terms not known to be zero.  This is used
+   ;; to test for nonzero dot and for hints.
+   (setof (dot-term-nonzero ?dot ?a ?b ?rot) ?dot ?nonzero-terms)
+   (test (not (null ?nonzero-terms))) ;dot=0 handled by dot-orthogonal
    ;; write out as a sum when appropriate
    (bind ?dot (format-plus ?terms))
+   ;; write out as a sum when appropriate
+   (bind ?nonzero-dot (format-plus ?nonzero-terms))
    )
-  :effects ( (dot ?dot ?a-in ?b-in ?rot)
+  :effects ( (dot ?dot ?a-in ?b-in ?rot :nonzero ?nonzero-dot)
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?rot) ))
 
@@ -1000,7 +1012,7 @@
    (wm-or-derive (vector ?b-body ?b ?dir-b))
    (test (perpendicularp ?dir-a ?dir-b))
    )
-  :effects ( (dot 0 ?a-in ?b-in ?angle-flag) 
+  :effects ( (dot 0 ?a-in ?b-in ?angle-flag :nonzero 0) 
 	     ;; nogood rule to so that only one form of dot is chosen
 	     (assume using-dot ?a ?b ?angle-flag) ))
 

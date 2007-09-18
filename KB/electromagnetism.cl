@@ -2319,7 +2319,7 @@
 				   :time ?t))
    (dot ?dot (dipole-moment ?dipole ?type :time ?t)
 	(field ?region ?type ?source :time ?t)
-	?rot)
+	?rot :nonzero ?nonzero)
    ;; It might make sense to have a seperate operator for the case
    ;; of zero energy.  In that case, the displacement and the force can't
    ;; be soughts. 
@@ -2341,7 +2341,7 @@
 		       (?type adj) ?dipole (?t pp)))
 	(teach (string ?teaches))
 	(bottom-out (string "Write the equation ~A"  
-			    ((= ?u-var (- ?dot)) algebra)))
+			    ((= ?u-var (- ?nonzero)) algebra)))
 	))
 
 
@@ -3483,7 +3483,7 @@
    ;;
    (dot ?dot (field ?region ?type ?source :time ?t)
 	(unit-vector normal-to ?surface :time ?t)
-	?rot)
+	?rot :nonzero ?nonzero)
    (test (not (equal ?dot 0))) ;zero handled separately
    (variable ?Phi-var (flux ?surface ?type :time ?t))
    (variable ?A (area ?surface))
@@ -3496,7 +3496,7 @@
 	 (teach (string "For a field that is uniform over a surface, the ~A flux through the surface is the area times the dot product of the ~A field and the unit normal to the surface."
 			(?type adj) (?type adj)))
 	 (bottom-out (string "Write the equation ~A."  
-			     ((= ?Phi-var (* ?A ?dot)) algebra)))
+			     ((= ?Phi-var (* ?A ?nonzero)) algebra)))
 	 ))
 
 (defoperator write-flux-zero (?surface ?type ?t ?rot)
@@ -3507,7 +3507,7 @@
    ;;
    (dot 0 (field ?region ?type ?source :time ?t)
 	(unit-vector normal-to ?surface :time ?t)
-	?rot)
+	?rot . ?whatever)
    (variable ?Phi-var (flux ?surface ?type :time ?t))
    )
   :effects ( (eqn (= ?Phi-var 0)
@@ -3596,7 +3596,7 @@
   ;;
   (dot ?dot (field ?surface ?type ?source :time ?t)
        (unit-vector normal-to ?surface :time ?t)
-       ?rot)
+       ?rot :nonzero ?nonzero)
   (variable ?Phi-var (rate-of-change (flux ?surface ?type :time ?t)))
   (variable ?A (rate-of-change (area ?surface)))
   )
@@ -3609,7 +3609,7 @@
 		       ?type ?surface))
 	(teach (string "For a constant, uniform field, the time derivative of the flux through a surface is the time derivative of the area times the dot product of the field and the unit normal to the surface." ?type))
 	(bottom-out (string "Write the equation ~A."  
-			    ((= ?Phi-var (* ?A ?dot)) algebra)))
+			    ((= ?Phi-var (* ?A ?nonzero)) algebra)))
 	))
 
 

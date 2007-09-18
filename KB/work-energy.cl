@@ -739,7 +739,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (test (not (member ?type '(spring gravitation))))
     ;; must draw body, force and displacement vectors
     (body ?b)
-    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t) ?rot)
+    (dot ?dot (force ?b ?agent ?type :time ?t) (displacement ?b :time ?t) 
+	 ?rot :nonzero ?nonzero)
     ;; It might make sense to have a seperate operator for the case
     ;; of zero work.  In that case, the displacement and the force can't
     ;; be soughts.  Also, the formula is valid for non-constant forces.
@@ -763,7 +764,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :hint (
   (point (string ?points ?b ?agent (?t pp)))
   (teach (string ?teaches))
-  (bottom-out (string "Write ~A"  ((= ?work-var ?dot) algebra)))
+  (bottom-out (string "Write ~A"  ((= ?work-var ?nonzero) algebra)))
  ))
 
 
@@ -1275,7 +1276,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     ;; must draw body, force and velocity vectors
     ;; Without a proper dot product, there is no point in drawing axes.
     (body ?b)
-    (dot ?dot (force ?b ?agent ?type :time ?t) (velocity ?b :time ?t) ?rot)
+    (dot ?dot (force ?b ?agent ?type :time ?t) (velocity ?b :time ?t) 
+	 ?rot :nonzero ?nonzero)
     ;; Different hints for orthogonal vectors
     (bind ?teaches (if (equal ?dot 0)
 		       "If a force has no component in the direction of the movement of an object, then the force does no work on that object."
@@ -1291,7 +1293,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  )
  :hint (
   (teach (string ?teaches))
-  (bottom-out (string "Write the equation ~A" ((= ?P-var ?dot) algebra)))
+  (bottom-out (string "Write the equation ~A" ((= ?P-var ?nonzero) algebra)))
  ))
 
 
