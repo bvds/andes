@@ -1280,3 +1280,19 @@
 "true if eqn is on the list of required identities"
     (member (first (eqn-exp eqn)) *required-identities*))
 
+
+;; Detecting net quant variant forms
+;;
+;; A few error handlers need to know the name of the variant net form of a 
+;; particular quantity, in order to avoid saying, e.g, no work variables 
+;; are used in the solution when in fact a net-work variable is used. 
+;; Following function maps a quantity name symbol -- the car of some quantity 
+;; expression -- to that of its net form, if one exists.
+;; Returns NIL if no net form. 
+;; Note error handlers may wind up looking up e.g. (define-var (NIL ...))
+;; in this case, so that should never be used as a quantity name.
+(defun get-net-quant-name (quant-name)
+  (when (member quant-name '(work power potential intensity db-intensity
+	                   force torque field))
+      (format-sym "NET-~A" quant-name)))
+

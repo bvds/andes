@@ -236,11 +236,10 @@
 (def-error-class non-existent-variable (?type)
   ((student (define-var (?type . ?sargs)))
    (no-correct (define-var (?type . ?cargs)))
-   ; make sure net form also unused, so message below makes sense. 
-   ; NB: relies on net quantity naming convention. Maybe use func 
-   ; in physics-funcs to lookup net form?
-   ; !!! Note work-nc is a type of work.
-   (bind ?net-quant (format-sym "NET-~A" ?type))
+   ; make sure net variant also unused, so message below makes sense. 
+   ; If no net quant, get-net-quant-name should return some unused
+   ; quantity name.   Note: won't detect work-nc as a type of work.
+   (bind ?net-quant (get-net-quant-name ?type)) ; may be NIL if none
    (no-correct (define-var (?net-quant . ?args)))))
 
 (defun non-existent-variable (type)
@@ -256,13 +255,14 @@
 (def-error-class should-be-net-variable (?type)
   ((student (define-var (?type . ?sargs)))
    (no-correct (define-var (?type . ?cargs)))
-   ; relies on net quantity naming convention
-   (bind ?net-quant (format-sym "NET-~A" ?type))
-   (correct (define-var (?net-quant . ?args)))))
+   (bind ?net-quant (get-net-quant-name ?type)) ; may be NIL if none
+   (correct (define-var (?net-quant . ?args))))
+  :flag (agent)  ; assumes dialog uses "all sources" agent for net
+   )
 
 (defun should-be-net-variable (type)
   (make-hint-seq
-   ; Most net quants are defined as quant "due to all sources" 
+   ; Several net quants are defined as quant "due to all sources" 
    ; on interface, so we include that phrase in the message. 
    ; Work and power actually use "all forces", but message
    ; should still be understood in this case.
@@ -1676,7 +1676,10 @@
 (def-error-class default-non-existent-vector (?vector-type)
   ((student (vector (?vector-type . ?sargs) ?sdir))
    (no-correct (vector (?vector-type . ?cargs) ?cdir))
-   (test (not (equal ?vector-type 'force))))
+   ; make sure net variant also unused, so message below makes sense. 
+   ; cf. non-existent-variable
+   (bind ?net-vector-type (get-net-quant-name ?vector-type)) ; may be NIL if none 
+   (no-correct (vector (?net-vector-type . ?cargs2) ?cdir2)))
   :probability 0.001)
 
 (defun default-non-existent-vector (type)
@@ -1687,6 +1690,27 @@
 			     "another approach.") (nlg type 'adj))
 	 '(function next-step-help))))
 
+(def-error-class default-non-existent-vector (?vector-type)
+  ((student (vector (?vector-type . ?sargs) ?sdir))
+   (no-correct (vector (?vector-type . ?cargs) ?cdir))
+   ; make sure net variant also unused, so message below makes sense. 
+   ; cf. non-existent-variable
+   (bind ?net-vector-type (get-net-quant-name ?vector-type)) ; may be NIL if none 
+   (no-correct (vector (?net-vector-type . ?cargs2) ?cdir2)))
+  :probability 0.001)
+
+(defun default-non-existent-vector (type)
+  (make-hint-seq
+   (list (format nil (strcat "None of the solutions that I know include a ~a "
+			     "vector.  Try clicking on the light bulb button "
+			     "or 'explain further' for suggestions about "
+			     "another approach.") (nlg type 'adj))
+	 '(function next-step-help))))
+
+;; We don't use a generic should-be-net-vector ala should-be-net-variable, because:
+;;   1. There are already special handlers for net-force/individual force errors.
+;;   2. Torque and fields define net forms in different ways, so message has to 
+;;      be different
 
 ;;; Although the KB describes net-force and single force vectors differently
 ;;; they are both force vectors as far as the student is concerned.  Therefore
@@ -1701,11 +1725,14 @@
 (defun default-non-existent-force-vector (type)
   (make-hint-seq
    (list (format nil (strcat "None of the solutions that I know include an ~a "
-			     "vector.  They do, however include a net-force "
+			     "vector.  They do, however, include a net force "
 			     "vector.  ") (nlg type 'adj))
 	 (format nil (strcat "If you wish for more guidance you can click on "
 			     "the Light Bulb Button or 'Explain-More'."))
 	 '(function next-step-help))))
+
+
+
 
 
 ;;; ==================== line drawing ===============================
@@ -2623,6 +2650,21 @@
     (format nil "Because ~a rotates about ~a, choose it as the axis point."
 	    (nlg body 'def-np) (nlg cpt 'def-np)))))
 
+; instead of non-existent-vector when need net-torque
+; Note we don't check for matches on net-torque args, just prompt them to
+; change to net torque and work from there
+(def-error-class should-be-net-torque () 
+  ((student    (vector (torque . ?sargs) ?sdir))
+   (no-correct (vector (torque . ?args) ?dir))
+   (correct    (vector (net-torque . ?cargs) ?cdir))))
+
+(defun should-be-net-torque ()
+  (make-hint-seq
+   (list (format nil (strcat "No solution I know of includes an individual torque vector. "
+			     "They do, however, include a net torque vector. "))
+	 (format nil (strcat "If you wish for more guidance you can click on "
+			     "the Light Bulb Button or 'Explain-More'."))
+	 '(function next-step-help))))
 
 ;;; =============== Sums of torque =================================
 ;;; In the case of some torque problems *cough* tor7a *cough* it
@@ -2801,6 +2843,7 @@
     
     (format nil "Because ~a rotates about ~a, choose it as the axis point."
 	    (nlg body 'def-np) (nlg cpt 'def-np)))))
+
 
 ;;; ============= drawing relative position vectors ================
 ;;; The tool has slots for the point, the reference point, the
@@ -3003,6 +3046,21 @@
                          "would be the field due to ~A, not ~a") 
                           (nlg cagent 'agent) (nlg sagent 'agent)))))
 
+;; instead of non-existent-vector when net-field is used:
+(def-error-class should-be-net-field (?type) 
+  ((student    (vector (field ?loc ?type . ?sargs) ?sdir))
+   (no-correct (vector (field ?loc ?type . ?args) ?dir))
+   (correct    (vector (net-field ?cloc ?type . ?cargs) ?cdir)))
+  :flag (agent))
+
+(defun should-be-net-field (type)
+  (make-hint-seq
+   (list (format nil (strcat "In this problem you should define the net "
+			     "~A field due to all sources. ")
+		     (nlg type 'adj))
+	 (format nil (strcat "If you wish for more guidance you can click on "
+			     "the Light Bulb Button or 'Explain-More'."))
+	 '(function next-step-help))))
 
 ;;; --------------------- Confusing electric and magnetic ---------------------
 
