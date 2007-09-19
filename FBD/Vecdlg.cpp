@@ -192,10 +192,12 @@ BOOL CVectorDlg::OnInitDialog()
 	if (theApp.m_bTrainMode)
 		theApp.SendTrainer(this, ID_TFORCE_DLG);
 	else {
+		SelectSingleChoices();
 		m_cboBodyList.SetFocus();
 		return FALSE;
 	}
 
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 

@@ -93,6 +93,7 @@ BOOL CVoltageDlg::OnInitDialog()
 		Remove(IDC_BOX_TIME);
 	}
 	
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

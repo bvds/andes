@@ -159,6 +159,7 @@ BOOL CAngleDlg::OnInitDialog()
 	if (m_pTempObj->IsKindOf(RUNTIME_CLASS(CAngle)))
 		m_ctrlName.SetFocus();
 
+	SelectSingleChoices();
 	return FALSE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

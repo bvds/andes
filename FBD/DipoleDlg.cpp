@@ -165,6 +165,7 @@ BOOL CDipoleDlg::OnInitDialog()
 		//m_cboZDir.ShowWindow(SW_SHOWNORMAL);
 	}
 
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

@@ -1,6 +1,6 @@
 // SystemDlg.cpp : implementation file
 // 
-// $Id: sysdlg.cpp,v 1.6 2007/07/19 17:52:39 anders Exp $
+// $Id: sysdlg.cpp,v 1.7 2007/09/19 20:58:17 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -97,9 +97,9 @@ BOOL CSystemDlg::OnInitDialog()
 		m_editName.ShowWindow(SW_HIDE);
 		m_stcLabel.ShowWindow(SW_HIDE);
 		Remove(IDC_BOX_LABEL);
-
 	}
 	else {
+		SelectSingleChoices();
 		m_listBodies.SetFocus();
 		return FALSE;
 	}

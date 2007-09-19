@@ -349,6 +349,7 @@ BOOL CVariableDlg::OnInitDialog()
 		(void) MoveToRightOf(SizeToFit(m_stcBody), m_cboBody);
 	}
 
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

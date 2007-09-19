@@ -573,7 +573,19 @@ void CCheckedDlg::GreyCtrl(CWnd *pCtrl, BOOL bEnable)
 	// else do nothing.
 }
 
-
-
-
-
+// helper to run through dialog, selecting all single choices in Combo or List boxes
+void CCheckedDlg::SelectSingleChoices()
+{
+	for (CWnd* pCtl = GetTopWindow(); pCtl != NULL; pCtl = pCtl->GetNextWindow()) {
+		// type tests detect our custom controls only, which carry MFC
+		// runtime class info. Should be OK.
+		if ( pCtl->IsKindOf(RUNTIME_CLASS(CLogCombo))
+			 && ((CComboBox*)pCtl)->GetCount() == 1 )
+			 ((CComboBox*)pCtl)->SetCurSel(0);
+		else if ( pCtl->IsKindOf(RUNTIME_CLASS(CLogList))
+			 && ((CListBox*)pCtl)->GetCount() == 1 )
+			 // uses function for multiple-selection list boxes,
+			 // since all of our list boxes have that style
+			 ((CListBox*)pCtl)->SetSel(0);
+	}
+}

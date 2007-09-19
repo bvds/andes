@@ -108,6 +108,7 @@ BOOL CResistanceDlg::OnInitDialog()
 		m_stcInstructions.SetWindowText(strTemp);
 	}
 
+	SelectSingleChoices();
 	m_listBodies.SetFocus();
 	return FALSE;
 	

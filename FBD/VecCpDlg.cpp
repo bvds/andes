@@ -1,6 +1,6 @@
 // VecCpDlg.cpp : implementation file
 //
-//$Id: VecCpDlg.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
+//$Id: VecCpDlg.cpp,v 1.3 2007/09/19 20:58:17 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -104,7 +104,7 @@ BOOL CVectorCompDlg::OnInitDialog()
 		m_cboCompOf.SelectStringExact(((CVector*)m_pTempObj)->m_strCompOf);
 	// other choices not yet specified?
 
-
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 	

@@ -85,6 +85,7 @@ BOOL CTimeConstantDlg::OnInitDialog()
 		m_editValue.SetEventMask(ENM_CHANGE);
 	}
 
+	SelectSingleChoices();
 	m_listBodies.SetFocus();
 	return FALSE;
 	

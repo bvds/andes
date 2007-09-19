@@ -93,7 +93,7 @@ BOOL CRadiusDlg::OnInitDialog()
 		UpdatePlanStrings(&m_cboBodies);
 	}
 
-
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

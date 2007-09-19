@@ -1,6 +1,6 @@
 // AxesDlg.cpp : implementation file
 //
-// $Id: Axesdlg.cpp,v 1.2 2005/04/11 18:53:54 anders Exp $
+// $Id: Axesdlg.cpp,v 1.3 2007/09/19 20:58:17 anders Exp $
 //
 
 #include "stdafx.h"
@@ -89,6 +89,7 @@ BOOL CAxesDlg::OnInitDialog()
 	// Initialize direction spinner control range.
 	m_spinDirection.SetRange(0, 89);
 
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 

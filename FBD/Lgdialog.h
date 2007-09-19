@@ -1,7 +1,7 @@
 // 
 // LogDialog.h : declarations for CLogDialog, our log-aware dialog class
 // 
-// $Id: Lgdialog.h,v 1.8 2007/08/09 03:42:41 anders Exp $
+// $Id: Lgdialog.h,v 1.9 2007/09/19 20:58:17 anders Exp $
 //
 // Base class for dialogs instrumented to interface with our logging system.
 // During recording, these dialogs log startup and size changes. During playback
@@ -167,6 +167,7 @@ protected:
 	BOOL UpdateStatus(CWnd* pCtl, WndList& errWnds);
 
 public:
+	void SelectSingleChoices();
 	// Get current printable object def for annotating "snapshot" printout
 	virtual CString GetPrintDef() { return "???"; }; // must override
 	

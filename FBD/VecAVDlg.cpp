@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.8 2007/08/10 21:34:30 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.9 2007/09/19 20:58:17 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -312,10 +312,12 @@ BOOL CVectorMoveDlg::OnInitDialog()
 		theApp.SendTrainer(this, dwId);
 	}
 	else {
-		m_cboBodyList.SetFocus();
+		SelectSingleChoices();
+		// m_cboBodyList.SetFocus();
 		return FALSE;
 	}
 
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 	

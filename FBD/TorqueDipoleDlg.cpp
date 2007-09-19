@@ -166,7 +166,7 @@ BOOL CTorqueDipoleDlg::OnInitDialog()
 		PostMessage(WM_COMMAND, MAKELONG(IDCANCEL, BN_CLICKED));
 	}
 
-
+	SelectSingleChoices();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
 }

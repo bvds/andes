@@ -725,6 +725,7 @@ void AFXAPI DDX_AddUserTimes(CDataExchange* pDX, int nIDC, CVarList* pObjList)
 #endif !0
 }
 
+
 void AFXAPI DDX_AddCompoundBodies(CDataExchange* pDX, int nIDC, CDrawObjList* pObjList)
 {
 	HWND hWndCtrl = pDX->PrepareCtrl(nIDC);
