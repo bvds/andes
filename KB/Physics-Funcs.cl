@@ -254,11 +254,11 @@
 
 (defun degree-specifierp (x &key error)
   "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> |deg| :error ?error) if error flag is set."
-  (and (unify x (if error '(dnum ?val |deg| :error ?err) '(dnum ?val |deg|)) 
+  (and (unify x (if error '(dnum ?val |deg| :error ?err) '(dnum ?val |deg|)))
 	      (numberp (second x))))
 
-; Following for use in contexts in which arg is either dnum or a plain
-; number we know to be an angle measure (e.g. an axis rotation).
+;; Following for use in contexts in which arg is either dnum or a plain
+;; number we know to be an angle measure (e.g. an axis rotation).
 (defun degrees-or-num (x)
  "true if x is either DNUM in degrees or a plain number"
    (or (numberp x) (degree-specifierp x)))
@@ -327,7 +327,7 @@
   "extract number of degrees from dnum, otherwise just return arg uncharged"
   (if (degree-specifierp dir-term :error t)
       (if (or approximate (degree-specifierp dir-term)) 
-	  (second dir-term) unknown)
+	  (second dir-term) 'unknown)
     ;; assumed to be special atom or number
     dir-term))
 
@@ -376,7 +376,7 @@
 	  ((eq dir-term2 'unknown) 'z-unknown)
 	  ;; use function for dir torque(fdir rdir), inverting order of args
 	  (T  (torque-zdir (term-to-dir dir-term2 :approximate t)  
-			   (term-to-dir dir-term1 :approximate t)))))
+			   (term-to-dir dir-term1 :approximate t))))))
 
 
 (defun horizontal-or-vertical (dir-expr)

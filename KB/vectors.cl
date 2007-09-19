@@ -1197,10 +1197,8 @@
   (bind ?angle (get-angle-between ?dir1 ?dir2))
   (test ?angle) ;null indicates an angle can't be determined
   ;; fetch vector mag vars for forming angle variable name only
-  (bind ?v1-mag-exp `(mag ,?vec1))
-  (bind ?v2-mag-exp `(mag ,?vec2))
-  (in-wm (variable ?v1-var ?v1-mag-exp))
-  (in-wm (variable ?v2-var ?v2-mag-exp))
+  (in-wm (variable ?v1-var (mag ?vec1)))
+  (in-wm (variable ?v2-var (mag ?vec2)))
   (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
   (debug "angle between ~A and ~A = ~A~%" ?v1-var ?v2-var ?angle)
   )
@@ -1213,6 +1211,34 @@
 	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
 			    (?v1-var algebra) (?v2-var algebra)))
 	))
+
+(defoperator define-angle-between-unknown (?vecs)
+ :preconditions 
+ (
+  ;; assume that ?vec1 and ?vec2 are parent quantities
+  (any-member (?vec1 ?vec2) (?vecs))
+  ;; vectors must be drawn first,
+  ;; note vector's axis owner bodies need not be the same
+  (vector ?b1 ?vec1 ?dir1)
+  (vector ?b2 ?vec2 ?dir2)
+  (test (and (not (eq ?dir1 'zero)) (not (eq ?dir2 'zero))))
+  ;; null indicates an angle can't be determined
+  (test (null (get-angle-between ?dir1 ?dir2)))
+  ;; fetch vector mag vars for forming angle variable name only
+  (in-wm (variable ?v1-var (mag ?vec1)))
+  (in-wm (variable ?v2-var (mag ?vec2)))
+  (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
+  (debug "unknown angle between ~A and ~A~%" ?v1-var ?v2-var)
+  )
+ :effects (
+	   (define-var (angle-between orderless . ?vecs))
+	   (variable ?theta-var (angle-between orderless . ?vecs))
+	   )
+ :hint (
+	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
+			    (?v1-var algebra) (?v2-var algebra)))
+	))
+
 
 (defoperator define-angle-between-lines (?lines)
  :preconditions 
