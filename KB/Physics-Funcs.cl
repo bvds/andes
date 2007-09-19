@@ -359,25 +359,26 @@
   "return direction of cross product of two Andes vector dirs"
   (let ((dir1 (term-to-dir dir-term1))
 	(dir2 (term-to-dir dir-term2)))
-    (cond ((parallel-or-antiparallelp dir1 dir2) 'zero)
-	  ((eq dir1 'zero) 'zero)
-	  ((eq dir2 'zero) 'zero)
-	  ;; cross non-zdir with zdir:
-	  ((z-dir-spec dir2) 
-	   (opposite (cross-product-dir dir-term2 dir-term1)))
-	  ((and (z-dir-spec dir1) (eq dir2 'unknown)) 'unknown)
-	  ;; so not both zdir (else would be parallel-or-antiparallelp)
-	  ((eq dir1 'z-unknown) 'unknown) 
-	  ;; cross z-dir vector with non-zdir:
-	  ((eq dir1 'out-of) (mod (+ dir2 90) 360))
-	  ((eq dir1 'into)   (mod (- dir2 90) 360))
-	  ;; else must be crossing two non-parallel xy-plane vectors
-	  ((eq dir-term1 'unknown) 'z-unknown)
-	  ((eq dir-term2 'unknown) 'z-unknown)
-	  ;; use function for dir torque(fdir rdir), inverting order of args
-	  (T  (torque-zdir (term-to-dir dir-term2 :approximate t)  
-			   (term-to-dir dir-term1 :approximate t))))))
-
+    (dir-to-term 
+     (cond ((parallel-or-antiparallelp dir1 dir2) 'zero)
+	   ((eq dir1 'zero) 'zero)
+	   ((eq dir2 'zero) 'zero)
+	   ;; cross non-zdir with zdir:
+	   ((z-dir-spec dir2) 
+	    (opposite (cross-product-dir dir-term2 dir-term1)))
+	   ((and (z-dir-spec dir1) (eq dir2 'unknown)) 'unknown)
+	   ;; so not both zdir (else would be parallel-or-antiparallelp)
+	   ((eq dir1 'z-unknown) 'unknown) 
+	   ;; cross z-dir vector with non-zdir:
+	   ((eq dir1 'out-of) (mod (+ dir2 90) 360))
+	   ((eq dir1 'into) (mod (- dir2 90) 360))
+	   ;; else must be crossing two non-parallel xy-plane vectors
+	   ((eq dir-term1 'unknown) 'z-unknown)
+	   ((eq dir-term2 'unknown) 'z-unknown)
+	   ;; use function for dir torque(fdir rdir), inverting order of args
+	   (T  (torque-zdir (term-to-dir dir-term2 :approximate t)  
+			    (term-to-dir dir-term1 :approximate t)))))))
+  
 
 (defun horizontal-or-vertical (dir-expr)
  "return true if this specifies a horizontal or vertical direction"
