@@ -477,6 +477,7 @@
   :preconditions
   ( (given (dir (line ?r)) ?dir-in)
     (not (draw-line (line ?r) ?dontcare))
+    (test (degrees-or-num ?dir-in))
     (bind ?dir (mod (convert-dnum-to-number ?dir-in) 180))
     (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))

@@ -179,8 +179,10 @@
 	 ((parameter-or-unknownp x1) NIL)
          ((parameter-or-unknownp x2) NIL)
 	 ;; else both should be known xy angle specifiers
-         (T (equal 90 (mod (- (convert-dnum-to-number x1) 
-			      (convert-dnum-to-number x2)) 180)))))
+         ((and (degrees-or-num x1) (degrees-or-num x2))
+	  (equal 90 (mod (- (convert-dnum-to-number x1) 
+			    (convert-dnum-to-number x2)) 180)))
+	 (t (error "invalid angles ~A ~A" x1 x2))))
 
 (defun non-zero-projectionp (vector-dir xyz axis-rot)
    "true if the vector is not known to be orthogonal to the given axis."
@@ -199,8 +201,10 @@
     ((parameter-or-unknownp x1) NIL)
     ((parameter-or-unknownp x2) NIL)
     ;; known angle in xy-plane
-    (T (zerop (mod (- (convert-dnum-to-number x1) 
-		      (convert-dnum-to-number x2)) 180)))))
+    ((and (degrees-or-num x1) (degrees-or-num x2))
+     (zerop (mod (- (convert-dnum-to-number x1) 
+		    (convert-dnum-to-number x2)) 180)))
+    (t (error "invalid angles ~A ~A" x1 x2))))
 
 ;; Given an axis specified by 'x|'y|'z + rotation, return 3D direction code.
 ;; maps z-axes to direction code 'out-of [the plane.]
@@ -248,11 +252,10 @@
   (or (and (dimensioned-numberp x) (member ':error x)) 
       (eq x 'unknown) (eq x 'z-unknown) (parameterp x)))
 
-(defun degree-specifierp (x)
-  "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> DEG)"
-  (and (or (unify x '(dnum ?val |deg| :error ?err))
-	   (unify x '(dnum ?val DEG :error ?err)))
-       (numberp (second x))))
+(defun degree-specifierp (x &key error)
+  "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> |deg| :error ?error) if error flag is set."
+  (and (unify x (if error '(dnum ?val |deg| :error ?err) '(dnum ?val |deg|)) 
+	      (numberp (second x))))
 
 ; Following for use in contexts in which arg is either dnum or a plain
 ; number we know to be an angle measure (e.g. an axis rotation).
@@ -275,8 +278,8 @@
          ((eq x 'out-of) 'into)
 	 ((eq x 'z-unknown) x)
 	 ((eq x 'unknown) x)
-	 ((degrees-or-num x) 
-	  (dir-to-dnum (mod (+ (convert-dnum-to-number x) 180) 360)))
+	 ((degree-specifierp x :error t) 
+	  (setf (second x) (mod (+ (second x) 180) 360)))
 	 (t (error "Opposite for ~A" x))))
 
 (defun minimal-x-rotations (Bag)
@@ -311,7 +314,7 @@
 
 (defun dir-from-compos (xc yc)
  "return nearest integral direction given vector components"
-  (dir-to-dnum (mod (rad-to-deg (atan yc xc)) 360)))
+  (dir-to-term (mod (rad-to-deg (atan yc xc)) 360)))
 
 ;;; In following, a a "dir" is either a plain number representing xy angle 
 ;;; in degrees or one of the special atoms: unknown, zero, into, out-of, 
@@ -320,12 +323,15 @@
 ;;; Following is to convert dir-terms to dirs for internal calculations 
 ;;; and back again to return.
 ;; !!! this doesn't handle parameter terms (little used)
-(defun term-to-dir (dir-term) ; term may be dnum or 'into 'out-of 'zero
-"extract number of degrees from dnum, otherwise just return arg uncharged"
-  (if (degree-specifierp dir-term) (second dir-term) 
-               dir-term))
+(defun term-to-dir (dir-term &key approximate) 
+  "extract number of degrees from dnum, otherwise just return arg uncharged"
+  (if (degree-specifierp dir-term :error t)
+      (if (or approximate (degree-specifierp dir-term)) 
+	  (second dir-term) unknown)
+    ;; assumed to be special atom or number
+    dir-term))
 
-(defun dir-to-dnum (dir)
+(defun dir-to-term (dir)
 "return dnum term for number of degrees, else arg unchanged"
    (if (numberp dir) `(dnum ,dir |deg|) dir))
 
@@ -348,36 +354,35 @@
 	  (T (min (mod (- dir1 dir2) 360)
 		  (mod (- dir2 dir1) 360))))))
 
-;; For computing cross product direction.
-(defun cross-product-dir (dir-term1 dir-term2)
-"return term for cross product direction of two given vector dir terms"
-  (dir-to-dnum (cross-product (term-to-dir dir-term1)
-                              (term-to-dir dir-term2))))
 
-(defun cross-product (dir1 dir2)
+(defun cross-product-dir (dir-term1 dir-term2)
   "return direction of cross product of two Andes vector dirs"
-  (cond ((parallel-or-antiparallelp dir1 dir2) 'zero)
-	((eq dir1 'zero) 'zero)
-	((eq dir2 'zero) 'zero)
-	;; cross non-zdir with zdir:
-	((z-dir-spec dir2) (opposite (cross-product dir2 dir1)))
-	((and (z-dir-spec dir1) (eq dir2 'unknown)) 'unknown)
-	;; so not both zdir (else would be parallel-or-antiparallelp)
-	((eq dir1 'z-unknown) 'unknown) 
-	;; cross z-dir vector with non-zdir:
-	((eq dir1 'out-of) (mod (+ dir2 90) 360))
-	((eq dir1 'into)   (mod (- dir2 90) 360))
-	;; else must be crossing two non-parallel xy-plane vectors
-	((eq dir1 'unknown) 'z-unknown)
-	((eq dir2 'unknown) 'z-unknown)
-	;; use function for dir torque(fdir rdir), inverting order of args
-	(T  (torque-zdir dir2 dir1))
-   ))
+  (let ((dir1 (term-to-dir dir-term1))
+	(dir2 (term-to-dir dir-term2)))
+    (cond ((parallel-or-antiparallelp dir1 dir2) 'zero)
+	  ((eq dir1 'zero) 'zero)
+	  ((eq dir2 'zero) 'zero)
+	  ;; cross non-zdir with zdir:
+	  ((z-dir-spec dir2) 
+	   (opposite (cross-product-dir dir-term2 dir-term1)))
+	  ((and (z-dir-spec dir1) (eq dir2 'unknown)) 'unknown)
+	  ;; so not both zdir (else would be parallel-or-antiparallelp)
+	  ((eq dir1 'z-unknown) 'unknown) 
+	  ;; cross z-dir vector with non-zdir:
+	  ((eq dir1 'out-of) (mod (+ dir2 90) 360))
+	  ((eq dir1 'into)   (mod (- dir2 90) 360))
+	  ;; else must be crossing two non-parallel xy-plane vectors
+	  ((eq dir-term1 'unknown) 'z-unknown)
+	  ((eq dir-term2 'unknown) 'z-unknown)
+	  ;; use function for dir torque(fdir rdir), inverting order of args
+	  (T  (torque-zdir (term-to-dir dir-term2 :approximate t)  
+			   (term-to-dir dir-term1 :approximate t)))))
+
 
 (defun horizontal-or-vertical (dir-expr)
  "return true if this specifies a horizontal or vertical direction"
-    (when (degree-specifierp dir-expr)
-       (= (mod (term-to-dir dir-expr) 90)
+    (when (degrees-or-num dir-expr)
+       (= (mod (convert-dnum-to-number dir-expr) 90)
           0)))
 
 ;;
