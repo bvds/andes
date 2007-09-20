@@ -279,7 +279,9 @@
 	 ((eq x 'z-unknown) x)
 	 ((eq x 'unknown) x)
 	 ((degree-specifierp x :error t) 
-	  (setf (second x) (mod (+ (second x) 180) 360)))
+	  (let ((y (copy-list x)))
+	    (setf (second y) (mod (+ (second x) 180) 360))
+	    y))
 	 (t (error "Opposite for ~A" x))))
 
 (defun minimal-x-rotations (Bag)
