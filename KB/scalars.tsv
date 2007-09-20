@@ -18,7 +18,7 @@ db-intensity	$b	decibels	intensity (in decibels)	supplied to [body:bodies] by [b
 diameter-of-circle	d	diameter		of [body:bodies]
 distance-between	d	distance		between [body:bodies] and [body2:bodies]
 distance	s	distance traveled		by [body:bodies] at time [time:times]
-duration	t	duration of time		from [body:times] to [time2:times]
+duration	t	duration of time		from [time:times]
 electric-flux	$F	electric flux		through [body:bodies] at time [time:times]
 potential	V	electric potential		at [body:positions] due to [body2:bodies] at time [time:times]
 electric-power	P	electric power		transferred through [body:bodies] at time [time:times]

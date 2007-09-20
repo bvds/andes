@@ -1,6 +1,6 @@
 // VecAVDlg.cpp : implementation file
 //
-//$Id: VecAVDlg.cpp,v 1.9 2007/09/19 20:58:17 anders Exp $
+//$Id: VecAVDlg.cpp,v 1.10 2007/09/20 21:26:53 anders Exp $
 
 #include "stdafx.h"
 #include "FBD.h"
@@ -184,11 +184,16 @@ BOOL CVectorMoveDlg::OnInitDialog()
 		m_cboTimeList.ShowWindow(SW_HIDE);
 		m_stcTimeList.ShowWindow(SW_HIDE);
 	}
-	
+
 	//"instantaneous or average" choice: hide for displacement and momentum
 	if (m_strDescription.GetAt(0) == 'D' || m_strDescription.GetAt(0) == 'M'){
 		m_stcType.ShowWindow(SW_HIDE);
 		m_cboMvmntType.ShowWindow(SW_HIDE);
+
+		// For displacement, time choices should include only intervals
+		if (m_strDescription.GetAt(0) == 'D') {
+			RemoveTimePoints(&m_cboTimeList);
+		}
 
 		// if no time choices then can get rid of whole row with type + time
 		if (m_pDocument->m_strTimes.IsEmpty())

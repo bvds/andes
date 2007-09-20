@@ -51,7 +51,7 @@ typedef struct
 	CString strTypeId;		// quantity typeid w/o spaces. Used in logging cmd and entry and helpsys API
 	CString strPrefix;		// variable name prefix
 	// following optional, only used if needed to build a dialog box:
-	CString strValue;		// human-readable quantity type name -- may contain spaces.
+	CString strValue;		// human-readable quantity type name for menu -- may contain spaces.
 	CString strDlgValue;    // quantity type prefix to show in dialog, if different from strValue.
 	CString strSpec;		// dialog field spec
 } QuantInfo;

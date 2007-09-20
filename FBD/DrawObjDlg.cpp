@@ -327,9 +327,18 @@ void CDrawObjDlg::RemoveTimePeriods(CComboBox* m_pCboBox)
 			m_pCboBox->DeleteString(i);
 		}
 	}
-
 }
 
+void CDrawObjDlg::RemoveTimePoints(CComboBox* m_pCboBox)
+{
+	CString strTime;
+	for (int i = m_pCboBox->GetCount() - 1; i >= 0; i--)
+	{
+		m_pCboBox->GetLBText(i, strTime);
+		if (strTime.Find(" to ") < 0) 
+			m_pCboBox->DeleteString(i);
+	}
+}
 
 BOOL CDrawObjDlg::IsEmpty(CComboBox* m_cboBox)
 {

@@ -2117,6 +2117,10 @@ CString CFBDDoc::GetMatchingPredef(CString& strName)
 // Shouldn't be possible for both names to be time interval variables, since
 // we don't allow two variables for the same quantity to exist, and this
 // routine is intended for use when comparing a candidate def with an existing one.
+//
+// Note: student-defined time interval variables are no longer allowed as time
+// arguments in other object definitions. So code to handle this possibility
+// is no longer used.
 // 
 BOOL CFBDDoc::IsMatchingTime(CString strTime1, CString strTime2)
 {
@@ -2132,7 +2136,7 @@ BOOL CFBDDoc::IsMatchingTime(CString strTime1, CString strTime2)
 	while (pos != NULL)
 	{
 		CVariable* pVar = theApp.GetDocument()->m_Variables.GetNext(pos);
-		// must be time interval var matching one of the names.
+		// look for time interval var matching one of the time argument names
 		if (pVar->m_nType != ID_VARIABLE_ADDTIME)
 			continue;
 		if ( (strcmp(strTime1, pVar->m_strName) != 0) && 

@@ -247,7 +247,7 @@
 (def-qexp duration (duration (during ?t1 ?t2))
   :symbol-base |t|     
   :short-name "duration of time"	
-  :dialog-text "from [body:times] to [time2:times]"
+  :dialog-text "from [time:times]" ; WB knows to use only intervals 
   :units |s|
   :restrictions positive
   :fromWorkbench  `(duration ,time)

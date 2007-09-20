@@ -3482,9 +3482,9 @@ void CVariable::Serialize(CArchive& ar)
 		// We changed some m_nType codes in Andes 8.1.6, causing a bug reading old solutions.
 		// To avoid any such problems in the future, recalculate m_nType from m_strQuantName string
 		// on every load, so integer codes are not really persistent and can be changed freely.
-		// Nuisance: CVariableDlg always stores friendly type name (e.g. "object distance") in m_strQuantName. 
-		// Not sure if custom variable dialogs are consistent in this. So also check for typeid.
-		// Could pass document concept flags to disambiguate
+		// Nuisance: CVariableDlg always stores friendly readable type name (e.g. "object distance")
+		// in m_strQuantName. Not sure if custom variable dialogs are consistent in this. So also 
+		// check for a typeid. Could pass document concept flags to disambiguate
     	// ((CFBDDoc*) ar.m_pDocument)->m_wConcept;
 		m_nType = CVarView::ValueToId(m_strQuantName);	 // lookup by friendly quantity name
 		if (m_nType <= 0) 
@@ -3500,6 +3500,12 @@ void CVariable::Serialize(CArchive& ar)
 		// older version of time constant used agent arg; new version uses list in body arg
 		if (m_strQuantName == "time constant" && ! m_strAgent.IsEmpty())
 			m_strObject += " " + m_strAgent;
+		// older version of duration used time points in body and time; newer uses
+		// interval in time only
+		if (m_strQuantName == "duration of time" && ! m_strObject.IsEmpty()) {
+			m_strTime = m_strObject + " to " + m_strTime;
+			m_strObject = "";
+		}
 	}
 }
 
@@ -3597,7 +3603,7 @@ CString CVariable::GetCheckCmd()
 
 	// Urgh, need some quantity-specific adjustments to arguments.
 	// Also, subtype not always set in dialog.
-	if (m_nType == ID_VARIABLE_ADDTIME){
+	if (m_nType == ID_VARIABLE_ADDTIME && !m_strObject.IsEmpty()){
 		strTime.Format("%s to %s", m_strObject, m_strTime);
 		strObject = "";
 	} else if (m_nType == ID_VARIABLE_ADDNRG) {

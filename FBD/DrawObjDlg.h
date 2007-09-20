@@ -81,6 +81,7 @@ protected:
 	BOOL IsEmpty(CComboBox* m_cboBox);
 	void UpdatePlanStrings(CLogCombo* m_pCboBox);
 	void RemoveTimePeriods(CComboBox* m_pCboBox);
+	void RemoveTimePoints(CComboBox* m_pCboBox);
 
 	CString GetCurString(CComboBox* m_pCboBox);
 	CString GetBodiesFromLabel(CString label);

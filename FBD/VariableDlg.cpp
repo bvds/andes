@@ -137,26 +137,23 @@ void CVariableDlg::DoDataExchange(CDataExchange* pDX)
 	//}}AFX_DATA_MAP
 
 	// fill "body" with appropriate choices for quantity
-	if (((CVariable*)m_pTempObj)->m_nType == ID_VARIABLE_ADDTIME)
-		DDX_FillList(pDX, IDC_BODY, &m_pDocument->m_strTimes);
-	else {
-		// get choice list spec from dialog spec. 
-	    CString strListSpec = GetSlotChoices(GetSpec(), "body");
-		// Allow for union of lists as list1+list2+list3
-		CStringArray strLists; split(strListSpec, "+", strLists);
-		for (int i = 0; i < strLists.GetSize(); i++) {
-			CString strListName = strLists[i];
-			DDX_FillList(pDX, IDC_BODY, m_pDocument->GetChoiceList(strListName));
-			if (strListName.CompareNoCase("bodies") == 0)
-				DDX_AddCompoundBodies(pDX, IDC_BODY, &m_pDocument->m_objects);
-		}
-	}
-	// fill "agent" slot with appropriate choices (may wind up hidden)
 	// get choice list spec from dialog spec. 
-	CString strListSpec = GetSlotChoices(GetSpec(), "body2");
+	CString strListSpec = GetSlotChoices(GetSpec(), "body");
 	// Allow for union of lists as list1+list2+list3
 	CStringArray strLists; split(strListSpec, "+", strLists);
 	for (int i = 0; i < strLists.GetSize(); i++) {
+		CString strListName = strLists[i];
+		DDX_FillList(pDX, IDC_BODY, m_pDocument->GetChoiceList(strListName));
+		if (strListName.CompareNoCase("bodies") == 0)
+			DDX_AddCompoundBodies(pDX, IDC_BODY, &m_pDocument->m_objects);
+	}
+
+	// fill "agent" slot with appropriate choices (may wind up hidden)
+	// get choice list spec from dialog spec. 
+	strListSpec = GetSlotChoices(GetSpec(), "body2");
+	// Allow for union of lists as list1+list2+list3
+	strLists.RemoveAll(); split(strListSpec, "+", strLists);
+	for (i = 0; i < strLists.GetSize(); i++) {
 		CString strListName = strLists[i];
 		DDX_FillList(pDX, IDC_FORCEAGENT, m_pDocument->GetChoiceList(strListName));
 		if (strListName.CompareNoCase("bodies") == 0)
@@ -240,6 +237,9 @@ BOOL CVariableDlg::OnInitDialog()
 	// duration dialog has special case argument layout
 	if (strTypeId.CompareNoCase("duration") == 0) // defining time duration
 	{
+		RemoveTimePoints(&m_cboTime);
+		m_stcTime.SetWindowText("from");
+#if 0
 		//remove time intervals from choices
 		RemoveTimePeriods(&m_cboBody);
 		RemoveTimePeriods(&m_cboTime);
@@ -257,10 +257,13 @@ BOOL CVariableDlg::OnInitDialog()
 		m_cboTime.GetWindowRect(&rect4);
 		ScreenToClient(&rect4);
 
+		// align time label left under body label's
 		m_stcTime.SetWindowPos(NULL, rect1.left, rect3.top, 0, 0,
 			SWP_NOSIZE | SWP_NOZORDER );
+		// align time combo's left under body combo's
 		m_cboTime.SetWindowPos(NULL, rect2.left, rect4.top, 0, 0,
 			SWP_NOSIZE | SWP_NOZORDER );
+#endif 0
 	}
 
 		
@@ -341,11 +344,11 @@ BOOL CVariableDlg::OnInitDialog()
 
 	// Move top-line static and combo box controls so that they line up nicely without
 	// all that empty space between controls.  
-	if (strTypeId.CompareNoCase("duration") != 0) // time layout was customized above
+/*	if (strTypeId.CompareNoCase("duration") != 0) // time layout was customized above */
 	{
 		// Place body label just right of end of sized-to-fit m_stcValue Label
 		(void) MoveToRightOf(SizeToFit(m_stcValue), m_stcBody);
-		// Place body combo just right of end of sized to fit body label
+		// Place body combo just right of end of sized-to-fit body label
 		(void) MoveToRightOf(SizeToFit(m_stcBody), m_cboBody);
 	}
 
@@ -527,7 +530,7 @@ void CVariableDlg::BuildVariable()
 	if (m_stcTime.IsWindowVisible())
 	{
 		if (m_pTempVar->m_nType == ID_VARIABLE_ADDTIME)
-			strTimePrep = " to ";
+			strTimePrep = " from ";
 		else
 			strTimePrep = " at time ";
 	}
