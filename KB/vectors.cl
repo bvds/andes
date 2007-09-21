@@ -1150,11 +1150,20 @@
 		     :index (length (problem-varindex problem))
 		     :nodes NIL))))))))))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;                    Angle between vectors or lines
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;; Following defines a variable for the angle between two vectors
 ;;; for the case where the angle of the two vectors is known.
 ;;; The angle between is always defined as the smaller of two possible angles.
-;;; In this case a side-effect of the definition is to make the 
+;;;      theta12 = min(|theta1-theta2|,180-|theta1-theta2|)
+;;; In this case, a side-effect of the definition is to make the 
 ;;; angle-between known as well so it won't be sought further.
+;;;
 ;;; Vector quantities are identified in this quant by expressions of the form 
 ;;; 	(vec ?b ... :time ?t)  
 ;;; which include the times of each of the two vectors. These could in 
@@ -1185,7 +1194,7 @@
   :effects ((inherit-quantity (angle-between orderless . ?children)
 			      (angle-between orderless . ?parents))))
 
-(defoperator define-angle-between-known (?vecs)
+(defoperator define-angle-between-vectors (?vecs)
  :preconditions 
  (
   ;; assume that ?vec1 and ?vec2 are parent quantities
@@ -1194,8 +1203,6 @@
   ;; note vector's axis owner bodies need not be the same
   (vector ?b1 ?vec1 ?dir1)
   (vector ?b2 ?vec2 ?dir2)
-  (bind ?angle (get-angle-between ?dir1 ?dir2))
-  (test ?angle) ;null indicates an angle can't be determined
   ;; fetch vector mag vars for forming angle variable name only
   (in-wm (variable ?v1-var (mag ?vec1)))
   (in-wm (variable ?v2-var (mag ?vec2)))
@@ -1205,39 +1212,12 @@
  :effects (
 	   (define-var (angle-between orderless . ?vecs))
 	   (variable ?theta-var (angle-between orderless . ?vecs))
-	   (given (angle-between orderless . ?vecs) (dnum ?angle |deg|))
 	   )
  :hint (
 	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
 			    (?v1-var algebra) (?v2-var algebra)))
 	))
 
-(defoperator define-angle-between-unknown (?vecs)
- :preconditions 
- (
-  ;; assume that ?vec1 and ?vec2 are parent quantities
-  (any-member (?vec1 ?vec2) (?vecs))
-  ;; vectors must be drawn first,
-  ;; note vector's axis owner bodies need not be the same
-  (vector ?b1 ?vec1 ?dir1)
-  (vector ?b2 ?vec2 ?dir2)
-  (test (and (not (eq ?dir1 'zero)) (not (eq ?dir2 'zero))))
-  ;; null indicates an angle can't be determined
-  (test (null (get-angle-between ?dir1 ?dir2)))
-  ;; fetch vector mag vars for forming angle variable name only
-  (in-wm (variable ?v1-var (mag ?vec1)))
-  (in-wm (variable ?v2-var (mag ?vec2)))
-  (bind ?theta-var (format-sym "theta_~A_~A" ?v1-var ?v2-var))
-  (debug "unknown angle between ~A and ~A~%" ?v1-var ?v2-var)
-  )
- :effects (
-	   (define-var (angle-between orderless . ?vecs))
-	   (variable ?theta-var (angle-between orderless . ?vecs))
-	   )
- :hint (
-	(bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
-			    (?v1-var algebra) (?v2-var algebra)))
-	))
 
 
 (defoperator define-angle-between-lines (?lines)
@@ -1248,46 +1228,135 @@
   (draw-line (line ?r1) ?dir1)
   (draw-line (line ?r2) ?dir2)
   (test (not (equal ?r1 ?r2)))  ;?r1 & ?r2 distinct
-  (test (and (degrees-or-num ?dir1) (degrees-or-num ?dir2)))
-  (bind ?angle1 (convert-dnum-to-number ?dir1))
-  (bind ?angle2 (convert-dnum-to-number ?dir2))
   ;; define variable name
   (bind ?theta-var (format-sym "theta_~A_~A" (body-name ?r1) (body-name ?r2)))
-  ;; compute angle between vectors to make it known as side-effect.
-  ;; lines are defined mod 180 degrees
-  (bind ?angle (min (mod (- ?angle1 ?angle2) 180)
-		    (mod (- ?angle2 ?angle1) 180)))
-  (debug "angle between ~A and ~A = ~A~%" ?r1 ?r2 ?angle)
  )
  :effects (
    (define-var (angle-between orderless . ?lines))
    (variable ?theta-var (angle-between orderless . ?lines))
-   (given (angle-between orderless . ?lines) (dnum ?angle |deg|))
  )
  :hint (
   (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
    ?r1 ?r2))
  ))
 
-(defoperator define-angle-between-unknown-lines (?lines)
+(def-psmclass angle-direction (angle-direction orderless . ?things)
+  :complexity definition
+  :short-name "angle between"
+  :english ("angle between")
+  :ExpFormat ("finding the angle between ~A" (nlg ?things 'conjoined-defnp))
+  :eqnFormat ("$q12 = $q2 - $q1 or 180-($q2-$q1)"))
+
+(defoperator angle-direction-contains-angle (?things)
+  :effects 
+  ( (eqn-contains (angle-direction orderless . ?things)
+		  (angle-between orderless . ?things)) ))
+
+(defoperator angle-direction-contains-dir (?line)
   :preconditions 
   (
-   (any-member ?lines (((line ?r1) (line ?r2))))
-   ;; lines must be drawn first, with an unknown angle
-   (draw-line (line ?r1) ?dir1)
-   (draw-line (line ?r2) ?dir2)
-   (test (or (eq ?dir1 'unknown) (eq ?dir2 'unknown)))
-   (test (not (equal ?r1 ?r2)))  ;?r1 & ?r2 distinct
-   ;; define variable name
-   (bind ?theta-var (format-sym "theta_~A_~A" (body-name ?r1) (body-name ?r2)))
-   (debug "angle between unknown ~A and ~A~%" ?r1 ?r2)
+   ;; direction can't be sought for vectors, due to ambiguity
+   (any-member (line . ?line) ?things)
    )
-  :effects ( (define-var (angle-between orderless . ?lines))
-	    (variable ?theta-var (angle-between orderless . ?lines)) )
-  :hint 
-  ( (bottom-out (string "Define a variable for the angle between ~A and ~A by using the Add Variable command on the Variable menu and selecting Angle." 
-			?r1 ?r2))
-    ))
+  :effects ( (eqn-contains (angle-direction orderless . ?things) 
+			   (dir (line . ?line))) ))
+
+(defoperator relate-inequality (?greater ?lesser)
+  :preconditions ((less-than ?lesser ?greater))
+  :effects ((greater-than ?greater ?lesser)))
+
+;; infer order from any given statements
+(defoperator greater-than-given-directions (?greater ?lesser)
+  :preconditions 
+  ;; wm-or-derive is cruicial for speed
+  ( (wm-or-derive (given (dir ?greater) ?dg . ?g-rest))
+    (wm-or-derive (given (dir ?lesser) ?dl . ?l-rest))
+    ;; only makes sense for vectors/lines in the xy plane
+    ;; use estimated values as best guess
+    (test (and (degree-specifierp ?dg :error t)
+	       (degree-specifierp ?dl :error t)
+	       (> (second ?dg) (second ?dl))))
+    )
+  :effects ((greater-than ?greater ?lesser)))
+
+(defoperator write-angle-direction-line (?greater ?lesser)
+  :preconditions 
+  (
+   (any-member ?lines ((?greater ?lesser) (?lesser ?greater)))
+   (test (eq (car ?greater) 'line)) ;test that these are lines
+   ;; this only makes sense if both lines are in the plane
+   (greater-than ?greater ?lesser)
+   (variable ?dg (dir ?greater))
+   (variable ?dl (dir ?lesser))
+   (variable ?angle (angle-between orderless ?greater ?lesser))
+   )
+  :effects 
+  ( (eqn (= ?angle (- ?dg ?dl)) (angle-direction orderless . ?lines))
+    (assume using-angle-direction (angle-between orderless . ?lines)) )
+  :hint (
+	 (point (string "Express the angle between ~A and ~A in terms of directions."
+			?greater ?lesser))
+	 (teach (string "The angle between two lines is simply the difference of the directions of the two lines.")) 
+	 (bottom-out (string "Write the equation ~A." 
+			     ((= ?angle (- ?dg ?dl)) algebra)))
+	 ))
+
+(defoperator write-angle-direction-vector (?greater ?lesser)
+  :preconditions 
+  (
+   (any-member ?vectors ((?greater ?lesser) (?lesser ?greater)))
+   ;; This will also restrict to x-y plane
+   (greater-than ?greater ?lesser)
+   ;; need to draw vectors before talking about angle between them
+   (vector ?bg ?greater ?dir-g)
+   (vector ?bl ?lesser ?dir-l)
+   ;; Make sure angle is not known explicitly
+   (test (not (get-angle-between ?dir-g ?dir-l)))
+   (variable ?dg (dir ?greater))
+   (variable ?dl (dir ?lesser))
+   (variable ?angle-var (angle-between orderless ?greater ?lesser))
+   (bind ?term `(- (dnum 180 |deg|) (abs (- (dnum 180 |deg|) (- ,?dg ,?dl)))))
+   )
+  :effects 
+  ( (eqn (= ?angle-var ?term) (angle-direction orderless . ?vectors))
+    (assume using-angle-direction (angle-between orderless . ?vectors)) )
+  :hint (
+	 (point (string "Express the angle between ~A and ~A in terms of directions?"
+			?greater ?lesser))
+	 (teach (string "The angle between two vectors is the difference between the directions of the two vectors.  If the result is larger than 180 degrees, take 360 degrees minus the difference.")) 
+	 (bottom-out (string "Write the equation ~A." 
+			     ((= ?angle-var ?term) algebra)))
+	 ))
+
+(defoperator write-angle-direction-known (?greater ?lesser)
+  :preconditions 
+  (
+   (any-member ?vectors ((?greater ?lesser)))
+   ;; need to draw vectors before talking about angle between them
+   (vector ?bg ?greater ?dir-g)
+   (vector ?bl ?lesser ?dir-l)
+   (bind ?angle (get-angle-between ?dir-g ?dir-l))
+   (test ?angle)  ;make sure angle can be found.
+   (variable ?angle-var (angle-between orderless ?greater ?lesser))
+   (bind ?dir-term (if (<= ?angle 180) (dir-to-term ?angle)
+	 `(- (dnum 360 |deg|) ,(dir-to-term ?angle))))
+   )
+  :effects 
+  ( (eqn (= ?angle-var ?dir-term) (angle-direction orderless . ?vectors))
+    (assume using-angle-direction (angle-between orderless . ?vectors)) )
+  :hint (
+	 (point (string "What is the angle between ~A and ~A?"
+			?greater ?lesser))
+	 (bottom-out (string "Write the equation ~A." 
+			     ((= ?angle-var ?dir-term) algebra)))
+	 ))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;
+;;;;                          Unit vector
+;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def-qexp unit-vector (unit-vector ?orientation ?body :at ?loc :time ?time)
   :units nil  ;dimensionless

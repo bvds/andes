@@ -353,6 +353,7 @@
 (def-qexp angle-between (angle-between orderless . ?vecs)
   ;; custom dialog box "angle"
   :units |deg|
+  :restrictions nonnegative 
   :english ("the angle between ~A" (nlg ?vecs 'conjoined-defnp)))
 (def-qexp total-energy (total-energy ?system :time ?time) 
   ;; custom dialog box "energy"

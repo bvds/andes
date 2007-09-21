@@ -2854,6 +2854,8 @@
    :effects (
       (eqn (= ?tau-var (* ?r-var ?f-var (sin ?theta-var))) 
              (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t))
+      (assume using-magnitude (torque ?b (force ?pt ?agent ?type)
+				      :axis ?axis :time ?t))
    )
    :hint (
    (point (string "You need an expression for the magnitude of the ~A due to the ~A force acting at ~A" (nil moment-name) (?type adj) ?pt))
@@ -2926,7 +2928,11 @@
    )
   :effects 
   ( (eqn (= ?tau ?cross) 
-	(torque ?xyz ?rot ?b ?axis (force ?pt ?agent ?type) ?angle-flag ?t)) )
+	 (torque ?xyz ?rot ?b ?axis (force ?pt ?agent ?type) ?angle-flag ?t))
+    ;; don't use both magnitude and component form in same solution 
+    (assume using-compo (compo ?xyz ?rot (torque ?b (force ?pt ?agent ?type)
+						 :axis ?axis :time ?t)))
+    )
   :hint 
   (
    (point (string "You need an expression for the ~A component of the ~A due to the ~A force acting at ~A"
