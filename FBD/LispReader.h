@@ -29,11 +29,17 @@ public:
 	class Atom : public Obj
 	{
 	public:
-		Atom(const CString& strValue) : m_strValue(strValue) {};
+		Atom(const CString& strValue, int nType) 
+			 : m_strValue(strValue), m_nType(nType) {};
 
 		virtual BOOL IsList() { return FALSE; } // NB: FALSE on NIL
 		BOOL IsNil() { return m_strValue.CompareNoCase("NIL") == 0; }
+		BOOL IsString() { return m_nType == '\"'; }
+		BOOL IsSymbol() { return m_nType == 'S' || m_nType == '|'; }
+		BOOL IsVbarSymbol() { return m_nType == '|'; }
+	
 		CString m_strValue;
+		int m_nType;        // code for atom type, see GetToken
 	};
     
 	typedef CTypedPtrList<CObList, Obj*> LispObjList;
@@ -53,7 +59,7 @@ public:
 		}
 	};
 
-	CString GetToken();
+	int GetToken(CString& strValue);
 	Obj*    GetObject();
 
 // Implementation:

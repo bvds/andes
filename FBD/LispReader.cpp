@@ -26,11 +26,20 @@ CLispReader::~CLispReader()
 	// !!! Need to hold on to allocated LispObjs and free them when done !!!	
 }
 
-// return next token as a string. Empty string on EOF
-// !!! Can't distinguish empty Lisp string "" from EOF!
-CString CLispReader::GetToken()
+// read next token
+// returns character code for type of token read 
+//  fills in strValue for atoms
+//   EOF  end of file
+//   (    Left-paren
+//   )    Right paren
+//    "   String
+//    S   symbol
+//    |   Vbar-delimited symbol
+// 
+int CLispReader::GetToken(CString& strResult)
 {
-	CString strToken;
+    CString strToken;
+	int nType;
 
    // skip white space. We don't handle comments
    int ch;
@@ -40,14 +49,17 @@ CString CLispReader::GetToken()
    switch (ch)
    {
    case EOF: 
+	   nType = EOF;
 	   break;
 
    case '(': 
-	   strToken= "(";
+	   strToken = '(';
+	   nType = '(';
 	   break;
 
    case ')': 
-		strToken = ")";
+	    strToken = ")";
+		nType = ')';
 		break;
 
    case '"': // quote delimited string
@@ -62,6 +74,7 @@ CString CLispReader::GetToken()
 		   }
 		   strToken += ch;
 	   }
+	   nType = '\"';
 	   break;
    
    case '|':  // vbar delimited symbol
@@ -69,6 +82,7 @@ CString CLispReader::GetToken()
 	   while (ch=getc(m_fp) != EOF && ch != '|') {
 		   strToken += ch;
 	   }
+	   nType = '|';
 	   break;
    
    // anything else: aggregate into symbol until break character
@@ -81,33 +95,35 @@ CString CLispReader::GetToken()
 	   // processed. (needless but harmless for space or EOF).
 	   ungetc(ch, m_fp);
 	   
+	   nType = 'A';   // for atomic symbol
 	   break;
    }
 
-   //TRACE("GetToken: %s\n", strToken);
-   return strToken;
+   strResult = strToken;
+   return nType;
 }
 
 
 
 CLispReader::Obj* CLispReader::GetObject()
 {
-   CString strToken = GetToken();
+   CString strToken;
+   int nType = GetToken(strToken);
 
    // might have hit EOF:
-   if (strToken.IsEmpty()) 
+   if (nType == EOF) 
 	   return NULL;
 
-   if (strToken != "(") {
+   if (nType != '(') {
 	   TRACE("GetObject: Atom %s\n", strToken);
-	   return new Atom(strToken); // need to hold onto it for deletion!
+	   return new Atom(strToken, nType); // need to hold onto it for deletion!
    }
     // else we've got an lparen:
     TRACE("GetObject: BEGIN LIST\n");
     List* pList = new List();	  // need to hold onto it for deletion!
 	Obj* pObj;
 	while  ((pObj = GetObject()) 
-		    && ! (pObj->IsAtom() && ((Atom*)pObj)->m_strValue == ")")){
+		    && ! (pObj->IsAtom() && ((Atom*)pObj)->m_nType == ')')){
 		 pList->Append(pObj);
 	}
 	if (! pObj) { // hit EOF without list end

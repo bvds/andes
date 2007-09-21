@@ -2934,8 +2934,9 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 	// Use the Lisp tokenizer
 	CLispReader lr(fp);
 	// read the header
-	CString strToken = lr.GetToken();
-	if (strToken != "<Andes2Problem>") {
+	CString strHdr; 
+	(void) lr.GetToken(strHdr);
+	if (strHdr != "<Andes2Problem>") {
 		// throw error
 		return FALSE;
 	}
@@ -3062,9 +3063,13 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 
 					// add it to the choice we need
 					if (strFirst.CompareNoCase("Bodies") == 0) {
-						// undo LISP print's upper casing. But not for R1, C1, or A, B, C.
-						if (! ((strChoice.GetLength() == 2 && isdigit(strChoice[1]))
-							    || strChoice.GetLength() == 1) ) 
+						// Default is to undo LISP's upper casing of symbol, but not 
+						// for R1, C1, or A, B, C, or if quoted or Vbar'ed
+						if (! (    (strChoice.GetLength() == 2 && isdigit(strChoice[1]))
+							    ||  strChoice.GetLength() == 1
+								|| 	((CLispReader::Atom*)pChoiceObj)->IsString() 
+								||  ((CLispReader::Atom*)pChoiceObj)->IsVbarSymbol() 
+							  )) 
 							strChoice.MakeLower();
 						m_strObjects.AddTail(strChoice);
 					}
