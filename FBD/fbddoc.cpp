@@ -2981,8 +2981,9 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 				continue;
 			}
 			
-			// else expect a list of form 
-			// ((1 "elevator at 10 m/s") (2 "elevator at a stop") (during 1 2))
+			// else expect a list of time specs, each of which is either a time point + 
+			// description pair, or an interval of the form (during 1 2). Intervals
+			// may include description string as fourth argument.
 			if (! pValue->IsList()) return FALSE;
 			CLispReader::List* pList = (CLispReader::List*) pValue;
 			POSITION pos = pList->m_objects.GetHeadPosition();

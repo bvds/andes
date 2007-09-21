@@ -3759,9 +3759,16 @@ void AFXAPI DDX_FillList(CDataExchange* pDX, int nIDC, CStringList* pStrList)
 				strValue.TrimRight();
 			}
 			/////////////////////////////////////
-			//Send meesages for both list boxes and combos --  wrong one will just be ignored
-			::SendMessage(hWndCtrl, CB_ADDSTRING, 0, (LPARAM)(LPSTR)(LPCTSTR)strValue);
-			::SendMessage(hWndCtrl, LB_ADDSTRING, 0, (LPARAM)(LPSTR)(LPCTSTR)strValue);
+			// Rather then query control type, following just sends BOTH list box and combo box
+			// messages, assuming wrong one will just be ignored
+		
+			// add string, but only if not already found in control.
+			if (::SendMessage(hWndCtrl, CB_FINDSTRINGEXACT, (WPARAM)-1, 
+				              (LPARAM)(LPCTSTR)strValue) < 0) 
+				::SendMessage(hWndCtrl, CB_ADDSTRING, 0, (LPARAM)(LPSTR)(LPCTSTR)strValue);
+			if (::SendMessage(hWndCtrl, LB_FINDSTRINGEXACT, (WPARAM)-1, 
+				              (LPARAM)(LPCTSTR)strValue) < 0) 
+				::SendMessage(hWndCtrl, LB_ADDSTRING, 0, (LPARAM)(LPSTR)(LPCTSTR)strValue);
 		}
 	}
 }
