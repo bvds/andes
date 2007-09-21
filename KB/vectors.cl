@@ -1324,7 +1324,7 @@
 	 (point (string "Express the angle between ~A and ~A in terms of directions."
 			?greater ?lesser))
 	 (teach (string "The angle between two vectors is the difference between the directions of the two vectors.  If the result is larger than 180 degrees, take 360 degrees minus the difference.")) 
-	 (bottom-out (string "A general equation that will always work is ~A." 
+	 (bottom-out (string "An equation that will always work is ~A." 
 			     ((= ?angle-var ?term) algebra)))
 	 ))
 
