@@ -1279,32 +1279,39 @@
     )
   :effects ((greater-than ?greater ?lesser)))
 
-(defoperator write-angle-direction-line (?greater ?lesser)
+(defoperator write-angle-direction-line (?lines)
   :preconditions 
   (
    (any-member ?lines ((?greater ?lesser) (?lesser ?greater)))
    (test (eq (car ?greater) 'line)) ;test that these are lines
+   ;; does not do inheritance, since inheritance is consistent for quantities
+   (inherit-or-quantity ?lesser ?lesser)
+   (inherit-or-quantity ?greater ?greater)
    ;; this only makes sense if both lines are in the plane
    (greater-than ?greater ?lesser)
    (variable ?dg (dir ?greater))
    (variable ?dl (dir ?lesser))
-   (variable ?angle (angle-between orderless . ?lines))
+   (variable ?angle-var (angle-between orderless . ?lines))
    )
   :effects 
-  ( (eqn (= ?angle (- ?dg ?dl)) (angle-direction orderless . ?lines))
+  ( (eqn (= ?angle-var (- ?dg ?dl)) (angle-direction orderless . ?lines))
     (assume using-angle-direction (angle-between orderless . ?lines)) )
   :hint (
 	 (point (string "Express the angle between ~A and ~A in terms of directions."
 			?greater ?lesser))
 	 (teach (string "The angle between two lines is simply the difference of the directions of the two lines.")) 
 	 (bottom-out (string "Write the equation ~A." 
-			     ((= ?angle (- ?dg ?dl)) algebra)))
+			     ((= ?angle-var (- ?dg ?dl)) algebra)))
 	 ))
 
-(defoperator write-angle-direction-vector (?greater ?lesser)
+(defoperator write-angle-direction-vector (?vectors)
   :preconditions 
   (
+   ;; iterate over orders and do inheritance
    (any-member ?vectors ((?greater ?lesser) (?lesser ?greater)))
+   ;; does not do inheritance, since inheritance is consistent for quantities
+   (inherit-or-quantity ?lesser ?lesser)
+   (inherit-or-quantity ?greater ?greater)
    ;; This will also restrict to x-y plane
    (greater-than ?greater ?lesser)
    ;; need to draw vectors before talking about angle between them
@@ -1312,14 +1319,14 @@
    (vector ?bl ?lesser ?dir-l)
    ;; Make sure angle is not known explicitly
    (test (not (get-angle-between ?dir-g ?dir-l)))
-   (variable ?dg (dir ?greater))
-   (variable ?dl (dir ?lesser))
+   ;; in working memory from drawing vector
+   (in-wm (variable ?dg (dir ?greater)))
+   (in-wm (variable ?dl (dir ?lesser)))
    (variable ?angle-var (angle-between orderless . ?vectors))
    (bind ?term `(- (dnum 180 |deg|) (abs (- (dnum 180 |deg|) (- ,?dg ,?dl)))))
    )
   :effects 
-  ( (eqn (= ?angle-var ?term) (angle-direction orderless . ?vectors))
-    (assume using-angle-direction (angle-between orderless . ?vectors)) )
+  ( (eqn (= ?angle-var ?term) (angle-direction orderless . ?vectors)) )
   :hint (
 	 (point (string "Express the angle between ~A and ~A in terms of directions."
 			?greater ?lesser))
@@ -1328,10 +1335,13 @@
 			     ((= ?angle-var ?term) algebra)))
 	 ))
 
-(defoperator write-angle-direction-known (?greater ?lesser)
+(defoperator write-angle-direction-known (?vectors)
   :preconditions 
   (
    (any-member ?vectors ((?greater ?lesser)))
+   ;; does not do inheritance, since it involves only one quantity
+   (inherit-or-quantity ?lesser ?lesser)
+   (inherit-or-quantity ?greater ?greater)
    ;; need to draw vectors before talking about angle between them
    (vector ?bg ?greater ?dir-g)
    (vector ?bl ?lesser ?dir-l)
@@ -1339,11 +1349,10 @@
    (test ?angle)  ;make sure angle can be found.
    (variable ?angle-var (angle-between orderless . ?vectors))
    (bind ?dir-term (if (<= ?angle 180) (dir-to-term ?angle)
-	 `(- (dnum 360 |deg|) ,(dir-to-term ?angle))))
+		       `(- (dnum 360 |deg|) ,(dir-to-term ?angle))))
    )
   :effects 
-  ( (eqn (= ?angle-var ?dir-term) (angle-direction orderless . ?vectors))
-    (assume using-angle-direction (angle-between orderless . ?vectors)) )
+  ( (eqn (= ?angle-var ?dir-term) (angle-direction orderless . ?vectors)))
   :hint (
 	 (point (string "What is the angle between ~A and ~A?"
 			?greater ?lesser))
