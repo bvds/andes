@@ -1252,14 +1252,16 @@
   ( (eqn-contains (angle-direction orderless . ?things)
 		  (angle-between orderless . ?things)) ))
 
-(defoperator angle-direction-contains-dir (?line)
+;; direction can't be sought for vectors, due to ambiguity
+(defoperator angle-direction-contains-dir (?things)
   :preconditions 
   (
-   ;; direction can't be sought for vectors, due to ambiguity
-   (any-member (line . ?line) ?things)
+   (draw-line ?line2 ?dir2) ;draw another line to allow angle
+   (test (not (unify ?line1 ?line2)))   ;test that lines are distinct
+   (bind ?things (sort (list ?line1 ?line2) #'expr<))
    )
   :effects ( (eqn-contains (angle-direction orderless . ?things) 
-			   (dir (line . ?line))) ))
+			   (dir ?line1)) ))
 
 (defoperator relate-inequality (?greater ?lesser)
   :preconditions ((less-than ?lesser ?greater))
