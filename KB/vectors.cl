@@ -1288,7 +1288,7 @@
    (greater-than ?greater ?lesser)
    (variable ?dg (dir ?greater))
    (variable ?dl (dir ?lesser))
-   (variable ?angle (angle-between orderless ?greater ?lesser))
+   (variable ?angle (angle-between orderless . ?lines))
    )
   :effects 
   ( (eqn (= ?angle (- ?dg ?dl)) (angle-direction orderless . ?lines))
@@ -1314,7 +1314,7 @@
    (test (not (get-angle-between ?dir-g ?dir-l)))
    (variable ?dg (dir ?greater))
    (variable ?dl (dir ?lesser))
-   (variable ?angle-var (angle-between orderless ?greater ?lesser))
+   (variable ?angle-var (angle-between orderless . ?vectors))
    (bind ?term `(- (dnum 180 |deg|) (abs (- (dnum 180 |deg|) (- ,?dg ,?dl)))))
    )
   :effects 
@@ -1337,7 +1337,7 @@
    (vector ?bl ?lesser ?dir-l)
    (bind ?angle (get-angle-between ?dir-g ?dir-l))
    (test ?angle)  ;make sure angle can be found.
-   (variable ?angle-var (angle-between orderless ?greater ?lesser))
+   (variable ?angle-var (angle-between orderless . ?vectors))
    (bind ?dir-term (if (<= ?angle 180) (dir-to-term ?angle)
 	 `(- (dnum 360 |deg|) ,(dir-to-term ?angle))))
    )
