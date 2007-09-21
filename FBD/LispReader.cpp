@@ -79,7 +79,7 @@ int CLispReader::GetToken(CString& strResult)
    
    case '|':  // vbar delimited symbol
 	   // scan token until '|'
-	   while (ch=getc(m_fp) != EOF && ch != '|') {
+	   while ((ch=getc(m_fp)) != EOF && ch != '|') {
 		   strToken += ch;
 	   }
 	   nType = '|';
