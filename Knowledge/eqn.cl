@@ -69,7 +69,7 @@
   (let ((exp (unify (Eqn-Exp X) (Eqn-Exp Y)))
 	(alg (equal (Eqn-Algebra X) (Eqn-Algebra Y))))
     (when (not (eql (null exp) (null alg)))
-      (error "eqns-equalp:  both Algebra and Exp should match:~%     ~A~%     ~A~%" 
+      (error "eqns-equalp:  both Algebra and Exp should match:~%     ~S~%     ~S~%" 
 	     X Y))
     (and exp alg (merge-eqn-types (Eqn-Type X) (Eqn-Type Y)))))
 
