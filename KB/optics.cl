@@ -490,22 +490,27 @@
 			     ?r ?dir))
 	 ))
 
-(defoperator draw-line-unknown-dir (?r)
+(defoperator draw-line-unknown-dir (?line)
   :preconditions
-  ( (setof (given (dir (line ?r)) ?dir) ?dir ?dirs)
-    (test (null ?dirs))
-    (not (draw-line (line ?r) ?dontcare))
-    (bind ?mag-var (format-sym "l_~A" (body-name ?r)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (debug "draw line ~A in unkown direction~%" ?r)
-    )
+  (
+   ;; This is not ideal, but we use (greater-than ...) as declaration
+   ;; for all lines.  
+   ;; Note that (greater-than ...) is also used for vectors.
+   (greater-than (line . ?line1) (line . ?line2))
+   (any-member ?line ((line . ?line1) (line . ?line2)))
+   (not (given (dir ?line) ?dir)) ;test direction not given
+   (not (draw-line ?line ?dontcare))
+   (bind ?mag-var (format-sym "l_~A" (body-name (second ?line))))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (debug "draw line ~A in unkown direction~%" ?line)
+   )
   :effects
-  ( (draw-line (line ?r) unknown)
-    (variable ?mag-var (mag (line ?r)))
-    (variable ?dir-var (dir (line ?r))) )
+  ( (draw-line ?line unknown)
+    (variable ?mag-var (mag ?line))
+    (variable ?dir-var (dir ?line)) )
   :hint
-  ((bottom-out (string "Use the line tool to draw a line for ~A in an unkown direction." 
-		       ?r))
+  ((bottom-out (string "Use the line tool to draw ~A in an unkown direction." 
+		       ?line))
    ))
 
 ;;; make trig test variable (for implicit equations only)

@@ -1256,12 +1256,13 @@
 (defoperator angle-direction-contains-dir (?things)
   :preconditions 
   (
+   (any-member ?line1 ((line . ?r))) ;this is for speed
    (draw-line ?line2 ?dir2) ;draw another line to allow angle
    (test (not (unify ?line1 ?line2)))   ;test that lines are distinct
    (bind ?things (sort (list ?line1 ?line2) #'expr<))
    )
   :effects ( (eqn-contains (angle-direction orderless . ?things) 
-			   (dir ?line1)) ))
+			   (dir (line . ?r))) ))
 
 (defoperator relate-inequality (?greater ?lesser)
   :preconditions ((less-than ?lesser ?greater))
