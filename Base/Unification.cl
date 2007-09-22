@@ -421,7 +421,7 @@
        (funcall sort-function 
 		(copy-list (subst-bindings bindings (ldiff x keywords))))
 	 keywords)))
-   (t (error "Invalid list ~A.~%  Need a proper list with all variables bound." 
+   (t (error "Invalid list ~S.~%  Need a proper list with all variables bound." 
 	     x))))
 
 ;;; Orderless lists with (orderless ...)
