@@ -1074,19 +1074,25 @@
   :preconditions 
   ((not (vector-diagram ?rot (avg-velocity ?b ?t)))
    (body ?b)
-   (vector ?b (displacement ?b :time ?t) ?dir2)
-   (vector ?b (velocity ?b :time ?t) ?dir1)
+   (inherit-vector ?b (displacement ?b :time ?t) ?s-dir)
+   (inherit-vector ?b (velocity ?b :time ?t) ?v-dir)
    (axes-for ?b ?rot))
   :effects 
   ((vector-diagram ?rot (avg-velocity ?b ?t))))
 
 (defoperator write-avg-vel-compo (?b ?t ?xy ?rot)  
   :preconditions 
-   ((variable ?d12_x  (compo ?xy ?rot (displacement ?b :time ?t)))
-    (variable ?v12_x  (compo ?xy ?rot (velocity ?b :time ?t)))
-    (variable ?t12    (duration ?t)))
+   (
+    ;; test that there is possibly some motion in this direction:
+    ;; else this overlaps with the projection equations
+    ;; vector drawn in drawing step above
+    (in-wm (inherit-vector ?b (velocity ?b :time ?t) ?v-dir))
+    (test (non-zero-projectionp ?v-dir ?xy ?rot))
+    (inherit-variable ?d12_x (compo ?xy ?rot (displacement ?b :time ?t)))
+    (inherit-variable ?v12_x (compo ?xy ?rot (velocity ?b :time ?t)))
+    (inherit-variable ?t12 (duration ?t)))
   :effects (
-	    (eqn (= ?v12_x (/ ?d12_x ?t12))
+	    (eqn (= ?d12_x (* ?v12_x ?t12))
 		 (compo-eqn avg-vel ?xy ?rot (avg-velocity ?b ?t)))
 	    )
   :hint (
@@ -2444,6 +2450,9 @@
   ( ;; make sure accel compo vanishes
    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
    (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
+   ;; and veclocity doesn't vanish, else this overlaps with projection
+   (in-wm (inherit-vector ?b (velocity ?b :time (during ?t1 ?t2)) ?vel-dir))
+   (test (non-zero-projectionp ?vel-dir ?xyz ?rot))
    ;; and write it 
    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))
    (variable ?s-compo (compo ?xyz ?rot (displacement ?b :time (during ?t1 ?t2))))
