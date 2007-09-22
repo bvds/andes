@@ -411,10 +411,7 @@
    ((variable-p x) x)                 ;(symmetry-type . ?a)
    ((and (listp x) (null (cdr x))) x) ;(symmetry-type ?a)
    ;; (orderless a b c ...)
-   ((and (listp x) (null (cdr (last x))) ;check for proper list
-	 ;; In principle, we only need bindings sufficient for the sort
-	   ;; to be unambiguous. 
-	 (all-boundp x bindings))        ;with *all* variables bound
+   ((and (listp x) (null (cdr (last x)))) ;check for proper list
     ;; Sort everything before any keywords
     (let ((keywords (member-if #'keywordp x)))
       (nconc 

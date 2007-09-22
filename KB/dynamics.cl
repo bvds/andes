@@ -2805,7 +2805,9 @@
 			       :axis ?axis :time ?t))
 		  (mag (force ?pt ?agent ?type :time ?t))
 		  (mag (relative-position ?pt ?axis :time ?t))
-                       ))
+		  (angle-between orderless (force ?pt ?agent ?type :time ?t)
+				 (relative-position ?pt ?axis :time ?t))
+		  ))
    ;; So far this will apply in any problem where any force is sought. 
    ;; Require pt of application to be part of larger rigid body, so that
    ;; won't apply if dealing only with particles. 
@@ -2822,23 +2824,6 @@
    :effects 
    ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
 
-(defoperator mag-torque-contains-angle (?sought)
-   :preconditions 
-   (
-    ;; doesn't explicitly contain directions of relative position
-    ;; and force, only difference between these
-   (any-member ?sought ((angle-between orderless . ?vecs)))
-   (any-member ?vecs 
-	       ;; These must be in lexical order:
-	       (((force ?pt ?agent ?type :time ?t)
-		 (relative-position ?pt ?axis :time ?t))))
-   (point-on-body ?pt ?b)
-   (rotation-axis ?b ?axis)
-   ;; find force without drawing it, to get ?agent and ?type
-   (force ?pt ?agent ?type ?t . ?rest)
-   )
-   :effects 
-   ((eqn-contains (mag-torque ?b ?axis (force ?pt ?agent ?type) ?t) ?sought)))
 
 (defoperator write-mag-torque (?b ?axis ?pt ?agent ?type ?t)
    :preconditions 

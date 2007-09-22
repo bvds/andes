@@ -1928,32 +1928,17 @@
   :EqnFormat ((torque-switch "M = $m*B*sin($q)" "$t = $m*B*sin($q)")))
 
 (defoperator dipole-torque-mag-contains (?sought)
-   :preconditions 
-   (
-    (any-member ?sought (
-			 (mag (torque ?dipole (field ?region ?type ?source)
-					  :time ?t))
-			 (mag (field ?region ?type ?source :time ?t))
-			 (mag (dipole-moment ?dipole ?type :time ?t))
-			 ))
-    (time ?t)
-   (given-field ?source ?type)
-   (at-place ?dipole ?region :time ?t ?t)
-   )
-   :effects 
-   ((eqn-contains (dipole-torque-mag ?dipole (field ?region ?type ?source) ?t)
-		  ?sought)))
-
-(defoperator dipole-torque-mag-contains-angle (?sought)
-   :preconditions 
-   (
-    ;; doesn't explicitly contain directions of relative position
-    ;; and force, only difference between these
-   (any-member ?sought ((angle-between orderless . ?vecs)))
-   (any-member ?vecs 
-	       ;; These must be in lexical order:
-	       (((dipole-moment ?dipole ?type :time ?t)
-		 (field ?region ?type ?source :time ?t))))
+  :preconditions 
+  (
+   (any-member ?sought (
+			(mag (torque ?dipole (field ?region ?type ?source)
+				     :time ?t))
+			(mag (field ?region ?type ?source :time ?t))
+			(mag (dipole-moment ?dipole ?type :time ?t))
+			(angle-between orderless 
+				       (dipole-moment ?dipole ?type :time ?t)
+				       (field ?region ?type ?source :time ?t))
+			))
    (time ?t)
    (given-field ?source ?type)
    (at-place ?dipole ?region :time ?t ?t)

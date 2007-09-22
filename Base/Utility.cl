@@ -34,7 +34,7 @@
 
 ;;;;================================ =====================
 ;;;;
-;;;;             expr< 
+;;;;                             expr< 
 ;;;;
 ;;;;===============================  ======================
 
@@ -44,25 +44,26 @@
 ;;; string<.
 
 (defun expr< (expr1 expr2)
-   "True if first arg comes before second in lexicographic ordering."
-   (cond ((consp expr1)
-          (cond ((consp expr2)
-                 (or (expr< (car expr1) (car expr2))
-                     (and (equal (car expr1) (car expr2))
-                          (expr< (cdr expr1) (cdr expr2)))))
-                ( T ;; atoms precede cons in our ordering
-                    NIL)))
-         ((consp expr2)  ;; atoms preceed cons, and expr1 is an atom
-          T)
-         ((numberp expr1)
-          (cond ((Numberp expr2) 
-                 (< expr1 expr2))
-                (T ;; numbers follow other atoms, and expr2 is a non-number atom
-                  NIL)))
-         ((numberp expr2) ;; numbers follow other atoms, and expr1 is a non-number atom
-          T)
-         (T ;; both are non-numeric atoms
-            (string< expr1 expr2)))) 
+  "True if first arg comes before second in lexicographic ordering."
+  (cond ((consp expr1)
+	 (cond ((consp expr2)
+		(or (expr< (car expr1) (car expr2))
+		    (and (equal (car expr1) (car expr2))
+			 (expr< (cdr expr1) (cdr expr2)))))
+	       ((variable-p expr2) 
+		(error "Can't determine order for unbound variable ~A." expr2))
+	       (T nil))) ;atoms precede cons in our ordering
+	;; expr1 is now an atom
+	((variable-p expr1) 
+	 (error "Can't determine order for unbound variable ~A." expr1))
+	((consp expr2) t) ;atoms preceed cons
+	((numberp expr1)
+	 (cond ((Numberp expr2) (< expr1 expr2))
+	       (t nil)))   ;numbers follow other atoms
+	;; expr1 is now a non-numerical atom
+	((numberp expr2) t) ;numbers follow other atoms
+	(T (string< expr1 expr2)) ;both are non-numeric atoms
+	))
 
 ;;;;========================================================================
 ;;;;
