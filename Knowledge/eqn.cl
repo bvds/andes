@@ -27,7 +27,7 @@
 (defun print-eqn (Eqn &optional (Stream t) (Level 0))
   "Print out an eqn as a list."
   (pprint-Indent :block Level)
-  (format Stream "~A" 
+  (format Stream "~S" 
 	  (list 'eqn (Eqn-Index Eqn) (Eqn-Type Eqn) (Eqn-Algebra Eqn) 
 		(Eqn-Exp Eqn) (Eqn-Nodes Eqn) (Eqn-Solved Eqn))))
 
