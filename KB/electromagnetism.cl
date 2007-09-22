@@ -230,11 +230,12 @@
    ;; Since the field is zero, the source is not really well-defined.
    ;; However, we assume that there is some other region that does have 
    ;; a given field source.
-   (given-field ?source electric :time ?t) ;specify the source by hand
+   (inside-conductor ?loc :electric-source ?source)
+   ;; select a time in case it comes in unbound
+   (time-or-timeless ?t)
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 	     (null (member 'changing-field (problem-features *cp*)))))
-   (inside-conductor ?loc)
    (not (vector ?any-body (field ?loc electric ?source :time ?t) ?any-dir))
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" 
 			      (body-name ?loc) (body-name ?source) 

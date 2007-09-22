@@ -2456,7 +2456,7 @@
   :effects
   ((eqn (= ?s-compo (* ?vi-compo ?t-var))
 	 (compo-eqn sdd-constvel ?xyz ?rot (lk ?b (during ?t1 ?t2))))
-    (implicit-eqn (= ?a_x 0) (projection ?a-compo :zero t)))
+    (implicit-eqn (= ?a_x 0) (projection ?a-compo)))
   :hint (
     (point (string "Can you think of an equation relating the components of displacement to those of initial velocity and time?"))
     (point (string "What do you know about the ~A component of the velocity of ~A ~A?" ((axis ?xyz ?rot) symbols-label) ?b ((during ?t1 ?t2) pp)))
