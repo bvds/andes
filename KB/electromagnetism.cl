@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+9;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;                Electric/Magnetic Forces and Fields
 ;;;; 
@@ -187,12 +187,22 @@
   ((inherit-quantity (field ?loc ?type ?source :time ?t)
 		     (field ?loc ?type ?source))))
 
+(defoperator homogeneous-field-is-given-field (?rest)
+  :preconditions ((homogeneous-field . ?rest))
+  :effects ((given-field . ?rest)))
+
+(defoperator field-sources-is-given-field (?loc ?type ?source)
+  :preconditions ((field-sources ?loc ?type ?sources)
+		  (any-member ?source ?sources))
+  :effects ((given-field ?loc ?type ?source)))
+
 
 ; draw field in given direction:
 (defoperator draw-field-given-dir (?loc ?type ?t)
   :preconditions 
   ((rdebug "Using draw-field-vector  ~%")
-   (given (dir (field ?loc ?type ?source :time ?t)) ?dir-f)  
+   (given-field ?loc ?type ?source :dir ?dir-f :time ?t)
+   (test (not (parameter-or-unknownp ?dir-f)))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
@@ -271,10 +281,13 @@
 		 (null (member 'changing-field (problem-features *cp*)))))
    ;; ?b is "test charge" feeling force at loc at some time.
    (at-place ?b ?loc :time ?t-place)
-   ;; make sure field direction at loc of b not given, directly 
-   ;; or via components:
-    (not (given (dir (field ?loc electric ?source :time ?t)) ?dontcare1))
-   (not (given (compo x 0 (field ?loc electric ?source :time ?t)) ?dontcare2))
+   ;; make sure there is a field but the direction at loc of b is not given, 
+   ;; directly or via components:
+   (given-field ?loc ?electric ?source :time ?t-given :dir ?dir)
+   (test (or (not (tinsidep ?t ?t-given)) (null ?dir) 
+	     (unknown-or-parameterp ?dir)))
+   (not (given (compo ?xyz ?rot 
+		      (field ?loc electric ?source :time ?t)) ?dontcare2))
    ;; make sure direction of force on ?b is given
    ;; (given (dir (force ...)) ...) is a side-effect of several drawing rules;
    ;; need in-wm to prevent recursion with find-electric-force-given-field-dir
@@ -308,16 +321,14 @@
 (defoperator draw-field-unknown (?loc ?type ?source ?t)
   :preconditions 
   (
-   (given-field ?source ?type :time ?t) ;field due to ?source has unknown dir.
+   (given-field ?loc ?type ?source :dir ?dir :time ?t)
+   (test (or (null ?dir) (eq ?dir 'unknown)))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*))))
 	     (error "draw-field-unknown bad time slot ~A" ?t)))
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?any-dir))
-   ;; make sure field direction not given, directly 
-   (not (given (dir (field ?loc ?type ?source :time ?t-given)) ?dontcare3)
-	(tinsidep ?t ?t-given))
    ;; inside a conductor is handled differently
    (not (inside-conductor ?loc) (eq ?type 'electric))
    (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
@@ -379,17 +390,18 @@
 (defoperator draw-point-Efield-unknown (?b ?loc ?t)
   :preconditions 
   ((rdebug "Using draw-point-Efield-unknown ~%")
+   ;; Make sure source is point-charge
+   (point-charge ?b)
+   ;; make sure it works at the given point
+   (given-field ?loc electric ?b :time ?t)
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*))))
 	     (error "draw-point-efield-unknown bad time slot ~A" ?t)))
-   (given-field ?b electric)
-   ;; Make sure source is point-charge
-   (point-charge ?b)
    ;; make sure ?loc not equals ?loc-source?
    (not (vector ?dontcare (field ?loc electric ?b :time ?t1) ?any-dir))
-   (not (given (dir (field ?loc electric ?b :time ?t2)) ?dontcare3))
-   (not (given (dir (relative-position ?loc ?b :time ?t-any)) ?whatever))
+   (not (given (dir (relative-position ?loc ?b :time ?t-any)) ?whatever1))
+   (not (given (dir (relative-position ?b ?loc :time ?t-any)) ?whatever2))
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -613,19 +625,19 @@
        ))
 
 ;;  -if given that unknown field exists 
-;;      given by (given-field ?source ?type) in problem. 
+;;      given by (homogeneous-field ?loc ?type ?source ...) in problem. 
 ;;      Don't use these if field direction given in other ways
 (defoperator find-electric-force-given-field-unknown (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Eforce-unknown ~%")
    (time ?t)
-   (given-field ?source electric) 
+   (given-field ?loc electric ?source :dir ?dir-e :time ?t-given)
+   (test (tinsidep ?t ?t-given)) 
+   (test (or (null ?dir-e) (eq ?dir-e 'unknown)))
    ;; make sure force direction not given, directly or via components:
    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
    ;; make sure E-field direction not given, directly or via components
    (at-place ?b ?loc :time ?t ?t)
-   (not (given (dir (field ?loc electric ?source :time ?t-any)) ?dontcare3)
-	(tinsidep ?t ?t-any))
    ;; check that something else hasn't defined this force.
    (not (force ?b ?source electric ?t . ?dont-care)) 
    (rdebug "fired draw-Eforce-unknown  ~%")
@@ -1940,8 +1952,9 @@
 				       (dipole-moment ?dipole ?type :time ?t)
 				       (field ?region ?type ?source :time ?t))
 			))
-   (time ?t)
-   (given-field ?source ?type)
+   (time-or-timeless ?t)
+   ;; if dipole-moment is sought, need to bind ?source
+   (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
    (at-place ?dipole ?region :time ?t ?t)
    )
    :effects 
@@ -2033,8 +2046,9 @@
 		(dir (field ?region ?type ?source :time ?t))
 		(dir (dipole-moment ?dipole ?type :time ?t))
 		))
-   (time ?t)
-   (given-field ?source ?type)
+   (time-or-timeless ?t)
+   ;; if dipole-moment is sought, need to bind ?source
+   (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
    (at-place ?dipole ?region :time ?t ?t)
    (axes-for ?dipole ?rot) ;in case ?rot is not bound
    (get-axis ?axis ?rot) ;in case ?axis is not bound
@@ -2055,8 +2069,9 @@
 					     :time ?t))
 		(compo ?not-axis ?rot (dipole-moment ?dipole ?type :time ?t))
 		))
-   (given-field ?source ?type)
-   (time ?t)
+   (time-or-timeless ?t)
+   ;; if dipole-moment is sought, need to bind ?source
+   (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
    (at-place ?dipole ?region :time ?t ?t)
    (get-axis ?axis ?rot) ;in case ?axis is not bound
   )
@@ -2212,7 +2227,8 @@
 (defoperator define-dipole-energy-ee-var (?dipole ?source ?t)
   :preconditions 
   ( ;; Test for electric field acting on object
-   (given-field ?source ?type)
+   (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
+   (test (tinsidep ?t ?t-given))
    (at-place ?dipole ?region :time ?t ?t)
    )
   :effects ( (ee-var ?dipole ?t (dipole-energy 
@@ -2246,8 +2262,9 @@
 		 (mag (field ?region ?type ?source :time ?t))
 		 (mag (dipole-moment ?dipole ?type :time ?t))
 		 ))
-   (time ?t) ;in case ?t is not bound
-   (given-field ?source ?type)
+   ;; bind source if dipole-moment is sought
+   (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
+   (test (tinsidep ?t ?t-given))
    (at-place ?dipole ?region :time ?t ?t)
    )
  :effects 
@@ -2257,15 +2274,11 @@
 
 
 (defoperator dipole-energy-angle-contains (?sought)
- :preconditions 
- ((any-member ?sought ((angle-between orderless ?vecs)))
-  ;; must be in canonical order
-  (any-member ?vecs (((dipole-moment ?dipole ?type :time ?t) 
-		      (field ?region ?type ?source :time ?t))))
-  (time ?t) ;in case ?t is not bound
-   (given-field ?source ?type)
-   (at-place ?dipole ?region :time ?t ?t)
- )
+  :preconditions 
+  ((any-member ?sought ((angle-between orderless
+				       (dipole-moment ?dipole ?type :time ?t) 
+				       (field ?region ?type ?source :time ?t))))
+   )
  :effects 
  ((eqn-contains (electric-dipole-energy ?dipole	(field ?region ?type ?source) 
 					?t NIL) ?sought)
@@ -2279,12 +2292,12 @@
 		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t))
 		 (compo ?xyz ?rot (dipole-moment ?dipole ?type :time ?t))
 		 ))
-   (time ?t)
-   (given-field ?source ?type)
    (at-place ?dipole ?region :time ?t ?t)
+   ;; bind ?source in case of dipole-moment
+   (given-field ?region ?type ?source :time ?t-given :dir ?dir)
+   (test (tinsidep ?t ?t-given))
    ;; find axes now, before applying dot product:
    (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir-d)
-   (inherit-vector ?whatever (field ?region ?type ?source :time ?t) ?dir-e)
    ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
    ;; etc. will choose the angle.  If it is bound from the ?sought,
    ;; operator will also succeed.
@@ -2572,7 +2585,8 @@
   :specifications " "
   :preconditions 
   ((rdebug "Using draw-Bforce-unknown ~%")
-   (given-field ?source magnetic) ; so know there is a Bfield in the problem
+   (given-field ?loc magnetic ?source :dir ?dir :time ?t)
+   (test (or (null ?dir) (eq ?dir 'unknown)))
    (object ?b)
    (at-place ?b ?loc :time ?t ?t)
    (not (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
@@ -2598,30 +2612,33 @@
 ;; (might be given by x and y components for component-form calculation.)
 ;; For now, we just require problem to tell us velocity is unknown.
 (defoperator draw-Bforce-unknown-velocity (?b ?t)
-  :preconditions ((rdebug "Using draw-Bforce-unknown ~%")
-                  (given-field ?source magnetic) ;so know there is a Bfield
-                  (object ?b)
-                  (at-place ?b ?loc :time ?t ?t)
-		  ;; Require motion explicitly specified as unknown
-		  ;; Not quite right to presume it is "straight", though
-		  (motion ?b straight :dir unknown :time ?t ?t . ?whatever)
-                  (test (time-pointp ?t))
-                  (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
-                  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
-					     (time-abbrev ?t)))
-                  (bind ?dir-var (format-sym "O~A" ?mag-var))
-                  (rdebug "fired draw-Bforce-unknown  ~%")
-                  )
+  :preconditions 
+  (
+   (rdebug "Using draw-Bforce-unknown ~%")
+   (homogeneous-field ?loc magnetic ?source :dir ?any-dir-b :time ?t-given)
+   (test (tinsidep ?t ?t-given))
+   (object ?b)
+   (at-place ?b ?loc :time ?t ?t)
+   ;; Require motion explicitly specified as unknown
+   ;; Not quite right to presume it is "straight", though
+   (motion ?b straight :dir unknown :time ?t ?t . ?whatever)
+   (test (time-pointp ?t))
+   (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
+   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (rdebug "fired draw-Bforce-unknown  ~%")
+   )
   :effects (
             (vector ?b (force ?b ?source magnetic :time ?t) unknown)
             (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
             (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
             )
   :hint (
-    (point (string "Since ~a is charged and moving in a direction that is not parallel or antiparallel to the magnetic field, it will be subject to a magnetic force." ?b))
+	 (point (string "Since ~a is charged and moving in a direction that is not parallel or antiparallel to the magnetic field, it will be subject to a magnetic force." ?b))
          (teach (string "In this problem, the exact direction of the magnetic force vector requires calculation to determine, so you can draw the force vector at an approximately correct angle and leave the exact angle unspecified."))
          (bottom-out (string "Draw the magnetic force on ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." ?b (?source agent))) 
-  ))
+	 ))
 
 
 (defoperator find-magnetic-force-current (?b ?t ?source)
@@ -3403,14 +3420,16 @@
 
 (defoperator flux-constant-field-angle-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
-   (at-place ?surface ?region)
-   (any-member ?sought 
+  ((any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
 		 (mag (field ?region ?type ?source :time ?t))
 		 (area ?surface)
 		 ))
-   (time ?t)
+   ;; this tests validity of law
+   (homogeneous-field ?region ?type ?source :time ?t-given :dir ?dir) 
+   (at-place ?surface ?region)
+   (time-or-timeless ?t) ;time not bound by area
+   (test (tinsidep ?t ?t-given))
    )
   :effects ((eqn-contains (flux-constant-field ?surface ?type ?t NIL) ?sought)
   ))
@@ -3418,16 +3437,18 @@
 
 (defoperator flux-constant-field-compo-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
-   (at-place ?surface ?region)
-   (any-member ?sought 
+  ((any-member ?sought 
 	       ( (flux ?surface ?type :time ?t)
 		 (area ?surface)
 		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t))
 		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
 		 ))
-   (time ?t)
-   ;; find axes now, before applying dot product:
+   ;; this tests validity of law
+   (homogeneous-field ?region ?type ?source :time ?t-given :dir ?dir) 
+   (time-or-timeless ?t)
+   (test (tinsidep ?t ?t-given))
+   (at-place ?surface ?region)
+      ;; find axes now, before applying dot product:
    (vector ?any-body (field ?region ?type ?source :time ?tot) ?dir-d)
    (inherit-or-quantity (field ?region ?type ?source :time ?t)
 			(field ?region ?type ?source :time ?tot))
@@ -3532,14 +3553,16 @@
 
 (defoperator flux-constant-field-change-angle-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
-   (at-place ?surface ?region)
-   (any-member ?sought 
+  ((any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
 		 (mag (field ?region ?type ?source :time ?t))
 		 (rate-of-change (area ?surface))
 		 ))
-   (time ?t)
+   ;; this tests validity of law
+   (homogeneous-field ?region ?type ?source :time ?t-given :dir ?dir) 
+   (time-or-timeless ?t)
+   (test (tinsidep ?t ?t-given))
+   (at-place ?surface ?region)
    )
   :effects ((eqn-contains (flux-constant-field-change ?surface ?type ?t NIL) ?sought)
   ))
@@ -3547,15 +3570,17 @@
 
 (defoperator flux-constant-field-change-compo-contains (?sought)
   :preconditions 
-  ((homogeneous-field ?region ?type) ;specify by hand whether formula is valid
-   (at-place ?surface ?region)
-   (any-member ?sought 
+  ((any-member ?sought 
 	       ( (rate-of-change (flux ?surface ?type :time ?t))
 		 (rate-of-change (area ?surface))
 		 (compo ?xyz ?rot (field ?region ?type ?source :time ?t))
 		 (compo ?xyz ?rot (unit-vector normal-to ?surface :time ?t))
 		 ))
-   (time ?t) ;in case ?t is not bound
+   ;; this tests validity of law
+   (homogeneous-field ?region ?type ?source :time ?t-given :dir ?dir) 
+   (time-or-timeless ?t)
+   (test (tinsidep ?t ?t-given))
+   (at-place ?surface ?region)
    ;; find axes now, before applying dot product:
    ;; (draw vectors before finding axis)
    (vector ?any-body (field ?region ?type ?source :time ?tot) ?dir-d)
