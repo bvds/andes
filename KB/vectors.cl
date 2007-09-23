@@ -800,7 +800,7 @@
    ;; This test is not sufficient for problem coul3, Bug #1375.
    (setof (get-axis ?xyz ?rot) ?xyz ?xyz-list)
    (test (> (length (remove-if-not 
-		   #'(lambda (x) (non-zero-projectionp ?dir x ?rot)) 
+		   #'(lambda (xyz) (non-zero-projectionp ?dir xyz ?rot)) 
 		   ?xyz-list)) 1))
    )
   :effects ( (eqn-contains (vector-magnitude ?vector ?rot) (mag ?vector)) ))
