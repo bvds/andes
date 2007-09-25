@@ -270,17 +270,18 @@
 (defoperator draw-Efield-given-force-dir (?b ?t)
   :preconditions 
   ((rdebug "Using draw-Efield-given-force-dir ~%")
+   ;; make sure there is a field but the direction at loc of b is not given, 
+   ;; directly or via components:
+   (given-field ?loc ?electric ?source :time ?t :dir ?dir)
+   (test (null ?dir))
+   (not (given (compo ?xyz ?rot 
+		      (field ?loc electric ?source :time ?t)) ?dontcare2))
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*)))))
    ;; ?b is "test charge" feeling force at loc at some time.
    (at-place ?b ?loc :time ?t-place)
-   ;; make sure there is a field but the direction at loc of b is not given, 
-   ;; directly or via components:
-   (given-field ?loc ?electric ?source :time ?t-given :dir ?dir)
-   (test (or (not (tinsidep ?t ?t-given)) (null ?dir)))
-   (not (given (compo ?xyz ?rot 
-		      (field ?loc electric ?source :time ?t)) ?dontcare2))
+   (test (tinsidep ?t ?p-place))
    ;; make sure direction of force on ?b is given
    ;; (given (dir (force ...)) ...) is a side-effect of several drawing rules;
    ;; need in-wm to prevent recursion with find-electric-force-given-field-dir
@@ -290,7 +291,7 @@
    (sign-charge ?b ?pos-neg)
    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?F-dir (opposite ?F-dir)))
    (bind ?same-or-opposite  (if (eq ?pos-neg 'pos) 'same 'opposite))
-   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?b) 
+   (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Efield-given-force-dir  ~%")
@@ -310,6 +311,17 @@
 			     (?same-or-opposite adj) ?b (?field-dir adj)))
 	 ))
 
+(defoperator find-given-field-forces-in-region (?b ?loc ?source ?type ?t)
+  :preconditions
+  (
+   (at-place ?b ?loc :time ?t-place)
+   (test (tinisidep ?t ?t-place))
+   (not (given (dir (force ?b ?source ?type :time ?t-force) ?any-dir))
+	(or (tinsidep ?t ?t-force) (tinsidep ?t-force ?t)))
+   (not (given (dir (force ?source ?b ?type :time ?t-force) ?any-dir)) 
+	(or (tinsidep ?t ?t-force) (tinsidep ?t-force ?t)))
+   )
+:effects ((given-field-force ?b ?loc ?source ?type :time ?t)))
 
 ;; this is for drawing a homogeneous field in an un-specified direction
 ;; Many cases of this are ones where the componets are given.
@@ -324,6 +336,9 @@
 		 (null (member 'changing-field (problem-features *cp*))))
 	     (error "draw-field-unknown bad time slot ~A" ?t)))
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?any-dir))
+   ;; test that the force direction is not given
+   (setof (given-field-fore ?b ?loc ?source ?type ?t) ?b ?bb)
+   (test (null ?bb))
    ;; inside a conductor is handled differently
    (not (inside-conductor ?loc) (eq ?type 'electric))
    (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
@@ -354,6 +369,7 @@
    ;; Make sure source is point-charge
    (point-charge ?b)
    (test (or (null ?t) (time-pointp ?t)))
+   (given-field ?loc ?electric ?b)
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
    (given (dir (relative-position ?loc ?b :time ?t)) ?rdir)
    (sign-charge ?b ?pos-neg)
@@ -388,7 +404,7 @@
    ;; Make sure source is point-charge
    (point-charge ?b)
    ;; make sure it works at the given location
-   (given-field ?loc electric ?b :time ?t)
+   (given-field ?loc electric ?b)
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*))))
