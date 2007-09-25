@@ -1,4 +1,4 @@
-9;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;
 ;;;;                Electric/Magnetic Forces and Fields
 ;;;; 
@@ -416,12 +416,6 @@
 ;;
 ;; Drawing E force vector -- parallels drawing E field vector
 ;;
-;; !!! TODO -- should factor out proposition that electric force exists that 
-;; fires without drawing vector, as we do for other forces in Newton's 
-;; law problems.  (See force-finding rules in Newtons2.cl for examples). 
-;; This won't matter until we have mechanics problems with electric forces
-;; and have to reason about all forces in the problem (e.g. whether they are 
-;; all conservative) without drawing vectors.
 
 ;; - if given E force vector dir --
 
@@ -573,12 +567,14 @@
    (not (given (compo ?xy ?rot (force ?b ?source electric :time ?t-force)) 
 	       ?dontc2)
 	(tinsidep ?t ?t-force))
-   ;; make sure E-field direction given at loc of ?b
-   ;; this must be after above test or recursion with 
-   ;; draw-efield-given-force-dir
-   (given (dir (field ?loc electric ?source :time ?t ?t)) ?field-dir)
    ;; make sure field is acting on the particle
    (at-place ?b ?loc :time ?t ?t)
+   ;; determine the source of the field
+   (given-field ?loc electric ?source :time ?t-given . ?rest)
+   (test (tinsidep ?t ?t-given))
+   ;; go ahead and draw field, since that is a prerequisite for
+   ;; the student figuring out there is a force
+   (inherit-vector ?ll (field ?loc electric ?source :time ?t) ?field-dir)
    ;; require sign of charge to be known
    (sign-charge ?b ?pos-neg)
    (bind ?F-dir (if (eq ?pos-neg 'pos) ?field-dir (opposite ?field-dir)))
@@ -592,9 +588,10 @@
   :preconditions 
   (
    (force ?b ?source electric ?t ?F-dir action)
-   (test (not (eq ?F-dir 'unknown)))
+   (test (not (parameter-or-unknownp ?F-dir)))
    ;; found above, make sure this is right situation
-   (in-wm (given (dir (field ?loc electric ?source :time ?t ?t)) ?field-dir))
+   (in-wm (inherit-vector ?ao (field ?loc electric ?source :time ?t) 
+			  ?field-dir))
    (in-wm (at-place ?b ?loc :time ?t ?t))
    ;; already found above, use in hints
    (in-wm (sign-charge ?b ?pos-neg))
@@ -628,10 +625,10 @@
    (time ?t)
    (homogeneous-field ?loc electric ?source :dir ?dir-e :time ?t-given)
    (test (tinsidep ?t ?t-given)) 
+   ;; make sure E-field direction not given, directly or via components
    (test (or (null ?dir-e) (eq ?dir-e 'unknown)))
    ;; make sure force direction not given, directly or via components:
    (not (given (dir (force ?b ?source electric :time ?t)) ?dontcare1))
-   ;; make sure E-field direction not given, directly or via components
    (at-place ?b ?loc :time ?t ?t)
    ;; check that something else hasn't defined this force.
    (not (force ?b ?source electric ?t . ?dont-care)) 
@@ -704,7 +701,8 @@
    (at-place ?b ?loc :time ?t ?t)
    ;; following will fetch the source of an E-field at loc if we are given
    ;; its direction or component value
-   (source-of-Efield ?loc ?t ?source)
+   (given-field ?loc electric ?source :time ?t-given . ?rest)
+   (test (tinsidep ?t ?t-given))
    (rdebug "Firing charge-force-Efield-contains-charge  ~%")
    )
   :effects 
@@ -714,15 +712,6 @@
    ;; select it now, rather than requiring further operators to do so
    (compo-eqn-contains (charge-force-Efield ?b ?source ?t) qfe ?sought)))
 
-(defoperator get-source-from-given-field-dir (?loc ?t ?source)
-  :preconditions 
-  ((in-wm (given (dir (field ?loc electric ?source :time ?t ?t)) ?value)))
-  :effects ((source-of-Efield ?loc ?t ?source)))
-
-(defoperator get-source-from-given-field-compo (?loc ?t ?source)
-  :preconditions 
-  ((in-wm (given (compo x 0 (field ?loc electric ?source :time ?t ?t)) ?value)))
-  :effects ((source-of-Efield ?loc ?t ?source)))
 
 (defoperator draw-charge-force-Efield-diagram (?rot ?b ?source ?t)
   :preconditions 
@@ -1947,7 +1936,6 @@
 				       (dipole-moment ?dipole ?type :time ?t)
 				       (field ?region ?type ?source :time ?t))
 			))
-   (time-or-timeless ?t)
    ;; if dipole-moment is sought, need to bind ?source
    (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
    (at-place ?dipole ?region :time ?t ?t)
@@ -1959,9 +1947,10 @@
 (defoperator write-dipole-torque-mag (?dipole ?source ?t)
    :preconditions 
    (
-    (variable ?tau-var (mag (torque ?dipole (field ?region ?type ?source)
-				    :time ?t)))
-    (variable ?p-var (mag (dipole-moment ?dipole ?type :time ?t)))
+    (inherit-variable ?tau-var 
+		      (mag (torque ?dipole (field ?region ?type ?source)
+				   :time ?t)))
+    (inherit-variable ?p-var (mag (dipole-moment ?dipole ?type :time ?t)))
     (inherit-variable ?E-var (mag (field ?region ?type ?source :time ?t)))
     (inherit-variable ?theta-var 
 		      (angle-between orderless 
@@ -2116,21 +2105,18 @@
 (defoperator draw-torque-dipole-given-dir (?dipole ?t)
   :preconditions 
   (
+   (any-member ?field ((field ?region ?type ?source)))
    ;; right now, this must be specified in the problem statement
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
-   ;; vector direction is 'unknown if compos are given, use this
-   ;; to determine direction (and bind ?region and ?source)
-   (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
-   ;; test inheritance only for time:  should be more general
-   (inherit-or-quantity (field ?region ?type ?source :time ?t)
-			(field ?region ?type ?source :time ?t-field))
    ;; workbench requires field vector to be labelled as prerequisite for 
    ;; defining a dipole torque, so ensure it is drawn here.
-   (vector ?dontcare (field ?region ?type ?source :time ?t-field) 
-		   ?dir-drawn)
-   (bind ?field (list 'field ?region ?type ?source))
+   ;; also, draw vector so that direction can be determined below
+   (inherit-vector ?own (field ?region ?type ?source :time ?t) ?dir-drawn)
+   ;; vector direction is not determined if compos are given, use this
+   ;; to determine direction (and bind ?region and ?source)
+   (dir-given-or-compos (field ?region ?type ?source :time ?t) ?dir-f)
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
    (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
@@ -2156,21 +2142,19 @@
 (defoperator draw-torque-dipole-zero (?dipole ?t)
   :preconditions 
   (
+   (any-member ?field ((field ?region ?type ?source))) ;save typing
    ;; right now, this must be specified in the problem statement
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
+   ;; workbench requires field vector to be labelled as prerequisite for 
+   ;; defining a dipole torque, so ensure it is drawn here.
+   ;; also need to draw befor determining direction below
+   (inherit-vector ?dk (field ?region ?type ?source :time ?t) ?dir-drawn)
    ;; AW: for magtor1d, changed t-field to match draw-torque-dipole-given-dir
    ;; vector direction is 'unknown if compos are given, use this
    ;; to determine direction (and bind ?region and ?source)
-   (dir-given-or-compos (field ?region ?type ?source :time ?t-field) ?dir-f)
-   ;; test inheritance only for time:  should be more general
-   (inherit-or-quantity (field ?region ?type ?source :time ?t)
-			(field ?region ?type ?source :time ?t-field))
-   ;; workbench requires field vector to be labelled as prerequisite for 
-   ;; defining a dipole torque, so ensure it is drawn here.
-   (vector ?dontcare (field ?region ?type ?source :time ?t-field) ?dir-drawn)
-   (bind ?field (list 'field ?region ?type ?source))
+   (dir-given-or-compos (field ?region ?type ?source :time ?t) ?dir-f)
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
    (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
@@ -2256,27 +2240,17 @@
 					  :time ?t)
 		 (mag (field ?region ?type ?source :time ?t))
 		 (mag (dipole-moment ?dipole ?type :time ?t))
-		 ))
+		 (angle-between orderless
+				(dipole-moment ?dipole ?type :time ?t) 
+				(field ?region ?type ?source :time ?t))))
    ;; bind source if dipole-moment is sought
    (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
    (test (tinsidep ?t ?t-given))
-   (at-place ?dipole ?region :time ?t ?t)
+   (at-place ?dipole ?region :time ?t ?t) ;bind ?dipole if field is sought
    )
  :effects 
  ((eqn-contains (dipole-energy ?dipole (field ?region ?type ?source) 
 			       ?t NIL) ?sought)
-  ))
-
-
-(defoperator dipole-energy-angle-contains (?sought)
-  :preconditions 
-  ((any-member ?sought ((angle-between orderless
-				       (dipole-moment ?dipole ?type :time ?t) 
-				       (field ?region ?type ?source :time ?t))))
-   )
- :effects 
- ((eqn-contains (electric-dipole-energy ?dipole	(field ?region ?type ?source) 
-					?t NIL) ?sought)
   ))
 
 (defoperator dipole-energy-compo-contains (?sought)
@@ -3237,11 +3211,11 @@
   (
    (inside-solenoid ?point ?solenoid)  ;given that there is a solenoid
    (any-member ?sought (
-			(current-thru ?solenoid :time ?t)
+			(current-thru ?solenoid :time ?t ?t)
 			(turns-per-length ?solenoid)
-			(mag (field ?center magnetic ?solenoid :time ?t))
+			(mag (field ?center magnetic ?solenoid :time ?t ?t))
 			))
-   (time ?t) ;not bound by some ?sought
+   (time ?t)  ;should be made timeless
    )
   :effects ((eqn-contains (inside-solenoid-Bfield ?point ?solenoid ?t) ?sought)))
 

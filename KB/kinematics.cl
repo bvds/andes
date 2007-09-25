@@ -2010,28 +2010,6 @@
    )
 )
 
-(defoperator use-compos-for-dir (?quant)
-   :preconditions 
-   (
-    (given (compo x 0 ?quant) (dnum ?xc ?units))
-    (given (compo y 0 ?quant) (dnum ?yc ?units))
-    (not (given (dir ?quant) ?dir-given))
-    (bind ?dir (dir-from-compos ?xc ?yc))
-    )
-   ;; Note that the answer is rounded, so the result cannot
-   ;; be used as part of a numerical solution.
-   :effects ((dir-given-or-compos ?quant ?dir)))
-
-(defoperator use-given-for-dir (?quant)
-  :preconditions 
-  ( 
-   ;; in-wm so that it is parallel to above
-   (in-wm (given (dir ?quant) ?dir)) 
-   )
-   :effects ((dir-given-or-compos ?quant ?dir)))
-
-
-
 
 ;;; =============== linear kinematics compo equations ==============
 ;;; The physicist do not want Andes to hint s=vf*t-0.5*a*t^2 (leaves
@@ -2451,7 +2429,7 @@
    (in-wm (inherit-vector ?b (accel ?b :time (during ?t1 ?t2)) ?accel-dir))
    (test (not (non-zero-projectionp ?accel-dir ?xyz ?rot)))
    ;; and veclocity doesn't vanish, else this overlaps with projection
-   (in-wm (inherit-vector ?b (velocity ?b :time (during ?t1 ?t2)) ?vel-dir))
+   (in-wm (inherit-vector ?b (velocity ?b :time ?t1) ?vel-dir))
    (test (non-zero-projectionp ?vel-dir ?xyz ?rot))
    ;; and write it 
    (inherit-variable ?vi-compo (compo ?xyz ?rot (velocity ?b :time ?t1)))

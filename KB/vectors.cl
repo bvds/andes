@@ -653,6 +653,30 @@
   ))
 
 
+;; determine direction from either given direction or given compos
+;; generally should be applied after drawing the vector.
+
+(defoperator use-compos-for-dir (?quant-in)
+   :preconditions 
+   (
+    (inherit-or-quatity ?quant-in ?quant)
+    (given (compo x 0 ?quant) (dnum ?xc ?units))
+    (given (compo y 0 ?quant) (dnum ?yc ?units))
+    (not (given (dir ?quant) ?dir-given))
+    (bind ?dir (dir-from-compos ?xc ?yc))
+    )
+   ;; Note that the answer is rounded, so the result cannot
+   ;; be used as part of a numerical solution.
+   :effects ((dir-given-or-compos ?quant-in ?dir)))
+
+(defoperator use-given-for-dir (?quant-in)
+  :preconditions 
+  ( 
+   (inherit-or-quantity ?quant-in ?quat)
+   ;; in-wm so that it is parallel to above
+   (in-wm (given (dir ?quant) ?dir)) 
+   )
+   :effects ((dir-given-or-compos ?quant-in ?dir)))
    
 
 ;;; =================== defining component variables =============
