@@ -197,12 +197,12 @@
   :effects ((given-field ?loc ?type ?source)))
 
 
-; draw field in given direction:
+;; Draw homogeneous field in a specified direction.
 (defoperator draw-field-given-dir (?loc ?type ?t)
   :preconditions 
   ((rdebug "Using draw-field-vector  ~%")
-   (given-field ?loc ?type ?source :dir ?dir-f :time ?t)
-   (test (not (parameter-or-unknownp ?dir-f)))
+   (homogeneous-field ?loc ?type ?source :dir ?dir-f :time ?t)
+   (test (and ?dir-f (not (parameter-or-unknownp ?dir-f))))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
@@ -213,22 +213,16 @@
 			      (body-name ?loc) (body-name ?source) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   ;; if dir is z-axis, implicit eqn should give phi angle value
-   (bind ?angle-value (if (z-dir-spec ?dir-f) (zdir-phi ?dir-f) 
-			?dir-f))
    (rdebug "fired draw-field-vector   ~%"))
   :effects (
             (vector ?loc (field ?loc ?type ?source :time ?t) ?dir-f)
             (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
             (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
-            ;; Because dir is problem given, find-by-psm won't ensure 
-	    ;; implicit eqn gets written.  Given value may not be used 
-	    ;; elsewhere so ensure it here.
-            (implicit-eqn (= ?dir-var ?angle-value) (dir (field ?loc ?type ?source :time ?t)))
+	    (given (dir (field ?loc ?type ?source :time ?t)) ?dir-f)
             )
   :hint (
-	(point (string "You can determine the direction of the ~A field at ~a due to ~a from the problem statement"
-	               (?type adj) ?loc (?source agent))) 
+	(point (string "Notice that ~A contains a constant ~A field."
+	               ?loc (?type adj) ?loc)) 
 	(bottom-out (string "Use the ~A field drawing tool to draw the ~A field at ~a due to ~a in the given direction of ~A." 
 		     (?type adj) (?type adj) ?loc (?source agent) (?dir-f adj)))
         )) 
@@ -284,8 +278,7 @@
    ;; make sure there is a field but the direction at loc of b is not given, 
    ;; directly or via components:
    (given-field ?loc ?electric ?source :time ?t-given :dir ?dir)
-   (test (or (not (tinsidep ?t ?t-given)) (null ?dir) 
-	     (unknown-or-parameterp ?dir)))
+   (test (or (not (tinsidep ?t ?t-given)) (null ?dir)))
    (not (given (compo ?xyz ?rot 
 		      (field ?loc electric ?source :time ?t)) ?dontcare2))
    ;; make sure direction of force on ?b is given
@@ -307,7 +300,7 @@
    (vector ?loc (field ?loc electric ?source :time ?t) ?Field-dir)
    (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
    (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
-    (given (dir (field ?loc electric ?source :time ?t)) ?Field-dir)
+   (given (dir (field ?loc electric ?source :time ?t)) ?Field-dir)
    )
   :hint (
 	 (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
@@ -318,10 +311,12 @@
 	 ))
 
 
+;; this is for drawing a homogeneous field in an un-specified direction
+;; Many cases of this are ones where the componets are given.
 (defoperator draw-field-unknown (?loc ?type ?source ?t)
   :preconditions 
   (
-   (given-field ?loc ?type ?source :dir ?dir :time ?t)
+   (homogeneous-field ?loc ?type ?source :dir ?dir :time ?t)
    (test (or (null ?dir) (eq ?dir 'unknown)))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK
@@ -342,7 +337,7 @@
 	    (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
             )
   :hint (
-         (point (string "Note the ~A field at ~A." (?type adj) ?loc))
+         (point (string "Note the constant ~A field at ~A." (?type adj) ?loc))
          (teach (string "In this problem, the exact direction of the ~A field vector is not given, so you can draw the vector at an approximately angle and leave the exact angle unspecified." (?type adj)))
          (bottom-out (string "Draw the ~A field at ~a due to ~a, then erase the number in the direction slot to indicate that the exact direction is not being specified." (?type adj) ?loc (?source agent)))
           ))
@@ -392,7 +387,7 @@
   ((rdebug "Using draw-point-Efield-unknown ~%")
    ;; Make sure source is point-charge
    (point-charge ?b)
-   ;; make sure it works at the given point
+   ;; make sure it works at the given location
    (given-field ?loc electric ?b :time ?t)
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
@@ -631,7 +626,7 @@
   :preconditions 
   ((rdebug "Using draw-Eforce-unknown ~%")
    (time ?t)
-   (given-field ?loc electric ?source :dir ?dir-e :time ?t-given)
+   (homogeneous-field ?loc electric ?source :dir ?dir-e :time ?t-given)
    (test (tinsidep ?t ?t-given)) 
    (test (or (null ?dir-e) (eq ?dir-e 'unknown)))
    ;; make sure force direction not given, directly or via components:
