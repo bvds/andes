@@ -659,7 +659,7 @@
 (defoperator use-compos-for-dir (?quant-in)
    :preconditions 
    (
-    (inherit-or-quatity ?quant-in ?quant)
+    (inherit-or-quantity ?quant-in ?quant)
     (given (compo x ?rot ?quant) (dnum ?xc ?units))
     (given (compo y ?rot ?quant) (dnum ?yc ?units))
     (not (given (dir ?quant) ?dir-given))

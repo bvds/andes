@@ -2072,6 +2072,7 @@
    (time-or-timeless ?t)
    ;; if dipole-moment is sought, need to bind ?source
    (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
+   (test (tinsidep ?t ?t-given))
    (at-place ?dipole ?region :time ?t ?t)
    (get-axis ?axis ?rot) ;in case ?axis is not bound
   )
