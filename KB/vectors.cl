@@ -519,7 +519,7 @@
    ;; following makes sure has a known dir so we can plug in the numerical
    ;; degree value (this is important for generating the right equation).
    ;; Another operator will handle unknowns in terms of angle variables
-   (test (not (parameter-or-unknownp ?dir)))
+   (test (definite-directionp ?dir))
    ;; Note ?dir may be a z-axis spec or a (dnum n deg)
    (bind ?degrees (second (if (z-dir-spec ?dir) (zdir-phi ?dir) 
 			    ?dir)))

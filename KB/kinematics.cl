@@ -2474,7 +2474,7 @@
    (time ?t) ;explicit time
    (test (tinsidep-include-endpoints ?t ?t-given))
    ;; make sure this is an exact value (no :error term)
-   (test (not (parameter-or-unknownp ?dir-expr)))
+   (test (definite-directionp ?dir-expr))
    ;; make sure this vector not already drawn
    (not (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dont-care))
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
@@ -2531,7 +2531,7 @@
     (given (dir (relative-position ?b2 ?b1 :time ?t-given)) ?opp-dir-expr
 	   . ?whatever)
     ;; make sure that the direction is known, without error
-    (test (not (parameter-or-unknownp ?opp-dir-expr)))
+    (test (definite-directionp ?opp-dir-expr))
     (time ?t)
     (test (tinsidep-include-endpoints ?t ?t-given))
     ;; make sure this vector not already drawn

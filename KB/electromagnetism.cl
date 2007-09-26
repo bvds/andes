@@ -202,7 +202,7 @@
   :preconditions 
   ((rdebug "Using draw-field-vector  ~%")
    (homogeneous-field ?loc ?type ?source :dir ?dir-f :time ?t)
-   (test (and ?dir-f (not (parameter-or-unknownp ?dir-f))))
+   (test (definite-directionp ?dir-f))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
