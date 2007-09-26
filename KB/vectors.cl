@@ -660,8 +660,8 @@
    :preconditions 
    (
     (inherit-or-quatity ?quant-in ?quant)
-    (given (compo x 0 ?quant) (dnum ?xc ?units))
-    (given (compo y 0 ?quant) (dnum ?yc ?units))
+    (given (compo x ?rot ?quant) (dnum ?xc ?units))
+    (given (compo y ?rot ?quant) (dnum ?yc ?units))
     (not (given (dir ?quant) ?dir-given))
     (bind ?dir (dir-from-compos ?xc ?yc))
     )
@@ -672,7 +672,7 @@
 (defoperator use-given-for-dir (?quant-in)
   :preconditions 
   ( 
-   (inherit-or-quantity ?quant-in ?quat)
+   (inherit-or-quantity ?quant-in ?quant)
    ;; in-wm so that it is parallel to above
    (in-wm (given (dir ?quant) ?dir)) 
    )
