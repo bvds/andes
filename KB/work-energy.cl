@@ -668,15 +668,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
  :preconditions (
     (in-wm (use-work))
     (any-member ?sought (
-		  (work 
-?b ?agent :time ?t)
+		  (work ?b ?agent :time ?t)
                   (mag (force ?b ?agent ?type :time ?t))
+		  (angle-between orderless
+				 (force ?b ?agent ?type :time ?t) 
+				 (displacement ?b :time ?t))
 		  ;; see inst-power-contains for the correct way to
 		  ;; find the displacement and still get the ?agent
                   ;; (mag (displacement ?b :time ?t))
-		  ;;
-		  ;; should also have angle-between, but no problem uses
-		  ;; this now.
     			))
     (object ?b)
     (time ?t)
