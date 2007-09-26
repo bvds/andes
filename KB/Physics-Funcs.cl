@@ -253,8 +253,9 @@
       (eq x 'unknown) (eq x 'z-unknown) (parameterp x)))
 
 (defun definite-directionp (x)
-  "A definite direction in x-y plane or on z-axis"
-  (or (degree-specifierp x) (known-z-dir-spec x)))
+  "A definite nonzero direction in x-y plane or on z-axis"
+  (and (not (eq x 'zero))
+       (or (degree-specifierp x) (known-z-dir-spec x))))
 
 (defun degree-specifierp (x &key error)
   "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> |deg| :error ?error) if error flag is set."

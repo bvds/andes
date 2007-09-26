@@ -2465,7 +2465,9 @@
   (
    (at-place ?b ?loc :time ?t ?t)
    (sign-charge ?b ?pos-or-neg)
-   (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B)
+   ;; in principle, the field need not be uniform, but we would
+   ;; need to test ?loc is a point
+   (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-b)
    ;; this may require drawing the velocity vector: 
    (given (dir (velocity ?b :time ?t)) ?dir-V)
    ;; following currently only works for dirs along axis
@@ -2490,7 +2492,7 @@
    ;; bind ?loc, make sure we are connected to right find
    (in-wm (magnetic-force-charge ?b ?loc ?t ?source))
    ;; from find-magnetic-force-charge above
-   (in-wm (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
+   (in-wm (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-b))
    (in-wm (sign-charge ?b ?pos-or-neg))
    ;; this may require drawing the velocity vector: 
    (in-wm (given (dir (velocity ?b :time ?t)) ?dir-V))
@@ -2630,9 +2632,9 @@
 (defoperator find-magnetic-force-current (?b ?t ?source)
   :preconditions 
   (
-  (given (dir (current-length ?b :time ?t)) ?dir-i)
+  (given (dir (current-length ?b :time ?t ?t)) ?dir-i)
   (at-place ?b ?loc :time ?t ?t)
-  (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B)
+  (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-B)
   ;; following currently only works for dirs along axis
   (bind ?F-dir (cross-product-dir ?dir-i ?dir-B))
   ;; make sure we have a non-null direction
@@ -2652,7 +2654,7 @@
    ;; bind ?loc, make sure we are connected to right find
    (in-wm (magnetic-force-current ?b ?loc ?t ?source))
    ;; This is found in find-magnetic-force-current above
-   (in-wm (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
+   (in-wm (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-B))
    (in-wm (given (dir (current-length ?b :time ?t)) ?dir-i))
    ;;
    (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
