@@ -228,7 +228,7 @@
         )) 
 
 
-(defoperator draw-efield-inside-conductor (?loc ?t)
+(defoperator draw-efield-inside-conductor (?loc ?source ?t)
   :preconditions 
   (
    ;; Since the field is zero, the source is not really well-defined.
@@ -3409,6 +3409,8 @@
 	       ( (flux ?surface ?type :time ?t)
 		 (mag (field ?region ?type ?source :time ?t))
 		 (area ?surface)
+		 (angle-between orderless (field ?region ?type ?source :time ?t)
+				(unit-vector normal-to ?surface :time ?t))
 		 ))
    ;; this tests validity of law
    (homogeneous-field ?region ?type ?source :time ?t-given :dir ?dir) 
