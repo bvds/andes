@@ -1206,12 +1206,17 @@
 (defoperator draw-net-field-diagram (?rot ?loc ?type ?t)
  :preconditions 
  (
+  ;; Use vector drawing to get the set of fields:
+;  (setof (inherit-proposition (field ?loc ?type ?source :time ?t) 
+;			      (field ?loc . ?rest)
+;			      (vector ?body-axis (field ?loc . ?rest) ?dir) )
+;	 ?dir ?dirs)
   ;; list of sources from problem statement
   (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
   ;; draw field vectors
   (foreach ?source ?sources
-	   (vector ?source-body (field ?loc ?type ?source :time ?t) ?dir))
-  (vector ?field-axis-owner (net-field ?loc ?type :time ?t) ?dir-net)
+  	   (inherit-vector ?loco (field ?loc ?type ?source :time ?t) ?dir))
+  (inherit-vector ?field-axis-owner (net-field ?loc ?type :time ?t) ?dir-net)
   (axes-for ?field-axis-owner ?rot)
   )
  :effects (
@@ -1220,10 +1225,10 @@
 
 (defoperator write-net-field-compo (?loc ?type ?t ?xy ?rot)
  :preconditions (
-   (variable ?Fnet_x (compo ?xy ?rot (net-field ?loc ?type :time ?t)))
+   (inherit-variable ?Fnet_x (compo ?xy ?rot (net-field ?loc ?type :time ?t)))
    (in-wm (field-sources ?loc ?type ?sources :time ?t ?t))
    (map ?source ?sources 
-   	(variable ?compo-var (compo ?xy ?rot 
+   	(inherit-variable ?compo-var (compo ?xy ?rot 
 				    (field ?loc ?type ?source :time ?t)))
 	?compo-var ?Fi_x)
   )
@@ -1245,12 +1250,10 @@
   :preconditions 
   (
    (time-or-timeless ?t)
-   ;; find all fields that are acting at ?loc, currently
-   ;; this is done by hand in the problem definition
-   ;; (field-sources ?loc ?type ?sources :time ?t ?t)
-   ;; Instead, we use vector drawing to get the set of fields:
-   (setof
-	(vector ?body-axis (field ?loc ?type ?source :time ?t) ?dir) 
+  ;; Use vector drawing to get the set of fields:
+   (setof (inherit-proposition (field ?loc ?type ?source :time ?t) 
+			       (field ?loc . ?rest)
+			       (vector ?body-axis (field ?loc . ?rest) ?dir) )
 	  ?dir ?dirs)
    ;; if all fields have same direction, return direction
    (bind ?net-dir (cond
@@ -1583,7 +1586,7 @@
   :preconditions 
   ((rdebug "Using draw-Electric-Dipole-Moment-vector  ~%")
    (time ?t)
-   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (dipole electric ?dipole ?positive-charge ?negative-charge)
    (given (dir (relative-position ?positive-charge ?negative-charge 
 				  :time ?t-given)) ?dir)
    (test (tinsidep ?t ?t-given))  
@@ -1618,7 +1621,7 @@
   :preconditions 
   ((rdebug "Using draw-Magnetic-Dipole-Moment-vector  ~%")
    (time ?t)
-   (magnetic-dipole ?current-loop ?surface)
+   (dipole magnetic ?current-loop ?surface)
    (given (dir (unit-vector normal-to ?surface :time ?t-given)) ?dir)
    (test (tinsidep ?t ?t-given))  
    (not (given (dir (dipole-moment ?current-loop magnetic :time ?t-mom)) 
@@ -1667,7 +1670,7 @@
 (defoperator electric-dipole-moment-contains (?sought)
   :preconditions 
   ((rdebug "Using electric-dipole-moment-contains  ~%")
-   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (dipole electric ?dipole ?positive-charge ?negative-charge)
    (time ?t)
    (any-member ?sought ((relative-position ?positive-charge
 					       ?negative-charge :time ?t)
@@ -1688,7 +1691,7 @@
   (
    (debug "Using draw-electric-dipole-moment-diagram ~%")
    (not (vector-diagram ?rot (dipole-moment ?dipole electric ?t)))
-   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (dipole electric ?dipole ?positive-charge ?negative-charge)
    ;; may draw charges in diagram for this psm
    (optional (body ?positive-charge))
    (optional (body ?negative-charge))
@@ -1706,7 +1709,7 @@
 (defoperator write-electric-dipole-moment-compo (?dipole ?t ?xy ?rot)
   :preconditions 
   ((debug "Using write-electric-dipole-moment-compo ~%")
-   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (dipole electric ?dipole ?positive-charge ?negative-charge)
    (variable ?p_x  (compo ?xy ?rot (dipole-moment ?dipole electric :time ?t)))
    (variable ?d_x  (compo ?xy ?rot (relative-position 
 				    ?positive-charge 
@@ -1744,7 +1747,7 @@
 (defoperator electric-dipole-moment-mag-contains (?sought)
   :preconditions 
   (
-   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (dipole electric ?dipole ?positive-charge ?negative-charge)
    ;; because of abs(Q), charge is not a sought
    (any-member ?sought ((mag (relative-position ?positive-charge ?negative-charge :time ?t))
 			(mag (dipole-moment ?dipole electric :time ?t))
@@ -1759,7 +1762,7 @@
 (defoperator write-electric-dipole-moment-mag (?dipole ?t)
   :preconditions 
   ((debug "Using write-electric-dipole-moment-mag ~%")
-   (electric-dipole ?dipole ?positive-charge ?negative-charge)
+   (dipole electric ?dipole ?positive-charge ?negative-charge)
    ;; may draw body in diagram for this psm
    (optional (body ?positive-charge))
    (optional (body ?negative-charge))
@@ -1803,7 +1806,7 @@
 (defoperator magnetic-dipole-moment-contains (?sought)
   :preconditions 
   ((rdebug "Using magnetic-dipole-moment-contains  ~%")
-   (magnetic-dipole ?current-loop ?surface)
+   (dipole magnetic ?current-loop ?surface)
    (time ?t)
    (any-member ?sought (
 			(turns ?current-loop)
@@ -1826,7 +1829,7 @@
   (
    (debug "Using draw-magnetic-dipole-moment-diagram ~%")
    (not (vector-diagram ?rot (dipole-moment ?dipole magnetic ?t)))
-   (magnetic-dipole ?dipole ?surface)
+   (dipole magnetic ?dipole ?surface)
    (vector ?dipole (dipole-moment ?dipole magnetic :time ?t) ?dir1) 
    (vector ?surface (unit-vector normal-to ?surface :time ?t) ?dir1) 
    (axes-for ?dipole ?rot)
@@ -1839,7 +1842,7 @@
 (defoperator write-magnetic-dipole-moment-compo (?dipole ?t ?xy ?rot)
   :preconditions 
   ((debug "Using write-magnetic-dipole-moment-compo ~%")
-   (magnetic-dipole ?dipole ?surface)
+   (dipole magnetic ?dipole ?surface)
    (variable ?mu_x (compo ?xy ?rot (dipole-moment ?dipole magnetic :time ?t)))
    (variable ?n_x (compo ?xy ?rot (unit-vector normal-to ?surface :time ?t)))
    (variable ?N (turns ?dipole))
@@ -1873,7 +1876,7 @@
 (defoperator magnetic-dipole-moment-mag-contains (?sought)
   :preconditions 
   (
-   (magnetic-dipole ?dipole ?surface)
+   (dipole magnetic ?dipole ?surface)
    ;; because of abs(Q), charge is not a sought
    (any-member ?sought(
 		       (turns ?dipole)
@@ -1891,7 +1894,7 @@
 (defoperator write-magnetic-dipole-moment-mag (?dipole ?t)
   :preconditions 
   ((debug "Using write-magnetic-dipole-moment-mag ~%")
-   (magnetic-dipole ?dipole ?surface)
+   (dipole magnetic ?dipole ?surface)
    (variable ?magmu (mag (dipole-moment ?dipole magnetic :time ?t)))
    (variable ?N (turns ?dipole))
    (inherit-variable ?I (current-thru ?dipole :time ?t))
@@ -2043,8 +2046,9 @@
 					      :time ?t))
 		(mag (field ?region ?type ?source :time ?t))
 		(mag (dipole-moment ?dipole ?type :time ?t))
-		(dir (field ?region ?type ?source :time ?t))
-		(dir (dipole-moment ?dipole ?type :time ?t))
+		(angle-between orderless 
+			       (dipole-moment ?dipole ?type :time ?t) 
+			       (field ?region ?type ?source :time ?t))
 		))
    (time-or-timeless ?t)
    ;; if dipole-moment is sought, need to bind ?source
@@ -2225,6 +2229,8 @@
   ( ;; Test for electric field acting on object
    (given-field ?region ?type ?source :time ?t-given :dir ?any-dir)
    (test (tinsidep ?t ?t-given))
+   ;; test that object is really a dipole
+   (dipole ?type ?dipole . ?rest)   
    (at-place ?dipole ?region :time ?t ?t)
    )
   :effects ( (ee-var ?dipole ?t (dipole-energy 
@@ -2311,10 +2317,10 @@
    (bind ?teaches 
 	 (if (eq ?type 'electric)
 	     (strcat "The electric dipole energy of a dipole P in an electric field E is given by "
-		     (if ?rot "- (p_x * E_x + p_y * E_y)." 
+		     (if ?rot "- (p_x * E_x + p_y * E_y + p_z * E_z)." 
 			 "- p * E * cos ($q), where $q is the angle between the dipole and electric field vectors."))
 	     (strcat "The magnetic dipole energy of a dipole $m in a magnetic field B is given by "
-		     (if ?rot "- ($m_x * B_x + $m_y * B_y)." 
+		     (if ?rot "- ($m_x * B_x + $m_y * B_y + $m_z * B_z)." 
 			 "- $m * B * cos ($q), where $q is the angle between the dipole and magnetic field vectors."))))
    )
   :effects 
@@ -2465,11 +2471,10 @@
   (
    (at-place ?b ?loc :time ?t ?t)
    (sign-charge ?b ?pos-or-neg)
-   ;; in principle, the field need not be uniform, but we would
-   ;; need to test ?loc is a point
-   (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-b)
-   ;; this may require drawing the velocity vector: 
-   (given (dir (velocity ?b :time ?t)) ?dir-V)
+   ;; Student needs to draw the field and velocity vectors before determining
+   ;; the existence and direction of the associated force.
+   (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-b)
+   (given (dir (velocity ?b :time ?t ?t)) ?dir-V)
    ;; following currently only works for dirs along axis
    (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
    (test ?cross-dir) ; may be NIL on failure
@@ -2492,10 +2497,9 @@
    ;; bind ?loc, make sure we are connected to right find
    (in-wm (magnetic-force-charge ?b ?loc ?t ?source))
    ;; from find-magnetic-force-charge above
-   (in-wm (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-b))
+   (in-wm (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-b))
+   (in-wm (given (dir (velocity ?b :time ?t ?t)) ?dir-V))
    (in-wm (sign-charge ?b ?pos-or-neg))
-   ;; this may require drawing the velocity vector: 
-   (in-wm (given (dir (velocity ?b :time ?t)) ?dir-V))
    ;;
    (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
 			      (time-abbrev ?t)))
@@ -2523,7 +2527,7 @@
  :preconditions 
  (
   (at-place ?b ?loc :time ?t ?t)
-  (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B)
+  (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B)
   ;; this may require drawing the velocity vector: 
   (given (dir (velocity ?b :time ?t)) ?dir-V)
   ;; following currently only works for dirs along axis
@@ -2603,7 +2607,7 @@
   :preconditions 
   (
    (rdebug "Using draw-Bforce-unknown ~%")
-   (homogeneous-field ?loc magnetic ?source :dir ?any-dir-b :time ?t-given)
+   (vector ?loco (field ?loc magnetic ?source :time ?t-given) ?any-dir-b)
    (test (tinsidep ?t ?t-given))
    (object ?b)
    (at-place ?b ?loc :time ?t ?t)
@@ -2634,7 +2638,7 @@
   (
   (given (dir (current-length ?b :time ?t ?t)) ?dir-i)
   (at-place ?b ?loc :time ?t ?t)
-  (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-B)
+  (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B)
   ;; following currently only works for dirs along axis
   (bind ?F-dir (cross-product-dir ?dir-i ?dir-B))
   ;; make sure we have a non-null direction
@@ -2654,7 +2658,7 @@
    ;; bind ?loc, make sure we are connected to right find
    (in-wm (magnetic-force-current ?b ?loc ?t ?source))
    ;; This is found in find-magnetic-force-current above
-   (in-wm (homogeneous-field ?loc magnetic ?source :time ?t ?t :dir ?dir-B))
+   (in-wm (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B))
    (in-wm (given (dir (current-length ?b :time ?t)) ?dir-i))
    ;;
    (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
