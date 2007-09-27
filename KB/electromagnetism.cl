@@ -267,18 +267,19 @@
 
 ;; Can draw field vector if E force dir is given directly
 ;; Generally, this will only work when the feature changing-field is on
-(defoperator draw-Efield-given-force-dir (?b ?t)
+(defoperator draw-Efield-given-force-dir (?b ?source ?t)
   :preconditions 
   ((rdebug "Using draw-Efield-given-force-dir ~%")
-   ;; make sure there is a field but the direction at loc of b is not given, 
-   ;; directly or via components:
-   (given-field ?loc ?electric ?source :time ?t :dir ?dir)
-   (test (null ?dir))
-   (not (given (compo ?xyz ?rot 
-		      (field ?loc electric ?source :time ?t)) ?dontcare2))
+   (time-or-timeless ?t) ;in case ?t is not bound; must be bound for test.
    ;; only use time when allowed by feature changing-field
    (test (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*)))))
+   ;; make sure there is a field but the direction at loc of b is not given, 
+   ;; directly or via components:
+   (given-field ?loc electric ?source :time ?t-given :dir ?dir)
+   (test (and (tinsidep ?t ?t-given) (null ?dir)))
+   (not (given (compo ?xyz ?rot 
+		      (field ?loc electric ?source :time ?t)) ?dontcare2))
    ;; ?b is "test charge" feeling force at loc at some time.
    (at-place ?b ?loc :time ?t-place)
    (test (tinsidep ?t ?p-place))
@@ -311,6 +312,8 @@
 			     (?same-or-opposite adj) ?b (?field-dir adj)))
 	 ))
 
+#|
+;; not using this?
 (defoperator find-given-field-forces-in-region (?b ?loc ?source ?type ?t)
   :preconditions
   (
@@ -322,14 +325,15 @@
 	(or (tinsidep ?t ?t-force) (tinsidep ?t-force ?t)))
    )
 :effects ((given-field-force ?b ?loc ?source ?type :time ?t)))
+|#
 
 ;; this is for drawing a homogeneous field in an un-specified direction
 ;; Many cases of this are ones where the componets are given.
 (defoperator draw-field-unknown (?loc ?type ?source ?t)
   :preconditions 
   (
-   (homogeneous-field ?loc ?type ?source :dir ?dir :time ?t)
-   (test (or (null ?dir) (eq ?dir 'unknown)))
+   (homogeneous-field ?loc ?type ?source :dir ?dir unknown :time ?t)
+   (test (or (eq ?dir 'z-unknown) (eq ?dir 'unknown)))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
@@ -337,8 +341,7 @@
 	     (error "draw-field-unknown bad time slot ~A" ?t)))
    (not (vector ?dontcare (field ?loc ?type ?source :time ?t) ?any-dir))
    ;; test that the force direction is not given
-   (setof (given-field-fore ?b ?loc ?source ?type ?t) ?b ?bb)
-   (test (null ?bb))
+   (not (given (dir (force ?b ?source ?type :time ?t ?t)) ?force-dir))
    ;; inside a conductor is handled differently
    (not (inside-conductor ?loc) (eq ?type 'electric))
    (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
@@ -347,7 +350,7 @@
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
   :effects (
-            (vector ?loc (field ?loc ?type ?source :time ?t) unknown)
+            (vector ?loc (field ?loc ?type ?source :time ?t) ?dir)
             (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
 	    (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
             )
@@ -363,6 +366,7 @@
 (defoperator draw-point-Efield-given-relpos-dir (?b ?loc ?t)
   :preconditions 
   (
+   (time-or-timeless ?t) ;?t Might not be bound; need to bind for test.
    ;; Only include time when appropriate
    (test (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*)))))
@@ -403,12 +407,13 @@
   ((rdebug "Using draw-point-Efield-unknown ~%")
    ;; Make sure source is point-charge
    (point-charge ?b)
+   (time-or-timeless ?t)  ;?t may not be bound
    ;; make sure it works at the given location
-   (given-field ?loc electric ?b)
-   ;; Sanity test for inherit-quantity working OK
-   (test (or (eq (null ?t) 
-		 (null (member 'changing-field (problem-features *cp*))))
-	     (error "draw-point-efield-unknown bad time slot ~A" ?t)))
+   (given-field ?loc electric ?b :time ?t ?t)
+   ;; Sanity test for inherit-quantity working OK (unless ?t is not bound)
+   (test (eq (null ?t) 
+	     (null (member 'changing-field (problem-features *cp*)))))
+	 ;;    (error "draw-point-efield-unknown bad time slot ~A" ?t)))
    ;; make sure ?loc not equals ?loc-source?
    (not (vector ?dontcare (field ?loc electric ?b :time ?t1) ?any-dir))
    (not (given (dir (relative-position ?loc ?b :time ?t-any)) ?whatever1))
@@ -1252,9 +1257,16 @@
    (time-or-timeless ?t)
   ;; Use vector drawing to get the set of fields:
    (setof (inherit-proposition (field ?loc ?type ?source :time ?t) 
-			       (field ?loc . ?rest)
-			       (vector ?body-axis (field ?loc . ?rest) ?dir) )
-	  ?dir ?dirs)
+			       (field ?loc ?type . ?rest)
+			       (vector ?bb (field ?loc ?type . ?rest) ?dir))
+			   ;    (given (dir (field ?loc ?type . ?rest)) ?dir) )
+	 ?dir ?dirs)
+;   (setof (given-field ?loc ?type ?source :time ?t-given :dir ?dir) 
+;	  (?t-given ?dir) ?pairs)
+ ;  (bind ?dirs (mapcar #'second 
+	;	       (remove-if-not 
+		;	#'(lambda (t-given) (tinsidep ?t t-given))
+		;	?pairs :key #'car)))
    ;; if all fields have same direction, return direction
    (bind ?net-dir (cond
 		   ((= (length ?dirs) 1) (first ?dirs))
@@ -2469,11 +2481,14 @@
 (defoperator find-magnetic-force-charge (?b ?t ?source)
   :preconditions 
   (
+   (time-or-timeless ?t)
    (at-place ?b ?loc :time ?t ?t)
    (sign-charge ?b ?pos-or-neg)
    ;; Student needs to draw the field and velocity vectors before determining
    ;; the existence and direction of the associated force.
-   (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-b)
+   (inherit-proposition (field ?loc magnetic ?source :time ?t)
+			(field ?loc magnetic . ?rest)
+			(vector ?loco (field ?loc magnetic . ?rest) ?dir-b))
    (given (dir (velocity ?b :time ?t ?t)) ?dir-V)
    ;; following currently only works for dirs along axis
    (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
@@ -2636,15 +2651,20 @@
 (defoperator find-magnetic-force-current (?b ?t ?source)
   :preconditions 
   (
-  (given (dir (current-length ?b :time ?t ?t)) ?dir-i)
-  (at-place ?b ?loc :time ?t ?t)
-  (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B)
-  ;; following currently only works for dirs along axis
-  (bind ?F-dir (cross-product-dir ?dir-i ?dir-B))
-  ;; make sure we have a non-null direction
-  (test ?F-dir) ; may be NIL on failure
-  (test (not (eq ?F-dir 'zero)))
-  (add-to-wm (magnetic-force-current ?b ?loc ?t ?source))
+   (given (dir (current-length ?b :time ?t ?t)) ?dir-i)
+   (test (tinsidep ?t ?t-given))
+   (at-place ?b ?loc :time ?t-at)
+   (test (tinsidep ?t ?t-at))
+   (inherit-proposition
+    (field ?loc magnetic ?source :time ?t)
+    (field ?loc magnetic . ?rest)
+    (vector ?loco (field ?loc magnetic . ?rest) ?dir-B))
+   ;; following currently only works for dirs along axis
+   (bind ?F-dir (cross-product-dir ?dir-i ?dir-B))
+   ;; make sure we have a non-null direction
+   (test ?F-dir) ; may be NIL on failure
+   (test (not (eq ?F-dir 'zero)))
+   (add-to-wm (magnetic-force-current ?b ?loc ?t ?source))
    )
   :effects (
 	    (force ?b ?source magnetic ?t ?F-dir action)
@@ -2655,6 +2675,7 @@
  :preconditions 
  (
    (force ?b ?source magnetic ?t ?F-dir action)
+   (test (definite-directionp ?F-dir))
    ;; bind ?loc, make sure we are connected to right find
    (in-wm (magnetic-force-current ?b ?loc ?t ?source))
    ;; This is found in find-magnetic-force-current above
@@ -2677,6 +2698,33 @@
         (bottom-out (string "Because the current in ~a has direction ~a and the magnetic field direction is ~a, the right-hand rule determines the direction of force to be ~a. Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in the direction of ~A." 
 			    ?b (?dir-i adj) (?dir-B adj) (?F-dir adj) ?b 
 			    (?source agent) (?F-dir adj)))
+ ))
+
+(defoperator draw-Bforce-current-unknown (?b ?t ?source)
+ :preconditions 
+ (
+   (force ?b ?source magnetic ?t ?F-dir action)
+   (test (member ?F-dir '(unknown z-unknown)))
+   ;; bind ?loc, make sure we are connected to right find
+   (in-wm (magnetic-force-current ?b ?loc ?t ?source))
+   ;; This is found in find-magnetic-force-current above
+   (in-wm (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B))
+   (in-wm (given (dir (current-length ?b :time ?t)) ?dir-i))
+   ;;
+   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+			      (time-abbrev ?t)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+  )
+ :effects (
+            (vector ?b (force ?b ?source magnetic :time ?t) ?F-dir)
+            (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
+            (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
+ )
+ :hint (
+	(point (string "Notice that a current is flowing through ~A and there is a constant magnetic field." ?b)) 
+	(teach (string "The magnetic force vector on a current carrying wire points in a direction perpendicular to the plane formed by the wire and the magnetic field vector, in a direction determined by the right hand rule:  orient your right hand so that your outstretched fingers point in the direction of the current and when you curl them in they point in the direction of the magnetic field.  Your thumb will then point in the direction of the force."))
+        (bottom-out (string "In this case, the direction of the current or the magnetic field was not given (although you may be able to figure it out).  Use the force drawing tool (labeled F) to draw the magnetic force on ~a due to ~a in an unknown direction." 
+			    ?b (?source agent)))
  ))
 
 
