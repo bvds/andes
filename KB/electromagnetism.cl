@@ -2371,10 +2371,10 @@
    (not (given (dir (field ?loc magnetic ?b :time ?t)) ?any-dir))
    )
   :effects (
-           (vector ?loc (field ?loc magnetic ?wire :time ?t) ?dir-B)
-           (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
-           (variable ?dir-var (dir (field ?loc magnetic ?wire :time ?t)))
-           (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
+           (vector ?loc (field ?loc magnetic ?b :time ?t) ?dir-B)
+           (variable ?mag-var (mag (field ?loc magnetic ?b :time ?t)))
+           (variable ?dir-var (dir (field ?loc magnetic ?b :time ?t)))
+           (given (dir (field ?loc magnetic ?b :time ?t)) ?dir-B)
   )
   :hint (
       (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savart law."))
@@ -2398,8 +2398,8 @@
 			      (time-abbrev ?t)))
    )
   :effects (
-           (vector ?loc (field ?loc magnetic ?wire :time ?t) zero)
-           (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
+           (vector ?loc (field ?loc magnetic ?b :time ?t) zero)
+           (variable ?mag-var (mag (field ?loc magnetic ?b :time ?t)))
   )
   :hint (
       (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savart law."))
@@ -2622,8 +2622,9 @@
   :preconditions 
   (
    (rdebug "Using draw-Bforce-unknown ~%")
-   (vector ?loco (field ?loc magnetic ?source :time ?t-given) ?any-dir-b)
-   (test (tinsidep ?t ?t-given))
+   (inherit-proposition (field ?loc magnetic ?source :time ?t-given)
+			(field ?loc magnetic . ?rest)
+			(vector ?loco (field ?loc magnetic . ?rest) ?dir-b))
    (object ?b)
    (at-place ?b ?loc :time ?t ?t)
    ;; Require motion explicitly specified as unknown
