@@ -78,6 +78,7 @@
 	 (leaf mechanical-energy :tutorial "Conservation of Energy")
 	 (leaf change-me :tutorial "Conservation of Energy")
 	 (leaf cons-energy :tutorial "Conservation of Energy")
+	 (leaf potential-energy-definition)
 	 (leaf kinetic-energy :tutorial "Conservation of Energy")
 	 (leaf rotational-energy :tutorial "Conservation of Energy")
 	 (leaf grav-energy :tutorial "Conservation of Energy")

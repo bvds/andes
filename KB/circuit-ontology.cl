@@ -174,6 +174,7 @@
 (def-qexp electric-energy (electric-energy ?body ?source :time ?time)
   ;; custom dialog box "energy"
   :units |J|
+  :short-name "electric potential energy"
   :english ("the electric potential energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 

@@ -1475,9 +1475,11 @@
     (bottom-out (string "Write the equation ~A" ((= ?Vnet (+ . ?Vi)) algebra) ))
   ))
 
-;
-; electric potential energy Ue = q*Vnet
-;
+
+;;;
+;;;    electric potential energy Ue = q*Vnet
+;;;
+
 (def-psmclass electric-energy (electric-energy ?body ?source ?time)
   :complexity major
   :short-name "electric potential energy"

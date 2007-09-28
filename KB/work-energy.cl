@@ -3,6 +3,69 @@
 ;;;;
 ;;;;
 
+;;;
+;;; definition of potential energy in terms of work
+;;;
+
+(def-psmclass potential-energy-definition
+  (potential-energy ?body ?agent ?type ?time)
+  :complexity definition
+  :short-name "definition of potential energy"
+  :english ("the relation of potential energy to work done")
+  :ExpFormat ("relating the ~A potential energy of ~A to work done by ~A"
+		 (nlg ?type 'adj) (nlg ?body) (nlg ?agent))
+  :EqnFormat ("U2 - U1 = -W12" ))
+
+
+
+(defoperator potential-energy-contains-energy (?sought)
+  :preconditions 
+  (
+   (any-member ?sought ( (grav-energy ?body ?agent :time ?t)
+			 (electric-energy ?body ?agent :time ?t)
+			 (dipole-energy ?body ?agent :time ?t)
+			 (spring-energy ?body ?agent :time ?t)
+			 ))
+   (bind ?type (car ?sought))
+   (time (during ?t1 ?t2))
+   (any-member ?t (?t1 ?t2))
+  )
+  :effects (
+   (eqn-contains (potential-energy ?body ?agent ?type (during ?t1 ?t2)) ?sought)
+  ))
+
+
+(defoperator potential-energy-contains-work (?sought)
+  :preconditions 
+  (
+   (any-member ?sought ((work ?body ?agent :time ?t)))
+   (any-member ?type (grav-energy electric-energy dipole-energy
+				    spring-energy))
+  )
+  :effects (
+   (eqn-contains (potential-energy ?body ?agent ?type ?t) ?sought)
+  ))
+
+(defoperator write-potential-energy (?body ?agent ?type ?t1 ?t2)
+  :preconditions 
+  (
+   (variable ?W-var (work ?body ?agent :time (during ?t1 ?t2)))
+   (variable ?U1-var (?type ?body ?agent :time ?t1))
+   (variable ?U2-var (?type ?body ?agent :time ?t2))
+   )
+  :effects (
+    (eqn (= ?W-var (- ?U1-var ?U2-var))
+	 (potential-energy ?body ?agent ?type (during ?t1 ?t2)))
+    )
+  :hint (
+	 (point (string "How does ~A change ~A?" 
+			((?type ?body ?agent) def-np) ((during ?t1 ?t2) pp)))
+	 (teach (string "For a conservative force, the potential energy of a body is defined in terms of the work done on that body."))
+    (bottom-out (string "Write the equation ~A" 
+                         ( (= ?W-var (- ?U1-var ?U2-var)) algebra) ))
+  ))
+
+
 ;;--------------------------------------------------------------------------
 ;;               gravitational potential energy for point
 ;;--------------------------------------------------------------------------
@@ -193,7 +256,7 @@
   )
   :effects (
   (eqn (= ?te1-var ?te2-var) (cons-energy ?b ?t1 ?t2))
-  (assume using-cons-energy ?b ?t1 ?t2)
+  (assume using-energy-conservation cons-energy ?b ?t1 ?t2)
   )
   :hint (
   (point (string "Think about what you can conclude about the total mechanical energy in the system throughout this problem."))
@@ -933,7 +996,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects 
   (
    (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2)))
-   (assume using-work-energy ?b ?t1 ?t2)
+   (assume using-energy-conservation work-energy ?b ?t1 ?t2)
    )
   :hint (
    (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
@@ -975,7 +1038,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
   :effects (
     (eqn (= ?Wnc (- ?ME2 ?ME1)) (change-ME ?b ?t1 ?t2))
-    (assume using-change-me ?b ?t1 ?t2)
+    (assume using-energy-conservation change-me ?b ?t1 ?t2)
   )
   :hint (
    (point (string "Think about what you can conclude about the total mechanical energy in the system throughout this problem."))

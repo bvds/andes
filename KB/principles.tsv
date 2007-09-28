@@ -61,6 +61,7 @@ LEAF	Wnet = Kf - Ki    work-energy theorem	work-energy	Work-Energy
 LEAF	ME = KE + $S Ui    mechanical energy defined	mechanical-energy	Conservation of Energy
 LEAF	Wnc = ME2 - ME1    change in mechanical energy	change-me	Conservation of Energy
 LEAF	ME1 = ME2    [Wnc=0] conservation of mechanical energy	cons-energy	Conservation of Energy
+LEAF	U2 - U1 = -W12    definition of potential energy	potential-energy-definition	
 LEAF	KE = 0.5*m*v^2    kinetic energy defined	kinetic-energy	Conservation of Energy
 LEAF	KE = 0.5*I*$w^2    rotational kinetic energy defined	rotational-energy	Conservation of Energy
 LEAF	Ug = m*g*h    gravitational potential energy	grav-energy	Conservation of Energy
