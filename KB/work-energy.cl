@@ -12,7 +12,7 @@
   :complexity definition
   :short-name "definition of potential energy"
   :english ("the relation of potential energy to work done")
-  :ExpFormat ("relating the ~A potential energy of ~A to work done by ~A"
+  :ExpFormat ("relating the ~A of ~A to the work done by ~A"
 		 (nlg ?type 'adj) (nlg ?body) (nlg ?agent))
   :EqnFormat ("U2 - U1 = -W12" ))
 
@@ -57,12 +57,13 @@
     (eqn (= ?W-var (- ?U1-var ?U2-var))
 	 (potential-energy ?body ?agent ?type (during ?t1 ?t2)))
     )
-  :hint (
-	 (point (string "How does ~A change ~A?" 
-			((?type ?body ?agent) def-np) ((during ?t1 ?t2) pp)))
-	 (teach (string "For a conservative force, the potential energy of a body is defined in terms of the work done on that body."))
-    (bottom-out (string "Write the equation ~A" 
-                         ( (= ?W-var (- ?U1-var ?U2-var)) algebra) ))
+  :hint 
+  (
+   (point (string "How does ~A change ~A?" 
+		  ((?type ?body ?agent) def-np) ((during ?t1 ?t2) pp)))
+   (teach (string "The potential energy of a body is defined in terms of the work done on that body by a conservative force."))
+   (bottom-out (string "Write the equation ~A" 
+		       ( (= (- ?U2-var ?U1-var) (- ?W-var)) algebra) ))
   ))
 
 
