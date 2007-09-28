@@ -1096,9 +1096,7 @@
    (bind ?sign (if (> (* ?val1 ?val2) 0) 'pos 'neg))
    (rdebug "sign-on-charge~%")
    )
-  :effects (
-            (sign-charge ?b ?sign) 
-            ))
+  :effects ((sign-charge ?b ?sign)))
 
 
 ;; Scalar variable definitions:
