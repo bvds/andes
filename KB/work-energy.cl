@@ -931,7 +931,10 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
     (variable ?ke1-var (kinetic-energy ?b :time ?t1))
     (variable ?ke2-var (kinetic-energy ?b :time ?t2)))
   :effects 
-  ((eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2))))
+  (
+   (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2)))
+   (assume using-work-energy ?b ?t1 ?t2)
+   )
   :hint (
    (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
    (teach (string "The work-energy principle states that the net work done on an object by all forces over an interval is equal to the change in its kinetic energy over that interval"))

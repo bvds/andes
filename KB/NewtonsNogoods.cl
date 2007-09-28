@@ -202,3 +202,11 @@
      )
   :specs ("Dont use both cons-energy and change-me")
   :message (Both cons-energy and change-me for ?b))
+
+;; work-energy and change-me are equivalent
+(defnogood work-energy-and-change-me
+    ((using-work-energy ?b ?t1 ?t2)
+     (using-change-me ?b ?t1 ?t2)
+     )
+  :specs ("Dont use both work-energy and change-me")
+  :message (Both work-energy and change-me for ?b))
