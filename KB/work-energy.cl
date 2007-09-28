@@ -61,7 +61,7 @@
   (
    (point (string "How does ~A change ~A?" 
 		  ((?type ?body ?agent) def-np) ((during ?t1 ?t2) pp)))
-   (teach (string "The change in potential energy of a body is defined to be minus the work done on that body by a conservative force."))
+   (teach (string "The change in the potential energy of a body is defined to be minus the work done on that body by a conservative force."))
    (bottom-out (string "Write the equation ~A" 
 		       ( (= (- ?U2-var ?U1-var) (- ?W-var)) algebra) ))
   ))
