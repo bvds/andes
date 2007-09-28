@@ -392,15 +392,16 @@ void CProbSetView::OnUpdateDeleteSolution(CCmdUI* pCmdUI)
 // launch a video from a problem set task
 void CProbSetView::ShowVideo(CTask *pTask)
 {
-	// Displayed names must be of form kt1a-DEMO or kt1a-VIDEO, with problem name left
-	// of first hyphen. Could also put name in task parameter, but this is simpler
-	CString strProblem = pTask->m_strName;  //default if no hyphen
+	// Displayed names normally of form kt1a-DEMO or kt1a-VIDEO, with problem name left
+	// of first hyphen for a video named kt1a.wmv accessed via wrapper page kt1a.html
+	// Might be better to use a task parameter to specify video file, but this is OK.
+	CString strProblem = pTask->m_strName;  // default if no hyphen
 	int iHyphen = pTask->m_strName.Find("-");
-	if (iHyphen) strProblem = pTask->m_strName.Left(iHyphen);
+	if (iHyphen > 0) strProblem = pTask->m_strName.Left(iHyphen);
 
 	// Show the wrapper page, which may be installed locally or on Web.
 
-	// File is html wrapper file. May itself point to web or to 
+	// File is html wrapper file. May itself point to web or to local file
 	theApp.ShowVideoPage(strProblem + ".html");
 
 	// alternative: launch video directly in user's default viewer:
