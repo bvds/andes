@@ -516,7 +516,7 @@
   (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (inherit-variable ?m-var  (mass ?body :time ?t))
   (use-point-for-body ?body ?cm ?axis) ;always use cm
-  (variable ?h-var (height ?cm :time ?t))
+  (inherit-variable ?h-var (height ?cm :time ?t))
   (variable ?g-var (gravitational-acceleration ?planet))
   )
   :effects ((eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
@@ -612,9 +612,21 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			     ((total-energy ?b :time ?t) def-np)))
 	 ))
 
+(defoperator inherit-height-from-motion (?b ?t)
+  :preconditions 
+  ;; assume motion proposition defines largest valid interval
+  ((motion ?b ?type :time ?t-motion :dir ?zero . ?rest)
+   (time ?t)   ;height is always at a particular time
+   (test (and (not (unify ?t ?t-motion)) (tinsidep ?t ?t-motion)))
+   (test (or (eq ?type 'at-rest) 
+	     (and (eq ?type 'straight) (unify ?dir '(dnum 0 . ?z))))))
+  :effects ((inherit-quantity (height ?b :time ?t) 
+			      (height ?b :time ?t-motion))))
+
 (defoperator define-height (?body ?time)
   :preconditions 
-  ( (bind ?h-var (format-sym "h_~A~@[_~A~]" (body-name ?body) (time-abbrev ?time))) )
+  ( (bind ?h-var (format-sym "h_~A~@[_~A~]" (body-name ?body) 
+			     (time-abbrev ?time))) )
   :effects ( (variable ?h-var (height ?body :time ?time))
 	     (define-var (height ?body :time ?time)) )
   :hint (
@@ -691,8 +703,8 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   (
    ;; Draw body and displacement vector
    (vector-diagram ?rot (height-dy ?b ?t))
-   (variable ?h2 (height ?b :time ?t2))
-   (variable ?h1 (height ?b :time ?t1))
+   (inherit-variable ?h2 (height ?b :time ?t2))
+   (inherit-variable ?h1 (height ?b :time ?t1))
    (variable ?d12_y  (compo y ?rot (displacement ?b :time (during ?t1 ?t2))))
    )
   :effects ( (eqn (= (- ?h2 ?h1) ?d12_y) (height-dy ?b (during ?t1 ?t2))) )

@@ -1939,14 +1939,14 @@
 ;;; displacement hint).  This is a specific response to the 
 ;;; displacement as change in height confusion.
 
-(def-error-class displacement-as-hieght-change-bug (?body ?stime ?etime)
+(def-error-class displacement-as-height-change-bug (?body ?stime ?etime)
   ((student (vector (displacement ?body :time (during ?stime ?etime)) ?dir))
    (no-correct (vector (displacement ?body :time (during ?stime ?etime)) ?dir2))
    (old-student (define-var (height ?body :time ?stime)))
    (old-student (define-var (height ?body :time ?etime))))
   :utility 80)
 
-(defun displacement-as-hieght-change-bug (body starttime endtime)
+(defun displacement-as-height-change-bug (body starttime endtime)
   ;; Since they are unused this should suppress warnings and speed the sysytem.
   (declare (ignore Body StartTime EndTime))  
   "Something intelligent is said about the displacement as change in height bug."
