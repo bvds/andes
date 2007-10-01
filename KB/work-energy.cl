@@ -615,11 +615,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 (defoperator inherit-height-from-motion (?b ?t)
   :preconditions 
   ;; assume motion proposition defines largest valid interval
-  ((motion ?b ?type :time ?t-motion :dir ?zero . ?rest)
+  ((motion ?b ?type :time ?t-motion :dir ?dir . ?rest)
    (time ?t)   ;height is always at a particular time
-   (test (and (not (unify ?t ?t-motion)) (tinsidep ?t ?t-motion)))
+   (test (and (not (unify ?t ?t-motion)) 
+	      (tinsidep-include-endpoints ?t ?t-motion)))
+   ;; test that height does not change on this interval
    (test (or (eq ?type 'at-rest) 
-	     (and (eq ?type 'straight) (unify ?dir '(dnum 0 . ?z))))))
+	     (and (eq ?type 'straight) 
+		  (parallel-or-antiparallelp ?dir '(dnum 0 |deg|))))))
   :effects ((inherit-quantity (height ?b :time ?t) 
 			      (height ?b :time ?t-motion))))
 
@@ -705,6 +708,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    (vector-diagram ?rot (height-dy ?b ?t))
    (inherit-variable ?h2 (height ?b :time ?t2))
    (inherit-variable ?h1 (height ?b :time ?t1))
+   (test (not (equalp ?h2 ?h1)))  ;test that parent quantities are distinct
    (variable ?d12_y  (compo y ?rot (displacement ?b :time (during ?t1 ?t2))))
    )
   :effects ( (eqn (= (- ?h2 ?h1) ?d12_y) (height-dy ?b (during ?t1 ?t2))) )
