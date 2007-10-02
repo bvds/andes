@@ -209,7 +209,10 @@
 		 (null (member 'changing-field (problem-features *cp*))))
 	     (error "draw-field-given-dir bad time slot ~A" ?t)))
    (not (vector ?any-body (field ?loc ?type ?source :time ?t) ?dir1))     
-   (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1)
+   (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" 
+			      (cond ((eq ?type 'electric) 'E)
+				    ((eq ?type 'magnetic) 'B)
+				    (t (error "unrecognized type ~A" ?type)))
 			      (body-name ?loc) (body-name ?source) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -344,7 +347,10 @@
    (not (given (dir (force ?b ?source ?type :time ?t ?t)) ?force-dir))
    ;; inside a conductor is handled differently
    (not (inside-conductor ?loc) (eq ?type 'electric))
-   (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
+   (bind ?mag-var (format-sym "~A_~A_~A~@[_~A~]" 
+			      (cond ((eq ?type 'electric) 'E)
+				    ((eq ?type 'magnetic) 'B)
+				    (t (error "unrecognized type ~A" ?type)))
 			      (body-name ?loc) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
