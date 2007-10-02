@@ -504,13 +504,16 @@
 ;;; first occurance in the cons-tree walk of a variable, we switch from this 
 ;;; function to the regular subst-bindings function (KVL)
 
-(defun subst-bindings-quoted(Bindings X)
-   "Returns X with all variable inside a quote, ready for eval'ing"
+(defun subst-bindings-quoted (bindings x)
+   "Returns x with all variables inside a quote, ready for eval'ing"
   (cond ((eq bindings fail) fail)
         ((eq bindings no-bindings) x)
         ((variable-p x)
-         (list 'quote (subst-bindings bindings (lookup x bindings))))
-        ((atom x) x)
+	 (if (get-binding x bindings)
+	     (list 'quote (subst-bindings bindings (lookup x bindings)))
+	     (error "subst-bindings-quoted found unbound variable ~A." x)))
+	((atom x) x)
+	((eq (car x) 'quote) x) ;leave quoted expressions alone
         (t (cons (subst-bindings-quoted bindings (car x))
                  (subst-bindings-quoted bindings (cdr x))))))
 
