@@ -30,7 +30,7 @@
 # or from condition-map. There may be no conditions to set.
 #
 ######################################################################
-my $cvs_version = "$Revision: 1.7 $ ";
+my $revision_string = '$Revision: 1.8 $';
 
 # globals for current log line
 my ($timestamp, $event, $argstr); 
@@ -276,10 +276,12 @@ END_CONTEXT_HDR
       $group =~ tr[a-z][A-Z];
       $group .= "*";
 
+      # extract cvs version number from full revision string
+      ($junk1, $cvs_version, $junk2) = split(" ", $revision_string, 3);
       print <<END_DATASET;
       <dataset> 
            <conversion_date>$conversion_date</conversion_date>
-	   <converter_info>log2xml.pl</converter_info>
+	   <converter_info>log2xml.pl $cvs_version</converter_info>
            <name>$DataSet</name>
 	      $unit_level_begin
 	        <level type='group'><name>$group</name>
