@@ -504,15 +504,27 @@
 ;;; first occurance in the cons-tree walk of a variable, we switch from this 
 ;;; function to the regular subst-bindings function (KVL)
 
-(defun subst-bindings-quoted (bindings x)
-   "Returns x with all variables inside a quote, ready for eval'ing"
+(defun subst-bindings-quoted (bindings x &key unground-ok)
+  "Returns x with all variables inside a quote, ready for eval'ing"
+  ;; If bindings equals no-bindings, we still need to test for 
+  ;; unground variables.
   (cond ((eq bindings fail) fail)
-        ((eq bindings no-bindings) x)
-        ((variable-p x) (list 'quote (subst-bindings bindings x)))
+        ((variable-p x)
+	 (let ((y (subst-bindings bindings x)))
+	   (if (or unground-ok (groundp y))
+	       (list 'quote y)
+	       (error "subst-bindings-quoted unground expression ~A" y))))
 	((atom x) x)
-	((eq (car x) 'quote) x) ;leave quoted expressions alone
-        (t (cons (subst-bindings-quoted bindings (car x))
-                 (subst-bindings-quoted bindings (cdr x))))))
+	;; allow lisp expression to test for variables or report errors
+	((member (car x) '(quote groundp error)) 
+	 (reuse-cons (car x)
+		     (subst-bindings-quoted bindings (cdr x) :unground-ok t)
+		     x))
+        (t (reuse-cons (subst-bindings-quoted bindings (car x) 
+					      :unground-ok unground-ok)
+		       (subst-bindings-quoted bindings (cdr x)
+					      :unground-ok unground-ok)
+		       x))))
 
 
 ;;=============================================================================
