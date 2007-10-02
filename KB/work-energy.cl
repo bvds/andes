@@ -362,6 +362,14 @@
     )
     :effects ( (ee-var ?b ?t (spring-energy ?b ?spring :time ?t) ) ))
 
+(defoperator inherit-kinetic-energy (?b ?planet ?t)
+  ;; inheritance for grav-energy tracks inheritance for velocity
+  :preconditions ((use-point-for-body ?b ?cm ?axis) ;always use axis
+		  (inherit-quantity (mag (velocity ?axis :time ?t))
+				    (mag (velocity ?axis :time ?tt))))
+  :effects ((inherit-quantity (grav-energy ?b :time ?t)
+			      (grav-energy ?b :time ?tt))))
+
 (defoperator define-kinetic-energy-ee-var (?b ?t)
   :preconditions 
   (
@@ -432,11 +440,13 @@
   :preconditions 
   (
    (any-member ?sought ((kinetic-energy ?body :time ?t)
-			(mag (velocity ?body :time ?t))
+			(mag (velocity ?axis :time ?t))
 			(mass ?body :time ?t)))
    (time ?t) ; choose t if sought is mass
-   ;; if we did allow an interval, would need test for constant v
-   (test (time-pointp ?t)) 
+   (use-point-for-body ?body ?cm ?axis)
+   ;; kinetic-energy has same inheritance as (mag (velocity ...))
+   (inherit-or-quantity (mag (velocity ?axis :time ?t))
+			(mag (velocity ?axis :time ?t)))
    )
   :effects (
     (eqn-contains (kinetic-energy ?body ?t) ?sought)
@@ -1336,7 +1346,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 			))
     ;; find axes now, before applying dot product:
     (vector ?b (force ?b ?agent ?type :time ?t) ?dir-f)
-    (vector ?b (velocity ?b :time ?t) ?dir-v)
+    (inherit-vector ?b (velocity ?b :time ?t) ?dir-v)
     ;; If ?rot is unbound, draw-rotate-axes or draw-standard-axes
     ;; etc. will choose the angle.  If it is bound from the ?sought,
     ;; operator will also succeed.
@@ -1434,9 +1444,9 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 		  (test (member ?b2 ?bodies))
 		  (variable ?m1 (mass ?b1))
 		  (variable ?m2 (mass ?b2))
-		  (variable ?vi (compo x 0 (velocity ?b1 :time ?t1)))
-		  (variable ?vvi (compo x 0 (velocity ?b2 :time ?t1)))
-		  (variable ?vf (compo x 0 (velocity ?b1 :time ?t2))))
+		  (inherit-variable ?vi (compo x 0 (velocity ?b1 :time ?t1)))
+		  (inherit-variable ?vvi (compo x 0 (velocity ?b2 :time ?t1)))
+		  (inherit-variable ?vf (compo x 0 (velocity ?b1 :time ?t2))))
   :effects ((solver-eqn (= ?vf (+ (* (/ (- ?m1 ?m2) (+ ?m1 ?m2)) ?vi)
 				    (* (/ (* 2 ?m2) (+ ?m1 ?m2)) ?vvi)))
 			  (elastic-collision ?bodies (during ?t1 ?t2)))))

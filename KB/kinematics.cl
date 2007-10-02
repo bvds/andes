@@ -849,6 +849,7 @@
    (bottom-out (string "Because ~a is at rest ~a, use the velocity tool to draw a zero-length velocity vector for it." ?b (?t pp)))
    ))
 
+
 ;; This operator draws a non-zero velocity vector along the line of
 ;; motion because the object is moving in a straight line during a time
 ;; period that includes the desired time, which was passed in via the
