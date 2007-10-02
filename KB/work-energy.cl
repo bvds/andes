@@ -110,7 +110,7 @@
    (body ?body)   ;this psm draws ?body
    (variable ?m1 (mass ?body))
    (variable ?m2 (mass ?agent))
-   (variable ?Ug (grav-energy ?body ?agent :time ?t))
+   (inherit-variable ?Ug (grav-energy ?body ?agent :time ?t))
    ;; force is on b1 due to b2, so want relative position of center of
    ;; b1 wrt center of b2. 
    (center-of-mass ?cm-body (?body))
@@ -144,7 +144,7 @@
   ))
 
 (defoperator write-gravitational-energy-zero (?body ?agent ?t)
-  :preconditions ((variable ?Ug (grav-energy ?body ?agent :time ?t)))
+  :preconditions ((inherit-variable ?Ug (grav-energy ?body ?agent :time ?t)))
   :effects ((eqn (= ?Ug 0) (gravitational-energy-point ?body ?agent nil ?t)))
   :hint (
 	(teach (string "We define the gravitational potential energy of widely separated bodies to be zero."))
@@ -326,6 +326,15 @@
 ;;; these operators achieve (ee-var ?b ?t ?var) by defining a variable needed 
 ;;; for applicable constituents of the energy of body at t in this 
 ;;; problem
+
+(defoperator inherit-grav-energy (?b ?planet ?t)
+  ;; inheritance for grav-energy tracks inheritance for height
+  :preconditions ((use-point-for-body ?b ?cm ?axis) ;always use cm
+		  (inherit-quantity (height ?cm :time ?t)
+				    (height ?cm :time ?tt)))
+  :effects ((inherit-quantity (grav-energy ?b ?planet :time ?t)
+			      (grav-energy ?b ?planet :time ?tt))))
+
 (defoperator define-grav-ee-var (?b ?t)
     :preconditions 
     (
@@ -500,6 +509,9 @@
     (time ?t)		; must choose if sought is g
     (near-planet ?planet :body ?body ?body)
     (use-point-for-body ?body ?cm ?axis) ;always use cm
+    ;; only use parent for height, since grav-energy has
+    ;; same inheritance
+    (inherit-or-quantity (height ?cm :time ?t) (height ?cm :time ?t))
   )
   :effects (
     (eqn-contains (grav-energy ?body ?planet ?t) ?sought)
@@ -516,7 +528,7 @@
   (variable ?PE-var (grav-energy ?body ?planet :time ?t))
   (inherit-variable ?m-var  (mass ?body :time ?t))
   (use-point-for-body ?body ?cm ?axis) ;always use cm
-  (inherit-variable ?h-var (height ?cm :time ?t))
+  (variable ?h-var (height ?cm :time ?t))
   (variable ?g-var (gravitational-acceleration ?planet))
   )
   :effects ((eqn (= ?PE-var (* ?m-var ?g-var ?h-var)) 
