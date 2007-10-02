@@ -464,7 +464,7 @@
 (defoperator inherit-quantity-new (?child)
   :preconditions 
   (
-   (test (or (and ?child (groundp ?child)) (and ?parent (groundp ?parent))
+   (test (or (groundp ?child) (groundp ?parent)
 	     (error "inherit-quantity:  child ~A or parent ~A must be grounded"
 		    ?child ?parent)))
    (not (inherit-quantity ?child ?parent :composite ?allowed))
@@ -480,7 +480,7 @@
 (defoperator inherit-quantity-wm (?child)
   :preconditions 
   (
-   (test (or (and ?child (groundp ?child)) (and ?parent (groundp ?parent))
+   (test (or (groundp ?child) (groundp ?parent)
 	     (error "inherit-quantity:  child ~A or parent ~A must be grounded"
 		    ?child ?parent)))
    (in-wm (inherit-quantity ?child ?parent :composite ?allowed))
@@ -494,7 +494,7 @@
 (defoperator quantity-no-inherit (?quant ?flag)
   :preconditions 
   (
-   (test (or (and ?quant (groundp ?quant))
+   (test (or (groundp ?quant)
 	     (error "quantity-no-inherit:  ~A must be grounded" ?quant)))
    ;; Apply rule if ?flag or ?quant has no parent.
    (setof (inherit-quantity ?quant ?parent) ?parent ?list1)
@@ -507,7 +507,7 @@
 (defoperator composite-1 (?child ?parent ?grandparent)
   :preconditions 
   (
-   (test (and ?child (groundp ?child)))
+   (test (groundp ?child))
    (inherit-quantity ?child ?parent)
    (inherit-quantity ?parent ?grandparent :composite ?allowed)
    )
@@ -516,7 +516,7 @@
 (defoperator composite-2 (?child ?parent ?grandparent)
   :preconditions 
   (
-   (test (and ?grandparent (groundp ?grandparent)))
+   (test (groundp ?grandparent))
    (inherit-quantity ?parent ?grandparent)
    (inherit-quantity ?child ?parent :composite ?allowed)
    )

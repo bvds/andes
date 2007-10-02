@@ -508,10 +508,7 @@
    "Returns x with all variables inside a quote, ready for eval'ing"
   (cond ((eq bindings fail) fail)
         ((eq bindings no-bindings) x)
-        ((variable-p x)
-	 (if (get-binding x bindings)
-	     (list 'quote (subst-bindings bindings (lookup x bindings)))
-	     (error "subst-bindings-quoted found unbound variable ~A." x)))
+        ((variable-p x) (list 'quote (subst-bindings bindings x)))
 	((atom x) x)
 	((eq (car x) 'quote) x) ;leave quoted expressions alone
         (t (cons (subst-bindings-quoted bindings (car x))

@@ -162,7 +162,7 @@
    (test (eq (null ?t) 
 	     (null (member 'changing-voltage (problem-features *cp*)))))
    ;; inheritance mechanism assumes one quantity is grounded
-   (test (or (and ?what (groundp ?what)) (and ?branch (groundp ?branch))
+   (test (or (groundp ?what) (groundp ?branch)
 	     (error "current-thru-what:  child ~A or parent ~A must be grounded" 
 		    ?what ?branch)))
    (inherit-quantity (current-thru ?what :time ?t) 
