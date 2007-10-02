@@ -707,8 +707,8 @@
   
   :preconditions (
     (variable ?f-var (mag (force ?b ?medium drag :time ?t)))
-    (variable ?v-var (mag (velocity ?b :time ?t)))
-    (variable ?k-var (coef-drag ?b ?medium :type turbulent :time ?t))
+    (inherit-variable ?v-var (mag (velocity ?b :time ?t)))
+    (inherit-variable ?k-var (coef-drag ?b ?medium :type turbulent :time ?t))
   )
   :effects (
     (eqn (= ?f-var (* ?k-var (^ ?v-var 2))) 
@@ -1026,7 +1026,7 @@
 (defoperator draw-thrust-force (?b ?agent ?t)
   :preconditions
   ( (force ?b ?agent thrust ?t ?dir action)
-    (test (not (equal ?dir-expr 'unknown)))
+    (test (not (equal ?dir 'unknown)))
     (not (vector ?b (force ?b ?agent thrust :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "Fth_~A_~A~@[_~A~]" (body-name ?b) ?agent
 			       (time-abbrev ?t)))

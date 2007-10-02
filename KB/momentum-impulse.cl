@@ -648,10 +648,11 @@
 	       ((impulse ?b ?agent :time ?t)
 		(force ?b ?agent ?type :time ?t)
 		(duration ?t)))
-   (object ?b)
-   (time ?t)
-   (test (member ?b ?bodies :test #'equal)) 
-   (test (member ?agent ?bodies :test #'equal)) 
+   (object ?b) ;sanity test
+   (time ?t) ;sanity test
+   (any-member ?b ?bodies)
+   (any-member ?agent ?bodies)
+   (test (not (eq ?b ?agent)))
    (test (time-intervalp ?t)))
   :effects 
    ((eqn-family-contains (impulse-force-vector ?b ?agent ?t) ?sought)

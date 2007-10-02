@@ -285,7 +285,7 @@
 		      (field ?loc electric ?source :time ?t)) ?dontcare2))
    ;; ?b is "test charge" feeling force at loc at some time.
    (at-place ?b ?loc :time ?t-place)
-   (test (tinsidep ?t ?p-place))
+   (test (tinsidep ?t ?t-place))
    ;; make sure direction of force on ?b is given
    ;; (given (dir (force ...)) ...) is a side-effect of several drawing rules;
    ;; need in-wm to prevent recursion with find-electric-force-given-field-dir
@@ -1496,26 +1496,27 @@
 
 (defoperator electric-energy-contains (?sought)
   :preconditions (
-    (any-member ?sought ((electric-energy ?body ?source :time ?t) 
+    (any-member ?sought ((electric-energy ?body ?e-source :time ?t) 
                          (net-potential ?loc :time ?t)
 			 (charge ?body :time ?t)
 			 ))
     (time ?t)
-    ; if sought is net-potential, must bind body: 
+    ;; if sought is net-potential, must bind body: 
     (in-wm (at-place ?body ?loc :time ?t ?t))
-    ; if sought is not energy, must bind source for energy quantity
-    ; This will be single named source if known, else "electric_field" if more 
-    ; than one source or unspecified.
+    ;; if sought is not energy, must bind source for energy quantity
+    ;; This will be single named source if known, else "electric_field" 
+    ;; if more than one source or unspecified.
     (in-wm (field-sources ?loc electric ?sources :time ?t ?t))
-    (bind ?source (cond (?source)    ; no change if already bound
-			; if a single source and not = unspecified, use it
+    (bind ?source (cond ((groundp ?e-source) ?e-source) ;use electric-energy 
+			;; if a single source and not = unspecified, use it
                         ((and (null (cdr ?sources))
-			      (not (eq (car ?sources) 'unspecified))) (car ?sources))
+			      (not (eq (car ?sources) 'unspecified))) 
+			 (car ?sources))
 			(T 'electric_field)))
-  )
+    )
   :effects (
-    (eqn-contains (electric-energy ?body ?source ?t) ?sought)
-  ))
+	    (eqn-contains (electric-energy ?body ?source ?t) ?sought)
+	    ))
 
 (defoperator write-electric-energy (?body ?source ?t)
   :preconditions (
@@ -2429,8 +2430,7 @@
 		 (null (member 'changing-field (problem-features *cp*))))
 	     (error "draw-bfield-straight-current bad time slot ~A" ?t)))
    (bind ?dir-B (cross-product-dir ?dir-l ?dir-r))
-   (test ?dir-B)
-   (test (not (eq ?B-dir 'zero)))
+   (test (not (eq ?dir-B 'zero)))
    (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" 
 			      (body-name ?loc) (body-name ?wire) 
 			      (time-abbrev ?t)))
@@ -2659,7 +2659,6 @@
   :preconditions 
   (
    (given (dir (current-length ?b :time ?t ?t)) ?dir-i)
-   (test (tinsidep ?t ?t-given))
    (at-place ?b ?loc :time ?t-at)
    (test (tinsidep ?t ?t-at))
    (inherit-proposition
@@ -2835,6 +2834,7 @@
    (axes-for ?b ?rot) ;?rot not bound if charge is sought
    (time ?t) ;sanity test
    (get-axis ?axis ?rot)  ;iterate over components
+   (get-axis ?not-axis ?rot) ;bind ?not-axis if not bound above
    (test (not (exactly-equal ?axis ?not-axis)))
    (any-member ?flag (t nil))
    (test (if ?flag (not (eq (car ?sought) 'mag))
@@ -3870,7 +3870,7 @@
    (amperes-law ?line-integral :surface ?S :currents ?wires . ?rest)
    (any-member ?sought ((current-thru ?wire)
 			?line-intgral))
-   (test (member ?wire ?wires))
+   (any-member ?wire ?wires)
    )
   :effects
   ( (eqn-contains (amperes-law :surface ?S) ?sought)))

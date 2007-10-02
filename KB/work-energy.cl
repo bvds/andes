@@ -362,13 +362,13 @@
     )
     :effects ( (ee-var ?b ?t (spring-energy ?b ?spring :time ?t) ) ))
 
-(defoperator inherit-kinetic-energy (?b ?planet ?t)
+(defoperator inherit-kinetic-energy (?b ?t)
   ;; inheritance for grav-energy tracks inheritance for velocity
   :preconditions ((use-point-for-body ?b ?cm ?axis) ;always use axis
 		  (inherit-quantity (mag (velocity ?axis :time ?t))
 				    (mag (velocity ?axis :time ?tt))))
-  :effects ((inherit-quantity (grav-energy ?b :time ?t)
-			      (grav-energy ?b :time ?tt))))
+  :effects ((inherit-quantity (kinetic-energy ?b :time ?t)
+			      (kinetic-energy ?b :time ?tt))))
 
 (defoperator define-kinetic-energy-ee-var (?b ?t)
   :preconditions 
@@ -1026,12 +1026,14 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
 ;;; Write work = delta ke without writing out values for the ke terms.
 (defoperator write-work-energy (?b ?t1 ?t2)
   :preconditions 
-   ( ; draw body and standard axes for principle
+   ( ; draw body for principle
     (body ?b)
-    (axes-for ?b 0)
     (variable ?Wnet-var (net-work ?b :time (during ?t1 ?t2)))
-    (variable ?ke1-var (kinetic-energy ?b :time ?t1))
-    (variable ?ke2-var (kinetic-energy ?b :time ?t2)))
+    (inherit-variable ?ke1-var (kinetic-energy ?b :time ?t1))
+    (inherit-variable ?ke2-var (kinetic-energy ?b :time ?t2))
+    ;; in case of inheritance, don't apply law
+    (test (not (unify ?ke1-var ?ke2-var)))
+    )
   :effects 
   (
    (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2)))
@@ -1039,8 +1041,28 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
    )
   :hint (
    (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
-   (teach (string "The work-energy principle states that the net work done on an object by all forces over an interval is equal to the change in its kinetic energy over that interval"))
+   (teach (string "The work-energy principle states that the net work done on an object by all forces over an interval is equal to the change in its kinetic energy over that interval."))
   (bottom-out (string "Write the equation ~A" ((= ?Wnet-var (- ?ke2-var ?ke1-var)) algebra)))  ))
+
+;;; Write work = delta ke without writing out values for the ke terms.
+(defoperator write-work-energy-zero (?b ?t1 ?t2)
+  :preconditions 
+   ( ; draw body for principle
+    (body ?b)
+    (variable ?Wnet-var (net-work ?b :time (during ?t1 ?t2)))
+    (inherit-or-quantity (kinetic-energy ?b :time ?t1) ?parent)
+    (inherit-or-quantity (kinetic-energy ?b :time ?t2) ?parent)
+    )
+  :effects 
+  (
+   (eqn (= ?Wnet-var 0) (work-energy ?b (during ?t1 ?t2)))
+   (assume using-energy-conservation work-energy ?b ?t1 ?t2)
+   )
+  :hint (
+   (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
+   (teach (string "The work-energy principle states that the net work done on an object by all forces over an interval is equal to the change in its kinetic energy over that interval."))
+  (bottom-out (string "In this case, the kinetic energy does not change ~A.  Write the equation ~A" 
+		      ((during ?t1 ?t2) pp) ((= ?Wnet-var 0) algebra)))  ))
 
 
 ;; Change in mechanical energy: Wnc = ME2 - ME1
