@@ -333,18 +333,22 @@
 	      (nlg ?waven) (nlg ?wave1))
   :eqnFormat ("fn = n*f1 or $ln = $l1/n"))
 
-(defoperator harmonic-of-contains (?sought)
+(defoperator harmonic-of-contains-wavelength (?sought)
   :preconditions 
   ( (harmonic-of ?waven ?mult ?wave1)
-    (any-member ?sought (
-			 (wavelength ?waven ?medium)
-			 (frequency ?waven)
-			 (wavelength ?wave1 ?medium)
-			 (frequency ?wave1)))
-    ;; ?form is nil for frequency and ?medium for wavelength
-    (bind ?form (if (eq (first ?sought) 'wavelength) ?medium))
+    (any-member ?sought ((wavelength ?waven ?medium)
+			 (wavelength ?wave1 ?medium)))
     )
-  :effects ( (eqn-contains (harmonic-of ?waven ?wave1 ?form) ?sought)
+  :effects ( (eqn-contains (harmonic-of ?waven ?wave1 ?medium) ?sought)
+	     ))
+
+(defoperator harmonic-of-contains-frequency (?sought)
+  :preconditions 
+  ( (harmonic-of ?waven ?mult ?wave1)
+    (any-member ?sought ((frequency ?waven)
+			 (frequency ?wave1)))
+    )
+  :effects ( (eqn-contains (harmonic-of ?waven ?wave1 nil) ?sought)
 	     ))
 
 (defoperator write-harmonic-of (?waven ?wave1)
