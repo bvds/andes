@@ -2821,7 +2821,8 @@
   (cond ((eq axis 'x) "F_x = q*(v_y*B_z - v_z*B_y)")
 	((eq axis 'y) "F_y = q*(v_z*B_x - v_x*B_z)")
 	((eq axis 'z) 
-	 "F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)")))
+	 "F_z = q*v*B*sin($qB-$qv) or F_z = q*(v_x*B_y - v_y*B_x)")
+	(t (error "charge-force-bfield-equation invalid axis ~A" axis))))
 
 (defoperator charge-force-Bfield-contains (?sought)
   :preconditions 
