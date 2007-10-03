@@ -730,7 +730,7 @@
 			       :hint ?hint "The two quantities are equal."))
    (variable ?v1 ?quant1)
    (variable ?v2 ?quant2)
-   (bind ?v2-term (if ?flag `(- ,?v2) ?v2)))
+   (bind ?v2-term (if ?flag '(- ?v2) ?v2)))
   :effects 
   ((eqn (= ?v1 ?v2-term) (equals ?quant1 ?quant2 :opposite ?flag :constant nil)))
   :hint

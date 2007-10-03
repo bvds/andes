@@ -1506,7 +1506,7 @@
     ;; This will be single named source if known, else "electric_field" 
     ;; if more than one source or unspecified.
     (in-wm (field-sources ?loc electric ?sources :time ?t ?t))
-    ;; if a single source and not = unspecified, use it
+    ;; if a single source and not = unspecified, use it.
     (bind ?source (if (and (null (cdr ?sources))
 			   (not (eq (car ?sources) 'unspecified)))
 		      (car ?sources)
@@ -3264,7 +3264,7 @@
    (use-for-turns ?N ?coil :loop ?flag)
    (variable ?r	(radius-of-circle ?coil))
    (inherit-variable ?B (mag (field ?point magnetic ?coil :time ?t)))
-   (bind ?rhs (if ?N `(* |mu0| ,?N ,?I) `(* |mu0| ,?I)))
+   (bind ?rhs (if ?N '(* |mu0| ?N ?I) '(* |mu0| ?I)))
    )
   :effects ( 
 	    (eqn (= (* 2 ?r ?B) ?rhs)
@@ -3806,7 +3806,7 @@
   (inherit-variable ?V (voltage-across ?R :time ?t))
   (variable ?Phi-var (rate-of-change (flux ?surface magnetic :time ?t)))
   (variable ?turn-var (turns ?R))
-  (bind ?phi-term (if ?turn-flag `(* ,?turn-var ,?Phi-var) ?Phi-var))
+  (bind ?phi-term (if ?turn-flag '(* ?turn-var ?Phi-var) ?Phi-var))
  )
  :effects 
  ( (eqn (= ?Phi-term (- ?V)) (faradays-law ?surface ?t)) )

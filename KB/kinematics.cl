@@ -46,8 +46,8 @@
    (time (during ?ti ?t2))
    (any-member ?t ((during ?t1 ?ti) (during ?ti ?t2) (during ?t1 ?t2)))
    ;; so we don't overlap the other version of the rule
-   (test (not (and (time-consecutivep `(during ,?t1 ,?ti))
-		   (time-consecutivep `(during ,?ti ,?t2)))))
+   (test (not (and (time-consecutivep '(during ?t1 ?ti))
+		   (time-consecutivep '(during ?ti ?t2)))))
    )
   :effects (
     (eqn-contains (sum-times (during ?t1 ?t2) :middle ?ti) ?quant)
@@ -2223,7 +2223,7 @@
    ;; sought may not bind t1 & t2, so choose endpoints of interval to try
    (constant (accel ?b) ?t-constant . ?whatever)
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+   (test (tinsidep '(during ?t1 ?t2) ?t-constant))
    )
   :effects
    ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
@@ -2308,7 +2308,7 @@
    ;; to try
    (constant (accel ?b) ?t-constant . ?whatever)
    (time (during ?t1 ?t2))	;ensure both endpoints to try bound
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+   (test (tinsidep '(during ?t1 ?t2) ?t-constant))
    )
   :effects
    ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
@@ -2404,7 +2404,7 @@
    ;; only applies if accel is constant so child of lk.
    (constant (accel ?b) ?t-constant . ?whatever)
    (time (during ?t1 ?t2))	; ensure both endpoints to try bound
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+   (test (tinsidep '(during ?t1 ?t2) ?t-constant))
    )
   :effects
    ((eqn-family-contains (lk ?b (during ?t1 ?t2)) ?quantity)
@@ -3355,7 +3355,7 @@
    ; only applies if accel is constant within interval we are using
    (time (during ?t1 ?t2))  ; ensure both endpoints bound
    (constant (ang-accel ?b) ?t-constant . ?whatever)
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+   (test (tinsidep '(during ?t1 ?t2) ?t-constant))
   )
  :effects 
  ((eqn-family-contains (rk ?b (during ?t1 ?t2)) ?sought)
@@ -3416,7 +3416,7 @@
    ; only applies if accel is constant within interval we are using
    (time (during ?t1 ?t2))  ; ensure both endpoints bound
    (constant (ang-accel ?b) ?t-constant . ?whatever)
-   (test (tinsidep `(during ,?t1 ,?t2) ?t-constant))
+   (test (tinsidep '(during ?t1 ?t2) ?t-constant))
   )
  :effects 
  (
