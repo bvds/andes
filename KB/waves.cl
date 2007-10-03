@@ -1060,7 +1060,7 @@
 	  (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting intensity."  
 		  ((intensity ?wave ?agent :time ?t) def-np)))))
 
-(def-qexp intensity-at (intensity ?body at ?position)
+(def-qexp intensity-at (intensity ?body at ?position :time ?time)
   :symbol-base |I|
   :short-name "intensity"
   :dialog-text "at [body:positions] of [body2:bodies]"

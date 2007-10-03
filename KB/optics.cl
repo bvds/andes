@@ -976,7 +976,7 @@
   :short-name "interference for parallel slits"
   :english ("the interference pattern for waves going through parallel slits")
   :ExpFormat ("finding the angles for ~:[constructive~;destructive~] interference"
-	      ?flag)
+	      ?max-flag)
   :EqnFormat ("d*sin($q) = n*$l")) 
 
 (defoperator slit-interference-contains-max (?sought)

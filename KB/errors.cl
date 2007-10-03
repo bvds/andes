@@ -1658,7 +1658,6 @@
   :probability
   (+ 0.1 
      (if (equal ?sargs ?cargs) 0.2 0.0)
-     (if (equal ?stime ?ctime) 0.1 0.0)
      (if (equal ?sdir ?cdir)   0.1 0.0)))
 
 (defun default-vector-body (correct-body wrong-body)

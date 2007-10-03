@@ -2118,7 +2118,8 @@
 ;; parallel with sdd-constvel.  It might be better to group this
 ;; with lk-no-s as part of a common eqn-family (like NFL and NSL
 ;; are parts of NL). 
-(def-psmclass const-v (?eq-type const-v ?axis ?rot (lk ?body (during ?time0 ?te1))) 
+(def-psmclass const-v (?eq-type const-v ?axis ?rot 
+				(lk ?body (during ?time0 ?time1))) 
   :group lk
   :complexity minor
   :english ("constant velocity")

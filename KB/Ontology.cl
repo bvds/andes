@@ -139,7 +139,7 @@
 (def-qexp relative-position (relative-position ?to-pt ?from-pt :time ?time)
   :units |m|
   :english ("the relative position of ~A with respect to ~A" 
-	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?t)))
+	    (nlg ?to-pt) (nlg ?from-pt 'at-time ?time)))
 (def-qexp displacement (displacement ?body :time ?time)
   :units |m|
   :english ("the displacement of ~A" (nlg ?body 'at-time ?time)))
