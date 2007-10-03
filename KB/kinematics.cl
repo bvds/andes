@@ -1235,7 +1235,7 @@
    ;; BvdS:  why not this form for forces?
    ;;(in-wm (dir (force ?b1 ?b2 thrust :time ?t)))
    (force ?b2 ?b1 thrust ?t ?dir-force ?action)
-   (test (not (equal ?dir 'unknown)))
+   (test (not (eq ?dir-force 'unknown)))
    (not (given (dir (relative-vel ?b1 ?b2 :time ?t-given)) ?whatever)
 	(tinsidep ?t ?t-given))
    (not (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dont-care)) ;not already drawn

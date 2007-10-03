@@ -2034,6 +2034,7 @@
 			;; also contains I0
 			))
    ;; this applies to any t2 between t1 and tf
+   (time ?t2) ;in case it is not bound by ?sought
    (test (time-pointp ?t2))
    (test (<= ?t2 ?tf))
    )

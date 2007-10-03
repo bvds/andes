@@ -1496,27 +1496,29 @@
 
 (defoperator electric-energy-contains (?sought)
   :preconditions (
-    (any-member ?sought ((electric-energy ?body ?e-source :time ?t) 
-                         (net-potential ?loc :time ?t)
+    (any-member ?sought ((net-potential ?loc :time ?t)
 			 (charge ?body :time ?t)
 			 ))
-    (time ?t)
+    (time ?t) ;sanity test
     ;; if sought is net-potential, must bind body: 
     (in-wm (at-place ?body ?loc :time ?t ?t))
     ;; if sought is not energy, must bind source for energy quantity
     ;; This will be single named source if known, else "electric_field" 
     ;; if more than one source or unspecified.
     (in-wm (field-sources ?loc electric ?sources :time ?t ?t))
-    (bind ?source (cond ((groundp ?e-source) ?e-source) ;use electric-energy 
-			;; if a single source and not = unspecified, use it
-                        ((and (null (cdr ?sources))
-			      (not (eq (car ?sources) 'unspecified))) 
-			 (car ?sources))
-			(T 'electric_field)))
+    ;; if a single source and not = unspecified, use it
+    (bind ?source (if (and (null (cdr ?sources))
+			   (not (eq (car ?sources) 'unspecified)))
+		      (car ?sources)
+		      'electric_field))
     )
-  :effects (
-	    (eqn-contains (electric-energy ?body ?source ?t) ?sought)
-	    ))
+  :effects ((eqn-contains (electric-energy ?body ?source ?t) ?sought)))
+
+(defoperator electric-energy-contains-energy (?sought)
+  :preconditions 
+  ((any-member ?sought ((electric-energy ?body ?source :time ?t) ))
+   (time ?t)) ;sanity test
+  :effects ((eqn-contains (electric-energy ?body ?source ?t) ?sought)))
 
 (defoperator write-electric-energy (?body ?source ?t)
   :preconditions (
