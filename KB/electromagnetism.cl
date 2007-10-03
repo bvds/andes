@@ -2035,7 +2035,8 @@
 	((eq xyz 'z) 
 	 (torque-switch 
 	  "M_z = p*E*sin($qE-$qp) or M_z = p_x*E_y - p_y*E_x"
-	  "$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x"))))
+	  "$t_z = p*E*sin($qE-$qp)) or $t_z = p_x*E_y - p_y*E_x"))
+	(t (error "electric-dipole-equations invalid axis ~A" xyz))))
 
 (def-psmclass magnetic-dipole-torque 
   (dipole-torque ?dipole (field ?region magnetic ?source) ?axis ?rot ?flag ?t) 
@@ -2056,7 +2057,8 @@
 	((eq xyz 'z) 
 	 (torque-switch 
 	  "M_z = $m*B*sin($qB-$q$m) or M_z = $m_x*B_y - $m_y*B_x"
-	  "$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x"))))
+	  "$t_z = $m*B*sin($qB-$q$m)) or $t_z = $m_x*B_y - $m_y*B_x"))
+	(t (error "magnetic-dipole-equation invalid axis ~A" xyz))))
 
 (defoperator dipole-torque-contains-angle (?sought)
   :preconditions 
@@ -3100,7 +3102,8 @@
 (defun biot-savert-law-equation (xyz)
   (cond ((eq xyz 'x) "B_x = $m0*q*(v_y*n_z - v_z*n_y)/(4*$p*r^2)")
 	((eq xyz 'y) "B_y = $m0*q*(v_z*n_x - v_x*n_z)/(4*$p*r^2)")
-	((eq xyz 'z) "B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)")))
+	((eq xyz 'z) "B_z = $m0*q*v*sin($qn-$qv)/(4*$p*r^2) or B_z = $m0*q*(v_x*n_y - v_y*n_x)/(4*$p*r^2)")
+	(t (error "biot-savert-law-equation invalid axis ~A" xyz))))
 
 (defoperator biot-savert-point-particle-contains-angle (?sought)
   :preconditions 
