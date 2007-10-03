@@ -70,6 +70,7 @@
 
 (defun time-pointp (x)
    "Non-null if the argument is a time-point."
+   (unless (groundp x) (error "time-pointp for time ~A" x))
    (and (integerp x) (not (minusp x))))
 
 
@@ -262,6 +263,7 @@
 
 (defun degree-specifierp (x &key error)
   "Non-null if the argument has the form (dnum <number> |deg|) or (dnum <number> |deg| :error ?error) if error flag is set."
+  (unless (groundp x) (error "degree-specifierp with unbound ~A" x))
   (and (unify x (if error '(dnum ?val |deg| :error ?err) '(dnum ?val |deg|)))
 	      (numberp (second x))))
 
@@ -471,6 +473,7 @@
   ;; NB: equations on rotational problems can have (DNUM $p rad/s). 
   ;; We return NIL to prevent second arg from being used as a number
   ;; Means this doesn't test just for dnum-termhood.
+  (unless (groundp x) (error "dimensioned-numberp with unbound ~A" x))
   (and (unify x '(dnum ?val ?units :error ?err))
        (numberp (second x))))
 
@@ -554,6 +557,7 @@
 ;; for all possibly-time-indexed quantity expressions:
 (defun remove-time (expr)
   "remove any time from quantity"
+  (unless (groundp expr) (error "remnove-time with unbound ~A" expr))
   (cond ((atom expr) expr)
 	((member ':time expr) 
 	 (let* ((key (member ':time expr)) 

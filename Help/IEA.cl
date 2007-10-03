@@ -1,8 +1,8 @@
-#|;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; IEA.cl
 ;;; Collin Lynch
 ;;;
-;;; This file encapsulates the intended principle appleication
+;;; This file encapsulates the intended principle application
 ;;; help system.  This system is intended to supplement WWH
 ;;; By eliciting from the student what equation they intended
 ;;; to write and the guiding them to produce it.  As necessary
@@ -66,7 +66,7 @@
 ;;; If we know what entry the student is trying to make, it might
 ;;; be possible to have it supplied here and then simply move into 
 ;;; the prompting "what do you need to do that" component of part 2.
-|#
+
 
 ;;;; ======================= Parameters ==============================
 
@@ -183,7 +183,7 @@
 (defun iea-platonic-prompt (Equation Bindings)
   (make-dialog-turn
    (format Nil **IEA-platonic-form** 
-	   (nlg-bind Equation #'PSMClass-eqnformat Bindings)) 
+	   (eval-print-spec (Psmclass-EqnFormat Equation) bindings))
     Nil ;; Menu is nil so that no response wil occur.
    :Assoc `(IEA platonic-prompt ,(PSMClass-name Equation))))
 
@@ -249,8 +249,8 @@
 (defun iea-prompt-alt-axes-yes (Equation Bindings NewAxis)
   (let ((NewBinds (change-bindings '?Axis NewAxis Bindings)))
     (make-dialog-turn 
-     (format Nil **IEA-alt-axes-yes** 
-	     (nlg-bind Equation #'PSMClass-eqnformat NewBinds))
+     (format Nil **IEA-alt-axes-yes**
+	     (eval-print-spec (PSMClass-EqnFormat Equation) NewBinds))
      Nil ;; Menu is nil so no excess entry is sent.
      :Assoc `(IEA prompt-alt-axes-yes ,(PSMClass-name Equation) ,Bindings ,NewAxis))))
 
