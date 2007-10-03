@@ -74,17 +74,20 @@
 
 
 (defun tinsidep (t1 t2)
-   "non-null if the first time is inside the second time."
-   (cond ((null t2) t) ;timeless is expressed as null time
-	 ((time-pointp t1)
-	  (cond ((time-intervalp t2)
-		 (< (second t2) t1 (third t2)))
-		((time-pointp t2)
-		 (equal t1 t2))))
-	 ((time-intervalp t1)
-	  (cond ((time-intervalp t2)
-		 (<= (second t2) (second t1) (third t1) (third t2)))))))
-
+  "non-null if the first time is inside the second time."
+  (cond ((null t2) t) ;timeless is expressed as null time
+	((time-pointp t1)
+	 (cond ((time-intervalp t2) (< (second t2) t1 (third t2)))
+	       ((time-pointp t2) (equal t1 t2))
+	       (t (error "tinsidep invalid time ~A" t2))))
+	((time-intervalp t1)
+	 (cond ((time-intervalp t2)
+		(<= (second t2) (second t1) (third t1) (third t2)))
+	       ((time-pointp t2) nil)
+	       (t (error "tinsidep invalid time ~A" t2))))
+	((null t1) nil) ;timeless never inside any time
+	(t (error "tinsidep invalid time ~A" t1))))
+	
 (defun tendpointp (t1 t2)
   "true is first time is an endpoint of the second time"
   (and (time-intervalp t2) (or (equal t1 (second t2)) (equal t1 (third t2)))))
