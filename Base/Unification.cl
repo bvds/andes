@@ -515,8 +515,10 @@
 	       (list 'quote y)
 	       (error "subst-bindings-quoted unground expression ~A" y))))
 	((atom x) x)
+	;; Just substitute in variables, allowing ungrounded expressions
+	((eq (car x) 'quote) (subst-bindings bindings x))
 	;; allow lisp expression to test for variables or report errors
-	((member (car x) '(quote groundp error)) 
+	((member (car x) '(groundp error warn)) 
 	 (reuse-cons (car x)
 		     (subst-bindings-quoted bindings (cdr x) :unground-ok t)
 		     x))
