@@ -1600,7 +1600,7 @@
    (bind ?ctime (time-of ?b2))
    (test (unify (remove-time ?b1) (remove-time ?b2)))
    (no-correct (vector (?descr . ?b1) ?dir2))
-   (bind ?b4 (set-time ?b1 ?anytime))
+   (bind ?b4 (set-time ?b1 '?anytime))  ;substitute in variable
    (no-correct (vector (?descr . ?b4) ?sdir)))
   :flag (time dir)
   :probability 0.01)
