@@ -3854,7 +3854,7 @@
   (
    (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting the ~A line integral" 
 		       ((line-integral 
-			 (net-field ?surface ?type :time ?t)) def-np) 
+			 (net-field ?path ?type :time ?t)) def-np) 
 		       (?type adj)))
    ))
 

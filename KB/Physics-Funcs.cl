@@ -337,11 +337,13 @@
 ;; !!! this doesn't handle parameter terms (little used)
 (defun term-to-dir (dir-term &key approximate) 
   "extract number of degrees from dnum, otherwise just return arg uncharged"
-  (if (degree-specifierp dir-term :error t)
-      (if (or approximate (degree-specifierp dir-term)) 
-	  (second dir-term) 'unknown)
-    ;; assumed to be special atom or number
-    dir-term))
+  (cond ((degree-specifierp dir-term :error t)
+	 (if (or approximate (degree-specifierp dir-term)) 
+	     (second dir-term) 'unknown))
+	;; Help/Entry-API.cl generates these
+	((unify dir-term '(unrecognized . ?rest)) 'unknown)
+	;; assumed to be special atom or number
+	(t dir-term)))
 
 (defun dir-to-term (dir)
 "return dnum term for number of degrees, else arg unchanged"
