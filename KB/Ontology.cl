@@ -253,7 +253,7 @@
   :fromWorkbench  `(duration ,time)
   :english ("the duration of time between ~A and ~A" 
             (nlg ?t1 'moment) (nlg ?t2 'moment)))
-(def-qexp speed (speed ?body :time ?t)
+(def-qexp speed (speed ?body :time ?time)
   :symbol-base |v|     
   :short-name "speed"	
   :dialog-text ""  ;custom dialog box
