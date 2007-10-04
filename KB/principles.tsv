@@ -305,28 +305,28 @@ END_GROUP	Fluids
 END_GROUP	Apply a Definition or Auxiliary Law		
 GROUP	Calculate a vector component		
 GROUP	Displacement		
-LEAF	d_x = d*cos($qd - $qx)    on x-axis	(projection ((?axis . x) (?vector displacement ?body)))	Projection Equations
-LEAF	d_y = d*sin($qd - $qy)    on y-axis	(projection ((?axis . y) (?vector displacement ?body)))	Projection Equations
+LEAF	d_x = d*cos($qd - $qx)    on x-axis	(projection ((?axis . x) (?vector displacement . ?rest)))	Projection Equations
+LEAF	d_y = d*sin($qd - $qy)    on y-axis	(projection ((?axis . y) (?vector displacement . ?rest)))	Projection Equations
 END_GROUP	Displacement		
 GROUP	Velocity		
-LEAF	v_x = v*cos($qv - $qx)    on x-axis	(projection ((?axis . x) (?vector velocity ?body)))	Projection Equations
-LEAF	v_y = v*sin($qv - $qy)    on y-axis	(projection ((?axis . y) (?vector velocity ?body)))	Projection Equations
+LEAF	v_x = v*cos($qv - $qx)    on x-axis	(projection ((?axis . x) (?vector velocity . ?rest)))	Projection Equations
+LEAF	v_y = v*sin($qv - $qy)    on y-axis	(projection ((?axis . y) (?vector velocity . ?rest)))	Projection Equations
 END_GROUP	Velocity		
 GROUP	Acceleration		
-LEAF	a_x = a*cos($qa - $qx)    on x-axis	(projection ((?axis . x) (?vector acceleration ?body)))	Projection Equations
-LEAF	a_y = a*sin($qa - $qy)    on y-axis	(projection ((?axis . y) (?vector acceleration ?body)))	Projection Equations
+LEAF	a_x = a*cos($qa - $qx)    on x-axis	(projection ((?axis . x) (?vector acceleration . ?rest)))	Projection Equations
+LEAF	a_y = a*sin($qa - $qy)    on y-axis	(projection ((?axis . y) (?vector acceleration . ?rest)))	Projection Equations
 END_GROUP	Acceleration		
 GROUP	Force		
-LEAF	F_x = F*cos($qF - $qx)    on x-axis	(projection ((?axis . x) (?vector force . ?args)))	Projection Equations
-LEAF	F_y = F*sin($qF - $qy)    on y-axis	(projection ((?axis . y) (?vector force . ?args)))	Projection Equations
+LEAF	F_x = F*cos($qF - $qx)    on x-axis	(projection ((?axis . x) (?vector force . ?rest)))	Projection Equations
+LEAF	F_y = F*sin($qF - $qy)    on y-axis	(projection ((?axis . y) (?vector force . ?rest)))	Projection Equations
 END_GROUP	Force		
 GROUP	Relative Position		
-LEAF	r_x = r*cos($qr - $qx)    on x-axis	(projection ((?axis . x) (?vector relative-position ?body ?origin)))	Projection Equations
-LEAF	r_y = r*sin($qr - $qy)    on y-axis	(projection ((?axis . y) (?vector relative-position ?body ?origin)))	Projection Equations
+LEAF	r_x = r*cos($qr - $qx)    on x-axis	(projection ((?axis . x) (?vector relative-position . ?rest)))	Projection Equations
+LEAF	r_y = r*sin($qr - $qy)    on y-axis	(projection ((?axis . y) (?vector relative-position . ?rest)))	Projection Equations
 END_GROUP	Relative Position		
 GROUP	Momentum		
-LEAF	p_x = p*cos($qp - $qx)    on x-axis	(projection ((?axis . x) (?vector momentum ?body)))	Projection Equations
-LEAF	p_y = p*sin($qp - $qy)    on y-axis	(projection ((?axis . y) (?vector momentum ?body)))	Projection Equations
+LEAF	p_x = p*cos($qp - $qx)    on x-axis	(projection ((?axis . x) (?vector momentum . ?rest)))	Projection Equations
+LEAF	p_y = p*sin($qp - $qy)    on y-axis	(projection ((?axis . y) (?vector momentum . ?rest)))	Projection Equations
 END_GROUP	Momentum		
 END_GROUP	Calculate a vector component		
 GROUP	Use information specific to this problem		

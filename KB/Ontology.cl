@@ -673,6 +673,8 @@
   :ExpFormat ("writing the projection equation for ~a onto the ~a axis" 
 	      (nlg ?vector) (axis-name ?axis))
   :EqnFormat ("~a_~a = ~a*~:[sin~;cos~]($q~a - $q~a)"
+	      ;; vector-var-pref expecting a list which may 
+	      ;; only be partially bound
 	      (vector-var-pref '?vector) (axis-name ?axis) 
 	      (vector-var-pref '?vector) (eq ?axis 'x)
 	      (vector-var-pref '?vector) (axis-name ?axis)))
@@ -687,17 +689,18 @@
 ;; force F
 ;; relative position r
 ;; momentum p
-(defun vector-var-pref (x &rest args)
-  (if (atom x) (format nil "~A" x)
-    (case (car x)
-      (displacement "d")
-      (velocity "v")
-      (acceleration "a")
-      (force "F")
-      (relative-position "r")
-      (momentum "p")
-      (t (format nil "vec-var:[~a]" x)))))
-   
+(defun vector-var-pref (x)
+  (if (and (consp x) (groundp (car x)))
+      (case (car x)
+	(displacement "d")
+	(velocity "v")
+	(acceleration "a")
+	(force "F")
+	(relative-position "r")
+	(momentum "p")
+	(t (format nil "~a" (car x))))
+      (error "vector-var-pref with ~A" x)))
+
    
 ;;-------------------------------------------------------
 ;; Kinematics top-level group.

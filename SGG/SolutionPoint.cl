@@ -2,10 +2,10 @@
 ;; Solution.cl
 ;; 03/06/2001
 ;; Collin Lynch
-;; This file genereeates a solution point for a specific
+;; This file generates a solution point for a specific
 ;; problem by collecting all of the variables and equations
 ;; for the problem's bubblegraph and passing them to the
-;; solver dll.  it will then return the resulting variablew
+;; solver dll.  It will then return the resulting variable
 ;; values in a list that can then be used to index the 
 ;; variables later.
 ;;
