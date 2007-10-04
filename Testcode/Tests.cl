@@ -696,7 +696,7 @@
 
 (add-runtime-test
  Answer_Entry_Subscore
- :PrintStr "Answer_Entry_Subscore"
+ :PrintStr "Correct_Answers"
  ; :ValType rt-fract-num-score
  :Func #'(lambda (X) (update-rt-score-value X #'art-count-correct-answer-ents))
  :InitFunc #'(lambda () 
@@ -754,7 +754,7 @@
 	
 (add-runtime-test
  MC_Answer_Entry_Subscore
- :PrintStr "MC_Answer_Entry_Subscore"
+ :PrintStr "Completion_Checks"
  ; :ValType rt-fract-num-score
  :Func #'(lambda (X) (update-rt-score-value X #'count-correct-mc-answer-subscore))
  :InitFunc #'(lambda () 
@@ -783,7 +783,7 @@
 
 (add-runtime-test
  Diagram_Entry_Subscore
- :PrintStr "Diagram_Entry_Subscore"
+ :PrintStr "Diagram_Entries"
  ; :ValType rt-fract-num-score
  :Func #'(lambda (X) (update-rt-score-value X #'count-correct-diagram-ents))
  :InitFunc #'(lambda () 
@@ -827,7 +827,7 @@
 
 (add-runtime-test
  Multiple_Choice_Answer_Entry_Subscore
- :PrintStr "Multiple_Choice_Answer_Entry_Subscore"
+ :PrintStr "Multiple_Choice_Answers"
  ; :ValType rt-fract-num-score
  :Func #'(lambda (X) 
 	   (update-rt-score-value 
@@ -875,7 +875,7 @@
 
 (add-runtime-test
  Equation_entry_Subscore
- :PrintStr "Equation_entry_Subscore"
+ :PrintStr "Principles_Used"
  ;:ValType rt-solset
 
  :Func #'(lambda (S) 
@@ -904,7 +904,7 @@
 
 (add-runtime-test
  Explicit_Equation_Entry_Subscore
- :PrintStr "Explicit_Equation_Entry_Subscore"
+ :PrintStr "Explicit_Principles"
  ;:ValType rt-solset
  
  :Func #'(lambda (S) 
@@ -934,7 +934,7 @@
 
 (add-runtime-test
  Given_Equation_Entry_Subscore
- :PrintStr "Given_Equation_Entry_Subscore"
+ :PrintStr "Givens_Used"
  ;:ValType rt-solset
 
  :Func #'(lambda (S) 
@@ -963,7 +963,7 @@
 
 (add-runtime-test
  Explicit_Given_Equation_entry_Subscore
- :PrintStr "Explicit_Given_Equation_entry_Subscore"
+ :PrintStr "Explicit_Givens"
  ;:ValType rt-solset
  
  :Func #'(lambda (S) 
@@ -1013,7 +1013,7 @@
 
 (add-runtime-test
  Body_Entry_Subscore10
- :PrintStr "Body_Entry_Subscore"
+ :PrintStr "Bodies_Drawn"
  ;:ValType rt-solset
  
  :Func #'test-cache-update-body-fract-solset
@@ -1040,7 +1040,7 @@
 
 (add-runtime-test
  Axis_Entry_Subscore
- :PrintStr "Axis_Entry_Subscore"
+ :PrintStr "Axes_Drawn"
  ;:ValType rt-solset
  
  :Func #'(lambda (S) 
@@ -1089,7 +1089,7 @@
 
 (add-runtime-test
  NSH_BO_Call_Count
- :PrintStr "NSH_BO_Call_Count"
+ :PrintStr "Light_Bulb_Bottom-Out_Hints"
  ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (proc-bottom-out-hintp **Current-cmd-Stack**)
@@ -1148,7 +1148,7 @@
 
 (add-runtime-test
  WWH_BO_Call_Count
- :PrintStr "WWH_BO_Call_Count"
+ :PrintStr "Whats_Wrong_Bottom-Out_Hints"
  ;:ValType rt-int-sum-score
  :Func #'(lambda (S)
 	   (if (wwh-bottom-out-hintp **Current-cmd-Stack**)
@@ -1389,7 +1389,7 @@
 
 (add-runtime-test
  Correct_Entries_V_Entries
- :PrintStr "Correct_Entries_V_Entries"
+ :PrintStr "Correct_Submission_Rate"
  ;:ValType rt-fract-sum-score
  :Func #'art-correctent-ent-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))
@@ -1495,7 +1495,7 @@
 
 (add-runtime-test
  Correct_Answer_Entries_V_Answer_Entries
- :PrintStr "Correct_Answer_Entries_V_Answer_Entries"
+ :PrintStr "Correct_Answer_Rate"
  ;:ValType rt-fract-sum-score
  :Func #'art-canswerents-answerents-test
  :initFunc #'(lambda () (make-rt-fract-sum-score 0 0))

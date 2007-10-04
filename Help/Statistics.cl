@@ -86,6 +86,10 @@
 (defun on-stats-get-stats (Type)
   (make-stat-turn
    (map-tests->list-results
-    (cond ((equalp Type 'score) (collect-runtime-score-tests))
-          ((equalp Type 'persist) (collect-persistent-score-tests))
-	  (T (collect-all-runtime-tests))))))
+    ; set to map:
+    (cond ((eq Type 'score) (collect-runtime-score-tests))
+          ((eq Type 'persist) (collect-persistent-score-tests))
+	  (T (collect-all-runtime-tests)))
+    ; use friendly name for score, else internal id
+    :name-fn (if (eq Type 'score) #'runtime-test-PrintStr 
+               #'runtime-test-name))))

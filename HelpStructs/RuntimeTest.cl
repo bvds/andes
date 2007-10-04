@@ -184,11 +184,16 @@
 
 
 ;;; Given a runtime test name obtain the matching runtime test
-;;; from the stored tests list.
+;;; from the stored tests list. Takes either the internal
+;;; id symbol or possibly different friendly PrintStr
 (defun lookup-name->runtime-test (Name)
-  (find Name *Runtime-Testset*
+  ; find by either name (a symbol) or printstr (a string)
+  (or (find Name *Runtime-Testset*
 	:key #'runtime-test-name
-	:test #'equalp))
+	:test #'sym-match) ; case-independent symbol 
+      (find (string Name) *Runtime-Testset*
+	:key #'runtime-test-PrintStr
+	:test #'string-equal)))
 
 
 ;;; The runtime testsets are entered into the parameters in a FIFO order. 
@@ -479,11 +484,12 @@
 
 ;;; Given a set of runtime tests translate it into a list of 3-tuples
 ;;; containing the name of each test, its weight and its score.
-;;; In order For this to be used properly it is necessary 
-(defun map-tests->list-results (Tests)
+;;; Uses internal id by default. Specify #'runtime-test-PrintStr to 
+;;; use friendly name
+(defun map-tests->list-results (Tests &key (name-fn #'runtime-test-Name))
   (mapcar 
    #'(lambda (Test) 
-       (list (or (runtime-test-PrintStr Test) (runtime-test-Name Test))
+       (list (funcall name-fn Test)
 	     (runtime-test-ScaledWeight Test)
 	     (map-rt-val->display-form
 	      (runtime-test-currval Test)
