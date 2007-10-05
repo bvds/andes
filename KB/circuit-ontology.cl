@@ -110,6 +110,7 @@
   :short-name "electric power"	
   :dialog-text "transferred through [body:bodies] at time [time:times]"
   :units W
+  :fromWorkbench `(electric-power ,body :time ,time)
   :english ("power transferred through ~a" (nlg ?b 'at-time ?time)))
 ;; We could define a generic rate-of-change function, but we don't have a way 
 ;; to define units as function of units of base ?quant over time, 
@@ -183,5 +184,6 @@
   :short-name "energy stored"	
   :dialog-text "in [body:bodies] at time [time:times]"
   :units |J|
+  :fromWorkbench `(stored-energy ,body :time ,time)
   :english ("the electric energy stored in ~a" 
 	    (nlg ?component 'at-time ?time)))
