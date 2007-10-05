@@ -554,7 +554,7 @@
 	((eq (car quant) 'angle-between) 
 	 (or (time-of (third quant)) (time-of (fourth quant))))
 	;; this covers (compo ...), (mag ...), (dir ...):
-	((listp (first (last quant))) (time-of (first (last quant))))))
+	((consp (first (last quant))) (time-of (first (last quant))))))
 
 ;; for all possibly-time-indexed quantity expressions:
 (defun remove-time (expr)

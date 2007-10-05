@@ -4199,8 +4199,8 @@
 
 (def-error-class undiagnosed-eqn-error (?eqn)
  ((student-eqn ?eqn))
- :utility .01      ; default is 1
- :probability .01  ; default is .1
+ :utility .001      ; default is 1
+ :probability .001  ; default is .1
 )
 
 (defun undiagnosed-eqn-error(eqn)
