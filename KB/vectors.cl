@@ -212,7 +212,7 @@
    (assume axes-for ?b 0)
   )
   :hint
-  ((point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, since this problem gives or seeks horizontal or vertical vector components, you should use a standard horizontal-vertical coordinate system."))
+  ((point (string "Although one usually rotates the x-y coordinate system to align axes with vectors, this problem gives or seeks horizontal or vertical vector components.  You should use a standard horizontal-vertical coordinate system."))
    (bottom-out (string "Draw a standard horizontal-vertical coordinate system setting the positive x axis at 0 degrees."))
    ))
 
