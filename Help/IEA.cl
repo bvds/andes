@@ -139,12 +139,17 @@
 
 ;;; Once we have a name then we will look up the equation in the
 ;;; list and return the appropriate struct if it is present or 
-;;; give an error if it is not.  Once that is done then we will
+;;; give a warning if it is not.  Once that is done then we will
 ;;; move on to filtering.  
 (defun iea-check-name (name &optional (Bindings no-bindings))
   "Check the supplied iea-name."
   (let (Tmp (equation (lookup-psmclass-name name)))
-    (cond ((null equation) (error "Unknown equation name ~a supplied." name))
+    (cond ((null equation) 
+	   ;; The student response is gotten by choosing from the
+	   ;; principles menu.  So either principle menu is incompatible
+	   ;; with KB or the log file is incompatible (if running help
+	   ;; from a log file.
+	   (warn "!!! IEA received bad equation name ~a." name))
 	  ((iea-filter-equations-by-form Equation Bindings)
 	   (iea-platonic-prompt Equation Bindings))
 	  ((setq tmp (iea-test-alternate-axes Equation Bindings))
