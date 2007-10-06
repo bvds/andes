@@ -87,7 +87,7 @@ Diff between July 24 and August 13:
          Also, there seems to be a number of error interpretations that have been
          changed due to the changes in the use of the random number generator for tie-breaking.
      
-Diff between September 14 and August 13 2007:
+Diff between September 15 and August 13 2007:
       Anders changes to scoring rules (I assume these are OK).
       Remove unused :error in slit problem givens.
       Change number on problem pot1b pot2c.
@@ -99,3 +99,27 @@ Diff between September 14 and August 13 2007:
          Unneeded components are no longer prompted by the help.
          Unwanted side effect: if the general form is used, the help 
             system can complain the student is using unneeded variables.
+
+Diff between October 5 and Sept. 15, 2007.
+      now have time slot in relative-position def-qexp
+      lots of changes to scoring, including capitalization of subscores
+      change naming for B-field variable
+      fix wording on projection equation hint.
+      remove keyword pairs not done by subst-bindings
+      operators for defining angle-between changed around.
+
+      There are still 112,000 lines of diff that are not fully analyzed.
+      Some are:
+        There are some zero projections which are no longer recognized.
+          The previous fix, using an implicit-eqn, would also remove
+          zero projections which are needed for the solution.
+        Internal form of cross and dot now contain all terms.
+        Hints for needed zero projection equations where it used to say "done."
+        Some change from DRAW-COMPO-FORM-AXES to DRAW-PROJECTION-AXES due to
+          removal of implicit-eqn from compo-parallel-axis.
+        Wording of draw line hint.
+
+        New angle-direction for lines does not allow substitution
+        into snells law formula when angles are known.  
+        Need write-angle-direction-known to also work for lines.  Bug #1407
+

@@ -52,6 +52,13 @@ while (<>) {   # loop over lines in all Andes sessions
 
         # Remove unused error in givens, September 14, 2007
         s/ :ERROR [0-9.e\-]+//;
+
+        # change naming for B-field variable, Oct 2, 2007
+        s/([ _])M_/$1B_/g;
+
+        # change angle-between for lines & vectors, end of Sept. 2007
+        s/DEFINE-ANGLE-BETWEEN-UNKNOWN-LINES/DEFINE-ANGLE-BETWEEN-LINES/;
+        s/DEFINE-ANGLE-BETWEEN-KNOWN/DEFINE-ANGLE-BETWEEN-VECTORS/;
     }
 
     # bad hints fixed early August 2007.
@@ -66,12 +73,21 @@ while (<>) {   # loop over lines in all Andes sessions
         s/ = /=/;  #F=m*g -> F = m*g
     }
 
-    # beginning of Sept. 2007:  Anders changes to scoring
-    if(m/^([\d:]+)\tDDE-COMMAND set-score /){
+    # bad hints fixed early October 2007.
+    if(1 && m/^([\d:]+)\tDDE-RESULT |!show-hint /) {
+	s/You can .* projection equations.* and negative otherwise./\*projection hint\*/;
+        #time slot on relative-position
+	s/(relative position of .* with respect to .*) at T[0-9]/$1/s;
+    }
+
+    # month of Sept. 2007:  Anders changes to scoring
+    if(1 && m/^([\d:]+)\tDDE-COMMAND set-score /){
 	s/set-score [\d-]+/set-score \*score\*/;
     }
-    if(m/^([\d:]+)\tDDE-RESULT \|NSH_BO_Call_Count /){
-        s/ [0-9.]+([ ;])/ \*score\*$1/g;
+    if(1 && m/^([\d:]+)\tDDE-RESULT \|NSH_BO_CALL_COUNT /i){
+	# beginning of October 2007, scoring changed capitalization
+	# month of Sept. 2007:  Anders changes to scoring
+        s/NSH_BO_CALL_COUNT [^|]+/\*scores\*/i;
     }
 
     # result equations, fix up floating point issues
