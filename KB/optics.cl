@@ -1015,7 +1015,7 @@
   :effects ((eqn-contains (slit-interference ?grating ?light 
 					     ?min nil ?angle-flag) ?sought) ))
 
-(defoperator write-slit-interference (?grating ?light ?angle ?angle-flag)
+(defoperator write-slit-interference (?grating ?light ?angle ?flag ?angle-flag)
    :preconditions 
    (
     (in-wm (parallel-slit-system ?grating ?light ?central-max 
