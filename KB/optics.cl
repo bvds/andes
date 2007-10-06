@@ -975,7 +975,7 @@
   :complexity major
   :short-name "interference for parallel slits"
   :english ("the interference pattern for waves going through parallel slits")
-  :ExpFormat ("finding the angles for ~:[constructive~;destructive~] interference"
+  :ExpFormat ("finding the angles for ~:[destructive~;constructive~] interference"
 	      ?max-flag)
   :EqnFormat ("d*sin($q) = n*$l")) 
 
@@ -1040,7 +1040,7 @@
    :hint 
    (
     (point (string "Waves passing through ~A will interfere ~:[destructively~;constructively~] at certain angles." 
-		   ?grating ?flag))
+		   ?grating (?flag identity)))
     (bottom-out (string "Write the equation ~A" 
 			((= (* ?d (sin ?theta)) (* ?n ?lambda)) algebra) ))
     ))
