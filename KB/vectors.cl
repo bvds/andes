@@ -1362,6 +1362,7 @@
 			     ((= ?angle-var ?term) algebra)))
 	 ))
 
+;; Need to add line version of this, Bug #1407
 (defoperator write-angle-direction-known (?vectors)
   :preconditions 
   (
