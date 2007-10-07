@@ -1223,7 +1223,7 @@
  (
   ;; assume that ?vec1 and ?vec2 are parent quantities
   (any-member (?vec1 ?vec2) (?vecs))
-  ;; vectors must be drawn first, with known angles
+  ;; vectors must be drawn first
   ;; note vector's axis owner bodies need not be the same
   (vector ?b1 ?vec1 ?dir1)
   (vector ?b2 ?vec2 ?dir2)
@@ -1248,7 +1248,7 @@
  :preconditions 
  (
   (any-member ?lines (((line ?r1) (line ?r2))))
-  ;; lines must be drawn first, with known angles
+  ;; lines must be drawn first
   (draw-line (line ?r1) ?dir1)
   (draw-line (line ?r2) ?dir2)
   (test (not (equal ?r1 ?r2)))  ;?r1 & ?r2 distinct
@@ -1281,8 +1281,12 @@
   :preconditions 
   (
    (any-member ?line1 ((line . ?r))) ;this is for speed
+   (draw-line ?line1 ?dir1) ;draw line to get angle
    (draw-line ?line2 ?dir2) ;draw another line to allow angle
    (test (not (unify ?line1 ?line2)))   ;test that lines are distinct
+   ;; make sure angle can't be determined explicitly
+   ;; in that case, directions don't appear in formula
+   (test (not (get-angle-between-lines ?dir1 ?dir2)))
    (bind ?things (sort (list ?line1 ?line2) #'expr<))
    )
   :effects ( (eqn-contains (angle-direction orderless . ?things) 
@@ -1309,15 +1313,21 @@
 (defoperator write-angle-direction-line (?lines)
   :preconditions 
   (
+   ;; iterate over orders
    (any-member ?lines ((?greater ?lesser) (?lesser ?greater)))
-   (test (eq (car ?greater) 'line)) ;test that these are lines
    ;; does not do inheritance, since inheritance is consistent for quantities
    (inherit-or-quantity ?lesser ?lesser)
    (inherit-or-quantity ?greater ?greater)
    ;; this only makes sense if both lines are in the plane
    (greater-than ?greater ?lesser)
-   (variable ?dg (dir ?greater))
-   (variable ?dl (dir ?lesser))
+   ;; draw lines
+   (draw-line ?greater ?dir-g)
+   (draw-line ?lesser ?dir-l)
+   ;; Make sure angle is not known explicitly
+   (test (not (get-angle-between-lines ?dir-g ?dir-l)))
+   ;; by-product of drawing above
+   (in-wm (variable ?dg (dir ?greater)))
+   (in-wm (variable ?dl (dir ?lesser)))
    (variable ?angle-var (angle-between orderless . ?lines))
    )
   :effects 
@@ -1334,7 +1344,7 @@
 (defoperator write-angle-direction-vector (?vectors)
   :preconditions 
   (
-   ;; iterate over orders and do inheritance
+   ;; iterate over orders
    (any-member ?vectors ((?greater ?lesser) (?lesser ?greater)))
    ;; does not do inheritance, since inheritance is consistent for quantities
    (inherit-or-quantity ?lesser ?lesser)
@@ -1362,7 +1372,30 @@
 			     ((= ?angle-var ?term) algebra)))
 	 ))
 
-;; Need to add line version of this, Bug #1407
+(defoperator write-angle-direction-known-lines (?things)
+  :preconditions 
+  (
+   (any-member ?things ((?greater ?lesser)))
+   ;; does not do inheritance, since it involves only one quantity
+   (inherit-or-quantity ?lesser ?lesser)
+   (inherit-or-quantity ?greater ?greater)
+   ;; need to draw vectors before talking about angle between them
+   (draw-line ?greater ?dir-g)
+   (draw-line ?lesser ?dir-l)
+   (bind ?angle (get-angle-between-lines ?dir-g ?dir-l))
+   (test ?angle)  ;make sure angle can be found.
+   (variable ?angle-var (angle-between orderless . ?things))
+   (bind ?dir-term (dir-to-term ?angle))
+   )
+  :effects 
+  ( (eqn (= ?angle-var ?dir-term) (angle-direction orderless . ?things)))
+  :hint (
+	 (point (string "What is the angle between ~A and ~A?"
+			?greater ?lesser))
+	 (bottom-out (string "Write the equation ~A." 
+			     ((= ?angle-var ?dir-term) algebra)))
+	 ))
+
 (defoperator write-angle-direction-known (?vectors)
   :preconditions 
   (

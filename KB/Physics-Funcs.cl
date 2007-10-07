@@ -368,6 +368,22 @@
 	  (T (min (mod (- dir1 dir2) 360)
 		  (mod (- dir2 dir1) 360))))))
 
+(defun get-angle-between-lines (dir1-term dir2-term)
+  "return dir of angle between two lines, NIL if unknown"
+  (let ((dir1 (term-to-dir dir1-term))
+	(dir2 (term-to-dir dir2-term)))
+    (cond ;; any zdir (incl z-unknown) orthogonal to any xy-plane dir 
+	  ;; (incl unknown) test this before checking for unknown.
+	  ((and (z-dir-spec dir1) (not (z-dir-spec dir2))) 90)
+	  ((and (z-dir-spec dir2) (not (z-dir-spec dir1))) 90)
+	  ;; else both zdir or both xy-dir, but either may be unknown.
+	  ((z-dir-spec dir1) 0)
+	  ;; else both xy-dir, but maybe unknown
+	  ((or (eq dir1 'unknown) (eq dir2 'unknown)) NIL) ;can't determine
+	  ;; else two known xy-plane angles:
+	  (T (min (mod (- dir1 dir2) 180)
+		  (mod (- dir2 dir1) 180))))))
+
 
 (defun cross-product-dir (dir-term1 dir-term2)
   "return direction of cross product of two Andes vector dirs"
