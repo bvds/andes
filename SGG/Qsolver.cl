@@ -256,7 +256,9 @@
   (loop for P2 in Set			;If it matches another PSM in equations
       when (and (equal (qsolres-algebra P) (qsolres-algebra P2))
 		(equal-sets (qsolres-nodes P) (qsolres-nodes P2))) ;And quantities 
-      do (when (not (and (equal-sets (qsolres-subeqns P) (qsolres-subeqns P2)) 
+      do 
+#| ;; these elaborate warnings turn out to be useless noise
+      (when (not (and    (equal-sets (qsolres-subeqns P) (qsolres-subeqns P2)) 
 			 (equal-sets (qsolres-subvars P) (qsolres-subvars P2)) 
 			 (equal-sets (qsolres-assumpts P) (qsolres-assumpts P2))))
 	   (let ((diff))
@@ -306,7 +308,7 @@
 					      (qsolres-assumpts P)
 					      :test #'unify))
 	       (format t "  assumptions only in second:  ~S~%" diff))))
-	     
+|#
 	 (setf (qsolres-path P2) 
 	   (merge-paths (qsolres-path P2) (qsolres-path P))) ;merge the paths
 	 (setf (qsolres-subeqns P2) 
