@@ -240,7 +240,7 @@
 ;; Merge-duplicates
 ;; In solving for psms, given, eqns, etc we occasionally end up with
 ;; duplicate values the functions here are used to merge those
-;; suplicates top generate a single set as necessary.
+;; duplicates to generate a single set as necessary.
 
 (defun merge-duplicate-psms (PSMS)
   "Merge the identical psms into a single list.."
@@ -376,7 +376,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The root of all the merge-duplicates functions is merge-paths.
 ;; this function locates the point at which the pair of paths diverge
-;; and inserts a choose statement.
+;; and inserts a choose statement, merging the second argument into
+;; the first.
+;; 
+;; merge (A B C X Y Z) and (A B C M N O) 
+;;    => (A B C (CHOOSE (X Y Z) (M N O)))
+;;
+;; When adding a new alternative into a CHOOSE, the new tail is
+;; merged recursively into the first choice with a matching initial 
+;; element, if one exists:
+;;
+;; merge (A B C (CHOOSE (X Y Z) (M N O))) and (A B C X Y W)
+;;    => (A B C (CHOOSE (X Y (CHOOSE (Z) (W)) (M N O)))
+;;       
+;; When paths diverge at choice of operators, paths using lower-ranked
+;; operators at that point are NOT merged into a path using a higher-ranking 
+;; ones. Hence alternative solutions using lower-ranked operators at
+;; wind up discarded from the result tree being built.
+;;
+;; The current implementation relies on the fact that higher-ranking
+;; paths are found before lower ranking ones at every choice point.
+;; So new alternatives to be merged into the result being accumulated may 
+;; contain lower ranked operators, but never have to be checked for having 
+;; higher rank than anything in the current accumulated result.
 
 (defun merge-paths (P1 P2)
   "merge P2 path into P1."
@@ -388,33 +410,53 @@
 	  (format t "WARNING:  merging non-matching paths~%  (~A ...)~%  (~A ...)~%" 
 		  (first P1) (first P2))
 	;; else note point of divergence, plus preceding line for context:
-	(format t "merge-paths: choice after~%  ~S:~%either~%  ~S~%or~%  ~S~%" 
+	(format t "merge-paths: at ~S~% add ~S~%  to ~A~%" 
 		(nth (1- Loc) P1) 
-		(if (choose-p (nth Loc P1)) "(CHOOSE ...)" (nth Loc P1))
-		(nth Loc P2))))
+		(nth Loc P2)
+		(if (choose-p (nth Loc P1)) ; list choice path heads
+		      (mapcar #'first (cdr (nth Loc P1)))
+		  (nth Loc P1))
+		)))
 
-    (append (subseq P1 0 Loc)
-	    (if (not (choose-p (nth Loc P1))) ; not already a choose at Loc
+    (if (not (choose-p (nth Loc P1))) ; not already a choose at Loc
+     (if (action< (nth Loc P2) (nth Loc P1)) ; don't insert P2 if lower-rank
+         (progn (format t "merge: for ~S~% dropping ~A < ~A~%" 
+	                   (nth (1- Loc) P1) (caadr (nth Loc P2)) (caadr (nth Loc P1))) 
+	         P1) ; return P1 unchanged
+      ; else not lower rank
+        (append (subseq P1 0 Loc)
 		(list (list 'CHOOSE	     ; so make one
 			    (subseq P1 Loc)
-			    (subseq P2 Loc)))
-	      ;; else add or merge new choice into existing choose 
-	      (list (insert-choose (nth Loc P1) (subseq P2 Loc)))))))
+			    (subseq P2 Loc)))))
+   ;; else add or merge new choice into existing choose set
+   (append (subseq P1 0 Loc)
+     (list (add-to-choose (nth Loc P1) (subseq P2 Loc) (nth (1- Loc) P1)))))))
 
-(defun insert-choose (C S)
+(defun add-to-choose (C S Goal)   ; Goal is for debug printing only
   "Insert subsequence S into choose C."
-  (let ((R)) 
-    (loop for I below (length (cdr C)) ; for each existing choice i
-	  ;; if matches new one at first element
-	  when (unify-check-for-variables (car S) (car (nth I (cdr C)))) 
+  (let ((R) (choices (cdr C)))
+    (loop for I below (length choices) ; for each existing choice i
+	  ;; if it matches new one at first element
+	  when (unify-check-for-variables (car S) (car (nth I choices))) 
 	  ;; modify choice i to be merge of old choice i and s, returning C
 	  do (setq R C)	
-	  (setf (nth I (cdr R)) (merge-paths (nth I (cdr C)) S))
+	  (setf (nth I (cdr R)) (merge-paths (nth I choices) S))
 	  and return t)
     
-    (if (not R)   ; no match in existing choices: append whole new choice
-	(setq R (append C (list S))))
-    
+    (when (not R)   ; no match in existing choices: append whole new choice
+       ; don't do if new choice head is lower ranked than any existing choice head
+       (let ((better-choice (find-if #'(lambda (choice) 
+                                         (action< (first S) (first choice)))
+                                     choices )))
+	(if better-choice 
+	   (progn
+	     (format T "add-choice: for ~A~% dropping ~a < ~a~%" 
+	                goal (caadr (first S)) (caadr better-choice))
+	     (setq R C))
+	 ; else
+	 (setq R (append C (list S))))))
+     
+    ; finally return result
     R))
 
 (defun unify-check-for-variables (x y)
@@ -504,6 +546,22 @@
 (defun choose-p (exp)
   "true if expression is a choose list"
   (and (listp exp) (eq (first exp) 'CHOOSE))) 
+
+; For prioritizing actions by operator order. The only actions
+; which have orders are OP actions recording operator selections
+(defun action-order (action)
+   "return operator order for operator selection actions, else NIL"
+   (when (eq (first action) *goal-unified-with-effect*)
+      (operator-order (get-operator-by-tag (second action)))))
+
+(defun action< (a1 a2)
+   "return T if action a1 has lower rank than a2"
+  (alist< (action-order a1) (action-order a2)))
+
+(defun action> (a1 a2) 
+   "return T if action a1 has higher rank than a2"
+    (action< a2 a1))
+
 			      
 
 ;;; ======================= st ====================================
@@ -580,12 +638,18 @@
       (if (not (member (car wme) predicates))
 	  (format t "~S~%" wme)))))
 
+; For sorting states by operator rank at generation time. The
+; only states that have orders are those resulting from OP actions
+(defun state> (state1 state2)
+  "return T if state1 uses higher-ranked operator than state2"
+  (action> (first (st-actions state1)) 
+           (first (st-actions state2))))
 
 ;;; =================== opinst =====================================
 ;;; The operator instance (opinst for short) struct represents an
 ;;; operator that is in the process of being satisfied.  It starts
 ;;; life as a sort of copy of the operator, with the variables
-;;; standardized apart.  Teh subgoals slot holds a copy of the
+;;; standardized apart.  The subgoals slot holds a copy of the
 ;;; operator's preconditions.  The effects slot holds a copy of the
 ;;; operator's effects.  As the operator instance is repeatedly
 ;;; processed by the interpreter, the list of subgoals is popped.
@@ -602,7 +666,7 @@
   subgoals	     ;an ordered list of preconditions
   effects	     ;a set of effects (atomic propositions)
   identifier	     ;the name of the operator plus its arguments
-  variables	     ;a list of the operats's help variables.
+  variables	     ;a list of the operator's help variables.
   )
 
 ;;; This is called by the Lisp system whenever it wants to print an
@@ -661,14 +725,17 @@
 	 (state)
 	 (solutions)
 	 (successors))
-	((null queue) solutions)
+	 ; Merge code below assumes higher ranking paths precede lower, so
+	 ; reverse list built by pushing to return solutions in order explored
+	((null queue)  (reverse solutions))
       ;; in ACL IDE: pump input events each iter so kbd interrupts can get thru
       ;; #+common-graphics (cg:process-pending-events)
       (setq state (pop queue))
       (cond ((null (st-stack state))
 	     (push state solutions)
 	     (qs-debug-print-success state))
-	    ((null (setq successors (successors state)))
+	    ; Explore higher ranking operator choices first
+	    ((null  (setq successors (stable-sort (successors state) #'state>)))
 	     (qs-debug-print-failure state))
 	    ((null (cdr successors))
 	     ;; treat as same level:
@@ -684,9 +751,9 @@
 	       (setf (st-branches x) t)
 	       (setf (st-level x) (+ 1 (st-level state))))
 	     (qs-debug-print-node state (length successors))
-	     (setq queue (append successors queue))))
-      ))
+	     (setq queue (append successors queue))))))
   
+
 
 ;;; There are many ways to generate successor states, depending on
 ;;; what is on the top of the stack.  However, they all start by
@@ -876,7 +943,7 @@
 ;;; the goal to effects of operators.  The easy way to do this is to
 ;;; standardize the operator apart before unifying the goal with
 ;;; effects.  This standardization is necessary because this
-;;; operator's variables are suppose to be unique to this instance.
+;;; operator's variables are supposed to be unique to this instance.
 ;;; However, this wastes time copying operators whose effects don't
 ;;; unify with the goal.  Note that the binding list is almost useless
 ;;; during the unification because the operator's variables are new,

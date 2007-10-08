@@ -325,8 +325,16 @@
  (* radians (/ 180 pi)))
 
 (defun dir-from-compos (xc yc)
- "return nearest integral direction given vector components"
-  (dir-to-term (mod (rad-to-deg (atan yc xc)) 360)))
+ "return term for direction in degrees given vector components"
+ (if (and (= xc 0) (= yc 0)) 'zero  ; zero-mag vector
+  (dir-to-term (mod (rad-to-deg (atan yc xc)) 360))))
+
+(defun entry-dir-from-compos (xc yc)
+ "return term for direction if obvious from components, else 'unknown"
+ ; dir obvious if any compo is zero or components have equal mags
+ (if (or (= xc 0) (= yc 0) (= (abs xc) (abs yc)))
+      (dir-from-compos xc yc)
+  'unknown))
 
 ;;; In following, a a "dir" is either a plain number representing xy angle 
 ;;; in degrees or one of the special atoms: unknown, zero, into, out-of, 

@@ -130,7 +130,9 @@
   
   (CogLoad 1 :type real)      ;;The 'cognitive load' of this operator used for min searching.
                               ;; Needs to be edded into the loop.
-  
+
+  order           ;List of dotted pairs giving order specifications
+		  ;when several operators apply choose those with maximal order 
   )
 
 
@@ -171,7 +173,7 @@
 (defmacro defoperator (Name Arguments 
 		       &key Preconditions Effects 
 			    Hint Specifications Features
-			    Load)
+			    Load (Order '((default . NORMAL))) )
   
   "Define a new operator with the specified values and add it to *operators*."
   
@@ -182,6 +184,10 @@
 		    :Effects ',Effects
 		    :Hint ',(subst-nlgs-hints Hint) ;Substitute the NLG functions into the system.
 		    :Specifications ',Specifications
+		    :Order ',(sublis *op-order-ids* ; replace order symbols with numerical values
+		                ; ensure order list contains a value for default group
+		                (adjoin '(default . NORMAL) Order
+				        :test #'(lambda(x y) (eq (first x) (first y)))))
 		    :CogLoad ',(if Load 
 				   Load
 				 1)))))
@@ -202,6 +208,14 @@
     
     Op))				;and return it.
 
+;; mapping for symbols which may be used as operator order values 
+(defvar *op-order-ids* '(
+    (LOWEST . 1)
+    (LOW . 3)
+    (NORMAL . 5)
+    (HIGH . 7)
+    (HIGHEST . 9) 
+  ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; subst-nlg-funcs

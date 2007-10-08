@@ -601,7 +601,7 @@
 
 (defoperator skip-optional-step (?goal)
   :specifications "let's not and say we did"
-   :effects ( (optional ?goal) ))
+  :effects ( (optional ?goal) ))
 
 ;;; =================== Generic: planning only problems =====================
 

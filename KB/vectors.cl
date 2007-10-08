@@ -887,40 +887,98 @@
    (assume using-magnitude (equals orderless ?v1 ?v2)) ;mag xor compos
    ))
 
-#|
-(defoperator draw-vector-given-compos (?vec)
+;;==========================================================================
+;; Generic -- draw vector given by components
+;;==========================================================================
+
+(defun get-vector-mag-var (vquant)
+"return variable name used for given vector quantity"
+ (let (; note args only valid if quantity uses them
+       (arg1 (second vquant))
+       (arg2 (third vquant)) 
+       (arg3 (fourth vquant))
+       (time (time-of vquant)))
+  (case (first vquant)
+    (relative-position 
+    	(format-sym "r_~A_~A~@[_~A~]" 
+                    (body-name arg1) (body-name arg2) (time-abbrev time)))
+    (displacement (format-sym "s_~A_~A" (body-name arg1) (time-abbrev time)))
+    (velocity (format-sym "v_~A~@[_~A~]" (body-name arg1) (time-abbrev time)))
+    (accel (format-sym "a_~A~@[_~A~]" (body-name arg1) (time-abbrev time)))
+    (force  ; (force ?body ?agent ?type)  
+            ; !!! first char of type name not right for all force types
+            (format-sym "F~(~A~)_~A_~A~@[_~A~]" (aref (string arg2) 0) 
+	                (body-name arg1) (body-name arg2) (time-abbrev time)))
+    (impulse )
+    (field  ; (field ?loc ?type  ?source ...)
+        (format-sym "~A_~A_~A~@[_~A~]" (if (eq arg2 'Magnetic) "B"
+	                                (aref (string arg2) 0))
+	            (body-name arg1) (body-name arg3) (time-abbrev time)))
+  )))
+
+;;
+;; Currently, if an xy-plane vector is specified using the component-form inputs
+;; of the vector dialog box, the given direction arg sent from the workbench 
+;; represents unknown.
+;; However, in cases where the direction is obvious, we can use a (vector ...) statement 
+;; with a known angle in solution, via the function entry-dir-from-compos.
+;; The help system can use the same function to fill in the direction in the student entry's
+;; (vector ... ) proposition from the student-entered component values. 
+;; This would allow the student to use EITHER the mag/dir form OR the
+;; component form on the workbench for these vectors. 
+;; 
+(defoperator draw-vector-given-compos-known (?vec)
+  :order ((default . HIGH))
   :preconditions 
   ( 
-   (object ?b)
-   (given (compo x 0 ?vec (dnum ?vx ?units)))
-   (given (compo y 0 ?vec (dnum ?vy ?units)))
-   (test (or (= ?vx 0) (= ?vy 0)))
-   (bind ?dir-expr (dir-from-compos ?vx ?vy))
-   (bind ?mag-var (format-sym "v_~A" (my-hast ?vec))) 
+   (given (compo x 0 ?vec) (dnum ?vx ?units))
+   (given (compo y 0 ?vec) (dnum ?vy ?units))
+   ; any multiple of 45 will return a known direction
+   (bind ?dir-expr (entry-dir-from-compos ?vx ?vy))
+   (test (not (member ?dir-expr '(zero unknown))))
+   (bind ?mag-var (get-vector-mag-var ?vec)) 
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (bind ?x-var (format-sym "Xc_~A" (my-hast ?vec))) 
-   (bind ?y-var (format-sym "Yc_~A" (my-hast ?vec)))  
-   (bind ?mag-expr `(dnum ,(sqrt (+ (* vx vx) (*vy vy)))))
+   ;(bind ?mag-expr `(dnum ,(sqrt (+ (* vx vx) (*vy vy)))))
+   (bind ?b (second ?vec)) ; hack to get axis owner, urgh
   )
-  :order ((relative-position . 1))
   :effects (
     (vector ?b ?vec ?dir-expr)
     (variable ?mag-var (mag ?vec))
     (variable ?dir-var (dir ?vec))
-    (variable ?x-var (compo x 0 ?vec))
-    (variable ?y-var (compo y 0 ?vec))
     ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
     ;; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir-expr) (dir ?vec))
-    (implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
+    ;(implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
    )
   :hint (
-    (point (string "You know the position of ~a relative to ~a." ?b1 ?b2))
-    (bottom-out (string "Use the relative position drawing tool (labeled R) to draw the position of ~a with respect to ~a ~a at ~a."
-	  ?b1 ?b2 (?t pp) ?dir-expr))
+    (point (string "You know the components of ~a." ?vec))
+    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at ~a."
+	  ?vec ?dir-expr))
   ))
-|#
 
+(defoperator draw-vector-given-compos (?vec)
+  :order ((default . HIGH))
+  :preconditions 
+  ( 
+   (given (compo x 0 ?vec) (dnum ?vx ?units))
+   (given (compo y 0 ?vec) (dnum ?vy ?units))
+   (test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
+   (bind ?mag-var (get-vector-mag-var ?vec)) 
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ;(bind ?mag-expr `(dnum ,(sqrt (+ (* vx vx) (*vy vy)))))
+   (bind ?b (second ?vec)) ; hack to get axis owner, urgh
+  )
+  :effects (
+    (vector ?b ?vec unknown)
+    (variable ?mag-var (mag ?vec))
+    (variable ?dir-var (dir ?vec))
+    ;(implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
+   )
+  :hint (
+    (point (string "You know the components of ~a." ?vec))
+    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
+	  ?vec ?dir-expr))
+  ))
 
 ;;;;===========================================================================
 ;;;;
