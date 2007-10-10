@@ -24,8 +24,17 @@
   (dolist (xi x nil)
     (let ((yi (assoc (car xi) y))) ;find any class matching xi
       (when yi 
+	
 	(when (eps< (cdr xi) (cdr yi)) (return-from alist< t))
 	(when (eps< (cdr yi) (cdr xi)) (return-from alist< nil))))))
+
+#|
+(defun alist< (x y)
+  "True if x is less than y, where x and y are alists of class-rank pairs.  Result is based on first member of x which has a matching class in y of different rank."
+  (when x
+    (let ((yi (assoc (caar x) y))) ;find any matching class in y
+      (cond ((null yi) (alist< (cdr x) y)) ;no match, rescurse
+|#
 
 
 (defun eps< (x y &key (roundoff 1.0e-8))
