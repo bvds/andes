@@ -34,6 +34,15 @@
   (when x
     (let ((yi (assoc (caar x) y))) ;find any matching class in y
       (cond ((null yi) (alist< (cdr x) y)) ;no match, rescurse
+        ;; test orders consistant
+        ((set-intersection (ldiff y yi) (cdr x) :key #'car)
+	(error "bad list order"))
+	(when (eps< (cdr xi) (cdr yi)) (return-from alist< t))
+	(when (eps< (cdr yi) (cdr xi)) (return-from alist< nil))
+recurse if equal
+))))
+
+))))
 |#
 
 
