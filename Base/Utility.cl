@@ -18,32 +18,19 @@
 ;;; position of the object in that class.  The classes earlier in the alist 
 ;;; are have higher weight.
 
-(defun alist< (x y)
-  "True if x is less than y, where x and y are alists of class-rank pairs.  Result is based on first member of x which has a matching class in y of different rank."
-  ;; Since ranks are sometimes calculated via floating point, we use eps<.
-  (dolist (xi x nil)
-    (let ((yi (assoc (car xi) y))) ;find any class matching xi
-      (when yi 
-	
-	(when (eps< (cdr xi) (cdr yi)) (return-from alist< t))
-	(when (eps< (cdr yi) (cdr xi)) (return-from alist< nil))))))
 
-#|
 (defun alist< (x y)
-  "True if x is less than y, where x and y are alists of class-rank pairs.  Result is based on first member of x which has a matching class in y of different rank."
-  (when x
-    (let ((yi (assoc (caar x) y))) ;find any matching class in y
-      (cond ((null yi) (alist< (cdr x) y)) ;no match, rescurse
-        ;; test orders consistant
-        ((set-intersection (ldiff y yi) (cdr x) :key #'car)
-	(error "bad list order"))
-	(when (eps< (cdr xi) (cdr yi)) (return-from alist< t))
-	(when (eps< (cdr yi) (cdr xi)) (return-from alist< nil))
-recurse if equal
-))))
-
-))))
-|#
+  "True if x is less than y, where x and y are alists of class-rank pairs.  Result is based on first member of x which has a matching class in y of different rank.  The orders of x and y must be consistent."
+  (when x ;; empty list is equal to any list of pairs, return nil
+    (let ((yy (member (caar x) y :key #'car)))
+      ;; if there is a match, test that list orders are consistent 
+      ;; by looking at previous pairs in y and subsequet pairs in x
+      (when (and yy (intersection (ldiff y yy) (cdr x) :key #'car))
+	(error "conflicting list orders for ~A and ~A" x y))
+      (cond ((null yy) (alist< (cdr x) y)) ;no match, try next term	    
+	    ((eps< (cdar x) (cdar yy)) t)
+	    ((eps< (cdar yy) (cdar x)) nil)
+	    (t (alist< (cdr x) (cdr yy))))))) ;tie, try next term 
 
 
 (defun eps< (x y &key (roundoff 1.0e-8))
