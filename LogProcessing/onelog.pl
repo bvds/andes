@@ -136,6 +136,7 @@ while (<>) { # loop over andes problems
 	elsif (/read-problem-info .(\w+)/) {
 	    $problem = $1;
 	    $problem  =~ tr/A-Z/a-z/;  #set to lower case
+	    $adjusted_start_time=$adjusted_time;
 	}
 	elsif (/\tDDE-COMMAND set-score (\d+)/) {
 	    $score = $1; 
@@ -225,15 +226,12 @@ while (<>) { # loop over andes problems
 	}	    
     }
 
-    # aggegate time used and score
-    $time_used = $this_time;   # calculated above
-    $final_score = $score;     # want most recent score
 
     unless ($_) {
 	warn "End of file encountered during Andes session\n";
 	last;
     }
-    # next unless $time_used and $final_score and $student and $problem;
+    # next unless $time_used and $score and $student and $problem;
     if ($student ne $session_userid) {
 	warn "warning: session label $session_userid doesn't match $student\n";
     }
@@ -241,11 +239,11 @@ while (<>) { # loop over andes problems
     # Can't do too much analysis here since a problem might
     # be solved over multiple sessions.
     # Accumulate time used, throwing out time where Andes is not in focus.
-    $times{$student}{$problem} += $time_used-$loss_of_focus; 
-    $scores{$student}{$problem} = $final_score;
+    $times{$student}{$problem} += $adjusted_time-$adjusted_start_time; 
+    $scores{$student}{$problem} = $score;
     # problems attempted. Don't bother counting here because
     # a problem might be solved over multiple sessions.
-    if($final_score > $score_cut_off) {$problems{$problem}=1}; 
+    if($score > $score_cut_off) {$problems{$problem}=1}; 
     push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
 
@@ -364,7 +362,7 @@ if (1) {
 #   onelog.pl Fall2005-treacy.dat Fall2005-wintersgill.dat > times-Fall2005.csv
 #   onelog.pl Spring2006-treacy.dat Spring2006-wintersgill.dat > times-Spring2006.csv
 #
-if (0) {
+if (1) {
     print " ";
     foreach $problem (sort keys %problems) {print ",$problem";}
     print "\n";
