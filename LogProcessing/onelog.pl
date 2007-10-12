@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #
 # onelog --- analyze a concatonated sequence of Andes log files
-# as retrieved from OLI database query
+# as retrieved from OLI database query or from stand-along Andes.
 #
 # Usage:     onelog.pl access.csv
 #
@@ -30,7 +30,6 @@
 #         ... rest of log2 ...
 #        4:40 END-LOG
 #
-# We pull out contents between the Andes header line and the END-LOG line.
 
 #
 #  Impose cutoffs on accepted data points.
@@ -41,7 +40,7 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 # there is a significant number of problems (not assigned)
 # that were only attempted by a few students.  Including these
 # might introduce a selection bias.
-$minimum_student_attempts=20.5;  # cutoff on list of problems
+$minimum_student_attempts=0.5;  # cutoff on list of problems
 
 
 # read in file with meta-operators
@@ -63,7 +62,7 @@ if ($meta_operator_file) {
 
 my $last_header="";  #first line of the most recent Andes session.
 
-while (<>) { # loop over andes sessions
+while (<>) { # loop over andes problems
     #  unless ($ARGV eq $last_ARGV) {
     #    print "Start reading $ARGV\n";
     #    $last_ARGV=$ARGV;
@@ -71,17 +70,20 @@ while (<>) { # loop over andes sessions
     
     # beginning of new file
     if (/^time,info/) {$last_header="";}
-    # find (and discard) database header
-    next unless /^.* Log of Andes session begun/;  
-    
-    # Test that sessions have been sorted by date
-    # If the beginning of the file was not marked, could have a
-    # false error.
-    # use sort-by-time.pl to create a sorted version of the log file.
-    $last_header le $_ or die "Sessions in log file are not sorted.\n";
-    $last_header = $_;
+    if (/Log of Andes session /) {
+	# Test that sessions have been sorted by date
+	# If the beginning of the file was not marked, could have a
+	# false error.
+	# use sort-by-time.pl to create a sorted version of the log file.
+	$last_header le $_ or die "Sessions in log file are not sorted.\n";
+	$last_header = $_;
+    }
 
+    # find (and discard) any Lessons or header lines
+    next unless /\tOpen-Problem/;  
+    
     my $last_time=0;  #timestamp (seconds) of most recent line in session
+    my $dt=0;
     my $score=0;
     my $loss_of_focus=0;  #accumulate pauses associated with loss of focus
     my $intervening_errors=0;
@@ -91,7 +93,7 @@ while (<>) { # loop over andes sessions
     my $check_entries=0;
 
     while (<>) {   # loop over lines within an Andes session
-	last if /\tEND-LOG/;  # end of Andes session
+	last if /\tEND-LOG/ or /\tClose/;  # end of Andes session
 
 	# skip evaluation of any pre-defined quantities/equations
 	if (/\tCheck-Entries (\d)/) {$check_entries=$1;}
@@ -100,7 +102,7 @@ while (<>) { # loop over andes sessions
 	if(/^(\d+):(\d+)\t/ or /^(\d+):(\d+):(\d+)\t/) {
 	    # total time in seconds
 	    $this_time = $3 ? $1*3600+$2*60+$3 : $1*60+$2; 
-	    $dt = $this_time - $last_time;
+	    $dt = $this_time - $last_time if $last_time;
 	    $last_time = $this_time;
 	    
             # in pause histogram, might ignore pauses associated with 
@@ -134,10 +136,6 @@ while (<>) { # loop over andes sessions
 	elsif (/read-problem-info .(\w+)/) {
 	    $problem = $1;
 	    $problem  =~ tr/A-Z/a-z/;  #set to lower case
-	}
-	elsif (/\tDDE .close-problem/) {
-	    $time_used = $this_time;   # calculated above
-	    $final_score = $score;     # want most recent score
 	}
 	elsif (/\tDDE-COMMAND set-score (\d+)/) {
 	    $score = $1; 
@@ -227,6 +225,10 @@ while (<>) { # loop over andes sessions
 	}	    
     }
 
+    # aggegate time used and score
+    $time_used = $this_time;   # calculated above
+    $final_score = $score;     # want most recent score
+
     unless ($_) {
 	warn "End of file encountered during Andes session\n";
 	last;
@@ -256,7 +258,7 @@ while (<>) { # loop over andes sessions
 
 # print out score histogram in Mathematica notation
 # This is not affected by any of the cutoffs
-if(0) {
+if(1) {
     foreach $student (keys %times) {
 	foreach $problem (keys %{$times{$student}}) {
 	    $score_histogram{$scores{$student}{$problem}}++;
@@ -321,7 +323,7 @@ foreach $student (sort keys %times) {
 #
 #  Print number of students that attempted to solve a given number of problems.
 #
-if (0) {
+if (1) {
     print "problemattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %problem_attempts) {
@@ -345,7 +347,7 @@ foreach $problem (sort keys %problems) {
 #
 #  Print number of problems solved by a given number of students
 #
-if (0) {
+if (1) {
     print "studentattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %student_attempts) {
@@ -382,7 +384,7 @@ if (0) {
 
 # Print out time, errors, hints for each application of a principle.
 
-if(0) {
+if(1) {
     local $"=",";  # for Mathematica formatted lists
     print "(* In the following, FNA (first no assistance) means that\n",
     "the student has, for the first time, successfully applied\n",
@@ -511,7 +513,7 @@ if(0) {
 # problem solution.  Each member of the list is of the format:
 #  {student, problem, time, {{op1,n1},{op2,n2}, ...}}
 # where ni is the number of distinct instances of opi in that solution.
-if (1) {
+if (0) {
     local $"=",";  # for Mathematica formatted lists
     my @each_student=();
     my @each_time=();
