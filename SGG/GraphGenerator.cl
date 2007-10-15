@@ -238,14 +238,15 @@
 ;;; as that is the ID expression for the enode.  This might be
 ;;; nice to remove but is not necessary.
 (defun gg-solve-given-sought (Sought Givens Graph)
-  (let ((G (gg-find-matching-given Sought Givens)) P Q R)
-    (when G 
+  (let (G P Q R)
       ;; make sure we can come up with an equation for this
       (Setq R (solve-for-given-eqn Sought Givens))
-      (cond ((null R) (gg-debug "Sought is given, but cannot make given-eqn."))
+      (cond ((null R) (when (gg-find-matching-given Sought Givens)
+                         (gg-debug "Sought is given, but cannot make given-eqn.")))
 	    (t
 	     (gg-debug "Sought is given, adding PSM") 
-	     (gg-debug "  ~S" G)
+	     ; get replacement for this printout from result
+	     (gg-debug "  ~S" (qsolres-id R))
 	     (setq Q (make-qnode :exp Sought
 				 :var (nth 1 (Qsolres-Nodes R))
 				 :marks '(Given)))
@@ -253,7 +254,7 @@
 					:marks 'Given :Qnodes Q))
 	     (setf (qnode-eqns Q) (list P))
 	     (cons Q (add-nodes-to-bubblegraph Graph Q P)))
-	    ))))
+	    )))
 
 (defun gg-find-matching-given (Sought Givens)
   (find `(given ,Sought . ?rest) Givens :test #'unify))

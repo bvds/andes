@@ -100,8 +100,7 @@
 
 (defun solve-for-given-eqn (Goal Givens)
   "Solve for the general goal expression given Givens."
-  
-  (merge-duplicate-givens 
+  (merge-qsolver-results
    (loop for State in 
       ;; generate given-eqn
 	(qsolve-for (list `(Given-eqn ?eqn ,Goal)) Givens)
@@ -132,7 +131,7 @@
 
 (defun solve-for-param-var (Param Givens)
   "Solve for a parameter variable corresponding to param."
-  (merge-duplicate-param-vars 
+  (merge-qsolver-results
    (loop for State in (qsolve-for (list `(variable ?var ,Param)) Givens)
        collect (let ((Var (find-if #'(lambda (W) 
 				       (unify W `(Variable ?Var ,Param))) 
@@ -183,18 +182,20 @@
 ;; it's solution path.
 
 (defun collect-Path (State)
-  "Collect the path of actions from State and it's preceeding states."
+  "Collect the path of actions from State and its preceeding states."
   (when State
-    ;; Substitute any new bindings in to the predecessors.
-    (append (subst-bindings (st-bindings state)
-			    (collect-path (St-Predecessor State)))
-	    (subst-bindings (st-bindings state)
-			    (remove-if #'removable-actionp (st-actions State))))))
+    ;; Substitute any new bindings into the predecessors action lists
+    ;; AW: taken out. Backpatching var values into actions after the fact 
+    ;; can prevent path merge from detecting the common subgoal action 
+    ;; before conflicting operator choices in case where the conflicting 
+    ;; ops result with different values.
+    (append (collect-path (St-Predecessor State))
+	    (remove-if #'removable-actionp (st-actions State)))))
 
 ;; Some of the actions do not need to be recorded in the 
 ;; solution path.  Operators like 'not, 'in-wm, 'bind and
 ;; 'test simply get eliminated from the path as they are 
-;; of not further use once the search is over.
+;; of no further use once the search is over.
 ;; this is somewhat redundant with sg-ignore-class
 ;; should make common list in HelpStructs/PsmGraph.cl
 (defun removable-actionp (action)
@@ -243,7 +244,7 @@
 ;; duplicates to generate a single set as necessary.
 
 (defun merge-duplicate-psms (PSMS)
-  "Merge the identical psms into a single list.."
+  "Merge any duplicates found within given set of psm qsolver results"
   (let ((tmp) (R (list (car psms))))
     (dolist (P (cdr psms))
       (setq tmp (merge-psm P R))
@@ -252,65 +253,18 @@
     R))
   
 (defun merge-psm (P Set)
-  "Merge the specified PSM into the set of possible"
+  "return merge of P into Set of solutions; NIL if no matching PSM in set"
   (loop for P2 in Set			;If it matches another PSM in equations
       when (and (equal (qsolres-algebra P) (qsolres-algebra P2))
 		(equal-sets (qsolres-nodes P) (qsolres-nodes P2))) ;And quantities 
-      do 
-#| ;; these elaborate warnings turn out to be useless noise
-      (when (not (and    (equal-sets (qsolres-subeqns P) (qsolres-subeqns P2)) 
-			 (equal-sets (qsolres-subvars P) (qsolres-subvars P2)) 
-			 (equal-sets (qsolres-assumpts P) (qsolres-assumpts P2))))
-	   (let ((diff))
-	     ;; If paths differ in eqns, vars, or assumptions, it may indicate 
-	     ;; coding error (perhaps only one path was intended) or it may be 
-	     ;; OK (most common case: where axes and body w/mass var are 
-	     ;; optional) give warning trying to explain what the differences 
-	     ;; are here. Note: third path or higher will
-	     ;; almost always differ from the merge of 1 and 2. Maybe we ought 
-	     ;; to warn only when new path element is not *subset* of existing 
-	     ;; path for paths beyond the 2nd to be merged (though we don't 
-	     ;; keep count)
-	     (format t "WARNING: two ways of generating ~s:~%" 
-		     (qsolres-id P))
-	     
-	     ;; give some help for source of difference
-	     (when nil (format t "  Difference in paths, first path:~%  ~S~%  Versus:~%  ~S~%"
-		     (list-difference (qsolres-path P) 
-				      (qsolres-path P2))
-		     (list-difference (qsolres-path P2) 
-				      (qsolres-path P))))
-     
-	     ;;
-	     (when (setq diff (set-difference (qsolres-subeqns P) 
-					      (qsolres-subeqns P2)
-					      :test #'unify))
-	       (format t "  equations only in first:  ~s~%" diff))
-	     (when (setq diff (set-difference (qsolres-subeqns P2) 
-					      (qsolres-subeqns P)
-					      :test #'unify))
-	       (format t "  equations only in second:  ~s~%" diff))
-	     
-	     (when (setq diff (set-difference (qsolres-subvars P) 
-					      (qsolres-subvars P2)
-					      :test #'unify))
-	       (format t "  variables only in first:  ~S~%" diff))
-	     (when (setq diff (set-difference (qsolres-subvars P2) 
-					      (qsolres-subvars P)
-					      :test #'unify))
-	       (format t "  variables only in second:  ~S~%" diff))
-	     
-	     (when (setq diff (set-difference (qsolres-assumpts P) 
-					      (qsolres-assumpts P2)
-					      :test #'unify))
-	       (format t "  assumptions only in first:  ~S~%" diff))
-	     (when (setq diff (set-difference (qsolres-assumpts P2) 
-					      (qsolres-assumpts P)
-					      :test #'unify))
-	       (format t "  assumptions only in second:  ~S~%" diff))))
-|#
-	 (setf (qsolres-path P2) 
-	   (merge-paths (qsolres-path P2) (qsolres-path P))) ;merge the paths
+      do (merge-qsolver-result P2 P)
+      and return Set))			;return the result.
+
+(defun merge-qsolver-result (P2 P)
+"modify qsolres P2 by merging path from qsolres P into it, returning P2"
+   (let ((merged-path (merge-paths (qsolres-path P2) (qsolres-path P))))
+     (when merged-path  ; merge of paths succeeded
+	 (setf (qsolres-path P2) merged-path)  ; use merged paths
 	 (setf (qsolres-subeqns P2) 
 	   (union (qsolres-subeqns P) (qsolres-subeqns P2))) ;Subeqns
 	 (setf (qsolres-subvars P2) 
@@ -319,61 +273,16 @@
 	   (union (qsolres-assumpts P) (qsolres-assumpts P2) 
 		  :test #'unify))	;Assumptions.
 	 (setf (qsolres-wm P2)
-	   (union (qsolres-wm P) (qsolres-wm p2) :test #'unify))
-      and return Set))			;return the result.
+	   (union (qsolres-wm P) (qsolres-wm p2) :test #'unify))))
+   ; Always return first argument. Allows use of reduce to
+   ; successively merge all elements in a set
+   P2)
 
+(defun merge-qsolver-results (results)
+"merge all given qsolver results into the first one, returning it"
+ (when results ; may be NIL
+    (reduce #'merge-qsolver-result results)))
 
-(defun merge-duplicate-givens (Givens)
-  "Given a list of equal givens merge those that can be merged."
-  (let ((R (car Givens)))	;The initial list of results.
-    (dolist (G (cdr Givens))		;For each G in the rest of givens.
-      ;; Ensure that they match in subeqns, subvars, assumpts:
-      ;; Signalling a cerror if they do not.
-      (if (not (equal-sets (qsolres-subeqns R) (qsolres-subeqns G)))
-	  (cerror "Continue and merge paths." 
-		  "differences in given PSMs~%    subeqns only in first: ~S~%    subeqns only in second: ~S~%" 
-		  (set-difference (qsolres-subeqns R) (qsolres-subeqns G) 
-				  :test #'unify)
-		  (set-difference (qsolres-subeqns G) (qsolres-subeqns R) 
-				  :test #'unify) ))
-
-      (if (not (equal-sets (qsolres-subvars R) (qsolres-subvars G)))
-	  (cerror "Continue and merge paths." 
-		  "differences in PSMs~%    subvars only in first: ~S~%    subvars only in second: ~S~%" 
-		  (set-difference (qsolres-subvars R) (qsolres-subvars G) 
-				  :test #'unify)
-		  (set-difference (qsolres-subvars G) (qsolres-subvars R) 
-				  :test #'unify) ))
-      
-      (if (not (equal-sets (qsolres-assumpts R) (qsolres-assumpts G)))
-	  (cerror "Continue and merge paths." 
-		  "differences in PSMs~%    assumpts only in first: ~S~%    assumpts only in second: ~S~%" 
-		  (set-difference (qsolres-assumpts R) (qsolres-assumpts G) 
-				  :test #'unify)
-		  (set-difference (qsolres-assumpts G) (qsolres-assumpts R) 
-				  :test #'unify) ))
-      ;; do merge
-      (setf (qsolres-path R) 
-	(merge-paths (qsolres-path R) 
-		     (qsolres-path G)))	;Merge it into R
-      (setf (qsolres-wm R)
-	(union (qsolres-wm R) (qsolres-wm G)
-	       :test #'unify)) )
-    R))					;Return R.
-
-(defun merge-duplicate-param-vars (Params)
-  "Merge identical param var values."
-  (let ((R (car Params)))
-    (dolist (P (cdr Params))
-      (setf (qsolres-path R) 
-	(merge-paths (qsolres-path R) 
-		     (qsolres-path P)))
-      (setf (qsolres-wm R)
-	(union (Qsolres-wm R) (qsolres-wm P)
-	       :test #'unify)))
-    R))
-	      
-      
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The root of all the merge-duplicates functions is merge-paths.
@@ -396,6 +305,9 @@
 ;; ones. Hence alternative solutions using lower-ranked operators at
 ;; wind up discarded from the result tree being built.
 ;;
+;; merge-paths returns the new composite path if built, or NIL
+;; if the new path was discarded.
+;;
 ;; The current implementation relies on the fact that higher-ranking
 ;; paths are found before lower ranking ones at every choice point.
 ;; So new alternatives to be merged into the result being accumulated may 
@@ -403,39 +315,37 @@
 ;; higher rank than anything in the current accumulated result.
 
 (defun merge-paths (P1 P2)
-  "merge P2 path into P1."
+  "return merge of path P2 into P1; NIL if not done"
   ;; must match without any bindings needed.
-  (let ((Loc (mismatch P1 P2 :test #'unify-check-for-variables))) 
-
-    (when *watch-merge*
-      (if (= Loc 0) ; no common prefix: shouldn't normally occur
-	  (format t "WARNING:  merging non-matching paths~%  (~A ...)~%  (~A ...)~%" 
-		  (first P1) (first P2))
-	;; else note point of divergence, plus preceding line for context:
-	(format t "merge-paths: at ~S~% add ~S~%  to ~A~%" 
-		(nth (1- Loc) P1) 
+  (let ((Loc (mismatch P1 P2 :test #'unify-check-for-variables))
+         new-choose) 
+    (when (= Loc 0) ; no common prefix: shouldn't happen
+	  (error "paths to merge lack common prefix ~%  (~A ...)~%  (~A ...)~%" 
+		  (first P1) (first P2)))
+    (when *watch-merge* ;; show point of divergence, plus preceding line for context
+	(format t "merge-paths: at ~S [Loc=~A]~% add ~S~%  to ~A~%" 
+		(nth (1- Loc) P1) Loc
 		(nth Loc P2)
 		(if (choose-p (nth Loc P1)) ; list choice path heads
 		      (mapcar #'first (cdr (nth Loc P1)))
-		  (nth Loc P1))
-		)))
+		  (nth Loc P1))))
 
-    (if (not (choose-p (nth Loc P1))) ; not already a choose at Loc
-     (if (action< (nth Loc P2) (nth Loc P1)) ; don't insert P2 if lower-rank
-         (progn (format t "merge: for ~S~% dropping ~A < ~A~%" 
-	                   (nth (1- Loc) P1) (caadr (nth Loc P2)) (caadr (nth Loc P1))) 
-	         P1) ; return P1 unchanged
-      ; else not lower rank
-        (append (subseq P1 0 Loc)
-		(list (list 'CHOOSE	     ; so make one
-			    (subseq P1 Loc)
-			    (subseq P2 Loc)))))
-   ;; else add or merge new choice into existing choose set
-   (append (subseq P1 0 Loc)
-     (list (add-to-choose (nth Loc P1) (subseq P2 Loc) (nth (1- Loc) P1)))))))
+    (cond 
+      ((not (choose-p (nth Loc P1))) ; not already a choose at Loc
+          (if (action< (nth Loc P2) (nth Loc P1)) ; don't insert P2 if lower-rank
+              (progn (format t "merge: dropping ~A < ~A~%" 
+	                     (caadr (nth Loc P2)) (caadr (nth Loc P1))) 
+	              NIL) ; return value to signal merge failure
+          ; else not lower rank: insert a choose
+          (append (subseq P1 0 Loc)
+		(list (list 'CHOOSE (subseq P1 Loc) (subseq P2 Loc))))))
+      (T  ; else add or merge new choice into existing choose set. 
+          ; Note may fail if it's dropped due to order
+          (when (setq new-choose (add-to-choose (nth Loc P1) (subseq P2 Loc)))
+               (append (subseq P1 0 Loc) (list new-choose)))))))
 
-(defun add-to-choose (C S Goal)   ; Goal is for debug printing only
-  "Insert subsequence S into choose C."
+(defun add-to-choose (C S)   
+  "Add or merge new subsequence S into choose C."
   (let ((R) (choices (cdr C)))
     (loop for I below (length choices) ; for each existing choice i
 	  ;; if it matches new one at first element
@@ -452,9 +362,9 @@
                                      choices )))
 	(if better-choice 
 	   (progn
-	     (format T "add-choice: for ~A~% dropping ~a < ~a~%" 
-	                goal (caadr (first S)) (caadr better-choice))
-	     (setq R C))
+	     (format T "merge: dropping ~a < ~a~%" 
+	                (caadr (first S)) (caadr better-choice))
+	     (setq R NIL)) ; signal merge failure
 	 ; else
 	 (setq R (append C (list S))))))
      

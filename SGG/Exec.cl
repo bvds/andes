@@ -4,12 +4,12 @@
 ;; 10/24/2000
 ;;
 ;; This file contains the executable code for the solution graph
-;; generator.  This code allows for the includion of explicit tests
+;; generator.  This code allows for the inclusion of explicit tests
 ;; and bindings within the code.
 ;;
 ;; The format for all executable functions is that they are passed the executable
 ;; expression in full and the current state and may return a new state, a list
-;; of states or nil.  For saafety purposes the functions should modify copies of the 
+;; of states or nil.  For safety purposes the functions should modify copies of the 
 ;; current state not the state itself.
 ;;
 ;; Currently this file defines the following classes of executables:
@@ -177,7 +177,6 @@
 
 (defun execute-test-not (Ex St)
   "Execute the (not <prop> <test>) form."
-
   (let ((B))
     (if (loop for wme in (st-wm St) never 
 	      (and (setq B (unify (second ex) wme (st-bindings st)))
