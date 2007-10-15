@@ -325,8 +325,8 @@
    :preconditions (
        (bind ?fluid-at-p1  (format-sym "FLUID_AT_~a" ?point1))
        (bind ?fluid-at-p2  (format-sym "FLUID_AT_~a" ?point2))
-       (variable  ?v1  (mag (velocity ?fluid_at_p1 :time ?time)))
-       (variable  ?v2  (mag (velocity ?fluid_at_p2 :time ?time)))
+       (variable  ?v1  (mag (velocity ?fluid-at-p1 :time ?time)))
+       (variable  ?v2  (mag (velocity ?fluid-at-p2 :time ?time)))
        (variable ?A1 (area-at ?point1 :time ?time))
        (variable ?A2 (area-at ?point2 :time ?time))
    )
