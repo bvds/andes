@@ -916,6 +916,8 @@
 	            (body-name arg1) (body-name arg3) (time-abbrev time)))
   )))
 
+#|  ; AW -- don't use new rules while debugging sgg changes
+
 ;;
 ;; Currently, if an xy-plane vector is specified using the component-form inputs
 ;; of the vector dialog box, the given direction arg sent from the workbench 
@@ -979,6 +981,40 @@
     (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
 	  ?vec ?dir-expr))
   ))
+
+; for testing path merging code on a simple case:
+; generates 6 solutions structured like write-sdd
+(defoperator do-merge-test (?b)
+  :preconditions (
+       (optional (body ?b))
+       (optional (axes-for ?b 0))
+  )
+  :effects ( (merge-test ?b) ))
+
+; Move to kinematics.cl once working:
+
+; Following is like rdiff, but just treats components of difference vector as given values.
+; It could be viewed as a macro that just expands the problem givens to save having
+; to enter these further given statements into the problem definition. It will apply
+; in both directions.
+; This competes with the rdiff psm as a way of finding the components, but should pre-empt
+; it since they wind up being treated as givens.
+(defoperator get-rdiff-given-compos (?p1 ?p2 ?t)
+ :preconditions (
+    (in-wm (given (compo x 0  (relative-position ?p1 origin :time ?t)) (dnum ?p1_x ?units)))
+    (in-wm (given (compo y 0 (relative-position ?p1 origin :time ?t)) (dnum ?p1_y ?units)))
+    (in-wm (given (compo x 0  (relative-position ?p2 origin :time ?t)) (dnum ?p2_x ?units)))
+    (test (not (eq ?p2 ?p1))) ; make sure two different points
+    (in-wm (given (compo y 0 (relative-position ?p2 origin :time ?t)) (dnum ?p2_y ?units)))
+    (bind ?r21_x (- ?p2_x ?p1_x))
+    (bind ?r21_y (- ?p2_y ?p1_y))
+  )
+ : effects (
+    (given (compo x ?rot  (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_x ?units))
+    (given (compo y ?rot  (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_y ?units))
+ ))
+
+|#
 
 ;;;;===========================================================================
 ;;;;
