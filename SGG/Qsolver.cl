@@ -252,13 +252,25 @@
 	(push P R)))
     R))
   
+(defun merge-psm-check (P Set)
+"check for errors when merging PSM result P into result Set"
+ (let ((idmatch (find (qsolres-id P) Set :key #'qsolres-id :test #'equalp))
+       (algmatch (find (qsolres-algebra P) Set :key #'qsolres-algebra :test #'equalp)))
+     (when (and idmatch (not (equalp (qsolres-algebra idmatch) (qsolres-algebra P))))
+           (error "Two PSM results with same id~%      ~A~%but different algebra:~%[1] ~A~%[2] ~A~%"
+	        (qsolres-id P) (qsolres-algebra idmatch) (qsolres-algebra P)))
+     (when (and algmatch (not (equalp (qsolres-id algmatch) (qsolres-id P))))
+         (error "Two PSM results with same algebra~%     ~A~%but different psm ids:~%[1] ~A~%[2] ~A~%"
+	        (qsolres-algebra P) (qsolres-id algmatch) (qsolres-id P)))))
+
 (defun merge-psm (P Set)
-  "return merge of P into Set of solutions; NIL if no matching PSM in set"
+  "return result of merging PSM result P into matching eqn result in Set of solutions; NIL if no match"
+  (merge-psm-check P Set)
   (loop for P2 in Set			;If it matches another PSM in equations
       when (and (equal (qsolres-algebra P) (qsolres-algebra P2))
 		(equal-sets (qsolres-nodes P) (qsolres-nodes P2))) ;And quantities 
       do (merge-qsolver-result P2 P)
-      and return Set))			;return the result.
+      and return Set))			;return the Set if we merged.
 
 (defun merge-qsolver-result (P2 P)
 "modify qsolres P2 by merging path from qsolres P into it, returning P2"
