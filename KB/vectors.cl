@@ -1304,9 +1304,12 @@
   :preconditions 
   (
    ;; just look for one child-parent pair, using composite inheritance
-   ;; if there is more than one
-   (any-member ?children ((?child ?quant) (?quant ?child)))
-   (any-member ?parents ((?parent ?quant) (?quant ?parent))) 
+   ;; if there is more than one.  
+   ;; Assume canonical order is unchanged under inheritance.
+   ;; If this is not true, then error in define-angle-between-vectors may
+   ;; result.
+   (any-member (?children ?parents) (((?child ?quant) (?parent ?quant))
+				     ((?quant ?child) (?quant ?parent))))
    (inherit-quantity ?child ?parent)
    )
   :effects ((inherit-quantity (angle-between orderless . ?children)
@@ -1317,6 +1320,10 @@
  (
   ;; assume that ?vec1 and ?vec2 are parent quantities
   (any-member (?vec1 ?vec2) (?vecs))
+  ;; sanity test for orderless working OK
+  (test (or (expr< ?vec1 ?vec2)
+	    (error "define-angle-between-vectors wrong order for~%    ~A and~%    ~A"
+		   ?vec1 ?vec2)))
   ;; vectors must be drawn first
   ;; note vector's axis owner bodies need not be the same
   (vector ?b1 ?vec1 ?dir1)
@@ -1342,6 +1349,11 @@
  :preconditions 
  (
   (any-member ?lines (((line ?r1) (line ?r2))))
+  ;; sanity test for orderless working OK
+  (test (or (expr< ?line1 ?line2)
+	    (error "define-angle-between-vectors orderless wrong for ~%    ~A and  ~A"
+		   ?line1 ?line2)))
+
   ;; lines must be drawn first
   (draw-line (line ?r1) ?dir1)
   (draw-line (line ?r2) ?dir2)
