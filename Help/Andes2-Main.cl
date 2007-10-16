@@ -66,10 +66,6 @@
 (defvar *andes-stop* nil		;exit flag to shut down event loop
   "startAll will loop main-event-loop until this is true")
 
-(defvar *solver-logging* nil
-  "Flag for turning on solver logging, for debugging purposes.")
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function Definitions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

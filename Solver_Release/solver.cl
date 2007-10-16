@@ -124,6 +124,9 @@
 ;;;      <c_indyStudentAddEquationOkay>  
 ;;;||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
+(defvar *solver-logging* nil
+  "Flag for turning on solver logging, for debugging purposes.")
+
 ;;;;
 ;;;;    Set the path of the solver by os type.
 ;;;;
@@ -148,6 +151,8 @@
 				     :force-load force-reload 
 				)
     #+uffi (setf force-reload nil)
+    ; on load, ensure logging set to Lisp variable value
+    (solver-logging *solver-logging*)
     ))
  
 (defun solver-unload ()
@@ -184,7 +189,10 @@
 	 (check-type arg string)
 	 (uffi:with-cstring (arg-native arg)
 	 (uffi:convert-from-cstring (c-solve-do-log arg-native))))
+
 (defun solver-logging (x)
+  ; update Lisp-side state flag, and set in currently loaded solver
+  (setf *solver-logging* x)
   (my-read-answer (solve-do-log (format nil "~A" x))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
