@@ -314,7 +314,11 @@
 	 (uffi:with-cstring (arg-native arg)
   (uffi:convert-from-cstring (c-indy-add-variable arg-native))))
 (defun solver-indyAddVar (arg)
-  (my-read-answer (indy-add-variable (format nil "~A" arg))))
+  ; suppress pretty printing -- it may insert line breaks on very long 
+  ; variable name and value string causing parse error on this stmt. 
+  ; (Possibly a Windows-only problem owing to CRLF's; not sure
+  (my-read-answer (indy-add-variable ; maybe want :escape T for keyword colons? 
+                       (write-to-string arg :pretty NIL :escape NIL))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 #-uffi (ff:def-foreign-call (c-indy-done-add-variable "c_indyDoneAddVariable")
