@@ -2230,23 +2230,7 @@
   :english ("the potential energy of ~A in ~A" 
 	    (nlg ?dipole) (nlg ?field 'at-time ?time)))
 
-(defoperator define-dipole-energy (?dipole ?args ?t)
- :preconditions 
- ( (object ?dipole)
-   (time ?t)
-   (bind ?source (third ?args))
-   (bind ?de-var (format-sym "Ud~A_~A_~A~@[_~A~]" 
-			     (subseq (string (second ?args)) 0 1)
-			     (body-name ?dipole) 
-			     (body-name ?source) (time-abbrev ?t))) )
- :effects (
-   (define-var (dipole-energy ?dipole (field . ?args) :time ?t))
-   (variable ?de-var (dipole-energy ?dipole (field . ?args) :time ?t))
- )
- :hint (
-   (bottom-out (string "Define a variable for ~A by using the Add Variable command on the Variable menu and selecting dipole energy" ((dipole-energy ?dipole (field . ?args) :time ?t) def-np)))
- ))
-  
+; called via define-energy-var, which generates variable name
 (defoperator define-dipole-energy-ee-var (?dipole ?source ?t)
   :preconditions 
   ( ;; Test for electric field acting on object
