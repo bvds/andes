@@ -67,7 +67,7 @@
 (defun eqns-equalp (X Y)
   "Determine if the two eqns are equal or can be merged."
   (let ((exp (unify (Eqn-Exp X) (Eqn-Exp Y)))
-	(alg (equal (Eqn-Algebra X) (Eqn-Algebra Y))))
+	(alg (equalp (Eqn-Algebra X) (Eqn-Algebra Y)))) ; equalp so 0 matches 0.0
     (when (not (eql (null exp) (null alg)))
       (error "eqns-equalp:  both Algebra and Exp should match:~%     ~S~%     ~S~%" 
 	     X Y))
