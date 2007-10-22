@@ -564,9 +564,9 @@
 
 ; For sorting states by operator rank at generation time. The
 ; only states that have orders are those resulting from OP actions
-(defun state> (state1 state2)
+(defun state< (state1 state2)
   "return T if state1 uses higher-ranked operator than state2"
-  (action> (first (st-actions state1)) 
+  (action< (first (st-actions state1)) 
            (first (st-actions state2))))
 
 ;;; =================== opinst =====================================
@@ -649,17 +649,16 @@
 	 (state)
 	 (solutions)
 	 (successors))
-	 ; Merge code below assumes higher ranking paths precede lower, so
-	 ; reverse list built by pushing to return solutions in order explored
-	((null queue)  (reverse solutions))
-      ;; in ACL IDE: pump input events each iter so kbd interrupts can get thru
-      ;; #+common-graphics (cg:process-pending-events)
+	((null queue)  solutions)
       (setq state (pop queue))
       (cond ((null (st-stack state))
 	     (push state solutions)
 	     (qs-debug-print-success state))
-	    ; Explore higher ranking operator choices first
-	    ((null  (setq successors (stable-sort (successors state) #'state>)))
+            ; Path merging code below assumes higher ranking paths precede lower in
+	    ; the list of solutions returned.  We ensure this by exploring lower ranking 
+	    ; operator choices first and collecting solutions by pushing, so returned set 
+	    ; lists them in reverse of the order in which they were found.
+	    ((null  (setq successors (stable-sort (successors state) #'state<)))
 	     (qs-debug-print-failure state))
 	    ((null (cdr successors))
 	     ;; treat as same level:
