@@ -316,5 +316,6 @@ void CRelVelDlg::OnSelchangeBody()
 
 	// Update value control
 	m_editName.GetRichEditText(m_pTempObj->m_strName);
-	m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
+	if (m_pDlgValues) // not created when dlg used to define sought
+		m_pDlgValues->OnUpdateName(m_pTempObj->m_strName);
 }
