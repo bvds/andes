@@ -91,6 +91,7 @@ while (<>) { # loop over andes problems
     my $intervening_hints=0;
     my $last_adjusted_time=0;
     my $check_entries=0;
+    my $lat_time_stamp=0;
 
     while (<>) {   # loop over lines within an Andes session
 	last if /\tEND-LOG/ or /\tClose/;  # end of Andes session
@@ -100,6 +101,8 @@ while (<>) { # loop over andes problems
 	next if $check_entries;
 	
 	if(/^(\d+):(\d+)\t/ or /^(\d+):(\d+):(\d+)\t/) {
+	    $time_stamp = $3 ? "$1:$2:$3" : "$1:$2";
+	    $last_time_stamp or $last_time_stamp = $time_stamp;
 	    # total time in seconds
 	    $this_time = $3 ? $1*3600+$2*60+$3 : $1*60+$2; 
 	    $dt = $this_time - $last_time if $last_time;
@@ -218,10 +221,14 @@ while (<>) { # loop over andes problems
 		foreach $meta_op (@{$meta_operators{$operator}}) {
 	            push @{$mastery{$meta_op}{$student}}, $facts;
 	        }
+                # for print out list of locations in file
+		push @{$location{$operator}{$student}},
+		     "\t\t$last_time_stamp\t$time_stamp\t$intervening_errors $intervening_hints\n";
 	    }
 	    $intervening_errors=0;
 	    $intervening_hints=0;
 	    $last_adjusted_time = $adjusted_time;
+	    $last_time_stamp = $time_stamp;
 	    @error_interp=();
 	}	    
     }
@@ -354,6 +361,21 @@ if (1) {
     print "};\n";
 }
 #
+#  Print out timestamps for work leading to a given operator
+#
+if (1) {
+    print "List of instances of each operator, showing:\n";
+    print "operator\n\tstudent\n\t\t start\tend\terrors hints\n";
+    foreach $operator (sort keys %mastery) {
+	print "$operator\n";
+	foreach $student (sort {$a cmp $b} (keys %{$location{$operator}})) {
+	    print "\t$student\n@{$location{$operator}{$student}}";
+	}
+    }
+    print "\n";
+}
+
+#
 #                        Problem times
 #
 # print out problem time matrix in CSV format
@@ -362,7 +384,7 @@ if (1) {
 #   onelog.pl Fall2005-treacy.dat Fall2005-wintersgill.dat > times-Fall2005.csv
 #   onelog.pl Spring2006-treacy.dat Spring2006-wintersgill.dat > times-Spring2006.csv
 #
-if (1) {
+if (0) {
     print " ";
     foreach $problem (sort keys %problems) {print ",$problem";}
     print "\n";
