@@ -105,13 +105,18 @@
       ;; generate given-eqn
 	(qsolve-for (list `(Given-eqn ?eqn ,Goal)) Givens)
       ;;For each returned state.
-      collect (let ((Eqn (find 'Given-eqn (st-wm State)             
+      collect (let ((Eqn-prop (find 'Given-eqn (st-wm State)             
 			       :key #'car
-			       :test #'unify)))
+			       :test #'unify))
+		    (Given-prop (find `(given ,Goal . ?rest)
+		                      (st-wm State) :test #'unify)))
 		(setq **wm** 
 		      (union (st-wm state) **wm** :test #'unify))
 		(make-qsolres
-		 :id (nth 1 Eqn)       ;collect the eqn algebra
+		 ; id for a given eqn is the given proposition
+		 :id      (or Given-prop 
+		              (error "Given prop not found in wm for ~A~%" Eqn-prop))
+		 :algebra (second Eqn-prop)
 		 ;;Get the quantity variable.
 		 :nodes (find-if #'(lambda (V) (and (eql (car V) 
 							 'Variable)

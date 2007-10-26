@@ -229,28 +229,27 @@
 
 ;;;-------------------------------------------------------------------
 ;;; Solve givens.
-;;; Given nodes are solved for by solving for a given psm for the 
-;;; sought itself.  Once that has been done then the enode will be 
+;;; Given quantities are solved for by solving for a given-eqn goal 
+;;; for the sought.  Once that has been done then the enode will be 
 ;;; connected to a qnode representing the sought and added to the 
 ;;; graph itself.  
 ;;;
-;;; At present it is also necessary to store the matching given
-;;; as that is the ID expression for the enode.  This might be
-;;; nice to remove but is not necessary.
+;;; The enode id used a given eqn is an expression of the form
+;;;     (given ?quantity ?value)
+;;; as appears in the problem definition or working memory.
 (defun gg-solve-given-sought (Sought Givens Graph)
-  (let (G P Q R)
+  (let (P Q R)
       ;; make sure we can come up with an equation for this
       (Setq R (solve-for-given-eqn Sought Givens))
       (cond ((null R) (when (gg-find-matching-given Sought Givens)
                          (gg-debug "Sought is given, but cannot make given-eqn.")))
 	    (t
-	     (gg-debug "Sought is given, adding PSM") 
-	     ; get replacement for this printout from result
-	     (gg-debug "  ~S" (qsolres-id R))
+	     (gg-debug "Sought is given, adding PSM ~S" (qsolres-id R)) 
 	     (setq Q (make-qnode :exp Sought
 				 :var (nth 1 (Qsolres-Nodes R))
 				 :marks '(Given)))
-	     (setq P (gg-qsolres->Enode R :ID G :Algebra (Qsolres-ID R)
+	     (setq P (gg-qsolres->Enode R :ID (qsolres-id R) 
+	                                :Algebra (Qsolres-algebra R)
 					:marks 'Given :Qnodes Q))
 	     (setf (qnode-eqns Q) (list P))
 	     (cons Q (add-nodes-to-bubblegraph Graph Q P)))
