@@ -590,7 +590,7 @@
 ;; if the order of the body and agent wrong, according to Andes convention.
 (def-error-class wrong-order-potential-energy (?energy-type ?sbody ?sagent)
   ((student (define-var (?energy-type ?sbody ?sagent :time ?stime)))
-   (test (member ?energy-type '(grav-energy spring-energy 'electric-energy)))
+   (test (member ?energy-type '(grav-energy spring-energy electric-energy)))
    (correct (define-var (?energy-type ?sagent ?sbody :time ?ctime))))
   :flag (body agent)
   :utility 10   ; higher, we want students to learn this
