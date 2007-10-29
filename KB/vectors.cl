@@ -655,11 +655,14 @@
 
 ;; determine direction from either given direction or given compos
 ;; generally should be applied after drawing the vector.
+;;
+;; No inheritance here because this this supposed to approximate
+;; a directly given quantity.  We assume only parent quantities 
+;; would be given.
 
-(defoperator use-compos-for-dir (?quant-in)
+(defoperator use-compos-for-dir (?quant)
    :preconditions 
    (
-    (inherit-or-quantity ?quant-in ?quant)
     (given (compo x ?rot ?quant) (dnum ?xc ?units))
     (given (compo y ?rot ?quant) (dnum ?yc ?units))
     (not (given (dir ?quant) ?dir-given))
@@ -667,17 +670,12 @@
     )
    ;; Note that the answer is rounded, so the result cannot
    ;; be used as part of a numerical solution.
-   :effects ((dir-given-or-compos ?quant-in ?dir)))
+   :effects ((dir-given-or-compos ?quant ?dir)))
 
-(defoperator use-given-for-dir (?quant-in)
-  :preconditions 
-  ( 
-   (inherit-or-quantity ?quant-in ?quant)
-   ;; in-wm so that it is parallel to above
-   (in-wm (given (dir ?quant) ?dir)) 
-   )
-   :effects ((dir-given-or-compos ?quant-in ?dir)))
-   
+(defoperator use-given-for-dir (?quant)
+  :preconditions ((in-wm (given (dir ?quant) ?dir)) )
+   :effects ((dir-given-or-compos ?quant ?dir)))
+
 
 ;;; =================== defining component variables =============
 ;;; When writing a compo equation, the code will call (variable <var>
@@ -1404,16 +1402,16 @@
 
 ;; infer order from any given statements
 (defoperator greater-than-given-directions (?greater ?lesser)
-  :preconditions 
-  ;; wm-or-derive is cruicial for speed
-  ( (wm-or-derive (given (dir ?greater) ?dg . ?g-rest))
-    (wm-or-derive (given (dir ?lesser) ?dl . ?l-rest))
-    ;; only makes sense for vectors/lines in the xy plane
+  :preconditions
+  (
+   (dir-given-or-compos ?greater ?dg)
+   (dir-given-or-compos ?lesser ?dl)
+   ;; only makes sense for vectors/lines in the xy plane
     ;; use estimated values as best guess
-    (test (and (degree-specifierp ?dg :error t)
-	       (degree-specifierp ?dl :error t)
-	       (> (second ?dg) (second ?dl))))
-    )
+   (test (and (degree-specifierp ?dg :error t)
+	      (degree-specifierp ?dl :error t)
+	      (> (second ?dg) (second ?dl))))
+   )
   :effects ((greater-than ?greater ?lesser)))
 
 (defoperator write-angle-direction-line (?lines)
@@ -1452,7 +1450,8 @@
   (
    ;; iterate over orders
    (any-member ?vectors ((?greater ?lesser) (?lesser ?greater)))
-   ;; does not do inheritance, since inheritance is consistent for quantities
+   ;; do not do inheritance, since inheritance is same for both
+   ;; lhs and rhs of equation
    (inherit-or-quantity ?lesser ?lesser)
    (inherit-or-quantity ?greater ?greater)
    ;; This will also restrict to x-y plane

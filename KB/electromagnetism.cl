@@ -2154,13 +2154,15 @@
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
+   ;; we need the parent field below
+   (inherit-or-quantity (field ?region ?type ?source :time ?t) ?field-parent)
    ;; workbench requires field vector to be labelled as prerequisite for 
    ;; defining a dipole torque, so ensure it is drawn here.
    ;; also, draw vector so that direction can be determined below
-   (inherit-vector ?own (field ?region ?type ?source :time ?t) ?dir-drawn)
+   (vector ?own ?field-parent ?dir-drawn)
    ;; vector direction is not determined if compos are given, use this
    ;; to determine direction (and bind ?region and ?source)
-   (dir-given-or-compos (field ?region ?type ?source :time ?t) ?dir-f)
+   (dir-given-or-compos ?field-parent ?dir-f)
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
    (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
@@ -2191,14 +2193,16 @@
    ;; although the hints assume given dipole moment and given
    ;; field direction.
    (given (dir (dipole-moment ?dipole ?type :time ?t)) ?dir-d)
+   ;; we need the parent field below...
+   (inherit-or-quantity (field ?region ?type ?source :time ?t) ?field-parent)
    ;; workbench requires field vector to be labelled as prerequisite for 
    ;; defining a dipole torque, so ensure it is drawn here.
-   ;; also need to draw befor determining direction below
-   (inherit-vector ?dk (field ?region ?type ?source :time ?t) ?dir-drawn)
+   ;; also need to draw before determining direction below
+   (vector ?dk ?field-parent ?dir-drawn)
    ;; AW: for magtor1d, changed t-field to match draw-torque-dipole-given-dir
    ;; vector direction is 'unknown if compos are given, use this
    ;; to determine direction (and bind ?region and ?source)
-   (dir-given-or-compos (field ?region ?type ?source :time ?t) ?dir-f)
+   (dir-given-or-compos ?field-parent ?dir-f)
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
    (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
