@@ -1361,9 +1361,9 @@
  (
   (any-member ?lines (((line ?r1) (line ?r2))))
   ;; sanity test for orderless working OK
-  (test (or (expr< ?line1 ?line2)
+  (test (or (expr< ?r1 ?r2)
 	    (error "define-angle-between-vectors orderless wrong for ~%    ~A and  ~A"
-		   ?line1 ?line2)))
+		   ?r1 ?r2)))
 
   ;; lines must be drawn first
   (draw-line (line ?r1) ?dir1)
