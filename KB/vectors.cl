@@ -1156,7 +1156,7 @@
   :preconditions
   (
    (dir-given-or-compos ?a ?dir-a)
-   (dir-given-or-compos ?b ?dlr-b)
+   (dir-given-or-compos ?b ?dir-b)
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b)))
   :effects ((cross-direction ?dir-cross ?a ?b)))
 
