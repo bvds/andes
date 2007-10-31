@@ -1144,27 +1144,21 @@
 ;;;;
 ;;;;===========================================================================
 
-;; We have two mechanisms for determining directions:
-;; first is from the vector drawin when angles are known precisely
-;; and the second is from specifying which angle is "larger"
+;; Currently, when a vector is drawn in a known direction,
+;; (given (dir ?vector) ?dir) is always a side-effect.
+;; Thus we can use (dir-given-or-compos ...) to determine
+;; direction of vector, whether given directly, or via components,
+;; or drawn.
+;;
+;; This should behave similarly to (greater-than ...)
 
-(defoperator get-cross-direction-from-vectors (?a ?b)
+(defoperator get-cross-direction-from-givens (?a ?b)
   :preconditions
-  ((in-wm (vector ?a-body ?a ?dir-a))
-   (in-wm (vector ?b-body ?b ?dir-b))
+  (
+   (dir-given-or-compos ?a ?dir-a)
+   (dir-given-or-compos ?b ?dlr-b)
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b)))
-  :order ((cross-direction . 1))
   :effects ((cross-direction ?dir-cross ?a ?b)))
-
-(defoperator get-cross-direction-from-inequality (?a ?b)
-  :preconditions ((greater-than ?a ?b))
-  :order ((cross-direction . 2))
-  :effects ((cross-direction into ?a ?b)))
-
-(defoperator get-cross-direction-from-inequality (?a ?b)
-  :preconditions ((greater-than ?b ?a))
-  :order ((cross-direction . 2))
-  :effects ((cross-direction out-of ?a ?b)))
 
 ;; angle formulation:  only works when direction of cross product
 ;; is along an axis
