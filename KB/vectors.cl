@@ -665,7 +665,8 @@
    (
     (given (compo x ?rot ?quant) (dnum ?xc ?units))
     (given (compo y ?rot ?quant) (dnum ?yc ?units))
-    (not (given (dir ?quant) ?dir-given))
+    (not (given (dir ?quant) ?any-dir)
+	 (error "can't have both compos and direction given for ~A" ?quant))
     (bind ?dir (dir-from-compos ?xc ?yc))
     )
    ;; Note that the answer is rounded, so the result cannot
@@ -673,8 +674,12 @@
    :effects ((dir-given-or-compos ?quant ?dir)))
 
 (defoperator use-given-for-dir (?quant)
-  :preconditions ((in-wm (given (dir ?quant) ?dir)) )
-   :effects ((dir-given-or-compos ?quant ?dir)))
+  :preconditions 
+  ((given (dir ?quant) ?dir)
+   (not (given (compo ?xyz ?rot ?quant) ?any-val)
+	(error "can't have both compos and direction given for ~A" ?quant))
+   )
+  :effects ((dir-given-or-compos ?quant ?dir)))
 
 
 ;;; =================== defining component variables =============
@@ -1139,6 +1144,27 @@
 ;;;;
 ;;;;===========================================================================
 
+;; We have two mechanisms for determining directions:
+;; first is from the vector drawin when angles are known precisely
+;; and the second is from specifying which angle is "larger"
+
+(defoperator get-cross-direction-from-vectors (?a ?b)
+  :preconditions
+  ((in-wm (vector ?a-body ?a ?dir-a))
+   (in-wm (vector ?b-body ?b ?dir-b))
+   (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b)))
+  :order ((cross-direction . 1))
+  :effects ((cross-direction ?dir-cross ?a ?b)))
+
+(defoperator get-cross-direction-from-inequality (?a ?b)
+  :preconditions ((greater-than ?a ?b))
+  :order ((cross-direction . 2))
+  :effects ((cross-direction into ?a ?b)))
+
+(defoperator get-cross-direction-from-inequality (?a ?b)
+  :preconditions ((greater-than ?b ?a))
+  :order ((cross-direction . 2))
+  :effects ((cross-direction out-of ?a ?b)))
 
 ;; angle formulation:  only works when direction of cross product
 ;; is along an axis
@@ -1148,14 +1174,13 @@
   ( 
    (inherit-or-quantity ?a-in ?a)
    (inherit-or-quantity ?b-in ?b)
-   (in-wm (vector ?a-body ?a ?dir-a))
-   (in-wm (vector ?b-body ?b ?dir-b))
-   (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
+   (cross-direction ?dir-cross ?a ?b)
    (bind ?dir-axis (axis-dir ?compo ?rot))
-   ;; make sure that the direction is along the axis
+   ;; test that the direction is along the axis
    (test (parallel-or-antiparallelp ?dir-cross ?dir-axis))
-   ;; cross-zero handles these cases:
-   (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
+   ;; Need to determine parallel vs. anti-parallel below
+   (test (definite-directionp ?dir-cross))
+   ;; cross-zero handles cases with zero:
    (test (non-zero-projectionp ?dir-cross ?compo ?rot))
    ;;
    (in-wm (variable ?a-mag (mag ?a)))
@@ -1188,11 +1213,8 @@
   ( 
    (inherit-or-quantity ?a-in ?a)
    (inherit-or-quantity ?b-in ?b)
-   (in-wm (vector ?a-body ?a ?dir-a)) ;now done in the eqn-contains
-   (in-wm (vector ?b-body ?b ?dir-b)) ; ditto
-   (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
-   ;; cross-zero handles these cases:
-   (test (not (parallel-or-antiparallelp ?dir-a ?dir-b)))
+   (cross-direction ?dir-cross ?a ?b)
+   ;; cross-zero handles known zero components.
    (test (non-zero-projectionp ?dir-cross ?compo ?rot))
    ;;
    (any-member (?compo ?i ?j) ((x y z) (y z x) (z x y)))
@@ -1212,12 +1234,9 @@
    ;; Angle form is preferred because axes are sometimes
    ;; not demanded in this case.
    (test (not ?angle-flag))
-   (in-wm (vector ?a-body ?a ?dir-a))
-   (in-wm (vector ?b-body ?b ?dir-b))
-   (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b))
+   (cross-direction ?dir-cross ?a ?b)
    ;; negative of above test
-   (test (or (parallel-or-antiparallelp ?dir-a ?dir-b)
-	     (not (non-zero-projectionp ?dir-cross ?compo ?rot))))
+   (test (not (non-zero-projectionp ?dir-cross ?compo ?rot)))
    )
   :effects ( (cross 0 ?a-in ?b-in ?compo ?rot ?angle-flag) 
 	     ;; nogood rule to so that only one form of cross is chosen
