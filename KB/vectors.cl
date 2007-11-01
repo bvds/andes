@@ -343,6 +343,7 @@
 
 ; this draws the axes requested by the projection psm.
 (defoperator draw-projection-axes (?rot)
+  :order ( (default . LOW) ) ; prefer any other vector drawing op to give a hint
   :preconditions
   ( (in-wm (projection-axis ?rot)) ) 
    :effects (
@@ -897,11 +898,12 @@
 (defun get-vector-mag-var (vquant)
 "return variable name used for given vector quantity"
  (let (; note args only valid if quantity uses them
+       (quant (first vquant))
        (arg1 (second vquant))
        (arg2 (third vquant)) 
        (arg3 (fourth vquant))
        (time (time-of vquant)))
-  (case (first vquant)
+  (case quant
     (relative-position 
     	(format-sym "r_~A_~A~@[_~A~]" 
                     (body-name arg1) (body-name arg2) (time-abbrev time)))
@@ -910,30 +912,70 @@
     (accel (format-sym "a_~A~@[_~A~]" (body-name arg1) (time-abbrev time)))
     (force  ; (force ?body ?agent ?type)  
             ; !!! first char of type name not right for all force types
-            (format-sym "F~(~A~)_~A_~A~@[_~A~]" (aref (string arg2) 0) 
+            (format-sym "F~(~A~)_~A_~A~@[_~A~]" (aref (string arg3) 0) 
 	                (body-name arg1) (body-name arg2) (time-abbrev time)))
-    (impulse )
+    (impulse (format-sym "J_~A_~A_~A" (body-name arg1) (body-name arg2)
+			              (time-abbrev time)))
     (field  ; (field ?loc ?type  ?source ...)
         (format-sym "~A_~A_~A~@[_~A~]" (if (eq arg2 'Magnetic) "B"
 	                                (aref (string arg2) 0))
 	            (body-name arg1) (body-name arg3) (time-abbrev time)))
+    (default
+         (warn "get-vector-mag-var: no clause for vector type ~A" quant)
+	 ; probably not right, but take a stab:
+	 (format-sym "~A_~A~@[_~A~]~@[_~A~]" (aref (string quant) 0)
+	              (body-name arg1) (if arg2 (body-name arg2)) (time-abbrev time)))
   )))
-
-#|  ; AW -- don't use new rules while debugging sgg changes
 
 ;;
 ;; Currently, if an xy-plane vector is specified using the component-form inputs
 ;; of the vector dialog box, the given direction arg sent from the workbench 
-;; represents unknown.
-;; However, in cases where the direction is obvious, we can use a (vector ...) statement 
-;; with a known angle in solution, via the function entry-dir-from-compos.
-;; The help system can use the same function to fill in the direction in the student entry's
+;; represents unknown. This ensures the vector is drawn with "unknown" in the
+;; vector proposition in the solution to match.
+;;
+;; For vectors drawn using z-axis glpyhs, the workbench does send the z-direction
+;; rather than unknown.  We could use a rule like draw-zaxis-vector-given-compos to 
+;; match this, but there is currently no need for it.
+
+(defoperator draw-vector-given-compos (?vec)
+  :order ((default . HIGH)) ; pre-empt any other rule for drawing vector
+  :preconditions 
+  ( 
+   (given (compo x 0 ?vec) (dnum ?vx ?units))
+   (given (compo y 0 ?vec) (dnum ?vy ?units))
+   ;(test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
+   ; make sure not given a non-zero z component
+   (not (given (compo z 0 ?vec) (dnum ?vz ?units)) (not (equalp ?vz 0)))
+   (bind ?mag-var (get-vector-mag-var ?vec)) 
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ; not clear if we need implicit magnitude equation:
+   ;(bind ?mag-expr `(dnum ,(sqrt (+ (* ?vx ?vx) (* ?vy ?vy))) ,?units))
+   (bind ?b (second ?vec)) ; hack to get axis owner, urgh
+  )
+  :effects (
+    (vector ?b ?vec unknown)
+    (variable ?mag-var (mag ?vec))
+    (variable ?dir-var (dir ?vec))
+    ;(implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
+   )
+  :hint (
+    (point (string "The problem statement tells you the components of ~a." ?vec))
+    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
+	  ?vec ?dir-expr))
+  ))
+
+#| ; This possible rule doesn't match current workbench practice in API calls.
+
+;; However, in cases where the direction is obvious from components, we could use a 
+;; (vector ...) statement with a known angle in solution, via the function entry-dir-from-compos.
+;; The help system could use the same function to fill in the direction in the student entry's
 ;; (vector ... ) proposition from the student-entered component values. 
-;; This would allow the student to use EITHER the mag/dir form OR the
-;; component form on the workbench for these vectors. 
-;; 
+;; This might allow the student to use EITHER the mag/dir form OR the component form on the workbench 
+;; for these vectors. However it also makes it difficult to give whatswrong help if the directions
+;; don't match -- will trigger the wrong direction handlers when student hasn't explicitly 
+;; specified a direction.
 (defoperator draw-vector-given-compos-known (?vec)
-  :order ((default . HIGH))
+  :order ((default . HIGH)) ; pre-empt any other rule for drawing vector
   :preconditions 
   ( 
    (given (compo x 0 ?vec) (dnum ?vx ?units))
@@ -960,39 +1002,8 @@
     (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at ~a."
 	  ?vec ?dir-expr))
   ))
+|#
 
-(defoperator draw-vector-given-compos (?vec)
-  :order ((default . HIGH))
-  :preconditions 
-  ( 
-   (given (compo x 0 ?vec) (dnum ?vx ?units))
-   (given (compo y 0 ?vec) (dnum ?vy ?units))
-   (test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
-   (bind ?mag-var (get-vector-mag-var ?vec)) 
-   (bind ?dir-var (format-sym "O~A" ?mag-var))
-   ;(bind ?mag-expr `(dnum ,(sqrt (+ (* vx vx) (*vy vy)))))
-   (bind ?b (second ?vec)) ; hack to get axis owner, urgh
-  )
-  :effects (
-    (vector ?b ?vec unknown)
-    (variable ?mag-var (mag ?vec))
-    (variable ?dir-var (dir ?vec))
-    ;(implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
-   )
-  :hint (
-    (point (string "You know the components of ~a." ?vec))
-    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
-	  ?vec ?dir-expr))
-  ))
-
-; for testing path merging code on a simple case:
-; generates 6 solutions structured like write-sdd
-(defoperator do-merge-test (?b)
-  :preconditions (
-       (optional (body ?b))
-       (optional (axes-for ?b 0))
-  )
-  :effects ( (merge-test ?b) ))
 
 ; Move to kinematics.cl once working:
 
@@ -1001,7 +1012,7 @@
 ; to enter these further given statements into the problem definition. It will apply
 ; in both directions.
 ; This competes with the rdiff psm as a way of finding the components, but should pre-empt
-; it since they wind up being treated as givens.
+; it since the components wind up being treated as givens.
 (defoperator get-rdiff-given-compos (?p1 ?p2 ?t)
  :preconditions (
     (in-wm (given (compo x 0  (relative-position ?p1 origin :time ?t)) (dnum ?p1_x ?units)))
@@ -1017,7 +1028,6 @@
     (given (compo y ?rot  (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_y ?units))
  ))
 
-|#
 
 ;;;;===========================================================================
 ;;;;
