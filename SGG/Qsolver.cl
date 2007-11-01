@@ -380,7 +380,7 @@
 	(if better-choice 
 	   (progn
 	     (format T "merge: dropping ~a < ~a~%" 
-	                (caadr (first S)) (caadr better-choice))
+	                (caadr (first S)) (caadr (first better-choice)))
 	     (setq R NIL)) ; signal merge failure
 	 ; else
 	 (setq R (append C (list S))))))
