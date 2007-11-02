@@ -197,6 +197,7 @@
 
 ;; we don't have any automatic method to do multiple inheritance.
 ;; so we do both at once in the following two operators.
+(defun findbranch (x y) (find x y :test #'subsetp))
 
 (defoperator inherit-current-thru-component (?compo ?t)
   :preconditions
@@ -204,6 +205,13 @@
    ;; ?compo may be member of more than one ?path
    (branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
+
+   ;; AW: don't use subsegment of a larger branch, Bug 1427. I think only happens if 
+   ;; larger path is declared a "join" branch and smaller segment is not. [?]
+   (setof (in-wm (branch ?name1 join ?dontcare ?path1)) ?path1 ?join-paths)
+   (test (not (and (find ?branch ?join-paths :test #'subsetp)
+                   (not (eq ?whatever1 'join)))))
+
    ;; A loop has the same junction at beginning and end.
    (bind ?reduced-path (remove-duplicates ?path))
    ;; If ?compo is not bound, iterate over distinct elements in ?path.
@@ -2114,9 +2122,13 @@
    (any-member ?sought ( (voltage-across ?comp :time ?t) 
 			 (current-thru ?comp :time ?t)
 			 (electric-power ?comp :time ?t) ))
+#|;; AW: use older test to avoid applying to point, Bug 1425
    ;; We might apply this to things not declared to be a
    ;; circuit element
    (test (atom ?comp))
+|# 
+   (in-wm (circuit-component ?comp ?comp-type))
+   (test (member ?comp-type '(battery resistor)))
    (time ?t)
    ) 
   :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
