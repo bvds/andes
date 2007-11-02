@@ -313,14 +313,6 @@
   (when (known-z-dir-spec zdir)
     (if (equal zdir 'into) '(dnum 180 |deg|) '(dnum 0 |deg|))))
 
-; following assumes f-dir and r-dir are in the plane, 
-; and also that not parallel nor anti-parallel, so torque is non-zero
-(defun torque-zdir (f-dir r-dir)
- "return torque vector z-axis direction by rhr from force and relpos dirs"
- (if (> (- f-dir r-dir) 0) 
-      (if (> (- f-dir r-dir) 180) 'into 'out-of)
-  (if (> (- r-dir f-dir) 180) 'out-of 'into)))
-
 (defun rad-to-deg (radians)
  (* radians (/ 180 pi)))
 
@@ -413,10 +405,13 @@
 	   ;; else must be crossing two non-parallel xy-plane vectors
 	   ((eq dir-term1 'unknown) 'z-unknown)
 	   ((eq dir-term2 'unknown) 'z-unknown)
-	   ;; use function for dir torque(fdir rdir), inverting order of args
-	   (T  (torque-zdir (term-to-dir dir-term2 :approximate t)  
-			    (term-to-dir dir-term1 :approximate t)))))))
-  
+	   ;; else both xy-plane vectors.  
+	   ;; In this case, we allow approximate angles
+	   ((and (degree-specifierp dir-term1 :error t)
+		 (degree-specifierp dir-term2 :error t))
+	    (if (> (mod (- (second dir-term1) (second dir-term2)) 360) 180)
+		'out-of 'into))
+	   (t (error "unknown directions ~A ~A" dir-term1 dir-term2))))))
 
 (defun horizontal-or-vertical (dir-expr)
  "return true if this specifies a horizontal or vertical direction"
