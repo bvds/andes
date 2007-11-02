@@ -276,6 +276,7 @@
    "If the goal is to draw coordinate axes for use on some body's vectors,
        and there are any vectors on that body drawn at known angles
    then draw coordinate axes so that one of them is alligned with ?vector,"
+
    :preconditions 
    (
     ;; don't rotate axes if components are sought:
@@ -1023,7 +1024,7 @@
     (bind ?r21_x (- ?p2_x ?p1_x))
     (bind ?r21_y (- ?p2_y ?p1_y))
   )
- : effects (
+ :effects (
     (given (compo x ?rot  (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_x ?units))
     (given (compo y ?rot  (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_y ?units))
  ))
