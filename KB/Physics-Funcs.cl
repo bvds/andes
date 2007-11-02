@@ -405,7 +405,7 @@
 	   ;; else must be crossing two non-parallel xy-plane vectors
 	   ((eq dir-term1 'unknown) 'z-unknown)
 	   ((eq dir-term2 'unknown) 'z-unknown)
-	   ;; else both xy-plane vectors.  
+	   ;; else both known xy-plane vectors.  
 	   ;; In this case, we allow approximate angles
 	   ((and (degree-specifierp dir-term1 :error t)
 		 (degree-specifierp dir-term2 :error t))
