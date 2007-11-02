@@ -2355,8 +2355,8 @@
   :preconditions 
   (
    (point-charge ?b) ;Make sure source is point-charge
-   (given (dir (velocity ?b :time ?t)) ?dir-v)
-   (given (dir (relative-position ?loc ?b :time ?t)) ?dir-r)
+   (dir-given-or-compos (velocity ?b :time ?t) ?dir-v)
+   (dir-given-or-compos (relative-position ?loc ?b :time ?t) ?dir-r)
    (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
    (test ?cross-dir) ;make sure direction can be determined
    (test (not (eq ?cross-dir 'zero)))
@@ -2389,8 +2389,8 @@
   :preconditions 
   (
    (point-charge ?b) ;Make sure source is point-charge
-   (given (dir (velocity ?b :time ?t)) ?dir-v)
-   (given (dir (relative-position ?loc ?b :time ?t)) ?dir-r)
+   (dir-given-or-compos (velocity ?b :time ?t) ?dir-v)
+   (dir-given-or-compos (relative-position ?loc ?b :time ?t) ?dir-r)
    (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
    (test (eq ?cross-dir 'zero))
    (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
@@ -2415,8 +2415,8 @@
 (defoperator draw-Bfield-straight-current (?loc ?wire ?t)
   :preconditions 
   (
-   (given (dir (current-length ?wire :time ?t)) ?dir-l)
-   (given (dir (relative-position ?loc ?wire :time ?t)) ?dir-r)
+   (dir-given-or-compos (current-length ?wire :time ?t) ?dir-l)
+   (dir-given-or-compos (relative-position ?loc ?wire :time ?t) ?dir-r)
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*))))
@@ -2487,7 +2487,7 @@
    (inherit-proposition (field ?loc magnetic ?source :time ?t)
 			(field ?loc magnetic . ?rest)
 			(vector ?loco (field ?loc magnetic . ?rest) ?dir-b))
-   (given (dir (velocity ?b :time ?t ?t)) ?dir-V)
+   (dir-given-or-compos (velocity ?b :time ?t ?t) ?dir-V)
    ;; following currently only works for dirs along axis
    (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
    (test ?cross-dir) ; may be NIL on failure
@@ -2542,7 +2542,7 @@
   (at-place ?b ?loc :time ?t ?t)
   (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B)
   ;; this may require drawing the velocity vector: 
-  (given (dir (velocity ?b :time ?t)) ?dir-V)
+  (dir-given-or-compos (velocity ?b :time ?t) ?dir-V)
   ;; following currently only works for dirs along axis
   (bind ?F-dir (cross-product-dir ?dir-V ?dir-B))
   ;; make sure we have a non-null direction
@@ -2650,7 +2650,7 @@
 (defoperator find-magnetic-force-current (?b ?t ?source)
   :preconditions 
   (
-   (given (dir (current-length ?b :time ?t ?t)) ?dir-i)
+   (dir-given-or-compos (current-length ?b :time ?t ?t) ?dir-i)
    (at-place ?b ?loc :time ?t-at)
    (test (tinsidep ?t ?t-at))
    (inherit-proposition
@@ -2951,68 +2951,6 @@
    (bottom-out (string "Write the equation ~A" 
 		       ((= ?magF (* ?i ?l ?magB (sin ?theta))) algebra)))
    ))
-
-
-#| ; not using this, just show dir on diagram
-(defoperator charge-force-Bfield-dir-contains (?sought)
-  :preconditions 
-  ((debug "Using write-charge-force-Bfield-dir-contains ~%")
-   (any-member ?sought ((dir (force ?b ?source magnetic :time ?t))
-			(dir (field ?loc magnetic ?source :time ?t))
-			(charge ?b :time ?t)))
-   (body ?b)
-   (rdebug "Firing write-charge-force-Bfield-dir-contains ~%")
-   )
-  :effects(
-           (eqn-contains (charge-force-Bfield-dir ?b) ?sought)
-           )) 
-
-(defoperator write-force-dir-charge-Bfield-pos (?b ?t)
-  :preconditions 
-  ((debug "Using write-force-dir-charge-Bfield-pos ~%")
-   (at-place ?b ?loc :time ?t ?t)
-   (inherit-variable ?q (charge ?b :time ?t))
-   (given (dir (field ?loc magnetic ?source :time ?t ?t)) (dnum ?dir1 ?doncare1)) 
-   (motion ?b straight :dir (dnum ?dir2 ?dontcare1) :time ?t ?t . ?rest-motion)
-   (variable ?OF (dir (force ?b ?source magnetic :time ?t)))
-   (bind ?in-out (if (>= ?dir1 ?dir2) '(dnum 0 |deg|) '(dnum 180 |deg|)))
-   (sign-charge ?b pos)
-   (debug "Fired write-force-dir-charge-Bfield-pos  ~%")
-   )
-  :effects (
-            (eqn (= ?OF ?in-out) (charge-force-Bfield-dir ?b))
-            )
-  :hint (
-         (point (string "What is the relationship between the force, the charge and the magnetic field?"))
-         (teach (kcd "write-force-dir-charge-Bfield-pos")
-                 (string "The force on the charged particle is perpendicular to both the velocity vector and the magnetic field vector."))
-         (bottom-out (string "Use the right hand rule using the velocity vector and the magnetic field vector."))
-         ))
-         
-(defoperator write-force-dir-charge-Bfield-neg (?b ?t)
-  :preconditions 
-  ((debug "Using write-force-dir-charge-Bfield-neg ~%")
-   (at-place ?b ?loc :time ?t ?t)
-   (inherit-variable ?q (charge ?b :time ?t))
-   (given (dir (field ?loc magnetic ?source :time ?t ?t)) 
-	  (dnum ?dir1 ?whever)) 
-   (motion ?b straight :dir (dnum ?dir2 ?dontcare1) :time ?t ?t . ?rest) 
-   (variable ?OF (dir (force ?b ?source magnetic :time ?t)))
-   (bind ?in-out (if (>= ?dir1 ?dir2) 180 0))
-   (sign-charge ?b neg)
-   (debug "Fired write-force-dir-charge-Bfield-neg  ~%")
-   )
-  :effects (
-            (eqn (= ?OF ?in-out) (charge-force-Bfield-dir ?b))
-            )
-  :hint (
-         (point (string "What is the relationship between the force, the charge and the magnetic field?"))
-         (teach (kcd "write-force-dir-charge-Bfield-neg")
-                 (string "The force on the charged particle is perpendicular to both the velocity vector and the magnetic field vector."))
-         (bottom-out (string "Use the right hand rule using the velocity vector and the magnetic field vector."))
-         ))
-|#
-
 
 ;;;
 ;;;                    Biot-Savart law for a point particle

@@ -2473,9 +2473,9 @@
      (vector ?pt-or-b (force ?pt ?agent ?type :time ?t) ?f-dir)
      ;; fetch symbol name for force to use in torque symbol name
      (in-wm (variable ?force-mag-var (mag (force ?pt ?agent ?type :time ?t))))
-     ;; fetch the relative position vector and calculate torque direction
-     (in-wm (given (dir (relative-position ?pt ?axis :time ?t)) ?r-dir . ?rest))
-     (bind ?torque-dir (cross-product-dir ?r-dir ?f-dir))
+     ;; calculate torque direction
+     (cross-direction ?torque-dir (relative-position ?pt ?axis :time ?t)
+		      (force ?pt ?agent ?type :time ?t))
      (bind ?mag-var (format-sym "TOR_~A_~A" ?axis ?force-mag-var))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
    )
