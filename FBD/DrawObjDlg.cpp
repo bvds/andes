@@ -588,7 +588,7 @@ void CDrawObjDlg::PostNcDestroy() // cleanup after window destroyed:
 
 BOOL CDrawObjDlg::IsValidLabel(CString editStr)
 {
-	char illegalChar[]=" \\/():*?""<>|#[]%.,^-+=~`'{}@!&:$";
+	char illegalChar[]=" \\/()_:*?\"<>|#[]%.,^-+=~`'{}@!&:$";
 	if(editStr.IsEmpty()){
 		theApp.DoWarningMessage("Please enter a label", this);
 		return FALSE;

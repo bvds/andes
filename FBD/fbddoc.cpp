@@ -3077,8 +3077,14 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 						m_strBranches.AddTail(strChoice);
 					}
 					if (strFirst.CompareNoCase("Positions") == 0) {
-						// undo LISP print's upper casing
-						strChoice.MakeLower();
+						// Default is to undo LISP's upper casing of symbol, but not 
+						// for R1, C1, or A, B, C, or if quoted or Vbar'ed
+						if (! (    (strChoice.GetLength() == 2 && isdigit(strChoice[1]))
+							    ||  strChoice.GetLength() == 1
+								|| 	((CLispReader::Atom*)pChoiceObj)->IsString() 
+								||  ((CLispReader::Atom*)pChoiceObj)->IsVbarSymbol() 
+							  )) 
+							strChoice.MakeLower();
 						m_strPositions.AddTail(strChoice);
 					}
 				}
