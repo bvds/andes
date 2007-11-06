@@ -335,7 +335,7 @@
 (defoperator draw-field-unknown (?loc ?type ?source ?t)
   :preconditions 
   (
-   (homogeneous-field ?loc ?type ?source :dir ?dir unknown :time ?t)
+   (homogeneous-field ?loc ?type ?source :dir ?dir :time ?t)
    (test (or (eq ?dir 'z-unknown) (eq ?dir 'unknown)))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK

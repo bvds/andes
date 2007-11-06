@@ -331,6 +331,7 @@
   ))
 
 (defoperator use-body-axes-for-point (?point ?rot)
+  :order ( (default . LOW) ) ; prefer other axes drawing ops w/useful hints
   :specifications 
   "Axes for points on a body inherit the axes used for the whole body."
   :preconditions (
@@ -344,7 +345,7 @@
 
 ; this draws the axes requested by the projection psm.
 (defoperator draw-projection-axes (?rot)
-  :order ( (default . LOW) ) ; prefer any other vector drawing op to give a hint
+  :order ( (default . LOW) ) ; prefer other axes drawing ops w/useful hints
   :preconditions
   ( (in-wm (projection-axis ?rot)) ) 
    :effects (
@@ -667,12 +668,13 @@
    (
     (given (compo x ?rot ?quant) (dnum ?xc ?units))
     (given (compo y ?rot ?quant) (dnum ?yc ?units))
+    ; make sure non-zero z-comp not given
+    (not (given (compo z ?rot ?quant) (dnum ?zc ?units)) ; suchthat:
+         (not (equalp ?zc 0.0)))
     (not (given (dir ?quant) ?any-dir)
 	 (error "can't have both compos and direction given for ~A" ?quant))
     (bind ?dir (dir-from-compos ?xc ?yc))
     )
-   ;; Note that the answer is rounded, so the result cannot
-   ;; be used as part of a numerical solution.
    :effects ((dir-given-or-compos ?quant ?dir)))
 
 (defoperator use-given-for-dir (?quant)
@@ -683,6 +685,17 @@
    )
   :effects ((dir-given-or-compos ?quant ?dir)))
 
+(defoperator use-compos-for-z-dir (?quant)
+  :preconditions ( 
+    (given (compo x ?rot ?quant) (dnum 0.0 ?units))
+    (given (compo y ?rot ?quant) (dnum 0.0 ?units))
+    (given (compo z ?rot ?quant) (dnum ?zc ?units)) 
+    (test  (not (equalp ?zc 0.0)))
+    (bind ?dir (if (> ?zc 0) 'out-of 'into))
+    (not (given (dir ?quant) ?any-dir)
+	 (error "can't have both compos and direction given for ~A" ?quant))
+  )
+  :effects ((dir-given-or-compos ?quant ?dir)))
 
 ;;; =================== defining component variables =============
 ;;; When writing a compo equation, the code will call (variable <var>
@@ -946,7 +959,8 @@
    (given (compo y 0 ?vec) (dnum ?vy ?units))
    ;(test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
    ; make sure not given a non-zero z component
-   (not (given (compo z 0 ?vec) (dnum ?vz ?units)) (not (equalp ?vz 0)))
+   (not (given (compo z 0 ?vec) (dnum ?vz ?units)) ; such-that:
+        (not (equalp ?vz 0)))
    (bind ?mag-var (get-vector-mag-var ?vec)) 
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    ; not clear if we need implicit magnitude equation:
@@ -964,6 +978,36 @@
     (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
 	  ?vec ?dir-expr))
   ))
+
+(defoperator draw-z-axis-vector-given-compos (?vec)
+  :order ((default . HIGH)) ; pre-empt any other rule for drawing vector
+  :preconditions 
+  ( 
+   (given (compo x 0 ?vec) (dnum 0 ?units))
+   (given (compo y 0 ?vec) (dnum 0 ?units))
+   (given (compo z 0 ?vec) (dnum ?vz ?units)) 
+   (test (groundp ?vec))
+   ;(test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
+   (test  (not (equalp ?vz 0)))
+   (bind ?dir-expr (if (> ?vz 0) 'out-of 'into))
+   (bind ?mag-var (get-vector-mag-var ?vec)) 
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   ; not clear if we need implicit magnitude equation:
+   ;(bind ?mag-expr `(dnum ,(sqrt (+ (* ?vx ?vx) (* ?vy ?vy))) ,?units))
+   (bind ?b (second ?vec)) ; hack to get axis owner, urgh
+  )
+  :effects (
+    (vector ?b ?vec ?dir-expr)
+    (variable ?mag-var (mag ?vec))
+    (variable ?dir-var (dir ?vec))
+    ;(implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
+   )
+  :hint (
+    (point (string "The problem statement tells you the components of ~a." ?vec))
+    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
+	  ?vec ?dir-expr))
+  ))
+
 
 #| ; This possible rule doesn't match current workbench practice in API calls.
 
