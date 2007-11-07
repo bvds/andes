@@ -346,8 +346,12 @@
 ; this draws the axes requested by the projection psm.
 (defoperator draw-projection-axes (?rot)
   :order ( (default . LOW) ) ; prefer other axes drawing ops w/useful hints
-  :preconditions
-  ( (in-wm (projection-axis ?rot)) ) 
+  :preconditions ( 
+    (not (component-form))   ; will use draw-compo-form-axes
+    (not (use-energy-axes))  ; will use draw-energy-axes
+    ; also frequently conflicts with draw-vector-aligned-axes
+    (in-wm (projection-axis ?rot)) 
+    ) 
    :effects (
     (draw-axes ?b ?rot)	   ;action proposition for helpsys gives x dir
     (axes-for ?b ?rot)
