@@ -106,11 +106,11 @@
 ;; Problem output
 
 ;; Print out the full problem.  
-(defun print-problem (Problem &optional (Stream t))
+(defun print-problem (Problem &optional (Stream t) (level 0))
   "Print out the specified problem to the specified stream at the specified level."
-  (format Stream "<Problem ~W version ~A date ~A>~%" 
-	  (Problem-name Problem) (Problem-Version Problem) 
-	  (Problem-ModDate Problem)))
+  (declare (ignore level))
+  (format Stream "<Problem ~W with ~A solution~:p>~%" 
+	  (Problem-name Problem) (length (Problem-solutions Problem))))
 
 ;; Print out strictly the problem's descriptive info.
 (defun print-problem-text (Problem &optional (Stream t))
