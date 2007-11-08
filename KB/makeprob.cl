@@ -72,7 +72,7 @@
         (Errs))
     (dolist (P Probs)
 	 (handler-case 
-	       (test-solve P)	   
+	       (test-solve (problem-name P)) ;test-solve takes name, not prob struct
 	  (error (E) 
 	     (format T "~&!!! Error on ~A: ~A~%" (Problem-name P) E)
 	     ; save it for report at end
