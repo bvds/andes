@@ -335,7 +335,7 @@
 (defoperator draw-field-unknown (?loc ?type ?source ?t)
   :preconditions 
   (
-   (homogeneous-field ?loc ?type ?source :dir ?dir :time ?t)
+   (homogeneous-field ?loc ?type ?source :dir ?dir unknown :time ?t)
    (test (or (eq ?dir 'z-unknown) (eq ?dir 'unknown)))
    ;; only use time when allowed by feature changing-field
    ;; Sanity test for inherit-quantity working OK
@@ -672,7 +672,7 @@
   (
    (force ?b ?source electric ?t unknown from-field)
    (not (vector ?any-b (force ?b ?source electric :time ?t) ?any-dir))
-   (bind ?mag-var (format-sym "F_~A_~A~@[_~A~]" (body-name ?b) 
+   (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Eforce-unknown  ~%")
