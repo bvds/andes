@@ -683,7 +683,7 @@
 
 (defoperator use-given-for-dir (?quant)
   :preconditions 
-  ((given (dir ?quant) ?dir)
+  ((given (dir ?quant) ?dir :hint ?dontcare)
    (not (given (compo ?xyz ?rot ?quant) ?any-val)
 	(error "can't have both compos and direction given for ~A" ?quant))
    )
