@@ -39,7 +39,7 @@
   (let ((Probs (choose-working-probs topics))
 	;; for minimum of output, clear all trace/debug flags:
 	(*S-Print-Steps* NIL)		;intermediate results of top-level step
-	(*debug-gg* NIL)		;graph building process steps
+	(*Debug-gg* NIL)		;graph building process steps
 	(*debug-sp* NIL)		;solution point generation detail
 	(*debug-pp* nil)                ;post-processing functions
 	(*debug* NIL)			;debugging messages inside operators
@@ -64,7 +64,7 @@
   (let ((Probs (choose-working-probs topics))
 	;; for minimum of output, clear all trace/debug flags:
 	(*S-Print-Steps* NIL)		;intermediate results of top-level
-	(*debug-gg* NIL)		;graph building process steps
+	(*Debug-gg* NIL)		;graph building process steps
 	(*debug-sp* NIL)		;solution point generation detail
 	(*debug-pp* nil)                ;post-processing functions
 	(*debug* NIL)			;debugging messages inside operators
