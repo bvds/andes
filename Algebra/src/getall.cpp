@@ -267,9 +267,9 @@ bool makepar(const string bufst, bool keep_algebraic)
 	  {
 	    numparams++;
 	    // Bug #1374, a random choice can sometimes cause problems
-	    // As a work-around, fine-tune function so that kt7b works.
+	    // this function works for kt7b given order params come out
 	    binopexp *eq = new binopexp(&equals,new physvarptr(k),
-					new numvalexp(sin(88.3*((double) numparams)+72.0)+1.0));
+					                new numvalexp(exp((double) numparams)/M_PI));
 	    paramasgn->push_back(eq);
 	    DBG ( cout << "variable |" << newvar << "| set param, no. "
 		  << numparams << endl
