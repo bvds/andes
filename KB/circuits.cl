@@ -197,7 +197,10 @@
 
 ;; we don't have any automatic method to do multiple inheritance.
 ;; so we do both at once in the following two operators.
-(defun findbranch (x y) (find x y :test #'subsetp))
+
+(defun subbranch-p (b1 b2) 
+"return t if atoms in list b1 are subset of those in b2"
+    (subsetp (flatten b1) (flatten b2)))
 
 (defoperator inherit-current-thru-component (?compo ?t)
   :preconditions
@@ -206,11 +209,12 @@
    (branch ?name ?whatever1 ?whatever2 ?path)
    (path-to-branch ?branch ?path)
 
-   ;; AW: don't use subsegment of a larger branch, Bug 1427. I think only happens if 
-   ;; larger path is declared a "join" branch and smaller segment is not. [?]
-   (setof (in-wm (branch ?name1 join ?dontcare ?path1)) ?path1 ?join-paths)
-   (test (not (and (find ?branch ?join-paths :test #'subsetp)
-                   (not (eq ?whatever1 'join)))))
+   ;; AW: don't use subsegment of a larger branch, Bug 1427. I think we only have to consider
+   ;; case where larger path is declared a "joined" branch (because formed by joining other 
+   ;; branches) and smaller segment is not. 
+   (setof (in-wm (branch ?name1 joined ?dontcare ?path1)) ?path1 ?join-paths)
+   (test (not (and (find ?branch ?join-paths :test #'subbranch-p)
+                   (not (eq ?whatever1 'joined)))))
 
    ;; A loop has the same junction at beginning and end.
    (bind ?reduced-path (remove-duplicates ?path))
