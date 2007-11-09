@@ -2132,7 +2132,7 @@
    (test (atom ?comp))
 |# 
    (in-wm (circuit-component ?comp ?comp-type))
-   (test (member ?comp-type '(battery resistor)))
+   (test (member ?comp-type '(battery resistor inductor)))
    (time ?t)
    ) 
   :effects ( (eqn-contains (electric-power ?comp ?t) ?sought) ))
