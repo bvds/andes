@@ -384,6 +384,15 @@
 	  (T (min (mod (- dir1 dir2) 180)
 		  (mod (- dir2 dir1) 180))))))
 
+; following is for testing student entry against solution entry, so unknown matches unknown.
+; args are dir-terms: special atoms or dnums in degrees. doesn't handle naked number
+(defun direction-match (dir1 dir2)
+"return true if two direction terms represent matching directions, allowing for errors"
+   (or (and (atom dir1) (atom dir2) 
+             (eq dir1 dir2))	
+       (and (degree-specifierp dir1 :error T) (degree-specifierp dir2 :error T)
+	      ; !!! canonicalize value mod 360 if not already done by caller
+	    (compare-dnums dir1 dir2))))
 
 (defun cross-product-dir (dir-term1 dir-term2)
   "return direction of cross product of two Andes vector dirs"
