@@ -120,8 +120,10 @@
 	(m2 '(Implicit-Eqn Eqn)))
     (cond 
      ((eq T1 T2) T1)  ;exact equality 
+     ;; AW -- change this to Given-Eqn to treat as given
+     ;; in this case.  Arises for given components, Bug 691
      ;; merge Implicit-Eqn and Given-Eqn into Implicit-Eqn
-     ((and (member T1 m1) (member T2 m1)) 'Implicit-Eqn)
+     ((and (member T1 m1) (member T2 m1)) 'Given-Eqn)
      ;; merge Implicit-Eqn and Eqn into Implicit-Eqn
      ((and (member T1 m2) (member T2 m2)) 'Implicit-Eqn)
      (t nil))))
