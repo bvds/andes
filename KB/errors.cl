@@ -4228,12 +4228,15 @@
   :order ((correct . 2))
   )
 
-
-(def-entry-test match-vector (?quant)
+; This test allows possibility of tolerance in direction via :error in
+; the correct direction dnum. Note non-dnum dirs including unknown must 
+; pass exact-match text so this test doesn't have to handle them.
+(def-entry-test match-vector (?quant) 
   :preconditions ((student (vector ?quant ?dir1))
-		  (correct (vector ?quant ?dir2))
-		  ;; test that angle can indeed be determined
-		  (test (direction-match ?dir1 ?dir2)))
+		  (correct (vector ?quant ?dir2)) ; may have :error
+		  (test (and (dimensioned-numberp ?dir1) 
+		             (dimensioned-numberp ?dir2)
+			     (compare-dnums ?dir1 ?dir2))))
   :state **correct**
   :order ((correct . 2))
   )
