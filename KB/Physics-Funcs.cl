@@ -509,7 +509,7 @@
 	   (<= (abs (- (second x) (second y))) 
 	       (+ (error-of x) (error-of y))))
       (unify (third x) (third y) bindings)
-    fail))
+    NIL))
 
 (defun error-of (x) 
   "find any error associated with expression"

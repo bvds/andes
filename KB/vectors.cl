@@ -965,6 +965,8 @@
    ; make sure not given a non-zero z component
    (not (given (compo z 0 ?vec) (dnum ?vz ?units)) ; such-that:
         (not (equalp ?vz 0)))
+   (not (given (dir ?vec) ?any-dir)
+	 (error "shouldn't give both compos and direction of ~A" ?vec))
    (bind ?mag-var (get-vector-mag-var ?vec)) 
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    ; not clear if we need implicit magnitude equation:
@@ -1302,10 +1304,11 @@
 ;; the solution, but the solver will have a value for them.
 (post-process add-unused-given-compos (problem)
   "add unused given vector components with values to variable index"
-  ;; do for each given vector component
+  ;; do for each given vector component. Look in all of wm because 
+  ;; some given values are derived by rule from those in definition.
   (dolist (prop (Filter-expressions 
                        '(given (compo ?xyz ?rot ?vector) . ?rest)
-		        (problem-givens problem))) 
+		        (problem-wm problem))) 
    (let ((quant (second prop)))
      ;; if it's not already in the index
      (when (not (find quant (problem-varindex problem) 
