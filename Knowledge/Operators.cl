@@ -331,6 +331,17 @@
   "Obtain a list of operators that have an effect of the specified predicate type or nil if none exist."
   (gethash Predicate *Operators-By-Effect*))
 
+;; Following utility mainly for kb maintenance. takes either atom or form 
+(defun list-ops (Predicate-or-Form)
+  "return list of operators with effects using specified predicate or unifying with form"
+  ; turn atomic argument into unify pattern
+  (let ((pat (if (atom Predicate-or-Form) `(,Predicate-or-Form . ?rest)
+                  Predicate-or-Form)))
+   (mapcar #'operator-name
+	   (remove-if-not #'(lambda (op)
+	                 (find pat (operator-effects op) :test #'unify))
+	       (get-operators-by-effect (first pat))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get-operator-by-tag
