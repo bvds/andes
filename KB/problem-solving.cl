@@ -76,11 +76,6 @@
 (defoperator find-by-PSM (?sought ?eqn-id)
   :preconditions 
   (
-   ;; save initially known quants for detecting changes below
-   ;; This is initial givens plus quantities given as parameters
-   (setof (in-wm (given ?quant . ?dont-care)) ?quant ?initial-givens)
-   (setof (in-wm (parameter ?quant . ?dont-care)) ?quant ?parameters)
-   (bind ?initial-knowns (union ?initial-givens ?parameters :test #'unify))
    ;; Main step: apply a PSM to generate an equation for sought.
    (PSM-applied ?sought ?eqn-id ?eqn-algebra)
    
@@ -92,39 +87,19 @@
    ;; Use "unify" to correctly handle keywords.
    (test (member ?sought ?quantities-in-eqn :test #'unify))
    
-   ;; Some quantities in eqn may have become "given" -- known -- as side 
-   ;; effects of applying the PSM. Here we call them the new-knowns.
-   ;; We get what's known now and figure out what's changed.
-   (setof (in-wm (given ?quant . ?dont-care))
-	  ?quant ?given-now)
-   (bind ?known-now (union ?given-now ?parameters :test #'unify))
-   (bind ?new-knowns
-	 (set-difference ?known-now ?initial-knowns :test #'unify))
-   ;; (debug "Made known inside PSM: ~A~%" ?new-knowns)
-   ;; Although the bubble driver won't have to seek them, for algebraic 
-   ;; completeness we must put out equations giving values for 
-   ;; the new-knowns.  Could also do this at all the points they become 
-   ;; known but it's simpler to have one bit of code to do this.
-   ;; we distinguish them as implicit equations since the student will
-   ;; not have to write them. The algebra module still needs them.
-   (foreach ?quant ?new-knowns
-	    (implicit-eqn ?new-eqn ?quant))
-   
    ;; Collect residual unknowns from eqn to include in the final PSM stmt 
    ;; This is a convenience to bubble-graph search driver, which will
    ;; see the equation and can easily get its variables but finds it 
-   ;; inconvenient to map the variables to quantities.  Used to be:
-   ;; (bind ?new-unknowns
-   ;;      (set-difference ?quantities-in-eqn ?known-now :test #'unify))
-   ;; But removing problem givens and parameters is no longer wanted. 
+   ;; inconvenient to map the variables to quantities.  
+   ;; We used to have to remove problem givens and parameters, but
+   ;; that is no longer wanted.
    ;; Driver now pre-enters problem givens and parameters into the graph 
    ;; before calling solver to find soughts, so now wants them included 
    ;; in order to know to link nodes for these quants to this equation. 
    ;; Since givens and parameters are flagged known the driver won't seek 
    ;; them.  We do exclude the quantities known by side effect since they 
    ;; shouldn't go into the bubble-graph. We get these by looking for
-   ;; quantities for which implicit equations were written, either above
-   ;; or in the operators -- for given vector dirs it happens in operators
+   ;; quantities for which implicit equations were written.
    (setof (in-wm (implicit-eqn (= ?var (dnum . ?valunits)) ?imp-eq-quant))
 	  ?imp-eq-quant ?imp-eq-quants)
    (bind ?new-unknowns 

@@ -993,7 +993,7 @@
    (given (compo y 0 ?vec) (dnum 0 ?units))
    (given (compo z 0 ?vec) (dnum ?vz ?units)) 
    (test (groundp ?vec))
-   ;(test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
+   (test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
    (test  (not (equalp ?vz 0)))
    (bind ?dir-expr (if (> ?vz 0) 'out-of 'into))
    (bind ?mag-var (get-vector-mag-var ?vec)) 
@@ -1015,7 +1015,7 @@
   ))
 
 
-#| ; This possible rule doesn't match current workbench practice in API calls.
+;#| ; This possible rule doesn't match current workbench practice in API calls.
 
 ;; However, in cases where the direction is obvious from components, we could use a 
 ;; (vector ...) statement with a known angle in solution, via the function entry-dir-from-compos.
@@ -1043,17 +1043,18 @@
     (vector ?b ?vec ?dir-expr)
     (variable ?mag-var (mag ?vec))
     (variable ?dir-var (dir ?vec))
+    (given (dir ?vec) ?dir-expr)
     ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
     ;; gets written. Given value may not be used elsewhere so ensure it here.
     (implicit-eqn (= ?dir-var ?dir-expr) (dir ?vec))
     ;(implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
    )
   :hint (
-    (point (string "You know the components of ~a." ?vec))
+    (point (string "The problem statement tells you the components of ~a, which make its direction obvious." ?vec))
     (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at ~a."
 	  ?vec ?dir-expr))
   ))
-|#
+;|#
 
 
 ; Move to kinematics.cl once working:

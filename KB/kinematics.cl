@@ -586,7 +586,9 @@
    ((vector ?b (displacement ?b :time ?t) ?dir)
     (variable ?mag-var (mag (displacement ?b :time ?t)))
     (variable ?dir-var (dir (displacement ?b :time ?t)))
-    (given (dir (displacement ?b :time ?t)) ?dir)) 
+    (given (dir (displacement ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (displacement ?b :time ?t)))
+    ) 
   :hint
   ((point (string "Notice that ~A, ~@? along a straight line." 
 		  (?t pp) (?any-motion identity) ?b))
@@ -789,7 +791,9 @@
   :effects
   ((vector ?b (velocity ?b :time ?t) zero)
    (variable ?mag-var (mag (velocity ?b :time ?t)))
-   (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
+   (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|))
+   (implicit-eqn (= ?mag-var (dnum 0 |m/s|)) (mag (velocity ?b :time ?t)))
+   )
   :hint
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (kcd "draw_zero_velocity")
@@ -811,7 +815,9 @@
   :effects
    ((vector ?b (velocity ?axis :time ?t) zero)
     (variable ?mag-var (mag (velocity ?axis :time ?t)))
-    (given (mag (velocity ?axis :time ?t)) (dnum 0 |m/s|)))
+    (given (mag (velocity ?axis :time ?t)) (dnum 0 |m/s|))
+    (implicit-eqn (= ?mag-var (dnum 0 |m/s|)) (mag (velocity ?axis :time ?t)))
+    )
   :hint
   ((point (string "Although ?b is rotating, the axis of rotation ~A is fixed." 
 		  ?b ?axis))
@@ -841,7 +847,8 @@
   :effects
   ((vector ?body (velocity ?b :time ?t) zero)
    (variable ?mag-var (mag (velocity ?b :time ?t)))
-   (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|)))
+   (given (mag (velocity ?b :time ?t)) (dnum 0 |m/s|))
+   (implicit-eqn (= ?mag-var (dnum 0 |m/s|)) (mag (velocity ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is momentarily at rest ~a." ?b (?t pp)))
    (teach (string "When an object is at rest even momentarily, its velocity at that moment is zero.")
@@ -873,7 +880,9 @@
   ((vector ?body (velocity ?b :time ?t) ?dir)
    (variable ?mag-var (mag (velocity ?b :time ?t)))
    (variable ?dir-var (dir (velocity ?b :time ?t)))
-   (given (dir (velocity ?b :time ?t)) ?dir))
+   (given (dir (velocity ?b :time ?t)) ?dir)
+   (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t)))
+   )
   :hint
   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
    (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion.")
@@ -931,7 +940,8 @@
    ((vector ?b (velocity ?b :time ?t) ?dir)
     (variable ?mag-var (mag (velocity ?b :time ?t)))
     (variable ?dir-var (dir (velocity ?b :time ?t)))
-    (given (dir (velocity ?b :time ?t)) ?dir))
+    (given (dir (velocity ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t))))
   :hint
   ((teach (string "When an object is moving in a curve, its velocity at an instant of time is tangent to the curve.")
 	  (kcd "draw-velocity-curved"))
@@ -985,6 +995,7 @@
     (variable ?mag-var (mag (velocity ?b :time ?t)))
     (variable ?dir-var (dir (velocity ?b :time ?t)))
     (given (dir (velocity ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t)))
   )
   :hint (
     (point (string "Notice that ~A is at its maximum height ~A" ?b (?t pp)))
@@ -1329,7 +1340,8 @@
   :effects
   ((vector ?b (accel ?b :time ?t) zero)        
    (variable ?mag-var (mag (accel ?b :time ?t)))
-   (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
+   (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|))
+   (implicit-eqn (= ?mag-var (dnum 0 |m/s^2|)) (mag (accel ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
    (teach (kcd "draw_accel_when_at_rest")
@@ -1352,7 +1364,8 @@
     )
   :effects ((vector ?b (accel ?b :time ?t) zero)
 	    (variable ?mag-var (mag (accel ?b :time ?t)))
-	    (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
+	    (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|))
+            (implicit-eqn (= ?mag-var (dnum 0 |m/s^2|)) (mag (accel ?b :time ?t))))
   :hint 
   ((point (string "What do you know about the acceleration of ~A ~A?" 
 		  ?b (?t pp)))
@@ -1381,7 +1394,8 @@
   :effects
    ((vector ?b (accel ?b :time ?t) zero)
     (variable ?mag-var (mag (accel ?b :time ?t)))
-    (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
+    (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|))
+    (implicit-eqn (= ?mag-var (dnum 0 |m/s^2|)) (mag (accel ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is moving in a straight line at constant speed ~A."
 		  ?b (?t pp)))
@@ -1406,7 +1420,8 @@
   :effects
   ((vector ?b (accel ?b :time ?t) zero)        
    (variable ?mag-var (mag (accel ?b :time ?t)))
-   (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|)))
+   (given (mag (accel ?b :time ?t)) (dnum 0 |m/s^2|))
+   (implicit-eqn (= ?mag-var (dnum 0 |m/s^2|)) (mag (accel ?b :time ?t))))
   :hint
   ((point (string "Notice that the potential has zero slope at ~A." ?loc))
    (teach (string "If a potential has zero slope, then it exerts no force."))
@@ -1429,7 +1444,8 @@
    ((vector ?b (accel ?b :time ?t) ?dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?dir))
+    (given (dir (accel ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that the velocity of ~A is changing ~A." 
 		   ?b (?t pp)))
@@ -1463,7 +1479,8 @@
    ((vector ?b (accel ?b :time ?t) ?dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?dir))
+    (given (dir (accel ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that ~a is moving in a straight line and speeding up ~a" ?b (?t pp)))
     (teach (minilesson "mini_speedup_accel.htm")
@@ -1490,7 +1507,8 @@
    ((vector ?b (accel ?b :time ?t) ?dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?dir))
+    (given (dir (accel ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that the potential at ~A is ~A as x increases."
 		   ?loc (?slope adj)))
@@ -1638,7 +1656,8 @@
    ((vector ?b (accel ?b :time ?t) ?accel-dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?accel-dir))
+    (given (dir (accel ?b :time ?t)) ?accel-dir)
+    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is slowing down as it moves in a straight line ~a" ?b (?t pp)))
    (teach (minilesson "mini_slowdown_accel.htm")
@@ -1674,6 +1693,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) (dnum 270 |deg|))
+    (implicit-eqn (= ?dir-var (dnum 270 |deg|)) (dir (accel ?b :time ?t)))
     (constant (accel ?b) ?t)
    )
    :hint
@@ -1768,7 +1788,8 @@
    ((vector ?b (accel ?b :time ?t) ?accel-dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?accel-dir))
+    (given (dir (accel ?b :time ?t)) ?accel-dir)
+    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that ~a is in uniform circular motion ~a" ?b (?t pp)))
     (teach (kcd "draw_accel_circular_constant_speed")
@@ -1802,7 +1823,8 @@
    ((vector ?b (accel ?b :time ?t) ?accel-dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?accel-dir))
+    (given (dir (accel ?b :time ?t)) ?accel-dir)
+    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
    :hint
     ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
     (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." 
@@ -1837,7 +1859,8 @@
    ((vector ?b (accel ?b :time ?t) ?accel-dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
-    (given (dir (accel ?b :time ?t)) ?accel-dir))
+    (given (dir (accel ?b :time ?t)) ?accel-dir)
+    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
    :hint
     ((point (string "The force(s) acting on ~A ~A point(s) in the direction ~A." ?b (?t pp) (?accel-dir adj)))
     (teach (string "Newton's second law F=ma relates the net force and acceleration vectors.  If you know the direction of the net force, then you can find the direction of the acceleration.")) 
@@ -2644,7 +2667,8 @@
   :effects 
   ((vector ?b (relative-position ?b ?loc :time ?t) zero)
    (variable ?mag-var (mag (relative-position ?b ?loc :time ?t)))
-   (given (mag (relative-position ?b ?loc :time ?t)) (dnum 0 |m|)))
+   (given (mag (relative-position ?b ?loc :time ?t)) (dnum 0 |m|))
+   (implicit-eqn (= ?mag-var (dnum 0 |m|)) (mag (relative-position ?b ?loc :time ?t))))
   :hint 
   ( (point (string "Note that ~A is at ~A." ?b ?loc))
     (teach (string "What is the relative position of ~A with respect to ~A?" 
@@ -3004,6 +3028,7 @@
     (variable ?mag-var (mag (ang-velocity ?b :time ?t)))
     (variable ?dir-var (dir (ang-velocity ?b :time ?t)))
     (given (dir (ang-velocity ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (ang-velocity ?b :time ?t)))
     (vector ?b (ang-velocity ?b :time ?t) ?dir) 
   )
   :hint 
@@ -3031,6 +3056,7 @@
     (vector ?b (ang-velocity ?b :time ?t) zero) 
     (variable ?mag-var (mag (ang-velocity ?b :time ?t)))
     (given (mag (ang-velocity ?b :time ?t)) (dnum 0 |rad/s|))
+    (implicit-eqn (= ?mag-var (dnum 0 |rad/s|)) (mag (ang-velocity ?b :time ?t)))
   )
   :hint (
     (point (string "Notice that ~a is in rotational equilibrium ~a." 
@@ -3057,6 +3083,7 @@
     (variable ?mag-var (mag (ang-displacement ?b :time ?t)))
     (variable ?dir-var (dir (ang-displacement ?b :time ?t)))
     (given (dir (ang-displacement ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (ang-displacement ?b :time ?t)))
   )
   :hint
   ((point (string "Notice that ~a is rotating ~a ~a." 
@@ -3100,7 +3127,8 @@
   :effects
   ((vector ?b (ang-accel ?b :time ?t) zero)        
    (variable ?mag-var (mag (ang-accel ?b :time ?t)))
-   (given (mag (ang-accel ?b :time ?t)) (dnum 0 |rad/s^2|)))
+   (given (mag (ang-accel ?b :time ?t)) (dnum 0 |rad/s^2|))
+   (implicit-eqn (= ?mag-var (dnum 0 |rad/s^2|)) (mag (ang-accel ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is not rotating ~a." ?b (?t pp)))
    (teach (kcd "draw_accel_when_at_rest")
@@ -3124,7 +3152,9 @@
    ((vector ?b (ang-accel ?b :time ?t) ?dir) 
     (variable ?mag-var (mag (ang-accel ?b :time ?t)))
     (variable ?dir-var (dir (ang-accel ?b :time ?t)))
-    (given (dir (ang-accel ?b :time ?t)) ?dir))
+    (given (dir (ang-accel ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (ang-accel ?b :time ?t)))
+    )
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is changing ~A." ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity."))
@@ -3145,7 +3175,8 @@
    ((vector ?b (ang-accel ?b :time ?t) ?dir) 
     (variable ?mag-var (mag (ang-accel ?b :time ?t)))
     (variable ?dir-var (dir (ang-accel ?b :time ?t)))
-    (given (dir (ang-accel ?b :time ?t)) ?dir))
+    (given (dir (ang-accel ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (ang-accel ?b :time ?t))))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is increasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity.  If an object's rate of rotation is speeding up then its angular velocity vector is increasing in magnitude over time, so the angular acceleration will point in the same direction as the angular velocity.  By the right-hand rule that will be out of the x-y plane for ccw rotation and into the plane for cw rotation."))
@@ -3170,7 +3201,8 @@
    ((vector ?b (ang-accel ?b :time ?t) ?dir) 
     (variable ?mag-var (mag (ang-accel ?b :time ?t)))
     (variable ?dir-var (dir (ang-accel ?b :time ?t)))
-    (given (dir (ang-accel ?b :time ?t)) ?dir))
+    (given (dir (ang-accel ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (ang-accel ?b :time ?t))))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is decreasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity. If an object's rate of rotation is slowing down then its angular velocity vector is decreasing in magnitude over time, so the angular acceleration will point in the opposite direction from the angular velocity, as determined by the right-hand rule."))

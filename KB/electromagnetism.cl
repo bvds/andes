@@ -222,6 +222,7 @@
             (variable ?mag-var (mag (field ?loc ?type ?source :time ?t)))
             (variable ?dir-var (dir (field ?loc ?type ?source :time ?t)))
 	    (given (dir (field ?loc ?type ?source :time ?t)) ?dir-f)
+	    (implicit-eqn (= ?dir-var ?dir-f) (dir (field ?loc ?type ?source :time ?t)))
             )
   :hint (
 	(point (string "Notice that ~A contains a constant ~A field."
@@ -306,6 +307,7 @@
    (variable ?mag-var (mag (field ?loc electric ?source :time ?t))) 
    (variable ?dir-var (dir (field ?loc electric ?source :time ?t))) 
    (given (dir (field ?loc electric ?source :time ?t)) ?Field-dir)
+   (implicit-eqn (= ?dir-var ?Field-dir) (dir (field ?loc electric ?source :time ?t)))
    )
   :hint (
 	 (point (string "Think about how the direction of the electric force at ~a due to ~a is related to the direction of the electric field vector at ~a" ?loc (?source agent) ?loc))
@@ -396,6 +398,7 @@
             (variable ?mag-var (mag (field ?loc electric ?b :time ?t))) 
             (variable ?dir-var (dir (field ?loc electric ?b :time ?t))) 
             (given (dir (field ?loc electric ?b :time ?t)) ?Field-dir)
+            (implicit-eqn (= ?dir-var ?Field-dir) (dir (field ?loc electric ?b :time ?t)))
   )
   :hint (
         (point (string "Because ~A is charged, it creates an electric field at ~A." ?b ?loc))
@@ -552,6 +555,7 @@
 	  (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
 	  (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
 	  (given (dir (force ?b ?source electric :time ?t)) ?F-dir)
+	  (implicit-eqn (= ?dir-var ?F-dir) (dir (force ?b ?source electric :time ?t)))
 	  )
 :hint (
        (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the relative position of the two bodies." ?b (?source agent)))
@@ -634,6 +638,7 @@
 	  (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
 	  (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
 	  (given (dir (force ?b ?source electric :time ?t)) ?F-dir)
+	  (implicit-eqn (= ?dir-var ?F-dir) (dir (force ?b ?source electric :time ?t)))
 	  )
 :hint (
        (point (string "Think about how the direction of the electric force on ~A due to ~a is related to the direction of the electric field vector." ?b (?source agent)))
@@ -2374,6 +2379,7 @@
            (variable ?mag-var (mag (field ?loc magnetic ?b :time ?t)))
            (variable ?dir-var (dir (field ?loc magnetic ?b :time ?t)))
            (given (dir (field ?loc magnetic ?b :time ?t)) ?dir-B)
+           (implicit-eqn (= ?dir-var ?dir-B) (dir (field ?loc magnetic ?b :time ?t)))
   )
   :hint (
       (point (string "The direction of the magnetic field of a moving point charge can be determined using the Biot-Savart law."))
@@ -2433,6 +2439,7 @@
            (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
            (variable ?dir-var (dir (field ?loc magnetic ?wire :time ?t)))
            (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
+           (implicit-eqn (= ?dir-var ?dir-B) (dir (field ?loc magnetic ?wire :time ?t)))
   )
   :hint (
       (point (string "The direction of the magnetic field lines around a straight current-carrying wire can be determined by a use of the right-hand rule."))
@@ -2463,6 +2470,7 @@
            (variable ?mag-var (mag (field ?loc magnetic ?wire :time ?t)))
            (variable ?dir-var (dir (field ?loc magnetic ?wire :time ?t)))
            (given (dir (field ?loc magnetic ?wire :time ?t)) ?dir-B)
+           (implicit-eqn (= ?dir-var ?dir-B) (dir (field ?loc magnetic ?wire :time ?t)))
   )
   :hint (
       (point (string "The direction of the magnetic field at the center of a current-carrying coil can be determined by a use of the right-hand rule."))
@@ -2525,6 +2533,7 @@
             (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
             (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
             (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
+            (implicit-eqn (= ?dir-var ?F-dir) (dir (force ?b ?source magnetic :time ?t)))
 	    )
   :hint 
   (
@@ -2689,6 +2698,7 @@
             (variable ?mag-var (mag (force ?b ?source magnetic :time ?t)))
             (variable ?dir-var (dir (force ?b ?source magnetic :time ?t)))
             (given (dir (force ?b ?source magnetic :time ?t)) ?F-dir)
+            (implicit-eqn (= ?dir-var ?F-dir) (dir (force ?b ?source magnetic :time ?t)))
  )
  :hint (
 	(point (string "Let n_w to be a unit vector pointing in the direction of the current flow.  The magnetic force on ~A points is equal to the current times the cross product of n_w and the magnetic field." ?b)) 

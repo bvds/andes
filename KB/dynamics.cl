@@ -184,7 +184,8 @@
    ((vector ?b (force ?b ?planet weight :time ?t) ?dir)
     (variable ?mag-var (mag (force ?b ?planet weight :time ?t)))
     (variable ?dir-var (dir (force ?b ?planet weight :time ?t)))
-    (given (dir (force ?b ?planet weight :time ?t)) ?dir))
+    (given (dir (force ?b ?planet weight :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?planet weight :time ?t))))
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When an object is near a planet, the planet exerts a weight force on the object."))
@@ -230,7 +231,8 @@
    ((vector ?cm (force ?cm ?planet weight :time ?t) (dnum 270 |deg|))
     (variable ?mag-var (mag (force ?cm ?planet weight :time ?t)))
     (variable ?dir-var (dir (force ?cm ?planet weight :time ?t)))
-    (given (dir (force ?cm ?planet weight :time ?t)) (dnum 270 |deg|)))
+    (given (dir (force ?cm ?planet weight :time ?t)) (dnum 270 |deg|))
+    (implicit-eqn (= ?dir-var (dnum 270 |deg|)) (dir (force ?cm ?planet weight :time ?t))))
   :hint
   ((point (string "Notice that ~a is near ~a." ?b ?planet))
    (teach (string "When a rigid body is near a planet, each portion of the body is acted on by the force of gravity. The net effect of all these forces is equivalent to that of a single weight force of magnitude m * g acting at a single point called the center of gravity, which normally is the same as the center of mass."))
@@ -291,7 +293,8 @@
    ((vector ?b (force ?b ?string tension :time ?t) ?dir-expr)
     (variable ?mag-var (mag (force ?b ?string tension :time ?t)))
     (variable ?dir-var (dir (force ?b ?string tension :time ?t)))
-    (given (dir (force ?b ?string tension :time ?t)) ?dir-expr))
+    (given (dir (force ?b ?string tension :time ?t)) ?dir-expr)
+    (implicit-eqn (= ?dir-var ?dir-expr) (dir (force ?b ?string tension :time ?t))))
   :hint
    ((point (string "Notice that ~a is tied to ~a." ?string ?b))
     (teach (string "Whenever something has a taut string, or something like a string, attached to it, then the string exerts a tension force on it."))
@@ -369,7 +372,8 @@
    ((vector ?b (force ?b ?surface normal :time ?t) ?normal-dir)
     (variable ?mag-var (mag (force ?b ?surface normal :time ?t)))
     (variable ?dir-var (dir (force ?b ?surface normal :time ?t)))
-    (given (dir (force ?b ?surface normal :time ?t)) ?normal-dir))
+    (given (dir (force ?b ?surface normal :time ?t)) ?normal-dir)
+    (implicit-eqn (= ?dir-var ?normal-dir)(dir (force ?b ?surface normal :time ?t))))
   :hint
    ((point (string "Notice that ~a is supported by a surface: ~a." ?b ?surface))
     (teach (minilesson "mini_normal_force.htm")
@@ -511,7 +515,8 @@
    ((vector ?b (force ?b ?surface kinetic-friction :time ?t) ?friction-dir)
     (variable ?mag-var (mag (force ?b ?surface kinetic-friction :time ?t)))
     (variable ?dir-var (dir (force ?b ?surface kinetic-friction :time ?t)))
-    (given (dir (force ?b ?surface kinetic-friction :time ?t)) ?friction-dir))
+    (given (dir (force ?b ?surface kinetic-friction :time ?t)) ?friction-dir)
+    (implicit-eqn (= ?dir-var ?friction-dir) (dir (force ?b ?surface kinetic-friction :time ?t))))
   :hint
    ((point (string "Notice that ~a is sliding across ~a." ?b ?surface))
     (teach (minilesson "Mini_kinetic_friction.HTM")
@@ -584,7 +589,8 @@
    ((vector ?b (force ?b ?surface static-friction :time ?t) ?friction-dir)
     (variable ?mag-var (mag (force ?b ?surface static-friction :time ?t)))
     (variable ?dir-var (dir (force ?b ?surface static-friction :time ?t)))
-    (given (dir (force ?b ?surface static-friction :time ?t)) ?friction-dir))
+    (given (dir (force ?b ?surface static-friction :time ?t)) ?friction-dir)
+    (implicit-eqn (= ?dir-var ?friction-dir) (dir (force ?b ?surface static-friction :time ?t))))
   :hint
    ((point (string "Notice that ~a is not moving with respect to ~a." ?b ?surface))
     (teach (string "If an object is in contact with a surface and not moving with respect to it, the surface exerts a static friction force on it.  The friction force is opposite to the direction of incipient motion."))
@@ -679,7 +685,8 @@
    ((vector ?b (force ?b ?medium drag :time ?t) ?drag-dir)
     (variable ?mag-var (mag (force ?b ?medium drag :time ?t)))
     (variable ?dir-var (dir (force ?b ?medium drag :time ?t)))
-    (given (dir (force ?b ?medium drag :time ?t)) ?drag-dir))
+    (given (dir (force ?b ?medium drag :time ?t)) ?drag-dir)
+    (implicit-eqn (= ?dir-var ?drag-dir) (dir (force ?b ?medium drag :time ?t))))
   :hint
    ((point (string "Notice that ~a is moving in a fluid medium ~a." ?b ?medium))
     (teach (string "When an object is moving in a fluid medium, the fluid offers resistance to the motion of the object.  This is represented by a drag force directed opposite to the direction of motion."))
@@ -775,7 +782,8 @@
    ((vector ?b (force ?b ?spring spring :time ?t) ?force-dir)
     (variable ?mag-var (mag (force ?b ?spring spring :time ?t)))
     (variable ?dir-var (dir (force ?b ?spring spring :time ?t)))
-    (given (dir (force ?b ?spring spring :time ?t)) ?force-dir))
+    (given (dir (force ?b ?spring spring :time ?t)) ?force-dir)
+    (implicit-eqn (= ?dir-var ?force-dir) (dir (force ?b ?spring spring :time ?t))))
    :hint
    ((point (string "Notice that ~a is in contact with a compressed spring ~a." ?b (?t pp)))
     (teach (string "A compressed spring exerts a restorative force on an object in contact with it.  The spring force opposes the compression of the spring from its equilibrium length."))
@@ -990,6 +998,7 @@
     (variable ?mag-var (mag (force ?b1 ?b2 gravitational :time ?t)))
     (variable ?dir-var (dir (force ?b1 ?b2 gravitational :time ?t)))
     (given (dir (force ?b1 ?b2 gravitational :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b1 ?b2 gravitational :time ?t)))
   )
   :hint (
     (point (string "Notice that ~a is subject to a gravitational force due to ~A." 
@@ -1326,7 +1335,8 @@
    (variable ?mag-var (mag (force ?c ?agent ?type :time ?t)))
    (variable ?dir-var (dir (force ?c ?agent ?type :time ?t)))
    (given (dir (force ?c ?agent ?type :time ?t)) ?dir)
-   )
+   (implicit-eqn (= ?dir-var ?dir) (dir (force ?c ?agent ?type :time ?t)))
+  )
   :hint ;; already received the hint "try drawing a force for the compound ..."
   ((point (string "Notice that ~a, which is a part of the compound body, has a ~a force on it."
 		  (?b def-np) (?type adjective)))
@@ -1445,6 +1455,7 @@
     (variable ?mag-var (mag (net-force ?b :time ?t)))
     (variable ?dir-var (dir (net-force ?b :time ?t)))
     (given (dir (net-force ?b :time ?t)) ?dir-accel)
+    (implicit-eqn (= ?dir-var ?dir-accel) (dir (net-force ?b :time ?t)))
   )
   :hint (
     (bottom-out (string "Draw the net force in the same direction as the acceleration."))
@@ -1479,6 +1490,7 @@
     (vector ?b (net-force ?b :time ?t) zero)
     (variable ?mag-var (mag (net-force ?b :time ?t)))
     (given (mag (net-force ?b :time ?t)) (dnum 0 |N|))
+    (implicit-eqn (= ?mag-var (dnum 0 |N|)) (mag (net-force ?b :time ?t))) 
   )
   :hint 
   ((point (string "Notice that ~a is ~A ~a.  What does this imply about the net force acting on ~A?" 
@@ -1500,6 +1512,7 @@
     (vector ?b (net-force ?b :time ?t) zero)
     (variable ?mag-var (mag (net-force ?b :time ?t)))
     (given (mag (net-force ?b :time ?t)) (dnum 0 |N|))
+    (implicit-eqn (= ?mag-var (dnum 0 |N|)) (mag (net-force ?b :time ?t)))
   )
   :hint 
   ((point (string "What do you know about the total force acting on ~A ~A?" 
@@ -1528,6 +1541,7 @@
    (variable ?mag-var (mag (net-force ?b :time ?t)))
    (variable ?dir-var (dir (net-force ?b :time ?t)))
    (given (dir (net-force ?b :time ?t)) ?net-dir)
+   (implicit-eqn (= ?dir-var ?net-dir) (dir (net-force ?b :time ?t)))
    )
   :hint
   ((point (string "Since the forces acting on ~a ~a are all pointing in the same direction, the direction of the total force is known." 
@@ -2488,6 +2502,8 @@
 			     :axis ?axis :time ?t)))
      (given (dir (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t)) 
 	    ?torque-dir)
+     (implicit-eqn (= ?dir-var ?torque-dir) 
+                   (dir (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t)))
    )
    :hint 
    (
@@ -2593,6 +2609,7 @@
      (variable ?mag-var (mag (net-torque ?b ?axis :time ?t)))
      (variable ?dir-var (dir (net-torque ?b ?axis :time ?t))) 
      (given (dir (net-torque ?b ?axis :time ?t)) ?dir)
+     (implicit-eqn (= ?dir-var ?dir) (dir (net-torque ?b ?axis :time ?t)))
    )
    :hint 
    (

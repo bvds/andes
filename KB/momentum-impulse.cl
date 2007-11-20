@@ -97,6 +97,7 @@
    ((vector ?b (momentum ?b :time ?t) zero)
     (variable ?mag-var (mag (momentum ?b :time ?t)))
     (given (mag (momentum ?b :time ?t)) (dnum 0 |kg.m/s|))
+    (implicit-eqn (= ?mag-var (dnum 0 |kg.m/s|)) (mag (momentum ?b :time ?t)))
     )
   :hint
    ((point (string "Notice that ~a is at rest ~a." ?b (?t pp)))
@@ -126,7 +127,8 @@
    ((vector ?b (momentum ?b :time ?t) ?dir)
     (variable ?mag-var (mag (momentum ?b :time ?t)))
     (variable ?dir-var (dir (momentum ?b :time ?t)))
-    (given (dir (momentum ?b :time ?t)) ?dir))
+    (given (dir (momentum ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (momentum ?b :time ?t))))
   :hint
    ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
     (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
@@ -178,7 +180,8 @@
    ((vector ?b (momentum ?b :time ?t) ?dir)
     (variable ?mag-var (mag (momentum ?b :time ?t)))
     (variable ?dir-var (dir (momentum ?b :time ?t)))
-    (given (dir (momentum ?b :time ?t)) ?dir))
+    (given (dir (momentum ?b :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (momentum ?b :time ?t))))
   :hint
    ((point (string "Notice that ~a is moving ~a." ?b (?t pp)))
     (teach (string "Although the the object is moving in a circular path, you can figure out the direction of motion at any given moment.  Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity."))
@@ -364,6 +367,7 @@
     (variable ?mag-var (mag (ang-momentum ?b :time ?t)))
     (variable ?dir-var (dir (ang-momentum ?b :time ?t))) 
     (given (dir (ang-momentum ?b :time ?t)) ?dir-vel)
+    (implicit-eqn (= ?dir-var ?dir-vel) (dir (ang-momentum ?b :time ?t)))
    )
   :hint 
   (

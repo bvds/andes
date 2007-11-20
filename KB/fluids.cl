@@ -413,7 +413,8 @@
    ((vector ?b (force ?b ?fluid pressure :time ?t) ?dir)
     (variable ?mag-var (mag (force ?b ?fluid pressure :time ?t)))
     (variable ?dir-var (dir (force ?b ?fluid pressure :time ?t)))
-    (given (dir (force ?b ?fluid pressure :time ?t)) ?dir))
+    (given (dir (force ?b ?fluid pressure :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?fluid pressure :time ?t))))
   :hint
    ((point (string ?hint-point ?b (?fluid agent)))
     (teach (string ?hint-teach))
@@ -522,7 +523,8 @@
    ((vector ?b (force ?b ?fluid buoyant :time ?t) ?dir)
     (variable ?mag-var (mag (force ?b ?fluid buoyant :time ?t)))
     (variable ?dir-var (dir (force ?b ?fluid buoyant :time ?t)))
-    (given (dir (force ?b ?fluid buoyant :time ?t)) ?dir))
+    (given (dir (force ?b ?fluid buoyant :time ?t)) ?dir)
+    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?fluid buoyant :time ?t))))
   :hint
    ((point (string "Notice that ~a is submerged in ~A." ?b (?fluid agent)))
     (teach (string "When a body is submerged in a fluid, the upward fluid pressure on its bottom is greater than the downward pressure on its top. The net effect can be represented by an upward buoyant force on the object."))
