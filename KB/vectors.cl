@@ -993,7 +993,6 @@
    (given (compo y 0 ?vec) (dnum 0 ?units))
    (given (compo z 0 ?vec) (dnum ?vz ?units)) 
    (test (groundp ?vec))
-   (test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
    (test  (not (equalp ?vz 0)))
    (bind ?dir-expr (if (> ?vz 0) 'out-of 'into))
    (bind ?mag-var (get-vector-mag-var ?vec)) 
