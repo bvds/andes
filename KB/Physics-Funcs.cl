@@ -315,7 +315,7 @@
 
 (defun dir-var-value (dir)
  "get direction variable value from direction expression, mapping zdir codes"
-  (cond ((degree-specifierp dir) dir)
+  (cond ((degree-specifierp dir :error T) dir)
         ((known-z-dir-spec dir) (zdir-phi dir))
 	(T (error "bad argument to dir-var-value: ~S~%" dir))))
 

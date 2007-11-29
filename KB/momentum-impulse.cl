@@ -359,7 +359,9 @@
     (not (vector ?b (ang-momentum ?b :time ?t)))
     ; draw the angular velocity
     (vector ?b (ang-velocity ?b :time ?t-rotating) ?dir-vel)
-    (test (not (equal ?dir-vel 'unknown)))
+    ; Though the match to dir-vel is perfectly general, the implicit eqn effect 
+    ; only makes sense if dir-vel has a known non-zero value
+    (test (not (or (eq ?dir-vel 'zero) (eq ?dir-vel 'unknown))))
     (test (tinsidep ?t ?t-rotating))
     (bind ?mag-var (format-sym "L_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))

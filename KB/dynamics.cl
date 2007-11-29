@@ -996,6 +996,8 @@
   :preconditions 
   (
     (force ?b1 ?b2 gravitational ?t ?dir NIL)
+    ;; implicit equation effects require known direction
+    (test (not (eq ?dir 'unknown)))
     (bind ?mag-var (format-sym "Fg_~A_~A~@[_~A~]" (body-name ?b1) (body-name ?b2)
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
@@ -1016,6 +1018,25 @@
   )
 )
 
+(defoperator draw-grav-force-unknown (?b1 ?b2 ?t)
+  :preconditions (
+    (force ?b1 ?b2 gravitational ?t unknown NIL)
+    (bind ?mag-var (format-sym "Fg_~A_~A~@[_~A~]" (body-name ?b1) (body-name ?b2)
+                                             (time-abbrev ?t)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+  )
+  :effects (
+    (vector ?b1 (force ?b1 ?b2 gravitational :time ?t) unknown)
+    (variable ?mag-var (mag (force ?b1 ?b2 gravitational :time ?t)))
+    (variable ?dir-var (dir (force ?b1 ?b2 gravitational :time ?t)))
+  )
+  :hint (
+    (point (string "Notice that ~a is subject to a gravitational force due to ~A." 
+                   ?b1 (?b2 agent)))
+    (teach (string "Every massive particle in the universe attracts every other massive particle with a gravitational force acting along a line joining the two particles. In the case of uniform spheres, the gravitational force acts along a line joining the centers of the two spheres."))
+    (bottom-out (string "Draw the gravitational force on ~a due to ~a setting the direction to unknown." ?b1 (?b2 agent) ))
+  )
+)
 ;;;;===========================================================================
 ;;;;
 ;;;;                       Thrust force
@@ -2503,6 +2524,7 @@
 		      (force ?pt ?agent ?type :time ?t))
      (bind ?mag-var (format-sym "TOR_~A_~A" ?axis ?force-mag-var))
      (bind ?dir-var (format-sym "O~A" ?mag-var))
+     (bind ?dir-var-value (dir-var-value ?torque-dir))
    )
    :effects (
      (vector ?b (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t) 
@@ -2513,7 +2535,7 @@
 			     :axis ?axis :time ?t)))
      (given (dir (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t)) 
 	    ?torque-dir)
-     (implicit-eqn (= ?dir-var ?torque-dir) 
+     (implicit-eqn (= ?dir-var ?dir-var-value) 
                    (dir (torque ?b (force ?pt ?agent ?type) :axis ?axis :time ?t)))
    )
    :hint 

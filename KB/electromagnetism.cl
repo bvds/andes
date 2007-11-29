@@ -486,16 +486,14 @@
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
    (rdebug "fired draw-Eforce-given-dir  ~%")
    )
   :effects (
             (vector ?b (force ?b ?source electric :time ?t) ?dir)
             (variable ?mag-var (mag (force ?b ?source electric :time ?t)))
             (variable ?dir-var (dir (force ?b ?source electric :time ?t)))
-	    ;; Because dir is problem given, find-by-psm won't ensure implicit 
-	    ;; eqn gets written.  Given value may not be used elsewhere so 
-	    ;; ensure it here.
-            (implicit-eqn (= ?dir-var ?dir) 
+            (implicit-eqn (= ?dir-var ?dir-var-value) 
 			  (dir (force ?b ?source electric :time ?t)))
             )
   :hint (
@@ -1305,17 +1303,13 @@
    (bind ?mag-var (format-sym "~A_~A~@[_~A~]" (subseq (string ?type) 0 1) 
 			      (body-name ?loc) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   ;; if dir is z-axis, implicit eqn should give phi angle value
-   (bind ?angle-value (if (z-dir-spec ?dir-f) (zdir-phi ?dir-f) 
-			?dir-f)))
+   (bind ?dir-var-value (dir-var-value ?dir-f)))
   :effects 
   (
    (vector ?loc (net-field ?loc ?type :time ?t) ?dir-f)
    (variable ?mag-var (mag (net-field ?loc ?type :time ?t)))
    (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
-   ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
-   ;; gets written.  Given value may not be used elsewhere so ensure it here.
-   (implicit-eqn (= ?dir-var ?angle-value) 
+   (implicit-eqn (= ?dir-var ?dir-var-value) 
 		 (dir (net-field ?loc ?type :time ?t)))
    )
   :hint (
@@ -1357,9 +1351,7 @@
    (bind ?mag-var (format-sym "B_~A~@[_~A~]" (body-name ?loc) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   ;; if dir is z-axis, implicit eqn should give phi angle value
-   (bind ?angle-value (if (z-dir-spec ?net-dir) (zdir-phi ?net-dir) 
-			?net-dir))
+   (bind ?dir-var-value (dir-var-value ?net-dir))
     ;; (test (progn (format t "draw-net-field-from-fields at ~A dir ~A~%" ?loc ?net-dir) t))
   )
   :effects 
@@ -1369,7 +1361,7 @@
    (variable ?dir-var (dir (net-field ?loc ?type :time ?t)))
    ;; Because dir is problem given, find-by-psm won't ensure implicit eqn
    ;; gets written.  Given value may not be used elsewhere so ensure it here.
-   (implicit-eqn (= ?dir-var ?angle-value) 
+   (implicit-eqn (= ?dir-var ?dir-var-value) 
 		 (dir (net-field ?loc ?type :time ?t)))
    )
   :hint (
@@ -1592,16 +1584,13 @@
    (bind ?mag-var (format-sym "~A_~A~@[_~A~]" (if (eq ?type 'electric) 'P 'mu)
 			      (body-name ?dipole) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (bind ?angle-value (if (z-dir-spec ?dir) (zdir-phi ?dir) ?dir))
+   (bind ?angle-value (dir-var-value ?dir))
    (rdebug "fired draw-Dipole-Moment-vector   ~%")
    )
   :effects (
 	   (vector ?dipole (dipole-moment ?dipole ?type :time ?t) ?dir)
 	   (variable ?mag-var (mag (dipole-moment ?dipole ?type :time ?t)))
 	   (variable ?dir-var (dir (dipole-moment ?dipole ?type :time ?t)))
-	   ;; Because dir is problem given, find-by-psm won't ensure implicit 
-	   ;; eqn gets written.  Given value may not be used elsewhere so 
-	   ;; ensure it here.
 	   (implicit-eqn (= ?dir-var ?angle-value) 
 			 (dir (dipole-moment ?dipole ?type :time ?t)))
 	   )  
@@ -1627,16 +1616,13 @@
    (bind ?mag-var (format-sym "P_~A~@[_~A~]" (body-name ?dipole) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (bind ?angle-value (if (z-dir-spec ?dir) (zdir-phi ?dir) ?dir))
+   (bind ?angle-value (dir-var-value ?dir))
    (rdebug "fired draw-Electric-Dipole-Moment-vector   ~%")
    )
   :effects (
 	   (vector ?dipole (dipole-moment ?dipole electric :time ?t) ?dir)
 	   (variable ?mag-var (mag (dipole-moment ?dipole electric :time ?t)))
 	   (variable ?dir-var (dir (dipole-moment ?dipole electric :time ?t)))
-	   ;; Because dir is problem given, find-by-psm won't ensure implicit 
-	   ;; eqn gets written.  Given value may not be used elsewhere so 
-	   ;; ensure it here.
 	   (implicit-eqn (= ?dir-var ?angle-value) 
 			 (dir (dipole-moment ?dipole electric :time ?t)))
 	   (given (dir (dipole-moment ?dipole electric :time ?t)) ?dir)
@@ -1662,7 +1648,7 @@
    (bind ?mag-var (format-sym "mu_~A~@[_~A~]" (body-name ?current-loop) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-   (bind ?angle-value (if (z-dir-spec ?dir) (zdir-phi ?dir) ?dir))
+   (bind ?angle-value (dir-var-value ?dir))
    (rdebug "fired draw-Magnetic-Dipole-Moment-vector   ~%")
    )
   :effects 
@@ -1670,9 +1656,6 @@
    (vector ?surface (dipole-moment ?current-loop magnetic :time ?t) ?dir)
    (variable ?mag-var (mag (dipole-moment ?current-loop magnetic :time ?t)))
    (variable ?dir-var (dir (dipole-moment ?current-loop magnetic :time ?t)))
-   ;; Because dir is problem given, find-by-psm won't ensure implicit 
-   ;; eqn gets written.  Given value may not be used elsewhere so 
-   ;; ensure it here.
    (implicit-eqn (= ?dir-var ?angle-value) 
 		 (dir (dipole-moment ?current-loop magnetic :time ?t)))
    (given (dir (dipole-moment ?current-loop magnetic :time ?t)) ?dir)
@@ -2376,7 +2359,7 @@
    (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?dir-var-value (dir-var-value ?dir-B))
+   (bind ?dir-var-value (dir-var-value ?dir-B))
    ;; direction not explicitly given
    (not (given (dir (field ?loc magnetic ?b :time ?t)) ?any-dir))
    )
@@ -2439,7 +2422,7 @@
 			      (body-name ?loc) (body-name ?wire) 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?dir-var-value (dir-var-value ?dir-B))
+   (bind ?dir-var-value (dir-var-value ?dir-B))
    )
   :effects (
            (vector ?loc (field ?loc magnetic ?wire :time ?t) ?dir-B)
@@ -2529,8 +2512,7 @@
    (in-wm (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-b))
    (in-wm (given (dir (velocity ?b :time ?t ?t)) ?dir-V))
    (in-wm (sign-charge ?b ?pos-or-neg))
-   ;;
-   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+   (bind ?mag-var (format-sym "Fb_~A_~A~@[_~A~]" (body-name ?b) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (bind ?dir-var-value (dir-var-value ?F-dir))
@@ -2566,7 +2548,7 @@
   ;; make sure we have a non-null direction
   (test ?F-dir) ; may be NIL on failure
   (test (eq ?F-dir 'zero))
-  (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+  (bind ?mag-var (format-sym "Fb_~A_~A~@[_~A~]" (body-name ?b) (body-name ?source)
 			     (time-abbrev ?t)))
   )
  :effects (
@@ -2614,7 +2596,7 @@
    (at-place ?b ?loc :time ?t ?t)
    (not (given (dir (field ?loc magnetic ?source :time ?t ?t)) ?dir-B))
    (not (vector ?b (force ?b ?source magnetic :time ?t) ?dir))
-   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?b) 
+   (bind ?mag-var (format-sym "Fb_~A_~A~@[_~A~]" (body-name ?b) (body-name ?loc)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (rdebug "fired draw-Bforce-unknown  ~%")
@@ -2728,8 +2710,7 @@
    ;; This is found in find-magnetic-force-current above
    (in-wm (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B))
    (in-wm (given (dir (current-length ?b :time ?t)) ?dir-i))
-   ;;
-   (bind ?mag-var (format-sym "Fb_~A~@[_~A~]" (body-name ?loc)
+   (bind ?mag-var (format-sym "Fb_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?source)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
   )
