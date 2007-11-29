@@ -122,13 +122,14 @@
     (not (motion ?b at-rest :time ?t))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir)))
   :effects
    ((vector ?b (momentum ?b :time ?t) ?dir)
     (variable ?mag-var (mag (momentum ?b :time ?t)))
     (variable ?dir-var (dir (momentum ?b :time ?t)))
     (given (dir (momentum ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (momentum ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (momentum ?b :time ?t))))
   :hint
    ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
     (teach (string "Whenever an object is moving in a straight line, it has a velocity in the same direction as its motion. Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity.")
@@ -175,13 +176,14 @@
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (momentum ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "p_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir)))
   :effects
    ((vector ?b (momentum ?b :time ?t) ?dir)
     (variable ?mag-var (mag (momentum ?b :time ?t)))
     (variable ?dir-var (dir (momentum ?b :time ?t)))
     (given (dir (momentum ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (momentum ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (momentum ?b :time ?t))))
   :hint
    ((point (string "Notice that ~a is moving ~a." ?b (?t pp)))
     (teach (string "Although the the object is moving in a circular path, you can figure out the direction of motion at any given moment.  Since the momentum vector is defined as mass times the velocity vector, the momentum will have the same direction as the velocity."))
@@ -361,13 +363,14 @@
     (test (tinsidep ?t ?t-rotating))
     (bind ?mag-var (format-sym "L_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir-vel))
   )
   :effects (
     (vector ?b (ang-momentum ?b :time ?t) ?dir-vel)
     (variable ?mag-var (mag (ang-momentum ?b :time ?t)))
     (variable ?dir-var (dir (ang-momentum ?b :time ?t))) 
     (given (dir (ang-momentum ?b :time ?t)) ?dir-vel)
-    (implicit-eqn (= ?dir-var ?dir-vel) (dir (ang-momentum ?b :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (ang-momentum ?b :time ?t)))
    )
   :hint 
   (
@@ -586,15 +589,14 @@
     (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
     (debug "~&Drawing ~a impulse on ~a due to ~a at ~a.~%" ?dir ?b ?agent ?t)
     )
   :effects
    ((vector ?b (impulse ?b ?agent :time ?t) ?dir)
-    ;; BvdS:  Why no equation for this?
     (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
     (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
-    ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir) (dir (impulse ?b ?agent :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (impulse ?b ?agent :time ?t)))
    )
   :hint
    ((point (string "You were given that there is an impulse on ~a." ?b))
@@ -629,15 +631,13 @@
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) ?agent 
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-var-value (dir-var-value ?dir))
     )
   :effects
    ((vector ?b (impulse ?b ?agent :time ?t) ?dir)
-    ;; BvdS:  Why no equation for this?
     (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
     (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
-    ;; Ensure implicit eqn is written because dir is from force
-    (implicit-eqn (= ?dir-var ?dir) (dir (impulse ?b ?agent :time ?t)))
-   )
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (impulse ?b ?agent :time ?t))))
   :hint
    ((point (string "There is a force acting on ~a." ?b))
     (teach (string "One can define an impulse associated with the force exerted by ~A ~A." ?agent (?t pp)))
@@ -756,13 +756,13 @@
    (bind ?mag-var (format-sym "J_~A_~A_~A" (body-name ?b) (body-name ?agent)
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-var-value (dir-var-value ?dir2))
    )
   :effects
    ((vector ?b (impulse ?b ?agent :time ?t) ?dir2)
     (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
     (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
-    ;; Ensure implicit eqn is written because dir is problem given
-    (implicit-eqn (= ?dir-var ?dir2) (dir (impulse ?b ?agent :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (impulse ?b ?agent :time ?t)))
    )
   :hint
    ((point (string "The impulse on ~a causes its motion to change." ?b))

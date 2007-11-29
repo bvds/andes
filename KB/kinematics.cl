@@ -580,6 +580,7 @@
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
     (bind ?any-motion (if ?sflag "any motion of ~A is" "~A is moving"))
     )
   :effects
@@ -587,7 +588,7 @@
     (variable ?mag-var (mag (displacement ?b :time ?t)))
     (variable ?dir-var (dir (displacement ?b :time ?t)))
     (given (dir (displacement ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (displacement ?b :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (displacement ?b :time ?t)))
     ) 
   :hint
   ((point (string "Notice that ~A, ~@? along a straight line." 
@@ -686,14 +687,14 @@
     (test (time-intervalp ?t))
     (not (vector ?b (displacement ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "s_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
+    )
   :effects
    ((vector ?b (displacement ?b :time ?t) ?dir)
     (variable ?mag-var (mag (displacement ?b :time ?t)))
     (variable ?dir-var (dir (displacement ?b :time ?t)))
-    ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
-    ;; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir) (dir (displacement ?b :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (displacement ?b :time ?t)))
     ) 
    :hint
    ((point (string "The problem specifies the displacement of ~a ~a." ?b (?t pp)))
@@ -875,13 +876,14 @@
    (test (tinsidep ?t ?t-motion))
    (not (vector ?body (velocity ?b :time ?t) ?dir))
    (bind ?mag-var (format-sym "v_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-   (bind ?dir-var (format-sym "O~A" ?mag-var)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-var-value (dir-var-value ?dir)))
   :effects
   ((vector ?body (velocity ?b :time ?t) ?dir)
    (variable ?mag-var (mag (velocity ?b :time ?t)))
    (variable ?dir-var (dir (velocity ?b :time ?t)))
    (given (dir (velocity ?b :time ?t)) ?dir)
-   (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t)))
+   (implicit-eqn (= ?dir-var ?dir-var-value) (dir (velocity ?b :time ?t)))
    )
   :hint
   ((point (string "Notice that ~a is moving in a straight line ~a." ?b (?t pp)))
@@ -935,13 +937,14 @@
     (test (time-pointp ?t))
     (not (vector ?b (velocity ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir)))
   :effects
    ((vector ?b (velocity ?b :time ?t) ?dir)
     (variable ?mag-var (mag (velocity ?b :time ?t)))
     (variable ?dir-var (dir (velocity ?b :time ?t)))
     (given (dir (velocity ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (velocity ?b :time ?t))))
   :hint
   ((teach (string "When an object is moving in a curve, its velocity at an instant of time is tangent to the curve.")
 	  (kcd "draw-velocity-curved"))
@@ -1022,14 +1025,14 @@
    (in-wm (given (dir (displacement ?b :time ?t)) ?dir))
    (not (vector ?b (velocity ?b :time ?t) ?dontcare))
    (bind ?mag-var (format-sym "v_~A_~A" (body-name ?b) (time-abbrev ?t)))
-   (bind ?dir-var (format-sym "O~A" ?mag-var)))
+   (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-var-value (dir-var-value ?dir)))
   :effects
   ((vector ?b (velocity ?b :time ?t) ?dir)
     (variable ?mag-var (mag (velocity ?b :time ?t)))
     (variable ?dir-var (dir (velocity ?b :time ?t)))
     (given (dir (velocity ?b :time ?t)) ?dir)
-    ;; ensure implicit eqn comes out when dir is a problem given 
-    (implicit-eqn (= ?dir-var ?dir) (dir (velocity ?b :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (velocity ?b :time ?t)))
     )
   :hint
   ((teach (kcd "average_velocity_drawn")
@@ -1189,16 +1192,14 @@
 					     (body-name ?b2) 
 					     (time-abbrev ?t)))
 		  (bind ?dir-var (format-sym "O~A" ?mag-var))
+                  (bind ?dir-var-value (dir-var-value ?dir))
 		  (rdebug "fired draw-rel-vel-vector-given-dir  ~%")
 		  )
   :effects (
 	    (vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir)
 	    (variable ?mag-var (mag (relative-vel ?b1 ?b2 :time ?t)))
 	    (variable ?dir-var (dir (relative-vel ?b1 ?b2 :time ?t)))
-	    ;; Because dir is problem given, find-by-psm won't ensure 
-	    ;; implicit eqn gets written.  Given value may not be used 
-	    ;; elsewhere so ensure it here.
-	    (implicit-eqn (= ?dir-var ?dir) (dir (relative-vel ?b1 ?b2 :time ?t)))
+	    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (relative-vel ?b1 ?b2 :time ?t)))
 	    )
   :hint (
 	 (point (string "The problem gives you the direction of the relative velocity of ~a with respect to ~a ~a." ?b1 ?b2 (?t pp)))
@@ -1254,14 +1255,14 @@
 			      (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    (bind ?dir (opposite ?dir-force))
+   (bind ?dir-var-value (dir-var-value ?dir))
     )
   :effects
    ((vector ?b1 (relative-vel ?b1 ?b2 :time ?t) ?dir)
     ;; BvdS:  Why no equation for this?
     (variable ?mag-var (mag (relative-vel ?b1 ?b2 :time ?t)))
     (variable ?dir-var (dir (relative-vel ?b1 ?b2 :time ?t)))
-    ;; Ensure implicit eqn is written because dir is from force
-    (implicit-eqn (= ?dir-var ?dir) (dir (relative-vel ?b1 ?b2 :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (relative-vel ?b1 ?b2 :time ?t)))
    )
   :hint
   ((point (string "Notice that ~a is moving relative to ~a." ?b1 ?b2))
@@ -1439,13 +1440,14 @@
     (not (vector ?b (accel ?b :time ?t) ?any-dir))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
     )
   :effects
    ((vector ?b (accel ?b :time ?t) ?dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that the velocity of ~A is changing ~A." 
 		   ?b (?t pp)))
@@ -1473,6 +1475,7 @@
     (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
   :effects
@@ -1480,7 +1483,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that ~a is moving in a straight line and speeding up ~a" ?b (?t pp)))
     (teach (minilesson "mini_speedup_accel.htm")
@@ -1501,6 +1504,7 @@
 		     'decreasing 'increasing))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
     (debug "~&Drawing ~a accel for ~a at ~a.~%" ?dir ?b ?t)
     )
   :effects
@@ -1508,7 +1512,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that the potential at ~A is ~A as x increases."
 		   ?loc (?slope adj)))
@@ -1576,15 +1580,14 @@
          (tinsidep ?t ?t-motion))
     (not (vector ?b (accel ?b :time ?t) ?dir))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir)))
   :effects
    ((vector ?b (accel ?b :time ?t) ?dir)
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?dir)
-    ; Because dir is problem given, find-by-PSM won't ensure implicit eqn
-    ; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir) (dir (accel ?b :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t)))
     ) 
    :hint
    ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
@@ -1650,6 +1653,7 @@
     (not (vector ?b (accel ?b :time ?t) ?dont-care))
     (bind ?mag-var (format-sym "a_~A~@[_~A~]" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?accel-dir))
     (debug "~&Drawing ~a vector for accel of ~a at ~a.~%" ?accel-dir ?b ?t)
     )
   :effects
@@ -1657,7 +1661,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?accel-dir)
-    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t))))
   :hint
   ((point (string "Notice that ~a is slowing down as it moves in a straight line ~a" ?b (?t pp)))
    (teach (minilesson "mini_slowdown_accel.htm")
@@ -1782,6 +1786,7 @@
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?accel-dir))
     (debug "~&Drawing centripetal accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
     )
   :effects
@@ -1789,7 +1794,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?accel-dir)
-    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t))))
    :hint
    ((point (string "Notice that ~a is in uniform circular motion ~a" ?b (?t pp)))
     (teach (kcd "draw_accel_circular_constant_speed")
@@ -1817,6 +1822,7 @@
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?accel-dir))
     (debug "~&Drawing projectile accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
     )
   :effects
@@ -1824,7 +1830,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?accel-dir)
-    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t))))
    :hint
     ((point (string "The problem specifies the direction of the acceleration of ~a ~a." ?b (?t pp)))
     (bottom-out (string "The problem specifies that the acceleration of ~a ~a is at ~a, so just draw an acceleration vector oriented at ~a." 
@@ -1853,6 +1859,7 @@
     (not (vector ?b (accel ?b :time ?t) ?dontcare))
     (bind ?mag-var (format-sym "a_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?accel-dir))
     (debug "~&Drawing projectile accel at ~A for ~a at ~a.~%" ?b ?t ?accel-dir)
     )
   :effects
@@ -1860,7 +1867,7 @@
     (variable ?mag-var (mag (accel ?b :time ?t)))
     (variable ?dir-var (dir (accel ?b :time ?t)))
     (given (dir (accel ?b :time ?t)) ?accel-dir)
-    (implicit-eqn (= ?dir-var ?accel-dir) (dir (accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (accel ?b :time ?t))))
    :hint
     ((point (string "The force(s) acting on ~A ~A point(s) in the direction ~A." ?b (?t pp) (?accel-dir adj)))
     (teach (string "Newton's second law F=ma relates the net force and acceleration vectors.  If you know the direction of the net force, then you can find the direction of the acceleration.")) 
@@ -2505,14 +2512,13 @@
    (bind ?mag-var (format-sym "r_~A_~A~@[_~A~]" (body-name ?b1) 
 			      (body-name ?b2) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
+   (bind ?dir-var-value (dir-var-value ?dir-expr))
    )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
     (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
-    ;; Because dir is problem given, find-by-PSM won't ensure implicit eqn
-    ;; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
     (point (string "You know the direction of the position of ~a relative to ~a." ?b1 ?b2))
@@ -2565,15 +2571,14 @@
 			       (body-name ?b2) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
     (bind ?dir-expr (opposite ?opp-dir-expr))
+    (bind ?dir-var-value (dir-var-value ?dir-expr))
     (debug "~&Drawing ~a relative position from ~a to ~a at ~a.~%" ?dir-expr ?b1 ?b2 ?t)
     )
   :effects (
     (vector ?b1 (relative-position ?b1 ?b2 :time ?t) ?dir-expr)
     (variable ?mag-var (mag (relative-position ?b1 ?b2 :time ?t)))
     (variable ?dir-var (dir (relative-position ?b1 ?b2 :time ?t)))
-     ; Because dir is problem given, find-by-PSM won't ensure implicit eqn
-    ; gets written. Given value may not be used elsewhere so ensure it here.
-    (implicit-eqn (= ?dir-var ?dir-expr) (dir (relative-position ?b1 ?b2 :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (relative-position ?b1 ?b2 :time ?t)))
    )
   :hint (
     (point (string "You know the direction of the relative position of ~a with respect to ~a." ?b1 ?b2))
@@ -3023,12 +3028,13 @@
     (bind ?mag-var (format-sym "omega_~A~@[_~A~]" (body-name ?b) 
 			       (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
   )
   :effects (
     (variable ?mag-var (mag (ang-velocity ?b :time ?t)))
     (variable ?dir-var (dir (ang-velocity ?b :time ?t)))
     (given (dir (ang-velocity ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (ang-velocity ?b :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (ang-velocity ?b :time ?t)))
     (vector ?b (ang-velocity ?b :time ?t) ?dir) 
   )
   :hint 
@@ -3077,13 +3083,14 @@
     (not (vector ?b (ang-displacement ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "theta_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
   )
   :effects (
     (vector ?b (ang-displacement ?b :time ?t) ?dir) 
     (variable ?mag-var (mag (ang-displacement ?b :time ?t)))
     (variable ?dir-var (dir (ang-displacement ?b :time ?t)))
     (given (dir (ang-displacement ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (ang-displacement ?b :time ?t)))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (ang-displacement ?b :time ?t)))
   )
   :hint
   ((point (string "Notice that ~a is rotating ~a ~a." 
@@ -3147,14 +3154,14 @@
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir)))
   :effects 
    ((vector ?b (ang-accel ?b :time ?t) ?dir) 
     (variable ?mag-var (mag (ang-accel ?b :time ?t)))
     (variable ?dir-var (dir (ang-accel ?b :time ?t)))
     (given (dir (ang-accel ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (ang-accel ?b :time ?t)))
-    )
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (ang-accel ?b :time ?t))))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is changing ~A." ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity."))
@@ -3170,13 +3177,14 @@
     (test (tinsidep ?t ?t-motion))
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
-    (bind ?dir-var (format-sym "O~A" ?mag-var)))
-  :effects 
+    (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir)))
+  :effects
    ((vector ?b (ang-accel ?b :time ?t) ?dir) 
     (variable ?mag-var (mag (ang-accel ?b :time ?t)))
     (variable ?dir-var (dir (ang-accel ?b :time ?t)))
     (given (dir (ang-accel ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (ang-accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (ang-accel ?b :time ?t))))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is increasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity.  If an object's rate of rotation is speeding up then its angular velocity vector is increasing in magnitude over time, so the angular acceleration will point in the same direction as the angular velocity.  By the right-hand rule that will be out of the x-y plane for ccw rotation and into the plane for cw rotation."))
@@ -3196,13 +3204,14 @@
     (not (vector ?b (ang-accel ?b :time ?t) ?dir-drawn))
     (bind ?mag-var (format-sym "alpha_~A_~A" (body-name ?b) (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
   )
   :effects 
    ((vector ?b (ang-accel ?b :time ?t) ?dir) 
     (variable ?mag-var (mag (ang-accel ?b :time ?t)))
     (variable ?dir-var (dir (ang-accel ?b :time ?t)))
     (given (dir (ang-accel ?b :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (ang-accel ?b :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (ang-accel ?b :time ?t))))
   :hint
    ((point (string "Notice that the rate at which ~a is rotating is decreasing ~a" ?b (?t pp)))
     (teach (string "The angular acceleration vector represents the rate of change of a rotating object's angular velocity. If an object's rate of rotation is slowing down then its angular velocity vector is decreasing in magnitude over time, so the angular acceleration will point in the opposite direction from the angular velocity, as determined by the right-hand rule."))

@@ -401,6 +401,7 @@
     (bind ?mag-var (format-sym "Fp_~A_~A_~A" (body-name ?b) ?fluid
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
     (bind ?hint-point (if (eq ?type 'radiation)
 		     "A force is exerted on ~A by ~A" 
 		   "Notice that ~a is in contact with ~A."))
@@ -414,7 +415,7 @@
     (variable ?mag-var (mag (force ?b ?fluid pressure :time ?t)))
     (variable ?dir-var (dir (force ?b ?fluid pressure :time ?t)))
     (given (dir (force ?b ?fluid pressure :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?fluid pressure :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b ?fluid pressure :time ?t))))
   :hint
    ((point (string ?hint-point ?b (?fluid agent)))
     (teach (string ?hint-teach))
@@ -516,6 +517,7 @@
     (bind ?mag-var (format-sym "Fb_~A_~A_~A" (body-name ?b) ?fluid
                                              (time-abbrev ?t)))
     (bind ?dir-var (format-sym "O~A" ?mag-var))
+    (bind ?dir-var-value (dir-var-value ?dir))
     (debug "~&Drawing ~a buoyant force on ~a due to ~a at ~a.~%" 
 	   ?dir ?b ?fluid ?t)
     )
@@ -524,7 +526,7 @@
     (variable ?mag-var (mag (force ?b ?fluid buoyant :time ?t)))
     (variable ?dir-var (dir (force ?b ?fluid buoyant :time ?t)))
     (given (dir (force ?b ?fluid buoyant :time ?t)) ?dir)
-    (implicit-eqn (= ?dir-var ?dir) (dir (force ?b ?fluid buoyant :time ?t))))
+    (implicit-eqn (= ?dir-var ?dir-var-value) (dir (force ?b ?fluid buoyant :time ?t))))
   :hint
    ((point (string "Notice that ~a is submerged in ~A." ?b (?fluid agent)))
     (teach (string "When a body is submerged in a fluid, the upward fluid pressure on its bottom is greater than the downward pressure on its top. The net effect can be represented by an upward buoyant force on the object."))
