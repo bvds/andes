@@ -678,6 +678,8 @@
     (not (given (dir ?quant) ?any-dir)
 	 (error "can't have both compos and direction given for ~A" ?quant))
     (bind ?dir (dir-from-compos ?xc ?yc))
+    ; flag any multiple of 45 deg as a knowable direction given the components
+    (bind ?knowable (equalp (mod (second ?dir) 45) 0))
     )
    :effects ((dir-given-or-compos ?quant ?dir)))
 
@@ -955,16 +957,17 @@
 ;; rather than unknown.  We could use a rule like draw-zaxis-vector-given-compos to 
 ;; match this, but there is currently no need for it.
 
-(defoperator draw-vector-given-compos (?vec)
+(defoperator draw-xy-vector-given-compos (?vec)
   :order ((default . HIGH)) ; pre-empt any other rule for drawing vector
   :preconditions 
   ( 
    (given (compo x 0 ?vec) (dnum ?vx ?units))
    (given (compo y 0 ?vec) (dnum ?vy ?units))
-   ;(test (eq (entry-dir-from-compos ?vx ?vy) 'unknown))
    ; make sure not given a non-zero z component
    (not (given (compo z 0 ?vec) (dnum ?vz ?units)) ; such-that:
         (not (equalp ?vz 0)))
+   ; Use following test if we want different policy for knowable directions.
+   ; (test (not (knowable-dir-from-compos ?vx ?vy))
    (not (given (dir ?vec) ?any-dir)
 	 (error "shouldn't give both compos and direction of ~A" ?vec))
    (bind ?mag-var (get-vector-mag-var ?vec)) 
@@ -1014,25 +1017,28 @@
   ))
 
 
-;#| ; This possible rule doesn't match current workbench practice in API calls.
+#| ; This possible rule doesn't match current workbench practice in API calls.
 
 ;; However, in cases where the direction is obvious from components, we could use a 
-;; (vector ...) statement with a known angle in solution, via the function entry-dir-from-compos.
+;; (vector ...) statement with a known angle in solution, via the function knowable-dir-from-compos.
 ;; The help system could use the same function to fill in the direction in the student entry's
 ;; (vector ... ) proposition from the student-entered component values. 
 ;; This might allow the student to use EITHER the mag/dir form OR the component form on the workbench 
 ;; for these vectors. However it also makes it difficult to give whatswrong help if the directions
 ;; don't match -- will trigger the wrong direction handlers when student hasn't explicitly 
 ;; specified a direction.
-(defoperator draw-vector-given-compos-known (?vec)
+(defoperator draw-xy-vector-given-compos-known (?vec)
   :order ((default . HIGH)) ; pre-empt any other rule for drawing vector
   :preconditions 
   ( 
    (given (compo x 0 ?vec) (dnum ?vx ?units))
    (given (compo y 0 ?vec) (dnum ?vy ?units))
-   ; any multiple of 45 will return a known direction
-   (bind ?dir-expr (entry-dir-from-compos ?vx ?vy))
-   (test (not (member ?dir-expr '(zero unknown))))
+   ; make sure not given a non-zero z component
+   (not (given (compo z 0 ?vec) (dnum ?vz ?units)) ; such-that:
+        (not (equalp ?vz 0)))
+   ; any multiple of 45 deg will return a known direction, else NIL
+   (bind ?dir-expr (knowable-dir-from-compos ?vx ?vy))
+   (test (and ?dir-expr (not (member ?dir-expr '(zero unknown)))))
    (bind ?mag-var (get-vector-mag-var ?vec)) 
    (bind ?dir-var (format-sym "O~A" ?mag-var))
    ;(bind ?mag-expr `(dnum ,(sqrt (+ (* vx vx) (*vy vy)))))
@@ -1053,7 +1059,7 @@
     (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at ~a."
 	  ?vec ?dir-expr))
   ))
-;|#
+|#
 
 
 ; Move to kinematics.cl once working:

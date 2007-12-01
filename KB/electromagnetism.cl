@@ -486,7 +486,7 @@
    (bind ?mag-var (format-sym "Fe_~A_~A~@[_~A~]" (body-name ?b) 
 			      (body-name ?source) (time-abbrev ?t)))
    (bind ?dir-var (format-sym "O~A" ?mag-var))
-    (bind ?dir-var-value (dir-var-value ?dir))
+   (bind ?dir-var-value (dir-var-value ?dir))
    (rdebug "fired draw-Eforce-given-dir  ~%")
    )
   :effects (
