@@ -507,7 +507,7 @@
 (defoperator calculate-coulomb-force-dir (?b ?source ?t)
   :preconditions 
   (
-   (given (dir (relative-position ?b ?source :time ?t)) ?rdir)
+   (dir-given-or-compos (relative-position ?b ?source :time ?t) ?rdir :knowable T)
    ;; require sign of both charges to be known
    (sign-charge ?b ?pos-neg1)
    (sign-charge ?source ?pos-neg2)
@@ -2155,7 +2155,7 @@
    (vector ?own ?field-parent ?dir-drawn)
    ;; vector direction is not determined if compos are given, use this
    ;; to determine direction (and bind ?region and ?source)
-   (dir-given-or-compos ?field-parent ?dir-f)
+   (dir-given-or-compos ?field-parent ?dir-f :knowable T)
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
    (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
@@ -2195,7 +2195,7 @@
    ;; AW: for magtor1d, changed t-field to match draw-torque-dipole-given-dir
    ;; vector direction is 'unknown if compos are given, use this
    ;; to determine direction (and bind ?region and ?source)
-   (dir-given-or-compos ?field-parent ?dir-f)
+   (dir-given-or-compos ?field-parent ?dir-f :knowable T)
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (eq ?tau-dir 'zero))
    (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
@@ -2348,8 +2348,8 @@
   :preconditions 
   (
    (point-charge ?b) ;Make sure source is point-charge
-   (dir-given-or-compos (velocity ?b :time ?t) ?dir-v)
-   (dir-given-or-compos (relative-position ?loc ?b :time ?t) ?dir-r)
+   (dir-given-or-compos (velocity ?b :time ?t) ?dir-v :knowable ?dontcare1)
+   (dir-given-or-compos (relative-position ?loc ?b :time ?t) ?dir-r :knowable ?dontcare2)
    (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
    (test ?cross-dir) ;make sure direction can be determined
    (test (not (eq ?cross-dir 'zero)))
@@ -2384,8 +2384,8 @@
   :preconditions 
   (
    (point-charge ?b) ;Make sure source is point-charge
-   (dir-given-or-compos (velocity ?b :time ?t) ?dir-v)
-   (dir-given-or-compos (relative-position ?loc ?b :time ?t) ?dir-r)
+   (dir-given-or-compos (velocity ?b :time ?t) ?dir-v :knowable ?dontcare1)
+   (dir-given-or-compos (relative-position ?loc ?b :time ?t) ?dir-r :knowable ?dontcare2)
    (bind ?cross-dir (cross-product-dir ?dir-v ?dir-r))
    (test (eq ?cross-dir 'zero))
    (bind ?mag-var (format-sym "B_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
@@ -2410,8 +2410,8 @@
 (defoperator draw-Bfield-straight-current (?loc ?wire ?t)
   :preconditions 
   (
-   (dir-given-or-compos (current-length ?wire :time ?t) ?dir-l)
-   (dir-given-or-compos (relative-position ?loc ?wire :time ?t) ?dir-r)
+   (dir-given-or-compos (current-length ?wire :time ?t) ?dir-l :knowable ?dontcare1)
+   (dir-given-or-compos (relative-position ?loc ?wire :time ?t) ?dir-r :knowable ?dontcare2)
    ;; Sanity test for inherit-quantity working OK
    (test (or (eq (null ?t) 
 		 (null (member 'changing-field (problem-features *cp*))))
@@ -2486,7 +2486,7 @@
    (inherit-proposition (field ?loc magnetic ?source :time ?t)
 			(field ?loc magnetic . ?rest)
 			(vector ?loco (field ?loc magnetic . ?rest) ?dir-b))
-   (dir-given-or-compos (velocity ?b :time ?t ?t) ?dir-V)
+   (dir-given-or-compos (velocity ?b :time ?t ?t) ?dir-V :knowable ?dontcare1)
    ;; following currently only works for dirs along axis
    (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
    (test ?cross-dir) ; may be NIL on failure
@@ -2542,7 +2542,7 @@
   (at-place ?b ?loc :time ?t ?t)
   (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B)
   ;; this may require drawing the velocity vector: 
-  (dir-given-or-compos (velocity ?b :time ?t) ?dir-V)
+  (dir-given-or-compos (velocity ?b :time ?t) ?dir-V :knowable ?dontcare1)
   ;; following currently only works for dirs along axis
   (bind ?F-dir (cross-product-dir ?dir-V ?dir-B))
   ;; make sure we have a non-null direction
@@ -2650,7 +2650,7 @@
 (defoperator find-magnetic-force-current (?b ?t ?source)
   :preconditions 
   (
-   (dir-given-or-compos (current-length ?b :time ?t ?t) ?dir-i)
+   (dir-given-or-compos (current-length ?b :time ?t ?t) ?dir-i :knowable ?dontcare1)
    (at-place ?b ?loc :time ?t-at)
    (test (tinsidep ?t ?t-at))
    (inherit-proposition

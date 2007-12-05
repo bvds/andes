@@ -666,6 +666,20 @@
 ;; No inheritance here because this this supposed to approximate
 ;; a directly given quantity.  We assume only parent quantities 
 ;; would be given.
+;;
+;; :knowable T means the direction value is knowable by the student
+;; without calculating. This is for vectors given in component
+;; form.  :knowable T should generally be used when drawing a vector
+;; based on another vector's direction, e.g. electric force from relative 
+;; position of charges: if relative position is along an axis, then
+;; force should be drawn at a known direction to match. However,
+;; cross-product direction calculations currently don't care whether 
+;; exact directions are knowable by the student, since the cross
+;; product direction can be known from components even if the argument
+;; directions are not exactly known. However, this is a cheat in the
+;; implementation which could lead to bad hints in case of component-form
+;; inputs. Would be better to formalize reasoning leading to cross
+;; product direction in this case.
 
 (defoperator use-compos-for-dir (?quant)
    :preconditions 
@@ -681,7 +695,7 @@
     ; flag any multiple of 45 deg as a knowable direction given the components
     (bind ?knowable (equalp (mod (second ?dir) 45) 0))
     )
-   :effects ((dir-given-or-compos ?quant ?dir)))
+   :effects ((dir-given-or-compos ?quant ?dir :knowable ?knowable)))
 
 (defoperator use-given-for-dir (?quant)
   :preconditions 
@@ -689,7 +703,7 @@
    (not (given (compo ?xyz ?rot ?quant) ?any-val)
 	(error "can't have both compos and direction given for ~A" ?quant))
    )
-  :effects ((dir-given-or-compos ?quant ?dir)))
+  :effects ((dir-given-or-compos ?quant ?dir :knowable T)))
 
 (defoperator use-compos-for-z-dir (?quant)
   :preconditions ( 
@@ -701,7 +715,7 @@
     (not (given (dir ?quant) ?any-dir)
 	 (error "can't have both compos and direction given for ~A" ?quant))
   )
-  :effects ((dir-given-or-compos ?quant ?dir)))
+  :effects ((dir-given-or-compos ?quant ?dir :knowable T)))
 
 ;;; =================== defining component variables =============
 ;;; When writing a compo equation, the code will call (variable <var>
@@ -1081,8 +1095,8 @@
     (bind ?r21_y (- ?p2_y ?p1_y))
   )
  :effects (
-    (given (compo x ?rot  (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_x ?units))
-    (given (compo y ?rot  (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_y ?units))
+    (given (compo x 0 (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_x ?units))
+    (given (compo y 0 (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_y ?units))
  ))
 
 
@@ -1222,8 +1236,8 @@
 (defoperator get-cross-direction-from-givens (?a ?b)
   :preconditions
   (
-   (dir-given-or-compos ?a ?dir-a)
-   (dir-given-or-compos ?b ?dir-b)
+   (dir-given-or-compos ?a ?dir-a :knowable ?dontcare1)
+   (dir-given-or-compos ?b ?dir-b :knowable ?dontcare2)
    (bind ?dir-cross (cross-product-dir ?dir-a ?dir-b)))
   :effects ((cross-direction ?dir-cross ?a ?b)))
 
@@ -1485,8 +1499,8 @@
 (defoperator greater-than-given-directions (?greater ?lesser)
   :preconditions
   (
-   (dir-given-or-compos ?greater ?dg)
-   (dir-given-or-compos ?lesser ?dl)
+   (dir-given-or-compos ?greater ?dg :knowable ?dontcare1)
+   (dir-given-or-compos ?lesser ?dl :knowable ?dontcare2)
    ;; only makes sense for vectors/lines in the xy plane
     ;; use estimated values as best guess
    (test (and (degree-specifierp ?dg :error t)
