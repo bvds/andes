@@ -2154,8 +2154,8 @@
    ;; also, draw vector so that direction can be determined below
    (vector ?own ?field-parent ?dir-drawn)
    ;; vector direction is not determined if compos are given, use this
-   ;; to determine direction (and bind ?region and ?source)
-   (dir-given-or-compos ?field-parent ?dir-f :knowable T)
+   ;; to determine direction 
+   (dir-given-or-compos ?field-parent ?dir-f :knowable ?dontcare)
    (bind ?tau-dir (cross-product-dir ?dir-d ?dir-f))
    (test (not (eq ?tau-dir 'zero)))
    (bind ?mag-var (format-sym "TOR_~A_~A_~A" (body-name ?dipole) 
@@ -2487,7 +2487,6 @@
 			(field ?loc magnetic . ?rest)
 			(vector ?loco (field ?loc magnetic . ?rest) ?dir-b))
    (dir-given-or-compos (velocity ?b :time ?t ?t) ?dir-V :knowable ?dontcare1)
-   ;; following currently only works for dirs along axis
    (bind ?cross-dir (cross-product-dir ?dir-V ?dir-B))
    (test ?cross-dir) ; may be NIL on failure
    (test (not (eq ?cross-dir 'zero)))
@@ -2543,7 +2542,6 @@
   (vector ?loco (field ?loc magnetic ?source :time ?t ?t) ?dir-B)
   ;; this may require drawing the velocity vector: 
   (dir-given-or-compos (velocity ?b :time ?t) ?dir-V :knowable ?dontcare1)
-  ;; following currently only works for dirs along axis
   (bind ?F-dir (cross-product-dir ?dir-V ?dir-B))
   ;; make sure we have a non-null direction
   (test ?F-dir) ; may be NIL on failure
@@ -2657,7 +2655,6 @@
     (field ?loc magnetic ?source :time ?t)
     (field ?loc magnetic . ?rest)
     (vector ?loco (field ?loc magnetic . ?rest) ?dir-B))
-   ;; following currently only works for dirs along axis
    (bind ?F-dir (cross-product-dir ?dir-i ?dir-B))
    ;; make sure we have a non-null direction
    (test ?F-dir) ; may be NIL on failure
