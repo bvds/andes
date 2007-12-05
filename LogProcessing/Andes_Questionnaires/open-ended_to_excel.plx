@@ -8,34 +8,34 @@
 # To run this script, you need a file <file.txt> containing the path and names of all the files you wish 
 # to convert into an excel spreadsheet.
 #
-# Usage: perl open-ended_to_excel.plx file.txt
+# Usage: perl open-ended_to_excel.plx Andes_Questionnaire_Fall07.txt
 use strict;
 
 # Variables for looping through log file
-my @filenames;
-my @line_array;
-my $j = 0;
-my @tmp_array;
-my @new_array;
-my $single_line;
+my @open_ended;
 
 # Variables for printing the results.
 my $name;
+my $school;
+my $year;
+my $semester;
+my $courseID;
+my $section;
 my $date;
 my $time;
-my $section;
+
 my $questionID;
 my $openID;
 my $quantitative_response;
 my $open_ended_response;
 my $length_open;
 
-# Open the list of files and build an array from them.
+# Open the file containing the questionnaire and build an array from it.
 open (FILENAMES, @ARGV[0]) || die ("Could not open file: $!");
-while (<FILENAMES>) { chomp; push @filenames, $_; }
+while (<FILENAMES>) { chomp; push @open_ended, $_; }
 
 # Open a file to store the scores.
-my $file = "Open_Ended_Responses1.xls";
+my $file = "Open_Ended_Responses1.txt";
 open(INFO, ">$file");
 
 # Print a header in the first row in Excel.
@@ -43,57 +43,54 @@ open(INFO, ">$file");
 print INFO "Problem\tName\tSection\tDate\tTime\tQuestion\tNumerical Response\tOpen-ended Response\n";
 
 # loop through array of file names, putting their contents in an array.
-foreach (@filenames) {
-  open (FILES, $_) || die ("Could not open file: $!");
-  @line_array = <FILES>;
+foreach (@open_ended) {
+  # Date: Tue, 27 Nov 2007 13:39:02 -0500 (EST)
+  if ($_ =~ /Date: /) {
+    my @temp_array = split (/\s/, $_);
+    $date = $temp_array[2] . " " . $temp_array[3] . " " . $temp_array[4];
+    $year = $temp_array[4];
+    $time = $temp_array[5];
+  }
+  
+  if ($_ =~ /Name\=(.*)/) {
+    $name = $1;
+  }
 
-  line: foreach my $line (@line_array) {
-    # Date: December 5, 2006 10:12:29 AM EST
-    if ($line =~ /Date: /) {
-      my @temp_array = split (/ /, $line);
-      $date = $temp_array[1] . " " . $temp_array[2] . " " . $temp_array[3];
-      $time = $temp_array[4] . " " . $temp_array[5] . " " . $temp_array[6];
-      chomp $date;
-      chomp $time;
-    }
+  if ($_ =~ /Section\=(.*)/) {
+    $section = $1;
+  }
 
-    if ($line =~ /Name\=/) {
-      my @temp_array = split (/=/, $line);
-      $name = $temp_array[1];
-      chomp $name;
-    }
+  if ($_ =~ /School\=(.*)/) {
+    $school = $1;
+  }
 
-    if ($line =~ /Section\=/) {
-      my @temp_array = split (/=/, $line);
-      $section = $temp_array[1];
-      chomp $section;
-    }
+  if ($_ =~ /Semester\=(.*)/) {
+    $semester = $1;
+  }
 
-    if ($line =~ /Question_/) {
-      my @tmp_array = split (/=/, $line);
-      $questionID = $tmp_array[0];
-      $quantitative_response = $tmp_array[1];
-      chomp $questionID;
-      chomp $quantitative_response;
-    }
+  if ($_ =~ /CourseID\=(.*)/) {
+    $courseID = $1;
+  }
 
-    if ($line =~ /Open-Ended_/) {
-      my @tmp_array = split (/=/, $line);
-      $openID = $tmp_array[0];
-      chomp $openID;
-      $open_ended_response = $tmp_array[1];
-      chomp $open_ended_response;
-      $length_open = length ($open_ended_response);
-        if ($length_open > 2) {
-          # If the open-end response has data, then print!
-          print INFO "$openID\t$name\t$section\t$date\t$time\t$questionID\t$quantitative_response\t$open_ended_response\n";
-        }
+  if ($_ =~ /Question\_(.*)\=(.*)/) {
+    $questionID = $1;
+    $quantitative_response = $2;
+    chomp $questionID;
+    chomp $quantitative_response;
+  }
+
+  if ($_ =~ /Open-Ended\_(.*)\=(.*)/) {
+    $openID = $1;
+    chomp $openID;
+    $open_ended_response = $2;
+    chomp $open_ended_response;
+    $length_open = length ($open_ended_response);
+      if ($length_open > 2) {
+        # If the open-end response has data, then print!
+        print INFO "$openID\t$name\t$section\t$date\t$time\t$questionID\t$quantitative_response\t$open_ended_response\n";
       }
+    }
 
-  } # next line
-
-@line_array = ();
-
-} # next file
+} # next line
 
 print "\ndone!\n";

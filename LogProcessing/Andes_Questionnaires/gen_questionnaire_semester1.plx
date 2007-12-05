@@ -832,11 +832,55 @@ For each question, please select your answer on a scale of 1 to 5.  If you wish 
 <LI>What was the greatest weakness of Andes?<br>
 <textarea TABINDEX="1" NAME="Q25" rows=8 cols=100></textarea><br><br>
 
-<LI>Was there anything that you wished you could do with Andes that it wouldn't let you do?<br>
-<textarea TABINDEX="1" NAME="Q26" rows=8 cols=100></textarea><br><br>
+<LI>How many demo videos did you view during the semester?<br>
+<table>
+  <tr>
+    <td width=100></td>
+    <td width=100></td>
+    <td width=100></td>
+    <td width=100></td>
+    <td width=100></td>
+  </tr>
+  <tr>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q26" VALUE="none"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q26" VALUE="1-3"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q26" VALUE="4-6"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q26" VALUE="7-8"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q26" VALUE=">8"></td>
+  </tr>
+  <tr>
+    <td align=center>none</td>
+    <td align=center>1-3</td>
+    <td align=center>4-6</td>
+    <td align=center>7-8</td>
+    <td align=center>>8</td>
+  </tr>
+</table><br><br>
 
-<LI>Were there any features of the Andes interface that you would like to see changed?  If so, what and how?<br>
-<textarea TABINDEX="1" NAME="Q27" rows=8 cols=100></textarea><br><br>
+<LI>How useful were the demo videos you studied?<br>
+<table>
+  <tr>
+    <td width=100></td>
+    <td width=100></td>
+    <td width=100></td>
+    <td width=100></td>
+    <td width=100></td>
+  </tr>
+  <tr>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q27" VALUE="NA"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q27" VALUE="waste of time"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q27" VALUE="sometimes helpful"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q27" VALUE="usually helpful"></td>
+    <td align=center><INPUT TYPE="RADIO" NAME="Q27" VALUE=">essential"></td>
+  </tr>
+  <tr>
+    <td align=center>NA</td>
+    <td align=center>waste of time</td>
+    <td align=center>sometimes helpful</td>
+    <td align=center>usually helpful</td>
+    <td align=center>essential</td>
+  </tr>
+</table><br><br>
 
 <LI>All $courseID students should be required to use Andes.
 <table>
