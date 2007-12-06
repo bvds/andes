@@ -1552,12 +1552,8 @@
   (setf good-time (nlg good-time 'pp))
   (make-hint-seq 
    (list (format nil (strcat "You don't need to draw ~a ~a.  You need to draw "
-			     "it for a different time.  However, you can't know "
-			     "what time is right without have an overall plan "
-			     "for solving the problem.  To get one, click on the"
-			     " light bulb button.") 
+			     "it for a different time. ") 
 			     descr bad-time)
-	 *dyi*
 	 (format nil "You should draw ~a ~a." descr good-time))))
 
 ;;; (ref Pitt non-eqn 2-29-27) If the student defines a vector only
