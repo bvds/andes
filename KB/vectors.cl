@@ -472,8 +472,11 @@
    (body-for-projection ?rot ?vector)
    (variable ?compo-var (compo ?xyz ?rot ?vector))
    (test (member ?xyz '(x y)))  ;restrict to xy-plane
-   (in-wm (vector ?b ?vector ?dir))
+   ;(in-wm (vector ?b ?vector ?entry-dir))
    (in-wm (variable ?mag-var (mag ?vector)))
+   ; vectors given by components get drawn unknown, but might still know
+   ; direction is parallel to axis. 
+   (dir-given-or-compos ?vector ?dir :knowable T)
    ;; should fail if ?dir is 'unknown (this test does not work for z-axis)
    (test (parallel-or-antiparallelp (axis-dir ?xyz ?rot) ?dir))
    (bind ?sign (if (same-angle (axis-dir ?xyz ?rot) ?dir) '+ '-))
@@ -570,6 +573,11 @@
    ;; z-direction vectors handled separately
    (test (not (z-dir-spec ?dir)))
    (test (parameter-or-unknownp ?dir))
+   ;; even though drawn unknown, make sure it doesn't have knowable direction from compos which can
+   ;; be used by compo-parallel-axis
+   (set-of (dir-given-or-compos ?vector ?dir1 :knowable T) ?dir1 ?known-dirs)
+   (test (or (null ?known-dirs)
+             (not (parallel-or-antiparallelp (axis-dir ?xyz ?rot) (first ?known-dirs)))))
    (in-wm (variable ?dir-var (dir ?vector)))
    (in-wm (variable ?mag-var (mag ?vector)))
    ; write y-axis projection as mag * sin (dir - x-axis rotation)
@@ -997,8 +1005,8 @@
     ;(implicit-eqn (= ?mag-var ?mag-expr) (mag ?vec))
    )
   :hint (
-    (point (string "The problem statement tells you the components of ~a." ?vec))
-    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the given component values in the dialog box."
+    (point (string "You can determine the components of ~a from the problem statement." ?vec))
+    (bottom-out (string "Use the appropriate vector drawing tool to draw ~a at an approximately correct angle, then enter the component values in the dialog box."
 	  ?vec ?dir-expr))
   ))
 

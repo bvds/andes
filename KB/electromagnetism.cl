@@ -385,7 +385,7 @@
    (test (or (null ?t) (time-pointp ?t)))
    (given-field ?loc ?electric ?b)
    (not (given (dir (field ?loc electric ?b :time ?t)) ?dontcare3))
-   (given (dir (relative-position ?loc ?b :time ?t)) ?rdir)
+   (dir-given-or-compos (relative-position ?loc ?b :time ?t) ?rdir :knowable T)
    (sign-charge ?b ?pos-neg)
    (bind ?Field-dir (if (eq ?pos-neg 'pos) ?rdir (opposite ?rdir)))
    (bind ?same-or-opposite (if (eq ?pos-neg 'pos) 'same 'opposite))
@@ -428,7 +428,11 @@
 	 ;;    (error "draw-point-efield-unknown bad time slot ~A" ?t)))
    ;; make sure ?loc not equals ?loc-source?
    (not (vector ?dontcare (field ?loc electric ?b :time ?t1) ?any-dir))
-   (not (given (dir (relative-position ?loc ?b :time ?t-any)) ?whatever1))
+   ; to complement draw-point-Efield-given-relpos-dir condition
+   ;(not (given (dir (relative-position ?loc ?b :time ?t-any)) ?whatever1))
+   (setof (dir-given-or-compos (relative-position ?loc ?b :time ?t-any) ?dir :knowable T)
+          ?dir ?known-dirs1)
+   (test (not ?known-dirs1))
    (not (given (dir (relative-position ?b ?loc :time ?t-any)) ?whatever2))
    (bind ?mag-var (format-sym "E_~A_~A~@[_~A~]" (body-name ?loc) (body-name ?b)
 			      (time-abbrev ?t)))
