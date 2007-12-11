@@ -475,7 +475,7 @@
    ;(in-wm (vector ?b ?vector ?entry-dir))
    (in-wm (variable ?mag-var (mag ?vector)))
    ; vectors given by components get drawn unknown, but might still know
-   ; direction is parallel to axis. 
+   ; direction is parallel to axis, so get dir from here, not drawing 
    (dir-given-or-compos ?vector ?dir :knowable T)
    ;; should fail if ?dir is 'unknown (this test does not work for z-axis)
    (test (parallel-or-antiparallelp (axis-dir ?xyz ?rot) ?dir))
@@ -575,7 +575,7 @@
    (test (parameter-or-unknownp ?dir))
    ;; even though drawn unknown, make sure it doesn't have knowable direction from compos which can
    ;; be used by compo-parallel-axis
-   (set-of (dir-given-or-compos ?vector ?dir1 :knowable T) ?dir1 ?known-dirs)
+   (setof (dir-given-or-compos ?vector ?dir1 :knowable T) ?dir1 ?known-dirs)
    (test (or (null ?known-dirs)
              (not (parallel-or-antiparallelp (axis-dir ?xyz ?rot) (first ?known-dirs)))))
    (in-wm (variable ?dir-var (dir ?vector)))
@@ -616,8 +616,15 @@
   :preconditions (
     (body-for-projection ?rot ?vector)
     (variable ?compo-var (compo ?xyz ?rot ?vector))
-    (in-wm (vector ?b ?vector ?dir))
-    (in-wm (variable ?dir-var (dir ?vector)))
+    (in-wm (vector ?b ?vector ?drawn-dir))
+    ; vectors given by components get drawn unknown, but might still know
+    ; direction is perpendicular to axis, so check for derivable direction.
+    ; But note unknown => xy plane, so this operator should still apply 
+    ; for z-axis projection. dir-given-or-compos doesn't return 'unknown, just
+    ; fails, so use set-of to fallback to drawn-dir in that case.
+    (setof (dir-given-or-compos ?vector ?dir :knowable T) 
+               ?dir ?known-dirs)
+    (bind ?dir (if ?known-dirs (first ?known-dirs) ?drawn-dir))
     ;; known to be orthogonal
     (test (not (non-zero-projectionp ?dir ?xyz ?rot)))
     )
@@ -1084,7 +1091,7 @@
 |#
 
 
-; Move to kinematics.cl once working:
+; Could move near other position rules in kinematics.cl once working:
 
 ; Following is like rdiff, but just treats components of difference vector as given values.
 ; It could be viewed as a macro that just expands the problem givens to save having
@@ -1107,6 +1114,52 @@
     (given (compo y 0 (relative-position ?p2 ?p1 :time ?t)) (dnum ?r21_y ?units))
  ))
 
+;; If a vector is given by components, it is drawn unknown, even if it has an obvious direction
+;; because it lies along an axis. Equations like the radial E&M laws may reference the vector
+;; direction. Since we now write simple projection equations for these vectors, we need some
+;; trivial psm to put out the value of the orientation angle in the solution. Note this only
+;; applies to component form vectors with obvious directions.
+
+(def-psmclass vector-direction (vector-direction ?vector)
+  :complexity minor 
+  :short-name "vector direction"
+  :english ("the direction of a vector")
+  :ExpFormat ("entering the direction of of ~a" (nlg ?vector))
+  :EqnFormat ("$qv = N deg"))
+
+(defoperator vector-direction-contains (?vector)
+  :preconditions 
+  (
+   ;; don't use inheritance, since it involves only one quantity.
+   (inherit-or-quantity ?vector ?vector) ;test ?vector has no parents
+   (given (compo x 0 ?vector) (dnum ?vx ?units))
+   (given (compo y 0 ?vector) (dnum ?vy ?units))
+   ; make sure not given a non-zero z component
+   (not (given (compo z 0 ?vector) (dnum ?vz ?units)) ; such-that:
+        (not (equalp ?vz 0)))
+   ; any multiple of 45 deg will return a known direction, else NIL
+   (bind ?dir-expr (knowable-dir-from-compos ?vx ?vy))
+   (test (and ?dir-expr (not (member ?dir-expr '(zero unknown)))))
+   )
+  :effects ( (eqn-contains (vector-direction ?vector) (dir ?vector)) ))
+
+(defoperator write-vector-direction (?vector)
+  :preconditions 
+  (
+   (variable ?vdir (dir ?vector))
+   ;; contains has made sure this is component form given
+   (dir-given-or-compos ?vector ?dir :knowable T)
+  )
+  :effects (
+    (eqn (= ?vdir ?dir) (vector-direction ?vector))
+    ;; Do we need anything like the following (from vector magnitude)?
+    ;; pyth-theorem xor projections
+    ;; (assume using-magnitude ?vector)
+  )
+  :hint (
+   (point (string "The direction of ~A from its component values." ?vector))
+   (bottom-out (string "Write the equation ~A." ((= ?vdir ?dir) algebra)))
+  ))
 
 ;;;;===========================================================================
 ;;;;

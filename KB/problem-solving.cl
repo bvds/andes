@@ -578,6 +578,18 @@
   :specifications "let's not and say we did"
   :effects ( (optional ?goal) ))
 
+;;; =================== Generic: failing to derive goal =====================
+;;;
+;;; This is shorthand for negation-by-failure implemented using set-of. 
+;;; Could be made into a custom executable in the rule interpreter.
+
+(defoperator fail (?goal-prop)
+  :preconditions (
+      (setof ?goal-prop ?goal-prop ?achieved-goals)
+      (test (null ?achieved-goals))
+  )
+  :effects ( (fail ?goal) ))
+ 
 ;;; =================== Generic: planning only problems =====================
 
 ; For Sandy Katz planning only preparatory problems, the only goal is
