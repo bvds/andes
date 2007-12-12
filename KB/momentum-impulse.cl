@@ -764,6 +764,7 @@
    ((vector ?b (impulse ?b ?agent :time ?t) ?dir2)
     (variable ?mag-var (mag (impulse ?b ?agent :time ?t)))
     (variable ?dir-var (dir (impulse ?b ?agent :time ?t)))
+    (given (dir (impulse ?b ?agent :time ?t)) ?dir2)
     (implicit-eqn (= ?dir-var ?dir-var-value) (dir (impulse ?b ?agent :time ?t)))
    )
   :hint

@@ -184,7 +184,7 @@
          ((parameter-or-unknownp x2) NIL)
 	 ;; else both should be known xy angle specifiers
          ((and (degrees-or-num x1) (degrees-or-num x2))
-	  (equal 90 (mod (- (convert-dnum-to-number x1) 
+	  (equalp 90 (mod (- (convert-dnum-to-number x1) 
 			    (convert-dnum-to-number x2)) 180)))
 	 (t (error "invalid angles ~A ~A" x1 x2))))
 

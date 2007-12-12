@@ -619,9 +619,9 @@
     (in-wm (vector ?b ?vector ?drawn-dir))
     ; vectors given by components get drawn unknown, but might still know
     ; direction is perpendicular to axis, so check for derivable direction.
-    ; But note unknown => xy plane, so this operator should still apply 
-    ; for z-axis projection. dir-given-or-compos doesn't return 'unknown, just
-    ; fails, so use set-of to fallback to drawn-dir in that case.
+    ; But note 'unknown implies xy plane, so this operator should still apply 
+    ; for z-axis projection of 'unknown. dir-given-or-compos doesn't return 'unknown, 
+    ; just fails, so use set-of to allow fallback to drawn-dir in that case.
     (setof (dir-given-or-compos ?vector ?dir :knowable T) 
                ?dir ?known-dirs)
     (bind ?dir (if ?known-dirs (first ?known-dirs) ?drawn-dir))
@@ -870,12 +870,18 @@
   (
    ;; vector-magnitude not use inheritance, since it involves only one quantity.
    (inherit-or-quantity ?vector ?vector) ;test ?vector has no parents
-   (vector ?b ?vector ?dir) ;draw the vector
+   (vector ?b ?vector ?drawn-dir) ;draw the vector
    (axes-for ?b ?rot)
    ;; make sure there can be more than one nonzero term in sum
    ;; else it is redundant with the projection equations
    ;; This test is not sufficient for problem coul3, Bug #1375.
    (setof (get-axis ?xyz ?rot) ?xyz ?xyz-list)
+   ; vectors given by components get drawn unknown, but might still have
+   ; obvious derivable direction from compos, so prefer that to drawn
+   ; direction, falling back to drawn direction if this fails
+   (setof (dir-given-or-compos ?vector ?dir :knowable T) 
+               ?dir ?known-dirs)
+   (bind ?dir (if ?known-dirs (first ?known-dirs) ?drawn-dir))
    (test (> (length (remove-if-not 
 		   #'(lambda (xyz) (non-zero-projectionp ?dir xyz ?rot)) 
 		   ?xyz-list)) 1))
@@ -1152,9 +1158,9 @@
   )
   :effects (
     (eqn (= ?vdir ?dir) (vector-direction ?vector))
-    ;; Do we need anything like the following (from vector magnitude)?
-    ;; pyth-theorem xor projections
-    ;; (assume using-magnitude ?vector)
+    ;; To combine in solutions with vector-magnitude but not projections:
+    ;; unclear if necessary or desirable
+    (assume using-magnitude ?vector)
   )
   :hint (
    (point (string "The direction of ~A from its component values." ?vector))
