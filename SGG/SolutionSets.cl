@@ -216,8 +216,8 @@
 ;;;
 (defun get-extension-eqns (Solution &optional (Forbidden nil))
   "Get the set of valid extension connected to the sought."
+  (cs-action 1 "Solution now: ~A" Solution)
   (let ((EqnSet (collect-Solution-Eqns Solution)))             
-    (cs-action 1 "Solution Equations ~A" Solution)
         
     (setq EqnSet
       (remove-nogood-eqns 
@@ -225,7 +225,7 @@
        (if EqnSet (get-indy-ext-eqns Solution EqnSet Forbidden)
 	 (get-nonindy-ext-eqns Solution Forbidden))))
     		    
-    (cs-result 1 "Resulting Set After Nogood:" )
+    (cs-result 1 "Result After Nogood removal:" )
     (cs-list 1 EqnSet)
     EqnSet))
 
@@ -249,11 +249,11 @@
 ;;; collect the proper subset of those eq
 (defun get-indy-ext-eqns (Solution EqnSet Forbidden)
   "Get the indy eqns set."
-  (cs-action 2 "Testing indy Equations.")
+  (cs-action 2 "Getting independent expansion equations.")
   (setup-indyset EqnSet)
   (let ((R) (Eqn))
     (dolist (E (get-nonindy-ext-eqns Solution Forbidden))
-      (cs-result 3 "Testing Nonindy eqns for indy:")
+      (cs-result 3 "Testing for independence:")
       (cs-list 3 E)
       (setq Eqn (find (Enode-Algebra E) *Indy-Eqn-Index*
 		      :test #'equal :key #'cadr))
@@ -282,7 +282,7 @@
 ;;; return the proper subset of the solution's equations that are
 ;;; neither unsolved nor forbidden.
 (defun get-nonindy-ext-eqns (Solution Forbidden)
-  (if *debug-cs* (cs-action 2 "Testing Equations."))
+  (if *debug-cs* (cs-action 2 "Getting all expansion equations."))
   (let (R)
     (dolist (E (Qnode-Eqns (Car (Solution-Soughts Solution))))
       (cs-list 3 (list E))

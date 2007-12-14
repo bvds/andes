@@ -248,6 +248,9 @@
 ;; duplicate values the functions here are used to merge those
 ;; duplicates to generate a single set as necessary.
 
+;; The set of all results for a particular sought may contain several different
+;; psms, but also multiple instances of the same psm with different paths.
+;; This merges multiple instances for the same psm into a single instance.
 (defun merge-duplicate-psms (PSMS)
   "Merge any duplicates found within given set of psm qsolver results"
   (let ((tmp) (R (list (car psms))))
@@ -258,7 +261,7 @@
     R))
   
 (defun merge-psm-check (P Set)
-"check for errors when merging PSM result P into result Set"
+"check for inconsistent results when merging PSM result P into result Set"
  (let ((idmatch (find (qsolres-id P) Set :key #'qsolres-id :test #'equalp))
        (algmatch (find (qsolres-algebra P) Set :key #'qsolres-algebra :test #'equalp)))
      (when (and idmatch (not (equalp (qsolres-algebra idmatch) (qsolres-algebra P))))
@@ -270,6 +273,8 @@
 
 (defun merge-psm (P Set)
   "return result of merging PSM result P into matching eqn result in Set of solutions; NIL if no match"
+  ; Check results for conflicting results with same id or algebra. !!! Shouldn't be
+  ; an error if this is lower-order result which doesn't get merged into final set.
   (merge-psm-check P Set)
   (loop for P2 in Set			;If it matches another PSM in equations
       when (and (equal (qsolres-algebra P) (qsolres-algebra P2))
