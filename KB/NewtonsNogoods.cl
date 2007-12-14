@@ -193,11 +193,10 @@
   :specs ("Prevent both component and magnitude form of a vector equation")
   :message (Both component and magnitude forms for ?family-id))
 
-;;; Energy conservation is expressed in three ways:
-;;;    cons-energy, change-me, and work-energy.
+;;; Energy conservation is expressed in two ways:
+;;;    cons-energy and change-me
 ;;; We want to apply only one at a time.
 ;;; cons-energy is a special case of change-me.
-
 (defnogood one-form-of-energy-conservation
     ((using-energy-conservation ?type1 ?b ?t1 ?t2)
      (using-energy-conservation ?type2 ?b ?t1 ?t2)
@@ -205,4 +204,3 @@
      )
   :specs ("Use only one form of energy conservation")
   :message (Both ?type1 ?type2 used for energy conservation))
-

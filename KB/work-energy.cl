@@ -1037,7 +1037,7 @@ that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
   :effects 
   (
    (eqn (= ?Wnet-var (- ?ke2-var ?ke1-var)) (work-energy ?b (during ?t1 ?t2)))
-   (assume using-energy-conservation work-energy ?b ?t1 ?t2)
+   ;(assume using-energy-conservation work-energy ?b ?t1 ?t2)
    )
   :hint (
    (point (string "What do you know about the relation between net work done on an object and its kinetic energy?" ))
