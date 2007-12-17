@@ -481,7 +481,7 @@
 ;;; This parameter should only be directly addressed by the nsh-collect-first-principles
 ;;; function.  
 (defparameter *nsh-first-principles* () 
-  "The relavent first-principles for this problem.")
+  "The relevant first-principles for this problem.")
 
 
 ;; Removable 
@@ -564,13 +564,7 @@
 ;;; Note: This code assumes that the problem has at least one sought.  
 (defun nsh-multiple-choice-only-problem-p (Problem)
   "Return t if this is a multiple-choice only problem."
-  (nsh-mcop-p (problem-soughts Problem)))
-
-(defun nsh-mcop-p (Soughts)
-  "Return t if all the soughts are 'choose-answer'"
-  (when (equalp (caar Soughts) 'CHOOSE-ANSWER)
-    (if (= 1 (length Soughts)) t
-      (nsh-mcop-p (cdr Soughts)))))
+  (every #'multiple-choice-sought-p (problem-soughts Problem)))
 
 
 ;;; For these problems we will need to set the problem type and then to 
@@ -1049,7 +1043,8 @@
 
 
 
-;;;; ====================== Prompt Bodies ======================================;;;; We want the students to begin all problems by defining all of the "necessary"
+;;;; ====================== Prompt Bodies ======================================
+;;;; We want the students to begin all problems by defining all of the "necessary"
 ;;;; bodies in for a solution.  If they ask NSH will prompt them to make all of 
 ;;;; the necessary body entries for the ideal solution.  Bodies are considered
 ;;;; necessary if they appear in the top level of a PSMclass.  
