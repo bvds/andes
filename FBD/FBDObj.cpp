@@ -2288,9 +2288,11 @@ void CAxes::Delete()
 //and vector variables now exist
 void CAxes::UpdateVarNames(CString strOldName)
 {
-	POSITION pos = ((CFBDDoc*)theApp.GetDocument())->GetObjects()->GetTailPosition();
+	if (! m_pDocument) return;
+
+	POSITION pos = m_pDocument->GetObjects()->GetTailPosition();
 	while (pos != NULL){
-		CDrawObj* pObj = ((CFBDDoc*)theApp.GetDocument())->GetObjects()->GetPrev(pos);
+		CDrawObj* pObj = m_pDocument->GetObjects()->GetPrev(pos);
 		if (!pObj->IsKindOf(RUNTIME_CLASS(CCheckedObj)))
 			continue;
 		if (pObj->m_flag == TEACHER_OBJECT)
@@ -2299,9 +2301,9 @@ void CAxes::UpdateVarNames(CString strOldName)
 		if (pChkObj->HasComponents())
 			pChkObj->UpdateVarNames();
 	}
-	pos = ((CFBDDoc*)theApp.GetDocument())->m_Variables.GetTailPosition();
+	pos = m_pDocument->m_Variables.GetTailPosition();
 	while (pos != NULL){
-		CDrawObj* pObj = ((CFBDDoc*)theApp.GetDocument())->m_Variables.GetPrev(pos);
+		CDrawObj* pObj = m_pDocument->m_Variables.GetPrev(pos);
 		if (!pObj->IsKindOf(RUNTIME_CLASS(CCheckedObj)))
 			continue;
 		if (pObj->m_flag == TEACHER_OBJECT)

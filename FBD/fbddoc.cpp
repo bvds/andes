@@ -3208,7 +3208,9 @@ BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 		// add to document and update. Skip Doc->Add since it sets modified flag
 		m_objects.AddTail(pObj);
 		pObj->m_pDocument = this;
-		// must add name to cached solvefor varname list. Normally called after dialog 
+		// After adding object, must also add variable name (including any dependent variable 
+		// names, e.g. components or angle variables) to the cached solvefor varname list. Normally 
+		// done in object's UpdateVarNames method after editing label in dialog.
 		if (pObj->IsKindOf(RUNTIME_CLASS(CCheckedObj)))
 			((CCheckedObj*)pObj)->UpdateVarNames();
 	}
