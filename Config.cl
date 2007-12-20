@@ -83,18 +83,17 @@
    
    ;; --------------------------------------------------------------
    ;; The MC-Answer-entry subscore is a ratio of the number of correct
-   ;; multiple-choice answer entries that the student has made relative
-   ;; to the number of multiple choice answer entries that they need 
-   ;; to make.  
+   ;; qualitative drawing "Done" buttons that the student has checked 
+   ;; relative to the number of done buttons they need to make.  
    ;;
-   ;; The multiple choice answer entries are used on the fbd-only 
+   ;; The multiple choice answer entries are used on drawing-only 
    ;; problems alone where the students must select a checkbox.  On
    ;; all other problems this will be treated as if the assinged weight
    ;; was 0.  
    ;;
-   ;; I recommend that you assign the same weight to this test and to
-   ;; the one above.  
-   (MC_Answer_Entry_Subscore 0.20 Credit)
+   ;; This now has lower weight than other answers, with greater weight
+   ;; on these problems going to the new Diagram_Entries subscore
+   (MC_Answer_Entry_Subscore 0.10 Credit)
    
    ;; ----------------------------------------------------------------
    ;; The equation subscore retuerns a ratio of the number of 

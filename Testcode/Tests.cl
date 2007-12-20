@@ -761,7 +761,9 @@
 	       (make-rt-fract-num-score 
 		0 (length (remove-if-not #'qual-sought-p 
 		              (problem-soughts *cp*)))))
- :Weight 0.20
+ ; Lower weight than other forms of answers = half weight for drawing entries subscore, 
+ ; which gives partial credit for portion of diagram done.
+ :Weight 0.10  
  :CreditType Credit
  :ActiveCond #'(lambda ()
 		 (and (problem-loadedp)

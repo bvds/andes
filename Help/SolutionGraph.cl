@@ -906,6 +906,11 @@
 ;; there exists a path through that node that doesn't 
 ;; include the entry. This requires traversing the hairy
 ;; psm graph structure
+;;
+;; NB: Optionality here is defined by path structure and 
+;; will not exclude implicit eqn entries.  Other code in 
+;; next-step-help and grading will treat implicit eqn entries
+;; as effectively optional in a different way.
 (defun sg-systementry-optional-p (entry &optional (problem *cp*))
   (every #'(lambda (enode) (does-not-require enode entry))
          (bubblegraph-enodes (problem-graph problem))))  
@@ -928,11 +933,13 @@
 	 ;; generate them any more
 	 (T (some-path-through-omits (cdr path) entry))))
 
-; utility func to pull out only required entries in an enode
+; Utility func to pull out only the required entries in an enode.
+; Because intended for use by grading, this DOES ignore implicit eqns. 
 (defun enode-required-entries (enode)
    (remove-if #'(lambda (entry) 
                    (does-not-require enode entry))
-              (enode-entries enode)))
+     (remove-if #'SystemEntry-implicit-eqnp
+              (enode-entries enode))))
 
 ;;-------------------------------------------------------------
 ;; debugging code.
