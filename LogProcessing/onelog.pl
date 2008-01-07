@@ -119,7 +119,8 @@ while (<>) { # loop over andes files/sessions
     my $start_time=$last_time; 
     
     while (<>) {   # loop over lines within an Andes problem
-	last if /\tEND-LOG/ or /\tClose/;  # end of Andes problem
+        # don't confuse with close-lesson
+	last if /\tEND-LOG[ \r]/ or /\tClose[ \r]/;  # end of Andes problem
 	
 	# skip evaluation of any pre-defined quantities/equations
 	if (/\tCheck-Entries (\d)/) {$check_entries=$1;}
