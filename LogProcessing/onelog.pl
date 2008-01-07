@@ -42,13 +42,14 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 # might introduce a selection bias.
 $minimum_student_attempts=0.5;  # cutoff on list of problems
 
+# parse the time stamp at the beginning of a line
 sub timestamp {
   if($_[0] =~ /^(\d+):(\d+)/) {
     return  $1*60+$2;
   } elsif ($_[0] =~ /^(\d+):(\d+):(\d+)/) {
     return $1*3600+$2*60+$3;
   }
-  die "bad time $_";
+  die "bad time $_[0]";
 }
 
 # read in file with meta-operators
@@ -71,10 +72,6 @@ if ($meta_operator_file) {
 my $last_header="";  #first line of the most recent Andes session.
 
 while (<>) { # loop over andes files/sessions
-    #  unless ($ARGV eq $last_ARGV) {
-    #    print "Start reading $ARGV\n";
-    #    $last_ARGV=$ARGV;
-    #  }
     
     # beginning of new file
     if (/^time,info/) {$last_header="";}
@@ -94,18 +91,16 @@ while (<>) { # loop over andes files/sessions
       $session_userid = $1;
       $date = $2;
     }
-    elsif (/read-problem-info .(\w+)/) {
-      $problem = $1;
-      $problem  =~ tr/A-Z/a-z/;  #set to lower case
-    }
-
+ 
     # new problem now started.
-    next unless /read-problem-info /;
-
+    next unless /read-problem-info .(\w+)/;
+    $problem = $1;
+    $problem  =~ tr/A-Z/a-z/;  #set to lower case
+    
     if ($student ne $session_userid) {
 	warn "warning: session label $session_userid doesn't match $student\n";
     }
-
+    
     my $dt=0;
     my $score=0;
     my $loss_of_focus=0;  #accumulate pauses associated with loss of focus
@@ -117,15 +112,15 @@ while (<>) { # loop over andes files/sessions
     my $check_entries=0;
     my $time_stamp="";
     my $this_time=0;
-
-    /^([0-9:]+)\t/ or die "no time stamp for this line";
-    my $last_time_stamp=$1;
-    my $start_time=timestamp($1);
-    my $last_time=$start_time;  #timestamp (seconds) of most recent line
-
+    
+    /^([0-9:]+)\t/ or die "no time stamp for $_";
+    my $last_time_stamp=$1;      
+    my $last_time=timestamp($1); #time (seconds) of most recent line
+    my $start_time=$last_time; 
+    
     while (<>) {   # loop over lines within an Andes problem
 	last if /\tEND-LOG/ or /\tClose/;  # end of Andes problem
-
+	
 	# skip evaluation of any pre-defined quantities/equations
 	if (/\tCheck-Entries (\d)/) {$check_entries=$1;}
 	next if $check_entries;
@@ -137,7 +132,7 @@ while (<>) { # loop over andes files/sessions
 	    $dt = $this_time - $last_time if $last_time;
 	    $last_time = $this_time;
 	    
-            # in pause histogram, might ignore pauses associated with 
+	    # in pause histogram, might ignore pauses associated with 
 	    # loss of focus:
 	    # next if /\tApp-activate/ or /\tApp-deactivate/;  
 	    $dt_histogram{$dt}++;
@@ -148,7 +143,7 @@ while (<>) { # loop over andes files/sessions
 	    warn "Time stamp missing for $_\n";
 	    next;
 	}
-
+	
 	next unless /\tDDE/;  # skip non DDE lines
 	# reset operator list and record time
 	if (/\tDDE /) { # student action sent to help system
@@ -185,7 +180,7 @@ while (<>) { # loop over andes files/sessions
 	# This condition arises from either not expressing a vector
 	# equation in terms of its components or from combining equations
 	# pre-maturely.  Many students go and do something else, some
-        # ignore the hint, and a few try to fix the equation. 
+	# ignore the hint, and a few try to fix the equation. 
 	#
 	# Even though the equation turns green, we will treat it 
 	# as an error since the student is not given full credit for 
@@ -195,7 +190,7 @@ while (<>) { # loop over andes files/sessions
 	    $intervening_hints++;
 	    $intervening_errors++;
 	    push @error_interp, ($error_name or "assoc-error-t-show-hint");
-	  }
+	}
 	# error with unsolicited hint.  
 	# It is not clear how to count this
 	elsif (/\tDDE-RESULT \|NIL!show-hint .*\|/) {
@@ -216,12 +211,12 @@ while (<>) { # loop over andes files/sessions
 		       error_names => [@error_interp],
 		       hints => $intervening_hints,
 		       time => $adjusted_time-$last_adjusted_time,
-                       problem => $problem};
+		       problem => $problem};
 
 	    # Sanity test:  these should have the same length
 	    @operator_list == @step_list or
 		die "assoc op and assoc step don't match\n";
-
+    
 	    while (@operator_list) {
 		my $operator = pop @operator_list;
 		my $step = pop @step_list;
@@ -233,13 +228,13 @@ while (<>) { # loop over andes files/sessions
 		    and $operator !~ /^WRITE-IMPLICIT-EQN/;
 
 		$op_inst{$student}{$problem}{$operator}{$step} += 1;
-	        push @{$mastery{$operator}{$student}}, $facts;
+		push @{$mastery{$operator}{$student}}, $facts;
 		foreach $meta_op (@{$meta_operators{$operator}}) {
-	            push @{$mastery{$meta_op}{$student}}, $facts;
-	        }
-                # for print out list of locations in file
+		    push @{$mastery{$meta_op}{$student}}, $facts;
+		}
+		# for print out list of locations in file
 		push @{$location{$operator}{$student}},
-		     "\t\t$last_time_stamp\t$time_stamp\t$intervening_errors $intervening_hints\n";
+		"\t\t$last_time_stamp\t$time_stamp\t$intervening_errors $intervening_hints\n";
 	    }
 	    $intervening_errors=0;
 	    $intervening_hints=0;
@@ -248,7 +243,6 @@ while (<>) { # loop over andes files/sessions
 	    @error_interp=();
 	}	    
     }
-
 
     unless ($_) {
 	warn "End of file encountered during Andes session\n";
@@ -266,6 +260,7 @@ while (<>) { # loop over andes files/sessions
     push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
 
+
 #############################################################################
 #
 #                     Analysis of accumulated data
@@ -275,7 +270,7 @@ while (<>) { # loop over andes files/sessions
 
 # print out score histogram in Mathematica notation
 # This is not affected by any of the cutoffs
-if(0) {
+if(1) {
     foreach $student (keys %times) {
 	foreach $problem (keys %{$times{$student}}) {
 	    $score_histogram{$scores{$student}{$problem}}++;
@@ -291,7 +286,7 @@ if(0) {
 # printout histogram of pauses
 # This is not affected by any of the cutoffs
 
-if(0) {
+if(1) {
     print "pausehistogram={";
     my $sep="";
     foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
@@ -340,7 +335,7 @@ foreach $student (sort keys %times) {
 #
 #  Print number of students that attempted to solve a given number of problems.
 #
-if (0) {
+if (1) {
     print "problemattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %problem_attempts) {
@@ -375,7 +370,7 @@ if (0) {
 #
 #  Print out timestamps for work leading to a given operator
 #
-if (0) {
+if (1) {
     print "List of instances of each operator, showing:\n";
     print "operator\n\tstudent\n\t\t start\tend\terrors hints\n";
     foreach $operator (sort keys %mastery) {
@@ -545,7 +540,7 @@ if(1) {
 # problem solution.  Each member of the list is of the format:
 #  {student, problem, time, {{op1,n1},{op2,n2}, ...}}
 # where ni is the number of distinct instances of opi in that solution.
-if (0) {
+if (1) {
     local $"=",";  # for Mathematica formatted lists
     my @each_student=();
     my @each_time=();
