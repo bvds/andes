@@ -42,6 +42,14 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 # might introduce a selection bias.
 $minimum_student_attempts=0.5;  # cutoff on list of problems
 
+sub timestamp {
+  if($_[0] =~ /^(\d+):(\d+)/) {
+    return  $1*60+$2;
+  } elsif ($_[0] =~ /^(\d+):(\d+):(\d+)/) {
+    return $1*3600+$2*60+$3;
+  }
+  die "bad time $_";
+}
 
 # read in file with meta-operators
 # the format of the file is that each line begins with the meta-operator 
@@ -62,7 +70,7 @@ if ($meta_operator_file) {
 
 my $last_header="";  #first line of the most recent Andes session.
 
-while (<>) { # loop over andes problems
+while (<>) { # loop over andes files/sessions
     #  unless ($ARGV eq $last_ARGV) {
     #    print "Start reading $ARGV\n";
     #    $last_ARGV=$ARGV;
@@ -71,40 +79,61 @@ while (<>) { # loop over andes problems
     # beginning of new file
     if (/^time,info/) {$last_header="";}
     if (/Log of Andes session /) {
-	# Test that sessions have been sorted by date
-	# If the beginning of the file was not marked, could have a
-	# false error.
-	# use sort-by-time.pl to create a sorted version of the log file.
-	$last_header le $_ or die "Sessions in log file are not sorted.\n";
-	$last_header = $_;
+      # Test that sessions have been sorted by date
+      # If the beginning of the file was not marked, could have a
+      # false error.
+      # use sort-by-time.pl to create a sorted version of the log file.
+      $last_header le $_ or die "Sessions in log file are not sorted.\n";
+      $last_header = $_;
     }
 
-    # find (and discard) any Lessons or header lines
-    next unless /\tOpen-Problem/;  
-    
-    my $last_time=0;  #timestamp (seconds) of most recent line in session
+    if (/read-student-info .(\w+)/) {
+      $student = $1;  # session label should start with student id
+    }
+    elsif (/set-session-id .(\w+)-([a-zA-Z0-9-]+)/) {
+      $session_userid = $1;
+      $date = $2;
+    }
+    elsif (/read-problem-info .(\w+)/) {
+      $problem = $1;
+      $problem  =~ tr/A-Z/a-z/;  #set to lower case
+    }
+
+    # new problem now started.
+    next unless /read-problem-info /;
+
+    if ($student ne $session_userid) {
+	warn "warning: session label $session_userid doesn't match $student\n";
+    }
+
     my $dt=0;
     my $score=0;
     my $loss_of_focus=0;  #accumulate pauses associated with loss of focus
     my $intervening_errors=0;
     my @error_interp=();
     my $intervening_hints=0;
+    my $adjusted_time=0;
     my $last_adjusted_time=0;
     my $check_entries=0;
-    my $lat_time_stamp=0;
+    my $time_stamp="";
+    my $this_time=0;
 
-    while (<>) {   # loop over lines within an Andes session
-	last if /\tEND-LOG/ or /\tClose/;  # end of Andes session
+    /^([0-9:]+)\t/ or die "no time stamp for this line";
+    my $last_time_stamp=$1;
+    my $start_time=timestamp($1);
+    my $last_time=$start_time;  #timestamp (seconds) of most recent line
+
+    while (<>) {   # loop over lines within an Andes problem
+	last if /\tEND-LOG/ or /\tClose/;  # end of Andes problem
 
 	# skip evaluation of any pre-defined quantities/equations
 	if (/\tCheck-Entries (\d)/) {$check_entries=$1;}
 	next if $check_entries;
 	
-	if(/^(\d+):(\d+)\t/ or /^(\d+):(\d+):(\d+)\t/) {
-	    $time_stamp = $3 ? "$1:$2:$3" : "$1:$2";
-	    $last_time_stamp or $last_time_stamp = $time_stamp;
+	if(/^([0-9:]+)\t/) {
+	    $time_stamp = $1;
 	    # total time in seconds
-	    $this_time = $3 ? $1*3600+$2*60+$3 : $1*60+$2; 
+	    $this_time = timestamp($1); 
 	    $dt = $this_time - $last_time if $last_time;
 	    $last_time = $this_time;
 	    
@@ -116,8 +145,7 @@ while (<>) { # loop over andes problems
 		$loss_of_focus += $dt;
 	    }
 	} else {
-            # silently ignore header lines
-	    warn "Time stamp missing for $_\n" unless /^#/;
+	    warn "Time stamp missing for $_\n";
 	    next;
 	}
 
@@ -126,22 +154,10 @@ while (<>) { # loop over andes problems
 	if (/\tDDE /) { # student action sent to help system
 	    $#step_list = -1;
 	    $#operator_list = -1;
-	    $adjusted_time = $this_time - $loss_of_focus;
+	    $adjusted_time = $this_time - $loss_of_focus - $start_time;
 	    $error_name = 0;  #delete any old error names
 	}
-	if (/read-student-info .(\w+)/) {
-	    $student = $1;  # session label should start with student id
-	}
-	elsif (/set-session-id .(\w+)-([a-zA-Z0-9-]+)/) {
-	    $session_userid = $1;
-	    $date = $2;
-	}
-	elsif (/read-problem-info .(\w+)/) {
-	    $problem = $1;
-	    $problem  =~ tr/A-Z/a-z/;  #set to lower case
-	    $adjusted_start_time=$adjusted_time;
-	}
-	elsif (/\tDDE-COMMAND set-score (\d+)/) {
+	if (/\tDDE-COMMAND set-score (\d+)/) {
 	    $score = $1; 
 	}
 	# use ^\r so we don't include CR in names
@@ -238,15 +254,11 @@ while (<>) { # loop over andes problems
 	warn "End of file encountered during Andes session\n";
 	last;
     }
-    # next unless $time_used and $score and $student and $problem;
-    if ($student ne $session_userid) {
-	warn "warning: session label $session_userid doesn't match $student\n";
-    }
 
     # Can't do too much analysis here since a problem might
     # be solved over multiple sessions.
     # Accumulate time used, throwing out time where Andes is not in focus.
-    $times{$student}{$problem} += $adjusted_time-$adjusted_start_time; 
+    $times{$student}{$problem} += $adjusted_time; 
     $scores{$student}{$problem} = $score;
     # problems attempted. Don't bother counting here because
     # a problem might be solved over multiple sessions.
@@ -263,7 +275,7 @@ while (<>) { # loop over andes problems
 
 # print out score histogram in Mathematica notation
 # This is not affected by any of the cutoffs
-if(1) {
+if(0) {
     foreach $student (keys %times) {
 	foreach $problem (keys %{$times{$student}}) {
 	    $score_histogram{$scores{$student}{$problem}}++;
@@ -328,7 +340,7 @@ foreach $student (sort keys %times) {
 #
 #  Print number of students that attempted to solve a given number of problems.
 #
-if (1) {
+if (0) {
     print "problemattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %problem_attempts) {
@@ -352,7 +364,7 @@ foreach $problem (sort keys %problems) {
 #
 #  Print number of problems solved by a given number of students
 #
-if (1) {
+if (0) {
     print "studentattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %student_attempts) {
@@ -363,7 +375,7 @@ if (1) {
 #
 #  Print out timestamps for work leading to a given operator
 #
-if (1) {
+if (0) {
     print "List of instances of each operator, showing:\n";
     print "operator\n\tstudent\n\t\t start\tend\terrors hints\n";
     foreach $operator (sort keys %mastery) {
@@ -384,7 +396,7 @@ if (1) {
 #   onelog.pl Fall2005-treacy.dat Fall2005-wintersgill.dat > times-Fall2005.csv
 #   onelog.pl Spring2006-treacy.dat Spring2006-wintersgill.dat > times-Spring2006.csv
 #
-if (0) {
+if (1) {
     print " ";
     foreach $problem (sort keys %problems) {print ",$problem";}
     print "\n";
