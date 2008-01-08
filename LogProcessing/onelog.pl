@@ -44,10 +44,10 @@ $minimum_student_attempts=0.5;  # cutoff on list of problems
 
 # parse the time stamp at the beginning of a line
 sub timestamp {
-  if($_[0] =~ /^(\d+):(\d+)/) {
-    return  $1*60+$2;
-  } elsif ($_[0] =~ /^(\d+):(\d+):(\d+)/) {
+  if ($_[0] =~ /^(\d+):(\d+):(\d+)$/) {
     return $1*3600+$2*60+$3;
+  } elsif($_[0] =~ /^(\d+):(\d+)$/) {
+    return  $1*60+$2;
   }
   die "bad time $_[0]";
 }
@@ -69,19 +69,21 @@ if ($meta_operator_file) {
     close(META);
 }
 
-my $last_header="";  #first line of the most recent Andes session.
+my $this_header="";  #first line of the most recent Andes session.
 
 while (<>) { # loop over andes files/sessions
     
     # beginning of new file
-    if (/^time,info/) {$last_header="";}
+    if (/^time,info/) {$this_header="";}
     if (/Log of Andes session /) {
       # Test that sessions have been sorted by date
       # If the beginning of the file was not marked, could have a
       # false error.
       # use sort-by-time.pl to create a sorted version of the log file.
-      $last_header le $_ or die "Sessions in log file are not sorted.\n";
-      $last_header = $_;
+      $this_header le $_ or die "Sessions in log file are not sorted.\n";
+      $this_header = $_;
+      $student = "";
+      $date = "";
     }
 
     if (/read-student-info .(\w+)/) {
@@ -90,9 +92,11 @@ while (<>) { # loop over andes files/sessions
     elsif (/set-session-id .(\w+)-([a-zA-Z0-9-]+)/) {
       $session_userid = $1;
       $date = $2;
-    }
- 
+    } 
+
     # new problem now started.
+    # in previous versions, started earlier.  This will affect the 
+    # pause histogram and the decrease the total time slightly.
     next unless /read-problem-info .(\w+)/;
     $problem = $1;
     $problem  =~ tr/A-Z/a-z/;  #set to lower case
@@ -120,7 +124,10 @@ while (<>) { # loop over andes files/sessions
     
     while (<>) {   # loop over lines within an Andes problem
         # don't confuse with close-lesson
-	last if /\tEND-LOG[ \r]/ or /\tClose[ \r]/;  # end of Andes problem
+        # can't use END-LOG because score is reset first
+	last if /\tClose[ \r]/;  # end of Andes problem
+
+	die "Unexpected END-LOG" if /\tEND-LOG[ \r]/;
 	
 	# skip evaluation of any pre-defined quantities/equations
 	if (/\tCheck-Entries (\d)/) {$check_entries=$1;}
@@ -131,6 +138,7 @@ while (<>) { # loop over andes files/sessions
 	    # total time in seconds
 	    $this_time = timestamp($1); 
 	    $dt = $this_time - $last_time if $last_time;
+	    warn "$this_header     Negative time step $dt for $_" if $dt<0;
 	    $last_time = $this_time;
 	    
 	    # in pause histogram, might ignore pauses associated with 
@@ -141,7 +149,7 @@ while (<>) { # loop over andes files/sessions
 		$loss_of_focus += $dt;
 	    }
 	} else {
-	    warn "Time stamp missing for $_\n";
+	    warn "$this_header     Time stamp missing for $_";
 	    next;
 	}
 	
@@ -360,7 +368,7 @@ foreach $problem (sort keys %problems) {
 #
 #  Print number of problems solved by a given number of students
 #
-if (0) {
+if (1) {
     print "studentattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %student_attempts) {
@@ -371,7 +379,7 @@ if (0) {
 #
 #  Print out timestamps for work leading to a given operator
 #
-if (1) {
+if (0) {
     print "List of instances of each operator, showing:\n";
     print "operator\n\tstudent\n\t\t start\tend\terrors hints\n";
     foreach $operator (sort keys %mastery) {
