@@ -42,6 +42,13 @@ $minimum_problem_attempts=0.5;   # cutoff on list of students
 # might introduce a selection bias.
 $minimum_student_attempts=0.5;  # cutoff on list of problems
 
+# Had to install this on FC6.
+# On OS X, run existing cpan and install DateTime::Format::Strptime
+use DateTime::Format::Strptime;
+my $dateformat =
+    DateTime::Format::Strptime->new( pattern => '%B %d, %Y %T' );
+
+
 # parse the time stamp at the beginning of a line
 sub timestamp {
   if ($_[0] =~ /^(\d+):(\d+):(\d+)$/) {
@@ -75,23 +82,23 @@ while (<>) { # loop over andes files/sessions
     
     # beginning of new file
     if (/^time,info/) {$this_header="";}
-    if (/Log of Andes session /) {
+    # Throw out day of week
+    if (/Log of Andes session begun \w+, (.+) by (\w+)/) {
       # Test that sessions have been sorted by date
       # If the beginning of the file was not marked, could have a
       # false error.
       # use sort-by-time.pl to create a sorted version of the log file.
       $this_header le $_ or die "Sessions in log file are not sorted.\n";
       $this_header = $_;
-      $student = "";
-      $date = "";
+      $date = $dateformat->parse_datetime($1);
+      $header_student = $2;
     }
 
     if (/read-student-info .(\w+)/) {
       $student = $1;  # session label should start with student id
     }
-    elsif (/set-session-id .(\w+)-([a-zA-Z0-9-]+)/) {
+    elsif (/set-session-id .(\w+)/) {
       $session_userid = $1;
-      $date = $2;
     } 
 
     # new problem now started.
@@ -101,8 +108,8 @@ while (<>) { # loop over andes files/sessions
     $problem = $1;
     $problem  =~ tr/A-Z/a-z/;  #set to lower case
     
-    if ($student ne $session_userid) {
-	warn "warning: session label $session_userid doesn't match $student\n";
+    if ($student ne $session_userid or $student ne $header_student) {
+	warn "warning: session label $session_userid doesn't match $student or $header_student\n";
     }
     
     my $dt=0;
@@ -266,6 +273,7 @@ while (<>) { # loop over andes files/sessions
     # problems attempted. Don't bother counting here because
     # a problem might be solved over multiple sessions.
     if($score > $score_cut_off) {$problems{$problem}=1}; 
+    # This will be for finding usage as a function of time.
     push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
 }
 
