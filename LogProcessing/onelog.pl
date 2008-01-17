@@ -82,8 +82,8 @@ while (<>) { # loop over andes files/sessions
     
     # beginning of new file
     if (/^time,info/) {$this_header="";}
-    # Throw out day of week
-    if (/Log of Andes session begun \w+, (.+) by (\w+)/) {
+    # Throw out day of week 
+    if (/Log of Andes session begun \w+, (.+) by /) {
       # Test that sessions have been sorted by date
       # If the beginning of the file was not marked, could have a
       # false error.
@@ -91,14 +91,15 @@ while (<>) { # loop over andes files/sessions
       $this_header le $_ or die "Sessions in log file are not sorted.\n";
       $this_header = $_;
       $date = $dateformat->parse_datetime($1);
-      $header_student = $2;
     }
 
     if (/read-student-info .(\w+)/) {
       $student = $1;  # session label should start with student id
+      $student =~ s/^m(\d+)$/$1/;  # remove leading m if it is a number
     }
     elsif (/set-session-id .(\w+)/) {
       $session_userid = $1;
+      $session_userid =~ s/^m(\d+)$/$1/; 
     } 
 
     # new problem now started.
@@ -106,10 +107,10 @@ while (<>) { # loop over andes files/sessions
     # pause histogram and the decrease the total time slightly.
     next unless /read-problem-info .(\w+)/;
     $problem = $1;
-    $problem  =~ tr/A-Z/a-z/;  #set to lower case
+    $problem =~ tr/A-Z/a-z/;  #set to lower case
     
-    if ($student ne $session_userid or $student ne $header_student) {
-	warn "warning: session label $session_userid doesn't match $student or $header_student\n";
+    if ($student ne $session_userid) {
+	warn "warning: session label $session_userid doesn't match $student\n";
     }
     
     my $dt=0;
@@ -274,7 +275,11 @@ while (<>) { # loop over andes files/sessions
     # a problem might be solved over multiple sessions.
     if($score > $score_cut_off) {$problems{$problem}=1}; 
     # This will be for finding usage as a function of time.
-    push @{ $sessions{$student}{$problem}}, $date; # accumulate sessions
+    # We collapse over problems, using the fact that a session should
+    # be less than a day...
+    my $day = $date->strftime("%U,%w");  #week, day of week
+    $usage{$student}{$day}{'raw'} += $this_time-$start_time;
+    $usage{$student}{$day}{'adjusted'} += $adjusted_time;
 }
 
 
@@ -287,7 +292,7 @@ while (<>) { # loop over andes files/sessions
 
 # print out score histogram in Mathematica notation
 # This is not affected by any of the cutoffs
-if(1) {
+if(0) {
     foreach $student (keys %times) {
 	foreach $problem (keys %{$times{$student}}) {
 	    $score_histogram{$scores{$student}{$problem}}++;
@@ -303,7 +308,7 @@ if(1) {
 # printout histogram of pauses
 # This is not affected by any of the cutoffs
 
-if(1) {
+if(0) {
     print "pausehistogram={";
     my $sep="";
     foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
@@ -336,6 +341,62 @@ if(1) {
     print "};\n";
 }
 
+# Printout of time usage by student and day, both adjusted and raw time
+
+if(1) {
+  print "usage={\n";
+  my $c=0;
+  foreach $student (keys %usage) {
+    if ($c++) {print ",\n";}
+    print "{\"$student\",{";
+    my $count=0;
+    foreach $day (sort keys %{$usage{$student}}) {
+      if ($count++) {print ",";}
+      print "{$day,$usage{$student}{$day}{'raw'}}";
+    }
+    print "}}";
+  }
+  print "};\n";
+  print "adjustedusage={\n";
+  $c=0;
+  foreach $student (keys %usage) {
+    if ($c++) {print ",\n";}
+    print "{\"$student\",{";
+    my $count=0;
+    foreach $day (sort keys %{$usage{$student}}) {
+      if ($count++) {print ",";}
+      print "{$day,$usage{$student}{$day}{'adjusted'}}";
+    }
+    print "}}";
+  }  
+  print "};\n";
+}
+
+  # collapse usage over students
+if (1) {
+  foreach $student (keys %usage) {
+    foreach $day (sort keys %{$usage{$student}}) {
+      $total_usage{$day}{'raw'} += $usage{$student}{$day}{'raw'};
+      $total_usage{$day}{'adjusted'} += $usage{$student}{$day}{'adjusted'};
+    }
+  }
+  print "totalusage={";
+  my $count=0;
+  foreach $day (sort keys %total_usage) {
+    if ($count++) {print ",";}
+    print "{$day,$total_usage{$day}{'raw'}}";
+  }
+
+  print "};\n";
+  print "adjustedtotalusage={";
+  my $count=0;
+  foreach $day (sort keys %total_usage) {
+    if ($count++) {print ",";}
+    print "{$day,$total_usage{$day}{'adjusted'}}";
+  }
+  print "};\n";
+}
+
 #    
 #  Remove students that solved only a few problems.
 #  This should be done semester-wise
@@ -352,7 +413,7 @@ foreach $student (sort keys %times) {
 #
 #  Print number of students that attempted to solve a given number of problems.
 #
-if (1) {
+if (0) {
     print "problemattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %problem_attempts) {
@@ -376,7 +437,7 @@ foreach $problem (sort keys %problems) {
 #
 #  Print number of problems solved by a given number of students
 #
-if (1) {
+if (0) {
     print "studentattempts={";
     my $count=0;
     foreach $i (sort {$a <=> $b} keys %student_attempts) {
@@ -408,7 +469,7 @@ if (0) {
 #   onelog.pl Fall2005-treacy.dat Fall2005-wintersgill.dat > times-Fall2005.csv
 #   onelog.pl Spring2006-treacy.dat Spring2006-wintersgill.dat > times-Spring2006.csv
 #
-if (1) {
+if (0) {
     print " ";
     foreach $problem (sort keys %problems) {print ",$problem";}
     print "\n";
@@ -428,7 +489,7 @@ if (1) {
 
 # Print out time, errors, hints for each application of a principle.
 
-if(1) {
+if (0) {
     local $"=",";  # for Mathematica formatted lists
     print "(* In the following, FNA (first no assistance) means that\n",
     "the student has, for the first time, successfully applied\n",
@@ -557,7 +618,7 @@ if(1) {
 # problem solution.  Each member of the list is of the format:
 #  {student, problem, time, {{op1,n1},{op2,n2}, ...}}
 # where ni is the number of distinct instances of opi in that solution.
-if (1) {
+if (0) {
     local $"=",";  # for Mathematica formatted lists
     my @each_student=();
     my @each_time=();
