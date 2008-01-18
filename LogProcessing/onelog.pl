@@ -45,8 +45,8 @@ $minimum_student_attempts=0.5;  # cutoff on list of problems
 # Had to install this on FC6.
 # On OS X, run existing cpan and install DateTime::Format::Strptime
 use DateTime::Format::Strptime;
-my $dateformat =
-    DateTime::Format::Strptime->new( pattern => '%B %d, %Y %T' );
+my $dateformat1 = DateTime::Format::Strptime->new( pattern => '%F %T' );
+my $dateformat2 = DateTime::Format::Strptime->new( pattern => '%Y/%m/%d %T' );
 
 
 # parse the time stamp at the beginning of a line
@@ -89,10 +89,13 @@ while (<>) { # loop over andes files/sessions
       $last_file = $ARGV;
     }
 
-    # Throw out day of week 
-    if (/Log of Andes session begun \w+, (.+) by /) {
+    # Use timestamp supplied by OLI.
+    if (/^(.+),# Log of Andes session begun /) { 
       $this_header = $_;
-      $date = $dateformat->parse_datetime($1);
+      $date = ($dateformat1->parse_datetime($1)
+	       or $dateformat2->parse_datetime($1));
+      warn "$this_header    Can't parse date $1\n" unless $date;
+
       # Test that sessions have been sorted by date
       # use sort-by-time.pl to create a sorted version of the log file.
       die "Sessions in log file are not sorted in $ARGV" 
