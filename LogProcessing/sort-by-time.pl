@@ -12,7 +12,7 @@ my $dateformat =
 $date=DateTime->new( year => 1000 );    # Any lines before the first session 
 
 while (<>) {
-    if(/^.* Log of Andes session begun \w, (.+) by /) {
+    if(/^.* Log of Andes session begun \w+, (.+) by /) {
       $date = $dateformat->parse_datetime($1);
     }
     $sessions{$date} .= $_;

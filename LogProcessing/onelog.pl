@@ -79,18 +79,24 @@ if ($meta_operator_file) {
 my $this_header="";  #first line of the most recent Andes session.
 my $date;
 my $last_date=DateTime->new(year=>1000); 
+my $last_file = "";
 
 while (<>) { # loop over andes files/sessions
-    
-    # beginning of new file
-    if (/^time,info/) {$this_header="";}
+
+    # new file, only demand sorting file-wise
+    if($ARGV ne $last_file) {
+      $last_date=DateTime->new(year=>1000);
+      $last_file = $ARGV;
+    }
+
     # Throw out day of week 
     if (/Log of Andes session begun \w+, (.+) by /) {
       $this_header = $_;
       $date = $dateformat->parse_datetime($1);
       # Test that sessions have been sorted by date
       # use sort-by-time.pl to create a sorted version of the log file.
-      die "Sessions in log file are not sorted.\n" if $date < $last_date;
+      die "Sessions in log file are not sorted in $ARGV" 
+	if $date < $last_date;
       $last_date = $date;
     }
 
@@ -279,6 +285,7 @@ while (<>) { # loop over andes files/sessions
     # We collapse over problems, using the fact that a session should
     # be less than a day...
     my $day = $date->strftime("%U,%w");  #week, day of week
+    $day =~ /^0[0123456]/ and warn "$this_header     Off-season for $day $date\n";
     $usage{$student}{$day}{'raw'} += $this_time-$start_time;
     $usage{$student}{$day}{'adjusted'} += $adjusted_time;
 }
