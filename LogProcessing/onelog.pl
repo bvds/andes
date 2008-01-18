@@ -77,6 +77,8 @@ if ($meta_operator_file) {
 }
 
 my $this_header="";  #first line of the most recent Andes session.
+my $date;
+my $last_date=DateTime->new(year=>1000); 
 
 while (<>) { # loop over andes files/sessions
     
@@ -84,13 +86,12 @@ while (<>) { # loop over andes files/sessions
     if (/^time,info/) {$this_header="";}
     # Throw out day of week 
     if (/Log of Andes session begun \w+, (.+) by /) {
-      # Test that sessions have been sorted by date
-      # If the beginning of the file was not marked, could have a
-      # false error.
-      # use sort-by-time.pl to create a sorted version of the log file.
-      $this_header le $_ or die "Sessions in log file are not sorted.\n";
       $this_header = $_;
       $date = $dateformat->parse_datetime($1);
+      # Test that sessions have been sorted by date
+      # use sort-by-time.pl to create a sorted version of the log file.
+      die "Sessions in log file are not sorted.\n" if $date < $last_date;
+      $last_date = $date;
     }
 
     if (/read-student-info .(\w+)/) {
@@ -389,9 +390,9 @@ if (1) {
 
   print "};\n";
   print "adjustedtotalusage={";
-  my $count=0;
+  my $count2=0;
   foreach $day (sort keys %total_usage) {
-    if ($count++) {print ",";}
+    if ($count2++) {print ",";}
     print "{$day,$total_usage{$day}{'adjusted'}}";
   }
   print "};\n";
