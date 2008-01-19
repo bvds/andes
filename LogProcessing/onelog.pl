@@ -139,6 +139,7 @@ while (<>) { # loop over andes files/sessions
     my $last_time_stamp=$1;      
     my $last_time=timestamp($1); #time (seconds) of most recent line
     my $start_time=$last_time; 
+    my $last_assist_time=0;  # bracket instances of receiving "assistance"
     
     while (<>) {   # loop over lines within an Andes problem
         # don't confuse with close-lesson
@@ -156,7 +157,7 @@ while (<>) { # loop over andes files/sessions
 	    $this_time = timestamp($1);  # total time in seconds
 	    my $dt = $this_time - $last_time;
 	    if($dt<0 or $dt > 10*3600) {
-	      warn "$this_header     Times $this_time $last_time, skip rest.";
+	      warn "$this_header     Times $this_time $last_time, skip rest";
 	      last;
 	    }
             # sometimes we measure time with respect to $start_time
@@ -204,10 +205,18 @@ while (<>) { # loop over andes files/sessions
 	# it is not very reliable.
 	elsif (/\tDDE-RESULT \|NIL\|/) {
 	    $intervening_errors++;
+	    $assistance_score{$student} += 1;
+	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	      if $last_assist_time;
+	    $last_assist_time=$adjusted_time;
 	    push @error_interp,  ($error_name or "assoc-error");
 	}
 	elsif (/\tDDE-RESULT \|!show-hint .*\|/) {
 	    $intervening_hints++;
+	    $assistance_score{$student} += 1;
+	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	      if $last_assist_time;
+	    $last_assist_time=$adjusted_time;
 	}
 	# This condition arises from either not expressing a vector
 	# equation in terms of its components or from combining equations
@@ -221,6 +230,10 @@ while (<>) { # loop over andes files/sessions
 	elsif (1 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
+	    $assistance_score{$student} += 1;
+	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	      if $last_assist_time;
+	    $last_assist_time=$adjusted_time;
 	    push @error_interp, ($error_name or "assoc-error-t-show-hint");
 	}
 	# error with unsolicited hint.  
@@ -228,6 +241,10 @@ while (<>) { # loop over andes files/sessions
 	elsif (/\tDDE-RESULT \|NIL!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
+	    $assistance_score{$student} += 1;
+	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	      if $last_assist_time;
+	    $last_assist_time=$adjusted_time;
 	    push @error_interp, ($error_name or "assoc-error-nil-show-hint");
 	}
 	# Helpsystem returns a "green" for this entry, now we record 
@@ -239,6 +256,8 @@ while (<>) { # loop over andes files/sessions
 		$intervening_errors++;
 		push @error_interp, ($error_name or "assoc-error-t-show-hint");
 	    }
+	    # confusion_time is time bracketed on both sides by assistance
+	    $last_assist_time=0;  
 	    my $facts={errors => $intervening_errors,
 		       error_names => [@error_interp],
 		       hints => $intervening_hints,
@@ -357,9 +376,9 @@ if(0) {
     print "};\n";
 }
 
-# Printout of time usage by student and day, both adjusted and raw time
+# Print out time usage by student and day, both adjusted and raw time
 
-if(1) {
+if (0) {
   print "usage={\n";
   my $c=0;
   foreach $student (keys %usage) {
@@ -388,8 +407,9 @@ if(1) {
   print "};\n";
 }
 
-  # collapse usage over students
-if (1) {
+# print out time usage by week and day, collapsed over students
+
+if (0) {
   foreach $student (keys %usage) {
     foreach $day (sort keys %{$usage{$student}}) {
       $total_usage{$day}{'raw'} += $usage{$student}{$day}{'raw'};
@@ -409,6 +429,26 @@ if (1) {
   foreach $day (sort keys %total_usage) {
     if ($count2++) {print ",";}
     print "{$day,$total_usage{$day}{'adjusted'}}";
+  }
+  print "};\n";
+}
+
+# Print out time and fraction of time "spent in frustration" (time intervals
+# bracketed on both sides by assistance (hints or errors)) along with 
+# total assistance score.
+
+if (1) {
+  print "frustration={\n";
+  my $c=0;
+  foreach $student (keys %usage) {
+    my $total_time=0;
+    foreach $day (sort keys %{$usage{$student}}) {
+      $total_time += $usage{$student}{$day}{'adjusted'};
+    }
+    next unless $total_time and $confusion_time{$student};
+    if ($c++) {print ",\n";}
+    my $fraction=$confusion_time{$student}/$total_time;
+    print "{\"$student\",$confusion_time{$student},$fraction,$assistance_score{$student}}";
   }
   print "};\n";
 }
