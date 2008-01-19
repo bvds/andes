@@ -80,6 +80,7 @@ my $this_header="";  #first line of the most recent Andes session.
 my $date;
 my $last_date=DateTime->new(year=>1000); 
 my $last_file = "";
+my $week;
 
 while (<>) { # loop over andes files/sessions
 
@@ -94,7 +95,10 @@ while (<>) { # loop over andes files/sessions
       $this_header = $_;
       $date = ($dateformat1->parse_datetime($1)
 	       or $dateformat2->parse_datetime($1));
-      warn "$this_header    Can't parse date $1\n" unless $date;
+      warn "$this_header    Can't parse date $1" unless $date;
+      $week = $date->strftime("%U") if $date;  # week
+      $week =~ /^0[0123456]/ and warn 
+	"$this_header     Off-season for $week $date\n";
 
       # Test that sessions have been sorted by date
       # use sort-by-time.pl to create a sorted version of the log file.
@@ -205,16 +209,16 @@ while (<>) { # loop over andes files/sessions
 	# it is not very reliable.
 	elsif (/\tDDE-RESULT \|NIL\|/) {
 	    $intervening_errors++;
-	    $assistance_score{$student} += 1;
-	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	    $assistance_score{$student}{$week} += 1;
+	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
 	    push @error_interp,  ($error_name or "assoc-error");
 	}
 	elsif (/\tDDE-RESULT \|!show-hint .*\|/) {
 	    $intervening_hints++;
-	    $assistance_score{$student} += 1;
-	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	    $assistance_score{$student}{$week} += 1;
+	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
 	}
@@ -230,8 +234,8 @@ while (<>) { # loop over andes files/sessions
 	elsif (1 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
-	    $assistance_score{$student} += 1;
-	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	    $assistance_score{$student}{$week} += 1;
+	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
 	    push @error_interp, ($error_name or "assoc-error-t-show-hint");
@@ -241,8 +245,8 @@ while (<>) { # loop over andes files/sessions
 	elsif (/\tDDE-RESULT \|NIL!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
-	    $assistance_score{$student} += 1;
-	    $confusion_time{$student} += $adjusted_time-$last_assist_time
+	    $assistance_score{$student}{$week} += 1;
+	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
 	    push @error_interp, ($error_name or "assoc-error-nil-show-hint");
@@ -311,10 +315,11 @@ while (<>) { # loop over andes files/sessions
     # This will be for finding usage as a function of time.
     # We collapse over problems, using the fact that a session should
     # be less than a day...
-    my $day = $date->strftime("%U,%w");  #week, day of week
-    $day =~ /^0[0123456]/ and warn "$this_header     Off-season for $day $date\n";
-    $usage{$student}{$day}{'raw'} += $this_time-$start_time;
-    $usage{$student}{$day}{'adjusted'} += $adjusted_time;
+    $usage{$student}{$week}{'raw'} += $this_time-$start_time;
+    $usage{$student}{$week}{'adjusted'} += $adjusted_time;
+    my $week_day = $date->strftime("%U,%w");  #week, day of week
+    $total_usage{$week_day}{'raw'} += $this_time-$start_time;
+    $total_usage{$week_day}{'adjusted'} += $adjusted_time;
 }
 
 
@@ -410,19 +415,12 @@ if (0) {
 # print out time usage by week and day, collapsed over students
 
 if (0) {
-  foreach $student (keys %usage) {
-    foreach $day (sort keys %{$usage{$student}}) {
-      $total_usage{$day}{'raw'} += $usage{$student}{$day}{'raw'};
-      $total_usage{$day}{'adjusted'} += $usage{$student}{$day}{'adjusted'};
-    }
-  }
   print "totalusage={";
   my $count=0;
   foreach $day (sort keys %total_usage) {
     if ($count++) {print ",";}
     print "{$day,$total_usage{$day}{'raw'}}";
   }
-
   print "};\n";
   print "adjustedtotalusage={";
   my $count2=0;
@@ -441,14 +439,18 @@ if (1) {
   print "frustration={\n";
   my $c=0;
   foreach $student (keys %usage) {
-    my $total_time=0;
-    foreach $day (sort keys %{$usage{$student}}) {
-      $total_time += $usage{$student}{$day}{'adjusted'};
-    }
-    next unless $total_time and $confusion_time{$student};
     if ($c++) {print ",\n";}
-    my $fraction=$confusion_time{$student}/$total_time;
-    print "{\"$student\",$confusion_time{$student},$fraction,$assistance_score{$student}}";
+    print "{\"$student\",{";
+    my $count=0;
+    foreach $day (sort keys %{$usage{$student}}) {
+      next unless $usage{$student}{$day} and $confusion_time{$student}{$day}
+	and $assistance_score{$student}{$day};
+      if ($count++) {print ",";}
+      my $fraction=$confusion_time{$student}{$day}/
+	$usage{$student}{$day}{'adjusted'};
+      print "{$day,$confusion_time{$student}{$day},$fraction,$assistance_score{$student}{$day}}";
+    }
+    print "}}";
   }
   print "};\n";
 }
