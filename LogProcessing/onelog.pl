@@ -152,11 +152,14 @@ while (<>) { # loop over andes files/sessions
 	next if $check_entries;
 	
 	if(/^([0-9:]+)\t/) {
-	    $time_stamp = $1;
-	    # total time in seconds
-	    $this_time = timestamp($1); 
-	    $dt = $this_time - $last_time if $last_time;
-	    warn "$this_header     Negative time step $dt for $_" if $dt<0;
+	    $time_stamp = $1;	    
+	    $this_time = timestamp($1);  # total time in seconds
+	    my $dt = $this_time - $last_time;
+	    if($dt<0 or $dt > 10*3600) {
+	      warn "$this_header     Times $this_time $last_time, skip rest.";
+	      last;
+	    }
+            # sometimes we measure time with respect to $start_time
 	    $last_time = $this_time;
 	    
 	    # in pause histogram, might ignore pauses associated with 
@@ -164,20 +167,22 @@ while (<>) { # loop over andes files/sessions
 	    # next if /\tApp-activate/ or /\tApp-deactivate/;  
 	    $dt_histogram{$dt}++;
 	    if (/\tApp-activate/ or /\tApp-deactivate/) {
-		$loss_of_focus += $dt;
+	      $loss_of_focus += $dt;
 	    }
 	} else {
-	    warn "$this_header     Time stamp missing for $_";
-	    next;
+	  warn "$this_header     Time stamp missing for $_";
+	  next;
 	}
 	
 	next unless /\tDDE/;  # skip non DDE lines
 	# reset operator list and record time
 	if (/\tDDE /) { # student action sent to help system
-	    $#step_list = -1;
-	    $#operator_list = -1;
-	    $adjusted_time = $this_time - $loss_of_focus - $start_time;
-	    $error_name = 0;  #delete any old error names
+	  $#step_list = -1;
+	  $#operator_list = -1;
+	  $adjusted_time = $this_time - $loss_of_focus - $start_time;
+	  die "$this_header     Negative adjusted time" 
+	    if $adjusted_time < $last_adjusted_time;
+	  $error_name = 0;  #delete any old error names
 	}
 	if (/\tDDE-COMMAND set-score (\d+)/) {
 	    $score = $1; 
