@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       145,          7]
-NotebookDataLength[    729052,      12023]
-NotebookOptionsPosition[    724067,      11863]
-NotebookOutlinePosition[    724530,      11882]
-CellTagsIndexPosition[    724487,      11879]
+NotebookDataLength[    730102,      12047]
+NotebookOptionsPosition[    725068,      11886]
+NotebookOutlinePosition[    725531,      11905]
+CellTagsIndexPosition[    725488,      11902]
 WindowFrame->Normal
 ContainsDynamic->False*)
 
@@ -9061,7 +9061,7 @@ fg9tlG9pQkydCwd5ZGSAwbOxdNUbQy02fC+HnBuRdHPtkcQv0mB1pPN2nyiG
     FormBox["\"day\"", TraditionalForm]},
   AxesStyle->Directive[16],
   BoxRatios->{1, 1, 0.4},
-  ImageSize->{575., 428.},
+  ImageSize->{550., 408.},
   Method->{"RotationControl" -> "Globe"},
   PlotRange->{{32., 51.}, {0., 6.}, {0., 393390.}},
   PlotRangePadding->{
@@ -10876,8 +10876,7 @@ Cell["Usage reported versus actual usage for Fall 2006 students.", "Subtitle",
    3.409763323367519*^9, 3.4097633302063627`*^9}, {3.409763431896359*^9, 
    3.409763440698695*^9}, {3.4097644814582853`*^9, 3.409764484647833*^9}, {
    3.4097654471907177`*^9, 3.409765465633382*^9}, 3.409767226645073*^9},
- TextAlignment->Center,
- FontSize->18],
+ TextAlignment->Center],
 
 Cell[TextData[{
  "No corrolation seen: ",
@@ -11004,12 +11003,25 @@ Corollation between questionnaire responses for Fall 2006 students\
    3.4097654471907177`*^9, 3.409765465633382*^9}, {3.4097666228796597`*^9, 
    3.4097667504923887`*^9}, {3.409766857012833*^9, 3.409766899453188*^9}, {
    3.409766975780918*^9, 3.40976697997539*^9}},
- TextAlignment->Center,
- FontSize->18],
+ TextAlignment->Center],
 
 Cell["\<\
+Q1:  Was Andes more effective for doing homework vice doing homework in a \
+more traditional fashion and turning it in?
+
+Q3:  Do you think you learned more or less using Andes than if you had done \
+the same exercises with pencil and paper?
+
+Q4:  Would you have done the same number of exercises correctly with pencil \
+and paper?
+
 Q20:  On the average how many hours/wk did you work on Andes?
-Q28:  All SP211 students should be required to use Andes.\
+
+Q28:  All SP211 students should be required to use Andes.
+
+Q30:  Compare your experience with Andes with your knowledge of other \
+learning tools used at USNA like WebAssign, Blackboard or the on-line \
+Chemistry assignments.  Please circle the tool used for comparison. \
 \>", "Subtitle",
  CellChangeTimes->{{3.409762949695162*^9, 3.409763070954463*^9}, {
    3.4097631723496447`*^9, 3.409763175498979*^9}, 3.409763251401136*^9, {
@@ -11017,7 +11029,7 @@ Q28:  All SP211 students should be required to use Andes.\
    3.409763440698695*^9}, {3.4097644814582853`*^9, 3.409764484647833*^9}, {
    3.4097654471907177`*^9, 3.409765465633382*^9}, {3.4097666228796597`*^9, 
    3.4097667504923887`*^9}, {3.409766857012833*^9, 3.409766899453188*^9}, 
-   3.409766975780918*^9},
+   3.409766975780918*^9, {3.409770079501584*^9, 3.409770169965814*^9}},
  FontSize->18],
 
 Cell[BoxData[
@@ -11125,6 +11137,17 @@ Cell["Survey results for time do not corrolate with actual usage.", \
  CellChangeTimes->{{3.409765700442646*^9, 3.409765739095645*^9}, {
   3.409767094407593*^9, 3.4097670957170057`*^9}, {3.409767281575285*^9, 
   3.409767288852974*^9}},
+ FontSize->18,
+ FontWeight->"Plain"],
+
+Cell["\<\
+Need to remove redundant questions; can use log file analysis instead.\
+\>", "Subsection",
+ CellDingbat->"\[FilledSquare]",
+ CellChangeTimes->{{3.409765700442646*^9, 3.409765739095645*^9}, {
+  3.409767094407593*^9, 3.4097670957170057`*^9}, {3.409767281575285*^9, 
+  3.409767288852974*^9}, {3.409769718434658*^9, 3.4097698800481853`*^9}, {
+  3.409769917523212*^9, 3.4097699304005537`*^9}},
  FontSize->18,
  FontWeight->"Plain"],
 
@@ -11917,7 +11940,7 @@ Cell[552552, 8089, 657, 12, 27, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[553246, 8106, 467, 9, 71, "Subtitle"],
-Cell[553716, 8117, 58500, 956, 443, "Output"],
+Cell[553716, 8117, 58500, 956, 423, "Output"],
 Cell[612219, 9075, 156, 3, 26, "Text"],
 Cell[CellGroupData[{
 Cell[612400, 9082, 1231, 30, 43, "Input"],
@@ -11983,45 +12006,46 @@ Cell[683779, 10820, 2005, 46, 73, "Input"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[685833, 10872, 481, 7, 40, "Subtitle"],
-Cell[686317, 10881, 927, 20, 68, "Subtitle"],
-Cell[687247, 10903, 1857, 41, 372, "Output"],
-Cell[689107, 10946, 67, 1, 27, "Input"],
-Cell[689177, 10949, 1707, 42, 103, "Input"]
+Cell[685833, 10872, 466, 6, 46, "Subtitle"],
+Cell[686302, 10880, 927, 20, 68, "Subtitle"],
+Cell[687232, 10902, 1857, 41, 372, "Output"],
+Cell[689092, 10945, 67, 1, 27, "Input"],
+Cell[689162, 10948, 1707, 42, 103, "Input"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[690921, 10996, 624, 11, 40, "Subtitle"],
-Cell[691548, 11009, 630, 11, 59, "Subtitle"],
-Cell[692181, 11022, 2434, 72, 173, "Output"]
+Cell[690906, 10995, 609, 10, 46, "Subtitle"],
+Cell[691518, 11007, 1223, 25, 306, "Subtitle"],
+Cell[692744, 11034, 2434, 72, 173, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[694652, 11099, 524, 7, 40, "Subtitle"],
-Cell[695179, 11108, 480, 11, 121, "Subtitle"],
-Cell[695662, 11121, 319, 7, 38, "Subsection"],
+Cell[695215, 11111, 524, 7, 40, "Subtitle"],
+Cell[695742, 11120, 480, 11, 121, "Subtitle"],
+Cell[696225, 11133, 319, 7, 38, "Subsection"],
+Cell[696547, 11142, 435, 9, 30, "Subsection"],
 Cell[CellGroupData[{
-Cell[696006, 11132, 261, 5, 30, "Subsection"],
+Cell[697007, 11155, 261, 5, 30, "Subsection"],
 Cell[CellGroupData[{
-Cell[696292, 11141, 2216, 53, 118, "Input"],
-Cell[698511, 11196, 10388, 304, 388, "Output"]
+Cell[697293, 11164, 2216, 53, 118, "Input"],
+Cell[699512, 11219, 10388, 304, 388, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[708936, 11505, 371, 9, 27, "Input"],
-Cell[709310, 11516, 4128, 100, 239, "Output"]
+Cell[709937, 11528, 371, 9, 27, "Input"],
+Cell[710311, 11539, 4128, 100, 239, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[713475, 11621, 179, 3, 27, "Input"],
-Cell[713657, 11626, 2299, 53, 137, "Output"]
+Cell[714476, 11644, 179, 3, 27, "Input"],
+Cell[714658, 11649, 2299, 53, 137, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[715993, 11684, 505, 13, 27, "Input"],
-Cell[716501, 11699, 1581, 33, 238, "Output"]
+Cell[716994, 11707, 505, 13, 27, "Input"],
+Cell[717502, 11722, 1581, 33, 238, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[718119, 11737, 1043, 29, 27, "Input"],
-Cell[719165, 11768, 4519, 77, 193, "Output"]
+Cell[719120, 11760, 1043, 29, 27, "Input"],
+Cell[720166, 11791, 4519, 77, 193, "Output"]
 }, Open  ]],
-Cell[723699, 11848, 233, 7, 27, "Input"],
-Cell[723935, 11857, 92, 1, 27, "Input"]
+Cell[724700, 11871, 233, 7, 27, "Input"],
+Cell[724936, 11880, 92, 1, 27, "Input"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
