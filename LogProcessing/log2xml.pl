@@ -30,7 +30,7 @@
 # or from condition-map. There may be no conditions to set.
 #
 ######################################################################
-my $revision_string = '$Revision: 1.8 $';
+my $revision_string = '$Revision: 1.9 $';
 
 # globals for current log line
 my ($timestamp, $event, $argstr); 
@@ -159,7 +159,17 @@ while (<>) {
    if (/DDE-POST \(set-session-id "([^"]*)"/) {
 	      $session_id = $1;
 	      # extract start time pieces from id of form m081122-Sep27-13-21-48
-	      ($user, $monthdate, $hours, $min, $sec) = split('-', $session_id);
+	      # Note nuisance if user id contains hyphens
+	      @id_parts = split('-', $session_id);
+	      $nparts = @id_parts;
+	      if ($nparts == 5) {
+	         ($user, $monthdate, $hours, $min, $sec) = @id_parts;
+	      } elsif ($nparts == 6) {
+		 ($user1, $user2, $monthdate, $hours, $min, $sec) = @id_parts;
+		 $user = $user1 . "-" . $user2;
+	      } else {
+		 die "unparseable session id: $session_id\n";
+	      }
 	      ($monthabbr, $mday) = ($monthdate =~ m/([A-Z][a-z]+)([\d]+)/); 
 
 	      # reset state vars at each new session until we see a problem open
