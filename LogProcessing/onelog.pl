@@ -383,52 +383,28 @@ if(0) {
 
 # Print out time usage by student and day, both adjusted and raw time
 
-if (0) {
-  print "usage={\n";
-  my $c=0;
+if (1) {
+  local $"=",";  # for Mathematica formatted lists
+  my @student_quoted = map {"\"" . $_ . "\""} (sort keys %usage);
+  print "students={@student_quoted};\n";
   foreach $student (keys %usage) {
-    if ($c++) {print ",\n";}
-    print "{\"$student\",{";
+    print "usage[\"$student\"]={";
     my $count=0;
     foreach $day (sort keys %{$usage{$student}}) {
       if ($count++) {print ",";}
       print "{$day,$usage{$student}{$day}{'raw'}}";
     }
-    print "}}";
+    print "};\n";
   }
-  print "};\n";
-  print "adjustedusage={\n";
-  $c=0;
   foreach $student (keys %usage) {
-    if ($c++) {print ",\n";}
-    print "{\"$student\",{";
+    print "adjustedusage[\"$student\"]={";
     my $count=0;
     foreach $day (sort keys %{$usage{$student}}) {
       if ($count++) {print ",";}
       print "{$day,$usage{$student}{$day}{'adjusted'}}";
     }
-    print "}}";
+    print "};\n";
   }  
-  print "};\n";
-}
-
-# print out time usage by week and day, collapsed over students
-
-if (0) {
-  print "totalusage={";
-  my $count=0;
-  foreach $day (sort keys %total_usage) {
-    if ($count++) {print ",";}
-    print "{$day,$total_usage{$day}{'raw'}}";
-  }
-  print "};\n";
-  print "adjustedtotalusage={";
-  my $count2=0;
-  foreach $day (sort keys %total_usage) {
-    if ($count2++) {print ",";}
-    print "{$day,$total_usage{$day}{'adjusted'}}";
-  }
-  print "};\n";
 }
 
 # Print out time and fraction of time "spent in frustration" (time intervals
@@ -436,11 +412,8 @@ if (0) {
 # total assistance score.
 
 if (1) {
-  print "frustration={\n";
-  my $c=0;
   foreach $student (keys %usage) {
-    if ($c++) {print ",\n";}
-    print "{\"$student\",{";
+    print "frustration[\"$student\"]={";
     my $count=0;
     foreach $day (sort keys %{$usage{$student}}) {
       next unless $usage{$student}{$day} and $confusion_time{$student}{$day}
@@ -450,9 +423,8 @@ if (1) {
 	$usage{$student}{$day}{'adjusted'};
       print "{$day,$confusion_time{$student}{$day},$fraction,$assistance_score{$student}{$day}}";
     }
-    print "}}";
+    print "};\n";
   }
-  print "};\n";
 }
 
 #    

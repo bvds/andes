@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       145,          7]
-NotebookDataLength[    730102,      12047]
-NotebookOptionsPosition[    725068,      11886]
-NotebookOutlinePosition[    725531,      11905]
-CellTagsIndexPosition[    725488,      11902]
+NotebookDataLength[    730139,      12043]
+NotebookOptionsPosition[    725107,      11882]
+NotebookOutlinePosition[    725570,      11901]
+CellTagsIndexPosition[    725527,      11898]
 WindowFrame->Normal
 ContainsDynamic->False*)
 
@@ -11118,18 +11118,14 @@ Cell["All responses are highly corrolated, except Q20.", "Subtitle",
    3.4097667504923887`*^9}, {3.409766857012833*^9, 3.40976692893267*^9}},
  FontSize->18],
 
-Cell["\<\
-
-
-
-Conclusions:  \
-\>", "Subtitle",
+Cell["Conclusions:  ", "Subtitle",
  CellChangeTimes->{{3.409762949695162*^9, 3.409763070954463*^9}, {
    3.4097631723496447`*^9, 3.409763175498979*^9}, 3.409763251401136*^9, {
    3.409763323367519*^9, 3.4097633302063627`*^9}, {3.409763431896359*^9, 
    3.409763440698695*^9}, {3.409763806496335*^9, 3.409763855830187*^9}, {
    3.4097642184302692`*^9, 3.40976424250097*^9}, {3.409765680653385*^9, 
-   3.409765693953754*^9}, {3.409767843874683*^9, 3.409767845317679*^9}}],
+   3.409765693953754*^9}, {3.409767843874683*^9, 3.409767845317679*^9}, {
+   3.409770240551323*^9, 3.409770241795602*^9}}],
 
 Cell["Survey results for time do not corrolate with actual usage.", \
 "Subsection",
@@ -12019,33 +12015,33 @@ Cell[692744, 11034, 2434, 72, 173, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[695215, 11111, 524, 7, 40, "Subtitle"],
-Cell[695742, 11120, 480, 11, 121, "Subtitle"],
-Cell[696225, 11133, 319, 7, 38, "Subsection"],
-Cell[696547, 11142, 435, 9, 30, "Subsection"],
+Cell[695742, 11120, 519, 7, 46, "Subtitle"],
+Cell[696264, 11129, 319, 7, 38, "Subsection"],
+Cell[696586, 11138, 435, 9, 30, "Subsection"],
 Cell[CellGroupData[{
-Cell[697007, 11155, 261, 5, 30, "Subsection"],
+Cell[697046, 11151, 261, 5, 30, "Subsection"],
 Cell[CellGroupData[{
-Cell[697293, 11164, 2216, 53, 118, "Input"],
-Cell[699512, 11219, 10388, 304, 388, "Output"]
+Cell[697332, 11160, 2216, 53, 118, "Input"],
+Cell[699551, 11215, 10388, 304, 388, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[709937, 11528, 371, 9, 27, "Input"],
-Cell[710311, 11539, 4128, 100, 239, "Output"]
+Cell[709976, 11524, 371, 9, 27, "Input"],
+Cell[710350, 11535, 4128, 100, 239, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[714476, 11644, 179, 3, 27, "Input"],
-Cell[714658, 11649, 2299, 53, 137, "Output"]
+Cell[714515, 11640, 179, 3, 27, "Input"],
+Cell[714697, 11645, 2299, 53, 137, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[716994, 11707, 505, 13, 27, "Input"],
-Cell[717502, 11722, 1581, 33, 238, "Output"]
+Cell[717033, 11703, 505, 13, 27, "Input"],
+Cell[717541, 11718, 1581, 33, 238, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[719120, 11760, 1043, 29, 27, "Input"],
-Cell[720166, 11791, 4519, 77, 193, "Output"]
+Cell[719159, 11756, 1043, 29, 27, "Input"],
+Cell[720205, 11787, 4519, 77, 193, "Output"]
 }, Open  ]],
-Cell[724700, 11871, 233, 7, 27, "Input"],
-Cell[724936, 11880, 92, 1, 27, "Input"]
+Cell[724739, 11867, 233, 7, 27, "Input"],
+Cell[724975, 11876, 92, 1, 27, "Input"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
