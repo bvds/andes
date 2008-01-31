@@ -34,7 +34,7 @@
 #
 #  Impose cutoffs on accepted data points.
 #
-$score_cut_off=10;  # minimum score to count a problem as attempted
+$score_cut_off=0;  # minimum score to count a problem as attempted
 # doesn't contribute
 $minimum_problem_attempts=0.5;   # cutoff on list of students
 # there is a significant number of problems (not assigned)
@@ -47,7 +47,7 @@ $minimum_student_attempts=0.5;  # cutoff on list of problems
 use DateTime::Format::Strptime;
 my $dateformat1 = DateTime::Format::Strptime->new( pattern => '%F %T' );
 my $dateformat2 = DateTime::Format::Strptime->new( pattern => '%Y/%m/%d %T' );
-
+my $dateformat3 = DateTime::Format::Strptime->new( pattern => '%B %d, %Y %T' );
 
 # parse the time stamp at the beginning of a line
 sub timestamp {
@@ -90,11 +90,18 @@ while (<>) { # loop over andes files/sessions
       $last_file = $ARGV;
     }
 
-    # Use timestamp supplied by OLI.
-    if (/^(.+),# Log of Andes session begun /) { 
+    # Use timestamp supplied by OLI, if possible
+    if (/^(.*)# Log of Andes session begun \w+, (.+) by /) { 
       $this_header = $_;
-      $date = ($dateformat1->parse_datetime($1)
-	       or $dateformat2->parse_datetime($1));
+      if ($1) {
+	my $tmp=$1; 
+	chop $tmp; # remove trailing comma
+	$date = ($dateformat1->parse_datetime($tmp)
+	        or $dateformat2->parse_datetime($tmp));
+      } else {
+	$date=$dateformat3->parse_datetime($2);
+        warn "Using local computer time $date for timestamp";
+      } 
       warn "$this_header    Can't parse date $1" unless $date;
       $week = $date->strftime("%U") if $date;  # week
       # some fall semester logs had spring activity
@@ -106,7 +113,7 @@ while (<>) { # loop over andes files/sessions
       die "Sessions in log file are not sorted in $ARGV" 
 	if $date < $last_date;
       $last_date = $date;
-    }
+    } 
 
     if (/read-student-info .(\w+)/) {
       $student = $1;  # session label should start with student id
@@ -307,6 +314,7 @@ while (<>) { # loop over andes files/sessions
 	    # only want to count entry if it adds something to solution
 	    # (we don't count steps entered a second time)
             $assistance{$student}{$week}{'correct'} += 1 if $new_step;
+	    $correct_entries{$student}{$problem} += 1 if $new_step;
 	    $intervening_errors=0;
 	    $intervening_hints=0;
 	    $last_adjusted_time = $adjusted_time;
@@ -545,7 +553,9 @@ if (0) {
 	foreach $problem (sort keys %problems) {
 	    if ($times{$student}{$problem} and 
 		$scores{$student}{$problem} > $score_cut_off) {
-		print ",$times{$student}{$problem}";
+                # could print out times, scores, and correct entries
+		0 && print ",$times{$student}{$problem}";
+		1 && print ",$correct_entries{$student}{$problem}";
 	    } else {
 		print ",";
 	    } 
