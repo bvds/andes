@@ -97,7 +97,8 @@ while (<>) { # loop over andes files/sessions
 	       or $dateformat2->parse_datetime($1));
       warn "$this_header    Can't parse date $1" unless $date;
       $week = $date->strftime("%U") if $date;  # week
-      $week =~ /^0[0123456]/ and warn 
+      # some fall semester logs had spring activity
+      $week =~ /^0[0123456]/ and 0 and warn 
 	"$this_header     Off-season for $week $date\n";
 
       # Test that sessions have been sorted by date
@@ -202,6 +203,13 @@ while (<>) { # loop over andes files/sessions
 	elsif (/\tDDE-COMMAND assoc error ([^\r]+)/) {
 	    $error_name = $1;
 	}
+        # instances of Bottom-out hints:  student is given explicit step
+	# at end of a hint sequence
+	elsif (/\tDDE-COMMAND assoc \(\w+ BOTTOM-OUT /) {
+	  ($student and $week) or 
+	    die "$this_header   has student=$student week=$week";
+	  $assistance{$student}{$week}{'bottom'} += 1;
+	}
 	# This way of doing things does not address the case where 
 	# a student tries one thing, fails, and then does (successfully)
 	# something else.
@@ -209,7 +217,7 @@ while (<>) { # loop over andes files/sessions
 	# it is not very reliable.
 	elsif (/\tDDE-RESULT \|NIL\|/) {
 	    $intervening_errors++;
-	    $assistance_score{$student}{$week} += 1;
+	    $assistance{$student}{$week}{'hint'} += 1;
 	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
@@ -217,7 +225,7 @@ while (<>) { # loop over andes files/sessions
 	}
 	elsif (/\tDDE-RESULT \|!show-hint .*\|/) {
 	    $intervening_hints++;
-	    $assistance_score{$student}{$week} += 1;
+	    $assistance{$student}{$week}{'hint'} += 1;
 	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
@@ -234,7 +242,7 @@ while (<>) { # loop over andes files/sessions
 	elsif (1 and /\tDDE-RESULT \|T!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
-	    $assistance_score{$student}{$week} += 1;
+	    $assistance{$student}{$week}{'error'} += 1;
 	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
@@ -245,7 +253,7 @@ while (<>) { # loop over andes files/sessions
 	elsif (/\tDDE-RESULT \|NIL!show-hint .*\|/) {
 	    $intervening_hints++;
 	    $intervening_errors++;
-	    $assistance_score{$student}{$week} += 1;
+	    $assistance{$student}{$week}{'error'} += 1;
 	    $confusion_time{$student}{$week} += $adjusted_time-$last_assist_time
 	      if $last_assist_time;
 	    $last_assist_time=$adjusted_time;
@@ -262,6 +270,8 @@ while (<>) { # loop over andes files/sessions
 	    }
 	    # confusion_time is time bracketed on both sides by assistance
 	    $last_assist_time=0;  
+            $assistance{$student}{$week}{'correct'} += 1;
+
 	    my $facts={errors => $intervening_errors,
 		       error_names => [@error_interp],
 		       hints => $intervening_hints,
@@ -396,7 +406,14 @@ if (1) {
     }
     print "};\n";
   }
-  foreach $student (keys %usage) {
+  print "totalusage={";
+  my $count=0;
+  foreach $day (sort keys %total_usage) {
+      if ($count++) {print ",";}
+      print "{$day,$total_usage{$day}{'raw'}}";
+    }
+  print "};\n";
+  foreach $student (sort keys %usage) {
     print "adjustedusage[\"$student\"]={";
     my $count=0;
     foreach $day (sort keys %{$usage{$student}}) {
@@ -404,7 +421,14 @@ if (1) {
       print "{$day,$usage{$student}{$day}{'adjusted'}}";
     }
     print "};\n";
-  }  
+  }
+  print "adjustedtotalusage={";
+  $count=0;
+  foreach $day (sort keys %total_usage) {
+    if ($count++) {print ",";}
+    print "{$day,$total_usage{$day}{'adjusted'}}";
+  }
+  print "};\n";
 }
 
 # Print out time and fraction of time "spent in frustration" (time intervals
@@ -412,16 +436,21 @@ if (1) {
 # total assistance score.
 
 if (1) {
+  print "(* format:  {week, confusion time (time bracketed by assistance),\n";
+  print "incorrect entries, hints, bottom-out hints, correct entries} *)\n";
   foreach $student (keys %usage) {
-    print "frustration[\"$student\"]={";
+    print "assistance[\"$student\"]={";
     my $count=0;
     foreach $day (sort keys %{$usage{$student}}) {
-      next unless $usage{$student}{$day} and $confusion_time{$student}{$day}
-	and $assistance_score{$student}{$day};
+      # only record if they did something.
+      next unless $usage{$student}{$day}; 
       if ($count++) {print ",";}
-      my $fraction=$confusion_time{$student}{$day}/
-	$usage{$student}{$day}{'adjusted'};
-      print "{$day,$confusion_time{$student}{$day},$fraction,$assistance_score{$student}{$day}}";
+      my $time = ($confusion_time{$student}{$day} or 0);
+      my $error = ($assistance{$student}{$day}{'error'} or 0);
+      my $hint = ($assistance{$student}{$day}{'hint'} or 0);
+      my $bottom = ($assistance{$student}{$day}{'bottom'} or 0);
+      my $correct = ($assistance{$student}{$day}{'correct'} or 0);
+      print "{$day,$time,$error,$hint,$bottom,$correct}";
     }
     print "};\n";
   }
@@ -430,6 +459,7 @@ if (1) {
 #    
 #  Remove students that solved only a few problems.
 #  This should be done semester-wise
+#
 foreach $student (sort keys %times) {
     $i=0;
     foreach $problem (sort keys %problems) {
