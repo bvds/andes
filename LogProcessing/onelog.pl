@@ -271,7 +271,6 @@ while (<>) { # loop over andes files/sessions
 	    }
 	    # confusion_time is time bracketed on both sides by assistance
 	    $last_assist_time=0;  
-            $assistance{$student}{$week}{'correct'} += 1;
 
 	    my $facts={errors => $intervening_errors,
 		       error_names => [@error_interp],
@@ -283,6 +282,7 @@ while (<>) { # loop over andes files/sessions
 	    @operator_list == @step_list or
 		die "assoc op and assoc step don't match\n";
     
+	    my $new_step = 0; #see if entry involves any new part of solution
 	    while (@operator_list) {
 		my $operator = pop @operator_list;
 		my $step = pop @step_list;
@@ -293,6 +293,8 @@ while (<>) { # loop over andes files/sessions
 		next if @step_list > 1 and $step =~ /^\(IMPLICIT-EQN / 
 		    and $operator !~ /^WRITE-IMPLICIT-EQN/;
 
+		$new_step = 1 unless 
+		    $op_inst{$student}{$problem}{$operator}{$step};
 		$op_inst{$student}{$problem}{$operator}{$step} += 1;
 		push @{$mastery{$operator}{$student}}, $facts;
 		foreach $meta_op (@{$meta_operators{$operator}}) {
@@ -302,6 +304,9 @@ while (<>) { # loop over andes files/sessions
 		push @{$location{$operator}{$student}},
 		"\t\t$last_time_stamp\t$time_stamp\t$intervening_errors $intervening_hints\n";
 	    }
+	    # only want to count entry if it adds something to solution
+	    # (we don't count steps entered a second time)
+            $assistance{$student}{$week}{'correct'} += 1 if $new_step;
 	    $intervening_errors=0;
 	    $intervening_hints=0;
 	    $last_adjusted_time = $adjusted_time;
