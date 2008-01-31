@@ -138,7 +138,7 @@ while (<>) { # loop over andes files/sessions
     my $last_adjusted_time=0;
     my $check_entries=0;
     my $time_stamp="";
-    my $new_time=0;
+    my $this_time=0;
     
     /^([0-9:]+)\t/ or die "no time stamp for $_";
     my $last_time_stamp=$1;      
@@ -159,14 +159,15 @@ while (<>) { # loop over andes files/sessions
 	
 	if(/^([0-9:]+)\t/) {
 	    $time_stamp = $1;	    
-	    $new_time = timestamp($1);  # total time in seconds
-	    my $dt = $new_time - $last_time;
+	    $this_time = timestamp($1);  # total time in seconds
+	    my $dt = $this_time - $last_time;
 	    if($dt<0 or $dt > 10*3600) {
-	      warn "$this_header     Times $new_time $last_time, skip rest";
-	      last;
+		warn "$this_header     Times $this_time $last_time, skip rest";
+		$this_time = $last_time;  # discard new (bad) time.
+		last;
 	    }
             # sometimes we measure time with respect to $start_time
-	    $last_time = $new_time;
+	    $last_time = $this_time;
 	    
 	    # in pause histogram, might ignore pauses associated with 
 	    # loss of focus:
@@ -185,7 +186,7 @@ while (<>) { # loop over andes files/sessions
 	if (/\tDDE /) { # student action sent to help system
 	  $#step_list = -1;
 	  $#operator_list = -1;
-	  $adjusted_time = $new_time - $loss_of_focus - $start_time;
+	  $adjusted_time = $this_time - $loss_of_focus - $start_time;
 	  die "$this_header     Negative adjusted time" 
 	    if $adjusted_time < $last_adjusted_time;
 	  $error_name = 0;  #delete any old error names
@@ -324,13 +325,12 @@ while (<>) { # loop over andes files/sessions
     if($score > $score_cut_off) {$problems{$problem}=1}; 
     # This will be for finding usage as a function of time.
     # We collapse over problems, assuming that a session is less than a day
-    # Note that $last_time = $new_time if $new_time is not bad.
-    $usage{$student}{$week}{'raw'} += $last_time-$start_time;
+    $usage{$student}{$week}{'raw'} += $this_time-$start_time;
     warn "$this_header   Raw usage huge for $_" 
 	if $usage{$student}{$week}{'raw'} > 7*24*3600;
     $usage{$student}{$week}{'adjusted'} += $adjusted_time;
     my $week_day = $date->strftime("%U,%w");  #week, day of week
-    $total_usage{$week_day}{'raw'} += $last_time-$start_time;
+    $total_usage{$week_day}{'raw'} += $this_time-$start_time;
     $total_usage{$week_day}{'adjusted'} += $adjusted_time;
 }
 
