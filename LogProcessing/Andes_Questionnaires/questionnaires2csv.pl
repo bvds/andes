@@ -3,7 +3,7 @@
 #
 # The purpose of this script is to convert online Andes Questionnaires 
 # into csv format.
-# Usage: questionnaires_to_excel.plx Andes_Questionnaire_Fall07.txt > junk.out
+# Usage: questionnaires_to_excel.plx andes_q.txt > junk.out
 
 my @categories = (
 'Name','Section','School','Semester','Year','CourseID','Date','Time',
@@ -29,24 +29,24 @@ while (<>) {  #loop through sessions
     
     0 and warn "working on $_";
 
+    chomp;  # remove CR; in unix don't have \r
     # Find the answers to the close-ended questions.
-    if (/^Question_(\w+)=([^\r\n]*)/) {  #don't include CR in name
+    if (/^Question_(\w+)=(.*)/) { 
       $answers{$1} = $2;
       $last=$1;
     }
-    elsif (/^Open-Ended_(\w+)=([^\r\n]*)/) {  #don't include CR in name
+    elsif (/^Open-Ended_(\w+)=(.*)/) {
       #throw away
       $last=0;
     }
     # get non-question entries
-    elsif (/^(\w+)=([^\r\n]*)/) { # use ^\r so we don't include CR in names
+    elsif (/^(\w+)=(.*)/) {
       $answers{$1} = $2;
       $last=1;
     }
     #  Sometimes answers take up multiple lines, paste to most recent. 
     elsif ($last) {
-       ($answers{$last} .= $_) =~ s/\n/ /g;
-       $answers{$last} =~ s/"/\\"/g;
+       $answers{$last} .= ' ' . $_;
     }
     # Date: Tue, 27 Nov 2007 13:39:02 -0500 (EST)
     elsif (/^Date: \w+, (\d+ \w+ \d+) (\w+) /) {
@@ -70,6 +70,7 @@ while (<>) {  #loop through sessions
 	print "$answers{$_}";
       }
       else {  #quote everything else
+	$answers{$_} =~ s/"/\\"/g; # escape any quotes
 	print "\"$answers{$_}\"";
       }
     }
@@ -78,5 +79,3 @@ while (<>) {  #loop through sessions
 
   last if eof;
 }
-
-
