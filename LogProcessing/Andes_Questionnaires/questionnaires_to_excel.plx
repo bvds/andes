@@ -1,55 +1,82 @@
 #!/usr/bin/perl -w
 # Copyright (c) 2006 Robert G.M. Hausmann
 #
-# The purpose of this script is to convert online Andes Questionnaires into an Excel-readable format.
+# The purpose of this script is to convert online Andes Questionnaires 
+# into csv format.
 # Usage: questionnaires_to_excel.plx Andes_Questionnaire_Fall07.txt > junk.out
-use strict;
 
-my @catagories = (
-'Name','Section','School','Semester','CourseID','Date','Time',
+my @categories = (
+'Name','Section','School','Semester','Year','CourseID','Date','Time',
 '1','2','3','4','5','6','7','8A','8B','9','10','11A','11B','11C','11D','11E','11F','11G','11H','11I','11J','11K','11L','12A','12B','12C','12D','12E','13A','13B','13C','13D','14','15','16A','16B','16C','16D','16E','17','18A','18B','18C','18D','19','20','21','22','23A','23B','23C','23D','23E','24','25','26','27','28','29','30','30A','30B','30C','30D'
 );
 
+# for sanity test later on
+my %categories_hash;
+foreach (@categories) { $categories_hash{$_}=1; }
+ 
 {
   local $"=",";  # comma formatted lists
-  print "@catagories\n";
+  my @quoted_categories =  map {"\"" . $_ . "\""} (@categories);
+  print "@quoted_categories\n";
 }
 
 while (<>) {  #loop through sessions
   my %answers=();
+  my $last=0;
 
   while (<>) {  # loop through questionnaire lines
     last if /^.From andes2\@pitt.edu/;
     
+    0 and warn "working on $_";
+
     # Find the answers to the close-ended questions.
-    if (/^Question_(.+)=([^\r\n]+)/) {  #don't include CR in name
+    if (/^Question_(\w+)=([^\r\n]*)/) {  #don't include CR in name
       $answers{$1} = $2;
+      $last=$1;
     }
-    elsif (/^Open-Ended_(.+)=([^\r\n]+)/) {  #don't include CR in name
+    elsif (/^Open-Ended_(\w+)=([^\r\n]*)/) {  #don't include CR in name
       #throw away
+      $last=0;
     }
     # get non-question entries
-    elsif (/^(\w+)=([^\r\n]+)/) { # use ^\r so we don't include CR in names
+    elsif (/^(\w+)=([^\r\n]*)/) { # use ^\r so we don't include CR in names
       $answers{$1} = $2;
+      $last=1;
+    }
+    #  Sometimes answers take up multiple lines, paste to most recent. 
+    elsif ($last) {
+       ($answers{$last} .= $_) =~ s/\n/ /g;
+       $answers{$last} =~ s/"/\\"/g;
     }
     # Date: Tue, 27 Nov 2007 13:39:02 -0500 (EST)
     elsif (/^Date: \w+, (\d+ \w+ \d+) (\w+) /) {
       $answers{'date'} = $1;
       $answers{'time'} = $2;
+    } else {
+      $last=0;
     }
+  }
+
+  # Test that all keys are matched
+  foreach my $key (keys %answers) {
+    warn "unmatched category $key" unless $categories_hash{$key};
   }
   
   my $count=0;
-  foreach (@catagories) {
+  foreach (@categories) {
     if ($count++) { print ",";}
-    if ($answers{$_} and $answers{$_} =~ /^[+\-\.\d]+$/) {     # match a number
-      print "$answers{$_}";
-    }
-    elsif ($answers{$_}) {  #quote everything else
-      print "\"$answers{$_}\"";
+    if ($answers{$_}) {
+      if ($answers{$_} =~ /^[+-]?[\d.]+$/) {     # match a number
+	print "$answers{$_}";
+      }
+      else {  #quote everything else
+	print "\"$answers{$_}\"";
+      }
     }
   }
   print "\n";
-}  
- 
+
+  last if eof;
+}
+
 
