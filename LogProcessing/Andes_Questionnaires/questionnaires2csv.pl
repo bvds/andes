@@ -3,7 +3,7 @@
 #
 # The purpose of this script is to convert online Andes Questionnaires 
 # into csv format.
-# Usage: questionnaires_to_excel.plx andes_q.txt > junk.out
+# Usage: questionnaires_to_excel.plx andes_q.txt > andes_q.csv
 
 my @categories = (
 'Name','Section','School','Semester','Year','CourseID','Date','Time',
@@ -14,13 +14,14 @@ my @categories = (
 my %categories_hash;
 foreach (@categories) { $categories_hash{$_}=1; }
  
+# print out header line
 {
   local $"=",";  # comma formatted lists
   my @quoted_categories =  map {"\"" . $_ . "\""} (@categories);
   print "@quoted_categories\n";
 }
 
-while (<>) {  #loop through sessions
+while (<>) {  #loop through mails
   my %answers=();
   my $last=0;
 
@@ -29,22 +30,22 @@ while (<>) {  #loop through sessions
     
     0 and warn "working on $_";
 
-    chomp;  # remove CR; in unix don't have \r
+    chomp;  # remove CR; in unix, we don't have \r
     # Find the answers to the close-ended questions.
     if (/^Question_(\w+)=(.*)/) { 
       $answers{$1} = $2;
-      $last=$1;
+      $last=$1; 
     }
+    # throw away Open-Ended fields
     elsif (/^Open-Ended_(\w+)=(.*)/) {
-      #throw away
       $last=0;
     }
-    # get non-question entries
+    # get non-question fields (Name, School, etc.)
     elsif (/^(\w+)=(.*)/) {
       $answers{$1} = $2;
-      $last=1;
+      $last=0;
     }
-    #  Sometimes answers take up multiple lines, paste to most recent. 
+    #  Sometimes essay answers take up multiple lines, paste to most recent. 
     elsif ($last) {
        $answers{$last} .= ' ' . $_;
     }
@@ -77,5 +78,5 @@ while (<>) {  #loop through sessions
   }
   print "\n";
 
-  last if eof;
+  last if eof;  # in case inner loop already reached eof
 }
