@@ -3,7 +3,19 @@
 #
 # The purpose of this script is to convert online Andes Questionnaires 
 # into csv format.
-# Usage: questionnaires_to_excel.plx andes_q.txt > andes_q.csv
+# Usage: 
+#    questionnaires_to_excel.plx andes_q.txt > andes_q.csv
+#    In the spreadsheet, do a regexp find and replace to remove single
+#    quote at beginning of line (used to force text format),
+#    then sort first 3 columns.  Make School Section CourseID Name columns
+#    explcitly text format.  (I could only get this to work in 
+#    openoffice and then export to excel.)
+# Mathematica format:
+#    questionnaires_to_excel.plx -m andes_q.txt > andes_q.m
+
+use Getopt::Long;
+my $mma=0;
+GetOptions ('math|m|mma' => \$mma);
 
 my @categories = (
 'Year','Semester','School','Section','CourseID','Name','Date','Time',
@@ -18,7 +30,10 @@ foreach (@categories) { $categories_hash{$_}=1; }
 {
   local $"=",";  # comma formatted lists
   my @quoted_categories =  map {"\"" . $_ . "\""} (@categories);
-  print "@quoted_categories\n";
+  print "questions={{" if $mma;
+  print "@quoted_categories";
+  print "}," if $mma;
+  print "\n";
 }
 
 while (<>) {  #loop through mails
@@ -30,7 +45,6 @@ while (<>) {  #loop through mails
     
     0 and warn "working on $_";
 
-    chomp;  # remove CR; in unix, we don't have \r
     # Find the answers to the close-ended questions.
     if (/^Question_(\w+)=(.*)/) { 
       $answers{$1} = $2;
@@ -47,7 +61,7 @@ while (<>) {  #loop through mails
     }
     #  Sometimes essay answers take up multiple lines, paste to most recent. 
     elsif ($last) {
-       $answers{$last} .= ' ' . $_;
+       $answers{$last} .= $_;
     }
     # Date: Tue, 27 Nov 2007 13:39:02 -0500 (EST)
     elsif (/^Date: \w+, (\d+ \w+) (\d+) (\d+:\d+:\d+) /) {
@@ -65,21 +79,34 @@ while (<>) {  #loop through mails
   }
   
   my $count=0;
+  print "{" if $mma;
   foreach (@categories) {
     if ($count++) { print ",";}
-    if ($answers{$_}) {
-      # match a number unless it is a student name
-      if ($answers{$_} =~ /^[+-]?[\d.]+$/ and not /Name/) {
-	print "$answers{$_}";
+    my $x=$answers{$_};
+    next unless $x;
+    chomp $x;  # remove CR; in unix, we don't have \r to worry about
+    # match a number unless it is a student name
+    if ($x =~ /^[+-]?[\d.]+$/ and not /Name/) {
+      print "$x";
+    }
+    else {  #quote everything else
+      if ($mma) {
+	$x =~ s/\n/\\n/g; # escape newline
+	$x =~ s/"/\\"/g;  # escape quote
+      } else {
+	$x =~ s/"/""/g; # for csv, double any quotes
+	# force text format in spreadsheet
+	$x = "'" . $x unless /Date/ or /Time/;
       }
-      else {  #quote everything else
-	$answers{$_} =~ s/"/""/g; #for csv, double any quotes
-        # in openoffice, the single quote forces the field to be text
-	print "\"'$answers{$_}\"";
-      }
+      print "\"$x\"";
     }
   }
+  print "}" if $mma;
+  last if eof;  # when inner loop reaches eof
+  print "," if $mma;
   print "\n";
 
-  last if eof;  # in case inner loop already reached eof
 }
+
+print "};" if $mma;
+print "\n";
