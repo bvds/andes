@@ -6,7 +6,7 @@
 # Usage: questionnaires_to_excel.plx andes_q.txt > andes_q.csv
 
 my @categories = (
-'Name','Section','School','Semester','Year','CourseID','Date','Time',
+'Year','Semester','School','Section','CourseID','Name','Date','Time',
 '1','2','3','4','5','6','7','8A','8B','9','10','11A','11B','11C','11D','11E','11F','11G','11H','11I','11J','11K','11L','12A','12B','12C','12D','12E','13A','13B','13C','13D','14','15','16A','16B','16C','16D','16E','17','18A','18B','18C','18D','19','20','21','22','23A','23B','23C','23D','23E','24','25','26','27','28','29','30','30A','30B','30C','30D'
 );
 
@@ -50,9 +50,10 @@ while (<>) {  #loop through mails
        $answers{$last} .= ' ' . $_;
     }
     # Date: Tue, 27 Nov 2007 13:39:02 -0500 (EST)
-    elsif (/^Date: \w+, (\d+ \w+ \d+) (\w+) /) {
-      $answers{'date'} = $1;
-      $answers{'time'} = $2;
+    elsif (/^Date: \w+, (\d+ \w+) (\d+) (\d+:\d+:\d+) /) {
+      $answers{'Date'} = $1 . ' ' .$2;
+      $answers{'Year'} = $2;
+      $answers{'Time'} = $3;
     } else {
       $last=0;
     }
@@ -67,12 +68,14 @@ while (<>) {  #loop through mails
   foreach (@categories) {
     if ($count++) { print ",";}
     if ($answers{$_}) {
-      if ($answers{$_} =~ /^[+-]?[\d.]+$/) {     # match a number
+      # match a number unless it is a student name
+      if ($answers{$_} =~ /^[+-]?[\d.]+$/ and not /Name/) {
 	print "$answers{$_}";
       }
       else {  #quote everything else
-	$answers{$_} =~ s/"/\\"/g; # escape any quotes
-	print "\"$answers{$_}\"";
+	$answers{$_} =~ s/"/""/g; #for csv, double any quotes
+        # in openoffice, the single quote forces the field to be text
+	print "\"'$answers{$_}\"";
       }
     }
   }
