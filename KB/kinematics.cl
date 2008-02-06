@@ -3544,14 +3544,11 @@
    (test (tinsidep ?t ?t-rotating))
    (given (dir (relative-position ?pt ?axis-pt :time ?t)) ?r-dir . ?any-hint)
    (test (degree-specifierp ?r-dir))
-   (bind ?v-dir (dir-to-term 
-		 (if (equal ?rotate-dir 'ccw) 
-		     (mod (+ (term-to-dir ?r-dir) 90) 360)
-		     (mod (- (term-to-dir ?r-dir) 90) 360))))
+   (bind ?v-dir (cross-product-dir ?rotate-dir ?r-dir))
    (bind ?a-dir (opposite ?r-dir))  
    (debug "linear motion of ~A: vel dir ~A, accel dir ~A~%" ?pt ?v-dir ?a-dir)
    )
-   :effects ((motion ?pt (curved circular (?v-dir  ?a-dir)) :time ?t))
+   :effects ((motion ?pt (curved circular (?v-dir ?a-dir)) :time ?t))
 )
 
 (defoperator linear-vel-contains (?sought)
