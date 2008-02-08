@@ -1272,12 +1272,16 @@
 ;; a few identities express important principles that we want to see written
 ;; explicitly, so we enumerate them here.
 ;;
+;; !!! Keeping exception list here is fragile wrt changes in kb. Maybe could 
+;; just exclude any identity that is marked as "major"? Though that wouldn't block
+;; projection, which is minor.
+;;
 ;;sbcl has problems with defconstant, see "sbcl idiosyncracies"
 (#-sbcl defconstant #+sbcl sb-int:defconstant-eqx 
  *required-identities* 
  '( NTL					;Newton's Third law
-   total-energy-cons 			;conservation of energy (top-level subeqn)
-   projection    			;projection psm
+   cons-energy 			        ;conservation of energy ME1 = ME2
+   projection    			;projection psm: block using v for v_x when equal
    charge-same-caps-in-branch		;want students to show they know this
    ) #+sbcl #'equalp)
 
