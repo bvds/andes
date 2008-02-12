@@ -162,7 +162,7 @@
   ;; right now, bubblegraph generator stops once it has found a given value
   ((wm-or-derive (given ?quantity ?value-expr 
 			:hint (?given-loc ?more) 
-			("in the problem statement" nil)))
+			      ("in the problem statement" nil)))
    ;; Make sure expression is usable in equation, not special atom. 
    ;; Assume if a list its an algebraic expression
    (test (or (numberp ?value-expr) (listp ?value-expr)))
@@ -174,11 +174,25 @@
   :hint
   ((point (string "You can find the value of ~A ~A."  
 		  ?quantity (?given-loc identity)))
-   (point (string "~@[~A  ~]The value of ~A is given as ~A." 
-		  (?more identity) ?quantity (?value-expr algebra)))
-   (bottom-out (string "Enter the equation ~A = ~A." 
-		       (?var-name algebra) (?value-expr algebra)))
+   ; conditionalizing in subroutine easier than using format magic
+   (bottom-out (string "~A" ((?more ?quantity ?value-expr) known-value-eqn-bottom-out)))
    ))
+
+(defun known-value-eqn-bottom-out (args)
+"format the bottom out hint for write-known-value-eqn"
+ (let ((more (first args))
+       (quantity-expr (second args))
+       (value-expr (third args)))
+   ;; more = 'no-value => special bottom out hint for non-graph-reading answer-only problems.  
+   ;; Note atomic args in operator hints wind up effectively wrapped in (nlg ?arg 'def-np) as
+   ;; a default. We need to do this explicitly in this string generating subroutine.
+   (cond ((eq more 'no-value) 
+             (format NIL "Solve the problem to find the value of ~A." 
+		    (nlg quantity-expr 'def-np)))
+	  (T ;; else assume value given. Prepend ?more explanation if non-null
+             (format NIL "~@[~A ~]The value of ~A is given as ~A." 
+			   more (nlg quantity-expr 'def-np) 
+			   (nlg value-expr 'algebra))))))
 
 ;; This variant handles the case where the known value is a z-axis direction
 ;; specified by special atom 'into or 'out-of 
