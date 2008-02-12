@@ -1246,10 +1246,20 @@
 (defun nsh-prompt-givens? ()
   (and *nsh-givens* (remove-if #'nsh-principle-completed-p *nsh-givens*)))
 
+(defun nsh-final-answer-only-p ()
+"true if this problem tagged final answer only"
+ (member 'final-answer-only (problem-features *cp*))) 
+
 ;;; Test to determine if the students have started the givens.
 ;;; If not then prompt them to start them else, prompt them to 
 ;;; continue with them.
 (defun nsh-prompt-givens ()
+  ;; Special for answer only problems: skip any prolog messages
+  (when (nsh-final-answer-only-p)
+     (return-from nsh-prompt-givens 
+             (nsh-walk-Node-graph "" 
+	         (find-if-not #'nsh-principle-completed-p *nsh-givens*))))
+	     
   (if (member-if #'nsh-principle-started-p *nsh-givens*)
       (nsh-prompt-continue-givens)
     (nsh-prompt-start-givens)))
@@ -1257,6 +1267,12 @@
 
 (defun nsh-new-start-givens ()
   "Prompt the student to begin the nsh with the first given."
+  ;; Special for answer only problems: skip any prolog messages
+  (when (nsh-final-answer-only-p)
+     (return-from nsh-new-start-givens 
+             (nsh-walk-Node-graph "" 
+	         (find-if-not #'nsh-principle-completed-p *nsh-givens*))))
+
   (nsh-prompt-principle
    (strcat "It is a good idea to begin any problem by enumerating "
 	   "the given quantities.  Why don't you start by doing "
