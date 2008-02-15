@@ -177,9 +177,8 @@ while (<>) { # loop over andes files/sessions
 	    $last_time = $this_time;
 	    
 	    # in pause histogram, might ignore pauses associated with 
-	    # loss of focus:
-	    # next if /\tApp-activate/ or /\tApp-deactivate/;  
-	    $dt_histogram{$dt}++;
+	    # loss of focus:      "if" or "unless" or "if 1 and"
+	    $dt_histogram{$dt}++ if /\tApp-activate/ or /\tApp-deactivate/;
 	    if (/\tApp-activate/ or /\tApp-deactivate/) {
 	      $loss_of_focus += $dt;
 	    }
@@ -357,7 +356,7 @@ while (<>) { # loop over andes files/sessions
 
 # print out score histogram in Mathematica notation
 # This is not affected by any of the cutoffs
-if(0) {
+if (0) {
     foreach $student (keys %times) {
 	foreach $problem (keys %{$times{$student}}) {
 	    $score_histogram{$scores{$student}{$problem}}++;
@@ -373,7 +372,7 @@ if(0) {
 # printout histogram of pauses
 # This is not affected by any of the cutoffs
 
-if(0) {
+if (1) {
     print "pausehistogram={";
     my $sep="";
     foreach $delay (sort {$a <=> $b} (keys %dt_histogram)) {
@@ -408,7 +407,7 @@ if(0) {
 
 # Print out time usage by student and day, both adjusted and raw time
 
-if (1) {
+if (0) {
   local $"=",";  # for Mathematica formatted lists
   my @student_quoted = map {"\"" . $_ . "\""} (sort keys %usage);
   print "students={@student_quoted};\n";
@@ -450,7 +449,7 @@ if (1) {
 # bracketed on both sides by assistance (hints or errors)) along with 
 # total assistance score.
 
-if (1) {
+if (0) {
   print "(* format:  {week, confusion time (time bracketed by assistance),\n";
   print "incorrect entries, hints, bottom-out hints, correct entries} *)\n";
   foreach $student (keys %usage) {
