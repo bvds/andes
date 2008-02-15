@@ -30,7 +30,7 @@
 # or from condition-map. There may be no conditions to set.
 #
 ######################################################################
-my $revision_string = '$Revision: 1.9 $';
+my $revision_string = '$Revision: 1.10 $';
 
 # globals for current log line
 my ($timestamp, $event, $argstr); 
@@ -162,11 +162,14 @@ while (<>) {
 	      # Note nuisance if user id contains hyphens
 	      @id_parts = split('-', $session_id);
 	      $nparts = @id_parts;
+	      # maybe try:
+	      #  ($monthdate, $hours, $min, $sec) =  @id_parts[$nparts - 4 .. $nparts -1];
+	      #  $id = join(' ', @id_parts[0 .. $nparts - 5];
 	      if ($nparts == 5) {
 	         ($user, $monthdate, $hours, $min, $sec) = @id_parts;
 	      } elsif ($nparts == 6) {
 		 ($user1, $user2, $monthdate, $hours, $min, $sec) = @id_parts;
-		 $user = $user1 . "-" . $user2;
+		 $user = $user1 . "-" . $user2; # could have had spaces in original
 	      } else {
 		 die "unparseable session id: $session_id\n";
 	      }

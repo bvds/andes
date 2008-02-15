@@ -88,7 +88,7 @@ static const char * s_files[] =
 	"fbd.cnt",			// workbench help contents file, name compiled into .hlp file
 
 	// Temp: for WME version. Profile for encoding
-	// "Log\\hausmann.prx",
+	"Log\\*.prx",
 
 #if 0 // old TCP based helpsys 
 	"Andes2.dxl",		// helpsys Lisp image
@@ -212,6 +212,9 @@ static const char * s_files[] =
 	"Review\\Graphics\\*.htm",
 	"Review\\Videos\\*.wmv",
 	"Review\\Videos\\*.html", 
+	"Review\\Videos\\*.gif",
+	"Review\\Videos\\*.bmp",
+	"Review\\Videos\\*.jpg",
 
 #endif // ! PATCH -- end of whole big section
 };

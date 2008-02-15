@@ -224,6 +224,19 @@ void CBrowserDlg::OnBeforeNavigateWebBrowser(LPCTSTR URL, long Flags, LPCTSTR Ta
 
 	// see if it's an aps link click to launch a problem set
 	if (pLastDot && (_stricmp(pLastDot, ".aps") == 0)) {
+#ifdef EXP
+		// For hausmann experiment, index page submits student name to server script which returns
+		// page redirecting to appropriate aps, causing us to get a full http web URL. Extract basename 
+		// to change to file URL for aps file in local Andes installation directory.
+		if (m_strUrl.Find("http:") != -1) {
+			LPCTSTR pLastSlash = strrchr(URL, '/');
+			if (pLastSlash) {
+				CString strFileName = pLastSlash+1;
+				m_strUrl = g_strAndesDir + g_szProblemDir + "\\" + strFileName;
+			}
+		}
+#endif // EXP
+		
 		// set flag to end the dialog
 		EndDialog(IDOK);
 		*Cancel = TRUE;

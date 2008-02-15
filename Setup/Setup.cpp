@@ -687,7 +687,7 @@ void CSetupApp::GetFolderPaths(CString& winPath, CString& progGroupPath,
 
 BOOL CSetupApp::CreateShortcuts()
 {
-	//Make shortcut: a link to FBD executable in the installation directory.
+	// Make shortcut: a link to FBD executable in the installation directory.
 	// The link has more friendly name "Andes Physics Workbench".
 	// This virtually always succeeds if the file copying is allowed, so users
 	// can fall back to locating install directory and launching via this link
@@ -742,7 +742,7 @@ BOOL CSetupApp::CreateShortcuts()
 	}
 
 #ifdef EXPERIMENT
-	//Make shortcut:  Put on start menu
+	//Make shortcut:  Link to uploader on start menu
 	CShortcut SC4;
 	strPathObj = groupDir + "\\Upload Andes Data.lnk";
 	strTarget = m_strInstDir + "\\Upload.exe";
@@ -753,11 +753,11 @@ BOOL CSetupApp::CreateShortcuts()
 	}
 #endif EXPERIMENT
 
-#ifdef SCOTTY  // For scotty craig experiment
+#ifdef DESKTOP_LINK  // For certain experiments: Desktop shortcut to launch experiment version
 	CShortcut SC5;
 	strPathObj = desktopPath + "\\Andes Experiment.lnk";
 	strTarget = m_strInstDir + "\\fbd-tcp.exe";
-	if (!SC5.Create(strPathObj, strTarget, m_strInstDir, "Launch Andes for Experiment", "/NoHelp",
+	if (!SC5.Create(strPathObj, strTarget, m_strInstDir, "Launch Andes for Experiment", "",
 		strTarget, 0, NULL, SW_SHOW)){
 						TRACE("Failed to create Desktop shortcut");
 						return FALSE;

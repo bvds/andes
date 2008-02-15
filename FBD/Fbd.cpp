@@ -499,6 +499,7 @@ void CFBDApp::DoInitialTaskSelect()
 	// else have helpsys.
 
 #ifndef OLI // to include video prompt in or out
+#ifndef EXP // don't prompt in special experiment-version build
 
 	// query helpsys to see if this is a new user
 	LPCSTR pszResult = HelpSystemExecf("(history-get Video)");
@@ -529,7 +530,8 @@ tryagain:
 			// fall through to normal task select
 		}
 	}
-#endif
+#endif // ! EXP
+#endif // ! OLI
 
 	// else failed to get info, do normal task select.
 	DoTaskSelect();
