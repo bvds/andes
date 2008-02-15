@@ -594,8 +594,34 @@
   (let ((nodes (nsh-collect-quant-snodes *cp*)))
     (setq *nsh-givens* (sort (remove-duplicates (mapcan #'car nodes))
                              #'earlier-given :key #'nsh-given-node-quant))
-    (setq *nsh-solution-sets* (mapcar #'cadr nodes))))
+    (setq *nsh-solution-sets* (mapcar #'cadr nodes)))
 
+  ; for final-answer-only problems, mark intermediate entries as entered, so
+  ; we won't hint to do them
+  (when (nsh-final-answer-only-p)
+     (nsh-init-final-answer-only)))
+
+(defun nsh-init-final-answer-only ()
+ "predefine any non-answer entries for final-answer-only quant problem"
+ (dolist (sysent (remove-if #'answer-only-entry-p *sg-entries*))
+	(format T "Predefining non-answer entry: ~A~%" (systemEntry-prop sysent))
+	;; Make entry behave as if predefined by forging a student entry for it. 
+	;; There is no path to deleting this dummy entry during the problem.
+	(sg-enter-StudentEntry (make-StudentEntry :id 'PREDEF ; special ID
+	                            :prop (systemEntry-prop sysent)
+				    :state **correct**
+				    :CInterp (list sysent)))))
+
+(defun answer-only-entry-p (sysent)
+"true if this is an answer entry for a final-answer-only problem" 
+  ;; In theory should check that this given equation is for a problem sought. But some of 
+  ;; the graph-reading problems currently have given mags and sought components, so
+  ;; include trivial projections to get from givens to soughts. Until that is corrected, 
+  ;; just assume any given equation is one that should be hinted for a problem answer
+  ;; TODO: should allow multiple-choice answer entries also
+  (and (eq (first (systemEntry-prop sysent)) 'EQN)
+       (given-eqn-entry-p sysent)))
+      
 
 
 (defun nsh-given-node-quant (enode)
@@ -1246,6 +1272,10 @@
 (defun nsh-prompt-givens? ()
   (and *nsh-givens* (remove-if #'nsh-principle-completed-p *nsh-givens*)))
 
+;; final-answer-only problems are of two types:
+;;   graph reading problems
+;;   experimental problems to work on your own
+;; We treat both the same, however.
 (defun nsh-final-answer-only-p ()
 "true if this problem tagged final answer only"
  (member 'final-answer-only (problem-features *cp*))) 
