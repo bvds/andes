@@ -3978,7 +3978,6 @@
  (let* ((studvar (nlg var 'algebra))
 	(studval (nlg wrongval 'algebra))
         (quant   (sysvar-to-quant var))
-	(rightval (nlg (get-var-value var) 'algebra))
 	;; BvdS:  I am not sure that this is the most appropriate
 	;; way of accessing the hints associated with a given.
 	;; Find any (given ...) associated with the quantity
@@ -3989,9 +3988,15 @@
 	(bindings (or
 		      (when given-enode 
 			(unify (enode-id given-enode) 
-			       '(given ?qant ?val :hint (?given-loc ?more))))
+			       '(given ?qant ?val-expr :hint (?given-loc ?more))))
 		    '((?given-loc . "from the problem statement") 
-		      (?more . nil)))))
+		      (?more . nil))))
+        ;; use original value expression in preference to stored numerical value in case
+	;; it contains a complex expression like 2*pi rad which we want to preserve
+	(foo (format T "?val-expr binding is ~A => ~A~%" 
+	               (assoc '?val-expr bindings) (cdr (assoc '?val-expr bindings))))
+	(rightval (nlg (or (cdr (assoc '?val-expr bindings))
+	                   (get-var-value var)) 'algebra)))
   (make-hint-seq
    (list 
 	;; Be sure to include full quantity def in message, in case problem
