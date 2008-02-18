@@ -641,6 +641,10 @@ void CVector::MakeZeroMag()
 {
 	m_position.right = m_position.left;
 	m_position.bottom = m_position.top;
+	// Undo any z-axis-hood this may have had
+	m_nZDir = ZDIR_NONE;
+	// !!! this leaves told orientation value. A problem? Should be treated as invalid
+	// for zero-mag vectors.
 }
 
 void CVector::DrawSelectState(CDC* pDC, TrackerState state)
@@ -1655,16 +1659,20 @@ void CVector::SyncDrawnMag()
 	BOOL bToldZero = (sscanf(m_strMag, "%f", &fToldMag) == 1) 
 					  && fToldMag == 0.0;
 	// if told zero-mag, ensure drawing is zero mag
-	if (bToldZero && !IsZeroMag() && !IsZAxisVector())
+	if (bToldZero && !IsZeroMag())
 		MakeZeroMag();
 
 	// if told non-zero-mag, ensure drawing is not zero mag
-	if (IsZeroMag() && !IsZAxisVector() && !bToldZero) {
+	if (IsZeroMag() && !bToldZero) 
+	{	
+		// only needed for xy-plane vectors
+		if (!IsZAxisVector()) {
 			// Set drawn magnitude to one inch
 			m_position.right = m_position.left + 96;
 			m_position.bottom = m_position.top;
-		// if there's a told direction, it's going to be set
-		// anyway by caller 
+			// if there's a told direction, it's going to be set
+			// anyway by caller 
+		}
 	}
 }
 
