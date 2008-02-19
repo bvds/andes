@@ -1143,22 +1143,33 @@ void CFBDView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 		InvalObjInView((CDrawObj*) pHint);
 		break;
 
-	case HINT_UPDATE_TEMPOBJ:
+	case HINT_UPDATE_TEMPOBJ:	// modified temp object definition in dialog
 	{
 		CChkObjList* pList = (CChkObjList*)pHint;
 		if (pList->IsEmpty())
 			return;
 		CCheckedObj* pRealObj = pList->GetHead();
 		CCheckedObj* pTempObj = pList->GetTail();
+		// Note this writes through certain properties to the underlying
+		// object, just as other property transfer steps like UpdateObj. Idea
+		// was that this copies only properties relevant to drawing, leaving
+		// old definition on display until OK'd. But simpler just to transfer
+		// transfer them all. Dialog cancel still reverts to saved pre-editing
+		// state.
 		pRealObj->m_status = pTempObj->m_status;
-		if (pTempObj->IsKindOf(RUNTIME_CLASS(CVector))) {
+		if (pTempObj->IsKindOf(RUNTIME_CLASS(CVector))) 
+		{   // For vectors, update drawn direction to match dialog properties
 			CVector* pRealVec = (CVector*) pRealObj;
 			CVector* pTempVec = (CVector*) pTempObj;
+#if 0		// old: just update direction
 			pRealVec->SetZDir( pTempVec->m_nZDir );
 			int nDeg;
 			if (!pTempVec->IsZAxisVector() &&
 				sscanf( pTempVec->m_strOrientation,"%d", &nDeg) == 1)
 				pRealVec->SetDirection(nDeg );
+#else		// new: update everything, to ensure handle mag changes
+			pRealVec->UpdateObj(pTempObj);
+#endif 
 		} else if (pTempObj->IsKindOf(RUNTIME_CLASS(CAxes)))
 			pRealObj->SetDirection(((CAxes*)pTempObj)->m_nDirection);
 
@@ -6256,17 +6267,17 @@ void CFBDView::OnUpdateZDirMenu(CCmdUI* pCmdUI)
 	// Note selected case requires this to be active view, other case doesn't,
 	// since can select draw tools while inactive (will activate on mouse down in view)
 	// also only certain vector types allowed.
-	if (m_drawMode == Vector && m_vectorType != VECTOR_FORCE
-		&& m_vectorType != VECTOR_COMPONENT) {
+	if (m_drawMode == Vector && m_vectorType != VECTOR_COMPONENT) {
 		pCmdUI->Enable(m_bEnabled);
-	
 	}
 	else if (m_bActive && SingleSelection() && 
-		SelectedObj()->IsKindOf(RUNTIME_CLASS(CVector))) {
+		     SelectedObj()->IsKindOf(RUNTIME_CLASS(CVector))) {
 		CVector* pVec = (CVector*) SelectedObj();
-		pCmdUI->Enable(pVec->m_nVectorType != VECTOR_FORCE && 
-			           pVec->m_nVectorType != VECTOR_COMPONENT &&
-					   m_bEnabled);
+		// If this command applied to zero-mag vectors would have to change value
+		// to unknown non-zero mag, but SetZDir function doesn't do this. So
+		// just don't enable it to zero-mag vectors.
+		pCmdUI->Enable(pVec->m_nVectorType != VECTOR_COMPONENT 
+			           && !pVec->IsZeroMag() && m_bEnabled);
 	}
 	else pCmdUI->Enable(FALSE);
 }
@@ -6293,6 +6304,8 @@ void CFBDView::OnSetZDir(UINT nID)
 			pVec->m_status = statusUnknown;
 			// update Zdir (will invalidate).
 			pVec->SetZDir(nZDir);
+			// !!! change from zdir to xy-plane is weird since there's no
+			// choice of direction. Should open up dialog box. 
 			// Re-check it with help system after change
 			pVec->CheckObject();
 		}

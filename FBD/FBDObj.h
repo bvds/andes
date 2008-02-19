@@ -74,14 +74,15 @@ public:
 #define ZDIR_MAX		3		// max legal value for range checking
 	BOOL IsZAxisVector() { return m_nZDir != ZDIR_NONE; } 
 	enum { ZVEC_RADIUS = 8, };	// radius of circle drawn for vector into/outof plane
-	void SetZDir(int nZDir);	// set the ZDir and update
+	void SetZDir(int nZDir);	// set the ZDir and update drawing
 	
 	// set from diagram:
 	BOOL m_bDecomposed;			// FORCE|MOTION: marked as resolved into components
 
 	// Helper to derive:
-	int GetDrawnMagnitude();			// Drawn magnitude in logical units
-	BOOL IsZeroMag();			// true if this is NULL (zero-mag) vector
+	int GetDrawnMagnitude();	// Drawn magnitude in logical units
+	BOOL IsZeroMag();			// true if drawn as zero-mag vector
+	BOOL ToldZeroMag();			// true if given values specify zero mag
 	void MakeZeroMag();
 	void SyncDrawnMag();
 

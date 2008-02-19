@@ -609,6 +609,8 @@ void CVector::DrawZAxisVector(CDC *pDC)
 	pDC->SelectObject(pOldPen);
 }
 
+// this sets "plane" of a vector: xy vs. z-axis. 
+// It should not be used for zero-length vectors
 void CVector::SetZDir(int nZDir)
 {
 	// remember if it was originally a Z-Axis vector
@@ -616,14 +618,16 @@ void CVector::SetZDir(int nZDir)
 	// update the state
 	m_nZDir = nZDir;
 
-	// if changed between nonZDir and ZDir, also update position rect to reflect
-	if (bWasZAxisVector && !IsZAxisVector())		// Z to non-Z
-	{		
-		// make it zero-length at old origin 
+	// if changed between nonZDir and ZDir
+	if (bWasZAxisVector && !IsZAxisVector())		// changed Z to xy plane
+	{
 		Invalidate();
-		MakeZeroMag();
+		// Set drawn magnitude to one inch
+		m_position.right = m_position.left + nLUsPerInch;
+		m_position.bottom = m_position.top;
+		// assumes caller will adjust direction subsequently.
 	} 
-	else if (!bWasZAxisVector && IsZAxisVector()) // non-Z to Z
+	else if (!bWasZAxisVector && IsZAxisVector()) // changed xy-plane to Z
 	{
 		Invalidate();
 		// center dot on old origin (is endpoint more natural?)
@@ -639,12 +643,17 @@ void CVector::SetZDir(int nZDir)
 
 void CVector::MakeZeroMag()
 {
-	m_position.right = m_position.left;
-	m_position.bottom = m_position.top;
+	// change only if existing glyph not in the zero-mag range --
+	// might have been drawn by student with small size. 
+	if (! IsZeroMag()) {
+		m_position.right = m_position.left;
+		m_position.bottom = m_position.top;
+	}
 	// Undo any z-axis-hood this may have had
 	m_nZDir = ZDIR_NONE;
-	// !!! this leaves told orientation value. A problem? Should be treated as invalid
-	// for zero-mag vectors.
+	// Note this leaves told orientation value. That should be treated as invalid
+	// for zero-mag vectors, though it is handy to remember it if changed back
+	// to xy-plane vector.
 }
 
 void CVector::DrawSelectState(CDC* pDC, TrackerState state)
@@ -1648,30 +1657,34 @@ CPoint CVector::GetBtnPos(CRect btnPos)
  	return ptNew;
 }
 
-// Sync zero/non-zero status with told mag value
+BOOL CVector::ToldZeroMag()
+{
+	float fToldMag; // scan as float to allow 0.0
+	// make sure we have a valid given magnitude and
+	// scan told value from beginning of expression (which may have units)
+	return m_bHaveValues && !m_bCompoForm
+		   && (sscanf(m_strMag, "%f", &fToldMag) == 1) 
+		   && fToldMag == 0.0;
+}
+
+// Sync zero/non-zero drawing status with told mag value
 void CVector::SyncDrawnMag()
 {
-	// only do if we have a told magnitude value
+	// only do if we have a valid given magnitude value
 	if (! (m_bHaveValues && !m_bCompoForm)) return;
 
-	// scan told value from beginning of expression (which may have units)
-	float fToldMag; // scan as float to allow 0.0
-	BOOL bToldZero = (sscanf(m_strMag, "%f", &fToldMag) == 1) 
-					  && fToldMag == 0.0;
 	// if told zero-mag, ensure drawing is zero mag
-	if (bToldZero && !IsZeroMag())
+	if (ToldZeroMag())
 		MakeZeroMag();
-
-	// if told non-zero-mag, ensure drawing is not zero mag
-	if (IsZeroMag() && !bToldZero) 
+	else  //ensure drawing is not zero mag
 	{	
-		// only needed for xy-plane vectors
-		if (!IsZAxisVector()) {
+		// if currently drawn zero mag
+		if (IsZeroMag()) {
 			// Set drawn magnitude to one inch
 			m_position.right = m_position.left + 96;
 			m_position.bottom = m_position.top;
-			// if there's a told direction, it's going to be set
-			// anyway by caller 
+			// assumes caller will adjust direction subsequently. This
+			// could handle change to z-axis vector as well.
 		}
 	}
 }
@@ -1706,48 +1719,17 @@ void CVector::UpdateObj(CDrawObj* pObj)
 	m_strYC = pTempVec->m_strYC;
 	m_strZC = pTempVec->m_strZC;
 
-	// make sure drawn magnitude matches zero/non-zero status
+	// make sure drawn magnitude matches told zero/non-zero status
 	SyncDrawnMag();
 
-	// If orientation/ZDir changed, use methods to update drawing to reflect.
-	// Note possible direction m_strOrientation not a number if dir is unset.
-	SetZDir(pTempVec->m_nZDir);
+	// If orientation/ZDir changed, use methods to adjust drawing to reflect.
+	// Note direction m_strOrientation may not be a number if dir is unset.
+	if (!IsZeroMag()) SetZDir(pTempVec->m_nZDir);
 	int nDeg;
 	if (! IsZAxisVector() && sscanf(pTempVec->m_strOrientation,"%d", &nDeg) == 1)
 		SetDirection(nDeg);
 
-	if (m_nVectorType == VECTOR_COMPONENT)
-	{
-		m_strCompOf = pTempVec->m_strCompOf;
-		m_strCompDir = pTempVec->m_strCompDir;
-		
-		if (!m_pDocument) return;
-
-		POSITION pos = m_pDocument->m_objects.GetTailPosition();
-		while (pos != NULL)
-		{
-			CDrawObj* pObj = m_pDocument->m_objects.GetPrev(pos);
-			if (  pObj->IsKindOf(RUNTIME_CLASS(CVector)) &&
-				!( ((CVector*)pObj)->m_nVectorType == VECTOR_COMPONENT ) &&
-				! pObj->m_strName.IsEmpty()   )
-			{
-				CVector* pVec = (CVector*)pObj;
-				if (m_strCompOf == pVec->m_strName)
-				{
-					if (!pVec->m_Comps.Find(this))
-					{
-						pVec->m_Comps.AddTail(this);
-						break;
-					}
-				}
-			}
-		}	
-
-		// Log the new properties on change for trace info
-		LogEventf(EV_PROPS_COMPO, "%s name |%s| of |%s| dir |%s|", 
-					m_strId, (LPCTSTR) m_strName, m_strCompOf, (LPCTSTR) m_strCompDir);
-	}
-	else if (m_nVectorType == VECTOR_FORCE) {
+    if (m_nVectorType == VECTOR_FORCE) {
 			// Log the new properties on change for trace info
 			LogEventf(EV_PROPS_FORCE, "%s name |%s| type |%s| body |%s| agent |%s| dir %s time |%s|", 
 					 m_strId,  m_strName, m_strForceType,  m_strBody,  m_strAgent,  m_strOrientation, m_strTime);

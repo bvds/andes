@@ -417,7 +417,8 @@ void CValueDlg::TransferValues(BOOL bSaving)
 		m_editZCValue.GetRichEditText(m_pVec->m_strZC);
 		// transfer direction and type (xy plane vs z-axis)
 
-		// make sure drawn mag matches told mag
+		// make sure drawn mag matches told mag. Need told zero mag to 
+		// update last zdir setting.
 		m_pVec->SyncDrawnMag();
 
 		// If component form, then set direction to unknown
@@ -432,9 +433,12 @@ void CValueDlg::TransferValues(BOOL bSaving)
 					m_pVec->m_nZDir = nZDir;
 			}
 		}
-		// This just updates member variables in temp obj. Closing dialog will use
-		// updateobj to write through to underlying object. This should update
-		// graphic to match new direction, zero/non-zero status.
+		// This just updates member variables in temp obj for "told" properties. By itself 
+		// it doesn't force update of drawing-relevant properties to match/
+		// Closing dialog will use updateobj to write through to underlying object; this 
+		// should update drawing position to match new direction, zero/non-zero status.
+		// This also happens for intermediate edits in the CFBDView handler for the 
+		// UPDATE_TEMPOBJ message triggered on dialog OK.
 	}
 }
 

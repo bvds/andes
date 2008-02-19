@@ -106,7 +106,9 @@ static const char * s_files[] =
 	// OLD ACL 5.01 files
 	// "acl5016.dll",		// Allegro Lisp dll -- for now just leave in exe dir
 	// New ACL 8.01 support:
-	"acli8010.dll",
+	//"acli8010.dll",
+	// New in ACL 8.1:
+	"acli817.dll",
 
 	"solver.dll",		// Solver dll
 	
