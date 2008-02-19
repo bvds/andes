@@ -895,5 +895,34 @@
   "Tell the workbench to close a browser."
   "close-browser")
 
+;;
+;; Alternate command dispatcher used to implement answer-only-mode 
+;; Answers are checked, but non-answer entries all turn black. 
+;; Solver, Help requests rejected, but for unsolicited help on answers.
+;;
+(defun answer-only-dispatcher (cmd args)
+"dispatch a command in answer-only mode"
+   ; switch on type of command, from API.cl
+   (case (lookup-command->class cmd)
+      ;; all following cmd classes can just be dispatched as usual
+      ((State Answer Statistics Delete Control) (safe-apply cmd args))
+      ;; Entries should be left black
+      ((noneq-entry eq-entry) (make-black-turn))
+      ;; Help requests: explain more must be followup to allowed help (unsolicited help
+      ;; for wrong answers) so process it. Reject all others.
+      (Help (case cmd 
+                  (explain-more (safe-apply cmd args))
+                  (otherwise (make-end-dialog-turn "Help is not available on this problem."))))
+      ;; Algebra gets null answer
+      (Algebra (make-eqn-failure-turn "The Andes calculator is not available on this problem."))
+      ;; anything else: empty string should function as null return value.
+      (otherwise (warn "unclassifed api command: ~A~%" cmd)
+                  "")))
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; iface-set-dispatch-mode -- set dispatcher in appropriate mode for *cp*
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun iface-set-dispatch-mode ()
+"set the appropriate command dispatcher mode to use for current problem'"
+ (setf **alternate-command-interpreter**
+     (if (nsh-final-answer-only-p) #'answer-only-dispatcher)))

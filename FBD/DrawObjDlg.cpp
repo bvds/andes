@@ -488,7 +488,7 @@ void CDrawObjDlg::DroplistToDropdown(CComboBox* pBox)
 // returns T if OK to close
 BOOL CDrawObjDlg::CheckDialog()
 {
-	BOOL bCorrect = TRUE;	// until error found
+	BOOL bError = FALSE;	// until error found
 	BOOL bFlaggedCtrl = FALSE; 
 	
 	// skip verification protocol if checking has been suppressed 
@@ -529,7 +529,7 @@ BOOL CDrawObjDlg::CheckDialog()
 		// Check obj with help system.  Updates its status and error list
 		((CCheckedObj*)m_pTempObj)->CheckObject();
 		m_pDocument->UpdateAllViews(NULL, HINT_UPDATE_TEMPOBJ, &pList);
-		bCorrect = m_pTempObj->m_status == statusCorrect;
+		bError = m_pTempObj->m_status == statusError;
 
 		// Update global dialog status. This applies error flagging
 		// to dialog controls.
@@ -539,8 +539,6 @@ BOOL CDrawObjDlg::CheckDialog()
 		// until the student dismisses the dialog mode:
 		// if (! theApp.m_bTutorMode)
 				EnableWindow(TRUE);	// done updating, user can interact again
-		
-
 	}
 	// update prev obj with saved copy of current obj, 
 	// clearing id so prev will satisfy HasSameDef if unchanged.
@@ -549,7 +547,7 @@ BOOL CDrawObjDlg::CheckDialog()
 	m_pPrevObj = (CCheckedObj*)m_pTempObj->Clone();
 	m_pPrevObj->m_strId.Empty();
 
-	return bCorrect;
+	return ! bError;
 }
 
 
