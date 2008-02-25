@@ -5062,6 +5062,7 @@ BOOL CFBDView::DispatchEvent(EventID nEvent, LPCTSTR pszArgs)
 	    if (tool >= ID_DRAWVECTOR_FIRST && tool <= ID_DRAWVECTOR_LAST) {
 			m_drawMode = Vector;
 			m_vectorType = (tool-ID_DRAWVECTOR_FIRST); 
+			m_nZDir = ZDIR_NONE;  // have to reset this on new tool selection
 		} else
 			m_drawMode = tool;	// should check its within drawtool range!
 		break;
