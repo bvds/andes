@@ -74,6 +74,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	//}}AFX_MSG
+	afx_msg UINT	OnNcHitTest(CPoint point);
 	DECLARE_MESSAGE_MAP()
 };
 

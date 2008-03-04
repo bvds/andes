@@ -82,8 +82,9 @@ int CCheckedDlg::DoModalWithHints()
 
 	// Run message loop, filtering msgs as appropriate
 	// We need to pass all messages to hint window, this dialog,
-	// and any popup windows. Popup wnds for dropdown lists are not 
-	// children of the dialog. Also includes popups for hint window defs.
+	// eqn cheat sheet (if up), and remembered current popup windows if any. 
+	// Popup wnds for dropdown lists are not children of the dialog. 
+	// Also includes popups for hint window defs.
 	HWND hwndHint = NULL; 
 	if (theApp.GetChatView())
 		hwndHint = theApp.GetChatView()->GetRichEditCtrl().GetSafeHwnd();
@@ -93,6 +94,11 @@ int CCheckedDlg::DoModalWithHints()
 		hwndHint = pHint->GetSafeHwnd();
 	}
 	HWND hwndHintParent = ::GetParent(hwndHint);
+	HWND hwndEqn = NULL;
+	if (theApp.GetMainFrame() && ::IsWindow(theApp.GetMainFrame()->m_dlgEqnReview.m_hWnd) 
+		&& theApp.GetMainFrame()->m_dlgEqnReview.IsWindowVisible()) {
+		hwndEqn = theApp.GetMainFrame()->m_dlgEqnReview.m_hWnd;
+	}
 
 	MSG msg;
 	m_bEndModalLoop = FALSE;
@@ -124,13 +130,15 @@ int CCheckedDlg::DoModalWithHints()
 		// Really have two mutually exclusive modes: In tutorial dialog mode, the dialog will be 
 		// disabled (though would like to be able to move it!) In dialog editing mode, hint window 
 		// is not disabled but has no response to input. These are not switched here.
-		if (! ( (::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd) /*&& !theApp.m_bTutorMode*/)
+		if (! ( (::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd)) // this dialog or child
+			  || (::IsWindow(msg.hwnd) && hwndEqn && AfxIsDescendant(hwndEqn, msg.hwnd)) // eqn browser
 			  || (m_hwndCtrl && (msg.hwnd == m_hwndCtrl))	// current popup wnd
 			  || (msg.hwnd == hwndHint) 					// hint wnd
 			  || (msg.hwnd == hwndHintParent)               // hint's parent = splitter bar
+		
 			  ))
 		{
-			// not for an allowed window: ignore all key and mouse strokes 
+			// target is not an allowed window: ignore all key and mouse strokes 
 			if ((msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST) 
 				 || (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST) 
 				 || (msg.message >= WM_NCMOUSEMOVE && msg.message <= WM_NCMBUTTONDBLCLK)
@@ -141,8 +149,12 @@ int CCheckedDlg::DoModalWithHints()
 		} 
 
 		// In tutor mode, dialog should ignore mouse and keyboard input. But allow NC mouse messages
-		// so dialog can be moved. Dialog itself will suppress close button.
-		if (theApp.m_bTutorMode && ::IsWindow(msg.hwnd) && AfxIsDescendant(m_hWnd, msg.hwnd)
+		// so dialog can be moved. Dialog itself will suppress close button. 
+		// Same also goes for equation window if it is showing.
+		if (theApp.m_bTutorMode && ::IsWindow(msg.hwnd) 
+			// ?? maybe don't need following conjunct, window message filtered above
+			&& (AfxIsDescendant(m_hWnd, msg.hwnd) 
+			    || (hwndEqn && AfxIsDescendant(hwndEqn, msg.hwnd)))
 			&& ((msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST) 
 				 || (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST)) )
 				 continue;
