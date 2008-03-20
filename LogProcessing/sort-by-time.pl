@@ -25,6 +25,7 @@ while (<>) {
       warn "Using local computer time $date for timestamp";
     } 
   }
+  
     $sessions{$date} .= $_;
 }
 foreach $session (sort keys %sessions) {
