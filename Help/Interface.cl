@@ -896,10 +896,26 @@
   "close-browser")
 
 ;;
-;; Alternate command dispatcher used to implement answer-only-mode 
+;; Alternate command dispatcher used to implement answer-only-mode: 
 ;; Answers are checked, but non-answer entries all turn black. 
 ;; Solver, Help requests rejected, but for unsolicited help on answers.
 ;;
+;; Note answer-only-mode is different from the final-answer-only flag:
+;;    final-answer-only is used for graph reading problems. Help does 
+;;         not prompt entries, grading does not require them, but they 
+;;         DO get red/green feedback according to graph if made
+;;    answer-only-mode is for experimenting. It disables help system
+;;         apart from answers.  This could be set on any problem. 
+;;         Grading is not affected, so grade will be computed just 
+;;         as without this flag and may be low. 
+;;
+;; We might want to add some facility to configure answer-only-mode 
+;; outside of problem via flag setting or parameter in problem set to
+;; be communicated to help system.
+;;
+(defun answer-only-mode-p ()
+    (member 'answer-only-mode (problem-features *cp*)))
+
 (defun answer-only-dispatcher (cmd args)
 "dispatch a command in answer-only mode"
    ; switch on type of command, from API.cl
@@ -908,8 +924,9 @@
       ((State Answer Statistics Delete Control) (safe-apply cmd args))
       ;; Entries should be left black
       ((noneq-entry eq-entry) (make-black-turn))
-      ;; Help requests: explain more must be followup to allowed help (unsolicited help
-      ;; for wrong answers) so process it. Reject all others.
+      ;; Help requests: assume explain more could only be followup to allowed 
+      ;; help -- presumably unsolicited help for wrong answers -- so process it. 
+      ;; Reject all others help requests.
       (Help (case cmd 
                   (explain-more (safe-apply cmd args))
                   (otherwise (make-end-dialog-turn "Help is not available on this problem."))))
@@ -925,4 +942,5 @@
 (defun iface-set-dispatch-mode ()
 "set the appropriate command dispatcher mode to use for current problem'"
  (setf **alternate-command-interpreter**
-     (if (nsh-final-answer-only-p) #'answer-only-dispatcher)))
+     (if (answer-only-mode-p) #'answer-only-dispatcher)))
+

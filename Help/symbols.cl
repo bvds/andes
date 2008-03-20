@@ -119,9 +119,6 @@
   (grammar-add-variable label) 
 
   ; build entry and add it to list
-  ;;(push (make-syminfo :label label :referent referent 
-  ;;:entries entries :sysvar sysvar)
-  ;;*variables*)
   (push (make-syminfo :label label :referent referent 
 		      :entries entries :sysvar sysvar)
         *variables*)
@@ -133,7 +130,6 @@
 (defun symbols-delete (label)
   "remove entry for a student label from the symbol table"
   ; remove from equation parser's grammar (safe if never added)
-  ;;(grammar-remove-variable label)
   (grammar-remove-variable label) 
   ; remove entry from our table
   (setf *variables*
@@ -185,11 +181,9 @@
 
 (defun symbols-fetch (pat)
   "return list of all symbol records whose referent exprs unify with pat"
-  (let (result)
-    (dolist (sym *variables*)
-      (when (unify pat (sym-referent sym))
-         (push sym result)))
-    result))
+  (remove-if-not #'(lambda (sym)
+                     (unify pat (sym-referent sym)))
+		  *variables*))
 
 ; following for inverting mapping from student var to sysvar:
 (defun symbols-lookup-sysvar (sysvar)
