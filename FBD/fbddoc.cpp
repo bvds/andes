@@ -768,14 +768,14 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	// if opening in demo mode, flag it as demo problem for post-demo cleanup
 	m_bDemoProblem = theApp.m_bDemoMode;
 
-	// Log the file open, using op with Andes-dir-relative arg if possible
-	LogOpen(lpszPathName);
+	// if opening for working, try to ensure help system is connected. Note that
+	// in OLI .atd open via DDE, this is the first point that calls EnsureUserInit
+	// which starts the history file. So needs to happen before any logging (Bug 1449).
+	// !!! better just to start and stop it in app startup/shutdown.
+	theApp.EnsureHelpSysInit(); // proceed w/o help even if failed
 
 	// remember the problem start time (seconds)
 	m_nStartTime = HistTime();
-
-	// if opening for working, try to ensure help system is connected
-	theApp.EnsureHelpSysInit(); // proceed w/o help even if failed
 
 	// If we have an experimental condition, tell help system
 	CString strCondition;
@@ -783,6 +783,9 @@ BOOL CFBDDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	if (pSet && pSet->m_opts.Lookup("condition", strCondition) && !strCondition.IsEmpty()) {
 		HelpSystemSendf("(set-condition %s)", strCondition);
 	}
+
+	// Log the file open, using op with Andes-dir-relative arg if possible
+	LogOpen(lpszPathName);
 
 	// just to be safe: ensure we are not in TutorMode to start (e.g. from prev problem).
 	theApp.SetTutorMode(FALSE);

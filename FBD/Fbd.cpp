@@ -848,7 +848,8 @@ BOOL CFBDApp::OnDDECommand(LPTSTR lpszCommand)
 	if (! m_bUserInit)	
    	{
    		// complete user initialization (login) unless it's just a print command
-		// or a task open, which may contain user name
+		// or an OLI task open, which may contain user name. Note skipping this for
+		// OLI task open means history file is not yet started, Bug 1449.
 		if (! (m_bShellPrintOnly || bTaskOpen)) {
 			// shell open command: make sure student is logged in. 
 			// What to do if they cancel? If we don't handle the command,
