@@ -106,6 +106,11 @@ BOOL CResistanceDlg::OnInitDialog()
 		m_stcInstructions.GetWindowText(strTemp);
 		strTemp.Replace("resistance", "capacitance");
 		m_stcInstructions.SetWindowText(strTemp);
+		// adjust dialog caption in title bar
+		CString strTitle;
+		GetWindowText(strTitle);
+		strTitle.Replace("Resistance", "Capacitance");
+		SetWindowText(strTitle);
 	}
 
 	SelectSingleChoices();
