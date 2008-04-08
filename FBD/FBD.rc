@@ -2811,7 +2811,7 @@ END
 IDD_CURRENT DIALOGEX 0, 0, 263, 147
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Define current"
-FONT 10, "MS Sans Serif", 0, 0, 0x1
+FONT 10, "MS Sans Serif"
 BEGIN
     LTEXT           "&Current through:",IDC_STATIC_VALUE,13,27,47,8
     LISTBOX         IDC_MULTIPLE_BODY_LIST,71,7,91,54,LBS_SORT | 
@@ -2827,7 +2827,7 @@ BEGIN
     CONTROL         "",IDC_CUSTOM_LABEL,"RICHEDIT",ES_AUTOHSCROLL | 
                     WS_BORDER | WS_TABSTOP,70,96,53,17
     DEFPUSHBUTTON   "OK",IDOK,73,126,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,139,126,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,133,126,50,14
     GROUPBOX        "Given Value",IDC_GIVEN_BOX,128,86,133,28
     LTEXT           "=",IDC_STATIC_EQUALS,132,100,8,8
     CONTROL         "",IDC_GIVEN_VALUE,"RICHEDIT",ES_AUTOHSCROLL | WS_BORDER | 
@@ -2835,6 +2835,10 @@ BEGIN
     LTEXT           "or",IDC_STATIC_OR,206,99,8,8
     CONTROL         "Unknown",IDC_CHECK_UNKNOWN,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,218,101,40,7
+    PUSHBUTTON      "What's Wrong?",ID_DIALOG_WHATSWRONG,198,126,59,14,
+                    BS_BITMAP | WS_DISABLED
+    LTEXT           "Incorrect",IDC_INCORRECT,13,129,31,8,NOT WS_VISIBLE | 
+                    NOT WS_GROUP
 END
 
 IDD_VOLTAGE DIALOGEX 0, 0, 260, 117
@@ -3322,8 +3326,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 12,0,3,8
- PRODUCTVERSION 12,0,3,8
+ FILEVERSION 12,0,3,9
+ PRODUCTVERSION 12,0,3,9
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -3341,14 +3345,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Andes Group\0"
             VALUE "FileDescription", "Physics Workbench\0"
-            VALUE "FileVersion", "12, 0, 3, 8\0"
+            VALUE "FileVersion", "12, 0, 3, 9\0"
             VALUE "InternalName", "FBD\0"
             VALUE "LegalCopyright", "Copyright © 1996-2004\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "FBD.EXE\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "FBD Application\0"
-            VALUE "ProductVersion", "12, 0, 3, 8\0"
+            VALUE "ProductVersion", "12, 0, 3, 9\0"
             VALUE "SpecialBuild", "\0"
         END
     END
