@@ -24,7 +24,7 @@
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t)
 			 (electric-energy ?body ?agent :time ?t)
 			 (dipole-energy ?body ?agent :time ?t)
-			 (spring-energy ?body ?agent :time ?t)
+			 (spring-energy ?agent ?body :time ?t)
 			 ))
    (bind ?type (car ?sought))
    (time (during ?t1 ?t2))
@@ -355,12 +355,14 @@
     :effects ( (ee-var ?b ?t (grav-energy ?b ?agent :time ?t)) ))
 
 (defoperator define-spring-ee-var (?b ?spring ?t)
-    :preconditions (
-       ;; use this form if spring contact present anywhere in problem -- 
-       ;; spring pe may be zero at some times but still use a term for it.
-       (in-wm (spring-contact ?b ?spring . ?dontcare))
-    )
-    :effects ( (ee-var ?b ?t (spring-energy ?b ?spring :time ?t) ) ))
+  :preconditions 
+  (
+   ;; use this form if spring contact present anywhere in problem -- 
+   ;; spring pe may be zero at some times but still use a term for it.
+   ;; see bug 1463
+   (in-wm (spring-contact ?b ?spring . ?dontcare))
+   )
+  :effects ( (ee-var ?b ?t (spring-energy ?b ?spring :time ?t) ) ))
 
 (defoperator inherit-kinetic-energy (?b ?t)
   ;; inheritance for grav-energy tracks inheritance for velocity
