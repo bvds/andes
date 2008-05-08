@@ -120,12 +120,30 @@ void COliView::OnOpenProblem()
 	CTask* pTask = GetDocument()->m_tasks.GetHead();
 	ASSERT(pTask);
 
-
-
 	// For OLI version, download what we need, then proceed same as if
 	// everything was local.
 	if (GetDocument()->m_bOli) 
 	{
+		// Before launching, make sure we are within scheduling window.
+		CString strSchedule = "during"; // default
+		GetDocument()->m_opts.Lookup("scheduling", strSchedule);
+		CString strMessage;
+		if (strSchedule == "before") {
+			strMessage.Format("%s cannot be opened yet: it is before its instructor-assigned release date.",
+					           pTask->m_strName);
+			AfxMessageBox(strMessage);
+			// Post message to close the whole application 
+			AfxPostQuitMessage(0);
+			return;
+		} else if (strSchedule == "after") {
+			strMessage.Format("It is after the instructor's due date for %s. Your score and solution will not be uploaded into the instructor's gradebook.",
+					           pTask->m_strName);
+			AfxMessageBox(strMessage);
+			// open anyway. Must remember not to upload at end. 
+			// !!! what about log file? Maybe want it anyway, with some notation
+		}
+			
+
 		AfxGetApp()->BeginWaitCursor();
 	/* No longer do this since we had errors
 		// Fetch the student history file before opening problem

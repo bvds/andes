@@ -1120,10 +1120,15 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 	// If not running under OLI, nothing to do here
 	if (! m_bOli) return;
 
-	// Else finished an OLI problem set
+	// Else finished an OLI problem set: 
+	
+	// need to check that it is still before due date
+	CString strSchedule = "during"; // default if none
+    m_opts.Lookup("scheduling", strSchedule);
 
-	// if only viewing solutions, don't upload info at end
-	if (! m_bViewSolution)
+	// don't upload score/solution at end if only viewing solutions
+	// or if it is after the due date
+	if (! (m_bViewSolution || strSchedule == "after"))
 	{
 		// Else do Oli post problem stuff:
 		AfxGetApp()->BeginWaitCursor();
@@ -1150,7 +1155,7 @@ void CProblemSet::PostCloseProblem(CFBDDoc* pDoc)
 
 		AfxGetApp()->EndWaitCursor();
 	}
-	else // just viewed a saved solution
+	else if (m_bViewSolution) // just viewed a saved solution
 	{
 		CString strSolnPath = FindTask(pDoc->m_strProblemId)->GetSolutionPath();
 		// following gives instructor option to update from this session 

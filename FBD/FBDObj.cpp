@@ -1084,6 +1084,7 @@ BOOL CVector::SetValsFromLogStr(LPCTSTR pszArgs)
 	m_strXC = ArgToVal(szXC);
 	m_strYC = ArgToVal(szYC);
 	m_strZC = ArgToVal(szZC);
+	m_bHaveValues = TRUE;      // must set flag to use value slots
 	return TRUE;
 }
 
