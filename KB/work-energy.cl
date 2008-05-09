@@ -24,7 +24,8 @@
    (any-member ?sought ( (grav-energy ?body ?agent :time ?t)
 			 (electric-energy ?body ?agent :time ?t)
 			 (dipole-energy ?body ?agent :time ?t)
-			 (spring-energy ?agent ?body :time ?t)
+			 ;; typically, ?agent is the spring
+			 (spring-energy ?body ?agent :time ?t)
 			 ))
    (bind ?type (car ?sought))
    (time (during ?t1 ?t2))
@@ -359,7 +360,6 @@
   (
    ;; use this form if spring contact present anywhere in problem -- 
    ;; spring pe may be zero at some times but still use a term for it.
-   ;; see bug 1463
    (in-wm (spring-contact ?b ?spring . ?dontcare))
    )
   :effects ( (ee-var ?b ?t (spring-energy ?b ?spring :time ?t) ) ))
@@ -581,8 +581,8 @@
   (in-wm (spring-contact ?body ?spring ?t-contact ?sforce-dir))
   (test (tinsidep ?t ?t-contact))
   (variable ?PE-var (spring-energy ?body ?spring :time ?t))
-  (variable ?k-var  (spring-constant ?spring))
-  (variable ?d-var  (compression ?spring :time ?t))
+  (variable ?k-var (spring-constant ?spring))
+  (variable ?d-var (compression ?spring :time ?t))
   )
   :effects (
   (eqn (= ?PE-var (* 0.5 ?k-var (^ ?d-var 2)))
@@ -590,8 +590,8 @@
   )
 
   :hint (
-  (point (string "Try writing an equation for the elastic potential energy due to the interaction between ~a and the spring ~a." (?body def-np) (?t pp)))
-  (teach (string "The elastic potential energy due to the interaction of a body with a compressed spring is 0.5*k*x^2 where  k is the spring constant and x is the distance the spring is compressed or extended from its equilibrium length."))
+  (point (string "Try writing an equation for the elastic potential energy due to the interaction between ~a and ~a." (?body def-np) ?spring))
+  (teach (string "The elastic potential energy due to the interaction of a body with a compressed spring is 0.5*k*x^2 where k is the spring constant and x is the distance the spring is compressed or extended from its equilibrium length."))
   (bottom-out (string "Write ~a" ((= ?PE-var (* 0.5 ?k-var (^ ?d-var 2))) algebra)))
   ))
 	 
@@ -612,8 +612,8 @@
 	    (eqn (= ?PE-var 0) (spring-energy ?b ?spring ?t))
 	    )
   :hint (
-	 (point (string "Notice that ~A is not in contact with a spring ~A 
-that could transfer elastic potential energy to ~A." ?b (?t pp) ?b))
+	 (point (string "Notice that ~A and ~A are not in contact or barely touching ~A." ?b ?spring (?t pp)))
+         (teach (string "When a spring is not compressed, then it has no elastic potential energy that can be transmitted to another object."))
 	 (bottom-out (string "Write ~A" ((= ?PE-var 0) algebra)))
 	 ))
 
