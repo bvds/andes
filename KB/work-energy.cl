@@ -279,6 +279,15 @@
   :preconditions ((ee-var ?body ?t ?sought))
   :effects ((eqn-contains (total-energy-top ?body ?t) ?sought)))
 
+(defoperator compound-total-energy-top-contains-ee-var (?sought)
+  :preconditions (
+		  (object ?bb)
+		  (any-member ?bb ((compound orderless . ?bodies)))
+		  (ee-var ?body ?t ?sought)
+		  (any-member ?body ?bodies)
+		  )
+  :effects ((eqn-contains (total-energy-top ?bb ?t) ?sought)))
+
 (defoperator define-energy-var (?b ?t ?quant)
   :preconditions 
   ( 
@@ -295,6 +304,19 @@
 			     (?quant def-np)))
        ))
 
+(defoperator get-body-energies (?b ?t)
+  :preconditions 
+  (
+   (setof (ee-var ?b ?t ?quant) ?quant ?quants)
+;;(test (progn (format t "body-energies 2 for ~A~%     ~A~%" ?b ?quants) t))
+ ;;  (test ?quants)  ;make sure there is something
+   ;; define a variable for each quantity
+   (map ?quant ?quants
+	(inherit-variable ?ee-var ?quant) ?ee-var ?ee-vars)
+;;(test (progn (format t "body-energies 3 for ~A~%     ~A~%" ?b ?ee-vars) t))
+   )
+  :effects ((body-ee-list ?b ?ee-vars ?t)))
+
 ;;; equation TME = Translational Kinetic Energy + Rotational KE
 ;;;                    + Grav PE + Spring PE + Electrostatic PE ...
 ;;  Note that any new kind of energy must be added to the list
@@ -303,15 +325,18 @@
 (defoperator write-total-energy-top (?b ?t)
   :preconditions 
   (
+;;(test (progn (format t "write-total 1 for ~A~%" ?b) t))
    (variable ?te-var (total-energy ?b :time ?t))
    ;; can't collect potential energies if not all are defined
    (not (unknown-potentials))	  
+   ;; get list of simple bodies
+   (bind ?blist (simple-parts ?b))
    ;; collect energy quantities that can be defined
-   (setof (ee-var ?b ?t ?quant) ?quant ?quants)
-   (test ?quants)  ;make sure there is something
-   ;; define a variable for each quantity
-   (map ?quant ?quants
-	(inherit-variable ?ee-var ?quant) ?ee-var ?ee-vars)
+   (map ?b1 ?blist (body-ee-list ?b1 ?ee-vars1 ?t) ?ee-vars1 ?ee-vars-lists)
+;;(test (progn (format t "write-total 2 for ~A~%   ~A~%" ?b ?ee-vars-lists) t))
+   (bind ?ee-vars (mappend #'nconc ?ee-vars-lists))
+   (test ?ee-vars)
+;;(test (progn (format t "write-total 3 for ~A~%   ~A~%" ?b ?ee-vars) t))
    (debug "Set of ee-vars = ~A~%" ?ee-vars)
   )
   :effects (
@@ -341,6 +366,7 @@
     (
      ;; use this for gravity near surface of a planet
      (near-planet ?planet :body ?b ?b)
+     (test (not (unify ?planet ?b))) ;no self-energy
      )
     :effects ( (ee-var ?b ?t (grav-energy ?b ?planet :time ?t)) ))
 
@@ -376,9 +402,10 @@
   :preconditions 
   (
    (use-point-for-body ?b ?cm ?axis) ;always use axis of rotation
-   ;; test for translational motion of any axis at any time
-   ;; There may be more than one (motion ...) statement that matches
-   (in-wm (motion ?axis ?kind . ?whatever))
+   ;; Test for possible translational motion of any axis.
+   ;; There may be more than one (motion ...) statement that matches.
+   (in-wm (motion ?axis . ?rest))
+   (test (tinsidep ?t (time-of ?rest)))
    (test (or (eq ?kind 'straight) 
 	     (and (consp ?kind) (eq (first ?kind) 'curved))))
     )
