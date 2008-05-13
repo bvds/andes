@@ -281,7 +281,7 @@
 
 (defoperator compound-total-energy-top-contains-ee-var (?sought)
   :preconditions (
-		  (object ?bb)
+		  (object (compound orderless . ?bodies))
 		  (any-member ?bb ((compound orderless . ?bodies)))
 		  (ee-var ?body ?t ?sought)
 		  (any-member ?body ?bodies)
@@ -308,12 +308,9 @@
   :preconditions 
   (
    (setof (ee-var ?b ?t ?quant) ?quant ?quants)
-;;(test (progn (format t "body-energies 2 for ~A~%     ~A~%" ?b ?quants) t))
- ;;  (test ?quants)  ;make sure there is something
    ;; define a variable for each quantity
    (map ?quant ?quants
 	(inherit-variable ?ee-var ?quant) ?ee-var ?ee-vars)
-;;(test (progn (format t "body-energies 3 for ~A~%     ~A~%" ?b ?ee-vars) t))
    )
   :effects ((body-ee-list ?b ?ee-vars ?t)))
 
@@ -325,18 +322,17 @@
 (defoperator write-total-energy-top (?b ?t)
   :preconditions 
   (
-;;(test (progn (format t "write-total 1 for ~A~%" ?b) t))
    (variable ?te-var (total-energy ?b :time ?t))
    ;; can't collect potential energies if not all are defined
    (not (unknown-potentials))	  
+   ;; ad-hoc rule to get experiment problems e4cc e5cc to work. Yuck!
+   (not (block-total-energy ?b))   ;See Bug #1467
    ;; get list of simple bodies
    (bind ?blist (simple-parts ?b))
    ;; collect energy quantities that can be defined
    (map ?b1 ?blist (body-ee-list ?b1 ?ee-vars1 ?t) ?ee-vars1 ?ee-vars-lists)
-;;(test (progn (format t "write-total 2 for ~A~%   ~A~%" ?b ?ee-vars-lists) t))
    (bind ?ee-vars (mappend #'nconc ?ee-vars-lists))
-   (test ?ee-vars)
-;;(test (progn (format t "write-total 3 for ~A~%   ~A~%" ?b ?ee-vars) t))
+   (test ?ee-vars)  ;make sure something is there
    (debug "Set of ee-vars = ~A~%" ?ee-vars)
   )
   :effects (
@@ -364,6 +360,7 @@
 (defoperator define-grav-ee-var (?b ?t)
     :preconditions 
     (
+     (not (massless ?b))
      ;; use this for gravity near surface of a planet
      (near-planet ?planet :body ?b ?b)
      (test (not (unify ?planet ?b))) ;no self-energy

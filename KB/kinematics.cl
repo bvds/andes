@@ -745,6 +745,7 @@
   :preconditions 
   ( (time ?t)
     (test (time-intervalp ?t))
+    (object ?b) ;needs to be kinematics-able body
     ;; motion with unknown direction not handled correctly:
     (not (motion ?b ?motion-spec :time ?t-motion . ?whatever) 
 	 (tinsidep ?t ?t-motion))
