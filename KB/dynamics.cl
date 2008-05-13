@@ -1812,6 +1812,8 @@
    (not (point-on-body ?b ?rigid-body))
    (near-planet ?planet :body ?b ?b)
    (not (massless ?b))
+   ;; no self-action (for rare case where planet is an object)
+   (test (not (unify ?b ?planet))) 
    ;; Determine what time to use when labeling equation.
    ;; otherwise, one gets several identical equations, with different labels.
    (inherit-or-quantity (force ?b ?planet weight :time ?t) 

@@ -375,11 +375,11 @@
   :english ("the gravitational potential energy of ~A" 
 	    (nlg ?body 'at-time ?time)))
 ;; see bug 1463
-(def-qexp spring-energy (spring-energy ?agent ?body :time ?time) 
+(def-qexp spring-energy (spring-energy ?body ?spring :time ?time) 
   ;; custom dialog box "energy"
   :units |J|
   :english ("the elastic potential energy transmittable to ~A" 
-	    (nlg ?agent 'at-time ?time)))
+	    (nlg ?body 'at-time ?time)))
 (def-qexp compression (compression ?spring :time ?time)
   :symbol-base |d|     
   :short-name "compression distance"	

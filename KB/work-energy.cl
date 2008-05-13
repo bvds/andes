@@ -402,13 +402,11 @@
   :preconditions 
   (
    (use-point-for-body ?b ?cm ?axis) ;always use axis of rotation
-   ;; Test for possible translational motion of any axis.
+   ;; Test for possible translational motion of axis (or body) at any time.
    ;; There may be more than one (motion ...) statement that matches.
-   (in-wm (motion ?axis . ?rest))
-   (test (tinsidep ?t (time-of ?rest)))
-   (test (or (eq ?kind 'straight) 
-	     (and (consp ?kind) (eq (first ?kind) 'curved))))
-    )
+   (in-wm (motion ?axis ?kind . ?rest))
+   (test (not (or (eq ?kind 'at-rest) (eq ?kind 'momentarily-at-rest)))) 
+   )
   :effects ( (ee-var ?b ?t (kinetic-energy ?b :time ?t)) ))
 
 (defoperator define-rotational-energy-ee-var (?b ?t)
@@ -484,11 +482,9 @@
 (defoperator write-kinetic-energy (?body ?t)
   :preconditions 
   (
-   ;; test for translational motion of body axis at any time
-   (motion ?axis ?kind . ?whatever)
-   (test (or (eq ?kind 'straight) 
-	     (and (consp ?kind) (eq (first ?kind) 'curved))))
-   (use-point-for-body ?body ?cm ?axis)	;always use axis of rotation
+   (use-point-for-body ?body ?cm ?axis)	;use axis of rotation for velocity.
+   ;; The kinetic-energy variable is only defined when the body
+   ;; can move at some time.
    (variable ?ke-var (kinetic-energy ?body :time ?t))
    (inherit-variable ?m-var (mass ?body :time ?t))
    (variable ?v-var (mag (velocity ?axis :time ?t)))
@@ -498,7 +494,8 @@
 	(kinetic-energy ?body ?t))
    )
   :hint (
-  (point (string "Try writing the definition of translational kinetic energy of ~a ~a" (?body def-np) (?t pp)))
+  (point (string "What is the translational kinetic energy of ~a ~a?" 
+		 (?body def-np) (?t pp)))
   (teach (string "The translational kinetic energy of an object is defined as one half its mass times its velocity squared.  That is, 0.5*m*v^2."))
   (bottom-out (string "Write the equation ~a" ((= ?ke-var (* 0.5 ?m-var (^ ?v-var 2))) algebra)))
   ))
@@ -617,7 +614,7 @@
   )
 
   :hint (
-  (point (string "Try writing an equation for the elastic potential energy due to the interaction between ~a and ~a." (?body def-np) ?spring))
+  (point (string "Try writing an equation for the elastic potential energy due to the interaction between ~a and ~a." ?body ?spring))
   (teach (string "The elastic potential energy due to the interaction of a body with a compressed spring is 0.5*k*x^2 where k is the spring constant and x is the distance the spring is compressed or extended from its equilibrium length."))
   (bottom-out (string "Write ~a" ((= ?PE-var (* 0.5 ?k-var (^ ?d-var 2))) algebra)))
   ))
@@ -639,7 +636,7 @@
 	    (eqn (= ?PE-var 0) (spring-energy ?b ?spring ?t))
 	    )
   :hint (
-	 (point (string "Notice that ~A and ~A are not in contact or barely touching ~A." ?b ?spring (?t pp)))
+	 (point (string "Notice that ~A and ~A are not in contact (or barely touching) ~A." ?b ?spring (?t pp)))
          (teach (string "When a spring is not compressed, then it has no elastic potential energy that can be transmitted to another object."))
 	 (bottom-out (string "Write ~A" ((= ?PE-var 0) algebra)))
 	 ))
