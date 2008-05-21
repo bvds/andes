@@ -325,8 +325,6 @@
    (variable ?te-var (total-energy ?b :time ?t))
    ;; can't collect potential energies if not all are defined
    (not (unknown-potentials))	  
-   ;; ad-hoc rule to get experiment problems e4cc e5cc to work. Yuck!
-   (not (block-total-energy ?b))   ;See Bug #1467
    ;; get list of simple bodies
    (bind ?blist (simple-parts ?b))
    ;; collect energy quantities that can be defined
