@@ -3174,6 +3174,13 @@ BOOL CFBDDoc::LoadFromPrb(LPCSTR pszFileName)
 	return TRUE;
 }
 
+// 
+// Execute predefined entry command. This duplicates event handlers that 
+// exist in the views (VarView for EV_VAR_ENTRY, FBDView for EV_FBD_ENTRY, etc)
+// because it has to execute before the views are created. Ideally they
+// would be in one place only, which would have to be this class. But haven't
+// changed the dispatcher code for this.
+//
 BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 {
 	// Split Command into event name + args
@@ -3183,8 +3190,6 @@ BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 
 	if (strcmpi(name, "Var-Entry") == 0)	// EV_VAR_ENTRY
 	{
-		// Following copies code that executes EV_VAR_ENTRY command only (inaccessible at
-		// at this point because it is in VarView, which doesn't now exist).
 		CVariable* pVar = new CVariable();//create a new variable
 		if (! pVar->SetFromLogStr(pszArgs) )
 			return FALSE;
@@ -3197,9 +3202,6 @@ BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 	} 
 	else if (strcmpi(name, "FBD-Entry") == 0)	// EV_FBD_ENTRY
 	{
-		// Following copies code that executes EV_FBD_ENTRY command only (inaccessible at
-		// at this point because it is in VarView, which doesn't now exist).
-
 		// scan first type arg and create new object of right type
 		char szType[64];
 		if (sscanf(pszArgs, "%s", szType) != 1) return FALSE;
@@ -3223,6 +3225,23 @@ BOOL CFBDDoc::ExecPredefCmd(LPCTSTR pszCmd)
 		CDrawObj* pObj = FindByName(ArgToVal(szName));
 		if (pObj == NULL || !pObj->IsKindOf(RUNTIME_CLASS(CVector))) return FALSE;
 		return ((CVector*)pObj)->SetValsFromLogStr(pszArgs);
+	}
+	else if (strcmpi(name, "EQ-Entry") == 0) {  // EV_EQ_ENTRY
+	
+		// parse args of nEq nStatus eqntext..."
+		char argstr[20]; 
+		int nEq, nStatus;
+		const char * pszRest = pszArgs;
+		sscanf(pszArgs, "%s", argstr);	pszRest += strlen(argstr) + 1;
+		if (sscanf(argstr, "%d", &nEq) != 1) return FALSE;
+		sscanf(pszRest, "%s", argstr); pszRest += strlen(argstr) + 1;
+		if (sscanf(argstr, "%d", &nStatus) != 1) return FALSE;
+		ASSERT(0 <= nStatus && nStatus <= 2);
+		// Update text and status from args 
+		m_strEq[nEq] = pszRest;
+		m_statusEq[nEq] = (Status) nStatus;
+		// fire update -- no sender so we can update ourselves
+		UpdateAllViews(NULL, HINT_UPDATE_EQUATION, (CObject*)nEq);
 	}
 	else // unhandled.
 	{

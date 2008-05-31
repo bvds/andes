@@ -3880,8 +3880,9 @@
 ;; that don't wind up used in the solution
 (defun given-quant-p (quant)
 "true if quantity is tagged as a problem given"
- (let ((qnode (match-exp->qnode quant (Problem-Graph *cp*))))
-     (and qnode (qnode-givenp qnode))))
+ (let ((eqn (find quant (Problem-eqnindex *cp*) 
+		    :key #'eqn-exp :test #'unify)))
+     (and eqn (given-eqn-p eqn))))
 
 (defun given-var-p (var)
 "true if system var has a given value in current problem"

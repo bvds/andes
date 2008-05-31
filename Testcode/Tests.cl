@@ -325,8 +325,9 @@
        ;; a sought, then add it to the given-eqns cache.  In the case where
        ;; it is a sought, we are already giving points for the final answer.
        ((and (equalp (eqn-type Eqn) 'given-eqn)
-	     (not (qnode-soughtp (match-exp->qnode (eqn-exp Eqn) 
-						   (problem-graph *cp*)))))
+             ; AW: in case of non-quant problems w/eqns, can't assume qnodes exist
+	     ; (not (qnode-soughtp (match-exp->qnode (eqn-exp Eqn) (problem-graph *cp*)))))
+	     (not (member (eqn-exp Eqn) (problem-soughts *cp*) :test #'unify)))
 	     (push Entry (nth Solution *test-cache-given-eqn-entries*)))
 	    
        ;; If it is an eqn and it is not a trivial system equation, and it is 

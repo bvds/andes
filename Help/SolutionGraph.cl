@@ -525,12 +525,17 @@
 ;; the count for use by the matching code.
 
 (defun sg-setup-solutions (Solutions Graph Eqns)
+  ; special handling for no-quant problems
+  (if (no-quant-problem-p *cp*)
+      (sg-setup-solutions-no-quant Graph Eqns)
+   (sg-setup-solutions-quant Solutions Graph Eqns)))
+
+(defun sg-setup-solutions-quant (Solutions Graph Eqns)
   "Define the list of solutions and store them in the algebra system."
   (setf *Sg-Solutions*
     (loop for S below (length Solutions)
 	do (sg-add-solution S (nth S Solutions) Eqns)
 	collect (sg-encode-solution S (nth S Solutions) Graph))))
-
 
 (defun sg-add-solution (Num Solution Eqns)
   "Add the numbered solution to the system"
@@ -542,7 +547,6 @@
 	    (Solver-IndyAddEq2Set Num (car Eq))
 	  (error "NonIndy Solution Supplied ~A~% ~A." E Solution))))))
 
-
 (defun sg-encode-solution (Num Solution Graph)
   "Translate elements of the solution for use."
   (make-sgsol 
@@ -550,6 +554,42 @@
    :Entries (remove-duplicates
 	     (loop for N in (EqnSet-Nodes Solution)
 		 append (BGNode-Entries N)))))
+
+;; Variant for non-quant problems: these may include equation
+;; writing steps (for entering given values of variables, say)
+;; but have no solution sets since there is no quantity sought.
+;; We collect any equations in the equation index into a dummy 
+;; solution set 0 to be registered with the solver so these
+;; equation entries can be interpreted through the existing
+;; solver machinery. 
+;; This still won't work for equations in a non-quant part
+;; of a hybrid problem including quantitative soughts. 
+
+(defun sg-setup-solutions-no-quant (Graph SG-Eqns)
+ ; only do if we have some equations
+ ; note each element in sg-eqns is a list formed by eqns->help-sys-eqns
+ ; containing index, algebra, and system entry
+ ; e.g (1 (= 0 foo) [System-Entry: ...])
+ (when SG-Eqns
+  ;; instead of sg-add-solution above:
+  ;; look through eqn index. For every equation matching one 
+  ;; in SG-Eqns, add it's sg index to current set 0
+  (dolist (E (Problem-EqnIndex *cp*))
+      (when (eqn-entry-type-p (eqn-type E)) 
+	(if (setq eq (find (Eqn-Algebra E) SG-Eqns
+			   :key #'cadr :test #'equalp))
+	    (Solver-IndyAddEq2Set 0 (car Eq)))))
+  ;; instead of sg-encode-solution above
+  ;; map solution 0 to all entries in all eq-nodes
+  (let ((entries 
+	  ; maybe could use:
+	  ; (reduce #'union (mapcar #'BGNode-Entries (bubble-graph-Enodes Graph)))
+          (remove-duplicates
+               (loop for N in (bubblegraph-Enodes Graph)
+		     append (BGNode-Entries N)))))
+     (setf *Sg-Solutions*
+         (list (make-sgsol :num 0
+	                   :Entries entries))))))
 
 
 

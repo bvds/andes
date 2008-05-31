@@ -633,6 +633,92 @@
   ; no preconditions!
   :effects ((choose-answer ?question-id ?correct-choice)))
 
+
+;;; ================= Generic: do selected steps =====================
+;;;
+;;; This serves to batch a set of arbitrary steps into a single problem goal,
+;;; so that a single done button may subsume the set.  This is for qualitative
+;;; problems that mix selected variable definitions, vector drawing, equation 
+;;; writing, etc.  Note each step must have a fully bound goal proposition.
+(defoperator do-all-steps (?steps)
+  :preconditions ( (foreach ?step ?steps
+                       ?step) )
+  :effects ( (do-all-steps . ?steps) ))
+
+;;; ================= Generic: write-equation =====================
+;;;
+;;; Achieve the goal of writing a equation. Note operators that 
+;;; generate equations will also define all needed variables. 
+
+;; Operator for equations that don't just state given values.
+(defoperator do-write-equation-non-given (?eqn-name)
+   :preconditions ( (not (given ?eqn-name ?dont-care))
+                    (eqn ?form ?eqn-name) ) 
+   :effects ( (write-eqn ?eqn-name) ))
+
+;; Achieve the write-eqn goal for a given value equation, which generates
+;; a given-eqn goal rather than an eqn goal. The eqn-name for a given value 
+;; equation is just the quantity expression.
+(defoperator do-write-equation-given (?eqn-name)
+   :preconditions ( (in-wm (given ?eqn-name ?dont-care))
+                    (given-eqn ?form ?eqn-name) ) 
+   :effects ( (write-eqn ?eqn-name) ))
+
+;; ================= Generic: define scalar variable ==============
+;;
+;; Achieve the goal of defining a scalar variable, being sure to 
+;; include given value equations if needed for workbench dialog boxes.
+
+(defoperator do-define-scalar-variable-given (?quant)
+   :preconditions ((given-eqn ?eqn ?quant))
+   :effects ( (define-scalar-variable ?quant) ))
+
+(defoperator do-define-scalar-variable-unknown (?quant)
+   :preconditions (
+		   (not (given ?quant . ?rest))
+		   (variable ?fvar-name ?quant))
+   :effects ( (define-scalar-variable ?quant) ))
+
+(post-process add-unused-givens (problem)
+  "add unused givens to variable index"
+  ;; Look in all of wm because 
+  ;; some given values are derived by rule from those in definition.
+  (dolist (prop (Filter-expressions 
+                       '(given . ?rest)
+		        (problem-wm problem))) 
+   (let ((quant (second prop)))
+     ;; if it's not already in the index
+     (when (not (find quant (problem-varindex problem) 
+                      :key #'qvar-exp :test #'unify))
+       (let* ((axis (second quant))
+	      (rot (third quant))
+	      (vector (fourth quant))
+	      ;; find vector mag's entry in var index for naming
+	      ;; compo var. May not be there if mag unused also
+	      (mag-qvar (match-exp->qvar `(mag ,vector)
+	                    (problem-varindex problem)))
+              (value (third prop)))
+       ;; make sure we found a mag var
+       (if (null mag-qvar) 
+             (warn "Unused given ~A not added because mag unused also."
+	              `(compo ,axis ,rot ,vector))
+       ;;else:
+       ;;  make qvar item for it and append to end of varindex
+         (setf (problem-varindex problem)
+           (append (problem-varindex problem)
+	      (list (make-qvar 
+                     ; need to form compo variable name
+                     :var (format-sym "~Ac_~A_~A" axis (qvar-var mag-qvar) rot)
+		     :exp quant
+		     ; requiring value to be dnum, not plain 0:
+		     :value (second value)
+		     :units (third value)
+		     :marks '(unused-given)
+		     ; new element's index = length of old index
+		     :index (length (problem-varindex problem))
+		     :nodes NIL))))))))))
+
+
 ;;; ================= Generic: Draw each requested vector =====================
 ;;;
 ;;; A goal of form (draw-vectors . ?vector-list) gives a list of vector 
