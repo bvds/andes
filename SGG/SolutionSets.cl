@@ -194,12 +194,10 @@
 	   (return-Solution-Successor                    ;; It is known automatically so add it 
 	    S :id 10 :inc 1 :pop-Soughts 1  :Push-Knowns Q))  ;; to the knowns of S and return.
 	  
-	  ((Qnode-Givenp Q)                              ;; If the qnode is given then expand by
-	   (Expand-for-given-Q S Q Eqns))                ;; The given eqn only to prevent search.
-	  
-	  ((null Eqns) nil)                              ;; If the search cannot expand return nil.
-
-	  (t (expand-for-q-eqns S Q Eqns)))))            ;; Else expand for each Eqn E.
+	  ((Qnode-has-mark? Q **Given**)  ;If the qnode is given then expand by
+	   (Expand-for-given-Q S Q Eqns)) ;the given eqn only to prevent search.
+	  ((null Eqns) nil)            ;If the search cannot expand return nil.
+	  (t (expand-for-q-eqns S Q Eqns)))))     ;Else expand for each Eqn E.
   
 
 

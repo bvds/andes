@@ -185,7 +185,7 @@
 ;;;
 ;;; 
 ;;; These conditions are tested by the check-err-conditions function.  It
-;;; will iteratively match each one given the exoisting bindings.  For 
+;;; will iteratively match each one given the existing bindings.  For 
 ;;; each successful match the system will augment the bindings and continue
 ;;; searching.  
 ;;;

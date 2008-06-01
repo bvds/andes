@@ -634,10 +634,6 @@
   (let ((qnode (match-exp->qnode quant (problem-graph *cp*))))
   (and qnode (Qnode-has-mark? qnode 'constant))))
 
-(defun qnode-Givenp (Q)
-  "Is the qnode a given?"
-  (Qnode-has-mark? Q **Given**))
-
 ;;; (mark-qnode <Mark> <Qnode>) Add MARK to QNODE's markings
 (defun mark-qnode (mark Qnode)
   "Add the specified Marking to the specified qnode."
