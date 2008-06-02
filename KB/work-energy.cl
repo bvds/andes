@@ -261,8 +261,8 @@
   (assume using-energy-conservation cons-energy ?b ?t1 ?t2)
   )
   :hint (
-  (point (string "Think about what you can conclude about the total mechanical energy in the system throughout this problem."))
-  (point (string "Notice that all forces doing work on ~a in this problem are conservative." ?b ))
+  (point (string "Think about the total mechanical energy of ~A.  Does it change?" ?b))
+  (point (string "Notice that all forces doing work on ~a are conservative." ?b ))
   (teach (string "When the only forces doing work on a body are conservative, then the law of conservation of energy states that the total mechanical energy remains constant.  That is, the total mechanical energy at one time is equal to the total mechanical energy at another time, for any two time points."))
   (bottom-out (string "Write ~a" ((= ?te1-var ?te2-var) algebra)))
   ))
@@ -1123,7 +1123,8 @@
     (assume using-energy-conservation change-me ?b ?t1 ?t2)
   )
   :hint (
-   (point (string "Think about what you can conclude about the total mechanical energy in the system throughout this problem."))
+	 (point (string "Think about the total mechanical energy of ~A.  Does it change ~A?" 
+			?b ((during ?t1 ?t2) pp)))
   (teach (string "The most general form of conservation of energy states that the work done by non-conservative forces over an interval is equal to the change in total mechanical energy over that interval."))
    (bottom-out (string "Write the equation ~A" 
                        ((= ?Wnc (- ?ME2 ?ME1)) algebra)))

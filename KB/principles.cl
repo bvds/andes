@@ -72,7 +72,8 @@
 	 )
  (group "Work Energy and Power" 
 	 (leaf work :tutorial "Work done by a force")
-	 (leaf net-work :tutorial "Net work")
+;;   only use work-nc in expt.
+;;	 (leaf net-work :tutorial "Net work")
 	 (leaf work-nc :tutorial "Conservation of Energy")
 	 (leaf work-energy :tutorial "Work-Energy")
 	 (leaf mechanical-energy :tutorial "Conservation of Energy")
