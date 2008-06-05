@@ -4,7 +4,7 @@
 # The purpose of this script is to convert online Andes Questionnaires 
 # into csv format.
 # Usage: 
-#    questionnaires_to_excel.plx andes_q.txt > andes_q.csv
+#    questionnaires_to_excel.pl andes_q.txt > andes_q.csv
 #    In the spreadsheet, do a regexp find and replace to remove single
 #    quote at beginning of line (used to force text format),
 #    then sort first 3 columns.  Make School Section CourseID Name columns
@@ -12,12 +12,17 @@
 #    openoffice and then export to excel.)
 # Mathematica format:
 #    questionnaires_to_excel.plx -m andes_q.txt > andes_q.m
+# Open-ended questions instead use -o
 
 use Getopt::Long;
 my $mma=0;
-GetOptions ('math|m|mma' => \$mma);
+my $openended=0;
+GetOptions ('math|m|mma' => \$mma,'o' => \$openended);
 
-my @categories = (
+my @categories = $openended?(
+'Year','Semester','School','Section','CourseID','Name','Date','Time',
+'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25'
+):(
 'Year','Semester','School','Section','CourseID','Name','Date','Time',
 '1','2','3','4','5','6','7','8A','8B','9','10','11A','11B','11C','11D','11E','11F','11G','11H','11I','11J','11K','11L','12A','12B','12C','12D','12E','13A','13B','13C','13D','14','15','16A','16B','16C','16D','16E','17','18A','18B','18C','18D','19','20','21','22','23A','23B','23C','23D','23E','24','25','26','27','28','29','30','30A','30B','30C','30D'
 );
@@ -365,15 +370,17 @@ while (<>) {  #loop through mails
     last if /^.From andes2\@pitt.edu/;
     
     0 and warn "working on $_";
+    my $keep = $openended?'Open-Ended_':'Question_';
+    my $discard = $openended?'Question_':'Open-Ended_';
 
     # Find the answers to the close-ended questions.
-    if (/^Question_(\w+)=(.*)/) { 
+    if (/^$keep(\w+)=(.*)/) {
       $answers{$1} = $2;
       $last=$1; 
     }
     # throw away Open-Ended fields
-    elsif (/^Open-Ended_(\w+)=(.*)/) {
-      $last=0;
+    elsif (/^$discard(\w+)=(.*)/) { 
+	$last=0;
     }
     # get non-question fields (Name, School, etc.)
     elsif (/^(\w+)=(.*)/) {
