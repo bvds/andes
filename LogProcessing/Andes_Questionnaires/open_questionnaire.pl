@@ -48,20 +48,20 @@ Thank you for your participation in an evaluation of Andes. We expect to learn a
 <OL>
 <LI>Has the use of ANDES tutor helped you understand Physics principles? <br>
     Why? Or why not?<br>
-<textarea TABINDEX="1" NAME="FREE-1" rows=2 cols=100></textarea><br><br>
+<textarea TABINDEX="1" NAME="FR1" rows=2 cols=100></textarea><br><br>
 
 <LI>Has ANDES tutor helped you in mastering problem solving techniques? <br>
     How? Or why not?<br>
-<textarea TABINDEX="1" NAME="FREE-2" rows=2 cols=100></textarea><br><br>
+<textarea TABINDEX="1" NAME="FR2" rows=2 cols=100></textarea><br><br>
 
 <LI>Do you think you learned more or less using Andes than if you had done the same exercises on paper and handed them in?&nbsp; Explain.<br>
-<textarea TABINDEX="1" NAME="FREE-3" rows=2 cols=100></textarea><br><br>
+<textarea TABINDEX="1" NAME="FR3" rows=2 cols=100></textarea><br><br>
 
 <li>Do you think you learned more or less using Andes than if you had done the same exercises on webassign?&nbsp; Explain.<br>
-<textarea TABINDEX="1" NAME="FREE-4" rows=2 cols=100></textarea><br><br>
+<textarea TABINDEX="1" NAME="FR4" rows=2 cols=100></textarea><br><br>
 
 <li>Has the techniques learned in solving Andes problems helped in solving problems on other assignments, test, or quizzes?&nbsp; Explain.<br>
-<textarea TABINDEX="1" NAME="FREE-5" rows=2 cols=100></textarea><br><br>
+<textarea TABINDEX="1" NAME="FR5" rows=2 cols=100></textarea><br><br>
 
 <LI>What was the greatest strength of Andes?<br>
 <textarea TABINDEX="1" NAME="Q24" rows=8 cols=100></textarea><br><br>
@@ -71,10 +71,10 @@ Thank you for your participation in an evaluation of Andes. We expect to learn a
 
 
 <LI>Should all Physics students at WH be required to use Andes?<br>
-<textarea TABINDEX="1" NAME="FREE-6" rows=2 cols=100></textarea><br><br>
+<textarea TABINDEX="1" NAME="FR6" rows=2 cols=100></textarea><br><br>
 
 <LI>Suggest some changes that would greatly improve Andes.<br>
-<textarea TABINDEX="1" NAME="Q25" rows=8 cols=100></textarea><br><br>
+<textarea TABINDEX="1" NAME="FR7" rows=8 cols=100></textarea><br><br>
 
 
 <input type="submit"> 
