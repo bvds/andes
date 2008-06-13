@@ -31,14 +31,15 @@ print HTML_OUT <<HTMLEND;
     <title>Andes Questionnaire</title>
   </head>
   <body>
+
+<h2 align="center">Andes Questionnaire - $semester $year</h2>
+
     <form method="post" action="http://www.pitt.edu/htbin/cgiemail/~andes2/questionnaire_template_SP211.txt">
 
-<INPUT TYPE=HIDDEN NAME="school" VALUE="$school" type="text">
-<INPUT TYPE=HIDDEN NAME="year" VALUE="$year" type="text">
-<INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester" type="text">
-<INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID" type="text">
-
-<table align=center><tr><td><b><font size="+2">ANDES QUESTIONNAIRE - $semester $year</font></b></td></tr></table><br>
+<INPUT TYPE=HIDDEN NAME="school" VALUE="$school">
+<INPUT TYPE=HIDDEN NAME="year" VALUE="$year">
+<INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester">
+<INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID">
 
 $name: <input tabindex="1" name="required-name" size="10" type="text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Section: <input tabindex="1" name="required-section" size="10" type="text"><br><br><br>

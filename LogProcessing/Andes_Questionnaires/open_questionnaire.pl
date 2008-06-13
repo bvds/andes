@@ -31,14 +31,16 @@ print HTML_OUT <<HTMLEND;
     <title>Andes Questionnaire</title>
   </head>
   <body>
+
+<h2 align="center">Andes Questionnaire - $semester $year</h2>
+
     <form method="post" action="http://www.pitt.edu/htbin/cgiemail/~andes2/questionnaire_template_SP211.txt">
 
-<INPUT TYPE=HIDDEN NAME="school" VALUE="$school" type="text">
-<INPUT TYPE=HIDDEN NAME="year" VALUE="$year" type="text">
-<INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester" type="text">
-<INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID" type="text">
+<INPUT TYPE=HIDDEN NAME="school" VALUE="$school">
+<INPUT TYPE=HIDDEN NAME="year" VALUE="$year">
+<INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester">
+<INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID">
 
-<table align=center><tr><td><b><font size="+2">ANDES QUESTIONNAIRE - $semester $year</font></b></td></tr></table><br>
 
 $name: <input tabindex="1" name="required-name" size="10" type="text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Section: <input tabindex="1" name="required-section" size="10" type="text"><br><br><br>
@@ -46,11 +48,11 @@ Section: <input tabindex="1" name="required-section" size="10" type="text"><br><
 Thank you for your participation in an evaluation of Andes. We expect to learn a great deal from your suggestions about what works and what doesn't work in the Andes system from your responses in this questionnaire.<br><br>
 
 <OL>
-<LI>Has the use of ANDES tutor helped you understand Physics principles? <br>
+<LI>Has the use of Andes tutor helped you understand Physics principles? <br>
     Why? Or why not?<br>
 <textarea TABINDEX="1" NAME="FR1" rows=2 cols=100></textarea><br><br>
 
-<LI>Has ANDES tutor helped you in mastering problem solving techniques? <br>
+<LI>Has Andes tutor helped you in mastering problem solving techniques? <br>
     How? Or why not?<br>
 <textarea TABINDEX="1" NAME="FR2" rows=2 cols=100></textarea><br><br>
 

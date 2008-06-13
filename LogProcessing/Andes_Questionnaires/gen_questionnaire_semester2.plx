@@ -30,10 +30,10 @@ print HTML_OUT <<HTMLEND;
   <body>
     <form method="post" action="http://www.pitt.edu/htbin/cgiemail/~andes2/questionnaire_template_SP212.txt">
 
-<INPUT TYPE=HIDDEN NAME="school" VALUE="$school" type="text"
-<INPUT TYPE=HIDDEN NAME="year" VALUE="$year" type="text"
-<INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester" type="text"
-<INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID" type="text"
+<INPUT TYPE=HIDDEN NAME="school" VALUE="$school">
+<INPUT TYPE=HIDDEN NAME="year" VALUE="$year">
+<INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester">
+<INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID">
 
 <table align=center><tr><td><b><font size="+2">ANDES QUESTIONNAIRE - $semester $year</font></b></td></tr></table><br>
 
