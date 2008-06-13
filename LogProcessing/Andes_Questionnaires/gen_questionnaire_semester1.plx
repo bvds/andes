@@ -1,4 +1,4 @@
-# !/usr/bin/perl
+#!/usr/bin/perl
 # Copyright (c) 2006 Robert G.M. Hausmann
 #
 # The purpose of this script is to generate an Andes Questionnaires that is customizable to a particular school.
