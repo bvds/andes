@@ -121,6 +121,19 @@
 	   (format t "Error:  Can't load ~A~%" (problem-name p))))
   (dump-style-file out-path))
 
+;; need helpsystem loaded for this
+;; (dump-entries-operators #P"/home/bvds/Andes2/Problems/" #P"/home/bvds/solutions/")
+;; scp -r ~/solutions/ andes3.lrdc.pitt.edu:/home/andes/public_html/learnlab
+(defun dump-entries-operators (in-path out-path &rest topics)  
+  "write operators and entries to working problems into a directory"
+  (andes-init)
+  (dolist (P (choose-working-probs topics))
+    ;; also initializes *sg-entries*
+    (read-problem-info (string (problem-name P))
+		       :path in-path)
+       (if *cp* (dump-entries-operators-problem-solutions *cp* out-path)
+	   (format t "Error:  Can't load ~A~%" (problem-name p)))))
+
 ;;; for dealing with problem sets:
 ;;; For each ANDES problem set, there should be some distinguished feature set 
 ;;; that can pick out all and only the problems in that set. Easiest way is to 

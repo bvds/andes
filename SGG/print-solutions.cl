@@ -101,6 +101,16 @@
 	   )))
   (format Stream "</table>~%~%"))
 
+(defun print-entries-operators (entries n &optional (Stream t))
+  (dolist (entry entries)
+    (let ((ops (remove-duplicates (copy-list (SystemEntry-Sources entry))
+				  :key #'csdo-op :test #'unify)))
+      (loop for opinst in ops
+	 and firstcol = t then nil
+	 do
+	   (when firstcol (format stream "~A" (SystemEntry-prop entry)))
+	   (format stream "~C~A~C~a~%" #\tab 
+		   (csdo-op opinst) #\tab (car (csdo-op opinst)))))))
 
 (defun print-html-psms (eqns n &optional (Stream t))
   (format Stream "<table>~%")
@@ -274,6 +284,15 @@
 	   "</html>~%"))
   )
 
+(defun print-solution-entries-operators (problem &optional (stream t))
+  (format stream "~A~%~%" (problem-name Problem))
+  (format stream "~{~A~%~}" (problem-statement Problem))
+  (dotimes (n (length (Problem-Solutions Problem))) ;or 1
+    (let ((soln (nth n (problem-solutions problem))))
+      (format stream "~%")
+      (print-entries-operators 
+       (distinct-SystemEntries (mappend #'bgnode-entries (EqnSet-nodes soln)))
+       n Stream))))
 
 (defun dump-html-problem-solutions (problem &optional (path *andes-path*))
   (let ((*print-pretty* NIL) ;disble line breaks
@@ -281,6 +300,14 @@
 		    (format nil "~A.html" (problem-name problem)) path)
 		   :direction :output :if-exists :supersede)))
     (print-html-problem-solutions problem str)
+    (close str)))
+
+(defun dump-entries-operators-problem-solutions (problem &optional (path *andes-path*))
+  (let ((*print-pretty* NIL) ;disble line breaks
+	(str (open (merge-pathnames 
+		    (format nil "~A.txt" (problem-name problem)) path)
+		   :direction :output :if-exists :supersede)))
+    (print-solution-entries-operators problem str)
     (close str)))
 
 (defun dump-style-file (&optional (path *andes-path*))
