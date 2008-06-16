@@ -271,11 +271,13 @@
 	;; from the problem description in the knowledge base
 	(when (null (problem-soughts Problem))
 	  (let ((kb-prob (get-problem (problem-name Problem))))
-	   ;; !!! throw error if kb-prob not found
+	   (when (null kb-prob)
+	       (error "Problem not found in kb: ~A" (problem-name Problem)))
 	   (setf (problem-soughts Problem) (problem-soughts kb-prob))
 	   (setf (problem-givens Problem) (problem-givens kb-prob))
-	   ;; must also restore givens to working memory list
-	   (push (problem-givens kb-prob) (problem-wm Problem))))
+	   ;; must also restore problem givens to working memory list
+	   (dolist (g (problem-givens kb-prob))
+	         (push g (problem-wm Problem)))))
 	;; When the files are stored numerical indicies 
 	;; are used for qvars in the BGNODES.  This call
 	;; Regenerates those links for later use.
