@@ -5,6 +5,7 @@ School=[school]
 Year=[year]
 Semester=[semester]
 CourseID=[courseID]
+Style=[style]
 
 Name=[required-name]
 Section=[required-section]

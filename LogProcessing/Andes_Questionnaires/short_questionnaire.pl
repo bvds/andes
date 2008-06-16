@@ -40,6 +40,7 @@ print HTML_OUT <<HTMLEND;
 <INPUT TYPE=HIDDEN NAME="year" VALUE="$year">
 <INPUT TYPE=HIDDEN NAME="semester" VALUE="$semester">
 <INPUT TYPE=HIDDEN NAME="courseID" VALUE="$courseID">
+<INPUT TYPE=HIDDEN NAME="style" VALUE="short">
 
 $name: <input tabindex="1" name="required-name" size="10" type="text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 Section: <input tabindex="1" name="required-section" size="10" type="text"><br><br><br>
